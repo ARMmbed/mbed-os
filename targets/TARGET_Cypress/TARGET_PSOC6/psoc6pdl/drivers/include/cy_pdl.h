@@ -49,6 +49,8 @@
 #include "cy_lvd.h"
 #include "cy_mcwdt.h"
 #include "cy_pdm_pcm.h"
+#include "cy_pra.h"
+#include "cy_pra_cfg.h"
 #include "cy_profile.h"
 #include "cy_prot.h"
 #include "cy_rtc.h"
@@ -80,9 +82,9 @@
 #define CY_PDL_VERSION_MAJOR        1
 
 /** Driver Library minor version */
-#define CY_PDL_VERSION_MINOR        5
+#define CY_PDL_VERSION_MINOR        6
 
 /** Driver Library version */
-#define CY_PDL_VERSION              105
+#define CY_PDL_VERSION              106
 
 #endif /* CY_PDL_H */

@@ -5,11 +5,11 @@
 * EFUSE IP definitions
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.6.0.150
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@
 #define EFUSE_SECTION_SIZE                      0x00000080UL
 
 /**
-  * \brief EFUSE MXS40 registers (EFUSE)
+  * \brief 0x80 (EFUSE)
   */
 typedef struct {
   __IOM uint32_t CTL;                           /*!< 0x00000000 Control */

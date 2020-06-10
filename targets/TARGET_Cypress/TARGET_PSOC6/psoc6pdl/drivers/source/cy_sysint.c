@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file  cy_sysint.c
-* \version 1.30
+* \version 1.30.1
 *
 * \brief
 * Provides an API implementation of the SysInt driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,8 +41,8 @@
 * \param userIsr
 * Address of the ISR
 *
-* \return 
-* Initialization status  
+* \return
+* Initialization status
 *
 * \note The interrupt vector will be relocated only if the vector table was
 * moved to __ramVectors in SRAM. Otherwise it is ignored.
@@ -69,9 +69,9 @@ cy_en_sysint_status_t Cy_SysInt_Init(const cy_stc_sysint_t* config, cy_israddres
                 status = CY_SYSINT_BAD_PARAM;
             }
         #endif
-        
+
         NVIC_SetPriority(config->intrSrc, config->intrPriority);
-        
+
         /* Set the new vector only if it was moved to __ramVectors */
         if (SCB->VTOR == (uint32_t)&__ramVectors)
         {
@@ -82,7 +82,7 @@ cy_en_sysint_status_t Cy_SysInt_Init(const cy_stc_sysint_t* config, cy_israddres
     {
         status = CY_SYSINT_BAD_PARAM;
     }
-    
+
     return(status);
 }
 
@@ -111,7 +111,7 @@ cy_en_sysint_status_t Cy_SysInt_Init(const cy_stc_sysint_t* config, cy_israddres
 *
 *******************************************************************************/
 void Cy_SysInt_SetInterruptSource(IRQn_Type IRQn, cy_en_intr_t devIntrSrc)
-{    
+{
     if (CY_CPUSS_V1)
     {
         uint32_t regPos = ((uint32_t)IRQn >> CY_SYSINT_CM0P_MUX_SHIFT);
@@ -119,7 +119,7 @@ void Cy_SysInt_SetInterruptSource(IRQn_Type IRQn, cy_en_intr_t devIntrSrc)
         {
             uint32_t bitfield_Pos = (uint32_t)((uint32_t)IRQn - (uint32_t)(regPos << CY_SYSINT_CM0P_MUX_SHIFT)) << CY_SYSINT_CM0P_MUX_SCALE;
             uint32_t bitfield_Msk = (uint32_t)(CY_SYSINT_CM0P_MUX_MASK << bitfield_Pos);
-            
+
             CY_REG32_CLR_SET(CPUSS_CM0_INT_CTL[regPos], bitfield, devIntrSrc);
         }
     }
@@ -175,9 +175,9 @@ void Cy_SysInt_DisconnectInterruptSource(IRQn_Type IRQn, cy_en_intr_t devIntrSrc
 * \param IRQn
 * NVIC channel number connected to the CPU core
 *
-* \return 
-* Device interrupt connected to the NVIC channel. A returned value of 
-* "disconnected_IRQn" indicates that the interrupt source is disconnected.  
+* \return
+* Device interrupt connected to the NVIC channel. A returned value of
+* "disconnected_IRQn" indicates that the interrupt source is disconnected.
 *
 * \note This function is available for CM0+ core only.
 *
@@ -199,7 +199,7 @@ cy_en_intr_t Cy_SysInt_GetInterruptSource(IRQn_Type IRQn)
         {
             uint32_t bitfield_Pos  = ((uint32_t)IRQn - (regPos <<  CY_SYSINT_CM0P_MUX_SHIFT)) <<  CY_SYSINT_CM0P_MUX_SCALE;
             uint32_t bitfield_Msk = (uint32_t)(CY_SYSINT_CM0P_MUX_MASK << bitfield_Pos);
-        
+
             tempReg = _FLD2VAL(bitfield, CPUSS_CM0_INT_CTL[regPos]);
         }
     }
@@ -207,7 +207,7 @@ cy_en_intr_t Cy_SysInt_GetInterruptSource(IRQn_Type IRQn)
     return ((cy_en_intr_t)tempReg);
 }
 
-    
+
 /*******************************************************************************
 * Function Name: Cy_SysInt_GetNvicConnection
 ****************************************************************************//**
@@ -248,7 +248,7 @@ IRQn_Type Cy_SysInt_GetNvicConnection(cy_en_intr_t devIntrSrc)
 * \brief Gets the highest priority active interrupt for the selected NVIC channel.
 *
 * The priority of the interrupt in a given channel is determined by the index
-* value of the interrupt in the cy_en_intr_t enum. The lower the index, the 
+* value of the interrupt in the cy_en_intr_t enum. The lower the index, the
 * higher the priority. E.g. Consider a case where an interrupt source with value
 * 29 and an interrupt source with value 46 both source the same NVIC channel. If
 * both are active (triggered) at the same time, calling Cy_SysInt_GetInterruptActive()
@@ -258,9 +258,9 @@ IRQn_Type Cy_SysInt_GetNvicConnection(cy_en_intr_t devIntrSrc)
 * NVIC channel number connected to the CPU core
 *
 * \return
-* Device interrupt connected to the NVIC channel. A returned value of 
-* "disconnected_IRQn" indicates that there are no active (pending) interrupts 
-* on this NVIC channel.  
+* Device interrupt connected to the NVIC channel. A returned value of
+* "disconnected_IRQn" indicates that there are no active (pending) interrupts
+* on this NVIC channel.
 *
 * \note This function is available for CM0+ core only.
 *
@@ -314,7 +314,7 @@ cy_en_intr_t Cy_SysInt_GetInterruptActive(IRQn_Type IRQn)
 cy_israddress Cy_SysInt_SetVector(IRQn_Type IRQn, cy_israddress userIsr)
 {
     cy_israddress prevIsr;
-    
+
     /* Set the new vector only if it was moved to __ramVectors */
     if (SCB->VTOR == (uint32_t)&__ramVectors)
     {
@@ -348,7 +348,7 @@ cy_israddress Cy_SysInt_SetVector(IRQn_Type IRQn, cy_israddress userIsr)
 * \return
 * Address of the ISR in the interrupt vector table
 *
-* \note For CM0+, this function returns the interrupt vector for the interrupt 
+* \note For CM0+, this function returns the interrupt vector for the interrupt
 * channel on the NVIC.
 *
 * \funcusage
@@ -358,7 +358,7 @@ cy_israddress Cy_SysInt_SetVector(IRQn_Type IRQn, cy_israddress userIsr)
 cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn)
 {
     cy_israddress currIsr;
-    
+
     /* Return the SRAM ISR address only if it was moved to __ramVectors */
     if (SCB->VTOR == (uint32_t)&__ramVectors)
     {
@@ -368,7 +368,7 @@ cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn)
     {
         currIsr = __Vectors[CY_INT_IRQ_BASE + IRQn];
     }
-    
+
     return (currIsr);
 }
 

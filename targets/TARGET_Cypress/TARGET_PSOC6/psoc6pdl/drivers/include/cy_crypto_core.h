@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core.h
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides common constants and parameters
@@ -29,7 +29,7 @@
 *   Use the low-level API for direct access to the Crypto hardware.
 *
 *   The functions and other declarations used in this part of the driver are in
-*   cy_crypto_core.h. You can also include cy_pdl.h  (ModusToolbox only) to get
+*   cy_crypto_core.h. You can also include cy_pdl.h to get
 *   access to all functions and declarations in the PDL.
 *
 *   Firmware initializes and starts the Crypto operations. The firmware then

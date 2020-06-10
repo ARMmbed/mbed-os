@@ -9,20 +9,15 @@ for a complete description of the Peripheral Driver Library.
 * No new features
 
 ## Updated Personalities
-
-* WiFi - Fix build warning in the generated code. Minor parameter name updates.
+* WiFi - Fix build warning in the generated code
 
 ## Updated Drivers
 
 * [SD Host 1.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sd__host.html)
-* [CTB 1.10.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ctb.html)
-* [SysLib 2.50.3](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
 
 ## Known Issues
 
-See the Known Issues section of
-[SysLib](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
-driver.
+None
 
 ## Defect Fixes
 

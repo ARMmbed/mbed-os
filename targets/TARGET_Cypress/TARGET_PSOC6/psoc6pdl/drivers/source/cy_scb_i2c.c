@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_i2c.c
-* \version 2.40.1
+* \version 2.40.2
 *
 * Provides I2C API implementation of the SCB driver.
 *
@@ -99,11 +99,11 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_Init(CySCB_Type *base, cy_stc_scb_i2c_config_t
                          _VAL2FLD(SCB_I2C_CTRL_HIGH_PHASE_OVS, (config->highPhaseDutyCycle - 1U)) |
                          _VAL2FLD(SCB_I2C_CTRL_LOW_PHASE_OVS,  (config->lowPhaseDutyCycle - 1U))  |
                          _VAL2FLD(CY_SCB_I2C_CTRL_MODE, (uint32_t) config->i2cMode);
-    
+
     {
         /* Enable digital filter for only for master modes */
         bool enableDigFilter = (CY_SCB_I2C_SLAVE != config->i2cMode) && (config->enableDigitalFilter);
-    
+
         /* Configure the RX direction */
         SCB_RX_CTRL(base)      = _BOOL2FLD(SCB_RX_CTRL_MEDIAN, enableDigFilter) |
                                  CY_SCB_I2C_RX_CTRL;
@@ -239,14 +239,14 @@ void Cy_SCB_I2C_Disable(CySCB_Type *base, cy_stc_scb_i2c_context_t *context)
 * mode if the I2C slave or master is actively communicating.
 * The  behavior of the I2C SCB in Deep Sleep depends on whether the SCB block is
 * wakeup-capable or not:
-* * <b>Wakeup-capable</b>: during Deep Sleep mode on incoming I2C slave address 
-*   the slave receives address and stretches the clock until the device is 
-*   awoken from Deep Sleep mode. If the slave address occurs before the device 
+* * <b>Wakeup-capable</b>: during Deep Sleep mode on incoming I2C slave address
+*   the slave receives address and stretches the clock until the device is
+*   awoken from Deep Sleep mode. If the slave address occurs before the device
 *   enters Deep Sleep mode, the device will not enter Deep Sleep mode.
 *   Only the I2C slave can be configured to be a wakeup source from Deep Sleep
 *   mode.
-* * <b>Not wakeup-capable</b>: the SCB is disabled in Deep Sleep mode. 
-*   It is re-enabled if the device fails to enter Deep Sleep mode or when the 
+* * <b>Not wakeup-capable</b>: the SCB is disabled in Deep Sleep mode.
+*   It is re-enabled if the device fails to enter Deep Sleep mode or when the
 *   device is awoken from Deep Sleep mode. While the SCB is disabled it stops
 *   driving the outputs and ignores the inputs. The slave NACKs all incoming
 *   addresses.
@@ -424,9 +424,9 @@ cy_en_syspm_status_t Cy_SCB_I2C_DeepSleepCallback(cy_stc_syspm_callback_params_t
 * This function handles the transition of the I2C SCB block into Hibernate
 * mode. It prevents the device from entering Hibernate mode if the I2C slave or
 * master is actively communicating.
-* If the I2C is ready to enter Hibernate mode it is disabled. If the device 
-* failed to enter Hibernate mode, the SCB is enabled. After the SCB is disabled, 
-* it stops driving the outputs and ignores the inputs. The slave NACKs all 
+* If the I2C is ready to enter Hibernate mode it is disabled. If the device
+* failed to enter Hibernate mode, the SCB is enabled. After the SCB is disabled,
+* it stops driving the outputs and ignores the inputs. The slave NACKs all
 * incoming addresses.
 *
 * This function must be called during execution of \ref Cy_SysPm_SystemEnterHibernate.
@@ -525,7 +525,7 @@ cy_en_syspm_status_t Cy_SCB_I2C_HibernateCallback(cy_stc_syspm_callback_params_t
 *
 * \return
 * The achieved data rate in Hz. \n
-* When zero value is returned there is an error in the input parameters: 
+* When zero value is returned there is an error in the input parameters:
 * data rate or clk_scb is out of valid range.
 *
 * \note
@@ -554,14 +554,14 @@ uint32_t Cy_SCB_I2C_SetDataRate(CySCB_Type *base, uint32_t dataRateHz, uint32_t 
     }
     else
     {
-        bool errorRange = true; 
+        bool errorRange = true;
         uint32_t sclLow;
         uint32_t sclHigh;
-        
+
         uint32_t lowPhase  = 8U;
         uint32_t highPhase = 8U;
         bool enableMedian  = false;
-        
+
         /* Get duration of SCL low and high for the selected data rate */
         if ((0U == dataRateHz) || (dataRateHz > CY_SCB_I2C_FSTP_DATA_RATE))
         {
@@ -576,7 +576,7 @@ uint32_t Cy_SCB_I2C_SetDataRate(CySCB_Type *base, uint32_t dataRateHz, uint32_t 
                 sclHigh = CY_SCB_I2C_MASTER_STD_SCL_HIGH;
                 enableMedian = false;
 
-                errorRange = false; 
+                errorRange = false;
             }
         }
         else if (dataRateHz <= CY_SCB_I2C_FST_DATA_RATE)
@@ -588,7 +588,7 @@ uint32_t Cy_SCB_I2C_SetDataRate(CySCB_Type *base, uint32_t dataRateHz, uint32_t 
                 sclHigh = CY_SCB_I2C_MASTER_FST_SCL_HIGH;
                 enableMedian = false;
 
-                errorRange = false; 
+                errorRange = false;
             }
         }
         else
@@ -601,7 +601,7 @@ uint32_t Cy_SCB_I2C_SetDataRate(CySCB_Type *base, uint32_t dataRateHz, uint32_t 
                 sclHigh = CY_SCB_I2C_MASTER_FSTP_SCL_HIGH;
                 enableMedian = true;
 
-                errorRange = false; 
+                errorRange = false;
             }
         }
 
@@ -625,7 +625,7 @@ uint32_t Cy_SCB_I2C_SetDataRate(CySCB_Type *base, uint32_t dataRateHz, uint32_t 
             {
                 lowPhase = CY_SCB_I2C_LOW_PHASE_MAX;
             }
-            
+
             /* Define if update low phase */
             updateLowPhase = (lowPhase < CY_SCB_I2C_LOW_PHASE_MAX);
 
@@ -641,10 +641,10 @@ uint32_t Cy_SCB_I2C_SetDataRate(CySCB_Type *base, uint32_t dataRateHz, uint32_t 
             {
                 highPhase = CY_SCB_I2C_HIGH_PHASE_MAX;
             }
-            
+
             /* Get actual data rate */
             actualDataRateHz = scbClockHz / (lowPhase + highPhase);
-            
+
             /* Find desired data rate */
             while ((actualDataRateHz > dataRateHz) && ((lowPhase + highPhase) < CY_SCB_I2C_DUTY_CYCLE_MAX))
             {
@@ -710,7 +710,7 @@ uint32_t Cy_SCB_I2C_SetDataRate(CySCB_Type *base, uint32_t dataRateHz, uint32_t 
 *
 * \return
 * The data rate in Hz. \n
-* For slave mode when zero value is returned the clk_scb is out of valid 
+* For slave mode when zero value is returned the clk_scb is out of valid
 * range.
 *
 *******************************************************************************/
@@ -1034,7 +1034,7 @@ void Cy_SCB_I2C_SlaveConfigWriteBuf(CySCB_Type const *base, uint8_t *buffer, uin
 ****************************************************************************//**
 *
 * Aborts the configured slave write buffer to be written by the master.
-* If master writes and an "abort operation" is requested, the next incoming 
+* If master writes and an "abort operation" is requested, the next incoming
 * byte will be NAKed.
 *
 * \param base
@@ -1225,8 +1225,8 @@ uint32_t Cy_SCB_I2C_MasterGetStatus(CySCB_Type const *base, cy_stc_scb_i2c_conte
 *   completion.
 *
 * * \ref Cy_SCB_I2C_MasterRead requests the SCB hardware to generate a start
-*   condition when there is no pending transfer and returns (does not wait 
-*   until hardware generate a start condition). If the I2C bus is busy the 
+*   condition when there is no pending transfer and returns (does not wait
+*   until hardware generate a start condition). If the I2C bus is busy the
 *   hardware will not generate the until bus becomes free.
 *   The SCB hardware sets the busy status after the Start detection, and clears
 *   it on the Stop detection. Noise caused by the ESD or other events may cause
@@ -1277,8 +1277,8 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterRead(CySCB_Type *base,
 
         if (CY_SCB_I2C_IDLE == context->state)
         {
-            /* Put the address in the TX FIFO, then generate a Start condition. 
-            * This sequence ensures that after the Start condition generation 
+            /* Put the address in the TX FIFO, then generate a Start condition.
+            * This sequence ensures that after the Start condition generation
             * the address is available to be sent onto the bus.
             */
             Cy_SCB_WriteTxFifo(base, address);
@@ -1453,8 +1453,8 @@ void Cy_SCB_I2C_MasterAbortRead(CySCB_Type *base, cy_stc_scb_i2c_context_t *cont
 *   copied into the TX FIFO.
 *
 * * \ref Cy_SCB_I2C_MasterWrite requests the SCB hardware to generate a start
-*   condition when there is no pending transfer and returns (does not wait 
-*   until hardware generate a start condition). If the I2C bus is busy the 
+*   condition when there is no pending transfer and returns (does not wait
+*   until hardware generate a start condition). If the I2C bus is busy the
 *   hardware will not generate the until bus becomes free.
 *   The SCB hardware sets the busy status after the Start detection, and clears
 *   it on the Stop detection. Noise caused by the ESD or other events may cause
@@ -1504,8 +1504,8 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterWrite(CySCB_Type *base,
 
         if (CY_SCB_I2C_IDLE == context->state)
         {
-            /* Put the address in the TX FIFO, then generate a Start condition. 
-            * This sequence ensures that after the Start condition generation 
+            /* Put the address in the TX FIFO, then generate a Start condition.
+            * This sequence ensures that after the Start condition generation
             * the address is available to be sent onto the bus.
             */
             Cy_SCB_WriteTxFifo     (base, address);
@@ -1524,9 +1524,9 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterWrite(CySCB_Type *base,
             if (0U == context->masterBufferSize)
             {
                 /* The address is the last byte to transfer.
-                * Put the address byte in the TX FIFO and clear the TX 
-                * Underflow interrupt source inside the critical section 
-                * to ensure that the TX Underflow interrupt will trigger 
+                * Put the address byte in the TX FIFO and clear the TX
+                * Underflow interrupt source inside the critical section
+                * to ensure that the TX Underflow interrupt will trigger
                 * after the address byte is sent onto the bus.
                 */
                 intrState = Cy_SysLib_EnterCriticalSection();
@@ -1868,8 +1868,8 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterSendReStart(CySCB_Type *base,
         if (false == _FLD2BOOL(SCB_I2C_STATUS_M_READ, SCB_I2C_STATUS(base)))
         {
             /* Cypress ID #295908: Wait until ReStart is generated to complete
-            * the previous write transfer. This ensures that the address byte 
-            * will not be interpreted as the data byte of the previous 
+            * the previous write transfer. This ensures that the address byte
+            * will not be interpreted as the data byte of the previous
             * transfer.
             */
             while ((0U == locStatus) &&
@@ -2551,9 +2551,9 @@ static void SlaveHandleDataTransmit(CySCB_Type *base, cy_stc_scb_i2c_context_t *
         {
             uint32_t intrStatus;
 
-             /* Put the last data byte in the TX FIFO and clear the TX Underflow 
-            * interrupt source inside the critical section to ensure that the 
-            * TX Underflow interrupt will trigger after all data bytes from the 
+             /* Put the last data byte in the TX FIFO and clear the TX Underflow
+            * interrupt source inside the critical section to ensure that the
+            * TX Underflow interrupt will trigger after all data bytes from the
             * TX FIFO are transferred onto the bus.
             */
             intrStatus = Cy_SysLib_EnterCriticalSection();
@@ -2945,9 +2945,9 @@ static void MasterHandleDataTransmit(CySCB_Type *base, cy_stc_scb_i2c_context_t 
         {
             uint32_t intrStatus;
 
-            /* Put the last data byte in the TX FIFO and clear the TX Underflow 
-            * interrupt source inside the critical section to ensure that the 
-            * TX Underflow interrupt will trigger after all data bytes from the 
+            /* Put the last data byte in the TX FIFO and clear the TX Underflow
+            * interrupt source inside the critical section to ensure that the
+            * TX Underflow interrupt will trigger after all data bytes from the
             * TX FIFO are transferred onto the bus.
             */
             intrStatus = Cy_SysLib_EnterCriticalSection();
@@ -3287,4 +3287,3 @@ static cy_en_scb_i2c_status_t HandleStatus(CySCB_Type *base, uint32_t status, cy
 #endif /* CY_IP_MXSCB */
 
 /* [] END OF FILE */
-

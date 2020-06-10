@@ -153,6 +153,7 @@
     <ConfigDefine name="`${INST_NAME}`_HSIOM" value="`${blockName . &quot;_HSIOM&quot;}`" public="true" include="`${!(INST_NAME eq blockName)}`" />
     <ConfigDefine name="`${INST_NAME}`_IRQ" value="ioss_interrupts_gpio_`${port}`_IRQn" public="true" include="true" />
     <ConfigDefine name="`${INST_NAME}`_HAL_PORT_PIN" value="P`${port}`_`${pin}`" public="true" include="true" guard="defined (CY_USING_HAL)"/>
+    <ConfigDefine name="`${INST_NAME}`" value="P`${port}`_`${pin}`" public="true" include="true" guard="defined (CY_USING_HAL)" />
     <ConfigDefine name="`${INST_NAME}`_HAL_IRQ" value="`${(isrTrigger eq CY_GPIO_INTR_DISABLE) ? &quot;CYHAL_GPIO_IRQ_NONE&quot; :
                                                           (isrTrigger eq CY_GPIO_INTR_RISING) ? &quot;CYHAL_GPIO_IRQ_RISE&quot; : 
                                                           (isrTrigger eq CY_GPIO_INTR_FALLING) ? &quot;CYHAL_GPIO_IRQ_FALL&quot; : &quot;CYHAL_GPIO_IRQ_BOTH&quot;}`" 

@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_sar.c
-* \version 1.20.2
+* \version 1.20.3
 *
 * Provides the public functions for the API for the SAR driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,7 +152,7 @@ cy_en_sar_status_t Cy_SAR_Init(SAR_Type *base, const cy_stc_sar_config_t *config
         {
             SAR_ANA_TRIM0(base) = CY_SAR_CAP_TRIM;
         }
-        
+
         /* Set the REFBUF_EN bit as this is required for proper operation. */
         SAR_CTRL(base) = config->ctrl | SAR_CTRL_REFBUF_EN_Msk;
 
@@ -1193,7 +1193,7 @@ void Cy_SAR_SetAnalogSwitch(SAR_Type *base, cy_en_sar_switch_register_sel_t swit
     CY_ASSERT_L2(CY_SAR_SWITCHMASK(switchMask));
     CY_ASSERT_L3(CY_SAR_SWITCHSTATE(state));
     (void)switchSelect; /* Suppress warning */
-    
+
     __IOM uint32_t *switchReg;
     __IOM uint32_t *switchClearReg;
 
@@ -1332,4 +1332,3 @@ cy_en_syspm_status_t Cy_SAR_DeepSleepCallback(cy_stc_syspm_callback_params_t *ca
 #endif /* CY_IP_MXS40PASS_SAR */
 
 /* [] END OF FILE */
-

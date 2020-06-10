@@ -5,7 +5,7 @@
 * PASS IP definitions
 *
 * \note
-* Generator version: 1.6.0.111
+* Generator version: 1.6.0.150
 *
 ********************************************************************************
 * \copyright
@@ -44,9 +44,9 @@
   * \brief Programmable Analog Subsystem (PASS_TIMER)
   */
 typedef struct {
-  __IOM uint32_t CTRL;                          /*!< 0x00000000 Timer control register */
-  __IOM uint32_t CONFIG;                        /*!< 0x00000004 Timer configuration register */
-  __IOM uint32_t TIMER_PERIOD;                  /*!< 0x00000008 Timer period register */
+  __IOM uint32_t CTRL;                          /*!< 0x00000000 Timer trigger control register */
+  __IOM uint32_t CONFIG;                        /*!< 0x00000004 Timer trigger configuration register */
+  __IOM uint32_t PERIOD;                        /*!< 0x00000008 Timer trigger period register */
    __IM uint32_t RESERVED[61];
 } PASS_TIMER_V2_Type;                           /*!< Size = 256 (0x100) */
 
@@ -94,7 +94,7 @@ typedef struct {
    __IM uint32_t INTR_CAUSE;                    /*!< 0x00000000 Interrupt cause register */
    __IM uint32_t RESERVED[3];
   __IOM uint32_t DPSLP_CLOCK_SEL;               /*!< 0x00000010 Deepsleep clock select */
-  __IOM uint32_t PWR_WAKE_CTRL;                 /*!< 0x00000014 Deepsleep wakeup control */
+  __IOM uint32_t ANA_PWR_CFG;                   /*!< 0x00000014 Analog power configuration */
    __IM uint32_t RESERVED1[2];
   __IOM uint32_t CTBM_CLOCK_SEL;                /*!< 0x00000020 Clock select for CTBm */
    __IM uint32_t RESERVED2[3];
@@ -132,9 +132,9 @@ typedef struct {
 /* PASS_TIMER.CONFIG */
 #define PASS_TIMER_V2_CONFIG_CLOCK_SEL_Pos      0UL
 #define PASS_TIMER_V2_CONFIG_CLOCK_SEL_Msk      0x3UL
-/* PASS_TIMER.TIMER_PERIOD */
-#define PASS_TIMER_V2_TIMER_PERIOD_PER_VAL_Pos  0UL
-#define PASS_TIMER_V2_TIMER_PERIOD_PER_VAL_Msk  0xFFFFUL
+/* PASS_TIMER.PERIOD */
+#define PASS_TIMER_V2_PERIOD_PER_VAL_Pos        0UL
+#define PASS_TIMER_V2_PERIOD_PER_VAL_Msk        0xFFFFUL
 
 
 /* PASS_LPOSC.CTRL */
@@ -156,8 +156,8 @@ typedef struct {
 #define PASS_FIFO_V2_CONFIG_CHAN_ID_EN_Msk      0x1UL
 #define PASS_FIFO_V2_CONFIG_CHAIN_TO_NXT_Pos    1UL
 #define PASS_FIFO_V2_CONFIG_CHAIN_TO_NXT_Msk    0x2UL
-#define PASS_FIFO_V2_CONFIG_TR_CLR_RD_EN_Pos    2UL
-#define PASS_FIFO_V2_CONFIG_TR_CLR_RD_EN_Msk    0x4UL
+#define PASS_FIFO_V2_CONFIG_TR_INTR_CLR_RD_EN_Pos 2UL
+#define PASS_FIFO_V2_CONFIG_TR_INTR_CLR_RD_EN_Msk 0x4UL
 /* PASS_FIFO.CLEAR */
 #define PASS_FIFO_V2_CLEAR_CLEAR_Pos            0UL
 #define PASS_FIFO_V2_CLEAR_CLEAR_Msk            0x1UL
@@ -270,9 +270,11 @@ typedef struct {
 #define PASS_V2_DPSLP_CLOCK_SEL_DPSLP_CLOCK_SEL_Msk 0x1UL
 #define PASS_V2_DPSLP_CLOCK_SEL_DPSLP_CLOCK_DIV_Pos 4UL
 #define PASS_V2_DPSLP_CLOCK_SEL_DPSLP_CLOCK_DIV_Msk 0x70UL
-/* PASS.PWR_WAKE_CTRL */
-#define PASS_V2_PWR_WAKE_CTRL_WAKE_DELAY_Pos    0UL
-#define PASS_V2_PWR_WAKE_CTRL_WAKE_DELAY_Msk    0x3FUL
+/* PASS.ANA_PWR_CFG */
+#define PASS_V2_ANA_PWR_CFG_PWR_UP_DELAY_Pos    0UL
+#define PASS_V2_ANA_PWR_CFG_PWR_UP_DELAY_Msk    0xFFUL
+#define PASS_V2_ANA_PWR_CFG_DUTY_CYCLE_SAR_ACT_EN_Pos 8UL
+#define PASS_V2_ANA_PWR_CFG_DUTY_CYCLE_SAR_ACT_EN_Msk 0xF00UL
 /* PASS.CTBM_CLOCK_SEL */
 #define PASS_V2_CTBM_CLOCK_SEL_PUMP_CLOCK_SEL_Pos 0UL
 #define PASS_V2_CTBM_CLOCK_SEL_PUMP_CLOCK_SEL_Msk 0x1UL

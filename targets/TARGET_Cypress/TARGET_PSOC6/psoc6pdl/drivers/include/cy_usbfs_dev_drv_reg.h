@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_reg.h
-* \version 2.20
+* \version 2.20.1
 *
 * Provides register access API implementation of the USBFS driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,7 @@
 *   \defgroup group_usbfs_drv_drv_reg_sie_access        SIE Data Endpoint Registers Access
 *   \defgroup group_usbfs_drv_drv_reg_arbiter           Arbiter Endpoint Registers Access
 *   \defgroup group_usbfs_drv_drv_reg_arbiter_data      Arbiter Endpoint Data Registers Access
-*   \defgroup group_usbfs_drv_drv_reg_misc              Miscellaneous Functions       
+*   \defgroup group_usbfs_drv_drv_reg_misc              Miscellaneous Functions
 * \}
 *
 * \}
@@ -178,7 +178,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetArbReadAddr (USBFS_Type const *base
 /** \} group_usbfs_drv_drv_reg_arbiter */
 
 /**
-* \addtogroup group_usbfs_drv_drv_reg_arbiter_data 
+* \addtogroup group_usbfs_drv_drv_reg_arbiter_data
 * \{
 */
 /* Access data endpoints data registers. Used to get/put data into endpoint buffer */
@@ -253,7 +253,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetSofNubmer(USBFS_Type const *base);
 */
 
 /** Data endpoint IN buffer full interrupt source */
-#define USBFS_USBDEV_ARB_EP_IN_BUF_FULL_Msk USBFS_USBDEV_ARB_EP1_INT_EN_IN_BUF_FULL_EN_Msk 
+#define USBFS_USBDEV_ARB_EP_IN_BUF_FULL_Msk USBFS_USBDEV_ARB_EP1_INT_EN_IN_BUF_FULL_EN_Msk
 /** Data endpoint grant interrupt source (DMA complete read/write) */
 #define USBFS_USBDEV_ARB_EP_DMA_GNT_Msk     USBFS_USBDEV_ARB_EP1_INT_EN_DMA_GNT_EN_Msk
 /** Data endpoint overflow interrupt source (applicable only for Automatic DMA mode) */
@@ -609,15 +609,15 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_ReadEp0Data(USBFS_Type const *base, ui
 * Function Name: Cy_USBFS_Dev_Drv_SetSieEpMode
 ****************************************************************************//**
 *
-* Sets SIE mode in the CR0 register of the endpoint (does not touch other bits). 
-* All other bits except NAK_INT_EN are cleared by the hardware on any write 
+* Sets SIE mode in the CR0 register of the endpoint (does not touch other bits).
+* All other bits except NAK_INT_EN are cleared by the hardware on any write
 * in the register.
 *
 * \param base
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param mode
@@ -643,7 +643,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetSieEpMode(USBFS_Type *base, uint32_t en
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -670,15 +670,15 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetSieEpMode(USBFS_Type const *base, u
 *  Defines whether endpoint direction is IN (true) or OUT (false).
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetSieEpStall(USBFS_Type *base, bool inDirection, uint32_t endpoint)
 {
     /* STALL endpoint */
-    USBFS_DEV_SIE_EP_CR0(base, endpoint) = USBFS_USBDEV_SIE_EP1_CR0_STALL_Msk | 
-                                            (inDirection ? CY_USBFS_DEV_DRV_EP_CR_ACK_IN : 
+    USBFS_DEV_SIE_EP_CR0(base, endpoint) = USBFS_USBDEV_SIE_EP1_CR0_STALL_Msk |
+                                            (inDirection ? CY_USBFS_DEV_DRV_EP_CR_ACK_IN :
                                                            CY_USBFS_DEV_DRV_EP_CR_ACK_OUT);
     (void) USBFS_DEV_SIE_EP_CR0(base, endpoint);
 }
@@ -695,7 +695,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetSieEpStall(USBFS_Type *base, bool inDir
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param mode
@@ -728,7 +728,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_ClearSieEpStall(USBFS_Type *base, uint32_t
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -751,7 +751,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetSieEpError(USBFS_Type const *base, 
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -775,7 +775,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetSieEpToggle(USBFS_Type const *base,
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -800,7 +800,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_ClearSieEpToggle(USBFS_Type *base, uint32_
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -831,7 +831,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetSieEpCount(USBFS_Type const *base, 
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param count
@@ -884,7 +884,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetSieAllEpsInterruptStatus(USBFS_Type
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -904,7 +904,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_EnableSieEpInterrupt(USBFS_Type *base, uin
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -924,7 +924,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_DisableSieEpInterrupt(USBFS_Type *base, ui
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -975,7 +975,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetArbAllEpsInterruptStatus(USBFS_Type
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -995,7 +995,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_EnableArbEpInterrupt(USBFS_Type *base, uin
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -1016,7 +1016,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_DisableArbEpInterrupt(USBFS_Type *base, ui
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param mask
@@ -1041,7 +1041,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetArbEpInterruptMask(USBFS_Type *base, ui
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -1066,7 +1066,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetArbEpInterruptMask(USBFS_Type const
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -1092,7 +1092,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetArbEpInterruptStatusMasked(USBFS_Ty
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param mask
@@ -1117,7 +1117,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_ClearArbEpInterrupt(USBFS_Type *base, uint
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param cfg
@@ -1141,7 +1141,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetArbEpConfig(USBFS_Type *base, uint32_t 
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -1163,7 +1163,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetArbCfgEpInReady(USBFS_Type *base, uint3
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 
 *
@@ -1184,7 +1184,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_ClearArbCfgEpInReady(USBFS_Type *base, uin
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -1209,7 +1209,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_TriggerArbCfgEpDmaReq(USBFS_Type *base, ui
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param wa
@@ -1233,7 +1233,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetArbWriteAddr(USBFS_Type *base, uint32_t
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param ra
@@ -1257,7 +1257,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetArbReadAddr(USBFS_Type *base, uint32_t 
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -1281,7 +1281,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetArbWriteAddr(USBFS_Type const *base
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -1310,7 +1310,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetArbReadAddr(USBFS_Type const *base,
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param byte
@@ -1333,7 +1333,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_WriteData(USBFS_Type *base, uint32_t endpo
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \param halfword
@@ -1356,7 +1356,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_WriteData16(USBFS_Type *base, uint32_t end
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -1379,7 +1379,7 @@ __STATIC_INLINE uint8_t Cy_USBFS_Dev_Drv_ReadData(USBFS_Type const *base, uint32
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -1402,7 +1402,7 @@ __STATIC_INLINE uint16_t Cy_USBFS_Dev_Drv_ReadData16(USBFS_Type const *base, uin
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 * \return
@@ -1425,7 +1425,7 @@ __STATIC_INLINE volatile uint32_t * Cy_USBFS_Dev_Drv_GetDataRegAddr(USBFS_Type *
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range (0 - \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1).
 *
 * \return
@@ -1442,20 +1442,20 @@ __STATIC_INLINE volatile uint32_t * Cy_USBFS_Dev_Drv_GetDataReg16Addr(USBFS_Type
 * Function Name: Cy_USBFS_Dev_Drv_FlushInBuffer
 ****************************************************************************//**
 *
-* Flushes IN endpoint buffer: sets WA pointer (controlled by CPU/DMA) to equal 
+* Flushes IN endpoint buffer: sets WA pointer (controlled by CPU/DMA) to equal
 * RA (controlled by SIE; gets automatically reset on transfer completion).
 *
 * \param base
 * The pointer to the USBFS instance.
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_USBFS_Dev_Drv_FlushInBuffer(USBFS_Type *base, uint32_t endpoint)
 {
-    Cy_USBFS_Dev_Drv_SetArbWriteAddr(base, endpoint, 
+    Cy_USBFS_Dev_Drv_SetArbWriteAddr(base, endpoint,
                      Cy_USBFS_Dev_Drv_GetArbReadAddr(base, endpoint));
 }
 /** \} group_usbfs_drv_drv_reg_arbiter_data */
@@ -1479,7 +1479,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_FlushInBuffer(USBFS_Type *base, uint32_t e
 *  Defines whether endpoint direction is IN (true) or OUT (false).
 *
 * \param endpoint
-* Physical endpoint number. 
+* Physical endpoint number.
 * Valid range: 0 - ( \ref CY_USBFS_DEV_DRV_NUM_EPS_MAX - 1 ).
 *
 *******************************************************************************/
@@ -1487,7 +1487,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetEpType(USBFS_Type *base, bool inDirecti
 {
     uint32_t mask     = (uint32_t) (0x1UL << endpoint);
     uint32_t regValue = CY_USBFS_DEV_READ_ODD(USBFS_DEV_EP_TYPE(base));
-    
+
     if (inDirection)
     {
         /* IN direction: clear bit */
@@ -1498,7 +1498,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetEpType(USBFS_Type *base, bool inDirecti
         /* OUT direction: set bit */
         regValue |= mask;
     }
-    
+
     USBFS_DEV_EP_TYPE(base) = CY_USBFS_DEV_DRV_WRITE_ODD(regValue);
 }
 

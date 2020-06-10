@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.c
-* \version 1.30.2
+* \version 1.30.3
 *
 * \brief
 * Provides an API implementation of the Protection Unit driver
@@ -31,7 +31,7 @@ extern "C" {
 
 static bool Prot_IsSmpuStructDisabled(uint32_t smpuStcIndex);
 static bool Prot_IsPpuProgStructDisabled(uint32_t ppuStcIndex);
-static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t pcMask, 
+static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t pcMask,
                                        cy_en_prot_perm_t userPermission, cy_en_prot_perm_t privPermission, bool secure);
 
 /* Define to enable all attributes for SMPU slave structure */
@@ -66,21 +66,21 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 * \param busMaster
 * Indicates which master needs to be configured. Refer to the CPUSS_MS_ID_X
 * defines in the device config header file.
-* 
+*
 * \param privileged
 * Boolean to define the privilege level of all subsequent bus transfers.
 * True - privileged, False - not privileged.
-* Note that this is an inherited value. If not inherited, then this bit will 
+* Note that this is an inherited value. If not inherited, then this bit will
 * be used.
 *
 * \param secure
 * Security setting for the master. True - Secure, False - Not secure.
-* 
+*
 * \param pcMask
 * This is a 16 bit value of the allowed contexts, it is an OR'ed (|) field of the
 * provided defines in cy_prot.h. For example: (CY_PROT_PCMASK1 | CY_PROT_PCMASK3 | CY_PROT_PCMASK4)
-* \note The function accepts pcMask values from CY_PROT_PCMASK1 to CY_PROT_PCMASK15. 
-* But each device has its own number of available protection contexts. 
+* \note The function accepts pcMask values from CY_PROT_PCMASK1 to CY_PROT_PCMASK15.
+* But each device has its own number of available protection contexts.
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \return
@@ -99,13 +99,13 @@ cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool pri
 {
     cy_en_prot_status_t status = CY_PROT_SUCCESS;
     uint32_t regVal;
-    volatile uint32_t *addrMsCtl; /* addrMsCtl is pointer to a register that is volatile by 
-                                   * nature as can be changed outside of firmware control. 
+    volatile uint32_t *addrMsCtl; /* addrMsCtl is pointer to a register that is volatile by
+                                   * nature as can be changed outside of firmware control.
                                    */
 
     CY_ASSERT_L1(CY_PROT_IS_BUS_MASTER_VALID(busMaster));
     CY_ASSERT_L2(CY_PROT_IS_PC_MASK_VALID(pcMask));
-    
+
     /* Get the address of Master x protection context control register (MSx_CTL) */
     addrMsCtl = (uint32_t *)(CY_PROT_BASE + (uint32_t)((uint32_t)busMaster << CY_PROT_MSX_CTL_SHIFT));
 
@@ -113,15 +113,15 @@ cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool pri
     regVal = _VAL2FLD(PROT_SMPU_MS0_CTL_NS, !secure)   /* Security setting */
             | _VAL2FLD(PROT_SMPU_MS0_CTL_P, privileged) /* Privileged setting */
             | _VAL2FLD(PROT_SMPU_MS0_CTL_PC_MASK_15_TO_1, pcMask); /* Protection context mask */
-            
+
     /* Set the value of MSx_CTL */
     *addrMsCtl = regVal;
 
-    /* Check if the MSx_CTL register is successfully updated with the new register value. 
-     * The register will not be updated for the invalid master-protection context. 
-     */ 
+    /* Check if the MSx_CTL register is successfully updated with the new register value.
+     * The register will not be updated for the invalid master-protection context.
+     */
     status = (*addrMsCtl != regVal) ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -131,8 +131,8 @@ cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool pri
 ****************************************************************************//**
 *
 * Sets the current/active protection context of the specified bus master.
-* 
-* Allowed PC values are 1-15. If this value is not inherited from another bus 
+*
+* Allowed PC values are 1-15. If this value is not inherited from another bus
 * master, the value set through this function is used.
 *
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
@@ -140,13 +140,13 @@ cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool pri
 * \param busMaster
 * The bus master to configure. Refer to the CPUSS_MS_ID_X defines in the device
 * config header file.
-* 
+*
 * \param pc
-* Active protection context of the specified master \ref cy_en_prot_pc_t. 
-* \note that only those protection contexts allowed by the pcMask (which was 
-* configured in \ref Cy_Prot_ConfigBusMaster) will take effect. 
-* \note The function accepts pcMask values from CY_PROT_PC1 to CY_PROT_PC15. 
-* But each device has its own number of available protection contexts. 
+* Active protection context of the specified master \ref cy_en_prot_pc_t.
+* \note that only those protection contexts allowed by the pcMask (which was
+* configured in \ref Cy_Prot_ConfigBusMaster) will take effect.
+* \note The function accepts pcMask values from CY_PROT_PC1 to CY_PROT_PC15.
+* But each device has its own number of available protection contexts.
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \return
@@ -164,13 +164,13 @@ cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool pri
 cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
 {
     cy_en_prot_status_t status;
-    
+
     CY_ASSERT_L1(CY_PROT_IS_BUS_MASTER_VALID(busMaster));
     CY_ASSERT_L2(CY_PROT_IS_PC_VALID(pc));
-    
+
     PROT_MPU_MS_CTL(busMaster) = _VAL2FLD(PROT_MPU_MS_CTL_PC, pc) | _VAL2FLD(PROT_MPU_MS_CTL_PC_SAVED, pc);
     status = (_FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(busMaster)) != pc) ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -181,12 +181,12 @@ cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
 *
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
-* Returns the active protection context of a master. 
+* Returns the active protection context of a master.
 *
 * \param busMaster
-* The bus master, whose protection context is being read. Refer to the 
+* The bus master, whose protection context is being read. Refer to the
 * CPUSS_MS_ID_X defines in the device config header file.
-* 
+*
 * \return
 * Active protection context of the master \ref cy_en_prot_pc_t.
 *
@@ -196,9 +196,9 @@ cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
 *******************************************************************************/
 uint32_t Cy_Prot_GetActivePC(en_prot_master_t busMaster)
 {
-    
+
     CY_ASSERT_L1(CY_PROT_IS_BUS_MASTER_VALID(busMaster));
-    
+
     return ((uint32_t)_FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(busMaster)));
 }
 
@@ -207,8 +207,8 @@ uint32_t Cy_Prot_GetActivePC(en_prot_master_t busMaster)
 * Function Name: Cy_Prot_ConfigMpuStruct
 ****************************************************************************//**
 *
-* This function configures a memory protection unit (MPU) struct with its 
-* protection attributes. 
+* This function configures a memory protection unit (MPU) struct with its
+* protection attributes.
 *
 * The protection structs act like the gatekeepers for a master's accesses to
 * memory, allowing only the permitted transactions to go through.
@@ -216,11 +216,11 @@ uint32_t Cy_Prot_GetActivePC(en_prot_master_t busMaster)
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address for the MPU struct being configured. 
-* 
+* The base address for the MPU struct being configured.
+*
 * \param config
 * Initialization structure containing all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -253,7 +253,7 @@ cy_en_prot_status_t Cy_Prot_ConfigMpuStruct(PROT_MPU_MPU_STRUCT_Type* base, cons
     PROT_MPU_MPU_STRUCT_ATT(base) = attReg;
     PROT_MPU_MPU_STRUCT_ADDR(base) = addrReg;
     status = ((PROT_MPU_MPU_STRUCT_ADDR(base) != addrReg) || (PROT_MPU_MPU_STRUCT_ATT(base) != attReg)) ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -262,13 +262,13 @@ cy_en_prot_status_t Cy_Prot_ConfigMpuStruct(PROT_MPU_MPU_STRUCT_Type* base, cons
 * Function Name: Cy_Prot_EnableMpuStruct
 ****************************************************************************//**
 *
-* Enables the MPU struct, which allows the MPU protection attributes to 
-* take effect. 
+* Enables the MPU struct, which allows the MPU protection attributes to
+* take effect.
 *
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address of the MPU struct being configured. 
+* The base address of the MPU struct being configured.
 *
 * \return
 * Status of the function call.
@@ -285,13 +285,13 @@ cy_en_prot_status_t Cy_Prot_ConfigMpuStruct(PROT_MPU_MPU_STRUCT_Type* base, cons
 cy_en_prot_status_t Cy_Prot_EnableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
 {
     cy_en_prot_status_t status;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     PROT_MPU_MPU_STRUCT_ATT(base) |= _VAL2FLD(PROT_MPU_MPU_STRUCT_ATT_ENABLED, CY_PROT_STRUCT_ENABLE);
     status = (_FLD2VAL(PROT_MPU_MPU_STRUCT_ATT_ENABLED, PROT_MPU_MPU_STRUCT_ATT(base)) != CY_PROT_STRUCT_ENABLE) ?
                 CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -306,7 +306,7 @@ cy_en_prot_status_t Cy_Prot_EnableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address of the MPU struct being configured. 
+* The base address of the MPU struct being configured.
 *
 * \return
 * Status of the function call.
@@ -325,11 +325,11 @@ cy_en_prot_status_t Cy_Prot_DisableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
     cy_en_prot_status_t status;
 
     CY_ASSERT_L1(NULL != base);
-    
+
     PROT_MPU_MPU_STRUCT_ATT(base) &= ~_VAL2FLD(PROT_MPU_MPU_STRUCT_ATT_ENABLED, CY_PROT_STRUCT_ENABLE);
     status = (_FLD2VAL(PROT_MPU_MPU_STRUCT_ATT_ENABLED, PROT_MPU_MPU_STRUCT_ATT(base)) == CY_PROT_STRUCT_ENABLE) ?
                CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -338,25 +338,25 @@ cy_en_prot_status_t Cy_Prot_DisableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
 * Function Name: Cy_Prot_ConfigSmpuMasterStruct
 ****************************************************************************//**
 *
-* Configures a Shared Memory Protection Unit (SMPU) master protection 
-* struct with its protection attributes. 
+* Configures a Shared Memory Protection Unit (SMPU) master protection
+* struct with its protection attributes.
 *
 * This function configures the master struct governing the corresponding slave
 * struct pair. It is a mechanism to protect the slave SMPU struct. Since the
 * memory location of the slave struct is known, the address, regionSize and
 * subregions of the configuration struct are not applicable.
 *
-* Note that only the user/privileged write permissions are configurable. The 
+* Note that only the user/privileged write permissions are configurable. The
 * read and execute permissions are read-only and cannot be configured.
 *
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
 * The register base address of the protection struct being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -374,13 +374,13 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 {
     cy_en_prot_status_t status;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L2(CY_PROT_IS_PC_MASK_VALID(config->pcMask));
     CY_ASSERT_L3(CY_PROT_IS_SMPU_MS_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_SMPU_MS_PERM_VALID(config->privPermission));
-    
-    if(((uint32_t)config->pcMask & CY_PROT_SMPU_PC_LIMIT_MASK) != 0UL) 
+
+    if(((uint32_t)config->pcMask & CY_PROT_SMPU_PC_LIMIT_MASK) != 0UL)
     {
         /* PC mask out of range - not supported in device */
         status = CY_PROT_BAD_PARAM;
@@ -405,7 +405,7 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
             status = ((PROT_SMPU_SMPU_STRUCT_ATT1(base) & CY_PROT_SMPU_ATT1_MASK) != attReg) ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
         }
     }
-    
+
     return status;
 }
 
@@ -414,9 +414,9 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 * Function Name: Cy_Prot_ConfigSmpuSlaveStruct
 ****************************************************************************//**
 *
-* Configures a Shared Memory Protection Unit (SMPU) slave protection 
-* struct with its protection attributes. 
-* 
+* Configures a Shared Memory Protection Unit (SMPU) slave protection
+* struct with its protection attributes.
+*
 * This function configures the slave struct of an SMPU pair, which can protect
 * any memory region in a device from invalid bus master accesses.
 *
@@ -424,10 +424,10 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 *
 * \param base
 * The register base address of the protection structure being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -446,14 +446,14 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
     cy_en_prot_status_t status = CY_PROT_SUCCESS;
     uint32_t addrReg;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L2(CY_PROT_IS_PC_MASK_VALID(config->pcMask));
     CY_ASSERT_L3(CY_PROT_IS_SMPU_SL_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_SMPU_SL_PERM_VALID(config->privPermission));
     CY_ASSERT_L3(CY_PROT_IS_REGION_SIZE_VALID(config->regionSize));
 
-    if(((uint32_t)config->pcMask & CY_PROT_SMPU_PC_LIMIT_MASK) != 0UL) 
+    if(((uint32_t)config->pcMask & CY_PROT_SMPU_PC_LIMIT_MASK) != 0UL)
     {
         /* PC mask out of range - not supported in device */
         status = CY_PROT_BAD_PARAM;
@@ -473,7 +473,7 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
         status = ((PROT_SMPU_SMPU_STRUCT_ADDR0(base) != addrReg) || ((PROT_SMPU_SMPU_STRUCT_ATT0(base) & CY_PROT_SMPU_ATT0_MASK) != attReg))
             ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
     }
-    
+
     return status;
 }
 
@@ -490,7 +490,7 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -507,13 +507,13 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
 cy_en_prot_status_t Cy_Prot_EnableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
 {
     cy_en_prot_status_t status;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     PROT_SMPU_SMPU_STRUCT_ATT1(base) |= _VAL2FLD(PROT_SMPU_SMPU_STRUCT_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
     status = (_FLD2VAL(PROT_SMPU_SMPU_STRUCT_ATT1_ENABLED, PROT_SMPU_SMPU_STRUCT_ATT1(base)) != CY_PROT_STRUCT_ENABLE) ?
                 CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -530,7 +530,7 @@ cy_en_prot_status_t Cy_Prot_EnableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -547,13 +547,13 @@ cy_en_prot_status_t Cy_Prot_EnableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 cy_en_prot_status_t Cy_Prot_DisableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
 {
     cy_en_prot_status_t status;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     PROT_SMPU_SMPU_STRUCT_ATT1(base) &= ~_VAL2FLD(PROT_SMPU_SMPU_STRUCT_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
     status = (_FLD2VAL(PROT_SMPU_SMPU_STRUCT_ATT1_ENABLED, PROT_SMPU_SMPU_STRUCT_ATT1(base)) == CY_PROT_STRUCT_ENABLE) ?
                 CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -570,7 +570,7 @@ cy_en_prot_status_t Cy_Prot_DisableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* 
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -587,13 +587,13 @@ cy_en_prot_status_t Cy_Prot_DisableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* 
 cy_en_prot_status_t Cy_Prot_EnableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
 {
     cy_en_prot_status_t status;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     PROT_SMPU_SMPU_STRUCT_ATT0(base) |= _VAL2FLD(PROT_SMPU_SMPU_STRUCT_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
     status = (_FLD2VAL(PROT_SMPU_SMPU_STRUCT_ATT0_ENABLED, PROT_SMPU_SMPU_STRUCT_ATT0(base)) != CY_PROT_STRUCT_ENABLE) ?
                 CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -610,7 +610,7 @@ cy_en_prot_status_t Cy_Prot_EnableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -627,13 +627,13 @@ cy_en_prot_status_t Cy_Prot_EnableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
 cy_en_prot_status_t Cy_Prot_DisableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
 {
     cy_en_prot_status_t status;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     PROT_SMPU_SMPU_STRUCT_ATT0(base) &= ~_VAL2FLD(PROT_SMPU_SMPU_STRUCT_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
     status = (_FLD2VAL(PROT_SMPU_SMPU_STRUCT_ATT0_ENABLED, PROT_SMPU_SMPU_STRUCT_ATT0(base)) == CY_PROT_STRUCT_ENABLE) ?
                 CY_PROT_FAILURE : CY_PROT_SUCCESS;
-    
+
     return status;
 }
 
@@ -642,23 +642,23 @@ cy_en_prot_status_t Cy_Prot_DisableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 * Function Name: Cy_Prot_GetSmpuStruct
 ****************************************************************************//**
 *
-* Functions returns a pointer of the requested unused SMPU structure. It 
+* Functions returns a pointer of the requested unused SMPU structure. It
 * searches the SMPU structures until it finds one that both the slave and master
-* sections are disabled. After an available structure is located, function 
-* enables the slave structure and set the ATT0[7:0] bits to 0xFF, to make sure 
-* that a subsequent call will not see this as an available (unused) SMPU. 
+* sections are disabled. After an available structure is located, function
+* enables the slave structure and set the ATT0[7:0] bits to 0xFF, to make sure
+* that a subsequent call will not see this as an available (unused) SMPU.
 *
-* It is up to the user to implement, if needed, a system in which a semaphore 
+* It is up to the user to implement, if needed, a system in which a semaphore
 * will lock-out all but one CPU from calling this function at once.
 *
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
 * \param base
-* The base address for the SMPU structure returned if an unused structure was 
+* The base address for the SMPU structure returned if an unused structure was
 * found. If an empty structure was not found, the returned pointer is NULL.
 *
 * \param reqMode
-* This parameter (request mode) selects how the user wants to select a SMPU 
+* This parameter (request mode) selects how the user wants to select a SMPU
 * structure.
 *
 *   reqMode                 | Description
@@ -668,7 +668,7 @@ cy_en_prot_status_t Cy_Prot_DisableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 * CY_PROT_REQMODE_INDEX     | Return the SMPU structure with the specific index.
 *
 * \param smpuIndex
-* This is the index of the requested SMPU structure. It is only used if the 
+* This is the index of the requested SMPU structure. It is only used if the
 * request mode is reqMode = CY_PROT_REQMODE_INDEX.
 *
 * \return
@@ -684,7 +684,7 @@ cy_en_prot_status_t Cy_Prot_DisableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 * \snippet prot/snippet/main.c snippet_Cy_Prot_GetSmpuStruct
 *
 *******************************************************************************/
-cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base, 
+cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
                                           cy_en_prot_req_mode_t reqMode, uint32_t smpuIndex)
 {
     CY_ASSERT_L3(CY_PROT_IS_SMPU_REQ_MODE_VALID(reqMode));
@@ -697,7 +697,7 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
 
     switch (reqMode)
     {
-        /* The SMPU priority goes from PROT_SMPU_STRUCT_HIGHEST_PR 
+        /* The SMPU priority goes from PROT_SMPU_STRUCT_HIGHEST_PR
         *  (highest priority) to 0 (lowest priority)
         */
         case CY_PROT_REQMODE_HIGHPRIOR:
@@ -715,7 +715,7 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
                 }
             } while ((stcIdx >= 0) && (CY_PROT_SUCCESS != status));
             break;
-        
+
         case CY_PROT_REQMODE_LOWPRIOR:
             stcIdx = 0;
             do
@@ -730,7 +730,7 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
                 }
             } while ((stcIdx <= PROT_SMPU_STRUCT_WTH_HIGHEST_PR) && (CY_PROT_SUCCESS != status));
             break;
-        
+
         case CY_PROT_REQMODE_INDEX:
             if (Prot_IsSmpuStructDisabled((uint32_t)stcIdx))
             {
@@ -747,8 +747,8 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
     {
         /* Enable Slave SMPU struct */
         PROT_SMPU_SMPU_STRUCT_IDX_ATT0(stcIdx) |= _VAL2FLD(PROT_SMPU_SMPU_STRUCT_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
-        
-        status = 
+
+        status =
         (_FLD2VAL(PROT_SMPU_SMPU_STRUCT_ATT0_ENABLED, PROT_SMPU_SMPU_STRUCT_IDX_ATT0(stcIdx)) != CY_PROT_STRUCT_ENABLE) ?
         CY_PROT_FAILURE : CY_PROT_SUCCESS;
 
@@ -767,7 +767,7 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
 * Function Name: Prot_ConfigPpuAtt
 ********************************************************************************
 *
-* An internal function to hold the common code for 
+* An internal function to hold the common code for
 * Cy_Prot_ConfigPpu[Prog/Fixed][Master/Slave]Att API functions
 *
 * \note This function is applicable for CPUSS ver_2 only.
@@ -790,7 +790,7 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
 * \param privPermission
 * The privileged permissions for the region.
 *
-* \param secure 
+* \param secure
 * Non Secure = false, Secure = true
 *
 * \return
@@ -803,7 +803,7 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
 * CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 *******************************************************************************/
-static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t pcMask, 
+static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t pcMask,
                                        cy_en_prot_perm_t userPermission, cy_en_prot_perm_t privPermission, bool secure)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
@@ -814,9 +814,9 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
         uint32_t attReg;
         uint32_t regIdx;
         uint32_t fldIdx;
-        
+
         status = CY_PROT_SUCCESS;
-        
+
         /* Populate the ATT values */
         for(regIdx = 0U; regIdx < CY_PROT_ATT_REGS_MAX; regIdx++)
         {
@@ -824,7 +824,7 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
             {
                 break;
             }
-            
+
             /* Get the attributes register value */
             attReg = reg[regIdx];
 
@@ -836,8 +836,8 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
                     attReg &= ~((_VAL2FLD(CY_PROT_ATT_PERI_USER_PERM, CY_PROT_PERM_RW) |
                                  _VAL2FLD(CY_PROT_ATT_PERI_PRIV_PERM, CY_PROT_PERM_RW) |
                                  _BOOL2FLD(PERI_MS_PPU_PR_V2_MS_ATT0_PC0_NS, true)) <<
-                                (PERI_MS_PPU_PR_V2_MS_ATT0_PC1_UR_Pos * fldIdx)); 
-                    
+                                (PERI_MS_PPU_PR_V2_MS_ATT0_PC1_UR_Pos * fldIdx));
+
                     /* Set the bitfield for the PCx attributes */
                     attReg |= (_VAL2FLD(CY_PROT_ATT_PERI_USER_PERM, userPermission) |
                                _VAL2FLD(CY_PROT_ATT_PERI_PRIV_PERM, privPermission) |
@@ -846,12 +846,12 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
                 }
                 tmpMask = tmpMask >> CY_PROT_PCMASK_CHECK;
             }
-            
+
             /* Update the attributes register */
             reg[regIdx] = attReg;
 
             /* Check the result */
-            if ((0UL == regIdx) && 
+            if ((0UL == regIdx) &&
                 ((reg[regIdx] & PROT_PERI_PPU_PROG_PC1_PC3_MASK) != (attReg & PROT_PERI_PPU_PROG_PC1_PC3_MASK)))
             {
                 status = CY_PROT_FAILURE;
@@ -875,8 +875,8 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 * Function Name: Cy_Prot_ConfigPpuProgMasterAtt
 ****************************************************************************//**
 *
-* Configures the protection-structure attributes of the 
-* Programmable Peripheral Protection Unit (PPU PROG) master. 
+* Configures the protection-structure attributes of the
+* Programmable Peripheral Protection Unit (PPU PROG) master.
 *
 * This function configures the master structure governing the corresponding slave
 * structure pair. It is a mechanism to protect the slave PPU PROG structure.
@@ -898,16 +898,16 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \param userPermission
-* The user permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values 
+* The user permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values
 * are valid for the master.
 *
 * \param privPermission
-* The privileged permission setting. CY_PROT_PERM_R or CY_PROT_PERM_RW values 
+* The privileged permission setting. CY_PROT_PERM_R or CY_PROT_PERM_RW values
 * are valid for the master.
 *
 * \param secure
 * The secure flag.
-* 
+*
 * \return
 * The status of the function call.
 *
@@ -917,23 +917,23 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 * CY_PROT_FAILURE       | The attributes were not set up because the structure is possibly locked.
 * CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
-* \note Only the user's/privileged Write permissions are configurable. The 
+* \note Only the user's/privileged Write permissions are configurable. The
 * Read permissions are read-only and cannot be configured.
 *
-* \note PC0 accesses are read-only and are always enabled. 
+* \note PC0 accesses are read-only and are always enabled.
 *
 * \funcusage
 * \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuProgMasterAtt
 *
 *******************************************************************************/
-cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterAtt(PERI_MS_PPU_PR_Type* base, uint16_t pcMask, 
+cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterAtt(PERI_MS_PPU_PR_Type* base, uint16_t pcMask,
                                        cy_en_prot_perm_t userPermission, cy_en_prot_perm_t privPermission, bool secure)
-{   
+{
     /* The parameter checks */
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(userPermission));
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(privPermission));
-    
+
     return (Prot_ConfigPpuAtt(PERI_MS_PPU_PR_MS_ATT(base), pcMask, userPermission, privPermission, secure));
 }
 
@@ -942,24 +942,24 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterAtt(PERI_MS_PPU_PR_Type* base, ui
 * Function Name: Cy_Prot_ConfigPpuProgSlaveAddr
 ****************************************************************************//**
 *
-* Configures the protection-structure address settings  of the 
-* Programmable Peripheral Protection Unit (PPU PROG) slave. 
-* 
-* This function configures the slave structure of the PPU PROG pair, which can 
-* protect any peripheral memory region in a device from an invalid bus-master 
+* Configures the protection-structure address settings  of the
+* Programmable Peripheral Protection Unit (PPU PROG) slave.
+*
+* This function configures the slave structure of the PPU PROG pair, which can
+* protect any peripheral memory region in a device from an invalid bus-master
 * access.
 *
 * \note This function is applicable for CPUSS ver_2 only.
 *
 * \param base
 * The register base address of the protection structure is being configured.
-* 
+*
 * \param address
 * The address.
-* 
+*
 * \param regionSize
 * The region size.
-* 
+*
 * \return
 * The status of the function call.
 *
@@ -967,33 +967,33 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterAtt(PERI_MS_PPU_PR_Type* base, ui
 * ----------------------| ---------------------------------------
 * CY_PROT_SUCCESS       | The address settings were set up.
 * CY_PROT_FAILURE       | The address settings were not set up because the structure is possibly locked.
-* CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version. 
+* CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
-* \note PC0 accesses are Read-only and are always enabled. 
+* \note PC0 accesses are Read-only and are always enabled.
 *
 * \funcusage
 * \ref Cy_Prot_ConfigPpuProgSlaveAtt
 *
 *******************************************************************************/
-cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAddr(PERI_MS_PPU_PR_Type* base, uint32_t address, 
+cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAddr(PERI_MS_PPU_PR_Type* base, uint32_t address,
                                                                    cy_en_prot_size_t regionSize)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     /* The parameter checks */
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_PPU_V2_SIZE_VALID(regionSize));
-    
+
     if (!CY_PERI_V1)
     {
         PERI_MS_PPU_PR_SL_ADDR(base) = address & PERI_MS_PPU_PR_V2_SL_ADDR_ADDR30_Msk;
         PERI_MS_PPU_PR_SL_SIZE(base) = _CLR_SET_FLD32U((PERI_MS_PPU_PR_SL_SIZE(base)), PERI_MS_PPU_PR_V2_SL_SIZE_REGION_SIZE, regionSize);
-        
+
         status = ((PERI_MS_PPU_PR_SL_ADDR(base) != (address & PERI_MS_PPU_PR_V2_SL_ADDR_ADDR30_Msk)) ||
                   (_FLD2VAL(PERI_MS_PPU_PR_V2_SL_SIZE_REGION_SIZE, PERI_MS_PPU_PR_SL_SIZE(base)) != (uint32_t)regionSize)) ?
                    CY_PROT_FAILURE : CY_PROT_SUCCESS;
     }
-    
+
     return status;
 }
 
@@ -1002,11 +1002,11 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAddr(PERI_MS_PPU_PR_Type* base, ui
 * Function Name: Cy_Prot_ConfigPpuProgSlaveAtt
 ****************************************************************************//**
 *
-* Configures the protection structure with its protection attributes of the 
-* Programmable Peripheral Protection Unit (PPU PROG) slave. 
-* 
-* This function configures the slave structure of the PPU PROG pair, which can 
-* protect any peripheral memory region in a device from invalid bus-master 
+* Configures the protection structure with its protection attributes of the
+* Programmable Peripheral Protection Unit (PPU PROG) slave.
+*
+* This function configures the slave structure of the PPU PROG pair, which can
+* protect any peripheral memory region in a device from invalid bus-master
 * access.
 *
 * \note This function is applicable for CPUSS ver_2 only.
@@ -1031,7 +1031,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAddr(PERI_MS_PPU_PR_Type* base, ui
 *
 * \param secure
 * The secure flag.
-* 
+*
 * \return
 * The status of the function call.
 *
@@ -1041,13 +1041,13 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAddr(PERI_MS_PPU_PR_Type* base, ui
 * CY_PROT_FAILURE       | The attributes were not set up because the structure is possibly locked.
 * CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
-* \note PC0 accesses are read-only and are always enabled. 
+* \note PC0 accesses are read-only and are always enabled.
 *
 * \funcusage
 * \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuProgSlaveAtt
 *
 *******************************************************************************/
-cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAtt(PERI_MS_PPU_PR_Type* base, uint16_t pcMask, 
+cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAtt(PERI_MS_PPU_PR_Type* base, uint16_t pcMask,
                                        cy_en_prot_perm_t userPermission, cy_en_prot_perm_t privPermission, bool secure)
 {
     /* The parameter checks */
@@ -1065,13 +1065,13 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAtt(PERI_MS_PPU_PR_Type* base, uin
 *
 * Enables the Slave PPU PROG structure.
 *
-* This is the PPU PROG slave-structure enable function. The PPU PROG protection 
+* This is the PPU PROG slave-structure enable function. The PPU PROG protection
 * settings will take effect after a successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_2 only.
 *
 * \param base
-* The base address for the protection unit structure is being configured. 
+* The base address for the protection unit structure is being configured.
 *
 * \return
 * The status of the function call.
@@ -1080,27 +1080,27 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAtt(PERI_MS_PPU_PR_Type* base, uin
 * ----------------------| ---------------------------------------
 * CY_PROT_SUCCESS       | The structure was enabled.
 * CY_PROT_FAILURE       | The structure is disabled and possibly locked.
-* CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version. 
+* CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
 * \ref Cy_Prot_ConfigPpuProgSlaveAtt
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
-{   
+{
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (!CY_PERI_V1)
     {
-        PERI_MS_PPU_PR_SL_SIZE(base) = 
+        PERI_MS_PPU_PR_SL_SIZE(base) =
         _CLR_SET_FLD32U((PERI_MS_PPU_PR_SL_SIZE(base)), PERI_MS_PPU_PR_V2_SL_SIZE_VALID, CY_PROT_STRUCT_ENABLE);
-        
-        status = (_FLD2VAL(PERI_MS_PPU_PR_V2_SL_SIZE_VALID, PERI_MS_PPU_PR_SL_SIZE(base)) != CY_PROT_STRUCT_ENABLE) ? 
+
+        status = (_FLD2VAL(PERI_MS_PPU_PR_V2_SL_SIZE_VALID, PERI_MS_PPU_PR_SL_SIZE(base)) != CY_PROT_STRUCT_ENABLE) ?
         CY_PROT_FAILURE : CY_PROT_SUCCESS;
     }
-    
+
     return status;
 }
 
@@ -1111,14 +1111,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 *
 * Disables the Slave PPU PROG structure.
 *
-* This is the PPU PROG slave-structure disable function. The PPU PROG protection 
-* settings will seize to take effect after successful completion of this 
+* This is the PPU PROG slave-structure disable function. The PPU PROG protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_2 only.
 *
 * \param base
-* The base address for the protection unit structure is being configured. 
+* The base address for the protection unit structure is being configured.
 *
 * \return
 * The status of the function call.
@@ -1136,18 +1136,18 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (!CY_PERI_V1)
     {
-        PERI_MS_PPU_PR_SL_SIZE(base) = 
+        PERI_MS_PPU_PR_SL_SIZE(base) =
         _CLR_SET_FLD32U((PERI_MS_PPU_PR_SL_SIZE(base)), PERI_MS_PPU_PR_V2_SL_SIZE_VALID, CY_PROT_STRUCT_DISABLE);
 
-        status = (_FLD2VAL(PERI_MS_PPU_PR_V2_SL_SIZE_VALID, PERI_MS_PPU_PR_SL_SIZE(base)) != CY_PROT_STRUCT_DISABLE) ? 
+        status = (_FLD2VAL(PERI_MS_PPU_PR_V2_SL_SIZE_VALID, PERI_MS_PPU_PR_SL_SIZE(base)) != CY_PROT_STRUCT_DISABLE) ?
         CY_PROT_FAILURE : CY_PROT_SUCCESS;
     }
-    
+
     return status;
 }
 
@@ -1157,7 +1157,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 ****************************************************************************//**
 *
 * Configures the protection structure with its protection attributes of the
-* Fixed Peripheral Protection Unit (PPU FIXED) master. 
+* Fixed Peripheral Protection Unit (PPU FIXED) master.
 *
 * This function configures the master structure governing the corresponding slave
 * structure pair. It is a mechanism to protect the slave PPU FIXED structure.
@@ -1179,16 +1179,16 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \param userPermission
-* The user permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values 
+* The user permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values
 * are valid for the master.
 *
 * \param privPermission
-* The privileged permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values 
+* The privileged permission setting. The CY_PROT_PERM_R or CY_PROT_PERM_RW values
 * are valid for the master.
 *
 * \param secure
 * The secure flag.
-* 
+*
 * \return
 * The status of the function call.
 *
@@ -1198,10 +1198,10 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 * CY_PROT_FAILURE       | The attributes were not setup and the structure is possibly locked.
 * CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
-* \note Only the user/privileged write permissions are configurable. The 
+* \note Only the user/privileged write permissions are configurable. The
 * read permissions are read-only and cannot be configured.
 *
-* \note PC0 accesses are read-only and are always enabled. 
+* \note PC0 accesses are read-only and are always enabled.
 *
 * \funcusage
 * \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedMasterAtt
@@ -1224,10 +1224,10 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, u
 ****************************************************************************//**
 *
 * Configures the protection structure with its protection attributes of
-* the Fixed Peripheral Protection Unit (PPU FIXED) slave. 
-* 
-* This function configures the slave structure of the PPU FIXED pair, which can 
-* protect any peripheral memory region in a device from invalid bus-master 
+* the Fixed Peripheral Protection Unit (PPU FIXED) slave.
+*
+* This function configures the slave structure of the PPU FIXED pair, which can
+* protect any peripheral memory region in a device from invalid bus-master
 * access.
 *
 * \note This function is applicable for CPUSS ver_2 only.
@@ -1252,7 +1252,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, u
 *
 * \param secure
 * The secure flag.
-* 
+*
 * \return
 * The status of the function call.
 *
@@ -1262,13 +1262,13 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, u
 * CY_PROT_FAILURE       | The attributes were not setup and the structure is possibly locked.
 * CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
-* \note PC0 accesses are read-only and are always enabled. 
+* \note PC0 accesses are read-only and are always enabled.
 *
 * \funcusage
 * \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedSlaveAtt
 *
 *******************************************************************************/
-cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_Type* base, uint16_t pcMask, 
+cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_Type* base, uint16_t pcMask,
                            cy_en_prot_perm_t userPermission, cy_en_prot_perm_t privPermission, bool secure)
 {
     /* The parameter checks */
@@ -1284,25 +1284,25 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_Type* base, ui
 * Function Name: Cy_Prot_ConfigPpuProgMasterStruct
 ****************************************************************************//**
 *
-* Configures a Programmable Peripheral Protection Unit (PPU PROG) master 
-* protection struct with its protection attributes. 
+* Configures a Programmable Peripheral Protection Unit (PPU PROG) master
+* protection struct with its protection attributes.
 *
 * This function configures the master struct governing the corresponding slave
 * struct pair. It is a mechanism to protect the slave PPU PROG struct. Since
 * the memory location of the slave struct is known, the address, regionSize and
 * subregions of the configuration struct are not applicable.
 *
-* Note that only the user/privileged write permissions are configurable. The 
+* Note that only the user/privileged write permissions are configurable. The
 * read and execute permissions are read-only and cannot be configured.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection struct being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -1321,14 +1321,14 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterStruct(PERI_PPU_PR_Type* base, co
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_PROG_MS_PERM_VALID(config->privPermission));
-    
+
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_PROG_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_PROG_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -1363,23 +1363,23 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterStruct(PERI_PPU_PR_Type* base, co
 ****************************************************************************//**
 *
 * Configures a Programmable Peripheral Protection Unit (PPU PROG) slave
-* protection struct with its protection attributes. 
-* 
-* This function configures the slave struct of a PPU PROG pair, which can 
-* protect any peripheral memory region in a device from invalid bus master 
+* protection struct with its protection attributes.
+*
+* This function configures the slave struct of a PPU PROG pair, which can
+* protect any peripheral memory region in a device from invalid bus master
 * accesses.
 *
-* Note that the user/privileged execute accesses are read-only and are always 
-* enabled. 
+* Note that the user/privileged execute accesses are read-only and are always
+* enabled.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection structure being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -1399,7 +1399,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveStruct(PERI_PPU_PR_Type* base, con
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t addrReg;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_PROG_SL_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_PROG_SL_PERM_VALID(config->privPermission));
@@ -1407,7 +1407,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveStruct(PERI_PPU_PR_Type* base, con
 
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_PROG_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_PROG_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -1436,7 +1436,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveStruct(PERI_PPU_PR_Type* base, con
             }
         }
     }
-    
+
     return status;
 }
 
@@ -1447,13 +1447,13 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveStruct(PERI_PPU_PR_Type* base, con
 *
 * Enables the Master PPU PROG structure.
 *
-* This is a PPU PROG master struct enable function. The PPU PROG protection 
+* This is a PPU PROG master struct enable function. The PPU PROG protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -1471,9 +1471,9 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveStruct(PERI_PPU_PR_Type* base, con
 cy_en_prot_status_t Cy_Prot_EnablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_PR_ATT1(base) |= _VAL2FLD(PERI_PPU_PR_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -1491,14 +1491,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 *
 * Disables the Master PPU PROG structure.
 *
-* This is a PPU PROG master struct disable function. The PPU PROG protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU PROG master struct disable function. The PPU PROG protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -1516,9 +1516,9 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 cy_en_prot_status_t Cy_Prot_DisablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_PR_ATT1(base) &= ~_VAL2FLD(PERI_PPU_PR_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -1536,13 +1536,13 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 *
 * Enables the Slave PPU PROG structure.
 *
-* This is a PPU PROG slave struct enable function. The PPU PROG protection 
+* This is a PPU PROG slave struct enable function. The PPU PROG protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -1558,11 +1558,11 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
-{   
+{
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_PR_ATT0(base) |= _VAL2FLD(PERI_PPU_PR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -1580,14 +1580,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 *
 * Disables the Slave PPU PROG structure.
 *
-* This is a PPU PROG slave struct disable function. The PPU PROG protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU PROG slave struct disable function. The PPU PROG protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -1605,9 +1605,9 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_PR_ATT0(base) &= ~_VAL2FLD(PERI_PPU_PR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -1623,25 +1623,25 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 * Function Name: Cy_Prot_GetPpuProgStruct
 ****************************************************************************//**
 *
-* Functions returns a pointer of the requested unused Programmable PPU 
-* structure. Function searches the Programmable PPU structure until it finds 
+* Functions returns a pointer of the requested unused Programmable PPU
+* structure. Function searches the Programmable PPU structure until it finds
 * one that both the slave and master sections are disabled. After an available
-* structure is located, function enables the slave structure and enables all 
+* structure is located, function enables the slave structure and enables all
 * attributes, to make sure that a subsequent call will not see this
-* as an available (unused) Programmable PPU. 
+* as an available (unused) Programmable PPU.
 *
-* It is up to the user to implement, if needed, a system in which a semaphore 
+* It is up to the user to implement, if needed, a system in which a semaphore
 * will lock-out all but one CPU from calling this function at once.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the Programmable PPU structure returned if an unused 
-* structure was found. If an empty structure was not found, the returned 
+* The base address for the Programmable PPU structure returned if an unused
+* structure was found. If an empty structure was not found, the returned
 * pointer is NULL.
 *
 * \param reqMode
-* This parameter (request mode) selects how the user wants to select a 
+* This parameter (request mode) selects how the user wants to select a
 * Programmable PPU structure.
 *
 *   reqMode                 | Description
@@ -1651,7 +1651,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 * CY_PROT_REQMODE_INDEX     | Return the Programmable PPU structure with the specific index.
 *
 * \param ppuProgIndex
-* This is the index of the requested Programmable PPU structure. It is only 
+* This is the index of the requested Programmable PPU structure. It is only
 * used if the request mode is reqMode = CY_PROT_REQMODE_INDEX.
 *
 * \return
@@ -1671,7 +1671,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot_req_mode_t reqMode, uint32_t ppuProgIndex)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     if (CY_PERI_V1)
     {
         CY_ASSERT_L3(CY_PROT_IS_PPU_PROG_REQ_MODE_VALID(reqMode));
@@ -1685,7 +1685,7 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
         switch (reqMode)
         {
             /* Programmed structures priority goes from 0 (highest) to
-            *  PROT_PPU_PROG_STRUCT_WTH_LOWEST_PR (lowest) 
+            *  PROT_PPU_PROG_STRUCT_WTH_LOWEST_PR (lowest)
             */
             case CY_PROT_REQMODE_LOWPRIOR:
 
@@ -1703,7 +1703,7 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
                 } while ((stcIdx >= 0) && (CY_PROT_SUCCESS != status));
                 break;
 
-            /* Programmed structures priority goes from 0 (highest) to 
+            /* Programmed structures priority goes from 0 (highest) to
             *  PROT_PPU_PROG_STRUCT_WTH_LOWEST_PR (lowest)
             */
             case CY_PROT_REQMODE_HIGHPRIOR:
@@ -1720,7 +1720,7 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
                     }
                 } while ((stcIdx <= PROT_PPU_PROG_STRUCT_WTH_LOWEST_PR) && (CY_PROT_SUCCESS != status));
                 break;
-            
+
             case CY_PROT_REQMODE_INDEX:
 
                 if (Prot_IsPpuProgStructDisabled((uint32_t)stcIdx))
@@ -1728,7 +1728,7 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
                     status = CY_PROT_SUCCESS;
                 }
                 break;
-                
+
             default:
                 break;
         }
@@ -1737,11 +1737,11 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
         if (CY_PROT_SUCCESS == status)
         {
             PROT_PERI_PPU_PR_STRUCT_IDX_ATT0(stcIdx) |= _VAL2FLD(PERI_PPU_PR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
-            
-            status = 
+
+            status =
             (_FLD2VAL(PERI_PPU_PR_ATT0_ENABLED, PROT_PERI_PPU_PR_STRUCT_IDX_ATT0(stcIdx)) != CY_PROT_STRUCT_ENABLE) ?
              CY_PROT_FAILURE : CY_PROT_SUCCESS;
-            
+
             /* Enable all attributes only if Slave struct was enabled */
             if (CY_PROT_SUCCESS == status)
             {
@@ -1760,25 +1760,25 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
 * Function Name: Cy_Prot_ConfigPpuFixedGrMasterStruct
 ****************************************************************************//**
 *
-* Configures a Fixed Peripheral Group Protection Unit (PPU GR) master 
-* protection struct with its protection attributes. 
+* Configures a Fixed Peripheral Group Protection Unit (PPU GR) master
+* protection struct with its protection attributes.
 *
 * This function configures the master struct governing the corresponding slave
 * struct pair. It is a mechanism to protect the slave PPU GR struct. Since
 * the memory location of the slave struct is known, the address, regionSize and
 * subregions of the configuration struct are not applicable.
 *
-* Note that only the user/privileged write permissions are configurable. The 
+* Note that only the user/privileged write permissions are configurable. The
 * read and execute permissions are read-only and cannot be configured.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection struct being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -1797,14 +1797,14 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrMasterStruct(PERI_PPU_GR_Type* base,
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(config->privPermission));
-    
+
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -1840,27 +1840,27 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrMasterStruct(PERI_PPU_GR_Type* base,
 ****************************************************************************//**
 *
 * Configures a Fixed Peripheral Group Protection Unit (PPU GR) slave
-* protection struct with its protection attributes. 
-* 
-* This function configures the slave struct of a PPU GR pair, which can 
+* protection struct with its protection attributes.
+*
+* This function configures the slave struct of a PPU GR pair, which can
 * protect an entire peripheral MMIO group from invalid bus master accesses.
 * Refer to the device Technical Reference manual for details on peripheral
 * MMIO grouping and which peripherals belong to which groups.
 *
-* Each fixed PPU GR is devoted to a defined MMIO group. Hence the address, 
+* Each fixed PPU GR is devoted to a defined MMIO group. Hence the address,
 * regionSize and subregions of the configuration struct are not applicable.
 *
-* Note that the user/privileged execute accesses are read-only and are always 
-* enabled. 
+* Note that the user/privileged execute accesses are read-only and are always
+* enabled.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection structure being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -1879,14 +1879,14 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base, 
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_FIXED_SL_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_SL_PERM_VALID(config->privPermission));
-    
+
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -1923,13 +1923,13 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base, 
 *
 * Enables the Master PPU GR structure.
 *
-* This is a PPU GR master struct enable function. The PPU GR protection 
+* This is a PPU GR master struct enable function. The PPU GR protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -1947,9 +1947,9 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base, 
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_GR_ATT1(base) |= _VAL2FLD(PERI_PPU_GR_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -1967,14 +1967,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base)
 *
 * Disables the Master PPU GR structure.
 *
-* This is a PPU GR master struct disable function. The PPU GR protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU GR master struct disable function. The PPU GR protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -1992,9 +1992,9 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base)
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_GR_ATT1(base) &= ~_VAL2FLD(PERI_PPU_GR_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2012,13 +2012,13 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base
 *
 * Enables the Slave PPU GR structure.
 *
-* This is a PPU GR slave struct enable function. The PPU GR protection 
+* This is a PPU GR slave struct enable function. The PPU GR protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2034,11 +2034,11 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
-{   
+{
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_GR_ATT0(base) |= _VAL2FLD(PERI_PPU_GR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2056,14 +2056,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
 *
 * Disables the Slave PPU GR structure.
 *
-* This is a PPU GR slave struct disable function. The PPU GR protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU GR slave struct disable function. The PPU GR protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2081,9 +2081,9 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_PPU_GR_ATT0(base) &= ~_VAL2FLD(PERI_PPU_GR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2099,25 +2099,25 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
 * Function Name: Cy_Prot_ConfigPpuFixedSlMasterStruct
 ****************************************************************************//**
 *
-* Configures a Fixed Peripheral Slave Protection Unit (PPU SL) master 
-* protection struct with its protection attributes. 
+* Configures a Fixed Peripheral Slave Protection Unit (PPU SL) master
+* protection struct with its protection attributes.
 *
 * This function configures the master struct governing the corresponding slave
 * struct pair. It is a mechanism to protect the slave PPU SL struct. Since
 * the memory location of the slave struct is known, the address, regionSize and
 * subregions of the configuration struct are not applicable.
 *
-* Note that only the user/privileged write permissions are configurable. The 
+* Note that only the user/privileged write permissions are configurable. The
 * read and execute permissions are read-only and cannot be configured.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection struct being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -2136,14 +2136,14 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* ba
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(config->privPermission));
-    
+
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -2179,26 +2179,26 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* ba
 ****************************************************************************//**
 *
 * Configures a Fixed Peripheral Slave Protection Unit (PPU SL) slave
-* protection struct with its protection attributes. 
-* 
-* This function configures the slave struct of a PPU SL pair, which can 
+* protection struct with its protection attributes.
+*
+* This function configures the slave struct of a PPU SL pair, which can
 * protect an entire peripheral slave instance from invalid bus master accesses.
 * For example, TCPWM0, TCPWM1, SCB0 and SCB1 etc.
 *
-* Each fixed PPU SL is devoted to a defined peripheral slave. Hence the address, 
+* Each fixed PPU SL is devoted to a defined peripheral slave. Hence the address,
 * regionSize and subregions of the configuration struct are not applicable.
 *
-* Note that the user/privileged execute accesses are read-only and are always 
-* enabled. 
+* Note that the user/privileged execute accesses are read-only and are always
+* enabled.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection structure being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -2217,14 +2217,14 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* bas
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_FIXED_SL_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_SL_PERM_VALID(config->privPermission));
-    
+
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -2261,13 +2261,13 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* bas
 *
 * Enables the Master PPU SL structure.
 *
-* This is a PPU SL master struct enable function. The PPU SL protection 
+* This is a PPU SL master struct enable function. The PPU SL protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2285,9 +2285,9 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* bas
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_GR_PPU_SL_ATT1(base) |= _VAL2FLD(PERI_GR_PPU_SL_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2305,14 +2305,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* ba
 *
 * Disables the Master PPU SL structure.
 *
-* This is a PPU SL master struct disable function. The PPU SL protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU SL master struct disable function. The PPU SL protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2330,9 +2330,9 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* ba
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_GR_PPU_SL_ATT1(base) &= ~_VAL2FLD(PERI_GR_PPU_SL_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2350,13 +2350,13 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* b
 *
 * Enables the Slave PPU SL structure.
 *
-* This is a PPU SL slave struct enable function. The PPU SL protection 
+* This is a PPU SL slave struct enable function. The PPU SL protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2372,11 +2372,11 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* b
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* base)
-{   
+{
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_GR_PPU_SL_ATT0(base) |= _VAL2FLD(PERI_GR_PPU_SL_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2394,14 +2394,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* bas
 *
 * Disables the Slave PPU SL structure.
 *
-* This is a PPU SL slave struct disable function. The PPU SL protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU SL slave struct disable function. The PPU SL protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2419,9 +2419,9 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* bas
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     CY_ASSERT_L1(NULL != base);
-    
+
     if (CY_PERI_V1)
     {
         PERI_GR_PPU_SL_ATT0(base) &= ~_VAL2FLD(PERI_GR_PPU_SL_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2437,25 +2437,25 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* ba
 * Function Name: Cy_Prot_ConfigPpuFixedRgMasterStruct
 ****************************************************************************//**
 *
-* Configures a Fixed Peripheral Region Protection Unit (PPU RG) master 
-* protection struct with its protection attributes. 
+* Configures a Fixed Peripheral Region Protection Unit (PPU RG) master
+* protection struct with its protection attributes.
 *
 * This function configures the master struct governing the corresponding slave
 * struct pair. It is a mechanism to protect the slave PPU RG struct. Since
 * the memory location of the slave struct is known, the address, regionSize and
 * subregions of the configuration struct are not applicable.
 *
-* Note that only the user/privileged write permissions are configurable. The 
+* Note that only the user/privileged write permissions are configurable. The
 * read and execute permissions are read-only and cannot be configured.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection struct being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -2474,14 +2474,14 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* ba
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_MS_PERM_VALID(config->privPermission));
-    
+
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -2517,26 +2517,26 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* ba
 ****************************************************************************//**
 *
 * Configures a Fixed Peripheral Region Protection Unit (PPU RG) slave
-* protection struct with its protection attributes. 
-* 
-* This function configures the slave struct of a PPU RG pair, which can 
+* protection struct with its protection attributes.
+*
+* This function configures the slave struct of a PPU RG pair, which can
 * protect specified regions of peripheral instances. For example, individual
 * DW channel structs, SMPU structs, and IPC structs etc.
 *
-* Each fixed PPU RG is devoted to a defined peripheral region. Hence the address, 
+* Each fixed PPU RG is devoted to a defined peripheral region. Hence the address,
 * regionSize and subregions of the configuration struct are not applicable.
 *
-* Note that the user/privileged execute accesses are read-only and are always 
-* enabled. 
+* Note that the user/privileged execute accesses are read-only and are always
+* enabled.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
 * The register base address of the protection structure being configured.
-* 
+*
 * \param config
 * Initialization structure with all the protection attributes.
-* 
+*
 * \return
 * Status of the function call.
 *
@@ -2555,14 +2555,14 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* bas
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
     uint32_t attReg;
-    
+
     CY_ASSERT_L1(NULL != base);
     CY_ASSERT_L3(CY_PROT_IS_FIXED_SL_PERM_VALID(config->userPermission));
     CY_ASSERT_L3(CY_PROT_IS_FIXED_SL_PERM_VALID(config->privPermission));
-    
+
     if (CY_PERI_V1)
     {
-        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL) 
+        if(((uint32_t)config->pcMask & CY_PROT_PPU_FIXED_PC_LIMIT_MASK) != 0UL)
         {
             /* PC mask out of range - not supported in device */
             status = CY_PROT_BAD_PARAM;
@@ -2599,13 +2599,13 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* bas
 *
 * Enables the Master PPU RG structure.
 *
-* This is a PPU RG master struct enable function. The PPU RG protection 
+* This is a PPU RG master struct enable function. The PPU RG protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2641,14 +2641,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* ba
 *
 * Disables the Master PPU RG structure.
 *
-* This is a PPU RG master struct disable function. The PPU RG protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU RG master struct disable function. The PPU RG protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2666,7 +2666,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* ba
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     if (CY_PERI_V1)
     {
         PERI_GR_PPU_RG_ATT1(base) &= ~_VAL2FLD(PERI_GR_PPU_RG_ATT1_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2684,13 +2684,13 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* b
 *
 * Enables the Slave PPU RG structure.
 *
-* This is a PPU RG slave struct enable function. The PPU RG protection 
+* This is a PPU RG slave struct enable function. The PPU RG protection
 * settings will take effect after successful completion of this function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2706,9 +2706,9 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* b
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* base)
-{   
+{
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     if (CY_PERI_V1)
     {
         PERI_GR_PPU_RG_ATT0(base) |= _VAL2FLD(PERI_GR_PPU_RG_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
@@ -2726,14 +2726,14 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* bas
 *
 * Disables the Slave PPU RG structure.
 *
-* This is a PPU RG slave struct disable function. The PPU RG protection 
-* settings will seize to take effect after successful completion of this 
+* This is a PPU RG slave struct disable function. The PPU RG protection
+* settings will seize to take effect after successful completion of this
 * function call.
 *
 * \note This function is applicable for CPUSS ver_1 only.
 *
 * \param base
-* The base address for the protection unit structure being configured. 
+* The base address for the protection unit structure being configured.
 *
 * \return
 * Status of the function call.
@@ -2751,7 +2751,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* bas
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* base)
 {
     cy_en_prot_status_t status = CY_PROT_INVALID_STATE;
-    
+
     if (CY_PERI_V1)
     {
         PERI_GR_PPU_RG_ATT0(base) &= ~_VAL2FLD(PERI_GR_PPU_RG_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);

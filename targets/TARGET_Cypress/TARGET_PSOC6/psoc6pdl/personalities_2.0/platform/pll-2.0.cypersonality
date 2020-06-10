@@ -104,13 +104,19 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_PLL`${clockInst}`_ENABLED" value="1" public="false" include="true" />
-    <ConfigStruct name="`${INST_NAME . &quot;_pllConfig&quot;}`" type="cy_stc_pll_manual_config_t" const="true" public="false" include="true" >
+    <ConfigDefine name="CY_CFG_SYSCLK_PLL`${clockInst}`_FEEDBACK_DIV" value="`${feedback}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_PLL`${clockInst}`_REFERENCE_DIV" value="`${reference}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_PLL`${clockInst}`_OUTPUT_DIV" value="`${output}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_PLL`${clockInst}`_LF_MODE" value="`${lowFrequencyMode}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_PLL`${clockInst}`_OUTPUT_MODE" value="CY_SYSCLK_FLLPLL_OUTPUT_AUTO" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_PLL`${clockInst}`_OUTPUT_FREQ" value="`${frequency}`" public="false" include="true" />
+    <ConfigStruct name="`${INST_NAME . &quot;_pllConfig&quot;}`" type="cy_stc_pll_manual_config_t" const="true" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))">
       <Member name="feedbackDiv" value="`${feedback}`" />
       <Member name="referenceDiv" value="`${reference}`" />
       <Member name="outputDiv" value="`${output}`" />
       <Member name="lfMode" value="`${lowFrequencyMode}`" />
       <Member name="outputMode" value="CY_SYSCLK_FLLPLL_OUTPUT_AUTO" />
     </ConfigStruct>
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_Pll`${clockInst}`Init()" body="    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllManualConfigure(`${clockInst + 1}`U, &amp;`${INST_NAME}`_pllConfig))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);&#xA;    }&#xA;    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllEnable(`${clockInst + 1}`U, 10000u))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);&#xA;    }" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_Pll`${clockInst}`Init()" body="    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllManualConfigure(`${clockInst + 1}`U, &amp;`${INST_NAME}`_pllConfig))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);&#xA;    }&#xA;    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllEnable(`${clockInst + 1}`U, 10000u))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);&#xA;    }" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

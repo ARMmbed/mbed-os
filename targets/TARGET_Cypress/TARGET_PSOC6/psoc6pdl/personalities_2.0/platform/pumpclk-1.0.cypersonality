@@ -94,6 +94,8 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKPUMP_ENABLED" value="1" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKPUMP_SOURCE" value="CY_SYSCLK_PUMP_IN_CLKPATH`${sourceClockNumber}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKPUMP_DIVIDER" value="CY_SYSCLK_PUMP_`${(divider == 1 ? &quot;NO_DIV&quot; : (&quot;DIV_&quot; . divider))}`" public="false" include="true" />
     <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkPumpInit()" body="    Cy_SysClk_ClkPumpDisable();&#xA;     Cy_SysClk_ClkPumpSetSource(CY_SYSCLK_PUMP_IN_CLKPATH`${sourceClockNumber}`);&#xA;    Cy_SysClk_ClkPumpSetDivider(CY_SYSCLK_PUMP_`${(divider == 1 ? &quot;NO_DIV&quot; : (&quot;DIV_&quot; . divider))}`);&#xA;    Cy_SysClk_ClkPumpEnable();" public="false" include="true" />
   </ConfigFirmware>
 </Personality>

@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io.c
-* \version 2.20
+* \version 2.20.1
 *
 * Provides data transfer API implementation of the USBFS driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,8 +88,8 @@ static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_de
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
@@ -105,7 +105,7 @@ static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_de
 * Function Name: Cy_USBFS_Dev_Drv_ConfigDevice
 ****************************************************************************//**
 *
-* Sets the basic device configuration (clears previous configuration). 
+* Sets the basic device configuration (clears previous configuration).
 * Call this function after the endpoints were configured to complete the
 * device configuration.
 *
@@ -114,8 +114,8 @@ static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_de
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
@@ -128,7 +128,7 @@ void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_contex
         if (CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO == context->mode)
         {
             autoMemMask = USBFS_USBDEV_ARB_CFG_AUTO_MEM_Msk;
-            
+
             /* Configure DMA burst size */
             USBFS_DEV_DMA_THRES16(base) = DMA_YLOOP_INCREMENT;
             USBFS_DEV_BUF_SIZE(base)    = ENDPOINTS_BUFFER_SIZE;
@@ -151,7 +151,7 @@ void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_contex
 * Function Name: Cy_USBFS_Dev_Drv_UnConfigureDevice
 ****************************************************************************//**
 *
-* Clears device configuration. 
+* Clears device configuration.
 * Call this function before setting a configuration or a configuration failure
 * to set the configuration into the default state.
 * Alternately, call \ref Cy_USBFS_Dev_Drv_RemoveEndpoint for each active endpoint.
@@ -161,8 +161,8 @@ void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_contex
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
@@ -172,7 +172,7 @@ void Cy_USBFS_Dev_Drv_UnConfigureDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_c
 
     /* Clears the buffer pointer */
     context->curBufAddr = 0U;
-    
+
     /* Removes all active endpoints */
     context->activeEpMask = 0U;
 
@@ -203,8 +203,8 @@ void Cy_USBFS_Dev_Drv_UnConfigureDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_c
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -218,8 +218,8 @@ cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, uint32_t *idx, cy_
     uint32_t nextBufAddr;
 
     /* Get max buffer size */
-    bufSize = (CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO != context->mode) ? 
-                CY_USBFS_DEV_DRV_HW_BUFFER_SIZE : 
+    bufSize = (CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO != context->mode) ?
+                CY_USBFS_DEV_DRV_HW_BUFFER_SIZE :
                 context->epSharedBufSize;
 
     /* Gets a next buffer address. Note: the end buffer size must be even for the 16-bit access. */
@@ -244,8 +244,8 @@ cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, uint32_t *idx, cy_
 * Function Name: RestoreEndpointHwBuffer
 ****************************************************************************//**
 *
-* Restores the endpoint active configuration for 
-* \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU and 
+* Restores the endpoint active configuration for
+* \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU and
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA modes.
 *
 * \param base
@@ -253,18 +253,18 @@ cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, uint32_t *idx, cy_
 *
 * \param mode
 * Endpoints management mode.
-* 
+*
 * \param endpointData
 * The pointer to the endpoint data structure.
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
-void RestoreEndpointHwBuffer(USBFS_Type *base, 
+void RestoreEndpointHwBuffer(USBFS_Type *base,
                              cy_en_usbfs_dev_drv_ep_management_mode_t mode,
                              cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData)
 {
@@ -299,11 +299,11 @@ void RestoreEndpointHwBuffer(USBFS_Type *base,
     }
 
     /* Enables the SIE interrupt for the endpoint */
-    Cy_USBFS_Dev_Drv_EnableSieEpInterrupt(base, endpoint);  
+    Cy_USBFS_Dev_Drv_EnableSieEpInterrupt(base, endpoint);
 
     /* Sets an arbiter configuration */
     Cy_USBFS_Dev_Drv_SetArbEpConfig(base, endpoint, (USBFS_USBDEV_ARB_EP1_CFG_CRC_BYPASS_Msk |
-                                                     USBFS_USBDEV_ARB_EP1_CFG_RESET_PTR_Msk));  
+                                                     USBFS_USBDEV_ARB_EP1_CFG_RESET_PTR_Msk));
 
     /* Set endpoint mode to not respond to host */
     Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, GetEndpointInactiveMode((uint32_t) endpointData->sieMode));
@@ -314,8 +314,8 @@ void RestoreEndpointHwBuffer(USBFS_Type *base,
 * Function Name: AddEndpointHwBuffer
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_AddEndpoint for 
-* \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU and 
+* Implements \ref Cy_USBFS_Dev_Drv_AddEndpoint for
+* \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU and
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA modes.
 *
 * \param base
@@ -326,8 +326,8 @@ void RestoreEndpointHwBuffer(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -341,7 +341,7 @@ cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
     uint32_t endpoint = EPADDR2PHY(config->endpointAddr);
 
     /* Gets a pointer to the endpoint data */
-    cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData = &context->epPool[endpoint]; 
+    cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData = &context->epPool[endpoint];
 
     /* Gets a buffer for the endpoint using the hardware buffer */
     if (config->allocBuffer)
@@ -378,8 +378,8 @@ cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
         Cy_USBFS_Dev_Drv_SetArbEpConfig(base, endpoint, (USBFS_USBDEV_ARB_EP1_CFG_CRC_BYPASS_Msk |
                                                          USBFS_USBDEV_ARB_EP1_CFG_RESET_PTR_Msk));
 
-        /* Flushes the IN endpoint buffer to discard the loaded data. 
-        * It happens when: an alternate settings change is requested and the IN 
+        /* Flushes the IN endpoint buffer to discard the loaded data.
+        * It happens when: an alternate settings change is requested and the IN
         * endpoint buffer is full (not read by the Host).
         */
         if (inDirection)
@@ -436,8 +436,8 @@ cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -493,8 +493,8 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_RemoveEndpoint(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -519,7 +519,7 @@ void Cy_USBFS_Dev_Drv_EnableOutEndpoint(USBFS_Type *base,
 
     /* Clear abort mask for the endpoint (there is no transfer during abort) */
     context->epAbortMask &= (uint8_t) ~EP2MASK(endpoint);
-    
+
     /* Endpoint pending: Waits for the host write data after exiting this function */
     endpointData->state = CY_USB_DEV_EP_PENDING;
 
@@ -532,7 +532,7 @@ void Cy_USBFS_Dev_Drv_EnableOutEndpoint(USBFS_Type *base,
 * Function Name: LoadInEndpointCpu
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_LoadInEndpoint for 
+* Implements \ref Cy_USBFS_Dev_Drv_LoadInEndpoint for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU mode.
 *
 * \param base
@@ -550,8 +550,8 @@ void Cy_USBFS_Dev_Drv_EnableOutEndpoint(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -581,7 +581,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointCpu(USBFS_Type   *base,
 
     /* Set count and data toggle */
     Cy_USBFS_Dev_Drv_SetSieEpCount(base, endpoint, size, (uint32_t) endpointData->toggle);
-    
+
     if (0U == size)
     {
         /* Arm endpoint: endpoint ACK Host request */
@@ -627,7 +627,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointCpu(USBFS_Type   *base,
 * Function Name: ReadOutEndpointCpu
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint for 
+* Implements \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU mode.
 *
 * \param base
@@ -648,8 +648,8 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointCpu(USBFS_Type   *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -674,7 +674,7 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointCpu(USBFS_Type *base,
 
     /* Initialize actual number of copied bytes */
     *actSize = 0U;
-    
+
     /* Endpoint received more bytes than provided buffer */
     if (numToCopy > size)
     {
@@ -723,7 +723,7 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointCpu(USBFS_Type *base,
 *
 * Abort operation for data endpoint.
 * If there is any bus activity after the abort operation requested, the function
-* waits for its completion or a timeout. A timeout is the time to transfer the 
+* waits for its completion or a timeout. A timeout is the time to transfer the
 * bulk or an interrupt packet of the maximum playload size. If this bus activity is
 * a transfer to the aborting endpoint, the received data is lost and the endpoint
 * transfer completion callbacks are not invoked.
@@ -737,8 +737,8 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointCpu(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -791,7 +791,7 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
         /* Sets an abort mask to discard the completion events */
         context->epAbortMask |= (uint8_t) EP2MASK(endpoint);
         endpointData->state   = CY_USB_DEV_EP_IDLE;
-        
+
         /* Clears the bus busy activity */
         (void) Cy_USBFS_Dev_Drv_CheckActivity(base);
 
@@ -808,7 +808,7 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
             /* Does not wait for the ISOC endpoint */
             isocEp = true;
         }
-        
+
         if (false == isocEp)
         {
             /* If there is a bus activity, it could be a transfer to the aborted endpoint */
@@ -834,7 +834,7 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
             }
         }
 
-        /* The abort mask is cleared in the endpoint completion interrupt OR 
+        /* The abort mask is cleared in the endpoint completion interrupt OR
         *  on a following call of the endpoint Remove, LoadIn or EnableOut function.
         */
     }
@@ -844,21 +844,21 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
         flushBuffer = false;
         retStatus = CY_USBFS_DEV_DRV_SUCCESS;
     }
-    
+
     /* Releases the lock */
     Cy_SysLib_ExitCriticalSection(intrState);
 
     if (flushBuffer)
     {
         bool inDirection = IS_EP_DIR_IN(endpointData->address);
-        
+
         /* Initializes the pointers to functions that work with the data endpoint */
         switch(context->mode)
         {
             case CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU:
             case CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA:
             {
-                /* IN endpoint: Flushes the buffer to discard the loaded data. 
+                /* IN endpoint: Flushes the buffer to discard the loaded data.
                 *  OUT endpoint: Leaves the written data in the buffer.
                 */
                 if (inDirection)
@@ -872,7 +872,7 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
 
             case CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO:
             {
-                /* IN endpoint: Flushes the buffer to discard the loaded data. 
+                /* IN endpoint: Flushes the buffer to discard the loaded data.
                 *  OUT endpoint: Waits for DMA to complete if a transfer has been started.
                 */
                 retStatus = DynamicEndpointReConfiguration(base, inDirection, endpoint);
@@ -902,8 +902,8 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -957,8 +957,8 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_StallEndpoint(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return

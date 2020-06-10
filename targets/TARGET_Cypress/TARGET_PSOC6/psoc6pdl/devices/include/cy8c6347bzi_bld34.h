@@ -5,11 +5,11 @@
 * CY8C6347BZI-BLD34 device header
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.6.0.150
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -461,10 +461,10 @@ typedef enum {
 #define CY_FLASH_SIZE                   0x00100000UL
 #define CY_EM_EEPROM_BASE               0x14000000UL
 #define CY_EM_EEPROM_SIZE               0x00008000UL
-#define CY_XIP_BASE                     0x18000000UL
-#define CY_XIP_SIZE                     0x08000000UL
 #define CY_SFLASH_BASE                  0x16000000UL
 #define CY_SFLASH_SIZE                  0x00008000UL
+#define CY_XIP_BASE                     0x18000000UL
+#define CY_XIP_SIZE                     0x08000000UL
 #define CY_EFUSE_BASE                   0x402C0800UL
 #define CY_EFUSE_SIZE                   0x00000200UL
 
@@ -835,6 +835,7 @@ typedef enum {
 
 #define PROT_BASE                               0x40240000UL
 #define PROT                                    ((PROT_Type*) PROT_BASE)                                          /* 0x40240000 */
+#define PROT_SMPU                               ((PROT_SMPU_Type*) &PROT->SMPU)                                   /* 0x40240000 */
 #define PROT_SMPU_SMPU_STRUCT0                  ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[0])        /* 0x40242000 */
 #define PROT_SMPU_SMPU_STRUCT1                  ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[1])        /* 0x40242040 */
 #define PROT_SMPU_SMPU_STRUCT2                  ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[2])        /* 0x40242080 */
@@ -851,23 +852,6 @@ typedef enum {
 #define PROT_SMPU_SMPU_STRUCT13                 ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[13])       /* 0x40242340 */
 #define PROT_SMPU_SMPU_STRUCT14                 ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[14])       /* 0x40242380 */
 #define PROT_SMPU_SMPU_STRUCT15                 ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[15])       /* 0x402423C0 */
-#define PROT_SMPU                               ((PROT_SMPU_Type*) &PROT->SMPU)                                   /* 0x40240000 */
-#define PROT_MPU1_MPU_STRUCT0                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[0])       /* 0x40244600 */
-#define PROT_MPU1_MPU_STRUCT1                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[1])       /* 0x40244620 */
-#define PROT_MPU1_MPU_STRUCT2                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[2])       /* 0x40244640 */
-#define PROT_MPU1_MPU_STRUCT3                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[3])       /* 0x40244660 */
-#define PROT_MPU1_MPU_STRUCT4                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[4])       /* 0x40244680 */
-#define PROT_MPU1_MPU_STRUCT5                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[5])       /* 0x402446A0 */
-#define PROT_MPU1_MPU_STRUCT6                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[6])       /* 0x402446C0 */
-#define PROT_MPU1_MPU_STRUCT7                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[7])       /* 0x402446E0 */
-#define PROT_MPU15_MPU_STRUCT0                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[0])      /* 0x40247E00 */
-#define PROT_MPU15_MPU_STRUCT1                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[1])      /* 0x40247E20 */
-#define PROT_MPU15_MPU_STRUCT2                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[2])      /* 0x40247E40 */
-#define PROT_MPU15_MPU_STRUCT3                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[3])      /* 0x40247E60 */
-#define PROT_MPU15_MPU_STRUCT4                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[4])      /* 0x40247E80 */
-#define PROT_MPU15_MPU_STRUCT5                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[5])      /* 0x40247EA0 */
-#define PROT_MPU15_MPU_STRUCT6                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[6])      /* 0x40247EC0 */
-#define PROT_MPU15_MPU_STRUCT7                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[7])      /* 0x40247EE0 */
 #define PROT_MPU0                               ((PROT_MPU_Type*) &PROT->CYMPU[0])                                /* 0x40244000 */
 #define PROT_MPU1                               ((PROT_MPU_Type*) &PROT->CYMPU[1])                                /* 0x40244400 */
 #define PROT_MPU2                               ((PROT_MPU_Type*) &PROT->CYMPU[2])                                /* 0x40244800 */
@@ -884,6 +868,22 @@ typedef enum {
 #define PROT_MPU13                              ((PROT_MPU_Type*) &PROT->CYMPU[13])                               /* 0x40247400 */
 #define PROT_MPU14                              ((PROT_MPU_Type*) &PROT->CYMPU[14])                               /* 0x40247800 */
 #define PROT_MPU15                              ((PROT_MPU_Type*) &PROT->CYMPU[15])                               /* 0x40247C00 */
+#define PROT_MPU1_MPU_STRUCT0                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[0])       /* 0x40244600 */
+#define PROT_MPU1_MPU_STRUCT1                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[1])       /* 0x40244620 */
+#define PROT_MPU1_MPU_STRUCT2                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[2])       /* 0x40244640 */
+#define PROT_MPU1_MPU_STRUCT3                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[3])       /* 0x40244660 */
+#define PROT_MPU1_MPU_STRUCT4                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[4])       /* 0x40244680 */
+#define PROT_MPU1_MPU_STRUCT5                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[5])       /* 0x402446A0 */
+#define PROT_MPU1_MPU_STRUCT6                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[6])       /* 0x402446C0 */
+#define PROT_MPU1_MPU_STRUCT7                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[1].MPU_STRUCT[7])       /* 0x402446E0 */
+#define PROT_MPU15_MPU_STRUCT0                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[0])      /* 0x40247E00 */
+#define PROT_MPU15_MPU_STRUCT1                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[1])      /* 0x40247E20 */
+#define PROT_MPU15_MPU_STRUCT2                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[2])      /* 0x40247E40 */
+#define PROT_MPU15_MPU_STRUCT3                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[3])      /* 0x40247E60 */
+#define PROT_MPU15_MPU_STRUCT4                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[4])      /* 0x40247E80 */
+#define PROT_MPU15_MPU_STRUCT5                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[5])      /* 0x40247EA0 */
+#define PROT_MPU15_MPU_STRUCT6                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[6])      /* 0x40247EC0 */
+#define PROT_MPU15_MPU_STRUCT7                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[7])      /* 0x40247EE0 */
 
 /*******************************************************************************
 *                                    FLASHC
@@ -1033,6 +1033,12 @@ typedef enum {
 #define UDB                                     ((UDB_Type*) UDB_BASE)                                            /* 0x40340000 */
 #define UDB_WRKONE                              ((UDB_WRKONE_Type*) &UDB->WRKONE)                                 /* 0x40340000 */
 #define UDB_WRKMULT                             ((UDB_WRKMULT_Type*) &UDB->WRKMULT)                               /* 0x40341000 */
+#define UDB_UDBPAIR0                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[0])                            /* 0x40342000 */
+#define UDB_UDBPAIR1                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[1])                            /* 0x40342200 */
+#define UDB_UDBPAIR2                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[2])                            /* 0x40342400 */
+#define UDB_UDBPAIR3                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[3])                            /* 0x40342600 */
+#define UDB_UDBPAIR4                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[4])                            /* 0x40342800 */
+#define UDB_UDBPAIR5                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[5])                            /* 0x40342A00 */
 #define UDB_UDBPAIR0_UDBSNG0                    ((UDB_UDBPAIR_UDBSNG_Type*) &UDB->UDBPAIR[0].UDBSNG[0])           /* 0x40342000 */
 #define UDB_UDBPAIR0_UDBSNG1                    ((UDB_UDBPAIR_UDBSNG_Type*) &UDB->UDBPAIR[0].UDBSNG[1])           /* 0x40342080 */
 #define UDB_UDBPAIR1_UDBSNG0                    ((UDB_UDBPAIR_UDBSNG_Type*) &UDB->UDBPAIR[1].UDBSNG[0])           /* 0x40342200 */
@@ -1051,12 +1057,6 @@ typedef enum {
 #define UDB_UDBPAIR3_ROUTE                      ((UDB_UDBPAIR_ROUTE_Type*) &UDB->UDBPAIR[3].ROUTE)                /* 0x40342700 */
 #define UDB_UDBPAIR4_ROUTE                      ((UDB_UDBPAIR_ROUTE_Type*) &UDB->UDBPAIR[4].ROUTE)                /* 0x40342900 */
 #define UDB_UDBPAIR5_ROUTE                      ((UDB_UDBPAIR_ROUTE_Type*) &UDB->UDBPAIR[5].ROUTE)                /* 0x40342B00 */
-#define UDB_UDBPAIR0                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[0])                            /* 0x40342000 */
-#define UDB_UDBPAIR1                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[1])                            /* 0x40342200 */
-#define UDB_UDBPAIR2                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[2])                            /* 0x40342400 */
-#define UDB_UDBPAIR3                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[3])                            /* 0x40342600 */
-#define UDB_UDBPAIR4                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[4])                            /* 0x40342800 */
-#define UDB_UDBPAIR5                            ((UDB_UDBPAIR_Type*) &UDB->UDBPAIR[5])                            /* 0x40342A00 */
 #define UDB_DSI0                                ((UDB_DSI_Type*) &UDB->DSI[0])                                    /* 0x40346000 */
 #define UDB_DSI1                                ((UDB_DSI_Type*) &UDB->DSI[1])                                    /* 0x40346080 */
 #define UDB_DSI2                                ((UDB_DSI_Type*) &UDB->DSI[2])                                    /* 0x40346100 */
@@ -1152,8 +1152,8 @@ typedef enum {
 
 #define BLE_BASE                                0x403C0000UL
 #define BLE                                     ((BLE_Type*) BLE_BASE)                                            /* 0x403C0000 */
-#define BLE_RCB_RCBLL                           ((BLE_RCB_RCBLL_Type*) &BLE->RCB.RCBLL)                           /* 0x403C0100 */
 #define BLE_RCB                                 ((BLE_RCB_Type*) &BLE->RCB)                                       /* 0x403C0000 */
+#define BLE_RCB_RCBLL                           ((BLE_RCB_RCBLL_Type*) &BLE->RCB.RCBLL)                           /* 0x403C0100 */
 #define BLE_BLELL                               ((BLE_BLELL_Type*) &BLE->BLELL)                                   /* 0x403C1000 */
 #define BLE_BLESS                               ((BLE_BLESS_Type*) &BLE->BLESS)                                   /* 0x403DF000 */
 

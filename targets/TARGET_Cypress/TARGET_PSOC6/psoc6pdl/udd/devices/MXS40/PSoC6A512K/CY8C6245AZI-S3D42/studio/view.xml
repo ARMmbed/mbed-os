@@ -54,7 +54,7 @@
   <Param name="Module" value="No" />
   <Param name="REQUIRED_KITS" value="None" />
   <Param name="Next_Best_Alt_Part" value="None" />
-  <Param name="DATASHEET" value="http://www.cypress.com/ds218449 " />
+  <Param name="DATASHEET" value="http://www.cypress.com/ds218449" />
   <Param name="EDITING_SUPPORT" value="Schematic" />
   <Param name="PROJECT_TEMPLATE" value="P6_D42.zip" />
 </Parameters>

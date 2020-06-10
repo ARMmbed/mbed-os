@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_common.c
-* \version 2.40.1
+* \version 2.40.2
 *
 * Provides common API implementation of the SCB driver.
 *
@@ -424,4 +424,3 @@ uint32_t Cy_SCB_WriteDefaultArray(CySCB_Type *base, uint32_t txData, uint32_t si
 #endif /* CY_IP_MXSCB */
 
 /* [] END OF FILE */
-

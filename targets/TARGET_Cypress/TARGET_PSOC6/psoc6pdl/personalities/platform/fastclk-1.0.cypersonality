@@ -64,6 +64,7 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKFAST_ENABLED" value="1" public="false" include="true" />
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkFastInit()" body="    Cy_SysClk_ClkFastSetDivider(`${divider - 1}`U);" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKFAST_DIVIDER" value="`${divider - 1}`"  public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkFastInit()" body="    Cy_SysClk_ClkFastSetDivider(`${divider - 1}`U);" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

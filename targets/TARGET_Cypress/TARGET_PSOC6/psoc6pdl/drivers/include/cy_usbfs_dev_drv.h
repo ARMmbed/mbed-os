@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv.h
-* \version 2.20
+* \version 2.20.1
 *
 * Provides API declarations of the USBFS driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,16 +28,16 @@
 * \{
 * The USBFS driver provides an API to interact with a fixed-function USB block.
 *
-* The functions and other declarations used in this driver are in cy_usbfs_dev_drv.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
-* 
+* The functions and other declarations used in this driver are in cy_usbfs_dev_drv.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
+*
 * The USB block supports Host and Device modes of operation. This version of the
 * driver supports only Device mode.
 *
 * <b>Features:</b>
 * * Complies with USB Specification 2.0
-* * Supports full-speed peripheral device operation with a signaling bit 
+* * Supports full-speed peripheral device operation with a signaling bit
 *   rate of 12 Mbps.
 * * Supports eight data endpoints and one control endpoint.
 * * Provides a shared 512-byte buffer for data endpoints.
@@ -45,14 +45,14 @@
 * * Supports four types of transfers: bulk, interrupt, isochronous, and control
 * * Supports bus- and self-powered configurations
 * * Supports USB suspend, resume, and remove wakeup.
-* * Supports three types of logical transfer modes: 
+* * Supports three types of logical transfer modes:
 *   * CPU (No DMA) mode (Mode 1).
 *   * Manual DMA mode (Mode 2).
 *   * Automatic DMA mode (Mode 3).
-* * Supports the maximum packet size: 
+* * Supports the maximum packet size:
 *   * 512 bytes using Mode 1 and Mode 2.
 *   * 1023 bytes for isochronous transfer using Mode 3.
-* * Provides integrated 22 Ohm USB termination resistors on D+ and D- lines, 
+* * Provides integrated 22 Ohm USB termination resistors on D+ and D- lines,
 *   and 1.5 kOhm pull-up resistor on the D+ line.
 * * Supports USB 2.0 Link Power Management (LPM).
 *
@@ -61,12 +61,12 @@
 * \section group_usbfs_dev_drv_use_cases Common Use Cases
 ********************************************************************************
 *
-* <b>The primary usage model for the USBFS driver is to provide a defined API 
-* interface to 
+* <b>The primary usage model for the USBFS driver is to provide a defined API
+* interface to
 * <a href="https://cypresssemiconductorco.github.io/usbdev/usbfs_dev_api_reference_manual/html/index.html" target="_blank">
 * USB Device Middleware</a> component that works on top of it.</b> \n
-* The driver also provides an API interface for the application to implement the required 
-* functionality: 
+* The driver also provides an API interface for the application to implement the required
+* functionality:
 *  * \ref group_usbfs_dev_drv_callbacks
 *  * \ref group_usbfs_dev_drv_low_power
 *  * \ref group_usbfs_dev_drv_lpm
@@ -75,86 +75,86 @@
 ********************************************************************************
 * \section group_usbfs_dev_drv_configuration Configuration Considerations
 ********************************************************************************
-* 
-* This section explains how to configure the USBFS driver and system resources to 
-* enable USB Device operation. The pointers to the populated \ref cy_stc_usbfs_dev_drv_config_t configuration 
+*
+* This section explains how to configure the USBFS driver and system resources to
+* enable USB Device operation. The pointers to the populated \ref cy_stc_usbfs_dev_drv_config_t configuration
 * structure and allocated context are passed in the middleware initialization.
-* function Cy_USB_Dev_Init. After middleware initialization, it calls 
+* function Cy_USB_Dev_Init. After middleware initialization, it calls
 * \ref Cy_USBFS_Dev_Drv_Init to initialize the USBFS driver for Device operation.
 
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_config Configure Driver
 ********************************************************************************
-* 
-* To configure the USBFS driver in Device mode, the configuration structure 
-* \ref cy_stc_usbfs_dev_drv_config_t parameters must be populated. 
-* The configuration structure content significantly depends on the selected 
+*
+* To configure the USBFS driver in Device mode, the configuration structure
+* \ref cy_stc_usbfs_dev_drv_config_t parameters must be populated.
+* The configuration structure content significantly depends on the selected
 * endpoints management mode parameter:
 *
 * * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU \n
-*   The <i>epAccess, intrLevelSel and enableLpm</i> must be provided. All 
-*   other parameters are do not cares for this mode. Refer to section 
-*   \ref group_usbfs_dev_drv_intr to get information about <i>intrLevelSel</i> 
+*   The <i>epAccess, intrLevelSel and enableLpm</i> must be provided. All
+*   other parameters are do not cares for this mode. Refer to section
+*   \ref group_usbfs_dev_drv_intr to get information about <i>intrLevelSel</i>
 *   configuration.
 *
 *   \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_CfgCpu
 *
 * * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA \n
-*   To enable DMA operation, the DMA channels must be assigned for each endpoint 
-*   to be used. Each DMA channel needs a single DMA descriptor to 
-*   operate. The USBFS driver defines the DMA configuration structure 
-*   \ref cy_stc_usbfs_dev_drv_dma_config_t to be populated for each DMA 
+*   To enable DMA operation, the DMA channels must be assigned for each endpoint
+*   to be used. Each DMA channel needs a single DMA descriptor to
+*   operate. The USBFS driver defines the DMA configuration structure
+*   \ref cy_stc_usbfs_dev_drv_dma_config_t to be populated for each DMA
 *   channel.
-*   The code example below provides an initialized USBFS driver DMA configuration 
+*   The code example below provides an initialized USBFS driver DMA configuration
 *   structure:
-*   
+*
 *   \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_CfgDma_DmaInit
 *
-*   The pointers to the DMA configuration structure are required into the 
+*   The pointers to the DMA configuration structure are required into the
 *   \ref cy_stc_usbfs_dev_drv_config_t USBFS driver configuration structure
-*   to allow the USBFS driver to use DMA channels for used endpoints. 
-*   The <i>dmaConfig[0]</i> field expects a pointer to the DMA configuration for 
-*   data endpoint 1, the <i>dmaConfig[1]</i> field pointer to the DMA configuration 
+*   to allow the USBFS driver to use DMA channels for used endpoints.
+*   The <i>dmaConfig[0]</i> field expects a pointer to the DMA configuration for
+*   data endpoint 1, the <i>dmaConfig[1]</i> field pointer to the DMA configuration
 *   for data endpoint 2, and so on up to data endpoint 8.
-*   The code example below provides an initialized USBFS driver configuration 
+*   The code example below provides an initialized USBFS driver configuration
 *   structure which uses endpoint 1:
 *
 *   \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_CfgDma
-*   
+*
 * * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO \n
-*   DMA Automatic mode needs a DMA channels configuration similar to the described 
-*   above. But it also requires one more DMA descriptor for each DMA channel and 
+*   DMA Automatic mode needs a DMA channels configuration similar to the described
+*   above. But it also requires one more DMA descriptor for each DMA channel and
 *   DMA output trigger multiplexer. Refer to the \ref group_usbfs_dev_drv_dma section,
 *   for more detail about the trigger multiplexer .
-*   The code example below provides an initialized USBFS driver DMA configuration 
+*   The code example below provides an initialized USBFS driver DMA configuration
 *   structure:
-*   
+*
 *   \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_CfgDmaAuto_DmaInit
 *
 *   The driver requires a buffer for data endpoints to operate. This buffer must be
-*   allocated by the user. The buffer size is equal to the sum of all used 
-*   endpoints maximum packet sizes. If an endpoint belongs to more than 
-*   one alternate setting, select the greatest maximum packet size for this 
-*   endpoint. The driver configuration structure \ref cy_stc_usbfs_dev_drv_config_t 
+*   allocated by the user. The buffer size is equal to the sum of all used
+*   endpoints maximum packet sizes. If an endpoint belongs to more than
+*   one alternate setting, select the greatest maximum packet size for this
+*   endpoint. The driver configuration structure \ref cy_stc_usbfs_dev_drv_config_t
 *   parameters <i>epBuffer and epBufferSize</i> pass the buffer to the driver.
 *
-*   The code example below provides an initialized USBFS driver configuration 
-*   structure that uses data endpoint 1 with a maximum packet size of 63 bytes and 
+*   The code example below provides an initialized USBFS driver configuration
+*   structure that uses data endpoint 1 with a maximum packet size of 63 bytes and
 *   set 16-bit access:
-*    
+*
 *   \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_CfgDmaAuto
 *
 *
 * \note
-* The endpoint buffer allocation depends on the access type used: 8-bit or 16-bit. 
+* The endpoint buffer allocation depends on the access type used: 8-bit or 16-bit.
 * Refer to \ref group_usbfs_dev_drv_ep_management_buf_access for more information.
 *
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_pins Assign and Configure Pins
 ********************************************************************************
 *
-* Only dedicated USB pins can be used for USB operation. Keep the default 
-* USB pins configuration because after the USBFS driver initializes, the 
+* Only dedicated USB pins can be used for USB operation. Keep the default
+* USB pins configuration because after the USBFS driver initializes, the
 * USB block takes control over the pins and drives them properly.
 *
 ********************************************************************************
@@ -162,26 +162,26 @@
 ********************************************************************************
 *
 * The USB hardware block requires two clock sources for operation:
-* * Clk_HF3 (USB clock) must be 48 MHz. The accuracy of the USB clock must be 
-*   within -/+ 0.25%. Note that Clk_HF3 has an integer divider so the input 
-*   clock can be a multiple of 48. The valid options to get an internal USB 
+* * Clk_HF3 (USB clock) must be 48 MHz. The accuracy of the USB clock must be
+*   within -/+ 0.25%. Note that Clk_HF3 has an integer divider so the input
+*   clock can be a multiple of 48. The valid options to get an internal USB
 *   clock are PLL or ECO.\n
-*   <b>The typical configuration is:</b> the IMO output is used by the PLL to 
-*   generate Clk_HF3 (USB clock). To meet USB clock accuracy requirements 
-*   the IMO must be trimmed with USB SOF signal. Therefore, the driver 
+*   <b>The typical configuration is:</b> the IMO output is used by the PLL to
+*   generate Clk_HF3 (USB clock). To meet USB clock accuracy requirements
+*   the IMO must be trimmed with USB SOF signal. Therefore, the driver
 *   \ref Cy_USBFS_Dev_Drv_Init function enables the IMO trim from USB.
 *
-* * Divided Clk_Peri clock (PCLK_USB_CLOCK_DEV_BRS) equal to 100 kHz 
-*   used to detect a Bus Reset event. Use one of the 8-bit or 16-bit dividers 
+* * Divided Clk_Peri clock (PCLK_USB_CLOCK_DEV_BRS) equal to 100 kHz
+*   used to detect a Bus Reset event. Use one of the 8-bit or 16-bit dividers
 *   to provide required clock frequency.
 *
-* The code example below shows the connection source path 1 
-* (which expected provide 48 MHz -/+ 0.25% clock) to Clk_HF3 and Bus Reset clock 
+* The code example below shows the connection source path 1
+* (which expected provide 48 MHz -/+ 0.25% clock) to Clk_HF3 and Bus Reset clock
 * (Clk_Peri assumed to be 50 MHz):
-*    
+*
 * \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_ClockInit
 *
-* Refer to \ref group_sysclk driver API for more detail about clock 
+* Refer to \ref group_sysclk driver API for more detail about clock
 * configuration.
 *
 * The FLL (Clock Path 0) with ECO also can be used as an alternative USB source
@@ -195,21 +195,21 @@
 * \subsection group_usbfs_dev_drv_dma Assign and Route DMA Channels
 ********************************************************************************
 *
-* The USBFS driver requires a DMA controller to operate in DMA Manual and Automatic modes. 
-* The USB hardware block supports the DMA request and feedback lines for each 
-* data endpoint. Therefore, up to eight DMA channels serve eight data endpoints. 
-* The connection between the USB block and the DMA channels is set using the trigger 
-* muxes infrastructure. The USB block output DMA request line is connected to 
-* the DMA channel trigger input. This allows the USB block to request a DMA transfer. 
-* The DMA completion output is connected to the USB block burst end input. 
-* This allows the USB block to get notification that a DMA transfer has been completed 
-* and a next DMA request can be sent. The USBFS driver DMA configuration 
-* structure requires the <i>outTrigMux</i> field to provide the trigger mux that 
+* The USBFS driver requires a DMA controller to operate in DMA Manual and Automatic modes.
+* The USB hardware block supports the DMA request and feedback lines for each
+* data endpoint. Therefore, up to eight DMA channels serve eight data endpoints.
+* The connection between the USB block and the DMA channels is set using the trigger
+* muxes infrastructure. The USB block output DMA request line is connected to
+* the DMA channel trigger input. This allows the USB block to request a DMA transfer.
+* The DMA completion output is connected to the USB block burst end input.
+* This allows the USB block to get notification that a DMA transfer has been completed
+* and a next DMA request can be sent. The USBFS driver DMA configuration
+* structure requires the <i>outTrigMux</i> field to provide the trigger mux that
 * performs DMA completion and USB block burst end connection.
 *
 * Refer to \ref group_trigmux for more detail on the routing capabilities.
-* 
-* The code examples below shows a connection DMA channel and USB block and the define 
+*
+* The code examples below shows a connection DMA channel and USB block and the define
 * for <i>outTrigMux</i> field initialization for the CY8C6xx6 or CY8C6xx7 devices.
 *
 * \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_DmaConnect
@@ -219,93 +219,93 @@
 ********************************************************************************
 *
 * <b>The interrupts are mandatory for the USBFS driver operation.</b>
-* The USBFS block provides multiple interrupt sources to be assigned to 
-* trigger one of the three interrupts: Low, Medium, or High. This allows to 
+* The USBFS block provides multiple interrupt sources to be assigned to
+* trigger one of the three interrupts: Low, Medium, or High. This allows to
 * assign different priority to the interrupt sources handling.
-* The \ref cy_stc_usbfs_dev_drv_config_t structure provides the  
-* <i>intrLevelSel</i> field which initializes the INTR_LVL_SEL 
+* The \ref cy_stc_usbfs_dev_drv_config_t structure provides the
+* <i>intrLevelSel</i> field which initializes the INTR_LVL_SEL
 * register. This register configures which interrupt the interrupt source will trigger.
-* 
+*
 * \note
-* The interrupt name (Low, Medium, or High) does not specify the interrupt 
+* The interrupt name (Low, Medium, or High) does not specify the interrupt
 * priority. The interrupt priority is configured in NVIC.
 *
-* The recommended/default configuration is: 
+* The recommended/default configuration is:
 * * Interrupt Low: Bus Reset, Control Endpoint and SOF.
-* * Interrupt Medium: Endpoint 1-8 Completion. 
-* * Interrupt High: Arbiter and LPM. 
+* * Interrupt Medium: Endpoint 1-8 Completion.
+* * Interrupt High: Arbiter and LPM.
 *
 * However, the final configuration must be defined by the application.
 *
 * \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_UserLvlSel
 *
-* The \ref Cy_USBFS_Dev_Drv_Interrupt function must be called in the interrupt 
-* handler for the selected USB block instance. Note that 
-* the \ref Cy_USBFS_Dev_Drv_Interrupt has the parameter <i>intrCause</i> that 
-* must be assigned by calling the appropriate interrupt cause function: 
-* * \ref Cy_USBFS_Dev_Drv_GetInterruptCauseHi 
-* * \ref Cy_USBFS_Dev_Drv_GetInterruptCauseMed 
+* The \ref Cy_USBFS_Dev_Drv_Interrupt function must be called in the interrupt
+* handler for the selected USB block instance. Note that
+* the \ref Cy_USBFS_Dev_Drv_Interrupt has the parameter <i>intrCause</i> that
+* must be assigned by calling the appropriate interrupt cause function:
+* * \ref Cy_USBFS_Dev_Drv_GetInterruptCauseHi
+* * \ref Cy_USBFS_Dev_Drv_GetInterruptCauseMed
 * * \ref Cy_USBFS_Dev_Drv_GetInterruptCauseLo
 *
 * \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_IntrHandlers
 *
-* Finally, the interrupts must be configured and interrupt handler routines 
-* hook up to NVIC. The code below assigns the interrupt priorities accordingly 
+* Finally, the interrupts must be configured and interrupt handler routines
+* hook up to NVIC. The code below assigns the interrupt priorities accordingly
 * to interrupt names. The priorities among the USBFS interrupts are as follows:
 * High - the greatest; Medium - the middle; Low - the lowest.
 *
 * \note
-* For proper operation in Manual DMA mode (Mode 2) the Arbiter interrupt source 
-* must be assigned to interrupt which priority is greater than interrupt 
+* For proper operation in Manual DMA mode (Mode 2) the Arbiter interrupt source
+* must be assigned to interrupt which priority is greater than interrupt
 * triggered by Data Endpoint 1-8 Completion interrupt sources. \n
 * For Automatic DMA mode (Mode 3) the rule above is recommend to follow.
 *
 * \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_IntrCfg
 * \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_IntrCfgHook
-* 
+*
 ********************************************************************************
 * \section group_usbfs_dev_drv_ep_management Endpoint Buffer Management Modes
 ********************************************************************************
-* 
+*
 * The USBFS hardware block supports three endpoint buffer management modes:
 * CPU (No DMA) mode (Mode 1), Manual DMA mode (Mode 2), and Automatic DMA mode (Mode 3).
 * These modes are listed using enum \ref cy_en_usbfs_dev_drv_ep_management_mode_t.
-* The following sub-sections provide more information about the endpoint buffer 
+* The following sub-sections provide more information about the endpoint buffer
 * management.
 *
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_ep_management_buff Hardware buffers
 ********************************************************************************
 *
-* The USBFS block has a 512-byte hardware buffer that is divided between all 
-* data endpoints used in the selected configuration. How the hardware buffer 
+* The USBFS block has a 512-byte hardware buffer that is divided between all
+* data endpoints used in the selected configuration. How the hardware buffer
 * is divided between endpoints depends on the selected endpoint buffer management
 * modes:
-*  
+*
 * * \ref group_usbfs_dev_drv_ep_management_mode1 and \ref  group_usbfs_dev_drv_ep_management_mode2
-*   Each data endpoint consumes space (number of bytes) in the hardware buffer 
-*   that is equal to the endpoint maximum packet size defined in the endpoint 
+*   Each data endpoint consumes space (number of bytes) in the hardware buffer
+*   that is equal to the endpoint maximum packet size defined in the endpoint
 *   descriptor. The total space consumed by all endpoints is restricted
-*   by the size of hardware buffer (512 bytes). When an endpoint appears in the 
-*   different alternate settings and has a different maximum packet size, the greatest 
-*   value is selected to the allocate space of the endpoint in the 
-*   hardware buffer. This is to ensure correct USB Device operation when interface 
-*   alternate settings are changed. Note that endpoint can consume extra byte in 
-*   the hardware buffer when 16-bit access is used (See \ref 
+*   by the size of hardware buffer (512 bytes). When an endpoint appears in the
+*   different alternate settings and has a different maximum packet size, the greatest
+*   value is selected to the allocate space of the endpoint in the
+*   hardware buffer. This is to ensure correct USB Device operation when interface
+*   alternate settings are changed. Note that endpoint can consume extra byte in
+*   the hardware buffer when 16-bit access is used (See \ref
 *   group_usbfs_dev_drv_ep_management_buf_access for more information).
 *
 * * \ref group_usbfs_dev_drv_ep_management_mode3
-*   Each data endpoint consumes 32 bytes in the hardware buffer (if all eight 
-*   endpoints are used, the consumed buffer space is 32 * 8 = 256 byte). 
-*   This buffer is called "dedicated endpoint buffer". It acts as an endpoint 
-*   FIFO. The remaining space (256 bytes, if all eight endpoints are 
-*   used) in the hardware buffer is used by any endpoint that currently 
-*   communicates. This part of the buffer is called "common area". This hardware 
-*   buffer configuration gives a sufficient dedicated buffer size for each used 
-*   endpoint and common area for operation. The total space consumed by all 
+*   Each data endpoint consumes 32 bytes in the hardware buffer (if all eight
+*   endpoints are used, the consumed buffer space is 32 * 8 = 256 byte).
+*   This buffer is called "dedicated endpoint buffer". It acts as an endpoint
+*   FIFO. The remaining space (256 bytes, if all eight endpoints are
+*   used) in the hardware buffer is used by any endpoint that currently
+*   communicates. This part of the buffer is called "common area". This hardware
+*   buffer configuration gives a sufficient dedicated buffer size for each used
+*   endpoint and common area for operation. The total space consumed by all
 *   endpoints is not restricted by the size of the hardware buffer.
 *
-* To access the hardware buffer, the endpoint data register is read or written by 
+* To access the hardware buffer, the endpoint data register is read or written by
 * CPU or DMA. On each read or write, buffer pointers are updated to access
 * a next data element.
 *
@@ -314,48 +314,48 @@
 ********************************************************************************
 *
 * The USBFS block provides two sets of data registers: 8-bit and 16-bit. Either
-* the 8-bit endpoint data register or the 16-bit endpoint data register can 
-* be used to read/write to the endpoint buffer. The buffer access is controlled 
-* by the <i>epAccess</i> field of the driver configuration structure 
-* \ref cy_stc_usbfs_dev_drv_config_t. 
-* The endpoint hardware buffer and SRAM buffer must be allocated using the 
+* the 8-bit endpoint data register or the 16-bit endpoint data register can
+* be used to read/write to the endpoint buffer. The buffer access is controlled
+* by the <i>epAccess</i> field of the driver configuration structure
+* \ref cy_stc_usbfs_dev_drv_config_t.
+* The endpoint hardware buffer and SRAM buffer must be allocated using the
 * rules below when the 16-bit access is used:
-* * The buffer size must be even. If the endpoint maximum packet size is odd 
+* * The buffer size must be even. If the endpoint maximum packet size is odd
 *   the allocated buffer size must be equal to (maximum packet size + 1).
 * * The buffer must be aligned to the 2-byte boundary.
 *
-* The driver provides the \ref CY_USBFS_DEV_DRV_ALLOC_ENDPOINT_BUFFER macro that 
-* applies the rules above to allocate the SRAM buffer for an endpoint. This macro 
-* should be used by application to hide configuration differences. 
+* The driver provides the \ref CY_USBFS_DEV_DRV_ALLOC_ENDPOINT_BUFFER macro that
+* applies the rules above to allocate the SRAM buffer for an endpoint. This macro
+* should be used by application to hide configuration differences.
 * <b>However, in this case the application must ignore extra bytes in the buffer.</b>
 * Alternately, apply the rules above only for the 16-bits access type configuration.
 *
-* The driver firmware allocates an endpoint hardware buffer (dividing hardware buffer 
-* between utilized endpoints). Therefore, for \ref group_usbfs_dev_drv_ep_management_mode1 
-* and \ref group_usbfs_dev_drv_ep_management_mode2, an endpoint whose 
-* maximum packet size is odd, consumes an extra byte in the hardware buffer 
-* when the 16-bit access is used. This is not applicable for \ref group_usbfs_dev_drv_ep_management_mode3 
+* The driver firmware allocates an endpoint hardware buffer (dividing hardware buffer
+* between utilized endpoints). Therefore, for \ref group_usbfs_dev_drv_ep_management_mode1
+* and \ref group_usbfs_dev_drv_ep_management_mode2, an endpoint whose
+* maximum packet size is odd, consumes an extra byte in the hardware buffer
+* when the 16-bit access is used. This is not applicable for \ref group_usbfs_dev_drv_ep_management_mode3
 * because endpoints dedicated buffer are even and aligned.
 *
-* In addition, to operate in \ref group_usbfs_dev_drv_ep_management_mode3, 
-* the driver needs an internal SRAM buffer for endpoints. The buffer size is a 
-* sum of all endpoint buffers. When the 16-bit access is used, each endpoint buffer 
-* must be allocated using the rules above. The driver configuration structure 
-* \ref cy_stc_usbfs_dev_drv_config_t has <i>epBuffer and epBufferSize</i> fields 
+* In addition, to operate in \ref group_usbfs_dev_drv_ep_management_mode3,
+* the driver needs an internal SRAM buffer for endpoints. The buffer size is a
+* sum of all endpoint buffers. When the 16-bit access is used, each endpoint buffer
+* must be allocated using the rules above. The driver configuration structure
+* \ref cy_stc_usbfs_dev_drv_config_t has <i>epBuffer and epBufferSize</i> fields
 * to pass the allocated buffer to the driver. \n
 * For example: the USB Device uses three data endpoints whose max packets are
-* 63 bytes, 63 bytes, and 8 bytes. The endpoints buffer for the driver must be 
+* 63 bytes, 63 bytes, and 8 bytes. The endpoints buffer for the driver must be
 * allocated as follows:
 * *  8-bits: uint8_t endpointsBuffer[63 + 63 + 8];
-* * 16-bits: uint8_t endpointsBuffer[(63+1) + (63+1) + 8] CY_ALLIGN(2); or 
+* * 16-bits: uint8_t endpointsBuffer[(63+1) + (63+1) + 8] CY_ALLIGN(2); or
 *   CY_USBFS_DEV_DRV_ALLOC_ENDPOINT_BUFFER((63+1) + (63+1) + 8);
-* 
+*
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_ep_management_mode1 CPU mode (Mode 1)
 ********************************************************************************
 *
-* CPU handles data transfers between the user-provided SRAM endpoint-buffer 
-* and the USB block hardware-buffer when \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint 
+* CPU handles data transfers between the user-provided SRAM endpoint-buffer
+* and the USB block hardware-buffer when \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint
 * or \ref Cy_USBFS_Dev_Drv_LoadInEndpoint is called.
 *
 * \image html usbfs_ep_mngmnt_mode1.png
@@ -364,9 +364,9 @@
 * \subsection group_usbfs_dev_drv_ep_management_mode2 Manual DMA mode (Mode 2)
 ********************************************************************************
 *
-* DMA handles data transfers between the user-provided SRAM endpoint 
-* buffer and the USB block hardware buffer. The DMA request is issued by CPU 
-* to execute a data transfer when \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint or 
+* DMA handles data transfers between the user-provided SRAM endpoint
+* buffer and the USB block hardware buffer. The DMA request is issued by CPU
+* to execute a data transfer when \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint or
 * \ref Cy_USBFS_Dev_Drv_LoadInEndpoint.
 *
 * \image html usbfs_ep_mngmnt_mode2.png
@@ -374,31 +374,31 @@
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_ep_management_mode3 Automatic DMA mode (Mode 3)
 ********************************************************************************
-* 
-* DMA handles data transfers between the driver SRAM endpoints buffer and 
-* the USB block hardware buffer. The USB block generates DMA requests  
-* automatically. When USB transfer starts, the USB block triggers DMA 
-* requests to transfer data between the driver endpoint buffer and the hardware 
-* buffer until transfer completion. The common area acts as a FIFO to (and keeps 
-* data that does not fit into) the endpoint dedicated buffer. For IN endpoints, 
-* the dedicated buffer is pre-loaded before enabling USB Host access to the endpoint. 
-* This gives time for the DMA to provide remaining data before underflow 
-* occurs. The USB block hardware has a feedback connection with the DMA 
-* and does not issue new DMA request until it receives notification that the 
-* previous DMA transfer completed. 
-* When the \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint or \ref Cy_USBFS_Dev_Drv_LoadInEndpoint 
+*
+* DMA handles data transfers between the driver SRAM endpoints buffer and
+* the USB block hardware buffer. The USB block generates DMA requests
+* automatically. When USB transfer starts, the USB block triggers DMA
+* requests to transfer data between the driver endpoint buffer and the hardware
+* buffer until transfer completion. The common area acts as a FIFO to (and keeps
+* data that does not fit into) the endpoint dedicated buffer. For IN endpoints,
+* the dedicated buffer is pre-loaded before enabling USB Host access to the endpoint.
+* This gives time for the DMA to provide remaining data before underflow
+* occurs. The USB block hardware has a feedback connection with the DMA
+* and does not issue new DMA request until it receives notification that the
+* previous DMA transfer completed.
+* When the \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint or \ref Cy_USBFS_Dev_Drv_LoadInEndpoint
 * function is called, the memcpy function is used to copy data from/into the
 * driver endpoints buffer to the user-provided endpoint buffer.
-* The driver provides the \ref Cy_USBFS_Dev_Drv_OverwriteMemcpy function to 
+* The driver provides the \ref Cy_USBFS_Dev_Drv_OverwriteMemcpy function to
 * replace memcpy function by one that has been custom implemented (the DMA can be used for data copy).
-* 
+*
 * \image html usbfs_ep_mngmnt_mode3.png
 *
-* \warning 
-* When DMA data transfer is not fast enough, an overflow or underflow 
-* interrupt triggers for the impacted endpoint. This must never happen 
-* because this error condition indicates a system failure with no recovery. 
-* To fix this, get the DMA channel assigned to this endpoint greater priority or 
+* \warning
+* When DMA data transfer is not fast enough, an overflow or underflow
+* interrupt triggers for the impacted endpoint. This must never happen
+* because this error condition indicates a system failure with no recovery.
+* To fix this, get the DMA channel assigned to this endpoint greater priority or
 * increase the clock the DMA operates at.
 *
 ********************************************************************************
@@ -406,170 +406,170 @@
 ********************************************************************************
 *
 * The driver provides the following callbacks that can be used by the application:
-* 1. Data endpoint 1-8 completion. This callback is invoked when the USB Host 
-* completed communication with the endpoint. For IN endpoints, it means that data has 
-* been read by the USB Host. For OUT endpoints, it means that data has been written 
-* by the USB Host. Call \ref Cy_USBFS_Dev_Drv_RegisterEndpointCallback to 
+* 1. Data endpoint 1-8 completion. This callback is invoked when the USB Host
+* completed communication with the endpoint. For IN endpoints, it means that data has
+* been read by the USB Host. For OUT endpoints, it means that data has been written
+* by the USB Host. Call \ref Cy_USBFS_Dev_Drv_RegisterEndpointCallback to
 * register callback function.
-* 
-* 2. Start Of Frame packet received. This can be used in the application to 
-* synchronize with SOF packets or for monitoring the bus activity. 
-* Call \ref Cy_USBFS_Dev_Drv_RegisterSofCallback to register callback function. 
-* 
-* 3. LPM (Link Power Management) packet received. This must be used to implement 
-* LPM power optimization. Call \ref Cy_USBFS_Dev_Drv_RegisterLpmCallback to 
+*
+* 2. Start Of Frame packet received. This can be used in the application to
+* synchronize with SOF packets or for monitoring the bus activity.
+* Call \ref Cy_USBFS_Dev_Drv_RegisterSofCallback to register callback function.
+*
+* 3. LPM (Link Power Management) packet received. This must be used to implement
+* LPM power optimization. Call \ref Cy_USBFS_Dev_Drv_RegisterLpmCallback to
 * register callback function.
-* 
-* Also, the driver provides callbacks for a Bus Reset event and Control Endpoint 0 
-* communication events (setup packet, in packet, out packet). But these 
-* callbacks are used by middleware and must not be used by the application directly. 
+*
+* Also, the driver provides callbacks for a Bus Reset event and Control Endpoint 0
+* communication events (setup packet, in packet, out packet). But these
+* callbacks are used by middleware and must not be used by the application directly.
 * The middleware provides appropriate hooks for these events.
 *
 ********************************************************************************
 * \section group_usbfs_dev_drv_vbus VBUS Detection
 ********************************************************************************
 *
-* The USB specification requires that no device supplies current on VBUS at its 
-* upstream facing port at any time. To meet this requirement, the device must 
-* monitors for the presence or absence of VBUS and removes power from the Dp/Dm 
-* pull-up resistor if VBUS is absent. The USBFS driver does not provide any 
-* support of VBUS monitoring or detection. The application firmware must implement 
-* the required functionality using a VDDUSB power pad or GPIO. Refer to the  
-* Universal Serial Bus (USB) Device Mode section, sub-section VBUS Detection 
+* The USB specification requires that no device supplies current on VBUS at its
+* upstream facing port at any time. To meet this requirement, the device must
+* monitors for the presence or absence of VBUS and removes power from the Dp/Dm
+* pull-up resistor if VBUS is absent. The USBFS driver does not provide any
+* support of VBUS monitoring or detection. The application firmware must implement
+* the required functionality using a VDDUSB power pad or GPIO. Refer to the
+* Universal Serial Bus (USB) Device Mode section, sub-section VBUS Detection
 * in the technical reference manual (TRM).
-* 
-* Connect the VBUS through a resistive network when the 
-* regular GPIO is used for VBUS detection to save the pin from voltage picks on VBUS, 
+*
+* Connect the VBUS through a resistive network when the
+* regular GPIO is used for VBUS detection to save the pin from voltage picks on VBUS,
 * or use GPIO tolerant over the voltage. An example schematic is shown below.
-* 
+*
 * \image html usbfs_vbus_connect_schem.png
-* 
-* \note Power is removed when the USB cable is removed from the USB Host 
-* for bus-powered USB Device. Therefore, such a USB Device complies with 
+*
+* \note Power is removed when the USB cable is removed from the USB Host
+* for bus-powered USB Device. Therefore, such a USB Device complies with
 * specification requirement above.
 *
 ********************************************************************************
 * \section group_usbfs_dev_drv_low_power Low Power Support
 ********************************************************************************
 *
-* The USBFS driver supports the USB Suspend, Resume, and Remote Wakeup functionality. 
-* This functionality is tightly related with the user application. The USBFS 
-* driver provides only the API interface which helps the user achieve the desired 
-* low-power behavior. The additional processing is required from the user application. 
+* The USBFS driver supports the USB Suspend, Resume, and Remote Wakeup functionality.
+* This functionality is tightly related with the user application. The USBFS
+* driver provides only the API interface which helps the user achieve the desired
+* low-power behavior. The additional processing is required from the user application.
 * The description of application processing is provided below.
 *
 * Normally, the USB Host sends an SOF packet every 1 ms (at full speed), and this
-* keeps the USB Device awake. The USB Host suspends the USB Device by not 
-* sending anything to the USB Device for 3 ms. To recognize this condition, the bus 
-* activity must be checked. This can be done using the \ref Cy_USBFS_Dev_Drv_CheckActivity 
-* function or by monitoring the SOF interrupt. A suspended device may draw no 
+* keeps the USB Device awake. The USB Host suspends the USB Device by not
+* sending anything to the USB Device for 3 ms. To recognize this condition, the bus
+* activity must be checked. This can be done using the \ref Cy_USBFS_Dev_Drv_CheckActivity
+* function or by monitoring the SOF interrupt. A suspended device may draw no
 * more than 0.5 mA from VBUS. Therefore, put the device into low-power
-* mode to consume less current. 
-* The \ref Cy_USBFS_Dev_Drv_Suspend function must be called before entering 
-* low-power mode. When the USB Host wants to wake the device after a suspend, 
-* it does so by reversing the polarity of the signal on the data lines for at 
-* least 20 ms. The resume signaling is completed with a low-speed end-of-packet 
-* signal. The USB block is disabled during Deep Sleep or Hibernate low-power modes. 
-* To exit a low-power mode when USB Host drives resume, a falling edge interrupt 
-* on Dp must be configured before entering these modes. The \ref Cy_USBFS_Dev_Drv_Resume 
-* function must be called after exiting the low-power mode. To resume communication with 
-* the USB Host, the data endpoints must be managed: the OUT endpoints must be 
+* mode to consume less current.
+* The \ref Cy_USBFS_Dev_Drv_Suspend function must be called before entering
+* low-power mode. When the USB Host wants to wake the device after a suspend,
+* it does so by reversing the polarity of the signal on the data lines for at
+* least 20 ms. The resume signaling is completed with a low-speed end-of-packet
+* signal. The USB block is disabled during Deep Sleep or Hibernate low-power modes.
+* To exit a low-power mode when USB Host drives resume, a falling edge interrupt
+* on Dp must be configured before entering these modes. The \ref Cy_USBFS_Dev_Drv_Resume
+* function must be called after exiting the low-power mode. To resume communication with
+* the USB Host, the data endpoints must be managed: the OUT endpoints must be
 * enabled and IN endpoints must be loaded with data.
-* 
-* \note After entering low-power mode, the data which was left in the IN or OUT 
-* endpoint buffers is not restored after the device's wake-up and is lost. 
-* Therefore, it must be stored in the SRAM for OUT endpoint or read by the Host for 
+*
+* \note After entering low-power mode, the data which was left in the IN or OUT
+* endpoint buffers is not restored after the device's wake-up and is lost.
+* Therefore, it must be stored in the SRAM for OUT endpoint or read by the Host for
 * the IN endpoint before entering Low-power mode.
 *
-* If the USB Device supports remote wakeup functionality, the application has 
-* to use middleware function Cy_USB_Dev_IsRemoteWakeupEnabled to determine whether 
-* remote wakeup was enabled by the USB Host. When the device is suspended and 
-* it determines the conditions to initiate a remote wakeup are met, 
+* If the USB Device supports remote wakeup functionality, the application has
+* to use middleware function Cy_USB_Dev_IsRemoteWakeupEnabled to determine whether
+* remote wakeup was enabled by the USB Host. When the device is suspended and
+* it determines the conditions to initiate a remote wakeup are met,
 * the application must call the \ref Cy_USBFS_Dev_Drv_Force
-* function to force the appropriate J and K states onto the USB bus, signaling a 
-* remote wakeup condition. Note that \ref Cy_USBFS_Dev_Drv_Resume must be called 
+* function to force the appropriate J and K states onto the USB bus, signaling a
+* remote wakeup condition. Note that \ref Cy_USBFS_Dev_Drv_Resume must be called
 * first to restore the condition.
-* 
+*
 ********************************************************************************
 * \section group_usbfs_dev_drv_lpm Link Power Management (LPM)
 ********************************************************************************
 *
-* Link Power Management is a USB low-power mode feature that provides more 
-* flexibility in terms of features than the existing resume mode. This feature 
-* is similar to the existing Suspend/Resume, but has transitional latencies of 
-* tens of microseconds between power states (instead of 3 to greater than 20 
+* Link Power Management is a USB low-power mode feature that provides more
+* flexibility in terms of features than the existing resume mode. This feature
+* is similar to the existing Suspend/Resume, but has transitional latencies of
+* tens of microseconds between power states (instead of 3 to greater than 20
 * millisecond latencies of the USB 2.0 Suspend/Resume).
-* 
-* USB2.0 Power states are re-arranged as below with the introduction of LPM. 
+*
+* USB2.0 Power states are re-arranged as below with the introduction of LPM.
 * The existing power states are re-named with LPM:
-* * L0 (On) 
-* * L1 (Sleep) -- Newly Introduced State in LPM 
-* * L2 (Suspend) 
+* * L0 (On)
+* * L1 (Sleep) -- Newly Introduced State in LPM
+* * L2 (Suspend)
 * * L3 (Powered-Off)
-* 
+*
 * LPM state transitions between is shown below:
 *
 * \image html usbfs_lpm_state_transition.png
-* 
-* For example, a USB Host must transition a link from L1 (Sleep) to L0 before 
+*
+* For example, a USB Host must transition a link from L1 (Sleep) to L0 before
 * transitioning it to L2 (Suspend), and similarly when transitioning from L2 to L1.
-* 
-* When a USB Host is ready to transition a USB Device from L0 to a deeper power 
-* savings state, it issues an LPM transaction to the USB Device. The USB Device 
-* function responds with an ACK if it is ready to make the transition or a NYET 
-* (Not Yet) if it is not ready (usually because it is has data pending for the 
-* USB Host). A USB Device will transmit a STALL handshake if it does not support 
-* the requested link state. If the USB Device detects errors in either of the 
-* token packets or does not understand the protocol extension transaction, 
+*
+* When a USB Host is ready to transition a USB Device from L0 to a deeper power
+* savings state, it issues an LPM transaction to the USB Device. The USB Device
+* function responds with an ACK if it is ready to make the transition or a NYET
+* (Not Yet) if it is not ready (usually because it is has data pending for the
+* USB Host). A USB Device will transmit a STALL handshake if it does not support
+* the requested link state. If the USB Device detects errors in either of the
+* token packets or does not understand the protocol extension transaction,
 * no handshake is returned.
 *
 * \image html usbfs_lpm_responses.png
-* 
-* After USB Device is initialized, the LPM transaction is to be acknowledged (ACKed) 
-* meaning that the device is ready to enter the requested low-power mode. To override this 
+*
+* After USB Device is initialized, the LPM transaction is to be acknowledged (ACKed)
+* meaning that the device is ready to enter the requested low-power mode. To override this
 * behavior, use \ref Cy_USBFS_Dev_Drv_Lpm_SetResponse. \n
-* 
-* The USB block provides an interrupt source to define that an LPM transaction was 
-* received and acknowledged (ACKed). Use the \ref Cy_USBFS_Dev_Drv_RegisterLpmCallback 
-* function to register the application level callback function to serve the LPM 
+*
+* The USB block provides an interrupt source to define that an LPM transaction was
+* received and acknowledged (ACKed). Use the \ref Cy_USBFS_Dev_Drv_RegisterLpmCallback
+* function to register the application level callback function to serve the LPM
 * transaction. The callback function can notify the application about an LPM transaction
-* and can use \ref Cy_USBFS_Dev_Drv_Lpm_GetBeslValue read to read Best Effort Service 
-* Latency (BESL) values provided as part of an LPM transaction. The BESL value 
-* indicates the  amount of time from the start of a resume to when the USB Host 
-* attempts to begin issuing transactions to the USB Device. The 
+* and can use \ref Cy_USBFS_Dev_Drv_Lpm_GetBeslValue read to read Best Effort Service
+* Latency (BESL) values provided as part of an LPM transaction. The BESL value
+* indicates the  amount of time from the start of a resume to when the USB Host
+* attempts to begin issuing transactions to the USB Device. The
 * application must use the value BESL to decide which low-power mode is entered
 * to meet wakeup timing. The LPM transaction also contains the field that allows a
-* remote to wake up. Use \ref Cy_USBFS_Dev_Drv_Lpm_RemoteWakeUpAllowed to get its 
+* remote to wake up. Use \ref Cy_USBFS_Dev_Drv_Lpm_RemoteWakeUpAllowed to get its
 * value.
-* 
-* LPM related USB 2.0 Extension Descriptor provides attributes fields named 
+*
+* LPM related USB 2.0 Extension Descriptor provides attributes fields named
 * baseline BESL and deep BESL to provide a range of values for different low-power
-* optimization. The recommended use of these fields is that the 
-* baseline BESL field will have a value less than the deep BESL field. The 
-* expected use is the baseline BESL value communicates a nominal power savings 
-* design point and the deep BESL value communicates a significant power saving 
+* optimization. The recommended use of these fields is that the
+* baseline BESL field will have a value less than the deep BESL field. The
+* expected use is the baseline BESL value communicates a nominal power savings
+* design point and the deep BESL value communicates a significant power saving
 * design point.
-* For example, when the received BESL is less than baseline BESL, leave the device in  
-* Active mode. When it is between baseline BESL and deep BESL, put the device into 
-* Deep Sleep mode. When it is greater than deep BESL, put the device into 
+* For example, when the received BESL is less than baseline BESL, leave the device in
+* Active mode. When it is between baseline BESL and deep BESL, put the device into
+* Deep Sleep mode. When it is greater than deep BESL, put the device into
 * Hibernate mode.
-* 
-* \note 
-* The driver implements the USB Full-Speed device which does not support the LPM 
+*
+* \note
+* The driver implements the USB Full-Speed device which does not support the LPM
 * NYET response.
 *
-* \note 
-* The device will restart after Hibernate mode and the USB Device must 
-* be initialized at the application level. Call the initialization functions 
-* instead of \ref Cy_USBFS_Dev_Drv_Resume. The application must ensure that 
-* the device will resume within the time defined in the BESL value of LPM request.  
+* \note
+* The device will restart after Hibernate mode and the USB Device must
+* be initialized at the application level. Call the initialization functions
+* instead of \ref Cy_USBFS_Dev_Drv_Resume. The application must ensure that
+* the device will resume within the time defined in the BESL value of LPM request.
 *
 ********************************************************************************
 * \section group_usbfs_drv_more_information More Information
 ********************************************************************************
-* 
-* For more detail on the USB Full-Speed Device peripheral, refer to the 
-* section Universal Serial Bus (USB) Device Mode in the technical reference 
+*
+* For more detail on the USB Full-Speed Device peripheral, refer to the
+* section Universal Serial Bus (USB) Device Mode in the technical reference
 * manual (TRM).
 *
 ********************************************************************************
@@ -588,11 +588,11 @@
 *     <td>A</td>
 *     <td>A cast should not be performed between a pointer to object type and
 *         a different pointer to object type.</td>
-*     <td>The function \ref Cy_USBFS_Dev_Drv_LoadInEndpoint and 
-*         \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint cast buffer parameters from 
-*         (uint8_t *) to (uint16_t *) when 16-bit access is enabled. 
-*         To handle alignment issues the macro  
-*         \ref CY_USBFS_DEV_DRV_ALLOC_ENDPOINT_BUFFER must be used to 
+*     <td>The function \ref Cy_USBFS_Dev_Drv_LoadInEndpoint and
+*         \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint cast buffer parameters from
+*         (uint8_t *) to (uint16_t *) when 16-bit access is enabled.
+*         To handle alignment issues the macro
+*         \ref CY_USBFS_DEV_DRV_ALLOC_ENDPOINT_BUFFER must be used to
 *        allocate the buffer for the endpoint.</td>
 *   </tr>
 *   <tr>
@@ -601,11 +601,11 @@
 *     <td>A cast shall not be performed that removes any const or volatile
 *         qualification from the type addressed by a pointer.</td>
 *     <td>
-*      1. The register access-macros cast base-pointers to the USBFS peripheral 
-*         registers lose the const qualification. Despite the qualification being 
+*      1. The register access-macros cast base-pointers to the USBFS peripheral
+*         registers lose the const qualification. Despite the qualification being
 *         lost, the driver ensures the proper registers access.
-*      2. The volatile qualification is lost when a register address is passed 
-*         as a source or destination to the DMA channel. This does not cause any 
+*      2. The volatile qualification is lost when a register address is passed
+*         as a source or destination to the DMA channel. This does not cause any
 *         negative impact because the DMA does not optimize any memory access.
 *     </td>
 *   </tr>
@@ -614,8 +614,8 @@
 *     <td>R</td>
 *     <td>A function shall have a single point of exit at the end of the
 *         function.</td>
-*     <td>The functions can return from several points. This is typically 
-*         done to improve code clarity when returning error status code if 
+*     <td>The functions can return from several points. This is typically
+*         done to improve code clarity when returning error status code if
 *         input parameters validation fail.</td>
 *   </tr>
 *   <tr>
@@ -624,11 +624,11 @@
 *     <td>A pointer parameter in a function prototype should be declared as
 *         pointer to const if the pointer is not used to modify the addressed
 *         object.</td>
-*     <td>The middleware and USBFS driver define the general function 
-*         prototypes and pointers to the function types but the function's 
-*         implementation depends on the configuration. Therefore, 
-*         some functions' implementations require parameters to be a pointer to 
-*         const but this is not met because of the generalized implementation 
+*     <td>The middleware and USBFS driver define the general function
+*         prototypes and pointers to the function types but the function's
+*         implementation depends on the configuration. Therefore,
+*         some functions' implementations require parameters to be a pointer to
+*         const but this is not met because of the generalized implementation
 *         approach.</td>
 *   </tr>
 * </table>
@@ -640,16 +640,21 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.20.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="2">2.20</td>
-*     <td>Fix configuration register value restoring in resume routine after 
+*     <td>Fix configuration register value restoring in resume routine after
 *         Deep Sleep.
 *     </td>
-*     <td>Fix issue that USB Device stops working in DMA modes after wake up 
+*     <td>Fix issue that USB Device stops working in DMA modes after wake up
 *         from Deep Sleep.
 *     </td>
 *   </tr>
 *   <tr>
-*     <td>The LPM requests are ignored after wake up from Deep Sleep and the 
+*     <td>The LPM requests are ignored after wake up from Deep Sleep and the
 *         host starts sending SOFs.</td>
 *     <td>Updated \ref Cy_USBFS_Dev_Drv_Resume function to restore LPM control
 *          register after exit Deep Sleep.
@@ -657,11 +662,11 @@
 *   </tr>
 *   <tr>
 *     <td>2.10</td>
-*     <td>Returns the data toggle bit into the previous state after detecting 
+*     <td>Returns the data toggle bit into the previous state after detecting
 *         that the host is retrying an OUT transaction.</td>
-*     <td>The device was not able to recover the data toggle bit and 
-*         continues communication through the endpoint after the host retried 
-*         the OUT transaction (the retried transaction has the same toggle bit 
+*     <td>The device was not able to recover the data toggle bit and
+*         continues communication through the endpoint after the host retried
+*         the OUT transaction (the retried transaction has the same toggle bit
 *         as the previous had).
 *     </td>
 *   </tr>
@@ -670,18 +675,18 @@
 *     <td>The list of changes to support the MBED-OS USB Device stack is provided below:
 *         - Changed the processing of the control transfers.
 *         - Updated the endpoint 0 service functions to update the endpoint 0 registers
-*           before the function returns. 
+*           before the function returns.
 *         - Moved the set-device-address processing into the driver from the middleware.
-*         - Changed the flow to configure endpoints after configuration change:  
-*           unconfigure the device or remove all endpoints, add endpoints, configure 
+*         - Changed the flow to configure endpoints after configuration change:
+*           unconfigure the device or remove all endpoints, add endpoints, configure
 *           the device. Updated the functions:
-*           \ref Cy_USBFS_Dev_Drv_UnConfigureDevice, \ref Cy_USBFS_Dev_Drv_AddEndpoint 
-*           and \ref Cy_USBFS_Dev_Drv_ConfigDevice. 
+*           \ref Cy_USBFS_Dev_Drv_UnConfigureDevice, \ref Cy_USBFS_Dev_Drv_AddEndpoint
+*           and \ref Cy_USBFS_Dev_Drv_ConfigDevice.
 *           Removed the Cy_USBFS_Dev_Drv_ConfigDeviceComplete function because it is no needed anymore.
 *         - Added the functions: \ref Cy_USBFS_Dev_Drv_Ep0ReadResult(), \ref Cy_USBFS_Dev_Drv_SetAddress()
-*           and \ref Cy_USBFS_Dev_Drv_GetEp0MaxPacket(). 
+*           and \ref Cy_USBFS_Dev_Drv_GetEp0MaxPacket().
 *         - Changed the function signature \ref Cy_USBFS_Dev_Drv_Ep0Stall().
-*         - Obsolete function Cy_USBFS_Dev_Drv_GetEndpointStallState; the \ref 
+*         - Obsolete function Cy_USBFS_Dev_Drv_GetEndpointStallState; the \ref
 *           Cy_USBFS_Dev_Drv_GetEndpointState() updated to be used instead of the obsolete function.
 *         - Reduced the time required to complete abort operation in function \ref Cy_USBFS_Dev_Drv_Abort.
 *           Obsolete function Cy_USBFS_Dev_Drv_AbortComplete because entire abort operation is handled by
@@ -689,14 +694,14 @@
 *         - Added the endpoint address argument to the \ref cy_cb_usbfs_dev_drv_ep_callback_t to simplify
 *           endpoint transfer complete event processing for the MBED-OS USB Device stack.
 *     </td>
-*     <td>Updated the driver to support the MBED-OS USB Device stack and Cypress 
+*     <td>Updated the driver to support the MBED-OS USB Device stack and Cypress
 *         USB Device middleware.</td>
 *   </tr>
 *   <tr>
 *     <td rowspan="2">1.10</td>
 *     <td>Fixed the \ref Cy_USBFS_Dev_Drv_Disable function to not disable DMA
 *         in CPU mode.</td>
-*     <td>Calling this function triggers assert because DMA for endpoints is not 
+*     <td>Calling this function triggers assert because DMA for endpoints is not
 *         initialized/used in the CPU mode.</td>
 *   </tr>
 *   <tr>
@@ -728,10 +733,10 @@
 *     \defgroup group_usbfs_dev_hal_functions_data_xfer       Data Endpoint Transfer Functions
 *     \defgroup group_usbfs_dev_drv_functions_low_power       Low Power Functions
 *     \defgroup group_usbfs_dev_drv_functions_lpm             LPM (Link Power Management) Functions
-* \} 
+* \}
 * \defgroup group_usbfs_dev_drv_data_structures Data Structures
 * \defgroup group_usbfs_dev_drv_enums           Enumerated Types
-* \} 
+* \}
 */
 
 
@@ -787,46 +792,46 @@ typedef enum
 {
     /** Operation completed successfully */
     CY_USBFS_DEV_DRV_SUCCESS = 0U,
-    
-    /** One or more input parameters are invalid */
-    CY_USBFS_DEV_DRV_BAD_PARAM               = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 1U), 
-    
-    /** There is not enough space in the buffer to be allocated for the endpoint (hardware or RAM) */ 
-    CY_USBFS_DEV_DRV_BUF_ALLOC_FAILED        = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 2U),        
-    
-    /** Failure during DMA configuration */                                                     
-    CY_USBFS_DEV_DRV_DMA_CFG_FAILED          = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 3U),       
-    
-    /** Timeout during dynamic reconfiguration */                                            
-    CY_USBFS_DEV_DRV_EP_DYN_RECONFIG_TIMEOUT = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 4U), 
-    
-    /** Timeout during execution of the DMA read request for the OUT endpoint 
-    * (only applicable in \ref group_usbfs_dev_drv_ep_management_mode2) 
-    */
-    CY_USBFS_DEV_DRV_EP_DMA_READ_TIMEOUT     = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 5U), 
 
-    /** Timeout during execution of the DMA read request for the OUT endpoint 
-    * (only applicable in \ref group_usbfs_dev_drv_ep_management_mode2) 
+    /** One or more input parameters are invalid */
+    CY_USBFS_DEV_DRV_BAD_PARAM               = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 1U),
+
+    /** There is not enough space in the buffer to be allocated for the endpoint (hardware or RAM) */
+    CY_USBFS_DEV_DRV_BUF_ALLOC_FAILED        = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 2U),
+
+    /** Failure during DMA configuration */
+    CY_USBFS_DEV_DRV_DMA_CFG_FAILED          = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 3U),
+
+    /** Timeout during dynamic reconfiguration */
+    CY_USBFS_DEV_DRV_EP_DYN_RECONFIG_TIMEOUT = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 4U),
+
+    /** Timeout during execution of the DMA read request for the OUT endpoint
+    * (only applicable in \ref group_usbfs_dev_drv_ep_management_mode2)
+    */
+    CY_USBFS_DEV_DRV_EP_DMA_READ_TIMEOUT     = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 5U),
+
+    /** Timeout during execution of the DMA read request for the OUT endpoint
+    * (only applicable in \ref group_usbfs_dev_drv_ep_management_mode2)
     */
     CY_USBFS_DEV_DRV_EP_DMA_WRITE_TIMEOUT     = (CY_USBFS_ID | CY_PDL_STATUS_ERROR | CY_USBFS_DEV_DRV_STATUS_CODE | 6U),
 
-} cy_en_usbfs_dev_drv_status_t; 
+} cy_en_usbfs_dev_drv_status_t;
 
 
 /** Data Endpoints Buffer Management Mode */
 typedef enum
 {
-    /** CPU manages a data transfer between the hardware endpoints buffer 
+    /** CPU manages a data transfer between the hardware endpoints buffer
     * and the user SRAM
     */
     CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU = 0,
-    
+
     /** DMA manages data transfer between the hardware endpoints buffer and
     * the user SRAM
     */
     CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA = 1,
 
-    /** The DMA automatically manages a data transfer between the hardware endpoints 
+    /** The DMA automatically manages a data transfer between the hardware endpoints
     * FIFO buffer and the user SRAM
     */
     CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO = 2,
@@ -887,7 +892,7 @@ typedef enum
 typedef enum
 {
     /** The next LPM request will be responded with NACK */
-    CY_USBFS_DEV_DRV_LPM_REQ_NACK = 0x0U,  
+    CY_USBFS_DEV_DRV_LPM_REQ_NACK = 0x0U,
 
     /** The next LPM request will be responded with ACK */
     CY_USBFS_DEV_DRV_LPM_REQ_ACK  = 0x1U,
@@ -924,7 +929,7 @@ typedef struct
     uint16_t bufferSize;        /**< The endpoint buffer size (the biggest max packet size
                                      across all alternate for this endpoint) */
     uint8_t  endpointAddr;      /**< The endpoint address (number plus direction bit) */
-    uint8_t  attributes;        /**< The endpoint attributes */ 
+    uint8_t  attributes;        /**< The endpoint attributes */
 } cy_stc_usb_dev_ep_config_t;
 
 /**
@@ -937,25 +942,25 @@ struct cy_stc_usbfs_dev_drv_context;
 * Provides the typedef for the callback function called in the
 * \ref Cy_USBFS_Dev_Drv_Interrupt to notify the user interrupt events.
 */
-typedef void (* cy_cb_usbfs_dev_drv_callback_t)(USBFS_Type *base, 
+typedef void (* cy_cb_usbfs_dev_drv_callback_t)(USBFS_Type *base,
                                                 struct cy_stc_usbfs_dev_drv_context *context);
 
 /**
 * Provides the typedef for the callback function called in the
-* \ref Cy_USBFS_Dev_Drv_Interrupt to notify the user about endpoint transfer 
+* \ref Cy_USBFS_Dev_Drv_Interrupt to notify the user about endpoint transfer
 * completion event.
 */
-typedef void (* cy_cb_usbfs_dev_drv_ep_callback_t)(USBFS_Type *base, 
+typedef void (* cy_cb_usbfs_dev_drv_ep_callback_t)(USBFS_Type *base,
                                                    uint32_t endpointAddr,
-                                                   uint32_t errorType, 
+                                                   uint32_t errorType,
                                                    struct cy_stc_usbfs_dev_drv_context *context);
 
 /**
-* Provides the typedef for the user defined function to replace library provided 
+* Provides the typedef for the user defined function to replace library provided
 * memcpy function to copy data from endpoint buffer to the user buffer.
 */
-typedef uint8_t * (* cy_fn_usbfs_dev_drv_memcpy_ptr_t)(uint8_t *dest, 
-                                                       const uint8_t *src, 
+typedef uint8_t * (* cy_fn_usbfs_dev_drv_memcpy_ptr_t)(uint8_t *dest,
+                                                       const uint8_t *src,
                                                        uint32_t size);
 
 /** \cond INTERNAL*/
@@ -1000,7 +1005,7 @@ typedef struct
     uint32_t priority;      /**< Channel's priority */
     bool     preemptable;   /**< Specifies whether the channel is preempt-able by another higher-priority channel */
 
-    /** DMA out trigger mux (applicable only when mode is 
+    /** DMA out trigger mux (applicable only when mode is
     * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO)
     */
     uint32_t outTrigMux;
@@ -1008,8 +1013,8 @@ typedef struct
     /** The pointer to the 1st allocated DMA descriptor (required for DMA operation) */
     cy_stc_dma_descriptor_t *descr0;
 
-    /** The pointer to the 2nd allocated DMA descriptor (required when mode is 
-    * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO) 
+    /** The pointer to the 2nd allocated DMA descriptor (required when mode is
+    * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO)
     */
     cy_stc_dma_descriptor_t *descr1;
 
@@ -1022,26 +1027,26 @@ typedef struct cy_stc_usbfs_dev_drv_config
     cy_en_usbfs_dev_drv_ep_management_mode_t mode;
 
     /** DMA channels configuration for the endpoints.
-    * Only DMChannels for active endpoints must be configured. Provide NULL 
-    * pointer if endpoint is not used. Applicable when \ref mode is 
+    * Only DMChannels for active endpoints must be configured. Provide NULL
+    * pointer if endpoint is not used. Applicable when \ref mode is
     * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA or \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO.
     */
     const cy_stc_usbfs_dev_drv_dma_config_t *dmaConfig[CY_USBFS_DEV_DRV_NUM_EPS_MAX];
 
-    /** 
-    * The pointer to the buffer allocated for the OUT endpoints (applicable only when \ref mode 
+    /**
+    * The pointer to the buffer allocated for the OUT endpoints (applicable only when \ref mode
     * is \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO)
     */
     uint8_t  *epBuffer;
-    
-    /** 
-    * The size of the buffer for the OUT endpoints (applicable only when \ref mode 
+
+    /**
+    * The size of the buffer for the OUT endpoints (applicable only when \ref mode
     * is \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO)
     */
     uint16_t  epBufferSize;
 
     /** The mask that assigns interrupt sources to trigger: Low, Medium, or High interrupt.
-    * Use the macros provided in group_usbfs_dev_drv_macros_intr_level to initialize the 
+    * Use the macros provided in group_usbfs_dev_drv_macros_intr_level to initialize the
     * intrLevelSel mask.
     */
     uint32_t intrLevelSel;
@@ -1077,7 +1082,7 @@ typedef struct
 
     cy_stc_dma_descriptor_t* descr0;    /**< The pointer to the descriptor 0 */
     cy_stc_dma_descriptor_t* descr1;    /**< The pointer to the descriptor 1 */
-    
+
     cy_fn_usbfs_dev_drv_memcpy_ptr_t copyData;  /**< The pointer to the user memcpy function */
 
 } cy_stc_usbfs_dev_drv_endpoint_data_t;
@@ -1086,7 +1091,7 @@ typedef struct
 /** USBFS Device context structure.
 * All fields for the context structure are internal. The firmware never reads or
 * writes these values. The firmware allocates a structure and provides the
-* address of the structure to the middleware in HID function calls. The firmware 
+* address of the structure to the middleware in HID function calls. The firmware
 * must ensure that the defined instance of this structure remains in scope while
 * the middleware is in use.
 */
@@ -1172,62 +1177,62 @@ typedef struct cy_stc_usbfs_dev_drv_context
 /**
 * \addtogroup group_usbfs_dev_hal_functions_common
 * \{
-* The Initialization functions provide an API to begin the USBFS driver operation 
+* The Initialization functions provide an API to begin the USBFS driver operation
 * (configure and enable) and to stop operation (disable and de-initialize).
 */
 cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Init(USBFS_Type *base,
                                                    cy_stc_usbfs_dev_drv_config_t const *config,
                                                    cy_stc_usbfs_dev_drv_context_t      *context);
 
-void Cy_USBFS_Dev_Drv_DeInit(USBFS_Type *base, 
+void Cy_USBFS_Dev_Drv_DeInit(USBFS_Type *base,
                              cy_stc_usbfs_dev_drv_context_t *context);
 
-void Cy_USBFS_Dev_Drv_Enable(USBFS_Type *base, 
+void Cy_USBFS_Dev_Drv_Enable(USBFS_Type *base,
                              cy_stc_usbfs_dev_drv_context_t const *context);
 
-void Cy_USBFS_Dev_Drv_Disable(USBFS_Type *base, 
+void Cy_USBFS_Dev_Drv_Disable(USBFS_Type *base,
                               cy_stc_usbfs_dev_drv_context_t *context);
 
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_SetAddress(USBFS_Type *base, uint8_t address, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_SetAddress(USBFS_Type *base, uint8_t address,
                                                  cy_stc_usbfs_dev_drv_context_t *context);
 __STATIC_INLINE void     Cy_USBFS_Dev_Drv_SetDeviceAddress(USBFS_Type *base, uint8_t address);
 __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetDeviceAddress(USBFS_Type const *base);
 
 __STATIC_INLINE void  Cy_USBFS_Dev_Drv_SetDevContext(USBFS_Type const *base,
-                                                     void *devContext, 
+                                                     void *devContext,
                                                      cy_stc_usbfs_dev_drv_context_t *context);
 
 __STATIC_INLINE void* Cy_USBFS_Dev_Drv_GetDevContext(USBFS_Type const *base,
                                                      cy_stc_usbfs_dev_drv_context_t *context);
 
-void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base, 
+void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base,
                                      cy_stc_usbfs_dev_drv_context_t *context);
 
-void Cy_USBFS_Dev_Drv_UnConfigureDevice(USBFS_Type *base, 
+void Cy_USBFS_Dev_Drv_UnConfigureDevice(USBFS_Type *base,
                                         cy_stc_usbfs_dev_drv_context_t *context);
 /** \} group_usbfs_dev_hal_functions_common */
 
 /**
 * \addtogroup group_usbfs_dev_hal_functions_ep0_service
 * \{
-* The Endpoint 0 Service functions provide an API to establish communication with 
+* The Endpoint 0 Service functions provide an API to establish communication with
 * the USB Host using control endpoint 0.
 */
 void Cy_USBFS_Dev_Drv_Ep0GetSetup(USBFS_Type const *base,
                                   uint8_t    *buffer,
                                   cy_stc_usbfs_dev_drv_context_t const *context);
 
-uint32_t Cy_USBFS_Dev_Drv_Ep0Write(USBFS_Type *base, 
-                                   uint8_t const *buffer, 
-                                   uint32_t size, 
+uint32_t Cy_USBFS_Dev_Drv_Ep0Write(USBFS_Type *base,
+                                   uint8_t const *buffer,
+                                   uint32_t size,
                                    cy_stc_usbfs_dev_drv_context_t *context);
 
 void Cy_USBFS_Dev_Drv_Ep0Read(USBFS_Type *base,
-                              uint8_t *buffer, 
-                              uint32_t size, 
+                              uint8_t *buffer,
+                              uint32_t size,
                               cy_stc_usbfs_dev_drv_context_t *context);
 
-uint32_t Cy_USBFS_Dev_Drv_Ep0ReadResult(USBFS_Type const *base, 
+uint32_t Cy_USBFS_Dev_Drv_Ep0ReadResult(USBFS_Type const *base,
                                         cy_stc_usbfs_dev_drv_context_t *context);
 
 __STATIC_INLINE void Cy_USBFS_Dev_Drv_Ep0Stall(USBFS_Type *base);
@@ -1239,7 +1244,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetEp0MaxPacket(USBFS_Type const *base
 /**
 * \addtogroup group_usbfs_dev_hal_functions_endpoint_config
 * \{
-* The Data Endpoint Configuration Functions provide an API to allocate and release 
+* The Data Endpoint Configuration Functions provide an API to allocate and release
 * hardware resources and override the memcpy function for the data endpoints.
 */
 __STATIC_INLINE  cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_AddEndpoint(USBFS_Type *base,
@@ -1250,15 +1255,15 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_RemoveEndpoint(USBFS_Type *base,
                                                              uint32_t    endpointAddr,
                                                              cy_stc_usbfs_dev_drv_context_t *context);
 
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_OverwriteMemcpy(USBFS_Type const *base, 
-                                                      uint32_t    endpoint, 
-                                                      cy_fn_usbfs_dev_drv_memcpy_ptr_t  memcpyFunc, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_OverwriteMemcpy(USBFS_Type const *base,
+                                                      uint32_t    endpoint,
+                                                      cy_fn_usbfs_dev_drv_memcpy_ptr_t  memcpyFunc,
                                                       cy_stc_usbfs_dev_drv_context_t *context);
 /** \} group_usbfs_dev_hal_functions_endpoint_config */
 
 /**
 * \addtogroup group_usbfs_dev_hal_functions_data_xfer
-* The Data Endpoint Transfer functions provide an API to establish 
+* The Data Endpoint Transfer functions provide an API to establish
 * communication with the USB Host using data endpoint.
 * \{
 */
@@ -1302,7 +1307,7 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_UnStallEndpoint(USBFS_Type *base,
 
 /**
 * \addtogroup group_usbfs_dev_drv_functions_interrupts
-* The Functions Interrupt functions provide an API to register callbacks 
+* The Functions Interrupt functions provide an API to register callbacks
 * for interrupt events provided by the USB block, interrupt handler, and configuration functions.
 * \{
 */
@@ -1317,16 +1322,16 @@ void Cy_USBFS_Dev_Drv_RegisterServiceCallback(USBFS_Type const *base,
                                               cy_cb_usbfs_dev_drv_callback_t callback,
                                               cy_stc_usbfs_dev_drv_context_t *context);
 
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterSofCallback(USBFS_Type *base, 
-                                                          cy_cb_usbfs_dev_drv_callback_t  callback, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterSofCallback(USBFS_Type *base,
+                                                          cy_cb_usbfs_dev_drv_callback_t  callback,
                                                           cy_stc_usbfs_dev_drv_context_t *context);
 
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterLpmCallback(USBFS_Type *base, 
-                                                          cy_cb_usbfs_dev_drv_callback_t  callback, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterLpmCallback(USBFS_Type *base,
+                                                          cy_cb_usbfs_dev_drv_callback_t  callback,
                                                           cy_stc_usbfs_dev_drv_context_t *context);
 
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterEndpointCallback(USBFS_Type const *base, 
-                                                               uint32_t endpoint, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterEndpointCallback(USBFS_Type const *base,
+                                                               uint32_t endpoint,
                                                                cy_cb_usbfs_dev_drv_ep_callback_t callback,
                                                                cy_stc_usbfs_dev_drv_context_t    *context);
 
@@ -1338,7 +1343,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_EnableEp0Interrupt(USBFS_Type *base);
 /** \} group_usbfs_dev_drv_functions_interrupts */
 
 /**
-* \addtogroup group_usbfs_dev_drv_functions_low_power 
+* \addtogroup group_usbfs_dev_drv_functions_low_power
 * The Low-power functions provide an API to implement Low-power callback at the application level.
 * \{
 */
@@ -1350,7 +1355,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_Force        (USBFS_Type *base, cy_en_usbf
 
 /**
 * \addtogroup group_usbfs_dev_drv_functions_lpm
-* The LPM functions provide an API to use the LPM feature available in the USB block. 
+* The LPM functions provide an API to use the LPM feature available in the USB block.
 * \{
 */
 __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_Lpm_GetBeslValue       (USBFS_Type const *base);
@@ -1368,10 +1373,10 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 * \addtogroup group_usbfs_dev_drv_macros
 * \{
 */
-/** Allocates a static buffer for the data endpoint. The size parameter must be a constant. 
-* The allocated buffer is aligned to a 2-byte boundary. <b>An odd buffer size is 
-* converted to even, consuming 1 extra byte. The application must discard this 
-* extra byte</b> to support different 8-bit and 16-bit hardware buffer access types 
+/** Allocates a static buffer for the data endpoint. The size parameter must be a constant.
+* The allocated buffer is aligned to a 2-byte boundary. <b>An odd buffer size is
+* converted to even, consuming 1 extra byte. The application must discard this
+* extra byte</b> to support different 8-bit and 16-bit hardware buffer access types
 * in the driver. For more detail, refer to \ref group_usbfs_dev_drv_ep_management_buf_access.
 */
 #define CY_USBFS_DEV_DRV_ALLOC_ENDPOINT_BUFFER(buf, size)  uint8_t buf[(0U != ((size) & 0x1U)) ? ((size) + 1U) : (size)] CY_ALIGN(2)
@@ -1441,17 +1446,17 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 * \addtogroup group_usbfs_dev_drv_macros_ep_xfer_err
 * \{
 */
-/** 
-* An error occurred during a USB transfer. 
-* For an IN transaction, this indicates a "no response" from the HOST scenario. 
-* For an OUT transaction, this represents a "PID or CRC error" or the bit-stuff 
+/**
+* An error occurred during a USB transfer.
+* For an IN transaction, this indicates a "no response" from the HOST scenario.
+* For an OUT transaction, this represents a "PID or CRC error" or the bit-stuff
 * error scenario.
 */
 #define CY_USBFS_DEV_ENDPOINT_TRANSFER_ERROR    (0x1U)
 
-/** 
+/**
 * The data toggle bit remains the same.
-* The received OUT packet has the same data toggle bit that the previous 
+* The received OUT packet has the same data toggle bit that the previous
 * packet had. This indicates that the Host retransmitted the packet.
 */
 #define CY_USBFS_DEV_ENDPOINT_SAME_DATA_TOGGLE  (0x2U)
@@ -1504,8 +1509,8 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 * Function Name: Cy_USBFS_Dev_Drv_SetAddress
 ****************************************************************************//**
 *
-* Posts a request to set the device address after the completion status stage of 
-* the control transfer. This function must be used if a higher level requests 
+* Posts a request to set the device address after the completion status stage of
+* the control transfer. This function must be used if a higher level requests
 * to set an address before the status stage of the control transfer.
 *
 * \param base
@@ -1516,12 +1521,12 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_SetAddress(USBFS_Type *base, uint8_t address, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_SetAddress(USBFS_Type *base, uint8_t address,
                                                  cy_stc_usbfs_dev_drv_context_t *context)
 {
     (void)base; /* Suppress warning */
@@ -1561,7 +1566,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetDeviceAddress(USBFS_Type *base, uint8_t
 *
 * \return
 * The device address.
-* The device address is assigned by the Host during device enumeration. 
+* The device address is assigned by the Host during device enumeration.
 * Zero means that the device address is  not assigned.
 *
 *******************************************************************************/
@@ -1585,8 +1590,8 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetDeviceAddress(USBFS_Type const *bas
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \note
@@ -1594,7 +1599,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_GetDeviceAddress(USBFS_Type const *bas
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetDevContext(USBFS_Type const *base,
-                                                    void *devContext, 
+                                                    void *devContext,
                                                     cy_stc_usbfs_dev_drv_context_t *context)
 {
     /* Suppresses a compiler warning about unused variables. */
@@ -1615,8 +1620,8 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetDevContext(USBFS_Type const *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -1645,8 +1650,8 @@ __STATIC_INLINE void* Cy_USBFS_Dev_Drv_GetDevContext(USBFS_Type const *base,
 * Function Name: Cy_USBFS_Dev_Drv_RegisterSofCallback
 ****************************************************************************//**
 *
-* Registers a callback function to notify about an SOF event in 
-* \ref Cy_USBFS_Dev_Drv_Interrupt. The SOF interrupt source is enabled after 
+* Registers a callback function to notify about an SOF event in
+* \ref Cy_USBFS_Dev_Drv_Interrupt. The SOF interrupt source is enabled after
 * registration. To remove callback function, pass NULL as the function pointer.
 * When the callback is removed, the interrupt source is disabled.
 *
@@ -1658,25 +1663,25 @@ __STATIC_INLINE void* Cy_USBFS_Dev_Drv_GetDevContext(USBFS_Type const *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \note
 * To remove the callback, pass NULL as the pointer to a callback function.
 *
 *******************************************************************************/
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterSofCallback(USBFS_Type *base, 
-                                                          cy_cb_usbfs_dev_drv_callback_t  callback, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterSofCallback(USBFS_Type *base,
+                                                          cy_cb_usbfs_dev_drv_callback_t  callback,
                                                           cy_stc_usbfs_dev_drv_context_t *context)
 {
     uint32_t mask;
-    
+
     context->cbSof = callback;
-    
+
     /* Enables/Disables SOF interrupt */
     mask = Cy_USBFS_Dev_Drv_GetSieInterruptMask(base);
-    
+
     if (NULL != callback)
     {
         mask |= CY_USBFS_DEV_DRV_INTR_SIE_SOF;
@@ -1685,7 +1690,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterSofCallback(USBFS_Type *base,
     {
         mask &= ~CY_USBFS_DEV_DRV_INTR_SIE_SOF;
     }
-    
+
     Cy_USBFS_Dev_Drv_ClearSieInterrupt(base, CY_USBFS_DEV_DRV_INTR_SIE_SOF);
     Cy_USBFS_Dev_Drv_SetSieInterruptMask(base, mask);
 }
@@ -1695,8 +1700,8 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterSofCallback(USBFS_Type *base,
 * Function Name: Cy_USBFS_Dev_Drv_RegisterLpmCallback
 ****************************************************************************//**
 *
-* Registers a callback function to notify about an LPM event in 
-* \ref Cy_USBFS_Dev_Drv_Interrupt. The LPM interrupt source is enabled after 
+* Registers a callback function to notify about an LPM event in
+* \ref Cy_USBFS_Dev_Drv_Interrupt. The LPM interrupt source is enabled after
 * registration. To remove the callback function, pass NULL as the function pointer.
 * When the callback is removed, the interrupt source is disabled.
 *
@@ -1708,26 +1713,26 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterSofCallback(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \note
 * To remove the callback, pass NULL as the pointer to the callback function.
 *
 *******************************************************************************/
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterLpmCallback(USBFS_Type *base, 
-                                                          cy_cb_usbfs_dev_drv_callback_t  callback, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterLpmCallback(USBFS_Type *base,
+                                                          cy_cb_usbfs_dev_drv_callback_t  callback,
                                                           cy_stc_usbfs_dev_drv_context_t *context)
 
 {
     uint32_t mask;
-    
+
     context->cbLpm = callback;
-    
+
     /* Enables/Disables the LPM interrupt source */
     mask = Cy_USBFS_Dev_Drv_GetSieInterruptMask(base);
-    
+
     if (NULL != callback)
     {
         mask |= CY_USBFS_DEV_DRV_INTR_SIE_LPM;
@@ -1736,7 +1741,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterLpmCallback(USBFS_Type *base,
     {
         mask &= ~CY_USBFS_DEV_DRV_INTR_SIE_LPM;
     }
-    
+
     Cy_USBFS_Dev_Drv_ClearSieInterrupt(base, CY_USBFS_DEV_DRV_INTR_SIE_LPM);
     Cy_USBFS_Dev_Drv_SetSieInterruptMask(base, mask);
 }
@@ -1746,11 +1751,11 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterLpmCallback(USBFS_Type *base,
 * Function Name: Cy_USBFS_Dev_Drv_RegisterEndpointCallback
 ****************************************************************************//**
 *
-* Registers a callback function to notify of an endpoint transfer completion 
-* event in \ref Cy_USBFS_Dev_Drv_Interrupt. 
-* * IN endpoint  - The Host read data from the endpoint and new data can be 
-*                  loaded. 
-* * OUT endpoint - The Host has written data into the endpoint and the data is 
+* Registers a callback function to notify of an endpoint transfer completion
+* event in \ref Cy_USBFS_Dev_Drv_Interrupt.
+* * IN endpoint  - The Host read data from the endpoint and new data can be
+*                  loaded.
+* * OUT endpoint - The Host has written data into the endpoint and the data is
 *                  ready to be read.
 * To remove the callback function, pass NULL as function pointer.
 *
@@ -1765,25 +1770,25 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterLpmCallback(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \note
 * To remove the callback, pass NULL as the pointer to the callback function.
 *
 *******************************************************************************/
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterEndpointCallback(USBFS_Type const *base, 
-                                                               uint32_t endpoint, 
-                                                               cy_cb_usbfs_dev_drv_ep_callback_t  callback, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_RegisterEndpointCallback(USBFS_Type const *base,
+                                                               uint32_t endpoint,
+                                                               cy_cb_usbfs_dev_drv_ep_callback_t  callback,
                                                                cy_stc_usbfs_dev_drv_context_t    *context)
 
 {
     /* Suppresses a compiler warning about unused variables */
     (void) base;
-    
+
     CY_ASSERT_L1(CY_USBFS_DEV_DRV_IS_EP_VALID(endpoint));
-    
+
     endpoint = CY_USBFS_DEV_DRV_EP2PHY(endpoint);
     context->epPool[endpoint].epComplete = callback;
 }
@@ -1935,10 +1940,10 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_EnableEp0Interrupt(USBFS_Type *base)
 * Function Name: Cy_USBFS_Dev_Drv_CheckActivity
 ****************************************************************************//**
 *
-* Returns the activity status of the bus. 
-* It clears the hardware status to provide an updated status on the next call of 
-* this function. This function is useful to determine whether there is any USB bus 
-* activity between function calls. A typical use case is to determine whether 
+* Returns the activity status of the bus.
+* It clears the hardware status to provide an updated status on the next call of
+* this function. This function is useful to determine whether there is any USB bus
+* activity between function calls. A typical use case is to determine whether
 * the USB suspend conditions are met.
 *
 * \param base
@@ -1964,7 +1969,7 @@ __STATIC_INLINE bool Cy_USBFS_Dev_Drv_CheckActivity(USBFS_Type *base)
 * Function Name: Cy_USBFS_Dev_Drv_Force
 ****************************************************************************//**
 *
-* Forces a USB J, K, or SE0 state on the USB lines. 
+* Forces a USB J, K, or SE0 state on the USB lines.
 * A typical use case is to signal a Remote Wakeup condition on the USB bus.
 *
 * \param base
@@ -1991,7 +1996,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_Force(USBFS_Type *base, cy_en_usbfs_dev_dr
 * Function Name: Cy_USBFS_Dev_Drv_Lpm_GetBeslValue
 ****************************************************************************//**
 *
-* Returns the Best Effort Service Latency (BESL) value sent by the host as 
+* Returns the Best Effort Service Latency (BESL) value sent by the host as
 * part of the LPM token transaction.
 *
 * \param base
@@ -2011,7 +2016,7 @@ __STATIC_INLINE uint32_t Cy_USBFS_Dev_Drv_Lpm_GetBeslValue(USBFS_Type const *bas
 * Function Name: Cy_USBFS_Dev_Drv_Lpm_RemoteWakeUpAllowed
 ****************************************************************************//**
 *
-* Returns the remote wakeup permission set by the Host as part of the 
+* Returns the remote wakeup permission set by the Host as part of the
 * LPM token transaction.
 *
 * \param base
@@ -2031,7 +2036,7 @@ __STATIC_INLINE bool Cy_USBFS_Dev_Drv_Lpm_RemoteWakeUpAllowed(USBFS_Type const *
 * Function Name: Cy_USBFS_Dev_Drv_Lpm_SetResponse
 ****************************************************************************//**
 *
-* Configures the response in the handshake packet that the device sends when 
+* Configures the response in the handshake packet that the device sends when
 * an LPM token packet is received.
 *
 * \param base
@@ -2044,7 +2049,7 @@ __STATIC_INLINE bool Cy_USBFS_Dev_Drv_Lpm_RemoteWakeUpAllowed(USBFS_Type const *
 *******************************************************************************/
 __STATIC_INLINE void Cy_USBFS_Dev_Drv_Lpm_SetResponse(USBFS_Type *base, cy_en_usbfs_dev_drv_lpm_req_t response)
 {
-    USBFS_DEV_LPM_LPM_CTL(base) = _CLR_SET_FLD32U(USBFS_DEV_LPM_LPM_CTL(base), 
+    USBFS_DEV_LPM_LPM_CTL(base) = _CLR_SET_FLD32U(USBFS_DEV_LPM_LPM_CTL(base),
                                                   USBFS_USBLPM_LPM_CTL_LPM_RESP, ((uint32_t) response));
 }
 
@@ -2053,7 +2058,7 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_Lpm_SetResponse(USBFS_Type *base, cy_en_us
 * Function Name: Cy_USBFS_Dev_Drv_Lpm_GetResponse
 ****************************************************************************//**
 *
-* Returns the response value that the device sends as part of the handshake 
+* Returns the response value that the device sends as part of the handshake
 * packet when an LPM token packet is received.
 *
 * \param base
@@ -2080,7 +2085,7 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 * Function Name: Cy_USBFS_Dev_Drv_AddEndpoint
 ****************************************************************************//**
 *
-* Configures a data endpoint for the following operation (allocates hardware 
+* Configures a data endpoint for the following operation (allocates hardware
 * resources for data endpoint).
 *
 * \param base
@@ -2091,8 +2096,8 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -2123,17 +2128,17 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_AddEndpoint(USBFS_
 *
 * Overwrites the memory copy (memcpy) function used to copy data with the user-
 * implemented:
-* * \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint copies data from from the internal 
+* * \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint copies data from from the internal
 *   buffer to the application buffer for OUT endpoint.
-* * \ref Cy_USBFS_Dev_Drv_LoadInEndpoint copies data from the application buffer 
+* * \ref Cy_USBFS_Dev_Drv_LoadInEndpoint copies data from the application buffer
 *   for IN endpoint to the the internal buffer.
-* Only applicable when endpoint management mode is 
+* Only applicable when endpoint management mode is
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO.
 *
 * \param base
 * The pointer to the USBFS instance.
 *
-* \param endpoint 
+* \param endpoint
 * The data endpoint number.
 *
 * \param memcpyFunc
@@ -2141,21 +2146,21 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_AddEndpoint(USBFS_
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
-__STATIC_INLINE void Cy_USBFS_Dev_Drv_OverwriteMemcpy(USBFS_Type const *base, 
-                                                      uint32_t   endpoint, 
-                                cy_fn_usbfs_dev_drv_memcpy_ptr_t memcpyFunc, 
+__STATIC_INLINE void Cy_USBFS_Dev_Drv_OverwriteMemcpy(USBFS_Type const *base,
+                                                      uint32_t   endpoint,
+                                cy_fn_usbfs_dev_drv_memcpy_ptr_t memcpyFunc,
                                 cy_stc_usbfs_dev_drv_context_t   *context)
 {
     /* Suppress a compiler warning about unused variables */
     (void) base;
-    
+
     CY_ASSERT_L1(CY_USBFS_DEV_DRV_IS_EP_VALID(endpoint));
-    
+
     endpoint = CY_USBFS_DEV_DRV_EP2PHY(endpoint);
     context->epPool[endpoint].copyData = memcpyFunc;
 }
@@ -2180,8 +2185,8 @@ __STATIC_INLINE void Cy_USBFS_Dev_Drv_OverwriteMemcpy(USBFS_Type const *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -2195,14 +2200,14 @@ __STATIC_INLINE cy_en_usb_dev_ep_state_t Cy_USBFS_Dev_Drv_GetEndpointState(
 
 {
     cy_en_usb_dev_ep_state_t retState = CY_USB_DEV_EP_INVALID;
-    
+
     (void)base; /* Suppress warning */
 
     if (CY_USBFS_DEV_DRV_IS_EP_VALID(endpoint))
     {
         retState = context->epPool[CY_USBFS_DEV_DRV_EP2PHY(endpoint)].state;
     }
-    
+
     return retState;
 }
 
@@ -2211,7 +2216,7 @@ __STATIC_INLINE cy_en_usb_dev_ep_state_t Cy_USBFS_Dev_Drv_GetEndpointState(
 * Function Name: Cy_USBFS_Dev_Drv_LoadInEndpoint
 ****************************************************************************//**
 *
-* Loads data into the IN endpoint buffer. After data loads, the 
+* Loads data into the IN endpoint buffer. After data loads, the
 * endpoint is ready to be read by the host.
 *
 * \param base
@@ -2229,8 +2234,8 @@ __STATIC_INLINE cy_en_usb_dev_ep_state_t Cy_USBFS_Dev_Drv_GetEndpointState(
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -2255,8 +2260,8 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_LoadInEndpoint(
 * Function Name: Cy_USBFS_Dev_Drv_ReadOutEndpoint
 ****************************************************************************//**
 *
-* Reads data from the OUT endpoint buffer. 
-* Before executing a next read, the \ref Cy_USBFS_Dev_Drv_EnableOutEndpoint must be 
+* Reads data from the OUT endpoint buffer.
+* Before executing a next read, the \ref Cy_USBFS_Dev_Drv_EnableOutEndpoint must be
 * called to allow the Host to write data into the endpoint.
 *
 * \param base
@@ -2277,8 +2282,8 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_LoadInEndpoint(
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -2319,7 +2324,7 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_ReadOutEndpoint(
 __STATIC_INLINE bool Cy_USBFS_Dev_Drv_GetEndpointAckState(USBFS_Type const *base, uint32_t endpoint)
 {
     CY_ASSERT_L1(CY_USBFS_DEV_DRV_IS_EP_VALID(endpoint));
-    
+
     endpoint = CY_USBFS_DEV_DRV_EP2PHY(endpoint);
     return _FLD2BOOL(USBFS_USBDEV_SIE_EP1_CR0_ACKED_TXN, USBFS_DEV_SIE_EP_CR0(base, endpoint));
 }
@@ -2329,13 +2334,13 @@ __STATIC_INLINE bool Cy_USBFS_Dev_Drv_GetEndpointAckState(USBFS_Type const *base
 * Function Name: Cy_USBFS_Dev_Drv_GetEndpointCount
 ****************************************************************************//**
 *
-* Returns the number of data bytes in the transaction for a certain endpoint. 
-* Before calling this function, ensure the Host has written data into the 
-* endpoint. The returned value is updated after the Host access to the 
-* endpoint but remains unchanged after data has been read from the endpoint 
+* Returns the number of data bytes in the transaction for a certain endpoint.
+* Before calling this function, ensure the Host has written data into the
+* endpoint. The returned value is updated after the Host access to the
+* endpoint but remains unchanged after data has been read from the endpoint
 * buffer.
-* A typical use case is to read the number of bytes that the Host wrote into the 
-* OUT endpoint. 
+* A typical use case is to read the number of bytes that the Host wrote into the
+* OUT endpoint.
 *
 * \param base
 * The pointer to the USBFS instance.

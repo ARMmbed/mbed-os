@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_sysint.h
-* \version 1.30
+* \version 1.30.1
 *
 * \brief
 * Provides an API declaration of the SysInt driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,9 +33,9 @@
 * be used to configure and connect device peripheral interrupts to one or more
 * cores.
 *
-* The functions and other declarations used in this driver are in cy_sysint.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The functions and other declarations used in this driver are in cy_sysint.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
 *
 * \section group_sysint_vector_table Vector Table
 * The vector table defines the entry addresses of the processor exceptions and
@@ -47,7 +47,7 @@
 *
 * The default interrupt handler functions are defined as weak functions to a dummy handler
 * in the startup file. The naming convention is \<interrupt_name\>_IRQHandler.
-* Defining these in the user application allows the linker to place them in 
+* Defining these in the user application allows the linker to place them in
 * the vector table in flash. For example:
 * \code
 * void ioss_interrupts_gpio_0_IRQHandler(void)
@@ -57,7 +57,7 @@
 * \endcode
 * And can be used like this:
 * \snippet sysint/snippet/main.c snippet_Cy_SysInt_flashVT
-* Using this method avoids the need for a RAM vector table. However in this scenario, 
+* Using this method avoids the need for a RAM vector table. However in this scenario,
 * interrupt handler re-location at run-time is not possible, unless the vector table is
 * relocated to RAM.
 
@@ -65,8 +65,8 @@
 *
 * \subsection group_sysint_initialization Initialization
 *
-* Interrupt numbers are defined in a device-specific header file, such as 
-* cy8c68237bz_ble.h, and are consistent with interrupt handlers defined in the 
+* Interrupt numbers are defined in a device-specific header file, such as
+* cy8c68237bz_ble.h, and are consistent with interrupt handlers defined in the
 * vector table.
 *
 * To configure an interrupt, call Cy_SysInt_Init(). Populate
@@ -77,33 +77,33 @@
 * must specify the device interrupt source (cm0pSrc) that feeds into the CM0+ NVIC
 * mux (intrSrc).
 *
-* For CM4 core, system interrupt source 'n' is connected to the 
+* For CM4 core, system interrupt source 'n' is connected to the
 * corresponding IRQn. Deep-sleep capable interrupts are allocated to Deep Sleep
-* capable IRQn channels. 
+* capable IRQn channels.
 *
-* For CM0+ core, deep Sleep wakeup-capability is determined by the CPUSS_CM0_DPSLP_IRQ_NR 
-* parameter, where the first N number of muxes (NvicMux0 ... NvicMuxN-1) have the 
-* capability to trigger Deep Sleep interrupts. A Deep Sleep capable interrupt source 
-* must be connected to one of these muxes to be able to trigger in Deep Sleep. 
+* For CM0+ core, deep Sleep wakeup-capability is determined by the CPUSS_CM0_DPSLP_IRQ_NR
+* parameter, where the first N number of muxes (NvicMux0 ... NvicMuxN-1) have the
+* capability to trigger Deep Sleep interrupts. A Deep Sleep capable interrupt source
+* must be connected to one of these muxes to be able to trigger in Deep Sleep.
 * Refer to the IRQn_Type definition in the device header.
 *
 * 1. For CPUSS_ver1 the CM0+ core supports up to 32 interrupt channels (IRQn 0-31). To allow all device
 * interrupts to be routable to the NVIC of this core, there is a 240:1 multiplexer
-* at each of the 32 NVIC channels. 
+* at each of the 32 NVIC channels.
 *
 * 2. For CPUSS_ver2 the CM0+ core supports up to 8 hardware interrupt channels (IRQn 0-7) and software-only
 * interrupt channels (IRQn 8-15). The device has up to 1023 interrupts that can be connected to any of the
-* hardware interrupt channels. In this structure, multiple interrupt sources can be connected 
+* hardware interrupt channels. In this structure, multiple interrupt sources can be connected
 * simultaneously to one NVIC channel. The application must then query the interrupt source on the
 * channel and service the active interrupt(s). The priority of these interrupts is determined by the
 * interrupt number as defined in the cy_en_intr_t enum, where the lower number denotes higher priority
 * over the higher number.
 *
 * \subsection group_sysint_enable Enable
-* 
+*
 * After initializing an interrupt, use the CMSIS Core
 * <a href="https://www.keil.com/pack/doc/CMSIS/Core/html/group__NVIC__gr.html#ga530ad9fda2ed1c8b70e439ecfe80591f">NVIC_EnableIRQ()</a> function
-* to enable it. Given an initialization structure named config,  
+* to enable it. Given an initialization structure named config,
 * the function should be called as follows:
 * \code
 * NVIC_EnableIRQ(config.intrSrc)
@@ -170,6 +170,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.30.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>1.30</td>
 *     <td>The Cy_SysInt_SetNmiSource is updated with Protection Context check for CM0+.</td>
 *     <td>User experience enhancement.</td>
@@ -189,12 +194,12 @@
 *         - \ref Cy_SysInt_SetInterruptSource
 *         - \ref Cy_SysInt_SetNmiSource
 *         - \ref Cy_SysInt_GetNmiSource
-*         
+*
 *         Added new API functions:
 *         - \ref Cy_SysInt_DisconnectInterruptSource
 *         - \ref Cy_SysInt_GetNvicConnection
 *         - \ref Cy_SysInt_GetInterruptActive
-*         
+*
 *         Deprecated following functions:
 *         - Cy_SysInt_SetIntSource
 *         - Cy_SysInt_GetIntSource
@@ -206,7 +211,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -268,7 +273,7 @@ extern cy_israddress __ramVectors[]; /**< Relocated vector table in SRAM */
 
 /** Driver major version */
 #define CY_SYSINT_DRV_VERSION_MAJOR    1
-    
+
 /** Driver minor version */
 #define CY_SYSINT_DRV_VERSION_MINOR    30
 
@@ -290,7 +295,7 @@ extern cy_israddress __ramVectors[]; /**< Relocated vector table in SRAM */
 /**
 * SysInt Driver error codes
 */
-typedef enum 
+typedef enum
 {
     CY_SYSINT_SUCCESS   = 0x0UL,                                      /**< Returned successful */
     CY_SYSINT_BAD_PARAM = CY_SYSINT_ID | CY_PDL_STATUS_ERROR | 0x1UL, /**< Bad parameter was passed */
@@ -419,7 +424,7 @@ cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn);
 * \param nmiNum
 * NMI source number.
 * CPUSS_ver2 allows up to 4 sources to trigger the core NMI.
-* CPUSS_ver1 allows only one source to trigger the core NMI and 
+* CPUSS_ver1 allows only one source to trigger the core NMI and
 *  the specified NMI number is ignored.
 *
 * \param intrSrc
@@ -444,12 +449,12 @@ __STATIC_INLINE void Cy_SysInt_SetNmiSource(cy_en_sysint_nmi_t nmiNum, cy_en_int
 #if (CY_CPU_CORTEX_M0P)
     CY_ASSERT_L1(CY_SYSINT_IS_PC_0);
 #endif
-    
+
     if (CY_CPUSS_V1)
     {
         nmiNum = CY_SYSINT_NMI1; /* For CPUSS_ver1 the NMI number is 1 */
     }
-    
+
     #if (CY_CPU_CORTEX_M0P)
         CPUSS_CM0_NMI_CTL((uint32_t)nmiNum - 1UL) = (uint32_t)devIntrSrc;
     #else
@@ -485,7 +490,7 @@ __STATIC_INLINE cy_en_intr_t Cy_SysInt_GetNmiSource(cy_en_sysint_nmi_t nmiNum)
 #endif
 {
     CY_ASSERT_L3(CY_SYSINT_IS_NMI_NUM_VALID(nmiNum));
-    
+
     if (CY_CPUSS_V1)
     {
         nmiNum = CY_SYSINT_NMI1; /* For CPUSS_ver1 the NMI number is 1 */

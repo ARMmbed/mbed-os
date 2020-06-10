@@ -62,6 +62,9 @@
     <ConfigInclude value="cy_gpio.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_EXTCLK_ENABLED" value="1" public="false" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_EXTCLK_FREQ" value="`${frequency}`UL" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_EXTCLK_GPIO_PRT" value="GPIO_PRT`${gpio_port}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_EXTCLK_GPIO_PIN" value="`${gpio_pin}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_EXTCLK_GPIO_HSIOM" value="P`${gpio_port}`_`${gpio_pin}`_SRSS_EXT_CLK" public="false" include="true" />
     <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ExtClkInit()" body="    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_port}`, `${gpio_pin}`, CY_GPIO_DM_HIGHZ, 0UL, P`${gpio_port}`_`${gpio_pin}`_SRSS_EXT_CLK);&#xA;    Cy_SysClk_ExtClkSetFrequency(CY_CFG_SYSCLK_EXTCLK_FREQ);" public="false" include="true" />
   </ConfigFirmware>
 </Personality>

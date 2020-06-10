@@ -5,7 +5,7 @@
 * Common header file to be included by the drivers.
 *
 * \note
-* Generator version: 1.6.0.111
+* Generator version: 1.6.0.150
 *
 ********************************************************************************
 * \copyright
@@ -148,18 +148,18 @@
     #include "cy8c6117wi_f34.h"
 #elif defined (CY8C6247WI_D54)
     #include "cy8c6247wi_d54.h"
-#elif defined (CYB06447BZI_BLD54)
-    #include "cyb06447bzi_bld54.h"
-#elif defined (CYB06447BZI_BLD53)
-    #include "cyb06447bzi_bld53.h"
-#elif defined (CYB06447BZI_D54)
-    #include "cyb06447bzi_d54.h"
 #elif defined (CY8C6336LQI_BLF02)
     #include "cy8c6336lqi_blf02.h"
 #elif defined (CY8C6336LQI_BLF42)
     #include "cy8c6336lqi_blf42.h"
 #elif defined (CY8C6347LQI_BLD52)
     #include "cy8c6347lqi_bld52.h"
+#elif defined (CYB06447BZI_BLD54)
+    #include "cyb06447bzi_bld54.h"
+#elif defined (CYB06447BZI_BLD53)
+    #include "cyb06447bzi_bld53.h"
+#elif defined (CYB06447BZI_D54)
+    #include "cyb06447bzi_d54.h"
 #elif defined (CY8C624ABZI_D44)
     #include "cy8c624abzi_d44.h"
 #elif defined (CY8C624AAZI_D44)
@@ -258,6 +258,14 @@
     #include "cy8c6244azi_s4d12.h"
 #elif defined (CY8C6244LQI_S4D12)
     #include "cy8c6244lqi_s4d12.h"
+#elif defined (CY8C4588AZI_H685)
+    #include "cy8c4588azi_h685.h"
+#elif defined (CY8C4588AZI_H686)
+    #include "cy8c4588azi_h686.h"
+#elif defined (CY8C4588AZI_H675)
+    #include "cy8c4588azi_h675.h"
+#elif defined (CY8C4588AZI_H676)
+    #include "cy8c4588azi_h676.h"
 #else
     #include "cy_device_common.h"
 #endif

@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_efuse.h
-* \version 1.10.2
+* \version 1.10.3
 *
 * Provides the API declarations of the eFuse driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@
 * programmable (OTP).
 *
 * The functions and other declarations used in this driver are in cy_efuse.h.
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
+* You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
 * The eFuse driver enables reading the state of any bit. The eFuse driver does
@@ -84,6 +84,11 @@
 * \section group_efuse_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.3</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.2</td>
 *     <td>Fix driver header path.</td>

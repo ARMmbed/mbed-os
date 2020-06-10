@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.h
-* \version 1.10.2
+* \version 1.10.3
 *
 * Header file for the CTB driver
 *
@@ -27,8 +27,8 @@
 * \{
 * This driver provides API functions to configure and use the analog CTB.
 *
-* The functions and other declarations used in this driver are in cy_ctb.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
+* The functions and other declarations used in this driver are in cy_ctb.h.
+* You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
 * The CTB comprises two identical opamps, a switch routing matrix,
@@ -287,6 +287,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.10.3</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>1.10.2</td>
 *     <td>The \ref Cy_CTB_Init function description is expanded with a
 *         clarification note.</td>
@@ -299,7 +304,7 @@
 *   </tr>
 *   <tr>
 *     <td rowspan="2">1.10</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -308,7 +313,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -1550,4 +1555,3 @@ __STATIC_INLINE void Cy_CTB_DisableRedirect(void)
 /** \} group_ctb */
 
 /* [] END OF FILE */
-

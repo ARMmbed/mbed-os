@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_ctdac.h
-* \version 2.0
+* \version 2.0.1
 *
 * Header file for the CTDAC driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +27,8 @@
 * \{
 * The CTDAC driver provides APIs to configure the 12-bit Continuous-Time DAC.
 *
-* The functions and other declarations used in this driver are in cy_ctdac.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
+* The functions and other declarations used in this driver are in cy_ctdac.h.
+* You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
 * - 12-bit continuous time output
@@ -322,8 +322,13 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.0.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="2">2.0</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -331,7 +336,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -1084,4 +1089,3 @@ __STATIC_INLINE uint32_t Cy_CTDAC_GetInterruptStatusMasked(const CTDAC_Type *bas
 /** \} group_ctdac */
 
 /* [] END OF FILE */
-

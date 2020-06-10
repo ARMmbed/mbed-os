@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_profile.h
-* \version 1.20
+* \version 1.20.1
 *
 * Provides an API declaration of the energy profiler driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,13 +25,13 @@
 /**
 * \addtogroup group_energy_profiler
 * \{
-* 
-* The energy profiler driver is an API for configuring and using the profile 
-* hardware block. 
 *
-* The functions and other declarations used in this driver are in cy_profile.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The energy profiler driver is an API for configuring and using the profile
+* hardware block.
+*
+* The functions and other declarations used in this driver are in cy_profile.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
 *
 * The profile block enables measurement of the signal activity
 * of select peripherals and monitor sources during a measurement window. Using
@@ -46,17 +46,17 @@
 * \subsection group_profile_hardware Profile Hardware
 *
 * The profile hardware consists of a number of profile counters that accept specific
-* triggers for incrementing the count value. This allows the events of the source 
+* triggers for incrementing the count value. This allows the events of the source
 * (such as the number of SCB0 bus accesses or the duration of time the BLE RX radio
-* is active) to be counted during the measurement window. The available monitor 
-* sources in the device can be found in the en_ep_mon_sel_t enum in the device 
+* is active) to be counted during the measurement window. The available monitor
+* sources in the device can be found in the en_ep_mon_sel_t enum in the device
 * configuration file (e.g. psoc62_config.h). These can be sourced to any of the
 * profile counters as triggers. There are two methods of using the monitor sources
 * in a profile counter.
 *
 * - Event: The count value is incremented when a pulse event signal is seen by the
-*   counter. This type of monitoring is suitable when the monitoring source of 
-*   interest needs to count the discrete events (such as the number of flash read 
+*   counter. This type of monitoring is suitable when the monitoring source of
+*   interest needs to count the discrete events (such as the number of flash read
 *   accesses) happening in the measurement window.
 *
 * - Duration: The count value is incremented at every clock edge while the monitor
@@ -65,7 +65,7 @@
 *   duration must be expressed as number of clock cycles in the measurement window.
 *
 * Many of the available monitor sources are suitable for event type monitoring.
-* Using a duration type on these signals may not give valuable information. Review 
+* Using a duration type on these signals may not give valuable information. Review
 * the device TRM for more information on the monitor sources and detail on how they
 * should be used.
 *
@@ -82,20 +82,20 @@
 *   toggled. When the measurement window ends, the energy contribution caused by the
 *   GPIO toggle can be incorporated into the final calculation.
 *
-* - Event measurement: Monitored events happening in a measurement window can be 
+* - Event measurement: Monitored events happening in a measurement window can be
 *   used to increment a profile counter. This gives the activity numbers, which can
 *   then be multiplied by the instantaneous power numbers associated with the source
-*   to give the average energy consumption (Energy = Power x time). For example, the 
+*   to give the average energy consumption (Energy = Power x time). For example, the
 *   energy consumed by an Operating System (OS) task can be estimated by monitoring
 *   the processor's active cycle count (E.g. CPUSS_MONITOR_CM4) and the flash read
-*   accesses (CPUSS_MONITOR_FLASH). Note that these activity numbers can also be 
+*   accesses (CPUSS_MONITOR_FLASH). Note that these activity numbers can also be
 *   timestamped using the continuous measurement method to differentiate between the
 *   different task switches. The activity numbers are then multiplied by the associated
 *   processor and flash access power numbers to give the average energy consumed by
 *   that task.
 *
-* - Duration measurement: A peripheral event such as the SMIF select signal can be 
-*   used by a profile counter to measure the time spent on XIP communication through the 
+* - Duration measurement: A peripheral event such as the SMIF select signal can be
+*   used by a profile counter to measure the time spent on XIP communication through the
 *   SPI interface. This activity number can then be multiplied by the power associated
 *   with that activity to give the average energy consumed by that block during the
 *   measurement window. This type of monitoring should be performed only for signals
@@ -104,16 +104,16 @@
 *   monitoring model. However tracking the activity of signals such the BLE radio
 *   should be done using the duration measurement method.
 *
-* - Low power measurement: The profile counters do not support measurement during chip 
+* - Low power measurement: The profile counters do not support measurement during chip
 *   Deep Sleep, Hibernate, and off states. I.e. the profile counters are meant for active
 *   run-time measurements only. To measure the time spent in low power modes (LPM),
-*   a real-time clock (RTC) should be used. Take a timestamp before LPM entry and a 
+*   a real-time clock (RTC) should be used. Take a timestamp before LPM entry and a
 *   timestamp upon LPM exit in a continuous measurement model. Then multiply the difference
 *   by the appropriate LPM power numbers.
 *
 * \subsection group_profile_usage Driver Usage
 *
-* At the highest level, the energy profiler must perform the following steps to 
+* At the highest level, the energy profiler must perform the following steps to
 * obtain a measurement:
 *
 *  1. Initialize the profile hardware block.
@@ -133,15 +133,15 @@
 * Configuration Considerations for more information.
 *
 * \section group_profile_configuration Configuration Considerations
-* 
-* Each counter is a 32-bit register that counts either a number of clock cycles, 
+*
+* Each counter is a 32-bit register that counts either a number of clock cycles,
 * or a number of events. Overflowing the 32-bit register is possible. To address
 * this issue, the driver implements a 32-bit overflow counter. Combined with the 32-bit
-* register, this gives a 64-bit counter for each monitored source. 
+* register, this gives a 64-bit counter for each monitored source.
 *
-* When an overflow occurs, the profile hardware generates an interrupt. The interrupt is 
+* When an overflow occurs, the profile hardware generates an interrupt. The interrupt is
 * configured using the SysInt driver, where the sample interrupt handler Cy_Profile_ISR()
-* can be used as the ISR. The ISR increments the overflow counter for each profiling counter 
+* can be used as the ISR. The ISR increments the overflow counter for each profiling counter
 * and clears the interrupt.
 *
 * \section group_profile_more_information More Information
@@ -174,6 +174,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.20.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>1.20</td>
 *     <td>Updated API function \ref Cy_Profile_GetSumWeightedCounts().</td>
 *     <td>Minor defect fixing: now the function supports the correct number of counters.</td>
@@ -186,7 +191,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -240,10 +245,10 @@ extern "C" {
 #define CY_PROFILE_ID   CY_PDL_DRV_ID(0x1EU)
 
 /** Start profiling command for the CMD register */
-#define CY_PROFILE_START_TR    1UL  
+#define CY_PROFILE_START_TR    1UL
 
 /** Stop profiling command for the CMD register */
-#define CY_PROFILE_STOP_TR     2UL  
+#define CY_PROFILE_STOP_TR     2UL
 
 /** Command to clear all counter registers to 0 */
 #define CY_PROFILE_CLR_ALL_CNT 0x100UL
@@ -282,7 +287,7 @@ extern "C" {
 /**
 * Profile counter reference clock source. Used when duration monitoring.
 */
-typedef enum 
+typedef enum
 {
     CY_PROFILE_CLK_TIMER  = 0, /**< Timer clock (TimerClk) */
     CY_PROFILE_CLK_IMO    = 1, /**< Internal main oscillator (IMO) */
@@ -295,14 +300,14 @@ typedef enum
 /**
 * Monitor method type.
 */
-typedef enum 
+typedef enum
 {
     CY_PROFILE_EVENT    = 0,  /**< Count (edge-detected) module events  */
     CY_PROFILE_DURATION = 1,  /**< Count (level) duration in clock cycles */
 } cy_en_profile_duration_t;
 
 /** Profiler status codes */
-typedef enum 
+typedef enum
 {
     CY_PROFILE_SUCCESS = 0x00U,                                      /**< Operation completed successfully */
     CY_PROFILE_BAD_PARAM = CY_PROFILE_ID | CY_PDL_STATUS_ERROR | 1UL /**< Invalid input parameters */
@@ -328,14 +333,14 @@ typedef struct
     cy_en_profile_duration_t  cntDuration; /**< 0 = event; 1 = duration */
     cy_en_profile_ref_clk_t   refClkSel;   /**< The reference clock used by the counter */
     en_ep_mon_sel_t           monSel;      /**< The monitor signal to be observed by the counter */
-} cy_stc_profile_ctr_ctl_t; 
+} cy_stc_profile_ctr_ctl_t;
 
 /**
 * Software structure for holding a profile counter status and configuration information.
 */
 typedef struct
 {
-    uint8_t                   ctrNum;      /**< Profile counter number */ 
+    uint8_t                   ctrNum;      /**< Profile counter number */
     uint8_t                   used;        /**< 0 = available; 1 = used */
     cy_stc_profile_ctr_ctl_t  ctlRegVals;  /**< Initial counter CTL register settings */
     PROFILE_CNT_STRUCT_Type * cntAddr;     /**< Base address of the counter instance registers */
@@ -384,12 +389,12 @@ __STATIC_INLINE uint32_t Cy_Profile_IsProfiling(void);
 * Function Name: Cy_Profile_Init
 ****************************************************************************//**
 *
-* Initializes and enables the profile hardware. 
+* Initializes and enables the profile hardware.
 *
-* This function must be called once when energy profiling is desired. The 
+* This function must be called once when energy profiling is desired. The
 * operation does not start a profiling session.
 *
-* \note The profile interrupt must also be configured. \ref Cy_Profile_ISR() 
+* \note The profile interrupt must also be configured. \ref Cy_Profile_ISR()
 * can be used as its handler.
 *
 * \funcusage
@@ -398,7 +403,7 @@ __STATIC_INLINE uint32_t Cy_Profile_IsProfiling(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_Profile_Init(void)
 {
-    PROFILE_CTL = _VAL2FLD(PROFILE_CTL_ENABLED,  1UL/*enabled */) | 
+    PROFILE_CTL = _VAL2FLD(PROFILE_CTL_ENABLED,  1UL/*enabled */) |
                   _VAL2FLD(PROFILE_CTL_WIN_MODE, 0UL/*start/stop mode*/);
     PROFILE_INTR_MASK = 0UL; /* clear all counter interrupt mask bits */
 }
@@ -408,7 +413,7 @@ __STATIC_INLINE void Cy_Profile_Init(void)
 * Function Name: Cy_Profile_DeInit
 ****************************************************************************//**
 *
-* Clears the interrupt mask and disables the profile hardware. 
+* Clears the interrupt mask and disables the profile hardware.
 *
 * This function should be called when energy profiling is no longer desired.
 *

@@ -5,7 +5,7 @@
 * CY8C6244AZI-S4D12 device header
 *
 * \note
-* Generator version: 1.6.0.111
+* Generator version: 1.6.0.150
 *
 ********************************************************************************
 * \copyright
@@ -432,14 +432,14 @@ typedef enum {
 #define CY_FLASH_SIZE                   0x00040000UL
 #define CY_EM_EEPROM_BASE               0x14000000UL
 #define CY_EM_EEPROM_SIZE               0x00000000UL
-#define CY_XIP_BASE                     0x18000000UL
-#define CY_XIP_SIZE                     0x08000000UL
-#define CY_CAN0MRAM_BASE                0x40530000UL
-#define CY_CAN0MRAM_SIZE                0x00010000UL
 #define CY_SFLASH_BASE                  0x16000000UL
 #define CY_SFLASH_SIZE                  0x00008000UL
+#define CY_XIP_BASE                     0x18000000UL
+#define CY_XIP_SIZE                     0x08000000UL
 #define CY_EFUSE_BASE                   0x402C0800UL
 #define CY_EFUSE_SIZE                   0x00000200UL
+#define CY_CAN0MRAM_BASE                0x40530000UL
+#define CY_CAN0MRAM_SIZE                0x00010000UL
 
 #include "system_psoc6.h"                       /*!< PSoC 6 System */
 
@@ -471,15 +471,15 @@ typedef enum {
 #define CY_IP_MXLPCOMP                  1u
 #define CY_IP_MXLPCOMP_INSTANCES        1u
 #define CY_IP_MXLPCOMP_VERSION          1u
-//#define CY_IP_MXS40PASS                 1u
-//#define CY_IP_MXS40PASS_INSTANCES       1u
-//#define CY_IP_MXS40PASS_VERSION         2u
-//#define CY_IP_MXS40PASS_SAR             1u
-//#define CY_IP_MXS40PASS_SAR_INSTANCES   1u
-//#define CY_IP_MXS40PASS_SAR_VERSION     2u
-//#define CY_IP_MXS40PASS_CTDAC           1u
-//#define CY_IP_MXS40PASS_CTDAC_INSTANCES 1u
-//#define CY_IP_MXS40PASS_CTDAC_VERSION   2u
+// #define CY_IP_MXS40PASS                 1u
+// #define CY_IP_MXS40PASS_INSTANCES       1u
+// #define CY_IP_MXS40PASS_VERSION         2u
+// #define CY_IP_MXS40PASS_SAR             1u
+// #define CY_IP_MXS40PASS_SAR_INSTANCES   2u
+// #define CY_IP_MXS40PASS_SAR_VERSION     2u
+// #define CY_IP_MXS40PASS_CTDAC           1u
+// #define CY_IP_MXS40PASS_CTDAC_INSTANCES 1u
+// #define CY_IP_MXS40PASS_CTDAC_VERSION   2u
 #define CY_IP_MXPERI                    1u
 #define CY_IP_MXPERI_INSTANCES          1u
 #define CY_IP_MXPERI_VERSION            2u
@@ -501,9 +501,9 @@ typedef enum {
 #define CY_IP_MXS40SRSS_MCWDT           1u
 #define CY_IP_MXS40SRSS_MCWDT_INSTANCES 2u
 #define CY_IP_MXS40SRSS_MCWDT_VERSION   1u
-//#define CY_IP_MXTCPWM                   1u
-//#define CY_IP_MXTCPWM_INSTANCES         1u
-//#define CY_IP_MXTCPWM_VERSION           2u
+// #define CY_IP_MXTCPWM                   1u
+// #define CY_IP_MXTCPWM_INSTANCES         1u
+// #define CY_IP_MXTCPWM_VERSION           2u
 
 #include "psoc6_04_config.h"
 #include "gpio_psoc6_04_64_tqfp.h"
@@ -546,6 +546,7 @@ typedef enum {
 #define PERI_TR_GR8                             ((PERI_TR_GR_Type*) &PERI->TR_GR[8])                              /* 0x4000A000 */
 #define PERI_TR_GR9                             ((PERI_TR_GR_Type*) &PERI->TR_GR[9])                              /* 0x4000A400 */
 #define PERI_TR_GR10                            ((PERI_TR_GR_Type*) &PERI->TR_GR[10])                             /* 0x4000A800 */
+#define PERI_TR_GR11                            ((PERI_TR_GR_Type*) &PERI->TR_GR[11])                             /* 0x4000AC00 */
 #define PERI_TR_1TO1_GR0                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[0])                    /* 0x4000C000 */
 #define PERI_TR_1TO1_GR1                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[1])                    /* 0x4000C400 */
 #define PERI_TR_1TO1_GR2                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[2])                    /* 0x4000C800 */
@@ -858,6 +859,7 @@ typedef enum {
 
 #define PROT_BASE                               0x40230000UL
 #define PROT                                    ((PROT_Type*) PROT_BASE)                                          /* 0x40230000 */
+#define PROT_SMPU                               ((PROT_SMPU_Type*) &PROT->SMPU)                                   /* 0x40230000 */
 #define PROT_SMPU_SMPU_STRUCT0                  ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[0])        /* 0x40232000 */
 #define PROT_SMPU_SMPU_STRUCT1                  ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[1])        /* 0x40232040 */
 #define PROT_SMPU_SMPU_STRUCT2                  ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[2])        /* 0x40232080 */
@@ -874,15 +876,6 @@ typedef enum {
 #define PROT_SMPU_SMPU_STRUCT13                 ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[13])       /* 0x40232340 */
 #define PROT_SMPU_SMPU_STRUCT14                 ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[14])       /* 0x40232380 */
 #define PROT_SMPU_SMPU_STRUCT15                 ((PROT_SMPU_SMPU_STRUCT_Type*) &PROT->SMPU.SMPU_STRUCT[15])       /* 0x402323C0 */
-#define PROT_SMPU                               ((PROT_SMPU_Type*) &PROT->SMPU)                                   /* 0x40230000 */
-#define PROT_MPU15_MPU_STRUCT0                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[0])      /* 0x40237E00 */
-#define PROT_MPU15_MPU_STRUCT1                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[1])      /* 0x40237E20 */
-#define PROT_MPU15_MPU_STRUCT2                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[2])      /* 0x40237E40 */
-#define PROT_MPU15_MPU_STRUCT3                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[3])      /* 0x40237E60 */
-#define PROT_MPU15_MPU_STRUCT4                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[4])      /* 0x40237E80 */
-#define PROT_MPU15_MPU_STRUCT5                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[5])      /* 0x40237EA0 */
-#define PROT_MPU15_MPU_STRUCT6                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[6])      /* 0x40237EC0 */
-#define PROT_MPU15_MPU_STRUCT7                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[7])      /* 0x40237EE0 */
 #define PROT_MPU0                               ((PROT_MPU_Type*) &PROT->CYMPU[0])                                /* 0x40234000 */
 #define PROT_MPU1                               ((PROT_MPU_Type*) &PROT->CYMPU[1])                                /* 0x40234400 */
 #define PROT_MPU2                               ((PROT_MPU_Type*) &PROT->CYMPU[2])                                /* 0x40234800 */
@@ -899,6 +892,14 @@ typedef enum {
 #define PROT_MPU13                              ((PROT_MPU_Type*) &PROT->CYMPU[13])                               /* 0x40237400 */
 #define PROT_MPU14                              ((PROT_MPU_Type*) &PROT->CYMPU[14])                               /* 0x40237800 */
 #define PROT_MPU15                              ((PROT_MPU_Type*) &PROT->CYMPU[15])                               /* 0x40237C00 */
+#define PROT_MPU15_MPU_STRUCT0                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[0])      /* 0x40237E00 */
+#define PROT_MPU15_MPU_STRUCT1                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[1])      /* 0x40237E20 */
+#define PROT_MPU15_MPU_STRUCT2                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[2])      /* 0x40237E40 */
+#define PROT_MPU15_MPU_STRUCT3                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[3])      /* 0x40237E60 */
+#define PROT_MPU15_MPU_STRUCT4                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[4])      /* 0x40237E80 */
+#define PROT_MPU15_MPU_STRUCT5                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[5])      /* 0x40237EA0 */
+#define PROT_MPU15_MPU_STRUCT6                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[6])      /* 0x40237EC0 */
+#define PROT_MPU15_MPU_STRUCT7                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[7])      /* 0x40237EE0 */
 
 /*******************************************************************************
 *                                    FLASHC
@@ -1083,6 +1084,8 @@ typedef enum {
 
 #define TCPWM0_BASE                             0x40380000UL
 #define TCPWM0                                  ((TCPWM_Type*) TCPWM0_BASE)                                       /* 0x40380000 */
+#define TCPWM0_GRP0                             ((TCPWM_GRP_Type*) &TCPWM0->GRP[0])                               /* 0x40380000 */
+#define TCPWM0_GRP1                             ((TCPWM_GRP_Type*) &TCPWM0->GRP[1])                               /* 0x40388000 */
 #define TCPWM0_GRP0_CNT0                        ((TCPWM_GRP_CNT_Type*) &TCPWM0->GRP[0].CNT[0])                    /* 0x40380000 */
 #define TCPWM0_GRP0_CNT1                        ((TCPWM_GRP_CNT_Type*) &TCPWM0->GRP[0].CNT[1])                    /* 0x40380080 */
 #define TCPWM0_GRP0_CNT2                        ((TCPWM_GRP_CNT_Type*) &TCPWM0->GRP[0].CNT[2])                    /* 0x40380100 */
@@ -1095,8 +1098,6 @@ typedef enum {
 #define TCPWM0_GRP1_CNT5                        ((TCPWM_GRP_CNT_Type*) &TCPWM0->GRP[1].CNT[5])                    /* 0x40388280 */
 #define TCPWM0_GRP1_CNT6                        ((TCPWM_GRP_CNT_Type*) &TCPWM0->GRP[1].CNT[6])                    /* 0x40388300 */
 #define TCPWM0_GRP1_CNT7                        ((TCPWM_GRP_CNT_Type*) &TCPWM0->GRP[1].CNT[7])                    /* 0x40388380 */
-#define TCPWM0_GRP0                             ((TCPWM_GRP_Type*) &TCPWM0->GRP[0])                               /* 0x40380000 */
-#define TCPWM0_GRP1                             ((TCPWM_GRP_Type*) &TCPWM0->GRP[1])                               /* 0x40388000 */
 
 /*******************************************************************************
 *                                     LCD
@@ -1121,8 +1122,8 @@ typedef enum {
 
 #define CANFD0_BASE                             0x40520000UL
 #define CANFD0                                  ((CANFD_Type*) CANFD0_BASE)                                       /* 0x40520000 */
-#define CANFD0_CH0_M_TTCAN                      ((CANFD_CH_M_TTCAN_Type*) &CANFD0->CH[0].M_TTCAN)                 /* 0x40520000 */
 #define CANFD0_CH0                              ((CANFD_CH_Type*) &CANFD0->CH[0])                                 /* 0x40520000 */
+#define CANFD0_CH0_M_TTCAN                      ((CANFD_CH_M_TTCAN_Type*) &CANFD0->CH[0].M_TTCAN)                 /* 0x40520000 */
 
 /*******************************************************************************
 *                                     SCB

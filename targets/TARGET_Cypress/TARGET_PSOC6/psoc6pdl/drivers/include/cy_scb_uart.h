@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_uart.h
-* \version 2.40.1
+* \version 2.40.2
 *
 * Provides UART API declarations of the SCB driver.
 *
@@ -27,22 +27,22 @@
 * \{
 * Driver API for UART
 *
-* The functions and other declarations used in this part of the driver are in 
-* cy_scb_uart.h. You can also include cy_pdl.h (ModusToolbox only) to get access 
+* The functions and other declarations used in this part of the driver are in
+* cy_scb_uart.h. You can also include cy_pdl.h to get access
 * to all functions and declarations in the PDL.
 *
-* The Universal Asynchronous Receiver/Transmitter (UART) protocol is an 
-* asynchronous serial interface protocol. UART communication is typically 
+* The Universal Asynchronous Receiver/Transmitter (UART) protocol is an
+* asynchronous serial interface protocol. UART communication is typically
 * point-to-point. The UART interface consists of two signals:
 * * TX: Transmitter output
 * * RX: Receiver input
 *
-* Additionally, two side-band signals are used to implement flow control in 
+* Additionally, two side-band signals are used to implement flow control in
 * UART. Note that the flow control applies only to TX functionality.
-* * Clear to Send (CTS): This is an input signal to the transmitter. 
-*   When active, it indicates that the slave is ready for the master to 
+* * Clear to Send (CTS): This is an input signal to the transmitter.
+*   When active, it indicates that the slave is ready for the master to
 *   transmit data.
-* * Ready to Send (RTS): This is an output signal from the receiver. When 
+* * Ready to Send (RTS): This is an output signal from the receiver. When
 *   active, it indicates that the receiver is ready to receive data
 *
 * Features:
@@ -52,7 +52,7 @@
 * * SmartCard (ISO7816) reader
 * * IrDA
 * * Data frame size programmable from 4 to 16 bits
-* * Programmable number of STOP bits, which can be set in terms of half bit 
+* * Programmable number of STOP bits, which can be set in terms of half bit
 *   periods between 1 and 4
 * * Parity support (odd and even parity)
 * * Median filter on Rx input
@@ -82,8 +82,8 @@
 * To set up the UART driver, provide the configuration parameters in the
 * \ref cy_stc_scb_uart_config_t structure. For example: provide uartMode,
 * oversample, dataWidth, enableMsbFirst, parity, and stopBits. The other
-* parameters are optional. To initialize the driver, call \ref Cy_SCB_UART_Init 
-* function providing a pointer to the populated \ref cy_stc_scb_uart_config_t 
+* parameters are optional. To initialize the driver, call \ref Cy_SCB_UART_Init
+* function providing a pointer to the populated \ref cy_stc_scb_uart_config_t
 * structure and the allocated \ref cy_stc_scb_uart_context_t structure.
 *
 * \snippet scb/uart_snippet/main.c UART_CFG
@@ -92,8 +92,8 @@
 * \subsection group_scb_uart_pins Assign and Configure Pins
 ********************************************************************************
 * Only dedicated SCB pins can be used for UART operation. The HSIOM
-* register must be configured to connect dedicated SCB UART pins to the 
-* SCB block. Also, the UART output pins must be configured in Strong Drive 
+* register must be configured to connect dedicated SCB UART pins to the
+* SCB block. Also, the UART output pins must be configured in Strong Drive
 * Input Off mode and UART input pins in Digital High-Z:
 *
 * \snippet scb/uart_snippet/main.c UART_CFG_PINS
@@ -103,7 +103,7 @@
 ********************************************************************************
 * A clock source must be connected to the SCB block to oversample input and
 * output signals, in this document this clock will be referred as clk_scb.
-* You must use one of available integer or fractional dividers. Use the 
+* You must use one of available integer or fractional dividers. Use the
 * \ref group_sysclk driver API to do this.
 *
 * \snippet scb/uart_snippet/main.c UART_CFG_ASSIGN_CLOCK
@@ -156,7 +156,7 @@
 * The \ref group_scb_uart_low_level_functions functions allow
 * interacting directly with the hardware and do not use \ref Cy_SCB_UART_Interrupt.
 * These functions do not require context for operation. Thus, NULL can be
-* passed for context parameter in \ref Cy_SCB_UART_Init and \ref Cy_SCB_UART_Disable 
+* passed for context parameter in \ref Cy_SCB_UART_Init and \ref Cy_SCB_UART_Disable
 * instead of a pointer to the context structure.
 *
 * * To write data into the TX FIFO, use one of the provided functions:
@@ -189,7 +189,7 @@
 * Call \ref Cy_SCB_UART_Receive to start receive operation. After the
 * operation is started the \ref Cy_SCB_UART_Interrupt handles the data
 * transfer until its completion.
-* Therefore \ref Cy_SCB_UART_Interrupt must be called inside the user 
+* Therefore \ref Cy_SCB_UART_Interrupt must be called inside the user
 * interrupt handler to make the High-Level API work. To monitor status
 * of transmit operation, use \ref Cy_SCB_UART_GetTransmitStatus and
 * \ref Cy_SCB_UART_GetReceiveStatus to monitor receive status appropriately.
@@ -231,7 +231,7 @@
 *   parameter to configure TX FIFO level value. \n
 *   <em>For example, the TX FIFO has 0 data elements (empty) and the TX FIFO level
 *   is 7. The TX trigger signal is active until DMA loads TX FIFO
-*   with 8 data elements (note that after the first TX load operation, the data 
+*   with 8 data elements (note that after the first TX load operation, the data
 *   element goes to the shift register and TX FIFO is empty).</em>
 *
 * To route SCB TX or RX trigger signals to DMA controller use \ref group_trigmux
@@ -253,24 +253,24 @@
 * power mode transition function. Refer to \ref group_syspm driver for more
 * information about power mode transitions and callback registration.
 *
-* The UART is disabled during Deep Sleep and Hibernate and stops driving 
-* the output pins. The state of the UART output pins TX and RTS is High-Z, 
+* The UART is disabled during Deep Sleep and Hibernate and stops driving
+* the output pins. The state of the UART output pins TX and RTS is High-Z,
 * which can cause unexpected behavior of the UART receiver due to possible
-* glitches on these lines. These pins must be set to the inactive state before 
+* glitches on these lines. These pins must be set to the inactive state before
 * entering Deep Sleep or Hibernate mode.
-* These pins must keep the inactive level (the same state 
-* when UART TX is enabled and does not transfer data) before entering Deep 
-* Sleep or Hibernate mode. To do that, write the GPIO data register of each pin 
-* to the inactive level for each output pin. Then configure High-Speed Input 
-* Output Multiplexer (HSIOM) of each pin to be controlled by the GPIO (use 
-* \ref group_gpio driver API). After exiting Deep Sleep mode the UART 
-* must be enabled and the pins configuration restored to return the 
-* UART control of the pins (after exiting Hibernate mode, the 
-* system initialization code does the same). Copy either or 
-* both \ref Cy_SCB_UART_DeepSleepCallback and \ref Cy_SCB_UART_HibernateCallback 
+* These pins must keep the inactive level (the same state
+* when UART TX is enabled and does not transfer data) before entering Deep
+* Sleep or Hibernate mode. To do that, write the GPIO data register of each pin
+* to the inactive level for each output pin. Then configure High-Speed Input
+* Output Multiplexer (HSIOM) of each pin to be controlled by the GPIO (use
+* \ref group_gpio driver API). After exiting Deep Sleep mode the UART
+* must be enabled and the pins configuration restored to return the
+* UART control of the pins (after exiting Hibernate mode, the
+* system initialization code does the same). Copy either or
+* both \ref Cy_SCB_UART_DeepSleepCallback and \ref Cy_SCB_UART_HibernateCallback
 * as appropriate, and make the changes described above inside the function.
-* Alternately, external pull-up or pull-down resistors can be connected 
-* to the appropriate UART lines to keep them inactive during Deep-Sleep or 
+* Alternately, external pull-up or pull-down resistors can be connected
+* to the appropriate UART lines to keep them inactive during Deep-Sleep or
 * Hibernate.
 *
 * \defgroup group_scb_uart_macros Macros
@@ -414,8 +414,8 @@ typedef struct stc_scb_uart_config
     cy_en_scb_uart_parity_t    parity;
 
     /**
-    * Enables a digital 3-tap median filter (2 out of 3 voting) to be applied 
-    * to the input of the RX FIFO to filter glitches on the line (for IrDA, 
+    * Enables a digital 3-tap median filter (2 out of 3 voting) to be applied
+    * to the input of the RX FIFO to filter glitches on the line (for IrDA,
     * this parameter is ignored)
     *
     */
@@ -762,8 +762,8 @@ cy_en_syspm_status_t Cy_SCB_UART_HibernateCallback(cy_stc_syspm_callback_params_
 /**
 * \defgroup group_scb_uart_macros_receive_status UART Receive Statuses
 * \{
-* Macros to check current UART receive status returned by 
-* \ref Cy_SCB_UART_GetReceiveStatus function. 
+* Macros to check current UART receive status returned by
+* \ref Cy_SCB_UART_GetReceiveStatus function.
 * Each UART receive status is encoded in a separate bit, therefore multiple bits
 * may be set to indicate the current status.
 */
@@ -791,8 +791,8 @@ cy_en_syspm_status_t Cy_SCB_UART_HibernateCallback(cy_stc_syspm_callback_params_
 /**
 * \defgroup group_scb_uart_macros_transmit_status UART Transmit Status
 * \{
-* Macros to check current UART transmit status returned by 
-* \ref Cy_SCB_UART_GetTransmitStatus function. 
+* Macros to check current UART transmit status returned by
+* \ref Cy_SCB_UART_GetTransmitStatus function.
 * Each UART transmit status is encoded in a separate bit, therefore multiple bits
 * may be set to indicate the current status.
 */
@@ -1042,21 +1042,21 @@ __STATIC_INLINE uint32_t Cy_SCB_UART_GetRtsFifoLevel(CySCB_Type const *base)
 ****************************************************************************//**
 *
 * Enables the skip start-bit functionality.
-* When skip start is enabled the UART hardware does not synchronize to a 
-* start bit but synchronizes to the first rising edge. To create a rising edge, 
-* the first data bit must be a 1. This feature is useful when the start bit 
+* When skip start is enabled the UART hardware does not synchronize to a
+* start bit but synchronizes to the first rising edge. To create a rising edge,
+* the first data bit must be a 1. This feature is useful when the start bit
 * falling edge is used to wake the device through a GPIO interrupt.
 *
 * \param base
 * The pointer to the UART SCB instance.
 *
 * \note
-* When skip start-bit feature is enabled, it is applied (UART synchronizes 
-* to the first rising edge after start bit) whenever the SCB is enabled. 
-* This can cause incorrect UART synchronization and data reception when 
-* the first data bit is not a 1. Therefore, disable the skip start-bit 
+* When skip start-bit feature is enabled, it is applied (UART synchronizes
+* to the first rising edge after start bit) whenever the SCB is enabled.
+* This can cause incorrect UART synchronization and data reception when
+* the first data bit is not a 1. Therefore, disable the skip start-bit
 * when it should not be applied.
-* Note that SCB is disabled before enter Deep Sleep mode or after calling 
+* Note that SCB is disabled before enter Deep Sleep mode or after calling
 * \ref Cy_SCB_UART_Disable.
 *
 *******************************************************************************/
@@ -1523,4 +1523,3 @@ __STATIC_INLINE void Cy_SCB_UART_RegisterCallback(CySCB_Type const *base,
 
 #endif /* (CY_SCB_UART_H) */
 /* [] END OF FILE */
-

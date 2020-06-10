@@ -64,6 +64,11 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_ble_clk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_ALTHF_ENABLED" value="1" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ALTHF_BLE_ECO_FREQ" value="`${(ecoFrequency == 16000000) ? &quot;CY_BLE_BLESS_ECO_FREQ_16MHZ&quot; : &quot;CY_BLE_BLESS_ECO_FREQ_32MHZ&quot;}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ALTHF_BLE_ECO_CLK_DIV" value="CY_BLE_SYS_ECO_CLK_DIV_`${divider}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ALTHF_BLE_ECO_VOL_REGULATOR" value="`${bleVoltageReg}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ALTHF_BLE_ECO_CLOAD" value="`${cast(uint64, (loadCap - 7.5) / 0.075)}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ALTHF_BLE_ECO_TIME" value="`${cast(uint64, startupTime / 31.25)}`U" public="false" include="true" />
     <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_AltHfInit()" body="    cy_en_ble_eco_status_t status = Cy_BLE_EcoConfigure(`${(ecoFrequency == 16000000) ? &quot;CY_BLE_BLESS_ECO_FREQ_16MHZ&quot; : &quot;CY_BLE_BLESS_ECO_FREQ_32MHZ&quot;}`, CY_BLE_SYS_ECO_CLK_DIV_`${divider}`, `${cast(uint64, (loadCap - 7.5) / 0.075)}`U, `${cast(uint64, startupTime / 31.25)}`U, `${bleVoltageReg}`);&#xA;    if ((CY_BLE_ECO_SUCCESS != status) &amp;&amp; (CY_BLE_ECO_ALREADY_STARTED !=status))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_ALTHF_ERROR);&#xA;    }" public="false" include="true" />
   </ConfigFirmware>
 </Personality>

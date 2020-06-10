@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.h
-* \version 1.30.2
+* \version 1.30.3
 *
 * \brief
 * Provides an API declaration of the Protection Unit driver
@@ -30,7 +30,7 @@
 * The Protection Unit driver provides an API to configure the Memory Protection
 * Units (MPU), Shared Memory Protection Units (SMPU), and Peripheral Protection
 * Units (PPU). These are separate from the ARM Core MPUs and provide additional
-* mechanisms for securing resource accesses. The Protection units address the 
+* mechanisms for securing resource accesses. The Protection units address the
 * following concerns in an embedded design:
 * - <b>Security requirements:</b> This includes the prevention of malicious attacks
 *   to access secure memory or peripherals.
@@ -38,14 +38,14 @@
 *   SW errors and random HW errors. It is important to enable failure analysis
 *   to investigate the root cause of a safety violation.
 *
-* The functions and other declarations used in this driver are in cy_prot.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
-* 
+* The functions and other declarations used in this driver are in cy_prot.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
+*
 * \section group_prot_protection_type Protection Types
 *
-* Protection units are hardware configuration structures that control bus accesses 
-* to the resources that they protect. By combining these individual configuration 
+* Protection units are hardware configuration structures that control bus accesses
+* to the resources that they protect. By combining these individual configuration
 * structures, a system is built to allow strict restrictions on the capabilities
 * of individual bus masters (e.g. CM0+, CM4, Crypt) and their operating modes.
 * This architecture can then be integrated into the overall security system
@@ -54,16 +54,16 @@
 * it must pass the evaluation performed for each category. These access evaluations
 * are prioritized, where MPU has the highest priority, followed by SMPU, followed
 * by PPU. i.e. if an SMPU and a PPU protect the same resource and if access is
-* denied by the SMPU, then the PPU access evaluation is skipped. This can lead to a 
+* denied by the SMPU, then the PPU access evaluation is skipped. This can lead to a
 * denial-of-service scenario and the application should pay special attention in
 * taking ownership of the protection unit configurations.
 *
 * \subsection group_prot_memory_protection Memory Protection
 *
 * Memory access control for a bus master is controlled using an MPU. These are
-* most often used to distinguish user and privileged accesses from a single bus 
-* master such as task switching in an OS/kernel. For ARM cores (CM0+, CM4), the 
-* core MPUs are used to perform this task. For other non-ARM bus masters such 
+* most often used to distinguish user and privileged accesses from a single bus
+* master such as task switching in an OS/kernel. For ARM cores (CM0+, CM4), the
+* core MPUs are used to perform this task. For other non-ARM bus masters such
 * as Crypto, MPU structs are available, which can be used in a similar manner
 * as the ARM core MPUs. These MPUs however must be configured by the ARM cores.
 * Other bus masters that do not have an MPU, such as DMA (DW), inherit the access
@@ -81,10 +81,10 @@
 * This protection effectively allows only those with correct bus master access
 * settings to read/write/execute the memory region. This type of protection
 * is used in general memory such as Flash and SRAM. Peripheral registers are
-* best configured using the peripheral protection units instead. SMPU structs 
-* have a descending priority, where larger index struct has higher priority 
+* best configured using the peripheral protection units instead. SMPU structs
+* have a descending priority, where larger index struct has higher priority
 * access evaluation over lower index structs. E.g. SMPU_STRUCT15 has higher priority
-* than SMPU_STRUCT14 and its access will be evaluated before SMPU_STRUCT14. 
+* than SMPU_STRUCT14 and its access will be evaluated before SMPU_STRUCT14.
 * If both target the same memory, then the higher index (MPU_STRUCT15) will be
 * used, and the lower index (SMPU_STRUCT14) will be ignored.
 *
@@ -94,7 +94,7 @@
 * register accesses by bus masters. Four types of PPUs are available.
 * - <b>Fixed Group (GR) PPUs</b> are used to protect an entire peripheral MMIO group
 *   from invalid bus master accesses. The MMIO grouping information and which
-*   resource belongs to which group is device specific and can be obtained 
+*   resource belongs to which group is device specific and can be obtained
 *   from the device technical reference manual (TRM). Group PPUs have the highest
 *   priority in the PPU category. Therefore their access evaluations take precedence
 *   over the other types of PPUs.
@@ -103,17 +103,17 @@
 *   type of peripheral protection unit. Programmable PPUs have the second highest
 *   priority and take precedence over Region PPUs and Slave PPUs. Similar to SMPUs,
 *   higher index PROG PPUs have higher priority than lower indexes PROG PPUs.
-* - <b>Fixed Region (RG) PPUs</b> are used to protect an entire peripheral slave 
-*   instance from invalid bus master accesses. For example, TCPWM0, TCPWM1, 
+* - <b>Fixed Region (RG) PPUs</b> are used to protect an entire peripheral slave
+*   instance from invalid bus master accesses. For example, TCPWM0, TCPWM1,
 *   SCB0, and SCB1, etc. Region PPUs have the third highest priority and take precedence
 *   over Slave PPUs.
 * - <b>Fixed Slave (SL) PPUs</b> are used to protect specified regions of peripheral
-*   instances. For example, individual DW channel structs, SMPU structs, and 
+*   instances. For example, individual DW channel structs, SMPU structs, and
 *   IPC structs, etc. Slave PPUs have the lowest priority in the PPU category and
 *   therefore are evaluated last.
 *
 * \section group_prot_protection_context Protection Context
-* 
+*
 * Protection context (PC) attribute is present in all bus masters and is evaluated
 * when accessing memory protected by an SMPU or a PPU. There are no limitations
 * to how the PC values are allocated to the bus masters and this makes it
@@ -140,11 +140,11 @@
 * At that point, the only way to re-transition to PC=0 is through the defined
 * exception/interrupt handler.
 *
-* \note Devices with CPUSS ver_2 have a hardware-controlled protection context 
-* update mechanism that allows only a single-entry point for transitioning 
-* into PC=0, 1, 2, and 3. The interrupt vector or the exception handler 
-* address can be assigned to the CPUSS.CM0_PC0_HANDLER, CPUSS.CM0_PC1_HANDLER, 
-* CPUSS.CM0_PC2_HANDLER or CPUSS.CM0_PC2_HANDLER register. Also, the control 
+* \note Devices with CPUSS ver_2 have a hardware-controlled protection context
+* update mechanism that allows only a single-entry point for transitioning
+* into PC=0, 1, 2, and 3. The interrupt vector or the exception handler
+* address can be assigned to the CPUSS.CM0_PC0_HANDLER, CPUSS.CM0_PC1_HANDLER,
+* CPUSS.CM0_PC2_HANDLER or CPUSS.CM0_PC2_HANDLER register. Also, the control
 * register CPUSS.CM0_PC_CTL of the CM0+ protection context must be set:
 * bit 0 - the valid field for CM0_PC0_HANDLER,
 * bit 1 - the valid field for CM0_PC1_HANDLER,
@@ -166,12 +166,12 @@
 *   user and privileged modes is handled by updating its Control register or
 *   by exception entries. Other bus masters such as Crypto have their own
 *   user/privileged settings bit in the bus master control register. This is
-*   then controlled by the ARM cores. Bus masters that do not have 
+*   then controlled by the ARM cores. Bus masters that do not have
 *   user/privileged access controls, such as DMA, inherit their attributes
 *   from the bus master that configured it. The user/privileged distinction
 *   is used mainly in the MPUs for single bus master accesses but they can
 *   also be used in all other protection units.
-* - <b>Secure/Non-secure access:</b> The secure/non-secure attribute is another 
+* - <b>Secure/Non-secure access:</b> The secure/non-secure attribute is another
 *   identifier to distinguish between two separate modes of operations. Much
 *   like the user/privileged access, the secure/non-secure mode flag is present
 *   in the bus master control register. The ARM core does not have this
@@ -183,10 +183,10 @@
 *   both secure and non-secure regions, whereas a bus master with non-secure
 *   attribute can only access non-secure regions.
 * - <b>Protection Context access:</b> Protection Context is an attribute
-*   that serves two purposes; To enter the hardware controlled secure PC=0 
+*   that serves two purposes; To enter the hardware controlled secure PC=0
 *   mode of operation from non-secure modes and to provide finer granularity
 *   to the bus master access definitions. It is used in SMPU and PPU configuration
-*   to control which bus master protection context can access the resources 
+*   to control which bus master protection context can access the resources
 *   that they protect.
 *
 * \section group_prot_protection_structure Protection Structure
@@ -195,7 +195,7 @@
 * The exception to this rule is MPU structs, which only have the slave struct
 * equivalent. The protection units apply their access evaluations in a decreasing
 * index order. For example, if SMPU1 and SMPU2 both protect a specific memory region,
-* the the higher index (SMPU2) will be evaluated first. In a secure system, the 
+* the the higher index (SMPU2) will be evaluated first. In a secure system, the
 * higher index protection structs would then provide the high level of security
 * and the lower indexes would provide the lower level of security. Refer to the
 * \ref group_prot_protection_type section for more information.
@@ -210,41 +210,41 @@
 * \subsubsection group_prot_slave_addr Slave Struct Address Definition
 *
 * - Address: For MPU, SMPU and PROG PPU, the address field is used to define
-*   the base memory region to apply the protection. This field has a dependency 
+*   the base memory region to apply the protection. This field has a dependency
 *   on the region size, which dictates the alignment of the protection unit. E.g.
 *   if the region size is 64KB, the address field is aligned to 64KB. Hence
-*   the lowest bits [15:0] are ignored. For instance, if the address is defined 
+*   the lowest bits [15:0] are ignored. For instance, if the address is defined
 *   at 0x0800FFFF, the protection unit would apply its protection settings from
-*   0x08000000. Thus alignment must be checked before defining the protection 
-*   address. The address field for other PPUs are not used, as they are bound 
-*   to their respective peripheral memory locations. 
+*   0x08000000. Thus alignment must be checked before defining the protection
+*   address. The address field for other PPUs are not used, as they are bound
+*   to their respective peripheral memory locations.
 * - Region Size: For MPU, SMPU and PROG PPU, the region size is used to define
 *   the memory block size to apply the protection settings, starting from the
 *   defined base address. It is also used to define the 8 sub-regions for the
 *   chosen memory block. E.g. If the region size is 64KB, each subregion would
 *   be 8KB. This information can then be used to disable the protection
-*   settings for select subregions, which gives finer granularity to the 
-*   memory regions. PPUs do not have region size definitions as they are bound 
-*   to their respective peripheral memory locations. 
+*   settings for select subregions, which gives finer granularity to the
+*   memory regions. PPUs do not have region size definitions as they are bound
+*   to their respective peripheral memory locations.
 * - Subregions: The memory block defined by the address and region size fields
 *   is divided into 8 (0 to 7) equally spaced subregions. The protection settings
-*   of the protection unit can be disabled for these subregions. E.g. for a 
-*   given 64KB of memory block starting from address 0x08000000, disabling 
+*   of the protection unit can be disabled for these subregions. E.g. for a
+*   given 64KB of memory block starting from address 0x08000000, disabling
 *   subregion 0 would result in the protection settings not affecting the memory
-*   located between 0x08000000 to 0x08001FFF. PPUs do not have subregion 
-*   definitions as they are bound to their respective peripheral memory locations. 
+*   located between 0x08000000 to 0x08001FFF. PPUs do not have subregion
+*   definitions as they are bound to their respective peripheral memory locations.
 *
 * \subsubsection group_prot_slave_attr Slave Struct Attribute Definition
 *
 * - User Permission: Protection units can control the access restrictions
-*   of the read (R), write (W) and execute (X) (subject to their availability 
-*   depending on the type of protection unit) operations on the memory block 
+*   of the read (R), write (W) and execute (X) (subject to their availability
+*   depending on the type of protection unit) operations on the memory block
 *   when the bus master is operating in user mode. PPU structs do not provide
 *   execute attributes.
 * - Privileged Permission: Similar to the user permission, protection units can
-*   control the access restrictions of the read (R), write (W) and execute (X) 
-*   (subject to their availability depending on the type of protection unit) 
-*   operations on the memory block when the bus master is operating in 
+*   control the access restrictions of the read (R), write (W) and execute (X)
+*   (subject to their availability depending on the type of protection unit)
+*   operations on the memory block when the bus master is operating in
 *   privileged mode. PPU structs do not provide execute attributes.
 * - Secure/Non-secure: Applies the secure/non-secure protection settings to
 *   the defined memory region. Secure protection allows only bus masters that
@@ -268,7 +268,7 @@
 *   protection context values allowed by the protection unit. E.g. If SMPU1 is
 *   configured to allow only PC=1 and PC=5, a bus master (such as CM4) must
 *   be operating at PC=1 or PC=5 when accessing the protected memory region.
-* 
+*
 * \subsection group_prot_master_struct Master Struct
 *
 * The master struct protects its slave struct in the protection unit. This
@@ -286,10 +286,10 @@
 *
 * \subsubsection group_prot_master_attr Master Struct Attribute Definition
 *
-* - User Permission: Only the write (W) access attribute is allowed for 
+* - User Permission: Only the write (W) access attribute is allowed for
 *   master structs, which controls whether a bus master operating in user
 *   mode has the write access.
-* - Privileged Permission: Only the write (W) access attribute is allowed for 
+* - Privileged Permission: Only the write (W) access attribute is allowed for
 *   master structs, which controls whether a bus master operating in privileged
 *   mode has the write access.
 * - Secure/Non-Secure: Same behavior as slave struct.
@@ -314,15 +314,15 @@
 *   the protected memory.
 *
 * For example, by configuring the CM0+ bus master configuration to allow
-* only protection contexts 2 and 3, the bus master will be able to 
-* set its protection context only to 2 or 3. During runtime, the CM0+ core 
-* can set its protection context to 2 by calling Cy_Prot_SetActivePC() 
+* only protection contexts 2 and 3, the bus master will be able to
+* set its protection context only to 2 or 3. During runtime, the CM0+ core
+* can set its protection context to 2 by calling Cy_Prot_SetActivePC()
 * and access all regions of protected memory that allow PC=2. A fault will
 * be triggered if a resource is protected with different protection settings.
 *
-* Note that each protection unit is distinguished by its type (e.g. 
+* Note that each protection unit is distinguished by its type (e.g.
 * PROT_MPU_MPU_STRUCT_Type). The list of supported protection units can be
-* obtained from the device definition header file. Choose a protection unit 
+* obtained from the device definition header file. Choose a protection unit
 * of interest, and call its corresponding Cy_Prot_Config<X>Struct() function
 * with its software protection unit configuration structure populated. Then
 * enable the protection unit by calling the Cy_Prot_Enable<X>Struct() function.
@@ -335,17 +335,17 @@
 * When a resource (memory/register) is accessed, it must pass evaluation of
 * all three protection unit categories in the following order: MPU->SMPU->PPU.
 * The application should ensure that a denial-of-service attack cannot be
-* made on the PPU by the SMPU. For this reason, it is recommended that the 
+* made on the PPU by the SMPU. For this reason, it is recommended that the
 * application's security policy limit the ability for the non-secure client
 * from configuring the SMPUs.
-* 
+*
 * Within each category, the priority hierarchy must be carefully considered
 * to ensure that a higher priority protection unit cannot be configured to
 * override the security configuration of a lower index protection unit.
 * Therefore if a lower index protection unit is configured, relevant higher
-* priority indexes should be configured (or protected from unwanted 
+* priority indexes should be configured (or protected from unwanted
 * reconfiguration). E.g. If a PPU_SL is configured, PPU_RG and PPU_GR that
-* overlaps with the protected registers should also be configured. SImilar 
+* overlaps with the protected registers should also be configured. SImilar
 * to SMPUs, it is recommended that the configuration of PPU_PROG be limited.
 * Otherwise they can be used to override the protection settings of PPU_RG
 * and PPU_SL structs.
@@ -357,8 +357,8 @@
 * exception entry in the CPUSS.CM0_PC0_HANDLER register.
 *
 * - SMPU 15 and 14 are configured and enabled to only allow PC=0 accesses at
-*   device boot. 
-* - PROG PPU 15, 14, 13 and 12 are configured to only allow PC=0 accesses at 
+*   device boot.
+* - PROG PPU 15, 14, 13 and 12 are configured to only allow PC=0 accesses at
 *   device boot.
 * - GR PPU 0 and 2 are configured to only allow PC=0 accesses at device boot.
 *
@@ -384,11 +384,22 @@
 *     <td>This piece of code is written for DW_V2_Type only and it will be never
 *         executed for DW_V1_Type (which is a default build option for DW_Type).</td>
 *   </tr>
+*   <tr>
+*     <td>19.13</td>
+*     <td>A</td>
+*     <td>The # and ## operators should not be used.</td>
+*     <td>The ## preprocessor operator is used in macros to form the field mask.</td>
+*   </tr>
 * </table>
 *
 * \section group_prot_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30.3</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.30.2</td>
 *     <td>Clarified the description of the next API functions: \ref Cy_Prot_ConfigPpuProgMasterAtt,\n
@@ -407,7 +418,7 @@
 *   </tr>
 *   <tr>
 *     <td rowspan="3">1.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.</td>
 *     <td>Driver library directory-structure simplification.</td>
 *   </tr>
@@ -426,13 +437,13 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
 *     <td rowspan="2">1.10</td>
 *     <td>Added input parameter validation to the API functions.<br>
-*     cy_en_prot_pcmask_t, cy_en_prot_subreg_t and cy_en_prot_pc_t 
+*     cy_en_prot_pcmask_t, cy_en_prot_subreg_t and cy_en_prot_pc_t
 *     types are set to typedef enum</td>
 *     <td>Improved debugging capability</td>
 *   </tr>
@@ -500,7 +511,7 @@ extern "C" {
 /**
 * Prot Driver error codes
 */
-typedef enum 
+typedef enum
 {
     CY_PROT_SUCCESS       = 0x00U,                                    /**< Returned successful */
     CY_PROT_BAD_PARAM     = CY_PROT_ID | CY_PDL_STATUS_ERROR | 0x01U, /**< Bad parameter was passed */
@@ -512,7 +523,7 @@ typedef enum
 /**
 * User/Privileged permission
 */
-typedef enum 
+typedef enum
 {
     CY_PROT_PERM_DISABLED = 0x00U, /**< Read, Write and Execute disabled */
     CY_PROT_PERM_R        = 0x01U, /**< Read enabled */
@@ -527,7 +538,7 @@ typedef enum
 /**
 * Memory region size
 */
-typedef enum 
+typedef enum
 {
     CY_PROT_SIZE_4B    = 1U,  /**< 4 bytes */
     CY_PROT_SIZE_8B    = 2U,  /**< 8 bytes */
@@ -601,7 +612,7 @@ enum cy_en_prot_subreg_t
 };
 
 /**
-* Protection context mask (PC_MASK) 
+* Protection context mask (PC_MASK)
 */
 enum cy_en_prot_pcmask_t
 {
@@ -625,7 +636,7 @@ enum cy_en_prot_pcmask_t
 /**
 * Request mode to get the SMPU or programmed PU structure
 */
-typedef enum 
+typedef enum
 {
     CY_PROT_REQMODE_HIGHPRIOR = 0U,    /**< Request mode to return PU structure with highest priority */
     CY_PROT_REQMODE_LOWPRIOR  = 1U,     /**< Request mode to return PU structure with lowest priority */
@@ -693,7 +704,7 @@ typedef enum
 #define CY_PROT_SMPU_PC_LIMIT_MASK              ((uint32_t) 0xFFFFFFFFUL << (CY_PROT_PC_MAX - 1UL))
 #define CY_PROT_PPU_PROG_PC_LIMIT_MASK          ((uint32_t) 0xFFFFFFFFUL << (CY_PROT_PC_MAX - 1UL))
 #define CY_PROT_PPU_FIXED_PC_LIMIT_MASK         ((uint32_t) 0xFFFFFFFFUL << (CY_PROT_PC_MAX - 1UL))
-    
+
 #define CY_PROT_SMPU_ATT0_MASK                  ((uint32_t)~(PROT_SMPU_SMPU_STRUCT_ATT0_PC_MASK_0_Msk))
 #define CY_PROT_SMPU_ATT1_MASK                  ((uint32_t)~(PROT_SMPU_SMPU_STRUCT_ATT1_UX_Msk \
                                                        | PROT_SMPU_SMPU_STRUCT_ATT1_PX_Msk \
@@ -777,10 +788,10 @@ typedef enum
                                                     ((permission) == CY_PROT_PERM_R) || \
                                                     ((permission) == CY_PROT_PERM_W) || \
                                                     ((permission) == CY_PROT_PERM_RW))
-                                                    
+
 #define CY_PROT_IS_FIXED_MS_MS_PERM_VALID(permission) (((permission) == CY_PROT_PERM_R) || \
-                                                    ((permission) == CY_PROT_PERM_RW))       
-                                                    
+                                                    ((permission) == CY_PROT_PERM_RW))
+
 
 #define CY_PROT_IS_FIXED_SL_PERM_VALID(permission) (((permission) == CY_PROT_PERM_DISABLED) || \
                                                     ((permission) == CY_PROT_PERM_R) || \
@@ -848,7 +859,7 @@ typedef enum
 #define CY_PROT_IS_SMPU_REQ_MODE_VALID(reqMode)    (((reqMode) == CY_PROT_REQMODE_HIGHPRIOR) || \
                                                     ((reqMode) == CY_PROT_REQMODE_LOWPRIOR) || \
                                                     ((reqMode) == CY_PROT_REQMODE_INDEX))
-                                                    
+
 #define CY_PROT_IS_PPU_PROG_REQ_MODE_VALID(reqMode)    (((reqMode) == CY_PROT_REQMODE_HIGHPRIOR) || \
                                                         ((reqMode) == CY_PROT_REQMODE_LOWPRIOR) || \
                                                         ((reqMode) == CY_PROT_REQMODE_INDEX))
@@ -873,7 +884,7 @@ typedef enum
 */
 
 /** Configuration structure for MPU Struct initialization */
-typedef struct 
+typedef struct
 {
     uint32_t*         address;          /**< Base address of the memory region */
     cy_en_prot_size_t regionSize;       /**< Size of the memory region */
@@ -884,7 +895,7 @@ typedef struct
 } cy_stc_mpu_cfg_t;
 
 /** Configuration structure for SMPU struct initialization */
-typedef struct 
+typedef struct
 {
     uint32_t*         address;          /**< Base address of the memory region (Only applicable to slave) */
     cy_en_prot_size_t regionSize;       /**< Size of the memory region (Only applicable to slave) */
@@ -897,7 +908,7 @@ typedef struct
 } cy_stc_smpu_cfg_t;
 
 /** Configuration structure for Programmable (PROG) PPU (PPU_PR) struct initialization */
-typedef struct 
+typedef struct
 {
     uint32_t*         address;          /**< Base address of the memory region (Only applicable to slave) */
     cy_en_prot_size_t regionSize;       /**< Size of the memory region (Only applicable to slave) */
@@ -910,7 +921,7 @@ typedef struct
 } cy_stc_ppu_prog_cfg_t;
 
 /** Configuration structure for Fixed Group (GR) PPU (PPU_GR) struct initialization */
-typedef struct 
+typedef struct
 {
     cy_en_prot_perm_t userPermission;   /**< User permissions for the region */
     cy_en_prot_perm_t privPermission;   /**< Privileged permissions for the region */
@@ -920,7 +931,7 @@ typedef struct
 } cy_stc_ppu_gr_cfg_t;
 
 /** Configuration structure for Fixed Slave (SL) PPU (PPU_SL) struct initialization */
-typedef struct 
+typedef struct
 {
     cy_en_prot_perm_t userPermission;   /**< User permissions for the region */
     cy_en_prot_perm_t privPermission;   /**< Privileged permissions for the region */
@@ -930,7 +941,7 @@ typedef struct
 } cy_stc_ppu_sl_cfg_t;
 
 /** Configuration structure for Fixed Region (RG) PPU (PPU_RG) struct initialization */
-typedef struct 
+typedef struct
 {
     cy_en_prot_perm_t userPermission;  /**< User permissions for the region */
     cy_en_prot_perm_t privPermission;  /**< Privileged permissions for the region */
@@ -1082,7 +1093,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* ba
 * This function disables both the master and slave parts of a protection unit.
 *
 * \param base
-* The base address for the SMPU structure to be disabled. 
+* The base address for the SMPU structure to be disabled.
 *
 * \return
 * Status of the function call.
@@ -1122,11 +1133,11 @@ __STATIC_INLINE cy_en_prot_status_t Cy_Prot_DisableSmpuStruct(PROT_SMPU_SMPU_STR
 * This function disables both the master and slave parts of a protection unit.
 *
 * \note
-* This functions has an effect only on devices with PERI IP version 1. Refer 
+* This functions has an effect only on devices with PERI IP version 1. Refer
 * to the device datasheet for information about PERI HW IP version.
 *
 * \param base
-* The base address for the Programmable PU structure to be disabled. 
+* The base address for the Programmable PU structure to be disabled.
 *
 * \return
 * Status of the function call.

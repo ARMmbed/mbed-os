@@ -950,6 +950,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define CY_IPC_CHAN_SYSCALL_CM4             (1U)  /* System calls for the 1st non-CM0 processor */
 #define CY_IPC_CHAN_SYSCALL_DAP             (2UL) /* System calls for the DAP */
 #define CY_IPC_CHAN_SEMA                    (3UL) /* IPC data channel for the Semaphores */
+#define CY_IPC_CHAN_PRA                     (4UL) /* IPC data channel for PRA */
 #define CY_IPC_CHAN_CYPIPE_EP0              (5UL) /* IPC data channel for CYPIPE EP0 */
 #define CY_IPC_CHAN_CYPIPE_EP1              (6UL) /* IPC data channel for CYPIPE EP1 */
 #define CY_IPC_CHAN_DDFT                    (7UL) /* IPC data channel for DDFT */
@@ -958,6 +959,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define CY_IPC_INTR_SYSCALL1                (0UL)
 #define CY_IPC_INTR_CYPIPE_EP0              (3UL)
 #define CY_IPC_INTR_CYPIPE_EP1              (4UL)
+#define CY_IPC_INTR_PRA                     (5UL)
 #define CY_IPC_INTR_SPARE                   (7UL)
 
 /* Endpoint indexes in the pipe array */
