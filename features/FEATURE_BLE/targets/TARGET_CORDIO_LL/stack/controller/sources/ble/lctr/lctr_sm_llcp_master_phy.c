@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master PHY update state machine implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller master PHY update state machine implementation file.
+ *
+ *  Copyright (c) 2016-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -106,8 +107,6 @@ static bool_t lctrPreferenceIsSymmetric(uint8_t peerTxPhys, uint8_t peerRxPhys)
  *  \param      rxPhys      Preferred receiver PHYs.
  *  \param      peerTxPhys  Peer's preferred transmitter PHYs.
  *  \param      peerRxPhys  Peer'sreferred receiver PHYs.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSendPhyUpdate(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys, uint8_t peerTxPhys, uint8_t peerRxPhys)
@@ -164,8 +163,6 @@ static void lctrSendPhyUpdate(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhy
  *  \brief      Action indirection for start PHY update.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActStartPhyUpdatePeer(lctrConnCtx_t *pCtx)
@@ -193,8 +190,6 @@ static void lctrActStartPhyUpdatePeer(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received host PHY update command.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActHostPhyUpdate(lctrConnCtx_t *pCtx)
@@ -209,8 +204,6 @@ static void lctrActHostPhyUpdate(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received peer PHY request.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerPhyReq(lctrConnCtx_t *pCtx)
@@ -224,8 +217,6 @@ static void lctrActPeerPhyReq(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received peer PHY response.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerPhyRsp(lctrConnCtx_t *pCtx)
@@ -239,8 +230,6 @@ static void lctrActPeerPhyRsp(lctrConnCtx_t *pCtx)
  *  \brief      Send peer LL_REJECT_IND due to pending operation.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActRejectCollision(lctrConnCtx_t *pCtx)
@@ -254,8 +243,6 @@ static void lctrActRejectCollision(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of PHY update with disallowed status.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPhyUpdateDisallow(lctrConnCtx_t *pCtx)
@@ -384,8 +371,6 @@ static const uint8_t lctrMstPhyUpdateNextStateTbl[LCTR_PU_STATE_TOTAL][LCTR_PU_E
  *
  *  \param      pCtx    Connection context.
  *  \param      event   Event ID.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static inline void lctrExecAction(lctrConnCtx_t *pCtx, uint8_t event)
@@ -492,8 +477,6 @@ static uint8_t lctrRemapEvent(lctrConnCtx_t *pCtx, uint8_t event)
  *
  *  \param      event   Subsystem event.
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrResolveCollision(lctrConnCtx_t *pCtx, uint8_t event)
@@ -533,8 +516,6 @@ static void lctrResolveCollision(lctrConnCtx_t *pCtx, uint8_t event)
  *
  *  \param      pCtx    Connection context.
  *  \param      event   Subsystem event.
- *
- *  \return     None.
  *
  *  This routine will pend the active procedure and allow the phy update procedure to
  *  override it.

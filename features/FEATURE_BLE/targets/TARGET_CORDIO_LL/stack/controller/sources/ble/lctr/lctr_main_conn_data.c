@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller data path implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller data path implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -40,10 +41,14 @@
   Macros
 **************************************************************************************************/
 
-#define LCTR_DATA_TX_PDU_START_OFFSET   0                   /*!< Data PDU start offset in a buffer. */
+/*! \brief      Data PDU start offset in a buffer. */
+#define LCTR_DATA_TX_PDU_START_OFFSET   0
 
-#define LCTR_FRAG_HDR_MAX_LEN           LL_DATA_HDR_LEN     /*!< Fragment header maximum length. */
-#define LCTR_FRAG_TRL_MAX_LEN           LL_DATA_MIC_LEN     /*!< Fragment trailer maximum length. */
+/*! \brief      Fragment header maximum length. */
+#define LCTR_FRAG_HDR_MAX_LEN           LL_DATA_HDR_LEN
+
+/*! \brief      Fragment trailer maximum length. */
+#define LCTR_FRAG_TRL_MAX_LEN           LL_DATA_MIC_LEN
 
 /**************************************************************************************************
   Data Types
@@ -96,8 +101,6 @@ static wsfHandlerId_t lctrTxCompBufHandlerId;
  *              latency is not zero and there is data to send.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrCheckAbortSlvLatency(lctrConnCtx_t *pCtx)
@@ -110,11 +113,11 @@ static void lctrCheckAbortSlvLatency(lctrConnCtx_t *pCtx)
 
   if (pCtx->maxLatency)
   {
-    const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
-    uint32_t connInterval = BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval));
+    const uint32_t curTime = PalBbGetCurrentTime();
+    uint32_t connIntervalUsec = LCTR_CONN_IND_US(pCtx->connInterval);
     BbOpDesc_t *pOp = &pCtx->connBod;
 
-    if (((pOp->due - curTime) > connInterval) && ((pOp->due - curTime) < LCTR_SCH_MAX_SPAN))
+    if (BbGetTargetTimeDelta(pOp->dueUsec, curTime) > connIntervalUsec)
     {
       /* If the connection BOD is due in the future and after the next immediate anchor point,
        * set the flag to adjust the connection BOD later. */
@@ -247,8 +250,6 @@ static uint16_t lctrMaxNumBytesWithinUsecCoded(uint16_t timeUsec)
  *
  *  \param      pCtx    Connection context.
  *  \param      txPhys  Transmit PHYs for PHY update in progress.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSetPacketTimeRestriction(lctrConnCtx_t *pCtx, uint8_t txPhys)
@@ -261,8 +262,6 @@ void lctrSetPacketTimeRestriction(lctrConnCtx_t *pCtx, uint8_t txPhys)
  *  \brief      Remove packet time restriction.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrRemovePacketTimeRestriction(lctrConnCtx_t *pCtx)
@@ -289,16 +288,16 @@ static inline uint16_t lctrGetMaxConnDurationUsec(uint8_t phy, uint16_t maxLen, 
   {
     default:
     case BB_PHY_BLE_1M:
-      maxDur = WSF_MIN(LL_DATA_LEN_TO_TIME_1M(maxLen), maxTime);
+      maxDur = WSF_MIN(LL_DATA_LEN_TO_TIME_1M(maxLen, TRUE), maxTime);
       break;
     case BB_PHY_BLE_2M:
-      maxDur = WSF_MIN(LL_DATA_LEN_TO_TIME_2M(maxLen), maxTime);
+      maxDur = WSF_MIN(LL_DATA_LEN_TO_TIME_2M(maxLen, TRUE), maxTime);
       break;
     case BB_PHY_BLE_CODED:
       /* maximum time may be less than minimum packet for coded PHY */
-      maxDur = WSF_MIN(LL_DATA_LEN_TO_TIME_CODED_S8(maxLen),
+      maxDur = WSF_MIN(LL_DATA_LEN_TO_TIME_CODED_S8(maxLen, TRUE),
                        WSF_MAX(maxTime,
-                               LL_DATA_LEN_TO_TIME_CODED_S8(LL_MAX_DATA_LEN_MIN)));
+                               LL_DATA_LEN_TO_TIME_CODED_S8(LL_MAX_DATA_LEN_MIN, TRUE)));
       break;
   }
 
@@ -385,7 +384,7 @@ uint16_t lctrTxFragLen(lctrConnCtx_t *pCtx)
  *  \return A Tx buffer descriptor, NULL if allocation fails.
  */
 /*************************************************************************************************/
-static lctrTxBufDesc_t *lctrAllocTxBufDesc(void)
+static lctrTxBufDesc_t *lctrAllocConnTxBufDesc(void)
 {
   uint8_t *pElem;
 
@@ -404,11 +403,9 @@ static lctrTxBufDesc_t *lctrAllocTxBufDesc(void)
  *  \brief  Free a Tx buffer descriptor.
  *
  *  \param  pDesc       Pointer to a Tx buffer descriptor.
- *
- *  \return None.
  */
 /*************************************************************************************************/
-static void lctrFreeTxBufDesc(lctrTxBufDesc_t *pDesc)
+static void lctrFreeConnTxBufDesc(lctrTxBufDesc_t *pDesc)
 {
   uint8_t *pElem = (uint8_t *)pDesc;
   pElem -= (2 * sizeof(uint32_t));   /* recover header */
@@ -423,8 +420,6 @@ static void lctrFreeTxBufDesc(lctrTxBufDesc_t *pDesc)
  *  \param  pCtx        Connection context.
  *  \param  pAclHdr     ACL header.
  *  \param  pBuf        Buffer to pack the Data PDU header.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lctrAssembleDataPdu(lctrConnCtx_t *pCtx, lctrAclHdr_t *pAclHdr, uint8_t *pBuf)
@@ -469,8 +464,6 @@ static void lctrAssembleDataPdu(lctrConnCtx_t *pCtx, lctrAclHdr_t *pAclHdr, uint
  *  \param  fragLen     Fragment length.
  *  \param  pAclHdr     ACL header.
  *  \param  pAclBuf     ACL buffer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrTxDataPduQueue(lctrConnCtx_t *pCtx, uint16_t fragLen, lctrAclHdr_t *pAclHdr, uint8_t *pAclBuf)
@@ -480,7 +473,7 @@ void lctrTxDataPduQueue(lctrConnCtx_t *pCtx, uint16_t fragLen, lctrAclHdr_t *pAc
 
   lctrTxBufDesc_t *pDesc;
 
-  if ((pDesc = lctrAllocTxBufDesc()) == NULL)
+  if ((pDesc = lctrAllocConnTxBufDesc()) == NULL)
   {
     LL_TRACE_ERR1("Failed to allocate transmit buffer descriptor: connHandle=%u", pAclHdr->connHandle);
     WsfMsgFree(pAclBuf);
@@ -609,8 +602,6 @@ void lctrTxDataPduQueue(lctrConnCtx_t *pCtx, uint16_t fragLen, lctrAclHdr_t *pAc
  *
  *  \param  pCtx    Connection context.
  *  \param  pBuf    Data PDU buffer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrTxCtrlPduQueue(lctrConnCtx_t *pCtx, uint8_t *pBuf)
@@ -834,8 +825,6 @@ bool_t lctrTxQueuePop(lctrConnCtx_t *pCtx)
  *  \brief  Pop top element from Tx queue.
  *
  *  \param  pCtx      Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrTxQueuePopCleanup(lctrConnCtx_t *pCtx)
@@ -849,7 +838,7 @@ void lctrTxQueuePopCleanup(lctrConnCtx_t *pCtx)
 #ifndef LCTR_CONN_NO_TIFS_REASSEMBLY
       WsfMsgFree(pDesc->pAclPdu - HCI_ACL_HDR_LEN);
 #endif
-      lctrFreeTxBufDesc(pDesc);
+      lctrFreeConnTxBufDesc(pDesc);
       lctrDataTxIncAvailBuf();
       pCtx->numTxComp++;
     }
@@ -887,7 +876,7 @@ uint8_t lctrTxQueueClear(lctrConnCtx_t *pCtx)
 #ifndef LCTR_CONN_NO_TIFS_REASSEMBLY
       WsfMsgFree(pDesc->pAclPdu - HCI_ACL_HDR_LEN);
 #endif
-      lctrFreeTxBufDesc(pDesc);
+      lctrFreeConnTxBufDesc(pDesc);
 
       lctrDataTxIncAvailBuf();
       numTxBufs++;
@@ -932,8 +921,6 @@ uint8_t *lctrRxPduAlloc(uint16_t maxRxLen)
  *  \brief  Free a receive data PDU buffer.
  *
  *  \param  pBuf        PDU data buffer to free.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrRxPduFree(uint8_t *pBuf)
@@ -951,8 +938,6 @@ void lctrRxPduFree(uint8_t *pBuf)
  *  \param  pBuf            PDU data buffer to queue.
  *  \param  eventCounter    Event counter.
  *  \param  connHandle      Connection handle.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrRxEnq(uint8_t *pBuf, uint16_t eventCounter, uint16_t connHandle)
@@ -994,10 +979,8 @@ uint8_t *lctrRxDeq(uint16_t *pConnHandle)
 /*!
  *  \brief  Enqueue a receive data PDU buffer for a connection.
  *
- *  \param  pCtx            Connection context;
+ *  \param  pCtx            Connection context.
  *  \param  pBuf            PDU data buffer to queue.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrRxConnEnq(lctrConnCtx_t *pCtx, uint8_t *pBuf)
@@ -1010,7 +993,7 @@ void lctrRxConnEnq(lctrConnCtx_t *pCtx, uint8_t *pBuf)
 /*!
  *  \brief  Dequeue a receive data PDU buffer for a connection as a ACL message.
  *
- *  \param  pCtx            Connection context;
+ *  \param  pCtx            Connection context.
  *
  *  \return Pointer to the start of the ACL message.
  *
@@ -1051,12 +1034,6 @@ uint8_t *lctrRxConnDeqAcl(lctrConnCtx_t *pCtx)
     }
 
     lctrPackAclHdr(pAclBuf, &aclHdr);
-
-    /* Move ACL data beside the header if necessary. */
-    if (LCTR_DATA_PDU_START_OFFSET + LL_DATA_HDR_LEN > HCI_ACL_HDR_LEN)
-    {
-      memmove(pAclBuf + HCI_ACL_HDR_LEN, pAclBuf + LCTR_DATA_PDU_START_OFFSET + LL_DATA_HDR_LEN, aclHdr.len);
-    }
   }
 
   return pAclBuf;
@@ -1066,7 +1043,7 @@ uint8_t *lctrRxConnDeqAcl(lctrConnCtx_t *pCtx)
 /*!
  *  \brief  Clear receive queue for a connection.
  *
- *  \param  pCtx            Connection context;
+ *  \param  pCtx            Connection context.
  *
  *  \return Number of freed buffers.
  */

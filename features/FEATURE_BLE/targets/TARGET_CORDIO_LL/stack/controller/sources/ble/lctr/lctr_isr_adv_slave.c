@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave advertising ISR callbacks.
+ *  \file
+ *
+ *  \brief  Link layer controller slave advertising ISR callbacks.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -67,8 +68,6 @@ bool_t lctrScanReqHandler(BbOpDesc_t *pOp, uint8_t reqLen)
  *  \param      pOp     Originating operation.
  *  \param      reqLen  Request packet length.
  *  \param      pReqBuf Received request buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrConnIndHandler(BbOpDesc_t *pOp, uint8_t reqLen, const uint8_t *pReqBuf)
@@ -129,8 +128,8 @@ bool_t lctrSlvAdvHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf)
     case LL_PDU_CONNECT_IND:
       /* BOD must be terminated before setting up the next operation. */
       lctrConnIndHandler(pOp, pduLen, pReqBuf);
-      lctrSlvAdv.reqEndTs = pAdv->reqStartTs +
-                            BB_US_TO_BB_TICKS(LCTR_CONN_IND_PKT_1M_US); /* N.B.: may round to an earlier time */
+      lctrSlvAdv.reqEndTsUsec = pAdv->reqStartTsUsec +
+                                LCTR_CONN_IND_PKT_1M_US;
 
       /* Requirement for peer address match will be enforced in action handler. */
       break;
@@ -147,8 +146,6 @@ bool_t lctrSlvAdvHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf)
  *
  *  \param      pOp     Originating operation.
  *  \param      pReqBuf Received request buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvAdvPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf)
@@ -196,8 +193,6 @@ void lctrSlvAdvPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf)
  *  \brief  End an advertising operation.
  *
  *  \param  pOp     Completed operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrSlvAdvEndOp(BbOpDesc_t *pOp)
@@ -330,28 +325,28 @@ void lctrSlvAdvEndOp(BbOpDesc_t *pOp)
         {
           /* maxDelay is 16, it times 625 still fits in uint32_t. */
           /* coverity[overflow_before_widen] */
-          pOp->due += BB_BLE_TO_BB_TICKS(lctrCalcAdvDelay());
+          pOp->dueUsec += BB_BLE_TO_US(lctrCalcAdvDelay());
         }
 
-        if (lmgrSlvAdvCb.advParam.advInterMin == lmgrSlvAdvCb.advParam.advInterMax)
+        if (lmgrSlvAdvCb.advParam.advInterMinUsec == lmgrSlvAdvCb.advParam.advInterMaxUsec)
         {
-          pOp->due += lmgrSlvAdvCb.advParam.advInterMin;
+          pOp->dueUsec += lmgrSlvAdvCb.advParam.advInterMinUsec;
           result = SchInsertAtDueTime(pOp, NULL);
         }
         else
         {
           result = SchInsertEarlyAsPossible(pOp,
-                                            lmgrSlvAdvCb.advParam.advInterMin,
-                                            lmgrSlvAdvCb.advParam.advInterMax);
+                                            lmgrSlvAdvCb.advParam.advInterMinUsec,
+                                            lmgrSlvAdvCb.advParam.advInterMaxUsec);
           if (!result)
           {
-            pOp->due += lmgrSlvAdvCb.advParam.advInterMax;
+            pOp->dueUsec += lmgrSlvAdvCb.advParam.advInterMaxUsec;
           }
         }
 
         if (!result)
         {
-          LL_TRACE_WARN1("!!! Adv schedule conflict at due=%u", pOp->due);
+          LL_TRACE_WARN1("!!! Adv schedule conflict at dueUsec=%u", pOp->dueUsec);
           LL_TRACE_WARN1("!!!                          minDurUsec=%u", pOp->minDurUsec);
         }
 
@@ -361,32 +356,32 @@ void lctrSlvAdvEndOp(BbOpDesc_t *pOp)
     }
     case LL_ADV_CONN_DIRECT_HIGH_DUTY:
     {
-      uint32_t advEventStart = pOp->due;
-      uint32_t advTermCntDown = lmgrSlvAdvCb.advTermCntDown;
+      uint32_t advEventStart = pOp->dueUsec;
+      uint32_t advTermCntDown = lmgrSlvAdvCb.advTermCntDownUsec;
       bool_t result = FALSE;
 
-      while (!result && lmgrSlvAdvCb.advTermCntDown)
+      while (!result && lmgrSlvAdvCb.advTermCntDownUsec)
       {
-        result = SchInsertLateAsPossible(pOp, lmgrSlvAdvCb.advParam.advInterMin, lmgrSlvAdvCb.advParam.advInterMax);
+        result = SchInsertLateAsPossible(pOp, lmgrSlvAdvCb.advParam.advInterMinUsec, lmgrSlvAdvCb.advParam.advInterMaxUsec);
         if (!result)
         {
-          pOp->due += lmgrSlvAdvCb.advParam.advInterMax;
+          pOp->dueUsec += lmgrSlvAdvCb.advParam.advInterMaxUsec;
         }
 
-        uint32_t advEventDur = pOp->due - advEventStart;
+        uint32_t advEventDur = BbGetTargetTimeDelta(pOp->dueUsec, advEventStart);
 
-        if ((advEventDur + lmgrSlvAdvCb.advParam.advInterMax) < advTermCntDown)
+        if ((advEventDur + lmgrSlvAdvCb.advParam.advInterMaxUsec) < advTermCntDown)
         {
-          lmgrSlvAdvCb.advTermCntDown = advTermCntDown - advEventDur;
+          lmgrSlvAdvCb.advTermCntDownUsec = advTermCntDown - advEventDur;
         }
         else
         {
           /* Terminate at end of next advertising event. */
-          lmgrSlvAdvCb.advTermCntDown = 0;
+          lmgrSlvAdvCb.advTermCntDownUsec = 0;
         }
       }
 
-      if (!result && !lmgrSlvAdvCb.advTermCntDown)
+      if (!result && !lmgrSlvAdvCb.advTermCntDownUsec)
       {
         lctrMsgHdr_t *pMsg;
 

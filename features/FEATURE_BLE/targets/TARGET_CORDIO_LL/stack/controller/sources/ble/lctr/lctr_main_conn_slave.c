@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave connection operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave connection operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -39,16 +40,18 @@
 /**************************************************************************************************
   Global Variables
 **************************************************************************************************/
+
+/*! \brief      SCA PPM table. */
 const uint16_t scaPpmTbl[] =
 {
-  500,    /* LL_MCA_500_PPM */
-  250,    /* LL_MCA_250_PPM */
-  150,    /* LL_MCA_150_PPM */
-  100,    /* LL_MCA_100_PPM */
-  75,     /* LL_MCA_75_PPM */
-  50,     /* LL_MCA_50_PPM */
-  30,     /* LL_MCA_30_PPM */
-  20      /* LL_MCA_20_PPM */
+  500,    /*!< LL_MCA_500_PPM */
+  250,    /*!< LL_MCA_250_PPM */
+  150,    /*!< LL_MCA_150_PPM */
+  100,    /*!< LL_MCA_100_PPM */
+  75,     /*!< LL_MCA_75_PPM */
+  50,     /*!< LL_MCA_50_PPM */
+  30,     /*!< LL_MCA_30_PPM */
+  20      /*!< LL_MCA_20_PPM */
 };
 
 /*************************************************************************************************/
@@ -56,8 +59,6 @@ const uint16_t scaPpmTbl[] =
  *  \brief      Process a received connection indication PDU in slave role.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSlvProcessConnInd(lctrConnMsg_t *pMsg)
@@ -92,8 +93,6 @@ static void lctrSlvProcessConnInd(lctrConnMsg_t *pMsg)
  *
  *  \param      pCtx    Connection context.
  *  \param      pBuf    PDU buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSlvProcessDataPdu(lctrConnCtx_t *pCtx, uint8_t *pBuf)
@@ -128,14 +127,13 @@ static void lctrSlvProcessDataPdu(lctrConnCtx_t *pCtx, uint8_t *pBuf)
 /*************************************************************************************************/
 /*!
  *  \brief      Slave connection reset handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSlvConnResetHandler(void)
 {
   BbBleConnSlaveInit();
   SchRmInit();
+  SchTmInit();
   lctrConnDefaults();
   LmgrConnInit();
 }
@@ -145,8 +143,6 @@ static void lctrSlvConnResetHandler(void)
  *  \brief      Execute slave state machine.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSlvConnExecute(lctrConnMsg_t *pMsg)
@@ -167,24 +163,48 @@ static void lctrSlvConnExecute(lctrConnMsg_t *pMsg)
  *  \brief      Slave connection message dispatcher.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSlvConnDisp(lctrConnMsg_t *pMsg)
 {
   if (pMsg->hdr.dispId != LCTR_DISP_BCST)
   {
+    pLctrConnMsg = pMsg;
+
     WSF_ASSERT(pMsg->hdr.handle < pLctrRtCfg->maxConn);
     lctrSlvConnExecute(pMsg);
-}
+  }
   else
   {
     for (pMsg->hdr.handle = 0; pMsg->hdr.handle < pLctrRtCfg->maxConn; pMsg->hdr.handle++)
     {
+      pLctrConnMsg = pMsg;
+
       lctrSlvConnExecute(pMsg);
     }
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get reference time(due time) of the slave connection handle.
+ *
+ *  \param      connHandle    Connection handle.
+ *
+ *  \return     Due time in microseconds of the connection handle.
+ */
+/*************************************************************************************************/
+static uint32_t lctrGetSlvConnRefTime(uint8_t connHandle)
+{
+  uint32_t refTime = 0;
+  lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(connHandle);
+
+  if (pCtx->enabled && (pCtx->bleData.chan.opType == BB_BLE_OP_SLV_CONN_EVENT))
+  {
+    refTime = pCtx->connBod.dueUsec;
+  }
+
+  return refTime;
 }
 
 /*************************************************************************************************/
@@ -214,8 +234,6 @@ uint16_t lctrCalcTotalAccuracy(uint8_t mstScaIdx)
  *  \brief  Build a connection operation.
  *
  *  \param  pCtx        Connection context.
- *
- *  \return None.
  *
  *  This routine is called in response to a received CONNECTION_REQ PDU. The PDU must already
  *  be decoded in the lctrPduSlvAdvb variable prior to this call.
@@ -294,6 +312,7 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
   pBle->chan.accAddr = pConnInd->accessAddr;
   pBle->chan.crcInit = pConnInd->crcInit;
   pBle->chan.txPhy = pBle->chan.rxPhy = pLctrConnMsg->connEstablish.phy;
+  lctrInitPhyTxPower(pCtx);
 
 #if (LL_ENABLE_TESTER)
   pBle->chan.accAddrRx = pConnInd->accessAddr ^ llTesterCb.dataAccessAddrRx;
@@ -315,18 +334,14 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
    /*** General setup ***/
 
   const uint32_t txWinOffsetUsec = LCTR_CONN_IND_US(txWinOffsetCnt);
-  const uint32_t txWinOffset     = BB_US_TO_BB_TICKS(txWinOffsetUsec);
   const uint32_t txWinSizeUsec   = LCTR_CONN_IND_US(pConnInd->txWinSize);
   const uint32_t wwOffsetUsec    = lctrCalcWindowWideningUsec((txWinOffsetUsec + txWinSizeUsec), pCtx->data.slv.totalAcc);
-  const uint32_t wwOffset        = BB_US_TO_BB_TICKS(wwOffsetUsec);
-  int16_t  dueOffsetUsec         = (txWinOffsetUsec - wwOffsetUsec) - BB_TICKS_TO_US(txWinOffset - wwOffset);
 
-  pCtx->data.slv.anchorPoint = pLctrConnMsg->connEstablish.connIndEndTs + txWinOffset;    /* estimated initial anchor point */
+  pCtx->data.slv.anchorPointUsec = pLctrConnMsg->connEstablish.connIndEndTsUsec + txWinOffsetUsec;    /* estimated initial anchor point */
   pCtx->data.slv.txWinSizeUsec = txWinSizeUsec;
 
-  pOp->due = pCtx->data.slv.anchorPoint - wwOffset;
-  pOp->dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
-  pOp->minDurUsec = txWinSizeUsec + pCtx->localConnDurUsec + (wwOffsetUsec << 1);
+  pOp->dueUsec = pCtx->data.slv.anchorPointUsec - wwOffsetUsec;
+  pOp->minDurUsec = txWinSizeUsec + pCtx->effConnDurUsec + (wwOffsetUsec << 1);
   /* pOp->maxDurUsec = 0; */                  /* cleared in alloc */
 
   pOp->reschPolicy = BB_RESCH_FIXED;
@@ -339,7 +354,7 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
   /*** BLE connection setup ***/
 
   pConn->rxSyncDelayUsec = txWinSizeUsec + (wwOffsetUsec << 1) +
-                           BB_TICKS_TO_US(1);    /* rounding compensation when computing reqEndTs */
+                           1;    /* rounding compensation when computing reqEndTs */
   pConn->execCback   = lctrSlvConnBeginOp;
   pConn->cancelCback = lctrSlvConnCleanupOp;
   pConn->txDataCback = lctrSlvConnTxCompletion;
@@ -358,9 +373,8 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
     {
       LL_TRACE_INFO1("    >>> Connection established, handle=%u <<<", LCTR_GET_CONN_HANDLE(pCtx));
       LL_TRACE_INFO1("                                connIntervalUsec=%u", LCTR_CONN_IND_US(pCtx->connInterval));
-      LL_TRACE_INFO1("                                due=%u", pOp->due);
-      LL_TRACE_INFO1("                                offsetUsec=%u", pOp->dueOffsetUsec);
-
+      LL_TRACE_INFO1("                                dueUsec=%u", pOp->dueUsec);
+      LL_TRACE_INFO1("                                minDurUsec=%u", pOp->minDurUsec);
       break;
     }
 
@@ -370,24 +384,22 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
 
     /* Initial eventCounter starts at 0; equivalent to unsynchronized intervals. */
     uint32_t unsyncTimeUsec = LCTR_CONN_IND_US(pCtx->connInterval * pCtx->eventCounter);
-    uint32_t unsyncTime     = BB_US_TO_BB_TICKS(unsyncTimeUsec);
     uint32_t wwTotalUsec    = lctrCalcWindowWideningUsec(unsyncTimeUsec, pCtx->data.slv.totalAcc);
-    uint32_t wwTotal        = BB_US_TO_BB_TICKS(wwTotalUsec);
-    dueOffsetUsec           = (unsyncTimeUsec - wwTotalUsec) - BB_TICKS_TO_US(unsyncTime - wwTotal);
 
     /* Advance to next interval. */
-    pOp->due = pCtx->data.slv.anchorPoint + unsyncTime - wwTotal;
-    pOp->dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
+    pOp->dueUsec = pCtx->data.slv.anchorPointUsec + unsyncTimeUsec - wwTotalUsec;
+
     pOp->minDurUsec = ceDurUsec + wwTotalUsec;
     pConn->rxSyncDelayUsec = ceSyncDlyUsec + (wwTotalUsec << 1);
   }
+
+  /* Update topology manager information. */
+  SchTmAdd(LCTR_GET_CONN_HANDLE(pCtx), LCTR_CONN_IND_US(pCtx->connInterval), pCtx->effConnDurUsec, TRUE, lctrGetSlvConnRefTime);
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize link layer controller resources for connectable slave.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrSlvConnInit(void)
@@ -450,8 +462,6 @@ void LctrSlvConnInit(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Set default values for connection.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrConnDefaults(void)

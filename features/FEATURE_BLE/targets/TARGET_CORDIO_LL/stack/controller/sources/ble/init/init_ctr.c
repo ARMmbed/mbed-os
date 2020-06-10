@@ -2,15 +2,16 @@
 /*!
  *  \brief  LL initialization for controller configuration.
  *
- *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
- *  Arm Ltd. confidential and proprietary.
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
  *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ *  
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,21 +28,16 @@
   Functions
 **************************************************************************************************/
 
-/*! \brief      Extended VS command decoder. */
-extern bool_t lhciVsExtDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
-
 /*************************************************************************************************/
 /*!
  *  \brief  Initialize controller LHCI handler.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LlInitLhciHandler(void)
 {
   wsfHandlerId_t handlerId;
 
-#if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+#if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
   handlerId = WsfOsSetNextHandler(LhciIsoHandler);
   LhciIsoHandlerInit(handlerId);
 #else
@@ -54,20 +50,19 @@ void LlInitLhciHandler(void)
 /*!
  *  \brief  Initialize controller HCI transport.
  *
- *  \return None.
+ *  \param  maxAclLen       Maximum ACL data length.
+ *  \param  maxIsoSduLen    Maximum ISO SDU data length.
  */
 /*************************************************************************************************/
-void LlInitChciTrInit(void)
+void LlInitChciTrInit(uint16_t maxAclLen, uint16_t maxIsoSduLen)
 {
   wsfHandlerId_t handlerId = WsfOsSetNextHandler(ChciTrHandler);
-  ChciTrHandlerInit(handlerId);
+  ChciTrHandlerInit(handlerId, maxAclLen, maxIsoSduLen);
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief  Initialize LL HCI.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LlInitLhciInit(void)
@@ -102,15 +97,10 @@ void LlInitLhciInit(void)
     LhciScInit();
   #endif
 
-  LhciVsExtInit(lhciVsExtDecodeCmdPkt);
-
   #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_0)
     #ifdef INIT_CENTRAL
       LhciExtScanMasterInit();
       LhciExtConnMasterInit();
-      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
-        LhciCisMasterInit();
-      #endif
     #else
       #ifdef INIT_OBSERVER
         LhciExtScanMasterInit();
@@ -119,12 +109,6 @@ void LlInitLhciInit(void)
 
     #ifdef INIT_BROADCASTER
       LhciExtAdvSlaveInit();
-    #endif
-
-    #ifdef INIT_PERIPHERAL
-      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
-        LhciCisSlaveInit();
-      #endif
     #endif
 
     #if defined(INIT_PERIPHERAL) || defined(INIT_CENTRAL)
@@ -138,7 +122,24 @@ void LlInitLhciInit(void)
     #endif
   #endif
 
-  #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
+    #ifdef INIT_CENTRAL
+      LhciCisMasterInit();
+      LhciBisMasterInit();
+    #else
+      #ifdef INIT_OBSERVER
+        LhciBisMasterInit();
+      #endif
+    #endif
+
+    #ifdef INIT_BROADCASTER
+      LhciBisSlaveInit();
+    #endif
+
+    #ifdef INIT_PERIPHERAL
+      LhciCisSlaveInit();
+    #endif
+
     LhciIsoInit();
   #endif
 }
@@ -158,9 +159,10 @@ uint32_t LlInitControllerInit(LlInitRtCfg_t *pCfg)
 
   totalMemUsed = LlInit(pCfg);
 
-  LlInitChciTrInit();
+  LlInitChciTrInit(pCfg->pLlRtCfg->maxAclLen, pCfg->pLlRtCfg->maxIsoSduLen);
   LlInitLhciInit();
   LlInitLhciHandler();
+  LhciInitFinalize();
 
   return totalMemUsed;
 }

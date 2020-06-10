@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief LL initialization for SoC configuration.
+ *  \file
+ *
+ *  \brief  LL initialization for SoC configuration.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -26,6 +27,7 @@
 #include "pal_bb_ble.h"
 #include "pal_radio.h"
 #include "sch_api.h"
+#include "bb_ble_sniffer_api.h"
 
 /**************************************************************************************************
   Functions
@@ -34,8 +36,6 @@
 /*************************************************************************************************/
 /*!
  *  \brief  Initialize BB.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LlInitBbInit(void)
@@ -74,32 +74,31 @@ void LlInitBbInit(void)
     #endif
   #endif
 
-  #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
     #ifdef INIT_CENTRAL
       BbBleCisMasterInit();
-    #else
-      #ifdef INIT_OBSERVER
-      /* TODO BIS observer */
-      #endif
     #endif
-
     #ifdef INIT_PERIPHERAL
       BbBleCisSlaveInit();
-    #else
-      #ifdef INIT_BROADCASTER
-      /* TODO BIS broadcaster */
-      #endif
+    #endif
+    #ifdef INIT_OBSERVER
+    BbBleBisMasterInit();
+    #endif
+    #ifdef INIT_BROADCASTER
+    BbBleBisSlaveInit();
     #endif
   #endif
 
   BbBleTestInit();
+
+#if (BB_SNIFFER_ENABLED == TRUE)
+  BbBleInitSniffer(BB_SNIFFER_OUTPUT_NULL_METHOD, FALSE);
+#endif
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief  Initialize scheduler.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LlInitSchInit(void)
@@ -111,8 +110,6 @@ void LlInitSchInit(void)
 /*************************************************************************************************/
 /*!
  *  \brief  Initialize LL.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LlInitLlInit(void)
@@ -154,24 +151,34 @@ void LlInitLlInit(void)
       LlExtScanMasterInit();
       LlExtInitMasterInit();
       LlPhyMasterInit();
-      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+      #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
         LlCisMasterInit();
+        LlBisMasterInit();
+        LlPowerControlInit();
       #endif
     #else
       #ifdef INIT_OBSERVER
         LlExtScanMasterInit();
+        #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
+          LlBisMasterInit();
+        #endif
       #endif
     #endif
 
     #ifdef INIT_PERIPHERAL
       LlExtAdvSlaveInit();
       LlPhySlaveInit();
-      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+      #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
         LlCisSlaveInit();
+        LlBisSlaveInit();
+        LlPowerControlInit();
       #endif
     #else
       #ifdef INIT_BROADCASTER
         LlExtAdvSlaveInit();
+        #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
+          LlBisSlaveInit();
+        #endif
       #endif
     #endif
 
@@ -274,15 +281,20 @@ uint32_t LlInitSetLlRtCfg(const LlRtCfg_t *pLlRtCfg, uint8_t *pFreeMem, uint32_t
     totalMemUsed += memUsed;
   #endif
 
-  #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
     memUsed = LlInitCisMem(pFreeMem, freeMemAvail);
     pFreeMem += memUsed;
     freeMemAvail -= memUsed;
     totalMemUsed += memUsed;
 
+    memUsed = LlInitBisMem(pFreeMem, freeMemAvail);
+    pFreeMem += memUsed;
+    freeMemAvail -= memUsed;
+    totalMemUsed += memUsed;
+
     memUsed = LlInitIsoMem(pFreeMem, freeMemAvail);
-    /* pFreeMem += memUsed;
-    freeMemAvail -= memUsed; */
+    /* pFreeMem += memUsed; */
+    /* freeMemAvail -= memUsed; */
     totalMemUsed += memUsed;
   #endif
 

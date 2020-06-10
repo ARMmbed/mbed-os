@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Arm Ltd. vendor specific HCI command module implementation file.
+ *  \file
+ *
+ *  \brief  Arm Ltd. vendor specific HCI command module implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -27,6 +28,7 @@
 #include "ll_api.h"
 #include "pal_sys.h"
 #include "sch_api.h"
+#include "bb_ble_sniffer_api.h"
 #include "wsf_assert.h"
 #include "wsf_buf.h"
 #include "wsf_cs.h"
@@ -49,12 +51,12 @@
 
 /*! \brief      Get System Statistics command complete event length. */
 /* stackWatermark(uint16_t) +  palSysAssertCount(uint16_t) +
- * freeMem (uint32_t) + usedMem(uint32_t) +
- * connMax(uint16_t) +  connCtxSize(uint16_t) + csWatermarkUsec(uint16_t) + llHandlerWatermarkUsec(uint16_t) + schHandlerWatermarkUsec(uint16_t) + lhciHandlerWatermarkUsec(uint16_t) +
+ * freeMem (uint32_t) + usedMem(uint32_t) + schDelayLoadTotalCount(uint32_t) +
+ * connMax(uint16_t) +  connCtxSize(uint16_t) + csWatermarkUsec(uint16_t) + llHandlerWatermarkUsec(uint16_t) + schHandlerWatermarkUsec(uint16_t) + lhciHandlerWatermarkUsec(uint16_t) + schDelayLoadWatermarkCount(uint16_t) +
  * advSetMax(uint16_t) + advSetCtxSize(uint16_t) +
  * extScanMax(uint16_t) + extScanCtxSize(uint16_t) + extInitMax(uint16_t) + extInitCtxSize(uint16_t) + perScanMax(uint16_t) + perScanCtxSize(uint16_t) + cigMax(uint16_t) + cigCtxSize(uint16_t) + cisMax(uint16_t) + cisCtxSize(uint16_t) */
 
-#define LHCI_LEN_GET_SYS_STATS_EVT      (2 * sizeof(uint16_t) + 2 * sizeof(uint32_t) + 6 * sizeof(uint16_t) + 2 * sizeof(uint16_t) + 10 * sizeof(uint16_t))
+#define LHCI_LEN_GET_SYS_STATS_EVT      (2 * sizeof(uint16_t) + 3 * sizeof(uint32_t) + 7 * sizeof(uint16_t) + 2 * sizeof(uint16_t) + 10 * sizeof(uint16_t))
 
 /**************************************************************************************************
   Functions
@@ -62,7 +64,7 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief  Decode Cordio common vendor specific HCI command packet.
+ *  \brief  Decode Packetcraft common vendor specific HCI command packet.
  *
  *  \param  pHdr    Unpacked command header.
  *  \param  pBuf    Packed HCI packet buffer.
@@ -97,12 +99,26 @@ bool_t lhciCommonVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
       bool_t   enable;
       uint64_t mask;
       BSTREAM_TO_UINT64(mask, pBuf);
+      BSTREAM_TO_UINT8 (enable, pBuf);
 
-      enable = !!(mask & ((uint64_t)LHCI_VS_EVT_MASK_SCAN_REPORT_EVT) << LHCI_BYTE_TO_BITS(0));
-      LlScanReportEnable(enable);
+      if (mask & ((uint64_t)LHCI_VS_EVT_MASK_SCAN_REPORT_EVT) << LHCI_BYTE_TO_BITS(0))
+      {
+        LlScanReportEnable(enable);
+      }
 
-      enable = !!(mask & ((uint64_t)LHCI_VS_EVT_MASK_DIAG_TRACE_EVT) << LHCI_BYTE_TO_BITS(0));
-      LL_TRACE_ENABLE(enable);
+      if (mask & ((uint64_t)LHCI_VS_EVT_MASK_DIAG_TRACE_EVT) << LHCI_BYTE_TO_BITS(0))
+      {
+        LL_TRACE_ENABLE(enable);
+      }
+
+#if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
+      /* TODO: Use function pointer to allow run time configuration of supported versions. */
+      if (mask & ((uint64_t)LHCI_VS_EVT_MASK_ISO_EVENT_CMPL_EVT) << LHCI_BYTE_TO_BITS(0))
+      {
+        LlIsoEventCompleteEnable(enable);
+      }
+#endif
+
       break;
     }
     case LHCI_OPCODE_VS_SET_TX_TEST_ERR_PATT:
@@ -113,16 +129,13 @@ bool_t lhciCommonVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
       status = LlSetTxTestErrorPattern(pattern);
       break;
     }
-    case LHCI_OPCODE_VS_SET_HCI_SUP_CMD:
-    {
-      uint8_t byte, bit;
-      bool_t enable;
-      BSTREAM_TO_UINT8(byte, pBuf);
-      BSTREAM_TO_UINT8(bit, pBuf);
-      BSTREAM_TO_UINT8(enable, pBuf);
-      status = LlSetHciSupCmd(byte, bit, enable);
-      break;
-    }
+    case LHCI_OPCODE_VS_SET_SNIFFER_ENABLE:
+#if (BB_SNIFFER_ENABLED == TRUE)
+       status = BbBleInitSniffer(pBuf[0], pBuf[1]);
+#else
+       status = HCI_ERR_UNKNOWN_CMD;
+#endif
+       break;
 
     case LHCI_OPCODE_VS_SET_BD_ADDR:
       LlSetBdAddr(pBuf);
@@ -176,7 +189,7 @@ bool_t lhciCommonVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
       case LHCI_OPCODE_VS_SET_BD_ADDR:
       case LHCI_OPCODE_VS_GET_RAND_ADDR:
       case LHCI_OPCODE_VS_SET_TX_TEST_ERR_PATT:
-      case LHCI_OPCODE_VS_SET_HCI_SUP_CMD:
+      case LHCI_OPCODE_VS_SET_SNIFFER_ENABLE:
         /* no action */
         break;
 

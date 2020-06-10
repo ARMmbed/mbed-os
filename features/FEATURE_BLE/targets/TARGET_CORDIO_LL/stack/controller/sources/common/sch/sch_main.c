@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Operation list maintenance implementation file.
+ *  \file
+ *
+ *  \brief      Operation list maintenance implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -47,14 +48,9 @@ enum
 /*! \brief      Scheduler control block. */
 SchCtrlBlk_t schCb;
 
-/*! \brief      Handler duration watermark in microseconds. */
-static uint16_t schHandlerWatermarkUsec = 0;
-
 /*************************************************************************************************/
 /*!
  *  \brief      BOD completion handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void schBodCompHandler(void)
@@ -66,8 +62,6 @@ static void schBodCompHandler(void)
 /*************************************************************************************************/
 /*!
  *  \brief      BOD abortion handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void schBodAbortHandler(void)
@@ -79,8 +73,6 @@ static void schBodAbortHandler(void)
 /*************************************************************************************************/
 /*!
  *  \brief      BOD curtail handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void schBodCurtailHandler(void)
@@ -92,8 +84,6 @@ static void schBodCurtailHandler(void)
 /*************************************************************************************************/
 /*!
  *  \brief      BOD load handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void schBodLoadHandler(void)
@@ -105,46 +95,57 @@ static void schBodLoadHandler(void)
     WSF_ASSERT(pNextBod);
     /* Delay loading after event flag is cleared. */
     WsfSetEvent(schCb.handlerId, SCH_EVENT_BOD_LOAD);
+    schCb.delayLoadCount++;
+    schCb.delayLoadTotalCount++;
+    if (schCb.delayLoadCount > schCb.delayLoadWatermarkCount)
+    {
+      schCb.delayLoadWatermarkCount = schCb.delayLoadCount;
+    }
+
     return;
   }
+
+  /* Try load head if scheduler is idle. */
+  if (schCb.state == SCH_STATE_IDLE)
+  {
+    if (!schTryLoadHead())
+    {
+      /* Head load failed. */
+      schBodAbortHandler();
+    }
+    /* Move to next BOD. */
+    pNextBod = pNextBod->pNext;
+  }
+#if SCH_TIMER_REQUIRED == TRUE
+  /* If head is executed, check cur tail operation is needed or not. */
   else
   {
-    /* Try load head if scheduler is idle. */
-    if (schCb.state == SCH_STATE_IDLE)
-    {
-      if (!schTryLoadHead())
-      {
-        /* Head load failed. */
-        schBodAbortHandler();
-      }
-      /* Move to next BOD. */
-      pNextBod = pNextBod->pNext;
-    }
-#if SCH_TIMER_REQUIRED == TRUE
-    /* If head is executed, check cur tail operation is needed or not. */
-    else
-    {
-      /* Head BOD and next BOD must exist. */
-      WSF_ASSERT(schCb.pHead);
-      WSF_ASSERT(schCb.pHead->pNext);
-      pNextBod = pNextBod->pNext;
+    /* Head BOD and next BOD must exist. */
+    WSF_ASSERT(schCb.pHead);
+    WSF_ASSERT(schCb.pHead->pNext);
+    pNextBod = pNextBod->pNext;
 
-      /* Skip curtail load if next BOD has same or lower priority than current BOD. */
-      if ((pNextBod->reschPolicy) >= (schCb.pHead->reschPolicy))
+    /* Skip curtail load if next BOD has same or lower priority than current BOD. */
+    if ((pNextBod->reschPolicy) >= (schCb.pHead->reschPolicy))
+    {
+      /* Delay loading until idle state. */
+      WsfSetEvent(schCb.handlerId, SCH_EVENT_BOD_LOAD);
+      schCb.delayLoadCount++;
+      schCb.delayLoadTotalCount++;
+      if (schCb.delayLoadCount > schCb.delayLoadWatermarkCount)
       {
-        /* Delay loading until idle state. */
-        WsfSetEvent(schCb.handlerId, SCH_EVENT_BOD_LOAD);
-        return;
+        schCb.delayLoadWatermarkCount = schCb.delayLoadCount;
       }
-
-      if (!schTryCurTailLoadNext())
-      {
-        /* Curtail load failed. */
-        schBodAbortHandler();
-      }
-      /* Move to the next next BOD. */
-      pNextBod = pNextBod->pNext;
+      return;
     }
+
+    if (!schTryCurTailLoadNext())
+    {
+      /* Curtail load failed. */
+      schBodAbortHandler();
+    }
+    /* Move to the next next BOD. */
+    pNextBod = pNextBod->pNext;
   }
 
   /* If pNextBod exists, it should start scheduler timer. */
@@ -161,19 +162,17 @@ static void schBodLoadHandler(void)
     else
     {
       /* If this happens, it means there's something wrong with the scheduler list. */
-      LL_TRACE_WARN0(" Next BOD overlaps with current BOD. ");
+      LL_TRACE_WARN0("Next BOD overlaps with current BOD");
       /* Send scheduler load event. */
       SchLoadHandler();
     }
-#endif
   }
+#endif
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Scheduler load handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void SchLoadHandler(void)
@@ -184,8 +183,6 @@ void SchLoadHandler(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize the scheduler subsystem.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void SchInit(void)
@@ -200,8 +197,6 @@ void SchInit(void)
  *  \brief      Initialize the scheduler subsystem.
  *
  *  \param      handlerId  WSF handler ID.
- *
- *  \return     None.
  *
  *  \note       This initialization to used to enable task-based scheduler completions. For
  *              ISR-based scheduler completions, do not call this routine. Instead install an
@@ -220,8 +215,6 @@ void SchHandlerInit(wsfHandlerId_t handlerId)
 /*************************************************************************************************/
 /*!
  *  \brief      Reset the scheduler subsystem.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void SchReset(void)
@@ -229,6 +222,9 @@ void SchReset(void)
   schCb.state = SCH_STATE_IDLE;
   schCb.pHead = NULL;
   schCb.pTail = NULL;
+  schCb.schHandlerWatermarkUsec = 0;
+  schCb.delayLoadWatermarkCount = 0;
+  schCb.delayLoadTotalCount = 0;
 }
 
 /*************************************************************************************************/
@@ -237,8 +233,6 @@ void SchReset(void)
  *
  *  \param      event       WSF event.
  *  \param      pMsg        WSF message.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void SchHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
@@ -247,81 +241,86 @@ void SchHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   (void)pMsg;
 
   /* Assume scheduler clock started. */
-  uint32_t startTime = PalTimerGetCurrentTime();
+  uint32_t startTime = PalBbGetCurrentTime();
 
-  BbOpDesc_t *pBod = schCb.pHead;
-
-  if (!pBod)
+  while (event != 0)
   {
-    schCb.state = SCH_STATE_IDLE;
-    return;
-  }
+    BbOpDesc_t *pBod = schCb.pHead;
 
-  if (event & SCH_EVENT_BOD_COMPLETE)
-  {
-    WSF_ASSERT(schCb.state == SCH_STATE_EXEC);
-    WSF_ASSERT(schCb.eventSetFlagCount);
-
-    /*** Complete current BOD ***/
-
-    schCb.state = SCH_STATE_IDLE;
-    schRemoveHead();
-    if (pBod->endCback)
+    if (!pBod)
     {
-      pBod->endCback(pBod);
+      schCb.eventSetFlagCount = 0;
+      schCb.state = SCH_STATE_IDLE;
+      return;
     }
-    schCb.eventSetFlagCount--;
+
+    if (event & SCH_EVENT_BOD_COMPLETE)
+    {
+      WSF_ASSERT(schCb.state == SCH_STATE_EXEC);
+      WSF_ASSERT(schCb.eventSetFlagCount);
+
+      /*** Complete current BOD ***/
+
+      schCb.state = SCH_STATE_IDLE;
+      schRemoveHead();
+      if (pBod->endCback)
+      {
+        pBod->endCback(pBod);
+      }
+      schCb.eventSetFlagCount--;
 
 #if SCH_TIMER_REQUIRED == FALSE
-    schBodLoadHandler();
+      schBodLoadHandler();
 #endif
-  }
-
-  if (event & SCH_EVENT_BOD_ABORT)
-  {
-    WSF_ASSERT(schCb.state == SCH_STATE_IDLE);
-    WSF_ASSERT(schCb.eventSetFlagCount);
-
-    /*** Abort current BOD ***/
-
-    schRemoveHead();
-    if (pBod->abortCback)
-    {
-      pBod->abortCback(pBod);
+      event &= ~SCH_EVENT_BOD_COMPLETE;
     }
-    schCb.eventSetFlagCount--;
+
+    else if (event & SCH_EVENT_BOD_ABORT)
+    {
+      WSF_ASSERT(schCb.state == SCH_STATE_IDLE);
+      WSF_ASSERT(schCb.eventSetFlagCount);
+
+      /*** Abort current BOD ***/
+
+      schRemoveHead();
+      if (pBod->abortCback)
+      {
+        pBod->abortCback(pBod);
+      }
+      schCb.eventSetFlagCount--;
 
 #if SCH_TIMER_REQUIRED == FALSE
-    schBodLoadHandler();
+      schBodLoadHandler();
 #endif
-  }
-
-  if (event & SCH_EVENT_BOD_CURTAIL)
-  {
-    WSF_ASSERT(schCb.state == SCH_STATE_EXEC);
-    WSF_ASSERT(schCb.eventSetFlagCount);
-
-    /*** Complete previous BOD ***/
-    schRemoveHead();
-    if (pBod->endCback)
-    {
-      pBod->endCback(pBod);
+      event &= ~SCH_EVENT_BOD_ABORT;
     }
-    schCb.eventSetFlagCount--;
+
+    else if (event & SCH_EVENT_BOD_CURTAIL)
+    {
+      WSF_ASSERT(schCb.eventSetFlagCount);
+
+      /*** Complete previous BOD ***/
+      schRemoveHead();
+      if (pBod->endCback)
+      {
+        pBod->endCback(pBod);
+      }
+      schCb.eventSetFlagCount--;
+      event &= ~SCH_EVENT_BOD_CURTAIL;
+    }
+
+    else if (event & SCH_EVENT_BOD_LOAD)
+    {
+      schBodLoadHandler();
+      event &= ~SCH_EVENT_BOD_LOAD;
+    }
   }
 
-  if (event & SCH_EVENT_BOD_LOAD)
+  uint32_t endTime = PalBbGetCurrentTime();
+  uint32_t durUsec = BbGetTargetTimeDelta(endTime, startTime);
+  if (schCb.schHandlerWatermarkUsec < durUsec)
   {
-    schBodLoadHandler();
-  }
-
-  uint32_t curTick = PalTimerGetCurrentTime();
-  /* Consider both count-up or counter-down timer type. */
-  uint32_t durTick = (curTick- startTime < 0x80000000) ? (curTick - startTime) : (startTime - curTick);
-  uint16_t durUsec = PAL_TIMER_TICKS_TO_US(durTick);
-  if (schHandlerWatermarkUsec < durUsec)
-  {
-    schHandlerWatermarkUsec = durUsec;
+    schCb.schHandlerWatermarkUsec = durUsec;
   }
 }
 
@@ -329,17 +328,20 @@ void SchHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 /*!
  *  \brief      Load BOD if not already started.
  *
+ *  \param      pBod   BOD description.
+ *
  *  \return     TRUE if loaded, FALSE otherwise.
  */
 /*************************************************************************************************/
 static bool_t schLoadBod(BbOpDesc_t *pBod)
 {
-  bool_t      loaded = FALSE;
+  bool_t loaded = FALSE;
 
   if (schDueTimeInFuture(pBod))
   {
     /* Setup BB services. */
     BbExecuteBod(pBod);
+    schCb.delayLoadCount = 0;
 
     if (!BbGetBodTerminateFlag())
     {
@@ -361,7 +363,7 @@ static bool_t schLoadBod(BbOpDesc_t *pBod)
   else
   {
     /* This might occur due to the delay of conflict resolution. */
-    LL_TRACE_WARN1("!!! Head element in the past, pBod=0x%08x", pBod);
+    LL_TRACE_ERR1("!!! Head element in the past, pBod=0x%08x", pBod);
   }
 
   return loaded;
@@ -445,5 +447,29 @@ bool_t schTryLoadHead(void)
 /*************************************************************************************************/
 uint16_t SchStatsGetHandlerWatermarkUsec(void)
 {
-  return schHandlerWatermarkUsec;
+  return schCb.schHandlerWatermarkUsec;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get the scheduler handler watermark level.
+ *
+ *  \return     Watermark level in microseconds.
+ */
+/*************************************************************************************************/
+uint16_t SchStatsGetDelayLoadWatermarkCount(void)
+{
+  return schCb.delayLoadWatermarkCount;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get the scheduler handler watermark level.
+ *
+ *  \return     Watermark level in microseconds.
+ */
+/*************************************************************************************************/
+uint32_t SchStatsGetDelayLoadTotalCount(void)
+{
+  return schCb.delayLoadTotalCount;
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 - 2018, Nordic Semiconductor ASA
+ * Copyright (c) 2014 - 2019, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -65,6 +65,8 @@
   #include "pca10040.h"
 #elif defined(BOARD_PCA10056)
   #include "pca10056.h"
+#elif defined(BOARD_PCA10100)
+  #include "pca10100.h"
 #elif defined(BOARD_PCA20020)
   #include "pca20020.h"
 #elif defined(BOARD_PCA10059)

@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief HCI command module implementation file.
+ *  \file
+ *
+ *  \brief  HCI command module implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -68,7 +69,7 @@ uint8_t lhciUnpackConnSpec(LlConnSpec_t *pConnSpec, const uint8_t *pBuf)
 /*************************************************************************************************/
 static uint8_t lhciPackReadPwrLevel(uint8_t *pBuf, uint8_t status, uint16_t handle, int8_t level)
 {
-  const uint8_t len = LHCI_LEN_READ_LOCAL_VER_EVT;
+  const uint8_t len = LHCI_LEN_READ_PWR_LVL_EVT;
 
   UINT8_TO_BSTREAM (pBuf, status);
   UINT16_TO_BSTREAM(pBuf, handle);
@@ -86,8 +87,6 @@ static uint8_t lhciPackReadPwrLevel(uint8_t *pBuf, uint8_t status, uint16_t hand
  *  \param  paramLen    Parameter length of the command status event.
  *  \param  pParam      Parameter buffer.
  *  \param  handle      Connection handle.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t paramLen, uint8_t *pParam, uint16_t handle)
@@ -107,7 +106,6 @@ void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t paramLen
 
     case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
     case HCI_OPCODE_LE_SET_PER_ADV_RCV_ENABLE:
-    case HCI_OPCODE_LE_SET_PAST_PARAM:
     case HCI_OPCODE_LE_SET_DEFAULT_PAST_PARAM:
       lhciPackCmdCompleteEvtStatus(pBuf, status);
       break;
@@ -119,6 +117,7 @@ void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t paramLen
     case HCI_OPCODE_LE_SET_DATA_LEN:
     case HCI_OPCODE_LE_PER_ADV_SYNC_TRANSFER:
     case HCI_OPCODE_LE_PER_ADV_SET_INFO_TRANSFER:
+    case HCI_OPCODE_LE_SET_PAST_PARAM:
       pBuf += lhciPackCmdCompleteEvtStatus(pBuf, status);
       UINT16_TO_BSTREAM(pBuf, handle);
       break;
@@ -162,6 +161,7 @@ void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t paramLen
       lhciPackReadPwrLevel(pBuf, status, handle, level);
       break;
     }
+
     case HCI_OPCODE_READ_RSSI:
     {
       int8_t rssi;
@@ -355,8 +355,6 @@ bool_t lhciConnDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
  *  \param  handle      Connection handle.
  *  \param  pktLen      Packet length.
  *  \param  numPkts     Number of packets.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lhciGenerateAcl(uint16_t handle, uint16_t pktLen, uint8_t numPkts)

@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave advertising operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave advertising operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -52,8 +53,6 @@ WSF_CT_ASSERT((BB_FIXED_ADVB_PKT_LEN == 0) ||
 /*************************************************************************************************/
 /*!
  *  \brief      Slave advertising reset handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSlvAdvResetHandler(void)
@@ -68,8 +67,6 @@ static void lctrSlvAdvResetHandler(void)
  *  \brief      Slave advertising message dispatcher.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSlvAdvDisp(LctrAdvMsg_t *pMsg)
@@ -79,50 +76,7 @@ static void lctrSlvAdvDisp(LctrAdvMsg_t *pMsg)
 
 /*************************************************************************************************/
 /*!
- *  \brief  Compute new access address.
- *
- *  \return New access address value.
- */
-/*************************************************************************************************/
-uint32_t lctrComputeAccessAddr(void)
-{
-  uint32_t accessAddr = LlMathRandNum();
-
-  /*
-   * The following code enforces a pattern to make sure the address meets all requirements
-   * (including requirements for the LE coded PHY).  The pattern is
-   *
-   *   0byyyyyy1x 0xxxx1x0 xxxx1x0x xx11x0x1
-   *
-   * with 2^5 choices for the upper six bits.  This provides 2^5 * 2^16 = 2097152 variations.
-   */
-
-  /* Patterns for upper six bits.  The lower row contains complemented values of the upper row. */
-  static const uint8_t upperSixBits[] =
-  {
-    /* 000010 000100 000101 000110 001000 001100 001101 001110 010000 010001 010011 010111 010110 011000 011100 011110 */
-       0x08,  0x10,  0x14,  0x18,  0x20,  0x30,  0x34,  0x38,  0x40,  0x44,  0x4C,  0x5C,  0x58,  0x60,  0x70,  0x78,
-    /* 111101 111011 111010 111001 110111 110011 110010 110001 101111 101110 101100 101000 101001 100111 100011 100001 */
-       0xF4,  0xEC,  0xE8,  0xE4,  0xDC,  0xCC,  0xC8,  0xC4,  0xBC,  0xB8,  0xB0,  0xA0,  0xA4,  0x9C,  0x8C,  0x84
-  };
-
-  /* Set the upper six bits. */
-  accessAddr  = (accessAddr & ~0xFC000000) | (upperSixBits[accessAddr >> 27] << 24);
-
-  /* Set   ones  with the mask 0b00000010 00000100 00001000 00110001 */
-  accessAddr |=  0x02040831;
-
-  /* Clear zeros with the mask 0b00000000 10000001 00000010 00000100 */
-  accessAddr &= ~0x00810204;
-
-  return accessAddr;
-}
-
-/*************************************************************************************************/
-/*!
  *  \brief      Scan request post-processing.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvRxScanReq(void)
@@ -167,8 +121,6 @@ void lctrSlvRxScanReq(void)
  *  \param  peerAddrType    Peer address type.
  *  \param  peerAddr        Peer address.
  *  \param  pAdvA           Storage for AdvA.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrChooseAdvA(BbBleData_t * const pBle, lctrAdvbPduHdr_t *pPduHdr,
@@ -233,8 +185,6 @@ void lctrChooseAdvA(BbBleData_t * const pBle, lctrAdvbPduHdr_t *pPduHdr,
  *  \param  peerAddrType    Peer address type.
  *  \param  peerAddr        Peer address.
  *  \param  pPeerRpa        Storage for peer RPA.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrChoosePeerAddr(BbBleData_t * const pBle, uint8_t ownAddrType,
@@ -255,8 +205,6 @@ void lctrChoosePeerAddr(BbBleData_t * const pBle, uint8_t ownAddrType,
 /*************************************************************************************************/
 /*!
  *  \brief  Build advertising operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrSlvAdvBuildOp(void)
@@ -345,9 +293,9 @@ void lctrSlvAdvBuildOp(void)
       break;
     case LL_ADV_CONN_DIRECT_HIGH_DUTY:
       /* Advertising interval is determined by LL not host. */
-      lmgrSlvAdvCb.advParam.advInterMin = 0;
-      lmgrSlvAdvCb.advParam.advInterMax = BB_BLE_TO_BB_TICKS(LL_DIR_ADV_INTER_TICKS);
-      lmgrSlvAdvCb.advTermCntDown = BB_BLE_TO_BB_TICKS(LL_DIR_ADV_DUR_TICKS);
+      lmgrSlvAdvCb.advParam.advInterMinUsec = 0;
+      lmgrSlvAdvCb.advParam.advInterMaxUsec = BB_BLE_TO_US(LL_DIR_ADV_INTER_TICKS);
+      lmgrSlvAdvCb.advTermCntDownUsec = BB_BLE_TO_US(LL_DIR_ADV_DUR_TICKS);
       pAdv->firstAdvChIdx = 0;  /* High duty cycle always start from channel 37. */
       /* Fallthrough */
     case LL_ADV_CONN_DIRECT_LOW_DUTY:
@@ -433,20 +381,13 @@ void lctrSlvAdvBuildOp(void)
     case LL_ADV_CONN_DIRECT_LOW_DUTY:
     case LL_ADV_SCAN_UNDIRECT:
     {
-      lctrMsgHdr_t *pMsg;
+      /* Allocate an aligned static array for pAdv->pRxReqBuf */
+      static int buffer[(sizeof(lctrMsgHdr_t) + BB_REQ_PDU_MAX_LEN + sizeof(int) - 1) / sizeof(int)];
+      lctrMsgHdr_t *pMsg = (lctrMsgHdr_t*)buffer;
 
-      if ((pMsg = WsfMsgAlloc(sizeof(lctrMsgHdr_t) + BB_REQ_PDU_MAX_LEN)) != NULL)
-      {
-        pAdv->pRxReqBuf = (uint8_t *)(pMsg + 1);      /* hide header */
-        pAdv->rxReqCback = lctrSlvAdvHandler;
-        pAdv->rxReqPostCback = lctrSlvAdvPostProcessHandler;
-      }
-      else
-      {
-        /* Attempt to obtain buffer on next advertising operation. */
-        LL_TRACE_ERR0("Could not allocate response buffer");
-        // TODO need OOM recovery
-      }
+      pAdv->pRxReqBuf = (uint8_t *)(pMsg + 1);      /* hide header */
+      pAdv->rxReqCback = lctrSlvAdvHandler;
+      pAdv->rxReqPostCback = lctrSlvAdvPostProcessHandler;
       break;
     }
     case LL_ADV_NONCONN_UNDIRECT:
@@ -497,25 +438,18 @@ void lctrSlvAdvBuildOp(void)
   SchBleCalcAdvOpDuration(pOp, 0);
   SchInsertNextAvailable(pOp);
 
-  LL_TRACE_INFO1("### AdvEvent ###  Advertising enabled, due=%u", pOp->due);
+  LL_TRACE_INFO1("### AdvEvent ###  Advertising enabled, dueUsec=%u", pOp->dueUsec);
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Cleanup resources on advertising operation termination.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvAdvCleanupOp(void)
 {
-  lctrMsgHdr_t *pMsg = (lctrMsgHdr_t *)lctrSlvAdv.bleData.op.slvAdv.pRxReqBuf;
-
-  if (pMsg)
-  {
-    /* Recover header. */
-    WsfMsgFree(pMsg - 1);
-  }
+  /* The storage for pRxReqBuf is a static array. */
+  lctrSlvAdv.bleData.op.slvAdv.pRxReqBuf = NULL;
 
   LL_TRACE_INFO0("### AdvEvent ###  Advertising disabled");
 }
@@ -523,8 +457,6 @@ void lctrSlvAdvCleanupOp(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize link layer controller resources for advertising slave.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrSlvAdvInit(void)
@@ -544,8 +476,6 @@ void LctrSlvAdvInit(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Set default values for advertising slave.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrSlvAdvDefaults(void)

@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief LLCP state machine implementation file.
+ *  \file
+ *
+ *  \brief  LLCP state machine implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -151,8 +152,6 @@ const lctrLlcpEh_t lctrCmnProcTbl[LCTR_PROC_CMN_TOTAL][LCTR_PROC_CMN_ACT_TOTAL] 
  *  \param      pCtx    Connection context.
  *  \param      proc    Procedure ID.
  *  \param      act     Action ID.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static inline void lctrExecAction(lctrConnCtx_t *pCtx, uint8_t proc, uint8_t act)
@@ -556,8 +555,6 @@ static bool_t lctrFeatureAvail(lctrConnCtx_t *pCtx, uint8_t proc, uint8_t event)
  *
  *  \param      pCtx    Connection context.
  *  \param      status  Status.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrNotifyHostReadRemoteFeatCnf(lctrConnCtx_t *pCtx, uint8_t status)
@@ -591,8 +588,6 @@ static void lctrNotifyHostReadRemoteFeatCnf(lctrConnCtx_t *pCtx, uint8_t status)
  *
  *  \param      pCtx    Connection context.
  *  \param      proc    Completed procedure.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrNotifyHostSuccess(lctrConnCtx_t *pCtx, uint8_t proc)
@@ -629,8 +624,6 @@ static void lctrNotifyHostSuccess(lctrConnCtx_t *pCtx, uint8_t proc)
  *
  *  \param      pCtx    Connection context.
  *  \param      proc    Complete procedure.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrNotifyHostReject(lctrConnCtx_t *pCtx, uint8_t proc)

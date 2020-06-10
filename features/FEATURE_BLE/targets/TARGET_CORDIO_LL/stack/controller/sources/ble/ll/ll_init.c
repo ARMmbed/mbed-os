@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) slave initialization implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) slave initialization implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -46,8 +47,6 @@ static uint16_t llHandlerWatermarkUsec = 0;
  *
  *  \param      pCfg            Pointer to runtime configuration parameters.
  *
- *  \return     None.
- *
  *  This function returns default value for the LL subsystem's runtime configurations.
  */
 /*************************************************************************************************/
@@ -57,7 +56,7 @@ void LlGetDefaultRunTimeCfg(LlRtCfg_t *pCfg)
   const LlRtCfg_t defCfg =
   {
     /* Device */
-    .compId             = LL_COMP_ID_ARM,
+    .compId             = HCI_ID_PACKETCRAFT,
     .implRev            = LL_VER_NUM >> 16,
     .btVer              = LL_VER_BT_CORE_SPEC_4_2,
     /* Advertiser */
@@ -80,10 +79,13 @@ void LlGetDefaultRunTimeCfg(LlRtCfg_t *pCfg)
     /* ISO */
     .numIsoTxBuf        = 0,
     .numIsoRxBuf        = 0,
-    .maxIsoBufLen       = 0,
+    .maxIsoSduLen       = 0,
     .maxIsoPduLen       = 0,
+    .maxCig             = 0,
     .maxCis             = 0,  /* Disable CIS. */
-    .subEvtSpaceDelay   = 0,
+    .cisSubEvtSpaceDelay= 0,
+    .maxBig             = 0,
+    .maxBis             = 0,
     /* DTM */
     .dtmRxSyncMs        = 10000,
     /* PHY */
@@ -101,8 +103,6 @@ void LlGetDefaultRunTimeCfg(LlRtCfg_t *pCfg)
  *  \brief      Initialize runtime configuration.
  *
  *  \param      pCfg            Pointer to runtime configuration parameters (data must be static).
- *
- *  \return     None.
  *
  *  This function initializes the LL subsystem's runtime configuration.
  *
@@ -132,8 +132,6 @@ void LlInitRunTimeCfg(const LlRtCfg_t *pCfg)
  *  \brief      Initialize LL subsystem with task handler.
  *
  *  \param      handlerId  WSF handler ID.
- *
- *  \return     None.
  *
  *  This function initializes the LL subsystem.  It is called once upon system initialization.
  *  It must be called before any other function in the LL API is called.
@@ -169,7 +167,7 @@ void LlHandlerInit(wsfHandlerId_t handlerId)
 
   LlTestInit();
 
-  LL_TRACE_INFO1("    opModeFlags        = 0x%08x", lmgrCb.opModeFlags);
+  LL_TRACE_INFO1("    opModeFlags = 0x%08x", lmgrCb.opModeFlags);
 }
 
 /*************************************************************************************************/
@@ -178,8 +176,6 @@ void LlHandlerInit(wsfHandlerId_t handlerId)
  *
  *  \param      event       WSF event.
  *  \param      pMsg        WSF message.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LlHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
@@ -188,7 +184,11 @@ void LlHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   uint32_t startTime;
   uint32_t endTime;
 
-  startTimeValid = PalBbGetTimestamp(&startTime);
+  startTimeValid = PalBbGetTimestamp(NULL);
+  if (startTimeValid)
+  {
+    startTime = PalBbGetCurrentTime();
+  }
 
   if (event != 0)
   {
@@ -208,9 +208,10 @@ void LlHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   }
 
   if (startTimeValid &&
-      PalBbGetTimestamp(&endTime))
+      PalBbGetTimestamp(NULL))
   {
-    uint32_t durUsec = BB_TICKS_TO_US(endTime - startTime);
+    endTime = PalBbGetCurrentTime();
+    uint32_t durUsec = BbGetTargetTimeDelta(endTime, startTime);
     if (llHandlerWatermarkUsec < durUsec)
     {
       llHandlerWatermarkUsec = durUsec;
@@ -222,8 +223,6 @@ void LlHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 /*************************************************************************************************/
 /*!
  *  \brief      Reset LL subsystem.
- *
- *  \return     None.
  *
  * Reset the LL subsystem.  All active connections are closed and all radio procedures such as
  * scanning or advertising are terminated.
@@ -251,8 +250,6 @@ void LlReset(void)
  *  \brief      Register LL event handler.
  *
  *  \param      evtCback        Client callback function.
- *
- *  \return     None.
  *
  *  This function is called by a client to register for LL events.
  */
@@ -314,8 +311,8 @@ void LlGetConnContextSize(uint8_t *pMaxConn, uint16_t *pConnCtxSize)
 /*!
  *  \brief      Get extended scanner context size.
  *
- *  \param      pMaxPerScan     Buffer to return the maximum number of extended scanners.
- *  \param      pPerScanCtxSize Buffer to return the size in bytes of the extended scanner context.
+ *  \param      pMaxExtScan     Buffer to return the maximum number of extended scanners.
+ *  \param      pExtScanCtxSize Buffer to return the size in bytes of the extended scanner context.
  *
  *  Return the advertising set context sizes.
  */
@@ -331,8 +328,8 @@ void LlGetExtScanContextSize(uint8_t *pMaxExtScan, uint16_t *pExtScanCtxSize)
 /*!
  *  \brief      Get extended initiator context size.
  *
- *  \param      pMaxPerScan     Buffer to return the maximum number of extended initiators.
- *  \param      pPerScanCtxSize Buffer to return the size in bytes of the extended initiator context.
+ *  \param      pMaxExtInit     Buffer to return the maximum number of extended initiators.
+ *  \param      pExtInitCtxSize Buffer to return the size in bytes of the extended initiator context.
  *
  *  Return the advertising set context sizes.
  */

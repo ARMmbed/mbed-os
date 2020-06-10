@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Internal link layer controller advertising slave interface file.
+ *  \file
+ *
+ *  \brief  Internal link layer controller advertising slave interface file.
+ *
+ *  Copyright (c) 2013-2017 ARM Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -79,7 +80,7 @@ typedef struct
   uint8_t           usedChSel;          /*!< Used channel selection. */
   BbOpDesc_t        advBod;             /*!< Advertising BOD. */
   BbBleData_t       bleData;            /*!< BLE BB operation data. */
-  uint32_t          reqEndTs;           /*!< Last received request end of packet timestamp. */
+  uint32_t          reqEndTsUsec;       /*!< Last received request end of packet timestamp in microseconds. */
 
   /* Scan buffer (placed here to 32-bit align) */
   uint8_t           scanRspBuf[LL_ADVB_MAX_LEN];

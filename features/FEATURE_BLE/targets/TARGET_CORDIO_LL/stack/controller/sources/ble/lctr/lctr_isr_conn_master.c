@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master connection ISR callbacks.
+ *  \file
+ *
+ *  \brief  Link layer controller master connection ISR callbacks.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -65,8 +66,6 @@ extern void LctrProcessRxTxAck(lctrConnCtx_t *pCtx, uint8_t *pRxBuf, uint8_t **p
  *  \brief  Update a connection operation.
  *
  *  \param  pCtx        Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lctrMstConnUpdateOp(lctrConnCtx_t *pCtx)
@@ -89,9 +88,7 @@ static void lctrMstConnUpdateOp(lctrConnCtx_t *pCtx)
 
   /*** General setup ***/
 
-  const uint32_t txWinOffset = BB_BLE_TO_BB_TICKS(LCTR_CONN_IND_TICKS(pConnUpdInd->txWinOffset));
-
-  pOp->due += txWinOffset;
+  pOp->dueUsec += BB_BLE_TO_US(LCTR_CONN_IND_TICKS(pConnUpdInd->txWinOffset));
   pOp->maxDurUsec = LCTR_CONN_IND_US(pCtx->connInterval);
 
   /* Unconditionally reset supervision timer with transitional value.
@@ -120,8 +117,6 @@ static void lctrMstConnUpdateOp(lctrConnCtx_t *pCtx)
  *  \brief  Update the channel map.
  *
  *  \param  pCtx        Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lctrMstChanMapUpdateOp(lctrConnCtx_t *pCtx)
@@ -132,6 +127,12 @@ static void lctrMstChanMapUpdateOp(lctrConnCtx_t *pCtx)
   /* Delay notification until CE starts. */
   pCtx->llcpInstantComp = TRUE;
 
+  /* Update the channel map for CIS master as well. */
+  if (LctrUpdateCisChanMapFn)
+  {
+    LctrUpdateCisChanMapFn(LCTR_GET_CONN_HANDLE(pCtx));
+  }
+
   LL_TRACE_INFO2("    >>> Channel map updated, handle=%u, eventCounter=%u <<<", LCTR_GET_CONN_HANDLE(pCtx), pCtx->eventCounter);
 }
 
@@ -140,26 +141,41 @@ static void lctrMstChanMapUpdateOp(lctrConnCtx_t *pCtx)
  *  \brief  Update the selected PHY.
  *
  *  \param  pCtx        Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lctrMstPhyUpdateOp(lctrConnCtx_t *pCtx)
 {
-  uint8_t txPhyOld = lctrPhyToPhysBit(pCtx->bleData.chan.txPhy);
-  uint8_t rxPhyOld = lctrPhyToPhysBit(pCtx->bleData.chan.rxPhy);
+  BbBleData_t * pBle = &pCtx->bleData;
+  uint8_t txPhyOld = lctrPhyToPhysBit(pBle->chan.txPhy);
+  uint8_t rxPhyOld = lctrPhyToPhysBit(pBle->chan.rxPhy);
 
   /* Notify host only if PHY changed. */
   if ((pCtx->phyUpd.masterToSlavePhy != LL_PHYS_NONE) &&
       (pCtx->phyUpd.masterToSlavePhy != txPhyOld))
   {
-    pCtx->bleData.chan.txPhy = lctrPhysBitToPhy(pCtx->phyUpd.masterToSlavePhy);
+    pBle->chan.txPhy = lctrPhysBitToPhy(pCtx->phyUpd.masterToSlavePhy);
+    pBle->chan.txPower = LCTR_GET_TXPOWER(pCtx, pCtx->bleData.chan.txPhy, pBle->chan.initTxPhyOptions);
     pCtx->llcpNotifyMask    |= 1 << LCTR_PROC_PHY_UPD;
+
+    if (pBle->chan.txPower == LL_PWR_CTRL_TXPOWER_UNMANAGED)
+    {
+      pBle->chan.txPower = pLctrRtCfg->defTxPwrLvl;
+      LCTR_SET_TXPOWER(pCtx, pBle->chan.txPhy, pLctrRtCfg->defTxPwrLvl);
+      if (pBle->chan.txPhy == BB_PHY_BLE_CODED)
+      {
+        LCTR_SET_TXPOWER(pCtx, LL_PC_PHY_CODED_S2, pLctrRtCfg->defTxPwrLvl);
+      }
+
+      if ((pCtx->usedFeatSet & LL_FEAT_POWER_CHANGE_IND) && lctrSendPowerChangeIndCback)
+      {
+        lctrSendPowerChangeIndCback(pCtx, pBle->chan.txPhy, 0, pLctrRtCfg->defTxPwrLvl, TRUE);
+      }
+    }
   }
   if ((pCtx->phyUpd.slaveToMasterPhy != LL_PHYS_NONE) &&
       (pCtx->phyUpd.slaveToMasterPhy != rxPhyOld))
   {
-    pCtx->bleData.chan.rxPhy = lctrPhysBitToPhy(pCtx->phyUpd.slaveToMasterPhy);
+    pBle->chan.rxPhy = lctrPhysBitToPhy(pCtx->phyUpd.slaveToMasterPhy);
     pCtx->llcpNotifyMask    |= 1 << LCTR_PROC_PHY_UPD;
   }
 
@@ -178,8 +194,6 @@ static void lctrMstPhyUpdateOp(lctrConnCtx_t *pCtx)
  *  \brief  Begin a connection operation.
  *
  *  \param  pOp     Begin operation.
- *
- *  \return None.
  *
  *  \note   Scheduler may call this routine multiple times in the following situations:
  *          (1) this BOD is pending and a BOD is inserted before, or (2) a Data PDU is queued
@@ -243,8 +257,6 @@ void lctrMstConnBeginOp(BbOpDesc_t *pOp)
  *  \brief  Cleanup a connection operation.
  *
  *  \param  pOp     Completed operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstConnCleanupOp(BbOpDesc_t *pOp)
@@ -265,8 +277,6 @@ void lctrMstConnCleanupOp(BbOpDesc_t *pOp)
  *  \brief  End a connection operation.
  *
  *  \param  pOp     Completed operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstConnEndOp(BbOpDesc_t *pOp)
@@ -275,9 +285,11 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
   BbBleData_t * const pBle = pOp->prot.pBle;
   BbBleMstConnEvent_t * const pConn = &pBle->op.mstConn;
   lctrConnCtx_t * const pCtx = pOp->pCtx;
-
   /* Process event completion */
 
+#if (LL_ENABLE_TESTER == TRUE)
+  pBle->chan.txPower = LCTR_GET_TXPOWER(pCtx, pCtx->bleData.chan.txPhy, pCtx->bleData.chan.initTxPhyOptions);
+#endif
   if (!pCtx->connEst && (lctrMstConnIsr.rxFromSlave || (lctrMstConnIsr.consCrcFailed > 0)))
   {
     lctrStoreConnTimeoutTerminateReason(pCtx);
@@ -293,7 +305,14 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
 
   pCtx->rssi = pConn->rssi;
 
-  SchRmSetReference(LCTR_GET_CONN_HANDLE(pCtx));
+  if ((pCtx->monitoringState == LCTR_PC_MONITOR_ENABLED) &&
+      (pCtx->lastRxStatus == BB_STATUS_SUCCESS))
+  {
+    if (lctrPcActTbl[pCtx->powerMonitorScheme])
+    {
+      lctrPcActTbl[pCtx->powerMonitorScheme](pCtx);
+    }
+  }
 
   if (pCtx->checkCisTerm)
   {
@@ -333,7 +352,7 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
       pCtx->connUpd.instant = pCtx->eventCounter + ceOffset;
 
       /* Use smallest txWindowOffset (i.e. 0) to minimize data loss. */
-      uint32_t txWinOffsetUsec = SchRmGetOffsetUsec(0, LCTR_GET_CONN_HANDLE(pCtx), pOp->due);
+      uint32_t txWinOffsetUsec = SchRmGetOffsetUsec(0, LCTR_GET_CONN_HANDLE(pCtx), pOp->dueUsec);
       pCtx->connUpd.txWinOffset = LCTR_US_TO_CONN_IND(txWinOffsetUsec);
 
       lctrPackConnUpdInd(pPdu, &pCtx->connUpd);
@@ -363,8 +382,7 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
 
   /*** Update for next operation ***/
 
-  uint32_t anchorPoint           = pOp->due;
-  uint16_t anchorPointOffsetUsec = pOp->dueOffsetUsec;
+  uint32_t anchorPointUsec       = pOp->dueUsec;
   uint16_t numIntervals          = 0;
 
   if (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT)
@@ -378,26 +396,26 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
     pBle->chan.initTxPhyOptions = pConn->rxPhyOptions;
   }
 
+  if (pBle->chan.txPhy == BB_PHY_BLE_CODED)
+  {
+    pBle->chan.txPower = LCTR_GET_TXPOWER(pCtx, pBle->chan.txPhy, pBle->chan.initTxPhyOptions);
+  }
+
   while (TRUE)
   {
     numIntervals += 1;
     pCtx->eventCounter += 1;
 
-    uint32_t connInterUsec = LCTR_CONN_IND_US(numIntervals * pCtx->connInterval) + anchorPointOffsetUsec;
-    uint32_t connInter     = BB_US_TO_BB_TICKS(connInterUsec);
-    int16_t  dueOffsetUsec = connInterUsec - BB_TICKS_TO_US(connInter);
+    uint32_t connInterUsec = LCTR_CONN_IND_US(numIntervals * pCtx->connInterval);
 #if (LL_ENABLE_TESTER)
     if (llTesterCb.connIntervalUs)
     {
-      connInterUsec = (numIntervals * llTesterCb.connIntervalUs) + anchorPointOffsetUsec;
-      connInter     = BB_US_TO_BB_TICKS(connInterUsec);
-      dueOffsetUsec = 0;
+      connInterUsec = (numIntervals * llTesterCb.connIntervalUs);
     }
 #endif
 
     /* Advance to next interval. */
-    pOp->due           = anchorPoint + connInter;
-    pOp->dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
+    pOp->dueUsec = anchorPointUsec + connInterUsec;
 
     if ((pCtx->llcpActiveProc == LCTR_PROC_CONN_UPD) &&
         (pCtx->eventCounter == pCtx->connUpd.instant))
@@ -431,13 +449,13 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
  *  \brief  Abort a connection operation.
  *
  *  \param  pOp     Completed operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstConnAbortOp(BbOpDesc_t *pOp)
 {
   lctrConnCtx_t * const pCtx = pOp->pCtx;
+
+  LL_TRACE_INFO2("!!! Connection Master BOD aborted, handle=%u, eventCounter=%u", LCTR_GET_CONN_HANDLE(pCtx), pCtx->eventCounter);
 
   /* Reset operation to state before BOD began */
   if (pCtx->emptyPduPend &&
@@ -461,8 +479,6 @@ void lctrMstConnAbortOp(BbOpDesc_t *pOp)
  *
  *  \param      pOp     Operation context.
  *  \param      status  Transmit status.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstConnTxCompletion(BbOpDesc_t *pOp, uint8_t status)
@@ -482,13 +498,12 @@ void lctrMstConnTxCompletion(BbOpDesc_t *pOp, uint8_t status)
  *  \param      pOp     Operation context.
  *  \param      pRxBuf  Next receive buffer or NULL to flow control.
  *  \param      status  Receive status.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstConnRxCompletion(BbOpDesc_t *pOp, uint8_t *pRxBuf, uint8_t status)
 {
   lctrConnCtx_t * const pCtx = pOp->pCtx;
+  pCtx->lastRxStatus = status;
 
   /* Local state */
   uint8_t *pNextRxBuf = NULL;
@@ -570,7 +585,7 @@ void lctrMstConnRxCompletion(BbOpDesc_t *pOp, uint8_t *pRxBuf, uint8_t status)
 
   /*** Scheduler termination ***/
 
-  if (lctrExceededMaxDur(pCtx, pOp->due, pCtx->effConnDurUsec))
+  if (lctrExceededMaxDur(pCtx, pOp->dueUsec, pCtx->effConnDurUsec))
   {
     BbSetBodTerminateFlag();
     goto PostProcessing;

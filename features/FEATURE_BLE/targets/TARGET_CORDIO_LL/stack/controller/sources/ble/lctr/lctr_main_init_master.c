@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master scanning operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller master scanning operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -43,8 +44,6 @@ lctrMstScanCtx_t lctrMstInit;
 /*************************************************************************************************/
 /*!
  *  \brief      Master initiate reset handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstInitResetHandler(void)
@@ -57,8 +56,6 @@ static void lctrMstInitResetHandler(void)
  *  \brief      Master initiate message dispatcher.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstInitDisp(lctrMsgHdr_t *pMsg)
@@ -68,33 +65,11 @@ static void lctrMstInitDisp(lctrMsgHdr_t *pMsg)
 
 /*************************************************************************************************/
 /*!
- *  \brief  Handler for pre-initiate scan execution.
- *
- *  \param  pOp         BB operation descriptor.
- *
- *  \return None.
- */
-/*************************************************************************************************/
-static void lctrMstPreInitiateExecHandler(BbOpDesc_t *pOp)
-{
-  /* Setup connection's initial CE now that RM is synchronized BB. This step must be performed
-   * before initiate's scan operation sets up its executing duration (i.e. "pre-execute"). */
-  lctrMstInit.data.init.firstCeDue = lctrMstConnAdjustOpStart(LCTR_GET_CONN_CTX(lctrMstInit.data.init.connHandle),
-                                                              pOp->due,
-                                                              pOp->minDurUsec,
-                                                              &lctrMstInit.data.init.connInd);
-  lctrMstInit.data.init.connBodLoaded = TRUE;
-}
-
-/*************************************************************************************************/
-/*!
  *  \brief  Build initiate connection operation.
  *
  *  \param  pConnSpec       Connection spec.
  *  \param  peerAddrType    Peer address type.
  *  \param  peerAddr        Peer address.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstInitiateBuildOp(LlConnSpec_t *pConnSpec, uint8_t peerAddrType, uint64_t peerAddr)
@@ -146,14 +121,13 @@ void lctrMstInitiateBuildOp(LlConnSpec_t *pConnSpec, uint8_t peerAddrType, uint6
 
   pScan->scanChMap = lmgrMstScanCb.scanChanMap;
 
-  pScan->preExecCback = lctrMstPreInitiateExecHandler;
   pScan->rxAdvCback = lctrMstInitiateAdvPktHandler;
 
   if ((pScan->pRxAdvBuf = WsfMsgAlloc(LCTR_ADVB_BUF_SIZE)) == NULL)
   {
     /* Attempt to obtain buffer on next advertising operation. */
     LL_TRACE_ERR0("Could not allocate advertising buffer");
-    // TODO need OOM recovery
+    /* TODO need OOM recovery */
     WSF_ASSERT(FALSE);
   }
 
@@ -251,8 +225,6 @@ void lctrMstInitiateBuildOp(LlConnSpec_t *pConnSpec, uint8_t peerAddrType, uint6
 /*************************************************************************************************/
 /*!
  *  \brief  Commit initiate connection operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstInitiateOpCommit(void)
@@ -269,14 +241,12 @@ void lctrMstInitiateOpCommit(void)
   lctrMstInit.shutdown = FALSE;
 
   SchInsertNextAvailable(pOp);
-  lctrMstInit.scanWinStart = pOp->due;
+  lctrMstInit.scanWinStartUsec = pOp->dueUsec;
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize link layer controller resources for initiating master.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstInitInit(void)
@@ -293,8 +263,6 @@ void LctrMstInitInit(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Set default values for scanning master.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstInitDefaults(void)

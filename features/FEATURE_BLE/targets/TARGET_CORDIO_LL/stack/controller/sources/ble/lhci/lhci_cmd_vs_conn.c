@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Arm Ltd. vendor specific HCI command module implementation file.
+ *  \file
+ *
+ *  \brief  Arm Ltd. vendor specific HCI command module implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -87,13 +88,26 @@ bool_t lhciConnVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
       status = LlSetConnOpFlags(handle, flags, enable);
       break;
     }
+
     case LHCI_OPCODE_VS_SET_CONN_TX_PWR:
     {
       uint16_t handle;
       int8_t level;
       BSTREAM_TO_UINT16(handle, pBuf);
       BSTREAM_TO_UINT8 (level, pBuf);
-      status = LlSetTxPowerLevel(handle, level);
+      status = LlSetAllPhyTxPowerLevel(handle, level);
+      break;
+    }
+
+    case LHCI_OPCODE_VS_SET_CONN_PHY_TX_PWR:
+    {
+      uint16_t handle;
+      int8_t level;
+      uint8_t phy;
+      BSTREAM_TO_UINT16(handle, pBuf);
+      BSTREAM_TO_UINT8 (level, pBuf);
+      BSTREAM_TO_UINT8 (phy, pBuf);
+      status = LlSetPhyTxPowerLevel(handle, level, phy);
       break;
     }
 
@@ -155,6 +169,7 @@ bool_t lhciConnVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
         break;
 
       case LHCI_OPCODE_VS_SET_CONN_TX_PWR:
+      case LHCI_OPCODE_VS_SET_CONN_PHY_TX_PWR:
         /* no action */
         break;
 

@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) Host Controller Interface (HCI) initialization implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) Host Controller Interface (HCI) initialization implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -83,8 +84,6 @@ static inline uint8_t lhciUnpackHdr(LhciHdr_t *pHdr, const uint8_t *pBuf)
  *
  *  \param      event       WSF event.
  *  \param      pMsg        WSF message.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
@@ -93,7 +92,11 @@ void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   uint32_t startTime;
   uint32_t endTime;
 
-  startTimeValid = PalBbGetTimestamp(&startTime);
+  startTimeValid = PalBbGetTimestamp(NULL);
+  if (startTimeValid)
+  {
+    startTime = PalBbGetCurrentTime();
+  }
 
   if (event & LHCI_EVT_ACL_RCVD)
   {
@@ -149,6 +152,11 @@ void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   {
     lhciPersistCb.evtTrPending = FALSE;
     ChciTrNeedsService(CHCI_TR_PROT_BLE);
+
+    if (lhciCb.evtCompCback)
+    {
+      lhciCb.evtCompCback();
+    }
   }
 
   if (event & LHCI_EVT_HW_ERR)
@@ -165,9 +173,10 @@ void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   }
 
   if (startTimeValid &&
-      PalBbGetTimestamp(&endTime))
+      PalBbGetTimestamp(NULL))
   {
-    uint32_t durUsec = BB_TICKS_TO_US(endTime - startTime);
+    endTime = PalBbGetCurrentTime();
+    uint32_t durUsec = BbGetTargetTimeDelta(endTime, startTime);
     if (lhciHandlerWatermarkUsec < durUsec)
     {
       lhciHandlerWatermarkUsec = durUsec;
@@ -181,15 +190,18 @@ void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
  *
  *  \param  type        Type of message.
  *  \param  pBuf        Pointer to received message.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lhciRecv(uint8_t type, uint8_t *pBuf)
 {
   switch (type)
   {
-    case CHCI_TR_TYPE_DATA:
+    case CHCI_TR_TYPE_ISO:
+      WsfMsgEnq(&lhciPersistCb.isoQ, 0, pBuf);
+      WsfSetEvent(lhciPersistCb.handlerId, LHCI_EVT_ISO_RCVD);
+      break;
+
+    case CHCI_TR_TYPE_ACL:
       WsfMsgEnq(&lhciPersistCb.aclQ, 0, pBuf);
       WsfSetEvent(lhciPersistCb.handlerId, LHCI_EVT_ACL_RCVD);
       break;
@@ -197,11 +209,6 @@ void lhciRecv(uint8_t type, uint8_t *pBuf)
     case CHCI_TR_TYPE_CMD:
       WsfMsgEnq(&lhciPersistCb.cmdQ, 0, pBuf);
       WsfSetEvent(lhciPersistCb.handlerId, LHCI_EVT_CMD_RCVD);
-      break;
-
-    case CHCI_TR_TYPE_ISO:
-      WsfMsgEnq(&lhciPersistCb.isoQ, 0, pBuf);
-      WsfSetEvent(lhciPersistCb.handlerId, LHCI_EVT_ISO_RCVD);
       break;
 
     default:
@@ -216,8 +223,6 @@ void lhciRecv(uint8_t type, uint8_t *pBuf)
  *
  *  \param  type    Type of message.
  *  \param  pBuf    Pointer to transmitted message.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lhciSendComplete(uint8_t type, uint8_t *pBuf)
@@ -245,10 +250,18 @@ void lhciSendComplete(uint8_t type, uint8_t *pBuf)
       WsfMsgFree(pBuf);
       break;
 
-    case CHCI_TR_TYPE_DATA:
+    case CHCI_TR_TYPE_ACL:
       WsfMsgFree(pBuf);
       LlRecvAclDataComplete(1);
       break;
+
+#if (BT_VER >= LL_VER_BT_CORE_SPEC_5_2)
+    /* TODO: Use function pointer to allow run time configuration of supported versions. */
+    case CHCI_TR_TYPE_ISO:
+      WsfMsgFree(pBuf);
+      LlRecvIsoDataComplete(1);
+      break;
+#endif
 
     default:
       break;
@@ -294,14 +307,13 @@ bool_t lhciService(uint8_t *pType, uint16_t *pLen, uint8_t **pBuf)
         /* Additionally check if ISO data needs servicing. */
         if ((pBufTemp = lhciServiceIso()) != NULL)
         {
+          BYTES_TO_UINT16(len, &pBufTemp[2]);
+          len += HCI_ISO_HDR_LEN;
 
-          len = pBufTemp[2] + HCI_ISO_HDR_LEN;
           lhciPersistCb.evtTrPending = TRUE;
-
           *pType = CHCI_TR_TYPE_ISO;
           *pLen  = len;
           *pBuf  = pBufTemp;
-
           return TRUE;
         }
       }
@@ -315,7 +327,7 @@ bool_t lhciService(uint8_t *pType, uint16_t *pLen, uint8_t **pBuf)
           len += HCI_ACL_HDR_LEN;
 
           lhciPersistCb.evtTrPending = TRUE;
-          *pType = CHCI_TR_TYPE_DATA;
+          *pType = CHCI_TR_TYPE_ACL;
           *pLen  = len;
           *pBuf  = pBufTemp;
           return TRUE;
@@ -332,8 +344,6 @@ bool_t lhciService(uint8_t *pType, uint16_t *pLen, uint8_t **pBuf)
  *  \brief  Signal transport hardware error.
  *
  *  \param  code        Error code.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lhciSendHwError(uint8_t code)
@@ -345,8 +355,6 @@ void lhciSendHwError(uint8_t code)
 /*************************************************************************************************/
 /*!
  *  \brief      Reset HCI state.
- *
- *  \return     None.
  *
  *  This function is called at the end of a HCI reset.
  */
@@ -364,12 +372,12 @@ void lhciReset(void)
 /*!
  *  \brief      Set default Hci supported cmds.
  *
- *  \return     None.
+ *  \param      pBuf   Buffer to set supported commands.
  *
  *  This function is called at reset by lmgr.
  */
 /*************************************************************************************************/
-void LhciSetDefaultHciSupCmd(uint8_t *pBuf)
+static void LhciSetDefaultHciSupCmd(uint8_t *pBuf)
 {
   pBuf[5]  = HCI_SUP_SET_EVENT_MASK |                           /* mandatory */
              HCI_SUP_RESET;                                     /* mandatory */
@@ -390,6 +398,8 @@ void LhciSetDefaultHciSupCmd(uint8_t *pBuf)
              HCI_SUP_LE_RECEIVER_TEST |                         /* Rx device */
              HCI_SUP_LE_TRANSMITTER_TEST |                      /* Tx device */
              HCI_SUP_LE_TEST_END;                               /* mandatory */
+  pBuf[44] = HCI_SUP_LE_SET_HOST_FEATURE;                       /* v5.2 */
+  pBuf[45] = HCI_SUP_LE_TRANSMITTER_TEST_V4;                    /* v5.2 */
   pBuf[38] = HCI_SUP_LE_READ_TX_POWER;                          /* mandatory (5.0) */
 
   if (lhciCmdTbl[LHCI_MSG_CONN])
@@ -531,24 +541,82 @@ void LhciSetDefaultHciSupCmd(uint8_t *pBuf)
 
   if (lhciCmdTbl[LHCI_MSG_CIS_MST])
   {
-    pBuf[42] |= HCI_SUP_LE_READ_BUF_SIZE_V2 |                   /* Isochronous stream master */
-                HCI_SUP_LE_SET_CIG_PARAM |                      /* Isochronous stream master */
-                HCI_SUP_LE_CREATE_CIS  |                        /* Isochronous stream master */
-                HCI_SUP_LE_REMOVE_CIG;                          /* Isochronous stream master */
-
-    pBuf[44] |= HCI_SUP_LE_SETUP_ISO_DATA_PATH |                /* Isochronous stream master */
-                HCI_SUP_LE_REMOVE_ISO_DATA_PATH  |              /* Isochronous stream master */
-                HCI_SUP_LE_REQ_PEER_SCA;                        /* Isochronous stream master */
+    pBuf[41] |= HCI_SUP_LE_SET_CIG_PARAM;                       /* ISO CIS master */
+    pBuf[42] |= HCI_SUP_LE_SET_CIG_PARAM_TEST |                 /* ISO CIS master */
+                HCI_SUP_LE_CREATE_CIS |                         /* ISO CIS master */
+                HCI_SUP_LE_REMOVE_CIG;                          /* ISO CIS master */
   }
 
   if (lhciCmdTbl[LHCI_MSG_CIS_SLV])
   {
-    pBuf[42] |= HCI_SUP_LE_READ_BUF_SIZE_V2 |                   /* Isochronous stream master */
-                HCI_SUP_LE_ACCEPT_CIS_REQ |                     /* Isochronous stream master */
-                HCI_SUP_LE_REJECT_CIS_REQ;                      /* Isochronous stream master */
-
-    pBuf[44] |= HCI_SUP_LE_SETUP_ISO_DATA_PATH |                /* Isochronous stream master */
-                HCI_SUP_LE_REMOVE_ISO_DATA_PATH  |              /* Isochronous stream master */
-                HCI_SUP_LE_REQ_PEER_SCA;                        /* Isochronous stream master */
+    pBuf[42] |= HCI_SUP_LE_ACCEPT_CIS_REQ |                     /* ISO CIS slave */
+                HCI_SUP_LE_REJECT_CIS_REQ;                      /* ISO CIS slave */
   }
+
+  if (lhciCmdTbl[LHCI_MSG_BIS_MST])
+  {
+    pBuf[43] |= HCI_SUP_LE_BIG_CREATE_SYNC |                    /* ISO BIS master */
+                HCI_SUP_LE_BIG_TERMINATE_SYNC;                  /* ISO BIS master */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_BIS_SLV])
+  {
+    pBuf[42] |= HCI_SUP_LE_CREATE_BIG |                         /* ISO BIS slave */
+                HCI_SUP_LE_CREATE_BIG_TEST |                    /* ISO BIS slave */
+                HCI_SUP_LE_TERMINATE_BIG;                       /* ISO BIS slave */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_ISO])
+  {
+    pBuf[41] |= HCI_SUP_LE_READ_BUF_SIZE_V2 |                   /* ISO */
+                HCI_SUP_LE_READ_ISO_TX_SYNC;                    /* ISO */
+    pBuf[44] |= HCI_SUP_LE_SETUP_ISO_DATA_PATH |                /* ISO */
+                HCI_SUP_LE_REMOVE_ISO_DATA_PATH  |              /* ISO */
+                HCI_SUP_LE_REQ_PEER_SCA;                        /* ISO */
+
+    pBuf[43] |= HCI_SUP_LE_ISO_TRANSMIT_TEST |                  /* ISO */
+                HCI_SUP_LE_ISO_RECEIVE_TEST |                   /* ISO */
+                HCI_SUP_LE_ISO_READ_TEST_COUNTERS;              /* ISO */
+    pBuf[44] |= HCI_SUP_LE_ISO_TEST_END |                       /* ISO */
+                HCI_SUP_LE_READ_ISO_LINK_QUALITY;               /* ISO */
+
+    pBuf[45] |= HCI_SUP_READ_LOCAL_SUP_CODECS_V2 |              /* ISO */
+                HCI_SUP_READ_LOCAL_SUP_CODEC_CAP |              /* ISO */
+                HCI_SUP_READ_LOCAL_SUP_CTR_DLY |                /* ISO */
+                HCI_SUP_CONFIG_DATA_PATH;                       /* ISO */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_PC])
+  {
+    pBuf[44] |= HCI_SUP_LE_ENH_READ_TX_POWER_LEVEL |            /* LEPC */
+                HCI_SUP_LE_READ_REMOTE_TX_POWER_LEVEL |         /* LEPC */
+                HCI_SUP_LE_SET_PATH_LOSS_REPORT_PARAM |         /* LEPC */
+                HCI_SUP_LE_SET_PATH_LOSS_REPORT_PARAM |         /* LEPC */
+                HCI_SUP_LE_SET_PATH_LOSS_REPORT_ENABLE |        /* LEPC */
+                HCI_SUP_LE_SET_TX_POWER_REPORT_ENABLE;          /* LEPC */
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Finalize HCI initialization.
+ *
+ *  Called after all specific initializers.
+ */
+/*************************************************************************************************/
+void LhciInitFinalize(void)
+{
+  LhciSetDefaultHciSupCmd(lhciPersistCb.supCmds);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Register an event complete callback.
+ *
+ *  \param  compCback   Event completion callback.
+ */
+/*************************************************************************************************/
+void LhciRegisterSendTrCompleteHandler(lhciCompHandler_t compCback)
+{
+  lhciCb.evtCompCback = compCback;
 }

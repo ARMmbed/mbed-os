@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller data channel packet interface file.
+ *  \file
+ *
+ *  \brief  Link layer controller data channel packet interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -209,13 +210,13 @@ typedef struct
   uint8_t           cisId;                /*!< CIS identifier. */
   uint8_t           phyMToS;              /*!< Master to slave PHY. */
   uint8_t           phySToM;              /*!< Slave to Master PHY. */
-  uint8_t           isoalPduType;         /*!< ISOAL PDU type. */
+  uint8_t           framing;              /*!< PDU framing type. */
   uint16_t          sduSizeMToS;          /*!< Maximum SDU size from the master Host. */
   uint16_t          sduSizeSToM;          /*!< Maximum SDU size from the slave Host. */
   uint32_t          sduIntervalMToS;      /*!< Time interval between the start of consecutive SDUs from the master Host  */
   uint32_t          sduIntervalSToM;      /*!< Time interval between the start of consecutive SDUs from the master Host  */
-  uint8_t           plMToS;               /*!< Master to slave payload. */
-  uint8_t           plSToM;               /*!< Slave to master payload. */
+  uint16_t          plMToS;               /*!< Master to slave payload. */
+  uint16_t          plSToM;               /*!< Slave to master payload. */
   uint8_t           nse;                  /*!< Number of subevent. */
   uint32_t          subIntervUsec;        /*!< Contain the time between the start of a subevent and the start of the next subevent, 24 significant bits. */
   uint8_t           bnMToS;               /*!< Master to slave burst number, 4 significant bits. */
@@ -254,6 +255,32 @@ typedef struct
   uint8_t           reason;               /*!< Reason for termination. */
 } lctrCisTermInd_t;
 
+/*! \brief      Power control request PDU. */
+typedef struct
+{
+  uint8_t           phy;                /*!< PHY. */
+  int8_t            delta;              /*!< Requested delta. */
+  int8_t            txPower;            /*!< Local transmit power. */
+} lctrPwrCtrlReq_t;
+
+/*! \brief      Power control RSP PDU. */
+typedef struct
+{
+  uint8_t           limits;             /*!< Limits field. */
+  int8_t            delta;              /*!< Change in power. */
+  int8_t            txPower;            /*!< Local txPower. */
+  uint8_t           apr;                /*!< Acceptable power reduction. */
+} lctrPwrCtrlRsp_t;
+
+/*! \brief      Power change indication PDU. */
+typedef struct
+{
+  uint8_t           phy;                /*!< PHY. */
+  uint8_t           limits;             /*!< Limits field. */
+  int8_t            delta;              /*!< Device txPower change. */
+  int8_t            txPower;            /*!< Local txPower. */
+} lctrPwrChngInd_t;
+
 /*! \brief      Data channel control PDU. */
 typedef struct
 {
@@ -284,6 +311,9 @@ typedef struct
     lctrCisRsp_t     cisRsp;            /*!< CIS response. */
     lctrCisInd_t     cisInd;            /*!< CIS indication. */
     lctrCisTermInd_t cisTerm;           /*!< CIS terminate indication. */
+    lctrPwrCtrlReq_t pwrCtrlReq;        /*!< Power control request. */
+    lctrPwrCtrlRsp_t pwrCtrlRsp;        /*!< Power control response. */
+    lctrPwrChngInd_t pwrChngInd;        /*!< Power change indication. */
   } pld;                                /*!< Unpacked PDU payload. */
 } lctrDataPdu_t;
 

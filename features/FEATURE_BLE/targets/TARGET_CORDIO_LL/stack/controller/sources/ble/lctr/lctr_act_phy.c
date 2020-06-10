@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller PHY features action routines.
+ *  \file
+ *
+ *  \brief  Link layer controller PHY features action routines.
+ *
+ *  Copyright (c) 2016-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -34,8 +35,6 @@
  *  \brief      Store PHY update request.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreHostPhyUpdate(lctrConnCtx_t *pCtx)
@@ -53,8 +52,6 @@ void lctrStoreHostPhyUpdate(lctrConnCtx_t *pCtx)
  *  \brief      Store PHY update request.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStorePeerPhyReq(lctrConnCtx_t *pCtx)
@@ -67,8 +64,6 @@ void lctrStorePeerPhyReq(lctrConnCtx_t *pCtx)
  *  \brief      Store PHY update indication.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStorePeerPhyUpdateInd(lctrConnCtx_t *pCtx)
@@ -102,8 +97,6 @@ void lctrStorePeerPhyUpdateInd(lctrConnCtx_t *pCtx)
  *  \param      opcode  Opcode to send in PDU.
  *  \param      txPhys  Transmitter PHYs.
  *  \param      rxPhys  Receiver PHYs.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSendPhyPdu(lctrConnCtx_t *pCtx, uint8_t opcode, uint8_t txPhys, uint8_t rxPhys)
@@ -134,8 +127,6 @@ static void lctrSendPhyPdu(lctrConnCtx_t *pCtx, uint8_t opcode, uint8_t txPhys, 
  *  \param      pCtx    Connection context.
  *  \param      txPhys  Transmitter PHYs.
  *  \param      rxPhys  Receiver PHYs.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPhyReqPdu(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys)
@@ -157,8 +148,6 @@ void lctrSendPhyReqPdu(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys)
  *  \param      pCtx    Connection context.
  *  \param      txPhys  Transmitter PHYs.
  *  \param      rxPhys  Receiver PHYs.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPhyRspPdu(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys)
@@ -173,8 +162,6 @@ void lctrSendPhyRspPdu(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys)
  *  \param      pCtx    Connection context.
  *  \param      txPhys  Transmitter PHYS.
  *  \param      rxPhys  Receiver PHYS.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPhyUpdateIndPdu(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys)
@@ -233,8 +220,6 @@ void lctrSendPhyUpdateIndPdu(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys
  *
  *  \param      pCtx    Connection context.
  *  \param      status  Status.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostPhyUpdateInd(lctrConnCtx_t *pCtx, uint8_t status)

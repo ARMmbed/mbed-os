@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master connection operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller master connection operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -44,8 +45,6 @@
  *
  *  \param      pCtx    Connection context.
  *  \param      pBuf    PDU buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstProcessDataPdu(lctrConnCtx_t *pCtx, uint8_t *pBuf)
@@ -99,8 +98,6 @@ static void lctrMstProcessDataPdu(lctrConnCtx_t *pCtx, uint8_t *pBuf)
 /*************************************************************************************************/
 /*!
  *  \brief      Master Tx data pending task event handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstConnTxPendingHandler(void)
@@ -129,8 +126,6 @@ static void lctrMstConnTxPendingHandler(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Master connection reset handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstConnResetHandler(void)
@@ -138,6 +133,7 @@ static void lctrMstConnResetHandler(void)
   BbBleConnSlaveInit();
   BbBleConnMasterInit();
   SchRmInit();
+  SchTmInit();
   lctrConnDefaults();
   LmgrConnInit();
 }
@@ -147,8 +143,6 @@ static void lctrMstConnResetHandler(void)
  *  \brief      Execute master state machine.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstConnExecute(lctrConnMsg_t *pMsg)
@@ -176,24 +170,79 @@ static void lctrMstConnExecute(lctrConnMsg_t *pMsg)
  *  \brief      Master connection message dispatcher.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstConnDisp(lctrConnMsg_t *pMsg)
 {
   if (pMsg->hdr.dispId != LCTR_DISP_BCST)
   {
-    WSF_ASSERT(pMsg->hdr.handle < (pLctrRtCfg->maxConn + (pLctrRtCfg->maxCis * pLctrRtCfg->maxCig)));
+    pLctrConnMsg = pMsg;
+
+    WSF_ASSERT(pMsg->hdr.handle < (pLctrRtCfg->maxConn + pLctrRtCfg->maxCis));
     lctrMstConnExecute(pMsg);
   }
   else
   {
     for (pMsg->hdr.handle = 0; pMsg->hdr.handle < pLctrRtCfg->maxConn; pMsg->hdr.handle++)
     {
+      pLctrConnMsg = pMsg;
+
       lctrMstConnExecute(pMsg);
     }
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Host channel class update handler for connections.
+ *
+ *  \param  chanMap     Updated channel map.
+ *
+ *  \return Status code.
+ */
+/*************************************************************************************************/
+static uint8_t lctrConnChClassUpdate(uint64_t chanMap)
+{
+  lctrChanMapUpdate_t *pMsg;
+  uint16_t handle;
+  uint8_t status = LL_SUCCESS;
+
+  /* Update for connections */
+  for (handle = 0; handle < pLctrRtCfg->maxConn; handle++)
+  {
+    if ((LctrIsConnHandleEnabled(handle)) &&
+        (LctrGetRole(handle) == LL_ROLE_MASTER))
+    {
+      /* Update the channel map for CIS master as well. */
+      if (LctrUpdateCisChanMapFn)
+      {
+        LctrUpdateCisChanMapFn(handle);
+      }
+
+      if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_CHAN_MAP_UPDATE) == TRUE)
+      {
+        status = LL_ERROR_CODE_CMD_DISALLOWED;
+      }
+
+      if ((pMsg = (lctrChanMapUpdate_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+      {
+        pMsg->hdr.handle = handle;
+        pMsg->hdr.dispId = LCTR_DISP_CONN;
+        pMsg->hdr.event  = LCTR_CONN_MSG_API_CHAN_MAP_UPDATE;
+
+        pMsg->chanMap = chanMap;
+
+        WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+      }
+      else
+      {
+        LL_TRACE_ERR0("lctrConnChClassUpdate: out of message buffers");
+        return LL_ERROR_CODE_CMD_DISALLOWED;
+      }
+    }
+  }
+
+  return status;
 }
 
 /*************************************************************************************************/
@@ -202,8 +251,6 @@ static void lctrMstConnDisp(lctrConnMsg_t *pMsg)
  *
  *  \param  pCtx        Connection context.
  *  \param  pConnInd    Connection indication.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstConnBuildOp(lctrConnCtx_t *pCtx, lctrConnInd_t *pConnInd)
@@ -219,8 +266,8 @@ void lctrMstConnBuildOp(lctrConnCtx_t *pCtx, lctrConnInd_t *pConnInd)
 
   /*** Connection context setup ***/
 
-  /* pCtx->lastChanIdx = 0; */              /* cleared in lctrMstConnAdjustOpStart() */
-  /* pCtx->eventCounter = 0; */             /* cleared in lctrMstConnAdjustOpStart() */
+  pCtx->lastChanIdx = 0;
+  pCtx->eventCounter = 0;
   pCtx->chanMask = pConnInd->chanMask;
   pCtx->hopInc = pConnInd->hopInc;
   pCtx->connInterval = pConnInd->interval;
@@ -252,6 +299,7 @@ void lctrMstConnBuildOp(lctrConnCtx_t *pCtx, lctrConnInd_t *pConnInd)
 
   /* Set PHY options to default behavior for connection. */
   pBle->chan.initTxPhyOptions = BB_PHY_OPTIONS_BLE_S8; /* TODO: Change to scanned PHY options from extended advertiser. */
+  lctrInitPhyTxPower(pCtx);
 
 #if (LL_ENABLE_TESTER)
   pBle->chan.accAddrRx = pConnInd->accessAddr ^ llTesterCb.dataAccessAddrRx;
@@ -272,8 +320,7 @@ void lctrMstConnBuildOp(lctrConnCtx_t *pCtx, lctrConnInd_t *pConnInd)
 
   /*** General setup ***/
 
-  /* pOp->dueOffsetUsec = 0; */             /* cleared in alloc */
-  pOp->minDurUsec = pCtx->localConnDurUsec;
+  pOp->minDurUsec = pCtx->effConnDurUsec;
   pOp->maxDurUsec = LCTR_CONN_IND_US(pCtx->connInterval);
 
   /* pOp->due = scanRefTime + BB_US_TO_BB_TICKS(maxOffsetUsec); */  /* set in lctrMstConnAdjustOpStart() */
@@ -301,8 +348,6 @@ void lctrMstConnBuildOp(lctrConnCtx_t *pCtx, lctrConnInd_t *pConnInd)
  *  \brief      Set the establish connection state.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstSetEstablishConn(lctrConnCtx_t *pCtx)
@@ -325,14 +370,12 @@ void lctrMstSetEstablishConn(lctrConnCtx_t *pCtx)
 
   LL_TRACE_INFO1("    >>> Connection established, handle=%u <<<", LCTR_GET_CONN_HANDLE(pCtx));
   LL_TRACE_INFO1("                                connIntervalUsec=%u", LCTR_CONN_IND_US(pCtx->connInterval));
-  LL_TRACE_INFO1("                                due=%u", pCtx->connBod.due);
+  LL_TRACE_INFO1("                                dueUsec=%u", pCtx->connBod.dueUsec);
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize link layer controller resources for connectable master.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstConnInit(void)
@@ -357,6 +400,8 @@ void LctrMstConnInit(void)
 
   /* Add channel selection handler. */
   lctrChSelHdlr[LL_CH_SEL_1] = lctrSelectNextDataChannel;
+
+  lctrRegisterChClassHandler(lctrConnChClassUpdate);
 
   lctrConnDefaults();
 
@@ -410,71 +455,4 @@ uint8_t lctrComputeHopInc(void)
 
   /* Valid value range is 5 to 16. */
   return (((randNum >> 0) & 7) + ((randNum >> 8) & 3) + ((randNum >> 16) & 1)) + 5;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Adjust the start time of a pre-established connection BOD.
- *
- *  \param  pCtx            Connection context.
- *  \param  scanRefTime     Scan  BOD reference time.
- *  \param  scanMinDurUsec  Scan BOD minimum duration.
- *  \param  pConnInd        Connection indication.
- *
- *  \return First CE due time.
- */
-/*************************************************************************************************/
-uint32_t lctrMstConnAdjustOpStart(lctrConnCtx_t *pCtx, uint32_t scanRefTime, uint32_t scanMinDurUsec, lctrConnInd_t *pConnInd)
-{
-  /* Pre-resolve common structures for efficient access. */
-  BbOpDesc_t * const pOp = &pCtx->connBod;
-
-  /*** Connection context setup ***/
-
-  pCtx->lastChanIdx = 0;
-  pCtx->eventCounter = 0;
-
-  /*** General setup ***/
-
-  /* Use maximum txWindowOffset (i.e. connInterval) to maximize scan opportunity. */
-  uint32_t maxOffsetUsec = SchRmGetOffsetUsec(LCTR_CONN_IND_US(pConnInd->interval), LCTR_GET_CONN_HANDLE(pCtx), scanRefTime);
-
-  if (maxOffsetUsec <= scanMinDurUsec)
-  {
-    /* To avoid the case that the connection BOD might kill the scan BOD which does the scan for the connection. */
-    maxOffsetUsec += LCTR_CONN_IND_US(pConnInd->interval);
-  }
-
-  pOp->due = scanRefTime + BB_US_TO_BB_TICKS(maxOffsetUsec);
-
-  /*** Commit operation ***/
-
-  WSF_ASSERT(pCtx->connInterval);
-
-  uint32_t firstCeDue = pOp->due;
-  uint32_t anchorPoint = pOp->due;
-  uint16_t numIntervals = 0;
-
-  while (TRUE)
-  {
-    if (SchInsertAtDueTime(pOp, lctrConnResolveConflict))
-    {
-      break;
-    }
-
-    LL_TRACE_WARN1("!!! Establish CE schedule conflict handle=%u", LCTR_GET_CONN_HANDLE(pCtx));
-
-    numIntervals += 1;
-    pCtx->eventCounter += 1;
-
-    uint32_t connInterUsec = LCTR_CONN_IND_US(numIntervals * pCtx->connInterval);
-    uint32_t connInter     = BB_US_TO_BB_TICKS(connInterUsec);
-    int16_t dueOffsetUsec  = connInterUsec - BB_TICKS_TO_US(connInter);
-
-    /* Advance to next interval. */
-    pOp->due = anchorPoint + connInter;
-    pOp->dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
-  }
-
-  return firstCeDue;
 }

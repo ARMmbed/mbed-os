@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave data channel packet implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave data channel packet implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -27,7 +28,6 @@
 #include "hci_defs.h"
 #include "wsf_math.h"
 #include <string.h>
-#include <stdint.h>
 
 /*************************************************************************************************/
 /*!
@@ -639,7 +639,7 @@ uint8_t lctrUnpackCisReqPdu(lctrCisReq_t *pPdu, const uint8_t *pBuf)
   BSTREAM_TO_UINT8 (pPdu->phySToM, pBuf);
 
   BSTREAM_TO_UINT16 (sduSizeMToS, pBuf);
-  pPdu->isoalPduType = (sduSizeMToS >> 15) & 0x01;
+  pPdu->framing = (sduSizeMToS >> 15) & 0x01;
   pPdu->sduSizeMToS = sduSizeMToS & 0x0FFF;
   BSTREAM_TO_UINT16 (pPdu->sduSizeSToM, pBuf);
   pPdu->sduSizeSToM &= 0x0FFF;
@@ -648,8 +648,8 @@ uint8_t lctrUnpackCisReqPdu(lctrCisReq_t *pPdu, const uint8_t *pBuf)
   BSTREAM_TO_UINT24 (pPdu->sduIntervalSToM, pBuf);
   pPdu->sduIntervalSToM &= 0xFFFFF;
 
-  BSTREAM_TO_UINT8 (pPdu->plMToS, pBuf);
-  BSTREAM_TO_UINT8 (pPdu->plSToM, pBuf);
+  BSTREAM_TO_UINT16 (pPdu->plMToS, pBuf);
+  BSTREAM_TO_UINT16 (pPdu->plSToM, pBuf);
   BSTREAM_TO_UINT8 (pPdu->nse, pBuf);
   BSTREAM_TO_UINT24 (pPdu->subIntervUsec, pBuf);
   BSTREAM_TO_UINT8 (bn, pBuf);
@@ -733,6 +733,73 @@ uint8_t lctrUnpackCisTermPdu(lctrCisTermInd_t *pPdu, const uint8_t *pBuf)
   return len;
 }
 
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a Power indication PDU.
+ *
+ *  \param  pPdu        Power indication PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+static uint8_t lctrUnpackPwrChngIndPdu(lctrPwrChngInd_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_PWR_CHNG_IND_LEN;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT8 (pPdu->phy, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->limits, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->delta, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->txPower, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a power control request PDU.
+ *
+ *  \param  pPdu        Power indication PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+static uint8_t lctrUnpackPwrCtrlReqPdu(lctrPwrCtrlReq_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_PWR_CTRL_REQ_LEN;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT8 (pPdu->phy, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->delta, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->txPower, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a power control response PDU.
+ *
+ *  \param  pPdu        Power indication PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+static uint8_t lctrUnpackPwrCtrlRspPdu(lctrPwrCtrlRsp_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_PWR_CTRL_RSP_LEN;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT8 (pPdu->limits, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->delta, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->txPower, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->apr, pBuf);
+
+  return len;
+}
 /*************************************************************************************************/
 /*!
  *  \brief  Decode an LE-C channel buffer.
@@ -980,6 +1047,36 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       if (lctrUnpackCisTermPdu(&pPdu->pld.cisTerm, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_PWR_CHNG_IND:
+      if ((lmgrCb.features & LL_FEAT_POWER_CHANGE_IND) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackPwrChngIndPdu(&pPdu->pld.pwrChngInd, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_PWR_CTRL_REQ:
+      if ((lmgrCb.features & LL_FEAT_POWER_CONTROL_REQUEST) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackPwrCtrlReqPdu(&pPdu->pld.pwrCtrlReq, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_PWR_CTRL_RSP:
+      if ((lmgrCb.features & LL_FEAT_POWER_CONTROL_REQUEST) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackPwrCtrlRspPdu(&pPdu->pld.pwrCtrlRsp, pBuf) != pPdu->hdr.len)
       {
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }

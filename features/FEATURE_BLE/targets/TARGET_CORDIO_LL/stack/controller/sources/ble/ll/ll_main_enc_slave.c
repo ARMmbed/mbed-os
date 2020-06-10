@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) slave control interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) slave control interface implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -26,7 +27,7 @@
 #include "ll_math.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
-#include "stack/platform/include/pal_crypto.h"
+#include "pal_crypto.h"
 #include <string.h>
 
 /*************************************************************************************************/
@@ -56,8 +57,6 @@ uint8_t LlEncrypt(uint8_t *pKey, uint8_t *pData)
  *
  *  \param      handle          Connection handle.
  *  \param      pKey            Pointer to new key.
- *
- *  \return     None.
  *
  *  Provide the requested LTK encryption key.  This function is only used when operating in
  *  slave mode.
@@ -102,8 +101,6 @@ uint8_t LlLtkReqReply(uint16_t handle, const uint8_t *pKey)
  *  \brief      Negative reply to a LTK request.
  *
  *  \param      handle          Connection handle.
- *
- *  \return     None.
  *
  *  Requested LTK encryption key not available.  This function is only used when operating in
  *  slave mode.

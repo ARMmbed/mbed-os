@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave connection ISR callbacks.
+ *  \file
+ *
+ *  \brief  Link layer controller slave connection ISR callbacks.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -50,8 +51,6 @@ static union
  *  \brief      Setup next transmit data buffer.
  *
  *  \param      pCtx        Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static inline void lctrBuildEmptyPdu(lctrConnCtx_t *pCtx)
@@ -71,8 +70,6 @@ static inline void lctrBuildEmptyPdu(lctrConnCtx_t *pCtx)
  *
  *  \param  pHdr        Unpacked PDU header.
  *  \param  pBuf        Packed packet buffer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrUpdateFlowCtrlBits(const lctrDataPduHdr_t *pHdr, uint8_t *pBuf)
@@ -182,8 +179,6 @@ uint8_t *lctrProcessRxAck(lctrConnCtx_t *pCtx)
  *  \brief  Last Data PDU acknowledged by peer.
  *
  *  \param      pCtx        Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrTxPduAck(lctrConnCtx_t *pCtx)
@@ -239,8 +234,6 @@ bool_t lctrProcessTxAck(lctrConnCtx_t *pCtx)
  *  \brief      Post-process Tx acknowledgment.
  *
  *  \param      pCtx        Connection context.
- *
- *  \return     None.
  *
  *  Cleanup from Tx acknowledgment processing.
  */
@@ -383,13 +376,13 @@ void lctrRxPostProcessing(lctrConnCtx_t *pCtx, uint8_t *pRxBuf, uint8_t *pNextRx
  *  \brief      Check for maximum CE duration.
  *
  *  \param      pCtx        Connection context.
- *  \param      ceStart     CE start time.
+ *  \param      ceStartUsec CE start time in microseconds.
  *  \param      pendDurUsec Pending operation duration in microseconds.
  *
  *  \return     FALSE if within duration period, TRUE if exceeds period.
  */
 /*************************************************************************************************/
-bool_t lctrExceededMaxDur(lctrConnCtx_t *pCtx, uint32_t ceStart, uint32_t pendDurUsec)
+bool_t lctrExceededMaxDur(lctrConnCtx_t *pCtx, uint32_t ceStartUsec, uint32_t pendDurUsec)
 {
   BbOpDesc_t *pOp = &pCtx->connBod;
 
@@ -398,7 +391,7 @@ bool_t lctrExceededMaxDur(lctrConnCtx_t *pCtx, uint32_t ceStart, uint32_t pendDu
     return FALSE;
   }
 
-  const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
+  const uint32_t curTime = PalBbGetCurrentTime();
   const uint32_t setupDelayUsec = BbGetSchSetupDelayUs();
 
   uint32_t availCeUsec = LCTR_CONN_IND_US(pCtx->connInterval);
@@ -406,10 +399,10 @@ bool_t lctrExceededMaxDur(lctrConnCtx_t *pCtx, uint32_t ceStart, uint32_t pendDu
   if (pOp->pNext)
   {
     /* Limit CE duration to the edge of neighboring BOD. */
-    availCeUsec = WSF_MIN(availCeUsec, BB_TICKS_TO_US(pOp->pNext->due - ceStart));
+    availCeUsec = WSF_MIN(availCeUsec, BbGetTargetTimeDelta(pOp->pNext->dueUsec, ceStartUsec));
   }
 
-  if ((BB_TICKS_TO_US(curTime - ceStart) + LL_BLE_TIFS_US + pendDurUsec + setupDelayUsec) > availCeUsec)
+  if ((BbGetTargetTimeDelta(curTime, ceStartUsec) + LL_BLE_TIFS_US + pendDurUsec + setupDelayUsec) > availCeUsec)
   {
     return TRUE;
   }

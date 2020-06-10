@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Generic BLE device filtering implementation file.
+ *  \file
+ *
+ *  \brief      Generic BLE device filtering implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -154,6 +155,37 @@ static inline uint8_t bbBlePduFiltResolvePeer(bool_t peerAddrResEna, bool_t forc
       }
     }
   }
+  else if (!(*pPeerAddrRand && BDA64_ADDR_IS_RPA(*pPeerAddr)))
+  {
+    /* Even if address resolution is disabled, filter PDU if network privacy is enabled. */
+    switch (BbBleResListPeerStatus(*pPeerAddrRand, *pPeerAddr))
+    {
+      /*** other than RPA that cannot have RPA ***/
+
+      case BB_BLE_RESLIST_STATUS_ZERO_IRK:
+      case BB_BLE_RESLIST_STATUS_ID_ADDR_NOT_IN_LIST:
+      default:
+        return BB_BLE_PDU_FILT_OK;
+
+      /*** other than RPA that can have RPA ***/
+
+      case BB_BLE_RESLIST_STATUS_RES_ADDR_ASSIGNED:
+      case BB_BLE_RESLIST_STATUS_RES_ADDR_UNASSIGNED:
+      {
+        uint8_t privMode;
+
+        /* Refuse to accept peer identity address. */
+        if (!BbBleResListGetPrivacyMode(*pPeerAddrRand, *pPeerAddr, &privMode) ||
+            (privMode == BB_BLE_RESLIST_PRIV_MODE_NETWORK))
+        {
+          BB_INC_PDUFILT_STAT(failPeerPrivAddrReq);
+          return BB_BLE_PDU_FILT_NOT_OK;
+        }
+
+        return BB_BLE_PDU_FILT_OK;
+      }
+    }
+  }
 
   /* Address will be accepted based upon match. */
   return BB_BLE_PDU_FILT_OK;
@@ -172,8 +204,8 @@ static inline uint8_t bbBlePduFiltResolvePeer(bool_t peerAddrResEna, bool_t forc
  *  \return     Tri-state result (OK, NOT_OK, UNKNOWN).
  */
 /*************************************************************************************************/
-static inline bool_t bbBlePduFiltMatchPeer(bool_t addrMatchEna, bool_t idAddrRand, uint64_t idAddr,
-                                           bool_t addrMatchRand, uint64_t addrMatch)
+static inline uint8_t bbBlePduFiltMatchPeer(bool_t addrMatchEna, bool_t idAddrRand, uint64_t idAddr,
+                                            bool_t addrMatchRand, uint64_t addrMatch)
 {
   if (addrMatchEna)
   {
@@ -202,8 +234,8 @@ static inline bool_t bbBlePduFiltMatchPeer(bool_t addrMatchEna, bool_t idAddrRan
  *  \return     Tri-state result (OK, NOT_OK, UNKNOWN).
  */
 /*************************************************************************************************/
-static inline bool_t bbBlePduFiltWhiteList(bool_t peerWhiteListEna, bool_t peerIdAddrRand,
-                                           uint64_t peerIdAddr)
+static inline uint8_t bbBlePduFiltWhiteList(bool_t peerWhiteListEna, bool_t peerIdAddrRand,
+                                            uint64_t peerIdAddr)
 {
   if (peerWhiteListEna)
   {
@@ -311,8 +343,8 @@ static inline uint8_t bbBlePduFiltResolveLocal(bool_t localAddrResEna, bool_t fo
  *  \return     Tri-state result (OK, NOT_OK, UNKNOWN).
  */
 /*************************************************************************************************/
-static inline bool_t bbBlePduFiltMatchLocal(bool_t addrMatchEna, bool_t idAddrRand, uint64_t idAddr,
-                                            bool_t addrMatchRand, uint64_t addrMatch)
+static inline uint8_t bbBlePduFiltMatchLocal(bool_t addrMatchEna, bool_t idAddrRand, uint64_t idAddr,
+                                             bool_t addrMatchRand, uint64_t addrMatch)
 {
   if (addrMatchEna)
   {
@@ -389,7 +421,7 @@ bool_t BbBlePduFiltCheck(const uint8_t *pBuf, const bbBlePduFiltParams_t *pFiltP
   /* Resolve peer address to pass through filters. */
   switch (bbBlePduFiltResolvePeer(BB_BLE_PDU_FILT_FLAG_IS_SET(pFiltParams, PEER_ADDR_RES_ENA),
                                   forceRes,
-                                  &pFiltResults->peerIdAddrRand,
+                                  (uint8_t *)&pFiltResults->peerIdAddrRand,
                                   &pFiltResults->peerIdAddr))
   {
     case BB_BLE_PDU_FILT_OK:
@@ -549,6 +581,7 @@ bool_t BbBleExtPduFiltCheck(const bbBlePduExtFiltParams_t *pExtFiltParams,
 #endif
 
   /*** Filter PDU by PDU type. ***/
+
   if ((pFiltParams->pduTypeFilt & (1 << pExtFiltParams->pduType)) == 0)
   {
     BB_INC_PDUFILT_STAT(failPduTypeFilt);
@@ -566,7 +599,7 @@ bool_t BbBleExtPduFiltCheck(const bbBlePduExtFiltParams_t *pExtFiltParams,
   /* Resolve peer address to pass through filters. */
   switch (bbBlePduFiltResolvePeer(BB_BLE_PDU_FILT_FLAG_IS_SET(pFiltParams, PEER_ADDR_RES_ENA),
                                   forceRes,
-                                  &pFiltResults->peerIdAddrRand,
+                                  (uint8_t *)&pFiltResults->peerIdAddrRand,
                                   &pFiltResults->peerIdAddr))
   {
     case BB_BLE_PDU_FILT_OK:
@@ -695,8 +728,6 @@ bool_t BbBleExtPduFiltCheck(const bbBlePduExtFiltParams_t *pExtFiltParams,
  *  \brief      Get PDU filter statistics.
  *
  *  \param      pStats      PDU filter statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetPduFiltStats(BbBlePduFiltStats_t *pStats)

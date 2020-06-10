@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Internal baseband interface file.
+ *  \file
+ *
+ *  \brief  Internal baseband interface file.
+ *
+ *  Copyright (c) 2016-2018 ARM Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -48,6 +49,7 @@ typedef struct
     BbBodCback_t    cancelOpCback;      /*!< Cancel operation handler. */
     BbProtCback_t   startProtCback;     /*!< Start protocol handler. */
     BbProtCback_t   stopProtCback;      /*!< Stop protocol handler. */
+    BbLowPowerCback_t lowPowerOpCback;  /*!<  Low power operation handler. */
     uint32_t        startCnt;           /*!< Start counter. */
   } prot[BB_PROT_NUM];                  /*!< Protocol callbacks. */
 

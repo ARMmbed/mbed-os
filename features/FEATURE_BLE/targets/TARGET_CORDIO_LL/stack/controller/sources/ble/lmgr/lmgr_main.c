@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link manager common implementation file.
+ *  \file
+ *
+ *  \brief      Link manager common implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #include "ll_math.h"
@@ -40,8 +41,6 @@ lmgrCtrlBlk_t lmgrCb;
 /*************************************************************************************************/
 /*!
  *  \brief      Set default values.
- *
- *  \return     None.
  *
  *  Restore default values to fields that require initial state after reset. Values that
  *  survive reset are unchanged.
@@ -83,9 +82,8 @@ void LmgrSetDefaults(void)
     LL_OP_MODE_FLAG_ENA_MST_CIS_NULL_PDU |
     /* LL_OP_MODE_FLAG_ENA_SLV_AUX_IND_ADVA | */        /* disabled */
     LL_OP_MODE_FLAG_ENA_ADV_CHAN_RAND |
+    /* LL_OP_MODE_DISABLE_POWER_MONITOR |  */           /* disabled */
     LL_OP_MODE_FLAG_ENA_LLCP_TIMER;
-
-  LhciSetDefaultHciSupCmd(lmgrCb.hciSupCommands);
 
   lmgrCb.chanClass = LL_CHAN_DATA_ALL;
 }
@@ -93,8 +91,6 @@ void LmgrSetDefaults(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Increment reset delay counter.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LmgrIncResetRefCount(void)
@@ -105,8 +101,6 @@ void LmgrIncResetRefCount(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Decrement reset delay counter.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LmgrDecResetRefCount(void)
@@ -118,8 +112,6 @@ void LmgrDecResetRefCount(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Increment whitelist filter enable counter.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LmgrIncWhitelistRefCount(void)
@@ -130,8 +122,6 @@ void LmgrIncWhitelistRefCount(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Decrement whitelist filter enable counter.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LmgrDecWhitelistRefCount(void)
@@ -143,8 +133,6 @@ void LmgrDecWhitelistRefCount(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Increment periodiclist filter enable counter.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LmgrIncPeriodiclistRefCount(void)
@@ -155,8 +143,6 @@ void LmgrIncPeriodiclistRefCount(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Decrement periodiclist filter enable counter.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LmgrDecPeriodiclistRefCount(void)
@@ -242,8 +228,6 @@ bool_t LmgrIsExtCommandAllowed(void)
  *  \brief  Build channel remapping table.
  *
  *  \param  pChanParam  Channel parameters.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LmgrBuildRemapTable(lmgrChanParam_t *pChanParam)
@@ -346,8 +330,6 @@ uint8_t LmgrSelectNextChannel(lmgrChanParam_t *pChanParam, uint16_t eventCounter
 
   uint16_t unmapChan = LL_MATH_MOD_37(prn_e & 0xFFFF);
 
-  pChanParam->lastChanIdx = unmapChan;
-
   /* remappingIndex */
 
   if (!((UINT64_C(1) << unmapChan) & pChanParam->chanMask))
@@ -395,7 +377,7 @@ uint8_t LmgrSelectNextSubEvtChannel(lmgrChanParam_t *pChanParam)
 
   /* Subevent pseudo random number generator. */
   prn = lmgrCalcPerm(prn);
-  prn = lmgrCalcMAM(prn, pChanParam->chIdentifier);   /* prn is prnSubEvent_lu*/
+  prn = lmgrCalcMAM(prn, pChanParam->chIdentifier);   /* prn is prnSubEvent_lu */
 
   pChanParam->prnLast = prn;
 
@@ -412,16 +394,4 @@ uint8_t LmgrSelectNextSubEvtChannel(lmgrChanParam_t *pChanParam)
   pChanParam->subEvtIdx = subEvtIdx;                  /* Update subEvtIdx */
 
   return pChanParam->chanRemapTbl[subEvtIdx];
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Lmgr Read HCI Supported cmd
- *
- *  \return Supported command bitmask table.
- */
-/*************************************************************************************************/
-uint8_t * LmgrReadHciSupCmd(void)
-{
-  return lmgrCb.hciSupCommands;
 }

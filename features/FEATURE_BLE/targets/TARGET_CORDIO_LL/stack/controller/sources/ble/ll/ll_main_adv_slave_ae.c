@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) master control interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) master control interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -61,12 +62,12 @@ uint8_t LlSetAdvSetRandAddr(uint8_t handle, const uint8_t *pAddr)
   return LctrSetExtAdvSetRandAddr(handle, pAddr);
 }
 
-
 /*************************************************************************************************/
 /*!
  *  \brief  Read periodic channel map for slave or master
  *
- *  \param  pBuf        Packed packet buffer.
+ *  \param  handle        handle.
+ *  \param  isAdv         Handle is an advertiser.
  *
  *  \return Channel map, packed into a 64bit int
  *
@@ -125,7 +126,7 @@ uint8_t LlSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam)
                                              LL_ADV_EVT_PROP_CONN_ADV_BIT;
 
   /* Maximum extended advertising interval is half the maximum BB clock rollover time. */
-  const uint32_t bbDurMaxUsec = BB_TICKS_TO_US(UINT64_C(1) << 31);
+  const uint32_t bbDurMaxUsec = (BbGetBbTimerBoundaryUs() >> 1) + 1;
   const uint32_t validAdvInterMax = WSF_MIN(LL_MATH_DIV_625(bbDurMaxUsec), 0xFFFFFF);
 
   LL_TRACE_INFO2("### LlApi ###  LlSetExtAdvParam, handle=%u, advEventProp=0x%04x", handle, pExtAdvParam->advEventProp);
@@ -195,8 +196,6 @@ uint8_t LlSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam)
     LL_TRACE_WARN1("Unsupported PHY, handle=%u", handle);
     return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
   }
-  pExtAdvParam->priAdvInterMin = BB_BLE_TO_BB_TICKS(pExtAdvParam->priAdvInterMin);
-  pExtAdvParam->priAdvInterMax = BB_BLE_TO_BB_TICKS(pExtAdvParam->priAdvInterMax);
 
   return LctrSetExtAdvParam(handle, pExtAdvParam);
 }
@@ -289,8 +288,6 @@ uint8_t LlSetExtScanRespData(uint8_t handle, uint8_t op, uint8_t fragPref, uint8
  *  \param      numAdvSets  Number of elements in enaParam[].
  *  \param      enaParam    Enable parameter table.
  *
- *  \return     None.
- *
  *  Enable or disable extended advertising.
  */
 /*************************************************************************************************/
@@ -298,8 +295,11 @@ void LlExtAdvEnable(uint8_t enable, uint8_t numAdvSets, LlExtAdvEnableParam_t en
 {
   LL_TRACE_INFO2("### LlApi ###  LlExtAdvEnable: enable=%u, numAdvSets=%u", enable, numAdvSets);
 
-  /* Non-overlapping enable requests. */
-  WSF_ASSERT(lmgrCb.extAdvEnaDelayCnt == 0);
+  if (lmgrCb.extAdvEnaDelayCnt != 0)
+  {
+    LL_TRACE_WARN0("Overlapped enable request");
+    LmgrSendExtAdvEnableCnf(0, LL_ERROR_CODE_CMD_DISALLOWED);
+  }
 
   lmgrCb.advSetEnaStatus = LL_SUCCESS;
 
@@ -574,15 +574,13 @@ uint8_t LlSetPeriodicAdvData(uint8_t handle, uint8_t op, uint8_t len, const uint
 /*!
  *  \brief      Set periodic advertising enable.
  *
- *  \param      enable      Set to TRUE to enable advertising, FALSE to disable advertising.
  *  \param      handle      Advertising handle.
- *
- *  \return     None.
+ *  \param      enable      Set to TRUE to enable advertising, FALSE to disable advertising.
  *
  *  Enable or disable periodic advertising.
  */
 /*************************************************************************************************/
-void LlSetPeriodicAdvEnable(uint8_t handle, uint8_t enable)
+void LlSetPeriodicAdvEnable(uint8_t enable, uint8_t handle)
 {
   LL_TRACE_INFO2("### LlApi ###  LlSetPeriodicAdvEnable: enable=%u, handle=%u", enable, handle);
 
@@ -691,8 +689,6 @@ uint8_t LlSetExtAdvTxPhyOptions(uint8_t handle, uint8_t priPhyOpts, uint8_t secP
  *  \brief      Set the default Ext adv TX PHY options.
  *
  *  \param      phyOptions  PHY options.
- *
- *  \return     None.
  *
  *  Set the default TX PHY options for extended adv slave primary and secondary channel.
  */

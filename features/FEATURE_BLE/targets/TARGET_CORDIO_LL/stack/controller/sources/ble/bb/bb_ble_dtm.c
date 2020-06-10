@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Generic BLE baseband driver implementation file.
+ *  \file
+ *
+ *  \brief      Generic BLE baseband driver implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -39,8 +40,6 @@ extern BbRtCfg_t *pBbRtCfg;
  *
  *  \param      status      Completion status.
  *
- *  \return     None.
- *
  *  Completion handler for the BLE transmit test operation.
  */
 /*************************************************************************************************/
@@ -57,6 +56,9 @@ static void bbTestTxCompCback(uint8_t status)
   switch (status)
   {
     case BB_STATUS_SUCCESS:
+      PalBbBleCancelTifs();
+
+      /* Terminate BOD if new channel parameters are required. */
       bodComplete = !pTx->testCback(pCur, status);
       break;
 
@@ -73,14 +75,9 @@ static void bbTestTxCompCback(uint8_t status)
   }
   else
   {
-    const uint32_t pktInterUsec = pTx->pktInterUsec + bbBleCb.bbParam.dueOffsetUsec;
-    const uint32_t pktInter     = BB_US_TO_BB_TICKS(pktInterUsec);
-    int16_t dueOffsetUsec       = pktInterUsec - BB_TICKS_TO_US(pktInter);
+    const uint32_t pktInterUsec = pTx->pktInterUsec;
 
-    PalBbBleCancelTifs();
-
-    bbBleCb.bbParam.due           = bbBleCb.bbParam.due + pktInter;
-    bbBleCb.bbParam.dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
+    bbBleCb.bbParam.dueUsec = BbAdjustTime(bbBleCb.bbParam.dueUsec + pktInterUsec);
     PalBbBleSetChannelParam(&pBle->chan);
     PalBbBleSetDataParams(&bbBleCb.bbParam);
 
@@ -110,8 +107,6 @@ static void bbTestTxCompCback(uint8_t status)
  *  \param      crc             CRC value.
  *  \param      timestamp       Start of packet timestamp.
  *  \param      rxPhyOptions    Rx PHY options.
- *
- *  \return     None.
  *
  *  Completion handler for the BLE receive test operation.
  */
@@ -150,11 +145,8 @@ static void bbTestRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint32_
     PalBbBleCancelTifs();
 
     const uint32_t pktInterUsec = pBbRtCfg->rfSetupDelayUs;
-    const uint32_t pktInter     = BB_US_TO_BB_TICKS(pktInterUsec);
-    int16_t dueOffsetUsec       = pktInterUsec - BB_TICKS_TO_US(pktInter);
 
-    bbBleCb.bbParam.due           = PalBbGetCurrentTime(USE_RTC_BB_CLK) + pktInter;
-    bbBleCb.bbParam.dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
+    bbBleCb.bbParam.dueUsec     = BbAdjustTime(PalBbGetCurrentTime() + pktInterUsec);
     bbBleCb.bbParam.rxTimeoutUsec = pRx->rxSyncDelayUsec;
     PalBbBleSetChannelParam(&pBle->chan);
     PalBbBleSetDataParams(&bbBleCb.bbParam);
@@ -187,8 +179,6 @@ static void bbTestRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint32_
  *
  *  \param      pBod    Pointer to the BOD to execute.
  *  \param      pBle    BLE operation parameters.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void bbTestCleanupOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
@@ -203,8 +193,6 @@ static void bbTestCleanupOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
  *
  *  \param      pBod    Pointer to the BOD to execute.
  *  \param      pBle    BLE operation parameters.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void bbSlvExecuteTestTxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
@@ -213,8 +201,8 @@ static void bbSlvExecuteTestTxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 
   bbBleCb.bbParam.txCback       = bbTestTxCompCback;
   bbBleCb.bbParam.rxCback       = bbTestRxCompCback;
-  bbBleCb.bbParam.due           = pBod->due;
-  bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
+  bbBleCb.bbParam.dueUsec       = BbAdjustTime(pBod->dueUsec);
+  pBod->dueUsec = bbBleCb.bbParam.dueUsec;
 
   PalBbBleSetChannelParam(&pBle->chan);
   PalBbBleSetDataParams(&bbBleCb.bbParam);
@@ -230,8 +218,6 @@ static void bbSlvExecuteTestTxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
  *
  *  \param      pBod    Pointer to the BOD to execute.
  *  \param      pBle    BLE operation parameters.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void bbSlvExecuteTestRxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
@@ -240,8 +226,8 @@ static void bbSlvExecuteTestRxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 
   bbBleCb.bbParam.txCback       = bbTestTxCompCback;
   bbBleCb.bbParam.rxCback       = bbTestRxCompCback;
-  bbBleCb.bbParam.due           = pBod->due;
-  bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
+  bbBleCb.bbParam.dueUsec       = BbAdjustTime(pBod->dueUsec);
+  pBod->dueUsec = bbBleCb.bbParam.dueUsec;
   bbBleCb.bbParam.rxTimeoutUsec = pRx->rxSyncDelayUsec;
 
   PalBbBleSetChannelParam(&pBle->chan);
@@ -254,8 +240,6 @@ static void bbSlvExecuteTestRxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize for direct test mode operations.
- *
- *  \return     None.
  *
  *  Update the operation table with direct test mode operations routines.
  */
@@ -271,8 +255,6 @@ void BbBleTestInit(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Get test mode packet statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetTestStats(BbBleDataPktStats_t *pStats)

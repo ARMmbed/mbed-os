@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief BLE protocol scheduler implementation file.
+ *  \file
+ *
+ *  \brief      BLE protocol scheduler implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -67,13 +68,13 @@ uint32_t SchBleCalcDataPktDurationUsec(uint8_t phy, uint16_t len)
   switch (phy)
   {
     case BB_PHY_BLE_1M:
-      duration += LL_DATA_LEN_TO_TIME_1M(len);
+      duration += LL_DATA_LEN_TO_TIME_1M(len, TRUE);
       break;
     case BB_PHY_BLE_2M:
-      duration += LL_DATA_LEN_TO_TIME_2M(len);
+      duration += LL_DATA_LEN_TO_TIME_2M(len, TRUE);
       break;
     case BB_PHY_BLE_CODED:
-      duration += LL_DATA_LEN_TO_TIME_CODED_S8(len);
+      duration += LL_DATA_LEN_TO_TIME_CODED_S8(len, TRUE);
       break;
   }
 
@@ -122,8 +123,10 @@ uint32_t SchBleCalcAdvPktDurationUsec(uint8_t phy, uint8_t phyOptions, uint16_t 
  *  \param      fragLen     Fragmentation length.
  *  \param      addMafDelay MAF offset to add on top of MAF.
  *  \param      len         Data length to calculate.
- *  \param      worseCase   True if we want to calculate the worst case, false for predicted case.
+ *  \param      worstCase   True if we want to calculate the worst case, false for predicted case.
  *  \param      phyOptions  Phy option to use when calculating coded timing.
+ *
+ *  \return Advertising duration in usec.
  */
 /*************************************************************************************************/
 uint32_t SchBleCalcPerAdvDurationUsec(uint8_t txPhy, uint8_t fragLen, uint16_t addMafDelay, uint16_t len, bool_t worstCase, uint8_t phyOptions)
@@ -194,14 +197,12 @@ uint32_t SchBleCalcAuxPktDurationUsec(uint8_t phy, uint8_t phyOptions, uint16_t 
  *  \param      pBod    Operation to compute duration.
  *  \param      fragLen Fragmentation length.
  *
- *  \return     None.
- *
  *  Compute all the actions time and assign the duration of the given BOD.
  */
 /*************************************************************************************************/
 void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
 {
-  uint32_t usec = 0;
+  uint32_t minDurUsec = 0;
 
   WSF_ASSERT(pBod->protId == BB_PROT_BLE);
 
@@ -219,32 +220,32 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
       {
         case BB_PHY_BLE_1M:
         default:
-          usec = LL_ADVB_MAX_TIME_1M;
+          minDurUsec = LL_ADVB_MAX_TIME_1M;
           break;
         case BB_PHY_BLE_CODED:
           /* Assume longest time, coded S8. */
-          usec = LL_ADVB_MAX_TIME_S8;
+          minDurUsec = LL_ADVB_MAX_TIME_S8;
           break;
       }
 
       if (pAdv->pTxReqBuf)
       {
-        usec += LL_BLE_TIFS_US;
+        minDurUsec += LL_BLE_TIFS_US;
         /* Coded PHY doesn't have pTxReqBuf on primary channel. BB_PHY_OPTIONS_DEFAULT is OK. */
-        usec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, BB_PHY_OPTIONS_DEFAULT, pBle->op.mstAdv.txReqLen);
+        minDurUsec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, BB_PHY_OPTIONS_DEFAULT, pBle->op.mstAdv.txReqLen);
 
         if (pAdv->pRxRspBuf)
         {
-          usec += LL_BLE_TIFS_US;
+          minDurUsec += LL_BLE_TIFS_US;
           switch (pBle->chan.rxPhy)
           {
             case BB_PHY_BLE_1M:
             default:
-              usec += LL_ADVB_MAX_TIME_1M;
+              minDurUsec += LL_ADVB_MAX_TIME_1M;
               break;
             case BB_PHY_BLE_CODED:
               /* Assume longest time, coded S8. */
-              usec += LL_ADVB_MAX_TIME_S8;
+              minDurUsec += LL_ADVB_MAX_TIME_S8;
               break;
           }
         }
@@ -267,28 +268,28 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
 
       WSF_ASSERT(numChan > 0);
 
-      usec = (numChan - 1) * SchBleGetAlignedAuxOffsUsec(pktDuration + BbGetSchSetupDelayUs());
-      usec += pktDuration;   /* For the last channel. */
+      minDurUsec = (numChan - 1) * SchBleGetAlignedAuxOffsUsec(pktDuration + BbGetSchSetupDelayUs());
+      minDurUsec += pktDuration;   /* For the last channel. */
 
       if (pAdv->pRxReqBuf)
       {
-        usec += (LL_BLE_TIFS_US * numChan);
+        minDurUsec += (LL_BLE_TIFS_US * numChan);
         switch (pBle->chan.rxPhy)
         {
           case BB_PHY_BLE_1M:
           default:
-            usec += (LL_ADVB_MAX_TIME_1M * numChan);
+            minDurUsec += (LL_ADVB_MAX_TIME_1M * numChan);
             break;
           case BB_PHY_BLE_CODED:
             /* Assume longest time, coded S8. */
-            usec += (LL_ADVB_MAX_TIME_S8 * numChan);
+            minDurUsec += (LL_ADVB_MAX_TIME_S8 * numChan);
             break;
         }
         if (pAdv->pTxRspBuf)
         {
-          usec += (LL_BLE_TIFS_US * numChan);
+          minDurUsec += (LL_BLE_TIFS_US * numChan);
           /* Coded PHY doesn't have pTxRspBuf on primary channel. BB_PHY_OPTIONS_DEFAULT is OK. */
-          usec += (SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, BB_PHY_OPTIONS_DEFAULT, pBle->op.mstAdv.txReqLen) * numChan);
+          minDurUsec += (SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, BB_PHY_OPTIONS_DEFAULT, pBle->op.mstAdv.txReqLen) * numChan);
         }
       }
       break;
@@ -304,41 +305,41 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
         {
           case BB_PHY_BLE_1M:
           default:
-            usec = LL_EXT_ADVB_MAX_TIME_1M;
+            minDurUsec = LL_EXT_ADVB_MAX_TIME_1M;
             break;
           case BB_PHY_BLE_2M:
-            usec = LL_EXT_ADVB_MAX_TIME_2M;
+            minDurUsec = LL_EXT_ADVB_MAX_TIME_2M;
             break;
           case BB_PHY_BLE_CODED:
             /* Setting min & max duration differently to avoid conflict with other BOD's. */
             /* Min = 3.8ms for normal size(up to 50 bytes)      */
             /* Max = 17.4ms for maximum size(up to 255 bytes)   */
             /* When RX data size is larger than 50 bytes, it may stomp on the next high priority BOD's. */
-            // TODO: We need HW support(Radio interrupt when packet header is received)  to properly fix the problem.
-            usec = LL_EXT_ADVB_NORMAL_TIME_S8;
+            /* TODO: We need HW support(Radio interrupt when packet header is received)  to properly fix the problem. */
+            minDurUsec = LL_EXT_ADVB_NORMAL_TIME_S8;
             pBod->maxDurUsec = LL_EXT_ADVB_MAX_TIME_S8;
             break;
         }
 
         if (pAdv->pTxAuxReqBuf)
         {
-          usec += LL_BLE_TIFS_US;
-          /*if TIFS has preference, it should use this value. Otherwise, it will assume longest time, codes S8. */
-          usec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT) ? pBle->chan.tifsTxPhyOptions : BB_PHY_OPTIONS_BLE_S8, pAdv->txAuxReqLen);
+          minDurUsec += LL_BLE_TIFS_US;
+          /* If TIFS has preference, it should use this value. Otherwise, it will assume longest time, codes S8. */
+          minDurUsec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT) ? pBle->chan.tifsTxPhyOptions : BB_PHY_OPTIONS_BLE_S8, pAdv->txAuxReqLen);
 
-          usec += LL_BLE_TIFS_US;
+          minDurUsec += LL_BLE_TIFS_US;
           switch (pBle->chan.rxPhy)
           {
             case BB_PHY_BLE_1M:
             default:
-              usec += LL_EXT_ADVB_MAX_TIME_1M;
+              minDurUsec += LL_EXT_ADVB_MAX_TIME_1M;
               break;
             case BB_PHY_BLE_2M:
-              usec += LL_EXT_ADVB_MAX_TIME_2M;
+              minDurUsec += LL_EXT_ADVB_MAX_TIME_2M;
               break;
             case BB_PHY_BLE_CODED:
               /* Assume longest time, coded S8. */
-              usec += LL_EXT_ADVB_MAX_TIME_S8;
+              minDurUsec += LL_EXT_ADVB_MAX_TIME_S8;
               break;
           }
         }
@@ -350,24 +351,24 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
         {
           case BB_PHY_BLE_1M:
           default:
-            usec = LL_EXT_ADVB_MAX_TIME_1M;
+            minDurUsec = LL_EXT_ADVB_MAX_TIME_1M;
             break;
           case BB_PHY_BLE_2M:
-            usec = LL_EXT_ADVB_MAX_TIME_2M;
+            minDurUsec = LL_EXT_ADVB_MAX_TIME_2M;
             break;
           case BB_PHY_BLE_CODED:
             /* Assume longest time, coded S8. */
-            usec = LL_EXT_ADVB_MAX_TIME_S8;
+            minDurUsec = LL_EXT_ADVB_MAX_TIME_S8;
             break;
         }
         if (pAdv->pTxAuxReqBuf)
         {
-          usec += LL_BLE_TIFS_US;
+          minDurUsec += LL_BLE_TIFS_US;
           /* Ff TIFS has preference, it should use this value. Otherwise, it will assume longest time, coded S8. */
-          usec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT) ? pBle->chan.tifsTxPhyOptions : BB_PHY_OPTIONS_BLE_S8, LL_ADV_HDR_LEN + LL_CONN_IND_PDU_LEN);      /* aux_conn_req */
-          usec += LL_BLE_TIFS_US;
+          minDurUsec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT) ? pBle->chan.tifsTxPhyOptions : BB_PHY_OPTIONS_BLE_S8, LL_ADV_HDR_LEN + LL_CONN_IND_PDU_LEN);      /* aux_conn_req */
+          minDurUsec += LL_BLE_TIFS_US;
           /* Assume longest time, coded S8. */
-          usec += SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, BB_PHY_OPTIONS_BLE_S8, LL_ADV_HDR_LEN + LL_CONN_RSP_PDU_LEN);  /* aux_conn_rsp */
+          minDurUsec += SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, BB_PHY_OPTIONS_BLE_S8, LL_ADV_HDR_LEN + LL_CONN_RSP_PDU_LEN);  /* aux_conn_rsp */
         }
       }
       break;
@@ -383,25 +384,25 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
 
       if (pAuxAdv->pRxAuxReqBuf)    /* Scannable advertising */
       {
-        usec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, SCH_AUX_ADV_NO_CHAIN_HDR_LEN);
-        usec += LL_BLE_TIFS_US;
+        minDurUsec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, SCH_AUX_ADV_NO_CHAIN_HDR_LEN);
+        minDurUsec += LL_BLE_TIFS_US;
 
         switch (pBle->chan.rxPhy)
         {
           case BB_PHY_BLE_1M:
           default:
-            usec += LL_EXT_ADVB_MAX_TIME_1M;
+            minDurUsec += LL_EXT_ADVB_MAX_TIME_1M;
             break;
           case BB_PHY_BLE_2M:
-            usec += LL_EXT_ADVB_MAX_TIME_2M;
+            minDurUsec += LL_EXT_ADVB_MAX_TIME_2M;
             break;
           case BB_PHY_BLE_CODED:
             /* Assume longest time, coded S8. */
-            usec += LL_EXT_ADVB_MAX_TIME_S8;
+            minDurUsec += LL_EXT_ADVB_MAX_TIME_S8;
             break;
         }
 
-        usec += LL_BLE_TIFS_US;
+        minDurUsec += LL_BLE_TIFS_US;
       }
 
       extHeadLen = WSF_MAX(pAuxAdv->txAuxAdvPdu[0].len, SCH_AUX_ADV_NO_CHAIN_HDR_LEN);
@@ -414,36 +415,35 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
 
       if (dataLen <= maxDataBytesNoChain)
       {
-        usec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, extHeadLen + dataLen);
+        minDurUsec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, extHeadLen + dataLen);
       }
       else
       {
         uint16_t remDataLen;
         uint16_t numFragWithAuxPtr = dataLen / maxDataBytesWithChain;
 
-        usec += numFragWithAuxPtr * SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, SCH_AUX_ADV_W_CHAIN_HDR_LEN + maxDataBytesWithChain);
-        usec += numFragWithAuxPtr * LL_BLE_MAFS_US;
+        minDurUsec += numFragWithAuxPtr * SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, SCH_AUX_ADV_W_CHAIN_HDR_LEN + maxDataBytesWithChain);
+        minDurUsec += numFragWithAuxPtr * LL_BLE_MAFS_US;
 
         remDataLen = dataLen - (numFragWithAuxPtr * maxDataBytesWithChain);
         if (remDataLen)
         {
-          usec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, SCH_AUX_ADV_NO_CHAIN_HDR_LEN + remDataLen);
+          minDurUsec += SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, SCH_AUX_ADV_NO_CHAIN_HDR_LEN + remDataLen);
         }
       }
-
 
       break;
     }
     case BB_BLE_OP_SLV_PER_ADV_EVENT:
     {
       /* The calculation for the periodic event is estimate here because we do not have information how optional header bytes are going to be filled later. */
-      uint16_t dataLen = 0;
+      uint16_t dataLen = LL_EXT_ADV_HDR_MAX_LEN;
       if (pBod->pDataLen)
       {
-        dataLen = *pBod->pDataLen;
+        dataLen = WSF_MAX(dataLen, *pBod->pDataLen);
       }
 
-      usec = SchBleCalcPerAdvDurationUsec(pBle->chan.txPhy, 0, 0, dataLen, FALSE, pBle->chan.initTxPhyOptions);
+      minDurUsec = SchBleCalcPerAdvDurationUsec(pBle->chan.txPhy, 0, 0, dataLen, FALSE, pBle->chan.initTxPhyOptions);
       break;
     }
     case BB_BLE_OP_MST_PER_SCAN_EVENT:
@@ -452,18 +452,18 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
       {
         case BB_PHY_BLE_1M:
         default:
-          usec = LL_EXT_ADVB_MAX_TIME_1M;
+          minDurUsec = LL_EXT_ADVB_MAX_TIME_1M;
           break;
         case BB_PHY_BLE_2M:
-          usec = LL_EXT_ADVB_MAX_TIME_2M;
+          minDurUsec = LL_EXT_ADVB_MAX_TIME_2M;
           break;
         case BB_PHY_BLE_CODED:
           /* Setting min & max duration differently so that other BOD's can run after minDuration. */
           /* Min = 3.8ms for normal size(up to 50 bytes)      */
           /* Max = 17.4ms for maximum size(up to 255 bytes)   */
           /* When RX data size is larger than 50 bytes, it may stomp on the next high priority BOD's. */
-          // TODO: We need HW support(Radio interrupt when packet header is received)  to properly fix the problem.
-          usec = LL_EXT_ADVB_NORMAL_TIME_S8;
+          /* TODO: We need HW support (Radio interrupt when packet header is received) to properly fix the problem. */
+          minDurUsec = LL_EXT_ADVB_NORMAL_TIME_S8;
           pBod->maxDurUsec = LL_EXT_ADVB_MAX_TIME_S8;
           break;
       }
@@ -471,11 +471,11 @@ void SchBleCalcAdvOpDuration(BbOpDesc_t *pBod, uint8_t fragLen)
     }
 
     default:
-      usec = 0;
+      minDurUsec = 0;
       break;
   }
 
-  pBod->minDurUsec = usec;
+  pBod->minDurUsec = minDurUsec;
 }
 
 /*************************************************************************************************/
@@ -499,7 +499,7 @@ bool_t SchBleGetNextMstConnDueTime(uint32_t *pDueTime)
     if ((pCur->protId == BB_PROT_BLE) &&
         (pCur->prot.pBle->chan.opType == BB_BLE_OP_MST_CONN_EVENT))
     {
-      *pDueTime = pCur->due;
+      *pDueTime = pCur->dueUsec;
       return TRUE;
     }
 
