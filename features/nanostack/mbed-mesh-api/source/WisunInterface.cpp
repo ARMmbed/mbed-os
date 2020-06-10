@@ -552,12 +552,16 @@ mesh_error_t WisunInterface::info_get(ws_rpl_info_t *info_ptr)
 
     rpl_dodag_info_t dodag_ptr = {0};
     uint8_t global_address[16] = {0};
-    uint8_t instance_id_list[10];
     uint8_t rpl_instance_count;
+    uint8_t instance_id_list[10];
     uint8_t instance_id = RPL_INSTANCE_LOCAL;
     uint8_t instance_id_new;
     uint8_t instance_index;
     rpl_instance_count = rpl_instance_list_read(&instance_id_list[0], sizeof(instance_id_list));
+
+    if (rpl_instance_count > 10) {
+        return MESH_ERROR_UNKNOWN;
+    }
 
     /* Find lowest global instance ID (assumption: RPL instance with lowest instance ID has
            most generic routing rule and its rank should be indicated in beacon) */
