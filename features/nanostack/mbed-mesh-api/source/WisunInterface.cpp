@@ -56,7 +56,7 @@ Nanostack::WisunInterface *WisunInterface::get_interface() const
 nsapi_error_t WisunInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new(std::nothrow) Nanostack::WisunInterface(*_phy);
+        _interface = new (std::nothrow) Nanostack::WisunInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -123,8 +123,8 @@ nsapi_error_t WisunInterface::configure()
 }
 
 nsapi_error_t Nanostack::WisunInterface::bringup(bool dhcp, const char *ip,
-        const char *netmask, const char *gw,
-        nsapi_ip_stack_t stack, bool blocking)
+                                                 const char *netmask, const char *gw,
+                                                 nsapi_ip_stack_t stack, bool blocking)
 {
     nanostack_lock();
 
