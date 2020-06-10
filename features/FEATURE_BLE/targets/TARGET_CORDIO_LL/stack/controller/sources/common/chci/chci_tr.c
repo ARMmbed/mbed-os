@@ -39,8 +39,8 @@
 
 #if (CHCI_TR_CUSTOM == 1)
 /* Custom transport */
-extern void ChciTrInit(uint16_t maxAclLen, uint16_t maxIsoSduLen);
-extern void ChciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData);
+extern void CustomChciTrInit(uint16_t maxAclLen, uint16_t maxIsoSduLen);
+extern void CustomChciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData);
 #endif
 
 /**************************************************************************************************
@@ -430,7 +430,7 @@ static void chciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData
 #endif
 
 #if (CHCI_TR_CUSTOM == 1)
-  ChciTrWrite(prot, type, len, pData);
+  CustomChciTrWrite(prot, type, len, pData);
 #endif
 }
 
@@ -508,7 +508,7 @@ void ChciTrHandlerInit(wsfHandlerId_t handlerId, uint16_t maxAclLen, uint16_t ma
   /* Start receiver. */
   chciRxPacketSM();
 #elif (CHCI_TR_CUSTOM == 1)
-  ChciTrInit(maxAclLen, maxIsoSduLen);
+  CustomChciTrInit(maxAclLen, maxIsoSduLen);
 #else
   (void)chciRxPacketSM;
   (void)chciTxComplete;

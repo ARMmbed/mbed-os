@@ -23,7 +23,7 @@
 #include "wsf_math.h"
 #include "chci_api.h"
 #include "chci_tr.h"
-#include "fake_lhci_drv.h"
+#include "custom_chci_tr.h"
 #include "hci_defs.h"
 #include <string.h>
 
@@ -47,7 +47,7 @@ void NRFCordioHCITransportDriver::terminate()
 uint16_t NRFCordioHCITransportDriver::write(uint8_t hci_type, uint16_t len, uint8_t *pData)
 {
     /* ownership of the WSF buffer is transferred to the controller (zero copy HCI) */
-    return FakeChciTrRead(CHCI_TR_PROT_BLE, hci_type, len, pData);
+    return CustomChciTrRead(CHCI_TR_PROT_BLE, hci_type, len, pData);
 }
 
 extern "C" void chciDrvInit(void)

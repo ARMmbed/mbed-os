@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FAKE_LHCI_DRV_H_
-#define FAKE_LHCI_DRV_H_
+#ifndef CUSTOM_CHCI_TR_H_
+#define CUSTOM_CHCI_TR_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +41,7 @@ uint16_t ControllerToHostWrite(uint8_t prot, uint8_t hci_type, uint16_t len, uin
  * @param pData Data to be sent.
  * @return Number of bytes processed.
  */
-uint16_t FakeChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData);
+uint16_t CustomChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData);
 
 /**
  * Send bytes from controller to host.
@@ -52,10 +52,12 @@ uint16_t FakeChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *p
  * @param pData Data to be sent.
  * @return Number of bytes processed.
  */
-uint16_t FakeChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, uint8_t *pData);
+uint16_t CustomChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, uint8_t *pData);
+
+void CustomChciTrInit(uint16_t maxAclLen, uint16_t maxIsoSduLen);
 
 #ifdef __cplusplus
 };
 #endif
 
-#endif /* FAKE_LHCI_DRV_H_ */
+#endif /* CUSTOM_CHCI_TR_H_ */

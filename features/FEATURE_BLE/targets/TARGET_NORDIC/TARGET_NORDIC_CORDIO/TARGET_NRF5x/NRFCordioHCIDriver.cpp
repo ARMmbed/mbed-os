@@ -27,7 +27,7 @@
 // Cordio Includes
 #include "ll_init_api.h"
 #include "ll_defs.h"
-#include "fake_lhci_drv.h"
+#include "custom_chci_tr.h"
 #include "pal_bb.h"
 #include "pal_cfg.h"
 #include "lhci_api.h"
