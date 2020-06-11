@@ -153,3 +153,41 @@ mesh_error_t WisunBorderRouter::validate_pan_configuration(uint16_t pan_id)
 
     return MESH_ERROR_NONE;
 }
+
+mesh_error_t WisunBorderRouter::info_get(ws_br_info_t *info_ptr)
+{
+    bbr_information_t bbr_info = {0};
+
+    if (info_ptr == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    int status = ws_bbr_info_get(_mesh_if_id, &bbr_info);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    info_ptr->device_count = bbr_info.devices_in_network;
+    info_ptr->host_timestamp = bbr_info.timestamp;
+    info_ptr->instance_id = bbr_info.instance_id;
+    info_ptr->version = bbr_info.version;
+    memcpy(info_ptr->rpl_dodag_id, bbr_info.dodag_id, 16);
+    memcpy(info_ptr->ipv6_prefix, bbr_info.prefix, 8);
+    memcpy(info_ptr->ipv6_iid, bbr_info.IID, 8);
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len)
+{
+    if (table_ptr == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    int status = ws_bbr_routing_table_get(_mesh_if_id, (bbr_route_info_t *)table_ptr, table_len);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
