@@ -17,6 +17,7 @@
 #ifndef _CELLULARCONTEXT_H_
 #define _CELLULARCONTEXT_H_
 
+#include "NetworkStack.h"
 #include "CellularInterface.h"
 #include "CellularDevice.h"
 #include "CellularUtil.h"
@@ -117,7 +118,15 @@ protected:
     // friend of CellularDevice, so it's the only way to close or delete this class.
     friend class CellularDevice;
     CellularContext();
-    virtual ~CellularContext() {}
+    virtual ~CellularContext()
+    {
+#if !NSAPI_PPP_AVAILABLE
+        if (_stack) {
+            delete _stack;
+        }
+#endif
+    }
+
 public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
     virtual NetworkStack *get_stack() = 0;
