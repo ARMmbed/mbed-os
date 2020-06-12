@@ -431,6 +431,7 @@ static void chciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData
 
 #if (CHCI_TR_CUSTOM == 1)
   CustomChciTrWrite(prot, type, len, pData);
+  chciTrSendComplete();
 #endif
 }
 
