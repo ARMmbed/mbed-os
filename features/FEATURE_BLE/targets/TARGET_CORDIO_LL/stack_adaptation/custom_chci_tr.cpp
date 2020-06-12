@@ -33,7 +33,7 @@ uint16_t CustomChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t 
         controller_type = CHCI_TR_TYPE_CMD;
         break;
     case HCI_ACL_TYPE:
-        controller_type = CHCI_TR_TYPE_DATA;
+        controller_type = CHCI_TR_TYPE_ACL;
         break;
     case HCI_ISO_TYPE:
         controller_type = CHCI_TR_TYPE_ISO;
@@ -56,7 +56,7 @@ uint16_t CustomChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, 
     case CHCI_TR_TYPE_EVT:
         hci_type = HCI_EVT_TYPE;
         break;
-    case CHCI_TR_TYPE_DATA:
+    case CHCI_TR_TYPE_ACL:
         hci_type = HCI_ACL_TYPE;
         break;
     case CHCI_TR_TYPE_ISO:
