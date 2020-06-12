@@ -102,6 +102,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
        regarding system frequency refer to product datasheet. */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
+
     /* Get the Clocks configuration according to the internal RCC registers */
     HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
