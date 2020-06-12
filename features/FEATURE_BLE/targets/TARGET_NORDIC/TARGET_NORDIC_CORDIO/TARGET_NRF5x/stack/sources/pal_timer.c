@@ -235,6 +235,7 @@ void PalTimerDeInit(void)
 
       /* stop timer */
       NRF_TIMER2->TASKS_STOP  = 1;
+      NRF_TIMER2->TASKS_SHUTDOWN = 1;
     #endif
   #endif
 
