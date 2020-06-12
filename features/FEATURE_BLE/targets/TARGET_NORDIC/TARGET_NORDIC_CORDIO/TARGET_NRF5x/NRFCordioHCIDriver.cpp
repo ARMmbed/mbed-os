@@ -154,7 +154,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 /** Default number of ISO receive buffers. */
 /*uint8_t*/   .numIsoRxBuf = 0,
 /** Maximum ISO buffer size between host and controller. */
-/*uint16_t*/  .maxIsoBufLen = 0,
+/*uint16_t*/  .maxIsoSduLen = 0,
 /** Maximum ISO PDU buffer size. */
 /*uint16_t*/  .maxIsoPduLen = 0,
 
@@ -164,7 +164,14 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 /** Maximum number of CIS. */
 /*uint8_t*/   .maxCis = 0,
 /** Subevent spacing above T_MSS. */
-/*uint16_t*/  .subEvtSpaceDelay = 0,
+/*uint16_t*/  .cisSubEvtSpaceDelay = 0,
+
+/* BIS */
+/** Maximum number of BIG. */
+/* uint8_t */ .maxBig = 0,
+/** Maximum number of BIS. */
+/* uint8_t */ .maxBis = 0,
+
 /* DTM */
 /** DTM Rx synchronization window in milliseconds. */
 /*uint16_t*/  .dtmRxSyncMs = 10000,

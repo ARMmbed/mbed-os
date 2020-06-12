@@ -19,6 +19,7 @@
 #include "stack/platform/include/pal_uart.h"
 #include "hal/ticker_api.h"
 #include "mbed_critical.h"
+#include "pal_codec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -138,6 +139,61 @@ MBED_WEAK void PalExitCs(void)
 {
     core_util_critical_section_exit();
 }
+
+/* ISO channels */
+
+MBED_WEAK void PalCodecReadLocalSupportedCodecs(uint8_t *pNumStd, AudioStdCodecInfo_t stdCodecs[],
+                                                uint8_t *pNumVs, AudioVsCodecInfo_t vsCodecs[])
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecReadLocalSupportedCodecs");
+}
+
+MBED_WEAK bool_t PalCodecReadLocalSupportedCodecCapabilities(
+    uint8_t codingFmt, uint16_t compId, uint16_t vsCodecId, PalAudioDir_t dir)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecReadLocalSupportedCodecCapabilities");
+    return 0;
+}
+
+MBED_WEAK bool_t PalCodecReadLocalSupportedControllerDelay(
+    uint8_t codingFmt, uint16_t compId, uint16_t vsCodecId, PalAudioDir_t dir, uint32_t *pMinDly, uint32_t *pMaxDly)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecReadLocalSupportedControllerDelay");
+    return 0;
+}
+MBED_WEAK bool_t PalCodecConfigureDataPath(PalAudioDir_t dir, uint8_t dataPathId)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecConfigureDataPath");
+    return 0;
+}
+
+MBED_WEAK void PalCodecDataInit(void)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataInit");
+}
+
+MBED_WEAK bool_t PalCodecDataStartStream(uint16_t id, PalCodecSreamParam_t *pParam)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStartStream");
+    return 0;
+}
+
+MBED_WEAK void PalCodecDataStopStream(uint16_t id)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStopStream");
+}
+
+MBED_WEAK uint16_t PalCodecDataStreamIn(uint16_t id, uint8_t *pBuf, uint16_t len, uint32_t *pPktCtr)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStreamIn");
+    return 0;
+}
+
+MBED_WEAK void PalCodecDataStreamOut(uint16_t id, const uint8_t *pBuf, uint16_t len, uint32_t pktCtr)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStreamOut");
+}
+
 
 #ifdef __cplusplus
 };
