@@ -93,10 +93,6 @@
         "features": [
             "PSA"
         ],
-        "macros_add": [
-            "MBEDTLS_PSA_HAS_ITS_IO",
-            "MBEDTLS_USE_PSA_CRYPTO"
-        ],
         "public": false,
         "config": {}
     },
@@ -6273,10 +6269,6 @@
         "features_add": [
             "PSA"
         ],
-        "macros_add": [
-            "MBEDTLS_PSA_HAS_ITS_IO",
-            "MBEDTLS_USE_PSA_CRYPTO"
-        ],
         "extra_labels_add": [
             "MBED_PSA_SRV"
         ],
@@ -6621,9 +6613,7 @@
         ],
         "macros_add": [
             "CY8C624ABZI_D44",
-            "CYBSP_WIFI_CAPABLE",
-            "MBEDTLS_PSA_HAS_ITS_IO",
-            "MBEDTLS_USE_PSA_CRYPTO"
+            "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C624ABZI-D44",
         "mbed_ram_start": "0x08002000",
@@ -6752,9 +6742,7 @@
         "macros_add": [
             "CYB0644ABZI_S2D44",
             "CYBSP_WIFI_CAPABLE",
-            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1",
-            "MBEDTLS_PSA_HAS_ITS_IO",
-            "MBEDTLS_USE_PSA_CRYPTO"
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
         ],
         "detect_code": [
             "190A"
@@ -6809,9 +6797,7 @@
         "macros_add": [
             "CYB0644ABZI_S2D44",
             "CYBSP_WIFI_CAPABLE",
-            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1",
-            "MBEDTLS_PSA_HAS_ITS_IO",
-            "MBEDTLS_USE_PSA_CRYPTO"
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
         ],
         "detect_code": [
             "190A"
@@ -7179,9 +7165,7 @@
             "1702"
         ],
         "macros_add": [
-            "GD32F450",
-            "MBEDTLS_PSA_HAS_ITS_IO",
-            "MBEDTLS_USE_PSA_CRYPTO"
+            "GD32F450"
         ],
         "bootloader_supported": true,
         "release_versions": [
