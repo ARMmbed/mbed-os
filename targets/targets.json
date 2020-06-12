@@ -3908,6 +3908,10 @@
             "MPU"
         ],
         "device_name": "STM32L4R5ZI",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x200000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x40000",
         "bootloader_supported": true
     },
     "NUCLEO_L4R5ZI_P": {
@@ -3970,7 +3974,11 @@
             "USBDEVICE",
             "MPU"
         ],
-        "bootloader_supported": false
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x200000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x40000",
+        "bootloader_supported": true
     },
     "NUCLEO_L552ZE_Q": {
         "inherits": [

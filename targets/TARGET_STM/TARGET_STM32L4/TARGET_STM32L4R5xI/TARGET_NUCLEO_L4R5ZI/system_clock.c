@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
-* Copyright (c) 2006-2017 ARM Limited
+* Copyright (c) 2006-2019 ARM Limited
+* Copyright (c) 2006-2019 STMicroelectronics
+* SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,20 +35,11 @@
 #include "stm32l4xx.h"
 #include "mbed_assert.h"
 
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
-/* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field.
-                                   This value must be a multiple of 0x200. */
-
-
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC 0x8 // Use external clock (ST Link MCO - not enabled by default)
 #define USE_PLL_HSE_XTAL 0x4 // Use external xtal (X3 on board - not provided by default)
 #define USE_PLL_HSI      0x2 // Use HSI internal clock
 #define USE_PLL_MSI      0x1 // Use MSI internal clock
-
-#define DEBUG_MCO        (0) // Output the MCO on PA8 for debugging (0=OFF, 1=SYSCLK, 2=HSE, 3=HSI, 4=MSI)
 
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
@@ -64,8 +57,7 @@ uint8_t SetSysClock_PLL_MSI(void);
 /**
   * @brief  Configures the System clock source, PLL Multiplier and Divider factors,
   *               AHB/APBx prescalers and Flash settings
-  * @note   This function should be called only once the RCC clock configuration
-  *         is reset to the default reset state (done in SystemInit() function).
+  * @note   This function is called in mbed_sdk_init() and hal_deepsleep() functions
   * @param  None
   * @retval None
   */
@@ -99,11 +91,6 @@ void SetSysClock(void)
             }
         }
     }
-
-    // Output clock on MCO1 pin(PA8) for debugging purpose
-#if DEBUG_MCO == 1
-    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1);
-#endif
 }
 
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
@@ -177,15 +164,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-    // Output clock on MCO1 pin(PA8) for debugging purpose
-#if DEBUG_MCO == 2
-    if (bypass == 0) {
-        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_2);    // 4 MHz
-    } else {
-        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);    // 8 MHz
-    }
-#endif
-
     return 1; // OK
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
@@ -252,11 +230,6 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-    // Output clock on MCO1 pin(PA8) for debugging purpose
-#if DEBUG_MCO == 3
-    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
-#endif
-
     return 1; // OK
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
@@ -313,14 +286,9 @@ uint8_t SetSysClock_PLL_MSI(void)
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         /* 120 MHz */
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           /* 120 MHz */
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           /* 120 MHz */
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
         return 0; // FAIL
     }
-
-    // Output clock on MCO1 pin(PA8) for debugging purpose
-#if DEBUG_MCO == 4
-    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_MSI, RCC_MCODIV_2); // 2 MHz
-#endif
 
     return 1; // OK
 }
