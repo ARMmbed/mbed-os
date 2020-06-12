@@ -29,5 +29,5 @@ int ns_conf_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critica
 
 int ns_conf_packet_ingress_rate_limit_by_mem(uint8_t free_heap_percentage)
 {
-    return mcps_packet_ingress_rate_limit_by_memory(free_heap_percentage);
+    return ns_monitor_packet_ingress_rate_limit_by_memory(free_heap_percentage);
 }

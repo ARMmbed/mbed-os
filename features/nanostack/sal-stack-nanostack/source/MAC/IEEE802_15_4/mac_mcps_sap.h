@@ -56,6 +56,7 @@ typedef enum {
 #define MAC_MLME_SCAN_CONFIRM_HANDLER   6
 #define MAC_SAP_TRIG_TX                 7
 #define MCPS_SAP_DATA_ACK_CNF_EVENT     8
+#define MAC_CCA_THR_UPDATE              9
 
 // Default number of CSMA-CA periods
 #define MAC_DEFAULT_NUMBER_OF_CSMA_PERIODS  1
@@ -141,5 +142,7 @@ int mcps_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage);
 uint32_t mac_mcps_sap_get_phy_timestamp(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
 void mcps_pending_packet_counter_update_check(struct protocol_interface_rf_mac_setup *rf_mac_setup, mac_pre_build_frame_t *buffer);
+
+void mac_cca_threshold_event_send(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint8_t channel, int16_t dbm);
 
 #endif /* MAC_IEEE802_15_4_MAC_MCPS_SAP_H_ */

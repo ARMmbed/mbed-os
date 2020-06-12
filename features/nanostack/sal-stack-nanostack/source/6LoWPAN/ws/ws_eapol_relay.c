@@ -53,6 +53,7 @@ static void ws_eapol_relay_socket_cb(void *cb);
 
 static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .priority = EAPOL_PDU_RECV_LOW_PRIORITY,
+    .filter_requsted = true,
     .addr_check = ws_eapol_relay_eapol_pdu_address_check,
     .receive = ws_eapol_relay_eapol_pdu_receive
 };

@@ -15,49 +15,18 @@
  * limitations under the License.
  */
 
-#ifndef _NS_FILE_SYSTEM_H_
-#define _NS_FILE_SYSTEM_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef _NS_FILE_H_
+#define _NS_FILE_H_
 
 /**
- * \file ns_file_system.h
- * \brief Nanostack file system API.
+ * \file ns_file.h
+ * \brief Nanostack file handling API.
  */
 
-/**
- * \brief Set file system root path.
- *
- *  Allow stack to store information to the location provided.
- *  Setting root path to NULL will prevent file system usage.
- *
- * \param root_path Path to location where networking files can be stored. Path must exists in the file system
- *   and path must end to "/" character. Path can be NULL to disable file system usage.
- *
- * \return 0 in success, negative value in case of error.
- *
- */
-
-int ns_file_system_set_root_path(const char *root_path);
+#include "ns_file_system.h"
 
 /**
- * \brief Get file system root path.
- *
- * \return Root path to stack storage location.
- *
- */
-char *ns_file_system_get_root_path(void);
-
-/**
- * \brief NS file handle
- *
- */
-typedef void *NS_FILE;
-
-/**
- * File open callback
+ * File open
  *
  * Depending on underlying file system file open for read for non-existing
  * files can return success. In that case file read will fail.
@@ -69,10 +38,10 @@ typedef void *NS_FILE;
  * \return NULL on error
  *
  */
-typedef NS_FILE(*ns_file_open)(const char *filename, const char *mode);
+NS_FILE ns_fopen(const char *filename, const char *mode);
 
 /**
- * File close callback
+ * File close
  *
  * \param handle file handle
  *
@@ -80,10 +49,10 @@ typedef NS_FILE(*ns_file_open)(const char *filename, const char *mode);
  * \return < 0 in case of errors
  *
  */
-typedef int (*ns_file_close)(NS_FILE *handle);
+int ns_fclose(NS_FILE *ns_handle);
 
 /**
- * File remove callback
+ * File remove
  *
  * \param filename filename
  *
@@ -91,10 +60,10 @@ typedef int (*ns_file_close)(NS_FILE *handle);
  * \return < 0 in case of errors
  *
  */
-typedef int (*ns_file_remove)(const char *filename);
+int ns_fremove(const char *filename);
 
 /**
- * File write callback
+ * File write
  *
  * Write is not stream write. The whole file is written from start to end
  * and if function is called again, previous file content is replaced with
@@ -107,10 +76,10 @@ typedef int (*ns_file_remove)(const char *filename);
  * \return bytes written
  *
  */
-typedef size_t (*ns_file_write)(NS_FILE *handle, const void *buffer, size_t size);
+size_t ns_fwrite(NS_FILE *ns_handle, const void *buffer, size_t size);
 
 /**
- * File read callback
+ * File read
  *
  * Read is not stream read. The whole file is read from start to end
  * and if function is called again, read is started from start again.
@@ -122,7 +91,7 @@ typedef size_t (*ns_file_write)(NS_FILE *handle, const void *buffer, size_t size
  * \return bytes written
  *
  */
-typedef size_t (*ns_file_read)(NS_FILE *handle, void *buffer, size_t size);
+size_t ns_fread(NS_FILE *ns_handle, void *buffer, size_t size);
 
 /**
  * File size callback
@@ -136,25 +105,6 @@ typedef size_t (*ns_file_read)(NS_FILE *handle, void *buffer, size_t size);
  * \return < 0 in case of reading file size is not supported
  *
  */
-typedef int (*ns_file_size)(NS_FILE *handle, size_t *size);
-
-/**
- * File callbacks set
- *
- * Sets file handling callbacks to nanostack.
- *
- * \param open file open callback
- * \param close file close callback
- * \param remove file remove callback
- * \param write file write callback
- * \param read file read callback
- * \param size file size callback
- *
- */
-void ns_file_system_callbacks_set(ns_file_open open, ns_file_close close, ns_file_remove remove, ns_file_write write, ns_file_read read, ns_file_size size);
-
-#ifdef __cplusplus
-}
-#endif
+int ns_fsize(NS_FILE *ns_handle, size_t *size);
 
 #endif /* _NS_FILE_SYSTEM_H_ */

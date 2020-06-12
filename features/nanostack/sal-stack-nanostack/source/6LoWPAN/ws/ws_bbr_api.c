@@ -20,6 +20,7 @@
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "net_interface.h"
+#include "socket_api.h"
 #include "eventOS_event.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
@@ -28,6 +29,7 @@
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
+#include "6LoWPAN/ws/ws_pae_key_storage.h"
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"
 #include "Common_Protocols/icmpv6.h"
@@ -52,7 +54,6 @@ static uint8_t current_instance_id = RPL_INSTANCE_ID;
 
 #define WS_ULA_LIFETIME 24*3600
 #define WS_ROUTE_LIFETIME WS_ULA_LIFETIME
-#define WS_DHCP_ADDRESS_LIFETIME 2*3600
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
 
@@ -68,7 +69,7 @@ static uint8_t static_dodag_prefix[8] = {0xfd, 0x00, 0x72, 0x83, 0x7e};
 static uint8_t static_dodag_id_prefix[8] = {0xfd, 0x00, 0x61, 0x72, 0x6d};
 static uint8_t current_dodag_id[16] = {0};
 static uint8_t current_local_prefix[8] = {0};
-static uint8_t current_global_prefix[8] = {0};
+static uint8_t current_global_prefix[16] = {0}; // DHCP requires 16 bytes prefix
 static uint32_t bbr_delay_timer = BBR_CHECK_INTERVAL; // initial delay.
 static uint32_t global_prefix_unavailable_timer = 0; // initial delay.
 
@@ -94,7 +95,16 @@ static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur,
         //stable version for RPL so slow timer update is ok
         cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME;
     } else {
-        cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART;
+        if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_SMALL) {
+            // handles also NETWORK_SIZE_CERTIFICATE
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
+        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_MEDIUM) {
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
+        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_LARGE) {
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
+        } else  {
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;
+        }
     }
 }
 
@@ -135,6 +145,15 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
         rpl_control_update_dodag_config(protocol_6lowpan_rpl_root_dodag, &rpl_conf);
         ws_bbr_rpl_version_increase(cur);
     }
+}
+
+void ws_bbr_dhcp_address_lifetime_set(protocol_interface_info_entry_t *cur, uint32_t dhcp_address_lifetime)
+{
+    if (!cur) {
+        return;
+    }
+    // Change the setting if the border router is active
+    DHCPv6_server_service_set_address_validlifetime(cur->id, current_global_prefix, dhcp_address_lifetime);
 }
 
 static void ws_bbr_rpl_root_start(protocol_interface_info_entry_t *cur, uint8_t *dodag_id)
@@ -223,7 +242,10 @@ static if_address_entry_t *ws_bbr_slaac_generate(protocol_interface_info_entry_t
 
 static void ws_bbr_slaac_remove(protocol_interface_info_entry_t *cur, uint8_t *ula_prefix)
 {
-    icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0, 0);
+    if (cur) {
+        icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0, 0);
+    }
+
     addr_policy_table_delete_entry(ula_prefix, 64);
 }
 
@@ -328,7 +350,7 @@ static bool wisun_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_upd
     return true;
 }
 
-static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id)
+static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id, uint32_t dhcp_address_lifetime)
 {
     uint8_t ll[16];
     memcpy(ll, ADDR_LINK_LOCAL_PREFIX, 8);
@@ -344,7 +366,7 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
     DHCPv6_server_service_callback_set(cur->id, global_id, NULL, wisun_dhcp_address_add_cb);
     //Enable SLAAC mode to border router
     DHCPv6_server_service_set_address_autonous_flag(cur->id, global_id, true, false);
-    DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, WS_DHCP_ADDRESS_LIFETIME);
+    DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
     DHCPv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
 
@@ -352,6 +374,9 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
 }
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
+    if (!cur) {
+        return;
+    }
     uint8_t temp_address[16];
     memcpy(temp_address, global_id, 8);
     memset(temp_address + 8, 0, 8);
@@ -359,7 +384,6 @@ static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_
     DHCPv6_server_service_delete(cur->id, global_id, false);
     //Delete Client
     dhcp_client_global_address_delete(cur->id, NULL, temp_address);
-
 }
 
 static void ws_bbr_routing_stop(protocol_interface_info_entry_t *cur)
@@ -506,7 +530,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
                     return;
                 }
             }
-            ws_bbr_dhcp_server_start(cur, global_prefix);
+            ws_bbr_dhcp_server_start(cur, global_prefix, cur->ws_info->cfg->bbr.dhcp_address_lifetime);
             rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_prefix, 64, 0, 0, 0, false);
             // no check for failure should have
 
@@ -623,6 +647,11 @@ uint16_t test_pan_size_override = 0xffff;
 uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur)
 {
     uint16_t result = 0;
+
+    if (!cur || !cur->rpl_domain) {
+        return 0;
+    }
+
     if (test_pan_size_override != 0xffff) {
         return test_pan_size_override;
     }
@@ -701,7 +730,6 @@ void ws_bbr_stop(int8_t interface_id)
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     ws_bbr_routing_stop(cur);
-
     backbone_interface_id = -1;
     current_instance_id++;
 
@@ -725,6 +753,86 @@ int ws_bbr_configure(int8_t interface_id, uint16_t options)
 #else
     (void)interface_id;
     (void)options;
+    return -1;
+#endif
+}
+int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    rpl_dodag_info_t dodag_info;
+
+    if (!info_ptr) {
+        return -1;
+    }
+    if (!cur || !protocol_6lowpan_rpl_root_dodag) {
+        tr_warn("bbr not started");
+        return -1;
+    }
+    struct rpl_instance *instance = rpl_control_lookup_instance(protocol_6lowpan_rpl_domain, current_instance_id, current_dodag_id);
+    if (!instance) {
+        tr_warn("bbr instance not found");
+        return -2;
+    }
+    // Zero the structure
+    memset(info_ptr, 0, sizeof(bbr_information_t));
+
+    rpl_control_read_dodag_info(instance, &dodag_info);
+
+    memcpy(info_ptr->dodag_id, current_dodag_id, 16);
+    memcpy(info_ptr->prefix, current_global_prefix, 8);
+
+    // Get the Wi-SUN interface generated address that is used in the RF interface.
+    const uint8_t *wisun_if_addr = addr_select_with_prefix(cur, current_global_prefix, 64, SOCKET_IPV6_PREFER_SRC_PUBLIC);
+
+    if (wisun_if_addr) {
+        memcpy(info_ptr->IID, wisun_if_addr + 8, 8);
+    }
+
+    info_ptr->devices_in_network = ws_bbr_pan_size(cur);
+    info_ptr->instance_id = current_instance_id;
+    info_ptr->version = dodag_info.version_num;
+    info_ptr->timestamp = protocol_core_monotonic_time; // TODO switch to second timer
+    // consider DTSN included It can also be added for getting device information
+    // Consider own device API to get DTSN, DHCP lifetime values
+    return 0;
+
+#else
+    (void) interface_id;
+    (void) info_ptr;
+
+    return -1;
+#endif
+}
+
+int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    int length;
+    if (!cur || !protocol_6lowpan_rpl_root_dodag) {
+        return -1;
+    }
+
+    struct rpl_instance *instance = rpl_control_lookup_instance(protocol_6lowpan_rpl_domain, current_instance_id, current_dodag_id);
+    if (!instance) {
+        tr_warn("bbr instance not found");
+        return -2;
+    }
+    memset(table_ptr, 0, table_len);
+
+    /* RPL structure must match the external structure so we dont need to make conversion.
+     *
+     */
+    length = rpl_control_route_table_get(instance, current_global_prefix, (rpl_route_info_t *)table_ptr, table_len);
+
+    return length;
+#else
+    (void) interface_id;
+    (void) table_ptr;
+    (void) table_len;
+
     return -1;
 #endif
 }
@@ -782,8 +890,8 @@ int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uin
 #ifdef HAVE_WS_BORDER_ROUTER
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    ws_rpl_cfg_t cfg;
-    if (ws_cfg_rpl_get(&cfg, NULL) < 0) {
+    ws_bbr_cfg_t cfg;
+    if (ws_cfg_bbr_get(&cfg, NULL) < 0) {
         return -1;
     }
 
@@ -797,7 +905,7 @@ int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uin
         cfg.dio_redundancy_constant = dio_redundancy_constant;
     }
 
-    if (ws_cfg_rpl_set(cur, NULL, &cfg, 0) < 0) {
+    if (ws_cfg_bbr_set(cur, NULL, &cfg, 0) < 0) {
         return -2;
     }
 
@@ -818,8 +926,8 @@ int ws_bbr_rpl_parameters_get(int8_t interface_id, uint8_t *dio_interval_min, ui
         return -1;
     }
 
-    ws_rpl_cfg_t cfg;
-    if (ws_cfg_rpl_get(&cfg, NULL) < 0) {
+    ws_bbr_cfg_t cfg;
+    if (ws_cfg_bbr_get(&cfg, NULL) < 0) {
         return -2;
     }
 
@@ -840,8 +948,8 @@ int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min
 {
     (void) interface_id;
 #ifdef HAVE_WS_BORDER_ROUTER
-    ws_rpl_cfg_t cfg;
-    if (ws_cfg_rpl_get(&cfg, NULL) < 0) {
+    ws_bbr_cfg_t cfg;
+    if (ws_cfg_bbr_get(&cfg, NULL) < 0) {
         return -2;
     }
 
@@ -855,7 +963,7 @@ int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min
         cfg.dio_redundancy_constant = dio_redundancy_constant;
     }
 
-    if (ws_cfg_rpl_validate(NULL, &cfg) < 0) {
+    if (ws_cfg_bbr_validate(NULL, &cfg) < 0) {
         return -3;
     }
 
@@ -932,6 +1040,32 @@ int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id)
     return 0;
 #else
     (void) pan_id;
+    return -1;
+#endif
+}
+
+int ws_bbr_key_storage_memory_set(int8_t interface_id, uint8_t key_storages_number, const uint16_t *key_storage_size, void **key_storages)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_key_storage_memory_set(key_storages_number, key_storage_size, key_storages);
+#else
+    (void) key_storages_number;
+    (void) key_storage_size;
+    (void) key_storages;
+    return -1;
+#endif
+}
+
+int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_key_storage_settings_set(alloc_max_number, alloc_size, storing_interval);
+#else
+    (void) alloc_max_number;
+    (void) alloc_size;
+    (void) storing_interval;
     return -1;
 #endif
 }

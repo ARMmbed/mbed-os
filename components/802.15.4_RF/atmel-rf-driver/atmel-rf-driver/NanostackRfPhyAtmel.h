@@ -70,9 +70,16 @@
 #if !defined(TEST_PIN_SPARE_2)
 #define TEST_PIN_SPARE_2    D8
 #endif
+#if !defined(SE2435L_CSD)
+#define SE2435L_CSD    D2
+#endif
+#if !defined(SE2435L_ANT_SEL)
+#define SE2435L_ANT_SEL    D8
+#endif
 
 class RFBits;
 class TestPins;
+class Se2435Pins;
 
 class NanostackRfPhyAtmel : public NanostackRfPhy {
 public:
@@ -86,10 +93,13 @@ public:
     virtual void set_mac_address(uint8_t *mac);
 
 private:
+#if !defined(DISABLE_AT24MAC)
     AT24Mac _mac;
+#endif
     uint8_t _mac_addr[8];
     RFBits *_rf;
     TestPins *_test_pins;
+    Se2435Pins *_se2435_pa_pins;
     bool _mac_set;
 
     const PinName _spi_mosi;

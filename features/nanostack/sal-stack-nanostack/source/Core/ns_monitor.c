@@ -62,6 +62,8 @@ typedef struct ns_monitor__s {
 
 static ns_monitor_t *ns_monitor_ptr = NULL;
 
+static uint8_t ns_dyn_mem_rate_limiting_threshold_percentage = 0; // Percentage of free memory required to allow routing
+
 typedef void (ns_maintenance_gc_cb)(bool full_gc);
 
 /*
@@ -189,3 +191,31 @@ int ns_monitor_heap_gc_threshold_set(uint8_t percentage_high, uint8_t percentage
 
     return -1;
 }
+
+int ns_monitor_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage)
+{
+    if (free_heap_percentage < 100) {
+        ns_dyn_mem_rate_limiting_threshold_percentage = free_heap_percentage;
+        return 0;
+    }
+
+    return -1;
+}
+
+bool ns_monitor_packet_allocation_allowed(void)
+{
+    // If there is no packets to forward this should not be blocked.
+    // There should be cleanup routine enabled that will remove unneeded memory to prevent locks
+    // this could trigger a function to clean packets from routing and allow newest packets
+
+    const mem_stat_t *ns_dyn_mem_stat = ns_dyn_mem_get_mem_stat();
+
+    if (ns_dyn_mem_stat && ns_dyn_mem_rate_limiting_threshold_percentage) {
+        if (ns_dyn_mem_stat->heap_sector_allocated_bytes > ns_dyn_mem_stat->heap_sector_size / 100 * (100 - ns_dyn_mem_rate_limiting_threshold_percentage)) {
+            // Packet allocation not allowed as memory is running low.
+            return false;
+        }
+    }
+    return true;
+}
+
