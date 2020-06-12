@@ -30,7 +30,7 @@
 #include "nrf_ecb.h"
 #include "nrf.h"
 
-#if defined(NRF52840_XXAA)
+#if defined(NRF52840_XXAA) && defined(FEATURE_CRYPTOCELL310) && MBED_CONF_CORDIO_LL_NRF52840_CRYPTOCELL310_ACCELERATION
 #include "nrf52840.h"
 /* Crypto Cell definitions */
 #include "crys_rsa_kg.h"
@@ -834,7 +834,7 @@ bool_t PalCryptoAesCcmDecrypt(PalCryptoEnc_t *pEnc, uint8_t *pBuf)
   return TRUE;
 }
 
-#if defined(NRF52840_XXAA)
+#if defined(NRF52840_XXAA) && defined(FEATURE_CRYPTOCELL310) && MBED_CONF_CORDIO_LL_NRF52840_CRYPTOCELL310_ACCELERATION
 /*************************************************************************************************/
 /*!
  *  \brief  Execute the CCM-Mode encryption algorithm.
