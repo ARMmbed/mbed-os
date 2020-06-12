@@ -113,6 +113,21 @@ MBED_WEAK void PalSysSleep()
     MBED_ERROR(function_not_implemented, "Provide implementation of PalSysSleep");
 }
 
+MBED_WEAK void PalSysSetTrap(bool_t enable)
+{
+    (void)enable;
+}
+
+MBED_WEAK uint32_t PalSysGetAssertCount()
+{
+    return 0;
+}
+
+MBED_WEAK uint32_t PalSysGetStackUsage()
+{
+    return 0;
+}
+
 /* CS */
 
 MBED_WEAK void PalEnterCs(void)
