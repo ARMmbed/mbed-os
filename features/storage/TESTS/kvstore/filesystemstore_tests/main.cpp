@@ -100,7 +100,7 @@ void test_file_system_store_functionality_unit_test()
 
     FileSystemStore *fsst = new FileSystemStore(fs);
 
-    err = fsst->init(InitModeFlags::ExclusiveCreation | InitModeFlags::ReadWrite);
+    err = fsst->init(InitMode::ExclusiveCreation | InitMode::ReadWrite);
     TEST_ASSER_EQUAL_ERROR_CODE(MBED_ERROR_INITIALIZATION_FAILED, err);
 
     err = fsst->init();

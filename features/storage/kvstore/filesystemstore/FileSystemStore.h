@@ -57,7 +57,7 @@ public:
       *          MBED_ERROR_INITIALIZATION_FAILED    No valid FileSystemStore found on the device.
       *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
       */
-    virtual int init(InitModeFlags flags = DEFAULT_INIT_FLAGS);
+    virtual int init(InitMode flags = DEFAULT_INIT_FLAGS);
 
     /**
       * @brief Deinitialize FileSystemStore, release and free resources.
@@ -72,7 +72,7 @@ public:
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_NOT_READY                Not initialized.
      *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include write permission.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode does not include write permission.
      */
     virtual int reset();
 
@@ -90,7 +90,7 @@ public:
      *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
      *          MBED_ERROR_INVALID_SIZE             Invalid size given in function arguments.
      *          MBED_ERROR_WRITE_PROTECTED          Already stored with "write once" flag.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include write permission.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode do not include write permission.
      */
     virtual int set(const char *key, const void *buffer, size_t size, uint32_t create_flags);
 
@@ -110,7 +110,7 @@ public:
       *          MBED_ERROR_INVALID_SIZE             Invalid size given in function arguments.
       *          MBED_ERROR_INVALID_DATA_DETECTED    Data is corrupted.
       *          MBED_ERROR_ITEM_NOT_FOUND           No such key.
-      *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include write permission.
+      *          MBED_ERROR_INVALID_OPERATION        InitMode do not include write permission.
       */
     virtual int get(const char *key, void *buffer, size_t buffer_size, size_t *actual_size = NULL, size_t offset = 0);
 
@@ -127,7 +127,7 @@ public:
      *          MBED_ERROR_INVALID_SIZE             Invalid size given in function arguments.
      *          MBED_ERROR_INVALID_DATA_DETECTED    Data is corrupted.
      *          MBED_ERROR_ITEM_NOT_FOUND           No such key.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include read permission.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode do not include read permission.
      */
     virtual int get_info(const char *key, info_t *info);
 
@@ -142,7 +142,7 @@ public:
      *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
      *          MBED_ERROR_ITEM_NOT_FOUND           No such key.
      *          MBED_ERROR_WRITE_PROTECTED          Already stored with "write once" flag.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include write permission.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode do not include write permission.
      */
     virtual int remove(const char *key);
 
@@ -161,7 +161,7 @@ public:
      *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
      *          MBED_ERROR_INVALID_SIZE             Invalid size given in function arguments.
      *          MBED_ERROR_WRITE_PROTECTED          Already stored with "write once" flag.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include write permission.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode do not include write permission.
      */
     virtual int set_start(set_handle_t *handle, const char *key, size_t final_data_size, uint32_t create_flags);
 
@@ -204,7 +204,7 @@ public:
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_NOT_READY                Not initialized.
      *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include read or write-only read key permissions.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode do not include read or write-only read key permissions.
      */
     virtual int iterator_open(iterator_t *it, const char *prefix = NULL);
 

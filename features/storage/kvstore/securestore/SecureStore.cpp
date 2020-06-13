@@ -188,7 +188,7 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         return MBED_ERROR_NOT_READY;
     }
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -460,7 +460,7 @@ int SecureStore::set(const char *key, const void *buffer, size_t size, uint32_t 
     int ret;
     set_handle_t handle;
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -487,7 +487,7 @@ int SecureStore::remove(const char *key)
 {
     info_t info;
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -734,7 +734,7 @@ end:
 int SecureStore::get(const char *key, void *buffer, size_t buffer_size, size_t *actual_size,
                      size_t offset)
 {
-    if (!KVStore::_has_flags_any(InitModeFlags::Read)) {
+    if (!KVStore::_has_flags_any(InitMode::Read)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -747,7 +747,7 @@ int SecureStore::get(const char *key, void *buffer, size_t buffer_size, size_t *
 
 int SecureStore::get_info(const char *key, info_t *info)
 {
-    if (!KVStore::_has_flags_any(InitModeFlags::Read)) {
+    if (!KVStore::_has_flags_any(InitMode::Read)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -759,7 +759,7 @@ int SecureStore::get_info(const char *key, info_t *info)
 }
 
 
-int SecureStore::init(InitModeFlags flags)
+int SecureStore::init(InitMode flags)
 {
     if (!KVStore::_is_valid_flags(flags)) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -852,7 +852,7 @@ int SecureStore::reset()
         return MBED_ERROR_NOT_READY;
     }
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -882,7 +882,7 @@ int SecureStore::iterator_open(iterator_t *it, const char *prefix)
         return MBED_ERROR_NOT_READY;
     }
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Read | InitModeFlags::WriteOnlyAllowKeyRead)) {
+    if (!KVStore::_has_flags_any(InitMode::Read | InitMode::WriteOnlyAllowKeyRead)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 

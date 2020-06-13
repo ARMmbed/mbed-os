@@ -70,7 +70,7 @@ public:
      *          MBED_ERROR_INITIALIZATION_FAILED    No valid TBD store found in the BlockDevice.
      * @returns Negative error code on other failure.
      */
-    virtual int init(InitModeFlags flags = DEFAULT_INIT_FLAGS);
+    virtual int init(InitMode flags = DEFAULT_INIT_FLAGS);
 
     /**
      * @brief Deinitialize TDBStore, release and free resources.
@@ -265,7 +265,7 @@ public:
      *          MBED_ERROR_WRITE_FAILED             Unable to write to media.
      *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
      *          MBED_ERROR_INVALID_SIZE             Invalid size given in function arguments.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include write permission.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode do not include write permission.
      */
     virtual int reserved_data_set(const void *reserved_data, size_t reserved_data_buf_size);
 
@@ -283,7 +283,7 @@ public:
      *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
      *          MBED_ERROR_INVALID_DATA_DETECTED    Data is corrupt.
      *          MBED_ERROR_ITEM_NOT_FOUND           No reserved data was written.
-     *          MBED_ERROR_INVALID_OPERATION        InitModeFlags do not include read permission.
+     *          MBED_ERROR_INVALID_OPERATION        InitMode do not include read permission.
      */
     virtual int reserved_data_get(void *reserved_data, size_t reserved_data_buf_size,
                                   size_t *actual_data_size = 0);

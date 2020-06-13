@@ -39,7 +39,7 @@ public:
 
 
 
-    static const InitModeFlags DEFAULT_INIT_FLAGS = InitModeFlags::ReadWrite | InitModeFlags::Append;
+    static const InitMode DEFAULT_INIT_FLAGS = InitMode::ReadWrite | InitMode::Append;
 
     static const uint32_t MAX_KEY_SIZE = 128;
 
@@ -81,7 +81,7 @@ public:
      * @returns MBED_ERROR_INITIALIZATION_FAILED    No valid KVStore in the storage.
      *          MBED_SUCCESS on success or an error code on other failure
      */
-    virtual int init(InitModeFlags flags = KVStore::DEFAULT_INIT_FLAGS) = 0;
+    virtual int init(InitMode flags = KVStore::DEFAULT_INIT_FLAGS) = 0;
 
     /**
      * @brief Deinitialize KVStore
@@ -216,11 +216,11 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-    InitModeFlags _flags;
+    InitMode _flags;
 
-    bool _has_flags_any(InitModeFlags flags) const;
+    bool _has_flags_any(InitMode flags) const;
 
-    static bool _is_valid_flags(InitModeFlags flags);
+    static bool _is_valid_flags(InitMode flags);
 };
 #endif // DOXYGEN_ONLY
 /** @}*/

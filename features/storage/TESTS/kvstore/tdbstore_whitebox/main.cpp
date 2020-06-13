@@ -149,7 +149,7 @@ static void white_box_test()
         TDBStore *tdbs = new TDBStore(test_bd);
 
         timer.reset();
-        result = tdbs->init(InitModeFlags::ExclusiveCreation | InitModeFlags::ReadWrite);
+        result = tdbs->init(InitMode::ExclusiveCreation | InitMode::ReadWrite);
         elapsed = timer.read_ms();
         TEST_ASSER_EQUAL_ERROR_CODE(MBED_ERROR_INITIALIZATION_FAILED, result);
         printf("Elapsed time for exclusive init failure %d ms\n", elapsed);

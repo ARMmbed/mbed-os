@@ -32,35 +32,35 @@ bool KVStore::is_valid_key(const char *key) const
     return true;
 }
 
-bool KVStore::_is_valid_flags(InitModeFlags flags)
+bool KVStore::_is_valid_flags(InitMode flags)
 {
     // Check that only valid bits are here at all
-    if ((~(InitModeFlags::AllFlags) & flags) == InitModeFlags::NoFlags) {
+    if ((~(InitMode::AllFlags) & flags) == InitMode::NoFlags) {
         return false;
     }
 
     // Need at least one of the Read or Write bits set
-    if ((flags & InitModeFlags::ReadWrite) == InitModeFlags::NoFlags) {
+    if ((flags & InitMode::ReadWrite) == InitMode::NoFlags) {
         return false;
     }
 
     // Check for only one set of the WriteOpenFlags
-    const uint32_t wo_flags = static_cast<uint32_t>(flags & InitModeFlags::WriteOpenFlags);
+    const uint32_t wo_flags = static_cast<uint32_t>(flags & InitMode::WriteOpenFlags);
     // Fails for zero, the conditional afterwards finds this
     if (wo_flags & (wo_flags - 1)) {
         return false;
     }
     // Only allow blank Append, etc. if no writing
-    if (((flags & InitModeFlags::Write) == InitModeFlags::Write) && (wo_flags == 0)) {
+    if (((flags & InitMode::Write) == InitMode::Write) && (wo_flags == 0)) {
         return false;
     }
 
     return true;
 }
 
-bool KVStore::_has_flags_any(InitModeFlags flags) const
+bool KVStore::_has_flags_any(InitMode flags) const
 {
-    return !(((_flags & flags)) == InitModeFlags::NoFlags);
+    return !(((_flags & flags)) == InitMode::NoFlags);
 }
 
 }

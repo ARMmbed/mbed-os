@@ -35,11 +35,11 @@ namespace mbed {
  * ExclusiveCreation.
  *
  */
-MBED_SCOPED_ENUM_FLAGS(InitModeFlags)
+MBED_SCOPED_ENUM_FLAGS(InitMode)
 {
     Read                    = (1 << 0),                 //!< Enable read access from the KVStore
     Write                   = (1 << 1),                 //!< Enable write access to the KVStore
-    ReadWrite               = ((1 << 0) | (1 << 1)),    //!< Enable read and write access to the KVSTore. This is the default.
+    ReadWrite               = (Read | Write),    //!< Enable read and write access to the KVSTore. This is the default.
     WriteOnlyAllowKeyRead   = (1 << 3),                 //!< Allow reading KVStore keys even in write only mode
     Append                  = (1 << 8),                 //!< Allow adding to the the KVStore and create from new if necessary. This is the default.
     Truncate                = (1 << 9),                 //!< Erase all key/value pairs before using.

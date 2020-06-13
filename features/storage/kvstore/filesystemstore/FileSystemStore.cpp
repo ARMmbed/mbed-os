@@ -70,14 +70,14 @@ FileSystemStore::FileSystemStore(FileSystem *fs) : _fs(fs),
 
 }
 
-int FileSystemStore::init(InitModeFlags flags)
+int FileSystemStore::init(InitMode flags)
 {
     // Check for implemented flags
     if (!KVStore::_is_valid_flags(flags)) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
-    if (!((flags & InitModeFlags::Append) == InitModeFlags::Append ||
-            (flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation)) {
+    if (!((flags & InitMode::Append) == InitMode::Append ||
+            (flags & InitMode::ExclusiveCreation) == InitMode::ExclusiveCreation)) {
         return MBED_ERROR_UNSUPPORTED;
     }
 
@@ -104,7 +104,7 @@ int FileSystemStore::init(InitModeFlags flags)
     Dir kv_dir;
 
     if (kv_dir.open(_fs, _cfg_fs_path) != 0) {
-        if ((flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation) {
+        if ((flags & InitMode::ExclusiveCreation) == InitMode::ExclusiveCreation) {
             status = MBED_ERROR_INITIALIZATION_FAILED;
             goto exit_point;
         }
@@ -147,7 +147,7 @@ int FileSystemStore::reset()
     Dir kv_dir;
     struct dirent dir_ent;
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -185,7 +185,7 @@ int FileSystemStore::set(const char *key, const void *buffer, size_t size, uint3
         goto exit_point;
     }
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -233,7 +233,7 @@ int FileSystemStore::get(const char *key, void *buffer, size_t buffer_size, size
         goto exit_point;
     }
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Read)) {
+    if (!KVStore::_has_flags_any(InitMode::Read)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -282,7 +282,7 @@ int FileSystemStore::get_info(const char *key, info_t *info)
     int status = MBED_SUCCESS;
     File kv_file;
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Read)) {
+    if (!KVStore::_has_flags_any(InitMode::Read)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -320,7 +320,7 @@ int FileSystemStore::remove(const char *key)
     File kv_file;
     key_metadata_t key_metadata;
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -366,7 +366,7 @@ int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t fin
     key_metadata_t key_metadata;
     int key_len = 0;
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
+    if (!KVStore::_has_flags_any(InitMode::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
@@ -517,7 +517,7 @@ int FileSystemStore::iterator_open(iterator_t *it, const char *prefix)
     Dir *kv_dir = NULL;
     key_iterator_handle_t *key_it = NULL;
 
-    if (!KVStore::_has_flags_any(InitModeFlags::Read | InitModeFlags::WriteOnlyAllowKeyRead)) {
+    if (!KVStore::_has_flags_any(InitMode::Read | InitMode::WriteOnlyAllowKeyRead)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
 
