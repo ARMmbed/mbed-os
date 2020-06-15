@@ -34,12 +34,12 @@ to specify a particular image.
 
     This image starts CM4 core at address corresponding
     to Secure Boot policy, sets required security settings,
-    initializes and executes code of Protected Registed Access
+    initializes and executes code of Protected Register Access
     driver, puts CM0+ core into a deep sleep mode.
 
 ### More information
 Use the following links for more information, as needed:
-* [Cypress](http://www.cypress.com)
+* [Cypress Semiconductor, an Infineon Technologies Company](http://www.cypress.com)
 * [ModusToolbox](https://www.cypress.com/products/modustoolbox-software-environment)
 
 ---
