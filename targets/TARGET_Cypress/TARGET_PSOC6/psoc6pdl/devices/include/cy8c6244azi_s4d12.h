@@ -5,7 +5,7 @@
 * CY8C6244AZI-S4D12 device header
 *
 * \note
-* Generator version: 1.6.0.150
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -471,15 +471,6 @@ typedef enum {
 #define CY_IP_MXLPCOMP                  1u
 #define CY_IP_MXLPCOMP_INSTANCES        1u
 #define CY_IP_MXLPCOMP_VERSION          1u
-// #define CY_IP_MXS40PASS                 1u
-// #define CY_IP_MXS40PASS_INSTANCES       1u
-// #define CY_IP_MXS40PASS_VERSION         2u
-// #define CY_IP_MXS40PASS_SAR             1u
-// #define CY_IP_MXS40PASS_SAR_INSTANCES   2u
-// #define CY_IP_MXS40PASS_SAR_VERSION     2u
-// #define CY_IP_MXS40PASS_CTDAC           1u
-// #define CY_IP_MXS40PASS_CTDAC_INSTANCES 1u
-// #define CY_IP_MXS40PASS_CTDAC_VERSION   2u
 #define CY_IP_MXPERI                    1u
 #define CY_IP_MXPERI_INSTANCES          1u
 #define CY_IP_MXPERI_VERSION            2u
@@ -501,9 +492,6 @@ typedef enum {
 #define CY_IP_MXS40SRSS_MCWDT           1u
 #define CY_IP_MXS40SRSS_MCWDT_INSTANCES 2u
 #define CY_IP_MXS40SRSS_MCWDT_VERSION   1u
-// #define CY_IP_MXTCPWM                   1u
-// #define CY_IP_MXTCPWM_INSTANCES         1u
-// #define CY_IP_MXTCPWM_VERSION           2u
 
 #include "psoc6_04_config.h"
 #include "gpio_psoc6_04_64_tqfp.h"
@@ -1161,9 +1149,7 @@ typedef enum {
 *******************************************************************************/
 
 #define SAR0_BASE                               0x409B0000UL
-#define SAR1_BASE                               0x409C0000UL
 #define SAR0                                    ((SAR_Type*) SAR0_BASE)                                           /* 0x409B0000 */
-#define SAR1                                    ((SAR_Type*) SAR1_BASE)                                           /* 0x409C0000 */
 
 /*******************************************************************************
 *                                     PASS

@@ -117,7 +117,7 @@ void Cy_SysTick_Disable(void)
 * called to compensate this change.
 *
 * \param clockSource \ref cy_en_systick_clock_source_t Clock source.
-* For the PSoC64 devices, passing any other value than
+* For the PSoC 64 devices, passing any other value than
 * CY_SYSTICK_CLOCK_SOURCE_CLK_CPU will not affect clock source
 * and it will be as \ref Cy_SysTick_GetClockSource() reports.
 *

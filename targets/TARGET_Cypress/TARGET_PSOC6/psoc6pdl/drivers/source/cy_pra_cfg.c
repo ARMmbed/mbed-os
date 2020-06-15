@@ -50,6 +50,7 @@ __STATIC_INLINE void Cy_PRA_ExtClkInit( const cy_stc_pra_system_config_t *devCon
 __STATIC_INLINE cy_en_pra_status_t Cy_PRA_EcoInit(const cy_stc_pra_system_config_t *devConfig);
 #if defined(CY_IP_MXBLESS)
 __STATIC_INLINE cy_en_pra_status_t Cy_PRA_AltHfInit(const cy_stc_pra_system_config_t *devConfig);
+__STATIC_INLINE void Cy_PRA_AltHfReset(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateAltHf(const cy_stc_pra_system_config_t *devConfig);
 #endif
 __STATIC_INLINE void Cy_PRA_PiloInit(void);
@@ -412,6 +413,29 @@ __STATIC_INLINE cy_en_pra_status_t Cy_PRA_AltHfInit(const cy_stc_pra_system_conf
 
     return CY_PRA_STATUS_SUCCESS;
 }
+
+/*******************************************************************************
+* Function Name: Cy_PRA_AltHfReset
+****************************************************************************//**
+*
+* Reset Alternative High-Frequency Clock
+*
+* \param devConfig
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_PRA_AltHfReset(const cy_stc_pra_system_config_t *devConfig)
+{
+    static bool firstEntryAfterReset = true;
+
+    /* Cy_BLE_EcoReset is called when this function is called firsttime
+     * after Reset or ECO state changed from ENABLE to DISABLE at runtime */
+    if (firstEntryAfterReset || (Cy_BLE_EcoIsEnabled() && !(devConfig->clkAltHfEnable)))
+    {
+        Cy_BLE_EcoReset();
+        firstEntryAfterReset = false;
+    }
+}
+
 #endif /* CY_IP_MXBLESS */
 
 
@@ -605,7 +629,7 @@ __STATIC_INLINE cy_en_pra_status_t Cy_PRA_PowerInit(const cy_stc_pra_system_conf
 *******************************************************************************/
 static uint32_t Cy_PRA_GetInputPathMuxFrq(cy_en_clkpath_in_sources_t pathMuxSrc, const cy_stc_pra_system_config_t *devConfig)
 {
-    uint32_t srcFreq; /* Hz */
+    uint32_t srcFreq = CY_PRA_DEFAULT_SRC_FREQUENCY; /* Hz */
 
     switch (pathMuxSrc)
     {
@@ -641,7 +665,10 @@ static uint32_t Cy_PRA_GetInputPathMuxFrq(cy_en_clkpath_in_sources_t pathMuxSrc,
         break;
         case CY_SYSCLK_CLKPATH_IN_PILO:
         {
-            srcFreq = CY_PRA_PILO_SRC_FREQUENCY; /* PILO Freq = 32.768 KHz */
+            if(CY_SRSS_PILO_PRESENT)
+            {
+                srcFreq = CY_PRA_PILO_SRC_FREQUENCY; /* PILO Freq = 32.768 KHz */
+            }
         }
         break;
         default:
@@ -811,7 +838,7 @@ static uint32_t Cy_PRA_GetClkLfFreq(const cy_stc_pra_system_config_t *devConfig)
             break;
             case CY_SYSCLK_CLKLF_IN_PILO:
             {
-                if (devConfig->piloEnable)
+                if ((devConfig->piloEnable) && (CY_SRSS_PILO_PRESENT))
                 {
                     freq = CY_PRA_PILO_SRC_FREQUENCY;
                 }
@@ -1459,7 +1486,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkLf(const cy_stc_pra_system_config_t 
             break;
             case CY_SYSCLK_CLKLF_IN_PILO:
             {
-                (devConfig->piloEnable) ? (retStatus = CY_PRA_STATUS_SUCCESS) : (retStatus = CY_PRA_STATUS_INVALID_PARAM_CLKLF);
+                ((devConfig->piloEnable) && (CY_SRSS_PILO_PRESENT)) ? (retStatus = CY_PRA_STATUS_SUCCESS) : (retStatus = CY_PRA_STATUS_INVALID_PARAM_CLKLF);
             }
             break;
             default:
@@ -1526,7 +1553,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkPathMux(cy_en_clkpath_in_sources_t p
         break;
         case CY_SYSCLK_CLKPATH_IN_PILO:
         {
-            (devConfig->piloEnable) ? (status = CY_PRA_STATUS_SUCCESS) : (status = CY_PRA_STATUS_INVALID_PARAM);
+            ((devConfig->piloEnable) && (CY_SRSS_PILO_PRESENT)) ? (status = CY_PRA_STATUS_SUCCESS) : (status = CY_PRA_STATUS_INVALID_PARAM);
         }
         break;
         default:
@@ -1900,6 +1927,10 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkPump(const cy_stc_pra_system_config_
             {
                 return CY_PRA_STATUS_INVALID_PARAM_CLKPUMP;
             }
+        }
+        else
+        {
+            status = CY_PRA_STATUS_INVALID_PARAM_CLKPUMP;
         }
     }
 
@@ -2608,6 +2639,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 
         if ((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_1) && (!devConfig->pll0Enable))
         {
+            SystemCoreClockUpdate();
             sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_1);
         }
 
@@ -2618,6 +2650,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 
         if ((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_2) && (!devConfig->pll1Enable))
         {
+            SystemCoreClockUpdate();
             sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_2);
         }
 
@@ -2665,22 +2698,28 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
             return CY_PRA_STATUS_ERROR_PROCESSING_CLKHF0;
         }
     }
+
 #ifdef CY_IP_MXBLESS
-    (void)Cy_BLE_EcoReset();
+    Cy_PRA_AltHfReset(devConfig);
 #endif
 
-    /* Enable all source clocks */
-    if (devConfig->piloEnable)
+    if(CY_SRSS_PILO_PRESENT)
     {
-        Cy_PRA_PiloInit();
-    }
-    else
-    {
-        Cy_SysClk_PiloDisable();
+        /* Enable all source clocks */
+        if (devConfig->piloEnable)
+        {
+            SystemCoreClockUpdate();
+            Cy_PRA_PiloInit();
+        }
+        else
+        {
+            Cy_SysClk_PiloDisable();
+        }
     }
 
     if (devConfig->wcoEnable)
     {
+        SystemCoreClockUpdate();
         status = Cy_PRA_WcoInit(devConfig);
         if (CY_PRA_STATUS_SUCCESS != status)
         {
@@ -2703,6 +2742,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 #if defined(CY_IP_MXBLESS)
     if (devConfig->clkAltHfEnable)
     {
+        SystemCoreClockUpdate();
         status = Cy_PRA_AltHfInit(devConfig);
         if (CY_PRA_STATUS_SUCCESS != status)
         {
@@ -2715,6 +2755,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
     {
         if (devConfig->ecoEnable)
         {
+            SystemCoreClockUpdate();
             status = Cy_PRA_EcoInit(devConfig);
             if (CY_PRA_STATUS_SUCCESS != status)
             {
@@ -2820,6 +2861,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 
     if ((!Cy_SysClk_FllIsEnabled()) && (devConfig->fllEnable))
     {
+        SystemCoreClockUpdate();
         status = Cy_PRA_FllInit(devConfig);
         if (CY_PRA_STATUS_SUCCESS != status)
         {
@@ -2869,6 +2911,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
                 .outputMode = devConfig->pll0OutputMode,
             };
 
+            SystemCoreClockUpdate();
             status = Cy_PRA_PllInit(CY_PRA_CLKPLL_1, &pll0Config);
             if (CY_PRA_STATUS_SUCCESS != status)
             {
@@ -2890,6 +2933,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
                 .outputMode = devConfig->pll1OutputMode,
             };
 
+            SystemCoreClockUpdate();
             status = Cy_PRA_PllInit(CY_PRA_CLKPLL_2, &pll1Config);
             if (CY_PRA_STATUS_SUCCESS != status)
             {

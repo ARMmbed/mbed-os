@@ -33,9 +33,14 @@
 #if defined (CY_DEVICE_SECURE) || defined (CY_DOXYGEN)
 
 #define CY_PRA_REG_POLICY_WRITE_ALL   (0x00000000UL)
+#define CY_PRA_REG_POLICY_WRITE_NONE  (0xFFFFFFFFUL)
 
 /* Table to get register/function address based on its index */
-cy_stc_pra_reg_policy_t regIndexToAddr[CYPRA_REG_INDEX_COUNT];
+cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
+
+#if (CY_CPU_CORTEX_M4)
+    static IPC_STRUCT_Type *ipcPraBase = NULL;
+#endif /* (CY_CPU_CORTEX_M0P) */
 
 
 #if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
@@ -45,10 +50,10 @@ cy_stc_pra_reg_policy_t regIndexToAddr[CYPRA_REG_INDEX_COUNT];
     static void Cy_PRA_PmCm4DpFlagSet(void);
     static cy_en_pra_status_t Cy_PRA_ClkDSBeforeTransition(void);
     static cy_en_pra_status_t Cy_PRA_ClkDSAfterTransition(void);
+    static bool Cy_PRA_RegAccessRangeValid(uint16_t index);
 #endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
 
 
-#if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
 /*******************************************************************************
 * Function Name: Cy_PRA_Init
 ****************************************************************************//**
@@ -58,7 +63,9 @@ cy_stc_pra_reg_policy_t regIndexToAddr[CYPRA_REG_INDEX_COUNT];
 *******************************************************************************/
 void Cy_PRA_Init(void)
 {
-    for (uint32_t i = 0UL; i < (sizeof(regIndexToAddr)/sizeof(regIndexToAddr[0U])); i++)
+
+#if (CY_CPU_CORTEX_M0P)
+    for (uint32_t i = 0UL; i < CY_PRA_REG_INDEX_COUNT; i++)
     {
         regIndexToAddr[i].writeMask = CY_PRA_REG_POLICY_WRITE_ALL;
     }
@@ -82,6 +89,8 @@ void Cy_PRA_Init(void)
                                                                                SRSS_PWR_HIBERNATE_MASK_HIBWDT_Msk);
     regIndexToAddr[CY_PRA_INDX_SRSS_CLK_MFO_CONFIG].addr       = &SRSS_CLK_MFO_CONFIG;
     regIndexToAddr[CY_PRA_INDX_SRSS_CLK_MF_SELECT].addr        = &SRSS_CLK_MF_SELECT;
+    regIndexToAddr[CY_PRA_INDX_FLASHC_FM_CTL_BOOKMARK].addr     = &FLASHC_FM_CTL_BOOKMARK;
+    regIndexToAddr[CY_PRA_INDX_FLASHC_FM_CTL_BOOKMARK].writeMask= CY_PRA_REG_POLICY_WRITE_NONE;
 
     /* Configure the IPC interrupt handler. */
     Cy_IPC_Drv_SetInterruptMask(Cy_IPC_Drv_GetIntrBaseAddr(CY_IPC_INTR_PRA), CY_PRA_IPC_NONE_INTR, CY_PRA_IPC_CHAN_INTR);
@@ -92,9 +101,17 @@ void Cy_PRA_Init(void)
     };
     (void) Cy_SysInt_Init(&intr, &Cy_PRA_Handler);
     NVIC_EnableIRQ(intr.intrSrc);
+#else
+
+    /* Need to get this address in RAM, because there are use cases
+    *  where this address is used but flash is not accesible
+    */
+    ipcPraBase = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_PRA);
+#endif /* (CY_CPU_CORTEX_M0P) */
 }
 
 
+#if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
 /*******************************************************************************
 * Function Name: Cy_PRA_Handler
 ****************************************************************************//**
@@ -135,31 +152,24 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
     static uint32_t structInit = CY_PRA_STRUCT_NOT_INITIALIZED;
     static cy_stc_pra_system_config_t structCpy = {0UL};
 
-    if ((CY_PRA_MSG_TYPE_REG32_GET     == message->praCommand) ||
-        (CY_PRA_MSG_TYPE_REG32_CLR_SET == message->praCommand) ||
-        (CY_PRA_MSG_TYPE_REG32_SET     == message->praCommand))
-    {
-        /* Check if access is within array range */
-        if ((message->praIndex) > (sizeof(regIndexToAddr)/sizeof(regIndexToAddr[0U])))
-        {
-            message->praStatus = CY_PRA_STATUS_ACCESS_DENIED;
-        }
+    CY_ASSERT_L1(NULL != message);
 
-        /* Some registers do not exist for some families */
-        if (regIndexToAddr[message->praIndex].addr == (const volatile uint32_t *) 0U)
-        {
-            message->praStatus = CY_PRA_STATUS_ACCESS_DENIED;
-        }
-    }
 
     switch (message->praCommand)
     {
         case CY_PRA_MSG_TYPE_REG32_CLR_SET:
-            if (0U == (message->praData2 & regIndexToAddr[message->praIndex].writeMask))
+            /* Report error if any of the following conditions is false:
+            *  - New value (message->praData2) has zeros in the write-protected fields
+            *  - Register index is within the valid range
+            */
+            if ((0U == (message->praData2 & regIndexToAddr[message->praIndex].writeMask)) &&
+                (CY_PRA_REG_POLICY_WRITE_NONE != regIndexToAddr[message->praIndex].writeMask) &&
+                (Cy_PRA_RegAccessRangeValid(message->praIndex)))
             {
                 uint32_t tmp;
 
                 tmp =  CY_GET_REG32(regIndexToAddr[message->praIndex].addr);
+
                 tmp &= (message->praData1 | regIndexToAddr[message->praIndex].writeMask);
                 tmp |= message->praData2;
                 CY_SET_REG32(regIndexToAddr[message->praIndex].addr, tmp);
@@ -172,9 +182,26 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
             break;
 
         case CY_PRA_MSG_TYPE_REG32_SET:
-            if (0U == (message->praData1 & regIndexToAddr[message->praIndex].writeMask))
+            /* Report error if any of the following conditions is false:
+            *  - New value (message->praData1) has zeros in the write-protected fields
+            *  - Register index is within the valid range
+            */
+            if ((0U == (message->praData1 & regIndexToAddr[message->praIndex].writeMask)) &&
+                (CY_PRA_REG_POLICY_WRITE_NONE != regIndexToAddr[message->praIndex].writeMask) &&
+                (Cy_PRA_RegAccessRangeValid(message->praIndex)))
             {
-                CY_SET_REG32(regIndexToAddr[message->praIndex].addr, message->praData1);
+                uint32_t tmp;
+
+                tmp =  CY_GET_REG32(regIndexToAddr[message->praIndex].addr);
+
+                /* Clear bits allowed to write */
+                tmp &= regIndexToAddr[message->praIndex].writeMask;
+
+                /* Set allowed bits based on new value.
+                   Write-protected fields have zeros in the new value, so no additional checks needed
+                */
+                tmp |= message->praData1;
+                CY_SET_REG32(regIndexToAddr[message->praIndex].addr, tmp);
                 message->praStatus = CY_PRA_STATUS_SUCCESS;
             }
             else
@@ -184,8 +211,15 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
             break;
 
         case CY_PRA_MSG_TYPE_REG32_GET:
-            message->praData1 = CY_GET_REG32(regIndexToAddr[message->praIndex].addr);
-            message->praStatus = CY_PRA_STATUS_SUCCESS;
+            if (Cy_PRA_RegAccessRangeValid(message->praIndex))
+            {
+                message->praData1 = CY_GET_REG32(regIndexToAddr[message->praIndex].addr);
+                message->praStatus = CY_PRA_STATUS_SUCCESS;
+            }
+            else
+            {
+                message->praStatus = CY_PRA_STATUS_ACCESS_DENIED;
+            }
             break;
 
         case CY_PRA_MSG_TYPE_CM0_WAKEUP:
@@ -228,6 +262,34 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
 
                 case CY_PRA_CLK_FUNC_DS_AFTER_TRANSITION:
                     message->praStatus = Cy_PRA_ClkDSAfterTransition();
+                    break;
+
+                case CY_PRA_PM_FUNC_BUCK_ENABLE_VOLTAGE2:
+                    Cy_SysPm_BuckEnableVoltage2();
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    break;
+
+                case CY_PRA_PM_FUNC_BUCK_DISABLE_VOLTAGE2:
+                    Cy_SysPm_BuckDisableVoltage2();
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    break;
+
+                case CY_PRA_PM_FUNC_BUCK_VOLTAGE2_HW_CTRL:
+                    Cy_SysPm_BuckSetVoltage2HwControl((bool) message->praData1);
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    break;
+
+                case CY_PRA_PM_FUNC_BUCK_SET_VOLTAGE2:
+                    if (CY_SYSPM_IS_BUCK_VOLTAGE2_VALID(((cy_stc_pra_voltage2_t *) message->praData1)->praVoltage))
+                    {
+                        Cy_SysPm_BuckSetVoltage2(((cy_stc_pra_voltage2_t *) message->praData1)->praVoltage,
+                                                 ((cy_stc_pra_voltage2_t *) message->praData1)->praWaitToSettle);
+                        message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    }
+                    else
+                    {
+                        message->praStatus = CY_PRA_STATUS_INVALID_PARAM;
+                    }
                     break;
 
                 default:
@@ -1465,55 +1527,72 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
 * value is returned.
 *
 *******************************************************************************/
-cy_en_pra_status_t Cy_PRA_SendCmd(uint16_t cmd, uint16_t regIndex, uint32_t clearMask, uint32_t setMask)
-{
-    cy_en_pra_status_t status;
-    CY_ALIGN(4UL) cy_stc_pra_msg_t ipcMsg;
-    IPC_STRUCT_Type *ipcPraBase = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_PRA);
-    uint32_t interruptState;
+#if defined(CY_DEVICE_PSOC6ABLE2)
 
-    ipcMsg.praCommand = cmd;
-    ipcMsg.praStatus  = CY_PRA_STATUS_REQUEST_SENT;
-    ipcMsg.praIndex   = regIndex;
-    ipcMsg.praData1   = clearMask;
-    ipcMsg.praData2   = setMask;
-
-    interruptState = Cy_SysLib_EnterCriticalSection();
-
-    while (CY_IPC_DRV_SUCCESS != Cy_IPC_Drv_SendMsgWord(ipcPraBase, CY_PRA_IPC_NOTIFY_INTR, (uint32_t)&ipcMsg))
+    CY_RAMFUNC_BEGIN
+    #if !defined (__ICCARM__)
+        CY_NOINLINE
+    #endif
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+    cy_en_pra_status_t Cy_PRA_SendCmd(uint16_t cmd, uint16_t regIndex, uint32_t clearMask, uint32_t setMask)
     {
-        /* Try to acquire the PRA IPC structure and pass the arguments */
+        CY_ASSERT_L1(NULL != ipcPraBase);
+
+        cy_en_pra_status_t status;
+        CY_ALIGN(4UL) cy_stc_pra_msg_t ipcMsg;
+        uint32_t interruptState;
+
+        ipcMsg.praCommand = cmd;
+        ipcMsg.praStatus  = CY_PRA_STATUS_REQUEST_SENT;
+        ipcMsg.praIndex   = regIndex;
+        ipcMsg.praData1   = clearMask;
+        ipcMsg.praData2   = setMask;
+
+        interruptState = Cy_SysLib_EnterCriticalSection();
+
+        while (0U == _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, REG_IPC_STRUCT_ACQUIRE(ipcPraBase)))
+        {
+            /* Wait until the PRA IPC structure is acquired */
+        }
+
+        /* Send the message */
+        REG_IPC_STRUCT_DATA(ipcPraBase) = (uint32_t) &ipcMsg;
+
+        /* Generate an acquire notification event by PRA IPC interrupt structure */
+        REG_IPC_STRUCT_NOTIFY(ipcPraBase) = _VAL2FLD(IPC_STRUCT_NOTIFY_INTR_NOTIFY, CY_PRA_IPC_NOTIFY_INTR);
+
+        while (0U != _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, REG_IPC_STRUCT_LOCK_STATUS(ipcPraBase)))
+        {
+            /* Wait until the PRA IPC structure is released */
+        }
+
+        Cy_SysLib_ExitCriticalSection(interruptState);
+
+        /* Cortex-M0+ has updated ipcMsg variable */
+
+        status = (cy_en_pra_status_t) ipcMsg.praStatus;
+
+        if (CY_PRA_STATUS_ACCESS_DENIED == status)
+        {
+            CY_HALT();
+        }
+
+        if (CY_PRA_MSG_TYPE_SYS_CFG_FUNC == ipcMsg.praCommand)
+        {
+            SystemCoreClockUpdate();
+        }
+
+        if (CY_PRA_MSG_TYPE_REG32_GET == ipcMsg.praCommand)
+        {
+            status = (cy_en_pra_status_t)ipcMsg.praData1;
+        }
+
+        return status;
     }
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    CY_RAMFUNC_END
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
-    /* Checks whether the IPC structure is not locked */
-    while (Cy_IPC_Drv_IsLockAcquired(ipcPraBase))
-    {
-        /* Polls whether the IPC is released */
-    }
-
-    Cy_SysLib_ExitCriticalSection(interruptState);
-
-    /* Cortex-M0+ has updated ipcMsg variable */
-
-    status = (cy_en_pra_status_t) ipcMsg.praStatus;
-
-    if (CY_PRA_STATUS_ACCESS_DENIED == status)
-    {
-        CY_HALT();
-    }
-
-    if (CY_PRA_MSG_TYPE_SYS_CFG_FUNC == ipcMsg.praCommand)
-    {
-        SystemCoreClockUpdate();
-    }
-
-    if (CY_PRA_MSG_TYPE_REG32_GET == ipcMsg.praCommand)
-    {
-        status = (cy_en_pra_status_t)ipcMsg.praData1;
-    }
-
-    return status;
-}
 #endif /* (CY_CPU_CORTEX_M4) */
 
 
@@ -1626,6 +1705,7 @@ static void Cy_PRA_PmCm4DpFlagSet(void)
    Deep Sleep mode. See Cy_SysClk_DeepSleep(). */
 static uint16_t changedSourcePaths = CY_PRA_DEFAULT_ZERO;
 static uint16_t pllAutoModes = CY_PRA_DEFAULT_ZERO;
+
 
 /*******************************************************************************
 * Function Name: Cy_PRA_ClkDSBeforeTransition
@@ -1787,6 +1867,37 @@ static cy_en_pra_status_t Cy_PRA_ClkDSAfterTransition(void)
     }
 
     return (retVal);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_PRA_RegAccessRangeValid
+****************************************************************************//**
+*
+* Check if access is within valid range and access address is non-zero.
+*
+* \param index Index of the accessed register.
+*
+* \return Return true for valid access.
+*
+*******************************************************************************/
+static bool Cy_PRA_RegAccessRangeValid(uint16_t index)
+{
+    bool accessValid = true;
+
+    /* Check if access is within array range */
+    if (index >= CY_PRA_REG_INDEX_COUNT)
+    {
+        accessValid = false;
+    }
+
+    /* Some registers do not exist for some families */
+    if (regIndexToAddr[index].addr == (const volatile uint32_t *) 0U)
+    {
+        accessValid = false;
+    }
+
+    return accessValid;
 }
 
 

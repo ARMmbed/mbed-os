@@ -82,11 +82,11 @@
 * <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 * <tr>
 *   <td rowspan="2">1.20.</td>
-*     <td>Updated Cy_SysTick_SetClockSource() for the PSoC64 devices,
+*     <td>Updated Cy_SysTick_SetClockSource() for the PSoC 64 devices,
 *         so that passing any other value than CY_SYSTICK_CLOCK_SOURCE_CLK_CPU
 *         will not affect clock source and it will be as
 *         \ref Cy_SysTick_GetClockSource() reports.</td>
-*     <td>Added PSoC64 devices support.</td>
+*     <td>Added PSoC 64 devices support.</td>
 * </tr>
 * <tr>
 *     <td>Minor documentation updates.</td>

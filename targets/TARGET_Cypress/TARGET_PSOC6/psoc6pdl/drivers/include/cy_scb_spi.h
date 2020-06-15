@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_spi.h
-* \version 2.40.2
+* \version 2.50
 *
 * Provides SPI API declarations of the SCB driver.
 *
@@ -954,7 +954,7 @@ __STATIC_INLINE void Cy_SCB_SPI_SetActiveSlaveSelectPolarity(CySCB_Type *base,
     CY_ASSERT_L3(CY_SCB_SPI_IS_SLAVE_SEL_VALID(slaveSelect));
     CY_ASSERT_L3(CY_SCB_SPI_IS_POLARITY_VALID (polarity));
 
-    if (CY_SCB_SPI_ACTIVE_HIGH != polarity)
+    if (CY_SCB_SPI_ACTIVE_HIGH == polarity)
     {
         SCB_SPI_CTRL(base) |= (uint32_t)  mask;
     }

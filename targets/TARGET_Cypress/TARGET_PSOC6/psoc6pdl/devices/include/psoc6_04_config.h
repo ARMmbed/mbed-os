@@ -5,7 +5,7 @@
 * PSoC6_04 device configuration header
 *
 * \note
-* Generator version: 1.6.0.150
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -1161,7 +1161,6 @@ typedef enum
 #include "ip/cyip_usbfs.h"
 #include "ip/cyip_smif.h"
 #include "ip/cyip_canfd.h"
-#include "ip/cyip_scb.h"
 #include "ip/cyip_scb.h"
 #include "ip/cyip_ctbm_v2.h"
 #include "ip/cyip_ctdac_v2.h"

@@ -27,7 +27,7 @@
   <Param name="SampleHold_COUNT " value="1" />
   <Param name="SampleHold_REMOVED" value="NA" />
   <Param name="SDHC_COUNT " value="1" />
-  <Param name="SDHC_REMOVED" value="0" />
+  <Param name="SDHC_REMOVED" value="NA" />
   <Param name="SCB_Count" value="7" />
   <Param name="SCB_removed" value="NA" />
   <Param name="CAN_FD" value="N" />
@@ -39,11 +39,14 @@
   <Param name="CapSenseADC" value="Y" />
   <Param name="SMIF" value="Y" />
   <Param name="Crypto" value="N" />
-  <Param name="I2s" value="N" />
+  <Param name="I2S_Count" value="0" />
+  <Param name="I2S_removed" value="NA" />
+  <Param name="PDM_Count" value="0" />
+  <Param name="PDM_removed" value="NA" />
   <Param name="DirDriveLCD" value="Y" />
-  <Param name="DMAchannels_count" value="58" />
-  <Param name="DMACchannels_count" value="3" />
-  <Param name="IO_Count" value="51" />
+  <Param name="DMAchannels_count" value="61" />
+  <Param name="DMACchannels_count" value="2" />
+  <Param name="IO_Count" value="53" />
   <Param name="Power_Modes" value="ANY" />
   <Param name="Vddmin_volts" value="1.7" />
   <Param name="Vddmax_volts" value="3.6" />

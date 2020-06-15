@@ -5,7 +5,7 @@
 * PASS IP definitions
 *
 * \note
-* Generator version: 1.6.0.150
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -56,7 +56,7 @@ typedef struct {
 typedef struct {
   __IOM uint32_t CTRL;                          /*!< 0x00000000 Low Power Oscillator control */
   __IOM uint32_t CONFIG;                        /*!< 0x00000004 Low Power Oscillator configuration register */
-  __IOM uint32_t ADFT;                          /*!< 0x00000008 Retention */
+  __IOM uint32_t ADFT;                          /*!< 0x00000008 Retention, Hidden */
    __IM uint32_t RESERVED[61];
 } PASS_LPOSC_V2_Type;                           /*!< Size = 256 (0x100) */
 

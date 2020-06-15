@@ -5,7 +5,7 @@
 * PSoC6_04 device GPIO header for 68-QFN package
 *
 * \note
-* Generator version: 1.6.0.150
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -476,12 +476,6 @@ typedef enum
     P0_5_TCPWM0_TR_ONE_CNT_IN257    = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[257]:0 */
     P0_5_PERI_TR_IO_INPUT3          = 24,       /* Digital Active - peri.tr_io_input[3]:0 */
     P0_5_PERI_TR_IO_OUTPUT1         = 25,       /* Digital Active - peri.tr_io_output[1]:2 */
-
-    /* USBDM */
-    USBDM_GPIO                      =  0,       /* GPIO controls 'out' */
-
-    /* USBDP */
-    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
 
     /* P2.0 */
     P2_0_GPIO                       =  0,       /* GPIO controls 'out' */
@@ -1157,7 +1151,13 @@ typedef enum
     P12_7_CSD_CSD_TX_N              = 11,       /* Digital Active - csd.csd_tx_n:61 */
     P12_7_LCD_COM3                  = 12,       /* Digital Deep Sleep - lcd.com[3]:1 */
     P12_7_LCD_SEG3                  = 13,       /* Digital Deep Sleep - lcd.seg[3]:1 */
-    P12_7_TCPWM0_TR_ONE_CNT_IN1     = 23        /* Digital Active - tcpwm[0].tr_one_cnt_in[1]:5 */
+    P12_7_TCPWM0_TR_ONE_CNT_IN1     = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[1]:5 */
+
+    /* USBDP */
+    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
+
+    /* USBDM */
+    USBDM_GPIO                      =  0        /* GPIO controls 'out' */
 } en_hsiom_sel_t;
 
 #endif /* _GPIO_PSOC6_04_68_QFN_H_ */

@@ -27,15 +27,15 @@
 * \addtogroup group_pra
 * \{
 * The Protected Register Access (PRA) driver used to provice access to the
-* protected registers to a non-secure application on PSoC64 devices.
+* protected registers to a non-secure application on PSoC 64 devices.
 *
 * The PRA PDL driver is only intended for the PSoC 64 devices as it provides
-* access only to the registers that have PSoC64 access restrictions. Refer to
+* access only to the registers that have PSoC 64 access restrictions. Refer to
 * device technical reference manual (TRM) for the list of the protected
 * registers.
 *
 * The driver is not expected to be used directly, instead the PDL functions
-* affected by PSoC64 access restrictions are updated to access registers with
+* affected by PSoC 64 access restrictions are updated to access registers with
 * PRA API.
 *
 * \section group_pra_more_information More Information
@@ -124,7 +124,7 @@ extern "C" {
 
 /** \cond INTERNAL */
 
-#define CYPRA_REG_INDEX_COUNT 16U
+#define CY_PRA_REG_INDEX_COUNT           (16U)
 
 #define CY_PRA_MSG_TYPE_REG32_GET        (1U)
 #define CY_PRA_MSG_TYPE_REG32_CLR_SET    (2U)
@@ -133,7 +133,6 @@ extern "C" {
 #define CY_PRA_MSG_TYPE_SYS_CFG_FUNC     (5U)
 #define CY_PRA_MSG_TYPE_SECURE_ONLY      (6U)
 #define CY_PRA_MSG_TYPE_FUNC_POLICY      (7U)
-
 
 /* IPC */
 #define CY_PRA_IPC_NOTIFY_INTR          (0x1UL << CY_IPC_INTR_PRA)
@@ -157,16 +156,12 @@ extern "C" {
 #define CY_PRA_INDX_SRSS_PWR_HIBERNATE          (12U)
 #define CY_PRA_INDX_SRSS_CLK_MFO_CONFIG         (13U)
 #define CY_PRA_INDX_SRSS_CLK_MF_SELECT          (14U)
+#define CY_PRA_INDX_FLASHC_FM_CTL_BOOKMARK      (15U)
 
 
 /* Functions Index */
 #define CY_PRA_FUNC_INIT_CYCFG_DEVICE           (0U)
-#define CY_PRA_PM_FUNC_HIBERNATE                (2U)
-#define CY_PRA_PM_FUNC_CM4_DP_FLAG_SET          (3U)
-#define CY_PRA_PM_FUNC_LDO_SET_VOLTAGE          (4U)
-#define CY_PRA_PM_FUNC_BUCK_ENABLE              (5U)
-#define CY_PRA_PM_FUNC_SET_MIN_CURRENT          (6U)
-#define CY_PRA_PM_FUNC_SET_NORMAL_CURRENT       (7U)
+
 #define CY_PRA_CLK_FUNC_ECO_DISABLE             (8U)
 #define CY_PRA_CLK_FUNC_FLL_DISABLE             (9U)
 #define CY_PRA_CLK_FUNC_PLL_DISABLE             (10U)
@@ -207,6 +202,16 @@ extern "C" {
 #define CY_PRA_CLK_FUNC_DS_AFTER_TRANSITION     (45U)
 #define CY_PRA_CLK_FUNC_EXT_CLK_SET_FREQUENCY   (46U)
 
+#define CY_PRA_PM_FUNC_HIBERNATE                (102U)
+#define CY_PRA_PM_FUNC_CM4_DP_FLAG_SET          (103U)
+#define CY_PRA_PM_FUNC_LDO_SET_VOLTAGE          (104U)
+#define CY_PRA_PM_FUNC_BUCK_ENABLE              (105U)
+#define CY_PRA_PM_FUNC_SET_MIN_CURRENT          (106U)
+#define CY_PRA_PM_FUNC_SET_NORMAL_CURRENT       (107U)
+#define CY_PRA_PM_FUNC_BUCK_ENABLE_VOLTAGE2     (108U)
+#define CY_PRA_PM_FUNC_BUCK_DISABLE_VOLTAGE2    (109U)
+#define CY_PRA_PM_FUNC_BUCK_VOLTAGE2_HW_CTRL    (110U)
+#define CY_PRA_PM_FUNC_BUCK_SET_VOLTAGE2        (111U)
 
 /** Driver major version */
 #define CY_PRA_DRV_VERSION_MAJOR       1
@@ -343,7 +348,7 @@ typedef enum
 typedef struct
 {
     volatile uint32_t * addr;           /**< Register address */
-    uint32_t writeMask;      /**< Write mask */
+    uint32_t writeMask;                 /**< Write mask. Zero grants access, one - no access */
 } cy_stc_pra_reg_policy_t;
 
 /** Message used for communication */
@@ -358,7 +363,7 @@ typedef struct
 /** \} group_pra_data_structures */
 
 /** \cond INTERNAL */
-extern cy_stc_pra_reg_policy_t regIndexToAddr[CYPRA_REG_INDEX_COUNT];
+extern cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
 /** \endcond */
 
 
@@ -370,9 +375,9 @@ extern cy_stc_pra_reg_policy_t regIndexToAddr[CYPRA_REG_INDEX_COUNT];
 * \addtogroup group_pra_functions
 * \{
 */
+void Cy_PRA_Init(void);
 
 #if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
-    void Cy_PRA_Init(void);
     void Cy_PRA_CloseSrssMain2(void);
     void Cy_PRA_OpenSrssMain2(void);
 #endif /* (CY_CPU_CORTEX_M0P) */
@@ -435,7 +440,7 @@ extern cy_stc_pra_reg_policy_t regIndexToAddr[CYPRA_REG_INDEX_COUNT];
 
 
 /*******************************************************************************
-* Macro Name: CY_PRA_CM0_WAKEUP(regIndex)
+* Macro Name: CY_PRA_CM0_WAKEUP()
 ****************************************************************************//**
 *
 * A simple request to wake up Cortex-M0+ core.

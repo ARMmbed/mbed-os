@@ -258,7 +258,7 @@
 *   <tr>
 *     <td rowspan="1">3.40</td>
 *     <td>Updated Cy_Flash_OperationStatus() to access protected registers.</td>
-*     <td>Added PSoC64 device support.</td>
+*     <td>Added PSoC 64 device support.</td>
 *   </tr>
 *   <tr>
 *     <td rowspan="1">3.30.4</td>

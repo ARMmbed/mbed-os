@@ -5,7 +5,7 @@
 * CY8C6336BZI-BLD14 device header
 *
 * \note
-* Generator version: 1.6.0.150
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -471,45 +471,30 @@ typedef enum {
 #include "system_psoc6.h"                       /*!< PSoC 6 System */
 
 /* IP List */
-#define CY_IP_MXTCPWM                   1u
-#define CY_IP_MXTCPWM_INSTANCES         2u
-#define CY_IP_MXTCPWM_VERSION           1u
-#define CY_IP_MXCSDV2                   1u
-#define CY_IP_MXCSDV2_INSTANCES         1u
-#define CY_IP_MXCSDV2_VERSION           1u
-#define CY_IP_MXLCD                     1u
-#define CY_IP_MXLCD_INSTANCES           1u
-#define CY_IP_MXLCD_VERSION             1u
-#define CY_IP_MXS40SRSS                 1u
-#define CY_IP_MXS40SRSS_INSTANCES       1u
-#define CY_IP_MXS40SRSS_VERSION         1u
-#define CY_IP_MXS40SRSS_RTC             1u
-#define CY_IP_MXS40SRSS_RTC_INSTANCES   1u
-#define CY_IP_MXS40SRSS_RTC_VERSION     1u
-#define CY_IP_MXS40SRSS_MCWDT           1u
-#define CY_IP_MXS40SRSS_MCWDT_INSTANCES 2u
-#define CY_IP_MXS40SRSS_MCWDT_VERSION   1u
-#define CY_IP_MXSCB                     1u
-#define CY_IP_MXSCB_INSTANCES           9u
-#define CY_IP_MXSCB_VERSION             1u
-#define CY_IP_MXPERI                    1u
-#define CY_IP_MXPERI_INSTANCES          1u
-#define CY_IP_MXPERI_VERSION            1u
-#define CY_IP_MXPERI_TR                 1u
-#define CY_IP_MXPERI_TR_INSTANCES       1u
-#define CY_IP_MXPERI_TR_VERSION         1u
+#define CY_IP_MXAUDIOSS                 1u
+#define CY_IP_MXAUDIOSS_INSTANCES       1u
+#define CY_IP_MXAUDIOSS_VERSION         1u
+#define CY_IP_MXBLESS                   1u
+#define CY_IP_MXBLESS_INSTANCES         1u
+#define CY_IP_MXBLESS_VERSION           1u
 #define CY_IP_M4CPUSS                   1u
 #define CY_IP_M4CPUSS_INSTANCES         1u
 #define CY_IP_M4CPUSS_VERSION           1u
 #define CY_IP_M4CPUSS_DMA               1u
 #define CY_IP_M4CPUSS_DMA_INSTANCES     2u
 #define CY_IP_M4CPUSS_DMA_VERSION       1u
-#define CY_IP_MXBLESS                   1u
-#define CY_IP_MXBLESS_INSTANCES         1u
-#define CY_IP_MXBLESS_VERSION           1u
-#define CY_IP_MXAUDIOSS                 1u
-#define CY_IP_MXAUDIOSS_INSTANCES       1u
-#define CY_IP_MXAUDIOSS_VERSION         1u
+#define CY_IP_MXCSDV2                   1u
+#define CY_IP_MXCSDV2_INSTANCES         1u
+#define CY_IP_MXCSDV2_VERSION           1u
+#define CY_IP_MXEFUSE                   1u
+#define CY_IP_MXEFUSE_INSTANCES         1u
+#define CY_IP_MXEFUSE_VERSION           1u
+#define CY_IP_MXS40IOSS                 1u
+#define CY_IP_MXS40IOSS_INSTANCES       1u
+#define CY_IP_MXS40IOSS_VERSION         1u
+#define CY_IP_MXLCD                     1u
+#define CY_IP_MXLCD_INSTANCES           1u
+#define CY_IP_MXLCD_VERSION             1u
 #define CY_IP_MXLPCOMP                  1u
 #define CY_IP_MXLPCOMP_INSTANCES        1u
 #define CY_IP_MXLPCOMP_VERSION          1u
@@ -522,21 +507,36 @@ typedef enum {
 #define CY_IP_MXS40PASS_CTDAC           1u
 #define CY_IP_MXS40PASS_CTDAC_INSTANCES 1u
 #define CY_IP_MXS40PASS_CTDAC_VERSION   1u
-#define CY_IP_MXSMIF                    1u
-#define CY_IP_MXSMIF_INSTANCES          1u
-#define CY_IP_MXSMIF_VERSION            1u
-#define CY_IP_MXUSBFS                   1u
-#define CY_IP_MXUSBFS_INSTANCES         1u
-#define CY_IP_MXUSBFS_VERSION           1u
-#define CY_IP_MXS40IOSS                 1u
-#define CY_IP_MXS40IOSS_INSTANCES       1u
-#define CY_IP_MXS40IOSS_VERSION         1u
-#define CY_IP_MXEFUSE                   1u
-#define CY_IP_MXEFUSE_INSTANCES         1u
-#define CY_IP_MXEFUSE_VERSION           1u
+#define CY_IP_MXPERI                    1u
+#define CY_IP_MXPERI_INSTANCES          1u
+#define CY_IP_MXPERI_VERSION            1u
+#define CY_IP_MXPERI_TR                 1u
+#define CY_IP_MXPERI_TR_INSTANCES       1u
+#define CY_IP_MXPERI_TR_VERSION         1u
 #define CY_IP_MXPROFILE                 1u
 #define CY_IP_MXPROFILE_INSTANCES       1u
 #define CY_IP_MXPROFILE_VERSION         1u
+#define CY_IP_MXSCB                     1u
+#define CY_IP_MXSCB_INSTANCES           9u
+#define CY_IP_MXSCB_VERSION             1u
+#define CY_IP_MXSMIF                    1u
+#define CY_IP_MXSMIF_INSTANCES          1u
+#define CY_IP_MXSMIF_VERSION            1u
+#define CY_IP_MXS40SRSS                 1u
+#define CY_IP_MXS40SRSS_INSTANCES       1u
+#define CY_IP_MXS40SRSS_VERSION         1u
+#define CY_IP_MXS40SRSS_RTC             1u
+#define CY_IP_MXS40SRSS_RTC_INSTANCES   1u
+#define CY_IP_MXS40SRSS_RTC_VERSION     1u
+#define CY_IP_MXS40SRSS_MCWDT           1u
+#define CY_IP_MXS40SRSS_MCWDT_INSTANCES 2u
+#define CY_IP_MXS40SRSS_MCWDT_VERSION   1u
+#define CY_IP_MXTCPWM                   1u
+#define CY_IP_MXTCPWM_INSTANCES         2u
+#define CY_IP_MXTCPWM_VERSION           1u
+#define CY_IP_MXUSBFS                   1u
+#define CY_IP_MXUSBFS_INSTANCES         1u
+#define CY_IP_MXUSBFS_VERSION           1u
 
 #include "psoc6_01_config.h"
 #include "gpio_psoc6_01_124_bga_sip.h"

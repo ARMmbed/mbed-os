@@ -272,7 +272,9 @@ static volatile cy_stc_flash_context_t flashContext;
     #endif
     static void Cy_Flash_NotifyHandler(uint32_t * msgPtr)
     {
+    #if !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
         uint32_t intr;
+    #endif /* !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
         static uint32_t semaIndex;
         static uint32_t semaMask;
         static volatile uint32_t *semaPtr;
@@ -282,7 +284,9 @@ static volatile cy_stc_flash_context_t flashContext;
 
         if (CY_FLASH_ENTER_WAIT_LOOP == ipcMsgPtr->pktType)
         {
+        #if !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
             intr = Cy_SysLib_EnterCriticalSection();
+        #endif /* !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
 
             /* Get pointer to structure */
             semaStruct = (cy_stc_ipc_sema_t *)Cy_IPC_Drv_ReadDataValue(Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SEMA));
@@ -300,7 +304,9 @@ static volatile cy_stc_flash_context_t flashContext;
             {
             }
 
+        #if !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
             Cy_SysLib_ExitCriticalSection(intr);
+        #endif /* !((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
         }
     }
     CY_RAMFUNC_END
@@ -578,7 +584,11 @@ CY_RAMFUNC_END
             IPC_STRUCT_Type * locIpcBase = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_CYPIPE_EP0);
 
             uint32_t bookmark;
-            bookmark = FLASHC_FM_CTL_BOOKMARK & 0xffffUL;
+            #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+                bookmark = CY_PRA_REG32_GET(CY_PRA_INDX_FLASHC_FM_CTL_BOOKMARK) & 0xffffUL; 
+            #else
+                bookmark = FLASHC_FM_CTL_BOOKMARK & 0xffffUL;
+            #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
             uint32_t intr = Cy_SysLib_EnterCriticalSection();
 

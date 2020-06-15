@@ -650,7 +650,7 @@
     <ConfigInstruction value="" include="true" />
 
     <!-- If CLKHF0 clocked from WCO -->
-    <ConfigInstruction value="#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH == 0U))" include="true" />
+    <ConfigInstruction value="#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 0U))" include="true" />
     <ConfigInstruction value="    /* Configure HFCLK0 to temporarily run from IMO to initialize other clocks */" include="true" />
     <ConfigInstruction value="    Cy_SysClk_ClkPathSetSource(1UL, CY_SYSCLK_CLKPATH_IN_IMO);" include="true" />
     <ConfigInstruction value="    Cy_SysClk_ClkHfSetSource(0UL, CY_SYSCLK_CLKHF_IN_CLKPATH1);" include="true" />
@@ -720,7 +720,7 @@
     <ConfigInstruction value="" include="true" />
 
     <!-- If CLKHF0 clocked from WCO -->
-    <ConfigInstruction value="#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH == 0U))" include="true" />
+    <ConfigInstruction value="#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) &amp;&amp; (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 0U))" include="true" />
     <ConfigInstruction value="    #ifdef CY_CFG_SYSCLK_CLKPATH1_ENABLED" include="true" />
     <ConfigInstruction value="        /* Apply the ClkPath1 user setting */" include="true" />
     <ConfigInstruction value="        Cy_SysClk_ClkPath1Init();" include="true" />
@@ -848,13 +848,10 @@
     <ConfigInstruction value="" include="true" />
 
     <!-- Configure default enabled clocks -->
-    <ConfigInstruction value="/* Configure default enabled clocks */" include="true" />
-    <ConfigInstruction value="#ifdef CY_CFG_SYSCLK_ILO_ENABLED" include="true" />
-    <ConfigInstruction value="Cy_SysClk_IloInit();" include="true" />
-    <ConfigInstruction value="#else" include="true" />
-    <ConfigInstruction value="Cy_SysClk_IloDisable();" include="true" />
-    <ConfigInstruction value="Cy_SysClk_IloHibernateOn(false);" include="true" />
-    <ConfigInstruction value="#endif" include="true" />
+    <ConfigInstruction value="    /* Configure default enabled clocks */" include="true" />
+    <ConfigInstruction value="    #ifdef CY_CFG_SYSCLK_ILO_ENABLED" include="true" />
+    <ConfigInstruction value="        Cy_SysClk_IloInit();" include="true" />
+    <ConfigInstruction value="    #endif" include="true" />
     <ConfigInstruction value="" include="true" />
 
     <ConfigInstruction value="#ifndef CY_CFG_SYSCLK_IMO_ENABLED" include="true" />
@@ -886,6 +883,17 @@
     <!-- Update System Core Clock values -->
     <ConfigInstruction value="/* Update System Core Clock values for correct Cy_SysLib_Delay functioning */" include="true" />
     <ConfigInstruction value="SystemCoreClockUpdate();" include="true" />
+
+    <!-- Finish to configure the ILO -->
+    <ConfigInstruction value="    #ifndef CY_CFG_SYSCLK_ILO_ENABLED" include="true" />
+    <ConfigInstruction value="        #ifdef CY_CFG_SYSCLK_CLKLF_ENABLED" include="true" />
+    <ConfigInstruction value="        /* Wait 4 ILO cycles in case of unfinished CLKLF clock source transition */" include="true" />
+    <ConfigInstruction value="        Cy_SysLib_DelayUs(200U);" include="true" /> <!--DRIVERS 3401-->
+    <ConfigInstruction value="        #endif" include="true" />
+    <ConfigInstruction value="    Cy_SysClk_IloDisable();" include="true" />
+    <ConfigInstruction value="    Cy_SysClk_IloHibernateOn(false);" include="true" />
+    <ConfigInstruction value="    #endif" include="true" />
+    <ConfigInstruction value="" include="true" />
 
     <ConfigInstruction value="#endif /* ((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE))) */" include="true" />
     <ConfigInstruction value="" include="true" />

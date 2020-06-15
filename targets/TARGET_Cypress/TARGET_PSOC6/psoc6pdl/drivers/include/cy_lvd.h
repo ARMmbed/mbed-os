@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_lvd.h
-* \version 1.10.1
+* \version 1.20
 *
 * The header file of the LVD driver.
 *
@@ -99,9 +99,15 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
 *   <tr>
-*     <td>1.10.1</td>
-*     <td>Minor documentation updates.</td>
-*     <td>Documentation enhancement.</td>
+*     <td>1.20</td>
+*     <td>
+            Updated the following functions for the PSoC 64 devices:
+            \ref Cy_LVD_Enable, \ref Cy_LVD_Disable, \ref Cy_LVD_SetThreshold,
+            \ref Cy_LVD_ClearInterrupt, \ref Cy_LVD_SetInterrupt,
+            \ref Cy_LVD_SetInterruptMask, \ref Cy_LVD_ClearInterruptMask, and
+            \ref Cy_LVD_SetInterruptConfig.
+      </td>
+*     <td>Added PSoC 64 device support.</td>
 *   </tr>
 *   <tr>
 *     <td rowspan="2">1.10</td>
@@ -156,7 +162,7 @@ extern "C" {
 #define CY_LVD_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_LVD_DRV_VERSION_MINOR       10
+#define CY_LVD_DRV_VERSION_MINOR       20
 
 /** The LVD driver identifier */
 #define CY_LVD_ID                      (CY_PDL_DRV_ID(0x39U))

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.40.2
+* \version 2.50
 *
 * Provides common API declarations of the SCB driver.
 *
@@ -136,6 +136,12 @@
 *******************************************************************************
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.50</td>
+*     <td>Fixed the \ref Cy_SCB_SPI_SetActiveSlaveSelectPolarity function to 
+*         properly configure the polarity of the slave select line.</td>
+*     <td> \ref Cy_SCB_SPI_SetActiveSlaveSelectPolarity function works incorrectly.</td>
+*   </tr>
 *   <tr>
 *     <td>2.40.2</td>
 *     <td>Minor documentation updates.</td>

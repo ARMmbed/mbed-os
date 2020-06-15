@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.c
-* \version 5.0
+* \version 5.10
 *
 * This driver provides the source code for API power management.
 *
@@ -26,10 +26,10 @@
 #include "cy_ipc_sema.h"
 #include "cy_ipc_pipe.h"
 #include "cy_prot.h"
-#if defined(CY_DEVICE_SECURE)
-    #include "cy_pra.h"
-#endif /* defined(CY_DEVICE_SECURE) */
 
+#if ((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
+    #include "cy_pra_cfg.h"
+#endif /* #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 /*******************************************************************************
 *       Internal Functions
@@ -1964,7 +1964,7 @@ cy_en_syspm_status_t Cy_SysPm_BuckEnable(cy_en_syspm_buck_voltage1_t voltage)
 * \snippet syspm/snippet/main.c snippet_Cy_SysPm_VoltageRegulator
 *
 * \sideeffect
-* For PSoC64 series devices Cy_SysPm_BuckSetVoltage1() has the same functional 
+* For PSoC 64 series devices Cy_SysPm_BuckSetVoltage1() has the same functional
 * behavior as \ref Cy_SysPm_BuckEnable() function.
 *
 *******************************************************************************/
@@ -2097,7 +2097,6 @@ bool Cy_SysPm_BuckIsOutputEnabled(cy_en_syspm_buck_out_t output)
 }
 
 
-#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 /*******************************************************************************
 * Function Name: Cy_SysPm_BuckEnableVoltage2
 ****************************************************************************//**
@@ -2127,6 +2126,10 @@ bool Cy_SysPm_BuckIsOutputEnabled(cy_en_syspm_buck_out_t output)
 *******************************************************************************/
 void Cy_SysPm_BuckEnableVoltage2(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_VOID(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                   CY_PRA_PM_FUNC_BUCK_ENABLE_VOLTAGE2);
+#else
     /* Do nothing if device does not have the second Buck output (SIMO) */
     if (0U != cy_device->sysPmSimoPresent)
     {
@@ -2142,8 +2145,8 @@ void Cy_SysPm_BuckEnableVoltage2(void)
         /* Wait until the output is stable */
         Cy_SysLib_DelayUs(BUCK_OUT2_INIT_DELAY_US);
     }
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
-#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 
 /*******************************************************************************
@@ -2177,7 +2180,15 @@ void Cy_SysPm_BuckEnableVoltage2(void)
 *******************************************************************************/
 void Cy_SysPm_BuckSetVoltage2(cy_en_syspm_buck_voltage2_t voltage, bool waitToSettle)
 {
-#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_stc_pra_voltage2_t voltageSettings;
+    voltageSettings.praVoltage = voltage;
+    voltageSettings.praWaitToSettle = waitToSettle;
+
+    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                    CY_PRA_PM_FUNC_BUCK_SET_VOLTAGE2,
+                                    &voltageSettings);
+#else
     /* Do nothing if device does not have the second Buck output (SIMO) */
     if (0U != cy_device->sysPmSimoPresent)
     {
@@ -2202,10 +2213,7 @@ void Cy_SysPm_BuckSetVoltage2(cy_en_syspm_buck_voltage2_t voltage, bool waitToSe
             }
         }
     }
-#else
-    (void)voltage;
-    (void)waitToSettle;
-#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -2399,7 +2407,7 @@ cy_en_syspm_status_t Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
 *   \ref cy_en_pra_status_t for more details.
 *
 * \sideeffect
-* For PSoC64 series devices CY_SYSPM_LDO_MODE_DISABLED mode is not supported.
+* For PSoC 64 series devices CY_SYSPM_LDO_MODE_DISABLED mode is not supported.
 * Use \ref Cy_SysPm_BuckEnable() instead.
 *
 *******************************************************************************/
@@ -3078,16 +3086,17 @@ void Cy_SysPm_RestoreRegisters(cy_stc_syspm_backup_regs_t const *regs)
 * - false - System Deep Sleep was not occurred.
 *
 *******************************************************************************/
-#if defined (__ICCARM__)
-    #pragma diag_suppress=Ta023
-    __ramfunc
-#else
-    CY_SECTION(".cy_ramfunc") CY_NOINLINE
+CY_RAMFUNC_BEGIN
+#if !defined (__ICCARM__)
+    CY_NOINLINE
 #endif
 static void EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
 {
+#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+
     /* Store the address of the Deep Sleep indicator into the RAM */
     volatile uint32_t *delayDoneFlag = &FLASHC_BIST_DATA_0;
+#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 #if (CY_CPU_CORTEX_M4)
 
@@ -3126,8 +3135,13 @@ static void EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
 
 #if (CY_CPU_CORTEX_M4)
     } while (_FLD2VAL(CPUSS_CM4_PWR_CTL_PWR_MODE, (*cpussCm4PwrCtlAddr)) == CM4_PWR_STS_RETAINED);
+
+    #if defined(CY_DEVICE_SECURE)
+        CY_PRA_CM0_WAKEUP();
+    #endif /* defined(CY_DEVICE_SECURE) */
 #endif /* (CY_CPU_CORTEX_M4) */
 
+#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
     /* Set 10 uS delay only under condition that the FLASHC_BIST_DATA[0] is
     *  cleared. Cypress ID #288510
     */
@@ -3136,6 +3150,10 @@ static void EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
         uint32_t ddftSlowCtl;
         uint32_t clkOutputSlow;
         uint32_t ddftFastCtl;
+
+    #if defined(CY_DEVICE_SECURE)
+        Cy_PRA_CloseSrssMain2();
+    #endif /* defined(CY_DEVICE_SECURE) */
 
         /* Save timer configuration */
         ddftSlowCtl   = SRSS_TST_DDFT_SLOW_CTL_REG;
@@ -3162,11 +3180,14 @@ static void EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
         SRSS_TST_DDFT_SLOW_CTL_REG = ddftSlowCtl;
         SRSS_CLK_OUTPUT_SLOW       = clkOutputSlow;
         SRSS_TST_DDFT_FAST_CTL_REG = ddftFastCtl;
+
+    #if defined(CY_DEVICE_SECURE)
+        Cy_PRA_OpenSrssMain2();
+    #endif /* defined(CY_DEVICE_SECURE) */
     }
+#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
-#if defined (__ICCARM__)
-    #pragma diag_default=Ta023
-#endif
+CY_RAMFUNC_END
 
 
 #if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))

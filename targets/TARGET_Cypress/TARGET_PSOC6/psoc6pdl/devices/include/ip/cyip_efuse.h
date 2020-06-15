@@ -5,7 +5,7 @@
 * EFUSE IP definitions
 *
 * \note
-* Generator version: 1.6.0.150
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -37,7 +37,7 @@
 #define EFUSE_SECTION_SIZE                      0x00000080UL
 
 /**
-  * \brief 0x80 (EFUSE)
+  * \brief EFUSE MXS40 registers (EFUSE)
   */
 typedef struct {
   __IOM uint32_t CTL;                           /*!< 0x00000000 Control */

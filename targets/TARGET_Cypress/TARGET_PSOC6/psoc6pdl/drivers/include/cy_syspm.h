@@ -726,7 +726,7 @@
 *   <tr>
 *     <td rowspan="3">5.10</td>
 *     <td>
-*           Updated the following functions for the PSoC64 devices:
+*           Updated the following functions for the PSoC 64 devices:
 *           \ref Cy_SysPm_CpuEnterDeepSleep(), \ref Cy_SysPm_SystemEnterLp(),
 *           \ref Cy_SysPm_SystemEnterUlp, \ref Cy_SysPm_SystemEnterHibernate,
 *           \ref Cy_SysPm_SetHibernateWakeupSource,
@@ -735,7 +735,7 @@
 *           \ref Cy_SysPm_SystemSetNormalRegulatorCurrent,
 *           \ref Cy_SysPm_LdoSetVoltage, \ref Cy_SysPm_LdoSetMode,
 *           \ref Cy_SysPm_BuckEnable, \ref Cy_SysPm_BuckSetVoltage1,
-*           Following functions are updated as unavailble for PSoC64 devices:
+*           Following functions are updated as unavailble for PSoC 64 devices:
 *           \ref Cy_SysPm_WriteVoltageBitForFlash, \ref Cy_SysPm_SaveRegisters,
 *           \ref Cy_SysPm_RestoreRegisters,
 *           \ref Cy_SysPm_BuckSetVoltage2, \ref Cy_SysPm_BuckEnableVoltage2,
@@ -1290,6 +1290,9 @@
 #include "cy_device.h"
 #include "cy_device_headers.h"
 #include "cy_syslib.h"
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    #include "cy_pra.h"
+#endif /* #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 #ifdef __cplusplus
 extern "C" {
@@ -1794,6 +1797,15 @@ typedef struct
     uint32_t CY_SYSPM_CM0_CLOCK_CTL_REG;        /**< CPUSS CM0+ clock control register */
     uint32_t CY_SYSPM_CM4_CLOCK_CTL_REG;        /**< CPUSS CM4 clock control register */
 } cy_stc_syspm_backup_regs_t;
+
+#if (defined(CY_DEVICE_SECURE))
+/** PRA structure for Cy_SysPm_BuckSetVoltage2 function parameters */
+typedef struct
+{
+    cy_en_syspm_buck_voltage2_t praVoltage;     /**< The voltage of the Buck regulator output 2 */
+    bool praWaitToSettle;                       /**< Enable/disable the delay after setting a higher voltage */
+} cy_stc_pra_voltage2_t;
+#endif /* (defined(CY_DEVICE_SECURE)) */
 /** \} group_syspm_data_structures */
 
 /**
@@ -1911,10 +1923,8 @@ cy_en_syspm_status_t Cy_SysPm_BuckSetVoltage1(cy_en_syspm_buck_voltage1_t voltag
 __STATIC_INLINE cy_en_syspm_buck_voltage1_t Cy_SysPm_BuckGetVoltage1(void);
 void Cy_SysPm_BuckSetVoltage2(cy_en_syspm_buck_voltage2_t voltage, bool waitToSettle);
 __STATIC_INLINE cy_en_syspm_buck_voltage2_t Cy_SysPm_BuckGetVoltage2(void);
-#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 void Cy_SysPm_BuckEnableVoltage2(void);
 __STATIC_INLINE void Cy_SysPm_BuckDisableVoltage2(void);
-#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 __STATIC_INLINE void Cy_SysPm_BuckSetVoltage2HwControl(bool hwControl);
 __STATIC_INLINE bool Cy_SysPm_BuckIsVoltage2HwControlled(void);
 bool Cy_SysPm_BuckIsOutputEnabled(cy_en_syspm_buck_out_t output);
@@ -2226,7 +2236,6 @@ __STATIC_INLINE cy_en_syspm_buck_voltage2_t Cy_SysPm_BuckGetVoltage2(void)
 }
 
 
-#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 /*******************************************************************************
 * Function Name: Cy_SysPm_BuckDisableVoltage2
 ****************************************************************************//**
@@ -2252,13 +2261,18 @@ __STATIC_INLINE cy_en_syspm_buck_voltage2_t Cy_SysPm_BuckGetVoltage2(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysPm_BuckDisableVoltage2(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_VOID(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                   CY_PRA_PM_FUNC_BUCK_DISABLE_VOLTAGE2);
+#else
     if (0U != cy_device->sysPmSimoPresent)
     {
         /* Disable the Vbuck2 output */
         SRSS_PWR_BUCK_CTL2 &= (uint32_t) ~_VAL2FLD(SRSS_PWR_BUCK_CTL2_BUCK_OUT2_EN, 1U);
     }
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
-#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
 
 
 /*******************************************************************************
@@ -2287,7 +2301,11 @@ __STATIC_INLINE void Cy_SysPm_BuckDisableVoltage2(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysPm_BuckSetVoltage2HwControl(bool hwControl)
 {
-#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                    CY_PRA_PM_FUNC_BUCK_VOLTAGE2_HW_CTRL,
+                                    hwControl);
+#else
     bool isBuckEnabled = Cy_SysPm_BuckIsEnabled();
 
     if ((0U != cy_device->sysPmSimoPresent) && isBuckEnabled)
@@ -2301,9 +2319,7 @@ __STATIC_INLINE void Cy_SysPm_BuckSetVoltage2HwControl(bool hwControl)
             SRSS_PWR_BUCK_CTL2 &= (uint32_t) ~_VAL2FLD(SRSS_PWR_BUCK_CTL2_BUCK_OUT2_HW_SEL, 1U);
         }
     }
-#else
-    (void)hwControl;
-#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 

@@ -154,10 +154,10 @@
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
 *     <td rowspan="2">2.60</td>
-*     <td>Updated the following functions for the PSoC64 devices:
+*     <td>Updated the following functions for the PSoC 64 devices:
 *         \ref Cy_SysLib_ClearFlashCacheAndBuffer, \ref Cy_SysLib_ClearResetReason,
 *         \ref Cy_SysLib_SetWaitStates.
-*     <td>Added PSoC64 device support.</td>
+*     <td>Added PSoC 64 device support.</td>
 *   </tr>
 *   <tr>
 *     <td>Minor documentation updates.</td>

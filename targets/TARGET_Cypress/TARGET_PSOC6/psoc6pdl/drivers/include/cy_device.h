@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.h
-* \version 2.10
+* \version 2.20
 *
 * This file specifies the structure for core and peripheral block HW base
 * addresses, versions, and parameters.
@@ -120,6 +120,7 @@ typedef struct
     uint8_t  srssNumClkpath;
     uint8_t  srssNumPll;
     uint8_t  srssNumHfroot;
+    uint8_t  srssIsPiloPresent;
     uint8_t  periClockNr;
     uint8_t  smifDeviceNr;
     uint8_t  passSarChannels;
@@ -219,6 +220,8 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 
 #define CY_SRSS_V1_3                        (0x13U == cy_device->srssVersion)
 #define CY_SRSS_MFO_PRESENT                 (CY_SRSS_V1_3)
+
+#define CY_SRSS_PILO_PRESENT                 (1U == cy_device->srssIsPiloPresent)
 
 #define CY_SRSS_NUM_CLKPATH                 ((uint32_t)(cy_device->srssNumClkpath))
 #define CY_SRSS_NUM_PLL                     ((uint32_t)(cy_device->srssNumPll))
