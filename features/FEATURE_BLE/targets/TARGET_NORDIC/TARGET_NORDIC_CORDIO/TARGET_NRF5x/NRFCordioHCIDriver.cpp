@@ -92,9 +92,19 @@ using namespace ble::vendor::cordio;
 // The BB_ config macros are set in the bb_api.h header file
 const BbRtCfg_t NRFCordioHCIDriver::_bb_cfg = {
     /*clkPpm*/ 20,
-    /*rfSetupDelayUsec*/ BB_RF_SETUP_DELAY_US,
-    /*maxScanPeriodMsec*/ BB_MAX_SCAN_PERIOD_MS,
-    /*schSetupDelayUsec*/ BB_SCH_SETUP_DELAY_US
+    /*rfSetupDelayUs*/ BB_RF_SETUP_DELAY_US,
+    /*maxScanPeriodMs*/ BB_MAX_SCAN_PERIOD_MS,
+    /*schSetupDelayUs*/ BB_SCH_SETUP_DELAY_US,
+    /*BbTimerBoundaryUs*/
+#if (BB_CLK_RATE_HZ == 32768)
+  BB_RTC_MAX_VALUE_US
+#elif (BB_CLK_RATE_HZ == 8000000)
+  BB_TIMER_8MHZ_MAX_VALUE_US
+#elif (BB_CLK_RATE_HZ == 1000000)
+  BB_TIMER_1MHZ_MAX_VALUE_US
+#else
+  #error "Unsupported platform."
+#endif
 };
 
 /* +12 for message headroom, + 2 event header, +255 maximum parameter length. */
