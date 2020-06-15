@@ -4,10 +4,10 @@
 * Description:
 * System configuration
 * This file was automatically generated and should not be modified.
-* Tools Package 2.1.0.1260
-* psoc6pdl 1.6.0.3875
+* Tools Package 2.2.0.1747
+* psoc6pdl 1.6.0.4172
 * personalities_2.0 2.0.0.0
-* udd 1.2.0.300
+* udd 1.2.0.370
 *
 ********************************************************************************
 * Copyright 2020 Cypress Semiconductor Corporation

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6.h
-* \version 2.70.1
+* \version 2.80
 *
 * \brief Device system header file.
 *
@@ -321,6 +321,16 @@
 *       <th>Reason for Change</th>
 *   </tr>
 *   <tr>
+*       <td rowspan="2">2.80</td>
+*       <td>Updated linker scripts for PSoC 64 Secure MCU devices.</td>
+*       <td>Updated FLASH and SRAM memory area definitions in cyb0xxx linker script templates
+*           in accordance with the PSoC 64 Secure Boot SDK policies.</td>
+*   </tr>
+*   <tr>
+*       <td>Added \ref Cy_PRA_Init() function call to \ref SystemInit() API for CM0+ core of PSoC 64 Secure MCU.</td>
+*       <td>Updated PSoC 64 Secure MCU startup sequence to initialize the Protected Register Access driver.</td>
+*   </tr>
+*   <tr>
 *     <td>2.70.1</td>
 *     <td>Updated documentation for the better description of the existing startup implementation.</td>
 *     <td>User experience enhancement.</td>
@@ -538,11 +548,7 @@ extern "C" {
 * \addtogroup group_system_config_system_functions
 * \{
 */
-#if defined(__ARMCC_VERSION)
-    extern void SystemInit(void) __attribute__((constructor));
-#else
-    extern void SystemInit(void);
-#endif /* (__ARMCC_VERSION) */
+extern void SystemInit(void);
 
 extern void SystemCoreClockUpdate(void);
 /** \} group_system_config_system_functions */

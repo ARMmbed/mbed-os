@@ -4,10 +4,10 @@
 * Description:
 * System configuration
 * This file was automatically generated and should not be modified.
-* Tools Package 2.1.0.1260
-* psoc6pdl 1.6.0.3875
+* Tools Package 2.2.0.1747
+* psoc6pdl 1.6.0.4172
 * personalities_2.0 2.0.0.0
-* udd 1.2.0.300
+* udd 1.2.0.370
 *
 ********************************************************************************
 * Copyright 2020 Cypress Semiconductor Corporation
@@ -709,7 +709,7 @@ void init_cycfg_system(void)
 	Cy_SysClk_ClkSlowInit();
 	#endif
 	
-	#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) && (CY_CFG_SYSCLK_CLKHF0_CLKPATH == 0U))
+	#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) && (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 0U))
 	    /* Configure HFCLK0 to temporarily run from IMO to initialize other clocks */
 	    Cy_SysClk_ClkPathSetSource(1UL, CY_SYSCLK_CLKPATH_IN_IMO);
 	    Cy_SysClk_ClkHfSetSource(0UL, CY_SYSCLK_CLKHF_IN_CLKPATH1);
@@ -773,7 +773,7 @@ void init_cycfg_system(void)
 	
 	Cy_SysClk_ClkHf0Init();
 	
-	#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) && (CY_CFG_SYSCLK_CLKHF0_CLKPATH == 0U))
+	#if ((CY_CFG_SYSCLK_CLKPATH0_SOURCE_NUM == 0x6UL) && (CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM == 0U))
 	    #ifdef CY_CFG_SYSCLK_CLKPATH1_ENABLED
 	        /* Apply the ClkPath1 user setting */
 	        Cy_SysClk_ClkPath1Init();
@@ -891,13 +891,10 @@ void init_cycfg_system(void)
 	Cy_SysClk_ClkBakInit();
 	#endif
 	
-	/* Configure default enabled clocks */
-	#ifdef CY_CFG_SYSCLK_ILO_ENABLED
-	Cy_SysClk_IloInit();
-	#else
-	Cy_SysClk_IloDisable();
-	Cy_SysClk_IloHibernateOn(false);
-	#endif
+	    /* Configure default enabled clocks */
+	    #ifdef CY_CFG_SYSCLK_ILO_ENABLED
+	        Cy_SysClk_IloInit();
+	    #endif
 	
 	#ifndef CY_CFG_SYSCLK_IMO_ENABLED
 	#error the IMO must be enabled for proper chip operation
@@ -921,6 +918,15 @@ void init_cycfg_system(void)
 	
 	/* Update System Core Clock values for correct Cy_SysLib_Delay functioning */
 	SystemCoreClockUpdate();
+	    #ifndef CY_CFG_SYSCLK_ILO_ENABLED
+	        #ifdef CY_CFG_SYSCLK_CLKLF_ENABLED
+	        /* Wait 4 ILO cycles in case of unfinished CLKLF clock source transition */
+	        Cy_SysLib_DelayUs(200U);
+	        #endif
+	    Cy_SysClk_IloDisable();
+	    Cy_SysClk_IloHibernateOn(false);
+	    #endif
+	
 	#endif /* ((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE))) */
 	
 
