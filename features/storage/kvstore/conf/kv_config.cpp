@@ -186,9 +186,7 @@ int _calculate_blocksize_match_tdbstore(BlockDevice *bd)
 {
     bd_size_t size = bd->size();
     bd_size_t erase_size = bd->get_erase_size();
-    bd_size_t page_size = bd->get_program_size();
     bd_size_t number_of_sector = size / erase_size;
-    bd_size_t number_of_page = size / page_size;
     if (number_of_sector < STORE_SECTORS) {
         tr_error("KV Config: There are less than %d sectors - TDBStore will not work.", STORE_SECTORS);
         return -1;
