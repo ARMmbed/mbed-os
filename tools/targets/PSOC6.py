@@ -24,6 +24,7 @@ from struct import (pack, unpack)
 from shutil import copy2
 import json
 from intelhex import IntelHex, hex2bin, bin2hex
+from pathlib import Path
 
 from ..config import ConfigException
 
@@ -171,28 +172,10 @@ def sign_image(toolchain, resourses, elf, binf, m0hex):
     except KeyError:
         raise ConfigException("[PSOC6.sign_image] Target " + toolchain.target.name + " is not supported in cysecuretools.")
 
-    from pathlib import Path, PurePath
+    policy_file = find_policy(toolchain)
 
-    mbed_os_root = Path(os.getcwd())
-
-    policy_path = Path(toolchain.target.policy_file)
-    if policy_path.is_absolute():
-        policy_file = policy_path
-    else:
-        policy_path = mbed_os_root / policy_path
-
-        if os.path.isfile(str(policy_path)):
-            policy_file = policy_path
-        else:
-            policy_file = Path(find_policy(toolchain, resourses))
-        
     toolchain.notify.info("[PSOC6.sign_image] Using policy file: " + str(policy_file))
 
-    # Append cysecuretools path to sys.path and import cysecuretools. This will
-    # prioritize system installations of cysecuretools over the included
-    # cysecuretools.
-    #sb_tools_path = mbed_os_root / Path("targets/TARGET_Cypress/TARGET_PSOC6/")
-    #sys.path.append(str(sb_tools_path))
     import cysecuretools
 
     tools = cysecuretools.CySecureTools(secure_target, str(policy_file))
@@ -208,7 +191,8 @@ def sign_image(toolchain, resourses, elf, binf, m0hex):
         complete(toolchain, elf, hexf0=binf, hexf1=m0hex)
 
     else:
-        raise ConfigException("[PSOC6.sign_image] Boot scheme " + str(toolchain.target.boot_scheme) + "is not supported. Supported boot schemes are 'single_image' and 'multi_image' ")
+        raise ConfigException("[PSOC6.sign_image] Boot scheme " + str(toolchain.target.boot_scheme) + \
+            "is not supported. Supported boot schemes are 'single_image' and 'multi_image' ")
 
 
 def sign_application(toolchain, tools, binary, image_id):
@@ -228,28 +212,46 @@ def sign_application(toolchain, tools, binary, image_id):
                                 + str(image_id) + " is " + hex(address) + ", " + hex(size))
 
 
-def find_policy(toolchain, resources):
+def find_policy(toolchain):
     """
-    Locate path to policy file, defined in targets.json
+    Locate path to policy file, by name defined in targets.json
     :param toolchain: toolchain object from mbed build system
-    :param resources: resources object from mbed build system
     """
-    policy_filename = toolchain.target.policy_file
 
-    if policy_filename is None:
-        return None
-    # Locate user-specified image
-    from tools.resources import FileType
-    json_files = resources.get_file_paths(FileType.JSON)
-    policy = next((f for f in json_files if os.path.basename(f) == policy_filename), None)
+    mbed_os_root = Path(os.getcwd())
+    
+    policy_path = Path(toolchain.target.policy_file)
 
-    if policy:
-        toolchain.notify.info("Policy file found: %s." % policy)
+    # Absolute path provided
+    if policy_path.is_absolute():
+        policy_file = policy_path
+
+    # May also be relative to mbed-os file scturcture
     else:
-        toolchain.notify.info("Policy file %s not found. Aborting." % policy_filename)
+        policy_path = mbed_os_root / policy_path
+
+        if os.path.exists(str(policy_path)):
+            policy_file = policy_path
+
+        else:
+            default_path = Path("targets/TARGET_Cypress/TARGET_PSOC6/") / \
+                                Path("TARGET_" + toolchain.target.name) / Path("policy") / \
+                                toolchain.target.policy_file
+
+            # Consider default location
+            policy_file = mbed_os_root / default_path
+            
+            if not os.path.exists(str(policy_file)):
+                policy_file = mbed_os_root / "mbed-os" / default_path
+
+
+    if os.path.exists(str(policy_file)):
+        toolchain.notify.info("Policy file found: %s." % policy_file)
+    else:
+        toolchain.notify.info("Policy file %s not found. Aborting." % policy_path)
         raise ConfigException("Required policy file not found.")
 
-    return policy
+    return policy_file
 
 
 
