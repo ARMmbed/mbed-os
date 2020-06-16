@@ -7638,7 +7638,7 @@
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
-}
+},
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
