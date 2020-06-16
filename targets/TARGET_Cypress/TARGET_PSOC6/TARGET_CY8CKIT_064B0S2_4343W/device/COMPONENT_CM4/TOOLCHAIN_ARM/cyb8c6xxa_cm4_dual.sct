@@ -3,8 +3,8 @@
 ; to pass a scatter file through a C preprocessor.
 
 ;*******************************************************************************
-;* \file cyb06xxa_cm4.sct
-;* \version 2.70.1
+;* \file cy8bc6xxa_cm4_dual.sct
+;* \version 2.80
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -42,22 +42,70 @@
 ;* limitations under the License.
 ;******************************************************************************/
 
+; By default, the COMPONENT_CM0P_SLEEP prebuilt image is used for the CM0p core.
+; More about CM0+ prebuilt images, see here:
+; https://github.com/cypresssemiconductorco/psoc6cm0p
+; The size of the Cortex-M0+ application flash image
+#define FLASH_CM0P_SIZE     0x10000
+
+#if !defined(MBED_ROM_START)
+  #define MBED_ROM_START    0x10000000
+#endif
+
+;* MBED_APP_START is being  used by the bootloader build script and
+;* will be calculate by the system. In case if MBED_APP_START address is
+;* customized by the bootloader config, the application image should not
+;* include CM0p prebuilt image.
+;*
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START    (MBED_ROM_START + FLASH_CM0P_SIZE)
+#endif
+
+; The size of the MCU boot header area at the start of FLASH
+#define BOOT_HEADER_SIZE        0x00000400
+
+#if !defined(MBED_ROM_SIZE)
+  #define MBED_ROM_SIZE     0x00E8000
+#endif
+
+;* MBED_APP_SIZE is being  used by the bootloader build script and
+;* will be calculate by the system.
+;*
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE     (MBED_ROM_SIZE - FLASH_CM0P_SIZE)
+#endif
+
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START    0x08001800
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE     0x000DE800
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+; The size of the stack section at the end of CM4 SRAM
+#define STACK_SIZE MBED_BOOT_STACK_SIZE
+
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
 
 ; The following defines control RAM and flash memory allocation for the CM4 core.
+; You can change the memory allocation by editing RAM and Flash defines.
+; Note that 2 KB of RAM (at the end of the SRAM) are reserved for system use.
+; Using this memory region for other purposes will lead to unexpected behavior.
+; Your changes must be aligned with the corresponding defines for CM0+ core in 'xx_cm0plus.scat',
+; where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.scat'.
 ; RAM
-#define RAM_START               0x08000000
-#define RAM_SIZE                0x000EA000
+#define RAM_START               MBED_RAM_START
+#define RAM_SIZE                MBED_RAM_SIZE
 ; Flash
-#define FLASH_START             0x10000000
-#define FLASH_SIZE              0x001D0000
-
-; The size of the stack section at the end of CM4 SRAM
-#define STACK_SIZE              0x00001000
-
-; The size of the MCU boot header area at the start of FLASH
-#define BOOT_HEADER_SIZE        0x00000400
+#define FLASH_START             MBED_APP_START
+#define FLASH_SIZE              MBED_APP_SIZE
 
 ; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
@@ -97,10 +145,19 @@
 #define EFUSE_SIZE              0x100000
 
 
+; Cortex-M0+ application flash image area
+LR_IROM (MBED_ROM_START + BOOT_HEADER_SIZE) (FLASH_CM0P_SIZE - BOOT_HEADER_SIZE)
+{
+    .cy_m0p_image +0 FLASH_CM0P_SIZE
+    {
+        * (.cy_m0p_image)
+    }
+}
+
 ; Cortex-M4 application flash area
 LR_IROM1 FLASH_START FLASH_SIZE
 {
-    ER_FLASH_VECTORS +BOOT_HEADER_SIZE
+    ER_FLASH_VECTORS +0
     {
         * (RESET, +FIRST)
     }
@@ -130,19 +187,19 @@ LR_IROM1 FLASH_START FLASH_SIZE
     }
 
     ; Application heap area (HEAP)
-    ARM_LIB_HEAP  +0 EMPTY ((RAM_START+RAM_SIZE)-AlignExpr(ImageLimit(RW_IRAM1), 8)-STACK_SIZE)
+    ARM_LIB_HEAP  +0 EMPTY RAM_START+RAM_SIZE-STACK_SIZE-ImageLimit(RW_IRAM1)
     { 
     }
-
+    
     ; Stack region growing down
-    ARM_LIB_STACK (RAM_START+RAM_SIZE) EMPTY -STACK_SIZE
+    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -STACK_SIZE 
     {
     }
 
     ; Used for the digital signature of the secure application and the
     ; Bootloader SDK application. The size of the section depends on the required
     ; data size.
-    .cy_app_signature (FLASH_START + FLASH_SIZE - 256) 256
+    .cy_app_signature (MBED_ROM_START + MBED_ROM_SIZE - 256) 256
     {
         * (.cy_app_signature)
     }
@@ -233,7 +290,7 @@ CYMETA 0x90500000
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 #define __cy_memory_0_start 0x10000000
-#define __cy_memory_0_length  0x001D0000
+#define __cy_memory_0_length  0x00200000
 #define __cy_memory_0_row_size 0x200
 
 /* Emulated EEPROM Flash area */

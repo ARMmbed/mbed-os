@@ -1,6 +1,6 @@
 /*******************************************************************************
-* \file cyb06xxa_cm4.icf
-* \version 2.70.1
+* \file cyb8c6xxa_cm4_dual.icf
+* \version 2.80
 *
 * Linker file for the IAR compiler.
 *
@@ -41,16 +41,79 @@
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
+/* By default, the COMPONENT_CM0P_SLEEP prebuilt image is used for the CM0p core.
+ * More about CM0+ prebuilt images, see here:
+ * https://github.com/cypresssemiconductorco/psoc6cm0p
+ */
+/* The size of the Cortex-M0+ application image */
+define symbol FLASH_CM0P_SIZE = 0x10000;
+
+/* The size of the MCU boot header area at the start of FLASH */
+define symbol BOOT_HEADER_SIZE = 0x00000400;
+
+if (!isdefinedsymbol(MBED_ROM_START)) {
+  define symbol MBED_ROM_START = 0x10000000;
+}
+
+/* MBED_APP_START is being used by the bootloader build script and
+ * will be calculate by the system. In case if MBED_APP_START address is
+ * customized by the bootloader config, the application image should not
+ * include CM0p prebuilt image.
+ */
+if (!isdefinedsymbol(MBED_APP_START)) {
+  define symbol MBED_APP_START = (MBED_ROM_START + FLASH_CM0P_SIZE);
+}
+
+if (!isdefinedsymbol(MBED_ROM_SIZE)) {
+  define symbol MBED_ROM_SIZE = 0x00E8000;
+}
+
+/* MBED_APP_SIZE is being  used by the bootloader build script and
+ * will be calculate by the system.
+ */
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+  define symbol MBED_APP_SIZE = (MBED_ROM_SIZE - FLASH_CM0P_SIZE);
+}
+
+if (!isdefinedsymbol(MBED_RAM_START)) {
+  define symbol MBED_RAM_START = 0x08001800;
+}
+
+if (!isdefinedsymbol(MBED_RAM_SIZE)) {
+  define symbol MBED_RAM_SIZE = 0x000DE800;
+}
+
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+
+    if (!isdefinedsymbol(__STACK_SIZE)) {
+      define symbol MBED_BOOT_STACK_SIZE = 0x0400;
+    } else {
+      define symbol MBED_BOOT_STACK_SIZE = __STACK_SIZE;
+    }
+}
+
+define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
+
 /* The symbols below define the location and size of blocks of memory in the target.
  * Use these symbols to specify the memory regions available for allocation.
  */
-/* RAM */
-define symbol __ICFEDIT_region_IRAM1_start__ = 0x08001800;
-define symbol __ICFEDIT_region_IRAM1_end__   = 0x080E0000;
 
+/* The following symbols control RAM and flash memory allocation for the CM4 core.
+ * You can change the memory allocation by editing RAM and Flash symbols.
+ * Note that 2 KB of RAM (at the end of the SRAM) are reserved for system use.
+ * Using this memory region for other purposes will lead to unexpected behavior.
+ * Your changes must be aligned with the corresponding symbols for CM0+ core in 'xx_cm0plus.icf',
+ * where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.icf'.
+ */
+/* RAM */
+define symbol __ICFEDIT_region_IRAM1_start__ = MBED_RAM_START;
+define symbol __ICFEDIT_region_IRAM1_end__   = (MBED_RAM_START + MBED_RAM_SIZE - 1);
 /* Flash */
-define symbol __ICFEDIT_region_IROM1_start__ = 0x100E0000;
-define symbol __ICFEDIT_region_IROM1_end__   = 0x10150000;
+define symbol __ICFEDIT_region_IROM0_start__ = MBED_ROM_START + BOOT_HEADER_SIZE;
+define symbol __ICFEDIT_region_IROM0_end__   = (MBED_ROM_START + FLASH_CM0P_SIZE - 1);
+
+define symbol __ICFEDIT_region_IROM1_start__ = MBED_APP_START;
+define symbol __ICFEDIT_region_IROM1_end__   = (MBED_APP_START + MBED_APP_SIZE - 1);
 
 /* The following symbols define a 32K flash region used for EEPROM emulation.
  * This region can also be used as the general purpose flash.
@@ -105,13 +168,6 @@ define symbol __ICFEDIT_region_ERAM2_end__   = 0x0;
 define symbol __ICFEDIT_region_ERAM3_start__ = 0x0;
 define symbol __ICFEDIT_region_ERAM3_end__   = 0x0;
 /*-Sizes-*/
-if (!isdefinedsymbol(__STACK_SIZE)) {
-  define symbol __ICFEDIT_size_cstack__ = 0x1000;
-} else {
-  define symbol __ICFEDIT_size_cstack__ = __STACK_SIZE;
-}
-define symbol __ICFEDIT_size_proc_stack__ = 0x0;
-
 /* Defines the minimum heap size. The actual heap size will be expanded to the end of the stack region */
 if (!isdefinedsymbol(__HEAP_SIZE)) {
     define symbol __ICFEDIT_size_heap__ = 0x0400;
@@ -120,11 +176,8 @@ if (!isdefinedsymbol(__HEAP_SIZE)) {
 }
 /**** End of ICF editor section. ###ICF###*/
 
-/* The size of the MCU boot header area at the start of FLASH */
-define symbol BOOT_HEADER_SIZE  = 0x400;
-
-
 define memory mem with size = 4G;
+define region IROM0_region = mem:[from __ICFEDIT_region_IROM0_start__ to __ICFEDIT_region_IROM0_end__];
 define region IROM1_region = mem:[from __ICFEDIT_region_IROM1_start__ to __ICFEDIT_region_IROM1_end__];
 define region IROM2_region = mem:[from __ICFEDIT_region_IROM2_start__ to __ICFEDIT_region_IROM2_end__];
 define region IROM3_region = mem:[from __ICFEDIT_region_IROM3_start__ to __ICFEDIT_region_IROM3_end__];
@@ -136,10 +189,16 @@ define region IROM8_region = mem:[from __ICFEDIT_region_IROM8_start__ to __ICFED
 define region EROM1_region = mem:[from __ICFEDIT_region_EROM1_start__ to __ICFEDIT_region_EROM1_end__];
 define region IRAM1_region = mem:[from __ICFEDIT_region_IRAM1_start__ to __ICFEDIT_region_IRAM1_end__];
 
-define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__     { };
-define block PROC_STACK with alignment = 8, size = __ICFEDIT_size_proc_stack__ { };
+define block RAM_DATA {readwrite section .data};
+define block RAM_OTHER {readwrite section * };
+define block RAM_NOINIT {readwrite section .noinit};
+define block RAM_BSS {readwrite section .bss};
+define block RAM with fixed order {block RAM_DATA, block RAM_OTHER, block RAM_NOINIT, block RAM_BSS};
+
+define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__ { };
 define block HEAP       with expanding size, alignment = 8, minimum size = __ICFEDIT_size_heap__ { };
-define block HSTACK {block HEAP, block PROC_STACK, last block CSTACK};
+
+define block CM0P_RO with size = (FLASH_CM0P_SIZE - BOOT_HEADER_SIZE)  { readonly section .cy_m0p_image };
 define block RO     {first section .intvec, readonly};
 
 /*-Initializations-*/
@@ -148,8 +207,11 @@ do not initialize  { section .noinit, section .intvec_ram };
 
 /*-Placement-*/
 
+/* Flash - Cortex-M0+ application image */
+place at start of IROM0_region  { block CM0P_RO };
+
 /* Flash - Cortex-M4 application */
-place at address (__ICFEDIT_region_IROM1_start__ + BOOT_HEADER_SIZE) { block RO };
+place at start of IROM1_region  { block RO };
 
 /* Used for the digital signature of the secure application and the Bootloader SDK application. */
 ".cy_app_signature" : place at address (__ICFEDIT_region_IROM1_end__ - 0x200) { section .cy_app_signature };
@@ -180,14 +242,16 @@ place at address (__ICFEDIT_region_IROM1_start__ + BOOT_HEADER_SIZE) { block RO 
 
 /* RAM */
 place at start of IRAM1_region  { readwrite section .intvec_ram};
-place in          IRAM1_region  { readwrite };
-place at end   of IRAM1_region  { block HSTACK };
+place in IRAM1_region  { block RAM};
+place in IRAM1_region  { block HEAP};
+place at end   of IRAM1_region  { block CSTACK };
 
 /* These sections are used for additional metadata (silicon revision, Silicon/JTAG ID, etc.) storage. */
 ".cymeta" : place at address mem : 0x90500000 { readonly section .cymeta };
 
 
-keep {  section .cy_app_signature,
+keep {  section .cy_m0p_image,
+        section .cy_app_signature,
         section .cy_em_eeprom,
         section .cy_sflash_user_data,
         section .cy_sflash_nar,
@@ -203,7 +267,7 @@ keep {  section .cy_app_signature,
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 define exported symbol __cy_memory_0_start    = 0x10000000;
-define exported symbol __cy_memory_0_length   = 0x001D0000;
+define exported symbol __cy_memory_0_length   = 0x00200000;
 define exported symbol __cy_memory_0_row_size = 0x200;
 
 /* Emulated EEPROM Flash area */

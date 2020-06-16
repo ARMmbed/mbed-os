@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cyb06xxa_cm0plus.sct
-;* \version 2.70.1
+;* \version 2.80
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -42,6 +42,53 @@
 ;* limitations under the License.
 ;******************************************************************************/
 
+#if !defined(MBED_ROM_START)
+  #define MBED_ROM_START    0x10000000
+#endif
+
+;* MBED_APP_START is being  used by the bootloader build script and
+;* will be calculate by the system. Without bootloader the MBED_APP_START
+;* is equal to MBED_ROM_START
+;*
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START    MBED_ROM_START
+#endif
+
+#if !defined(MBED_ROM_SIZE)
+  #define MBED_ROM_SIZE     0x00010000
+#endif
+
+;* MBED_APP_SIZE is being  used by the bootloader build script and
+;* will be calculate by the system. Without bootloader the MBED_APP_SIZE
+;* is equal to MBED_ROM_SIZE
+;*
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE     MBED_ROM_SIZE
+#endif
+
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START    0x080E0000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE     0x0000C000
+#endif
+
+#if !defined(MBED_PUBLIC_RAM_SIZE)
+  #define MBED_PUBLIC_RAM_SIZE     0x200
+#endif
+
+; The size of the stack section at the end of CM0+ SRAM
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define STACK_SIZE MBED_BOOT_STACK_SIZE
+
+#if !defined(MBED_PUBLIC_RAM_START)
+  #define MBED_PUBLIC_RAM_START    (MBED_RAM_START + MBED_RAM_SIZE - STACK_SIZE - MBED_PUBLIC_RAM_SIZE)
+#endif
+
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
 
@@ -50,14 +97,14 @@
 ; Your changes must be aligned with the corresponding defines for the CM4 core in 'xx_cm4_dual.scat',
 ; where 'xx' is the device group; for example, 'cyb06xx7_cm4_dual.scat'.
 ; RAM
-#define RAM_START               0x08000000
-#define RAM_SIZE                0x00040000
+#define RAM_START               MBED_RAM_START
+#define RAM_SIZE                MBED_RAM_SIZE
+; Public RAM
+#define PUBLIC_RAM_START        MBED_PUBLIC_RAM_START
+#define PUBLIC_RAM_SIZE         MBED_PUBLIC_RAM_SIZE
 ; Flash
-#define FLASH_START             0x10000000
-#define FLASH_SIZE              0x00040000
-
-; The size of the stack section at the end of CM0+ SRAM
-#define STACK_SIZE              0x00001000
+#define FLASH_START             MBED_APP_START
+#define FLASH_SIZE              MBED_APP_SIZE
 
 ; The size of the MCU boot header area at the start of FLASH
 #define BOOT_HEADER_SIZE        0x00000400
@@ -101,14 +148,9 @@
 
 
 ; Cortex-M0+ application flash area
-LR_IROM1 FLASH_START FLASH_SIZE
+LR_IROM1 (FLASH_START + BOOT_HEADER_SIZE) (FLASH_SIZE - BOOT_HEADER_SIZE - 0x8000)
 {
-    .cy_app_header +0
-    {
-        * (.cy_app_header)
-    }
-
-    ER_FLASH_VECTORS FLASH_START + BOOT_HEADER_SIZE
+    ER_FLASH_VECTORS +0
     {
         * (RESET, +FIRST)
     }
@@ -137,13 +179,18 @@ LR_IROM1 FLASH_START FLASH_SIZE
         * (.noinit)
     }
 
+    RW_IRAM2 PUBLIC_RAM_START UNINIT
+    {
+        * (.cy_sharedmem)
+    }
+
     ; Application heap area (HEAP)
-    ARM_LIB_HEAP  +0 EMPTY ((RAM_START+RAM_SIZE)-AlignExpr(ImageLimit(RW_IRAM1), 8)-STACK_SIZE)
-    { 
+    ARM_LIB_HEAP  +0 EMPTY RAM_START+RAM_SIZE-STACK_SIZE-ImageLimit(RW_IRAM2)
+    {
     }
 
     ; Stack region growing down
-    ARM_LIB_STACK (RAM_START+RAM_SIZE) EMPTY -STACK_SIZE
+    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -STACK_SIZE
     {
     }
 }
