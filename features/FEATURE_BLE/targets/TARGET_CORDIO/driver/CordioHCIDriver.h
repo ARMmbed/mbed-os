@@ -187,6 +187,16 @@ public:
       */
      ble_error_t rf_test_end();
 
+     /**
+      * Set desired transmit power. Value equal or bigger will be used from available levels.
+      * Consult chip documentation for available values. Actual TX power is not guaranteed
+      * and is down to the implementation.
+      *
+      * @param level_db Signal level in dBm.
+      * @return BLE_ERROR_NONE on success.
+      */
+     virtual ble_error_t set_tx_power(int8_t level_db);
+
 protected:
     /**
      * Return a default set of memory pool that the Cordio stack can use.

@@ -46,3 +46,9 @@ specific to the controller used.
 The driver also provides an interface to perform RF testing on the BLE trasnmitter.
 This is done using the LE Receiver/Transmitter Test command and LE Test End command
 as described in the Bluetooth Core spec in Vol.2, Part E, 7.8.28-30. 
+
+The driver allows to set preferred TX power. This is an optional feature
+(check return code) and the support for it and the extent of control is
+down to the BLE chip. Chips may have different allowed values, although the
+command will pick the closest value no smaller than requested. Please refer
+to the controller code or BLE chip documentation.

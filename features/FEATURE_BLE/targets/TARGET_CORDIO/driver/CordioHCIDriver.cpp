@@ -364,6 +364,10 @@ ble_error_t CordioHCIDriver::rf_test_end()
     return BLE_ERROR_NO_MEM;
 }
 
+ble_error_t CordioHCIDriver::set_tx_power(int8_t level_db) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
