@@ -179,7 +179,7 @@ uint16_t adc_read(analogin_t *obj)
     }
 
     if (__LL_ADC_COMMON_INSTANCE(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance)) != 0U) {
-      LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
+        LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
     }
     return adcValue;
 }
