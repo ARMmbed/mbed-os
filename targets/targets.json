@@ -4074,6 +4074,7 @@
         ],
         "macros_add": [
             "STM32L562xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
@@ -4134,6 +4135,7 @@
         },
         "macros_add": [
             "STM32WB55xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
