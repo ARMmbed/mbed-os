@@ -181,6 +181,15 @@ void Nanostack::PPPInterface::set_link_state_changed_callback(link_state_cb_t ne
     link_state_cb = new_link_state_cb;
 }
 
+char *Nanostack::PPPInterface::get_interface_name(char *buf)
+{
+    if (interface_id < 0) {
+        return NULL;
+    }
+    sprintf(buf, "PPP%d", interface_id);
+    return buf;
+};
+
 // GAH! no handles on the callback. Force a single interface
 static PPPPhy *single_phy;
 
