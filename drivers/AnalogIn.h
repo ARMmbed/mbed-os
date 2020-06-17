@@ -25,6 +25,8 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
+#include <cmath>
+
 namespace mbed {
 /** \defgroup mbed-os-public Public API */
 
@@ -70,15 +72,21 @@ public:
     /** Create an AnalogIn, connected to the specified pin
      *
      * @param pinmap reference to structure which holds static pinmap.
+     * @param vref (optional) Reference voltage of this AnalogIn instance (defaults to target.default-adc-vref).
+     *
+     * @note An input voltage at or above the given vref value will produce a 1.0 result when `read` is called
      */
-    AnalogIn(const PinMap &pinmap);
-    AnalogIn(const PinMap &&) = delete; // prevent passing of temporary objects
+    AnalogIn(const PinMap &pinmap, float vref = MBED_CONF_TARGET_DEFAULT_ADC_VREF);
+    AnalogIn(const PinMap &&, float vref = MBED_CONF_TARGET_DEFAULT_ADC_VREF) = delete; // prevent passing of temporary objects
 
     /** Create an AnalogIn, connected to the specified pin
      *
      * @param pin AnalogIn pin to connect to
+     * @param vref (optional) Reference voltage of this AnalogIn instance (defaults to target.default-adc-vref).
+     *
+     * @note An input voltage at or above the given vref value will produce a 1.0 result when `read` is called
      */
-    AnalogIn(PinName pin);
+    AnalogIn(PinName pin, float vref = MBED_CONF_TARGET_DEFAULT_ADC_VREF);
 
     /** Read the input voltage, represented as a float in the range [0.0, 1.0]
      *
@@ -92,6 +100,35 @@ public:
      *   16-bit unsigned short representing the current input voltage, normalized to a 16-bit value
      */
     unsigned short read_u16();
+
+    /**
+     * Read the input voltage in volts. The output depends on the target board's
+     * ADC reference voltage (typically equal to supply voltage). The ADC reference voltage
+     * sets the maximum voltage the ADC can quantify (ie: ADC output == ADC_MAX_VALUE when Vin == Vref)
+     *
+     * The target's default ADC reference voltage is determined by the configuration
+     * option target.default-adc_vref. The reference voltage for a particular input
+     * can be manually specified by either the constructor or `AnalogIn::set_reference_voltage`.
+     *
+     * @returns A floating-point value representing the current input voltage, measured in volts.
+     */
+    float read_voltage();
+
+    /**
+     * Sets this AnalogIn instance's reference voltage.
+     *
+     * The AnalogIn's reference voltage is used to scale the output when calling AnalogIn::read_volts
+     *
+     * @param[in] vref New ADC reference voltage for this AnalogIn instance.
+     */
+    void set_reference_voltage(float vref);
+
+    /**
+     * Gets this AnalogIn instance's reference voltage.
+     *
+     * @returns A floating-point value representing this AnalogIn's reference voltage, measured in volts.
+     */
+    float get_reference_voltage() const;
 
     /** An operator shorthand for read()
      *
@@ -131,6 +168,9 @@ protected:
 
     analogin_t _adc;
     static SingletonPtr<PlatformMutex> _mutex;
+
+    float _vref;
+
 #endif //!defined(DOXYGEN_ONLY)
 
 };

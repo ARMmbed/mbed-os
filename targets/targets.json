@@ -83,6 +83,10 @@
             "xip-enable": {
                 "help": "Enable Execute In Place (XIP) on this target. Value is only significant if the board has executable external storage such as QSPIF. If this is enabled, customize the linker file to choose what text segments are placed on external storage",
                 "value": false
+            },
+            "default-adc-vref": {
+                "help": "Default reference voltage for ADC (float)",
+                "value": "NAN"
             }
         }
     },
