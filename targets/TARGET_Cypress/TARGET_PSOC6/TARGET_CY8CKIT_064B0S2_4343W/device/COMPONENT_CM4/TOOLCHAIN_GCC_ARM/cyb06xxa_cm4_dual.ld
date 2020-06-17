@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy8c6xxa_cm4_dual.ld
+* \file cyb06xxa_cm4_dual.ld
 * \version 2.80
 *
 * Linker file for the GNU C compiler.
@@ -40,13 +40,14 @@ SEARCH_DIR(.)
 GROUP(-lgcc -lc -lnosys)
 ENTRY(Reset_Handler)
 
-/* By default, the COMPONENT_CM0P_SLEEP prebuilt image is used for the CM0p core.
+/* By default, the COMPONENT_CM0P_SECURE prebuilt image is used for the CM0p core.
 * More about CM0+ prebuilt images, see here:
 * https://github.com/cypresssemiconductorco/psoc6cm0p
 */
 /* The size of the Cortex-M0+ application image at the start of FLASH */
 FLASH_CM0P_SIZE = 0x10000;
 
+/* The size of the MCU boot header area at the start of FLASH */
 BOOT_HEADER_SIZE = 0x400;
 
 #if !defined(MBED_ROM_START)
@@ -103,10 +104,9 @@ MEMORY
 {
     /* The ram and flash regions control RAM and flash memory allocation for the CM4 core.
      * You can change the memory allocation by editing the 'ram' and 'flash' regions.
-     * Note that 2 KB of RAM (at the end of the SRAM) are reserved for system use.
      * Using this memory region for other purposes will lead to unexpected behavior.
      * Your changes must be aligned with the corresponding memory regions for CM0+ core in 'xx_cm0plus.ld',
-     * where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.ld'.
+     * where 'xx' is the device group; for example, 'cyb06xxa_cm0plus.ld'.
      */
     ram               (rwx)   : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
     cm0p_image        (rx)    : ORIGIN = (MBED_ROM_START + BOOT_HEADER_SIZE), LENGTH = FLASH_CM0P_SIZE

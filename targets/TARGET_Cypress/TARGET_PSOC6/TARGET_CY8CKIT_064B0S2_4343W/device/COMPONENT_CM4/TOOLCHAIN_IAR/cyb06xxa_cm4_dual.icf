@@ -1,5 +1,5 @@
 /*******************************************************************************
-* \file cyb8c6xxa_cm4_dual.icf
+* \file cyb06xxa_cm4_dual.icf
 * \version 2.80
 *
 * Linker file for the IAR compiler.
@@ -41,7 +41,7 @@
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
-/* By default, the COMPONENT_CM0P_SLEEP prebuilt image is used for the CM0p core.
+/* By default, the COMPONENT_CM0P_SECURE prebuilt image is used for the CM0p core.
  * More about CM0+ prebuilt images, see here:
  * https://github.com/cypresssemiconductorco/psoc6cm0p
  */
@@ -103,7 +103,7 @@ define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
  * Note that 2 KB of RAM (at the end of the SRAM) are reserved for system use.
  * Using this memory region for other purposes will lead to unexpected behavior.
  * Your changes must be aligned with the corresponding symbols for CM0+ core in 'xx_cm0plus.icf',
- * where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.icf'.
+ * where 'xx' is the device group; for example, 'cyb06xx7_cm0plus.icf'.
  */
 /* RAM */
 define symbol __ICFEDIT_region_IRAM1_start__ = MBED_RAM_START;

@@ -3,7 +3,7 @@
 ; to pass a scatter file through a C preprocessor.
 
 ;*******************************************************************************
-;* \file cy8bc6xxa_cm4_dual.sct
+;* \file cyb06xxa_cm4_dual.sct
 ;* \version 2.80
 ;*
 ;* Linker file for the ARMCC.
@@ -99,7 +99,7 @@
 ; Note that 2 KB of RAM (at the end of the SRAM) are reserved for system use.
 ; Using this memory region for other purposes will lead to unexpected behavior.
 ; Your changes must be aligned with the corresponding defines for CM0+ core in 'xx_cm0plus.scat',
-; where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.scat'.
+; where 'xx' is the device group; for example, 'cyb06xx7_cm0plus.scat'.
 ; RAM
 #define RAM_START               MBED_RAM_START
 #define RAM_SIZE                MBED_RAM_SIZE
