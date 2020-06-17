@@ -120,6 +120,10 @@
             "help": "Network name for a wisun network. Maximum network name length can be 32 ASCII characters excluding terminating 0",
             "value": "\"Wi-SUN Network\""
         },
+        "wisun-network-size": {
+            "help": "Expected amount of devices in the network as 100s of devices. with possible pre defined constants NETWORK_SIZE_SMALL, NETWORK_SIZE_MEDIUM, NETWORK_SIZE_LARGE, NETWORK_SIZE_XLARGE. if set to 0 Wi-SUN Certification configuration values are used. If don't define this(default null), then NETWORK_SIZE_MEDIUM will be used.",
+            "value": null
+        },
         "wisun-regulatory-domain": {
             "help": "Regulator domain value as specified in the Wi-SUN PHY Specification. Default value 3 is for EU region.",
             "value": "3"
