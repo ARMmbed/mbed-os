@@ -17,6 +17,7 @@
 #include "cmsis.h"
 #include "us_ticker_api.h"
 #include "mbed_error.h"
+#include "cy_us_ticker.h"
 #include "cyhal_timer.h"
 #include "cy_tcpwm_counter.h"
 
@@ -49,6 +50,16 @@ static cy_stc_syspm_callback_t cy_us_ticker_pm_data = {
 static void cy_us_ticker_irq_handler(MBED_UNUSED void *arg, MBED_UNUSED cyhal_timer_event_t event)
 {
     us_ticker_irq_handler();
+}
+
+void cy_us_ticker_start()
+{
+    cyhal_timer_start(&cy_us_timer);
+}
+
+void cy_us_ticker_stop()
+{
+    cyhal_timer_stop(&cy_us_timer);
 }
 
 void us_ticker_init(void)
