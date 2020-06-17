@@ -178,16 +178,11 @@ mesh_error_t WisunBorderRouter::info_get(ws_br_info_t *info_ptr)
     return MESH_ERROR_NONE;
 }
 
-mesh_error_t WisunBorderRouter::routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len)
+int WisunBorderRouter::routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len)
 {
     if (table_ptr == NULL) {
-        return MESH_ERROR_PARAM;
+        return -1;
     }
 
-    int status = ws_bbr_routing_table_get(_mesh_if_id, (bbr_route_info_t *)table_ptr, table_len);
-    if (status != 0) {
-        return MESH_ERROR_UNKNOWN;
-    }
-
-    return MESH_ERROR_NONE;
+    return ws_bbr_routing_table_get(_mesh_if_id, (bbr_route_info_t *)table_ptr, table_len);
 }
