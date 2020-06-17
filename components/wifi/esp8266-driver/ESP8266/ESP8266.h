@@ -206,7 +206,7 @@ public:
      *
      * @return true if operation was successful and flase otherwise
      */
-    const bool set_ip_addr(const char *ip, const char *gateway, const char *netmask);
+    bool set_ip_addr(const char *ip, const char *gateway, const char *netmask);
 
     /**
     * Get the MAC address of ESP8266
