@@ -117,6 +117,14 @@ nsapi_error_t WisunInterface::configure()
     }
 #endif
 
+#ifdef MBED_CONF_MBED_MESH_API_WISUN_NETWORK_SIZE
+    status = set_network_size(MBED_CONF_MBED_MESH_API_WISUN_NETWORK_SIZE);
+    if (status < 0) {
+        tr_error("Failed to set network size");
+        return NSAPI_ERROR_PARAMETER;
+    }
+#endif
+
     return NSAPI_ERROR_OK;
 }
 
