@@ -389,6 +389,56 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
+	    "NGX_BLUEBOARD_LPC1768_H": {
+        "inherits": ["LPCTarget"],
+        "core": "Cortex-M3",
+        "extra_labels": ["NXP", "LPC176X", "MBED_LPC1768", "NXP_EMAC"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "detect_code": ["1234"],
+        "macros": ["TARGET_LPC1768"],
+        "device_has": [
+            "RTC",
+            "USTICKER",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "CAN",
+            "DEBUG_AWARENESS",
+            "EMAC",
+            "ETHERNET",
+            "I2C",
+            "I2CSLAVE",
+            "INTERRUPTIN",
+            "LOCALFILESYSTEM",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SEMIHOST",
+            "SERIAL",
+            "SERIAL_FC",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "STDIO_MESSAGES",
+            "FLASH",
+            "MPU",
+            "USBDEVICE",
+            "WATCHDOG",
+            "RESET_REASON"
+        ],
+        "release_versions": ["2", "5"],
+        "device_name": "LPC1768",
+        "bootloader_supported": true,
+        "config": {
+            "us-ticker-timer": {
+                "help": "Chooses which timer (0-3) to use for us_ticker.c",
+                "value": 3
+            }
+        },
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
+    },
     "ARCH_PRO": {
         "supported_form_factors": [
             "ARDUINO"
