@@ -1,19 +1,18 @@
+#!/usr/bin/env python
+
 """
-* mbed Microcontroller Library
-* Copyright (c) 2006-2019 ARM Limited
-* Copyright (c) 2006-2019 STMicroelectronics
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2016-2020 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
 """
 
 import argparse
@@ -27,10 +26,11 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.9"
+GENPINMAP_VERSION = "1.12"
 
 ADD_DEVICE_IF = 0
 ADD_QSPI_FEATURE = 1
+DEBUG_PRINT = 0
 
 mcu_file=""
 mcu_list = []       #'name'
@@ -63,78 +63,51 @@ usb_otghs_list = []  # 'PIN','name','USB'
 osc_list = []      #'PIN','name','OSC'
 sys_list = []      #'PIN','name','SYS'
 
-TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
-"NUCLEO_F030R8":"TIM1",
-"NUCLEO_F072RB":"TIM2",
-"NUCLEO_F091RC":"TIM2",
-"NUCLEO_F070RB":"TIM1",
-"NUCLEO_F042K6":"TIM2",
-"NUCLEO_F031K6":"TIM2",
-"NUCLEO_F103RB":"TIM4",
-"NUCLEO_F207ZG":"TIM5",
-"NUCLEO_F302R8":"TIM2",
-"NUCLEO_F334R8":"TIM2",
-"NUCLEO_F303RE":"TIM2",
-"NUCLEO_F303K8":"TIM2",
-"NUCLEO_F303ZE":"TIM2",
-"NUCLEO_F401RE":"TIM5",
-"NUCLEO_F411RE":"TIM5",
-"NUCLEO_F446RE":"TIM5",
-"NUCLEO_F410RB":"TIM5",
-"NUCLEO_F429ZI":"TIM5",
-"NUCLEO_F446ZE":"TIM5",
-"NUCLEO_F412ZG":"TIM5",
-"NUCLEO_F413ZH":"TIM5",
-"NUCLEO_F746ZG":"TIM5",
-"NUCLEO_F767ZI":"TIM5",
-"NUCLEO_F722ZE":"TIM5",
+STDIO_list = ["", ""] # TX , RX
+LED_list   = []
+BUTTON_list   = []
 
-"NUCLEO_H743ZI":"TIM5",
-"NUCLEO_H743ZI2":"TIM5",
+TIM_MST_LIST = {
+# Timer used for us ticker is hardcoded in this script
+# Default is TIM5
+"F0":"TIM2",
+"F030":"TIM1",  # overwrite previous default F0
+"F05":"TIM1",  # overwrite previous default F0
+"F070":"TIM1", # overwrite previous default F0
+"F1":"TIM4",
+"F3":"TIM2",
+"L0":"TIM21",
+"G0":"TIM2",
+"G070":"TIM3",
+"G43":"TIM2",
+"G471":"TIM2",
+"G49":"TIM2",
+"G4A":"TIM2",
+"L10":"TIM2",
+"L152R(6-8-B)":"TIM2",
+"L41":"TIM2",
+"L43":"TIM2",
+"L45":"TIM2",
 
-"NUCLEO_L053R8":"TIM21",
-"NUCLEO_L073RZ":"TIM21",
-"NUCLEO_L031K6":"TIM21",
-"NUCLEO_L011K4":"TIM21",
-"NUCLEO_L152RE":"TIM5",
-"NUCLEO_L476RG":"TIM5",
-"NUCLEO_L432KC":"TIM2",
-"NUCLEO_L496ZG":"TIM5",
-"NUCLEO_L496ZG_P":"TIM5",
-"NUCLEO_L433RC_P":"TIM2",
-"NUCLEO_L4R5ZI":"TIM5",
-"NUCLEO_L4R5ZI_P":"TIM5",
-"NUCLEO_L552ZE":"TIM5",
-
-"NUCLEO_WB55R":"TIM16",
-
-"DISCO_F051R8":"TIM1",
-"DISCO_F100RB":"TIM4",
-"DISCO_F303VC":"TIM2",
-"DISCO_F334C8":"TIM2",
-"DISCO_F401VC":"TIM5",
-"DISCO_F407VG":"TIM5",
-"DISCO_F413ZH":"TIM5",
-"DISCO_F429ZI":"TIM5",
-"DISCO_F469NI":"TIM5",
-"DISCO_F769NI":"TIM5",
-"DISCO_F746NG":"TIM5",
-
-"DISCO_H747I":"TIM5",
-
-"DISCO_L053C8":"TIM21",
-"DISCO_L072CZ_LRWAN1":"TIM21",
-"DISCO_L475VG_IOT01A":"TIM5",
-"DISCO_L476VG":"TIM5",
-"DISCO_L496AG":"TIM5",
-"DISCO_L4R9A":"TIM5",
-"DISCO_L562QE":"TIM5"
+"WB":"TIM16"
 }
 
 TIM_DUALCORE_LIST = { # Timer used for us ticker is hardcoded in this script
-"DISCO_H747I":"TIM2"
+"H745":"TIM2",
+"H747":"TIM2",
+"H750":"TIM2",
+"H755":"TIM2"
 }
 
+VCP_UART_LIST = { # Used interface is HW option
+"Nucleo_NUCLEO-L552ZE-Q":"LPUART1",
+"Discovery_STM32L4R9I":"USART2",
+"Discovery_STM32L496G":"USART2"
+}
+
+def print_debug(console_line):
+    if DEBUG_PRINT == 1:
+        print("DEBUG: %s" % console_line)
 
 def find_gpio_file():
     res = "ERROR"
@@ -149,7 +122,6 @@ def find_gpio_file():
 def get_gpio_af_num(pintofind, iptofind):
     if "STM32F10" in mcu_file:
         return get_gpio_af_numF1(pintofind, iptofind)
-    # DBG print ('pin to find ' + pintofind)
     i = 0
     mygpioaf = ""
     for n in xml_gpio.documentElement.childNodes:
@@ -159,7 +131,6 @@ def get_gpio_af_num(pintofind, iptofind):
             for firstlevel in n.attributes.items():
                 # if 'PB7' in firstlevel:
                 if pintofind == firstlevel[1]:
-                    # DBG print (i , firstlevel)
                     # n = pin node found
                     for m in n.childNodes:
                         j += 1
@@ -169,14 +140,11 @@ def get_gpio_af_num(pintofind, iptofind):
                                 k += 1
                                 # if 'I2C1_SDA' in secondlevel:
                                 if iptofind in secondlevel:
-                                    # DBG print (i, j,  m.attributes.items())
                                     # m = IP node found
                                     for p in m.childNodes:
                                         if p.nodeType == Node.ELEMENT_NODE:
                                             # p node of 'Specific parameter'
-                                            # DBG print (i,j,k,p.attributes.items())
                                             for myc in p.childNodes:
-                                                # DBG print (myc)
                                                 if myc.nodeType == Node.ELEMENT_NODE:
                                                     # myc = node of ALTERNATE
                                                     for mygpioaflist in myc.childNodes:
@@ -184,14 +152,13 @@ def get_gpio_af_num(pintofind, iptofind):
                                                             if mygpioaf != "":
                                                                 mygpioaf += " "
                                                             mygpioaf += mygpioaflist.data
-                                                        # print (mygpioaf)
     if mygpioaf == "":
         mygpioaf = "GPIO_AF_NONE"
     return mygpioaf
 
 
 def get_gpio_af_numF1(pintofind, iptofind):
-    # print ('pin to find ' + pintofind + ' ip to find ' + iptofind)
+    print_debug('pin to find ' + pintofind + ' ip to find ' + iptofind)
     i = 0
     mygpioaf = ""
     for n in xml_gpio.documentElement.childNodes:
@@ -199,22 +166,17 @@ def get_gpio_af_numF1(pintofind, iptofind):
         j = 0
         if n.nodeType == Node.ELEMENT_NODE:
             for firstlevel in n.attributes.items():
-                # print ('firstlevel ' , firstlevel)
-                #                if 'PB7' in firstlevel:
                 if pintofind == firstlevel[1]:
-                    # print ('firstlevel ' , i , firstlevel)
                     # n = pin node found
                     for m in n.childNodes:
                         j += 1
                         k = 0
                         if m.nodeType == Node.ELEMENT_NODE:
                             for secondlevel in m.attributes.items():
-                                # print ('secondlevel ' , i, j, k , secondlevel)
                                 k += 1
                                 # if 'I2C1_SDA' in secondlevel:
                                 if iptofind in secondlevel:
                                     # m = IP node found
-                                    # print (i, j,  m.attributes.items())
                                     for p in m.childNodes:
                                         # p node 'RemapBlock'
                                         if (
@@ -228,9 +190,7 @@ def get_gpio_af_numF1(pintofind, iptofind):
                                             for s in p.childNodes:
                                                 if s.nodeType == Node.ELEMENT_NODE:
                                                     # s node 'Specific parameter'
-                                                    # print (i,j,k,p.attributes.items())
                                                     for myc in s.childNodes:
-                                                        # DBG print (myc)
                                                         if (
                                                             myc.nodeType
                                                             == Node.ELEMENT_NODE
@@ -246,7 +206,6 @@ def get_gpio_af_numF1(pintofind, iptofind):
                                                                 ).replace(
                                                                     "_REMAP", ""
                                                                 )
-                                                                # print mygpioaf
     if mygpioaf == "":
         mygpioaf = "AFIO_NONE"
     return mygpioaf.replace("AFIO_NONE", "0")\
@@ -257,6 +216,8 @@ def get_gpio_af_numF1(pintofind, iptofind):
        .replace("AFIO_TIM1_PARTIAL", "6")\
        .replace("AFIO_TIM3_PARTIAL", "7")\
        .replace("AFIO_TIM2_ENABLE", "8")\
+       .replace("AFIO_TIM2_PARTIAL_1", "8")\
+       .replace("AFIO_TIM2_PARTIAL_2", "8")\
        .replace("AFIO_TIM3_ENABLE", "9")\
        .replace("AFIO_CAN1_2", "10")
 
@@ -368,35 +329,20 @@ def print_header():
     DATE_YEAR = datetime.datetime.now().year
 
     s =  ("""/* mbed Microcontroller Library
- *******************************************************************************
- * Copyright (c) %i, STMicroelectronics
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2016-%i STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ ******************************************************************************
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
- *
- * Automatically generated from %s
+ * Automatically generated from STM32CubeMX/db/mcu/%s
  */
 
 #include "PeripheralPins.h"
@@ -424,35 +370,20 @@ def print_header():
     out_c_file.write( s )
 
     s =  ("""/* mbed Microcontroller Library
- *******************************************************************************
- * Copyright (c) %i, STMicroelectronics
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2016-%i STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ ******************************************************************************
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
- *
- * Automatically generated from %s
+ * Automatically generated from STM32CubeMX/db/mcu/%s
  */
 
 #ifndef MBED_PINNAMES_H
@@ -543,6 +474,7 @@ def print_all_lists():
         print_usb(usb_otgfs_list)
     if print_list_header("USBDEVICE", "USB_HS", usb_otghs_list, "USBDEVICE"):
         print_usb(usb_otghs_list)
+    print_PinList(io_list)
     print_h_file(usb_list, "USB")
     print_h_file(usb_otgfs_list, "USB FS")
     print_h_file(usb_otghs_list, "USB HS")
@@ -560,14 +492,18 @@ def print_list_header(comment, name, l, switch):
         s += "\n"
 
         if name == "PWM":
-            if TargetName in TIM_MST_LIST.keys():
-                s += "// %s cannot be used because already used by the us_ticker\n" % TIM_MST_LIST[TargetName]
-                if TargetName in TIM_DUALCORE_LIST.keys():
-                    s += "// %s cannot be used because already used by the us_ticker (DUAL_CORE)\n" % TIM_DUALCORE_LIST[TargetName]
-            else:
-                s += "// TIM<x> cannot be used because already used by the us_ticker\n"
-                s += "// You have to comment all PWM using TIM_MST defined in hal_tick.h file\n"
-                s += "//  or update python script (check TIM_MST_LIST) and re-run it\n"
+            DefaultTimerCore1 = "TIM5"
+            for EachTarget in TIM_MST_LIST:
+                if EachTarget in mcu_file:
+                    DefaultTimerCore1 = TIM_MST_LIST[EachTarget]
+            s += "// %s cannot be used because already used by the us_ticker\n" % DefaultTimerCore1
+
+            DefaultTimerCore2 = ""
+            for EachTarget in TIM_DUALCORE_LIST:
+                if EachTarget in mcu_file:
+                    DefaultTimerCore2 = TIM_DUALCORE_LIST[EachTarget]
+            if DefaultTimerCore2 != "":
+                s += "// %s cannot be used because already used by the us_ticker (DUAL_CORE)\n" % DefaultTimerCore2
 
         if ADD_DEVICE_IF:
             s += "#if DEVICE_%s\n" % switch
@@ -603,9 +539,13 @@ def print_adc():
                     CommentedLine = "//"
             if CommentedLine != "//":
                 if p[0] == prev_p:
-                    prev_p = p[0]
-                    p[0] += '_ALT%d' % alt_index
-                    alt_index += 1
+                    if "STM32F1" in mcu_file:
+                        continue
+                    else:
+                        prev_p = p[0]
+                        p[0] += '_ALT%d' % alt_index
+                        store_pin(p[0], p[0])
+                        alt_index += 1
                 else:
                     prev_p = p[0]
                     alt_index = 0
@@ -626,12 +566,12 @@ def print_adc():
 };
 
 // !!! SECTION TO BE CHECKED WITH DEVICE REFERENCE MANUAL
-MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
-    {ADC_TEMP,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 16, 0)},
-    {ADC_VREF,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 17, 0)},
-    {ADC_VBAT,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 18, 0)},
-    {NC, NC, 0}
-};
+// MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
+//     {ADC_TEMP,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 16, 0)},
+//     {ADC_VREF,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 17, 0)},
+//     {ADC_VBAT,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 18, 0)},
+//     {NC, NC, 0}
+// };
 """)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
@@ -680,6 +620,7 @@ def print_i2c(l):
             if p[0] == prev_p:
                 prev_p = p[0]
                 p[0] += '_ALT%d' % alt_index
+                store_pin(p[0], p[0])
                 alt_index += 1
             else:
                 prev_p = p[0]
@@ -710,12 +651,18 @@ def print_i2c(l):
 def print_pwm():
     prev_p = ''
     alt_index = 0
-    TIM_MST = "NOT_KNOWN"
+
+    TIM_MST = "TIM5"
+    OneLineCommented = False
+    for EachTarget in TIM_MST_LIST:
+        if EachTarget in mcu_file:
+            TIM_MST = TIM_MST_LIST[EachTarget]
+
     TIM_DUALCORE = "NOT_KNOWN"
-    if TargetName in TIM_MST_LIST.keys():
-        TIM_MST = TIM_MST_LIST[TargetName]
-    if TargetName in TIM_DUALCORE_LIST.keys():
-        TIM_DUALCORE = TIM_DUALCORE_LIST[TargetName]
+    for EachTarget in TIM_DUALCORE_LIST:
+        if EachTarget in mcu_file:
+            TIM_DUALCORE = TIM_DUALCORE_LIST[EachTarget]
+
     for p in pwm_list:
         result = get_gpio_af_num(p[1], p[2])
         CommentedLine = "  "
@@ -726,12 +673,14 @@ def print_pwm():
                 CommentedLine = "//"
         if "%s_" % TIM_MST in p[2]:
             CommentedLine = "//"
+            OneLineCommented = True
         if "%s_" % TIM_DUALCORE in p[2]:
             CommentedLine = "//"
         if CommentedLine != "//":
             if p[0] == prev_p:
                 prev_p = p[0]
                 p[0] += '_ALT%d' % alt_index
+                store_pin(p[0], p[0])
                 alt_index += 1
             else:
                 prev_p = p[0]
@@ -751,15 +700,22 @@ def print_pwm():
             neg = ', 0'
         s1 += 'STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, '
         r = result.split(' ')
+        prev_s1 = ""
         for af in r:
-            s2 = s1 + af + ', ' + chan + neg + ')}, // ' + p[2]
-            if p[1] in PinLabel.keys():
-                s2 += ' // Connected to ' + PinLabel[p[1]]
-            s2 += '\n'
-            out_c_file.write(s2)
+            if s1 == prev_s1:
+                continue
+            else:
+                prev_s1 = s1
+                s2 = s1 + af + ', ' + chan + neg + ')}, // ' + p[2]
+                if p[1] in PinLabel.keys():
+                    s2 += ' // Connected to ' + PinLabel[p[1]]
+                s2 += '\n'
+                out_c_file.write(s2)
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
+    if OneLineCommented == False:
+        print("error: TIMER %s NOT FOUND" % TIM_MST)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
@@ -777,6 +733,7 @@ def print_uart(l):
             if p[0] == prev_p:
                 prev_p = p[0]
                 p[0] += '_ALT%d' % alt_index
+                store_pin(p[0], p[0])
                 alt_index += 1
             else:
                 prev_p = p[0]
@@ -820,6 +777,7 @@ def print_spi(l):
             if p[0] == prev_p:
                 prev_p = p[0]
                 p[0] += '_ALT%d' % alt_index
+                store_pin(p[0], p[0])
                 alt_index += 1
             else:
                 prev_p = p[0]
@@ -979,6 +937,141 @@ def print_usb(lst):
         out_c_file.write( "#endif\n" )
 
 
+def print_PinList(l):
+    l.sort(key=natural_sortkey)
+    previous_pin = ""
+    for p in l:
+        print_debug("pin %s => %s" % (p, p[0]))
+        if p[0] == previous_pin:
+            continue
+        previous_pin = p[0]
+
+        if "_ALT" in p[0]:
+            s1 = "    %-10s = %s | %s, // same pin used for alternate HW\n" % (p[0], p[0].split('_A')[0], p[0].split('_')[2])
+        else:
+            if "PA" in p[0]:
+                PinValue = 0
+            elif "PB" in p[0]:
+                PinValue = 0x10
+            elif "PC" in p[0]:
+                PinValue = 0x20
+            elif "PD" in p[0]:
+                PinValue = 0x30
+            elif "PE" in p[0]:
+                PinValue = 0x40
+            elif "PF" in p[0]:
+                PinValue = 0x50
+            elif "PG" in p[0]:
+                PinValue = 0x60
+            elif "PH" in p[0]:
+                PinValue = 0x70
+            elif "PI" in p[0]:
+                PinValue = 0x80
+            elif "PJ" in p[0]:
+                PinValue = 0x90
+            elif "PK" in p[0]:
+                PinValue = 0xA0
+            elif "PZ" in p[0]:
+                PinValue = 0x0 # to update
+            else:
+                print("error in print_PinList with pin %s" % p[0])
+            PinValue += int(p[0].split('_')[1])
+            s1 = "    %-10s = 0x%02X,\n" % (p[0], PinValue)
+
+        out_h_file.write(s1)
+
+    out_h_file.write("""\n    /**** ADC internal channels ****/
+
+    ADC_TEMP = 0xF0, // Internal pin virtual value
+    ADC_VREF = 0xF1, // Internal pin virtual value
+    ADC_VBAT = 0xF2, // Internal pin virtual value
+
+    // Arduino Uno(Rev3) Header pin connection naming
+    A0 = Px_x,
+    A1 = Px_x,
+    A2 = Px_x,
+    A3 = Px_x,
+    A4 = Px_x,
+    A5 = Px_x,
+    D0 = Px_x,
+    D1 = Px_x,
+    D2 = Px_x,
+    D3 = Px_x,
+    D4 = Px_x,
+    D5 = Px_x,
+    D6 = Px_x,
+    D7 = Px_x,
+    D8 = Px_x,
+    D9 = Px_x,
+    D10= Px_x,
+    D11= Px_x,
+    D12= Px_x,
+    D13= Px_x,
+    D14= Px_x,
+    D15= Px_x,
+    """)
+
+    s = ("""
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = %s,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = %s,
+#endif
+
+    USBTX = STDIO_UART_TX, // used for greentea tests
+    USBRX = STDIO_UART_RX, // used for greentea tests
+""" % (re.sub(r'(P.)', r'\1_', STDIO_list[0]), re.sub(r'(P.)', r'\1_', STDIO_list[1])))
+    out_h_file.write(s)
+
+    out_h_file.write("""
+    // I2C signals aliases
+    I2C_SDA = D14,
+    I2C_SCL = D15,
+
+    // SPI signals aliases
+    SPI_CS   = D10,
+    SPI_MOSI = D11,
+    SPI_MISO = D12,
+    SPI_SCK  = D13,
+
+    // Standardized LED and button names
+""")
+
+    NameCounter = 1
+    if len(LED_list) == 0:
+       LED_list.append("Pxx")
+    for EachLED in LED_list:
+        try:
+            LED_LABEL = " // %s" % PinLabel[EachLED]
+        except:
+            LED_LABEL = ""
+        out_h_file.write("    LED%i    = %s,%s\n" % (NameCounter, re.sub(r'(P.)', r'\1_', EachLED), LED_LABEL))
+        NameCounter += 1
+
+    NameCounter = 1
+    if len(BUTTON_list) == 0:
+       BUTTON_list.append("Pxx")
+    for EachBUTTON in BUTTON_list:
+        try:
+            BUTTON_LABEL = " // %s" % PinLabel[EachBUTTON]
+        except:
+            BUTTON_LABEL = ""
+        out_h_file.write("    BUTTON%i = %s,%s\n" % (NameCounter, re.sub(r'(P.)', r'\1_', EachBUTTON).split('/')[0].split('-')[0], BUTTON_LABEL))
+        NameCounter += 1
+
+    out_h_file.write("""
+    // Backward legacy names
+    USER_BUTTON = BUTTON1,
+    PWM_OUT = D3,
+    """)
+
+
 def print_h_file(l, comment):
     l.sort(key=natural_sortkey2)
     if len(l) > 0:
@@ -991,6 +1084,7 @@ def print_h_file(l, comment):
             if p[2] == prev_s:
                 prev_s = p[2]
                 p[2] += '_ALT%d' % alt_index
+                store_pin(p[0], p[0])
                 alt_index += 1
             else:
                 prev_s = p[2]
@@ -1080,7 +1174,6 @@ def clean_all_lists():
 
 
 def parse_pins():
-    # print (" * Getting pins per Ips...")
     pinregex = r"^(P[A-Z][0-9][0-5]?)"
     itemlist = xml_mcu.getElementsByTagName("Pin")
     for s in itemlist:
@@ -1148,42 +1241,63 @@ def parse_BoardFile(fileName):
     board_file.close()
 
     for EachPin in PinData:
-        try:
+        PinLabel[EachPin] = ""
+        if "Signal" in PinData[EachPin].keys():
             PinLabel[EachPin] = PinData[EachPin]["Signal"]
-        except:
-            pass
+        if "GPIO_Label" in PinData[EachPin].keys():
+            PinLabel[EachPin] = PinData[EachPin]["GPIO_Label"]
+        if any(led in PinLabel[EachPin].upper() for led in
+               ["LED", "LD1", "LD2", "LD3", "LD4", "LD5", "LD6", "LD7", "LD8", "LD9"]):
+            LED_list.append(EachPin)
+        elif any(button in PinLabel[EachPin].upper() for button in ["BUTTON", "B_USER", "BTN"]):
+            BUTTON_list.append(EachPin)
+
+        UART_HW_OPTION = "NO_NEED"
+        for EachTarget in VCP_UART_LIST:
+            if EachTarget in fileName:
+                UART_HW_OPTION = VCP_UART_LIST[EachTarget]
 
         try:
-            PinLabel[EachPin] = PinData[EachPin]["GPIO_Label"]
-
             if "STLK_RX" in PinLabel[EachPin] or "STLK_TX" in PinLabel[EachPin]:
                 # Patch waiting for CubeMX correction
                 if "RX" in PinData[EachPin]["Signal"]:
                     PinLabel[EachPin] = "STDIO_UART_RX"
+                    STDIO_list[1] = EachPin
                 else:
                     PinLabel[EachPin] = "STDIO_UART_TX"
+                    STDIO_list[0] = EachPin
             elif "USART_RX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_RX"
+                STDIO_list[1] = EachPin
             elif "USART_TX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_TX"
+                STDIO_list[0] = EachPin
             elif "VCP_RX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_RX"
+                STDIO_list[1] = EachPin
             elif "VCP_TX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_TX"
+                STDIO_list[0] = EachPin
             elif "ST_LINK_UART1_RX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_RX"
+                STDIO_list[1] = EachPin
             elif "ST_LINK_UART1_TX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_TX"
-            elif "USART2_RX" in PinLabel[EachPin]:
-                PinLabel[EachPin] = "STDIO_UART_RX"
-            elif "USART2_TX" in PinLabel[EachPin]:
-                PinLabel[EachPin] = "STDIO_UART_TX"
+                STDIO_list[0] = EachPin
             elif "STLINK_RX" in PinLabel[EachPin] or "STLINK_TX" in PinLabel[EachPin]:
                 # Patch waiting for CubeMX correction
                 if "RX" in PinData[EachPin]["Signal"]:
                     PinLabel[EachPin] = "STDIO_UART_RX"
+                    STDIO_list[1] = EachPin
                 else:
                     PinLabel[EachPin] = "STDIO_UART_TX"
+                    STDIO_list[0] = EachPin
+            elif "%s_RX" % UART_HW_OPTION in PinLabel[EachPin]:
+                PinLabel[EachPin] = "STDIO_UART_RX"
+                STDIO_list[1] = EachPin
+            elif "%s_TX" % UART_HW_OPTION in PinLabel[EachPin]:
+                STDIO_list[0] = EachPin
+                PinLabel[EachPin] = "STDIO_UART_TX"
             elif "_RESERVED" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "RESERVED_RADIO"
         except:
@@ -1203,20 +1317,21 @@ except IOError:
     print("Please set your configuration in '%s' file" % config_filename)
     config_file = open(config_filename, "w")
     if sys.platform.startswith("win32"):
-        print("Platform is Windows")
-        cubemxdir = "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeMX"
+        print_debug("Platform is Windows")
+        cubemxdir = "C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeMX"
     elif sys.platform.startswith("linux"):
-        print("Platform is Linux")
+        print_debug("Platform is Linux")
         cubemxdir = os.getenv("HOME")+"/STM32CubeMX"
     elif sys.platform.startswith("darwin"):
-        print("Platform is Mac OSX")
+        print_debug("Platform is Mac OSX")
         cubemxdir = "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources"
     else:
-        print("Platform unknown")
+        print_debug("Platform unknown")
         cubemxdir = "<Set CubeMX install directory>"
     config_file.write(json.dumps({"CUBEMX_DIRECTORY":cubemxdir}))
     config_file.close()
-    exit(1)
+    print("Default path set: %s\n" % cubemxdir)
+    config_file = open(config_filename, "r")
 
 config = json.load(config_file)
 config_file.close()
@@ -1227,12 +1342,14 @@ parser = argparse.ArgumentParser(
     description=textwrap.dedent('''\
 Script will generate %s thanks to the xml files description available in
 STM32CubeMX directory defined in '%s':
-\t%s''' % (PeripheralPins_c_filename, config_filename, cubemxdir)),
+\t%s\n
+More information in targets/TARGET_STM/README.md''' % (PeripheralPins_c_filename, config_filename, cubemxdir)),
     epilog=textwrap.dedent('''\
 Once generated, you have to check and comment pins that can not be used (specific HW, internal ADC channels, remove PWM using us ticker timer, ...)
 '''),
     formatter_class=RawTextHelpFormatter)
-group = parser.add_mutually_exclusive_group()
+
+group = parser.add_mutually_exclusive_group(required = True)
 
 group.add_argument("-l", "--list", help="list available mcu xml files description in STM32CubeMX", action="store_true")
 
@@ -1257,7 +1374,7 @@ args = parser.parse_args()
 if not(os.path.isdir(cubemxdir)):
     print ("\n ! ! ! Cube Mx seems not to be installed or not at the requested location")
     print ("\n ! ! ! please check the value you set for 'CUBEMX_DIRECTORY' in '%s' file" % config_filename)
-    quit()
+    sys.exit(1)
 
 cubemxdirMCU = os.path.join(cubemxdir, "db", "mcu")
 cubemxdirIP = os.path.join(cubemxdir, "db", "mcu", "IP")
@@ -1280,7 +1397,7 @@ if args.list:
         FileCount += 1
     print()
     print("%i available xml files description" % FileCount)
-    quit()
+    sys.exit(0)
 
 if args.boards:
     NucleoFileCount = 0
@@ -1294,7 +1411,7 @@ if args.boards:
     print()
     print("%2i available Nucleo files description" % NucleoFileCount)
     print("%2i available Disco  files description" % DiscoFileCount)
-    quit()
+    sys.exit(0)
 
 if args.mcu:
     #check input file exists
@@ -1306,7 +1423,7 @@ if args.mcu:
             print (" ! ! ! " + args.mcu + " file not found")
             print (" ! ! ! Check in " + cubemxdirMCU + " the correct name of this file")
             print (" ! ! ! You may use double quotes for this file if it contains special characters")
-            quit()
+            sys.exit(1)
 
 if args.target:
     board_file_name = os.path.join(cubemxdirBOARDS, args.target)
@@ -1315,7 +1432,7 @@ if args.target:
         if len(board_list) == 0:
             print (" ! ! ! No file contains " + args.target)
             print (" ! ! ! Check in " + cubemxdirBOARDS + " the correct filter to apply")
-            quit()
+            sys.exit(1)
         elif len(board_list) > 1:
             print (" ! ! ! Multiple files contains " + args.target)
             for board_elem in board_list: print (board_elem)
@@ -1325,15 +1442,21 @@ if args.target:
             print (" ! ! ! " + args.target + " file not found")
             print (" ! ! ! Check in " + cubemxdirBOARDS + " the correct name of this file")
             print (" ! ! ! You may use double quotes for this file if it contains special characters")
-            quit()
+            sys.exit(1)
 
     # Add some hardcoded check
     if "J01_" in board_file_name:
-        print ("J01_Discovery_STM32F4-DISCO-AudioPack_STM32F407V_Board not parsed")
-        quit()
-    if "C40_" in board_file_name:
-        print ("C40_Discovery_STM32F4DISCOVERY_STM32F407VG_Board replaced by C47_Discovery_STM32F407G-DISC1_STM32F407VG_Board")
-        quit()
+        print("J01_Discovery_STM32F4-DISCO-AudioPack_STM32F407V_Board not parsed")
+        sys.exit(0)
+    elif "G00_" in board_file_name:
+        print("G00_Nucleo_NUCLEO-WB52VGY_STM32WB52VGY_Board not parsed")
+        sys.exit(0)
+    elif "C40_" in board_file_name:
+        print("C40_Discovery_STM32F4DISCOVERY_STM32F407VG_Board replaced by C47_Discovery_STM32F407G-DISC1_STM32F407VG_Board")
+        sys.exit(0)
+    elif "TrustZoneEnabled" in board_file_name:
+        print("TrustZoneEnabled boards not parsed")
+        sys.exit(0)
 
     parse_BoardFile(board_file_name)
     TargetName = ""
@@ -1343,30 +1466,40 @@ if args.target:
         TargetName += "DISCO_"
     elif "Evaluation" in board_file_name:
         TargetName += "EVAL_"
-    m = re.search(r'STM32([\w]{1,2}[\dR]{3}[\w]{0,2})[\w]*_Board', board_file_name)
+    m = re.search(r'STM32([MFLGWH][\w]*)_Board', board_file_name)
     if m:
         TargetName += "%s" % m.group(1)
         # specific case
-        if "-P" in args.target:
+        if "-P" in board_file_name:
             TargetName += "_P"
+        elif "-Q" in board_file_name:
+            TargetName += "_Q"
 
-        if "H743ZI2" in board_file_name:
-            TargetName += "2"
+        target_rename = {  # manual renaming for some boards
+            "DISCO_L072C": "DISCO_L072CZ_LRWAN1",
+            "DISCO_L475V": "DISCO_L475VG_IOT01A",
+            "DISCO_G071RBT": "DISCO_G071RB",
+            "DISCO_L4R9A": "DISCO_L4R9I",
+            "NUCLEO_WB55R": "NUCLEO_WB55RG",
+            "NUCLEO_H743ZIT": "NUCLEO_H743ZI2",
+            "NUCLEO_H7A3ZIT_Q": "NUCLEO_H7A3ZI_Q",
+            "DISCO_F0DISCOVERY_STM32F051R8": "DISCO_F051R8",
+            "DISCO_F3DISCOVERY_STM32F303VC": "DISCO_F303VC",
+            "DISCO_F469NIH": "DISCO_F469NI",
+            "DISCO_F412ZGT": "DISCO_F412ZG",
+            "DISCO_F746NGH": "DISCO_F746NG",
+            "DISCO_F769NIH": "DISCO_F769NI",
+            "DISCO_H747XIH": "DISCO_H747I"
+        }
 
-        if TargetName == "DISCO_L072C":
-            TargetName += "Z_LRWAN1"
-        elif TargetName == "DISCO_L475V":
-            TargetName += "G_IOT01A"
-        elif TargetName == "DISCO_G071RBT":
-            TargetName = "DISCO_G071RB"
-        elif TargetName == "DISCO_H747XI":
-            if "DISC1" in board_file_name:
-                TargetName = "DISCO_H747I_DISC1"
-            else:
-                TargetName = "DISCO_H747I"
+        if TargetName in target_rename.keys():
+            TargetName = target_rename[TargetName]
+
+        if "DISC1" in board_file_name:
+            TargetName += "_DISC1"
 
     else:
-        quit()
+        sys.exit(1)
 
 # Parse the user's custom board .ioc file
 if args.custom:
@@ -1376,17 +1509,17 @@ if args.custom:
 for mcu_file in mcu_list:
     if args.mcu:
         TargetName = os.path.splitext(mcu_file)[0]
-    out_path = os.path.join(cur_dir, '%s' % TargetName)
+    out_path = os.path.join(cur_dir, 'targets_custom', 'TARGET_STM', 'TARGET_%s' % TargetName)
     print(" * Output directory: %s" % (out_path))
-    print(" * Generating %s and %s with '%s'" % (PeripheralPins_c_filename, PinNames_h_filename, mcu_file))
     input_file_name = os.path.join(cubemxdirMCU, mcu_file)
+    print(" * Generating %s and %s with '%s'" % (PeripheralPins_c_filename, PinNames_h_filename, input_file_name))
     output_cfilename = os.path.join(out_path, PeripheralPins_c_filename)
     output_hfilename = os.path.join(out_path, PinNames_h_filename)
     if not(os.path.isdir(out_path)):
         os.makedirs(out_path)
 
     if (os.path.isfile(output_cfilename)):
-        # print (" * Requested %s file already exists and will be overwritten" % PeripheralPins_c_filename)
+        print_debug(" * Requested %s file already exists and will be overwritten" % PeripheralPins_c_filename)
         os.remove(output_cfilename)
     out_c_file = open(output_cfilename, 'w')
     out_h_file = open(output_hfilename, 'w')
@@ -1421,11 +1554,11 @@ for mcu_file in mcu_list:
         else:
             print ("\n ! ! ! Error in CubeMX file. File " + input_file_name + " doesn't exist")
             print (" ! ! ! Check in " + cubemxdirMCU)
-            quit()
+            sys.exit(1)
     gpiofile = find_gpio_file()
     if gpiofile == "ERROR":
-        print("Could not find GPIO file")
-        quit()
+        print("error: Could not find GPIO file")
+        sys.exit(1)
     xml_gpio = parse(os.path.join(cubemxdirIP, "GPIO-" + gpiofile + "_Modes.xml"))
     print (" * GPIO file: " + os.path.join(cubemxdirIP, "GPIO-" + gpiofile + "_Modes.xml"))
 
