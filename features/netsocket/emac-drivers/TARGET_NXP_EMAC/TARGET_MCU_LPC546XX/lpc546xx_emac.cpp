@@ -31,6 +31,8 @@
 #include "lpc546xx_emac_config.h"
 #include "lpc546xx_emac.h"
 
+using namespace std::chrono;
+
 enet_handle_t g_handle;
 // RX packet buffer pointers
 emac_mem_buf_t *rx_buff[ENET_RX_RING_LEN];
@@ -54,7 +56,7 @@ extern "C" void lpc546xx_init_eth_hardware(void);
 /** \brief  Driver thread priority */
 #define THREAD_PRIORITY (osPriorityNormal)
 
-#define PHY_TASK_PERIOD_MS      200
+#define PHY_TASK_PERIOD      200ms
 
 LPC546XX_EMAC::LPC546XX_EMAC() : xTXDCountSem(ENET_TX_RING_LEN, ENET_TX_RING_LEN), hwaddr()
 {
@@ -497,7 +499,7 @@ bool LPC546XX_EMAC::power_up()
     prev_state.speed = (phy_speed_t)STATE_UNKNOWN;
     prev_state.duplex = (phy_duplex_t)STATE_UNKNOWN;
 
-    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &LPC546XX_EMAC::phy_task));
+    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD, mbed::callback(this, &LPC546XX_EMAC::phy_task));
 
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     osDelay(10);

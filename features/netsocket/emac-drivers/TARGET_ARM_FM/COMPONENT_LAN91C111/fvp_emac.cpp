@@ -26,6 +26,7 @@
 #include "netsocket/nsapi_types.h"
 #include "mbed_shared_queues.h"
 
+using namespace std::chrono;
 
 /********************************************************************************
  * Internal data
@@ -40,7 +41,7 @@
 /** \brief Driver thread priority */
 #define THREAD_PRIORITY (osPriorityNormal)
 
-#define PHY_TASK_PERIOD_MS      200
+#define PHY_TASK_PERIOD      200ms
 
 
 fvp_EMAC::fvp_EMAC() : _thread(THREAD_PRIORITY, THREAD_STACKSIZE, NULL, "fvp_emac_thread")
@@ -229,7 +230,7 @@ bool fvp_EMAC::power_up()
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     ThisThread::sleep_for(10);
 
-    _phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &fvp_EMAC::phy_task));
+    _phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD, mbed::callback(this, &fvp_EMAC::phy_task));
 
     return true;
 }

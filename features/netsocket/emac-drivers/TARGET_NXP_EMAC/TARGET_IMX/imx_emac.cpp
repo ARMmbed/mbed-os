@@ -48,6 +48,8 @@
 #include "imx_emac.h"
 #include "mbed_power_mgmt.h"
 
+using namespace std::chrono;
+
 enet_handle_t g_handle;
 // RX packet buffer pointers
 emac_mem_buf_t *rx_buff[ENET_RX_RING_LEN];
@@ -71,7 +73,7 @@ extern "C" void kinetis_init_eth_hardware(void);
 /** \brief  Driver thread priority */
 #define THREAD_PRIORITY (osPriorityNormal)
 
-#define PHY_TASK_PERIOD_MS      200
+#define PHY_TASK_PERIOD      200ms
 
 Kinetis_EMAC::Kinetis_EMAC() : xTXDCountSem(ENET_TX_RING_LEN, ENET_TX_RING_LEN), hwaddr()
 {
@@ -511,7 +513,7 @@ bool Kinetis_EMAC::power_up()
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     osDelay(10);
 
-    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &Kinetis_EMAC::phy_task));
+    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD, mbed::callback(this, &Kinetis_EMAC::phy_task));
 
     return true;
 }

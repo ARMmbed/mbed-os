@@ -27,6 +27,8 @@
 
 #include "gd32xx_emac.h"
 
+using namespace std::chrono;
+
 /* \brief Flags for worker thread */
 #define _ENET_FLAG_RX                       (1)
 
@@ -34,7 +36,7 @@
 #define _THREAD_STACKSIZE                   (512)
 #define _THREAD_PRIORITY                    (osPriorityHigh)
 
-#define _PHY_TASK_PERIOD_MS                 (200)
+#define _PHY_TASK_PERIOD                    (200ms)
 
 #define _ENET_HW_ADDR_SIZE                  (6)
 #define _ENET_MTU_SIZE                      (1500)
@@ -345,7 +347,7 @@ bool GD32_EMAC::power_up()
     /* Worker thread */
     rx_thread = create_new_thread("gd32_emac_thread", &GD32_EMAC::thread_function, this, _THREAD_STACKSIZE, _THREAD_PRIORITY, &rx_thread_cb);
 
-    phy_task_handle = mbed::mbed_event_queue()->call_every(_PHY_TASK_PERIOD_MS, mbed::callback(this, &GD32_EMAC::phy_task));
+    phy_task_handle = mbed::mbed_event_queue()->call_every(_PHY_TASK_PERIOD, mbed::callback(this, &GD32_EMAC::phy_task));
 
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     osDelay(10);
