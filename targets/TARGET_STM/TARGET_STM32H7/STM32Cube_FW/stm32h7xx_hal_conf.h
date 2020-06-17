@@ -215,8 +215,16 @@
 #define  USE_HAL_WWDG_REGISTER_CALLBACKS    0U /* WWDG register callback disabled    */
 
 /* ########################### Ethernet Configuration ######################### */
+#ifdef MBED_CONF_STM32_EMAC_ETH_RXBUFNB
+/* default value in features/netsocket/emac-drivers/TARGET_STM/mbed_lib.json */
 #define ETH_TX_DESC_CNT         MBED_CONF_STM32_EMAC_ETH_TXBUFNB  /* number of Ethernet Tx DMA descriptors */
 #define ETH_RX_DESC_CNT         MBED_CONF_STM32_EMAC_ETH_RXBUFNB  /* number of Ethernet Rx DMA descriptors */
+#else
+/* ex: bare metal profile */
+#define ETH_TX_DESC_CNT         0  /* Tx buffers of size ETH_TX_BUF_SIZE  */
+#define ETH_RX_DESC_CNT         0  /* Rx buffers of size ETH_RX_BUF_SIZE  */
+#endif
+
 
 #define ETH_MAC_ADDR0    ((uint8_t)0x02)
 #define ETH_MAC_ADDR1    ((uint8_t)0x00)
