@@ -277,7 +277,9 @@ nsapi_error_t LWIP::socket_close(nsapi_socket_t handle)
         _event_flag.wait_any(TCP_CLOSED_FLAG, TCP_CLOSE_TIMEOUT);
     }
 #endif
-    pbuf_free(s->buf);
+    if (s->buf) {
+        pbuf_free(s->buf);
+    }
     err_t err = netconn_delete(s->conn);
     arena_dealloc(s);
     return err_remap(err);

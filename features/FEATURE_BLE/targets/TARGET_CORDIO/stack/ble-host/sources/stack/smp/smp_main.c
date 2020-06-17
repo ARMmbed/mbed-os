@@ -1,4 +1,5 @@
 /* Copyright (c) 2009-2019 Arm Limited
+ * Copyright (c) 2019-2020 Packetcraft, Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -233,6 +234,7 @@ static void smpDmConnCback(dmEvt_t *pDmEvt)
     pCcb->attempts = SmpDbGetFailureCount((dmConnId_t) pDmEvt->hdr.param);
     pCcb->lastSentKey = 0;
     pCcb->state = 0;
+    pCcb->keyReady = FALSE;
 
     /* Resume the attempts state if necessary */
     smpResumeAttemptsState((dmConnId_t) pDmEvt->hdr.param);
@@ -695,6 +697,27 @@ uint8_t smpGetScSecLevel(smpCcb_t *pCcb)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Check if LE Secure Connections is enabled on the connection.
+ *
+ *  \param  connId    Connection identifier.
+ *
+ *  \return TRUE is Secure Connections is enabled, else FALSE
+ */
+/*************************************************************************************************/
+bool_t SmpDmLescEnabled(dmConnId_t connId)
+{
+  smpCcb_t *pCcb = smpCcbByConnId(connId);
+
+  if (pCcb == NULL || pCcb->pScCcb == NULL)
+  {
+    return FALSE;
+  }
+
+  return pCcb->pScCcb->lescEnabled;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Return the STK for the given connection.
  *
  *  \param  connId    Connection identifier.
@@ -709,6 +732,11 @@ uint8_t *SmpDmGetStk(dmConnId_t connId, uint8_t *pSecLevel)
 
   /* get connection control block */
   pCcb = smpCcbByConnId(connId);
+
+  if ((pCcb == NULL) || (pCcb->keyReady == FALSE))
+  {
+    return NULL;
+  }
 
   if (smpCb.lescSupported && pCcb->pScCcb->lescEnabled && (pCcb->pScCcb->pLtk != NULL))
   {
