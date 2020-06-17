@@ -696,8 +696,7 @@
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
             "FRDM",
-            "FRAMEWORK_5_3_3",
-            "NXP"
+            "FRAMEWORK_5_3_3"
         ],
         "is_disk_virtual": true,
         "macros": [
