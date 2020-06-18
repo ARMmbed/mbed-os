@@ -24,6 +24,7 @@ extern void restore_timer_ctx(void);
 extern int serial_is_tx_ongoing(void);
 extern void PWR_EnterStopMode(void);
 extern void PWR_ExitStopMode(void);
+extern void SetSysClock(void);
 
 
 extern int mbed_sdk_inited;
@@ -57,6 +58,9 @@ void hal_deepsleep(void)
 
     PWR_EnterStopMode();
     PWR_ExitStopMode();
+
+    /* Force complete clock reconfiguration */
+    SetSysClock();
 
     restore_timer_ctx();
 
