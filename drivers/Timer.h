@@ -22,6 +22,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
+
+class CriticalSectionLock;
+
 /**
  * \defgroup drivers_Timer Timer class
  * \ingroup drivers-public-api-ticker
@@ -51,7 +54,7 @@ namespace mbed {
  * }
  * @endcode
  */
-class TimerBase : private NonCopyable<TimerBase> {
+class TimerBase {
 
 public:
     /** Start the timer
@@ -109,13 +112,24 @@ public:
 protected:
     TimerBase(const ticker_data_t *data);
     TimerBase(const ticker_data_t *data, bool lock_deepsleep);
+    TimerBase(const TimerBase &t);
+    TimerBase(TimerBase &&t);
     ~TimerBase();
+
+    const TimerBase &operator=(const TimerBase &) = delete;
+
     std::chrono::microseconds slicetime() const;
     TickerDataClock::time_point _start{};   // the start time of the latest slice
     std::chrono::microseconds _time{};    // any accumulated time from previous slices
     TickerDataClock _ticker_data;
     bool _lock_deepsleep;    // flag that indicates if deep sleep should be disabled
     bool _running = false;   // whether the timer is running
+
+private:
+    // Copy storage while a lock is held
+    TimerBase(const TimerBase &t, const CriticalSectionLock &) : TimerBase(t, false) {}
+    // Copy storage only - used by delegating constructors
+    TimerBase(const TimerBase &t, bool) : _start(t._start), _time(t._time), _ticker_data(t._ticker_data), _lock_deepsleep(t._lock_deepsleep), _running(t._running) {}
 };
 #endif
 
