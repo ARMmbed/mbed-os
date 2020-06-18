@@ -127,24 +127,25 @@ static void update_read_buffer(uint8_t *buf)
  */
 void Kinetis_EMAC::tx_reclaim()
 {
-  /* Get exclusive access */
-  TXLockMutex.lock();
+    /* Get exclusive access */
+    TXLockMutex.lock();
 
-  // Traverse all descriptors, looking for the ones modified by the uDMA
-  while((tx_consume_index != tx_produce_index) &&
-        (!(g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_READY_MASK))) {
-      memory_manager->free(tx_buff[tx_consume_index % ENET_TX_RING_LEN]);
-      if (g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_WRAP_MASK)
-        g_handle.txBdDirty = g_handle.txBdBase;
-      else
-        g_handle.txBdDirty++;
+    // Traverse all descriptors, looking for the ones modified by the uDMA
+    while ((tx_consume_index != tx_produce_index) &&
+            (!(g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_READY_MASK))) {
+        memory_manager->free(tx_buff[tx_consume_index % ENET_TX_RING_LEN]);
+        if (g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_WRAP_MASK) {
+            g_handle.txBdDirty = g_handle.txBdBase;
+        } else {
+            g_handle.txBdDirty++;
+        }
 
-      tx_consume_index += 1;
-      xTXDCountSem.release();
-  }
+        tx_consume_index += 1;
+        xTXDCountSem.release();
+    }
 
-  /* Restore access */
-  TXLockMutex.unlock();
+    /* Restore access */
+    TXLockMutex.unlock();
 }
 
 /** \brief Ethernet receive interrupt handler
@@ -166,16 +167,15 @@ void Kinetis_EMAC::tx_isr()
 void Kinetis_EMAC::ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *param)
 {
     Kinetis_EMAC *enet = static_cast<Kinetis_EMAC *>(param);
-    switch (event)
-    {
-      case kENET_RxEvent:
-        enet->rx_isr();
-        break;
-      case kENET_TxEvent:
-        enet->tx_isr();
-        break;
-      default:
-        break;
+    switch (event) {
+        case kENET_RxEvent:
+            enet->rx_isr();
+            break;
+        case kENET_TxEvent:
+            enet->tx_isr();
+            break;
+        default:
+            break;
     }
 }
 
@@ -193,13 +193,15 @@ bool Kinetis_EMAC::low_level_init_successful()
 
     // Allocate RX descriptors
     rx_desc_start_addr = (uint8_t *)calloc(1, sizeof(enet_rx_bd_struct_t) * ENET_RX_RING_LEN + ENET_BUFF_ALIGNMENT);
-    if(!rx_desc_start_addr)
+    if (!rx_desc_start_addr) {
         return false;
+    }
 
     // Allocate TX descriptors
     tx_desc_start_addr = (uint8_t *)calloc(1, sizeof(enet_tx_bd_struct_t) * ENET_TX_RING_LEN + ENET_BUFF_ALIGNMENT);
-    if(!tx_desc_start_addr)
+    if (!tx_desc_start_addr) {
         return false;
+    }
 
     rx_desc_start_addr = (uint8_t *)ENET_ALIGN(rx_desc_start_addr, ENET_BUFF_ALIGNMENT);
     tx_desc_start_addr = (uint8_t *)ENET_ALIGN(tx_desc_start_addr, ENET_BUFF_ALIGNMENT);
@@ -207,10 +209,11 @@ bool Kinetis_EMAC::low_level_init_successful()
     /* Create buffers for each receive BD */
     for (i = 0; i < ENET_RX_RING_LEN; i++) {
         rx_buff[i] = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
-        if (NULL == rx_buff[i])
+        if (NULL == rx_buff[i]) {
             return false;
+        }
 
-        rx_ptr[i] = (uint32_t*)memory_manager->get_ptr(rx_buff[i]);
+        rx_ptr[i] = (uint32_t *)memory_manager->get_ptr(rx_buff[i]);
     }
 
     tx_consume_index = tx_produce_index = 0;
@@ -223,7 +226,7 @@ bool Kinetis_EMAC::low_level_init_successful()
         0,
         (volatile enet_rx_bd_struct_t *)rx_desc_start_addr,
         (volatile enet_tx_bd_struct_t *)tx_desc_start_addr,
-        (uint8_t *)&rx_ptr,
+        (uint8_t *) &rx_ptr,
         NULL,
     };
 
@@ -293,16 +296,16 @@ emac_mem_buf_t *Kinetis_EMAC::low_level_input(int idx)
             update_read_buffer(NULL);
 
 #ifdef LOCK_RX_THREAD
-      TXLockMutex.unlock();
+            TXLockMutex.unlock();
 #endif
 
             return NULL;
         }
 
         rx_buff[idx] = temp_rxbuf;
-        rx_ptr[idx] = (uint32_t*)memory_manager->get_ptr(rx_buff[idx]);
+        rx_ptr[idx] = (uint32_t *)memory_manager->get_ptr(rx_buff[idx]);
 
-        update_read_buffer((uint8_t*)rx_ptr[idx]);
+        update_read_buffer((uint8_t *)rx_ptr[idx]);
     }
 
 #ifdef LOCK_RX_THREAD
@@ -335,12 +338,12 @@ void Kinetis_EMAC::input(int idx)
  *
  *  \param[in] pvParameters pointer to the interface data
  */
-void Kinetis_EMAC::thread_function(void* pvParameters)
+void Kinetis_EMAC::thread_function(void *pvParameters)
 {
     struct Kinetis_EMAC *kinetis_enet = static_cast<Kinetis_EMAC *>(pvParameters);
 
     for (;;) {
-        uint32_t flags = osThreadFlagsWait(FLAG_RX|FLAG_TX, osFlagsWaitAny, osWaitForever);
+        uint32_t flags = osThreadFlagsWait(FLAG_RX | FLAG_TX, osFlagsWaitAny, osWaitForever);
 
         MBED_ASSERT(!(flags & osFlagsError));
 
@@ -391,7 +394,7 @@ bool Kinetis_EMAC::link_out(emac_mem_buf_t *buf)
 {
     // If buffer is chained or not aligned then make a contiguous aligned copy of it
     if (memory_manager->get_next(buf) ||
-        reinterpret_cast<uint32_t>(memory_manager->get_ptr(buf)) % ENET_BUFF_ALIGNMENT) {
+            reinterpret_cast<uint32_t>(memory_manager->get_ptr(buf)) % ENET_BUFF_ALIGNMENT) {
         emac_mem_buf_t *copy_buf;
         copy_buf = memory_manager->alloc_heap(memory_manager->get_total_len(buf), ENET_BUFF_ALIGNMENT);
         if (NULL == copy_buf) {
@@ -542,7 +545,7 @@ bool Kinetis_EMAC::get_hwaddr(uint8_t *addr) const
 void Kinetis_EMAC::set_hwaddr(const uint8_t *addr)
 {
     memcpy(hwaddr, addr, sizeof hwaddr);
-    ENET_SetMacAddr(ENET, const_cast<uint8_t*>(addr));
+    ENET_SetMacAddr(ENET, const_cast<uint8_t *>(addr));
 }
 
 void Kinetis_EMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
@@ -587,13 +590,15 @@ void Kinetis_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 }
 
 
-Kinetis_EMAC &Kinetis_EMAC::get_instance() {
+Kinetis_EMAC &Kinetis_EMAC::get_instance()
+{
     static Kinetis_EMAC emac;
     return emac;
 }
 
 // Weak so a module can override
-MBED_WEAK EMAC &EMAC::get_default_instance() {
+MBED_WEAK EMAC &EMAC::get_default_instance()
+{
     return Kinetis_EMAC::get_instance();
 }
 

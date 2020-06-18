@@ -886,7 +886,7 @@ bool STM32_EMAC::power_up()
 
     /* Worker thread */
 #if MBED_CONF_MBED_TRACE_ENABLE
-    thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, MBED_CONF_STM32_EMAC_THREAD_STACKSIZE*2, THREAD_PRIORITY, &thread_cb);
+    thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, MBED_CONF_STM32_EMAC_THREAD_STACKSIZE * 2, THREAD_PRIORITY, &thread_cb);
 #else
     thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, MBED_CONF_STM32_EMAC_THREAD_STACKSIZE, THREAD_PRIORITY, &thread_cb);
 #endif
