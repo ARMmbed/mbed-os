@@ -25,6 +25,12 @@ extern "C" {
 
 #define RSSI_OFFSET     146
 
+#define MAX_PA_VALUE                    14
+#define MIN_PA_VALUE                    -31
+
+#define RSSI_OFFSET                     146
+#define IS_PAPOWER_DBM(PATABLE)         ((PATABLE) >= (MIN_PA_VALUE) && (PATABLE) <= (MAX_PA_VALUE))
+
 void rf_conf_calculate_datarate_registers(uint32_t datarate, uint16_t *datarate_mantissa, uint8_t *datarate_exponent);
 void rf_conf_calculate_base_frequency_registers(uint32_t frequency, uint8_t *synt3, uint8_t *synt2, uint8_t *synt1, uint8_t *synt0);
 void rf_conf_calculate_deviation_registers(uint32_t deviation, uint8_t *fdev_m, uint8_t *fdev_e);
@@ -33,6 +39,8 @@ void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint
 void rf_conf_calculate_rssi_threshold_registers(int16_t rssi_threshold, uint8_t *rssi_th);
 uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, uint32_t datarate);
 int16_t rf_conf_cca_threshold_percent_to_rssi(uint8_t percent);
+
+uint8_t rf_conf_calculate_pa_level_dbm(double power_dbm);
 
 #ifdef __cplusplus
 }

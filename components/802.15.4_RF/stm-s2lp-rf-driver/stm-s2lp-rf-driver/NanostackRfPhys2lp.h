@@ -121,6 +121,30 @@
 #define S2LP_I2C_SCL                null
 #endif
 
+#if defined(MBED_CONF_S2LP_ANTENNA_SEL_PIN)
+#define S2LP_ANTENNA_SEL_PIN        MBED_CONF_S2LP_ANTENNA_SEL_PIN
+#else
+#define S2LP_ANTENNA_SEL_PIN        NC
+#endif
+
+#if defined(MBED_CONF_S2LP_CSD_PIN)
+#define S2LP_CSD_PIN                MBED_CONF_S2LP_CSD_PIN
+#else
+#define S2LP_CSD_PIN                GPIO0_CONF
+#endif
+
+#if defined(MBED_CONF_S2LP_CPS_PIN)
+#define S2LP_CPS_PIN                MBED_CONF_S2LP_CPS_PIN
+#else
+#define S2LP_CPS_PIN                GPIO1_CONF
+#endif
+
+#if defined(MBED_CONF_S2LP_CTX_PIN)
+#define S2LP_CTX_PIN                MBED_CONF_S2LP_CTX_PIN
+#else
+#define S2LP_CTX_PIN                GPIO2_CONF
+#endif
+
 #include "at24mac_s2lp.h"
 
 class RFPins;
@@ -133,7 +157,7 @@ public:
 #ifdef AT24MAC
                        , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                      );
+                       , PinName ant_sel);
     virtual ~NanostackRfPhys2lp();
     virtual int8_t rf_register();
     virtual void rf_unregister();
@@ -154,6 +178,7 @@ private:
     const PinName _spi_sclk;
     const PinName _spi_cs;
     const PinName _spi_sdn;
+    const PinName _ant_sel;
     const PinName _spi_gpio0;
     const PinName _spi_gpio1;
     const PinName _spi_gpio2;

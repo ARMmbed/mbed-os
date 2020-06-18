@@ -297,6 +297,17 @@ extern "C" {
 #define SPI_RD_REG  0x01
 #define SPI_CMD     0x80
 
+// GPIO digital output functions
+#define GPIO_FUNCTION_FIELD     0xF8
+#define TX_STATE_INDICATION     (5 << 3)
+#define RX_INDICATION           (10 << 3)
+#define TX_RX_INDICATION        (18 << 3)
+
+#define GPIO_MODE_FIELD         0x03
+#define GPIO_DIGITAL_INPUT      (1 << 0)
+#define GPIO_DIGITAL_OUT_LOW    (2 << 0)
+#define GPIO_DIGITAL_OUT_HIGH   (3 << 0)
+
 typedef enum {
     S2LP_STATE_STANDBY      = 0x02,
     S2LP_STATE_SLEEPA       = 0x01,

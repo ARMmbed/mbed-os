@@ -65,6 +65,18 @@
             "help": "I2C_SCL pin for I2C SCL, null assumed, needs to be set/overwritten otherwise",
             "value": null
         },
+        "external-frontend": {
+            "help": "Set if external frontend present",
+            "value": false
+        },
+        "antenna-selection": {
+            "help": "Select which antenna from frontend to use",
+            "value": 0
+        },
+        "antenna-sel-pin": {
+            "help": "Pin from external frontend to select between outputs",
+            "value": null
+        },
         "provide-default": {
             "help": "Provide default NanostackRfpy. [true/false]",
             "value": false

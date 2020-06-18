@@ -18,7 +18,7 @@
 
 #include "nanostack/platform/arm_hal_phy.h"
 #include "rf_configuration.h"
-
+#include "mbed_assert.h"
 
 // Note that F_XO and F_DIG depends on the used clock frequency
 #define F_XO    50000000
@@ -179,6 +179,20 @@ uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, ui
         deviation = datarate / 2;
     }
     return deviation;
+}
+
+uint8_t rf_conf_calculate_pa_level_dbm(double power_dbm)
+{
+    MBED_ASSERT(IS_PAPOWER_DBM(power_dbm));
+
+    uint8_t pa_level_value = 0;
+    if (power_dbm > 14) {
+        pa_level_value = 1;
+    } else {
+        pa_level_value = (uint8_t)((int32_t) 29 - (int)(2 * power_dbm));
+    }
+
+    return pa_level_value;
 }
 
 #endif // MBED_CONF_NANOSTACK_CONFIGURATION && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
