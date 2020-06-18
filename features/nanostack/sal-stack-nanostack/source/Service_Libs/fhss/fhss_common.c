@@ -122,7 +122,7 @@ int8_t fhss_disable(fhss_structure_t *fhss_structure)
     return 0;
 }
 
-void fhss_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*callback)(const fhss_api_t *fhss_api, uint16_t))
+void fhss_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*callback)(const fhss_api_t *fhss_api, int32_t))
 {
     if (callback) {
         // Don't allow starting with zero slots
@@ -133,7 +133,7 @@ void fhss_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*ca
     }
 }
 
-void fhss_stop_timer(fhss_structure_t *fhss_structure, void (*callback)(const fhss_api_t *fhss_api, uint16_t))
+void fhss_stop_timer(fhss_structure_t *fhss_structure, void (*callback)(const fhss_api_t *fhss_api, int32_t))
 {
     if (callback) {
         fhss_structure->platform_functions.fhss_timer_stop(callback, fhss_structure->fhss_api);

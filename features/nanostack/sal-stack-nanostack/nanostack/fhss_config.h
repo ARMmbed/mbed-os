@@ -146,13 +146,13 @@ typedef struct fhss_ws_configuration {
  */
 typedef struct fhss_timer {
     /** Start timeout (1us). Timer must support multiple simultaneous timeouts */
-    int (*fhss_timer_start)(uint32_t, void (*fhss_timer_callback)(const fhss_api_t *fhss_api, uint16_t), const fhss_api_t *fhss_api);
+    int (*fhss_timer_start)(uint32_t, void (*fhss_timer_callback)(const fhss_api_t *fhss_api, int32_t), const fhss_api_t *fhss_api);
 
     /** Stop timeout */
-    int (*fhss_timer_stop)(void (*fhss_timer_callback)(const fhss_api_t *fhss_api, uint16_t), const fhss_api_t *fhss_api);
+    int (*fhss_timer_stop)(void (*fhss_timer_callback)(const fhss_api_t *fhss_api, int32_t), const fhss_api_t *fhss_api);
 
     /** Get remaining time of started timeout*/
-    uint32_t (*fhss_get_remaining_slots)(void (*fhss_timer_callback)(const fhss_api_t *fhss_api, uint16_t), const fhss_api_t *fhss_api);
+    uint32_t (*fhss_get_remaining_slots)(void (*fhss_timer_callback)(const fhss_api_t *fhss_api, int32_t), const fhss_api_t *fhss_api);
 
     /** Get timestamp since initialization of driver. Overflow of 32-bit counter is allowed (1us) */
     uint32_t (*fhss_get_timestamp)(const fhss_api_t *fhss_api);

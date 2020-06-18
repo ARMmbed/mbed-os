@@ -81,7 +81,7 @@ struct ws_ie_t {
 static int fhss_ws_manage_channel_table_allocation(fhss_structure_t *fhss_structure, uint16_t channel_count);
 static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
 static void fhss_ws_update_uc_channel_callback(fhss_structure_t *fhss_structure);
-static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay);
+static void fhss_unicast_handler(const fhss_api_t *fhss_api, int32_t delay);
 static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure);
 
 // This function supports rounding up
@@ -96,7 +96,7 @@ static int64_t divide_integer(int64_t dividend, int32_t divisor)
     return (dividend + divisor / 2) / divisor;
 }
 
-static uint32_t get_remaining_slots_us(fhss_structure_t *fhss_structure, void (*callback)(const fhss_api_t *api, uint16_t), uint32_t max_timeout_us)
+static uint32_t get_remaining_slots_us(fhss_structure_t *fhss_structure, void (*callback)(const fhss_api_t *api, int32_t), uint32_t max_timeout_us)
 {
     uint32_t remaining_time_us = fhss_structure->platform_functions.fhss_get_remaining_slots(callback, fhss_structure->fhss_api);
     // When remaining time goes negative, use 0.
@@ -106,7 +106,7 @@ static uint32_t get_remaining_slots_us(fhss_structure_t *fhss_structure, void (*
     return remaining_time_us;
 }
 
-void fhss_ws_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*callback)(const fhss_api_t *fhss_api, uint16_t))
+void fhss_ws_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*callback)(const fhss_api_t *fhss_api, int32_t))
 {
     // Number of millisecond slots in timeout(us)
     int32_t time_in_ms = divide_integer(time, 1000);
@@ -264,7 +264,7 @@ static uint8_t calc_own_tx_trig_slot(uint8_t own_hop)
     return (own_hop & 1);
 }
 
-static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
+static void fhss_broadcast_handler(const fhss_api_t *fhss_api, int32_t delay)
 {
     int32_t next_channel;
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
@@ -844,7 +844,7 @@ static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t
     return return_value;
 }
 
-static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
+static void fhss_unicast_handler(const fhss_api_t *fhss_api, int32_t delay)
 {
     uint32_t timeout = 0;
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);

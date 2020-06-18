@@ -53,14 +53,14 @@ static EventQueue *equeue;
 // to ensure it stays in the actual zero-init part of the image if used, avoiding
 // an initialized-data cost.
 struct fhss_timeout_s {
-    void (*fhss_timer_callback)(const fhss_api_t *fhss_api, uint16_t) = nullptr;
+    void (*fhss_timer_callback)(const fhss_api_t *fhss_api, int32_t) = nullptr;
     bool active = false;
     SingletonPtr<Timeout> timeout;
 };
 
 fhss_timeout_s fhss_timeout[NUMBER_OF_SIMULTANEOUS_TIMEOUTS];
 
-static fhss_timeout_s *find_timeout(void (*callback)(const fhss_api_t *api, uint16_t))
+static fhss_timeout_s *find_timeout(void (*callback)(const fhss_api_t *api, int32_t))
 {
     for (fhss_timeout_s &t : fhss_timeout) {
         if (t.fhss_timer_callback == callback) {
@@ -102,7 +102,7 @@ static void timer_callback(void)
 #endif
 }
 
-static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *callback_param)
+static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss_api_t *api, int32_t), const fhss_api_t *callback_param)
 {
     int ret_val = -1;
     platform_enter_critical();
@@ -132,7 +132,7 @@ static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss
     return ret_val;
 }
 
-static int platform_fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
+static int platform_fhss_timer_stop(void (*callback)(const fhss_api_t *api, int32_t), const fhss_api_t *api)
 {
     (void)api;
     platform_enter_critical();
@@ -147,7 +147,7 @@ static int platform_fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint
     return 0;
 }
 
-static uint32_t platform_fhss_get_remaining_slots(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
+static uint32_t platform_fhss_get_remaining_slots(void (*callback)(const fhss_api_t *api, int32_t), const fhss_api_t *api)
 {
     (void)api;
     platform_enter_critical();

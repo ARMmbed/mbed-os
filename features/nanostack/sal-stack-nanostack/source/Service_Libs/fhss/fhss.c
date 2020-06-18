@@ -40,7 +40,7 @@ static bool fhss_is_bc_sending_superframe(fhss_structure_t *fhss_structure);
 static bool fhss_check_remaining_tx_time(fhss_structure_t *fhss_structure, uint16_t tx_length, uint8_t phy_header_length, uint8_t phy_tail_length);
 static bool fhss_is_there_common_divisor(uint16_t i, uint8_t j);
 static void fhss_beacon_received(fhss_structure_t *fhss_structure, const uint8_t *synch_info, const uint32_t elapsed_time);
-static void fhss_superframe_handler(const fhss_api_t *fhss_api, uint16_t delay);
+static void fhss_superframe_handler(const fhss_api_t *fhss_api, int32_t delay);
 static int8_t fhss_beacon_create_tasklet(fhss_structure_t *fhss_structure);
 static void fhss_beacon_tasklet_func(arm_event_s *event);
 static int fhss_beacon_periodic_start(fhss_structure_t *fhss_structure, uint32_t time_to_first_beacon);
@@ -1262,7 +1262,7 @@ static bool fhss_use_broadcast_queue_cb(const fhss_api_t *api, bool is_broadcast
     return is_broadcast_addr;
 }
 
-static void fhss_superframe_handler(const fhss_api_t *fhss_api, uint16_t delay)
+static void fhss_superframe_handler(const fhss_api_t *fhss_api, int32_t delay)
 {
     uint32_t timeout = 0;
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
