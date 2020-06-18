@@ -29,7 +29,7 @@
             ]
         },
         "supported_application_profiles": [
-            "rtos"
+            "full"
         ],
         "config": {
             "console-uart": {
@@ -777,7 +777,7 @@
             ]
         },
         "supported_application_profiles": [
-            "rtos", "bare-metal"
+            "full", "bare-metal"
         ]
     },
     "SDT64B": {
@@ -1115,7 +1115,7 @@
             ]
         },
         "supported_application_profiles": [
-            "rtos",
+            "full",
             "bare-metal"
         ],
         "macros": [
@@ -5719,7 +5719,7 @@
             }
         },
         "supported_application_profiles": [
-            "rtos", "bare-metal"
+            "full", "bare-metal"
         ]
     },
     "ARDUINO_NANO33BLE": {
