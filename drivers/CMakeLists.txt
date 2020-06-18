@@ -28,6 +28,7 @@ target_sources(mbed-os
         source/SFDP.cpp
         source/SPI.cpp
         source/SPISlave.cpp
+        source/Ticker.cpp
         source/Timeout.cpp
         source/Timer.cpp
         source/TimerEvent.cpp
