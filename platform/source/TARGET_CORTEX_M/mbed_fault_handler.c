@@ -34,18 +34,16 @@
 void print_context_info(void);
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-//Global for populating the context in exception handler
-mbed_fault_context_t *const mbed_fault_context = (mbed_fault_context_t *)(FAULT_CONTEXT_LOCATION);
+#define mbed_fault_context MBED_CRASH_DATA.fault.context
 #else
-mbed_fault_context_t fault_context;
-mbed_fault_context_t *const mbed_fault_context = &fault_context;
+mbed_fault_context_t mbed_fault_context;
 #endif
 
 extern bool mbed_error_in_progress;
 
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
-void mbed_fault_handler(uint32_t fault_type, const mbed_fault_context_t *mbed_fault_context_in)
+MBED_NORETURN void mbed_fault_handler(uint32_t fault_type, const mbed_fault_context_t *mbed_fault_context_in)
 {
     mbed_error_status_t faultStatus = MBED_SUCCESS;
 
@@ -94,7 +92,7 @@ MBED_NOINLINE void print_context_info(void)
 {
     //Context Regs
     for (int i = 0; i < 13; i++) {
-        mbed_error_printf("\nR%-4d: %08" PRIX32, i, ((uint32_t *)(mbed_fault_context))[i]);
+        mbed_error_printf("\nR%-4d: %08" PRIX32, i, (&mbed_fault_context.R0_reg)[i]);
     }
 
     mbed_error_printf("\nSP   : %08" PRIX32
@@ -102,8 +100,8 @@ MBED_NOINLINE void print_context_info(void)
                       "\nPC   : %08" PRIX32
                       "\nxPSR : %08" PRIX32
                       "\nPSP  : %08" PRIX32
-                      "\nMSP  : %08" PRIX32, mbed_fault_context->SP_reg, mbed_fault_context->LR_reg, mbed_fault_context->PC_reg,
-                      mbed_fault_context->xPSR, mbed_fault_context->PSP, mbed_fault_context->MSP);
+                      "\nMSP  : %08" PRIX32, mbed_fault_context.SP_reg, mbed_fault_context.LR_reg, mbed_fault_context.PC_reg,
+                      mbed_fault_context.xPSR, mbed_fault_context.PSP, mbed_fault_context.MSP);
 
     //Capture CPUID to get core/cpu info
     mbed_error_printf("\nCPUID: %08" PRIX32, SCB->CPUID);
@@ -129,12 +127,12 @@ MBED_NOINLINE void print_context_info(void)
 #endif
 
     //Print Mode
-    if (mbed_fault_context->EXC_RETURN & 0x8) {
+    if (mbed_fault_context.EXC_RETURN & 0x8) {
         mbed_error_printf("\nMode : Thread");
         //Print Priv level in Thread mode - We capture CONTROL reg which reflects the privilege.
         //Note that the CONTROL register captured still reflects the privilege status of the
         //thread mode eventhough we are in Handler mode by the time we capture it.
-        if (mbed_fault_context->CONTROL & 0x1) {
+        if (mbed_fault_context.CONTROL & 0x1) {
             mbed_error_printf("\nPriv : User");
         } else {
             mbed_error_printf("\nPriv : Privileged");
@@ -144,7 +142,7 @@ MBED_NOINLINE void print_context_info(void)
         mbed_error_printf("\nPriv : Privileged");
     }
     //Print Return Stack
-    if (mbed_fault_context->EXC_RETURN & 0x4) {
+    if (mbed_fault_context.EXC_RETURN & 0x4) {
         mbed_error_printf("\nStack: PSP");
     } else {
         mbed_error_printf("\nStack: MSP");
@@ -158,7 +156,7 @@ mbed_error_status_t mbed_get_reboot_fault_context(mbed_fault_context_t *fault_co
     if (fault_context == NULL) {
         return MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_INVALID_ARGUMENT);
     }
-    memcpy(fault_context, mbed_fault_context, sizeof(mbed_fault_context_t));
+    *fault_context = mbed_fault_context;
     status = MBED_SUCCESS;
 #endif
     return status;
