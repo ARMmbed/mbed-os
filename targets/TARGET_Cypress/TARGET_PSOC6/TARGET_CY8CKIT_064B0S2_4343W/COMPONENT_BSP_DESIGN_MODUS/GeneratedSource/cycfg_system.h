@@ -5,7 +5,7 @@
 * System configuration
 * This file was automatically generated and should not be modified.
 * Tools Package 2.2.0.1747
-* psoc6pdl 1.6.0.4172
+* psoc6pdl 1.6.0.4266
 * personalities_2.0 2.0.0.0
 * udd 1.2.0.370
 *
