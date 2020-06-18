@@ -414,7 +414,7 @@ const char *ESP8266::ip_addr(void)
     return _ip_buffer;
 }
 
-const bool ESP8266::set_ip_addr(const char *ip, const char *gateway, const char *netmask)
+bool ESP8266::set_ip_addr(const char *ip, const char *gateway, const char *netmask)
 {
     if (ip == nullptr || ip[0] == '\0') {
         return false;
@@ -708,7 +708,6 @@ nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 
     nsapi_error_t ret = NSAPI_ERROR_DEVICE_ERROR;
     int bytes_confirmed = 0;
-    constexpr unsigned int send_ack_retries = 3;
 
     // +CIPSEND supports up to 2048 bytes at a time
     // Data stream can be truncated
@@ -759,7 +758,7 @@ nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         } else if (_sock_i[id].proto == NSAPI_UDP) {
             ret = NSAPI_ERROR_NO_MEMORY;
         }
-    } else if (bytes_confirmed != amount && _sock_i[id].proto == NSAPI_UDP) {
+    } else if (bytes_confirmed != (int)amount && _sock_i[id].proto == NSAPI_UDP) {
         tr_debug("send(): Error: confirmed %d bytes, but expected %d.", bytes_confirmed, amount);
         ret = NSAPI_ERROR_DEVICE_ERROR;
     } else {
