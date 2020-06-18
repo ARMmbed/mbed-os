@@ -4,13 +4,11 @@
 * Description:
 * System configuration
 * This file was automatically generated and should not be modified.
-* Tools Package 2.2.0.1747
-* psoc6pdl 1.6.0.4266
-* personalities_2.0 2.0.0.0
-* udd 1.2.0.370
+* cfg-backend-cli: 1.2.0.1483
+* Device Support Library (libs/psoc6pdl): 1.6.0.4266
 *
 ********************************************************************************
-* Copyright 2020 Cypress Semiconductor Corporation
+* Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,13 +49,26 @@ extern "C" {
 #define srss_0_clock_0_hfclk_0_ENABLED 1U
 #define CY_CFG_SYSCLK_CLKHF0 0UL
 #define CY_CFG_SYSCLK_CLKHF0_CLKPATH_NUM 0UL
+#define srss_0_clock_0_hfclk_2_ENABLED 1U
+#define CY_CFG_SYSCLK_CLKHF2 2UL
+#define CY_CFG_SYSCLK_CLKHF2_CLKPATH_NUM 0UL
+#define srss_0_clock_0_hfclk_3_ENABLED 1U
+#define CY_CFG_SYSCLK_CLKHF3 3UL
+#define CY_CFG_SYSCLK_CLKHF3_CLKPATH_NUM 0UL
+#define srss_0_clock_0_hfclk_4_ENABLED 1U
+#define CY_CFG_SYSCLK_CLKHF4 4UL
+#define CY_CFG_SYSCLK_CLKHF4_CLKPATH_NUM 0UL
 #define srss_0_clock_0_ilo_0_ENABLED 1U
 #define srss_0_clock_0_imo_0_ENABLED 1U
 #define srss_0_clock_0_lfclk_0_ENABLED 1U
 #define CY_CFG_SYSCLK_CLKLF_FREQ_HZ 32768
 #define CY_CFG_SYSCLK_CLKLF_SOURCE CY_SYSCLK_CLKLF_IN_WCO
 #define srss_0_clock_0_pathmux_0_ENABLED 1U
+#define srss_0_clock_0_pathmux_1_ENABLED 1U
+#define srss_0_clock_0_pathmux_2_ENABLED 1U
 #define srss_0_clock_0_periclk_0_ENABLED 1U
+#define srss_0_clock_0_pll_0_ENABLED 1U
+#define srss_0_clock_0_pll_1_ENABLED 1U
 #define srss_0_clock_0_slowclk_0_ENABLED 1U
 #define srss_0_clock_0_timerclk_0_ENABLED 1U
 #define srss_0_clock_0_wco_0_ENABLED 1U
@@ -80,6 +91,12 @@ extern "C" {
 
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_2_obj;
 #endif //defined (CY_USING_HAL)
 
 void init_cycfg_system(void);

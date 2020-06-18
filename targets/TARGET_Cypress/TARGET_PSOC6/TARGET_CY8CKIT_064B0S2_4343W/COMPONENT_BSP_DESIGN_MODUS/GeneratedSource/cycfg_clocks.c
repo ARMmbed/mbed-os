@@ -4,13 +4,11 @@
 * Description:
 * Clock configuration
 * This file was automatically generated and should not be modified.
-* Tools Package 2.2.0.1747
-* psoc6pdl 1.6.0.4266
-* personalities_2.0 2.0.0.0
-* udd 1.2.0.370
+* cfg-backend-cli: 1.2.0.1483
+* Device Support Library (libs/psoc6pdl): 1.6.0.4266
 *
 ********************************************************************************
-* Copyright 2020 Cypress Semiconductor Corporation
+* Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +27,7 @@
 #include "cycfg_clocks.h"
 
 #if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_CSD_CLK_DIV_obj = 
+	const cyhal_resource_inst_t CYBSP_CSD_CLK_DIV_obj =
 	{
 		.type = CYHAL_RSC_CLOCK,
 		.block_num = CYBSP_CSD_CLK_DIV_HW,
