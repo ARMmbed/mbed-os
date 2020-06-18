@@ -62,12 +62,14 @@ target_sources(mbed-os
         lwip-sys/arch/lwip_sys_arch.c
         lwip-sys/lwip_random.c
         lwip-sys/lwip_tcp_isn.c
-        lwip_tools.cpp
+
         LWIPInterface.cpp
         LWIPInterfaceEMAC.cpp
         LWIPInterfaceL3IP.cpp
         LWIPInterfacePPP.cpp
+        LWIPMemoryManager.cpp
         LWIPStack.cpp
+        lwip_tools.cpp
 )
 
 target_include_directories(mbed-os
