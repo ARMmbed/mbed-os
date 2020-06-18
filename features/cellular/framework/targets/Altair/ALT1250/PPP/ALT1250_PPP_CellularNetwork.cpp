@@ -40,12 +40,12 @@ nsapi_error_t ALT1250_PPP_CellularNetwork::set_access_technology_impl(RadioAcces
     switch (opsAct) {
         case RAT_CATM1:
             if (memcmp(resp, "CATM", 4)) {
-                _at.at_cmd_discard("%RATACT", "=\"CATM\"");
+                _at.at_cmd_discard("%RATACT", "=\"CATM\",1");
             }
             break;
         case RAT_NB1:
             if (memcmp(resp, "NBIOT", 5)) {
-                _at.at_cmd_discard("%RATACT", "=\"NBIOT\"");
+                _at.at_cmd_discard("%RATACT", "=\"NBIOT\",1");
             }
             break;
         case RAT_GSM:
@@ -55,7 +55,7 @@ nsapi_error_t ALT1250_PPP_CellularNetwork::set_access_technology_impl(RadioAcces
             break;
         default:
             if (memcmp(resp, "DEFAULT", 7)) {
-                _at.at_cmd_discard("%RATACT", "=\"DEFAULT\"");
+                _at.at_cmd_discard("%RATACT", "=\"DEFAULT\",1");
             }
             _at.unlock();
             _op_act = RAT_UNKNOWN;
