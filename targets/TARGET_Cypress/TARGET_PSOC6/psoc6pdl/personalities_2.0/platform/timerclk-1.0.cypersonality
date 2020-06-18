@@ -71,6 +71,6 @@
     <ConfigDefine name="CY_CFG_SYSCLK_CLKTIMER_ENABLED" value="1" public="false" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKTIMER_SOURCE" value="CY_SYSCLK_CLKTIMER_IN_`${sourceClock eq imo ? &quot;IMO&quot; : &quot;HF0&quot; . (hf0Div == 1 ? &quot;_NODIV&quot; : &quot;_DIV&quot; . hf0Div)}`" public="false" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKTIMER_DIVIDER" value="`${timerDivider-1}`U" public="false" include="true" />
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkTimerInit()" body="    Cy_SysClk_ClkTimerDisable();&#xA;     Cy_SysClk_ClkTimerSetSource(CY_SYSCLK_CLKTIMER_IN_`${sourceClock eq imo ? &quot;IMO&quot; : &quot;HF0&quot; . (hf0Div == 1 ? &quot;_NODIV&quot; : &quot;_DIV&quot; . hf0Div)}`);&#xA;    Cy_SysClk_ClkTimerSetDivider(`${timerDivider-1}`U);&#xA;    Cy_SysClk_ClkTimerEnable();" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkTimerInit()" body="    Cy_SysClk_ClkTimerDisable();&#xA;    Cy_SysClk_ClkTimerSetSource(CY_SYSCLK_CLKTIMER_IN_`${sourceClock eq imo ? &quot;IMO&quot; : &quot;HF0&quot; . (hf0Div == 1 ? &quot;_NODIV&quot; : &quot;_DIV&quot; . hf0Div)}`);&#xA;    Cy_SysClk_ClkTimerSetDivider(`${timerDivider-1}`U);&#xA;    Cy_SysClk_ClkTimerEnable();" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

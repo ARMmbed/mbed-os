@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.h
-* \version 1.10.3
+* \version 1.20
 *
 * Header file for the CTB driver
 *
@@ -286,6 +286,11 @@
 * \section group_ctb_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.20</td>
+*     <td>Fixed the \ref Cy_CTB_OpampInit function to do not affect another OpAmp instance.</td>
+*     <td>Bug fixing.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.3</td>
 *     <td>Minor documentation updates.</td>

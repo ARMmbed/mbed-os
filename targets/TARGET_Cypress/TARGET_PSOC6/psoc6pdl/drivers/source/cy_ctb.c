@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.c
-* \version 1.10.3
+* \version 1.20
 *
 * \brief
 * Provides the public functions for the CTB driver.
@@ -307,7 +307,7 @@ cy_en_ctb_status_t Cy_CTB_OpampInit(CTBM_Type *base, cy_en_ctb_opamp_sel_t opamp
         CY_ASSERT_L3(CY_CTB_COMPBYPASS(config->oaCompBypass));
         CY_ASSERT_L3(CY_CTB_COMPHYST(config->oaCompHyst));
 
-        CTBM_CTB_CTRL(base) = (uint32_t) config->deepSleep;
+        CY_REG32_CLR_SET(CTBM_CTB_CTRL(base), CTBM_CTB_CTRL_DEEPSLEEP_ON, (CY_CTB_DEEPSLEEP_DISABLE != config->deepSleep) ? 1UL : 0UL);
 
         /* The two opamp control registers are symmetrical */
         oaResCtrl = (uint32_t) config->oaPower \
@@ -415,7 +415,10 @@ cy_en_ctb_status_t Cy_CTB_DeInit(CTBM_Type *base, bool deInitRouting)
 *   - .oaCompBypass = \ref CY_CTB_COMP_BYPASS_SYNC
 *   - .oaCompHyst   = \ref CY_CTB_COMP_HYST_10MV
 *   - .oaCompIntrEn = true
-
+*
+* \note This function call disables a whole CTB block,
+* call \ref Cy_CTB_Enable after this function call.
+*
 * \param base
 * Pointer to structure describing registers
 *

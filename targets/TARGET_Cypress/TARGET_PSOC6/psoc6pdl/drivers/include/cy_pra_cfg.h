@@ -2,7 +2,8 @@
 * \file cy_pra_cfg.h
 * \version 1.0
 *
-* \brief The header file of the PRA driver.
+* \brief The header file of the PRA driver. The API is not intended to
+* be used directly by the user application.
 *
 ********************************************************************************
 * \copyright
@@ -140,12 +141,12 @@ typedef struct
     bool fllEnable;                                     /**< FLL Enable */
     bool pll0Enable;                                    /**< PLL0 Enable */
     bool pll1Enable;                                    /**< PLL1 Enable */
-    bool path0Enable;                                   /**< CLKPATH0 Enable */
-    bool path1Enable;                                   /**< CLKPATH1 Enable */
-    bool path2Enable;                                   /**< CLKPATH2 Enable */
-    bool path3Enable;                                   /**< CLKPATH3 Enable */
-    bool path4Enable;                                   /**< CLKPATH4 Enable */
-    bool path5Enable;                                   /**< CLKPATH5 Enable */
+    bool path0Enable;                                   /**< PATH_MUX0 Enable */
+    bool path1Enable;                                   /**< PATH_MUX1 Enable */
+    bool path2Enable;                                   /**< PATH_MUX2 Enable */
+    bool path3Enable;                                   /**< PATH_MUX3 Enable */
+    bool path4Enable;                                   /**< PATH_MUX4 Enable */
+    bool path5Enable;                                   /**< PATH_MUX5 Enable */
     bool clkFastEnable;                                 /**< CLKFAST Enable */
     bool clkPeriEnable;                                 /**< CLKPERI Enable */
     bool clkSlowEnable;                                 /**< CLKSLOW Enable */
@@ -228,8 +229,8 @@ typedef struct
     bool                        pll1LfMode;             /**< PLL1 CLK_PLL_CONFIG register, PLL_LF_MODE bit */
     cy_en_fll_pll_output_mode_t pll1OutputMode;         /**< PLL1 CLK_PLL_CONFIG register, BYPASS_SEL bits */
 
-    /* Number of clock Path available for device is defined in CY_SRSS_NUM_CLKPATH.
-     * Max 6 clock path are defined */
+    /* The number of clock paths available for the device is defined in CY_SRSS_NUM_CLKPATH.
+     * Max 6 clock paths are defined */
 
     /* Clock Paths Configuration */
     cy_en_clkpath_in_sources_t path0Src;                /**< Input multiplexer0 clock source */
@@ -244,7 +245,7 @@ typedef struct
     uint8_t clkPeriDiv;                                 /**< Peri clock divider. User has to pass actual divider-1 */
     uint8_t clkSlowDiv;                                 /**< Slow clock divider. User has to pass actual divider-1 */
 
-    /* Number of HF clocks are defined in device specific header CY_SRSS_NUM_HFROOT
+    /* The number of HF clocks is defined in the device specific header CY_SRSS_NUM_HFROOT
      * Max 6 HFs are defined */
      /* HF Configurations */
     cy_en_clkhf_in_sources_t hf0Source;                 /**< HF0 Source Clock Path */

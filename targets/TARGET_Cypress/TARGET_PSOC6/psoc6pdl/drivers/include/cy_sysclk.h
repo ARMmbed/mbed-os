@@ -102,11 +102,22 @@
 *   </tr>
 * </table>
 *
+* \section group_sysclk_errata Known Issues
+* <table class="doxtable">
+*   <tr><th>Issue</th><th>Workaround</th></tr>
+*   <tr>
+*     <td>The CLKLF does not work if after transition to the new clock
+*         source the previous one is immediately disabled.
+*     </td>
+*     <td>Wait 4 clock cycles of previous CLKLF clock source before disabling it.</td>
+*   </tr>
+* </table>
+*
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
-*     <td rowspan="2">3.0</td>
+*     <td rowspan="3">2.10</td>
 *     <td>Updated SysClk functions for PSoC 64 devices. Now the SysClk functions can return
 *         PRA driver status value.</td>
 *     <td>The SysClk driver uses the PRA driver to change the protected registers.
@@ -115,15 +126,13 @@
 *         refer to PRA return statuses. Refer to functions description for details.</td>
 *   </tr>
 *   <tr>
-*     <td>Minor documentation updates.</td>
-*     <td>Documentation enhancement.</td>
-*   </tr>
-*   <tr>
-*     <td>2.10</td>
 *     <td>Updated the code of \ref Cy_SysClk_ClkPathGetFrequency function.</td>
 *     <td>Make the code more error-resistant to user errors for some corner cases.</td>
 *   </tr>
-
+*   <tr>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>2.0</td>
 *     <td>Updated the ECO trimming values calculation algorithm in the \ref Cy_SysClk_EcoConfigure implementation. \n
