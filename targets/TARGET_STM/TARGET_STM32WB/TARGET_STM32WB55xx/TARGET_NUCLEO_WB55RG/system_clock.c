@@ -25,7 +25,7 @@
   * AHBCLK (MHz)        | 32
   * APB1CLK (MHz)       | 32
   * APB2CLK (MHz)       | 32
-  * USB capable         | NO // todo
+  * USB capable         | YES
   *-----------------------------------------------------------------------------
 **/
 
@@ -97,13 +97,14 @@ void SetSysClock(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.AHBCLK2Divider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.AHBCLK4Divider = RCC_SYSCLK_DIV1;
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
         error("HAL_RCC_ClockConfig error\n");
     }
 
     /** Initializes the peripherals clocks
     */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SMPS | RCC_PERIPHCLK_RFWAKEUP | RCC_PERIPHCLK_RNG;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SMPS | RCC_PERIPHCLK_RFWAKEUP | RCC_PERIPHCLK_RNG | RCC_PERIPHCLK_USB;
+    PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_HSI48;
     PeriphClkInitStruct.RFWakeUpClockSelection = RCC_RFWKPCLKSOURCE_LSE;
     PeriphClkInitStruct.SmpsClockSelection = RCC_SMPSCLKSOURCE_HSE;
