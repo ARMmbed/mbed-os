@@ -182,54 +182,23 @@ typedef enum {
     A4 = p30,
     A5 = p31,
 
-    /**** QSPI pins ****/
-    // QSPI1_IO0 = P0_20,
-    // QSPI1_IO1 = P0_21,
-    // QSPI1_IO2 = P0_22,
-    // QSPI1_IO3 = P0_23,
-    // QSPI1_SCK = P0_19,
-    // QSPI1_CSN = P0_17,
-
-    
-    // Battery
-    // PIN_NAME_BATTERY                = P0_2,
-    // PIN_NAME_BATTERY_MONITOR_ENABLE = P1_11,
-
-    // Board ID
-    // PIN_NAME_BOARD_ID               = P0_3,
-    // PIN_NAME_BOARD_ID_DISABLE       = P1_6,
-
-    // NFC
-    // PIN_NAME_NFC1                   = P0_9,
-    // PIN_NAME_NFC2                   = P0_10,
-
     // DEBUG UART
     PIN_NAME_DEBUG_RX               = P0_16,
     PIN_NAME_DEBUG_TX               = P0_13,
 
-
-
     // Cell
-    //PIN_NAME_CELL_POWER_ENABLE      = P0_28,
     PIN_NAME_CELL_ON_OFF            = P0_31,
     PIN_NAME_CELL_HW_SHUTDOWN       = P0_24,
     PIN_NAME_CELL_RX                = P1_1,
     PIN_NAME_CELL_TX                = P1_3,
     PIN_NAME_CELL_DTR               = P1_4,
-    //PIN_NAME_CELL_DSR               = P1_3,
-    //PIN_NAME_CELL_DCD               = P0_15,
     PIN_NAME_CELL_RTS               = P1_8,
     PIN_NAME_CELL_CTS               = P0_11,
-    PIN_NAME_CELL_PWRMON            = P1_15,//as agora
+    PIN_NAME_CELL_PWRMON            = P1_15,
 
     // Sensors (I2C)
-    //PIN_NAME_SENSOR_POWER_ENABLE    = P0_31,
     PIN_NAME_SDA                    = P0_26,
     PIN_NAME_SCL                    = P0_27,
-
-    // Sensor interrupts
-    //PIN_NAME_INT_ACCEL              = P1_5,
-    //PIN_NAME_INT_LIGHT_TOF          = P0_4,
 
     // QSPI
     PIN_NAME_QSPI_IO0               = P0_20,
@@ -240,59 +209,54 @@ typedef enum {
     PIN_NAME_QSPI_CLK               = P0_19,
 
     // Miscellaneous I/O
-    //PIN_NAME_PUSH_BUTTON            = P0_29,
     PIN_NAME_LED_RED                = P0_8,
-    PIN_NAME_LED_GREEN                = P1_9,
-    PIN_NAME_LED_BLUE                = P0_12,
+    PIN_NAME_LED_GREEN              = P1_9,
+    PIN_NAME_LED_BLUE               = P0_12,
     PIN_NAME_GPIO_04                = P1_3,
     PIN_NAME_GPIO_01                = P0_4,
     PIN_NAME_GPIO_02                = P0_5,
-    PIN_NAME_TEMP_SENSE                = P0_2,
+    PIN_NAME_TEMP_SENSE             = P0_2,
 
     //DF12
     IO5                             = PIN_NAME_GPIO_04,
     AD3                             = PIN_NAME_GPIO_02,
     AD2                             = PIN_NAME_GPIO_01,
-    //PIN_NAME_BT840_RESETN           = P0_18,
-    //PIN_NAME_BT840_SWO              = P1_0,
 
-    TEMP_SENSE = PIN_NAME_TEMP_SENSE,
+    TEMP_SENSE                      = PIN_NAME_TEMP_SENSE,
 
     /* mbed pins */
 
     // used by mbed for default serial out on printf statements
-    RX_PIN_NUMBER = PIN_NAME_DEBUG_RX,
-    TX_PIN_NUMBER = PIN_NAME_DEBUG_TX,
-    USBRX = PIN_NAME_DEBUG_RX,
-    USBTX = PIN_NAME_DEBUG_TX,
-    STDIO_UART_RX = PIN_NAME_DEBUG_RX,
-    STDIO_UART_TX = PIN_NAME_DEBUG_TX,
+    RX_PIN_NUMBER                   = PIN_NAME_DEBUG_RX,
+    TX_PIN_NUMBER                   = PIN_NAME_DEBUG_TX,
+    USBRX                           = PIN_NAME_DEBUG_RX,
+    USBTX                           = PIN_NAME_DEBUG_TX,
+    STDIO_UART_RX                   = PIN_NAME_DEBUG_RX,
+    STDIO_UART_TX                   = PIN_NAME_DEBUG_TX,
 
-    MDMTXD = PIN_NAME_CELL_TX,
-    MDMRXD = PIN_NAME_CELL_RX,
-    MDMCTS = PIN_NAME_CELL_CTS,
-    //MDMDCD = PIN_NAME_CELL_DCD,
-    //MDMDSR = PIN_NAME_CELL_DSR,
-    MDMDTR = PIN_NAME_CELL_DTR,
-    MDMRTS = PIN_NAME_CELL_RTS,
+    MDMTXD                          = PIN_NAME_CELL_TX,
+    MDMRXD                          = PIN_NAME_CELL_RX,
+    MDMCTS                          = PIN_NAME_CELL_CTS,
+    MDMDTR                          = PIN_NAME_CELL_DTR,
+    MDMRTS                          = PIN_NAME_CELL_RTS,
 
     /**** QSPI FLASH pins ****/
-    QSPI_FLASH1_IO0 = PIN_NAME_QSPI_IO0,
-    QSPI_FLASH1_IO1 = PIN_NAME_QSPI_IO1,
-    QSPI_FLASH1_IO2 = PIN_NAME_QSPI_IO2,
-    QSPI_FLASH1_IO3 = PIN_NAME_QSPI_IO3,
-    QSPI_FLASH1_SCK = PIN_NAME_QSPI_CLK,
-    QSPI_FLASH1_CSN = PIN_NAME_QSPI_CSN,
+    QSPI_FLASH1_IO0                 = PIN_NAME_QSPI_IO0,
+    QSPI_FLASH1_IO1                 = PIN_NAME_QSPI_IO1,
+    QSPI_FLASH1_IO2                 = PIN_NAME_QSPI_IO2,
+    QSPI_FLASH1_IO3                 = PIN_NAME_QSPI_IO3,
+    QSPI_FLASH1_SCK                 = PIN_NAME_QSPI_CLK,
+    QSPI_FLASH1_CSN                 = PIN_NAME_QSPI_CSN,
 
-    SPI_MOSI    = PIN_NAME_QSPI_IO0,
-    SPI_MISO    = PIN_NAME_QSPI_IO1,
-    SPI_SCK     = PIN_NAME_QSPI_CLK,
-    SPI_CS      = PIN_NAME_QSPI_CSN,
+    SPI_MOSI                        = PIN_NAME_QSPI_IO0,
+    SPI_MISO                        = PIN_NAME_QSPI_IO1,
+    SPI_SCK                         = PIN_NAME_QSPI_CLK,
+    SPI_CS                          = PIN_NAME_QSPI_CSN,
 
     // LED
-    LED1 = PIN_NAME_LED_RED,
-    LED2 = PIN_NAME_LED_GREEN,
-    LED3 = PIN_NAME_LED_BLUE,
+    LED1                            = PIN_NAME_LED_RED,
+    LED2                            = PIN_NAME_LED_GREEN,
+    LED3                            = PIN_NAME_LED_BLUE,
 
     // Not connected
     NC = (int)0xFFFFFFFF,
