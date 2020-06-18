@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2016 ARM Limited
+Copyright (c) 2016-2020 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES | DELIVERY_OVERRIDES
 
 
 ALLOWED_FEATURES = [
-    "BOOTLOADER", "BLE", "LWIP", "STORAGE", "NANOSTACK", "CRYPTOCELL310",
+    "BOOTLOADER", "BLE", "LWIP", "STORAGE", "NANOSTACK", "CRYPTOCELL310", "PSA",
     "EXPERIMENTAL_API",
 ]
 
@@ -707,14 +707,6 @@ class Config(object):
             )
         if hasattr(self.target, "mbed_{}_size".format(memory_type)):
             mem_size = getattr(self.target, "mbed_{}_size".format(memory_type))
-        if self.target.is_PSA_non_secure_target:
-            config, _ = self.get_config_data()
-            mem_start = config.get(
-                "target.non-secure-{}-start".format(memory_type), mem_start
-            ).value
-            mem_size = config.get(
-                "target.non-secure-{}-size".format(memory_type), mem_size
-            ).value
         if mem_start and not isinstance(mem_start, int):
             mem_start = int(mem_start, 0)
         if mem_size and not isinstance(mem_size, int):

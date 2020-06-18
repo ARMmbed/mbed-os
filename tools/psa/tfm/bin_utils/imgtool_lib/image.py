@@ -209,7 +209,7 @@ class Image():
             else:
                 tlv.add('KEY', pub)
 
-            sig = key.sign(bytes(self.payload))
+            sig = key.sign(self.payload)
             tlv.add(key.sig_tlv(), sig)
 
         self.payload += tlv.get()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates
+ * Copyright (c) 2018-2020, Arm Limited and affiliates
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-#if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#if ((!defined(FEATURE_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
 #error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
 #else
 
 #include "psa/crypto.h"
-
 #include <stdio.h>
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -31,7 +30,7 @@
 
 using namespace utest::v1;
 
-#if defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
+#if defined(MBEDTLS_ENTROPY_NV_SEED)
 
 #if !defined(MAX)
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -48,7 +47,7 @@ void inject_entropy()
     }
     mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
 }
-#endif // defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
+#endif // defined(MBEDTLS_ENTROPY_NV_SEED)
 
 void test_crypto_random(void)
 {
@@ -431,12 +430,12 @@ void test_crypto_hash_clone(void)
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = psa_crypto_init();
-#if defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
+#if defined(MBEDTLS_ENTROPY_NV_SEED)
     if (status == PSA_ERROR_INSUFFICIENT_ENTROPY) {
         inject_entropy();
         status = psa_crypto_init();
     }
-#endif /* defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC) */
+#endif /* defined(MBEDTLS_ENTROPY_NV_SEED) */
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     return greentea_case_setup_handler(source, index_of_case);
 }

@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2020 ARM Limited
 SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,7 +92,8 @@ class GCC(mbedToolchain):
                     self.flags["ld"].append(minimal_printf_wrap)
 
         self.cpu = []
-        if target.is_TrustZone_non_secure_target:
+        # Enable DOMAIN_NS macro for TF-M NS targets
+        if target.is_TFM_target:
             # Add linking time preprocessor macro DOMAIN_NS
             # (DOMAIN_NS is passed to compiler and assembler via CORTEX_SYMBOLS
             # in mbedToolchain.get_symbols)

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2018 ARM Limited. All rights reserved.
+* Copyright (c) 2018-2020 ARM Limited. All rights reserved.
 * SPDX-License-Identifier: Apache-2.0
 * Licensed under the Apache License, Version 2.0 (the License); you may
 * not use this file except in compliance with the License.
@@ -68,33 +68,6 @@
 #define RESULT_SUCCESS                  0
 
 using namespace utest::v1;
-
-#if (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
-#include "entropy.h"
-#include "entropy_poll.h"
-#include "crypto.h"
-#if !defined(MAX)
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#endif
-
-/* Calculating the minimum allowed entropy size in bytes */
-#define MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE \
-            MAX(MBEDTLS_ENTROPY_MIN_PLATFORM, MBEDTLS_ENTROPY_BLOCK_SIZE)
-
-void inject_entropy_for_psa()
-{
-    if (psa_crypto_init() == PSA_ERROR_INSUFFICIENT_ENTROPY) {
-        uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
-        /* inject some a seed for test*/
-        for (int i = 0; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
-            seed[i] = i;
-        }
-
-        /* don't really care if this succeed this is just to make crypto init pass*/
-        mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
-    }
-}
-#endif // (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
 
 static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
 {
@@ -275,9 +248,6 @@ int main()
 #if defined(MBEDTLS_PLATFORM_C)
     ret = mbedtls_platform_setup(NULL);
 #endif /* MBEDTLS_PLATFORM_C */
-#if (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
-    inject_entropy_for_psa();
-#endif
     ret = !Harness::run(specification);
 #if defined(MBEDTLS_PLATFORM_C)
     mbedtls_platform_teardown(NULL);

@@ -83,6 +83,11 @@ prepend_code                                                                    
     "#error \"No entropy source was found at build time, so TLS \" \\\\\n"                                     \
     "    \"functionality is not available\"\n"                                                                 \
     "#endif\n"                                                                                                 \
+    "\n"                                                                                                       \
+    "#if defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA)\n"                                          \
+    "    #define MBEDTLS_PSA_HAS_ITS_IO\n"                                                                     \
+    "    #define MBEDTLS_USE_PSA_CRYPTO\n"                                                                     \
+    "#endif\n"                                                                                                 \
     "\n"
 
 # not supported on mbed OS, nor used by mbed Client

@@ -1,7 +1,7 @@
 /*
  *  Public Key abstraction layer
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright (C) 2006-2020, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -617,12 +617,18 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
     if( ( ret = mbedtls_mpi_write_binary( &ec->d, d, d_len ) ) != 0 )
         return( ret );
 
+    /* prepare the key attributes */
+#if TARGET_TFM
+    curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
+    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(
+                                 mbedtls_psa_parse_tls_ecc_group ( curve_id,
+                                 &bits ) );
+#else
     curve_id = mbedtls_ecc_group_to_psa( ec->grp.id, &bits );
     key_type = PSA_KEY_TYPE_ECC_KEY_PAIR( curve_id );
-
-    /* prepare the key attributes */
-    psa_set_key_type( &attributes, key_type );
+#endif
     psa_set_key_bits( &attributes, bits );
+    psa_set_key_type( &attributes, key_type );
     psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_SIGN_HASH );
     psa_set_key_algorithm( &attributes, PSA_ALG_ECDSA(hash_alg) );
 

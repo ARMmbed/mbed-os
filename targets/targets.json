@@ -5,11 +5,7 @@
         "default_toolchain": "ARM",
         "supported_toolchains": null,
         "extra_labels": [],
-        "components": [
-            "PSA_SRV_IMPL",
-            "PSA_SRV_EMUL",
-            "NSPE"
-        ],
+        "components": [],
         "is_disk_virtual": false,
         "macros": [],
         "device_has": [],
@@ -91,116 +87,64 @@
         }
     },
     "PSA_Target": {
+        "inherits": [
+            "Target"
+        ],
+        "features": [
+            "PSA"
+        ],
         "public": false,
-        "config": {
-            "secure-rom-start": {
-                "help": "Starting address of Secure ROM",
-                "value": null,
-                "macro_name": "PSA_SECURE_ROM_START",
-                "conflicts": [
-                    "target.mbed_rom_start"
-                ]
-            },
-            "secure-rom-size": {
-                "help": "Size in bytes of Secure ROM",
-                "value": null,
-                "macro_name": "PSA_SECURE_ROM_SIZE",
-                "conflicts": [
-                    "target.mbed_rom_size"
-                ]
-            },
-            "non-secure-rom-start": {
-                "help": "Starting address of Non-secure ROM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_ROM_START",
-                "conflicts": [
-                    "target.mbed_rom_start"
-                ]
-            },
-            "non-secure-rom-size": {
-                "help": "Size in bytes of Non-secure ROM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_ROM_SIZE",
-                "conflicts": [
-                    "target.mbed_rom_size"
-                ]
-            },
-            "secure-ram-start": {
-                "help": "Starting address of Secure RAM",
-                "value": null,
-                "macro_name": "PSA_SECURE_RAM_START",
-                "conflicts": [
-                    "target.mbed_ram_start"
-                ]
-            },
-            "secure-ram-size": {
-                "help": "Size in bytes of Secure RAM",
-                "value": null,
-                "macro_name": "PSA_SECURE_RAM_SIZE",
-                "conflicts": [
-                    "target.mbed_ram_size"
-                ]
-            },
-            "non-secure-ram-start": {
-                "help": "Starting address of Non-secure RAM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_RAM_START",
-                "conflicts": [
-                    "target.mbed_ram_start"
-                ]
-            },
-            "non-secure-ram-size": {
-                "help": "Size in bytes of Non-secure RAM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_RAM_SIZE",
-                "conflicts": [
-                    "target.mbed_ram_size"
-                ]
-            },
-            "shared-ram-start": {
-                "help": "Starting address of Shared RAM between Secure and Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_SHARED_RAM_START"
-            },
-            "shared-ram-size": {
-                "help": "Size in bytes of Shared RAM between Secure and Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_SHARED_RAM_SIZE"
-            },
-            "public-ram-start": {
-                "help": "Starting address of Public RAM for variables accessible from Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_PUBLIC_RAM_START"
-            },
-            "public-ram-size": {
-                "help": "Size in bytes of Public RAM variables accessible from Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_PUBLIC_RAM_SIZE"
-            }
-        }
+        "config": {}
     },
-    "NSPE_Target": {
+    "PSA_V7_M": {
         "inherits": [
             "PSA_Target"
         ],
-        "components": [
-            "PSA_SRV_IPC",
-            "NSPE"
+        "extra_labels": [
+            "MBED_PSA_SRV"
         ],
-        "device_has_add": [
+        "device_has": [
             "TRNG"
         ],
         "public": false
     },
-    "SPE_Target": {
+    "PSA_DUAL_CORE": {
         "inherits": [
             "PSA_Target"
         ],
-        "components": [
-            "PSA_SRV_IMPL",
-            "PSA_SRV_IPC",
-            "SPE"
+        "extra_labels": [
+            "TFM",
+            "TFM_DUALCPU"
         ],
+        "device_has": [
+            "TRNG"
+        ],
+        "macros_add": [
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
+        ],
+        "tfm_target_name": "",
+        "tfm_bootloader_supported": "",
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": null,
+        "tfm_delivery_dir": "",
+        "public": false
+    },
+    "PSA_V8_M": {
+        "inherits": [
+            "PSA_Target"
+        ],
+        "extra_labels": [
+            "TFM",
+            "TFM_V8M"
+        ],
+        "device_has": [
+            "TRNG"
+        ],
+        "tfm_target_name": "",
+        "tfm_bootloader_supported": "",
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": null,
+        "tfm_delivery_dir": "",
         "public": false
     },
     "CM4_UARM": {
@@ -759,7 +703,7 @@
             "GCC_ARM",
             "IAR"
         ],
-        "extra_labels": [
+        "extra_labels_add": [
             "Freescale",
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
@@ -767,24 +711,22 @@
             "KPSDK_MCUS",
             "KPSDK_CODE",
             "MCU_K64F",
-            "Freescale_EMAC",
-            "PSA",
-            "MBED_PSA_SRV"
+            "Freescale_EMAC"
         ],
         "is_disk_virtual": true,
-        "macros": [
+        "macros_add": [
             "CPU_MK64FN1M0VMD12",
             "FSL_RTOS_MBED",
             "MBED_SPLIT_HEAP",
             "MBED_TICKLESS"
         ],
         "inherits": [
-            "Target"
+            "PSA_V7_M"
         ],
         "detect_code": [
             "0240"
         ],
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "LPTICKER",
             "RTC",
@@ -1020,29 +962,27 @@
             "GCC_ARM",
             "IAR"
         ],
-        "extra_labels": [
+        "extra_labels_add": [
             "Freescale",
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
             "FRDM",
-            "Freescale_EMAC",
-            "PSA",
-            "MBED_PSA_SRV"
+            "Freescale_EMAC"
         ],
         "is_disk_virtual": true,
-        "macros": [
+        "macros_add": [
             "CPU_MK66FN2M0VMD18",
             "FSL_RTOS_MBED",
             "MBED_SPLIT_HEAP",
             "MBED_TICKLESS"
         ],
         "inherits": [
-            "Target"
+            "PSA_V7_M"
         ],
         "detect_code": [
             "0311"
         ],
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "LPTICKER",
             "RTC",
@@ -2023,10 +1963,12 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
+        "features_add": [
+            "PSA"
+        ],
         "extra_labels_add": [
             "STM32F4",
             "STM32F429xI",
-            "PSA",
             "MBED_PSA_SRV"
         ],
         "macros_add": [
@@ -4698,33 +4640,21 @@
         ]
     },
     "ARM_MUSCA_A1": {
-        "public": false,
         "inherits": [
-            "Target"
+            "PSA_V8_M"
         ],
         "default_toolchain": "ARMC6",
-        "extra_labels": [
-            "ARM_SSG",
-            "MUSCA_A1"
-        ],
         "features_add": [
             "EXPERIMENTAL_API"
         ],
         "forced_reset_timeout": 7,
         "release_versions": [
             "5"
-        ]
-    },
-    "ARM_MUSCA_A1_NS": {
-        "inherits": [
-            "NSPE_Target",
-            "ARM_MUSCA_A1"
         ],
         "core": "Cortex-M33-NS",
         "supported_toolchains": [
             "ARMC6",
-            "GCC_ARM",
-            "IAR"
+            "GCC_ARM"
         ],
         "device_has_add": [
             "INTERRUPTIN",
@@ -4733,7 +4663,7 @@
             "SLEEP",
             "USTICKER"
         ],
-        "macros": [
+        "macros_add": [
             "__STARTUP_CLEAR_BSS",
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
@@ -4741,44 +4671,39 @@
             "MBED_MPU_CUSTOM"
         ],
         "extra_labels_add": [
-            "MUSCA_A1_NS",
-            "PSA",
-            "MBED_PSA_SRV",
-            "TFM"
+            "ARM_SSG",
+            "MUSCA_A1",
+            "MUSCA_A1_NS"
         ],
         "post_binary_hook": {
             "function": "ArmMuscaA1Code.binary_hook"
         },
-        "secure_image_filename": "tfm.bin",
-        "overrides": {
-            "non-secure-rom-start": "0x000a0400",
-            "non-secure-rom-size": "0x5f800",
-            "non-secure-ram-start": "0x20011000",
-            "non-secure-ram-size": "0xf000"
-        }
+        "secure_image_filename": "tfm_s.bin",
+        "tfm_target_name": "MUSCA_A",
+        "tfm_bootloader_supported": true,
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": [
+            "ARMCLANG",
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_A1"
+    },
+    "ARM_MUSCA_A1_NS": {
+        "inherits": [
+            "ARM_MUSCA_A1"
+        ]
     },
     "ARM_MUSCA_B1": {
-        "public": false,
         "inherits": [
-            "Target"
+            "PSA_V8_M"
         ],
         "default_toolchain": "ARMC6",
-        "extra_labels": [
-            "ARM_SSG",
-            "MUSCA_B1"
-        ],
         "features_add": [
             "EXPERIMENTAL_API"
         ],
         "forced_reset_timeout": 20,
         "release_versions": [
             "5"
-        ]
-    },
-    "ARM_MUSCA_B1_NS": {
-        "inherits": [
-            "NSPE_Target",
-            "ARM_MUSCA_B1"
         ],
         "core": "Cortex-M33-NS",
         "supported_toolchains": [
@@ -4794,29 +4719,36 @@
             "SLEEP",
             "USTICKER"
         ],
-        "macros": [
+        "macros_add": [
             "__STARTUP_CLEAR_BSS",
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=3",
-            "MBED_MPU_CUSTOM"
+            "MBED_MPU_CUSTOM",
+            "BL2"
         ],
         "extra_labels_add": [
-            "MUSCA_B1_NS",
-            "PSA",
-            "MBED_PSA_SRV",
-            "TFM"
+            "ARM_SSG",
+            "MUSCA_B1",
+            "MUSCA_B1_NS"
         ],
         "post_binary_hook": {
             "function": "ArmMuscaB1Code.binary_hook"
         },
-        "secure_image_filename": "tfm.bin",
-        "overrides": {
-            "non-secure-rom-start": "0x0A070400",
-            "non-secure-rom-size": "0x7f800",
-            "non-secure-ram-start": "0x20040000",
-            "non-secure-ram-size": "0x40000"
-        }
+        "secure_image_filename": "tfm_s.bin",
+        "tfm_target_name": "MUSCA_B1",
+        "tfm_bootloader_supported": true,
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": [
+            "ARMCLANG",
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1"
+    },
+    "ARM_MUSCA_B1_NS": {
+        "inherits": [
+            "ARM_MUSCA_B1"
+        ]
     },
     "RZ_A1XX": {
         "inherits": [
@@ -6327,14 +6259,18 @@
         ],
         "public": false,
         "extra_labels": [
-            "ARM_FM",
-            "PSA",
-            "MBED_PSA_SRV"
+            "ARM_FM"
         ]
     },
     "FVP_MPS2": {
         "inherits": [
             "ARM_FM"
+        ],
+        "features_add": [
+            "PSA"
+        ],
+        "extra_labels_add": [
+            "MBED_PSA_SRV"
         ],
         "public": false,
         "supported_toolchains": [
@@ -6589,7 +6525,7 @@
         ],
         "core": "Cortex-M4F",
         "OUTPUT_EXT": "hex",
-        "device_has": [
+        "device_has_add": [
             "ANALOGIN",
             "ANALOGOUT",
             "CRC",
@@ -6622,7 +6558,7 @@
         "release_versions": [
             "5"
         ],
-        "extra_labels": [
+        "extra_labels_add": [
             "Cypress",
             "PSOC6",
             "MXCRYPTO"
@@ -6777,8 +6713,9 @@
         "inherits": [
             "MCU_PSOC6_M4"
         ],
-        "features": [
-            "BLE"
+        "features_add": [
+            "BLE",
+            "PSA"
         ],
         "components_add": [
             "WHD",
@@ -6798,11 +6735,14 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CORDIO"
+            "CORDIO",
+            "TFM",
+            "TFM_DUALCPU"
         ],
         "macros_add": [
             "CYB0644ABZI_S2D44",
-            "CYBSP_WIFI_CAPABLE"
+            "CYBSP_WIFI_CAPABLE",
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
         ],
         "detect_code": [
             "190A"
@@ -6814,14 +6754,23 @@
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
-        "program_cycle_s": 10
+        "program_cycle_s": 10,
+        "tfm_target_name": "psoc64",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "GNUARM",
+        "tfm_supported_toolchains": [
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_064S2_4343W",
+        "TFM_OUTPUT_EXT": "hex"
     },
     "CYESKIT_064B0S2_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
-        "features": [
-            "BLE"
+        "features_add": [
+            "BLE",
+            "PSA"
         ],
         "components_add": [
             "WHD",
@@ -6841,11 +6790,14 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CORDIO"
+            "CORDIO",
+            "TFM",
+            "TFM_DUALCPU"
         ],
         "macros_add": [
             "CYB0644ABZI_S2D44",
-            "CYBSP_WIFI_CAPABLE"
+            "CYBSP_WIFI_CAPABLE",
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
         ],
         "detect_code": [
             "190A"
@@ -6857,7 +6809,15 @@
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
-        "program_cycle_s": 10
+        "program_cycle_s": 10,
+        "tfm_target_name": "psoc64",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "GNUARM",
+        "tfm_supported_toolchains": [
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_064B0S2_4343W",
+        "TFM_OUTPUT_EXT": "hex"
     },
     "CY8CKIT_062_WIFI_BT": {
         "inherits": [
@@ -7104,7 +7064,7 @@
             "Target"
         ],
         "public": false,
-        "extra_labels": [
+        "extra_labels_add": [
             "GigaDevice"
         ],
         "supported_toolchains": [
@@ -7112,7 +7072,7 @@
             "IAR",
             "GCC_ARM"
         ],
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "ANALOGIN",
             "INTERRUPTIN",
@@ -7179,8 +7139,10 @@
             "GD32F4XX",
             "GD32F450ZI",
             "GD_EMAC",
-            "PSA",
             "MBED_PSA_SRV"
+        ],
+        "features_add": [
+            "PSA"
         ],
         "device_has_add": [
             "RTC",
