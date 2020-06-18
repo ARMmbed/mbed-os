@@ -40,7 +40,7 @@ void rf_conf_calculate_rssi_threshold_registers(int16_t rssi_threshold, uint8_t 
 uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, uint32_t datarate);
 int16_t rf_conf_cca_threshold_percent_to_rssi(uint8_t percent);
 
-uint8_t rf_conf_calculate_pa_level_dbm(uint32_t power_dbm);
+uint8_t rf_conf_calculate_pa_level_dbm(int8_t power_dbm);
 
 #ifdef __cplusplus
 }

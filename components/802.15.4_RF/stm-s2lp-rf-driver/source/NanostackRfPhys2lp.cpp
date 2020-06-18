@@ -220,7 +220,7 @@ static uint16_t cur_packet_len = 0xffff;
 static uint32_t receiver_ready_timestamp;
 static int16_t rssi_threshold = RSSI_THRESHOLD;
 static uint32_t tx_start_time = 0;
-static uint32_t tx_power_dbm = MAX_PA_VALUE;
+static int8_t tx_power_dbm = MAX_PA_VALUE;
 
 /* Channel configurations for sub-GHz */
 static phy_rf_channel_configuration_s phy_subghz = {

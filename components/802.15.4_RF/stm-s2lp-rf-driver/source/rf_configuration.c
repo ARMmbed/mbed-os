@@ -181,7 +181,7 @@ uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, ui
     return deviation;
 }
 
-uint8_t rf_conf_calculate_pa_level_dbm(uint32_t power_dbm)
+uint8_t rf_conf_calculate_pa_level_dbm(int8_t power_dbm)
 {
     MBED_ASSERT(IS_PAPOWER_DBM(power_dbm));
 
