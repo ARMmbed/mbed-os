@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Design version="12" device_library_hint_path="../../psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v3">
-    <ToolInfo version="2.1.0.1266"/>
+    <ToolInfo version="2.2.0.1747"/>
     <Devices>
         <Device mpn="CYB0644ABZI-S2D44">
             <BlockConfig>
@@ -267,11 +267,6 @@
                 </Block>
                 <Block location="srss[0].clock[0]">
                     <Personality template="mxs40sysclocks" version="1.2"/>
-                </Block>
-                <Block location="srss[0].clock[0].altsystickclk[0]">
-                    <Personality template="mxs40altsystick" version="1.0">
-                        <Param id="sourceClock" value="timerclk"/>
-                    </Personality>
                 </Block>
                 <Block location="srss[0].clock[0].bakclk[0]">
                     <Personality template="mxs40bakclk" version="1.0">

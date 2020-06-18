@@ -43,13 +43,13 @@ void init_cycfg_routing(void);
 #define ioss_0_port_6_pin_6_HSIOM P6_6_CPUSS_SWJ_SWDIO_TMS
 #define ioss_0_port_6_pin_7_HSIOM P6_7_CPUSS_SWJ_SWCLK_TCLK
 #define ioss_0_port_7_pin_1_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_7_pin_2_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_7_pin_7_HSIOM HSIOM_SEL_AMUXB
-#define ioss_0_port_8_pin_1_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_2_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_7_pin_2_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_7_pin_7_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_8_pin_1_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_2_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_3_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_4_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_8_pin_4_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_6_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_8_pin_7_HSIOM HSIOM_SEL_AMUXA
 

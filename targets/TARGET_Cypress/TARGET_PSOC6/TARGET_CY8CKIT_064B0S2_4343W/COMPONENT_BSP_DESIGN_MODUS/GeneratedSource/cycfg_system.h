@@ -33,7 +33,6 @@
 #include "cy_sysclk.h"
 #include "cy_pra.h"
 #include "cy_pra_cfg.h"
-#include "cy_systick.h"
 #if defined (CY_USING_HAL)
 	#include "cyhal_hwmgr.h"
 #endif //defined (CY_USING_HAL)
@@ -46,7 +45,6 @@ extern "C" {
 
 #define cpuss_0_dap_0_ENABLED 1U
 #define srss_0_clock_0_ENABLED 1U
-#define srss_0_clock_0_altsystickclk_0_ENABLED 1U
 #define srss_0_clock_0_bakclk_0_ENABLED 1U
 #define srss_0_clock_0_fastclk_0_ENABLED 1U
 #define srss_0_clock_0_fll_0_ENABLED 1U
