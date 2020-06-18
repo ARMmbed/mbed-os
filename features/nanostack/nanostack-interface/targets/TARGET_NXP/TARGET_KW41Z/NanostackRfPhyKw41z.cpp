@@ -68,9 +68,9 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
 static void rf_mac_hw_init(void);
 static void rf_mac_ed_state_enable(void);
 static void rf_mac_set_pending(uint8_t status);
-static void rf_mac_set_shortAddress(uint8_t* valueAddress);
-static void rf_mac_set_panId(uint8_t* valueAddress);
-static void rf_mac_set_mac64(const uint8_t* valueAddress);
+static void rf_mac_set_shortAddress(uint8_t *valueAddress);
+static void rf_mac_set_panId(uint8_t *valueAddress);
+static void rf_mac_set_mac64(const uint8_t *valueAddress);
 static uint8_t rf_convert_energy_level(uint8_t energyLevel);
 static void rf_abort(void);
 static void rf_ack_wait_timer_start(uint16_t time);
@@ -100,8 +100,8 @@ static uint8_t PHYPAYLOAD[MAC_PACKET_SIZE];
 const phy_rf_channel_configuration_s phy_2_4ghz = {2405000000U, 5000000U, 250000U, 16U, M_OQPSK};
 
 const phy_device_channel_page_s phy_channel_pages[] = {
-        {CHANNEL_PAGE_0, &phy_2_4ghz},
-        {CHANNEL_PAGE_0, NULL}
+    {CHANNEL_PAGE_0, &phy_2_4ghz},
+    {CHANNEL_PAGE_0, NULL}
 };
 
 static phy_device_driver_s device_driver = {
@@ -109,7 +109,7 @@ static phy_device_driver_s device_driver = {
     PHY_LAYER_PAYLOAD_DATA_FLOW,
     MAC64_addr,
     PHY_MTU_SIZE,
-    (char*)"NXP kw41z",
+    (char *)"NXP kw41z",
     CRC_LENGTH,
     PHY_HEADER_LENGTH,
     &rf_interface_state_control,
@@ -184,9 +184,9 @@ static void rf_promiscuous(uint8_t state)
         /* FRM_VER[11:8] = b0011. Accept FrameVersion 0 and 1 packets, reject all others */
         /* Beacon, Data and MAC command frame types accepted */
         ZLL->RX_FRAME_FILTER &= ~(ZLL_RX_FRAME_FILTER_FRM_VER_FILTER_MASK |
-                                 ZLL_RX_FRAME_FILTER_ACK_FT_MASK  |
-                                 ZLL_RX_FRAME_FILTER_NS_FT_MASK   |
-                                 ZLL_RX_FRAME_FILTER_ACTIVE_PROMISCUOUS_MASK);
+                                  ZLL_RX_FRAME_FILTER_ACK_FT_MASK  |
+                                  ZLL_RX_FRAME_FILTER_NS_FT_MASK   |
+                                  ZLL_RX_FRAME_FILTER_ACTIVE_PROMISCUOUS_MASK);
         ZLL->RX_FRAME_FILTER |= ZLL_RX_FRAME_FILTER_FRM_VER_FILTER(3);
     }
 }
@@ -211,8 +211,7 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
 {
     platform_enter_critical();
 
-    switch (new_state)
-    {
+    switch (new_state) {
         /*Reset PHY driver and set to idle*/
         case PHY_INTERFACE_RESET:
             rf_abort();
@@ -294,7 +293,7 @@ static void rf_abort(void)
     if (ZLL->PHY_CTRL & ZLL_PHY_CTRL_TMRTRIGEN_MASK) {
         ZLL->PHY_CTRL &= ~ZLL_PHY_CTRL_TMRTRIGEN_MASK;
         /* give the FSM enough time to start if it was triggered */
-        while( (XCVR_MISC->XCVR_CTRL & XCVR_CTRL_XCVR_STATUS_TSM_COUNT_MASK) == 0) {}
+        while ((XCVR_MISC->XCVR_CTRL & XCVR_CTRL_XCVR_STATUS_TSM_COUNT_MASK) == 0) {}
     }
 
     /* If XCVR is not idle, abort current SEQ */
@@ -347,7 +346,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
     need_ack = (*data_ptr & 0x20) == 0x20;
 
     /* Load data into Packet Buffer */
-    pPB = (uint8_t*)ZLL->PKT_BUFFER_TX;
+    pPB = (uint8_t *)ZLL->PKT_BUFFER_TX;
 
     tx_len = data_length + 2;
     *pPB++ = tx_len; /* including 2 bytes of FCS */
@@ -382,7 +381,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
     ZLL->IRQSTS = irqSts;
 
     tx_warmup_time = (XCVR_TSM->END_OF_SEQ & XCVR_TSM_END_OF_SEQ_END_OF_TX_WU_MASK) >>
-                      XCVR_TSM_END_OF_SEQ_END_OF_TX_WU_SHIFT;
+                     XCVR_TSM_END_OF_SEQ_END_OF_TX_WU_SHIFT;
 
     /* Compute warmup times (scaled to 16us) */
     if (tx_warmup_time & 0x0F) {
@@ -418,19 +417,19 @@ static int8_t rf_address_write(phy_address_type_e address_type, uint8_t *address
     platform_enter_critical();
 
     switch (address_type) {
-    case PHY_MAC_64BIT:
-        rf_mac_set_mac64(address_ptr);
-        break;
-    /*Set 16-bit address*/
-    case PHY_MAC_16BIT:
-        rf_mac_set_shortAddress(address_ptr);
-        break;
-    /*Set PAN Id*/
-    case PHY_MAC_PANID:
-        rf_mac_set_panId(address_ptr);
-        break;
-    default:
-        ret_val = -1;
+        case PHY_MAC_64BIT:
+            rf_mac_set_mac64(address_ptr);
+            break;
+        /*Set 16-bit address*/
+        case PHY_MAC_16BIT:
+            rf_mac_set_shortAddress(address_ptr);
+            break;
+        /*Set PAN Id*/
+        case PHY_MAC_PANID:
+            rf_mac_set_panId(address_ptr);
+            break;
+        default:
+            ret_val = -1;
     }
 
     platform_exit_critical();
@@ -495,7 +494,8 @@ static uint8_t rf_convert_energy_level(uint8_t energyLevel)
 /**
  *  SET MAC 16 address to Register
  */
-static void rf_mac_set_shortAddress(uint8_t* valueAddress) {
+static void rf_mac_set_shortAddress(uint8_t *valueAddress)
+{
     ZLL->MACSHORTADDRS0 &= ~ZLL_MACSHORTADDRS0_MACSHORTADDRS0_MASK;
     ZLL->MACSHORTADDRS0 |= ZLL_MACSHORTADDRS0_MACSHORTADDRS0(common_read_16_bit(valueAddress));
 }
@@ -503,7 +503,8 @@ static void rf_mac_set_shortAddress(uint8_t* valueAddress) {
 /**
  *  SET PAN-ID to Register
  */
-static void rf_mac_set_panId(uint8_t* valueAddress) {
+static void rf_mac_set_panId(uint8_t *valueAddress)
+{
     ZLL->MACSHORTADDRS0 &= ~ZLL_MACSHORTADDRS0_MACPANID0_MASK;
     ZLL->MACSHORTADDRS0 |= ZLL_MACSHORTADDRS0_MACPANID0(common_read_16_bit(valueAddress));
 }
@@ -511,7 +512,8 @@ static void rf_mac_set_panId(uint8_t* valueAddress) {
 /**
  *  SET MAC64 address to register
  */
-static void rf_mac_set_mac64(const uint8_t* valueAddress) {
+static void rf_mac_set_mac64(const uint8_t *valueAddress)
+{
     ZLL->MACLONGADDRS0_MSB = common_read_32_bit(valueAddress);
     valueAddress += 4;
     ZLL->MACLONGADDRS0_LSB = common_read_32_bit(valueAddress);
@@ -544,7 +546,7 @@ static uint8_t PhyPlmeGetPwrLevelRequest(void)
 
 static uint8_t PhyPlmeSetCurrentChannelRequest(uint8_t channel, uint8_t pan)
 {
-    if((channel < 11) || (channel > 26)) {
+    if ((channel < 11) || (channel > 26)) {
         return 1;
     }
 
@@ -591,9 +593,9 @@ static void PhyIsrSeqCleanup(void)
     irqStatus |= ZLL_IRQSTS_TMR3MSK_MASK;
     /* Clear transceiver interrupts except TMRxIRQ */
     irqStatus &= ~(ZLL_IRQSTS_TMR1IRQ_MASK |
-                    ZLL_IRQSTS_TMR2IRQ_MASK |
-                    ZLL_IRQSTS_TMR3IRQ_MASK |
-                    ZLL_IRQSTS_TMR4IRQ_MASK);
+                   ZLL_IRQSTS_TMR2IRQ_MASK |
+                   ZLL_IRQSTS_TMR3IRQ_MASK |
+                   ZLL_IRQSTS_TMR4IRQ_MASK);
     ZLL->IRQSTS = irqStatus;
 }
 
@@ -617,8 +619,8 @@ static void PhyIsrTimeoutCleanup(void)
     /* Mask TMR3 interrupt */
     irqStatus |= ZLL_IRQSTS_TMR3MSK_MASK;
     /* Clear transceiver interrupts except TMR1IRQ and TMR4IRQ. */
-    irqStatus &= ~( ZLL_IRQSTS_TMR1IRQ_MASK |
-                    ZLL_IRQSTS_TMR4IRQ_MASK );
+    irqStatus &= ~(ZLL_IRQSTS_TMR1IRQ_MASK |
+                   ZLL_IRQSTS_TMR4IRQ_MASK);
     ZLL->IRQSTS = irqStatus;
 
     /* The packet was transmitted successfully, but no ACK was received */
@@ -686,19 +688,19 @@ static void rf_mac_hw_init(void)
     /* Enable 16 bit mode for TC2 - TC2 prime EN, disable all timers,
        enable AUTOACK, mask all interrupts */
     ZLL->PHY_CTRL = (gCcaCCA_MODE1_c << ZLL_PHY_CTRL_CCATYPE_SHIFT) |
-                     ZLL_PHY_CTRL_TC2PRIME_EN_MASK    |
-                     ZLL_PHY_CTRL_TSM_MSK_MASK        |
-                     ZLL_PHY_CTRL_WAKE_MSK_MASK       |
-                     ZLL_PHY_CTRL_CRC_MSK_MASK        |
-                     ZLL_PHY_CTRL_PLL_UNLOCK_MSK_MASK |
-                     ZLL_PHY_CTRL_FILTERFAIL_MSK_MASK |
-                     ZLL_PHY_CTRL_RX_WMRK_MSK_MASK    |
-                     ZLL_PHY_CTRL_CCAMSK_MASK         |
-                     ZLL_PHY_CTRL_RXMSK_MASK          |
-                     ZLL_PHY_CTRL_TXMSK_MASK          |
-                     ZLL_PHY_CTRL_SEQMSK_MASK         |
-                     ZLL_PHY_CTRL_AUTOACK_MASK        |
-                     ZLL_PHY_CTRL_TRCV_MSK_MASK;
+                    ZLL_PHY_CTRL_TC2PRIME_EN_MASK    |
+                    ZLL_PHY_CTRL_TSM_MSK_MASK        |
+                    ZLL_PHY_CTRL_WAKE_MSK_MASK       |
+                    ZLL_PHY_CTRL_CRC_MSK_MASK        |
+                    ZLL_PHY_CTRL_PLL_UNLOCK_MSK_MASK |
+                    ZLL_PHY_CTRL_FILTERFAIL_MSK_MASK |
+                    ZLL_PHY_CTRL_RX_WMRK_MSK_MASK    |
+                    ZLL_PHY_CTRL_CCAMSK_MASK         |
+                    ZLL_PHY_CTRL_RXMSK_MASK          |
+                    ZLL_PHY_CTRL_TXMSK_MASK          |
+                    ZLL_PHY_CTRL_SEQMSK_MASK         |
+                    ZLL_PHY_CTRL_AUTOACK_MASK        |
+                    ZLL_PHY_CTRL_TRCV_MSK_MASK;
 
     /* Clear all PP IRQ bits to avoid unexpected interrupts immediately after init
        disable all timer interrupts */
@@ -927,7 +929,7 @@ static uint8_t rf_convert_LQI(uint8_t hwLqi)
 static void rf_handle_rx_end(void)
 {
     uint8_t rf_lqi = (ZLL->LQI_AND_RSSI & ZLL_LQI_AND_RSSI_LQI_VALUE_MASK) >>
-                                          ZLL_LQI_AND_RSSI_LQI_VALUE_SHIFT;
+                     ZLL_LQI_AND_RSSI_LQI_VALUE_SHIFT;
     int8_t rf_rssi = 0;
     uint8_t len;
     uint8_t i;
@@ -944,7 +946,7 @@ static void rf_handle_rx_end(void)
         rf_rssi = rf_convert_LQI_to_RSSI(rf_lqi);
 
         /* Load data from Packet Buffer */
-        pPB = (uint8_t*)ZLL->PKT_BUFFER_RX;
+        pPB = (uint8_t *)ZLL->PKT_BUFFER_RX;
 
         for (i = 0; i < len; i++) {
             PHYPAYLOAD[i] = *pPB++;
@@ -978,8 +980,8 @@ static void handle_IRQ_events(void)
 
     } else {
         /* Rx Watermark IRQ */
-        if((!(ZLL->PHY_CTRL & ZLL_PHY_CTRL_RX_WMRK_MSK_MASK)) &&
-           (irqStatus & ZLL_IRQSTS_RXWTRMRKIRQ_MASK)) {
+        if ((!(ZLL->PHY_CTRL & ZLL_PHY_CTRL_RX_WMRK_MSK_MASK)) &&
+                (irqStatus & ZLL_IRQSTS_RXWTRMRKIRQ_MASK)) {
             uint32_t rx_len = (irqStatus & ZLL_IRQSTS_RX_FRAME_LENGTH_MASK) >> ZLL_IRQSTS_RX_FRAME_LENGTH_SHIFT;
 
             /* Convert to symbols and add IFS and ACK duration */
@@ -1002,47 +1004,46 @@ static void handle_IRQ_events(void)
         }
         /* TMR3 timeout, the autosequence has been aborted due to TMR3 timeout */
         else if ((irqStatus & ZLL_IRQSTS_TMR3IRQ_MASK) &&
-                  (!(irqStatus & ZLL_IRQSTS_RXIRQ_MASK)) &&
-                  (xcvseqCopy != gTX_c)) {
+                 (!(irqStatus & ZLL_IRQSTS_RXIRQ_MASK)) &&
+                 (xcvseqCopy != gTX_c)) {
             PhyIsrTimeoutCleanup();
             /* Start receiver */
             rf_receive();
         } else {
             PhyIsrSeqCleanup();
-            switch(xcvseqCopy)
-            {
-            case gTX_c:
-                if ((ZLL->PHY_CTRL & ZLL_PHY_CTRL_CCABFRTX_MASK) &&
-                    (irqStatus & ZLL_IRQSTS_CCA_MASK)) {
-                    device_driver.phy_tx_done_cb(rf_radio_driver_id, rf_mac_handle,
-                                                 PHY_LINK_CCA_FAIL, 1, 1);
-                } else {
-                    rf_handle_tx_end(false);
-                }
-                break;
+            switch (xcvseqCopy) {
+                case gTX_c:
+                    if ((ZLL->PHY_CTRL & ZLL_PHY_CTRL_CCABFRTX_MASK) &&
+                            (irqStatus & ZLL_IRQSTS_CCA_MASK)) {
+                        device_driver.phy_tx_done_cb(rf_radio_driver_id, rf_mac_handle,
+                                                     PHY_LINK_CCA_FAIL, 1, 1);
+                    } else {
+                        rf_handle_tx_end(false);
+                    }
+                    break;
 
-            case gTR_c:
-                if ((ZLL->PHY_CTRL & ZLL_PHY_CTRL_CCABFRTX_MASK) &&
-                    (irqStatus & ZLL_IRQSTS_CCA_MASK)) {
-                    device_driver.phy_tx_done_cb(rf_radio_driver_id, rf_mac_handle,
-                                                 PHY_LINK_CCA_FAIL, 1, 1);
-                } else {
-                    rf_handle_tx_end((irqStatus & ZLL_IRQSTS_RX_FRM_PEND_MASK) > 0);
-                }
-                break;
+                case gTR_c:
+                    if ((ZLL->PHY_CTRL & ZLL_PHY_CTRL_CCABFRTX_MASK) &&
+                            (irqStatus & ZLL_IRQSTS_CCA_MASK)) {
+                        device_driver.phy_tx_done_cb(rf_radio_driver_id, rf_mac_handle,
+                                                     PHY_LINK_CCA_FAIL, 1, 1);
+                    } else {
+                        rf_handle_tx_end((irqStatus & ZLL_IRQSTS_RX_FRM_PEND_MASK) > 0);
+                    }
+                    break;
 
-            case gRX_c:
-                rf_handle_rx_end();
-                break;
+                case gRX_c:
+                    rf_handle_rx_end();
+                    break;
 
-            case gCCA_c:
-                rf_ed_value = rf_convert_energy_level((ZLL->LQI_AND_RSSI &
-                                                       ZLL_LQI_AND_RSSI_CCA1_ED_FNL_MASK) >>
-                                                       ZLL_LQI_AND_RSSI_CCA1_ED_FNL_SHIFT);
-                break;
+                case gCCA_c:
+                    rf_ed_value = rf_convert_energy_level((ZLL->LQI_AND_RSSI &
+                                                           ZLL_LQI_AND_RSSI_CCA1_ED_FNL_MASK) >>
+                                                          ZLL_LQI_AND_RSSI_CCA1_ED_FNL_SHIFT);
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
             }
         }
     }
@@ -1097,7 +1098,7 @@ void NanostackRfPhyKw41z::get_mac_address(uint8_t *mac)
 {
     platform_enter_critical();
 
-    memcpy((void*)mac, (void*)MAC64_addr, sizeof(MAC64_addr));
+    memcpy((void *)mac, (void *)MAC64_addr, sizeof(MAC64_addr));
 
     platform_exit_critical();
 }
@@ -1111,7 +1112,7 @@ void NanostackRfPhyKw41z::set_mac_address(uint8_t *mac)
         platform_exit_critical();
         return;
     }
-    memcpy((void*)MAC64_addr, (void*)mac, sizeof(MAC64_addr));
+    memcpy((void *)MAC64_addr, (void *)mac, sizeof(MAC64_addr));
 
     platform_exit_critical();
 }
