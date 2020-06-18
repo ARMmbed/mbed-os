@@ -17,10 +17,14 @@
 #ifndef UBLOX_N2XX_CELLULARSTACK_H_
 #define UBLOX_N2XX_CELLULARSTACK_H_
 
+#include <chrono>
+
 #include "AT_CellularStack.h"
 #include "CellularUtil.h"
 #include "mbed_wait_api.h"
 #include "drivers/Timer.h"
+
+using namespace std::chrono;
 
 namespace mbed {
 
@@ -45,7 +49,7 @@ protected:
      * call to the functions here when they return NSAPI_ERROR_WOULD_BLOCK
      * and the user has set a larger timeout or full blocking.
      */
-    static const int SOCKET_TIMEOUT = 1000;
+    static constexpr seconds SOCKET_TIMEOUT = 1s;
 
     /** The maximum number of bytes in a packet that can be write/read from
      * the AT interface in one go.

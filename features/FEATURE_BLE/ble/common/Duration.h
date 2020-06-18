@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "platform/mbed_assert.h"
+#include "platform/mbed_chrono.h"
 
 namespace ble {
 
@@ -229,6 +230,48 @@ struct Duration {
     static Duration forever()
     {
         return Duration(Forever::VALUE);
+    }
+
+#if defined(DOXYGEN_ONLY)
+    /**
+     * Test if the forever value is being held
+     * @return True if the forever value is held False otherwise
+     */
+    bool isForever() const;
+#else
+    // Overload when Forever isn't defined
+    template<typename DefaultForever = void*>
+    std::enable_if_t<
+        std::is_same<DefaultForever, Forever>::value,
+        bool
+    >
+    isForever() const
+    {
+        return false;
+    }
+
+    // Overload when Forever is defined
+    template<typename DefaultForever = void*>
+    std::enable_if_t<
+        !std::is_same<DefaultForever, Forever>::value,
+        bool
+    >
+    isForever() const
+    {
+        return duration == Forever::VALUE;
+    }
+#endif
+
+    /**
+     * Convert the duration into an std::chrono one.
+     * @return The duration in the std::chrono format.
+     */
+    std::chrono::duration<Rep, typename std::ratio<TB, 1000000>::type>
+    valueChrono() const
+    {
+        MBED_ASSERT(!isForever());
+
+        return std::chrono::duration<Rep, typename std::ratio<TB, 1000000>::type>{duration};
     }
 
 private:

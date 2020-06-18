@@ -222,7 +222,9 @@ void nfc_scheduler_timer_start(nfc_scheduler_timer_t *timer)
 uint32_t nfc_scheduler_timer_get(nfc_scheduler_timer_t *timer)
 {
     Timer *mbed_timer = (Timer *)timer;
-    return (uint32_t)mbed_timer->read_ms();
+    return (uint32_t)std::chrono::duration_cast<std::chrono::milliseconds>(
+               mbed_timer->elapsed_time()
+           ).count();
 }
 
 void nfc_scheduler_timer_stop(nfc_scheduler_timer_t *timer)

@@ -177,7 +177,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
         }
         _at.cmd_start_stop("+USOST", "=", "%d%s%d%d", socket->id, address.get_ip_address(), address.get_port(), size);
         _at.resp_start("@", true);
-        rtos::ThisThread::sleep_for(50); //wait for 50ms before sending data
+        rtos::ThisThread::sleep_for(50ms);
 
         _at.write_bytes((uint8_t *)data, size);
 
@@ -201,7 +201,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
             }
             _at.cmd_start_stop("+USOWR", "=", "%d%d", socket->id, blk);
             _at.resp_start("@", true);
-            rtos::ThisThread::sleep_for(50); //wait for 50ms before sending data
+            rtos::ThisThread::sleep_for(50ms);
 
             _at.write_bytes((uint8_t *)buf, blk);
 
@@ -289,7 +289,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                     // read() should not fail
                     success = false;
                 }
-            }  else if (timer.read_ms() < SOCKET_TIMEOUT) {
+            }  else if (timer.elapsed_time() < SOCKET_TIMEOUT) {
                 // Wait for URCs
                 _at.process_oob();
             } else {
@@ -332,7 +332,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 } else {
                     success = false;
                 }
-            } else if (timer.read_ms() < SOCKET_TIMEOUT) {
+            } else if (timer.elapsed_time() < SOCKET_TIMEOUT) {
                 // Wait for URCs
                 _at.process_oob();
             } else {

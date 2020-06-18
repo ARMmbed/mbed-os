@@ -22,6 +22,7 @@
 #include "CellularLog.h"
 #include "rtos/ThisThread.h"
 
+using namespace std::chrono;
 using namespace rtos;
 using namespace mbed;
 using namespace events;
@@ -86,7 +87,7 @@ nsapi_error_t ALT1250_PPP::soft_power_on()
         tr_warn("Modem is not responding to AT commands, reset it");
         if (_rst.is_connected()) {
             _rst = 0;
-            ThisThread::sleep_for(100);
+            ThisThread::sleep_for(100ms);
             _rst = 1;
         }
         if (_at.sync(2000)) {

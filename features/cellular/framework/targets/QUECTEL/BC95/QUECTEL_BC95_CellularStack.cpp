@@ -26,12 +26,13 @@
 #include "CellularLog.h"
 
 #define PACKET_SIZE_MAX 1358
-#define TXFULL_EVENT_TIMEOUT (1 * 1000) // ms
+#define TXFULL_EVENT_TIMEOUT 1s
 
 #define AT_UPLINK_BUSY          159
 #define AT_UART_BUFFER_ERROR    536
 #define AT_BACK_OFF_TIMER       537
 
+using namespace std::chrono;
 using namespace mbed;
 using namespace mbed_cellular_util;
 
@@ -230,7 +231,7 @@ retry_send:
             if (retry < 3) {
                 retry++;
                 tr_warn("Socket %d sendto EAGAIN", socket->id);
-                rtos::ThisThread::sleep_for(30);
+                rtos::ThisThread::sleep_for(30ms);
                 _at.clear_error();
                 goto retry_send;
             }

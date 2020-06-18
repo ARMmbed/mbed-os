@@ -39,6 +39,8 @@
 #include "CordioPalAttClient.h"
 #include "CordioPalSecurityManager.h"
 
+using namespace std::chrono;
+
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
 
@@ -259,9 +261,9 @@ void BLE::waitForEvent()
 
     if (wsfOsReadyToSleep()) {
         // setup an mbed timer for the next cordio timeout
-        nextTimestamp = (timestamp_t)(WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK) * 1000;
+        nextTimestamp = (timestamp_t)(WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK);
         if (pTimerRunning) {
-            nextTimeout.attach_us(timeoutCallback, nextTimestamp);
+            nextTimeout.attach(timeoutCallback, milliseconds(nextTimestamp));
         }
     }
 }
@@ -558,7 +560,7 @@ void BLE::callDispatcher()
     // process the external event queue
     _event_queue.process();
 
-    _last_update_us += (uint64_t)_timer.read_high_resolution_us();
+    _last_update_us += (uint64_t)_timer.elapsed_time().count();
     _timer.reset();
 
     uint64_t last_update_ms   = (_last_update_us / 1000);
@@ -578,9 +580,9 @@ void BLE::callDispatcher()
     if (wsfOsReadyToSleep()) {
         // setup an mbed timer for the next Cordio timeout
         bool_t pTimerRunning;
-        timestamp_t nextTimestamp = (timestamp_t) (WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK) * 1000;
+        timestamp_t nextTimestamp = (timestamp_t) (WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK);
         if (pTimerRunning) {
-            nextTimeout.attach_us(timeoutCallback, nextTimestamp);
+            nextTimeout.attach(timeoutCallback, milliseconds(nextTimestamp));
         } else {
             critical_section.disable();
             _hci_driver->on_host_stack_inactivity();

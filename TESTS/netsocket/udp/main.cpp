@@ -118,9 +118,9 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
     }
 }
 
-int split2half_rmng_udp_test_time()
+microseconds split2half_rmng_udp_test_time()
 {
-    return (udp_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
+    return (udp_global::TESTS_TIMEOUT - tc_bucket.elapsed_time()) / 2;
 }
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
@@ -133,7 +133,7 @@ int fetch_stats()
 // Test setup
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(udp_global::TESTS_TIMEOUT, "default_auto");
+    GREENTEA_SETUP(seconds(udp_global::TESTS_TIMEOUT).count(), "default_auto");
     _ifup();
     tc_bucket.start();
     return greentea_test_setup_handler(number_of_cases);

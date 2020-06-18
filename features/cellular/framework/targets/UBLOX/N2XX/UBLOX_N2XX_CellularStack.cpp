@@ -185,7 +185,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
                 // read() should not fail
                 success = false;
             }
-        }  else if (timer.read_ms() < SOCKET_TIMEOUT) {
+        }  else if (timer.elapsed_time() < SOCKET_TIMEOUT) {
             // Wait for URCs
             _at.process_oob();
         } else {

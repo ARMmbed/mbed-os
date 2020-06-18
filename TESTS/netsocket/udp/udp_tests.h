@@ -21,6 +21,8 @@
 #include "../test_params.h"
 #include "mbed_trace.h"
 
+using namespace std::chrono;
+
 #define TRACE_GROUP "GRNT"
 
 NetworkInterface *get_interface();
@@ -37,18 +39,18 @@ int fetch_stats(void);
 /**
  * Single testcase might take only half of the remaining execution time
  */
-int split2half_rmng_udp_test_time(); // [s]
+microseconds split2half_rmng_udp_test_time();
 
 namespace udp_global {
 #ifdef MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S
-static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S;
+static constexpr seconds TESTS_TIMEOUT(MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S);
 #else
 #define MESH 3
 #define WISUN 0x2345
 #if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH && MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN
-static const int TESTS_TIMEOUT = (25 * 60);
+static constexpr seconds TESTS_TIMEOUT = 25min;
 #else
-static const int TESTS_TIMEOUT = (20 * 60);
+static constexpr seconds TESTS_TIMEOUT = 20min;
 #endif
 #endif
 

@@ -15,6 +15,7 @@
  */
 #include <string.h>
 #if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
+
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "ns_types.h"
@@ -31,6 +32,7 @@
 #include "mbed_wait_api.h"
 #include "platform/mbed_error.h"
 
+using namespace std::chrono;
 using namespace mbed;
 using namespace rtos;
 
@@ -276,7 +278,7 @@ static void rf_calculate_symbol_rate(uint32_t baudrate, phy_modulation_e modulat
 
 static uint32_t rf_get_timestamp(void)
 {
-    return (uint32_t)rf->tx_timer.read_us();
+    return (uint32_t)rf->tx_timer.elapsed_time().count();
 }
 
 static void rf_update_tx_active_time(void)
@@ -866,7 +868,7 @@ static void rf_cca_timer_stop(void)
 
 static void rf_cca_timer_start(uint32_t slots)
 {
-    rf->cca_timer.attach_us(rf_cca_timer_signal, slots);
+    rf->cca_timer.attach(rf_cca_timer_signal, microseconds(slots));
     TEST_CSMA_STARTED
 }
 
@@ -903,7 +905,7 @@ static void rf_backup_timer_stop(void)
 
 static void rf_backup_timer_start(uint32_t slots)
 {
-    rf->backup_timer.attach_us(rf_backup_timer_signal, slots);
+    rf->backup_timer.attach(rf_backup_timer_signal, microseconds(slots));
 }
 
 static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_handle, data_protocol_e data_protocol)
@@ -1177,10 +1179,10 @@ static void rf_reset(void)
 {
     // Shutdown
     rf->SDN = 1;
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
     // Wake up
     rf->SDN = 0;
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
 }
 
 static void rf_init(void)

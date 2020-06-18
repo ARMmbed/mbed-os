@@ -24,6 +24,8 @@
 
 // Default NetworkStack operations
 
+using namespace std::chrono;
+
 nsapi_error_t NetworkStack::get_ip_address(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
@@ -197,7 +199,7 @@ nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
     }
 
     if (delay > 0) {
-        if (event_queue->call_in(delay, func) == 0) {
+        if (event_queue->call_in(milliseconds(delay), func) == 0) {
             goto NO_MEM;
         }
     } else {
