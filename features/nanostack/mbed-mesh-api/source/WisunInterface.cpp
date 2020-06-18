@@ -24,6 +24,8 @@
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "ws_management_api.h"
+#include "net_rpl.h"
+#include "net_interface.h"
 
 #include "ns_trace.h"
 #define TRACE_GROUP "WSIn"
@@ -542,6 +544,60 @@ mesh_error_t WisunInterface::read_mac_statistics(mesh_mac_statistics_t *statisti
         ret_val = MESH_ERROR_UNKNOWN;
     }
     return ret_val;
+}
+
+mesh_error_t WisunInterface::info_get(ws_rpl_info_t *info_ptr)
+{
+    if (info_ptr == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    rpl_dodag_info_t dodag_ptr = {0};
+    uint8_t global_address[16] = {0};
+    uint8_t rpl_instance_count;
+    uint8_t instance_id_list[10];
+    uint8_t instance_id = RPL_INSTANCE_LOCAL;
+    uint8_t instance_id_new;
+    uint8_t instance_index;
+    rpl_instance_count = rpl_instance_list_read(&instance_id_list[0], sizeof(instance_id_list));
+
+    if (rpl_instance_count > 10) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    /* Find lowest global instance ID (assumption: RPL instance with lowest instance ID has
+           most generic routing rule and its rank should be indicated in beacon) */
+    for (instance_index = 0; instance_index < rpl_instance_count; instance_index++) {
+        instance_id_new = instance_id_list[instance_index];
+
+        if ((instance_id_new & RPL_INSTANCE_LOCAL) == RPL_INSTANCE_LOCAL) {
+            break;
+        } else {
+            if (instance_id_new < instance_id) {
+                instance_id = instance_id_new;
+            }
+        }
+    }
+
+    if (instance_id == RPL_INSTANCE_LOCAL) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    if (!rpl_read_dodag_info(&dodag_ptr, instance_id)) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    if (arm_net_address_get(get_interface_id(), ADDR_IPV6_GP, global_address) != 0) {
+        // No global prefix available, Nothing to do.
+    }
+
+    info_ptr->instance_id = dodag_ptr.instance_id;
+    info_ptr->version = dodag_ptr.version_num;
+    memcpy(info_ptr->rpl_dodag_id, dodag_ptr.dodag_id, 16);
+    memcpy(info_ptr->ipv6_prefix, global_address, 8);
+    memcpy(info_ptr->ipv6_iid, global_address + 8, 8);
+
+    return MESH_ERROR_NONE;
 }
 
 #define WISUN 0x2345
