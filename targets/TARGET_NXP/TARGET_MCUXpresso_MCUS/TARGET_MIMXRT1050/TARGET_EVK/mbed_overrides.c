@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +21,17 @@
 #include "fsl_iomuxc.h"
 #include "fsl_gpio.h"
 #include "lpm.h"
+#include "usb_phy.h"
+#include "usb_device_config.h"
 
 #define LPSPI_CLOCK_SOURCE_DIVIDER (7U)
 #define LPI2C_CLOCK_SOURCE_DIVIDER (5U)
+
+/* USB PHY condfiguration */
+#define BOARD_USB_PHY_D_CAL     (0x0CU)
+#define BOARD_USB_PHY_TXCAL45DP (0x06U)
+#define BOARD_USB_PHY_TXCAL45DM (0x06U)
+
 uint8_t mbed_otp_mac_address(char *mac);
 void mbed_default_mac_address(char *mac);
 
@@ -311,3 +320,28 @@ void mbed_default_mac_address(char *mac) {
 
     return;
 }
+
+void USB_DeviceClockInit(void)
+{
+    usb_phy_config_struct_t phyConfig = {
+        BOARD_USB_PHY_D_CAL,
+        BOARD_USB_PHY_TXCAL45DP,
+        BOARD_USB_PHY_TXCAL45DM,
+    };
+
+    CLOCK_EnableUsbhs0PhyPllClock(kCLOCK_Usbphy480M, 480000000U);
+    CLOCK_EnableUsbhs0Clock(kCLOCK_Usb480M, 480000000U);
+
+    USB_EhciPhyInit(CONTROLLER_ID, BOARD_XTAL0_CLK_HZ, &phyConfig);
+}
+
+uint32_t USB_DeviceGetIrqNumber(void)
+{
+    uint8_t irqNumber;
+
+    uint8_t usbDeviceEhciIrq[] = USBHS_IRQS;
+    irqNumber                  = usbDeviceEhciIrq[CONTROLLER_ID - kUSB_ControllerEhci0];
+
+    return irqNumber;
+}
+
