@@ -186,7 +186,9 @@ add_definitions(
 #     RTOS_M4_M7;
 #     FLASHIAP;
 #     CORDIO;
-#     CORDIO_BLUENRG
+#     QSPIF;
+#     BlueNRG_MS;
+#     BLE;
 # )
 
 # # TODO: @mbed-os-tools Generate definitions
