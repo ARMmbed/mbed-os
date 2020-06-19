@@ -130,8 +130,8 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     SAI2_IRQHandler                   ; Serial Audio Interface 2 global interrupt
                 DCD     SWPMI1_IRQHandler                 ; Serial Wire Interface 1 global interrupt
                 DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
-                DCD     0                                 ; Reserved                
-                DCD     0                                 ; Reserved                
+                DCD     0                                 ; Reserved
+                DCD     0                                 ; Reserved
                 DCD     RNG_IRQHandler                    ; RNG global interrupt
                 DCD     FPU_IRQHandler                    ; FPU
 
