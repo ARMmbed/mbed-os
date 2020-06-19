@@ -424,9 +424,17 @@
             "IAR"
         ],
         "supported_c_libs": {
-            "arm": ["std", "small"],
-            "gcc_arm": ["std", "small"],
-            "iar": ["std"]
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
         },
         "extra_labels": [
             "NXP",
@@ -1231,9 +1239,17 @@
             "GCC_ARM"
         ],
         "supported_c_libs": {
-            "arm": ["std", "small"],
-            "gcc_arm": ["std", "small"],
-            "iar": ["std"]
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
         },
         "macros": [
             "USE_HAL_DRIVER",
@@ -1920,7 +1936,9 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "supported_application_profiles":["bare-metal"],
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
         "device_name": "STM32F303K8"
     },
     "NUCLEO_F303RE": {
@@ -7539,7 +7557,9 @@
         ]
     },
     "DISCO_L562QE": {
-        "inherits": ["FAMILY_STM32"],
+        "inherits": [
+            "FAMILY_STM32"
+        ],
         "core": "Cortex-M33FE",
         "extra_labels_add": [
             "CORDIO",
@@ -7587,13 +7607,17 @@
         "features": [
             "BLE"
         ],
-        "detect_code": ["0854"],
+        "detect_code": [
+            "0854"
+        ],
         "bootloader_supported": true,
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x80000",
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x40000",
-        "release_versions": [ "5" ]
+        "release_versions": [
+            "5"
+        ]
     },
     "MCU_M480": {
         "core": "Cortex-M4F",
@@ -9170,45 +9194,87 @@
         ]
     },
     "FAMILY_Apollo3": {
-        "inherits": ["Target"],
+        "inherits": [
+            "Target"
+        ],
         "core": "Cortex-M4F",
-        "features": ["BLE"],
+        "features": [
+            "BLE"
+        ],
         "default_toolchain": "GCC_ARM",
-        "supported_toolchains": ["GCC_ARM"],
+        "supported_toolchains": [
+            "GCC_ARM"
+        ],
         "public": false,
-        "extra_labels": ["Ambiq_Micro", "Apollo3", "CORDIO"],
-        "device_has": ["MPU", "USTICKER", "SERIAL", "INTERRUPTIN", "LPTICKER", "STDIO_MESSAGES"],
+        "extra_labels": [
+            "Ambiq_Micro",
+            "Apollo3",
+            "CORDIO"
+        ],
+        "device_has": [
+            "MPU",
+            "USTICKER",
+            "SERIAL",
+            "INTERRUPTIN",
+            "LPTICKER",
+            "STDIO_MESSAGES"
+        ],
         "macros": []
     },
     "AMA3B1KK": {
         "public": false,
-        "inherits": ["FAMILY_Apollo3"],
-        "macros_add": ["AM_PACKAGE_BGA"]
+        "inherits": [
+            "FAMILY_Apollo3"
+        ],
+        "macros_add": [
+            "AM_PACKAGE_BGA"
+        ]
     },
-    "SPARKFUN_ARTEMIS_MODULE": {
+    "SFE_ARTEMIS": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
+    },
+    "SFE_ARTEMIS_ATP": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
+    },
+    "SFE_ARTEMIS_DK": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
+    },
+    "SFE_ARTEMIS_MODULE": {
         "public": false,
-        "inherits": ["AMA3B1KK"]
+        "inherits": [
+            "AMA3B1KK"
+        ]
     },
-    "SPARKFUN_EDGE": {
-        "inherits": ["AMA3B1KK"]
+    "SFE_ARTEMIS_NANO": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
     },
-    "SPARKFUN_EDGE2": {
-        "inherits": ["AMA3B1KK"]
+    "SFE_ARTEMIS_THING_PLUS": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
     },
-    "SPARKFUN_REDBOARD_ARTEMIS_ATP": {
-        "inherits": ["AMA3B1KK"]
+    "SFE_EDGE": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
     },
-    "SPARKFUN_REDBOARD_ARTEMIS": {
-        "inherits": ["AMA3B1KK"]
+    "SFE_EDGE2": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
     },
-    "SPARKFUN_REDBOARD_ARTEMIS_NANO": {
-        "inherits": ["AMA3B1KK"]
-    },
-    "SPARKFUN_ARTEMIS_THING_PLUS": {
-        "inherits": ["AMA3B1KK"]
-    },    
-    "SPARKFUN_ARTMBED": {
-        "inherits": ["AMA3B1KK"]
+    "ARTATP": {
+        "inherits": [
+            "AMA3B1KK"
+        ]
     },
     "__build_tools_metadata__": {
         "version": "1",
