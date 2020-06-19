@@ -1,0 +1,22 @@
+{
+    "name": "ep-atlas",
+    "config": {
+        "enable-cell" : {
+            "help"                 : "Enable the cell module on the EP_ATLAS board",
+            "macro_name"           : "EP_ATLAS_ENABLE_CELL",
+            "value"                : true
+        },
+        "port-configuration-variant" : {
+            "help"                 : "Telit ME310C1 AT#PORTCFG Variant value",
+            "macro_name"           : "EP_ATLAS_PORT_CONFIGURATION_VARIANT",
+            "value"                : 0
+        }
+    },
+    "target_overrides": {
+        "EP_ATLAS": {
+            "target.network-default-interface-type": "CELLULAR"
+
+        }
+
+    }
+}
