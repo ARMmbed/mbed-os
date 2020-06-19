@@ -23,6 +23,8 @@
 #include "QUECTEL_BG96_CellularContext.h"
 #include "CellularLog.h"
 
+using std::milli;
+using namespace std::chrono;
 using namespace mbed;
 using namespace events;
 using namespace rtos;
@@ -134,7 +136,7 @@ nsapi_error_t QUECTEL_BG96::soft_power_off()
     if (_at.get_last_error() != NSAPI_ERROR_OK) {
         tr_warn("Force modem off");
         if (_pwr.is_connected()) {
-            press_button(_pwr, 650); // BG96_Hardware_Design_V1.1: Power off signal at least 650 ms
+            press_button(_pwr, 650ms); // BG96_Hardware_Design_V1.1: Power off signal at least 650 ms
         }
     }
     return _at.unlock_return_error();
@@ -170,7 +172,7 @@ void QUECTEL_BG96::urc_pdpdeact()
     send_disconnect_to_context(cid);
 }
 
-void QUECTEL_BG96::press_button(DigitalOut &button, uint32_t timeout)
+void QUECTEL_BG96::press_button(DigitalOut &button, duration<uint32_t, milli> timeout)
 {
     if (!button.is_connected()) {
         return;
@@ -185,7 +187,7 @@ bool QUECTEL_BG96::wake_up(bool reset)
     // check if modem is already ready
     _at.lock();
     _at.flush();
-    _at.set_at_timeout(30);
+    _at.set_at_timeout(30ms);
     _at.cmd_start("AT");
     _at.cmd_stop_read_resp();
     nsapi_error_t err = _at.get_last_error();
@@ -196,14 +198,14 @@ bool QUECTEL_BG96::wake_up(bool reset)
         if (!reset) {
             // BG96_Hardware_Design_V1.1 requires VBAT to be stable over 30 ms, that's handled above
             tr_info("Power on modem");
-            press_button(_pwr, 250); // BG96_Hardware_Design_V1.1 requires time 100 ms, but 250 ms seems to be more robust
+            press_button(_pwr, 250ms); // BG96_Hardware_Design_V1.1 requires time 100 ms, but 250 ms seems to be more robust
         } else {
             tr_warn("Reset modem");
-            press_button(_rst, 150); // BG96_Hardware_Design_V1.1 requires RESET_N timeout at least 150 ms
+            press_button(_rst, 150ms); // BG96_Hardware_Design_V1.1 requires RESET_N timeout at least 150 ms
         }
         _at.lock();
         // According to BG96_Hardware_Design_V1.1 USB is active after 4.2s, but it seems to take over 5s
-        _at.set_at_timeout(6000);
+        _at.set_at_timeout(6s);
         _at.resp_start();
         _at.set_stop_tag("RDY");
         bool rdy = _at.consume_to_stop_tag();

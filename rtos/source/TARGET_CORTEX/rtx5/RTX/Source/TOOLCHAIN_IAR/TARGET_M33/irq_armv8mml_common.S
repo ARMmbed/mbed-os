@@ -1,5 +1,5 @@
 ;/*
-; * Copyright (c) 2016-2018 Arm Limited. All rights reserved.
+; * Copyright (c) 2016-2020 Arm Limited. All rights reserved.
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
 ; *
@@ -29,9 +29,15 @@
 #endif
 
 #ifdef __ARMVFP__
-__FPU_USED      EQU      1
+FPU_USED        EQU      1
 #else
-__FPU_USED      EQU      0
+FPU_USED        EQU      0
+#endif
+
+#if (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0))
+MVE_USED        EQU      1
+#else
+MVE_USED        EQU      0
 #endif
 
 I_T_RUN_OFS     EQU      20                     ; osRtxInfo.thread.run offset
@@ -85,7 +91,7 @@ SVC_Context
                 IT       EQ
                 BXEQ     LR                     ; Exit when threads are the same
 
-                #if     (__FPU_USED == 1)
+                #if    ((FPU_USED == 1) || (MVE_USED == 1))
                 CBNZ     R1,SVC_ContextSave     ; Branch if running thread is not deleted
                 TST      LR,#0x10               ; Check if extended stack frame
                 BNE      SVC_ContextSwitch
@@ -110,7 +116,7 @@ SVC_ContextSave
 SVC_ContextSave1
                 MRS      R0,PSP                 ; Get PSP
                 STMDB    R0!,{R4-R11}           ; Save R4..R11
-                #if     (__FPU_USED == 1)
+                #if    ((FPU_USED == 1) || (MVE_USED == 1))
                 TST      LR,#0x10               ; Check if extended stack frame
                 IT       EQ
                 VSTMDBEQ R0!,{S16-S31}          ;  Save VFP S16.S31
@@ -144,7 +150,7 @@ SVC_ContextRestore1
                 BNE      SVC_ContextRestore2    ; Branch if secure
                 #endif
 
-                #if     (__FPU_USED == 1)
+                #if    ((FPU_USED == 1) || (MVE_USED == 1))
                 TST      LR,#0x10               ; Check if extended stack frame
                 IT       EQ
                 VLDMIAEQ R0!,{S16-S31}          ;  Restore VFP S16..S31
@@ -215,22 +221,24 @@ Sys_ContextSave
                 PUSH     {R1,R2,R3,LR}          ; Save registers and EXC_RETURN
                 BL       TZ_StoreContext_S      ; Store secure context
                 POP      {R1,R2,R3,LR}          ; Restore registers and EXC_RETURN
+
+Sys_ContextSave1
                 TST      LR,#0x40               ; Check domain of interrupted thread
                 IT       NE
                 MRSNE    R0,PSP                 ; Get PSP
-                BNE      Sys_ContextSave2       ; Branch if secure
+                BNE      Sys_ContextSave3       ; Branch if secure
                 #endif
 
-Sys_ContextSave1
+Sys_ContextSave2
                 MRS      R0,PSP                 ; Get PSP
                 STMDB    R0!,{R4-R11}           ; Save R4..R11
-                #if     (__FPU_USED == 1)
+                #if    ((FPU_USED == 1) || (MVE_USED == 1))
                 TST      LR,#0x10               ; Check if extended stack frame
                 IT       EQ
                 VSTMDBEQ R0!,{S16-S31}          ;  Save VFP S16.S31
                 #endif
 
-Sys_ContextSave2
+Sys_ContextSave3
                 STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
                 STRB     LR,[R1,#TCB_SF_OFS]    ; Store stack frame information
 
@@ -258,7 +266,7 @@ Sys_ContextRestore1
                 BNE      Sys_ContextRestore2    ; Branch if secure
                 #endif
 
-                #if     (__FPU_USED == 1)
+                #if    ((FPU_USED == 1) || (MVE_USED == 1))
                 TST      LR,#0x10               ; Check if extended stack frame
                 IT       EQ
                 VLDMIAEQ R0!,{S16-S31}          ;  Restore VFP S16..S31

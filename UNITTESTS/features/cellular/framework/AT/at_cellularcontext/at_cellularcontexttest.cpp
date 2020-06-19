@@ -33,6 +33,7 @@
 
 using namespace mbed;
 using namespace events;
+using namespace std::chrono_literals;
 
 // AStyle ignored as the definition is not clear due to preprocessor usage
 // *INDENT-OFF*
@@ -44,7 +45,7 @@ protected:
         ATHandler_stub::nsapi_error_value = 0;
         ATHandler_stub::nsapi_error_ok_counter = 0;
         ATHandler_stub::int_value = -1;
-        ATHandler_stub::timeout = 0;
+        ATHandler_stub::timeout = 0s;
         ATHandler_stub::default_timeout = 0;
         ATHandler_stub::debug_on = 0;
         ATHandler_stub::ssize_value = 0;
@@ -108,7 +109,7 @@ public:
 class my_AT_CTX : public AT_CellularContext {
 public:
     my_AT_CTX(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
-        AT_CellularContext(at, device, apn), _st(at, *get_device())
+        AT_CellularContext(at, device, apn)
     {
         AT_CellularDevice_stub::supported_bool = false;
     }
@@ -116,8 +117,12 @@ public:
 
     virtual NetworkStack *get_stack()
     {
-        return &_st;
+        if (!_stack) {
+            _stack = new my_stack(_at, *get_device());
+        }
+        return _stack;
     }
+
     virtual uint32_t get_timeout_for_operation(ContextOperation op) const
     {
         return 10;
@@ -136,24 +141,23 @@ public:
     {
         deactivate_non_ip_context();
     }
-
-    my_stack _st;
 };
 
 class my_AT_CTXIPV6 : public AT_CellularContext {
 public:
     my_AT_CTXIPV6(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
-        AT_CellularContext(at, device, apn), _st(at, *get_device()) {}
+        AT_CellularContext(at, device, apn) {}
     virtual ~my_AT_CTXIPV6() {}
     virtual NetworkStack *get_stack()
     {
-        return &_st;
+        if (!_stack) {
+            _stack = new my_stack(_at, *get_device());
+        }
     }
     virtual uint32_t get_timeout_for_operation(ContextOperation op) const
     {
         return 10;
     }
-    my_stack _st;
 };
 
 class def_AT_CTX : public AT_CellularContext {

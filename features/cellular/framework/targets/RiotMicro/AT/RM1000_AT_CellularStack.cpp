@@ -26,6 +26,7 @@
 
 using namespace mbed;
 using namespace mbed_cellular_util;
+using namespace std::chrono;
 
 RM1000_AT_CellularStack::RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
@@ -265,7 +266,7 @@ nsapi_size_or_error_t RM1000_AT_CellularStack::socket_recvfrom_impl(CellularSock
                 // read() should not fail
                 success = false;
             }
-        }  else if (timer.read_ms() < SOCKET_TIMEOUT) {
+        }  else if (timer.elapsed_time() < SOCKET_TIMEOUT) {
             // Wait for URCs
             _at.process_oob();
         } else {
@@ -327,7 +328,7 @@ nsapi_error_t RM1000_AT_CellularStack::gethostbyname(const char *host, SocketAdd
         _at.write_string(host, false);
         _at.cmd_stop();
 
-        _at.set_at_timeout(70000);
+        _at.set_at_timeout(70s);
         _at.resp_start("+RDNS:");
         if (_at.info_resp()) {
             _at.read_string(ipAddress, sizeof(ipAddress));

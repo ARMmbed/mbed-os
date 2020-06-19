@@ -18,6 +18,8 @@
 #include "CellularLog.h"
 #include "ThisThread.h"
 
+using namespace std::chrono_literals;
+
 MBED_WEAK CellularInterface *CellularInterface::get_target_default_instance()
 {
     return mbed::CellularContext::get_default_instance();
@@ -83,7 +85,7 @@ void CellularContext::set_authentication_type(AuthenticationType type)
 void CellularContext::validate_ip_address()
 {
     const int IP_MAX_TRIES = 10; // maximum of 2 seconds as we wait 200ms between tries
-    const int IP_WAIT_INTERVAL = 200; // 200 ms between retries
+    const auto IP_WAIT_INTERVAL = 200ms; // 200 ms between retries
     SocketAddress ip;
     int i = 0;
 
@@ -151,7 +153,7 @@ void CellularContext::do_connect_with_retry()
     if (_is_blocking) {
         while (_retry_count < _retry_array_length) {
             tr_debug("SYNC do_connect failed with %d, retry after %d seconds", _cb_data.error, _retry_timeout_array[_retry_count]);
-            rtos::ThisThread::sleep_for(_retry_timeout_array[_retry_count] * 1000);
+            rtos::ThisThread::sleep_for(_retry_timeout_array[_retry_count] * 1s);
             do_connect();
             if (_cb_data.error == NSAPI_ERROR_OK) {
                 return;
@@ -165,7 +167,7 @@ void CellularContext::do_connect_with_retry()
                 _cb_data.final_try = true;
             }
             tr_debug("ASYNC do_connect failed with %d, retry after %d seconds", _cb_data.error, _retry_timeout_array[_retry_count]);
-            int id = _device->get_queue()->call_in(_retry_timeout_array[_retry_count] * 1000, this, &CellularContext::do_connect_with_retry);
+            int id = _device->get_queue()->call_in(_retry_timeout_array[_retry_count] * 1s, this, &CellularContext::do_connect_with_retry);
             if (id == 0) {
                 tr_error("Failed call via eventqueue in do_connect_with_retry()");
 #if !NSAPI_PPP_AVAILABLE

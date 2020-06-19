@@ -25,87 +25,100 @@
 #include "InterruptIn.h"
 #include "SPI.h"
 
-// Uncomment to use testing gpios attached to TX/RX processes
-// #define TEST_GPIOS_ENABLED
-
-#if defined(TARGET_MTB_STM_S2LP) || defined(TARGET_MTB_STM_S2LP_CT)
-#if !defined(S2LP_SPI_SDI)
-#define S2LP_SPI_SDI        PA_7
-#endif
-#if !defined(S2LP_SPI_SDO)
-#define S2LP_SPI_SDO        PA_6
-#endif
-#if !defined(S2LP_SPI_SCLK)
-#define S2LP_SPI_SCLK       PA_5
-#endif
-#if !defined(S2LP_SPI_CS)
-#define S2LP_SPI_CS         PC_0
-#endif
-#if !defined(S2LP_SPI_SDN)
-#define S2LP_SPI_SDN        PF_13
-#endif
-#if !defined(S2LP_SPI_GPIO0)
-#define S2LP_SPI_GPIO0      PA_3
-#endif
-#if !defined(S2LP_SPI_GPIO1)
-#define S2LP_SPI_GPIO1      PC_3
-#endif
-#if !defined(S2LP_SPI_GPIO2)
-#define S2LP_SPI_GPIO2      PF_3
-#endif
-#if !defined(S2LP_SPI_GPIO3)
-#define S2LP_SPI_GPIO3      PF_10
-#endif
-#if !defined(S2LP_I2C_SDA)
-#define S2LP_I2C_SDA        PB_7
-#endif
-#if !defined(S2LP_I2C_SCL)
-#define S2LP_I2C_SCL        PB_6
-#endif
-#define AT24MAC
+#if defined(MBED_CONF_S2LP_SPI_SDI)
+#define S2LP_SPI_SDI                MBED_CONF_S2LP_SPI_SDI
 #else
-#if !defined(S2LP_SPI_SDI)
-#define S2LP_SPI_SDI        D11
+#define S2LP_SPI_SDI                D11
 #endif
-#if !defined(S2LP_SPI_SDO)
-#define S2LP_SPI_SDO        D12
+
+#if defined(MBED_CONF_S2LP_SPI_SDO)
+#define S2LP_SPI_SDO                MBED_CONF_S2LP_SPI_SDO
+#else
+#define S2LP_SPI_SDO                D12
 #endif
-#if !defined(S2LP_SPI_SCLK)
-#define S2LP_SPI_SCLK       D13
+
+#if defined(MBED_CONF_S2LP_SPI_SCLK)
+#define S2LP_SPI_SCLK               MBED_CONF_S2LP_SPI_SCLK
+#else
+#define S2LP_SPI_SCLK               D13
 #endif
-#if !defined(S2LP_SPI_CS)
-#define S2LP_SPI_CS         A1
+
+#if defined(MBED_CONF_S2LP_SPI_CS)
+#define S2LP_SPI_CS                 MBED_CONF_S2LP_SPI_CS
+#else
+#define S2LP_SPI_CS                 A1
 #endif
-#if !defined(S2LP_SPI_SDN)
-#define S2LP_SPI_SDN        D7
+
+#if defined(MBED_CONF_S2LP_SPI_SDN)
+#define S2LP_SPI_SDN                MBED_CONF_S2LP_SPI_SDN
+#else
+#define S2LP_SPI_SDN                D7
 #endif
-#if !defined(TEST_PIN_TX)
-#define TEST_PIN_TX         D6
+
+#if defined(MBED_CONF_S2LP_TEST_PIN_TX)
+#define S2LP_TEST_PIN_TX            MBED_CONF_S2LP_TEST_PIN_TX
+#else
+#define S2LP_TEST_PIN_TX            D6
 #endif
-#if !defined(TEST_PIN_RX)
-#define TEST_PIN_RX         D5
+
+#if defined(MBED_CONF_S2LP_TEST_PIN_RX)
+#define S2LP_TEST_PIN_RX            MBED_CONF_S2LP_TEST_PIN_RX
+#else
+#define S2LP_TEST_PIN_RX            D5
 #endif
-#if !defined(TEST_PIN_CSMA)
-#define TEST_PIN_CSMA       D4
+
+#if defined(MBED_CONF_S2LP_TEST_PIN_CSMA)
+#define S2LP_TEST_PIN_CSMA          MBED_CONF_S2LP_TEST_PIN_CSMA
+#else
+#define S2LP_TEST_PIN_CSMA          D4
 #endif
-#if !defined(TEST_PIN_SPARE_1)
-#define TEST_PIN_SPARE_1    D2
+
+#if defined(MBED_CONF_S2LP_TEST_PIN_SPARE_1)
+#define S2LP_TEST_PIN_SPARE_1       MBED_CONF_S2LP_TEST_PIN_SPARE_1
+#else
+#define S2LP_TEST_PIN_SPARE_1       D2
 #endif
-#if !defined(TEST_PIN_SPARE_2)
-#define TEST_PIN_SPARE_2    D8
+
+#if defined(MBED_CONF_S2LP_TEST_PIN_SPARE_2)
+#define S2LP_TEST_PIN_SPARE_2       MBED_CONF_S2LP_TEST_PIN_SPARE_2
+#else
+#define S2LP_TEST_PIN_SPARE_2       D8
 #endif
-#if !defined(S2LP_SPI_GPIO0)
-#define S2LP_SPI_GPIO0      A0
+
+#if defined(MBED_CONF_S2LP_SPI_GPIO0)
+#define S2LP_SPI_GPIO0              MBED_CONF_S2LP_SPI_GPIO0
+#else
+#define S2LP_SPI_GPIO0              A0
 #endif
-#if !defined(S2LP_SPI_GPIO1)
-#define S2LP_SPI_GPIO1      A2
+
+#if defined(MBED_CONF_S2LP_SPI_GPIO1)
+#define S2LP_SPI_GPIO1              MBED_CONF_S2LP_SPI_GPIO1
+#else
+#define S2LP_SPI_GPIO1              A2
 #endif
-#if !defined(S2LP_SPI_GPIO2)
-#define S2LP_SPI_GPIO2      A3
+
+#if defined(MBED_CONF_S2LP_SPI_GPIO2)
+#define S2LP_SPI_GPIO2              MBED_CONF_S2LP_SPI_GPIO2
+#else
+#define S2LP_SPI_GPIO2              A3
 #endif
-#if !defined(S2LP_SPI_GPIO3)
-#define S2LP_SPI_GPIO3      A5
+
+#if defined(MBED_CONF_S2LP_SPI_GPIO3)
+#define S2LP_SPI_GPIO3              MBED_CONF_S2LP_SPI_GPIO3
+#else
+#define S2LP_SPI_GPIO3              A5
 #endif
+
+#if defined(MBED_CONF_S2LP_I2C_SDA)
+#define S2LP_I2C_SDA                MBED_CONF_S2LP_I2C_SDA
+#else
+#define S2LP_I2C_SDA                null
+#endif
+
+#if defined(MBED_CONF_S2LP_I2C_SCL)
+#define S2LP_I2C_SCL                MBED_CONF_S2LP_I2C_SCL
+#else
+#define S2LP_I2C_SCL                null
 #endif
 
 #include "at24mac_s2lp.h"

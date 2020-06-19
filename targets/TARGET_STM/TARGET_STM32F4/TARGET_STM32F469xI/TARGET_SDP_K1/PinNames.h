@@ -267,54 +267,45 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // Arduino connector namings
-    A0          = PA_2,
-    A1          = PA_4,
-    A2          = PA_6,
-    A3          = PC_1,
-    A4          = PC_4,
-    A5          = PC_5,
+    A0          = PA_2,   // ADC 0 / GPIO 16
+    A1          = PA_4,   // ADC 1 / GPIO 17
+    A2          = PA_6,   // ADC 2 / GPIO 18
+    A3          = PC_1,   // ADC 3 / GPIO 19
+    A4          = PC_4,   // ADC 4 / GPIO 20 
+    A5          = PC_5,   // ADC 5 / GPIO 21 
 
-    D0          = PA_1,
-    D1          = PA_0,
-    D2          = PG_7,
-    D3          = PD_12,
-    D4          = PG_9,
-    D5          = PA_11,
-    D6          = PA_10,
-    D7          = PG_10,
-    D8          = PG_11,
-    D9          = PB_15,
-    D10         = PA_15,  // SPI CS
-    D11         = PA_7,   // SPI MOSI
-    D12         = PB_4,   // SPI MISO
-    D13         = PB_3,   // SPI SCK
-    D14         = PB_7,   // I2C SDA
-    D15         = PB_8,   // I2C SCL
+    D0          = PA_1,   // UART RX / GPIO 0 
+    D1          = PA_0,   // UART TX / GPIO 1 
+    D2          = PG_7,   // GPIO 2 
+    D3          = PD_12,  // TMR / PWM / GPIO 3
+    D4          = PG_9,   // GPIO 4
+    D5          = PA_11,  // TMR / PWM / GPIO 5
+    D6          = PA_10,  // TMR / PWM / GPIO 6
+    D7          = PG_10,  // GPIO 7
+    D8          = PG_11,  // GPIO 8
+    D9          = PB_15,  // TMR / PWM / GPIO 9
+    D10         = PA_15,  // SPI CS / TMR / PWM / GPIO 10
+    D11         = PA_7,   // SPI MOSI / TMR / PWM / GPIO 11
+    D12         = PB_4,   // SPI MISO / GPIO 12
+    D13         = PB_3,   // SPI SCK / GPIO 13
+    D14         = PB_7,   // I2C SDA / GPIO 14 
+    D15         = PB_8,   // I2C SCL / GPIO 15
 
-    // STDIO for console print
-#ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
-#else
-    STDIO_UART_TX = PC_12,
-#endif
-#ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
-#else
-    STDIO_UART_RX = PD_2,
-#endif
+    // I2C alias added here
+    I2C_SDA		= D14,    // I2C SDA // should only be used as I2C line as uses pull ups on them 
+    I2C_SCL     = D15,    // I2C SCL // should only be used as I2C line as uses pull ups on them
 
-    // Debug pins
-    DEBUG_GPIO0 = PG_6,
     // Generic signals namings
     LED1        = PK_7, // Red LED
     LED2        = PK_6, // Orange LED
     LED3        = PK_5, // Green LED
-    LED4        = PK_4,
-    SERIAL_TX   = STDIO_UART_TX,
-    SERIAL_RX   = STDIO_UART_RX,
-    USBTX       = STDIO_UART_TX,
-    USBRX       = STDIO_UART_RX,
+    LED4        = PK_4,	// Status LED
 
+    USBTX       = PC_12,  // Use USBTX and USBRX for serial communications back to PC. Do not
+    USBRX       = PD_2,   // use STDIO_UART_TX and STDIO_UART_RX	
+    STDIO_UART_TX = USBTX,
+    STDIO_UART_RX = USBRX,
+	
     // Adding these signals for the SDP connector
     SDP_SPI_MOSI = PF_9,  // SDP Connector for SPI lines
     SDP_SPI_MISO = PF_8,
@@ -351,14 +342,6 @@ typedef enum {
     USB_OTG_HS_ULPI_DIR = PC_2,
     USB_OTG_HS_ULPI_NXT = PC_3,
     USB_OTG_HS_ULPI_STP = PC_0,
-
-    /**** OSCILLATOR pins ****/
-    RCC_OSC32_IN = PC_14,
-    RCC_OSC32_OUT = PC_15,
-
-    /**** DEBUG pins ****/
-    SYS_JTCK_SWCLK = PA_14,
-    SYS_JTMS_SWDIO = PA_13,
 
     // Not connected
     NC = (int)0xFFFFFFFF

@@ -652,7 +652,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
 
     @abstractmethod
     def parse_output(self, output):
-        """Take in compiler output and extract sinlge line warnings and errors from it.
+        """Take in compiler output and extract single line warnings and errors from it.
 
         Positional arguments:
         output -- a string of all the messages emitted by a run of the compiler
@@ -1097,11 +1097,12 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
         target.c_lib is modified to have the lowercased string of its original string.
         This is done to be case insensitive when validating.
         """
-        if  hasattr(target, "default_lib"):
-            raise NotSupportedException(
-                   "target.default_lib is no longer supported, please use target.c_lib for C library selection."
-                )
-        if  hasattr(target, "c_lib"):
+        if hasattr(target, "default_lib"):
+            # Use default_lib as the c_lib attribute. This allows backwards
+            # compatibility with older target definitions, allowing either
+            # default_lib or c_lib to specify the C library to use.
+            target.c_lib = target.default_lib.lower()
+        if hasattr(target, "c_lib"):
             target.c_lib = target.c_lib.lower()
             if (
                 hasattr(target, "supported_c_libs") == False

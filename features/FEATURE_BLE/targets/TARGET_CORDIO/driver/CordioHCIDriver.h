@@ -22,6 +22,8 @@
 #include <BLETypes.h>
 #include "wsf_buf.h"
 #include "CordioHCITransportDriver.h"
+#include "ble/blecommon.h"
+#include "mbed.h"
 
 namespace ble {
 namespace vendor {
@@ -144,6 +146,57 @@ public:
      */
      virtual void on_host_stack_inactivity();
 
+     /* BLE Tester commands */
+
+     /**
+      * This will be called by host part of the stack to indicate the end of the test.
+      *
+      * @param success True if the TEST END command was a success.
+      * @param packets Number of packets received during the test.
+      * @return BLE_ERROR_NONE on success.
+      */
+     void handle_test_end(bool success, uint16_t packets);
+
+     /** Callback to inform the caller of the result of the test, the parameters are success and the
+      *  number of packets received.
+      */
+     typedef mbed::Callback<void(bool, uint16_t)> test_end_handler_t;
+
+     /**
+      * Start BLE receiver test. Call rf_test_end when you want to stop.
+      * @param test_end_handler Handler that will be called with the number of packets received.
+      * @param channel Channel to use.
+      * @return BLE_ERROR_NONE on success.
+      */
+     ble_error_t rf_test_start_le_receiver_test(test_end_handler_t test_end_handler, uint8_t channel);
+
+     /**
+      * Start BLE transmitter test. Call rf_test_end when you want to stop.
+      * @param test_end_handler Handler that will be called with status and the number of packets set to 0.
+      * @param channel Channel to use.
+      * @param length Size of payload.
+      * @param type Type of pattern to transmit @see BLE spec Volume 6 Part F, Section 4.1.5.
+      * @return BLE_ERROR_NONE on success.
+      */
+     ble_error_t rf_test_start_le_transmitter_test(test_end_handler_t test_end_handler, uint8_t channel,
+                                                           uint8_t length, uint8_t type);
+
+     /**
+      * Complete the test. This will trigger the end test event which will call handle_test_end
+      * @return BLE_ERROR_NONE on success.
+      */
+     ble_error_t rf_test_end();
+
+     /**
+      * Set desired transmit power. Value equal or bigger will be used from available levels.
+      * Consult chip documentation for available values. Actual TX power is not guaranteed
+      * and is down to the implementation.
+      *
+      * @param level_db Signal level in dBm.
+      * @return BLE_ERROR_NONE on success.
+      */
+     virtual ble_error_t set_tx_power(int8_t level_db);
+
 protected:
     /**
      * Return a default set of memory pool that the Cordio stack can use.
@@ -170,6 +223,9 @@ private:
      */
     virtual void do_terminate() = 0;
 
+protected:
+    test_end_handler_t _test_end_handler;
+private:
     CordioHCITransportDriver& _transport_driver;
 };
 

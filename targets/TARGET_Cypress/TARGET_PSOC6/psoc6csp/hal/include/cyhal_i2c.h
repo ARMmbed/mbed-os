@@ -94,19 +94,38 @@ PSoC 6 MCU: I2C Slave Using Callbacks</b></a>
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name I2C Results
+ */
 
 /** The requested resource type is invalid */
-#define CYHAL_I2C_RSLT_ERR_INVALID_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 0))
+#define CYHAL_I2C_RSLT_ERR_INVALID_PIN                  \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 0))
 /** Can not reach desired data rate */
-#define CYHAL_I2C_RSLT_ERR_CAN_NOT_REACH_DR (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 1))
+#define CYHAL_I2C_RSLT_ERR_CAN_NOT_REACH_DR             \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 1))
 /** Address size is not correct, should be 1 or two */
-#define CYHAL_I2C_RSLT_ERR_INVALID_ADDRESS_SIZE (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 2))
+#define CYHAL_I2C_RSLT_ERR_INVALID_ADDRESS_SIZE         \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 2))
+/** User buffer is empty (TX and RX). Should be at least TX or RX or both buffers */
+#define CYHAL_I2C_RSLT_ERR_TX_RX_BUFFERS_ARE_EMPTY      \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 3))
+/** Previous Async operation is pending */
+#define CYHAL_I2C_RSLT_ERR_PREVIOUS_ASYNCH_PENDING      \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 4))
+/** Failed to register I2C pm callback */
+#define CYHAL_I2C_RSLT_ERR_PM_CALLBACK  				\
+	(CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 5))
+/**
+ * \} \}
+ */
+
 
 /** Enum to enable/disable/report interrupt cause flags. */
 typedef enum
@@ -147,14 +166,15 @@ typedef struct
  * to be in that mode.<br>
  * See \ref subsection_i2c_snippet_1
  *
- * @param[out] obj The I2C object
+ * @param[out] obj  Pointer to an I2C object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
  * @param[in]  sda The sda pin
  * @param[in]  scl The scl pin
  * @param[in]  clk The clock to use can be shared, if not provided a new clock will be allocated
  * @return The status of the init request
  *
  */
-cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, const cyhal_clock_divider_t *clk);
+cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, const cyhal_clock_t *clk);
 
 /** Deinitialize the i2c object
  *
@@ -176,7 +196,10 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg);
 
 
 /**
- * I2C master write
+ * I2C master blocking write
+ *
+ * This will write `size` bytes of data from the buffer pointed to by `data`. It will not return
+ * until either all of the data has been written, or the timeout has elapsed.
  *
  * @param[in]  obj        The I2C object
  * @param[in]  dev_addr   device address (7-bit)
@@ -190,7 +213,10 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg);
 cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, const uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop);
 
 /**
- * I2C master read
+ * I2C master blocking read
+ *
+ * This will read `size` bytes of data into the buffer pointed to by `data`. It will not return
+ * until either all of the data has been read, or the timeout has elapsed.
  *
  * @param[in]   obj        The I2C object
  * @param[in]   dev_addr   device address (7-bit)
@@ -203,31 +229,47 @@ cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, const uint
  */
 cy_rslt_t cyhal_i2c_master_read(cyhal_i2c_t *obj, uint16_t dev_addr, uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop);
 
+/** \cond INTERNAL */
+/*******************************************************************************
+* Backward compatibility function. The following code is DEPRECATED and must
+* not be used in new projects.
+*******************************************************************************/
+cy_rslt_t cyhal_i2c_slave_config_write_buff(cyhal_i2c_t *obj, const uint8_t *data, uint16_t size);
+
+/*******************************************************************************
+* Backward compatibility function. The following code is DEPRECATED and must
+* not be used in new projects.
+*******************************************************************************/
+cy_rslt_t cyhal_i2c_slave_config_read_buff(cyhal_i2c_t *obj, uint8_t *data, uint16_t size);
+/** \endcond */
+
 /**
- * The function configures the read buffer on an I2C Slave. This is the buffer from which the master reads data from.
- * The user needs to setup a new buffer every time (i.e. call slave_send and slave_recv every time the buffer has been used up)<br>
+ * The function configures the write buffer on an I2C Slave. This is the buffer to which the master writes data to.
+ * The user needs to setup a new buffer every time (i.e. call \ref cyhal_i2c_slave_config_write_buffer and \ref cyhal_i2c_slave_config_read_buffer
+ * every time the buffer has been used up)<br>
  * See related code example: <a href="https://github.com/cypresssemiconductorco/mtb-example-psoc6-i2c-master" ><b>PSoC 6 MCU: I2C Master</b></a>
  *
  * @param[in]  obj      The I2C object
  * @param[in]  data     I2C slave send data
  * @param[in]  size     I2C slave send data size
  *
- * @return The status of the slave_config_write_buff request
+ * @return The status of the slave_config_write_buffer request
  */
-cy_rslt_t cyhal_i2c_slave_config_write_buff(cyhal_i2c_t *obj, const uint8_t *data, uint16_t size);
+cy_rslt_t cyhal_i2c_slave_config_write_buffer(cyhal_i2c_t *obj, const uint8_t *data, uint16_t size);
 
 /**
- * The function configures the write buffer on an I2C Slave. This is the buffer to which the master writes data to.
- * The user needs to setup a new buffer every time (i.e. call slave_send and slave_recv every time the buffer has been used up)<br>
+ * The function configures the read buffer on an I2C Slave. This is the buffer from which the master reads data from.
+ * The user needs to setup a new buffer every time (i.e. call \ref cyhal_i2c_slave_config_write_buffer and \ref cyhal_i2c_slave_config_read_buffer
+ * every time the buffer has been used up)<br>
  * See related code example: <a href="https://github.com/cypresssemiconductorco/mtb-example-psoc6-i2c-master" ><b>PSoC 6 MCU: I2C Master</b></a>
  *
  * @param[in]   obj      The I2C object
  * @param[out]  data     I2C slave receive data
  * @param[in]   size     I2C slave receive data size
  *
- * @return The status of the slave_config_read_buff request
+ * @return The status of the slave_config_read_buffer request
  */
-cy_rslt_t cyhal_i2c_slave_config_read_buff(cyhal_i2c_t *obj, uint8_t *data, uint16_t size);
+cy_rslt_t cyhal_i2c_slave_config_read_buffer(cyhal_i2c_t *obj, uint8_t *data, uint16_t size);
 
 
 /** Perform an I2C write using a block of data stored at the specified memory location
@@ -258,7 +300,12 @@ cy_rslt_t cyhal_i2c_master_mem_write(cyhal_i2c_t *obj, uint16_t address, uint16_
 cy_rslt_t cyhal_i2c_master_mem_read(cyhal_i2c_t *obj, uint16_t address, uint16_t mem_addr, uint16_t mem_addr_size, uint8_t *data, uint16_t size, uint32_t timeout);
 
 /** Initiate a non-blocking I2C master asynchronous transfer. Supports simultaneous write and read operation.<br>
- * Use callback handler to handle the events until data transfer is complete.<br>
+ *
+ * This will transfer `rx_size` bytes into the buffer pointed to by `rx`, while simultaneously transfering
+ * `tx_size` bytes of data from the buffer pointed to by `tx`, both in the background.
+ * When the requested quantity of data has been received, the @ref CYHAL_I2C_MASTER_RD_CMPLT_EVENT will be raised.
+ * When the requested quantity of data has been transmitted, the @ref CYHAL_I2C_MASTER_WR_CMPLT_EVENT will be raised.
+ * See @ref cyhal_i2c_register_callback and @ref cyhal_i2c_enable_event.
  * If either of <b>tx_size</b> or <b>rx_size</b> is '0', the respective write or read operation is not performed.
  * See \ref subsection_i2c_snippet_3
  *
@@ -284,7 +331,10 @@ cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, co
  */
 cy_rslt_t cyhal_i2c_abort_async(cyhal_i2c_t *obj);
 
-/** The I2C event callback handler registration<br>
+/** Register an I2C event callback handler<br>
+ *
+ * This function will be called when one of the events enabled by \ref cyhal_i2c_enable_event occurs.
+ *
  * See \ref subsection_i2c_snippet_2
  *
  * @param[in] obj          The I2C object
@@ -295,15 +345,17 @@ cy_rslt_t cyhal_i2c_abort_async(cyhal_i2c_t *obj);
 void cyhal_i2c_register_callback(cyhal_i2c_t *obj, cyhal_i2c_event_callback_t callback, void *callback_arg);
 
 /** Configure and Enable or Disable I2C Interrupt.
+ *
+ * When an enabled event occurs, the function specified by \ref cyhal_i2c_register_callback will be called.
+ *
  * See \ref subsection_i2c_snippet_2
  *
- * @param[in] obj           The I2C object
- * @param[in] event         The I2C event type
- * @param[in] intrPriority  The priority for NVIC interrupt events
- * @param[in] enable        True to turn on interrupts, False to turn off
+ * @param[in] obj            The I2C object
+ * @param[in] event          The I2C event type
+ * @param[in] intr_priority  The priority for NVIC interrupt events
+ * @param[in] enable         True to turn on interrupts, False to turn off
  */
-void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t intrPriority, bool enable);
-
+void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t intr_priority, bool enable);
 
 /*******************************************************************************
 * Backward compatibility macro. The following code is DEPRECATED and must

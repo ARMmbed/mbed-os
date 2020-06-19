@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_ctb.h
-* \version 1.10.1
+* \version 1.10.2
 *
 * Header file for the CTB driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -286,6 +286,12 @@
 * \section group_ctb_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.2</td>
+*     <td>The \ref Cy_CTB_Init function description is expanded with a
+*         clarification note.</td>
+*     <td>Documentation enhancement based on a usability feedback.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.1</td>
 *     <td>Added header guard CY_IP_MXS40PASS to the source file.</td>

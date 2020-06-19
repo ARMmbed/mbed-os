@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Cypress Semiconductor Corporation
+ * Copyright 2020 Cypress Semiconductor Corporation
  * SPDX-License-Identifier: Apache-2.0
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1023,7 +1023,6 @@ static uint32_t whd_wifi_prepare_join(whd_interface_t ifp, whd_security_t auth_t
 
     (void)bss_index;
     if ( (auth_type == WHD_SECURITY_WPA2_FBT_ENT) || (auth_type == WHD_SECURITY_IBSS_OPEN) ||
-         (auth_type == WHD_SECURITY_WPS_OPEN) || (auth_type == WHD_SECURITY_WPS_SECURE) ||
          (auth_type == WHD_SECURITY_WPA2_FBT_PSK) )
     {
         return WHD_UNKNOWN_SECURITY_TYPE;
@@ -1047,7 +1046,7 @@ static uint32_t whd_wifi_prepare_join(whd_interface_t ifp, whd_security_t auth_t
     CHECK_RETURN(whd_wifi_get_iovar_value(ifp, IOVAR_STR_MFP, &auth_mfp) );
 
     /* Set Wireless Security Type */
-    CHECK_RETURN(whd_wifi_set_ioctl_value(ifp, WLC_SET_WSEC, (uint32_t)( (auth_type & 0xFF) & ~WPS_ENABLED ) ) );
+    CHECK_RETURN(whd_wifi_set_ioctl_value(ifp, WLC_SET_WSEC, (uint32_t)(auth_type & 0xFF) ) );
 
     /* Map the interface to a BSS index */
     bss_index = ifp->bsscfgidx;
@@ -1072,11 +1071,7 @@ static uint32_t whd_wifi_prepare_join(whd_interface_t ifp, whd_security_t auth_t
     switch (auth_type)
     {
         case WHD_SECURITY_OPEN:
-#if 0
-        case WHD_SECURITY_IBSS_OPEN:
-        case WHD_SECURITY_WPS_OPEN:
         case WHD_SECURITY_WPS_SECURE:
-#endif
             break;
 
         case WHD_SECURITY_WPA_TKIP_PSK:
@@ -1216,10 +1211,7 @@ static uint32_t whd_wifi_prepare_join(whd_interface_t ifp, whd_security_t auth_t
         /* no break */
         /* Fall-Through */
         case WHD_SECURITY_OPEN:
-#if 0
-        case WHD_SECURITY_WPS_OPEN:
         case WHD_SECURITY_WPS_SECURE:
-#endif
             *wpa_auth = WPA_AUTH_DISABLED;
             /* Open Networks do not have to complete security */
             whd_driver->internal_info.whd_join_status[ifp->bsscfgidx] |= JOIN_SECURITY_COMPLETE;
@@ -3465,5 +3457,911 @@ uint32_t whd_wifi_set_coex_config(whd_interface_t ifp, whd_coex_config_t *coex_c
 {
     return whd_wifi_set_iovar_buffer(ifp, IOVAR_STR_BTC_LESCAN_PARAMS, &coex_config->le_scan_params,
                                      sizeof(whd_btc_lescan_params_t) );
+}
+
+/*
+ * ARP Offload version
+ *    ARP version in the WLAN Firmware
+ *
+ * @param[in]    ifp            - whd interface Instance
+ * @param[out]    version        - pointer to store version #
+ *
+ * @return @ref whd_result_t
+ */
+whd_result_t whd_arp_version(whd_interface_t ifp, uint32_t *value)
+{
+    CHECK_IFP_NULL(ifp);
+
+    return whd_wifi_get_iovar_value(ifp, IOVAR_STR_ARP_VERSION, value);
+}
+
+whd_result_t whd_arp_peerage_get(whd_interface_t ifp, uint32_t *value)
+{
+    CHECK_IFP_NULL(ifp);
+
+    return whd_wifi_get_iovar_value(ifp, IOVAR_STR_ARP_PEERAGE, value);
+}
+
+whd_result_t whd_arp_peerage_set(whd_interface_t ifp, uint32_t value)
+{
+    CHECK_IFP_NULL(ifp);
+
+    return whd_wifi_set_iovar_value(ifp, IOVAR_STR_ARP_PEERAGE, value);
+}
+
+whd_result_t whd_arp_arpoe_get(whd_interface_t ifp, uint32_t *value)
+{
+    CHECK_IFP_NULL(ifp);
+
+    return whd_wifi_get_iovar_value(ifp, IOVAR_STR_ARPOE, value);
+}
+
+whd_result_t whd_arp_arpoe_set(whd_interface_t ifp, uint32_t value)
+{
+    CHECK_IFP_NULL(ifp);
+
+    return whd_wifi_set_iovar_value(ifp, IOVAR_STR_ARPOE, value);
+}
+
+whd_result_t whd_arp_cache_clear(whd_interface_t ifp)
+{
+    whd_result_t whd_ret;
+    CHECK_IFP_NULL(ifp);
+
+    whd_ret = whd_wifi_set_iovar_void(ifp, IOVAR_STR_ARP_TABLE_CLEAR);
+    return whd_ret;
+}
+
+whd_result_t whd_arp_features_get(whd_interface_t ifp, uint32_t *features)
+{
+    if ( (ifp == NULL) || (features == NULL) )
+    {
+        return WHD_BADARG;
+    }
+
+    if (whd_wifi_get_iovar_buffer(ifp, IOVAR_STR_ARP_OL, (uint8_t *)features, sizeof(uint32_t) ) != WHD_SUCCESS)
+    {
+        WPRINT_WHD_ERROR( ("%s() failed to get arp_ol for features\n", __func__) );
+        return WHD_IOCTL_FAIL;
+    }
+
+    return WHD_SUCCESS;
+}
+
+whd_result_t whd_arp_features_set(whd_interface_t ifp, uint32_t features)
+{
+    CHECK_IFP_NULL(ifp);
+
+    return whd_wifi_set_iovar_buffer(ifp, IOVAR_STR_ARP_OL, (uint8_t *)&features, sizeof(features) );
+}
+
+whd_result_t whd_arp_features_print(uint32_t features, const char *title)
+{
+    if (title != NULL)
+    {
+        WPRINT_MACRO( ("%s\n", title) );
+    }
+    WPRINT_MACRO( ("            features     : 0x%x\n", (int)features) );
+    WPRINT_MACRO( ("            agent_enabled: (0x%x) %s\n", (int)(features & ARP_OL_AGENT),
+                   (features & ARP_OL_AGENT) ? "Enabled" : "  disabled") );
+    WPRINT_MACRO( ("            snoop_enabled: (0x%x) %s\n", (int)(features & ARP_OL_SNOOP),
+                   (features & ARP_OL_SNOOP) ? "Enabled" : "  disabled") );
+    WPRINT_MACRO( ("  host_auto_reply_enabled: (0x%x) %s\n", (int)(features & ARP_OL_HOST_AUTO_REPLY),
+                   (features & ARP_OL_HOST_AUTO_REPLY) ? "Enabled" : "  disabled") );
+    WPRINT_MACRO( ("  peer_auto_reply_enabled: (0x%x) %s\n", (int)(features & ARP_OL_PEER_AUTO_REPLY),
+                   (features & ARP_OL_PEER_AUTO_REPLY) ? "Enabled" : "  disabled") );
+
+    return WHD_SUCCESS;
+}
+
+whd_result_t whd_arp_hostip_list_add(whd_interface_t ifp, uint32_t *host_ipv4_list, uint32_t count)
+{
+    uint32_t filled = 0;
+    uint32_t current_ipv4_list[ARP_MULTIHOMING_MAX];
+    CHECK_IFP_NULL(ifp);
+
+    whd_result_t whd_ret = WHD_SUCCESS;
+    if (host_ipv4_list == NULL)
+    {
+        WPRINT_WHD_ERROR( ("%s() BAD ARGS ifp:%p host_ipv4_list:%u count %d\n", __func__, ifp, (int)host_ipv4_list,
+                           (int)count) );
+        return WHD_BADARG;
+    }
+    /* check if unique */
+    whd_ret = whd_arp_hostip_list_get(ifp, ARP_MULTIHOMING_MAX, current_ipv4_list, &filled);
+    if ( (whd_ret == WHD_SUCCESS) && (filled > 0) )
+    {
+        uint32_t curr_index;
+        uint32_t new_index;
+
+        for (curr_index = 0; curr_index < filled; curr_index++)
+        {
+            for (new_index = 0; new_index < count; new_index++)
+            {
+                WPRINT_WHD_DEBUG( ("%s() curr:%ld of %ld curr:0x%lx new:%ld of %ld:0x%lx\n", __func__, curr_index,
+                                   filled, current_ipv4_list[curr_index],
+                                   new_index, count, host_ipv4_list[new_index]) );
+                if (current_ipv4_list[curr_index] == host_ipv4_list[new_index])
+                {
+                    /* decrement count */
+                    count--;
+                    if (new_index < count)
+                    {
+                        /* copy next one down */
+                        WPRINT_WHD_DEBUG( ("move %ld (+1) of %ld \n", new_index, count) );
+                        host_ipv4_list[new_index] = host_ipv4_list[new_index + 1];
+
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    else if (whd_ret != WHD_SUCCESS)
+    {
+        WPRINT_WHD_DEBUG( ("%s() whd_arp_hostip_list_get() failed:%d\n", __func__, (int)whd_ret) );
+    }
+
+    if (count > 0)
+    {
+        uint32_t new_index;
+        WPRINT_WHD_DEBUG( ("%s() whd_wifi_set_iovar_buffer( %p, %lx)\n", __func__, host_ipv4_list, count) );
+        for (new_index = 0; new_index < count; new_index++)
+        {
+            WPRINT_WHD_DEBUG( ("  0x%lx\n", host_ipv4_list[new_index]) );
+        }
+        whd_ret = whd_wifi_set_iovar_buffer(ifp, IOVAR_STR_ARP_HOSTIP, host_ipv4_list, (count * sizeof(uint32_t) ) );
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("Failed to set arp_hostip 0x%x error:%d\n", (int)host_ipv4_list[0], (int)whd_ret) );
+        }
+    }
+    return whd_ret;
+}
+
+whd_result_t whd_arp_hostip_list_add_string(whd_interface_t ifp, const char *ip_addr)
+{
+    /* convert string to uint32_t */
+    uint32_t addr;
+    CHECK_IFP_NULL(ifp);
+
+    whd_str_to_ip(ip_addr, strlen(ip_addr), &addr);
+
+    return whd_arp_hostip_list_add(ifp, &addr, 1);
+}
+
+whd_result_t whd_arp_hostip_list_clear_id(whd_interface_t ifp, uint32_t ipv4_addr)
+{
+    whd_result_t whd_ret;
+    uint32_t filled;
+    uint32_t host_ipv4_list[ARP_MULTIHOMING_MAX];
+    CHECK_IFP_NULL(ifp);
+
+    if (ipv4_addr == 0x00l)
+    {
+        return WHD_BADARG;
+    }
+    memset(host_ipv4_list, 0x00, sizeof(host_ipv4_list) );
+    whd_ret = whd_arp_hostip_list_get(ifp, ARP_MULTIHOMING_MAX, host_ipv4_list, &filled);
+    if ( (whd_ret == WHD_SUCCESS) && (filled > 0) )
+    {
+        uint32_t index;
+
+        /* clear the list in the WLAN processor */
+        whd_ret = whd_wifi_set_iovar_void(ifp, IOVAR_STR_ARP_HOSTIP_CLEAR);
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%d %s() whd_wifi_set_iovar_void() failed:%d\n", __LINE__, __func__, (int)whd_ret) );
+            return whd_ret;
+        }
+
+        /* remove the one address from the list and re-write arp_hostip list */
+        for (index = 0; index < filled; index++)
+        {
+            WPRINT_WHD_DEBUG( ("%d %s() drop() 0x%lx == 0x%lx ? %s\n", __LINE__, __func__, host_ipv4_list[index],
+                               ipv4_addr, (host_ipv4_list[index] == ipv4_addr) ? "DROP" : "") );
+            if (host_ipv4_list[index] == ipv4_addr)
+            {
+                uint32_t drop;
+                /* drop this one, move rest up */
+                for (drop = index; drop < (filled - 1); drop++)
+                {
+                    host_ipv4_list[drop] = host_ipv4_list[drop + 1];
+                }
+                filled--;
+                /* IP addresses must be added one at a time */
+                for (drop = 0; drop < filled; drop++)
+                {
+                    whd_ret = whd_arp_hostip_list_add(ifp, &host_ipv4_list[drop], sizeof(uint32_t) );
+                }
+                break;
+            }
+        }
+    }
+    else if (whd_ret != WHD_SUCCESS)
+    {
+        WPRINT_WHD_DEBUG( ("%s() whd_arp_hostip_list_get() failed:%d\n", __func__, (int)whd_ret) );
+    }
+    return WHD_SUCCESS;
+}
+
+whd_result_t whd_arp_hostip_list_clear_id_string(whd_interface_t ifp, const char *ip_addr)
+{
+    /* convert string to uint32_t */
+    uint32_t addr;
+    CHECK_IFP_NULL(ifp);
+
+    whd_str_to_ip(ip_addr, strlen(ip_addr), &addr);
+
+    return whd_arp_hostip_list_clear_id(ifp, addr);
+}
+
+whd_result_t whd_arp_hostip_list_clear(whd_interface_t ifp)
+{
+    CHECK_IFP_NULL(ifp);
+    return whd_wifi_set_iovar_void(ifp, IOVAR_STR_ARP_HOSTIP_CLEAR);
+}
+
+whd_result_t whd_arp_hostip_list_get(whd_interface_t ifp, uint32_t count, uint32_t *host_ipv4_list, uint32_t *filled)
+{
+    whd_result_t whd_ret = WHD_SUCCESS;
+    uint32_t temp[ARP_MULTIHOMING_MAX];
+    arp_ol_stats_t arp_stats;               /* WL struct, not ours! */
+    CHECK_IFP_NULL(ifp);
+
+    if ( (host_ipv4_list == NULL) || (filled == NULL) )
+    {
+        return WHD_BADARG;
+    }
+
+    /* set up the buffer to retrieve the stats data */
+    memset(&arp_stats, 0x00, sizeof(arp_ol_stats_t) );
+    whd_ret = whd_wifi_get_iovar_buffer(ifp, "arp_stats", (uint8_t *)&arp_stats, sizeof(arp_ol_stats_t) );
+    if (whd_ret != WHD_SUCCESS)
+    {
+        WPRINT_WHD_ERROR( ("%s() failed to get arp_stats\n", __func__) );
+        return WHD_IOCTL_FAIL;
+    }
+
+    *filled = 0;
+    whd_ret =  whd_wifi_get_iovar_buffer(ifp, IOVAR_STR_ARP_HOSTIP, (uint8_t *)&temp, sizeof(temp) );
+    /* transfer the info */
+    if (whd_ret == WHD_SUCCESS)
+    {
+        uint32_t index;
+        for (index = 0; (index < count) && (index < arp_stats.host_ip_entries); index++)
+        {
+            /* only IPv4 !!! */
+            if (htod32(temp[index]) != 0L)
+            {
+                host_ipv4_list[*filled] =  temp[index];
+                *filled = *filled + 1;
+            }
+        }
+    }
+    return whd_ret;
+}
+
+whd_result_t whd_arp_stats_clear(whd_interface_t ifp)
+{
+    whd_result_t whd_ret;
+    CHECK_IFP_NULL(ifp);
+    whd_ret = whd_wifi_set_iovar_void(ifp, IOVAR_STR_ARP_STATS_CLEAR);
+    return whd_ret;
+}
+
+whd_result_t whd_arp_stats_get(whd_interface_t ifp, whd_arp_stats_t *arp_stats)
+{
+    whd_result_t whd_ret;
+    uint32_t filled;
+    static whd_arp_stats_t arp_stats_test;  /* read twice to make sure we match */
+    CHECK_IFP_NULL(ifp);
+
+    if (arp_stats == NULL)
+    {
+        return WHD_BADARG;
+    }
+
+    /* set up the buffer to retreive the data */
+    memcpy(&arp_stats_test, arp_stats, sizeof(whd_arp_stats_t) );
+    memset(arp_stats, 0xFF, sizeof(whd_arp_stats_t) );
+
+    /* read multiple times to make sure we got valid data */
+    do
+    {
+        /* get them until they match */
+        whd_ret =
+            whd_wifi_get_iovar_buffer(ifp, IOVAR_STR_ARP_STATS,   (uint8_t *)&arp_stats->stats,
+                                      sizeof(arp_ol_stats_t) );
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%s() failed to get arp_stats\n", __func__) );
+            return WHD_IOCTL_FAIL;
+        }
+        /* get all feature info in one call */
+        whd_ret =
+            whd_wifi_get_iovar_buffer(ifp, IOVAR_STR_ARP_OL, (uint8_t *)&arp_stats->features_enabled,
+                                      sizeof(arp_stats->features_enabled) );
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%s() failed to get arp_ol\n", __func__) );
+            return WHD_IOCTL_FAIL;
+        }
+        whd_ret = whd_wifi_get_iovar_value(ifp, IOVAR_STR_ARP_VERSION, &(arp_stats->version) );
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%s() failed to get arp_version\n", __func__) );
+            return WHD_IOCTL_FAIL;
+        }
+        whd_ret = whd_wifi_get_iovar_value(ifp, IOVAR_STR_ARP_PEERAGE, &(arp_stats->peerage) );
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%s() failed to get arp_peerage\n", __func__) );
+            return WHD_IOCTL_FAIL;
+        }
+        whd_ret = whd_wifi_get_iovar_value(ifp, IOVAR_STR_ARPOE, &(arp_stats->arpoe) );
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%s() failed to get some settings\n", __func__) );
+            return WHD_IOCTL_FAIL;
+        }
+
+        /* set endian correctly */
+        arp_stats->stats.host_ip_entries     = dtoh32(arp_stats->stats.host_ip_entries);
+        arp_stats->stats.host_ip_overflow     = dtoh32(arp_stats->stats.host_ip_overflow);
+        arp_stats->stats.arp_table_entries     = dtoh32(arp_stats->stats.arp_table_entries);
+        arp_stats->stats.arp_table_overflow = dtoh32(arp_stats->stats.arp_table_overflow);
+        arp_stats->stats.host_request         = dtoh32(arp_stats->stats.host_request);
+        arp_stats->stats.host_reply         = dtoh32(arp_stats->stats.host_reply);
+        arp_stats->stats.host_service         = dtoh32(arp_stats->stats.host_service);
+        arp_stats->stats.peer_request         = dtoh32(arp_stats->stats.peer_request);
+        arp_stats->stats.peer_request_drop     = dtoh32(arp_stats->stats.peer_request_drop);
+        arp_stats->stats.peer_reply         = dtoh32(arp_stats->stats.peer_reply);
+        arp_stats->stats.peer_reply_drop     = dtoh32(arp_stats->stats.peer_reply_drop);
+        arp_stats->stats.peer_service         = dtoh32(arp_stats->stats.peer_service);
+
+        whd_ret = whd_arp_hostip_list_get(ifp, ARP_MULTIHOMING_MAX, arp_stats->host_ip_list, &filled);
+        if (whd_ret != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%s() failed to get host_ip_list\n", __func__) );
+            return WHD_IOCTL_FAIL;
+        }
+
+        if (memcmp(&arp_stats_test, arp_stats, sizeof(whd_arp_stats_t) ) == 0)
+        {
+            break;
+        }
+
+        memcpy(&arp_stats_test, arp_stats, sizeof(whd_arp_stats_t) );
+    } while (1);
+
+    return whd_ret;
+}
+
+whd_result_t whd_arp_stats_print(whd_arp_stats_t *arp_stats, const char *title)
+{
+    uint32_t index;
+
+    if (arp_stats == NULL)
+    {
+        return WHD_BADARG;
+    }
+
+    if (title != NULL)
+    {
+        WPRINT_MACRO( ("%s\n", title) );
+    }
+    WPRINT_MACRO( ("                  version: 0x%lx\n", (unsigned long int)arp_stats->version) );
+    WPRINT_MACRO( ("          host_ip_entries: %d\n", (int)arp_stats->stats.host_ip_entries) );
+    WPRINT_MACRO( ("         host_ip_overflow: %d\n", (int)arp_stats->stats.host_ip_overflow) );
+    WPRINT_MACRO( ("        arp_table_entries: %d\n", (int)arp_stats->stats.arp_table_entries) );
+    WPRINT_MACRO( ("       arp_table_overflow: %d\n", (int)arp_stats->stats.arp_table_overflow) );
+    WPRINT_MACRO( ("             host_request: %d\n", (int)arp_stats->stats.host_request) );
+    WPRINT_MACRO( ("               host_reply: %d\n", (int)arp_stats->stats.host_reply) );
+    WPRINT_MACRO( ("             host_service: %d\n", (int)arp_stats->stats.host_service) );
+    WPRINT_MACRO( ("             peer_request: %d\n", (int)arp_stats->stats.peer_request) );
+    WPRINT_MACRO( ("        peer_request_drop: %d\n", (int)arp_stats->stats.peer_request_drop) );
+    WPRINT_MACRO( ("               peer_reply: %d\n", (int)arp_stats->stats.peer_reply) );
+    WPRINT_MACRO( ("          peer_reply_drop: %d\n", (int)arp_stats->stats.peer_reply_drop) );
+    WPRINT_MACRO( ("             peer_service: %d\n", (int)arp_stats->stats.peer_service) );
+    WPRINT_MACRO( ("                  peerage: %d\n", (int)arp_stats->peerage) );
+    WPRINT_MACRO( ("                    arpoe: %d %s\n", (int)arp_stats->arpoe,
+                   (arp_stats->arpoe != 0) ? "Enabled" : "  disabled") );
+
+    whd_arp_features_print(arp_stats->features_enabled, NULL);
+
+    if (arp_stats->stats.host_ip_entries > 0)
+    {
+        WPRINT_MACRO( ("WLAN Device Host IP entries\n") );
+        for (index = 0; index < arp_stats->stats.host_ip_entries; index++)
+        {
+            uint32_t ipv4_addr = arp_stats->host_ip_list[index];
+            char ipv4_string[32];
+            memset(ipv4_string, 0x00, sizeof(ipv4_string) );
+            whd_ip4_to_string(&ipv4_addr, ipv4_string);
+            WPRINT_MACRO( ("  %d of %d IPV4: 0x%x %s\n", (int)index, (int)arp_stats->stats.host_ip_entries,
+                           (int)arp_stats->host_ip_list[index], ipv4_string) );
+        }
+    }
+    return WHD_SUCCESS;
+}
+
+whd_result_t
+whd_wifi_toggle_packet_filter(whd_interface_t ifp, uint8_t filter_id, whd_bool_t enable)
+{
+    whd_buffer_t buffer;
+    whd_driver_t whd_driver;
+
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+    wl_pkt_filter_enable_t *data = (wl_pkt_filter_enable_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer,
+                                                                                      sizeof(wl_pkt_filter_enable_t),
+                                                                                      IOVAR_STR_PKT_FILTER_ENABLE);
+    CHECK_IOCTL_BUFFER(data);
+    data->id     = (uint32_t)filter_id;
+    data->enable = (uint32_t)enable;
+    RETURN_WITH_ASSERT(whd_cdc_send_iovar(ifp, CDC_SET, buffer, NULL) );
+}
+
+whd_result_t
+whd_pf_enable_packet_filter(whd_interface_t ifp, uint8_t filter_id)
+{
+    return whd_wifi_toggle_packet_filter(ifp, filter_id, WHD_TRUE);
+}
+
+whd_result_t
+whd_pf_disable_packet_filter(whd_interface_t ifp, uint8_t filter_id)
+{
+    return whd_wifi_toggle_packet_filter(ifp, filter_id, WHD_FALSE);
+}
+
+whd_result_t
+whd_pf_add_packet_filter(whd_interface_t ifp, const whd_packet_filter_t *settings)
+{
+    wl_pkt_filter_t *packet_filter;
+    whd_driver_t whd_driver;
+    whd_buffer_t buffer;
+    uint32_t buffer_length =
+        (uint32_t)( (2 * (uint32_t)settings->mask_size) + WL_PKT_FILTER_FIXED_LEN + WL_PKT_FILTER_PATTERN_FIXED_LEN );
+
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+    packet_filter = (wl_pkt_filter_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)buffer_length,
+                                                                IOVAR_STR_PKT_FILTER_ADD);
+    CHECK_IOCTL_BUFFER(packet_filter);
+
+    /* Copy filter entries */
+    packet_filter->id                   = settings->id;
+    packet_filter->type                 = 0;
+    packet_filter->negate_match         = settings->rule;
+    packet_filter->u.pattern.offset     = (uint32_t)settings->offset;
+    packet_filter->u.pattern.size_bytes = settings->mask_size;
+
+    /* Copy mask */
+    memcpy(packet_filter->u.pattern.mask_and_pattern, settings->mask, settings->mask_size);
+
+    /* Copy filter pattern */
+    memcpy(packet_filter->u.pattern.mask_and_pattern + settings->mask_size, settings->pattern, settings->mask_size);
+
+    RETURN_WITH_ASSERT(whd_cdc_send_iovar(ifp, CDC_SET, buffer, NULL) );
+}
+
+whd_result_t
+whd_pf_remove_packet_filter(whd_interface_t ifp, uint8_t filter_id)
+{
+    whd_buffer_t buffer;
+    whd_driver_t whd_driver;
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+    uint32_t *data = (uint32_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, sizeof(uint32_t),
+                                                          IOVAR_STR_PKT_FILTER_DELETE);
+    CHECK_IOCTL_BUFFER(data);
+    *data = (uint32_t)filter_id;
+    RETURN_WITH_ASSERT(whd_cdc_send_iovar(ifp, CDC_SET, buffer, NULL) );
+}
+
+whd_result_t
+whd_pf_get_packet_filter_stats(whd_interface_t ifp, uint8_t filter_id, whd_pkt_filter_stats_t *stats)
+{
+    whd_buffer_t buffer;
+    whd_buffer_t response;
+    whd_driver_t whd_driver;
+
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+    uint32_t *data =
+        (uint32_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, sizeof(uint32_t) + sizeof(wl_pkt_filter_stats_t),
+                                             IOVAR_STR_PKT_FILTER_STATS);
+    CHECK_IOCTL_BUFFER(data);
+
+    memset(data, 0, sizeof(uint32_t) + sizeof(wl_pkt_filter_stats_t) );
+    *data = (uint32_t)filter_id;
+
+    CHECK_RETURN(whd_cdc_send_iovar(ifp, CDC_GET, buffer, &response) );
+
+    memcpy( (char *)stats, (char *)whd_buffer_get_current_piece_data_pointer(whd_driver, response),
+            (sizeof(wl_pkt_filter_stats_t) ) );
+
+    CHECK_RETURN(whd_buffer_release(whd_driver, response, WHD_NETWORK_TX) );
+
+    return WHD_SUCCESS;
+}
+
+whd_result_t
+whd_wifi_clear_packet_filter_stats(whd_interface_t ifp, uint32_t filter_id)
+{
+    RETURN_WITH_ASSERT(whd_wifi_set_iovar_value(ifp, IOVAR_STR_PKT_FILTER_CLEAR_STATS, (uint32_t)filter_id) );
+}
+
+whd_result_t
+whd_pf_get_packet_filter_mask_and_pattern(whd_interface_t ifp, uint8_t filter_id, uint32_t max_size, uint8_t *mask,
+                                          uint8_t *pattern, uint32_t *size_out)
+{
+    whd_bool_t enabled_list;
+    whd_driver_t whd_driver;
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+    for (enabled_list = WHD_FALSE; enabled_list <= WHD_TRUE; enabled_list++)
+    {
+
+        whd_buffer_t buffer;
+        whd_buffer_t response;
+        uint32_t *data;
+        wl_pkt_filter_list_t *filter_list;
+        wl_pkt_filter_t *filter_ptr;
+        uint32_t i;
+        wl_pkt_filter_t *in_filter;
+
+        data = whd_cdc_get_iovar_buffer(whd_driver, &buffer, PACKET_FILTER_LIST_BUFFER_MAX_LEN,
+                                        IOVAR_STR_PKT_FILTER_LIST);
+        CHECK_IOCTL_BUFFER(data);
+        *data = (uint32_t)enabled_list;
+
+        CHECK_RETURN(whd_cdc_send_iovar(ifp, CDC_GET, buffer, &response) );
+
+        filter_list  = (wl_pkt_filter_list_t *)whd_buffer_get_current_piece_data_pointer(whd_driver, response);
+        filter_ptr   = filter_list->filter;
+        for (i = 0; i < filter_list->num; i++)
+        {
+            in_filter  = filter_ptr;
+
+            if (in_filter->id == filter_id)
+            {
+                *size_out = MIN_OF(in_filter->u.pattern.size_bytes, max_size);
+                memcpy (mask,    in_filter->u.pattern.mask_and_pattern, *size_out);
+                memcpy (pattern, in_filter->u.pattern.mask_and_pattern + in_filter->u.pattern.size_bytes, *size_out);
+                CHECK_RETURN(whd_buffer_release(whd_driver, response, WHD_NETWORK_RX) );
+                if (*size_out < in_filter->u.pattern.size_bytes)
+                {
+                    return WHD_PARTIAL_RESULTS;
+                }
+                return WHD_SUCCESS;
+            }
+
+            /* Update WL filter pointer */
+            filter_ptr =
+                (wl_pkt_filter_t *)( (char *)filter_ptr +
+                                     (WL_PKT_FILTER_FIXED_LEN + WL_PKT_FILTER_PATTERN_FIXED_LEN + 2 *
+                                      in_filter->u.pattern.size_bytes) );
+
+            /* WLAN returns word-aligned filter list */
+            filter_ptr = (wl_pkt_filter_t *)ROUND_UP( (unsigned long)filter_ptr, 4 );
+        }
+    }
+    return WHD_FILTER_NOT_FOUND;
+}
+
+/* Set/Get TKO retry & interval parameters */
+whd_result_t
+whd_tko_param(whd_interface_t ifp, whd_tko_retry_t *whd_retry, int set)
+{
+    uint32_t len = 0;
+    uint8_t *data = NULL;
+    wl_tko_t *tko = NULL;
+    whd_buffer_t buffer;
+    whd_buffer_t response;
+    wl_tko_param_t *wl_param_p = NULL;
+    whd_result_t result = WHD_SUCCESS;
+    whd_driver_t whd_driver;
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+    len = (int)(WHD_PAYLOAD_MTU - strlen(IOVAR_STR_TKO) - 1);
+    data = (uint8_t * )whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)len, IOVAR_STR_TKO);
+    if (data == NULL)
+    {
+        WPRINT_WHD_ERROR( ("%s: Failed to get iovar buf\n", __func__) );
+        return WHD_IOCTL_FAIL;
+    }
+
+    tko = (wl_tko_t *)data;
+    tko->subcmd_id = WL_TKO_SUBCMD_PARAM;
+    tko->len = TKO_DATA_OFFSET;
+    wl_param_p = (wl_tko_param_t *)tko->data;
+    tko->len += sizeof(wl_tko_param_t);
+
+    tko->subcmd_id = htod16(tko->subcmd_id);
+    tko->len = htod16(tko->len);
+
+    if (set)
+    {
+        /* SET parameters */
+
+        /* Set defaults if needed */
+        wl_param_p->interval = whd_retry->tko_interval ==
+                               0 ? TCP_KEEPALIVE_OFFLOAD_INTERVAL_SEC : whd_retry->tko_interval;
+        wl_param_p->retry_count = whd_retry->tko_retry_count ==
+                                  0 ? TCP_KEEPALIVE_OFFLOAD_RETRY_COUNT : whd_retry->tko_retry_count;
+        wl_param_p->retry_interval = whd_retry->tko_retry_interval ==
+                                     0 ? TCP_KEEPALIVE_OFFLOAD_RETRY_INTERVAL_SEC : whd_retry->tko_retry_interval;
+
+        result = whd_cdc_send_iovar(ifp, CDC_SET, buffer, NULL);
+        if (result != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("%s: Cannot set params\n", __func__) );
+        }
+    }
+    else
+    {
+        /* GET paramters */
+        wl_tko_param_t tko_param_real;
+
+        result = whd_cdc_send_iovar(ifp, CDC_GET, buffer, &response);
+        if (result == WHD_SUCCESS)
+        {
+            wl_param_p = &tko_param_real;
+            memcpy( (char *)wl_param_p,
+                    (char *)whd_buffer_get_current_piece_data_pointer(whd_driver, response) + TKO_DATA_OFFSET,
+                    (sizeof(wl_tko_param_t) ) );
+            CHECK_RETURN(whd_buffer_release(whd_driver, response, WHD_NETWORK_TX) );
+
+            /* Copy items from wl level struct to higher level struct */
+            whd_retry->tko_interval = wl_param_p->interval;
+            whd_retry->tko_retry_interval = wl_param_p->retry_interval;
+            whd_retry->tko_retry_count = wl_param_p->retry_count;
+        }
+        else
+        {
+            WPRINT_WHD_ERROR( ("%s: Cannot get params.\n", __func__) );
+        }
+    }
+
+    return result;
+}
+
+/* Query Status */
+whd_result_t
+whd_tko_get_status(whd_interface_t ifp, whd_tko_status_t *whd_status)
+{
+    whd_result_t result = WHD_SUCCESS;
+    uint32_t len = 0;
+    uint8_t *data = NULL;
+    wl_tko_t *tko = NULL;
+    whd_buffer_t buffer;
+    whd_buffer_t response;
+    whd_driver_t whd_driver;
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+    /* Get a buffer */
+    len = (int)(100 - strlen(IOVAR_STR_TKO) - 1);
+    data = (uint8_t * )whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)len, IOVAR_STR_TKO);
+    CHECK_IOCTL_BUFFER(data);
+
+    /* Fill buffer with request */
+    tko = (wl_tko_t *)data;
+    tko->subcmd_id = WL_TKO_SUBCMD_STATUS;
+    tko->len = TKO_DATA_OFFSET;
+
+    tko->len += sizeof(wl_tko_status_t);
+
+    tko->subcmd_id = htod16(tko->subcmd_id);
+    tko->len = htod16(tko->len);
+
+    /* Make request and get result */
+    result = whd_cdc_send_iovar(ifp, CDC_GET, buffer, &response);
+    if (result != WHD_SUCCESS)
+    {
+        WPRINT_WHD_ERROR( ("%s: send iovar failed\n", __func__) );
+        return result;
+    }
+
+    /* Parse result */
+    tko = (wl_tko_t *)whd_buffer_get_current_piece_data_pointer(whd_driver, response);
+    len = htod16(tko->len);
+
+    if (len >= MAX_TKO_CONN + 1)    /* MAX_TKO status's + 1 for the count */
+    {
+        memcpy(whd_status, tko->data, MAX_TKO_CONN + 1);
+    }
+    CHECK_RETURN(whd_buffer_release(whd_driver, response, WHD_NETWORK_TX) );
+    return result;
+}
+
+/* Query FW for number tko max tcp connections */
+whd_result_t
+whd_tko_max_assoc(whd_interface_t ifp, uint8_t *max)
+{
+    uint32_t len = 0;
+    uint8_t *data = NULL;
+    wl_tko_t *tko = NULL;
+    whd_buffer_t buffer;
+    whd_buffer_t response;
+    wl_tko_max_tcp_t *tko_max_tcp = NULL;
+    wl_tko_max_tcp_t tcp_result;
+    whd_driver_t whd_driver;
+    whd_result_t result = WHD_SUCCESS;
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+    len = (int)(100 - strlen(IOVAR_STR_TKO) - 1);
+    data = (uint8_t * )whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)len, IOVAR_STR_TKO);
+    CHECK_IOCTL_BUFFER(data);
+
+    tko = (wl_tko_t *)data;
+
+    tko->subcmd_id = WL_TKO_SUBCMD_MAX_TCP;
+    tko->len = TKO_DATA_OFFSET;
+
+    tko_max_tcp = (wl_tko_max_tcp_t *)tko->data;
+    tko->len += sizeof(wl_tko_max_tcp_t);
+
+    tko->subcmd_id = htod16(tko->subcmd_id);
+    tko->len = htod16(tko->len);
+
+    result = whd_cdc_send_iovar(ifp, CDC_GET, buffer, &response);
+    if (result != WHD_SUCCESS)
+    {
+        WPRINT_WHD_ERROR( ("%s: send iovar failed\n", __func__) );
+        return result;
+    }
+    tko_max_tcp = &tcp_result;
+    memcpy( (char *)tko_max_tcp,
+            (char *)whd_buffer_get_current_piece_data_pointer(whd_driver, response) + TKO_DATA_OFFSET,
+            (sizeof(wl_tko_max_tcp_t) ) );
+    CHECK_RETURN(whd_buffer_release(whd_driver, response, WHD_NETWORK_TX) );
+
+    *max = tko_max_tcp->max;
+    return WHD_SUCCESS;
+}
+
+/* Exercise GET of wl_tko_connect_t IOVAR */
+/* Given a index, return info about that index */
+whd_result_t
+whd_tko_get_FW_connect(whd_interface_t ifp, uint8_t index, whd_tko_connect_t *whd_connect, uint16_t buflen)
+{
+    uint32_t len = 0;
+    uint8_t *data = NULL;
+    wl_tko_t *tko = NULL;
+    wl_tko_connect_t *connect = NULL;
+    whd_result_t result = WHD_SUCCESS;
+    whd_buffer_t response;
+    whd_buffer_t buffer;
+    whd_driver_t whd_driver;
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+    CHECK_DRIVER_NULL(whd_driver);
+
+    len = (int)(WHD_PAYLOAD_MTU - strlen(IOVAR_STR_TKO) - 1);
+    data = (uint8_t * )whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)len, IOVAR_STR_TKO);
+    CHECK_IOCTL_BUFFER(data);
+
+    tko = (wl_tko_t *)data;
+
+    tko->subcmd_id = WL_TKO_SUBCMD_CONNECT;
+    tko->len = offsetof(wl_tko_t, data);
+    connect = (wl_tko_connect_t *)tko->data;
+    connect->index = index;
+
+    tko->subcmd_id = htod16(tko->subcmd_id);
+    tko->len = htod16(tko->len);
+
+    result = whd_cdc_send_iovar(ifp, CDC_GET, buffer, &response);
+    if (result != WHD_SUCCESS)
+    {
+        WPRINT_WHD_ERROR( ("%s: send iovar failed\n", __func__) );
+        return result;
+    }
+    tko = (wl_tko_t *)whd_buffer_get_current_piece_data_pointer(whd_driver, response);
+    tko->subcmd_id = dtoh16(tko->subcmd_id);
+    tko->len = dtoh16(tko->len);
+
+    if (tko->subcmd_id  != WL_TKO_SUBCMD_CONNECT)
+    {
+        WPRINT_WHD_ERROR( ("%s: IOVAR returned garbage!\n", __func__) );
+        return WHD_BADARG;
+    }
+    connect = (wl_tko_connect_t *)tko->data;
+    if (tko->len >= sizeof(*connect) )
+    {
+        connect->local_port = dtoh16(connect->local_port);
+        connect->remote_port = dtoh16(connect->remote_port);
+        connect->local_seq = dtoh32(connect->local_seq);
+        connect->remote_seq = dtoh32(connect->remote_seq);
+        if (connect->ip_addr_type != 0)
+        {
+            WPRINT_WHD_ERROR( ("%s: Address type not IPV4\n", __func__) );
+            return WHD_BADARG;
+        }
+        if (connect->ip_addr_type == 0)
+        {
+            /* IPv4 */
+            uint16_t mylen;
+            mylen = sizeof(wl_tko_connect_t) + (2 * IPV4_ADDR_LEN) + connect->request_len + connect->response_len;
+            if (buflen < mylen)
+            {
+                WPRINT_WHD_ERROR( ("%s: Buf len (%d) too small , need %d\n", __func__, buflen, mylen) );
+                return WHD_BADARG;
+            }
+
+            /*
+             * Assumes whd_tko_connect_t and wl_tko_connect_t are the same.
+             * If/when they become different (due to different FW versions, etc) than
+             * this may have to be copied field by field instead.
+             */
+            memcpy(whd_connect, connect, MIN_OF(mylen, buflen) );
+        }
+    }
+    return WHD_SUCCESS;
+}
+
+whd_result_t
+whd_tko_toggle(whd_interface_t ifp, whd_bool_t enable)
+{
+    uint32_t len = 0;
+    uint8_t *data = NULL;
+    wl_tko_t *tko = NULL;
+    whd_buffer_t buffer;
+    wl_tko_enable_t *tko_enable = NULL;
+    whd_driver_t whd_driver;
+    whd_result_t result;
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
+
+
+
+    len = (int)(WHD_PAYLOAD_MTU - strlen(IOVAR_STR_TKO) - 1);
+    data = (uint8_t * )whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)len, IOVAR_STR_TKO);
+    CHECK_IOCTL_BUFFER(data);
+
+    tko = (wl_tko_t *)data;
+
+    tko->subcmd_id = WL_TKO_SUBCMD_ENABLE;
+    tko->len = TKO_DATA_OFFSET;
+
+    tko_enable = (wl_tko_enable_t *)tko->data;
+    tko_enable->enable = enable;
+
+    tko->len += sizeof(wl_tko_enable_t);
+
+    tko->subcmd_id = htod16(tko->subcmd_id);
+    tko->len = htod16(tko->len);
+
+    /* invoke SET iovar */
+    result = whd_cdc_send_iovar(ifp, CDC_SET, buffer, NULL);
+    if (result != WHD_SUCCESS)
+    {
+        WPRINT_WHD_ERROR( ("%s: tko %s FAILED\n", __func__, (enable == WHD_TRUE ? "enable" : "disable") ) );
+        return result;
+    }
+    else
+    {
+        WPRINT_WHD_ERROR( ("%s: Successfully %s\n", __func__, (enable == WHD_TRUE ? "enabled" : "disabled") ) );
+    }
+    return result;
 }
 

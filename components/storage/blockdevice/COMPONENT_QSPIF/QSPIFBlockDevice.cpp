@@ -28,6 +28,7 @@
 #include "mbed_trace.h"
 #define TRACE_GROUP "QSPIF"
 
+using namespace std::chrono;
 using namespace mbed;
 
 /* Default QSPIF Parameters */
@@ -1062,6 +1063,11 @@ int QSPIFBlockDevice::_handle_vendor_quirks()
             _read_status_reg_2_inst = QSPIF_INST_RDCR;
             _attempt_4_byte_addressing = false;
             break;
+        case 0x9d:
+            // ISSI devices have only one status register
+            tr_debug("Applying quirks for ISSI");
+            _num_status_registers = 1;
+            break;
     }
 
     return 0;
@@ -1223,7 +1229,7 @@ bool QSPIFBlockDevice::_is_mem_ready()
     bool mem_ready = true;
 
     do {
-        rtos::ThisThread::sleep_for(1);
+        rtos::ThisThread::sleep_for(1ms);
         retries++;
         //Read Status Register 1 from device
         if (QSPI_STATUS_OK != _qspi_send_general_command(QSPIF_INST_RSR1, QSPI_NO_ADDRESS_COMMAND,
@@ -1420,17 +1426,19 @@ qspi_status_t QSPIFBlockDevice::_qspi_read_status_registers(uint8_t *reg_buffer)
 
     // Read Status Register 2 (and beyond, if applicable)
     unsigned int read_length = _num_status_registers - 1; // We already read status reg 1 above
-    status = _qspi_send_general_command(_read_status_reg_2_inst, QSPI_NO_ADDRESS_COMMAND,
-                                        NULL, 0,
-                                        (char *) &reg_buffer[1], read_length);
-    if (QSPI_STATUS_OK == status) {
-        tr_debug("Reading Status Register 2 Success: value = 0x%x", (int) reg_buffer[1]);
-        if (_num_status_registers > 2) {
-            tr_debug("Reading Register 3 Success: value = 0x%x", (int) reg_buffer[2]);
+    if (read_length > 0) {
+        status = _qspi_send_general_command(_read_status_reg_2_inst, QSPI_NO_ADDRESS_COMMAND,
+                                            NULL, 0,
+                                            (char *) &reg_buffer[1], read_length);
+        if (QSPI_STATUS_OK == status) {
+            tr_debug("Reading Status Register 2 Success: value = 0x%x", (int) reg_buffer[1]);
+            if (_num_status_registers > 2) {
+                tr_debug("Reading Register 3 Success: value = 0x%x", (int) reg_buffer[2]);
+            }
+        } else {
+            tr_error("Reading Status Register 2 failed");
+            return status;
         }
-    } else {
-        tr_error("Reading Status Register 2 failed");
-        return status;
     }
 
     return QSPI_STATUS_OK;

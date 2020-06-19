@@ -138,7 +138,7 @@ public:
      *
      * @param timeout Timeout value (milliseconds)
      */
-    void set_timeout(int timeout);
+    void set_timeout(std::chrono::duration<int, std::milli> timeout);
 
 private:
     bool power_on();
@@ -164,7 +164,7 @@ private:
     void pre_event(CellularState state);
     bool check_is_target_reached();
     void send_event_cb(cellular_connection_status_t status);
-    void change_timeout(const int &timeout);
+    void change_timeout(const std::chrono::duration<int, std::milli> &timeout);
 
 private:
     CellularDevice &_cellularDevice;
@@ -179,10 +179,10 @@ private:
 
     const char *_sim_pin;
     int _retry_count;
-    int _start_time;
-    int _event_timeout;
+    std::chrono::duration<int> _start_time;
+    std::chrono::duration<int> _event_timeout;
 
-    uint16_t _retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE];
+    std::chrono::duration<uint16_t> _retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE];
     int _retry_array_length;
     int _event_id;
     const char *_plmn;
@@ -194,11 +194,11 @@ private:
     PlatformMutex _mutex;
 
     // Cellular state timeouts
-    int _state_timeout_power_on;
-    int _state_timeout_sim_pin;
-    int _state_timeout_registration;
-    int _state_timeout_network;
-    int _state_timeout_connect; // timeout for PS attach, PDN connect and socket operations
+    std::chrono::duration<int, std::milli> _state_timeout_power_on;
+    std::chrono::duration<int, std::milli> _state_timeout_sim_pin;
+    std::chrono::duration<int, std::milli> _state_timeout_registration;
+    std::chrono::duration<int, std::milli> _state_timeout_network;
+    std::chrono::duration<int, std::milli> _state_timeout_connect; // timeout for PS attach, PDN connect and socket operations
 
     cell_signal_quality_t _signal_quality;
 };

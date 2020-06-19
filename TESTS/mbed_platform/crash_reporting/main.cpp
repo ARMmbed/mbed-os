@@ -36,7 +36,7 @@ static mbed_error_ctx saved_error_ctx = {0};
 void mbed_error_reboot_callback(mbed_error_ctx *error_context)
 {
 
-    TEST_ASSERT_EQUAL_UINT((uint32_t)error_context, ERROR_CONTEXT_LOCATION);
+    TEST_ASSERT_EQUAL_PTR(error_context, &MBED_CRASH_DATA);
     memcpy(&saved_error_ctx, error_context, sizeof(mbed_error_ctx));
     mbed_reset_reboot_error_info();
 

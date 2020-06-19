@@ -2,7 +2,7 @@
 * \file cyhal_crypto_common.h
 *
 * Description:
-* This file provides common defines, addresses, and functions required by drivers
+* This file provides common defines, addresses, and functions required by drivers 
 * using the Crypto block.
 *
 ********************************************************************************

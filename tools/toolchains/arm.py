@@ -32,6 +32,13 @@ from tools.toolchains.mbed_toolchain import (
 from tools.utils import mkdir, NotSupportedException, run_cmd
 from tools.resources import FileRef
 
+ARMC5_MIGRATION_WARNING = (
+    "Warning: Arm Compiler 5 is no longer supported as of Mbed 6. "
+    "Please upgrade your environment to Arm Compiler 6 "
+    "which is free to use with Mbed OS. For more information, "
+    "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
+)
+
 UARM_TOOLCHAIN_WARNING = (
     "Warning: We noticed that you are using uARM Toolchain either via --toolchain command line or default_toolchain option. "
     "We are deprecating the use of the uARM Toolchain. "
@@ -497,7 +504,8 @@ class ARM_MICRO(ARM):
             silent=False,
             extra_verbose=False,
             build_profile=None,
-            build_dir=None
+            build_dir=None,
+            coverage_patterns=None,
     ):
         target.default_toolchain = "uARM"
         if int(target.build_tools_metadata["version"]) > 0:

@@ -121,18 +121,10 @@ class CodeBlocks(GccArm):
             'NCS36510': 'board/ncs36510_axdbg.cfg',
             'DISCO_F429ZI': 'board/stm32f429discovery.cfg',
             'DISCO_F469NI': 'board/stm32f469discovery.cfg',
-            'DISCO_L053C8': 'board/stm32l0discovery.cfg',
             'DISCO_L072CZ_LRWAN1': 'board/stm32l0discovery.cfg',
             'DISCO_F769NI': 'board/stm32f7discovery.cfg',
             'DISCO_L475VG_IOT01A': 'board/stm32l4discovery.cfg',
             'DISCO_L476VG': 'board/stm32l4discovery.cfg',
-            'NRF51822': 'board/nordic_nrf51822_mkit.cfg',
-            'NRF51822_BOOT': 'board/nordic_nrf51822_mkit.cfg',
-            'NRF51822_OTA': 'board/nordic_nrf51822_mkit.cfg',
-            'NRF51_DK_LEGACY': 'board/nordic_nrf51_dk.cfg',
-            'NRF51_DK_BOOT': 'board/nordic_nrf51_dk.cfg',
-            'NRF51_DK_OTA': 'board/nordic_nrf51_dk.cfg',
-            'NRF51_DK': 'board/nordic_nrf51_dk.cfg',
             'CY8CKIT_062_WIFI_BT': 'board/cy8ckit_062_ble.cfg'
             }
 

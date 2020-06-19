@@ -34,8 +34,29 @@
 * This block drives a pin with a firmware configurable voltage. See the device datasheet
 * for details on which pins support DAC output.
 *
-* The cyhal_dac_write and cyhal_dac_read APIs are defined relative to the DAC's output
-* voltage range, which is device dependent.
+* \section subsection_dac_features Features
+* The DAC driver provides APIs to:
+* * Configure and work with the DAC hardware
+* * Update the DAC output value
+* * Read the DAC output voltage setting
+*
+* \note The \ref cyhal_dac_write and \ref cyhal_dac_read APIs are defined as 16-bit, which may not match the underlying hardware.
+* The functions will linearly scale the 16-bit value to and from a resolution that hardware is capable of outputting.
+* For instance, if the device supports 12-bit resolution, only the 12 MSBs of the 16-bit value will be used.
+* Refer to BSP Settings section in the kit's BSP API Reference Manual for details on the DAC's output range.
+*
+* \section subsection_dac_quickstart Quick Start
+* Call \ref cyhal_dac_init to initialize a DAC instance by providing the DAC
+* object ( <b> obj </b> ) and an output pin (<b> pin </b>).
+*
+* See \ref subsection_dac_use_case_1.
+*
+* \section subsection_dac_snippets Code Snippets
+*
+* \subsection subsection_dac_use_case_1 Use case 1: Simple DAC initialization
+* The following snippet initializes a DAC resource and assigns the output to the specified <b>pin</b> using \ref cyhal_dac_init.
+* \ref cyhal_dac_write is used to set the DAC output value. \ref cyhal_dac_read is used to read back DAC register.
+* \snippet dac.c snippet_cyhal_dac_simple_init
 */
 
 #pragma once
@@ -44,23 +65,38 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name DAC Results
+ */
+
 /** Bad argument */
-#define CYHAL_DAC_RSLT_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 0))
+#define CYHAL_DAC_RSLT_BAD_ARGUMENT                     \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 0))
 /** Failed to initialize DAC */
-#define CYHAL_DAC_RSLT_FAILED_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 1))
+#define CYHAL_DAC_RSLT_FAILED_INIT                      \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 1))
+
+/**
+ * \} \}
+ */
 
 /** Initialize the DAC peripheral
  *
  * Configures the pin used by dac.
- * @param[in] obj The dac object to initialize
+ *
+ * @param[out] obj  Pointer to a DAC object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
  * @param[in] pin The dac pin name
- * @return The status of the init request
+ * @return The status of the init request. On success returns \ref CY_RSLT_SUCCESS.<br>
+ * On failure, a problem specific error code will be returned.
+ * This error could be from the HAL or lower level driver. <br>
+ * For all other return codes, please refer to device driver documentation available in the BSP landing page
  */
 cy_rslt_t cyhal_dac_init(cyhal_dac_t *obj, cyhal_gpio_t pin);
 

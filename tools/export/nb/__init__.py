@@ -15,7 +15,6 @@ from tools.utils import NotSupportedException
 from tools.build_api import prepare_toolchain
 
 POST_BINARY_WHITELIST = set([
-    "MCU_NRF51Code.binary_hook",
     "LPCTargetCode.lpc_patch"
 ])
 

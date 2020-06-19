@@ -23,6 +23,10 @@ This ST MCU family is dual-core : based on an Arm Cortex-M4 core and an Arm Cort
     - SRAM2a: 32 KB
     - SRAM2b: 32 KB
 
+SRAM1 is dedicated for M4 core, and then for mbed-os applications.
+
+SRAM2 is dedicated for M0 core and inter CPU communication, and then can not be addressed.
+
 
 # BLE
 

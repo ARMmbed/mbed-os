@@ -2,7 +2,7 @@
 * \file cyhal_crc.h
 *
 * \brief
-* Provides a high level interface for interacting with the Cypress CRC accelerator.
+* Provides a high level interface for interacting with the CRC hardware accelerator.
 * This interface abstracts out the chip specific details. If any chip specific
 * functionality is necessary, or performance is critical the low level functions
 * can be used directly.
@@ -29,15 +29,26 @@
 * \addtogroup group_hal_crc CRC (Cyclic Redundancy Check)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the cyclic redundancy check (CRC), which provides hardware
+* High level interface for interacting with the CRC, which provides hardware
 * accelerated CRC computations.
 * The CRC APIs are structured to enable usage in situations where the entire input data
-* set is not available in memory at one time. Therefore, each conversion consists of three steps:
-* * A single call to cyhal_crc_start, to initialize data structures for this computation
-* * One or more calls to cyhal_crc_compute, to provide chunks of data.
-* * A single call to cyhal_crc_finish, to finalize the computation and retrieve the result.
+* set is not available in memory at the same time. Therefore, each conversion consists of three steps:
+* * A single call to \ref cyhal_crc_start, to initialize data structures used to compute CRC
+* * One or more calls to \ref cyhal_crc_compute, to provide chunks of data
+* * A single call to \ref cyhal_crc_finish, to finalize the computation and retrieve the result
 *
-* Many of the algorithm parameters can be customized; see crc_algorithm_t for more details.
+* Many of the algorithm parameters can be customized.
+*
+* See \ref crc_algorithm_t and \ref subsection_crc_snippet_1 for more details.
+*
+* \section subsection_crc_quickstart Quick Start
+*
+* \ref cyhal_crc_init initializes the CRC generator and passes the pointer to the CRC block through the **obj** object of type \ref cyhal_crc_t.
+*
+* \subsection subsection_crc_snippet_1 Snippet1: CRC Generation
+* The following snippet initializes a CRC generator and computes the CRC for a sample message.
+*
+* \snippet crc.c snippet_cyhal_crc_simple_init
 */
 
 #pragma once
@@ -46,14 +57,23 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name CRC Results
+ */
+
 /** Invalid argument */
-#define CYHAL_CRC_RSLT_ERR_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_CRC, 0))
+#define CYHAL_CRC_RSLT_ERR_BAD_ARGUMENT                 \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_CRC, 0))
+
+/**
+ * \} \}
+ */
 
 /** @brief CRC algorithm parameters */
 typedef struct
@@ -74,8 +94,11 @@ typedef struct
 
 /** Initialize the CRC generator. This function reserves the CRYPTO block for CRC calculations.
  *
- * @param[out] obj  The CRC generator object
+ * @param[out] obj  Pointer to a CRC generator object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
  * @return          The status of the init request.
+ *
+ * Returns \ref CY_RSLT_SUCCESS if the operation was successful. Refer \ref subsection_crc_snippet_1 for more information.
  */
 cy_rslt_t cyhal_crc_init(cyhal_crc_t *obj);
 
@@ -85,31 +108,36 @@ cy_rslt_t cyhal_crc_init(cyhal_crc_t *obj);
  */
 void cyhal_crc_free(cyhal_crc_t *obj);
 
-/** Initializes a CRC calculation.
+/** The CRC block is setup to perform CRC computation
  *
  * @param[in,out] obj       The CRC generator object
- * @param[in] algorithm     The CRC algorithm to use for computations
+ * @param[in] algorithm     The CRC algorithm to use for computations Refer \ref crc_algorithm_t.
  * @return The status of the compute request
+ *
+ * Returns \ref CY_RSLT_SUCCESS if the operation was successful.
  */
 cy_rslt_t cyhal_crc_start(cyhal_crc_t *obj, const crc_algorithm_t *algorithm);
 
-/** Computes the CRC for the given data. This function can be called multiple times to
- * provide addtional data. This CRC generator will compute the CRC for including all data
- * that was provided during previous calls.
- *
+/** Computes the CRC for the given data and accumulates the CRC with the CRC generated from previous calls.
+ * This function can be called multiple times to provide additional data.
+ * \note Input data must be 4-byte aligned. Refer \ref subsection_crc_snippet_1 for more details.
  * @param[in] obj    The CRC generator object
- * @param[in] data   The data to compute a CRC over
- * @param[in] length The number of bytes of data to process
+ * @param[in] data   The input data
+ * @param[in] length The number of bytes in the data
  * @return The status of the compute request
+ *
+ * Returns \ref CY_RSLT_SUCCESS if the operation was successful.
  */
 cy_rslt_t cyhal_crc_compute(const cyhal_crc_t *obj, const uint8_t *data, size_t length);
 
-/** Provides final result for a CRC calculation. This will compute the CRC for all data that
- * was provided when during the diffrent calls to cyhal_crc_compute.
+/** Finalizes the CRC computation and returns the CRC for the complete set of data passed through a single call or multiple calls to \ref cyhal_crc_compute.
+ * \note The computed CRC pointer provided must be 4 byte aligned. Refer \ref subsection_crc_snippet_1 for more details.
  *
  * @param[in]  obj The CRC generator object
  * @param[out] crc The computed CRC
  * @return The status of the compute request
+ *
+ * Returns \ref CY_RSLT_SUCCESS if the operation was successful.
  */
 cy_rslt_t cyhal_crc_finish(const cyhal_crc_t *obj, uint32_t *crc);
 

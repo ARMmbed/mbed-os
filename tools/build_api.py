@@ -47,6 +47,7 @@ from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .toolchains.arm import UARM_TOOLCHAIN_WARNING
 from .toolchains.mbed_toolchain import should_replace_small_c_lib
 from .config import Config
@@ -244,11 +245,9 @@ def find_valid_toolchain(target, toolchain):
             ).format(toolchain_name, search_path)
         else:            
             if toolchain_name == "ARMC5":
-                raise NotSupportedException(
-                    "Arm Compiler 5 is no longer supported, please upgrade to Arm Compiler 6."
-                )                
+                end_warnings.append(ARMC5_MIGRATION_WARNING)
             if (
-                toolchain_name in ["uARM", "ARMC6"] 
+                toolchain_name in ["uARM", "ARMC5", "ARMC6"] 
                 and "uARM" in {toolchain_name, target.default_toolchain}
             ):
                 end_warnings.append(UARM_TOOLCHAIN_WARNING)
@@ -400,7 +399,7 @@ def transform_release_toolchains(target, version):
         else:
             return target.supported_toolchains
 
-def get_mbed_official_release(version):
+def get_mbed_official_release(version, profile=None):
     """ Given a release version string, return a tuple that contains a target
     and the supported toolchains for that release.
     Ex. Given '2', return (('LPC1768', ('ARM', 'GCC_ARM')),
@@ -411,6 +410,14 @@ def get_mbed_official_release(version):
               RELEASE_VERSIONS
     """
 
+    # we ignore version for Mbed 6 as all targets in targets.json file are being supported
+    # if someone passes 2, we return empty tuple, if 5, we keep the behavior the same as 
+    # release version is deprecated and all targets are being supported that are present
+    # in targets.json file
+
+    if version == '2':
+        return tuple(tuple([]))
+
     mbed_official_release = (
         tuple(
             tuple(
@@ -420,16 +427,9 @@ def get_mbed_official_release(version):
                         TARGET_MAP[target], version))
                 ]
             ) for target in TARGET_NAMES \
-            if (hasattr(TARGET_MAP[target], 'release_versions')
-                and version in TARGET_MAP[target].release_versions)
+                if not profile or profile in TARGET_MAP[target].supported_application_profiles
         )
     )
-
-    for target in mbed_official_release:
-        is_official, reason = is_official_target(target[0], version)
-
-        if not is_official:
-            raise InvalidReleaseTargetException(reason)
 
     return mbed_official_release
 

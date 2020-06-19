@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2016-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,32 +87,6 @@ Case cases[] = {
 #endif /* MBEDTLS_SELF_TEST */
 };
 
-#if (defined(MBEDTLS_ENTROPY_C) && defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
-#include "crypto.h"
-#if !defined(MAX)
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#endif
-
-/* Calculating the minimum allowed entropy size in bytes */
-#define MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE \
-            MAX(MBEDTLS_ENTROPY_MIN_PLATFORM, MBEDTLS_ENTROPY_BLOCK_SIZE)
-
-void inject_entropy_for_psa()
-{
-    if (psa_crypto_init() == PSA_ERROR_INSUFFICIENT_ENTROPY) {
-        uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
-        /* inject some a seed for test*/
-        for (int i = 0; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
-            seed[i] = i;
-        }
-
-        /* don't really care if this succeed this is just to make crypto init pass*/
-        mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
-    }
-}
-#endif // (defined(MBEDTLS_ENTROPY_C) && defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
-
-
 utest::v1::status_t test_setup(const size_t num_cases)
 {
     GREENTEA_SETUP(120, "default_auto");
@@ -129,10 +103,6 @@ int main()
         mbedtls_printf("Mbed TLS selftest failed! mbedtls_platform_setup returned %d\n", ret);
         return 1;
     }
-#endif
-
-#if (defined(MBEDTLS_ENTROPY_C) && defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
-    inject_entropy_for_psa();
 #endif
 
     ret = (Harness::run(specification) ? 0 : 1);

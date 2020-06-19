@@ -18,6 +18,7 @@
 #ifndef QUECTEL_EC2X_H
 #define QUECTEL_EC2X_H
 
+#include <chrono>
 #include "DigitalOut.h"
 #include "AT_CellularDevice.h"
 
@@ -39,7 +40,7 @@ public:
     virtual nsapi_error_t soft_power_off();
 
 private:
-    nsapi_error_t press_power_button(uint32_t timeout);
+    nsapi_error_t press_power_button(std::chrono::duration<uint32_t, std::milli> timeout);
     bool _active_high;
     DigitalOut _pwr_key;
     DigitalOut _rst;

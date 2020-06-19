@@ -102,12 +102,6 @@
     "STM32F072RB": {
         "OGChipSelectEditMenu": "STM32F072RB\tST STM32F072RB"
     },
-    "nRF51822_xxAA": {
-        "OGChipSelectEditMenu": "nRF51822-QFAA\tNordicSemi nRF51822-QFAA",
-        "CExtraOptionsCheck": 1,
-        "CExtraOptions": "--drv_vector_table_base=0x0",
-        "CMSISDAPJtagSpeedList": 10
-    },
     "EFM32GG990F1024": {
         "OGChipSelectEditMenu": "EFM32GG990F1024\tSiliconLaboratories EFM32GG990F1024"
     },

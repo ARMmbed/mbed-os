@@ -49,6 +49,9 @@
             "eth-rxbufnb": 2,
             "eth-txbufnb": 4
         },
+        "STM32H7": {
+            "eth-txbufnb": 10
+        },
         "ARCH_MAX": {
             "eth-phy-address": 1
         }

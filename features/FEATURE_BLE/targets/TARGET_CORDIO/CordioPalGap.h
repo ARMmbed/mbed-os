@@ -414,11 +414,59 @@ private:
         }
     };
 
+    /* Cordio requires the call to DmConnAccept to properly catch direct advertising timeout.
+     * This call returns a connection ID and expect the peer address and the peer address type.
+     * This PAL following HCI expectations, these information are not present when the higher
+     * level calls the function to enable advertising.
+     * This data structure caches these informations and use them in case of direct advertising.
+     * Similarly, direct advertising timeout doesn't trigger an advertising timeout instead it
+     * triggers a disconnection with the status 60. Information on running direct advertising
+     * is stored here.
+     */
+    struct direct_adv_cb_t {
+        direct_adv_cb_t() :
+            peer_address_type(advertising_peer_address_type_t::PUBLIC),
+            state(free)
+        {}
+
+        address_t peer_address;
+        advertising_peer_address_type_t peer_address_type;
+        advertising_handle_t advertising_handle;
+        connection_handle_t connection_handle;
+        bool low_duty_cycle;
+        enum {
+            free = 0,
+            pending,
+            running
+        } state;
+    };
+
+    /* Predicate expect a const reference to a direct_adv_cb_t
+     * It must returns true if the criteria are met and false otherwise. */
+    template<typename Predicate>
+    direct_adv_cb_t* get_adv_cb(const Predicate& predicate);
+
+    direct_adv_cb_t* get_running_direct_adv_cb(advertising_handle_t adv_handle);
+
+    direct_adv_cb_t* get_running_conn_direct_adv_cb(connection_handle_t adv_handle);
+
+    direct_adv_cb_t* get_pending_direct_adv_cb(advertising_handle_t adv_handle);
+
+    direct_adv_cb_t* get_free_direct_adv_cb();
+
+    ble_error_t update_direct_advertising_parameters(
+        advertising_handle_t advertising_handle,
+        uint8_t advertising_type,
+        address_t peer_address,
+        advertising_peer_address_type_t peer_address_type
+    );
+
 private:
     address_t device_random_address;
     bool use_active_scanning;
     uint8_t extended_scan_type[3];
     phy_set_t scanning_phys;
+    direct_adv_cb_t direct_adv_cb[DM_NUM_ADV_SETS];
 };
 
 } // cordio

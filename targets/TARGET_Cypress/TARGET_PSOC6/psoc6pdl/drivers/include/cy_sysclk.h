@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.h
-* \version 1.60
+* \version 2.0
 *
 * Provides an API declaration of the sysclk driver.
 *
@@ -103,6 +103,16 @@
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.0</td>
+*     <td>Updated the ECO trimming values calculation algorithm in the \ref Cy_SysClk_EcoConfigure implementation. \n
+*         This change may invalidate the already used crystals, in cases: \n
+*         * The crystal frequency is less than 16 MHz. \n
+*         * The maximum amplitude (internal calculation value) is less than 0.65 V. \n
+*
+*         For detail, refer the \ref Cy_SysClk_EcoConfigure documentation and the ECO Trimming section of the device TRM.</td>
+*     <td>Enhanced the ECO performance for high-noise conditions that result from simultaneous switching of GPIOs and/or high switching activity on the chip.</td>
+*   </tr>
 *   <tr>
 *     <td>1.60</td>
 *     <td>Added the following functions: \ref Cy_SysClk_ExtClkGetFrequency, \ref Cy_SysClk_EcoGetFrequency,\n
@@ -656,9 +666,9 @@ extern "C" {
 * \{
 */
 /** Driver major version */
-#define  CY_SYSCLK_DRV_VERSION_MAJOR   1
+#define  CY_SYSCLK_DRV_VERSION_MAJOR   2
 /** Driver minor version */
-#define  CY_SYSCLK_DRV_VERSION_MINOR   60
+#define  CY_SYSCLK_DRV_VERSION_MINOR   0
 /** Sysclk driver identifier */
 #define CY_SYSCLK_ID   CY_PDL_DRV_ID(0x12U)
 
@@ -734,7 +744,7 @@ uint32_t Cy_SysClk_ExtClkGetFrequency(void);
 * \addtogroup group_sysclk_eco_funcs
 * \{
 */
-cy_en_sysclk_status_t Cy_SysClk_EcoConfigure(uint32_t freq, uint32_t cLoad, uint32_t esr, uint32_t driveLevel);
+cy_en_sysclk_status_t Cy_SysClk_EcoConfigure(uint32_t freq, uint32_t cSum, uint32_t esr, uint32_t driveLevel);
 cy_en_sysclk_status_t Cy_SysClk_EcoEnable(uint32_t timeoutus);
 uint32_t Cy_SysClk_EcoGetFrequency(void);
 __STATIC_INLINE void Cy_SysClk_EcoDisable(void);

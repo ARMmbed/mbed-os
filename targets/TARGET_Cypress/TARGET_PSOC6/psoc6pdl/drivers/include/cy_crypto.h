@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_crypto.h
-* \version 2.30.1
+* \version 2.30.2
 *
 * \brief
 *  This file provides the public interface for the Crypto driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -304,7 +304,7 @@
 *     <td>
 *         <ul>
 *         <li>Added a multi-instance support for AES and SHA.</li>
-*		  <li>Added a small chunks mode for SHA with any chunk size (from one
+*         <li>Added a small chunks mode for SHA with any chunk size (from one
 *             byte).</li>
 *         <li>Added the operation memory buffer management (set a new address,
 *             get a size).</li>

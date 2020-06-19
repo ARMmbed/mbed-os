@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,12 +71,12 @@ cy_rslt_t cyhal_dma_start_transfer_dmac(cyhal_dma_t *obj);
 
 /** Configure DMAC event enablement.
  *
- * @param[in] obj           The DMA object
- * @param[in] event         The DMA event type
- * @param[in] intrPriority  The priority for NVIC interrupt events. The priority from the most recent call will take precedence, i.e all events will have the same priority.
- * @param[in] enable        True to turn on interrupts, False to turn off
+ * @param[in] obj            The DMA object
+ * @param[in] event          The DMA event type
+ * @param[in] intr_priority  The priority for NVIC interrupt events. The priority from the most recent call will take precedence, i.e all events will have the same priority.
+ * @param[in] enable         True to turn on interrupts, False to turn off
  */
-void cyhal_dma_enable_event_dmac(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intrPriority, bool enable);
+void cyhal_dma_enable_event_dmac(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable);
 
 /** Checks whether a transfer is pending or running on the DMA channel
  *

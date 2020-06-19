@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2019 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1138,7 +1138,7 @@ MBED_USED extern "C" __value_in_regs struct __initial_stackheap __user_setup_sta
     return _mbed_user_setup_stackheap(R0, R1, R2, R3);
 }
 
-#endif // !defined(TARGET_TFM)
+#endif // !defined(FEATURE_PSA)
 
 #endif
 

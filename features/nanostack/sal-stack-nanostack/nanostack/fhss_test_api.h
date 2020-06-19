@@ -39,6 +39,17 @@ extern "C" {
   */
 int8_t fhss_set_optimal_packet_length(const fhss_api_t *fhss_api, uint16_t packet_length);
 
+/**
+  * \brief Set number of channel retries
+  *
+  * \param fhss_api FHSS instance.
+  * \param number_of_channel_retries Number of channel retries
+  *
+  * \return  0 Success
+  * \return -1 Failure
+  */
+int8_t fhss_set_number_of_channel_retries(const fhss_api_t *fhss_api, uint8_t number_of_channel_retries);
+
 #ifdef __cplusplus
 }
 #endif

@@ -43,7 +43,7 @@
 #include "cyhal_pwm_impl.h"
 #include "cyhal_gpio.h"
 #include "cyhal_hwmgr.h"
-#include "cyhal_interconnect.h"
+#include "cyhal_syspm.h"
 #include "cyhal_utils.h"
 
 #ifdef CY_IP_MXTCPWM
@@ -60,6 +60,7 @@ static const uint32_t US_PER_SEC = 1000000u;
 #define CY_TCPWM_PWM_MODE_CNTR_OR_ASYMM_UO_SWAPPED (_VAL2FLD(TCPWM_CNT_TR_CTRL2_CC_MATCH_MODE, CY_TCPWM_PWM_TR_CTRL2_INVERT) | \
                                          _VAL2FLD(TCPWM_CNT_TR_CTRL2_OVERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_CLEAR) | \
                                          _VAL2FLD(TCPWM_CNT_TR_CTRL2_UNDERFLOW_MODE, CY_TCPWM_PWM_TR_CTRL2_SET))
+
 
 static const cyhal_resource_pin_mapping_t* try_alloc_pwm(cyhal_gpio_t pin, const cyhal_resource_pin_mapping_t *pin_map, size_t count)
 {
@@ -94,7 +95,7 @@ static cy_rslt_t convert_alignment(cyhal_pwm_alignment_t hal_alignment, uint32_t
     }
 }
 
-cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pin_compl, cyhal_pwm_alignment_t pwm_alignment, bool continuous, uint32_t dead_time_us, bool invert, const cyhal_clock_divider_t *clk)
+cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pin_compl, cyhal_pwm_alignment_t pwm_alignment, bool continuous, uint32_t dead_time_us, bool invert, const cyhal_clock_t *clk)
 {
     CY_ASSERT(NULL != obj);
 
@@ -114,13 +115,11 @@ cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pi
     else
     {
         /* Explicitly marked not allocated resources as invalid to prevent freeing them. */
-        obj->resource.type = CYHAL_RSC_INVALID;
-        obj->dedicated_clock = false;
+        memset(obj, 0, sizeof(cyhal_pwm_t));
         obj->resource = *map->inst;
         obj->base = CYHAL_TCPWM_DATA[obj->resource.block_num].base;
         obj->pin = CYHAL_NC_PIN_VALUE;
         obj->pin_compl = CYHAL_NC_PIN_VALUE;
-
         result = cyhal_utils_reserve_and_connect(pin, map);
         if (CY_RSLT_SUCCESS == result)
         {
@@ -154,32 +153,30 @@ cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pi
         en_clk_dst_t pclk = (en_clk_dst_t)(CYHAL_TCPWM_DATA[obj->resource.block_num].clock_dst + obj->resource.channel_num);
         if (NULL != clk)
         {
+            obj->clock = *clk;
             obj->clock_hz = source_hz / (1 + Cy_SysClk_PeriphGetDivider(clk->div_type, clk->div_num));
             if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, clk->div_type, clk->div_num))
             {
                 result = CYHAL_PWM_RSLT_FAILED_CLOCK_INIT;
             }
         }
-        else
+        else if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_allocate_clock(&(obj->clock), CY_SYSCLK_DIV_16_BIT, false)))
         {
-            if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_allocate_clock(&(obj->clock), CY_SYSCLK_DIV_16_BIT, false)))
-            {
-                obj->dedicated_clock = true;
-                uint32_t div = (dead_time_us > 0)
-                    ? (((uint64_t)source_hz * dead_time_us) / (US_PER_SEC * MAX_DEAD_TIME_CYCLES)) + 1
-                    : (uint32_t)(1 << (TCPWM_MAX_WIDTH - CYHAL_TCPWM_DATA[obj->resource.block_num].max_count));
+            obj->dedicated_clock = true;
+            uint32_t div = (dead_time_us > 0)
+                ? (((uint64_t)source_hz * dead_time_us) / (US_PER_SEC * MAX_DEAD_TIME_CYCLES)) + 1
+                : (uint32_t)(1 << (TCPWM_MAX_WIDTH - CYHAL_TCPWM_DATA[obj->resource.block_num].max_count));
 
-                if (0 == div ||
-                    CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div - 1) ||
-                    CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num) ||
-                    CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, obj->clock.div_type, obj->clock.div_num))
-                {
-                    result = CYHAL_PWM_RSLT_FAILED_CLOCK_INIT;
-                }
-                else
-                {
-                    obj->clock_hz = source_hz / div;
-                }
+            if (0 == div ||
+                CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div - 1) ||
+                CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num) ||
+                CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, obj->clock.div_type, obj->clock.div_num))
+            {
+                result = CYHAL_PWM_RSLT_FAILED_CLOCK_INIT;
+            }
+            else
+            {
+                obj->clock_hz = source_hz / div;
             }
         }
     }
@@ -231,7 +228,7 @@ cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pi
 
     if (CY_RSLT_SUCCESS == result)
     {
-        cyhal_tcpwm_init_callback_data(&(obj->resource), &(obj->callback_data));
+        cyhal_tcpwm_init_data(obj);
         Cy_TCPWM_PWM_Enable(obj->base, obj->resource.channel_num);
     }
     else
@@ -245,30 +242,8 @@ cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t pi
 void cyhal_pwm_free(cyhal_pwm_t *obj)
 {
     CY_ASSERT(NULL != obj);
-
-    IRQn_Type irqn = (IRQn_Type)(CYHAL_TCPWM_DATA[obj->resource.block_num].isr_offset + obj->resource.channel_num);
-    NVIC_DisableIRQ(irqn);
-
-    cyhal_utils_release_if_used(&(obj->pin));
     cyhal_utils_release_if_used(&(obj->pin_compl));
-
-    if (NULL != obj->base)
-    {
-        Cy_TCPWM_PWM_Disable(obj->base, obj->resource.channel_num);
-
-        cyhal_hwmgr_free(&(obj->resource));
-        obj->base = NULL;
-        obj->resource.type = CYHAL_RSC_INVALID;
-    }
-
-    if (obj->dedicated_clock)
-    {
-        cy_en_sysclk_status_t rslt = Cy_SysClk_PeriphDisableDivider(obj->clock.div_type, obj->clock.div_num);
-        CY_UNUSED_PARAMETER(rslt); /* CY_ASSERT only processes in DEBUG, ignores for others */
-        CY_ASSERT(CY_SYSCLK_SUCCESS == rslt);
-        cyhal_hwmgr_free_clock(&(obj->clock));
-        obj->dedicated_clock = false;
-    }
+    cyhal_tcpwm_free(obj);
 }
 
 static cy_rslt_t cyhal_pwm_set_period_and_compare(cyhal_pwm_t *obj, uint32_t period, uint32_t compare)
@@ -322,6 +297,11 @@ cy_rslt_t cyhal_pwm_set_duty_cycle(cyhal_pwm_t *obj, float duty_cycle, uint32_t 
 cy_rslt_t cyhal_pwm_start(cyhal_pwm_t *obj)
 {
     CY_ASSERT(NULL != obj);
+    if (cyhal_tcpwm_pm_transition_pending())
+    {
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+    }
+    Cy_TCPWM_PWM_Enable(obj->base, obj->resource.channel_num);
     Cy_TCPWM_TriggerReloadOrIndex(obj->base, 1u << obj->resource.channel_num);
     return CY_RSLT_SUCCESS;
 }

@@ -28,32 +28,35 @@
 #include "PinNames.h"
 #include "platform/ATCmdParser.h"
 #include "platform/Callback.h"
+#include "platform/mbed_chrono.h"
 #include "platform/mbed_error.h"
 #include "rtos/Mutex.h"
 #include "rtos/ThisThread.h"
 #include "features/netsocket/SocketAddress.h"
 
 // Various timeouts for different ESP8266 operations
+// (some of these can't use literal form as they're needed for defaults in this header, where
+// we shouldn't add a using directive for them. Defines only used in the C++ file can use literals).
 #ifndef ESP8266_CONNECT_TIMEOUT
-#define ESP8266_CONNECT_TIMEOUT 15000
+#define ESP8266_CONNECT_TIMEOUT 15s
 #endif
 #ifndef ESP8266_SEND_TIMEOUT
-#define ESP8266_SEND_TIMEOUT    2000
+#define ESP8266_SEND_TIMEOUT    2s
 #endif
 #ifndef ESP8266_RECV_TIMEOUT
-#define ESP8266_RECV_TIMEOUT    2000
+#define ESP8266_RECV_TIMEOUT    std::chrono::seconds(2)
 #endif
 #ifndef ESP8266_MISC_TIMEOUT
-#define ESP8266_MISC_TIMEOUT    2000
+#define ESP8266_MISC_TIMEOUT    std::chrono::seconds(2)
 #endif
 #ifndef ESP8266_DNS_TIMEOUT
-#define ESP8266_DNS_TIMEOUT     15000
+#define ESP8266_DNS_TIMEOUT     15s
 #endif
 
-#define ESP8266_SCAN_TIME_MIN 0     // [ms]
-#define ESP8266_SCAN_TIME_MAX 1500  // [ms]
-#define ESP8266_SCAN_TIME_MIN_DEFAULT 120 // [ms]
-#define ESP8266_SCAN_TIME_MAX_DEFAULT 360 // [ms]
+#define ESP8266_SCAN_TIME_MIN 0ms
+#define ESP8266_SCAN_TIME_MAX 1500ms
+#define ESP8266_SCAN_TIME_MIN_DEFAULT 120ms
+#define ESP8266_SCAN_TIME_MAX_DEFAULT 360ms
 
 // Firmware version
 #define ESP8266_SDK_VERSION 2000000
@@ -195,6 +198,17 @@ public:
     const char *ip_addr(void);
 
     /**
+     * Set static IP address, gateway and netmask
+     *
+     * @param ip IP address to set
+     * @param gateway (optional) gateway to set
+     * @param netmask (optional) netmask to set
+     *
+     * @return true if operation was successful and flase otherwise
+     */
+    bool set_ip_addr(const char *ip, const char *gateway, const char *netmask);
+
+    /**
     * Get the MAC address of ESP8266
     *
     * @return null-terminated MAC address or null if no MAC address is assigned
@@ -237,7 +251,9 @@ public:
      * @return       Number of entries in @a res, or if @a count was 0 number of available networks, negative on error
      *               see @a nsapi_error
      */
-    int scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned t_max, unsigned t_min);
+    int scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode,
+             std::chrono::duration<unsigned, std::milli> t_max,
+             std::chrono::duration<unsigned, std::milli> t_min);
 
     /**Perform a dns query
     *
@@ -292,7 +308,7 @@ public:
     * @param amount number of bytes to be received
     * @return the number of bytes received
     */
-    int32_t recv_udp(struct esp8266_socket *socket, void *data, uint32_t amount, uint32_t timeout = ESP8266_RECV_TIMEOUT);
+    int32_t recv_udp(struct esp8266_socket *socket, void *data, uint32_t amount, mbed::chrono::milliseconds_u32 timeout = ESP8266_RECV_TIMEOUT);
 
     /**
     * Receives stream data from an open TCP socket
@@ -302,7 +318,7 @@ public:
     * @param amount number of bytes to be received
     * @return the number of bytes received
     */
-    int32_t recv_tcp(int id, void *data, uint32_t amount, uint32_t timeout = ESP8266_RECV_TIMEOUT);
+    int32_t recv_tcp(int id, void *data, uint32_t amount, mbed::chrono::milliseconds_u32 timeout = ESP8266_RECV_TIMEOUT);
 
     /**
     * Closes a socket
@@ -317,7 +333,7 @@ public:
     *
     * @param timeout_ms timeout of the connection
     */
-    void set_timeout(uint32_t timeout_ms = ESP8266_MISC_TIMEOUT);
+    void set_timeout(mbed::chrono::milliseconds_u32 timeout = ESP8266_MISC_TIMEOUT);
 
     /**
     * Checks if data is available
@@ -454,7 +470,7 @@ public:
      * @param timeout AT parser receive timeout
      * @param if TRUE, process all OOBs instead of only one
      */
-    void bg_process_oob(uint32_t timeout, bool all);
+    void bg_process_oob(std::chrono::duration<uint32_t, std::milli> timeout, bool all);
 
     /**
      * Flush the serial port input buffers.
@@ -485,7 +501,7 @@ private:
 
     // FW version specific settings and functionalities
     bool _tcp_passive;
-    int32_t _recv_tcp_passive(int id, void *data, uint32_t amount, uint32_t timeout);
+    int32_t _recv_tcp_passive(int id, void *data, uint32_t amount, std::chrono::duration<uint32_t, std::milli> timeout);
     mbed::Callback<void()> _callback;
 
     // UART settings
@@ -518,7 +534,7 @@ private:
     size_t _heap_usage; // (Socket data buffer usage)
 
     // OOB processing
-    void _process_oob(uint32_t timeout, bool all);
+    void _process_oob(std::chrono::duration<uint32_t, std::milli> timeout, bool all);
 
     // OOB message handlers
     void _oob_packet_hdlr();

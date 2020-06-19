@@ -21,6 +21,7 @@
 #include "platform/SingletonPtr.h"
 #include "Timeout.h"
 using mbed::Timeout;
+using namespace std::chrono;
 
 // only one callback is active at any given time
 static volatile utest_v1_harness_callback_t minimal_callback;
@@ -46,13 +47,11 @@ static int32_t utest_us_ticker_init()
 static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, timestamp_t delay_ms)
 {
     UTEST_LOG_FUNCTION();
-    timestamp_t delay_us = delay_ms *1000;
 
     if (delay_ms) {
         ticker_callback = callback;
         // fire the interrupt in 1000us * delay_ms
-        utest_timeout_object->attach_us(ticker_handler, delay_us);
-
+        utest_timeout_object->attach(ticker_handler, milliseconds(delay_ms));
     }
     else {
         minimal_callback = callback;

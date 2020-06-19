@@ -164,6 +164,7 @@ pull_request_rules:
       - merged
       - -label~=^(release-version)
       - -label~=^(Release review required)   
+      - -label~=^(release-type)
     actions:
       label:
         add: ['release version missing']
@@ -172,10 +173,18 @@ pull_request_rules:
 
   # If there is a release version remove 'release version missing' and / or 
   # release review required
-  - name: release version is a must for merged PRs part 2
+  - name: release version is a must for merged PRs part 2.1
     conditions:
       - merged
       - label=^(release-version)
+    actions:
+      label:
+        remove: ['release version missing', 'Release review required']
+
+  - name: release version is a must for merged PRs part 2.2
+    conditions:
+      - merged
+      - label=^(release-type)
     actions:
       label:
         remove: ['release version missing', 'Release review required']

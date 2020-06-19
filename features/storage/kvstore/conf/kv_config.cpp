@@ -186,9 +186,7 @@ int _calculate_blocksize_match_tdbstore(BlockDevice *bd)
 {
     bd_size_t size = bd->size();
     bd_size_t erase_size = bd->get_erase_size();
-    bd_size_t page_size = bd->get_program_size();
     bd_size_t number_of_sector = size / erase_size;
-    bd_size_t number_of_page = size / page_size;
     if (number_of_sector < STORE_SECTORS) {
         tr_error("KV Config: There are less than %d sectors - TDBStore will not work.", STORE_SECTORS);
         return -1;
@@ -1107,6 +1105,10 @@ int kv_get_flash_bounds_from_config(bd_addr_t *start_address, bd_size_t *size)
                 return MBED_ERROR_INVALID_SIZE;
             }
         }
+
+        // Non-default configuration. Maybe in front of application, so in front of FLASHIAP_APP_ROM_END_ADDR. Must skip after-application check below.
+        flash.deinit();
+        return MBED_SUCCESS;
     }
 
     flash.deinit();

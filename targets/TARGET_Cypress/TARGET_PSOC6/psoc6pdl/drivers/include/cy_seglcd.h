@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_seglcd.h
-* \version 1.0.1
+* \version 1.0.2
 *
 * \brief
 * Provides an API declaration of the Segment LCD driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -116,7 +116,7 @@
 * causes the dividers to reconfigure.
 * Under possible restrictions related to certain ratios between contrast and frame rates 
 * (see Contrast vs. Frame Rate section above), switching between High Speed and the Low Speed modes
-* via the \ref Cy_SegLCD_Init function may set new dividers values that don’t give the same contrast value.
+* via the \ref Cy_SegLCD_Init function may set new dividers values that don't give the same contrast value.
 *
 * Driving Modes (\ref cy_stc_seglcd_config_t.drive)\n
 * SegLCD supports the following operating modes:
@@ -154,15 +154,15 @@
 *
 * Digital Correlation (\ref CY_SEGLCD_CORRELATION)\n
 * The principles of operation are illustrated by the example waveforms shown in the following figures.
-* Digital Correlation Example – Type-A:
+* Digital Correlation Example - Type-A:
 * \image html seglcd_DCA.png
-* Digital Correlation Example – Type-B:
+* Digital Correlation Example - Type-B:
 * \image html seglcd_DCB.png
 * As illustrated, instead of generating bias voltages between the rails, this approach takes advantage of the LCD displays characteristic:
 * the LCD segments' on-ness and off-ness degree is determined by the RMS voltage across the segments. In this approach, the correlation
 * coefficient between any given pair of COM and SEG signals determines whether the corresponding LCD segment is On or Off.
 * Thus, by doubling the base drive frequency of the COM signals in their inactive sub-frame intervals, the phase relationship of the COM and SEG
-* drive signals can be varied to turn segments on and off – rather than varying the DC levels of the signals as is used in the conventional approaches.
+* drive signals can be varied to turn segments on and off - rather than varying the DC levels of the signals as is used in the conventional approaches.
 *
 * PWM Drive (\ref CY_SEGLCD_PWM)\n
 * This approach duplicates the multi-voltage drive signals of the conventional method with bias B using a PWM output signal together

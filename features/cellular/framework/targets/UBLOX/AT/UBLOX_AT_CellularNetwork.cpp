@@ -18,6 +18,7 @@
 #include "UBLOX_AT_CellularNetwork.h"
 #include "rtos/ThisThread.h"
 
+using namespace std::chrono_literals;
 using namespace mbed;
 
 UBLOX_AT_CellularNetwork::UBLOX_AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularNetwork(atHandler, device)
@@ -87,14 +88,14 @@ nsapi_error_t UBLOX_AT_CellularNetwork::ubx_reboot()
     nsapi_error_t err = NSAPI_ERROR_OK;
     Timer t1;
     t1.start();
-    while (!(t1.read() >= 30)) {
+    while (!(t1.elapsed_time() >= 30s)) {
         err = _at.at_cmd_discard("E0", "");
         if (err == NSAPI_ERROR_OK) {
             break;
         } else {
             //Don't clear err here so that we get some error in case of failure
             _at.clear_error();
-            rtos::ThisThread::sleep_for(1000);
+            rtos::ThisThread::sleep_for(1s);
         }
     }
     t1.stop();

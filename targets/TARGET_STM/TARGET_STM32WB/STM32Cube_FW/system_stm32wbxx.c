@@ -196,7 +196,8 @@ void SystemInit(void)
   /* program in SRAMx */
   SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET;  /* Vector Table Relocation in Internal SRAMx for CPU1 */
 #else    /* program in FLASH */
-  SCB->VTOR = VECT_TAB_OFFSET;              /* Vector Table Relocation in Internal FLASH */
+#include "nvic_addr.h"                   // MBED
+    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
 #endif
 
   /* FPU settings ------------------------------------------------------------*/

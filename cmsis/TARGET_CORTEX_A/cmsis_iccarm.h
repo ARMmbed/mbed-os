@@ -10,6 +10,8 @@
 // Copyright (c) 2017-2018 IAR Systems
 // Copyright (c) 2018-2019 Arm Limited 
 //
+// SPDX-License-Identifier: Apache-2.0
+//
 // Licensed under the Apache License, Version 2.0 (the "License")
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -68,6 +70,10 @@
 
 #ifndef __ASM
   #define __ASM __asm
+#endif
+
+#ifndef   __COMPILER_BARRIER
+  #define __COMPILER_BARRIER() __ASM volatile("":::"memory")
 #endif
 
 #ifndef __INLINE

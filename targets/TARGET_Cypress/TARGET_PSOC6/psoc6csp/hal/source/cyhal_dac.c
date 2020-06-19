@@ -31,7 +31,6 @@
 #include "cyhal_dac.h"
 #include "cyhal_gpio.h"
 #include "cyhal_hwmgr.h"
-#include "cyhal_interconnect.h"
 #include "cyhal_utils.h"
 #include "cy_pdl.h"
 
@@ -64,7 +63,7 @@ static const cy_stc_ctdac_config_t CYHAL_CTDAC_DEFAULT_CONFIG =
     .deglitchMode = CY_CTDAC_DEGLITCHMODE_UNBUFFERED,
     .outputMode = CY_CTDAC_OUTPUT_VALUE,
     .outputBuffer = CY_CTDAC_OUTPUT_UNBUFFERED,
-    .deepSleep = CY_CTDAC_DEEPSLEEP_DISABLE,
+    .deepSleep = CY_CTDAC_DEEPSLEEP_ENABLE,
     .deglitchCycles = 0,
     .value = 0,
     .nextValue = 0,
@@ -86,15 +85,9 @@ cy_rslt_t cyhal_dac_init(cyhal_dac_t *obj, cyhal_gpio_t pin)
 
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    if (CYHAL_NC_PIN_VALUE == pin)
-        result = CYHAL_DAC_RSLT_BAD_ARGUMENT;
-
-    if (CY_RSLT_SUCCESS == result)
-    {
-        obj->resource.type = CYHAL_RSC_INVALID;
-        obj->base = NULL;
-        obj->pin = CYHAL_NC_PIN_VALUE;
-    }
+    obj->resource.type = CYHAL_RSC_INVALID;
+    obj->base = NULL;
+    obj->pin = CYHAL_NC_PIN_VALUE;
 
     const cyhal_resource_pin_mapping_t *map = CY_UTILS_GET_RESOURCE(pin, cyhal_pin_map_pass_ctdac_voutsw);
     if (NULL == map)
@@ -113,14 +106,10 @@ cy_rslt_t cyhal_dac_init(cyhal_dac_t *obj, cyhal_gpio_t pin)
 
         obj->base = cyhal_ctdac_base[dac_inst.block_num];
 
-        // We don't need any special configuration of the pin, so just reserve it
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
-        if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_reserve(&pinRsc)))
+        result = cyhal_utils_reserve_and_connect(pin, map);
+        if (CY_RSLT_SUCCESS == result)
             obj->pin = pin;
     }
-
-    if (CY_RSLT_SUCCESS == result)
-        result = cyhal_connect_pin(map);
 
     if (CY_RSLT_SUCCESS == result)
     {

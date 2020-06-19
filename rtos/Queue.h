@@ -128,39 +128,53 @@ public:
      * parameter `prio` is used to sort the message according to their priority
      * (higher numbers indicate higher priority) on insertion.
      *
+     * The function does not block, and returns immediately if the queue is full.
+     *
+     * @param  data      Pointer to the element to insert into the queue.
+     * @param  prio      Priority of the operation or 0 in case of default.
+     *                   (default: 0)
+     *
+     * @return true if the element was inserted, false otherwise.
+     *
+     * @note You may call this function from ISR context.
+     */
+    bool try_put(T *data, uint8_t prio = 0)
+    {
+        return try_put_for(Kernel::Clock::duration_u32::zero(), data, prio);
+    }
+
+    /** Inserts the given element to the end of the queue.
+     *
+     * This function puts the message pointed to by `data` into the queue. The
+     * parameter `prio` is used to sort the message according to their priority
+     * (higher numbers indicate higher priority) on insertion.
+     *
      * The timeout indicated by the parameter `rel_time` specifies how long the
      * function blocks waiting for the message to be inserted into the
      * queue.
      *
      * The parameter `rel_time` can have the following values:
-     *  - When the duration is 0 (the default), the function returns instantly.
+     *  - When the duration is 0, the function returns instantly. You could use
+     *    `try_put` instead.
      *  - When the duration is Kernel::wait_for_u32_forever, the function waits for an
      *    infinite time.
      *  - For all other values, the function waits for the given duration.
      *
+     * @param  rel_time  Timeout for the operation to be executed.
      * @param  data      Pointer to the element to insert into the queue.
-     * @param  rel_time  Timeout for the operation to be executed, or 0 in case
-     *                   of no timeout. (default: 0)
      * @param  prio      Priority of the operation or 0 in case of default.
      *                   (default: 0)
      *
-     * @return Status code that indicates the execution status of the function:
-     *         @a osOK              The message has been successfully inserted
-     *                              into the queue.
-     *         @a osErrorTimeout    The message could not be inserted into the
-     *                              queue in the given time.
-     *         @a osErrorResource   The message could not be inserted because
-     *                              the queue is full.
-     *         @a osErrorParameter  Internal error or nonzero timeout specified
-     *                              in an ISR.
+     * @return true if the element was inserted, false otherwise.
      *
      * @note You may call this function from ISR context if the rel_time
      *       parameter is set to 0.
      *
      */
-    osStatus put(T *data, Kernel::Clock::duration_u32 rel_time = Kernel::Clock::duration_u32::zero(), uint8_t prio = 0)
+    bool try_put_for(Kernel::Clock::duration_u32 rel_time, T *data, uint8_t prio = 0)
     {
-        return osMessageQueuePut(_id, &data, prio, rel_time.count());
+        osStatus status = osMessageQueuePut(_id, &data, prio, rel_time.count());
+        return status == osOK;
     }
 
     /** Inserts the given element to the end of the queue.
@@ -198,25 +212,43 @@ public:
      *
      * @note You may call this function from ISR context if the millisec
      *       parameter is set to 0.
-     * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+     * @deprecated Replaced with try_put and try_put_for. In future put will be an untimed blocking call.
      */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
-    osStatus put(T *data, uint32_t millisec, uint8_t prio = 0)
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_put and try_put_for. In future put will be an untimed blocking call.")
+    osStatus put(T *data, uint32_t millisec = 0, uint8_t prio = 0)
     {
-        return put(data, std::chrono::duration<uint32_t, std::milli>(millisec), prio);
+        return osMessageQueuePut(_id, &data, prio, millisec);
+    }
+
+    /** Get a message from the queue.
+     *
+     * This function retrieves a message from the queue. The message is stored
+     * in the location pointed to be the parameter `data_out`.
+     *
+     * The function does not block, and returns immediately if the queue is empty.
+     *
+     * @param[out] data_out Pointer to location to write the element retrieved from the queue.
+     *
+     * @return true if an element was received and written to data_out.
+     *
+     * @note  You may call this function from ISR context.
+     */
+    bool try_get(T **data_out)
+    {
+        return try_get_for(Kernel::Clock::duration_u32::zero(), data_out);
     }
 
     /** Get a message or wait for a message from the queue.
      *
      * This function retrieves a message from the queue. The message is stored
-     * in the value field of the returned `osEvent` object.
+     * in the location pointed to be the parameter `data_out`.
      *
      * The timeout specified by the parameter `rel_time` specifies how long the
      * function waits to retrieve the message from the queue.
      *
      * The timeout parameter can have the following values:
      *  - When the timeout is 0, the function returns instantly.
-     *  - When the timeout is Kernel::wait_for_u32_forever (default), the function waits
+     *  - When the timeout is Kernel::wait_for_u32_forever, the function waits
      *    infinite time until the message is retrieved.
      *  - When the timeout is any other value, the function waits for the
      *    specified time before returning a timeout error.
@@ -226,46 +258,17 @@ public:
      * (FIFO) order.
      *
      * @param   rel_time  Timeout value.
-     *                    (default: Kernel::wait_for_u32_forever).
+     * @param[out] data_out Pointer to location to write the element retrieved from the queue.
      *
-     * @return Event information that includes the message in event. Message
-     *         value and the status code in event.status:
-     *         @a osEventMessage   Message successfully received.
-     *         @a osOK             No message is available in the queue, and no
-     *                             timeout was specified.
-     *         @a osEventTimeout   No message was received before a timeout
-     *                             event occurred.
-     *         @a osErrorParameter A parameter is invalid or outside of a
-     *                             permitted range.
+     * @return true if an element was received and written to data_out.
      *
      * @note  You may call this function from ISR context if the rel_time
      *        parameter is set to 0.
      */
-    osEvent get(Kernel::Clock::duration_u32 rel_time = Kernel::wait_for_u32_forever)
+    bool try_get_for(Kernel::Clock::duration_u32 rel_time, T **data_out)
     {
-        osEvent event;
-        T *data = nullptr;
-        osStatus_t res = osMessageQueueGet(_id, &data, nullptr, rel_time.count());
-
-        switch (res) {
-            case osOK:
-                event.status = (osStatus)osEventMessage;
-                event.value.p = data;
-                break;
-            case osErrorResource:
-                event.status = osOK;
-                break;
-            case osErrorTimeout:
-                event.status = (osStatus)osEventTimeout;
-                break;
-            case osErrorParameter:
-            default:
-                event.status = osErrorParameter;
-                break;
-        }
-        event.def.message_id = _id;
-
-        return event;
+        osStatus status = osMessageQueueGet(_id, data_out, nullptr, rel_time.count());
+        return status == osOK;
     }
 
     /** Get a message or wait for a message from the queue.
@@ -301,12 +304,34 @@ public:
      *
      * @note  You may call this function from ISR context if the millisec
      *        parameter is set to 0.
-     * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+     * @deprecated Replaced with try_get and try_get_for. In future get will be an untimed blocking call.
      */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
-    osEvent get(uint32_t millisec)
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_get and try_get_for. In future get will be an untimed blocking call.")
+    osEvent get(uint32_t millisec = osWaitForever)
     {
-        return get(std::chrono::duration<uint32_t, std::milli>(millisec));
+        osEvent event;
+        T *data = nullptr;
+        osStatus_t res = osMessageQueueGet(_id, &data, nullptr, millisec);
+
+        switch (res) {
+            case osOK:
+                event.status = (osStatus)osEventMessage;
+                event.value.p = data;
+                break;
+            case osErrorResource:
+                event.status = osOK;
+                break;
+            case osErrorTimeout:
+                event.status = (osStatus)osEventTimeout;
+                break;
+            case osErrorParameter:
+            default:
+                event.status = osErrorParameter;
+                break;
+        }
+        event.def.message_id = _id;
+
+        return event;
     }
 private:
     osMessageQueueId_t            _id;

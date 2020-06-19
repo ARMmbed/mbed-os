@@ -511,6 +511,9 @@ enum
   DM_ERROR_IND,                           /*!< \brief General error */
   DM_HW_ERROR_IND,                        /*!< \brief Hardware error */
   DM_VENDOR_SPEC_IND                      /*!< \brief Vendor specific event */
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+  , DM_UNHANDLED_CMD_CMPL_EVT_IND,          /*!< \brief Unhandled command complete events */
+#endif
 };
 
 #define DM_CBACK_END                DM_VENDOR_SPEC_IND  /*!< \brief DM callback event ending value */
@@ -763,6 +766,9 @@ typedef union
   hciLeConnCteRspEnableCmdCmplEvt_t   connCteRspStart;       /*!< \brief handles \ref DM_CONN_CTE_RSP_START_IND */
   hciLeConnCteRspEnableCmdCmplEvt_t   connCteRspStop;        /*!< \brief handles \ref DM_CONN_CTE_RSP_STOP_IND */
   hciLeReadAntennaInfoCmdCmplEvt_t    readAntennaInfo;       /*!< \brief handles \ref DM_READ_ANTENNA_INFO_IND */
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+  hciUnhandledCmdCmplEvt_t            unhandledCmdCmplEvt;
+#endif
   dmL2cCmdRejEvt_t                    l2cCmdRej;             /*!< \brief handles \ref DM_L2C_CMD_REJ_IND */
   /* common header used by                                                            DM_ERROR_IND */
   hciHwErrorEvt_t                     hwError;               /*!< \brief handles \ref DM_HW_ERROR_IND */

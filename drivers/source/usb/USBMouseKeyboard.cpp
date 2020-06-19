@@ -20,6 +20,8 @@
 #include "usb_phy_api.h"
 #include "ThisThread.h"
 
+using namespace std::chrono_literals;
+
 typedef struct {
     unsigned char usage;
     unsigned char modifier;
@@ -709,7 +711,7 @@ bool USBMouseKeyboard::doubleClick()
         _mutex.unlock();
         return false;
     }
-    rtos::ThisThread::sleep_for(100);
+    rtos::ThisThread::sleep_for(100ms);
     bool ret = click(MOUSE_LEFT);
 
     _mutex.unlock();
@@ -724,7 +726,7 @@ bool USBMouseKeyboard::click(uint8_t button)
         _mutex.unlock();
         return false;
     }
-    rtos::ThisThread::sleep_for(10);
+    rtos::ThisThread::sleep_for(10ms);
     bool ret = update(0, 0, 0, 0);
 
     _mutex.unlock();

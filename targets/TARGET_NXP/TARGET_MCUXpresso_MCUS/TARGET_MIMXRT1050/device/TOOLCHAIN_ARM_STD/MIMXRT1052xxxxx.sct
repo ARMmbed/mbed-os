@@ -141,7 +141,7 @@ LR_IROM1 MBED_APP_START m_text_start+m_text_size-MBED_APP_START {   ; load regio
   }
   RW_m_ncache m_ncache_start m_ncache_size { ; ncache RW data
     * (NonCacheable.init)
-    * (NonCacheable)
+    * (*NonCacheable)
   }
 }
 

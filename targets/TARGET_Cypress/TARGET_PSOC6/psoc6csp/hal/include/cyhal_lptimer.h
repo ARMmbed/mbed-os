@@ -26,14 +26,33 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_lptimer LPTIMER (Low-Power Timer)
+* \addtogroup group_hal_lptimer LPTimer (Low-Power Timer)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the low-power timer (LPTIMER).
+* High level interface for interacting with the low-power timer (LPTimer).
 *
-* This can be used to measure timing between events, or to perform
-* some action the ability after a set interval. It continues to operate
-* in some low power modes; see the device datasheet for details.
+* LPTimer can operate in all possible low power modes. It can be used either to measure timing between events, or to perform
+* some action after a specified interval of time.
+* \section subsection_lptimer_features Features
+* * Configurable to create a free-running timer or generate periodic interrupts.
+* * Configurable to update the match value of an already configured LPTimer set up to generate an interrupt on match.
+* * Used for measuring time between events in free-running mode.
+*
+* \section subsection_lptimer_quickstart Quick Start
+*
+* \ref cyhal_lptimer_init can be used for a LPTimer initialization which resets all the clocking and prescaler registers, along with disabling the compare interrupt.
+*
+* See \ref subsection_lptimer_snippet_2.
+*
+* \section subsection_lptimer_snippets Code snippets
+*
+* \subsection subsection_lptimer_snippet_1 Snippet 1: LPTimer initialization with Default configuration
+* The following snippet initializes a LPTimer in free running mode.
+* \snippet lptimer.c snippet_cyhal_lptimer_simple_init_def
+*
+* \subsection subsection_lptimer_snippet_2 Snippet 2: Simple LPTimer initialization with set Match value
+* The following snippet initializes a LPTimer and assigns the Match value to the LPTimer.
+* \snippet lptimer.c snippet_cyhal_lptimer_simple_init
 */
 
 #pragma once
@@ -47,45 +66,63 @@
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name LPTimer Results
+ */
 
 /** Failed to configure power management callback */
-#define CYHAL_LPTIMER_RSLT_ERR_PM_CALLBACK (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 0))
+#define CYHAL_LPTIMER_RSLT_ERR_PM_CALLBACK              \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 0))
 
-/** LPTIMER interrupt triggers */
+/**
+ * \} \}
+ */
+
+/** LPTimer Information */
+typedef struct cyhal_lptimer_info {
+    uint32_t frequency_hz;      /**< Operating clock frequency the LPTimer is running on. */
+    uint8_t  min_set_delay;     /**< Minimum permitted value for the delay parameter in \ref cyhal_lptimer_set_delay. */
+    uint32_t max_counter_value; /**< Maximum value of the counter. */
+} cyhal_lptimer_info_t;
+
+/** LPTimer interrupt triggers */
 typedef enum {
     CYHAL_LPTIMER_COMPARE_MATCH,
 } cyhal_lptimer_event_t;
 
-/** Handler for LPTIMER interrupts */
+/** Handler for LPTimer interrupts */
 typedef void (*cyhal_lptimer_event_callback_t)(void *callback_arg, cyhal_lptimer_event_t event);
 
-/** Initialize the LPTIMER
+/** Initialize the LPTimer
  *
- * Initialize or re-initialize the LPTIMER. This resets all the
+ * Initialize or re-initialize the LPTimer. This resets all the
  * clocking and prescaler registers, along with disabling
  * the compare interrupt. Refer to the BSP for the clock source
- * for the LPTIMER.
+ * for the LPTimer.
  *
- * @param[out] obj The LPTIMER object
- * @return The status of the init request
+ * @param[out] obj  Pointer to an LPTimer object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
+ * @return The status of the init request. On success it returns \ref CY_RSLT_SUCCESS.
  */
+
 cy_rslt_t cyhal_lptimer_init(cyhal_lptimer_t *obj);
 
-/** Deinitialize the LPTIMER
+/** Deinitialize the LPTimer
  *
- * Powers down the LPTIMER.
- * After calling this function no other LPTIMER functions should be called except
+ * Powers down the LPTimer.
+ * After calling this function no other LPTimer functions should be called except
  * cyhal_lptimer_init(). Calling any function other than init after freeing is
  * undefined.
  *
- * @param[inout] obj The LPTIMER object
+ * @param[inout] obj The LPTimer object
  */
 void cyhal_lptimer_free(cyhal_lptimer_t *obj);
 
 /** Reload/Reset the Low-Power timer.
  *
- * @param[in] obj   The LPTIMER object
- * @return The status of the reload request
+ * @param[in] obj   The LPTimer object
+ * @return The status of the reload request. On success it returns \ref CY_RSLT_SUCCESS.
  */
 cy_rslt_t cyhal_lptimer_reload(cyhal_lptimer_t *obj);
 
@@ -94,30 +131,31 @@ cy_rslt_t cyhal_lptimer_reload(cyhal_lptimer_t *obj);
 
 /** Update the match/compare value
  *
- * Update the match value of an already configured LPTIMER set up
+ * Update the match value of an already configured LPTimer set up
  * to generate an interrupt on match. Note that this function does not
  * reinitialize the counter or the associated peripheral initialization
  * sequence.
  *
- * @param[in] obj   The LPTIMER object
+ * @param[in] obj   The LPTimer object
  * @param[in] value The tick value to match
  *
- * @return The status of the set_match request
+ * @return The status of the set_match request. On success it returns \ref CY_RSLT_SUCCESS.
  */
 cy_rslt_t cyhal_lptimer_set_match(cyhal_lptimer_t *obj, uint32_t value);
 
 /** Update the match/compare value
  *
- * Update the match value of an already configured LPTIMER set up
+ * Update the match value of an already configured LPTimer set up
  * to generate an interrupt on match delay from the current counter value.
  * Note that this function does not reinitialize the counter or the
  * associated peripheral initialization
  * sequence.
  *
- * @param[in] obj   The LPTIMER object
- * @param[in] delay The ticks to wait
+ * @param[in] obj   The LPTimer object
+ * @param[in] delay The ticks to wait. The minimum permitted delay value can be
+ *                  queried using \ref cyhal_lptimer_get_info
  *
- * @return The status of the set_match request
+ * @return The status of the set_match request. On success it returns \ref CY_RSLT_SUCCESS.
  */
 cy_rslt_t cyhal_lptimer_set_delay(cyhal_lptimer_t *obj, uint32_t delay);
 
@@ -125,35 +163,48 @@ cy_rslt_t cyhal_lptimer_set_delay(cyhal_lptimer_t *obj, uint32_t delay);
  *
  * If no rollover has occurred, the seconds passed since cyhal_lptimer_init() or cyhal_lptimer_set_time()
  * was called can be found by dividing the ticks returned by this function
- * by the frequency of the source clock (refer to the BSP for the clock source).
+ * by the frequency of the source clock (Refer to BSP Settings section in the kit's BSP API Reference Manual for details on the clock source for LPTimer).
  *
- * @param[in] obj    The LPTIMER object
+ * @param[in] obj    The LPTimer object
  * @return The timer's timer value in ticks
  */
 uint32_t cyhal_lptimer_read(const cyhal_lptimer_t *obj);
 
-/** The LPTIMER match event handler registration
+/** Register a LPTimer match event handler
  *
- * @param[in] obj          The LPTIMER object
+ * This function will be called when one of the events enabled by \ref cyhal_lptimer_enable_event occurs.
+ *
+ * @param[in] obj          The LPTimer object
  * @param[in] callback     The callback handler which will be invoked when the interrupt triggers
  * @param[in] callback_arg Generic argument that will be provided to the handler when called
  */
 void cyhal_lptimer_register_callback(cyhal_lptimer_t *obj, cyhal_lptimer_event_callback_t callback, void *callback_arg);
 
-/** Configure and Enable/Disable the LPTIMER events
+/** Configure and Enable/Disable the LPTimer events
  *
- * @param[in] obj           The LPTIMER object
- * @param[in] event         The LPTIMER event type
- * @param[in] intrPriority  The priority for NVIC interrupt events
- * @param[in] enable        True to turn on event, False to turn off
+ * When an enabled event occurs, the function specified by \ref cyhal_lptimer_register_callback will be called.
+ *
+ * @param[in] obj            The LPTimer object
+ * @param[in] event          The LPTimer event type
+ * @param[in] intr_priority  The priority for NVIC interrupt events
+ * @param[in] enable         True to turn on event, False to turn off
  */
-void cyhal_lptimer_enable_event(cyhal_lptimer_t *obj, cyhal_lptimer_event_t event, uint8_t intrPriority, bool enable);
+void cyhal_lptimer_enable_event(cyhal_lptimer_t *obj, cyhal_lptimer_event_t event, uint8_t intr_priority, bool enable);
 
-/** Manually trigger the LPTIMER interrupt.
+/** Manually trigger the LPTimer interrupt.
  *
- * @param[in] obj      The LPTIMER object
+ * @param[in] obj      The LPTimer object
  */
 void cyhal_lptimer_irq_trigger(cyhal_lptimer_t *obj);
+
+/** Get information about the LPTimer.
+ *
+ * Provides information such as operating frequency, etc.
+ *
+ * @param[in]   obj     The LPTimer object.
+ * @param[out]  info    Information about the LPtimer.
+ */
+void cyhal_lptimer_get_info(cyhal_lptimer_t *obj, cyhal_lptimer_info_t *info);
 
 #if defined(__cplusplus)
 }

@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+#define __PROGRAM_START
+#include <cmsis.h>
+#undef __PROGRAM_START
 #include "M251.h"
 
 /* Suppress warning messages */

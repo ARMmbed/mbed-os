@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "NanostackEthernetInterface.h"
 #include "mesh_system.h"
 #include "callback_handler.h"
 #include "enet_tasklet.h"
+
+using namespace std::chrono_literals;
 
 nsapi_error_t Nanostack::EthernetInterface::initialize()
 {
@@ -78,7 +81,7 @@ nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
     }
 
     if (blocking) {
-        bool acquired = connect_semaphore.try_acquire_for(30000);
+        bool acquired = connect_semaphore.try_acquire_for(30s);
 
         if (!acquired) {
             return NSAPI_ERROR_DHCP_FAILURE; // sort of...
@@ -112,11 +115,20 @@ nsapi_error_t Nanostack::EthernetInterface::bringdown()
     }
 
     if (_blocking) {
-        int32_t count = disconnect_semaphore.try_acquire_for(30000);
+        bool acquired = disconnect_semaphore.try_acquire_for(30s);
 
-        if (count <= 0) {
+        if (!acquired) {
             return NSAPI_ERROR_TIMEOUT;
         }
     }
     return NSAPI_ERROR_OK;
 }
+
+char *Nanostack::EthernetInterface::get_interface_name(char *buf)
+{
+    if (interface_id < 0) {
+        return NULL;
+    }
+    sprintf(buf, "ETH%d", interface_id);
+    return buf;
+};

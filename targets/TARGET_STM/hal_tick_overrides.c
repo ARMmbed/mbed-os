@@ -17,7 +17,7 @@
 #if DEVICE_USTICKER
 
 #include "hal/us_ticker_api.h"
-#include "us_ticker_data.h"
+#include "us_ticker_defines.h"
 
 // This variable is set to 1 at the of mbed_sdk_init function.
 // The ticker_read_us function must not be called until the mbed_sdk_init is terminated.
@@ -27,11 +27,13 @@ extern int mbed_sdk_inited;
 void init_16bit_timer(void);
 void init_32bit_timer(void);
 
-#if TIM_MST_BIT_WIDTH == 16
-// Variables also reset in us_ticker_init()
-uint32_t prev_time = 0;
-uint32_t elapsed_time = 0;
+#if TIM_MST_BIT_WIDTH <= 16
+static uint16_t prev_time;
+#else
+static uint32_t prev_time;
 #endif
+static uint32_t total_ticks;
+static uint16_t prev_tick_remainder;
 
 // Overwrite default HAL functions defined as "weak"
 
@@ -47,26 +49,24 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
 uint32_t HAL_GetTick()
 {
-#if TIM_MST_BIT_WIDTH == 16
-    uint32_t new_time;
-    if (mbed_sdk_inited) {
-        // Apply the latest time recorded just before the sdk is inited
-        new_time = ticker_read_us(get_us_ticker_data()) + prev_time;
-        prev_time = 0; // Use this time only once
-        return (new_time / 1000);
+    uint32_t new_time = us_ticker_read();
+    uint32_t elapsed_time = (((new_time - prev_time) & US_TICKER_MASK) + prev_tick_remainder);
+    prev_time = new_time;
+    uint32_t elapsed_ticks;
+    // Speed optimisation for small time intervals, avoiding a potentially-slow C library divide.
+    if (TIM_MST_BIT_WIDTH <= 16 || elapsed_time < 65536) {
+        elapsed_ticks = 0;
+        while (elapsed_time >= 1000) {
+            elapsed_ticks++;
+            elapsed_time -= 1000;
+        }
+        prev_tick_remainder = elapsed_time;
     } else {
-        new_time = us_ticker_read();
-        elapsed_time += (new_time - prev_time) & 0xFFFF; // Only use the lower 16 bits
-        prev_time = new_time;
-        return (elapsed_time / 1000);
+        elapsed_ticks = elapsed_time / 1000;
+        prev_tick_remainder = elapsed_time % 1000;
     }
-#else // 32-bit timer
-    if (mbed_sdk_inited) {
-        return (ticker_read_us(get_us_ticker_data()) / 1000);
-    } else {
-        return (us_ticker_read() / 1000);
-    }
-#endif
+    total_ticks += elapsed_ticks;
+    return total_ticks;
 }
 
 void HAL_SuspendTick(void)

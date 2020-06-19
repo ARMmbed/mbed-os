@@ -1,28 +1,47 @@
-/* With the RTOS in use, this does not affect the main stack size. The size of
- * the stack where main runs is determined via the RTOS. */
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
+/* Linker script to configure memory regions. */
+/*
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2016-2020 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+*/
 
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
+#include "../cmsis_nvic.h"
+
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x08000000
+  #define MBED_APP_START  MBED_ROM_START
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 2048k
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    /* This value is normally defined by the tools
+       to 0x1000 for bare metal and 0x400 for RTOS */
+    #define MBED_BOOT_STACK_SIZE  0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) & 0xFFFFFFF8)
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
 
-/* Linker script to configure memory regions. */
-/* 0x1AC resevered for vectors; 8-byte aligned = 0x1B0 (0x1AC + 0x4)*/
 MEMORY
-{ 
-  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 64K
-  RAM (rwx) : ORIGIN = 0x200001B0, LENGTH = 192k - (0x1AC+0x4)
+{
+    FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+    CCM (rwx)    : ORIGIN = MBED_RAM1_START, LENGTH = MBED_RAM1_SIZE
+    RAM (rwx)    : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -60,6 +79,7 @@ SECTIONS
     {
         KEEP(*(.isr_vector))
         *(.text*)
+
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -129,7 +149,6 @@ SECTIONS
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-
         . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
@@ -145,6 +164,19 @@ SECTIONS
 
     } > RAM
 
+    /* Uninitialized data section
+     * This region is not initialized by the C/C++ library and can be used to
+     * store state across soft reboots. */
+    .uninitialized (NOLOAD):
+    {
+        . = ALIGN(32);
+        __uninitialized_start = .;
+        *(.uninitialized)
+        KEEP(*(.keep.uninitialized))
+        . = ALIGN(32);
+        __uninitialized_end = .;
+    } > RAM
+    
     .bss :
     {
         . = ALIGN(8);
@@ -160,9 +192,9 @@ SECTIONS
     .heap (COPY):
     {
         __end__ = .;
-        end = __end__;
+        PROVIDE(end = .);
         *(.heap*)
-        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
+        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 
@@ -178,7 +210,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
-    __StackLimit = __StackTop - STACK_SIZE;
+    __StackLimit = __StackTop - MBED_BOOT_STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

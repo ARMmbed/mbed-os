@@ -20,6 +20,7 @@
 
 using namespace mbed;
 using namespace mbed_cellular_util;
+using namespace std::chrono_literals;
 
 UBLOX_AT_CellularStack::UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
@@ -176,7 +177,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
         }
         _at.cmd_start_stop("+USOST", "=", "%d%s%d%d", socket->id, address.get_ip_address(), address.get_port(), size);
         _at.resp_start("@", true);
-        rtos::ThisThread::sleep_for(50); //wait for 50ms before sending data
+        rtos::ThisThread::sleep_for(50ms);
 
         _at.write_bytes((uint8_t *)data, size);
 
@@ -200,7 +201,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
             }
             _at.cmd_start_stop("+USOWR", "=", "%d%d", socket->id, blk);
             _at.resp_start("@", true);
-            rtos::ThisThread::sleep_for(50); //wait for 50ms before sending data
+            rtos::ThisThread::sleep_for(50ms);
 
             _at.write_bytes((uint8_t *)buf, blk);
 
@@ -288,7 +289,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                     // read() should not fail
                     success = false;
                 }
-            }  else if (timer.read_ms() < SOCKET_TIMEOUT) {
+            }  else if (timer.elapsed_time() < SOCKET_TIMEOUT) {
                 // Wait for URCs
                 _at.process_oob();
             } else {
@@ -331,7 +332,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 } else {
                     success = false;
                 }
-            } else if (timer.read_ms() < SOCKET_TIMEOUT) {
+            } else if (timer.elapsed_time() < SOCKET_TIMEOUT) {
                 // Wait for URCs
                 _at.process_oob();
             } else {
@@ -454,9 +455,9 @@ nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddr
         err = NSAPI_ERROR_OK;
     } else {
 #ifdef UBX_MDM_SARA_R41XM
-        _at.set_at_timeout(70000);
+        _at.set_at_timeout(70s);
 #else
-        _at.set_at_timeout(120000);
+        _at.set_at_timeout(120s);
 #endif
         // This interrogation can sometimes take longer than the usual 8 seconds
         _at.cmd_start_stop("+UDNSRN", "=0,", "%s", host);

@@ -47,7 +47,7 @@ static void *hal_gpio_callback_args[IOSS_GPIO_GPIO_PORT_NR][CY_GPIO_PINS_MAX];
 *       Internal Interrrupt Service Routine
 *******************************************************************************/
 
-static void ioss_irq_handler()
+static void ioss_irq_handler(void)
 {
     IRQn_Type irqn = CYHAL_GET_CURRENT_IRQN();
     uint32_t port = irqn - ioss_interrupts_gpio_0_IRQn;
@@ -136,7 +136,7 @@ static uint32_t cyhal_gpio_convert_drive_mode(cyhal_gpio_drive_mode_t drive_mode
 *       HAL Implementation
 *******************************************************************************/
 
-cy_rslt_t cyhal_gpio_init(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drvMode, bool initVal)
+cy_rslt_t cyhal_gpio_init(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drive_mode, bool init_val)
 {
     /* Mbed creates GPIOs for pins that are dedicated to other peripherals in some cases. */
 #ifndef __MBED__
@@ -148,8 +148,8 @@ cy_rslt_t cyhal_gpio_init(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cy
 
     if (status == CY_RSLT_SUCCESS)
     {
-        uint32_t pdlDrvMode = cyhal_gpio_convert_drive_mode(drvMode, direction);
-        Cy_GPIO_Pin_FastInit(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), pdlDrvMode, initVal, HSIOM_SEL_GPIO);
+        uint32_t pdl_drive_mode = cyhal_gpio_convert_drive_mode(drive_mode, direction);
+        Cy_GPIO_Pin_FastInit(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), pdl_drive_mode, init_val, HSIOM_SEL_GPIO);
     }
 
     return status;
@@ -172,10 +172,10 @@ void cyhal_gpio_free(cyhal_gpio_t pin)
     }
 }
 
-cy_rslt_t cyhal_gpio_configure(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drvMode)
+cy_rslt_t cyhal_gpio_configure(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drive_mode)
 {
-    uint32_t pdlDrvMode = cyhal_gpio_convert_drive_mode(drvMode, direction);
-    Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), pdlDrvMode);
+    uint32_t pdldrive_mode = cyhal_gpio_convert_drive_mode(drive_mode, direction);
+    Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), pdldrive_mode);
 
     return CY_RSLT_SUCCESS;
 }
@@ -188,7 +188,7 @@ void cyhal_gpio_register_callback(cyhal_gpio_t pin, cyhal_gpio_event_callback_t 
     cyhal_system_critical_section_exit(savedIntrStatus);
 }
 
-void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t intrPriority, bool enable)
+void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t intr_priority, bool enable)
 {
     Cy_GPIO_ClearInterrupt(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin));
     Cy_GPIO_SetInterruptEdge(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), (uint32_t)event);
@@ -198,14 +198,14 @@ void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t
     IRQn_Type irqn = (IRQn_Type)(ioss_interrupts_gpio_0_IRQn + CYHAL_GET_PORT(pin));
     if (NVIC_GetEnableIRQ(irqn) == 0)
     {
-        cy_stc_sysint_t irqCfg = {irqn, intrPriority};
+        cy_stc_sysint_t irqCfg = {irqn, intr_priority};
 
         Cy_SysInt_Init(&irqCfg, ioss_irq_handler);
         NVIC_EnableIRQ(irqn);
     }
     else
     {
-        NVIC_SetPriority(irqn, intrPriority);
+        NVIC_SetPriority(irqn, intr_priority);
     }
 }
 

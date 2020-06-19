@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-/** @file
- *  NVRAM file for CYW9P62S1-43438EVB-01
- */
-
 #ifndef INCLUDED_NVRAM_IMAGE_H_
 #define INCLUDED_NVRAM_IMAGE_H_
 
 #include <string.h>
 #include <stdint.h>
 #include "generated_mac_address.txt"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +29,7 @@ extern "C" {
  * Character array of NVRAM image
  * Generated from cyw943438_26MHz_aw-cu427.txt
  */
+
 static const char wifi_nvram_image[] =
         "NVRAMRev=$Rev: 717633 $"                                            "\x00"
         "manfid=0x2d0"                                                       "\x00"
@@ -79,12 +75,12 @@ static const char wifi_nvram_image[] =
         "spurconfig=0x3"                                                     "\x00"
         "rssicorrnorm=3"                                                     "\x00"
         "\x00\x00";
-
 #ifdef __cplusplus
 } /*extern "C" */
 #endif
 
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
-#error Wi-Fi NVRAM image included twice
-#endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
 
+#error Wi-Fi NVRAM image included twice
+
+#endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */

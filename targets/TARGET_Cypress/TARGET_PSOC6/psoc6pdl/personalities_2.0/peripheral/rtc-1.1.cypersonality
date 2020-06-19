@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file rtc.cypersonality
+* \version 1.1
+*
+* \brief
+* Real Time Clock personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2019 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40rtc" name="Real Time Clock" version="1.1" path="System" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="mxs40srss" />
+    <Resource name="srss\.rtc" used="true" />
+  </Dependencies>
+  <ExposedMembers />
+  <Parameters>
+    <!-- PDL documentation -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__rtc.html" linkText="Open RTC Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
+  
+    <!--General-->
+    <ParamChoice id="format" name="Date Format" group="General" default="0" visible="true" editable="true" desc="Stores the Date Format to use for display. Can choose from the following values: MM/DD/YYYY, DD/MM/YYYY, YYYY/MM/DD." >
+      <Entry name="MM/DD/YYYY" value="0" visible="true" />
+      <Entry name="DD/MM/YYYY" value="1" visible="true" />
+      <Entry name="YYYY/MM/DD" value="2" visible="true" />
+    </ParamChoice>
+    <ParamBool id="dst" name="Enable Daylight Savings (DST)" group="General" default="false" visible="true" editable="true" desc="Enables and configures the daylight savings functionality." />
+    <ParamChoice id="dstFormat" name="DST Format" group="General" default="CY_RTC_DST_RELATIVE" visible="`${dst}`" editable="true" desc="This parameter stores the DST date type. Can contain the following values: Relative, Fixed." >
+      <Entry name="Relative" value="CY_RTC_DST_RELATIVE"   visible="true" />
+      <Entry name="Fixed"    value="CY_RTC_DST_FIXED"      visible="true" />
+    </ParamChoice>
+
+    <!--Time and Date-->
+    <ParamRange id="sec" name="Seconds" group="Time and Date" default="0"  min="0" max="59" resolution="1" visible="true" editable="true" desc="Stores the Seconds value. The possible values are 0-59." />
+    <ParamRange id="min" name="Minutes" group="Time and Date" default="0"  min="0" max="59" resolution="1" visible="true" editable="true" desc="Stores the Minutes value. The possible values are 0-59." />
+    <ParamChoice id="hrFormat" name="Hours Format" group="Time and Date" default="CY_RTC_24_HOURS" visible="true" editable="true" desc="Stores the Hours Format. The possible values: 24H, 12H.">
+      <Entry name="24H"    value="CY_RTC_24_HOURS"   visible="true" />
+      <Entry name="12H"    value="CY_RTC_12_HOURS"   visible="true" />
+    </ParamChoice>
+    <ParamRange id="hr" name="Hour" group="Time and Date" default="12" min="`${hrFormat eq CY_RTC_24_HOURS ? 0 : 1}`" max="`${hrFormat eq CY_RTC_24_HOURS ? 23 : 12}`" resolution="1" visible="true" editable="true" desc="Stores the Hour value. The possible values are `${hrFormat eq CY_RTC_24_HOURS ? &quot;0 - 23&quot; : &quot;1 - 12&quot;}`." />
+    <ParamChoice id="amPmPeriodOfDay" name="AM/PM Period of the Day" group="Time and Date" default="CY_RTC_AM" visible="`${hrFormat eq CY_RTC_12_HOURS}`" editable="true" desc="Stores the AM/PM Period of the Day. Possible values: AM, PM.">
+      <Entry name="AM"    value="CY_RTC_AM"   visible="true" />
+      <Entry name="PM"    value="CY_RTC_PM"   visible="true" />
+    </ParamChoice>
+    <ParamChoice id="dayOfTheWeek"  name="Day of the Week"  group="Time and Date" default="CY_RTC_SUNDAY" visible="true" editable="true" desc="Stores the Day of the Week. The possible values are Sunday-Saturday." >
+      <Entry name="Sunday"    value="CY_RTC_SUNDAY"    visible="true" />
+      <Entry name="Monday"    value="CY_RTC_MONDAY"    visible="true" />
+      <Entry name="Tuesday"   value="CY_RTC_TUESDAY"   visible="true" />
+      <Entry name="Wednesday" value="CY_RTC_WEDNESDAY" visible="true" />
+      <Entry name="Thursday"  value="CY_RTC_THURSDAY"  visible="true" />
+      <Entry name="Friday"    value="CY_RTC_FRIDAY "   visible="true" />
+      <Entry name="Saturday"  value="CY_RTC_SATURDAY"  visible="true" />
+    </ParamChoice>
+    <ParamRange id="dayOfTheMonth" name="Day of the Month" group="Time and Date" default="1" min="1" max="31" resolution="1" visible="true" editable="true" desc="Stores the Day of the Month. The possible values are 1-31." />
+    <ParamChoice id="month" name="Month" group="Time and Date" default="CY_RTC_JANUARY" visible="true" editable="true" desc="Stores the Month. The possible values are January-December." >
+      <Entry name="January"   value="CY_RTC_JANUARY"   visible="true" />
+      <Entry name="February"  value="CY_RTC_FEBRUARY"  visible="true" />
+      <Entry name="March"     value="CY_RTC_MARCH"     visible="true" />
+      <Entry name="April"     value="CY_RTC_APRIL"     visible="true" />
+      <Entry name="May"       value="CY_RTC_MAY"       visible="true" />
+      <Entry name="June"      value="CY_RTC_JUNE"      visible="true" />
+      <Entry name="July"      value="CY_RTC_JULY"      visible="true" />
+      <Entry name="August"    value="CY_RTC_AUGUST"    visible="true" />
+      <Entry name="September" value="CY_RTC_SEPTEMBER" visible="true" />
+      <Entry name="October"   value="CY_RTC_OCTOBER"   visible="true" />
+      <Entry name="November"  value="CY_RTC_NOVEMBER"  visible="true" />
+      <Entry name="December"  value="CY_RTC_DECEMBER"  visible="true" />
+    </ParamChoice>
+    <ParamRange id="year" name="Year" group="Time and Date" default="0" min="0" max="99" resolution="1" visible="true" editable="true" desc="Stores the Year. The possible values are 0-99. Setting the 0 means that 2000 year is set, 99 - 2099 accordingly." />
+
+    <!--DST Start-->
+    <ParamChoice id="dstStartMonth" name="Month" group="DST Start" default="CY_RTC_MARCH" visible="`${dst}`" editable="true" desc="Stores the Month when the DST functionality should be started. The possible values are January-December." >
+      <Entry name="January"   value="CY_RTC_JANUARY"   visible="true" />
+      <Entry name="February"  value="CY_RTC_FEBRUARY"  visible="true" />
+      <Entry name="March"     value="CY_RTC_MARCH"     visible="true" />
+      <Entry name="April"     value="CY_RTC_APRIL"     visible="true" />
+      <Entry name="May"       value="CY_RTC_MAY"       visible="true" />
+      <Entry name="June"      value="CY_RTC_JUNE"      visible="true" />
+      <Entry name="July"      value="CY_RTC_JULY"      visible="true" />
+      <Entry name="August"    value="CY_RTC_AUGUST"    visible="true" />
+      <Entry name="September" value="CY_RTC_SEPTEMBER" visible="true" />
+      <Entry name="October"   value="CY_RTC_OCTOBER"   visible="true" />
+      <Entry name="November"  value="CY_RTC_NOVEMBER"  visible="true" />
+      <Entry name="December"  value="CY_RTC_DECEMBER"  visible="true" />
+    </ParamChoice>
+    <ParamRange id="dstStartDay" name="Day of the Month" group="DST Start" default="22" min="1" max="31" resolution="1" visible="`${dst &amp;&amp; (dstFormat eq CY_RTC_DST_FIXED)}`" editable="true" desc="Stores the Day of the Month when the DST functionality should be started. The possible values are 1-31." />
+    <ParamChoice id="dstStartWeek" name="Week of the Month" group="DST Start" default="CY_RTC_LAST_WEEK_OF_MONTH" visible="`${dst &amp;&amp; (dstFormat eq CY_RTC_DST_RELATIVE)}`" editable="true" desc="Stores the Week of the Month when the DST functionality should be started. The possible values are First-Last." >
+      <Entry name="First"   value="CY_RTC_FIRST_WEEK_OF_MONTH"  visible="true" />
+      <Entry name="Second"  value="CY_RTC_SECOND_WEEK_OF_MONTH" visible="true" />
+      <Entry name="Third"   value="CY_RTC_THIRD_WEEK_OF_MONTH"  visible="true" />
+      <Entry name="Fourth"  value="CY_RTC_FOURTH_WEEK_OF_MONTH" visible="true" />
+      <Entry name="Fifth"   value="CY_RTC_FIFTH_WEEK_OF_MONTH"  visible="true" />
+      <Entry name="Last"    value="CY_RTC_LAST_WEEK_OF_MONTH"   visible="true" />
+    </ParamChoice>
+    <ParamChoice id="dstStartDayOfWeek" name="Day of the Week" group="DST Start" default="CY_RTC_SUNDAY" visible="`${dst &amp;&amp; (dstFormat eq CY_RTC_DST_RELATIVE)}`" editable="true" desc="Stores the Day of the Week when the DST functionality should be started. The possible values are Sunday-Saturday." >
+      <Entry name="Sunday"    value="CY_RTC_SUNDAY"    visible="true" />
+      <Entry name="Monday"    value="CY_RTC_MONDAY"    visible="true" />
+      <Entry name="Tuesday"   value="CY_RTC_TUESDAY"   visible="true" />
+      <Entry name="Wednesday" value="CY_RTC_WEDNESDAY" visible="true" />
+      <Entry name="Thursday"  value="CY_RTC_THURSDAY"  visible="true" />
+      <Entry name="Friday"    value="CY_RTC_FRIDAY"    visible="true" />
+      <Entry name="Saturday"  value="CY_RTC_SATURDAY"  visible="true" />
+    </ParamChoice>
+    <ParamChoice id="dstStartHour" name="Hour" group="DST Start" default="0" visible="`${dst}`" editable="true" desc="Stores the Hour when the DST functionality should be started. The possible values are 00:00-23:00." >
+      <Entry name="00:00" value="0" visible="true" />
+      <Entry name="01:00" value="1" visible="true" />
+      <Entry name="02:00" value="2" visible="true" />
+      <Entry name="03:00" value="3" visible="true" />
+      <Entry name="04:00" value="4" visible="true" />
+      <Entry name="05:00" value="5" visible="true" />
+      <Entry name="06:00" value="6" visible="true" />
+      <Entry name="07:00" value="7" visible="true" />
+      <Entry name="08:00" value="8" visible="true" />
+      <Entry name="09:00" value="9" visible="true" />
+      <Entry name="10:00" value="10" visible="true" />
+      <Entry name="11:00" value="11" visible="true" />
+      <Entry name="12:00" value="12" visible="true" />
+      <Entry name="13:00" value="13" visible="true" />
+      <Entry name="14:00" value="14" visible="true" />
+      <Entry name="15:00" value="15" visible="true" />
+      <Entry name="16:00" value="16" visible="true" />
+      <Entry name="17:00" value="17" visible="true" />
+      <Entry name="18:00" value="18" visible="true" />
+      <Entry name="19:00" value="19" visible="true" />
+      <Entry name="20:00" value="20" visible="true" />
+      <Entry name="21:00" value="21" visible="true" />
+      <Entry name="22:00" value="22" visible="true" />
+      <Entry name="23:00" value="23" visible="true" />
+    </ParamChoice>
+
+    <!--DST Stop-->
+    <ParamChoice id="dstStopMonth" name="Month" group="DST Stop" default="CY_RTC_OCTOBER" visible="`${dst}`" editable="true" desc="Stores the Month when the DST functionality should be stopped. The possible values are January-December." >
+      <Entry name="January"   value="CY_RTC_JANUARY"   visible="true" />
+      <Entry name="February"  value="CY_RTC_FEBRUARY"  visible="true" />
+      <Entry name="March"     value="CY_RTC_MARCH"     visible="true" />
+      <Entry name="April"     value="CY_RTC_APRIL"     visible="true" />
+      <Entry name="May"       value="CY_RTC_MAY"       visible="true" />
+      <Entry name="June"      value="CY_RTC_JUNE"      visible="true" />
+      <Entry name="July"      value="CY_RTC_JULY"      visible="true" />
+      <Entry name="August"    value="CY_RTC_AUGUST"    visible="true" />
+      <Entry name="September" value="CY_RTC_SEPTEMBER" visible="true" />
+      <Entry name="October"   value="CY_RTC_OCTOBER"   visible="true" />
+      <Entry name="November"  value="CY_RTC_NOVEMBER"  visible="true" />
+      <Entry name="December"  value="CY_RTC_DECEMBER"  visible="true" />
+    </ParamChoice>
+    <ParamRange id="dstStopDay" name="Day of the Month" group="DST Stop" default="22" min="1" max="31" resolution="1" visible="`${dst &amp;&amp; (dstFormat eq CY_RTC_DST_FIXED)}`" editable="true" desc="Stores the Day of the Month when the DST functionality should be stopped. The possible values are 1-31." />
+    <ParamChoice id="dstStopWeek" name="Week of the Month" group="DST Stop" default="CY_RTC_LAST_WEEK_OF_MONTH" visible="`${dst &amp;&amp; (dstFormat eq CY_RTC_DST_RELATIVE)}`" editable="true" desc="Stores the Week of the Month when the DST functionality should be stopped. The possible values are First-Last." >
+      <Entry name="First"  value="CY_RTC_FIRST_WEEK_OF_MONTH"  visible="true" />
+      <Entry name="Second" value="CY_RTC_SECOND_WEEK_OF_MONTH" visible="true" />
+      <Entry name="Third"  value="CY_RTC_THIRD_WEEK_OF_MONTH"  visible="true" />
+      <Entry name="Fourth" value="CY_RTC_FOURTH_WEEK_OF_MONTH" visible="true" />
+      <Entry name="Fifth"  value="CY_RTC_FIFTH_WEEK_OF_MONTH"  visible="true" />
+      <Entry name="Last"   value="CY_RTC_LAST_WEEK_OF_MONTH"   visible="true" />
+    </ParamChoice>
+    <ParamChoice id="dstStopDayOfWeek" name="Day of the Week" group="DST Stop" default="CY_RTC_SUNDAY" visible="`${dst &amp;&amp; (dstFormat eq CY_RTC_DST_RELATIVE)}`" editable="true" desc="Stores the Day of the Week when the DST functionality should be stopped. The possible values are Sunday-Saturday." >
+      <Entry name="Sunday"    value="CY_RTC_SUNDAY"    visible="true" />
+      <Entry name="Monday"    value="CY_RTC_MONDAY"    visible="true" />
+      <Entry name="Tuesday"   value="CY_RTC_TUESDAY"   visible="true" />
+      <Entry name="Wednesday" value="CY_RTC_WEDNESDAY" visible="true" />
+      <Entry name="Thursday"  value="CY_RTC_THURSDAY"  visible="true" />
+      <Entry name="Friday"    value="CY_RTC_FRIDAY"    visible="true" />
+      <Entry name="Saturday"  value="CY_RTC_SATURDAY"  visible="true" />
+    </ParamChoice>
+    <ParamChoice id="dstStopHour" name="Hour" group="DST Stop" default="0" visible="`${dst}`" editable="true" desc="Stores the Hour when the DST functionality should be stopped. The possible values are 00:00-23:00." >
+      <Entry name="00:00" value="0" visible="true" />
+      <Entry name="01:00" value="1" visible="true" />
+      <Entry name="02:00" value="2" visible="true" />
+      <Entry name="03:00" value="3" visible="true" />
+      <Entry name="04:00" value="4" visible="true" />
+      <Entry name="05:00" value="5" visible="true" />
+      <Entry name="06:00" value="6" visible="true" />
+      <Entry name="07:00" value="7" visible="true" />
+      <Entry name="08:00" value="8" visible="true" />
+      <Entry name="09:00" value="9" visible="true" />
+      <Entry name="10:00" value="10" visible="true" />
+      <Entry name="11:00" value="11" visible="true" />
+      <Entry name="12:00" value="12" visible="true" />
+      <Entry name="13:00" value="13" visible="true" />
+      <Entry name="14:00" value="14" visible="true" />
+      <Entry name="15:00" value="15" visible="true" />
+      <Entry name="16:00" value="16" visible="true" />
+      <Entry name="17:00" value="17" visible="true" />
+      <Entry name="18:00" value="18" visible="true" />
+      <Entry name="19:00" value="19" visible="true" />
+      <Entry name="20:00" value="20" visible="true" />
+      <Entry name="21:00" value="21" visible="true" />
+      <Entry name="22:00" value="22" visible="true" />
+      <Entry name="23:00" value="23" visible="true" />
+    </ParamChoice>
+
+    <ParamBool id="inFlash" name="Store Config in Flash" group="Advanced" default="true" visible="true" editable="true" desc="Controls whether the configuration structure is stored in flash (const, true) or SRAM (not const, false)." />
+  </Parameters>
+  <DRCs>
+     <DRC type="ERROR" text="The Hour is not a valid for a selected hours format. Valid range for 12H format is [1-12]" condition="`${((hr &gt; 12) &amp;&amp; (hr == 0) &amp;&amp; (hrFormat eq CY_RTC_12_HOURS))}`" />
+    <DRC type="ERROR" text="The Day of The Month is not a valid for the selected month." condition="`${dayOfTheMonth == 29 &amp;&amp; month eq CY_RTC_FEBRUARY &amp;&amp; (year%4 != 0) || dayOfTheMonth > 29 &amp;&amp; month eq CY_RTC_FEBRUARY &amp;&amp; (year%4 == 0) || (dayOfTheMonth == 31 &amp;&amp; (month eq CY_RTC_APRIL || month eq CY_RTC_JUNE || month eq CY_RTC_SEPTEMBER || month eq CY_RTC_NOVEMBER))}`" />
+    <DRC type="ERROR" text="DST Start Day is not a valid day in the selected month." condition="`${(dstStartDay &gt; 29 &amp;&amp; dstStartMonth eq CY_RTC_FEBRUARY) || (dstStartDay == 31 &amp;&amp; (dstStartMonth eq CY_RTC_APRIL || dstStartMonth eq CY_RTC_JUNE || dstStartMonth eq CY_RTC_SEPTEMBER || dstStartMonth eq CY_RTC_NOVEMBER))}`" />
+    <DRC type="ERROR" text="DST Stop Day is not a valid day in the selected month." condition="`${(dstStopDay &gt; 29 &amp;&amp; dstStopMonth eq CY_RTC_FEBRUARY) || (dstStopDay == 31 &amp;&amp; (dstStopMonth eq CY_RTC_APRIL || dstStopMonth eq CY_RTC_JUNE || dstStopMonth eq CY_RTC_SEPTEMBER || dstStopMonth eq CY_RTC_NOVEMBER))}`" />
+  </DRCs>
+  <ConfigFirmware>
+    <ConfigInclude value="cy_rtc.h" include="true" />
+    <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
+
+    <ConfigDefine name="`${INST_NAME . &quot;_10_MONTH_OFFSET&quot;}`"          value="`${format ==  0 ? &quot;(28U)&quot; : format == 1 ? &quot;(20U)&quot; : &quot;(12U)&quot;}`" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME . &quot;_MONTH_OFFSET&quot;}`"             value="`${format ==  0 ? &quot;(24U)&quot; : format == 1 ? &quot;(16U)&quot; : &quot;(8U)&quot;}`"  public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME . &quot;_10_DAY_OFFSET&quot;}`"            value="`${format ==  0 ? &quot;(20U)&quot; : format == 1 ? &quot;(28U)&quot; : &quot;(4U)&quot;}`"  public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME . &quot;_DAY_OFFSET&quot;}`"               value="`${format ==  0 ? &quot;(16U)&quot; : format == 1 ? &quot;(24U)&quot; : &quot;(0U)&quot;}`"  public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME . &quot;_1000_YEAR_OFFSET&quot;}`"         value="`${format ==  0 ? &quot;(12U)&quot; : format == 1 ? &quot;(12U)&quot; : &quot;(28U)&quot;}`" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME . &quot;_100_YEAR_OFFSET&quot;}`"          value="`${format ==  0 ? &quot;(8U)&quot; : format == 1 ? &quot;(8U)&quot; : &quot;(24U)&quot;}`"   public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME . &quot;_10_YEAR_OFFSET&quot;}`"           value="`${format ==  0 ? &quot;(4U)&quot; : format == 1 ? &quot;(4U)&quot; : &quot;(20U)&quot;}`"   public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME . &quot;_YEAR_OFFSET&quot;}`"              value="`${format ==  0 ? &quot;(0U)&quot; : format == 1 ? &quot;(0U)&quot; : &quot;(16U)&quot;}`"   public="true" include="true" />
+
+    <ConfigStruct name="`${INST_NAME . &quot;_config&quot;}`" type="cy_stc_rtc_config_t" const="`${inFlash}`" public="true" include="true">
+      <Member name="sec"       value="`${sec}`U" />
+      <Member name="min"       value="`${min}`U" />
+      <Member name="hour"      value="`${hr}`U" />
+      <Member name="amPm"      value="`${amPmPeriodOfDay}`" />
+      <Member name="hrFormat"  value="`${hrFormat}`" />
+      <Member name="dayOfWeek" value="`${dayOfTheWeek}`" />
+      <Member name="date"      value="`${dayOfTheMonth}`U" />
+      <Member name="month"     value="`${month}`" />
+      <Member name="year"      value="`${year}`U" />
+    </ConfigStruct>
+    
+    <ConfigStruct name="`${INST_NAME . &quot;_configDst&quot;}`" type="cy_stc_rtc_dst_t" const="`${inFlash}`" public="true" include="`${dst}`">
+      <Member name="`${&quot;startDst.format&quot;}`"      value="`${dstFormat}`" />
+      <Member name="`${&quot;startDst.hour&quot;}`"        value="`${dstStartHour}`" /> 
+      <Member name="`${&quot;startDst.dayOfMonth&quot;}`"  value="`${dstStartDay}`"/>                       
+      <Member name="`${&quot;startDst.weekOfMonth&quot;}`" value="`${dstStartWeek}`" />
+      <Member name="`${&quot;startDst.dayOfWeek&quot;}`"   value="`${dstStartDayOfWeek}`" />
+      <Member name="`${&quot;startDst.month&quot;}`"       value="`${dstStartMonth}`" />
+      <Member name="`${&quot;stopDst.format&quot;}`"       value="`${dstFormat}`" />
+      <Member name="`${&quot;stopDst.hour&quot;}`"         value="`${dstStopHour}`" /> 
+      <Member name="`${&quot;stopDst.dayOfMonth&quot;}`"   value="`${dstStopDay}`"/>       
+      <Member name="`${&quot;stopDst.weekOfMonth&quot;}`"  value="`${dstStopWeek}`" />
+      <Member name="`${&quot;stopDst.dayOfWeek&quot;}`"    value="`${dstStopDayOfWeek}`" />
+      <Member name="`${&quot;stopDst.month&quot;}`"        value="`${dstStopMonth}`" />
+    </ConfigStruct>
+    
+    <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">
+      <Member name="type" value="CYHAL_RSC_RTC" />
+      <Member name="block_num" value="0U" />
+      <Member name="channel_num" value="`${getInstNumber(&quot;rtc&quot;)}`U" />
+    </ConfigStruct>
+    
+    <ConfigInstruction value="cyhal_hwmgr_reserve(&amp;`${INST_NAME}`_obj);" include="true" guard="defined (CY_USING_HAL)" />
+  </ConfigFirmware>
+</Personality>

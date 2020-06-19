@@ -23,13 +23,14 @@
 #include "utest.h"
 #include "udp_tests.h"
 
+using namespace std::chrono;
 using namespace utest::v1;
 
 namespace {
 static const int SIGNAL_SIGIO_RX = 0x1;
 static const int SIGNAL_SIGIO_TX = 0x2;
-static const int SIGIO_TIMEOUT = 5000; //[ms]
-static const int SOCKET_TIMEOUT = (10 * 1000); //[ms]
+static constexpr seconds SIGIO_TIMEOUT = 5s;
+static constexpr seconds SOCKET_TIMEOUT = 10s;
 static const int RETRIES = 2;
 
 static const double EXPECTED_LOSS_RATIO = 0.0;
@@ -53,7 +54,7 @@ static bool pkt_received[PKTS] = {false, false, false, false, false, false, fals
                                  };
 
 Timer tc_exec_time;
-int time_allotted;
+microseconds time_allotted;
 }
 
 static void _sigio_handler()
@@ -75,7 +76,7 @@ void UDPSOCKET_ECHOTEST_impl(bool use_sendto)
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(udp_addr));
     }
 
-    sock.set_timeout(SOCKET_TIMEOUT);
+    sock.set_timeout(milliseconds(SOCKET_TIMEOUT).count());
     int recvd;
     int sent;
     int packets_sent = 0;
@@ -169,7 +170,7 @@ void UDPSOCKET_ECHOTEST_CONNECT_SEND_RECV()
 void UDPSOCKET_ECHOTEST_NONBLOCK_impl(bool use_sendto)
 {
     tc_exec_time.start();
-    time_allotted = split2half_rmng_udp_test_time(); // [s]
+    time_allotted = split2half_rmng_udp_test_time();
 
     SocketAddress udp_addr;
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
@@ -211,8 +212,12 @@ void UDPSOCKET_ECHOTEST_NONBLOCK_impl(bool use_sendto)
             } else if (sent == pkt_s) {
                 packets_sent++;
             } else if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                if (tc_exec_time.read() >= time_allotted ||
-                        signals.wait_all(SIGNAL_SIGIO_TX, SIGIO_TIMEOUT) == osFlagsErrorTimeout) {
+                if (
+                    (tc_exec_time.elapsed_time() >= time_allotted)
+                    || signals.wait_all(
+                        SIGNAL_SIGIO_TX, milliseconds(SIGIO_TIMEOUT).count()
+                    ) == osFlagsErrorTimeout
+                ) {
                     continue;
                 }
                 --retry_cnt;
@@ -230,10 +235,13 @@ void UDPSOCKET_ECHOTEST_NONBLOCK_impl(bool use_sendto)
                 }
 
                 if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                    if (tc_exec_time.read() >= time_allotted) {
+                    if (tc_exec_time.elapsed_time() >= time_allotted) {
                         break;
                     }
-                    signals.wait_all(SIGNAL_SIGIO_RX, SIGIO_TIMEOUT);
+                    signals.wait_all(
+                        SIGNAL_SIGIO_RX,
+                        milliseconds(SIGIO_TIMEOUT).count()
+                    );
                     --retry_recv;
                     continue;
                 } else if (recvd < 0) {

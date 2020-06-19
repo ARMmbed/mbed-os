@@ -68,7 +68,7 @@ Default configuration is booting both CM7 and CM4:
 - CM7 at 0x0800 0000
 - CM4 at 0x0810 0000
 
-Note that `Drag and Drop` feature for binary application is flashing at 0x0800 0000
+Note that `Drag and Drop` feature for binary application (.bin files) is flashing at 0x0800 0000
 
 **IP HW usage warning**
 
@@ -114,8 +114,33 @@ For MBED tests execution, you have to use DISCO_H747I target name (mbed detect n
 
 For application compilation, you have to use DISCO_H747I_CM4 target name.
 
-For flashing, as explained in the `Dual mode configuration` above part, you can not drag and drop applications.
-You have to use STM32CubeProgrammer software
+For flashing, method is depending on the format:
+- hexadecimal files: use drag and drop
+- binary files: use STM32CubeProgrammer software
+
+#### hexa drag and drop
+
+Please check the ST Link FW version you have:
+
+```
+$ mbedls
+| platform_name | platform_name_unique | mount_point | serial_port | target_id                | daplink_version |
+|---------------|----------------------|-------------|-------------|--------------------------|-----------------|
+| DISCO_H747I   | DISCO_H747I[0]       | D:          | COM13       | 081402210D03E72132477E08 | V3J7M2          |
+
+```
+
+Minimum version is V3J7M2 (https://www.st.com/en/development-tools/stsw-link007.html)
+
+Configuration to add in mbed-os json configuration:
+
+```
+        "OUTPUT_EXT": "hex",
+```
+
+#### binary flashing
+
+STM32CubeProgrammer software is available:
 
 https://www.st.com/en/development-tools/stm32cubeprog.html
 

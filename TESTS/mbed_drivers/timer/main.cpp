@@ -660,6 +660,91 @@ void test_timer_time_measurement()
     TEST_ASSERT_DURATION_WITHIN(delta(wait_val), wait_val, p_timer->elapsed_time());
 }
 
+/* This test verifies if a timer can be successfully copied.
+ *
+ * For this test Timer which uses os ticker
+ * must be used.
+ *
+ * Given timer is created
+ * Delay occurs
+ * Timer is copied
+ * Timer is stopped
+ * Timer is copied again
+ * Delay occurs
+ * Then original timer and second copy should have measured first delay.
+ * First copy should have measured both delays.
+ */
+template<int wait_val_us>
+void test_timer_copying()
+{
+    microseconds wait_val(wait_val_us);
+    const Timer &original = *static_cast<Timer *>(p_timer);
+
+    /* Start the timer. */
+    p_timer->start();
+
+    /* Wait <wait_val_us> us. */
+    busy_wait(wait_val);
+
+    /* Copy the timer */
+    Timer running_copy{original};
+
+    /* Stop the original timer. */
+    p_timer->stop();
+
+    /* Copy the timer */
+    Timer stopped_copy{original};
+
+    /* Wait <wait_val_us> us. */
+    busy_wait(wait_val);
+
+    /* Stop the running copy. */
+    running_copy.stop();
+
+    /* Check results. */
+    TEST_ASSERT_DURATION_WITHIN(delta(wait_val), wait_val, p_timer->elapsed_time());
+    TEST_ASSERT_EQUAL_DURATION(p_timer->elapsed_time(), stopped_copy.elapsed_time());
+    TEST_ASSERT_DURATION_WITHIN(delta(wait_val * 2), wait_val * 2, running_copy.elapsed_time());
+}
+
+/* This test verifies if a timer can be successfully moved.
+ *
+ * For this test Timer which uses os ticker
+ * must be used.
+ *
+ * Given timer is created
+ * Delay occurs
+ * Timer is moved
+ * Delay occurs
+ * Then moved timer should have measured both delays.
+ */
+template<int wait_val_us>
+void test_timer_moving()
+{
+    microseconds wait_val(wait_val_us);
+    Timer &original = *static_cast<Timer *>(p_timer);
+
+    /* Start the timer. */
+    p_timer->start();
+
+    /* Wait <wait_val_us> us. */
+    busy_wait(wait_val);
+
+    /* Move the timer */
+    Timer moved_timer{std::move(original)};
+
+    /* No longer valid to do anything with the original, other than destroy it (happens in cleanup) */
+
+    /* Wait <wait_val_us> us. */
+    busy_wait(wait_val);
+
+    /* Stop the moved timer . */
+    moved_timer.stop();
+
+    /* Check results. */
+    TEST_ASSERT_DURATION_WITHIN(delta(wait_val * 2), wait_val * 2, moved_timer.elapsed_time());
+}
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
@@ -683,6 +768,9 @@ Case cases[] = {
     Case("Test: Timer - time measurement 10 ms.", timer_os_ticker_setup_handler, test_timer_time_measurement<10000>, timer_os_ticker_cleanup_handler),
     Case("Test: Timer - time measurement 100 ms.", timer_os_ticker_setup_handler, test_timer_time_measurement<100000>, timer_os_ticker_cleanup_handler),
     Case("Test: Timer - time measurement 1 s.", timer_os_ticker_setup_handler, test_timer_time_measurement<1000000>, timer_os_ticker_cleanup_handler),
+
+    Case("Test: Timer - copying 5 ms.", timer_os_ticker_setup_handler, test_timer_copying<5000>, timer_os_ticker_cleanup_handler),
+    Case("Test: Timer - moving 5 ms.", timer_os_ticker_setup_handler, test_timer_moving<5000>, timer_os_ticker_cleanup_handler),
 };
 
 Specification specification(test_setup, cases);

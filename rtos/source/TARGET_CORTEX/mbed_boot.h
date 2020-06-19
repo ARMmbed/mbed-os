@@ -177,6 +177,14 @@ void mbed_tfm_init(void);
  */
 void mbed_main(void);
 
+/**
+ * Create and Initialize a Singleton Mutex object.
+ *
+ * Precondition(s):
+ * - The RTOS has been started by a call to mbed_rtos_start
+ */
+void mbed_rtos_init_singleton_mutex(void);
+
 /**@}*/
 /**@}*/
 

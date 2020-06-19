@@ -30,6 +30,13 @@
 // MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL - support storing non-trivial function objects
 // MBED_CONF_PLATFORM_CALLBACK_COMPARABLE - support memcmp comparing stored objects (requires zero padding)
 
+#ifdef __ICCARM__
+/* Force platform.callback-nontrivial for IAR */
+#undef MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
+#define MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL 1
+#endif
+
+
 namespace mbed {
 /** \addtogroup platform-public-api */
 /** @{*/

@@ -900,11 +900,13 @@ void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index, 
     set_req.attr_index = attribute_index;
     set_req.value_pointer = (void *)&device_desc;
     set_req.value_size = sizeof(mlme_device_descriptor_t);
-    tr_debug("Unregister Device %u, mac64: %s", attribute_index, trace_array(mac64, 8));
+    if (mac64) {
+        tr_debug("Unregister Device %u, mac64: %s", attribute_index, trace_array(mac64, 8));
+    }
     mac_api->mlme_req(mac_api, MLME_SET, &set_req);
 }
 
-void mac_helper_device_description_write(protocol_interface_info_entry_t *cur, mlme_device_descriptor_t *device_desc, uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt)
+void mac_helper_device_description_write(protocol_interface_info_entry_t *cur, mlme_device_descriptor_t *device_desc, const uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt)
 {
     memcpy(device_desc->ExtAddress, mac64, 8);
     device_desc->ShortAddress = mac16;
@@ -914,14 +916,19 @@ void mac_helper_device_description_write(protocol_interface_info_entry_t *cur, m
 }
 
 void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, protocol_interface_info_entry_t *cur, uint8_t attribute_index, uint8_t keyID, bool force_set)
-
 {
-    if (!cur->mac_api) {
+    if (!force_set && cur->mac_parameters->SecurityEnabled && cur->mac_parameters->mac_default_key_index != keyID) {
+        tr_debug("Do not set counter by index %u != %u", cur->mac_parameters->mac_default_key_index, keyID);
         return;
     }
 
-    if (!force_set && cur->mac_parameters->SecurityEnabled && cur->mac_parameters->mac_default_key_index != keyID) {
-        tr_debug("Do not set counter by index %u != %u", cur->mac_parameters->mac_default_key_index, keyID);
+    tr_debug("Register Device %u, mac16 %x mac64: %s, %"PRIu32, attribute_index, device_desc->ShortAddress, trace_array(device_desc->ExtAddress, 8), device_desc->FrameCounter);
+    mac_helper_devicetable_direct_set(cur->mac_api, device_desc, attribute_index);
+}
+
+void mac_helper_devicetable_direct_set(struct mac_api_s *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index)
+{
+    if (!mac_api) {
         return;
     }
 
@@ -930,7 +937,20 @@ void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, pro
     set_req.attr_index = attribute_index;
     set_req.value_pointer = (void *)device_desc;
     set_req.value_size = sizeof(mlme_device_descriptor_t);
-    tr_debug("Register Device %u, mac16 %x mac64: %s, %"PRIu32, attribute_index, device_desc->ShortAddress, trace_array(device_desc->ExtAddress, 8), device_desc->FrameCounter);
+    mac_api->mlme_req(mac_api, MLME_SET, &set_req);
+}
+
+void mac_helper_devicetable_ack_trig(const mlme_device_descriptor_t *device_desc, protocol_interface_info_entry_t *cur)
+{
+    if (!cur->mac_api) {
+        return;
+    }
+
+    mlme_set_t set_req;
+    set_req.attr = macDevicePendingAckTrig;
+    set_req.attr_index = 0;
+    set_req.value_pointer = (void *)device_desc;
+    set_req.value_size = sizeof(mlme_device_descriptor_t);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
 }
 

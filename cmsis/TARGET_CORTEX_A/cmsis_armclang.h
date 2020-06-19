@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     cmsis_armclang.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.1.1
- * @date     15. May 2019
+ * @version  V1.2.0
+ * @date     05. August 2019
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
@@ -102,6 +102,9 @@
 #ifndef   __PACKED
   #define __PACKED                               __attribute__((packed))
 #endif
+#ifndef   __COMPILER_BARRIER
+  #define __COMPILER_BARRIER()                   __ASM volatile("":::"memory")
+#endif
 
 /* ##########################  Core Instruction Access  ######################### */
 /**
@@ -127,29 +130,17 @@
 /**
   \brief   Instruction Synchronization Barrier
  */
-#define __ISB() do {\
-                   __schedule_barrier();\
-                   __builtin_arm_isb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __ISB()                           __builtin_arm_isb(0xF)
 
 /**
   \brief   Data Synchronization Barrier
  */
-#define __DSB() do {\
-                   __schedule_barrier();\
-                   __builtin_arm_dsb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __DSB()                           __builtin_arm_dsb(0xF)
 
 /**
   \brief   Data Memory Barrier
  */
-#define __DMB() do {\
-                   __schedule_barrier();\
-                   __builtin_arm_dmb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __DMB()                           __builtin_arm_dmb(0xF)
 
 /**
   \brief   Reverse byte order (32 bit)
@@ -311,6 +302,73 @@ __STATIC_FORCEINLINE uint8_t __CLZ(uint32_t value)
  */
 #define __USAT             __builtin_arm_usat
 
+/* ###################  Compiler specific Intrinsics  ########################### */
+/** \defgroup CMSIS_SIMD_intrinsics CMSIS SIMD Intrinsics
+  Access to dedicated SIMD instructions
+  @{
+*/
+
+#if (defined (__ARM_FEATURE_DSP) && (__ARM_FEATURE_DSP == 1))
+
+#define     __SADD8                 __builtin_arm_sadd8
+#define     __SADD16                __builtin_arm_sadd16
+#define     __QADD8                 __builtin_arm_qadd8
+#define     __QSUB8                 __builtin_arm_qsub8
+#define     __QADD16                __builtin_arm_qadd16
+#define     __SHADD16               __builtin_arm_shadd16
+#define     __QSUB16                __builtin_arm_qsub16
+#define     __SHSUB16               __builtin_arm_shsub16
+#define     __QASX                  __builtin_arm_qasx
+#define     __SHASX                 __builtin_arm_shasx
+#define     __QSAX                  __builtin_arm_qsax
+#define     __SHSAX                 __builtin_arm_shsax
+#define     __SXTB16                __builtin_arm_sxtb16
+#define     __SMUAD                 __builtin_arm_smuad
+#define     __SMUADX                __builtin_arm_smuadx
+#define     __SMLAD                 __builtin_arm_smlad
+#define     __SMLADX                __builtin_arm_smladx
+#define     __SMLALD                __builtin_arm_smlald
+#define     __SMLALDX               __builtin_arm_smlaldx
+#define     __SMUSD                 __builtin_arm_smusd
+#define     __SMUSDX                __builtin_arm_smusdx
+#define     __SMLSDX                __builtin_arm_smlsdx
+#define     __USAT16                __builtin_arm_usat16
+#define     __SSUB8                 __builtin_arm_ssub8
+#define     __SXTB16                __builtin_arm_sxtb16
+#define     __SXTAB16               __builtin_arm_sxtab16
+
+
+__STATIC_FORCEINLINE  int32_t __QADD( int32_t op1,  int32_t op2)
+{
+  int32_t result;
+
+  __ASM volatile ("qadd %0, %1, %2" : "=r" (result) : "r" (op1), "r" (op2) );
+  return(result);
+}
+
+__STATIC_FORCEINLINE  int32_t __QSUB( int32_t op1,  int32_t op2)
+{
+  int32_t result;
+
+  __ASM volatile ("qsub %0, %1, %2" : "=r" (result) : "r" (op1), "r" (op2) );
+  return(result);
+}
+
+#define __PKHBT(ARG1,ARG2,ARG3)          ( ((((uint32_t)(ARG1))          ) & 0x0000FFFFUL) |  \
+                                           ((((uint32_t)(ARG2)) << (ARG3)) & 0xFFFF0000UL)  )
+
+#define __PKHTB(ARG1,ARG2,ARG3)          ( ((((uint32_t)(ARG1))          ) & 0xFFFF0000UL) |  \
+                                           ((((uint32_t)(ARG2)) >> (ARG3)) & 0x0000FFFFUL)  )
+
+__STATIC_FORCEINLINE int32_t __SMMLA (int32_t op1, int32_t op2, int32_t op3)
+{
+  int32_t result;
+
+  __ASM volatile ("smmla %0, %1, %2, %3" : "=r" (result): "r"  (op1), "r" (op2), "r" (op3) );
+  return(result);
+}
+
+#endif /* (__ARM_FEATURE_DSP == 1) */
 
 /* ###########################  Core Function Access  ########################### */
 
@@ -343,7 +401,7 @@ __STATIC_FORCEINLINE uint32_t __get_CPSR(void)
  */
 __STATIC_FORCEINLINE void __set_CPSR(uint32_t cpsr)
 {
-__ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "memory");
+__ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "cc", "memory");
 }
 
 /** \brief  Get Mode

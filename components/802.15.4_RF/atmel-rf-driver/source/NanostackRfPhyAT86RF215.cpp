@@ -23,6 +23,7 @@
 #include "platform/mbed_wait_api.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "NanostackRfPhyAtmel.h"
+#include "AT86RFReg.h"
 #include "AT86RF215Reg.h"
 #include "mbed_trace.h"
 #include "common_functions.h"
@@ -99,6 +100,7 @@ static int rf_set_channel(uint16_t channel, rf_modules_e module);
 static int rf_set_ch0_frequency(uint32_t frequency, rf_modules_e module);
 static int rf_set_channel_spacing(uint32_t channel_spacing, rf_modules_e module);
 static int rf_set_fsk_symbol_rate_configuration(uint32_t symbol_rate, rf_modules_e module);
+static int rf_configure_by_ofdm_bandwidth_option(uint8_t option, uint32_t data_rate, rf_modules_e module);
 static void rf_calculate_symbol_rate(uint32_t baudrate, phy_modulation_e modulation);
 static void rf_conf_set_cca_threshold(uint8_t percent);
 // Defined register read/write functions
@@ -164,6 +166,7 @@ using namespace rtos;
 #include "rfbits.h"
 static RFBits *rf;
 static TestPins *test_pins;
+static Se2435Pins *se2435_pa_pins = NULL;
 
 #define MAC_FRAME_TYPE_MASK     0x07
 #define MAC_TYPE_ACK            (2)
@@ -300,6 +303,9 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
         case PHY_EXTENSION_SET_CCA_THRESHOLD:
             rf_conf_set_cca_threshold(*data_ptr);
             break;
+        case PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD:
+            cca_threshold = (int8_t) *data_ptr; // *NOPAD*
+            break;
         case PHY_EXTENSION_SET_802_15_4_MODE:
             mac_mode = (phy_802_15_4_mode_t) *data_ptr; // *NOPAD*
             if (mac_mode == IEEE_802_15_4_2011) {
@@ -378,7 +384,8 @@ static void rf_init(void)
 static void rf_init_registers(rf_modules_e module)
 {
     // O-QPSK configuration using IEEE Std 802.15.4-2011
-    // FSK configuration using IEEE Std 802.15.4g-2012
+    // FSK/OFDM configuration using IEEE Std 802.15.4g-2012
+    // OFDM configuration is experimental only
     if (mac_mode == IEEE_802_15_4_2011) {
         device_driver.link_type = PHY_LINK_15_4_2_4GHZ_TYPE;
         // 16-bit FCS
@@ -405,41 +412,72 @@ static void rf_init_registers(rf_modules_e module)
         rf_write_bbc_register_field(BBC_AFFTM, module, TYPE_2, TYPE_2);
     } else if (mac_mode == IEEE_802_15_4G_2012) {
         device_driver.link_type = PHY_LINK_15_4_SUBGHZ_TYPE;
-        // Enable FSK
-        rf_write_bbc_register_field(BBC_PC, module, PT, BB_MRFSK);
         // Disable auto ack
         rf_write_bbc_register_field(BBC_AMCS, module, AACK, 0);
         // Disable address filter unit 0
         rf_write_bbc_register_field(BBC_AFC0, module, AFEN0, 0);
-        // Set bandwidth time product
-        rf_write_bbc_register_field(BBC_FSKC0, module, BT, BT_20);
-        // Disable interleaving
-        rf_write_bbc_register_field(BBC_FSKC2, module, FECIE, 0);
-        // Disable receiver override
-        rf_write_bbc_register_field(BBC_FSKC2, module, RXO, RXO_DIS);
-        // Set modulation index
-        if (phy_current_config.modulation_index == MODULATION_INDEX_0_5) {
-            rf_write_bbc_register_field(BBC_FSKC0, module, MIDX, MIDX_05);
-            rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_0);
-        } else {
-            rf_write_bbc_register_field(BBC_FSKC0, module, MIDX, MIDX_10);
-            rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_4);
+        // Enable FSK
+        if (phy_current_config.modulation == M_2FSK) {
+            rf_write_bbc_register_field(BBC_PC, module, PT, BB_MRFSK);
+            // Set bandwidth time product
+            rf_write_bbc_register_field(BBC_FSKC0, module, BT, BT_20);
+            // Disable interleaving
+            rf_write_bbc_register_field(BBC_FSKC2, module, FECIE, 0);
+            // Disable receiver override
+            rf_write_bbc_register_field(BBC_FSKC2, module, RXO, RXO_DIS);
+            // Set modulation index
+            if (phy_current_config.modulation_index == MODULATION_INDEX_0_5) {
+                rf_write_bbc_register_field(BBC_FSKC0, module, MIDX, MIDX_05);
+                rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_0);
+            } else {
+                rf_write_bbc_register_field(BBC_FSKC0, module, MIDX, MIDX_10);
+                rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_4);
+            }
+            // Set Gain control settings
+            rf_write_rf_register_field(RF_AGCC, module, AVGS, AVGS_8_SAMPLES);
+            rf_write_rf_register_field(RF_AGCS, module, TGT, TGT_1);
+            // Set symbol rate and related configurations
+            rf_set_fsk_symbol_rate_configuration(phy_current_config.datarate, module);
+            // Set preamble length
+            uint8_t preamble_len = 24;
+            if (phy_current_config.datarate < 150000) {
+                preamble_len = 8;
+            } else if (phy_current_config.datarate < 300000) {
+                preamble_len = 12;
+            }
+            rf_write_bbc_register(BBC_FSKPLL, module, preamble_len);
+            // Set preamble detector threshold
+            rf_write_bbc_register_field(BBC_FSKC3, module, PDT, PDT_6);
+        } else if (phy_current_config.modulation == M_OFDM) {
+            rf_write_bbc_register_field(BBC_PC, module, PT, BB_MROFDM);
+            // Set TX scrambler seed
+            rf_write_bbc_register_field(BBC_OFDMC, module, SSTX, SSTX_0);
+            // Set RX scrambler seed
+            rf_write_bbc_register_field(BBC_OFDMC, module, SSRX, SSRX_0);
+            // Set phyOFDMInterleaving
+            rf_write_bbc_register_field(BBC_OFDMC, module, POI, 0);
+            // Set low frequency offset bit
+            rf_write_bbc_register_field(BBC_OFDMC, module, LFO, 0);
+            // Configure using bandwidth option
+            rf_configure_by_ofdm_bandwidth_option(4, 300000, module);
+            // Set Gain control settings
+            rf_write_rf_register_field(RF_AGCC, module, AVGS, AVGS_8_SAMPLES);
+            rf_write_rf_register_field(RF_AGCC, module, AGCI, 0);
+            rf_write_rf_register_field(RF_AGCS, module, TGT, TGT_3);
         }
-        // Set Gain control settings
-        rf_write_rf_register_field(RF_AGCC, module, AVGS, AVGS_8_SAMPLES);
-        rf_write_rf_register_field(RF_AGCS, module, TGT, TGT_1);
-        // Set symbol rate and related configurations
-        rf_set_fsk_symbol_rate_configuration(phy_current_config.datarate, module);
-        // Set preamble length
-        uint8_t preamble_len = 24;
-        if (phy_current_config.datarate < 150000) {
-            preamble_len = 8;
-        } else if (phy_current_config.datarate < 300000) {
-            preamble_len = 12;
-        }
-        rf_write_bbc_register(BBC_FSKPLL, module, preamble_len);
-        rf_write_bbc_register_field(BBC_FSKC3, module, PDT, PDT_6);
     }
+    if (se2435_pa_pins) {
+        // Wakeup SE2435L
+        se2435_pa_pins->CSD = 1;
+        // Antenna port selection: (0 - port 1, 1 - port 2)
+        se2435_pa_pins->ANT_SEL = 0;
+        // Enable external front end with configuration 3
+        rf_write_rf_register_field(RF_PADFE, module, PADFE, RF_FEMODE3);
+        // Output power at 900MHz: 0 dBm with FSK/QPSK, less than -5 dBm with OFDM
+        rf_write_rf_register_field(RF_PAC, module, TXPWR, TXPWR_11);
+    }
+    // Enable analog voltage regulator
+    rf_write_rf_register_field(RF_AUXS, module, AVEN, AVEN);
     // Disable filtering FCS
     rf_write_bbc_register_field(BBC_PC, module, FCSFE, 0);
     // Set channel spacing
@@ -488,9 +526,10 @@ static int8_t rf_start_csma_ca(uint8_t *data_ptr, uint16_t data_length, uint8_t 
         tx_sequence = *(data_ptr + 2);
     }
     rf_write_tx_buffer(data_ptr, data_length, rf_module);
-    if (phy_current_config.modulation == M_OQPSK) {
+    // Add CRC bytes
+    if (mac_mode == IEEE_802_15_4_2011) {
         data_length += 2;
-    } else if (phy_current_config.modulation == M_2FSK) {
+    } else {
         data_length += 4;
     }
     rf_write_tx_packet_length(data_length, rf_module);
@@ -614,9 +653,10 @@ static void rf_handle_rx_done(void)
                 rf_handle_ack(rx_buffer[2], rx_buffer[0] & MAC_DATA_PENDING);
             } else {
                 int8_t rssi = (int8_t) rf_read_rf_register(RF_EDV, rf_module);
-                if (phy_current_config.modulation == M_OQPSK) {
+                // Cut CRC bytes
+                if (mac_mode == IEEE_802_15_4_2011) {
                     cur_rx_packet_len -= 2;
-                } else if (phy_current_config.modulation == M_2FSK) {
+                } else {
                     cur_rx_packet_len -= 4;
                 }
                 device_driver.phy_rx_cb(rx_buffer, cur_rx_packet_len, 0xf0, rssi, rf_radio_driver_id);
@@ -1055,6 +1095,75 @@ static int rf_set_fsk_symbol_rate_configuration(uint32_t symbol_rate, rf_modules
     return 0;
 }
 
+static int rf_configure_by_ofdm_bandwidth_option(uint8_t option, uint32_t data_rate, rf_modules_e module)
+{
+    if (!option || option > 4) {
+        return -1;
+    }
+    uint32_t datarate_tmp = 100000 >> (option - 1);
+
+    // Set modulation and coding scheme
+    if (data_rate == datarate_tmp) {
+        rf_write_bbc_register_field(BBC_OFDMPHRTX, module, MCS, MCS_0);
+    } else if (data_rate == datarate_tmp * 2) {
+        rf_write_bbc_register_field(BBC_OFDMPHRTX, module, MCS, MCS_1);
+    } else if (data_rate == datarate_tmp * 4) {
+        rf_write_bbc_register_field(BBC_OFDMPHRTX, module, MCS, MCS_2);
+    } else if (data_rate == datarate_tmp * 8) {
+        rf_write_bbc_register_field(BBC_OFDMPHRTX, module, MCS, MCS_3);
+    } else if (data_rate == datarate_tmp * 12) {
+        rf_write_bbc_register_field(BBC_OFDMPHRTX, module, MCS, MCS_4);
+    } else if (data_rate == datarate_tmp * 16) {
+        rf_write_bbc_register_field(BBC_OFDMPHRTX, module, MCS, MCS_5);
+    } else if (data_rate == datarate_tmp * 24) {
+        rf_write_bbc_register_field(BBC_OFDMPHRTX, module, MCS, MCS_6);
+    } else {
+        return -1;
+    }
+    if (option == 1) {
+        rf_write_bbc_register_field(BBC_OFDMC, module, OPT, OPT_1);
+        rf_write_rf_register_field(RF_TXDFE, module, SR, SR_3);
+        rf_write_rf_register_field(RF_RXDFE, module, SR, SR_3);
+        rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_4);
+        rf_write_rf_register_field(RF_RXDFE, module, RCUT, RCUT_4);
+        rf_write_rf_register_field(RF_TXCUTC, module, LPFCUT, RF_FLC800KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, BW, RF_BW1250KHZ_IF2000KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, IFS, IFS);
+        rf_write_bbc_register_field(BBC_OFDMSW, module, OFDM_PDT, OFDM_PDT_5);
+    } else if (option == 2) {
+        rf_write_bbc_register_field(BBC_OFDMC, module, OPT, OPT_2);
+        rf_write_rf_register_field(RF_TXDFE, module, SR, SR_3);
+        rf_write_rf_register_field(RF_RXDFE, module, SR, SR_3);
+        rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_3);
+        rf_write_rf_register_field(RF_RXDFE, module, RCUT, RCUT_2);
+        rf_write_rf_register_field(RF_TXCUTC, module, LPFCUT, RF_FLC500KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, BW, RF_BW800KHZ_IF1000KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, IFS, IFS);
+        rf_write_bbc_register_field(BBC_OFDMSW, module, OFDM_PDT, OFDM_PDT_5);
+    } else if (option == 3) {
+        rf_write_bbc_register_field(BBC_OFDMC, module, OPT, OPT_3);
+        rf_write_rf_register_field(RF_TXDFE, module, SR, SR_6);
+        rf_write_rf_register_field(RF_RXDFE, module, SR, SR_6);
+        rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_3);
+        rf_write_rf_register_field(RF_RXDFE, module, RCUT, RCUT_2);
+        rf_write_rf_register_field(RF_TXCUTC, module, LPFCUT, RF_FLC250KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, BW, RF_BW400KHZ_IF500KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, IFS, 0);
+        rf_write_bbc_register_field(BBC_OFDMSW, module, OFDM_PDT, OFDM_PDT_4);
+    } else if (option == 4) {
+        rf_write_bbc_register_field(BBC_OFDMC, module, OPT, OPT_4);
+        rf_write_rf_register_field(RF_TXDFE, module, SR, SR_6);
+        rf_write_rf_register_field(RF_RXDFE, module, SR, SR_6);
+        rf_write_rf_register_field(RF_TXDFE, module, RCUT, RCUT_2);
+        rf_write_rf_register_field(RF_RXDFE, module, RCUT, RCUT_1);
+        rf_write_rf_register_field(RF_TXCUTC, module, LPFCUT, RF_FLC160KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, BW, RF_BW250KHZ_IF250KHZ);
+        rf_write_rf_register_field(RF_RXBWC, module, IFS, 1);
+        rf_write_bbc_register_field(BBC_OFDMSW, module, OFDM_PDT, OFDM_PDT_3);
+    }
+    return 0;
+}
+
 static void rf_conf_set_cca_threshold(uint8_t percent)
 {
     uint8_t step = (MAX_CCA_THRESHOLD - MIN_CCA_THRESHOLD);
@@ -1094,10 +1203,28 @@ int RFBits::init_215_driver(RFBits *_rf, TestPins *_test_pins, const uint8_t mac
     test_pins = _test_pins;
     irq_thread_215.start(mbed::callback(this, &RFBits::rf_irq_task));
     rf->spi.frequency(25000000);
+    /* Atmel AT86RF215 Device Family datasheet:
+     * Errata #9: RF215M device has a wrong part number
+     * Description:
+     * The RF215M device part number is 0x34 instead of 0x36 (register RF_PN.PN).
+     */
+#if !defined(HAVE_AT86RF215M)
     *rf_part_num = rf_read_common_register(RF_PN);
+#else
+    *rf_part_num = PART_AT86RF215M;
+    // AT86RF215M is Sub-GHz only transceiver. Change default settings.
+    rf_module = RF_09;
+    mac_mode = IEEE_802_15_4G_2012;
+#endif
     rf_version_num = rf_read_common_register(RF_VN);
     tr_info("RF version number: %x", rf_version_num);
     return rf_device_register(mac);
+}
+
+int RFBits::init_se2435_pa(Se2435Pins *_se2435_pa_pins)
+{
+    se2435_pa_pins = _se2435_pa_pins;
+    return 0;
 }
 
 #endif // MBED_CONF_NANOSTACK_CONFIGURATION && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)

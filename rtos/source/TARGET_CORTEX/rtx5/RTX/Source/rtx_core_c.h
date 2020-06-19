@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -30,12 +30,13 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
-#if ((!defined(__ARM_ARCH_6M__))      && \
-     (!defined(__ARM_ARCH_7A__))      && \
-     (!defined(__ARM_ARCH_7M__))      && \
-     (!defined(__ARM_ARCH_7EM__))     && \
-     (!defined(__ARM_ARCH_8M_BASE__)) && \
-     (!defined(__ARM_ARCH_8M_MAIN__)))
+#if ((!defined(__ARM_ARCH_6M__))        && \
+     (!defined(__ARM_ARCH_7A__))        && \
+     (!defined(__ARM_ARCH_7M__))        && \
+     (!defined(__ARM_ARCH_7EM__))       && \
+     (!defined(__ARM_ARCH_8M_BASE__))   && \
+     (!defined(__ARM_ARCH_8M_MAIN__))   && \
+     (!defined(__ARM_ARCH_8_1M_MAIN__)))
 #error "Unknown Arm Architecture!"
 #endif
 

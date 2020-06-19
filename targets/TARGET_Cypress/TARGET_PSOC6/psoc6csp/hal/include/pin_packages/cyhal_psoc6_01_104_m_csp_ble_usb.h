@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO HAL header for 104-M-CSP-BLE-USB package
 *
 * \note
-* Generator version: 1.5.7254.21430
+* Generator version: 1.5.7361.18849
 *
 ********************************************************************************
 * \copyright
@@ -34,6 +34,7 @@
  * \addtogroup group_hal_psoc6_pin_package_psoc6_01_104_m_csp_ble_usb PSoC6_01 104-M-CSP-BLE-USB
  * \ingroup group_hal_psoc6_pin_package
  * \{
+ * Pin definitions and connections specific to the PSoC6_01 104-M-CSP-BLE-USB package.
  */
 
 #if defined(__cplusplus)
@@ -41,11 +42,16 @@ extern "C" {
 #endif /* __cplusplus */
 
 /** Gets a pin definition from the provided port and pin numbers */
-#define CYHAL_GET_GPIO(port, pin) (((port) << 16) + (pin))
+#define CYHAL_GET_GPIO(port, pin)   (((port) << 3) + (pin))
+
+/** Macro that, given a gpio, will extract the pin number */
+#define CYHAL_GET_PIN(pin)          ((uint8_t)(pin & 0x07))
+/** Macro that, given a gpio, will extract the port number */
+#define CYHAL_GET_PORT(pin)         ((uint8_t)((pin >> 3) & 0x1F))
 
 /** Definitions for all of the pins that are bonded out on in the 104-M-CSP-BLE-USB package for the PSoC6_01 series. */
 typedef enum {
-    NC = (int)0xFFFFFFFF, //!< No Connect/Invalid Pin
+    NC = 0xFF, //!< No Connect/Invalid Pin
 
     P0_0 = CYHAL_GET_GPIO(CYHAL_PORT_0, 0), //!< Port 0 Pin 0
     P0_1 = CYHAL_GET_GPIO(CYHAL_PORT_0, 1), //!< Port 0 Pin 1
@@ -138,9 +144,10 @@ typedef cyhal_gpio_psoc6_01_104_m_csp_ble_usb_t cyhal_gpio_t;
 /** Represents an association between a pin and a resource */
 typedef struct
 {
-    cyhal_gpio_t                  pin;  //!< The GPIO pin
-    const cyhal_resource_inst_t  *inst; //!< The associated resource instance
-    cyhal_gpio_mapping_cfg_t      cfg;  //!< The DriveMode and HSIOM configuration value
+    const cyhal_resource_inst_t  *inst;      //!< The associated resource instance
+    cyhal_gpio_t                 pin;        //!< The GPIO pin
+    uint8_t                      drive_mode; //!< The DriveMode configuration value
+    en_hsiom_sel_t               hsiom;      //!< The HSIOM configuration value
 } cyhal_resource_pin_mapping_t;
 
 /* Pin connections */

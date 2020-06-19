@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cyb06xxa_cm4.ld
-* \version 2.70
+* \version 2.70.1
 *
 * Linker file for the GNU C compiler.
 *
@@ -19,7 +19,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * Copyright 2020 Arm Limited
 * SPDX-License-Identifier: Apache-2.0
 *

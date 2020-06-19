@@ -21,7 +21,7 @@
 #ifndef __PLATFORM_MBED__H__
 #define __PLATFORM_MBED__H__
 
-#if (defined(TARGET_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
+#if (defined(FEATURE_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
 
 #include "default_random_seed.h"
 
@@ -37,7 +37,7 @@
  * MBEDTLS_ENTROPY_NV_SEED is enabled. */
 #define MBEDTLS_PSA_INJECT_ENTROPY
 
-#endif  // (defined(TARGET_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
+#endif  // (defined(FEATURE_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
 
 #if DEVICE_TRNG
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
@@ -47,7 +47,7 @@
 #include "mbedtls_device.h"
 #endif
 
-#if defined(TARGET_PSA)
+#if defined(FEATURE_PSA)
 /* The following configurations are a needed for Mbed Crypto submodule.
  * They are related to the persistent key storage feature.
  */

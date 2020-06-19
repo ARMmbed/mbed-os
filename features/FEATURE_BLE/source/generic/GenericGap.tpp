@@ -27,6 +27,8 @@
 
 #include "drivers/Timeout.h"
 
+using namespace std::chrono;
+
 namespace ble {
 namespace generic {
 
@@ -1390,9 +1392,9 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         update_random_address();
 
         // Schedule rotations every 15 minutes as recomended by the spec
-        _address_rotation_ticker.attach_us(
+        _address_rotation_ticker.attach(
             mbed::callback(this, &GenericGap::on_address_rotation_timeout),
-            15 * 60 * 1000000U
+            15min
         );
     } else {
         // Stop ticker
@@ -1917,9 +1919,9 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
         _advertising_timeout.detach();
         if (maxDuration.value()) {
-            _advertising_timeout.attach_us(
+            _advertising_timeout.attach(
                 mbed::callback(this, &GenericGap::on_advertising_timeout),
-                durationCast<millisecond_t>(maxDuration).value()
+                maxDuration.valueChrono()
             );
         }
     }
@@ -2391,29 +2393,24 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 )
 {
     if (_user_manage_connection_parameter_requests) {
-        // ignore for now as it is
-        _pal_gap.accept_connection_parameter_request(
-            connection_handle,
-            connection_interval_min,
-            connection_interval_max,
-            connection_latency,
-            supervision_timeout,
-            /* connection event length min */ 0,
-            /* connection event length max */ 0
-        );
-    } else {
-        if (!_eventHandler) {
-            return;
-        }
-
-        _eventHandler->onUpdateConnectionParametersRequest(
-            UpdateConnectionParametersRequestEvent(
-                connection_handle,
+        if (_eventHandler) {
+            _eventHandler->onUpdateConnectionParametersRequest(
+                UpdateConnectionParametersRequestEvent(connection_handle,
                 conn_interval_t(connection_interval_min),
                 conn_interval_t(connection_interval_max),
                 connection_latency,
-                supervision_timeout_t(supervision_timeout)
-            )
+                supervision_timeout_t(supervision_timeout))
+            );
+        } else {
+            MBED_ERROR(illegal_state_error, "Event handler required if connection params are user handled");
+        }
+    } else {
+        _pal_gap.accept_connection_parameter_request(
+            connection_handle,
+            connection_interval_min, connection_interval_max,
+            connection_latency, supervision_timeout,
+            /* minimum_connection_event_length */0,
+            /* maximum_connection_event_length */0
         );
     }
 }
@@ -2505,9 +2502,9 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
         _scan_timeout.detach();
         if (duration.value()) {
-            _scan_timeout.attach_us(
+            _scan_timeout.attach(
                 mbed::callback(this, &GenericGap::on_scan_timeout_),
-                microsecond_t(duration).value()
+                duration.valueChrono()
             );
         }
     }

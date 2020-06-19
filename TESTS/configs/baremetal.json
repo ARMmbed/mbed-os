@@ -5,6 +5,7 @@
         "utest",
         "unity",
         "psa",
+        "psa-services",
         "mbedtls",
         "psa-compliance-framework",
         "filesystem",
@@ -32,7 +33,8 @@
         "kv-global-api",
         "sd",
         "qspif",
-        "cryptocell310"
+        "cryptocell310",
+        "drivers-usb"
     ],
     "target_overrides": {
         "*": {

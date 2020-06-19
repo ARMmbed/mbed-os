@@ -19,21 +19,30 @@
 
 #include "cmsis.h"
 #include "device.h"
-#include "cy_syspm.h"
+#include "cyhal_syspm.h"
+#include "cy_us_ticker.h"
 
 #if DEVICE_SLEEP
 
 void hal_sleep(void)
 {
-    Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+    cyhal_syspm_sleep();
 }
 
 void hal_deepsleep(void)
 {
 #if DEVICE_LPTICKER
-    Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+    // A running timer will block DeepSleep, which would normally be
+    // good because we don't want the timer to accidentally
+    // lose counts. We don't care about that for us_ticker
+    // (If we're requesting deepsleep the upper layers already determined
+    // that they are okay with that), so explicitly stop the us_ticker
+    // timer before we go to sleep and start it back up afterwards.
+    cy_us_ticker_stop();
+    cyhal_syspm_deepsleep();
+    cy_us_ticker_start();
 #else
-    Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+    cyhal_syspm_sleep();
 #endif /* DEVICE_LPTICKER */
 }
 

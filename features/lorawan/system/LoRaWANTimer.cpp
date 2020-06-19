@@ -20,6 +20,8 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "LoRaWANTimer.h"
 
+using namespace std::chrono;
+
 LoRaWANTimeHandler::LoRaWANTimeHandler()
     : _queue(NULL)
 {
@@ -53,7 +55,7 @@ void LoRaWANTimeHandler::init(timer_event_t &obj, mbed::Callback<void()> callbac
 
 void LoRaWANTimeHandler::start(timer_event_t &obj, const uint32_t timeout)
 {
-    obj.timer_id = _queue->call_in(timeout, obj.callback);
+    obj.timer_id = _queue->call_in(milliseconds(timeout), obj.callback);
     MBED_ASSERT(obj.timer_id != 0);
 }
 

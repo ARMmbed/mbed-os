@@ -61,6 +61,7 @@ uint8_t SetSysClock_PLL_MSI(void);
   * @param  None
   * @retval None
   */
+
 void SetSysClock(void)
 {
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
@@ -241,22 +242,17 @@ uint8_t SetSysClock_PLL_MSI(void)
 
     HAL_RCCEx_DisableLSECSS();
     /* Enable MSI Oscillator and activate PLL with MSI as source */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.MSIState            = RCC_MSI_ON;
-    RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
-    RCC_OscInitStruct.HSIState            = RCC_HSI_OFF;
-#if DEVICE_USBDEVICE
-    RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
-#else
-    RCC_OscInitStruct.HSI48State          = RCC_HSI48_OFF;
-#endif /* DEVICE_USBDEVICE */
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.MSIState             = RCC_MSI_ON;
+    RCC_OscInitStruct.HSEState             = RCC_HSE_OFF;
+    RCC_OscInitStruct.HSIState             = RCC_HSI_OFF;
     RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_6; /* 4 MHz */
+    RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_11; /* 48 MHz */
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_MSI;
-    RCC_OscInitStruct.PLL.PLLM            = 1;    /* 4 MHz */
-    RCC_OscInitStruct.PLL.PLLN            = 60;   /* 240 MHz */
-    RCC_OscInitStruct.PLL.PLLP            = 7;    /* 48 MHz */
+    RCC_OscInitStruct.PLL.PLLM            = 6;    /* 8 MHz */
+    RCC_OscInitStruct.PLL.PLLN            = 30;   /* 240 MHz */
+    RCC_OscInitStruct.PLL.PLLP            = 5;    /* 48 MHz */
     RCC_OscInitStruct.PLL.PLLQ            = 2;    /* 120 MHz */
     RCC_OscInitStruct.PLL.PLLR            = 2;    /* 120 MHz */
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
@@ -266,11 +262,10 @@ uint8_t SetSysClock_PLL_MSI(void)
     HAL_RCCEx_EnableMSIPLLMode();
 
 #if DEVICE_USBDEVICE
+    /* Select MSI output as USB clock source */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-    PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48; /* 48 MHz */
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
-        return 0; // FAIL
-    }
+    PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_MSI; /* 48 MHz */
+    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 #endif /* DEVICE_USBDEVICE */
 
     // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers

@@ -5,11 +5,11 @@
 * GPIO IP definitions
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.6.0.111
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,7 +57,7 @@ typedef struct {
   __IOM uint32_t CFG_OUT;                       /*!< 0x0000004C Port output buffer configuration register */
   __IOM uint32_t CFG_SIO;                       /*!< 0x00000050 Port SIO configuration register */
    __IM uint32_t RESERVED1;
-  __IOM uint32_t CFG_IN_AUTOLVL;                /*!< 0x00000058 Port input buffer AUTOLVL configuration register for S40E GPIO */
+  __IOM uint32_t CFG_IN_AUTOLVL;                /*!< 0x00000058 Port input buffer AUTOLVL configuration register */
    __IM uint32_t RESERVED2[9];
 } GPIO_PRT_V2_Type;                             /*!< Size = 128 (0x80) */
 

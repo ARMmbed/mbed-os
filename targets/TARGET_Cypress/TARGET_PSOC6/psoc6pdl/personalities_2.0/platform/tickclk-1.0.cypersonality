@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file tickclk.cypersonality
+* \version 1.0
+*
+* \brief
+* CLK_ALT_SYS_TICK personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2019 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40altsystick" name="CLK_ALT_SYS_TICK" version="1.0" path="Clocks/Fast" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="mxs40srss" />
+    <Resource name="srss\.clock\.altsystickclk" used="true" />
+  </Dependencies>
+  <ExposedMembers>
+    <ExposedMember key="frequency" paramId="frequency" />
+    <ExposedMember key="accuracy"  paramId="accuracy" />
+  </ExposedMembers>
+  <Parameters>
+    <!-- PDL documentation -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__arm__system__timer.html" linkText="Open SysTick Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
+
+    <ParamChoice id="sourceClock" name="Source Clock" group="General" default="imo" visible="true" editable="true" desc="The clock source selection">
+      <Entry name="CLK_LF" value="lfclk" visible="true"/>
+      <Entry name="IMO" value="imo" visible="true"/>
+      <Entry name="ECO" value="eco" visible="`${ECO_PRESENT}`"/>
+      <Entry name="CLK_TIMER" value="timerclk" visible="true"/>
+    </ParamChoice>
+    <ParamString id="sourceClockRsc" name="Source Clock Resource" group="Internal" default="srss[0].clock[0].`${sourceClock}`[0]" visible="false" editable="false" desc="" />
+    <ParamString id="sourceClockRscName" name="Source Clock" group="Internal" default="`${sourceClock eq lfclk ? &quot;LF&quot; :
+                                                                                          sourceClock eq imo   ? &quot;IMO&quot; :
+                                                                                          sourceClock eq eco ? &quot;ECO&quot; : &quot;TIMER&quot;}`" visible="false" editable="false" desc="" />
+    <!-- Set an error if the source clock is not enabled -->
+    <ParamBool  id="error" name="Clock Error" group="Internal" default="`${!isBlockUsed(sourceClockRsc)}`" visible="false" editable="false" desc="" />
+    <ParamRange id="frequency" name="Frequency" group="Internal" default="`${!error ? getExposedMember(sourceClockRsc, &quot;frequency&quot;) : 0}`" min="0" max="400000000" resolution="1" visible="false" editable="false" desc="" />
+    <ParamString id="accuracy" name="Accuracy" group="General" default="`${!error ? getExposedMember(sourceClockRsc, &quot;accuracy&quot;) : 0}`" visible="false" editable="false" desc="" />
+    
+    <!-- If the frequency is less than one MHz, display its value in kHz -->
+    <ParamString id="frequencyInfo" name="Frequency" group="General" default="`${formatFrequency(frequency,accuracy)}`" visible="true" editable="false" desc="The resulting CLK_ALT_SYS_TICK output clock frequency" />
+  </Parameters>
+  <DRCs>
+    <DRC type="ERROR" text="Source clock for CLK_ALT_SYS_TICK is not enabled" condition="`${error}`" >
+      <FixIt action="ENABLE_BLOCK" target="`${sourceClockRsc}`" value="" valid="true" />
+    </DRC>
+  </DRCs>
+  <ConfigFirmware>
+    <ConfigInclude value="cy_systick.h" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKALTSYSTICK_ENABLED" value="1" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkAltSysTickInit()" body="    Cy_SysTick_SetClockSource(CY_SYSTICK_CLOCK_SOURCE_CLK_`${sourceClockRscName}`);" public="false" include="true" />
+  </ConfigFirmware>
+</Personality>

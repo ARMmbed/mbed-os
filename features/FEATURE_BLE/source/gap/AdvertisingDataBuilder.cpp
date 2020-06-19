@@ -256,7 +256,7 @@ ble_error_t AdvertisingDataBuilder::setServiceData(
     );
 
     /* if we can't fit the new data do not proceed */
-    if (total_size > data.size() - (_payload_length - old_size)) {
+    if (total_size > (_buffer.size() - (_payload_length - old_size))) {
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
 

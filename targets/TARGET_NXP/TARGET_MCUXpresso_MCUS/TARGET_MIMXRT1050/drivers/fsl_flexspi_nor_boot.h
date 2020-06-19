@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include "device.h"
+#undef __VECTOR_TABLE
 
 /*! @name Driver version */
 /*@{*/

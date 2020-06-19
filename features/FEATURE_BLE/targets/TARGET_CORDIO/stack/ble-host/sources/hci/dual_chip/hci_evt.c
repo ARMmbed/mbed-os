@@ -2048,6 +2048,12 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
     {
       cbackEvt = hciCoreVsCmdCmplRcvd(opcode, p, len);
     }
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+    else
+    {
+      cbackEvt = HCI_UNHANDLED_CMD_CMPL_CBACK_EVT;
+    }
+#endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
     break;
   }
 
@@ -2055,6 +2061,29 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
   if (cbackEvt != 0)
   {
     /* allocate temp buffer */
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+    if (cbackEvt == HCI_UNHANDLED_CMD_CMPL_CBACK_EVT) {
+      const uint8_t structSize = sizeof(hciUnhandledCmdCmplEvt_t) - 1 /* removing the fake 1-byte array */;
+      const uint8_t remainingLen = len - 3 /* we already read opcode and numPkts */;
+      const uint8_t msgSize = structSize + remainingLen;
+
+      pMsg = WsfBufAlloc(msgSize);
+      if (pMsg != NULL) {
+          pMsg->hdr.param = opcode;
+          pMsg->hdr.event = HCI_UNHANDLED_CMD_CMPL_CBACK_EVT;
+          pMsg->hdr.status = HCI_SUCCESS;
+          /* copy the payload */
+          memcpy(pMsg->unhandledCmdCmpl.param, p, remainingLen);
+
+          /* execute callback */
+          (*cback)(pMsg);
+
+          /* free buffer */
+          WsfBufFree(pMsg);
+      }
+    }
+    else
+#endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
     if ((pMsg = WsfBufAlloc(hciEvtCbackLen[cbackEvt])) != NULL)
     {
       /* initialize message header */

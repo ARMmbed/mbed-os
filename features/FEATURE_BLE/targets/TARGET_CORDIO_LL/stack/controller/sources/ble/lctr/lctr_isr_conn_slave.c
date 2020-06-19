@@ -452,7 +452,7 @@ void lctrSlvConnEndOp(BbOpDesc_t *pOp)
        (WsfQueueEmpty(&pCtx->txArqQ)) &&
        (pCtx->state != LCTR_CONN_STATE_TERMINATING)))
   {
-    if ((pCtx->llcpActiveProc == LCTR_PROC_INVALID))
+    if (pCtx->llcpActiveProc == LCTR_PROC_INVALID)
     {
       numSkipCe = pCtx->maxLatency;
     }

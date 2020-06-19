@@ -23,7 +23,7 @@
 #include "mbed_trace.h"
 #include "platform/SingletonPtr.h"
 #include "platform/arm_hal_interrupt.h"
-#include <Timer.h>
+#include "platform/mbed_power_mgmt.h"
 #include "equeue.h"
 #include "events/EventQueue.h"
 #include "mbed_shared_queues.h"
@@ -37,8 +37,9 @@
 namespace {
 using namespace mbed;
 using namespace events;
+using namespace std::chrono;
+using std::micro;
 
-static SingletonPtr<Timer> timer;
 static bool timer_initialized = false;
 static const fhss_api_t *fhss_active_handle = NULL;
 #if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
@@ -53,45 +54,41 @@ static EventQueue *equeue;
 // an initialized-data cost.
 struct fhss_timeout_s {
     void (*fhss_timer_callback)(const fhss_api_t *fhss_api, uint16_t) = nullptr;
-    uint32_t start_time = 0;
-    uint32_t stop_time = 0;
     bool active = false;
     SingletonPtr<Timeout> timeout;
 };
 
 fhss_timeout_s fhss_timeout[NUMBER_OF_SIMULTANEOUS_TIMEOUTS];
 
-static uint32_t read_current_time(void)
-{
-    return timer->read_us();
-}
-
 static fhss_timeout_s *find_timeout(void (*callback)(const fhss_api_t *api, uint16_t))
 {
-    for (int i = 0; i < NUMBER_OF_SIMULTANEOUS_TIMEOUTS; i++) {
-        if (fhss_timeout[i].fhss_timer_callback == callback) {
-            return &fhss_timeout[i];
+    for (fhss_timeout_s &t : fhss_timeout) {
+        if (t.fhss_timer_callback == callback) {
+            return &t;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 static fhss_timeout_s *allocate_timeout(void)
 {
-    for (int i = 0; i < NUMBER_OF_SIMULTANEOUS_TIMEOUTS; i++) {
-        if (fhss_timeout[i].fhss_timer_callback == NULL) {
-            return &fhss_timeout[i];
+    for (fhss_timeout_s &t : fhss_timeout) {
+        if (t.fhss_timer_callback == NULL) {
+            return &t;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 static void fhss_timeout_handler(void)
 {
-    for (int i = 0; i < NUMBER_OF_SIMULTANEOUS_TIMEOUTS; i++) {
-        if (fhss_timeout[i].active && ((fhss_timeout[i].stop_time - fhss_timeout[i].start_time) <= (read_current_time() - fhss_timeout[i].start_time))) {
-            fhss_timeout[i].active = false;
-            fhss_timeout[i].fhss_timer_callback(fhss_active_handle, read_current_time() - fhss_timeout[i].stop_time);
+    for (fhss_timeout_s &t : fhss_timeout) {
+        if (t.active) {
+            microseconds remaining_time = t.timeout->remaining_time();
+            if (remaining_time <= 0s) {
+                t.active = false;
+                t.fhss_timer_callback(fhss_active_handle, -remaining_time.count());
+            }
         }
     }
 }
@@ -114,7 +111,7 @@ static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss
         equeue = mbed_highprio_event_queue();
         MBED_ASSERT(equeue != NULL);
 #endif
-        timer->start();
+        HighResClock::lock();
         timer_initialized = true;
     }
     fhss_timeout_s *fhss_tim = find_timeout(callback);
@@ -127,10 +124,8 @@ static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss
         return ret_val;
     }
     fhss_tim->fhss_timer_callback = callback;
-    fhss_tim->start_time = read_current_time();
-    fhss_tim->stop_time = fhss_tim->start_time + slots;
     fhss_tim->active = true;
-    fhss_tim->timeout->attach_us(timer_callback, slots);
+    fhss_tim->timeout->attach(timer_callback, microseconds{slots});
     fhss_active_handle = callback_param;
     ret_val = 0;
     platform_exit_critical();
@@ -161,18 +156,19 @@ static uint32_t platform_fhss_get_remaining_slots(void (*callback)(const fhss_ap
         platform_exit_critical();
         return 0;
     }
-    uint32_t remaining_slots = fhss_tim->stop_time - read_current_time();
+    microseconds remaining_slots = fhss_tim->timeout->remaining_time();
     platform_exit_critical();
-    return remaining_slots;
+    return remaining_slots.count();
 }
 
 static uint32_t platform_fhss_timestamp_read(const fhss_api_t *api)
 {
     (void)api;
-    return read_current_time();
+    return HighResClock::now().time_since_epoch().count();
 }
 } // anonymous namespace
 
+static_assert(std::ratio_equal<HighResClock::period, micro>::value, "HighResClock not microseconds!");
 fhss_timer_t fhss_functions = {
     .fhss_timer_start = platform_fhss_timer_start,
     .fhss_timer_stop = platform_fhss_timer_stop,

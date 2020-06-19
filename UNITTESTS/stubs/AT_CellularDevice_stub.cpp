@@ -137,7 +137,7 @@ AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
 
 void AT_CellularDevice::set_timeout(int timeout)
 {
-    _default_timeout = timeout;
+    _default_timeout = std::chrono::duration<int, std::milli>(timeout);
 }
 
 void AT_CellularDevice::modem_debug_on(bool on)

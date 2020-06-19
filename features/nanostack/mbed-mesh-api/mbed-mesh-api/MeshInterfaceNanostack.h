@@ -76,6 +76,8 @@ protected:
 };
 
 class Nanostack::MeshInterface : public Nanostack::Interface {
+public:
+    char *get_interface_name(char *buf);
 protected:
     MeshInterface(NanostackRfPhy &phy) : Interface(phy) { }
     NanostackRfPhy &get_phy() const
@@ -163,6 +165,7 @@ protected:
     char mac_addr_str[24] {};
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     bool _blocking = true;
+    bool _configured = false;
 };
 
 class MeshInterfaceNanostack : public InterfaceNanostack, public MeshInterface, private mbed::NonCopyable<MeshInterfaceNanostack> {

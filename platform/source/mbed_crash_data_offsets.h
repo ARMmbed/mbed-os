@@ -17,6 +17,9 @@
 #ifndef MBED_CRASH_DATA_INFO_H
 #define MBED_CRASH_DATA_INFO_H
 
+#include "platform/internal/mbed_fault_handler.h"
+#include "platform/mbed_error.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,25 +28,28 @@ extern "C" {
 /** \ingroup mbed-os-internal */
 /** \addtogroup platform-internal-api */
 /** @{*/
-#if defined(__ARMCC_VERSION)
-extern uint32_t Image$$RW_m_crash_data$$ZI$$Base[];
-extern uint32_t Image$$RW_m_crash_data$$ZI$$Size;
-#define __CRASH_DATA_RAM_START__    Image$$RW_m_crash_data$$ZI$$Base
-#elif defined(__ICCARM__)
-extern uint32_t __CRASH_DATA_RAM_START__[];
-extern uint32_t __CRASH_DATA_RAM_END__[];
-#elif defined(__GNUC__)
-extern uint32_t __CRASH_DATA_RAM_START__[];
-extern uint32_t __CRASH_DATA_RAM_END__[];
-#endif /* defined(__CC_ARM) */
+// Any changes here must be reflected in except.S if they affect the fault handler.
+// The fault context is first to keep it simple for the assembler.
+typedef struct mbed_crash_data {
+    union {
+        mbed_fault_context_t context;
+        int pad[32];
+    } fault;
+    union {
+        mbed_error_ctx context;
+        int pad[32];
+    } error;
+} mbed_crash_data_t;
 
-/* Offset definitions for context capture */
-#define FAULT_CONTEXT_OFFSET    (0x0)
-#define FAULT_CONTEXT_SIZE      (0x80 / 4)    //32 words(128 bytes) for Fault Context
-#define ERROR_CONTEXT_OFFSET    (FAULT_CONTEXT_OFFSET + FAULT_CONTEXT_SIZE)
-#define ERROR_CONTEXT_SIZE      (0x80 / 4)    //32 words(128 bytes) bytes for Error Context
-#define FAULT_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + FAULT_CONTEXT_OFFSET)
-#define ERROR_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + ERROR_CONTEXT_OFFSET)
+#if defined(__ARMCC_VERSION)
+#define MBED_CRASH_DATA Image$$RW_m_crash_data$$ZI$$Base
+#elif defined(__ICCARM__)
+#define MBED_CRASH_DATA __CRASH_DATA_RAM_START__
+#elif defined(__GNUC__)
+#define MBED_CRASH_DATA __CRASH_DATA_RAM_START__
+#endif
+
+extern mbed_crash_data_t MBED_CRASH_DATA;
 /**@}*/
 #endif
 

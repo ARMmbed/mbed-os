@@ -128,6 +128,23 @@ static void dmDevHciEvtHwError(hciEvt_t *pEvent)
   (*dmCb.cback)((dmEvt_t *) pEvent);
 }
 
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+/*************************************************************************************************/
+/*!
+ *  \brief  Handle unhandled command complete events from HCI.
+ *
+ *  \param  pEvent  Pointer to HCI callback event structure.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void dmDevHciEvtUnhandledCmdCmpl(hciEvt_t *pEvent)
+{
+  pEvent->hdr.event = DM_UNHANDLED_CMD_CMPL_EVT_IND;
+  (*dmCb.cback)((dmEvt_t *) pEvent);
+}
+#endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+
 /*************************************************************************************************/
 /*!
  *  \brief  DM dev HCI event handler.
@@ -152,6 +169,12 @@ void dmDevHciHandler(hciEvt_t *pEvent)
     case HCI_HW_ERROR_CBACK_EVT:
       dmDevHciEvtHwError(pEvent);
       break;
+
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+    case HCI_UNHANDLED_CMD_CMPL_CBACK_EVT:
+      dmDevHciEvtUnhandledCmdCmpl(pEvent);
+      break;
+#endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
 
     default:
       /* ignore event */

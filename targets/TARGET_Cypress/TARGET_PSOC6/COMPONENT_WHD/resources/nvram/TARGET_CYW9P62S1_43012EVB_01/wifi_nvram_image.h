@@ -14,42 +14,24 @@
  * limitations under the License.
  */
 
-/** @file
- *  NVRAM file for CYW9P62S1-43012EVB-01
- */
-
-
-
 #ifndef INCLUDED_NVRAM_IMAGE_H_
-
 #define INCLUDED_NVRAM_IMAGE_H_
 
-
-
 #include <string.h>
-
 #include <stdint.h>
-
-#include "../generated_mac_address.txt"
-
-
+#include "generated_mac_address.txt"
 
 #ifdef __cplusplus
-
 extern "C" {
-
 #endif
-
-
 
 /**
  * Character array of NVRAM image
- * 
- * Generated from cyw9p62s1_43012evb_01_P200_722585.txt
+ * Generated from cyw9p62s1_43012evb_01_P200_724424.txt
  */
 
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev: 722585 $"                                            "\x00"
+        "NVRAMRev=$Rev: 724424 $"                                            "\x00"
         "sromrev=11"                                                         "\x00"
         "etmode=0x11"                                                        "\x00"
         "cckdigfilttype=4"                                                   "\x00"
@@ -92,7 +74,7 @@ static const char wifi_nvram_image[] =
         "femctrl=17"                                                         "\x00"
         "subband5gver=4"                                                     "\x00"
         "pa2ga0=-100,5849,-671"                                              "\x00"
-        "pa5ga0=8,6421,-630,-31,6325,-670,-24,6386,-649,-70,6028,-658"       "\x00"
+        "pa5ga0=-35,6050,-685,-32,6100,-675,-100,5950,-685,-148,5800,-715"   "\x00"
         "cckpwroffset0=2"                                                    "\x00"
         "pdoffset40ma0=0"                                                    "\x00"
         "pdoffset80ma0=0"                                                    "\x00"
@@ -148,6 +130,7 @@ static const char wifi_nvram_image[] =
         "lpo_select=4"                                                       "\x00"
         "csml=0x10"                                                          "\x00"
         "pt5db_gaintbl=0"                                                    "\x00"
+        "muxenab=0x01"                                                       "\x00"
         "lhlgpio_cfg=0x00000020,0x00000000"                                  "\x00"
         "papdcck=0"                                                          "\x00"
         "phycal_tempdelta=15"                                                "\x00"
@@ -159,5 +142,7 @@ static const char wifi_nvram_image[] =
 #endif
 
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
+
 #error Wi-Fi NVRAM image included twice
+
 #endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */

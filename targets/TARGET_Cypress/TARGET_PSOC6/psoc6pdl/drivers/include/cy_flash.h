@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.h
-* \version 3.30.4
+* \version 3.30.5
 *
 * Provides the API declarations of the Flash driver.
 *
@@ -280,13 +280,13 @@
 *     <td>Moved ipcWaitMessageStc structure to the RAM section called ".cy_sharedmem".</td>
 *     <td>Support Secure Boot devices.</td>
 *   </tr>
-*	<tr>
+*   <tr>
 *     <td>Renamed Function Cy_Flash_StartErase() to Cy_Flash_StartEraseRow().</td>
 *     <td>The driver improvements based on the usability feedback.</td>
-*	</tr>
+*   </tr>
 *   <tr>
 *     <td>Added new API functions \ref Cy_Flash_EraseSector, 
-*   	  \ref Cy_Flash_StartEraseSector, \ref Cy_Flash_EraseSubsector, 
+*         \ref Cy_Flash_StartEraseSector, \ref Cy_Flash_EraseSubsector, 
 *         \ref Cy_Flash_StartEraseSubsector </td>
 *     <td>The driver improvements based on the usability feedback.</td>
 *   </tr>

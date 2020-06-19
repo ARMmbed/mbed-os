@@ -35,7 +35,9 @@
    Portions Copyright (c) 2016 - 2017 Analog Devices, Inc.
    ---------------------------------------------------------------------------*/
 
+#define __PROGRAM_START
 #include <cmsis.h>
+#undef __PROGRAM_START
 #include <adi_pwr.h>
 #include <startup_ADuCM4050.h>
 

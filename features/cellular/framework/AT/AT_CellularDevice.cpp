@@ -34,8 +34,9 @@
 using namespace mbed_cellular_util;
 using namespace events;
 using namespace mbed;
+using namespace std::chrono_literals;
 
-#define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
+#define DEFAULT_AT_TIMEOUT 1s // at default timeout
 const int MAX_SIM_RESPONSE_LENGTH = 16;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) :
@@ -388,7 +389,7 @@ void AT_CellularDevice::close_information()
 
 void AT_CellularDevice::set_timeout(int timeout)
 {
-    _default_timeout = timeout;
+    _default_timeout = std::chrono::duration<int, std::milli>(timeout);
 
     _at.set_at_timeout(_default_timeout, true);
 
@@ -420,7 +421,7 @@ nsapi_error_t AT_CellularDevice::init()
             }
         }
         tr_debug("Wait 100ms to init modem");
-        rtos::ThisThread::sleep_for(100); // let modem have time to get ready
+        rtos::ThisThread::sleep_for(100ms); // let modem have time to get ready
     }
 
     return _at.unlock_return_error();
@@ -577,7 +578,7 @@ void AT_CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, Cellul
         cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
         if (cell_ev == CellularDeviceTimeout) {
             cell_callback_data_t *data = (cell_callback_data_t *)ptr;
-            int timeout = *(int *)data->data;
+            auto timeout = *(std::chrono::duration<int, std::milli> *)data->data;
             if (_default_timeout != timeout) {
                 _default_timeout = timeout;
                 _at.set_at_timeout(_default_timeout, true);
@@ -611,7 +612,7 @@ nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
     _at.set_baud(baud_rate);
 
     // Give some time before starting using the UART with the new baud rate
-    rtos::ThisThread::sleep_for(3000);
+    rtos::ThisThread::sleep_for(3s);
 #else
     // Currently ATHandler only supports BufferedSerial based communication and
     // if serial is disabled, baud rate cannot be set

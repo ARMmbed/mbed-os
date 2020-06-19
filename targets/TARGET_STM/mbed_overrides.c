@@ -31,6 +31,22 @@
 int mbed_sdk_inited = 0;
 extern void SetSysClock(void);
 
+/**
+ * @brief Setup the target board-specific configuration
+ * of the microcontroller
+ *
+ * @note If used, this function should be implemented
+ * elsewhere. This declaration is weak so it may be overridden
+ * by user code.
+ *
+ * @param None
+ * @retval None
+ */
+MBED_WEAK void TargetBSP_Init(void) {
+    /** Do nothing */
+}
+
+
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()
 {
@@ -149,6 +165,9 @@ void mbed_sdk_init()
     }
 #endif /* ! MBED_CONF_TARGET_LSE_AVAILABLE */
 #endif /* DEVICE_RTC */
+
+    /* BSP initialization hook (external RAM, etc) */
+    TargetBSP_Init();
 
     mbed_sdk_inited = 1;
 }

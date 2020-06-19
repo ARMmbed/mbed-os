@@ -17,8 +17,6 @@
 
 #if USB_DEVICE_TESTS
 
-#if defined(MBED_CONF_RTOS_PRESENT)
-
 #include "stdint.h"
 #include "USBTester.h"
 #include "mbed_shared_queues.h"
@@ -29,14 +27,8 @@
 
 #define VENDOR_TEST_CTRL_IN                 1
 #define VENDOR_TEST_CTRL_OUT                2
-#define VENDOR_TEST_CTRL_NONE               3
-#define VENDOR_TEST_CTRL_IN_DELAY           4
-#define VENDOR_TEST_CTRL_OUT_DELAY          5
-#define VENDOR_TEST_CTRL_NONE_DELAY         6
-#define VENDOR_TEST_CTRL_IN_STATUS_DELAY    7
-#define VENDOR_TEST_CTRL_OUT_STATUS_DELAY   8
-#define VENDOR_TEST_CTRL_IN_SIZES           9
-#define VENDOR_TEST_CTRL_OUT_SIZES          10
+#define VENDOR_TEST_CTRL_IN_SIZES           3
+#define VENDOR_TEST_CTRL_OUT_SIZES          4
 
 #define MAX_EP_SIZE 64
 #define MIN_EP_SIZE 8
@@ -44,7 +36,6 @@
 #define CTRL_BUF_SIZE (2048)
 
 #define EVENT_READY (1 << 0)
-
 
 USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
     USBDevice(phy, vendor_id, product_id, product_release), interface_0_alt_set(NONE),
@@ -60,7 +51,6 @@ USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     int_in = resolver.endpoint_in(USB_EP_TYPE_INT, 64);
     int_out = resolver.endpoint_out(USB_EP_TYPE_INT, 64);
     MBED_ASSERT(resolver.valid());
-    queue = mbed::mbed_highprio_event_queue();
     configuration_desc(0);
     ctrl_buf = new uint8_t[CTRL_BUF_SIZE];
     init();
@@ -136,7 +126,6 @@ void USBTester::callback_request(const setup_packet_t *setup)
     RequestResult result = PassThrough;
     uint8_t *data = NULL;
     uint32_t size = 0;
-    uint32_t delay = 0;
 
     /* Process vendor-specific requests */
     if (setup->bmRequestType.Type == VENDOR_TYPE) {
@@ -150,13 +139,6 @@ void USBTester::callback_request(const setup_packet_t *setup)
                 result = Receive;
                 data = ctrl_buf;
                 size = setup->wValue < 8 ? setup->wValue : 8;
-                break;
-            case VENDOR_TEST_CTRL_NONE:
-                result = Success;
-                break;
-            case VENDOR_TEST_CTRL_NONE_DELAY:
-                result = Success;
-                delay = 2000;
                 break;
             case VENDOR_TEST_CTRL_IN_SIZES:
                 result = Send;
@@ -174,11 +156,7 @@ void USBTester::callback_request(const setup_packet_t *setup)
         }
     }
 
-    if (delay) {
-        queue->call_in(delay, static_cast<USBDevice *>(this), &USBTester::complete_request, Success, data, size);
-    } else {
-        complete_request(result, data, size);
-    }
+    complete_request(result, data, size);
 }
 
 void USBTester::callback_request_xfer_done(const setup_packet_t *setup, bool aborted)
@@ -706,5 +684,5 @@ void USBTester::epbulk_out_callback()
     read_finish(bulk_out);
     read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 }
-#endif
+
 #endif //USB_DEVICE_TESTS

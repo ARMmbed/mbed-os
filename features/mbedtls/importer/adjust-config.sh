@@ -25,7 +25,19 @@ conf() {
     $SCRIPT -f $FILE --force $@
 }
 
-add_code() {
+# Add code before the matching line
+prepend_code() {
+    MATCH_PATTERN="$1"
+    shift
+    CODE=$(IFS=""; printf "%s" "$*")
+
+    perl -i -pe                                    \
+        "s/$MATCH_PATTERN/$CODE$MATCH_PATTERN/igs" \
+        "$FILE"
+}
+
+# Add code after the matching line
+append_code() {
     MATCH_PATTERN="$1"
     shift
     CODE=$(IFS=""; printf "%s" "$*")
@@ -37,7 +49,7 @@ add_code() {
 
 # add an #ifndef to include config-no-entropy.h when the target does not have
 # an entropy source we can use.
-add_code                                                                                          \
+append_code                                                                                       \
     "#ifndef MBEDTLS_CONFIG_H\n"                                                                  \
     "\n"                                                                                          \
     "#include \"platform\/inc\/platform_mbed.h\"\n"                                               \
@@ -56,8 +68,8 @@ add_code                                                                        
     "\n"                                                                                          \
     "#else\n"
 
-add_code                                                                                                       \
-    "#include \"mbedtls\/check_config.h\"\n"                                                                   \
+prepend_code                                                                                                   \
+    "#endif \/\* MBEDTLS_CONFIG_H \*\/"                                                                        \
     "\n"                                                                                                       \
     "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY && !MBEDTLS_ENTROPY_NV_SEED *\/\n" \
     "\n"                                                                                                       \
@@ -70,7 +82,13 @@ add_code                                                                        
     "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_ENTROPY_NV_SEED)\n"                        \
     "#error \"No entropy source was found at build time, so TLS \" \\\\\n"                                     \
     "    \"functionality is not available\"\n"                                                                 \
-    "#endif\n"
+    "#endif\n"                                                                                                 \
+    "\n"                                                                                                       \
+    "#if defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA)\n"                                          \
+    "    #define MBEDTLS_PSA_HAS_ITS_IO\n"                                                                     \
+    "    #define MBEDTLS_USE_PSA_CRYPTO\n"                                                                     \
+    "#endif\n"                                                                                                 \
+    "\n"
 
 # not supported on mbed OS, nor used by mbed Client
 conf unset MBEDTLS_NET_C

@@ -200,7 +200,8 @@ void rtc_write_read_test()
 {
     RealTimeClock::init();
 
-    for (auto init_val = RealTimeClock::time_point(100s); init_val < RealTimeClock::time_point(400s); init_val += 100s) {
+    /* NB: IAR compilation issue with "auto init_val = RealTimeClock::time_point(100s)" */
+    for (auto init_val = RealTimeClock::time_point(seconds(100)); init_val < RealTimeClock::time_point(400s); init_val += 100s) {
         core_util_critical_section_enter();
 
         RealTimeClock::write(init_val);

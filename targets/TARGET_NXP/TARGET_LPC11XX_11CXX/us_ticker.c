@@ -23,6 +23,9 @@
 int us_ticker_inited = 0;
 
 void us_ticker_init(void) {
+    // First, disabled interrupt
+    US_TICKER_TIMER->MCR &= ~1;
+    
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
     

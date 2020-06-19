@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Arm Limited
+ * Copyright (c) 2017-2020 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,10 @@
   /* anonymous unions are enabled by default */
 #else
   #warning Not supported compiler type
+#endif
+
+#if defined(TARGET_MUSCA_B1)
+#include "cmsis_nvic.h"
 #endif
 
 #endif /*__MUSCA_B1_CMSIS_H__ */

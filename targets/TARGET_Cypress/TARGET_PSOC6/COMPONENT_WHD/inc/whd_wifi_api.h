@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Cypress Semiconductor Corporation
+ * Copyright 2020 Cypress Semiconductor Corporation
  * SPDX-License-Identifier: Apache-2.0
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -745,6 +745,280 @@ extern uint32_t whd_wifi_send_action_frame(whd_interface_t ifp, whd_af_params_t 
  */
 extern uint32_t whd_wifi_set_coex_config(whd_interface_t ifp, whd_coex_config_t *coex_config);
 
+/** Get version of Device (WLAN) Firmware
+ *
+ * @param[in]    ifp            : pointer to handle instance of whd interface
+ * @param[out]   version        : pointer to store version #
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_version(whd_interface_t ifp, uint32_t *version);
+
+/** Get ARP Offload Peer Age from Device (WLAN)
+ *    Length of time in seconds before aging out an entry in the WLAN processor ARP table.
+ *
+ * @param[in]    ifp            : pointer to handle instance of whd interface
+ * @param[out]   seconds        : pointer to store value
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_peerage_get(whd_interface_t ifp, uint32_t *seconds);
+
+/** Set ARP Offload Peer Age in Device (WLAN)
+ *    Length of time in seconds before aging out an entry in the WLAN processor ARP table.
+ *
+ * @param[in]    ifp            : pointer to handle instance of whd interface
+ * @param[in]    seconds        : Seconds to age out IP
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_peerage_set(whd_interface_t ifp, uint32_t seconds);
+
+/** Get ARP Offload Agent Enable from Device (WLAN)
+ *
+ * @param[in]    ifp            : pointer to handle instance of whd interface
+ * @param[out]   agent_enable   : pointer to store value
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_arpoe_get(whd_interface_t ifp, uint32_t *agent_enable);
+
+/** Set ARP Offload Agent Enable in Device (WLAN)
+ *    Set Enable/Disable of ARP Offload Agent
+ *
+ * @param[in]    ifp            : pointer to handle instance of whd interface
+ * @param[in]    agent_enable   : Enable=1 / Disable=0
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_arpoe_set(whd_interface_t ifp, uint32_t agent_enable);
+
+/** Clear ARP Offload cache in Device (WLAN)
+ *
+ * @param[in]    ifp            : pointer to handle instance of whd interface
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_cache_clear(whd_interface_t ifp);
+
+/** Get ARP Offload Feature Flags from Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[out]   features   : ptr to store currently set features - bit flags @ref CY_ARP_OL_AGENT_ENABLE, etc.
+ *                            ARL_OL_AGENT | ARL_OL_SNOOP | ARP_OL_HOST_AUTO_REPLY | ARP_OL_PEER_AUTO_REPLY
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_features_get(whd_interface_t ifp, uint32_t *features);
+
+/** Set ARP Offload Feature Flags in Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    features   : features to set value (you can OR ('|') multiple flags) @ref CY_ARP_OL_AGENT_ENABLE, etc.
+ *                           ARL_OL_AGENT | ARL_OL_SNOOP | ARP_OL_HOST_AUTO_REPLY | ARP_OL_PEER_AUTO_REPLY
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_features_set(whd_interface_t ifp, uint32_t features);
+
+/** Print ARP Offload Feature Flags in Human readable form to console
+ *
+ * @param[in]    features   : feature flags to set (you can OR '|' multiple flags) @ref CY_ARP_OL_AGENT_ENABLE, etc.
+ *                            ARL_OL_AGENT | ARL_OL_SNOOP | ARP_OL_HOST_AUTO_REPLY | ARP_OL_PEER_AUTO_REPLY
+ * @param[in]    title      : Optional: Title for output (NULL == no title)
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_features_print(uint32_t features, const char *title);
+
+/** Add ARP Offload Host IP Identifier(s) to HostIP List to Device (WLAN)
+ *
+ * @param[in]    ifp            : pointer to handle instance of whd interface
+ * @param[in]    host_ipv4_list : pointer to host_ip data (IPv4, 1 uint32_t per ip addr)
+ * @param[in]    count          : Number of array elements in host_ip
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_hostip_list_add(whd_interface_t ifp, uint32_t *host_ipv4_list, uint32_t count);
+
+/** Add One ARP Offload Host IP Identifier to HostIP List (mbed-style IP string) to Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    ip_addr    : pointer to ip string (as returned from mbedos calls)
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_hostip_list_add_string(whd_interface_t ifp, const char *ip_addr);
+
+/** Clear One ARP Offload Host IP Identifier from Host IP List in Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    ipv4_addr  : ip addr expressed as a uint32_t
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_hostip_list_clear_id(whd_interface_t ifp, uint32_t ipv4_addr);
+
+/** Clear One ARP Offload Host IP Identifier from Host IP List (mbed-style IP string) in Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    ip_addr    : pointer to ip string (as returned from mbedos calls)
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_hostip_list_clear_id_string(whd_interface_t ifp, const char *ip_addr);
+
+/** Clear all ARP Offload Host IP Identifier List
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_hostip_list_clear(whd_interface_t ifp);
+
+/** Get ARP Offload Host IP Identifiers from Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    count          : Number of array elements in host_ip
+ * @param[out]   host_ipv4_list : Pointer to structure array to store host_ip data
+ * @param[out]   filled         : Number of array elements filled by this routine
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_hostip_list_get(whd_interface_t ifp, uint32_t count, uint32_t *host_ipv4_list, uint32_t *filled);
+
+/** Clear ARP Offload statistics in Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_stats_clear(whd_interface_t ifp);
+
+/** Get ARP Offload statistics from Device (WLAN)
+ *
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[out]   stats      : Ptr to store statistics @ref whd_arp_stats_t
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_stats_get(whd_interface_t ifp, whd_arp_stats_t *stats);
+
+/** Print ARP Offload statistics
+ *  NOTE: call whd_arp_stats_get(), then print them using this function.
+ *
+ * @param[in]    arp_stats  : Ptr to ARP statistics structure
+ * @param[in]    title      : Optional: Title for output (NULL == no title)
+ *
+ * @return whd_result_t
+ */
+whd_result_t whd_arp_stats_print(whd_arp_stats_t *arp_stats, const char *title);
+
+/** A filter must be added (e.g. created) before it can be enabled.
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    settings   : Ptr to filter settings @ref whd_packet_filter_t
+ * @return whd_result_t
+ */
+whd_result_t whd_pf_add_packet_filter(whd_interface_t ifp, const whd_packet_filter_t *settings);
+
+/** Remove a previously added filter.
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    filter_id  : filter to remove
+ * @return whd_result_t
+ */
+whd_result_t whd_pf_remove_packet_filter(whd_interface_t ifp, uint8_t filter_id);
+
+/** After a filter has been added it can be enabled or disabled as needed.
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    filter_id  : filter to enable
+ * @return whd_result_t
+ */
+whd_result_t whd_pf_enable_packet_filter(whd_interface_t ifp, uint8_t filter_id);
+
+/** After a filter has been added it can be enabled or disabled as needed.
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    filter_id  : filter to disable
+ * @return whd_result_t
+ */
+whd_result_t whd_pf_disable_packet_filter(whd_interface_t ifp, uint8_t filter_id);
+
+/** After a filter has been added it can be enabled or disabled as needed.
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    filter_id  : filter to disable/enable
+ * @param[in]    enable     : Enable/Disable Flag
+ * @return whd_result_t
+ */
+whd_result_t whd_wifi_toggle_packet_filter(whd_interface_t ifp, uint8_t filter_id, whd_bool_t enable);
+
+/** Filters are implemented in WLAN subsystem as a bit pattern and matching bit mask that
+ *  are applied to incoming packets.  This API retrieves the pattern and mask.
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    filter_id  : which filter to retrieve
+ * @param[in]    max_size   : size of both mask and pattern buffers
+ * @param[out]   mask       : mask for this filter
+ * @param[out]   pattern    : pattern for this filter
+ * @param[out]   size_out   : length of both mask and pattern
+ * @return whd_result_t
+ */
+whd_result_t whd_pf_get_packet_filter_mask_and_pattern(whd_interface_t ifp, uint8_t filter_id, uint32_t max_size,
+                                                       uint8_t *mask,
+                                                       uint8_t *pattern, uint32_t *size_out);
+
+/** Clear the packet filter stats associated with a filter id
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    filter_id  : which filter
+ * @return whd_result_t
+ */
+whd_result_t whd_wifi_clear_packet_filter_stats(whd_interface_t ifp, uint32_t filter_id);
+
+/** Return the stats associated with a filter
+ * @param[in]    ifp        : pointer to handle instance of whd interface
+ * @param[in]    filter_id  : which filter
+ * @param[out]   stats      : Ptr to store statistics wl_pkt_filter_stats_t
+ * @return whd_result_t
+ */
+whd_result_t whd_pf_get_packet_filter_stats(whd_interface_t ifp, uint8_t filter_id, whd_pkt_filter_stats_t *stats);
+
+/** Set/Get TKO retry & interval parameters
+ * @param[in]    ifp            : Pointer to handle instance of whd interface
+ * @param[in]    whd_tko_retry  : whd retry & interval parameters structure
+ * @param[in]    set            : Set/Get Flag
+ * @return whd_result_t
+ */
+whd_result_t whd_tko_param(whd_interface_t ifp, whd_tko_retry_t *whd_tko_retry, int set);
+
+/** Return the tko status for all indexes
+ * @param[in]    ifp        : Pointer to handle instance of whd interface
+ * @param[out]   tko_status : Ptr to store tko_status
+ * @return whd_result_t
+ */
+whd_result_t whd_tko_get_status(whd_interface_t ifp, whd_tko_status_t *tko_status);
+
+/** Return the stats associated with a filter
+ * @param[in]    ifp        : Pointer to handle instance of whd interface
+ * @param[out]   max        : returns Max TCP connections supported by WLAN Firmware
+ * @return whd_result_t
+ */
+whd_result_t whd_tko_max_assoc(whd_interface_t ifp, uint8_t *max);
+
+/** Return the stats associated with a filter
+ * @param[in]    ifp          : Pointer to handle instance of whd interface
+ * @param[in]    index        : index for TCP offload connection
+ * @param[out]   whd_connect  : tko_connect structure buffer from Firmware
+ * @param[in]    buflen       : Buffer given for tko_connect
+ * @return whd_result_t
+ */
+whd_result_t whd_tko_get_FW_connect(whd_interface_t ifp, uint8_t index, whd_tko_connect_t *whd_connect,
+                                    uint16_t buflen);
+
+/** Return the stats associated with a filter
+ * @param[in]    ifp        : Pointer to handle instance of whd interface
+ * @param[in]    enable     : Enable/Disable TCP Keepalive offload
+ * @return whd_result_t
+ */
+whd_result_t whd_tko_toggle(whd_interface_t ifp, whd_bool_t enable);
+
+
 /* @} */
 
 /** @addtogroup wifiioctl   WHD Wi-Fi IOCTL Set/Get API
@@ -893,6 +1167,7 @@ extern uint32_t whd_wifi_get_bss_info(whd_interface_t ifp, wl_bss_info_t *bi);
  *  @return WHD_SUCCESS or Error code
  */
 extern uint32_t whd_print_stats(whd_driver_t whd_drv, whd_bool_t reset_after_print);
+
 /* @} */
 /* @} */
 

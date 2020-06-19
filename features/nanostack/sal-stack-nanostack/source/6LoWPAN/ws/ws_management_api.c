@@ -41,9 +41,11 @@ int ws_management_node_init(
     protocol_interface_info_entry_t *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
+
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
     }
+
     if (!network_name_ptr || !fhss_timer_ptr) {
         return -2;
     }
@@ -70,7 +72,9 @@ int ws_management_node_init(
         return -4;
     }
 
-    cur->ws_info->fhss_timer_ptr = fhss_timer_ptr;
+    if (cur && ws_info(cur)) {
+        cur->ws_info->fhss_timer_ptr = fhss_timer_ptr;
+    }
 
     return 0;
 }
@@ -398,7 +402,7 @@ int ws_management_channel_plan_set(
     protocol_interface_info_entry_t *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && (!cur || !ws_info(cur))) {
+    if (!cur || !ws_info(cur)) {
         return -1;
     }
     cur->ws_info->hopping_schdule.channel_plan = channel_plan;

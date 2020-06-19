@@ -19,10 +19,6 @@
 #error [NOT_SUPPORTED] usb device tests not enabled
 #else
 
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] USB stack and test cases require RTOS to run.
-#else
-
 #if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #else
@@ -393,5 +389,4 @@ int main()
 }
 
 #endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
 #endif // !defined(USB_DEVICE_TESTS)

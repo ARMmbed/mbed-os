@@ -750,16 +750,18 @@ static bool fhss_ws_data_tx_fail_callback(const fhss_api_t *api, uint8_t handle,
     if (fhss_structure->fhss_state == FHSS_UNSYNCHRONIZED) {
         return false;
     }
-
     // Use channel retries only for data frames
     if (FHSS_DATA_FRAME != frame_type) {
         return false;
     }
-
+    // Channel retries are disabled
+    if (!fhss_structure->ws->fhss_configuration.config_parameters.number_of_channel_retries) {
+        return false;
+    }
     fhss_failed_tx_t *fhss_failed_tx = fhss_failed_handle_find(fhss_structure, handle);
     if (fhss_failed_tx) {
         fhss_failed_tx->retries_done++;
-        if (fhss_failed_tx->retries_done >= WS_NUMBER_OF_CHANNEL_RETRIES) {
+        if (fhss_failed_tx->retries_done >= fhss_structure->ws->fhss_configuration.config_parameters.number_of_channel_retries) {
             // No more retries. Return false to stop retransmitting.
             fhss_failed_handle_remove(fhss_structure, handle);
             return false;
@@ -965,6 +967,19 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
     int channel_count_uc = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
     if (channel_count <= 0) {
         return -1;
+    }
+
+    if (fhss_structure->number_of_channels < channel_count ||
+            (channel_count_uc && fhss_structure->number_of_uc_channels < channel_count_uc)) {
+        // Channel amount changed to largeneed to reallocate channel table
+        ns_dyn_mem_free(fhss_structure->ws->tr51_channel_table);
+        fhss_structure->ws->tr51_channel_table = NULL;
+        ns_dyn_mem_free(fhss_structure->ws->tr51_output_table);
+        fhss_structure->ws->tr51_output_table = NULL;
+
+        if (fhss_ws_manage_channel_table_allocation(fhss_structure, channel_count_uc > channel_count ? channel_count_uc : channel_count)) {
+            return -1;
+        }
     }
     platform_enter_critical();
     if (fhss_configuration->ws_uc_channel_function == WS_FIXED_CHANNEL || fhss_configuration->fhss_uc_dwell_interval == 0) {

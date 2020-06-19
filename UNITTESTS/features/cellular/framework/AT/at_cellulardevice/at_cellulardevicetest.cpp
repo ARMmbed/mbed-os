@@ -22,6 +22,7 @@
 
 using namespace mbed;
 using namespace events;
+using namespace std::chrono_literals;
 
 class TestAT_CellularDevice : public testing::Test {
 protected:
@@ -129,17 +130,17 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_timeout)
 {
     FileHandle_stub fh1;
     AT_CellularDevice dev(&fh1);
-    ATHandler_stub::timeout = 0;
+    ATHandler_stub::timeout = 0s;
     ATHandler_stub::default_timeout = false;
 
     dev.set_timeout(5000);
-    EXPECT_TRUE(ATHandler_stub::timeout == 5000);
+    EXPECT_TRUE(ATHandler_stub::timeout == 5s);
     EXPECT_TRUE(ATHandler_stub::default_timeout == true);
 
     EXPECT_TRUE(dev.open_sms());
 
     dev.set_timeout(5000);
-    EXPECT_TRUE(ATHandler_stub::timeout == 5000);
+    EXPECT_TRUE(ATHandler_stub::timeout == 5s);
     EXPECT_TRUE(ATHandler_stub::default_timeout == true);
 
     dev.close_sms();

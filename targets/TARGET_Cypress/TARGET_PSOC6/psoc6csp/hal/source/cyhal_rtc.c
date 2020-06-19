@@ -86,7 +86,7 @@ static cyhal_rtc_event_callback_t cyhal_rtc_user_handler;
 static void *cyhal_rtc_handler_arg;
 
 /* Returns century portion of BREG register used to store century info */
-static inline uint16_t get_rtc_century()
+static inline uint16_t get_rtc_century(void)
 {
     return _FLD2VAL(CYHAL_RTC_BREG_CENTURY, CYHAL_RTC_BREG);
 }
@@ -99,7 +99,7 @@ static inline void set_rtc_century(uint16_t century)
 }
 
 /* Returns state portion of BREG register used to store century info */
-static inline uint16_t get_rtc_state()
+static inline uint16_t get_rtc_state(void)
 {
     return _FLD2VAL(CYHAL_RTC_BREG_STATE, CYHAL_RTC_BREG);
 }
@@ -117,6 +117,7 @@ static void cyhal_rtc_internal_handler(void)
     Cy_RTC_Interrupt(dst, NULL != dst);
 }
 
+/* Override weak function from PDL */
 void Cy_RTC_Alarm1Interrupt(void)
 {
     if (NULL != cyhal_rtc_user_handler)
@@ -311,6 +312,36 @@ cy_rslt_t cyhal_rtc_set_alarm(cyhal_rtc_t *obj, const struct tm *time, cyhal_ala
     .almEn = CY_RTC_ALARM_ENABLE
     };
     return (cy_rslt_t)Cy_RTC_SetAlarmDateAndTime(&alarm, CY_RTC_ALARM_1);
+}
+
+cy_rslt_t cyhal_rtc_set_alarm_by_seconds(cyhal_rtc_t *obj, const uint32_t seconds)
+{
+    CY_ASSERT(NULL != obj);
+    static const uint32_t SECONDS_IN_YEAR = 365*24*60*60; // 31,536,000
+
+    // Note: The hardware does not support year matching so return error if
+    // seconds is greater than 1 year in the future
+    if(seconds > SECONDS_IN_YEAR)
+        return CY_RSLT_RTC_BAD_ARGUMENT;
+
+    struct tm now;
+    uint32_t savedIntrStatus = cyhal_system_critical_section_enter();
+    cyhal_rtc_read(obj, &now);
+    cyhal_system_critical_section_exit(savedIntrStatus);
+
+    time_t future_time_t = mktime(&now) + seconds;
+    struct tm* future = localtime(&future_time_t);
+
+    static const cyhal_alarm_active_t active = {
+        .en_sec   = CY_RTC_ALARM_ENABLE,
+        .en_min   = CY_RTC_ALARM_ENABLE,
+        .en_hour  = CY_RTC_ALARM_ENABLE,
+        .en_day   = CY_RTC_ALARM_ENABLE,
+        .en_date  = CY_RTC_ALARM_ENABLE,
+        .en_month = CY_RTC_ALARM_ENABLE
+    };
+
+    return cyhal_rtc_set_alarm(obj, future, active);
 }
 
 void cyhal_rtc_register_callback(cyhal_rtc_t *obj, cyhal_rtc_event_callback_t callback, void *callback_arg)

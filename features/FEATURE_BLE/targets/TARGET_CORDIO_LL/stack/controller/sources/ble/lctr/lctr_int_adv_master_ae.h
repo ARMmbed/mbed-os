@@ -452,7 +452,7 @@ static inline void lctrMstComputeAuxOffset(lctrAuxPtr_t *pAuxPtr, uint32_t *pOff
 {
   uint32_t offsetUsec = pAuxPtr->auxOffset * ((pAuxPtr->offsetUnits == LCTR_OFFS_UNITS_30_USEC) ? 30 : 300);
   uint32_t caPpm = BbGetClockAccuracy() + ((pAuxPtr->ca == LCTR_CLK_ACC_0_50_PPM) ? 50 : 500);
-  uint32_t wwUsec = lctrCalcWindowWideningUsec((offsetUsec + (pAuxPtr->offsetUnits == LCTR_OFFS_UNITS_30_USEC) ? 30 : 300), caPpm);
+  uint32_t wwUsec = lctrCalcWindowWideningUsec(offsetUsec + ((pAuxPtr->offsetUnits == LCTR_OFFS_UNITS_30_USEC) ? 30 : 300), caPpm);
 
   *pOffsetUsec = offsetUsec - wwUsec;
   *pSyncDelayUsec = (wwUsec << 1) + ((pAuxPtr->offsetUnits == LCTR_OFFS_UNITS_30_USEC) ? 30 : 300);    /* rounding compensation */

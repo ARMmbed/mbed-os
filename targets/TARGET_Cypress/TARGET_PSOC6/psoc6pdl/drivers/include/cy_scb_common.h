@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.40
+* \version 2.40.1
 *
 * Provides common API declarations of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,7 @@
 ********************************************************************************
 * For more information on the SCB peripheral, refer to the technical reference
 * manual (TRM).
-*	
+*
 *******************************************************************************
 * \section group_scb_common_MISRA MISRA-C Compliance
 *******************************************************************************
@@ -165,11 +165,11 @@
 *     <td>Added new CY_SCB_UART_RECEIVE_NOT_EMTPY and CY_SCB_UART_TRANSMIT_EMTPY callback events \ref group_scb_uart_macros_callback_events.</td>
 *     <td>Extended the driver callback events to support the MBED-OS.</td>
 *   </tr>
-*	<tr>
+*   <tr>
 *     <td>Merged SCB changelogs for each mode into one changelog.</td>
 *     <td>Changelog optimization.</td>
 *   </tr>
-*	<tr>
+*   <tr>
 *     <td>Merged SCB MISRA-C Compliance sections for each mode into one section.</td>
 *     <td>To optimize the SCB MISRA-C Compliance sections.</td>
 *   </tr>

@@ -119,7 +119,7 @@
             "value": 8
         },
         "callback-nontrivial": {
-            "help": "Enables support for non-trivial callable objects in Callback. Can be disabled to save ROM if no-one is using non-trivial types. Changing this value may cause incompatibility with pre-built binaries.",
+            "help": "Enables support for non-trivial callable objects in Callback. Can be disabled to save ROM if no-one is using non-trivial types. Changing this value may cause incompatibility with pre-built binaries. Choice not available with IAR, value forced to true.",
             "value": false
         },
         "callback-comparable": {
@@ -217,10 +217,6 @@
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_F411RE": {
-            "crash-capture-enabled": true,
-            "fatal-error-auto-reboot-enabled": true
-        },
-        "DISCO_F407VG": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },

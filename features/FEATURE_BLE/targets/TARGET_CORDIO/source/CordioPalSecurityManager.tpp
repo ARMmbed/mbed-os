@@ -279,6 +279,20 @@ ble_error_t CordioSecurityManager<EventHandler>::set_private_address_timeout_(
     return BLE_ERROR_NONE;
 }
 
+/**
+ * @see ::ble::pal::SecurityManager::get_identity_address
+ */
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::get_identity_address_(
+    address_t& address,
+    bool& public_address
+) {
+    // On cordio, the public address is hardcoded as the identity address.
+    address = address_t(HciGetBdAddr());
+    public_address = true;
+    return BLE_ERROR_NONE;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Keys
 //

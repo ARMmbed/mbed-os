@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Cypress Semiconductor Corporation
+ * Copyright 2020 Cypress Semiconductor Corporation
  * SPDX-License-Identifier: Apache-2.0
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -850,6 +850,17 @@ typedef struct eventmsgs_ext
 #define IOVAR_STR_SAE_PASSWORD           "sae_password"
 
 #define IOVAR_STR_BTC_LESCAN_PARAMS      "btc_lescan_params"
+
+#define IOVAR_STR_ARP_VERSION            "arp_version"
+#define IOVAR_STR_ARP_PEERAGE            "arp_peerage"
+#define IOVAR_STR_ARPOE                  "arpoe"
+#define IOVAR_STR_ARP_OL                 "arp_ol"
+#define IOVAR_STR_ARP_TABLE_CLEAR        "arp_table_clear"
+#define IOVAR_STR_ARP_HOSTIP             "arp_hostip"
+#define IOVAR_STR_ARP_HOSTIP_CLEAR       "arp_hostip_clear"
+#define IOVAR_STR_ARP_STATS              "arp_stats"
+#define IOVAR_STR_ARP_STATS_CLEAR        "arp_stats_clear"
+#define IOVAR_STR_TKO                    "tko"
 
 /* This value derived from the above strings, which appear maxed out in the 20s */
 #define IOVAR_NAME_STR_MAX_SIZE          32
@@ -2930,7 +2941,7 @@ struct toe_ol_stats_t
 #define ARP_ERRTEST_REPLY_PEER    0x1
 #define ARP_ERRTEST_REPLY_HOST    0x2
 #define ARP_MULTIHOMING_MAX    8
-struct arp_ol_stats_t
+typedef struct arp_ol_stats
 {
     uint32_t host_ip_entries;
     uint32_t host_ip_overflow;
@@ -2944,7 +2955,7 @@ struct arp_ol_stats_t
     uint32_t peer_reply;
     uint32_t peer_reply_drop;
     uint32_t peer_service;
-};
+}arp_ol_stats_t;
 typedef struct wl_keep_alive_pkt
 {
     uint32_t period_msec;
@@ -3580,7 +3591,169 @@ typedef struct wl_extjoin_params
 #define WL_AUTH_OPEN_SHARED     2   /* try open, then shared if open failed w/rc 13 */
 #define WL_AUTH_SAE             3   /* Simultaneous Authentication of Equals (SAE) */
 
+/** ARP offload statistics */
+struct whd_arp_stats_s
+{
+    uint32_t version;               /**< WLAN version											*/
+    uint32_t peerage;               /**< Current peer age-out time								*/
+    uint32_t arpoe;                 /**< Agent enabled state									*/
+    uint32_t features_enabled;      /**< ARP Feature Flags @ref CY_ARP_OL_AGENT_ENABLE, etc.	*/
+    arp_ol_stats_t stats;   /**< Current stats											*/
+    uint32_t host_ip_list[ARP_MULTIHOMING_MAX];     /**< host_ip addresses in one call			*/
+};
+
 #pragma pack()
+
+/* TCP Keepalive offload related defintions should not be added inside
+ * pragma pack to avoid functionality breakage.
+ */
+/*
+ * TCP keepalive offload definitions
+ */
+#define MAX_TKO_CONN                 4
+#define IPV4_ADDR_LEN                4      /* IPV4 address length   */
+
+/* Default TCP Keepalive retry parameters.  */
+#define TCP_KEEPALIVE_OFFLOAD_INTERVAL_SEC       (20)
+#define TCP_KEEPALIVE_OFFLOAD_RETRY_COUNT        (3)
+#define TCP_KEEPALIVE_OFFLOAD_RETRY_INTERVAL_SEC (3)
+
+/* common iovar struct */
+typedef struct wl_tko
+{
+    uint16_t subcmd_id;       /* subcommand id */
+    uint16_t len;             /* total length of data[] */
+    uint8_t data[1];          /* subcommand data */
+} wl_tko_t;
+
+/* subcommand ids */
+#define WL_TKO_SUBCMD_MAX_TCP           0       /* max TCP connections supported */
+#define WL_TKO_SUBCMD_PARAM             1       /* configure offload common parameters  */
+#define WL_TKO_SUBCMD_CONNECT           2       /* TCP connection info */
+#define WL_TKO_SUBCMD_ENABLE            3       /* enable/disable */
+#define WL_TKO_SUBCMD_STATUS            4       /* TCP connection status */
+
+/* WL_TKO_SUBCMD_MAX_CONNECT subcommand data */
+typedef struct wl_tko_max_tcp
+{
+    uint8_t max;      /* max TCP connections supported */
+    uint8_t pad[3];   /* 4-byte struct alignment */
+} wl_tko_max_tcp_t;
+
+/* WL_TKO_SUBCMD_PARAM subcommand data */
+typedef struct wl_tko_param
+{
+    uint16_t interval;        /* keepalive tx interval (secs) */
+    uint16_t retry_interval;  /* keepalive retry interval (secs) */
+    uint16_t retry_count;     /* retry_count */
+    uint8_t pad[2];           /* 4-byte struct alignment */
+} wl_tko_param_t;
+
+/* WL_TKO_SUBCMD_CONNECT subcommand data
+ * invoke with unique 'index' for each TCP connection
+ */
+typedef struct wl_tko_connect
+{
+    uint8_t index;            /* TCP connection index, 0 to max-1 */
+    uint8_t ip_addr_type;     /* 0 - IPv4, 1 - IPv6 */
+    uint16_t local_port;      /* local port */
+    uint16_t remote_port;     /* remote port */
+    uint32_t local_seq;       /* local sequence number */
+    uint32_t remote_seq;      /* remote sequence number */
+    uint16_t request_len;     /* TCP keepalive request packet length */
+    uint16_t response_len;    /* TCP keepalive response packet length */
+    uint8_t data[1];          /* variable length field containing local/remote IPv4/IPv6,
+                               * TCP keepalive request packet, TCP keepalive response packet
+                               *	  For IPv4, length is 4 * 2 + request_length + response_length
+                               *		 offset 0 - local IPv4
+                               *		 offset 4 - remote IPv4
+                               *		 offset 8 - TCP keepalive request packet
+                               *		 offset 8+request_length - TCP keepalive response packet
+                               *	  For IPv6, length is 16 * 2 + request_length + response_length
+                               *		 offset 0 - local IPv6
+                               *		 offset 16 - remote IPv6
+                               *		 offset 32 - TCP keepalive request packet
+                               *		 offset 32+request_length - TCP keepalive response packet
+                               */
+} wl_tko_connect_t;
+
+/* WL_TKO_SUBCMD_CONNECT subcommand data to GET configured info for specific index */
+typedef struct wl_tko_get_connect
+{
+    uint8_t index;            /* TCP connection index, 0 to max-1 */
+    uint8_t pad[3];           /* 4-byte struct alignment */
+} wl_tko_get_connect_t;
+
+typedef struct wl_tko_enable
+{
+    uint8_t enable;   /* 1 - enable, 0 - disable */
+    uint8_t pad[3];   /* 4-byte struct alignment */
+} wl_tko_enable_t;
+
+/* WL_TKO_SUBCMD_STATUS subcommand data */
+/* must be invoked before tko is disabled else status is unavailable */
+typedef struct wl_tko_status
+{
+    uint8_t count;        /* number of status entries (i.e. equals
+                           * max TCP connections supported)
+                           */
+    uint8_t status[1];    /* variable length field contain status for
+                           * each TCP connection index
+                           */
+} wl_tko_status_t;
+/** Get/Set TKO intervals & retrys */
+struct whd_tko_retry
+{
+    uint16_t tko_interval;          /**< How often to send (in seconds) */
+    uint16_t tko_retry_count;       /**< Max times to retry if original fails */
+    uint16_t tko_retry_interval;    /**< Wait time between retries (in seconds) */
+};
+
+/** Status values used in conjunction with whd_tko_status_t */
+typedef enum
+{
+    TKO_STATUS_NORMAL                       = 0,    /**< TCP connection normal, no error */
+    TKO_STATUS_NO_RESPONSE                  = 1,    /**< no response to TCP keepalive */
+    TKO_STATUS_NO_TCP_ACK_FLAG              = 2,    /**< TCP ACK flag not set */
+    TKO_STATUS_UNEXPECT_TCP_FLAG            = 3,    /**< unexpect TCP flags set other than ACK */
+    TKO_STATUS_SEQ_NUM_INVALID              = 4,    /**< ACK != sequence number */
+    TKO_STATUS_REMOTE_SEQ_NUM_INVALID       = 5,    /**< SEQ > remote sequence number */
+    TKO_STATUS_TCP_DATA                     = 6,    /**< TCP data available */
+    TKO_STATUS_UNAVAILABLE                  = 255,  /**< not used/configured */
+} tko_status_t;
+
+/** Status of each TCP connection */
+struct whd_tko_status
+{
+    uint8_t count;              /**< number of status entries */
+    uint8_t status[MAX_TKO_CONN];   /**< each TCP status */
+};
+
+/** Struct to query FW for current TKO configuation */
+struct whd_tko_connect
+{
+    uint8_t index;            /**< TCP connection index, 0 to max-1 */
+    uint8_t ip_addr_type;     /**< 0 - IPv4, 1 - IPv6 */
+    uint16_t local_port;      /**< local port */
+    uint16_t remote_port;     /**< remote port */
+    uint32_t local_seq;       /**< local sequence number */
+    uint32_t remote_seq;      /**< remote sequence number */
+    uint16_t request_len;     /**< TCP keepalive request packet length */
+    uint16_t response_len;    /**< TCP keepalive response packet length */
+    uint8_t data[1];          /**< variable length field containing local/remote IPv4/IPv6,
+                               * TCP keepalive request packet, TCP keepalive response packet
+                               *	  For IPv4, length is 4 * 2 + request_length + response_length
+                               *		 offset 0 - local IPv4
+                               *		 offset 4 - remote IPv4
+                               *		 offset 8 - TCP keepalive request packet
+                               *		 offset 8+request_length - TCP keepalive response packet
+                               *	  For IPv6, length is 16 * 2 + request_length + response_length
+                               *		 offset 0 - local IPv6
+                               *		 offset 16 - remote IPv6
+                               *		 offset 32 - TCP keepalive request packet
+                               *		 offset 32+request_length - TCP keepalive response packet
+                               */
+};
 
 #ifdef __cplusplus
 } /* extern "C" */

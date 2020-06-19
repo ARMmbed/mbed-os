@@ -212,6 +212,11 @@ public:
      */
     ble_error_t set_private_address_timeout_(uint16_t timeout_in_seconds);
 
+    /**
+     * @see ::ble::pal::SecurityManager::get_identity_address
+     */
+    ble_error_t get_identity_address_(address_t& address, bool& public_address);
+
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //

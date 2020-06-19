@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc_key_gen.c
-* \version 2.30.1
+* \version 2.30.2
 *
 * \brief
 *  This file provides constant and parameters for the API for the ECC key
 *  generations in the Crypto driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,7 +72,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_MakeKeyPair(CRYPTO_Type *base,
 
     if ((key != NULL) && (key->k != NULL) && (key->pubkey.x != NULL) && (key->pubkey.y != NULL))
     {
-    	tmpResult = Cy_Crypto_Core_ECC_MakePrivateKey(base, curveID, key->k, GetRandomDataFunc, randomDataInfo);
+        tmpResult = Cy_Crypto_Core_ECC_MakePrivateKey(base, curveID, key->k, GetRandomDataFunc, randomDataInfo);
     }
 
     if (CY_CRYPTO_SUCCESS == tmpResult)
@@ -293,9 +293,9 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_MakePublicKey(CRYPTO_Type *base,
         publicKey->curveID = curveID;
 
         CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(VR_P) |
-        							CY_CRYPTO_VU_REG_BIT(p_order) | CY_CRYPTO_VU_REG_BIT(VR_BARRETT) |
+                                    CY_CRYPTO_VU_REG_BIT(p_order) | CY_CRYPTO_VU_REG_BIT(VR_BARRETT) |
                                     CY_CRYPTO_VU_REG_BIT(p_x) | CY_CRYPTO_VU_REG_BIT(p_y) |
-									CY_CRYPTO_VU_REG_BIT(p_d));
+                                    CY_CRYPTO_VU_REG_BIT(p_d));
 
         tmpResult = CY_CRYPTO_SUCCESS;
     }

@@ -425,6 +425,31 @@ public:
         _local_sign_counter = sign_counter;
     }
 
+    /* local identity */
+    /**
+     * Update the local identity.
+     *
+     * @param[in] csrk new CSRK value
+     */
+    virtual void set_local_identity(
+            const irk_t &irk,
+            const address_t &identity_address,
+            bool public_address
+    )  {
+        _local_identity.irk = irk;
+        _local_identity.identity_address = identity_address;
+        _local_identity.identity_address_is_public = public_address;
+    }
+
+    /**
+     * Return local irk.
+     *
+     * @return irk
+     */
+    virtual irk_t get_local_irk() {
+        return _local_identity.irk;
+    }
+
     /* list management */
 
     /**
@@ -592,6 +617,21 @@ public:
                 continue;
             }
 
+            // Add the connection address
+            whitelist->addresses[whitelist->size].address = flags->peer_address.data();
+
+            if (flags->peer_address_is_public) {
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::PUBLIC;
+            } else {
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::RANDOM;
+            }
+
+            whitelist->size++;
+            if (whitelist->size == whitelist->capacity) {
+                break;
+            }
+
+            // Add the identity address
             SecurityEntryIdentity_t* identity = read_in_entry_peer_identity(db_handle);
             if (!identity) {
                 continue;

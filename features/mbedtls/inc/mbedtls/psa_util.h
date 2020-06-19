@@ -7,7 +7,7 @@
  *          change at any time.
  */
 /*
- *  Copyright (C) 2006-2018, ARM Limited, All Rights Reserved
+ *  Copyright (C) 2006-2020, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -163,6 +163,87 @@ static inline int mbedtls_psa_get_ecc_oid_from_id(
     psa_ecc_curve_t curve, size_t bits,
     char const **oid, size_t *oid_len )
 {
+#if TARGET_TFM
+    /* Use older Crypto API, at least until TF-M updates its crypto
+     * implementation to Mbed TLS 2.22.0. See
+     * https://github.com/ARMmbed/mbed-os/issues/13025 for details. */
+    (void) bits;
+    switch( curve )
+    {
+#if defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED)
+        case PSA_ECC_CURVE_SECP192R1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP192R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP192R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP192R1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED)
+        case PSA_ECC_CURVE_SECP224R1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP224R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP224R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP224R1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED)
+        case PSA_ECC_CURVE_SECP256R1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP256R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP256R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP256R1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED)
+        case PSA_ECC_CURVE_SECP384R1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP384R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP384R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP384R1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
+        case PSA_ECC_CURVE_SECP521R1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP521R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP521R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP521R1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_SECP192K1_ENABLED)
+        case PSA_ECC_CURVE_SECP192K1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP192K1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP192K1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP192K1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_SECP224K1_ENABLED)
+        case PSA_ECC_CURVE_SECP224K1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP224K1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP224K1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP224K1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_SECP256K1_ENABLED)
+        case PSA_ECC_CURVE_SECP256K1:
+            *oid = MBEDTLS_OID_EC_GRP_SECP256K1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_SECP256K1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_SECP256K1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_BP256R1_ENABLED)
+        case PSA_ECC_CURVE_BRAINPOOL_P256R1:
+            *oid = MBEDTLS_OID_EC_GRP_BP256R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_BP256R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_BP256R1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_BP384R1_ENABLED)
+        case PSA_ECC_CURVE_BRAINPOOL_P384R1:
+            *oid = MBEDTLS_OID_EC_GRP_BP384R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_BP384R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_BP384R1_ENABLED */
+#if defined(MBEDTLS_ECP_DP_BP512R1_ENABLED)
+        case PSA_ECC_CURVE_BRAINPOOL_P512R1:
+            *oid = MBEDTLS_OID_EC_GRP_BP512R1;
+            *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_BP512R1 );
+            return( 0 );
+#endif /* MBEDTLS_ECP_DP_BP512R1_ENABLED */
+        default:
+            (void) oid;
+            (void) oid_len;
+            return( -1 );
+    }
+#else
+    /* Use more up to date Crypto API */
+
     switch( curve )
     {
         case PSA_ECC_CURVE_SECP_R1:
@@ -250,6 +331,7 @@ static inline int mbedtls_psa_get_ecc_oid_from_id(
     (void) oid;
     (void) oid_len;
     return( -1 );
+#endif /* TARGET_TFM */
 }
 
 #define MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH 1
@@ -369,12 +451,16 @@ static inline int mbedtls_psa_err_translate_pk( psa_status_t status )
 static inline psa_key_type_t mbedtls_psa_parse_tls_ecc_group(
     uint16_t tls_ecc_grp_reg_id, size_t *bits )
 {
+#if TARGET_TFM
+    return( (psa_ecc_curve_t) tls_ecc_grp_reg_id );
+#else
     const mbedtls_ecp_curve_info *curve_info =
         mbedtls_ecp_curve_info_from_tls_id( tls_ecc_grp_reg_id );
     if( curve_info == NULL )
         return( 0 );
     return( PSA_KEY_TYPE_ECC_KEY_PAIR(
                 mbedtls_ecc_group_to_psa( curve_info->grp_id, bits ) ) );
+#endif
 }
 #endif /* MBEDTLS_ECP_C */
 

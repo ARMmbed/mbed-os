@@ -227,17 +227,17 @@ extern "C" {
 */
 
 /** Arduino A0 */
-#define CYBSP_A0                    (P10_0)
+#define CYBSP_A0                    P10_0
 /** Arduino A1 */
-#define CYBSP_A1                    (P10_1)
+#define CYBSP_A1                    P10_1
 /** Arduino A2 */
-#define CYBSP_A2                    (P10_2)
+#define CYBSP_A2                    P10_2
 /** Arduino A3 */
-#define CYBSP_A3                    (P10_3)
+#define CYBSP_A3                    P10_3
 /** Arduino A4 */
-#define CYBSP_A4                    (P10_4)
+#define CYBSP_A4                    P10_4
 /** Arduino A5 */
-#define CYBSP_A5                    (P10_5)
+#define CYBSP_A5                    P10_5
 /** Arduino D0 */
 #define CYBSP_D0                    (P5_0)
 /** Arduino D1 */

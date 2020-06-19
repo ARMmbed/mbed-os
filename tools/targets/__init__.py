@@ -22,14 +22,20 @@ import struct
 import shutil
 import inspect
 import sys
+
 from collections import namedtuple
 from copy import copy
 from future.utils import raise_from
 from tools.resources import FileType
+from tools.settings import ROOT
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
-from tools.psa import find_secure_image
+
+# Add PSA TF-M binary utility scripts in system path
+from os.path import dirname, abspath, join
+TFM_SCRIPTS = abspath(join(dirname(__file__), '..', 'psa', 'tfm', 'bin_utils'))
+sys.path.insert(0, TFM_SCRIPTS)
 
 
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
@@ -396,12 +402,12 @@ class Target(namedtuple(
         return self.is_TrustZone_non_secure_target
 
     @property
-    def is_PSA_non_secure_target(self):
-        return 'NSPE_Target' in self.labels
+    def is_PSA_target(self):
+        return 'PSA' in self.features
 
     @property
     def is_TFM_target(self):
-        return getattr(self, 'tfm_target_name', False)
+        return 'TFM' in self.labels
 
     def get_post_build_hook(self, toolchain_labels):
         """Initialize the post-build hooks for a toolchain. For now, this
@@ -470,6 +476,7 @@ class LPCTargetCode(object):
         t_self.notify.debug("LPC Patch: %s" % os.path.split(binf)[1])
         patch(binf)
 
+
 class MTSCode(object):
     """Generic MTS code"""
     @staticmethod
@@ -500,9 +507,66 @@ class MTSCode(object):
         os.rename(target, binf)
 
     @staticmethod
+    def combine_bins_mts_dot(t_self, resources, elf, binf):
+        """A hook for the MTS MDOT"""
+        MTSCode._combine_bins_helper("MTS_MDOT_F411RE", binf)
+
+    @staticmethod
     def combine_bins_mts_dragonfly(t_self, resources, elf, binf):
         """A hoof for the MTS Dragonfly"""
         MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
+
+    @staticmethod
+    def combine_bins_mtb_mts_dragonfly(t_self, resources, elf, binf):
+        """A hook for the MTB MTS Dragonfly"""
+        MTSCode._combine_bins_helper("MTB_MTS_DRAGONFLY", binf)
+
+
+class LPC4088Code(object):
+    """Code specific to the LPC4088"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        """Hook to be run after an elf file is built"""
+        if not os.path.isdir(binf):
+            # Regular binary file, nothing to do
+            LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
+            return
+        outbin = open(binf + ".temp", "wb")
+        partf = open(os.path.join(binf, "ER_IROM1"), "rb")
+        # Pad the fist part (internal flash) with 0xFF to 512k
+        data = partf.read()
+        outbin.write(data)
+        outbin.write(b'\xFF' * (512*1024 - len(data)))
+        partf.close()
+        # Read and append the second part (external flash) in chunks of fixed
+        # size
+        chunksize = 128 * 1024
+        partf = open(os.path.join(binf, "ER_IROM2"), "rb")
+        while True:
+            data = partf.read(chunksize)
+            outbin.write(data)
+            if len(data) < chunksize:
+                break
+        partf.close()
+        outbin.close()
+        # Remove the directory with the binary parts and rename the temporary
+        # file to 'binf'
+        shutil.rmtree(binf, True)
+        os.rename(binf + '.temp', binf)
+        t_self.notify.debug(
+            "Generated custom binary file (internal flash + SPIFI)"
+        )
+        LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
+
+
+class TEENSY3_1Code(object):
+    """Hooks for the TEENSY3.1"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        """Hook that is run after elf is generated"""
+        # This function is referenced by old versions of targets.json and
+        # should be kept for backwards compatibility.
+        pass
 
 
 class MCU_NRF51Code(object):
@@ -573,13 +637,20 @@ class MCU_NRF51Code(object):
             binh.write_hex_file(fileout, write_start_addr=False)
 
 
+class NCS36510TargetCode(object):
+    @staticmethod
+    def ncs36510_addfib(t_self, resources, elf, binf):
+        from tools.targets.NCS import add_fib_at_start
+        print("binf ", binf)
+        add_fib_at_start(binf[:-4])
+
+
 class RTL8195ACode(object):
     """RTL8195A Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self, elf, binf)
-
 
 class PSOC6Code(object):
     @staticmethod
@@ -643,20 +714,38 @@ class ArmMuscaB1Code(object):
         )
         musca_tfm_bin(t_self, binf, secure_bin)
 
-class LPC55S69Code(object):
-    """LPC55S69 Hooks"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.LPC55S69 import lpc55s69_complete
-        configured_secure_image_filename = t_self.target.secure_image_filename
-        secure_bin = find_secure_image(
-            t_self.notify,
-            resources,
-            binf,
-            configured_secure_image_filename,
-            FileType.BIN
-        )
-        lpc55s69_complete(t_self, binf, secure_bin)
+def find_secure_image(notify, resources, ns_image_path,
+                      configured_s_image_filename, image_type):
+    """ Find secure image. """
+    if configured_s_image_filename is None:
+        return None
+
+    assert ns_image_path and configured_s_image_filename, \
+        'ns_image_path and configured_s_image_path are mandatory'
+    assert image_type in [FileType.BIN, FileType.HEX], \
+        'image_type must be of type BIN or HEX'
+
+    image_files = resources.get_file_paths(image_type)
+    assert image_files, 'No image files found for this target'
+
+    secure_image = next(
+        (f for f in image_files if
+         os.path.basename(f) == configured_s_image_filename), None)
+    secure_image = next(
+        (f for f in image_files if
+         os.path.splitext(os.path.basename(f))[0] ==
+         os.path.splitext(os.path.basename(ns_image_path))[0]),
+        secure_image
+    )
+
+    if secure_image:
+        notify.debug("Secure image file found: %s." % secure_image)
+    else:
+        notify.debug("Secure image file %s not found. Aborting."
+                     % configured_s_image_filename)
+        raise Exception("Required secure image not found.")
+
+    return secure_image
 
 class M2351Code(object):
     """M2351 Hooks"""

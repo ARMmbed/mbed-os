@@ -62,7 +62,6 @@ extern "C" {
 
 #define gXcvrRunState_d       gXcvrPwrAutodoze_c
 #define gXcvrLowPowerState_d  gXcvrPwrHibernate_c
-#define gXcvrLowPowerState_d  gXcvrPwrAutodoze_c
 
 namespace {
 

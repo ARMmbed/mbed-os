@@ -44,10 +44,6 @@ extern "C" {
 #error Microsecond ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is true
 #endif
 
-#if !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER && !DEVICE_LPTICKER
-#error Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false
-#endif
-
     // Setup OS Tick timer to generate periodic RTOS Kernel Ticks
     int32_t OS_Tick_Setup(uint32_t freq, IRQHandler_t handler)
     {

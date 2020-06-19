@@ -20,6 +20,8 @@
 #include "CellularLog.h"
 #include "rtos/ThisThread.h"
 
+using namespace std::chrono_literals;
+
 namespace mbed {
 
 UBLOX_AT_CellularContext::UBLOX_AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
@@ -69,7 +71,7 @@ void UBLOX_AT_CellularContext::do_connect()
     CellularNetwork::RadioAccessTechnology rat = read_radio_technology();
     if (rat == CellularNetwork::RadioAccessTechnology::RAT_EGPRS) {
         if (!_is_context_active) {
-            _at.set_at_timeout(150 * 1000);
+            _at.set_at_timeout(150s);
             _at.at_cmd_discard("+CGACT", "=", "%d%d", 1, 1);
 
             _at.cmd_start_stop("+CGACT", "?");
@@ -208,16 +210,15 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
 
         if (_at.at_cmd_discard("+UPSD", "=", "%d%d%d", PROFILE, 6, nsapi_security_to_modem_security(auth)) == NSAPI_ERROR_OK) {
             // Activate, wait upto 30 seconds for the connection to be made
-            _at.set_at_timeout(30000);
+            _at.set_at_timeout(30s);
 
             nsapi_error_t err = _at.at_cmd_discard("+UPSDA", "=", "%d%d", PROFILE, 3);
 
             _at.restore_at_timeout();
 
             if (err == NSAPI_ERROR_OK) {
-                Timer t1;
-                t1.start();
-                while (!(t1.read() >= 180)) {
+                auto end_time = rtos::Kernel::Clock::now() + 3min;
+                do  {
                     _at.lock();
                     _at.cmd_start_stop("+UPSND", "=", "%d%d", PROFILE, 8);
                     _at.resp_start("+UPSND:");
@@ -229,9 +230,8 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                     if (activated) {  //If context is activated, exit while loop and return status
                         break;
                     }
-                    rtos::ThisThread::sleep_for(5000);    //Wait for 5 seconds and then try again
-                }
-                t1.stop();
+                    rtos::ThisThread::sleep_for(5s);    //Wait for 5 seconds and then try again
+                } while (rtos::Kernel::Clock::now() < end_time);
             }
         }
     }

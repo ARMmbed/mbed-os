@@ -10,7 +10,7 @@
             "value": false
         },
         "random_max_start_delay": {
-            "help": "Maximum random delay value used in start-up sequence in milliseconds",
+            "help": "Maximum random delay value used in start-up sequence in seconds",
             "value": 0
         },
         "debug-at": {

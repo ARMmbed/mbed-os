@@ -17,8 +17,6 @@
 
 #if USB_DEVICE_TESTS
 
-#if defined(MBED_CONF_RTOS_PRESENT)
-
 #include "stdint.h"
 #include "stdlib.h"
 #include "USBEndpointTester.h"
@@ -39,10 +37,10 @@
 
 #define VENDOR_TEST_CTRL_IN             1
 #define VENDOR_TEST_CTRL_OUT            2
-#define VENDOR_TEST_CTRL_IN_SIZES       9
-#define VENDOR_TEST_CTRL_OUT_SIZES      10
-#define VENDOR_TEST_RW_RESTART          11
-#define VENDOR_TEST_ABORT_BUFF_CHECK    12
+#define VENDOR_TEST_CTRL_IN_SIZES       3
+#define VENDOR_TEST_CTRL_OUT_SIZES      4
+#define VENDOR_TEST_RW_RESTART          5
+#define VENDOR_TEST_ABORT_BUFF_CHECK    6
 
 #define CTRL_BUF_SIZE (2048)
 
@@ -173,7 +171,6 @@ USBEndpointTester::USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t p
         MBED_ASSERT(_endpoint_buffs[i] != NULL);
     }
     MBED_ASSERT(resolver.valid());
-    queue = mbed::mbed_highprio_event_queue();
     configuration_desc(0);
     ctrl_buf = new uint8_t[CTRL_BUF_SIZE];
     init();
@@ -864,5 +861,5 @@ void USBEndpointTester::start_ep_in_abort_test()
     write_start(_endpoints[EP_BULK_IN], _endpoint_buffs[EP_BULK_IN], (*_endpoint_configs)[EP_BULK_IN].max_packet);
     write_start(_endpoints[EP_INT_IN], _endpoint_buffs[EP_INT_IN], (*_endpoint_configs)[EP_INT_IN].max_packet);
 }
-#endif
+
 #endif //USB_DEVICE_TESTS

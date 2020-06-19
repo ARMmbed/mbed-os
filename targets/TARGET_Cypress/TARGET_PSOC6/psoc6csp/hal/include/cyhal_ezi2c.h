@@ -25,24 +25,46 @@
 * limitations under the License.
 *******************************************************************************/
 
-/******************************************************************************
-* Provides a high level Cypress EZI2C Slave interface for interacting with
-* an I2C master.
-* This interface abstracts out the chip specific details. If any chip specific
-* functionality is necessary, or performance is critical the low level functions
-* can be used directly.
-*
-* Cypress EZI2C emulates a common I2C EEPROM interface that acts like dual-port
-* memory between the external master and your code. Once the interface is setup,
-* your code can read/write freely from the specified buffer(s).
-* All I2C transactions to/from the master are handled automatically.
-*******************************************************************************/
-
 /**
 * \addtogroup group_hal_ezi2c EZI2C (Inter-Integrated Circuit)
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress EZ Inter-Integrated Circuit (EZI2C).
+* The EZI2C driver implements an I2C slave device that emulates a common I2C EEPROM interface between
+* the external master and your application code. EZI2C Slave buffers can be set up as any variable, array,
+* or structure in your code without worrying about the I2C protocol. I2C related transactions and processing
+* of data from the I2C master are handled by the driver through internal interrupt routine, reducing application
+* involvement to maintain the I2C buffer.
+*
+* \section subsection_ezi2c_features Features
+* * EZI2C Slave functionality
+* * Configurable standard data rates of 100/400/1000 kbps - \ref cyhal_ezi2c_data_rate_t
+* * Supports one or two addresses with independent memory buffers - \ref cyhal_ezi2c_cfg_t
+* * Memory buffers provide configurable read/write and read only regions - \ref cyhal_ezi2c_cfg_t
+* * 8 or 16-bit sub-addressing - \ref cyhal_ezi2c_sub_addr_size_t
+* * Configurable interrupt and callback assignment from EZI2C events - \ref cyhal_ezi2c_event_t
+*
+* \section section_ezi2c_quickstart Quick Start
+* Initialize EZI2C by using \ref cyhal_ezi2c_init and selecting the <b>sda</b> and <b>scl</b> pins.
+* Setup one or two memory buffers and read/write boundaries using the EZI2C configuration
+* structure \ref cyhal_ezi2c_cfg_t.
+* See \ref subsection_ezi2c_snippet_1
+* \note The clock parameter <b>clk</b> is optional and can be set to NULL to generate and use an
+* available clock resource.
+*
+* \section section_ezi2c_snippets Code snippets
+*
+* \subsection subsection_ezi2c_snippet_1 Snippet 1: EZI2C Initialization and Configuration
+* The following snippet shows how to initialize and configure an EZI2C and assign the pins to the <b>sda</b> and <b>scl</b> lines.
+* The <b>clk</b> need not be provided (NULL), in which case a clock resource is assigned.
+*
+* \snippet ezi2c.c snippet_cyhal_ezi2c_init
+*
+* \subsection subsection_ezi2c_snippet_2 Snippet 2: Register Callback function
+* The following snippet shows how to use the \ref cyhal_ezi2c_register_callback function. The <b>callback</b> parameter
+* refers to the handler which will be invoked when an event triggers.
+*
+* \snippet ezi2c.c snippet_cyhal_ezi2c_handler
 */
 
 #pragma once
@@ -51,20 +73,35 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name EZI2C Results
+ */
+
 /** The requested resource type is invalid */
-#define CYHAL_EZI2C_RSLT_ERR_INVALID_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 0))
+#define CYHAL_EZI2C_RSLT_ERR_INVALID_PIN                \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 0))
 /** Can not reach desired data rate */
-#define CYHAL_EZI2C_RSLT_ERR_CAN_NOT_REACH_DR (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 1))
+#define CYHAL_EZI2C_RSLT_ERR_CAN_NOT_REACH_DR           \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 1))
 /** Number of addresses is not valid */
-#define CYHAL_EZI2C_RSLT_ERR_NUM_ADDR_NOT_VALID (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 2))
+#define CYHAL_EZI2C_RSLT_ERR_NUM_ADDR_NOT_VALID         \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 2))
 /** Number of addresses is not valid */
-#define CYHAL_EZI2C_RSLT_ERR_CHECK_USER_CONFIG (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 3))
+#define CYHAL_EZI2C_RSLT_ERR_CHECK_USER_CONFIG          \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 3))
+
+/**
+ * \} \}
+ */
+
+/** CYHAL_EZI2C_EVENT_NONE event is deprecated and that CYHAL_EZI2C_STATUS_OK should be used instead */
+#define CYHAL_EZI2C_EVENT_NONE CYHAL_EZI2C_STATUS_OK
 
 /** Size of Sub-Address */
 typedef enum
@@ -85,27 +122,21 @@ typedef enum
 typedef enum
 {
     /** Each EZI2C slave status is encoded in a separate bit, therefore multiple bits may be set to indicate the current status */
-    CYHAL_EZI2C_STATUS_OK     = 0x0UL,   /**< Operation completed successfully */
-    CYHAL_EZI2C_STATUS_READ1  = 0x01UL,  /**< The Read transfer intended for the primary slave address is complete */
-    CYHAL_EZI2C_STATUS_WRITE1 = 0x02UL,  /**< The Write transfer intended for the primary slave address is complete */
-    CYHAL_EZI2C_STATUS_READ2  = 0x04UL,  /**< The Read transfer intended for the secondary slave address is complete */
-    CYHAL_EZI2C_STATUS_WRITE2 = 0x08UL,  /**< The Write transfer intended for the secondary slave address is complete */
-    CYHAL_EZI2C_STATUS_BUSY   = 0x10UL,  /**< A transfer intended for the primary address or secondary address is in progress */
-    CYHAL_EZI2C_STATUS_ERR    = 0x20UL   /**< An error occurred during a transfer intended for the primary or secondary slave address */
+    CYHAL_EZI2C_STATUS_OK     = 0x1UL,   /**< Operation completed successfully */
+    CYHAL_EZI2C_STATUS_READ1  = 0x2UL,  /**< The Read transfer intended for the primary slave address is complete */
+    CYHAL_EZI2C_STATUS_WRITE1 = 0x4UL,  /**< The Write transfer intended for the primary slave address is complete */
+    CYHAL_EZI2C_STATUS_READ2  = 0x8UL,  /**< The Read transfer intended for the secondary slave address is complete */
+    CYHAL_EZI2C_STATUS_WRITE2 = 0x10UL,  /**< The Write transfer intended for the secondary slave address is complete */
+    CYHAL_EZI2C_STATUS_BUSY   = 0x20UL,  /**< A transfer intended for the primary address or secondary address is in progress */
+    CYHAL_EZI2C_STATUS_ERR    = 0x40UL   /**< An error occurred during a transfer intended for the primary or secondary slave address */
 
 } cyhal_ezi2c_status_t;
 
-/** Enum to enable/disable/report interrupt cause flags. When an event is triggered
- * the status can be obtained by calling \ref cyhal_ezi2c_get_activity_status.
- * \note This is a placeholder for now. It may be extended in the future.
- */
-typedef enum
-{
-    CYHAL_EZI2C_EVENT_NONE                     = 0,       /* No event */
-} cyhal_ezi2c_event_t;
+/** This type is deprecated and that cyhal_ezi2c_status_t should be used instead */
+typedef cyhal_ezi2c_status_t cyhal_ezi2c_event_t;
 
 /** Handler for I2C events */
-typedef void (*cyhal_ezi2c_event_callback_t)(void *callback_arg, cyhal_ezi2c_event_t event);
+typedef void (*cyhal_ezi2c_event_callback_t)(void *callback_arg, cyhal_ezi2c_status_t event);
 
 /** Initial EZI2C sub configuration */
 typedef struct
@@ -141,16 +172,19 @@ typedef struct
     cyhal_ezi2c_sub_addr_size_t sub_address_size;
 } cyhal_ezi2c_cfg_t;
 
-/** Initialize the EZI2C (slave), and configures its specifieds pins and clock.
+
+/** Initialize the EZI2C (slave), and configures its specified pins and clock.
+ * See \ref subsection_ezi2c_snippet_1
  *
- * @param[out] obj The I2C object
+ * @param[out] obj  Pointer to an EZI2C object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
  * @param[in]  sda The sda pin
  * @param[in]  scl The scl pin
  * @param[in]  clk The clock to use can be shared, if NULL a new clock will be allocated
  * @param[in]  cfg The ezi2c configuration (refer to cyhal_ezi2c_cfg_t for details)
  * @return The status of the init request
  */
-cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, const cyhal_clock_divider_t *clk, const cyhal_ezi2c_cfg_t *cfg);
+cy_rslt_t cyhal_ezi2c_init(cyhal_ezi2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, const cyhal_clock_t *clk, const cyhal_ezi2c_cfg_t *cfg);
 
 /** Deinitialize the ezi2c object
  *
@@ -160,8 +194,9 @@ void cyhal_ezi2c_free(cyhal_ezi2c_t *obj);
 
 /**
  * EZI2C slave get activity status
- * This function returns a non-zero value if an I2C Read or Write
+ * This function returns a non-zero value ( \ref cyhal_ezi2c_status_t) if an I2C Read or Write
  * cycle has occurred since the last time this function was called.
+ * See \ref subsection_ezi2c_snippet_2
  *
  * @param[in] obj The EZI2C object
  *
@@ -169,7 +204,9 @@ void cyhal_ezi2c_free(cyhal_ezi2c_t *obj);
  */
 cyhal_ezi2c_status_t cyhal_ezi2c_get_activity_status(cyhal_ezi2c_t *obj);
 
-/** The EZI2C event callback handler registration
+/** Register a EZI2C event callback handler
+ *
+ * See \ref subsection_ezi2c_snippet_2
  *
  * @param[in] obj          The EZI2C object
  * @param[in] callback     The callback handler which will be invoked when an event triggers
@@ -177,7 +214,14 @@ cyhal_ezi2c_status_t cyhal_ezi2c_get_activity_status(cyhal_ezi2c_t *obj);
  */
 void cyhal_ezi2c_register_callback(cyhal_ezi2c_t *obj, cyhal_ezi2c_event_callback_t callback, void *callback_arg);
 
-
+/** Configure and Enable or Disable EZI2C Interrupt.
+ *
+ * @param[in] obj            The EZI2C object
+ * @param[in] event          The EZI2C event type
+ * @param[in] intr_priority  The priority for NVIC interrupt events
+ * @param[in] enable         True to turn on interrupts, False to turn off
+ */
+void cyhal_ezi2c_enable_event(cyhal_ezi2c_t *obj, cyhal_ezi2c_status_t event, uint8_t intr_priority, bool enable);
 
 #if defined(__cplusplus)
 }

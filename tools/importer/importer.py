@@ -200,7 +200,7 @@ def branch_exists(name):
     cmd = ['git', 'branch']
     _, output = run_cmd_with_output(cmd, exit_on_failure=False)
 
-    return name in output
+    return name.encode('utf-8') in output
 
 
 def branch_checkout(name):
@@ -229,7 +229,7 @@ def get_last_cherry_pick_sha():
 
     shas = re.findall(
         pattern='^\s*\(cherry picked from commit ([0-9a-fA-F]+)\)$',
-        string=output,
+        string=output.decode('utf-8'),
         flags=re.MULTILINE
     )
 
@@ -274,7 +274,7 @@ def get_parser():
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    sha = get_curr_sha(args.repo_path)
+    sha = get_curr_sha(args.repo_path).decode('utf-8')
     repo_dir = os.path.basename(args.repo_path)
     branch = 'feature_' + repo_dir + '_' + sha
     commit_msg = "[" + repo_dir + "]" + ": Updated to " + sha

@@ -32,9 +32,6 @@
         "NUCLEO_F091RC": {
              "TEST_BUFFER": 4096
         },
-        "NUCLEO_F410RB": {
-             "TEST_BUFFER": 4096
-        },
         "KL22F": {
              "SPI_MOSI": "PTD6",
              "SPI_MISO": "PTD7",
@@ -88,12 +85,6 @@
              "SPI_MISO": "PD_15",
              "SPI_CLK":  "PD_14",
              "SPI_CS":   "PD_13"
-        },
-        "nRF51822": {
-             "SPI_MOSI": "p12",
-             "SPI_MISO": "p13",
-             "SPI_CLK":  "p15",
-             "SPI_CS":   "p14"
         },
         "RZ_A1H": {
              "SPI_MOSI": "P8_5",

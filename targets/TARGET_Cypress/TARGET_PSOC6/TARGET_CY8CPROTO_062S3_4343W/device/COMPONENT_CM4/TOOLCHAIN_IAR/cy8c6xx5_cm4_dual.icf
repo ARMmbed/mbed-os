@@ -1,6 +1,6 @@
-/***************************************************************************//**
+/*******************************************************************************
 * \file cy8c6xx5_cm4_dual.icf
-* \version 2.70
+* \version 2.70.1
 *
 * Linker file for the IAR compiler.
 *
@@ -19,7 +19,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +41,10 @@
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
+/* By default, the COMPONENT_CM0P_SLEEP prebuilt image is used for the CM0p core.
+ * More about CM0+ prebuilt images, see here:
+ * https://github.com/cypresssemiconductorco/psoc6cm0p
+ */
 /* The size of the Cortex-M0+ application image */
 define symbol FLASH_CM0P_SIZE  = 0x2000;
 
@@ -100,13 +104,13 @@ define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
  */
 /* RAM */
 define symbol __ICFEDIT_region_IRAM1_start__ = MBED_RAM_START;
-define symbol __ICFEDIT_region_IRAM1_end__   = (MBED_RAM_START + MBED_RAM_SIZE);
+define symbol __ICFEDIT_region_IRAM1_end__   = (MBED_RAM_START + MBED_RAM_SIZE - 1);
 /* Flash */
 define symbol __ICFEDIT_region_IROM0_start__ = MBED_ROM_START;
-define symbol __ICFEDIT_region_IROM0_end__   = (MBED_ROM_START + FLASH_CM0P_SIZE);
+define symbol __ICFEDIT_region_IROM0_end__   = (MBED_ROM_START + FLASH_CM0P_SIZE - 1);
 
 define symbol __ICFEDIT_region_IROM1_start__ = MBED_APP_START;
-define symbol __ICFEDIT_region_IROM1_end__   = (MBED_APP_START + MBED_APP_SIZE);
+define symbol __ICFEDIT_region_IROM1_end__   = (MBED_APP_START + MBED_APP_SIZE - 1);
 
 /* The following symbols define a 32K flash region used for EEPROM emulation.
  * This region can also be used as the general purpose flash.

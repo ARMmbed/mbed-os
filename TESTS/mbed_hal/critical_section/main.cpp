@@ -29,18 +29,12 @@ using utest::v1::Case;
 
 bool test_are_interrupts_enabled(void)
 {
-    // NRF51 targets don't disable interrupts when in critical section, instead they mask application interrupts.
-    // This is due to SoftDevice BLE stack (BLE to be operational requires some interrupts to be always enabled)
-#if defined(TARGET_NRF51)
-    // check if APP interrupts are masked for other NRF51 boards
-    return ((NVIC->ISER[0] & __NRF_NVIC_APP_IRQS_0) != 0);
-#else
 #if defined(__CORTEX_A9)
     return ((__get_CPSR() & 0x80) == 0);
 #else
     return ((__get_PRIMASK() & 0x1) == 0);
 #endif
-#endif
+
 }
 
 

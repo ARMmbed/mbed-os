@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_crypto_core_trng_config_v1.h
-* \version 2.30.1
+* \version 2.30.2
 *
 * \brief
 *  This file provides internal (not public) constants and parameters
 *  for the Crypto TRNG driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

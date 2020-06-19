@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cyb06xx7_cm0plus.sct
-;* \version 2.70
+;* \version 2.70.1
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -26,7 +26,7 @@
 ;*
 ;*******************************************************************************
 ;* \copyright
-;* Copyright 2016-2019 Cypress Semiconductor Corporation
+;* Copyright 2016-2020 Cypress Semiconductor Corporation
 ;* SPDX-License-Identifier: Apache-2.0
 ;*
 ;* Licensed under the Apache License, Version 2.0 (the "License");
@@ -148,14 +148,9 @@
 
 
 ; Cortex-M0+ application flash area
-LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
+LR_IROM1 (FLASH_START + BOOT_HEADER_SIZE) (FLASH_SIZE - BOOT_HEADER_SIZE - 0x8000)
 {
-    .cy_app_header +0
-    {
-        * (.cy_app_header)
-    }
-
-    ER_FLASH_VECTORS +BOOT_HEADER_SIZE
+    ER_FLASH_VECTORS +0
     {
         * (RESET, +FIRST)
     }

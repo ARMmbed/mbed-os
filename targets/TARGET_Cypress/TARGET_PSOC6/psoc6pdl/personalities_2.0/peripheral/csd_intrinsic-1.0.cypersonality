@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file csd_intrinsic-1.0.cypersonality
+* \version 1.0
+*
+* \brief
+* Intrinsic CSD personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40csd_intrinsic" name="CSD Instrinsic" intrinsic="true" version="1.0" xmlns="http://cypress.com/xsd/cyhwpersonality_v2">
+  <Dependencies>
+    <IpBlock name="mxcsdv2" />
+    <Resource name="csd\.csd" />
+  </Dependencies>
+  <ExposedMembers/>
+  <Parameters>
+    <ParamString id="cfgFileName" name="cfgFileName" group="External Tools" default="design.cycapsense" visible="false" editable="false" desc="" />
+    <ParamString id="cfgFilePath" name="cfgFilePath" group="External Tools" default="`${cy_design_path() . &quot;/&quot; . cfgFileName}`" visible="false" editable="false" desc="" />
+    <ParamBool id="csdUsed" name="csdUsed" group="Internal" default="`${isBlockUsed(&quot;csd[0].csd[0]&quot;)}`" visible="false" editable="false" desc="" />
+  </Parameters>
+  <DRCs />
+  <ConfigFirmware>
+    <ConfigTool value="`${cy_tools_path(&quot;capsense-configurator&quot;) . &quot;/capsense-configurator-cli&quot;}`" include="`${csdUsed ? !getExposedMember(&quot;csd[0].csd[0]&quot;, &quot;CapSenseEnable&quot;) : true}`">
+      <Arg value="`${&quot;--config=&quot; . cfgFilePath}`" />
+      <Arg value="`${&quot;--clean&quot;}`" />
+    </ConfigTool>
+  </ConfigFirmware>
+</Personality>
