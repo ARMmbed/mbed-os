@@ -31,6 +31,8 @@
 #include "lpc546xx_emac_config.h"
 #include "lpc546xx_emac.h"
 
+using namespace std::chrono;
+
 enet_handle_t g_handle;
 // RX packet buffer pointers
 emac_mem_buf_t *rx_buff[ENET_RX_RING_LEN];
@@ -54,7 +56,7 @@ extern "C" void lpc546xx_init_eth_hardware(void);
 /** \brief  Driver thread priority */
 #define THREAD_PRIORITY (osPriorityNormal)
 
-#define PHY_TASK_PERIOD_MS      200
+#define PHY_TASK_PERIOD      200ms
 
 LPC546XX_EMAC::LPC546XX_EMAC() : xTXDCountSem(ENET_TX_RING_LEN, ENET_TX_RING_LEN), hwaddr()
 {
@@ -143,8 +145,7 @@ void LPC546XX_EMAC::ethernet_callback(ENET_Type *base, enet_handle_t *handle, en
 {
     LPC546XX_EMAC *enet = static_cast<LPC546XX_EMAC *>(param);
 
-    switch (event)
-    {
+    switch (event) {
         case kENET_RxIntEvent:
             enet->rx_isr();
             break;
@@ -203,22 +204,23 @@ bool LPC546XX_EMAC::low_level_init_successful()
     AT_NONCACHEABLE_SECTION_ALIGN(static enet_tx_bd_struct_t tx_desc_start_addr[ENET_TX_RING_LEN], ENET_BUFF_ALIGNMENT);
 
     /* prepare the buffer configuration. */
-   enet_buffer_config_t buffCfg = {
-       ENET_RX_RING_LEN,
-       ENET_TX_RING_LEN,
-       &tx_desc_start_addr[0],
-       &tx_desc_start_addr[0],
-       &rx_desc_start_addr[0],
-       &rx_desc_start_addr[ENET_RX_RING_LEN],
-       rx_ptr,
-       ENET_BuffSizeAlign(ENET_ETH_MAX_FLEN),
-   };
+    enet_buffer_config_t buffCfg = {
+        ENET_RX_RING_LEN,
+        ENET_TX_RING_LEN,
+        &tx_desc_start_addr[0],
+        &tx_desc_start_addr[0],
+        &rx_desc_start_addr[0],
+        &rx_desc_start_addr[ENET_RX_RING_LEN],
+        rx_ptr,
+        ENET_BuffSizeAlign(ENET_ETH_MAX_FLEN),
+    };
 
     /* Create buffers for each receive BD */
     for (i = 0; i < ENET_RX_RING_LEN; i++) {
         rx_buff[i] = memory_manager->alloc_heap(buffCfg.rxBuffSizeAlign, ENET_BUFF_ALIGNMENT);
-        if (NULL == rx_buff[i])
+        if (NULL == rx_buff[i]) {
             return false;
+        }
 
         rx_ptr[i] = (uint32_t)memory_manager->get_ptr(rx_buff[i]);
     }
@@ -291,7 +293,7 @@ emac_mem_buf_t *LPC546XX_EMAC::low_level_input()
         rx_buff[rxBdRing->rxGenIdx] = temp_rxbuf;
         rx_ptr[rxBdRing->rxGenIdx] = (uint32_t)memory_manager->get_ptr(rx_buff[rxBdRing->rxGenIdx]);
 
-        update_read_buffer(bdPtr, (uint8_t*)rx_ptr[rxBdRing->rxGenIdx]);
+        update_read_buffer(bdPtr, (uint8_t *)rx_ptr[rxBdRing->rxGenIdx]);
     }
 
 #ifdef LOCK_RX_THREAD
@@ -322,7 +324,7 @@ void LPC546XX_EMAC::input()
  *
  *  \param[in] pvParameters pointer to the interface data
  */
-void LPC546XX_EMAC::thread_function(void* pvParameters)
+void LPC546XX_EMAC::thread_function(void *pvParameters)
 {
     struct LPC546XX_EMAC *lpc_enet = static_cast<LPC546XX_EMAC *>(pvParameters);
 
@@ -364,8 +366,7 @@ void LPC546XX_EMAC::packet_rx()
     }
 
     /* Set command for rx when it is suspend. */
-    if (suspend)
-    {
+    if (suspend) {
         ENET->DMA_CH[0].DMA_CHX_RXDESC_TAIL_PTR = ENET->DMA_CH[0].DMA_CHX_RXDESC_TAIL_PTR;
     }
 }
@@ -394,7 +395,7 @@ bool LPC546XX_EMAC::link_out(emac_mem_buf_t *buf)
 
     // If buffer is chained or not aligned then make a contiguous aligned copy of it
     if (memory_manager->get_next(buf) ||
-        reinterpret_cast<uint32_t>(memory_manager->get_ptr(buf)) % ENET_BUFF_ALIGNMENT) {
+            reinterpret_cast<uint32_t>(memory_manager->get_ptr(buf)) % ENET_BUFF_ALIGNMENT) {
         emac_mem_buf_t *copy_buf;
         copy_buf = memory_manager->alloc_heap(memory_manager->get_total_len(buf), ENET_BUFF_ALIGNMENT);
         if (NULL == copy_buf) {
@@ -438,7 +439,8 @@ bool LPC546XX_EMAC::link_out(emac_mem_buf_t *buf)
 
 #define STATE_UNKNOWN           (-1)
 
-int phy_link_status(void) {
+int phy_link_status(void)
+{
     bool connection_status;
     uint32_t phyAddr = 0;
 
@@ -497,7 +499,7 @@ bool LPC546XX_EMAC::power_up()
     prev_state.speed = (phy_speed_t)STATE_UNKNOWN;
     prev_state.duplex = (phy_duplex_t)STATE_UNKNOWN;
 
-    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &LPC546XX_EMAC::phy_task));
+    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD, mbed::callback(this, &LPC546XX_EMAC::phy_task));
 
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     osDelay(10);
@@ -536,7 +538,7 @@ bool LPC546XX_EMAC::get_hwaddr(uint8_t *addr) const
 void LPC546XX_EMAC::set_hwaddr(const uint8_t *addr)
 {
     memcpy(hwaddr, addr, sizeof hwaddr);
-    ENET_SetMacAddr(ENET, const_cast<uint8_t*>(addr));
+    ENET_SetMacAddr(ENET, const_cast<uint8_t *>(addr));
 }
 
 void LPC546XX_EMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
@@ -583,13 +585,15 @@ void LPC546XX_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 }
 
 
-LPC546XX_EMAC &LPC546XX_EMAC::get_instance() {
+LPC546XX_EMAC &LPC546XX_EMAC::get_instance()
+{
     static LPC546XX_EMAC emac;
     return emac;
 }
 
 // Weak so a module can override
-MBED_WEAK EMAC &EMAC::get_default_instance() {
+MBED_WEAK EMAC &EMAC::get_default_instance()
+{
     return LPC546XX_EMAC::get_instance();
 }
 

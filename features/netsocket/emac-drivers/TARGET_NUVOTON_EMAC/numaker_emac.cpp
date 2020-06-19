@@ -36,6 +36,8 @@
 #include "numaker_emac.h"
 #include "numaker_eth_hal.h"
 
+using namespace std::chrono;
+
 /********************************************************************************
  *
  ********************************************************************************/
@@ -53,7 +55,7 @@ extern "C" void numaker_eth_rx_next(void);
 /** \brief  Driver thread priority */
 #define THREAD_PRIORITY (osPriorityNormal)
 
-#define PHY_TASK_PERIOD_MS      200
+#define PHY_TASK_PERIOD      200ms
 
 NUMAKER_EMAC::NUMAKER_EMAC() : thread(0), hwaddr()
 {
@@ -331,7 +333,7 @@ bool NUMAKER_EMAC::power_up()
     /* PHY monitoring task */
     phy_state = PHY_UNLINKED_STATE;
 
-    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &NUMAKER_EMAC::phy_task));
+    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD, mbed::callback(this, &NUMAKER_EMAC::phy_task));
 
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     osDelay(10);

@@ -52,13 +52,15 @@
 #include "lwip/api.h"
 #endif
 
+using namespace std::chrono;
+
 /* \brief Flags for worker thread */
 #define FLAG_RX                 1
 
 /** \brief  Driver thread priority */
 #define THREAD_PRIORITY         (osPriorityHigh)
 
-#define PHY_TASK_PERIOD_MS      200
+#define PHY_TASK_PERIOD      200ms
 
 #define STM_HWADDR_SIZE         (6)
 #define STM_ETH_MTU_SIZE        1500
@@ -884,13 +886,13 @@ bool STM32_EMAC::power_up()
 
     /* Worker thread */
 #if MBED_CONF_MBED_TRACE_ENABLE
-    thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, MBED_CONF_STM32_EMAC_THREAD_STACKSIZE*2, THREAD_PRIORITY, &thread_cb);
+    thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, MBED_CONF_STM32_EMAC_THREAD_STACKSIZE * 2, THREAD_PRIORITY, &thread_cb);
 #else
     thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, MBED_CONF_STM32_EMAC_THREAD_STACKSIZE, THREAD_PRIORITY, &thread_cb);
 #endif
 
 
-    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &STM32_EMAC::phy_task));
+    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD, mbed::callback(this, &STM32_EMAC::phy_task));
 
 #if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
       || defined (STM32F779xx)
