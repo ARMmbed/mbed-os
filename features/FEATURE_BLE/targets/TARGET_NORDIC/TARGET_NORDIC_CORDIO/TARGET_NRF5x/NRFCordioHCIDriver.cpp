@@ -250,6 +250,8 @@ ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_descrip
     return buf_pool_desc_t(buffer, pool_desc);
 }
 
+extern "C" void TIMER2_IRQHandler();
+
 void NRFCordioHCIDriver::do_initialize()
 {
 	if(_is_init) {
@@ -298,6 +300,7 @@ void NRFCordioHCIDriver::do_initialize()
 
     // For some reason, the mbed target uses this (TIMER0_IRQHandler_v) vector name instead of the "standard" TIMER0_IRQHandler one
     NVIC_SetVector(TIMER0_IRQn, (uint32_t)TIMER0_IRQHandler);
+    NVIC_SetVector(TIMER2_IRQn, (uint32_t)TIMER2_IRQHandler);
 
     // Extremely ugly
     for(uint32_t irqn = 0; irqn < 32; irqn++)
