@@ -18,7 +18,7 @@ if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC_ARM")
 elseif(${MBED_OS_TOOLCHAIN} STREQUAL "ARM")
     target_sources(mbed-os
         PRIVATE
-            TOOLCHAIN_ARM/mbed_boot_arm_std.c
+        TOOLCHAIN_ARM_STD/mbed_boot_arm_std.c
     )
 elseif(${MBED_OS_TOOLCHAIN} STREQUAL "IAR")
     target_sources(mbed-os
