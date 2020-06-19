@@ -1,3 +1,4 @@
+#! armcc -E
 ; Scatter-Loading Description File
 ;
 ; SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +45,7 @@
 #define MBED_CRASH_REPORT_RAM_START (MBED_RAM1_START + VECTORS_SIZE)
 #define MBED_IRAM2_START            (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
 
-; Minimum heap should be larger then smallest RAM bank (else can use 
+; Minimum heap should be larger then smallest RAM bank (else can use
 ; that bank for heap) and less then largest RAM bank.
 #define MINIMUM_HEAP                0x12000
 
