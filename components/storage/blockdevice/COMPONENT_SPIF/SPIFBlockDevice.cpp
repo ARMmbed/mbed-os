@@ -85,6 +85,12 @@ SingletonPtr<PlatformMutex> SPIFBlockDevice::_mutex;
 //***********************
 // SPIF Block Device APIs
 //***********************
+MBED_WEAK BlockDevice *SPIFBlockDevice::get_target_default_instance()
+{
+    static SPIFBlockDevice default_bd;
+    return &default_bd;
+}
+
 SPIFBlockDevice::SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq)
     :
     _spi(mosi, miso, sclk, csel, use_gpio_ssel), _prog_instruction(0), _erase_instruction(0),

@@ -80,6 +80,14 @@
  */
 class DataFlashBlockDevice : public mbed::BlockDevice {
 public:
+    /** Create target default DataFlashBlockDevice
+     *
+     * An application can override target settings by implementing
+     * DataFlashBlockDevice::get_target_default_instance() - the default
+     * definition is weak.
+     */
+    static mbed::BlockDevice *get_target_default_instance();
+
     /** Creates a DataFlashBlockDevice on a SPI bus specified by pins
      *
      *  @param mosi     SPI master out, slave in pin

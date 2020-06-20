@@ -29,6 +29,13 @@
  */
 class FlashIAPBlockDevice : public mbed::BlockDevice {
 public:
+    /** Create target default FlashIAPBlockDevice
+     *
+     * An application can override target settings by implementing
+     * FlashIAPBlockDevice::get_target_default_instance() - the default
+     * definition is weak.
+     */
+    static mbed::BlockDevice *get_target_default_instance();
 
     /** Creates a FlashIAPBlockDevice
      *

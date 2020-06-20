@@ -37,6 +37,59 @@ using namespace mbed;
 #define DEBUG_PRINTF(...)
 #endif
 
+// Align a value to a specified size.
+// Parameters :
+// val           - [IN]   Value.
+// size          - [IN]   Size.
+// Return        : Aligned value.
+static inline uint32_t align_up(uint32_t val, uint32_t size)
+{
+    return (((val - 1) / size) + 1) * size;
+}
+
+static inline uint32_t align_down(uint64_t val, uint64_t size)
+{
+    return (((val) / size)) * size;
+}
+
+MBED_WEAK BlockDevice *FlashIAPBlockDevice::get_target_default_instance()
+{
+#if (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE == 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS == 0xFFFFFFFF)
+
+    size_t flash_size;
+    uint32_t start_address;
+    uint32_t bottom_address;
+    FlashIAP flash;
+
+    int ret = flash.init();
+    if (ret != 0) {
+        return nullptr;
+    }
+
+    //Find the start of first sector after text area
+    uint32_t sector_size = flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR);
+    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, sector_size);
+    start_address = flash.get_flash_start();
+    flash_size = flash.get_flash_size();
+
+    ret = flash.deinit();
+
+    uint32_t total_size = start_address + flash_size - bottom_address;
+    if (total_size % (sector_size * 2)) {
+        total_size =  align_down(total_size, sector_size * 2);
+    }
+    static FlashIAPBlockDevice default_bd(bottom_address, total_size);
+
+#else
+
+    static FlashIAPBlockDevice default_bd;
+
+#endif
+
+    return &default_bd;
+
+}
+
 FlashIAPBlockDevice::FlashIAPBlockDevice(uint32_t address, uint32_t size)
     : _flash(), _base(address), _size(size), _is_initialized(false), _init_ref_count(0)
 {

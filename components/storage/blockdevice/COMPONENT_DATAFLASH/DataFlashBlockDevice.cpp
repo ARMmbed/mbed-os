@@ -134,6 +134,12 @@ enum dummy {
     DATAFLASH_HIGHEST_FREQUENCY_BYTES = 2
 };
 
+MBED_WEAK BlockDevice *DataFlashBlockDevice::get_target_default_instance()
+{
+    static DataFlashBlockDevice default_bd;
+    return &default_bd;
+}
+
 DataFlashBlockDevice::DataFlashBlockDevice(PinName mosi,
                                            PinName miso,
                                            PinName sclk,

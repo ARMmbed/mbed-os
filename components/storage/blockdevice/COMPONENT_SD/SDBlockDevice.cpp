@@ -251,6 +251,19 @@ using namespace std::chrono;
 // Only HC block size is supported. Making this a static constant reduces code size.
 const uint32_t SDBlockDevice::_block_size = BLOCK_SIZE_HC;
 
+MBED_WEAK BlockDevice *SDBlockDevice::get_target_default_instance()
+{
+#if (STATIC_PINMAP_READY)
+    static SDBlockDevice default_bd {
+        static_spi_pinmap,
+        MBED_CONF_SD_SPI_CS
+    };
+#else
+    static SDBlockDevice default_bd;
+#endif
+    return &default_bd;
+}
+
 #if MBED_CONF_SD_CRC_ENABLED
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
     : _sectors(0), _spi(mosi, miso, sclk, cs, use_gpio_ssel), _is_initialized(0),

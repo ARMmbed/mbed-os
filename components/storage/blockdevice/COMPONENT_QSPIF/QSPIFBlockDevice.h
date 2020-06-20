@@ -113,6 +113,14 @@ enum qspif_polarity_mode {
  */
 class QSPIFBlockDevice : public mbed::BlockDevice {
 public:
+    /** Create target default QSPIFBlockDevice
+     *
+     * An application can override target settings by implementing
+     * QSPIFBlockDevice::get_target_default_instance() - the default
+     * definition is weak.
+     */
+    static mbed::BlockDevice *get_target_default_instance();
+
     /** Create QSPIFBlockDevice - An SFDP based Flash Block Device over QSPI bus
      *
      *  @param io0 1st IO pin used for sending/receiving data during data phase of a transaction

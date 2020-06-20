@@ -58,6 +58,14 @@
  */
 class SDBlockDevice : public mbed::BlockDevice {
 public:
+    /** Create target default SDBlockDevice
+     *
+     * An application can override target settings by implementing
+     * SDBlockDevice::get_target_default_instance() - the default
+     * definition is weak.
+     */
+    static mbed::BlockDevice *get_target_default_instance();
+
     /** Creates an SDBlockDevice on a SPI bus specified by pins (using dynamic pin-map)
      *
      *  @param mosi     SPI master out, slave in pin

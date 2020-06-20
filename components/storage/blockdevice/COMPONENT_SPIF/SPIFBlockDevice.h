@@ -90,6 +90,14 @@ enum spif_bd_error {
  */
 class SPIFBlockDevice : public mbed::BlockDevice {
 public:
+    /** Create target default SPIFBlockDevice
+     *
+     * An application can override target settings by implementing
+     * SPIFBlockDevice::get_target_default_instance() - the default
+     * definition is weak.
+     */
+    static mbed::BlockDevice *get_target_default_instance();
+
     /** Creates a SPIFBlockDevice on a SPI bus specified by pins
      *
      *  @param mosi     SPI master out, slave in pin
