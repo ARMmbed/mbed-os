@@ -53,6 +53,7 @@ namespace mbed {
  * #include "mbed.h"
  *
  * AnalogIn temperature(p20);
+ * test
  *
  * int main() {
  *     while(1) {
