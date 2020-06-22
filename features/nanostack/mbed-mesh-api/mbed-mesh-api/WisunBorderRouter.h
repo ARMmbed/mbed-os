@@ -202,10 +202,10 @@ public:
      * \param table_ptr Application allocated memory block where routing table is written.
      * \param table_len Length of the table allocated by application given as amount of entries.
      *
-     * \return MESH_ERROR_NONE on success.
-     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * \returns 0 - x on success indicates number of entries written to the table_ptr.
+     * \return <0 in case of errors.
      * */
-    mesh_error_t routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len);
+    int routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len);
 
 private:
     int8_t _mesh_if_id = -1;
