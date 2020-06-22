@@ -1,4 +1,5 @@
 /* Copyright (c) 2009-2019 Arm Limited
+ * Copyright (c) 2019-2020 Packetcraft, Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -116,6 +117,12 @@ void dmSecHciHandler(hciEvt_t *pEvent)
           HciLeLtkReqReplCmd(pEvent->hdr.param, pKey);
           return;
         }
+      }
+      else if (SmpDmLescEnabled(pCcb->connId) == TRUE)
+      {
+        /* EDIV and Rand must be zero in LE Secure Connections */
+        HciLeLtkReqNegReplCmd(pEvent->hdr.param);
+        return;
       }
 
       /* call callback to get key from app */

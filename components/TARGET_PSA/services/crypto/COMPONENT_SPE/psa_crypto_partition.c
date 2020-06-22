@@ -160,25 +160,6 @@ psa_status_t psa_cipher_decrypt(psa_key_handle_t handle,
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_hash_compute(psa_algorithm_t alg,
-                              const uint8_t *input,
-                              size_t input_length,
-                              uint8_t *hash,
-                              size_t hash_size,
-                              size_t *hash_length)
-{
-    return PSA_ERROR_NOT_SUPPORTED;
-}
-
-psa_status_t psa_hash_compare(psa_algorithm_t alg,
-                              const uint8_t *input,
-                              size_t input_length,
-                              const uint8_t *hash,
-                              const size_t hash_length)
-{
-    return PSA_ERROR_NOT_SUPPORTED;
-}
-
 psa_status_t psa_mac_compute(psa_key_handle_t handle,
                              psa_algorithm_t alg,
                              const uint8_t *input,

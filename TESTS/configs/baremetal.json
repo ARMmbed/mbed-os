@@ -6,7 +6,6 @@
         "utest",
         "unity",
         "psa",
-        "mbed-crypto",
         "mbedtls",
         "psa-compliance-framework",
         "filesystem",

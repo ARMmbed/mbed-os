@@ -189,7 +189,7 @@
 #endif
 
 #if defined(MBEDTLS_GCM_C) && (                                        \
-        !defined(MBEDTLS_AES_C) && !defined(MBEDTLS_CAMELLIA_C) )
+        !defined(MBEDTLS_AES_C) && !defined(MBEDTLS_CAMELLIA_C) && !defined(MBEDTLS_ARIA_C) )
 #error "MBEDTLS_GCM_C defined, but not all prerequisites"
 #endif
 
@@ -292,7 +292,7 @@
 #error "MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED defined, but not all prerequisites"
 #endif
 
-#if defined(MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED) &&        \
+#if defined(MBEDTLS_KEY_EXCHANGE_WITH_CERT_ENABLED) &&        \
     !defined(MBEDTLS_SSL_KEEP_PEER_CERTIFICATE) &&              \
     ( !defined(MBEDTLS_SHA256_C) &&                             \
       !defined(MBEDTLS_SHA512_C) &&                             \
@@ -553,6 +553,12 @@
 #error "MBEDTLS_PSA_CRYPTO_SPM defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_PSA_CRYPTO_SE_C) &&    \
+    ! ( defined(MBEDTLS_PSA_CRYPTO_C) && \
+        defined(MBEDTLS_PSA_CRYPTO_STORAGE_C) )
+#error "MBEDTLS_PSA_CRYPTO_SE_C defined, but not all prerequisites"
+#endif
+
 #if defined(MBEDTLS_PSA_CRYPTO_STORAGE_C) &&            \
     ! defined(MBEDTLS_PSA_CRYPTO_C)
 #error "MBEDTLS_PSA_CRYPTO_STORAGE_C defined, but not all prerequisites"
@@ -584,6 +590,10 @@
 #error "MBEDTLS_X509_RSASSA_PSS_SUPPORT defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_SHA512_NO_SHA384) && !defined(MBEDTLS_SHA512_C)
+#error "MBEDTLS_SHA512_NO_SHA384 defined without MBEDTLS_SHA512_C"
+#endif
+
 #if defined(MBEDTLS_SSL_PROTO_SSL3) && ( !defined(MBEDTLS_MD5_C) ||     \
     !defined(MBEDTLS_SHA1_C) )
 #error "MBEDTLS_SSL_PROTO_SSL3 defined, but not all prerequisites"
@@ -602,6 +612,23 @@
 #if defined(MBEDTLS_SSL_PROTO_TLS1_2) && ( !defined(MBEDTLS_SHA1_C) &&     \
     !defined(MBEDTLS_SHA256_C) && !defined(MBEDTLS_SHA512_C) )
 #error "MBEDTLS_SSL_PROTO_TLS1_2 defined, but not all prerequisites"
+#endif
+
+#if (defined(MBEDTLS_SSL_PROTO_SSL3) || defined(MBEDTLS_SSL_PROTO_TLS1) ||  \
+     defined(MBEDTLS_SSL_PROTO_TLS1_1) || defined(MBEDTLS_SSL_PROTO_TLS1_2)) && \
+    !(defined(MBEDTLS_KEY_EXCHANGE_RSA_ENABLED) ||                          \
+      defined(MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED) ||                      \
+      defined(MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED) ||                    \
+      defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED) ||                  \
+      defined(MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED) ||                     \
+      defined(MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED) ||                   \
+      defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED) ||                          \
+      defined(MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED) ||                      \
+      defined(MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED) ||                      \
+      defined(MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED) ||                    \
+      defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED) )
+#error "One or more versions of the TLS protocol are enabled " \
+        "but no key exchange methods defined with MBEDTLS_KEY_EXCHANGE_xxxx"
 #endif
 
 #if defined(MBEDTLS_SSL_PROTO_DTLS)     && \
@@ -748,6 +775,10 @@
 #error "MBEDTLS_X509_CREATE_C defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_CERTS_C) && !defined(MBEDTLS_X509_USE_C)
+#error "MBEDTLS_CERTS_C defined, but not all prerequisites"
+#endif
+
 #if defined(MBEDTLS_X509_CRT_PARSE_C) && ( !defined(MBEDTLS_X509_USE_C) )
 #error "MBEDTLS_X509_CRT_PARSE_C defined, but not all prerequisites"
 #endif
@@ -792,6 +823,14 @@
 #warning "MBEDTLS_SSL_SRV_SUPPORT_SSLV2_CLIENT_HELLO is deprecated and will be removed in a future version of Mbed TLS"
 #endif
 #endif /* MBEDTLS_SSL_SRV_SUPPORT_SSLV2_CLIENT_HELLO */
+
+#if defined(MBEDTLS_SSL_HW_RECORD_ACCEL)
+#if defined(MBEDTLS_DEPRECATED_REMOVED)
+#error "MBEDTLS_SSL_HW_RECORD_ACCEL is deprecated and will be removed in a future version of Mbed TLS"
+#elif defined(MBEDTLS_DEPRECATED_WARNING)
+#warning "MBEDTLS_SSL_HW_RECORD_ACCEL is deprecated and will be removed in a future version of Mbed TLS"
+#endif /* MBEDTLS_DEPRECATED_REMOVED */
+#endif /* MBEDTLS_SSL_HW_RECORD_ACCEL */
 
 /*
  * Avoid warning from -pedantic. This is a convenient place for this

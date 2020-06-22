@@ -239,6 +239,7 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
     } else {
         wisun_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
     }
+
     wisun_tasklet_data_ptr->operating_mode_extension = NET_6LOWPAN_WS;
 
     arm_nwk_interface_configure_6lowpan_bootstrap_set(
