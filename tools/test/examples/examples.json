@@ -480,7 +480,7 @@
       "targets" : [],
       "toolchains" : [],
       "exporters": [],
-      "compile" : false,
+      "compile" : true,
       "export": true,
       "test" : false,
       "baud_rate": 115200,
