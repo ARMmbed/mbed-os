@@ -198,6 +198,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 };
 
 extern "C" void TIMER0_IRQHandler(void);
+extern "C" void TIMER2_IRQHandler(void);
 
 NRFCordioHCIDriver::NRFCordioHCIDriver(CordioHCITransportDriver& transport_driver) : cordio::CordioHCIDriver(transport_driver), _is_init(false), _stack_buffer(NULL)
 {
@@ -250,8 +251,6 @@ ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_descrip
     return buf_pool_desc_t(buffer, pool_desc);
 }
 
-extern "C" void TIMER2_IRQHandler();
-
 void NRFCordioHCIDriver::do_initialize()
 {
 	if(_is_init) {
@@ -298,7 +297,8 @@ void NRFCordioHCIDriver::do_initialize()
     NRF_RADIO->POWER = 0;
     NRF_RADIO->POWER = 1;
 
-    // For some reason, the mbed target uses this (TIMER0_IRQHandler_v) vector name instead of the "standard" TIMER0_IRQHandler one
+    // mbed-os target uses IRQ Handler names with _v added at the end
+    // (TIMER0_IRQHandler_v and TIMER2_IRQHandler_v) so we need to register these manually
     NVIC_SetVector(TIMER0_IRQn, (uint32_t)TIMER0_IRQHandler);
     NVIC_SetVector(TIMER2_IRQn, (uint32_t)TIMER2_IRQHandler);
 
