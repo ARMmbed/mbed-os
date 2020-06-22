@@ -1,6 +1,70 @@
 {
     "name": "atmel-rf",
     "config": {
+        "SPI_MOSI": {
+            "help": "SPI_MOSI pin configured for SPI connection.",
+            "value": null
+        },
+        "SPI_MISO": {
+            "help": "SPI_MISO pin configured for SPI connection.",
+            "value": null
+        },
+        "SPI_SCLK": {
+            "help": "SPI_SCLK pin configured for SPI connection.",
+            "value": null
+        },
+        "SPI_CS": {
+            "help": "SPI_CS pin configured for SPI connection.",
+            "value": null
+        },
+        "SPI_RST": {
+            "help": "SPI_RST pin configured for SPI connection.",
+            "value": null
+        },
+        "SPI_SLP": {
+            "help": "SPI_SLP pin configured for SPI connection.",
+            "value": null
+        },
+        "SPI_IRQ": {
+            "help": "SPI_IRQ pin configured for SPI connection.",
+            "value": null
+        },
+        "I2C_SDA": {
+            "help": "I2C_SDA pin configured for I2C connection.",
+            "value": null
+        },
+        "I2C_SCL": {
+            "help": "I2C_SCL pin configured for I2C connection.",
+            "value": null
+        },
+        "TEST_PIN_TX": {
+            "help": "TEST_PIN_TX pin configured for TX.",
+            "value": null
+        },
+        "TEST_PIN_RX": {
+            "help": "TEST_PIN_RX pin configured for RX.",
+            "value": null
+        },
+        "TEST_PIN_CSMA": {
+            "help": "TEST_PIN_CSMA pin configured for CSMA.",
+            "value": null
+        },
+        "TEST_PIN_SPARE_1": {
+            "help": "TEST_PIN_SPARE_1.",
+            "value": null
+        },
+        "TEST_PIN_SPARE_2": {
+            "help": "TEST_PIN_SPARE_2.",
+            "value": null
+        },
+        "SE2435L_CSD": {
+            "help": "SE2435L_CSD pin configuration.",
+            "value": null
+        },
+        "SE2435L_ANT_SEL": {
+            "help": "SE2435L_ANT_SEL pin confuguration.",
+            "value": null
+        },
         "full-spi-speed": {
             "help": "Maximum SPI clock speed (Hz), as long as sufficient inter-byte spacing",
             "value": 7500000
