@@ -185,6 +185,12 @@ uint8_t rf_conf_calculate_pa_level_dbm(int8_t power_dbm)
 {
     MBED_ASSERT(IS_PAPOWER_DBM(power_dbm));
 
+#if MBED_CONF_S2LP_EXTERNAL_FRONTEND
+    if (power_dbm > 10) {
+        power_dbm = 10;
+    }
+#endif
+
     uint8_t pa_level_value = 0;
     if (power_dbm > 14) {
         pa_level_value = 1;

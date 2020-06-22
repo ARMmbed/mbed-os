@@ -157,7 +157,7 @@ public:
 #ifdef AT24MAC
                        , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                       , PinName ant_sel);
+                       );
     virtual ~NanostackRfPhys2lp();
     virtual int8_t rf_register();
     virtual void rf_unregister();
@@ -178,7 +178,6 @@ private:
     const PinName _spi_sclk;
     const PinName _spi_cs;
     const PinName _spi_sdn;
-    const PinName _ant_sel;
     const PinName _spi_gpio0;
     const PinName _spi_gpio1;
     const PinName _spi_gpio2;
