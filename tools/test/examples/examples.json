@@ -464,7 +464,7 @@
       "targets" : [],
       "toolchains" : [],
       "exporters": [],
-      "compile" : true,
+      "compile" : false,
       "export": true,
       "test" : false,
       "baud_rate": 115200,
