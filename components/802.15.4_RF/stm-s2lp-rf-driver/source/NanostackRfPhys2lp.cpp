@@ -182,7 +182,7 @@ static void rf_rx_ready_handler(void);
 static uint32_t read_irq_status(void);
 static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *mac_16bit_addr, uint8_t *pan_id);
 static void rf_cca_timer_start(uint32_t slots);
-static void rf_set_tx_power(uint32_t power_dbm);
+static void rf_set_tx_power(uint8_t percentual_power);
 static void rf_configure_external_frontend(PinName ant_sel);
 
 static RFPins *rf;
@@ -601,8 +601,16 @@ static void rf_configure_external_frontend(PinName ant_sel)
 }
 #endif
 
-static void rf_set_tx_power(uint32_t power_dbm)
+static void rf_set_tx_power(uint8_t percentual_power)
 {
+    if (percentual_power > 100) {
+        percentual_power = 100;
+    }
+
+    int8_t power_dbm = MAX_PA_VALUE - MIN_PA_VALUE;
+    power_dbm *= (int8_t)(percentual_power / 100);
+    power_dbm += MIN_PA_VALUE;
+
     uint8_t tx_power_level = rf_conf_calculate_pa_level_dbm(power_dbm);
     for (int idx = PA_POWER1; idx > PA_POWER8; idx--) {
         rf_write_register(idx, tx_power_level);
@@ -741,9 +749,7 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
             }
             break;
         case PHY_EXTENSION_SET_TX_POWER:
-            if (IS_PAPOWER_DBM(*data_ptr)) {
-                rf_set_tx_power(*data_ptr);
-            }
+            rf_set_tx_power(*data_ptr);
             break;
         case PHY_EXTENSION_SET_CCA_THRESHOLD:
             rssi_threshold = rf_conf_cca_threshold_percent_to_rssi(*data_ptr);
