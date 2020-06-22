@@ -19,6 +19,10 @@
 #ifndef __REGION_DEFS_H__
 #define __REGION_DEFS_H__
 
+#ifndef BL2
+#define BL2
+#endif
+
 #include "flash_layout.h"
 
 #define BL2_HEAP_SIZE           (0x0001000)
