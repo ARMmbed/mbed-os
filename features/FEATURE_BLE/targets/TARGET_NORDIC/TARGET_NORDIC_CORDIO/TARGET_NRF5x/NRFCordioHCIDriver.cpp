@@ -305,10 +305,10 @@ void NRFCordioHCIDriver::do_initialize()
     // Extremely ugly
     for(uint32_t irqn = 0; irqn < 32; irqn++)
     {
-    		uint8_t prio = NVIC_GetPriority((IRQn_Type)irqn);
-    		if( prio < 2 ) {
-    			NVIC_SetPriority((IRQn_Type)irqn, 2);
-    		}
+        uint8_t prio = NVIC_GetPriority((IRQn_Type)irqn);
+        if( prio < 2 ) {
+            NVIC_SetPriority((IRQn_Type)irqn, 2);
+        }
     }
 
     // WARNING
