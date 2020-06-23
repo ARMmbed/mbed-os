@@ -10,7 +10,7 @@ set_property(GLOBAL PROPERTY MBED_OS_TARGET_LINKER_FILE "")
 # Note: This must be placed before subdirectories
 # K64F
 set_property(GLOBAL
-  PROPERTY MBED_OS_TARGET_LABELS
+  APPEND PROPERTY MBED_OS_TARGET_LABELS
     Freescale;
     MCUXpresso_MCUS;
     KSDK2_MCUS;
@@ -65,11 +65,12 @@ add_definitions(
 )
 
 # TODO: @mbed-os-tools This needs to come from tools
-# Build system provides "target" list.
+# Build system provides "target" list. It is appended to an existing property
+# defined by the application
 # Note: This must be placed before subdirectories
 # DISCO_L475VG_IOT01A
 # set_property(GLOBAL
-#   PROPERTY MBED_OS_TARGET_LABELS
+#   APPEND PROPERTY MBED_OS_TARGET_LABELS
 #     STM;
 #     STM32L4;
 #     STM32L475xG;
@@ -130,7 +131,7 @@ add_definitions(
 # Note: This must be placed before subdirectories
 # WIO_3G
 # set_property(GLOBAL
-#   PROPERTY MBED_OS_TARGET_LABELS
+#   APPEND PROPERTY MBED_OS_TARGET_LABELS
 #     STM;
 #     MCU_STM32;
 #     STM32F4;
