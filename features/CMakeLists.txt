@@ -13,6 +13,7 @@ add_subdirectory(netsocket)
 add_subdirectory(nanostack)
 add_subdirectory(storage)
 add_subdirectory(device_key)
+add_subdirectory(nfc)
 
 target_include_directories(mbed-os
     PUBLIC
