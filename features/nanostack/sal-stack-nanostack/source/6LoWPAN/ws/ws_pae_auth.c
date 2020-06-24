@@ -470,8 +470,10 @@ void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr)
     ws_pae_lib_supp_list_purge(&pae_auth->active_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE);
 }
 
-int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name)
+int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
 {
+    (void) updated;
+
     if (!interface_ptr || !network_name) {
         return -1;
     }

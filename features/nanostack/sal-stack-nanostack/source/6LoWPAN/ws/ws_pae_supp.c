@@ -523,6 +523,31 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
     }
 }
 
+int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
+{
+    (void) pan_id;
+    (void) network_name;
+
+    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
+    if (!pae_supp) {
+        return -1;
+    }
+
+    if (updated) {
+        tr_info("Delete old keys, new PAN ID: %i network name: %s", pan_id, network_name);
+        // Delete pair wise keys
+        sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
+        sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
+        sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
+        // Delete GTKs
+        sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
+        sec_prot_keys_gtks_updated_set(pae_supp->sec_keys_nw_info->gtks);
+        ws_pae_supp_nvm_update(pae_supp);
+    }
+
+    return 0;
+}
+
 void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_auth_next_target *auth_next_target, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);

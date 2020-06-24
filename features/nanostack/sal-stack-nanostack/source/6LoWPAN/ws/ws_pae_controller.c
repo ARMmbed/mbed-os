@@ -52,7 +52,7 @@ typedef int8_t ws_pae_br_addr_read(protocol_interface_info_entry_t *interface_pt
 typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr);
 typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
 typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
-typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name);
+typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
 typedef struct {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
@@ -290,20 +290,24 @@ int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_
         return -1;
     }
 
+    bool updated = false;
+
     // Network name has been modified
-    if (network_name && strncmp(controller->sec_keys_nw_info.network_name, network_name, 33) != 0) {
+    if (network_name && strcmp(controller->sec_keys_nw_info.network_name, network_name) != 0) {
         strncpy(controller->sec_keys_nw_info.network_name, network_name, 32);
         controller->sec_keys_nw_info.updated = true;
+        updated = true;
     }
 
     // PAN ID has been modified
     if (pan_id != 0xffff && pan_id != controller->sec_keys_nw_info.new_pan_id) {
         controller->sec_keys_nw_info.new_pan_id = pan_id;
         controller->sec_keys_nw_info.updated = true;
+        updated = true;
     }
 
     if (controller->pae_nw_info_set) {
-        controller->pae_nw_info_set(interface_ptr, pan_id, network_name);
+        controller->pae_nw_info_set(interface_ptr, pan_id, network_name, updated);
     }
 
     return 0;
@@ -803,7 +807,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
     controller->pae_br_addr_read = ws_pae_supp_border_router_addr_read;
     controller->pae_gtk_hash_update = ws_pae_supp_gtk_hash_update;
     controller->pae_nw_key_index_update = ws_pae_supp_nw_key_index_update;
-    controller->pae_nw_info_set = NULL;
+    controller->pae_nw_info_set = ws_pae_supp_nw_info_set;
 
     ws_pae_supp_cb_register(controller->interface_ptr, controller->auth_completed, controller->auth_next_target, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_active_nw_key_set, ws_pae_controller_gtk_hash_ptr_get, ws_pae_controller_nw_info_updated_check);
 
