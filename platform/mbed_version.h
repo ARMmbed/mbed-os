@@ -31,21 +31,21 @@
   *
   * @note 99 is default value for development version (master branch)
   */
-#define MBED_MAJOR_VERSION  6
+#define MBED_MAJOR_VERSION 6
 
 /** MBED_MINOR_VERSION
   * Mbed OS minor version
   *
   * @note 99 is default value for development version (master branch)
   */
-#define MBED_MINOR_VERSION  0
+#define MBED_MINOR_VERSION 1
 
 /** MBED_PATCH_VERSION
   * Mbed OS patch version
   *
   * @note 99 is default value for development version (master branch)
   */
-#define MBED_PATCH_VERSION  0
+#define MBED_PATCH_VERSION 0
 
 #define MBED_ENCODE_VERSION(major, minor, patch) ((major)*10000 + (minor)*100 + (patch))
 
