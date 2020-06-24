@@ -5,11 +5,11 @@
 * PSoC6_01 device GPIO header for 80-WLCSP package
 *
 * \note
-* Generator version: 1.5.0.1304
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,16 +46,16 @@ enum
 /* AMUXBUS Segments */
 enum
 {
-    AMUXBUS_MAIN,
     AMUXBUS_ADFT0_VDDD,
-    AMUXBUS_NOISY,
     AMUXBUS_ADFT1_VDDD,
-    AMUXBUS_CSD0,
-    AMUXBUS_VDDIO_1,
-    AMUXBUS_CSD1,
-    AMUXBUS_SAR,
-    AMUXBUS_ANALOG_VDDD,
     AMUXBUS_ANALOG_VDDA,
+    AMUXBUS_ANALOG_VDDD,
+    AMUXBUS_CSD0,
+    AMUXBUS_CSD1,
+    AMUXBUS_MAIN,
+    AMUXBUS_NOISY,
+    AMUXBUS_SAR,
+    AMUXBUS_VDDIO_1,
 };
 
 /* AMUX Splitter Controls */
@@ -640,12 +640,6 @@ typedef enum
     P1_5_LCD_COM11                  = 12,       /* Digital Deep Sleep - lcd.com[11]:0 */
     P1_5_LCD_SEG11                  = 13,       /* Digital Deep Sleep - lcd.seg[11]:0 */
     P1_5_SCB7_SPI_SELECT2           = 20,       /* Digital Active - scb[7].spi_select2:0 */
-
-    /* USBDM */
-    USBDM_GPIO                      =  0,       /* GPIO controls 'out' */
-
-    /* USBDP */
-    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
 
     /* P5.0 */
     P5_0_GPIO                       =  0,       /* GPIO controls 'out' */
@@ -1660,7 +1654,13 @@ typedef enum
     P12_7_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:92 */
     P12_7_CSD_CSD_TX_N              = 11,       /* Digital Active - csd.csd_tx_n:92 */
     P12_7_LCD_COM30                 = 12,       /* Digital Deep Sleep - lcd.com[30]:1 */
-    P12_7_LCD_SEG30                 = 13        /* Digital Deep Sleep - lcd.seg[30]:1 */
+    P12_7_LCD_SEG30                 = 13,       /* Digital Deep Sleep - lcd.seg[30]:1 */
+
+    /* USBDP */
+    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
+
+    /* USBDM */
+    USBDM_GPIO                      =  0        /* GPIO controls 'out' */
 } en_hsiom_sel_t;
 
 #endif /* _GPIO_PSOC6_01_80_WLCSP_H_ */

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes_v1.c
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the source code fro the API for the AES method
@@ -540,7 +540,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Aes_Ctr(CRYPTO_Type *base,
     uint32_t *srcBuff      = (uint32_t*)(&aesBuffers->block0);
     uint32_t *dstBuff      = (uint32_t*)(&aesBuffers->block1);
     uint32_t *streamBuff   = (uint32_t*)(&aesBuffers->block2);
-    
+
     (void)streamBlock; /* Suppress warning */
 
     Cy_Crypto_Core_V1_MemCpy(base, blockCounter, ivPtr, CY_CRYPTO_AES_BLOCK_SIZE);

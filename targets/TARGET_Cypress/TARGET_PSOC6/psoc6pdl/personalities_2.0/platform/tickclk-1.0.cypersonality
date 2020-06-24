@@ -65,6 +65,7 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_systick.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKALTSYSTICK_ENABLED" value="1" public="false" include="true" />
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkAltSysTickInit()" body="    Cy_SysTick_SetClockSource(CY_SYSTICK_CLOCK_SOURCE_CLK_`${sourceClockRscName}`);" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKALTSYSTICK_SOURCE" value="CY_SYSTICK_CLOCK_SOURCE_CLK_`${sourceClockRscName}`" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkAltSysTickInit()" body="    Cy_SysTick_SetClockSource(CY_SYSTICK_CLOCK_SOURCE_CLK_`${sourceClockRscName}`);" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

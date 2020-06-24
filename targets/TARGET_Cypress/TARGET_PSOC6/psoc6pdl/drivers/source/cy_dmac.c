@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_dmac.c
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 * The source code file for the DMAC driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@
 * \return
 * The status /ref cy_en_dmac_status_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
 *
 *******************************************************************************/
@@ -65,7 +65,7 @@ cy_en_dmac_status_t Cy_DMAC_Descriptor_Init(cy_stc_dmac_descriptor_t * descripto
         CY_ASSERT_L3(CY_DMAC_IS_CHANNEL_STATE_VALID(config->channelState));
         CY_ASSERT_L3(CY_DMAC_IS_DATA_SIZE_VALID(config->dataSize));
         CY_ASSERT_L3(CY_DMAC_IS_TYPE_VALID(config->descriptorType));
-        
+
         descriptor->ctl =
             _VAL2FLD(DMAC_CH_V2_DESCR_CTL_WAIT_FOR_DEACT, config->retrigger) |
             _VAL2FLD(DMAC_CH_V2_DESCR_CTL_INTR_TYPE, config->interruptType) |
@@ -129,7 +129,7 @@ cy_en_dmac_status_t Cy_DMAC_Descriptor_Init(cy_stc_dmac_descriptor_t * descripto
 * \param descriptor
 * The descriptor structure instance.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_Deinit
 *
 *******************************************************************************/
@@ -165,7 +165,7 @@ void Cy_DMAC_Descriptor_DeInit(cy_stc_dmac_descriptor_t * descriptor)
 * \return
 * The status /ref cy_en_dmac_status_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
 *
 *******************************************************************************/
@@ -176,7 +176,7 @@ cy_en_dmac_status_t Cy_DMAC_Channel_Init(DMAC_Type * base, uint32_t channel, cy_
     if ((NULL != base) && (CY_DMAC_IS_CH_NR_VALID(channel)) && (NULL != config) && (NULL != config->descriptor))
     {
         CY_ASSERT_L2(CY_DMAC_IS_PRIORITY_VALID(config->priority));
-        
+
         /* Set the current descriptor */
         DMAC_CH_CURR(base, channel) = (uint32_t)config->descriptor;
 
@@ -203,14 +203,14 @@ cy_en_dmac_status_t Cy_DMAC_Channel_Init(DMAC_Type * base, uint32_t channel, cy_
 * \param channel
 * A channel number.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Disable
 *
 *******************************************************************************/
 void Cy_DMAC_Channel_DeInit(DMAC_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     DMAC_CH_CTL(base, channel) = 0UL;
     DMAC_CH_CURR(base, channel) = 0UL;
     DMAC_CH_INTR_MASK(base, channel) = 0UL;
@@ -330,14 +330,14 @@ void Cy_DMAC_Descriptor_SetXloopDataCount(cy_stc_dmac_descriptor_t * descriptor,
 * \param nextDescriptor
 * The pointer to the next descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMAC_Descriptor_SetNextDescriptor(cy_stc_dmac_descriptor_t * descriptor, cy_stc_dmac_descriptor_t const * nextDescriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     switch((cy_en_dmac_descriptor_type_t)_FLD2VAL(DMAC_CH_V2_DESCR_CTL_DESCR_TYPE, descriptor->ctl))
     {
         case CY_DMAC_SINGLE_TRANSFER:
@@ -345,7 +345,7 @@ void Cy_DMAC_Descriptor_SetNextDescriptor(cy_stc_dmac_descriptor_t * descriptor,
             /* The next pointer is on the same offset for single and scatter descriptors */
             ((cy_stc_dmac_dscr_single_t*)descriptor)->nextPtr = (uint32_t)nextDescriptor;
             break;
-            
+
         case CY_DMAC_MEMORY_COPY:
             ((cy_stc_dmac_dscr_memcpy_t*)descriptor)->nextPtr = (uint32_t)nextDescriptor;
             break;
@@ -353,7 +353,7 @@ void Cy_DMAC_Descriptor_SetNextDescriptor(cy_stc_dmac_descriptor_t * descriptor,
         case CY_DMAC_1D_TRANSFER:
             ((cy_stc_dmac_dscr_1d_t*)descriptor)->nextPtr = (uint32_t)nextDescriptor;
             break;
-            
+
         case CY_DMAC_2D_TRANSFER:
             ((cy_stc_dmac_dscr_2d_t*)descriptor)->nextPtr = (uint32_t)nextDescriptor;
             break;
@@ -384,14 +384,14 @@ void Cy_DMAC_Descriptor_SetNextDescriptor(cy_stc_dmac_descriptor_t * descriptor,
 * \return
 * The pointer to the next descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
 *
 *******************************************************************************/
 cy_stc_dmac_descriptor_t * Cy_DMAC_Descriptor_GetNextDescriptor(cy_stc_dmac_descriptor_t const * descriptor)
 {
     uint32_t retVal = 0UL;
-    
+
     switch((cy_en_dmac_descriptor_type_t)_FLD2VAL(DMAC_CH_V2_DESCR_CTL_DESCR_TYPE, descriptor->ctl))
     {
         case CY_DMAC_SINGLE_TRANSFER:
@@ -399,7 +399,7 @@ cy_stc_dmac_descriptor_t * Cy_DMAC_Descriptor_GetNextDescriptor(cy_stc_dmac_desc
             /* The next pointer is on the same offset for single and scatter descriptors */
             retVal = ((cy_stc_dmac_dscr_single_t const*)descriptor)->nextPtr;
             break;
-            
+
         case CY_DMAC_MEMORY_COPY:
             retVal = ((cy_stc_dmac_dscr_memcpy_t const*)descriptor)->nextPtr;
             break;
@@ -416,7 +416,7 @@ cy_stc_dmac_descriptor_t * Cy_DMAC_Descriptor_GetNextDescriptor(cy_stc_dmac_desc
             /* An unsupported type of the descriptor */
             break;
     }
-    
+
     return ((cy_stc_dmac_descriptor_t*)retVal);
 }
 
@@ -426,7 +426,7 @@ cy_stc_dmac_descriptor_t * Cy_DMAC_Descriptor_GetNextDescriptor(cy_stc_dmac_desc
 ****************************************************************************//**
 *
 * Sets the descriptor's type for the specified descriptor.
-* Moves the next descriptor pointer and X data count values into the proper 
+* Moves the next descriptor pointer and X data count values into the proper
 * offset in accordance to the actual descriptor type.
 *
 * During the descriptor's type change, carefully set up the settings starting
@@ -434,21 +434,21 @@ cy_stc_dmac_descriptor_t * Cy_DMAC_Descriptor_GetNextDescriptor(cy_stc_dmac_desc
 * structure. This is because the content of the descriptor registers might be
 * lost/overridden by other descriptor settings due to the
 * different registers structure for different descriptor types.
-* 
+*
 * \param descriptor
 * The descriptor structure instance.
 *
-* \param descriptorType 
+* \param descriptorType
 * The descriptor type \ref cy_en_dmac_descriptor_type_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMAC_Descriptor_SetDescriptorType(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_descriptor_type_t descriptorType)
 {
     CY_ASSERT_L3(CY_DMAC_IS_TYPE_VALID(descriptorType));
-    
+
     if (descriptorType != Cy_DMAC_Descriptor_GetDescriptorType(descriptor)) /* Do not perform if the type is not changed */
     {
         /* Store the current nextDescriptor pointer. */

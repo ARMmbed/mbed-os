@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes_v2.c
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the source code fro the API for the AES method
@@ -493,7 +493,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ctr(CRYPTO_Type *base,
     uint64_t counter;
     uint32_t cnt;
     uint32_t i;
-    
+
     (void)streamBlock; /* Suppress warning */
 
     blockCounter[ 0] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 3], ivPtr[ 2], ivPtr[ 1], ivPtr[ 0]);

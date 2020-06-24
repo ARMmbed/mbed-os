@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_smartio.h
-* \version 1.0
+* \version 1.0.1
 *
 * \brief
 * Provides an API declaration of the Smart I/O driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,11 +27,11 @@
 * \addtogroup group_smartio
 * \{
 * The Smart I/O driver provides an API to configure and access the Smart I/O hardware
-* present between the GPIOs (pins) and HSIOMs (pin muxes) on select device ports. 
+* present between the GPIOs (pins) and HSIOMs (pin muxes) on select device ports.
 *
-* The functions and other declarations used in this driver are in cy_smartio.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The functions and other declarations used in this driver are in cy_smartio.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
 *
 * It can be used to perform simple logic operations on peripheral and GPIO signals at
 * the GPIO port. Features include,
@@ -44,7 +44,7 @@
 * \section group_smartio_configuration Configuration Considerations
 *
 * \subsection group_smartio_routing_fabric Routing Fabric
-* 
+*
 * The Smart I/O routing fabric is divided into two portions, where each portion is capable
 * of accepting half of the data or GPIO signals. The LUTs have the following structure.
 *
@@ -55,21 +55,21 @@
 *   example, LUT 0 can go to either io0 terminal output or chip0 terminal output or both.
 *
 * \subsection group_smartio_single_lut Single Source LUT Input
-* 
+*
 * If a LUT is used, all three inputs to the LUT must be designated. For example, even If a LUT is
 * used to accept a single source as its input, all three inputs must accept that same signal. The
 * lookup table should then be designed such that it only changes the output value when all
-* three inputs satisfy the same condition. For example, consider the case where the signal on 
-* data0 must be inverted before being passed to io0. LUT0 accepts chip0 as input 0, 1 and 2. 
+* three inputs satisfy the same condition. For example, consider the case where the signal on
+* data0 must be inverted before being passed to io0. LUT0 accepts chip0 as input 0, 1 and 2.
 * The truth table is defined such that it outputs a logic 1 only when the inputs are all 0.
 *
 * \subsection group_smartio_clk_rst Clock and Reset Behavior
 *
-* The Smart I/O hardware drives its synchronous elements using a single clock source. 
+* The Smart I/O hardware drives its synchronous elements using a single clock source.
 * Depending on the clock source, the Smart I/O will have different reset behaviors, which
 * will reset all the flip-flops in the LUTs and synchronizers to logic 0. The configuration
 * registers will retain their values unless coming out of Power on Reset (POR). Notes:
-* 
+*
 * - If the block is only disabled, the values in the LUT flip-flips and I/O synchronizers are
 *   held as long as the chip remains in a valid power mode.
 * - The selected clock for the fabric's synchronous logic is not phase aligned with other
@@ -90,7 +90,7 @@
 *     <td>Reset on POR</td>
 *     <td>2 clock edges</td>
 *     <td>If chosen as the clock source, that particular signal cannot also be used as an input
-*         to a LUT as it may cause a race condition. The fabric will be enabled after 2 clock 
+*         to a LUT as it may cause a race condition. The fabric will be enabled after 2 clock
 *         edges of the signal on the gpio terminal.</td>
 *   </tr>
 *   <tr>
@@ -117,7 +117,7 @@
 *     <td>LFCLK</td>
 *     <td>Reset when going to Hibernate and POR</td>
 *     <td>2 clock edges</td>
-*     <td>The fabric will be enabled after 2 clock edges of the low frequency clock (LFCLK). 
+*     <td>The fabric will be enabled after 2 clock edges of the low frequency clock (LFCLK).
 *         Any synchronous logic in the LUTs will be reset to 0 when in hibernate mode.</td>
 *   </tr>
 *   <tr>
@@ -137,17 +137,17 @@
 * operation.
 *
 * \subsection group_smartio_comb_feedback LUT Combinatorial Feedback
-* 
+*
 * Since the LUTs can be configured as purely (or partially) combinatorial elements and since they
 * can chain to each other in any fashion, combinatorial timing loops can occur. This causes
 * oscillations that burn power and create unpredictable behavior. If a feedback is required, the
 * signals should always go through a flip-flop before feeding back. For example, the following is a
 * potentially problematic design; LUT1 and LUT2 are configured in combinatorial mode, where their
-* respective outputs feed into the inputs of the other. This will result in oscillations. 
+* respective outputs feed into the inputs of the other. This will result in oscillations.
 * To prevent it, one of the LUTs should be configured to Gated Output mode.
 *
 * \subsection group_smartio_lpm Low Power Mode
-* 
+*
 * The Smart I/O hardware is capable of operating during chip Deep-Sleep mode. The block has
 * the following requirements when operating in this mode:
 *
@@ -155,7 +155,7 @@
 *   \ref group_smartio_clk_rst for more details.
 * - All signals in the block (including the clock) must be less than 1 MHz when in Deep-Sleep
 *   mode.
-* - The hold override functionality should be enabled when entering Deep-Sleep mode. 
+* - The hold override functionality should be enabled when entering Deep-Sleep mode.
 *   This functionality should then be disabled when the chip is not in this mode.
 *
 * \section group_smartio_more_information More Information
@@ -188,7 +188,7 @@
 *     <td>A</td>
 *     <td>A pointer parameter in a function prototype should be declared as pointer to const
 *         if the pointer is not used to modify the addressed object.</td>
-*     <td>Base address pointers are always constant in drivers. No need to pick and choose 
+*     <td>Base address pointers are always constant in drivers. No need to pick and choose
 *         const declaration based on function construction.</td>
 *   </tr>
 * </table>
@@ -196,6 +196,11 @@
 * \section group_smartio_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.0.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.0</td>
 *     <td>The initial version.</td>
@@ -283,7 +288,7 @@ extern "C" {
 /**
 * Smart I/O driver error codes
 */
-typedef enum 
+typedef enum
 {
     CY_SMARTIO_SUCCESS   = 0x00u,                                    /**< Returned successful */
     CY_SMARTIO_BAD_PARAM = CY_SMARTIO_ID | CY_PDL_STATUS_ERROR | 0x01u, /**< Bad parameter was passed */
@@ -796,8 +801,8 @@ __STATIC_INLINE uint8_t Cy_SmartIO_GetLutMap(SMARTIO_PRT_Type* base, cy_en_smart
 *******************************************************************************/
 __STATIC_INLINE cy_en_smartio_dudata_t Cy_SmartIO_GetDuData(SMARTIO_PRT_Type* base, cy_en_smartio_datanum_t dataNum)
 {
-    return ((dataNum == CY_SMARTIO_DATA0) ? 
-                (cy_en_smartio_dudata_t)_FLD2VAL(SMARTIO_PRT_DU_SEL_DU_DATA0_SEL, SMARTIO_PRT_DU_SEL(base)) : 
+    return ((dataNum == CY_SMARTIO_DATA0) ?
+                (cy_en_smartio_dudata_t)_FLD2VAL(SMARTIO_PRT_DU_SEL_DU_DATA0_SEL, SMARTIO_PRT_DU_SEL(base)) :
                 (cy_en_smartio_dudata_t)_FLD2VAL(SMARTIO_PRT_DU_SEL_DU_DATA1_SEL, SMARTIO_PRT_DU_SEL(base)));
 }
 

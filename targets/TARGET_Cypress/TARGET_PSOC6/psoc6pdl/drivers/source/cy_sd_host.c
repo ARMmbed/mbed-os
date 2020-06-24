@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_sd_host.c
-* \version 1.50
+* \version 1.50.1
 *
 * \brief
 *  This file provides the driver code to the API for the SD Host Controller
@@ -35,7 +35,7 @@ extern "C" {
 
 /** \cond internal */
 
-/* Timeouts. */ 
+/* Timeouts. */
 #define CY_SD_HOST_INT_CLK_STABLE_TIMEOUT_MS (150U)  /* The Internal Clock Stable timeout. */
 #define CY_SD_HOST_1_8_REG_STABLE_TIME_MS   (30UL)   /* The 1.8 voltage regulator stable time. */
 #define CY_SD_HOST_SUPPLY_RAMP_UP_TIME_MS   (35UL)   /* The host supply ramp up time. */
@@ -53,12 +53,12 @@ extern "C" {
 #define CY_SD_HOST_READ_TIMEOUT_MS          (100U)   /* The Read timeout for one block. */
 #define CY_SD_HOST_WRITE_TIMEOUT_MS         (250U)   /* The Write timeout for one block. */
 #define CY_SD_HOST_MAX_TIMEOUT              (0x0EU)  /* The data max timeout for TOUT_CTRL_R. */
-#define CY_SD_HOST_NCC_MIN_CYCLES           (8U)     /* The period (clock cycles) between an end bit 
-                                                      * of the command and a start bit of the next command. 
+#define CY_SD_HOST_NCC_MIN_CYCLES           (8U)     /* The period (clock cycles) between an end bit
+                                                      * of the command and a start bit of the next command.
                                                       */
 #define CY_SD_HOST_NCC_MIN_US               ((1000U * CY_SD_HOST_NCC_MIN_CYCLES) / CY_SD_HOST_INIT_CLK_FREQUENCY_KHZ)
 
-/* Commands codes. */ 
+/* Commands codes. */
 #define CY_SD_HOST_SD_CMD0                  (0UL)
 #define CY_SD_HOST_SD_CMD1                  (1UL)
 #define CY_SD_HOST_SD_CMD2                  (2UL)
@@ -111,7 +111,7 @@ extern "C" {
 #define CY_SD_HOST_CMD5_MP_MASK             (0x08000000UL) /* The Memory Present mask. */
 #define CY_SD_HOST_IO_OCR_MASK              (0x00FFFFFFUL) /* The IO OCR register mask. */
 #define CY_SD_HOST_IO_OCR_C                 (0x80000000UL) /* The IO power up status (IORDY). */
-#define CY_SD_HOST_MIN_SDXC_SECTORS         (67108864UL) /* Minimum sectors for SDXC: 32 Gbytes / 512. */                              
+#define CY_SD_HOST_MIN_SDXC_SECTORS         (67108864UL) /* Minimum sectors for SDXC: 32 Gbytes / 512. */
 #define CY_SD_HOST_MMC_LEGACY_SIZE_BYTES    (0x200000UL)
 #define CY_SD_HOST_CMD8_VHS_27_36           (0x100UL) /* CMD8 voltage supplied 2.7-3.6 V. */
 #define CY_SD_HOST_CMD8_PATTERN_MASK        (0xFFUL)
@@ -119,7 +119,7 @@ extern "C" {
 #define CY_SD_HOST_ACMD41_S18R              (1UL << 24U) /* The 1.8 V request. */
 #define CY_SD_HOST_ACMD41_HCS               (1UL << 30U) /* SDHC or SDXC supported. */
 #define CY_SD_HOST_OCR_S18A                 (1UL << 24U) /* The 1.8 V accepted. */
-#define CY_SD_HOST_OCR_35_36_V              (1UL << 23U) /* The 3.5 - 3.6 voltage window. */ 
+#define CY_SD_HOST_OCR_35_36_V              (1UL << 23U) /* The 3.5 - 3.6 voltage window. */
 #define CY_SD_HOST_OCR_34_35_V              (1UL << 22U) /* The 3.4 - 3.5 voltage window. */
 #define CY_SD_HOST_OCR_33_34_V              (1UL << 21U) /* The 3.3 - 3.4 voltage window. */
 #define CY_SD_HOST_OCR_32_33_V              (1UL << 20U) /* The 3.2 - 3.3 voltage window. */
@@ -138,8 +138,8 @@ extern "C" {
                                              CY_SD_HOST_OCR_28_29_V |\
                                              CY_SD_HOST_OCR_27_28_V)
 #define CY_SD_HOST_ARG_ACMD41_BUSY          (0x80000000UL)
-#define CY_SD_HOST_OCR_BUSY_BIT             (0x80000000UL) /* The Card power up status bit (busy). */ 
-#define CY_SD_HOST_OCR_CAPACITY_MASK        (0x40000000UL) /* The OCR sector access mode bit. */                        
+#define CY_SD_HOST_OCR_BUSY_BIT             (0x80000000UL) /* The Card power up status bit (busy). */
+#define CY_SD_HOST_OCR_CAPACITY_MASK        (0x40000000UL) /* The OCR sector access mode bit. */
 #define CY_SD_HOST_ACMD_OFFSET_MASK         (0x3FUL)
 #define CY_SD_HOST_EMMC_DUAL_VOLTAGE        (0x00000080UL)
 #define CY_SD_HOST_EMMC_VOLTAGE_WINDOW      (CY_SD_HOST_OCR_CAPACITY_MASK |\
@@ -150,9 +150,9 @@ extern "C" {
 #define CY_SD_HOST_SWITCH_FUNCTION_BIT      (31U)
 #define CY_SD_HOST_DEFAULT_SPEED            (0UL)
 #define CY_SD_HOST_HIGH_SPEED               (1UL)
-#define CY_SD_HOST_SDR12_SPEED              (0UL)  /* The SDR12/Legacy speed. */ 
-#define CY_SD_HOST_SDR25_SPEED              (1UL)  /* The SDR25/High Speed SDR speed. */ 
-#define CY_SD_HOST_SDR50_SPEED              (2UL)  /* The SDR50 speed. */ 
+#define CY_SD_HOST_SDR12_SPEED              (0UL)  /* The SDR12/Legacy speed. */
+#define CY_SD_HOST_SDR25_SPEED              (1UL)  /* The SDR25/High Speed SDR speed. */
+#define CY_SD_HOST_SDR50_SPEED              (2UL)  /* The SDR50 speed. */
 #define CY_SD_HOST_EMMC_BUS_WIDTH_ADDR      (0xB7UL)
 #define CY_SD_HOST_EMMC_HS_TIMING_ADDR      (0xB9UL)
 #define CY_SD_HOST_CMD23_BLOCKS_NUM_MASK    (0xFFFFUL)
@@ -168,7 +168,7 @@ extern "C" {
 #define CY_SD_HOST_FREQ_SEL_MSK             (0xFFUL)
 #define CY_SD_HOST_UPPER_FREQ_SEL_POS       (8U)
 
-/* CMD6 SWITCH command bitfields. */ 
+/* CMD6 SWITCH command bitfields. */
 #define CY_SD_HOST_EMMC_CMD6_ACCESS_OFFSET  (24U)
 #define CY_SD_HOST_EMMC_CMD6_IDX_OFFSET     (16U)
 #define CY_SD_HOST_EMMC_CMD6_VALUE_OFFSET   (8U)
@@ -180,7 +180,7 @@ extern "C" {
 #define CY_SD_HOST_EXTCSD_GENERIC_CMD6_TIME_MSK (0xFFUL)
 #define CY_SD_HOST_EXTCSD_SIZE              (128U)
 
-/* CSD register masks/positions. */ 
+/* CSD register masks/positions. */
 #define CY_SD_HOST_CSD_V1_C_SIZE_MSB_MASK   (0x00000003UL)
 #define CY_SD_HOST_CSD_V1_C_SIZE_ISB_MASK   (0xFF000000UL)
 #define CY_SD_HOST_CSD_V1_C_SIZE_LSB_MASK   (0x00C00000UL)
@@ -208,13 +208,13 @@ extern "C" {
 #define CY_SD_HOST_CSD_MSB_MASK             (0xFF000000UL)
 #define CY_SD_HOST_CSD_ISB_SHIFT            (16U)
 
-/* CMD6 EXT_CSD access mode. */ 
+/* CMD6 EXT_CSD access mode. */
 #define CY_SD_HOST_EMMC_ACCESS_COMMAND_SET  (0x0U)
 #define CY_SD_HOST_EMMC_ACCESS_SET_BITS     (0x1U)
 #define CY_SD_HOST_EMMC_ACCESS_CLEAR_BITS   (0x2U)
 #define CY_SD_HOST_EMMC_ACCESS_WRITE_BYTE   (0x3UL)
 
-/* CCCR register values. */ 
+/* CCCR register values. */
 #define CY_SD_HOST_CCCR_SPEED_CONTROL       (0x00013UL)
 #define CY_SD_HOST_CCCR_IO_ABORT            (0x00006UL)
 #define CY_SD_HOST_CCCR_SPEED_SHS_MASK      (0x1UL)
@@ -226,7 +226,7 @@ extern "C" {
 #define CY_SD_HOST_CCCR_BUS_WIDTH_1         (0x2UL)
 #define CY_SD_HOST_CCCR_S8B                 (0x4UL)
 
-/* SDMA constants. */ 
+/* SDMA constants. */
 #define CY_SD_HOST_SDMA_BUF_BYTES_4K        (0x0U) /* 4K bytes SDMA Buffer Boundary. */
 #define CY_SD_HOST_SDMA_BUF_BYTES_8K        (0x1U) /* 8K bytes SDMA Buffer Boundary. */
 #define CY_SD_HOST_SDMA_BUF_BYTES_16K       (0x2U) /* 16K bytes SDMA Buffer Boundary. */
@@ -257,8 +257,8 @@ extern "C" {
 
 /* Interrupt masks. */
 #define CY_SD_HOST_NORMAL_INT_MSK           (0x1FFFU)  /* The enabled Normal Interrupts. */
-#define CY_SD_HOST_ERROR_INT_MSK            (0x07FFU)  /* The enabled Error Interrupts. */         
-                                                         
+#define CY_SD_HOST_ERROR_INT_MSK            (0x07FFU)  /* The enabled Error Interrupts. */
+
 /* SD output clock. */
 #define CY_SD_HOST_CLK_400K                 (400UL * 1000UL)    /* 400 kHz. */
 #define CY_SD_HOST_CLK_10M                  (10UL * 1000UL * 1000UL) /* 10 MHz. */
@@ -273,7 +273,7 @@ extern "C" {
 
 #define CY_SD_HOST_IS_SD_BUS_WIDTH_VALID(width)         ((CY_SD_HOST_BUS_WIDTH_1_BIT == (width)) || \
                                                          (CY_SD_HOST_BUS_WIDTH_4_BIT == (width)))
-                                                     
+
 #define CY_SD_HOST_IS_EMMC_BUS_WIDTH_VALID(width)       ((CY_SD_HOST_BUS_WIDTH_1_BIT == (width)) || \
                                                          (CY_SD_HOST_BUS_WIDTH_4_BIT == (width)) || \
                                                          (CY_SD_HOST_BUS_WIDTH_8_BIT == (width)))
@@ -286,8 +286,8 @@ extern "C" {
                                                          (CY_SD_HOST_AUTO_CMD_12 == (cmd)) || \
                                                          (CY_SD_HOST_AUTO_CMD_23 == (cmd)) || \
                                                          (CY_SD_HOST_AUTO_CMD_AUTO == (cmd)))
-                                                         
-#define CY_SD_HOST_IS_TIMEOUT_VALID(timeout)            (CY_SD_HOST_MAX_TIMEOUT >= (timeout))   
+
+#define CY_SD_HOST_IS_TIMEOUT_VALID(timeout)            (CY_SD_HOST_MAX_TIMEOUT >= (timeout))
 
 #define CY_SD_HOST_BLK_SIZE_MAX                         (2048UL)  /* The maximum block size. */
 #define CY_SD_HOST_IS_BLK_SIZE_VALID(size)              (CY_SD_HOST_BLK_SIZE_MAX >= (size))
@@ -315,15 +315,15 @@ extern "C" {
                                                          (CY_SD_HOST_BUS_SPEED_SDR50 == (speedMode)) || \
                                                          (CY_SD_HOST_BUS_SPEED_EMMC_LEGACY == (speedMode)) || \
                                                          (CY_SD_HOST_BUS_SPEED_EMMC_HIGHSPEED_SDR == (speedMode)))
-                                                         
+
 #define CY_SD_HOST_IS_DMA_WR_RD_VALID(dmaType)          ((CY_SD_HOST_DMA_SDMA == (dmaType)) || \
                                                          (CY_SD_HOST_DMA_ADMA2 == (dmaType)))
-                                                         
+
 #define CY_SD_HOST_IS_CMD_TYPE_VALID(cmdType)            ((CY_SD_HOST_CMD_NORMAL == (cmdType)) || \
                                                          (CY_SD_HOST_CMD_SUSPEND == (cmdType)) || \
                                                          (CY_SD_HOST_CMD_RESUME == (cmdType)) || \
                                                          (CY_SD_HOST_CMD_ABORT == (cmdType)))
-                                                         
+
 #define CY_SD_HOST_IS_RELIABLE_WRITE(cardType, rw)      ((CY_SD_HOST_EMMC != (cardType)) && \
                                                           (false == (rw)))
 
@@ -383,7 +383,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_IoOcr(SDHC_Type *base,
                                       bool lowVoltageSignaling,
                                       uint32_t *s18aFlag,
                                       uint32_t *sdioFlag,
-                                      bool *mpFlag,                                   
+                                      bool *mpFlag,
                                       uint32_t *ocrReg);
 __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_SdOcr(SDHC_Type *base,
                                       bool lowVoltageSignaling,
@@ -436,7 +436,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
 
     /* Reset Card (CMD0). */
     ret = Cy_SD_Host_OpsGoIdle(base); /* The Idle state. */
-    
+
     /* Software reset for the CMD line */
     Cy_SD_Host_SoftwareReset(base, CY_SD_HOST_RESET_DATALINE);
     Cy_SD_Host_SoftwareReset(base, CY_SD_HOST_RESET_CMD_LINE);
@@ -474,9 +474,9 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
     {
         /* Power down the MMC bus */
         Cy_SD_Host_DisableCardVoltage(base);
-        
+
         Cy_SysLib_Delay(CY_SD_HOST_1_8_REG_STABLE_TIME_MS);
-        
+
         /* Switch the bus to 1.8 V */
         Cy_SD_Host_ChangeIoVoltage(base, CY_SD_HOST_IO_VOLT_1_8V);
 
@@ -508,7 +508,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
     {
         /* Get CID (CMD2). */
         ret = Cy_SD_Host_GetCid(base, cidReg);
-        
+
         Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
         if (CY_SD_HOST_SUCCESS == ret) /* The Identification state. */
@@ -520,7 +520,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
 
             /* Get CSD (CMD9)  */
             ret = Cy_SD_Host_GetCsd(base, csdReg, context);
-            
+
             if (CY_SD_HOST_SUCCESS == ret)
             {
                 /* Select the card (CMD7). */
@@ -534,8 +534,8 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
                     ret = Cy_SD_Host_GetExtCsd(base, extCsd, context);
 
                     /* Get GENERIC_CMD6_TIME [248] of the EXTCSD register */
-                    genericCmd6Time = CY_SD_HOST_EMMC_CMD6_TIMEOUT_MULT * 
-                                      (extCsd[CY_SD_HOST_EXTCSD_GENERIC_CMD6_TIME] & 
+                    genericCmd6Time = CY_SD_HOST_EMMC_CMD6_TIMEOUT_MULT *
+                                      (extCsd[CY_SD_HOST_EXTCSD_GENERIC_CMD6_TIME] &
                                        CY_SD_HOST_EXTCSD_GENERIC_CMD6_TIME_MSK);
 
                     if ((CY_SD_HOST_SUCCESS == ret) &&
@@ -593,9 +593,9 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
 *
 * \return \ref cy_en_sd_host_status_t
 *
-* \note When lowVoltageSignaling is True, this function negotiates with 
+* \note When lowVoltageSignaling is True, this function negotiates with
 * the card to change the bus signaling level to 1.8V.
-* The dedicated io_volt_sel pin is used to change the regulator supplying voltage 
+* The dedicated io_volt_sel pin is used to change the regulator supplying voltage
 * to the VDDIO of the SD block in order to operate at 1.8V. To configure
 * the custom IO pin in order to control (using the GPIO driver) the regulator
 * supplying voltage, the user must implement weak Cy_SD_Host_ChangeIoVoltage().
@@ -603,16 +603,16 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
 * register when ioVoltage = CY_SD_HOST_IO_VOLT_1_8V.
 *
 * \note After calling this function, the SD Host is configured in
-* Default Speed mode (for the SD card), or SDR12 Speed mode 
+* Default Speed mode (for the SD card), or SDR12 Speed mode
 * (when lowVoltageSignaling is true), or eMMC legacy (for the eMMC card)
 * with SD clock = 25 MHz. The Power Limit and Driver Strength functions of
 * the CMD6 command are set into the default state (0.72 W and Type B).
 * It is the user's responsibility to set Power Limit and Driver Strength
 * depending on the capacitance load of the host system.
-* To change Speed mode, the user must call the Cy_SD_Host_SetBusSpeedMode() 
+* To change Speed mode, the user must call the Cy_SD_Host_SetBusSpeedMode()
 * and Cy_SD_Host_SdCardChangeClock() functions.
-* Additionally, SD SDR25, SD SDR50, eMMC High Speed SDR modes require 
-* settings CLOCK_OUT_DLY and CLOCK_IN_DLY bit-fields of the GP_OUT_R register. 
+* Additionally, SD SDR25, SD SDR50, eMMC High Speed SDR modes require
+* settings CLOCK_OUT_DLY and CLOCK_IN_DLY bit-fields of the GP_OUT_R register.
 * For more information about Speed modes, refer to Part 1 Physical Layer
 * SD Specification.
 *******************************************************************************/
@@ -629,30 +629,30 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
     uint32_t s18aFlag = 0UL; /* The S18A flag. */
     bool f8Flag = false; /* The CMD8 flag. */
     bool mpFlag = false; /* The MEM flag. */
-    
+
     if ((NULL != base) && (NULL != context) && (NULL != config))
     {
-        CY_ASSERT_L3(CY_SD_HOST_IS_BUS_WIDTH_VALID(config->busWidth, context->cardType));   
-        
+        CY_ASSERT_L3(CY_SD_HOST_IS_BUS_WIDTH_VALID(config->busWidth, context->cardType));
+
         /* Wait until the card is stable and check if it is connected. */
-        if ((true == Cy_SD_Host_IsCardConnected(base)) || 
+        if ((true == Cy_SD_Host_IsCardConnected(base)) ||
             (CY_SD_HOST_EMMC == context->cardType))
-        {            
+        {
             Cy_SD_Host_EnableCardVoltage(base);
 
             Cy_SD_Host_ChangeIoVoltage(base, CY_SD_HOST_IO_VOLT_3_3V);
-           
+
             /* Set the host bus width to 1 bit. */
             (void)Cy_SD_Host_SetHostBusWidth(base, CY_SD_HOST_BUS_WIDTH_1_BIT);
-      
+
             /* Change the host SD clock to 400 kHz. */
             (void)Cy_SD_Host_SdCardChangeClock(base, CY_SD_HOST_CLK_400K);
 
             /* Wait until the voltage and clock are stable. */
             Cy_SysLib_Delay(CY_SD_HOST_BUS_RAMP_UP_TIME_MS);
-            
+
             context->RCA = 0UL;
-        
+
             if (CY_SD_HOST_EMMC != context->cardType)
             {
                 /* Send CMD0 and CMD8 commands. */
@@ -663,16 +663,16 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
                 {
                     context->cardCapacity = CY_SD_HOST_SDHC;
                 }
-                
+
                 /* Clear the insert event */
                 Cy_SD_Host_NormalReset(base);
 
-                /* Send CMD5 to get IO OCR */  
+                /* Send CMD5 to get IO OCR */
                 ret = Cy_SD_Host_IoOcr(base,
                                        config->lowVoltageSignaling,
                                        &s18aFlag,
                                        &sdioFlag,
-                                       &mpFlag,                                
+                                       &mpFlag,
                                        &ocrReg);
 
                 /* Check if CMD5 has no response or MP = 1.
@@ -689,21 +689,21 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
                                            &ocrReg,
                                            context);
                 }
-                   
+
                 /* Set the card type */
                 if (CY_SD_HOST_ERROR_UNUSABLE_CARD != ret) /* The Ready state. */
                 {
                     if (true == mpFlag)
                     {
                         if (0UL != sdioFlag)
-                        { 
+                        {
                             context->cardType = CY_SD_HOST_COMBO;
                         }
                         else
                         {
-                            context->cardType = CY_SD_HOST_SD; 
+                            context->cardType = CY_SD_HOST_SD;
                         }
-                    } 
+                    }
                     else if (0UL != sdioFlag)
                     {
                         context->cardType = CY_SD_HOST_SDIO;
@@ -722,17 +722,17 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
                         {
                             /* Voltage switch (CMD11). */
                             ret =  Cy_SD_Host_OpsVoltageSwitch(base, context);
-                            
+
                             if (CY_SD_HOST_SUCCESS != ret)  /* Initialize again at 3.3 V. */
-                            {                           
+                            {
                                 Cy_SD_Host_ChangeIoVoltage(base, CY_SD_HOST_IO_VOLT_3_3V);
 
                                 /* Wait until the voltage and clock are stable. */
                                 Cy_SysLib_Delay(CY_SD_HOST_BUS_RAMP_UP_TIME_MS);
-                                
+
                                 /* Send CMD0 and CMD8 commands. */
-                                f8Flag = Cy_SD_Host_VoltageCheck(base); 
-                                
+                                f8Flag = Cy_SD_Host_VoltageCheck(base);
+
                                 if (0UL < sdioFlag)
                                 {
                                     /* Send CMD5 to get IO OCR. */
@@ -740,7 +740,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
                                                            config->lowVoltageSignaling,
                                                            &s18aFlag,
                                                            &sdioFlag,
-                                                           &mpFlag,                                
+                                                           &mpFlag,
                                                            &ocrReg);
                                 }
 
@@ -755,36 +755,36 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
                                                            &ocrReg,
                                                            context);
                                 }
-                                
+
                                 s18aFlag = 0UL;
                             }
                         }
-                        
+
                         if (CY_SD_HOST_SDIO != context->cardType)
                         {
                             /* Get CID (CMD2).  */
                             ret = Cy_SD_Host_GetCid(base, cidReg);
-                            
+
                             Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
                         }                                       /* The Identification state. */
 
                         /* Get RCA (CMD3). */
                         context->RCA = Cy_SD_Host_GetRca(base);
-                        
+
                         Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
-                        
+
                         if (CY_SD_HOST_SDIO != context->cardType) /* The stand-by state. */
                         {
                             /* Get CSD (CMD9) to save
                              * Max Sector Number in the context.
                              */
                             ret = Cy_SD_Host_GetCsd(base, csdReg, context);
-                            
+
                             if (CY_SD_HOST_MIN_SDXC_SECTORS <= context->maxSectorNum)
                             {
                                context->cardCapacity = CY_SD_HOST_SDXC;
                             }
-                            
+
                             Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
                         }
 
@@ -803,7 +803,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
                                 ret = Cy_SD_Host_SetBusWidth(base,
                                                              CY_SD_HOST_BUS_WIDTH_4_BIT,
                                                              context);
-                                Cy_SysLib_Delay(CY_SD_HOST_READ_TIMEOUT_MS); 
+                                Cy_SysLib_Delay(CY_SD_HOST_READ_TIMEOUT_MS);
                             }
 
                             if (CY_SD_HOST_SUCCESS == ret)
@@ -817,7 +817,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
                                 ret = Cy_SD_Host_SetBusSpeedMode(base,
                                                                  speedMode,
                                                                  context);
-                                Cy_SysLib_Delay(CY_SD_HOST_READ_TIMEOUT_MS);                      
+                                Cy_SysLib_Delay(CY_SD_HOST_READ_TIMEOUT_MS);
 
                                 if (CY_SD_HOST_SUCCESS == ret)
                                 {
@@ -834,7 +834,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
             {
                 ret = Cy_SD_Host_eMMC_InitCard(base, config, context);
             }
-            
+
             *config->rca = context->RCA;
             *config->cardType = context->cardType;
             *config->cardCapacity = context->cardCapacity;
@@ -856,10 +856,10 @@ cy_en_sd_host_status_t Cy_SD_Host_InitCard(SDHC_Type *base,
 *
 *  Reads single- or multiple-block data from the SD card / eMMC. If DMA is not used
 *  this function blocks until all data is read.
-*  If DMA is used all data is read when the Transfer complete event is set. 
-*  It is the user responsibility to check and reset the transfer complete event 
-*  (using \ref Cy_SD_Host_GetNormalInterruptStatus and 
-*  \ref Cy_SD_Host_ClearNormalInterruptStatus functions). 
+*  If DMA is used all data is read when the Transfer complete event is set.
+*  It is the user responsibility to check and reset the transfer complete event
+*  (using \ref Cy_SD_Host_GetNormalInterruptStatus and
+*  \ref Cy_SD_Host_ClearNormalInterruptStatus functions).
 *
 * \param *base
 *     The SD host registers structure pointer.
@@ -894,7 +894,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Read(SDHC_Type *base,
         CY_ASSERT_L3(CY_SD_HOST_IS_AUTO_CMD_VALID(config->autoCommand));
         CY_ASSERT_L2(CY_SD_HOST_IS_TIMEOUT_VALID(config->dataTimeout));
         CY_ASSERT_L3(CY_SD_HOST_IS_DMA_WR_RD_VALID(context->dmaType));
-        
+
         /* 0 < maxSectorNum check is needed for legacy cards. */
         if (!((0UL < context->maxSectorNum) &&
              ((context->maxSectorNum - dataAddress) < config->numberOfBlocks)))
@@ -923,7 +923,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Read(SDHC_Type *base,
             dataConfig.dataTimeout = config->dataTimeout;
             dataConfig.enReliableWrite = config->enReliableWrite;
 
-            if ((true == dataConfig.enableDma) && 
+            if ((true == dataConfig.enableDma) &&
                 (CY_SD_HOST_DMA_ADMA2 == context->dmaType))
             {
                 length = CY_SD_HOST_BLOCK_SIZE * config->numberOfBlocks;
@@ -958,13 +958,13 @@ cy_en_sd_host_status_t Cy_SD_Host_Read(SDHC_Type *base,
                 cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
                 ret = Cy_SD_Host_SendCommand(base, &cmd);
-                    
+
                 if (CY_SD_HOST_SUCCESS == ret)
                 {
                     /* Wait for the Command Complete event. */
                     ret = Cy_SD_Host_PollCmdComplete(base);
                 }
-                
+
                 if ((CY_SD_HOST_SUCCESS == ret) &&
                     (false == dataConfig.enableDma))
                 {
@@ -983,11 +983,11 @@ cy_en_sd_host_status_t Cy_SD_Host_Read(SDHC_Type *base,
 * Function Name: Cy_SD_Host_Write
 ****************************************************************************//**
 *
-*  Writes single- or multiple-block data to the SD card / eMMC. If DMA is not 
+*  Writes single- or multiple-block data to the SD card / eMMC. If DMA is not
 *  used this function blocks until all data is written.
-*  If DMA is used all data is written when the Transfer complete event is set. 
-*  It is the user responsibility to check and reset the transfer complete event 
-*  (using \ref Cy_SD_Host_GetNormalInterruptStatus and 
+*  If DMA is used all data is written when the Transfer complete event is set.
+*  It is the user responsibility to check and reset the transfer complete event
+*  (using \ref Cy_SD_Host_GetNormalInterruptStatus and
 *  \ref Cy_SD_Host_ClearNormalInterruptStatus functions).
 *
 * \param *base
@@ -1044,7 +1044,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Write(SDHC_Type *base,
                 cmd.commandIndex = CY_SD_HOST_SD_CMD24;
                 dataConfig.enableIntAtBlockGap = false;
             }
-            
+
             dataConfig.blockSize = CY_SD_HOST_BLOCK_SIZE;
             dataConfig.numberOfBlock = config->numberOfBlocks;
             dataConfig.enableDma = config->enableDma;
@@ -1054,7 +1054,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Write(SDHC_Type *base,
             dataConfig.dataTimeout = config->dataTimeout;
             dataConfig.enReliableWrite = config->enReliableWrite;
 
-            if ((true == dataConfig.enableDma) && 
+            if ((true == dataConfig.enableDma) &&
                 (CY_SD_HOST_DMA_ADMA2 == context->dmaType))
             {
                 length = CY_SD_HOST_BLOCK_SIZE * config->numberOfBlocks;
@@ -1088,13 +1088,13 @@ cy_en_sd_host_status_t Cy_SD_Host_Write(SDHC_Type *base,
                 cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
                 ret = Cy_SD_Host_SendCommand(base, &cmd);
-                
+
                 if (CY_SD_HOST_SUCCESS == ret)
                 {
                     /* Wait for the Command Complete event. */
                     ret = Cy_SD_Host_PollCmdComplete(base);
                 }
-                
+
                 if ((CY_SD_HOST_SUCCESS == ret) &&
                     (false == dataConfig.enableDma))
                 {
@@ -1120,7 +1120,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Write(SDHC_Type *base,
 * The erase operation completes when ref\ Cy_SD_Host_GetCardStatus returns
 * the status value where both ready-for-data (CY_SD_HOST_CMD13_READY_FOR_DATA)
 * and card-transition (CY_SD_HOST_CARD_TRAN) bits are set.
-* Also it is the user's responsibility to clear the CY_SD_HOST_CMD_COMPLETE flag 
+* Also it is the user's responsibility to clear the CY_SD_HOST_CMD_COMPLETE flag
 * after calling this function.
 *
 * \param *base
@@ -1156,7 +1156,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Erase(SDHC_Type *base,
     cy_stc_sd_host_cmd_config_t cmd;
 
     if ((NULL != context) && (NULL != base))
-    { 
+    {
         /* 0<maxSectorNum check is needed for legacy EMMC cards */
         if (!((0UL < context->maxSectorNum) &&
               ((context->maxSectorNum < (startAddr)) ||
@@ -1188,7 +1188,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Erase(SDHC_Type *base,
             cmd.commandArgument = startAddr;
 
             ret = Cy_SD_Host_SendCommand(base, &cmd);
-            
+
             if (CY_SD_HOST_SUCCESS == ret)
             {
                 /* Wait for the Command Complete event. */
@@ -1213,7 +1213,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Erase(SDHC_Type *base,
             cmd.commandArgument = endAddr;
 
             ret = Cy_SD_Host_SendCommand(base, &cmd);
-            
+
             if (CY_SD_HOST_SUCCESS == ret)
             {
                 /* Wait for the Command Complete event. */
@@ -1358,7 +1358,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_PollDataLineFree(SDHC_Type con
     cy_en_sd_host_status_t ret   = CY_SD_HOST_SUCCESS;
     uint32_t               retry = CY_SD_HOST_RETRY_TIME;
 
-    while ((true == _FLD2BOOL(SDHC_CORE_PSTATE_REG_DAT_LINE_ACTIVE, SDHC_CORE_PSTATE_REG(base))) && 
+    while ((true == _FLD2BOOL(SDHC_CORE_PSTATE_REG_DAT_LINE_ACTIVE, SDHC_CORE_PSTATE_REG(base))) &&
            (retry > 0UL))
     {
         Cy_SysLib_DelayUs(CY_SD_HOST_WRITE_TIMEOUT_MS);
@@ -1530,8 +1530,8 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_PollTransferComplete(SDHC_Type
 * Function Name: Cy_SD_Host_CmdRxData
 ****************************************************************************//**
 *
-*  Reads the command data using a non-DMA data transfer. 
-*  This function is blocking (it exits after all data is read).  
+*  Reads the command data using a non-DMA data transfer.
+*  This function is blocking (it exits after all data is read).
 *
 * \param *base
 *     The SD host registers structure pointer.
@@ -1572,7 +1572,7 @@ static cy_en_sd_host_status_t Cy_SD_Host_CmdRxData(SDHC_Type *base,
                                       SDHC_CORE_PSTATE_REG(base))) &&
                    (retry > 0UL))
             {
-                Cy_SysLib_DelayUs(CY_SD_HOST_RD_WR_ENABLE_TIMEOUT); 
+                Cy_SysLib_DelayUs(CY_SD_HOST_RD_WR_ENABLE_TIMEOUT);
                 retry--;
             }
 
@@ -1603,7 +1603,7 @@ static cy_en_sd_host_status_t Cy_SD_Host_CmdRxData(SDHC_Type *base,
 * Function Name: Cy_SD_Host_CmdTxData
 ****************************************************************************//**
 *
-*  Writes the command data using a non-DMA data transfer. 
+*  Writes the command data using a non-DMA data transfer.
 *  This function is blocking (it exits after all data is written).
 *
 * \param *base
@@ -1685,7 +1685,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_CmdTxData(SDHC_Type *base,
 *  and check the CMD_COMPLETE flag. To determine if the entire transfer is done
 *  check the XFER_COMPLETE flag. Also the interrupt is used and flags are set
 *  on these events in an ISR.
-* \note It is the user's responsibility to clear the CY_SD_HOST_CMD_COMPLETE flag 
+* \note It is the user's responsibility to clear the CY_SD_HOST_CMD_COMPLETE flag
 *  after calling this function.
 *
 * \param *base
@@ -1712,10 +1712,10 @@ cy_en_sd_host_status_t Cy_SD_Host_SendCommand(SDHC_Type *base,
         {
             if ((true == config->dataPresent) && (CY_SD_HOST_CMD_ABORT != config->cmdType))
             {
-                /* Check the DAT line inhibits only commands with the DAT line is used 
-                * and when the command is not the ABORT type.             
+                /* Check the DAT line inhibits only commands with the DAT line is used
+                * and when the command is not the ABORT type.
                 */
-                ret = Cy_SD_Host_PollDataLineNotInhibit(base);  
+                ret = Cy_SD_Host_PollDataLineNotInhibit(base);
             }
 
             if (CY_SD_HOST_SUCCESS == ret)
@@ -1908,13 +1908,13 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsGoIdle(SDHC_Type *base)
     cmd.cmdType         = CY_SD_HOST_CMD_ABORT;
 
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     return ret;
@@ -1949,15 +1949,15 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsVoltageSwitch(SDHC_Type *base,
     cmd.enableIdxCheck               = true;
     cmd.dataPresent                  = false;
     cmd.cmdType                      = CY_SD_HOST_CMD_NORMAL;
-    
+
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     if ((CY_SD_HOST_SUCCESS == ret) && (CY_SD_HOST_SDIO != context->cardType))
@@ -2044,9 +2044,9 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSendIoRwDirectCmd(SDHC_Type *base,
     cmd.enableCrcCheck  = true;
     cmd.enableIdxCheck  = true;
     cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
-    
+
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
@@ -2098,13 +2098,13 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSendAppCmd(SDHC_Type *base,
     cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     return ret;
@@ -2155,13 +2155,13 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsSendIfCond(SDHC_Type *base,
     }
 
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     return ret;
@@ -2189,20 +2189,20 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSelectCard(SDHC_Type *base,
     cmd.commandIndex    = CY_SD_HOST_SD_CMD7;
     cmd.commandArgument = context->RCA << CY_SD_HOST_RCA_SHIFT;
     cmd.dataPresent     = false;
-    cmd.enableAutoResponseErrorCheck = false; 
+    cmd.enableAutoResponseErrorCheck = false;
     cmd.respType        = CY_SD_HOST_RESPONSE_LEN_48B;
     cmd.enableCrcCheck  = false;
     cmd.enableIdxCheck  = false;
     cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     /* The R1b response requires sending an optional busy
@@ -2256,13 +2256,13 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsSetSdBusWidth(SDHC_Type *ba
     if (CY_SD_HOST_SUCCESS == ret)
     {
         ret = Cy_SD_Host_SendCommand(base, &cmd);
-        
+
         if (CY_SD_HOST_SUCCESS == ret)
         {
             /* Wait for the Command Complete event. */
             ret = Cy_SD_Host_PollCmdComplete(base);
         }
-        
+
         Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
     }
 
@@ -2297,13 +2297,13 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSwitchFunc(SDHC_Type *base, uint32_t
     cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     return ret;
@@ -2343,13 +2343,13 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsSetBlockCount(SDHC_Type *ba
     cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     return ret;
@@ -2400,13 +2400,13 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsProgramCsd(SDHC_Type *base,
     dataConfig.dataTimeout          = CY_SD_HOST_MAX_TIMEOUT;
     dataConfig.enableIntAtBlockGap  = false;
     dataConfig.enReliableWrite      = false;
-    
+
     /* The CSD register is sent using DAT lines. Initialize a data transfer in Non-DMA mode. */
     (void)Cy_SD_Host_InitDataTransfer(base, &dataConfig);
 
     /* Send the program CSD command (CMD27) */
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
@@ -2422,27 +2422,27 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsProgramCsd(SDHC_Type *base,
         {
             /* The CSD register is sent a using usual data (8-bit width) type of the Data packet format.
              * The usual data (8-bit width) is sent in the LSB (Least Significant Byte) first,
-             * MSB (Most Significant Byte) last. The bytes in each context->csd[] element 
+             * MSB (Most Significant Byte) last. The bytes in each context->csd[] element
              * should be reordered and shifted right to one byte.
              */
             csdTepm = ((context->csd[i-1UL] & CY_SD_HOST_CSD_ISBL_MASK) >> CY_SD_HOST_CSD_ISB_SHIFT) |
                       (context->csd[i-1UL] & CY_SD_HOST_CSD_ISBR_MASK) |
                       ((context->csd[i-1UL] & CY_SD_HOST_CSD_LSB_MASK) << CY_SD_HOST_CSD_ISB_SHIFT);
-                  
+
             if (i > 1UL)
             {
-                csdTepm |= (context->csd[i-2UL] & CY_SD_HOST_CSD_MSB_MASK); 
+                csdTepm |= (context->csd[i-2UL] & CY_SD_HOST_CSD_MSB_MASK);
             }
             else
             {
                 csdTepm &= ~((1UL << CY_SD_HOST_CSD_TEMP_WRITE_PROTECT) | /* Clear TMP_WRITE_PROTECT bit in the CSD register. */
-                             CY_SD_HOST_CSD_MSB_MASK); 
+                             CY_SD_HOST_CSD_MSB_MASK);
                 csdTepm |= csd; /* Set writable bits of the CSD register. */
             }
 
             (void)Cy_SD_Host_BufferWrite(base, csdTepm);
         }
-        
+
         /* Wait for the transfer complete */
         ret = Cy_SD_Host_PollTransferComplete(base);
 
@@ -2491,19 +2491,19 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSdioSendOpCond(SDHC_Type *base,
 
     /* Send the SDIO operation condition command (CMD5) */
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
 
     *ocrReg = response;
-    
+
     return ret;
 }
 
@@ -2555,7 +2555,7 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSdSendOpCond(SDHC_Type *base,
     if (CY_SD_HOST_SUCCESS == ret)
     {
         ret = Cy_SD_Host_SendCommand(base, &cmd);
-        
+
         if (CY_SD_HOST_SUCCESS == ret)
         {
             /* Wait for the Command Complete event. */
@@ -2563,7 +2563,7 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSdSendOpCond(SDHC_Type *base,
         }
 
         Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
-            
+
         (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
 
         *ocrReg = response;
@@ -2628,13 +2628,13 @@ static cy_en_sd_host_status_t Cy_SD_Host_MmcOpsSendOpCond(SDHC_Type *base,
     cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
     ret = Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     if (CY_SD_HOST_SUCCESS == ret)
     {
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     /* Get the OCR register */
@@ -2720,14 +2720,14 @@ cy_en_sd_host_status_t Cy_SD_Host_Init(SDHC_Type *base,
     if ((NULL != base) && (NULL != config) && (NULL != context))
     {
         CY_ASSERT_L3(CY_SD_HOST_IS_DMA_VALID(config->dmaType));
-        
+
         SDHC_CORE_GP_OUT_R(base) = _VAL2FLD(SDHC_CORE_GP_OUT_R_IO_VOLT_SEL_OE, 1u) | /* The IO voltage selection signal. */
                               _VAL2FLD(SDHC_CORE_GP_OUT_R_CARD_MECH_WRITE_PROT_EN, 1u) | /* The mechanical write protection. */
                               _VAL2FLD(SDHC_CORE_GP_OUT_R_LED_CTRL_OE, config->enableLedControl ? 1u : 0u) | /* The LED Control. */
                               _VAL2FLD(SDHC_CORE_GP_OUT_R_CARD_CLOCK_OE, 1u) | /* The Sd Clk. */
                               _VAL2FLD(SDHC_CORE_GP_OUT_R_CARD_IF_PWR_EN_OE, 1u) | /* Enable the card_if_pwr_en. */
                               _VAL2FLD(SDHC_CORE_GP_OUT_R_CARD_DETECT_EN, 1u); /* Enable the card detection. */
-                              
+
         SDHC_CORE_XFER_MODE_R(base) = 0U;
 
         context->dmaType = config->dmaType;
@@ -2748,9 +2748,9 @@ cy_en_sd_host_status_t Cy_SD_Host_Init(SDHC_Type *base,
             /* Save the card type. */
             context->cardType = CY_SD_HOST_NOT_EMMC;
         }
-        
+
         if (config->enableLedControl)
-        {                          
+        {
             /* LED Control. */
             SDHC_CORE_HOST_CTRL1_R(base) = (uint8_t)_CLR_SET_FLD8U(SDHC_CORE_HOST_CTRL1_R(base),
                                           SDHC_CORE_HOST_CTRL1_R_LED_CTRL,
@@ -2761,7 +2761,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Init(SDHC_Type *base,
         SDHC_CORE_HOST_CTRL1_R(base) = (uint8_t)_CLR_SET_FLD8U(SDHC_CORE_HOST_CTRL1_R(base),
                                       SDHC_CORE_HOST_CTRL1_R_DMA_SEL,
                                       config->dmaType);
-                                      
+
         /* Set the data timeout to the max. */
         SDHC_CORE_TOUT_CTRL_R(base) = _CLR_SET_FLD8U(SDHC_CORE_TOUT_CTRL_R(base),
                                                 SDHC_CORE_TOUT_CTRL_R_TOUT_CNT,
@@ -2778,7 +2778,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Init(SDHC_Type *base,
 
         /* Wait for the Host stable voltage. */
         Cy_SysLib_Delay(CY_SD_HOST_SUPPLY_RAMP_UP_TIME_MS);
-        
+
         /* Reset normal events. */
         Cy_SD_Host_NormalReset(base);
     }
@@ -2810,7 +2810,7 @@ void Cy_SD_Host_DeInit(SDHC_Type *base)
         (void)Cy_SD_Host_PollDataLineNotInhibit(base);
 
         Cy_SD_Host_SoftwareReset(base, CY_SD_HOST_RESET_ALL);
-        
+
         /* Disable the SDHC block. */
         SDHC_WRAP_CTL(base) = _CLR_SET_FLD32U(SDHC_WRAP_CTL(base),
                                               SDHC_WRAP_CTL_ENABLE,
@@ -2873,7 +2873,7 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
             cmd.commandIndex = CY_SD_HOST_SD_CMD12;
             cmd.cmdType      = CY_SD_HOST_CMD_ABORT;
             ret = Cy_SD_Host_SendCommand(base, &cmd);
-            
+
             if (CY_SD_HOST_SUCCESS == ret)
             {
                 /* Wait for the Command Complete event. */
@@ -2883,60 +2883,60 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
             Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
             Cy_SD_Host_ErrorReset(base);
-                
+
             /* Issue CMD13. */
             cmd.commandIndex = CY_SD_HOST_SD_CMD13;
             cmd.cmdType      = CY_SD_HOST_CMD_NORMAL;
             ret = Cy_SD_Host_SendCommand(base, &cmd);
-            
+
             if (CY_SD_HOST_SUCCESS == ret)
             {
                 /* Wait for the Command Complete event. */
                 ret = Cy_SD_Host_PollCmdComplete(base);
             }
-    
+
             Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
             /* Get R1 */
             (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
 
             /* Check if the card is in the transition state. */
-            if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) != 
+            if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) !=
                 (response & CY_SD_HOST_CMD13_CURRENT_STATE_MSK))
             {
                 /* Issue CMD12 */
                 cmd.commandIndex = CY_SD_HOST_SD_CMD12;
                 cmd.cmdType       = CY_SD_HOST_CMD_ABORT;
                 ret = Cy_SD_Host_SendCommand(base, &cmd);
-                
+
                 if (CY_SD_HOST_SUCCESS == ret)
                 {
                     /* Wait for the Command Complete event. */
                     ret = Cy_SD_Host_PollCmdComplete(base);
                 }
-    
+
                 Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
-            
+
                 Cy_SD_Host_ErrorReset(base);
-                
+
                 /* Issue CMD13. */
                 cmd.commandIndex = CY_SD_HOST_SD_CMD13;
                 cmd.cmdType      = CY_SD_HOST_CMD_NORMAL;
                 ret = Cy_SD_Host_SendCommand(base, &cmd);
-                
+
                 if (CY_SD_HOST_SUCCESS == ret)
                 {
                     /* Wait for the Command Complete event. */
                     ret = Cy_SD_Host_PollCmdComplete(base);
                 }
-    
+
                 Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
-            
+
                 /* Get R1. */
                 (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
 
                 /* Check if the card is in the transition state. */
-                if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) != 
+                if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) !=
                     (response & CY_SD_HOST_CMD13_CURRENT_STATE_MSK))
                 {
                    ret = CY_SD_HOST_ERROR;
@@ -3055,7 +3055,7 @@ uint32_t Cy_SD_Host_GetCardStatus(SDHC_Type *base,
         cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
         ret = Cy_SD_Host_SendCommand(base, &cmd);
-        
+
         if (CY_SD_HOST_SUCCESS == ret)
         {
             /* Wait for the Command Complete event. */
@@ -3136,7 +3136,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetSdStatus(SDHC_Type *base,
             (void)Cy_SD_Host_InitDataTransfer(base, &dataConfig);
 
             ret = Cy_SD_Host_SendCommand(base, &cmd);
-            
+
             if (CY_SD_HOST_SUCCESS == ret)
             {
                 /* Wait for the Command Complete event. */
@@ -3243,7 +3243,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetCid(SDHC_Type *base,
         cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
         ret = Cy_SD_Host_SendCommand(base, &cmd);
-        
+
         if (CY_SD_HOST_SUCCESS == ret)
         {
             /* Wait for the Command Complete event. */
@@ -3316,7 +3316,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetCsd(SDHC_Type *base,
         cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
 
         ret = Cy_SD_Host_SendCommand(base, &cmd);
-        
+
         if (CY_SD_HOST_SUCCESS == ret)
         {
             /* Wait for the Command Complete event. */
@@ -3434,7 +3434,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetExtCsd(SDHC_Type *base, uint32_t *extCsd,
         (void)Cy_SD_Host_InitDataTransfer(base, &dataConfig);
 
         ret = Cy_SD_Host_SendCommand(base, &cmd);
-        
+
         if (CY_SD_HOST_SUCCESS == ret)
         {
             /* Wait for the Command Complete event. */
@@ -3471,7 +3471,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetExtCsd(SDHC_Type *base, uint32_t *extCsd,
 *
 *  Reads the Relative Card Address (RCA) register from the card.
 *
-* \note This function can be used only if the card is in the Identification or 
+* \note This function can be used only if the card is in the Identification or
 * Stand-by state.
 *
 * \param *base
@@ -3494,14 +3494,14 @@ uint32_t Cy_SD_Host_GetRca(SDHC_Type *base)
     cmd.enableCrcCheck  = true;
     cmd.enableIdxCheck  = true;
     cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
-        
+
     (void)Cy_SD_Host_SendCommand(base, &cmd);
-    
+
     /* Wait for the Command Complete event. */
     (void)Cy_SD_Host_PollCmdComplete(base);
 
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
-        
+
     (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
 
     return (response >> CY_SD_HOST_RCA_SHIFT);
@@ -3555,7 +3555,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetScr(SDHC_Type *base,
             cmd.enableCrcCheck  = true;
             cmd.enableIdxCheck  = true;
             cmd.cmdType         = CY_SD_HOST_CMD_NORMAL;
-            
+
             dataConfig.blockSize           = CY_SD_HOST_SCR_BLOCKS;
             dataConfig.numberOfBlock       = 1UL;
             dataConfig.enableDma           = false;
@@ -3569,7 +3569,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetScr(SDHC_Type *base,
             (void)Cy_SD_Host_InitDataTransfer(base, &dataConfig);
 
             ret = Cy_SD_Host_SendCommand(base, &cmd);
-            
+
             if (CY_SD_HOST_SUCCESS == ret)
             {
                 /* Wait for the Command Complete event. */
@@ -3662,7 +3662,7 @@ __STATIC_INLINE bool Cy_SD_Host_VoltageCheck(SDHC_Type *base)
     {
         /* Reset Card (CMD0). */
         ret = Cy_SD_Host_OpsGoIdle(base);  /* The Idle state. */
-        
+
         /* Software reset for the CMD line. */
         Cy_SD_Host_SoftwareReset(base, CY_SD_HOST_RESET_CMD_LINE);
 
@@ -3693,13 +3693,13 @@ __STATIC_INLINE bool Cy_SD_Host_VoltageCheck(SDHC_Type *base)
             /* The unusable card or the SDIO card. */
             ret = CY_SD_HOST_ERROR_UNUSABLE_CARD;
         }
-        
+
         if ((CY_SD_HOST_ERROR_TIMEOUT == ret) || (f8Flag))
         {
             /* The pattern is valid or voltage mismatch (No response). */
-            break;  
+            break;
         }
-        
+
         retry--;
     }
 
@@ -3746,7 +3746,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_IoOcr(SDHC_Type *base,
                                       bool lowVoltageSignaling,
                                       uint32_t *s18aFlag,
                                       uint32_t *sdioFlag,
-                                      bool *mpFlag,                                   
+                                      bool *mpFlag,
                                       uint32_t *ocrReg)
 {
     cy_en_sd_host_status_t ret;
@@ -3756,8 +3756,8 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_IoOcr(SDHC_Type *base,
     ret = Cy_SD_Host_OpsSdioSendOpCond(base, ocrReg, 0UL);
 
     /* Get the number of IO functions. */
-    *sdioFlag = *ocrReg & CY_SD_HOST_CMD5_IO_NUM_MASK;   
-    
+    *sdioFlag = *ocrReg & CY_SD_HOST_CMD5_IO_NUM_MASK;
+
     if (0UL < *sdioFlag)
     {
         if (true == lowVoltageSignaling)
@@ -3795,7 +3795,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_IoOcr(SDHC_Type *base,
                 /* IO > 0. */
                 break;
             }
-            
+
             Cy_SysLib_DelayUs(CY_SD_HOST_SDIO_CMD5_TIMEOUT_MS); /* 1 sec timeout. */
             retry--;
         }
@@ -3810,12 +3810,12 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_IoOcr(SDHC_Type *base,
     {
         /* Software reset for the DAT line. */
         Cy_SD_Host_SoftwareReset(base, CY_SD_HOST_RESET_DATALINE);
-        
+
         /* IO = 0. We have the SD memory card. Reset errors. */
         Cy_SD_Host_ErrorReset(base);
- 
+
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     return ret;
@@ -3941,7 +3941,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_SdOcr(SDHC_Type *base,
     {
         /* The card is not present or busy */
     }
-    
+
     Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
     return ret;
@@ -4046,15 +4046,15 @@ cy_en_sd_host_status_t Cy_SD_Host_SetSdClkDiv(SDHC_Type *base, uint16_t clkDiv)
     /* Check for the NULL pointer */
     if (NULL != base)
     {
-        SDHC_CORE_CLK_CTRL_R(base) = (uint16_t)(((uint32_t)SDHC_CORE_CLK_CTRL_R(base) &  
+        SDHC_CORE_CLK_CTRL_R(base) = (uint16_t)(((uint32_t)SDHC_CORE_CLK_CTRL_R(base) &
                                                 ~(SDHC_CORE_CLK_CTRL_R_FREQ_SEL_Msk |            /* Clear the first LSB 8 bits */
                                                   SDHC_CORE_CLK_CTRL_R_UPPER_FREQ_SEL_Msk)) |    /* Clear the upper 2 bits */
         _VAL2FLD(SDHC_CORE_CLK_CTRL_R_FREQ_SEL, ((uint32_t)clkDiv & CY_SD_HOST_FREQ_SEL_MSK)) |             /* Set the first LSB 8 bits */
-        _VAL2FLD(SDHC_CORE_CLK_CTRL_R_UPPER_FREQ_SEL, ((uint32_t)clkDiv >> CY_SD_HOST_UPPER_FREQ_SEL_POS))); /* Set the upper 2 bits */  
+        _VAL2FLD(SDHC_CORE_CLK_CTRL_R_UPPER_FREQ_SEL, ((uint32_t)clkDiv >> CY_SD_HOST_UPPER_FREQ_SEL_POS))); /* Set the upper 2 bits */
 
         /* Wait for at least 3 card clock periods */
         Cy_SysLib_DelayUs(CY_SD_HOST_3_PERIODS_US);
-        
+
         ret = CY_SD_HOST_SUCCESS;
     }
 
@@ -4105,7 +4105,7 @@ cy_en_sd_host_status_t Cy_SD_Host_SetHostBusWidth(SDHC_Type *base,
 
     /* Check for the NULL pointer */
     if (NULL != base)
-    {                        
+    {
         SDHC_CORE_HOST_CTRL1_R(base) = (uint8_t)(((uint32_t)SDHC_CORE_HOST_CTRL1_R(base) &
                                                ~(SDHC_CORE_HOST_CTRL1_R_EXT_DAT_XFER_Msk |
                                                  SDHC_CORE_HOST_CTRL1_R_DAT_XFER_WIDTH_Msk)) |
@@ -4179,7 +4179,7 @@ cy_en_sd_host_status_t Cy_SD_Host_SetHostSpeedMode(SDHC_Type *base,
     }
     else
     {
-        ret = CY_SD_HOST_ERROR_INVALID_PARAMETER;  
+        ret = CY_SD_HOST_ERROR_INVALID_PARAMETER;
     }
 
     return ret;
@@ -4226,8 +4226,8 @@ cy_en_sd_host_status_t Cy_SD_Host_SetBusSpeedMode(SDHC_Type *base,
         CY_ASSERT_L3(CY_SD_HOST_IS_SPEED_MODE_VALID(speedMode));
 
         /* 1. Does the card support memory? */
-        if ((CY_SD_HOST_SD == context->cardType) || 
-            (CY_SD_HOST_EMMC == context->cardType) || 
+        if ((CY_SD_HOST_SD == context->cardType) ||
+            (CY_SD_HOST_EMMC == context->cardType) ||
             (CY_SD_HOST_COMBO == context->cardType))
         {
             /* 2. Change Bus Speed Mode: Issue CMD6 with mode 1 */
@@ -4269,14 +4269,14 @@ cy_en_sd_host_status_t Cy_SD_Host_SetBusSpeedMode(SDHC_Type *base,
                                       (highSpeedValue << CY_SD_HOST_EMMC_CMD6_VALUE_OFFSET) |
                                       (0x0UL << CY_SD_HOST_EMMC_CMD6_CMD_SET_OFFSET);
                 }
-            
+
                 /* Send CMD6 */
                 ret = Cy_SD_Host_OpsSwitchFunc(base, cmdArgument);
             }
         }
 
         /* 5. Is SDIO Supported? */
-        if ((CY_SD_HOST_SDIO == context->cardType) || 
+        if ((CY_SD_HOST_SDIO == context->cardType) ||
             (CY_SD_HOST_COMBO == context->cardType))
         {
             /* 6. Change Bus Speed Mode: Set EHS or BSS[2:0] in CCCR */
@@ -4367,8 +4367,8 @@ cy_en_sd_host_status_t Cy_SD_Host_SetBusSpeedMode(SDHC_Type *base,
 *
 * \note The host needs to change the regulator supplying voltage to
 *       the VDDIO of the SD block in order to operate at 1.8V.
-* \note This function changes RCA to 0 in the context. RCA in the context 
-*       should be updated (context.RCA = Cy_SD_Host_GetRca();) 
+* \note This function changes RCA to 0 in the context. RCA in the context
+*       should be updated (context.RCA = Cy_SD_Host_GetRca();)
 *       when the card is in the Identification state.
 * \note This function is applicable for SD cards only.
 *
@@ -4388,10 +4388,10 @@ cy_en_sd_host_status_t Cy_SD_Host_SetBusSpeedMode(SDHC_Type *base,
 *
 * \return \ref cy_en_sd_host_status_t
 *
-* \note The SD card power supply should be disabled and initialized again when 
+* \note The SD card power supply should be disabled and initialized again when
 *  this function returns CY_SD_HOST_ERROR_UNUSABLE_CARD.
 *
-* \note The dedicated io_volt_sel pin is used to change the regulator supplying  
+* \note The dedicated io_volt_sel pin is used to change the regulator supplying
 * voltage to the VDDIO of the SD block in order to operate at 1.8V. To configure
 * the custom IO pin in order to control (using the GPIO driver) the regulator
 * supplying voltage, the user must implement weak Cy_SD_Host_ChangeIoVoltage().
@@ -4407,9 +4407,9 @@ cy_en_sd_host_status_t Cy_SD_Host_SelBusVoltage(SDHC_Type *base,
     uint32_t               s18aFlag = 0UL; /* The S18A flag. */
     bool                   f8Flag = false; /* The CMD8 flag. */
     bool                   mpFlag = false; /* The MEM flag. */
-    
+
     context->RCA = 0UL;
-    
+
     /* Send CMD0 and CMD8 commands. */
     f8Flag = Cy_SD_Host_VoltageCheck(base);
 
@@ -4439,7 +4439,7 @@ cy_en_sd_host_status_t Cy_SD_Host_SelBusVoltage(SDHC_Type *base,
 * Function Name: Cy_SD_Host_EnableCardVoltage
 ****************************************************************************//**
 *
-*  Sets the card_if_pwr_en pin high. 
+*  Sets the card_if_pwr_en pin high.
 *  This pin can be used to enable a voltage regulator used to power the card.
 *
 * \param *base
@@ -4447,7 +4447,7 @@ cy_en_sd_host_status_t Cy_SD_Host_SelBusVoltage(SDHC_Type *base,
 *
 *******************************************************************************/
 __WEAK void Cy_SD_Host_EnableCardVoltage(SDHC_Type *base)
-{  
+{
     SDHC_CORE_PWR_CTRL_R(base) = _CLR_SET_FLD8U(SDHC_CORE_PWR_CTRL_R(base), SDHC_CORE_PWR_CTRL_R_SD_BUS_PWR_VDD1, 1UL);
 }
 
@@ -4456,7 +4456,7 @@ __WEAK void Cy_SD_Host_EnableCardVoltage(SDHC_Type *base)
 * Function Name: Cy_SD_Host_DisableCardVoltage
 ****************************************************************************//**
 *
-*  Sets the card_if_pwr_en pin low. 
+*  Sets the card_if_pwr_en pin low.
 *  This pin can be used to disable a voltage regulator used to power the card.
 *
 * \param *base
@@ -4465,7 +4465,7 @@ __WEAK void Cy_SD_Host_EnableCardVoltage(SDHC_Type *base)
 *******************************************************************************/
 __WEAK void Cy_SD_Host_DisableCardVoltage(SDHC_Type *base)
 {
-   
+
     SDHC_CORE_PWR_CTRL_R(base) = _CLR_SET_FLD8U(SDHC_CORE_PWR_CTRL_R(base), SDHC_CORE_PWR_CTRL_R_SD_BUS_PWR_VDD1, 0UL);
 }
 
@@ -4548,12 +4548,12 @@ cy_en_sd_host_status_t Cy_SD_Host_InitDataTransfer(SDHC_Type *base,
         CY_ASSERT_L3(CY_SD_HOST_IS_AUTO_CMD_VALID(dataConfig->autoCommand));
         CY_ASSERT_L2(CY_SD_HOST_IS_TIMEOUT_VALID(dataConfig->dataTimeout));
         CY_ASSERT_L2(CY_SD_HOST_IS_BLK_SIZE_VALID(dataConfig->blockSize));
-        
+
         dmaMode = _FLD2VAL(SDHC_CORE_HOST_CTRL1_R_DMA_SEL, SDHC_CORE_HOST_CTRL1_R(base));
 
         SDHC_CORE_BLOCKSIZE_R(base) = 0U;
         SDHC_CORE_XFER_MODE_R(base) = 0U;
-        
+
         if (((uint32_t)CY_SD_HOST_DMA_ADMA2_ADMA3 == dmaMode) && (dataConfig->enableDma))
         {
             /* ADMA3 Integrated Descriptor Address. */
@@ -4604,12 +4604,12 @@ cy_en_sd_host_status_t Cy_SD_Host_InitDataTransfer(SDHC_Type *base,
 
             /* Set the block count. */
             SDHC_CORE_BLOCKCOUNT_R(base) = (uint16_t)dataConfig->numberOfBlock;
-            
-            
+
+
             /* Set a multi- or single-block transfer.*/
             transferMode = _BOOL2FLD(SDHC_CORE_XFER_MODE_R_MULTI_BLK_SEL, (1U < dataConfig->numberOfBlock));
 
-            /* Set the data transfer direction. */               
+            /* Set the data transfer direction. */
             transferMode |= _BOOL2FLD(SDHC_CORE_XFER_MODE_R_DATA_XFER_DIR, dataConfig->read);
 
             /* Set the block count enable. */
@@ -4655,7 +4655,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitDataTransfer(SDHC_Type *base,
                     ret = CY_SD_HOST_ERROR_INVALID_PARAMETER;
                     break;
             }
-            
+
             SDHC_CORE_XFER_MODE_R(base) = (uint16_t)transferMode;
         }
     }
@@ -4668,11 +4668,11 @@ cy_en_sd_host_status_t Cy_SD_Host_InitDataTransfer(SDHC_Type *base,
 * Function Name: Cy_SD_Host_ChangeIoVoltage
 ****************************************************************************//**
 *
-*  Changes the logic level on the sd_io_volt_sel line. It assumes that 
-*  this line is used to control a regulator connected to the VDDIO of the PSoC. 
+*  Changes the logic level on the sd_io_volt_sel line. It assumes that
+*  this line is used to control a regulator connected to the VDDIO of the PSoC.
 *  This regulator allows for switching between the 3.3V and 1.8V signaling.
 *
-* \note The dedicated io_volt_sel pin is used to change the regulator supplying 
+* \note The dedicated io_volt_sel pin is used to change the regulator supplying
 * voltage to the VDDIO of the SD block in order to operate at 1.8V. To configure
 * the custom IO pin in order to control (using the GPIO driver) the regulator
 * supplying voltage, the user must implement weak Cy_SD_Host_ChangeIoVoltage().
@@ -4689,8 +4689,8 @@ cy_en_sd_host_status_t Cy_SD_Host_InitDataTransfer(SDHC_Type *base,
 __WEAK void Cy_SD_Host_ChangeIoVoltage(SDHC_Type *base, cy_en_sd_host_io_voltage_t ioVoltage)
 {
     /* Set the 1.8V signaling enable. */
-    SDHC_CORE_HOST_CTRL2_R(base) = _CLR_SET_FLD16U(SDHC_CORE_HOST_CTRL2_R(base), 
-                                              SDHC_CORE_HOST_CTRL2_R_SIGNALING_EN, 
+    SDHC_CORE_HOST_CTRL2_R(base) = _CLR_SET_FLD16U(SDHC_CORE_HOST_CTRL2_R(base),
+                                              SDHC_CORE_HOST_CTRL2_R_SIGNALING_EN,
                                               (CY_SD_HOST_IO_VOLT_1_8V == ioVoltage) ? 1UL : 0UL);
 }
 
@@ -4701,7 +4701,7 @@ __WEAK void Cy_SD_Host_ChangeIoVoltage(SDHC_Type *base, cy_en_sd_host_io_voltage
 *
 *  Checks to see if a card is currently connected.
 *
-* \note You can use any GPIO custom pin for Card Detect. Add the SD Host driver 
+* \note You can use any GPIO custom pin for Card Detect. Add the SD Host driver
 * Cy_SD_Host_IsCardConnected() function with the __WEAK type to your code.
 * This function could read the value from any GPIO pin and return true when
 * the card is connected.
@@ -4756,24 +4756,24 @@ void Cy_SD_Host_SoftwareReset(SDHC_Type *base,
 
             while(false != _FLD2BOOL(SDHC_CORE_SW_RST_R_SW_RST_CMD, SDHC_CORE_SW_RST_R(base)))
             {
-                /* Wait until the reset completes. */                  
+                /* Wait until the reset completes. */
             }
 
             break;
         case CY_SD_HOST_RESET_ALL:
-        
+
             SDHC_CORE_CLK_CTRL_R(base) = 0U;
-            
+
             /* Wait for at least 3 card clock periods */
             Cy_SysLib_DelayUs(CY_SD_HOST_3_PERIODS_US);
-        
+
             SDHC_CORE_SW_RST_R(base) = (uint8_t)_VAL2FLD(SDHC_CORE_SW_RST_R_SW_RST_ALL, 1UL);
 
             while(false != _FLD2BOOL(SDHC_CORE_SW_RST_R_SW_RST_ALL, SDHC_CORE_SW_RST_R(base)))
             {
-                /* Wait until the reset completes. */  
+                /* Wait until the reset completes. */
             }
-            
+
             /* Enable the Internal clock. */
             SDHC_CORE_CLK_CTRL_R(base) = (uint16_t)_CLR_SET_FLD16U(SDHC_CORE_CLK_CTRL_R(base),
                                             SDHC_CORE_CLK_CTRL_R_INTERNAL_CLK_EN,
@@ -4819,9 +4819,9 @@ uint32_t Cy_SD_Host_GetPresentState(SDHC_Type const *base)
 ****************************************************************************//**
 *
 * This function handles the transition of the SD Host into and out of
-* Deep Sleep mode. It disables SD CLK before going to Deep Sleep mode and 
+* Deep Sleep mode. It disables SD CLK before going to Deep Sleep mode and
 * enables SD CLK after wake up from Deep Sleep mode.
-* If the DAT line is active, or a read (write) transfer is being executed on 
+* If the DAT line is active, or a read (write) transfer is being executed on
 * the bus, the device cannot enter Deep Sleep mode.
 *
 * This function must be called during execution of \ref Cy_SysPm_CpuEnterDeepSleep.
@@ -4853,7 +4853,7 @@ uint32_t Cy_SD_Host_GetPresentState(SDHC_Type const *base)
 * \ref cy_en_syspm_status_t
 *
 *******************************************************************************/
-cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams, 
+cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams,
                                                   cy_en_syspm_callback_mode_t mode)
 {
     cy_en_syspm_status_t ret = CY_SYSPM_FAIL;
@@ -4862,14 +4862,14 @@ cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t
     switch(mode)
     {
         case CY_SYSPM_CHECK_READY:
-        {   
+        {
             /* Check DAT Line Active */
             uint32_t pState = Cy_SD_Host_GetPresentState(locBase);
             if ((CY_SD_HOST_DAT_LINE_ACTIVE != (pState & CY_SD_HOST_DAT_LINE_ACTIVE)) &&
                 (CY_SD_HOST_CMD_CMD_INHIBIT_DAT != (pState & CY_SD_HOST_CMD_CMD_INHIBIT_DAT)))
             {
                 ret = CY_SYSPM_SUCCESS;
-            }       
+            }
         }
         break;
 
@@ -4892,7 +4892,7 @@ cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t
         {
             /* Enable SD CLK after wake up from Deep Sleep mode */
             Cy_SD_Host_EnableSdClk(locBase);
-            
+
             /* Wait for the stable CLK */
             Cy_SysLib_DelayUs(CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP);
 

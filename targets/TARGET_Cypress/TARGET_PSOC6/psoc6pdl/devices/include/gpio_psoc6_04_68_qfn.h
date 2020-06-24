@@ -5,7 +5,7 @@
 * PSoC6_04 device GPIO header for 68-QFN package
 *
 * \note
-* Generator version: 1.6.0.111
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -363,41 +363,41 @@ typedef enum
 typedef enum
 {
     /* Generic HSIOM connections */
-    HSIOM_SEL_GPIO                  =  0,       /* N/A */
-    HSIOM_SEL_GPIO_DSI              =  1,       /* N/A */
-    HSIOM_SEL_DSI_DSI               =  2,       /* N/A */
-    HSIOM_SEL_DSI_GPIO              =  3,       /* N/A */
-    HSIOM_SEL_AMUXA                 =  4,       /* AMUXBUS A */
-    HSIOM_SEL_AMUXB                 =  5,       /* AMUXBUS B */
-    HSIOM_SEL_AMUXA_DSI             =  6,       /* N/A */
-    HSIOM_SEL_AMUXB_DSI             =  7,       /* N/A */
-    HSIOM_SEL_ACT_0                 =  8,       /* Active peripherals 0 */
-    HSIOM_SEL_ACT_1                 =  9,       /* Active peripherals 1 */
-    HSIOM_SEL_ACT_2                 = 10,       /* Active peripherals 2 */
-    HSIOM_SEL_ACT_3                 = 11,       /* Active peripherals 4 */
-    HSIOM_SEL_DS_0                  = 12,       /* Deep Sleep peripherals 0 */
-    HSIOM_SEL_DS_1                  = 13,       /* Deep Sleep peripherals 1 */
-    HSIOM_SEL_DS_2                  = 14,       /* Deep Sleep peripherals 2 */
-    HSIOM_SEL_DS_3                  = 15,       /* Deep Sleep peripherals 3 */
-    HSIOM_SEL_ACT_4                 = 16,       /* Active peripherals 4 */
-    HSIOM_SEL_ACT_5                 = 17,       /* Active peripherals 5 */
-    HSIOM_SEL_ACT_6                 = 18,       /* Active peripherals 6 */
-    HSIOM_SEL_ACT_7                 = 19,       /* Active peripherals 7 */
-    HSIOM_SEL_ACT_8                 = 20,       /* Active peripherals 8 */
-    HSIOM_SEL_ACT_9                 = 21,       /* Active peripherals 9 */
-    HSIOM_SEL_ACT_10                = 22,       /* Active peripherals 10 */
-    HSIOM_SEL_ACT_11                = 23,       /* Active peripherals 11 */
-    HSIOM_SEL_ACT_12                = 24,       /* Active peripherals 12 */
-    HSIOM_SEL_ACT_13                = 25,       /* Active peripherals 13 */
-    HSIOM_SEL_ACT_14                = 26,       /* Active peripherals 14 */
-    HSIOM_SEL_ACT_15                = 27,       /* Active peripherals 15 */
-    HSIOM_SEL_DS_4                  = 28,       /* N/A */
-    HSIOM_SEL_DS_5                  = 29,       /* N/A */
-    HSIOM_SEL_DS_6                  = 30,       /* N/A */
-    HSIOM_SEL_DS_7                  = 31,       /* N/A */
+    HSIOM_SEL_GPIO                  =  0,       /* GPIO controls 'out' */
+    HSIOM_SEL_GPIO_DSI              =  1,       /* GPIO controls 'out', DSI controls 'output enable' */
+    HSIOM_SEL_DSI_DSI               =  2,       /* DSI controls 'out' and 'output enable' */
+    HSIOM_SEL_DSI_GPIO              =  3,       /* DSI controls 'out', GPIO controls 'output enable' */
+    HSIOM_SEL_AMUXA                 =  4,       /* Analog mux bus A */
+    HSIOM_SEL_AMUXB                 =  5,       /* Analog mux bus B */
+    HSIOM_SEL_AMUXA_DSI             =  6,       /* Analog mux bus A, DSI control */
+    HSIOM_SEL_AMUXB_DSI             =  7,       /* Analog mux bus B, DSI control */
+    HSIOM_SEL_ACT_0                 =  8,       /* Active functionality 0 */
+    HSIOM_SEL_ACT_1                 =  9,       /* Active functionality 1 */
+    HSIOM_SEL_ACT_2                 = 10,       /* Active functionality 2 */
+    HSIOM_SEL_ACT_3                 = 11,       /* Active functionality 3 */
+    HSIOM_SEL_DS_0                  = 12,       /* DeepSleep functionality 0 */
+    HSIOM_SEL_DS_1                  = 13,       /* DeepSleep functionality 1 */
+    HSIOM_SEL_DS_2                  = 14,       /* DeepSleep functionality 2 */
+    HSIOM_SEL_DS_3                  = 15,       /* DeepSleep functionality 3 */
+    HSIOM_SEL_ACT_4                 = 16,       /* Active functionality 4 */
+    HSIOM_SEL_ACT_5                 = 17,       /* Active functionality 5 */
+    HSIOM_SEL_ACT_6                 = 18,       /* Active functionality 6 */
+    HSIOM_SEL_ACT_7                 = 19,       /* Active functionality 7 */
+    HSIOM_SEL_ACT_8                 = 20,       /* Active functionality 8 */
+    HSIOM_SEL_ACT_9                 = 21,       /* Active functionality 9 */
+    HSIOM_SEL_ACT_10                = 22,       /* Active functionality 10 */
+    HSIOM_SEL_ACT_11                = 23,       /* Active functionality 11 */
+    HSIOM_SEL_ACT_12                = 24,       /* Active functionality 12 */
+    HSIOM_SEL_ACT_13                = 25,       /* Active functionality 13 */
+    HSIOM_SEL_ACT_14                = 26,       /* Active functionality 14 */
+    HSIOM_SEL_ACT_15                = 27,       /* Active functionality 15 */
+    HSIOM_SEL_DS_4                  = 28,       /* DeepSleep functionality 4 */
+    HSIOM_SEL_DS_5                  = 29,       /* DeepSleep functionality 5 */
+    HSIOM_SEL_DS_6                  = 30,       /* DeepSleep functionality 6 */
+    HSIOM_SEL_DS_7                  = 31,       /* DeepSleep functionality 7 */
 
     /* P0.0 */
-    P0_0_GPIO                       =  0,       /* N/A */
+    P0_0_GPIO                       =  0,       /* GPIO controls 'out' */
     P0_0_TCPWM0_LINE0               =  8,       /* Digital Active - tcpwm[0].line[0]:0 */
     P0_0_TCPWM0_LINE256             =  9,       /* Digital Active - tcpwm[0].line[256]:0 */
     P0_0_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:0 */
@@ -410,7 +410,7 @@ typedef enum
     P0_0_PERI_TR_IO_INPUT0          = 24,       /* Digital Active - peri.tr_io_input[0]:0 */
 
     /* P0.1 */
-    P0_1_GPIO                       =  0,       /* N/A */
+    P0_1_GPIO                       =  0,       /* GPIO controls 'out' */
     P0_1_TCPWM0_LINE_COMPL0         =  8,       /* Digital Active - tcpwm[0].line_compl[0]:0 */
     P0_1_TCPWM0_LINE_COMPL256       =  9,       /* Digital Active - tcpwm[0].line_compl[256]:0 */
     P0_1_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:1 */
@@ -423,7 +423,7 @@ typedef enum
     P0_1_CPUSS_SWJ_TRSTN            = 29,       /* Digital Deep Sleep - cpuss.swj_trstn */
 
     /* P0.2 */
-    P0_2_GPIO                       =  0,       /* N/A */
+    P0_2_GPIO                       =  0,       /* GPIO controls 'out' */
     P0_2_TCPWM0_LINE1               =  8,       /* Digital Active - tcpwm[0].line[1]:0 */
     P0_2_TCPWM0_LINE257             =  9,       /* Digital Active - tcpwm[0].line[257]:0 */
     P0_2_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:2 */
@@ -436,7 +436,7 @@ typedef enum
     P0_2_TCPWM0_TR_ONE_CNT_IN2      = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[2]:0 */
 
     /* P0.3 */
-    P0_3_GPIO                       =  0,       /* N/A */
+    P0_3_GPIO                       =  0,       /* GPIO controls 'out' */
     P0_3_TCPWM0_LINE_COMPL1         =  8,       /* Digital Active - tcpwm[0].line_compl[1]:0 */
     P0_3_TCPWM0_LINE_COMPL257       =  9,       /* Digital Active - tcpwm[0].line_compl[257]:0 */
     P0_3_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:3 */
@@ -449,7 +449,7 @@ typedef enum
     P0_3_TCPWM0_TR_ONE_CNT_IN3      = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[3]:0 */
 
     /* P0.4 */
-    P0_4_GPIO                       =  0,       /* N/A */
+    P0_4_GPIO                       =  0,       /* GPIO controls 'out' */
     P0_4_TCPWM0_LINE2               =  8,       /* Digital Active - tcpwm[0].line[2]:0 */
     P0_4_TCPWM0_LINE258             =  9,       /* Digital Active - tcpwm[0].line[258]:0 */
     P0_4_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:4 */
@@ -463,7 +463,7 @@ typedef enum
     P0_4_PERI_TR_IO_OUTPUT0         = 25,       /* Digital Active - peri.tr_io_output[0]:2 */
 
     /* P0.5 */
-    P0_5_GPIO                       =  0,       /* N/A */
+    P0_5_GPIO                       =  0,       /* GPIO controls 'out' */
     P0_5_TCPWM0_LINE_COMPL2         =  8,       /* Digital Active - tcpwm[0].line_compl[2]:0 */
     P0_5_TCPWM0_LINE_COMPL258       =  9,       /* Digital Active - tcpwm[0].line_compl[258]:0 */
     P0_5_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:5 */
@@ -477,14 +477,8 @@ typedef enum
     P0_5_PERI_TR_IO_INPUT3          = 24,       /* Digital Active - peri.tr_io_input[3]:0 */
     P0_5_PERI_TR_IO_OUTPUT1         = 25,       /* Digital Active - peri.tr_io_output[1]:2 */
 
-    /* USBDM */
-    USBDM_GPIO                      =  0,       /* N/A */
-
-    /* USBDP */
-    USBDP_GPIO                      =  0,       /* N/A */
-
     /* P2.0 */
-    P2_0_GPIO                       =  0,       /* N/A */
+    P2_0_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_0_TCPWM0_LINE3               =  8,       /* Digital Active - tcpwm[0].line[3]:0 */
     P2_0_TCPWM0_LINE259             =  9,       /* Digital Active - tcpwm[0].line[259]:0 */
     P2_0_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:9 */
@@ -498,7 +492,7 @@ typedef enum
     P2_0_PERI_TR_IO_INPUT4          = 24,       /* Digital Active - peri.tr_io_input[4]:0 */
 
     /* P2.1 */
-    P2_1_GPIO                       =  0,       /* N/A */
+    P2_1_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_1_TCPWM0_LINE_COMPL3         =  8,       /* Digital Active - tcpwm[0].line_compl[3]:0 */
     P2_1_TCPWM0_LINE_COMPL259       =  9,       /* Digital Active - tcpwm[0].line_compl[259]:0 */
     P2_1_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:10 */
@@ -512,7 +506,7 @@ typedef enum
     P2_1_PERI_TR_IO_INPUT5          = 24,       /* Digital Active - peri.tr_io_input[5]:0 */
 
     /* P2.2 */
-    P2_2_GPIO                       =  0,       /* N/A */
+    P2_2_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_2_TCPWM0_LINE0               =  8,       /* Digital Active - tcpwm[0].line[0]:1 */
     P2_2_TCPWM0_LINE260             =  9,       /* Digital Active - tcpwm[0].line[260]:0 */
     P2_2_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:11 */
@@ -524,7 +518,7 @@ typedef enum
     P2_2_TCPWM0_TR_ONE_CNT_IN263    = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[263]:0 */
 
     /* P2.3 */
-    P2_3_GPIO                       =  0,       /* N/A */
+    P2_3_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_3_TCPWM0_LINE_COMPL0         =  8,       /* Digital Active - tcpwm[0].line_compl[0]:1 */
     P2_3_TCPWM0_LINE_COMPL260       =  9,       /* Digital Active - tcpwm[0].line_compl[260]:0 */
     P2_3_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:12 */
@@ -536,7 +530,7 @@ typedef enum
     P2_3_TCPWM0_TR_ONE_CNT_IN0      = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[0]:1 */
 
     /* P2.4 */
-    P2_4_GPIO                       =  0,       /* N/A */
+    P2_4_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_4_TCPWM0_LINE1               =  8,       /* Digital Active - tcpwm[0].line[1]:1 */
     P2_4_TCPWM0_LINE261             =  9,       /* Digital Active - tcpwm[0].line[261]:0 */
     P2_4_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:13 */
@@ -547,7 +541,7 @@ typedef enum
     P2_4_TCPWM0_TR_ONE_CNT_IN1      = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[1]:1 */
 
     /* P2.5 */
-    P2_5_GPIO                       =  0,       /* N/A */
+    P2_5_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_5_TCPWM0_LINE_COMPL1         =  8,       /* Digital Active - tcpwm[0].line_compl[1]:1 */
     P2_5_TCPWM0_LINE_COMPL261       =  9,       /* Digital Active - tcpwm[0].line_compl[261]:0 */
     P2_5_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:14 */
@@ -558,7 +552,7 @@ typedef enum
     P2_5_TCPWM0_TR_ONE_CNT_IN2      = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[2]:1 */
 
     /* P2.6 */
-    P2_6_GPIO                       =  0,       /* N/A */
+    P2_6_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_6_TCPWM0_LINE2               =  8,       /* Digital Active - tcpwm[0].line[2]:1 */
     P2_6_TCPWM0_LINE262             =  9,       /* Digital Active - tcpwm[0].line[262]:0 */
     P2_6_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:15 */
@@ -571,7 +565,7 @@ typedef enum
     P2_6_PERI_TR_IO_INPUT8          = 24,       /* Digital Active - peri.tr_io_input[8]:0 */
 
     /* P2.7 */
-    P2_7_GPIO                       =  0,       /* N/A */
+    P2_7_GPIO                       =  0,       /* GPIO controls 'out' */
     P2_7_TCPWM0_LINE_COMPL2         =  8,       /* Digital Active - tcpwm[0].line_compl[2]:1 */
     P2_7_TCPWM0_LINE_COMPL262       =  9,       /* Digital Active - tcpwm[0].line_compl[262]:0 */
     P2_7_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:16 */
@@ -583,7 +577,7 @@ typedef enum
     P2_7_PERI_TR_IO_INPUT9          = 24,       /* Digital Active - peri.tr_io_input[9]:0 */
 
     /* P3.0 */
-    P3_0_GPIO                       =  0,       /* N/A */
+    P3_0_GPIO                       =  0,       /* GPIO controls 'out' */
     P3_0_TCPWM0_LINE3               =  8,       /* Digital Active - tcpwm[0].line[3]:1 */
     P3_0_TCPWM0_LINE263             =  9,       /* Digital Active - tcpwm[0].line[263]:0 */
     P3_0_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:17 */
@@ -596,7 +590,7 @@ typedef enum
     P3_0_PERI_TR_IO_INPUT6          = 24,       /* Digital Active - peri.tr_io_input[6]:0 */
 
     /* P3.1 */
-    P3_1_GPIO                       =  0,       /* N/A */
+    P3_1_GPIO                       =  0,       /* GPIO controls 'out' */
     P3_1_TCPWM0_LINE_COMPL3         =  8,       /* Digital Active - tcpwm[0].line_compl[3]:1 */
     P3_1_TCPWM0_LINE_COMPL263       =  9,       /* Digital Active - tcpwm[0].line_compl[263]:0 */
     P3_1_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:18 */
@@ -609,7 +603,7 @@ typedef enum
     P3_1_PERI_TR_IO_INPUT7          = 24,       /* Digital Active - peri.tr_io_input[7]:0 */
 
     /* P5.0 */
-    P5_0_GPIO                       =  0,       /* N/A */
+    P5_0_GPIO                       =  0,       /* GPIO controls 'out' */
     P5_0_TCPWM0_LINE0               =  8,       /* Digital Active - tcpwm[0].line[0]:2 */
     P5_0_TCPWM0_LINE256             =  9,       /* Digital Active - tcpwm[0].line[256]:1 */
     P5_0_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:19 */
@@ -624,7 +618,7 @@ typedef enum
     P5_0_PERI_TR_IO_INPUT10         = 24,       /* Digital Active - peri.tr_io_input[10]:0 */
 
     /* P5.1 */
-    P5_1_GPIO                       =  0,       /* N/A */
+    P5_1_GPIO                       =  0,       /* GPIO controls 'out' */
     P5_1_TCPWM0_LINE_COMPL0         =  8,       /* Digital Active - tcpwm[0].line_compl[0]:2 */
     P5_1_TCPWM0_LINE_COMPL256       =  9,       /* Digital Active - tcpwm[0].line_compl[256]:1 */
     P5_1_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:20 */
@@ -639,7 +633,7 @@ typedef enum
     P5_1_PERI_TR_IO_INPUT11         = 24,       /* Digital Active - peri.tr_io_input[11]:0 */
 
     /* P5.6 */
-    P5_6_GPIO                       =  0,       /* N/A */
+    P5_6_GPIO                       =  0,       /* GPIO controls 'out' */
     P5_6_TCPWM0_LINE1               =  8,       /* Digital Active - tcpwm[0].line[1]:2 */
     P5_6_TCPWM0_LINE257             =  9,       /* Digital Active - tcpwm[0].line[257]:1 */
     P5_6_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:22 */
@@ -649,7 +643,7 @@ typedef enum
     P5_6_TCPWM0_TR_ONE_CNT_IN262    = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[262]:1 */
 
     /* P5.7 */
-    P5_7_GPIO                       =  0,       /* N/A */
+    P5_7_GPIO                       =  0,       /* GPIO controls 'out' */
     P5_7_TCPWM0_LINE_COMPL1         =  8,       /* Digital Active - tcpwm[0].line_compl[1]:2 */
     P5_7_TCPWM0_LINE_COMPL257       =  9,       /* Digital Active - tcpwm[0].line_compl[257]:1 */
     P5_7_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:23 */
@@ -659,7 +653,7 @@ typedef enum
     P5_7_TCPWM0_TR_ONE_CNT_IN263    = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[263]:1 */
 
     /* P6.2 */
-    P6_2_GPIO                       =  0,       /* N/A */
+    P6_2_GPIO                       =  0,       /* GPIO controls 'out' */
     P6_2_TCPWM0_LINE3               =  8,       /* Digital Active - tcpwm[0].line[3]:2 */
     P6_2_TCPWM0_LINE259             =  9,       /* Digital Active - tcpwm[0].line[259]:1 */
     P6_2_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:24 */
@@ -670,7 +664,7 @@ typedef enum
     P6_2_CPUSS_FAULT_OUT0           = 25,       /* Digital Active - cpuss.fault_out[0] */
 
     /* P6.3 */
-    P6_3_GPIO                       =  0,       /* N/A */
+    P6_3_GPIO                       =  0,       /* GPIO controls 'out' */
     P6_3_TCPWM0_LINE_COMPL3         =  8,       /* Digital Active - tcpwm[0].line_compl[3]:2 */
     P6_3_TCPWM0_LINE_COMPL259       =  9,       /* Digital Active - tcpwm[0].line_compl[259]:1 */
     P6_3_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:25 */
@@ -681,7 +675,7 @@ typedef enum
     P6_3_CPUSS_FAULT_OUT1           = 25,       /* Digital Active - cpuss.fault_out[1] */
 
     /* P6.4 */
-    P6_4_GPIO                       =  0,       /* N/A */
+    P6_4_GPIO                       =  0,       /* GPIO controls 'out' */
     P6_4_TCPWM0_LINE0               =  8,       /* Digital Active - tcpwm[0].line[0]:3 */
     P6_4_TCPWM0_LINE260             =  9,       /* Digital Active - tcpwm[0].line[260]:1 */
     P6_4_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:26 */
@@ -697,7 +691,7 @@ typedef enum
     P6_4_SRSS_DDFT_PIN_IN0          = 31,       /* Digital Deep Sleep - srss.ddft_pin_in[0]:0 */
 
     /* P6.5 */
-    P6_5_GPIO                       =  0,       /* N/A */
+    P6_5_GPIO                       =  0,       /* GPIO controls 'out' */
     P6_5_TCPWM0_LINE_COMPL0         =  8,       /* Digital Active - tcpwm[0].line_compl[0]:3 */
     P6_5_TCPWM0_LINE_COMPL260       =  9,       /* Digital Active - tcpwm[0].line_compl[260]:1 */
     P6_5_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:27 */
@@ -713,7 +707,7 @@ typedef enum
     P6_5_SRSS_DDFT_PIN_IN1          = 31,       /* Digital Deep Sleep - srss.ddft_pin_in[1]:0 */
 
     /* P6.6 */
-    P6_6_GPIO                       =  0,       /* N/A */
+    P6_6_GPIO                       =  0,       /* GPIO controls 'out' */
     P6_6_TCPWM0_LINE1               =  8,       /* Digital Active - tcpwm[0].line[1]:3 */
     P6_6_TCPWM0_LINE261             =  9,       /* Digital Active - tcpwm[0].line[261]:1 */
     P6_6_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:28 */
@@ -725,7 +719,7 @@ typedef enum
     P6_6_SCB6_SPI_CLK               = 30,       /* Digital Deep Sleep - scb[6].spi_clk:0 */
 
     /* P6.7 */
-    P6_7_GPIO                       =  0,       /* N/A */
+    P6_7_GPIO                       =  0,       /* GPIO controls 'out' */
     P6_7_TCPWM0_LINE_COMPL1         =  8,       /* Digital Active - tcpwm[0].line_compl[1]:3 */
     P6_7_TCPWM0_LINE_COMPL261       =  9,       /* Digital Active - tcpwm[0].line_compl[261]:1 */
     P6_7_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:29 */
@@ -737,11 +731,11 @@ typedef enum
     P6_7_SCB6_SPI_SELECT0           = 30,       /* Digital Deep Sleep - scb[6].spi_select0:0 */
 
     /* P7.0 */
-    P7_0_GPIO                       =  0,       /* N/A */
-    P7_0_AMUXA                      =  4,       /* AMUXBUS A */
-    P7_0_AMUXB                      =  5,       /* AMUXBUS B */
-    P7_0_AMUXA_DSI                  =  6,       /* N/A */
-    P7_0_AMUXB_DSI                  =  7,       /* N/A */
+    P7_0_GPIO                       =  0,       /* GPIO controls 'out' */
+    P7_0_AMUXA                      =  4,       /* Analog mux bus A */
+    P7_0_AMUXB                      =  5,       /* Analog mux bus B */
+    P7_0_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P7_0_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P7_0_TCPWM0_LINE2               =  8,       /* Digital Active - tcpwm[0].line[2]:2 */
     P7_0_TCPWM0_LINE262             =  9,       /* Digital Active - tcpwm[0].line[262]:1 */
     P7_0_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:30 */
@@ -756,11 +750,11 @@ typedef enum
     P7_0_CPUSS_TRACE_CLOCK          = 26,       /* Digital Active - cpuss.trace_clock */
 
     /* P7.1 */
-    P7_1_GPIO                       =  0,       /* N/A */
-    P7_1_AMUXA                      =  4,       /* AMUXBUS A */
-    P7_1_AMUXB                      =  5,       /* AMUXBUS B */
-    P7_1_AMUXA_DSI                  =  6,       /* N/A */
-    P7_1_AMUXB_DSI                  =  7,       /* N/A */
+    P7_1_GPIO                       =  0,       /* GPIO controls 'out' */
+    P7_1_AMUXA                      =  4,       /* Analog mux bus A */
+    P7_1_AMUXB                      =  5,       /* Analog mux bus B */
+    P7_1_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P7_1_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P7_1_TCPWM0_LINE_COMPL2         =  8,       /* Digital Active - tcpwm[0].line_compl[2]:2 */
     P7_1_TCPWM0_LINE_COMPL262       =  9,       /* Digital Active - tcpwm[0].line_compl[262]:1 */
     P7_1_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:31 */
@@ -774,11 +768,11 @@ typedef enum
     P7_1_PERI_TR_IO_INPUT15         = 24,       /* Digital Active - peri.tr_io_input[15]:0 */
 
     /* P7.2 */
-    P7_2_GPIO                       =  0,       /* N/A */
-    P7_2_AMUXA                      =  4,       /* AMUXBUS A */
-    P7_2_AMUXB                      =  5,       /* AMUXBUS B */
-    P7_2_AMUXA_DSI                  =  6,       /* N/A */
-    P7_2_AMUXB_DSI                  =  7,       /* N/A */
+    P7_2_GPIO                       =  0,       /* GPIO controls 'out' */
+    P7_2_AMUXA                      =  4,       /* Analog mux bus A */
+    P7_2_AMUXB                      =  5,       /* Analog mux bus B */
+    P7_2_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P7_2_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P7_2_TCPWM0_LINE3               =  8,       /* Digital Active - tcpwm[0].line[3]:3 */
     P7_2_TCPWM0_LINE263             =  9,       /* Digital Active - tcpwm[0].line[263]:1 */
     P7_2_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:32 */
@@ -790,11 +784,11 @@ typedef enum
     P7_2_TCPWM0_TR_ONE_CNT_IN260    = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[260]:2 */
 
     /* P7.3 */
-    P7_3_GPIO                       =  0,       /* N/A */
-    P7_3_AMUXA                      =  4,       /* AMUXBUS A */
-    P7_3_AMUXB                      =  5,       /* AMUXBUS B */
-    P7_3_AMUXA_DSI                  =  6,       /* N/A */
-    P7_3_AMUXB_DSI                  =  7,       /* N/A */
+    P7_3_GPIO                       =  0,       /* GPIO controls 'out' */
+    P7_3_AMUXA                      =  4,       /* Analog mux bus A */
+    P7_3_AMUXB                      =  5,       /* Analog mux bus B */
+    P7_3_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P7_3_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P7_3_TCPWM0_LINE_COMPL3         =  8,       /* Digital Active - tcpwm[0].line_compl[3]:3 */
     P7_3_TCPWM0_LINE_COMPL263       =  9,       /* Digital Active - tcpwm[0].line_compl[263]:1 */
     P7_3_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:33 */
@@ -806,11 +800,11 @@ typedef enum
     P7_3_TCPWM0_TR_ONE_CNT_IN261    = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[261]:2 */
 
     /* P7.7 */
-    P7_7_GPIO                       =  0,       /* N/A */
-    P7_7_AMUXA                      =  4,       /* AMUXBUS A */
-    P7_7_AMUXB                      =  5,       /* AMUXBUS B */
-    P7_7_AMUXA_DSI                  =  6,       /* N/A */
-    P7_7_AMUXB_DSI                  =  7,       /* N/A */
+    P7_7_GPIO                       =  0,       /* GPIO controls 'out' */
+    P7_7_AMUXA                      =  4,       /* Analog mux bus A */
+    P7_7_AMUXB                      =  5,       /* Analog mux bus B */
+    P7_7_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P7_7_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P7_7_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:36 */
     P7_7_CSD_CSD_TX_N               = 11,       /* Digital Active - csd.csd_tx_n:36 */
     P7_7_LCD_COM35                  = 12,       /* Digital Deep Sleep - lcd.com[35]:0 */
@@ -819,11 +813,11 @@ typedef enum
     P7_7_TCPWM0_TR_ONE_CNT_IN0      = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[0]:3 */
 
     /* P8.0 */
-    P8_0_GPIO                       =  0,       /* N/A */
-    P8_0_AMUXA                      =  4,       /* AMUXBUS A */
-    P8_0_AMUXB                      =  5,       /* AMUXBUS B */
-    P8_0_AMUXA_DSI                  =  6,       /* N/A */
-    P8_0_AMUXB_DSI                  =  7,       /* N/A */
+    P8_0_GPIO                       =  0,       /* GPIO controls 'out' */
+    P8_0_AMUXA                      =  4,       /* Analog mux bus A */
+    P8_0_AMUXB                      =  5,       /* Analog mux bus B */
+    P8_0_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P8_0_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P8_0_TCPWM0_LINE2               =  8,       /* Digital Active - tcpwm[0].line[2]:3 */
     P8_0_TCPWM0_LINE258             =  9,       /* Digital Active - tcpwm[0].line[258]:1 */
     P8_0_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:37 */
@@ -837,11 +831,11 @@ typedef enum
     P8_0_PERI_TR_IO_INPUT16         = 24,       /* Digital Active - peri.tr_io_input[16]:0 */
 
     /* P8.1 */
-    P8_1_GPIO                       =  0,       /* N/A */
-    P8_1_AMUXA                      =  4,       /* AMUXBUS A */
-    P8_1_AMUXB                      =  5,       /* AMUXBUS B */
-    P8_1_AMUXA_DSI                  =  6,       /* N/A */
-    P8_1_AMUXB_DSI                  =  7,       /* N/A */
+    P8_1_GPIO                       =  0,       /* GPIO controls 'out' */
+    P8_1_AMUXA                      =  4,       /* Analog mux bus A */
+    P8_1_AMUXB                      =  5,       /* Analog mux bus B */
+    P8_1_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P8_1_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P8_1_TCPWM0_LINE_COMPL2         =  8,       /* Digital Active - tcpwm[0].line_compl[2]:3 */
     P8_1_TCPWM0_LINE_COMPL258       =  9,       /* Digital Active - tcpwm[0].line_compl[258]:1 */
     P8_1_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:38 */
@@ -855,11 +849,11 @@ typedef enum
     P8_1_PERI_TR_IO_INPUT17         = 24,       /* Digital Active - peri.tr_io_input[17]:0 */
 
     /* P9.0 */
-    P9_0_GPIO                       =  0,       /* N/A */
-    P9_0_AMUXA                      =  4,       /* AMUXBUS A */
-    P9_0_AMUXB                      =  5,       /* AMUXBUS B */
-    P9_0_AMUXA_DSI                  =  6,       /* N/A */
-    P9_0_AMUXB_DSI                  =  7,       /* N/A */
+    P9_0_GPIO                       =  0,       /* GPIO controls 'out' */
+    P9_0_AMUXA                      =  4,       /* Analog mux bus A */
+    P9_0_AMUXB                      =  5,       /* Analog mux bus B */
+    P9_0_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P9_0_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P9_0_TCPWM0_LINE0               =  8,       /* Digital Active - tcpwm[0].line[0]:4 */
     P9_0_TCPWM0_LINE260             =  9,       /* Digital Active - tcpwm[0].line[260]:2 */
     P9_0_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:39 */
@@ -874,11 +868,11 @@ typedef enum
     P9_0_CPUSS_TRACE_DATA3          = 27,       /* Digital Active - cpuss.trace_data[3]:1 */
 
     /* P9.1 */
-    P9_1_GPIO                       =  0,       /* N/A */
-    P9_1_AMUXA                      =  4,       /* AMUXBUS A */
-    P9_1_AMUXB                      =  5,       /* AMUXBUS B */
-    P9_1_AMUXA_DSI                  =  6,       /* N/A */
-    P9_1_AMUXB_DSI                  =  7,       /* N/A */
+    P9_1_GPIO                       =  0,       /* GPIO controls 'out' */
+    P9_1_AMUXA                      =  4,       /* Analog mux bus A */
+    P9_1_AMUXB                      =  5,       /* Analog mux bus B */
+    P9_1_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P9_1_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P9_1_TCPWM0_LINE_COMPL0         =  8,       /* Digital Active - tcpwm[0].line_compl[0]:4 */
     P9_1_TCPWM0_LINE_COMPL260       =  9,       /* Digital Active - tcpwm[0].line_compl[260]:2 */
     P9_1_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:40 */
@@ -894,11 +888,11 @@ typedef enum
     P9_1_SRSS_DDFT_PIN_IN0          = 31,       /* Digital Deep Sleep - srss.ddft_pin_in[0]:1 */
 
     /* P9.2 */
-    P9_2_GPIO                       =  0,       /* N/A */
-    P9_2_AMUXA                      =  4,       /* AMUXBUS A */
-    P9_2_AMUXB                      =  5,       /* AMUXBUS B */
-    P9_2_AMUXA_DSI                  =  6,       /* N/A */
-    P9_2_AMUXB_DSI                  =  7,       /* N/A */
+    P9_2_GPIO                       =  0,       /* GPIO controls 'out' */
+    P9_2_AMUXA                      =  4,       /* Analog mux bus A */
+    P9_2_AMUXB                      =  5,       /* Analog mux bus B */
+    P9_2_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P9_2_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P9_2_TCPWM0_LINE1               =  8,       /* Digital Active - tcpwm[0].line[1]:4 */
     P9_2_TCPWM0_LINE261             =  9,       /* Digital Active - tcpwm[0].line[261]:2 */
     P9_2_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:41 */
@@ -912,11 +906,11 @@ typedef enum
     P9_2_CPUSS_TRACE_DATA1          = 27,       /* Digital Active - cpuss.trace_data[1]:1 */
 
     /* P9.3 */
-    P9_3_GPIO                       =  0,       /* N/A */
-    P9_3_AMUXA                      =  4,       /* AMUXBUS A */
-    P9_3_AMUXB                      =  5,       /* AMUXBUS B */
-    P9_3_AMUXA_DSI                  =  6,       /* N/A */
-    P9_3_AMUXB_DSI                  =  7,       /* N/A */
+    P9_3_GPIO                       =  0,       /* GPIO controls 'out' */
+    P9_3_AMUXA                      =  4,       /* Analog mux bus A */
+    P9_3_AMUXB                      =  5,       /* Analog mux bus B */
+    P9_3_AMUXA_DSI                  =  6,       /* Analog mux bus A, DSI control */
+    P9_3_AMUXB_DSI                  =  7,       /* Analog mux bus B, DSI control */
     P9_3_TCPWM0_LINE_COMPL1         =  8,       /* Digital Active - tcpwm[0].line_compl[1]:4 */
     P9_3_TCPWM0_LINE_COMPL261       =  9,       /* Digital Active - tcpwm[0].line_compl[261]:3 */
     P9_3_CSD_CSD_TX                 = 10,       /* Digital Active - csd.csd_tx:42 */
@@ -931,11 +925,11 @@ typedef enum
     P9_3_SRSS_DDFT_PIN_IN1          = 31,       /* Digital Deep Sleep - srss.ddft_pin_in[1]:1 */
 
     /* P10.0 */
-    P10_0_GPIO                      =  0,       /* N/A */
-    P10_0_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_0_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_0_AMUXA_DSI                 =  6,       /* N/A */
-    P10_0_AMUXB_DSI                 =  7,       /* N/A */
+    P10_0_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_0_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_0_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_0_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_0_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_0_TCPWM0_LINE2              =  8,       /* Digital Active - tcpwm[0].line[2]:4 */
     P10_0_TCPWM0_LINE262            =  9,       /* Digital Active - tcpwm[0].line[262]:2 */
     P10_0_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:45 */
@@ -950,11 +944,11 @@ typedef enum
     P10_0_CPUSS_TRACE_DATA3         = 27,       /* Digital Active - cpuss.trace_data[3]:0 */
 
     /* P10.1 */
-    P10_1_GPIO                      =  0,       /* N/A */
-    P10_1_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_1_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_1_AMUXA_DSI                 =  6,       /* N/A */
-    P10_1_AMUXB_DSI                 =  7,       /* N/A */
+    P10_1_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_1_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_1_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_1_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_1_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_1_TCPWM0_LINE_COMPL2        =  8,       /* Digital Active - tcpwm[0].line_compl[2]:4 */
     P10_1_TCPWM0_LINE_COMPL262      =  9,       /* Digital Active - tcpwm[0].line_compl[262]:2 */
     P10_1_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:46 */
@@ -969,11 +963,11 @@ typedef enum
     P10_1_CPUSS_TRACE_DATA2         = 27,       /* Digital Active - cpuss.trace_data[2]:0 */
 
     /* P10.2 */
-    P10_2_GPIO                      =  0,       /* N/A */
-    P10_2_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_2_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_2_AMUXA_DSI                 =  6,       /* N/A */
-    P10_2_AMUXB_DSI                 =  7,       /* N/A */
+    P10_2_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_2_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_2_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_2_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_2_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_2_TCPWM0_LINE3              =  8,       /* Digital Active - tcpwm[0].line[3]:4 */
     P10_2_TCPWM0_LINE263            =  9,       /* Digital Active - tcpwm[0].line[263]:2 */
     P10_2_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:47 */
@@ -986,11 +980,11 @@ typedef enum
     P10_2_CPUSS_TRACE_DATA1         = 27,       /* Digital Active - cpuss.trace_data[1]:0 */
 
     /* P10.3 */
-    P10_3_GPIO                      =  0,       /* N/A */
-    P10_3_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_3_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_3_AMUXA_DSI                 =  6,       /* N/A */
-    P10_3_AMUXB_DSI                 =  7,       /* N/A */
+    P10_3_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_3_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_3_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_3_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_3_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_3_TCPWM0_LINE_COMPL3        =  8,       /* Digital Active - tcpwm[0].line_compl[3]:4 */
     P10_3_TCPWM0_LINE_COMPL263      =  9,       /* Digital Active - tcpwm[0].line_compl[263]:2 */
     P10_3_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:48 */
@@ -1003,11 +997,11 @@ typedef enum
     P10_3_CPUSS_TRACE_DATA0         = 27,       /* Digital Active - cpuss.trace_data[0]:0 */
 
     /* P10.4 */
-    P10_4_GPIO                      =  0,       /* N/A */
-    P10_4_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_4_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_4_AMUXA_DSI                 =  6,       /* N/A */
-    P10_4_AMUXB_DSI                 =  7,       /* N/A */
+    P10_4_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_4_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_4_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_4_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_4_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_4_TCPWM0_LINE0              =  8,       /* Digital Active - tcpwm[0].line[0]:5 */
     P10_4_TCPWM0_LINE256            =  9,       /* Digital Active - tcpwm[0].line[256]:2 */
     P10_4_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:49 */
@@ -1018,11 +1012,11 @@ typedef enum
     P10_4_TCPWM0_TR_ONE_CNT_IN1     = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[1]:4 */
 
     /* P10.5 */
-    P10_5_GPIO                      =  0,       /* N/A */
-    P10_5_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_5_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_5_AMUXA_DSI                 =  6,       /* N/A */
-    P10_5_AMUXB_DSI                 =  7,       /* N/A */
+    P10_5_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_5_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_5_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_5_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_5_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_5_TCPWM0_LINE_COMPL0        =  8,       /* Digital Active - tcpwm[0].line_compl[0]:5 */
     P10_5_TCPWM0_LINE_COMPL256      =  9,       /* Digital Active - tcpwm[0].line_compl[256]:2 */
     P10_5_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:50 */
@@ -1033,11 +1027,11 @@ typedef enum
     P10_5_TCPWM0_TR_ONE_CNT_IN2     = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[2]:4 */
 
     /* P10.6 */
-    P10_6_GPIO                      =  0,       /* N/A */
-    P10_6_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_6_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_6_AMUXA_DSI                 =  6,       /* N/A */
-    P10_6_AMUXB_DSI                 =  7,       /* N/A */
+    P10_6_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_6_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_6_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_6_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_6_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_6_TCPWM0_LINE1              =  8,       /* Digital Active - tcpwm[0].line[1]:5 */
     P10_6_TCPWM0_LINE257            =  9,       /* Digital Active - tcpwm[0].line[257]:2 */
     P10_6_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:51 */
@@ -1049,11 +1043,11 @@ typedef enum
     P10_6_PERI_TR_IO_INPUT22        = 24,       /* Digital Active - peri.tr_io_input[22]:0 */
 
     /* P10.7 */
-    P10_7_GPIO                      =  0,       /* N/A */
-    P10_7_AMUXA                     =  4,       /* AMUXBUS A */
-    P10_7_AMUXB                     =  5,       /* AMUXBUS B */
-    P10_7_AMUXA_DSI                 =  6,       /* N/A */
-    P10_7_AMUXB_DSI                 =  7,       /* N/A */
+    P10_7_GPIO                      =  0,       /* GPIO controls 'out' */
+    P10_7_AMUXA                     =  4,       /* Analog mux bus A */
+    P10_7_AMUXB                     =  5,       /* Analog mux bus B */
+    P10_7_AMUXA_DSI                 =  6,       /* Analog mux bus A, DSI control */
+    P10_7_AMUXB_DSI                 =  7,       /* Analog mux bus B, DSI control */
     P10_7_TCPWM0_LINE_COMPL1        =  8,       /* Digital Active - tcpwm[0].line_compl[1]:5 */
     P10_7_TCPWM0_LINE_COMPL257      =  9,       /* Digital Active - tcpwm[0].line_compl[257]:2 */
     P10_7_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:52 */
@@ -1065,7 +1059,7 @@ typedef enum
     P10_7_PERI_TR_IO_INPUT23        = 24,       /* Digital Active - peri.tr_io_input[23]:0 */
 
     /* P11.2 */
-    P11_2_GPIO                      =  0,       /* N/A */
+    P11_2_GPIO                      =  0,       /* GPIO controls 'out' */
     P11_2_TCPWM0_LINE3              =  8,       /* Digital Active - tcpwm[0].line[3]:5 */
     P11_2_TCPWM0_LINE259            =  9,       /* Digital Active - tcpwm[0].line[259]:2 */
     P11_2_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:54 */
@@ -1078,7 +1072,7 @@ typedef enum
     P11_2_TCPWM0_TR_ONE_CNT_IN258   = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[258]:4 */
 
     /* P11.3 */
-    P11_3_GPIO                      =  0,       /* N/A */
+    P11_3_GPIO                      =  0,       /* GPIO controls 'out' */
     P11_3_TCPWM0_LINE_COMPL3        =  8,       /* Digital Active - tcpwm[0].line_compl[3]:5 */
     P11_3_TCPWM0_LINE_COMPL259      =  9,       /* Digital Active - tcpwm[0].line_compl[259]:2 */
     P11_3_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:55 */
@@ -1092,7 +1086,7 @@ typedef enum
     P11_3_PERI_TR_IO_OUTPUT0        = 25,       /* Digital Active - peri.tr_io_output[0]:0 */
 
     /* P11.4 */
-    P11_4_GPIO                      =  0,       /* N/A */
+    P11_4_GPIO                      =  0,       /* GPIO controls 'out' */
     P11_4_TCPWM0_LINE0              =  8,       /* Digital Active - tcpwm[0].line[0]:6 */
     P11_4_TCPWM0_LINE260            =  9,       /* Digital Active - tcpwm[0].line[260]:3 */
     P11_4_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:56 */
@@ -1105,7 +1099,7 @@ typedef enum
     P11_4_PERI_TR_IO_OUTPUT1        = 25,       /* Digital Active - peri.tr_io_output[1]:0 */
 
     /* P11.5 */
-    P11_5_GPIO                      =  0,       /* N/A */
+    P11_5_GPIO                      =  0,       /* GPIO controls 'out' */
     P11_5_TCPWM0_LINE_COMPL0        =  8,       /* Digital Active - tcpwm[0].line_compl[0]:6 */
     P11_5_TCPWM0_LINE_COMPL260      =  9,       /* Digital Active - tcpwm[0].line_compl[260]:3 */
     P11_5_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:57 */
@@ -1117,7 +1111,7 @@ typedef enum
     P11_5_TCPWM0_TR_ONE_CNT_IN261   = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[261]:4 */
 
     /* P11.6 */
-    P11_6_GPIO                      =  0,       /* N/A */
+    P11_6_GPIO                      =  0,       /* GPIO controls 'out' */
     P11_6_TCPWM0_LINE1              =  8,       /* Digital Active - tcpwm[0].line[1]:6 */
     P11_6_TCPWM0_LINE261            =  9,       /* Digital Active - tcpwm[0].line[261]:3 */
     P11_6_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:58 */
@@ -1129,7 +1123,7 @@ typedef enum
     P11_6_TCPWM0_TR_ONE_CNT_IN262   = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[262]:4 */
 
     /* P11.7 */
-    P11_7_GPIO                      =  0,       /* N/A */
+    P11_7_GPIO                      =  0,       /* GPIO controls 'out' */
     P11_7_TCPWM0_LINE_COMPL1        =  8,       /* Digital Active - tcpwm[0].line_compl[1]:6 */
     P11_7_TCPWM0_LINE_COMPL261      =  9,       /* Digital Active - tcpwm[0].line_compl[261]:2 */
     P11_7_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:59 */
@@ -1140,7 +1134,7 @@ typedef enum
     P11_7_TCPWM0_TR_ONE_CNT_IN263   = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[263]:4 */
 
     /* P12.6 */
-    P12_6_GPIO                      =  0,       /* N/A */
+    P12_6_GPIO                      =  0,       /* GPIO controls 'out' */
     P12_6_TCPWM0_LINE3              =  8,       /* Digital Active - tcpwm[0].line[3]:6 */
     P12_6_TCPWM0_LINE263            =  9,       /* Digital Active - tcpwm[0].line[263]:3 */
     P12_6_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:60 */
@@ -1150,14 +1144,20 @@ typedef enum
     P12_6_TCPWM0_TR_ONE_CNT_IN0     = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[0]:5 */
 
     /* P12.7 */
-    P12_7_GPIO                      =  0,       /* N/A */
+    P12_7_GPIO                      =  0,       /* GPIO controls 'out' */
     P12_7_TCPWM0_LINE_COMPL3        =  8,       /* Digital Active - tcpwm[0].line_compl[3]:6 */
     P12_7_TCPWM0_LINE_COMPL263      =  9,       /* Digital Active - tcpwm[0].line_compl[263]:3 */
     P12_7_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:61 */
     P12_7_CSD_CSD_TX_N              = 11,       /* Digital Active - csd.csd_tx_n:61 */
     P12_7_LCD_COM3                  = 12,       /* Digital Deep Sleep - lcd.com[3]:1 */
     P12_7_LCD_SEG3                  = 13,       /* Digital Deep Sleep - lcd.seg[3]:1 */
-    P12_7_TCPWM0_TR_ONE_CNT_IN1     = 23        /* Digital Active - tcpwm[0].tr_one_cnt_in[1]:5 */
+    P12_7_TCPWM0_TR_ONE_CNT_IN1     = 23,       /* Digital Active - tcpwm[0].tr_one_cnt_in[1]:5 */
+
+    /* USBDP */
+    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
+
+    /* USBDM */
+    USBDM_GPIO                      =  0        /* GPIO controls 'out' */
 } en_hsiom_sel_t;
 
 #endif /* _GPIO_PSOC6_04_68_QFN_H_ */

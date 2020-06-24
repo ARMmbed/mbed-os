@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_vu.c
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the source code to the API for the Vector Unit helpers
@@ -223,4 +223,3 @@ void Cy_Crypto_Core_VU_RegInvertEndianness(CRYPTO_Type *base, uint32_t srcReg)
 
 
 /* [] END OF FILE */
-

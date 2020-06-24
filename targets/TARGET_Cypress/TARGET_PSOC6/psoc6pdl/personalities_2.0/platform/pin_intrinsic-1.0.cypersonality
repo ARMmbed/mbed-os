@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file pin_intrinsic-1.0.cypersonality
+* \version 1.0
+*
+* \brief
+* Intrinsic pin personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2019 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40pin_intrinsic" name="Pin-Instrinsic" intrinsic="true" version="1.0" xmlns="http://cypress.com/xsd/cyhwpersonality_v2">
+  <Dependencies>
+    <IpBlock name="mxs40ioss" />
+    <Resource name="ioss\.port\.pin" />
+  </Dependencies>
+  <ExposedMembers/>
+  <Parameters>
+    <ParamRange id="ioss" name="" group="" default="`${getInstNumber(&quot;ioss&quot;)}`" min="0" max="9999" resolution="1" visible="false" editable="false" desc="The ioss number this personality is instantiated on." />
+    <ParamRange id="port" name="" group="" default="`${getInstNumber(&quot;port&quot;)}`" min="0" max="127" resolution="1" visible="false" editable="false" desc="The port number this personality is instantiated on." />
+    <ParamRange id="pin" name="" group="" default="`${getInstNumber(&quot;pin&quot;)}`" min="0" max="7" resolution="1" visible="false" editable="false" desc="The pin number this personality is instantiated on." />
+    <ParamString id="blockName" name="" group="" default="`${&quot;ioss_&quot; . ioss . &quot;_port_&quot; . port . &quot;_pin_&quot; . pin}`" visible="false" editable="false" desc="The default identifier name." />
+    <ParamBool id="hasAlias" name="" group="" default="`${INST_NAME ne blockName}`" visible="false" editable="false" desc="Whether or not the location this personality is instantiated at has at least one alias set." />
+    <ParamBool id="pinUsed" name="pinUsed" group="" default="`${isBlockUsed(&quot;ioss[0].port[&quot; . port . &quot;].pin[&quot; . pin . &quot;]&quot;)}`" visible="false" editable="false" desc="" />
+  </Parameters>
+  <DRCs />  
+  <ConfigFirmware>
+    <ConfigDefine name="`${INST_NAME}`" value="(P`${port}`_`${pin}`)" public="true" include="`${hasAlias &amp;&amp; !pinUsed}`" guard="defined (CY_USING_HAL)" />
+  </ConfigFirmware>
+</Personality>

@@ -51,6 +51,7 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_ILO_ENABLED" value="1" public="false" include="true" />
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_IloInit()" body="    /* The WDT is unlocked in the default startup code */&#xA;    Cy_SysClk_IloEnable();&#xA;    Cy_SysClk_IloHibernateOn(`${hibernate}`);" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ILO_HIBERNATE" value="`${hibernate}`" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_IloInit()" body="    /* The WDT is unlocked in the default startup code */&#xA;    Cy_SysClk_IloEnable();&#xA;    Cy_SysClk_IloHibernateOn(`${hibernate}`);" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))"/>
   </ConfigFirmware>
 </Personality>

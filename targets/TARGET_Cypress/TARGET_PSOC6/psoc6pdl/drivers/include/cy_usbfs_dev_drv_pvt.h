@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_pvt.h
-* \version 2.20
+* \version 2.20.1
 *
 * Provides API declarations of the USBFS driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,23 +48,23 @@ cy_en_usbfs_dev_drv_status_t DmaInit(cy_stc_usbfs_dev_drv_config_t const *config
 
 void DmaDisable(cy_stc_usbfs_dev_drv_context_t *context);
 
-cy_en_usbfs_dev_drv_status_t DmaEndpointInit(USBFS_Type *base, 
-                                             cy_en_usbfs_dev_drv_ep_management_mode_t mode, 
-                                             bool useReg16, 
+cy_en_usbfs_dev_drv_status_t DmaEndpointInit(USBFS_Type *base,
+                                             cy_en_usbfs_dev_drv_ep_management_mode_t mode,
+                                             bool useReg16,
                                              cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData);
 
 void DmaOutEndpointRestore(cy_stc_usbfs_dev_drv_endpoint_data_t *endpoint);
 
-cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, 
-                                               uint32_t *idx, 
+cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size,
+                                               uint32_t *idx,
                                                cy_stc_usbfs_dev_drv_context_t *context);
 
 /* Endpoint restore functions (driver specific) */
-void RestoreEndpointHwBuffer(USBFS_Type *base, 
+void RestoreEndpointHwBuffer(USBFS_Type *base,
                              cy_en_usbfs_dev_drv_ep_management_mode_t mode,
                              cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData);
 
-void RestoreEndpointRamBuffer(USBFS_Type *base, 
+void RestoreEndpointRamBuffer(USBFS_Type *base,
                               cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData);
 
 /* Endpoint buffer allocation functions (driver specific) */

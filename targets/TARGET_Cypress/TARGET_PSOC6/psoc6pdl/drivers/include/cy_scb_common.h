@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.40.1
+* \version 2.50
 *
 * Provides common API declarations of the SCB driver.
 *
@@ -25,14 +25,14 @@
 /**
 * \addtogroup group_scb
 * \{
-* The Serial Communications Block (SCB) supports three serial communication 
-* protocols: Serial Peripheral Interface (SPI), Universal Asynchronous Receiver 
-* Transmitter (UART), and Inter Integrated Circuit (I2C or IIC). Only one of 
+* The Serial Communications Block (SCB) supports three serial communication
+* protocols: Serial Peripheral Interface (SPI), Universal Asynchronous Receiver
+* Transmitter (UART), and Inter Integrated Circuit (I2C or IIC). Only one of
 * the protocols is supported by an SCB at any given time.
 *
-* The functions and other declarations used in this driver are in cy_scb_spi.h, 
-* cy_scb_uart.h, cy_scb_ezi2c.h, cy_scb_i2c.h respectively. Include cy_pdl.h 
-* (ModusToolbox only) to get access to all functions and declarations in the PDL.
+* The functions and other declarations used in this driver are in cy_scb_spi.h,
+* cy_scb_uart.h, cy_scb_ezi2c.h, cy_scb_i2c.h respectively. Include cy_pdl.h
+* to get access to all functions and declarations in the PDL.
 
 * \defgroup group_scb_common Common
 * \defgroup group_scb_ezi2c  EZI2C (SCB)
@@ -137,6 +137,17 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.50</td>
+*     <td>Fixed the \ref Cy_SCB_SPI_SetActiveSlaveSelectPolarity function to 
+*         properly configure the polarity of the slave select line.</td>
+*     <td> \ref Cy_SCB_SPI_SetActiveSlaveSelectPolarity function works incorrectly.</td>
+*   </tr>
+*   <tr>
+*     <td>2.40.2</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="2">2.40</td>
 *     <td>Update level selection logic of RX FIFO trigger in the Cy_SCB_UART_Receive().</td>
 *     <td>Fix possible stuck if the RTS level is less than the RX FIFO level.</td>
@@ -180,7 +191,7 @@
 *   </tr>
 *   <tr>
 *     <td rowspan="4">2.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -188,22 +199,22 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
-*     <td>Added the enableDigitalFilter, highPhaseDutyCycle and lowPhaseDutyCycle 
+*     <td>Added the enableDigitalFilter, highPhaseDutyCycle and lowPhaseDutyCycle
 *         fields to the \ref cy_stc_scb_i2c_config_t configuration structure.
 *     </td>
 *     <td>Added the I2C master data rate configuration using the configuration structure.
 *     </td>
 *   </tr>
 *   <tr>
-*     <td>Fixed the \ref Cy_SCB_I2C_SetDataRate function to properly configure data rates 
+*     <td>Fixed the \ref Cy_SCB_I2C_SetDataRate function to properly configure data rates
 *         greater than 400 kbps in Master and Master-Slave modes. \n
 *         Added verification that clk_scb is within the valid range for the desired data rate.
-*     </td>     
-*     <td>The analog filter was enabled for all data rates in Master and Master-Slave modes. 
+*     </td>
+*     <td>The analog filter was enabled for all data rates in Master and Master-Slave modes.
 *         This prevents reaching the maximum supported data rate of 1000 kbps which requires a digital filter.
 *     </td>
 *   </tr>
@@ -211,9 +222,9 @@
 *     <td rowspan="4"> 2.10</td>
 *     <td>Fixed the ReStart condition generation sequence for a write
 *         transaction in the \ref Cy_SCB_I2C_MasterWrite function.</td>
-*     <td>The driver can notify about a zero length write transaction completion 
-*         before the address byte is sent if the \ref Cy_SCB_I2C_MasterWrite 
-*         function execution was interrupted between setting the restart 
+*     <td>The driver can notify about a zero length write transaction completion
+*         before the address byte is sent if the \ref Cy_SCB_I2C_MasterWrite
+*         function execution was interrupted between setting the restart
 *         generation command and writing the address byte into the TX FIFO.</td>
 *   </tr>
 *   <tr>
@@ -224,7 +235,7 @@
 *         master mode configurations.</td>
 *   </tr>
 *   <tr>
-*     <td>Updated the Start condition generation sequence in the \ref 
+*     <td>Updated the Start condition generation sequence in the \ref
 *         Cy_SCB_I2C_MasterWrite and \ref Cy_SCB_I2C_MasterRead.</td>
 *     <td></td>
 *   </tr>
@@ -269,8 +280,8 @@
 *     <td>The SPI callback passed incorrect event value if error event occurred.</td>
 *   </tr>
 *   <tr>
-*     <td>Fixed the \ref Cy_SCB_I2C_MasterSendReStart function to properly 
-*         generate the ReStart condition when the previous transaction was 
+*     <td>Fixed the \ref Cy_SCB_I2C_MasterSendReStart function to properly
+*         generate the ReStart condition when the previous transaction was
 *         a write.</td>
 *     <td>The master interpreted the address byte written into the TX FIFO as a
 *         data byte and continued a write transaction. The ReStart condition was
@@ -285,10 +296,10 @@
 *         firmware.</td>
 *     <td>The observed slave operation failure depends on whether Level 2 assert
 *         is enabled or not. Enabled: the device stuck in the fault handler due
-*         to the assert assignment in the \ref Cy_SCB_I2C_Interrupt. Disabled: 
-*         the slave sets the transaction completion status and notifies on the 
+*         to the assert assignment in the \ref Cy_SCB_I2C_Interrupt. Disabled:
+*         the slave sets the transaction completion status and notifies on the
 *         transaction completion event after the address was NACKed. The failure
-*         is observed only when the slave is configured to accept an address in 
+*         is observed only when the slave is configured to accept an address in
 *         the RX FIFO.</td>
 *   </tr>
 *   <tr>
@@ -312,10 +323,10 @@
 * API for the SCB. However, you can use the common SCB API to implement
 * a custom driver based on the SCB hardware.
 *
-* The functions and other declarations used in this part of the driver are in 
-* cy_scb_common.h. You can include either of cy_scb_spi.h, cy_scb_uart.h, 
-* cy_scb_ezi2c.h, cy_scb_i2c.h depending on the desired functionality. 
-* You can also include cy_pdl.h to get access to all functions and declarations 
+* The functions and other declarations used in this part of the driver are in
+* cy_scb_common.h. You can include either of cy_scb_spi.h, cy_scb_uart.h,
+* cy_scb_ezi2c.h, cy_scb_i2c.h depending on the desired functionality.
+* You can also include cy_pdl.h to get access to all functions and declarations
 * in the PDL.
 *
 *******************************************************************************
@@ -1989,4 +2000,3 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel(CySCB_Type const *base)
 #endif /* (CY_SCB_COMMON_H) */
 
 /* [] END OF FILE */
-

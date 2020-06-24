@@ -5,11 +5,11 @@
 * CTBM IP definitions
 *
 * \note
-* Generator version: 1.5.1.36
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,7 +61,14 @@ typedef struct {
   __IOM uint32_t CTB_SW_DS_CTRL;                /*!< 0x000000C0 CTB bus switch control */
   __IOM uint32_t CTB_SW_SQ_CTRL;                /*!< 0x000000C4 CTB bus switch Sar Sequencer control */
    __IM uint32_t CTB_SW_STATUS;                 /*!< 0x000000C8 CTB bus switch control status */
-} CTBM_V2_Type;                                 /*!< Size = 204 (0xCC) */
+   __IM uint32_t RESERVED4[909];
+  __IOM uint32_t OA0_OFFSET_TRIM;               /*!< 0x00000F00 Opamp0 trim control */
+  __IOM uint32_t OA0_SLOPE_OFFSET_TRIM;         /*!< 0x00000F04 Opamp0 trim control */
+  __IOM uint32_t OA0_COMP_TRIM;                 /*!< 0x00000F08 Opamp0 trim control */
+  __IOM uint32_t OA1_OFFSET_TRIM;               /*!< 0x00000F0C Opamp1 trim control */
+  __IOM uint32_t OA1_SLOPE_OFFSET_TRIM;         /*!< 0x00000F10 Opamp1 trim control */
+  __IOM uint32_t OA1_COMP_TRIM;                 /*!< 0x00000F14 Opamp1 trim control */
+} CTBM_V2_Type;                                 /*!< Size = 3864 (0xF18) */
 
 
 /* CTBM.CTB_CTRL */
@@ -263,6 +270,24 @@ typedef struct {
 #define CTBM_V2_CTB_SW_STATUS_OA1O_D62_STAT_Msk 0x40000000UL
 #define CTBM_V2_CTB_SW_STATUS_CTD_COS_STAT_Pos  31UL
 #define CTBM_V2_CTB_SW_STATUS_CTD_COS_STAT_Msk  0x80000000UL
+/* CTBM.OA0_OFFSET_TRIM */
+#define CTBM_V2_OA0_OFFSET_TRIM_OA0_OFFSET_TRIM_Pos 0UL
+#define CTBM_V2_OA0_OFFSET_TRIM_OA0_OFFSET_TRIM_Msk 0x3FUL
+/* CTBM.OA0_SLOPE_OFFSET_TRIM */
+#define CTBM_V2_OA0_SLOPE_OFFSET_TRIM_OA0_SLOPE_OFFSET_TRIM_Pos 0UL
+#define CTBM_V2_OA0_SLOPE_OFFSET_TRIM_OA0_SLOPE_OFFSET_TRIM_Msk 0x3FUL
+/* CTBM.OA0_COMP_TRIM */
+#define CTBM_V2_OA0_COMP_TRIM_OA0_COMP_TRIM_Pos 0UL
+#define CTBM_V2_OA0_COMP_TRIM_OA0_COMP_TRIM_Msk 0x3UL
+/* CTBM.OA1_OFFSET_TRIM */
+#define CTBM_V2_OA1_OFFSET_TRIM_OA1_OFFSET_TRIM_Pos 0UL
+#define CTBM_V2_OA1_OFFSET_TRIM_OA1_OFFSET_TRIM_Msk 0x3FUL
+/* CTBM.OA1_SLOPE_OFFSET_TRIM */
+#define CTBM_V2_OA1_SLOPE_OFFSET_TRIM_OA1_SLOPE_OFFSET_TRIM_Pos 0UL
+#define CTBM_V2_OA1_SLOPE_OFFSET_TRIM_OA1_SLOPE_OFFSET_TRIM_Msk 0x3FUL
+/* CTBM.OA1_COMP_TRIM */
+#define CTBM_V2_OA1_COMP_TRIM_OA1_COMP_TRIM_Pos 0UL
+#define CTBM_V2_OA1_COMP_TRIM_OA1_COMP_TRIM_Msk 0x3UL
 
 
 #endif /* _CYIP_CTBM_V2_H_ */

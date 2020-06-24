@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io_dma.c
-* \version 2.20
+* \version 2.20.1
 *
 * Provides data transfer API implementation of the USBFS driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,17 +72,17 @@ extern "C" {
 *                        Internal Functions Prototypes
 *******************************************************************************/
 
-static void DmaEndpointInit1D(cy_stc_dma_descriptor_t *descr, 
-                              bool inDirection, 
-                              cy_en_dma_data_size_t dataSize, 
+static void DmaEndpointInit1D(cy_stc_dma_descriptor_t *descr,
+                              bool inDirection,
+                              cy_en_dma_data_size_t dataSize,
                               volatile uint32_t const *dataReg);
 
-static void DmaEndpointInit2D(cy_stc_dma_descriptor_t *descr, 
-                              bool inDirection, 
+static void DmaEndpointInit2D(cy_stc_dma_descriptor_t *descr,
+                              bool inDirection,
                               int32_t numElements);
 
-static void DmaEndpointSetLength(bool inDirection, 
-                                 uint32_t size, 
+static void DmaEndpointSetLength(bool inDirection,
+                                 uint32_t size,
                                  cy_stc_usbfs_dev_drv_endpoint_data_t *endpoint);
 
 
@@ -148,8 +148,8 @@ static void DmaEndpointSetLength(bool inDirection,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -176,7 +176,7 @@ cy_en_usbfs_dev_drv_status_t DmaInit(cy_stc_usbfs_dev_drv_config_t const *config
             cy_en_usbfs_dev_drv_status_t locStatus = CY_USBFS_DEV_DRV_DMA_CFG_FAILED;
 
             cy_stc_dma_channel_config_t chConfig;
-            
+
             /* Descriptors configurations */
             const cy_stc_dma_descriptor_config_t DmaDescr1DCfg = DMA_DESCR_1D_CFG;
             const cy_stc_dma_descriptor_config_t DmaDescr2DCfg = DMA_DESCR_2D_CFG;
@@ -193,7 +193,7 @@ cy_en_usbfs_dev_drv_status_t DmaInit(cy_stc_usbfs_dev_drv_config_t const *config
             {
                 if (NULL != endpointData->descr0)
                 {
-                    /* Initialize DMA descriptor 0 for 1D operation. 
+                    /* Initialize DMA descriptor 0 for 1D operation.
                     * Discard return because descriptor configuration (defined in driver) is valid.
                     */
                     (void) Cy_DMA_Descriptor_Init(endpointData->descr0, &DmaDescr1DCfg);
@@ -205,13 +205,13 @@ cy_en_usbfs_dev_drv_status_t DmaInit(cy_stc_usbfs_dev_drv_config_t const *config
             {
                 if ((NULL != endpointData->descr0) && (NULL != endpointData->descr1))
                 {
-                    /* Initialize DMA descriptor 0 for 2D operation. 
+                    /* Initialize DMA descriptor 0 for 2D operation.
                     * Discard return because descriptor configuration (defined in driver) is valid.
                     */
                     (void) Cy_DMA_Descriptor_Init(endpointData->descr0, &DmaDescr2DCfg);
-                    
 
-                    /* Initialize DMA descriptor 0 for 1D operation. 
+
+                    /* Initialize DMA descriptor 0 for 1D operation.
                     * Discard return because descriptor configuration (defined in driver) is valid.
                     */
                     (void)Cy_DMA_Descriptor_Init(endpointData->descr1, &DmaDescr1DCfg);
@@ -260,13 +260,13 @@ cy_en_usbfs_dev_drv_status_t DmaInit(cy_stc_usbfs_dev_drv_config_t const *config
 * Function Name: DmaDisable
 ****************************************************************************//**
 *
-* Disables all DMA channels used by the USBFS Device. 
+* Disables all DMA channels used by the USBFS Device.
 * The channel state is not verified before being disabled.
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
@@ -304,7 +304,7 @@ void DmaDisable(cy_stc_usbfs_dev_drv_context_t *context)
 * The pointer to the data endpoint data register.
 *
 *******************************************************************************/
-static void DmaEndpointInit1D(cy_stc_dma_descriptor_t *descr, bool inDirection, 
+static void DmaEndpointInit1D(cy_stc_dma_descriptor_t *descr, bool inDirection,
                               cy_en_dma_data_size_t dataSize, volatile uint32_t const *dataReg)
 {
     Cy_DMA_Descriptor_SetDataSize(descr, dataSize);
@@ -331,7 +331,7 @@ static void DmaEndpointInit1D(cy_stc_dma_descriptor_t *descr, bool inDirection,
     }
 
     /* Link descriptor to itself */
-    Cy_DMA_Descriptor_SetNextDescriptor(descr, descr);    
+    Cy_DMA_Descriptor_SetNextDescriptor(descr, descr);
 }
 
 
@@ -351,11 +351,11 @@ static void DmaEndpointInit1D(cy_stc_dma_descriptor_t *descr, bool inDirection,
 * Number of elements to transfer.
 *
 *******************************************************************************/
-static void DmaEndpointInit2D(cy_stc_dma_descriptor_t *descr, bool inDirection, 
+static void DmaEndpointInit2D(cy_stc_dma_descriptor_t *descr, bool inDirection,
                               int32_t numElements)
 {
-    /* Descriptor 0 (2D): it transfers number of data elements (X loop count) 
-    * and increments source/destination (depends on direction) by this amount 
+    /* Descriptor 0 (2D): it transfers number of data elements (X loop count)
+    * and increments source/destination (depends on direction) by this amount
     * (Y loop increment).
     */
     Cy_DMA_Descriptor_SetXloopDataCount(descr, (uint32_t) numElements);
@@ -384,11 +384,11 @@ static void DmaEndpointInit2D(cy_stc_dma_descriptor_t *descr, bool inDirection,
 * The pointer to the structure that stores endpoint information.
 *
 *******************************************************************************/
-static void DmaEndpointSetLength(bool inDirection, uint32_t size, 
+static void DmaEndpointSetLength(bool inDirection, uint32_t size,
                                  cy_stc_usbfs_dev_drv_endpoint_data_t *endpoint)
 {
     uint8_t *buf = endpoint->buffer;
-    
+
     /*
     * Descriptor 0: get number of Y loops. It transfers data in multiples of 32 bytes.
     * Descriptor 1: get number of X loops. It transfers data what was left 1-31 bytes.
@@ -417,7 +417,7 @@ static void DmaEndpointSetLength(bool inDirection, uint32_t size,
     }
 
     if (numXloops > 0UL)
-    {        
+    {
         Cy_DMA_Descriptor_SetXloopDataCount(endpoint->descr1, numXloops);
     }
 
@@ -438,25 +438,25 @@ static void DmaEndpointSetLength(bool inDirection, uint32_t size,
         Cy_DMA_Descriptor_SetNextDescriptor(endpoint->descr0, endpoint->descr1);
         Cy_DMA_Descriptor_SetNextDescriptor(endpoint->descr1, endpoint->descr0);
     }
-    
+
     /* Keep channel enabled after execution of Descriptor 0 to execute Descriptor 1 */
     Cy_DMA_Descriptor_SetChannelState(endpoint->descr0,
                                         ((numYloops > 0UL) && (numXloops > 0UL)) ?
                                             CY_DMA_CHANNEL_ENABLED : CY_DMA_CHANNEL_DISABLED);
-    
+
     /* Start execution from Descriptor 0 (length >= 32) or Descriptor 1 (length < 32) */
     Cy_DMA_Channel_SetDescriptor(endpoint->base, endpoint->chNum,
                                     ((numYloops > 0UL) ? endpoint->descr0 : endpoint->descr1));
-    
+
     /* Configuration complete: enable channel */
     Cy_DMA_Channel_Enable(endpoint->base, endpoint->chNum);
 }
 
-      
+
 /*******************************************************************************
 * Function Name: DmaOutEndpointRestore
 ****************************************************************************//**
-*   
+*
 * Restores the DMA channel after transfer is completed for the the OUT data endpoint.
 * Applicable only when mode is \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO.
 *
@@ -500,17 +500,17 @@ void DmaOutEndpointRestore(cy_stc_usbfs_dev_drv_endpoint_data_t *endpoint)
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
 * Status code of the function execution \ref cy_en_usbfs_dev_drv_status_t.
 *
 *******************************************************************************/
-cy_en_usbfs_dev_drv_status_t DmaEndpointInit(USBFS_Type *base, 
-                                             cy_en_usbfs_dev_drv_ep_management_mode_t mode, 
-                                             bool useReg16, 
+cy_en_usbfs_dev_drv_status_t DmaEndpointInit(USBFS_Type *base,
+                                             cy_en_usbfs_dev_drv_ep_management_mode_t mode,
+                                             bool useReg16,
                                              cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData)
 {
     cy_en_dma_data_size_t regSize;
@@ -578,8 +578,8 @@ cy_en_usbfs_dev_drv_status_t DmaEndpointInit(USBFS_Type *base,
 *
 * \param endpoint
 * The data endpoint number.
-* 
-* \return 
+*
+* \return
 * Status code of the function execution \ref cy_en_usbfs_dev_drv_status_t.
 *
 *******************************************************************************/
@@ -625,7 +625,7 @@ cy_en_usbfs_dev_drv_status_t DynamicEndpointReConfiguration(USBFS_Type *base,
 
     /* Clear register for next re-configuration */
     USBFS_DEV_DYN_RECONFIG(base) = 0U;
-    
+
     return retStatus;
 }
 
@@ -634,7 +634,7 @@ cy_en_usbfs_dev_drv_status_t DynamicEndpointReConfiguration(USBFS_Type *base,
 * Function Name: AddEndpointRamBuffer
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_AddEndpoint for 
+* Implements \ref Cy_USBFS_Dev_Drv_AddEndpoint for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO mode.
 *
 * \param base
@@ -645,8 +645,8 @@ cy_en_usbfs_dev_drv_status_t DynamicEndpointReConfiguration(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -672,7 +672,7 @@ cy_en_usbfs_dev_drv_status_t AddEndpointRamBuffer(USBFS_Type *base,
         /* Configure active endpoint */
         context->activeEpMask    |= (uint8_t) EP2MASK(endpont);
         USBFS_DEV_EP_ACTIVE(base) = context->activeEpMask;
-        
+
         /* Allocate buffer for endpoint */
         retStatus = GetEndpointBuffer((uint32_t) config->bufferSize, &startBufIdx, context);
         if (CY_USBFS_DEV_DRV_SUCCESS != retStatus)
@@ -688,7 +688,7 @@ cy_en_usbfs_dev_drv_status_t AddEndpointRamBuffer(USBFS_Type *base,
     if (config->enableEndpoint)
     {
         bool inDirection = IS_EP_DIR_IN(config->endpointAddr);
-        
+
         /* Clear variables related to endpoint */
         endpointData->state   = CY_USB_DEV_EP_IDLE;
         endpointData->address = config->endpointAddr;
@@ -701,7 +701,7 @@ cy_en_usbfs_dev_drv_status_t AddEndpointRamBuffer(USBFS_Type *base,
         Cy_USBFS_Dev_Drv_SetArbEpConfig(base, endpoint, (USBFS_USBDEV_ARB_EP1_CFG_CRC_BYPASS_Msk |
                                                          USBFS_USBDEV_ARB_EP1_CFG_RESET_PTR_Msk));
 
-        /* Performs dynamic reconfiguration to make sure that the DMA has completed the data transfer. 
+        /* Performs dynamic reconfiguration to make sure that the DMA has completed the data transfer.
         * Also it flushes endpoint pre-fetch buffer (useful for IN endpoints).
         */
         retStatus = DynamicEndpointReConfiguration(base, inDirection, endpoint);
@@ -709,14 +709,14 @@ cy_en_usbfs_dev_drv_status_t AddEndpointRamBuffer(USBFS_Type *base,
         {
             return retStatus;
         }
-    
+
         /* Configure DMA for endpoint */
         retStatus = DmaEndpointInit(base, context->mode, context->useReg16, endpointData);
         if (CY_USBFS_DEV_DRV_SUCCESS != retStatus)
         {
             return retStatus;
         }
-        
+
         /* Enable Arbiter interrupt sources for endpoint */
         Cy_USBFS_Dev_Drv_SetArbEpInterruptMask(base, endpoint,(inDirection ?
                                                              IN_ENDPOINT_ARB_INTR_SOURCES :
@@ -738,7 +738,7 @@ cy_en_usbfs_dev_drv_status_t AddEndpointRamBuffer(USBFS_Type *base,
 * Function Name: RestoreEndpointRamBuffer
 ****************************************************************************//**
 *
-* Restores endpoint active configuration for 
+* Restores endpoint active configuration for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO mode.
 *
 * \param base
@@ -749,12 +749,12 @@ cy_en_usbfs_dev_drv_status_t AddEndpointRamBuffer(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 *******************************************************************************/
-void RestoreEndpointRamBuffer(USBFS_Type *base, 
+void RestoreEndpointRamBuffer(USBFS_Type *base,
                               cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData)
 {
     bool inDirection  = IS_EP_DIR_IN(endpointData->address);
@@ -773,14 +773,14 @@ void RestoreEndpointRamBuffer(USBFS_Type *base,
     Cy_USBFS_Dev_Drv_SetArbEpInterruptMask(base, endpoint, (inDirection ?
                                                             IN_ENDPOINT_ARB_INTR_SOURCES :
                                                             OUT_ENDPOINT_ARB_INTR_SOURCES));
-    
+
     /* Enable SIE and arbiter interrupt for endpoint */
     Cy_USBFS_Dev_Drv_EnableSieEpInterrupt(base, endpoint);
     Cy_USBFS_Dev_Drv_EnableArbEpInterrupt(base, endpoint);
 
     if (false == inDirection)
     {
-        /* OUT Endpoint: enable DMA channel endpoint ready for operation. 
+        /* OUT Endpoint: enable DMA channel endpoint ready for operation.
         * IN Endpoint: keep disabled, it is enabled in LoadInEndpointDmaAuto.
         */
         Cy_DMA_Channel_Enable(endpointData->base, endpointData->chNum);
@@ -799,7 +799,7 @@ void RestoreEndpointRamBuffer(USBFS_Type *base,
 * Function Name: LoadInEndpointDma
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_LoadInEndpoint for 
+* Implements \ref Cy_USBFS_Dev_Drv_LoadInEndpoint for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA mode.
 *
 * \param base
@@ -817,8 +817,8 @@ void RestoreEndpointRamBuffer(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -861,7 +861,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDma(USBFS_Type    *base,
     else
     {
         /* Channel is disabled after initialization or descriptor completion  */
-    
+
         uint32_t timeout = DMA_WRITE_REQUEST_TIMEOUT;
 
         /* Get number of data elements to transfer */
@@ -874,16 +874,16 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDma(USBFS_Type    *base,
         /* Enable DMA channel: configuration complete */
         Cy_DMA_Channel_Enable(endpointData->base, endpointData->chNum);
 
-        /* Generate DMA request: the endpoint will be armed when the DMA is 
-        * finished in the Arbiter interrupt 
+        /* Generate DMA request: the endpoint will be armed when the DMA is
+        * finished in the Arbiter interrupt
         */
         Cy_USBFS_Dev_Drv_TriggerArbCfgEpDmaReq(base, endpoint);
 
-        /* Waits until DMA completes the write operation. The current endpoint state is 
-        * idle or completed and DMA completion interrupt changes state to pending 
+        /* Waits until DMA completes the write operation. The current endpoint state is
+        * idle or completed and DMA completion interrupt changes state to pending
         * (endpoint waits for the host read data).
         */
-        while ((CY_USB_DEV_EP_PENDING != endpointData->state) && 
+        while ((CY_USB_DEV_EP_PENDING != endpointData->state) &&
                (timeout > 0U))
         {
             Cy_SysLib_DelayUs(DMA_WRITE_REQUEST_ONE_TICK);
@@ -905,7 +905,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDma(USBFS_Type    *base,
 * Function Name: ReadOutEndpointDma
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint for 
+* Implements \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA mode.
 *
 * \param base
@@ -926,8 +926,8 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDma(USBFS_Type    *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -966,7 +966,7 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointDma(USBFS_Type *base,
     {
         return CY_USBFS_DEV_DRV_SUCCESS;
     }
-    
+
     /* Channel is disabled after initialization or descriptor completion  */
 
     /* Get number of data elements to transfer */
@@ -1011,7 +1011,7 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointDma(USBFS_Type *base,
 * Function Name: LoadInEndpointDmaAuto
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_LoadInEndpoint for 
+* Implements \ref Cy_USBFS_Dev_Drv_LoadInEndpoint for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO mode.
 *
 * \param base
@@ -1029,8 +1029,8 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointDma(USBFS_Type *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -1057,7 +1057,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDmaAuto(USBFS_Type    *base,
 
     /* Endpoint pending: Waits for the host read data after exiting this function */
     endpointData->state = CY_USB_DEV_EP_PENDING;
-    
+
     /* Set count and data toggle */
     Cy_USBFS_Dev_Drv_SetSieEpCount(base, endpoint, size, (uint32_t) endpointData->toggle);
 
@@ -1087,8 +1087,8 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDmaAuto(USBFS_Type    *base,
         else
         {
             /* Reset DMA channel indexes, they keep value after Resume or Abort */
-            Cy_DMA_Channel_SetDescriptor(endpointData->base, endpointData->chNum, 
-                                            (endpointData->startBuf >= (uint32_t) DMA_YLOOP_INCREMENT) ? 
+            Cy_DMA_Channel_SetDescriptor(endpointData->base, endpointData->chNum,
+                                            (endpointData->startBuf >= (uint32_t) DMA_YLOOP_INCREMENT) ?
                                                 endpointData->descr0 : endpointData->descr1);
 
             /* Enable channel: configuration complete */
@@ -1111,7 +1111,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDmaAuto(USBFS_Type    *base,
 * Function Name: ReadOutEndpointDmaAuto
 ****************************************************************************//**
 *
-* Implements \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint for 
+* Implements \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint for
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO mode.
 *
 * \param base
@@ -1132,8 +1132,8 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointDmaAuto(USBFS_Type    *base,
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
+* allocated by the user. The structure is used during the USBFS Device
+* operation for internal configuration and data retention. The user must not
 * modify anything in this structure.
 *
 * \return
@@ -1149,13 +1149,13 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointDmaAuto(USBFS_Type *base,
 {
     /* Get pointer to endpoint data */
     cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData = &context->epPool[endpoint];
-    
+
     /* Get number of received bytes */
     uint32_t numToCopy = Cy_USBFS_Dev_Drv_GetSieEpCount(base, endpoint);
-    
+
     /* Initialize actual number of copied bytes */
     *actSize = 0U;
-    
+
     /* Endpoint received more bytes than provided buffer */
     if (numToCopy > size)
     {
@@ -1177,10 +1177,10 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointDmaAuto(USBFS_Type *base,
     {
         (void) memcpy(buffer, endpointData->buffer, numToCopy);
     }
-    
+
     /* Update number of copied bytes */
-    *actSize = numToCopy;    
-    
+    *actSize = numToCopy;
+
     return CY_USBFS_DEV_DRV_SUCCESS;
 }
 

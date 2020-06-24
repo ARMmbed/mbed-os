@@ -5,6 +5,7 @@
   <Param name="DeviceDie" value="4343A1" />
   <Param name="Silicon_Revision" value="PRODUCTION" />
   <Param name="Package" value="74-WLBGA" />
+  <Param name="CPU" value="None" />
   <Param name="DeviceSeries" value="4343W" />
   <Param name="Speed_MHz" value="0" />
   <Param name="Flash_KB" value="0" />

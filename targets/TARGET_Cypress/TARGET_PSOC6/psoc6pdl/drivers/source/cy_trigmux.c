@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_trigmux.c
-* \version 1.20.1
+* \version 1.20.2
 *
 * \brief Trigger mux API.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -93,7 +93,7 @@
 *
 * \funcusage
 * \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_Connect
-*  
+*
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, bool invert, en_trig_type_t trigType)
 {
@@ -152,12 +152,12 @@ cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, boo
 *
 * \funcusage
 * \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_Select
-*  
+*
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_Select(uint32_t outTrig, bool invert, en_trig_type_t trigType)
 {
     cy_en_trigmux_status_t retVal = CY_TRIGMUX_BAD_PARAM;
-    
+
     CY_ASSERT_L3(CY_TRIGMUX_IS_TRIGTYPE_VALID(trigType));
     CY_ASSERT_L2(CY_TRIGMUX_IS_ONETRIG_VALID(outTrig));
 
@@ -202,7 +202,7 @@ cy_en_trigmux_status_t Cy_TrigMux_Select(uint32_t outTrig, bool invert, en_trig_
 *
 * \funcusage
 * \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_Deselect
-*  
+*
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_Deselect(uint32_t outTrig)
 {
@@ -233,7 +233,7 @@ cy_en_trigmux_status_t Cy_TrigMux_Deselect(uint32_t outTrig)
 * Function Name: Cy_TrigMux_SetDebugFreeze
 ****************************************************************************//**
 *
-* Enables/disables the Debug Freeze feature for the specified trigger 
+* Enables/disables the Debug Freeze feature for the specified trigger
 * multiplexer or 1-to-1 trigger line. For PERI_ver2 only.
 *
 * \param outTrig
@@ -252,10 +252,10 @@ cy_en_trigmux_status_t Cy_TrigMux_Deselect(uint32_t outTrig)
 *
 * \funcusage
 * \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_SetDebugFreeze
-*  
+*
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_SetDebugFreeze(uint32_t outTrig, bool enable)
-{    
+{
     cy_en_trigmux_status_t retVal = CY_TRIGMUX_BAD_PARAM;
 
     if (!CY_PERI_V1)
@@ -286,16 +286,16 @@ cy_en_trigmux_status_t Cy_TrigMux_SetDebugFreeze(uint32_t outTrig, bool enable)
 * Function Name: Cy_TrigMux_SwTrigger
 ****************************************************************************//**
 *
-* This function generates a software trigger on an input trigger line. 
-* All output triggers connected to this input trigger will be triggered. 
-* The function also verifies that there is no activated trigger before 
-* generating another activation. 
+* This function generates a software trigger on an input trigger line.
+* All output triggers connected to this input trigger will be triggered.
+* The function also verifies that there is no activated trigger before
+* generating another activation.
 *
 * \param trigLine
 * The input of the trigger mux.
-* - Bit 30 represents if the signal is an input/output. When this bit is set, 
+* - Bit 30 represents if the signal is an input/output. When this bit is set,
 *   the trigger activation is for an output trigger from the trigger multiplexer.
-*   When this bit is reset, the trigger activation is for an input trigger to 
+*   When this bit is reset, the trigger activation is for an input trigger to
 *   the trigger multiplexer.
 * - Bits 12:8 represent the trigger group selection.<br>
 * In case of output trigger line (bit 30 is set):
@@ -315,7 +315,7 @@ cy_en_trigmux_status_t Cy_TrigMux_SetDebugFreeze(uint32_t outTrig, bool enable)
 *   calling this function with CY_TRIGGER_DEACTIVATE parameter.
 *   - CY_TRIGGER_DEACTIVATE - this is used to deactivate the trigger activated by
 *   calling this function with CY_TRIGGER_INFINITE parameter.
-* 
+*
 * \return status:
 * - CY_TRIGMUX_SUCCESS: The trigger is successfully activated/deactivated.
 * - CY_TRIGMUX_INVALID_STATE: The trigger is already activated/not active.
@@ -342,9 +342,9 @@ cy_en_trigmux_status_t Cy_TrigMux_SwTrigger(uint32_t trigLine, uint32_t cycles)
                                           PERI_TR_CMD_OUT_SEL_Msk |
                                        CY_PERI_TR_CMD_GROUP_SEL_Msk)) |
                                           PERI_TR_CMD_ACTIVATE_Msk;
-            
+
             retVal = CY_TRIGMUX_SUCCESS;
-            
+
             if (CY_PERI_V1) /* mxperi_v1 */
             {
                 PERI_TR_CMD = trCmd | _VAL2FLD(PERI_TR_CMD_COUNT, cycles);

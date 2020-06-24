@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_dma.c
-* \version 2.20
+* \version 2.20.1
 *
 * \brief
 * The source code file for the DMA driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,14 +41,14 @@
 *
 * \return The status /ref cy_en_dma_status_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Crc_Init
 *
 *******************************************************************************/
 cy_en_dma_status_t Cy_DMA_Crc_Init(DW_Type * base, cy_stc_dma_crc_config_t const * crcConfig)
 {
     cy_en_dma_status_t ret = CY_DMA_BAD_PARAM;
-    
+
     if((NULL != base) && (NULL != crcConfig) && CY_DW_CRC)
     {
         DW_CRC_CTL(base) = _BOOL2FLD(DW_V2_CRC_CTL_DATA_REVERSE, crcConfig->dataReverse) |
@@ -84,7 +84,7 @@ cy_en_dma_status_t Cy_DMA_Crc_Init(DW_Type * base, cy_stc_dma_crc_config_t const
 * \return
 * The status /ref cy_en_dma_status_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Enable
 *
 *******************************************************************************/
@@ -199,7 +199,7 @@ cy_en_dma_status_t Cy_DMA_Descriptor_Init(cy_stc_dma_descriptor_t * descriptor, 
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_Deinit
 *
 *******************************************************************************/
@@ -233,7 +233,7 @@ void Cy_DMA_Descriptor_DeInit(cy_stc_dma_descriptor_t * descriptor)
 * \return
 * The status /ref cy_en_dma_status_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Enable
 *
 *******************************************************************************/
@@ -242,12 +242,12 @@ cy_en_dma_status_t Cy_DMA_Channel_Init(DW_Type * base, uint32_t channel, cy_stc_
     cy_en_dma_status_t ret = CY_DMA_BAD_PARAM;
 
     if ((NULL != base) &&
-        (NULL != channelConfig) && 
+        (NULL != channelConfig) &&
         (NULL != channelConfig->descriptor) &&
         (CY_DMA_IS_CH_NR_VALID(base, channel)))
     {
         CY_ASSERT_L2(CY_DMA_IS_PRIORITY_VALID(channelConfig->priority));
-        
+
         /* Set the current descriptor */
         Cy_DMA_Channel_SetDescriptor(base, channel, channelConfig->descriptor);
 
@@ -276,14 +276,14 @@ cy_en_dma_status_t Cy_DMA_Channel_Init(DW_Type * base, uint32_t channel, cy_stc_
 * \param channel
 * A channel number.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Disable
 *
 *******************************************************************************/
 void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_CH_NR_VALID(base, channel));
-    
+
     DW_CH_CTL(base, channel) = 0UL;
     DW_CH_IDX(base, channel) = 0UL;
     DW_CH_CURR_PTR(base, channel) = 0UL;
@@ -299,8 +299,8 @@ void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 *
 * Based on the descriptor type, the offset of the address for the next descriptor may
 * vary. For the single-transfer descriptor type, this register is at offset 0x0c.
-* For the 1D-transfer descriptor type, this register is at offset 0x10. 
-* For the 2D-transfer descriptor type, this register is at offset 0x14.  
+* For the 1D-transfer descriptor type, this register is at offset 0x10.
+* For the 2D-transfer descriptor type, this register is at offset 0x14.
 *
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
@@ -308,12 +308,12 @@ void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 * \param nextDescriptor
 * The pointer to the next descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, cy_stc_dma_descriptor_t const * nextDescriptor)
-{   
+{
     switch((cy_en_dma_descriptor_type_t) _FLD2VAL(CY_DMA_CTL_TYPE, descriptor->ctl))
     {
         case CY_DMA_SINGLE_TRANSFER:
@@ -324,11 +324,11 @@ void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, c
         case CY_DMA_1D_TRANSFER:
             descriptor->yCtl = (uint32_t)nextDescriptor;
             break;
-            
+
         case CY_DMA_2D_TRANSFER:
             descriptor->nextPtr = (uint32_t)nextDescriptor;
             break;
-            
+
         default:
             /* Unsupported type of descriptor */
             break;
@@ -344,8 +344,8 @@ void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, c
 *
 * Based on the descriptor type, the offset of the address for the next descriptor may
 * vary. For a single-transfer descriptor type, this register is at offset 0x0c.
-* For the 1D-transfer descriptor type, this register is at offset 0x10. 
-* For the 2D-transfer descriptor type, this register is at offset 0x14.  
+* For the 1D-transfer descriptor type, this register is at offset 0x10.
+* For the 2D-transfer descriptor type, this register is at offset 0x14.
 *
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
@@ -353,7 +353,7 @@ void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, c
 * \return
 * The pointer to the next descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_GetterFunctions
 *
 *******************************************************************************/
@@ -371,16 +371,16 @@ cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descrip
         case CY_DMA_1D_TRANSFER:
             retVal = (cy_stc_dma_descriptor_t*) descriptor->yCtl;
             break;
-            
+
         case CY_DMA_2D_TRANSFER:
             retVal = (cy_stc_dma_descriptor_t*) descriptor->nextPtr;
             break;
-            
+
         default:
             /* An unsupported type of the descriptor */
             break;
     }
-    
+
     return (retVal);
 }
 
@@ -392,29 +392,29 @@ cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descrip
 * Sets the descriptor's type for the specified descriptor.
 * Moves the next descriptor register value into the proper place in accordance
 * to the actual descriptor type.
-* During the descriptor's type changing, the Xloop and Yloop settings, such as 
-* data count and source/destination increment (i.e. the content of the 
-* xCtl and yCtl descriptor registers) might be lost (overridden by the 
+* During the descriptor's type changing, the Xloop and Yloop settings, such as
+* data count and source/destination increment (i.e. the content of the
+* xCtl and yCtl descriptor registers) might be lost (overridden by the
 * next descriptor value) because of the different descriptor registers structures
 * for different descriptor types. Carefully set up the Xloop
 * (and Yloop, if used) data count and source/destination increment if the
-* descriptor type is changed from a simpler to a more complicated type 
+* descriptor type is changed from a simpler to a more complicated type
 * ("single transfer" -> "1D", "1D" -> "2D", etc.).
-* 
+*
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
-* \param descriptorType 
+* \param descriptorType
 * The descriptor type \ref cy_en_dma_descriptor_type_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMA_Descriptor_SetDescriptorType(cy_stc_dma_descriptor_t * descriptor, cy_en_dma_descriptor_type_t descriptorType)
 {
     CY_ASSERT_L3(CY_DMA_IS_TYPE_VALID(descriptorType));
-    
+
     if ((CY_DMA_CRC_TRANSFER != descriptorType) || CY_DW_CRC)
     {
         if (descriptorType != Cy_DMA_Descriptor_GetDescriptorType(descriptor)) /* Do not perform if the type is not changed */

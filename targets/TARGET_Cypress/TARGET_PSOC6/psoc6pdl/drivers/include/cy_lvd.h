@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_lvd.h
-* \version 1.10
-* 
+* \version 1.20
+*
 * The header file of the LVD driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,22 +27,22 @@
 * \{
 * The LVD driver provides an API to manage the Low Voltage Detection block.
 *
-* The functions and other declarations used in this driver are in cy_lvd.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
-* 
-* The LVD block provides a status of currently observed VDDD voltage 
+* The functions and other declarations used in this driver are in cy_lvd.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
+*
+* The LVD block provides a status of currently observed VDDD voltage
 * and triggers an interrupt when the observed voltage crosses an adjusted
 * threshold.
 *
 * \section group_lvd_configuration_considerations Configuration Considerations
-* To set up an LVD, configure the voltage threshold by the 
-* \ref Cy_LVD_SetThreshold function, ensure that the LVD block itself and LVD 
-* interrupt are disabled (by the \ref Cy_LVD_Disable and 
+* To set up an LVD, configure the voltage threshold by the
+* \ref Cy_LVD_SetThreshold function, ensure that the LVD block itself and LVD
+* interrupt are disabled (by the \ref Cy_LVD_Disable and
 * \ref Cy_LVD_ClearInterruptMask functions correspondingly) before changing the
-* threshold to prevent propagating a false interrupt. 
+* threshold to prevent propagating a false interrupt.
 * Then configure interrupts by the \ref Cy_LVD_SetInterruptConfig function, do
-* not forget to initialize an interrupt handler (the interrupt source number 
+* not forget to initialize an interrupt handler (the interrupt source number
 * is srss_interrupt_IRQn).
 * Then enable LVD by the \ref Cy_LVD_Enable function, then wait for at least 20us
 * to get the circuit stabilized and clear the possible false interrupts by the
@@ -52,7 +52,7 @@
 * For example:
 * \snippet lvd/snippet/main.c Cy_LVD_Snippet
 *
-* Note that the LVD circuit is available only in Low Power and Ultra Low Power 
+* Note that the LVD circuit is available only in Low Power and Ultra Low Power
 * modes. If an LVD is required in Deep Sleep mode, then the device
 * should be configured to periodically wake up from Deep Sleep using a
 * Deep Sleep wakeup source. This makes sure a LVD check is performed during
@@ -83,14 +83,14 @@
 *     <td>A</td>
 *     <td>The object addressed by the pointer parameter '%s' is not modified and
 *         so the pointer could be of type 'pointer to const'.</td>
-*     <td>The pointer parameter is not used or modified, as there is no need 
-*         to do any actions with it. However, such parameter is 
-*         required to be presented in the function, because the 
-*         \ref Cy_LVD_DeepSleepCallback is a callback 
+*     <td>The pointer parameter is not used or modified, as there is no need
+*         to do any actions with it. However, such parameter is
+*         required to be presented in the function, because the
+*         \ref Cy_LVD_DeepSleepCallback is a callback
 *         of \ref cy_en_syspm_status_t type.
-*         The SysPM driver callback function type requires implementing the 
+*         The SysPM driver callback function type requires implementing the
 *         function with the next parameters and return value: <br>
-*         cy_en_syspm_status_t (*Cy_SysPmCallback) 
+*         cy_en_syspm_status_t (*Cy_SysPmCallback)
 *         (cy_stc_syspm_callback_params_t *callbackParams);</td>
 *   </tr>
 * </table>
@@ -99,8 +99,19 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
 *   <tr>
+*     <td>1.20</td>
+*     <td>
+            Updated the following functions for the PSoC 64 devices:
+            \ref Cy_LVD_Enable, \ref Cy_LVD_Disable, \ref Cy_LVD_SetThreshold,
+            \ref Cy_LVD_ClearInterrupt, \ref Cy_LVD_SetInterrupt,
+            \ref Cy_LVD_SetInterruptMask, \ref Cy_LVD_ClearInterruptMask, and
+            \ref Cy_LVD_SetInterruptConfig.
+      </td>
+*     <td>Added PSoC 64 device support.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="2">1.10</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -108,7 +119,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -134,7 +145,8 @@
 
 #if !defined CY_LVD_H
 #define CY_LVD_H
-    
+
+#include "cy_pra.h"
 #include "cy_syspm.h"
 #include "cy_device.h"
 
@@ -150,13 +162,13 @@ extern "C" {
 #define CY_LVD_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_LVD_DRV_VERSION_MINOR       10
+#define CY_LVD_DRV_VERSION_MINOR       20
 
 /** The LVD driver identifier */
 #define CY_LVD_ID                      (CY_PDL_DRV_ID(0x39U))
 
 /** Interrupt mask for \ref Cy_LVD_GetInterruptStatus(),
-                       \ref Cy_LVD_GetInterruptMask() and 
+                       \ref Cy_LVD_GetInterruptMask() and
                        \ref Cy_LVD_GetInterruptStatusMasked() */
 #define CY_LVD_INTR        (SRSS_SRSS_INTR_HVLVD1_Msk)
 
@@ -231,7 +243,7 @@ typedef enum
                                           ((threshold) == CY_LVD_THRESHOLD_2_9_V) || \
                                           ((threshold) == CY_LVD_THRESHOLD_3_0_V) || \
                                           ((threshold) == CY_LVD_THRESHOLD_3_1_V))
-                                          
+
 #define CY_LVD_CHECK_INTR_CFG(intrCfg)   (((intrCfg) == CY_LVD_INTR_DISABLE) || \
                                           ((intrCfg) == CY_LVD_INTR_RISING) || \
                                           ((intrCfg) == CY_LVD_INTR_FALLING) || \
@@ -266,14 +278,18 @@ cy_en_syspm_status_t Cy_LVD_DeepSleepCallback(cy_stc_syspm_callback_params_t * c
 * Function Name: Cy_LVD_Enable
 ****************************************************************************//**
 *
-*  Enables the output of the LVD block when the VDDD voltage is   
+*  Enables the output of the LVD block when the VDDD voltage is
 *  at or below the threshold.
 *  See the Configuration Considerations section for details.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_Enable(void)
 {
-    SRSS_PWR_LVD_CTL |= SRSS_PWR_LVD_CTL_HVLVD1_EN_Msk;
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_EN, 1U);
+    #else
+        SRSS_PWR_LVD_CTL |= SRSS_PWR_LVD_CTL_HVLVD1_EN_Msk;
+    #endif
 }
 
 
@@ -286,7 +302,11 @@ __STATIC_INLINE void Cy_LVD_Enable(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_Disable(void)
 {
-    SRSS_PWR_LVD_CTL &= (uint32_t) ~SRSS_PWR_LVD_CTL_HVLVD1_EN_Msk;
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_EN, 0U);
+    #else
+        SRSS_PWR_LVD_CTL &= (uint32_t) ~SRSS_PWR_LVD_CTL_HVLVD1_EN_Msk;
+    #endif
 }
 
 
@@ -295,19 +315,24 @@ __STATIC_INLINE void Cy_LVD_Disable(void)
 ****************************************************************************//**
 *
 *  Sets a threshold for monitoring the VDDD voltage.
-*  To prevent propagating a false interrupt, before changing the threshold 
-*  ensure that the LVD block itself and LVD interrupt are disabled by the 
-*  \ref Cy_LVD_Disable and \ref Cy_LVD_ClearInterruptMask functions 
+*  To prevent propagating a false interrupt, before changing the threshold
+*  ensure that the LVD block itself and LVD interrupt are disabled by the
+*  \ref Cy_LVD_Disable and \ref Cy_LVD_ClearInterruptMask functions
 *  correspondingly.
 *
-*  \param threshold 
+*  \param threshold
 *  Threshold selection for Low Voltage Detect circuit, \ref cy_en_lvd_tripsel_t.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_SetThreshold(cy_en_lvd_tripsel_t threshold)
 {
     CY_ASSERT_L3(CY_LVD_CHECK_TRIPSEL(threshold));
-    SRSS_PWR_LVD_CTL = _CLR_SET_FLD32U(SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_TRIPSEL, threshold);
+
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_TRIPSEL, threshold);
+    #else
+        SRSS_PWR_LVD_CTL = _CLR_SET_FLD32U(SRSS_PWR_LVD_CTL, SRSS_PWR_LVD_CTL_HVLVD1_TRIPSEL, threshold);
+    #endif
 }
 
 
@@ -317,9 +342,9 @@ __STATIC_INLINE void Cy_LVD_SetThreshold(cy_en_lvd_tripsel_t threshold)
 *
 *  Returns the status of LVD.
 *  SRSS LVD Status Register (PWR_LVD_STATUS).
-*  
+*
 *  \return LVD status, \ref cy_en_lvd_status_t.
-* 
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_lvd_status_t Cy_LVD_GetStatus(void)
 {
@@ -331,11 +356,11 @@ __STATIC_INLINE cy_en_lvd_status_t Cy_LVD_GetStatus(void)
 * Function Name: Cy_LVD_GetInterruptStatus
 ****************************************************************************//**
 *
-*  Returns the status of LVD interrupt. 
+*  Returns the status of LVD interrupt.
 *  SRSS Interrupt Register (SRSS_INTR).
-*  
+*
 *  \return SRSS Interrupt status, \ref CY_LVD_INTR.
-* 
+*
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LVD_GetInterruptStatus(void)
 {
@@ -347,13 +372,18 @@ __STATIC_INLINE uint32_t Cy_LVD_GetInterruptStatus(void)
 * Function Name: Cy_LVD_ClearInterrupt
 ****************************************************************************//**
 *
-*  Clears LVD interrupt. 
+*  Clears LVD interrupt.
 *  SRSS Interrupt Register (SRSS_INTR).
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_ClearInterrupt(void)
 {
-    SRSS_SRSS_INTR = SRSS_SRSS_INTR_HVLVD1_Msk;
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_SRSS_INTR, SRSS_SRSS_INTR_HVLVD1_Msk);
+    #else
+        SRSS_SRSS_INTR = SRSS_SRSS_INTR_HVLVD1_Msk;
+    #endif
+
     (void) SRSS_SRSS_INTR;
 }
 
@@ -364,11 +394,15 @@ __STATIC_INLINE void Cy_LVD_ClearInterrupt(void)
 *
 *  Triggers the device to generate interrupt for LVD.
 *  SRSS Interrupt Set Register (SRSS_INTR_SET).
-* 
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_SetInterrupt(void)
 {
-    SRSS_SRSS_INTR_SET = SRSS_SRSS_INTR_SET_HVLVD1_Msk;
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_SRSS_INTR_SET, SRSS_SRSS_INTR_SET_HVLVD1_Msk);
+    #else
+        SRSS_SRSS_INTR_SET = SRSS_SRSS_INTR_SET_HVLVD1_Msk;
+    #endif
 }
 
 
@@ -383,7 +417,7 @@ __STATIC_INLINE void Cy_LVD_SetInterrupt(void)
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LVD_GetInterruptMask(void)
-{ 
+{
     return (SRSS_SRSS_INTR_MASK & SRSS_SRSS_INTR_MASK_HVLVD1_Msk);
 }
 
@@ -392,13 +426,17 @@ __STATIC_INLINE uint32_t Cy_LVD_GetInterruptMask(void)
 * Function Name: Cy_LVD_SetInterruptMask
 ****************************************************************************//**
 *
-* Enables LVD interrupts. 
+* Enables LVD interrupts.
 * Sets the LVD interrupt mask in the SRSS_INTR_MASK register.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_SetInterruptMask(void)
 {
-    SRSS_SRSS_INTR_MASK |= SRSS_SRSS_INTR_MASK_HVLVD1_Msk;
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_SRSS_INTR_MASK, SRSS_SRSS_INTR_SET_HVLVD1, 1U);
+    #else
+        SRSS_SRSS_INTR_MASK |= SRSS_SRSS_INTR_MASK_HVLVD1_Msk;
+    #endif
 }
 
 
@@ -406,13 +444,17 @@ __STATIC_INLINE void Cy_LVD_SetInterruptMask(void)
 * Function Name: Cy_LVD_ClearInterruptMask
 ****************************************************************************//**
 *
-* Disables LVD interrupts. 
+* Disables LVD interrupts.
 * Clears the LVD interrupt mask in the SRSS_INTR_MASK register.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_ClearInterruptMask(void)
 {
-    SRSS_SRSS_INTR_MASK &= (uint32_t) ~SRSS_SRSS_INTR_MASK_HVLVD1_Msk;
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_SRSS_INTR_MASK, SRSS_SRSS_INTR_MASK_HVLVD1, 0U);
+    #else
+        SRSS_SRSS_INTR_MASK &= (uint32_t) ~SRSS_SRSS_INTR_MASK_HVLVD1_Msk;
+    #endif
 }
 
 
@@ -420,12 +462,12 @@ __STATIC_INLINE void Cy_LVD_ClearInterruptMask(void)
 * Function Name: Cy_LVD_GetInterruptStatusMasked
 ****************************************************************************//**
 *
-*  Returns the masked interrupt status which is a bitwise AND between the 
+*  Returns the masked interrupt status which is a bitwise AND between the
 *  interrupt status and interrupt mask registers.
 *  SRSS Interrupt Masked Register (SRSS_INTR_MASKED).
-*  
+*
 *  \return SRSS Interrupt Masked value, \ref CY_LVD_INTR.
-* 
+*
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LVD_GetInterruptStatusMasked(void)
 {
@@ -437,16 +479,21 @@ __STATIC_INLINE uint32_t Cy_LVD_GetInterruptStatusMasked(void)
 * Function Name: Cy_LVD_SetInterruptConfig
 ****************************************************************************//**
 *
-*  Sets a configuration for LVD interrupt. 
+*  Sets a configuration for LVD interrupt.
 *  SRSS Interrupt Configuration Register (SRSS_INTR_CFG).
-*  
+*
 *  \param lvdInterruptConfig \ref cy_en_lvd_intr_config_t.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVD_SetInterruptConfig(cy_en_lvd_intr_config_t lvdInterruptConfig)
 {
     CY_ASSERT_L3(CY_LVD_CHECK_INTR_CFG(lvdInterruptConfig));
-    SRSS_SRSS_INTR_CFG = _CLR_SET_FLD32U(SRSS_SRSS_INTR_CFG, SRSS_SRSS_INTR_CFG_HVLVD1_EDGE_SEL, lvdInterruptConfig);
+
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_SRSS_INTR_CFG, SRSS_SRSS_INTR_CFG_HVLVD1_EDGE_SEL, lvdInterruptConfig);
+    #else
+        SRSS_SRSS_INTR_CFG = _CLR_SET_FLD32U(SRSS_SRSS_INTR_CFG, SRSS_SRSS_INTR_CFG_HVLVD1_EDGE_SEL, lvdInterruptConfig);
+    #endif
 }
 
 

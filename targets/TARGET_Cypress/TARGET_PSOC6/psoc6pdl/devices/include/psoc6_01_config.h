@@ -5,11 +5,11 @@
 * PSoC6_01 device configuration header
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1405,39 +1405,22 @@ typedef enum
 } en_trig_type_t;
 
 /* Trigger Type Defines */
-/* TCPWM Trigger Types */
-#define TRIGGER_TYPE_TCPWM_LINE                 TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_TCPWM_LINE_COMPL           TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_TCPWM_TR_IN__LEVEL         TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_TCPWM_TR_IN__EDGE          TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_TCPWM_TR_OVERFLOW          TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_TCPWM_TR_COMPARE_MATCH     TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_TCPWM_TR_UNDERFLOW         TRIGGER_TYPE_EDGE
-/* CSD Trigger Types */
-#define TRIGGER_TYPE_CSD_DSI_SAMPLE_OUT         TRIGGER_TYPE_EDGE
-/* SCB Trigger Types */
-#define TRIGGER_TYPE_SCB_TR_TX_REQ              TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_SCB_TR_RX_REQ              TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_SCB_TR_I2C_SCL_FILTERED    TRIGGER_TYPE_LEVEL
-/* PERI Trigger Types */
-#define TRIGGER_TYPE_PERI_TR_IO_INPUT__LEVEL    TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_PERI_TR_IO_INPUT__EDGE     TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_PERI_TR_IO_OUTPUT__LEVEL   TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_PERI_TR_IO_OUTPUT__EDGE    TRIGGER_TYPE_EDGE
+/* AUDIOSS Trigger Types */
+#define TRIGGER_TYPE_AUDIOSS_TR_I2S_RX_REQ      TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_AUDIOSS_TR_I2S_TX_REQ      TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_AUDIOSS_TR_PDM_RX_REQ      TRIGGER_TYPE_LEVEL
 /* CPUSS Trigger Types */
+#define TRIGGER_TYPE_CPUSS_CTI_TR_IN            TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_CPUSS_CTI_TR_OUT           TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_CPUSS_DW0_TR_IN__LEVEL     TRIGGER_TYPE_LEVEL
 #define TRIGGER_TYPE_CPUSS_DW0_TR_IN__EDGE      TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_CPUSS_DW0_TR_OUT           TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_CPUSS_DW1_TR_IN__LEVEL     TRIGGER_TYPE_LEVEL
 #define TRIGGER_TYPE_CPUSS_DW1_TR_IN__EDGE      TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_CPUSS_CTI_TR_IN            TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_CPUSS_DW0_TR_OUT           TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_CPUSS_DW1_TR_OUT           TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_CPUSS_CTI_TR_OUT           TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_CPUSS_TR_FAULT             TRIGGER_TYPE_EDGE
-/* AUDIOSS Trigger Types */
-#define TRIGGER_TYPE_AUDIOSS_TR_PDM_RX_REQ      TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_AUDIOSS_TR_I2S_TX_REQ      TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_AUDIOSS_TR_I2S_RX_REQ      TRIGGER_TYPE_LEVEL
+/* CSD Trigger Types */
+#define TRIGGER_TYPE_CSD_DSI_SAMPLE_OUT         TRIGGER_TYPE_EDGE
 /* LPCOMP Trigger Types */
 #define TRIGGER_TYPE_LPCOMP_DSI_COMP0           TRIGGER_TYPE_LEVEL
 #define TRIGGER_TYPE_LPCOMP_DSI_COMP1           TRIGGER_TYPE_LEVEL
@@ -1446,33 +1429,50 @@ typedef enum
 #define TRIGGER_TYPE_PASS_DSI_CTB_CMP0__EDGE    TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_PASS_DSI_CTB_CMP1__LEVEL   TRIGGER_TYPE_LEVEL
 #define TRIGGER_TYPE_PASS_DSI_CTB_CMP1__EDGE    TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_PASS_TR_CTDAC_EMPTY        TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_PASS_TR_SAR_IN__LEVEL      TRIGGER_TYPE_LEVEL
 #define TRIGGER_TYPE_PASS_TR_SAR_IN__EDGE       TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_PASS_TR_SAR_OUT            TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_PASS_TR_CTDAC_EMPTY        TRIGGER_TYPE_EDGE
-/* SMIF Trigger Types */
-#define TRIGGER_TYPE_SMIF_TR_TX_REQ             TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_SMIF_TR_RX_REQ             TRIGGER_TYPE_LEVEL
-/* USB Trigger Types */
-#define TRIGGER_TYPE_USB_DMA_BURSTEND           TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_USB_DMA_REQ                TRIGGER_TYPE_EDGE
-/* UDB Trigger Types */
-#define TRIGGER_TYPE_UDB_TR_IN__LEVEL           TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_UDB_TR_IN__EDGE            TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_UDB_TR_DW_ACK__LEVEL       TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_UDB_TR_DW_ACK__EDGE        TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_UDB_TR_UDB__LEVEL          TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_UDB_TR_UDB__EDGE           TRIGGER_TYPE_EDGE
-#define TRIGGER_TYPE_UDB_DSI_OUT_TR__LEVEL      TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_UDB_DSI_OUT_TR__EDGE       TRIGGER_TYPE_EDGE
+/* PERI Trigger Types */
+#define TRIGGER_TYPE_PERI_TR_IO_INPUT__LEVEL    TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_PERI_TR_IO_INPUT__EDGE     TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_PERI_TR_IO_OUTPUT__LEVEL   TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_PERI_TR_IO_OUTPUT__EDGE    TRIGGER_TYPE_EDGE
 /* PROFILE Trigger Types */
 #define TRIGGER_TYPE_PROFILE_TR_START           TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_PROFILE_TR_STOP            TRIGGER_TYPE_EDGE
+/* SCB Trigger Types */
+#define TRIGGER_TYPE_SCB_TR_I2C_SCL_FILTERED    TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_SCB_TR_RX_REQ              TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_SCB_TR_TX_REQ              TRIGGER_TYPE_LEVEL
+/* SMIF Trigger Types */
+#define TRIGGER_TYPE_SMIF_TR_RX_REQ             TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_SMIF_TR_TX_REQ             TRIGGER_TYPE_LEVEL
+/* TCPWM Trigger Types */
+#define TRIGGER_TYPE_TCPWM_LINE                 TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_TCPWM_LINE_COMPL           TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_TCPWM_TR_COMPARE_MATCH     TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_TCPWM_TR_IN__LEVEL         TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_TCPWM_TR_IN__EDGE          TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_TCPWM_TR_OVERFLOW          TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_TCPWM_TR_UNDERFLOW         TRIGGER_TYPE_EDGE
 /* TR_GROUP Trigger Types */
-#define TRIGGER_TYPE_TR_GROUP_OUTPUT__LEVEL     TRIGGER_TYPE_LEVEL
-#define TRIGGER_TYPE_TR_GROUP_OUTPUT__EDGE      TRIGGER_TYPE_EDGE
 #define TRIGGER_TYPE_TR_GROUP_INPUT__LEVEL      TRIGGER_TYPE_LEVEL
 #define TRIGGER_TYPE_TR_GROUP_INPUT__EDGE       TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_TR_GROUP_OUTPUT__LEVEL     TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_TR_GROUP_OUTPUT__EDGE      TRIGGER_TYPE_EDGE
+/* UDB Trigger Types */
+#define TRIGGER_TYPE_UDB_DSI_OUT_TR__LEVEL      TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_UDB_DSI_OUT_TR__EDGE       TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_UDB_TR_DW_ACK__LEVEL       TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_UDB_TR_DW_ACK__EDGE        TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_UDB_TR_IN__LEVEL           TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_UDB_TR_IN__EDGE            TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_UDB_TR_UDB__LEVEL          TRIGGER_TYPE_LEVEL
+#define TRIGGER_TYPE_UDB_TR_UDB__EDGE           TRIGGER_TYPE_EDGE
+/* USB Trigger Types */
+#define TRIGGER_TYPE_USB_DMA_BURSTEND           TRIGGER_TYPE_EDGE
+#define TRIGGER_TYPE_USB_DMA_REQ                TRIGGER_TYPE_EDGE
 
 /* Monitor Signal Defines */
 typedef enum
@@ -1631,75 +1631,186 @@ typedef I2S_V1_Type I2S_Type;
 typedef PDM_V1_Type PDM_Type;
 
 /* Parameter Defines */
-/* Number of regulator modules instantiated within SRSS */
-#define SRSS_NUM_ACTREG_PWRMOD          2u
-/* Number of shorting switches between vccd and vccact */
-#define SRSS_NUM_ACTIVE_SWITCH          3u
-/* ULP linear regulator system is present */
-#define SRSS_ULPLINREG_PRESENT          1u
-/* HT linear regulator system is present */
-#define SRSS_HTLINREG_PRESENT           0u
-/* SIMO buck core regulator is present. Only compatible with ULP linear regulator
-   system (ULPLINREG_PRESENT==1). */
-#define SRSS_SIMOBUCK_PRESENT           1u
-/* Precision ILO (PILO) is present */
-#define SRSS_PILO_PRESENT               1u
-/* External Crystal Oscillator is present (high frequency) */
-#define SRSS_ECO_PRESENT                1u
-/* System Buck-Boost is present */
-#define SRSS_SYSBB_PRESENT              0u
-/* Number of clock paths. Must be > 0 */
-#define SRSS_NUM_CLKPATH                5u
-/* Number of PLLs present. Must be <= NUM_CLKPATH */
-#define SRSS_NUM_PLL                    1u
-/* Number of HFCLK roots present. Must be > 0 */
-#define SRSS_NUM_HFROOT                 5u
-/* Number of PWR_HIB_DATA registers */
-#define SRSS_NUM_HIBDATA                1u
-/* Backup domain is present */
-#define SRSS_BACKUP_PRESENT             1u
-/* Mask of HFCLK root clock supervisors (CSV). For each clock root i, bit[i] of
-   mask indicates presence of a CSV. */
-#define SRSS_MASK_HFCSV                 0u
-/* Clock supervisor is present on WCO. Must be 0 if BACKUP_PRESENT==0. */
-#define SRSS_WCOCSV_PRESENT             0u
-/* Number of software watchdog timers. */
-#define SRSS_NUM_MCWDT                  2u
-/* Number of DSI inputs into clock muxes. This is used for logic optimization. */
-#define SRSS_NUM_DSI                    2u
-/* Alternate high-frequency clock is present. This is used for logic optimization. */
-#define SRSS_ALTHF_PRESENT              1u
-/* Alternate low-frequency clock is present. This is used for logic optimization. */
-#define SRSS_ALTLF_PRESENT              0u
-/* Use the hardened clkactfllmux block */
-#define SRSS_USE_HARD_CLKACTFLLMUX      1u
-/* Number of clock paths, including direct paths in hardened clkactfllmux block
-   (Must be >= NUM_CLKPATH) */
-#define SRSS_HARD_CLKPATH               6u
-/* Number of clock paths with muxes in hardened clkactfllmux block (Must be >=
-   NUM_PLL+1) */
-#define SRSS_HARD_CLKPATHMUX            6u
-/* Number of HFCLKS present in hardened clkactfllmux block (Must be >= NUM_HFROOT) */
-#define SRSS_HARD_HFROOT                6u
-/* ECO mux is present in hardened clkactfllmux block (Must be >= ECO_PRESENT) */
-#define SRSS_HARD_ECOMUX_PRESENT        1u
-/* ALTHF mux is present in hardened clkactfllmux block (Must be >= ALTHF_PRESENT) */
-#define SRSS_HARD_ALTHFMUX_PRESENT      1u
-/* Low-current buck regulator present. Can be derived from S40S_SISOBUCKLC_PRESENT
-   or SIMOBUCK_PRESENT. */
-#define SRSS_BUCKCTL_PRESENT            1u
-/* Low-current SISO buck core regulator is present. Only compatible with ULP
-   linear regulator system (ULPLINREG_PRESENT==1). */
-#define SRSS_S40S_SISOBUCKLC_PRESENT    0u
-/* Backup memory is present (only used when BACKUP_PRESENT==1) */
-#define SRSS_BACKUP_BMEM_PRESENT        0u
-/* Number of Backup registers to include (each is 32b). Only used when
-   BACKUP_PRESENT==1. */
-#define SRSS_BACKUP_NUM_BREG            16u
-/* Number of AMUX splitter cells */
-#define IOSS_HSIOM_AMUX_SPLIT_NR        9u
-/* Number of HSIOM ports in device (same as GPIO.GPIO_PRT_NR) */
-#define IOSS_HSIOM_HSIOM_PORT_NR        15u
+/* I2S capable? (0=No,1=Yes) */
+#define AUDIOSS_I2S                     1u
+/* PDM capable? (0=No,1=Yes) */
+#define AUDIOSS_PDM                     1u
+/* UDB present or not ('0': no, '1': yes) */
+#define CPUSS_UDB_PRESENT               1u
+/* System RAM 0 size in kilobytes */
+#define CPUSS_SRAM0_SIZE                288u
+/* Number of macros used to implement System RAM 0. Example: 8 if 256 KB System
+   SRAM0 is implemented with 8 32KB macros. */
+#define CPUSS_RAMC0_MACRO_NR            9u
+/* System RAM 1 present or not (0=No, 1=Yes) */
+#define CPUSS_RAMC1_PRESENT             0u
+/* System RAM 1 size in kilobytes */
+#define CPUSS_SRAM1_SIZE                32u
+/* Number of macros used to implement System RAM 1. Example: 8 if 256 KB System
+   RAM 1 is implemented with 8 32KB macros. */
+#define CPUSS_RAMC1_MACRO_NR            1u
+/* System RAM 2 present or not (0=No, 1=Yes) */
+#define CPUSS_RAMC2_PRESENT             0u
+/* System RAM 2 size in kilobytes */
+#define CPUSS_SRAM2_SIZE                256u
+/* Number of macros used to implement System RAM 2. Example: 8 if 256 KB System
+   RAM 2 is implemented with 8 32KB macros. */
+#define CPUSS_RAMC2_MACRO_NR            16u
+/* System ROM size in KB */
+#define CPUSS_ROM_SIZE                  128u
+/* Flash main region size in KB */
+#define CPUSS_FLASH_SIZE                1024u
+/* Flash work region size in KB (EEPROM emulation, data) */
+#define CPUSS_WFLASH_SIZE               32u
+/* Flash supervisory region size in KB */
+#define CPUSS_SFLASH_SIZE               32u
+/* Flash data output size (in Bytes) */
+#define CPUSS_FLASHC_WORD_SIZE          16u
+/* Flash row address width */
+#define CPUSS_FLASHC_ROW_ADDR_WIDTH     12u
+/* Flash column address width */
+#define CPUSS_FLASHC_COL_ADDR_WIDTH     5u
+/* Number of external slaves directly connected to slow AHB-Lite infrastructure.
+   Maximum nubmer of slave supported is 4. Width of this parameter is 4-bits.
+   1-bit mask for each slave indicating present or not. Example: 4'b0011 - slave
+   0 and slave 1 are present. Note: The SLOW_SLx_ADDR and SLOW_SLx_MASK
+   parameters (for the slaves present) should be derived from the Memory Map. */
+#define CPUSS_SLOW_SL_PRESENT           1u
+/* Number of external slaves directly connected to fast AHB-Lite infrastructure.
+   Maximum nubmer of slave supported is 4. Width of this parameter is 4-bits.
+   1-bit mask for each slave indicating present or not. Example: 4'b0011 - slave
+   0 and slave 1 are present. Note: The FAST_SLx_ADDR and FAST_SLx_MASK
+   parameters (for the slaves present) should be derived from the Memory Map. */
+#define CPUSS_FAST_SL_PRESENT           1u
+/* Number of external masters driving the slow AHB-Lite infrastructure. Maximum
+   number of masters supported is 2. Width of this parameter is 2-bits. 1-bit
+   mask for each master indicating present or not. Example: 2'b01 - master 0 is
+   present. */
+#define CPUSS_SLOW_MS_PRESENT           0u
+/* Number of total interrupt request inputs to CPUSS */
+#define CPUSS_IRQ_NR                    147u
+/* Number of DeepSleep wakeup interrupt inputs to CPUSS */
+#define CPUSS_DPSLP_IRQ_NR              41u
+/* Number of DeepSleep wakeup interrupt inputs to CM0+ (product configuration) */
+#define CPUSS_CM0_DPSLP_IRQ_NR          8u
+/* Width of the CM4 interrupt priority bits. Legal range [3,8] Example: 3 = 8
+   levels of priority 8 = 256 levels of priority */
+#define CPUSS_CM4_LVL_WIDTH             3u
+/* CM4 Floating point unit present or not (0=No, 1=Yes) */
+#define CPUSS_CM4_FPU_PRESENT           1u
+/* Debug level. Legal range [0,3] */
+#define CPUSS_DEBUG_LVL                 3u
+/* Trace level. Legal range [0,2] Note: CM4 HTM is not supported. Hence vaule 3
+   for trace level is not supported in CPUSS. */
+#define CPUSS_TRACE_LVL                 2u
+/* Embedded Trace Buffer present or not (0=No, 1=Yes) */
+#define CPUSS_ETB_PRESENT               0u
+/* CM0+ MTB SRAM buffer size in kilobytes. Legal vaules 4, 8 or 16 */
+#define CPUSS_MTB_SRAM_SIZE             4u
+/* CM4 ETB SRAM buffer size in kilobytes. Legal vaules 4, 8 or 16 */
+#define CPUSS_ETB_SRAM_SIZE             16u
+/* PTM interface present (0=No, 1=Yes) */
+#define CPUSS_PTM_PRESENT               1u
+/* Width of the PTM interface in bits ([2,32]) */
+#define CPUSS_PTM_WIDTH                 8u
+/* Width of the TPIU interface in bits ([1,32]) */
+#define CPUSS_TPIU_WIDTH                4u
+/* CoreSight Part Identification Number */
+#define CPUSS_JEPID                     52u
+/* CoreSight Part Identification Number */
+#define CPUSS_JEPCONTINUATION           0u
+/* CoreSight Part Identification Number */
+#define CPUSS_FAMILYID                  256u
+/* Cryptography IP present or not (0=No, 1=Yes) */
+#define CPUSS_CRYPTO_PRESENT            1u
+/* DataWire 0 present or not (0=No, 1=Yes) */
+#define CPUSS_DW0_PRESENT               1u
+/* Number of DataWire 0 channels (8, 16 or 32) */
+#define CPUSS_DW0_CH_NR                 16u
+/* DataWire 1 present or not (0=No, 1=Yes) */
+#define CPUSS_DW1_PRESENT               1u
+/* Number of DataWire 1 channels (8, 16 or 32) */
+#define CPUSS_DW1_CH_NR                 16u
+/* AES cipher support (0 = no support, 1 = support */
+#define CPUSS_CRYPTO_AES                1u
+/* (Tripple) DES cipher support (0 = no support, 1 = support */
+#define CPUSS_CRYPTO_DES                1u
+/* Pseudo random number generation support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_PR                 1u
+/* SHA support included */
+#define CPUSS_CRYPTO_SHA                1u
+/* SHA1 hash support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_SHA1               1u
+/* SHA256 hash support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_SHA256             1u
+/* SHA512 hash support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_SHA512             1u
+/* Cyclic Redundancy Check support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_CRC                1u
+/* Vector unit support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_VU                 1u
+/* True random number generation support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_TR                 1u
+/* String support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_STR                1u
+/* AHB-Lite master interface support (0 = no support, 1 = support) */
+#define CPUSS_CRYPTO_MASTER_IF          1u
+/* Number of 32-bit words in the IP internal memory buffer (from the set [64, 128,
+   256, 512, 1024, 2048, 4096], to allow for a 256 B, 512 B, 1 kB, 2 kB, 4 kB, 8
+   kB and 16 kB memory buffer) */
+#define CPUSS_CRYPTO_BUFF_SIZE          1024u
+/* Number of DataWire controllers present (max 2) */
+#define CPUSS_DW_NR                     2u
+/* Number of channels in each DataWire controller (must be the same for now) */
+#define CPUSS_DW_CH_NR                  16u
+/* Number of fault structures. Legal range [1, 4] */
+#define CPUSS_FAULT_FAULT_NR            2u
+/* Number of Flash BIST_DATA registers */
+#define CPUSS_FLASHC_FLASHC_BIST_DATA_NR 4u
+/* Page size in # of 32-bit words (1: 4 bytes, 2: 8 bytes, ... */
+#define CPUSS_FLASHC_PA_SIZE            128u
+/* Number of IPC structures. Legal range [1, 16] */
+#define CPUSS_IPC_IPC_NR                16u
+/* Number of IPC interrupt structures. Legal range [1, 16] */
+#define CPUSS_IPC_IPC_IRQ_NR            16u
+/* Master 0 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS0_PC_NR_MINUS1 7u
+/* Master 1 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS1_PC_NR_MINUS1 7u
+/* Master 2 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS2_PC_NR_MINUS1 0u
+/* Master 3 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS3_PC_NR_MINUS1 0u
+/* Master 4 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS4_PC_NR_MINUS1 0u
+/* Master 5 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS5_PC_NR_MINUS1 0u
+/* Master 6 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS6_PC_NR_MINUS1 0u
+/* Master 7 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS7_PC_NR_MINUS1 0u
+/* Master 8 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS8_PC_NR_MINUS1 0u
+/* Master 9 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS9_PC_NR_MINUS1 0u
+/* Master 10 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS10_PC_NR_MINUS1 0u
+/* Master 11 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS11_PC_NR_MINUS1 0u
+/* Master 12 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS12_PC_NR_MINUS1 0u
+/* Master 13 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS13_PC_NR_MINUS1 0u
+/* Master 14 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS14_PC_NR_MINUS1 7u
+/* Master 15 protect contexts minus one */
+#define CPUSS_PROT_SMPU_MS15_PC_NR_MINUS1 7u
+/* Number of SMPU protection structures */
+#define CPUSS_PROT_SMPU_STRUCT_NR       16u
+/* Number of protection contexts supported minus 1. Legal range [1,16] */
+#define CPUSS_SMPU_STRUCT_PC_NR_MINUS1  7u
+/* Number of instantiated eFUSE macros (256 bit macros). Legal range [1, 16] */
+#define EFUSE_EFUSE_NR                  4u
 /* Number of GPIO ports in range 0..31 */
 #define IOSS_GPIO_GPIO_PORT_NR_0_31     15u
 /* Number of GPIO ports in range 32..63 */
@@ -1710,8 +1821,53 @@ typedef PDM_V1_Type PDM_Type;
 #define IOSS_GPIO_GPIO_PORT_NR_96_127   0u
 /* Number of ports in device */
 #define IOSS_GPIO_GPIO_PORT_NR          15u
+/* Number of AMUX splitter cells */
+#define IOSS_HSIOM_AMUX_SPLIT_NR        9u
+/* Number of HSIOM ports in device (same as GPIO.GPIO_PRT_NR) */
+#define IOSS_HSIOM_HSIOM_PORT_NR        15u
 /* Mask of SMARTIO instances presence */
 #define IOSS_SMARTIO_SMARTIO_MASK       768u
+/* Number of ports supoprting up to 4 COMs */
+#define LCD_NUMPORTS                    8u
+/* Number of ports supporting up to 8 COMs */
+#define LCD_NUMPORTS8                   8u
+/* Number of ports supporting up to 16 COMs */
+#define LCD_NUMPORTS16                  0u
+/* Max number of LCD commons supported */
+#define LCD_CHIP_TOP_COM_NR             8u
+/* Max number of LCD pins (total) supported */
+#define LCD_CHIP_TOP_PIN_NR             62u
+/* Number of IREF outputs from AREF */
+#define PASS_NR_IREFS                   4u
+/* Number of CTBs in the Subsystem */
+#define PASS_NR_CTBS                    1u
+/* Number of CTDACs in the Subsystem */
+#define PASS_NR_CTDACS                  1u
+/* CTB0 Exists */
+#define PASS_CTB0_EXISTS                1u
+/* CTB1 Exists */
+#define PASS_CTB1_EXISTS                0u
+/* CTB2 Exists */
+#define PASS_CTB2_EXISTS                0u
+/* CTB3 Exists */
+#define PASS_CTB3_EXISTS                0u
+/* CTDAC0 Exists */
+#define PASS_CTDAC0_EXISTS              1u
+/* CTDAC1 Exists */
+#define PASS_CTDAC1_EXISTS              0u
+/* CTDAC2 Exists */
+#define PASS_CTDAC2_EXISTS              0u
+/* CTDAC3 Exists */
+#define PASS_CTDAC3_EXISTS              0u
+#define PASS_CTBM_CTDAC_PRESENT         1u
+/* Number of SAR channels */
+#define PASS_SAR_SAR_CHANNELS           16u
+/* Averaging logic present in SAR */
+#define PASS_SAR_SAR_AVERAGE            1u
+/* Range detect logic present in SAR */
+#define PASS_SAR_SAR_RANGEDET           1u
+/* Support for UAB sampling */
+#define PASS_SAR_SAR_UAB                0u
 /* The number of protection contexts ([2, 16]). */
 #define PERI_PC_NR                      8u
 /* Master interface presence mask (4 bits) */
@@ -2284,208 +2440,10 @@ typedef PDM_V1_Type PDM_Type;
 #define PERI_PPU_FIXED_STRUCT_PC_NR_MINUS1 7u
 /* The number of protection contexts minus 1 ([1, 15]). */
 #define PERI_PPU_PROG_STRUCT_PC_NR_MINUS1 7u
-/* UDB present or not ('0': no, '1': yes) */
-#define CPUSS_UDB_PRESENT               1u
-/* System RAM 0 size in kilobytes */
-#define CPUSS_SRAM0_SIZE                288u
-/* Number of macros used to implement System RAM 0. Example: 8 if 256 KB System
-   SRAM0 is implemented with 8 32KB macros. */
-#define CPUSS_RAMC0_MACRO_NR            9u
-/* System RAM 1 present or not (0=No, 1=Yes) */
-#define CPUSS_RAMC1_PRESENT             0u
-/* System RAM 1 size in kilobytes */
-#define CPUSS_SRAM1_SIZE                32u
-/* Number of macros used to implement System RAM 1. Example: 8 if 256 KB System
-   RAM 1 is implemented with 8 32KB macros. */
-#define CPUSS_RAMC1_MACRO_NR            1u
-/* System RAM 2 present or not (0=No, 1=Yes) */
-#define CPUSS_RAMC2_PRESENT             0u
-/* System RAM 2 size in kilobytes */
-#define CPUSS_SRAM2_SIZE                256u
-/* Number of macros used to implement System RAM 2. Example: 8 if 256 KB System
-   RAM 2 is implemented with 8 32KB macros. */
-#define CPUSS_RAMC2_MACRO_NR            16u
-/* System ROM size in KB */
-#define CPUSS_ROM_SIZE                  128u
-/* Flash main region size in KB */
-#define CPUSS_FLASH_SIZE                1024u
-/* Flash work region size in KB (EEPROM emulation, data) */
-#define CPUSS_WFLASH_SIZE               32u
-/* Flash supervisory region size in KB */
-#define CPUSS_SFLASH_SIZE               32u
-/* Flash data output size (in Bytes) */
-#define CPUSS_FLASHC_WORD_SIZE          16u
-/* Flash row address width */
-#define CPUSS_FLASHC_ROW_ADDR_WIDTH     12u
-/* Flash column address width */
-#define CPUSS_FLASHC_COL_ADDR_WIDTH     5u
-/* Number of external slaves directly connected to slow AHB-Lite infrastructure.
-   Maximum nubmer of slave supported is 4. Width of this parameter is 4-bits.
-   1-bit mask for each slave indicating present or not. Example: 4'b0011 - slave
-   0 and slave 1 are present. Note: The SLOW_SLx_ADDR and SLOW_SLx_MASK
-   parameters (for the slaves present) should be derived from the Memory Map. */
-#define CPUSS_SLOW_SL_PRESENT           1u
-/* Number of external slaves directly connected to fast AHB-Lite infrastructure.
-   Maximum nubmer of slave supported is 4. Width of this parameter is 4-bits.
-   1-bit mask for each slave indicating present or not. Example: 4'b0011 - slave
-   0 and slave 1 are present. Note: The FAST_SLx_ADDR and FAST_SLx_MASK
-   parameters (for the slaves present) should be derived from the Memory Map. */
-#define CPUSS_FAST_SL_PRESENT           1u
-/* Number of external masters driving the slow AHB-Lite infrastructure. Maximum
-   number of masters supported is 2. Width of this parameter is 2-bits. 1-bit
-   mask for each master indicating present or not. Example: 2'b01 - master 0 is
-   present. */
-#define CPUSS_SLOW_MS_PRESENT           0u
-/* Number of total interrupt request inputs to CPUSS */
-#define CPUSS_IRQ_NR                    147u
-/* Number of DeepSleep wakeup interrupt inputs to CPUSS */
-#define CPUSS_DPSLP_IRQ_NR              41u
-/* Number of DeepSleep wakeup interrupt inputs to CM0+ (product configuration) */
-#define CPUSS_CM0_DPSLP_IRQ_NR          8u
-/* Width of the CM4 interrupt priority bits. Legal range [3,8] Example: 3 = 8
-   levels of priority 8 = 256 levels of priority */
-#define CPUSS_CM4_LVL_WIDTH             3u
-/* CM4 Floating point unit present or not (0=No, 1=Yes) */
-#define CPUSS_CM4_FPU_PRESENT           1u
-/* Debug level. Legal range [0,3] */
-#define CPUSS_DEBUG_LVL                 3u
-/* Trace level. Legal range [0,2] Note: CM4 HTM is not supported. Hence vaule 3
-   for trace level is not supported in CPUSS. */
-#define CPUSS_TRACE_LVL                 2u
-/* Embedded Trace Buffer present or not (0=No, 1=Yes) */
-#define CPUSS_ETB_PRESENT               0u
-/* CM0+ MTB SRAM buffer size in kilobytes. Legal vaules 4, 8 or 16 */
-#define CPUSS_MTB_SRAM_SIZE             4u
-/* CM4 ETB SRAM buffer size in kilobytes. Legal vaules 4, 8 or 16 */
-#define CPUSS_ETB_SRAM_SIZE             16u
-/* PTM interface present (0=No, 1=Yes) */
-#define CPUSS_PTM_PRESENT               1u
-/* Width of the PTM interface in bits ([2,32]) */
-#define CPUSS_PTM_WIDTH                 8u
-/* Width of the TPIU interface in bits ([1,32]) */
-#define CPUSS_TPIU_WIDTH                4u
-/* CoreSight Part Identification Number */
-#define CPUSS_JEPID                     52u
-/* CoreSight Part Identification Number */
-#define CPUSS_JEPCONTINUATION           0u
-/* CoreSight Part Identification Number */
-#define CPUSS_FAMILYID                  256u
-/* Cryptography IP present or not (0=No, 1=Yes) */
-#define CPUSS_CRYPTO_PRESENT            1u
-/* DataWire 0 present or not (0=No, 1=Yes) */
-#define CPUSS_DW0_PRESENT               1u
-/* Number of DataWire 0 channels (8, 16 or 32) */
-#define CPUSS_DW0_CH_NR                 16u
-/* DataWire 1 present or not (0=No, 1=Yes) */
-#define CPUSS_DW1_PRESENT               1u
-/* Number of DataWire 1 channels (8, 16 or 32) */
-#define CPUSS_DW1_CH_NR                 16u
-/* Number of Flash BIST_DATA registers */
-#define CPUSS_FLASHC_FLASHC_BIST_DATA_NR 4u
-/* Page size in # of 32-bit words (1: 4 bytes, 2: 8 bytes, ... */
-#define CPUSS_FLASHC_PA_SIZE            128u
-/* AES cipher support (0 = no support, 1 = support */
-#define CPUSS_CRYPTO_AES                1u
-/* (Tripple) DES cipher support (0 = no support, 1 = support */
-#define CPUSS_CRYPTO_DES                1u
-/* Pseudo random number generation support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_PR                 1u
-/* SHA support included */
-#define CPUSS_CRYPTO_SHA                1u
-/* SHA1 hash support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_SHA1               1u
-/* SHA256 hash support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_SHA256             1u
-/* SHA512 hash support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_SHA512             1u
-/* Cyclic Redundancy Check support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_CRC                1u
-/* Vector unit support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_VU                 1u
-/* True random number generation support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_TR                 1u
-/* String support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_STR                1u
-/* AHB-Lite master interface support (0 = no support, 1 = support) */
-#define CPUSS_CRYPTO_MASTER_IF          1u
-/* Number of 32-bit words in the IP internal memory buffer (from the set [64, 128,
-   256, 512, 1024, 2048, 4096], to allow for a 256 B, 512 B, 1 kB, 2 kB, 4 kB, 8
-   kB and 16 kB memory buffer) */
-#define CPUSS_CRYPTO_BUFF_SIZE          1024u
-/* Number of fault structures. Legal range [1, 4] */
-#define CPUSS_FAULT_FAULT_NR            2u
-/* Number of IPC structures. Legal range [1, 16] */
-#define CPUSS_IPC_IPC_NR                16u
-/* Number of IPC interrupt structures. Legal range [1, 16] */
-#define CPUSS_IPC_IPC_IRQ_NR            16u
-/* Master 0 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS0_PC_NR_MINUS1 7u
-/* Master 1 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS1_PC_NR_MINUS1 7u
-/* Master 2 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS2_PC_NR_MINUS1 0u
-/* Master 3 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS3_PC_NR_MINUS1 0u
-/* Master 4 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS4_PC_NR_MINUS1 0u
-/* Master 5 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS5_PC_NR_MINUS1 0u
-/* Master 6 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS6_PC_NR_MINUS1 0u
-/* Master 7 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS7_PC_NR_MINUS1 0u
-/* Master 8 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS8_PC_NR_MINUS1 0u
-/* Master 9 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS9_PC_NR_MINUS1 0u
-/* Master 10 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS10_PC_NR_MINUS1 0u
-/* Master 11 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS11_PC_NR_MINUS1 0u
-/* Master 12 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS12_PC_NR_MINUS1 0u
-/* Master 13 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS13_PC_NR_MINUS1 0u
-/* Master 14 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS14_PC_NR_MINUS1 7u
-/* Master 15 protect contexts minus one */
-#define CPUSS_PROT_SMPU_MS15_PC_NR_MINUS1 7u
-/* Number of SMPU protection structures */
-#define CPUSS_PROT_SMPU_STRUCT_NR       16u
-/* Number of protection contexts supported minus 1. Legal range [1,16] */
-#define CPUSS_SMPU_STRUCT_PC_NR_MINUS1  7u
-/* Number of DataWire controllers present (max 2) */
-#define CPUSS_DW_NR                     2u
-/* Number of channels in each DataWire controller (must be the same for now) */
-#define CPUSS_DW_CH_NR                  16u
 /* Number of profiling counters. Legal range [1, 32] */
 #define PROFILE_PRFL_CNT_NR             8u
 /* Number of monitor event signals. Legal range [1, 128] */
 #define PROFILE_PRFL_MONITOR_NR         128u
-/* Number of instantiated eFUSE macros (256 bit macros). Legal range [1, 16] */
-#define EFUSE_EFUSE_NR                  4u
-/* SONOS Flash is used or not ('0': no, '1': yes) */
-#define SFLASH_FLASHC_IS_SONOS          1u
-/* CPUSS_WOUNDING_PRESENT or not ('0': no, '1': yes) */
-#define SFLASH_CPUSS_WOUNDING_PRESENT   1u
-/* Number of UDB Interrupts */
-#define UDB_NUMINT                      16u
-/* Number of triggers */
-#define UDB_NUMTR                       16u
-/* Number of UDB array rows (must be multiple of 2) */
-#define UDB_NUMROW                      2u
-/* Number of UDB array columns */
-#define UDB_NUMCOL                      6u
-/* DSI on bottom (1) or on bottom and top (2) of UDB array */
-#define UDB_DSISIDES                    2u
-/* Number of UDBs = NUMROW * NUMCOL */
-#define UDB_NUMUDB                      12u
-/* Number of UDB pairs = NUMUDB / 2 */
-#define UDB_NUMUDBPAIR                  6u
-/* Number of DSIs = NUMCOL * DSISIDES */
-#define UDB_NUMDSI                      12u
-/* Number of quad clocks */
-#define UDB_NUMQCLK                     3u
 /* DeepSleep support ('0':no, '1': yes) */
 #define SCB0_DEEPSLEEP                  0u
 /* Externally clocked support? ('0': no, '1': yes) */
@@ -2936,55 +2894,10 @@ typedef PDM_V1_Type PDM_Type;
 #define SCB8_I2C_FAST_PLUS              1u
 /* Number of used spi_select signals (max 4) */
 #define SCB8_CHIP_TOP_SPI_SEL_NR        1u
-/* Number of counters per IP (1..8) */
-#define TCPWM0_CNT_NR                   8u
-/* Counter width (in number of bits) */
-#define TCPWM0_CNT_CNT_WIDTH            32u
-/* Number of counters per IP (1..8) */
-#define TCPWM1_CNT_NR                   24u
-/* Counter width (in number of bits) */
-#define TCPWM1_CNT_CNT_WIDTH            16u
-/* Number of ports supoprting up to 4 COMs */
-#define LCD_NUMPORTS                    8u
-/* Number of ports supporting up to 8 COMs */
-#define LCD_NUMPORTS8                   8u
-/* Number of ports supporting up to 16 COMs */
-#define LCD_NUMPORTS16                  0u
-/* Max number of LCD commons supported */
-#define LCD_CHIP_TOP_COM_NR             8u
-/* Max number of LCD pins (total) supported */
-#define LCD_CHIP_TOP_PIN_NR             62u
-/* Number of IREF outputs from AREF */
-#define PASS_NR_IREFS                   4u
-/* Number of CTBs in the Subsystem */
-#define PASS_NR_CTBS                    1u
-/* Number of CTDACs in the Subsystem */
-#define PASS_NR_CTDACS                  1u
-/* CTB0 Exists */
-#define PASS_CTB0_EXISTS                1u
-/* CTB1 Exists */
-#define PASS_CTB1_EXISTS                0u
-/* CTB2 Exists */
-#define PASS_CTB2_EXISTS                0u
-/* CTB3 Exists */
-#define PASS_CTB3_EXISTS                0u
-/* CTDAC0 Exists */
-#define PASS_CTDAC0_EXISTS              1u
-/* CTDAC1 Exists */
-#define PASS_CTDAC1_EXISTS              0u
-/* CTDAC2 Exists */
-#define PASS_CTDAC2_EXISTS              0u
-/* CTDAC3 Exists */
-#define PASS_CTDAC3_EXISTS              0u
-/* Number of SAR channels */
-#define PASS_SAR_SAR_CHANNELS           16u
-/* Averaging logic present in SAR */
-#define PASS_SAR_SAR_AVERAGE            1u
-/* Range detect logic present in SAR */
-#define PASS_SAR_SAR_RANGEDET           1u
-/* Support for UAB sampling */
-#define PASS_SAR_SAR_UAB                0u
-#define PASS_CTBM_CTDAC_PRESENT         1u
+/* SONOS Flash is used or not ('0': no, '1': yes) */
+#define SFLASH_FLASHC_IS_SONOS          1u
+/* CPUSS_WOUNDING_PRESENT or not ('0': no, '1': yes) */
+#define SFLASH_CPUSS_WOUNDING_PRESENT   1u
 /* Number of AHB-Lite "hmaster[]" bits ([1, 8]) */
 #define SMIF_MASTER_WIDTH               8u
 /* Base address of the SMIF XIP memory region. This address must be a multiple of
@@ -3010,10 +2923,97 @@ typedef PDM_V1_Type PDM_Type;
 #define SMIF_CHIP_TOP_DATA8_PRESENT     1u
 /* Number of used spi_select signals (max 4) */
 #define SMIF_CHIP_TOP_SPI_SEL_NR        4u
-/* I2S capable? (0=No,1=Yes) */
-#define AUDIOSS_I2S                     1u
-/* PDM capable? (0=No,1=Yes) */
-#define AUDIOSS_PDM                     1u
+/* Number of regulator modules instantiated within SRSS */
+#define SRSS_NUM_ACTREG_PWRMOD          2u
+/* Number of shorting switches between vccd and vccact */
+#define SRSS_NUM_ACTIVE_SWITCH          3u
+/* ULP linear regulator system is present */
+#define SRSS_ULPLINREG_PRESENT          1u
+/* HT linear regulator system is present */
+#define SRSS_HTLINREG_PRESENT           0u
+/* SIMO buck core regulator is present. Only compatible with ULP linear regulator
+   system (ULPLINREG_PRESENT==1). */
+#define SRSS_SIMOBUCK_PRESENT           1u
+/* Precision ILO (PILO) is present */
+#define SRSS_PILO_PRESENT               1u
+/* External Crystal Oscillator is present (high frequency) */
+#define SRSS_ECO_PRESENT                1u
+/* System Buck-Boost is present */
+#define SRSS_SYSBB_PRESENT              0u
+/* Number of clock paths. Must be > 0 */
+#define SRSS_NUM_CLKPATH                5u
+/* Number of PLLs present. Must be <= NUM_CLKPATH */
+#define SRSS_NUM_PLL                    1u
+/* Number of HFCLK roots present. Must be > 0 */
+#define SRSS_NUM_HFROOT                 5u
+/* Number of PWR_HIB_DATA registers */
+#define SRSS_NUM_HIBDATA                1u
+/* Backup domain is present */
+#define SRSS_BACKUP_PRESENT             1u
+/* Mask of HFCLK root clock supervisors (CSV). For each clock root i, bit[i] of
+   mask indicates presence of a CSV. */
+#define SRSS_MASK_HFCSV                 0u
+/* Clock supervisor is present on WCO. Must be 0 if BACKUP_PRESENT==0. */
+#define SRSS_WCOCSV_PRESENT             0u
+/* Number of software watchdog timers. */
+#define SRSS_NUM_MCWDT                  2u
+/* Number of DSI inputs into clock muxes. This is used for logic optimization. */
+#define SRSS_NUM_DSI                    2u
+/* Alternate high-frequency clock is present. This is used for logic optimization. */
+#define SRSS_ALTHF_PRESENT              1u
+/* Alternate low-frequency clock is present. This is used for logic optimization. */
+#define SRSS_ALTLF_PRESENT              0u
+/* Use the hardened clkactfllmux block */
+#define SRSS_USE_HARD_CLKACTFLLMUX      1u
+/* Number of clock paths, including direct paths in hardened clkactfllmux block
+   (Must be >= NUM_CLKPATH) */
+#define SRSS_HARD_CLKPATH               6u
+/* Number of clock paths with muxes in hardened clkactfllmux block (Must be >=
+   NUM_PLL+1) */
+#define SRSS_HARD_CLKPATHMUX            6u
+/* Number of HFCLKS present in hardened clkactfllmux block (Must be >= NUM_HFROOT) */
+#define SRSS_HARD_HFROOT                6u
+/* ECO mux is present in hardened clkactfllmux block (Must be >= ECO_PRESENT) */
+#define SRSS_HARD_ECOMUX_PRESENT        1u
+/* ALTHF mux is present in hardened clkactfllmux block (Must be >= ALTHF_PRESENT) */
+#define SRSS_HARD_ALTHFMUX_PRESENT      1u
+/* Low-current buck regulator present. Can be derived from S40S_SISOBUCKLC_PRESENT
+   or SIMOBUCK_PRESENT. */
+#define SRSS_BUCKCTL_PRESENT            1u
+/* Low-current SISO buck core regulator is present. Only compatible with ULP
+   linear regulator system (ULPLINREG_PRESENT==1). */
+#define SRSS_S40S_SISOBUCKLC_PRESENT    0u
+/* Backup memory is present (only used when BACKUP_PRESENT==1) */
+#define SRSS_BACKUP_BMEM_PRESENT        0u
+/* Number of Backup registers to include (each is 32b). Only used when
+   BACKUP_PRESENT==1. */
+#define SRSS_BACKUP_NUM_BREG            16u
+/* Number of counters per IP (1..8) */
+#define TCPWM0_CNT_NR                   8u
+/* Counter width (in number of bits) */
+#define TCPWM0_CNT_CNT_WIDTH            32u
+/* Number of counters per IP (1..8) */
+#define TCPWM1_CNT_NR                   24u
+/* Counter width (in number of bits) */
+#define TCPWM1_CNT_CNT_WIDTH            16u
+/* Number of UDB Interrupts */
+#define UDB_NUMINT                      16u
+/* Number of triggers */
+#define UDB_NUMTR                       16u
+/* Number of UDB array rows (must be multiple of 2) */
+#define UDB_NUMROW                      2u
+/* Number of UDB array columns */
+#define UDB_NUMCOL                      6u
+/* DSI on bottom (1) or on bottom and top (2) of UDB array */
+#define UDB_DSISIDES                    2u
+/* Number of UDBs = NUMROW * NUMCOL */
+#define UDB_NUMUDB                      12u
+/* Number of UDB pairs = NUMUDB / 2 */
+#define UDB_NUMUDBPAIR                  6u
+/* Number of DSIs = NUMCOL * DSISIDES */
+#define UDB_NUMDSI                      12u
+/* Number of quad clocks */
+#define UDB_NUMQCLK                     3u
 
 /* MMIO Targets Defines */
 #define CY_MMIO_CRYPTO_GROUP_NR         1u

@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_tcpwm_pwm.c
-* \version 1.10.1
+* \version 1.10.2
 *
 * \brief
 *  The source file of the tcpwm driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -108,7 +108,7 @@ cy_en_tcpwm_status_t Cy_TCPWM_PWM_Init(TCPWM_Type *base, uint32_t cntNum,  cy_st
                                               _VAL2FLD(TCPWM_CNT_TR_CTRL0_STOP_SEL, config->killInput) |
                                               _VAL2FLD(TCPWM_CNT_TR_CTRL0_COUNT_SEL, config->countInput));
         }
-        
+
         TCPWM_CNT_TR_CTRL1(base, cntNum) = (_VAL2FLD(TCPWM_CNT_TR_CTRL1_CAPTURE_EDGE, config->swapInputMode) |
                                           _VAL2FLD(TCPWM_CNT_TR_CTRL1_RELOAD_EDGE, config->reloadInputMode) |
                                           _VAL2FLD(TCPWM_CNT_TR_CTRL1_START_EDGE, config->startInputMode) |
@@ -127,7 +127,7 @@ cy_en_tcpwm_status_t Cy_TCPWM_PWM_Init(TCPWM_Type *base, uint32_t cntNum,  cy_st
 * Function Name: Cy_TCPWM_PWM_DeInit
 ****************************************************************************//**
 *
-* De-initializes the counter in the TCPWM block, returns register values to 
+* De-initializes the counter in the TCPWM block, returns register values to
 * default.
 *
 * \param base
@@ -158,7 +158,7 @@ void Cy_TCPWM_PWM_DeInit(TCPWM_Type *base, uint32_t cntNum, cy_stc_tcpwm_pwm_con
     TCPWM_CNT_INTR_MASK(base, cntNum) = CY_TCPWM_CNT_INTR_MASK_DEFAULT;
 
     if (CY_TCPWM_INPUT_CREATOR != config->countInput)
-    {    
+    {
         TCPWM_CNT_TR_CTRL0(base, cntNum) = CY_TCPWM_CNT_TR_CTRL0_DEFAULT;
     }
 }

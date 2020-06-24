@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.50.3
+* \version 2.60
 *
 * Provides an API declaration of the SysLib driver.
 *
@@ -29,7 +29,7 @@
 * to handle the timing, logical checking or register.
 *
 * The functions and other declarations used in this driver are in cy_syslib.h.
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions
+* You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
 * The SysLib driver contains a set of different system functions. These functions
@@ -152,6 +152,17 @@
 * \section group_syslib_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">2.60</td>
+*     <td>Updated the following functions for the PSoC 64 devices:
+*         \ref Cy_SysLib_ClearFlashCacheAndBuffer, \ref Cy_SysLib_ClearResetReason,
+*         \ref Cy_SysLib_SetWaitStates.
+*     <td>Added PSoC 64 device support.</td>
+*   </tr>
+*   <tr>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>2.50.3</td>
 *     <td>Add section Known Issues
@@ -482,7 +493,7 @@ typedef enum
 #define CY_SYSLIB_DRV_VERSION_MAJOR    2
 
 /** The driver minor version */
-#define CY_SYSLIB_DRV_VERSION_MINOR    50
+#define CY_SYSLIB_DRV_VERSION_MINOR    60
 
 typedef void (* cy_israddress)(void);   /**< Type of ISR callbacks */
 #if defined (__ICCARM__)

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto.h
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the public interface for the Crypto driver.
@@ -32,7 +32,7 @@
 *
 * The functions and other declarations used in this driver are in cy_crypto.h,
 * cy_crypto_core.h, and cy_crypto_server.h. You can also include cy_pdl.h
-* (ModusToolbox only) to get access to all functions and declarations in the PDL.
+* to get access to all functions and declarations in the PDL.
 *
 * The driver implements two usage models:
 * * \ref group_crypto_cli_srv
@@ -291,6 +291,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.30.3</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>2.30.1</td>
 *     <td>
 *         Added a C++ namespace guards.
@@ -440,7 +445,7 @@
 *
 *   The functions and other declarations used in this part of the driver are in
 *   cy_crypto.h and cy_crypto_server.h. You can also include cy_pdl.h
-*   (ModusToolbox only) to get access to all functions and declarations in the
+*   to get access to all functions and declarations in the
 *   PDL.
 *
 *   The firmware initializes and starts the Crypto server. The server can run on any

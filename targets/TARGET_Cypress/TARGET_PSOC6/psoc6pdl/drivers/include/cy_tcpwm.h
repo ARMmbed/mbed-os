@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_tcpwm.h
-* \version 1.10.1
+* \version 1.10.2
 *
 * The header file of the TCPWM driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,21 +34,21 @@
 /**
 * \addtogroup group_tcpwm
 * \{
-* 
-* The TCPWM driver is a multifunction driver that implements Timer Counter, 
+*
+* The TCPWM driver is a multifunction driver that implements Timer Counter,
 * PWM, and Quadrature Decoder functionality using the TCPWM block.
 *
-* The functions and other declarations used in this driver are in cy_tcpwm_counter.h, 
-* cy_tcpwm_pwm.h, cy_tcpwm_quaddec.h respectively. Include cy_pdl.h 
-* (ModusToolbox only) to get access to all functions and declarations in the PDL.
+* The functions and other declarations used in this driver are in cy_tcpwm_counter.h,
+* cy_tcpwm_pwm.h, cy_tcpwm_quaddec.h respectively. Include cy_pdl.h
+* to get access to all functions and declarations in the PDL.
 *
-* Each TCPWM block is a collection of counters that can all be triggered 
-* simultaneously. For each function call, the base register address of 
-* the TCPWM being used must be passed first, followed by the index of 
-* the counter you want to touch next. 
-* For some functions, you can manage multiple counters simultaneously. You 
-* provide a bit field representing each counter, rather than the single counter 
-* index). 
+* Each TCPWM block is a collection of counters that can all be triggered
+* simultaneously. For each function call, the base register address of
+* the TCPWM being used must be passed first, followed by the index of
+* the counter you want to touch next.
+* For some functions, you can manage multiple counters simultaneously. You
+* provide a bit field representing each counter, rather than the single counter
+* index).
 *
 * The TCPWM supports three operating modes:
 * * Timer/Counter
@@ -58,7 +58,7 @@
 * \n
 * \b Timer/Counter
 *
-* Use this mode whenever a specific timing interval or measurement is 
+* Use this mode whenever a specific timing interval or measurement is
 * needed. Examples include:
 * * Creating a periodic interrupt for running other system tasks
 * * Measuring frequency of an input signal
@@ -71,18 +71,18 @@
 * The Timer/Counter has the following features:
 * * 16- or 32-bit Timer/Counter
 * * Programmable Period Register
-* * Programmable Compare Register. Compare value can be swapped with a 
+* * Programmable Compare Register. Compare value can be swapped with a
 * buffered compare value on comparison event
 * * Capture with buffer register
 * * Count Up, Count Down, or Count Up and Down Counting modes
 * * Continuous or One Shot Run modes
-* * Interrupt and Output on Overflow, Underflow, Capture, or Compare 
+* * Interrupt and Output on Overflow, Underflow, Capture, or Compare
 * * Start, Reload, Stop, Capture, and Count Inputs
 *
 * \n
 * \b PWM
 *
-* Use this mode when an output square wave is needed with a specific 
+* Use this mode when an output square wave is needed with a specific
 * period and duty cycle, such as:
 * * Creating arbitrary square wave outputs
 * * Driving an LED (changing the brightness)
@@ -91,30 +91,30 @@
 * The PWM has the following features:
 * * 16- or 32-bit Counter
 * * Two Programmable Period registers that can be swapped
-* * Two Output Compare registers that can be swapped on overflow and/or 
+* * Two Output Compare registers that can be swapped on overflow and/or
 * underflow
 * * Left Aligned, Right Aligned, Center Aligned, and Asymmetric Aligned modes
 * * Continuous or One Shot run modes
 * * Pseudo Random mode
 * * Two PWM outputs with Dead Time insertion, and programmable polarity
-* * Interrupt and Output on Overflow, Underflow, or Compare 
+* * Interrupt and Output on Overflow, Underflow, or Compare
 * * Start, Reload, Stop, Swap (Capture), and Count Inputs
-* * Multiple Components can be synchronized together for applications 
+* * Multiple Components can be synchronized together for applications
 * such as three phase motor control
 *
 * \n
 * \b Quadrature \b Decoder
 *
-* A quadrature decoder is used to decode the output of a quadrature encoder. 
-* A quadrature encoder senses the position, velocity, and direction of 
-* an object (for example a rotating axle, or a spinning mouse ball). 
-* A quadrature decoder can also be used for precision measurement of speed, 
-* acceleration, and position of a motor's rotor, or with a rotary switch to 
+* A quadrature decoder is used to decode the output of a quadrature encoder.
+* A quadrature encoder senses the position, velocity, and direction of
+* an object (for example a rotating axle, or a spinning mouse ball).
+* A quadrature decoder can also be used for precision measurement of speed,
+* acceleration, and position of a motor's rotor, or with a rotary switch to
 * determine user input. \n
-* 
+*
 * The Quadrature Decoder has the following features:
 * * 16- or 32-bit Counter
-* * Counter Resolution of x1, x2, and x4 the frequency of the phiA (Count) and 
+* * Counter Resolution of x1, x2, and x4 the frequency of the phiA (Count) and
 * phiB (Start) inputs
 * * Index Input to determine absolute position
 * * A positive edge on phiA increments the counter when phiB is 0 and decrements
@@ -122,40 +122,40 @@
 *
 * \section group_tcpwm_configuration Configuration Considerations
 *
-* For each mode, the TCPWM driver has a configuration structure, an Init 
-* function, and an Enable function. 
+* For each mode, the TCPWM driver has a configuration structure, an Init
+* function, and an Enable function.
 *
 * Provide the configuration parameters in the appropriate structure (see
-* Counter \ref group_tcpwm_data_structures_counter, PWM 
-* \ref group_tcpwm_data_structures_pwm, or QuadDec 
-* \ref group_tcpwm_data_structures_quaddec). 
-* Then call the appropriate Init function: 
-* \ref Cy_TCPWM_Counter_Init, \ref Cy_TCPWM_PWM_Init, or 
-* \ref Cy_TCPWM_QuadDec_Init. Provide the address of the filled structure as a 
-* parameter. To enable the counter, call the appropriate Enable function: 
-* \ref Cy_TCPWM_Counter_Enable, \ref Cy_TCPWM_PWM_Enable, or 
+* Counter \ref group_tcpwm_data_structures_counter, PWM
+* \ref group_tcpwm_data_structures_pwm, or QuadDec
+* \ref group_tcpwm_data_structures_quaddec).
+* Then call the appropriate Init function:
+* \ref Cy_TCPWM_Counter_Init, \ref Cy_TCPWM_PWM_Init, or
+* \ref Cy_TCPWM_QuadDec_Init. Provide the address of the filled structure as a
+* parameter. To enable the counter, call the appropriate Enable function:
+* \ref Cy_TCPWM_Counter_Enable, \ref Cy_TCPWM_PWM_Enable, or
 * \ref Cy_TCPWM_QuadDec_Enable).
 *
-* Many functions work with an individual counter. You can also manage multiple 
-* counters simultaneously for certain functions. These are listed in the 
-* \ref group_tcpwm_functions_common 
-* section of the TCPWM. You can enable, disable, or trigger (in various ways) 
-* multiple counters simultaneously. For these functions you provide a bit field 
-* representing each counter in the TCPWM you want to control. You can 
-* represent the bit field as an ORed mask of each counter, like 
-* ((1U << cntNumX) | (1U << cntNumX) | (1U << cntNumX)), where X is the counter 
+* Many functions work with an individual counter. You can also manage multiple
+* counters simultaneously for certain functions. These are listed in the
+* \ref group_tcpwm_functions_common
+* section of the TCPWM. You can enable, disable, or trigger (in various ways)
+* multiple counters simultaneously. For these functions you provide a bit field
+* representing each counter in the TCPWM you want to control. You can
+* represent the bit field as an ORed mask of each counter, like
+* ((1U << cntNumX) | (1U << cntNumX) | (1U << cntNumX)), where X is the counter
 * number from 0 to 31.
 *
 * \note
-* * If none of the input terminals (start, reload(index)) are used, the 
-* software event \ref Cy_TCPWM_TriggerStart or 
+* * If none of the input terminals (start, reload(index)) are used, the
+* software event \ref Cy_TCPWM_TriggerStart or
 * \ref Cy_TCPWM_TriggerReloadOrIndex must be called to start the counting.
-* * If count input terminal is not used, the \ref CY_TCPWM_INPUT_LEVEL macro 
-* should be set for the countInputMode parameter and the \ref CY_TCPWM_INPUT_1 
-* macro should be set for the countInput parameter in the configuration 
-* structure of the appropriate mode(Counter 
-* \ref group_tcpwm_data_structures_counter, PWM 
-* \ref group_tcpwm_data_structures_pwm, or QuadDec 
+* * If count input terminal is not used, the \ref CY_TCPWM_INPUT_LEVEL macro
+* should be set for the countInputMode parameter and the \ref CY_TCPWM_INPUT_1
+* macro should be set for the countInput parameter in the configuration
+* structure of the appropriate mode(Counter
+* \ref group_tcpwm_data_structures_counter, PWM
+* \ref group_tcpwm_data_structures_pwm, or QuadDec
 * \ref group_tcpwm_data_structures_quaddec).
 *
 * \subsection group_tcpwm_pins Assign and Configure Pins
@@ -166,17 +166,17 @@
 *
 * \subsection group_tcpwm_clock Assign Clock Divider
 * The clock source must be connected to proper working.
-* Any of the peripheral clock dividers could be used. Use the  
+* Any of the peripheral clock dividers could be used. Use the
 * \ref group_sysclk driver API to do that.
 *
 * \snippet tcpwm/counter/snippet/main.c snippet_Cy_TCPWM_Clock
 *
 * \section group_tcpwm_more_information More Information
 *
-* For more information on the TCPWM peripheral, refer to the technical 
+* For more information on the TCPWM peripheral, refer to the technical
 * reference manual (TRM).
 *
-* \section group_tcpwm_MISRA MISRA-C Compliance 
+* \section group_tcpwm_MISRA MISRA-C Compliance
 * <table class="doxtable">
 *   <tr>
 *     <th>MISRA Rule</th>
@@ -198,13 +198,18 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.10.2</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>1.10.1</td>
 *     <td>Added header guards CY_IP_MXTCPWM.</td>
 *     <td>To enable the PDL compilation with wounded out IP blocks.</td>
 *   </tr>
 *   <tr>
 *     <td rowspan="2">1.10</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -212,7 +217,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -240,9 +245,9 @@
 * Most users will use individual drivers and do not need to use the common
 * API for the TCPWM.
 *
-* The functions and other declarations used in this part of the driver are in cy_tcpwm.h. 
-* Include either of cy_tcpwm_counter.h, cy_tcpwm_pwm.h, cy_tcpwm_quaddec.h 
-* depending on the desired functionality. You can also include cy_pdl.h 
+* The functions and other declarations used in this part of the driver are in cy_tcpwm.h.
+* Include either of cy_tcpwm_counter.h, cy_tcpwm_pwm.h, cy_tcpwm_quaddec.h
+* depending on the desired functionality. You can also include cy_pdl.h
 * to get access to all functions and declarations in the PDL.
 *
 * \{
@@ -331,7 +336,7 @@ extern "C" {
 /**
 * \defgroup group_tcpwm_interrupt_sources  Interrupt Sources
 * \{
-* Interrupt Sources 
+* Interrupt Sources
 */
 #define CY_TCPWM_INT_ON_TC              (1U) /**< Interrupt on Terminal count(TC) */
 #define CY_TCPWM_INT_ON_CC              (2U) /**< Interrupt on Compare/Capture(CC) */
@@ -382,13 +387,13 @@ extern "C" {
 */
 
 /** TCPWM status definitions */
-typedef enum 
+typedef enum
 {
     CY_TCPWM_SUCCESS = 0x00U,                                           /**< Successful */
     CY_TCPWM_BAD_PARAM = CY_TCPWM_ID | CY_PDL_STATUS_ERROR | 0x01U,     /**< One or more invalid parameters */
 } cy_en_tcpwm_status_t;
 /** \} group_tcpwm_enums */
- 
+
 /*******************************************************************************
 *        Function Prototypes
 *******************************************************************************/
@@ -416,7 +421,7 @@ __STATIC_INLINE uint32_t Cy_TCPWM_GetInterruptStatusMasked(TCPWM_Type const *bas
 * Function Name: Cy_TCPWM_Enable_Multiple
 ****************************************************************************//**
 *
-* Enables the counter(s) in the TCPWM block. Multiple blocks can be started 
+* Enables the counter(s) in the TCPWM block. Multiple blocks can be started
 * simultaneously.
 *
 * \param base
@@ -439,7 +444,7 @@ __STATIC_INLINE void Cy_TCPWM_Enable_Multiple(TCPWM_Type *base, uint32_t counter
 * Function Name: Cy_TCPWM_Disable_Multiple
 ****************************************************************************//**
 *
-* Disables the counter(s) in the TCPWM block. Multiple TCPWM can be disabled 
+* Disables the counter(s) in the TCPWM block. Multiple TCPWM can be disabled
 * simultaneously.
 *
 * \param base
@@ -555,10 +560,10 @@ __STATIC_INLINE void Cy_TCPWM_TriggerCaptureOrSwap(TCPWM_Type *base, uint32_t co
 * \param base
 * The pointer to a TCPWM instance.
 *
-* \param cntNum 
+* \param cntNum
 * The Counter instance number in the selected TCPWM.
 *
-* \return 
+* \return
 * See \ref group_tcpwm_interrupt_sources
 *
 * \funcusage
@@ -580,7 +585,7 @@ __STATIC_INLINE uint32_t Cy_TCPWM_GetInterruptStatus(TCPWM_Type const *base, uin
 * \param base
 * The pointer to a TCPWM instance.
 *
-* \param cntNum 
+* \param cntNum
 * The Counter instance number in the selected TCPWM.
 *
 * \param source
@@ -606,7 +611,7 @@ __STATIC_INLINE void Cy_TCPWM_ClearInterrupt(TCPWM_Type *base, uint32_t cntNum, 
 * \param base
 * The pointer to a TCPWM instance.
 *
-* \param cntNum 
+* \param cntNum
 * The Counter instance number in the selected TCPWM.
 *
 * \param source
@@ -626,13 +631,13 @@ __STATIC_INLINE void Cy_TCPWM_SetInterrupt(TCPWM_Type *base, uint32_t cntNum,  u
 * Function Name: Cy_TCPWM_SetInterruptMask
 ****************************************************************************//**
 *
-* Sets an interrupt mask. A 1 means that when the event occurs, it will cause an 
+* Sets an interrupt mask. A 1 means that when the event occurs, it will cause an
 * interrupt; a 0 means no interrupt will be triggered.
 *
 * \param base
 * The pointer to a TCPWM instance.
 *
-* \param cntNum 
+* \param cntNum
 * The Counter instance number in the selected TCPWM.
 *
 * \param mask
@@ -657,10 +662,10 @@ __STATIC_INLINE void Cy_TCPWM_SetInterruptMask(TCPWM_Type *base, uint32_t cntNum
 * \param base
 * The pointer to a TCPWM instance.
 *
-* \param cntNum 
+* \param cntNum
 * The Counter instance number in the selected TCPWM.
 *
-* \return 
+* \return
 * Interrupt Mask. See \ref group_tcpwm_interrupt_sources
 *
 * \funcusage
@@ -682,10 +687,10 @@ __STATIC_INLINE uint32_t Cy_TCPWM_GetInterruptMask(TCPWM_Type const *base, uint3
 * \param base
 * The pointer to a TCPWM instance.
 *
-* \param cntNum 
+* \param cntNum
 * The Counter instance number in the selected TCPWM.
 *
-* \return 
+* \return
 * Interrupt Mask. See \ref group_tcpwm_interrupt_sources
 *
 * \funcusage

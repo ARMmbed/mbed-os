@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_lvd.c
-* \version 1.10
+* \version 1.20
 *
 * The source code file for the LVD driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ extern "C" {
 * When this function is registered by \ref Cy_SysPm_RegisterCallback - it
 * automatically enables the LVD after wake up from Deep-Sleep mode.
 *
-* \param callbackParams The pointer to the callback parameters structure, 
+* \param callbackParams The pointer to the callback parameters structure,
 * see \ref cy_stc_syspm_callback_params_t.
 *
 * \param mode
@@ -48,7 +48,7 @@ extern "C" {
 cy_en_syspm_status_t Cy_LVD_DeepSleepCallback(cy_stc_syspm_callback_params_t * callbackParams, cy_en_syspm_callback_mode_t mode)
 {
     cy_en_syspm_status_t ret = CY_SYSPM_SUCCESS;
-    
+
     if (callbackParams != NULL)
     {
         switch(mode)
@@ -57,11 +57,11 @@ cy_en_syspm_status_t Cy_LVD_DeepSleepCallback(cy_stc_syspm_callback_params_t * c
             case CY_SYSPM_CHECK_FAIL:
             case CY_SYSPM_BEFORE_TRANSITION:
                 break;
-                
+
             case CY_SYSPM_AFTER_TRANSITION:
                 Cy_LVD_Enable();
                 break;
-            
+
             default:
                 ret = CY_SYSPM_FAIL;
                 break;

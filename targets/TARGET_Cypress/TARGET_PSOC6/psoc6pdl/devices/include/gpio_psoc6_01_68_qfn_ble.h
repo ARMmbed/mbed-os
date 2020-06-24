@@ -5,11 +5,11 @@
 * PSoC6_01 device GPIO header for 68-QFN-BLE package
 *
 * \note
-* Generator version: 1.5.0.1304
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,16 +46,16 @@ enum
 /* AMUXBUS Segments */
 enum
 {
-    AMUXBUS_MAIN,
     AMUXBUS_ADFT0_VDDD,
-    AMUXBUS_NOISY,
     AMUXBUS_ADFT1_VDDD,
-    AMUXBUS_CSD0,
-    AMUXBUS_VDDIO_1,
-    AMUXBUS_CSD1,
-    AMUXBUS_SAR,
-    AMUXBUS_ANALOG_VDDD,
     AMUXBUS_ANALOG_VDDA,
+    AMUXBUS_ANALOG_VDDD,
+    AMUXBUS_CSD0,
+    AMUXBUS_CSD1,
+    AMUXBUS_MAIN,
+    AMUXBUS_NOISY,
+    AMUXBUS_SAR,
+    AMUXBUS_VDDIO_1,
 };
 
 /* AMUX Splitter Controls */

@@ -32,21 +32,26 @@
     <Destination id="mxs40lfclk-1.1" valid="true" message="Migration is successful" defaultMapping="true"/>
   </Source>
   <Source id="mxs40power-1.0">
-    <Destination id="mxs40power-1.2" valid="true" message="Migration is successful" defaultMapping="true">
+    <Destination id="mxs40power-1.3" valid="true" message="Migration is successful" defaultMapping="true">
       <Parameter param="pwrEstimator" value="0" />
       <Parameter param="actPwrMode" value="`${(value(&quot;pwrMode&quot;) eq &quot;LDO_0_9&quot;) || (value(&quot;pwrMode&quot;) eq &quot;SIMO_0_9&quot;) ? &quot;ULP&quot; : &quot;LP&quot;}`" />
-      <Parameter param="coreRegulator" value="`${(value(&quot;pwrMode&quot;) eq &quot;LDO_0_9&quot;) || (value(&quot;pwrMode&quot;) eq &quot;LDO_1_1&quot;) ? &quot;CY_SYSPM_LDO_MODE_NORMAL&quot; : &quot;CY_SYSPM_LDO_MODE_DISABLED&quot;}`" />
+      <Parameter param="coreRegulator" value="`${(value(&quot;pwrMode&quot;) eq &quot;LDO_0_9&quot;) || (value(&quot;pwrMode&quot;) eq &quot;LDO_1_1&quot;) ? &quot;CY_SYSPM_LDO_MODE_NORMAL&quot; : &quot;CY_SYSPM_BUCK_MODE_NORMAL&quot;}`" />
       <Parameter param="idlePwrMode" value="CY_CFG_PWR_MODE_DEEPSLEEP" />
       <Parameter param="deepsleepLatency" value="0" />
     </Destination>
   </Source>
   <Source id="mxs40power-1.1">
-    <Destination id="mxs40power-1.2" valid="true" message="Migration is successful" defaultMapping="true">
+    <Destination id="mxs40power-1.3" valid="true" message="Migration is successful" defaultMapping="true">
       <Parameter param="pwrEstimator" value="0" />
       <Parameter param="actPwrMode" value="`${(value(&quot;pwrMode&quot;) eq &quot;LDO_0_9&quot;) || (value(&quot;pwrMode&quot;) eq &quot;SIMO_0_9&quot;) ? &quot;ULP&quot; : &quot;LP&quot;}`" />
-      <Parameter param="coreRegulator" value="`${(value(&quot;pwrMode&quot;) eq &quot;LDO_0_9&quot;) || (value(&quot;pwrMode&quot;) eq &quot;LDO_1_1&quot;) ? &quot;CY_SYSPM_LDO_MODE_NORMAL&quot; : &quot;CY_SYSPM_LDO_MODE_DISABLED&quot;}`" />
+      <Parameter param="coreRegulator" value="`${(value(&quot;pwrMode&quot;) eq &quot;LDO_0_9&quot;) || (value(&quot;pwrMode&quot;) eq &quot;LDO_1_1&quot;) ? &quot;CY_SYSPM_LDO_MODE_NORMAL&quot; : &quot;CY_SYSPM_BUCK_MODE_NORMAL&quot;}`" />
       <Parameter param="idlePwrMode" value="CY_CFG_PWR_MODE_DEEPSLEEP" />
       <Parameter param="deepsleepLatency" value="0" />
+    </Destination>
+  </Source>
+  <Source id="mxs40power-1.2">
+    <Destination id="mxs40power-1.3" valid="true" message="Migration is successful" defaultMapping="true">
+      <Parameter param="coreRegulator" value="`${(value(&quot;coreRegulator&quot;) eq &quot;CY_SYSPM_LDO_MODE_DISABLED&quot;) ? &quot;CY_SYSPM_BUCK_MODE_NORMAL&quot; : value(&quot;coreRegulator&quot;)}`" />
     </Destination>
   </Source>
   <Source id="mxs40pin-1.0">
@@ -63,5 +68,8 @@
   </Source>
   <Source id="mxs40usbfsdevice-1.0">
     <Destination id="mxs40usbfsdevice-1.1" valid="true" message="Migration is successful" defaultMapping="true"/>
+  </Source>
+  <Source id="mxs40eco-1.2">
+    <Destination id="mxs40eco-2.0" valid="true" message="Migration is successful" defaultMapping="true"/>
   </Source>
 </Migration>

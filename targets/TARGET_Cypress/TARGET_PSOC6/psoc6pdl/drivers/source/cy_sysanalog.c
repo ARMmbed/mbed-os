@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_sysanalog.c
-* \version 1.10
+* \version 1.10.1
 *
 * Provides the public functions for the API for the SAR driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,4 +113,3 @@ cy_en_sysanalog_status_t Cy_SysAnalog_Init(const cy_stc_sysanalog_config_t *conf
 #endif /* CY_IP_MXS40PASS */
 
 /* [] END OF FILE */
-

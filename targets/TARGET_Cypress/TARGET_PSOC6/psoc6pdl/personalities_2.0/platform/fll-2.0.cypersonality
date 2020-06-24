@@ -92,7 +92,18 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_FLL_ENABLED" value="1" public="false" include="true" />
-    <ConfigStruct name="`${INST_NAME . &quot;_fllConfig&quot;}`" type="cy_stc_fll_manual_config_t" const="true" public="false" include="true" >
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_MULT" value="`${multiplier}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_REFDIV" value="`${reference}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_CCO_RANGE" value="`${getTclVar(&quot;ccoRange&quot;, callSolver)}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_ENABLE_OUTDIV" value="`${getTclVar(&quot;enableOutputDiv&quot;, callSolver)}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_LOCK_TOLERANCE" value="`${tolerance}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_IGAIN" value="`${getTclVar(&quot;igain&quot;, callSolver)}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_PGAIN" value="`${getTclVar(&quot;pgain&quot;, callSolver)}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_SETTLING_COUNT" value="`${getTclVar(&quot;settlingCount&quot;, callSolver)}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_OUTPUT_MODE" value="`${getTclVar(&quot;outputMode&quot;, callSolver)}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_CCO_FREQ" value="`${getTclVar(&quot;cco_Freq&quot;, callSolver)}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_FLL_OUT_FREQ" value="`${frequency}`" public="false" include="true" />
+    <ConfigStruct name="`${INST_NAME . &quot;_fllConfig&quot;}`" type="cy_stc_fll_manual_config_t" const="true" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" >
       <Member name="fllMult" value="`${multiplier}`U" />
       <Member name="refDiv" value="`${reference}`U" />
       <Member name="ccoRange" value="`${getTclVar(&quot;ccoRange&quot;, callSolver)}`" />
@@ -104,6 +115,6 @@
       <Member name="outputMode" value="`${getTclVar(&quot;outputMode&quot;, callSolver)}`" />
       <Member name="cco_Freq" value="`${getTclVar(&quot;cco_Freq&quot;, callSolver)}`U" />
     </ConfigStruct>
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_FllInit()" body="    if (CY_SYSCLK_SUCCESS != Cy_SysClk_FllManualConfigure(&amp;`${INST_NAME}`_fllConfig))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_FLL_ERROR);&#xA;    }&#xA;    if (CY_SYSCLK_SUCCESS != Cy_SysClk_FllEnable(200000UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_FLL_ERROR);&#xA;    }" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_FllInit()" body="    if (CY_SYSCLK_SUCCESS != Cy_SysClk_FllManualConfigure(&amp;`${INST_NAME}`_fllConfig))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_FLL_ERROR);&#xA;    }&#xA;    if (CY_SYSCLK_SUCCESS != Cy_SysClk_FllEnable(200000UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_FLL_ERROR);&#xA;    }" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

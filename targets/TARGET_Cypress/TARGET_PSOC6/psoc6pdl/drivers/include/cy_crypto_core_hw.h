@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.h
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the headers to the API for the utils
@@ -531,4 +531,3 @@ __STATIC_INLINE uint32_t * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base)
 
 
 /* [] END OF FILE */
-

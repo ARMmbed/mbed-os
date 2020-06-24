@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc.h
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides Elliptic Curve (EC) Scalar Multiplication using (X,Y)-only,
@@ -643,7 +643,7 @@ static void Cy_Crypto_Core_EC_CS_MUL_Red_P521(CRYPTO_Type *base, uint32_t z, uin
 static void Cy_Crypto_Core_EC_CS_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t x, uint32_t size)
 {
     (void)size; /* Suppress warning */
-    
+
     switch (eccMode)
     {
         case CY_CRYPTO_ECC_ECP_SECP192R1:
@@ -1078,7 +1078,7 @@ static void Cy_Crypto_Core_EC_SM_MUL_Red_P521(CRYPTO_Type *base, uint32_t z, uin
 static void Cy_Crypto_Core_EC_SM_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t x, uint32_t size)
 {
     (void)size; /* Suppress warning */
-    
+
     switch (eccMode) {
         case CY_CRYPTO_ECC_ECP_SECP192R1:
             Cy_Crypto_Core_EC_SM_MUL_Red_P192(base, z, x);

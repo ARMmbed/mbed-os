@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.c
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the source code to the API for the utils
@@ -564,4 +564,3 @@ void Cy_Crypto_Core_InvertEndianness(void *inArrPtr, uint32_t byteSize)
 
 
 /* [] END OF FILE */
-

@@ -5,7 +5,7 @@
 * PSoC6_04 device configuration header
 *
 * \note
-* Generator version: 1.6.0.111
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -781,6 +781,61 @@ typedef enum
     TRIG_IN_MUX_10_CAN_TT_TR_OUT0   = 0x00000A01u /* canfd[0].tr_tmp_rtp_out[0] */
 } en_trig_input_cantt_t;
 
+/* Trigger Input Group 11 - CTDAC trigger multiplexer */
+typedef enum
+{
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT00  = 0x00000B01u, /* tcpwm[0].tr_out0[0] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT10  = 0x00000B02u, /* tcpwm[0].tr_out1[0] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT01  = 0x00000B03u, /* tcpwm[0].tr_out0[1] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT11  = 0x00000B04u, /* tcpwm[0].tr_out1[1] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT02  = 0x00000B05u, /* tcpwm[0].tr_out0[2] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT12  = 0x00000B06u, /* tcpwm[0].tr_out1[2] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT03  = 0x00000B07u, /* tcpwm[0].tr_out0[3] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT13  = 0x00000B08u, /* tcpwm[0].tr_out1[3] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0256 = 0x00000B09u, /* tcpwm[0].tr_out0[256] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1256 = 0x00000B0Au, /* tcpwm[0].tr_out1[256] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0257 = 0x00000B0Bu, /* tcpwm[0].tr_out0[257] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1257 = 0x00000B0Cu, /* tcpwm[0].tr_out1[257] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0258 = 0x00000B0Du, /* tcpwm[0].tr_out0[258] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1258 = 0x00000B0Eu, /* tcpwm[0].tr_out1[258] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0259 = 0x00000B0Fu, /* tcpwm[0].tr_out0[259] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1259 = 0x00000B10u, /* tcpwm[0].tr_out1[259] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0260 = 0x00000B11u, /* tcpwm[0].tr_out0[260] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1260 = 0x00000B12u, /* tcpwm[0].tr_out1[260] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0261 = 0x00000B13u, /* tcpwm[0].tr_out0[261] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1261 = 0x00000B14u, /* tcpwm[0].tr_out1[261] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0262 = 0x00000B15u, /* tcpwm[0].tr_out0[262] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1262 = 0x00000B16u, /* tcpwm[0].tr_out1[262] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0263 = 0x00000B17u, /* tcpwm[0].tr_out0[263] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1263 = 0x00000B18u, /* tcpwm[0].tr_out1[263] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT0    = 0x00000B19u, /* peri.tr_io_input[0] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT1    = 0x00000B1Au, /* peri.tr_io_input[1] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT2    = 0x00000B1Bu, /* peri.tr_io_input[2] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT3    = 0x00000B1Cu, /* peri.tr_io_input[3] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT4    = 0x00000B1Du, /* peri.tr_io_input[4] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT5    = 0x00000B1Eu, /* peri.tr_io_input[5] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT6    = 0x00000B1Fu, /* peri.tr_io_input[6] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT7    = 0x00000B20u, /* peri.tr_io_input[7] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT8    = 0x00000B21u, /* peri.tr_io_input[8] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT9    = 0x00000B22u, /* peri.tr_io_input[9] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT10   = 0x00000B23u, /* peri.tr_io_input[10] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT11   = 0x00000B24u, /* peri.tr_io_input[11] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT12   = 0x00000B25u, /* peri.tr_io_input[12] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT13   = 0x00000B26u, /* peri.tr_io_input[13] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT14   = 0x00000B27u, /* peri.tr_io_input[14] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT15   = 0x00000B28u, /* peri.tr_io_input[15] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT16   = 0x00000B29u, /* peri.tr_io_input[16] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT17   = 0x00000B2Au, /* peri.tr_io_input[17] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT18   = 0x00000B2Bu, /* peri.tr_io_input[18] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT19   = 0x00000B2Cu, /* peri.tr_io_input[19] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT20   = 0x00000B2Du, /* peri.tr_io_input[20] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT21   = 0x00000B2Eu, /* peri.tr_io_input[21] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT22   = 0x00000B2Fu, /* peri.tr_io_input[22] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT23   = 0x00000B30u, /* peri.tr_io_input[23] */
+    TRIG_IN_MUX_11_LPCOMP_DSI_COMP0 = 0x00000B31u, /* lpcomp.dsi_comp0 */
+    TRIG_IN_MUX_11_LPCOMP_DSI_COMP1 = 0x00000B32u /* lpcomp.dsi_comp1 */
+} en_trig_input_ctadc_strobe_t;
+
 /* Trigger Group Outputs */
 /* Trigger Output Group 0 - PDMA0 Request Assignments */
 typedef enum
@@ -892,6 +947,12 @@ typedef enum
 {
     TRIG_OUT_MUX_10_CAN_TT_TR_IN0   = 0x40000A00u /* canfd[0].tr_evt_swt_in[0] */
 } en_trig_output_cantt_t;
+
+/* Trigger Output Group 11 - CTDAC trigger multiplexer */
+typedef enum
+{
+    TRIG_OUT_MUX_11_PASS_CTDAC_STROBE = 0x40000B00u /* pass.dsi_ctdac_strobe */
+} en_trig_output_ctadc_strobe_t;
 
 /* Trigger Output Group 0 - SCB PDMA0 Triggers (OneToOne) */
 typedef enum
@@ -1100,7 +1161,6 @@ typedef enum
 #include "ip/cyip_usbfs.h"
 #include "ip/cyip_smif.h"
 #include "ip/cyip_canfd.h"
-#include "ip/cyip_scb.h"
 #include "ip/cyip_scb.h"
 #include "ip/cyip_ctbm_v2.h"
 #include "ip/cyip_ctdac_v2.h"
@@ -2558,7 +2618,7 @@ typedef PASS_V2_Type PASS_Type;
 /* Trigger module present (0=No, 1=Yes) */
 #define PERI_TR                         1u
 /* Number of trigger groups */
-#define PERI_TR_GROUP_NR                11u
+#define PERI_TR_GROUP_NR                12u
 /* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
 #define PERI_TR_GROUP_NR0_TR_GROUP_TR_MANIPULATION_PRESENT 1u
 /* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
@@ -2581,6 +2641,8 @@ typedef PASS_V2_Type PASS_Type;
 #define PERI_TR_GROUP_NR9_TR_GROUP_TR_MANIPULATION_PRESENT 1u
 /* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
 #define PERI_TR_GROUP_NR10_TR_GROUP_TR_MANIPULATION_PRESENT 1u
+/* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
+#define PERI_TR_GROUP_NR11_TR_GROUP_TR_MANIPULATION_PRESENT 1u
 /* Trigger 1-to-1 group trigger manipulation logic present ('0': no, '1': yes) */
 #define PERI_TR_1TO1_GROUP_NR0_TR_1TO1_GROUP_TR_1TO1_MANIPULATION_PRESENT 1u
 /* Trigger 1-to-1 group trigger manipulation logic present ('0': no, '1': yes) */
@@ -2752,56 +2814,6 @@ typedef PASS_V2_Type PASS_Type;
 /* Number of used spi_select signals (max 4) */
 #define SCB2_CHIP_TOP_SPI_SEL_NR        3u
 /* DeepSleep support ('0':no, '1': yes) */
-#define SCB3_DEEPSLEEP                  0u
-/* Externally clocked support? ('0': no, '1': yes) */
-#define SCB3_EC                         0u
-/* I2C master support? ('0': no, '1': yes) */
-#define SCB3_I2C_M                      1u
-/* I2C slave support? ('0': no, '1': yes) */
-#define SCB3_I2C_S                      1u
-/* I2C support? (I2C_M | I2C_S) */
-#define SCB3_I2C                        1u
-/* I2C glitch filters present? ('0': no, '1': yes) */
-#define SCB3_I2C_GLITCH                 1u
-/* I2C externally clocked support? ('0': no, '1': yes) */
-#define SCB3_I2C_EC                     0u
-/* I2C master and slave support? (I2C_M & I2C_S) */
-#define SCB3_I2C_M_S                    1u
-/* I2C slave with EC? (I2C_S & I2C_EC) */
-#define SCB3_I2C_S_EC                   0u
-/* SPI master support? ('0': no, '1': yes) */
-#define SCB3_SPI_M                      1u
-/* SPI slave support? ('0': no, '1': yes) */
-#define SCB3_SPI_S                      1u
-/* SPI support? (SPI_M | SPI_S) */
-#define SCB3_SPI                        1u
-/* SPI externally clocked support? ('0': no, '1': yes) */
-#define SCB3_SPI_EC                     0u
-/* SPI slave with EC? (SPI_S & SPI_EC) */
-#define SCB3_SPI_S_EC                   0u
-/* UART support? ('0': no, '1': yes) */
-#define SCB3_UART                       1u
-/* SPI or UART (SPI | UART) */
-#define SCB3_SPI_UART                   1u
-/* Number of EZ memory Bytes ([32, 256, 512]). This memory is used in EZ mode,
-   CMD_RESP mode and FIFO mode. Note that in EZ mode, if EZ_DATA_NR is 512, only
-   256 B are used. This is because the EZ mode uses 8-bit addresses. */
-#define SCB3_EZ_DATA_NR                 256u
-/* Command/response mode support? ('0': no, '1': yes) */
-#define SCB3_CMD_RESP                   0u
-/* EZ mode support? ('0': no, '1': yes) */
-#define SCB3_EZ                         0u
-/* Command/response mode or EZ mode support? (CMD_RESP | EZ) */
-#define SCB3_EZ_CMD_RESP                0u
-/* I2C slave with EZ mode (I2C_S & EZ) */
-#define SCB3_I2C_S_EZ                   0u
-/* SPI slave with EZ mode (SPI_S & EZ) */
-#define SCB3_SPI_S_EZ                   0u
-/* Support I2C FM+/1Mbps speed ('0': no, '1': yes) */
-#define SCB3_I2C_FAST_PLUS              1u
-/* Number of used spi_select signals (max 4) */
-#define SCB3_CHIP_TOP_SPI_SEL_NR        3u
-/* DeepSleep support ('0':no, '1': yes) */
 #define SCB4_DEEPSLEEP                  0u
 /* Externally clocked support? ('0': no, '1': yes) */
 #define SCB4_EC                         0u
@@ -2901,6 +2913,56 @@ typedef PASS_V2_Type PASS_Type;
 #define SCB5_I2C_FAST_PLUS              1u
 /* Number of used spi_select signals (max 4) */
 #define SCB5_CHIP_TOP_SPI_SEL_NR        4u
+/* DeepSleep support ('0':no, '1': yes) */
+#define SCB6_DEEPSLEEP                  1u
+/* Externally clocked support? ('0': no, '1': yes) */
+#define SCB6_EC                         1u
+/* I2C master support? ('0': no, '1': yes) */
+#define SCB6_I2C_M                      1u
+/* I2C slave support? ('0': no, '1': yes) */
+#define SCB6_I2C_S                      1u
+/* I2C support? (I2C_M | I2C_S) */
+#define SCB6_I2C                        1u
+/* I2C glitch filters present? ('0': no, '1': yes) */
+#define SCB6_I2C_GLITCH                 1u
+/* I2C externally clocked support? ('0': no, '1': yes) */
+#define SCB6_I2C_EC                     1u
+/* I2C master and slave support? (I2C_M & I2C_S) */
+#define SCB6_I2C_M_S                    1u
+/* I2C slave with EC? (I2C_S & I2C_EC) */
+#define SCB6_I2C_S_EC                   1u
+/* SPI master support? ('0': no, '1': yes) */
+#define SCB6_SPI_M                      1u
+/* SPI slave support? ('0': no, '1': yes) */
+#define SCB6_SPI_S                      1u
+/* SPI support? (SPI_M | SPI_S) */
+#define SCB6_SPI                        1u
+/* SPI externally clocked support? ('0': no, '1': yes) */
+#define SCB6_SPI_EC                     1u
+/* SPI slave with EC? (SPI_S & SPI_EC) */
+#define SCB6_SPI_S_EC                   1u
+/* UART support? ('0': no, '1': yes) */
+#define SCB6_UART                       0u
+/* SPI or UART (SPI | UART) */
+#define SCB6_SPI_UART                   1u
+/* Number of EZ memory Bytes ([32, 256, 512]). This memory is used in EZ mode,
+   CMD_RESP mode and FIFO mode. Note that in EZ mode, if EZ_DATA_NR is 512, only
+   256 B are used. This is because the EZ mode uses 8-bit addresses. */
+#define SCB6_EZ_DATA_NR                 256u
+/* Command/response mode support? ('0': no, '1': yes) */
+#define SCB6_CMD_RESP                   1u
+/* EZ mode support? ('0': no, '1': yes) */
+#define SCB6_EZ                         1u
+/* Command/response mode or EZ mode support? (CMD_RESP | EZ) */
+#define SCB6_EZ_CMD_RESP                1u
+/* I2C slave with EZ mode (I2C_S & EZ) */
+#define SCB6_I2C_S_EZ                   1u
+/* SPI slave with EZ mode (SPI_S & EZ) */
+#define SCB6_SPI_S_EZ                   1u
+/* Support I2C FM+/1Mbps speed ('0': no, '1': yes) */
+#define SCB6_I2C_FAST_PLUS              1u
+/* Number of used spi_select signals (max 4) */
+#define SCB6_CHIP_TOP_SPI_SEL_NR        1u
 /* SONOS Flash is used or not ('0': no, '1': yes) */
 #define SFLASH_FLASHC_IS_SONOS          1u
 /* CPUSS_WOUNDING_PRESENT or not ('0': no, '1': yes) */

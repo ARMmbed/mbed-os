@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v2.c
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the source code to the API for the SHA method
@@ -68,7 +68,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
                              void *shaBuffers)
 {
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
-    
+
     (void)base; /* Suppress warning */
 
     /* Initialization vectors for different modes of the SHA algorithm */

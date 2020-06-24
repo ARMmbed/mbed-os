@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.h
-* \version 2.10
+* \version 2.20
 *
 * This file specifies the structure for core and peripheral block HW base
 * addresses, versions, and parameters.
@@ -120,6 +120,7 @@ typedef struct
     uint8_t  srssNumClkpath;
     uint8_t  srssNumPll;
     uint8_t  srssNumHfroot;
+    uint8_t  srssIsPiloPresent;
     uint8_t  periClockNr;
     uint8_t  smifDeviceNr;
     uint8_t  passSarChannels;
@@ -219,6 +220,8 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 
 #define CY_SRSS_V1_3                        (0x13U == cy_device->srssVersion)
 #define CY_SRSS_MFO_PRESENT                 (CY_SRSS_V1_3)
+
+#define CY_SRSS_PILO_PRESENT                 (1U == cy_device->srssIsPiloPresent)
 
 #define CY_SRSS_NUM_CLKPATH                 ((uint32_t)(cy_device->srssNumClkpath))
 #define CY_SRSS_NUM_PLL                     ((uint32_t)(cy_device->srssNumPll))
@@ -950,6 +953,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define CY_IPC_CHAN_SYSCALL_CM4             (1U)  /* System calls for the 1st non-CM0 processor */
 #define CY_IPC_CHAN_SYSCALL_DAP             (2UL) /* System calls for the DAP */
 #define CY_IPC_CHAN_SEMA                    (3UL) /* IPC data channel for the Semaphores */
+#define CY_IPC_CHAN_PRA                     (4UL) /* IPC data channel for PRA */
 #define CY_IPC_CHAN_CYPIPE_EP0              (5UL) /* IPC data channel for CYPIPE EP0 */
 #define CY_IPC_CHAN_CYPIPE_EP1              (6UL) /* IPC data channel for CYPIPE EP1 */
 #define CY_IPC_CHAN_DDFT                    (7UL) /* IPC data channel for DDFT */
@@ -958,6 +962,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define CY_IPC_INTR_SYSCALL1                (0UL)
 #define CY_IPC_INTR_CYPIPE_EP0              (3UL)
 #define CY_IPC_INTR_CYPIPE_EP1              (4UL)
+#define CY_IPC_INTR_PRA                     (5UL)
 #define CY_IPC_INTR_SPARE                   (7UL)
 
 /* Endpoint indexes in the pipe array */

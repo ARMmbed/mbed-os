@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_dmac.h
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 * The header file of the DMAC driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,8 +28,8 @@
 * \{
 * Configures the DMA Controller block, channels and descriptors.
 *
-* The functions and other declarations used in this driver are in cy_dmac.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
+* The functions and other declarations used in this driver are in cy_dmac.h.
+* You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
 * The DMA Controller channel can be used in any project to transfer data
@@ -39,7 +39,7 @@
 * and supports multiple channels. Many API functions for the DMAC driver require
 * a base hardware address and channel number.
 * Ensure that you use the correct hardware address for the DMA Controller block in use.
-* 
+*
 * Features:
 * * Multiple channels (device specific).
 * * Four priority levels for each channel.
@@ -53,13 +53,13 @@
 *
 * To set up a DMAC driver, initialize a descriptor,
 * initialize and enable a channel, and enable the DMAC block.
-* 
-* To set up a descriptor, provide the configuration parameters for the 
-* descriptor in the \ref cy_stc_dmac_descriptor_config_t structure. Then call the 
-* \ref Cy_DMAC_Descriptor_Init function to initialize the descriptor in SRAM. You can 
-* modify the source and destination addresses dynamically by calling 
+*
+* To set up a descriptor, provide the configuration parameters for the
+* descriptor in the \ref cy_stc_dmac_descriptor_config_t structure. Then call the
+* \ref Cy_DMAC_Descriptor_Init function to initialize the descriptor in SRAM. You can
+* modify the source and destination addresses dynamically by calling
 * \ref Cy_DMAC_Descriptor_SetSrcAddress and \ref Cy_DMAC_Descriptor_SetDstAddress.
-* 
+*
 * To set up a DMAC channel, provide a filled \ref cy_stc_dmac_channel_config_t
 * structure. Call the \ref Cy_DMAC_Channel_Init function, specifying the channel
 * number. Use \ref Cy_DMAC_Channel_Enable to enable the configured DMAC channel.
@@ -78,12 +78,12 @@
 * <B>NOTE:</B> Even if a DMAC channel is enabled, it is not operational until
 * the DMAC block is enabled using function \ref Cy_DMAC_Enable.\n
 * <B>NOTE:</B> If the DMAC descriptor is configured to generate an interrupt,
-* the interrupt must be enabled using the \ref Cy_DMAC_Channel_SetInterruptMask 
+* the interrupt must be enabled using the \ref Cy_DMAC_Channel_SetInterruptMask
 * function for each DMAC channel.
 *
 * For example:
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
-* 
+*
 * \section group_dmac_more_information More Information.
 * See the DMAC chapter of the device technical reference manual (TRM).
 *
@@ -118,6 +118,11 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10</td>
 *     <td>The \ref Cy_DMAC_Channel_ClearInterrupt is changed.</td>
@@ -175,7 +180,7 @@ extern "C" {
 
 /** The DMAC driver identifier */
 #define CY_DMAC_ID                      (CY_PDL_DRV_ID(0x3FU))
- 
+
 /** The minimum X/Y Count API parameters */
 #define CY_DMAC_LOOP_COUNT_MIN          (1UL)
 /** The maximum X/Y Count API parameters */
@@ -271,7 +276,7 @@ typedef enum
 } cy_en_dmac_channel_state_t;
 
 /** Contains the return values of the DMAC driver */
-typedef enum 
+typedef enum
 {
     CY_DMAC_SUCCESS          = 0x0UL,      /**< Success. */
     CY_DMAC_BAD_PARAM        = CY_DMAC_ID | CY_PDL_STATUS_ERROR | 0x1UL /**< The input parameters passed to the DMAC API are not valid. */
@@ -334,7 +339,7 @@ typedef enum
 */
 
 
-/** 
+/**
 * DMAC descriptor structure type. It is a user-declared structure
 * allocated in RAM. The DMAC HW requires a pointer to this structure to work with it.
 *
@@ -413,7 +418,7 @@ typedef struct
     cy_en_dmac_channel_state_t   channelState;    /**< Specifies whether the channel is enabled or disabled on completion of descriptor see \ref cy_en_dmac_channel_state_t. */
     cy_en_dmac_trigger_type_t    triggerInType;   /**< Sets what type of transfer is triggered. See \ref cy_en_dmac_trigger_type_t. */
     bool                         dataPrefetch;    /**< Source data transfers are initiated as soon as the channel is enabled, the current descriptor pointer is NOT "0"
-                                                   *   and there is space available in the channel's data FIFO. 
+                                                   *   and there is space available in the channel's data FIFO.
                                                    */
     cy_en_dmac_data_size_t       dataSize;        /**< The size of the data bus for transfer. See \ref cy_en_dmac_data_size_t.
                                                    *   For memory copy and scatter descriptors this setting will be ignored.
@@ -478,7 +483,7 @@ __STATIC_INLINE   void * Cy_DMAC_Channel_GetCurrentSrcAddress    (DMAC_Type     
 __STATIC_INLINE   void * Cy_DMAC_Channel_GetCurrentDstAddress    (DMAC_Type       * base, uint32_t channel);
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentXloopIndex    (DMAC_Type const * base, uint32_t channel);
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentYloopIndex    (DMAC_Type const * base, uint32_t channel);
-__STATIC_INLINE cy_stc_dmac_descriptor_t * 
+__STATIC_INLINE cy_stc_dmac_descriptor_t *
                          Cy_DMAC_Channel_GetCurrentDescriptor    (DMAC_Type const * base, uint32_t channel);
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptStatus      (DMAC_Type const * base, uint32_t channel);
 __STATIC_INLINE void     Cy_DMAC_Channel_ClearInterrupt          (DMAC_Type       * base, uint32_t channel, uint32_t interrupt);
@@ -497,7 +502,7 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptStatusMasked(DMAC_Type cons
 
  cy_en_dmac_status_t Cy_DMAC_Descriptor_Init  (cy_stc_dmac_descriptor_t * descriptor, cy_stc_dmac_descriptor_config_t const * config);
                 void Cy_DMAC_Descriptor_DeInit(cy_stc_dmac_descriptor_t * descriptor);
-                
+
                 void Cy_DMAC_Descriptor_SetNextDescriptor   (cy_stc_dmac_descriptor_t * descriptor, cy_stc_dmac_descriptor_t const * nextDescriptor);
                 void Cy_DMAC_Descriptor_SetDescriptorType   (cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_descriptor_type_t descriptorType);
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetSrcAddress       (cy_stc_dmac_descriptor_t * descriptor, void const * srcAddress);
@@ -578,7 +583,7 @@ __STATIC_INLINE void Cy_DMAC_Enable(DMAC_Type * base)
 * \param base
 * The pointer to the hardware DMAC block.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Disable
 *
 *******************************************************************************/
@@ -601,7 +606,7 @@ __STATIC_INLINE void Cy_DMAC_Disable(DMAC_Type * base)
 * Returns a bit-field with all of the currently active/pending channels in the
 * DMAC block.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Disable
 *
 *******************************************************************************/
@@ -631,7 +636,7 @@ __STATIC_INLINE uint32_t Cy_DMAC_GetActiveChannel(DMAC_Type const * base)
 * \param srcAddress
 * The source address value for the descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
@@ -646,14 +651,14 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetSrcAddress(cy_stc_dmac_descriptor_t *
 ****************************************************************************//**
 *
 * Returns the source address of the specified descriptor.
-* 
+*
 * \param descriptor
 * The descriptor structure instance.
 *
 * \return
 * The source address value of the descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
 *
 *******************************************************************************/
@@ -675,7 +680,7 @@ __STATIC_INLINE void * Cy_DMAC_Descriptor_GetSrcAddress(cy_stc_dmac_descriptor_t
 * \param dstAddress
 * The destination address value for the descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
@@ -692,14 +697,14 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetDstAddress(cy_stc_dmac_descriptor_t *
 ****************************************************************************//**
 *
 * Returns the destination address of the specified descriptor.
-* 
+*
 * \param descriptor
 * The descriptor structure instance.
 *
 * \return
 * The destination address value of the descriptor.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
 *
 *******************************************************************************/
@@ -723,14 +728,14 @@ __STATIC_INLINE void * Cy_DMAC_Descriptor_GetDstAddress(cy_stc_dmac_descriptor_t
 * \param interruptType
 * The interrupt type set for the descriptor. \ref cy_en_dmac_trigger_type_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetInterruptType(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_trigger_type_t interruptType)
 {
     CY_ASSERT_L3(CY_DMAC_IS_TRIG_TYPE_VALID(interruptType));
-    
+
     CY_REG32_CLR_SET(descriptor->ctl, DMAC_CH_V2_DESCR_CTL_INTR_TYPE, interruptType);
 }
 
@@ -747,9 +752,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetInterruptType(cy_stc_dmac_descriptor_
 * \return
 * The Interrupt-Type \ref cy_en_dmac_trigger_type_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_trigger_type_t Cy_DMAC_Descriptor_GetInterruptType(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -769,14 +774,14 @@ __STATIC_INLINE cy_en_dmac_trigger_type_t Cy_DMAC_Descriptor_GetInterruptType(cy
 * \param triggerInType
 * The Trigger In Type parameter \ref cy_en_dmac_trigger_type_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetTriggerInType(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_trigger_type_t triggerInType)
 {
     CY_ASSERT_L3(CY_DMAC_IS_TRIG_TYPE_VALID(triggerInType));
-    
+
     CY_REG32_CLR_SET(descriptor->ctl, DMAC_CH_V2_DESCR_CTL_TR_IN_TYPE, triggerInType);
 }
 
@@ -793,9 +798,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetTriggerInType(cy_stc_dmac_descriptor_
 * \return
 * The Trigger In Type \ref cy_en_dmac_trigger_type_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_trigger_type_t Cy_DMAC_Descriptor_GetTriggerInType(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -815,14 +820,14 @@ __STATIC_INLINE cy_en_dmac_trigger_type_t Cy_DMAC_Descriptor_GetTriggerInType(cy
 * \param triggerOutType
 * The Trigger Out Type set for the descriptor. \ref cy_en_dmac_trigger_type_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetTriggerOutType(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_trigger_type_t triggerOutType)
 {
     CY_ASSERT_L3(CY_DMAC_IS_TRIG_TYPE_VALID(triggerOutType));
-    
+
     CY_REG32_CLR_SET(descriptor->ctl, DMAC_CH_V2_DESCR_CTL_TR_OUT_TYPE, triggerOutType);
 }
 
@@ -839,9 +844,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetTriggerOutType(cy_stc_dmac_descriptor
 * \return
 * The Trigger Out Type parameter \ref cy_en_dmac_trigger_type_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_trigger_type_t Cy_DMAC_Descriptor_GetTriggerOutType(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -861,14 +866,14 @@ __STATIC_INLINE cy_en_dmac_trigger_type_t Cy_DMAC_Descriptor_GetTriggerOutType(c
 * \param dataSize
 * The Data Element Size \ref cy_en_dmac_data_size_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetDataSize(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_data_size_t dataSize)
 {
     CY_ASSERT_L3(CY_DMAC_IS_DATA_SIZE_VALID(dataSize));
-    
+
     CY_REG32_CLR_SET(descriptor->ctl, DMAC_CH_V2_DESCR_CTL_DATA_SIZE, dataSize);
 }
 
@@ -885,9 +890,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetDataSize(cy_stc_dmac_descriptor_t * d
 * \return
 * The Data Element Size \ref cy_en_dmac_data_size_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_data_size_t Cy_DMAC_Descriptor_GetDataSize(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -907,7 +912,7 @@ __STATIC_INLINE cy_en_dmac_data_size_t Cy_DMAC_Descriptor_GetDataSize(cy_stc_dma
 * \param srcTransferSize
 * The Source Transfer Size \ref cy_en_dmac_transfer_size_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetSrcTransferSize(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_transfer_size_t srcTransferSize)
@@ -930,9 +935,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetSrcTransferSize(cy_stc_dmac_descripto
 * \return
 * The Source Transfer Size \ref cy_en_dmac_transfer_size_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_transfer_size_t Cy_DMAC_Descriptor_GetSrcTransferSize(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -952,14 +957,14 @@ __STATIC_INLINE cy_en_dmac_transfer_size_t Cy_DMAC_Descriptor_GetSrcTransferSize
 * \param dstTransferSize
 * The Destination Transfer Size \ref cy_en_dmac_transfer_size_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetDstTransferSize(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_transfer_size_t dstTransferSize)
 {
     CY_ASSERT_L3(CY_DMAC_IS_XFER_SIZE_VALID(dstTransferSize));
-    
+
     CY_REG32_CLR_SET(descriptor->ctl, DMAC_CH_V2_DESCR_CTL_DST_TRANSFER_SIZE, dstTransferSize);
 }
 
@@ -976,9 +981,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetDstTransferSize(cy_stc_dmac_descripto
 * \return
 * The Destination Transfer Size \ref cy_en_dmac_transfer_size_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_transfer_size_t Cy_DMAC_Descriptor_GetDstTransferSize(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -990,24 +995,24 @@ __STATIC_INLINE cy_en_dmac_transfer_size_t Cy_DMAC_Descriptor_GetDstTransferSize
 * Function Name: Cy_DMAC_Descriptor_SetRetrigger
 ****************************************************************************//**
 *
-* Sets the retrigger value which specifies whether the controller should 
+* Sets the retrigger value which specifies whether the controller should
 * wait for the input trigger to be deactivated.
 *
 * \param descriptor
 * The descriptor structure instance.
 *
-* \param retrigger 
+* \param retrigger
 * The \ref cy_en_dmac_retrigger_t parameter specifies whether the controller
 * should wait for the input trigger to be deactivated.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetRetrigger(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_retrigger_t retrigger)
 {
     CY_ASSERT_L3(CY_DMAC_IS_RETRIGGER_VALID(retrigger));
-    
+
     CY_REG32_CLR_SET(descriptor->ctl, DMAC_CH_V2_DESCR_CTL_WAIT_FOR_DEACT, retrigger);
 }
 
@@ -1016,7 +1021,7 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetRetrigger(cy_stc_dmac_descriptor_t * 
 * Function Name: Cy_DMAC_Descriptor_GetRetrigger
 ****************************************************************************//**
 *
-* Returns a value which specifies whether the controller should 
+* Returns a value which specifies whether the controller should
 * wait for the input trigger to be deactivated.
 *
 * \param descriptor
@@ -1025,9 +1030,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetRetrigger(cy_stc_dmac_descriptor_t * 
 * \return
 * The Retrigger setting \ref cy_en_dmac_retrigger_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_retrigger_t Cy_DMAC_Descriptor_GetRetrigger(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -1047,9 +1052,9 @@ __STATIC_INLINE cy_en_dmac_retrigger_t Cy_DMAC_Descriptor_GetRetrigger(cy_stc_dm
 * \return
 * The descriptor type \ref cy_en_dmac_descriptor_type_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_descriptor_type_t Cy_DMAC_Descriptor_GetDescriptorType(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -1066,17 +1071,17 @@ __STATIC_INLINE cy_en_dmac_descriptor_type_t Cy_DMAC_Descriptor_GetDescriptorTyp
 * \param descriptor
 * The descriptor structure instance.
 *
-* \param channelState 
+* \param channelState
 * The channel state \ref cy_en_dmac_channel_state_t.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetChannelState(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_channel_state_t channelState)
 {
     CY_ASSERT_L3(CY_DMAC_IS_CHANNEL_STATE_VALID(channelState));
-    
+
     CY_REG32_CLR_SET(descriptor->ctl, DMAC_CH_V2_DESCR_CTL_CH_DISABLE, channelState);
 }
 
@@ -1093,9 +1098,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetChannelState(cy_stc_dmac_descriptor_t
 * \return
 * The Channel State setting \ref cy_en_dmac_channel_state_t
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dmac_channel_state_t Cy_DMAC_Descriptor_GetChannelState(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -1116,7 +1121,7 @@ __STATIC_INLINE cy_en_dmac_channel_state_t Cy_DMAC_Descriptor_GetChannelState(cy
 * \param srcXincrement
 * The value of the source increment. The valid range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
@@ -1124,7 +1129,7 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetXloopSrcIncrement(cy_stc_dmac_descrip
 {
     CY_ASSERT_L1(CY_DMAC_SINGLE_TRANSFER != Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMAC_IS_LOOP_INCR_VALID(srcXincrement));
-    
+
     CY_REG32_CLR_SET(descriptor->xIncr, DMAC_CH_V2_DESCR_X_INCR_SRC_X, srcXincrement);
 }
 
@@ -1142,14 +1147,14 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetXloopSrcIncrement(cy_stc_dmac_descrip
 * \return
 * The value of the source increment. The range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetXloopSrcIncrement(cy_stc_dmac_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(CY_DMAC_SINGLE_TRANSFER != Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(DMAC_CH_V2_DESCR_X_INCR_SRC_X, descriptor->xIncr));
 }
 
@@ -1167,15 +1172,15 @@ __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetXloopSrcIncrement(cy_stc_dmac_desc
 * \param dstXincrement
 * The value of the destination increment. The valid range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetXloopDstIncrement(cy_stc_dmac_descriptor_t * descriptor, int32_t dstXincrement)
 {
     CY_ASSERT_L1(CY_DMAC_SINGLE_TRANSFER != Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMAC_IS_LOOP_INCR_VALID(dstXincrement));
-    
+
     CY_REG32_CLR_SET(descriptor->xIncr, DMAC_CH_V2_DESCR_X_INCR_DST_X, dstXincrement);
 }
 
@@ -1193,14 +1198,14 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetXloopDstIncrement(cy_stc_dmac_descrip
 * \return
 * The value of the destination increment. The range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetXloopDstIncrement(cy_stc_dmac_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(CY_DMAC_SINGLE_TRANSFER != Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(DMAC_CH_V2_DESCR_X_INCR_DST_X, descriptor->xIncr));
 }
 
@@ -1218,9 +1223,9 @@ __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetXloopDstIncrement(cy_stc_dmac_desc
 * \param yCount
 * The number of X loops to execute in the Y loop. The valid range is 1 ... 65536.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetYloopDataCount(cy_stc_dmac_descriptor_t * descriptor, uint32_t yCount)
 {
@@ -1244,9 +1249,9 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetYloopDataCount(cy_stc_dmac_descriptor
 * \return
 * The number of X loops to execute in the Y loop. The range is 1 ... 65536.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_DMAC_Descriptor_GetYloopDataCount(cy_stc_dmac_descriptor_t const * descriptor)
 {
@@ -1269,15 +1274,15 @@ __STATIC_INLINE uint32_t Cy_DMAC_Descriptor_GetYloopDataCount(cy_stc_dmac_descri
 * \param srcYincrement
 * The value of the source increment. The valid range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Descriptor_SetYloopSrcIncrement(cy_stc_dmac_descriptor_t * descriptor, int32_t srcYincrement)
 {
     CY_ASSERT_L1(CY_DMAC_2D_TRANSFER == Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMAC_IS_LOOP_INCR_VALID(srcYincrement));
-    
+
     CY_REG32_CLR_SET(descriptor->yIncr, DMAC_CH_V2_DESCR_Y_INCR_SRC_Y, srcYincrement);
 }
 
@@ -1295,14 +1300,14 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetYloopSrcIncrement(cy_stc_dmac_descrip
 * \return
 * The value of source increment. The range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetYloopSrcIncrement(cy_stc_dmac_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(CY_DMAC_2D_TRANSFER == Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(DMAC_CH_V2_DESCR_Y_INCR_SRC_Y, descriptor->yIncr));
 }
 
@@ -1320,7 +1325,7 @@ __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetYloopSrcIncrement(cy_stc_dmac_desc
 * \param dstYincrement
 * The value of the destination increment. The valid range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
@@ -1328,7 +1333,7 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetYloopDstIncrement(cy_stc_dmac_descrip
 {
     CY_ASSERT_L1(CY_DMAC_2D_TRANSFER == Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMAC_IS_LOOP_INCR_VALID(dstYincrement));
-    
+
     CY_REG32_CLR_SET(descriptor->yIncr, DMAC_CH_V2_DESCR_Y_INCR_DST_Y, dstYincrement);
 }
 
@@ -1338,7 +1343,7 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetYloopDstIncrement(cy_stc_dmac_descrip
 ****************************************************************************//**
 *
 * Returns the destination increment parameter for the Y loop of the specified
-* descriptor (for 2D descriptors only). 
+* descriptor (for 2D descriptors only).
 *
 * \param descriptor
 * The descriptor structure instance.
@@ -1346,14 +1351,14 @@ __STATIC_INLINE void Cy_DMAC_Descriptor_SetYloopDstIncrement(cy_stc_dmac_descrip
 * \return
 * The value of the destination increment. The range is -32768 ... 32767.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetYloopDstIncrement(cy_stc_dmac_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(CY_DMAC_2D_TRANSFER == Cy_DMAC_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(DMAC_CH_V2_DESCR_Y_INCR_DST_Y, descriptor->yIncr));
 }
 
@@ -1381,14 +1386,14 @@ __STATIC_INLINE int32_t Cy_DMAC_Descriptor_GetYloopDstIncrement(cy_stc_dmac_desc
 * \param descriptor
 * This is the descriptor to be associated with the channel.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Channel_SetDescriptor(DMAC_Type * base, uint32_t channel, cy_stc_dmac_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     DMAC_CH_CURR(base, channel) = (uint32_t)descriptor;
 }
 
@@ -1405,14 +1410,14 @@ __STATIC_INLINE void Cy_DMAC_Channel_SetDescriptor(DMAC_Type * base, uint32_t ch
 * \param channel
 * The  channel number.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Channel_Enable(DMAC_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     DMAC_CH_CTL(base, channel) |= DMAC_CH_V2_CTL_ENABLED_Msk;
 }
 
@@ -1429,14 +1434,14 @@ __STATIC_INLINE void Cy_DMAC_Channel_Enable(DMAC_Type * base, uint32_t channel)
 * \param channel
 * The channel number.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Disable
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMAC_Channel_Disable(DMAC_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     DMAC_CH_CTL(base, channel) &= (uint32_t) ~DMAC_CH_V2_CTL_ENABLED_Msk;
 }
 
@@ -1456,7 +1461,7 @@ __STATIC_INLINE void Cy_DMAC_Channel_Disable(DMAC_Type * base, uint32_t channel)
 * \param priority
 * The priority to be set for the DMAC channel. The allowed values are 0,1,2,3.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
 *
 *******************************************************************************/
@@ -1464,7 +1469,7 @@ __STATIC_INLINE void Cy_DMAC_Channel_SetPriority(DMAC_Type * base, uint32_t chan
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
     CY_ASSERT_L2(CY_DMAC_IS_PRIORITY_VALID(priority));
-    
+
     CY_REG32_CLR_SET(DMAC_CH_CTL(base, channel), DMAC_CH_V2_CTL_PRIO, priority);
 }
 
@@ -1484,14 +1489,14 @@ __STATIC_INLINE void Cy_DMAC_Channel_SetPriority(DMAC_Type * base, uint32_t chan
 * \return
 * The priority of the channel.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Disable
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetPriority(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return ((uint32_t) _FLD2VAL(DMAC_CH_V2_CTL_PRIO, DMAC_CH_CTL(base, channel)));
 }
 
@@ -1518,7 +1523,7 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetPriority(DMAC_Type const * base, uin
 __STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentSrcAddress(DMAC_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return ((void *)(DMAC_CH_DESCR_SRC(base, channel)));
 }
 
@@ -1545,7 +1550,7 @@ __STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentSrcAddress(DMAC_Type * base, ui
 __STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentDstAddress(DMAC_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return ((void *)(DMAC_CH_DESCR_DST(base, channel)));
 }
 
@@ -1572,7 +1577,7 @@ __STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentDstAddress(DMAC_Type * base, ui
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentXloopIndex(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return (_FLD2VAL(DMAC_CH_V2_IDX_X, DMAC_CH_IDX(base, channel)));
 }
 
@@ -1599,7 +1604,7 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentXloopIndex(DMAC_Type const * 
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentYloopIndex(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return (_FLD2VAL(DMAC_CH_V2_IDX_Y, DMAC_CH_IDX(base, channel)));
 }
 
@@ -1619,14 +1624,14 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentYloopIndex(DMAC_Type const * 
 * \return
 * The pointer to the descriptor associated with the channel.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_Deinit
 *
 *******************************************************************************/
 __STATIC_INLINE cy_stc_dmac_descriptor_t * Cy_DMAC_Channel_GetCurrentDescriptor(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return ((cy_stc_dmac_descriptor_t*)(DMAC_CH_CURR(base, channel)));
 }
 
@@ -1646,14 +1651,14 @@ __STATIC_INLINE cy_stc_dmac_descriptor_t * Cy_DMAC_Channel_GetCurrentDescriptor(
 * \return
 * The interrupt status, see \ref group_dmac_macros_interrupt_masks.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_GetInterruptStatus
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptStatus(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return (DMAC_CH_INTR(base, channel));
 }
 
@@ -1673,7 +1678,7 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptStatus(DMAC_Type const * ba
 * \param interrupt
 * The interrupt mask, see \ref group_dmac_macros_interrupt_masks.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_ClearInterrupt
 *
 *******************************************************************************/
@@ -1702,7 +1707,7 @@ __STATIC_INLINE void Cy_DMAC_Channel_ClearInterrupt(DMAC_Type * base, uint32_t c
 * \param interrupt
 * The interrupt mask. See \ref group_dmac_macros_interrupt_masks.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_SetInterruptMask
 *
 *******************************************************************************/
@@ -1710,7 +1715,7 @@ __STATIC_INLINE void Cy_DMAC_Channel_SetInterrupt(DMAC_Type * base, uint32_t cha
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
     CY_ASSERT_L2(CY_DMAC_IS_INTR_MASK_VALID(interrupt));
-    
+
     DMAC_CH_INTR_SET(base, channel) = interrupt;
 }
 
@@ -1730,14 +1735,14 @@ __STATIC_INLINE void Cy_DMAC_Channel_SetInterrupt(DMAC_Type * base, uint32_t cha
 * \return
 * The interrupt mask value. See \ref group_dmac_macros_interrupt_masks.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_SetInterruptMask
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptMask(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return (DMAC_CH_INTR_MASK(base, channel));
 }
 
@@ -1756,8 +1761,8 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptMask(DMAC_Type const * base
 *
 * \param interrupt
 * The interrupt mask, see \ref group_dmac_macros_interrupt_masks.
-* 
-* \funcusage 
+*
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_SetInterruptMask
 *
 *******************************************************************************/
@@ -1785,14 +1790,14 @@ __STATIC_INLINE void Cy_DMAC_Channel_SetInterruptMask(DMAC_Type * base, uint32_t
 * \return
 * The masked interrupt status. See \ref group_dmac_macros_interrupt_masks.
 *
-* \funcusage 
+* \funcusage
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_ClearInterrupt
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptStatusMasked(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
-    
+
     return (DMAC_CH_INTR_MASKED(base, channel));
 }
 

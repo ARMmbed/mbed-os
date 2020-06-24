@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.h
-* \version 2.30.2
+* \version 2.30.3
 *
 * \brief
 *  This file provides the headers to the API for the utils
@@ -341,4 +341,3 @@ void Cy_Crypto_Core_VU_RegInvertEndianness(CRYPTO_Type *base, uint32_t srcReg);
 #endif /* #if !defined(CY_CRYPTO_CORE_VU_H) */
 
 /* [] END OF FILE */
-

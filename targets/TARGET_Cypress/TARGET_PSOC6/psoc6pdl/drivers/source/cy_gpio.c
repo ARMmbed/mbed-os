@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_gpio.c
-* \version 1.20
+* \version 1.20.1
 *
 * Provides an API implementation of the GPIO driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ extern "C" {
 * \return
 * Initialization status
 *
-* \note 
+* \note
 * This function modifies port registers in read-modify-write operations. It is
 * not thread safe as the resource is shared among multiple pins on a port.
 *
@@ -75,12 +75,12 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
     {
         uint32_t maskCfgOut;
         uint32_t tempReg;
-        
+
         CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->outVal));
         CY_ASSERT_L2(CY_GPIO_IS_DM_VALID(config->driveMode));
-        CY_ASSERT_L2(CY_GPIO_IS_HSIOM_VALID(config->hsiom));  
-        CY_ASSERT_L2(CY_GPIO_IS_INT_EDGE_VALID(config->intEdge)); 
+        CY_ASSERT_L2(CY_GPIO_IS_HSIOM_VALID(config->hsiom));
+        CY_ASSERT_L2(CY_GPIO_IS_INT_EDGE_VALID(config->intEdge));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->intMask));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->vtrip));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->slewRate));
@@ -90,7 +90,7 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->vtripSel));
         CY_ASSERT_L2(CY_GPIO_IS_VREF_SEL_VALID(config->vrefSel));
         CY_ASSERT_L2(CY_GPIO_IS_VOH_SEL_VALID(config->vohSel));
-    
+
         Cy_GPIO_Write(base, pinNum, config->outVal);
         Cy_GPIO_SetDrivemode(base, pinNum, config->driveMode);
         Cy_GPIO_SetHSIOM(base, pinNum, config->hsiom);
@@ -100,10 +100,10 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
         Cy_GPIO_SetVtrip(base, pinNum, config->vtrip);
 
         /* Slew rate and Driver strength */
-        maskCfgOut = (CY_GPIO_CFG_OUT_SLOW_MASK << pinNum) 
+        maskCfgOut = (CY_GPIO_CFG_OUT_SLOW_MASK << pinNum)
                      | (CY_GPIO_CFG_OUT_DRIVE_SEL_MASK << ((uint32_t)(pinNum << 1U) + CY_GPIO_CFG_OUT_DRIVE_OFFSET));
         tempReg = GPIO_PRT_CFG_OUT(base) & ~(maskCfgOut);
-        
+
         GPIO_PRT_CFG_OUT(base) = tempReg | ((config->slewRate & CY_GPIO_CFG_OUT_SLOW_MASK) << pinNum)
                             | ((config->driveSel & CY_GPIO_CFG_OUT_DRIVE_SEL_MASK) << ((uint32_t)(pinNum << 1U) + CY_GPIO_CFG_OUT_DRIVE_OFFSET));
 
@@ -142,9 +142,9 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
 * \return
 * Initialization status
 *
-* \note 
-* If using the PSoC Creator IDE, there is no need to initialize the pins when 
-* using the GPIO component on the schematic. Ports are configured in 
+* \note
+* If using the PSoC Creator IDE, there is no need to initialize the pins when
+* using the GPIO component on the schematic. Ports are configured in
 * Cy_SystemInit() before main() entry.
 *
 * \funcusage
@@ -159,14 +159,14 @@ cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt
     {
         uint32_t portNum;
         HSIOM_PRT_V1_Type* baseHSIOM;
-        
+
         CY_ASSERT_L2(CY_GPIO_IS_PIN_BIT_VALID(config->out));
         CY_ASSERT_L2(CY_GPIO_IS_PIN_BIT_VALID(config->cfgIn));
         CY_ASSERT_L2(CY_GPIO_IS_INTR_CFG_VALID(config->intrCfg));
         CY_ASSERT_L2(CY_GPIO_IS_INTR_MASK_VALID(config->intrMask));
         CY_ASSERT_L2(CY_GPIO_IS_SEL_ACT_VALID(config->sel0Active));
         CY_ASSERT_L2(CY_GPIO_IS_SEL_ACT_VALID(config->sel1Active));
-    
+
         portNum = ((uint32_t)(base) - CY_GPIO_BASE) / GPIO_PRT_SECTION_SIZE;
         baseHSIOM = (HSIOM_PRT_V1_Type*)(CY_HSIOM_BASE + (HSIOM_PRT_SECTION_SIZE * portNum));
 
@@ -179,10 +179,10 @@ cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt
         GPIO_PRT_CFG_SIO(base)         = config->cfgSIO;
         HSIOM_PRT_PORT_SEL0(baseHSIOM) = config->sel0Active;
         HSIOM_PRT_PORT_SEL1(baseHSIOM) = config->sel1Active;
-        
+
         status = CY_GPIO_SUCCESS;
     }
-    
+
     return (status);
 }
 
@@ -210,11 +210,11 @@ cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt
 * \param hsiom
 * HSIOM input selection
 *
-* \note 
+* \note
 * This function modifies port registers in read-modify-write operations. It is
 * not thread safe as the resource is shared among multiple pins on a port.
-* You can use the Cy_SysLib_EnterCriticalSection() and 
-* Cy_SysLib_ExitCriticalSection() functions to ensure that 
+* You can use the Cy_SysLib_EnterCriticalSection() and
+* Cy_SysLib_ExitCriticalSection() functions to ensure that
 * Cy_GPIO_Pin_FastInit() function execution is not interrupted.
 *
 * \funcusage
@@ -278,12 +278,12 @@ void Cy_GPIO_Port_Deinit(GPIO_PRT_Type* base)
 * Function Name: Cy_GPIO_SetAmuxSplit
 ****************************************************************************//**
 *
-* Configure a specific AMux bus splitter switch cell into a specific 
+* Configure a specific AMux bus splitter switch cell into a specific
 * configuration.
 *
 * \param switchCtrl
 * Selects specific AMux bus splitter cell between two segments.
-* The cy_en_amux_split_t enumeration can be found in the GPIO header file 
+* The cy_en_amux_split_t enumeration can be found in the GPIO header file
 * for the device package.
 *
 * \param amuxConnect
@@ -293,7 +293,7 @@ void Cy_GPIO_Port_Deinit(GPIO_PRT_Type* base)
 * Selects which AMux bus within the splitter is being configured
 *
 *******************************************************************************/
-void Cy_GPIO_SetAmuxSplit(cy_en_amux_split_t switchCtrl, cy_en_gpio_amuxconnect_t amuxConnect, 
+void Cy_GPIO_SetAmuxSplit(cy_en_amux_split_t switchCtrl, cy_en_gpio_amuxconnect_t amuxConnect,
                                                          cy_en_gpio_amuxselect_t amuxBus)
 {
     CY_ASSERT_L2(CY_GPIO_IS_AMUX_SPLIT_VALID(switchCtrl));
@@ -310,7 +310,7 @@ void Cy_GPIO_SetAmuxSplit(cy_en_amux_split_t switchCtrl, cy_en_gpio_amuxconnect_
     else
     {
         tmpReg = HSIOM_AMUX_SPLIT_CTL(switchCtrl) & GPIO_AMUXA_SPLITTER_MASK;
-        HSIOM_AMUX_SPLIT_CTL(switchCtrl) = 
+        HSIOM_AMUX_SPLIT_CTL(switchCtrl) =
         tmpReg | (((uint32_t) amuxConnect << HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_Pos) & GPIO_AMUXB_SPLITTER_MASK);
     }
 }
@@ -324,7 +324,7 @@ void Cy_GPIO_SetAmuxSplit(cy_en_amux_split_t switchCtrl, cy_en_gpio_amuxconnect_
 *
 * \param switchCtrl
 * Selects specific AMux bus splitter cell between two segments.
-* The cy_en_amux_split_t enumeration can be found in the GPIO header file 
+* The cy_en_amux_split_t enumeration can be found in the GPIO header file
 * for the device package.
 *
 * \param amuxBus
@@ -338,19 +338,19 @@ cy_en_gpio_amuxconnect_t Cy_GPIO_GetAmuxSplit(cy_en_amux_split_t switchCtrl, cy_
 {
     CY_ASSERT_L2(CY_GPIO_IS_AMUX_SPLIT_VALID(switchCtrl));
     CY_ASSERT_L3(CY_GPIO_IS_AMUX_SELECT_VALID(amuxBus));
-    
+
     uint32_t retVal;
-    
+
     if (amuxBus != CY_GPIO_AMUXBUSB)
     {
         retVal = HSIOM_AMUX_SPLIT_CTL(switchCtrl) & GPIO_AMUXA_SPLITTER_MASK;
     }
     else
     {
-        retVal = ((uint32_t) ((HSIOM_AMUX_SPLIT_CTL(switchCtrl) & GPIO_AMUXB_SPLITTER_MASK) 
+        retVal = ((uint32_t) ((HSIOM_AMUX_SPLIT_CTL(switchCtrl) & GPIO_AMUXB_SPLITTER_MASK)
                                                      >> HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_Pos));
     }
-    
+
     return ((cy_en_gpio_amuxconnect_t) retVal);
 }
 
