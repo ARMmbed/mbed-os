@@ -84,6 +84,12 @@
         },
         "MCU_PSOC6_M4": {
             "target.macros_add": ["CY_RTOS_AWARE"]
+        },
+        "ARM_MUSCA_S1": {
+            "mutex-num": 4,
+            "semaphore-num": 4,
+            "thread-num": 9,
+            "thread-user-stack-size": 8096
         }
     }
 }
