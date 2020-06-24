@@ -1,22 +1,24 @@
-﻿/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*************************************************************************************************/
+﻿/*************************************************************************************************/
 /*!
- *  \brief Device manager Connection Constant Tone Extension (CTE) module.
+ *  \file
+ *
+ *  \brief  Device manager Connection Constant Tone Extension (CTE) module.
+ *
+ *  Copyright (c) 2018-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -29,21 +31,6 @@
 #include "dm_dev.h"
 #include "dm_main.h"
 #include "dm_conn.h"
-
-/**************************************************************************************************
-  Macros
-**************************************************************************************************/
-
-/*! DM connection CTE states */
-enum
-{
-  DM_CONN_CTE_STATE_IDLE,                    /*!< Idle */
-  DM_CONN_CTE_STATE_INITIATING,              /*!< Initiating CTE request */
-  DM_CONN_CTE_STATE_RESPONDING,              /*!< Responding to CTE request */
-  DM_CONN_CTE_STATE_SAMPLING,                /*!< Sampling received CTE */
-  DM_CONN_CTE_STATE_STARTING,                /*!< Starting CTE request, CTE response or sampling received CTE */
-  DM_CONN_CTE_STATE_STOPPING,                /*!< Stopping CTE request, CTE response or sampling received CTE */
-};
 
 /**************************************************************************************************
   Data Types
@@ -213,11 +200,17 @@ void dmConnCteInit(void)
 /*************************************************************************************************/
 void DmConnCteInit(void)
 {
+  WsfTaskLock();
+
   /* set function interface table */
   dmFcnIfTbl[DM_ID_CONN_CTE] = (dmFcnIf_t *) &dmConnCteFcnIf;
 
   /* initialize control block */
   dmConnCteInit();
+
+  HciSetLeSupFeat((HCI_LE_SUP_FEAT_CONN_CTE_REQ | HCI_LE_SUP_FEAT_CONN_CTE_RSP), TRUE);
+
+  WsfTaskUnlock();
 }
 
 /*************************************************************************************************/
@@ -835,4 +828,36 @@ void DmConnCteRspStop(dmConnId_t connId)
 void DmReadAntennaInfo(void)
 {
   HciLeReadAntennaInfoCmd();
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Returns the device manager's CTE request state for a given connection.
+ *
+ *  \param  connId           Connection identifier.
+ *
+ *  \return The CTE request state.
+ */
+/*************************************************************************************************/
+uint8_t DmConnCteGetReqState(dmConnId_t connId)
+{
+  WSF_ASSERT((connId > DM_CONN_ID_NONE) && (connId <= DM_CONN_MAX));
+
+  return dmConnCteCb[connId-1].reqState;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Returns the device manager's CTE response state for a given connection.
+ *
+ *  \param  connId           Connection identifier.
+ *
+ *  \return The CTE response state.
+ */
+/*************************************************************************************************/
+uint8_t DmConnCteGetRspState(dmConnId_t connId)
+{
+  WSF_ASSERT((connId > DM_CONN_ID_NONE) && (connId <= DM_CONN_MAX));
+
+  return dmConnCteCb[connId-1].rspState;
 }

@@ -1,22 +1,27 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief HCI core module, platform independent functions.
+ *  \file
+ *
+ *  \brief  HCI core module, platform independent functions.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ * This module implements core platform independent HCI features for transmit data path,
+ * fragmentation, reassembly, and connection management.
  */
 /*************************************************************************************************/
 
@@ -96,8 +101,16 @@ const uint8_t hciLeEventMask[HCI_LE_EVT_MASK_LEN] =
   HCI_EVT_MASK_LE_CONN_IQ_REPORT_EVT |            /* Byte 2 */
   HCI_EVT_MASK_LE_CTE_REQ_FAILED_EVT |            /* Byte 2 */
   HCI_EVT_MASK_LE_PER_SYNC_TRSF_RCVT_EVT,         /* Byte 2 */
-  0,                                              /* Byte 3 */
-  0,                                              /* Byte 4 */
+  HCI_EVT_MASK_LE_CIS_EST_EVT |                   /* Byte 3 */
+  HCI_EVT_MASK_LE_CIS_REQ_EVT |                   /* Byte 3 */
+  HCI_EVT_MASK_LE_CREATE_BIG_CMPL_EVT|            /* Byte 3 */
+  HCI_EVT_MASK_LE_TERMINATE_BIG_CMPL_EVT |        /* Byte 3 */
+  HCI_EVT_MASK_LE_BIG_SYNC_EST_EVT |              /* Byte 3 */
+  HCI_EVT_MASK_LE_BIG_SYNC_LOST_EVT |             /* Byte 3 */
+  HCI_EVT_MASK_LE_PEER_SCA_CMPL_EVT |             /* Byte 3 */
+  HCI_EVT_MASK_LE_PATH_LOSS_REPORT_EVT,           /* Byte 3 */
+  HCI_EVT_MASK_LE_TX_POWER_REPORT_EVT |           /* Byte 4 */
+  HCI_EVT_MASK_LE_BIG_INFO_ADV_RPT_EVT,           /* Byte 4 */
   0,                                              /* Byte 5 */
   0,                                              /* Byte 6 */
   0                                               /* Byte 7 */
@@ -117,7 +130,7 @@ const uint8_t hciEventMaskPage2[HCI_EVT_MASK_PAGE_2_LEN] =
 };
 
 /* LE supported features configuration mask */
-uint32_t hciLeSupFeatCfg =
+uint64_t hciLeSupFeatCfg =
   HCI_LE_SUP_FEAT_ENCRYPTION                 |    /* LE Encryption */
   HCI_LE_SUP_FEAT_CONN_PARAM_REQ_PROC        |    /* Connection Parameters Request Procedure */
   HCI_LE_SUP_FEAT_EXT_REJECT_IND             |    /* Extended Reject Indication */
@@ -126,11 +139,8 @@ uint32_t hciLeSupFeatCfg =
   HCI_LE_SUP_FEAT_DATA_LEN_EXT               |    /* LE Data Packet Length Extension */
   HCI_LE_SUP_FEAT_PRIVACY                    |    /* LL Privacy */
   HCI_LE_SUP_FEAT_EXT_SCAN_FILT_POLICY       |    /* Extended Scanner Filter Policies */
-  HCI_LE_SUP_FEAT_LE_2M_PHY                  |    /* LE 2M PHY supported */
   HCI_LE_SUP_FEAT_STABLE_MOD_IDX_TRANSMITTER |    /* Stable Modulation Index - Transmitter supported */
-  HCI_LE_SUP_FEAT_STABLE_MOD_IDX_RECEIVER    |    /* Stable Modulation Index - Receiver supported */
-  HCI_LE_SUP_FEAT_LE_EXT_ADV                 |    /* LE Extended Advertising */
-  HCI_LE_SUP_FEAT_LE_PER_ADV;                     /* LE Periodic Advertising */
+  HCI_LE_SUP_FEAT_STABLE_MOD_IDX_RECEIVER;        /* Stable Modulation Index - Receiver supported */
 
 /**************************************************************************************************
   Global Variables
@@ -299,6 +309,119 @@ void hciCoreConnClose(uint16_t handle)
   hciCoreConnFree(handle);
 }
 
+/*************************************************************************************************/
+/*!
+ *  \brief  Allocate a CIS connection structure.
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciCoreCisAlloc(uint16_t handle)
+{
+  uint8_t         i;
+  hciCoreCis_t   *pCis = hciCoreCb.cis;
+
+  /* find available connection struct */
+  for (i = DM_CIS_MAX; i > 0; i--, pCis++)
+  {
+    if (pCis->handle == HCI_HANDLE_NONE)
+    {
+      /* allocate and initialize */
+      pCis->handle = handle;
+
+      return;
+    }
+  }
+
+  HCI_TRACE_WARN0("HCI cis struct alloc failure");
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Free a CIS connection structure.
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciCoreCisFree(uint16_t handle)
+{
+  uint8_t         i;
+  hciCoreCis_t   *pCis = hciCoreCb.cis;
+
+  /* find connection struct */
+  for (i = DM_CIS_MAX; i > 0; i--, pCis++)
+  {
+    if (pCis->handle == handle)
+    {
+      /* free structure */
+      pCis->handle = HCI_HANDLE_NONE;
+
+      return;
+    }
+  }
+
+  HCI_TRACE_WARN1("hciCoreCisFree handle not found:%u", handle);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get a CIS connection structure by handle
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return Pointer to CIS connection structure or NULL if not found.
+ */
+/*************************************************************************************************/
+hciCoreCis_t *hciCoreCisByHandle(uint16_t handle)
+{
+  uint8_t         i;
+  hciCoreCis_t   *pCis = hciCoreCb.cis;
+
+  /* find available connection struct */
+  for (i = DM_CIS_MAX; i > 0; i--, pCis++)
+  {
+    if (pCis->handle == handle)
+    {
+      return pCis;
+    }
+  }
+
+  return NULL;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Perform internal processing on HCI CIS connection open.
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void hciCoreCisOpen(uint16_t handle)
+{
+  /* allocate CIS connection structure */
+  hciCoreCisAlloc(handle);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Perform internal processing on HCI CIS connection close.
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void hciCoreCisClose(uint16_t handle)
+{
+  /* free CIS connection structure */
+  hciCoreCisFree(handle);
+}
 
 /*************************************************************************************************/
 /*!
@@ -576,7 +699,7 @@ uint8_t *hciCoreAclReassembly(uint8_t *pData)
         /* check length vs. configured maximum */
         if ((l2cLen + L2C_HDR_LEN) > hciCoreCb.maxRxAclLen)
         {
-          HCI_TRACE_WARN1("l2c len=0x%04x to large for reassembly", l2cLen);
+          HCI_TRACE_WARN2("l2c len=0x%04x to large for reassembly - max: 0x%04x", l2cLen, hciCoreCb.maxRxAclLen - L2C_HDR_LEN);
         }
         /* if reassembly required */
         else if ((l2cLen + L2C_HDR_LEN) > aclLen)
@@ -699,6 +822,11 @@ void HciCoreInit(void)
     hciCoreCb.conn[i].handle = HCI_HANDLE_NONE;
   }
 
+  for (i = 0; i < DM_CIS_MAX; i++)
+  {
+    hciCoreCb.cis[i].handle = HCI_HANDLE_NONE;
+  }
+
   hciCoreCb.maxRxAclLen = HCI_MAX_RX_ACL_LEN;
   hciCoreCb.aclQueueHi = HCI_ACL_QUEUE_HI;
   hciCoreCb.aclQueueLo = HCI_ACL_QUEUE_LO;
@@ -763,7 +891,32 @@ void HciSetAclQueueWatermarks(uint8_t queueHi, uint8_t queueLo)
 *  \return None.
 */
 /*************************************************************************************************/
-void HciSetLeSupFeat(uint32_t feat, bool_t flag)
+void HciSetLeSupFeat(uint64_t feat, bool_t flag)
+{
+  /* if asked to include feature */
+  if (flag)
+  {
+    /* set feature bit */
+    hciLeSupFeatCfg |= feat;
+  }
+  else
+  {
+    /* clear feature bit */
+    hciLeSupFeatCfg &= ~feat;
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief   Set LE supported features configuration mask.
+ *
+ *  \param   feat    Feature bit to set or clear
+ *  \param   flag    TRUE to set feature bit and FALSE to clear it
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void HciSetLeSupFeat32(uint32_t feat, bool_t flag)
 {
   /* if asked to include feature */
   if (flag)

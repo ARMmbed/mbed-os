@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief SMP common utility functions and action functions.
+ *  \file
+ *
+ *  \brief  SMP common utility functions and action functions.
+ *
+ *  Copyright (c) 2010-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -157,6 +159,32 @@ void smpActPairingFailed(smpCcb_t *pCcb, smpMsg_t *pMsg)
   /* notify DM of pairing failure */
   pMsg->hdr.event = DM_SEC_PAIR_FAIL_IND;
   DmSmpCbackExec((dmEvt_t *) pMsg);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Response timeout on security request.
+ *
+ *  \param  pCcb  Connection control block.
+ *  \param  pMsg  State machine message.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void smpActSecReqTimeout(smpCcb_t *pCcb, smpMsg_t *pMsg)
+{
+  /* The initiator can ignore security request. Cancel pairing if paring/encryption was not
+   * completed, else assume the initiator ignored a request to change keys. */
+  if (DmConnSecLevel(pCcb->connId) == DM_SEC_LEVEL_NONE)
+  {
+    smpActPairingFailed(pCcb, pMsg);
+  }
+  else
+  {
+    /* Cleanup and return to IDLE without failure */
+    pMsg->hdr.event = SMP_MSG_INT_CLEANUP;
+    smpSmExecute(pCcb, pMsg);
+  }
 }
 
 /*************************************************************************************************/
@@ -820,7 +848,7 @@ void smpSmExecute(smpCcb_t *pCcb, smpMsg_t *pMsg)
   smpSmIf_t const *pSmIf;
 
 #if SMP_EXTRA_TRACE == TRUE
-  if (smpCb.lescSupported)
+  if (smpCb.lescSupported && pCcb->pScCcb && pCcb->pScCcb->lescEnabled)
     SMP_TRACE_INFO2("SMP Exe: evt=%s st=%s", smpEventStr(pMsg->hdr.event), smpStateStr(pCcb->state));
   else
 #endif

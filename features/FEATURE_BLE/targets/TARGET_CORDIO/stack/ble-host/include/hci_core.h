@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief HCI core interfaces.
+ *  \file
+ *
+ *  \brief  HCI core interfaces.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef HCI_CORE_H
@@ -59,10 +61,17 @@ typedef struct
   uint8_t           outBufs;                      /*!< \brief Outstanding ACL buffers sent to controller */
 } hciCoreConn_t;
 
+/*! \brief Per-connection structure for OSI packet accounting */
+typedef struct
+{
+  uint16_t          handle;                       /*!< \brief Connection handle */
+} hciCoreCis_t;
+
 /*! \brief Main control block for dual-chip implementation */
 typedef struct
 {
   hciCoreConn_t     conn[DM_CONN_MAX];            /*!< \brief Connection structures */
+  hciCoreCis_t      cis[DM_CIS_MAX];              /*!< \brief CIS structures */
   uint8_t           leStates[HCI_LE_STATES_LEN];  /*!< \brief Controller LE supported states */
   bdAddr_t          bdAddr;                       /*!< \brief Bluetooth device address */
   wsfQueue_t        aclQueue;                     /*!< \brief HCI ACL TX queue */
@@ -75,7 +84,7 @@ typedef struct
   uint8_t           numBufs;                      /*!< \brief Controller number of ACL data buffers */
   uint8_t           whiteListSize;                /*!< \brief Controller white list size */
   uint8_t           numCmdPkts;                   /*!< \brief Controller command packed count */
-  uint32_t          leSupFeat;                    /*!< \brief Controller LE supported features */
+  uint64_t          leSupFeat;                    /*!< \brief Controller LE supported features */
   int8_t            advTxPwr;                     /*!< \brief Controller advertising TX power */
   uint8_t           resListSize;                  /*!< \brief Controller resolving list size */
   uint16_t          maxAdvDataLen;                /*!< \brief Controller maximum advertisement (or scan response) data length */
@@ -102,7 +111,7 @@ extern const uint8_t hciLeEventMask[HCI_LE_EVT_MASK_LEN];
 extern const uint8_t hciEventMaskPage2[HCI_EVT_MASK_LEN];
 
 /*! \brief LE supported features configuration mask */
-extern uint32_t hciLeSupFeatCfg;
+extern uint64_t hciLeSupFeatCfg;
 
 /**************************************************************************************************
   Function Declarations
@@ -160,6 +169,39 @@ void hciCoreConnClose(uint16_t handle);
  */
 /*************************************************************************************************/
 hciCoreConn_t *hciCoreConnByHandle(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Perform internal processing on HCI CIS connection open.
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void hciCoreCisOpen(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Perform internal processing on HCI CIS connection close.
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void hciCoreCisClose(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get a CIS connection structure by handle
+ *
+ *  \param  handle  Connection handle.
+ *
+ *  \return Pointer to CIS connection structure or NULL if not found.
+ */
+/*************************************************************************************************/
+hciCoreCis_t *hciCoreCisByHandle(uint16_t handle);
 
 /*************************************************************************************************/
 /*!

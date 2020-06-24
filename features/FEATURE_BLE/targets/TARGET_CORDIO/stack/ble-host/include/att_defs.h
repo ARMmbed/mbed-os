@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Attribute protocol constants and definitions from the Bluetooth specification.
+ *  \file
+ *
+ *  \brief  Attribute protocol constants and definitions from the Bluetooth specification.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef ATT_DEFS_H
@@ -101,8 +103,9 @@ extern "C" {
 #define ATT_ERR_UNDEFINED             0x75      /*!< \brief Other undefined error */
 #define ATT_ERR_REQ_NOT_FOUND         0x76      /*!< \brief Required characteristic not found */
 #define ATT_ERR_MTU_EXCEEDED          0x77      /*!< \brief Attribute PDU length exceeded MTU size */
-#define ATT_CONTINUING                0x78      /*!< \brief Procedure continuing */
-#define ATT_RSP_PENDING               0x79      /*!< \brief Responsed delayed pending higher layer */
+#define ATT_ERR_NO_CHANNEL            0x78      /*!< \brief No enhanced channel available */
+#define ATT_CONTINUING                0x79      /*!< \brief Procedure continuing */
+#define ATT_RSP_PENDING               0x7A      /*!< \brief Response delayed pending higher layer */
 /**@}*/
 
 /** \name ATT Application Error Codes
@@ -110,6 +113,10 @@ extern "C" {
  */
 /**@{*/
 #define ATT_ERR_VALUE_RANGE           0x80      /*!< \brief Value out of range */
+#define ATT_ERR_INVALID_CHANGE_CTR    0x80      /*!< \brief Invalid change counter */
+#define ATT_ERR_OPCODE_NOT_SUPPORTED  0x81      /*!< \brief Opcode out of range */
+#define ATT_ERR_MUTE_DISABLE          0x82      /*!< \brief Mute disable */
+#define ATT_ERR_VALUE_RANGE_x83       0x83      /*!< \brief Value out of range 0x83 */
 /**@}*/
 
 /** \name ATT HCI Error Status
@@ -156,7 +163,9 @@ extern "C" {
 #define ATT_PDU_VALUE_NTF             0x1B      /*!< \brief Handle value notification */
 #define ATT_PDU_VALUE_IND             0x1D      /*!< \brief Handle value indication */
 #define ATT_PDU_VALUE_CNF             0x1E      /*!< \brief Handle value confirmation */
-#define ATT_PDU_MAX                   0x1F      /*!< \brief PDU Maximum */
+#define ATT_PDU_READ_MULT_VAR_REQ     0x20      /*!< \brief Read multiple variable length request */
+#define ATT_PDU_READ_MULT_VAR_RSP     0x21      /*!< \brief Read multiple variable length response */
+#define ATT_PDU_MULT_VALUE_NTF        0x23      /*!< \brief Handle value multiple notification */
 /**@}*/
 
 /** \name ATT PDU Length Fields
@@ -191,6 +200,9 @@ extern "C" {
 #define ATT_VALUE_NTF_LEN             3 /*!< \brief Value notification length. */
 #define ATT_VALUE_IND_LEN             3 /*!< \brief Value indication length. */
 #define ATT_VALUE_CNF_LEN             1 /*!< \brief Value confirmation length. */
+#define ATT_READ_MULT_VAR_REQ_LEN     1 /*!< \brief Base read multiple variable request length. */
+#define ATT_READ_MULT_VAR_RSP_LEN     1 /*!< \brief Base read multiple variable response length. */
+#define ATT_PDU_MULT_VALUE_NTF_LEN    1 /*!< \brief Base multiple variable notification length. */
 /**@}*/
 
 /** \name ATT Find Information Response Format
@@ -317,10 +329,20 @@ extern "C" {
 * Flags of features supported by the GATT Client
 */
 /**@{*/
-#define ATTS_CSF_ROBUST_CACHING      1                       /*!< \brief Robust caching. */
-#define ATTS_CSF_OCT0_FEATURES       ATTS_CSF_ROBUST_CACHING /*!< \brief Mask of all client supported features. */
+#define ATTS_CSF_ROBUST_CACHING      (1<<0)                  /*!< \brief Robust caching. */
+#define ATTS_CSF_EATT_BEARER         (1<<1)                  /*!< \brief Enhanced ATT Bearer. */
+#define ATTS_CSF_MULTI_VAL_NTF       (1<<2)                  /*!< \brief Multiple Handle Value Notifications. */
+
+#define ATTS_CSF_ALL_FEATURES        (0x7)                   /*!< \brief Mask of all client supported features. */
 
 #define ATT_CSF_LEN                  1                       /*!< \brief Length of client supported features array. */
+/**@}*/
+
+/** \name GATT Server Supported Features
+* Flags of features supported by the GATT Server
+*/
+/**@{*/
+#define ATTS_SSF_EATT                (1<<0)                  /*!< \brief Enhanced ATT supported. */
 /**@}*/
 
 /*! \} */    /* STACK_ATT_API */

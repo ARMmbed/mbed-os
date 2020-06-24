@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT server write PDU processing functions.
+ *  \file
+ *
+ *  \brief  ATT server write PDU processing functions.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -55,7 +57,7 @@ typedef struct attsPrepWrite_tag
  *  \return ATT_SUCCESS or failure status.
  */
 /*************************************************************************************************/
-static uint8_t attsExecPrepWrite(attCcb_t *pCcb, attsPrepWrite_t *pPrep)
+static uint8_t attsExecPrepWrite(attsCcb_t *pCcb, attsPrepWrite_t *pPrep)
 {
   uint8_t     *p;
   attsAttr_t  *pAttr;
@@ -117,7 +119,7 @@ static uint8_t attsExecPrepWrite(attCcb_t *pCcb, attsPrepWrite_t *pPrep)
  *  \return None.
  */
 /*************************************************************************************************/
-void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+void attsProcWrite(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 {
   uint8_t     *pBuf;
   uint8_t     *p;
@@ -138,7 +140,7 @@ void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   if ((pAttr = attsFindByHandle(handle, &pGroup)) != NULL)
   {
     /* verify permissions */
-    if ((err = attsPermissions(pCcb->connId, ATTS_PERMIT_WRITE,
+    if ((err = attsPermissions(pCcb->pMainCcb->connId, ATTS_PERMIT_WRITE,
                                handle, pAttr->permissions)) != ATT_SUCCESS)
     {
       /* err has been set; fail */
@@ -161,13 +163,13 @@ void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
       if ((pAttr->settings & ATTS_SET_WRITE_CBACK) &&
           (pGroup->writeCback != NULL))
       {
-        err = (*pGroup->writeCback)(pCcb->connId, handle, opcode, 0, writeLen,
+        err = (*pGroup->writeCback)(pCcb->pMainCcb->connId, handle, opcode, 0, writeLen,
                                     pPacket, pAttr);
       }
       /* else check if CCC */
       else if ((pAttr->settings & ATTS_SET_CCC) && (attsCb.cccCback != NULL))
       {
-        err = (*attsCb.cccCback)(pCcb->connId, ATT_METHOD_WRITE, handle, pPacket);
+        err = (*attsCb.cccCback)(pCcb->pMainCcb->connId, ATT_METHOD_WRITE, handle, pPacket);
       }
       else
       {
@@ -190,7 +192,7 @@ void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
           p = pBuf + L2C_PAYLOAD_START;
           UINT8_TO_BSTREAM(p, ATT_PDU_WRITE_RSP);
 
-          L2cDataReq(L2C_CID_ATT, pCcb->handle, ATT_WRITE_RSP_LEN, pBuf);
+          attL2cDataReq(pCcb->pMainCcb, pCcb->slot, ATT_WRITE_RSP_LEN, pBuf);
         }
       }
     }
@@ -207,11 +209,11 @@ void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     if (err == ATT_RSP_PENDING)
     {
       /* set response pending */
-      pCcb->control |= ATT_CCB_STATUS_RSP_PENDING;
+      pCcb->pMainCcb->sccb[pCcb->slot].control |= ATT_CCB_STATUS_RSP_PENDING;
     }
     else
     {
-      attsErrRsp(pCcb->handle, ATT_PDU_WRITE_REQ, handle, err);
+      attsErrRsp(pCcb->pMainCcb, pCcb->slot, ATT_PDU_WRITE_REQ, handle, err);
     }
   }
 }
@@ -227,13 +229,13 @@ void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
  *  \return None.
  */
 /*************************************************************************************************/
-void attsProcPrepWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+void attsProcPrepWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 {
   uint8_t         *pBuf;
   uint8_t         *p;
   attsAttr_t      *pAttr;
   attsGroup_t     *pGroup;
-  attsPrepWrite_t *pPrep;
+  attsPrepWrite_t *pPrep = NULL;
   uint16_t        handle;
   uint16_t        offset;
   uint16_t        writeLen;
@@ -269,7 +271,7 @@ void attsProcPrepWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     err = ATT_ERR_LENGTH;
   }
   /* verify prepare write queue limit not reached */
-  else if (WsfQueueCount(&pCcb->prepWriteQueue) >= pAttCfg->numPrepWrites)
+  else if (WsfQueueCount(&attsCb.prepWriteQueue[pCcb->connId]) >= pAttCfg->numPrepWrites)
   {
     err = ATT_ERR_QUEUE_FULL;
   }
@@ -292,7 +294,7 @@ void attsProcPrepWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     pPrep->handle = handle;
     pPrep->offset = offset;
     memcpy(pPrep->packet, pPacket, writeLen);
-    WsfQueueEnq(&pCcb->prepWriteQueue, pPrep);
+    WsfQueueEnq(&attsCb.prepWriteQueue[pCcb->connId], pPrep);
 
     /* allocate response buffer */
     if ((pBuf = attMsgAlloc(L2C_PAYLOAD_START + ATT_PREP_WRITE_RSP_LEN + writeLen)) != NULL)
@@ -304,13 +306,13 @@ void attsProcPrepWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
       UINT16_TO_BSTREAM(p, offset);
       memcpy(p, pPacket, writeLen);
 
-      L2cDataReq(L2C_CID_ATT, pCcb->handle, (ATT_PREP_WRITE_RSP_LEN + writeLen), pBuf);
+      attL2cDataReq(pCcb->pMainCcb, pCcb->slot, (ATT_PREP_WRITE_RSP_LEN + writeLen), pBuf);
     }
   }
 
   if (err)
   {
-    attsErrRsp(pCcb->handle, ATT_PDU_PREP_WRITE_REQ, handle, err);
+    attsErrRsp(pCcb->pMainCcb, pCcb->slot, ATT_PDU_PREP_WRITE_REQ, handle, err);
   }
 }
 
@@ -325,7 +327,7 @@ void attsProcPrepWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
  *  \return None.
  */
 /*************************************************************************************************/
-void attsProcExecWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+void attsProcExecWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 {
   uint8_t         *pBuf;
   uint8_t         *p;
@@ -346,7 +348,7 @@ void attsProcExecWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   else if (*pPacket == ATT_EXEC_WRITE_ALL)
   {
     /* iterate over prepare write queue and verify offset and length */
-    for (pPrep = pCcb->prepWriteQueue.pHead; pPrep != NULL; pPrep = pPrep->pNext)
+    for (pPrep = attsCb.prepWriteQueue[pCcb->connId].pHead; pPrep != NULL; pPrep = pPrep->pNext)
     {
       /* find attribute */
       if ((pAttr = attsFindByHandle(pPrep->handle, &pGroup)) != NULL)
@@ -375,7 +377,7 @@ void attsProcExecWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     if (err == ATT_SUCCESS)
     {
       /* for each buffer */
-      while ((pPrep = WsfQueueDeq(&pCcb->prepWriteQueue)) != NULL)
+      while ((pPrep = WsfQueueDeq(&attsCb.prepWriteQueue[pCcb->connId])) != NULL)
       {
         /* write buffer */
         if ((err = attsExecPrepWrite(pCcb, pPrep)) != ATT_SUCCESS)
@@ -398,7 +400,7 @@ void attsProcExecWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   /* send response or error response */
   if (err)
   {
-    attsErrRsp(pCcb->handle, ATT_PDU_EXEC_WRITE_REQ, 0, err);
+    attsErrRsp(pCcb->pMainCcb, pCcb->slot, ATT_PDU_EXEC_WRITE_REQ, 0, err);
   }
   else
   {
@@ -408,7 +410,7 @@ void attsProcExecWriteReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
       p = pBuf + L2C_PAYLOAD_START;
       UINT8_TO_BSTREAM(p, ATT_PDU_EXEC_WRITE_RSP);
 
-      L2cDataReq(L2C_CID_ATT, pCcb->handle, ATT_EXEC_WRITE_RSP_LEN, pBuf);
+      attL2cDataReq(pCcb->pMainCcb, pCcb->slot, ATT_EXEC_WRITE_RSP_LEN, pBuf);
     }
   }
 }
@@ -441,11 +443,11 @@ void AttsContinueWriteReq(dmConnId_t connId, uint16_t handle, uint8_t status)
   }
 
   /* clear response pending */
-  pCcb->control &= ~ATT_CCB_STATUS_RSP_PENDING;
+  pCcb->sccb[ATT_BEARER_SLOT_ID].control &= ~ATT_CCB_STATUS_RSP_PENDING;
 
   if (status)
   {
-    attsErrRsp(pCcb->handle, ATT_PDU_WRITE_REQ, handle, status);
+    attsErrRsp(pCcb, ATT_BEARER_SLOT_ID, ATT_PDU_WRITE_REQ, handle, status);
   }
   else
   {
@@ -455,7 +457,7 @@ void AttsContinueWriteReq(dmConnId_t connId, uint16_t handle, uint8_t status)
       p = pBuf + L2C_PAYLOAD_START;
       UINT8_TO_BSTREAM(p, ATT_PDU_WRITE_RSP);
 
-      L2cDataReq(L2C_CID_ATT, pCcb->handle, ATT_WRITE_RSP_LEN, pBuf);
+      attL2cDataReq(pCcb, ATT_BEARER_SLOT_ID, ATT_WRITE_RSP_LEN, pBuf);
     }
   }
 }

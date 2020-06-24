@@ -17,8 +17,8 @@
 #include "mbed.h"
 #include "stack/platform/include/pal_types.h"
 #include "stack/platform/include/pal_uart.h"
-#include "stack/platform/include/pal_nvm.h"
 #include "hal/ticker_api.h"
+#include "mbed_critical.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,34 +47,6 @@ MBED_WEAK void PalUartReadData(PalUartId_t id, uint8_t *pData, uint16_t len)
 MBED_WEAK void PalUartWriteData(PalUartId_t id, const uint8_t *pData, uint16_t len)
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalUartWriteData");
-}
-
-/* NVM */
-
-MBED_WEAK void PalNvmInit(PalNvmCback_t actCback)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmInit");
-}
-
-MBED_WEAK PalNvmState_t PalNvmGetState()
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmGetState");
-    return PAL_NVM_STATE_UNINIT;
-}
-
-MBED_WEAK void PalNvmRead(void *pBuf, uint32_t size, uint32_t srcAddr)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmRead");
-}
-
-MBED_WEAK void PalNvmWrite(void *pBuf, uint32_t size, uint32_t dstAddr)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmWrite");
-}
-
-MBED_WEAK void PalNvmEraseSector(uint32_t size, uint32_t startAddr)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmEraseSector");
 }
 
 /* LED */
@@ -108,7 +80,7 @@ MBED_WEAK void PalRtcDisableCompareIrq()
 
 MBED_WEAK uint32_t PalRtcCounterGet()
 {
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcDisableCompareIrq");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcCounterGet");
     return 0;
 }
 
@@ -139,6 +111,17 @@ MBED_WEAK void PalSysAssertTrap()
 MBED_WEAK void PalSysSleep()
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalSysSleep");
+}
+
+/* CS */
+
+MBED_WEAK void PalEnterCs(void)
+{
+    core_util_critical_section_enter();
+}
+MBED_WEAK void PalExitCs(void)
+{
+    core_util_critical_section_exit();
 }
 
 #ifdef __cplusplus

@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT client optional signed PDU processing functions.
+ *  \file
+ *
+ *  \brief  ATT client optional signed PDU processing functions.
+ *
+ *  Copyright (c) 2011-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -32,6 +34,7 @@
 #include "att_main.h"
 #include "attc_main.h"
 #include "att_sign.h"
+#include "wsf_trace.h"
 
 /**************************************************************************************************
   Data Types
@@ -133,13 +136,13 @@ static void attcSignCloseCback(attcCcb_t *pCcb, uint8_t status)
   attcSignCb_t  *pCb;
 
   /* if connection closed while processing in progress */
-  if ((pCb = attcSignCbByConnId(pCcb->pMainCcb->connId)) != NULL)
+  if ((pCb = attcSignCbByConnId(pCcb->connId)) != NULL)
   {
 
     /* message free buffer */
     if (pCb->msg.hdr.event != ATTC_MSG_API_NONE)
     {
-      attcReqClear(pCcb, &pCb->msg, status);
+      attcReqClear(pCcb->connId, &pCb->msg, status);
     }
 
     attcSignCbFree(pCcb->pMainCcb->connId);
@@ -150,7 +153,7 @@ static void attcSignCloseCback(attcCcb_t *pCcb, uint8_t status)
 /*!
  *  \brief  Message handler callback for ATTC signed PDU processing.
  *
- *  \param  pCcb    ATT control block.
+ *  \param  pCcb  ATT control block.
  *  \param  pMsg  ATTC message.
  *
  *  \return None.
@@ -159,6 +162,13 @@ static void attcSignCloseCback(attcCcb_t *pCcb, uint8_t status)
 static void attcSignMsgCback(attcCcb_t *pCcb, attcSignMsg_t *pMsg)
 {
   attcSignCb_t *pCb;
+  
+  /* cannot assume pCcb parameter is valid for signed writes */
+  if ((pCcb = attcCcbByConnId((dmConnId_t) pMsg->hdr.param, ATT_BEARER_SLOT_ID)) == NULL)
+  {
+    /* connection not in use */
+    return;
+  }
 
   if (pMsg->hdr.event == ATTC_MSG_API_SIGNED_WRITE_CMD)
   {
@@ -168,12 +178,12 @@ static void attcSignMsgCback(attcCcb_t *pCcb, attcSignMsg_t *pMsg)
     /* verify no API request already waiting on deck or in progress,
      * and no signed write already in progress
      */
-    if ((pCcb->onDeck.hdr.event != ATTC_MSG_API_NONE) ||
+    if ((attcCb.onDeck[pCcb->connId].hdr.event != ATTC_MSG_API_NONE) ||
         (pCcb->outReq.hdr.event > ATTC_MSG_API_MTU) ||
         (attcSignCbByConnId((dmConnId_t) pMsg->hdr.param) != NULL))
     {
       /* free request and call callback with failure status */
-      attcReqClear(pCcb, &pMsg->api, ATT_ERR_OVERFLOW);
+      attcReqClear(pCcb->connId, &pMsg->api, ATT_ERR_OVERFLOW);
       return;
     }
 
@@ -207,7 +217,7 @@ static void attcSignMsgCback(attcCcb_t *pCcb, attcSignMsg_t *pMsg)
     else
     {
       /* allocation failure */
-      attcReqClear(pCcb, &pMsg->api, ATT_ERR_UNDEFINED);
+      attcReqClear(pCcb->connId, &pMsg->api, ATT_ERR_UNDEFINED);
       return;
     }
   }
@@ -224,10 +234,11 @@ static void attcSignMsgCback(attcCcb_t *pCcb, attcSignMsg_t *pMsg)
                     pCmacMsg->pCiphertext, ATT_CMAC_RESULT_LEN);
 
       /* if MTU request in progress or flow controlled */
-      if (pCcb->outReq.hdr.event == ATTC_MSG_API_MTU || pCcb->flowDisabled)
+      if (pCcb->outReq.hdr.event == ATTC_MSG_API_MTU ||
+          pCcb->pMainCcb->sccb[ATT_BEARER_SLOT_ID].control & ATT_CCB_STATUS_FLOW_DISABLED)
       {
         /* put request "on deck" for processing later */
-        pCcb->onDeck = pCb->msg;
+        attcCb.onDeck[pCcb->connId] = pCb->msg;
       }
       /* otherwise ready to send */
       else
@@ -259,7 +270,7 @@ void AttcSignedWriteCmd(dmConnId_t connId, uint16_t handle, uint32_t signCounter
 {
   attcPktParam_t  *pPkt;
   uint8_t         *p;
-
+      
   /* if connection already encrypted with security mode 1 level 2 or higher */
   if (DmConnSecLevel(connId) > DM_SEC_LEVEL_NONE)
   {

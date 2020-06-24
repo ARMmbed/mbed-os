@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT client optional write PDU processing functions.
+ *  \file
+ *
+ *  \brief  ATT client optional write PDU processing functions.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -27,6 +29,35 @@
 #include "att_api.h"
 #include "att_main.h"
 #include "attc_main.h"
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Allocate an ATT Prepare Write Request message buffer.
+ *
+ *  \param  bufLen      Lenght of buffer to be allocated.
+ *
+ *  \return Pointer to data message buffer or NULL if allocation failed.
+ */
+/*************************************************************************************************/
+attcPktParam_t *attcPrepWriteAllocMsg(uint16_t bufLen)
+{
+  attcPktParam_t *pPkt;
+
+  /* if buffer length is not memory address aligned */
+  if (bufLen % sizeof(void *) != 0)
+  {
+    bufLen += sizeof(void *) - (bufLen % sizeof(void *));
+  }
+
+  /* allocate packet and parameter buffer */
+  if ((pPkt = attMsgAlloc(bufLen + sizeof(attcPktParamPrepWrite_t))) != NULL)
+  {
+    /* set parameter */
+    pPkt->pW = (attcPktParamPrepWrite_t *) ((uint8_t *) pPkt + bufLen);
+  }
+
+  return pPkt;
+}
 
 /*************************************************************************************************/
 /*!
@@ -124,11 +155,11 @@ void AttcPrepareWriteReq(dmConnId_t connId, uint16_t handle, uint16_t offset, ui
   }
 
   /* allocate packet and parameter buffer */
-  if ((pPkt = attMsgAlloc(bufLen)) != NULL)
+  if ((pPkt = attcPrepWriteAllocMsg(bufLen)) != NULL)
   {
     /* set parameters */
-    pPkt->w.len = valueLen;
-    pPkt->w.offset = offset;
+    pPkt->pW->len = valueLen;
+    pPkt->pW->offset = offset;
 
     /* build partial packet */
     p = (uint8_t *) pPkt + L2C_PAYLOAD_START;
@@ -141,12 +172,12 @@ void AttcPrepareWriteReq(dmConnId_t connId, uint16_t handle, uint16_t offset, ui
     /* set value pointer and copy data to packet, if not valueByRef */
     if (continuing && valueByRef)
     {
-      pPkt->w.pValue = pValue;
+      pPkt->pW->pValue = pValue;
     }
     else
     {
       memcpy(p, pValue, valueLen);
-      pPkt->w.pValue = p;
+      pPkt->pW->pValue = p;
     }
 
     /* send message */

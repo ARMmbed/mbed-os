@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT client mandatory PDU processing functions.
+ *  \file
+ *
+ *  \brief  ATT client mandatory PDU processing functions.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -51,7 +53,11 @@ static const attcProcRsp_t attcProcRspTbl[] =
   attcProcWriteRsp,             /* ATT_METHOD_WRITE */
   NULL,                         /* ATT_METHOD_WRITE_CMD */
   attcProcPrepWriteRsp,         /* ATT_METHOD_PREPARE_WRITE */
-  attcProcWriteRsp              /* ATT_METHOD_EXECUTE_WRITE */
+  attcProcWriteRsp,             /* ATT_METHOD_EXECUTE_WRITE */
+  NULL,                         /* unused */
+  NULL,                         /* unused */
+  NULL,                         /* unused */
+  attcProcReadMultVarRsp        /* ATT_METHOD_READ_MULT_VAR */
 };
 
 /*************************************************************************************************/
@@ -127,7 +133,7 @@ void attcProcMtuRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t *p
   }
 
   /* set mtu for the connection */
-  attSetMtu(pCcb->pMainCcb, mtu, WSF_MIN(pAttCfg->mtu, (HciGetMaxRxAclLen() - L2C_HDR_LEN)));
+  attSetMtu(pCcb->pMainCcb, pCcb->slot, mtu, WSF_MIN(pAttCfg->mtu, (HciGetMaxRxAclLen() - L2C_HDR_LEN)));
 }
 
 /*************************************************************************************************/
@@ -171,12 +177,12 @@ void attcProcFindOrReadRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attE
   else if (pCcb->outReq.hdr.event == ATTC_MSG_API_READ_BY_TYPE)
   {
     /* length in read by type response is handle plus parameter length */
-    paramLen = *p++ - sizeof(uint16_t);
+    paramLen = *p++ - 2;
   }
   else
   {
     /* length in read by group type response is two handles plus parameter length */
-    paramLen = *p++ - (2 * sizeof(uint16_t));
+    paramLen = *p++ - (2 * 2);
   }
 
   /* get and verify all handles */
@@ -285,6 +291,59 @@ void attcProcWriteRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t 
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Process received read multiple variable length response packet.
+ *
+ *  \param  pCcb      Connection control block.
+ *  \param  len       The length of the L2CAP payload data in pPacket.
+ *  \param  pPacket   A buffer containing the packet.
+ *  \param  pEvt      Pointer to callback event structure.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void attcProcReadMultVarRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t *pEvt)
+{
+  /* nothing to process */
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process received multiple variable len notification packet.
+ *
+ *  \param  pCcb      Connection control block.
+ *  \param  len       The length of the L2CAP payload data in pPacket.
+ *  \param  pPacket   A buffer containing the packet.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void attcProcMultiVarNtf(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+{
+  attEvt_t    evt;
+  uint8_t     *p;
+
+  p = pPacket + L2C_PAYLOAD_START;
+
+  /* parse packet and set callback event struct */
+  evt.hdr.event = ATT_OPCODE_2_METHOD(*p++);
+  evt.pValue = p;
+  evt.valueLen = len - ATT_HDR_LEN;
+  evt.hdr.param = pCcb->pMainCcb->connId;
+  evt.hdr.status = ATT_SUCCESS;
+  evt.continuing = FALSE;
+
+  /* verify handle and call callback */
+  if (attCb.cback)
+  {
+    (*attCb.cback)(&evt);
+  }
+
+  /* mark confirm as pending; will be sent when flow enabled or application sends it. */
+  pCcb->pMainCcb->sccb[pCcb->slot].control |= ATT_CCB_STATUS_CNF_PENDING;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Process received response packet.
  *
  *  \param  pCcb      Connection control block.
@@ -341,7 +400,7 @@ void attcProcRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   }
 
   /* if no flow control */
-  if (!pCcb->flowDisabled)
+  if (!(pCcb->pMainCcb->sccb[pCcb->slot].control & ATT_CCB_STATUS_FLOW_DISABLED))
   {
     /* if out req ready */
     if (pCcb->outReq.pPkt != NULL)
@@ -350,13 +409,14 @@ void attcProcRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
       attcSendReq(pCcb);
     }
     /* else if api is on deck */
-    else if (pCcb->onDeck.hdr.event != ATTC_MSG_API_NONE)
+    else if ((pCcb->slot == ATT_BEARER_SLOT_ID) &&
+             (attcCb.onDeck[pCcb->connId].hdr.event != ATTC_MSG_API_NONE))
     {
       /* set up and send request */
-      attcSetupReq(pCcb, &pCcb->onDeck);
+      attcSetupReq(pCcb, &attcCb.onDeck[pCcb->connId]);
 
       /* clear on deck */
-      pCcb->onDeck.hdr.event = ATTC_MSG_API_NONE;
+      attcCb.onDeck[pCcb->connId].hdr.event = ATTC_MSG_API_NONE;
     }
   }
 }
@@ -384,7 +444,7 @@ void attcProcInd(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   evt.hdr.event = ATT_OPCODE_2_METHOD(*p++);
   BSTREAM_TO_UINT16(evt.handle, p);
   evt.pValue = p;
-  evt.valueLen = len - ATT_HDR_LEN - sizeof(uint16_t);
+  evt.valueLen = len - ATT_HDR_LEN - 2;
   evt.hdr.param = pCcb->pMainCcb->connId;
   evt.hdr.status = ATT_SUCCESS;
   evt.continuing = FALSE;
@@ -398,7 +458,7 @@ void attcProcInd(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   /* if indication send confirm */
   if (attcCb.autoCnf && (evt.hdr.event == ATT_METHOD_VALUE_IND))
   {
-    if (!pCcb->flowDisabled)
+    if (!(pCcb->pMainCcb->sccb[pCcb->slot].control & ATT_CCB_STATUS_FLOW_DISABLED))
     {
       if ((pPkt = attMsgAlloc(ATT_VALUE_CNF_LEN + L2C_PAYLOAD_START)) != NULL)
       {
@@ -411,7 +471,7 @@ void attcProcInd(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   }
 
   /* mark confirm as pending; will be sent when flow enabled or application sends it. */
-  pCcb->cnfPending = TRUE;
+  pCcb->pMainCcb->sccb[pCcb->slot].control |= ATT_CCB_STATUS_CNF_PENDING;
 }
 
 /*************************************************************************************************/
@@ -436,11 +496,11 @@ void attcSendMsg(dmConnId_t connId, uint16_t handle, uint8_t msgId, attcPktParam
   WsfTaskLock();
 
   /* get CCB and verify connection still in use */
-  if ((pCcb = attcCcbByConnId(connId)) != NULL)
+  if ((pCcb = attcCcbByConnId(connId, ATT_BEARER_SLOT_ID)) != NULL)
   {
     /* get MTU size */
-    mtu = pCcb->pMainCcb->mtu;
-    transTimedOut = !!(pCcb->pMainCcb->control & ATT_CCB_STATUS_TX_TIMEOUT);
+    mtu = pCcb->pMainCcb->sccb[ATT_BEARER_SLOT_ID].mtu;
+    transTimedOut = !!(pCcb->pMainCcb->sccb[ATT_BEARER_SLOT_ID].control & ATT_CCB_STATUS_TX_TIMEOUT);
   }
   /* else connection not in use */
   else
@@ -475,7 +535,7 @@ void attcSendMsg(dmConnId_t connId, uint16_t handle, uint8_t msgId, attcPktParam
           if (!continuing)
           {
             /* single prepare write request */
-            dataLen = ATT_PREP_WRITE_REQ_LEN + pPkt->w.len;
+            dataLen = ATT_PREP_WRITE_REQ_LEN + pPkt->pW->len;
           }
           /* else will be sent as multiple prepare write requests */
         }
@@ -495,6 +555,7 @@ void attcSendMsg(dmConnId_t connId, uint16_t handle, uint8_t msgId, attcPktParam
           pMsg->hdr.event = msgId;
           pMsg->pPkt = pPkt;
           pMsg->handle = handle;
+          pMsg->slot = ATT_BEARER_SLOT_ID;
 
           /* send message */
           WsfMsgSend(attCb.handlerId, pMsg);
@@ -638,12 +699,17 @@ void AttcCancelReq(dmConnId_t connId)
 
 /*************************************************************************************************/
 /*!
- *  \brief  For internal use only.
+ *  \brief  Initiate an attribute protocol Exchange MTU Request.
  *
  *  \param  connId    DM connection ID.
  *  \param  mtu       Attribute protocol MTU.
  *
  *  \return None.
+ *
+ *  \note   The Exchange MTU Request will be initiated automatically on a master connection.
+ *
+ *  \note   This API can be used by the application to initiate an Exchange MTU Request on slave
+ *          connections.
  */
 /*************************************************************************************************/
 void AttcMtuReq(dmConnId_t connId, uint16_t mtu)
@@ -681,14 +747,15 @@ void AttcIndConfirm(dmConnId_t connId)
   attcCcb_t   *pCcb;
   uint8_t     *pPkt;
 
-  pCcb = attcCcbByHandle(connId - 1);
+  pCcb = attcCcbByHandle(connId - 1, ATT_BEARER_SLOT_ID);
 
   /* If confirmation is pending */
-  if (pCcb && pCcb->cnfPending && !pCcb->flowDisabled)
+  if (pCcb && (pCcb->pMainCcb->sccb[ATT_BEARER_SLOT_ID].control & ATT_CCB_STATUS_CNF_PENDING) &&
+      !(pCcb->pMainCcb->sccb[ATT_BEARER_SLOT_ID].control & ATT_CCB_STATUS_FLOW_DISABLED))
   {
     if ((pPkt = attMsgAlloc(ATT_VALUE_CNF_LEN + L2C_PAYLOAD_START)) != NULL)
     {
-      pCcb->cnfPending = FALSE;
+      pCcb->pMainCcb->sccb[ATT_BEARER_SLOT_ID].control &= ~ATT_CCB_STATUS_CNF_PENDING;
 
       *(pPkt + L2C_PAYLOAD_START) = ATT_PDU_VALUE_CNF;
       L2cDataReq(L2C_CID_ATT, pCcb->pMainCcb->handle, ATT_VALUE_CNF_LEN, pPkt);

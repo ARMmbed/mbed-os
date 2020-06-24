@@ -63,6 +63,11 @@
             "help": "Where the CBC MAC calculatio is performed. Valid values are 0 (host) and 1 (controller through HCI).",
             "value": 1,
             "macro_name": "SEC_CCM_CFG"
+        },
+        "max-eatt-channels": {
+            "help": "Maximum number of EATT channels per DM connection.",
+            "value": 1,
+            "macro_name": "EATT_CONN_CHAN_MAX"
         }
     }
 }

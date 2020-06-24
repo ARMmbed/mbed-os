@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device Manager subsystem API.
+ *  \file
+ *
+ *  \brief  Device Manager subsystem API.
+ *
+ *  Copyright (c) 2016-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef DM_API_H
@@ -135,6 +137,12 @@ extern "C" {
 
 /*! \brief Unknown sync ID or other error */
 #define DM_SYNC_ID_NONE             0
+
+/*! \brief Unknown Connected Isochronous Group (CIG) ID or other error */
+#define DM_CIG_ID_NONE              0xFF
+
+/*! \brief Unknown Connected Isochronous Stream (CIS) ID or other error */
+#define DM_CIS_ID_NONE              0xFF
 /**@}*/
 
 /** \name GAP Address Type
@@ -182,6 +190,16 @@ extern "C" {
 #define DM_ADV_TYPE_LESC_CONFIRM    0x22  /*!< \brief LE Secure Connections confirm value */
 #define DM_ADV_TYPE_LESC_RANDOM     0x23  /*!< \brief LE Secure Connections random value */
 #define DM_ADV_TYPE_URI             0x24  /*!< \brief URI */
+#define DM_ADV_TYPE_INDOOR_POS      0x25  /*!< \brief Indoor positioning service */
+#define DM_ADV_TYPE_TRANS_DISC      0x26  /*!< \brief Transport discovery service */
+#define DM_ADV_TYPE_LE_SUP_FEAT     0x27  /*!< \brief LE supported features */
+#define DM_ADV_TYPE_CH_MAP_UPD_IND  0x28  /*!< \brief Channel map update indication */
+#define DM_ADV_TYPE_PB_ADV          0x29  /*!< \brief PB-ADV */
+#define DM_ADV_TYPE_MESH_MSG        0x2A  /*!< \brief Mesh message */
+#define DM_ADV_TYPE_MESH_BEACON     0x2B  /*!< \brief Mesh beacon*/
+#define DM_ADV_TYPE_BIG_INFO        0x2C  /*!< \brief BIG Info */
+#define DM_ADV_TYPE_BCAST_CODE      0x2D  /*!< \brief Mesh beacon */
+#define DM_ADV_TYPE_3D_INFO_DATA    0x3D  /*!< \brief 3D information data */
 #define DM_ADV_TYPE_MANUFACTURER    0xFF  /*!< \brief Manufacturer specific data */
 /**@}*/
 
@@ -345,6 +363,15 @@ extern "C" {
 #define DM_SEC_LEVEL_ENC_LESC       3     /*!< \brief Connection is encrypted with LE Secure Connections */
 /**@}*/
 
+/** \name GAP Broadcast Security Level
+* GAP Mode 3 Security Levels
+*/
+/**@{*/
+#define DM_SEC_LEVEL_BCAST_NONE     0     /*!< \brief No security (no authentication and no encryption) */
+#define DM_SEC_LEVEL_BCAST_UNAUTH   1     /*!< \brief Use of unauthenticated Broadcast_Code */
+#define DM_SEC_LEVEL_BCAST_AUTH     2     /*!< \brief Use of authenticated Broadcast_Code */
+/**@}*/
+
 /** \name GAP Random Address Types
  * Random address type masks.
  */
@@ -420,6 +447,21 @@ extern "C" {
 #define DM_ERR_SMP_RX_PDU_LEN_EXCEEDED    0x01  /*!< \brief LESC key length exceeded maximum RX PDU length */
 #define DM_ERR_ATT_RX_PDU_LEN_EXCEEDED    0x02  /*!< \brief Configured ATT MTU exceeded maximum RX PDU length */
 #define DM_ERR_L2C_RX_PDU_LEN_EXCEEDED    0x03  /*!< \brief Registered COC MPS exceeded maximum RX PDU length */
+/**@}*/
+
+/** \name DM Conn CTE states
+ * Internal states of the DM conn CTE.
+ */
+/**@{*/
+enum
+{
+  DM_CONN_CTE_STATE_IDLE,                    /*!< Idle */
+  DM_CONN_CTE_STATE_INITIATING,              /*!< Initiating CTE request */
+  DM_CONN_CTE_STATE_RESPONDING,              /*!< Responding to CTE request */
+  DM_CONN_CTE_STATE_SAMPLING,                /*!< Sampling received CTE */
+  DM_CONN_CTE_STATE_STARTING,                /*!< Starting CTE request, CTE response or sampling received CTE */
+  DM_CONN_CTE_STATE_STOPPING,                /*!< Stopping CTE request, CTE response or sampling received CTE */
+};
 /**@}*/
 
 /** \name DM Legacy Advertising Handle
@@ -507,6 +549,25 @@ enum
   DM_CONN_CTE_RSP_START_IND,              /*!< \brief Responding to connection CTE request started */
   DM_CONN_CTE_RSP_STOP_IND,               /*!< \brief Responding to connection CTE request stopped */
   DM_READ_ANTENNA_INFO_IND,               /*!< \brief Antenna information read */
+  DM_CIS_CIG_CONFIG_IND,                  /*!< \brief CIS CIG configure complete */
+  DM_CIS_CIG_REMOVE_IND,                  /*!< \brief CIS CIG remove complete */
+  DM_CIS_REQ_IND,                         /*!< \brief CIS request */
+  DM_CIS_OPEN_IND,                        /*!< \brief CIS connection opened */
+  DM_CIS_CLOSE_IND,                       /*!< \brief CIS connection closed */
+  DM_REQ_PEER_SCA_IND,                    /*!< \brief Request peer SCA complete */
+  DM_ISO_DATA_PATH_SETUP_IND,             /*!< \brief ISO data path setup complete */
+  DM_ISO_DATA_PATH_REMOVE_IND,            /*!< \brief ISO data path remove complete */
+  DM_DATA_PATH_CONFIG_IND,                /*!< \brief Data path configure complete */
+  DM_READ_LOCAL_SUP_CODECS_IND,           /*!< \brief Local supported codecs read */
+  DM_READ_LOCAL_SUP_CODEC_CAP_IND,        /*!< \brief Local supported codec capabilities read */
+  DM_READ_LOCAL_SUP_CTR_DLY_IND,          /*!< \brief Local supported controller delay read */
+  DM_BIG_START_IND,                       /*!< \brief BIG started */
+  DM_BIG_STOP_IND,                        /*!< \brief BIG stopped */
+  DM_BIG_SYNC_EST_IND,                    /*!< \brief BIG sync established */
+  DM_BIG_SYNC_EST_FAIL_IND,               /*!< \brief BIG sync establishment failed */
+  DM_BIG_SYNC_LOST_IND,                   /*!< \brief BIG sync lost */
+  DM_BIG_SYNC_STOP_IND,                   /*!< \brief BIG sync stopped */
+  DM_BIG_INFO_ADV_REPORT_IND,             /*!< \brief BIG Info advertising data received from peer device */
   DM_L2C_CMD_REJ_IND,                     /*!< \brief L2CAP Command Reject */
   DM_ERROR_IND,                           /*!< \brief General error */
   DM_HW_ERROR_IND,                        /*!< \brief Hardware error */
@@ -763,6 +824,25 @@ typedef union
   hciLeConnCteRspEnableCmdCmplEvt_t   connCteRspStart;       /*!< \brief handles \ref DM_CONN_CTE_RSP_START_IND */
   hciLeConnCteRspEnableCmdCmplEvt_t   connCteRspStop;        /*!< \brief handles \ref DM_CONN_CTE_RSP_STOP_IND */
   hciLeReadAntennaInfoCmdCmplEvt_t    readAntennaInfo;       /*!< \brief handles \ref DM_READ_ANTENNA_INFO_IND */
+  hciLeSetCigParamsCmdCmplEvt_t       cisCigConfig;          /*!< \brief handles \ref DM_CIS_CIG_CONFIG_IND */
+  hciLeRemoveCigCmdCmplEvt_t          cisCigRemove;          /*!< \brief handles \ref DM_CIS_CIG_REMOVE_IND */
+  HciLeCisReqEvt_t                    cisReq;                /*!< \brief handles \ref DM_CIS_REQ_IND */
+  HciLeCisEstEvt_t                    cisOpen;               /*!< \brief handles \ref DM_CIS_OPEN_IND */
+  hciDisconnectCmplEvt_t              cisClose;              /*!< \brief handles \ref DM_CIS_CLOSE_IND */
+  HciLeReqPeerScaCmplEvt_t_t          reqPeerSca;            /*!< \brief handles \ref DM_REQ_PEER_SCA_IND */
+  hciLeSetupIsoDataPathCmdCmplEvt_t   isoDataPathSetup;      /*!< \brief handles \ref DM_ISO_DATA_PATH_SETUP_IND */
+  hciLeRemoveIsoDataPathCmdCmplEvt_t  isoDataPathRemove;     /*!< \brief handles \ref DM_ISO_DATA_PATH_REMOVE_IND */
+  hciConfigDataPathCmdCmplEvt_t       dataPathConfig;        /*!< \brief handles \ref DM_DATA_PATH_CONFIG_IND */
+  hciReadLocalSupCodecsCmdCmplEvt_t   readLocalSupCodecs;    /*!< \brief handles \ref DM_READ_LOCAL_SUP_CODECS_IND */
+  hciReadLocalSupCodecCapCmdCmplEvt_t readLocalSupCodecCap;  /*!< \brief handles \ref DM_READ_LOCAL_SUP_CODEC_CAP_IND */
+  hciReadLocalSupCtrDlyCmdCmplEvt_t   readLocalSupCtrDly;    /*!< \brief handles \ref DM_READ_LOCAL_SUP_CTR_DLY_IND */
+  HciLeCreateBigCmplEvt_t             bigStart;              /*!< \brief handles \ref DM_BIG_START_IND */
+  HciLeTerminateBigCmplEvt_t          bigStop;               /*!< \brief handles \ref DM_BIG_STOP_IND */
+  HciLeBigSyncEstEvt_t                bigSyncEst;            /*!< \brief handles \ref DM_BIG_SYNC_EST_IND */
+  HciLeBigSyncEstEvt_t                bigSyncEstFail;        /*!< \brief handles \ref DM_BIG_SYNC_EST_FAIL_IND */
+  HciLeBigSyncLostEvt_t               bigSyncLost;           /*!< \brief handles \ref DM_BIG_SYNC_LOST_IND */
+  HciLeBigTermSyncCmplEvt_t           bigSyncStop;           /*!< \brief handles \ref DM_BIG_SYNC_STOP_IND */
+  HciLeBigInfoAdvRptEvt_t             bigInfoAdvRpt;         /*!< \brief handles \ref DM_BIG_INFO_ADV_REPORT_IND */
   dmL2cCmdRejEvt_t                    l2cCmdRej;             /*!< \brief handles \ref DM_L2C_CMD_REJ_IND */
   /* common header used by                                                            DM_ERROR_IND */
   hciHwErrorEvt_t                     hwError;               /*!< \brief handles \ref DM_HW_ERROR_IND */
@@ -1132,6 +1212,18 @@ void DmAdvSetFragPref(uint8_t advHandle, uint8_t fragPref);
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Set advertising SID for the given advertising handle.
+ *
+ *  \param  advHandle     Advertising handle.
+ *  \param  advSid        Advertsing SID.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmAdvSetSid(uint8_t advHandle, uint8_t advSid);
+
+/*************************************************************************************************/
+/*!
  *  \brief  Set the advertising parameters for periodic advertising.
  *
  *  \param  advHandle     Advertising handle.
@@ -1204,6 +1296,17 @@ void DmPerAdvSetInterval(uint8_t advHandle, uint16_t intervalMin, uint16_t inter
  */
 /*************************************************************************************************/
 void DmPerAdvIncTxPwr(uint8_t advHandle, bool_t incTxPwr);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get status of periodic advertising handle.
+ *
+ *  \param  advHandle    Advertising handle.
+ *
+ *  \return TRUE if periodic advertising is running on that handle. FALSE, otherwise.
+*/
+/*************************************************************************************************/
+bool_t DmPerAdvEnabled(uint8_t advHandle);
 
 /*************************************************************************************************/
 /*!
@@ -1566,6 +1669,42 @@ void DmSyncStop(dmSyncId_t syncId);
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Set the encryption mode of the Broadcast Isochronous Group (BIG) corresponding to the
+ *          periodic advertising train identified by the sync handle.
+ *
+ *  \param  syncHandle   Synch handle.
+ *  \param  encrypt      FALSE (Unencrypted) or FALSE (Encrypted).
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmSyncSetEncrypt(uint16_t syncHandle, bool_t encrypt);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get the encryption mode of the Broadcast Isochronous Group (BIG) corresponding to the
+ *          periodic advertising train identified by the sync handle.
+ *
+ *  \param  syncHandle   Synch handle.
+ *
+ *  \return TRUE if sync encrypted. FALSE, otherwise.
+ */
+/*************************************************************************************************/
+bool_t DmSyncEncrypted(uint16_t syncHandle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get status of sync identified by the handle.
+ *
+ *  \param  syncHandle   Synch handle.
+ *
+ *  \return TRUE if sync is enabled for that handle. FALSE, otherwise.
+ */
+/*************************************************************************************************/
+bool_t DmSyncEnabled(uint16_t syncHandle);
+
+/*************************************************************************************************/
+/*!
  *  \brief  DM enable or disable initial periodic advertisement reporting.
  *
  *  \param  enable        TRUE to enable initial reporting, FALSE to disable initial reporting.
@@ -1574,6 +1713,99 @@ void DmSyncStop(dmSyncId_t syncId);
  */
 /*************************************************************************************************/
 void DmSyncInitialRptEnable(bool_t enable);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Synchronize to a Broadcast Isochronous Group (BIG) described in the periodic
+ *          advertising train specified by the sync handle.
+ *
+ *  \param  bigHandle       BIG handle.
+ *  \param  syncHandle      Periodic advertising train handle.
+ *  \param  mse             Maximum number of subevents.
+ *  \param  bigSyncTimeout  Synchronization timeout for the BIS, in the units of 10ms.
+ *  \param  numBis          Total number of BISes in the BIG.
+ *  \param  pBis            List of indices of BISes (in ascending order).
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSyncStart(uint8_t bigHandle, uint16_t syncHandle, uint8_t mse, uint16_t bigSyncTimeout,
+                    uint8_t numBis, uint8_t *pBis);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Stop synchronizing or cancel the process of synchronizing to the Broadcast Isochronous
+ *           Group (BIG) identified by the handle.
+ * 
+ *  \note   The command also terminates the reception of BISes in the BIG specified in \ref
+ *          DmBigSyncStart, destroys the associated connection handles of the BISes in the BIG
+ *          and removes the data paths for all BISes in the BIG.
+ *
+ *  \param  bigHandle       BIG handle.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSyncStop(uint8_t bigHandle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  For internal use only.  Return TRUE if the BIS sync is in use.
+ *
+ *  \param  handle  BIS connection handle.
+ *
+ *  \return TRUE if the BIS sync is in use, FALSE otherwise.
+ */
+/*************************************************************************************************/
+bool_t DmBisSyncInUse(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the Broadcast Code for the given Broadcast Isochronous Group (BIG).
+ *
+ *  \param  bigHandle    BIG handle.
+ *  \param  encrypt      FALSE (Unencrypted) or TRUE (Encrypted).
+ *  \param  authen       FALSE (Unauthenticated) or TRUE (Authenticated).
+ *  \param  pBcastCode   Broadcast code.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSyncSetBcastCode(uint8_t bigHandle, bool_t encrypt, bool_t authen, uint8_t *pBcastCode);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the security level of the LE Security Mode 3 for the given Broadcast Isochronous
+ *          Group (BIG).
+ *
+ *  \param  bigHandle    BIG handle.
+ *  \param  secLevel     Security level.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSyncSetSecLevel(uint8_t bigHandle, uint8_t secLevel);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get the security level of the LE Security Mode 3 for the given Broadcast Isochronous
+ *          Group (BIG) connection handle.
+ *
+ *  \param  handle  BIS connection handle.
+ *
+ *  \return Security level.
+ */
+/*************************************************************************************************/
+uint8_t DmBigSyncGetSecLevel(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Initialize DM BIS manager for operation as master.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBisMasterInit(void);
 
 /*************************************************************************************************/
 /*!
@@ -1778,6 +2010,28 @@ void DmConnCteRspStart(dmConnId_t connId);
  */
 /*************************************************************************************************/
 void DmConnCteRspStop(dmConnId_t connId);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Returns the device manager's CTE request state for a given connection.
+ *
+ *  \param  connId           Connection identifier.
+ *
+ *  \return The CTE request state.
+ */
+/*************************************************************************************************/
+uint8_t DmConnCteGetReqState(dmConnId_t connId);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Returns the device manager's CTE response state for a given connection.
+ *
+ *  \param  connId           Connection identifier.
+ *
+ *  \return The CTE response state.
+ */
+/*************************************************************************************************/
+uint8_t DmConnCteGetRspState(dmConnId_t connId);
 
 /*************************************************************************************************/
 /*!
@@ -2072,6 +2326,407 @@ uint8_t DmConnRole(dmConnId_t connId);
 /*************************************************************************************************/
 void DmWriteAuthPayloadTimeout(dmConnId_t connId, uint16_t timeout);
 
+/*************************************************************************************************/
+/*!
+ *  \brief  Request the Sleep Clock Accuracy (SCA) of a peer device.
+ *
+ *  \param  connId      Connection identifier.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmConnRequestPeerSca(dmConnId_t connId);
+
+/**@}*/
+
+/** \name DM CIS Functions
+* Functions for forming and managing Connected Isochronous Stream (CIS) streams.
+*/
+/**@{*/
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Initialize DM Connected Isochronous Stream (CIS) manager.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisInit(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Initialize DM Connected Isochronous Stream (CIS) manager for operation as master.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisMasterInit(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Initialize DM Connected Isochronous Stream (CIS) manager for operation as slave.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisSlaveInit(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the interval, in microseconds, of periodic SDUs for the given Connected Isochronous
+ *          Group (CIG).
+ *
+ *  \param  cigId            CIG ID.
+ *  \param  sduIntervalMToS  Time interval between start of consecutive SDUs from master Host.
+ *  \param  sduIntervalSToM  Time interval between start of consecutive SDUs from slave Host.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisCigSetSduInterval(uint8_t cigId, uint32_t sduIntervalMToS, uint32_t sduIntervalSToM);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the slaves clock accuracy for the given Connected Isochronous Group (CIG).
+ *
+ *  \param  cigId   CIG identifier.
+ *  \param  sca     Slaves clck accuracy (0 if unknown).
+ *
+ *  \return None.
+ *
+ *  \note   The slaves clock accuracy must which must be the worst-case sleep clock accuracy of the
+ *          slaves that will participate in the CIG.
+ */
+/*************************************************************************************************/
+void DmCisCigSetSca(uint8_t cigId, uint8_t sca);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the packing scheme and framing format for the given Connected Isochronous Group
+ *          (CIG).
+ *
+ *  \param  cigId       CIG identifier.
+ *  \param  packing     Packing scheme.
+ *  \param  framing     Indicates format of CIS Data PDUs.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisCigSetPackingFraming(uint8_t cigId, uint8_t packing, uint32_t framing);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the maximum transport latency, in microseconds, for the given Connected Isochronous
+ *          Group (CIG).
+ *
+ *  \param  cigId        CIG identifier.
+ *  \param  transLatMToS Maximum time for SDU to be transported from master Controller to slave Controller.
+ *  \param  transLatSToM Maximum time for SDU to be transported from slave Controller to master Controller.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisCigSetTransLatInterval(uint8_t cigId, uint16_t transLatMToS, uint16_t transLatSToM);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the parameters of one or more Connected Isochronous Streams (CISes) that are 
+ *          associated with the given Connected Isochronous Group (CIG).
+ *
+ *  \param  cigId       CIG identifier.
+ *  \param  numCis      Number of CIS to be configured.
+ *  \param  pCisParam   CIS parameters.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisCigConfig(uint8_t cigId, dmConnId_t numCis, HciCisCisParams_t *pCisParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Remove all the Connected Isochronous Streams (CISes) associated with the given 
+ *          Connected Isochronous Group (CIG).
+ *
+ *  \param  cigId       CIG identifier.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisCigRemove(uint8_t cigId);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Create one or more Connected Isochronous Streams (CISes) using the connections 
+ *          identified by the ACL connection handles.
+ *
+ *  \param  numCis      Total number of CISes to be created.
+ *  \param  pCisHandle  List of connection handles of CISes.
+ *  \param  pAclHandle  List of connection handles of ACLs.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisOpen(uint8_t numCis, uint16_t *pCisHandle, uint16_t *pAclHandle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Inform the Controller to accept the request for the Connected Isochronous Stream (CIS)
+ *          that is identified by the connection handle.
+ *
+ *  \param  handle    Connection handle of the CIS.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisAccept(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Inform the Controller to reject the request for the Connected Isochronous Stream (CIS)
+ *          that is identified by the connection handle.
+ *
+ *  \param  handle    Connection handle of the CIS to be rejected.
+ *  \param  reason    Reason the CIS request was rejected.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisReject(uint16_t handle, uint8_t reason);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Close the Connected Isochronous Stream (CIS) connection with the given handle.
+ *
+ *  \param  handle    CIS connection handle.
+ *  \param  reason    Reason connection is being closed.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmCisClose(uint16_t handle, uint8_t reason);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  For internal use only.  Return TRUE if the Connected Isochronous Stream (CIS)
+ *          connection is in use.
+ *
+ *  \param  handle  CIS connection handle.
+ *
+ *  \return TRUE if the CIS connection is in use, FALSE otherwise.
+ */
+/*************************************************************************************************/
+bool_t DmCisConnInUse(uint16_t handle);
+
+/**@}*/
+
+/** \name DM BIS Functions
+* Functions for forming and managing Broadcast Isochronous Stream (BIS) streams and synchronization.
+*/
+/**@{*/
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Initialize DM BIS manager for operation as slave.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBisSlaveInit(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Start a Broadcast Isochronous Group (BIG) with one or more Broadcast Isochronous 
+ *          Streams (BISes).
+ *
+ *  \param  bigHandle     CIG identifier.
+ *  \param  advHandle     Used to identify the periodic advertising train.
+ *  \param  numBis;       Total number of BISes in the BIG.
+ *  \param  sduInterUsec  Interval, in microseconds, of BIG SDUs.
+ *  \param  maxSdu        Maximum size of SDU
+ *  \param  mtlMs         Maximum time, in milliseconds, for transmitting SDU.
+ *  \param  rtn           Retransmitted number.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigStart(uint8_t bigHandle, uint8_t advHandle, uint8_t numBis, uint32_t sduInterUsec,
+                uint16_t maxSdu, uint16_t mtlMs, uint8_t rtn);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Stop a Broadcast Isochronous Group (BIG) identified for the given handle.
+ *
+ *  \param  bigHandle   BIG identifier.
+ *  \param  reason      Reason BIG is terminated.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigStop(uint8_t bigHandle, uint8_t reason);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  For internal use only.  Return TRUE if the BIS is in use.
+ *
+ *  \param  handle  BIS connection handle.
+ *
+ *  \return TRUE if the BIS connection is in use, FALSE otherwise.
+ */
+/*************************************************************************************************/
+bool_t DmBisInUse(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the PHYs used for transmission of PDUs of Broadcast Isochronous Streams (BISes) in
+ *          Broadcast Isochronous Group (BIG).
+ *
+ *  \param  bigHandle   BIG handle.
+ *  \param  phyBits     PHY bit field.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSetPhy(uint8_t bigHandle, uint8_t phyBits);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the packing scheme and framing format for the given Broadcast Isochronous Group
+ *          (BIG).
+ *
+ *  \param  bigHandle   BIG handle.
+ *  \param  packing     Packing scheme.
+ *  \param  framing     Indicates format of BIS Data PDUs.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSetPackingFraming(uint8_t bigHandle, uint8_t packing, uint32_t framing);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the Broadcast Code for the given Broadcast Isochronous Group (BIG).
+ *
+ *  \param  bigHandle    BIG handle.
+ *  \param  encrypt      FALSE (Unencrypted) or TRUE (Encrypted).
+ *  \param  authen       FALSE (Unauthenticated) or TRUE (Authenticated).
+ *  \param  pBcastCode   Broadcast code.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSetBcastCode(uint8_t bigHandle, bool_t encrypt, bool_t authen, uint8_t *pBcastCode);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the security level of the LE Security Mode 3 for the given Broadcast Isochronous
+ *          Group (BIG).
+ *
+ *  \param  bigHandle    BIG handle.
+ *  \param  secLevel     Security level.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmBigSetSecLevel(uint8_t bigHandle, uint8_t secLevel);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get the security level of the LE Security Mode 3 for the given Broadcast Isochronous
+ *          Group (BIG) connection handle.
+ *
+ *  \param  handle  BIS connection handle.
+ *
+ *  \return Security level.
+ */
+/*************************************************************************************************/
+uint8_t DmBigGetSecLevel(uint16_t handle);
+
+/** \name DM Isochronous (ISO) Functions
+* Functions for setting up and managing isochronous data path between the Host and the Controller.
+*/
+/**@{*/
+/*************************************************************************************************/
+/*!
+ *  \brief  Initialize DM ISO manager.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmIsoInit(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Setup the isochronous data path between the Host and the Controller for an established
+ *          Connected Isochronous Stream (CIS) or Broadcast Isochronous Stream (BIS) identified by
+ *          the connection handle parameter.
+ *
+ *  \param  pDataPathParam Parameters to setup ISO data path.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmIsoDataPathSetup(HciIsoSetupDataPath_t *pDataPathParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Remove the input and/or output data path(s) associated with a Connected Isochronous
+ *          Stream (CIS) or Broadcast Isochronous Stream (BIS) identified by the connection handle
+ *          parameter.
+ *
+ *  \param  handle         Connection handle of CIS or BIS.
+ *  \param  directionBits  Data path direction bits.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmIsoDataPathRemove(uint16_t handle, uint8_t directionBits);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Request the Controller to configure the data transport path in a given direction
+ *          between the Controller and the Host.
+ *
+ *  \param  pDataPathParam  Parameters for configuring data path.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmDataPathConfig(HciConfigDataPath_t *pDataPathParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Read a list of the codecs supported by the Controller, as well as vendor specific
+ *          codecs, which are defined by an individual manufacturer.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmReadLocalSupCodecs(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Read a list of codec capabilities supported by the Controller for a given codec.
+ *
+ *  \param  pCodecParam  Parameters for reading local supported codec capabilities.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmReadLocalSupCodecCap(HciReadLocalSupCodecCaps_t *pCodecParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Read the range of supported Controller delays for the codec specified by Codec ID on
+ *          a given transport type specified by Logical Transport Type, in the direction specified
+ *          by Direction, and with the codec configuration specified by Codec Configuration.
+ *
+ *  \param  pDelayParam  Parameters for reading local supported controller delay.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmReadLocalSupCtrDly(HciReadLocalSupControllerDly_t *pDelayParam);
+
 /**@}*/
 
 /** \name DM PHY Control Functions
@@ -2121,10 +2776,10 @@ void DmSetPhy(dmConnId_t connId, uint8_t allPhys, uint8_t txPhys, uint8_t rxPhys
 
 /*************************************************************************************************/
 /*!
-*  \brief  Initialize DM PHY.
-*
-*  \return None.
-*/
+ *  \brief  Initialize DM PHY.
+ *
+ *  \return None.
+ */
 /*************************************************************************************************/
 void DmPhyInit(void);
 
@@ -2267,7 +2922,7 @@ void DmSecLescInit(void);
  *  \return None.
  */
 /*************************************************************************************************/
-void DmSecPairReq(dmConnId_t connId, bool_t oob, uint8_t auth, uint8_t iKeyDist, uint8_t rKeyDist);
+void DmSecPairReq(dmConnId_t connId, uint8_t oob, uint8_t auth, uint8_t iKeyDist, uint8_t rKeyDist);
 
 /*************************************************************************************************/
 /*!
@@ -2283,7 +2938,7 @@ void DmSecPairReq(dmConnId_t connId, bool_t oob, uint8_t auth, uint8_t iKeyDist,
  *  \return None.
  */
 /*************************************************************************************************/
-void DmSecPairRsp(dmConnId_t connId, bool_t oob, uint8_t auth, uint8_t iKeyDist, uint8_t rKeyDist);
+void DmSecPairRsp(dmConnId_t connId, uint8_t oob, uint8_t auth, uint8_t iKeyDist, uint8_t rKeyDist);
 
 /*************************************************************************************************/
 /*!
@@ -2611,23 +3266,23 @@ uint8_t *DmConnLocalAddr(dmConnId_t connId);
 
 /*************************************************************************************************/
 /*!
-*  \brief  For internal use only.  Return the peer resolvable private address (RPA).
-*
-*  \param  connId  Connection ID.
-*
-*  \return Pointer to peer RPA.
-*/
+ *  \brief  For internal use only.  Return the peer resolvable private address (RPA).
+ *
+ *  \param  connId  Connection ID.
+ *
+ *  \return Pointer to peer RPA.
+ */
 /*************************************************************************************************/
 uint8_t *DmConnPeerRpa(dmConnId_t connId);
 
 /*************************************************************************************************/
 /*!
-*  \brief  For internal use only.  Return the local resolvable private address (RPA).
-*
-*  \param  connId  Connection ID.
-*
-*  \return Pointer to local RPA.
-*/
+ *  \brief  For internal use only.  Return the local resolvable private address (RPA).
+ *
+ *  \param  connId  Connection ID.
+ *
+ *  \return Pointer to local RPA.
+ */
 /*************************************************************************************************/
 uint8_t *DmConnLocalRpa(dmConnId_t connId);
 

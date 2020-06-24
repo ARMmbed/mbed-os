@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device manager extended advertising module.
+ *  \file
+ *
+ *  \brief  Device manager extended advertising module.
+ *
+ *  Copyright (c) 2016-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -74,6 +76,7 @@ typedef struct
   uint8_t             secAdvPhy;       /*!< Secondary Advertising PHY. */
   bool_t              scanReqNotifEna; /*!< Scan request notification enable. */
   uint8_t             fragPref;        /*!< Fragment preference for advertising data. */
+  uint8_t             advSid;          /*!< Advertising Sid. */
   bool_t              advDataSet;      /*!< TRUE if extended adv data has been set. */
   bool_t              scanDataSet;     /*!< TRUE if extended scan data has been set. */
   dmConnId_t          connId;          /*!< Connection identifier (used by directed advertising). */
@@ -170,6 +173,7 @@ static void dmExtAdvCbInit(uint8_t advHandle)
   dmExtAdvCb[advHandle].secAdvPhy = HCI_ADV_PHY_LE_1M;
   dmExtAdvCb[advHandle].scanReqNotifEna = FALSE;
   dmExtAdvCb[advHandle].fragPref = HCI_ADV_DATA_FRAG_PREF_FRAG;
+  dmExtAdvCb[advHandle].advSid = 0;
   dmExtAdvCb[advHandle].connId = DM_CONN_ID_NONE;
 }
 
@@ -484,7 +488,7 @@ static void dmAdvConfig(uint8_t advHandle, uint8_t advType, uint8_t peerAddrType
   extAdvParam.pPeerAddr = pPeerAddr;
   extAdvParam.advFiltPolicy = dmCb.advFiltPolicy[advHandle];
   extAdvParam.advTxPwr = dmExtAdvCb[advHandle].advTxPwr;
-  extAdvParam.advSetId = advHandle;
+  extAdvParam.advSID = dmExtAdvCb[advHandle].advSid;
   extAdvParam.scanReqNotifEna = dmExtAdvCb[advHandle].scanReqNotifEna;
 
   /* if event type doesn't support advertising data */
@@ -1440,42 +1444,47 @@ void dmExtAdvReset(void)
 /*************************************************************************************************/
 void dmPerAdvHciHandler(hciEvt_t *pEvent)
 {
-  dmEvt_t dmMsg;
-
-  memcpy(&dmMsg, &pEvent->hdr, sizeof(wsfMsgHdr_t));
-
-  if (dmMsg.hdr.event == HCI_LE_PER_ADV_ENABLE_CMD_CMPL_CBACK_EVT)
+  if (pEvent->hdr.event == HCI_LE_PER_ADV_ENABLE_CMD_CMPL_CBACK_EVT)
   {
     uint8_t advHandle = dmPerAdvCmdCmplPending();
-    WSF_ASSERT(advHandle < DM_NUM_ADV_SETS)
 
-    switch (dmPerAdvCb[advHandle].advState)
+    /* if pending periodic advertising enable command complete */
+    if (advHandle < DM_NUM_ADV_SETS)
     {
-    case DM_ADV_PER_STATE_STARTING:
-      dmMsg.perAdvSetStart.advHandle = advHandle;
-      dmMsg.hdr.event = DM_PER_ADV_SET_START_IND;
-      dmPerAdvCb[advHandle].advState = (dmMsg.hdr.status == HCI_SUCCESS) ? \
-                                       DM_ADV_PER_STATE_ADVERTISING : DM_ADV_PER_STATE_IDLE;
+      dmEvt_t dmMsg;
 
-      /* call client callback */
-      (*dmCb.cback)(&dmMsg);
-      break;
+      /* copy over event header */
+      memcpy(&dmMsg, &pEvent->hdr, sizeof(wsfMsgHdr_t));
 
-    case DM_ADV_PER_STATE_STOPPING:
-      dmMsg.perAdvSetStop.advHandle = advHandle;
-      dmMsg.hdr.event = DM_PER_ADV_SET_STOP_IND;
-      /* coverity[overrun-local] */
-      dmPerAdvCb[advHandle].advState = (dmMsg.hdr.status == HCI_SUCCESS) ? \
-                                       DM_ADV_PER_STATE_IDLE : DM_ADV_PER_STATE_ADVERTISING;
+      switch (dmPerAdvCb[advHandle].advState)
+      {
+      case DM_ADV_PER_STATE_STARTING:
+        dmMsg.perAdvSetStart.advHandle = advHandle;
+        dmMsg.hdr.event = DM_PER_ADV_SET_START_IND;
+        dmPerAdvCb[advHandle].advState = (dmMsg.hdr.status == HCI_SUCCESS) ? \
+                                         DM_ADV_PER_STATE_ADVERTISING : DM_ADV_PER_STATE_IDLE;
+        /* call client callback */
+        (*dmCb.cback)(&dmMsg);
+        break;
 
-      /* call client callback */
-      (*dmCb.cback)(&dmMsg);
-      break;
+      case DM_ADV_PER_STATE_STOPPING:
+        dmMsg.perAdvSetStop.advHandle = advHandle;
+        dmMsg.hdr.event = DM_PER_ADV_SET_STOP_IND;
+        dmPerAdvCb[advHandle].advState = (dmMsg.hdr.status == HCI_SUCCESS) ? \
+                                         DM_ADV_PER_STATE_IDLE : DM_ADV_PER_STATE_ADVERTISING;
+        /* call client callback */
+        (*dmCb.cback)(&dmMsg);
+        break;
 
-    default:
-      /* Should not happen */
-      WSF_ASSERT(0);
-      break;
+      default:
+        /* Should not happen */
+        WSF_ASSERT(0);
+        break;
+      }
+    }
+    else
+    {
+      DM_TRACE_WARN0("dmPerAdvHciHandler ignored due to no pending enable command complete");
     }
   }
 }
@@ -1842,6 +1851,25 @@ void DmAdvSetFragPref(uint8_t advHandle, uint8_t fragPref)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Set advertising SID for the given advertising handle.
+ *
+ *  \param  advHandle     Advertising handle.
+ *  \param  advSid        Advertsing SID.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmAdvSetSid(uint8_t advHandle, uint8_t advSid)
+{
+  WSF_ASSERT(advHandle < DM_NUM_ADV_SETS);
+
+  WsfTaskLock();
+  dmExtAdvCb[advHandle].advSid = advSid;
+  WsfTaskUnlock();
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Set the minimum and maximum advertising intervals for periodic advertising.
  *
  *  \param  advHandle     Advertising handle.
@@ -1884,6 +1912,25 @@ void DmPerAdvIncTxPwr(uint8_t advHandle, bool_t incTxPwr)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Get status of periodic advertising handle.
+ *
+ *  \param  advHandle    Advertising handle.
+ *
+ *  \return TRUE if periodic advertising is running on that handle. FALSE, otherwise.
+ */
+/*************************************************************************************************/
+bool_t DmPerAdvEnabled(uint8_t advHandle)
+{
+  if (advHandle < DM_NUM_ADV_SETS)
+  {
+    return (dmPerAdvCb[advHandle].advState == DM_ADV_PER_STATE_ADVERTISING);
+  }
+
+  return FALSE;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Get the maximum advertising data length supported by Controller for a given advertising
  *          type.
  *
@@ -1922,6 +1969,8 @@ void DmExtAdvInit(void)
 
   /* initialize HCI VS AE module */
   HciVsAeInit(0);
+
+  HciSetLeSupFeat((HCI_LE_SUP_FEAT_LE_EXT_ADV | HCI_LE_SUP_FEAT_LE_PER_ADV), TRUE);
 
   WsfTaskUnlock();
 }
