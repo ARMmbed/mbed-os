@@ -165,6 +165,10 @@
  * \brief Defines how many times CoAP library tries to re-send the CoAP packet.
  * By default value is 3.
  */
+#ifdef MBED_CONF_MBED_CLIENT_RECONNECTION_COUNT
+#define SN_COAP_RESENDING_MAX_COUNT MBED_CONF_MBED_CLIENT_RECONNECTION_COUNT
+#endif
+
 #ifndef SN_COAP_RESENDING_MAX_COUNT
 #define SN_COAP_RESENDING_MAX_COUNT                     3
 #endif
