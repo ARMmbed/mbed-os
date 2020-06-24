@@ -3,11 +3,12 @@
 # UNIT TESTS
 ####################
 
-list(REMOVE_ITEM unittest-includes ${PROJECT_SOURCE_DIR}/target_h/events ${PROJECT_SOURCE_DIR}/target_h/events/equeue)
+list(REMOVE_ITEM unittest-includes ${PROJECT_SOURCE_DIR}/../events/test/unit/target_h ${PROJECT_SOURCE_DIR}/../events/test/unit/target_h/equeue)
 
 set(unittest-includes ${unittest-includes}
   ../events/source
   ../events
+  ../events/events
   ../events/internal
 )
 
@@ -16,8 +17,8 @@ set(unittest-sources
 )
 
 set(unittest-test-sources
-  events/equeue/test_equeue.cpp
-  stubs/EqueuePosix_stub.c
+  ../events/test/unit/equeue/test_equeue.cpp
+  ../events/test/unit/stubs/EqueuePosix_stub.c
 )
 
 set(unittest-test-flags
