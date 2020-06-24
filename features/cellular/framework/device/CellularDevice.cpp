@@ -20,7 +20,7 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "events/EventQueue.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 
 namespace mbed {
 

@@ -22,7 +22,7 @@
 
 #include "mbed_interface.h"
 #include "mbed_assert.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "netsocket/nsapi_types.h"
 
 #include "gd32xx_emac.h"

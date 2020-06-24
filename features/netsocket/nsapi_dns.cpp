@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "events/EventQueue.h"
 #include "OnboardNetworkStack.h"
 #include "Kernel.h"

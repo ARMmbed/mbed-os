@@ -16,7 +16,7 @@
 #include "cmsis_os.h"
 #include "rtos/ThisThread.h"
 #include "netsocket/nsapi_types.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "rza1_eth.h"
 #include "rza1_eth_ext.h"
 #include "rza1_emac.h"
