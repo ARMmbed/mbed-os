@@ -23,7 +23,7 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
-#include "equeue.h"
+#include "events/equeue.h"
 #include "mbed.h"
 
 using namespace utest::v1;

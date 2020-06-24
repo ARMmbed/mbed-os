@@ -24,9 +24,9 @@
 #include "platform/SingletonPtr.h"
 #include "platform/arm_hal_interrupt.h"
 #include "platform/mbed_power_mgmt.h"
-#include "equeue.h"
+#include "events/equeue.h"
 #include "events/EventQueue.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "Timeout.h"
 
 #define TRACE_GROUP "fhdr"

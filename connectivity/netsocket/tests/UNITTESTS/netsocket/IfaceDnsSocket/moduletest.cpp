@@ -22,7 +22,7 @@
 #include "netsocket/SocketAddress.h"
 #include "EMAC_mock.h"
 #include "OnboardNetworkStack_mock.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include <future>
 #include <thread>
 #include <chrono>

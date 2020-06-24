@@ -24,7 +24,7 @@
 #include "whd_emac.h"
 #include "lwip/etharp.h"
 #include "lwip/ethip6.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "whd_wlioctl.h"
 #include "whd_buffer_api.h"
 #include "cybsp_wifi.h"
