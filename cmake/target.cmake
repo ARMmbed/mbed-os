@@ -29,7 +29,8 @@ set_property(GLOBAL
     SD;
     FLASHIAP;
     MBED_PSA_SRV;
-    PSA;
+    PSA_V7_M;
+    PSA_Target;
 )
 
 # TODO: @mbed-os-tools Generate definitions
