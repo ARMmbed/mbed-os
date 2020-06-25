@@ -123,6 +123,10 @@ conf unset MBEDTLS_PLATFORM_TIME_TYPE_MACRO
 # which should fit RSA 4096 bit keys.
 conf set MBEDTLS_MPI_MAX_SIZE     512
 
+# Explicitly unset MBEDTLS_USE_PSA_CRYPTO as this will be set based on the
+# FEATURE_PSA flag in Mbed OS
+conf unset MBEDTLS_USE_PSA_CRYPTO
+
 # add an #ifndef to include config-no-entropy.h when the target does not have
 # an entropy source we can use.
 append_code                                                                                       \
