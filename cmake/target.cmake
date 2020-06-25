@@ -25,7 +25,11 @@ set_property(GLOBAL
     M4;
     LIKE_CORTEX_M4;
     CORTEX;
-    K64F
+    K64F;
+    SD;
+    FLASHIAP;
+    MBED_PSA_SRV;
+    PSA;
 )
 
 # TODO: @mbed-os-tools Generate definitions
