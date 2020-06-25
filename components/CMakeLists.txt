@@ -4,6 +4,7 @@
 mbed_add_cmake_directory_if_labels("")
 
 add_subdirectory(storage)
+add_subdirectory(lora)
 
 target_include_directories(mbed-os
     PUBLIC
