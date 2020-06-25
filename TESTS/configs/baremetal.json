@@ -33,6 +33,7 @@
         "kv-global-api",
         "sd",
         "qspif",
+        "spif-driver",
         "cryptocell310",
         "drivers-usb"
     ],
