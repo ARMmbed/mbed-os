@@ -6844,12 +6844,15 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CORDIO"
+            "CORDIO",
+            "TFM",
+            "TFM_DUALCPU"
         ],
         "macros_add": [
             "CYB0644ABZI_S2D44",
             "CY_IPC_DEFAULT_CFG_DISABLE",
-            "CYBSP_WIFI_CAPABLE"
+            "CYBSP_WIFI_CAPABLE",
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
         ],
         "detect_code": [
             "1910"
@@ -6866,7 +6869,15 @@
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
-        "program_cycle_s": 10
+        "program_cycle_s": 10,
+        "tfm_target_name": "psoc64",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "GNUARM",
+        "tfm_supported_toolchains": [
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_064B0S2_4343W",
+        "TFM_OUTPUT_EXT": "hex"
     },
     "CY8CKIT_064B0S2_4343W_NPSA": {
         "inherits": [
