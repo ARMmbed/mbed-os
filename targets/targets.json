@@ -6868,6 +6868,18 @@
         },
         "program_cycle_s": 10
     },
+    "CY8CKIT_064B0S2_4343W_NPSA": {
+        "inherits": [
+            "CY8CKIT_064B0S2_4343W"
+        ],
+        "features_remove": [
+            "PSA"
+        ],
+        "extra_labels_remove": [
+            "TFM",
+            "TFM_DUALCPU"
+        ]
+    },
     "CYSBSYSKIT_01": {
         "inherits": [
             "MCU_PSOC6_M4"
