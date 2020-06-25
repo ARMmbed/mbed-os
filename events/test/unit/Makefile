@@ -27,13 +27,13 @@ LFLAGS += -pthread
 
 all: $(TARGET)
 
-test: tests/tests.o $(OBJ)
-	$(CC) $(CFLAGS) $^ $(LFLAGS) -o tests/tests
-	tests/tests
+test: tests.o $(OBJ)
+	$(CC) $(CFLAGS) $^ $(LFLAGS) -o tests
+	tests
 
-prof: tests/prof.o $(OBJ)
-	$(CC) $(CFLAGS) $^ $(LFLAGS) -o tests/prof
-	tests/prof
+prof: prof.o $(OBJ)
+	$(CC) $(CFLAGS) $^ $(LFLAGS) -o prof
+	prof
 
 asm: $(ASM)
 
@@ -53,8 +53,8 @@ size: $(OBJ)
 
 clean:
 	rm -f $(TARGET)
-	rm -f tests/tests tests/tests.o tests/tests.d
-	rm -f tests/prof tests/prof.o tests/prof.d
+	rm -f tests tests.o tests.d
+	rm -f prof prof.o prof.d
 	rm -f $(OBJ)
 	rm -f $(DEP)
 	rm -f $(ASM)
