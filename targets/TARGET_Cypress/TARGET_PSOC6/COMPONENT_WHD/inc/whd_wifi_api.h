@@ -289,7 +289,8 @@ extern uint32_t whd_wifi_join(whd_interface_t ifp, const whd_ssid_t *ssid, whd_s
  *  On successful return, the system is ready to send data packets.
  *
  *  @param   ifp           Pointer to handle instance of whd interface
- *  @param   ap            A pointer to a whd_scan_result_t structure containing AP details
+ *  @param   ap            A pointer to a whd_scan_result_t structure containing AP details and
+ *                         set ap.channel to 0 for unspecificed channel
  *  @param   security_key  A byte array containing either the cleartext security key for WPA/WPA2
  *                         secured networks
  *  @param   key_length    The length of the security_key in bytes.
@@ -804,7 +805,7 @@ whd_result_t whd_arp_cache_clear(whd_interface_t ifp);
 /** Get ARP Offload Feature Flags from Device (WLAN)
  *
  * @param[in]    ifp        : pointer to handle instance of whd interface
- * @param[out]   features   : ptr to store currently set features - bit flags @ref CY_ARP_OL_AGENT_ENABLE, etc.
+ * @param[out]   features   : ptr to store currently set features - bit flags CY_ARP_OL_AGENT_ENABLE, etc.
  *                            ARL_OL_AGENT | ARL_OL_SNOOP | ARP_OL_HOST_AUTO_REPLY | ARP_OL_PEER_AUTO_REPLY
  *
  * @return whd_result_t
@@ -814,7 +815,7 @@ whd_result_t whd_arp_features_get(whd_interface_t ifp, uint32_t *features);
 /** Set ARP Offload Feature Flags in Device (WLAN)
  *
  * @param[in]    ifp        : pointer to handle instance of whd interface
- * @param[in]    features   : features to set value (you can OR ('|') multiple flags) @ref CY_ARP_OL_AGENT_ENABLE, etc.
+ * @param[in]    features   : features to set value (you can OR ('|') multiple flags) CY_ARP_OL_AGENT_ENABLE, etc.
  *                           ARL_OL_AGENT | ARL_OL_SNOOP | ARP_OL_HOST_AUTO_REPLY | ARP_OL_PEER_AUTO_REPLY
  *
  * @return whd_result_t
@@ -823,7 +824,7 @@ whd_result_t whd_arp_features_set(whd_interface_t ifp, uint32_t features);
 
 /** Print ARP Offload Feature Flags in Human readable form to console
  *
- * @param[in]    features   : feature flags to set (you can OR '|' multiple flags) @ref CY_ARP_OL_AGENT_ENABLE, etc.
+ * @param[in]    features   : feature flags to set (you can OR '|' multiple flags) CY_ARP_OL_AGENT_ENABLE, etc.
  *                            ARL_OL_AGENT | ARL_OL_SNOOP | ARP_OL_HOST_AUTO_REPLY | ARP_OL_PEER_AUTO_REPLY
  * @param[in]    title      : Optional: Title for output (NULL == no title)
  *
@@ -898,7 +899,7 @@ whd_result_t whd_arp_stats_clear(whd_interface_t ifp);
 /** Get ARP Offload statistics from Device (WLAN)
  *
  * @param[in]    ifp        : pointer to handle instance of whd interface
- * @param[out]   stats      : Ptr to store statistics @ref whd_arp_stats_t
+ * @param[out]   stats      : Ptr to store statistics whd_arp_stats_t
  *
  * @return whd_result_t
  */
