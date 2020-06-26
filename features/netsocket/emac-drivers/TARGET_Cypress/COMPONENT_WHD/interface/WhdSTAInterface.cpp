@@ -113,13 +113,16 @@ static nsapi_security_t whd_tosecurity(whd_security_t sec)
         case WHD_SECURITY_WEP_PSK:
         case WHD_SECURITY_WEP_SHARED:
             return NSAPI_SECURITY_WEP;
+        case WHD_SECURITY_WPA_MIXED_PSK:
         case WHD_SECURITY_WPA_TKIP_PSK:
         case WHD_SECURITY_WPA_TKIP_ENT:
             return NSAPI_SECURITY_WPA;
-        case WHD_SECURITY_WPA2_MIXED_PSK:
+        case WHD_SECURITY_WPA2_WPA_AES_PSK:
+        case WHD_SECURITY_WPA2_WPA_MIXED_PSK:
             return NSAPI_SECURITY_WPA_WPA2;
         case WHD_SECURITY_WPA2_MIXED_ENT:
             return NSAPI_SECURITY_WPA2_ENT;
+        case WHD_SECURITY_WPA2_MIXED_PSK:
         case WHD_SECURITY_WPA2_AES_PSK:
         case WHD_SECURITY_WPA2_AES_ENT:
         case WHD_SECURITY_WPA2_FBT_PSK:
