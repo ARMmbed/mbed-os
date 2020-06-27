@@ -876,7 +876,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 
 int main()
 {
-    GREENTEA_SETUP(3000, "default_auto");
+    GREENTEA_SETUP(300, "default_auto");
 
     // Don't even start if conditions aren't appropriate for test run
     uint8_t *dummy = new (std::nothrow) uint8_t[heap_alloc_threshold_size];
