@@ -35,39 +35,43 @@ class MbedIgnoreSet(object):
         self._unignore_patterns = []
         self._unignore_regexes = []
 
+    def find_longest_match(self, path:str, regex_list:list, pattern_list:list):
+        """
+        Helper function: find the longest ignore/unignore pattern that matches
+        the provided path.  Returns None if there are no matches.
+        """
+
+        longest_matching_pattern = None
+
+        for curr_regex, curr_pattern in zip(regex_list, pattern_list):
+            this_regex_match = curr_regex.match(path)
+            if this_regex_match:
+                if longest_matching_pattern is None:
+                    # no previous match
+                    longest_matching_pattern = curr_pattern
+                elif len(curr_pattern) > len(longest_matching_pattern):
+                    # found a longer match, indicating a more specific rule which should take precedence
+                    longest_matching_pattern = curr_pattern
+
+        return longest_matching_pattern
+
     def is_ignored(self, file_path):
         """Check if file path is ignored by any .mbedignore thus far"""
 
-        # find longest ignore and unignore pattern that matches the path
-        ignore_match_pattern = None
-        unignore_match_pattern = None
-
         filepath_normcase = normcase(file_path)
 
-        for regex_index in range(0, len(self._ignore_regexes)):
-            this_regex_match = self._ignore_regexes[regex_index].match(filepath_normcase)
-            if this_regex_match:
-                if ignore_match_pattern is None:
-                    # no previous match
-                    ignore_match_pattern = self._ignore_patterns[regex_index]
-                elif len(self._ignore_patterns[regex_index]) > len(ignore_match_pattern):
-                    # found a longer match
-                    ignore_match_pattern = self._ignore_patterns[regex_index]
-
-        for regex_index in range(0, len(self._unignore_regexes)):
-            this_regex_match = self._unignore_regexes[regex_index].match(filepath_normcase)
-            if this_regex_match:
-                if unignore_match_pattern is None:
-                    # no previous match
-                    unignore_match_pattern = self._unignore_patterns[regex_index]
-                elif len(self._unignore_patterns[regex_index]) > len(unignore_match_pattern):
-                    # found a longer match
-                    unignore_match_pattern = self._unignore_patterns[regex_index]
+        # find longest ignore and unignore pattern that matches the path
+        ignore_match_pattern = self.find_longest_match(filepath_normcase,
+                                                       self._ignore_regexes, self._ignore_patterns)
+        unignore_match_pattern = self.find_longest_match(filepath_normcase,
+                                                         self._unignore_regexes, self._unignore_patterns)
 
         if ignore_match_pattern is None:
+            # not ignored at all
             return False
 
         if unignore_match_pattern is not None and len(unignore_match_pattern) >= len(ignore_match_pattern):
+            # unignore rule takes precedence since it is longer than the ignore rule.
             return False
 
         return True
