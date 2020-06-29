@@ -174,54 +174,6 @@ matrix:
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
-
-    ### Python Tests ###
-    - &pytools-vm
-      stage: "Pytest"
-      name: "tools-py27"
-      env: NAME=tools-py2.7
-      language: python
-      python: 2.7
-      install:
-        # Install gcc
-        - source_pkg gcc
-        - arm-none-eabi-gcc --version
-        # Install additional python modules
-        - python --version
-        - |-
-          tr -d ' ' >> requirements.txt <<< "
-          mock==2.0.0
-          pytest==3.3.0
-          pylint>=1.9,<2
-          hypothesis>=3,<4
-          coverage>=4.5,<5
-          "
-        - python -m pip install --upgrade pip==18.1
-        - python -m pip install --upgrade setuptools==40.4.3
-        - pip install -r requirements.txt
-        - pip list --verbose
-      script:
-        # Run local testing on tools
-        - PYTHONPATH=. coverage run -a -m pytest tools/test
-        - python tools/test/pylint.py
-        - coverage run -a tools/project.py -S | sed -n '/^Total/p'
-        - coverage html
-
-    - <<: *pytools-vm
-      name: "tools-py35"
-      env: NAME=tools-py3.5
-      python: 3.5
-
-    - <<: *pytools-vm
-      name: "tools-py36"
-      env: NAME=tools-py3.6
-      python: 3.6
-
-    - <<: *pytools-vm
-      name: "tools-py37"
-      env: NAME=tools-py3.7
-      python: 3.7
-
     
     ### Extended Tests ###
     - &extended-vm
