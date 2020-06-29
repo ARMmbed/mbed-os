@@ -36,6 +36,7 @@ FAULT_TYPE_BUS_FAULT            EQU     0x30
 FAULT_TYPE_USAGE_FAULT          EQU     0x40
 
         PRESERVE8
+        SECTION .rodata:DATA:NOROOT(2)
         THUMB
 
         SECTION .text:CODE:NOROOT(2)
@@ -58,7 +59,7 @@ BusFault_Handler
 UsageFault_Handler
         EXPORT  UsageFault_Handler
         MOVS    R3,#FAULT_TYPE_USAGE_FAULT
-        ; Fall into Fault_Handler
+        B       Fault_Handler
 
 Fault_Handler
         EXPORT  Fault_Handler
@@ -111,7 +112,6 @@ Fault_Handler_Continue2
 #else
         B       .
 #endif
-        ALIGN
 #endif
 
         END
