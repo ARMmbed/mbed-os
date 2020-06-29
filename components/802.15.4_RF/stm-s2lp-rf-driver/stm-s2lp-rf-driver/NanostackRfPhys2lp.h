@@ -157,7 +157,7 @@ public:
 #ifdef AT24MAC
                        , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                       );
+                      );
     virtual ~NanostackRfPhys2lp();
     virtual int8_t rf_register();
     virtual void rf_unregister();

@@ -231,6 +231,8 @@ extern "C" {
 #define RX_FILTER_BANDWIDTH     540000
 #define RSSI_THRESHOLD          -85
 
+#define DEFAULT_PA_LEVEL        0
+
 // PCKTCTRL6
 #define PCKT_SYNCLEN_FIELD      0xFC
 #define PCKT_SYNCLEN            (16 << 2)

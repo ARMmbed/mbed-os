@@ -182,25 +182,17 @@ uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, ui
 
 uint8_t rf_conf_calculate_pa_level_dbm(int8_t power_dbm)
 {
-#if MBED_CONF_S2LP_EXTERNAL_FRONTEND
-    if (power_dbm > 10) {
-        power_dbm = 10;
-    }
-#else
     if (power_dbm > MAX_PA_VALUE) {
         power_dbm = MAX_PA_VALUE;
-    }
-#endif
-
-    if (power_dbm < MIN_PA_VALUE) {
+    } else if (power_dbm < MIN_PA_VALUE) {
         power_dbm = MIN_PA_VALUE;
     }
 
     uint8_t pa_level_value = 0;
-    if (power_dbm > 14) {
+    if (power_dbm > MAX_PA_VALUE) {
         pa_level_value = 1;
     } else {
-        pa_level_value = (uint8_t)((int32_t) 29 - (int)(2 * power_dbm));
+        pa_level_value = (uint8_t)((int32_t) PA_CONVERSION_FACTOR - (int)(2 * power_dbm));
     }
 
     return pa_level_value;

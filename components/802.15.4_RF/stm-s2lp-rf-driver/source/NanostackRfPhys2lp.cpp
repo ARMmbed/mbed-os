@@ -182,7 +182,8 @@ static void rf_rx_ready_handler(void);
 static uint32_t read_irq_status(void);
 static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *mac_16bit_addr, uint8_t *pan_id);
 static void rf_cca_timer_start(uint32_t slots);
-static void rf_set_tx_power(uint8_t percentual_power);
+static int8_t rf_tx_power_percent_to_dbm(uint8_t percentual_power);
+static void rf_set_tx_power(int8_t tx_power);
 static void rf_configure_external_frontend(PinName ant_sel);
 
 static RFPins *rf;
@@ -214,11 +215,12 @@ static uint8_t s2lp_MAC[8];
 static rf_mode_e rf_mode = RF_MODE_NORMAL;
 static bool rf_update_config = false;
 static bool rf_update_cca_threshold = false;
+static bool rf_update_tx_power = false;
 static uint16_t cur_packet_len = 0xffff;
 static uint32_t receiver_ready_timestamp;
 static int16_t rssi_threshold = RSSI_THRESHOLD;
 static uint32_t tx_start_time = 0;
-static int8_t tx_power_dbm = MAX_PA_VALUE;
+static int8_t tx_power_dbm = DEFAULT_PA_LEVEL;
 
 /* Channel configurations for sub-GHz */
 static phy_rf_channel_configuration_s phy_subghz = {
@@ -597,11 +599,11 @@ static void rf_configure_external_frontend(PinName ant_sel)
     rf_write_register_field(S2LP_CTX_PIN, GPIO_FUNCTION_FIELD, TX_STATE_INDICATION);
     rf_write_register_field(S2LP_CTX_PIN, GPIO_MODE_FIELD, GPIO_DIGITAL_OUT_LOW);
 
-    tx_power_dbm = 10;
+    tx_power_dbm = DEFAULT_PA_LEVEL;
 }
 #endif
 
-static void rf_set_tx_power(uint8_t percentual_power)
+static int8_t rf_tx_power_percent_to_dbm(uint8_t percentual_power)
 {
     if (percentual_power > 100) {
         percentual_power = 100;
@@ -611,6 +613,11 @@ static void rf_set_tx_power(uint8_t percentual_power)
     power_dbm *= (int8_t)(percentual_power / 100);
     power_dbm += MIN_PA_VALUE;
 
+    return power_dbm;
+}
+
+static void rf_set_tx_power(int8_t power_dbm)
+{
     uint8_t tx_power_level = rf_conf_calculate_pa_level_dbm(power_dbm);
     for (int idx = PA_POWER1; idx > PA_POWER8; idx--) {
         rf_write_register(idx, tx_power_level);
@@ -641,7 +648,7 @@ static void rf_init_registers(void)
 #if MBED_CONF_S2LP_EXTERNAL_FRONTEND
     rf_configure_external_frontend(MBED_CONF_S2LP_ANTENNA_SEL_PIN);
 #endif
- 
+
     rf_set_tx_power(tx_power_dbm);
     rf_set_channel_configuration_registers();
 }
@@ -749,7 +756,16 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
             }
             break;
         case PHY_EXTENSION_SET_TX_POWER:
-            rf_set_tx_power(*data_ptr);
+            if (*data_ptr < 0 || *data_ptr > 100) {
+                retval = -1;
+            } else {
+                tx_power_dbm = rf_tx_power_percent_to_dbm(*data_ptr);
+                rf_update_tx_power = true;
+                if (rf_state == RF_IDLE) {
+                    rf_receive(rf_rx_channel);
+                }
+            }
+
             break;
         case PHY_EXTENSION_SET_CCA_THRESHOLD:
             rssi_threshold = rf_conf_cca_threshold_percent_to_rssi(*data_ptr);
@@ -1112,6 +1128,10 @@ static void rf_receive(uint8_t rx_channel)
         rf_conf_calculate_rssi_threshold_registers(rssi_threshold, &rssi_th);
         rf_write_register(RSSI_TH, rssi_th);
     }
+    if (rf_update_tx_power == true) {
+        rf_update_tx_power = false;
+        rf_set_tx_power(tx_power);
+    }
     if (rx_channel != rf_rx_channel) {
         rf_write_register(CHNUM, rx_channel * rf_channel_multiplier);
         rf_rx_channel = rf_new_channel = rx_channel;
@@ -1374,7 +1394,7 @@ NanostackRfPhys2lp::NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName
 #ifdef AT24MAC
                                        , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                                       )
+                                      )
     :
 #ifdef AT24MAC
     _mac(i2c_sda, i2c_scl),

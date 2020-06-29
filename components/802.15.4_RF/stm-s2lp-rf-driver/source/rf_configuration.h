@@ -25,8 +25,13 @@ extern "C" {
 
 #define RSSI_OFFSET     146
 
+#if MBED_CONF_S2LP_EXTERNAL_FRONTEND
+#define MAX_PA_VALUE                    10
+#else
 #define MAX_PA_VALUE                    14
+#endif
 #define MIN_PA_VALUE                    -31
+#define PA_CONVERSION_FACTOR            29
 
 #define RSSI_OFFSET                     146
 #define IS_PAPOWER_DBM(PATABLE)         ((PATABLE) >= (MIN_PA_VALUE) && (PATABLE) <= (MAX_PA_VALUE))
