@@ -44,13 +44,20 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     BUILD_DIR)
 from .resources import Resources, FileType, FileRef
 from .notifier.mock import MockNotifier
-from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
+from .targets import (
+    TARGET_NAMES,
+    TARGET_MAP,
+    CORE_ARCH,
+    Target,
+    set_targets_json_location
+)
 from .libraries import Library
-from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS, mbedToolchain
 from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .toolchains.arm import UARM_TOOLCHAIN_WARNING
 from .toolchains.mbed_toolchain import should_replace_small_c_lib
 from .config import Config
+from .build_profiles import find_build_profile, get_toolchain_profile, find_targets_json
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -409,15 +416,6 @@ def get_mbed_official_release(version, profile=None):
     version - The version string. Should be a string contained within
               RELEASE_VERSIONS
     """
-
-    # we ignore version for Mbed 6 as all targets in targets.json file are being supported
-    # if someone passes 2, we return empty tuple, if 5, we keep the behavior the same as 
-    # release version is deprecated and all targets are being supported that are present
-    # in targets.json file
-
-    if version == '2':
-        return tuple(tuple([]))
-
     mbed_official_release = (
         tuple(
             tuple(
@@ -426,10 +424,17 @@ def get_mbed_official_release(version, profile=None):
                     tuple(transform_release_toolchains(
                         TARGET_MAP[target], version))
                 ]
-            ) for target in TARGET_NAMES \
-                if not profile or profile in TARGET_MAP[target].supported_application_profiles
+            ) for target in TARGET_NAMES
+            if (hasattr(TARGET_MAP[target], 'release_versions')
+                and version in TARGET_MAP[target].release_versions)
         )
     )
+
+    for target in mbed_official_release:
+        is_official, reason = is_official_target(target[0], version)
+
+        if not is_official:
+            raise InvalidReleaseTargetException(reason)
 
     return mbed_official_release
 
@@ -575,6 +580,43 @@ def build_project(src_paths, build_path, target, toolchain_name,
     if clean and exists(build_path):
         rmtree(build_path)
     mkdir(build_path)
+
+    ###################################
+    # mbed Classic/2.0/libary support #
+
+    # Find build system profile
+    profile = None
+    targets_json = None
+    for path in src_paths:
+        profile = find_build_profile(path) or profile
+        if profile:
+            targets_json = join(dirname(abspath(__file__)), 'legacy_targets.json')
+        else:
+            targets_json = find_targets_json(path) or targets_json
+
+    # Apply targets.json to active targets
+    if targets_json:
+        notify.info("Using targets from %s" % targets_json)
+        set_targets_json_location(targets_json)
+
+    # Apply profile to toolchains
+    if profile:
+        def init_hook(self):
+            profile_data = get_toolchain_profile(self.name, profile)
+            if not profile_data:
+                return
+            notify.info("Using toolchain %s profile %s" % (self.name, profile))
+
+            for k,v in profile_data.items():
+                if self.flags.has_key(k):
+                    self.flags[k] = v
+                else:
+                    setattr(self, k, v)
+
+        mbedToolchain.init = init_hook
+
+    # mbed Classic/2.0/libary support #
+    ###################################
 
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,

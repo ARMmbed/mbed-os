@@ -199,7 +199,7 @@ class Target(namedtuple(
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
-        '..', '..', 'targets', 'targets.json'
+        '..', 'latest_targets.json'
     )
 
     # Current/new location of the 'targets.json' file
@@ -710,6 +710,21 @@ class ArmMuscaB1Code(object):
             FileType.BIN
         )
         musca_tfm_bin(t_self, binf, secure_bin)
+
+class LPC55S69Code(object):
+    """LPC55S69 Hooks"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from tools.targets.LPC55S69 import lpc55s69_complete
+        configured_secure_image_filename = t_self.target.secure_image_filename
+        secure_bin = find_secure_image(
+            t_self.notify,
+            resources,
+            binf,
+            configured_secure_image_filename,
+            FileType.BIN
+        )
+        lpc55s69_complete(t_self, binf, secure_bin)
 
 def find_secure_image(notify, resources, ns_image_path,
                       configured_s_image_filename, image_type):
