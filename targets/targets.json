@@ -6514,6 +6514,7 @@
             "RTX"
         ],
         "public": false,
+        "forced_reset_timeout": 5,
         "overrides": {
             "deep-sleep-latency": "CY_CFG_PWR_DEEPSLEEP_LATENCY"
         }
