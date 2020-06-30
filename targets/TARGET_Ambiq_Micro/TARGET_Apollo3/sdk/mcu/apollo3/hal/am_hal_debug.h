@@ -17,26 +17,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -49,7 +49,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_DEBUG_H
@@ -60,6 +60,44 @@ extern "C"
 {
 #endif
 
+
+//*****************************************************************************
+//
+// Determine DBG_FILENAME
+//
+//*****************************************************************************
+//
+// By spec and convention, the standard __FILE__ compiler macro includes a full
+// path (absolute or relative) to the file being compiled. This makes recreating
+// binaries virtually impossible unless rebuilt on the same or identically
+// configured system.
+//
+// To be able to build consistent binaries on different systems, we want to make
+// sure the full pathname is not included in the binary.  Only IAR EWARM provides
+// an easy mechanism to provide only the filename without the path.  For other
+// platforms, we will simply use a generic pathname.
+//
+#if defined (__IAR_SYSTEMS_ICC__)
+//
+// With EWARM the --no_path_in_file_macros option reduces __FILE__ to only the
+//  module name.  Therefore this define assumes the option is being used.
+//
+#define DBG_FILENAME    __FILE__
+#elif defined(__KEIL__)
+//
+// Keil provides __MODULE__ which is simply the module name portion of __FILE__.
+//
+#define DBG_FILENAME    __MODULE__
+#elif defined(__ARMCC_VERSION)
+#define DBG_FILENAME    __MODULE__
+#else
+//
+// With GCC, we're out of luck.
+//
+#define DBG_FILENAME    "debug_filename.ext"
+//#define DBG_FILENAME    __FILE__
+#endif
+
 //*****************************************************************************
 //
 // Debug assert macros.
@@ -68,10 +106,10 @@ extern "C"
 #ifndef AM_HAL_DEBUG_NO_ASSERT
 
 #define am_hal_debug_assert_msg(bCondition, pcMessage)                        \
-    if ( !(bCondition))  am_hal_debug_error(__FILE__, __LINE__, pcMessage)
+    if ( !(bCondition))  am_hal_debug_error(DBG_FILENAME, __LINE__, pcMessage)
 
 #define am_hal_debug_assert(bCondition)                                       \
-    if ( !(bCondition))  am_hal_debug_error(__FILE__, __LINE__, 0)
+    if ( !(bCondition))  am_hal_debug_error(DBG_FILENAME, __LINE__, 0)
 
 #else
 

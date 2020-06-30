@@ -13,26 +13,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -133,6 +133,62 @@
      _VAL2FLD(PWRCTRL_MEMPWREN_FLASH1,  PWRCTRL_MEMPWREN_FLASH1_EN)     |   \
      _VAL2FLD(PWRCTRL_MEMPWREN_CACHEB0, PWRCTRL_MEMPWREN_CACHEB0_EN)    |   \
      _VAL2FLD(PWRCTRL_MEMPWREN_CACHEB2, PWRCTRL_MEMPWREN_CACHEB2_EN))
+
+//*****************************************************************************
+//
+// Memory deepsleep powerdown values for all defined memory configurations.
+//
+//*****************************************************************************
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_8K_DTCM        (_VAL2FLD(PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP, PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP_GROUP0DTCM0))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_32K_DTCM       (_VAL2FLD(PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP, PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP_GROUP0))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_64K_DTCM       (_VAL2FLD(PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP, PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP_ALL))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_96K                               \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_64K_DTCM     |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP0))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_128K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_96K          |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP1))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_160K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_128K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP2))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_192K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_160K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP3))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_224K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_192K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP4))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_256K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_224K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP5))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_288K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_256K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP6))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_320K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_288K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP7))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_352K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_320K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP8))
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_384K                              \
+        (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_352K         |                   \
+         _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP, PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_GROUP9))
+
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_ALL   (AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_384K)
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_FLASH_512K  PWRCTRL_MEMPWDINSLEEP_FLASH0PWDSLP_Msk
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_FLASH_1M                               \
+        (PWRCTRL_MEMPWDINSLEEP_FLASH0PWDSLP_Msk | PWRCTRL_MEMPWDINSLEEP_FLASH1PWDSLP_Msk)
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_CACHE      (PWRCTRL_MEMPWDINSLEEP_CACHEPWDSLP_Msk)
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_CACHE_DIS  (~AM_HAL_PWRCTRL_MEMPWDINSLEEP_CACHE)
+
+//
+// Power down all available memory devices
+//
+#define AM_HAL_PWRCTRL_MEMPWDINSLEEP_ALL                                            \
+    (_VAL2FLD(PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP,    PWRCTRL_MEMPWDINSLEEP_DTCMPWDSLP_ALL)      |   \
+     _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP,    PWRCTRL_MEMPWDINSLEEP_SRAMPWDSLP_ALL)      |   \
+     _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_FLASH0PWDSLP,  PWRCTRL_MEMPWDINSLEEP_FLASH0PWDSLP_EN)     |   \
+     _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_FLASH1PWDSLP,  PWRCTRL_MEMPWDINSLEEP_FLASH1PWDSLP_EN)     |   \
+     _VAL2FLD(PWRCTRL_MEMPWDINSLEEP_CACHEPWDSLP, PWRCTRL_MEMPWDINSLEEP_CACHEPWDSLP_EN))
 
 //*****************************************************************************
 //

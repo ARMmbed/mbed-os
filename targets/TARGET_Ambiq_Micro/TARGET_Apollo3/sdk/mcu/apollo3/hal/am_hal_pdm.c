@@ -12,26 +12,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -44,7 +44,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -148,6 +148,13 @@ am_hal_pdm_state_t g_am_hal_pdm_states[AM_REG_PDM_NUM_MODULES];
 
 //*****************************************************************************
 //
+// Static function definitions.
+//
+//*****************************************************************************
+static uint32_t find_dma_threshold(uint32_t ui32TotalCount);
+
+//*****************************************************************************
+//
 // Initialization function.
 //
 //*****************************************************************************
@@ -239,8 +246,8 @@ am_hal_pdm_power_control(void *pHandle,
     uint32_t ui32Module = pState->ui32Module;
 
     am_hal_pwrctrl_periph_e ePDMPowerModule = ((am_hal_pwrctrl_periph_e)
-                                                (AM_HAL_PWRCTRL_PERIPH_PDM +
-                                                 ui32Module));
+                                               (AM_HAL_PWRCTRL_PERIPH_PDM +
+                                                ui32Module));
     //
     // Check the handle.
     //
@@ -400,6 +407,48 @@ am_hal_pdm_disable(void *pHandle)
 
 //*****************************************************************************
 //
+// Given the total number of bytes in a DMA transaction, find a reasonable
+// threshold setting.
+//
+//*****************************************************************************
+static uint32_t
+find_dma_threshold(uint32_t ui32TotalCount)
+{
+    //
+    // Start with a threshold value of 24, and search downward for values that
+    // fit our criteria.
+    //
+    uint32_t ui32Threshold;
+    uint32_t ui32Minimum = AM_HAL_PDM_DMA_THRESHOLD_MIN;
+
+    for ( ui32Threshold = 24; ui32Threshold >= ui32Minimum; ui32Threshold -= 4 )
+    {
+        //
+        // With our loop parameters, we've already guaranteed that the
+        // threshold will be no higher than 24, and that it will be divisible
+        // by 4. The only remaining requirement is that ui32TotalCount must
+        // also be divisible by the threshold.
+        //
+        if ((ui32TotalCount % ui32Threshold) == 0)
+        {
+            break;
+        }
+    }
+
+    //
+    // If we found an appropriate value, we'll return it here. Otherwise, we
+    // will return zero.
+    //
+    if (ui32Threshold < ui32Minimum)
+    {
+        ui32Threshold = 0;
+    }
+
+    return ui32Threshold;
+}
+
+//*****************************************************************************
+//
 // Starts a DMA transaction from the PDM directly to SRAM
 //
 //*****************************************************************************
@@ -411,28 +460,9 @@ am_hal_pdm_dma_start(void *pHandle, am_hal_pdm_transfer_t *pDmaCfg)
     AM_HAL_PDM_HANDLE_CHECK(pHandle);
 
     //
-    // Calculate a FIFO threshold that will work. The PDM DMA hardware can only
-    // perform transactions where the total count is an integer multiple of the
-    // threshold value. We will loop here to try to find a threshold value and
-    // an integer multiple (ui32NumReloads) that will fit the total count the
-    // user asked for.
+    // Find an appropriate threshold size for this transfer.
     //
-    uint32_t ui32Threshold = 0;
-    uint32_t ui32NumReloads = 1;
-
-    for (ui32NumReloads = 1; ui32NumReloads < pDmaCfg->ui32TotalCount; ui32NumReloads++)
-    {
-        //
-        // Check to make sure the total count is evenly divisible into chunks
-        // that are smaller than the maximum threshold size.
-        //
-        if (((pDmaCfg->ui32TotalCount % ui32NumReloads) == 0) &&
-            ((pDmaCfg->ui32TotalCount / ui32NumReloads) <= 0x1F))
-        {
-            ui32Threshold = pDmaCfg->ui32TotalCount / ui32NumReloads;
-            break;
-        }
-    }
+    uint32_t ui32Threshold = find_dma_threshold(pDmaCfg->ui32TotalCount);
 
     //
     // If we didn't find a threshold that will work, throw an error.
@@ -462,16 +492,6 @@ am_hal_pdm_dma_start(void *pHandle, am_hal_pdm_transfer_t *pDmaCfg)
     // Enable DMA
     //
     PDMn(ui32Module)->DMACFG_b.DMAEN = PDM_DMACFG_DMAEN_EN;
-
-//    //
-//    // Reset the voice module.
-//    //
-//    PDMn(ui32Module)->VCFG_b.RSTB = PDM_VCFG_RSTB_RESET;
-//
-//    delay_us(100);
-//
-//    PDMn(ui32Module)->VCFG_b.RSTB = PDM_VCFG_RSTB_NORM;
-//    PDMn(ui32Module)->VCFG_b.PDMCLKEN = 1;
 
     return AM_HAL_STATUS_SUCCESS;
 }

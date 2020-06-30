@@ -13,26 +13,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_CTIMER_H
@@ -161,12 +161,9 @@ typedef enum
 
 //*****************************************************************************
 //
-//! @name DEPRECATED Interrupt Status Bits
-//!
-//! @{
+//  DEPRECATED Interrupt Status Bits
 //
 //*****************************************************************************
-//! @bug 31 common examples use AM_HAL_CTIMER_INT_TIMERA0
 #define AM_HAL_CTIMER_INT_TIMERA0           AM_HAL_CTIMER_INT_TIMERA0C0
 #define AM_HAL_CTIMER_INT_TIMERB0           AM_HAL_CTIMER_INT_TIMERB0C0
 #define AM_HAL_CTIMER_INT_TIMERA1           AM_HAL_CTIMER_INT_TIMERA1C0
@@ -175,7 +172,6 @@ typedef enum
 #define AM_HAL_CTIMER_INT_TIMERB2           AM_HAL_CTIMER_INT_TIMERB2C0
 #define AM_HAL_CTIMER_INT_TIMERA3           AM_HAL_CTIMER_INT_TIMERA3C0
 #define AM_HAL_CTIMER_INT_TIMERB3           AM_HAL_CTIMER_INT_TIMERB3C0
-//! @}
 
 //*****************************************************************************
 //
@@ -211,7 +207,9 @@ typedef enum
 
 //*****************************************************************************
 //
-// Timer function macros.
+//! Timer function macros.
+//!
+//! @{
 //
 //*****************************************************************************
 //! Single Count: Counts one time to the compare value, then the output
@@ -234,33 +232,79 @@ typedef enum
 //! Alternate Pulse: like Repeated Pulse but alternating between two different
 //! pulse width/spacing settings.
 #define AM_HAL_CTIMER_FN_PWM_ALTERNATE      _VAL2FLD(CTIMER_CTRL0_TMRA0FN, 7)
+//! @}
 
 //*****************************************************************************
 //
-// Half-timer options.
+//! Half-timer options.
+//!
+//! @{
 //
 //*****************************************************************************
 #define AM_HAL_CTIMER_INT_ENABLE            CTIMER_CTRL0_TMRA0IE0_Msk
 //#define AM_HAL_CTIMER_PIN_ENABLE            CTIMER_CTRL0_TMRA0PE_Msk
 #define AM_HAL_CTIMER_PIN_INVERT            CTIMER_CTRL0_TMRA0POL_Msk
 #define AM_HAL_CTIMER_CLEAR                 CTIMER_CTRL0_TMRA0CLR_Msk
+//! @}
 
 //*****************************************************************************
 //
-// Additional timer options.
+//! Additional timer options.
+//!
+//! @{
 //
 //*****************************************************************************
 #define AM_HAL_CTIMER_LINK                  CTIMER_CTRL0_CTLINK0_Msk
 #define AM_HAL_CTIMER_ADC_TRIG              CTIMER_CTRL3_ADCEN_Msk
+//! @}
 
 //*****************************************************************************
 //
-// Timer selection macros.
+//! Timer selection macros.
+//!
+//! @{
 //
 //*****************************************************************************
 #define AM_HAL_CTIMER_TIMERA                0x0000FFFF
 #define AM_HAL_CTIMER_TIMERB                0xFFFF0000
 #define AM_HAL_CTIMER_BOTH                  0xFFFFFFFF
+//! @}
+
+//*****************************************************************************
+//
+//! Timer trigger options for Apollo3 Blue (rev B0 and later) including
+//! Apollo3 Blue Plus.
+//!
+//! Valid only for CTIMER4 and CTIMER5 when CTLINK==1 and TMRA4TRIG==1
+//!
+//! @{
+//
+//*****************************************************************************
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCAP0     CTIMER_AUX4_TMRB4TRIG_A7OUT
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCAP1     CTIMER_AUX4_TMRB4TRIG_B7OUT
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCAP2     CTIMER_AUX4_TMRB4TRIG_A1OUT
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCAP3     CTIMER_AUX4_TMRB4TRIG_B1OUT
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP0     CTIMER_AUX4_TMRB4TRIG_B3OUT2
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP1     CTIMER_AUX4_TMRB4TRIG_A3OUT2
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP2     CTIMER_AUX4_TMRB4TRIG_A1OUT2
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP3     CTIMER_AUX4_TMRB4TRIG_B1OUT2
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP4     CTIMER_AUX4_TMRB4TRIG_A6OUT2DUAL
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP5     CTIMER_AUX4_TMRB4TRIG_A7OUT2DUAL
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP6     CTIMER_AUX4_TMRB4TRIG_B5OUT2DUAL
+#define AM_HAL_CTIMER_AUX4_TMRB4TRIG_STIMERCMP7     CTIMER_AUX4_TMRB4TRIG_A5OUT2DUAL
+
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCAP0     CTIMER_AUX5_TMRB5TRIG_A7OUT
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCAP1     CTIMER_AUX5_TMRB5TRIG_B7OUT
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCAP2     CTIMER_AUX5_TMRB5TRIG_A1OUT
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCAP3     CTIMER_AUX5_TMRB5TRIG_B1OUT
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP0     CTIMER_AUX5_TMRB5TRIG_B3OUT2
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP1     CTIMER_AUX5_TMRB5TRIG_A3OUT2
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP2     CTIMER_AUX5_TMRB5TRIG_A1OUT2
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP3     CTIMER_AUX5_TMRB5TRIG_B1OUT2
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP4     CTIMER_AUX5_TMRB5TRIG_A6OUT2DUAL
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP5     CTIMER_AUX5_TMRB5TRIG_A7OUT2DUAL
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP6     CTIMER_AUX5_TMRB5TRIG_B5OUT2DUAL
+#define AM_HAL_CTIMER_AUX5_TMRB5TRIG_STIMERCMP7     CTIMER_AUX5_TMRB5TRIG_A5OUT2DUAL
 //! @}
 
 //*****************************************************************************
@@ -384,7 +428,6 @@ typedef struct
     uint32_t OUTCFG3;
 }
 am_hal_ctimer_aio_connect_t;
-
 //! @}
 
 //*****************************************************************************

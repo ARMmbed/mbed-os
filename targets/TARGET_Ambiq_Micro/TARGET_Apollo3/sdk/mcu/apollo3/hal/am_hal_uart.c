@@ -5,34 +5,34 @@
 //!
 //! @brief Functions for interfacing with the UART.
 //!
-//! @addtogroup uart2 UART
-//! @ingroup apollo2hal
+//! @addtogroup uart3 UART
+//! @ingroup apollo3hal
 //! @{
 //
 //*****************************************************************************
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -1091,7 +1091,7 @@ am_hal_uart_tx_flush(void *pHandle)
 //
 //*****************************************************************************
 uint32_t
-am_hal_uart_flags_get(void *pHandle, uint32_t *ui32Flags)
+am_hal_uart_flags_get(void *pHandle, uint32_t *pui32Flags)
 {
     am_hal_uart_state_t *pState = (am_hal_uart_state_t *) pHandle;
     uint32_t ui32Module = pState->ui32Module;
@@ -1099,12 +1099,25 @@ am_hal_uart_flags_get(void *pHandle, uint32_t *ui32Flags)
     //
     // Check to make sure this is a valid handle.
     //
-    if (!AM_HAL_UART_CHK_HANDLE(pHandle))
+    if ( !AM_HAL_UART_CHK_HANDLE(pHandle) )
     {
         return AM_HAL_STATUS_INVALID_HANDLE;
     }
 
-    return UARTn(ui32Module)->FR;
+    if ( pui32Flags )
+    {
+        //
+        // Set the flags value, then return success.
+        //
+        *pui32Flags = UARTn(ui32Module)->FR;
+
+        return AM_HAL_STATUS_SUCCESS;
+    }
+    else
+    {
+        return AM_HAL_STATUS_INVALID_ARG;
+    }
+
 } // am_hal_uart_flags_get()
 
 //*****************************************************************************
@@ -1197,11 +1210,47 @@ tx_queue_update(void *pHandle)
 
 //*****************************************************************************
 //
+// UART FIFO Read.
+//
+//*****************************************************************************
+uint32_t
+am_hal_uart_fifo_read(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
+                      uint32_t *pui32NumBytesRead)
+{
+    if (!AM_HAL_UART_CHK_HANDLE(pHandle))
+    {
+        return AM_HAL_STATUS_INVALID_HANDLE;
+    }
+
+    return uart_fifo_read(pHandle, pui8Data, ui32NumBytes, pui32NumBytesRead);
+}
+
+//*****************************************************************************
+//
+// UART FIFO Write.
+//
+//*****************************************************************************
+uint32_t
+am_hal_uart_fifo_write(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
+                       uint32_t *pui32NumBytesWritten)
+{
+    if (!AM_HAL_UART_CHK_HANDLE(pHandle))
+    {
+        return AM_HAL_STATUS_INVALID_HANDLE;
+    }
+
+    return uart_fifo_write(pHandle, pui8Data, ui32NumBytes,
+                           pui32NumBytesWritten);
+}
+
+//*****************************************************************************
+//
 // Interrupt service
 //
 //*****************************************************************************
 uint32_t
-am_hal_uart_interrupt_service(void *pHandle, uint32_t ui32Status, uint32_t *pui32UartTxIdle)
+am_hal_uart_interrupt_service(void *pHandle, uint32_t ui32Status,
+                              uint32_t *pui32UartTxIdle)
 {
     am_hal_uart_state_t *pState = (am_hal_uart_state_t *) pHandle;
     uint32_t ui32Module = pState->ui32Module;
@@ -1354,3 +1403,24 @@ am_hal_uart_interrupt_status_get(void *pHandle, uint32_t *pui32Status, bool bEna
 
     return AM_HAL_STATUS_SUCCESS;
 } // am_hal_uart_interrupt_status_get()
+
+//*****************************************************************************
+//
+// Return the set of enabled interrupts.
+//
+//*****************************************************************************
+uint32_t
+am_hal_uart_interrupt_enable_get(void *pHandle, uint32_t *pui32IntMask)
+{
+    am_hal_uart_state_t *pState = (am_hal_uart_state_t *) pHandle;
+    uint32_t ui32Module = pState->ui32Module;
+
+    if (!AM_HAL_UART_CHK_HANDLE(pHandle))
+    {
+        return AM_HAL_STATUS_INVALID_HANDLE;
+    }
+
+    *pui32IntMask = UARTn(ui32Module)->IER;
+
+    return AM_HAL_STATUS_SUCCESS;
+} // am_hal_uart_interrupt_enable_get()

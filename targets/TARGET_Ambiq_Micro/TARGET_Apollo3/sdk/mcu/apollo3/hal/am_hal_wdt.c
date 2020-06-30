@@ -5,34 +5,34 @@
 //!
 //! @brief Hardware abstraction layer for the Watchdog Timer module.
 //!
-//! @addtogroup wdt2 Watchdog Timer (WDT)
-//! @ingroup apollo2hal
+//! @addtogroup wdt3 Watchdog Timer (WDT)
+//! @ingroup apollo3hal
 //! @{
 //
 //*****************************************************************************
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -336,9 +336,6 @@ am_hal_wdt_int_disable(void)
 //!
 //! This function reads the current value of watch dog timer counter register.
 //!
-//! WARNING caller is responsible for masking interrutps before calling this
-//! function.
-//!
 //! @return None
 //
 //*****************************************************************************
@@ -347,6 +344,11 @@ am_hal_wdt_counter_get(void)
 {
     uint32_t ui32Values[3] = {0};
     uint32_t ui32Value;
+
+    //
+    // Start a critical section.
+    //
+    uint32_t ui32InterruptState = am_hal_interrupt_master_disable();
 
     //
     // First, go read the value from the counter register 3 times
@@ -397,6 +399,11 @@ am_hal_wdt_counter_get(void)
                                  adjacent(ui32Values[0], ui32Values[2])),
                                 "Bad CDT read");
     }
+
+    //
+    // End the critical section.
+    //
+    am_hal_interrupt_master_set(ui32InterruptState);
 
     return ui32Value;
 } // am_hal_wdt_counter_get()

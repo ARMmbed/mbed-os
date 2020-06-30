@@ -24,26 +24,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -56,7 +56,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -112,6 +112,10 @@ const uint32_t ui32SramMaxAddr = (AM_HAL_FLASH_SRAM_LARGEST_VALID_ADDR + 1);
 //! Detailed Description above for more details.
 //!
 //! @return 0 for success, non-zero for failure.
+//!     Failing return code indicates:
+//!     1   ui32ProgramKey is invalid.
+//!     2   ui32FlashInst is invalid.
+//!     3   Flash controller hardware timeout.
 //
 //*****************************************************************************
 int
@@ -147,6 +151,11 @@ am_hal_flash_mass_erase(uint32_t ui32ProgramKey, uint32_t ui32FlashInst)
 //! Detailed Description above for more details.
 //!
 //! @return 0 for success, non-zero for failure.
+//!     Failing return code indicates:
+//!     1   ui32ProgramKey is invalid.
+//!     2   ui32FlashInst is invalid.
+//!     3   ui32PageNum is invalid.
+//!     4   Flash controller hardware timeout.
 //
 //*****************************************************************************
 int
@@ -176,6 +185,14 @@ am_hal_flash_page_erase(uint32_t ui32ProgramKey, uint32_t ui32FlashInst,
 //! Detailed Description above for more details.
 //!
 //! @return 0 for success, non-zero for failure.
+//!     Failing return code indicates:
+//!     1   ui32ProgramKey is invalid.
+//!     2   pui32Dst is invalid.
+//!     3   Flash addressing range would be exceeded.  That is, (pui32Dst +
+//!         (ui32NumWords * 4)) is greater than the last valid address.
+//!     4   pui32Src is invalid.
+//!     5   Unused - will never be returned.
+//!     6   Flash controller hardware timeout.
 //
 //*****************************************************************************
 int
@@ -251,6 +268,8 @@ am_hal_flash_program_main(uint32_t ui32ProgramKey, uint32_t *pui32Src,
 //! care of not re-clearing bits if they are already programmed as 0
 //!
 //! @return 0 for success, non-zero for failure.
+//!
+//! Note: See am_hal_flash_program_main() for further details on return codes.
 //
 //*****************************************************************************
 int
@@ -289,6 +308,16 @@ am_hal_flash_clear_bits(uint32_t ui32ProgramKey, uint32_t *pui32Addr,
 //! Detailed Description above for more details.
 //!
 //! @return 0 for success, non-zero for failure.
+//!     Failing return code indicates:
+//!     1   ui32InfoKey is invalid.
+//!     2   ui32InfoInst is invalid.
+//!     3   ui32Offset is invalid.
+//!     4   INFO addressing range would be exceeded.  That is, (ui32Offset +
+//!         ui32NumWords) is greater than the last valid address.
+//!     5   pui32Src is invalid.
+//!     6   pui32Src is invalid.
+//!     7   Hardware error.
+//!     8   Flash controller hardware timeout.
 //
 //*****************************************************************************
 int
@@ -362,6 +391,11 @@ am_hal_flash_program_info(uint32_t ui32InfoKey, uint32_t ui32InfoInst,
 //! Detailed Description above for more details.
 //!
 //! @return 0 for success, non-zero for failure.
+//!     Failing return code indicates:
+//!     1   ui32InfoKey is invalid.
+//!     2   ui32Inst is invalid.
+//!     3   Hardware error.
+//!     4   Flash controller hardware timeout.
 //
 //*****************************************************************************
 int
@@ -386,6 +420,14 @@ am_hal_flash_erase_info(uint32_t ui32InfoKey,
 //! Detailed Description above for more details.
 //!
 //! @return 0 for success, non-zero for failure.
+//!     Failing return code indicates:
+//!     1   ui32InfoKey is invalid.
+//!     2   ui32Inst is invalid.
+//!     3   Hardware error.
+//!     4   Flash controller hardware timeout.
+//!     11  Internal error.
+//!     12  Internal error.
+//!     13  Flash controller hardware timeout.
 //
 //*****************************************************************************
 int
@@ -410,6 +452,21 @@ am_hal_flash_erase_main_plus_info(uint32_t ui32InfoKey,
 //! Detailed Description above for more details.
 //!
 //! @return 0 for success, non-zero for failure.
+//!     Failing return code indicates:
+//!     1   ui32InfoKey is invalid, instance 0.
+//!     2   Internal error, instance 0.
+//!     3   Hardware error, instance 0.
+//!     4   Flash controller hardware timeout, instance 0.
+//!    11   Internal error.
+//!    12   Internal error.
+//!    13   Flash controller hardware timeout.
+//!    21   ui32InfoKey is invalid, instance 1.
+//!    22   Internal error, instance 1.
+//!    23   Hardware error, instance 1.
+//!    24   Flash controller hardware timeout, instance 1.
+//!    31   Internal error, instance 1.
+//!    32   Internal error, instance 1.
+//!    33   Flash controller hardware timeout, instance 1.
 //
 //*****************************************************************************
 int
@@ -441,6 +498,18 @@ am_hal_flash_erase_main_plus_info_both_instances(uint32_t ui32InfoKey)
 //! Detailed Description above for more details.
 //!
 //! @return Does not return if successful.  Returns failure code otherwise.
+//!     Failing return code indicates:
+//!     0x00000001  ui32RecoveryKey is invalid.
+//!     0x00000002  Customer key lock not set.
+//!     0x00001001  Internal error.
+//!     0x00001002  Internal error.
+//!     0x00001003  Info erase, instance 0 - hardware error.
+//!     0x00001004  Info erase, instance 0 - flash controller hardware timeout.
+//!     0xi000ppee  Error erasing page in instance, pp=page number, ee=error code.
+//!                 i=2|3, instance 0.
+//!                 i=4|5, instance 1.
+//!                 ee=1|2|3    Internal or hardware error.
+//!                 ee=4        Flash controller hardware timeout.
 //
 //*****************************************************************************
 void
@@ -467,8 +536,8 @@ am_hal_flash_recovery(uint32_t ui32RecoveryKey)
 //!   overhead encountered with executing the function itself (such as the
 //!   check for burst mode).
 //! - Use of the FLASH_CYCLES_US() or FLASH_CYCLES_US_NOCACHE() macros for the
-//!   ui32Iteractions parameter will result in approximate microsecond timing.
-//! - The parameter ui32Iteractions==0 is allowed but is still incurs a delay.
+//!   ui32Iterations parameter will result in approximate microsecond timing.
+//! - The parameter ui32Iterations==0 is allowed but is still incurs a delay.
 //!
 //! Example:
 //! - MCU operating at 48MHz -> 20.83 ns / cycle
@@ -662,6 +731,8 @@ customer_info_signature_erased(void)
 //! hardware.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 static int
@@ -699,6 +770,10 @@ customer_info_signature_set(uint32_t ui32InfoKey)
                                             ui32Valid, // source data
                                             0,         // offset
                                             4);        // number of words
+
+    //
+    // See am_hal_flash_program_info() for further details on return codes.
+    //
     return iRC | ((iRC) ? (1 << 16) : 0);
 
 } // customer_info_signature_set()
@@ -740,6 +815,8 @@ am_hal_flash_customer_info_signature_check(void)
 //! Detailed Description above for more details.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 bool
@@ -766,6 +843,8 @@ am_hal_flash_info_signature_set(uint32_t ui32InfoKey)
 //! Detailed Description above for more details.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t
@@ -861,6 +940,8 @@ am_hal_flash_info_erase_disable_check(void)
 //! Detailed Description above for more details.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t
@@ -963,6 +1044,8 @@ am_hal_flash_info_program_disable_get(void)
 //! Detailed Description above for more details.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t
@@ -1048,6 +1131,8 @@ am_hal_flash_wipe_flash_enable_check(void)
 //! Detailed Description above for more details.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t
@@ -1133,6 +1218,8 @@ am_hal_flash_wipe_sram_enable_check(void)
 //! Detailed Description above for more details.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t
@@ -1218,6 +1305,8 @@ am_hal_flash_swo_disable_check(void)
 //! Detailed Description above for more details.
 //!
 //! @return Zero for success. Non-Zero for errors.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t
@@ -1372,6 +1461,8 @@ generate_chunk_mask(uint32_t *pui32StartAddress, uint32_t *pui32StopAddress)
 //!     0x400000 if the protection bits were already programmed (mask the return
 //!              value with 0x3FFFFF to ignore this case and treat as success).
 //!     Otherwise, non-zero for failure.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t
@@ -1542,6 +1633,8 @@ am_hal_flash_copy_protect_check(uint32_t *pui32StartAddress,
 //!     0x400000 if the protection bits were already programmed (mask the return
 //!              value with 0x3FFFFF to ignore this case and treat as success).
 //!     Otherwise, non-zero for failure.
+//!
+//! Note: See am_hal_flash_program_info() for further details on return codes.
 //
 //*****************************************************************************
 int32_t

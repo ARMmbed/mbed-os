@@ -13,26 +13,26 @@
 
 // ****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 // ****************************************************************************
 
@@ -93,48 +93,40 @@ am_hal_clkgen_control(am_hal_clkgen_control_e eControl, void *pArgs)
             break;
 
         case AM_HAL_CLKGEN_CONTROL_LFRC_START:
-            CLKGEN->OCTRL         &= ~_VAL2FLD(CLKGEN_OCTRL_STOPRC,
-                                               CLKGEN_OCTRL_STOPRC_STOP);
+            CLKGEN->OCTRL_b.STOPRC = CLKGEN_OCTRL_STOPRC_EN;
             break;
 
         case AM_HAL_CLKGEN_CONTROL_XTAL_START:
-            CLKGEN->OCTRL         &= ~_VAL2FLD(CLKGEN_OCTRL_STOPXT,
-                                               CLKGEN_OCTRL_STOPXT_STOP);
+            CLKGEN->OCTRL_b.STOPXT = CLKGEN_OCTRL_STOPXT_EN;
             break;
 
         case AM_HAL_CLKGEN_CONTROL_LFRC_STOP:
-            CLKGEN->OCTRL         |= _VAL2FLD(CLKGEN_OCTRL_STOPRC,
-                                              CLKGEN_OCTRL_STOPRC_STOP);
+            CLKGEN->OCTRL_b.STOPRC = CLKGEN_OCTRL_STOPRC_STOP;
             break;
 
         case AM_HAL_CLKGEN_CONTROL_XTAL_STOP:
-            // TODO - Fixme.  What is Errata #?
             // Software Workaround to guarantee proper function of HFADJ.
             if (APOLLO3_B0)
             {
-              MCUCTRL->XTALCTRL_b.XTALICOMPTRIM = 1;
+                MCUCTRL->XTALCTRL_b.XTALICOMPTRIM = 1;
             }
-            CLKGEN->OCTRL         |= _VAL2FLD(CLKGEN_OCTRL_STOPXT,
-                                              CLKGEN_OCTRL_STOPXT_STOP);
+            CLKGEN->OCTRL_b.STOPXT = CLKGEN_OCTRL_STOPXT_STOP;
             break;
 
         case AM_HAL_CLKGEN_CONTROL_RTC_SEL_LFRC:
-            CLKGEN->OCTRL       |= _VAL2FLD(CLKGEN_OCTRL_OSEL,
-                                          CLKGEN_OCTRL_OSEL_RTC_LFRC);
+            CLKGEN->OCTRL_b.OSEL = CLKGEN_OCTRL_OSEL_RTC_LFRC;
             break;
 
         case AM_HAL_CLKGEN_CONTROL_RTC_SEL_XTAL:
-            CLKGEN->OCTRL       |= _VAL2FLD(CLKGEN_OCTRL_OSEL,
-                                          CLKGEN_OCTRL_OSEL_RTC_XT);
+            CLKGEN->OCTRL_b.OSEL = CLKGEN_OCTRL_OSEL_RTC_XT;
             break;
 
         case AM_HAL_CLKGEN_CONTROL_HFADJ_ENABLE:
-            // TODO - Fixme.  What is Errata #?
             // Software Workaround to guarantee proper function of HFADJ.
             if (APOLLO3_B0)
             {
-              MCUCTRL->XTALCTRL_b.XTALICOMPTRIM = 3;
-              am_hal_flash_delay(FLASH_CYCLES_US(1000));
+                MCUCTRL->XTALCTRL_b.XTALICOMPTRIM = 3;
+                am_hal_flash_delay(FLASH_CYCLES_US(1000));
             }
             if ( pArgs == 0 )
             {

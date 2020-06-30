@@ -16,7 +16,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_MCU_APOLLO_H
@@ -59,7 +59,7 @@
 // Define AM_CMSIS_REGS to indicate that CMSIS registers are supported.
 //
 //*****************************************************************************
-#define AM_CMSIS_REGS 1
+#define AM_CMSIS_REGS       1
 
 //*****************************************************************************
 //
@@ -71,14 +71,11 @@
 #include <stddef.h>
 #include <stdint.h>
 #if AM_CMSIS_REGS
-#ifdef OVERFLOW
-#undef OVERFLOW
-#endif // OVERRFLOW
 #include "apollo3.h"
 #else // AM_CMSIS_REGS
 #ifdef __IAR_SYSTEMS_ICC__
-#include "intrinsics.h" // __CLZ() and other intrinsics
-#endif                  // AM_CMSIS_REGS
+#include "intrinsics.h"     // __CLZ() and other intrinsics
+#endif // AM_CMSIS_REGS
 #endif
 
 //*****************************************************************************
@@ -155,3 +152,4 @@
 #include "hal/am_hal_wdt.h"
 
 #endif // AM_MCU_APOLLO_H
+

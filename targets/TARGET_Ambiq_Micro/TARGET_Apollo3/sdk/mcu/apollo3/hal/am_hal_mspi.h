@@ -5,7 +5,7 @@
 //!
 //! @brief Functions for accessing and configuring the MSPI.
 //!
-//! @addtogroup mspi3 MSPI (Multi-bit SPI)
+//! @addtogroup mspi3 Multi-bit SPI (MSPI)
 //! @ingroup apollo3hal
 //! @{
 //
@@ -13,26 +13,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_MSPI_H
@@ -183,16 +183,17 @@ extern "C"
   //
   typedef enum
   {
-    AM_HAL_MSPI_FLASH_SERIAL_CE0 = 0x01,
-    AM_HAL_MSPI_FLASH_SERIAL_CE1 = 0x02,
-    AM_HAL_MSPI_FLASH_DUAL_CE0   = 0x05,
-    AM_HAL_MSPI_FLASH_DUAL_CE1   = 0x06,
-    AM_HAL_MSPI_FLASH_QUAD_CE0   = 0x09,
-    AM_HAL_MSPI_FLASH_QUAD_CE1   = 0x0A,
-    AM_HAL_MSPI_FLASH_OCTAL_CE0  = 0x0D,
-    AM_HAL_MSPI_FLASH_OCTAL_CE1  = 0x0E,
-    AM_HAL_MSPI_FLASH_QUADPAIRED = 0x0F,
-    AM_HAL_MSPI_FLASH_QUADPAIRED_SERIAL = 0x03
+    AM_HAL_MSPI_FLASH_SERIAL_CE0,
+    AM_HAL_MSPI_FLASH_SERIAL_CE1,
+    AM_HAL_MSPI_FLASH_DUAL_CE0,
+    AM_HAL_MSPI_FLASH_DUAL_CE1,
+    AM_HAL_MSPI_FLASH_QUAD_CE0,
+    AM_HAL_MSPI_FLASH_QUAD_CE1,
+    AM_HAL_MSPI_FLASH_OCTAL_CE0,
+    AM_HAL_MSPI_FLASH_OCTAL_CE1,
+    AM_HAL_MSPI_FLASH_QUADPAIRED,
+    AM_HAL_MSPI_FLASH_QUADPAIRED_SERIAL,
+    AM_HAL_MSPI_FLASH_MAX = AM_HAL_MSPI_FLASH_QUADPAIRED_SERIAL
   } am_hal_mspi_device_e;
 
   //
@@ -273,8 +274,8 @@ extern "C"
     AM_HAL_MSPI_REQ_XIP_DIS,
     // pConfig N/A
     AM_HAL_MSPI_REQ_XIP_EN,
-    // Pass uint32_t as pConfig
-    AM_HAL_MSPI_REQ_XIP_MIXED_MODE,
+    // Pass mspi_device_info_t as pConfig
+    AM_HAL_MSPI_REQ_DEVICE_CONFIG,
     // Pause the CQ gracefully
     AM_HAL_MSPI_REQ_PAUSE,
     // Unpause the CQ
@@ -387,6 +388,21 @@ extern "C"
 
   } am_hal_mspi_dev_config_t;
 
+  //
+  // MSPI configuration record for determining virtual device configuration.
+  //
+  typedef struct
+  {
+    //! External Flash Device configuration
+    am_hal_mspi_device_e        eDeviceConfig;
+
+    //! XIPMIXED configure
+    am_hal_mspi_xipmixed_mode_e eXipMixedMode;
+
+    //! Separate MOSI/MISO
+    bool                        bSeparateIO;
+
+  } mspi_device_info_t;
   //
   // MSPI Capabilities structure
   //

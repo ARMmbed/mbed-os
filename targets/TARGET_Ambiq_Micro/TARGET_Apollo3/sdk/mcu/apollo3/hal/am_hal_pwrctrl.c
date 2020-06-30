@@ -13,26 +13,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -125,95 +125,113 @@ const struct
     uint32_t      ui32MemoryEvent;
     uint32_t      ui32MemoryMask;
     uint32_t      ui32StatusMask;
+    uint32_t      ui32PwdSlpEnable;
 }
 am_hal_pwrctrl_memory_control[AM_HAL_PWRCTRL_MEM_MAX] =
 {
-    {0, 0, 0},
+    {0, 0, 0, 0, 0, 0},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_8K_DTCM,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_8K_DTCM,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_8K_DTCM,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_8K_DTCM},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_32K_DTCM,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_32K_DTCM,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_32K_DTCM,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_32K_DTCM},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_64K_DTCM,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_64K_DTCM,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_64K_DTCM,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_64K_DTCM},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_96K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_96K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_96K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_96K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_128K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_128K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_128K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_128K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_160K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_160K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_160K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_160K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_192K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_192K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_192K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_192K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_224K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_224K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_224K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_224K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_256K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_256K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_256K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_256K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_288K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_288K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_288K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_288K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_320K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_320K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_320K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_320K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_352K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_352K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_352K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_352K},
     {AM_HAL_PWRCTRL_MEMEN_SRAM_384K,
      AM_HAL_PWRCTRL_PWRONSTATUS_SRAM_384K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_SRAM_384K,
      AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_SRAM_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_SRAM_384K},
     {AM_HAL_PWRCTRL_MEMEN_FLASH_512K,
      AM_HAL_PWRCTRL_PWRONSTATUS_FLASH_512K,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_FLASH_512K,
      AM_HAL_PWRCTRL_MEM_REGION_FLASH_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_FLASH_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_FLASH_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_FLASH_512K},
     {AM_HAL_PWRCTRL_MEMEN_FLASH_1M,
      AM_HAL_PWRCTRL_PWRONSTATUS_FLASH_1M,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_FLASH_1M,
      AM_HAL_PWRCTRL_MEM_REGION_FLASH_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_FLASH_MASK},
+     AM_HAL_PWRCTRL_MEM_REGION_FLASH_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_FLASH_1M},
     {AM_HAL_PWRCTRL_MEMEN_CACHE,
      0,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_CACHE,
      AM_HAL_PWRCTRL_MEM_REGION_CACHE_MASK,
-     0},
+     0,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_CACHE},
     {AM_HAL_PWRCTRL_MEMEN_ALL,
      AM_HAL_PWRCTRL_PWRONSTATUS_ALL,
      AM_HAL_PWRCTRL_MEMPWREVENTEN_ALL,
      AM_HAL_PWRCTRL_MEM_REGION_ALL_MASK,
-     AM_HAL_PWRCTRL_MEM_REGION_ALT_ALL_MASK}
+     AM_HAL_PWRCTRL_MEM_REGION_ALT_ALL_MASK,
+     AM_HAL_PWRCTRL_MEMPWDINSLEEP_ALL}
 };
 
 // ****************************************************************************
@@ -443,6 +461,50 @@ am_hal_pwrctrl_memory_enable(am_hal_pwrctrl_mem_e eMemConfig)
 
 // ****************************************************************************
 //
+//  am_hal_pwrctrl_memory_deepsleep_powerdown()
+//  Power down respective memory.
+//
+// ****************************************************************************
+uint32_t
+am_hal_pwrctrl_memory_deepsleep_powerdown(am_hal_pwrctrl_mem_e eMemConfig)
+{
+    if ( eMemConfig >= AM_HAL_PWRCTRL_MEM_MAX )
+    {
+        return AM_HAL_STATUS_FAIL;
+    }
+
+    //
+    // Power down the required memory.
+    //
+    PWRCTRL->MEMPWDINSLEEP |= am_hal_pwrctrl_memory_control[eMemConfig].ui32PwdSlpEnable;
+
+    return AM_HAL_STATUS_SUCCESS;
+}
+
+// ****************************************************************************
+//
+//  am_hal_pwrctrl_memory_deepsleep_retain()
+//  Apply retention voltage to respective memory.
+//
+// ****************************************************************************
+uint32_t
+am_hal_pwrctrl_memory_deepsleep_retain(am_hal_pwrctrl_mem_e eMemConfig)
+{
+    if ( eMemConfig >= AM_HAL_PWRCTRL_MEM_MAX )
+    {
+        return AM_HAL_STATUS_FAIL;
+    }
+
+    //
+    // Retain the required memory.
+    //
+    PWRCTRL->MEMPWDINSLEEP &= ~am_hal_pwrctrl_memory_control[eMemConfig].ui32PwdSlpEnable;
+
+    return AM_HAL_STATUS_SUCCESS;
+}
+
+// ****************************************************************************
+//
 //  am_hal_pwrctrl_low_power_init()
 //  Initialize system for low power configuration.
 //
@@ -470,6 +532,29 @@ am_hal_pwrctrl_low_power_init(void)
       {
         return ui32Status;
       }
+    }
+
+    //
+    // Adjust the SIMOBUCK LP settings.
+    //
+    if (APOLLO3_GE_B0)
+    {
+        MCUCTRL->SIMOBUCK2_b.SIMOBUCKCORELPHIGHTONTRIM  = 2;
+        MCUCTRL->SIMOBUCK2_b.SIMOBUCKCORELPLOWTONTRIM   = 3;
+        MCUCTRL->SIMOBUCK3_b.SIMOBUCKCORELPHIGHTOFFTRIM = 5;
+        MCUCTRL->SIMOBUCK3_b.SIMOBUCKCORELPLOWTOFFTRIM  = 2;
+        MCUCTRL->SIMOBUCK3_b.SIMOBUCKMEMLPHIGHTOFFTRIM  = 6;
+        MCUCTRL->SIMOBUCK3_b.SIMOBUCKMEMLPLOWTOFFTRIM   = 1;
+        MCUCTRL->SIMOBUCK3_b.SIMOBUCKMEMLPHIGHTONTRIM   = 3;
+        MCUCTRL->SIMOBUCK4_b.SIMOBUCKMEMLPLOWTONTRIM    = 3;
+    }
+
+    //
+    // Adjust the SIMOBUCK Timeout settings.
+    //
+    if (APOLLO3_GE_A1)
+    {
+        MCUCTRL->SIMOBUCK4_b.SIMOBUCKCOMP2TIMEOUTEN = 0;
     }
 
     //
@@ -526,6 +611,22 @@ am_hal_pwrctrl_low_power_init(void)
     }
 
     return AM_HAL_STATUS_SUCCESS;
+}
+
+void am_hal_pwrctrl_blebuck_trim(void)
+{
+  //
+  // Enable the BLE buck trim values
+  //
+  if ( APOLLO3_GE_A1 )
+  {
+    AM_CRITICAL_BEGIN
+    MCUCTRL->BLEBUCK2_b.BLEBUCKTONHITRIM = 0x19;
+    MCUCTRL->BLEBUCK2_b.BLEBUCKTONLOWTRIM = 0xC;
+    CLKGEN->BLEBUCKTONADJ_b.TONADJUSTEN = CLKGEN_BLEBUCKTONADJ_TONADJUSTEN_DIS;
+    AM_CRITICAL_END
+  }
+
 }
 
 //*****************************************************************************

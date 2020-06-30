@@ -13,26 +13,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,22 +45,50 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #include <stdint.h>
 #include <stdbool.h>
 #include "am_mcu_apollo.h"
 
-// Local defines
+//*****************************************************************************
+//  Local defines.
+//*****************************************************************************
+//
+// ENABLE_EXTMEM_CRC
+// By default, the CRC engine can only operate on data located in internal
+// memory (i.e. flash or SRAM). This define enables am_hal_crc() to support
+// external memories, but requires a small amount of global SRAM allocated for
+// that purpose. If it is not desired to support this feature, set to 0.
+//
+#define ENABLE_EXTMEM_CRC   1
+
+//
 // Maximum iterations for hardware CRC to finish
+//
 #define MAX_CRC_WAIT        100000
 
 #define AM_HAL_SECURITY_LOCKSTAT_CUSTOMER       0x1
 #define AM_HAL_SECURITY_LOCKSTAT_RECOVERY       0x40000000
 
-// Global declaration
-// These are declared as ptr variables to avoid an issue with GCC reading from location 0x0.
+//*****************************************************************************
+//
+// Globals
+//
+//*****************************************************************************
+#if ENABLE_EXTMEM_CRC
+//
+// Set up a small global buffer that can be used am_hal_crc32() when
+// computing CRCs on external memory.
+//
+#define CRC_XFERBUF_SZ      (512)       // Reserve 512 bytes for the buffer
+static uint32_t g_CRC_buffer[CRC_XFERBUF_SZ / 4];
+#endif // ENABLE_EXTMEM_CRC
+
+//
+// Assign ptr variables to avoid an issue with GCC reading from location 0x0.
+//
 const volatile uint32_t *g_pFlash0 = (uint32_t*)(AM_HAL_SBL_ADDRESS + 0);
 const volatile uint32_t *g_pFlash4 = (uint32_t*)(AM_HAL_SBL_ADDRESS + 4);
 
@@ -226,7 +254,7 @@ uint32_t am_hal_security_get_info(am_hal_security_info_t *pSecInfo)
         return AM_HAL_STATUS_FAIL;
     }
     return AM_HAL_STATUS_SUCCESS;
-}
+} // am_hal_security_get_info()
 
 //*****************************************************************************
 //
@@ -264,7 +292,7 @@ uint32_t am_hal_security_set_key(am_hal_security_locktype_t lockType, am_hal_sec
     SECURITY->KEY3 = pKey->keys.key3;
 
     return AM_HAL_STATUS_SUCCESS;
-}
+} // am_hal_security_set_key()
 
 //*****************************************************************************
 //
@@ -301,62 +329,169 @@ uint32_t am_hal_security_get_lock_status(am_hal_security_locktype_t lockType, bo
     }
     *pbUnlockStatus = SECURITY->LOCKSTAT & unlockMask;
     return AM_HAL_STATUS_SUCCESS;
-}
+} // am_hal_security_get_lock_status()
 
 //*****************************************************************************
 //
 //! @brief  Compute CRC32 for a specified payload
 //!
-//! @param  startAddr - The start address of the payload
-//! @param  sizeBytes - The length of payload in bytes
-//! @param  pCrc -  Pointer to return computed CRC
+//! @param  ui32StartAddr - The start address of the payload.
+//! @param  ui32SizeBytes - The length of payload in bytes.
+//! @param  pui32Crc      - Pointer to variable to return the computed CRC.
 //!
-//! This will use the hardware engine to compute CRC32 on an arbitrary data payload
+//! This function uses the hardware engine to compute CRC32 on an arbitrary data
+//! payload.  The payload can reside in any contiguous memory including external
+//! memory.
 //!
 //! @return Returns AM_HAL_STATUS_SUCCESS on success
 //
 //*****************************************************************************
-uint32_t am_hal_crc32(uint32_t startAddr, uint32_t sizeBytes, uint32_t *pCrc)
+uint32_t
+am_hal_crc32(uint32_t ui32StartAddr, uint32_t ui32SizeBytes, uint32_t *pui32Crc)
 {
-    uint32_t status;
+    uint32_t status, ui32CRC32;
+    bool bInternal;
 
 #ifndef AM_HAL_DISABLE_API_VALIDATION
-    if (pCrc == NULL)
+    if (pui32Crc == NULL)
     {
         return AM_HAL_STATUS_INVALID_ARG;
     }
 
+    //
     // Make sure size is multiple of 4 bytes
-    if (sizeBytes & 0x3)
+    //
+    if (ui32SizeBytes & 0x3)
     {
         return AM_HAL_STATUS_INVALID_ARG;
     }
-    // TODO - check the address
 #endif // AM_HAL_DISABLE_API_VALIDATION
 
-    //
-    // Program the CRC engine to compute the crc
-    //
-    SECURITY->RESULT = 0xFFFFFFFF;
-    SECURITY->SRCADDR = startAddr;
-    SECURITY->LEN_b.LEN = (sizeBytes >> SECURITY_LEN_LEN_Pos);
-    SECURITY->CTRL_b.FUNCTION = SECURITY_CTRL_FUNCTION_CRC32;
-    // Start the CRC
-    SECURITY->CTRL_b.ENABLE = 1;
+    status = AM_HAL_STATUS_OUT_OF_RANGE;    // Default status
 
     //
-    // Wait for CRC to finish
+    // Determine whether the startaddr is in internal flash or SRAM.
     //
-    status = am_hal_flash_delay_status_change(MAX_CRC_WAIT,
-        (uint32_t)&SECURITY->CTRL, SECURITY_CTRL_ENABLE_Msk, 0);
+    bInternal = ISADDRFLASH(ui32StartAddr) || ISADDRSRAM(ui32StartAddr);
 
-    if (status == AM_HAL_STATUS_SUCCESS)
+    if ( bInternal )
     {
-        *pCrc = SECURITY->RESULT;
+        //
+        // Program the CRC engine to compute the crc
+        //
+        ui32CRC32                 = 0xFFFFFFFF;
+        SECURITY->RESULT          = ui32CRC32;
+        SECURITY->SRCADDR         = ui32StartAddr;
+        SECURITY->LEN             = ui32SizeBytes;
+        SECURITY->CTRL_b.FUNCTION = SECURITY_CTRL_FUNCTION_CRC32;
+
+        //
+        // Start the CRC
+        //
+        SECURITY->CTRL_b.ENABLE = 1;
+
+        //
+        // Wait for CRC to finish
+        //
+        status = am_hal_flash_delay_status_change(MAX_CRC_WAIT,
+            (uint32_t)&SECURITY->CTRL, SECURITY_CTRL_ENABLE_Msk, 0);
+
+        if (status == AM_HAL_STATUS_SUCCESS)
+        {
+            *pui32Crc = SECURITY->RESULT;
+        }
+
+        return status;
     }
 
+#if ENABLE_EXTMEM_CRC
+    uint32_t ui32XferSize, ui32cnt;
+    uint32_t *pui32Buf, *pui32Data;
+
+    //
+    // If we're here, the source data resides in non-internal memory (that is,
+    // not flash or SRAM).
+    //
+    // Begin the loop for computing the CRC of the external memory.  The data
+    //  will first be copied to the SRAM buffer.
+    //
+    // Program the parts of the CRC engine that will not need to change
+    // inside the loop:  SRCADDR, FUNCTION, initial seed in RESULT.
+    // While inside the loop, only the LEN will need to be provided.
+    //
+    SECURITY->SRCADDR         = (uint32_t)&g_CRC_buffer[0];
+    SECURITY->CTRL_b.FUNCTION = SECURITY_CTRL_FUNCTION_CRC32;
+
+    //
+    // During the loop the RESULT register must not be rewritten, even if the
+    // value written on each pass is identical.  Rewriting it appears to reset
+    // a state machine such that an incorrect CRC value is computed.
+    //
+    ui32CRC32                 = 0xFFFFFFFF;
+    SECURITY->RESULT          = ui32CRC32;
+
+    pui32Data = (uint32_t*)ui32StartAddr;
+    while ( ui32SizeBytes )
+    {
+        //
+        // First copy a chunk of payload data to SRAM where the CRC engine
+        // can operate on it.
+        //
+        ui32XferSize = (ui32SizeBytes >= CRC_XFERBUF_SZ) ?
+                       CRC_XFERBUF_SZ : ui32SizeBytes;
+        ui32SizeBytes -= ui32XferSize;
+        ui32cnt      = ui32XferSize / 4;
+        pui32Buf     = &g_CRC_buffer[0];
+        while ( ui32cnt-- )
+        {
+            *pui32Buf++ = *pui32Data++;
+        }
+
+        //
+        // Program the CRC engine's LEN parameter.
+        // All other parameters were preprogrammed: SRCADDR, FUNCTION, RESULT.
+        //
+        SECURITY->LEN = ui32XferSize;
+
+        //
+        // Start the CRC
+        //
+        SECURITY->CTRL_b.ENABLE = 1;
+
+        //
+        // Wait for CRC to finish
+        //
+        status = am_hal_flash_delay_status_change(MAX_CRC_WAIT,
+            (uint32_t)&SECURITY->CTRL, SECURITY_CTRL_ENABLE_Msk, 0);
+
+        if ( (status == AM_HAL_STATUS_SUCCESS)  &&  !SECURITY->CTRL_b.CRCERROR )
+        {
+            ui32CRC32 = SECURITY->RESULT;
+        }
+        else if ( SECURITY->CTRL_b.CRCERROR )
+        {
+            return AM_HAL_STATUS_HW_ERR;
+        }
+        else
+        {
+            //
+            // Error from status_change function.
+            // Return the CRC value we do have, but return an error.
+            //
+            //return status;
+            break;
+        }
+    }
+
+    //
+    // Return result to caller
+    //
+    *pui32Crc = ui32CRC32;
+#endif // ENABLE_EXTMEM_CRC
+
     return status;
-}
+
+} // am_hal_crc32()
 
 //*****************************************************************************
 //
@@ -434,4 +569,4 @@ uint32_t am_hal_bootloader_exit(uint32_t *pImage)
     }
 
     return status;
-}
+} // am_hal_bootloader_exit()

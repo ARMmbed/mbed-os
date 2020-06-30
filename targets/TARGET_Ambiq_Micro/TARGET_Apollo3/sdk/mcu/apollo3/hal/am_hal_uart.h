@@ -5,34 +5,34 @@
 //!
 //! @brief Functions for accessing and configuring the UART.
 //!
-//! @addtogroup uart2 UART
-//! @ingroup apollo2hal
+//! @addtogroup uart3 UART
+//! @ingroup apollo3hal
 //! @{
 //
 //*****************************************************************************
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_UART_H
@@ -330,7 +330,6 @@ extern uint32_t am_hal_uart_configure(void *pHandle,
 extern uint32_t am_hal_uart_transfer(void *pHandle,
                                      const am_hal_uart_transfer_t *pTransfer);
 
-
 //*****************************************************************************
 //
 //! @brief Wait for the UART TX to become idle
@@ -358,7 +357,7 @@ extern uint32_t am_hal_uart_tx_flush(void *pHandle);
 //! @brief Read the UART flags.
 //!
 //! @param pHandle is the handle for the UART to operate on.
-//! @param ui32Flags is the destination pointer for the UART flags.
+//! @param pui32Flags is the destination pointer for the UART flags.
 //!
 //! The UART hardware provides some information about the state of the physical
 //! interface at all times. This function provides a way to read that data
@@ -382,7 +381,56 @@ extern uint32_t am_hal_uart_tx_flush(void *pHandle);
 //! @return AM_HAL_STATUS_SUCCESS or applicable UART errors.
 //
 //*****************************************************************************
-extern uint32_t am_hal_uart_flags_get(void *pHandle, uint32_t *ui32Flags);
+extern uint32_t am_hal_uart_flags_get(void *pHandle, uint32_t *pui32Flags);
+
+//*****************************************************************************
+//
+//! @brief Read the UART FIFO directly.
+//!
+//! @param pHandle is the handle for the UART to operate on.
+//! @param pui8Data is a pointer where the UART data should be written.
+//! @param ui32NumBytes is the number of bytes to transfer.
+//! @param pui32NumBytesRead is the nubmer of bytes actually transferred.
+//!
+//! This function reads the UART FIFO directly, and writes the resulting bytes
+//! to pui8Data. Since the UART FIFO hardware has no direct size indicator, the
+//! caller can only specify the maximum number of bytes they can handle. This
+//! function will try to read as many bytes as possible. At the end of the
+//! transfer, the number of bytes actually transferred will be written to the
+//! pui32NumBytesRead parameter.
+//!
+//! @return AM_HAL_STATUS_SUCCESS or applicable UART error.
+//
+//*****************************************************************************
+extern uint32_t am_hal_uart_fifo_read(void *pHandle,
+                                      uint8_t *pui8Data,
+                                      uint32_t ui32NumBytes,
+                                      uint32_t *pui32NumBytesRead);
+
+//*****************************************************************************
+//
+//! @brief Write the UART FIFO directly.
+//!
+//! @param pHandle is the handle for the UART to operate on.
+//! @param pui8Data is a pointer where the UART data should be written.
+//! @param ui32NumBytes is the number of bytes to transfer.
+//! @param pui32NumBytesWritten is the nubmer of bytes actually transferred.
+//!
+//! This function reads from pui8Data, and writes the requested number of bytes
+//! directly to the UART FIFO. Since the UART FIFO hardware has no register to
+//! tell us how much free space it has, the caller can only specify the number
+//! of bytes they would like to send. This function will try to write as many
+//! bytes as possible up to the requested number. At the end of the transfer,
+//! the number of bytes actually transferred will be written to the
+//! pui32NumBytesWritten parameter.
+//!
+//! @return AM_HAL_STATUS_SUCCESS or applicable UART error.
+//
+//*****************************************************************************
+extern uint32_t am_hal_uart_fifo_write(void *pHandle,
+                                       uint8_t *pui8Data,
+                                       uint32_t ui32NumBytes,
+                                       uint32_t *pui32NumBytesWritten);
 
 //*****************************************************************************
 //
@@ -606,7 +654,6 @@ extern uint32_t am_hal_uart_interrupt_clear(void *pHandle,
 //! @endcode
 //!
 //! @return AM_HAL_STATUS_SUCCESS or applicable UART errors.
-
 //
 //*****************************************************************************
 extern uint32_t am_hal_uart_interrupt_status_get(void *pHandle,
@@ -621,6 +668,42 @@ typedef enum
     AM_HAL_UART_STATUS_BAUDRATE_NOT_POSSIBLE,
 }
 am_hal_uart_errors_t;
+
+//*****************************************************************************
+//
+//! @brief Check to see which interrupts are enabled.
+//!
+//! @param pHandle is the handle for the UART to operate on.
+//!
+//! @param pui32IntMask is the current set of interrupt enable bits (all bits
+//!                     OR'ed together)
+//!
+//! This function checks the UART Interrupt Enable Register to see which UART
+//! interrupts are currently enabled. The result will be an interrupt mask with
+//! one bit set for each of the currently enabled UART interrupts.
+//!
+//! The full set of UART interrupt bits is given by the list below:
+//!
+//! @code
+//!
+//! AM_HAL_UART_INT_OVER_RUN
+//! AM_HAL_UART_INT_BREAK_ERR
+//! AM_HAL_UART_INT_PARITY_ERR
+//! AM_HAL_UART_INT_FRAME_ERR
+//! AM_HAL_UART_INT_RX_TMOUT
+//! AM_HAL_UART_INT_TX
+//! AM_HAL_UART_INT_RX
+//! AM_HAL_UART_INT_DSRM
+//! AM_HAL_UART_INT_DCDM
+//! AM_HAL_UART_INT_CTSM
+//! AM_HAL_UART_INT_TXCMP
+//!
+//! @endcode
+//!
+//! @return AM_HAL_STATUS_SUCCESS or applicable UART errors.
+//
+//*****************************************************************************
+extern uint32_t am_hal_uart_interrupt_enable_get(void *pHandle, uint32_t *pui32IntMask);
 
 #ifdef __cplusplus
 }

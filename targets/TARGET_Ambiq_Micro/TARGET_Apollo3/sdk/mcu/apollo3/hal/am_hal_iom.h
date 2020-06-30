@@ -5,7 +5,7 @@
 //! @brief Functions for accessing and configuring the IO Master module
 //!
 //! @addtogroup hal Hardware Abstraction Layer (HAL)
-//! @addtogroup iom IO Master (SPI/I2C)
+//! @addtogroup iom3 IO Master (SPI/I2C)
 //! @ingroup hal
 //! @{
 
@@ -13,26 +13,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -133,7 +133,7 @@ typedef enum
 #define AM_HAL_IOM_FIFO_SIZE_MAX        32
 #define AM_HAL_IOM_MAX_OFFSETSIZE       3
 #define AM_HAL_IOM_MAX_TXNSIZE_SPI      4095
-#define AM_HAL_IOM_MAX_TXNSIZE_I2C      255
+#define AM_HAL_IOM_MAX_TXNSIZE_I2C      4095
 #define AM_HAL_IOM_MAX_CS_SPI           3
 
 //*****************************************************************************
@@ -160,7 +160,6 @@ typedef enum
 {
     AM_HAL_IOM_TX,
     AM_HAL_IOM_RX,
-    AM_HAL_IOM_FULLDUPLEX, // Not supported currently - TODO
 } am_hal_iom_dir_e;
 
 //
@@ -397,8 +396,6 @@ typedef enum
     // Pass uint32_t as pArgs
     AM_HAL_IOM_REQ_SPI_LSB,
     // Pass uint32_t as pArgs
-    AM_HAL_IOM_REQ_SPI_FULLDUPLEX,
-    // Pass uint32_t as pArgs
     AM_HAL_IOM_REQ_SPI_RDTHRESH,
     // Pass uint32_t as pArgs
     AM_HAL_IOM_REQ_SPI_WRTHRESH,
@@ -506,6 +503,11 @@ union                                   \
 // Unsuccessful end of a transaction results in one more more of the following
 //
 #define AM_HAL_IOM_INT_ERR          (AM_HAL_IOM_INT_SWERR | AM_HAL_IOM_INT_I2CARBERR | AM_HAL_IOM_INT_INTERR | AM_HAL_IOM_INT_NAK)
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 //*****************************************************************************
 //
@@ -824,6 +826,10 @@ uint32_t am_hal_iom_highprio_transfer(void *pHandle,
                                       am_hal_iom_callback_t pfnCallback,
                                       void *pCallbackCtxt);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 //*****************************************************************************
 //
