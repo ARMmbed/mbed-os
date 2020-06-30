@@ -7433,7 +7433,6 @@
         "inherits": ["AMA3B1KK"]
     },
     "SFE_ARTEMIS_MODULE": {
-        "public": false,
         "inherits": ["AMA3B1KK"]
     },
     "SFE_ARTEMIS_NANO": {
