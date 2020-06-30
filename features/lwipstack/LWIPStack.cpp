@@ -271,7 +271,7 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    netconn_set_recvtimeout(s->conn, 1);
+    netconn_set_nonblocking(s->conn, true);
     *(struct mbed_lwip_socket **)handle = s;
     return 0;
 }
@@ -376,7 +376,7 @@ nsapi_error_t LWIP::socket_accept(nsapi_socket_t server, nsapi_socket_t *handle,
         return err_remap(err);
     }
 
-    netconn_set_recvtimeout(ns->conn, 1);
+    netconn_set_nonblocking(ns->conn, true);
     *(struct mbed_lwip_socket **)handle = ns;
 
     ip_addr_t peer_addr;
@@ -389,8 +389,6 @@ nsapi_error_t LWIP::socket_accept(nsapi_socket_t server, nsapi_socket_t *handle,
         address->set_addr(addr);
         address->set_port(port);
     }
-
-    netconn_set_nonblocking(ns->conn, true);
 
     return 0;
 #else
