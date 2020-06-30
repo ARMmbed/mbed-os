@@ -375,6 +375,18 @@ typedef struct
     uint32_t uRsvd22        : 10;    // [31:22]
 } am_hal_gpio_pincfg_t;
 
+typedef struct
+{
+    uint8_t funcSel : 1;
+    uint8_t powerSw : 1;
+    uint8_t pullup : 1;
+    uint8_t driveStrength : 1;
+    uint8_t gpOutcfg : 1;
+    uint8_t gpInput : 1;
+    uint8_t intDir : 1;
+    uint8_t gprdZero : 1;
+} am_hal_gpio_pincfg_allow_t;
+
 #define IOMNUM_MSPI         6
 #define IOMNUM_MAX          IOMNUM_MSPI
 
