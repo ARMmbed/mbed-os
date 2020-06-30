@@ -116,4 +116,19 @@ void flash_set_target_config(flash_t *obj)
 }
 
 #endif  // #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+int32_t flash_read(flash_t *obj, uint32_t address, uint8_t *data, uint32_t size)
+{
+    memcpy(data, (const void *)address, size);
+    /* In test chip, byte-read (LDRB) last byte of flash in non-secure world
+     * always gets 0xFF. Get around it.
+     *
+     * Remove the flash_read(...) override in MP chip. */
+    if (size && (address + size) == 0x10100000) {
+        volatile uint32_t *last_word = (volatile uint32_t *) 0x100FFFFC;
+        data[size - 1] = (uint8_t) ((*last_word & 0xFF000000) >> 24);
+    }
+    return 0;
+}
+
 #endif  // #if DEVICE_FLASH
