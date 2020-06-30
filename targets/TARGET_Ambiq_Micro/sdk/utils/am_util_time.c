@@ -8,26 +8,26 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2019, Ambiq Micro
+// Copyright (c) 2020, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
+// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #include <stdint.h>
@@ -49,17 +49,39 @@
 
 //*****************************************************************************
 //
+// Macro definitions.
+//
+//*****************************************************************************
+#define AM_UTIL_TIME_IS_LEAP_YEAR(year) \
+    (year % 4 == 0 && ((year % 100 != 0) || (year % 400 != 0)))
+
+//*****************************************************************************
+//
+// Local variables.
+//
+//*****************************************************************************
+
+//
+// Numer of days in each month in a standard year.
+//
+const static uint32_t g_iDaysPerMonth[] =
+    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+//
+// Weekday drift numbers for each month.
+//
+const static int g_iMonthOffsets[] =
+    {4, 0, 0, 3, 5, 1, 3, 6, 2, 4, 0, 2};
+
+//*****************************************************************************
+//
 //! @brief Compute the day of the week given the month, day, and year.
 //!
-//! @param iYear  - The year of the desired date (e.g. 2016).  The smallest
-//! allowed year is 2000.
+//! @param iYear  - The year of the desired date (e.g. 2016).
 //! @param iMonth - The month of the desired date (1-12).
 //! @param iDay   - The day of the month of the desired date (1-31).
 //!
 //! This function is general in nature, but is designed to be used with the RTC.
-//!
-//! Note: This function is valid for the years 2000 - 2399 (it breaks at year
-//! 2400 because the year 2400 is NOT a leap year).
 //!
 //! @returns An index value indicating the day of the week.
 //! 0-6 indicate  Sun, Mon, Tue, Wed, Thu, Fri, Sat, respectively.
@@ -69,83 +91,55 @@
 int
 am_util_time_computeDayofWeek(int iYear, int iMonth, int iDay)
 {
-    int iDayCnt, iCnt;
+    bool bInvalidDay;
+    int iYearOffset;
+    int iMonthOffset;
+    int iWeekday;
 
-    //
-    // 1/1/2000 was a Saturday, which we'll use as a base date.
-    // To get the day of the week of the given date, we'll compute the number
-    //  of days from 1/1/2000, then offset that from Saturday (6).
-    //
+    int iLeapYearOffset = 0;
 
     //
     // Validate inputs.  Return 7 if any are out-of-bounds.
     //
-    if ( (iMonth < 1) || (iMonth > 12) || (iYear < 2000) || (iYear >= 2400) || (iDay < 1) )
+    if ( (iMonth < 1) || (iMonth > 12) || (iYear < 0) || (iDay < 1) )
     {
         return 7;
     }
 
-    if ( (iMonth == 2) && (iDay > 28) )
+    //
+    // Make sure this day actually exists in this month. Make sure to include
+    // an exception for leap years.
+    //
+    if (iDay > g_iDaysPerMonth[iMonth - 1])
     {
-        if ( (iDay > 29) || (iYear % 4) )
+        if (iMonth == 2 && AM_UTIL_TIME_IS_LEAP_YEAR(iYear) && iDay == 29)
         {
-            return 7;
+            bInvalidDay = false;
+        }
+        else
+        {
+            bInvalidDay = true;
         }
     }
-
-    //
-    // 0-base the month and date.
-    //
-    iMonth--;
-    iDay--;
-
-    //
-    // First we'll count the number of days up to the the specified
-    // month and date in the specified year.
-    //
-    iDayCnt = iDay;
-    iCnt = 0;
-    while ( iCnt < iMonth )
+    else
     {
-        switch ( iCnt )
-        {
-            case 3:
-            case 5:
-            case 8:
-            case 10:
-                iDayCnt += 30;
-                break;
-            case 0:
-            case 2:
-            case 4:
-            case 6:
-            case 7:
-            case 9:
-            case 11:
-                iDayCnt += 31;
-                break;
-            case 1:
-                iDayCnt += (iYear % 4) ? 28 : 29;
-                break;
-        }
-        iCnt++;
+        bInvalidDay = false;
     }
 
-    //
-    // Now, add in the number of days in the intervening years between
-    // 2000 and the specified year.
-    //
-    iCnt = 2000;
-    while ( iCnt < iYear )
+    if (bInvalidDay)
     {
-        iDayCnt += (iCnt % 4) ? 365 : 366;
-        iCnt++;
+        return 7;
     }
 
-    //
-    // Offset the day count with the base day of the week.
-    // For Saturday, this is 6.
-    //
-    return (iDayCnt + 6) % 7;
+    iYearOffset = 2 + iYear + iYear / 4 - iYear / 100 + iYear / 400;
+    iMonthOffset = g_iMonthOffsets[iMonth - 1];
+
+    if (AM_UTIL_TIME_IS_LEAP_YEAR(iYear) && (iMonth < 3))
+    {
+        iLeapYearOffset = -1;
+    }
+
+    iWeekday = iDay + iYearOffset + iMonthOffset + iLeapYearOffset;
+
+    return iWeekday % 7;
 }
-
