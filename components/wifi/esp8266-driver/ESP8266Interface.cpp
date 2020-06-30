@@ -775,8 +775,27 @@ int ESP8266Interface::socket_close(void *handle)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    if (socket->connected && !_esp.close(socket->id)) {
-        err = NSAPI_ERROR_DEVICE_ERROR;
+    // With send(...) changing to non-block, modem can be busy in
+    // sending previous data and 'busy' the current 'AT+CIPCLOSE'
+    // command. In blocking mode, add retries to avoid spurious
+    // close to some degree. This is required to pass GT netsocket-tcp/
+    // netsocket-tls tests which expect close(...) to be OK.
+    if (socket->connected) {
+        if (_if_blocking) {
+            err = NSAPI_ERROR_DEVICE_ERROR;
+            for (int i = 0; i < 10; i ++) {
+                if (_esp.close(socket->id)) {
+                    err = 0;
+                    break;
+                } else {
+                    rtos::ThisThread::sleep_for(1000);
+                }
+            }
+        } else {
+            if (!_esp.close(socket->id)) {
+                err = NSAPI_ERROR_WOULD_BLOCK;
+            }
+        }
     }
 
     _cbs[socket->id].callback = NULL;
