@@ -201,7 +201,6 @@
 
 #define LWIP_COMPAT_SOCKETS         0
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
-#define LWIP_SO_RCVTIMEO            1
 
 #define LWIP_BROADCAST_PING         1
 
