@@ -160,6 +160,7 @@ typedef enum
 {
     AM_HAL_IOM_TX,
     AM_HAL_IOM_RX,
+    AM_HAL_IOM_FULLDUPLEX,
 } am_hal_iom_dir_e;
 
 //
@@ -395,6 +396,8 @@ typedef enum
     AM_HAL_IOM_REQ_FLAG_SETCLR = 0,
     // Pass uint32_t as pArgs
     AM_HAL_IOM_REQ_SPI_LSB,
+    // Pass uint32_t as pArgs
+    AM_HAL_IOM_REQ_SPI_FULLDUPLEX,
     // Pass uint32_t as pArgs
     AM_HAL_IOM_REQ_SPI_RDTHRESH,
     // Pass uint32_t as pArgs

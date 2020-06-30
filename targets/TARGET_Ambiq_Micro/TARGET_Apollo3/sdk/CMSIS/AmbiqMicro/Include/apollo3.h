@@ -55,6 +55,11 @@
 #ifndef APOLLO3_H
 #define APOLLO3_H
 
+#ifdef OVERFLOW
+#define OVERFLOW_RESTORE OVERFLOW
+#undef OVERFLOW
+#endif // OVERFLOW
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23486,6 +23491,11 @@ typedef enum {                                  /*!< WDT_LOCK_LOCK              
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef OVERFLOW_RESTORE
+#define OVERFLOW OVERFLOW_RESTORE 
+#undef OVERFLOW_RESTORE
+#endif // OVERFLOW_RESTORE
 
 #endif /* APOLLO3_H */
 
