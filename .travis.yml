@@ -252,9 +252,9 @@ matrix:
             features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m NUCLEO_F412ZG --source=. --build=BUILD/NUCLEO_F412ZG/GCC_ARM -j0
         # Run local equeue tests
-        - make -C ${EVENTS}/source test
+        - make -C ${EVENTS}/test/unit test
         # Run profiling tests
-        - make -C ${EVENTS}/source prof | tee prof
+        - make -C ${EVENTS}/test/unit prof | tee prof
       after_success:
         # Update status, comparing with master if possible.
         - |
