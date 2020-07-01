@@ -1,5 +1,11 @@
 # Change Log
 
+## [v5.1.6](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.6)
+
+- Multiple fixes for out-ouf-bounds memory accesses, a memory leak and an infinite loop condition in packet parser.
+- Mapped `MBED_CONF_MBED_CLIENT_RECONNECTION_COUNT` Pelion Device Management Client configuration option to `SN_COAP_RESENDING_MAX_COUNT` in mbed-coap.
+- Fix the token from blockwise ACK message to be empty if the received message doesn't have one.
+
 ## [v5.1.5](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.5)
 
 - Added handling for duplicate message handling for Block2 messages. Previously CoAP was silently ignoring the duplicate messages. Now proper response will be sent.
