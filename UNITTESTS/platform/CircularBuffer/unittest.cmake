@@ -7,5 +7,5 @@ set(unittest-sources
 )
 
 set(unittest-test-sources
-  platform/CircularBuffer/test_CircularBuffer.cpp
+  ../platform/test/unity/CircularBuffer/test_CircularBuffer.cpp
 )
