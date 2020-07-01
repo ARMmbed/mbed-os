@@ -933,6 +933,40 @@ am_bsp_uart_printf_enable(void)
 
 //*****************************************************************************
 //
+// Initialize and configure the UART with a custom configuration
+//
+//*****************************************************************************
+void
+am_bsp_uart_printf_enable_custom(const am_hal_uart_config_t* p_config)
+{
+    //
+    // Save the information that we're using the UART for printing.
+    //
+    g_ui32PrintInterface = AM_BSP_PRINT_INFC_UART0;
+
+    //
+    // Initialize, power up, and configure the communication UART. Use the
+    // custom configuration if it was provided. Otherwise, just use the default
+    // configuration.
+    //
+    am_hal_uart_initialize(AM_BSP_UART_PRINT_INST, &g_sCOMUART);
+    am_hal_uart_power_control(g_sCOMUART, AM_HAL_SYSCTRL_WAKE, false);
+    am_hal_uart_configure(g_sCOMUART, p_config);
+
+    //
+    // Enable the UART pins.
+    //
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_COM_UART_TX, g_AM_BSP_GPIO_COM_UART_TX);
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_COM_UART_RX, g_AM_BSP_GPIO_COM_UART_RX);
+
+    //
+    // Register the BSP print function to the STDIO driver.
+    //
+    am_util_stdio_printf_init(am_bsp_uart_string_print);
+} // am_bsp_uart_printf_enable()
+
+//*****************************************************************************
+//
 // Disable the UART
 //
 //*****************************************************************************
