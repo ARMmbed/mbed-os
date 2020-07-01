@@ -44,6 +44,7 @@ extern "C"
 #define WPA_SECURITY       0x00200000  /**< Flag to enable WPA Security        */
 #define WPA2_SECURITY      0x00400000  /**< Flag to enable WPA2 Security       */
 #define WPA3_SECURITY      0x01000000  /**< Flag to enable WPA3 PSK Security   */
+#define SECURITY_MASK      (WEP_ENABLED | TKIP_ENABLED | AES_ENABLED) /**< Flag to Security mask */
 
 #define ENTERPRISE_ENABLED 0x02000000  /**< Flag to enable Enterprise Security */
 #define WPS_ENABLED        0x10000000  /**< Flag to enable WPS Security        */
@@ -191,6 +192,9 @@ typedef enum
     WHD_SECURITY_WPA2_MIXED_PSK   = (WPA2_SECURITY | AES_ENABLED | TKIP_ENABLED),                      /**< WPA2 PSK Security with AES & TKIP                     */
     WHD_SECURITY_WPA2_FBT_PSK     = (WPA2_SECURITY | AES_ENABLED | FBT_ENABLED),                       /**< WPA2 FBT PSK Security with AES & TKIP */
     WHD_SECURITY_WPA3_SAE         = (WPA3_SECURITY | AES_ENABLED),                                     /**< WPA3 Security with AES */
+    WHD_SECURITY_WPA2_WPA_AES_PSK  = (WPA2_SECURITY | WPA_SECURITY | AES_ENABLED),                     /**< WPA2 WPA PSK Security with AES                        */
+    WHD_SECURITY_WPA2_WPA_MIXED_PSK = (WPA2_SECURITY | WPA_SECURITY | AES_ENABLED | TKIP_ENABLED),      /**< WPA2 WPA PSK Security with AES & TKIP                 */
+
     WHD_SECURITY_WPA3_WPA2_PSK    = (WPA3_SECURITY | WPA2_SECURITY | AES_ENABLED),                     /**< WPA3 WPA2 PSK Security with AES */
 
     WHD_SECURITY_WPA_TKIP_ENT     = (ENTERPRISE_ENABLED | WPA_SECURITY | TKIP_ENABLED),                /**< WPA Enterprise Security with TKIP                     */

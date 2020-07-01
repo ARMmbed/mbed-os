@@ -1080,6 +1080,8 @@ static uint32_t whd_wifi_prepare_join(whd_interface_t ifp, whd_security_t auth_t
         case WHD_SECURITY_WPA2_AES_PSK:
         case WHD_SECURITY_WPA2_TKIP_PSK:
         case WHD_SECURITY_WPA2_MIXED_PSK:
+        case WHD_SECURITY_WPA2_WPA_AES_PSK:
+        case WHD_SECURITY_WPA2_WPA_MIXED_PSK:
             /* Set the EAPOL key packet timeout value, otherwise unsuccessful supplicant events aren't reported. If the IOVAR is unsupported then continue. */
             CHECK_RETURN_UNSUPPORTED_CONTINUE(whd_wifi_set_supplicant_key_timeout(ifp,
                                                                                   DEFAULT_EAPOL_KEY_PACKET_TIMEOUT) );
@@ -1226,6 +1228,8 @@ static uint32_t whd_wifi_prepare_join(whd_interface_t ifp, whd_security_t auth_t
         case WHD_SECURITY_WPA2_AES_PSK:
         case WHD_SECURITY_WPA2_TKIP_PSK:
         case WHD_SECURITY_WPA2_MIXED_PSK:
+        case WHD_SECURITY_WPA2_WPA_AES_PSK:
+        case WHD_SECURITY_WPA2_WPA_MIXED_PSK:
             *wpa_auth = (uint32_t)WPA2_AUTH_PSK;
             break;
 
@@ -1493,17 +1497,19 @@ uint32_t whd_wifi_join_specific(whd_interface_t ifp, const whd_scan_result_t *ap
         ext_join_params->scan_params.nprobes = -1;
         ext_join_params->scan_params.passive_time = -1;
         ext_join_params->assoc_params.bssid_cnt = 0;
-        ext_join_params->assoc_params.chanspec_num = (uint32_t)1;
-        ext_join_params->assoc_params.chanspec_list[0] =
-            (wl_chanspec_t)htod16( (ap->channel |
-                                    GET_C_VAR(whd_driver, CHANSPEC_BW_20) | GET_C_VAR(whd_driver,
-                                                                                      CHANSPEC_CTL_SB_NONE) ) );
+        if (ap->channel)
+        {
+            ext_join_params->assoc_params.chanspec_num = (uint32_t)1;
+            ext_join_params->assoc_params.chanspec_list[0] =
+                (wl_chanspec_t)htod16( (ap->channel |
+                                        GET_C_VAR(whd_driver, CHANSPEC_BW_20) | GET_C_VAR(whd_driver,
+                                                                                          CHANSPEC_CTL_SB_NONE) ) );
 
-        /* set band properly */
-        wl_band_for_channel = whd_channel_to_wl_band(whd_driver, ap->channel);
+            /* set band properly */
+            wl_band_for_channel = whd_channel_to_wl_band(whd_driver, ap->channel);
 
-        ext_join_params->assoc_params.chanspec_list[0] |= wl_band_for_channel;
-
+            ext_join_params->assoc_params.chanspec_list[0] |= wl_band_for_channel;
+        }
         result = whd_cdc_send_iovar(ifp, CDC_SET, buffer, 0);
 
         WPRINT_WHD_INFO( ("%s: set_ssid result (err %" PRIu32 "); left network\n", __func__, result) );
@@ -1520,15 +1526,17 @@ uint32_t whd_wifi_join_specific(whd_interface_t ifp, const whd_scan_result_t *ap
             ENABLE_COMPILER_WARNING(diag_suppress = Pa039)
             memcpy(&join_params->params.bssid, &ap->BSSID, sizeof(whd_mac_t) );
             join_params->params.bssid_cnt = 0;
-            join_params->params.chanspec_num = (uint32_t)1;
-            join_params->params.chanspec_list[0] =
-                (wl_chanspec_t)htod16( (ap->channel |
-                                        GET_C_VAR(whd_driver,
-                                                  CHANSPEC_BW_20) | GET_C_VAR(whd_driver, CHANSPEC_CTL_SB_NONE) ) );
+            if (ap->channel)
+            {
+                join_params->params.chanspec_num = (uint32_t)1;
+                join_params->params.chanspec_list[0] =
+                    (wl_chanspec_t)htod16( (ap->channel |
+                                            GET_C_VAR(whd_driver,
+                                                      CHANSPEC_BW_20) | GET_C_VAR(whd_driver, CHANSPEC_CTL_SB_NONE) ) );
 
-            /* set band properly */
-            join_params->params.chanspec_list[0] |= wl_band_for_channel;
-
+                /* set band properly */
+                join_params->params.chanspec_list[0] |= wl_band_for_channel;
+            }
             result = whd_cdc_send_ioctl(ifp, CDC_SET, WLC_SET_SSID, buffer, 0);
         }
 
@@ -2595,7 +2603,7 @@ uint32_t whd_wifi_get_ap_info(whd_interface_t ifp, wl_bss_info_t *ap_info, whd_s
 
     /* Read the WSEC setting */
     CHECK_RETURN(whd_wifi_get_ioctl_value(ifp, WLC_GET_WSEC, &security_value) );
-
+    security_value = security_value & SECURITY_MASK;
     *security = ( whd_security_t )(security_value);
 
     if (*security == WHD_SECURITY_WEP_PSK)
