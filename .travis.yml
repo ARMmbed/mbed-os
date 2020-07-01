@@ -98,7 +98,8 @@ matrix:
         - |
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
-              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
+              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*' \
+              ':!*platform/test*'
 
 
     ### Docs Tests ###
