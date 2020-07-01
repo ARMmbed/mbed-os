@@ -20,6 +20,8 @@
 ^features/unsupported/
 ^hal/storage_abstraction
 ^platform/cxxsupport
+^platform/test
+^events/test
 ^rtos/source/TARGET_CORTEX/rtx4
 ^rtos/source/TARGET_CORTEX/rtx5
 ^targets
