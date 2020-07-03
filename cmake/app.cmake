@@ -63,11 +63,7 @@ if(MBED_OS_TOOLCHAIN STREQUAL "GCC_ARM")
         BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/app.link_script.ld"
     )
 elseif(MBED_OS_TOOLCHAIN STREQUAL "ARM")
-    set(CMAKE_PRE_BUILD_COMMAND
-        COMMAND "armlink" --predefine="-DMBED_ROM_START=0x0" --predefine="-DMBED_ROM_SIZE=0x100000" --predefine="-DMBED_RAM1_START=0x1fff0000" --predefine="-DMBED_RAM1_SIZE=0x10000" --predefine="-DMBED_RAM_START=0x20000000" --predefine="-DMBED_RAM_SIZE=0x30000" --predefine="-DMBED_BOOT_STACK_SIZE=1024" --predefine="-DXIP_ENABLE=0" --scatter=${linkerfile} --output=${CMAKE_CURRENT_BINARY_DIR}/app.link_script.sct
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/app.link_script.sct"
-    )
+    set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
 endif()
 
 # TODO: @mbed-os-tools this pre/post build commands should get details from target + profile
