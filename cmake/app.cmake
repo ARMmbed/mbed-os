@@ -64,6 +64,7 @@ if(MBED_OS_TOOLCHAIN STREQUAL "GCC_ARM")
     )
 elseif(MBED_OS_TOOLCHAIN STREQUAL "ARM")
     set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
+    set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} --scatter ${linkerfile})
 endif()
 
 # TODO: @mbed-os-tools this pre/post build commands should get details from target + profile
