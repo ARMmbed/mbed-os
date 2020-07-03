@@ -61,17 +61,17 @@ void sleep_usticker_test()
 
     const ticker_irq_handler_type us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
 
-    /* Give some time Green Tea to finish UART transmission before entering
-     * sleep mode.
-     */
-    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
-
     /* Test only sleep functionality. */
     sleep_manager_lock_deep_sleep();
     TEST_ASSERT_FALSE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should be locked");
 
     /* Testing wake-up time 10 us. */
     for (timestamp_t i = 100; i < 1000; i += 100) {
+        /* Give some time Green Tea to finish UART transmission before entering
+         * sleep mode.
+         */
+        busy_wait_ms(SERIAL_FLUSH_TIME_MS);
+
         /* note: us_ticker_read() operates on ticks. */
         const timestamp_t start_timestamp = us_ticker_read();
         const timestamp_t next_match_timestamp = overflow_protect(start_timestamp + us_to_ticks(i, ticker_freq),
@@ -108,15 +108,15 @@ void deepsleep_lpticker_test()
 
     const ticker_irq_handler_type lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
 
-    /* Give some time Green Tea to finish UART transmission before entering
-     * deep-sleep mode.
-     */
-    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
-
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should not be locked");
 
     /* Testing wake-up time 10 ms. */
     for (timestamp_t i = 20000; i < 200000; i += 20000) {
+        /* Give some time Green Tea to finish UART transmission before entering
+         * deep-sleep mode.
+         */
+        busy_wait_ms(SERIAL_FLUSH_TIME_MS);
+
         /* note: lp_ticker_read() operates on ticks. */
         const timestamp_t start_timestamp = lp_ticker_read();
         const timestamp_t next_match_timestamp = overflow_protect(start_timestamp + us_to_ticks(i, ticker_freq), ticker_width);
