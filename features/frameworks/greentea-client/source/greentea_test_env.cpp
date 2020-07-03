@@ -523,7 +523,7 @@ static int CurTok = 0;
  *
  *        tok_eof       ::= EOF (end of file)
  *        tok_open      ::= "{{"
- *        tok_close     ::= "}}\n"
+ *        tok_close     ::= "}}"
  *        tok_semicolon ::= ";"
  *        tok_string    ::= [a-zA-Z0-9_-!@#$%^&*()]+    // See isstring() function
  *
@@ -597,7 +597,7 @@ extern "C" int greentea_parse_kv(char *out_key,
 
         case tok_open:
             if (HandleKV(out_key, out_value, out_key_size, out_value_size)) {
-                // We've found {{ KEY ; VALUE }}\n expression
+                // We've found {{ KEY ; VALUE }} expression
                 return 1;
             }
             break;
@@ -684,7 +684,7 @@ static int isstring(int c) {
  *
  *         <TOK_EOF>       ::= EOF (end of file)
  *         <TOK_OPEN>      ::= "{{"
- *         <TOK_CLOSE>     ::= "}}\n"
+ *         <TOK_CLOSE>     ::= "}}"
  *         <TOK_SEMICOLON> ::= ";"
  *         <TOK_STRING>    ::= [a-zA-Z0-9_-!@#$%^&*()]+    // See isstring() function *
  *
@@ -737,16 +737,13 @@ static int gettok(char *out_str, const int str_size) {
     }
 
     // close ::= '}'
-    if (LastChar == '}') {
-        LastChar = greentea_getc();
-        if (LastChar == '}') {
-            LastChar = greentea_getc();
-            if (LastChar == '\n') {
-                LastChar = '!';
-                return tok_close;
-            }
-        }
-    }
+	if (LastChar == '}') {
+		LastChar = greentea_getc();
+		if (LastChar == '}') {
+			LastChar = '!';
+			return tok_close;
+		}
+	}
 
     if (LastChar == EOF)
         return tok_eof;
@@ -765,8 +762,8 @@ static int gettok(char *out_str, const int str_size) {
  *         <MESSAGE>: <TOK_OPEN> <TOK_STRING> <TOK_SEMICOLON> <TOK_STRING> <TOK_CLOSE>
  *
  *         Examples:
- *         message:     "{{__timeout; 1000}}\n"
- *                      "{{__sync; 12345678-1234-5678-1234-567812345678}}\n"
+ *         message:     "{{__timeout; 1000}}"
+ *                      "{{__sync; 12345678-1234-5678-1234-567812345678}}"
  *
  *  \param out_key Output buffer to store key string value
  *  \param out_value Output buffer to store value string value
