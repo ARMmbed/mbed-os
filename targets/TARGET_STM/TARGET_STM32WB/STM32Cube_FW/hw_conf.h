@@ -28,6 +28,9 @@
  * Semaphores
  * THIS SHALL NO BE CHANGED AS THESE SEMAPHORES ARE USED AS WELL ON THE CM0+
  *****************************************************************************/
+/* Index of the semaphore used to update HSI48 oscillator configuration */
+#define CFG_HW_HSI48_SEMID                                      5
+
 /* Index of the semaphore used to manage the entry Stop Mode procedure */
 #define CFG_HW_ENTRY_STOP_MODE_SEMID                            4
 

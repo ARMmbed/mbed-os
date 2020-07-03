@@ -67,12 +67,16 @@ void SetSysClock(void)
 
     __HAL_RCC_HSEM_CLK_ENABLE();
 
+    /* This prevents the CPU2 (M0+) to configure RCC */
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID));
 
     Config_HSE();
 
     __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+    /* This prevents the CPU2 (M0+) to disable the HSI48 oscillator */
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_HSI48_SEMID));
 
     /* Initializes the CPU, AHB and APB busses clocks */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
@@ -101,8 +105,8 @@ void SetSysClock(void)
         error("HAL_RCC_ClockConfig error\n");
     }
 
-    /** Initializes the peripherals clocks
-    */
+    /* Initializes the peripherals clocks */
+    /* RNG needs to be configured like in M0 core, i.e. with HSI48 */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SMPS | RCC_PERIPHCLK_RFWAKEUP | RCC_PERIPHCLK_RNG | RCC_PERIPHCLK_USB;
     PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_HSI48;
