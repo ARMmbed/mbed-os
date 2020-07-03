@@ -324,7 +324,15 @@ void NRFCordioHCIDriver::do_initialize()
 
     // BD Addr
     bdAddr_t bd_addr;
-    PalCfgLoadData(PAL_CFG_ID_BD_ADDR, bd_addr, sizeof(bdAddr_t));
+
+    /* Load address from nRF configuration. */
+    uint64_t address_int = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
+                           (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
+    unsigned int i = 0;
+    while (i++ < BDA_ADDR_LEN) {
+        bd_addr[i] = address_int >> (i * 8);
+    }
+
     LlSetBdAddr((uint8_t *)&bd_addr);
     LlMathSetSeed((uint32_t *)&bd_addr);
 
