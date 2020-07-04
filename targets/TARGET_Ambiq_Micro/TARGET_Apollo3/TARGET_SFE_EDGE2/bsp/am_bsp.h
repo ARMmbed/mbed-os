@@ -254,6 +254,7 @@ extern void am_bsp_itm_printf_disable(void);
 
 extern void am_bsp_uart_string_print(char *pcString);
 extern void am_bsp_uart_printf_enable(void);
+extern void am_bsp_uart_printf_enable_custom(const am_hal_uart_config_t* p_config);
 extern void am_bsp_uart_printf_disable(void);
 
 extern void am_bsp_buffered_uart_printf_enable(void);
