@@ -35,7 +35,7 @@ class MbedIgnoreSet(object):
         self._unignore_patterns = []
         self._unignore_regexes = []
 
-    def find_longest_match(self, path:str, regex_list:list, pattern_list:list):
+    def find_longest_match(self, path, regex_list, pattern_list):
         """
         Helper function: find the longest ignore/unignore pattern that matches
         the provided path.  Returns None if there are no matches.
