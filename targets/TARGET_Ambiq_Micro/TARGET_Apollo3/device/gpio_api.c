@@ -194,10 +194,11 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     else if (direction == (PinDirection)PIN_OUTPUT)
     {
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL;
-        pinConfigBools.gpOutcfg = false;
+        pinConfigBools.gpOutcfg = true;
         obj->cfg.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA;
+        pinConfigBools.driveStrength = true;
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_NONE;
-        pinConfigBools.gpInput = false;
+        pinConfigBools.gpInput = true;
     }
     else
     {
