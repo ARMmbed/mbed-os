@@ -39,42 +39,17 @@ static const int total_ticks = 10;
 volatile uint32_t ticker_callback_flag;
 volatile uint32_t multi_counter;
 
-DigitalOut led1(LED1);
-DigitalOut led2(LED2);
-
 Timer gtimer;
 volatile int ticker_count = 0;
-
-
-void switch_led1_state(void)
-{
-    // blink 3 times per second
-    if ((callback_trigger_count % 333) == 0) {
-        led1 = !led1;
-    }
-}
-
-void switch_led2_state(void)
-{
-    // blink 3 times per second
-    // make led2 blink at the same callback_trigger_count value as led1
-    if (((callback_trigger_count - 1) % 333) == 0) {
-        led2 = !led2;
-    }
-}
 
 void ticker_callback_1(void)
 {
     ++callback_trigger_count;
-    switch_led1_state();
 }
 
 void ticker_callback_2(void)
 {
     ++callback_trigger_count;
-    if (LED2 != NC) {
-        switch_led2_state();
-    }
 }
 
 
@@ -112,10 +87,6 @@ void test_case_1x_ticker()
     int expected_key = 1;
     Ticker ticker;
 
-    led1 = 1;
-    if (LED2 != NC) {
-        led2 = 1;
-    }
     callback_trigger_count = 0;
 
     greentea_send_kv("timing_drift_check_start", 0);
@@ -155,10 +126,6 @@ void test_case_2x_ticker()
     int expected_key =  1;
     Ticker ticker1, ticker2;
 
-    led1 = 0;
-    if (LED2 != NC) {
-        led2 = 1;
-    }
     callback_trigger_count = 0;
 
     ticker1.attach_us(ticker_callback_1, 2 * ONE_MILLI_SEC);
