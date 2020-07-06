@@ -30,5 +30,5 @@ set(CMAKE_ASM_FLAGS
     "--cpu=Cortex-M4 --cpreproc --cpreproc_opts=--target=arm-arm-none-eabi,-D,__FPU_PRESENT"
 )
 set(CMAKE_CXX_LINK_FLAGS
-    "--verbose --remove --show_full_path --legacyalign --any_contingency --keep=os_cb_sections --cpu=Cortex-M4 --predefine="-DMBED_ROM_START=0x0" --predefine="-DMBED_ROM_SIZE=0x100000" --predefine="-DMBED_RAM1_START=0x1fff0000" --predefine="-DMBED_RAM1_SIZE=0x10000" --predefine="-DMBED_RAM_START=0x20000000" --predefine="-DMBED_RAM_SIZE=0x30000" --predefine="-DMBED_BOOT_STACK_SIZE=1024" --predefine="-DXIP_ENABLE=0""
+    "--verbose --remove --show_full_path --legacyalign --any_contingency --keep=os_cb_sections --cpu=Cortex-M4 --predefine=-DMBED_ROM_START=0x0 --predefine=-DMBED_ROM_SIZE=0x100000 --predefine=-DMBED_RAM1_START=0x1fff0000 --predefine=-DMBED_RAM1_SIZE=0x10000 --predefine=-DMBED_RAM_START=0x20000000 --predefine=-DMBED_RAM_SIZE=0x30000 --predefine=-DMBED_BOOT_STACK_SIZE=1024 --predefine=-DXIP_ENABLE=0"
 )
