@@ -9,7 +9,6 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/psa
         ${CMAKE_CURRENT_SOURCE_DIR}/mbedtls
         ${CMAKE_CURRENT_SOURCE_DIR}/pal
-        ${CMAKE_CURRENT_SOURCE_DIR}/val
 )
 
 target_sources(mbed-os
