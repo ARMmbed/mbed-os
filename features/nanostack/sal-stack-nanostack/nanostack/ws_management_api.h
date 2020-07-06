@@ -30,6 +30,7 @@
 
 #include "ns_types.h"
 #include "net_interface.h" /* Declaration for channel_list_s. */
+#include "fhss_config.h"
 
 #ifdef __cplusplus
 extern "C" {
