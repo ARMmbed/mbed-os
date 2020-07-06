@@ -7,10 +7,6 @@ set_property(GLOBAL PROPERTY MBED_OS_TARGET_LINKER_FILE "")
 
 if(MBED_OS_TARGET STREQUAL "K64F")
 
-# TODO: @mbed-os-tools This needs to come from tools
-# Build system provides "target" list.
-# Note: This must be placed before subdirectories
-# K64F
 set_property(GLOBAL
   APPEND PROPERTY MBED_OS_TARGET_LABELS
     Freescale;
@@ -37,11 +33,6 @@ set_property(GLOBAL
 
 elseif(MBED_OS_TARGET STREQUAL "DISCO_L475VG_IOT01A")
 
-# TODO: @mbed-os-tools This needs to come from tools
-# Build system provides "target" list. It is appended to an existing property
-# defined by the application
-# Note: This must be placed before subdirectories
-# DISCO_L475VG_IOT01A
 set_property(GLOBAL
   APPEND PROPERTY MBED_OS_TARGET_LABELS
     STM;
@@ -64,10 +55,6 @@ set_property(GLOBAL
 
 elseif(MBED_OS_TARGET STREQUAL "WIO_3G")
 
-# TODO: @mbed-os-tools This needs to come from tools
-# Build system provides "target" list.
-# Note: This must be placed before subdirectories
-# WIO_3G
 set_property(GLOBAL
    APPEND PROPERTY MBED_OS_TARGET_LABELS
      STM;
@@ -88,11 +75,6 @@ set_property(GLOBAL
 
 elseif(MBED_OS_TARGET STREQUAL "NRF52840_DK")
 
-
-# TODO: @mbed-os-tools This needs to come from tools
-# Build system provides "target" list.
-# Note: This must be placed before subdirectories
-# NRF52840_DK
 set_property(GLOBAL
    APPEND PROPERTY MBED_OS_TARGET_LABELS
      NORDIC
@@ -117,7 +99,6 @@ set_property(GLOBAL
      BLE
      CRYPTOCELL310
  )
-
 endif()
 
 
@@ -125,8 +106,6 @@ if(MBED_OS_TOOLCHAIN STREQUAL "GCC_ARM")
 
 if(MBED_OS_TARGET STREQUAL "K64F")
 
-# TODO: @mbed-os-tools Generate definitions
-# K64F (TOOLCHAIN: GCC_ARM)
 add_definitions(
   -DARM_MATH_CM4 -DCOMPONENT_FLASHIAP=1 -DCOMPONENT_NSPE=1 -DCOMPONENT_PSA_SRV_EMUL=1 -DCOMPONENT_PSA_SRV_IMPL=1 -DCOMPONENT_SD=1
   -DCPU_MK64FN1M0VMD12 -DDEVICE_ANALOGIN=1 -DDEVICE_ANALOGOUT=1 -DDEVICE_CRC=1 -DDEVICE_EMAC=1
@@ -145,8 +124,6 @@ add_definitions(
 
 elseif(MBED_OS_TARGET STREQUAL "DISCO_L475VG_IOT01A")
 
-# # TODO: @mbed-os-tools Generate definitions
-# # DISCO_L475VG_IOT01A (TOOLCHAIN: GCC_ARM)
  add_definitions(
    -DARM_MATH_CM4 -DCOMPONENT_FLASHIAP=1 -DCOMPONENT_NSPE=1 -DCOMPONENT_PSA_SRV_EMUL=1 -DCOMPONENT_PSA_SRV_IMPL=1
    -DCOMPONENT_QSPIF=1 -DDEVICE_ANALOGIN=1 -DDEVICE_ANALOGOUT=1 -DDEVICE_CAN=1 -DDEVICE_CRC=1
@@ -166,8 +143,6 @@ elseif(MBED_OS_TARGET STREQUAL "DISCO_L475VG_IOT01A")
 
 elseif(MBED_OS_TARGET STREQUAL "NRF52840_DK")
 
-# TODO: @mbed-os-tools Generate definitions
-# NRF52840_DK (TOOLCHAIN: GCC_ARM)
 add_definitions(
    -DNRF52_PAN_20
    -DDEVICE_SLEEP=1 -DDEVICE_PORTOUT=1 -DDEVICE_QSPI=1
@@ -207,8 +182,6 @@ elseif(MBED_OS_TOOLCHAIN STREQUAL "ARM")
 
 if(MBED_OS_TARGET STREQUAL "K64F")
 
-# TODO: @mbed-os-tools Generate definitions
-# K64F (TOOLCHAIN: ARM)
 add_definitions(
    -DARM_MATH_CM4 -DCOMPONENT_FLASHIAP=1 -DCOMPONENT_NSPE=1 -DCOMPONENT_PSA_SRV_EMUL=1 -DCOMPONENT_PSA_SRV_IMPL=1
    -DCOMPONENT_SD=1 -DCPU_MK64FN1M0VMD12 -DDEVICE_ANALOGIN=1 -DDEVICE_ANALOGOUT=1 -DDEVICE_CRC=1
@@ -227,9 +200,6 @@ add_definitions(
 
 elseif(MBED_OS_TARGET STREQUAL "DISCO_L475VG_IOT01A")
 
-
-# # TODO: @mbed-os-tools Generate definitions
-# # DISCO_L475VG_IOT01A (TOOLCHAIN: ARM)
  add_definitions(
    -DARM_MATH_CM4 -DCOMPONENT_FLASHIAP=1 -DCOMPONENT_NSPE=1 -DCOMPONENT_PSA_SRV_EMUL=1 -DCOMPONENT_PSA_SRV_IMPL=1
    -DCOMPONENT_QSPIF=1 -DDEVICE_ANALOGIN=1 -DDEVICE_ANALOGOUT=1 -DDEVICE_CAN=1 -DDEVICE_CRC=1
@@ -246,26 +216,6 @@ elseif(MBED_OS_TARGET STREQUAL "DISCO_L475VG_IOT01A")
    -D__CMSIS_RTOS -D__CORTEX_M4 -D__FPU_PRESENT=1 -D__MBED_CMSIS_RTOS_CM -D__MBED__=1
  )
 
-
-
 endif()
 
 endif()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
