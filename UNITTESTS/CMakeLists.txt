@@ -113,6 +113,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features"
   "${PROJECT_SOURCE_DIR}/../features/netsocket"
   "${PROJECT_SOURCE_DIR}/../platform"
+  "${PROJECT_SOURCE_DIR}/../storage"
   "${PROJECT_SOURCE_DIR}/../drivers"
   "${PROJECT_SOURCE_DIR}/../hal"
   "${PROJECT_SOURCE_DIR}/../events"
@@ -144,7 +145,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
-  "${PROJECT_SOURCE_DIR}/../features/storage/kvstore/conf"
+  "${PROJECT_SOURCE_DIR}/../storage/kvstore/conf"
 )
 
 # Create a list for test suites.

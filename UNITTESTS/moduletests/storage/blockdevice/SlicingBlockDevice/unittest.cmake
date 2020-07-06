@@ -9,8 +9,8 @@ set(unittest-includes ${unittest-includes}
 )
 
 set(unittest-sources
-  ../features/storage/blockdevice/SlicingBlockDevice.cpp
-  ../features/storage/blockdevice/HeapBlockDevice.cpp
+  ../storage/blockdevice/SlicingBlockDevice.cpp
+  ../storage/blockdevice/HeapBlockDevice.cpp
   stubs/mbed_atomic_stub.c
   stubs/mbed_assert_stub.cpp
 )

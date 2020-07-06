@@ -15,27 +15,35 @@
  */
 
 #include "gtest/gtest.h"
-#include "features/storage/blockdevice/ObservingBlockDevice.h"
-#include "features/storage/blockdevice/ReadOnlyBlockDevice.h"
 #include "stubs/BlockDevice_mock.h"
-
-using ::testing::_;
-using ::testing::Return;
+#include "storage/blockdevice/ProfilingBlockDevice.h"
 
 #define BLOCK_SIZE (512)
 #define DEVICE_SIZE (BLOCK_SIZE*10)
 
-class ObservingBlockModuleTest : public testing::Test {
+using ::testing::_;
+using ::testing::Return;
+using ::testing::DoAll;
+
+class ProfilingBlockModuleTest : public testing::Test {
 protected:
     BlockDeviceMock bd_mock;
-    ObservingBlockDevice bd{&bd_mock};
+    ProfilingBlockDevice bd{&bd_mock};
     uint8_t *magic;
-    static int cnt;
+    uint8_t *buf;
     virtual void SetUp()
     {
-        cnt = 0;
+        ON_CALL(bd_mock, size()).WillByDefault(Return(DEVICE_SIZE));
+        ON_CALL(bd_mock, get_erase_size(_)).WillByDefault(Return(BLOCK_SIZE));
+        ON_CALL(bd_mock, get_erase_size()).WillByDefault(Return(BLOCK_SIZE));
+        ON_CALL(bd_mock, get_program_size()).WillByDefault(Return(BLOCK_SIZE));
+        ON_CALL(bd_mock, get_read_size()).WillByDefault(Return(BLOCK_SIZE));
+        ON_CALL(bd_mock, is_valid_erase(_, _)).WillByDefault(Return(true));
+        ON_CALL(bd_mock, init()).WillByDefault(Return(BD_ERROR_OK));
+
         ASSERT_EQ(bd.init(), 0);
         magic = new uint8_t[BLOCK_SIZE];
+        buf = new uint8_t[BLOCK_SIZE];
         // Generate simple pattern to verify against
         for (int i = 0; i < BLOCK_SIZE; i++) {
             magic[i] = 0xaa + i;
@@ -46,16 +54,11 @@ protected:
     {
         ASSERT_EQ(bd.deinit(), 0);
         delete[] magic;
-    }
-
-    static void bd_change(BlockDevice* bd) {
-        cnt++;
+        delete[] buf;
     }
 };
 
-int ObservingBlockModuleTest::cnt = 0;
-
-TEST_F(ObservingBlockModuleTest, init)
+TEST_F(ProfilingBlockModuleTest, init)
 {
     EXPECT_EQ(bd.get_erase_size(), bd_mock.get_erase_size());
     EXPECT_EQ(bd.get_erase_size(0), bd_mock.get_erase_size(0));
@@ -66,28 +69,26 @@ TEST_F(ObservingBlockModuleTest, init)
     EXPECT_EQ(bd.get_type(), bd_mock.get_type());
 }
 
-TEST_F(ObservingBlockModuleTest, program_erase_cb)
-{
-    EXPECT_CALL(bd_mock, program(magic, 0, BLOCK_SIZE))
-    .Times(1)
-    .WillOnce(Return(BD_ERROR_OK));
+TEST_F(ProfilingBlockModuleTest, count) {
+    EXPECT_EQ(bd.get_read_count(), 0);
+    EXPECT_EQ(bd.get_program_count(), 0);
+    EXPECT_EQ(bd.get_erase_count(), 0);
 
-    bd.attach(this->bd_change);
     EXPECT_EQ(bd.program(magic, 0, BLOCK_SIZE), 0);
-    EXPECT_EQ(cnt, 1);
-
-    EXPECT_CALL(bd_mock, erase(0, BLOCK_SIZE))
-    .Times(1)
-    .WillOnce(Return(BD_ERROR_OK));
-
-    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
-    EXPECT_EQ(cnt, 2);
-
-    EXPECT_CALL(bd_mock, read(_, 0, BLOCK_SIZE))
-    .Times(1)
-    .WillOnce(Return(BD_ERROR_OK));
-
-    uint8_t buf[BLOCK_SIZE];
     EXPECT_EQ(bd.read(buf, 0, BLOCK_SIZE), 0);
-    EXPECT_EQ(cnt, 2); // Counter stays the same
+    EXPECT_EQ(bd.read(buf, 0, BLOCK_SIZE), 0);
+    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
+    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
+    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
+    EXPECT_EQ(bd.sync(), 0); // Should not have any influence
+
+    EXPECT_EQ(bd.get_program_count(), BLOCK_SIZE);
+    EXPECT_EQ(bd.get_read_count(), 2 * BLOCK_SIZE);
+    EXPECT_EQ(bd.get_erase_count(), 3 * BLOCK_SIZE);
+
+    bd.reset();
+
+    EXPECT_EQ(bd.get_read_count(), 0);
+    EXPECT_EQ(bd.get_program_count(), 0);
+    EXPECT_EQ(bd.get_erase_count(), 0);
 }

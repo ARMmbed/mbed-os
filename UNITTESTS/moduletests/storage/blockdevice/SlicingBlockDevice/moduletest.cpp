@@ -15,8 +15,8 @@
  */
 
 #include "gtest/gtest.h"
-#include "features/storage/blockdevice/HeapBlockDevice.h"
-#include "features/storage/blockdevice/SlicingBlockDevice.h"
+#include "storage/blockdevice/HeapBlockDevice.h"
+#include "storage/blockdevice/SlicingBlockDevice.h"
 
 #define BLOCK_SIZE (512)
 #define DEVICE_SIZE (BLOCK_SIZE*10)

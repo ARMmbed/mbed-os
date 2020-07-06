@@ -15,7 +15,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "features/storage/blockdevice/ChainingBlockDevice.cpp"
+#include "storage/blockdevice/ChainingBlockDevice.cpp"
 #include "stubs/BlockDevice_mock.h"
 
 using ::testing::_;

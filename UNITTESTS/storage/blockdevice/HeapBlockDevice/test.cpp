@@ -15,7 +15,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "features/storage/blockdevice/HeapBlockDevice.h"
+#include "storage/blockdevice/HeapBlockDevice.h"
 #include <string.h>
 #include "mbed_assert.h"
 

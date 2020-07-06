@@ -16,7 +16,8 @@
 
 #include "gtest/gtest.h"
 #include "stubs/BlockDevice_mock.h"
-#include "features/storage/blockdevice/ProfilingBlockDevice.h"
+#include "storage/blockdevice/ReadOnlyBlockDevice.h"
+#include "platform/mbed_error.h"
 
 #define BLOCK_SIZE (512)
 #define DEVICE_SIZE (BLOCK_SIZE*10)
@@ -25,10 +26,10 @@ using ::testing::_;
 using ::testing::Return;
 using ::testing::DoAll;
 
-class ProfilingBlockModuleTest : public testing::Test {
+class ReadOnlyBlockModuleTest : public testing::Test {
 protected:
     BlockDeviceMock bd_mock;
-    ProfilingBlockDevice bd{&bd_mock};
+    ReadOnlyBlockDevice bd{&bd_mock};
     uint8_t *magic;
     uint8_t *buf;
     virtual void SetUp()
@@ -58,7 +59,7 @@ protected:
     }
 };
 
-TEST_F(ProfilingBlockModuleTest, init)
+TEST_F(ReadOnlyBlockModuleTest, init)
 {
     EXPECT_EQ(bd.get_erase_size(), bd_mock.get_erase_size());
     EXPECT_EQ(bd.get_erase_size(0), bd_mock.get_erase_size(0));
@@ -69,26 +70,9 @@ TEST_F(ProfilingBlockModuleTest, init)
     EXPECT_EQ(bd.get_type(), bd_mock.get_type());
 }
 
-TEST_F(ProfilingBlockModuleTest, count) {
-    EXPECT_EQ(bd.get_read_count(), 0);
-    EXPECT_EQ(bd.get_program_count(), 0);
-    EXPECT_EQ(bd.get_erase_count(), 0);
-
-    EXPECT_EQ(bd.program(magic, 0, BLOCK_SIZE), 0);
+TEST_F(ReadOnlyBlockModuleTest, write_protection) {
+    EXPECT_EQ(bd.program(magic, 0, BLOCK_SIZE), MBED_ERROR_WRITE_PROTECTED);
+    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), MBED_ERROR_WRITE_PROTECTED);
     EXPECT_EQ(bd.read(buf, 0, BLOCK_SIZE), 0);
-    EXPECT_EQ(bd.read(buf, 0, BLOCK_SIZE), 0);
-    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
-    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
-    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
     EXPECT_EQ(bd.sync(), 0); // Should not have any influence
-
-    EXPECT_EQ(bd.get_program_count(), BLOCK_SIZE);
-    EXPECT_EQ(bd.get_read_count(), 2 * BLOCK_SIZE);
-    EXPECT_EQ(bd.get_erase_count(), 3 * BLOCK_SIZE);
-
-    bd.reset();
-
-    EXPECT_EQ(bd.get_read_count(), 0);
-    EXPECT_EQ(bd.get_program_count(), 0);
-    EXPECT_EQ(bd.get_erase_count(), 0);
 }

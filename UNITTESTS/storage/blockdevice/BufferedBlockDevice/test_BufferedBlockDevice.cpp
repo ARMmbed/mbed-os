@@ -15,7 +15,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "features/storage/blockdevice/BufferedBlockDevice.h"
+#include "storage/blockdevice/BufferedBlockDevice.h"
 #include "stubs/BlockDevice_mock.h"
 
 using ::testing::_;
