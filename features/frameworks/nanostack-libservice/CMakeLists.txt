@@ -27,6 +27,7 @@ target_sources(mbed-os
 )
 target_include_directories(mbed-os
     PUBLIC
-        mbed-client-libservice
-        mbed-client-libservice/platform
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice
+        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice/platform
 )
