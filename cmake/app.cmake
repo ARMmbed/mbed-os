@@ -1,18 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Set cached global first
-# TODO: @mbed-os-tools - "GCC_ARM" should come from tools
-set(MBED_OS_TOOLCHAIN "GCC_ARM" CACHE INTERNAL "")
+# TODO: @mbed-os-tools - toolchain should come from tools
+set(MBED_OS_TOOLCHAIN "GCC_ARM" CACHE STRING "")
+# TODO: @mbed-os-tools - target should come from tools
+set(MBED_OS_TARGET "K64F" CACHE STRING "")
 
-# Include toolchain specific CMake
-if(MBED_OS_TOOLCHAIN STREQUAL "GCC_ARM")
-    include(${MBED_OS_ROOT}/cmake/gcc.cmake)
-elseif(MBED_OS_TOOLCHAIN STREQUAL "ARM")
-    include(${MBED_OS_ROOT}/cmake/arm.cmake)
-elseif(MBED_OS_TOOLCHAIN STREQUAL "IAR")
-    include(${MBED_OS_ROOT}/cmake/iar.cmake)
-endif()
-
+include(${MBED_OS_ROOT}/cmake/toolchain.cmake)
 include(${MBED_OS_ROOT}/cmake/target.cmake)
 include(${MBED_OS_ROOT}/cmake/env.cmake)
 include(${MBED_OS_ROOT}/cmake/util.cmake)
