@@ -10,6 +10,4 @@ target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-trace
-        ${CMAKE_CURRENT_SOURCE_DIR}/../nanostack-libservice/mbed-client-libservice
-        ${CMAKE_CURRENT_SOURCE_DIR}/../nanostack-libservice
 )
