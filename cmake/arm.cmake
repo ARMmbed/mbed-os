@@ -21,10 +21,10 @@ set(ELF2BIN               "fromelf")
 # TODO: @mbed-os-tools get flags from mbed-os/tools/profiles/,
 #       mbed-os/tools/toolchains/arm.py, and target config in mbed-os/targets/targets.json
 set(CMAKE_C_FLAGS
-    "--target=arm-arm-none-eabi -mthumb -g -O1 -Wno-armcc-pragma-push-pop -Wno-armcc-pragma-anon-unions -Wno-reserved-user-defined-literal -Wno-deprecated-register -DMULADDC_CANNOT_USE_R7 -fdata-sections -fno-exceptions -MMD -fshort-enums -fshort-wchar -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -D__ASSERT_MSG -std=gnu11 -mfpu=none -mcpu=cortex-m4 -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000 -include mbed_config.h"
+    "--target=arm-arm-none-eabi -mthumb -g -O1 -Wno-armcc-pragma-push-pop -Wno-armcc-pragma-anon-unions -Wno-reserved-user-defined-literal -Wno-deprecated-register -DMULADDC_CANNOT_USE_R7 -fdata-sections -fno-exceptions -fshort-enums -fshort-wchar -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -D__ASSERT_MSG -std=gnu11 -mfpu=none -mcpu=cortex-m4 -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000 -include mbed_config.h"
 )
 set(CMAKE_CXX_FLAGS
-    "--target=arm-arm-none-eabi -mthumb -g -O1 -Wno-armcc-pragma-push-pop -Wno-armcc-pragma-anon-unions -Wno-reserved-user-defined-literal -Wno-deprecated-register -DMULADDC_CANNOT_USE_R7 -fdata-sections -fno-exceptions -MMD -fshort-enums -fshort-wchar -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -fno-rtti -fno-c++-static-destructors -std=gnu++14 -mfpu=none -mcpu=cortex-m4 -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000  -include mbed_config.h"
+    "--target=arm-arm-none-eabi -mthumb -g -O1 -Wno-armcc-pragma-push-pop -Wno-armcc-pragma-anon-unions -Wno-reserved-user-defined-literal -Wno-deprecated-register -DMULADDC_CANNOT_USE_R7 -fdata-sections -fno-exceptions -fshort-enums -fshort-wchar -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -fno-rtti -fno-c++-static-destructors -std=gnu++14 -mfpu=none -mcpu=cortex-m4 -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000  -include mbed_config.h"
 )
 set(CMAKE_ASM_FLAGS
     "--cpu=Cortex-M4 --cpreproc --cpreproc_opts=--target=arm-arm-none-eabi,-D,__FPU_PRESENT"
