@@ -43,11 +43,29 @@ get_property(linkerfile GLOBAL PROPERTY MBED_OS_TARGET_LINKER_FILE)
 
 # TODO: get project name to inject into ld
 # TODO: @mbed-os-tools this pre/post build commands should get details from target + profile
-set(CMAKE_PRE_BUILD_COMMAND
-    COMMAND "arm-none-eabi-cpp" -E -P -Wl,--gc-sections -Wl,--wrap,main -Wl,--wrap,_malloc_r -Wl,--wrap,_free_r -Wl,--wrap,_realloc_r -Wl,--wrap,_memalign_r -Wl,--wrap,_calloc_r -Wl,--wrap,exit -Wl,--wrap,atexit -Wl,-n -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_BOOT_STACK_SIZE=1024 -DXIP_ENABLE=0 ${linkerfile} -o ${CMAKE_CURRENT_BINARY_DIR}/app.link_script.ld
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/app.link_script.ld"
-)
+if(MBED_OS_TOOLCHAIN STREQUAL "GCC_ARM")
+    # I have  to  leave this here as linker is processed after mbed-os added, and can't be in toolchain.cmake
+    # as its global symbol is empty at that stage, this needs more work
+    # TODO: This property  pre/post should be moved
+    set(CMAKE_PRE_BUILD_COMMAND
+        COMMAND "arm-none-eabi-cpp" -E -P
+            -Wl,--gc-sections -Wl,--wrap,main -Wl,--wrap,_malloc_r -Wl,--wrap,_free_r
+            -Wl,--wrap,_realloc_r -Wl,--wrap,_memalign_r -Wl,--wrap,_calloc_r
+            -Wl,--wrap,exit -Wl,--wrap,atexit -Wl,-n
+            -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
+            -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM_START=0x20000000
+            -DMBED_RAM_SIZE=0x30000 -DMBED_RAM1_START=0x1fff0000
+            -DMBED_RAM1_SIZE=0x10000 -DMBED_BOOT_STACK_SIZE=1024
+            -DXIP_ENABLE=0
+            ${linkerfile} -o ${CMAKE_CURRENT_BINARY_DIR}/app.link_script.ld
+
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/app.link_script.ld"
+    )
+elseif(MBED_OS_TOOLCHAIN STREQUAL "ARM")
+    set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
+    set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} --scatter ${linkerfile})
+endif()
 
 # TODO: @mbed-os-tools this pre/post build commands should get details from target + profile
 if(MBED_OS_TOOLCHAIN STREQUAL "GCC_ARM")
