@@ -14,10 +14,10 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [features/lorawan](./features/lorawan) - Revised BSD
 - [features/lwipstack](./features/lwipstack) - BSD-style, MIT-style
 - [features/nanostack/sal-stack-nanostack](./features/nanostack/sal-stack-nanostack) - BSD-3-Clause
-- [features/storage](./features/storage) - BSD-style, MIT
 - [features/netsocket/emac-drivers](./features/netsocket/emac-drivers) - BSD-style
 - [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
 - [features/unsupported](./features/unsupported) - MIT-style, BSD-style
+- [storage](./storage) - BSD-style, MIT
 - [rtos](./rtos) - MIT
 - [drivers](./drivers) - MIT
 - [TESTS/mbed_hal/trng/pithy](./TESTS/mbed_hal/trng/pithy) - BSD-3-Clause
