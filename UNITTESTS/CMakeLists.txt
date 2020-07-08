@@ -152,7 +152,7 @@ set(TEST_SUITES)
 
 # Get all matched tests.
 file(GLOB_RECURSE unittest-file-list
-  "unittest.cmake"
+  "../unittest.cmake"
 )
 
 if ("${unittest-file-list}" STREQUAL "")
@@ -178,7 +178,7 @@ foreach(testfile ${unittest-file-list})
 
   file(RELATIVE_PATH
        TEST_SUITE_NAME # output
-       ${PROJECT_SOURCE_DIR} # root
+       "${PROJECT_SOURCE_DIR}/.." # root
        ${TEST_SUITE_DIR} #abs dirpath
   )
 
