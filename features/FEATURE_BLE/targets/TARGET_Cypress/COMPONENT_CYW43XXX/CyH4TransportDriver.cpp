@@ -139,7 +139,7 @@ void CyH4TransportDriver::initialize()
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
     sleep_manager_unlock_deep_sleep();
-    rtos::ThisThread::sleep_for(500);
+    rtos::ThisThread::sleep_for(500ms);
 }
 
 void CyH4TransportDriver::terminate() {  }
