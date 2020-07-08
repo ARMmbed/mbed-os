@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(targets)
-mbed_add_cmake_directory_if_labels("platform/TARGET")
 
 target_sources(mbed-os
     PRIVATE
         platform/src/mbed_trng.cpp
+        platform/src/platform_alt.cpp
+        platform/src/shared_rng.cpp
 
         src/aes.c
         src/aesni.c
@@ -19,12 +20,14 @@ target_sources(mbed-os
         src/blowfish.c
         src/camellia.c
         src/ccm.c
+        src/certs.c
         src/chacha20.c
         src/chachapoly.c
         src/cipher.c
         src/cipher_wrap.c
         src/cmac.c
         src/ctr_drbg.c
+        src/debug.c
         src/des.c
         src/dhm.c
         src/ecdh.c
@@ -34,6 +37,7 @@ target_sources(mbed-os
         src/ecp_curves.c
         src/entropy.c
         src/entropy_poll.c
+        src/error.c
         src/gcm.c
         src/havege.c
         src/hkdf.c
@@ -43,12 +47,14 @@ target_sources(mbed-os
         src/md4.c
         src/md5.c
         src/memory_buffer_alloc.c
+        src/net_sockets.c
         src/nist_kw.c
         src/oid.c
         src/padlock.c
         src/pem.c
         src/pk.c
         src/pk_wrap.c
+        src/pkcs11.c
         src/pkcs12.c
         src/pkcs5.c
         src/pkparse.c
@@ -62,15 +68,33 @@ target_sources(mbed-os
         src/sha1.c
         src/sha256.c
         src/sha512.c
+        src/ssl_cache.c
+        src/ssl_ciphersuites.c
+        src/ssl_cli.c
+        src/ssl_cookie.c
+        src/ssl_msg.c
+        src/ssl_srv.c
+        src/ssl_ticket.c
+        src/ssl_tls.c
         src/threading.c
         src/timing.c
+        src/version.c
+        src/version_features.c
+        src/x509.c
+        src/x509_create.c
+        src/x509_crl.c
+        src/x509_crt.c
+        src/x509_csr.c
+        src/x509write_crt.c
+        src/x509write_csr.c
         src/xtea.c
 )
 
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        inc
-        inc/mbedtls
-        platform/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/mbedtls
+        ${CMAKE_CURRENT_SOURCE_DIR}/platform
+        ${CMAKE_CURRENT_SOURCE_DIR}/platform/inc
 )
