@@ -72,6 +72,16 @@
             "value": true,
             "macro_name": "BLE_FEATURE_PERIODIC_ADVERTISING"
         },
+        "ble-security-database-filesystem": {
+            "help": "Use filesystem to store security db when path is passed in, depends on security manager.",
+            "value": true,
+            "macro_name": "BLE_SECURITY_DATABASE_FILESYSTEM"
+        },
+        "ble-security-database-kvstore": {
+            "help": "Use KVStore to store security db, depends on security manager.",
+            "value": false,
+            "macro_name": "BLE_SECURITY_DATABASE_KVSTORE"
+        },
         "ble-security-database-max-entries": {
             "help": "How many entries can be stored in the db, depends on security manager.",
             "value": 5,

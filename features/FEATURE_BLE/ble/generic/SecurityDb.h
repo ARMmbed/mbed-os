@@ -1,6 +1,8 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -750,7 +752,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */
@@ -758,7 +760,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */
@@ -766,7 +768,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */
@@ -774,7 +776,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */

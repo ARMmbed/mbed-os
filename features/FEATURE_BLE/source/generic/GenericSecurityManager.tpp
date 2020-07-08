@@ -1,6 +1,8 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017-2018 ARM Limited
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +23,7 @@
 #include "ble/generic/GenericSecurityManager.h"
 #include "ble/generic/MemorySecurityDb.h"
 #include "ble/generic/FileSecurityDb.h"
+#include "ble/generic/KVStoreSecurityDb.h"
 
 using ble::pal::advertising_peer_address_type_t;
 using ble::pal::AuthenticationMask;
@@ -884,11 +887,19 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_da
 ) {
     delete _db;
 
+#if BLE_SECURITY_DATABASE_FILESYSTEM
     FILE* db_file = FileSecurityDb::open_db_file(db_path);
 
     if (db_file) {
         _db = new (std::nothrow) FileSecurityDb(db_file);
-    } else {
+    } else
+#endif
+#if BLE_SECURITY_DATABASE_KVSTORE
+    if (KVStoreSecurityDb::open_db()) {
+        _db = new (std::nothrow) KVStoreSecurityDb();
+    } else
+#endif
+    {
         _db = new (std::nothrow) MemorySecurityDb();
     }
 

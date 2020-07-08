@@ -1,6 +1,8 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +18,8 @@
 
 #ifndef GENERIC_FILE_SECURITY_DB_H_
 #define GENERIC_FILE_SECURITY_DB_H_
+
+#if BLE_SECURITY_DATABASE_FILESYSTEM
 
 #include "SecurityDb.h"
 
@@ -166,5 +170,7 @@ private:
 
 } /* namespace pal */
 } /* namespace ble */
+
+#endif // BLE_SECURITY_DATABASE_FILESYSTEM
 
 #endif /*GENERIC_FILE_SECURITY_DB_H_*/
