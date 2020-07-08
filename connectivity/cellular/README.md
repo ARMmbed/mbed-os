@@ -51,4 +51,4 @@ Cellular connectivity can be tested with generic Mbed OS netsocket and network i
 
 ## Unit tests
 
-Cellular unit tests are in Mbed OS root `UNITTESTS/features/cellular`.
+Cellular unit tests are in Mbed OS root `UNITTESTS/connectivity/cellular`.

@@ -5,8 +5,8 @@
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
-  features/cellular/framework/common/util
-  ../features/cellular/framework/common
+  connectivity/cellular/framework/common/util
+  ../connectivity/cellular/framework/common
 )
 
 # Source files
@@ -15,5 +15,5 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  features/cellular/framework/common/list/listtest.cpp
+  connectivity/cellular/framework/common/list/listtest.cpp
 )

@@ -5,22 +5,22 @@
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
-  features/cellular/framework/common/util
-  ../features/cellular/framework/common
-  ../features/cellular/framework/AT
+  connectivity/cellular/framework/common/util
+  ../connectivity/cellular/framework/common
+  ../connectivity/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
   ../features/netsocket/cellular
 )
 
 # Source files
 set(unittest-sources
-  ../features/cellular/framework/AT/AT_CellularNetwork.cpp
-  ../features/cellular/framework/common/CellularUtil.cpp
+  ../connectivity/cellular/framework/AT/AT_CellularNetwork.cpp
+  ../connectivity/cellular/framework/common/CellularUtil.cpp
 )
 
 # Test files
 set(unittest-test-sources
-  features/cellular/framework/AT/at_cellularnetwork/at_cellularnetworktest.cpp
+  connectivity/cellular/framework/AT/at_cellularnetwork/at_cellularnetworktest.cpp
   stubs/ATHandler_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp

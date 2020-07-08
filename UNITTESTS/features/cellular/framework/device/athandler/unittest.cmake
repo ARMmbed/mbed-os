@@ -6,21 +6,21 @@
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
   ../platform
-  ../features/cellular/framework/common/util
-  ../features/cellular/framework/common
-  ../features/cellular/framework/AT
+  ../connectivity/cellular/framework/common/util
+  ../connectivity/cellular/framework/common
+  ../connectivity/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
 
 )
 
 # Source files
 set(unittest-sources
-  ../features/cellular/framework/device/ATHandler.cpp
+  ../connectivity/cellular/framework/device/ATHandler.cpp
 )
 
 # Test files
 set(unittest-test-sources
-  features/cellular/framework/device/athandler/athandlertest.cpp
+  connectivity/cellular/framework/device/athandler/athandlertest.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
   stubs/us_ticker_stub.cpp
