@@ -152,7 +152,7 @@ set(TEST_SUITES)
 
 # Get all matched tests.
 file(GLOB_RECURSE unittest-file-list
-  "../unittest.cmake"
+  "../unittest.cmake" # matches any ../**/unittest.cmake
 )
 
 if ("${unittest-file-list}" STREQUAL "")
