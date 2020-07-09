@@ -10,6 +10,7 @@ A simple table like this could help:
 |BlueNRG-M0   |BlueNRG-MS (network processor) |v4.2 |Active (included in ST's Longevity Program) |X-NUCLEO-IDB05A2 (coming soon) | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m0.html |
 |BlueNRG-M2SP |BlueNRG-2 (application processor) |v5.0 |Active (included in ST's Longevity Program) |X-NUCLEO-BNRG2A1 | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m2.html |
 
+
 The library uses ARM Cordio stack. It does not work with the stock firmware that is loaded in the BLE module of the X-NUCLEO-BNRG2A1 expansion board.
 
 In order to use this library with X-NUCLEO-BNRG2A1, you need to update the firmware of the BLUENRG-M2SP BLE module mounted on that expansion board as described in the following page:
@@ -68,12 +69,6 @@ To this aim you need to update your local mbed_app.json file with:
 If you use pin **D13** for the SPI clock, please be aware that on some STM32 Nucleo boards you may **not** drive the LED,
 otherwise you will get a conflict: the LED on STM32 Nucleo boards is connected to pin **D13**.
 
-Referring to the current list of tested platforms (see [X-NUCLEO-BNRG2A1](https://os.mbed.com/components/X-NUCLEO-BNRG2A1/) page),
-the patch is required for
-- [ST-Nucleo-F103RB](https://developer.mbed.org/platforms/ST-Nucleo-F103RB/)
-- [ST-Nucleo-F411RE](https://developer.mbed.org/platforms/ST-Nucleo-F411RE/)
-- [ST-Nucleo-F446RE](https://developer.mbed.org/platforms/ST-Nucleo-F446RE/)
-- [FRDM-K64F](https://developer.mbed.org/platforms/FRDM-K64F/)
 
 ### Target Configuration
 
