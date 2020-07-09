@@ -2,13 +2,13 @@
 
 BLE API wrapper Library for BlueNRG (Bluetooth Low Energy)
 
-Maybe a simple table like this could help:
+A simple table like this could help:
 
-|Name|Type|Bluetooth compliance|Status|Used in shields & boards|Link|
-|-----------|----------|-----|-|-|-|
-|SPBTLE-RF  |Module    |v4.1 |Not recommended for new designs             |X-NUCLEO-IDB05A1, DISCO-L475VG-IOT01A, DISCO-L562QE | https://www.st.com/en/wireless-transceivers-mcus-and-modules/spbtle-rf.html |
-|BlueNRG-M0 |Module    |v4.2 |Active (included in ST's Longevity Program) |No | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m0.html |
-|BlueNRG-MS |Processor |v4.2 |Active (included in ST's Longevity Program) |X-NUCLEO-IDB05A2 (coming soon) | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-ms.html |
+|Module Name|Processor Name|Bluetooth compliance|Status|Used in shields & boards|Link|
+|-------------|-----------|-----|-|-|-|
+|SPBTLE-RF    |BlueNRG-MS (network processor) |v4.1 |Not recommended for new designs             |X-NUCLEO-IDB05A1, DISCO-L475VG-IOT01A, DISCO-L562QE | https://www.st.com/en/wireless-transceivers-mcus-and-modules/spbtle-rf.html |
+|BlueNRG-M0   |BlueNRG-MS (network processor) |v4.2 |Active (included in ST's Longevity Program) |X-NUCLEO-IDB05A2 (coming soon) | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m0.html |
+|BlueNRG-M2SP |BlueNRG-2 (application processor) |v5.0 |Active (included in ST's Longevity Program) |X-NUCLEO-BNRG2A1 | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m2.html |
 
 
 It uses ARM Cordio stack instead of the ST BlueNRG stack.
