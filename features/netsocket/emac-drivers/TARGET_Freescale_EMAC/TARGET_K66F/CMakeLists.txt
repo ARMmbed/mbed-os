@@ -3,5 +3,5 @@
 
 target_sources(mbed-os
     PRIVATE
-        hardware_init_MK64F12.c
+        hardware_init_MK66F18.c
 )

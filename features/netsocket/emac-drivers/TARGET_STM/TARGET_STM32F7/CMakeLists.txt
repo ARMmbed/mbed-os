@@ -10,5 +10,5 @@ target_include_directories(mbed-os
 
 target_sources(mbed-os
     PRIVATE
-        stm32xx_emac.cpp
+        stm32f7_eth_conf.c
 )
