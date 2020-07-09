@@ -19,6 +19,7 @@
 #define MBED_PLATFORM_SPAN_H_
 
 #include <algorithm>
+#include <iterator>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -234,6 +235,16 @@ struct Span {
     typedef element_type &reference;
 
     /**
+     * Iterator to an ElementType
+     */
+    typedef pointer iterator;
+
+    /**
+     * Reverse iterator to an ElementType
+     */
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+
+    /**
      * Size of the Extent; -1 if dynamic.
      */
     static const index_type extent = Extent;
@@ -347,6 +358,46 @@ struct Span {
     bool empty() const
     {
         return size() == 0;
+    }
+
+    /**
+     * Return an iterator to the first element of the sequence.
+     *
+     * @return An iterator to the first element of the sequence.
+     */
+    iterator begin() const
+    {
+        return _data;
+    }
+
+    /**
+     * Return an iterator to the element following the last element of the sequence.
+     *
+     * @return An iterator to the element following the last element of the sequence.
+     */
+    iterator end() const
+    {
+        return _data + Extent;
+    }
+
+    /**
+     * Return a reverse_iterator to the first element of the reversed sequence.
+     *
+     * @return A reverse_iterator to the first element of the reversed sequence.
+     */
+    reverse_iterator rbegin() const
+    {
+        return reverse_iterator(end());
+    }
+
+    /**
+     * Return a reverse_iterator to the element following the last element of the reversed sequence.
+     *
+     * @return A reverse_iterator to the element following the last element of the reversed sequence.
+     */
+    reverse_iterator rend() const
+    {
+        return reverse_iterator(begin());
     }
 
     /**
@@ -535,6 +586,16 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     typedef element_type &reference;
 
     /**
+     * Iterator to an ElementType
+     */
+    typedef pointer iterator;
+
+    /**
+     * Reverse iterator to an ElementType
+     */
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+
+    /**
      * Size of the Extent; -1 if dynamic.
      */
     static const index_type extent = SPAN_DYNAMIC_EXTENT;
@@ -642,6 +703,46 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     bool empty() const
     {
         return size() == 0;
+    }
+
+    /**
+     * Return an iterator to the first element of the sequence.
+     *
+     * @return An iterator to the first element of the sequence.
+     */
+    iterator begin() const
+    {
+        return _data;
+    }
+
+    /**
+     * Return an iterator to the element following the last element of the sequence.
+     *
+     * @return An iterator to the element following the last element of the sequence.
+     */
+    iterator end() const
+    {
+        return _data + _size;
+    }
+
+    /**
+     * Return a reverse_iterator to the first element of the reversed sequence.
+     *
+     * @return A reverse_iterator to the first element of the reversed sequence.
+     */
+    reverse_iterator rbegin() const
+    {
+        return reverse_iterator(end());
+    }
+
+    /**
+     * Return a reverse_iterator to the element following the last element of the reversed sequence.
+     *
+     * @return A reverse_iterator to the element following the last element of the reversed sequence.
+     */
+    reverse_iterator rend() const
+    {
+        return reverse_iterator(begin());
     }
 
     /**
