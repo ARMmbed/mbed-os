@@ -26,12 +26,12 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "rtos/mbed_rtos_types.h"
-#include "rtos/mbed_rtos1_types.h"
-#include "rtos/mbed_rtos_storage.h"
+#include "rtos/internal/mbed_rtos_types.h"
+#include "rtos/internal/mbed_rtos1_types.h"
+#include "rtos/internal/mbed_rtos_storage.h"
 #include "platform/NonCopyable.h"
 #include "platform/mbed_assert.h"
-#include "Kernel.h"
+#include "rtos/Kernel.h"
 
 
 #if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)

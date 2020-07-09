@@ -24,7 +24,7 @@
 #ifndef RTOS_H
 #define RTOS_H
 
-#include "rtos/mbed_rtos_storage.h"
+#include "rtos/internal/mbed_rtos_storage.h"
 #include "rtos/Kernel.h"
 #include "rtos/Thread.h"
 #include "rtos/ThisThread.h"

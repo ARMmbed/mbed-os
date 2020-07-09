@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 #include <chrono>
-#include "rtos/mbed_rtos_types.h"
+#include "rtos/internal/mbed_rtos_types.h"
 #include "platform/mbed_toolchain.h"
 #if !MBED_CONF_RTOS_PRESENT
 #include "platform/source/mbed_os_timer.h"
