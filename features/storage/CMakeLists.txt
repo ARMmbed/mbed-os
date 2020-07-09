@@ -4,3 +4,4 @@
 add_subdirectory(blockdevice)
 add_subdirectory(filesystem)
 add_subdirectory(kvstore)
+add_subdirectory(system_storage)
