@@ -373,7 +373,7 @@ public:
     virtual void initialize()
     {
         // Setup the spi for 8 bit data, low clock polarity,
-        // 2-edge phase, with an 1MHz clock rate (rate to be checked)
+        // 2-edge phase, with an 1MHz clock rate
         spi.format(8, 1);
         spi.frequency(1000000);
 
@@ -407,7 +407,7 @@ private:
     uint16_t spiWrite(uint8_t type, const uint8_t *data, uint16_t data_length)
     {
         static const uint8_t header_master[] = { 0x0a, 0x00, 0x00, 0x00, 0x00 };
-        uint8_t header_slave[5];//  = { 0xaa, 0x00, 0x00, 0x00, 0x00 };
+        uint8_t header_slave[5];
         uint16_t data_written = 0;
         uint16_t write_buffer_size = 0;
 
@@ -449,7 +449,7 @@ exit:
     uint16_t spiRead(uint8_t *data_buffer, const uint16_t buffer_size)
     {
         static const uint8_t header_master[] = {0x0b, 0x00, 0x00, 0x00, 0x00};
-        uint8_t header_slave[5];// = { 0xaa, 0x00, 0x00, 0x00, 0x00};
+        uint8_t header_slave[5];
         uint16_t read_length = 0;
         uint16_t data_available = 0;
 
