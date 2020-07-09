@@ -5,15 +5,15 @@
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
-    /connectivity/cellular/framework/device/cellulardevice
-  ../connectivity/cellular/framework/device
-  ../connectivity/cellular/framework/common
+  ../connectivity/cellular/include/cellular/framework/device/cellulardevice
+  ../connectivity/cellular/include/cellular/framework/device
+  ../connectivity/cellular/include/cellular/framework/common
   ../features/netsocket/cellular
 )
 
 # Source files
 set(unittest-sources
-  ../connectivity/cellular/framework/device/CellularContext.cpp
+  ../connectivity/cellular/source/framework/device/CellularContext.cpp
   ../connectivity/libraries/nanostack-libservice/source/libip4string/ip4tos.c
   ../connectivity/libraries/nanostack-libservice/source/libip6string/ip6tos.c
   ../connectivity/libraries/nanostack-libservice/source/libip4string/stoip4.c
@@ -24,7 +24,7 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  connectivity/cellular/framework/device/cellularcontext/cellularcontexttest.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/cellularcontexttest.cpp
   stubs/FileHandle_stub.cpp
   stubs/CellularStateMachine_stub.cpp
   stubs/EventQueue_stub.cpp

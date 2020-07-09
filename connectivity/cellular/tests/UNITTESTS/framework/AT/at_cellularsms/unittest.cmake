@@ -5,21 +5,21 @@
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
-  connectivity/cellular/framework/common/util
-  ../connectivity/cellular/framework/common
-  ../connectivity/cellular/framework/AT
+  ../connectivity/cellular/tests/UNITTESTS/framework/common/util
+  ../connectivity/cellular/include/cellular/framework/common
+  ../connectivity/cellular/include/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
   ../features/netsocket/cellular
 )
 
 # Source files
 set(unittest-sources
-  ../connectivity/cellular/framework/AT/AT_CellularSMS.cpp
+  ../connectivity/cellular/source/framework/AT/AT_CellularSMS.cpp
 )
 
 # Test files
 set(unittest-test-sources
-  connectivity/cellular/framework/AT/at_cellularsms/at_cellularsmstest.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/at_cellularsmstest.cpp
   stubs/ATHandler_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp

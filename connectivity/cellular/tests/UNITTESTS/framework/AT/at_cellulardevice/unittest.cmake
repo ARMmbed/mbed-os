@@ -5,10 +5,10 @@
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
-  ../connectivity/cellular/framework/common/util
-  ../connectivity/cellular/framework/common
-  ../connectivity/cellular/framework/AT
-  ../connectivity/cellular/framework/device
+  ../connectivity/cellular/tests/UNITTESTS/framework/common/util
+  ../connectivity/cellular/include/cellular/framework/common
+  ../connectivity/cellular/include/cellular/framework/AT
+  ../connectivity/cellular/include/cellular/framework/device
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
   ../drivers
   ../hal
@@ -18,12 +18,12 @@ set(unittest-includes ${unittest-includes}
 # Source files
 set(unittest-sources
   stubs/randLIB_stub.c
-  ../connectivity/cellular/framework/AT/AT_CellularDevice.cpp
+  ../connectivity/cellular/source/framework/AT/AT_CellularDevice.cpp
 )
 
 # Test files
 set(unittest-test-sources
-  connectivity/cellular/framework/AT/at_cellulardevice/at_cellulardevicetest.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/at_cellulardevicetest.cpp
   stubs/AT_CellularNetwork_stub.cpp
   stubs/ATHandler_stub.cpp
   stubs/AT_CellularSMS_stub.cpp
