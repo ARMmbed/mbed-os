@@ -12,8 +12,6 @@
 #ifndef PSA_CRYPTO_H
 #define PSA_CRYPTO_H
 
-#include "psa/crypto_platform.h"
-
 #include <stddef.h>
 
 #ifdef __DOXYGEN_ONLY__
@@ -3758,6 +3756,12 @@ psa_status_t psa_generate_key(const psa_key_attributes_t *attributes,
 /* The file "crypto_sizes.h" contains definitions for size calculation
  * macros whose definitions are implementation-specific. */
 #include "psa/crypto_sizes.h"
+
+/* The file "crypto_client_struct.h" contains definitions for structures
+ * whose definitions differ in the client view and the PSA server
+ * implementation in TF-M. */
+#include "psa/crypto_client_struct.h"
+
 
 /* The file "crypto_struct.h" contains definitions for
  * implementation-specific structs that are declared above. */

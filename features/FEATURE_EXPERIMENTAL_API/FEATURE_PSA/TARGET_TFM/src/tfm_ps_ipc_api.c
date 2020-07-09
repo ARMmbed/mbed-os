@@ -26,7 +26,7 @@ psa_status_t psa_ps_set(psa_storage_uid_t uid,
         { .base = &create_flags, .len = sizeof(create_flags) }
     };
 
-    handle = psa_connect(TFM_SST_SET_SID, TFM_SST_SET_VERSION);
+    handle = psa_connect(TFM_PS_SET_SID, TFM_PS_SET_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         return PSA_ERROR_GENERIC_ERROR;
     }
@@ -69,7 +69,7 @@ psa_status_t psa_ps_get(psa_storage_uid_t uid,
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    handle = psa_connect(TFM_SST_GET_SID, TFM_SST_GET_VERSION);
+    handle = psa_connect(TFM_PS_GET_SID, TFM_PS_GET_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         return PSA_ERROR_GENERIC_ERROR;
     }
@@ -98,7 +98,7 @@ psa_status_t psa_ps_get_info(psa_storage_uid_t uid,
         { .base = p_info, .len = sizeof(*p_info) }
     };
 
-    handle = psa_connect(TFM_SST_GET_INFO_SID, TFM_SST_GET_INFO_VERSION);
+    handle = psa_connect(TFM_PS_GET_INFO_SID, TFM_PS_GET_INFO_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         return PSA_ERROR_GENERIC_ERROR;
     }
@@ -121,7 +121,7 @@ psa_status_t psa_ps_remove(psa_storage_uid_t uid)
     };
 
 
-    handle = psa_connect(TFM_SST_REMOVE_SID, TFM_SST_REMOVE_VERSION);
+    handle = psa_connect(TFM_PS_REMOVE_SID, TFM_PS_REMOVE_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         return PSA_ERROR_GENERIC_ERROR;
     }
@@ -170,7 +170,7 @@ uint32_t psa_ps_get_support(void)
     /* The PSA API does not return an error, so any error from TF-M is
      * ignored.
      */
-    handle = psa_connect(TFM_SST_GET_SUPPORT_SID, TFM_SST_GET_SUPPORT_VERSION);
+    handle = psa_connect(TFM_PS_GET_SUPPORT_SID, TFM_PS_GET_SUPPORT_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         return support_flags;
     }

@@ -16,14 +16,14 @@
 extern "C" {
 #endif
 
-#ifdef TFM_PARTITION_SECURE_STORAGE
-/******** TFM_SP_STORAGE ********/
-psa_status_t tfm_tfm_sst_set_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
-psa_status_t tfm_tfm_sst_get_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
-psa_status_t tfm_tfm_sst_get_info_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
-psa_status_t tfm_tfm_sst_remove_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
-psa_status_t tfm_tfm_sst_get_support_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
-#endif /* TFM_PARTITION_SECURE_STORAGE */
+#ifdef TFM_PARTITION_PROTECTED_STORAGE
+/******** TFM_SP_PS ********/
+psa_status_t tfm_tfm_ps_set_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
+psa_status_t tfm_tfm_ps_get_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
+psa_status_t tfm_tfm_ps_get_info_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
+psa_status_t tfm_tfm_ps_remove_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
+psa_status_t tfm_tfm_ps_get_support_req_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
+#endif /* TFM_PARTITION_PROTECTED_STORAGE */
 
 #ifdef TFM_PARTITION_INTERNAL_TRUSTED_STORAGE
 /******** TFM_SP_ITS ********/
@@ -159,10 +159,10 @@ psa_status_t tfm_spm_irq_test_1_prepare_test_scenario_veneer(psa_invec *in_vec, 
 psa_status_t tfm_spm_irq_test_1_execute_test_scenario_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
 #endif /* TFM_ENABLE_IRQ_TEST */
 
-#ifdef TFM_PARTITION_TEST_SST
-/******** TFM_SP_SST_TEST ********/
-psa_status_t tfm_tfm_sst_test_prepare_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
-#endif /* TFM_PARTITION_TEST_SST */
+#ifdef TFM_PARTITION_TEST_PS
+/******** TFM_SP_PS_TEST ********/
+psa_status_t tfm_tfm_ps_test_prepare_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
+#endif /* TFM_PARTITION_TEST_PS */
 
 #ifdef TFM_PARTITION_TEST_SECURE_SERVICES
 /******** TFM_SP_SECURE_CLIENT_2 ********/

@@ -14,17 +14,17 @@
 extern "C" {
 #endif
 
-/******** TFM_SP_STORAGE ********/
-#define TFM_SST_SET_SID                                            (0x00000060U)
-#define TFM_SST_SET_VERSION                                        (1U)
-#define TFM_SST_GET_SID                                            (0x00000061U)
-#define TFM_SST_GET_VERSION                                        (1U)
-#define TFM_SST_GET_INFO_SID                                       (0x00000062U)
-#define TFM_SST_GET_INFO_VERSION                                   (1U)
-#define TFM_SST_REMOVE_SID                                         (0x00000063U)
-#define TFM_SST_REMOVE_VERSION                                     (1U)
-#define TFM_SST_GET_SUPPORT_SID                                    (0x00000064U)
-#define TFM_SST_GET_SUPPORT_VERSION                                (1U)
+/******** TFM_SP_PS ********/
+#define TFM_PS_SET_SID                                             (0x00000060U)
+#define TFM_PS_SET_VERSION                                         (1U)
+#define TFM_PS_GET_SID                                             (0x00000061U)
+#define TFM_PS_GET_VERSION                                         (1U)
+#define TFM_PS_GET_INFO_SID                                        (0x00000062U)
+#define TFM_PS_GET_INFO_VERSION                                    (1U)
+#define TFM_PS_REMOVE_SID                                          (0x00000063U)
+#define TFM_PS_REMOVE_VERSION                                      (1U)
+#define TFM_PS_GET_SUPPORT_SID                                     (0x00000064U)
+#define TFM_PS_GET_SUPPORT_VERSION                                 (1U)
 
 /******** TFM_SP_ITS ********/
 #define TFM_ITS_SET_SID                                            (0x00000070U)
@@ -126,9 +126,9 @@ extern "C" {
 #define SPM_CORE_IRQ_TEST_1_EXECUTE_TEST_SCENARIO_SID              (0x0000F0A1U)
 #define SPM_CORE_IRQ_TEST_1_EXECUTE_TEST_SCENARIO_VERSION          (1U)
 
-/******** TFM_SP_SST_TEST ********/
-#define TFM_SST_TEST_PREPARE_SID                                   (0x0000F0C0U)
-#define TFM_SST_TEST_PREPARE_VERSION                               (1U)
+/******** TFM_SP_PS_TEST ********/
+#define TFM_PS_TEST_PREPARE_SID                                    (0x0000F0C0U)
+#define TFM_PS_TEST_PREPARE_VERSION                                (1U)
 
 /******** TFM_SP_SECURE_CLIENT_2 ********/
 #define TFM_SECURE_CLIENT_2_SID                                    (0x0000F0E0U)
