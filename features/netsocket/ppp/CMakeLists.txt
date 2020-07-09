@@ -6,11 +6,13 @@ target_sources(mbed-os
         ppp_nsapi.cpp
         ppp_service.cpp
         ppp_service_if.cpp
+
         polarssl/ppp_arc4.c
         polarssl/ppp_des.c
         polarssl/ppp_md4.c
         polarssl/ppp_md5.c
         polarssl/ppp_sha1.c
+
         source/auth.c
         source/ccp.c
         source/chap-md5.c
@@ -42,6 +44,6 @@ target_sources(mbed-os
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        include
-        include/polarssl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/polarssl
 )
