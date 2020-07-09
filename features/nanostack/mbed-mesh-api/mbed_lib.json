@@ -3,7 +3,7 @@
     "requires": ["nanostack"],
     "config": {
         "heap-size": {
-            "help": "Nanostack's heap size [bytes: 0-‭4294967295‬]",
+            "help": "Nanostack's heap size [bytes: 0-4294967295]",
             "value": 32500
         },
         "mac-neigh-table-size": {
@@ -142,13 +142,13 @@
         },
         "wisun-uc-fixed-channel": {
             "help": "Default 16-bit fixed channel for unicast. Used when channel hopping is not desired.",
-            "value_max": 65535‬,
-            "value": ‭65535‬
+            "value_max": 65535,
+            "value": 65535
         },
         "wisun-bc-fixed-channel": {
             "help": "Default 16-bit fixed channel for multicast. Used when channel hopping is not desired.",
-            "value_max": 65535‬,
-            "value": 65535‬
+            "value_max": 65535,
+            "value": 65535
         },
         "wisun-bc-interval": {
             "help": "32-bit broadcast interval. Duration between broadcast dwell intervals. Wi-SUN stack default value will be used when set to 0.",
@@ -180,7 +180,7 @@
         "root-certificate-len": {
             "help": "Root certificate length; optional for PEM format, must be defined for DER format",
             "value": null
-        },        
+        },
         "own-certificate": {
             "help": "Own certificate; in PEM format must be a null terminated c-string, in DER format the own-certificate-len must be set",
             "value": null
@@ -196,7 +196,7 @@
         "own-certificate-key-len": {
             "help": "Own certificate's key length; optional for PEM format, must be defined for DER format",
             "value": null
-        }        
+        }
     },
     "target_overrides": {
         "KW41Z": {
