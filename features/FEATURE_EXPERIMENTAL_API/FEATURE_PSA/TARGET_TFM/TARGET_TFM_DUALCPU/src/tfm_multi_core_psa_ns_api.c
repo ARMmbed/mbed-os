@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "os_wrapper/mutex.h"
+
 #include "psa/client.h"
 #include "psa/error.h"
 #include "tfm_api.h"
@@ -62,7 +64,7 @@ uint32_t psa_framework_version(void)
     uint32_t version;
     int32_t ret;
 
-    if (tfm_ns_multi_core_lock_acquire() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_acquire() != OS_WRAPPER_SUCCESS) {
         return PSA_VERSION_NONE;
     }
 
@@ -80,7 +82,7 @@ uint32_t psa_framework_version(void)
         version = PSA_VERSION_NONE;
     }
 
-    if (tfm_ns_multi_core_lock_release() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_release() != OS_WRAPPER_SUCCESS) {
         return PSA_VERSION_NONE;
     }
 
@@ -96,7 +98,7 @@ uint32_t psa_version(uint32_t sid)
 
     params.psa_version_params.sid = sid;
 
-    if (tfm_ns_multi_core_lock_acquire() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_acquire() != OS_WRAPPER_SUCCESS) {
         return PSA_VERSION_NONE;
     }
 
@@ -114,7 +116,7 @@ uint32_t psa_version(uint32_t sid)
         version = PSA_VERSION_NONE;
     }
 
-    if (tfm_ns_multi_core_lock_release() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_release() != OS_WRAPPER_SUCCESS) {
         return PSA_VERSION_NONE;
     }
 
@@ -131,7 +133,7 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t version)
     params.psa_connect_params.sid = sid;
     params.psa_connect_params.version = version;
 
-    if (tfm_ns_multi_core_lock_acquire() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_acquire() != OS_WRAPPER_SUCCESS) {
         return PSA_NULL_HANDLE;
     }
 
@@ -149,7 +151,7 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t version)
         psa_handle = PSA_NULL_HANDLE;
     }
 
-    if (tfm_ns_multi_core_lock_release() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_release() != OS_WRAPPER_SUCCESS) {
         return PSA_NULL_HANDLE;
     }
 
@@ -172,7 +174,7 @@ psa_status_t psa_call(psa_handle_t handle, int32_t type,
     params.psa_call_params.out_vec = out_vec;
     params.psa_call_params.out_len = out_len;
 
-    if (tfm_ns_multi_core_lock_acquire() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_acquire() != OS_WRAPPER_SUCCESS) {
         return PSA_ERROR_GENERIC_ERROR;
     }
 
@@ -190,7 +192,7 @@ psa_status_t psa_call(psa_handle_t handle, int32_t type,
         status = PSA_INTER_CORE_COMM_ERR;
     }
 
-    if (tfm_ns_multi_core_lock_release() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_release() != OS_WRAPPER_SUCCESS) {
         return PSA_ERROR_GENERIC_ERROR;
     }
 
@@ -205,7 +207,7 @@ void psa_close(psa_handle_t handle)
 
     params.psa_close_params.handle = handle;
 
-    if (tfm_ns_multi_core_lock_acquire() != TFM_SUCCESS) {
+    if (tfm_ns_multi_core_lock_acquire() != OS_WRAPPER_SUCCESS) {
         return;
     }
 

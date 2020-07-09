@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2017-2020 ARM Limited. All rights reserved.
+ * Copyright (c) 2017-2019 ARM Limited. All rights reserved.
  * Copyright (c) 2019-2020, Cypress Semiconductor Corporation. All rights reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,16 +38,17 @@
 #define S_PSP_STACK_SIZE        0x0000800
 
 #define NS_HEAP_SIZE            0x0001000
-#define NS_MSP_STACK_SIZE       (0x0000200)
+#define NS_MSP_STACK_SIZE       0x0000400
+#define NS_PSP_STACK_SIZE       0x0000C00
 
 /* Relocation of vectors to RAM support */
-/* #define RAM_VECTORS_SUPPORT */
+#define RAM_VECTORS_SUPPORT
 
 /*
  * This size of buffer is big enough to store an attestation
  * token produced by initial attestation service
  */
-#define PSA_INITIAL_ATTEST_TOKEN_MAX_SIZE   0x250
+#define PSA_INITIAL_ATTEST_TOKEN_MAX_SIZE   0x400
 
 /*
  * MPC granularity is 128 KB on AN519 MPS2 FPGA image. Alignment
@@ -66,8 +65,11 @@
 /* TFM PSoC6 CY8CKIT_064 RAM layout:
  *
  * 0x0800_0000 - 0x0802_FFFF Secure (192KB)
- *    0x0800_0000 - 0x0800_7FFF Secure unprivileged data (S_UNPRIV_DATA_SIZE, 32KB)
- *    0x0800_8000 - 0x0802_FFFF Secure priviliged data (S_PRIV_DATA_SIZE, 160KB)
+ *    0x0800_0000 - 0x0800_07FF Unused (S_UNUSED_SIZE, 2KB/0x800)
+ *    0x0800_0800 - 0x0800_17FF Boot Data (S_BOOT_DATA_SIZE, 4KB/0x1000)
+ *    0x0800_1800 - 0x0800_7FFF Secure unprivileged data (S_UNPRIV_DATA_SIZE, 26KB)
+ *    0x0800_8000 - 0x0802_F7FF Secure priviliged data (S_PRIV_DATA_SIZE, 158KB)
+ *    0x0802_F800 - 0x0802_FFFF Secure priv code executable from RAM (S_RAM_CODE_SIZE, 2KB)
  *
  * 0x0803_0000 - 0x080E_7FFF Non-secure (736KB)
  *    0x0803_0000 - 0x080E_6FFF Non-secure OS/App (732KB)
@@ -118,12 +120,16 @@
 #define S_CODE_SIZE     IMAGE_S_CODE_SIZE
 #define S_CODE_LIMIT    (S_CODE_START + S_CODE_SIZE - 1)
 
-#define S_DATA_START    (S_RAM_ALIAS(0))
-#define S_UNPRIV_DATA_SIZE  0x08000
-#define S_PRIV_DATA_SIZE    0x28000
+#define S_UNUSED_SIZE       0x00800
+#define S_BOOT_DATA_SIZE    0x01000
+#define S_DATA_START        (S_RAM_ALIAS(S_UNUSED_SIZE + S_BOOT_DATA_SIZE))
+#define S_UNPRIV_DATA_SIZE  0x06800
+#define S_PRIV_DATA_SIZE    0x27800
+/* Reserve 4KB for RAM-based executable code */
+#define S_RAM_CODE_SIZE     0x800
 
 /* Secure data area */
-#define S_DATA_SIZE  (S_UNPRIV_DATA_SIZE + S_PRIV_DATA_SIZE)
+#define S_DATA_SIZE  (S_UNPRIV_DATA_SIZE + S_PRIV_DATA_SIZE + S_RAM_CODE_SIZE)
 #define S_DATA_LIMIT (S_DATA_START + S_DATA_SIZE - 1)
 
 /* We need the privileged data area to be aligned so that an SMPU
@@ -138,11 +144,23 @@
  *
  * Instead, there's an alignment check in SMPU configuration file.
  */
-#define S_DATA_UNPRIV_OFFSET (0)
+#define S_BOOT_DATA_OFFSET   (S_UNUSED_SIZE)
+#define S_BOOT_DATA_START    S_RAM_ALIAS(S_BOOT_DATA_OFFSET)
+
+#define S_DATA_UNPRIV_OFFSET (S_BOOT_DATA_OFFSET + S_BOOT_DATA_SIZE)
 #define S_DATA_UNPRIV_START  S_RAM_ALIAS(S_DATA_UNPRIV_OFFSET)
 
 #define S_DATA_PRIV_OFFSET   (S_DATA_UNPRIV_OFFSET + S_UNPRIV_DATA_SIZE)
 #define S_DATA_PRIV_START    S_RAM_ALIAS(S_DATA_PRIV_OFFSET)
+
+/* Reserve area for RAM-based executable code right after secure unprivileged
+ * and privileged data areas*/
+#define S_RAM_CODE_OFFSET    (S_DATA_PRIV_OFFSET + S_PRIV_DATA_SIZE)
+#define S_RAM_CODE_START     S_RAM_ALIAS(S_RAM_CODE_OFFSET)
+
+#ifndef S_RAM_CODE_SEC_NAME
+#define S_RAM_CODE_SEC_NAME  .cy_ramfunc
+#endif
 
 /* Non-secure regions */
 #define NS_IMAGE_PRIMARY_AREA_OFFSET \
@@ -151,8 +169,8 @@
 #define NS_CODE_SIZE    IMAGE_NS_CODE_SIZE
 #define NS_CODE_LIMIT   (NS_CODE_START + NS_CODE_SIZE - 1)
 
-#define NS_DATA_START   (S_RAM_ALIAS(S_DATA_SIZE))
-#define NS_DATA_SIZE    (TOTAL_RAM_SIZE - S_DATA_SIZE)
+#define NS_DATA_START   (S_DATA_START + S_DATA_SIZE)
+#define NS_DATA_SIZE    (TOTAL_RAM_SIZE - S_DATA_SIZE - S_BOOT_DATA_SIZE - S_UNUSED_SIZE)
 #define NS_DATA_LIMIT   (NS_DATA_START + NS_DATA_SIZE - 1)
 
 /* Shared memory */
@@ -168,6 +186,11 @@
                                    NS_DATA_SHARED_SIZE - \
                                    IPC_WAIT_MESSAGE_STC_SIZE)
 
+/* System reserved memory */
+#define SYS_RAM_START   (S_RAM_ALIAS(TOTAL_RAM_SIZE))
+#define SYS_RAM_SIZE    0x18000
+#define SYS_RAM_LIMIT   (SYS_RAM_START + SYS_RAM_SIZE - 1)
+
 /* NS partition information is used for MPC and SAU configuration */
 #define NS_PARTITION_START \
             (NS_ROM_ALIAS(NS_IMAGE_PRIMARY_PARTITION_OFFSET))
@@ -182,7 +205,7 @@
  * Shared data area is allocated at the beginning of the privileged data area,
  * it is overlapping with TF-M Secure code's MSP stack
  */
-#define BOOT_TFM_SHARED_DATA_BASE (S_RAM_ALIAS(S_DATA_PRIV_OFFSET))
-#define BOOT_TFM_SHARED_DATA_SIZE 0x400
+#define BOOT_TFM_SHARED_DATA_BASE   (S_BOOT_DATA_START)
+#define BOOT_TFM_SHARED_DATA_SIZE   (S_BOOT_DATA_SIZE)
 
 #endif /* __REGION_DEFS_H__ */
