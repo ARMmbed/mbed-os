@@ -19,6 +19,7 @@
 #define MBED_PLATFORM_SPAN_H_
 
 #include <algorithm>
+#include <iterator>
 #include <stddef.h>
 #include <stdint.h>
 
