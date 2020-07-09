@@ -740,6 +740,7 @@ static int gettok(char *out_str, const int str_size) {
 	if (LastChar == '}') {
 		LastChar = greentea_getc();
 		if (LastChar == '}') {
+			greentea_getc(); //offset the extra '\n' send by Greentea python tool
 			LastChar = '!';
 			return tok_close;
 		}
