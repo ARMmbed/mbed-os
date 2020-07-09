@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief LL HCI event module implementation file.
+ *  \file
+ *
+ *  \brief  LL HCI event module implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -39,14 +40,13 @@
  *  \return Packet length.
  */
 /*************************************************************************************************/
-static uint8_t lhciPackNumCompPktsEvt(uint8_t *pBuf, uint16_t connHandle, uint8_t numPkts)
+static uint8_t lhciPackNumCompPktsEvt(uint8_t *pBuf, uint16_t connHandle, uint16_t numPkts)
 {
-  const uint8_t len = HCI_LEN_NUM_CMPL_PKTS;
-  uint16_t numPkts_u16 = numPkts;
+  const uint8_t len = HCI_LEN_NUM_CMPL_PKTS(1);
 
   UINT8_TO_BSTREAM (pBuf, 1);
   UINT16_TO_BSTREAM(pBuf, connHandle);
-  UINT16_TO_BSTREAM(pBuf, numPkts_u16);
+  UINT16_TO_BSTREAM(pBuf, numPkts);
 
   return len;
 }
@@ -253,12 +253,58 @@ static uint8_t lhciPackReqPeerScaCompleteEvt(uint8_t *pBuf, const LlPeerScaCnf_t
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Power report event handler.
+ *
+ *  \param  pBuf        Packed packet buffer.
+ *  \param  pEvt        Power report indication data.
+ *
+ *  \return Packet length.
+ */
+/*************************************************************************************************/
+static uint8_t lhciPackPowerReportEvt(uint8_t *pBuf, const LlPowerReportInd_t *pEvt)
+{
+  const uint8_t len = HCI_LEN_LE_POWER_REPORT;
+
+  UINT8_TO_BSTREAM (pBuf, HCI_LE_POWER_REPORT_EVT);
+  UINT8_TO_BSTREAM (pBuf, pEvt->status)
+  UINT16_TO_BSTREAM(pBuf, pEvt->connHandle);
+  UINT8_TO_BSTREAM (pBuf, pEvt->reason);
+  UINT8_TO_BSTREAM (pBuf, pEvt->phy);
+  UINT8_TO_BSTREAM (pBuf, pEvt->txPower);
+  UINT8_TO_BSTREAM (pBuf, pEvt->txPowerLimits);
+  UINT8_TO_BSTREAM (pBuf, pEvt->delta);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Path loss event handler.
+ *
+ *  \param  pBuf        Packed packet buffer.
+ *  \param  pEvt        Path loss event data.
+ *
+ *  \return Packet length.
+ */
+/*************************************************************************************************/
+static uint8_t lhciPackPathLossEvt(uint8_t *pBuf, const LlPathLossThresholdEvt_t *pEvt)
+{
+  const uint8_t len = HCI_LEN_LE_PATH_LOSS_ZONE;
+
+  UINT8_TO_BSTREAM (pBuf, HCI_LE_PATH_LOSS_REPORT_EVT);
+  UINT16_TO_BSTREAM(pBuf, pEvt->connHandle);
+  UINT8_TO_BSTREAM (pBuf, pEvt->curPathLoss);
+  UINT8_TO_BSTREAM (pBuf, pEvt->zoneEntered);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  LL ACL send complete event handler.
  *
  *  \param  handle      Connection handle.
  *  \param  numBufs     Number of buffers.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lhciAclSendComplete(uint16_t handle, uint8_t numBufs)
@@ -267,7 +313,7 @@ void lhciAclSendComplete(uint16_t handle, uint8_t numBufs)
   {
     uint8_t *pEvtBuf;
 
-    if ((pEvtBuf = lhciAllocEvt(HCI_NUM_CMPL_PKTS_EVT, HCI_LEN_NUM_CMPL_PKTS)) != NULL)
+    if ((pEvtBuf = lhciAllocEvt(HCI_NUM_CMPL_PKTS_EVT, HCI_LEN_NUM_CMPL_PKTS(1))) != NULL)
     {
       lhciPackNumCompPktsEvt(pEvtBuf, handle, numBufs);
       lhciSendEvt(pEvtBuf);
@@ -336,8 +382,6 @@ uint8_t *lhciRecvAcl(void)
  *
  *  \param  handle      Connection handle.
  *  \param  numBufs     Number of buffers.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lhciAclRecvPending(uint16_t handle, uint8_t numBufs)
@@ -448,6 +492,26 @@ bool_t lhciConnEncodeEvtPkt(LlEvt_t *pEvt)
         if ((pEvtBuf = lhciAllocEvt(HCI_LE_META_EVT, HCI_LEN_LE_PEER_SCA_CMPL)) != NULL)
         {
           lhciPackReqPeerScaCompleteEvt(pEvtBuf, &pEvt->peerScaCnf);
+        }
+      }
+      break;
+    case LL_TX_POWER_REPORTING_IND:
+      if ((lhciCb.leEvtMsk & ((uint64_t)(HCI_EVT_MASK_LE_TX_POWER_REPORT_EVT) << LHCI_BYTE_TO_BITS(4))) &&
+           (lhciCb.evtMsk & ((uint64_t)(HCI_EVT_MASK_LE_META) << LHCI_BYTE_TO_BITS(7))))
+      {
+        if ((pEvtBuf = lhciAllocEvt(HCI_LE_META_EVT, HCI_LEN_LE_POWER_REPORT)) != NULL)
+        {
+          lhciPackPowerReportEvt(pEvtBuf, &pEvt->powerRptInd);
+        }
+      }
+      break;
+    case LL_PATH_LOSS_REPORTING_IND:
+      if ((lhciCb.leEvtMsk & ((uint64_t)(HCI_EVT_MASK_LE_PATH_LOSS_REPORT_EVT) << LHCI_BYTE_TO_BITS(3))) &&
+           (lhciCb.evtMsk & ((uint64_t)(HCI_EVT_MASK_LE_META) << LHCI_BYTE_TO_BITS(7))))
+      {
+        if ((pEvtBuf = lhciAllocEvt(HCI_LE_META_EVT, HCI_LEN_LE_PATH_LOSS_ZONE)) != NULL)
+        {
+          lhciPackPathLossEvt(pEvtBuf, &pEvt->pathLossEvt);
         }
       }
       break;

@@ -1,29 +1,31 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Crypto driver definition.
+ *  \file
+ *
+ *  \brief      Crypto driver definition.
+ *
+ *  Copyright (c) 2018-2019 ARM Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #ifndef PAL_CRYPTO_H
 #define PAL_CRYPTO_H
 
-#include "stack/platform/include/pal_types.h"
+#include "pal_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +39,7 @@ extern "C" {
 **************************************************************************************************/
 
 /*! \brief      AES block size. */
-#define PAL_CRYPTO_AES_BLOCK_SIZE               16
+#define PAL_CRYPTO_AES_BLOCK_SIZE                16
 
 #define PAL_CRYPTO_LL_KEY_LEN                    16      /*!< Encryption key length. */
 #define PAL_CRYPTO_LL_IV_LEN                     8       /*!< Initialization vector length. */
@@ -78,8 +80,8 @@ typedef struct
   bool_t        enaAuth;            /*!< Enable authentication. */
   uint8_t       nonceMode;          /*!< Nonce mode. */
   uint16_t      *pEventCounter;     /*!< Connection event counter. */
-  uint64_t      *pCisTxPktCounter;  /*!< CIS Tx packet counter. Set when nonceMode = PAL_BB_NONCE_MODE_CIS_CNTR. */
-  uint64_t      *pCisRxPktCounter;  /*!< CIS Rx packet counter. Set when nonceMode = PAL_BB_NONCE_MODE_CIS_CNTR.*/
+  uint64_t      *pTxPktCounter;     /*!< Tx packet counter. Set when nonceMode = PAL_BB_NONCE_MODE_EXT64_CNTR. */
+  uint64_t      *pRxPktCounter;     /*!< Rx packet counter. Set when nonceMode = PAL_BB_NONCE_MODE_EXT64_CNTR. */
   uint8_t       dir;                /*!< Direction value. */
   uint8_t       type;               /*!< Type, ACL, CIS, BIS */
   void          *pEncryptCtx;       /*!< Tx/Encryption context. */
@@ -94,7 +96,7 @@ typedef struct
 void PalCryptoInit(void);
 void PalCryptoDeInit(void);
 
-/* Key genration */
+/* Key generation */
 void PalCryptoGenerateP256KeyPair(const uint8_t *pPrivKey, uint8_t *pPubKey);
 void PalCryptoGenerateDhKey(const uint8_t *pPubKey, const uint8_t *pPrivKey, uint8_t *pDhKey);
 bool_t PalCryptoValidatePublicKey(const uint8_t *pPubKey, bool_t generateKey);
@@ -110,7 +112,8 @@ void PalCryptoCcmEnc(const uint8_t *pKey, uint8_t *pNonce, uint8_t *pPlainText, 
 
 /* Crypto AES */
 void PalCryptoAesEcb(const uint8_t *pKey, uint8_t *pOut, const uint8_t *pIn);
-void PalCryptoAesSetupCipherBlock(PalCryptoEnc_t *pEnc, uint8_t id, uint8_t localDir);
+void PalCryptoAesCmac(const uint8_t *pKey, uint8_t *pOut, const uint8_t *pIn, uint16_t len);
+void PalCryptoAesEnable(PalCryptoEnc_t *pEnc, uint8_t id, uint8_t localDir);
 bool_t PalCryptoAesCcmEncrypt(PalCryptoEnc_t *pEnc, uint8_t *pHdr, uint8_t *pBuf, uint8_t *pMic);
 bool_t PalCryptoAesCcmDecrypt(PalCryptoEnc_t *pEnc, uint8_t *pBuf);
 void PalCryptoSetEncryptPacketCount(PalCryptoEnc_t *pEnc, uint64_t pktCnt);

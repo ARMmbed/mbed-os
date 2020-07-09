@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device manager slave connection management for slave.
+ *  \file
+ *
+ *  \brief  Device manager slave connection management for slave.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -27,6 +29,17 @@
 #include "dm_conn.h"
 #include "dm_adv.h"
 #include "l2c_api.h"
+
+/**************************************************************************************************
+  Global Variables
+**************************************************************************************************/
+
+/* Action set for this module */
+const dmConnAct_t dmConnUpdActSetSlave[] =
+{
+  dmConnUpdActUpdateSlave,
+  dmConnUpdActL2cUpdateCnf
+};
 
 /*************************************************************************************************/
 /*!
@@ -60,7 +73,7 @@ static void dmConnUpdateCback(dmConnCcb_t *pCcb, uint8_t status)
  *  \return None.
  */
 /*************************************************************************************************/
-void dmConnSmActUpdateSlave(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
+void dmConnUpdActUpdateSlave(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
 {
   if ((pCcb->features & HCI_LE_SUP_FEAT_CONN_PARAM_REQ_PROC) &&
       (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_CONN_PARAM_REQ_PROC))
@@ -93,7 +106,7 @@ void dmConnSmActUpdateSlave(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
  *  \return None.
  */
 /*************************************************************************************************/
-void dmConnSmActL2cUpdateCnf(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
+void dmConnUpdActL2cUpdateCnf(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
 {
   /* if connection update in progress */
   if (pCcb->updating)
@@ -130,7 +143,7 @@ void DmL2cConnUpdateCnf(uint16_t handle, uint16_t result)
     updateCnf.hdr.event = DM_CONN_MSG_L2C_UPDATE_CNF;
     updateCnf.result = result;
 
-    dmConnSmExecute(pCcb, (dmConnMsg_t *) &updateCnf);
+    dmConnUpdExecute(pCcb, (dmConnMsg_t *) &updateCnf);
   }
 }
 

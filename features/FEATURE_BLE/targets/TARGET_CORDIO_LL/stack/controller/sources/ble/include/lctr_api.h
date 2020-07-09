@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller common interface file.
+ *  \file
+ *
+ *  \brief      Link layer controller common interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -59,7 +60,9 @@ enum
   LCTR_DISP_TRANFER_SYNC,               /*!< Periodic Sync Transfer message dispatch handler type. */
   LCTR_DISP_PER_SCAN,                   /*!< Periodic Scanning message dispatch handler type. */
   LCTR_DISP_ACAD,                       /*!< ACAD message dispatch handler type (currently only used by slave). */
-  LCTR_DISP_CIS,                        /*!< Connected isochronous stream dispatch handler type. */
+  LCTR_DISP_CIS,                        /*!< Connected Isochronous Stream dispatch handler type. */
+  LCTR_DISP_BIG_BCST,                   /*!< Broadcast Isochronous Group broadcasting message dispatch handler type. */
+  LCTR_DISP_BIG_SYNC,                   /*!< Broadcast Isochronous Group synchronization message dispatch handler type. */
   LCTR_DISP_TOTAL,                      /*!< Total number of dispatch handlers. */
   /* Special IDs */
   LCTR_DISP_FIRST_SM  = LCTR_DISP_CONN_IND+1,   /*!< First state machine. */
@@ -81,7 +84,7 @@ enum
   LCTR_EVENT_TX_COMPLETE,               /*!< Transmit data PDU completed. */
   LCTR_EVENT_CIS_TX_PENDING,            /*!< Transmit data PDU pending. */
   LCTR_EVENT_CIS_RX_PENDING,            /*!< Receive data PDU pending. */
-  LCTR_EVENT_CIS_TX_COMPLETE,           /*!< Transmit data PDU completed. */
+  LCTR_EVENT_ISO_TX_COMPLETE,           /*!< Transmit ISO SDU completed. */
   LCTR_EVENT_RX_ADVB,                   /*!< Receive AdvB PDU completed. */
   LCTR_EVENT_RX_DIRECT_ADVB,            /*!< Receive direct AdvB PDU completed. */
   LCTR_EVENT_RX_SCAN_REQ,               /*!< Receive scan request PDU completed.  */
@@ -107,7 +110,7 @@ typedef struct
 {
   uint16_t          handle;             /*!< Handle. */
   uint8_t           dispId;             /*!< Dispatch ID. */
-  uint8_t           event;              /*!< PDU ID. */
+  uint8_t           event;              /*!< Event ID. */
 } lctrMsgHdr_t;
 
 /*! \brief      Channel map update message. */
@@ -116,6 +119,13 @@ typedef struct
   lctrMsgHdr_t      hdr;                /*!< Message header. */
   uint64_t          chanMap;            /*!< Channel map. */
 } lctrChanMapUpdate_t;
+
+/*! \brief      BIG created message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message header. */
+  uint8_t           bigHandle;          /*!< BIG handle. */
+} lctrBigCreated_t;
 
 /*! \brief      Connect request PDU. */
 typedef struct
@@ -140,7 +150,7 @@ typedef struct
 {
   lctrMsgHdr_t      hdr;                /*!< Message header. */
   lctrConnInd_t     connInd;            /*!< Connection indication. */
-  uint32_t          connIndEndTs;       /*!< Connection indication packet end timestamp. */
+  uint32_t          connIndEndTsUsec;   /*!< Connection indication packet end timestamp in microseconds. */
   uint8_t           peerIdAddrType;     /*!< Peer identity address type. */
   uint8_t           usedChSel;          /*!< Used channel selection. */
   uint8_t           phy;                /*!< PHY selection. */
@@ -156,22 +166,34 @@ typedef struct
   Global Variables
 **************************************************************************************************/
 
-/* \brief       Call signature for periodic enabled check function */
+/*! \brief       Call signature for periodic enabled check function */
 typedef bool_t (*LctrIsPerAdvEnabledFn_t)(uint8_t handle);
 
-/* Function pointer for periodic advertising enable check */
+/*! \brief      Function pointer for periodic advertising enable check */
 extern LctrIsPerAdvEnabledFn_t LctrPerAdvEnabled;
 
-/* \brief       Call signature for extended scan enabled check function. */
+/*! \brief       Call signature to update CIS channel map */
+typedef void (*LctrUpdateCisChanMapFn_t)(uint16_t aclHandle);
+
+/*! \brief      Function pointer to update CIS channel map */
+extern LctrUpdateCisChanMapFn_t LctrUpdateCisChanMapFn;
+
+/*! \brief       Call signature for extended scan enabled check function. */
 typedef bool_t (*LctrExtCheckFn_t)(uint8_t scanPhy);
 
-/* Function pointer for extended scan enable check. */
+/*! \brief      Function pointer for extended scan enable check. */
 extern LctrExtCheckFn_t LctrMstExtScanEnabled;
 
-/* Function pointer for extended advertising init enable check. */
+/*! \brief      Function pointer for extended advertising init enable check. */
 extern LctrExtCheckFn_t LctrMstExtInitEnabled;
 
-/* Runtime configuration. */
+/*! \brief      Call signature for periodic sync pending check. */
+typedef bool_t (*LctrPerSyncPendFn_t)(void);
+
+/*! \brief      Function pointer for periodic sync pending check. */
+extern LctrPerSyncPendFn_t LctrMstPerSyncPending;
+
+/*! \brief      Runtime configuration. */
 extern const LlRtCfg_t *pLctrRtCfg;
 
 /**************************************************************************************************
@@ -187,6 +209,9 @@ void LctrSetSupStates(void);
 /* Task */
 void LctrMsgDispatcher(lctrMsgHdr_t *pMsg);
 void LctrEventHandler(uint8_t event);
+
+/* Control */
+uint8_t LctrSetChannelClass(uint64_t chanMap);
 
 /*! \} */    /* LL_LCTR_API */
 

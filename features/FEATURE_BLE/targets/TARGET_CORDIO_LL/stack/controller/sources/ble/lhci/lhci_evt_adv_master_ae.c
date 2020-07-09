@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief LL HCI event module implementation file.
+ *  \file
+ *
+ *  \brief  LL HCI event module implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -99,8 +100,6 @@ static uint8_t *lhciAllocPerAdvRptEvt(uint8_t evtCode, uint8_t paramLen)
  *  \param  pEvt        Extended advertising report indication data.
  *  \param  pFragStart  Start of fragmentation buffer.
  *  \param  fragLen     Length of fragment.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lhciPackExtAdvRptEvt(uint8_t *pBuf, const LlExtAdvReportInd_t *pEvt,
@@ -142,8 +141,6 @@ static void lhciPackExtAdvRptEvt(uint8_t *pBuf, const LlExtAdvReportInd_t *pEvt,
  *  \param  pEvt        Periodic advertising report indication data.
  *  \param  pFragStart  Start of fragmentation buffer.
  *  \param  fragLen     Length of fragment.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lhciPackPerAdvRptEvt(uint8_t *pBuf, const LlPerAdvReportInd_t *pEvt,
@@ -187,8 +184,6 @@ static void lhciPackPerAdvRptEvt(uint8_t *pBuf, const LlPerAdvReportInd_t *pEvt,
  *
  *  \param  pBuf        Packed packet buffer.
  *  \param  pEvt        Periodic advertising sync established event confirmation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lhciPackPerAdvSyncEstdEvt(uint8_t *pBuf, const LlPerAdvSyncEstdCnf_t *pEvt)
@@ -210,8 +205,6 @@ static void lhciPackPerAdvSyncEstdEvt(uint8_t *pBuf, const LlPerAdvSyncEstdCnf_t
  *
  *  \param  pBuf        Packed packet buffer.
  *  \param  pEvt        Periodic advertising sync lost event confirmation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lhciPackPerAdvSyncLostEvt(uint8_t *pBuf, const LlPerAdvSyncLostInd_t *pEvt)
@@ -226,8 +219,6 @@ static void lhciPackPerAdvSyncLostEvt(uint8_t *pBuf, const LlPerAdvSyncLostInd_t
  *
  *  \param  pBuf        Packed packet buffer.
  *  \param  pEvt        Periodic advertising sync transfer received event indication.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lhciPackPerSyncTrsfRcvdEvt(uint8_t *pBuf, const LlPerSyncTrsfRcvdInd_t *pEvt)
@@ -272,7 +263,7 @@ bool_t lhciMstExtScanEncodeEvtPkt(LlEvt_t *pEvt)
 
         if ((lhciCb.numAdvReport + num_buffers) > pLctrRtCfg->maxAdvReports)
         {
-          LL_TRACE_WARN0("LL_EXT_ADV_REPORT_IND, discarded, not enough advRport buffers available.");
+          LL_TRACE_WARN0("LL_EXT_ADV_REPORT_IND, discarded, not enough advRport buffers available");
           break;
         }
 
@@ -293,7 +284,7 @@ bool_t lhciMstExtScanEncodeEvtPkt(LlEvt_t *pEvt)
 
               /* Drop remaining fragments. */
               remDataLen = 0;
-              LL_TRACE_WARN0("LL_EXT_ADV_REPORT_IND, truncated, not enough advRport buffers.");
+              LL_TRACE_WARN0("LL_EXT_ADV_REPORT_IND, truncated, not enough advRport buffers");
             }
             else
             {
@@ -366,7 +357,7 @@ bool_t lhciMstExtScanEncodeEvtPkt(LlEvt_t *pEvt)
 
         if ((lhciCb.numAdvReport + num_buffers) > pLctrRtCfg->maxAdvReports)
         {
-          LL_TRACE_WARN0("LL_PER_ADV_REPORT_IND, discarded, not enough advRport buffers available.");
+          LL_TRACE_WARN0("LL_PER_ADV_REPORT_IND, discarded, not enough advRport buffers available");
           break;
         }
 
@@ -386,7 +377,7 @@ bool_t lhciMstExtScanEncodeEvtPkt(LlEvt_t *pEvt)
 
               /* Drop remaining fragments. */
               remDataLen = 0;
-              LL_TRACE_WARN0("LL_PER_ADV_REPORT_IND, truncated, not enough advRport buffers.");
+              LL_TRACE_WARN0("LL_PER_ADV_REPORT_IND, truncated, not enough advRport buffers");
             }
             else
             {

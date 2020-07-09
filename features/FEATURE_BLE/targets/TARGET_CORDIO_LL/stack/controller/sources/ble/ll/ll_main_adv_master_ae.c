@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) master control interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) master control interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -159,8 +160,6 @@ uint8_t LlSetExtScanParam(uint8_t ownAddrType, uint8_t scanFiltPolicy, uint8_t s
  *  \param      duration        Duration.
  *  \param      period          Period.
  *
- *  \return     None.
- *
  *  Enable or disable extended scanning.
  */
 /*************************************************************************************************/
@@ -190,23 +189,31 @@ void LlExtScanEnable(uint8_t enable, uint8_t filterDup, uint16_t duration, uint1
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
-      ((enable != 0) &&
-         ((filterDup > filterDupMax) ||
-         ((perMs > 0) && (durMs == 0)) ||       /* Minimum Duration is 1. */
-         ((perMs > 0) && (perMs <= durMs)))))   /* Ensure Period > Duration. */
+      (enable == TRUE))
   {
-    lmgrCb.extScanEnaDelayCnt = 1;
-    LmgrSendExtScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
-    return;
-  }
+    if (filterDup > filterDupMax)
+    {
+      lmgrCb.extScanEnaDelayCnt = 1;
+      LmgrSendExtScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
+      return;
+    }
 
-  if ((LL_API_PARAM_CHECK == 1) &&
-      ((enable != 0) &&
-         ((filterDup == LL_SCAN_FILTER_DUP_ENABLE_PERIODIC) && ((duration == 0) || (period == 0)))))
-  {
-    lmgrCb.extScanEnaDelayCnt = 1;
-    LmgrSendExtScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
-    return;
+    if ((filterDup == LL_SCAN_FILTER_DUP_ENABLE_PERIODIC) &&
+         ((perMs == 0) || (durMs == 0)))
+    {
+      lmgrCb.extScanEnaDelayCnt = 1;
+      LmgrSendExtScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
+      return;
+    }
+
+    /* Ensure period > duration. */
+    if (((perMs != 0) && (durMs != 0)) &&
+         (durMs >= perMs))
+    {
+      lmgrCb.extScanEnaDelayCnt = 1;
+      LmgrSendExtScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
+      return;
+    }
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -275,12 +282,6 @@ uint8_t LlPeriodicAdvCreateSync(const LlPerAdvCreateSyncCmd_t *pParam)
   if (lctrMstPerGetNumPerScanCtx() >= LL_MAX_PER_SCAN)
   {
     return LL_ERROR_CODE_MEM_CAP_EXCEEDED;
-  }
-
-  /* If reporting is initially disabled and controller does not support LE_Set_Per_Adv_Rcv_En cmd, return error. */
-  if (((pParam->options >> 1) & 0x01) && !(lmgrCb.hciSupCommands[40] & HCI_SUP_LE_SET_PER_ADV_RCV_ENABLE))
-  {
-    return LL_ERROR_CODE_CONN_FAILED_TO_ESTABLISH;
   }
 
   lctrPerCreateSyncMsg_t *pMsg;
@@ -359,6 +360,7 @@ uint8_t LlPeriodicAdvTerminateSync(uint16_t syncHandle)
     LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
+
   if ((LL_API_PARAM_CHECK == 1) &&
       syncHandle > LL_SYNC_MAX_HANDLE)
   {
@@ -426,6 +428,12 @@ uint8_t LlAddDeviceToPeriodicAdvList(const LlDevicePerAdvList_t *pParam)
   }
 
   uint64_t addr = BstreamToBda64(pParam->pAdvAddr);
+
+  if (BbBlePeriodicListCheckAddr(pParam->advAddrType, addr, pParam->advSID))
+  {
+    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
   if (!BbBlePeriodicListAdd(pParam->advAddrType, addr, pParam->advSID))
   {
     return LL_ERROR_CODE_MEM_CAP_EXCEEDED;

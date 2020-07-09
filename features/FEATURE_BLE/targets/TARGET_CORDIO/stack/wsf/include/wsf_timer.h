@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Timer service.
+ *  \file   wsf_timer.h
+ *
+ *  \brief  Timer service.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef WSF_TIMER_H
@@ -65,8 +67,6 @@ typedef struct wsfTimer_tag
 /*!
  *  \brief  Initialize the timer service.  This function should only be called once
  *          upon system initialization.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTimerInit(void);
@@ -79,8 +79,6 @@ void WsfTimerInit(void);
  *
  *  \param  pTimer  Pointer to timer.
  *  \param  sec     Seconds until expiration.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTimerStartSec(wsfTimer_t *pTimer, wsfTimerTicks_t sec);
@@ -91,8 +89,6 @@ void WsfTimerStartSec(wsfTimer_t *pTimer, wsfTimerTicks_t sec);
  *
  *  \param  pTimer  Pointer to timer.
  *  \param  ms      Milliseconds until expiration.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTimerStartMs(wsfTimer_t *pTimer, wsfTimerTicks_t ms);
@@ -102,8 +98,6 @@ void WsfTimerStartMs(wsfTimer_t *pTimer, wsfTimerTicks_t ms);
  *  \brief  Stop a timer.
  *
  *  \param  pTimer  Pointer to timer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTimerStop(wsfTimer_t *pTimer);
@@ -114,8 +108,6 @@ void WsfTimerStop(wsfTimer_t *pTimer);
  *          typically called only from timer porting code.
  *
  *  \param  ticks  Number of ticks since last update.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTimerUpdate(wsfTimerTicks_t ticks);
@@ -149,8 +141,6 @@ wsfTimer_t *WsfTimerServiceExpired(wsfTaskId_t taskId);
 /*!
  *  \brief      Check if there is an active timer and if there is enough time to
  *              go to sleep.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void WsfTimerSleep(void);
@@ -158,8 +148,6 @@ void WsfTimerSleep(void);
 /*************************************************************************************************/
 /*!
  *  \brief      Update WSF timer based on elapsed RTC ticks.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void WsfTimerSleepUpdate(void);

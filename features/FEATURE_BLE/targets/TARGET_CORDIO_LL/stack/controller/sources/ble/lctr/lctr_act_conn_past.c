@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller connection state machine action routines for PAST feature.
+ *  \file
+ *
+ *  \brief  Link layer controller connection state machine action routines for PAST feature.
+ *
+ *  Copyright (c) 2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -40,8 +41,6 @@
  *  \brief      Send periodic sync indication from scanner to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  *
  *  This function is called from BOD end callback of master/slave connection.
  */
@@ -71,33 +70,33 @@ void lctrSendPerSyncFromScan(lctrConnCtx_t *pCtx)
 
     /* Find PEa, event counter of PE whose starting time is after CEref. */
     uint16_t paEventCounter = pPerScanCtx->lastActiveEvent;
-    uint32_t paAnchor = pPerScanCtx->lastAnchorPoint;
+    uint32_t paAnchor = pPerScanCtx->lastAnchorPointUsec;
     uint32_t ceRefStart, ceRefEnd;
 
     /* Calculate the end time of CEref. */
     ceRefStart = lctrConnGetAnchorPoint(pCtx, (pCtx->eventCounter + ceOffset));
-    ceRefEnd = ceRefStart + BB_US_TO_BB_TICKS(pCtx->localConnDurUsec + BbGetSchSetupDelayUs());
+    ceRefEnd = ceRefStart + pCtx->effConnDurUsec + BbGetSchSetupDelayUs();
 
     /* paAnchor is for the first PE in the future from ceRefEnd. */
-    if ((ceRefEnd - paAnchor) < LCTR_SCH_MAX_SPAN)
+    if (BbGetTargetTimeDelta(ceRefEnd, paAnchor) > 0)
     {
-      uint16_t numPE = (ceRefEnd - paAnchor) / pPerScanCtx->perInter + 1;
+      uint16_t numPE = BbGetTargetTimeDelta(ceRefEnd, paAnchor) / pPerScanCtx->perInterUsec + 1;
 
-      paAnchor += numPE * pPerScanCtx->perInter;
+      paAnchor += numPE * pPerScanCtx->perInterUsec;
       paEventCounter += numPE;
     }
     else
     {
-      uint16_t numPE = (paAnchor - ceRefEnd) / pPerScanCtx->perInter;
+      uint16_t numPE = BbGetTargetTimeDelta(paAnchor, ceRefEnd) / pPerScanCtx->perInterUsec;
 
-      paAnchor -= numPE * pPerScanCtx->perInter;
+      paAnchor -= numPE * pPerScanCtx->perInterUsec;
       paEventCounter -= numPE;
     }
 
     uint8_t offsUnits;
     uint8_t offsAdjust = 0;
     uint16_t offs;
-    uint32_t offsUsec = BB_TICKS_TO_US(paAnchor - ceRefStart);
+    uint32_t offsUsec = BbGetTargetTimeDelta(paAnchor, ceRefStart);
 
     if (offsUsec < LL_30_USEC_OFFS_MAX_USEC)
     {
@@ -117,7 +116,7 @@ void lctrSendPerSyncFromScan(lctrConnCtx_t *pCtx)
     }
 
     LL_TRACE_INFO1("LL_PERIODIC_SYNC_IND from SCAN ceRef anchor point = %u", ceRefStart);
-    LL_TRACE_INFO1("                               PA lastAnchorPoint = %u", pPerScanCtx->lastAnchorPoint);
+    LL_TRACE_INFO1("                               PA lastAnchorPoint = %u", pPerScanCtx->lastAnchorPointUsec);
     LL_TRACE_INFO1("                               PA REF paAnchor = %u", paAnchor);
     LL_TRACE_INFO1("                               offsUsec = %u", offsUsec);
 
@@ -130,7 +129,7 @@ void lctrSendPerSyncFromScan(lctrConnCtx_t *pCtx)
                             (offsUnits << 13) |       /* Offset units. */
                             (offsAdjust << 14));      /* Offset adjust. */
 
-    UINT16_TO_BSTREAM(pBuf, LCTR_PER_INTER_TO_MS(BB_TICKS_TO_US(pPerScanCtx->perInter)));   /* Interval */
+    UINT16_TO_BSTREAM(pBuf, LCTR_PER_INTER_TO_MS(pPerScanCtx->perInterUsec));   /* Interval */
 
     uint64_t temp = pPerScanCtx->chanParam.chanMask |       /* SyncInfo - ChMap */
                     ((uint64_t)pPerScanCtx->sca << 37);     /* SyncInfo - SCA of the device sending AUX_SYNC_IND. */
@@ -160,8 +159,6 @@ void lctrSendPerSyncFromScan(lctrConnCtx_t *pCtx)
  *  \brief      Send periodic sync indication from broadcaster to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  *
  *  This function is called from BOD end callback of master/slave connection.
  */
@@ -194,33 +191,33 @@ void lctrSendPerSyncFromBcst(lctrConnCtx_t *pCtx)
 
     /* Find PEa, event counter of PE whose starting time is after CEref. */
     uint16_t paEventCounter = pAdvSet->perParam.perEventCounter;
-    uint32_t paAnchor = pPerOp->due;
+    uint32_t paAnchor = pPerOp->dueUsec;
     uint32_t ceRefStart, ceRefEnd;
 
     /* Calculate the end time of CEref. */
     ceRefStart = lctrConnGetAnchorPoint(pCtx, (pCtx->eventCounter + ceOffset));
-    ceRefEnd = ceRefStart + BB_US_TO_BB_TICKS(pCtx->localConnDurUsec + BbGetSchSetupDelayUs());
+    ceRefEnd = ceRefStart + pCtx->effConnDurUsec + BbGetSchSetupDelayUs();
 
     /* paAnchor is for the first PE in the future from ceRefEnd. */
-    if ((ceRefEnd - paAnchor) < LCTR_SCH_MAX_SPAN)
+    if (BbGetTargetTimeDelta(ceRefEnd, paAnchor) > 0)
     {
-      uint16_t numPE = (ceRefEnd - paAnchor) / pAdvSet->perParam.perAdvInter + 1;
+      uint16_t numPE = BbGetTargetTimeDelta(ceRefEnd, paAnchor) / pAdvSet->perParam.perAdvInterUsec + 1;
 
-      paAnchor += numPE * pAdvSet->perParam.perAdvInter;
+      paAnchor += numPE * pAdvSet->perParam.perAdvInterUsec;
       paEventCounter += numPE;
     }
     else
     {
-      uint16_t numPE = (paAnchor - ceRefEnd) / pAdvSet->perParam.perAdvInter;
+      uint16_t numPE = BbGetTargetTimeDelta(paAnchor, ceRefEnd) / pAdvSet->perParam.perAdvInterUsec;
 
-      paAnchor -= numPE * pAdvSet->perParam.perAdvInter;
+      paAnchor -= numPE * pAdvSet->perParam.perAdvInterUsec;
       paEventCounter -= numPE;
     }
 
     uint8_t offsUnits;
     uint8_t offsAdjust = 0;
     uint16_t offs;
-    uint32_t offsUsec = BB_TICKS_TO_US(paAnchor - ceRefStart);
+    uint32_t offsUsec = BbGetTargetTimeDelta(paAnchor, ceRefStart);
 
     if (offsUsec < LL_30_USEC_OFFS_MAX_USEC)
     {
@@ -240,7 +237,7 @@ void lctrSendPerSyncFromBcst(lctrConnCtx_t *pCtx)
     }
 
     LL_TRACE_INFO1("LL_PERIODIC_SYNC_IND from BCST ceRef anchor point = %u", ceRefStart);
-    LL_TRACE_INFO1("                               PA lastAnchorPoint = %u", pPerOp->due);
+    LL_TRACE_INFO1("                               PA lastAnchorPoint = %u", pPerOp->dueUsec);
     LL_TRACE_INFO1("                               PA REF paAnchor = %u", paAnchor);
     LL_TRACE_INFO1("                               offsUsec = %u", offsUsec);
 
@@ -253,7 +250,7 @@ void lctrSendPerSyncFromBcst(lctrConnCtx_t *pCtx)
                             (offsUnits << 13) |       /* Offset units. */
                             (offsAdjust << 14));      /* Offset adjust. */
 
-    UINT16_TO_BSTREAM(pBuf, LCTR_PER_INTER_TO_MS(BB_TICKS_TO_US(pAdvSet->perParam.perAdvInter)));   /* Interval */
+    UINT16_TO_BSTREAM(pBuf, LCTR_PER_INTER_TO_MS(pAdvSet->perParam.perAdvInterUsec));   /* Interval */
 
     uint64_t temp = pAdvSet->perParam.perChanParam.chanMask |   /* SyncInfo - ChMap */
                     ((uint64_t)lctrComputeSca() << 37);         /* SyncInfo - SCA of the device sending AUX_SYNC_IND. */
@@ -295,8 +292,6 @@ void lctrSendPerSyncFromBcst(lctrConnCtx_t *pCtx)
  *  \brief      Store periodic advertising sync transfer parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStorePeriodicSyncTrsf(lctrConnCtx_t *pCtx)
@@ -311,8 +306,6 @@ void lctrStorePeriodicSyncTrsf(lctrConnCtx_t *pCtx)
  *  \brief      Send periodic sync indication PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPeriodicSyncInd(lctrConnCtx_t *pCtx)
@@ -333,8 +326,6 @@ void lctrSendPeriodicSyncInd(lctrConnCtx_t *pCtx)
  *  \brief      Handle received periodic sync indication PDU.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrReceivePeriodicSyncInd(lctrConnCtx_t *pCtx)

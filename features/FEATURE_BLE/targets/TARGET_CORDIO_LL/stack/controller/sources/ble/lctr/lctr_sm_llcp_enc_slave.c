@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave encryption connection state machine implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave encryption connection state machine implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -89,8 +90,6 @@ enum
  *  \brief      Action indirection for received peer LL_ENC_REQ.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerEncReq(lctrConnCtx_t *pCtx)
@@ -105,8 +104,6 @@ static void lctrActPeerEncReq(lctrConnCtx_t *pCtx)
  *  \brief      Action Tx data queue flushed after a start encryption.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActTxFlushedOnStart(lctrConnCtx_t *pCtx)
@@ -126,8 +123,6 @@ static void lctrActTxFlushedOnStart(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received host LTK request reply HCI command.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActHostLtkReply(lctrConnCtx_t *pCtx)
@@ -146,8 +141,6 @@ static void lctrActHostLtkReply(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received host LTK request negative reply HCI command.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActHostLtkNegReply(lctrConnCtx_t *pCtx)
@@ -177,8 +170,6 @@ static void lctrActHostLtkNegReply(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received peer LL_START_ENC_RSP.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerStartEncRsp(lctrConnCtx_t *pCtx)
@@ -198,8 +189,6 @@ static void lctrActPeerStartEncRsp(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received peer LL_PAUSE_ENC_REQ.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerPauseEncReq(lctrConnCtx_t *pCtx)
@@ -217,8 +206,6 @@ static void lctrActPeerPauseEncReq(lctrConnCtx_t *pCtx)
  *  \brief      Action Tx data queue flushed after a restart encryption.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActTxFlushedOnRestart(lctrConnCtx_t *pCtx)
@@ -432,8 +419,6 @@ static uint8_t lctrSlvRemapEncryptEvent(lctrConnCtx_t *pCtx, uint8_t event)
  *  \param      pCtx    Connection context.
  *  \param      event   Subsystem event.
  *
- *  \return     None.
- *
  *  This routine will pend the active procedure and allow the encryption procedure to override it.
  */
 /*************************************************************************************************/
@@ -553,10 +538,10 @@ bool_t lctrSlvExecuteEncryptSm(lctrConnCtx_t *pCtx, uint8_t event)
 {
   if (pCtx->pauseRxData == TRUE)        /* During encryption start or encryption pause. */
   {
-    switch(event)
+    switch (event)
     {
       case LCTR_CONN_MSG_RX_LLCP:
-        switch(lctrDataPdu.opcode)
+        switch (lctrDataPdu.opcode)
         {
           /* Allowed PDUs. */
           case LL_PDU_TERMINATE_IND:

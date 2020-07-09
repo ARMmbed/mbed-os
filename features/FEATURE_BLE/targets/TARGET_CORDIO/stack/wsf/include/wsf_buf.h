@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Buffer pool service.
+ *  \file   wsf_buf.h
+ *
+ *  \brief  Buffer pool service.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef WSF_BUF_H
@@ -34,8 +36,8 @@ extern "C" {
 **************************************************************************************************/
 
 /*! \brief Check if trying to free a buffer that is already free */
-#ifndef WSF_BUF_FREE_CHECK
-#define WSF_BUF_FREE_CHECK  TRUE
+#ifndef WSF_BUF_FREE_CHECK_ASSERT
+#define WSF_BUF_FREE_CHECK_ASSERT TRUE
 #endif
 
 /*! \brief Assert on best-fit buffer allocation failure */
@@ -119,8 +121,6 @@ typedef struct
  *  \brief  Callback providing WSF buffer diagnostic messages.
  *
  *  \param  pInfo     Diagnostics message.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 typedef void (*WsfBufDiagCback_t)(WsfBufDiag_t *pInfo);
@@ -170,8 +170,6 @@ void *WsfBufAlloc(uint16_t len);
  *  \brief  Free a buffer.
  *
  *  \param  pBuf    Buffer to free.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfBufFree(void *pBuf);
@@ -220,8 +218,6 @@ void WsfBufGetPoolStats(WsfBufPoolStat_t *pStat, uint8_t numPool);
  *  \brief  Called to register the buffer diagnostics callback function.
  *
  *  \param  callback   Pointer to the callback function.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfBufDiagRegister(WsfBufDiagCback_t callback);

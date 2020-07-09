@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT server mandatory PDU processing functions.
+ *  \file
+ *
+ *  \brief  ATT server mandatory PDU processing functions.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -30,6 +32,7 @@
 #include "att_api.h"
 #include "att_main.h"
 #include "atts_main.h"
+#include "svc_core.h"
 
 /*************************************************************************************************/
 /*!
@@ -232,39 +235,53 @@ uint8_t attsPermissions(dmConnId_t connId, uint8_t permit, uint16_t handle, uint
  *  \return None.
  */
 /*************************************************************************************************/
-void attsProcMtuReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+void attsProcMtuReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 {
   uint8_t   *p;
   uint16_t  mtu;
   uint16_t  localMtu;
   uint8_t   *pRsp;
+  uint8_t   features;
 
-  p = pPacket + L2C_PAYLOAD_START + ATT_HDR_LEN;
+  /* Verify Server supported features permits MTU exchange */
+  AttsCsfGetFeatures(pCcb->connId, &features, sizeof(uint8_t));
+  
+  ATT_TRACE_WARN1("attsProcMtuReq features 0x%02x", features);
 
-  /* parse mtu */
-  BYTES_TO_UINT16(mtu, p);
-
-  /* verify */
-  if (mtu < ATT_DEFAULT_MTU)
+  if (features & ATTS_CSF_EATT_BEARER)
   {
-    mtu = ATT_DEFAULT_MTU;
+    /* Client set the EATT supported feature.  MTU Exchange not permitted */
+    attsErrRsp(pCcb->pMainCcb, pCcb->slot, ATT_PDU_MTU_REQ, 0, ATT_ERR_NOT_SUP);
   }
-
-  /* get desired MTU */
-  localMtu = WSF_MIN(pAttCfg->mtu, (HciGetMaxRxAclLen() - L2C_HDR_LEN));
-
-  /* send response */
-  if ((pRsp = attMsgAlloc(L2C_PAYLOAD_START + ATT_MTU_RSP_LEN)) != NULL)
+  else
   {
-    p = pRsp + L2C_PAYLOAD_START;
-    UINT8_TO_BSTREAM(p, ATT_PDU_MTU_RSP);
-    UINT16_TO_BSTREAM(p, localMtu);
+    p = pPacket + L2C_PAYLOAD_START + ATT_HDR_LEN;
 
-    L2cDataReq(L2C_CID_ATT, pCcb->handle, ATT_MTU_RSP_LEN, pRsp);
+    /* parse mtu */
+    BYTES_TO_UINT16(mtu, p);
+
+    /* verify */
+    if (mtu < ATT_DEFAULT_MTU)
+    {
+      mtu = ATT_DEFAULT_MTU;
+    }
+
+    /* get desired MTU */
+    localMtu = WSF_MIN(pAttCfg->mtu, (HciGetMaxRxAclLen() - L2C_HDR_LEN));
+
+    /* send response */
+    if ((pRsp = attMsgAlloc(L2C_PAYLOAD_START + ATT_MTU_RSP_LEN)) != NULL)
+    {
+      p = pRsp + L2C_PAYLOAD_START;
+      UINT8_TO_BSTREAM(p, ATT_PDU_MTU_RSP);
+      UINT16_TO_BSTREAM(p, localMtu);
+
+      attL2cDataReq(pCcb->pMainCcb, pCcb->slot, ATT_MTU_RSP_LEN, pRsp);
+    }
+
+    /* set mtu for the connection */
+    attSetMtu(pCcb->pMainCcb, pCcb->slot, mtu, localMtu);
   }
-
-  /* set mtu for the connection */
-  attSetMtu(pCcb, mtu, localMtu);
 }
 
 /*************************************************************************************************/
@@ -278,7 +295,7 @@ void attsProcMtuReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
  *  \return None.
  */
 /*************************************************************************************************/
-void attsProcFindInfoReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+void attsProcFindInfoReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 {
   uint8_t     *pBuf;
   uint8_t     *p;
@@ -287,6 +304,7 @@ void attsProcFindInfoReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   uint16_t    endHandle;
   uint16_t    handle;
   uint8_t     err = ATT_SUCCESS;
+  uint16_t    mtu = pCcb->pMainCcb->sccb[pCcb->slot].mtu;
 
   /* parse handles */
   pPacket += L2C_PAYLOAD_START + ATT_HDR_LEN;
@@ -302,7 +320,7 @@ void attsProcFindInfoReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   if (!err)
   {
     /* allocate max size buffer for response */
-    if ((pBuf = attMsgAlloc(pCcb->mtu + L2C_PAYLOAD_START)) != NULL)
+    if ((pBuf = attMsgAlloc(mtu + L2C_PAYLOAD_START)) != NULL)
     {
       p = pBuf + L2C_PAYLOAD_START;
       UINT8_TO_BSTREAM(p, ATT_PDU_FIND_INFO_RSP);
@@ -335,7 +353,7 @@ void attsProcFindInfoReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
         {
           /* check if result fits */
           if ((p + ATT_16_UUID_LEN + sizeof(uint16_t)) <=
-              (pBuf + pCcb->mtu + L2C_PAYLOAD_START))
+              (pBuf + mtu + L2C_PAYLOAD_START))
           {
             /* copy result */
             UINT16_TO_BSTREAM(p, handle);
@@ -382,11 +400,11 @@ void attsProcFindInfoReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   /* if no error send response, else send error */
   if (!err)
   {
-    L2cDataReq(L2C_CID_ATT, pCcb->handle, (p - (pBuf + L2C_PAYLOAD_START)), pBuf);
+    attL2cDataReq(pCcb->pMainCcb, pCcb->slot, (p - (pBuf + L2C_PAYLOAD_START)), pBuf);
   }
   else
   {
-    attsErrRsp(pCcb->handle, ATT_PDU_FIND_INFO_REQ, startHandle, err);
+    attsErrRsp(pCcb->pMainCcb, pCcb->slot, ATT_PDU_FIND_INFO_REQ, startHandle, err);
   }
 }
 
@@ -401,7 +419,7 @@ void attsProcFindInfoReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
  *  \return None.
  */
 /*************************************************************************************************/
-void attsProcReadReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+void attsProcReadReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 {
   uint8_t     *pBuf;
   uint8_t     *p;
@@ -410,6 +428,7 @@ void attsProcReadReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   uint16_t    handle;
   uint16_t    readLen;
   uint8_t     err = ATT_SUCCESS;
+  uint16_t    mtu = pCcb->pMainCcb->sccb[pCcb->slot].mtu;
 
   /* parse handle */
   pPacket += L2C_PAYLOAD_START + ATT_HDR_LEN;
@@ -419,26 +438,26 @@ void attsProcReadReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   if ((pAttr = attsFindByHandle(handle, &pGroup)) != NULL)
   {
     /* verify permissions */
-    if ((err = attsPermissions(pCcb->connId, ATTS_PERMIT_READ,
+    if ((err = attsPermissions(pCcb->pMainCcb->connId, ATTS_PERMIT_READ,
                                handle, pAttr->permissions)) == ATT_SUCCESS)
     {
       /* call read callback if desired */
       if ((pAttr->settings & ATTS_SET_READ_CBACK) &&
           (pGroup->readCback != NULL))
       {
-        err = (*pGroup->readCback)(pCcb->connId, handle, ATT_PDU_READ_REQ, 0, pAttr);
+        err = (*pGroup->readCback)(pCcb->pMainCcb->connId, handle, ATT_PDU_READ_REQ, 0, pAttr);
       }
       /* else check if CCC */
       else if ((pAttr->settings & ATTS_SET_CCC) && (attsCb.cccCback != NULL))
       {
-        err = (*attsCb.cccCback)(pCcb->connId, ATT_METHOD_READ, handle, pAttr->pValue);
+        err = (*attsCb.cccCback)(pCcb->pMainCcb->connId, ATT_METHOD_READ, handle, pAttr->pValue);
       }
 
       if (err == ATT_SUCCESS)
       {
         /* determine length of data to read */
-        readLen = (*pAttr->pLen < (pCcb->mtu - ATT_READ_RSP_LEN)) ?
-                   *pAttr->pLen : (pCcb->mtu - ATT_READ_RSP_LEN);
+        readLen = (*pAttr->pLen < (mtu - ATT_READ_RSP_LEN)) ?
+                   *pAttr->pLen : (mtu - ATT_READ_RSP_LEN);
 
         /* Allocate response buffer */
         if ((pBuf = attMsgAlloc(L2C_PAYLOAD_START + ATT_READ_RSP_LEN + readLen)) != NULL)
@@ -448,7 +467,7 @@ void attsProcReadReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
           UINT8_TO_BSTREAM(p, ATT_PDU_READ_RSP);
           memcpy(p, pAttr->pValue, readLen);
 
-          L2cDataReq(L2C_CID_ATT, pCcb->handle, (ATT_READ_RSP_LEN + readLen), pBuf);
+          attL2cDataReq(pCcb->pMainCcb, pCcb->slot, (ATT_READ_RSP_LEN + readLen), pBuf);
         }
       }
     }
@@ -461,7 +480,110 @@ void attsProcReadReq(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 
   if (err)
   {
-    attsErrRsp(pCcb->handle, ATT_PDU_READ_REQ, handle, err);
+    attsErrRsp(pCcb->pMainCcb, pCcb->slot, ATT_PDU_READ_REQ, handle, err);
   }
 }
 
+/*************************************************************************************************/
+/*!
+ *  \brief  Process a read multi variable length request PDU.
+ *
+ *  \param  pCcb      Connection control block.
+ *  \param  len       The length of the L2CAP payload data in pPacket.
+ *  \param  pPacket   A buffer containing the packet.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void attsProcReadMultiVarReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+{
+  uint8_t       *pBuf;
+  uint8_t       *p;
+  attsAttr_t    *pAttr;
+  attsGroup_t   *pGroup;
+  uint16_t      handle = ATT_HANDLE_NONE;
+  uint16_t      rspLen = 0;
+  uint8_t       err = ATT_SUCCESS;
+  uint16_t      mtu = pCcb->pMainCcb->sccb[pCcb->slot].mtu;
+  const uint8_t hdrLen = L2C_PAYLOAD_START + ATT_HDR_LEN;
+
+  pPacket += L2C_PAYLOAD_START + ATT_HDR_LEN;
+  len -= ATT_HDR_LEN;
+  
+  if ((pBuf = attMsgAlloc(L2C_PAYLOAD_START + mtu)) != NULL)
+  {
+    p = pBuf + hdrLen;
+
+    while (len > 0)
+    {
+      /* parse handle */
+      BSTREAM_TO_UINT16(handle, pPacket);
+      len -= sizeof(uint16_t);
+
+      /* find attribute */
+      if ((pAttr = attsFindByHandle(handle, &pGroup)) != NULL)
+      {
+        /* verify permissions */
+        if ((err = attsPermissions(pCcb->pMainCcb->connId, ATTS_PERMIT_READ,
+                                   handle, pAttr->permissions)) == ATT_SUCCESS)
+        {
+          /* call read callback if desired */
+          if ((pAttr->settings & ATTS_SET_READ_CBACK) && (pGroup->readCback != NULL))
+          {
+            err = (*pGroup->readCback)(pCcb->pMainCcb->connId, handle, ATT_PDU_READ_MULT_VAR_REQ, 0, pAttr);
+          }
+          /* else check if CCC */
+          else if ((pAttr->settings & ATTS_SET_CCC) && (attsCb.cccCback != NULL))
+          {
+            err = (*attsCb.cccCback)(pCcb->pMainCcb->connId, ATT_METHOD_READ, handle, pAttr->pValue);
+          }
+
+          if (err == ATT_SUCCESS)
+          {
+            /* determine length of data to read */
+            uint16_t readLen = (*pAttr->pLen < (mtu - rspLen - hdrLen)) ?
+                                *pAttr->pLen : (mtu - rspLen - hdrLen);
+
+            UINT16_TO_BSTREAM(p, readLen);
+            memcpy(p, pAttr->pValue, readLen);
+            p += readLen;
+            rspLen += readLen + sizeof(uint16_t);
+
+            /* if truncating, then we are done */
+            if (readLen < *pAttr->pLen)
+            {
+              break;
+            }
+          }
+          else
+          {
+            break;
+          }
+        }
+      }
+      else
+      {
+        err = ATT_ERR_HANDLE;
+        break;
+      }
+    }
+
+    if (err == ATT_SUCCESS)
+    {
+      /* complete and send PDU */
+      p = pBuf + L2C_PAYLOAD_START;
+      UINT8_TO_BSTREAM(p, ATT_PDU_READ_MULT_VAR_RSP);
+
+      attL2cDataReq(pCcb->pMainCcb, pCcb->slot, (ATT_READ_MULT_VAR_RSP_LEN + rspLen), pBuf);
+    }
+    else
+    {
+      AttMsgFree(pBuf, ATT_PDU_READ_MULT_VAR_RSP);
+    }
+  }
+
+  if (err)
+  {
+    attsErrRsp(pCcb->pMainCcb, pCcb->slot, ATT_PDU_READ_MULT_VAR_REQ, handle, err);
+  }
+}

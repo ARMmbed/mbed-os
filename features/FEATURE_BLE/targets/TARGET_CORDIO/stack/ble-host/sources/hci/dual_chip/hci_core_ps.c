@@ -1,22 +1,28 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief HCI core platform-specific module for dual-chip.
+ *  \file
+ *
+ *  \brief  HCI core platform-specific module for dual-chip.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  This module implements core platform-dependent HCI features for transmit data path, receive
+ *  data path, the “optimization” API, and the main event handler. This module contains separate
+ *  implementations for dual chip and single chip.
  */
 /*************************************************************************************************/
 
@@ -117,6 +123,10 @@ void hciCoreRecv(uint8_t msgType, uint8_t *pCoreRecvMsg)
   {
     HCI_PDUMP_RX_ACL(*(pCoreRecvMsg + 2) + HCI_ACL_HDR_LEN, pCoreRecvMsg);
   }
+  else if (msgType == HCI_ISO_TYPE)
+  {
+    HCI_PDUMP_RX_ISO(*(pCoreRecvMsg + 2) + HCI_ACL_HDR_LEN, pCoreRecvMsg);
+  }
 
   /* queue buffer */
   WsfMsgEnq(&hciCb.rxQueue, (wsfHandlerId_t) msgType, pCoreRecvMsg);
@@ -171,13 +181,27 @@ void HciCoreHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
         WsfMsgFree(pBuf);
       }
       /* Handle ACL data */
-      else
+      else if (handlerId == HCI_ACL_TYPE)
       {
         /* Reassemble */
         if ((pBuf = hciCoreAclReassembly(pBuf)) != NULL)
         {
           /* Call ACL callback; client will free buffer */
           hciCb.aclCback(pBuf);
+        }
+      }
+      /* Handle ISO data */
+      else
+      {
+        if (hciCb.isoCback)
+        {
+          /* Call ISO callback; client will free buffer */
+          hciCb.isoCback(pBuf);
+        }
+        else
+        {
+          /* free buffer */
+          WsfMsgFree(pBuf);
         }
       }
     }
@@ -263,9 +287,21 @@ uint8_t *HciGetSupStates(void)
  *  \return Supported features.
  */
 /*************************************************************************************************/
-uint32_t HciGetLeSupFeat(void)
+uint64_t HciGetLeSupFeat(void)
 {
   return hciCoreCb.leSupFeat;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Return the LE supported features supported by the controller.
+ *
+ *  \return Supported features.
+ */
+/*************************************************************************************************/
+uint32_t HciGetLeSupFeat32(void)
+{
+  return (uint32_t) hciCoreCb.leSupFeat;
 }
 
 /*************************************************************************************************/

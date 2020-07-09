@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Trace message interface.
+ *  \file   wsf_trace.h
+ *
+ *  \brief  Trace message interface.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef WSF_TRACE_H
@@ -50,6 +52,11 @@ extern "C" {
 #define LL_TRACE_ENABLED          FALSE
 #endif
 
+#ifndef AUD_TRACE_ENABLED
+/*! \brief     Trace enabled for audio subsystem */
+#define AUD_TRACE_ENABLED         FALSE
+#endif
+
 /**************************************************************************************************
   Data Types
 **************************************************************************************************/
@@ -70,8 +77,6 @@ typedef void (*WsfBt4TraceCback_t)(const char *pStr, va_list args);
  *
  *  \param  tok       Token
  *  \param  var       Variable
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfToken(uint32_t tok, uint32_t var);
@@ -81,8 +86,6 @@ void WsfToken(uint32_t tok, uint32_t var);
  *  \brief  Enable trace messages.
  *
  *  \param  enable    TRUE to enable, FALSE to disable
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTraceEnable(bool_t enable);
@@ -93,8 +96,6 @@ void WsfTraceEnable(bool_t enable);
  *
  *  \param  pStr      Format string
  *  Addition parameters variable arguments to the format string.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTrace(const char *pStr, ...);
@@ -104,8 +105,6 @@ void WsfTrace(const char *pStr, ...);
  *  \brief  Register trace handler.
  *
  *  \param  traceCback  Token event handler.
- *
- *  \return None.
  *
  *  This routine registers a token callback. This callback is called when the next token event
  *  is ready to be written to the I/O.
@@ -118,8 +117,6 @@ void WsfTraceRegisterHandler(WsfTraceHandler_t traceCback);
  *  \brief  Register BT4 platform trace callback function.
  *
  *  \param  cback    Callback function
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTraceRegister(WsfBt4TraceCback_t cback);
@@ -300,6 +297,10 @@ bool_t WsfTokenService(void);
 #define HCI_PDUMP_TX_ACL(len, pBuf)
 /*! \brief HCI PDUMP on Received ACL message. */
 #define HCI_PDUMP_RX_ACL(len, pBuf)
+/*! \brief HCI PDUMP on transmitted ISO message. */
+#define HCI_PDUMP_TX_ISO(len, pBuf)
+/*! \brief HCI PDUMP on Received ISO message. */
+#define HCI_PDUMP_RX_ISO(len, pBuf)
 
 /*! \brief 0 argument DM info trace. */
 #define DM_TRACE_INFO0(msg)                         WSF_TRACE0("DM", "INFO", msg)
@@ -391,6 +392,31 @@ bool_t WsfTokenService(void);
 #define ATT_TRACE_ERR2(msg, var1, var2)             WSF_TRACE2("ATT", "ERR",  msg, var1, var2)
 /*! \brief 3 argument ATT error trace. */
 #define ATT_TRACE_ERR3(msg, var1, var2, var3)       WSF_TRACE3("ATT", "ERR",  msg, var1, var2, var3)
+
+/*! \brief 0 argument EATT info trace. */
+#define EATT_TRACE_INFO0(msg)                       WSF_TRACE0("EATT", "INFO", msg)
+/*! \brief 1 argument EATT info trace. */
+#define EATT_TRACE_INFO1(msg, var1)                 WSF_TRACE1("EATT", "INFO", msg, var1)
+/*! \brief 2 argument EATT info trace. */
+#define EATT_TRACE_INFO2(msg, var1, var2)           WSF_TRACE2("EATT", "INFO", msg, var1, var2)
+/*! \brief 3 argument EATT info trace. */
+#define EATT_TRACE_INFO3(msg, var1, var2, var3)     WSF_TRACE3("EATT", "INFO", msg, var1, var2, var3)
+/*! \brief 0 argument EATT warning trace. */
+#define EATT_TRACE_WARN0(msg)                       WSF_TRACE0("EATT", "WARN", msg)
+/*! \brief 1 argument EATT warning trace. */
+#define EATT_TRACE_WARN1(msg, var1)                 WSF_TRACE1("EATT", "WARN", msg, var1)
+/*! \brief 2 argument EATT warning trace. */
+#define EATT_TRACE_WARN2(msg, var1, var2)           WSF_TRACE2("EATT", "WARN", msg, var1, var2)
+/*! \brief 3 argument EATT warning trace. */
+#define EATT_TRACE_WARN3(msg, var1, var2, var3)     WSF_TRACE3("EATT", "WARN", msg, var1, var2, var3)
+/*! \brief 0 argument EATT error trace. */
+#define EATT_TRACE_ERR0(msg)                        WSF_TRACE0("EATT", "ERR",  msg)
+/*! \brief 1 argument EATT error trace. */
+#define EATT_TRACE_ERR1(msg, var1)                  WSF_TRACE1("EATT", "ERR",  msg, var1)
+/*! \brief 2 argument EATT error trace. */
+#define EATT_TRACE_ERR2(msg, var1, var2)            WSF_TRACE2("EATT", "ERR",  msg, var1, var2)
+/*! \brief 3 argument EATT error trace. */
+#define EATT_TRACE_ERR3(msg, var1, var2, var3)      WSF_TRACE3("EATT", "ERR",  msg, var1, var2, var3)
 
 /*! \brief 0 argument SMP info trace. */
 #define SMP_TRACE_INFO0(msg)                        WSF_TRACE0("SMP", "INFO", msg)
@@ -563,6 +589,58 @@ bool_t WsfTokenService(void);
 /*! \brief 3 argument BBP error trace. */
 #define BBP_TRACE_ERR3(msg, var1, var2, var3)
 #endif  /* LL_TRACE_ENABLED */
+
+#if (AUD_TRACE_ENABLED == TRUE)
+/*! \brief 0 argument AUD info trace. */
+#define AUD_TRACE_INFO0(msg)                        WSF_TRACE0("AUD", "INFO", msg)
+/*! \brief 1 argument AUD info trace. */
+#define AUD_TRACE_INFO1(msg, var1)                  WSF_TRACE1("AUD", "INFO", msg, var1)
+/*! \brief 2 argument AUD info trace. */
+#define AUD_TRACE_INFO2(msg, var1, var2)            WSF_TRACE2("AUD", "INFO", msg, var1, var2)
+/*! \brief 3 argument AUD info trace. */
+#define AUD_TRACE_INFO3(msg, var1, var2, var3)      WSF_TRACE3("AUD", "INFO", msg, var1, var2, var3)
+/*! \brief 0 argument AUD warning trace. */
+#define AUD_TRACE_WARN0(msg)                        WSF_TRACE0("AUD", "WARN", msg)
+/*! \brief 1 argument AUD warning trace. */
+#define AUD_TRACE_WARN1(msg, var1)                  WSF_TRACE1("AUD", "WARN", msg, var1)
+/*! \brief 2 argument AUD warning trace. */
+#define AUD_TRACE_WARN2(msg, var1, var2)            WSF_TRACE2("AUD", "WARN", msg, var1, var2)
+/*! \brief 3 argument AUD warning trace. */
+#define AUD_TRACE_WARN3(msg, var1, var2, var3)      WSF_TRACE3("AUD", "WARN", msg, var1, var2, var3)
+/*! \brief 0 argument AUD error trace. */
+#define AUD_TRACE_ERR0(msg)                         WSF_TRACE0("AUD", "ERR",  msg)
+/*! \brief 1 argument AUD error trace. */
+#define AUD_TRACE_ERR1(msg, var1)                   WSF_TRACE1("AUD", "ERR",  msg, var1)
+/*! \brief 2 argument AUD error trace. */
+#define AUD_TRACE_ERR2(msg, var1, var2)             WSF_TRACE2("AUD", "ERR",  msg, var1, var2)
+/*! \brief 3 argument AUD error trace. */
+#define AUD_TRACE_ERR3(msg, var1, var2, var3)       WSF_TRACE3("AUD", "ERR",  msg, var1, var2, var3)
+#else   /* AUD_TRACE_ENABLED */
+/*! \brief 0 argument AUD info trace. */
+#define AUD_TRACE_INFO0(msg)
+/*! \brief 1 argument AUD info trace. */
+#define AUD_TRACE_INFO1(msg, var1)
+/*! \brief 2 argument AUD info trace. */
+#define AUD_TRACE_INFO2(msg, var1, var2)
+/*! \brief 3 argument AUD info trace. */
+#define AUD_TRACE_INFO3(msg, var1, var2, var3)
+/*! \brief 0 argument AUD warning trace. */
+#define AUD_TRACE_WARN0(msg)
+/*! \brief 1 argument AUD warning trace. */
+#define AUD_TRACE_WARN1(msg, var1)
+/*! \brief 2 argument AUD warning trace. */
+#define AUD_TRACE_WARN2(msg, var1, var2)
+/*! \brief 3 argument AUD warning trace. */
+#define AUD_TRACE_WARN3(msg, var1, var2, var3)
+/*! \brief 0 argument AUD error trace. */
+#define AUD_TRACE_ERR0(msg)
+/*! \brief 1 argument AUD error trace. */
+#define AUD_TRACE_ERR1(msg, var1)
+/*! \brief 2 argument AUD error trace. */
+#define AUD_TRACE_ERR2(msg, var1, var2)
+/*! \brief 3 argument AUD error trace. */
+#define AUD_TRACE_ERR3(msg, var1, var2, var3)
+#endif  /* AUD_TRACE_ENABLED */
 
 /*! \brief 0 argument MESH info trace. */
 #define MESH_TRACE_INFO0(msg)                       WSF_TRACE0("MESH", "INFO", msg)

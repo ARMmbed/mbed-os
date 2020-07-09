@@ -1,29 +1,31 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) master extended control interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) master extended control interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include "lctr_api_adv_master_ae.h"
 #include "lctr_api_init_master_ae.h"
 #include "lmgr_api_adv_master_ae.h"
+#include "lctr_api_conn.h"
 #include "ll_math.h"
 #include "wsf_assert.h"
 #include "wsf_msg.h"
@@ -32,46 +34,16 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief      Validate Connection spec parameters
+ *  \brief      Validate extended connection spec parameters.
  *
- *  \param      pConnSpec
+ *  \param      pParam    Pointer to connection spec parameters.
  *
- *  \return     TRUE if valid, FALSE otherwise.
+ *  \return     Status error code.
  */
 /*************************************************************************************************/
-static bool_t llValidateConnSpecParams(const LlConnSpec_t *pParam)
+static uint8_t llValidateConnSpecParams(const LlConnSpec_t *pParam)
 {
-  /* Connection interval. */
-  if ((LL_API_PARAM_CHECK == 1) &&
-      ((pParam->connIntervalMin > pParam->connIntervalMax) ||
-       (pParam->connIntervalMax < pParam->connIntervalMin) ||
-       (pParam->connIntervalMax < HCI_CONN_INTERVAL_MIN) ||
-       (pParam->connIntervalMin < HCI_CONN_INTERVAL_MIN) ||
-       (pParam->connIntervalMax > HCI_CONN_INTERVAL_MAX) ||
-       (pParam->connIntervalMin > HCI_CONN_INTERVAL_MAX) ))
-  {
-    return FALSE;
-  }
-
-  /* Connection latency. */
-  if ((LL_API_PARAM_CHECK == 1) &&
-      ((pParam->connLatency > HCI_CONN_LATENCY_MAX)))
-  {
-    return FALSE;
-  }
-
-  /* Supervision timeout. */
-  uint32_t supTimeoutMin = ((uint32_t) pParam->connLatency + 1) * LL_CONN_INTERVAL_VAL_TO_US((uint32_t) pParam->connIntervalMax) * 2;
-  uint32_t supTimeoutUs = LL_SUP_TIMEOUT_VAL_TO_US((uint32_t) pParam->supTimeout);
-  if ((LL_API_PARAM_CHECK == 1) &&
-      ((supTimeoutUs <= supTimeoutMin) ||
-       (pParam->supTimeout < HCI_SUP_TIMEOUT_MIN) ||
-       (pParam->supTimeout > HCI_SUP_TIMEOUT_MAX)))
-  {
-    return FALSE;
-  }
-
-  return TRUE;
+  return LctrValidateConnSpec(pParam);
 }
 
 /*************************************************************************************************/
@@ -167,7 +139,7 @@ uint8_t LlExtCreateConn(const LlExtInitParam_t *pInitParam, const LlExtInitScanP
   if ((LL_API_PARAM_CHECK == 1) &&
       ((pInitParam->initPhys & supportedPhys) != pInitParam->initPhys))
   {
-    LL_TRACE_WARN0("Unsupported PHY bit was set.");
+    LL_TRACE_WARN0("Unsupported PHY bit was set");
     return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
   }
 
@@ -181,7 +153,7 @@ uint8_t LlExtCreateConn(const LlExtInitParam_t *pInitParam, const LlExtInitScanP
   {
     for (unsigned int i = 0; i < numInitPhyBits; i++)
     {
-      if ((!llValidateConnSpecParams(&connSpec[i])) || (!llValidateInitiateScanParams(&scanParam[i])))
+      if ((llValidateConnSpecParams(&connSpec[i]) != LL_SUCCESS) || (!llValidateInitiateScanParams(&scanParam[i])))
       {
         return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
       }

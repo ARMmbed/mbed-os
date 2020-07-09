@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT main module.
+ *  \file
+ *
+ *  \brief  ATT main module.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -29,6 +31,7 @@
 #include "wsf_math.h"
 #include "util/bstream.h"
 #include "att_api.h"
+#include "eatt_api.h"
 #include "att_main.h"
 #include "dm_api.h"
 
@@ -56,6 +59,15 @@ const attFcnIf_t attFcnDefault =
 {
   attEmptyDataCback,
   (l2cCtrlCback_t) attEmptyHandler,
+  (attMsgHandler_t) attEmptyHandler,
+  attEmptyConnCback
+};
+
+/* Default component function inteface */
+const eattFcnIf_t eattFcnDefault =
+{
+  attEmptyL2cCocCback,
+  attEmptyL2cCocCback,
   (attMsgHandler_t) attEmptyHandler,
   attEmptyConnCback
 };
@@ -117,18 +129,18 @@ static void attL2cCtrlCback(wsfMsgHdr_t *pMsg)
     if (pMsg->event == L2C_CTRL_FLOW_DISABLE_IND)
     {
       /* flow disabled */
-      pCcb->control |= ATT_CCB_STATUS_FLOW_DISABLED;
+      pCcb->sccb[ATT_BEARER_SLOT_ID].control |= ATT_CCB_STATUS_FLOW_DISABLED;
     }
     else
     {
       /* flow enabled */
-      pCcb->control &= ~ATT_CCB_STATUS_FLOW_DISABLED;
+      pCcb->sccb[ATT_BEARER_SLOT_ID].control &= ~ATT_CCB_STATUS_FLOW_DISABLED;
 
       /* call server control callback */
       (*attCb.pServer->ctrlCback)(pMsg);
 
       /* check flow again; could be changed recursively */
-      if (!(pCcb->control & ATT_CCB_STATUS_FLOW_DISABLED))
+      if (!(pCcb->sccb[ATT_BEARER_SLOT_ID].control & ATT_CCB_STATUS_FLOW_DISABLED))
       {
         /* call client control callback */
         (*attCb.pClient->ctrlCback)(pMsg);
@@ -149,6 +161,7 @@ static void attL2cCtrlCback(wsfMsgHdr_t *pMsg)
 static void attDmConnCback(dmEvt_t *pDmEvt)
 {
   attCcb_t  *pCcb;
+  uint8_t i;
 
   pCcb = attCcbByConnId((dmConnId_t) pDmEvt->hdr.param);
 
@@ -157,9 +170,14 @@ static void attDmConnCback(dmEvt_t *pDmEvt)
   {
     /* initialize control block before handling event */
     pCcb->handle = pDmEvt->connOpen.handle;
-    pCcb->mtu = ATT_DEFAULT_MTU;
     pCcb->connId = (dmConnId_t) pDmEvt->hdr.param;
-    pCcb->control = 0;
+
+    for (i = 0; i < ATT_BEARER_MAX; i++)
+    {
+      pCcb->sccb[i].mtu = ATT_DEFAULT_MTU;
+      pCcb->sccb[i].control = 0;
+    }
+
     pCcb->pPendDbHashRsp = NULL;
   }
 
@@ -183,6 +201,12 @@ static void attDmConnCback(dmEvt_t *pDmEvt)
         WsfBufFree(pCcb->pPendDbHashRsp);
       }
     }
+  }
+
+  /* pass DM event to EATT */
+  if (attCb.eattDmCback != NULL)
+  {
+    (*attCb.eattDmCback)(pDmEvt);
   }
 
   /* execute ATT connection callback */
@@ -217,6 +241,22 @@ void attEmptyHandler(wsfMsgHdr_t *pMsg)
  */
 /*************************************************************************************************/
 void attEmptyConnCback(attCcb_t *pCcb, dmEvt_t *pDmEvt)
+{
+  return;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Empty l2c coc callback for ATT.
+ *
+ *  \param  handle    The connection handle.
+ *  \param  len       The length of the L2CAP payload data in pPacket.
+ *  \param  pPacket   A buffer containing the packet.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void attEmptyL2cCocCback(l2cCocEvt_t *pMsg)
 {
   return;
 }
@@ -303,7 +343,7 @@ bool_t attUuidCmp16to128(const uint8_t *pUuid16, const uint8_t *pUuid128)
  *  \return None.
  */
 /*************************************************************************************************/
-void attSetMtu(attCcb_t *pCcb, uint16_t peerMtu, uint16_t localMtu)
+void attSetMtu(attCcb_t *pCcb, uint8_t slot, uint16_t peerMtu, uint16_t localMtu)
 {
   uint16_t  mtu;
 
@@ -311,10 +351,10 @@ void attSetMtu(attCcb_t *pCcb, uint16_t peerMtu, uint16_t localMtu)
   mtu = WSF_MIN(peerMtu, localMtu);
 
   /* if current mtu is not the same as the negotiated value */
-  if (pCcb->mtu != mtu)
+  if (pCcb->sccb[slot].mtu != mtu)
   {
     /* set mtu to the new value */
-    pCcb->mtu = mtu;
+    pCcb->sccb[slot].mtu = mtu;
 
     /* notify app about the new value */
     attExecCallback(pCcb->connId, ATT_MTU_UPDATE_IND, 0, ATT_SUCCESS, mtu);
@@ -368,6 +408,67 @@ void *attMsgAlloc(uint16_t len)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Send an L2CAP data packet on the given CID.
+ *
+ *  \param  pCcb      ATT control block.
+ *  \param  slot      EATT channel slot.
+ *  \param  handle    The connection handle.  The client receives this handle from DM.
+ *  \param  len       The length of the payload data in pPacket.
+ *  \param  pPacket   A buffer containing the packet.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void attL2cDataReq(attCcb_t *pCcb, uint8_t slot, uint16_t len, uint8_t *pPacket)
+{
+  if (slot == ATT_BEARER_SLOT_ID)
+  {
+    /* send packet to L2CAP via ATT channel */
+    L2cDataReq(L2C_CID_ATT, pCcb->handle, len, pPacket);
+  }
+  else if (attCb.eattL2cDataReq)
+  {
+    attCb.eattL2cDataReq(pCcb, slot, len, pPacket);
+  }
+  else
+  {
+    WsfMsgFree(pPacket);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Encode a message parameter with the conn ID and the slot ID.
+ *
+ *  \param  chanId    DM connection ID.
+ *  \param  slot      EATT channel slot.
+ *
+ *  \return param value.
+ */
+/*************************************************************************************************/
+uint16_t attMsgParam(dmConnId_t connId, uint8_t slot)
+{
+  return connId * (ATT_BEARER_MAX) + slot;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Decode a message parameter with the conn ID and the slot ID.
+ *
+ *  \param  chanId    DM connection ID.
+ *  \param  slot      EATT channel slot.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void attDecodeMsgParam(uint16_t param, dmConnId_t *pConnId, uint8_t *pSlot)
+{
+  *pSlot = (uint8_t) (param % (ATT_BEARER_MAX));
+  *pConnId = param / (ATT_BEARER_MAX);
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  ATT handler init function called during system initialization.
  *
  *  \param  handlerID  WSF handler ID for ATT.
@@ -383,6 +484,8 @@ void AttHandlerInit(wsfHandlerId_t handlerId)
   /* initialize control block */
   attCb.pClient = &attFcnDefault;
   attCb.pServer = &attFcnDefault;
+  attCb.pEnServer = &eattFcnDefault;
+  attCb.pEnClient = &eattFcnDefault;
 
   /* Register with L2C */
   L2cRegister(L2C_CID_ATT,  attL2cDataCback, attL2cCtrlCback);
@@ -407,7 +510,24 @@ void AttHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   /* Handle message */
   if (pMsg != NULL)
   {
-    if (pMsg->event >= ATTS_MSG_START)
+    if (pMsg->event >= EATT_MSG_START)
+    {
+      if (attCb.eattHandler)
+      {
+        attCb.eattHandler(pMsg);
+      }
+    }
+    else if (pMsg->event >= EATTS_MSG_START)
+    {
+      /* pass event to server */
+      (*attCb.pEnServer->msgCback)(pMsg);
+    }
+    else if (pMsg->event >= EATTC_MSG_START)
+    {
+      /* pass event to server */
+      (*attCb.pEnClient->msgCback)(pMsg);
+    }
+    else if (pMsg->event >= ATTS_MSG_START)
     {
       /* pass event to server */
       (*attCb.pServer->msgCback)(pMsg);
@@ -472,7 +592,7 @@ void AttConnRegister(dmCback_t cback)
 /*************************************************************************************************/
 uint16_t AttGetMtu(dmConnId_t connId)
 {
-  return (attCcbByConnId(connId)->mtu);
+  return (attCcbByConnId(connId)->sccb[ATT_BEARER_SLOT_ID].mtu);
 }
 
 /*************************************************************************************************/
@@ -532,7 +652,8 @@ void AttMsgFree(void *pMsg, uint8_t opcode)
 {
   uint8_t  hdrLen;
 
-  WSF_ASSERT((opcode == ATT_PDU_VALUE_IND) || (opcode == ATT_PDU_VALUE_NTF));
+  WSF_ASSERT((opcode == ATT_PDU_VALUE_IND) || (opcode == ATT_PDU_VALUE_NTF) || \
+             (opcode == ATT_PDU_READ_MULT_VAR_RSP));
 
   switch (opcode)
   {

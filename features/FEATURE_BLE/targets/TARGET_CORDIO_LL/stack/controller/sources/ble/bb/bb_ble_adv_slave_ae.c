@@ -1,27 +1,29 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Extended advertising slave BLE baseband porting implementation file.
+ *  \file
+ *
+ *  \brief      Extended advertising slave BLE baseband porting implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include "bb_ble_int.h"
+#include "bb_ble_sniffer_api.h"
 #include "sch_api.h"
 #include "sch_api_ble.h"
 #include <string.h>
@@ -30,21 +32,11 @@
   Macros
 **************************************************************************************************/
 
-/*! \brief      Event states for advertising operations. */
-enum
-{
-  BB_EVT_STATE_TX_ADV_IND,          /*!< Transmit Advertising indication. */
-  BB_EVT_STATE_RX_SCAN_OR_CONN_REQ, /*!< Receive scan or connection request. */
-  BB_EVT_STATE_TX_SCAN_RSP,         /*!< Transmit scan response. */
-  BB_EVT_STATE_TX_CHAIN_IND         /*!< Transmit chain indication. */
-};
-
-
 /**************************************************************************************************
   Global Variables
 **************************************************************************************************/
 
-BbBleAuxAdvPktStats_t bbAuxAdvStats;/*!< Auxiliary advertising packet statistics. */
+BbBleAuxAdvPktStats_t bbAuxAdvStats; /*!< Auxiliary advertising packet statistics. */
 
 /*************************************************************************************************/
 /*!
@@ -65,6 +57,7 @@ static bool_t bbSlvAdvSetupTxAuxChainInd(BbOpDesc_t *pCur, BbBleSlvAuxAdvEvent_t
   }
 
   uint32_t auxOffsUsec = pAuxAdv->txAuxSetupCback(pCur, TRUE);
+
   if (auxOffsUsec == 0)
   {
     /* Operation completed. */
@@ -75,7 +68,8 @@ static bool_t bbSlvAdvSetupTxAuxChainInd(BbOpDesc_t *pCur, BbBleSlvAuxAdvEvent_t
   PalBbBleSetChannelParam(&pCur->prot.pBle->chan);
 
   /* Offset may be up to 1 unit earlier than actual transmission. */
-  bbBleCb.bbParam.due += BB_US_TO_BB_TICKS(auxOffsUsec);
+  bbBleCb.bbParam.dueUsec = BbAdjustTime(bbBleCb.bbParam.dueUsec + auxOffsUsec);
+
   PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   BB_ISR_MARK(bbAuxAdvStats.rxSetupUsec);
@@ -92,8 +86,6 @@ static bool_t bbSlvAdvSetupTxAuxChainInd(BbOpDesc_t *pCur, BbBleSlvAuxAdvEvent_t
  *
  *  \param      status      Completion status.
  *
- *  \return     None.
- *
  *  Setup for next action in the operation or complete the operation.
  */
 /*************************************************************************************************/
@@ -109,6 +101,16 @@ static void bbSlvAuxAdvTxCompCback(uint8_t status)
 
   bool_t bodComplete = FALSE;
 
+#if (BB_SNIFFER_ENABLED == TRUE)
+  /* Save evtState to be used later in packet forwarding. */
+  uint8_t evtState = bbBleCb.evtState;
+  BbBleSnifferPkt_t * pPkt = NULL;
+  if (bbSnifferCtx.enabled)
+  {
+    pPkt = bbSnifferCtx.snifferGetPktFn();
+  }
+#endif
+
   if (status != BB_STATUS_SUCCESS)
   {
     BB_INC_STAT(bbAuxAdvStats.errAdv);
@@ -119,6 +121,14 @@ static void bbSlvAuxAdvTxCompCback(uint8_t status)
   switch (bbBleCb.evtState)
   {
     case BB_EVT_STATE_TX_ADV_IND:
+#if (BB_SNIFFER_ENABLED == TRUE)
+      if (pPkt)
+      {
+        /* Save buffer to sniffer packet before it is overwritten. */
+        memcpy(pPkt->pktType.advPkt.hdr, pAuxAdv->txAuxAdvPdu->pBuf, LL_ADV_HDR_LEN);
+      }
+#endif
+
       if (!pAuxAdv->pRxAuxReqBuf)
       {
         /* Non-connectable and non-scannable operation. */
@@ -128,24 +138,32 @@ static void bbSlvAuxAdvTxCompCback(uint8_t status)
       else
       {
         /* Scannable or connectable operation. */
-        bbBleCb.evtState = BB_EVT_STATE_RX_SCAN_OR_CONN_REQ;
+        bbBleCb.evtState = BB_EVT_STATE_RX_SCAN_OR_CONN_INIT;
         BB_ISR_MARK(bbAuxAdvStats.rxSetupUsec);
-        bbBleSetIfs();     /* set up for Tx SCAN_RSP */
+        bbBleSetTifs();     /* set up for Tx SCAN_RSP */
         PalBbBleRxTifsData(pAuxAdv->pRxAuxReqBuf, BB_REQ_PDU_MAX_LEN);   /* reduce max length requirement */
       }
       BB_INC_STAT(bbAuxAdvStats.txAdv);
       break;
 
-    case BB_EVT_STATE_TX_SCAN_RSP:
+    case BB_EVT_STATE_TX_SCAN_OR_CONN_RSP:
       bbBleCb.evtState = BB_EVT_STATE_TX_CHAIN_IND;
-      bbBleCb.bbParam.due = pAuxAdv->auxReqStartTs +
-                            BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pAuxAdv->auxRxPhyOptions, LL_ADV_HDR_LEN + LL_SCAN_REQ_PDU_LEN)) +
-                            BB_US_TO_BB_TICKS(LL_BLE_TIFS_US);
+      bbBleCb.bbParam.dueUsec = BbAdjustTime(pAuxAdv->auxReqStartTsUsec +
+                                SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pAuxAdv->auxRxPhyOptions, LL_ADV_HDR_LEN + LL_SCAN_REQ_PDU_LEN) +
+                                LL_BLE_TIFS_US);
       bodComplete = bbSlvAdvSetupTxAuxChainInd(pCur, pAuxAdv);
       BB_INC_STAT(bbAuxAdvStats.txRsp);
       break;
 
     case BB_EVT_STATE_TX_CHAIN_IND:
+#if (BB_SNIFFER_ENABLED == TRUE)
+      if (pPkt)
+      {
+        /* Save buffer to sniffer packet before it is overwritten. */
+        memcpy(pPkt->pktType.advPkt.hdr, pAuxAdv->txAuxChainPdu->pBuf, LL_ADV_HDR_LEN);
+      }
+#endif
+
       /* bbBleCb.evtState = BB_EVT_STATE_TX_CHAIN_IND; */   /* Same state. */
       bodComplete = bbSlvAdvSetupTxAuxChainInd(pCur, pAuxAdv);
       BB_INC_STAT(bbAuxAdvStats.txChain);
@@ -175,6 +193,18 @@ Cleanup:
     BbTerminateBod();
   }
 
+
+#if (BB_SNIFFER_ENABLED == TRUE)
+  if (pPkt)
+  {
+    pPkt->pktType.meta.type = BB_SNIFF_PKT_TYPE_TX;
+    pPkt->pktType.meta.status = status;
+    pPkt->pktType.meta.state = evtState;
+
+    bbBleSnifferSlvAuxAdvPktHandler(pCur, pPkt);
+  }
+#endif
+
   BB_ISR_MARK(bbAuxAdvStats.txIsrUsec);
 }
 
@@ -185,10 +215,8 @@ Cleanup:
  *  \param      status          Reception status.
  *  \param      rssi            RSSI value.
  *  \param      crc             CRC value.
- *  \param      timestamp       Start of packet timestamp.
+ *  \param      timestamp       Start of packet timestamp in microseconds.
  *  \param      rxPhyOptions    Rx PHY options.
- *
- *  \return     None.
  *
  *  Setup for next action in the operation or complete the operation.
  */
@@ -204,17 +232,35 @@ static void bbSlvAuxAdvRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, ui
 
   bool_t bodComplete = FALSE;
 
+#if (BB_SNIFFER_ENABLED == TRUE)
+  /* Save evtState to be used later in packet forwarding. */
+  uint8_t evtState = bbBleCb.evtState;
+  BbBleSnifferPkt_t * pPkt = NULL;
+  if (bbSnifferCtx.enabled)
+  {
+    pPkt = bbSnifferCtx.snifferGetPktFn();
+  }
+#endif
+
   switch (bbBleCb.evtState++)
   {
-    case BB_EVT_STATE_RX_SCAN_OR_CONN_REQ:
+    case BB_EVT_STATE_RX_SCAN_OR_CONN_INIT:
       switch (status)
       {
         case BB_STATUS_SUCCESS:
           WSF_ASSERT(pAuxAdv->rxAuxReqCback);
           WSF_ASSERT(pAuxAdv->pRxAuxReqBuf);
 
-          pAuxAdv->auxReqStartTs = timestamp;
+          pAuxAdv->auxReqStartTsUsec = timestamp;
           pAuxAdv->auxRxPhyOptions = rxPhyOptions;
+
+#if (BB_SNIFFER_ENABLED == TRUE)
+          /* Pack the rx buffer before it is overwritten. */
+          if (pPkt)
+          {
+            memcpy(pPkt->pktType.advPkt.hdr, pAuxAdv->pRxAuxReqBuf, LL_ADV_HDR_LEN);
+          }
+#endif
 
           if (pAuxAdv->rxAuxReqCback(pCur, pAuxAdv->pRxAuxReqBuf))
           {
@@ -286,6 +332,19 @@ static void bbSlvAuxAdvRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, ui
     BbTerminateBod();
   }
 
+#if (BB_SNIFFER_ENABLED == TRUE)
+  if (pPkt)
+  {
+    pPkt->pktType.meta.type = BB_SNIFF_PKT_TYPE_RX;
+    pPkt->pktType.meta.rssi = rssi;
+    pPkt->pktType.meta.timeStamp = timestamp;
+    pPkt->pktType.meta.status = status;
+    pPkt->pktType.meta.state = evtState;
+
+    bbBleSnifferSlvAuxAdvPktHandler(pCur, pPkt);
+  }
+#endif
+
   BB_ISR_MARK(bbAuxAdvStats.rxIsrUsec);
 }
 
@@ -295,8 +354,6 @@ static void bbSlvAuxAdvRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, ui
  *
  *  \param      pBod    Pointer to the BOD to execute.
  *  \param      pBle    BLE operation parameters.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void bbSlvExecuteAuxAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
@@ -306,7 +363,6 @@ static void bbSlvExecuteAuxAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   bbBleCb.bbParam.txCback       = bbSlvAuxAdvTxCompCback;
   bbBleCb.bbParam.rxCback       = bbSlvAuxAdvRxCompCback;
   bbBleCb.bbParam.rxTimeoutUsec = 2 * LL_MAX_TIFS_DEVIATION;
-  bbBleCb.bbParam.dueOffsetUsec = 0;
 
   bbBleCb.advChIdx = 0;
   bbBleCb.evtState = 0;
@@ -325,14 +381,15 @@ static void bbSlvExecuteAuxAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 
   PalBbBleSetChannelParam(&pBle->chan);
 
-  bbBleCb.bbParam.due = pBod->due;
+  bbBleCb.bbParam.dueUsec = BbAdjustTime(pBod->dueUsec);
+  pBod->dueUsec = bbBleCb.bbParam.dueUsec;
   bbBleCb.evtState = BB_EVT_STATE_TX_ADV_IND;
   PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   if (pAuxAdv->pRxAuxReqBuf)
   {
     /* Request expected (scannable or connectable operation). */
-    bbBleSetIfs();
+    bbBleSetTifs();
   }
   else
   {
@@ -349,8 +406,6 @@ static void bbSlvExecuteAuxAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
  *
  *  \param      pBod    Pointer to the BOD to execute.
  *  \param      pBle    BLE operation parameters.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void bbSlvExecutePerAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
@@ -360,7 +415,6 @@ static void bbSlvExecutePerAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   bbBleCb.bbParam.txCback       = bbSlvAuxAdvTxCompCback;
   bbBleCb.bbParam.rxCback       = bbSlvAuxAdvRxCompCback;
   bbBleCb.bbParam.rxTimeoutUsec = 2 * LL_MAX_TIFS_DEVIATION;
-  bbBleCb.bbParam.dueOffsetUsec = 0;
 
   bbBleCb.advChIdx = 0;
   bbBleCb.evtState = 0;
@@ -379,14 +433,15 @@ static void bbSlvExecutePerAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 
   PalBbBleSetChannelParam(&pBle->chan);
 
-  bbBleCb.bbParam.due = pBod->due;
+  bbBleCb.bbParam.dueUsec = BbAdjustTime(pBod->dueUsec);
+  pBod->dueUsec = bbBleCb.bbParam.dueUsec;
   bbBleCb.evtState = BB_EVT_STATE_TX_ADV_IND;
   PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   if (pAuxAdv->pRxAuxReqBuf)
   {
     /* Request expected (scannable or connectable operation). */
-    bbBleSetIfs();
+    bbBleSetTifs();
   }
   else
   {
@@ -400,8 +455,6 @@ static void bbSlvExecutePerAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize for advertising slave operations.
- *
- *  \return     None.
  *
  *  Update the operation table with advertising slave operations routines.
  */
@@ -418,8 +471,6 @@ void BbBleAuxAdvSlaveInit(void)
  *  \brief      Get auxiliary advertising packet statistics.
  *
  *  \param      pStats      Auxiliary advertising statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetAuxAdvStats(BbBleAuxAdvPktStats_t *pStats)

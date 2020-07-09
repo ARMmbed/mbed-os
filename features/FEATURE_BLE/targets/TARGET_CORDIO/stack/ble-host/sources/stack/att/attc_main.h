@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT client main module.
+ *  \file
+ *
+ *  \brief  ATT client main module.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef ATTC_MAIN_H
@@ -49,6 +51,7 @@ extern "C" {
 #define ATT_SIGNED_WRITE_CMD_BUF_LEN      (ATT_SIGNED_WRITE_CMD_LEN + L2C_PAYLOAD_START)
 #define ATT_PREP_WRITE_REQ_BUF_LEN        (ATT_PREP_WRITE_REQ_LEN + L2C_PAYLOAD_START)
 #define ATT_EXEC_WRITE_REQ_BUF_LEN        (ATT_EXEC_WRITE_REQ_LEN + L2C_PAYLOAD_START)
+#define ATT_READ_MULT_VAR_REQ_BUF_LEN     (ATT_READ_MULT_VAR_REQ_LEN + L2C_PAYLOAD_START)
 
 /* values for 'continuing' flag */
 #define ATTC_CONTINUING                   TRUE
@@ -75,6 +78,7 @@ enum
   ATTC_MSG_API_WRITE_CMD          = ATT_METHOD_WRITE_CMD,
   ATTC_MSG_API_PREP_WRITE         = ATT_METHOD_PREPARE_WRITE,
   ATTC_MSG_API_EXEC_WRITE         = ATT_METHOD_EXECUTE_WRITE,
+  ATTC_MSG_API_READ_MULT_VAR      = ATT_METHOD_READ_MULT_VAR,
   ATTC_MSG_API_SIGNED_WRITE_CMD,
   ATTC_MSG_CMAC_CMPL,
   ATTC_MSG_API_CANCEL,
@@ -117,7 +121,7 @@ typedef union
   uint16_t                len;
   attcPktParamOffset_t    o;
   attcPktParamHandles_t   h;
-  attcPktParamPrepWrite_t w;
+  attcPktParamPrepWrite_t *pW;
 } attcPktParam_t;
 
 /* verify attcPktParam_t will work in data buffer format described above */
@@ -129,18 +133,27 @@ typedef struct
   wsfMsgHdr_t             hdr;
   attcPktParam_t          *pPkt;
   uint16_t                handle;
+  uint8_t                 slot;
 } attcApiMsg_t;
+
+/* union of API parameter types */
+typedef union
+{
+  uint16_t                len;
+  attcPktParamOffset_t    o;
+  attcPktParamHandles_t   h;
+  attcPktParamPrepWrite_t w;
+} attcOutPktParam_t;
 
 /* ATTC connection control block */
 typedef struct
 {
   attCcb_t                *pMainCcb;    /* Pointer to ATT main CCB */
-  attcApiMsg_t            onDeck;       /* API message "on deck" waiting to be sent */
   attcApiMsg_t            outReq;       /* Outstanding request waiting for response */
-  attcPktParam_t          outReqParams; /* Parameters associated with outstanding request */
+  attcOutPktParam_t       outReqParams; /* Parameters associated with outstanding request */
   wsfTimer_t              outReqTimer;  /* Outstanding request timer */
-  bool_t                  flowDisabled; /* Data flow disabled */
-  bool_t                  cnfPending;   /* Handle value confirm packet waiting to be sent */
+  uint8_t                 slot;         /* ATT/EATT slot ID */
+  dmConnId_t              connId;       /* DM connection ID */
   uint16_t                pendWriteCmdHandle[ATT_NUM_SIMUL_WRITE_CMD]; /* Callback to app pending for this write cmd handle */
 } attcCcb_t;
 
@@ -158,7 +171,8 @@ typedef struct
 /* Main control block of the ATTC subsystem */
 typedef struct
 {
-  attcCcb_t               ccb[DM_CONN_MAX];
+  attcCcb_t               ccb[DM_CONN_MAX][ATT_BEARER_MAX];
+  attcApiMsg_t            onDeck[DM_CONN_MAX];       /* API message "on deck" waiting to be sent */
   attcSignFcnIf_t const   *pSign;
   bool_t                  autoCnf;
 } attcCb_t;
@@ -177,15 +191,19 @@ extern attcCb_t attcCb;
   Function Declarations
 **************************************************************************************************/
 
-attcCcb_t *attcCcbByConnId(dmConnId_t connId);
-attcCcb_t *attcCcbByHandle(uint16_t handle);
+attcCcb_t *attcCcbByConnId(dmConnId_t connId, uint8_t slot);
+attcCcb_t *attcCcbByHandle(uint16_t handle, uint8_t slot);
+attcPktParam_t *attcPrepWriteAllocMsg(uint16_t bufLen);
 void attcFreePkt(attcApiMsg_t *pMsg);
 void attcExecCallback(dmConnId_t connId, uint8_t event, uint16_t handle, uint8_t status);
-void attcReqClear(attcCcb_t *pCcb, attcApiMsg_t *pMsg, uint8_t status);
+void attcReqClear(dmConnId_t connId, attcApiMsg_t *pMsg, uint8_t status);
+bool_t attcPendWriteCmd(attcCcb_t *pCcb, uint16_t handle);
 
 void attcSetupReq(attcCcb_t *pCcb, attcApiMsg_t *pMsg);
 void attcSendReq(attcCcb_t *pCcb);
 void attcSendMsg(dmConnId_t connId, uint16_t handle, uint8_t msgId, attcPktParam_t *pPkt, bool_t continuing);
+void attcMsgCback(attcApiMsg_t *pMsg);
+void attcWriteCmdCallback(dmConnId_t connId, attcCcb_t *pCcb, uint8_t status);
 
 void attcProcRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket);
 void attcProcInd(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket);
@@ -198,6 +216,8 @@ void attcProcReadRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t *
 void attcProcReadLongRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t *pEvt);
 void attcProcWriteRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t *pEvt);
 void attcProcPrepWriteRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t *pEvt);
+void attcProcReadMultVarRsp(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket, attEvt_t *pEvt);
+void attcProcMultiVarNtf(attcCcb_t *pCcb, uint16_t len, uint8_t *pPacket);
 
 #ifdef __cplusplus
 };

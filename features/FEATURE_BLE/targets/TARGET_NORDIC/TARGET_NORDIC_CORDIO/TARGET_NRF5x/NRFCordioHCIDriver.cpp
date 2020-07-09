@@ -27,7 +27,7 @@
 // Cordio Includes
 #include "ll_init_api.h"
 #include "ll_defs.h"
-#include "fake_lhci_drv.h"
+#include "custom_chci_tr.h"
 #include "pal_bb.h"
 #include "pal_cfg.h"
 #include "lhci_api.h"
@@ -67,7 +67,7 @@ using namespace ble::vendor::cordio;
 #define MBED_CONF_CORDIO_LL_TX_BUFFERS                MBED_CONF_CORDIO_LL_NRF52840_TX_BUFFERS
 #define MBED_CONF_CORDIO_LL_PHY_CODED_SUPPORT         MBED_CONF_CORDIO_LL_NRF52840_PHY_CODED_SUPPORT
 
-#define CORDIO_LL_MEMORY_FOOTPRINT  15400UL
+#define CORDIO_LL_MEMORY_FOOTPRINT  16056UL
 
 #else
 
@@ -92,9 +92,19 @@ using namespace ble::vendor::cordio;
 // The BB_ config macros are set in the bb_api.h header file
 const BbRtCfg_t NRFCordioHCIDriver::_bb_cfg = {
     /*clkPpm*/ 20,
-    /*rfSetupDelayUsec*/ BB_RF_SETUP_DELAY_US,
-    /*maxScanPeriodMsec*/ BB_MAX_SCAN_PERIOD_MS,
-    /*schSetupDelayUsec*/ BB_SCH_SETUP_DELAY_US
+    /*rfSetupDelayUs*/ BB_RF_SETUP_DELAY_US,
+    /*maxScanPeriodMs*/ BB_MAX_SCAN_PERIOD_MS,
+    /*schSetupDelayUs*/ BB_SCH_SETUP_DELAY_US,
+    /*BbTimerBoundaryUs*/
+#if (BB_CLK_RATE_HZ == 32768)
+  BB_RTC_MAX_VALUE_US
+#elif (BB_CLK_RATE_HZ == 8000000)
+  BB_TIMER_8MHZ_MAX_VALUE_US
+#elif (BB_CLK_RATE_HZ == 1000000)
+  BB_TIMER_1MHZ_MAX_VALUE_US
+#else
+  #error "Unsupported platform."
+#endif
 };
 
 /* +12 for message headroom, + 2 event header, +255 maximum parameter length. */
@@ -154,7 +164,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 /** Default number of ISO receive buffers. */
 /*uint8_t*/   .numIsoRxBuf = 0,
 /** Maximum ISO buffer size between host and controller. */
-/*uint16_t*/  .maxIsoBufLen = 0,
+/*uint16_t*/  .maxIsoSduLen = 0,
 /** Maximum ISO PDU buffer size. */
 /*uint16_t*/  .maxIsoPduLen = 0,
 
@@ -164,7 +174,14 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 /** Maximum number of CIS. */
 /*uint8_t*/   .maxCis = 0,
 /** Subevent spacing above T_MSS. */
-/*uint16_t*/  .subEvtSpaceDelay = 0,
+/*uint16_t*/  .cisSubEvtSpaceDelay = 0,
+
+/* BIS */
+/** Maximum number of BIG. */
+/* uint8_t */ .maxBig = 0,
+/** Maximum number of BIS. */
+/* uint8_t */ .maxBis = 0,
+
 /* DTM */
 /** DTM Rx synchronization window in milliseconds. */
 /*uint16_t*/  .dtmRxSyncMs = 10000,
@@ -181,6 +198,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 };
 
 extern "C" void TIMER0_IRQHandler(void);
+extern "C" void TIMER2_IRQHandler(void);
 
 NRFCordioHCIDriver::NRFCordioHCIDriver(CordioHCITransportDriver& transport_driver) : cordio::CordioHCIDriver(transport_driver), _is_init(false), _stack_buffer(NULL)
 {
@@ -279,16 +297,18 @@ void NRFCordioHCIDriver::do_initialize()
     NRF_RADIO->POWER = 0;
     NRF_RADIO->POWER = 1;
 
-    // For some reason, the mbed target uses this (TIMER0_IRQHandler_v) vector name instead of the "standard" TIMER0_IRQHandler one
+    // mbed-os target uses IRQ Handler names with _v added at the end
+    // (TIMER0_IRQHandler_v and TIMER2_IRQHandler_v) so we need to register these manually
     NVIC_SetVector(TIMER0_IRQn, (uint32_t)TIMER0_IRQHandler);
+    NVIC_SetVector(TIMER2_IRQn, (uint32_t)TIMER2_IRQHandler);
 
     // Extremely ugly
     for(uint32_t irqn = 0; irqn < 32; irqn++)
     {
-    		uint8_t prio = NVIC_GetPriority((IRQn_Type)irqn);
-    		if( prio < 2 ) {
-    			NVIC_SetPriority((IRQn_Type)irqn, 2);
-    		}
+        uint8_t prio = NVIC_GetPriority((IRQn_Type)irqn);
+        if( prio < 2 ) {
+            NVIC_SetPriority((IRQn_Type)irqn, 2);
+        }
     }
 
     // WARNING
@@ -304,7 +324,15 @@ void NRFCordioHCIDriver::do_initialize()
 
     // BD Addr
     bdAddr_t bd_addr;
-    PalCfgLoadData(PAL_CFG_ID_BD_ADDR, bd_addr, sizeof(bdAddr_t));
+
+    /* Load address from nRF configuration. */
+    uint64_t address_int = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
+                           (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
+    unsigned int i = 0;
+    while (i++ < BDA_ADDR_LEN) {
+        bd_addr[i] = address_int >> (i * 8);
+    }
+
     LlSetBdAddr((uint8_t *)&bd_addr);
     LlMathSetSeed((uint32_t *)&bd_addr);
 

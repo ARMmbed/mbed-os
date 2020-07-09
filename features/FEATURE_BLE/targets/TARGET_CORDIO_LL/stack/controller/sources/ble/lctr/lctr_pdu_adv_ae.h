@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller extended advertising channel packet interface file.
+ *  \file
+ *
+ *  \brief  Link layer controller extended advertising channel packet interface file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -104,6 +105,9 @@ typedef struct
   uint16_t      eventCounter;       /*!< Event counter. */
 } lctrSyncInfo_t;
 
+/*! \brief      Pack ACAD call signature. */
+typedef uint8_t (*lctrPackAcad_t)(lctrAdvSet_t *, uint8_t *);
+
 /**************************************************************************************************
   Function Declarations
 **************************************************************************************************/
@@ -118,12 +122,15 @@ void lctrPackAuxPtr(lctrAdvSet_t const *pAdvSet, uint32_t offsUsec, uint8_t chId
 uint8_t lctrPackLegacyAdvPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf);
 uint8_t lctrPackLegacyScanRspPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf);
 uint8_t lctrPackSyncIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, lctrAdvDataBuf_t *pAdvData, bool_t isPeriodic);
-uint8_t* lctrPackAcad(lctrAdvSet_t *pAdvSet, uint8_t commExtAdvPdu, uint8_t *pBuf, uint16_t *pRemLen, uint8_t acadId);
+uint8_t lctrPackAcadChanMapUpd(lctrAdvSet_t *pAdvSet, uint8_t *pBuf);
+uint8_t lctrPackAcadBigInfo(lctrAdvSet_t *pAdvSet, uint8_t *pBuf);
 
 /* Unpack */
 uint8_t lctrUnpackExtAdvHeader(lctrExtAdvHdr_t *pPdu, uint8_t *pNewFlags, const uint8_t *pBuf);
 void lctrUnpackAuxPtr(lctrAuxPtr_t *pAuxPtr, const uint8_t *pBuf);
 void lctrUnpackSyncInfo(lctrSyncInfo_t *pSyncInfo, const uint8_t *pBuf);
+void lctrUnpackAcadChanMapUpd(LctrAcadChanMapUpd_t *pChanMapUpd, const uint8_t *pBuf);
+void lctrUnpackAcadBigInfo(LctrAcadBigInfo_t *pBigInfo, const uint8_t *pBuf, uint8_t len);
 
 #ifdef __cplusplus
 };

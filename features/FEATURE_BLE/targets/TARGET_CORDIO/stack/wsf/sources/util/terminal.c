@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Terminal handler.
+ *  \file       terminal.c
+ *
+ *  \brief      Terminal handler.
+ *
+ *  Copyright (c) 2015-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -24,12 +26,13 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "util/terminal.h"
-#include "util/print.h"
-
 #include "wsf_types.h"
+#include "util/terminal.h"
+
 #include "wsf_assert.h"
 #include "wsf_trace.h"
+#include "util/print.h"
+
 #include "util/bstream.h"
 
 /**************************************************************************************************
@@ -89,8 +92,6 @@ static terminalCommand_t terminalCommandEcho = { NULL, "echo", "echo <on|off>", 
  *  \brief  Initialize terminal.
  *
  *  \param  handlerId   Handler ID for TerminalHandler().
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalInit(wsfHandlerId_t handlerId)
@@ -110,8 +111,6 @@ void TerminalInit(wsfHandlerId_t handlerId)
 /*************************************************************************************************/
 /*!
  *  \brief  Register the UART Tx Function for the platform.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalRegisterUartTxFunc(terminalUartTx_t uartTxFunc)
@@ -124,8 +123,6 @@ void TerminalRegisterUartTxFunc(terminalUartTx_t uartTxFunc)
  *  \brief  Register command with terminal.
  *
  *  \param  pCommand    Command.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalRegisterCommand(terminalCommand_t *pCommand)
@@ -154,8 +151,6 @@ void TerminalRegisterCommand(terminalCommand_t *pCommand)
  *  \brief    Execute a received command.
  *
  *  \param    pBuf      Command string.
- *
- *  \return   None.
  */
 /*************************************************************************************************/
 static void terminalExecute(char *pBuf)
@@ -297,8 +292,6 @@ static void terminalExecute(char *pBuf)
  *
  *  \param  event       WSF event mask.
  *  \param  pMsg        WSF message.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
@@ -320,8 +313,6 @@ void TerminalHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
  *  \brief  Called by application when a data byte is received.
  *
  *  \param  dataByte  Received byte.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalRx(uint8_t dataByte)
@@ -373,8 +364,6 @@ void TerminalRx(uint8_t dataByte)
  *  \brief  Called by application to transmit string.
  *
  *  \param  pStr      String.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTxStr(const char *pStr)
@@ -387,8 +376,6 @@ void TerminalTxStr(const char *pStr)
  *  \brief  Called by application to transmit character.
  *
  *  \param  c         Character.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTxChar(char c)
@@ -402,8 +389,6 @@ void TerminalTxChar(char c)
  *
  *  \param  pStr      Message format string
  *  \param  ...       Additional arguments, printf-style
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTxPrint(const char *pStr, ...)
@@ -460,8 +445,6 @@ static uint8_t terminalCommandHelpHandler(uint32_t argc, char **argv)
  *
  *  \param  pBuf    Buffer to transmit.
  *  \param  len     Length of buffer in octets.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTx(const uint8_t *pData, uint16_t len)

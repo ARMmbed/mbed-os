@@ -5,14 +5,15 @@
  *  \brief      BLE RF path compensation implementation file.
  *
  *  Copyright (c) 2016-2019 Arm Ltd. All Rights Reserved.
- *  Arm Ltd. confidential and proprietary.
  *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ *  
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +22,7 @@
  */
 /*************************************************************************************************/
 
-#include "stack/platform/include/pal_types.h"
+#include "pal_types.h"
 
 /**************************************************************************************************
   Macros
@@ -45,18 +46,18 @@
 
 #if defined(NRF52840_XXAA) || defined(NRF52832_XXAA)
 /* \brief   Minimum Tx power level (expressed in 1dBm units). */
-static const int16_t bbBleMinTxPwr = -40;  /* -40dBm */
+static const int8_t bbBleMinTxPwr = -40;  /* -40dBm */
 #else
 /* \brief   Minimum Tx power level (expressed in 1dBm units). */
-static const int16_t bbBleMinTxPwr = -30;  /* -30dBm */
+static const int8_t bbBleMinTxPwr = -30;  /* -30dBm */
 #endif
 
 #if defined(NRF52840_XXAA)
 /* \brief   Maximum Tx power level (expressed in 1dBm units). */
-static const int16_t bbBleMaxTxPwr = 9;    /*  +9dBm */
+static const int8_t bbBleMaxTxPwr = 9;    /*  +9dBm */
 #else
 /* \brief   Maximum Tx power level (expressed in 1dBm units). */
-static const int16_t bbBleMaxTxPwr = 4;    /*  +4dBm */
+static const int8_t bbBleMaxTxPwr = 4;    /*  +4dBm */
 #endif
 
 /**************************************************************************************************
@@ -71,12 +72,12 @@ int16_t bbBleRxPathComp = -1280;
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get transmit RF path compensation.
+ *  \brief      Get receive RF path compensation.
  *
  *  \return     Transmit RF path compensation (in 1-dBm units).
  */
 /*************************************************************************************************/
-int8_t palBbBleRfGetTxRfPathComp(void)
+int8_t PalRadioGetRxRfPathComp(void)
 {
   uint16_t pathCompUnsigned = (uint16_t)(bbBleTxPathComp - BB_BLE_MIN_PATH_COMP);
 
@@ -85,23 +86,7 @@ int8_t palBbBleRfGetTxRfPathComp(void)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get receive RF path compensation.
- *
- *  \return     Transmit RF path compensation (in 1-dBm units).
- */
-/*************************************************************************************************/
-int8_t PalRadioGetRxRfPathComp(void)
-{
-  uint16_t pathCompUnsigned = (uint16_t)(bbBleRxPathComp - BB_BLE_MIN_PATH_COMP);
-
-  return (int16_t)BB_BLE_MATH_DIV_10(pathCompUnsigned) + BB_BLE_MIN_PATH_COMP_DBM;
-}
-
-/*************************************************************************************************/
-/*!
  *  \brief      Initialize RF path compensation.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalRadioInitPathComp(void)
@@ -116,8 +101,6 @@ void PalRadioInitPathComp(void)
  *
  *  \param      pMinTxPwr   Return buffer for minimum transmit power (expressed in 1dBm units).
  *  \param      pMaxTxPwr   Return buffer for maximum transmit power (expressed in 1dBm units).
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalRadioGetSupTxPower(int8_t *pMinTxPwr, int8_t *pMaxTxPwr)
@@ -132,8 +115,6 @@ void PalRadioGetSupTxPower(int8_t *pMinTxPwr, int8_t *pMaxTxPwr)
  *
  *  \param      pTxPathComp Return buffer for RF transmit path compensation value (expressed in 0.1dBm units).
  *  \param      pRxPathComp Return buffer for RF receive path compensation value (expressed in 0.1dBm units).
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalRadioReadRfPathComp(int16_t *pTxPathComp, int16_t *pRxPathComp)
@@ -214,8 +195,109 @@ int8_t PalRadioGetActualTxPower(int8_t txPwr, bool_t compFlag)
 
   if (compFlag)
   {
-    txPwr += palBbBleRfGetTxRfPathComp();
+    txPwr += PalRadioGetRxRfPathComp();
   }
 
   return txPwr;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Request an increase in power.
+
+ *  \param      reqPwr           Requested Power.
+ *  \param      delta            Delta
+ *
+ *  \return     TxPower to be set
+ *
+ *              If increasing power: the controller will increase one step if possible.
+ *              If decreasing power: the controller will only decrease to the ceiling step.
+ */
+/*************************************************************************************************/
+int8_t PalRadioIncreasePower(int8_t reqPwr, int8_t delta)
+{
+  /* An increase in power. The controller will always increase one step if possible. */
+  if (delta > 0)
+  {
+#if defined(NRF52840_XXAA)
+         if (reqPwr >    8)  {  reqPwr =   9;  }
+    else if (reqPwr >   7)  {  reqPwr =    8;  }
+    else if (reqPwr >   6)  {  reqPwr =    7;  }
+    else if (reqPwr >   5)  {  reqPwr =    6;  }
+    else if (reqPwr >   4)  {  reqPwr =    5;  }
+    else if (reqPwr >   3)  {  reqPwr =    4;  }
+    else if (reqPwr >   2)  {  reqPwr =    3;  }
+    else if (reqPwr >   0)  {  reqPwr =    2;  }
+    else if (reqPwr >  -4)  {  reqPwr =    0;  }
+    else if (reqPwr >  -8)  {  reqPwr =   -4;  }
+    else if (reqPwr > -12)  {  reqPwr =   -8;  }
+    else if (reqPwr > -16)  {  reqPwr =  -12;  }
+    else if (reqPwr > -20)  {  reqPwr =  -16;  }
+    else                     {  reqPwr = -20;  }
+#elif defined(NRF52832_XXAA)
+    if      (reqPwr >   3)  {  reqPwr =   4;  }
+    else if (reqPwr >   2)  {  reqPwr =   3;  }
+    else if (reqPwr >   0)  {  reqPwr =   2;  }
+    else if (reqPwr >  -4)  {  reqPwr =   0;  }
+    else if (reqPwr >  -8)  {  reqPwr =  -4;  }
+    else if (reqPwr > -12)  {  reqPwr =  -8;  }
+    else if (reqPwr > -16)  {  reqPwr = -12;  }
+    else if (reqPwr > -20)  {  reqPwr = -16;  }
+    else                    {  reqPwr = -20;  }
+#else
+         if (reqPwr >   0)  {  reqPwr =   4;  }
+    else if (reqPwr >  -4)  {  reqPwr =   0;  }
+    else if (reqPwr >  -8)  {  reqPwr =  -4;  }
+    else if (reqPwr > -12)  {  reqPwr =  -8;  }
+    else if (reqPwr > -16)  {  reqPwr = -12;  }
+    else if (reqPwr > -20)  {  reqPwr = -16;  }
+    else                    {  reqPwr = -20;  }
+#endif
+  }
+  /* A decrease in power. The controller will decrease to higher step if reqPwer is inbetween two steps. */
+  else if (delta < 0)
+  {
+#if defined(NRF52840_XXAA)
+    if      (reqPwr <= -40) { reqPwr = -40; }
+    else if (reqPwr <= -20) { reqPwr = -20; }
+    else if (reqPwr <= -16) { reqPwr = -16; }
+    else if (reqPwr <= -12) { reqPwr = -12; }
+    else if (reqPwr <=  -8) { reqPwr =  -8; }
+    else if (reqPwr <=  -4) { reqPwr =  -4; }
+    else if (reqPwr <=   0) { reqPwr =   0; }
+    else if (reqPwr <=   2) { reqPwr =   2; }
+    else if (reqPwr <=   3) { reqPwr =   3; }
+    else if (reqPwr <=   4) { reqPwr =   4; }
+    else if (reqPwr <=   5) { reqPwr =   5; }
+    else if (reqPwr <=   6) { reqPwr =   6; }
+    else if (reqPwr <=   7) { reqPwr =   7; }
+    else if (reqPwr <=   8) { reqPwr =   8; }
+    else                    { reqPwr =   9; }
+#elif defined(NRF52832_XXAA)
+    if      (reqPwr <= -40) { reqPwr = -40; }
+    else if (reqPwr <= -20) {reqPwr = -20; }
+    else if (reqPwr <= -16) {reqPwr = -16; }
+    else if (reqPwr <= -12) {reqPwr = -12; }
+    else if (reqPwr <=  -8) {reqPwr =  -8; }
+    else if (reqPwr <=  -4) {reqPwr =  -4; }
+    else if (reqPwr <=   0) {reqPwr =   0; }
+    else if (reqPwr <=   3) {reqPwr =   3; }
+    else                    {reqPwr =   4; }
+#else
+    if      (reqPwr <= -30) {reqPwr = -30; }
+    else if (reqPwr <= -20) {reqPwr = -20; }
+    else if (reqPwr <= -16) {reqPwr = -16; }
+    else if (reqPwr <= -12) {reqPwr = -12; }
+    else if (reqPwr <=  -8) {reqPwr =  -8; }
+    else if (reqPwr <=  -4) {reqPwr =  -4; }
+    else if (reqPwr <=   0) {reqPwr =   0; }
+    else                    {reqPwr =   4; }
+#endif
+  }
+  else
+  {
+    /* No change. */
+  }
+
+  return reqPwr;
 }

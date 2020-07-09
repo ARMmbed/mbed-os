@@ -1,32 +1,35 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller connection state machine action routines.
+ *  \file
+ *
+ *  \brief  Link layer controller connection state machine action routines.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
+#include "ll_defs.h"
 #include "lctr_int_conn.h"
 #include "lctr_int_adv_slave.h"
 #include "lctr_int_adv_master_ae.h"
 #include "sch_api.h"
 #include "sch_api_ble.h"
 #include "lmgr_api_conn.h"
+#include "pal_radio.h"
 #include "wsf_assert.h"
 #include "wsf_math.h"
 #include "wsf_msg.h"
@@ -38,9 +41,6 @@
 /**************************************************************************************************
   Macros
 **************************************************************************************************/
-
-/*! \brief      Use special token to indicate no notification is required. */
-#define LCTR_RESET_TERM_REASON  0xFF
 
 /*! \brief      Valid feature bits applicable between controllers */
 #define LCTR_FEAT_PEER_MASK     (LL_FEAT_ENCRYPTION | \
@@ -64,16 +64,17 @@
                                  LL_FEAT_CIS_MASTER_ROLE | \
                                  LL_FEAT_CIS_SLAVE_ROLE | \
                                  LL_FEAT_ISO_BROADCASTER | \
-                                 LL_FEAT_ISO_SYNC)
+                                 LL_FEAT_ISO_SYNC | \
+                                 LL_FEAT_ISO_HOST_SUPPORT | \
+                                 LL_FEAT_POWER_CONTROL_REQUEST | \
+                                 LL_FEAT_POWER_CHANGE_IND | \
+                                 LL_FEAT_PATH_LOSS_MONITOR)
 
-/*! \brief      Used feature bitmask, i.e. FeatureSet[0]. */
-#define LCTR_USED_FEAT_SET_MASK     0xFF
-
-/*! \brief      Used feature bitmask, i.e. FeatureSet[0]. */
-#define LCTR_USED_FEAT_SET_MASK     0xFF
+/*! \brief      Used feature bitmask. */
+#define LCTR_USED_FEAT_SET_MASK     0x000000FFFF
 
 /*! \brief      Features bits mask over the air */
-#define LCTR_OTA_FEAT_MASK      (~LL_FEAT_REMOTE_PUB_KEY_VALIDATION & LL_FEAT_ALL_MASK)
+#define LCTR_OTA_FEAT_MASK      (~LL_FEAT_REMOTE_PUB_KEY_VALIDATION & LCTR_FEAT_PEER_MASK)
 
 /*************************************************************************************************/
 /*!
@@ -138,8 +139,6 @@ static uint8_t lctrComputeConnSca(lctrConnCtx_t *pCtx)
  *  \param      localRpa        Local RPA.
  *  \param      status          Status.
  *  \param      usedChSel       Used channel selection algorithm.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostConnectInd(uint16_t handle, uint8_t role, lctrConnInd_t *pConnInd,
@@ -208,8 +207,6 @@ void lctrNotifyHostConnectInd(uint16_t handle, uint8_t role, lctrConnInd_t *pCon
  *  \brief      Store connection update connection specification.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreConnUpdateSpec(lctrConnCtx_t *pCtx)
@@ -222,8 +219,6 @@ void lctrStoreConnUpdateSpec(lctrConnCtx_t *pCtx)
  *  \brief      Store connect update parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreConnUpdate(lctrConnCtx_t *pCtx)
@@ -243,8 +238,6 @@ void lctrStoreConnUpdate(lctrConnCtx_t *pCtx)
  *
  *  \param      pCtx    Connection context.
  *  \param      status  Status.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostConnUpdateInd(lctrConnCtx_t *pCtx, uint8_t status)
@@ -281,8 +274,6 @@ void lctrNotifyHostConnUpdateInd(lctrConnCtx_t *pCtx, uint8_t status)
  *  \brief      Store channel map parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreChanMapUpdate(lctrConnCtx_t *pCtx)
@@ -295,8 +286,6 @@ void lctrStoreChanMapUpdate(lctrConnCtx_t *pCtx)
  *  \brief      Send channel map update indication PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendChanMapUpdateInd(lctrConnCtx_t *pCtx)
@@ -339,8 +328,6 @@ void lctrSendChanMapUpdateInd(lctrConnCtx_t *pCtx)
  *  \brief      Store channel map parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreChanMap(lctrConnCtx_t *pCtx)
@@ -360,8 +347,6 @@ void lctrStoreChanMap(lctrConnCtx_t *pCtx)
  *  \brief      Send feature request PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendFeatureReq(lctrConnCtx_t *pCtx)
@@ -389,8 +374,6 @@ void lctrSendFeatureReq(lctrConnCtx_t *pCtx)
  *  \brief      Send feature response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendFeatureRsp(lctrConnCtx_t *pCtx)
@@ -405,9 +388,9 @@ void lctrSendFeatureRsp(lctrConnCtx_t *pCtx)
 
     UINT8_TO_BSTREAM(pBuf, LL_PDU_FEATURE_RSP);
 
-    uint64_t featSet = (pCtx->usedFeatSet &  LCTR_USED_FEAT_SET_MASK) |     /* FeatureSet[0] used by master and slave */
-                       (lmgrCb.features   & ~LCTR_USED_FEAT_SET_MASK);      /* FeatureSet[1..7] used by sender */
-    UINT64_TO_BSTREAM(pBuf, (featSet & LCTR_OTA_FEAT_MASK));                /* Only send valid features bits between controllers. */
+    uint64_t featSet = (pCtx->usedFeatSet   & LCTR_USED_FEAT_SET_MASK) |  /* FeatureSet[0] used by master and slave */
+                       (lmgrCb.features     & ~LCTR_USED_FEAT_SET_MASK);  /* FeatureSet[1..7] used by sender */
+    UINT64_TO_BSTREAM(pBuf, (featSet & LCTR_OTA_FEAT_MASK));              /* Only send valid features bits between controllers. */
 
     /*** Queue for transmit. ***/
 
@@ -420,8 +403,6 @@ void lctrSendFeatureRsp(lctrConnCtx_t *pCtx)
  *  \brief      Store remote feature data.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreUsedFeatures(lctrConnCtx_t *pCtx)
@@ -441,8 +422,6 @@ void lctrStoreUsedFeatures(lctrConnCtx_t *pCtx)
  *  \brief      Send version indication PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendVersionInd(lctrConnCtx_t *pCtx)
@@ -481,8 +460,6 @@ void lctrSendVersionInd(lctrConnCtx_t *pCtx)
  *  \brief      Store remote version data.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreRemoteVer(lctrConnCtx_t *pCtx)
@@ -499,8 +476,6 @@ void lctrStoreRemoteVer(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of read remote version confirm.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostReadRemoteVerCnf(lctrConnCtx_t *pCtx)
@@ -533,8 +508,6 @@ void lctrNotifyHostReadRemoteVerCnf(lctrConnCtx_t *pCtx)
  *  \brief      Send terminate indication PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendTerminateInd(lctrConnCtx_t *pCtx)
@@ -562,8 +535,6 @@ void lctrSendTerminateInd(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of disconnect indication.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostDisconnectInd(lctrConnCtx_t *pCtx)
@@ -603,8 +574,6 @@ void lctrNotifyHostDisconnectInd(lctrConnCtx_t *pCtx)
  *  \brief      Store LLCP termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreTerminateReason(lctrConnCtx_t *pCtx)
@@ -620,8 +589,6 @@ void lctrStoreTerminateReason(lctrConnCtx_t *pCtx)
  *  \brief      Store host initiated disconnect termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreDisconnectReason(lctrConnCtx_t *pCtx)
@@ -634,8 +601,6 @@ void lctrStoreDisconnectReason(lctrConnCtx_t *pCtx)
  *  \brief      Store connection failed to establish termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreConnFailEstablishTerminateReason(lctrConnCtx_t *pCtx)
@@ -648,8 +613,6 @@ void lctrStoreConnFailEstablishTerminateReason(lctrConnCtx_t *pCtx)
  *  \brief      Store LLCP timeout termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreLlcpTimeoutTerminateReason(lctrConnCtx_t *pCtx)
@@ -662,8 +625,6 @@ void lctrStoreLlcpTimeoutTerminateReason(lctrConnCtx_t *pCtx)
  *  \brief      Store reset termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreResetTerminateReason(lctrConnCtx_t *pCtx)
@@ -676,8 +637,6 @@ void lctrStoreResetTerminateReason(lctrConnCtx_t *pCtx)
  *  \brief      Store invalid request termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreInstantPassedTerminateReason(lctrConnCtx_t *pCtx)
@@ -690,8 +649,6 @@ void lctrStoreInstantPassedTerminateReason(lctrConnCtx_t *pCtx)
  *  \brief      Store invalid request termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreMicFailedTerminateReason(lctrConnCtx_t *pCtx)
@@ -704,8 +661,6 @@ void lctrStoreMicFailedTerminateReason(lctrConnCtx_t *pCtx)
  *  \brief      Store connection parameter request.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreConnParamReq(lctrConnCtx_t *pCtx)
@@ -718,8 +673,6 @@ void lctrStoreConnParamReq(lctrConnCtx_t *pCtx)
  *  \brief      Store connection parameter request.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreConnParamRsp(lctrConnCtx_t *pCtx)
@@ -779,8 +732,6 @@ void lctrStoreConnParamRsp(lctrConnCtx_t *pCtx)
  *  \brief      Store connection parameter connection specification.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreConnParamSpec(lctrConnCtx_t *pCtx)
@@ -796,8 +747,6 @@ void lctrStoreConnParamSpec(lctrConnCtx_t *pCtx)
  *  \param      opcode      Pdu Opcode.
  *  \param      pConnSpec   Connection specification.
  *  \param      prefPeriod  Preferred periodicity.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSendConnParamPdu(lctrConnCtx_t *pCtx, uint8_t opcode, LlConnSpec_t *pConnSpec, uint8_t prefPeriod)
@@ -837,8 +786,6 @@ static void lctrSendConnParamPdu(lctrConnCtx_t *pCtx, uint8_t opcode, LlConnSpec
  *  \brief      Send connection parameter request PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendConnParamReq(lctrConnCtx_t *pCtx)
@@ -861,7 +808,10 @@ void lctrSendConnParamReq(lctrConnCtx_t *pCtx)
   }
 #endif
 
-  lctrSendConnParamPdu(pCtx, LL_PDU_CONN_PARAM_REQ, &pCtx->connUpdSpec, LCTR_US_TO_CONN_IND(SchRmPreferredPeriodUsec()));
+  uint8_t prefPeriod = (LCTR_US_TO_CONN_IND(SCH_RM_PREF_PER_USEC) <= pCtx->connUpdSpec.connIntervalMax) ?
+                                                                           LCTR_US_TO_CONN_IND(SCH_RM_PREF_PER_USEC)
+                                                                           : LCTR_US_TO_CONN_IND(SCH_RM_PREF_PER_USEC_LOWEST);
+  lctrSendConnParamPdu(pCtx, LL_PDU_CONN_PARAM_REQ, &pCtx->connUpdSpec, prefPeriod);
 }
 
 /*************************************************************************************************/
@@ -869,8 +819,6 @@ void lctrSendConnParamReq(lctrConnCtx_t *pCtx)
  *  \brief      Send connection parameter response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendConnParamRsp(lctrConnCtx_t *pCtx)
@@ -889,8 +837,6 @@ void lctrSendConnParamRsp(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of remote connection parameter change indication.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostConnParamInd(lctrConnCtx_t *pCtx)
@@ -913,7 +859,7 @@ void lctrNotifyHostConnParamInd(lctrConnCtx_t *pCtx)
     return;
   }
 
-  if ((pCtx->connParam.connIntervalMin                 != pCtx->connInterval) ||    // TODO compare to original conn min/max?
+  if ((pCtx->connParam.connIntervalMin                 != pCtx->connInterval) ||    /* TODO compare to original conn min/max? */
       (pCtx->connParam.connIntervalMax                 != pCtx->connInterval) ||
       (pCtx->connParam.connLatency                     != pCtx->maxLatency)   ||
       (LCTR_CONN_IND_TO_MS(pCtx->connParam.supTimeout) != pCtx->supTimeoutMs))
@@ -955,8 +901,6 @@ void lctrNotifyHostConnParamInd(lctrConnCtx_t *pCtx)
  *  \brief      Store local data length parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreLocalDataLength(lctrConnCtx_t *pCtx)
@@ -983,8 +927,6 @@ void lctrStoreLocalDataLength(lctrConnCtx_t *pCtx)
  *
  *  \param      pCtx    Connection context.
  *  \param      opcode  PDU opcode.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSendDataLengthPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
@@ -1003,8 +945,9 @@ static void lctrSendDataLengthPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
     uint16_t maxRxTime = pCtx->localDataPdu.maxRxTime;
     uint16_t maxTxTime = pCtx->localDataPdu.maxTxTime;
 
-    /* If LL_FEAT_LE_CODED_PHY is not supported, maxRxTime and maxTxTime can not be more than 2120. */
-    if (!(pCtx->usedFeatSet & LL_FEAT_LE_CODED_PHY))
+    /* If LL_FEAT_LE_CODED_PHY is not supported, maxRxTime and maxTxTime can not be more than 2128.*/
+    if (!pCtx->featExchFlag ||
+        !(pCtx->usedFeatSet & LL_FEAT_LE_CODED_PHY))
     {
       maxRxTime = WSF_MIN(pCtx->localDataPdu.maxRxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
       maxTxTime = WSF_MIN(pCtx->localDataPdu.maxTxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
@@ -1037,8 +980,6 @@ static void lctrSendDataLengthPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
  *  \brief      Send data length request PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendDataLengthReq(lctrConnCtx_t *pCtx)
@@ -1051,8 +992,6 @@ void lctrSendDataLengthReq(lctrConnCtx_t *pCtx)
  *  \brief      Send data length response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendDataLengthRsp(lctrConnCtx_t *pCtx)
@@ -1065,8 +1004,6 @@ void lctrSendDataLengthRsp(lctrConnCtx_t *pCtx)
  *  \brief      Store remote data length parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreRemoteDataLength(lctrConnCtx_t *pCtx)
@@ -1086,8 +1023,9 @@ void lctrStoreRemoteDataLength(lctrConnCtx_t *pCtx)
   uint16_t maxRxTime = pCtx->localDataPdu.maxRxTime;
   uint16_t maxTxTime = pCtx->localDataPdu.maxTxTime;
 
-  /* If LL_FEAT_LE_CODED_PHY is not supported, maxRxTime and maxTxTime can not be more than 2120. */
-  if (!(pCtx->usedFeatSet & LL_FEAT_LE_CODED_PHY))
+  /* If LL_FEAT_LE_CODED_PHY is not supported, maxRxTime and maxTxTime can not be more than 2128. */
+  if (!pCtx->featExchFlag ||
+      !(pCtx->usedFeatSet & LL_FEAT_LE_CODED_PHY))
   {
     maxRxTime = WSF_MIN(pCtx->localDataPdu.maxRxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
     maxTxTime = WSF_MIN(pCtx->localDataPdu.maxTxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
@@ -1129,8 +1067,6 @@ void lctrStoreRemoteDataLength(lctrConnCtx_t *pCtx)
  *
  *  \param      pCtx    Connection context.
  *  \param      status  Status.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostDataLengthInd(lctrConnCtx_t *pCtx, uint8_t status)
@@ -1164,8 +1100,6 @@ void lctrNotifyHostDataLengthInd(lctrConnCtx_t *pCtx, uint8_t status)
  *  \brief      Send set minimum number of used channels indication PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSendSetMinUsedChanPdu(lctrConnCtx_t *pCtx)
@@ -1193,8 +1127,6 @@ static void lctrSendSetMinUsedChanPdu(lctrConnCtx_t *pCtx)
  *  \brief      Send set minimum number of used channels indication PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendSetMinUsedChanInd(lctrConnCtx_t *pCtx)
@@ -1211,8 +1143,6 @@ void lctrSendSetMinUsedChanInd(lctrConnCtx_t *pCtx)
  *  \brief      Store remote minimum number of used channels parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreSetMinUsedChan(lctrConnCtx_t *pCtx)
@@ -1236,8 +1166,6 @@ void lctrStoreSetMinUsedChan(lctrConnCtx_t *pCtx)
  *
  *  \param      pCtx    Connection context.
  *  \param      opcode  PDU opcode.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSendPeerScaReqPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
@@ -1262,8 +1190,6 @@ static void lctrSendPeerScaReqPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
  *  \brief      Update action for sca processing.
  *
  *  \param      pCtx    Connection Context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreScaAction(lctrConnCtx_t *pCtx)
@@ -1276,8 +1202,6 @@ void lctrStoreScaAction(lctrConnCtx_t *pCtx)
  *  \brief      Send peer SCA request.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPeerScaReq(lctrConnCtx_t *pCtx)
@@ -1312,8 +1236,6 @@ void lctrSendPeerScaReq(lctrConnCtx_t *pCtx)
  *
  *  \param      pCtx    Connection context.
  *  \param      opcode  PDU opcode.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrSendPeerScaRspPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
@@ -1338,8 +1260,6 @@ static void lctrSendPeerScaRspPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
  *  \brief      Send peer SCA response.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPeerScaRsp(lctrConnCtx_t *pCtx)
@@ -1352,8 +1272,6 @@ void lctrSendPeerScaRsp(lctrConnCtx_t *pCtx)
  *  \brief      Store peer SCA.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStorePeerSca(lctrConnCtx_t *pCtx)
@@ -1373,8 +1291,6 @@ void lctrStorePeerSca(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of peer SCA request confirmation.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyHostPeerScaCnf(lctrConnCtx_t *pCtx)
@@ -1405,8 +1321,6 @@ void lctrNotifyHostPeerScaCnf(lctrConnCtx_t *pCtx)
  *  \brief      Send unknown response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendUnknownRsp(lctrConnCtx_t *pCtx)
@@ -1435,8 +1349,6 @@ void lctrSendUnknownRsp(lctrConnCtx_t *pCtx)
  *  \param      pCtx                Connection context.
  *  \param      reason              Reason code.
  *  \param      forceRejectExtInd   TRUE to force using LL_REJECT_EXT_IND.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendRejectInd(lctrConnCtx_t *pCtx, uint8_t reason, bool_t forceRejectExtInd)
@@ -1488,8 +1400,6 @@ void lctrSendRejectInd(lctrConnCtx_t *pCtx, uint8_t reason, bool_t forceRejectEx
  *  \brief      Start LLCP timer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStartLlcpTimer(lctrConnCtx_t *pCtx)
@@ -1512,8 +1422,6 @@ void lctrStartLlcpTimer(lctrConnCtx_t *pCtx)
  *  \brief      Stop LLCP timer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStopLlcpTimer(lctrConnCtx_t *pCtx)
@@ -1529,8 +1437,6 @@ void lctrStopLlcpTimer(lctrConnCtx_t *pCtx)
  *  \brief      Start pending LLCP procedure.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStartPendingLlcp(lctrConnCtx_t *pCtx)
@@ -1543,8 +1449,6 @@ void lctrStartPendingLlcp(lctrConnCtx_t *pCtx)
  *  \brief      Pause Tx data PDUs.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPauseTxData(lctrConnCtx_t *pCtx)
@@ -1558,8 +1462,6 @@ void lctrPauseTxData(lctrConnCtx_t *pCtx)
  *  \brief      Unpause Tx data PDUs.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrUnpauseTxData(lctrConnCtx_t *pCtx)
@@ -1594,8 +1496,6 @@ void lctrUnpauseTxData(lctrConnCtx_t *pCtx)
  *  \brief      Check if Tx data pending.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrCheckPauseComplete(lctrConnCtx_t *pCtx)
@@ -1611,8 +1511,6 @@ void lctrCheckPauseComplete(lctrConnCtx_t *pCtx)
  *  \brief      Pause Rx data PDUs.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPauseRxData(lctrConnCtx_t *pCtx)
@@ -1626,8 +1524,6 @@ void lctrPauseRxData(lctrConnCtx_t *pCtx)
  *  \brief      Unpause Rx data PDUs.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrUnpauseRxData(lctrConnCtx_t *pCtx)
@@ -1641,8 +1537,6 @@ void lctrUnpauseRxData(lctrConnCtx_t *pCtx)
  *  \brief      Store periodic advertising sync transfer parameters.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrActStorePeriodicSyncTrsf(lctrConnCtx_t *pCtx)
@@ -1658,8 +1552,6 @@ void lctrActStorePeriodicSyncTrsf(lctrConnCtx_t *pCtx)
  *  \brief      Send periodic sync indication PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrActSendPeriodicSyncInd(lctrConnCtx_t *pCtx)
@@ -1675,8 +1567,6 @@ void lctrActSendPeriodicSyncInd(lctrConnCtx_t *pCtx)
  *  \brief      Handle received periodic sync indication PDU.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrActReceivePeriodicSyncInd(lctrConnCtx_t *pCtx)
@@ -1686,3 +1576,4 @@ void lctrActReceivePeriodicSyncInd(lctrConnCtx_t *pCtx)
     lctrReceivePeriodicSyncIndFn(pCtx);
   }
 }
+

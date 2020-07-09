@@ -1,33 +1,41 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) privacy control interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) privacy control interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include "bb_ble_api_reslist.h"
+#include "lctr_api.h"
 #include "lmgr_api.h"
 #include "lmgr_api_priv.h"
 #include "lctr_api_priv.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
 #include "util/bstream.h"
+
+/**************************************************************************************************
+  Globals
+**************************************************************************************************/
+/*! \brief      Function pointer for periodic sync pending check. */
+LctrPerSyncPendFn_t LctrMstPerSyncPending;
 
 /*************************************************************************************************/
 /*!
@@ -52,7 +60,12 @@ uint8_t LlAddDeviceToResolvingList(uint8_t peerAddrType, const uint8_t *pPeerIde
   {
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
-  if ((lmgrCb.advEnabled || lmgrCb.numExtAdvEnabled || lmgrCb.numScanEnabled || lmgrCb.numInitEnabled) && lmgrCb.addrResEna)
+  if ((lmgrCb.advEnabled ||
+       lmgrCb.numExtAdvEnabled ||
+       lmgrCb.numScanEnabled ||
+       lmgrCb.numInitEnabled ||
+       (LctrMstPerSyncPending && LctrMstPerSyncPending()))
+      && lmgrCb.addrResEna)
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
@@ -88,7 +101,12 @@ uint8_t LlRemoveDeviceFromResolvingList(uint8_t peerAddrType, const uint8_t *pPe
   {
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
-  if ((lmgrCb.advEnabled || lmgrCb.numExtAdvEnabled || lmgrCb.numScanEnabled || lmgrCb.numInitEnabled) && lmgrCb.addrResEna)
+  if ((lmgrCb.advEnabled ||
+       lmgrCb.numExtAdvEnabled ||
+       lmgrCb.numScanEnabled ||
+       lmgrCb.numInitEnabled ||
+       (LctrMstPerSyncPending && LctrMstPerSyncPending()))
+      && lmgrCb.addrResEna)
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
@@ -116,7 +134,12 @@ uint8_t LlClearResolvingList(void)
 {
   LL_TRACE_INFO0("### LlApi ###  LlClearResolvingList");
 
-  if ((lmgrCb.advEnabled || lmgrCb.numExtAdvEnabled || lmgrCb.numScanEnabled || lmgrCb.numInitEnabled) && lmgrCb.addrResEna)
+  if ((lmgrCb.advEnabled ||
+       lmgrCb.numExtAdvEnabled ||
+       lmgrCb.numScanEnabled ||
+       lmgrCb.numInitEnabled ||
+       (LctrMstPerSyncPending && LctrMstPerSyncPending()))
+      && lmgrCb.addrResEna)
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
@@ -240,7 +263,11 @@ uint8_t LlSetAddrResolutionEnable(uint8_t enable)
   {
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
-  if (lmgrCb.advEnabled || lmgrCb.numExtAdvEnabled || lmgrCb.numScanEnabled || lmgrCb.numInitEnabled)
+  if (lmgrCb.advEnabled ||
+      lmgrCb.numExtAdvEnabled ||
+      lmgrCb.numScanEnabled ||
+      lmgrCb.numInitEnabled ||
+      (LctrMstPerSyncPending && LctrMstPerSyncPending()))
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
@@ -302,7 +329,12 @@ uint8_t LlSetPrivacyMode(uint8_t peerAddrType, const uint8_t *pPeerIdentityAddr,
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
 
-  if ((lmgrCb.advEnabled || lmgrCb.numExtAdvEnabled || lmgrCb.numScanEnabled || lmgrCb.numInitEnabled) && lmgrCb.addrResEna)
+  if ((lmgrCb.advEnabled ||
+      lmgrCb.numExtAdvEnabled ||
+      lmgrCb.numScanEnabled ||
+      lmgrCb.numInitEnabled ||
+      (LctrMstPerSyncPending && LctrMstPerSyncPending()))
+       && lmgrCb.addrResEna)
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }

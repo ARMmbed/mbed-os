@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief BLE MAC system configuration.
+ *  \file
+ *
+ *  \brief      BLE MAC system configuration.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -40,6 +41,10 @@ extern "C" {
 
 #ifndef LL_MAX_CONN
 #define LL_MAX_CONN             4       /*!< Absolute maximum number of connections (maximum is 32). */
+#endif
+
+#ifndef LL_MAX_FRAG
+#define LL_MAX_FRAG             8       /*!< Maximum number of Data PDU fragments. */
 #endif
 
 #ifndef LL_NUM_ADV_FILT
@@ -71,7 +76,19 @@ extern "C" {
 #endif
 
 #ifndef LL_MAX_CIS
-#define LL_MAX_CIS              2       /*!< Absolute maximum number of connected isochronous streams per CIG. */
+#define LL_MAX_CIS              6       /*!< Absolute maximum number of connected isochronous streams, it is shared by CIGs. */
+#endif
+
+#ifndef LL_MAX_BIG
+#define LL_MAX_BIG              2       /*!< Absolute maximum number of broadcast isochronous groups. */
+#endif
+
+#ifndef LL_MAX_BIS
+#define LL_MAX_BIS              6       /*!< Absolute maximum number of broadcast isochronous streams, it is shared by BIGs. */
+#endif
+
+#ifndef LL_MAX_BN
+#define LL_MAX_BN               8       /*!< Absolute maximum number of bursts. */
 #endif
 
 #ifndef LHCI_ENABLE_VS
@@ -81,7 +98,7 @@ extern "C" {
 /*** Scheduler ***/
 
 #ifndef SCH_RM_MAX_RSVN
-#define SCH_RM_MAX_RSVN         (LL_MAX_CONN + LL_MAX_ADV_SETS + LL_MAX_CIG) /*!< Maximum number of reservations (maximum is 32). */
+#define SCH_RM_MAX_RSVN         (LL_MAX_CONN + LL_MAX_ADV_SETS + LL_MAX_CIG + LL_MAX_BIG) /*!< Maximum number of reservations (maximum is 32). */
 #endif
 
 /*** Baseband ***/

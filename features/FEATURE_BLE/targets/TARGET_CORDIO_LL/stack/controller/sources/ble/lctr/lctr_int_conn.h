@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Internal link layer controller connection interface file.
+ *  \file
+ *
+ *  \brief  Internal link layer controller connection interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -47,9 +48,7 @@ extern "C" {
 
 #define LCTR_MAX_CONS_CRC           2   /*!< Maximum number of consecutive CRC failures. */
 
-#ifndef LCTR_DATA_PDU_START_OFFSET
 #define LCTR_DATA_PDU_START_OFFSET  2   /*!< Data PDU start offset in a buffer (match ACL header size). */
-#endif
 
 #define LCTR_DATA_PDU_FC_OFFSET     0   /*!< Flow control fields data PDU offset. */
 #define LCTR_DATA_PDU_LEN_OFFSET    1   /*!< Length field data PDU offset. */
@@ -67,6 +66,28 @@ extern "C" {
 
 /*! \brief      Resolve connection context from the handle. */
 #define LCTR_GET_CONN_CTX(h)        &(pLctrConnTbl[h])
+
+/*! \brief      Resolve txPower from phy index. */
+#define LCTR_GET_TXPOWER(pCtx, phy, option) \
+        (pCtx->phyTxPower[phy - (((phy == LL_PHY_LE_CODED) && (option ==  BB_PHY_OPTIONS_BLE_S2)) ? 0 : 1)])
+
+/*! \brief      Set the txpower of a specified PHY. */
+#define LCTR_SET_TXPOWER(pCtx, phy, pow) (pCtx->phyTxPower[phy - 1] = pow)
+
+/*! \brief      Low threshold for power monitoring. */
+#define LCTR_RSSI_LOW_THRESHOLD     -65
+
+/*! \brief      High threshold for power monitoring. */
+#define LCTR_RSSI_HIGH_THRESHOLD    -30
+
+/*! \brief      Minimum time spent until request. */
+#define LCTR_PC_MIN_TIME            15
+
+/*! \brief      Default request of increase/decrease in value. */
+#define LCTR_PC_REQUEST_VAL         5
+
+/*! \brief      Special reset terminate reason. */
+#define LCTR_RESET_TERM_REASON  0xFF
 
 /**************************************************************************************************
   Data Types
@@ -139,10 +160,29 @@ enum
   LCTR_PROC_CIS_EST_PEER,               /*!< Peer-initiated CIS establishment procedure. */
   LCTR_PROC_CIS_TERM,                   /*!< CIS termination procedure. */
   LCTR_PROC_CIS_TERM_PEER,              /*!< Peer-initiated CIS termination procedure. */
+  LCTR_PROC_PWR_IND,                    /*!< Power indication prodecure. */
+  LCTR_PROC_PWR_CTRL,                   /*!< Power control procedure. */
 
   LCTR_PROC_INVALID = 0xFF              /*!< Invalid ID. */
 
   /* Note: additional procedures without instants can be overridden. */
+};
+
+/*! \brief        Power control monitor schemes. */
+enum
+{
+  LCTR_PC_MONITOR_AUTO,                /*!< Automatic monitoring scheme. */
+  LCTR_PC_MONITOR_PATH_LOSS,           /*!< Path loss monitoring scheme. */
+
+  LCTR_PC_MONITOR_SCHEME_TOTAL         /*!< Total number of monitoring schemes. */
+};
+
+/*! \brief        Power control scheme states. */
+enum
+{
+  LCTR_PC_MONITOR_DISABLED,            /*!< Disabled monitoring. */
+  LCTR_PC_MONITOR_ENABLED,             /*!< Monitoring enabled. */
+  LCTR_PC_MONITOR_READY                /*!< Monitoring ready for enable. */
 };
 
 /*! \brief      Check if CIS is enabled by the CIS handle signature. */
@@ -175,7 +215,7 @@ typedef struct
       uint16_t      totalAcc;           /*!< Combined sleep clock inaccuracy. */
       uint16_t      lastActiveEvent;    /*!< Last active event counter. */
       uint32_t      txWinSizeUsec;      /*!< Tx window size. */
-      uint32_t      anchorPoint;        /*!< Anchor point. */
+      uint32_t      anchorPointUsec;    /*!< Anchor point in microseconds. */
       uint32_t      unsyncedTime;       /*!< Unsynced time in BB tick before connection update. */
       bool_t        initAckRcvd;        /*!< Ack received from master. */
       bool_t        abortSlvLatency;    /*!< If TRUE abort slave latency. */
@@ -183,7 +223,7 @@ typedef struct
       uint8_t       consCrcFailed;      /*!< Number of consecutive CRC failures. */
       bool_t        syncWithMaster;     /*!< Flag indicating synchronize packet received from master. */
       bool_t        rxFromMaster;       /*!< At least one successful packet received from master. */
-      uint32_t      firstRxStartTs;     /*!< Timestamp of the first received frame regardless of CRC error. */
+      uint32_t      firstRxStartTsUsec; /*!< Timestamp of the first received frame regardless of CRC error in microseconds. */
 
     } slv;                              /*!< Slave connection specific data. */
 
@@ -200,6 +240,7 @@ typedef struct
 
   /* RF parameters */
   int8_t            rssi;               /*!< RSSI. */
+  uint8_t           lastRxStatus;       /*!< Status code of last rx. */
 
   /* Channel parameters */
   uint8_t           lastChanIdx;        /*!< Current channel index. */
@@ -212,6 +253,8 @@ typedef struct
   uint16_t          chIdentifier;       /*!< Channel identifier. */
   uint32_t          crcInit;            /*!< CRC initialization value. */
   uint32_t          accessAddr;         /*!< Connection access address. */
+  int8_t            phyTxPower[LL_PC_PHY_TOTAL];
+                                        /*!< Saved txPower configuration for PHYs. */
 
   /* Flow control */
   lctrDataPduHdr_t  txHdr;              /*!< Transmit data PDU header. */
@@ -261,6 +304,11 @@ typedef struct
   bool_t            featExchFlag;       /*!< Flag for completed feature exchange. */
   uint64_t          usedFeatSet;        /*!< Used feature set. */
   uint8_t           peerSca;            /*!< Peer SCA. */
+
+  int8_t            peerTxPower;        /*!< Peer reported txPower. */
+  uint8_t           peerPwrLimits;      /*!< Peer power limits field. */
+  uint8_t           peerApr[LL_PC_PHY_TOTAL];
+                                        /*!< Acceptable reduction of power as calculated by the peer. */
 
   /* Data length */
   lctrDataLen_t     localDataPdu;       /*!< Local Data PDU parameters. */
@@ -316,12 +364,49 @@ typedef struct
   lctrPhyUpdInd_t   phyUpd;             /*!< PHY update parameters. */
   wsfTimer_t        tmrProcRsp;         /*!< Procedure response timer. */
   uint8_t           scaUpdAction;       /*!< Sca update action variable. */
+  bool_t            readRemoteTxPower;  /*!< Currently reading remote txPower. */
   int8_t            scaMod;             /*!< Local sca override modifier. */
+  uint8_t           reqErrCode;         /*!< LLCP error code. */
+
+  /* Power Control */
+  int8_t            delta;              /*!< Power control delta storage. */
+  bool_t            peerReqRecvd;       /*!< Peer request received. */
+  uint8_t           reqPhy;             /*!< PHY of most recent power control request. */
+  bool_t            powerRptLocal;      /*!< Currently reporting local power changes. */
+  bool_t            powerRptRemote;     /*!< Currently reporting remote power changes. */
+  uint8_t           powerMonitorScheme; /*!< Active power monitoring scheme. */
+  uint8_t           monitoringState;    /*!< Current state of active power monitoring scheme. */
+  bool_t            controllerInitRead; /*!< A controller initiated read command. */
+  union
+  {
+    struct
+    {
+      int8_t highThreshold;             /*!< High extreme RSSI threshold. */
+      int8_t lowThreshold;              /*!< Low extreme RSSI threshold. */
+      uint8_t minTimeSpent;             /*!< Minimum time spent in an extreme RSSI zone to trigger a request. */
+      uint8_t curTimeSpent;             /*!< Current time spent in an extreme RSSI zone. */
+      uint8_t requestVal;               /*!< Value of increase/decrease in power to request. */
+    } autoMonitor;                      /*!< Autonomous RSSI monitoring specific data. */
+
+    struct
+    {
+      uint8_t highThreshold;            /*!< Path loss high threshold. */
+      uint8_t highHysteresis;           /*!< Path loss high hysteresis. */
+      uint8_t lowThreshold;             /*!< Path loss low threshold. */
+      uint8_t lowHysteresis;            /*!< Path loss low hysteresis. */
+      uint8_t minTimeSpent;             /*!< Minimum time spent to trigger an event. */
+      uint8_t curTimeSpent;             /*!< Current time spent in a new path loss zone. */
+      uint8_t curZone;                  /*!< Current path loss zone. */
+      uint8_t newZone;                  /*!< New zone. */
+      bool_t initialPathLossRead;       /*!< A power control request is required to start path loss monitoring. */
+    } pathLoss;                         /*!< Path loss parameters. */
+  } pclMonitorParam;                    /*!< Power control monitoring data. */
 
   /* CIS */
-  uint16_t          llcpCisHandle;      /*!< CIS handle for the LLCP procedure. */
-  lctrCheckTermFn_t checkCisTerm;       /*!< Pointer to the check CIS termination function. */
-  lctrCheckCisEstAclFn_t checkCisEstAcl;/*!< Pointer to the check if CIS is established function. */
+  uint16_t                llcpCisHandle;           /*!< CIS handle for the LLCP procedure. */
+  lctrCheckTermFn_t       checkCisTerm;            /*!< Pointer to the check CIS termination function. */
+  lctrCheckCisEstAclFn_t  checkCisEstAcl;          /*!< Pointer to the check if CIS is established function. */
+  uint8_t                 cisRssiExtremeTimeSpent; /*!< CIS's current time spent in an extreme zone. */
 } lctrConnCtx_t;
 
 /*! \brief      Call signature of a cipher block handler. */
@@ -348,6 +433,18 @@ typedef uint8_t (*LctrChSelHdlr_t)(lctrConnCtx_t *pCtx, uint16_t numSkip);
 /*! \brief      Call signature of an action handler. */
 typedef void (*lctrLlcpEh_t)(lctrConnCtx_t *pCtx);
 
+/*! \brief      Call signature of a power monitor function. */
+typedef void (*lctrPcMonAct_t)(lctrConnCtx_t *pCtx);
+
+/*! \brief      Call signature of power change indication handler. */
+typedef void (*lctrPcPowInd_t)(lctrConnCtx_t *pCtx, uint8_t phy, int8_t delta, int8_t txPower, bool_t phyChange);
+
+/*! \brief      Call signature of power report notification handler. */
+typedef void (*lctrPcNotifyPwr_t)(lctrConnCtx_t *pCtx, uint8_t reason, uint8_t phy, int8_t txPower, uint8_t limits, int8_t delta);
+
+/*! \brief      Call signature of CIS pend disconnect function. */
+typedef bool_t (*lctrPendCisDisc_t)(lctrConnCtx_t *pCtx);
+
 /*! \brief      LLCP state machine handlers. */
 enum
 {
@@ -357,6 +454,7 @@ enum
   LCTR_LLCP_SM_PHY_UPD,                 /*!< PHY update state machine. */
   LCTR_LLCP_SM_CIS_EST,                 /*!< CIS establishment state machine. */
   LCTR_LLCP_SM_CIS_TERM,                /*!< CIS termination state machine. */
+  LCTR_LLCP_SM_PC,                     /*!< Power control state machine. */
   LCTR_LLCP_SM_CMN,                     /*!< Common LLCP state machine. */
   LCTR_LLCP_SM_TOTAL                    /*!< Total number of LLCP state machine. */
 };
@@ -382,6 +480,9 @@ extern lctrLlcpEh_t lctrSendPerSyncFromBcstFn;
 extern lctrLlcpEh_t lctrStorePeriodicSyncTrsfFn;
 extern lctrLlcpEh_t lctrSendPeriodicSyncIndFn;
 extern lctrLlcpEh_t lctrReceivePeriodicSyncIndFn;
+extern lctrPcMonAct_t lctrPcActTbl[LCTR_PC_MONITOR_SCHEME_TOTAL];
+extern lctrPcPowInd_t lctrSendPowerChangeIndCback;
+extern lctrPcNotifyPwr_t lctrNotifyPowerReportIndCback;
 
 /**************************************************************************************************
   Function Declarations
@@ -465,7 +566,7 @@ void lctrReceivePeriodicSyncInd(lctrConnCtx_t *pCtx);
 void lctrSendPerSyncFromScan(lctrConnCtx_t *pCtx);
 void lctrSendPerSyncFromBcst(lctrConnCtx_t *pCtx);
 
-/* Request peer SCA actions */
+/* Request peer SCA actions. */
 void lctrStoreScaAction(lctrConnCtx_t *pCtx);
 void lctrSendPeerScaReq(lctrConnCtx_t *pCtx);
 void lctrSendPeerScaRsp(lctrConnCtx_t *pCtx);
@@ -530,6 +631,8 @@ bool_t lctrExceededMaxDur(lctrConnCtx_t *pCtx, uint32_t ceStart, uint32_t pendDu
 uint32_t lctrCalcPingPeriodMs(lctrConnCtx_t *pCtx, uint32_t authTimeoutMs);
 uint8_t lctrComputeSca(void);
 uint32_t lctrConnGetAnchorPoint(lctrConnCtx_t *pCtx, uint16_t ceCounter);
+void lctrInitPhyTxPower(lctrConnCtx_t *pCtx);
+uint8_t lctrGetPowerLimits(int8_t txPower);
 
 /* Reservation */
 uint32_t lctrGetConnRefTime(uint8_t connHandle, uint32_t *pDurUsec);
@@ -539,8 +642,6 @@ uint32_t lctrGetConnRefTime(uint8_t connHandle, uint32_t *pDurUsec);
  *  \brief  Set flags for link termination.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrFlagLinkTerm(lctrConnCtx_t *pCtx)
@@ -561,8 +662,6 @@ static inline void lctrFlagLinkTerm(lctrConnCtx_t *pCtx)
  *  \brief  Service the Control PDU ACK state after a successful reception.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrCheckControlPduAck(lctrConnCtx_t *pCtx)
@@ -579,8 +678,6 @@ static inline void lctrCheckControlPduAck(lctrConnCtx_t *pCtx)
  *  \brief  Service the Control PDU ACK state after a successful transmission.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrSetControlPduAck(lctrConnCtx_t *pCtx)
@@ -627,8 +724,6 @@ static inline bool_t lctrCheckForLinkTerm(lctrConnCtx_t *pCtx)
  *  \brief  Increment the Tx/encrypt packet counter.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrIncPacketCounterTx(lctrConnCtx_t *pCtx)
@@ -650,8 +745,6 @@ static inline void lctrIncPacketCounterTx(lctrConnCtx_t *pCtx)
  *  \brief  Increment the Rx/decrypt packet counter.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrIncPacketCounterRx(lctrConnCtx_t *pCtx)
@@ -673,8 +766,6 @@ static inline void lctrIncPacketCounterRx(lctrConnCtx_t *pCtx)
  *  \brief  Set the transmit packet counter value in the BB.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrSetBbPacketCounterTx(lctrConnCtx_t *pCtx)
@@ -693,7 +784,7 @@ static inline void lctrSetBbPacketCounterTx(lctrConnCtx_t *pCtx)
       case PAL_BB_NONCE_MODE_PKT_CNTR:
         lctrSetEncryptPktCountHdlr(pEnc, pCtx->txPktCounter);
         break;
-      case PAL_BB_NONCE_MODE_EVT_CNTR:
+      case PAL_BB_NONCE_MODE_EXT16_CNTR:
         lctrSetEncryptPktCountHdlr(pEnc, pCtx->eventCounter);
         break;
       default:
@@ -707,8 +798,6 @@ static inline void lctrSetBbPacketCounterTx(lctrConnCtx_t *pCtx)
  *  \brief  Set the receive packet counter value in the BB.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrSetBbPacketCounterRx(lctrConnCtx_t *pCtx)
@@ -727,7 +816,7 @@ static inline void lctrSetBbPacketCounterRx(lctrConnCtx_t *pCtx)
       case PAL_BB_NONCE_MODE_PKT_CNTR:
         lctrSetDecryptPktCountHdlr(pEnc, pCtx->rxPktCounter);
         break;
-      case PAL_BB_NONCE_MODE_EVT_CNTR:
+      case PAL_BB_NONCE_MODE_EXT16_CNTR:
         lctrSetDecryptPktCountHdlr(pEnc, pCtx->eventCounter);
         break;
       default:
@@ -764,8 +853,6 @@ static inline bool_t lctrCheckActiveOrPend(lctrConnCtx_t *pCtx, uint8_t proc)
  *  \brief      Store connection timeout termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static inline void lctrStoreConnTimeoutTerminateReason(lctrConnCtx_t *pCtx)
@@ -779,8 +866,6 @@ static inline void lctrStoreConnTimeoutTerminateReason(lctrConnCtx_t *pCtx)
 /*************************************************************************************************/
 /*!
  *  \brief  Increment available Tx data buffers.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrDataTxIncAvailBuf(void)
@@ -795,8 +880,6 @@ static inline void lctrDataTxIncAvailBuf(void)
 /*************************************************************************************************/
 /*!
  *  \brief  Decrement available Tx data buffers.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrDataTxDecAvailBuf(void)
@@ -813,9 +896,7 @@ static inline void lctrDataTxDecAvailBuf(void)
  *  \brief  Increment available Rx data buffers.
 *
  *  \param  numBufs     Number of completed packets.
-  *
- *  \return None.
- */
+  */
 /*************************************************************************************************/
 static inline void lctrDataRxIncAvailBuf(uint8_t numBufs)
 {
@@ -841,52 +922,6 @@ static inline void lctrDataRxIncAvailBuf(uint8_t numBufs)
 static inline bool_t lctrGetConnOpFlag(lctrConnCtx_t *pCtx, uint32_t flag)
 {
   return (pCtx->opModeFlags & flag) ? TRUE : FALSE;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Convert PHYS bit to PHY.
- *
- *  \param  physBit     PHYS bit.
- *
- *  \return PHY.
- */
-/*************************************************************************************************/
-static inline uint8_t lctrPhysBitToPhy(uint8_t physBit)
-{
-  switch (physBit)
-  {
-    default:
-    case LL_PHYS_LE_1M_BIT:
-      return BB_PHY_BLE_1M;
-    case LL_PHYS_LE_2M_BIT:
-      return BB_PHY_BLE_2M;
-    case LL_PHYS_LE_CODED_BIT:
-      return BB_PHY_BLE_CODED;
-  }
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Convert PHY to PHYS bit.
- *
- *  \param  phy         PHY.
- *
- *  \return PHYS bit.
- */
-/*************************************************************************************************/
-static inline uint8_t lctrPhyToPhysBit(uint8_t phy)
-{
-  switch (phy)
-  {
-    default:
-    case BB_PHY_BLE_1M:
-      return LL_PHYS_LE_1M_BIT;
-    case BB_PHY_BLE_2M:
-      return LL_PHYS_LE_2M_BIT;
-    case BB_PHY_BLE_CODED:
-      return LL_PHYS_LE_CODED_BIT;
-  }
 }
 
 /*************************************************************************************************/

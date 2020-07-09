@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave encryption action routines.
+ *  \file
+ *
+ *  \brief  Link layer controller slave encryption action routines.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -27,7 +28,7 @@
 #include "wsf_msg.h"
 #include "wsf_trace.h"
 #include "util/bstream.h"
-#include "stack/platform/include/pal_crypto.h"
+#include "pal_crypto.h"
 #include <string.h>
 
 /*************************************************************************************************/
@@ -35,8 +36,6 @@
  *  \brief      Modify encryption mode.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrModifyEncMode(lctrConnCtx_t *pCtx)
@@ -68,8 +67,6 @@ static void lctrModifyEncMode(lctrConnCtx_t *pCtx)
  *  \brief      Enable Tx data encryption.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrEnableTxDataEnc(lctrConnCtx_t *pCtx)
@@ -85,8 +82,6 @@ void lctrEnableTxDataEnc(lctrConnCtx_t *pCtx)
  *  \brief      Enable Tx data encryption.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrDisableTxDataEnc(lctrConnCtx_t *pCtx)
@@ -100,8 +95,6 @@ void lctrDisableTxDataEnc(lctrConnCtx_t *pCtx)
  *  \brief      Enable Rx data encryption.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrEnableRxDataEnc(lctrConnCtx_t *pCtx)
@@ -117,8 +110,6 @@ void lctrEnableRxDataEnc(lctrConnCtx_t *pCtx)
  *  \brief      Enable Rx data encryption.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrDisableRxDataEnc(lctrConnCtx_t *pCtx)
@@ -132,8 +123,6 @@ void lctrDisableRxDataEnc(lctrConnCtx_t *pCtx)
  *  \brief      Generate slave encryption vectors.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrGenerateSlvVectors(lctrConnCtx_t *pCtx)
@@ -157,8 +146,6 @@ void lctrGenerateSlvVectors(lctrConnCtx_t *pCtx)
  *  \brief      Store LTK reply.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreLtkReply(lctrConnCtx_t *pCtx)
@@ -171,8 +158,6 @@ void lctrStoreLtkReply(lctrConnCtx_t *pCtx)
  *  \brief      Store LTK negative reply termination reason.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrStoreLtkNegRepTerminateReason(lctrConnCtx_t *pCtx)
@@ -185,8 +170,6 @@ void lctrStoreLtkNegRepTerminateReason(lctrConnCtx_t *pCtx)
  *  \brief      Calculate session keys.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrCalcSessionKey(lctrConnCtx_t *pCtx)
@@ -198,9 +181,11 @@ void lctrCalcSessionKey(lctrConnCtx_t *pCtx)
 
   WSF_ASSERT(lctrInitCipherBlkHdlr);
   memcpy(pEnc->iv, pCtx->iv, sizeof(pEnc->iv));
-  uint8_t dir = (pCtx->role == LL_ROLE_MASTER) ? 1 : 0;     /* master = 1; slave = 0 */
+  pEnc->dir = (pCtx->role == LL_ROLE_MASTER) ? 1 : 0;     /* master = 1; slave = 0 */
   pEnc->type = PAL_BB_TYPE_ACL;
-  lctrInitCipherBlkHdlr(pEnc, LCTR_GET_CONN_HANDLE(pCtx), dir);
+  pCtx->txPktCounter = 0;
+  pCtx->rxPktCounter = 0;
+  lctrInitCipherBlkHdlr(pEnc, LCTR_GET_CONN_HANDLE(pCtx), pEnc->dir);
 }
 
 /*************************************************************************************************/
@@ -208,8 +193,6 @@ void lctrCalcSessionKey(lctrConnCtx_t *pCtx)
  *  \brief      Send feature response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrInvalidEncPduSeq(lctrConnCtx_t *pCtx)
@@ -223,8 +206,6 @@ void lctrInvalidEncPduSeq(lctrConnCtx_t *pCtx)
  *  \brief      Send feature response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendEncRsp(lctrConnCtx_t *pCtx)
@@ -255,8 +236,6 @@ void lctrSendEncRsp(lctrConnCtx_t *pCtx)
  *  \brief      Send start encryption request PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendStartEncReq(lctrConnCtx_t *pCtx)
@@ -282,8 +261,6 @@ void lctrSendStartEncReq(lctrConnCtx_t *pCtx)
  *  \brief      Send start encryption response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendStartEncRsp(lctrConnCtx_t *pCtx)
@@ -309,8 +286,6 @@ void lctrSendStartEncRsp(lctrConnCtx_t *pCtx)
  *  \brief      Send pause encryption request PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPauseEncReq(lctrConnCtx_t *pCtx)
@@ -336,8 +311,6 @@ void lctrSendPauseEncReq(lctrConnCtx_t *pCtx)
  *  \brief      Send pause encryption response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPauseEncRsp(lctrConnCtx_t *pCtx)
@@ -363,8 +336,6 @@ void lctrSendPauseEncRsp(lctrConnCtx_t *pCtx)
  *  \brief      Send ping request PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPingReq(lctrConnCtx_t *pCtx)
@@ -390,8 +361,6 @@ void lctrSendPingReq(lctrConnCtx_t *pCtx)
  *  \brief      Send ping response PDU to peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSendPingRsp(lctrConnCtx_t *pCtx)
@@ -417,8 +386,6 @@ void lctrSendPingRsp(lctrConnCtx_t *pCtx)
  *  \brief      Notify slave host of connect indication.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrEncNotifyHostLtkReqInd(lctrConnCtx_t *pCtx)
@@ -451,8 +418,6 @@ void lctrEncNotifyHostLtkReqInd(lctrConnCtx_t *pCtx)
  *
  *  \param      pCtx    Connection context.
  *  \param      status  Status code.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyEncChangeInd(lctrConnCtx_t *pCtx, uint8_t status)
@@ -484,8 +449,6 @@ void lctrNotifyEncChangeInd(lctrConnCtx_t *pCtx, uint8_t status)
  *  \brief      Notify host of key refreshed.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyEncKeyRefreshInd(lctrConnCtx_t *pCtx)
@@ -515,8 +478,6 @@ void lctrNotifyEncKeyRefreshInd(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of authentication payload timeout expired.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrNotifyAuthPayloadTimeout(lctrConnCtx_t *pCtx)
@@ -545,8 +506,6 @@ void lctrNotifyAuthPayloadTimeout(lctrConnCtx_t *pCtx)
  *  \brief      Restart authentication payload timeout timer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrRestartAuthPayloadTimer(lctrConnCtx_t *pCtx)

@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave advertising state machine implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave advertising state machine implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -36,7 +37,7 @@ typedef void (*lctrExtActFn_t)(lctrAdvSet_t *pAdvSet);
 /*! \brief      Periodic action function call signature. */
 typedef void (*lctrPerActFn_t)(lctrAdvSet_t *pAdvSet);
 
-/*! \brief      Periodic adv acad function call signature. */
+/*! \brief      Periodic Adv ACAD function call signature. */
 typedef void (*lctrAcadActFn_t)(lctrAdvSet_t *pAdvSet);
 
 /**************************************************************************************************
@@ -175,16 +176,20 @@ static const uint8_t lctrPerAdvNextStateTbl[LCTR_PER_ADV_STATE_TOTAL][LCTR_PER_A
   }
 };
 
-/*! \brief       Acad state machine action table */
+/*! \brief       ACAD state machine action table */
 static const lctrAcadActFn_t lctrAcadActionTbl[LCTR_ACAD_NUM_ID][LCTR_ACAD_COMM_MSG_TOTAL] =
 {
   { /* LCTR_ACAD_ID_CHAN_MAP_UPDATE */
     lctrSlvAcadActChanMapUpdateStart,        /* LCTR_ACAD_COMM_MSG_START         */
     lctrSlvAcadActChanMapUpdateFinish        /* LCTR_ACAD_COMM_MSG_FINISH        */
+  },
+  { /* LCTR_ACAD_ID_BIG_INFO */
+    lctrSlvAcadActBigCreated,                /* LCTR_ACAD_COMM_MSG_START         */
+    lctrSlvAcadActBigTerminated              /* LCTR_ACAD_COMM_MSG_FINISH        */
   }
 };
 
-/*! \brief        Acad state machine next state table. */
+/*! \brief        ACAD state machine next state table. */
 static const uint8_t lctrAcadNextStateTbl[LCTR_ACAD_STATE_TOTAL][LCTR_ACAD_COMM_MSG_TOTAL] =
 {
   { /* LCTR_ACAD_STATE_DISABLED */
@@ -204,8 +209,6 @@ static const uint8_t lctrAcadNextStateTbl[LCTR_ACAD_STATE_TOTAL][LCTR_ACAD_COMM_
  *
  *  \param      pAdvSet     Advertising set.
  *  \param      event       State machine event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvExtAdvExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event)
@@ -226,8 +229,6 @@ void lctrSlvExtAdvExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event)
  *
  *  \param      pAdvSet     Advertising set.
  *  \param      event       State machine event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvPeriodicAdvExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event)
@@ -244,11 +245,11 @@ void lctrSlvPeriodicAdvExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get common acad event from dispatcher message.
+ *  \brief      Get common ACAD event from dispatcher message.
  *
  *  \param      event       State machine event.
  *
- *  \return     None.
+ *  \return     Comment event ID.
  */
 /*************************************************************************************************/
 static uint8_t lctrSlvGetAcadCommEvt(uint8_t event)
@@ -256,9 +257,11 @@ static uint8_t lctrSlvGetAcadCommEvt(uint8_t event)
   switch (event)
   {
    case LCTR_ACAD_MSG_CHAN_UPDATE:
+   case LCTR_ACAD_MSG_BIG_CREATED:
      return LCTR_ACAD_COMM_MSG_START;
 
    case LCTR_ACAD_MSG_CHAN_UPDATE_FINISH:
+   case LCTR_ACAD_MSG_BIG_TERMINATED:
       return LCTR_ACAD_COMM_MSG_FINISH;
 
     default:
@@ -268,11 +271,11 @@ static uint8_t lctrSlvGetAcadCommEvt(uint8_t event)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get Acad id from dispatcher message.
+ *  \brief      Get ACAD ID from dispatcher message.
  *
  *  \param      event       State machine event.
  *
- *  \return     None.
+ *  \return     ACAD ID.
  */
 /*************************************************************************************************/
 static uint8_t lctrSlvGetAcadId(uint8_t event)
@@ -282,6 +285,10 @@ static uint8_t lctrSlvGetAcadId(uint8_t event)
     case LCTR_ACAD_MSG_CHAN_UPDATE:
     case LCTR_ACAD_MSG_CHAN_UPDATE_FINISH:
       return LCTR_ACAD_ID_CHAN_MAP_UPDATE;
+
+    case LCTR_ACAD_MSG_BIG_CREATED:
+    case LCTR_ACAD_MSG_BIG_TERMINATED:
+      return LCTR_ACAD_ID_BIG_INFO;
 
     default:
       return LCTR_ACAD_INVALID_ID;
@@ -302,11 +309,11 @@ void lctrSlvAcadExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event)
 {
   uint8_t acadId;
 
-  if ((event = lctrSlvGetAcadCommEvt(event)) == LCTR_ACAD_COMM_MSG_INVALID)
+  if ((acadId = lctrSlvGetAcadId(event)) == LCTR_ACAD_INVALID_ID)
   {
     return;
   }
-  if ((acadId = lctrSlvGetAcadId(event)) == LCTR_ACAD_INVALID_ID)
+  if ((event = lctrSlvGetAcadCommEvt(event)) == LCTR_ACAD_COMM_MSG_INVALID)
   {
     return;
   }

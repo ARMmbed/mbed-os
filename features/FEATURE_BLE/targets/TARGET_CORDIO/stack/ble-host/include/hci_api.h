@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief HCI subsystem API.
+ *  \file
+ *
+ *  \brief  HCI subsystem API.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef HCI_API_H
@@ -30,8 +32,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 /**************************************************************************************************
   Macros
@@ -47,7 +47,7 @@ extern "C" {
 #define HCI_RESET_SEQ_CMPL_CBACK_EVT                     0   /*!< \brief Reset sequence complete */
 #define HCI_LE_CONN_CMPL_CBACK_EVT                       1   /*!< \brief LE connection complete */
 #define HCI_LE_ENHANCED_CONN_CMPL_CBACK_EVT              2   /*!< \brief LE enhanced connection complete */
-#define HCI_DISCONNECT_CMPL_CBACK_EVT                    3   /*!< \brief LE disconnect complete */
+#define HCI_DISCONNECT_CMPL_CBACK_EVT                    3   /*!< \brief Disconnect complete */
 #define HCI_LE_CONN_UPDATE_CMPL_CBACK_EVT                4   /*!< \brief LE connection update complete */
 #define HCI_LE_CREATE_CONN_CANCEL_CMD_CMPL_CBACK_EVT     5   /*!< \brief LE create connection cancel command complete */
 #define HCI_LE_ADV_REPORT_CBACK_EVT                      6   /*!< \brief LE advertising report */
@@ -112,11 +112,26 @@ extern "C" {
 #define HCI_LE_CONN_CTE_REQ_ENABLE_CMD_CMPL_CBACK_EVT    65  /*!< \brief LE connection CTE request enable command complete */
 #define HCI_LE_CONN_CTE_RSP_ENABLE_CMD_CMPL_CBACK_EVT    66  /*!< \brief LE connection CTE response enable  command complete */
 #define HCI_LE_READ_ANTENNA_INFO_CMD_CMPL_CBACK_EVT      67  /*!< \brief LE read antenna information command complete */
-#define HCI_CIS_EST_CBACK_EVT                            68  /*!< \brief CIS established event */
-#define HCI_CIS_REQ_CBACK_EVT                            69  /*!< \brief CIS request event */
-#define HCI_REQ_PEER_SCA_CBACK_EVT                       70  /*!< \brief Request peer SCA complete */
+#define HCI_LE_CIS_EST_CBACK_EVT                         68  /*!< \brief LE CIS established event */
+#define HCI_LE_CIS_REQ_CBACK_EVT                         69  /*!< \brief LE CIS request event */
+#define HCI_CIS_DISCONNECT_CMPL_CBACK_EVT                70  /*!< \brief CIS disconnect complete */
+#define HCI_LE_REQ_PEER_SCA_CBACK_EVT                    71  /*!< \brief LE Request peer SCA complete */
+#define HCI_LE_SET_CIG_PARAMS_CMD_CMPL_CBACK_EVT         72  /*!< \brief LE set CIG parameters command complete */
+#define HCI_LE_REMOVE_CIG_CMD_CMPL_CBACK_EVT             73  /*!< \brief LE remove CIG command complete */
+#define HCI_LE_SETUP_ISO_DATA_PATH_CMD_CMPL_CBACK_EVT    74  /*!< \brief LE setup ISO data path command complete */
+#define HCI_LE_REMOVE_ISO_DATA_PATH_CMD_CMPL_CBACK_EVT   75  /*!< \brief LE remove ISO data path command complete */
+#define HCI_CONFIG_DATA_PATH_CMD_CMPL_CBACK_EVT          76  /*!< \brief Configure data path command complete */
+#define HCI_READ_LOCAL_SUP_CODECS_CMD_CMPL_CBACK_EVT     77  /*!< \brief Read local supported codecs command complete */
+#define HCI_READ_LOCAL_SUP_CODEC_CAP_CMD_CMPL_CBACK_EVT  78  /*!< \brief Read local supported codec capabilities command complete */
+#define HCI_READ_LOCAL_SUP_CTR_DLY_CMD_CMPL_CBACK_EVT    79  /*!< \brief Read local supported controller delay command complete */
+#define HCI_LE_CREATE_BIG_CMPL_CBACK_EVT                 80  /*!< \brief LE create BIG complete */
+#define HCI_LE_TERM_BIG_CMPL_CBACK_EVT                   81  /*!< \brief LE terminate BIG complete */
+#define HCI_LE_BIG_SYNC_EST_CBACK_EVT                    82  /*!< \brief LE BIG sync established */
+#define HCI_LE_BIG_SYNC_LOST_CBACK_EVT                   83  /*!< \brief LE BIG sync lost */
+#define HCI_LE_BIG_TERM_SYNC_CMPL_CBACK_EVT              84  /*!< \brief LE BIG terminate sync complete */
+#define HCI_LE_BIG_INFO_ADV_REPORT_CBACK_EVT             85  /*!< \brief LE BIG Info advertising report */
 #if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
-#define HCI_UNHANDLED_CMD_CMPL_CBACK_EVT                 71  /*!< \brief Unhandled event */
+#define HCI_UNHANDLED_CMD_CMPL_CBACK_EVT                 86  /*!< \brief Unhandled event */
 #endif
 /**@}*/
 
@@ -682,6 +697,217 @@ typedef struct
   uint8_t             cteMaxLen;            /*!< \brief Max CTE Length. */
 } hciLeReadAntennaInfoCmdCmplEvt_t;
 
+/*! \brief LE CIS established event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint8_t             status;               /*!< \brief Status. */
+  uint16_t            cisHandle;            /*!< \brief CIS connection handle. */
+  uint32_t            cigSyncDelayUsec;     /*!< \brief CIG synchronization delay in usec. */
+  uint32_t            cisSyncDelayUsec;     /*!< \brief CIS synchronization delay in usec. */
+  uint32_t            transLatMToSUsec;     /*!< \brief The maximum time, in msec, for transmission of SDUs of all CISes from mater to slave. */
+  uint32_t            transLatSToMUsec;     /*!< \brief The maximum time, in msec, for transmission of SDUs of all CISes from slave to master. */
+  uint8_t             phyMToS;              /*!< \brief Master to slave PHY. */
+  uint8_t             phySToM;              /*!< \brief Slave to master PHY. */
+  uint8_t             nse;                  /*!< \brief Number of subevents. */
+  uint8_t             bnMToS;               /*!< \brief Burst number master to slave. */
+  uint8_t             bnSToM;               /*!< \brief Burst number slave to master. */
+  uint8_t             ftMToS;               /*!< \brief Flush timeout master to slave. */
+  uint8_t             ftSToM;               /*!< \brief Flush timeout slave to master. */
+  uint16_t            maxPduMToS;           /*!< \brief Maximum payload size from master to slave. */
+  uint16_t            maxPduSToM;           /*!< \brief Maximum payload size from slave to master. */
+  uint16_t            isoInterval;          /*!< \brief Time between two consecutive ISO anchor points. */
+} HciLeCisEstEvt_t;
+
+/*! \brief LE CIS request event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint16_t            aclHandle;            /*!< \brief ACL connection handle. */
+  uint16_t            cisHandle;            /*!< \brief CIS connection handle. */
+  uint8_t             cigId;                /*!< \brief CIG identifier. */
+  uint8_t             cisId;                /*!< \brief CIS identifier. */
+} HciLeCisReqEvt_t;
+
+/*! \brief LE request peer SCA complete */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint8_t             status;               /*!< \brief Status. */
+  uint16_t            handle;               /*!< \brief ACL Connection handle. */
+  uint8_t             peerSca;              /*!< \brief Peer SCA. */
+} HciLeReqPeerScaCmplEvt_t_t;
+
+/*! \brief LE set CIG parameters command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint8_t             status;               /*!< \brief Status. */
+  uint8_t             cigId;                /*!< \brief CIG identifier. */
+  uint8_t             numCis;               /*!< \brief Total number of CISes added or modified. */
+  uint16_t            cisHandle[HCI_MAX_CIS_COUNT];  /*!< \brief Connection handle of the CISes in the CIG. */
+} hciLeSetCigParamsCmdCmplEvt_t;
+
+/*! \brief LE remove CIG command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint8_t             status;               /*!< \brief Status. */
+  uint8_t             cigId;                /*!< \brief CIG identifier. */
+} hciLeRemoveCigCmdCmplEvt_t;
+
+/*! \brief LE Create BIG complete event */
+typedef struct
+{
+  wsfMsgHdr_t   hdr;                        /*!< \brief Event header. */
+  uint8_t       status;                     /*!< \brief Status. */
+  uint8_t       bigHandle;                  /*!< \brief BIG handle. */
+  uint32_t      syncDelayUsec;              /*!< \brief Synchronization delay in microseconds. */
+  uint32_t      transLatUsec;               /*!< \brief Transport latency, in microseconds. */
+  uint8_t       phy;                        /*!< \brief Transmit PHY. */
+  uint8_t       nse;                        /*!< \brief Number of Sub-Events in each BIS event in the BIG. */
+  uint8_t       bn;                         /*!< \brief Number of new payloads in each BIS event. */
+  uint8_t       pto;                        /*!< \brief Offset used for pre-transmissions. */
+  uint8_t       irc;                        /*!< \brief Number of times a payload is transmitted in a BIS event. */
+  uint16_t      maxPdu;                     /*!< \brief Maximum size of the payload. */
+  uint16_t      isoInterval;                /*!< \brief Time between two consecutive ISO anchor points. */
+  uint8_t       numBis;                     /*!< \brief Number of BIS. */
+  uint16_t      bisHandle[HCI_MAX_BIS_COUNT]; /*!< \brief Connection handles of the BIS's. */
+} HciLeCreateBigCmplEvt_t;
+
+/*! \brief LE Terminate BIG complete event */
+typedef struct
+{
+  wsfMsgHdr_t   hdr;                        /*!< \brief Event header. */
+  uint8_t       bigHandle;                  /*!< \brief BIG handle. */
+  uint8_t       reason;                     /*!< \brief Terminate reason. */
+} HciLeTerminateBigCmplEvt_t;
+
+/*! \brief LE BIG Terminate Sync complete event */
+typedef struct
+{
+  wsfMsgHdr_t   hdr;                        /*!< \brief Event header. */
+  uint8_t       status;                     /*!< \brief Status. */
+  uint8_t       bigHandle;                  /*!< \brief BIG handle. */
+} HciLeBigTermSyncCmplEvt_t;
+
+/*! \brief LE BIG Sync Established event */
+typedef struct
+{
+  wsfMsgHdr_t   hdr;                        /*!< \brief Event header. */
+  uint8_t       status;                     /*!< \brief Status. */
+  uint8_t       bigHandle;                  /*!< \brief BIG handle. */
+  uint32_t      transLatUsec;               /*!< \brief The maximum time, in microseconds, for transmission of SDUs of all BISes. */
+  uint8_t       nse;                        /*!< \brief Number of Sub-Events in each BIS event in the BIG. */
+  uint8_t       bn;                         /*!< \brief Number of new payloads in each BIS event. */
+  uint8_t       pto;                        /*!< \brief Offset used for pre-transmissions. */
+  uint8_t       irc;                        /*!< \brief Number of times a payload is transmitted in a BIS event. */
+  uint16_t      maxPdu;                     /*!< \brief Maximum size of the payload. */
+  uint16_t      isoInterval;                /*!< \brief Time between two consecutive ISO anchor points. */
+  uint8_t       numBis;                     /*!< \brief Number of BIS. */
+  uint16_t      bisHandle[HCI_MAX_BIS_COUNT]; /*!< \brief Connection handles of the BIS's. */
+} HciLeBigSyncEstEvt_t;
+
+/*! \brief LE BIG sync lost event */
+typedef struct
+{
+  wsfMsgHdr_t   hdr;                        /*!< \brief Event header. */
+  uint8_t       bigHandle;                  /*!< \brief BIG handle. */
+  uint8_t       reason;                     /*!< \brief Sync lost reason. */
+} HciLeBigSyncLostEvt_t;
+
+/*! \brief LE BIG Info Advertising Report event */
+typedef struct
+{
+  wsfMsgHdr_t   hdr;            /*!< Event header. */
+  uint16_t      syncHandle;     /*!< Sync handle identifying the periodic advertising train. */
+  uint8_t       numBis;         /*!< Number of BIS. */
+  uint8_t       nse;            /*!< Number of Sub-Events in each BIS event in the BIG. */
+  uint16_t      isoInterv;      /*!< ISO interval. */
+  uint8_t       bn;             /*!< Number of new payloads in each BIS event. */
+  uint8_t       pto;            /*!< Offset used for pre-transmissions. */
+  uint8_t       irc;            /*!< Number of times a payload is transmitted in a BIS event. */
+  uint16_t      maxPdu;         /*!< Maximum size of the PDU. */
+  uint32_t      sduInterv;      /*!< SDU interval. */
+  uint16_t      maxSdu;         /*!< Maximum size of the SDU. */
+  uint8_t       phy;            /*!< Transmit PHY. */
+  uint8_t       framing;        /*!< Framing mode. */
+  bool_t        encrypt;        /*!< Encryption enabled. */
+} HciLeBigInfoAdvRptEvt_t;
+
+/*! \brief LE setup ISO data path command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint8_t             status;               /*!< \brief Status. */
+  uint8_t             handle;               /*!< \brief Connection handle of the CIS or BIS. */
+} hciLeSetupIsoDataPathCmdCmplEvt_t;
+
+/*! \brief LE remove ISO data path command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint8_t             status;               /*!< \brief Status. */
+  uint8_t             handle;               /*!< \brief Connection handle of the CIS or BIS. */
+} hciLeRemoveIsoDataPathCmdCmplEvt_t;
+
+/*! \brief Config data path command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header. */
+  uint8_t             status;               /*!< \brief Status. */
+} hciConfigDataPathCmdCmplEvt_t;
+
+/*! \brief Standard codec info block */
+typedef struct
+{
+  uint8_t             codecId;              /*!< \brief Codec ID. */
+} HciStdCodecInfo_t;
+
+/*! \brief Vendor-specific codec info block */
+typedef struct
+{
+  uint16_t            compId;               /*!< \brief Company ID. */
+  uint16_t            codecId;              /*!< \brief Codec ID. */
+} HciVsCodecInfo_t;
+
+/*! \brief Read local supported codecs command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                          /*!< \brief Event header. */
+  uint8_t             status;                       /*!< \brief Status. */
+  uint8_t             numStdCodecs;                 /*!< \brief Total number of standard codecs supported. */
+  HciStdCodecInfo_t   stdCodecs[HCI_MAX_CODEC];     /*!< \brief Standard codecs. */
+  uint8_t             stdCodecTrans[HCI_MAX_CODEC]; /*!< \brief Standard codec transport. */
+  uint8_t             numVsCodecs;                  /*!< \brief Total number of vendor-specific codecs supported. */
+  HciVsCodecInfo_t    vsCodecs[HCI_MAX_CODEC];      /*!< \brief Vendor-specfic codecs. */
+  uint8_t             vsCodecTrans[HCI_MAX_CODEC];  /*!< \brief Vendor-specfic codec transport. */
+} hciReadLocalSupCodecsCmdCmplEvt_t;
+
+/*! \brief Codec capability block */
+typedef struct
+{
+  uint8_t             len;                          /*!< \brief Length of codec capability. */
+  uint8_t             data[HCI_CODEC_CAP_DATA_LEN]; /*!< \brief Codec-specific capability data. */
+} HciCodecCap_t;
+
+/*! \brief Read local supported codec capabilities command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                          /*!< \brief Event header. */
+  uint8_t             status;                       /*!< \brief Status. */
+  uint8_t             numCodecCaps;                 /*!< \bried Number of codec capabilities. */
+  HciCodecCap_t       codecCap[HCI_MAX_CODEC];      /*!< \brief Codec capabilities. */
+} hciReadLocalSupCodecCapCmdCmplEvt_t;
+
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                          /*!< \brief Event header. */
+  uint8_t             status;                       /*!< \brief Status. */
+  uint32_t            minDly;                       /*!< \brief Minimum controller delay. */
+  uint32_t            maxDly;                       /*!< \brief Maximum controller delay. */
+} hciReadLocalSupCtrDlyCmdCmplEvt_t;
+
 #if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
 /*! \brief LE read antenna information command complete event */
 typedef struct
@@ -694,11 +920,11 @@ typedef struct
 /*! \brief Local version information */
 typedef struct
 {
-  uint8_t             hciVersion;       /*!< \brief HCI version. */
-  uint16_t            hciRevision;      /*!< \brief HCI revision. */
-  uint8_t             lmpVersion;       /*!< \brief LMP version. */
-  uint16_t            manufacturerName; /*!< \brief Manufacturer name. */
-  uint16_t            lmpSubversion;    /*!< \brief LMP Sub-version. */
+  uint8_t             hciVersion;           /*!< \brief HCI version. */
+  uint16_t            hciRevision;          /*!< \brief HCI revision. */
+  uint8_t             lmpVersion;           /*!< \brief LMP version. */
+  uint16_t            manufacturerName;     /*!< \brief Manufacturer name. */
+  uint16_t            lmpSubversion;        /*!< \brief LMP Sub-version. */
 } hciLocalVerInfo_t;
 
 /*! \brief Union of all event types */
@@ -766,9 +992,26 @@ typedef union
   hciLeConnCteReqEnableCmdCmplEvt_t   leConnCteReqEnableCmdCmpl;   /*!< \brief LE connection CTE request enable command complete. */
   hciLeConnCteRspEnableCmdCmplEvt_t   leConnCteRspEnableCmdCmpl;   /*!< \brief LE connection CTE response enable command complete. */
   hciLeReadAntennaInfoCmdCmplEvt_t    leReadAntennaInfoCmdCmpl;    /*!< \brief LE read antenna information command complete. */
+  hciLeSetCigParamsCmdCmplEvt_t       leSetCigParamsCmdCmpl;       /*!< \brief LE set CIG parameters command complete. */ 
+  hciLeRemoveCigCmdCmplEvt_t          leRemoveCigCmdCmpl;          /*!< \brief LE remove CIG command complete. */
+  HciLeCisEstEvt_t                    leCisEst;                    /*!< \brief LE CIS established. */
+  HciLeCisReqEvt_t                    leCisReq;                    /*!< \brief LE CIS request. */
+  HciLeReqPeerScaCmplEvt_t_t          leReqPeerSca;                /*!< \brief LE request peer SCA complete. */
+  hciLeSetupIsoDataPathCmdCmplEvt_t   leSetupIsoDataPathCmdCmpl;   /*!< \brief LE setup ISO data path command complete. */
+  hciLeRemoveIsoDataPathCmdCmplEvt_t  leRemoveIsoDataPathCmdCmpl;  /*!< \brief LE remove ISO data path command complete. */
+  hciConfigDataPathCmdCmplEvt_t       configDataPathCmdCmpl;       /*!< \brief Config data path command complete. */
+  hciReadLocalSupCodecsCmdCmplEvt_t   readLocalSupCodecsCmdCmpl;   /*!< \brief Read local supported codecs command complete. */
+  hciReadLocalSupCodecCapCmdCmplEvt_t readLocalSupCodecCapCmdCmpl; /*!< \brief Read local supported codec capablitlies command complete. */
+  hciReadLocalSupCtrDlyCmdCmplEvt_t   readLocalSupCtrDlyCmdCmpl;   /*!< \brief Read local supported controller delay command complete. */
+  HciLeCreateBigCmplEvt_t             leCreateBigCmpl;             /*!< \brief LE create BIG complete. */
+  HciLeTerminateBigCmplEvt_t          leTerminateBigCmpl;          /*!< \brief LE terminate BIG complete. */
+  HciLeBigSyncEstEvt_t                leBigSyncEst;                /*!< \brief LE BIG sync established. */
+  HciLeBigSyncLostEvt_t               leBigSyncLost;               /*!< \brief LE BIG sync lost. */
+  HciLeBigTermSyncCmplEvt_t           leBigTermSyncCmpl;           /*!< \brief LE BIG terminate sync complete. */
+  HciLeBigInfoAdvRptEvt_t             leBigInfoAdvRpt;             /*!< \brief LE BIG info advertising report. */
 #if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
   hciUnhandledCmdCmplEvt_t            unhandledCmdCmpl;            /*!< \brief Unhandled events. */
-#endif
+#endif  
 } hciEvt_t;
 
 /*! \} */    /* STACK_HCI_EVT_API */
@@ -819,7 +1062,7 @@ typedef struct
   uint8_t             priAdvPhy;       /*!< \brief Primary Advertising PHY. */
   uint8_t             secAdvMaxSkip;   /*!< \brief Secondary Advertising Maximum Skip. */
   uint8_t             secAdvPhy;       /*!< \brief Secondary Advertising PHY. */
-  uint8_t             advSetId;        /*!< \brief Advertising set ID. */
+  uint8_t             advSID;          /*!< \brief Advertising SID. */
   uint8_t             scanReqNotifEna; /*!< \brief Scan Request Notification Enable. */
 } hciExtAdvParam_t;
 
@@ -838,6 +1081,115 @@ typedef struct
   uint16_t            scanWindow;      /*!< \brief Scan window. */
   uint8_t             scanType;        /*!< \brief Scan type. */
 } hciExtScanParam_t;
+
+/*! \brief CIS parameters */
+typedef struct
+{
+  uint8_t             cisId;           /*!< \brief Used to identify a connected isochronous stream. */
+  uint16_t            sduSizeMToS;     /*!< \brief Maximum size of a data SDU from the master to the slave. */
+  uint16_t            sduSizeSToM;     /*!< \brief Maximum size of a data SDU from the slave to the master. */
+  uint8_t             phyMToS;         /*!< \brief PHY to be used for transmission from master to slave. */
+  uint8_t             phySToM;         /*!< \brief PHY to be used for transmission from master to slave. */
+  uint8_t             rteMToS;         /*!< \brief Maximum number of times every PDU should be retransmitted from the master to slave. */
+  uint8_t             rteSToM;         /*!< \brief Maximum number of times every PDU should be retransmitted from the slave to master. */
+} HciCisCisParams_t;
+
+/*! \brief CIG parameters */
+typedef struct
+{
+  uint8_t             cigId;           /*!< \brief Used to identify the connected isochronous group. */
+  uint32_t            sduIntervalMToS; /*!< \brief The time interval between the start of consecutive SDUs from the master Host. */
+  uint32_t            sduIntervalSToM; /*!< \brief The time interval between the start of consecutive SDUs from the slave Host. */
+  uint8_t             sca;             /*!< \brief Sleep clock accuracy. */
+  uint8_t             packing;         /*!< \brief Packing scheme. */
+  uint8_t             framing;         /*!< \brief Indicates the format of CIS Data PDUs.  */
+  uint16_t            transLatMToS;    /*!< \brief Maximum time, in milliseconds, for an SDU to be transported from the master Controller to slave Controller. */
+  uint16_t            transLatSToM;    /*!< \brief Maximum time, in milliseconds, for an SDU to be transported from the slave Controller to master Controller. */
+  uint8_t             numCis;          /*!< \brief Number of CIS to set. */
+  HciCisCisParams_t   *pCisParam;      /*!< \brief CIS parameters. */
+} HciCisCigParams_t;
+
+/*! \brief CIS create CIS parameters */
+typedef struct
+{
+  uint16_t            *pCisHandle;     /*!< \brief Pointer to the connected isochronous handle array. */
+  uint16_t            *pAclHandle;     /*!< \brief Pointer to the asynchronous connection link handle array. */
+} HciCisCreateCisParams_t;
+
+/*! \brief BIG Create BIG parameters */
+typedef struct
+{
+  uint8_t       bigHandle;             /*!< \brief Used to identify the BIG. */
+  uint8_t       advHandle;             /*!< \brief Used to identify the periodic advertising train. */
+  uint8_t       numBis;                /*!< \brief Total number of BISes in the BIG. */
+  uint32_t      sduInterUsec;          /*!< \brief Interval, in microseconds, of BIG SDUs. */
+  uint16_t      maxSdu;                /*!< \brief Maximum size of an SDU. */
+  uint16_t      mtlMs;                 /*!< \brief Maximum time in milliseconds. */
+  uint8_t       rtn;                   /*!< \brief Retransmitted number. */
+  uint8_t       phys;                  /*!< \brief Transmitter PHYs of packets. */
+  uint8_t       packing;               /*!< \brief Sequential or Interleaved packing. */
+  uint8_t       framing;               /*!< \brief Unframed or Framed. */
+  uint8_t       encrypt;               /*!< \brief Unencrypted or Encrypted. */
+  uint8_t       bcstCode[HCI_BC_LEN];  /*!< \brief Session key used to encrypt and decrypt BIS payloads. */
+} HciCreateBig_t;
+
+/*! \brief BIG Create Sync parameters */
+typedef struct
+{
+  uint8_t       bigHandle;             /*!< \brief Used to identify the BIG. */
+  uint16_t      syncHandle;            /*!< \brief Periodic advertising train handle. */
+  uint8_t       encrypt;               /*!< \brief Unencrypted or Encrypted. */
+  uint8_t       bcstCode[HCI_BC_LEN];  /*!< \brief Session key code for encrypt and decrypt BIS payloads. */
+  uint8_t       mse;                   /*!< \brief Maximum number of subevents. */
+  uint16_t      bigSyncTimeout;        /*!< \brief Synchronization timeout for the BIS, in the units of 10ms. */
+  uint8_t       numBis;                /*!< \brief Total number of BISes in the BIG. */
+  uint8_t       bis[HCI_MAX_BIS_COUNT];/*!< \brief List of indices of BISes. */
+} HciBigCreateSync_t;
+
+/*! \brief Setup ISO data path parameters */
+typedef struct
+{
+  uint16_t            handle;          /*!< \brief Handle of CIS or BIS. */
+  uint8_t             dpDir;           /*!< \brief Data path direction. */
+  uint8_t             dpId;            /*!< \brief Data path ID. */
+  uint8_t             codingFmt;       /*!< \brief Coding Format. */
+  uint16_t            compId;          /*!< \brief Company ID (ignored if 'codingFmt' not 0xFF). */
+  uint16_t            vsCodecId;       /*!< \brief Vendor-defined codec ID (ignored if 'codingFmt' not 0xFF). */
+  uint32_t            ctrDly;          /*!< \brief Controller delay (in usec). */
+  uint8_t             codecConfigLen;  /*!< \brief Codec configuration length. */
+  uint8_t             *pCodecConfig;   /*!< \brief Codec configuration. */
+} HciIsoSetupDataPath_t;
+
+/*! \brief Configure data path parameters */
+typedef struct
+{
+  uint8_t             dpDir;           /*!< \brief Data path direction. */
+  uint8_t             dpId;            /*!< \brief Data path ID. */
+  uint8_t             configLen;       /*!< \brief Length of vendor-specific configuration data. */
+  uint8_t             *pConfig;        /*!< \brief Vendor-specific configuration data. */
+} HciConfigDataPath_t;
+
+/*! \brief Read local supported codec capabilities parameters */
+typedef struct
+{
+  uint8_t             codingFmt;       /*!< \brief Coding Format. */
+  uint16_t            compId;          /*!< \brief Company ID (ignored if 'codingFmt' not 0xFF). */
+  uint16_t            vsCodecId;       /*!< \brief Vendor-defined codec ID (ignored if 'codingFmt' not 0xFF). */
+  uint8_t             transType;       /*!< \brief Logical transport type. */
+  uint8_t             direction;       /*!< \brief Direction. */
+} HciReadLocalSupCodecCaps_t;
+
+/*! \brief Read local supported controller delay parameters */
+typedef struct
+{
+  uint8_t             codingFmt;       /*!< \brief Coding Format. */
+  uint16_t            compId;          /*!< \brief Company ID (ignored if 'codingFmt' not 0xFF). */
+  uint16_t            vsCodecId;       /*!< \brief Vendor-defined codec ID (ignored if 'codingFmt' not 0xFF). */
+  uint8_t             transType;       /*!< \brief Logical transport type. */
+  uint8_t             direction;       /*!< \brief Direction. */
+  uint8_t             codecConfigLen;  /*!< \brief Length of codec configuration. */
+  uint8_t             *pCodecConfig;   /*!< \brief Codec-specific configuration data. */
+} HciReadLocalSupControllerDly_t;
 
 /*! \} */    /* STACK_HCI_CMD_API */
 
@@ -877,13 +1229,23 @@ typedef void (*hciSecCback_t)(hciEvt_t *pEvent);
 
 /*! \brief HCI ACL callback type
  *
- *  This callback function sends a data from HCI to the stack.
+ *  This callback function sends ACL data from HCI to the stack.
  *
  *  \param  pData    WSF buffer containing an ACL packet.
  *
  *  \return None.
  */
 typedef void (*hciAclCback_t)(uint8_t *pData);
+
+/*! \brief HCI ISO callback type
+ *
+ *  This callback function sends ISO data from HCI to the stack.
+ *
+ *  \param  pData    WSF buffer containing an ISO packet.
+ *
+ *  \return None.
+*/
+typedef void (*hciIsoCback_t)(uint8_t *pData);
 
 /*! \brief HCI flow control callback type
  *
@@ -942,6 +1304,18 @@ void HciSecRegister(hciSecCback_t secCback);
  */
 /*************************************************************************************************/
 void HciAclRegister(hciAclCback_t aclCback, hciFlowCback_t flowCback);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Register callbacks for the HCI ISO data path.
+ *
+ *  \param  isoCback  ISO data callback function.
+ *  \param  flowCback Flow control callback function.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void HciIsoRegister(hciAclCback_t isoCback, hciFlowCback_t flowCback);
 
 /*************************************************************************************************/
 /*!
@@ -1017,7 +1391,19 @@ void HciSetAclQueueWatermarks(uint8_t queueHi, uint8_t queueLo);
 *  \return None.
 */
 /*************************************************************************************************/
-void HciSetLeSupFeat(uint32_t feat, bool_t flag);
+void HciSetLeSupFeat(uint64_t feat, bool_t flag);
+
+/*************************************************************************************************/
+/*!
+ *  \brief   Set LE supported features configuration mask.
+ *
+ *  \param   feat    Feature bit to set or clear
+ *  \param   flag    TRUE to set feature bit and FALSE to clear it
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void HciSetLeSupFeat32(uint32_t feat, bool_t flag);
 /**@}*/
 
 /*************************************************************************************************/
@@ -1104,7 +1490,16 @@ uint8_t *HciGetSupStates(void);
  *  \return Supported features.
  */
 /*************************************************************************************************/
-uint32_t HciGetLeSupFeat(void);
+uint64_t HciGetLeSupFeat(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Return the LE supported features supported by the controller.
+ *
+ *  \return Supported features.
+ */
+/*************************************************************************************************/
+uint32_t HciGetLeSupFeat32(void);
 
 /*************************************************************************************************/
 /*!
@@ -1344,6 +1739,15 @@ void HciLeReadAdvTXPowerCmd(void);
  */
 /*************************************************************************************************/
 void HciLeReadBufSizeCmd(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  HCI LE read buffer size version 2 command.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void HciLeReadBufSizeCmdV2(void);
 
 /*************************************************************************************************/
 /*!
@@ -2388,6 +2792,246 @@ void HciLeConnCteRspEnableCmd(uint16_t connHandle, uint8_t enable);
  */
 /*************************************************************************************************/
 void HciLeReadAntennaInfoCmd(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE set CIG parameters command.
+ *
+ *  \param      pCigParam    CIG parameters.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeSetCigParamsCmd(HciCisCigParams_t *pCigParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE create CIS command.
+ *
+ *  \param      numCis            Nunber of CISes.
+ *  \param      pCreateCisParam   Parameters for creating connected isochronous stream.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeCreateCisCmd(uint8_t numCis, HciCisCreateCisParams_t *pCreateCisParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE accept CIS request command.
+ *
+ *  \param      connHandle   Connection handle of the CIS to be accepted.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeAcceptCisReqCmd(uint16_t connHandle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE reject CIS request command.
+ *
+ *  \param      connHandle   Connection handle of the CIS to be rejected.
+ *  \param      reason       Reason the CIS request was rejected.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeRejectCisReqCmd(uint16_t connHandle, uint8_t reason);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE remove CIG command.
+ *
+ *  \param      cigId        Identifer of a CIG.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeRemoveCigCmd(uint8_t cigId);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE request peer SCA command.
+ *
+ *  \param      handle    Connection handle.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeRequestPeerScaCmd(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE create BIG command.
+ *
+ *  \param      pCreateBis    Create BIG parameters.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeCreateBigCmd(HciCreateBig_t *pCreateBig);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE terminate BIG command.
+ *
+ *  \param      bigHandle     Used to identify the BIG.
+ *  \param      reason        Termination reason.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciTerminateBigCmd(uint8_t bigHandle, uint8_t reason);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE BIG create sync command.
+ *
+ *  \param      pCreateSync     BIG Create Sync parameters.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeBigCreateSyncCmd(HciBigCreateSync_t *pCreateSync);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE BIG terminate sync command.
+ *
+ *  \param      bigHandle     Used to identify the BIG.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeBigTerminateSync(uint8_t bigHandle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE enable ISO Tx test.
+ *
+ *  \param      handle      CIS or BIS handle.
+ *  \param      pldType     Payload type.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeIsoTxTest(uint16_t handle, uint8_t pldType);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE enable ISO Rx test.
+ *
+ *  \param      handle      CIS or BIS handle.
+ *  \param      pldType     Payload type.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeIsoRxTest(uint16_t handle, uint8_t pldType);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  HCI LE read ISO test counter.
+ *
+ *  \param      handle      CIS or BIS handle.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeIsoReadTestCounters(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE ISO test end.
+ *
+ *  \param      handle      CIS or BIS handle.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeIsoTestEnd(uint16_t handle);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE setup ISO data path command.
+ *
+ *  \param      pDataPathParam  Parameters for setup ISO data path.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeSetupIsoDataPathCmd(HciIsoSetupDataPath_t *pDataPathParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE remove ISO data path command.
+ *
+ *  \param      handle          Connection handle of the CIS or BIS.
+ *  \param      directionBits   Data path direction bits.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeRemoveIsoDataPathCmd(uint16_t handle, uint8_t directionBits);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI configure data path command.
+ *
+ *  \param      pDataPathParam  Parameters for configuring data path.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciConfigDataPathCmd(HciConfigDataPath_t *pDataPathParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI read local supported codecs command.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciReadLocalSupCodecsCmd(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI read local supported codec capabilities command.
+ *
+ *  \param      pCodecParam     Parameters to read codec capablilties.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciReadLocalSupCodecCapCmd(HciReadLocalSupCodecCaps_t *pCodecParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI read local supported controller delay command.
+ *
+ *  \param      pDelayParam     Parameters to read controller delay.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciReadLocalSupControllerDlyCmd(HciReadLocalSupControllerDly_t *pDelayParam);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE set host feature command.
+ *
+ *  \param      bitNum    Bit position in the FeatureSet.
+ *  \param      bitVal    Enable or disable feature.
+ *
+ *  \return     None.
+ *
+ *  \note Set or clear a bit in the feature controlled by the Host in the Link Layer FeatureSet
+ *  stored in the Controller.
+ */
+/*************************************************************************************************/
+void HciLeSetHostFeatureCmd(uint8_t bitNum, bool_t bitVal);
+
 /**@}*/
 
 /*! \} */    /* STACK_HCI_CMD_API */

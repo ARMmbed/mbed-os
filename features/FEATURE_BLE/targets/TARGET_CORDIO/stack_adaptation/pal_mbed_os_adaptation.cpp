@@ -17,8 +17,9 @@
 #include "mbed.h"
 #include "stack/platform/include/pal_types.h"
 #include "stack/platform/include/pal_uart.h"
-#include "stack/platform/include/pal_nvm.h"
 #include "hal/ticker_api.h"
+#include "mbed_critical.h"
+#include "pal_codec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,34 +48,6 @@ MBED_WEAK void PalUartReadData(PalUartId_t id, uint8_t *pData, uint16_t len)
 MBED_WEAK void PalUartWriteData(PalUartId_t id, const uint8_t *pData, uint16_t len)
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalUartWriteData");
-}
-
-/* NVM */
-
-MBED_WEAK void PalNvmInit(PalNvmCback_t actCback)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmInit");
-}
-
-MBED_WEAK PalNvmState_t PalNvmGetState()
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmGetState");
-    return PAL_NVM_STATE_UNINIT;
-}
-
-MBED_WEAK void PalNvmRead(void *pBuf, uint32_t size, uint32_t srcAddr)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmRead");
-}
-
-MBED_WEAK void PalNvmWrite(void *pBuf, uint32_t size, uint32_t dstAddr)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmWrite");
-}
-
-MBED_WEAK void PalNvmEraseSector(uint32_t size, uint32_t startAddr)
-{
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmEraseSector");
 }
 
 /* LED */
@@ -108,7 +81,7 @@ MBED_WEAK void PalRtcDisableCompareIrq()
 
 MBED_WEAK uint32_t PalRtcCounterGet()
 {
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcDisableCompareIrq");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcCounterGet");
     return 0;
 }
 
@@ -140,6 +113,87 @@ MBED_WEAK void PalSysSleep()
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalSysSleep");
 }
+
+MBED_WEAK void PalSysSetTrap(bool_t enable)
+{
+    (void)enable;
+}
+
+MBED_WEAK uint32_t PalSysGetAssertCount()
+{
+    return 0;
+}
+
+MBED_WEAK uint32_t PalSysGetStackUsage()
+{
+    return 0;
+}
+
+/* CS */
+
+MBED_WEAK void PalEnterCs(void)
+{
+    core_util_critical_section_enter();
+}
+MBED_WEAK void PalExitCs(void)
+{
+    core_util_critical_section_exit();
+}
+
+/* ISO channels */
+
+MBED_WEAK void PalCodecReadLocalSupportedCodecs(uint8_t *pNumStd, AudioStdCodecInfo_t stdCodecs[],
+                                                uint8_t *pNumVs, AudioVsCodecInfo_t vsCodecs[])
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecReadLocalSupportedCodecs");
+}
+
+MBED_WEAK bool_t PalCodecReadLocalSupportedCodecCapabilities(
+    uint8_t codingFmt, uint16_t compId, uint16_t vsCodecId, PalAudioDir_t dir)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecReadLocalSupportedCodecCapabilities");
+    return 0;
+}
+
+MBED_WEAK bool_t PalCodecReadLocalSupportedControllerDelay(
+    uint8_t codingFmt, uint16_t compId, uint16_t vsCodecId, PalAudioDir_t dir, uint32_t *pMinDly, uint32_t *pMaxDly)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecReadLocalSupportedControllerDelay");
+    return 0;
+}
+MBED_WEAK bool_t PalCodecConfigureDataPath(PalAudioDir_t dir, uint8_t dataPathId)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecConfigureDataPath");
+    return 0;
+}
+
+MBED_WEAK void PalCodecDataInit(void)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataInit");
+}
+
+MBED_WEAK bool_t PalCodecDataStartStream(uint16_t id, PalCodecSreamParam_t *pParam)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStartStream");
+    return 0;
+}
+
+MBED_WEAK void PalCodecDataStopStream(uint16_t id)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStopStream");
+}
+
+MBED_WEAK uint16_t PalCodecDataStreamIn(uint16_t id, uint8_t *pBuf, uint16_t len, uint32_t *pPktCtr)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStreamIn");
+    return 0;
+}
+
+MBED_WEAK void PalCodecDataStreamOut(uint16_t id, const uint8_t *pBuf, uint16_t len, uint32_t pktCtr)
+{
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalCodecDataStreamOut");
+}
+
 
 #ifdef __cplusplus
 };

@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief BLE baseband interface file.
+ *  \file
+ *
+ *  \brief      BLE baseband interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -167,8 +168,6 @@ typedef struct
 /*!
  *  \brief      Initialize the BLE BB.
  *
- *  \return     None.
- *
  *  Initialize baseband resources.
  */
 /*************************************************************************************************/
@@ -177,8 +176,6 @@ void BbBleInit(void);
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize for scanning master operations.
- *
- *  \return     None.
  *
  *  Update the operation table with scanning master operations routines.
  */
@@ -189,8 +186,6 @@ void BbBleScanMasterInit(void);
 /*!
  *  \brief      Initialize for auxiliary scanning master operations.
  *
- *  \return     None.
- *
  *  Update the operation table with auxiliary scanning master operations routines.
  */
 /*************************************************************************************************/
@@ -199,8 +194,6 @@ void BbBleAuxScanMasterInit(void);
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize for periodic scanning master operations.
- *
- *  \return     None.
  *
  *  Update the operation table with periodic scanning master operations routines.
  */
@@ -211,8 +204,6 @@ void BbBlePerScanMasterInit(void);
 /*!
  *  \brief      Initialize for connectable master operations.
  *
- *  \return     None.
- *
  *  Update the operation table with connectable master operations routines.
  */
 /*************************************************************************************************/
@@ -221,8 +212,6 @@ void BbBleConnMasterInit(void);
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize for advertising slave operations.
- *
- *  \return     None.
  *
  *  Update the operation table with advertising slave operations routines.
  */
@@ -233,8 +222,6 @@ void BbBleAdvSlaveInit(void);
 /*!
  *  \brief      Initialize for auxiliary advertising slave operations.
  *
- *  \return     None.
- *
  *  Update the operation table with auxiliary advertising slave operations routines.
  */
 /*************************************************************************************************/
@@ -244,8 +231,6 @@ void BbBleAuxAdvSlaveInit(void);
 /*!
  *  \brief      Initialize for connectable slave operations.
  *
- *  \return     None.
- *
  *  Update the operation table with connectable slave operations routines.
  */
 /*************************************************************************************************/
@@ -254,8 +239,6 @@ void BbBleConnSlaveInit(void);
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize for test operations.
- *
- *  \return     None.
  *
  *  Update the operation table with test operations routines.
  */
@@ -318,8 +301,6 @@ uint16_t BbBleInitPeriodicList(uint8_t numEntries, uint8_t *pFreeMem, uint32_t f
  *  \brief      Get advertising packet statistics.
  *
  *  \param      pStats      Advertising statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetAdvStats(BbBleAdvPktStats_t *pStats);
@@ -329,8 +310,6 @@ void BbBleGetAdvStats(BbBleAdvPktStats_t *pStats);
  *  \brief      Get scan packet statistics.
  *
  *  \param      pStats      Scan statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetScanStats(BbBleScanPktStats_t *pStats);
@@ -340,8 +319,6 @@ void BbBleGetScanStats(BbBleScanPktStats_t *pStats);
  *  \brief      Get auxiliary advertising packet statistics.
  *
  *  \param      pStats      Auxiliary advertising statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetAuxAdvStats(BbBleAuxAdvPktStats_t *pStats);
@@ -351,8 +328,6 @@ void BbBleGetAuxAdvStats(BbBleAuxAdvPktStats_t *pStats);
  *  \brief      Get auxiliary scan packet statistics.
  *
  *  \param      pStats      Auxiliary scan statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetAuxScanStats(BbBleAuxScanPktStats_t *pStats);
@@ -362,8 +337,6 @@ void BbBleGetAuxScanStats(BbBleAuxScanPktStats_t *pStats);
  *  \brief      Get periodic scan packet statistics.
  *
  *  \param      pStats      Periodic scan statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetPerScanStats(BbBlePerScanPktStats_t *pStats);
@@ -373,8 +346,6 @@ void BbBleGetPerScanStats(BbBlePerScanPktStats_t *pStats);
  *  \brief      Get connection packet statistics.
  *
  *  \param      pStats      Connection data statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetConnStats(BbBleDataPktStats_t *pStats);
@@ -384,8 +355,6 @@ void BbBleGetConnStats(BbBleDataPktStats_t *pStats);
  *  \brief      Get test mode packet statistics.
  *
  *  \param      pStats      Test data statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetTestStats(BbBleDataPktStats_t *pStats);
@@ -395,8 +364,6 @@ void BbBleGetTestStats(BbBleDataPktStats_t *pStats);
  *  \brief      Get PDU filter statistics.
  *
  *  \param      pStats      PDU filter statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetPduFiltStats(BbBlePduFiltStats_t *pStats);
@@ -404,8 +371,6 @@ void BbBleGetPduFiltStats(BbBlePduFiltStats_t *pStats);
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize for connected isochronous stream master operations.
- *
- *  \return     None.
  *
  *  Update the operation table with CIS master operations routines.
  */
@@ -416,8 +381,6 @@ void BbBleCisMasterInit(void);
 /*!
  *  \brief      Initialize for connected isochronous stream slave operations.
  *
- *  \return     None.
- *
  *  Update the operation table with CIS slave operations routines.
  */
 /*************************************************************************************************/
@@ -425,11 +388,27 @@ void BbBleCisSlaveInit(void);
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Initialize for Broadcast isochronous stream master operations.
+ *
+ *  Update the operation table with CIS master operations routines.
+ */
+/*************************************************************************************************/
+void BbBleBisMasterInit(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Initialize for Broadcast isochronous stream slave operations.
+ *
+ *  Update the operation table with CIS slave operations routines.
+ */
+/*************************************************************************************************/
+void BbBleBisSlaveInit(void);
+
+/*************************************************************************************************/
+/*!
  *  \brief      Get CIS packet statistics.
  *
  *  \param      pStats      CIS data statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetCisStats(BbBleDataPktStats_t *pStats);

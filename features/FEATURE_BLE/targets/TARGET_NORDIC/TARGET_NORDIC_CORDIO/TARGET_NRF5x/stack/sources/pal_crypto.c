@@ -5,14 +5,15 @@
  *  \brief      Crypto driver implementation.
  *
  *  Copyright (c) 2018-2019 Arm Ltd. All Rights Reserved.
- *  Arm Ltd. confidential and proprietary.
  *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ *  
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,24 +22,25 @@
  */
 /*************************************************************************************************/
 
-#include "stack/platform/include/pal_types.h"
-#include "stack/platform/include/pal_bb_ble.h"
-#if defined(NRF52840_XXAA) && defined(FEATURE_CRYPTOCELL310) && MBED_CONF_CORDIO_LL_NRF52840_CRYPTOCELL310_ACCELERATION
-#include "crys_rsa_kg.h"
-#include "crys_dh.h"
-#include "ssi_pal_types.h"
-#include "ssi_aes.h"
-#include "sns_silib.h"
-#include "crys_aesccm.h"
-#endif
+#include "pal_crypto.h"
+#include "pal_bb_ble.h"
+#include <string.h>
 
 /* Nordic specific definitions. */
 #include "nrf_ecb.h"
 #include "nrf.h"
+
 #if defined(NRF52840_XXAA) && defined(FEATURE_CRYPTOCELL310) && MBED_CONF_CORDIO_LL_NRF52840_CRYPTOCELL310_ACCELERATION
 #include "nrf52840.h"
+/* Crypto Cell definitions */
+#include "crys_rsa_kg.h"
+#include "crys_dh.h"
+#include "crys_aesccm.h"
+#include "ssi_pal_types.h"
+//#include "ssi_pal_mem.h"
+#include "sns_silib.h"
+#include "ssi_aes.h"
 #endif
-#include <string.h>
 
 /**************************************************************************************************
   Macros
@@ -82,16 +84,8 @@ enum
 
 #endif
 
-#ifndef LL_MAX_CONN
-#define LL_MAX_CONN             4       /*!< Absolute maximum number of connections (maximum is 32). */
-#endif
-
-#ifndef LL_MAX_CIG
-#define LL_MAX_CIG              2       /*!< Absolute maximum number of connected isochronous groups. */
-#endif
-
-#ifndef LL_MAX_CIS
-#define LL_MAX_CIS              2       /*!< Absolute maximum number of connected isochronous streams per CIG. */
+#ifndef PAL_CRYPTO_MAX_ID
+#define PAL_CRYPTO_MAX_ID           14      /*!< Absolute maximum number of cipher blocks. */
 #endif
 
 #ifndef BB_ENABLE_INLINE_ENC_TX
@@ -110,15 +104,13 @@ enum
 typedef union
 {
   uint8_t  b[BB_AES_BLOCK_SIZE];                     /*!< Byte access block. */
-  uint32_t w[BB_AES_BLOCK_SIZE / sizeof(uint32_t)];  /*!< Word acess block. */
+  uint32_t w[BB_AES_BLOCK_SIZE / sizeof(uint32_t)];  /*!< Word access block. */
 
   struct
   {
     uint8_t flags[1];                                /*!< Flags. */
     uint8_t pctr[5];                                 /*!< Control. */
-    uint8_t iv[8];                                   /*!< iv. */
-    uint8_t iMSO[1];                                 /*!< iMSO. */
-    uint8_t iLSO[1];                                 /*!< iLSO. */
+    uint8_t iv[8];                                   /*!< IV. */
   } f;                                               /*!< Field access. */
 } palCryptoCipherBlk_t;
 
@@ -144,7 +136,7 @@ typedef union
 **************************************************************************************************/
 
 /*! \brief      Cipher block context. */
-static palCryptoCipherBlk_t palCryptoCipherBlkTbl[LL_MAX_CONN+LL_MAX_CIS*LL_MAX_CIG][PAL_CRYPTO_MODE_TOTAL];
+static palCryptoCipherBlk_t palCryptoCipherBlkTbl[PAL_CRYPTO_MAX_ID][PAL_CRYPTO_MODE_TOTAL];
 
 /*! \brief      Nordic ECB encryption data block. */
 static palCryptoEcbData_t palCryptoEcb;
@@ -155,9 +147,102 @@ static palCryptoEcbData_t palCryptoEcb;
 
 /*************************************************************************************************/
 /*!
+ *  \brief  XOR block.
+ */
+/*************************************************************************************************/
+static void palXor128(const uint8_t *pInA, const uint8_t *pInB, uint8_t *pOut)
+{
+  const uint32_t *pInA_w = (uint32_t *)pInA;
+  const uint32_t *pInB_w = (uint32_t *)pInB;
+  uint32_t *pOut_w = (uint32_t *)pOut;
+
+  pOut_w[0] = pInA_w[0] ^ pInB_w[0];
+  pOut_w[1] = pInA_w[1] ^ pInB_w[1];
+  pOut_w[2] = pInA_w[2] ^ pInB_w[2];
+  pOut_w[3] = pInA_w[3] ^ pInB_w[3];
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Shift block left by 1 bit.
+ */
+/*************************************************************************************************/
+void palShiftLeft128(const uint8_t *pIn, uint8_t *pOut)
+{
+  uint8_t of = 0;
+
+  for (int i = 15; i >= 0; i--)
+  {
+    pOut[i]  = pIn[i] << 1;
+    pOut[i] |= of;
+
+    of = pIn[i] >> 7;
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Generate subkeys.
+ */
+/*************************************************************************************************/
+static void palGenSubkey(const uint8_t *pKey, uint8_t *pK1, uint8_t *pK2)
+{
+  static const uint8_t Rb[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87 };
+
+  unsigned char L[16];
+  unsigned char Z[16] = { 0 };
+  unsigned char t[16];
+
+  while (nrf_ecb_crypt(L, Z) != TRUE);
+
+  if ((L[0] & 0x80) == 0)
+  {
+    palShiftLeft128(L, pK1);
+  }
+  else
+  {
+    palShiftLeft128(L, t);
+    palXor128(t, Rb, pK1);
+  }
+
+  if ((pK1[0] & 0x80) == 0)
+  {
+    palShiftLeft128(pK1, pK2);
+  }
+  else
+  {
+    palShiftLeft128(pK1, t);
+    palXor128(t, Rb, pK2);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Pad block.
+ */
+/*************************************************************************************************/
+static void palPadBlock(const uint8_t *pIn, uint8_t *pOut, uint8_t len)
+{
+  for (size_t i = 0; i < BB_AES_BLOCK_SIZE; i++)
+  {
+    if (i < len)
+    {
+      pOut[i] = pIn[i];
+    }
+    else if (i == len)
+    {
+      pOut[i] = 0x80;
+    }
+    else
+    {
+      pOut[i] = 0x00;
+    }
+  }
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Execute Nordic AES ECB.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void palCryptoExecuteAesEcb(void)
@@ -184,8 +269,6 @@ static inline void palCryptoExecuteAesEcb(void)
  *  \brief  Load Nordic AES ECB data.
  *
  *  \param  pEnc        Encryption parameters.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void palCryptoLoadEcbData(PalCryptoEnc_t *pEnc)
@@ -207,11 +290,9 @@ static inline void palCryptoLoadEcbData(PalCryptoEnc_t *pEnc)
  *  \param  pMic        Inplace MIC buffer.
  *  \param  pBuf        Inplace cleartext/ciphertext buffer.
  *  \param  pldLen      Length of buffer payload.
- *
- *  \return None.
  */
 /*************************************************************************************************/
-static void PalCryptPdu(palCryptoCipherBlk_t *pAx, uint8_t *pMic, uint8_t *pBuf, uint16_t pldLen)
+static void palCryptoPdu(palCryptoCipherBlk_t *pAx, uint8_t *pMic, uint8_t *pBuf, uint16_t pldLen)
 {
   /* X_1 := ECB(K, A_0) */
   palCryptoEcb.w.clear[0] = pAx->w[0];
@@ -260,8 +341,6 @@ static void PalCryptPdu(palCryptoCipherBlk_t *pAx, uint8_t *pMic, uint8_t *pBuf,
  *  \param  pHdr        Header buffer.
  *  \param  pBuf        Inplace cleartext/ciphertext buffer.
  *  \param  pldLen      Length of payload.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void palCryptoAuthPdu(uint8_t type, palCryptoCipherBlk_t *pBx, uint8_t *pMic, uint8_t *pHdr, uint8_t *pBuf, uint16_t pldLen)
@@ -334,8 +413,6 @@ static void palCryptoAuthPdu(uint8_t type, palCryptoCipherBlk_t *pBx, uint8_t *p
  *  \brief  Increment cipher block packet counter.
  *
  *  \param  pCb         Cipher block.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void palCryptoIncPktCnt(palCryptoCipherBlk_t *pCb)
@@ -367,8 +444,6 @@ static inline void palCryptoIncPktCnt(palCryptoCipherBlk_t *pCb)
  *
  *  \param  pCb         Cipher block.
  *  \param  evtCnt      Connection event counter.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void palCryptoLoadPktCnt(palCryptoCipherBlk_t *pCb, uint16_t evtCnt)
@@ -389,11 +464,9 @@ static inline void palCryptoLoadPktCnt(palCryptoCipherBlk_t *pCb, uint16_t evtCn
  *
  *  \param  pCb         Cipher block.
  *  \param  evtCnt      Connection event counter.
- *
- *  \return None.
  */
 /*************************************************************************************************/
-static inline void palCryptoLoadCisPktCnt(palCryptoCipherBlk_t *pCb, uint64_t pktCnt)
+static inline void palCryptoLoadIsoPktCnt(palCryptoCipherBlk_t *pCb, uint64_t pktCnt)
 {
   /* Pack connEventCounter. */
   pCb->f.pctr[0] = pktCnt >> 0;
@@ -413,8 +486,6 @@ static inline void palCryptoLoadCisPktCnt(palCryptoCipherBlk_t *pCb, uint64_t pk
  *  \param  pKey        Encryption key.
  *  \param  pOut        Output data.
  *  \param  pIn         Input data.
- *
- *  \return None.
  *
  *  \note   Packet length is 16 bytes.
  */
@@ -457,12 +528,84 @@ void PalCryptoAesEcb(const uint8_t *pKey, uint8_t *pOut, const uint8_t *pIn)
 
 /*************************************************************************************************/
 /*!
+ *  \fn     PalCryptoAesCmac
+ *
+ *  \brief  Calculate AES CMAC.
+ *
+ *  \param  pKey        Encryption key.
+ *  \param  pOut        Output data.
+ *  \param  pIn         Input data.
+ *
+ *  \note   Packet length is 16 bytes.
+ */
+/*************************************************************************************************/
+void PalCryptoAesCmac(const uint8_t *pKey, uint8_t *pOut, const uint8_t *pIn, uint16_t len)
+{
+  uint32_t alignKey[4];
+  memcpy(alignKey, pKey, sizeof(alignKey));
+
+  uint32_t revKey[4];
+  revKey[0] = __REV(alignKey[3]);
+  revKey[1] = __REV(alignKey[2]);
+  revKey[2] = __REV(alignKey[1]);
+  revKey[3] = __REV(alignKey[0]);
+
+  uint32_t *pIn_w = (uint32_t *)pIn;
+  uint32_t revIn[4];
+  if (len == 16)
+  {
+    revIn[0] = __REV(pIn_w[3]);
+    revIn[1] = __REV(pIn_w[2]);
+    revIn[2] = __REV(pIn_w[1]);
+    revIn[3] = __REV(pIn_w[0]);
+  }
+  else
+  {
+    revIn[0] = __REV(pIn_w[0]);
+  }
+
+  nrf_ecb_init();
+  nrf_ecb_set_key((uint8_t *)revKey);
+
+  uint8_t K1[BB_AES_BLOCK_SIZE], K2[BB_AES_BLOCK_SIZE];
+  palGenSubkey(pKey, K1, K2);
+
+  uint32_t alignM[4];
+  if (len == BB_AES_BLOCK_SIZE)
+  {
+    /* Complete block. */
+    palXor128((uint8_t *)revIn, K1, (uint8_t *)alignM);
+  }
+  else
+  {
+    uint32_t alignInPad[4];
+    /* Partial block. */
+    palPadBlock((uint8_t *)revIn, (uint8_t *)alignInPad, len);
+    palXor128((uint8_t *)alignInPad, K2, (uint8_t *)alignM);
+  }
+
+  const uint32_t alignX[4] = { 0 };
+  uint32_t alignY[4];
+  palXor128((const uint8_t *)alignX, (uint8_t *)alignM, (uint8_t *)alignY);
+
+  uint32_t alignOut[4];
+  while (nrf_ecb_crypt((uint8_t *)alignOut, (uint8_t *)alignY) != TRUE);
+
+  uint32_t revOut[4];
+  revOut[0] = __REV(alignOut[3]);
+  revOut[1] = __REV(alignOut[2]);
+  revOut[2] = __REV(alignOut[1]);
+  revOut[3] = __REV(alignOut[0]);
+
+  memcpy(pOut, revOut, sizeof(revOut));
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Generate cryptographic grade random number.
  *
  *  \param  pBuf        Buffer to store random number.
  *  \param  len         Number of bytes.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void PalCryptoGenerateRandomNumber(uint8_t *pBuf, uint8_t len)
@@ -488,16 +631,20 @@ void PalCryptoGenerateRandomNumber(uint8_t *pBuf, uint8_t len)
  *  \param  id          Context ID.
  *  \param  localDir    Direction bit of local device (0=slave, 1=master).
  *
- *  \return None.
- *
  *  This routine completes the transformation in a blocking manner.
  *
  *  \note   Leave this implementation empty if inline hardware encryption is available.
  */
 /*************************************************************************************************/
-void PalCryptoAesSetupCipherBlock(PalCryptoEnc_t *pEnc, uint8_t id, uint8_t localDir)
+void PalCryptoAesEnable(PalCryptoEnc_t *pEnc, uint8_t id, uint8_t localDir)
 {
   unsigned int mode;
+
+  if (id > PAL_CRYPTO_MAX_ID)
+  {
+    /* TODO handle error condition */
+    return;
+  }
 
   /* Clear */
   memset(&palCryptoCipherBlkTbl[id], 0, sizeof(palCryptoCipherBlkTbl[id]));
@@ -527,10 +674,6 @@ void PalCryptoAesSetupCipherBlock(PalCryptoEnc_t *pEnc, uint8_t id, uint8_t loca
   /* Store context. */
   pEnc->pEncryptCtx = &palCryptoCipherBlkTbl[id][PAL_CRYPTO_MODE_ENC];
   pEnc->pDecryptCtx = &palCryptoCipherBlkTbl[id][PAL_CRYPTO_MODE_DEC];
-
-#if (BB_ENABLE_INLINE_ENC_TX || BB_ENABLE_INLINE_DEC_RX)
-  PalBbBleInlineEncryptDecryptSetDirection(localDir);
-#endif
 }
 
 /*************************************************************************************************/
@@ -571,16 +714,16 @@ bool_t PalCryptoAesCcmEncrypt(PalCryptoEnc_t *pEnc, uint8_t *pHdr, uint8_t *pBuf
     pHdr[BB_DATA_PDU_LEN_OFFSET] += PAL_CRYPTO_LL_DATA_MIC_LEN;              /* Add length of MIC to payload. */
   }
 
-  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_EVT_CNTR) &&
+  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_EXT16_CNTR) &&
       (pEnc->pEventCounter))
   {
     palCryptoLoadPktCnt(pCb, *pEnc->pEventCounter + 1);
   }
 
-  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_CIS_CNTR) &&
-      (pEnc->pCisTxPktCounter))
+  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_EXT64_CNTR) &&
+      (pEnc->pTxPktCounter))
   {
-    palCryptoLoadCisPktCnt(pCb, *pEnc->pCisTxPktCounter);
+    palCryptoLoadIsoPktCnt(pCb, *pEnc->pTxPktCounter);
   }
 
   palCryptoLoadEcbData(pEnc);
@@ -590,7 +733,7 @@ bool_t PalCryptoAesCcmEncrypt(PalCryptoEnc_t *pEnc, uint8_t *pHdr, uint8_t *pBuf
     palCryptoAuthPdu(pEnc->type, pCb, pMic, pHdr, pBuf, pldLen);
   }
 
-  PalCryptPdu(pCb, pMic, pBuf, pldLen);
+  palCryptoPdu(pCb, pMic, pBuf, pldLen);
 
   if (pEnc->nonceMode == PAL_BB_NONCE_MODE_PKT_CNTR)
   {
@@ -646,7 +789,7 @@ bool_t PalCryptoAesCcmDecrypt(PalCryptoEnc_t *pEnc, uint8_t *pBuf)
   }
 
   uint8_t *pMic = pBuf + pldLen;
-  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_EVT_CNTR) &&
+  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_EXT16_CNTR) &&
       (pEnc->pEventCounter))
   {
     /* Synchronized event counter stored in packet headroom. */
@@ -657,14 +800,14 @@ bool_t PalCryptoAesCcmDecrypt(PalCryptoEnc_t *pEnc, uint8_t *pBuf)
     palCryptoLoadPktCnt(pCb, eventCounter);
   }
 
-  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_CIS_CNTR) &&
-      (pEnc->pCisRxPktCounter))
+  if ((pEnc->nonceMode == PAL_BB_NONCE_MODE_EXT64_CNTR) &&
+      (pEnc->pRxPktCounter))
   {
-    palCryptoLoadCisPktCnt(pCb, *pEnc->pCisRxPktCounter - 1);  /* Rx counter is already incremented when packet is received in the LCTR layer. Need to decrement one here. */
+    palCryptoLoadIsoPktCnt(pCb, *pEnc->pRxPktCounter);
   }
 
   palCryptoLoadEcbData(pEnc);
-  PalCryptPdu(pCb, pMic, pBuf, pldLen);
+  palCryptoPdu(pCb, pMic, pBuf, pldLen);
 
   if (pEnc->enaAuth)
   {
@@ -719,6 +862,10 @@ void PalCryptoCcmEnc(const uint8_t *pKey, uint8_t *pNonce, uint8_t *pPlainText, 
 
   CRYS_AESCCM_Key_t key;
 
+  (void)handlerId;
+  (void)param;
+  (void)event;
+
   /* Copy key */
   memcpy(key, pKey, SEC_CCM_KEY_LEN);
 
@@ -756,6 +903,10 @@ uint32_t PalCryptoCcmDec(const uint8_t *pKey, uint8_t *pNonce, uint8_t *pCypherT
 
   CRYS_AESCCM_Key_t key;
 
+  (void)handlerId;
+  (void)param;
+  (void)event;
+
   /* Copy key */
   memcpy(key, pKey, SEC_CCM_KEY_LEN);
 
@@ -773,8 +924,6 @@ uint32_t PalCryptoCcmDec(const uint8_t *pKey, uint8_t *pNonce, uint8_t *pCypherT
 /*************************************************************************************************/
 /*!
  *  \brief  Called to initialize CCM-Mode security.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void PalCryptoInit(void)
@@ -787,8 +936,6 @@ void PalCryptoInit(void)
 /*************************************************************************************************/
 /*!
  *  \brief  Called to De-initialize CCM-Mode security.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void PalCryptoDeInit(void)
@@ -806,8 +953,6 @@ void PalCryptoDeInit(void)
  *
  *  \param  pEnc        Encryption parameters.
  *  \param  pktCnt      Counter value.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 #if (BB_ENABLE_INLINE_ENC_TX)
@@ -823,8 +968,6 @@ void PalCryptoSetEncryptPacketCount(PalCryptoEnc_t *pEnc, uint64_t pktCnt)
  *
  *  \param  pEnc        Encryption parameters.
  *  \param  pktCnt      Counter value.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 #if (BB_ENABLE_INLINE_DEC_RX)

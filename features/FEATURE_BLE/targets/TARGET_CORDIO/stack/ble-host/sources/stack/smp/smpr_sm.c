@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief SMP responder state machine.
+ *  \file
+ *
+ *  \brief  SMP responder state machine.
+ *
+ *  Copyright (c) 2010-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -35,6 +37,7 @@ enum
   SMPR_ACT_NONE,                 /*!< No Action */
   SMPR_ACT_CLEANUP,              /*!< Process Pairing Cleanup */
   SMPR_ACT_PAIRING_FAILED,       /*!< Process Pairing Failed */
+  SMPR_ACT_SEC_REQ_TO,           /*!< Process Response timeout on security request */
   SMPR_ACT_PAIRING_CANCEL,       /*!< Process Pairing Canceled */
   SMPR_ACT_STORE_PIN,            /*!< Process Store Pin */
   SMPR_ACT_PAIR_CNF_CALC_1,      /*!< Process Confirm Value Calculation 1 */
@@ -75,6 +78,7 @@ static const smpAct_t smprActionTbl[] =
   smpActNone,
   smpActCleanup,
   smpActPairingFailed,
+  smpActSecReqTimeout,
   smpActPairingCancel,
   smpActStorePin,
   smpActPairCnfCalc1,
@@ -134,6 +138,8 @@ static const smpTblEntry_t smprStateTblApiPairReq[] =
   {SMP_MSG_API_CANCEL_REQ,      SMPR_SM_ST_IDLE,            SMPR_ACT_CLEANUP},
   {SMP_MSG_DM_ENCRYPT_CMPL,     SMPR_SM_ST_IDLE,            SMPR_ACT_CLEANUP},
   {SMP_MSG_DM_ENCRYPT_FAILED,   SMPR_SM_ST_IDLE,            SMPR_ACT_CLEANUP},
+  {SMP_MSG_INT_RSP_TIMEOUT,     SMPR_SM_ST_API_PAIR_REQ,    SMPR_ACT_SEC_REQ_TO},
+  {SMP_MSG_INT_CLEANUP,         SMPR_SM_ST_IDLE,            SMPR_ACT_CLEANUP},
   {0,                           0,                          0}
 };
 

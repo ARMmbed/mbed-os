@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Internal link layer controller scanning master interface file.
+ *  \file
+ *
+ *  \brief  Internal link layer controller scanning master interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -38,8 +39,8 @@ extern "C" {
   Macros
 **************************************************************************************************/
 
-/*! \brief      Minimum amount of time required for scanning, to be same as minimum time in BB(1528us). */
-#define LCTR_MIN_SCAN_USEC     BB_SCAN_GUARD_US
+/*! \brief      Minimum amount of time required for scanning, to cover ADV + SCAN REQ + SCAN RSP.  */
+#define LCTR_MIN_SCAN_USEC     BB_MIN_SCAN_US
 
 /**************************************************************************************************
   Constants
@@ -80,7 +81,7 @@ typedef struct
   wsfQueue_t        rxAdvbQ;            /*!< Receive ADVB queue. */
   wsfQueue_t        rxDirectAdvbQ;      /*!< Receive direct ADVB queue. */
 
-  uint32_t          scanWinStart;       /*!< Scan window origin. */
+  uint32_t          scanWinStartUsec;   /*!< Scan window origin in microseconds. */
 
   lmgrScanParam_t   scanParam;          /*!< Scan parameters. */
 
@@ -100,7 +101,6 @@ typedef struct
       uint64_t      localRpa;           /*!< Local RPA. */
       uint16_t      connHandle;         /*!< Connection handle. */
       uint16_t      connInterval;       /*!< Connection interval. */
-      uint32_t      firstCeDue;         /*!< First CE due time. */
       bool_t        connBodLoaded;      /*!< Connection BOD loaded flag. */
       uint8_t       usedChSel;          /*!< Used channel selection. */
     } init;                             /*!< Initiation specific data. */
@@ -144,7 +144,7 @@ void lctrMstDiscoverAdvPktPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pAd
 bool_t lctrMstScanReqTxCompHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf);
 bool_t lctrMstScanRspRxCompHandler(BbOpDesc_t *pOp, const uint8_t *pRspBuf);
 
-/* Action routines. */
+/* Action routines */
 void lctrScanActDiscover(void);
 void lctrScanActShutdown(void);
 void lctrScanActScanCnf(void);
@@ -158,15 +158,15 @@ void lctrInitActInitiate(void);
 void lctrInitActConnect(void);
 void lctrInitActShutdown(void);
 
-/* Helper routines. */
+/* Helper routines */
 void lctrScanCleanup(lctrMstScanCtx_t *pCtx);
 void lctrScanNotifyHostInitiateError(uint8_t reason, uint8_t peerAddrType, uint64_t peerAddr);
 
-/* Channel. */
+/* Channel */
 uint8_t lctrScanChanSelectInit(uint8_t chanMap);
 uint8_t lctrScanChanSelectNext(uint8_t chanIdx, uint8_t chanMap);
 
-/* Advertising report filtering. */
+/* Advertising report filtering */
 void lctrAdvRptEnable(lctrAdvRptFilt_t *pAdvFilt, bool_t filtEna);
 void lctrAdvRptGenerateLegacyHash(uint64_t *pHash, uint8_t addrType, uint64_t addr, uint8_t eventType);
 void lctrAdvRptGenerateExtHash(uint64_t *pHash, uint8_t addrType, uint64_t addr, uint8_t eventType,

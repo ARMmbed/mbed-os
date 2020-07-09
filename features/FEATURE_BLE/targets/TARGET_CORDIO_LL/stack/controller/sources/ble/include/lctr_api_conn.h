@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller connection interface file.
+ *  \file
+ *
+ *  \brief  Link layer controller connection interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -52,6 +53,9 @@ extern "C" {
 /*! \brief      Maximum value for maximum Data PDU length (spec limit is 251) */
 #define LCTR_MAX_DATA_LEN_MAX       BB_DATA_PLD_MAX_LEN
 
+/*! \brief      Maximum handle index (CIS included). */
+#define LCTR_MAX_HANDLE_INDEX       (pLctrRtCfg->maxConn + pLctrRtCfg->maxCis)
+
 /*! \brief      Connected task messages for \a LCTR_DISP_CONN dispatcher. */
 enum
 {
@@ -83,6 +87,7 @@ enum
   LCTR_CONN_MSG_API_CIS_REQ,            /*!< CIS request API event. */
   LCTR_CONN_MSG_API_CIS_REQ_ACCEPT,     /*!< Peer CIS request accept API event. */
   LCTR_CONN_MSG_API_CIS_REQ_REJECT,     /*!< Peer CIS request accept API event. */
+  LCTR_CONN_MSG_API_PWR_CTRL_REQ,       /*!< Peer power control request API event. */
 
   /* Internal events */
   _LCTR_CONN_INT_EVENTS                 = 40,
@@ -95,6 +100,7 @@ enum
   LCTR_CONN_LLCP_VERSION_EXCH,          /*!< LL initiated remote version exchange. */
   LCTR_CONN_LLCP_FEATURE_EXCH,          /*!< LL initiated remote feature exchange. */
   LCTR_CONN_LLCP_LENGTH_EXCH,           /*!< LL initiated data length exchange. */
+  LCTR_CONN_LLCP_PWR_CTRL_REQ,          /*!< LL initiated power control request. */
   LCTR_CONN_LLCP_TERM,                  /*!< LL initiated termination. */
   LCTR_CONN_LLCP_PROC_CMPL,             /*!< LLCP procedure completed. */
   LCTR_CONN_LLCP_START_PENDING,         /*!< Start pending LLCP procedure. */
@@ -106,6 +112,7 @@ enum
   LCTR_CONN_TERM_INST_PASSED,           /*!< Terminate connection due to instant passed. */
   LCTR_CONN_TERM_CIS_LOCAL_RESOURCE,    /*!< Terminate CIS connection due to local resource limitation. */
   LCTR_CONN_TERMINATED,                 /*!< Connection event terminated. */
+  LCTR_CONN_INIT_CANCELED,              /*!< Connection cancelled event. */
   _LCTR_CONN_TMR_EVENTS                 = 80,
   LCTR_CONN_TMR_LLCP_RSP_EXP,           /*!< LLCP response timer expired. */
   LCTR_CONN_TMR_CIS_LLCP_RSP_EXP,       /*!< CIS LLCP response timer expired. */
@@ -214,7 +221,6 @@ typedef struct
 typedef struct
 {
   lctrMsgHdr_t      hdr;                    /*!< Message header. */
-//  uint16_t          cisHandle;              /*!< CIS handle. */
   uint8_t           reason;                 /*!< Reject reason. */
 } lctrRejCisReq_t;
 
@@ -225,6 +231,14 @@ typedef struct
   uint8_t           reason;             /*!< Disconnect reason. */
   uint16_t          cisHandle;          /*!< CIS handle. */
 } lctrCisDisc_t;
+
+/*! \brief      Internal power control request message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message Header. */
+  int8_t            delta;              /*!< Delta requested. */
+  uint8_t           phy;                /*!< PHY requested. */
+} lctrMsgPwrCtrlReq_t;
 
 /*! \brief      Link layer controller message data. */
 typedef union
@@ -243,6 +257,7 @@ typedef union
   lctrSetMinUsedChan_t    setMinUsedChan;   /*!< Set minimum number of used channels message data. */
   lctrPerAdvSyncTrsf_t    perAdvSyncTrsf;   /*!< Periodic advertising sync transfer data. */
   lctrScaReq_t            scaReq;           /*!< Sleep clock accuracy request. */
+  lctrMsgPwrCtrlReq_t     pwrCtrlReq;       /*!< Power control request. */
 
   /* CIS */
   lctrCreateCis_t         createCis;        /*!< Create CIS message data. */
@@ -305,6 +320,7 @@ bool_t LctrIsConnHandleEnabled(uint16_t handle);
 bool_t LctrIsCisConnHandleEnabled(uint16_t handle);
 uint8_t LctrGetRole(uint16_t handle);
 int8_t LctrGetRssi(uint16_t handle);
+uint8_t lctrSetTxPowerReporting(uint16_t handle, uint8_t enableLocal, uint8_t enableRemote);
 int8_t LctrGetTxPowerLevel(uint16_t handle);
 uint64_t LctrGetChannelMap(uint16_t handle);
 uint64_t LctrGetUsedFeatures(uint16_t handle);
@@ -314,14 +330,17 @@ void LctrGetPeerMinUsedChan(uint16_t handle, uint8_t *pPeerMinUsedChan);
 bool_t LctrIsWaitingForReply(uint16_t handle, uint8_t reply);
 bool_t LctrIsCisEnabled(uint16_t handle);
 
-
 /* Control */
 void LctrSetTxPowerLevel(uint16_t handle, int8_t level);
+void LctrSetPhyTxPowerLevel(uint16_t handle, int8_t level, uint8_t phy);
+int8_t LctrGetPhyTxPowerLevel(uint16_t handle, uint8_t phy);
 uint32_t LctrGetAuthPayloadTimeout(uint16_t handle);
 bool_t LctrSetAuthPayloadTimeout(uint16_t handle, uint32_t timeoutMs);
 void LctrGetEncMode(uint16_t handle, LlEncMode_t *pMode);
 bool_t LctrSetEncMode(uint16_t handle, const LlEncMode_t *pMode);
 void LctrSetConnOpFlags(uint16_t handle, uint32_t flags, bool_t enable);
+uint8_t lctrSetPowerMonitorEnable(uint16_t handle, bool_t enable);
+
 
 /* Data path */
 void LctrTxAcl(uint8_t *pAclBuf);

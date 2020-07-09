@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master advertising event ISR callbacks.
+ *  \file
+ *
+ *  \brief  Link layer controller master advertising event ISR callbacks.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -44,8 +45,6 @@ extern bool_t bbTxAccAddrShiftMask;
  *  \brief  End a discovery scan operation in the master role.
  *
  *  \param  pOp     Completed operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstDiscoverEndOp(BbOpDesc_t *pOp)
@@ -102,18 +101,18 @@ void lctrMstDiscoverEndOp(BbOpDesc_t *pOp)
   /*** Reschedule operation ***/
 
   /* Reset due time to start of scan window. */
-  pOp->due = pCtx->scanWinStart;
+  pOp->dueUsec = pCtx->scanWinStartUsec;
 
   if ((pCtx->scanParam.scanInterval != pCtx->scanParam.scanWindow) &&
       ((pScan->elapsedUsec + pOp->minDurUsec) < LCTR_BLE_TO_US(pCtx->scanParam.scanWindow)))
   {
-    const uint32_t min = BB_US_TO_BB_TICKS(pScan->elapsedUsec);
-    const uint32_t max = BB_BLE_TO_BB_TICKS(pCtx->scanParam.scanWindow);
+    const uint32_t min = pScan->elapsedUsec;
+    const uint32_t max = BB_BLE_TO_US(pCtx->scanParam.scanWindow);
 
     if (SchInsertEarlyAsPossible(pOp, min, max))
     {
       /* Continue interrupted operation. */
-      pScan->elapsedUsec = BB_TICKS_TO_US(pOp->due - pCtx->scanWinStart);
+      pScan->elapsedUsec = BbGetTargetTimeDelta(pOp->dueUsec, pCtx->scanWinStartUsec);
       WSF_ASSERT(pScan->elapsedUsec < pOp->maxDurUsec);
       return;
     }
@@ -128,33 +127,33 @@ void lctrMstDiscoverEndOp(BbOpDesc_t *pOp)
 
   if (pCtx->scanParam.scanInterval == pCtx->scanParam.scanWindow)
   {
-    /* Continuous scan. */
+    /* Continuous scan, move to the next scan window. */
     SchInsertNextAvailable(pOp);
-    pCtx->scanWinStart = pOp->due;
+    pCtx->scanWinStartUsec = pOp->dueUsec;
   }
   else
   {
     /* Next scan interval. */
-    const uint32_t min = BB_BLE_TO_BB_TICKS(pCtx->scanParam.scanInterval);
-    const uint32_t max = min + BB_BLE_TO_BB_TICKS(pCtx->scanParam.scanWindow);
+    const uint32_t min = BB_BLE_TO_US(pCtx->scanParam.scanInterval);
+    const uint32_t max = min + BB_BLE_TO_US(pCtx->scanParam.scanWindow);
 
     while (TRUE)
     {
       /* Store start of next scan window. */
-      pCtx->scanWinStart = pOp->due + min;
+      pCtx->scanWinStartUsec = pOp->dueUsec + min;
 
       if (SchInsertEarlyAsPossible(pOp, min, max))
       {
-        pScan->elapsedUsec = BB_TICKS_TO_US(pOp->due - pCtx->scanWinStart);
+        pScan->elapsedUsec = BbGetTargetTimeDelta(pOp->dueUsec, pCtx->scanWinStartUsec);
         WSF_ASSERT(pScan->elapsedUsec < pOp->maxDurUsec);
         break;
       }
       else
       {
         /* Advance to next scan window. */
-        pOp->due = pCtx->scanWinStart;
+        pOp->dueUsec = pCtx->scanWinStartUsec;
 
-        LL_TRACE_WARN1("!!! Scan schedule conflict at due=%u", pOp->due + min);
+        LL_TRACE_WARN1("!!! Scan schedule conflict at dueUsec=%u", pOp->dueUsec + min);
         LL_TRACE_WARN1("!!!                           scanWindowUsec=%u", LCTR_BLE_TO_US(pCtx->scanParam.scanWindow));
       }
     }
@@ -259,8 +258,6 @@ bool_t lctrMstDiscoverAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
  *
  *  \param      pOp     Originating operation.
  *  \param      pAdvBuf Received advertising buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstDiscoverAdvPktPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
@@ -372,7 +369,7 @@ bool_t lctrMstScanRspRxCompHandler(BbOpDesc_t *pOp, const uint8_t *pRspBuf)
         /* scanReqAdvAddr is assigned when LL_PDU_ADV_SCAN_IND is received. */
         if (lctrMstScan.data.disc.scanReqAdvAddr != pScan->filtResults.peerAddr)
         {
-          LL_TRACE_WARN0("Ignore scan_rsp since advAddr doesn't match the one sent in the scan_req.");
+          LL_TRACE_WARN0("Ignore SCAN_RSP due to mismatched advAddr in SCAN_REQ");
           break;
         }
 

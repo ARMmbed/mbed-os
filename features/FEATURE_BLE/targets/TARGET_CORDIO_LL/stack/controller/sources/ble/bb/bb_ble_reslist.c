@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Generic BLE resolving list implementation file.
+ *  \file
+ *
+ *  \brief      Generic BLE resolving list implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -25,8 +26,8 @@
 #include "bb_ble_api.h"
 #include "bb_ble_api_reslist.h"
 #include "bb_ble_api_pdufilt.h"
-#include "stack/platform/include/pal_bb_ble.h"
-#include "stack/platform/include/pal_crypto.h"
+#include "pal_bb_ble.h"
+#include "pal_crypto.h"
 #include "wsf_assert.h"
 #include "ll_math.h"
 #include "util/bda.h"
@@ -125,8 +126,6 @@ uint16_t BbBleInitResolvingList(uint8_t numEntries, uint8_t *pFreeMem, uint32_t 
  *  \brief      Set address resolution needed callback.
  *
  *  \param      cback             Callback.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleResListSetAddrResNeededCback(bbBleResListAddrResNeeded_t cback)
@@ -262,8 +261,6 @@ uint8_t BbBleResListGetSize(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Clear resolving list.
- *
- *  \return     None.
  *
  *  Clear all resolving list entries stored in the BB.
  */
@@ -788,7 +785,7 @@ bool_t BbBleResListResolveLocal(uint64_t rpa, uint8_t *pPeerAddrType, uint64_t *
  *  Get the peer resolvable private address status
  */
 /*************************************************************************************************/
-bool_t BbBleResListPeerStatus(bool_t peerAddrRand, uint64_t peerIdentityAddr)
+uint8_t BbBleResListPeerStatus(bool_t peerAddrRand, uint64_t peerIdentityAddr)
 {
   bbBleResListEntry_t *pEntry;
 
@@ -824,7 +821,7 @@ bool_t BbBleResListPeerStatus(bool_t peerAddrRand, uint64_t peerIdentityAddr)
  *  Get the peer resolvable private address status
  */
 /*************************************************************************************************/
-bool_t BbBleResListLocalStatus(bool_t peerAddrRand, uint64_t peerIdentityAddr)
+uint8_t BbBleResListLocalStatus(bool_t peerAddrRand, uint64_t peerIdentityAddr)
 {
   bbBleResListEntry_t *pEntry;
 
@@ -851,8 +848,6 @@ bool_t BbBleResListLocalStatus(bool_t peerAddrRand, uint64_t peerIdentityAddr)
 /*************************************************************************************************/
 /*!
  *  \brief      Handle timeout of local resolvable addresses.
- *
- *  \return     None.
  *
  *  A new local resolvable address will be generated for each entry in the resolving list.
  */

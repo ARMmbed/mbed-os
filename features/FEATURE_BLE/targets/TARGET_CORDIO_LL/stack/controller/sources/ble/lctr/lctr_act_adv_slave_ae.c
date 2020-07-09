@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave extended advertising action routines.
+ *  \file
+ *
+ *  \brief  Link layer controller slave extended advertising action routines.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -37,26 +38,9 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief      Disable and clean a generic acad parameter
- *
- *  \param      pAcadParam  Generic acad parameter type
- *
- *  \return     None.
- */
-/*************************************************************************************************/
-static void lctrSlvAcadDisable(lctrAcadParam_t *pAcadParam)
-{
-  memset(pAcadParam, 0, sizeof(*pAcadParam));
-  pAcadParam->hdr.state = LCTR_ACAD_STATE_DISABLED;
-}
-
-/*************************************************************************************************/
-/*!
  *  \brief      Common advertise resource cleanup.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrExtAdvCleanup(lctrAdvSet_t *pAdvSet)
@@ -94,8 +78,6 @@ static void lctrExtAdvCleanup(lctrAdvSet_t *pAdvSet)
  *  \brief      Common periodic advertising cleanup.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrPeriodicAdvACleanup(lctrAdvSet_t *pAdvSet)
@@ -111,8 +93,6 @@ static void lctrPeriodicAdvACleanup(lctrAdvSet_t *pAdvSet)
  *  \brief      Start extended advertising.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActStart(lctrAdvSet_t *pAdvSet)
@@ -131,7 +111,7 @@ void lctrExtAdvActStart(lctrAdvSet_t *pAdvSet)
   uint8_t status;
   if ((status = lctrSlvExtAdvBuildOp(pAdvSet, pLctrSlvExtAdvMsg->enable.durMs)) != LL_SUCCESS)
   {
-    // TODO suppress terminate event on failed start
+    /* TODO suppress terminate event on failed start */
     LmgrSendExtAdvEnableCnf(pAdvSet->handle, status);
     lctrSendAdvSetMsg(pAdvSet, LCTR_EXT_ADV_MSG_TERMINATE);
     return;
@@ -157,8 +137,6 @@ void lctrExtAdvActStart(lctrAdvSet_t *pAdvSet)
  *  \brief      Start extended advertising internally.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActSelfStart(lctrAdvSet_t *pAdvSet)
@@ -177,7 +155,7 @@ void lctrExtAdvActSelfStart(lctrAdvSet_t *pAdvSet)
   uint8_t status;
   if ((status = lctrSlvExtAdvBuildOp(pAdvSet, pLctrSlvExtAdvMsg->enable.durMs)) != LL_SUCCESS)
   {
-    // TODO suppress terminate event on failed start
+    /* TODO suppress terminate event on failed start */
     LmgrSendExtAdvEnableCnf(pAdvSet->handle, status);
     lctrSendAdvSetMsg(pAdvSet, LCTR_EXT_ADV_MSG_TERMINATE);
     return;
@@ -194,8 +172,6 @@ void lctrExtAdvActSelfStart(lctrAdvSet_t *pAdvSet)
  *  \brief      Restart extended advertising.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActRestart(lctrAdvSet_t *pAdvSet)
@@ -218,8 +194,6 @@ void lctrExtAdvActRestart(lctrAdvSet_t *pAdvSet)
  *  \brief      Shutdown active advertising operation.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActShutdown(lctrAdvSet_t *pAdvSet)
@@ -239,8 +213,6 @@ void lctrExtAdvActShutdown(lctrAdvSet_t *pAdvSet)
  *  \brief      Shutdown active advertising operation due to host reset.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActResetShutdown(lctrAdvSet_t *pAdvSet)
@@ -262,8 +234,6 @@ void lctrExtAdvActResetShutdown(lctrAdvSet_t *pAdvSet)
  *  \brief      Send advertising operation confirm.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActAdvCnf(lctrAdvSet_t *pAdvSet)
@@ -276,8 +246,6 @@ void lctrExtAdvActAdvCnf(lctrAdvSet_t *pAdvSet)
  *  \brief      Send advertising operation command disallowed.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActDisallowAdvCnf(lctrAdvSet_t *pAdvSet)
@@ -290,8 +258,6 @@ void lctrExtAdvActDisallowAdvCnf(lctrAdvSet_t *pAdvSet)
  *  \brief      Operation self terminated (e.g. on connection request).
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  *
  *  Slave self-termination is a result of the expiration of the duration timer, numEvents reached,
  *  or reception of an AUX_CONN_REQ.
@@ -396,7 +362,7 @@ void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet)
           pMsg->phy = pAdvSet->auxBleData.chan.rxPhy;   /* Same PHY as received CONN_IND. */
         }
 
-        pMsg->connIndEndTs   = pAdvSet->connIndEndTs;
+        pMsg->connIndEndTsUsec   = pAdvSet->connIndEndTsUsec;
         pMsg->localRpa       = lmgrSlvAdvCb.localRpa;
 
         pMsg->usedChSel = pAdvSet->usedChSel;
@@ -439,8 +405,6 @@ void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet)
  *  \brief      Terminated advertising after host advertising disable.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActAdvTerm(lctrAdvSet_t *pAdvSet)
@@ -456,8 +420,6 @@ void lctrExtAdvActAdvTerm(lctrAdvSet_t *pAdvSet)
  *  \brief      Cleanup Advertising Set after host reset.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActReset(lctrAdvSet_t *pAdvSet)
@@ -481,8 +443,6 @@ void lctrExtAdvActReset(lctrAdvSet_t *pAdvSet)
  *  \brief      Terminated advertising and cleanup Advertising Set after host reset.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActResetTerm(lctrAdvSet_t *pAdvSet)
@@ -500,8 +460,6 @@ void lctrExtAdvActResetTerm(lctrAdvSet_t *pAdvSet)
  *  \brief      Advertising set duration timer expired.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrExtAdvActDurationExpired(lctrAdvSet_t *pAdvSet)
@@ -517,8 +475,6 @@ void lctrExtAdvActDurationExpired(lctrAdvSet_t *pAdvSet)
  *  \brief  Build channel remapping table.
  *
  *  \param  pChanParam  Channel parameters.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrPeriodicBuildRemapTable(lmgrChanParam_t *pChanParam)
@@ -544,8 +500,6 @@ void lctrPeriodicBuildRemapTable(lmgrChanParam_t *pChanParam)
  *  \brief      Start periodic advertising.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPeriodicAdvActStart(lctrAdvSet_t *pAdvSet)
@@ -596,14 +550,12 @@ void lctrPeriodicAdvActStart(lctrAdvSet_t *pAdvSet)
  *  \brief      Restart periodic advertising.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPeriodicAdvActUpdate(lctrAdvSet_t *pAdvSet)
 {
   LmgrSendPeriodicAdvEnableCnf(pAdvSet->handle, LL_SUCCESS);
-  // TODO cause random address to change
+  /* TODO cause random address to change */
 }
 
 /*************************************************************************************************/
@@ -611,8 +563,6 @@ void lctrPeriodicAdvActUpdate(lctrAdvSet_t *pAdvSet)
  *  \brief      Send periodic advertising operation confirm.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPeriodicAdvActAdvCnf(lctrAdvSet_t *pAdvSet)
@@ -625,8 +575,6 @@ void lctrPeriodicAdvActAdvCnf(lctrAdvSet_t *pAdvSet)
  *  \brief      Send periodic advertising operation command disallowed.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPeriodicAdvActDisallowAdvCnf(lctrAdvSet_t *pAdvSet)
@@ -639,8 +587,6 @@ void lctrPeriodicAdvActDisallowAdvCnf(lctrAdvSet_t *pAdvSet)
  *  \brief      Shutdown active periodic advertising operation.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPeriodicAdvActShutdown(lctrAdvSet_t *pAdvSet)
@@ -666,8 +612,6 @@ void lctrPeriodicAdvActShutdown(lctrAdvSet_t *pAdvSet)
  *  \brief      Terminated advertising after host periodic advertising disable.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPeriodicAdvActAdvTerm(lctrAdvSet_t *pAdvSet)
@@ -682,8 +626,6 @@ void lctrPeriodicAdvActAdvTerm(lctrAdvSet_t *pAdvSet)
  *  \brief      Terminated periodc advertising after host reset.
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPeriodicAdvActResetTerm(lctrAdvSet_t *pAdvSet)
@@ -693,16 +635,14 @@ void lctrPeriodicAdvActResetTerm(lctrAdvSet_t *pAdvSet)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Acad channel map start handler
+ *  \brief      ACAD channel map start handler
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvAcadActChanMapUpdateStart(lctrAdvSet_t *pAdvSet)
 {
-  lctrAcadChanMapUpd_t *pAcadParam = &pAdvSet->acadParams[LCTR_ACAD_ID_CHAN_MAP_UPDATE].chanMapUpdate;
+  LctrAcadChanMapUpd_t *pAcadParam = &pAdvSet->acadParams[LCTR_ACAD_ID_CHAN_MAP_UPDATE].chanMapUpdate;
 
   /* A new channel map update cannot replace a currently running one. */
   if (pAcadParam->hdr.state == LCTR_ACAD_STATE_ENABLED)
@@ -710,22 +650,65 @@ void lctrSlvAcadActChanMapUpdateStart(lctrAdvSet_t *pAdvSet)
     return;
   }
 
+  pAdvSet->perParam.updChanMask = pLctrAcadSlvMsg->chanMapUpd.chanMap;
+
   pAcadParam->chanMask = pAdvSet->perParam.updChanMask;
   pAcadParam->instant = pAdvSet->perParam.perEventCounter + LL_MIN_INSTANT;
-  pAcadParam->hdr.len = LL_ACAD_UPDATE_CHANNEL_MAP_LEN;
+  pAcadParam->hdr.len = LL_ACAD_CHAN_MAP_UPD_LEN;
   pAcadParam->hdr.state = LCTR_ACAD_STATE_ENABLED;
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief      Acad channel map finish handler
+ *  \brief      ACAD channel map finish handler
  *
  *  \param      pAdvSet     Advertising set.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvAcadActChanMapUpdateFinish(lctrAdvSet_t *pAdvSet)
 {
   lctrSlvAcadDisable(&pAdvSet->acadParams[LCTR_ACAD_ID_CHAN_MAP_UPDATE]);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      ACAD BIG created handler
+ *
+ *  \param      pAdvSet     Advertising set.
+ */
+/*************************************************************************************************/
+void lctrSlvAcadActBigCreated(lctrAdvSet_t *pAdvSet)
+{
+  if (pAdvSet->bigCreated)
+  {
+    pAdvSet->bigCreated(pAdvSet->handle);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      ACAD BIG terminated handler
+ *
+ *  \param      pAdvSet     Advertising set.
+ */
+/*************************************************************************************************/
+void lctrSlvAcadActBigTerminated(lctrAdvSet_t *pAdvSet)
+{
+  if (pAdvSet->bigTerminated)
+  {
+    pAdvSet->bigTerminated(pAdvSet->handle);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Disable and clean a generic ACAD parameter
+ *
+ *  \param      pAcadParam  Generic ACAD parameter type
+ */
+/*************************************************************************************************/
+void lctrSlvAcadDisable(lctrAcadParam_t *pAcadParam)
+{
+  memset(pAcadParam, 0, sizeof(*pAcadParam));
+  pAcadParam->hdr.state = LCTR_ACAD_STATE_DISABLED;
 }

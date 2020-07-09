@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) DTM interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) DTM interface implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -180,8 +181,6 @@ uint8_t llConvertRfChanToChanIdx(uint8_t rfChan)
  *  \param      pBuf        Buffer to fill.
  *  \param      len         Number of bytes to fill.
  *
- *  \return     None.
- *
  *  Fill payload with random numbers.
  */
 /*************************************************************************************************/
@@ -262,8 +261,6 @@ static void llBuildTxPkt(uint8_t len, uint8_t pktType, uint8_t *pBuf)
  *  \brief  Tx operation end callback.
  *
  *  \param  pOp     Tx operation descriptor.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void llTestTxOpEndCback(BbOpDesc_t *pOp)
@@ -346,7 +343,7 @@ static void llTestTxOpEndCback(BbOpDesc_t *pOp)
  *  \return     TRUE if next receive should be set up.
  */
 /*************************************************************************************************/
-static bool_t llTestTxCb(BbOpDesc_t *pOp, uint8_t status)
+static bool_t llTestTxComplete(BbOpDesc_t *pOp, uint8_t status)
 {
   BbBleData_t * const pBle = pOp->prot.pBle;
   BbBleTestTx_t * const pTx = &pBle->op.testTx;
@@ -356,6 +353,12 @@ static bool_t llTestTxCb(BbOpDesc_t *pOp, uint8_t status)
   /* All of the requested packets have been sent. */
   if ((llTestCb.numPkt > 0) && (llTestCb.numPkt <= llTestCb.rpt.numTx))
   {
+    return FALSE;
+  }
+
+  if (status != BB_STATUS_SUCCESS)
+  {
+    LL_TRACE_ERR2("Terminating Tx test mode due to failure, status=%u, numTx=%u", status, llTestCb.rpt.numTx);
     return FALSE;
   }
 
@@ -541,7 +544,6 @@ uint8_t LlEnhancedTxTest(uint8_t rfChan, uint8_t len, uint8_t pktType, uint8_t p
   llTestCb.numPkt = numPkt;
   pOp->protId = BB_PROT_BLE_DTM;
   pOp->endCback = llTestTxOpEndCback;
-  pOp->dueOffsetUsec = 0;
 
   /*** BLE General Setup ***/
 
@@ -564,7 +566,7 @@ uint8_t LlEnhancedTxTest(uint8_t rfChan, uint8_t len, uint8_t pktType, uint8_t p
 
   /* Longest packet for dynamic test changes. */
   pTx->txLen        = WSF_MAX(LL_DTM_MAX_PDU_LEN, LL_ADVB_MAX_LEN);
-  pTx->testCback    = llTestTxCb;
+  pTx->testCback    = llTestTxComplete;
   pTx->pktInterUsec = llCalcPacketInterval(llTestCb.tx.pduLen, pBle->chan.txPhy, pBle->chan.initTxPhyOptions);
 
   if ((pTx->pTxBuf = WsfBufAlloc(pTx->txLen)) == NULL)
@@ -612,8 +614,6 @@ uint8_t LlTxTest(uint8_t rfChan, uint8_t len, uint8_t pktType, uint16_t numPkt)
  *  \brief  Rx operation completion callback.
  *
  *  \param  pOp     Rx operation descriptor.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void llTestRxOpEndCback(BbOpDesc_t *pOp)
@@ -681,7 +681,7 @@ static void llTestRxOpEndCback(BbOpDesc_t *pOp)
  *  \return     TRUE if next receive should be set up.
  */
 /*************************************************************************************************/
-static bool_t llTestRxCb(BbOpDesc_t *pBod, uint8_t status)
+static bool_t llTestRxComplete(BbOpDesc_t *pBod, uint8_t status)
 {
   switch (status)
   {
@@ -799,7 +799,6 @@ uint8_t LlEnhancedRxTest(uint8_t rfChan, uint8_t phy, uint8_t modIdx, uint16_t n
   llTestCb.numPkt = numPkt;
   pOp->protId = BB_PROT_BLE_DTM;
   pOp->endCback = llTestRxOpEndCback;
-  pOp->dueOffsetUsec = 0;
 
   /*** BLE General Setup ***/
 
@@ -831,7 +830,7 @@ uint8_t LlEnhancedRxTest(uint8_t rfChan, uint8_t phy, uint8_t modIdx, uint16_t n
 
   pRx->rxSyncDelayUsec = pLctrRtCfg->dtmRxSyncMs * 1000;
   pRx->rxLen = WSF_MAX(LL_DTM_MAX_PDU_LEN, LL_ADVB_MAX_LEN);
-  pRx->testCback = llTestRxCb;
+  pRx->testCback = llTestRxComplete;
 
   uint16_t allocLen = WSF_MAX(pRx->rxLen, BB_FIXED_DATA_PKT_LEN);
   if ((pRx->pRxBuf = WsfBufAlloc(allocLen)) == NULL)
@@ -954,8 +953,6 @@ uint8_t LlSetTxTestErrorPattern(uint32_t pattern)
 /*************************************************************************************************/
 /*!
  *  \brief      Test reset handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void llTestResetHandler(void)
@@ -969,8 +966,6 @@ static void llTestResetHandler(void)
  *  \brief      Test message dispatcher.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void llTestDisp(lctrMsgHdr_t *pMsg)
@@ -1000,8 +995,6 @@ static void llTestDisp(lctrMsgHdr_t *pMsg)
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize link layer controller resources for test.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LlTestInit(void)

@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) slave parameter interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) slave parameter interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -41,8 +42,6 @@
  *  \brief      Set advertising transmit power.
  *
  *  \param      advTxPwr        Advertising transmit power level.
- *
- *  \return     None.
  *
  *  Set the advertising transmit power.
  */
@@ -151,8 +150,8 @@ uint8_t LlSetAdvParam(uint16_t advIntervalMin, uint16_t advIntervalMax, uint8_t 
     pMsg->hdr.dispId = LCTR_DISP_ADV;
     pMsg->hdr.event = LCTR_ADV_MSG_PARAM_UPD;
 
-    pMsg->param.advInterMin    = BB_BLE_TO_BB_TICKS(advIntervalMin);
-    pMsg->param.advInterMax    = BB_BLE_TO_BB_TICKS(advIntervalMax);
+    pMsg->param.advInterMinUsec    = BB_BLE_TO_US(advIntervalMin);
+    pMsg->param.advInterMaxUsec    = BB_BLE_TO_US(advIntervalMax);
     pMsg->param.advType        = advType;
     pMsg->param.ownAddrType    = ownAddrType;
     pMsg->param.peerAddrType   = peerAddrType;
@@ -250,8 +249,6 @@ uint8_t LlSetScanRespData(uint8_t len, const uint8_t *pData)
  *  \brief      Advertising enable.
  *
  *  \param      enable          Set to TRUE to enable advertising, FALSE to disable advertising.
- *
- *  \return     None.
  *
  *  Enable or disable advertising.
  */

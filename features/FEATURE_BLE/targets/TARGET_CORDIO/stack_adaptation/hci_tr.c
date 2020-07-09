@@ -1,34 +1,40 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
+/*************************************************************************************************/
+/*!
+ *  \file   hci_tr.c
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  \brief  HCI transport module.
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  Copyright (c) 2011-2018 Arm Ltd. All Rights Reserved.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+/*************************************************************************************************/
 
+#include <string.h>
 #include "wsf_types.h"
 #include "wsf_msg.h"
-#include "wsf_trace.h"
 #include "wsf_assert.h"
 #include "util/bstream.h"
 #include "hci_api.h"
 #include "hci_core.h"
+#include "hci_tr.h"
 #include "hci_drv.h"
 
+/* PORTING: EXACTLE removed as replaced by zero copy hci driver in mbedos */
 
-/**************************************************************************************************
-  Macros
-**************************************************************************************************/
-
-#define HCI_HDR_LEN_MAX           HCI_ACL_HDR_LEN
+uint16_t hci_mbed_os_drv_write(uint8_t type, uint16_t len, uint8_t *pData);
 
 /**************************************************************************************************
   Data Types
@@ -45,8 +51,8 @@ typedef enum
 /*************************************************************************************************/
 /*!
  *  \fn     hciTrSendAclData
- *        
- *  \brief  Send a complete HCI ACL packet to the transport. 
+ *
+ *  \brief  Send a complete HCI ACL packet to the transport.
  *
  *  \param  pContext Connection context.
  *  \param  pData    WSF msg buffer containing an ACL packet.
@@ -56,61 +62,53 @@ typedef enum
 /*************************************************************************************************/
 void hciTrSendAclData(void *pContext, uint8_t *pData)
 {
-  uint16_t   len;
+  /* PORTING: sending and fragmenting done by mbed-os */
+  uint16_t len;
 
   /* get 16-bit length */
-  BYTES_TO_UINT16(len, &pData[2]);
+  BYTES_TO_UINT16(len, (pData + 2))
   len += HCI_ACL_HDR_LEN;
 
-  /* dump event for protocol analysis */
-  HCI_PDUMP_TX_ACL(len, pData);
-
   /* transmit ACL header and data */
-  if (hciDrvWrite(HCI_ACL_TYPE, len, pData) == len)
+  if (hci_mbed_os_drv_write(HCI_ACL_TYPE, len, pData) == len)
   {
 #if CORDIO_ZERO_COPY_HCI
-      /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
+    /* pData is not freed as the hci_mbed_os_drv_write took ownership of the WSF buffer */
 #else
-      /* free buffer */
-      hciCoreTxAclComplete((hciCoreConn_t *)pContext, pData);
+    /* free buffer */
+    hciCoreTxAclComplete((hciCoreConn_t *)pContext, pData);
 #endif // CORDIO_ZERO_COPY_HCI
   }
 }
 
-
 /*************************************************************************************************/
 /*!
- *  \fn     hciTrSendCmd
- *
  *  \brief  Send a complete HCI command to the transport.
  *
- *  \param  pData WSF msg buffer containing an HCI command. WSF buffer ownership is released by this function.
+ *  \param  pCmdData    WSF msg buffer containing an HCI command.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-void hciTrSendCmd(uint8_t *pData)
+void hciTrSendCmd(uint8_t *pCmdData)
 {
+  /* PORTING: sending done by mbed-os */
   uint16_t   len;
 
   /* get length */
-  len = pData[2] + HCI_CMD_HDR_LEN;
-
-  /* dump event for protocol analysis */
-  HCI_PDUMP_CMD(len, pData);
+  len = pCmdData[2] + HCI_CMD_HDR_LEN;
 
   /* transmit ACL header and data */
-  if (hciDrvWrite(HCI_CMD_TYPE, len, pData) == len)
+  if (hci_mbed_os_drv_write(HCI_CMD_TYPE, len, pCmdData) == len)
   {
 #if CORDIO_ZERO_COPY_HCI
-      /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
+    /* pData is not freed as the hci_mbed_os_drv_write took ownership of the WSF buffer */
 #else
-      /* free buffer */
-      WsfMsgFree(pData);
+    /* free buffer */
+    WsfMsgFree(pCmdData);
 #endif // CORDIO_ZERO_COPY_HCI
   }
 }
-
 
 /*************************************************************************************************/
 /*!
@@ -129,7 +127,7 @@ void hciTrSerialRxIncoming(uint8_t *pBuf, uint8_t len)
   static uint8_t    stateRx = HCI_RX_STATE_IDLE;
   static uint8_t    pktIndRx;
   static uint16_t   iRx;
-  static uint8_t    hdrRx[HCI_HDR_LEN_MAX];
+  static uint8_t    hdrRx[HCI_ACL_HDR_LEN];
   static uint8_t    *pPktRx;
   static uint8_t    *pDataRx;
 
