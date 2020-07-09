@@ -5,22 +5,30 @@
  *
  */
 
-#include "os_wrapper/semaphore.h"
-
 #include "tfm_api.h"
 #include "tfm_mailbox.h"
 #include "tfm_multi_core_api.h"
+#include "cmsis_os2.h"
+#include "mbed_rtos_storage.h"
 
 #define MAX_SEMAPHORE_COUNT            NUM_MAILBOX_QUEUE_SLOT
 
 static void *ns_lock_handle = NULL;
+static mbed_rtos_storage_semaphore_t tfm_ns_sema_obj;
 
 __attribute__((weak))
 enum tfm_status_e tfm_ns_interface_init(void)
 {
-    ns_lock_handle = os_wrapper_semaphore_create(MAX_SEMAPHORE_COUNT,
-                                                 MAX_SEMAPHORE_COUNT,
-                                                 NULL);
+    osSemaphoreAttr_t sema_attrib = {
+        .name = "tfm_ns_lock",
+        .attr_bits = 0,
+        .cb_size = sizeof(tfm_ns_sema_obj),
+        .cb_mem = &tfm_ns_sema_obj
+    };
+
+    ns_lock_handle = osSemaphoreNew(MAX_SEMAPHORE_COUNT,
+                                    MAX_SEMAPHORE_COUNT,
+                                    &sema_attrib);
     if (!ns_lock_handle) {
         return TFM_ERROR_GENERIC;
     }
@@ -35,11 +43,10 @@ int32_t tfm_ns_wait_for_s_cpu_ready(void)
 
 uint32_t tfm_ns_multi_core_lock_acquire(void)
 {
-    return os_wrapper_semaphore_acquire(ns_lock_handle,
-                                        OS_WRAPPER_WAIT_FOREVER);
+    return osSemaphoreAcquire(ns_lock_handle, osWaitForever);
 }
 
 uint32_t tfm_ns_multi_core_lock_release(void)
 {
-    return os_wrapper_semaphore_release(ns_lock_handle);
+    return osSemaphoreRelease(ns_lock_handle);
 }
