@@ -99,9 +99,9 @@ public:
     {
         //Prevent PSoC6 to enter deep-sleep till BT initialization is complete
         sleep_manager_lock_deep_sleep();
-        rtos::ThisThread::sleep_for(500);
+        rtos::ThisThread::sleep_for(500ms);
         bt_power = 1;
-        rtos::ThisThread::sleep_for(500);
+        rtos::ThisThread::sleep_for(500ms);
     }
 
     virtual void do_terminate() { }
@@ -364,7 +364,7 @@ private:
         service_pack_next = &HCIDriver::terminate_service_pack_transfert;;
         service_pack_index = 0;
         service_pack_transfered = false;
-        rtos::ThisThread::sleep_for(1000);
+        rtos::ThisThread::sleep_for(1s);
         send_service_pack_command();
     }
 
