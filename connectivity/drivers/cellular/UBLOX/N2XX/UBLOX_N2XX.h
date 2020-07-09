@@ -27,7 +27,6 @@
 #endif
 #endif /* TARGET_FF_ARDUINO */
 
-#include "mbed.h"
 #include "CellularLog.h"
 #include "AT_CellularDevice.h"
 #include "AT_CellularNetwork.h"
