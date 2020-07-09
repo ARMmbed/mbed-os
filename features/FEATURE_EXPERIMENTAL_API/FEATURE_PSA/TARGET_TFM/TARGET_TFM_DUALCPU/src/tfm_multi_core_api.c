@@ -9,15 +9,22 @@
 #include "tfm_mailbox.h"
 #include "tfm_multi_core_api.h"
 #include "cmsis_os2.h"
+#include "mbed_rtos_storage.h"
 
 #define MAX_SEMAPHORE_COUNT            NUM_MAILBOX_QUEUE_SLOT
 
-static osSemaphoreId_t ns_lock_handle = NULL;
+static void *ns_lock_handle = NULL;
+static mbed_rtos_storage_semaphore_t tfm_ns_sema_obj;
 
 __attribute__((weak))
 enum tfm_status_e tfm_ns_interface_init(void)
 {
-    osSemaphoreAttr_t sema_attrib = {0};
+    osSemaphoreAttr_t sema_attrib = {
+        .name = "tfm_ns_lock",
+        .attr_bits = 0,
+        .cb_size = sizeof(tfm_ns_sema_obj),
+        .cb_mem = &tfm_ns_sema_obj
+    };
 
     ns_lock_handle = osSemaphoreNew(MAX_SEMAPHORE_COUNT,
                                     MAX_SEMAPHORE_COUNT,
