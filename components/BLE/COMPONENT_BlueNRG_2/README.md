@@ -69,6 +69,8 @@ To this aim you need to update your local mbed_app.json file with:
 If you use pin **D13** for the SPI clock, please be aware that on some STM32 Nucleo boards you may **not** drive the LED,
 otherwise you will get a conflict: the LED on STM32 Nucleo boards is connected to pin **D13**.
 
+To correctly set the SPI reset on pin **D7** resistor R117 should be mounted.
+Alternatively, pin **D7** of the Arduino connector (**CN9**) and pin #5 of the jumper labeled as J12 should be bridged.
 
 ### Target Configuration
 
