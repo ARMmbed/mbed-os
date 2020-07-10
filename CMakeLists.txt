@@ -31,9 +31,9 @@ add_subdirectory(rtos)
 add_subdirectory(features)
 add_subdirectory(components)
 
-# Add additional modules
-get_property(modules GLOBAL PROPERTY MBED_OS_MODULES)
+# Add additional component
+get_property(component GLOBAL PROPERTY MBED_OS_COMPONENT)
 
-foreach(module ${modules})
+foreach(module ${component})
     add_subdirectory(${module})
 endforeach()
