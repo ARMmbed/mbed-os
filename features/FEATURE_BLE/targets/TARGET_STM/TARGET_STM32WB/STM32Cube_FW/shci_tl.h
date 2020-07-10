@@ -120,12 +120,13 @@ void shci_resume_flow(void);
 
 
 /**
- * @brief  This function is called when an System HCO Command is sent and the response
- *         is waited from the CPU2.
- *         The application shall implement a mechanism to not return from this function 
- *         until the waited event is received.
- *         This is notified to the application with shci_cmd_resp_release().
+ * @brief  This function is called when an System HCI Command is sent to the CPU2 and the response is waited.
  *         It is called from the same context the System HCI command has been sent.
+ *         It shall not return until the command response notified by shci_cmd_resp_release() is received.
+ *         A weak implementation is available in shci_tl.c based on polling mechanism
+ *         The user may re-implement this function in the application to improve performance :
+ *         - It may use UTIL_SEQ_WaitEvt() API when using the Sequencer
+ *         - It may use a semaphore when using cmsis_os interface
  *
  * @param  timeout: Waiting timeout
  * @retval None
@@ -133,8 +134,12 @@ void shci_resume_flow(void);
 void shci_cmd_resp_wait(uint32_t timeout);
 
 /**
- * @brief  This function is called when an System HCI command is sent and the response is
- *         received from the CPU2.
+ * @brief  This function is called when an System HCI command is received from the CPU2.
+ *         A weak implementation is available in shci_tl.c based on polling mechanism
+ *         The user may re-implement this function in the application to improve performance :
+ *         - It may use UTIL_SEQ_SetEvt() API when using the Sequencer
+ *         - It may use a semaphore when using cmsis_os interface
+ *
  *
  * @param  flag: Release flag
  * @retval None

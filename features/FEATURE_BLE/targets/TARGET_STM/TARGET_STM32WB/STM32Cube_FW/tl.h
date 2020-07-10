@@ -57,6 +57,7 @@ extern "C" {
 
 #define TL_BLEEVT_CC_OPCODE            (0x0E)
 #define TL_BLEEVT_CS_OPCODE            (0x0F)
+#define TL_BLEEVT_VS_OPCODE            (0xFF)
 
 #define TL_BLEEVT_CS_PACKET_SIZE       (TL_EVT_HDR_SIZE + sizeof(TL_CsEvt_t))
 #define TL_BLEEVT_CS_BUFFER_SIZE       (sizeof(TL_PacketHeader_t) + TL_BLEEVT_CS_PACKET_SIZE)
@@ -194,6 +195,12 @@ typedef struct
 
 typedef struct
 {
+  uint8_t *p_LldBleCmdRspBuffer;
+  uint8_t *p_LldBleM0CmdBuffer;
+} TL_LLD_BLE_Config_t;
+
+typedef struct
+{
   uint8_t *p_Mac_802_15_4_CmdRspBuffer;
   uint8_t *p_Mac_802_15_4_NotAckBuffer;
 } TL_MAC_802_15_4_Config_t;
@@ -202,7 +209,7 @@ typedef struct
 {
   uint8_t *p_ZigbeeOtCmdRspBuffer;
   uint8_t *p_ZigbeeNotAckBuffer;
-  uint8_t *p_ZigbeeLoggingBuffer;
+  uint8_t *p_ZigbeeNotifRequestBuffer;
 } TL_ZIGBEE_Config_t;
 
 /**
@@ -275,6 +282,18 @@ void TL_LLDTESTS_ReceiveM0Cmd( TL_CmdPacket_t * Notbuffer );
 void TL_LLDTESTS_SendM0CmdAck( void );
 
 /******************************************************************************
+ * LLD BLE
+ ******************************************************************************/
+void TL_LLD_BLE_Init( TL_LLD_BLE_Config_t *p_Config );
+void TL_LLD_BLE_SendCliCmd( void );
+void TL_LLD_BLE_ReceiveCliRsp( TL_CmdPacket_t * Notbuffer );
+void TL_LLD_BLE_SendCliRspAck( void );
+void TL_LLD_BLE_ReceiveM0Cmd( TL_CmdPacket_t * Notbuffer );
+void TL_LLD_BLE_SendM0CmdAck( void );
+void TL_LLD_BLE_SendCmd( void );
+void TL_LLD_BLE_ReceiveRsp( TL_CmdPacket_t * Notbuffer );
+void TL_LLD_BLE_SendRspAck( void );
+/******************************************************************************
  * MEMORY MANAGER
  ******************************************************************************/
 void TL_MM_Init( TL_MM_Config_t *p_Config );
@@ -299,12 +318,12 @@ void TL_MAC_802_15_4_SendAck ( void );
  * ZIGBEE
  ******************************************************************************/
 void TL_ZIGBEE_Init( TL_ZIGBEE_Config_t *p_Config );
-void TL_ZIGBEE_SendAppliCmdToM0( void );
-void TL_ZIGBEE_SendAckAfterAppliNotifFromM0 ( void );
+void TL_ZIGBEE_SendM4RequestToM0( void );
+void TL_ZIGBEE_SendM4AckToM0Notify ( void );
 void TL_ZIGBEE_NotReceived( TL_EvtPacket_t * Notbuffer );
 void TL_ZIGBEE_CmdEvtReceived( TL_EvtPacket_t * Otbuffer );
-void TL_ZIGBEE_LoggingReceived(TL_EvtPacket_t * Otbuffer );
-void TL_ZIGBEE_SendAckAfterAppliLoggingFromM0 ( void );
+void TL_ZIGBEE_M0RequestReceived(TL_EvtPacket_t * Otbuffer );
+void TL_ZIGBEE_SendM4AckToM0Request(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

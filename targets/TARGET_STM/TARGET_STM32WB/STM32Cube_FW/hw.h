@@ -58,6 +58,7 @@ extern "C" {
   void HW_IPCC_THREAD_CliSendAck( void );
   void HW_IPCC_THREAD_CliEvtNot( void );
 
+
   void HW_IPCC_LLDTESTS_Init( void );
   void HW_IPCC_LLDTESTS_SendCliCmd( void );
   void HW_IPCC_LLDTESTS_ReceiveCliRsp( void );
@@ -65,9 +66,21 @@ extern "C" {
   void HW_IPCC_LLDTESTS_ReceiveM0Cmd( void );
   void HW_IPCC_LLDTESTS_SendM0CmdAck( void );
 
+
+  void HW_IPCC_LLD_BLE_Init( void );
+  void HW_IPCC_LLD_BLE_SendCliCmd( void );
+  void HW_IPCC_LLD_BLE_ReceiveCliRsp( void );
+  void HW_IPCC_LLD_BLE_SendCliRspAck( void );
+  void HW_IPCC_LLD_BLE_ReceiveM0Cmd( void );
+  void HW_IPCC_LLD_BLE_SendM0CmdAck( void );  
+  void HW_IPCC_LLD_BLE_SendCmd( void );
+  void HW_IPCC_LLD_BLE_ReceiveRsp( void );
+  void HW_IPCC_LLD_BLE_SendRspAck( void );
+
+  
   void HW_IPCC_TRACES_Init( void );
   void HW_IPCC_TRACES_EvtNot( void );
-
+  
   void HW_IPCC_MAC_802_15_4_Init( void );
   void HW_IPCC_MAC_802_15_4_SendCmd( void );
   void HW_IPCC_MAC_802_15_4_SendAck( void );
@@ -76,13 +89,13 @@ extern "C" {
 
   void HW_IPCC_ZIGBEE_Init( void );
 
-  void HW_IPCC_ZIGBEE_SendAppliCmd(void);
-  void HW_IPCC_ZIGBEE_AppliCmdNotification(void);
+  void HW_IPCC_ZIGBEE_SendM4RequestToM0(void); /* M4 Request to M0 */
+  void HW_IPCC_ZIGBEE_RecvAppliAckFromM0(void); /* Request ACK from M0 */
 
-  void HW_IPCC_ZIGBEE_AppliAsyncEvtNotification(void);
-  void HW_IPCC_ZIGBEE_SendAppliCmdAck(void);
-  void HW_IPCC_ZIGBEE_AppliAsyncLoggingNotification( void );
-  void HW_IPCC_ZIGBEE_SendLoggingAck(void);
+  void HW_IPCC_ZIGBEE_RecvM0NotifyToM4(void); /* M0 Notify to M4 */
+  void HW_IPCC_ZIGBEE_SendM4AckToM0Notify(void); /* Notify ACK from M4 */
+  void HW_IPCC_ZIGBEE_RecvM0RequestToM4(void); /* M0 Request to M4 */
+  void HW_IPCC_ZIGBEE_SendM4AckToM0Request(void); /* Request ACK from M4 */
 
 
 #ifdef __cplusplus

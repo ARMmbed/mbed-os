@@ -137,7 +137,9 @@ extern "C" {
     SHCI_OCF_C2_REINIT,
     SHCI_OCF_C2_ZIGBEE_INIT,
     SHCI_OCF_C2_LLD_TESTS_INIT,
-    SHCI_OCF_C2_EXTPA_CONFIG
+    SHCI_OCF_C2_EXTPA_CONFIG,
+    SHCI_OCF_C2_SET_FLASH_ACTIVITY_CONTROL,
+	SHCI_OCF_C2_LLD_BLE_INIT
   } SHCI_OCF_t;
 
 #define SHCI_OPCODE_C2_FUS_GET_STATE         (( SHCI_OGF << 10) + SHCI_OCF_C2_FUS_GET_STATE)
@@ -296,6 +298,20 @@ extern "C" {
 
 #define SHCI_OPCODE_C2_DEBUG_INIT              (( SHCI_OGF << 10) + SHCI_OCF_C2_DEBUG_INIT)
   /** Command parameters */
+    typedef PACKED_STRUCT
+    {
+      uint8_t thread_config;
+      uint8_t ble_config;
+      uint8_t mac_802_15_4_config;
+      uint8_t zigbee_config;
+    } SHCI_C2_DEBUG_TracesConfig_t;
+
+    typedef PACKED_STRUCT
+    {
+      uint8_t ble_dtb_cfg;
+      uint8_t reserved[3];
+    } SHCI_C2_DEBUG_GeneralConfig_t;
+
     typedef PACKED_STRUCT{
       uint8_t *pGpioConfig;
       uint8_t *pTracesConfig;
@@ -352,6 +368,8 @@ extern "C" {
 
 #define SHCI_OPCODE_C2_LLD_TESTS_INIT           (( SHCI_OGF << 10) + SHCI_OCF_C2_LLD_TESTS_INIT)
 
+#define SHCI_OPCODE_C2_LLD_BLE_INIT             (( SHCI_OGF << 10) + SHCI_OCF_C2_LLD_BLE_INIT)
+
 #define SHCI_OPCODE_C2_EXTPA_CONFIG             (( SHCI_OGF << 10) + SHCI_OCF_C2_EXTPA_CONFIG)
   /** Command parameters */
     enum
@@ -372,6 +390,16 @@ extern "C" {
       uint8_t gpio_polarity;
       uint8_t gpio_status;
     } SHCI_C2_EXTPA_CONFIG_Cmd_Param_t;
+
+    /** No response parameters*/
+
+#define SHCI_OPCODE_C2_SET_FLASH_ACTIVITY_CONTROL   (( SHCI_OGF << 10) + SHCI_OCF_C2_SET_FLASH_ACTIVITY_CONTROL)
+  /** Command parameters */
+    typedef enum
+    {
+      FLASH_ACTIVITY_CONTROL_PES,
+      FLASH_ACTIVITY_CONTROL_SEM7,
+    }SHCI_C2_SET_FLASH_ACTIVITY_CONTROL_Source_t;
 
     /** No response parameters*/
 
@@ -427,16 +455,21 @@ typedef  MB_WirelessFwInfoTable_t SHCI_WirelessFwInfoTable_t;
 #define INFO_STACK_TYPE_MASK                        0x000000ff
 #define INFO_STACK_TYPE_NONE                        0
 
-#define INFO_STACK_TYPE_BLE_STANDARD                0x1
-#define INFO_STACK_TYPE_BLE_HCI                     0x2
+#define INFO_STACK_TYPE_BLE_STANDARD                0x01
+#define INFO_STACK_TYPE_BLE_HCI                     0x02
+#define INFO_STACK_TYPE_BLE_LIGHT                   0x03
 #define INFO_STACK_TYPE_THREAD_FTD                  0x10
 #define INFO_STACK_TYPE_THREAD_MTD                  0x11
-#define INFO_STACK_TYPE_ZIGBEE                      0x30
+#define INFO_STACK_TYPE_ZIGBEE_FFD                  0x30
+#define INFO_STACK_TYPE_ZIGBEE_RFD                  0x31
 #define INFO_STACK_TYPE_MAC                         0x40
 #define INFO_STACK_TYPE_BLE_THREAD_FTD_STATIC       0x50
 #define INFO_STACK_TYPE_802154_LLD_TESTS            0x60
 #define INFO_STACK_TYPE_802154_PHY_VALID            0x61
 #define INFO_STACK_TYPE_BLE_PHY_VALID               0x62
+#define INFO_STACK_TYPE_BLE_LLD_TESTS               0x63
+#define INFO_STACK_TYPE_BLE_RLV                     0x64
+#define INFO_STACK_TYPE_802154_RLV                  0x65
 #define INFO_STACK_TYPE_BLE_ZIGBEE_FFD_STATIC       0x70
 
 typedef struct {
@@ -588,6 +621,16 @@ typedef struct {
   SHCI_CmdStatus_t SHCI_C2_LLDTESTS_Init( uint8_t param_size, uint8_t * p_param );
 
     /**
+  * SHCI_C2_LLD_BLE_Init
+  * @brief Starts the LLD tests CLI
+  *
+  * @param  param_size : Nb of bytes
+  * @param  p_param : pointeur with data to give from M4 to M0
+  * @retval Status
+  */
+  SHCI_CmdStatus_t SHCI_C2_LLD_BLE_Init( uint8_t param_size, uint8_t * p_param );
+  
+    /**
   * SHCI_C2_ZIGBEE_Init
   * @brief Starts the Zigbee Stack
   *
@@ -706,6 +749,18 @@ typedef struct {
   */
   SHCI_CmdStatus_t SHCI_C2_ExtpaConfig(uint32_t gpio_port, uint16_t gpio_pin_number, uint8_t gpio_polarity, uint8_t gpio_status);
 
+  /**
+  * SHCI_C2_SetFlashActivityControl
+  * @brief Set the mechanism to be used on CPU2 to prevent the CPU1 to either write or erase in flash
+  *
+  * @param Source: It can be one of the following list
+  *                -  FLASH_ACTIVITY_CONTROL_PES : The CPU2 set the PES bit to prevent the CPU1 to either read or write in flash
+  *                -  FLASH_ACTIVITY_CONTROL_SEM7 : The CPU2 gets the semaphore 7 to prevent the CPU1 to either read or write in flash.
+  *                                                 This requires the CPU1 to first get semaphore 7 before erasing or writing the flash.
+  *
+  * @retval Status
+  */
+  SHCI_CmdStatus_t SHCI_C2_SetFlashActivityControl(SHCI_C2_SET_FLASH_ACTIVITY_CONTROL_Source_t Source);
 
   #ifdef __cplusplus
 }
