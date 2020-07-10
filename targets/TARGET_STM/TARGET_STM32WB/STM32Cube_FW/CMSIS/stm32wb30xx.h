@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    stm32wb50xx.h
+  * @file    stm32wb30xx.h
   * @author  MCD Application Team
   * @brief   CMSIS Cortex Device Peripheral Access Layer Header File.
   *          This file contains all the peripheral register's definitions, bits
-  *          definitions and memory mapping for stm32wb50xx devices.
+  *          definitions and memory mapping for stm32wb30xx devices.
   *
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
@@ -29,12 +29,12 @@
   * @{
   */
 
-/** @addtogroup stm32wb50xx
+/** @addtogroup stm32wb30xx
   * @{
   */
 
-#ifndef __STM32WB50xx_H
-#define __STM32WB50xx_H
+#ifndef __STM32WB30xx_H
+#define __STM32WB30xx_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -61,7 +61,7 @@
   */
 
 /**
- * @brief stm32wb50xx Interrupt Number Definition, according to the selected device 
+ * @brief stm32wb30xx Interrupt Number Definition, according to the selected device 
  *        in @ref Library_configuration_section
  */
 /*!< Interrupt Number Definition for M4 */
@@ -769,20 +769,20 @@ typedef struct
 #define OPTION_BYTE_BASE       (0x1FFF8000UL)  /*!< Option Bytes : 4kB (0x1FFF8000 – 0x1FFF8FFF)   */
 #define ENGI_BYTE_BASE         (0x1FFF7400UL)  /*!< Engi Bytes : 3kB (0x1FFF7400 – 0x1FFF7FFF)     */
 
-#define SRAM1_BASE             SRAM_BASE                 /*!< SRAM1(up to 64 KB) base address */
-#define SRAM2A_BASE            (SRAM_BASE + 0x00030000UL)/*!< SRAM2A(32 KB) base address      */
-#define SRAM2B_BASE            (SRAM_BASE + 0x00038000UL)/*!< SRAM2B(32 KB) base address      */
+#define SRAM1_BASE             SRAM_BASE                 /*!< SRAM1(up to 32 KB) base address */
+#define SRAM2A_BASE            (SRAM_BASE + 0x00008000UL)/*!< SRAM2A(32 KB) base address       */
+#define SRAM2B_BASE            (SRAM_BASE + 0x00010000UL)/*!< SRAM2B(32 KB) base address       */
 
 /* Memory Size */
 #define FLASH_SIZE              (((uint32_t)(*((uint16_t *)FLASHSIZE_BASE)) & (0x07FFUL)) << 10U)
-#define SRAM1_SIZE              0x00010000UL   /*!< SRAM1 default size : 64 kB  */
+#define SRAM1_SIZE              0x00008000UL   /*!< SRAM1 default size : 32 kB  */
 #define SRAM2A_SIZE             0x00008000UL   /*!< SRAM2a default size : 32 kB  */
 #define SRAM2B_SIZE             0x00008000UL   /*!< SRAM2b default size : 32 kB  */
 
 /* End addresses */
-#define SRAM1_END_ADDR         (0x2000FFFFUL)  /*!< SRAM1               :  64KB (0x20000000 – 0x2000FFFF) */
-#define SRAM2A_END_ADDR        (0x20037FFFUL)  /*!< SRAM2a (backup)     :  32KB (0x20030000 – 0x20037FFF) */
-#define SRAM2B_END_ADDR        (0x2003FFFFUL)  /*!< SRAM2b (non-backup) :  32KB (0x20038000 – 0x2003FFFF) */
+#define SRAM1_END_ADDR         (0x20007FFFUL)  /*!< SRAM1               :  32KB (0x20000000 – 0x20007FFF) */
+#define SRAM2A_END_ADDR        (0x2000FFFFUL)  /*!< SRAM2a (backup)     :  32KB (0x20008000 – 0x2000FFFF) */
+#define SRAM2B_END_ADDR        (0x20017FFFUL)  /*!< SRAM2b (non-backup) :  32KB (0x20010000 – 0x20017FFF) */
 
 #define SYSTEM_MEMORY_END_ADDR (0x1FFF6FFFUL)  /*!< System Memory : 28KB (0x1FFF0000 – 0x1FFF6FFF)  */
 #define OTP_AREA_END_ADDR      (0x1FFF73FFUL)  /*!< OTP area : 1KB (0x1FFF7000 – 0x1FFF73FF)        */
@@ -5930,6 +5930,10 @@ typedef struct
 #define PWR_CR3_EWUP4_Pos              (3U)                                    
 #define PWR_CR3_EWUP4_Msk              (0x1UL << PWR_CR3_EWUP4_Pos)            /*!< 0x00000008 */
 #define PWR_CR3_EWUP4                  PWR_CR3_EWUP4_Msk                       /*!< Enable external WKUP Pin 4 [line 3] */
+
+#define PWR_CR3_EBORHSMPSFB_Pos        (8U)                                    
+#define PWR_CR3_EBORHSMPSFB_Msk        (0x1UL << PWR_CR3_EBORHSMPSFB_Pos)      /*!< 0x00000100 */
+#define PWR_CR3_EBORHSMPSFB            PWR_CR3_EBORHSMPSFB_Msk                 /*!< BORH interrupt for CPU1 (mention of SMPS is not applicable to this device) */
 
 #define PWR_CR3_RRS_Pos                (9U)                                    
 #define PWR_CR3_RRS_Msk                (0x1UL << PWR_CR3_RRS_Pos)              /*!< 0x00000200 */
@@ -11113,7 +11117,7 @@ typedef struct
 }
 #endif /* __cplusplus */
 
-#endif /* __STM32WB50xx_H */
+#endif /* __STM32WB30xx_H */
 
 /**
   * @}

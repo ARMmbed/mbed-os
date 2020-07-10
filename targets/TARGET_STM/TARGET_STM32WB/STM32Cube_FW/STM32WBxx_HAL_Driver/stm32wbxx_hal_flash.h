@@ -46,7 +46,7 @@ extern "C" {
   */
 typedef struct
 {
-  uint32_t TypeErase;   /*!< Mass erase or page erase.
+  uint32_t TypeErase;   /*!< Page erase.
                              This parameter can be a value of @ref FLASH_TYPE_ERASE */
   uint32_t Page;        /*!< Initial Flash page to erase when page erase is enabled
                              This parameter must be a value between 0 and (FLASH_PAGE_NB - 1) */
@@ -222,7 +222,6 @@ typedef struct
   * @{
   */
 #define FLASH_TYPEERASE_PAGES           FLASH_CR_PER  /*!< Pages erase only*/
-#define FLASH_TYPEERASE_MASSERASE       FLASH_CR_MER  /*!< Flash mass erase activation*/
 /**
   * @}
   */
@@ -853,8 +852,7 @@ HAL_StatusTypeDef  FLASH_WaitForLastOperation(uint32_t Timeout);
 
 #define IS_ADDR_ALIGNED_64BITS(__VALUE__)           (((__VALUE__) & 0x7U) == (0x00UL))
 
-#define IS_FLASH_TYPEERASE(__VALUE__)               (((__VALUE__) == FLASH_TYPEERASE_PAGES) || \
-                                                     ((__VALUE__) == FLASH_TYPEERASE_MASSERASE))
+#define IS_FLASH_TYPEERASE(__VALUE__)               ((__VALUE__) == FLASH_TYPEERASE_PAGES)
 
 #define IS_FLASH_TYPEPROGRAM(__VALUE__)             (((__VALUE__) == FLASH_TYPEPROGRAM_DOUBLEWORD) || \
                                                      ((__VALUE__) == FLASH_TYPEPROGRAM_FAST))

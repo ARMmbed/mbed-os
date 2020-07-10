@@ -323,62 +323,62 @@ typedef struct
   *           - XX  : Status register (2 bits)
   *                 - 01: SR1 register
   *                 - 10: SR2 register
-  *                 - 11: C2_SCR register
+  *                 - 11: EXTSCR register
   *        The only exception is PWR_FLAG_WUF, encompassing all
   *        wake-up flags and set to PWR_SR1_WUF.    
   * @{
   */
 /*--------------------------------SR1-------------------------------*/
-#define PWR_FLAG_WUF1                       (0x0020U)   /*!< Wakeup event on wakeup pin 1 */
+#define PWR_FLAG_WUF1                       (PWR_FLAG_REG_SR1 | PWR_SR1_WUF1_Pos)    /*!< Wakeup event on wakeup pin 1 */
 #if defined(PWR_CR3_EWUP2)
-#define PWR_FLAG_WUF2                       (0x0021U)   /*!< Wakeup event on wakeup pin 2 */
+#define PWR_FLAG_WUF2                       (PWR_FLAG_REG_SR1 | PWR_SR1_WUF2_Pos)    /*!< Wakeup event on wakeup pin 2 */
 #endif
 #if defined(PWR_CR3_EWUP3)
-#define PWR_FLAG_WUF3                       (0x0022U)   /*!< Wakeup event on wakeup pin 3 */
+#define PWR_FLAG_WUF3                       (PWR_FLAG_REG_SR1 | PWR_SR1_WUF3_Pos)    /*!< Wakeup event on wakeup pin 3 */
 #endif
-#define PWR_FLAG_WUF4                       (0x0023U)   /*!< Wakeup event on wakeup pin 4 */
+#define PWR_FLAG_WUF4                       (PWR_FLAG_REG_SR1 | PWR_SR1_WUF4_Pos)    /*!< Wakeup event on wakeup pin 4 */
 #if defined(PWR_CR3_EWUP5)
-#define PWR_FLAG_WUF5                       (0x0024U)   /*!< Wakeup event on wakeup pin 5 */
+#define PWR_FLAG_WUF5                       (PWR_FLAG_REG_SR1 | PWR_SR1_WUF5_Pos)    /*!< Wakeup event on wakeup pin 5 */
 #endif
-#define PWR_FLAG_WU                         PWR_SR1_WUF          /*!< Encompass wakeup event on all wakeup pins */
+#define PWR_FLAG_WU                         (PWR_FLAG_REG_SR1 | PWR_SR1_WUF)         /*!< Encompass wakeup event on all wakeup pins */
 
 #if defined(PWR_CR5_SMPSEN)
-#define PWR_FLAG_FRCBYPI                    (0x0027U)   /*!< SMPS Forced in Bypass Interrupt Flag */
+#define PWR_FLAG_FRCBYPI                    (PWR_FLAG_REG_SR1 | PWR_SR1_SMPSFBF_Pos) /*!< SMPS Forced in Bypass Interrupt Flag */
 #endif
-#define PWR_FLAG_BHWF                       (0x0029U)   /*!< BLE_Host WakeUp Flag */
-#define PWR_FLAG_RFPHASEI                   (0x002BU)   /*!< Radio Phase Interrupt Flag */
-#define PWR_FLAG_BLEACTI                    (0x002CU)   /*!< BLE Activity Interrupt Flag */
-#define PWR_FLAG_802ACTI                    (0x002DU)   /*!< 802.15.4 Activity Interrupt Flag */
-#define PWR_FLAG_HOLDC2I                    (0x002EU)   /*!< CPU2 on-Hold Interrupt Flag */
-#define PWR_FLAG_WUFI                       (0x002FU)   /*!< Wakeup on internal wakeup line */
+#define PWR_FLAG_BHWF                       (PWR_FLAG_REG_SR1 | PWR_SR1_BLEWUF_Pos)  /*!< BLE_Host WakeUp Flag */
+#define PWR_FLAG_RFPHASEI                   (PWR_FLAG_REG_SR1 | PWR_SR1_CRPEF_Pos)   /*!< Radio Phase Interrupt Flag */
+#define PWR_FLAG_BLEACTI                    (PWR_FLAG_REG_SR1 | PWR_SR1_BLEAF_Pos)   /*!< BLE Activity Interrupt Flag */
+#define PWR_FLAG_802ACTI                    (PWR_FLAG_REG_SR1 | PWR_SR1_802AF_Pos)   /*!< 802.15.4 Activity Interrupt Flag */
+#define PWR_FLAG_HOLDC2I                    (PWR_FLAG_REG_SR1 | PWR_SR1_C2HF_Pos)    /*!< CPU2 on-Hold Interrupt Flag */
+#define PWR_FLAG_WUFI                       (PWR_FLAG_REG_SR1 | PWR_SR1_WUFI_Pos)    /*!< Wakeup on internal wakeup line */
 
 /*--------------------------------SR2-------------------------------*/
 #if defined(PWR_CR5_SMPSEN)
-#define PWR_FLAG_SMPSRDYF                   (0x0040U)   /*!< SMPS Ready Flag */
-#define PWR_FLAG_SMPSBYPF                   (0x0041U)   /*!< SMPS Bypass Flag */
+#define PWR_FLAG_SMPSRDYF                   (PWR_FLAG_REG_SR2 | PWR_SR2_SMPSBF_Pos)  /*!< SMPS Ready Flag */
+#define PWR_FLAG_SMPSBYPF                   (PWR_FLAG_REG_SR2 | PWR_SR2_SMPSF_Pos)   /*!< SMPS Bypass Flag */
 #endif
 
-#define PWR_FLAG_REGLPS                     (0x0048U)   /*!< Low-power regulator start flag */
-#define PWR_FLAG_REGLPF                     (0x0049U)   /*!< Low-power regulator flag */
+#define PWR_FLAG_REGLPS                     (PWR_FLAG_REG_SR2 | PWR_SR2_REGLPS_Pos)  /*!< Low-power regulator start flag */
+#define PWR_FLAG_REGLPF                     (PWR_FLAG_REG_SR2 | PWR_SR2_REGLPF_Pos)  /*!< Low-power regulator flag */
 
 #if defined(PWR_CR1_VOS)
-#define PWR_FLAG_VOSF                       (0x004AU)   /*!< Voltage scaling flag */
+#define PWR_FLAG_VOSF                       (PWR_FLAG_REG_SR2 | PWR_SR2_VOSF_Pos)    /*!< Voltage scaling flag */
 #endif
-#define PWR_FLAG_PVDO                       (0x004BU)   /*!< Power Voltage Detector output flag */
+#define PWR_FLAG_PVDO                       (PWR_FLAG_REG_SR2 | PWR_SR2_PVDO_Pos)    /*!< Power Voltage Detector output flag */
 
-#define PWR_FLAG_PVMO1                      (0x004CU)   /*!< Power Voltage Monitoring 1 output flag */
-#define PWR_FLAG_PVMO3                      (0x004EU)   /*!< Power Voltage Monitoring 3 output flag */
+#define PWR_FLAG_PVMO1                      (PWR_FLAG_REG_SR2 | PWR_SR2_PVMO1_Pos)   /*!< Power Voltage Monitoring 1 output flag */
+#define PWR_FLAG_PVMO3                      (PWR_FLAG_REG_SR2 | PWR_SR2_PVMO3_Pos)   /*!< Power Voltage Monitoring 3 output flag */
 
 /*------------------------------EXTSCR---------------------------*/
-#define PWR_FLAG_SB                         (0x0068U)   /*!< System Standby flag for CPU1 */
-#define PWR_FLAG_STOP                       (0x0069U)   /*!< System Stop flag for CPU1 */
+#define PWR_FLAG_SB                         (PWR_FLAG_REG_EXTSCR | PWR_EXTSCR_C1SBF_Pos   | (PWR_EXTSCR_C1CSSF_Pos << PWR_FLAG_EXTSCR_CLR_POS)) /*!< System Standby flag for CPU1 */
+#define PWR_FLAG_STOP                       (PWR_FLAG_REG_EXTSCR | PWR_EXTSCR_C1STOPF_Pos | (PWR_EXTSCR_C1CSSF_Pos << PWR_FLAG_EXTSCR_CLR_POS)) /*!< System Stop flag for CPU1 */
 
-#define PWR_FLAG_C2SB                       (0x006AU)   /*!< System Standby flag for CPU2 */
-#define PWR_FLAG_C2STOP                     (0x006BU)   /*!< System Stop flag for CPU2 */
+#define PWR_FLAG_C2SB                       (PWR_FLAG_REG_EXTSCR | PWR_EXTSCR_C2SBF_Pos   | (PWR_EXTSCR_C2CSSF_Pos << PWR_FLAG_EXTSCR_CLR_POS)) /*!< System Standby flag for CPU2 */
+#define PWR_FLAG_C2STOP                     (PWR_FLAG_REG_EXTSCR | PWR_EXTSCR_C2STOPF_Pos | (PWR_EXTSCR_C2CSSF_Pos << PWR_FLAG_EXTSCR_CLR_POS)) /*!< System Stop flag for CPU2 */
 
-#define PWR_FLAG_CRITICAL_RF_PHASE          (0x006DU)   /*!< Critical radio system phase flag */
-#define PWR_FLAG_C1DEEPSLEEP                (0x006EU)   /*!< CPU1 DeepSleep Flag */
-#define PWR_FLAG_C2DEEPSLEEP                (0x006FU)   /*!< CPU2 DeepSleep Flag */
+#define PWR_FLAG_CRITICAL_RF_PHASE          (PWR_FLAG_REG_EXTSCR | PWR_EXTSCR_CRPF_Pos | (PWR_EXTSCR_CCRPF_Pos << PWR_FLAG_EXTSCR_CLR_POS))     /*!< Critical radio system phase flag */
+#define PWR_FLAG_C1DEEPSLEEP                (PWR_FLAG_REG_EXTSCR | PWR_EXTSCR_C1DS_Pos)    /*!< CPU1 DeepSleep Flag */
+#define PWR_FLAG_C2DEEPSLEEP                (PWR_FLAG_REG_EXTSCR | PWR_EXTSCR_C2DS_Pos)    /*!< CPU2 DeepSleep Flag */
 /**
   * @}
   */
@@ -432,6 +432,19 @@ typedef struct
 #define PVM_RISING_EDGE           (0x00000001U)  /*!< Mask for rising edge set as PVM trigger                 */
 #define PVM_FALLING_EDGE          (0x00000002U)  /*!< Mask for falling edge set as PVM trigger                */
 #define PVM_RISING_FALLING_EDGE   (0x00000003U)  /*!< Mask for rising and falling edges set as PVM trigger    */
+/**
+  * @}
+  */
+
+/** @defgroup PWR_FLAG_REG PWR flag register
+  * @{
+  */
+#define PWR_FLAG_REG_SR1         (0x20UL)   /* Bitfield to indicate PWR flag located in register PWR_SR1 */
+#define PWR_FLAG_REG_SR2         (0x40UL)   /* Bitfield to indicate PWR flag located in register PWR_SR2 */
+#define PWR_FLAG_REG_EXTSCR      (0x60UL)   /* Bitfield to indicate PWR flag located in register PWR_EXTSCR */
+#define PWR_FLAG_REG_MASK        (PWR_FLAG_REG_SR1 | PWR_FLAG_REG_SR2 | PWR_FLAG_REG_EXTSCR)   /* Bitfield mask to indicate PWR flag location in PWR register */
+#define PWR_FLAG_EXTSCR_CLR_POS  (16UL)     /* Bitfield for register PWR_EXTSCR clearable bits positions: position of bitfield in flag literals */
+#define PWR_FLAG_EXTSCR_CLR_MASK ((PWR_EXTSCR_C1CSSF_Pos | PWR_EXTSCR_C2CSSF_Pos | PWR_EXTSCR_CCRPF_Pos) << PWR_FLAG_EXTSCR_CLR_POS)  /* Bitfield for register PWR_EXTSCR clearable bits positions: mask of bitfield in flag literals */
 /**
   * @}
   */

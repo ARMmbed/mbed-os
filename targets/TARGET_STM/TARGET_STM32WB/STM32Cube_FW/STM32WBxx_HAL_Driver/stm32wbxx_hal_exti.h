@@ -105,18 +105,39 @@ typedef struct
 #define EXTI_LINE_17                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG1 | 0x11u)
 #define EXTI_LINE_18                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG1 | 0x12u)
 #define EXTI_LINE_19                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG1 | 0x13u)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define EXTI_LINE_20                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG1 | 0x14u)
 #define EXTI_LINE_21                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG1 | 0x15u)
+#else
+#define EXTI_LINE_20                        (EXTI_RESERVED |              EXTI_REG1 | 0x14u)
+#define EXTI_LINE_21                        (EXTI_RESERVED |              EXTI_REG1 | 0x15u)
+#endif
 #define EXTI_LINE_22                        (EXTI_DIRECT   |              EXTI_REG1 | 0x16u)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define EXTI_LINE_23                        (EXTI_DIRECT   |              EXTI_REG1 | 0x17u)
+#else
+#define EXTI_LINE_23                        (EXTI_RESERVED |              EXTI_REG1 | 0x17u)
+#endif
 #define EXTI_LINE_24                        (EXTI_DIRECT   |              EXTI_REG1 | 0x18u)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define EXTI_LINE_25                        (EXTI_DIRECT   |              EXTI_REG1 | 0x19u)
+#else
+#define EXTI_LINE_25                        (EXTI_RESERVED |              EXTI_REG1 | 0x19u)
+#endif
 #define EXTI_LINE_26                        (EXTI_RESERVED |              EXTI_REG1 | 0x1Au)
 #define EXTI_LINE_27                        (EXTI_RESERVED |              EXTI_REG1 | 0x1Bu)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define EXTI_LINE_28                        (EXTI_DIRECT   |              EXTI_REG1 | 0x1Cu)
+#else
+#define EXTI_LINE_28                        (EXTI_RESERVED |              EXTI_REG1 | 0x1Cu)
+#endif
 #define EXTI_LINE_29                        (EXTI_DIRECT   |              EXTI_REG1 | 0x1Du)
 #define EXTI_LINE_30                        (EXTI_DIRECT   |              EXTI_REG1 | 0x1Eu)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define EXTI_LINE_31                        (EXTI_CONFIG   |              EXTI_REG1 | 0x1Fu)
+#else
+#define EXTI_LINE_31                        (EXTI_RESERVED |              EXTI_REG1 | 0x1Fu)
+#endif
 #define EXTI_LINE_32                        (EXTI_RESERVED |              EXTI_REG2 | 0x00u)
 #define EXTI_LINE_33                        (EXTI_CONFIG   |              EXTI_REG2 | 0x01u)
 #define EXTI_LINE_34                        (EXTI_RESERVED |              EXTI_REG2 | 0x02u)
@@ -128,7 +149,7 @@ typedef struct
 #define EXTI_LINE_40                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG2 | 0x08u)
 #define EXTI_LINE_41                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG2 | 0x09u)
 #define EXTI_LINE_42                        (EXTI_DIRECT   |              EXTI_REG2 | 0x0Au)
-#if defined (STM32WB55xx)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx)
 #define EXTI_LINE_43                        (EXTI_DIRECT   |              EXTI_REG2 | 0x0Bu)
 #else
 #define EXTI_LINE_43                        (EXTI_RESERVED |              EXTI_REG2 | 0x0Bu)
@@ -170,7 +191,7 @@ typedef struct
 #define EXTI_GPIOA                          0x00000000u
 #define EXTI_GPIOB                          0x00000001u
 #define EXTI_GPIOC                          0x00000002u
-#if defined (STM32WB55xx)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx)
 #define EXTI_GPIOD                          0x00000003u
 #endif
 #define EXTI_GPIOE                          0x00000004u
@@ -261,7 +282,7 @@ typedef struct
 
 #define IS_EXTI_CONFIG_LINE(__LINE__)   (((__LINE__) & EXTI_CONFIG) != 0x00u)
 
-#if defined (STM32WB55xx)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx)
 #define IS_EXTI_GPIO_PORT(__PORT__)     (((__PORT__) == EXTI_GPIOA) || \
                                          ((__PORT__) == EXTI_GPIOB) || \
                                          ((__PORT__) == EXTI_GPIOC) || \
