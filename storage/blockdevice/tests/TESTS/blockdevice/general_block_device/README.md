@@ -34,7 +34,7 @@ Use `mbed test` again:
 ```
 mbed test -m K64F -t ARM -n mbed-os-features-storage-tests-blockdevice-general_block_device --run -v
 ```
-   
+
 #### Troubleshooting
 
 Please review the [documentation](https://os.mbed.com/docs/latest/tutorials/debugging.html) for suggestions about how to fix possible issues you may face.

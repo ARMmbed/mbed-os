@@ -192,4 +192,3 @@ int main()
 {
     return !Harness::run(specification);
 }
-
