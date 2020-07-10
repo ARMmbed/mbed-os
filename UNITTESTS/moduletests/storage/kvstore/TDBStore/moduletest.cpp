@@ -15,8 +15,8 @@
  */
 
 #include "gtest/gtest.h"
-#include "storage/blockdevice/HeapBlockDevice.h"
-#include "storage/blockdevice/FlashSimBlockDevice.h"
+#include "blockdevice/HeapBlockDevice.h"
+#include "blockdevice/FlashSimBlockDevice.h"
 #include "storage/kvstore/tdbstore/TDBStore.h"
 #include <stdlib.h>
 

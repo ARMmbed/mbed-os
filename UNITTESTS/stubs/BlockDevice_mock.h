@@ -20,7 +20,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 
 class BlockDeviceMock : public BlockDevice {
 public:

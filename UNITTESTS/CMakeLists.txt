@@ -113,7 +113,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features"
   "${PROJECT_SOURCE_DIR}/../features/netsocket"
   "${PROJECT_SOURCE_DIR}/../platform"
-  "${PROJECT_SOURCE_DIR}/../storage"
+  "${PROJECT_SOURCE_DIR}/../storage/blockdevice/include"
   "${PROJECT_SOURCE_DIR}/../drivers"
   "${PROJECT_SOURCE_DIR}/../hal"
   "${PROJECT_SOURCE_DIR}/../events"
@@ -153,7 +153,7 @@ set(TEST_SUITES)
 
 # Get all matched tests.
 file(GLOB_RECURSE unittest-file-list
-  "unittest.cmake"
+  "../unittest.cmake" # matches any ../**/unittest.cmake
 )
 
 if ("${unittest-file-list}" STREQUAL "")
@@ -176,10 +176,11 @@ foreach(testfile ${unittest-file-list})
   include("${testfile}")
 
   get_filename_component(TEST_SUITE_DIR ${testfile} DIRECTORY)
+  message( STATUS ${PROJECT_SOURCE_DIR} )
 
   file(RELATIVE_PATH
        TEST_SUITE_NAME # output
-       ${PROJECT_SOURCE_DIR} # root
+       "${PROJECT_SOURCE_DIR}/.." 
        ${TEST_SUITE_DIR} #abs dirpath
   )
 

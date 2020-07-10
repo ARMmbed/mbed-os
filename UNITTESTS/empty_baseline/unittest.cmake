@@ -12,13 +12,6 @@ set(unittest-includes ${unittest-includes}
 )
 
 set(unittest-sources
-    ../features/device_key/source/DeviceKey.cpp
-    ../storage/blockdevice/COMPONENT_SPIF/SPIFBlockDevice.cpp
-    ../storage/blockdevice/COMPONENT_I2CEE/I2CEEBlockDevice.cpp
-    ../storage/blockdevice/COMPONENT_DATAFLASH/DataFlashBlockDevice.cpp
-    ../storage/blockdevice/COMPONENT_FLASHIAP/FlashIAPBlockDevice.cpp
-    ../storage/blockdevice/COMPONENT_SD/SDBlockDevice.cpp
-    ../storage/blockdevice/COMPONENT_QSPIF/QSPIFBlockDevice.cpp
     ../storage/filesystem/Dir.cpp
     ../storage/filesystem/FileSystem.cpp
     ../storage/filesystem/File.cpp
@@ -30,16 +23,6 @@ set(unittest-sources
     ../storage/kvstore/conf/kv_config.cpp
     ../storage/kvstore/filesystemstore/FileSystemStore.cpp
     ../storage/system_storage/SystemStorage.cpp
-    ../storage/blockdevice/ChainingBlockDevice.cpp
-    ../storage/blockdevice/ReadOnlyBlockDevice.cpp
-    ../storage/blockdevice/SlicingBlockDevice.cpp
-    ../storage/blockdevice/MBRBlockDevice.cpp
-    ../storage/blockdevice/HeapBlockDevice.cpp
-    ../storage/blockdevice/FlashSimBlockDevice.cpp
-    ../storage/blockdevice/ObservingBlockDevice.cpp
-    ../storage/blockdevice/ProfilingBlockDevice.cpp
-    ../storage/blockdevice/BufferedBlockDevice.cpp
-    ../storage/blockdevice/ExhaustibleBlockDevice.cpp
 )
 
 set(unittest-test-sources
