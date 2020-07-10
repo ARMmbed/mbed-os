@@ -21,7 +21,7 @@
 #if DEVICE_FLASH
 
 #include "FlashIAP.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "platform/mbed_toolchain.h"
 
 /** BlockDevice using the FlashIAP API

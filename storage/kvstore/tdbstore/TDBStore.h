@@ -20,8 +20,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "storage/kvstore/include/KVStore.h"
-#include "storage/blockdevice/BlockDevice.h"
-#include "storage/blockdevice/BufferedBlockDevice.h"
+#include "blockdevice/BlockDevice.h"
+#include "blockdevice/BufferedBlockDevice.h"
 #include "PlatformMutex.h"
 #include "mbed_error.h"
 

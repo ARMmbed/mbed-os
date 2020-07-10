@@ -27,7 +27,7 @@
 #define MBED_FATFILESYSTEM_H
 
 #include "storage/filesystem/FileSystem.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "FileHandle.h"
 #include <stdint.h>
 #include "PlatformMutex.h"

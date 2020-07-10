@@ -21,7 +21,7 @@
 #define MBED_LFSFILESYSTEM_H
 
 #include "storage/filesystem/FileSystem.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "platform/PlatformMutex.h"
 #include "storage/filesystem/littlefs/littlefs/lfs.h"
 
