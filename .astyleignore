@@ -27,3 +27,4 @@
 ^TESTS/mbed_hal/trng/pithy
 ^tools
 ^UNITTESTS
+^storage/blockdevice/tests/UNITTESTS

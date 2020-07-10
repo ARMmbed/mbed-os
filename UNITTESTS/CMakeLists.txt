@@ -113,7 +113,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features"
   "${PROJECT_SOURCE_DIR}/../features/netsocket"
   "${PROJECT_SOURCE_DIR}/../platform"
-  "${PROJECT_SOURCE_DIR}/../storage"
+  "${PROJECT_SOURCE_DIR}/../storage/blockdevice/include"
   "${PROJECT_SOURCE_DIR}/../drivers"
   "${PROJECT_SOURCE_DIR}/../hal"
   "${PROJECT_SOURCE_DIR}/../events"

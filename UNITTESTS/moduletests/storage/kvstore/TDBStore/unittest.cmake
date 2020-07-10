@@ -10,9 +10,9 @@ set(unittest-includes ${unittest-includes}
 )
 
 set(unittest-sources
-  ../storage/blockdevice/FlashSimBlockDevice.cpp
-  ../storage/blockdevice/HeapBlockDevice.cpp
-  ../storage/blockdevice/BufferedBlockDevice.cpp
+  ../storage/blockdevice/source/FlashSimBlockDevice.cpp
+  ../storage/blockdevice/source/HeapBlockDevice.cpp
+  ../storage/blockdevice/source/BufferedBlockDevice.cpp
   ../storage/kvstore/tdbstore/TDBStore.cpp
   ../features/frameworks/mbed-trace/source/mbed_trace.c
   stubs/mbed_atomic_stub.c
