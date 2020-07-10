@@ -33,7 +33,6 @@ elseif(MBED_TOOLCHAIN strequal "ARMC6")
 set(COMMON_FLAGS
     -c
     --target=arm-arm-none-eabi
-    -mthumb
     -Oz
     -Wno-armcc-pragma-push-pop
     -Wno-armcc-pragma-anon-unions
