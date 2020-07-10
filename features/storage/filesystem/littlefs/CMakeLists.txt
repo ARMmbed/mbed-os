@@ -14,6 +14,4 @@ target_sources(mbed-os
 
         littlefs/lfs.c
         littlefs/lfs_util.c
-
-        littlefs/emubd/lfs_emubd.c
 )

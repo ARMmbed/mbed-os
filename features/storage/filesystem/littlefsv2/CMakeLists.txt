@@ -5,7 +5,6 @@ target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/littlefs
-        ${CMAKE_CURRENT_SOURCE_DIR}/littlefs/bd
 )
 
 target_sources(mbed-os
@@ -14,8 +13,4 @@ target_sources(mbed-os
 
         littlefs/lfs2.c
         littlefs/lfs2_util.c
-
-        littlefs/bd/lfs2_filebd.c
-        littlefs/bd/lfs2_rambd.c
-        littlefs/bd/lfs2_testbd.c
 )
