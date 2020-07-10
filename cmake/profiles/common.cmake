@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 if(MBED_TOOLCHAIN strequal "GCC_ARM")
 
 set(COMMON_FLAGS
