@@ -5,3 +5,8 @@ add_subdirectory(blockdevice)
 add_subdirectory(filesystem)
 add_subdirectory(kvstore)
 add_subdirectory(system_storage)
+
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
