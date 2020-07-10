@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ChainingBlockDevice.h"
+#include "blockdevice/ChainingBlockDevice.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_assert.h"
 

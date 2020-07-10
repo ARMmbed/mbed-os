@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "SlicingBlockDevice.h"
+#include "blockdevice/SlicingBlockDevice.h"
 #include "platform/mbed_assert.h"
 #include "stddef.h"
 #include <stdio.h>

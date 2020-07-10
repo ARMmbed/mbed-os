@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "HeapBlockDevice.h"
+#include "blockdevice/HeapBlockDevice.h"
 #include "platform/mbed_atomic.h"
 #include <stdlib.h>
 #include <string.h>

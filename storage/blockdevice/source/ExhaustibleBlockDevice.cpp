@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ExhaustibleBlockDevice.h"
+#include "blockdevice/ExhaustibleBlockDevice.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_assert.h"
 

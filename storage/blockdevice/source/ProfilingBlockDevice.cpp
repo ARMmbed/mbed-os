@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ProfilingBlockDevice.h"
+#include "blockdevice/ProfilingBlockDevice.h"
 #include "stddef.h"
 
 namespace mbed {

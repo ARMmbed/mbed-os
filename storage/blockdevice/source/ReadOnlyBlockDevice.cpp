@@ -20,98 +20,86 @@
  * SOFTWARE.
  */
 
-#include "ObservingBlockDevice.h"
-#include "ReadOnlyBlockDevice.h"
+/** \addtogroup storage */
+/** @{*/
+
+#include "blockdevice/ReadOnlyBlockDevice.h"
+#include "platform/mbed_error.h"
 
 namespace mbed {
 
-ObservingBlockDevice::ObservingBlockDevice(BlockDevice *bd)
+ReadOnlyBlockDevice::ReadOnlyBlockDevice(BlockDevice *bd)
     : _bd(bd)
 {
     // Does nothing
 }
 
-ObservingBlockDevice::~ObservingBlockDevice()
+ReadOnlyBlockDevice::~ReadOnlyBlockDevice()
 {
     // Does nothing
 }
 
-void ObservingBlockDevice::attach(mbed::Callback<void(BlockDevice *)> cb)
-{
-    _change = cb;
-}
-
-int ObservingBlockDevice::init()
+int ReadOnlyBlockDevice::init()
 {
     return _bd->init();
 }
 
-int ObservingBlockDevice::deinit()
+int ReadOnlyBlockDevice::deinit()
 {
     return _bd->deinit();
 }
 
-int ObservingBlockDevice::sync()
+int ReadOnlyBlockDevice::sync()
 {
     return _bd->sync();
 }
 
-int ObservingBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
+int ReadOnlyBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     return _bd->read(buffer, addr, size);
 }
 
-int ObservingBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
+int ReadOnlyBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
-    int res = _bd->program(buffer, addr, size);
-    if (_change) {
-        ReadOnlyBlockDevice dev(_bd);
-        _change(&dev);
-    }
-    return res;
+    return MBED_ERROR_WRITE_PROTECTED;
 }
 
-int ObservingBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int ReadOnlyBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    int res = _bd->erase(addr, size);
-    if (_change) {
-        ReadOnlyBlockDevice dev(_bd);
-        _change(&dev);
-    }
-    return res;
+    return MBED_ERROR_WRITE_PROTECTED;
 }
 
-bd_size_t ObservingBlockDevice::get_read_size() const
+bd_size_t ReadOnlyBlockDevice::get_read_size() const
 {
     return _bd->get_read_size();
 }
 
-bd_size_t ObservingBlockDevice::get_program_size() const
+bd_size_t ReadOnlyBlockDevice::get_program_size() const
 {
     return _bd->get_program_size();
 }
 
-bd_size_t ObservingBlockDevice::get_erase_size() const
+bd_size_t ReadOnlyBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
 }
 
-bd_size_t ObservingBlockDevice::get_erase_size(bd_addr_t addr) const
+bd_size_t ReadOnlyBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     return _bd->get_erase_size(addr);
 }
 
-int ObservingBlockDevice::get_erase_value() const
+int ReadOnlyBlockDevice::get_erase_value() const
 {
     return _bd->get_erase_value();
 }
 
-bd_size_t ObservingBlockDevice::size() const
+bd_size_t ReadOnlyBlockDevice::size() const
 {
     return _bd->size();
 }
 
-const char *ObservingBlockDevice::get_type() const
+const char *ReadOnlyBlockDevice::get_type() const
 {
     if (_bd != NULL) {
         return _bd->get_type();
@@ -121,4 +109,7 @@ const char *ObservingBlockDevice::get_type() const
 }
 
 } // namespace mbed
+
+/** @}*/
+
 
