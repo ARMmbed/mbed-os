@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "FlashSimBlockDevice.h"
+#include "blockdevice/FlashSimBlockDevice.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_atomic.h"
 #include <algorithm>
@@ -230,4 +230,3 @@ const char *FlashSimBlockDevice::get_type() const
 }
 
 } // namespace mbed
-

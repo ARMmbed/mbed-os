@@ -23,7 +23,7 @@
 /** \addtogroup storage */
 /** @{*/
 
-#include "ReadOnlyBlockDevice.h"
+#include "blockdevice/ReadOnlyBlockDevice.h"
 #include "platform/mbed_error.h"
 
 namespace mbed {
@@ -111,5 +111,3 @@ const char *ReadOnlyBlockDevice::get_type() const
 } // namespace mbed
 
 /** @}*/
-
-

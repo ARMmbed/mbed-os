@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-#include "ObservingBlockDevice.h"
-#include "ReadOnlyBlockDevice.h"
+#include "blockdevice/ObservingBlockDevice.h"
+#include "blockdevice/ReadOnlyBlockDevice.h"
 
 namespace mbed {
 
@@ -121,4 +121,3 @@ const char *ObservingBlockDevice::get_type() const
 }
 
 } // namespace mbed
-

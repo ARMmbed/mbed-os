@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "BufferedBlockDevice.h"
+#include "blockdevice/BufferedBlockDevice.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_atomic.h"
 #include <algorithm>

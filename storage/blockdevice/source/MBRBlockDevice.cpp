@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "MBRBlockDevice.h"
+#include "blockdevice/MBRBlockDevice.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_assert.h"
@@ -453,4 +453,3 @@ const char *MBRBlockDevice::get_type() const
 }
 
 } // namespace mbed
-
