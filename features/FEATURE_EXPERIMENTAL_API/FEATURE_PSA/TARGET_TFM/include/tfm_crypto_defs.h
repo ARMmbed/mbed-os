@@ -40,6 +40,7 @@ struct tfm_crypto_pack_iovec {
     uint16_t step;               /*!< Key derivation step */
     psa_key_handle_t key_handle; /*!< Key handle */
     psa_algorithm_t alg;         /*!< Algorithm */
+    psa_algorithm_t alg2;        /*!< Enrollment Algorithm */
     uint32_t op_handle;          /*!< Frontend context handle associated to a
                                   *   multipart operation
                                   */

@@ -24,6 +24,7 @@ from imgtool_lib import image
 from imgtool_lib import version
 import sys
 import macro_parser
+import fileinput
 
 sign_bin_size_re = re.compile(r"^\s*RE_SIGN_BIN_SIZE\s*=\s*(.*)")
 image_load_address_re = re.compile(r"^\s*RE_IMAGE_LOAD_ADDRESS\s*=\s*(.*)")
@@ -126,10 +127,30 @@ def do_sign(args):
 
     img.save(args.outfile)
 
+def do_flash(args):
+    image_value_re = re.compile(r"^\s*"+args.macro+"\s*=\s*(.*)")
+    value = macro_parser.evaluate_macro(args.layout, image_value_re, 0, 1,
+                                        True)
+    if args.setting == 1:
+        begin_line="set "+args.begin
+    else:
+        begin_line=args.begin
+
+    for line in fileinput.input(args.infile, inplace=True):
+        if line.startswith(begin_line):
+            if args.division:
+                value = int(value/int(args.division))
+            if args.phexa == 0:
+                line = begin_line+"="+str(value)+"\n"
+            else:
+                line = begin_line+"="+hex(value)+"\n"
+        sys.stdout.write(line)
+
 subcmds = {
         'keygen': do_keygen,
         'getpub': do_getpub,
-        'sign': do_sign, }
+        'sign': do_sign,
+        'flash': do_flash, }
 
 
 def get_dependencies(text):
@@ -204,6 +225,23 @@ def args():
                       default=False, action='store_true')
     sign.add_argument("infile")
     sign.add_argument("outfile")
+
+    flash = subs.add_parser('flash', help='modify flash script')
+    flash.add_argument("infile")
+    flash.add_argument('-l', '--layout', required=True,
+                      help='Location of the file that contains preprocessed macros')
+    flash.add_argument('-m', '--macro', required =True,
+                      help='macro symbol string to grep in preprocessed file')
+    flash.add_argument('-b', '--begin', required=True,
+                      help='begin of line to replace ')
+    flash.add_argument('-s', '--setting',type=intparse,required=False,default=0,
+                      help='search for window batch set variable')
+    flash.add_argument('-d', '--division',
+                       required=False,type=intparse,default=0,
+                      help='search for window batch set variable')
+    flash.add_argument('-p', '--phexa',
+                       required=False,type=intparse,default=1,
+                      help='print value in hexa')
 
     args = parser.parse_args()
     if args.subcmd is None:
