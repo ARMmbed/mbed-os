@@ -17,7 +17,7 @@
 #ifndef MBED_I2CEEPROM_BLOCK_DEVICE_H
 #define MBED_I2CEEPROM_BLOCK_DEVICE_H
 
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "drivers/I2C.h"
 
 /** BlockDevice for I2C based flash device such as

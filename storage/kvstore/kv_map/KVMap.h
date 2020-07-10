@@ -19,7 +19,7 @@
 #include "storage/kvstore/include/KVStore.h"
 #include "platform/PlatformMutex.h"
 #include "platform/SingletonPtr.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "storage/filesystem/FileSystem.h"
 
 namespace mbed {

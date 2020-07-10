@@ -20,7 +20,7 @@
 
 #include "platform/PlatformMutex.h"
 #include "PinNames.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "drivers/SPI.h"
 #include "drivers/DigitalOut.h"
 

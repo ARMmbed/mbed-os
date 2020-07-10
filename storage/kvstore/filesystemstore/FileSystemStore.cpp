@@ -20,7 +20,7 @@
 #include "storage/kvstore/conf/kv_config.h"
 #include "storage/filesystem/Dir.h"
 #include "storage/filesystem/File.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "mbed_error.h"
 #include <string.h>
 #include <stdio.h>

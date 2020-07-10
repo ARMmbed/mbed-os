@@ -21,7 +21,7 @@
 #include "drivers/SPI.h"
 #include "drivers/DigitalOut.h"
 #include "drivers/internal/SFDP.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 
 #ifndef MBED_CONF_SPIF_DRIVER_SPI_MOSI
 #define MBED_CONF_SPIF_DRIVER_SPI_MOSI NC
