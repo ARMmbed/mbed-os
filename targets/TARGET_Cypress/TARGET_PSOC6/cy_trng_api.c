@@ -21,6 +21,7 @@
 #include <string.h>
 
 #if DEVICE_TRNG
+#ifndef TARGET_TFM_DUALCPU
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,6 +67,8 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif
