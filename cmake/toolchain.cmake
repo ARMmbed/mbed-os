@@ -4,7 +4,7 @@
 # Supported GCC ARM and ARM currently
 # TODO: @mbed-os-tools - this file should be auto generated
 
-if(MBED_OS_TOOLCHAIN STREQUAL "GCC_ARM")
+if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 
 # force cmake compilers
 set(CMAKE_ASM_COMPILER    "arm-none-eabi-gcc")
@@ -21,7 +21,7 @@ set(CMAKE_ASM_FLAGS "-x assembler-with-cpp -Wall -Wextra -Wno-unused-parameter -
 set(CMAKE_CXX_LINK_FLAGS "-Wl,--gc-sections -Wl,--wrap,main -Wl,--wrap,__malloc_r -Wl,--wrap,__free_r -Wl,--wrap,__realloc_r -Wl,--wrap,__memalign_r -Wl,--wrap,__calloc_r -Wl,--wrap,exit -Wl,--wrap,atexit -Wl,-n -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000 -DMBED_BOOT_STACK_SIZE=1024 -DXIP_ENABLE=0 ")
 set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} ${LD_SYS_LIBS} -T ${CMAKE_BINARY_DIR}/app.link_script.ld")
 
-elseif(MBED_OS_TOOLCHAIN STREQUAL "ARM")
+elseif(MBED_TOOLCHAIN STREQUAL "ARM")
 
 # TODO: @mbed tools to pass the processor type
 set(CMAKE_SYSTEM_PROCESSOR    cortex-m4)
