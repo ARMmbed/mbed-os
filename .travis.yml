@@ -43,7 +43,6 @@ after_failure:
 addons:
   apt:
     packages:
-    - cmake
     - ninja-build
 
 matrix:
@@ -110,6 +109,7 @@ matrix:
       name: "CMake blinky example"
       env: NAME=cmake_test
       install:
+        - pip install --upgrade cmake
         - >-
          git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-blinky.git;
          cd mbed-os-example-blinky;
@@ -122,6 +122,7 @@ matrix:
       name: "CMake kvstore example"
       env: NAME=cmake_test
       install:
+        - pip install --upgrade cmake
         - >-
          git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-kvstore.git;
          cd mbed-os-example-kvstore;
