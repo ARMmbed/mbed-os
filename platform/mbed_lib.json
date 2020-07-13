@@ -153,6 +153,18 @@
         "minimal-printf-set-floating-point-max-decimals": {
             "help": "Maximum number of decimals to be printed when using minimal printf library",
             "value": 6
+        },
+        "microlib-replace-64bit-multiply": {
+            "help": "Replace microlib 64x64->64 multiplication routine with faster version from standard ARM library. Greatly increases performance, and saves ROM size.",
+            "value": true
+        },
+        "microlib-replace-32bit-divide": {
+            "help": "Replace microlib 32/32->32 division routines with faster version from standard ARM library. Greatly increases performance, at the cost of size. Turning this off may cause interrupt latency problems due to 32-bit divisions in interrupt routines.",
+            "value": true
+        },
+        "microlib-replace-64bit-divide": {
+            "help": "Replace microlib 64/64->64 division routines with faster version from standard ARM library. Greatly increases performance, at the cost of size. Turning this off may cause interrupt latency problems due to 64-bit divisions in interrupt routines.",
+            "value": true
         }
     },
     "target_overrides": {
