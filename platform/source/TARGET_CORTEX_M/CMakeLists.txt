@@ -3,11 +3,11 @@
 
 
 function(_mbed_set_assembly_source)
-    if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC_ARM")
+    if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         target_sources(mbed-os PRIVATE TOOLCHAIN_GCC/except.S)
-    elseif(${MBED_OS_TOOLCHAIN} STREQUAL "ARM")
+    elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
         target_sources(mbed-os PRIVATE TOOLCHAIN_ARM/except.S)
-    elseif(${MBED_OS_TOOLCHAIN} STREQUAL "IAR")
+    elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         target_sources(mbed-os
             PRIVATE
                 TOOLCHAIN_IAR/except.S
