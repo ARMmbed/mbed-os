@@ -117,6 +117,9 @@ public:
 
     virtual ~QSPI()
     {
+        lock();
+        qspi_free(&_qspi);
+        unlock();
     }
 
     /** Configure the data transmission format
