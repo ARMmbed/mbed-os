@@ -3,7 +3,7 @@
 
 set(CMAKE_SYSTEM_PROCESSOR cortex-m7)
 
-if(MBED_TOOLCHAIN strequal "GCC_ARM")
+if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 
 set(GCC_FLAGS
     -mthumb
@@ -25,7 +25,7 @@ set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS}
     ${GCC_FLAGS}
 )
 
-elseif(MBED_TOOLCHAIN strequal "ARMC6")
+elseif(MBED_TOOLCHAIN STREQUAL "ARMC6")
 
 set(ARM_FLAGS
     --cpu=Cortex-M7.fp.dp
