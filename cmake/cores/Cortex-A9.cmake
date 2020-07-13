@@ -49,10 +49,10 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
 endif()
 
 add_definitions(
-    __CORTEX_A9
-    ARM_MATH_CA9
-    __FPU_PRESENT
-    __CMSIS_RTOS
-    __EVAL
-    __MBED_CMSIS_RTOS_CA9
+    -D__CORTEX_A9
+    -DARM_MATH_CA9
+    -D__FPU_PRESENT
+    -D__CMSIS_RTOS
+    -D__EVAL
+    -D__MBED_CMSIS_RTOS_CA9
 )

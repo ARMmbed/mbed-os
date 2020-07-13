@@ -45,8 +45,8 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
 endif()
 
 add_definitions(
-    __CORTEX_M33
-    ARM_MATH_ARMV8MML
-    __CMSIS_RTOS
-    __MBED_CMSIS_RTOS_CM
+    -D__CORTEX_M33
+    -DARM_MATH_ARMV8MML
+    -D__CMSIS_RTOS
+    -D__MBED_CMSIS_RTOS_CM
 )
