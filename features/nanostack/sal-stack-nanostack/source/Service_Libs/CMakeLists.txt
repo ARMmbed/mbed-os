@@ -37,7 +37,7 @@ target_include_directories(mbed-os
 target_sources(mbed-os
     PRIVATE
         CCM_lib/ccm_security.c
-        CCM_lib/mbedOS/aes_mbedtls.c
+
         CCM_lib/mbedOS/aes_mbedtls_adapter.c
 
         Neighbor_cache/neighbor_cache.c
