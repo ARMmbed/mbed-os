@@ -4,6 +4,7 @@ include(gen_config/CMakeLists.txt)
 include(${MBED_ROOT}/cmake/toolchain.cmake)
 include(${MBED_ROOT}/cmake/env.cmake)
 include(${MBED_ROOT}/cmake/util.cmake)
+include(${MBED_ROOT}/cmake/core.cmake)
 
 # if the environment does not specify build type, set to Debug
 if(NOT CMAKE_BUILD_TYPE)
