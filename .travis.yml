@@ -116,7 +116,8 @@ matrix:
         - >-
          git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-blinky.git;
          cd mbed-os-example-blinky;
-         mkdir -p build_k64f && mkdir -p build_disco_l475
+         mkdir -p build_k64f && mkdir -p build_disco_l475;
+         git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os.git;
       script:
         - cd build_k64f && cmake .. -GNinja -DMBED_TOOLCHAIN=GCC_ARM -DMBED_TARGET=K64F && ninja
         - cd build_disco_l475 && cmake .. -GNinja -DMBED_TOOLCHAIN=GCC_ARM -DMBED_TARGET=DISCO_L475VG_IOT01A && ninja
@@ -132,7 +133,8 @@ matrix:
         - >-
          git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-kvstore.git;
          cd mbed-os-example-kvstore;
-         mkdir -p build_k64f && mkdir -p build_disco_l475
+         mkdir -p build_k64f && mkdir -p build_disco_l475;
+         git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os.git;
       script:
         - cd build_k64f && cmake .. -GNinja -DMBED_TOOLCHAIN=GCC_ARM -DMBED_TARGET=K64F && ninja
         - cd build_disco_l475 && cmake .. -GNinja -DMBED_TOOLCHAIN=GCC_ARM -DMBED_TARGET=DISCO_L475VG_IOT01A && ninja
