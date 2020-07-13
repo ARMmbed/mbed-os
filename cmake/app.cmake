@@ -1,13 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Set cached global first
-# TODO: @mbed-os-tools - toolchain should come from tools
-set(MBED_TOOLCHAIN "GCC_ARM" CACHE STRING "")
-# TODO: @mbed-os-tools - target should come from tools
-set(MBED_TARGET "K64F" CACHE STRING "")
-
+include(gen_config/CMakeLists.txt)
 include(${MBED_ROOT}/cmake/toolchain.cmake)
-include(${MBED_ROOT}/cmake/target.cmake)
 include(${MBED_ROOT}/cmake/env.cmake)
 include(${MBED_ROOT}/cmake/util.cmake)
 
@@ -23,9 +17,6 @@ add_executable(app)
 
 # Include Mbed OS main cmake
 add_subdirectory(mbed-os)
-
-# Include project configuration
-add_subdirectory(gen_config)
 
 # Link the example libs
 target_link_libraries(app mbed-os gen_config)
