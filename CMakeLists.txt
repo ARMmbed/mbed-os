@@ -32,7 +32,7 @@ add_subdirectory(features)
 add_subdirectory(components)
 
 # Add additional component
-get_property(component GLOBAL PROPERTY MBED_OS_COMPONENT)
+get_property(component GLOBAL PROPERTY MBED_COMPONENT)
 
 foreach(module ${component})
     add_subdirectory(${module})
