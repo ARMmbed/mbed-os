@@ -107,7 +107,7 @@ matrix:
 
     - &cmake-build-test
       stage: "CMake"
-      name: "CMake blinky example k64f"
+      name: "CMake blinky example"
       env: NAME=cmake_test
       install:
         - >-
@@ -119,7 +119,7 @@ matrix:
         - cd build_disco_l475 && cmake .. -GNinja -DMBED_TOOLCHAIN=GCC_ARM -DMBED_TARGET=DISCO_L475VG_IOT01A && ninja
 
     - <<: *cmake-build-test
-      name: "CMake storage example"
+      name: "CMake kvstore example"
       env: NAME=cmake_test
       install:
         - >-
