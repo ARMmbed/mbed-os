@@ -6,7 +6,7 @@ target_sources(mbed-os
         irq_ctrl_gic.c
 )
 
-if(${MBED_OS_TOOLCHAIN} STREQUAL "IAR")
+if(${MBED_TOOLCHAIN} STREQUAL "IAR")
     target_sources(mbed-os
         PRIVATE
             TOOLCHAIN_IAR/cmain.S

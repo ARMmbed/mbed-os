@@ -10,17 +10,17 @@ target_sources(mbed-os PRIVATE
 
 add_subdirectory(rtx5)
 
-if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC_ARM")
+if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     target_sources(mbed-os
         PRIVATE
             TOOLCHAIN_GCC_ARM/mbed_boot_gcc_arm.c
     )
-elseif(${MBED_OS_TOOLCHAIN} STREQUAL "ARM")
+elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     target_sources(mbed-os
         PRIVATE
         TOOLCHAIN_ARM_STD/mbed_boot_arm_std.c
     )
-elseif(${MBED_OS_TOOLCHAIN} STREQUAL "IAR")
+elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
     target_sources(mbed-os
         PRIVATE
             TOOLCHAIN_IAR/mbed_boot_iar.c
