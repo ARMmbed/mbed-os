@@ -11,6 +11,7 @@ target_sources(mbed-os
         lwip/src/api/lwip_netifapi.c
         lwip/src/api/lwip_sockets.c
         lwip/src/api/lwip_tcpip.c
+
         lwip/src/core/ipv4/lwip_autoip.c
         lwip/src/core/ipv4/lwip_dhcp.c
         lwip/src/core/ipv4/lwip_etharp.c
@@ -19,6 +20,7 @@ target_sources(mbed-os
         lwip/src/core/ipv4/lwip_ip4.c
         lwip/src/core/ipv4/lwip_ip4_addr.c
         lwip/src/core/ipv4/lwip_ip4_frag.c
+
         lwip/src/core/ipv6/lwip_dhcp6.c
         lwip/src/core/ipv6/lwip_ethip6.c
         lwip/src/core/ipv6/lwip_icmp6.c
@@ -28,6 +30,7 @@ target_sources(mbed-os
         lwip/src/core/ipv6/lwip_ip6_frag.c
         lwip/src/core/ipv6/lwip_mld6.c
         lwip/src/core/ipv6/lwip_nd6.c
+
         lwip/src/core/lwip_altcp.c
         lwip/src/core/lwip_altcp_alloc.c
         lwip/src/core/lwip_altcp_tcp.c
@@ -48,13 +51,13 @@ target_sources(mbed-os
         lwip/src/core/lwip_tcp_out.c
         lwip/src/core/lwip_timeouts.c
         lwip/src/core/lwip_udp.c
+
         lwip/src/netif/lwip_bridgeif.c
         lwip/src/netif/lwip_bridgeif_fdb.c
         lwip/src/netif/lwip_ethernet.c
         lwip/src/netif/lwip_lowpan6.c
         lwip/src/netif/lwip_lowpan6_ble.c
         lwip/src/netif/lwip_lowpan6_common.c
-        lwip/src/netif/lwip_slipif.c
         lwip/src/netif/lwip_zepif.c
 
         lwip-sys/arch/lwip_checksum.c
