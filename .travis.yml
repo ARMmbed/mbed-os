@@ -40,6 +40,11 @@ after_success:
 after_failure:
   - set_status "failure" "Test failed."
 
+addons:
+  apt:
+    packages:
+    - cmake
+    - ninja-build
 
 matrix:
   include:
@@ -100,6 +105,26 @@ matrix:
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
               ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
 
+    - &cmake-build-test
+      stage: "CMake"
+      name: "CMake blinky example k64f"
+      env: NAME=cmake_test
+      install:
+        - >-
+         git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-blinky.git
+         cd mbed-os-example-blinky && mkdir build && cd build
+      script:
+        - cmake .. -GNinja -DMBED_TOOLCHAIN=GCC_ARM -DMBED_TARGET=K64F && ninja
+
+    - <<: *cmake-build-test
+      name: "CMake storage example"
+      env: NAME=cmake_test
+      install:
+        - >-
+         git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-kvstore.git
+         cd mbed-os-example-kvstore && mkdir build && cd build
+      script:
+        - cmake .. -GNinja -DMBED_TOOLCHAIN=GCC_ARM -DMBED_TARGET=DISCO_L475VG_IOT01A && ninja
 
     ### Docs Tests ###
     - &docs-vm
