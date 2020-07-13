@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 function(_mbed_get_rtx_assembly TOOLCHAIN_DIR)
-    get_property(target_labels GLOBAL PROPERTY MBED_OS_TARGET_LABELS)
+    get_property(target_labels GLOBAL PROPERTY MBED_TARGET_LABELS)
     foreach(key ${target_labels})
         if(${key} STREQUAL CORTEX_A)
             set(STARTUP_RTX_FILE TARGET_CORTEX_A/irq_ca.S)
@@ -23,7 +23,7 @@ function(_mbed_get_rtx_assembly TOOLCHAIN_DIR)
 endfunction()
 
 function(_mbed_add_cortexa_handler_if)
-    get_property(target_labels GLOBAL PROPERTY MBED_OS_TARGET_LABELS)
+    get_property(target_labels GLOBAL PROPERTY MBED_TARGET_LABELS)
     foreach(key ${target_labels})
         if(${key} STREQUAL CORTEX_A)
             target_sources(mbed-os PRIVATE RTX/Config/TARGET_CORTEX_A/handlers.c)
