@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+set(CMAKE_SYSTEM_PROCESSOR cortex-m0plus)
+
 if(MBED_TOOLCHAIN strequal "GCC_ARM")
 
 set(GCC_FLAGS
