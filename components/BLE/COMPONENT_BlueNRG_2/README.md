@@ -1,19 +1,19 @@
 # BlueNRG_2
 
-BLE API wrapper Library for BlueNRG_2 (Bluetooth Low Energy)
+HCI driver for BlueNRG_2 BLE component
 
 A simple table like this could help:
 
 |Module Name|Processor Name|Bluetooth compliance|Status|Used in shields & boards|Link|
 |-------------|-----------|-----|-|-|-|
 |SPBTLE-RF    |BlueNRG-MS (network processor) |v4.1 |Not recommended for new designs             |X-NUCLEO-IDB05A1, DISCO-L475VG-IOT01A, DISCO-L562QE | https://www.st.com/en/wireless-transceivers-mcus-and-modules/spbtle-rf.html |
-|BlueNRG-M0   |BlueNRG-MS (network processor) |v4.2 |Active (included in ST's Longevity Program) |X-NUCLEO-IDB05A2 (coming soon) | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m0.html |
+|BlueNRG-M0   |BlueNRG-MS (network processor) |v4.2 |Active (included in ST's Longevity Program) |X-NUCLEO-IDB05A2 | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m0.html |
 |BlueNRG-M2SP |BlueNRG-2 (application processor) |v5.0 |Active (included in ST's Longevity Program) |X-NUCLEO-BNRG2A1 | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m2.html |
 
 
 The library uses ARM Cordio stack. It does not work with the stock firmware that is loaded in the BLE module of the X-NUCLEO-BNRG2A1 expansion board.
 
-In order to use this library with X-NUCLEO-BNRG2A1, you need to update the firmware of the BLUENRG-M2SP BLE module mounted on that expansion board as described in the following page:
+In order to use this library with X-NUCLEO-BNRG2A1, you need to replace the firmware of the BLUENRG-M2SP BLE module mounted on that expansion board as described in the following page:
 
 [TODO BlueNRG-2](https://os.mbed.com/components/X-NUCLEO-BNRG2A1/)
 
