@@ -149,12 +149,12 @@
                     {
                         "type": "BOOT",
                         "address": 268763136,
-                        "size": 1146880
+                        "size": 1179648
                     },
                     {
                         "type": "UPGRADE",
                         "address": 402653184,
-                        "size": 1146880
+                        "size": 1179648
                     }
                 ]
             }
@@ -177,7 +177,7 @@
     "provisioning":
     {
         "packet_dir": "../packets",
-        "chain_of_trust": []
+        "chain_of_trust": ["../certificates/device_cert.pem", "../certificates/rootCA.pem"]
     },
     "pre_build": {
         "oem_public_key": "../keys/oem_state.json",
@@ -204,15 +204,15 @@
         "its":
         {
             "offset": 1835008,
-            "size": 16384,
-            "num_assets": 10,
+            "size": 4096,
+            "num_assets": 8,
             "max_asset_size": 512
         },
         "sst":
         {
-            "offset": 1851392,
-            "size": 20480,
-            "num_assets": 10,
+            "offset": 1839104,
+            "size": 32768,
+            "num_assets": 35,
             "max_asset_size": 2008
         }
     }
