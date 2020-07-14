@@ -46,6 +46,8 @@
 
 #define ACI_READ_CONFIG_DATA_OPCODE     0xFC0D
 #define ACI_WRITE_CONFIG_DATA_OPCODE    0xFC0C
+#define ACI_GATT_INIT_OPCODE            0xFD01
+#define ACI_GAP_INIT_OPCODE             0xFC8A
 
 #define PUBLIC_ADDRESS_OFFSET           0x00
 #define RANDOM_STATIC_ADDRESS_OFFSET    0x80
@@ -125,9 +127,17 @@ public:
                 case HCI_OPCODE_RESET: {
                     /* initialize rand command count */
                     randCnt = 0;
-                    aciReadConfigParameter(RANDOM_STATIC_ADDRESS_OFFSET);
+                    aciGattInit();
                 }
                 break;
+
+                case ACI_GATT_INIT_OPCODE:
+                    aciGapInit();
+                    break;
+
+                case ACI_GAP_INIT_OPCODE:
+                    aciReadConfigParameter(RANDOM_STATIC_ADDRESS_OFFSET);
+                    break;
 
                 case ACI_READ_CONFIG_DATA_OPCODE:
                     // note: will send the HCI command to send the random address
@@ -261,6 +271,27 @@ public:
     }
 
 private:
+
+    void aciGattInit()
+    {
+        uint8_t *pBuf = hciCmdAlloc(ACI_GATT_INIT_OPCODE, 0);
+        if (!pBuf) {
+            return;
+        }
+        hciCmdSend(pBuf);
+    }
+
+    void aciGapInit()
+    {
+        uint8_t *pBuf = hciCmdAlloc(ACI_GAP_INIT_OPCODE, 3);
+        if (!pBuf) {
+            return;
+        }
+        pBuf[3] = 0xF;
+        pBuf[4] = 0;
+        pBuf[5] = 0;
+        hciCmdSend(pBuf);
+    }
 
     void aciReadConfigParameter(uint8_t offset)
     {
