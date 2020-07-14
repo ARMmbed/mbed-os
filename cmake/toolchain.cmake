@@ -47,9 +47,8 @@ set(_compile_definitions
 )
 
 set(_compile_definitions 
-    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D$<SEMICOLON>>$<SEMICOLON>>"
+    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, ,-D,>>"
 )
-
 
 set(CMAKE_ASM_FLAGS
     "--cpu=Cortex-M4 --cpreproc --cpreproc_opts=--target=arm-arm-none-eabi,${_compile_definitions}"
