@@ -47,7 +47,7 @@ set(_compile_definitions
 )
 
 set(_compile_definitions 
-    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
+    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}\,\", \"-D,>>"
 )
 
 function(generate_compile_definitions _filename)
