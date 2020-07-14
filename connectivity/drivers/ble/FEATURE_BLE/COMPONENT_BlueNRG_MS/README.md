@@ -1,13 +1,13 @@
 # BlueNRG_MS
 
-BLE API wrapper Library for BlueNRG (Bluetooth Low Energy)
+HCI driver for BlueNRG_MS BLE component
 
 A simple table like this could help:
 
 |Module Name|Processor Name|Bluetooth compliance|Status|Used in shields & boards|Link|
 |-------------|-----------|-----|-|-|-|
 |SPBTLE-RF    |BlueNRG-MS (network processor) |v4.1 |Not recommended for new designs             |X-NUCLEO-IDB05A1, DISCO-L475VG-IOT01A, DISCO-L562QE | https://www.st.com/en/wireless-transceivers-mcus-and-modules/spbtle-rf.html |
-|BlueNRG-M0   |BlueNRG-MS (network processor) |v4.2 |Active (included in ST's Longevity Program) |X-NUCLEO-IDB05A2 (coming soon) | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m0.html |
+|BlueNRG-M0   |BlueNRG-MS (network processor) |v4.2 |Active (included in ST's Longevity Program) |X-NUCLEO-IDB05A2 | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m0.html |
 |BlueNRG-M2SP |BlueNRG-2 (application processor) |v5.0 |Active (included in ST's Longevity Program) |X-NUCLEO-BNRG2A1 | https://www.st.com/en/wireless-transceivers-mcus-and-modules/bluenrg-m2.html |
 
 
