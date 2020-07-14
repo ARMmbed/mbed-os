@@ -149,12 +149,12 @@
                     {
                         "type": "BOOT",
                         "address": 268763136,
-                        "size": 1179648
+                        "size": 1146880
                     },
                     {
                         "type": "UPGRADE",
                         "address": 402653184,
-                        "size": 1179648
+                        "size": 1146880
                     }
                 ]
             }

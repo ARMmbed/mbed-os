@@ -25,7 +25,8 @@
  * Flash layout if BL2 not defined:
  *
  * 0x1000_0000 Secure     image primary (320 KB)
- * 0x1005_0000 Non-secure image primary (1152 KB)
+ * 0x1005_0000 Non-secure image primary (1120 KB)
+ * 0x1016_8000 Non-secure KV Storage (32 KB)
  * 0x1017_0000 Secure     image secondary (320 KB)
  * 0x101c_0000 - 0x101f_ffff Reserved
  *  0x101c_0000 Internal Trusted Storage Area (16 KB)
@@ -49,7 +50,7 @@
 /* The size of S partition */
 #define FLASH_S_PARTITION_SIZE          0x50000      /* 320 KB */
 /* The size of NS partition */
-#define FLASH_NS_PARTITION_SIZE         0x120000     /* 1152 KB */
+#define FLASH_NS_PARTITION_SIZE         0x118000     /* 1120 KB */
 
 /* Sector size of the flash hardware; same as FLASH0_SECTOR_SIZE */
 #define FLASH_AREA_IMAGE_SECTOR_SIZE    (0x200)      /* 512 B */
