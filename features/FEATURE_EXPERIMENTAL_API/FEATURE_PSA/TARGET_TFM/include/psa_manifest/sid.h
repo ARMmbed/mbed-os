@@ -134,24 +134,6 @@ extern "C" {
 #define TFM_PS_TEST_PREPARE_SID                                    (0x0000F0C0U)
 #define TFM_PS_TEST_PREPARE_VERSION                                (1U)
 
-/******** TFM_SP_PSOC_SERVICE_TEST ********/
-#define PSOC_SERVICE_TEST_PSA_INIT_WD_SID                          (0x00002001U)
-#define PSOC_SERVICE_TEST_PSA_INIT_WD_VERSION                      (1U)
-#define PSOC_SERVICE_TEST_PSA_POKE_WD_SID                          (0x00002002U)
-#define PSOC_SERVICE_TEST_PSA_POKE_WD_VERSION                      (1U)
-#define PSOC_SERVICE_TEST_PSA_KILL_WD_SID                          (0x00002003U)
-#define PSOC_SERVICE_TEST_PSA_KILL_WD_VERSION                      (1U)
-#define PSOC_SERVICE_TEST_PSA_WRITE_FLASH_SID                      (0x00002004U)
-#define PSOC_SERVICE_TEST_PSA_WRITE_FLASH_VERSION                  (1U)
-#define PSOC_SERVICE_TEST_PSA_READ_FLASH_SID                       (0x00002005U)
-#define PSOC_SERVICE_TEST_PSA_READ_FLASH_VERSION                   (1U)
-#define PSOC_SERVICE_TEST_PSA_GET_REBOOT_REASON_SID                (0x00002006U)
-#define PSOC_SERVICE_TEST_PSA_GET_REBOOT_REASON_VERSION            (1U)
-
-/******** TFM_PSOC_CLIENT_TEST ********/
-#define PSOC_CLIENT_TEST_LVL2_SID                                  (0x00002000U)
-#define PSOC_CLIENT_TEST_LVL2_VERSION                              (1U)
-
 /******** TFM_SP_SECURE_CLIENT_2 ********/
 #define TFM_SECURE_CLIENT_2_SID                                    (0x0000F0E0U)
 #define TFM_SECURE_CLIENT_2_VERSION                                (1U)
