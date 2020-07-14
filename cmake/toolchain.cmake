@@ -40,9 +40,21 @@ set(CMAKE_C_FLAGS
 set(CMAKE_CXX_FLAGS
     "--target=arm-arm-none-eabi -mthumb -g -O1 -Wno-armcc-pragma-push-pop -Wno-armcc-pragma-anon-unions -Wno-reserved-user-defined-literal -Wno-deprecated-register -DMULADDC_CANNOT_USE_R7 -fdata-sections -fno-exceptions -fshort-enums -fshort-wchar -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -fno-rtti -fno-c++-static-destructors -std=gnu++14 -mfpu=none -mcpu=cortex-m4 -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000 "
 )
-set(CMAKE_ASM_FLAGS
-    "--cpu=Cortex-M4 --cpreproc --cpreproc_opts=--target=arm-arm-none-eabi,-D,__FPU_PRESENT"
+
+# Get compile definitions - we need them for armasm to pass via cpreproc
+set(_compile_definitions 
+    "$<TARGET_PROPERTY:mbed-os,COMPILE_DEFINITIONS>"
 )
+
+set(_compile_definitions 
+    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D$<SEMICOLON>>$<SEMICOLON>>"
+)
+
+
+set(CMAKE_ASM_FLAGS
+    "--cpu=Cortex-M4 --cpreproc --cpreproc_opts=--target=arm-arm-none-eabi,${_compile_definitions}"
+)
+
 set(CMAKE_CXX_LINK_FLAGS
     "--verbose --remove --show_full_path --legacyalign --any_contingency --keep=os_cb_sections --predefine=-DMBED_ROM_START=0x0 --predefine=-DMBED_ROM_SIZE=0x100000 --predefine=-DMBED_RAM1_START=0x1fff0000 --predefine=-DMBED_RAM1_SIZE=0x10000 --predefine=-DMBED_RAM_START=0x20000000 --predefine=-DMBED_RAM_SIZE=0x30000 --predefine=-DMBED_BOOT_STACK_SIZE=1024 --predefine=-DXIP_ENABLE=0"
 )
