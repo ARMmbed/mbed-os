@@ -47,11 +47,18 @@ set(_compile_definitions
 )
 
 set(_compile_definitions 
-    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, ,-D,>>"
+    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
 )
 
+function(generate_compile_definitions _filename)
+  file(GENERATE OUTPUT "${_filename}" CONTENT "${_compile_definitions}\n")
+endfunction()
+
+generate_compile_definitions("compile_time_defs.txt")
+set(_asm_macros "@compile_time_defs.txt")
+
 set(CMAKE_ASM_FLAGS
-    "--cpu=Cortex-M4 --cpreproc --cpreproc_opts=--target=arm-arm-none-eabi,${_compile_definitions}"
+    "--cpu=Cortex-M4 --cpreproc --cpreproc_opts=--target=arm-arm-none-eabi,${_asm_macros}"
 )
 
 set(CMAKE_CXX_LINK_FLAGS
