@@ -40,7 +40,7 @@ struct psa_client_key_attributes_s
     uint16_t bits;
 };
 
-#define PSA_CLIENT_KEY_ATTRIBUTES_INIT {0, 0, 0, 0, 0, 0}
+#define PSA_CLIENT_KEY_ATTRIBUTES_INIT {0, 0, 0, 0, 0, 0, 0}
 
 #ifdef __cplusplus
 }
