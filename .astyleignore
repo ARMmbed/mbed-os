@@ -1,5 +1,6 @@
 ^BUILD
 ^cmsis
+^connectivity/libraries/mbed-coap
 ^features/cryptocell
 ^features/FEATURE_BLE
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
