@@ -23,7 +23,7 @@
 #ifndef RTOS_HANDLERS_H
 #define RTOS_HANDLERS_H
 
-#include "rtos/internal/mbed_rtos_types.h"
+#include "rtos/mbed_rtos_types.h"
 
 #ifdef __cplusplus
 extern "C" {

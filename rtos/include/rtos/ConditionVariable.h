@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 #include <utility>
-#include "rtos/internal/mbed_rtos_types.h"
+#include "rtos/mbed_rtos_types.h"
 #include "rtos/Mutex.h"
 #include "rtos/Semaphore.h"
 #include "rtos/Kernel.h"

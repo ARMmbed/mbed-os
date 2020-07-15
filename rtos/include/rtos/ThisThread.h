@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include "platform/mbed_toolchain.h"
 #include "rtos/Kernel.h"
-#include "rtos/internal/mbed_rtos_types.h"
+#include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
 /** \addtogroup rtos-public-api */
