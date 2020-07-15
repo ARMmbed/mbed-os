@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Dir.h"
+#include "filesystem/Dir.h"
 #include <errno.h>
 
 namespace mbed {

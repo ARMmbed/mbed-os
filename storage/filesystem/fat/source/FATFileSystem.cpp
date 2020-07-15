@@ -19,12 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "storage/filesystem/fat/ChaN/diskio.h"
-#include "storage/filesystem/fat/ChaN/ffconf.h"
-#include "storage/filesystem/fat/ChaN/ff.h"
+#include "fat/ChaN/diskio.h"
+#include "fat/ChaN/ffconf.h"
+#include "fat/ChaN/ff.h"
 #include "platform/mbed_debug.h"
 #include "platform/mbed_critical.h"
-#include "storage/filesystem/mbed_filesystem.h"
+#include "filesystem/mbed_filesystem.h"
 #include "FATFileSystem.h"
 
 #include <errno.h>

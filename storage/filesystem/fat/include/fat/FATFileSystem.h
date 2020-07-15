@@ -26,7 +26,7 @@
 #ifndef MBED_FATFILESYSTEM_H
 #define MBED_FATFILESYSTEM_H
 
-#include "storage/filesystem/FileSystem.h"
+#include "filesystem/FileSystem.h"
 #include "blockdevice/BlockDevice.h"
 #include "FileHandle.h"
 #include <stdint.h>
