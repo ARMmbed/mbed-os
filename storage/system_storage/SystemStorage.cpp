@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 #include "blockdevice/BlockDevice.h"
-#include "storage/filesystem/FileSystem.h"
-#include "storage/filesystem/fat/FATFileSystem.h"
-#include "storage/filesystem/littlefs/LittleFileSystem.h"
+#include "filesystem/FileSystem.h"
+#include "fat/FATFileSystem.h"
+#include "littlefs/LittleFileSystem.h"
 #include "mbed_error.h"
 
 
