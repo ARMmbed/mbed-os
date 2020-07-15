@@ -20,7 +20,7 @@
 #include "platform/PlatformMutex.h"
 #include "platform/SingletonPtr.h"
 #include "blockdevice/BlockDevice.h"
-#include "storage/filesystem/FileSystem.h"
+#include "filesystem/FileSystem.h"
 
 namespace mbed {
 
