@@ -11,10 +11,10 @@ set(unittest-includes ${unittest-includes}
 set(unittest-sources
   ../storage/blockdevice/source/HeapBlockDevice.cpp
   ../storage/kvstore/filesystemstore/FileSystemStore.cpp
-  ../storage/filesystem/littlefs/LittleFileSystem.cpp
-  ../storage/filesystem/Dir.cpp
-  ../storage/filesystem/File.cpp
-  ../storage/filesystem/FileSystem.cpp
+  ../storage/filesystem/littlefs/source/LittleFileSystem.cpp
+  ../storage/filesystem/source/Dir.cpp
+  ../storage/filesystem/source/File.cpp
+  ../storage/filesystem/source/FileSystem.cpp
   ../features/frameworks/mbed-trace/source/mbed_trace.c
   ../storage/filesystem/littlefs/littlefs/lfs_util.c
   ../storage/filesystem/littlefs/littlefs/lfs.c
