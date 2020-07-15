@@ -12,9 +12,6 @@ set(unittest-includes ${unittest-includes}
 )
 
 set(unittest-sources
-    ../storage/filesystem/Dir.cpp
-    ../storage/filesystem/FileSystem.cpp
-    ../storage/filesystem/File.cpp
     ../storage/kvstore/global_api/kvstore_global_api.cpp
     ../storage/kvstore/securestore/SecureStore.cpp
     ../storage/kvstore/kv_map/KVMap.cpp

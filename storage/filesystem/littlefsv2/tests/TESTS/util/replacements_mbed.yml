@@ -4,14 +4,14 @@
 - ['lfs2_mkdir\(&lfs2, (.*)\)', 'fs.mkdir(\1, 0777)']
 - ['lfs2_remove\(&lfs2, (.*)\)', 'fs.remove(\1)']
 - ['lfs2_rename\(&lfs2, (.*), ?(.*)\)', 'fs.rename(\1, \2)']
- 
+
 - ['lfs2_dir_open\(&lfs2, &dir\[(.*)\], ?(.*)\)', 'dir[\1].open(&fs, \2)']
 - ['lfs2_dir_close\(&lfs2, &dir\[(.*)\]\)', 'dir[\1].close()']
 - ['lfs2_dir_read\(&lfs2, &dir\[(.*)\], &info\)', 'dir[\1].read(&ent)']
 - ['lfs2_dir_seek\(&lfs2, &dir\[(.*)\], ?(.*)\).*;', 'dir[\1].seek(\2);'] # no dir errors
 - ['lfs2_dir_rewind\(&lfs2, &dir\[(.*)\]\).*;', 'dir[\1].rewind();'] # no dir errors
 - ['lfs2_dir_tell\(&lfs2, &dir\[(.*)\]\)', 'dir[\1].tell()']
- 
+
 - ['lfs2_file_open\(&lfs2, &file\[(.*)\], ?(.*)\)', 'file[\1].open(&fs, \2)']
 - ['lfs2_file_close\(&lfs2, &file\[(.*)\]\)', 'file[\1].close()']
 - ['lfs2_file_sync\(&lfs2, &file\[(.*)\]\)', 'file[\1].sync()']
@@ -21,7 +21,7 @@
 - ['lfs2_file_tell\(&lfs2, &file\[(.*)\]\)', 'file[\1].tell()']
 - ['lfs2_file_rewind\(&lfs2, &file\[(.*)\]\).*;', 'file[\1].rewind();'] # no errors
 - ['lfs2_file_size\(&lfs2, &file\[(.*)\]\)', 'file[\1].size()']
- 
+
 - ['LFS2_TYPE_([A-Z]+)', 'DT_\1']
 - ['LFS2_O_([A-Z]+)', 'O_\1']
 - ['LFS2_SEEK_([A-Z]+)', 'SEEK_\1']

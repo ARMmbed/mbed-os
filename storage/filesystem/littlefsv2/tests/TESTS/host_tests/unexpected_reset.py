@@ -22,7 +22,7 @@ from time import sleep
 
 class UnexpectedResetTest(BaseHostTest):
     """This test checks that a device's RTC keeps count through a reset
-    
+
     It does this by setting the RTC's time, triggering a reset,
     delaying and then reading the RTC's time again to ensure
     that the RTC is still counting.
@@ -58,7 +58,7 @@ class UnexpectedResetTest(BaseHostTest):
 
     def unexpected_reset_test(self):
         """Generator for running the reset test
-        
+
         This function calls yield to wait for the next event from
         the device. If the device gives the wrong response, then the
         generator terminates by returing which raises a StopIteration
@@ -100,4 +100,3 @@ class UnexpectedResetTest(BaseHostTest):
         self.send_kv("exit", "pass")
 
         yield    # No more events expected
-
