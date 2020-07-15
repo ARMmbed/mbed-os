@@ -27,6 +27,10 @@
 /*  Family specific include for WB with HW semaphores */
 #include "hw.h"
 #include "hw_conf.h"
+#include "shci.h"
+
+/* Used in HCIDriver.cpp/stm32wb_start_ble() */
+int BLE_inited = 0;
 
 /**
   * @brief  Gets the page of a given address
@@ -71,47 +75,82 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     uint32_t PAGEError = 0;
     FLASH_EraseInitTypeDef EraseInitStruct;
     int32_t status = 0;
+    uint32_t cpu1_sem_status = 1;
+    uint32_t cpu2_sem_status = 1;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return -1;
     }
 
-#if defined(CFG_HW_FLASH_SEMID)
-    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    /*  Flash IP semaphore */
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID));
-#endif
 
     /* Unlock the Flash to enable the flash control register access */
     if (HAL_FLASH_Unlock() != HAL_OK) {
         return -1;
     }
 
-    /* Clear OPTVERR bit set on virgin samples */
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
+    if (BLE_inited) {
+        /*
+        *  Notify the CPU2 that some flash erase activity may be executed
+        *  On reception of this command, the CPU2 enables the BLE timing protection versus flash erase processing
+        *  The Erase flash activity will be executed only when the BLE RF is idle for at least 25ms
+        *  The CPU2 will prevent all flash activity (write or erase) in all cases when the BL RF Idle is shorter than 25ms.
+        */
+        SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
+    }
 
-    /* Get the page number associated to the address */
-    PageNumber = GetPage(address);
+    do {
+        /* PESD bit mechanism used by M0+ to protect its timing */
+        while (LL_FLASH_IsActiveFlag_OperationSuspended());
 
-    /* MBED HAL erases 1 page at a time */
-    EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
-    EraseInitStruct.Page      = PageNumber;
-    EraseInitStruct.NbPages   = 1;
+        core_util_critical_section_enter();
 
-    /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
-     you have to make sure that these data are rewritten before they are accessed during code
-     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
-     DCRST and ICRST bits in the FLASH_CR register. */
-    if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
-        status = -1;
+        /*  Trying to access the flash can stall BLE */
+        /*  Use this semaphore to check M0+ activity */
+        cpu1_sem_status = LL_HSEM_GetStatus(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU1_SEMID);
+        if (cpu1_sem_status == 0) {
+
+            /*  When flash processing is ongoing, the second CPU cannot access the flash anymore */
+            cpu2_sem_status = LL_HSEM_1StepLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID);
+
+            if (cpu2_sem_status == 0) {
+                /* Clear OPTVERR bit set on virgin samples */
+                __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
+
+                /* Get the page number associated to the address */
+                PageNumber = GetPage(address);
+                EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
+                EraseInitStruct.Page      = PageNumber;
+                EraseInitStruct.NbPages   = 1;
+
+                if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
+                    status = -1;
+                }
+
+                LL_HSEM_ReleaseLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID, 0);
+            }
+        }
+
+        core_util_critical_section_exit();
+    } while ((cpu2_sem_status) || (cpu1_sem_status));
+
+    while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_CFGBSY));
+
+    if (BLE_inited) {
+        /**
+         *  Notify the CPU2 there will be no request anymore to erase the flash
+         *  On reception of this command, the CPU2 disables the BLE timing protection versus flash erase processing
+         */
+        SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
     }
 
     /* Lock the Flash to disable the flash control register access (recommended
        to protect the FLASH memory against possible unwanted operation) */
     HAL_FLASH_Lock();
 
-#if defined(CFG_HW_FLASH_SEMID)
+    /*  Flash IP semaphore */
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, 0);
-#endif
 
     return status;
 }
@@ -131,6 +170,8 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 {
     uint32_t StartAddress = 0;
     int32_t status = 0;
+    uint32_t cpu1_sem_status = 1;
+    uint32_t cpu2_sem_status = 1;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return -1;
@@ -140,51 +181,73 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         return -1;
     }
 
-#if defined(CFG_HW_FLASH_SEMID)
-    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    /*  Flash IP semaphore */
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID));
-#endif
 
     /* Unlock the Flash to enable the flash control register access */
     if (HAL_FLASH_Unlock() != HAL_OK) {
         return -1;
     }
 
-    /* Program the user Flash area word by word */
-    StartAddress = address;
+    do {
+        /* PESD bit mechanism used by M0+ to protect its timing */
+        while (LL_FLASH_IsActiveFlag_OperationSuspended());
 
-    /*  HW needs an aligned address to program flash, which data parameters doesn't ensure */
-    if ((uint32_t) data % 8 != 0) { // Data is not aligned, copy data in a temp buffer before programming it
-        volatile uint64_t data64;
-        while ((address < (StartAddress + size)) && (status == 0)) {
-            for (uint8_t i = 0; i < 8; i++) {
-                *(((uint8_t *) &data64) + i) = *(data + i);
-            }
-            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data64) == HAL_OK) {
-                address = address + 8;
-                data = data + 8;
-            } else {
-                status = -1;
+        core_util_critical_section_enter();
+
+        /*  Trying to access the flash can stall BLE */
+        /*  Use this semaphore to check M0+ activity */
+        cpu1_sem_status = LL_HSEM_GetStatus(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU1_SEMID);
+        if (cpu1_sem_status == 0) {
+
+            /*  When flash processing is ongoing, the second CPU cannot access the flash anymore */
+            cpu2_sem_status = LL_HSEM_1StepLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID);
+
+            if (cpu2_sem_status == 0) {
+
+                /* Program the user Flash area word by word */
+                StartAddress = address;
+
+                /*  HW needs an aligned address to program flash, which data parameters doesn't ensure */
+                if ((uint32_t) data % 8 != 0) { // Data is not aligned, copy data in a temp buffer before programming it
+                    volatile uint64_t data64;
+                    while ((address < (StartAddress + size)) && (status == 0)) {
+                        for (uint8_t i = 0; i < 8; i++) {
+                            *(((uint8_t *) &data64) + i) = *(data + i);
+                        }
+                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data64) == HAL_OK) {
+                            address = address + 8;
+                            data = data + 8;
+                        } else {
+                            status = -1;
+                        }
+                    }
+                } else { // Data is aligned, so let's avoid any copy
+                    while ((address < (StartAddress + size)) && (status == 0)) {
+                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, *((uint64_t *) data)) == HAL_OK) {
+                            address = address + 8;
+                            data = data + 8;
+                        } else {
+                            status = -1;
+                        }
+                    }
+                }
+
+                LL_HSEM_ReleaseLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID, 0);
             }
         }
-    } else { // Data is aligned, so let's avoid any copy
-        while ((address < (StartAddress + size)) && (status == 0)) {
-            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, *((uint64_t *) data)) == HAL_OK) {
-                address = address + 8;
-                data = data + 8;
-            } else {
-                status = -1;
-            }
-        }
-    }
+
+        core_util_critical_section_exit();
+    } while ((cpu2_sem_status) || (cpu1_sem_status));
+
+    while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_CFGBSY));
 
     /* Lock the Flash to disable the flash control register access (recommended
        to protect the FLASH memory against possible unwanted operation) */
     HAL_FLASH_Lock();
 
-#if defined(CFG_HW_FLASH_SEMID)
+    /*  Flash IP semaphore */
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, 0);
-#endif
 
     return status;
 }

@@ -86,6 +86,7 @@ static bool get_bd_address(uint8_t *bd_addr);
 static bool sysevt_wait(void);
 static bool sysevt_check(void);
 
+extern int BLE_inited;
 
 namespace ble {
 namespace vendor {
@@ -675,6 +676,9 @@ private:
          * Starts the BLE Stack on CPU2
          */
         SHCI_C2_BLE_Init(&ble_init_cmd_packet);
+
+        /* Used in flash_api.c */
+        BLE_inited = 1;
     }
 
     TL_CmdPacket_t *bleCmdBuf;
