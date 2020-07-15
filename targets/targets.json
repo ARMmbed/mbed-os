@@ -1585,15 +1585,10 @@
             "STM32F411xE",
             "HSE_VALUE=26000000"
         ],
-        "post_binary_hook": {
-            "function": "MTSCode.combine_bins_mts_dragonfly",
-            "toolchains": [
-                "GCC_ARM",
-                "ARM_STD",
-                "ARM_MICRO",
-                "IAR"
-            ]
-        },
+        "device_has_add": [
+            "MPU",
+            "FLASH"
+        ],
         "device_has_remove": [
             "SERIAL_FC",
             "LPTICKER"
