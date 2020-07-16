@@ -17,6 +17,7 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [features/netsocket/emac-drivers](./features/netsocket/emac-drivers) - BSD-style
 - [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
 - [features/unsupported](./features/unsupported) - MIT-style, BSD-style
+- [storage/blockdevice](./storage/blockdevice) - Apache 2.0, MIT
 - [storage/filesystem/littlefs](.storage/filesystem/littlefs) - [BSD-3-Clause](https://github.com/ARMmbed/littlefs/blob/master/LICENSE.md)
 - [storage/filesystem/fat/ChaN](.storage/filesystem/fat/ChaN) - BSD-style, 1 clause, [Copyright ChaN](http://www.elm-chan.org/fsw/ff/doc/appnote.html)
 - [rtos](./rtos) - MIT
