@@ -113,10 +113,17 @@ matrix:
       language: python
       python: 3.8
       install:
+        #Install Mbed Studio
+        - curl -L0 https://studio.mbed.com/installers/latest/linux/MbedStudio.sh --output /tmp/MbedStudio.sh
+        - pushd /tmp && chmod +x MbedStudio.sh && sudo ./MbedStudio.sh -y && popd
+        - export PATH="/home/travis/.config/Mbed Studio/mbed-studio-tools/ac6/bin":${PATH}
+        - export ARMCLANG_PATH="/home/travis/.config/Mbed\ Studio/mbed-studio-tools/ac6/bin"
+        - mbed-studio
+        - find / -name ac6-license.dat 2>/dev/null
         # Install gcc
         - source_pkg gcc
         - arm-none-eabi-gcc --version
-        - pip install --upgrade cmake
+        - pip install cmake==3.18.0
         - pip install --upgrade mbed-tools
         # We use manual clone, with depth and single branch = the fastest
         # Because of this, we need to create .mbed file as the current tools require it
