@@ -214,17 +214,28 @@ typedef enum {
 
     A0 = p4,
     A1 = p5,
+    A2 = p30,
+    A3 = p28,
     A4 = p2,
     A5 = p3,
 
+    D0 = NC,
+    D1 = NC,
     D2  = PIN_NFC2,
+    D3 = NC,
+    D4 = NC,
     D5  = p40,
     D6  = p7,
+    D7 = NC,
+    D8 = NC,
+
     D9  = p26,
     D10 = p27,
     D11 = p6,
     D12 = p8,
     D13 = p41,
+    D14 = NC,
+    D15 = NC,
 
     /**** QSPI pins ****/
     QSPI1_IO0 = P0_17,
@@ -235,12 +246,12 @@ typedef enum {
     QSPI1_CSN = P0_20,
 
     /**** QSPI FLASH pins ****/
-    // QSPI_FLASH1_IO0 = QSPI1_IO0,
-    // QSPI_FLASH1_IO1 = QSPI1_IO1,
-    // QSPI_FLASH1_IO2 = QSPI1_IO2,
-    // QSPI_FLASH1_IO3 = QSPI1_IO3,
-    // QSPI_FLASH1_SCK = QSPI1_SCK,
-    // QSPI_FLASH1_CSN = QSPI1_CSN
+    QSPI_FLASH1_IO0 = QSPI1_IO0,
+    QSPI_FLASH1_IO1 = QSPI1_IO1,
+    QSPI_FLASH1_IO2 = QSPI1_IO2,
+    QSPI_FLASH1_IO3 = QSPI1_IO3,
+    QSPI_FLASH1_SCK = QSPI1_SCK,
+    QSPI_FLASH1_CSN = QSPI1_CSN,
 
 } PinName;
 
