@@ -13,6 +13,7 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [features/lorawan](./features/lorawan) - Revised BSD
 - [features/lwipstack](./features/lwipstack) - BSD-style, MIT-style
 - [features/nanostack/sal-stack-nanostack](./features/nanostack/sal-stack-nanostack) - BSD-3-Clause
+- [features/storage/blockdevice](./features/storage/blockdevice) - Apache 2.0, MIT
 - [features/storage/filesystem/littlefs](./features/storage/filesystem/littlefs) - [BSD-3-Clause](https://github.com/ARMmbed/littlefs/blob/master/LICENSE.md)
 - [features/storage/filesystem/fat/ChaN](.features/storage/filesystem/fat/ChaN) - BSD-style, 1 clause, [Copyright ChaN](http://www.elm-chan.org/fsw/ff/doc/appnote.html)
 - [features/netsocket/emac-drivers](./features/netsocket/emac-drivers) - BSD-style
