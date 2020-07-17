@@ -23,7 +23,7 @@
 #include <stddef.h>
 #include "device.h"
 
-#if DEVICE_TRNG
+#if defined(DEVICE_TRNG) || defined(FEATURE_PSA)
 
 /** TRNG HAL structure. trng_s is declared in the target's HAL
  */
