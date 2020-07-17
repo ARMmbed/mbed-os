@@ -15,20 +15,20 @@
  */
 
 #include "kv_config.h"
-#include "storage/kvstore/include/KVStore.h"
-#include "storage/kvstore/kv_map/KVMap.h"
+#include "kvstore/KVStore.h"
+#include "kvstore/KVMap.h"
 #include "blockdevice/BlockDevice.h"
 #include "filesystem/FileSystem.h"
-#include "storage/kvstore/filesystemstore/FileSystemStore.h"
+#include "kvstore/FileSystemStore.h"
 #include "blockdevice/SlicingBlockDevice.h"
 #include "fat/FATFileSystem.h"
 #include "littlefs/LittleFileSystem.h"
-#include "storage/kvstore/tdbstore/TDBStore.h"
+#include "kvstore/TDBStore.h"
 #include "mbed_error.h"
 #include "drivers/FlashIAP.h"
 #include "blockdevice/FlashSimBlockDevice.h"
 #include "mbed_trace.h"
-#include "storage/kvstore/securestore/SecureStore.h"
+#include "securestore/SecureStore.h"
 #define TRACE_GROUP "KVCFG"
 
 #if COMPONENT_FLASHIAP

@@ -24,7 +24,7 @@
         "external_base_address": {
             "help": "The default will set start address to address 0",
             "value": "0"
-        },    
+        },
         "mount_point": {
             "help": "Where to mount the filesystem.",
             "value": "kv"

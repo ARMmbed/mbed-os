@@ -16,7 +16,7 @@
 
 // ----------------------------------------------------------- Includes -----------------------------------------------------------
 
-#include "SecureStore.h"
+#include "securestore/SecureStore.h"
 
 #if SECURESTORE_ENABLED
 

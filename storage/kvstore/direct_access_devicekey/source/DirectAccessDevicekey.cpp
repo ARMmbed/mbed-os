@@ -16,7 +16,7 @@
 
 // ----------------------------------------------------------- Includes -----------------------------------------------------------
 #if DEVICE_FLASH
-#include "DirectAccessDevicekey.h"
+#include "direct_access_devicekey/DirectAccessDevicekey.h"
 #include "drivers/FlashIAP.h"
 #include <string.h>
 #include <stdio.h>
