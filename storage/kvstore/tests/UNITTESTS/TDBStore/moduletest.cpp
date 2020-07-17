@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 #include "blockdevice/HeapBlockDevice.h"
 #include "blockdevice/FlashSimBlockDevice.h"
-#include "storage/kvstore/tdbstore/TDBStore.h"
+#include "kvstore/TDBStore.h"
 #include <stdlib.h>
 
 #define BLOCK_SIZE (512)

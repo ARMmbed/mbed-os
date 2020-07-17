@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 #include "blockdevice/HeapBlockDevice.h"
-#include "storage/kvstore/filesystemstore/FileSystemStore.h"
+#include "kvstore/FileSystemStore.h"
 #include "littlefs/LittleFileSystem.h"
 #include "mbed_error.h"
 #include <stdlib.h>

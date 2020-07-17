@@ -14,8 +14,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "SecureStore.h"
-#include "TDBStore.h"
+#include "securestore/SecureStore.h"
+#include "kvstore/TDBStore.h"
 #include "mbed_error.h"
 #include "FlashSimBlockDevice.h"
 #include "SlicingBlockDevice.h"

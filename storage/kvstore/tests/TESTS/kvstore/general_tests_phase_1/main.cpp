@@ -14,8 +14,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "SecureStore.h"
-#include "TDBStore.h"
+#include "securestore/SecureStore.h"
+#include "kvstore/TDBStore.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "Thread.h"
 #endif

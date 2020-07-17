@@ -10,7 +10,7 @@ set(unittest-includes ${unittest-includes}
 
 set(unittest-sources
   ../storage/blockdevice/source/HeapBlockDevice.cpp
-  ../storage/kvstore/filesystemstore/FileSystemStore.cpp
+  ../storage/kvstore/source/FileSystemStore.cpp
   ../storage/filesystem/littlefs/source/LittleFileSystem.cpp
   ../storage/filesystem/source/Dir.cpp
   ../storage/filesystem/source/File.cpp
@@ -24,7 +24,7 @@ set(unittest-sources
 )
 
 set(unittest-test-sources
-  moduletests/storage/kvstore/FileSystemStore/moduletest.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/moduletest.cpp
   stubs/mbed_atomic_stub.c
   stubs/mbed_assert_stub.cpp
   stubs/mbed_error.c
