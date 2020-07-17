@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_TRNG
+#if defined(DEVICE_TRNG) || defined(FEATURE_PSA)
 
 #include "hal/trng_api.h"
 #include "platform/SingletonPtr.h"
@@ -24,6 +24,7 @@ SingletonPtr<PlatformMutex> mbedtls_mutex;
 
 extern "C"
 int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {
+#if defined(DEVICE_TRNG)
     trng_t trng_obj;
     mbedtls_mutex->lock();
     trng_init(&trng_obj);
@@ -31,6 +32,12 @@ int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t
     trng_free(&trng_obj);
     mbedtls_mutex->unlock();
     return ret;
+#else /* defined(FEATURE_PSA) */
+    mbedtls_mutex->lock();
+    int ret = trng_get_bytes(NULL, output, len, olen);
+    mbedtls_mutex->unlock();
+    return ret;
+#endif
 }
 
 #endif
