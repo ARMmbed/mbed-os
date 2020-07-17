@@ -16,13 +16,13 @@ set(unittest-sources
   ../features/netsocket/EthernetInterface.cpp
   ../features/netsocket/EMACInterface.cpp
   ../features/netsocket/nsapi_dns.cpp
-  ../features/frameworks/nanostack-libservice/source/libip4string/ip4tos.c
-  ../features/frameworks/nanostack-libservice/source/libip6string/ip6tos.c
-  ../features/frameworks/nanostack-libservice/source/libip4string/stoip4.c
-  ../features/frameworks/nanostack-libservice/source/libip6string/stoip6.c
-  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c
-  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c
-  ../features/frameworks/nanostack-libservice/source/libList/ns_list.c
+  ../connectivity/libraries/nanostack-libservice/source/libip4string/ip4tos.c
+  ../connectivity/libraries/nanostack-libservice/source/libip6string/ip6tos.c
+  ../connectivity/libraries/nanostack-libservice/source/libip4string/stoip4.c
+  ../connectivity/libraries/nanostack-libservice/source/libip6string/stoip6.c
+  ../connectivity/libraries/nanostack-libservice/source/libBits/common_functions.c
+  ../connectivity/libraries/nanostack-libservice/source/libBits/common_functions.c
+  ../connectivity/libraries/nanostack-libservice/source/libList/ns_list.c
 )
 
 set(unittest-test-sources
