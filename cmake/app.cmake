@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-include(gen_config/CMakeLists.txt)
+include(.mbedbuild/mbed_config.cmake)
 include(${MBED_ROOT}/cmake/toolchain.cmake)
 include(${MBED_ROOT}/cmake/env.cmake)
 include(${MBED_ROOT}/cmake/util.cmake)
