@@ -43,7 +43,7 @@
         MULS    r3,r0,r3
         MULS    r1,r2,r1
         PUSH    {r4,r5,lr}
-        FRAME PUSH {r4,r5,lr}
+        FRAME   PUSH {r4,r5,lr}
         ADDS    r4,r3,r1
         LSRS    r1,r0,#16
         LSRS    r3,r2,#16
@@ -304,7 +304,8 @@ hard_divbyzero
         RSBS    r0,r0,#0
 divbyzero
         PUSH    {r0,lr}
-        FRAME PUSH {lr},8
+        FRAME   SAVE {lr},-4
+        FRAME   ADDRESS sp,8
         LDR     r1,=0x7fffffff
         CMP     r0,#0
         BGT     do_divbyzero_r1
@@ -336,8 +337,9 @@ do_divbyzero
         ENDFUNC
 |$Sub$$__aeabi_uldivmod| FUNCTION
         PUSH    {r1-r7,lr}
-        FRAME PUSH {r4-r7,lr},32
-        FRAME STATE REMEMBER
+        FRAME   SAVE {r4-r7,lr},-20
+        FRAME   ADDRESS sp,32
+        FRAME   STATE REMEMBER
         MOV     r4,r0
         MOV     r0,r2
         MOV     r5,r1
@@ -467,11 +469,12 @@ ldiv_return_remainder_r12_lr
         MOV     r3,r12
 ldiv_return
         ADD     sp,#12
-        FRAME POP 12
+        FRAME   POP 12
         POP     {r4-r7,pc}
+        FRAME   POP {r4-r7,pc}
         B       ldivbyzero          ; Not clear what this instruction is doing in library - retained for diff check
 ldivbyzero
-        FRAME STATE RESTORE
+        FRAME   STATE RESTORE
         MOV     r0,r4
         ORRS    r0,r5
         BEQ     ldivzerobyzero
@@ -498,7 +501,7 @@ ldivzerobyzero
         ENDFUNC
 |$Sub$$__aeabi_ldivmod| FUNCTION
         PUSH    {r4-r6,lr}
-        FRAME PUSH {r4-r6,lr}
+        FRAME   PUSH {r4-r6,lr}
         MOV     r5,r0
         MOV     r0,r2
         MOV     r4,r1
