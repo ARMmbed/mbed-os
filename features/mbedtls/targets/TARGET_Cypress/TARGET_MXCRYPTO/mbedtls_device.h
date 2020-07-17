@@ -18,8 +18,6 @@
 #ifndef MBEDTLS_DEVICE_H
 #define MBEDTLS_DEVICE_H
 
-#ifndef TARGET_TFM_DUALCPU
-
 /* Currently this target supports SHA1 */
 // #define MBEDTLS_SHA1_C
 
@@ -46,5 +44,4 @@
 #define MBEDTLS_ECDSA_SIGN_ALT
 #define MBEDTLS_ECDSA_VERIFY_ALT
 
-#endif /* #ifndef TARGET_TFM_DUALCPU */
 #endif /* MBEDTLS_DEVICE_H */
