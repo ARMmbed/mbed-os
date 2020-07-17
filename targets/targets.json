@@ -135,6 +135,7 @@
         ],
         "extra_labels": [
             "TFM",
+            "TFM_V1_1",
             "TFM_V8M"
         ],
         "device_has": [

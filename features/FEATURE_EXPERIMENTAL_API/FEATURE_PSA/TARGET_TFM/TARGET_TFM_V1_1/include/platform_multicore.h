@@ -19,10 +19,10 @@
 #define IPC_PSA_CLIENT_CALL_IPC_INTR     cpuss_interrupts_ipc_6_IRQn
 
 #define IPC_PSA_CLIENT_REPLY_CHAN        (9)
-#define IPC_PSA_CLIENT_REPLY_INTR_STRUCT (8)
+#define IPC_PSA_CLIENT_REPLY_INTR_STRUCT (5)
 #define IPC_PSA_CLIENT_REPLY_INTR_MASK   (1 << IPC_PSA_CLIENT_REPLY_CHAN)
 #define IPC_PSA_CLIENT_REPLY_NOTIFY_MASK (1 << IPC_PSA_CLIENT_REPLY_INTR_STRUCT)
-#define IPC_PSA_CLIENT_REPLY_IPC_INTR    cpuss_interrupts_ipc_8_IRQn
+#define IPC_PSA_CLIENT_REPLY_IPC_INTR    cpuss_interrupts_ipc_5_IRQn
 
 #define IPC_RX_RELEASE_MASK              (0)
 

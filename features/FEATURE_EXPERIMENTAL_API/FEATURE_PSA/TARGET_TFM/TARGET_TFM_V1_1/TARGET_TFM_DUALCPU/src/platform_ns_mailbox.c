@@ -54,7 +54,6 @@ int32_t tfm_ns_mailbox_hal_notify_peer(void)
 
 static int32_t mailbox_sema_init(void)
 {
-#if defined(CY_IPC_DEFAULT_CFG_DISABLE)
     /* semaphore data */
     static uint32_t tfm_sema __attribute__((section("TFM_SHARED_DATA")));
 
@@ -63,7 +62,6 @@ static int32_t mailbox_sema_init(void)
                          &tfm_sema) != CY_IPC_SEMA_SUCCESS) {
         return PLATFORM_MAILBOX_INIT_ERROR;
     }
-#endif
     return PLATFORM_MAILBOX_SUCCESS;
 }
 
@@ -120,7 +118,11 @@ int32_t tfm_ns_mailbox_hal_init(struct ns_mailbox_queue_t *queue)
 
 const void *tfm_ns_mailbox_get_task_handle(void)
 {
-    return osThreadGetId();;
+#ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL
+    return osThreadGetId();
+#else
+    return NULL;
+#endif
 }
 
 void tfm_ns_mailbox_hal_wait_reply(mailbox_msg_handle_t handle)
@@ -277,7 +279,7 @@ static bool mailbox_clear_intr(void)
     return true;
 }
 
-void cpuss_interrupts_ipc_8_IRQHandler(void)
+void cpuss_interrupts_ipc_5_IRQHandler(void)
 {
     uint32_t magic;
     mailbox_msg_handle_t handle;
@@ -297,6 +299,9 @@ void cpuss_interrupts_ipc_8_IRQHandler(void)
 
             task_handle = (osThreadId_t)tfm_ns_mailbox_get_msg_owner(handle);
             if (task_handle) {
+                /* According to the description of CMSIS-RTOS v2 Thread Flags,
+                 * osThreadFlagsSet() can be called inside Interrupt Service
+                 * Routine. */
                 osThreadFlagsSet(task_handle, handle);
             }
         }
