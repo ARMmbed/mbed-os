@@ -145,15 +145,9 @@ void attsProcWrite(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     {
       /* err has been set; fail */
     }
-    /* verify write length, fixed length */
-    else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) == 0) &&
-             (writeLen != pAttr->maxLen))
-    {
-      err = ATT_ERR_LENGTH;
-    }
-    /* verify write length, variable length */
-    else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) &&
-             (writeLen > pAttr->maxLen))
+    /* verify write length within max length, fixed size writes within size must be allowed
+     * as described in CORE SPECIFICATION Version 5.2, Vol 3, Part F, 3.4.5.1 */
+    else if (writeLen > pAttr->maxLen)
     {
       err = ATT_ERR_LENGTH;
     }
