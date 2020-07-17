@@ -18,6 +18,7 @@
 #ifndef MBEDTLS_DEVICE_H
 #define MBEDTLS_DEVICE_H
 
+#ifndef MXCRYPTO_DISABLED
 /* Currently this target supports SHA1 */
 // #define MBEDTLS_SHA1_C
 
@@ -44,4 +45,5 @@
 #define MBEDTLS_ECDSA_SIGN_ALT
 #define MBEDTLS_ECDSA_VERIFY_ALT
 
+#endif /* #ifndef MXCRYPTO_DISABLED */
 #endif /* MBEDTLS_DEVICE_H */

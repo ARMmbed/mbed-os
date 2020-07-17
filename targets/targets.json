@@ -6169,11 +6169,11 @@
         "device_has_remove": [
             "ANALOGOUT",
             "QSPI",
+            "TRNG",
             "CRC"
         ],
         "extra_labels_add": [
             "PSOC6_02",
-            "MXCRYPTO_02",
             "CORDIO",
             "TFM",
             "TFM_DUALCPU"
@@ -6182,6 +6182,7 @@
             "CYB0644ABZI_S2D44",
             "CY_IPC_DEFAULT_CFG_DISABLE",
             "CYBSP_WIFI_CAPABLE",
+            "MXCRYPTO_DISABLED",
             "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
         ],
         "detect_code": [
