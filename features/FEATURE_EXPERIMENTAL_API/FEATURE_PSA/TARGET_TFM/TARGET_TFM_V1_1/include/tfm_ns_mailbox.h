@@ -84,7 +84,6 @@ bool tfm_ns_mailbox_is_msg_replied(mailbox_msg_handle_t handle);
  */
 int32_t tfm_ns_mailbox_init(struct ns_mailbox_queue_t *queue);
 
-#ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL
 /**
  * \brief Get the handle of the current non-secure task executing mailbox
  *        functionalities
@@ -97,12 +96,6 @@ int32_t tfm_ns_mailbox_init(struct ns_mailbox_queue_t *queue);
  * \return Return the handle of task.
  */
 const void *tfm_ns_mailbox_get_task_handle(void);
-#else
-static inline const void *tfm_ns_mailbox_get_task_handle(void)
-{
-    return NULL;
-}
-#endif
 
 /**
  * \brief Fetch the handle to the first replied mailbox message in the NSPE
