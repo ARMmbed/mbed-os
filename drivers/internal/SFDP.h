@@ -20,7 +20,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include "features/storage/blockdevice/BlockDevice.h"
+#include "storage/blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 
 namespace mbed {

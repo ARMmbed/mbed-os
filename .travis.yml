@@ -271,7 +271,7 @@ matrix:
 
     - <<: *extended-vm
       name: "littlefs"
-      env: NAME=littlefs LITTLEFS=features/storage/filesystem/littlefs
+      env: NAME=littlefs LITTLEFS=storage/filesystem/littlefs
       install:
         # Install gcc
         - source_pkg gcc
