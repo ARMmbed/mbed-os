@@ -32,3 +32,7 @@ set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
 set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
     ${COMMON_FLAGS} \
 ")
+
+add_definitions(
+    -DTOOLCHAIN_ARM
+)
