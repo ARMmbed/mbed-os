@@ -16,7 +16,7 @@
 #ifndef _KV_CONFIG
 #define _KV_CONFIG
 
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 
 #ifdef __cplusplus
 extern "C" {

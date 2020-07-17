@@ -19,7 +19,7 @@
 
 #include "drivers/QSPI.h"
 #include "drivers/internal/SFDP.h"
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 
 #ifndef MBED_CONF_QSPIF_QSPI_IO0

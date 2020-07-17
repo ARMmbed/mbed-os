@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 #include "storage/filesystem/FileSystem.h"
 #include "storage/filesystem/fat/FATFileSystem.h"
 #include "storage/filesystem/littlefs/LittleFileSystem.h"
