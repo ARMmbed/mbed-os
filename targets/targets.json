@@ -114,6 +114,7 @@
         ],
         "extra_labels": [
             "TFM",
+            "TFM_V1_0",
             "TFM_DUALCPU"
         ],
         "device_has": [
@@ -6177,6 +6178,7 @@
             "PSOC6_02",
             "CORDIO",
             "TFM",
+            "TFM_V1_0",
             "TFM_DUALCPU"
         ],
         "macros_add": [
