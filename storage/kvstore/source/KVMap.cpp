@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "storage/kvstore/include/KVStore.h"
-#include "storage/kvstore/kv_map/KVMap.h"
-#include "storage/kvstore/conf/kv_config.h"
+#include "kvstore/KVStore.h"
+#include "kvstore/KVMap.h"
+#include "kv_config/kv_config.h"
 #include <stdlib.h>
 #include "string.h"
 #include "mbed_error.h"
@@ -333,4 +333,3 @@ FileSystem *KVMap::get_external_filesystem_instance(const char *name)
 }
 
 } // namespace mbed
-

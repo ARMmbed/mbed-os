@@ -15,9 +15,9 @@
  */
 #include "kvstore_global_api.h"
 
-#include "storage/kvstore/conf/kv_config.h"
-#include "storage/kvstore/kv_map/KVMap.h"
-#include "storage/kvstore/include/KVStore.h"
+#include "kv_config/kv_config.h"
+#include "kvstore/KVMap.h"
+#include "kvstore/KVStore.h"
 #include "mbed_error.h"
 
 using namespace mbed;
@@ -201,4 +201,3 @@ int kv_reset(const char *kvstore_name)
     return ret;
 
 }
-

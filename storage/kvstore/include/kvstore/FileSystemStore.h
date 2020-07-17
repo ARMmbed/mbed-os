@@ -18,7 +18,7 @@
 #ifndef MBED_FILE_SYSTEM_STORE_H
 #define MBED_FILE_SYSTEM_STORE_H
 
-#include "storage/kvstore/include/KVStore.h"
+#include "kvstore/KVStore.h"
 #include "filesystem/FileSystem.h"
 
 namespace mbed {

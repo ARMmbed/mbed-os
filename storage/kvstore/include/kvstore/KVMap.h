@@ -16,7 +16,7 @@
 #ifndef _KV_MAP
 #define _KV_MAP
 
-#include "storage/kvstore/include/KVStore.h"
+#include "kvstore/KVStore.h"
 #include "platform/PlatformMutex.h"
 #include "platform/SingletonPtr.h"
 #include "blockdevice/BlockDevice.h"

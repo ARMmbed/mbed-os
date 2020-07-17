@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "FileSystemStore.h"
-#include "storage/kvstore/conf/kv_config.h"
+#include "kvstore/FileSystemStore.h"
+#include "kv_config/kv_config.h"
 #include "filesystem/Dir.h"
 #include "filesystem/File.h"
 #include "blockdevice/BlockDevice.h"
@@ -635,6 +635,3 @@ static char *string_ndup(const char *src, size_t size)
     string_copy[size] = '\0';
     return string_copy;
 }
-
-
-

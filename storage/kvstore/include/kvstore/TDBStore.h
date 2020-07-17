@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include "storage/kvstore/include/KVStore.h"
+#include "kvstore/KVStore.h"
 #include "blockdevice/BlockDevice.h"
 #include "blockdevice/BufferedBlockDevice.h"
 #include "PlatformMutex.h"
