@@ -12,13 +12,6 @@ set(unittest-includes ${unittest-includes}
 )
 
 set(unittest-sources
-    ../storage/kvstore/global_api/kvstore_global_api.cpp
-    ../storage/kvstore/securestore/SecureStore.cpp
-    ../storage/kvstore/kv_map/KVMap.cpp
-    ../storage/kvstore/tdbstore/TDBStore.cpp
-    ../storage/kvstore/direct_access_devicekey/DirectAccessDevicekey.cpp
-    ../storage/kvstore/conf/kv_config.cpp
-    ../storage/kvstore/filesystemstore/FileSystemStore.cpp
     ../storage/system_storage/SystemStorage.cpp
 )
 

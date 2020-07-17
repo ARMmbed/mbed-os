@@ -118,6 +118,9 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../storage/filesystem/fat/include"
   "${PROJECT_SOURCE_DIR}/../storage/blockdevice/include"
   "${PROJECT_SOURCE_DIR}/../storage/filesystem/include"
+  "${PROJECT_SOURCE_DIR}/../storage/kvstore/include"
+  "${PROJECT_SOURCE_DIR}/../storage/kvstore/kv_config"
+  "${PROJECT_SOURCE_DIR}/../storage/kvstore/kv_config/include"
   "${PROJECT_SOURCE_DIR}/../drivers"
   "${PROJECT_SOURCE_DIR}/../hal"
   "${PROJECT_SOURCE_DIR}/../events"
@@ -146,7 +149,6 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
-  "${PROJECT_SOURCE_DIR}/../storage/kvstore/conf"
 )
 
 # Create a list for test suites.
