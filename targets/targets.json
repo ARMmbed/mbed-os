@@ -5681,6 +5681,13 @@
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ],
+        "extra_labels_remove": [
+            "SOFTDEVICE_NONE"
+        ],
+        "extra_labels_add": [
+            "SOFTDEVICE_COMMON",
+            "SOFTDEVICE_S140_FULL"
+        ],
         "config": {
             "enable-objects-extensions": {
                 "help": "Enable inclusion of objects_extensions.h",
