@@ -108,6 +108,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/target_h/platform"
   "${PROJECT_SOURCE_DIR}/target_h/platform/cxxsupport"
   "${PROJECT_SOURCE_DIR}/target_h/drivers"
+  "${PROJECT_SOURCE_DIR}/target_h/rtos/include"
   "${PROJECT_SOURCE_DIR}/stubs"
   "${PROJECT_SOURCE_DIR}/.."
   "${PROJECT_SOURCE_DIR}/../features"
@@ -118,10 +119,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../events"
   "${PROJECT_SOURCE_DIR}/../events/source"
   "${PROJECT_SOURCE_DIR}/../events/internal"
-  "${PROJECT_SOURCE_DIR}/../rtos"
-  "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX"
-  "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX/rtx5/Include"
-  "${PROJECT_SOURCE_DIR}/../cmsis"
+  "${PROJECT_SOURCE_DIR}/../rtos/include"
   "${PROJECT_SOURCE_DIR}/../features/frameworks"
   "${PROJECT_SOURCE_DIR}/../features/frameworks/mbed-trace"
   "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice"
@@ -152,7 +150,7 @@ set(TEST_SUITES)
 
 # Get all matched tests.
 file(GLOB_RECURSE unittest-file-list
-  "unittest.cmake"
+  "../unittest.cmake" # matches any ../**/unittest.cmake
 )
 
 if ("${unittest-file-list}" STREQUAL "")
@@ -178,7 +176,7 @@ foreach(testfile ${unittest-file-list})
 
   file(RELATIVE_PATH
        TEST_SUITE_NAME # output
-       ${PROJECT_SOURCE_DIR} # root
+       "${PROJECT_SOURCE_DIR}/.." # root
        ${TEST_SUITE_DIR} #abs dirpath
   )
 

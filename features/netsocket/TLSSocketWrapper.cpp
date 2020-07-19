@@ -25,7 +25,7 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 #include "mbed_error.h"
-#include "Kernel.h"
+#include "rtos/Kernel.h"
 
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C)

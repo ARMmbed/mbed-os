@@ -24,7 +24,7 @@
 #include "PinNames.h"
 
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "Thread.h"
+#include "rtos/Thread.h"
 #endif // MBED_CONF_RTOS_PRESENT
 
 /** @file CellularDevice.h

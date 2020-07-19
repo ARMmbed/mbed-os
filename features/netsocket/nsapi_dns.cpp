@@ -27,7 +27,7 @@
 #include "mbed_shared_queues.h"
 #include "events/EventQueue.h"
 #include "OnboardNetworkStack.h"
-#include "Kernel.h"
+#include "rtos/Kernel.h"
 #include "PlatformMutex.h"
 #include "SingletonPtr.h"
 

@@ -24,7 +24,7 @@
 #include "FileHandle.h"
 #include "mbed_debug.h"
 #include "rtos/ThisThread.h"
-#include "Kernel.h"
+#include "rtos/Kernel.h"
 #include "CellularUtil.h"
 #include "SingletonPtr.h"
 #include "ScopedLock.h"

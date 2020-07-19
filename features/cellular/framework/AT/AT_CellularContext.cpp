@@ -25,7 +25,7 @@
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #include "drivers/BufferedSerial.h"
 #endif // #if DEVICE_SERIAL
-#include "ThisThread.h"
+#include "rtos/ThisThread.h"
 
 #define NETWORK_TIMEOUT 30min
 #define DEVICE_TIMEOUT 5min

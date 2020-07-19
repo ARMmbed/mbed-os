@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
+#include "rtos/Kernel.h"
 
 namespace rtos {
 class Semaphore  {
@@ -28,8 +29,13 @@ public:
     void acquire();
     bool try_acquire();
     bool try_acquire_for(uint32_t millisec);
+    bool try_acquire_for(Kernel::Clock::duration_u32 rel_time);
     bool try_acquire_until(uint64_t millisec);
+    bool try_acquire_until(Kernel::Clock::time_point abs_time);
     osStatus release(void);
+    ~Semaphore();
+private:
+    void constructor(int32_t count, uint16_t max_count);
 };
 }
 

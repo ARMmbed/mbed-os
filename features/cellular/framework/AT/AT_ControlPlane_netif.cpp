@@ -16,7 +16,7 @@
  */
 
 #include "CellularUtil.h"
-#include "ThisThread.h"
+#include "rtos/ThisThread.h"
 #include "AT_ControlPlane_netif.h"
 #include "CellularLog.h"
 
