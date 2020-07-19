@@ -23,6 +23,8 @@ Write your feature title above. In this case, its "Mbed OS design document."
 
 ### Revision history
 
+Changes
+
 1.0 - A brief description of this version. For example, Initial revision - Author name - Date. 
 **NOTE: You may also specify the Mbed OS version this revision of design document applies to.**
 1.1 - Added new section - Author name - Date.
