@@ -27,7 +27,7 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
     ${GCC_FLAGS} \
 ")
 
-elseif(MBED_TOOLCHAIN STREQUAL "ARMC6")
+elseif(MBED_TOOLCHAIN STREQUAL "ARM")
 
 set(ARM_FLAGS " \
     --cpu=Cortex-A9 \
