@@ -43,7 +43,7 @@ Please review the [documentation](https://os.mbed.com/docs/latest/tutorials/debu
 
 In Mbed OS, a C++ class that inherits from the [BlockDevice](https://os.mbed.com/docs/latest/reference/storage.html#block-devices) interface represents each block device.
 
-This test uses the default block device that the function `get_default_instance()` receives. [SystemStorage.cpp](https://github.com/ARMmbed/mbed-os/blob/master/storage/system_storage/SystemStorage.cpp#L35-L77) defines this as `MBED_WEAK`. If you would like to test a new block device, you have to override it.
+This test uses the default block device that the function `get_default_instance()` receives. [PlatformStorage.cpp](https://github.com/ARMmbed/mbed-os/blob/master/storage/platform/source/PlatformStorage.cpp#L35-L77) defines this as `MBED_WEAK`. If you would like to test a new block device, you have to override it.
 
 First add the new block device .cpp and header files to the [blockdevice folder](https://github.com/ARMmbed/mbed-os/tree/master/storage/blockdevice). Then, implement `get_default_instance()` inside the test `main.cpp`.
 
