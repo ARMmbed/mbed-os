@@ -121,10 +121,15 @@ matrix:
         - >-
          git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-blinky.git;
          cd mbed-os-example-blinky;
-         git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os.git;
-         touch .mbed;
-         mbedtools configure -t GCC_ARM -m K64F;
-         mkdir -p build;
+         git clone --depth=1 --single-branch https://github.com/ARMmbed/mbed-os.git;
+         cd mbed-os;
+         git fetch origin +refs/pull/${TRAVIS_PULL_REQUEST}/merge;
+         git checkout -qf FETCH_HEAD
+        - >-
+          cd -;
+          touch .mbed;
+          mbedtools configure -t GCC_ARM -m K64F;
+          mkdir -p build
       script:
         - cd build && cmake .. -GNinja -DMBED_PROFILE=develop && cmake --build .
 

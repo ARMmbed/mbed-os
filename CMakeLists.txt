@@ -21,15 +21,17 @@ target_link_libraries(mbed-os PRIVATE gen_config)
 
 # Default build
 add_subdirectory(cmsis)
+add_subdirectory(components)
+add_subdirectory(connectivity)
 add_subdirectory(drivers)
 add_subdirectory(events)
+add_subdirectory(features)
 add_subdirectory(hal)
 add_subdirectory(platform)
-add_subdirectory(targets)
 add_subdirectory(rtos)
+add_subdirectory(storage)
+add_subdirectory(targets)
 
-add_subdirectory(features)
-add_subdirectory(components)
 
 # Add additional component
 get_property(component GLOBAL PROPERTY MBED_COMPONENT)

@@ -7,17 +7,14 @@ add_subdirectory(cellular/framework)
 add_subdirectory(cryptocell)
 add_subdirectory(device_key)
 add_subdirectory(frameworks/mbed-client-randlib)
-add_subdirectory(frameworks/mbed-coap)
 add_subdirectory(frameworks/mbed-trace)
 add_subdirectory(frameworks/mbed-client-cli)
-add_subdirectory(frameworks/nanostack-libservice)
 add_subdirectory(lorawan)
 add_subdirectory(lwipstack)
 add_subdirectory(mbedtls)
 add_subdirectory(nanostack)
 add_subdirectory(netsocket)
 add_subdirectory(nfc)
-add_subdirectory(storage)
 
 target_include_directories(mbed-os
     PUBLIC
