@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-os
-	PRIVATE
-		source/mbed_trace.c
+    PRIVATE
+        LoRaWANTimer.cpp
 )
 
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-trace
 )
