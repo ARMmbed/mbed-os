@@ -3,11 +3,10 @@
 
 target_sources(mbed-os
     PRIVATE
-        ource/mbed_trace.c
+        LoRaWANTimer.cpp
 )
 
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-trace
 )
