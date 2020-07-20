@@ -41,6 +41,10 @@ after_success:
 after_failure:
   - set_status "failure" "Test failed."
 
+addons:
+  apt:
+    packages:
+    - ninja-build
 
 matrix:
   include:
@@ -104,6 +108,34 @@ matrix:
               ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*' \
               ':!*events/tests/*' ':!*drivers/tests/*'
 
+    - &cmake-build-test
+      stage: "CMake"
+      name: "CMake blinky example"
+      env: NAME=cmake_test
+      language: python
+      python: 3.8
+      install:
+        # Install gcc
+        - source_pkg gcc
+        - arm-none-eabi-gcc --version
+        - pip install --upgrade cmake
+        - pip install --upgrade mbed-tools
+        # We use manual clone, with depth and single branch = the fastest
+        # Because of this, we need to create .mbed file as the current tools require it
+        - >-
+         git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/mbed-os-example-blinky.git;
+         cd mbed-os-example-blinky;
+         git clone --depth=1 --single-branch https://github.com/ARMmbed/mbed-os.git;
+         cd mbed-os;
+         git fetch origin +refs/pull/${TRAVIS_PULL_REQUEST}/merge;
+         git checkout -qf FETCH_HEAD
+        - >-
+          cd -;
+          touch .mbed;
+          mbedtools configure -t GCC_ARM -m K64F;
+          mkdir -p build
+      script:
+        - cd build && cmake .. -GNinja -DMBED_PROFILE=develop && cmake --build .
 
     ### Docs Tests ###
     - &docs-vm
