@@ -11,10 +11,6 @@ set(unittest-includes ${unittest-includes}
   ../features/frameworks/mbed-trace/mbed-trace/
 )
 
-set(unittest-sources
-    ../storage/system_storage/SystemStorage.cpp
-)
-
 set(unittest-test-sources
   empty_baseline/empty_baseline.cpp
 )
