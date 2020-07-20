@@ -49,7 +49,7 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/app.link_script.ld"
     )
-elseif(MBED_TOOLCHAIN STREQUAL "ARMC6")
+elseif(MBED_TOOLCHAIN STREQUAL "ARM")
     set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
     set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} --scatter=${linkerfile}")
 endif()
@@ -62,7 +62,7 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         COMMAND ${ELF2BIN} -O ihex $<TARGET_FILE:app> $<TARGET_FILE:app>.hex
         COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.hex"
     )
-elseif(MBED_TOOLCHAIN STREQUAL "ARMC6")
+elseif(MBED_TOOLCHAIN STREQUAL "ARM")
     set(CMAKE_POST_BUILD_COMMAND
         COMMAND ${ELF2BIN} --bin  -o $<TARGET_FILE:app>.bin $<TARGET_FILE:app>
         COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.bin"
