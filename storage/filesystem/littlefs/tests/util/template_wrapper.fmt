@@ -1,0 +1,86 @@
+#include "mbed.h"
+#include "greentea-client/test_env.h"
+#include "unity.h"
+#include "utest.h"
+#include <stdlib.h>
+#include <errno.h>
+
+using namespace utest::v1;
+
+// test configuration
+#ifndef MBED_TEST_FILESYSTEM
+#define MBED_TEST_FILESYSTEM LittleFileSystem
+#endif
+
+#ifndef MBED_TEST_FILESYSTEM_DECL
+#define MBED_TEST_FILESYSTEM_DECL MBED_TEST_FILESYSTEM fs("fs")
+#endif
+
+#ifndef MBED_TEST_BLOCKDEVICE
+#define MBED_TEST_BLOCKDEVICE SPIFBlockDevice
+#define MBED_TEST_BLOCKDEVICE_DECL SPIFBlockDevice bd(PTE2, PTE4, PTE1, PTE5)
+#endif
+
+#ifndef MBED_TEST_BLOCKDEVICE_DECL
+#define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd
+#endif
+
+#ifndef MBED_TEST_FILES
+#define MBED_TEST_FILES 4
+#endif
+
+#ifndef MBED_TEST_DIRS
+#define MBED_TEST_DIRS 4
+#endif
+
+#ifndef MBED_TEST_BUFFER
+#define MBED_TEST_BUFFER 8192
+#endif
+
+#ifndef MBED_TEST_TIMEOUT
+#define MBED_TEST_TIMEOUT 120
+#endif
+
+
+// declarations
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
+#define INCLUDE(x) STRINGIZE(x.h)
+
+#include INCLUDE(MBED_TEST_FILESYSTEM)
+#include INCLUDE(MBED_TEST_BLOCKDEVICE)
+
+MBED_TEST_FILESYSTEM_DECL;
+MBED_TEST_BLOCKDEVICE_DECL;
+
+Dir dir[MBED_TEST_DIRS];
+File file[MBED_TEST_FILES];
+DIR *dd[MBED_TEST_DIRS];
+FILE *fd[MBED_TEST_FILES];
+struct dirent ent;
+struct dirent *ed;
+size_t size;
+uint8_t buffer[MBED_TEST_BUFFER];
+uint8_t rbuffer[MBED_TEST_BUFFER];
+uint8_t wbuffer[MBED_TEST_BUFFER];
+
+
+// tests
+{tests}
+
+
+// test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {{
+    GREENTEA_SETUP(MBED_TEST_TIMEOUT, "default_auto");
+    return verbose_test_setup_handler(number_of_cases);
+}}
+
+Case cases[] = {{
+{test_cases}
+}};
+
+Specification specification(test_setup, cases);
+
+int main() {{
+    return !Harness::run(specification);
+}}
