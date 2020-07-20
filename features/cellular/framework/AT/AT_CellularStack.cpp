@@ -18,7 +18,7 @@
 #include "AT_CellularStack.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
-#include "ThisThread.h"
+#include "rtos/ThisThread.h"
 #include "AT_CellularDevice.h"
 
 using namespace mbed_cellular_util;

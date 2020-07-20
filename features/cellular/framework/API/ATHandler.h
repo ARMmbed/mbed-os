@@ -40,7 +40,7 @@
 #define AT_HANDLER_MUTEX
 
 #if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
-#include "ConditionVariable.h"
+#include "rtos/ConditionVariable.h"
 #endif
 
 namespace mbed {

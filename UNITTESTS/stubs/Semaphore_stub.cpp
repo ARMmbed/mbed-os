@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "Semaphore.h"
+#include "rtos/Semaphore.h"
 #include "Semaphore_stub.h"
 
 int Semaphore_stub::wait_return_value = 0;

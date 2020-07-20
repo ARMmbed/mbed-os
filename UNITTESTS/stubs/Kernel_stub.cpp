@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "Kernel.h"
+#include "rtos/Kernel.h"
 
 namespace rtos {
 

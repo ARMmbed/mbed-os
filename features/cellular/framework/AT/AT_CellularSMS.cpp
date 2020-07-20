@@ -20,7 +20,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "ThisThread.h"
+#include "rtos/ThisThread.h"
 #include "AT_CellularSMS.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"

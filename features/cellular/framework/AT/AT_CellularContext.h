@@ -19,7 +19,7 @@
 
 #include "CellularContext.h"
 #include "ATHandler.h"
-#include "Semaphore.h"
+#include "rtos/Semaphore.h"
 #include "AT_CellularDevice.h"
 
 const int MAX_APN_LENGTH = 63 + 1;

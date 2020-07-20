@@ -25,8 +25,8 @@
 
 #include <stdint.h>
 #include "rtos/mbed_rtos_types.h"
-#include "rtos/mbed_rtos1_types.h"
-#include "rtos/mbed_rtos_storage.h"
+#include "rtos/internal/mbed_rtos1_types.h"
+#include "rtos/internal/mbed_rtos_storage.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"

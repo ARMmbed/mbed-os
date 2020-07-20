@@ -16,7 +16,7 @@
  */
 #include "CellularContext.h"
 #include "CellularLog.h"
-#include "ThisThread.h"
+#include "rtos/ThisThread.h"
 
 using namespace std::chrono_literals;
 
