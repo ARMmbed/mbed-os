@@ -18,8 +18,8 @@
 
 #include "FileSystemStore.h"
 #include "storage/kvstore/conf/kv_config.h"
-#include "storage/filesystem/Dir.h"
-#include "storage/filesystem/File.h"
+#include "filesystem/Dir.h"
+#include "filesystem/File.h"
 #include "blockdevice/BlockDevice.h"
 #include "mbed_error.h"
 #include <string.h>
