@@ -34,69 +34,24 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
 
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
 
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS}
-    -std=gnu11
-)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
-    -fno-rtti
-    -fno-c++-static-destructors
-    -std=gnu++14
-)
-set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS}
-    --show_full_path
-    --legacyalign
-    --inline
-    --any_contingency
-    --keep=os_cb_sections
-)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+    -std=gnu11 \
+")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+    -fno-rtti \
+    -fno-c++-static-destructors \
+    -std=gnu++14 \
+")
+set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
+    --show_full_path \
+    --legacyalign \
+    --inline \
+    --any_contingency \
+    --keep=os_cb_sections \
+")
 
 set(DEVELOP_DEFINITIONS ${DEVELOP_DEFINITIONS}
     -D__ASSERT_MSG
-)
-
-elseif(MBED_TOOLCHAIN STREQUAL "ARM")
-
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS}
-    --md
-    --no_depend_system_headers
-    --c99
-)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
-    --cpp11
-    --no_rtti
-    --no_vla
-)
-set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS}
-    --show_full_path
-    --any_contingency
-    --inline
-    --keep=os_cb_sections
-)
-
-set(DEVELOP_DEFINITIONS ${DEVELOP_DEFINITIONS}
-    -D__ASSERT_MSG
-)
-
-elseif(MBED_TOOLCHAIN STREQUAL "uARM")
-
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS}
-    --md
-    --no_depend_system_headers
-    --c99
-)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
-    --cpp11
-    --no_rtti
-    --no_vla
-)
-set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS}
-    --inline
-    --library_type=microlib
-)
-
-set(DEVELOP_DEFINITIONS ${DEVELOP_DEFINITIONS}
-    -D__ASSERT_MSG
-    -DMBED_RTOS_SINGLE_THREAD
 )
 
 elseif(MBED_TOOLCHAIN STREQUAL "IAR")
