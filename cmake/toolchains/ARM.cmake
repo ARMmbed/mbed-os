@@ -7,6 +7,7 @@ set(CMAKE_CXX_COMPILER    "armclang")
 set(CMAKE_AR              "armar")
 set(ELF2BIN               "fromelf")
 set(COMMON_FLAGS " \
+    ${MBED_STUDIO_ARM_COMPILER} \
     -c \
     --target=arm-arm-none-eabi \
     -Oz \
@@ -26,8 +27,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
     ${COMMON_FLAGS} \
 ")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
+    ${MBED_STUDIO_ARM_COMPILER} \
     --cpreproc \
     --cpreproc_opts=--target=arm-arm-none-eabi,-mcpu=cortex-m4,-D,__FPU_PRESENT,-D,MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED \
+")
+set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
+    ${MBED_STUDIO_ARM_COMPILER} \
 ")
 
 add_definitions(
