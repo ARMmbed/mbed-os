@@ -1,6 +1,7 @@
 ^BUILD
 ^cmsis
 ^connectivity/libraries/mbed-coap
+^connectivity/libraries/ppp
 ^features/cryptocell
 ^features/FEATURE_BLE
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
@@ -12,9 +13,6 @@
 ^features/nanostack/sal-stack-nanostack/source/Service_Libs/mdns/fnet
 ^features/nanostack/targets
 ^features/netsocket/emac-drivers
-^features/netsocket/ppp/include
-^features/netsocket/ppp/polarssl
-^features/netsocket/ppp/source
 ^storage/filesystem/fat/ChaN
 ^storage/filesystem/littlefs/littlefs/
 ^storage/filesystem/littlefsv2/littlefs/
