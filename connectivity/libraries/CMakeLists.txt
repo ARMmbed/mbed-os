@@ -3,3 +3,4 @@
 
 add_subdirectory(mbed-coap)
 add_subdirectory(nanostack-libservice)
+add_subdirectory(ppp)
