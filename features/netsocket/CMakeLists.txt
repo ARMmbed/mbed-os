@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(emac-drivers)
-add_subdirectory(ppp)
 
 target_include_directories(mbed-os
     PUBLIC
