@@ -18,5 +18,8 @@ add_subdirectory(source/TARGET_CORTEX)
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        source
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/rtos
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/rtos/internal
+        ${CMAKE_CURRENT_SOURCE_DIR}/source
 )
