@@ -1,18 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/polarssl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/ppp
+)
+
 target_sources(mbed-os
     PRIVATE
-        ppp_nsapi.cpp
-        ppp_service.cpp
-        ppp_service_if.cpp
-
-        polarssl/ppp_arc4.c
-        polarssl/ppp_des.c
-        polarssl/ppp_md4.c
-        polarssl/ppp_md5.c
-        polarssl/ppp_sha1.c
-
         source/auth.c
         source/ccp.c
         source/chap-md5.c
@@ -30,6 +28,8 @@ target_sources(mbed-os
         source/multilink.c
         source/ppp.c
         source/ppp_ecp.c
+        source/ppp_service.cpp
+        source/ppp_service_if.cpp
         source/pppapi.c
         source/pppcrypt.c
         source/pppoe.c
@@ -38,12 +38,10 @@ target_sources(mbed-os
         source/upap.c
         source/utils.c
         source/vj.c
-)
 
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/polarssl
+        source/polarssl/ppp_arc4.c
+        source/polarssl/ppp_des.c
+        source/polarssl/ppp_md4.c
+        source/polarssl/ppp_md5.c
+        source/polarssl/ppp_sha1.c
 )
