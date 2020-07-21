@@ -6123,7 +6123,6 @@
         "device_has": [
             "AACI",
             "ANALOGIN",
-            "CLCD",
             "EMAC",
             "FLASH",
             "I2C",
