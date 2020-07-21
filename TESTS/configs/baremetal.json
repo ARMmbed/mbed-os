@@ -24,6 +24,7 @@
         "system-storage",
         "SecureStore",
         "storage",
+        "kv-global-api",
         "direct-access-devicekey",
         "kv-config",
         "events",
