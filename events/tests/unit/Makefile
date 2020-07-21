@@ -17,7 +17,7 @@ endif
 ifdef WORD
 CFLAGS += -m$(WORD)
 endif
-CFLAGS += -I. -I.. -I../..
+CFLAGS += -I. -I../../include
 CFLAGS += -std=c99
 CFLAGS += -Wall
 CFLAGS += -D_XOPEN_SOURCE=600
