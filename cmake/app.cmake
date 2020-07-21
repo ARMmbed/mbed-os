@@ -64,9 +64,9 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
     )
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
     set(CMAKE_POST_BUILD_COMMAND
-        COMMAND ${ELF2BIN} --bin  -o $<TARGET_FILE:app>.bin $<TARGET_FILE:app>
+        COMMAND ${ELF2BIN} ${MBED_STUDIO_ARM_COMPILER} --bin  -o $<TARGET_FILE:app>.bin $<TARGET_FILE:app>
         COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.bin"
-        COMMAND ${ELF2BIN} --i32combined  -o $<TARGET_FILE:app>.hex $<TARGET_FILE:app>
+        COMMAND ${ELF2BIN} ${MBED_STUDIO_ARM_COMPILER} --i32combined  -o $<TARGET_FILE:app>.hex $<TARGET_FILE:app>
         COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.hex"
     )
 elseif(MBED_TOOLCHAIN STREQUAL "IAR")
