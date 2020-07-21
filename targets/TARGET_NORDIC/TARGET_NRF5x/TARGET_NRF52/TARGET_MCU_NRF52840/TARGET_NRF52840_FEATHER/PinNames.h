@@ -196,7 +196,7 @@ typedef enum {
 
     SPI_PSELMOSI0 = p13,
     SPI_PSELMISO0 = p15,
-    SPI_PSELSS0   = p17,
+    SPI_PSELSS0   = p41,
     SPI_PSELSCK0  = p14,
 
     // SPI_PSELMOSI1 = p12,
