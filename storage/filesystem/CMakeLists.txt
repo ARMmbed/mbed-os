@@ -8,11 +8,13 @@ add_subdirectory(littlefsv2)
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem
 )
 
 target_sources(mbed-os
     PRIVATE
-        Dir.cpp
-        File.cpp
-        FileSystem.cpp
+        source/Dir.cpp
+        source/File.cpp
+        source/FileSystem.cpp
 )
