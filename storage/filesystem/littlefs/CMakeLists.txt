@@ -4,13 +4,14 @@
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/littlefs
         ${CMAKE_CURRENT_SOURCE_DIR}/littlefs
-        ${CMAKE_CURRENT_SOURCE_DIR}/littlefs/emubd
 )
 
 target_sources(mbed-os
     PRIVATE
-        LittleFileSystem.cpp
+        source/LittleFileSystem.cpp
 
         littlefs/lfs.c
         littlefs/lfs_util.c
