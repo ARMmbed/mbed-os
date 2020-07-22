@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "TLSSocket.h"
+#include "netsocket/TLSSocket.h"
 
 #define TRACE_GROUP "TLSS"
 #include "mbed-trace/mbed_trace.h"

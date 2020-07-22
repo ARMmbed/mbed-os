@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "InternetSocket.h"
+#include "netsocket/InternetSocket.h"
 #include "platform/mbed_critical.h"
 #include "platform/Callback.h"
 

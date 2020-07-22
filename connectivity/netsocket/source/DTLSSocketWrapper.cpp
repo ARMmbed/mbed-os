@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "DTLSSocketWrapper.h"
+#include "netsocket/DTLSSocketWrapper.h"
 #include "platform/Callback.h"
 #include "drivers/Timer.h"
 #include "events/mbed_events.h"

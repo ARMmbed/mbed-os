@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "SocketStats.h"
+#include "netsocket/SocketStats.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"
 #ifdef MBED_CONF_RTOS_PRESENT

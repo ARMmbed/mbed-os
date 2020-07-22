@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "InternetDatagramSocket.h"
+#include "netsocket/InternetDatagramSocket.h"
 #include "Timer.h"
 #include "mbed_assert.h"
 

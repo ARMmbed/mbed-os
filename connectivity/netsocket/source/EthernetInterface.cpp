@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "EthernetInterface.h"
+#include "netsocket/EthernetInterface.h"
 
 /* No actual interface implementation here, as EthernetInterface is
  * just an EMACInterface. But we can be the default EthInterface - step up

@@ -1,5 +1,6 @@
-/* LWIP implementation of NetworkInterfaceAPI
- * Copyright (c) 2015 ARM Limited
+/*
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +15,24 @@
  * limitations under the License.
  */
 
-#include "EMACInterface.h"
+#include "netsocket/PPPInterface.h"
 
 using namespace mbed;
 
 /* Interface implementation */
-EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
-    _emac(emac),
+PPPInterface::PPPInterface(PPP &ppp, OnboardNetworkStack &stack) :
+    _ppp(ppp),
     _stack(stack)
 {
 }
 
-nsapi_error_t EMACInterface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
+PPPInterface::~PPPInterface()
 {
-    _dhcp = false;
+    _stack.remove_ppp_interface(&_interface);
+}
 
+nsapi_error_t PPPInterface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
+{
     strncpy(_ip_address, ip_address.get_ip_address() ? ip_address.get_ip_address() : "", sizeof(_ip_address));
     _ip_address[sizeof(_ip_address) - 1] = '\0';
     strncpy(_netmask, netmask.get_ip_address() ? netmask.get_ip_address() : "", sizeof(_netmask));
@@ -39,16 +43,14 @@ nsapi_error_t EMACInterface::set_network(const SocketAddress &ip_address, const 
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t EMACInterface::set_dhcp(bool dhcp)
+nsapi_error_t PPPInterface::connect()
 {
-    _dhcp = dhcp;
-    return NSAPI_ERROR_OK;
-}
+    _ppp.set_stream(_stream);
+    _ppp.set_ip_stack(_ip_stack);
+    _ppp.set_credentials(_uname, _password);
 
-nsapi_error_t EMACInterface::connect()
-{
     if (!_interface) {
-        nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
+        nsapi_error_t err = _stack.add_ppp_interface(_ppp, true, &_interface);
         if (err != NSAPI_ERROR_OK) {
             _interface = NULL;
             return err;
@@ -56,15 +58,15 @@ nsapi_error_t EMACInterface::connect()
         _interface->attach(_connection_status_cb);
     }
 
-    return _interface->bringup(_dhcp,
+    return _interface->bringup(false,
                                _ip_address[0] ? _ip_address : 0,
                                _netmask[0] ? _netmask : 0,
                                _gateway[0] ? _gateway : 0,
-                               DEFAULT_STACK,
+                               _ip_stack,
                                _blocking);
 }
 
-nsapi_error_t EMACInterface::disconnect()
+nsapi_error_t PPPInterface::disconnect()
 {
     if (_interface) {
         return _interface->bringdown();
@@ -72,15 +74,7 @@ nsapi_error_t EMACInterface::disconnect()
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-const char *EMACInterface::get_mac_address()
-{
-    if (_interface && _interface->get_mac_address(_mac_address, sizeof(_mac_address))) {
-        return _mac_address;
-    }
-    return nullptr;
-}
-
-nsapi_error_t EMACInterface::get_ip_address(SocketAddress *address)
+nsapi_error_t PPPInterface::get_ip_address(SocketAddress *address)
 {
     if (_interface && _interface->get_ip_address(address) == NSAPI_ERROR_OK) {
         strncpy(_ip_address, address->get_ip_address(), sizeof(_ip_address));
@@ -90,16 +84,7 @@ nsapi_error_t EMACInterface::get_ip_address(SocketAddress *address)
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-nsapi_error_t EMACInterface::get_ipv6_link_local_address(SocketAddress *address)
-{
-    if (_interface) {
-        return _interface->get_ipv6_link_local_address(address);
-    }
-
-    return NSAPI_ERROR_NO_CONNECTION;
-}
-
-nsapi_error_t EMACInterface::get_netmask(SocketAddress *address)
+nsapi_error_t PPPInterface::get_netmask(SocketAddress *address)
 {
     if (_interface && _interface->get_netmask(address) == NSAPI_ERROR_OK) {
         strncpy(_netmask, address->get_ip_address(), sizeof(_netmask));
@@ -109,17 +94,18 @@ nsapi_error_t EMACInterface::get_netmask(SocketAddress *address)
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-nsapi_error_t EMACInterface::get_gateway(SocketAddress *address)
+nsapi_error_t PPPInterface::get_gateway(SocketAddress *address)
 {
     if (_interface && _interface->get_gateway(address) == NSAPI_ERROR_OK) {
         strncpy(_gateway, address->get_ip_address(), sizeof(_gateway));
+        address->set_ip_address(_gateway);
         return NSAPI_ERROR_OK;
     }
 
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-char *EMACInterface::get_interface_name(char *interface_name)
+char *PPPInterface::get_interface_name(char *interface_name)
 {
     if (_interface) {
         return _interface->get_interface_name(interface_name);
@@ -128,19 +114,36 @@ char *EMACInterface::get_interface_name(char *interface_name)
     return NULL;
 }
 
-void EMACInterface::set_as_default()
+void PPPInterface::set_as_default()
 {
     if (_interface) {
         _stack.set_default_interface(_interface);
     }
 }
 
-NetworkStack *EMACInterface::get_stack()
+void PPPInterface::set_stream(mbed::FileHandle *stream)
+{
+    _stream = stream;
+}
+
+void PPPInterface::set_ip_stack(nsapi_ip_stack_t ip_stack)
+{
+
+    _ip_stack = ip_stack;
+}
+
+void PPPInterface::set_credentials(const char *uname, const char *password)
+{
+    _uname = uname;
+    _password = password;
+}
+
+NetworkStack *PPPInterface::get_stack()
 {
     return &_stack;
 }
 
-void EMACInterface::attach(
+void PPPInterface::attach(
     mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _connection_status_cb = status_cb;
@@ -149,7 +152,7 @@ void EMACInterface::attach(
     }
 }
 
-nsapi_connection_status_t EMACInterface::get_connection_status() const
+nsapi_connection_status_t PPPInterface::get_connection_status() const
 {
     if (_interface) {
         return _interface->get_connection_status();
@@ -158,7 +161,7 @@ nsapi_connection_status_t EMACInterface::get_connection_status() const
     }
 }
 
-nsapi_error_t EMACInterface::set_blocking(bool blocking)
+nsapi_error_t PPPInterface::set_blocking(bool blocking)
 {
     _blocking = blocking;
     return NSAPI_ERROR_OK;

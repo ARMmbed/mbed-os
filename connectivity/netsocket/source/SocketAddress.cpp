@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "SocketAddress.h"
-#include "NetworkInterface.h"
-#include "NetworkStack.h"
+#include "netsocket/SocketAddress.h"
+#include "netsocket/NetworkInterface.h"
+#include "netsocket/NetworkStack.h"
 #include <string.h>
 #include <stdio.h>
 #include "ip4string.h"

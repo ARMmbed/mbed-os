@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "TLSSocketWrapper.h"
+#include "netsocket/TLSSocketWrapper.h"
 #include "platform/Callback.h"
 #include "drivers/Timer.h"
 #include "events/mbed_events.h"

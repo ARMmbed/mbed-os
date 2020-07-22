@@ -16,10 +16,10 @@
 
 #include "netsocket/NetworkInterface.h"
 
-#include "EthInterface.h"
-#include "WiFiInterface.h"
-#include "CellularInterface.h"
-#include "MeshInterface.h"
+#include "netsocket/EthInterface.h"
+#include "netsocket/WiFiInterface.h"
+#include "netsocket/CellularInterface.h"
+#include "netsocket/MeshInterface.h"
 
 /* Weak default instance static classes for the various abstract classes.
  * Applications can override these.

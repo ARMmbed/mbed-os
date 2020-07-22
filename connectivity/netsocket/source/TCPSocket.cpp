@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "TCPSocket.h"
+#include "netsocket/TCPSocket.h"
 #include "Timer.h"
 #include "mbed_assert.h"
 

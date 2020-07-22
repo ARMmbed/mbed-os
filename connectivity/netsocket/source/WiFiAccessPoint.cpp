@@ -31,4 +31,3 @@ uint8_t WiFiAccessPoint::get_channel() const
 {
     return _ap.channel;
 }
-

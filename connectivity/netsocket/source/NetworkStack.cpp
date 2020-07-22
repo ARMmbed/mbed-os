@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "NetworkStack.h"
-#include "nsapi_dns.h"
+#include "netsocket/NetworkStack.h"
+#include "netsocket/nsapi_dns.h"
 #include "stddef.h"
 #include <new>
 #include "events/EventQueue.h"
@@ -434,4 +434,3 @@ NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
                        "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
     return new (stack->_stack_buffer) NetworkStackWrapper;
 }
-

@@ -180,4 +180,3 @@ nsapi_error_t NetworkInterface::set_blocking(bool blocking)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
-

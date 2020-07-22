@@ -61,4 +61,3 @@ uint32_t NetStackMemoryManager::copy_from_buf(void *ptr, uint32_t len, const net
 
     return copied_len;
 }
-

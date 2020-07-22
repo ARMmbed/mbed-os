@@ -16,7 +16,7 @@
  */
 
 #include "platform/Callback.h"
-#include "CellularNonIPSocket.h"
+#include "netsocket/CellularNonIPSocket.h"
 #include <stdio.h>
 
 using namespace mbed;

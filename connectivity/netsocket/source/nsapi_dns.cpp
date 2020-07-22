@@ -18,7 +18,7 @@
 /* Declare __STDC_LIMIT_MACROS so stdint.h defines INT32_MAX when using C++ */
 #define __STDC_LIMIT_MACROS
 
-#include "nsapi_dns.h"
+#include "netsocket/nsapi_dns.h"
 #include "netsocket/UDPSocket.h"
 #include <string.h>
 #include <stdlib.h>
@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include "mbed_shared_queues.h"
 #include "events/EventQueue.h"
-#include "OnboardNetworkStack.h"
+#include "netsocket/OnboardNetworkStack.h"
 #include "rtos/Kernel.h"
 #include "PlatformMutex.h"
 #include "SingletonPtr.h"
