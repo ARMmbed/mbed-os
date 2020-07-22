@@ -453,7 +453,7 @@ static inline psa_key_type_t mbedtls_psa_parse_tls_ecc_group(
 {
 #if TARGET_TFM
     *bits = PSA_ECC_CURVE_BITS( tls_ecc_grp_reg_id );
-    return( (psa_ecc_curve_t) tls_ecc_grp_reg_id );
+    return( PSA_KEY_TYPE_ECC_KEY_PAIR( tls_ecc_grp_reg_id ));
 #else
     const mbedtls_ecp_curve_info *curve_info =
         mbedtls_ecp_curve_info_from_tls_id( tls_ecc_grp_reg_id );
