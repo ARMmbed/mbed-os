@@ -58,8 +58,6 @@ matrix:
       language: python
       python: 3.6.8 # scancode-toolkit v3.1.1 requires v3.6.8
       install:
-        # workaround for https://github.com/ARMmbed/mbed-os/issues/13322
-        - pip install pdfminer.six==20200517
         - pip install scancode-toolkit==3.1.1
       before_script:
         - mkdir -p SCANCODE
