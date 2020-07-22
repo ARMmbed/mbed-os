@@ -49,7 +49,8 @@ OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
 }
 
 // Wrapper to avoid calling OnboardNetworkStack::get_default_instance() everywhere
-static OnboardNetworkStackMock &stackMock() {
+static OnboardNetworkStackMock &stackMock()
+{
     return OnboardNetworkStackMock::get_instance();
 }
 

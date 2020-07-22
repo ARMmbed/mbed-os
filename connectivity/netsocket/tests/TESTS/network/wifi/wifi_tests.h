@@ -72,7 +72,7 @@ void wifi_connect_secure(void);
 /** Test WiFiInterface::connect() failing with wrong password. */
 void wifi_connect_secure_fail(void);
 
-/** Test WiFiInterface::connect() - disconnect() repeatition works. */
+/** Test WiFiInterface::connect() - disconnect() repetition works. */
 void wifi_connect_disconnect_repeat(void);
 
 /** Call WiFiInterface::scan() with null parameters to get number of networks available. */

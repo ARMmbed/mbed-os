@@ -179,7 +179,7 @@ TEST_F(TestEthernetInterface, set_network)
     // Testing the getters makes sense now.
     EXPECT_CALL(*netStackIface, get_mac_address(_, _))
     .Times(1)
-    .WillOnce(DoAll(SetArrayArgument<0>(macAddress, macAddress+NSAPI_MAC_SIZE), Return(macAddress)));
+    .WillOnce(DoAll(SetArrayArgument<0>(macAddress, macAddress + NSAPI_MAC_SIZE), Return(macAddress)));
     EXPECT_EQ(std::string(macAddress), std::string(iface->get_mac_address()));
 
     EXPECT_CALL(*netStackIface, get_ip_address(_))
