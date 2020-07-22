@@ -42,69 +42,6 @@ This document mainly applies to the pin standards required for Arduino Uno heade
 
 To achieve meaningful portability of application code across various Mbed enabled boards, the pin names of commonly used interfaces and board components should be common across these boards. This document describes a set of rules on how to name these pins in the board support package, specifically in PinNames.h file of the board.
 
-### Arduino Uno (Rev3) Header Pins
-
-All Arduino Uno (Rev3) form factor Mbed controller boards should define D0-D15 & A0-A5 pins as a default standard. "ARDUINO" should also be added as a 'supported-form-factors' in the targets.json file.
-
-    // Arduino Uno (Rev3) header pin connection naming  
-    // Px_xx relates to the processor pin connected to the Arduino Uno (Rev3) header pin
-    
-    D0 = Px_xx,  // UART RX / GPIO 0  
-    D1 = Px_xx,  // UART TX / GPIO 1  
-    D2 = Px_xx,  // GPIO 2  
-    D3 = Px_xx,  // TMR / PWM / GPIO 3  
-    D4 = Px_xx,  // GPIO 4  
-    D5 = Px_xx,  // TMR / PWM / GPIO 5  
-    D6 = Px_xx,  // TMR / PWM / GPIO 6  
-    D7 = Px_xx,  // GPIO 7  
-    D8 = Px_xx,  // GPIO 8  
-    D9 = Px_xx,  // TMR / PWM / GPIO 9  
-    D10 = Px_xx, // SPI CS / TMR / PWM / GPIO 10  
-    D11 = Px_xx, // SPI MOSI / TMR / PWM / GPIO 11  
-    D12 = Px_xx, // SPI MISO / GPIO 12  
-    D13 = Px_xx, // SPI SCK / GPIO 13  
-    D14 = Px_xx, // I2C SDA / GPIO 14  
-    D15 = Px_xx, // I2C SCL / GPIO 15  
-    
-    A0 = Px_xx,  // ADC 0 / GPIO 16  
-    A1 = Px_xx,  // ADC 1 / GPIO 17  
-    A2 = Px_xx,  // ADC 2 / GPIO 18  
-    A3 = Px_xx,  // ADC 3 / GPIO 19  
-    A4 = Px_xx,  // ADC 4 / GPIO 20  
-    A5 = Px_xx,  // ADC 5 / GPIO 21
-
-**I2C Definition for Arduino Uno (Rev3) Pins**
-
-All I2C definitions for the Arduino Uno (Rev3) header pins should be defined as follows:
-
-    // Arduino Uno (Rev3) header pin connection naming   
-    // Px_xx relates to the processor pin connected to the Arduino Uno (Rev3) header pin
-    
-    D14 = Px_xx, // I2C SDA / GPIO 14  
-    D15 = Px_xx, // I2C SCL / GPIO 15
-
-    // I2C signals are aliased as below  
-    I2C_SDA = D14, // I2C SDA  
-    I2C_SCL = D15, // I2C SCL
-
-**SPI definition for Arduino Uno (Rev3) Pins**  
-
-All SPI definitions for the Arduino Uno (Rev3) header pins should be defined as follows:
-
-    // Arduino Uno (Rev3) header pin connection naming  
-    // Px_xx relates to the processor pin connected to the Arduino Uno (Rev3) header pin
-    
-    D10 = Px_xx,    // SPI CS / TMR / PWM / GPIO 10  
-    D11 = Px_xx,    // SPI MOSI / TMR / PWM / GPIO 11  
-    D12 = Px_xx,    // SPI MISO / GPIO 12  
-    D13 = Px_xx,    // SPI SCK / GPIO 13  
-
-    // SPI signals are aliased as below  
-    
-    SPI_CS = D10,   // SPI CS  
-    SPI_MOSI = D11, // SPI MOSI  
-    SPI_MISO = D12, // SPI MISO  
-    SPI_SCK = D13,  // SPI SCK
 
 ### Custom/Vendor Header Pins
 
@@ -152,34 +89,48 @@ All SPI definitions for a new connector should be defined as follows:
 
 ### Board Components Pins
 
+>>Modifications from previous version: #defines for LEDs,BUTTONs. Decision on NC should be used or not. 
+>>Does this make sense or should we stick to Kevin's suggestion? Should the code be able to catch:
+static_assert(BUTTON1 != NC && BUTTON2 != NC, "This application needs two buttons");
+
+>>If so, how many LEDs/BUTTONs would you define?
+
 **LED Definition**
 
-LEDs on the board should be numbered as shown below. Such numbered LED pin names should be assigned a unique processor pin. They can also be defined as aliases to other LED pin names. 
+All LED definitions should be defined as follows in PinNames.h:
 
-All LED definitions should be defined as follows:
-
-    // Px_xx relates to the processor pin connected to the LED
+    // Px_xx relates to the processor pin connected to the LED
     
-    LED1 = Px_xx,  // LED1  
-    LED2 = Px_xx,  // LED2  
-    LED3 = Px_xx,  // LED3  
-    LED4 = Px_xx,  // LED4  
+    #define LED1 = Px_xx  // LED1
+    #define LED2 = Px_xx  // LED2  
+    #define LED3 = Px_xx  // LED3  
+    #define LED4 = Px_xx  // LED4  
     .  
     .  
-    LEDN = Px_xx   // LEDN
+    #define LEDN = Px_xx   // LEDN
+
+>>Should be in applicatiopn code
+A comment describing more LED properties, like color or functionality can also be provided. If color descriptive names are required, they can be defined as aliases, as shown below:
+
+    #define RED_LED = LED1
+    #define STATUS_LED = LED2
 
 **BUTTON Definition**
 
-All BUTTON definitions should be defined as follows:
+All BUTTON definitions should be defined as follows in PinNames.h:
 
-    // Px_xx relates to the processor pin connected to the Button  
-    BUTTON1 = Px_xx,  // BUTTON1  
-    BUTTON2 = Px_xx,  // BUTTON2  
-    BUTTON3 = Px_xx,  // BUTTON3  
-    BUTTON4 = Px_xx,  // BUTTON4   
+    // Px_xx relates to the processor pin connected to the Button  
+    #define BUTTON1 = Px_xx  // BUTTON1  
+    #define BUTTON2 = Px_xx  // BUTTON2  
+    #define BUTTON3 = Px_xx  // BUTTON3  
+    #define BUTTON4 = Px_xx  // BUTTON4   
     .  
     .  
-    BUTTONN = Px_xx   // BUTTONN  
+    #define BUTTONN = Px_xx   // BUTTONN  
+
+A comment describing more BUTTON properties can also be provided, as shown below:
+
+    #define RESET_BUTTON = BUTTON1
 
 # Other information
 
@@ -189,12 +140,12 @@ If only 1 LED/BUTTON is on board, do not define additional LEDs/BUTTONs in BSP. 
 
     // Do not do the following
     
-    LED1 = Px_xx,  // LED1  
-    LED2 = LED1,   // LED2  
-    LED3 = LED1,   // LED3  
-    LED4 = LED1,   // LED4   
+    #define LED1 = Px_xx,  // LED1  
+    #define LED2 = LED1,   // LED2  
+    #define LED3 = LED1,   // LED3  
+    #define LED4 = LED1,   // LED4   
     
-    BUTTON1 = Px_xx,     // BUTTON1  
-    BUTTON2 = BUTTON1,   // BUTTON2  
-    BUTTON3 = BUTTON1,   // BUTTON3  
-    BUTTON4 = BUTTON1,   // BUTTON4  
+    #define BUTTON1 = Px_xx,     // BUTTON1  
+    #define BUTTON2 = BUTTON1,   // BUTTON2  
+    #define BUTTON3 = BUTTON1,   // BUTTON3  
+    #define BUTTON4 = BUTTON1,   // BUTTON4  

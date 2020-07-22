@@ -52,34 +52,34 @@ To achieve meaningful portability of application code across various Mbed enable
 
 ### Arduino Uno (Rev3) connector Pins
 
-All Arduino Uno (Rev3) form factor Mbed controller boards should define D0-D15 & A0-A5 pins as a default standard. These pins should be defined in PinNames.h file within a PinName enum. The prefix Arduino_Uno_ distinguishes these pins from pins defined for other custom/common connectors that may have similar pin names. 
+All Arduino Uno (Rev3) form factor Mbed controller boards should define D0-D15 & A0-A5 pins as a default standard. These pins should be defined in PinNames.h file within a PinName enum. The prefix ARDUINO_UNO_ distinguishes these pins from pins defined for other custom/common connectors that may have similar pin names. 
 
     // Arduino Uno (Rev3) connector pin connection naming  
     // Px_xx relates to the processor pin connected to the Arduino Uno (Rev3) connector pin
 
-    Arduino_Uno_D0 = Px_xx,
-    Arduino_Uno_D1 = Px_xx,
-    Arduino_Uno_D2 = Px_xx,
-    Arduino_Uno_D3 = Px_xx,
-    Arduino_Uno_D4 = Px_xx,
-    Arduino_Uno_D5 = Px_xx,
-    Arduino_Uno_D6 = Px_xx,
-    Arduino_Uno_D7 = Px_xx,
-    Arduino_Uno_D8 = Px_xx,
-    Arduino_Uno_D9 = Px_xx,
-    Arduino_Uno_D10 = Px_xx,
-    Arduino_Uno_D11 = Px_xx,
-    Arduino_Uno_D12 = Px_xx,
-    Arduino_Uno_D13 = Px_xx,
-    Arduino_Uno_D14 = Px_xx,
-    Arduino_Uno_D15 = Px_xx,
+    ARDUINO_UNO_D0 = Px_xx,
+    ARDUINO_UNO_D1 = Px_xx,
+    ARDUINO_UNO_D2 = Px_xx,
+    ARDUINO_UNO_D3 = Px_xx,
+    ARDUINO_UNO_D4 = Px_xx,
+    ARDUINO_UNO_D5 = Px_xx,
+    ARDUINO_UNO_D6 = Px_xx,
+    ARDUINO_UNO_D7 = Px_xx,
+    ARDUINO_UNO_D8 = Px_xx,
+    ARDUINO_UNO_D9 = Px_xx,
+    ARDUINO_UNO_D10 = Px_xx,
+    ARDUINO_UNO_D11 = Px_xx,
+    ARDUINO_UNO_D12 = Px_xx,
+    ARDUINO_UNO_D13 = Px_xx,
+    ARDUINO_UNO_D14 = Px_xx,
+    ARDUINO_UNO_D15 = Px_xx,
 
-    Arduino_Uno_A0 = Px_xx,
-    Arduino_Uno_A1 = Px_xx,
-    Arduino_Uno_A2 = Px_xx,
-    Arduino_Uno_A3 = Px_xx,
-    Arduino_Uno_A4 = Px_xx,
-    Arduino_Uno_A5 = Px_xx,
+    ARDUINO_UNO_A0 = Px_xx,
+    ARDUINO_UNO_A1 = Px_xx,
+    ARDUINO_UNO_A2 = Px_xx,
+    ARDUINO_UNO_A3 = Px_xx,
+    ARDUINO_UNO_A4 = Px_xx,
+    ARDUINO_UNO_A5 = Px_xx,
 
 >>TODO: Should the Arduino Uno standard description be provided here?
 
