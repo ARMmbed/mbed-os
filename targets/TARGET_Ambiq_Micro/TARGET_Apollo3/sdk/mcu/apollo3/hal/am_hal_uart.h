@@ -172,8 +172,8 @@ am_hal_uart_transfer_t;
 
 // Flow control
 #define AM_HAL_UART_FLOW_CTRL_NONE          0
-#define AM_HAL_UART_FLOW_CTRL_CTS_ONLY      UART_CR_CTSEN_Msk
-#define AM_HAL_UART_FLOW_CTRL_RTS_ONLY      UART_CR_RTSEN_Msk
+#define AM_HAL_UART_FLOW_CTRL_CTS_ONLY      UART0_CR_CTSEN_Msk
+#define AM_HAL_UART_FLOW_CTRL_RTS_ONLY      UART0_CR_RTSEN_Msk
 #define AM_HAL_UART_FLOW_CTRL_RTS_CTS       (UART0_CR_CTSEN_Msk |   \
                                              UART0_CR_RTSEN_Msk)
 // FIFO enable/disable.

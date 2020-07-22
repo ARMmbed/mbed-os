@@ -70,6 +70,7 @@
 #define AM_HAL_PIN_1_MSPI5        (5)
 #define AM_HAL_PIN_1_NCE1         (7)
 
+#define AM_HAL_PIN_2_UART1RX      (0)
 #define AM_HAL_PIN_2_SLMISO       (1)
 #define AM_HAL_PIN_2_UART0RX      (2)
 #define AM_HAL_PIN_2_GPIO         (3)
@@ -89,7 +90,7 @@
 #define AM_HAL_PIN_4_SLINT        (1)
 #define AM_HAL_PIN_4_NCE4         (2)
 #define AM_HAL_PIN_4_GPIO         (3)
-#define AM_HAL_PIN_4_UART0RX      (5)
+#define AM_HAL_PIN_4_UART1RX      (5)
 #define AM_HAL_PIN_4_CTIM17       (6)
 #define AM_HAL_PIN_4_MSPI2        (7)
 
@@ -129,6 +130,7 @@
 #define AM_HAL_PIN_9_SCCIO        (4)
 #define AM_HAL_PIN_9_UART1RX      (6)
 
+#define AM_HAL_PIN_10_UART1TX     (0)
 #define AM_HAL_PIN_10_M1MOSI      (1)
 #define AM_HAL_PIN_10_NCE10       (2)
 #define AM_HAL_PIN_10_GPIO        (3)
@@ -437,7 +439,7 @@
 #define AM_HAL_PIN_44_CTIM20      (2)
 #define AM_HAL_PIN_44_GPIO        (3)
 #define AM_HAL_PIN_44_M4MOSI      (5)
-#define AM_HAL_PIN_44_M5nCE6      (6)
+#define AM_HAL_PIN_44_UART0TX     (6)
 
 #if defined (AM_PACKAGE_BGA)
 #define AM_HAL_PIN_45_UART1CTS    (0)
