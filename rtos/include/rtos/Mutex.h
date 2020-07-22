@@ -139,7 +139,7 @@ public:
     bool trylock_until(uint64_t millisec);
 
     /** Try to lock the mutex until specified time
-      @param   abs_time  absolute timeout time, referenced to Kernel::get_ms_count()
+      @param   abs_time  absolute timeout time, referenced to Kernel::Clock
       @return true if the mutex was acquired, false otherwise.
       @note the underlying RTOS may have a limit to the maximum wait time
             due to internal 32-bit computations, but this is guaranteed to work if the
