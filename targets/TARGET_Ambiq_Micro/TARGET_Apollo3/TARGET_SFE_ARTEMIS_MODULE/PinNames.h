@@ -29,7 +29,7 @@ extern "C"
 {
 #endif
 
-#define NC_VAL (uint32_t)0xFFFFFFFF
+#define NC_VAL (int)0xFFFFFFFF
 
     typedef enum
     {
