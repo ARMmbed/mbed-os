@@ -10,11 +10,11 @@ Target API
 
 The target for this plan is to test:
 
--   [Socket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h).
--   [UDPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/UDPSocket.h).
--   [TCPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPSocket.h).
--   [TLSSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TLSSocket.h).
--   [DNS](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/DNS.h).
+-   [Socket](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/Socket.h).
+-   [UDPSocket](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/UDPSocket.h).
+-   [TCPSocket](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/TCPSocket.h).
+-   [TLSSocket](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/TLSSocket.h).
+-   [DNS](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/DNS.h).
 
 Please see the [Network Socket documentation](https://os.mbed.com/docs/mbed-os/latest/apis/network-socket.html) for reference.
 
@@ -122,7 +122,7 @@ key = /etc/letsencrypt/live/<test_server_url>/privkey.pem
 Get, update and install certificate files by certbot (Provided by Let's Encrypt <https://letsencrypt.org/>).
 
 -   Install lighthttpd server:
-   
+
    ```.sh
    $ sudo apt-get install lighttpd
    $ sudo rm -rf /var/www/html/*
@@ -133,7 +133,7 @@ Get, update and install certificate files by certbot (Provided by Let's Encrypt 
    ```
 
 -   Install and set up certbot:
-   
+
    ```.sh
    $ sudo apt-get update
    $ sudo apt-get install software-properties-common
@@ -143,9 +143,9 @@ Get, update and install certificate files by certbot (Provided by Let's Encrypt 
    $ sudo certbot certonly
    $ sudo certbot certonly --webroot -w /var/www/html -d <test_server_url>
    ```
-   
+
 -   Set test server to renew certificate before expiry.
-   
+
    ```.sh
    $ sudo echo "SHELL=/bin/sh" > /etc/cron.d/certbot
    $ sudo echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin" > /etc/cron.d/certbot
@@ -177,7 +177,7 @@ PORT     STATE SERVICE
 
 Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds
 
-$ sudo nmap -sU -p7,9,13,37,2007,2009,2013 echo.mbedcloudtesting.com 
+$ sudo nmap -sU -p7,9,13,37,2007,2009,2013 echo.mbedcloudtesting.com
 
 Starting Nmap 7.01 ( https://nmap.org ) at 2019-01-08 15:05 CET
 Nmap scan report for echo.mbedcloudtesting.com (52.215.34.155)
@@ -800,7 +800,7 @@ Repeatedly send packets to echo server and read incoming packets back. Verify di
 **Expected result:**
 
 - At least one `sendto()` call of every size returns the packet size.
-- Errors returned from `recvfrom()` calls are tolerated. 
+- Errors returned from `recvfrom()` calls are tolerated.
 - Calculate packet loss rate. The maximum tolerated packet loss rate is 30%.
 
 ### UDPSOCKET_ECHOTEST_NONBLOCK
@@ -832,7 +832,7 @@ mode.
 **Expected result:**
 
 - At least one `sendto()` call of every size returns the packet size.
-- Errors returned from `recvfrom()` calls are tolerated. 
+- Errors returned from `recvfrom()` calls are tolerated.
 - Calculate packet loss rate. The maximum tolerated packet loss rate is 30%.
 
 ### UDPSOCKET_ECHOTEST_CONNECT_SEND_RECV
@@ -1241,7 +1241,7 @@ Make an HTTP request to a closed socket.
 
 ### TLSSOCKET_SEND_UNCONNECTED
 
-**Description:** 
+**Description:**
 
 Make an HTTP request to an unconnected socket.
 

@@ -4,7 +4,7 @@ Network interface test plan
 Target API
 ----------
 
-The goal of this plan is to test [NetworkInterface.h](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/NetworkInterface.h)
+The goal of this plan is to test [NetworkInterface.h](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/NetworkInterface.h)
 
 Tools needed
 ----------------

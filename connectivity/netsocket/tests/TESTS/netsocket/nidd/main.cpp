@@ -152,4 +152,3 @@ int main()
 }
 
 #endif // !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE)
-

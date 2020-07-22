@@ -85,4 +85,3 @@ void ASYNCHRONOUS_DNS_TIMEOUTS()
 
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)
-

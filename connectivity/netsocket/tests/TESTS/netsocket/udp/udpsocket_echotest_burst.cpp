@@ -244,4 +244,3 @@ PKT_OK:
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
-

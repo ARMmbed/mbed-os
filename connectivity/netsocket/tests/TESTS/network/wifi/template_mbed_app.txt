@@ -39,7 +39,7 @@
     },
     "target_overrides": {
         "*": {
-            "target.network-default-interface-type": "WIFI"    
+            "target.network-default-interface-type": "WIFI"
         }
     }
 }

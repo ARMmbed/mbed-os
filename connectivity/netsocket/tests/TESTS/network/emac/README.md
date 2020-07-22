@@ -35,7 +35,7 @@ For Wi-Fi, set the `json` configuration to:
     }
 ```
 
-For Wi-Fi, you also need to configure Wi-Fi SSID and security options to the configuration file. 
+For Wi-Fi, you also need to configure Wi-Fi SSID and security options to the configuration file.
 
 
 Test case priorities

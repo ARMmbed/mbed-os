@@ -6,7 +6,7 @@ This is a test plan for Mbed OS Wi-Fi API.
 Target API
 ----------
 
-The goal of this plan is to test the [WiFiInterface](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/WiFiInterface.h) class.
+The goal of this plan is to test the [WiFiInterface](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/WiFiInterface.h) class.
 
 Tools needed
 ----------------
@@ -215,9 +215,9 @@ For 2.4 Ghz chips:
 |---------|-----------------------------------------------------------------------------------|
 | 0       | NSAPI_ERROR_OK (0 = any channel)                                                  |
 | 1       | NSAPI_ERROR_OK                                                                    |
-| 13      | NSAPI_ERROR_OK if supporting European frequencies                                 |                  
+| 13      | NSAPI_ERROR_OK if supporting European frequencies                                 |
 |         | NSAPI_ERROR_PARAMETER if configured for North America                             |
-| 15      | NSAPI_ERROR_PARAMETER                                                             |  
+| 15      | NSAPI_ERROR_PARAMETER                                                             |
 |         | because not a valid 2.4 Ghz channel                                               |
 
 For 5 Ghz chips:
@@ -227,7 +227,7 @@ For 5 Ghz chips:
 | 3       | NSAPI_ERROR_PARAMETER                                                             |
 |         | because not a valid 5 Ghz channel number                                          |
 | 36      | NSAPI_ERROR_OK                                                                    |
-| 169     | NSAPI_ERROR_PARAMETERs                                                            |                  
+| 169     | NSAPI_ERROR_PARAMETERs                                                            |
 |         | should not be allowed in any country                                              |
 
 Drivers not supporting
@@ -375,7 +375,7 @@ Test `WiFiInterface::connect()` without parameters. Use `set_credentials()` for 
 
 **Description:**
 
-Test `WiFiInterface::connect()` and `WiFiInterface::disconnect()` in non-blocking mode. It checks that driver can connect and disconnect in nonblocking mode. 
+Test `WiFiInterface::connect()` and `WiFiInterface::disconnect()` in non-blocking mode. It checks that driver can connect and disconnect in nonblocking mode.
 
 **Preconditions:**
 
@@ -396,12 +396,12 @@ Test `WiFiInterface::connect()` and `WiFiInterface::disconnect()` in non-blockin
 **Expected result:**
 
 1. Drivers which do not support asynchronous mode `set_blocking(false)` call returns `NSAPI_ERROR_UNSUPPORTED` and skips test case.
-2. `connect()` call returns  `NSAPI_ERROR_OK`. 
-3. `set_credentials(...)` call returns `NSAPI_ERROR_BUSY`. 
+2. `connect()` call returns  `NSAPI_ERROR_OK`.
+3. `set_credentials(...)` call returns `NSAPI_ERROR_BUSY`.
 4. Second `connect()` call returns `NSAPI_ERROR_BUSY` or `NSAPI_ERROR_IS_CONNECTED`.
-5. Attached callback informs about connection status. Callback reports status `NSAPI_STATUS_CONNECTING` and `NSAPI_STATUS_CONNECTED`. 
-6. `disconnect()` call returns `NSAPI_ERROR_OK`. 
-7. Second `disconnect()` call returns `NSAPI_ERROR_BUSY` or `NSAPI_ERROR_IS_CONNECTED`. 
+5. Attached callback informs about connection status. Callback reports status `NSAPI_STATUS_CONNECTING` and `NSAPI_STATUS_CONNECTED`.
+6. `disconnect()` call returns `NSAPI_ERROR_OK`.
+7. Second `disconnect()` call returns `NSAPI_ERROR_BUSY` or `NSAPI_ERROR_IS_CONNECTED`.
 8. To confirm disconnection callback reports `NSAPI_STATUS_DISCONNECTED`.
 
 ### WIFI_CONNECT_SECURE

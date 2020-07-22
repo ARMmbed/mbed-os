@@ -71,4 +71,3 @@ void wifi_set_channel(void)
 
     wifi->set_channel(0);
 }
-

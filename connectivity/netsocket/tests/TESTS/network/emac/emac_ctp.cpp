@@ -150,4 +150,3 @@ void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, co
     emac_if_check_memory(false);
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)
-
