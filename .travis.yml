@@ -122,18 +122,25 @@ matrix:
         - pip install --upgrade mbed-tools
         # We use manual clone, with depth and single branch = the fastest
         # Because of this, we need to create .mbed file as the current tools require it
+        - git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/${EXAMPLE_NAME}.git;
         - >-
-         git clone --depth=1 --single-branch --branch feature-cmake https://github.com/ARMmbed/${EXAMPLE_NAME}.git;
-         cd ${EXAMPLE_NAME};
-         git clone --depth=1 --single-branch https://github.com/ARMmbed/mbed-os.git;
-         cd mbed-os;
-         git fetch origin +refs/pull/${TRAVIS_PULL_REQUEST}/merge;
-         git checkout -qf FETCH_HEAD
+          if [ -z ${SUBEXAMPLE_NAME} ]; then
+             cd ${EXAMPLE_NAME};
+           else
+             cd ${EXAMPLE_NAME}/${SUBEXAMPLE_NAME};
+           fi
+        - >-
+          git clone --depth=1 --single-branch https://github.com/ARMmbed/mbed-os.git;
+          cd mbed-os;
+          git fetch origin +refs/pull/${TRAVIS_PULL_REQUEST}/merge;
+          git checkout -qf FETCH_HEAD
         - >-
           cd -;
-          touch .mbed;
-          mbedtools configure -t GCC_ARM -m ${TARGET_NAME};
-          mkdir -p build
+        # Replace the content of mbed-os.lib to stay on ${TRAVIS_PULL_REQUEST}
+        -  echo “” > mbed-os.lib
+        -  mbedtools checkout;
+        -  mbedtools configure -t GCC_ARM -m ${TARGET_NAME};
+        -  mkdir -p build
       script:
         - cd build && cmake .. -GNinja -DCMAKE_BUILD_TYPE=${PROFILE} && cmake --build .
 
@@ -168,6 +175,39 @@ matrix:
     - <<: *cmake-build-test
       name: "CMake blinky example - debug (NRF52840_DK)"
       env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=NRF52840_DK PROFILE=debug
+
+    - <<: *cmake-build-test
+      name: "CMake kvstore example (K64F)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-kvstore TARGET_NAME=K64F
+
+    - <<: *cmake-build-test
+      name: "CMake ble example (NRF52840_DK)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-ble TARGET_NAME=NRF52840_DK SUBEXAMPLE_NAME=BLE_Button
+
+    - <<: *cmake-build-test
+      name: "CMake cellular example (WIO_3G)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-cellular TARGET_NAME=WIO_3G
+
+    - <<: *cmake-build-test
+      name: "CMake devicekey example (K66F)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-devicekey TARGET_NAME=K66F
+
+    - <<: *cmake-build-test
+      name: "CMake lorawan example (K66F)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-lorawan TARGET_NAME=K66F
+
+    - <<: *cmake-build-test
+      name: "CMake crypto example (K64F)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-mbed-crypto TARGET_NAME=K64F SUBEXAMPLE_NAME=getting-started
+ 
+    - <<: *cmake-build-test
+      name: "CMake nfc example (DISCO_L475VG_IOT01A)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-nfc TARGET_NAME=DISCO_L475VG_IOT01A SUBEXAMPLE_NAME=NFC_EEPROM
+
+    - <<: *cmake-build-test
+      name: "CMake sockets example (K64F)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-sockets TARGET_NAME=K64F
+
 
 
     ### Docs Tests ###
