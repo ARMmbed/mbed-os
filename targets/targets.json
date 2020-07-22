@@ -9152,7 +9152,7 @@
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0xC000"
     },
-    "NUMAKER_M252KG": {
+    "NUMAKER_IOT_M252": {
         "core": "Cortex-M23",
         "trustzone": false,
         "is_disk_virtual": true,
