@@ -477,7 +477,7 @@
       "sub-repo-example": false,
       "subs": [],
       "features" : [],
-      "targets" : ["DISCO_L475VG_IOT01A", "K64F"],
+      "targets" : ["DISCO_L475VG_IOT01A", "K64F", "NUCLEO_F429ZI"],
       "toolchains" : [],
       "exporters": [],
       "compile" : true,
