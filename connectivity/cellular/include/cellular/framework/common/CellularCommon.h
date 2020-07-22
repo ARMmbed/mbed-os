@@ -19,7 +19,7 @@
 #define CELLULAR_COMMON_
 
 #include <stdint.h>
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 const int CELLULAR_RETRY_ARRAY_SIZE = 10;
 

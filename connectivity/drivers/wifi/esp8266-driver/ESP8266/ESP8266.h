@@ -23,8 +23,8 @@
 #include <ctime>
 
 #include "drivers/BufferedSerial.h"
-#include "features/netsocket/nsapi_types.h"
-#include "features/netsocket/WiFiAccessPoint.h"
+#include "netsocket/nsapi_types.h"
+#include "netsocket/WiFiAccessPoint.h"
 #include "PinNames.h"
 #include "platform/ATCmdParser.h"
 #include "platform/Callback.h"
@@ -32,7 +32,7 @@
 #include "platform/mbed_error.h"
 #include "rtos/Mutex.h"
 #include "rtos/ThisThread.h"
-#include "features/netsocket/SocketAddress.h"
+#include "netsocket/SocketAddress.h"
 
 // Various timeouts for different ESP8266 operations
 // (some of these can't use literal form as they're needed for defaults in this header, where

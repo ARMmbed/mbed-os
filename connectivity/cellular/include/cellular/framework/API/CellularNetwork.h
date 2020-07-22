@@ -19,7 +19,7 @@
 
 #include "CellularList.h"
 #include "Callback.h"
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 namespace mbed {
 

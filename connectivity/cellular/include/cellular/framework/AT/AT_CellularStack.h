@@ -19,7 +19,7 @@
 #define AT_CELLULAR_STACK_H_
 
 #include "ATHandler.h"
-#include "NetworkStack.h"
+#include "netsocket/NetworkStack.h"
 #include "PlatformMutex.h"
 #include "AT_CellularDevice.h"
 
