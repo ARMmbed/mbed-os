@@ -98,7 +98,6 @@
 /** @defgroup FLASHEx_Private_Functions FLASHEx Private Functions
  * @{
  */
-static void              FLASH_MassErase(void);
 static void              FLASH_AcknowledgePageErase(void);
 static void              FLASH_FlushCaches(void);
 static void              FLASH_OB_WRPConfig(uint32_t WRPArea, uint32_t WRPStartOffset, uint32_t WRDPEndOffset);
@@ -139,7 +138,7 @@ static HAL_StatusTypeDef FLASH_OB_ProceedWriteOperation(void);
   * @{
   */
 /**
-  * @brief  Perform a mass erase or erase the specified FLASH memory pages.
+  * @brief  Perform an erase of the specified FLASH memory pages.
   * @note   Before any operation, it is possible to check there is no operation suspended
   *         by call HAL_FLASHEx_IsOperationSuspended()
   * @param[in]  pEraseInit Pointer to an @ref FLASH_EraseInitTypeDef structure that
@@ -168,17 +167,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
 
   if (status == HAL_OK)
   {
-    if (pEraseInit->TypeErase == FLASH_TYPEERASE_MASSERASE)
-    {
-      /* Mass erase to be done */
-      FLASH_MassErase();
-
-      /* Wait for last operation to be completed */
-      status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
-
-      /* If operation is completed or interrupted, no need to clear the Mass Erase Bit */
-    }
-    else
+    if (pEraseInit->TypeErase == FLASH_TYPEERASE_PAGES)
     {
       /*Initialization of PageError variable*/
       *PageError = 0xFFFFFFFFU;
@@ -214,7 +203,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
 }
 
 /**
-  * @brief  Perform a mass erase or erase the specified FLASH memory pages with interrupt enabled.
+  * @brief  Perform an erase of the specified FLASH memory pages with interrupt enabled.
   * @note   Before any operation, it is possible to check there is no operation suspended
   *         by call HAL_FLASHEx_IsOperationSuspended()
   * @param  pEraseInit Pointer to an @ref FLASH_EraseInitTypeDef structure that
@@ -250,15 +239,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
     /* Enable End of Operation and Error interrupts */
     __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP | FLASH_IT_OPERR);
 
-    if (pEraseInit->TypeErase == FLASH_TYPEERASE_MASSERASE)
-    {
-      /* Set Page to 0 for Interrupt callback managment */
-      pFlash.Page = 0;
-
-      /* Proceed to Mass Erase */
-      FLASH_MassErase();
-    }
-    else
+    if (pEraseInit->TypeErase == FLASH_TYPEERASE_PAGES)
     {
       /* Erase by page to be done */
       pFlash.NbPagesToErase = pEraseInit->NbPages;
@@ -512,16 +493,6 @@ uint32_t HAL_FLASHEx_IsOperationSuspended(void)
 /** @addtogroup FLASHEx_Private_Functions
   * @{
   */
-
-/**
-  * @brief  Mass erase of FLASH memory.
-  * @retval None
-  */
-static void FLASH_MassErase(void)
-{
-  /* Set the Mass Erase Bit and start bit */
-  SET_BIT(FLASH->CR, (FLASH_CR_MER | FLASH_CR_STRT));
-}
 
 /**
   * @brief  Erase the specified FLASH memory page.

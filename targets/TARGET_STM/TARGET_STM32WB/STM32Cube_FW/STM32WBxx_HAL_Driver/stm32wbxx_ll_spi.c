@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_ll_spi.h"
 #include "stm32wbxx_ll_bus.h"
+#include "stm32wbxx_ll_rcc.h"
 
 #ifdef  USE_FULL_ASSERT
 #include "stm32_assert.h"
@@ -232,6 +233,10 @@ ErrorStatus LL_SPI_Init(SPI_TypeDef *SPIx, LL_SPI_InitTypeDef *SPI_InitStruct)
     status = SUCCESS;
   }
 
+#if defined (SPI_I2S_SUPPORT)
+  /* Activate the SPI mode (Reset I2SMOD bit in I2SCFGR register) */
+  CLEAR_BIT(SPIx->I2SCFGR, SPI_I2SCFGR_I2SMOD);
+#endif /* SPI_I2S_SUPPORT */
   return status;
 }
 
@@ -267,6 +272,251 @@ void LL_SPI_StructInit(LL_SPI_InitTypeDef *SPI_InitStruct)
 /**
   * @}
   */
+
+#if defined(SPI_I2S_SUPPORT)
+/** @addtogroup I2S_LL
+  * @{
+  */
+
+/* Private types -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup I2S_LL_Private_Constants I2S Private Constants
+  * @{
+  */
+/* I2S registers Masks */
+#define I2S_I2SCFGR_CLEAR_MASK             (SPI_I2SCFGR_CHLEN   | SPI_I2SCFGR_DATLEN | \
+                                            SPI_I2SCFGR_CKPOL   | SPI_I2SCFGR_I2SSTD | \
+                                            SPI_I2SCFGR_I2SCFG  | SPI_I2SCFGR_I2SMOD )
+
+#define I2S_I2SPR_CLEAR_MASK               0x0002U
+/**
+  * @}
+  */
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup I2S_LL_Private_Macros I2S Private Macros
+  * @{
+  */
+
+#define IS_LL_I2S_DATAFORMAT(__VALUE__)  (((__VALUE__) == LL_I2S_DATAFORMAT_16B)             \
+                                          || ((__VALUE__) == LL_I2S_DATAFORMAT_16B_EXTENDED) \
+                                          || ((__VALUE__) == LL_I2S_DATAFORMAT_24B)          \
+                                          || ((__VALUE__) == LL_I2S_DATAFORMAT_32B))
+
+#define IS_LL_I2S_CPOL(__VALUE__)        (((__VALUE__) == LL_I2S_POLARITY_LOW)  \
+                                          || ((__VALUE__) == LL_I2S_POLARITY_HIGH))
+
+#define IS_LL_I2S_STANDARD(__VALUE__)    (((__VALUE__) == LL_I2S_STANDARD_PHILIPS)      \
+                                          || ((__VALUE__) == LL_I2S_STANDARD_MSB)       \
+                                          || ((__VALUE__) == LL_I2S_STANDARD_LSB)       \
+                                          || ((__VALUE__) == LL_I2S_STANDARD_PCM_SHORT) \
+                                          || ((__VALUE__) == LL_I2S_STANDARD_PCM_LONG))
+
+#define IS_LL_I2S_MODE(__VALUE__)        (((__VALUE__) == LL_I2S_MODE_SLAVE_TX)     \
+                                          || ((__VALUE__) == LL_I2S_MODE_SLAVE_RX)  \
+                                          || ((__VALUE__) == LL_I2S_MODE_MASTER_TX) \
+                                          || ((__VALUE__) == LL_I2S_MODE_MASTER_RX))
+
+#define IS_LL_I2S_MCLK_OUTPUT(__VALUE__) (((__VALUE__) == LL_I2S_MCLK_OUTPUT_ENABLE) \
+                                          || ((__VALUE__) == LL_I2S_MCLK_OUTPUT_DISABLE))
+
+#define IS_LL_I2S_AUDIO_FREQ(__VALUE__) ((((__VALUE__) >= LL_I2S_AUDIOFREQ_8K)       \
+                                          && ((__VALUE__) <= LL_I2S_AUDIOFREQ_192K)) \
+                                         || ((__VALUE__) == LL_I2S_AUDIOFREQ_DEFAULT))
+
+#define IS_LL_I2S_PRESCALER_LINEAR(__VALUE__)  ((__VALUE__) >= 0x2U)
+
+#define IS_LL_I2S_PRESCALER_PARITY(__VALUE__) (((__VALUE__) == LL_I2S_PRESCALER_PARITY_EVEN) \
+                                               || ((__VALUE__) == LL_I2S_PRESCALER_PARITY_ODD))
+/**
+  * @}
+  */
+
+/* Private function prototypes -----------------------------------------------*/
+
+/* Exported functions --------------------------------------------------------*/
+/** @addtogroup I2S_LL_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup I2S_LL_EF_Init
+  * @{
+  */
+
+/**
+  * @brief  De-initialize the SPI/I2S registers to their default reset values.
+  * @param  SPIx SPI Instance
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: SPI registers are de-initialized
+  *          - ERROR: SPI registers are not de-initialized
+  */
+ErrorStatus LL_I2S_DeInit(SPI_TypeDef *SPIx)
+{
+  return LL_SPI_DeInit(SPIx);
+}
+
+/**
+  * @brief  Initializes the SPI/I2S registers according to the specified parameters in I2S_InitStruct.
+  * @note   As some bits in SPI configuration registers can only be written when the SPI is disabled (SPI_CR1_SPE bit =0),
+  *         SPI peripheral should be in disabled state prior calling this function. Otherwise, ERROR result will be returned.
+  * @param  SPIx SPI Instance
+  * @param  I2S_InitStruct pointer to a @ref LL_I2S_InitTypeDef structure
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: SPI registers are Initialized
+  *          - ERROR: SPI registers are not Initialized
+  */
+ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx, LL_I2S_InitTypeDef *I2S_InitStruct)
+{
+  uint32_t i2sdiv = 2U;
+  uint32_t i2sodd = 0U;
+  uint32_t packetlength = 1U;
+  uint32_t tmp;
+  uint32_t sourceclock;
+  ErrorStatus status = ERROR;
+
+  /* Check the I2S parameters */
+  assert_param(IS_I2S_ALL_INSTANCE(SPIx));
+  assert_param(IS_LL_I2S_MODE(I2S_InitStruct->Mode));
+  assert_param(IS_LL_I2S_STANDARD(I2S_InitStruct->Standard));
+  assert_param(IS_LL_I2S_DATAFORMAT(I2S_InitStruct->DataFormat));
+  assert_param(IS_LL_I2S_MCLK_OUTPUT(I2S_InitStruct->MCLKOutput));
+  assert_param(IS_LL_I2S_AUDIO_FREQ(I2S_InitStruct->AudioFreq));
+  assert_param(IS_LL_I2S_CPOL(I2S_InitStruct->ClockPolarity));
+
+  if (LL_I2S_IsEnabled(SPIx) == 0x00000000U)
+  {
+    /*---------------------------- SPIx I2SCFGR Configuration --------------------
+     * Configure SPIx I2SCFGR with parameters:
+     * - Mode:          SPI_I2SCFGR_I2SCFG[1:0] bit
+     * - Standard:      SPI_I2SCFGR_I2SSTD[1:0] and SPI_I2SCFGR_PCMSYNC bits
+     * - DataFormat:    SPI_I2SCFGR_CHLEN and SPI_I2SCFGR_DATLEN bits
+     * - ClockPolarity: SPI_I2SCFGR_CKPOL bit
+     */
+
+    /* Write to SPIx I2SCFGR */
+    MODIFY_REG(SPIx->I2SCFGR,
+               I2S_I2SCFGR_CLEAR_MASK,
+               I2S_InitStruct->Mode | I2S_InitStruct->Standard |
+               I2S_InitStruct->DataFormat | I2S_InitStruct->ClockPolarity |
+               SPI_I2SCFGR_I2SMOD);
+
+    /*---------------------------- SPIx I2SPR Configuration ----------------------
+     * Configure SPIx I2SPR with parameters:
+     * - MCLKOutput:    SPI_I2SPR_MCKOE bit
+     * - AudioFreq:     SPI_I2SPR_I2SDIV[7:0] and SPI_I2SPR_ODD bits
+     */
+
+    /* If the requested audio frequency is not the default, compute the prescaler (i2sodd, i2sdiv)
+     * else, default values are used:  i2sodd = 0U, i2sdiv = 2U.
+     */
+    if (I2S_InitStruct->AudioFreq != LL_I2S_AUDIOFREQ_DEFAULT)
+    {
+      /* Check the frame length (For the Prescaler computing)
+       * Default value: LL_I2S_DATAFORMAT_16B (packetlength = 1U).
+       */
+      if (I2S_InitStruct->DataFormat != LL_I2S_DATAFORMAT_16B)
+      {
+        /* Packet length is 32 bits */
+        packetlength = 2U;
+      }
+
+      /* If an external I2S clock has to be used, the specific define should be set
+      in the project configuration or in the stm32wbxx_ll_rcc.h file */
+      /* Get the I2S source clock value */
+      sourceclock = LL_RCC_GetI2SClockFreq(LL_RCC_I2S_CLKSOURCE);
+
+      /* Compute the Real divider depending on the MCLK output state with a floating point */
+      if (I2S_InitStruct->MCLKOutput == LL_I2S_MCLK_OUTPUT_ENABLE)
+      {
+        /* MCLK output is enabled */
+        tmp = (((((sourceclock / 256U) * 10U) / I2S_InitStruct->AudioFreq)) + 5U);
+      }
+      else
+      {
+        /* MCLK output is disabled */
+        tmp = (((((sourceclock / (32U * packetlength)) * 10U) / I2S_InitStruct->AudioFreq)) + 5U);
+      }
+
+      /* Remove the floating point */
+      tmp = tmp / 10U;
+
+      /* Check the parity of the divider */
+      i2sodd = (tmp & (uint16_t)0x0001U);
+
+      /* Compute the i2sdiv prescaler */
+      i2sdiv = ((tmp - i2sodd) / 2U);
+
+      /* Get the Mask for the Odd bit (SPI_I2SPR[8]) register */
+      i2sodd = (i2sodd << 8U);
+    }
+
+    /* Test if the divider is 1 or 0 or greater than 0xFF */
+    if ((i2sdiv < 2U) || (i2sdiv > 0xFFU))
+    {
+      /* Set the default values */
+      i2sdiv = 2U;
+      i2sodd = 0U;
+    }
+
+    /* Write to SPIx I2SPR register the computed value */
+    WRITE_REG(SPIx->I2SPR, i2sdiv | i2sodd | I2S_InitStruct->MCLKOutput);
+
+    status = SUCCESS;
+  }
+  return status;
+}
+
+/**
+  * @brief  Set each @ref LL_I2S_InitTypeDef field to default value.
+  * @param  I2S_InitStruct pointer to a @ref LL_I2S_InitTypeDef structure
+  *         whose fields will be set to default values.
+  * @retval None
+  */
+void LL_I2S_StructInit(LL_I2S_InitTypeDef *I2S_InitStruct)
+{
+  /*--------------- Reset I2S init structure parameters values -----------------*/
+  I2S_InitStruct->Mode              = LL_I2S_MODE_SLAVE_TX;
+  I2S_InitStruct->Standard          = LL_I2S_STANDARD_PHILIPS;
+  I2S_InitStruct->DataFormat        = LL_I2S_DATAFORMAT_16B;
+  I2S_InitStruct->MCLKOutput        = LL_I2S_MCLK_OUTPUT_DISABLE;
+  I2S_InitStruct->AudioFreq         = LL_I2S_AUDIOFREQ_DEFAULT;
+  I2S_InitStruct->ClockPolarity     = LL_I2S_POLARITY_LOW;
+}
+
+/**
+  * @brief  Set linear and parity prescaler.
+  * @note   To calculate value of PrescalerLinear(I2SDIV[7:0] bits) and PrescalerParity(ODD bit)\n
+  *         Check Audio frequency table and formulas inside Reference Manual (SPI/I2S).
+  * @param  SPIx SPI Instance
+  * @param  PrescalerLinear value Min_Data=0x02 and Max_Data=0xFF.
+  * @param  PrescalerParity This parameter can be one of the following values:
+  *         @arg @ref LL_I2S_PRESCALER_PARITY_EVEN
+  *         @arg @ref LL_I2S_PRESCALER_PARITY_ODD
+  * @retval None
+  */
+void LL_I2S_ConfigPrescaler(SPI_TypeDef *SPIx, uint32_t PrescalerLinear, uint32_t PrescalerParity)
+{
+  /* Check the I2S parameters */
+  assert_param(IS_I2S_ALL_INSTANCE(SPIx));
+  assert_param(IS_LL_I2S_PRESCALER_LINEAR(PrescalerLinear));
+  assert_param(IS_LL_I2S_PRESCALER_PARITY(PrescalerParity));
+
+  /* Write to SPIx I2SPR */
+  MODIFY_REG(SPIx->I2SPR, SPI_I2SPR_I2SDIV | SPI_I2SPR_ODD, PrescalerLinear | (PrescalerParity << 8U));
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+#endif /* SPI_I2S_SUPPORT */
 
 #endif /* defined (SPI1) || defined (SPI2) */
 

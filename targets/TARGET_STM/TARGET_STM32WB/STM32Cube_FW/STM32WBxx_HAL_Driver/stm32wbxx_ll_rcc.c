@@ -72,6 +72,9 @@
 
 #define IS_LL_RCC_ADC_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_ADC_CLKSOURCE))
 
+#if defined(SPI_I2S_SUPPORT)
+#define IS_LL_RCC_I2S_CLKSOURCE(__VALUE__)     ((__VALUE__) == LL_RCC_I2S_CLKSOURCE)
+#endif
 /**
   * @}
   */
@@ -81,7 +84,9 @@
   * @{
   */
 uint32_t RCC_PLL_GetFreqDomain_SYS(void);
+#if defined(SAI1)
 uint32_t RCC_PLL_GetFreqDomain_SAI(void);
+#endif
 uint32_t RCC_PLL_GetFreqDomain_ADC(void);
 uint32_t RCC_PLL_GetFreqDomain_48M(void);
 
@@ -89,6 +94,10 @@ uint32_t RCC_PLL_GetFreqDomain_48M(void);
 uint32_t RCC_PLLSAI1_GetFreqDomain_SAI(void);
 uint32_t RCC_PLLSAI1_GetFreqDomain_48M(void);
 uint32_t RCC_PLLSAI1_GetFreqDomain_ADC(void);
+#endif
+
+#if defined(SPI_I2S_SUPPORT)
+uint32_t RCC_PLL_GetFreqDomain_I2S(void);
 #endif
 
 uint32_t RCC_GetSystemClockFreq(void);
@@ -349,7 +358,6 @@ uint32_t LL_RCC_GetSMPSClockFreq(void)
 
   return smps_frequency;
 }
-
 #endif
 
 /**
@@ -616,12 +624,15 @@ uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
       }
       break;
 
+#if defined(SAI1)
     case LL_RCC_SAI1_CLKSOURCE_PLLSAI1:    /* PLLSAI1 clock used as SAI1 clock source */
       if (LL_RCC_PLLSAI1_IsReady() == 1U)
       {
         sai_frequency = RCC_PLLSAI1_GetFreqDomain_SAI();
       }
       break;
+#endif
+
     case LL_RCC_SAI1_CLKSOURCE_PLL:        /* PLL clock used as SAI1 clock source */
       if (LL_RCC_PLL_IsReady() == 1U)
       {
@@ -775,7 +786,7 @@ uint32_t LL_RCC_GetADCClockFreq(uint32_t ADCxSource)
       adc_frequency = RCC_GetSystemClockFreq();
       break;
 
-    case LL_RCC_ADC_CLKSOURCE_PLL:           /* PLL clock used as USB clock source */
+    case LL_RCC_ADC_CLKSOURCE_PLL:           /* PLL clock used as ADC clock source */
       if (LL_RCC_PLL_IsReady() == 1U)
       {
         adc_frequency = RCC_PLL_GetFreqDomain_ADC();
@@ -874,6 +885,46 @@ uint32_t LL_RCC_GetRFWKPClockFreq(void)
   return rfwkp_frequency;
 }
 
+#if defined(SPI_I2S_SUPPORT)
+/**
+  * @brief  Return I2Sx clock frequency
+  * @param  I2SxSource This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_I2S_CLKSOURCE
+  * @retval I2S clock frequency (in Hz)
+  *         - @ref  LL_RCC_PERIPH_FREQUENCY_NO indicates that oscillator (HSI) or PLLs (PLL) is not ready
+  */
+uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
+{
+  uint32_t i2s_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+
+  /* Check parameter */
+  assert_param(IS_LL_RCC_I2S_CLKSOURCE(I2SxSource));
+
+  /* I2SCLK clock frequency */
+  switch (LL_RCC_GetI2SClockSource(I2SxSource))
+  {
+    case LL_RCC_I2S_CLKSOURCE_PLL:    /* I2S2 Clock is PLL"P" */
+      if (LL_RCC_PLL_IsReady() == 1U)
+      {
+        i2s_frequency = RCC_PLL_GetFreqDomain_I2S();
+      }
+      break;
+
+    case LL_RCC_I2S_CLKSOURCE_PIN:          /* I2S2 Clock is External clock */
+      i2s_frequency = EXTERNAL_CLOCK_VALUE;
+      break;
+
+    case LL_RCC_I2S_CLKSOURCE_HSI:           /* HSI clock used as I2S clock source */
+    default:
+      if (LL_RCC_HSI_IsReady() == 1U)
+      {
+        i2s_frequency = HSI_VALUE;
+      }
+      break;
+  }
+  return i2s_frequency;
+}
+#endif
 
 /**
   * @}
@@ -1309,6 +1360,36 @@ uint32_t RCC_PLLSAI1_GetFreqDomain_ADC(void)
   }
   return __LL_RCC_CALC_PLLSAI1_ADC_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
                                         LL_RCC_PLLSAI1_GetN(), LL_RCC_PLLSAI1_GetR());
+}
+#endif
+
+#if defined(SPI_I2S_SUPPORT)
+/**
+  * @brief  Return PLL clock frequency used for I2S domain
+  * @retval PLL clock frequency (in Hz)
+  */
+uint32_t RCC_PLL_GetFreqDomain_I2S(void)
+{
+  uint32_t pllinputfreq, pllsource;
+
+  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
+     I2S Domain clock = PLL_VCO / PLLP
+  */
+  pllsource = LL_RCC_PLL_GetMainSource();
+
+  switch (pllsource)
+  {
+    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
+      pllinputfreq = HSE_VALUE;
+      break;
+
+    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
+    default:
+      pllinputfreq = HSI_VALUE;
+      break;
+  }
+  return __LL_RCC_CALC_PLLCLK_I2S_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                       LL_RCC_PLL_GetN(), LL_RCC_PLL_GetP());
 }
 #endif
 

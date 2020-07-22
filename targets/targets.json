@@ -3411,20 +3411,26 @@
             "BLE"
         ]
     },
-    "NUCLEO_WB55RG": {
+    "MCU_STM32WB55xx": {
         "inherits": [
             "MCU_STM32WB"
         ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
+        "public": false,
         "extra_labels_add": [
             "STM32WB55xx"
         ],
         "macros_add": [
             "STM32WB55xx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
+        ]
+    },
+    "NUCLEO_WB55RG": {
+        "inherits": [
+            "MCU_STM32WB55xx"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
         ],
         "detect_code": [
             "0839"

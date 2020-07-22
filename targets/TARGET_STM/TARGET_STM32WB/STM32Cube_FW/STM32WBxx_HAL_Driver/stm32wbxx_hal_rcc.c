@@ -76,7 +76,9 @@
 #define LSI2_TIMEOUT_VALUE         (3U)    /* to be adjusted with DS    */
 #define HSI48_TIMEOUT_VALUE        (2U)    /* 2 ms (minimum Tick + 1)   */
 #define PLL_TIMEOUT_VALUE          (2U)    /* 2 ms (minimum Tick + 1)   */
+#if defined(SAI1)
 #define PLLSAI1_TIMEOUT_VALUE      (2U)    /* 2 ms (minimum Tick + 1)   */
+#endif
 #define PRESCALER_TIMEOUT_VALUE    (2U)    /* 2 ms (minimum Tick + 1)   */
 #define LATENCY_TIMEOUT_VALUE      (2U)    /* 2 ms (minimum Tick + 1)   */
 #define CLOCKSWITCH_TIMEOUT_VALUE  (5000U) /* 5 s                       */
@@ -272,6 +274,9 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   /* Get Start Tick*/
   tickstart = HAL_GetTick();
 
+  /* MSI PLL OFF */
+  LL_RCC_MSI_DisablePLLMode();
+  
   /* Set MSION bit */
   LL_RCC_MSI_Enable();
 
@@ -378,6 +383,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   * @param  RCC_OscInitStruct  pointer to a @ref RCC_OscInitTypeDef structure that
   *         contains the configuration information for the RCC Oscillators.
   * @note   The PLL is not disabled when used as system clock.
+  * @note   The PLL source is not updated when used as PLLSAI1 clock source.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
@@ -860,66 +866,126 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   /* Check the parameters */
   assert_param(IS_RCC_PLL(RCC_OscInitStruct->PLL.PLLState));
 
-  if (RCC_OscInitStruct->PLL.PLLState != RCC_PLL_NONE)
+  if(RCC_OscInitStruct->PLL.PLLState != RCC_PLL_NONE)
   {
-    /* Check if the PLL is used as system clock or not */
-    if (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
+    const uint32_t temp_sysclksrc = __HAL_RCC_GET_SYSCLK_SOURCE();
+    const uint32_t temp_pllconfig = RCC->PLLCFGR;
+    
+    /* PLL On ? */
+    if(RCC_OscInitStruct->PLL.PLLState == RCC_PLL_ON)
     {
-      if (RCC_OscInitStruct->PLL.PLLState == RCC_PLL_ON)
+      /* Check the parameters */
+      assert_param(IS_RCC_PLLSOURCE(RCC_OscInitStruct->PLL.PLLSource));
+      assert_param(IS_RCC_PLLM_VALUE(RCC_OscInitStruct->PLL.PLLM));
+      assert_param(IS_RCC_PLLN_VALUE(RCC_OscInitStruct->PLL.PLLN));
+      assert_param(IS_RCC_PLLP_VALUE(RCC_OscInitStruct->PLL.PLLP));
+      assert_param(IS_RCC_PLLQ_VALUE(RCC_OscInitStruct->PLL.PLLQ));
+      assert_param(IS_RCC_PLLR_VALUE(RCC_OscInitStruct->PLL.PLLR));
+      
+      /* Do nothing if PLL configuration is unchanged */
+      if ((READ_BIT(temp_pllconfig, RCC_PLLCFGR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) ||
+          (READ_BIT(temp_pllconfig, RCC_PLLCFGR_PLLM) != RCC_OscInitStruct->PLL.PLLM) ||
+          ((READ_BIT(temp_pllconfig, RCC_PLLCFGR_PLLN) >> RCC_PLLCFGR_PLLN_Pos) != RCC_OscInitStruct->PLL.PLLN) ||
+          (READ_BIT(temp_pllconfig, RCC_PLLCFGR_PLLP) != RCC_OscInitStruct->PLL.PLLP) ||
+          (READ_BIT(temp_pllconfig, RCC_PLLCFGR_PLLQ) != RCC_OscInitStruct->PLL.PLLQ) ||
+          (READ_BIT(temp_pllconfig, RCC_PLLCFGR_PLLR) != RCC_OscInitStruct->PLL.PLLR))
       {
-        /* Check the parameters */
-        assert_param(IS_RCC_PLLSOURCE(RCC_OscInitStruct->PLL.PLLSource));
-        assert_param(IS_RCC_PLLM_VALUE(RCC_OscInitStruct->PLL.PLLM));
-        assert_param(IS_RCC_PLLN_VALUE(RCC_OscInitStruct->PLL.PLLN));
-        assert_param(IS_RCC_PLLP_VALUE(RCC_OscInitStruct->PLL.PLLP));
-        assert_param(IS_RCC_PLLQ_VALUE(RCC_OscInitStruct->PLL.PLLQ));
-        assert_param(IS_RCC_PLLR_VALUE(RCC_OscInitStruct->PLL.PLLR));
-
-        /* Disable the main PLL. */
-        __HAL_RCC_PLL_DISABLE();
-
-        /* Get Start Tick*/
-        tickstart = HAL_GetTick();
-
-        /* Wait till PLL is ready */
-        while (LL_RCC_PLL_IsReady() != 0U)
+        /* Check if the PLL is used as system clock or not */
+        if (temp_sysclksrc != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
         {
-          if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
+#if defined(SAI1)
+          /* Check if main PLL can be updated */
+          /* Not possible if the source is shared by other enabled PLLSAIx */
+          if (READ_BIT(RCC->CR, RCC_CR_PLLSAI1ON) != 0U)
+
           {
-            return HAL_TIMEOUT;
+            return HAL_ERROR;
+          }
+          else
+#endif
+          {
+            /* Disable the main PLL. */
+            __HAL_RCC_PLL_DISABLE();
+            
+            /* Get Start Tick*/
+            tickstart = HAL_GetTick();
+            
+            /* Wait till PLL is ready */
+            while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != 0U)
+            {
+              if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
+              {
+                return HAL_TIMEOUT;
+              }
+            }
+            
+            /* Configure the main PLL clock source, multiplication and division factors. */
+            __HAL_RCC_PLL_CONFIG(RCC_OscInitStruct->PLL.PLLSource,
+                                 RCC_OscInitStruct->PLL.PLLM,
+                                 RCC_OscInitStruct->PLL.PLLN,
+                                 RCC_OscInitStruct->PLL.PLLP,
+                                 RCC_OscInitStruct->PLL.PLLQ,
+                                 RCC_OscInitStruct->PLL.PLLR);
+            
+            /* Enable the main PLL. */
+            __HAL_RCC_PLL_ENABLE();
+            
+            /* Enable PLL System Clock output. */
+            __HAL_RCC_PLLCLKOUT_ENABLE(RCC_PLL_SYSCLK);
+            
+            /* Get Start Tick*/
+            tickstart = HAL_GetTick();
+            
+            /* Wait till PLL is ready */
+            while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0U)
+            {
+              if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
+              {
+                return HAL_TIMEOUT;
+              }
+            }
           }
         }
-
-        /* Configure the main PLL clock source, multiplication and division factors. */
-        __HAL_RCC_PLL_CONFIG(RCC_OscInitStruct->PLL.PLLSource,
-                             RCC_OscInitStruct->PLL.PLLM,
-                             RCC_OscInitStruct->PLL.PLLN,
-                             RCC_OscInitStruct->PLL.PLLP,
-                             RCC_OscInitStruct->PLL.PLLQ,
-                             RCC_OscInitStruct->PLL.PLLR);
-
-        /* Enable the main PLL. */
-        __HAL_RCC_PLL_ENABLE();
-
-        /* Enable PLL System Clock output. */
-        __HAL_RCC_PLLCLKOUT_ENABLE(RCC_PLL_SYSCLK);
-
-        /* Get Start Tick*/
-        tickstart = HAL_GetTick();
-
-        /* Wait till PLL is ready */
-        while (LL_RCC_PLL_IsReady() == 0U)
+        else
         {
-          if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          }
+          /* PLL is already used as System core clock */
+          return HAL_ERROR;
         }
       }
       else
       {
+        /* PLL configuration is unchanged */
+        /* Re-enable PLL if it was disabled (ie. low power mode) */
+        if (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0U)
+        {
+          /* Enable the main PLL. */
+          __HAL_RCC_PLL_ENABLE();
+
+          /* Enable PLL System Clock output. */
+          __HAL_RCC_PLLCLKOUT_ENABLE(RCC_PLL_SYSCLK);
+
+          /* Get Start Tick*/
+          tickstart = HAL_GetTick();
+
+          /* Wait till PLL is ready */
+          while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0U)
+          {
+            if((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
+            {
+              return HAL_TIMEOUT;
+            }
+          }
+        }
+      }
+    }
+    else
+    {
+      /* Check that PLL is not used as system clock or not */
+      if (temp_sysclksrc != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
+      {
         /* Disable the main PLL. */
         __HAL_RCC_PLL_DISABLE();
+        
 
         /* Disable all PLL outputs to save power */
         MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, PLLSOURCE_NONE);
@@ -932,9 +998,9 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 
         /* Get Start Tick*/
         tickstart = HAL_GetTick();
-
+        
         /* Wait till PLL is disabled */
-        while (LL_RCC_PLL_IsReady() != 0U)
+        while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != 0U)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
           {
@@ -942,28 +1008,10 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
           }
         }
       }
-    }
-    else
-    {
-      /* Check if there is a request to disable the PLL used as System clock source */
-      if ((RCC_OscInitStruct->PLL.PLLState) == RCC_PLL_OFF)
-      {
-        return HAL_ERROR;
-      }
       else
       {
-        /* Do not return HAL_ERROR if request repeats the current configuration */
-        uint32_t pllcfgr = RCC->PLLCFGR;
-
-        if ((READ_BIT(pllcfgr, RCC_PLLCFGR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) ||
-            (READ_BIT(pllcfgr, RCC_PLLCFGR_PLLM) != RCC_OscInitStruct->PLL.PLLM) ||
-            ((READ_BIT(pllcfgr, RCC_PLLCFGR_PLLN) >> RCC_PLLCFGR_PLLN_Pos) != RCC_OscInitStruct->PLL.PLLN) ||
-            (READ_BIT(pllcfgr, RCC_PLLCFGR_PLLP) != RCC_OscInitStruct->PLL.PLLP) ||
-            (READ_BIT(pllcfgr, RCC_PLLCFGR_PLLQ) != RCC_OscInitStruct->PLL.PLLQ) ||
-            (READ_BIT(pllcfgr, RCC_PLLCFGR_PLLR) != RCC_OscInitStruct->PLL.PLLR))
-        {
-          return HAL_ERROR;
-        }
+        /* PLL is already used as System core clock */
+        return HAL_ERROR;
       }
     }
   }
@@ -1302,7 +1350,8 @@ void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_M
     HAL_GPIO_Init(MCO2_GPIO_PORT, &GPIO_InitStruct);
 
   }
-  else
+#if defined(RCC_MCO3_SUPPORT)
+  else if (RCC_MCOx == RCC_MCO3)
   {
     /* MCO3 Clock Enable */
     __MCO3_CLK_ENABLE();
@@ -1310,6 +1359,11 @@ void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_M
     GPIO_InitStruct.Pin       = MCO3_PIN;
     GPIO_InitStruct.Alternate = GPIO_AF6_MCO;
     HAL_GPIO_Init(MCO3_GPIO_PORT, &GPIO_InitStruct);
+  }
+#endif
+  else
+  {
+    ;
   }
 
   /* Mask MCOSEL[] and MCOPRE[] bits then set MCO clock source and prescaler */
