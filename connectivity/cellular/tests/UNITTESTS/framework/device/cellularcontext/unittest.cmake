@@ -8,7 +8,6 @@ set(unittest-includes ${unittest-includes}
   ../connectivity/cellular/include/cellular/framework/device/cellulardevice
   ../connectivity/cellular/include/cellular/framework/device
   ../connectivity/cellular/include/cellular/framework/common
-  ../features/netsocket/cellular
 )
 
 # Source files
@@ -19,7 +18,7 @@ set(unittest-sources
   ../connectivity/libraries/nanostack-libservice/source/libip4string/stoip4.c
   ../connectivity/libraries/nanostack-libservice/source/libip6string/stoip6.c
   ../connectivity/libraries/nanostack-libservice/source/libBits/common_functions.c
-  ../features/netsocket/SocketAddress.cpp
+  ../connectivity/netsocket/source/SocketAddress.cpp
 )
 
 # Test files

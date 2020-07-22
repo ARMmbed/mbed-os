@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "CellularInterface.h"
+#include "netsocket/CellularInterface.h"
 
 MBED_WEAK CellularInterface *CellularInterface::get_target_default_instance()
 {

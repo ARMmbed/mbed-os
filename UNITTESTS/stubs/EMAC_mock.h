@@ -20,7 +20,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "features/netsocket/EMAC.h"
+#include "netsocket/EMAC.h"
 
 class MockEMAC : public EMAC {
 public:
