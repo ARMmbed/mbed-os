@@ -9,7 +9,6 @@ set(unittest-includes ${unittest-includes}
   ../connectivity/cellular/include/cellular/framework/common
   ../connectivity/cellular/include/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
-  ../features/cellular
 )
 
 # Source files

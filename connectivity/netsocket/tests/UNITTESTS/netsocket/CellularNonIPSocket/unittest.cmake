@@ -5,7 +5,6 @@
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
-  ../features/cellular
 )
 
 set(unittest-sources

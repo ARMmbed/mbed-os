@@ -48,4 +48,3 @@ set(unittest-test-flags
   -DDEVICE_SERIAL=1
   -DDEVICE_INTERRUPTIN=1
 )
-

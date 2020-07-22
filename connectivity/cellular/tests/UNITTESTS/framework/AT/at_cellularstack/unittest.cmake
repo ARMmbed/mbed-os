@@ -9,7 +9,6 @@ set(unittest-includes ${unittest-includes}
   ../connectivity/cellular/include/cellular/framework/common
   ../connectivity/cellular/include/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
-  ../features/cellular
 )
 
 # Source files
@@ -51,4 +50,3 @@ set(unittest-test-flags
   -DDEVICE_INTERRUPTIN=1
   -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
 )
-
