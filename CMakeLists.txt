@@ -31,11 +31,3 @@ add_subdirectory(platform)
 add_subdirectory(rtos)
 add_subdirectory(storage)
 add_subdirectory(targets)
-
-
-# Add additional component
-get_property(component GLOBAL PROPERTY MBED_COMPONENT)
-
-foreach(module ${component})
-    add_subdirectory(${module})
-endforeach()
