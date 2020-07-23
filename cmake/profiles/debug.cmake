@@ -1,63 +1,95 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set(DEBUG_DEFINITIONS
-    -DMBED_DEBUG
-    -DMBED_TRAP_ERRORS_ENABLED=1
-)
+list(APPEND link_options)
 
 if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-        -c \
-        -g3 \
-        -std=gnu11 \
-    ")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-        -c \
-        -g3 \
-        -std=gnu++14 \
-        -fno-rtti \
-        -Wvla \
-    ")
-    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-        -c \
-        -g3 \
-        -x assembler-with-cpp \
-    ")
-    set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-        -Wl,--gc-sections \
-        -Wl,--wrap,main \
-        -Wl,--wrap,_malloc_r \
-        -Wl,--wrap,_free_r \
-        -Wl,--wrap,_realloc_r \
-        -Wl,--wrap,_memalign_r \
-        -Wl,--wrap,_calloc_r \
-        -Wl,--wrap,exit \
-        -Wl,--wrap,atexit \
-        -Wl,-n \
-    ")
+    list(APPEND c_compile_options
+        "-c"
+        "-std=gnu11"
+        "-g3"
+    )
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:C>:${c_compile_options}>
+    )
 
+    list(APPEND cxx_compile_options
+        "-c"
+        "-g3"
+        "-std=gnu++14"
+        "-fno-rtti"
+        "-Wvla"
+    )
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:CXX>:${cxx_compile_options}>
+    )
+
+    list(APPEND asm_compile_options
+        "-c"
+        "-g3"
+        "-x" "assembler-with-cpp"
+    )
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:ASM>:${asm_compile_options}>
+    )
+
+    list(APPEND link_options
+        "-Wl,--gc-sections"
+        "-Wl,--wrap,main"
+        "-Wl,--wrap,_malloc_r"
+        "-Wl,--wrap,_free_r"
+        "-Wl,--wrap,_realloc_r"
+        "-Wl,--wrap,_memalign_r"
+        "-Wl,--wrap,_calloc_r"
+        "-Wl,--wrap,exit"
+        "-Wl,--wrap,atexit"
+        "-Wl,-n"
+    )
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-        -std=gnu11 \
-    ")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-        -fno-rtti \
-        -fno-c++-static-destructors \
-        -std=gnu++14 \
-    ")
-    set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-        --verbose \
-        --remove \
-        --show_full_path \
-        --legacyalign \
-        --any_contingency \
-        --keep=os_cb_sections \
-    ")
-    set(DEBUG_DEFINITIONS ${DEBUG_DEFINITIONS}
-        -D__ASSERT_MSG
-        -DMULADDC_CANNOT_USE_R7
+    list(APPEND c_compile_options
+        "-std=gnu11"
+    )
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:C>:${c_compile_options}>
+    )
+
+    list(APPEND cxx_compile_options
+        "-std=gnu++14"
+        "-fno-rtti"
+        "-fno-c++-static-destructors"
+    )
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:CXX>:${cxx_compile_options}>
+    )
+
+    list(APPEND link_options
+        "--verbose"
+        "--remove"
+        "--show_full_path"
+        "--legacyalign"
+        "--any_contingency"
+        "--keep=os_cb_sections"
+    )
+
+    target_compile_definitions(mbed-os
+        PUBLIC
+            __ASSERT_MSG
+            MULADDC_CANNOT_USE_R7
     )
 endif()
 
-add_definitions(${DEBUG_DEFINITIONS})
+target_compile_definitions(mbed-os
+    PUBLIC
+        MBED_DEBUG
+        MBED_TRAP_ERRORS_ENABLED=1
+)
+
+target_link_options(mbed-os
+    PUBLIC
+        ${link_options}
+)
