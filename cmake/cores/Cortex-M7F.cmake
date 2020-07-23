@@ -28,7 +28,9 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
 
 set(ARM_FLAGS " \
-    --cpu=Cortex-M7.fp.sp \
+    -mcpu=cortex-m7 \
+    -mfpu=fpv5-sp-d16 \
+    -mfloat-abi=hard \
 ")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
@@ -38,10 +40,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
     ${ARM_FLAGS} \
 ")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    ${ARM_FLAGS} \
+    --cpu=Cortex-M7.fp.sp \
 ")
 set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    ${ARM_FLAGS} \
+    --cpu=Cortex-M7.fp.sp \
 ")
 
 endif()
