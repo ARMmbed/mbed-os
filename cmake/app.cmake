@@ -69,13 +69,6 @@ elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         COMMAND ${ELF2BIN} ${MBED_STUDIO_ARM_COMPILER} --i32combined  -o $<TARGET_FILE:app>.hex $<TARGET_FILE:app>
         COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.hex"
     )
-elseif(MBED_TOOLCHAIN STREQUAL "IAR")
-    set(CMAKE_POST_BUILD_COMMAND
-        COMMAND ${ELF2BIN} --bin $<TARGET_FILE:app> $<TARGET_FILE:app>.bin
-        COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.bin"
-        COMMAND ${ELF2BIN} --ihex $<TARGET_FILE:app> $<TARGET_FILE:app>.hex
-        COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.hex"
-    )
 endif()
 
 
