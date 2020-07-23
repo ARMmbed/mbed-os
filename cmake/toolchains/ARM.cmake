@@ -16,7 +16,6 @@ set(COMMON_FLAGS " \
     -Wno-deprecated-register \
     -fdata-sections \
     -fno-exceptions \
-    -MMD \
     -fshort-enums \
     -fshort-wchar \
 ")
@@ -27,10 +26,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
     ${COMMON_FLAGS} \
 ")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    ${COMMON_FLAGS} \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    ${COMMON_FLAGS} \
+    --cpreproc \
+    --cpreproc_opts=--target=arm-arm-none-eabi,-mcpu=cortex-m4,-D,__FPU_PRESENT,-D,MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED \
 ")
 
 add_definitions(
