@@ -3,7 +3,6 @@
 
 mbed_add_cmake_directory_if_labels("FEATURE")
 
-add_subdirectory(cellular/framework)
 add_subdirectory(cryptocell)
 add_subdirectory(device_key)
 add_subdirectory(frameworks/mbed-client-randlib)
