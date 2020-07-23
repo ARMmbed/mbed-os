@@ -4,50 +4,43 @@
 set(CMAKE_SYSTEM_PROCESSOR cortex-m4)
 
 if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
+    list(APPEND common_toolchain_options
+        "-mthumb"
+        "-mcpu=cortex-m4"
+    )
 
-set(GCC_FLAGS " \
--mthumb \
--mcpu=cortex-m4 \
-")
+    target_compile_options(mbed-os
+        PUBLIC
+            ${common_toolchain_options}
+    )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    ${GCC_FLAGS} \
-")
-
+    target_link_options(mbed-os
+        PUBLIC
+            ${common_toolchain_options}
+    )
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
+    list(APPEND compile_options
+        "-mcpu=cortex-m4"
+        "-mfpu=none"
+    )
 
-set(ARM_FLAGS " \
-    -mcpu=cortex-m4 \
-    -mfpu=none \
-")
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:C>:${compile_options}>
+            $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
+            $<$<COMPILE_LANGUAGE:ASM>:--cpu=Cortex-M4.no_fp>
+    )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    ${ARM_FLAGS} \
-")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    ${ARM_FLAGS} \
-")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    --cpu=Cortex-M4.no_fp \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    --cpu=Cortex-M4.no_fp \
-")
-
+    target_link_options(mbed-os
+        PUBLIC
+            "--cpu=Cortex-M4.no_fp"
+    )
 endif()
 
-add_definitions(
-    -D__CORTEX_M4
-    -DARM_MATH_CM4
-    -D__CMSIS_RTOS
-    -D__MBED_CMSIS_RTOS_CM
+target_compile_definitions(mbed-os
+    PUBLIC
+        __CORTEX_M4
+        ARM_MATH_CM4
+        __CMSIS_RTOS
+        __MBED_CMSIS_RTOS_CM
 )

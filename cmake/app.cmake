@@ -8,7 +8,7 @@ include(${MBED_ROOT}/cmake/profile.cmake)
 include(${MBED_ROOT}/cmake/env.cmake)
 include(${MBED_ROOT}/cmake/util.cmake)
 
-# if the environment does not specify build type, set to Debug
+# Specify a default build type
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "RelWithDebInfo"
         CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
@@ -52,7 +52,11 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
     )
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
     set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
-    set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} --scatter=${linkerfile}")
+
+    target_link_options(mbed-os
+        PUBLIC
+            "--scatter=${linkerfile}"
+    )
 endif()
 
 # TODO: @mbed-os-tools this pre/post build commands should get details from target + profile

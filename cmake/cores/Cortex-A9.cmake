@@ -4,55 +4,48 @@
 set(CMAKE_SYSTEM_PROCESSOR cortex-a9)
 
 if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
+    list(APPEND common_toolchain_options
+        "-mthumb-interwork"
+        "-marm"
+        "-march=armv7-a"
+        "-mfpu=vfpv3"
+        "-mfloat-abi=hard"
+        "-mno-unaligned-access"
+    )
 
-set(GCC_FLAGS " \
-    -mthumb-interwork \
-    -marm \
-    -march=armv7-a \
-    -mfpu=vfpv3 \
-    -mfloat-abi=hard \
-    -mno-unaligned-access \
-")
+    target_compile_options(mbed-os
+        PUBLIC
+            ${common_toolchain_options}
+    )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    ${GCC_FLAGS} \
-")
-
+    target_link_options(mbed-os
+        PUBLIC
+            ${common_toolchain_options}
+    )
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
+    list(APPEND compile_options
+        "-mcpu=cortex-a9"
+    )
 
-set(ARM_FLAGS " \
-    -mcpu=cortex-a9 \
-")
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:C>:${compile_options}>
+            $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
+            $<$<COMPILE_LANGUAGE:ASM>:--cpu=Cortex-A9>
+    )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    ${ARM_FLAGS} \
-")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    ${ARM_FLAGS} \
-")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    --cpu=Cortex-A9 \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    --cpu=Cortex-A9 \
-")
-
+    target_link_options(mbed-os
+        PUBLIC
+            "--cpu=Cortex-A9"
+    )
 endif()
 
-add_definitions(
-    -D__CORTEX_A9
-    -DARM_MATH_CA9
-    -D__FPU_PRESENT
-    -D__CMSIS_RTOS
-    -D__EVAL
-    -D__MBED_CMSIS_RTOS_CA9
+target_compile_definitions(mbed-os
+    PUBLIC
+        __CORTEX_A9
+        ARM_MATH_CA9
+        __FPU_PRESENT
+        __CMSIS_RTOS
+        __EVAL
+        __MBED_CMSIS_RTOS_CA9
 )
