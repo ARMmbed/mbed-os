@@ -82,8 +82,8 @@ typedef enum nsapi_connection_status {
  */
 typedef enum nsapi_event {
     NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0, /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
-    NSAPI_EVENT_CELLULAR_STATUS_BASE     = 0x1000,  /*!< Cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /features/cellular/framework/common/CellularCommon.h */
-    NSAPI_EVENT_CELLULAR_STATUS_END      = 0x1FFF   /*!< cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /features/cellular/framework/common/CellularCommon.h */
+    NSAPI_EVENT_CELLULAR_STATUS_BASE     = 0x1000,  /*!< Cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /connectivity/cellular/framework/common/CellularCommon.h */
+    NSAPI_EVENT_CELLULAR_STATUS_END      = 0x1FFF   /*!< cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /connectivity/cellular/framework/common/CellularCommon.h */
 } nsapi_event_t;
 
 

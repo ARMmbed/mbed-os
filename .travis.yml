@@ -248,8 +248,8 @@ matrix:
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - |
-          rm -r rtos/source/TARGET_CORTEX drivers/source/usb features/cellular features/netsocket features/nanostack \
-            connectivity/libraries/ppp features/lwipstack features/frameworks/greentea-client \
+          rm -r rtos/source/TARGET_CORTEX drivers/source/usb connectivity/cellular connectivity/drivers/cellular \
+            connectivity/libraries/ppp features/netsocket features/nanostack features/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
         # Run local equeue tests

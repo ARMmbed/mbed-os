@@ -27,7 +27,7 @@
 #undef BLE
 
 /* #define PROFILE provided by Cypress PDL conflicts with u-blox PROFILE macro
- * defined in ./features/cellular/framework/targets/UBLOX/AT/UBLOX_AT_CellularStack.h */
+ * defined in ./connectivity/cellular/framework/targets/UBLOX/AT/UBLOX_AT_CellularStack.h */
 #undef PROFILE
 
 #endif

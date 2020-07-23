@@ -858,9 +858,9 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */components/802.15.4_RF/* \
                          */components/wifi/* \
                          */UNITTESTS/* \
-                         */features/cellular/framework/AT/* \
-                         */features/cellular/framework/device/* \
-                         */features/cellular/framework/common/*
+                         */connectivity/cellular/framework/AT/* \
+                         */connectivity/cellular/framework/device/* \
+                         */connectivity/cellular/framework/common/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
