@@ -9,7 +9,7 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  platform/ATCmdParser/test_ATCmdParser.cpp
+  ../platform/tests/UNITTESTS/ATCmdParser/test_ATCmdParser.cpp
   stubs/FileHandle_stub.cpp
   stubs/mbed_assert_stub.cpp
   stubs/mbed_poll_stub.cpp
