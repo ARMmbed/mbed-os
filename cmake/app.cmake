@@ -2,10 +2,10 @@
 
 include(.mbedbuild/mbed_config.cmake)
 include(${MBED_ROOT}/cmake/toolchain.cmake)
-include(${MBED_ROOT}/cmake/env.cmake)
-include(${MBED_ROOT}/cmake/util.cmake)
 include(${MBED_ROOT}/cmake/core.cmake)
 include(${MBED_ROOT}/cmake/profile.cmake)
+include(${MBED_ROOT}/cmake/env.cmake)
+include(${MBED_ROOT}/cmake/util.cmake)
 
 # if the environment does not specify build type, set to Debug
 if(NOT CMAKE_BUILD_TYPE)
@@ -64,9 +64,9 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
     )
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
     set(CMAKE_POST_BUILD_COMMAND
-        COMMAND ${ELF2BIN} --bin  -o $<TARGET_FILE:app>.bin $<TARGET_FILE:app>
+        COMMAND ${ELF2BIN} ${MBED_STUDIO_ARM_COMPILER} --bin  -o $<TARGET_FILE:app>.bin $<TARGET_FILE:app>
         COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.bin"
-        COMMAND ${ELF2BIN} --i32combined  -o $<TARGET_FILE:app>.hex $<TARGET_FILE:app>
+        COMMAND ${ELF2BIN} ${MBED_STUDIO_ARM_COMPILER} --i32combined  -o $<TARGET_FILE:app>.hex $<TARGET_FILE:app>
         COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:app>.hex"
     )
 elseif(MBED_TOOLCHAIN STREQUAL "IAR")
