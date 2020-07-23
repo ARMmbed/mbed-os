@@ -28,7 +28,7 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
 
 set(ARM_FLAGS " \
-    --cpu=Cortex-M33FE \
+    -mcpu=cortex-m33 \
 ")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
@@ -38,10 +38,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
     ${ARM_FLAGS} \
 ")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    ${ARM_FLAGS} \
+    --cpu=Cortex-M33 \
 ")
 set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    ${ARM_FLAGS} \
+    --cpu=Cortex-M33 \
 ")
 
 endif()
