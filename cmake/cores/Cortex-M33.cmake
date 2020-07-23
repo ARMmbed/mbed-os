@@ -3,52 +3,47 @@
 
 set(CMAKE_SYSTEM_PROCESSOR cortex-m33)
 
+list(APPEND options)
+
 if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
+    list(APPEND common_toolchain_options
+        "-mthumb"
+        "-march=armv8-m.main"
+    )
 
-set(GCC_FLAGS " \
-    -mthumb \
-    -march=armv8-m.main \
-")
+    target_compile_options(mbed-os
+        PUBLIC
+            ${common_toolchain_options}
+    )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    ${GCC_FLAGS} \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    ${GCC_FLAGS} \
-")
-
+    target_link_options(mbed-os
+        PUBLIC
+            ${common_toolchain_options}
+    )
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
+    list(APPEND compile_options
+        "-mcpu=cortex-m33+nodsp"
+        "-mfpu=none"
+    )
 
-set(ARM_FLAGS " \
-    -mcpu=cortex-m33+nodsp \
-    -mfpu=none \
-")
+    target_compile_options(mbed-os
+        PUBLIC
+            $<$<COMPILE_LANGUAGE:C>:${compile_options}>
+            $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
+            $<$<COMPILE_LANGUAGE:ASM>:--cpu=Cortex-M33.no_dsp.no_fp>
+    )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    ${ARM_FLAGS} \
-")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    ${ARM_FLAGS} \
-")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} \
-    --cpu=Cortex-M33.no_dsp.no_fp \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    --cpu=Cortex-M33.no_dsp.no_fp \
-")
-
+    target_link_options(mbed-os
+        PUBLIC
+            "--cpu=Cortex-M33.no_dsp.no_fp"
+    )
 endif()
 
-add_definitions(
-    -D__CORTEX_M33
-    -DARM_MATH_ARMV8MML
-    -DDOMAIN_NS=1
-    -D__CMSIS_RTOS
-    -D__MBED_CMSIS_RTOS_CM
+target_compile_definitions(mbed-os
+    PUBLIC
+        __CORTEX_M33
+        ARM_MATH_ARMV8MML
+        DOMAIN_NS=1
+        __CMSIS_RTOS
+        __MBED_CMSIS_RTOS_CM
 )
