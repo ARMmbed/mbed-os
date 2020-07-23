@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This is not the application cmake, only boilerplate for Mbed OS
+# This is the boilerplate for Mbed OS
 
 cmake_minimum_required(VERSION 3.13)
 
