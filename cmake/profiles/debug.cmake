@@ -103,21 +103,6 @@ set(DEBUG_DEFINITIONS ${DEBUG_DEFINITIONS}
     -D__MICROLIB
 )
 
-elseif(MBED_TOOLCHAIN STREQUAL "IAR")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    --vla \
-    --diag_suppress=Pe546 \
-")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    --guard_calls \
-    --no_static_destruction \
-")
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} \
-    --skip_dynamic_initialization \
-    --threaded_lib \
-")
-
 endif()
 
 add_definitions(${DEBUG_DEFINITIONS})
