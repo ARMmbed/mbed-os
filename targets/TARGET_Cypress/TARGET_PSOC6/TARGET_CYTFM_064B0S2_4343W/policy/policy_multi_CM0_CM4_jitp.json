@@ -1,0 +1,219 @@
+{
+    "debug" :
+    {
+        "m0p" : {
+            "permission" : "enabled",
+            "control" : "firmware",
+            "key" : 5
+        },
+        "m4" : {
+            "permission" : "allowed",
+            "control" : "firmware",
+            "key" : 5
+        },
+        "system" : {
+            "permission" : "enabled",
+            "control" : "firmware",
+            "key" : 5,
+            "flashw": true,
+            "flashr": true
+        },
+        "rma" : {
+            "permission" : "allowed",
+            "destroy_fuses" : [
+                {
+                    "start" : 888,
+                    "size" : 136
+                },
+                {
+                    "start" : 648,
+                    "size" : 104
+                }
+            ],
+            "destroy_flash" : [
+                {
+                    "start" : 270270464,
+                    "size" : 65536
+                },
+                {
+                    "start" : 268763136,
+                    "size" : 1179648
+                }
+            ],
+            "key" : 5
+        }
+    },
+    "wounding" :
+    {
+    },
+    "boot_upgrade" :
+    {
+        "title": "upgrade_policy",
+        "firmware": [
+            {
+                "boot_auth": [
+                    5
+                ],
+                "bootloader_keys": [
+                    { "kid": 5, "key": "../keys/oem_state.json" }
+                ],
+                "id": 0,
+                "launch": 1,
+                "acq_win": 100,
+                "monotonic": 0,
+                "smif_id": 0,
+                "clock_flags": 578,
+                "protect_flags": 1,
+                "upgrade": false,
+                "resources": [
+                    {
+                        "type": "FLASH_PC1_SPM",
+                        "address": 270336000,
+                        "size": 65536
+                    },
+                    {
+                        "type": "SRAM_SPM_PRIV",
+                        "address": 135135232,
+                        "size": 65536
+                    },
+                    {
+                        "type": "SRAM_DAP",
+                        "address": 135184384,
+                        "size": 16384
+                    }
+                ]
+            },
+            {
+                "boot_auth": [
+                    6
+                ],
+                "boot_keys": [
+                    { "kid": 6, "key": "../keys/TFM_S_KEY.json" }
+                ],
+                "id": 1,
+                "monotonic": 0,
+                "smif_id": 0,
+                "acq_win": 100,
+                "multi_image" : 1,
+                "upgrade": true,
+                "version": "0.1",
+                "rollback_counter": 0,
+                "encrypt": false,
+                "encrypt_key": "../keys/image-aes-128.key",
+                "encrypt_key_id": 1,
+                "encrypt_peer": "../keys/dev_pub_key.pem",
+                "upgrade_auth": [
+                    6
+                ],
+                "upgrade_keys": [
+                    { "kid": 6, "key": "../keys/TFM_S_KEY.json" }
+                ],
+                "resources": [
+                    {
+                        "type": "BOOT",
+                        "address": 268435456,
+                        "size": 327680
+                    },
+                    {
+                        "type": "UPGRADE",
+                        "address": 269942784,
+                        "size": 327680
+                    }
+                ]
+            },
+            {
+                "boot_auth": [
+                    8
+                ],
+                "boot_keys": [
+                    { "kid": 8, "key": "../keys/TFM_NS_KEY.json" }
+                ],
+                "id": 16,
+                "monotonic": 8,
+                "smif_id": 1,
+                "multi_image" : 2,
+                "upgrade": true,
+                "version": "0.1",
+                "rollback_counter": 0,
+                "encrypt": false,
+                "encrypt_key": "../keys/image-aes-128.key",
+                "encrypt_key_id": 1,
+                "encrypt_peer": "../keys/dev_pub_key.pem",
+                "upgrade_auth": [
+                    8
+                ],
+                "upgrade_keys": [
+                    { "kid": 8, "key": "../keys/TFM_NS_KEY.json" }
+                ],
+                "resources": [
+                    {
+                        "type": "BOOT",
+                        "address": 268763136,
+                        "size": 1146880
+                    },
+                    {
+                        "type": "UPGRADE",
+                        "address": 402653184,
+                        "size": 1146880
+                    }
+                ]
+            }
+        ],
+        "reprogram": [
+            {
+                "start": 270336000,
+                "size": 65536
+            }
+        ],
+        "reprovision": {
+            "boot_loader": true,
+            "keys_and_policies": true
+        }
+    },
+    "cy_bootloader":
+    {
+        "mode": "debug"
+    },
+    "provisioning":
+    {
+        "packet_dir": "../packets",
+        "chain_of_trust": ["../certificates/device_cert.pem", "../certificates/rootCA.pem"]
+    },
+    "pre_build": {
+        "oem_public_key": "../keys/oem_state.json",
+        "oem_private_key": "../keys/oem_state.json",
+        "hsm_public_key": "../keys/hsm_state.json",
+        "hsm_private_key": "../keys/hsm_state.json",
+        "provision_group_private_key": false,
+        "group_private_key": "../keys/grp_priv_key.json",
+        "provision_device_private_key": false,
+        "device_private_key": "../keys/dev_priv_key.json",
+        "cy_auth": "../packets/cy_auth_2m_b0_sample.jwt"
+    },
+    "custom_data_sections": ["tfm"],
+    "tfm":
+    {
+        "attestation_data":
+        {
+            "verification_service_url": "www.trustedfirmware.org",
+            "attestation_profile_definition": "PSA_IOT_PROFILE_1",
+            "hw_version": "060456527282910010",
+            "implementation_id": [170, 170, 170, 170, 170, 170, 170, 170, 187, 187, 187, 187, 187, 187, 187, 187,
+                                  204, 204, 204, 204, 204, 204, 204, 204, 221, 221, 221, 221, 221, 221, 221, 221]
+        },
+        "its":
+        {
+            "offset": 1835008,
+            "size": 4096,
+            "num_assets": 8,
+            "max_asset_size": 512
+        },
+        "sst":
+        {
+            "offset": 1839104,
+            "size": 32768,
+            "num_assets": 35,
+            "max_asset_size": 2008
+        }
+    }
+}
