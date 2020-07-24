@@ -1,22 +1,24 @@
+/*
+Copyright (c) 2019 SparkFun Electronics
 
-/** \addtogroup hal */
-/** @{*/
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
 #if DEVICE_SERIAL
 
@@ -25,7 +27,7 @@
 #include "mbed_assert.h"
 #include "PeripheralPins.h"
 
-// globals?
+// globals
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 bool value = false;
@@ -115,25 +117,8 @@ void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map);
  * @{
  */
 
-/**
- * \defgroup hal_GeneralSerial_tests Serial hal tests
- * The Serial HAL tests ensure driver conformance to defined behavior.
- *
- * To run the Serial hal tests use the command:
- *
- *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-uart
- *
- */
-
-/** Initialize the serial peripheral. It sets the default parameters for serial
- *  peripheral, and configures its specifieds pins.
- *
- * @param obj The serial object
- * @param tx  The TX pin name
- * @param rx  The RX pin name
- */
-void serial_init(serial_t *obj, PinName tx, PinName rx)
-{ //TODO: we should be able to call this multiple times
+void serial_init(serial_t *obj, PinName tx, PinName rx) {
+  //TODO: we should be able to call this multiple times
   // determine the UART to use
   UARTName uart_tx = (UARTName)pinmap_peripheral(tx, serial_tx_pinmap());
   UARTName uart_rx = (UARTName)pinmap_peripheral(rx, serial_rx_pinmap());
@@ -166,87 +151,66 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
   serial_format(obj, 8, ParityNone, 1);
 }
 
-/** Release the serial peripheral, not currently invoked. It requires further
- *  resource management.
- *
- * @param obj The serial object
- */
 void serial_free(serial_t *obj)
 {
   // nothing to do unless resources are allocated for members of the serial_s serial member of obj
   // assuming mbed handles obj and its members
 }
 
-/** Configure the baud rate
- *
- * @param obj      The serial object
- * @param baudrate The baud rate to be configured
- */
-void serial_baud(serial_t *obj, int baudrate)
-{
+void serial_baud(serial_t *obj, int baudrate) {
   obj->serial.uart_control->cfg.ui32BaudRate = (uint32_t)baudrate;
   MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 }
 
-/** Configure the format. Set the number of bits, parity and the number of stop bits
- *
- * @param obj       The serial object
- * @param data_bits The number of data bits
- * @param parity    The parity
- * @param stop_bits The number of stop bits
- */
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
   uint32_t am_hal_data_bits = 0;
-  switch (data_bits)
-  {
-  case 5:
-    am_hal_data_bits = AM_HAL_UART_DATA_BITS_5;
-    break;
-  case 6:
-    am_hal_data_bits = AM_HAL_UART_DATA_BITS_6;
-    break;
-  case 7:
-    am_hal_data_bits = AM_HAL_UART_DATA_BITS_7;
-    break;
-  case 8:
-    am_hal_data_bits = AM_HAL_UART_DATA_BITS_8;
-    break;
-  default:
-    MBED_ASSERT(0);
-    break;
+  switch (data_bits) {
+    case 5:
+      am_hal_data_bits = AM_HAL_UART_DATA_BITS_5;
+      break;
+    case 6:
+      am_hal_data_bits = AM_HAL_UART_DATA_BITS_6;
+      break;
+    case 7:
+      am_hal_data_bits = AM_HAL_UART_DATA_BITS_7;
+      break;
+    case 8:
+      am_hal_data_bits = AM_HAL_UART_DATA_BITS_8;
+      break;
+    default:
+      MBED_ASSERT(0);
+      break;
   }
 
   uint32_t am_hal_parity = AM_HAL_UART_PARITY_NONE;
-  switch (parity)
-  {
-  case ParityNone:
-    am_hal_parity = AM_HAL_UART_PARITY_NONE;
-    break;
-  case ParityOdd:
-    am_hal_parity = AM_HAL_UART_PARITY_ODD;
-    break;
-  case ParityEven:
-    am_hal_parity = AM_HAL_UART_PARITY_EVEN;
-    break;
-  default: // fall-through intentional after default
-  case ParityForced1:
-  case ParityForced0:
-    MBED_ASSERT(0);
-    break;
+  switch (parity) {
+    case ParityNone:
+      am_hal_parity = AM_HAL_UART_PARITY_NONE;
+      break;
+    case ParityOdd:
+      am_hal_parity = AM_HAL_UART_PARITY_ODD;
+      break;
+    case ParityEven:
+      am_hal_parity = AM_HAL_UART_PARITY_EVEN;
+      break;
+    default: // fall-through intentional after default
+    case ParityForced1:
+    case ParityForced0:
+      MBED_ASSERT(0);
+      break;
   }
 
   uint32_t am_hal_stop_bits = 0;
-  switch (stop_bits)
-  {
-  case 1:
-    am_hal_stop_bits = AM_HAL_UART_ONE_STOP_BIT;
-    break;
-  case 2:
-    am_hal_stop_bits = AM_HAL_UART_TWO_STOP_BITS;
-    break;
-  default:
-    MBED_ASSERT(0);
+  switch (stop_bits) {
+    case 1:
+      am_hal_stop_bits = AM_HAL_UART_ONE_STOP_BIT;
+      break;
+    case 2:
+      am_hal_stop_bits = AM_HAL_UART_TWO_STOP_BITS;
+      break;
+    default:
+      MBED_ASSERT(0);
   }
 
   obj->serial.uart_control->cfg.ui32DataBits = (uint32_t)am_hal_data_bits;
@@ -255,25 +219,12 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
   MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 }
 
-/** The serial interrupt handler registration
- *
- * @param obj     The serial object
- * @param handler The interrupt handler which will be invoked when the interrupt fires
- * @param id      The SerialBase object
- */
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
   irq_handler = handler;
   obj->serial.uart_control->serial_irq_id = id;
-  // todo: revisit with Kyle
 }
 
-/** Configure serial interrupt. This function is used for word-approach
- *
- * @param obj    The serial object
- * @param irq    The serial IRQ type (RX or TX)
- * @param enable Set to non-zero to enable events, or zero to disable them
- */
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
   MBED_ASSERT(obj->serial.uart_control != NULL);
@@ -282,325 +233,178 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
   switch (obj->serial.uart_control->inst)
   {
-  case 0:
-    NVIC_SetVector((IRQn_Type)UART0_IRQn, (uint32_t)am_uart_isr);
-    break;
-  case 1:
-    NVIC_SetVector((IRQn_Type)UART1_IRQn, (uint32_t)am_uart1_isr);
-    break;
+    case 0:
+      NVIC_SetVector((IRQn_Type)UART0_IRQn, (uint32_t)am_uart_isr);
+      break;
+    case 1:
+      NVIC_SetVector((IRQn_Type)UART1_IRQn, (uint32_t)am_uart1_isr);
+      break;
   }
 
   NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
 }
 
-/** Get character. This is a blocking call, waiting for a character
- *
- * @param obj The serial object
- */
 int serial_getc(serial_t *obj)
 {
   MBED_ASSERT(obj->serial.uart_control != NULL);
 
   uint8_t rx_c = 0x00;
   volatile uint32_t bytes_read = 0x00;
-  am_hal_uart_transfer_t am_hal_uart_xfer_read_single =
-      {
-          .ui32Direction = AM_HAL_UART_READ,
-          .pui8Data = (uint8_t *)&rx_c,
-          .ui32NumBytes = 1,
-          .ui32TimeoutMs = 0,
-          .pui32BytesTransferred = (uint32_t *)&bytes_read,
-      };
+  am_hal_uart_transfer_t am_hal_uart_xfer_read_single = {
+    .ui32Direction = AM_HAL_UART_READ,
+    .pui8Data = (uint8_t *)&rx_c,
+    .ui32NumBytes = 1,
+    .ui32TimeoutMs = 0,
+    .pui32BytesTransferred = (uint32_t *)&bytes_read,
+  };
 
-  do
-  {
+  do {
     am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_read_single);
   } while (bytes_read == 0);
 
   return (int)rx_c;
 }
 
-/** Send a character. This is a blocking call, waiting for a peripheral to be available
- *  for writing
- *
- * @param obj The serial object
- * @param c   The character to be sent
- */
 void serial_putc(serial_t *obj, int c)
 {
   MBED_ASSERT(obj->serial.uart_control != NULL);
 
   volatile uint32_t bytes_sent = 0;
-  am_hal_uart_transfer_t am_hal_uart_xfer_write_single =
-      {
-          .ui32Direction = AM_HAL_UART_WRITE,
-          .pui8Data = (uint8_t *)(&c),
-          .ui32NumBytes = 1,
-          .ui32TimeoutMs = 0,
-          .pui32BytesTransferred = (uint32_t *)&bytes_sent,
-      };
+  am_hal_uart_transfer_t am_hal_uart_xfer_write_single = {
+    .ui32Direction = AM_HAL_UART_WRITE,
+    .pui8Data = (uint8_t *)(&c),
+    .ui32NumBytes = 1,
+    .ui32TimeoutMs = 0,
+    .pui32BytesTransferred = (uint32_t *)&bytes_sent,
+  };
 
-  do
-  {
+  do {
     am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_write_single);
   } while (bytes_sent == 0);
 }
 
-/** Check if the serial peripheral is readable
- *
- * @param obj The serial object
- * @return Non-zero value if a character can be read, 0 if nothing to read
- */
-int serial_readable(serial_t *obj)
-{
+int serial_readable(serial_t *obj) {
   MBED_ASSERT(obj->serial.uart_control != NULL);
   return !(UARTn(obj->serial.uart_control->inst)->FR_b.RXFE);
 }
 
-/** Check if the serial peripheral is writable
- *
- * @param obj The serial object
- * @return Non-zero value if a character can be written, 0 otherwise.
- */
-int serial_writable(serial_t *obj)
-{
+int serial_writable(serial_t *obj) {
   MBED_ASSERT(obj->serial.uart_control != NULL);
   return !(UARTn(obj->serial.uart_control->inst)->FR_b.TXFF);
 }
 
-/** Clear the serial peripheral
- *
- * @param obj The serial object
- */
-void serial_clear(serial_t *obj)
-{
-  MBED_ASSERT(0); // todo: WTF is this?
+void serial_clear(serial_t *obj) {
+  // todo:
+  MBED_ASSERT(0);
 }
 
-/** Set the break
- *
- * @param obj The serial object
- */
-void serial_break_set(serial_t *obj)
-{
+void serial_break_set(serial_t *obj) {
   MBED_ASSERT(obj->serial.uart_control != NULL);
   UARTn(obj->serial.uart_control->inst)->LCRH |= UART0_LCRH_BRK_Msk;
 }
 
-/** Clear the break
- *
- * @param obj The serial object
- */
-void serial_break_clear(serial_t *obj)
-{
+void serial_break_clear(serial_t *obj) {
   MBED_ASSERT(obj->serial.uart_control != NULL);
   UARTn(obj->serial.uart_control->inst)->LCRH &= ~UART0_LCRH_BRK_Msk;
 }
 
-/** Configure the TX pin for UART function.
- *
- * @param tx The pin name used for TX
- */
-void serial_pinout_tx(PinName tx)
-{
-  MBED_ASSERT(0); // todo: (this seems like a vestigial function)
+void serial_pinout_tx(PinName tx) {
+  // todo: vestigial?
+  MBED_ASSERT(0);
 }
 
 #if DEVICE_SERIAL_FC
-/** Configure the serial for the flow control. It sets flow control in the hardware
- *  if a serial peripheral supports it, otherwise software emulation is used.
- *
- * @param obj    The serial object
- * @param type   The type of the flow control. Look at the available FlowControl types.
- * @param rxflow The TX pin name
- * @param txflow The RX pin name
- */
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
-{
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
   // todo:
+  MBED_ASSERT(0);
 }
 
-/** Configure the serial for the flow control. It sets flow control in the hardware
- *  if a serial peripheral supports it, otherwise software emulation is used.
- *
- * @param obj    The serial object
- * @param type   The type of the flow control. Look at the available FlowControl types.
- * @param pinmap Pointer to structure which holds static pinmap
- */
-void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
-{
+void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap) {
   // todo:
+  MBED_ASSERT(0);
 }
 #endif
 
-/** Get the pins that support Serial TX
- *
- * Return a PinMap array of pins that support Serial TX. The
- * array is terminated with {NC, NC, 0}.
- *
- * @return PinMap array
- */
-const PinMap *serial_tx_pinmap(void)
-{
+const PinMap *serial_tx_pinmap(void) {
   return PinMap_UART_TX;
 }
 
-/** Get the pins that support Serial RX
- *
- * Return a PinMap array of pins that support Serial RX. The
- * array is terminated with {NC, NC, 0}.
- *
- * @return PinMap array
- */
-const PinMap *serial_rx_pinmap(void)
-{
+const PinMap *serial_rx_pinmap(void) {
   return PinMap_UART_RX;
 }
 
 #if DEVICE_SERIAL_FC
-/** Get the pins that support Serial CTS
- *
- * Return a PinMap array of pins that support Serial CTS. The
- * array is terminated with {NC, NC, 0}.
- *
- * @return PinMap array
- */
-const PinMap *serial_cts_pinmap(void)
-{
+
+const PinMap *serial_cts_pinmap(void) {
   return PinMap_UART_CTS;
 }
 
-/** Get the pins that support Serial RTS
- *
- * Return a PinMap array of pins that support Serial RTS. The
- * array is terminated with {NC, NC, 0}.
- *
- * @return PinMap array
- */
-const PinMap *serial_rts_pinmap(void)
-{
+const PinMap *serial_rts_pinmap(void) {
   return PinMap_UART_RTS;
 }
 #endif
 
 #if DEVICE_SERIAL_ASYNCH
 
-/**@}*/
-
-/**
- * \defgroup hal_AsynchSerial Asynchronous Serial Hardware Abstraction Layer
- * @{
- */
-
-/** Begin asynchronous TX transfer. The used buffer is specified in the serial object,
- *  tx_buff
- *
- * @param obj       The serial object
- * @param tx        The transmit buffer
- * @param tx_length The number of bytes to transmit
- * @param tx_width  Deprecated argument
- * @param handler   The serial handler
- * @param event     The logical OR of events to be registered
- * @param hint      A suggestion for how to use DMA with this transfer
- * @return Returns number of data transfered, otherwise returns 0
- */
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
   MBED_ASSERT(obj->serial.uart_control != NULL);
   uint32_t bytes_written = 0;
 
-  am_hal_uart_transfer_t am_hal_uart_xfer_write =
-      {
-          .ui32Direction = AM_HAL_UART_WRITE,
-          .pui8Data = (uint8_t *)obj->tx_buff.buffer,
-          .ui32NumBytes = tx_length, // todo: consider maybe this? (uint32_t)obj->tx_buff.length,
-          .ui32TimeoutMs = 0,
-          .pui32BytesTransferred = &bytes_written,
-      };
+  am_hal_uart_transfer_t am_hal_uart_xfer_write = {
+    .ui32Direction = AM_HAL_UART_WRITE,
+    .pui8Data = (uint8_t *)obj->tx_buff.buffer,
+    .ui32NumBytes = tx_length, // todo: consider maybe this? (uint32_t)obj->tx_buff.length,
+    .ui32TimeoutMs = 0,
+    .pui32BytesTransferred = &bytes_written,
+  };
 
   am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_write);
 
   return (int)bytes_written;
 }
 
-/** Begin asynchronous RX transfer (enable interrupt for data collecting)
- *  The used buffer is specified in the serial object - rx_buff
- *
- * @param obj        The serial object
- * @param rx         The receive buffer
- * @param rx_length  The number of bytes to receive
- * @param rx_width   Deprecated argument
- * @param handler    The serial handler
- * @param event      The logical OR of events to be registered
- * @param char_match A character in range 0-254 to be matched
- * @param hint       A suggestion for how to use DMA with this transfer
- */
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
   // todo: revisit
   MBED_ASSERT(obj->serial.uart_control != NULL);
   uint32_t bytes_read = 0;
 
-  am_hal_uart_transfer_t am_hal_uart_xfer_read =
-      {
-          .ui32Direction = AM_HAL_UART_READ,
-          .pui8Data = (uint8_t *)obj->rx_buff.buffer,
-          .ui32NumBytes = rx_length, // todo: consider this (uint32_t)obj->rx_buff.length,
-          .ui32TimeoutMs = 0,
-          .pui32BytesTransferred = &bytes_read,
-      };
+  am_hal_uart_transfer_t am_hal_uart_xfer_read = {
+    .ui32Direction = AM_HAL_UART_READ,
+    .pui8Data = (uint8_t *)obj->rx_buff.buffer,
+    .ui32NumBytes = rx_length, // todo: consider this (uint32_t)obj->rx_buff.length,
+    .ui32TimeoutMs = 0,
+    .pui32BytesTransferred = &bytes_read,
+  };
 
   am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_read);
 }
 
-/** Attempts to determine if the serial peripheral is already in use for TX
- *
- * @param obj The serial object
- * @return Non-zero if the RX transaction is ongoing, 0 otherwise
- */
-uint8_t serial_tx_active(serial_t *obj)
-{
+uint8_t serial_tx_active(serial_t *obj) {
   // todo:
+  MBED_ASSERT(0);
 }
 
-/** Attempts to determine if the serial peripheral is already in use for RX
- *
- * @param obj The serial object
- * @return Non-zero if the RX transaction is ongoing, 0 otherwise
- */
-uint8_t serial_rx_active(serial_t *obj)
-{
+uint8_t serial_rx_active(serial_t *obj) {
   // todo:
+  MBED_ASSERT(0);
 }
 
-/** The asynchronous TX and RX handler.
- *
- * @param obj The serial object
- * @return Returns event flags if an RX transfer termination condition was met; otherwise returns 0
- */
-int serial_irq_handler_asynch(serial_t *obj)
-{
+int serial_irq_handler_asynch(serial_t *obj) {
   // todo:
+  MBED_ASSERT(0);
 }
 
-/** Abort the ongoing TX transaction. It disables the enabled interupt for TX and
- *  flushes the TX hardware buffer if TX FIFO is used
- *
- * @param obj The serial object
- */
-void serial_tx_abort_asynch(serial_t *obj)
-{
+void serial_tx_abort_asynch(serial_t *obj) {
   // todo:
+  MBED_ASSERT(0);
 }
 
-/** Abort the ongoing RX transaction. It disables the enabled interrupt for RX and
- *  flushes the RX hardware buffer if RX FIFO is used
- *
- * @param obj The serial object
- */
-void serial_rx_abort_asynch(serial_t *obj)
-{
+void serial_rx_abort_asynch(serial_t *obj) {
   // todo:
+  MBED_ASSERT(0);
 }
 
 /**@}*/
@@ -617,58 +421,36 @@ static inline void uart_irq(uint32_t instance)
   MBED_ASSERT(am_hal_uart_interrupt_status_get(handle, &status, true) == AM_HAL_STATUS_SUCCESS);
   MBED_ASSERT(am_hal_uart_interrupt_clear(handle, status) == AM_HAL_STATUS_SUCCESS);
 
-  if (ap3_uart_control[instance].serial_irq_id != 0)
-  {
-    if (status & AM_HAL_UART_INT_TXCMP)
-    { // for transmit complete
-      if (irq_handler)
-      {
+  if (ap3_uart_control[instance].serial_irq_id != 0) {
+    if (status & AM_HAL_UART_INT_TXCMP) { // for transmit complete
+      if (irq_handler) {
         irq_handler(ap3_uart_control[instance].serial_irq_id, TxIrq);
       }
     }
-    if (status & AM_HAL_UART_INT_RX)
-    { // for receive complete
-      if (irq_handler)
-      {
+    if (status & AM_HAL_UART_INT_RX) { // for receive complete
+      if (irq_handler) {
         irq_handler(ap3_uart_control[instance].serial_irq_id, RxIrq);
       }
     }
   }
 }
 
-extern void am_uart_isr(void)
-{
-  // void* handle = &(g_am_hal_uart_states[0]) // bad - breaks barrier between AMHAL and mbed
-  // value = !value;
-  // (value) ? am_hal_gpio_output_set(16) : am_hal_gpio_output_clear(16);
-
-  am_hal_gpio_output_set(16);
-
+extern void am_uart_isr(void) {
+  am_hal_gpio_output_set(16); // todo: this should not be here!
   uart_irq(UART_0);
 }
 
-extern void am_uart1_isr(void)
-{
-  // void* handle = &(g_am_hal_uart_states[1]) // bad - breaks barrier between AMHAL and mbed
+extern void am_uart1_isr(void) {
   uart_irq(UART_1);
 }
 
-void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map)
-{
-  while (map->pin != NC)
-  {
-    if (map->peripheral == uart)
-    {
-      if (map->pin == pin)
-      {
-        // pin_function(pin, map->function);
-
-        am_hal_gpio_pincfg_t cfg =
-            {
+void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map) {
+  while (map->pin != NC) {
+    if (map->peripheral == uart) {
+      if (map->pin == pin) {
+        am_hal_gpio_pincfg_t cfg = {
                 .uFuncSel = map->function,
-                // .eDriveStrength = (tx) ? AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA : 0,
             };
-
         am_hal_gpio_pinconfig(pin, cfg);
         break;
       }
