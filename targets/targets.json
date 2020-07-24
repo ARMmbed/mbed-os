@@ -5639,7 +5639,7 @@
             "MPU"
         ]
     },
-    "NUMAKER_M252KG": {
+    "NUMAKER_IOT_M252": {
         "core": "Cortex-M23",
         "trustzone": false,
         "is_disk_virtual": true,
