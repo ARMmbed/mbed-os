@@ -169,7 +169,7 @@ matrix:
           find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
           tee BUILD/badlibs |
           sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
-        # Assert that all assebler files are named correctly
+        # Assert that all assembler files are named correctly
         # The strange command below asserts that there are exactly 0 libraries
         # that do end with .s
         - >
