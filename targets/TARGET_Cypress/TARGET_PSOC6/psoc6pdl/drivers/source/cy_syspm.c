@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.c
-* \version 5.10
+* \version 5.20
 *
 * This driver provides the source code for API power management.
 *
@@ -29,7 +29,7 @@
 
 #if ((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
     #include "cy_pra_cfg.h"
-#endif /* #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+#endif /* #if ((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
 
 /*******************************************************************************
 *       Internal Functions
@@ -114,8 +114,16 @@ static bool IsVoltageChangePossible(void);
 /* Load value for the timer to count delay after exiting Deep Sleep */
 #define IMO_10US_DELAY                 (68U)
 
-/* Define to indicate that a 10 us delay was done after exiting Deep Sleep */
-#define DELAY_DONE                     (0xAAAAAAAAU)
+#if ((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE)))
+    /* Define to indicate that a 10 us delay was done after exiting Deep Sleep */
+    #define DELAY_DONE                 (1U)
+
+    /* Register address which is used to indicate delay done event */
+    #define DELAY_FLAG_REGISTER_ADDR   (&FLASHC_BIST_STATUS)
+#else
+    #define DELAY_DONE                 (0xAAAAAAAAU)
+    #define DELAY_FLAG_REGISTER_ADDR   (&FLASHC_BIST_DATA_0)
+#endif /* ((CY_CPU_CORTEX_M0P) && (defined(CY_DEVICE_SECURE))) */
 
 /* Define for transitional 0.95 V for the LDO regulator */
 #define LDO_OUT_VOLTAGE_0_95V          (0x0BU)
@@ -3095,7 +3103,7 @@ static void EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
 #if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 
     /* Store the address of the Deep Sleep indicator into the RAM */
-    volatile uint32_t *delayDoneFlag = &FLASHC_BIST_DATA_0;
+    volatile uint32_t *delayDoneFlag = DELAY_FLAG_REGISTER_ADDR;
 #endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 #if (CY_CPU_CORTEX_M4)

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.60
+* \version 2.60.1
 *
 * Provides an API declaration of the SysLib driver.
 *
@@ -51,23 +51,19 @@
 *
 * \section group_syslib_configuration Configuration Considerations
 * <b> Assertion Usage </b> <br />
-* Use the CY_ASSERT() macro to check expressions that must be true as long as the
+* Use the CY_ASSERT() macro to check expressions that must be true if the
 * program is running correctly. It is a convenient way to insert sanity checks.
-* The CY_ASSERT() macro is defined in the cy_syslib.h file which is part of
-* the PDL library. The behavior of the macro is as follows: if the expression
-* passed to the macro is false, output an error message that includes the file
-* name and line number, and then halts the CPU. \n
-* In case of fault, the CY_ASSERT() macro calls the Cy_SysLib_AssertFailed() function.
-* This is a weakly linked function. The default implementation stores the file
-* name and line number of the ASSERT into global variables, cy_assertFileName
-* and cy_assertLine . It then calls the Cy_SysLib_Halt() function.
-* \note Firmware can redefine the Cy_SysLib_AssertFailed() function for custom processing.
+* The CY_ASSERT() macro is defined in the cy_utils.h file, which is part of the
+* <a href="https://github.com/cypresssemiconductorco/core-lib">Cypress Core Library (core-lib)</a>.
+* The macro behavior is as follows: if the expression passed
+*  to the macro is false, the CPU is halted. \n
 *
 * The PDL source code uses this assert mechanism extensively. It is recommended
 * that you enable asserts when debugging firmware. \n
 * <b> Assertion Classes and Levels </b> <br />
-* The PDL defines three assert classes, which correspond to different kinds
-* of parameters. There is a corresponding assert "level" for each class.
+* The <a href="https://github.com/cypresssemiconductorco/core-lib">Cypress Core Library</a>
+* defines three assert classes, which correspond to different
+* kinds of parameters. There is a corresponding assert "level" for each class.
 * <table class="doxtable">
 *   <tr><th>Class Macro</th><th>Level Macro</th><th>Type of check</th></tr>
 *   <tr>
@@ -152,6 +148,13 @@
 * \section group_syslib_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.60.1</td>
+*     <td>Updated the Configuration Considerations section with the information that
+*         CY_ASSERT() macro is defined in the cy_utils.h file, which is part of the
+*         <a href="https://github.com/cypresssemiconductorco/core-lib">Cypress Core Library (core-lib)</a>
+*     <td>Documentation update and clarification.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="2">2.60</td>
 *     <td>Updated the following functions for the PSoC 64 devices:

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.c
-* \version 2.10
+* \version 2.20
 *
 * Provides an API implementation of the sysclk driver.
 *
@@ -33,7 +33,12 @@
 /* ========================================================================== */
 
 /** \cond INTERNAL */
-static uint32_t extFreq = 0UL; /* Internal storage for external clock frequency user setting */
+/* Internal storage for external clock frequency user setting */
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    uint32_t cySysClkExtFreq = 0UL;
+#else
+    static uint32_t cySysClkExtFreq = 0UL;
+#endif
 
 #define CY_SYSCLK_EXTCLK_MAX_FREQ (100000000UL) /* 100 MHz */
 /** \endcond */
@@ -62,10 +67,8 @@ void Cy_SysClk_ExtClkSetFrequency(uint32_t freq)
     {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
         CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_EXT_CLK_SET_FREQUENCY, freq);
-        extFreq = freq;
-#else
-        extFreq = freq;
 #endif
+        cySysClkExtFreq = freq;
     }
 
 }
@@ -86,7 +89,7 @@ void Cy_SysClk_ExtClkSetFrequency(uint32_t freq)
 *******************************************************************************/
 uint32_t Cy_SysClk_ExtClkGetFrequency(void)
 {
-    return (extFreq);
+    return (cySysClkExtFreq);
 }
 /** \} group_sysclk_ext_funcs */
 
@@ -1473,15 +1476,30 @@ static bool preventCounting = false;
 *******************************************************************************/
 cy_en_sysclk_status_t Cy_SysClk_StartClkMeasurementCounters(cy_en_meas_clks_t clock1, uint32_t count1, cy_en_meas_clks_t clock2)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    (void) clock1;
-    (void) count1;
-    (void) clock2;
-    (void) clk1Count1;
-    (void) preventCounting;
-    return CY_SYSCLK_BAD_PARAM;
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
+
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+
+    cy_stc_pra_start_clk_measurement_t clkMeasurement;
+    clkMeasurement.clock1 = clock1;
+    clkMeasurement.count1 = count1;
+    clkMeasurement.clock2 = clock2;
+
+    /* Don't start a measurement if about to enter Deep Sleep mode */
+    if (!preventCounting)
+    {
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_CLK_FUNC_START_MEASUREMENT, &clkMeasurement);
+    }
+
+    if (CY_SYSCLK_SUCCESS == retVal)
+    {
+        /* Disallow entry into Deep Sleep mode while counting */
+        clkCounting = true;
+
+        /* Save this input parameter for use later, in other functions */
+        clk1Count1 = count1;
+    }
+#else
 
     uint32_t clkOutputSlowVal = 0UL;
     uint32_t clkOutputFastVal = 0UL;
@@ -1607,8 +1625,9 @@ cy_en_sysclk_status_t Cy_SysClk_StartClkMeasurementCounters(cy_en_meas_clks_t cl
         REG_IPC_STRUCT_RELEASE(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT)) = 0U;
     }
 
-    return (retVal);
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
+    return (retVal);
 }
 
 /*******************************************************************************
@@ -1638,13 +1657,6 @@ cy_en_sysclk_status_t Cy_SysClk_StartClkMeasurementCounters(cy_en_meas_clks_t cl
 *******************************************************************************/
 uint32_t Cy_SysClk_ClkMeasurementCountersGetFreq(bool measuredClock, uint32_t refClkFreq)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    (void) measuredClock;
-    (void) refClkFreq;
-    (void) clk1Count1;
-    (void) clkCounting;
-    return 0UL;
-#else
     uint32_t retVal = 0UL;
     bool isMeasurementValid = false;
 
@@ -1685,7 +1697,6 @@ uint32_t Cy_SysClk_ClkMeasurementCountersGetFreq(bool measuredClock, uint32_t re
     }
 
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 /** \} group_sysclk_calclk_funcs */
 
@@ -1720,13 +1731,17 @@ uint32_t Cy_SysClk_ClkMeasurementCountersGetFreq(bool measuredClock, uint32_t re
 #define CY_SYSCLK_ILO_TARGET_FREQ  (32768UL)
 /* Nominal trim step size is 1.5% of "the frequency". Using the target frequency */
 #define CY_SYSCLK_ILO_TRIM_STEP    (CY_SYSLIB_DIV_ROUND(CY_SYSCLK_ILO_TARGET_FREQ * 15UL, 1000UL))
+
+/* The step size to be used by Cy_SysClk_PiloTrim function */
+static uint32_t stepSize = CY_SYSCLK_PILO_TRIM_STEP;
 /** \endcond */
 
 int32_t Cy_SysClk_IloTrim(uint32_t iloFreq)
 {
+    int32_t changeInTrim;
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
     (void) iloFreq;
-    return 0;
+    changeInTrim = (int32_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_CLK_FUNC_ILO_TRIM, iloFreq);
 #else
     uint32_t diff;
     bool sign = false;
@@ -1766,8 +1781,10 @@ int32_t Cy_SysClk_IloTrim(uint32_t iloFreq)
         CY_REG32_CLR_SET(SRSS_CLK_TRIM_ILO_CTL, SRSS_CLK_TRIM_ILO_CTL_ILO_FTRIM, trim);
     }
 
-    return (sign ? (int32_t)diff : (0L - (int32_t)diff));
+    changeInTrim = (sign ? (int32_t)diff : (0L - (int32_t)diff));
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
+    return changeInTrim;
 }
 
 /*******************************************************************************
@@ -1783,29 +1800,25 @@ int32_t Cy_SysClk_IloTrim(uint32_t iloFreq)
 *
 * \funcusage
 * \snippet sysclk/snippet/main.c snippet_Cy_SysClk_PiloTrim
-*
+
 *******************************************************************************/
 /** \cond INTERNAL */
 /* target frequency */
 #define CY_SYSCLK_PILO_TARGET_FREQ  (32768UL)
-/* nominal trim step size */
-#define CY_SYSCLK_PILO_TRIM_STEP        (5UL)
+
 /** \endcond */
 
 int32_t Cy_SysClk_PiloTrim(uint32_t piloFreq)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    (void) piloFreq;
-    return (int32_t)CY_PRA_STATUS_ACCESS_DENIED;
-#else
+    int32_t changeInTrim;
     uint32_t diff;
     bool sign = false;
 
-    if(piloFreq > (CY_SYSCLK_PILO_TARGET_FREQ + CY_SYSCLK_PILO_TRIM_STEP))
+    if(piloFreq > (CY_SYSCLK_PILO_TARGET_FREQ + stepSize))
     {
         diff = piloFreq - CY_SYSCLK_PILO_TARGET_FREQ;
     }
-    else if (piloFreq < (CY_SYSCLK_PILO_TARGET_FREQ - CY_SYSCLK_PILO_TRIM_STEP))
+    else if (piloFreq < (CY_SYSCLK_PILO_TARGET_FREQ - stepSize))
     {
         diff = CY_SYSCLK_PILO_TARGET_FREQ - piloFreq;
         sign = true;
@@ -1821,7 +1834,7 @@ int32_t Cy_SysClk_PiloTrim(uint32_t piloFreq)
         /* Get current trim value */
         uint32_t trim = Cy_SysClk_PiloGetTrim();
 
-        diff = CY_SYSLIB_DIV_ROUND(diff, CY_SYSCLK_PILO_TRIM_STEP);
+        diff = CY_SYSLIB_DIV_ROUND(diff, stepSize);
 
         if(sign)
         {/* piloFreq too low. Increase the trim value */
@@ -1844,8 +1857,152 @@ int32_t Cy_SysClk_PiloTrim(uint32_t piloFreq)
         Cy_SysClk_PiloSetTrim(trim);
     }
 
-    return ((int32_t)(sign ? (int32_t)diff : (0L - (int32_t)diff)));
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+    changeInTrim = ((int32_t)(sign ? (int32_t)diff : (0L - (int32_t)diff)));
+return changeInTrim;
+}
+/** \cond INTERNAL */
+#define LF_COUNT          (64u)
+#define REF_COUNT         (212u)
+#define FREQ_REF          (31250u)
+#define TRIM_DELAY        (2000u)
+#define STEP_SIZE_ITER    (8u)
+/** \endcond */
+
+
+/*******************************************************************************
+* Function Name: Cy_SysClk_PiloInitialTrim
+****************************************************************************//**
+*
+* Initial trims the PILO to be as close to 32,768 Hz as possible.
+* This function takes ECO ALTHF as reference clock and calculate Fine PILO
+* frequency trimming, by using binary search algorithm.
+*
+* This function requires configured BLE ECO ALTHF clock. 
+* Use ModusToolbox Device Configurator to configure BLE ECO ALTHF clock.
+*
+* \note
+* This function must be call after every power-up.
+*
+* \note
+* The function is applicable only for a PSoC 6 BLE devices.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_PiloInitialTrimAndUpdateTrimStep
+*
+*******************************************************************************/
+void Cy_SysClk_PiloInitialTrim(void)
+{
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_VOID(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_CLK_FUNC_PILO_INITIAL_TRIM);
+#else
+    uint32_t measuredCnt  = 0xFFFFFFFFUL;
+    uint32_t trimVal      = 0UL;
+    int32_t  bitPos       = 9;
+
+    do
+    {
+        SRSS_CLK_PILO_CONFIG &= ~(SRSS_CLK_PILO_CONFIG_PILO_FFREQ_Msk);
+
+        /* Set 1 at BitPos in FTRIM*/
+        SRSS_CLK_PILO_CONFIG |= (trimVal | ((uint32_t) 1U  << (uint32_t) bitPos));
+
+        /* Wait for 2 ms after setting FTRIM */
+        Cy_SysLib_DelayUs(TRIM_DELAY);
+        /* Start frequency measurement of PILO for
+         * 64 PILO clock counts with BLE ECO ALTHF(configured to 16MHz) as reference clock */
+        (void) Cy_SysClk_StartClkMeasurementCounters(CY_SYSCLK_MEAS_CLK_PILO, LF_COUNT, CY_SYSCLK_MEAS_CLK_ALTHF);
+        while ( true != Cy_SysClk_ClkMeasurementCountersDone() )
+        {
+            /* Wait for the measurement to complete */
+        }
+        /* Read the number of reference clock cycles for 64 PILO clock cycles */
+        measuredCnt = (uint32_t)_FLD2VAL(SRSS_CLK_CAL_CNT2_CAL_COUNTER2, SRSS_CLK_CAL_CNT2);
+        /* If the measured clock cycles are greater than expected 31250 cycles, retain the bitPos as 1 in FTRIM */
+        if (measuredCnt > FREQ_REF)
+        {
+            trimVal |= ((uint32_t) 1U << (uint32_t) bitPos);
+        }
+        /* Repeat until this is done for all 10 bits of FTRIM */
+        bitPos--;
+
+    } while (bitPos >= 0);
+    SRSS_CLK_PILO_CONFIG &= ~(SRSS_CLK_PILO_CONFIG_PILO_FFREQ_Msk);
+    SRSS_CLK_PILO_CONFIG |= (trimVal);
+#endif
+}
+
+/*******************************************************************************
+* Function Name: Cy_SysClk_PiloUpdateTrimStep
+****************************************************************************//**
+*
+* Calculates and updates the PILO trim step size (stepSize variable).
+* The stepSize value is used by \ref Cy_SysClk_PiloTrim function during periodical
+* PILO calibration.
+*
+* This function requires configured BLE ECO ALTHF clock. 
+* Use ModusToolbox Device Configurator to configure BLE ECO ALTHF clock. 
+*
+* \note
+* This function must be call after every power-up after call of
+* \ref Cy_SysClk_PiloInitialTrim function.
+*
+* \note
+* To achieve best trimming results it is recommended to configure BLE ECO ALTHF
+* reference clock to 16 MHz.
+*
+* \note
+* The function is applicable only for a PSoC 6 BLE devices.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_PiloInitialTrimAndUpdateTrimStep
+*
+*******************************************************************************/
+void Cy_SysClk_PiloUpdateTrimStep(void)
+{
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    (void)stepSize;
+    CY_PRA_FUNCTION_CALL_VOID_VOID(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_CLK_FUNC_UPDATE_PILO_TRIM_STEP);
+#else
+    uint32_t iteration    = 0u;
+    uint32_t fTrim        = 0u;
+    uint32_t newFreq      = 0u;
+    uint32_t oldFreq      = 0u;
+    uint32_t initialFtrim = _FLD2VAL(SRSS_CLK_PILO_CONFIG_PILO_FFREQ, SRSS_CLK_PILO_CONFIG);
+    uint32_t refClkFreq   = Cy_SysClk_AltHfGetFrequency();
+
+    stepSize = 8U;
+
+    (void) Cy_SysClk_StartClkMeasurementCounters(CY_SYSCLK_MEAS_CLK_PILO, REF_COUNT, CY_SYSCLK_MEAS_CLK_ALTHF);
+    while ( true != Cy_SysClk_ClkMeasurementCountersDone() )
+    {
+        /* Wait for the measurement to complete */
+    }
+
+    oldFreq = Cy_SysClk_ClkMeasurementCountersGetFreq(false, refClkFreq);
+    do
+    {
+        fTrim = _FLD2VAL(SRSS_CLK_PILO_CONFIG_PILO_FFREQ, SRSS_CLK_PILO_CONFIG);
+        /* Update the fine trim value */
+        CY_REG32_CLR_SET(SRSS_CLK_PILO_CONFIG, SRSS_CLK_PILO_CONFIG_PILO_FFREQ, fTrim + 1u);
+        /* Wait for 2 ms after setting FTRIM */
+        Cy_SysLib_DelayUs(TRIM_DELAY);
+        (void) Cy_SysClk_StartClkMeasurementCounters(CY_SYSCLK_MEAS_CLK_PILO, REF_COUNT, CY_SYSCLK_MEAS_CLK_ALTHF);
+        while ( true != Cy_SysClk_ClkMeasurementCountersDone() )
+        {
+            /* Wait for the measurement to complete */
+        }
+        newFreq = Cy_SysClk_ClkMeasurementCountersGetFreq(false, refClkFreq);
+        stepSize += (newFreq - oldFreq);
+        oldFreq = newFreq;
+        iteration++;
+
+    } while (iteration < STEP_SIZE_ITER);
+    stepSize = (stepSize/STEP_SIZE_ITER);
+    /* Restore the fine trim value */
+    CY_REG32_CLR_SET(SRSS_CLK_PILO_CONFIG, SRSS_CLK_PILO_CONFIG_PILO_FFREQ, initialFtrim);
+    /* Wait for 2 ms after setting FTRIM */
+    Cy_SysLib_DelayUs(TRIM_DELAY);
+#endif
 }
 /** \} group_sysclk_trim_funcs */
 

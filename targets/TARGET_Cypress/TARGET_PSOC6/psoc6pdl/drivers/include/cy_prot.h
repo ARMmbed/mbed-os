@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.h
-* \version 1.30.3
+* \version 1.40
 *
 * \brief
 * Provides an API declaration of the Protection Unit driver
@@ -396,6 +396,16 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.40</td>
+*     <td>
+*         - Updated the \ref Cy_Prot_SetActivePC() function to report an error when called
+*         on the secure CYB06xx7 devices as no access privileges are available.
+*         - Updated the \ref Cy_Prot_GetActivePC() function for the secure CYB06xx7
+*         devices to access the protected registers via the \ref group_pra driver.
+*    </td>
+*     <td>Added PSoC 64 devices support.</td>
+*   </tr>
+*   <tr>
 *     <td>1.30.3</td>
 *     <td>Minor documentation updates.</td>
 *     <td>Documentation enhancement.</td>
@@ -496,7 +506,7 @@ extern "C" {
 #define CY_PROT_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_PROT_DRV_VERSION_MINOR       30
+#define CY_PROT_DRV_VERSION_MINOR       40
 
 /** Prot driver ID */
 #define CY_PROT_ID                      (CY_PDL_DRV_ID(0x30U))

@@ -1,81 +1,43 @@
-# PSoC 6 Peripheral Driver Library v1.6.0
+# PSoC 6 Peripheral Driver Library v1.6.1
 
 Please refer to the [README.md](./README.md) and the
 [PDL API Reference Manual](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/index.html)
 for a complete description of the Peripheral Driver Library.
 
+Some restrictions apply to the PSoC 64 devices configuration. Please refer to [PRA (Protected Register Access)](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__pra.html) driver documentation for the details.
+
 ## New Features
-
-* Added support for the PSoC 64 Secure MCU devices.
-Limitations for the secure devices are described as a part of the [PRA](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__pra.html) driver.
-
+Added support of the PSoC 64 CYB06xx7 devices.
 
 ## Updated Personalities
-* Power - Added possibility to select the Normal/Minimum Current for the both LDO and BUCK Core regulators.
 
 ## Personalities with patch version updates
 
- Minor updates to support the PSoC 64 Secure MCU devices
-
-* Wco
-* TimerClk
-* TickClk
-* SysClock
-* SlowClk
-* PumpClk
-* Pll
-* Pin
-* Pilo
-* PeriClk
-* PathMux
-* LfClk
-* HvIlo
-* HfClk
-* Fll
-* FastClk
-* ExtClk
-* Eco
-* BakClk
-* AltHf_BleEco
+* HvIlo - Changed ILO frequency from 32 kHz to 32.768 kHz, and ILO accuracy from 30% to 10% to reflect the actual values.
+* Csd - Fixed the CSD resource display condition on the Peripherals tab of the Device Configurator, to display this resource for all MPNs containing the CSD HW block.
+* SysClock - Renamed cy_stc_pra_system_config_t member from altHFfreq to altHFclkFreq.
 
 ## Added Drivers
 
-* [PRA 1.0](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__pra.html)
-
 ## Updated Drivers
 
-* [Startup 2.80](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__config.html)
-* [WDT 1.30](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__wdt.html)
-* [SysTick 1.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__arm__system__timer.html)
-* [SysPm 5.10](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
-* [SysLib 2.60](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
-* [SysClk 2.10](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
-* [SCB 2.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__scb.html)
-* [LVD 1.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__lvd.html)
-* [Flash 3.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__flash.html)
-* [CTB 1.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ctb.html)
+* [SysClk 2.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
+* [SysPm 5.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
+* [PRA 2.0](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__pra.html)
+* [SysInt 1.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysint.html)
+* [Prot 1.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__prot.html)
+* [ble_clk 3.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ble__clk.html)
+* [Startup 2.90](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__config.html)
 
 ### Drivers with patch version updates
 
 Minor documentation changes:
 
-* USBFS 2.20.1
-* TrigMux 1.20.2
-* Tcpwm 1.10.2
-* SysInt 1.30.1
-* SysAnalog 1.10.1
-* SMIF 1.50.1
-* Smart I/O 1.0.1
-* Sd_host 1.50.1
-* Sar 1.20.3
-* Rtc 2.30.1
-* Prot 1.30.3
-* Profiler 1.20.1
+* IPC 1.40.2
+* SysLib 2.60.1
+* Crypto 2.30.4
 
 ## Known Issues
-
-[SysClk](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
-driver.
 
 ## Defect Fixes
 

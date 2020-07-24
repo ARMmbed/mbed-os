@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.c
-* \version 2.20
+* \version 2.30
 *
 * This file provides the definitions for core and peripheral block HW base
 * addresses, versions, and parameters.
@@ -54,7 +54,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_01 =
     /* cryptoVersion             */ 0x10U,
     /* dwVersion                 */ 0x10U,
     /* ipcVersion                */ 0x10U,
-    /* periVersion               */ 0x10U, 
+    /* periVersion               */ 0x10U,
     /* srssVersion               */ 0x10U,
 
     /* Parameters  */

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto.h
-* \version 2.30.3
+* \version 2.30.4
 *
 * \brief
 *  This file provides the public interface for the Crypto driver.
@@ -291,9 +291,31 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.30.4</td>
+*     <td>
+*         Updated code snippets for client-server usage model.
+*     </td>
+*     <td>
+*         Documentation enhancement.
+*     </td>
+*   </tr>
+*   <tr>
 *     <td>2.30.3</td>
-*     <td>Minor documentation updates.</td>
-*     <td>Documentation enhancement.</td>
+*     <td>
+*         Minor documentation updates.
+*     </td>
+*     <td>
+*         Documentation enhancement.
+*     </td>
+*   </tr>
+*   <tr>
+*     <td>2.30.2</td>
+*     <td>
+*         Code formatting cleanup, updated copyright date.
+*     </td>
+*     <td>
+*         PDL project update.
+*     </td>
 *   </tr>
 *   <tr>
 *     <td>2.30.1</td>

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.h
-* \version 1.40.1
+* \version 1.40.2
 *
 *  Description:
 *   IPC Pipe Driver - This header file contains all the function prototypes,
