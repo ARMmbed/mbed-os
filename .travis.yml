@@ -43,7 +43,7 @@ after_failure:
 
 matrix:
   include:
-    
+
     ### Basic Tests ###
     - &basic-vm
       stage: "Basic"
@@ -127,7 +127,7 @@ matrix:
             | ( grep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
-      
+
     - <<: *docs-vm
       name: "spellcheck"
       env: NAME=doxy-spellcheck
@@ -224,7 +224,7 @@ matrix:
       env: NAME=tools-py3.7
       python: 3.7
 
-    
+
     ### Extended Tests ###
     - &extended-vm
       stage: "Extended"
