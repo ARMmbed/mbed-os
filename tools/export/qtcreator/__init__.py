@@ -15,11 +15,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os.path import splitext, basename
-from os import remove
-from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter
+import itertools
+import os
+import os.path
+
 from tools.export.makefile import GccArm
+
 
 class QtCreator(GccArm):
     NAME = 'QtCreator'
@@ -29,44 +30,60 @@ class QtCreator(GccArm):
     def generate(self):
         self.resources.win_to_unix()
 
-        defines         = [] # list of tuples ('D'/'U', [key, value]) (value is optional)
-        forced_includes = [] # list of strings
-        sources         = [] # list of strings
-        include_paths   = [] # list of strings
+        defines = []  # list of tuples ('D'/'U', (key, value)) (value is optional)
+        defines_set = set()  # "set" version of defines for deduplication purposes
+        forced_includes = []  # list of strings
+        sources = []  # list of strings
 
         next_is_include = False
-        for f in self.flags['c_flags'] + self.flags['cxx_flags']:
-            f=f.strip()
+        all_compiler_flags_iter = itertools.chain(
+            self.flags['common_flags'],
+            self.flags['c_flags'],
+            self.toolchain.cc[1:],
+            self.flags['cxx_flags'],
+            self.toolchain.cppc[1:],
+        )
+
+        for compiler_flag in all_compiler_flags_iter:
+            compiler_flag = compiler_flag.strip()
             if next_is_include:
-                forced_includes.append(f)
+                forced_includes.append(compiler_flag)
                 next_is_include = False
                 continue
-            if f.startswith('-D'):
-                defines.append(('D', f[2:].split('=', 1)))
-            elif f.startswith('-U'):
-                defines.append(('U', [f[2:]]))
-            elif f == "-include":
+            if compiler_flag.startswith('-D'):
+                macro = tuple(compiler_flag[2:].split('=', 1))
+                macro_define = ('D', macro)
+                # prevent macro duplication
+                if macro_define not in defines_set or ('U', macro[0]) in defines_set:
+                    defines.append(macro_define)
+                    defines_set.add(macro_define)
+            elif compiler_flag.startswith('-U'):
+                macro_define = ('U', (compiler_flag[2:],))
+                defines.append(macro_define)
+                defines_set.add(macro_define)
+            elif compiler_flag == "-include":
                 next_is_include = True
 
-        for r_type in ['headers', 'c_sources', 's_sources', 'cpp_sources']:
-            sources.extend(getattr(self.resources, r_type))
+        # deduplicate includes
+        forced_includes = sorted(set(os.path.normpath(p) for p in forced_includes))
 
-        include_paths = self.resources.inc_dirs
+        for r_type in ('headers', 'c_sources', 's_sources', 'cpp_sources'):
+            sources.extend(getattr(self.resources, r_type))
 
         ctx = {
             'defines': defines,
             'forced_includes': forced_includes,
             'sources': sources,
             'include_paths': self.resources.inc_dirs
-            }
+        }
 
-        for ext in ['creator', 'files', 'includes', 'config']:
-            self.gen_file('qtcreator/%s.tmpl' % ext, ctx, "%s.%s" % (self.project_name, ext))
+        for ext in ('creator', 'files', 'includes', 'config'):
+            self.gen_file('qtcreator/{}.tmpl'.format(ext), ctx, "{}.{}".format(self.project_name, ext))
 
         # finally, generate the Makefile
         super(QtCreator, self).generate()
 
     @staticmethod
     def clean(project_name):
-        for ext in ['creator', 'files', 'includes', 'config']:
-            remove("%s.%s" % (project_name, ext))
+        for ext in ('creator', 'files', 'includes', 'config'):
+            os.remove("{}.{}".format(project_name, ext))

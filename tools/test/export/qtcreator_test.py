@@ -1,12 +1,12 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
+import codecs
 import copy
 import io
 import itertools
 import json
 import os.path
 import re
-import subprocess
 from contextlib import contextmanager
 
 from mock import patch
@@ -29,7 +29,8 @@ def load_default_profile(profile_name):
 def prepare_test_project(project_dir, target_name, toolchain_name):
     project_dir = str(project_dir)
     # create mbed_app.json
-    with io.open(os.path.join(project_dir, 'mbed_app.json'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(project_dir, 'mbed_app.json'), 'wb') as f:
+        f = codecs.getwriter('utf-8')(f)
         json.dump({"target_overrides": {"*": {"platform.stdio-baud-rate": 115200}}}, f, indent=4)
     # create main.cpp
     with io.open(os.path.join(project_dir, 'main.cpp'), 'w', encoding='utf-8') as f:
@@ -57,7 +58,7 @@ int main() {
 
 
 @contextmanager
-def wrap_exporter_gen_file():
+def wrap_exporter_gen_file_method():
     gen_file_origin = Exporter.gen_file
     gen_file_nonoverwrite_origin = Exporter.gen_file_nonoverwrite
     template_data = {}
@@ -85,7 +86,7 @@ def test_qtcreator_files_match_makefile_macros(tmpdir):
     project_name = 'demo-project'
     project_dir = prepare_test_project(project_dir=tmpdir, target_name=target_name, toolchain_name=toolchain_name)
 
-    with wrap_exporter_gen_file() as context_data:
+    with wrap_exporter_gen_file_method() as context_data:
         exporter = export_project(
             src_paths={
                 '.': [project_dir],
@@ -104,29 +105,24 @@ def test_qtcreator_files_match_makefile_macros(tmpdir):
             ignore=None,
             resource_filter=None
         )
-    # get GCC version
-    version_output = subprocess.check_output([exporter.toolchain.cc[0], '--version']).decode('utf-8')
-    m = re.search(r"\b\d+\.\d+\.\d+\b", version_output)
-    if not m:
-        raise ValueError("Cannot resolve GCC toolchain version")
-    gcc_version = m.group()
 
     # check that all necessary files are generated
     assert 'Makefile' in context_data
     for qt_ext in ('.creator', '.files', '.includes', '.config'):
         assert project_name + qt_ext in context_data
 
-    # extract qtcreator defines
+    # extract QtCreator defines
     qtcreator_defines = set()
     for flag_name, value in context_data[project_name + '.config']['defines']:
         if len(value) == 1 or len(value) == 2:
             qtcreator_defines.add((flag_name,) + tuple(value))
         else:
             raise ValueError("Invalid macro definition: {}".format(value))
-    # extracts Makefile defines
+
+    # extract Makefile defines
     makefile_defines = set()
     for flag in itertools.chain.from_iterable(
-            v for k, v in context_data['Makefile'].items() if k.lower().endswith('_flags')
+            context_data['Makefile'][k] for k in ('common_flags', 'c_flags', 'cxx_flags')
     ):
         m = re.match(r'^-(?P<flag_name>[UD])(?P<name>[^=]+)(:?=(?P<value>.*))?$', flag)
         if m is not None:
@@ -135,5 +131,5 @@ def test_qtcreator_files_match_makefile_macros(tmpdir):
             else:
                 makefile_defines.add((m.group('flag_name'), m.group('name')))
 
-    # check that makefile and qtcreator uses the same macros
+    # check that makefile and QtCreator files contain the same macros
     assert qtcreator_defines == makefile_defines, "Makefile and qtcreator *.config files have different macros"
