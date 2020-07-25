@@ -220,7 +220,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
                 self.asm_symbols += self.target.macros
                 # Add extra symbols passed via 'macros' parameter
                 self.asm_symbols += self.macros
-            return list(set(self.asm_symbols))  # Return only unique symbols
+            return sorted(set(self.asm_symbols))  # Return only unique symbols
         else:
             if self.cxx_symbols is None:
                 # Target and Toolchain symbols
@@ -270,7 +270,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
                          self.target.supported_form_factors]
                     )
 
-            return list(set(self.cxx_symbols))  # Return only unique symbols
+            return sorted(set(self.cxx_symbols))  # Return only unique symbols
 
     # Extend the internal list of macros
     def add_macros(self, new_macros):
