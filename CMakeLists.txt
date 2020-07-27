@@ -10,9 +10,6 @@ if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
-# Create Mbed OS library
-add_library(mbed-os OBJECT)
-
 # Include mbed.h and config from generate folder
 target_include_directories(mbed-os PUBLIC .)
 
