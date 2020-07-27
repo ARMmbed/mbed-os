@@ -25,7 +25,7 @@ endif()
 add_subdirectory(mbed-os)
 
 # Link the example libs
-target_link_libraries(app mbed-os gen_config)
+target_link_libraries(app mbed-os)
 
 # I have  to  leave this here as linker is processed after mbed-os added, and can't be in toolchain.cmake
 # as its global symbol is empty at that stage, this needs more work
