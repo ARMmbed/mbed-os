@@ -3,7 +3,7 @@
 
 # This is the boilerplate for Mbed OS
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 # Using relative paths behavior
 if(POLICY CMP0076)
