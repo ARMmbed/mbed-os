@@ -4,7 +4,7 @@
 add_subdirectory(blockdevice)
 add_subdirectory(filesystem)
 add_subdirectory(kvstore)
-add_subdirectory(system_storage)
+add_subdirectory(platform)
 
 target_include_directories(mbed-os
     PUBLIC
