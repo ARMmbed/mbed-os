@@ -16,7 +16,7 @@
  */
 
 #include "CellularList.h"
-#include "ControlPlane_netif.h"
+#include "netsocket/ControlPlane_netif.h"
 #include "ATHandler.h"
 #include "AT_CellularDevice.h"
 

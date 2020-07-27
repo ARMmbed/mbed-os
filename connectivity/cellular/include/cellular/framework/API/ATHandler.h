@@ -22,7 +22,7 @@
 #include "platform/mbed_chrono.h"
 
 #include "events/EventQueue.h"
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 #include "Callback.h"
 #include "rtos/Kernel.h"

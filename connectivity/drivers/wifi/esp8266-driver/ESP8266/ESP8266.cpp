@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #include "ESP8266.h"
-#include "features/netsocket/nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 #include "mbed_trace.h"
 #include "PinNames.h"
 #include "platform/Callback.h"

@@ -8,7 +8,6 @@ set(unittest-includes ${unittest-includes}
   ../connectivity/cellular/include/cellular/framework/device/cellulardevice
   ../connectivity/cellular/include/cellular/framework/device
   ../connectivity/cellular/include/cellular/framework/common
-  ../features/netsocket/cellular
 )
 
 # Source files
@@ -49,4 +48,3 @@ set(unittest-test-flags
   -DDEVICE_SERIAL=1
   -DDEVICE_INTERRUPTIN=1
 )
-

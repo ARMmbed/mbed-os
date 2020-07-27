@@ -19,7 +19,7 @@
 #define CELLULAR_INFORMATION_H_
 
 #include <stddef.h>
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 const int MAX_IMSI_LENGTH = 15;
 const int MAX_ICCID_LENGTH = 20 + 1; // +1 for zero termination

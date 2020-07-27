@@ -17,11 +17,11 @@
 #ifndef _CELLULARCONTEXT_H_
 #define _CELLULARCONTEXT_H_
 
-#include "NetworkStack.h"
-#include "CellularInterface.h"
+#include "netsocket/NetworkStack.h"
+#include "netsocket/CellularInterface.h"
 #include "CellularDevice.h"
 #include "CellularUtil.h"
-#include "ControlPlane_netif.h"
+#include "netsocket/ControlPlane_netif.h"
 #include "PinNames.h"
 
 /** @file CellularContext.h

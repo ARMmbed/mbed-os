@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "SocketAddress.h"
+#include "netsocket/SocketAddress.h"
 
 
 SocketAddress::SocketAddress(const nsapi_addr_t &addr, uint16_t port)

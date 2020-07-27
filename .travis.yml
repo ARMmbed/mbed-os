@@ -138,7 +138,7 @@ matrix:
         - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
         - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
         - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket
 
     - <<: *docs-vm
       name: "doxygen"
@@ -249,7 +249,7 @@ matrix:
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - |
           rm -r rtos/source/TARGET_CORTEX drivers/source/usb connectivity/cellular connectivity/drivers/cellular \
-            connectivity/libraries/ppp features/netsocket features/nanostack features/lwipstack features/frameworks/greentea-client \
+            connectivity/libraries/ppp connectivity/netsocket features/nanostack features/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
         # Run local equeue tests

@@ -21,7 +21,7 @@
 #if MBED_CONF_CELLULAR_USE_SMS
 
 #include "Callback.h"
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 namespace mbed {
 

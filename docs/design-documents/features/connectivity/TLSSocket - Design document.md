@@ -133,7 +133,7 @@ Also, configuration structures can be shared between sockets, which leads to RAM
 
 ##  Detailed design for abstract socket API
 
-The Mbed OS [Socket interface](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h) is an abstract C++ inteface that follows the POSIX socket API.
+The Mbed OS [Socket interface](https://github.com/ARMmbed/mbed-os/blob/master/connectivity/netsocket/Socket.h) is an abstract C++ inteface that follows the POSIX socket API.
 
 ### Receiving and sending data from Mbed TLS
 

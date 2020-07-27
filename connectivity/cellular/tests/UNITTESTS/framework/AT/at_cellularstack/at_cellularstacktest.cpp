@@ -24,7 +24,7 @@
 #include "FileHandle_stub.h"
 #include "CellularLog.h"
 #include "ATHandler_stub.h"
-#include "SocketAddress.h"
+#include "netsocket/SocketAddress.h"
 #include "CellularDevice_stub.h"
 #include "AT_CellularDevice_stub.h"
 #include "myCellularDevice.h"

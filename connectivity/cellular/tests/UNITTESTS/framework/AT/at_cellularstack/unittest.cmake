@@ -9,7 +9,6 @@ set(unittest-includes ${unittest-includes}
   ../connectivity/cellular/include/cellular/framework/common
   ../connectivity/cellular/include/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
-  ../features/netsocket/cellular
 )
 
 # Source files
@@ -20,7 +19,7 @@ set(unittest-sources
   ../connectivity/libraries/nanostack-libservice/source/libip4string/stoip4.c
   ../connectivity/libraries/nanostack-libservice/source/libip6string/stoip6.c
   ../connectivity/libraries/nanostack-libservice/source/libBits/common_functions.c
-  ../features/netsocket/SocketAddress.cpp
+  ../connectivity/netsocket/source/SocketAddress.cpp
 )
 
 # Test files
@@ -51,4 +50,3 @@ set(unittest-test-flags
   -DDEVICE_INTERRUPTIN=1
   -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
 )
-

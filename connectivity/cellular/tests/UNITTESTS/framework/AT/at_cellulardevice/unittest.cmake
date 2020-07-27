@@ -12,7 +12,6 @@ set(unittest-includes ${unittest-includes}
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
   ../drivers
   ../hal
-  ../features/netsocket/cellular
 )
 
 # Source files
@@ -60,4 +59,3 @@ set(unittest-test-flags
   -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
   -DMBED_CONF_CELLULAR_USE_SMS=1
 )
-

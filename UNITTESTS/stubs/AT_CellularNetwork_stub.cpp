@@ -20,7 +20,7 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "FileHandle.h"
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 using namespace mbed;
 using namespace mbed_cellular_util;

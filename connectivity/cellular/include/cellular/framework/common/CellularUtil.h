@@ -20,7 +20,7 @@
 
 #include <stddef.h>
 #include <inttypes.h>
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 namespace mbed_cellular_util {
 

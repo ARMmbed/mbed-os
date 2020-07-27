@@ -24,7 +24,7 @@
 #include "ESP8266Interface.h"
 #include "events/EventQueue.h"
 #include "events/mbed_shared_queues.h"
-#include "features/netsocket/nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 #include "mbed_trace.h"
 #include "platform/Callback.h"
 #include "platform/mbed_atomic.h"
