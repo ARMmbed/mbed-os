@@ -32,7 +32,7 @@ to control your device. This must be derived from class `EMAC`.
 This API is used by a network stack (or test framework) to control your driver.
 
 The EMAC-derived driver would normally be installed in
-features/netsocket/emac-drivers, often in a `TARGET_XXX` directory.
+connectivity/drivers/emac/targets, often in a `TARGET_XXX` directory.
 
 Class EMAC is entirely abstract - you need to implement about a dozen calls
 to activate the driver, send and receive packets, and perform other control
