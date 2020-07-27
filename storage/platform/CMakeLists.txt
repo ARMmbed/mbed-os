@@ -3,5 +3,5 @@
 
 target_sources(mbed-os
     PRIVATE
-        SystemStorage.cpp
+        source/PlatformStorage.cpp
 )
