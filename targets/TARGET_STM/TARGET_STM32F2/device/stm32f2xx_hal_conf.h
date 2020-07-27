@@ -167,7 +167,7 @@
 #define ETH_TX_BUF_SIZE                ETH_MAX_PACKET_SIZE /* buffer size for transmit              */
 
 #ifdef MBED_CONF_STM32_EMAC_ETH_RXBUFNB
-/* default value in features/netsocket/emac-drivers/TARGET_STM/mbed_lib.json */
+/* default value in connectivity/drivers/emac/TARGET_STM/mbed_lib.json */
 #define ETH_RXBUFNB                    MBED_CONF_STM32_EMAC_ETH_RXBUFNB  /* Rx buffers of size ETH_RX_BUF_SIZE  */
 #define ETH_TXBUFNB                    MBED_CONF_STM32_EMAC_ETH_TXBUFNB  /* Tx buffers of size ETH_TX_BUF_SIZE  */
 #else

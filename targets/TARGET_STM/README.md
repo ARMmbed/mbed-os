@@ -292,7 +292,7 @@ Depending on your PHY, you will have to customize several configuration values:
 - Duplex mask information in the PHY status register
 
 Check the default values in:
-https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/emac-drivers/TARGET_STM/mbed_lib.json
+https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/emac/TARGET_STM/mbed_lib.json
 
 Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.

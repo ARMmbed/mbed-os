@@ -216,7 +216,7 @@
 
 /* ########################### Ethernet Configuration ######################### */
 #ifdef MBED_CONF_STM32_EMAC_ETH_RXBUFNB
-/* default value in features/netsocket/emac-drivers/TARGET_STM/mbed_lib.json */
+/* default value in connectivity/drivers/emac/TARGET_STM/mbed_lib.json */
 #define ETH_TX_DESC_CNT         MBED_CONF_STM32_EMAC_ETH_TXBUFNB  /* number of Ethernet Tx DMA descriptors */
 #define ETH_RX_DESC_CNT         MBED_CONF_STM32_EMAC_ETH_RXBUFNB  /* number of Ethernet Rx DMA descriptors */
 #else
