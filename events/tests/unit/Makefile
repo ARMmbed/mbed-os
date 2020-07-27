@@ -4,7 +4,7 @@ CC = gcc
 AR = ar
 SIZE = size
 
-SRC += $(wildcard *.c)
+SRC += $(wildcard ../../source/*.c)
 OBJ := $(SRC:.c=.o)
 DEP := $(SRC:.c=.d)
 ASM := $(SRC:.c=.s)
@@ -27,13 +27,9 @@ LFLAGS += -pthread
 
 all: $(TARGET)
 
-test: tests.o $(OBJ)
-	$(CC) $(CFLAGS) $^ $(LFLAGS) -o tests
-	tests
-
 prof: prof.o $(OBJ)
 	$(CC) $(CFLAGS) $^ $(LFLAGS) -o prof
-	prof
+	./prof
 
 asm: $(ASM)
 
@@ -53,7 +49,6 @@ size: $(OBJ)
 
 clean:
 	rm -f $(TARGET)
-	rm -f tests tests.o tests.d
 	rm -f prof prof.o prof.d
 	rm -f $(OBJ)
 	rm -f $(DEP)
