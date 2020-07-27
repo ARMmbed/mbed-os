@@ -12,7 +12,7 @@ add_subdirectory(lorawan)
 add_subdirectory(lwipstack)
 add_subdirectory(mbedtls)
 add_subdirectory(nanostack)
-add_subdirectory(netsocket)
+add_subdirectory(netsocket/emac-drivers)
 add_subdirectory(nfc)
 
 target_include_directories(mbed-os
