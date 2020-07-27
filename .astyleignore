@@ -29,3 +29,4 @@
 ^UNITTESTS
 ^storage/blockdevice/tests/UNITTESTS
 ^storage/kvstore/tests/UNITTESTS
+^drivers/tests/UNITTESTS

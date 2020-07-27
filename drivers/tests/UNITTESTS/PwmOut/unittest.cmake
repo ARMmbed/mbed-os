@@ -17,7 +17,7 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  drivers/PwmOut/test_pwmout.cpp
+  ../drivers/tests/UNITTESTS/PwmOut/test_pwmout.cpp
   stubs/mbed_critical_stub.c
   stubs/mbed_assert_stub.cpp
   stubs/pwmout_api_stub.c
