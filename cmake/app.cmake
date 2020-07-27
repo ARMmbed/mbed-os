@@ -1,6 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Create Mbed OS library
+add_library(mbed-os OBJECT)
+
+# Create application executable
+add_executable(app)
+
 include(.mbedbuild/mbed_config.cmake)
 include(${MBED_ROOT}/cmake/toolchain.cmake)
 include(${MBED_ROOT}/cmake/core.cmake)
@@ -14,9 +20,6 @@ set(CMAKE_BUILD_TYPE "RelWithDebInfo"
         CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
         FORCE)
 endif()
-
-# Create application executable
-add_executable(app)
 
 # Include Mbed OS main cmake
 add_subdirectory(mbed-os)
