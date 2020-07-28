@@ -11,7 +11,6 @@ list(APPEND common_options
     "${MBED_STUDIO_ARM_COMPILER}"
     "-c"
     "--target=arm-arm-none-eabi"
-    "-Oz"
     "-Wno-armcc-pragma-push-pop"
     "-Wno-armcc-pragma-anon-unions"
     "-Wno-reserved-user-defined-literal"
