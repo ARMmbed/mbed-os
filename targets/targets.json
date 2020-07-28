@@ -4175,7 +4175,7 @@
         ],
         "config": {
             "clock_source": {
-                "help": "Clock source to use, can be XTAL or RC",
+                "help": "Mask value : USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
@@ -4188,12 +4188,15 @@
         "overrides": {
             "lse_available": 0
         },
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
-            "ANALOGOUT",
+            "TRNG",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER"],
+        "device_has_remove": [
+            "LPTICKER",
+            "RTC",
+            "SERIAL_FC"
+        ],
         "device_name": "STM32F469NI",
         "release_versions": ["5"],
         "detect_code": ["0604"]
