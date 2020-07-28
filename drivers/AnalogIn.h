@@ -151,7 +151,9 @@ public:
 
     virtual ~AnalogIn()
     {
-        // Do nothing
+        lock();
+        analogin_free(&_adc);
+        unlock();
     }
 
 protected:

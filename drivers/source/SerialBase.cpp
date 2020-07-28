@@ -287,6 +287,10 @@ SerialBase::~SerialBase()
     for (int irq = 0; irq < IrqCnt; irq++) {
         attach(nullptr, (IrqType)irq);
     }
+
+    if (_rx_enabled || _tx_enabled) {
+        serial_free(&_serial);
+    }
 }
 
 #if DEVICE_SERIAL_FC
