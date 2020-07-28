@@ -29,9 +29,13 @@
 #include "hal/lp_ticker_api.h"
 #include "hal/mbed_lp_ticker_wrapper.h"
 
-#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] UsTicker need to be enabled for this test
 #else
+
+#if defined(SKIP_TIME_DRIFT_TESTS)
+#error [NOT_SUPPORTED] timing accuracy tests skipped
+#endif // defined(SKIP_TIME_DRIFT_TESTS)
 
 #define US_PER_S 1000000
 
@@ -208,4 +212,4 @@ int main()
     Harness::run(specification);
 }
 
-#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#endif // !DEVICE_USTICKER
