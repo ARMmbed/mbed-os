@@ -23,9 +23,13 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 
-#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] UsTicker need to be enabled for this test.
 #else
+
+#if defined(SKIP_TIME_DRIFT_TESTS)
+#error [NOT_SUPPORTED] timing accuracy tests skipped
+#endif // defined(SKIP_TIME_DRIFT_TESTS
 
 using utest::v1::Case;
 using std::milli;
@@ -122,5 +126,5 @@ int main()
     utest::v1::Harness::run(specification);
 }
 
-#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#endif // !DEVICE_USTICKER
 #endif // defined(MBED_RTOS_SINGLE_THREAD) || !defined(MBED_CONF_RTOS_PRESENT)
