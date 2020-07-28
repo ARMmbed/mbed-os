@@ -31,7 +31,6 @@ list(APPEND common_options
     "-funsigned-char"
     "-MMD"
     "-fomit-frame-pointer"
-    "-Os"
     "-g"
 )
 
