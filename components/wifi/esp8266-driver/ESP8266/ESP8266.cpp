@@ -58,6 +58,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _error(false),
       _busy(false),
       _reset_done(false),
+      _sock_sending_id(-1),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
     _serial.set_baud(MBED_CONF_ESP8266_SERIAL_BAUDRATE);
@@ -89,6 +90,10 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
     _parser.oob("busy ", callback(this, &ESP8266::_oob_busy));
     // NOTE: documentation v3.0 says '+CIPRECVDATA:<data_len>,' but it's not how the FW responds...
     _parser.oob("+CIPRECVDATA,", callback(this, &ESP8266::_oob_tcp_data_hdlr));
+    // Register 'SEND OK'/'SEND FAIL' oobs here. Don't get involved in oob management with send status
+    // because ESP8266 modem possibly doesn't reply these packets on error case.
+    _parser.oob("SEND OK", callback(this, &ESP8266::_oob_send_ok_received));
+    _parser.oob("SEND FAIL", callback(this, &ESP8266::_oob_send_fail_received));
 
     for (int i = 0; i < SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
@@ -96,6 +101,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
         _sock_i[i].tcp_data = NULL;
         _sock_i[i].tcp_data_avbl = 0;
         _sock_i[i].tcp_data_rcvd = 0;
+        _sock_i[i].send_fail = false;
     }
 
     _scan_r.res = NULL;
@@ -288,6 +294,7 @@ bool ESP8266::reset(void)
     tr_debug("reset(): Done: %s.", done ? "OK" : "FAIL");
 
     _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
+    _sock_sending_id = -1;
     set_timeout();
     _smutex.unlock();
 
@@ -511,9 +518,17 @@ nsapi_error_t ESP8266::open_udp(int id, const char *addr, int port, int local_po
     // process OOB so that _sock_i reflects the correct state of the socket
     _process_oob(ESP8266_SEND_TIMEOUT, true);
 
-    if (id >= SOCKET_COUNT || _sock_i[id].open) {
+    // Previous close() can fail with busy in sending. Usually, user will ignore the close()
+    // error code and cause 'spurious close', in which case user has closed the socket but ESP8266 modem
+    // hasn't yet. Because we don't know how long ESP8266 modem will trap in busy, enlarge retry count
+    // or timeout in close() isn't a nice way. Here, we actively re-call close() in open() to let the modem
+    // close the socket. User can re-try open() on failure. Without this active close(), open() can fail forever
+    // with previous 'spurious close', unless peer closes the socket and so ESP8266 modem closes it accordingly.
+    if (id >= SOCKET_COUNT) {
         _smutex.unlock();
         return NSAPI_ERROR_PARAMETER;
+    } else if (_sock_i[id].open) {
+        close(id);
     }
 
     for (int i = 0; i < 2; i++) {
@@ -562,9 +577,12 @@ nsapi_error_t ESP8266::open_tcp(int id, const char *addr, int port, int keepaliv
     // process OOB so that _sock_i reflects the correct state of the socket
     _process_oob(ESP8266_SEND_TIMEOUT, true);
 
-    if (id >= SOCKET_COUNT || _sock_i[id].open) {
+    // See the reason above with close()
+    if (id >= SOCKET_COUNT) {
         _smutex.unlock();
         return NSAPI_ERROR_PARAMETER;
+    } else if (_sock_i[id].open) {
+        close(id);
     }
 
     for (int i = 0; i < 2; i++) {
@@ -612,9 +630,24 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
     return done;
 }
 
-nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
+nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
+    if (_sock_i[id].proto == NSAPI_TCP) {
+        if (_sock_sending_id >= 0 && _sock_sending_id < SOCKET_COUNT) {
+            if (!_sock_i[id].send_fail) {
+                tr_debug("send(): Previous packet (socket %d) was not yet ACK-ed with SEND OK.", _sock_sending_id);
+                return NSAPI_ERROR_WOULD_BLOCK;
+            } else {
+                tr_debug("send(): Previous packet (socket %d) failed.", id);
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+        }
+    }
+
     nsapi_error_t ret = NSAPI_ERROR_DEVICE_ERROR;
+    int bytes_confirmed = 0;
+    constexpr unsigned int send_ack_retries = 3;
+
     // +CIPSEND supports up to 2048 bytes at a time
     // Data stream can be truncated
     if (amount > 2048 && _sock_i[id].proto == NSAPI_TCP) {
@@ -626,6 +659,10 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     }
 
     _smutex.lock();
+    // Mark this socket is sending. We allow only one actively sending socket because:
+    // 1. ESP8266 AT packets 'SEND OK'/'SEND FAIL' are not associated with socket ID. No way to tell them.
+    // 2. In original implementation, ESP8266::send() is synchronous, which implies only one actively sending socket.
+    _sock_sending_id = id;
     set_timeout(ESP8266_SEND_TIMEOUT);
     _busy = false;
     _error = false;
@@ -635,37 +672,70 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     }
 
     if (!_parser.recv(">")) {
+        // This means ESP8266 hasn't even started to receive data
         tr_debug("send(): Didn't get \">\"");
-        ret = NSAPI_ERROR_WOULD_BLOCK;
+        if (_sock_i[id].proto == NSAPI_TCP) {
+            ret = NSAPI_ERROR_WOULD_BLOCK; // Not necessarily critical error.
+        } else if (_sock_i[id].proto == NSAPI_UDP) {
+            ret = NSAPI_ERROR_NO_MEMORY;
+        }
         goto END;
     }
 
-    if (_parser.write((char *)data, (int)amount) >= 0 && _parser.recv("SEND OK")) {
-        ret = NSAPI_ERROR_OK;
+    if (_parser.write((char *)data, (int)amount) < 0) {
+        tr_debug("send(): Failed to write serial data");
+        // Serial is not working, serious error, reset needed.
+        ret = NSAPI_ERROR_DEVICE_ERROR;
+        goto END;
+    }
+
+    // The "Recv X bytes" is not documented.
+    if (!_parser.recv("Recv %d bytes", &bytes_confirmed)) {
+        tr_debug("send(): Bytes not confirmed.");
+        if (_sock_i[id].proto == NSAPI_TCP) {
+            ret = NSAPI_ERROR_WOULD_BLOCK;
+        } else if (_sock_i[id].proto == NSAPI_UDP) {
+            ret = NSAPI_ERROR_NO_MEMORY;
+        }
+    } else if (bytes_confirmed != amount && _sock_i[id].proto == NSAPI_UDP) {
+        tr_debug("send(): Error: confirmed %d bytes, but expected %d.", bytes_confirmed, amount);
+        ret = NSAPI_ERROR_DEVICE_ERROR;
+    } else {
+        // TCP can accept partial writes (if they ever happen)
+        ret = bytes_confirmed;
     }
 
 END:
     _process_oob(ESP8266_RECV_TIMEOUT, true); // Drain USART receive register to avoid data overrun
 
     // error hierarchy, from low to high
-    if (_busy) {
+    // NOTE: We cannot return NSAPI_ERROR_WOULD_BLOCK when "Recv X bytes" has reached, otherwise duplicate data send.
+    if (_busy && ret < 0) {
         ret = NSAPI_ERROR_WOULD_BLOCK;
-        tr_debug("send(): Modem busy. ");
-    }
-
-    if (ret == NSAPI_ERROR_DEVICE_ERROR) {
-        ret = NSAPI_ERROR_WOULD_BLOCK;
-        tr_debug("send(): Send failed.");
+        tr_debug("send(): Modem busy.");
     }
 
     if (_error) {
+        // FIXME: Not sure clear or not of _error. See it as device error and it can recover only via reset?
+        _sock_sending_id = -1;
         ret = NSAPI_ERROR_CONNECTION_LOST;
         tr_debug("send(): Connection disrupted.");
     }
 
-    if (!_sock_i[id].open && ret != NSAPI_ERROR_OK) {
+    if (_sock_i[id].send_fail) {
+        _sock_sending_id = -1;
+        if (_sock_i[id].proto == NSAPI_TCP) {
+            ret = NSAPI_ERROR_DEVICE_ERROR;
+        } else {
+            ret = NSAPI_ERROR_NO_MEMORY;
+        }
+        tr_debug("send(): SEND FAIL received.");
+    }
+
+    if (!_sock_i[id].open && ret < 0) {
+        _sock_sending_id = -1;
         ret = NSAPI_ERROR_CONNECTION_LOST;
-        tr_debug("send(): Socket closed abruptly.");
+        tr_debug("send(): Socket %d closed abruptly.", id);
     }
 
     set_timeout();
@@ -938,6 +1008,14 @@ void ESP8266::_clear_socket_packets(int id)
     }
 }
 
+void ESP8266::_clear_socket_sending(int id)
+{
+    if (id == _sock_sending_id) {
+        _sock_sending_id = -1;
+    }
+    _sock_i[id].send_fail = false;
+}
+
 bool ESP8266::close(int id)
 {
     //May take a second try if device is busy
@@ -949,20 +1027,27 @@ bool ESP8266::close(int id)
                     _closed = false;
                     _sock_i[id].open = false;
                     _clear_socket_packets(id);
+                    // Closed, so this socket escapes from SEND FAIL status.
+                    _clear_socket_sending(id);
                     _smutex.unlock();
                     // ESP8266 has a habit that it might close a socket on its own.
+                    tr_debug("close(%d): socket close OK with UNLINK ERROR", id);
                     return true;
                 }
             } else {
                 // _sock_i[id].open set to false with an OOB
                 _clear_socket_packets(id);
+                // Closed, so this socket escapes from SEND FAIL status
+                _clear_socket_sending(id);
                 _smutex.unlock();
+                tr_debug("close(%d): socket close OK with AT+CIPCLOSE OK", id);
                 return true;
             }
         }
         _smutex.unlock();
     }
 
+    tr_debug("close(%d): socket close FAIL'ed (spurious close)", id);
     return false;
 }
 
@@ -1140,6 +1225,8 @@ void ESP8266::_oob_socket0_closed()
 {
     static const int id = 0;
     _sock_i[id].open = false;
+    // Closed, so this socket escapes from SEND FAIL status
+    _clear_socket_sending(id);
     tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
@@ -1147,6 +1234,8 @@ void ESP8266::_oob_socket1_closed()
 {
     static const int id = 1;
     _sock_i[id].open = false;
+    // Closed, so this socket escapes from SEND FAIL status
+    _clear_socket_sending(id);
     tr_debug("_oob_socket1_closed(): Socket %d closed.", id);
 }
 
@@ -1154,6 +1243,7 @@ void ESP8266::_oob_socket2_closed()
 {
     static const int id = 2;
     _sock_i[id].open = false;
+    _clear_socket_sending(id);
     tr_debug("_oob_socket2_closed(): Socket %d closed.", id);
 }
 
@@ -1161,6 +1251,7 @@ void ESP8266::_oob_socket3_closed()
 {
     static const int id = 3;
     _sock_i[id].open = false;
+    _clear_socket_sending(id);
     tr_debug("_oob_socket3_closed(): %d closed.", id);
 }
 
@@ -1168,6 +1259,8 @@ void ESP8266::_oob_socket4_closed()
 {
     static const int id = 4;
     _sock_i[id].open = false;
+    // Closed, so this socket escapes from SEND FAIL status
+    _clear_socket_sending(id);
     tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
@@ -1203,6 +1296,21 @@ void ESP8266::_oob_connection_status()
 
     MBED_ASSERT(_conn_stat_cb);
     _conn_stat_cb();
+}
+
+void ESP8266::_oob_send_ok_received()
+{
+    tr_debug("_oob_send_ok_received called for socket %d", _sock_sending_id);
+    _sock_sending_id = -1;
+}
+
+void ESP8266::_oob_send_fail_received()
+{
+    tr_debug("_oob_send_fail_received called for socket %d", _sock_sending_id);
+    if (_sock_sending_id >= 0 && _sock_sending_id < SOCKET_COUNT) {
+        _sock_i[_sock_sending_id].send_fail = true;
+    }
+    _sock_sending_id = -1;
 }
 
 int8_t ESP8266::default_wifi_mode()
