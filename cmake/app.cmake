@@ -14,6 +14,10 @@ include(${MBED_ROOT}/cmake/profile.cmake)
 include(${MBED_ROOT}/cmake/env.cmake)
 include(${MBED_ROOT}/cmake/util.cmake)
 
+set_target_properties(mbed-os PROPERTIES MBED_TARGET_LABELS "${MBED_TARGET_LABELS}")
+target_compile_definitions(mbed-os PUBLIC ${MBED_TARGET_DEFINITIONS})
+target_compile_definitions(mbed-os PUBLIC ${MBED_CONFIG_DEFINITIONS})
+
 # Specify a default build type
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "RelWithDebInfo"
