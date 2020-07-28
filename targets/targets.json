@@ -4092,7 +4092,8 @@
             "USBDEVICE"
         ],
         "release_versions": ["5"],
-        "device_name": "STM32F407ZG"
+        "device_name": "STM32F407ZG",
+        "bootloader_supported": true
     },
     "DISCO_F429ZI": {
         "inherits": ["FAMILY_STM32"],
