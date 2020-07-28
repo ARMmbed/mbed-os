@@ -4,7 +4,7 @@
 # PREFIX - TARGET or similar (can be empty string)
 # KEYWORD_LIST - list of labels that are used to include directories
 function(mbed_add_cmake_directory_if_labels PREFIX)
-    get_property(target_labels GLOBAL PROPERTY MBED_TARGET_LABELS)
+    get_target_property(target_labels mbed-os MBED_TARGET_LABELS)
     foreach(key ${target_labels})
         if(NOT "${PREFIX}" STREQUAL "")
             string(PREPEND key ${PREFIX} "_")
