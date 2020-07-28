@@ -135,7 +135,7 @@ matrix:
           mbedtools configure -t GCC_ARM -m ${TARGET_NAME};
           mkdir -p build
       script:
-        - cd build && cmake .. -GNinja -DMBED_PROFILE=${PROFILE} && cmake --build .
+        - cd build && cmake .. -GNinja -DCMAKE_BUILD_TYPE=${PROFILE} && cmake --build .
 
     - <<: *cmake-build-test
       name: "CMake blinky example - release"
