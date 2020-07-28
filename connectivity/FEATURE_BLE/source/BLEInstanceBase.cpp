@@ -23,8 +23,3 @@ BLEInstanceBase::~BLEInstanceBase()
 {
     // empty destructor
 }
-
-void BLEInstanceBase::signalEventsToProcess(BLE::InstanceID_t id)
-{
-    BLE::Instance(id).signalEventsToProcess();
-}

@@ -83,11 +83,12 @@ public:
      * ready to be processed in the internal stack or BLE subsystem. As a result
      * of this call, the callback registered by the end user via
      * BLE::onEventsToProcess will be invoked.
-     *
-     * @param[in] id: Identifier of the BLE instance, which does have events to
-     * ready to be processed.
+     * @deprecated Call BLE::signalEventsToProcess directly.
      */
-    void signalEventsToProcess(BLE::InstanceID_t id);
+    virtual void signalEventsToProcess()
+    {
+        BLE::Instance().signalEventsToProcess();
+    };
 
     /**
      * Start the initialization of the vendor BLE subsystem.
@@ -96,8 +97,6 @@ public:
      * the BLE instance which issue that call while the initCallback is used to
      * signal asynchronously the completion of the initialization process.
      *
-     * @param[in] instanceID Identifier of the BLE instance requesting
-     * initialization.
      * @param[in] initCallback Callback which the vendor port shall invoke
      * when the initialization completes.
      *
@@ -116,7 +115,6 @@ public:
      * @see BLE::init()
      */
     virtual ble_error_t init(
-        BLE::InstanceID_t instanceID,
         FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext*> initCallback
     ) = 0;
 

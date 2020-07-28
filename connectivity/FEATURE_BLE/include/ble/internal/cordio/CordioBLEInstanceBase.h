@@ -67,7 +67,6 @@ public:
     * @see BLEInstanceBase::init
     */
     virtual ble_error_t init(
-        ::BLE::InstanceID_t instanceID,
         FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> initCallback
     );
 
@@ -164,7 +163,6 @@ private:
         INITIALIZED
     } initialization_status;
 
-    ::BLE::InstanceID_t instanceID;
     mutable ble::PalEventQueue _event_queue;
     mbed::LowPowerTimer _timer;
     uint64_t _last_update_us;

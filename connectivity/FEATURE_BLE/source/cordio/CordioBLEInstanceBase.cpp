@@ -58,11 +58,11 @@ uint32_t SystemHeapSize;
  * A runtime error is generated if the user does not define any
  * ble_cordio_get_hci_driver.
  */
-MBED_WEAK ble::CordioHCIDriver& ble_cordio_get_hci_driver()
+MBED_WEAK ble::CordioHCIDriver &ble_cordio_get_hci_driver()
 {
     MBED_ASSERT("No HCI driver");
     printf("Please provide an implementation for the HCI driver");
-    ble::CordioHCIDriver* bad_instance = nullptr;
+    ble::CordioHCIDriver *bad_instance = nullptr;
     return *bad_instance;
 }
 
@@ -79,9 +79,9 @@ extern "C" void hci_mbed_os_start_reset_sequence(void)
     ble_cordio_get_hci_driver().start_reset_sequence();
 }
 
-extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t* msg)
+extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t *msg)
 {
-     ble_cordio_get_hci_driver().handle_reset_sequence(msg);
+    ble_cordio_get_hci_driver().handle_reset_sequence(msg);
 }
 
 /*
@@ -90,7 +90,7 @@ extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t* msg)
  */
 extern "C" MBED_WEAK void wsf_mbed_ble_signal_event(void)
 {
-    ble::CordioBLEInstanceBase::deviceInstance().signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
+    BLE::Instance().signalEventsToProcess();
 }
 
 /**
@@ -104,9 +104,8 @@ BLEInstanceBase *createBLEInstance()
 
 namespace ble {
 
-CordioBLEInstanceBase::CordioBLEInstanceBase(CordioHCIDriver& hci_driver) :
+CordioBLEInstanceBase::CordioBLEInstanceBase(CordioHCIDriver &hci_driver) :
     initialization_status(NOT_INITIALIZED),
-    instanceID(::BLE::DEFAULT_INSTANCE),
     _event_queue(),
     _last_update_us(0)
 {
@@ -114,12 +113,13 @@ CordioBLEInstanceBase::CordioBLEInstanceBase(CordioHCIDriver& hci_driver) :
     stack_setup();
 }
 
-CordioBLEInstanceBase::~CordioBLEInstanceBase() { }
+CordioBLEInstanceBase::~CordioBLEInstanceBase()
+{}
 
 /**
  * The singleton which represents the BLE transport for the BLE.
  */
-CordioBLEInstanceBase& CordioBLEInstanceBase::deviceInstance()
+CordioBLEInstanceBase &CordioBLEInstanceBase::deviceInstance()
 {
     static CordioBLEInstanceBase instance(
         ble_cordio_get_hci_driver()
@@ -128,14 +128,13 @@ CordioBLEInstanceBase& CordioBLEInstanceBase::deviceInstance()
 }
 
 ble_error_t CordioBLEInstanceBase::init(
-    ::BLE::InstanceID_t instanceID,
-    FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext *> initCallback)
+    FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> initCallback)
 {
     switch (initialization_status) {
         case NOT_INITIALIZED:
             _timer.reset();
             _timer.start();
-            _event_queue.initialize(this, instanceID);
+            _event_queue.initialize(this);
             _init_callback = initCallback;
             start_stack_reset();
             return BLE_ERROR_NONE;
@@ -179,13 +178,13 @@ ble_error_t CordioBLEInstanceBase::shutdown()
     return BLE_ERROR_NONE;
 }
 
-const char* CordioBLEInstanceBase::getVersion()
+const char *CordioBLEInstanceBase::getVersion()
 {
     static const char version[] = "generic-cordio";
     return version;
 }
 
-ble::Gap& CordioBLEInstanceBase::getGap()
+ble::Gap &CordioBLEInstanceBase::getGap()
 {
     static ble::PalGenericAccessService cordio_gap_service;
     static ble::Gap gap(
@@ -198,41 +197,46 @@ ble::Gap& CordioBLEInstanceBase::getGap()
     return gap;
 }
 
-const ble::Gap& CordioBLEInstanceBase::getGap() const
+const ble::Gap &CordioBLEInstanceBase::getGap() const
 {
-    CordioBLEInstanceBase &self = const_cast<CordioBLEInstanceBase&>(*this);
-    return const_cast<const ble::Gap&>(self.getGap());
+    CordioBLEInstanceBase &self = const_cast<CordioBLEInstanceBase &>(*this);
+    return const_cast<const ble::Gap &>(self.getGap());
 };
 
 #if BLE_FEATURE_GATT_SERVER
-GattServer& CordioBLEInstanceBase::getGattServer()
+
+GattServer &CordioBLEInstanceBase::getGattServer()
 {
     return GattServer::getInstance();
 }
 
-const GattServer& CordioBLEInstanceBase::getGattServer() const
+const GattServer &CordioBLEInstanceBase::getGattServer() const
 {
     return GattServer::getInstance();
 }
+
 #endif // BLE_FEATURE_GATT_SERVER
 
 #if BLE_FEATURE_GATT_CLIENT
-ble::GattClient& CordioBLEInstanceBase::getGattClient()
+
+ble::GattClient &CordioBLEInstanceBase::getGattClient()
 {
     static ble::GattClient gatt_client(getPalGattClient());
 
     return gatt_client;
 }
 
-PalGattClient& CordioBLEInstanceBase::getPalGattClient()
+PalGattClient &CordioBLEInstanceBase::getPalGattClient()
 {
     static PalGattClient pal_gatt_client(PalAttClient::get_client());
     return pal_gatt_client;
 }
+
 #endif // BLE_FEATURE_GATT_CLIENT
 
 #if BLE_FEATURE_SECURITY
-SecurityManager& CordioBLEInstanceBase::getSecurityManager()
+
+SecurityManager &CordioBLEInstanceBase::getSecurityManager()
 {
     static PalSigningMonitor signing_event_monitor;
     static ble::SecurityManager m_instance(
@@ -244,11 +248,12 @@ SecurityManager& CordioBLEInstanceBase::getSecurityManager()
     return m_instance;
 }
 
-const SecurityManager& CordioBLEInstanceBase::getSecurityManager() const
+const SecurityManager &CordioBLEInstanceBase::getSecurityManager() const
 {
-    const CordioBLEInstanceBase &self = const_cast<CordioBLEInstanceBase&>(*this);
-    return const_cast<const SecurityManager&>(self.getSecurityManager());
+    const CordioBLEInstanceBase &self = const_cast<CordioBLEInstanceBase &>(*this);
+    return const_cast<const SecurityManager &>(self.getSecurityManager());
 }
+
 #endif // BLE_FEATURE_SECURITY
 
 void CordioBLEInstanceBase::waitForEvent()
@@ -261,7 +266,7 @@ void CordioBLEInstanceBase::waitForEvent()
 
     if (wsfOsReadyToSleep()) {
         // setup an mbed timer for the next cordio timeout
-        nextTimestamp = (timestamp_t)(WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK);
+        nextTimestamp = (timestamp_t) (WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK);
         if (pTimerRunning) {
             nextTimeout.attach(timeoutCallback, milliseconds(nextTimestamp));
         }
@@ -273,8 +278,8 @@ void CordioBLEInstanceBase::processEvents()
     callDispatcher();
 }
 
- void CordioBLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg)
- {
+void CordioBLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
+{
     if (msg == nullptr) {
         return;
     }
@@ -285,7 +290,7 @@ void CordioBLEInstanceBase::processEvents()
     }
 #endif // BLE_FEATURE_SECURITY
 
-    switch(msg->event) {
+    switch (msg->event) {
         case DM_RESET_CMPL_IND: {
             ::BLE::InitializationCompleteCallbackContext context = {
                 ::BLE::Instance(::BLE::DEFAULT_INSTANCE),
@@ -313,11 +318,12 @@ void CordioBLEInstanceBase::processEvents()
 #endif
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
-        }   break;
+        }
+            break;
 #if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
         case DM_UNHANDLED_CMD_CMPL_EVT_IND: {
             // upcast to unhandled command complete event to access the payload
-            hciUnhandledCmdCmplEvt_t* unhandled = (hciUnhandledCmdCmplEvt_t*)msg;
+            hciUnhandledCmdCmplEvt_t *unhandled = (hciUnhandledCmdCmplEvt_t *) msg;
             if (unhandled->hdr.status == HCI_SUCCESS && unhandled->hdr.param == HCI_OPCODE_LE_TEST_END) {
                 // unhandled events are not parsed so we need to parse the payload ourselves
                 uint8_t status;
@@ -328,7 +334,8 @@ void CordioBLEInstanceBase::processEvents()
                 _hci_driver->handle_test_end(status == 0, packet_number);
                 return;
             }
-        }   break;
+        }
+            break;
 #endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
 
         default:
@@ -337,7 +344,7 @@ void CordioBLEInstanceBase::processEvents()
     }
 }
 
-void CordioBLEInstanceBase::device_manager_cb(dmEvt_t* dm_event)
+void CordioBLEInstanceBase::device_manager_cb(dmEvt_t *dm_event)
 {
     if (dm_event->hdr.status == HCI_SUCCESS && dm_event->hdr.event == DM_CONN_DATA_LEN_CHANGE_IND) {
         // this event can only happen after a connection has been established therefore gap is present
@@ -361,9 +368,9 @@ void CordioBLEInstanceBase::device_manager_cb(dmEvt_t* dm_event)
  * the CCC Table of the ATT Server when a remote peer requests to Open
  * or Close the connection.
  */
- void CordioBLEInstanceBase::connection_handler(dmEvt_t* dm_event)
- {
-    dmConnId_t connId = (dmConnId_t)dm_event->hdr.param;
+void CordioBLEInstanceBase::connection_handler(dmEvt_t *dm_event)
+{
+    dmConnId_t connId = (dmConnId_t) dm_event->hdr.param;
 
     switch (dm_event->hdr.event) {
         case DM_CONN_OPEN_IND:
@@ -397,7 +404,7 @@ void CordioBLEInstanceBase::stack_setup()
     SystemHeapSize = buf_pool_desc.buffer_size;
 
     // Initialize buffers with the ones provided by the HCI driver
-    uint16_t bytes_used = WsfBufInit(buf_pool_desc.pool_count, (wsfBufPoolDesc_t*)buf_pool_desc.pool_description);
+    uint16_t bytes_used = WsfBufInit(buf_pool_desc.pool_count, (wsfBufPoolDesc_t *) buf_pool_desc.pool_description);
 
     // Raise assert if not enough memory was allocated
     MBED_ASSERT(bytes_used != 0);
@@ -406,9 +413,10 @@ void CordioBLEInstanceBase::stack_setup()
     SystemHeapSize -= bytes_used;
 
     // This warning will be raised if we've allocated too much memory
-    if(bytes_used < buf_pool_desc.buffer_size)
-    {
-        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_INVALID_SIZE), "Too much memory allocated for Cordio memory pool, reduce buf_pool_desc.buffer_size by value below.", buf_pool_desc.buffer_size - bytes_used);
+    if (bytes_used < buf_pool_desc.buffer_size) {
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_INVALID_SIZE),
+                      "Too much memory allocated for Cordio memory pool, reduce buf_pool_desc.buffer_size by value below.",
+                      buf_pool_desc.buffer_size - bytes_used);
     }
 
     WsfTimerInit();
@@ -560,10 +568,10 @@ void CordioBLEInstanceBase::callDispatcher()
     // process the external event queue
     _event_queue.process();
 
-    _last_update_us += (uint64_t)_timer.elapsed_time().count();
+    _last_update_us += (uint64_t) _timer.elapsed_time().count();
     _timer.reset();
 
-    uint64_t last_update_ms   = (_last_update_us / 1000);
+    uint64_t last_update_ms = (_last_update_us / 1000);
     wsfTimerTicks_t wsf_ticks = (last_update_ms / WSF_MS_PER_TICK);
 
     if (wsf_ticks > 0) {
@@ -590,8 +598,8 @@ void CordioBLEInstanceBase::callDispatcher()
     }
 }
 
-CordioHCIDriver* CordioBLEInstanceBase::_hci_driver = nullptr;
+CordioHCIDriver *CordioBLEInstanceBase::_hci_driver = nullptr;
 
-FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> CordioBLEInstanceBase::_init_callback;
+FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> CordioBLEInstanceBase::_init_callback;
 
 } // namespace ble

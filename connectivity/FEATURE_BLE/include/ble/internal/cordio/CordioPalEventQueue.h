@@ -39,25 +39,19 @@ struct PalEventQueue : interface::PalEventQueue {
      * Construct an empty event queue.
      *
      * @attention a call to initialize is mandatory before any other call.
-     *
-     * @param ble_instance_id The id of the ble instance associated with that
-     * event queue.
      */
     PalEventQueue() :
-        _ble_base(NULL), _ble_instance_id(0), _events(NULL) { }
+        _ble_base(NULL), _events(NULL) { }
 
     /**
      * Initialize the event queue with a BLEInstanceBase and a ble id.
      *
      * @param ble_base the instance which will be used to signal the presence
      * of new events.
-     *
-     * @param ble_id Id of the BLE instance using that event queue.
      */
-    void initialize(BLEInstanceBase* ble_base, ::BLE::InstanceID_t ble_id)
+    void initialize(BLEInstanceBase* ble_base)
     {
         _ble_base = ble_base;
-        _ble_instance_id = ble_id;
     }
 
     /**
@@ -138,11 +132,10 @@ private:
 
     void signal_event()
     {
-        _ble_base->signalEventsToProcess(_ble_instance_id);
+        _ble_base->signalEventsToProcess();
     }
 
     BLEInstanceBase* _ble_base;
-    ::BLE::InstanceID_t _ble_instance_id;
     EventNode* _events;
 };
 

@@ -138,18 +138,41 @@ class BLE {
 public:
     /**
      * Opaque type used to store the ID of a BLE instance.
+     * @deprecated BLE singleton supports one instance. You may create multiple instances by using the constructor.
      */
     typedef unsigned InstanceID_t;
 
     /**
      * The value of the BLE::InstanceID_t for the default BLE instance.
+     * @deprecated BLE singleton supports one instance. You may create multiple instances by using the constructor.
      */
     static const InstanceID_t DEFAULT_INSTANCE = 0;
 
     /**
      * The number of permitted BLE instances for the application.
+     * @deprecated BLE singleton supports one instance. You may create multiple instances by using the constructor.
      */
     static const InstanceID_t NUM_INSTANCES = 1;
+
+    /**
+     * Get a reference to the BLE singleton.
+     *
+     * @note Calling Instance() is preferred over constructing a BLE object
+     * directly because it returns a reference to singleton.
+     *
+     * @return A reference to a single object.
+     */
+    static BLE &Instance();
+
+    /**
+     * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
+     * are thin wrappers around a transport object (that is, ptr. to
+     * BLEInstanceBase).
+     *
+     * @param[in] transport Ble transport used for the BLE instance.
+     * @note Cordio supports only one instance.
+     */
+    BLE(BLEInstanceBase &transport);
 
     /**
      * Get a reference to the BLE singleton corresponding to a given interface.
@@ -164,17 +187,23 @@ public:
      * @return A reference to a single object.
      *
      * @pre id shall be less than NUM_INSTANCES.
+     * @deprecated BLE singleton supports one instance. You may create multiple instances by using the constructor.
+     * Please use BLE::Instance().
      */
-    static BLE &Instance(InstanceID_t id = DEFAULT_INSTANCE);
+    static BLE &Instance(InstanceID_t id)
+    {
+        return Instance();
+    }
 
     /**
      * Fetch the ID of a BLE instance.
      *
      * @return Instance id of this BLE instance.
+     * @deprecated BLE singleton supports one instance. You may create multiple instances by using the constructor.
      */
     InstanceID_t getInstanceID(void) const
     {
-        return instanceID;
+        return DEFAULT_INSTANCE;
     }
 
     /**
@@ -412,18 +441,6 @@ public:
      */
     static const char *errorToString(ble_error_t error);
 
-private:
-    friend class BLEInstanceBase;
-
-    /**
-     * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
-     * are thin wrappers around a transport object (that is, ptr. to
-     * BLEInstanceBase).
-     *
-     * @param[in] instanceID BLE Instance ID to get.
-     */
-    BLE(InstanceID_t instanceID = DEFAULT_INSTANCE);
-
     /**
      * This function allows the BLE stack to signal that there is work to do and
      * event processing should be done (BLE::processEvent()).
@@ -432,6 +449,9 @@ private:
      * meant to be used by end users.
      */
     void signalEventsToProcess();
+
+private:
+    friend class BLEInstanceBase;
 
     /**
      * Implementation of init() [internal to BLE_API].
@@ -446,12 +466,10 @@ private:
 private:
     // Prevent copy construction and copy assignment of BLE.
     BLE(const BLE &);
-
     BLE &operator=(const BLE &);
 
 private:
-    InstanceID_t instanceID;
-    BLEInstanceBase *transport; /* The device-specific backend */
+    BLEInstanceBase &transport; /* The device-specific backend */
     OnEventsToProcessCallback_t whenEventsToProcess;
     bool event_signaled;
 };

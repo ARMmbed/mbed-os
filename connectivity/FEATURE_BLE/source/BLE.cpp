@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include "platform/mbed_critical.h"
+#include "ble/internal/BLEInstanceBase.h"
 
 #if defined(TARGET_OTA_ENABLED)
 #include "services/DFUService.h"
@@ -29,7 +30,7 @@
 #include "ble/BLE.h"
 #include "ble/internal/BLEInstanceBase.h"
 
-static const char* error_strings[] = {
+static const char *error_strings[] = {
     "BLE_ERROR_NONE: No error",
     "BLE_ERROR_BUFFER_OVERFLOW: The requested action would cause a buffer overflow and has been aborted",
     "BLE_ERROR_NOT_IMPLEMENTED: Requested a feature that isn't yet implement or isn't supported by the target HW",
@@ -45,7 +46,7 @@ static const char* error_strings[] = {
     "BLE_ERROR_INTERNAL_STACK_FAILURE: The platform-specific stack failed"
 };
 
-const char* BLE::errorToString(ble_error_t error)
+const char *BLE::errorToString(ble_error_t error)
 {
     if (error > BLE_ERROR_INTERNAL_STACK_FAILURE) {
         return "Illegal error code";
@@ -54,9 +55,9 @@ const char* BLE::errorToString(ble_error_t error)
 }
 
 ble_error_t
-BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbackContext*> callback)
+BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback)
 {
-    ble_error_t err = transport->init(instanceID, callback);
+    ble_error_t err = transport.init(callback);
     if (err != BLE_ERROR_NONE) {
         return err;
     }
@@ -70,155 +71,96 @@ BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbac
     return BLE_ERROR_NONE;
 }
 
-#if !defined(INITIALIZER_LIST_FOR_INSTANCE_CONSTRUCTORS)
-
-/*
- * By default BLE_API provides a trivial initializer list containing a single
- * constructor: createBLEInstance. This may be overridden.
- */
-#define INITIALIZER_LIST_FOR_INSTANCE_CONSTRUCTORS createBLEInstance
+#if defined(INITIALIZER_LIST_FOR_INSTANCE_CONSTRUCTORS)
+#error "INITIALIZER_LIST_FOR_INSTANCE_CONSTRUCTORS no longer supported, you may now create BLE objects freely by passing in the transport. Cordio Transport supports only one instance."
+#endif
 
 // this stub is required by ARMCC otherwise link will systematically fail
-MBED_WEAK BLEInstanceBase* createBLEInstance() {
+MBED_WEAK BLEInstanceBase *createBLEInstance()
+{
     MBED_ASSERT("No BLE instance implementation.");
     printf("Please provide an implementation for mbed BLE");
     return nullptr;
 }
 
-#endif
-
-typedef BLEInstanceBase *(*InstanceConstructor_t)(void);
-static const InstanceConstructor_t instanceConstructors[BLE::NUM_INSTANCES] = {
-    INITIALIZER_LIST_FOR_INSTANCE_CONSTRUCTORS
-};
-
-BLE &
-BLE::Instance(InstanceID_t id)
+BLE &BLE::Instance()
 {
-    static BLE *singletons[NUM_INSTANCES];
-    if (id < NUM_INSTANCES) {
-        if (singletons[id] == nullptr) {
-            singletons[id] = new BLE(id); /* This object will never be freed. */
-        }
+    static BLEInstanceBase *transport = createBLEInstance();
 
-        return *singletons[id];
+    if (!transport) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED),
+                   "bad handle to underlying transport");
     }
 
-    /* we come here only in the case of a bad interfaceID. */
-    static BLE badSingleton(NUM_INSTANCES /* this is a bad index; and will result in a nullptr transport. */);
-    return badSingleton;
-}
+    static BLE ble_instance(*transport);
 
-#define defaultSchedulingCallback nullptr
+    return ble_instance;
+}
 
 bool BLE::hasInitialized(void) const
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->hasInitialized();
+    return transport.hasInitialized();
 }
 
 ble_error_t BLE::shutdown(void)
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
     event_signaled = false;
-    return transport->shutdown();
+    return transport.shutdown();
 }
 
 const char *BLE::getVersion(void)
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getVersion();
+    return transport.getVersion();
 }
 
 const ble::Gap &BLE::gap() const
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getGap();
+    return transport.getGap();
 }
 
 ble::Gap &BLE::gap()
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getGap();
+    return transport.getGap();
 }
 
 #if BLE_FEATURE_GATT_SERVER
 
-const ble::GattServer& BLE::gattServer() const
+const ble::GattServer &BLE::gattServer() const
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getGattServer();
+    return transport.getGattServer();
 }
 
-ble::GattServer& BLE::gattServer()
+ble::GattServer &BLE::gattServer()
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getGattServer();
+    return transport.getGattServer();
 }
 
 #endif // BLE_FEATURE_GATT_SERVER
 
 #if BLE_FEATURE_GATT_CLIENT
 
-const ble::GattClient& BLE::gattClient() const
+const ble::GattClient &BLE::gattClient() const
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getGattClient();
+    return transport.getGattClient();
 }
 
-ble::GattClient& BLE::gattClient()
+ble::GattClient &BLE::gattClient()
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getGattClient();
+    return transport.getGattClient();
 }
 
 #endif // BLE_FEATURE_GATT_CLIENT
 
 #if BLE_FEATURE_SECURITY
 
-const ble::SecurityManager& BLE::securityManager() const
+const ble::SecurityManager &BLE::securityManager() const
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getSecurityManager();
+    return transport.getSecurityManager();
 }
 
-ble::SecurityManager& BLE::securityManager()
+ble::SecurityManager &BLE::securityManager()
 {
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    return transport->getSecurityManager();
+    return transport.getSecurityManager();
 }
 
 #endif // BLE_FEATURE_SECURITY
@@ -234,14 +176,10 @@ void BLE::processEvents()
     event_signaled = false;
     core_util_critical_section_exit();
 
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    transport->processEvents();
+    transport.processEvents();
 }
 
-void BLE::onEventsToProcess(const BLE::OnEventsToProcessCallback_t& callback)
+void BLE::onEventsToProcess(const BLE::OnEventsToProcessCallback_t &callback)
 {
     whenEventsToProcess = callback;
 
@@ -274,19 +212,9 @@ void BLE::signalEventsToProcess()
     }
 }
 
-BLE::BLE(InstanceID_t instanceIDIn) : instanceID(instanceIDIn), transport(),
-    whenEventsToProcess(defaultSchedulingCallback),
+BLE::BLE(BLEInstanceBase &base) :
+    transport(base),
+    whenEventsToProcess(nullptr),
     event_signaled(false)
 {
-    static BLEInstanceBase *transportInstances[NUM_INSTANCES];
-
-    if (instanceID < NUM_INSTANCES) {
-        if (!transportInstances[instanceID]) {
-            transportInstances[instanceID] = instanceConstructors[instanceID](); /* Call the stack's initializer for the transport object. */
-        }
-        transport = transportInstances[instanceID];
-    } else {
-        transport = nullptr;
-    }
 }
-
