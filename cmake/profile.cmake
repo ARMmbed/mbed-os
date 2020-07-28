@@ -17,13 +17,13 @@ string(TOLOWER ${CMAKE_BUILD_TYPE} LOWERCASE_CMAKE_BUILD_TYPE)
 
 get_property(multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(multi_config)
-  # multi configuration generators do not support build type, providing a list only
-  set(CMAKE_CONFIGURATION_TYPES "${MBED_BUILD_TYPES}" CACHE STRING "List of supported build types" FORCE)
+    # multi configuration generators do not support build type, providing a list only
+    set(CMAKE_CONFIGURATION_TYPES "${MBED_BUILD_TYPES}" CACHE STRING "List of supported build types" FORCE)
 else()
-  # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${MBED_BUILD_TYPES}")
-  if(NOT LOWERCASE_CMAKE_BUILD_TYPE IN_LIST LOWERCASE_MBED_BUILD_TYPES)
-    message(FATAL_ERROR "Invalid build type '${CMAKE_BUILD_TYPE}'. Possible values:\n ${MBED_BUILD_TYPES}")
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${MBED_BUILD_TYPES}")
+    if(NOT LOWERCASE_CMAKE_BUILD_TYPE IN_LIST LOWERCASE_MBED_BUILD_TYPES)
+        message(FATAL_ERROR "Invalid build type '${CMAKE_BUILD_TYPE}'. Possible values:\n ${MBED_BUILD_TYPES}")
   endif()
 endif()
 
