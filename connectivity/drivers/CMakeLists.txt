@@ -3,4 +3,5 @@
 
 add_subdirectory(802.15.4_RF)
 add_subdirectory(cellular)
+add_subdirectory(emac)
 add_subdirectory(wifi)
