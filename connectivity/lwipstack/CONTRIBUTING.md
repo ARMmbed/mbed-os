@@ -1,6 +1,6 @@
 # Description
 
-This document describes how to update the Arm Mbed OS LWIP stack. The Mbed OS LWIP stack is a copy of the LWIP master repository. Stack is located in `features/lwipstack/lwip` directory.
+This document describes how to update the Arm Mbed OS LWIP stack. The Mbed OS LWIP stack is a copy of the LWIP master repository. Stack is located in `connectivity/lwipstack/lwip` directory.
 
 When you add new releases or single commits from the LWIP master repository, you must fetch them using the Mbed OS LWIP fork repository. Use the repository to rename LWIP source files with the `lwip_` prefix to make them compatible with the Mbed OS build system.
 
@@ -109,9 +109,9 @@ You can integrate a new release using the following steps.
 
 3. Do a subtree pull for LWIP prefixed branch in the Mbed OS root directory.
 
-    `git subtree pull --squash -P features/lwipstack/lwip <remote name> <new prefixed branch> -m "<commit message>"`
+    `git subtree pull --squash -P connectivity/lwipstack/lwip <remote name> <new prefixed branch> -m "<commit message>"`
 
-    `e.g. git subtree pull --squash -P features/lwipstack/lwip lwip-fork mbed-os-lwip-stable-2_0_2-prefixed -m "Merged lwip 2.0.2 stable"`
+    `e.g. git subtree pull --squash -P connectivity/lwipstack/lwip lwip-fork mbed-os-lwip-stable-2_0_2-prefixed -m "Merged lwip 2.0.2 stable"`
 
     After this step, there is a new commit visible in the Mbed OS master branch that contains the changes.
 
