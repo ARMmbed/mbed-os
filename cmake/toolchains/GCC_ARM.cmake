@@ -9,15 +9,15 @@ set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
 
 list(APPEND link_options
     "-Wl,--start-group"
-    "-lstdc++"
-    "-lsupc++"
-    "-lm"
-    "-lc"
-    "-lgcc"
-    "-lnosys"
+        "-lstdc++"
+        "-lsupc++"
+        "-lm"
+        "-lc"
+        "-lgcc"
+        "-lnosys"
     "-Wl,--end-group"
-    "-T"
-    "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
+    "-specs=nosys.specs"
+    "-T" "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
 )
 
 list(APPEND common_options
