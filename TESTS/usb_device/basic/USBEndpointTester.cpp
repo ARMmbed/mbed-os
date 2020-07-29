@@ -20,7 +20,7 @@
 #include "stdint.h"
 #include "stdlib.h"
 #include "USBEndpointTester.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "EndpointResolver.h"
 
 #define DEFAULT_CONFIGURATION       (1)

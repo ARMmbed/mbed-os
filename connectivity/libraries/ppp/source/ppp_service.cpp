@@ -22,10 +22,10 @@
 #include "netsocket/nsapi_types.h"
 
 #if PPP_MBED_EVENT_QUEUE
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #else
 #include "Thread.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #endif
 
 #include "mbed_poll.h"

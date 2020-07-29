@@ -24,7 +24,7 @@
 #include "scl_emac.h"
 #include "lwip/etharp.h"
 #include "lwip/ethip6.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "scl_buffer_api.h"
 #include "cy_result.h"
 #include "cy_pdl.h"
