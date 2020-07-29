@@ -11,7 +11,6 @@ include(.mbedbuild/mbed_config.cmake)
 include(${MBED_ROOT}/cmake/toolchain.cmake)
 include(${MBED_ROOT}/cmake/core.cmake)
 include(${MBED_ROOT}/cmake/profile.cmake)
-include(${MBED_ROOT}/cmake/env.cmake)
 include(${MBED_ROOT}/cmake/util.cmake)
 
 set_target_properties(mbed-os PROPERTIES MBED_TARGET_LABELS "${MBED_TARGET_LABELS}")
