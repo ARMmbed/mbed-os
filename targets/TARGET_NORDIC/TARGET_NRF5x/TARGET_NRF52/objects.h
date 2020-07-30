@@ -46,7 +46,7 @@
 #if NRFX_SPIM_ENABLED
 #include "nrfx_spim.h"
 #elif NRFX_SPI_ENABLED
-#include "nrfx_spim.h"
+#include "nrfx_spi.h"
 #endif
 #include "nrf_twi.h"
 
