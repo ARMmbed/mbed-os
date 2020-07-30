@@ -117,7 +117,14 @@ extern "C"
 // Primary SPI Pins
 //
 //*****************************************************************************
-// The SparkFun Edge2 does not have a complete IOMaster broken out
+// Note: Edge2 can use SPI via the Qwiic connector and GPIO 44
+#define AM_BSP_PRIM_SPI_IOM                 4
+#define AM_BSP_PRIM_SPI_CLK_PIN             AM_BSP_GPIO_IOM4_SCK
+#define AM_BSP_PRIM_SPI_SDO_PIN             AM_BSP_GPIO_IOM4_MOSI
+#define AM_BSP_PRIM_SPI_SDI_PIN             AM_BSP_GPIO_IOM4_MISO
+#define g_AM_BSP_PRIM_SPI_CLK               g_AM_BSP_GPIO_IOM4_SCK
+#define g_AM_BSP_PRIM_SPI_SDO               g_AM_BSP_GPIO_IOM4_SDO
+#define g_AM_BSP_PRIM_SPI_SDI               g_AM_BSP_GPIO_IOM4_SDI
 
 
 //*****************************************************************************

@@ -70,7 +70,9 @@ typedef enum
     QWIIC_SDA = I2C_SDA,
 
     // SPI
-    // The SFE_EDGE does not expose a complete IOM peripheral for SPI
+    SPI_CLK = AM_BSP_PRIM_SPI_CLK_PIN,
+    SPI_SDO = AM_BSP_PRIM_SPI_SDO_PIN,
+    SPI_SDI = AM_BSP_PRIM_SPI_SDI_PIN,
 
     // UART
     SERIAL_TX = AM_BSP_PRIM_UART_TX_PIN,
