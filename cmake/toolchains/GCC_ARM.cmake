@@ -16,7 +16,7 @@ list(APPEND link_options
     "-lnosys"
     "-Wl,--end-group"
     "-T"
-    "${CMAKE_BINARY_DIR}/app.link_script.ld"
+    "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
 )
 
 list(APPEND common_options
