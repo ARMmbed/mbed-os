@@ -40,7 +40,10 @@ typedef enum
     D3 = 3,
 
     // // Analog naming
-    // No analog pins :(
+    // No analog pins
+
+    // mbed buttons
+    BUTTON1 = AM_BSP_GPIO_BUTTON0,
 
     // LEDs
     LED_RED = AM_BSP_GPIO_LED_RED,
