@@ -76,9 +76,13 @@ typedef enum
     // mbed original LED naming
     LED1 = AM_BSP_GPIO_LED0,
 
+    // I2C
+    I2C_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
+    I2C_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
+
     // Qwiic
-    QWIIC_SCL = 8,
-    QWIIC_SDA = 9,
+    QWIIC_SCL = I2C_SCL,
+    QWIIC_SDA = I2C_SDA,
 
     // Accelerometer
     ACC_SCL = QWIIC_SCL,

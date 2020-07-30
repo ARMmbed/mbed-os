@@ -100,9 +100,13 @@ typedef enum
     LED1 = AM_BSP_GPIO_LED0,
     LED2 = 0,
 
+    // I2C
+    I2C_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
+    I2C_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
+
     // Qwiic
-    QWIIC_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
-    QWIIC_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
+    QWIIC_SCL = I2C_SCL,
+    QWIIC_SDA = I2C_SDA,
 
     // UART
     SERIAL_TX = 48,
