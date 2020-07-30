@@ -119,6 +119,31 @@ extern "C"
 
 //*****************************************************************************
 //
+// Primary SPI Pins
+//
+//*****************************************************************************
+#define AM_BSP_PRIM_SPI_IOM                 4
+#define AM_BSP_PRIM_SPI_CLK_PIN             AM_BSP_GPIO_IOM4_SCK
+#define AM_BSP_PRIM_SPI_SDO_PIN             AM_BSP_GPIO_IOM4_MOSI
+#define AM_BSP_PRIM_SPI_SDI_PIN             AM_BSP_GPIO_IOM4_MISO
+#define g_AM_BSP_PRIM_SPI_CLK               g_AM_BSP_GPIO_IOM4_SCK
+#define g_AM_BSP_PRIM_SPI_SDO               g_AM_BSP_GPIO_IOM4_SDO
+#define g_AM_BSP_PRIM_SPI_SDI               g_AM_BSP_GPIO_IOM4_SDI
+
+
+//*****************************************************************************
+//
+// Primary UART Pins
+//
+//*****************************************************************************
+#define AM_BSP_PRIM_UART_TX_PIN             AM_BSP_GPIO_COM_UART_TX
+#define AM_BSP_PRIM_UART_RX_PIN             AM_BSP_GPIO_COM_UART_RX
+#define g_AM_BSP_PRIM_UART_TX               g_AM_BSP_GPIO_COM_UART_TX
+#define g_AM_BSP_PRIM_UART_TX               g_AM_BSP_GPIO_COM_UART_RX
+
+
+//*****************************************************************************
+//
 // Qwiic Connector.
 //
 //*****************************************************************************
@@ -146,6 +171,11 @@ extern "C"
 #define AM_BSP_NUM_LEDS                   1
 extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 
+// LED Device Array Indices
+#define AM_BSP_LED0 0
+#define AM_BSP_LED_BLUE      AM_BSP_LED0
+
+// Corresponding GPIO Numbers
 #define AM_BSP_GPIO_LED0         AM_BSP_GPIO_LED_BLUE
 #define AM_BSP_GPIO_LED23        AM_BSP_GPIO_LED_BLUE
 #define AM_BSP_GPIO_LED_STAT     AM_BSP_GPIO_LED_BLUE
