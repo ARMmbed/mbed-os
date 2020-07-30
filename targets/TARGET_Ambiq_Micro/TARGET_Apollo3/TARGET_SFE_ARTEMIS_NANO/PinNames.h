@@ -31,56 +31,56 @@ extern "C"
 
 #define NC_VAL (int)0xFFFFFFFF
 
-    typedef enum
-    {
-        // Digital naming
-        D0 = 13,
-        D1 = 33,
-        D2 = 11,
-        D3 = 29,
-        D4 = 18,
-        D5 = 31,
-        D6 = 43,
-        D7 = 42,
-        D8 = 38,
-        D9 = 39,
-        D10 = 40,
-        D11 = 5,
-        D12 = 7,
-        D13 = 6,
-        D14 = 35,
-        D15 = 32,
-        D16 = 12,
+typedef enum
+{
+    // Digital naming
+    D0 = 13,
+    D1 = 33,
+    D2 = 11,
+    D3 = 29,
+    D4 = 18,
+    D5 = 31,
+    D6 = 43,
+    D7 = 42,
+    D8 = 38,
+    D9 = 39,
+    D10 = 40,
+    D11 = 5,
+    D12 = 7,
+    D13 = 6,
+    D14 = 35,
+    D15 = 32,
+    D16 = 12,
 
-        // Analog naming
-        A0 = D0,
-        A1 = D1,
-        A2 = D2,
-        A3 = D3,
-        A5 = D5,
-        A14 = D14,
-        A15 = D15,
-        A16 = D16,
+    // Analog naming
+    A0 = D0,
+    A1 = D1,
+    A2 = D2,
+    A3 = D3,
+    A5 = D5,
+    A14 = D14,
+    A15 = D15,
+    A16 = D16,
 
-        // LEDs
-        LED_BLUE = AM_BSP_GPIO_LED_BLUE,
+    // LEDs
+    LED_BLUE = AM_BSP_GPIO_LED_BLUE,
 
-        // mbed original LED naming
-        LED1 = AM_BSP_GPIO_LED0,
+    // mbed original LED naming
+    LED1 = AM_BSP_GPIO_LED0,
 
-        // Qwiic
-        QWIIC_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
-        QWIIC_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
+    // Qwiic
+    QWIIC_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
+    QWIIC_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
 
-        // UART
-        SERIAL_TX = 48,
-        SERIAL_RX = 49,
-        USBTX = SERIAL_TX,
-        USBRX = SERIAL_RX,
+    // UART
+    SERIAL_TX = 48,
+    SERIAL_RX = 49,
+    USBTX = SERIAL_TX,
+    USBRX = SERIAL_RX,
 
-        // Not connected
-        NC = NC_VAL
-    } PinName;
+    // Not connected
+    NC = NC_VAL
+} PinName;
 
 #define STDIO_UART_TX USBTX
 #define STDIO_UART_RX USBRX

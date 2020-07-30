@@ -31,72 +31,72 @@ extern "C"
 
 #define NC_VAL (int)0xFFFFFFFF
 
-    typedef enum
-    {
-        // Digital naming
-        D13 = 13,
-        D16 = 16,
-        D23 = 23,
-        D24 = 24,
-        D25 = 25,
-        D26 = 26,
-        D27 = 27,
-        D28 = 28,
-        D29 = 29,
-        // D30 = 30, ??
-        D31 = 31,
-        D32 = 32,
-        D33 = 33,
-        D34 = 34,
-        D35 = 35,
-        D36 = 36,
-        D37 = 37,
-        D38 = 38,
-        D39 = 39,
-        D40 = 40,
-        D41 = 41,
-        D42 = 42,
-        D43 = 43,
-        D44 = 44,
-        D45 = 45,
+typedef enum
+{
+    // Digital naming
+    D13 = 13,
+    D16 = 16,
+    D23 = 23,
+    D24 = 24,
+    D25 = 25,
+    D26 = 26,
+    D27 = 27,
+    D28 = 28,
+    D29 = 29,
+    // D30 = 30, ??
+    D31 = 31,
+    D32 = 32,
+    D33 = 33,
+    D34 = 34,
+    D35 = 35,
+    D36 = 36,
+    D37 = 37,
+    D38 = 38,
+    D39 = 39,
+    D40 = 40,
+    D41 = 41,
+    D42 = 42,
+    D43 = 43,
+    D44 = 44,
+    D45 = 45,
 
-        // Analog naming
-        A13 = D13,
-        A16 = D16,
-        A29 = D29,
-        A31 = D31,
-        A32 = D32,
-        A33 = D33,
-        A34 = D34,
-        A35 = D35,
+    // Analog naming
+    A13 = D13,
+    A16 = D16,
+    A29 = D29,
+    A31 = D31,
+    A32 = D32,
+    A33 = D33,
+    A34 = D34,
+    A35 = D35,
 
-        // LEDs
-        LED_BLUE = AM_BSP_GPIO_LED_BLUE,
+    // LEDs
+    LED_BLUE = AM_BSP_GPIO_LED_BLUE,
 
-        // mbed original LED naming
-        LED1 = AM_BSP_GPIO_LED0,
+    // mbed original LED naming
+    LED1 = AM_BSP_GPIO_LED0,
 
-        // Qwiic
-        QWIIC_SCL = 8,
-        QWIIC_SDA = 9,
+    // Qwiic
+    QWIIC_SCL = 8,
+    QWIIC_SDA = 9,
 
-        // Accelerometer
-        ACC_SCL = QWIIC_SCL,
-        ACC_SDA = QWIIC_SDA,
+    // Accelerometer
+    ACC_SCL = QWIIC_SCL,
+    ACC_SDA = QWIIC_SDA,
 
-        // Camera
-        CAM_SCL = QWIIC_SCL,
-        CAM_SDA = QWIIC_SDA,
+    // Camera
+    CAM_SCL = QWIIC_SCL,
+    CAM_SDA = QWIIC_SDA,
 
-        // UART
-        SERIAL_TX = 48,
-        SERIAL_RX = 49,
-        USBTX = SERIAL_TX,
-        USBRX = SERIAL_RX,
+    // UART
+    SERIAL_TX = 48,
+    SERIAL_RX = 49,
+    USBTX = SERIAL_TX,
+    USBRX = SERIAL_RX,
 
-        // Not connected
-        NC = NC_VAL
-    } PinName;
+    // Not connected
+    NC = NC_VAL
+} PinName;
 
 #define STDIO_UART_TX USBTX
 #define STDIO_UART_RX USBRX
