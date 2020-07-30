@@ -7415,7 +7415,10 @@
         "supported_toolchains": ["GCC_ARM"],
         "public": false,
         "extra_labels": ["Ambiq_Micro", "Apollo3", "CORDIO"],
-        "device_has": ["MPU", "USTICKER", "SERIAL", "INTERRUPTIN", "LPTICKER", "STDIO_MESSAGES"],
+        "device_has": ["MPU", "USTICKER", "SERIAL", "INTERRUPTIN", "LPTICKER", "STDIO_MESSAGES", "FLASH"],
+        "components": [
+            "FLASHIAP"
+        ],
         "macros": []
     },
     "AMA3B1KK": {
@@ -7431,7 +7434,7 @@
     },
     "SFE_ARTEMIS_DK": {
         "inherits": ["AMA3B1KK"],
-        "components": ["lis2dh12", "hm01b0"]
+        "components_add": ["lis2dh12", "hm01b0"]
     },
     "SFE_ARTEMIS_MODULE": {
         "inherits": ["AMA3B1KK"]
@@ -7444,11 +7447,11 @@
     },   
     "SFE_EDGE": {
         "inherits": ["AMA3B1KK"],
-        "components": ["lis2dh12", "hm01b0"]
+        "components_add": ["lis2dh12", "hm01b0"]
     },
     "SFE_EDGE2": {
         "inherits": ["AMA3B1KK"],
-        "components": ["lis2dh12", "hm01b0"]
+        "components_add": ["lis2dh12", "hm01b0"]
     },
     "__build_tools_metadata__": {
         "version": "1",

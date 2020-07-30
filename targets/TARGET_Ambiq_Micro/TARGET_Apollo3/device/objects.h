@@ -24,6 +24,7 @@
 extern "C" {
 #endif
 
+#include "objects_flash.h"
 #include "objects_gpio.h"
 #include "objects_uart.h"
 
