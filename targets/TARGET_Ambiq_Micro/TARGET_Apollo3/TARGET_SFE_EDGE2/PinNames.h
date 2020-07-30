@@ -69,6 +69,9 @@ typedef enum
     QWIIC_SCL = I2C_SCL,
     QWIIC_SDA = I2C_SDA,
 
+    // SPI
+    // The SFE_EDGE does not expose a complete IOM peripheral for SPI
+
     // UART
     SERIAL_TX = 48,
     SERIAL_RX = 49,

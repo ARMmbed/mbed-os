@@ -92,6 +92,11 @@ typedef enum
     CAM_SCL = QWIIC_SCL,
     CAM_SDA = QWIIC_SDA,
 
+    // SPI
+    SPI_CLK = AM_BSP_PRIM_SPI_CLK_PIN,
+    SPI_SDO = AM_BSP_PRIM_SPI_SDO_PIN,
+    SPI_SDI = AM_BSP_PRIM_SPI_SDI_PIN,
+
     // UART
     SERIAL_TX = 48,
     SERIAL_RX = 49,
