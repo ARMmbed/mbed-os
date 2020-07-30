@@ -32,62 +32,94 @@
 
 int PREFIX(printf)(const char *format, ...)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     va_list arguments;
     va_start(arguments, format);
     int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
     va_end(arguments);
 
     return result;
+#else
+    return 0;
+#endif
 }
 
 int PREFIX(sprintf)(char *buffer, const char *format, ...)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     va_list arguments;
     va_start(arguments, format);
     int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
     va_end(arguments);
 
     return result;
+#else
+    return 0;
+#endif
 }
 
 int PREFIX(snprintf)(char *buffer, size_t length, const char *format, ...)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     va_list arguments;
     va_start(arguments, format);
     int result = mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
     va_end(arguments);
 
     return result;
+#else
+    return 0;
+#endif
 }
 
 int PREFIX(vprintf)(const char *format, va_list arguments)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
+#else
+    return 0;
+#endif
 }
 
 int PREFIX(vsprintf)(char *buffer, const char *format, va_list arguments)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     return mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
+#else
+    return 0;
+#endif
 }
 
 int PREFIX(vsnprintf)(char *buffer, size_t length, const char *format, va_list arguments)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
+#else
+    return 0;
+#endif
 }
 
 int PREFIX(fprintf)(FILE *stream, const char *format, ...)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     va_list arguments;
     va_start(arguments, format);
     int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
     va_end(arguments);
 
     return result;
+#else
+    return 0;
+#endif
 }
 
 int PREFIX(vfprintf)(FILE *stream, const char *format, va_list arguments)
 {
+#if !MBED_CONF_PLATFORM_MINIMAL_PRINTF_DISABLE_ALL
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
+#else
+    return 0;
+#endif
 }
 
 #endif // MBED_MINIMAL_PRINTF

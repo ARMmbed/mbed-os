@@ -153,6 +153,10 @@
         "minimal-printf-set-floating-point-max-decimals": {
             "help": "Maximum number of decimals to be printed when using minimal printf library",
             "value": 6
+        },
+        "minimal-printf-disable-all": {
+            "help": "Ignores all calls to s/n/v/f/printf. Overrides all other minimal printf configuration parameters.",
+            "value": false
         }
     },
     "target_overrides": {
