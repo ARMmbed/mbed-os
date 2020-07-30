@@ -114,6 +114,32 @@ extern "C"
 
 //*****************************************************************************
 //
+// Primary SPI Pins
+//
+//*****************************************************************************
+// Note: Edge2 can use SPI via the Qwiic connector and GPIO 44
+#define AM_BSP_PRIM_SPI_IOM                 4
+#define AM_BSP_PRIM_SPI_CLK_PIN             AM_BSP_GPIO_IOM4_SCK
+#define AM_BSP_PRIM_SPI_SDO_PIN             AM_BSP_GPIO_IOM4_MOSI
+#define AM_BSP_PRIM_SPI_SDI_PIN             AM_BSP_GPIO_IOM4_MISO
+#define g_AM_BSP_PRIM_SPI_CLK               g_AM_BSP_GPIO_IOM4_SCK
+#define g_AM_BSP_PRIM_SPI_SDO               g_AM_BSP_GPIO_IOM4_SDO
+#define g_AM_BSP_PRIM_SPI_SDI               g_AM_BSP_GPIO_IOM4_SDI
+
+
+//*****************************************************************************
+//
+// Primary UART Pins
+//
+//*****************************************************************************
+#define AM_BSP_PRIM_UART_TX_PIN             AM_BSP_GPIO_COM_UART_TX
+#define AM_BSP_PRIM_UART_RX_PIN             AM_BSP_GPIO_COM_UART_RX
+#define g_AM_BSP_PRIM_UART_TX               g_AM_BSP_GPIO_COM_UART_TX
+#define g_AM_BSP_PRIM_UART_TX               g_AM_BSP_GPIO_COM_UART_RX
+
+
+//*****************************************************************************
+//
 // Qwiic Connector.
 //
 //*****************************************************************************

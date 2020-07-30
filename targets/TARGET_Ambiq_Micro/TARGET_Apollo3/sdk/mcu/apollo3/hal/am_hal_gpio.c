@@ -330,6 +330,9 @@ g_ui8NCEtable[AM_HAL_GPIO_MAX_PADS][4] =
     {0x03,   0x13,   0x23,   0x43}   // NCE49
 };
 
+// declare ap3_gpio_get_pinconfig_bitmasks
+void ap3_gpio_get_pinconfig_bitmasks(am_hal_gpio_pincfg_allow_t sAllowableChanges, uint8_t *padRegMask, uint8_t *GPCfgMask, uint8_t *altPadCfgMask);
+
 //*****************************************************************************
 //
 // Array of function pointers for handling GPIO interrupts.

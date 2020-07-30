@@ -25,11 +25,13 @@ extern "C"
 
 #define STDIO_UART UART_0
 
-    typedef enum
-    {
-        UART_0 = 0,
-        UART_1,
-    } UARTName;
+typedef enum {
+    UART_0 = 0,
+    UART_1,
+
+    UART_NUM,
+    UART_ANY
+} UARTName;
 
 #ifdef __cplusplus
 }

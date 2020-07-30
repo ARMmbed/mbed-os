@@ -31,63 +31,73 @@ extern "C"
 
 #define NC_VAL (int)0xFFFFFFFF
 
-    typedef enum
-    {
-        // Digital naming
-        D0 = 25,
-        D1 = 24,
-        D2 = 44,
-        D3 = 35,
-        D4 = 4,
-        D5 = 22,
-        D6 = 23,
-        D7 = 27,
-        D8 = 28,
-        D9 = 32,
-        D10 = 14,
-        D11 = 7,
-        D12 = 6,
-        D13 = 5,
-        D14 = 40,
-        D15 = 39,
-        D16 = 43,
-        D17 = 42,
-        D18 = 26,
-        D19 = 33,
-        D20 = 13,
-        D21 = 11,
-        D22 = 29,
-        D23 = 12,
-        D24 = 31,
+typedef enum
+{
+    // Digital naming
+    D0 = 25,
+    D1 = 24,
+    D2 = 44,
+    D3 = 35,
+    D4 = 4,
+    D5 = 22,
+    D6 = 23,
+    D7 = 27,
+    D8 = 28,
+    D9 = 32,
+    D10 = 14,
+    D11 = 7,
+    D12 = 6,
+    D13 = 5,
+    D14 = 40,
+    D15 = 39,
+    D16 = 43,
+    D17 = 42,
+    D18 = 26,
+    D19 = 33,
+    D20 = 13,
+    D21 = 11,
+    D22 = 29,
+    D23 = 12,
+    D24 = 31,
 
-        // Analog naming
-        A0 = D19,
-        A1 = D20,
-        A2 = D21,
-        A3 = D22,
-        A4 = D23,
-        A5 = D24,
-        A6 = D3,
+    // Analog naming
+    A0 = D19,
+    A1 = D20,
+    A2 = D21,
+    A3 = D22,
+    A4 = D23,
+    A5 = D24,
+    A6 = D3,
 
-        // LEDs
-        LED_BLUE = AM_BSP_GPIO_LED_BLUE,
+    // LEDs
+    LED_BLUE = AM_BSP_GPIO_LED_BLUE,
 
-        // mbed original LED naming
-        LED1 = AM_BSP_GPIO_LED0,
+    // mbed original LED naming
+    LED1 = AM_BSP_GPIO_LED0,
+    LED2 = D2,
 
-        // Qwiic
-        QWIIC_SCL = D15,
-        QWIIC_SDA = D14,
+    // I2C
+    I2C_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
+    I2C_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
 
-        // UART
-        SERIAL_TX = 48,
-        SERIAL_RX = 49,
-        USBTX = SERIAL_TX,
-        USBRX = SERIAL_RX,
+    // Qwiic
+    QWIIC_SCL = I2C_SCL,
+    QWIIC_SDA = I2C_SDA,
 
-        // Not connected
-        NC = NC_VAL
-    } PinName;
+    // SPI
+    SPI_CLK = AM_BSP_PRIM_SPI_CLK_PIN,
+    SPI_SDO = AM_BSP_PRIM_SPI_SDO_PIN,
+    SPI_SDI = AM_BSP_PRIM_SPI_SDI_PIN,
+
+    // UART
+    SERIAL_TX = AM_BSP_PRIM_UART_TX_PIN,
+    SERIAL_RX = AM_BSP_PRIM_UART_RX_PIN,
+    USBTX = SERIAL_TX,
+    USBRX = SERIAL_RX,
+
+    // Not connected
+    NC = NC_VAL
+} PinName;
 
 #define STDIO_UART_TX USBTX
 #define STDIO_UART_RX USBRX

@@ -2250,7 +2250,56 @@ am_hal_iom_configure(void *pHandle, am_hal_iom_config_t *psConfig)
                                             _VAL2FLD(IOM0_MI2CCFG_ADDRSZ, IOM0_MI2CCFG_ADDRSZ_ADDRSZ7);
                 break;
             default:
-                return AM_HAL_STATUS_INVALID_ARG;
+            {
+                //Calculate TOTPER and FSEL based on requested frequency
+                uint32_t reqFreq = psConfig->ui32ClockFreq;
+                uint32_t fsel = 2;
+                uint32_t totper = 0;
+                for( ; fsel < 128 ; fsel = fsel * 2)
+                {
+                    //IOM and HFRC are not affected by burst mode
+                    totper = (AM_HAL_IOM_48MHZ / (2 * fsel))/reqFreq - 1;
+                    if(totper < 256) break;
+                }
+
+                if(fsel == 128)
+                {
+                    //If fsel is too large, return with error
+                    return AM_HAL_STATUS_INVALID_ARG;
+                }
+
+                uint32_t fsel_bitvalue = IOM0_CLKCFG_FSEL_HFRC_DIV2;
+
+                if(fsel == 2)
+                    fsel_bitvalue = IOM0_CLKCFG_FSEL_HFRC_DIV2;
+                else if(fsel == 4)
+                    fsel_bitvalue = IOM0_CLKCFG_FSEL_HFRC_DIV4;
+                else if(fsel == 8)
+                    fsel_bitvalue = IOM0_CLKCFG_FSEL_HFRC_DIV8;
+                else if(fsel == 16)
+                    fsel_bitvalue = IOM0_CLKCFG_FSEL_HFRC_DIV16;
+                else if(fsel == 32)
+                    fsel_bitvalue = IOM0_CLKCFG_FSEL_HFRC_DIV32;
+                else if(fsel == 64)
+                    fsel_bitvalue = IOM0_CLKCFG_FSEL_HFRC_DIV64;
+
+                ui32ClkCfg = _VAL2FLD(IOM0_CLKCFG_TOTPER, totper)                     |
+                            _VAL2FLD(IOM0_CLKCFG_LOWPER, totper/2)                     |
+                            _VAL2FLD(IOM0_CLKCFG_DIVEN, IOM0_CLKCFG_DIVEN_EN)      |
+                            _VAL2FLD(IOM0_CLKCFG_DIV3, IOM0_CLKCFG_DIV3_DIS)       |
+                            _VAL2FLD(IOM0_CLKCFG_FSEL, fsel_bitvalue) |
+                            _VAL2FLD(IOM0_CLKCFG_IOCLKEN, 1);
+                IOMn(ui32Module)->MI2CCFG = _VAL2FLD(IOM0_MI2CCFG_STRDIS, 0)                            |
+                                            _VAL2FLD(IOM0_MI2CCFG_SMPCNT, 0x21)                         |
+                                            _VAL2FLD(IOM0_MI2CCFG_SDAENDLY, 3)                          |
+                                            _VAL2FLD(IOM0_MI2CCFG_SCLENDLY, 0)                          |
+                                            _VAL2FLD(IOM0_MI2CCFG_MI2CRST, 1)                           |
+                                            _VAL2FLD(IOM0_MI2CCFG_SDADLY, 0)                            |
+                                            _VAL2FLD(IOM0_MI2CCFG_ARBEN, IOM0_MI2CCFG_ARBEN_ARBDIS)     |
+                                            _VAL2FLD(IOM0_MI2CCFG_I2CLSB, IOM0_MI2CCFG_I2CLSB_MSBFIRST) |
+                                            _VAL2FLD(IOM0_MI2CCFG_ADDRSZ, IOM0_MI2CCFG_ADDRSZ_ADDRSZ7);
+                break;
+            }
         }
 
     }

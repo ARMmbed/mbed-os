@@ -31,42 +31,52 @@ extern "C"
 
 #define NC_VAL (int)0xFFFFFFFF
 
-    typedef enum
-    {
-        // Digital naming
-        D1 = 1,
-        D38 = 38,
-        D36 = 36,
-        D3 = 3,
+typedef enum
+{
+    // Digital naming
+    D1 = 1,
+    D38 = 38,
+    D36 = 36,
+    D3 = 3,
 
-        // // Analog naming
-        // No analog pins :(
+    // // Analog naming
+    // No analog pins
 
-        // LEDs
-        LED_RED = AM_BSP_GPIO_LED_RED,
-        LED_BLUE = AM_BSP_GPIO_LED_BLUE,
-        LED_GREEN = AM_BSP_GPIO_LED_GREEN,
-        LED_YELLOW = AM_BSP_GPIO_LED_YELLOW,
+    // mbed buttons
+    BUTTON1 = AM_BSP_GPIO_BUTTON0,
 
-        // mbed original LED naming
-        LED1 = AM_BSP_GPIO_LED0,
-        LED2 = AM_BSP_GPIO_LED1,
-        LED3 = AM_BSP_GPIO_LED2,
-        LED4 = AM_BSP_GPIO_LED3,
+    // LEDs
+    LED_RED = AM_BSP_GPIO_LED_RED,
+    LED_BLUE = AM_BSP_GPIO_LED_BLUE,
+    LED_GREEN = AM_BSP_GPIO_LED_GREEN,
+    LED_YELLOW = AM_BSP_GPIO_LED_YELLOW,
 
-        // Qwiic
-        QWIIC_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
-        QWIIC_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
+    // mbed original LED naming
+    LED1 = AM_BSP_GPIO_LED0,
+    LED2 = AM_BSP_GPIO_LED1,
+    LED3 = AM_BSP_GPIO_LED2,
+    LED4 = AM_BSP_GPIO_LED3,
 
-        // UART
-        SERIAL_TX = 48,
-        SERIAL_RX = 49,
-        USBTX = SERIAL_TX,
-        USBRX = SERIAL_RX,
+    // I2C
+    I2C_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
+    I2C_SDA = AM_BSP_QWIIC_I2C_SDA_PIN,
 
-        // Not connected
-        NC = NC_VAL
-    } PinName;
+    // Qwiic
+    QWIIC_SCL = I2C_SCL,
+    QWIIC_SDA = I2C_SDA,
+
+    // SPI
+    // The SFE_EDGE does not expose a complete IOM peripheral for SPI
+
+    // UART
+    SERIAL_TX = AM_BSP_PRIM_UART_TX_PIN,
+    SERIAL_RX = AM_BSP_PRIM_UART_RX_PIN,
+    USBTX = SERIAL_TX,
+    USBRX = SERIAL_RX,
+
+    // Not connected
+    NC = NC_VAL
+} PinName;
 
 #define STDIO_UART_TX USBTX
 #define STDIO_UART_RX USBRX
