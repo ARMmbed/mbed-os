@@ -33,7 +33,10 @@
         }
     },
     "target_overrides": {
-        "RZ_A1_EMAC": {
+        "RZ_A1XX": {
+            "thread-stacksize": 896
+        },
+        "RZ_A2XX": {
             "thread-stacksize": 896
         },
         "CY8CPROTO_062_4343W": {
