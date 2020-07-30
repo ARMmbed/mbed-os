@@ -3218,37 +3218,39 @@
 
 // </e>
 
+// #define NRFX_SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED 1
+
 // <e> NRFX_SPIM_ENABLED - nrfx_spim - SPIM peripheral driver
 //==========================================================
 #ifndef NRFX_SPIM_ENABLED
-#define NRFX_SPIM_ENABLED 0
+#define NRFX_SPIM_ENABLED 1
 #endif
 // <q> NRFX_SPIM0_ENABLED  - Enable SPIM0 instance
 
 
 #ifndef NRFX_SPIM0_ENABLED
-#define NRFX_SPIM0_ENABLED 0
+#define NRFX_SPIM0_ENABLED 1
 #endif
 
 // <q> NRFX_SPIM1_ENABLED  - Enable SPIM1 instance
 
 
 #ifndef NRFX_SPIM1_ENABLED
-#define NRFX_SPIM1_ENABLED 0
+#define NRFX_SPIM1_ENABLED 1
 #endif
 
 // <q> NRFX_SPIM2_ENABLED  - Enable SPIM2 instance
 
 
 #ifndef NRFX_SPIM2_ENABLED
-#define NRFX_SPIM2_ENABLED 0
+#define NRFX_SPIM2_ENABLED 1
 #endif
 
 // <q> NRFX_SPIM3_ENABLED  - Enable SPIM3 instance
 
 
 #ifndef NRFX_SPIM3_ENABLED
-#define NRFX_SPIM3_ENABLED 0
+#define NRFX_SPIM3_ENABLED 1
 #endif
 
 // <q> NRFX_SPIM_EXTENDED_ENABLED  - Enable extended SPIM features
@@ -3448,27 +3450,27 @@
 //==========================================================
 
 #ifndef NRFX_SPI_ENABLED
-#define NRFX_SPI_ENABLED 1
+#define NRFX_SPI_ENABLED 0
 #endif
 // <q> NRFX_SPI0_ENABLED  - Enable SPI0 instance
 
 
 #ifndef NRFX_SPI0_ENABLED
-#define NRFX_SPI0_ENABLED 1
+#define NRFX_SPI0_ENABLED 0
 #endif
 
 // <q> NRFX_SPI1_ENABLED  - Enable SPI1 instance
 
 
 #ifndef NRFX_SPI1_ENABLED
-#define NRFX_SPI1_ENABLED 1
+#define NRFX_SPI1_ENABLED 0
 #endif
 
 // <q> NRFX_SPI2_ENABLED  - Enable SPI2 instance
  
 
 #ifndef NRFX_SPI2_ENABLED
-#define NRFX_SPI2_ENABLED 1
+#define NRFX_SPI2_ENABLED 0
 #endif
 
 // <o> NRFX_SPI_MISO_PULL_CFG  - MISO pin pull configuration.
