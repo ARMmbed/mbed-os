@@ -7,7 +7,6 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
     list(APPEND c_compile_options
         "-c"
         "-std=gnu11"
-        "-g3"
         "-Og"
     )
     target_compile_options(mbed-os
@@ -17,7 +16,6 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 
     list(APPEND cxx_compile_options
         "-c"
-        "-g3"
         "-std=gnu++14"
         "-fno-rtti"
         "-Wvla"
@@ -30,7 +28,6 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 
     list(APPEND asm_compile_options
         "-c"
-        "-g3"
         "-x" "assembler-with-cpp"
     )
     target_compile_options(mbed-os

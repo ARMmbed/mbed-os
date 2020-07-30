@@ -31,7 +31,7 @@ list(APPEND common_options
     "-funsigned-char"
     "-MMD"
     "-fomit-frame-pointer"
-    "-g"
+    "-g3"
 )
 
 target_compile_options(mbed-os
