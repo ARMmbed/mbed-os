@@ -1709,11 +1709,7 @@
         "components_add": [
             "SPIF"
         ],
-        "device_name": "STM32F413RHTx",
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x180000",
-        "mbed_ram_start": "0x200001D8",
-        "mbed_ram_size": "0x50000"
+        "device_name": "STM32F413RHTx"
     },
     "DISCO_F413ZH": {
         "inherits": [
