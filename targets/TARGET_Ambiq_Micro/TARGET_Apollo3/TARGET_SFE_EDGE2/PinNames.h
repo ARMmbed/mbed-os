@@ -73,8 +73,8 @@ typedef enum
     // The SFE_EDGE does not expose a complete IOM peripheral for SPI
 
     // UART
-    SERIAL_TX = 48,
-    SERIAL_RX = 49,
+    SERIAL_TX = AM_BSP_PRIM_UART_TX_PIN,
+    SERIAL_RX = AM_BSP_PRIM_UART_RX_PIN,
     USBTX = SERIAL_TX,
     USBRX = SERIAL_RX,
 
