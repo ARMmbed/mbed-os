@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include "platform/Callback.h"
 
-#include "ble/internal/pal/GapTypes.h"
+#include "ble/internal/GapTypes.h"
 #include "ble/types/BLETypes.h"
 #include "ble/Gap.h"
 

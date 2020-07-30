@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CORDIO_HCI_DRIVER_H_
-#define CORDIO_HCI_DRIVER_H_
+#ifndef IMPL_HCI_DRIVER_H_
+#define IMPL_HCI_DRIVER_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -229,4 +229,4 @@ private:
 
 } // namespace ble
 
-#endif /* CORDIO_HCI_DRIVER_H_ */
+#endif /* IMPL_HCI_DRIVER_H_ */

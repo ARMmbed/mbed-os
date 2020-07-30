@@ -27,7 +27,7 @@
 #include "platform/mbed_wait_api.h"
 
 // FEATURE_BLE/targets/TARGET_CORDIO
-#include "CordioBLEInstanceBase.h"
+#include "BLEInstanceBase.h"
 #include "CordioHCIDriver.h"
 #include "CordioHCITransportDriver.h"
 #include "hci_api.h"

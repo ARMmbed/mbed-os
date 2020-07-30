@@ -716,8 +716,8 @@ public:
 #endif // !defined(DOXYGEN_ONLY)
 } // namespace ble
 
-#if (BLE_STACK_IMPLEMENTATION == 1)
-#include "ble/internal/cordio/CordioGattClient.h"
+#if (BLE_API_IMPLEMENTATION == 1)
+#include "ble/internal/GattClientImpl.h"
 #else
 #error "please provide alternate BLE implementation"
 #endif

@@ -1456,8 +1456,8 @@ public:
 
 #endif // BLE_GAP_GAP_H
 
-#if (BLE_STACK_IMPLEMENTATION == 1)
-#include "ble/internal/cordio/CordioGap.h"
+#if (BLE_API_IMPLEMENTATION == 1)
+#include "ble/internal/GapImpl.h"
 #else
 #error "please provide alternate BLE implementation"
 #endif

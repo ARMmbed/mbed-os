@@ -76,7 +76,7 @@ BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbac
 #endif
 
 // this stub is required by ARMCC otherwise link will systematically fail
-MBED_WEAK BLEInstanceBase *createBLEInstance()
+MBED_WEAK ble::BLEInstanceBase *createBLEInstance()
 {
     MBED_ASSERT("No BLE instance implementation.");
     printf("Please provide an implementation for mbed BLE");
@@ -85,7 +85,7 @@ MBED_WEAK BLEInstanceBase *createBLEInstance()
 
 BLE &BLE::Instance()
 {
-    static BLEInstanceBase *transport = createBLEInstance();
+    static ble::BLEInstanceBase *transport = createBLEInstance();
 
     if (!transport) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED),
@@ -212,7 +212,7 @@ void BLE::signalEventsToProcess()
     }
 }
 
-BLE::BLE(BLEInstanceBase &base) :
+BLE::BLE(ble::BLEInstanceBase &base) :
     transport(base),
     whenEventsToProcess(nullptr),
     event_signaled(false)

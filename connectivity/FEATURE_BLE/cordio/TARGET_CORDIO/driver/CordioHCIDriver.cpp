@@ -17,7 +17,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "ble/internal/cordio/CordioBLEInstanceBase.h"
+#include "ble/internal/BLEInstanceBase.h"
 #include "ble/BLE.h"
 #include "ble/Gap.h"
 #include "CordioHCIDriver.h"
@@ -98,7 +98,7 @@ buf_pool_desc_t CordioHCIDriver::get_default_buffer_pool_description()
 
 void CordioHCIDriver::set_random_static_address(const ble::address_t& address)
 {
-    ble_error_t err = CordioBLEInstanceBase::deviceInstance().getGap().setRandomStaticAddress(address);
+    ble_error_t err = BLEInstanceBase::deviceInstance().getGap().setRandomStaticAddress(address);
     MBED_ASSERT(err == BLE_ERROR_NONE);
 }
 

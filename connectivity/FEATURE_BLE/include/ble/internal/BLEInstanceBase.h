@@ -26,11 +26,11 @@
 #include "ble/BLE.h"
 
 namespace ble {
+
 class SecurityManager;
 class Gap;
 class GattClient;
 class GattServer;
-}
 
 /**
  * @addtogroup ble
@@ -54,19 +54,12 @@ class GattServer;
  *
  * @see BLE
  */
-class BLEInstanceBase
-{
+#if !defined(DOXYGEN_ONLY)
+namespace interface {
+#endif // !defined(DOXYGEN_ONLY)
+
+class BLEInstanceBase {
 public:
-    /**
-     * Base constructor.
-     */
-    BLEInstanceBase() {}
-
-    /**
-     * Virtual destructor of the interface.
-     */
-    virtual ~BLEInstanceBase();
-
     /**
      * Process ALL pending events living in the vendor BLE subsystem.
      *
@@ -115,7 +108,7 @@ public:
      * @see BLE::init()
      */
     virtual ble_error_t init(
-        FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext*> initCallback
+        FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> initCallback
     ) = 0;
 
     /**
@@ -186,6 +179,7 @@ public:
 
 
 #if BLE_FEATURE_GATT_SERVER
+
     /**
      * Accessor to the vendor implementation of the GattServer interface.
      *
@@ -205,9 +199,11 @@ public:
      * @see BLE::gattServer() GattServer
      */
     virtual const ble::GattServer &getGattServer(void) const = 0;
+
 #endif // BLE_FEATURE_GATT_SERVER
 
 #if BLE_FEATURE_GATT_CLIENT
+
     /**
      * Accessor to the vendor implementation of the GattClient interface.
      *
@@ -217,9 +213,11 @@ public:
      * @see BLE::gattClient() GattClient
      */
     virtual ble::GattClient &getGattClient(void) = 0;
+
 #endif
 
 #if BLE_FEATURE_SECURITY
+
     /**
      * Accessor to the vendor implementation of the SecurityManager interface.
      *
@@ -239,8 +237,14 @@ public:
      * @see BLE::securityManager() SecurityManager
      */
     virtual const ble::SecurityManager &getSecurityManager(void) const = 0;
+
 #endif // BLE_FEATURE_SECURITY
 };
+
+#if !defined(DOXYGEN_ONLY)
+} // namespace interface
+#endif // !defined(DOXYGEN_ONLY)
+} // namespace ble
 
 /**
  * Return the instance of the vendor implementation of BLEInstanceBase.
@@ -251,7 +255,13 @@ public:
  * @attention The vendor library must provide an implementation for this function
  * library. Otherwise, there will be a linker error.
  */
-extern BLEInstanceBase *createBLEInstance(void);
+extern ble::BLEInstanceBase *createBLEInstance(void);
+
+#if (BLE_PAL_API_IMPLEMENTATION == 1)
+#include "ble/internal/BLEInstanceBaseImpl.h"
+#else
+#error "please provide alternate BLE implementation"
+#endif
 
 /**
  * @}

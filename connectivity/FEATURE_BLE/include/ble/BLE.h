@@ -30,8 +30,9 @@
 
 
 /* Forward declaration for the implementation class */
-class BLEInstanceBase;
+
 namespace ble {
+class BLEInstanceBase;
 class Gap;
 class GattClient;
 class GattServer;
@@ -167,12 +168,12 @@ public:
     /**
      * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
      * are thin wrappers around a transport object (that is, ptr. to
-     * BLEInstanceBase).
+     * ble::BLEInstanceBase).
      *
      * @param[in] transport Ble transport used for the BLE instance.
      * @note Cordio supports only one instance.
      */
-    BLE(BLEInstanceBase &transport);
+    BLE(ble::BLEInstanceBase &transport);
 
     /**
      * Get a reference to the BLE singleton corresponding to a given interface.
@@ -451,7 +452,7 @@ public:
     void signalEventsToProcess();
 
 private:
-    friend class BLEInstanceBase;
+    friend class ble::BLEInstanceBase;
 
     /**
      * Implementation of init() [internal to BLE_API].
@@ -469,7 +470,7 @@ private:
     BLE &operator=(const BLE &);
 
 private:
-    BLEInstanceBase &transport; /* The device-specific backend */
+    ble::BLEInstanceBase &transport; /* The device-specific backend */
     OnEventsToProcessCallback_t whenEventsToProcess;
     bool event_signaled;
 };

@@ -667,8 +667,8 @@ protected:
 #endif // !defined(DOXYGEN_ONLY)
 } // ble
 
-#if (BLE_STACK_IMPLEMENTATION == 1)
-#include "ble/internal/cordio/CordioGattServer.h"
+#if (BLE_API_IMPLEMENTATION == 1)
+#include "ble/internal/GattServerImpl.h"
 #else
 #error "please provide alternate BLE implementation"
 #endif

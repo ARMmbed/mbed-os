@@ -27,11 +27,11 @@
 #include "ble/types/blecommon.h"
 #include "ble/Gap.h"
 
-#include "ble/internal/pal/GapTypes.h"
+#include "ble/internal/GapTypes.h"
 #include "ble/types/BLETypes.h"
 #include "ble/internal/SecurityDb.h"
-#include "ble/internal/pal/PalConnectionMonitor.h"
-#include "ble/internal/pal/PalSecurityManager.h"
+#include "ble/internal/PalConnectionMonitor.h"
+#include "ble/internal/PalSecurityManager.h"
 
 namespace ble {
 
@@ -938,8 +938,8 @@ public:
 #endif // !defined(DOXYGEN_ONLY)
 } // ble
 
-#if (BLE_STACK_IMPLEMENTATION == 1)
-#include "ble/internal/cordio/CordioSecurityManager.h"
+#if (BLE_API_IMPLEMENTATION == 1)
+#include "ble/internal/SecurityManagerImpl.h"
 #else
 #error "please provide alternate BLE implementation"
 #endif
