@@ -75,6 +75,7 @@ typedef enum
 
     // mbed original LED naming
     LED1 = AM_BSP_GPIO_LED0,
+    LED2 = A5,
 
     // LED naming by digital pin number
     LED13 = AM_BSP_GPIO_LED13,

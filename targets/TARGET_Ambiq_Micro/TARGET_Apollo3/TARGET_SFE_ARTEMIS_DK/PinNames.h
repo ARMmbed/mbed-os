@@ -75,6 +75,7 @@ typedef enum
 
     // mbed original LED naming
     LED1 = AM_BSP_GPIO_LED0,
+    LED2 = D24,
 
     // I2C
     I2C_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,
