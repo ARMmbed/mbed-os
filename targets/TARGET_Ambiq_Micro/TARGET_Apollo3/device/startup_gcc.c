@@ -76,7 +76,7 @@ extern void am_iomaster2_isr(void) __attribute((weak, alias("am_default_isr")));
 extern void am_iomaster3_isr(void) __attribute((weak, alias("am_default_isr")));
 extern void am_iomaster4_isr(void) __attribute((weak, alias("am_default_isr")));
 extern void am_iomaster5_isr(void) __attribute((weak, alias("am_default_isr")));
-extern void am_ble_isr(void) __attribute((weak, alias("am_default_isr")));
+extern void HciDrvIntService(void) __attribute((weak, alias("am_default_isr")));
 extern void am_gpio_isr(void) __attribute((weak, alias("am_default_isr")));
 extern void am_ctimer_isr(void) __attribute((weak, alias("am_default_isr")));
 extern void am_uart_isr(void) __attribute((weak, alias("am_default_isr")));
@@ -159,7 +159,7 @@ __attribute__((section(".isr_vector"))) void (*const g_am_pfnVectors[])(void) =
         am_iomaster3_isr,    //  9: I/O Master 3
         am_iomaster4_isr,    // 10: I/O Master 4
         am_iomaster5_isr,    // 11: I/O Master 5
-        am_ble_isr,          // 12: BLEIF
+        HciDrvIntService,    // 12: BLEIF
         am_gpio_isr,         // 13: GPIO
         am_ctimer_isr,       // 14: CTIMER
         am_uart_isr,         // 15: UART0
