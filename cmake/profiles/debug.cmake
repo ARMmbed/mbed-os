@@ -7,7 +7,7 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
     list(APPEND c_compile_options
         "-c"
         "-std=gnu11"
-        "-g3"
+        "-Og"
     )
     target_compile_options(mbed-os
         PUBLIC
@@ -16,10 +16,10 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 
     list(APPEND cxx_compile_options
         "-c"
-        "-g3"
         "-std=gnu++14"
         "-fno-rtti"
         "-Wvla"
+        "-Og"
     )
     target_compile_options(mbed-os
         PUBLIC
@@ -28,7 +28,6 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 
     list(APPEND asm_compile_options
         "-c"
-        "-g3"
         "-x" "assembler-with-cpp"
     )
     target_compile_options(mbed-os
@@ -51,6 +50,7 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
 elseif(MBED_TOOLCHAIN STREQUAL "ARM")
     list(APPEND c_compile_options
         "-std=gnu11"
+        "-O1"
     )
     target_compile_options(mbed-os
         PUBLIC
@@ -61,6 +61,7 @@ elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         "-std=gnu++14"
         "-fno-rtti"
         "-fno-c++-static-destructors"
+        "-O1"
     )
     target_compile_options(mbed-os
         PUBLIC
