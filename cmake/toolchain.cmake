@@ -12,7 +12,8 @@ set(CMAKE_CXX_COMPILER_WORKS TRUE)
 # Project setup
 enable_language(C CXX ASM)
 
-# Clear FLAGS for all languages
+# Clear toolchains options for all languages as Mbed OS uses
+# different initialisation options (such as for optimization and debug symbols)
 # Mbed OS uses different init flags (optimization, debug symbols)
 set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELEASE "" CACHE STRING "" FORCE)
