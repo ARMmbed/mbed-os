@@ -13,9 +13,15 @@ A simple table like this could help:
 
 The library uses ARM Cordio stack. It does not work with the stock firmware that is loaded in the BLE module of the X-NUCLEO-BNRG2A1 expansion board.
 
-In order to use this library with X-NUCLEO-BNRG2A1, you need to replace the firmware of the BLUENRG-M2SP BLE module mounted on that expansion board as described in the following page:
+In order to use this library with X-NUCLEO-BNRG2A1, you need to replace the firmware of the BLUENRG-M2SP BLE module mounted on that expansion using this binary (provided for STM32 NUCLEO-L476RG):
 
-[TODO BlueNRG-2](https://os.mbed.com/components/X-NUCLEO-BNRG2A1/)
+[BlueNrg2FwUpdater_L4.bin](fwupdater/BlueNrg2FwUpdater_L4.bin)
+
+Before flashing the binary, be careful to properly set the SPI reset on pin **D7** as reported in the picture below:
+
+![D7_SPI_rst](img/D7_SPI_rst.jpg)
+
+At the end of the updating procedure, the LED labeled as **LD2** on the STM32 NUCLEO board will be blinking.
 
 ## Board
 
