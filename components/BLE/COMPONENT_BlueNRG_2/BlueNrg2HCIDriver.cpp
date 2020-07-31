@@ -501,7 +501,7 @@ private:
         _irq_timer.start();
         while (!dataPresent()) {
             auto us = _irq_timer.elapsed_time().count();
-            if (us > IRQ_TIMEOUT_DURATION*1000) {
+            if (us > IRQ_TIMEOUT_DURATION * 1000) {
                 goto exit;
             }
         }
