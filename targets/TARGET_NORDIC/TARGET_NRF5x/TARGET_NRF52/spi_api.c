@@ -46,12 +46,17 @@
 
 #if NRFX_CHECK(NRFX_SPIM_ENABLED)
 #include "nrfx_spim.h"
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
+#include "nrfx_spi.h"
+#endif
 
 #if 1
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINTF(...)
 #endif
+
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
 
 /* Pre-allocate instances and share them globally. */
 static const nrfx_spim_t nordic_nrf5_spim_instance[4] = {
@@ -871,15 +876,9 @@ void spi_abort_asynch(spi_t *obj)
 }
 
 #endif // DEVICE_SPI_ASYNCH
+#endif //NRFX_SPIM_ENABLED
 
-#elif NRFX_CHECK(NRFX_SPI_ENABLED)
-#include "nrfx_spi.h"
-
-#if 0
-#define DEBUG_PRINTF(...) printf(__VA_ARGS__)
-#else
-#define DEBUG_PRINTF(...)
-#endif
+#if NRFX_CHECK(NRFX_SPI_ENABLED)
 
 /* Pre-allocate instances and share them globally. */
 static const nrfx_spi_t nordic_nrf5_spi_instance[3] = {
