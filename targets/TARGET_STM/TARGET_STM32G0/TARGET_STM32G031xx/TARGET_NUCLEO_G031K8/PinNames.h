@@ -155,7 +155,6 @@ typedef enum {
     D10         = PB_9,
     D11         = PB_5,
     D12         = PB_4,
-    D13         = PB_3,
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX

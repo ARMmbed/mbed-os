@@ -2403,15 +2403,24 @@
         ],
         "device_name": "STM32G071RBTx"
     },
-    "NUCLEO_G031K8": {
+    "MCU_STM32G031xx": {
         "inherits": [
             "MCU_STM32G0"
         ],
+        "public": false,
         "extra_labels_add": [
             "STM32G031xx"
         ],
         "macros_add": [
             "STM32G031xx"
+        ],
+        "device_has_remove": [
+            "ANALOGOUT"
+        ]
+    },
+    "NUCLEO_G031K8": {
+        "inherits": [
+            "MCU_STM32G031xx"
         ],
         "detect_code": [
             "0852"
