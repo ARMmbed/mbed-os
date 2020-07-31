@@ -38,11 +38,14 @@ target_compile_options(mbed-os
         $<$<COMPILE_LANGUAGE:CXX>:${common_options}>
 )
 
+set(asm_preproc_options
+    "--target=arm-arm-none-eabi,-D,MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED"
+)
 target_compile_options(mbed-os
     PUBLIC
         $<$<COMPILE_LANGUAGE:ASM>:${MBED_STUDIO_ARM_COMPILER}>
         $<$<COMPILE_LANGUAGE:ASM>:--cpreproc>
-        $<$<COMPILE_LANGUAGE:ASM>:--cpreproc_opts=--target=arm-arm-none-eabi,-mcpu=cortex-m4,-D,__FPU_PRESENT,-D,MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED>
+        $<$<COMPILE_LANGUAGE:ASM>:--cpreproc_opts=${asm_preproc_options}>
 )
 
 target_compile_definitions(mbed-os
