@@ -214,7 +214,7 @@ unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
 {
     /* Support only short Weierstrass type
      * 
-     * ECP type is checked by referring to mbed-os/features/mbedtls/src/ecp.c > ecp_get_type
+     * ECP type is checked by referring to mbed-os/connectivity/mbedtls/src/ecp.c > ecp_get_type
      */
     if (grp->G.X.p == NULL || grp->G.Y.p == NULL) {
         return 0;
