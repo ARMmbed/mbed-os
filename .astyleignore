@@ -20,6 +20,7 @@
 ^hal/storage_abstraction
 ^platform/cxxsupport
 ^platform/tests/UNITTESTS
+^events/tests/UNITTESTS
 ^rtos/source/TARGET_CORTEX/rtx4
 ^rtos/source/TARGET_CORTEX/rtx5
 ^targets

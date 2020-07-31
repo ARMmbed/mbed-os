@@ -24,7 +24,7 @@
 #include "ByteBuffer.h"
 #include "Mutex.h"
 #include "EventFlags.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "Thread.h"
 #include "Callback.h"
 

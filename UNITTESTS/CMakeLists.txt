@@ -103,8 +103,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNITTEST")
 # Set include dirs.
 set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/target_h"
-  "${PROJECT_SOURCE_DIR}/target_h/events"
-  "${PROJECT_SOURCE_DIR}/target_h/events/equeue"
+  "${PROJECT_SOURCE_DIR}/../events/tests/UNITTESTS/target_h"
+  "${PROJECT_SOURCE_DIR}/../events/tests/UNITTESTS/target_h/equeue"
   "${PROJECT_SOURCE_DIR}/target_h/platform"
   "${PROJECT_SOURCE_DIR}/target_h/platform/cxxsupport"
   "${PROJECT_SOURCE_DIR}/target_h/drivers"
@@ -123,9 +123,9 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../storage/kvstore/kv_config/include"
   "${PROJECT_SOURCE_DIR}/../drivers"
   "${PROJECT_SOURCE_DIR}/../hal"
-  "${PROJECT_SOURCE_DIR}/../events"
+  "${PROJECT_SOURCE_DIR}/../events/include"
+  "${PROJECT_SOURCE_DIR}/../events/include/events/internal"
   "${PROJECT_SOURCE_DIR}/../events/source"
-  "${PROJECT_SOURCE_DIR}/../events/internal"
   "${PROJECT_SOURCE_DIR}/../rtos/include"
   "${PROJECT_SOURCE_DIR}/../features/frameworks"
   "${PROJECT_SOURCE_DIR}/../features/frameworks/mbed-trace"

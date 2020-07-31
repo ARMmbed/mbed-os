@@ -19,7 +19,7 @@
 #include "stddef.h"
 #include <new>
 #include "events/EventQueue.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "platform/mbed_error.h"
 
 // Default NetworkStack operations

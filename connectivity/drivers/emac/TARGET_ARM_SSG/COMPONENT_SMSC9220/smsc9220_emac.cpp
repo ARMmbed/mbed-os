@@ -23,7 +23,7 @@
 #include "mbed_wait_api.h"
 #include "mbed_assert.h"
 #include "netsocket/nsapi_types.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 
 #include "smsc9220_emac.h"
 #include "smsc9220_eth_drv.h"

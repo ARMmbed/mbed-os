@@ -18,7 +18,7 @@
 #include "cmsis_os.h"
 #include "mbed_interface.h"
 #include "mbed_assert.h"
-#include "mbed_shared_queues.h"
+#include "events/mbed_shared_queues.h"
 #include "netsocket/nsapi_types.h"
 #include "lwip/arch.h"
 #include "lwip/pbuf.h"

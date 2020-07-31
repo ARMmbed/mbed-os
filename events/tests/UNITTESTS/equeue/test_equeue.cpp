@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "gtest/gtest.h"
-#include "equeue.h"
+#include "events/equeue.h"
 #include "mbed.h"
 #include <unistd.h>
 #include <pthread.h>

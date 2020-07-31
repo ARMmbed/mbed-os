@@ -100,7 +100,8 @@ matrix:
         - |
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
-              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
+              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*' \
+              ':!*events/tests/*'
 
 
     ### Docs Tests ###
@@ -252,10 +253,8 @@ matrix:
             connectivity/libraries/ppp connectivity/netsocket features/nanostack features/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
-        # Run local equeue tests
-        - make -C ${EVENTS}/source test
         # Run profiling tests
-        - make -C ${EVENTS}/source prof | tee prof
+        - make -C ${EVENTS}/tests/unit prof | tee prof
       after_success:
         # Update status, comparing with master if possible.
         - |

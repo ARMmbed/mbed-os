@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "equeue.h"
+#include "events/equeue.h"
 #include <stdlib.h>
 
 #include "equeue_stub.h"

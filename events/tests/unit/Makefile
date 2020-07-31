@@ -4,7 +4,7 @@ CC = gcc
 AR = ar
 SIZE = size
 
-SRC += $(wildcard *.c)
+SRC += $(wildcard ../../source/*.c)
 OBJ := $(SRC:.c=.o)
 DEP := $(SRC:.c=.d)
 ASM := $(SRC:.c=.s)
@@ -17,7 +17,7 @@ endif
 ifdef WORD
 CFLAGS += -m$(WORD)
 endif
-CFLAGS += -I. -I.. -I../..
+CFLAGS += -I. -I../../include
 CFLAGS += -std=c99
 CFLAGS += -Wall
 CFLAGS += -D_XOPEN_SOURCE=600
@@ -27,13 +27,9 @@ LFLAGS += -pthread
 
 all: $(TARGET)
 
-test: tests/tests.o $(OBJ)
-	$(CC) $(CFLAGS) $^ $(LFLAGS) -o tests/tests
-	tests/tests
-
-prof: tests/prof.o $(OBJ)
-	$(CC) $(CFLAGS) $^ $(LFLAGS) -o tests/prof
-	tests/prof
+prof: prof.o $(OBJ)
+	$(CC) $(CFLAGS) $^ $(LFLAGS) -o prof
+	./prof
 
 asm: $(ASM)
 
@@ -53,8 +49,7 @@ size: $(OBJ)
 
 clean:
 	rm -f $(TARGET)
-	rm -f tests/tests tests/tests.o tests/tests.d
-	rm -f tests/prof tests/prof.o tests/prof.d
+	rm -f prof prof.o prof.d
 	rm -f $(OBJ)
 	rm -f $(DEP)
 	rm -f $(ASM)
