@@ -8,11 +8,16 @@ set(CMAKE_AR "armar")
 set(ARM_ELF2BIN "fromelf")
 set_property(GLOBAL PROPERTY ELF2BIN ${ARM_ELF2BIN})
 
-get_property(mbed_studio_arm_compiler GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER)
+option(MBEDIDE "Use Arm compiler from Mbed Studio" OFF)
+if(MBEDIDE)
+    set_property(GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER "--ide=mbed")
+endif()
+
 list(APPEND common_options
     "${mbed_studio_arm_compiler}"
     "-c"
     "--target=arm-arm-none-eabi"
+    "-mthumb"
     "-Wno-armcc-pragma-push-pop"
     "-Wno-armcc-pragma-anon-unions"
     "-Wno-reserved-user-defined-literal"
@@ -35,7 +40,7 @@ target_compile_options(mbed-os
 
 target_compile_options(mbed-os
     PUBLIC
-        $<$<COMPILE_LANGUAGE:ASM>:${mbed_studio_arm_compiler}>
+        $<$<COMPILE_LANGUAGE:ASM>:${MBED_STUDIO_ARM_COMPILER}>
         $<$<COMPILE_LANGUAGE:ASM>:--cpreproc>
         $<$<COMPILE_LANGUAGE:ASM>:--cpreproc_opts=--target=arm-arm-none-eabi,-mcpu=cortex-m4,-D,__FPU_PRESENT,-D,MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED>
 )
@@ -47,5 +52,5 @@ target_compile_definitions(mbed-os
 
 target_link_options(mbed-os
     PUBLIC
-        ${mbed_studio_arm_compiler}
+        ${MBED_STUDIO_ARM_COMPILER}
 )
