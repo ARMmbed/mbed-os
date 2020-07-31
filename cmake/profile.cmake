@@ -4,10 +4,10 @@
 # Set the default build type if none is specified
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Develop" CACHE
-        STRING "The type of build" FORCE)
+        STRING "The build type" FORCE
+   )
 endif()
 
-# Mapping CMAKE_BUILD_TYPE into MBED_BUILD_TYPES, as we understand only 3 profiles
 set(MBED_BUILD_TYPES Debug Release Develop)
 
 # Force the build types to be case-insensitive for checking
@@ -15,6 +15,7 @@ set(LOWERCASE_MBED_BUILD_TYPES ${MBED_BUILD_TYPES})
 list(TRANSFORM LOWERCASE_MBED_BUILD_TYPES TOLOWER)
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWERCASE_CMAKE_BUILD_TYPE)
 
+# Mapping CMAKE_BUILD_TYPE into MBED_BUILD_TYPES, as we understand only 3 profiles
 get_property(multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(multi_config)
     # Provide only a list as multi configuration generators do not support build type
