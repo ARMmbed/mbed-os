@@ -121,7 +121,7 @@ extern "C"
 #define AM_BSP_PRIM_UART_TX_PIN             AM_BSP_GPIO_COM_UART_TX
 #define AM_BSP_PRIM_UART_RX_PIN             AM_BSP_GPIO_COM_UART_RX
 #define g_AM_BSP_PRIM_UART_TX               g_AM_BSP_GPIO_COM_UART_TX
-#define g_AM_BSP_PRIM_UART_TX               g_AM_BSP_GPIO_COM_UART_RX
+#define g_AM_BSP_PRIM_UART_RX               g_AM_BSP_GPIO_COM_UART_RX
 
 
 //*****************************************************************************
