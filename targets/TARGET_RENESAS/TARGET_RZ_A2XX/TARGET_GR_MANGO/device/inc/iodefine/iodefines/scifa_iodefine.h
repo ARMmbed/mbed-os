@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,174 +43,146 @@
 #ifndef SCIFA_IODEFINE_H
 #define SCIFA_IODEFINE_H
 
-struct st_scifa
-{
-    union
-    {
+struct st_scifa {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CKS:2;
-            unsigned short :1;
-            unsigned short STOP:1;
-            unsigned short PM:1;
-            unsigned short PE:1;
-            unsigned short CHR:1;
-            unsigned short CM:1;
-            unsigned short :8;
+        struct {
+            unsigned short CKS: 2;
+            unsigned short : 1;
+            unsigned short STOP: 1;
+            unsigned short PM: 1;
+            unsigned short PE: 1;
+            unsigned short CHR: 1;
+            unsigned short CM: 1;
+            unsigned short : 8;
         } BIT;
     } SMR;
-    union
-    {
-        union
-        {
+    union {
+        union {
             unsigned char BYTE;
-            struct
-            {
-                unsigned char MDDR:8;
+            struct {
+                unsigned char MDDR: 8;
             } BIT;
         } MDDR;
-        union
-        {
+        union {
             unsigned char BYTE;
-            struct
-            {
-                unsigned char BRR:8;
+            struct {
+                unsigned char BRR: 8;
             } BIT;
         } BRR;
     } BRR_MDDR;
     char           wk0[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CKE:2;
-            unsigned short TEIE:1;
-            unsigned short REIE:1;
-            unsigned short RE:1;
-            unsigned short TE:1;
-            unsigned short RIE:1;
-            unsigned short TIE:1;
-            unsigned short :8;
+        struct {
+            unsigned short CKE: 2;
+            unsigned short TEIE: 1;
+            unsigned short REIE: 1;
+            unsigned short RE: 1;
+            unsigned short TE: 1;
+            unsigned short RIE: 1;
+            unsigned short TIE: 1;
+            unsigned short : 8;
         } BIT;
     } SCR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char FTDR:8;
+        struct {
+            unsigned char FTDR: 8;
         } BIT;
     } FTDR;
     char           wk1[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short DR:1;
-            unsigned short RDF:1;
-            unsigned short PER:1;
-            unsigned short FER:1;
-            unsigned short BRK:1;
-            unsigned short TDFE:1;
-            unsigned short TEND:1;
-            unsigned short ER:1;
-            unsigned short :8;
+        struct {
+            unsigned short DR: 1;
+            unsigned short RDF: 1;
+            unsigned short PER: 1;
+            unsigned short FER: 1;
+            unsigned short BRK: 1;
+            unsigned short TDFE: 1;
+            unsigned short TEND: 1;
+            unsigned short ER: 1;
+            unsigned short : 8;
         } BIT;
     } FSR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char FRDR:8;
+        struct {
+            unsigned char FRDR: 8;
         } BIT;
     } FRDR;
     char           wk2[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short LOOP:1;
-            unsigned short RFRST:1;
-            unsigned short TFRST:1;
-            unsigned short MCE:1;
-            unsigned short TTRG:2;
-            unsigned short RTRG:2;
-            unsigned short RSTRG:3;
-            unsigned short :5;
+        struct {
+            unsigned short LOOP: 1;
+            unsigned short RFRST: 1;
+            unsigned short TFRST: 1;
+            unsigned short MCE: 1;
+            unsigned short TTRG: 2;
+            unsigned short RTRG: 2;
+            unsigned short RSTRG: 3;
+            unsigned short : 5;
         } BIT;
     } FCR;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short R:5;
-            unsigned short :3;
-            unsigned short T:5;
-            unsigned short :3;
+        struct {
+            unsigned short R: 5;
+            unsigned short : 3;
+            unsigned short T: 5;
+            unsigned short : 3;
         } BIT;
     } FDR;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short SPB2DT:1;
-            unsigned short SPB2IO:1;
-            unsigned short SCKDT:1;
-            unsigned short SCKIO:1;
-            unsigned short CTS2DT:1;
-            unsigned short CTS2IO:1;
-            unsigned short RTS2DT:1;
-            unsigned short RTS2IO:1;
-            unsigned short :8;
+        struct {
+            unsigned short SPB2DT: 1;
+            unsigned short SPB2IO: 1;
+            unsigned short SCKDT: 1;
+            unsigned short SCKIO: 1;
+            unsigned short CTS2DT: 1;
+            unsigned short CTS2IO: 1;
+            unsigned short RTS2DT: 1;
+            unsigned short RTS2IO: 1;
+            unsigned short : 8;
         } BIT;
     } SPTR;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short ORER:1;
-            unsigned short :1;
-            unsigned short FER:4;
-            unsigned short :2;
-            unsigned short PER:4;
-            unsigned short :4;
+        struct {
+            unsigned short ORER: 1;
+            unsigned short : 1;
+            unsigned short FER: 4;
+            unsigned short : 2;
+            unsigned short PER: 4;
+            unsigned short : 4;
         } BIT;
     } LSR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ABCS0:1;
-            unsigned char :1;
-            unsigned char NFEN:1;
-            unsigned char DIR:1;
-            unsigned char MDDRS:1;
-            unsigned char BRME:1;
-            unsigned char :1;
-            unsigned char BGDM:1;
+        struct {
+            unsigned char ABCS0: 1;
+            unsigned char : 1;
+            unsigned char NFEN: 1;
+            unsigned char DIR: 1;
+            unsigned char MDDRS: 1;
+            unsigned char BRME: 1;
+            unsigned char : 1;
+            unsigned char BGDM: 1;
         } BIT;
     } SEMR;
     char           wk3[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short TFTC:5;
-            unsigned short :2;
-            unsigned short TTRGS:1;
-            unsigned short RFTC:5;
-            unsigned short :2;
-            unsigned short RTRGS:1;
+        struct {
+            unsigned short TFTC: 5;
+            unsigned short : 2;
+            unsigned short TTRGS: 1;
+            unsigned short RFTC: 5;
+            unsigned short : 2;
+            unsigned short RTRGS: 1;
         } BIT;
     } FTCR;
 };

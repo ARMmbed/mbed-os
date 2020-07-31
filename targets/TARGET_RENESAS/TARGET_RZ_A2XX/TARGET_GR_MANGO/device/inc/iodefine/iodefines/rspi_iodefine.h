@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,295 +43,256 @@
 #ifndef RSPI_IODEFINE_H
 #define RSPI_IODEFINE_H
 
-struct st_rspi
-{
-    union
-    {
+struct st_rspi {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :2;
-            unsigned char MODFEN:1;
-            unsigned char MSTR:1;
-            unsigned char SPEIE:1;
-            unsigned char SPTIE:1;
-            unsigned char SPE:1;
-            unsigned char SPRIE:1;
+        struct {
+            unsigned char : 2;
+            unsigned char MODFEN: 1;
+            unsigned char MSTR: 1;
+            unsigned char SPEIE: 1;
+            unsigned char SPTIE: 1;
+            unsigned char SPE: 1;
+            unsigned char SPRIE: 1;
         } BIT;
     } SPCR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SSL0P:1;
-            unsigned char :7;
+        struct {
+            unsigned char SSL0P: 1;
+            unsigned char : 7;
         } BIT;
     } SSLP;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SPLP:1;
-            unsigned char :3;
-            unsigned char MOIFV:1;
-            unsigned char MOIFE:1;
-            unsigned char :2;
+        struct {
+            unsigned char SPLP: 1;
+            unsigned char : 3;
+            unsigned char MOIFV: 1;
+            unsigned char MOIFE: 1;
+            unsigned char : 2;
         } BIT;
     } SPPCR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char OVRF:1;
-            unsigned char :1;
-            unsigned char MODF:1;
-            unsigned char :2;
-            unsigned char SPTEF:1;
-            unsigned char TEND:1;
-            unsigned char SPRF:1;
+        struct {
+            unsigned char OVRF: 1;
+            unsigned char : 1;
+            unsigned char MODF: 1;
+            unsigned char : 2;
+            unsigned char SPTEF: 1;
+            unsigned char TEND: 1;
+            unsigned char SPRF: 1;
         } BIT;
     } SPSR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
+        struct {
             unsigned char LL;
             unsigned char LH;
             unsigned char HL;
             unsigned char HH;
         } BYTE;
-        struct
-        {
-            unsigned char SPD0:1;
-            unsigned char SPD1:1;
-            unsigned char SPD2:1;
-            unsigned char SPD3:1;
-            unsigned char SPD4:1;
-            unsigned char SPD5:1;
-            unsigned char SPD6:1;
-            unsigned char SPD7:1;
-            unsigned char SPD8:1;
-            unsigned char SPD9:1;
-            unsigned char SPD10:1;
-            unsigned char SPD11:1;
-            unsigned char SPD12:1;
-            unsigned char SPD13:1;
-            unsigned char SPD14:1;
-            unsigned char SPD15:1;
-            unsigned char SPD16:1;
-            unsigned char SPD17:1;
-            unsigned char SPD18:1;
-            unsigned char SPD19:1;
-            unsigned char SPD20:1;
-            unsigned char SPD21:1;
-            unsigned char SPD22:1;
-            unsigned char SPD23:1;
-            unsigned char SPD24:1;
-            unsigned char SPD25:1;
-            unsigned char SPD26:1;
-            unsigned char SPD27:1;
-            unsigned char SPD28:1;
-            unsigned char SPD29:1;
-            unsigned char SPD30:1;
-            unsigned char SPD31:1;
+        struct {
+            unsigned char SPD0: 1;
+            unsigned char SPD1: 1;
+            unsigned char SPD2: 1;
+            unsigned char SPD3: 1;
+            unsigned char SPD4: 1;
+            unsigned char SPD5: 1;
+            unsigned char SPD6: 1;
+            unsigned char SPD7: 1;
+            unsigned char SPD8: 1;
+            unsigned char SPD9: 1;
+            unsigned char SPD10: 1;
+            unsigned char SPD11: 1;
+            unsigned char SPD12: 1;
+            unsigned char SPD13: 1;
+            unsigned char SPD14: 1;
+            unsigned char SPD15: 1;
+            unsigned char SPD16: 1;
+            unsigned char SPD17: 1;
+            unsigned char SPD18: 1;
+            unsigned char SPD19: 1;
+            unsigned char SPD20: 1;
+            unsigned char SPD21: 1;
+            unsigned char SPD22: 1;
+            unsigned char SPD23: 1;
+            unsigned char SPD24: 1;
+            unsigned char SPD25: 1;
+            unsigned char SPD26: 1;
+            unsigned char SPD27: 1;
+            unsigned char SPD28: 1;
+            unsigned char SPD29: 1;
+            unsigned char SPD30: 1;
+            unsigned char SPD31: 1;
         } BIT;
     } SPDR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SPSLN0:1;
-            unsigned char SPSLN1:1;
-            unsigned char :6;
+        struct {
+            unsigned char SPSLN0: 1;
+            unsigned char SPSLN1: 1;
+            unsigned char : 6;
         } BIT;
     } SPSCR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SPCP0:1;
-            unsigned char SPCP1:1;
-            unsigned char :6;
+        struct {
+            unsigned char SPCP0: 1;
+            unsigned char SPCP1: 1;
+            unsigned char : 6;
         } BIT;
     } SPSSR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SPR0:1;
-            unsigned char SPR1:1;
-            unsigned char SPR2:1;
-            unsigned char SPR3:1;
-            unsigned char SPR4:1;
-            unsigned char SPR5:1;
-            unsigned char SPR6:1;
-            unsigned char SPR7:1;
+        struct {
+            unsigned char SPR0: 1;
+            unsigned char SPR1: 1;
+            unsigned char SPR2: 1;
+            unsigned char SPR3: 1;
+            unsigned char SPR4: 1;
+            unsigned char SPR5: 1;
+            unsigned char SPR6: 1;
+            unsigned char SPR7: 1;
         } BIT;
     } SPBR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :5;
-            unsigned char SPLW0:1;
-            unsigned char SPLW1:1;
-            unsigned char TXDMY:1;
+        struct {
+            unsigned char : 5;
+            unsigned char SPLW0: 1;
+            unsigned char SPLW1: 1;
+            unsigned char TXDMY: 1;
         } BIT;
     } SPDCR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SCKDL0:1;
-            unsigned char SCKDL1:1;
-            unsigned char SCKDL2:1;
-            unsigned char :5;
+        struct {
+            unsigned char SCKDL0: 1;
+            unsigned char SCKDL1: 1;
+            unsigned char SCKDL2: 1;
+            unsigned char : 5;
         } BIT;
     } SPCKD;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SLNDL0:1;
-            unsigned char SLNDL1:1;
-            unsigned char SLNDL2:1;
-            unsigned char :5;
+        struct {
+            unsigned char SLNDL0: 1;
+            unsigned char SLNDL1: 1;
+            unsigned char SLNDL2: 1;
+            unsigned char : 5;
         } BIT;
     } SSLND;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SPNDL0:1;
-            unsigned char SPNDL1:1;
-            unsigned char SPNDL2:1;
-            unsigned char :5;
+        struct {
+            unsigned char SPNDL0: 1;
+            unsigned char SPNDL1: 1;
+            unsigned char SPNDL2: 1;
+            unsigned char : 5;
         } BIT;
     } SPND;
     char           wk0[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CPHA:1;
-            unsigned short CPOL:1;
-            unsigned short BRDV0:1;
-            unsigned short BRDV1:1;
-            unsigned short :3;
-            unsigned short SSLKP:1;
-            unsigned short SPB0:1;
-            unsigned short SPB1:1;
-            unsigned short SPB2:1;
-            unsigned short SPB3:1;
-            unsigned short LSBF:1;
-            unsigned short SPNDEN:1;
-            unsigned short SLNDEN:1;
-            unsigned short SCKDEN:1;
+        struct {
+            unsigned short CPHA: 1;
+            unsigned short CPOL: 1;
+            unsigned short BRDV0: 1;
+            unsigned short BRDV1: 1;
+            unsigned short : 3;
+            unsigned short SSLKP: 1;
+            unsigned short SPB0: 1;
+            unsigned short SPB1: 1;
+            unsigned short SPB2: 1;
+            unsigned short SPB3: 1;
+            unsigned short LSBF: 1;
+            unsigned short SPNDEN: 1;
+            unsigned short SLNDEN: 1;
+            unsigned short SCKDEN: 1;
         } BIT;
     } SPCMD0;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CPHA:1;
-            unsigned short CPOL:1;
-            unsigned short BRDV0:1;
-            unsigned short BRDV1:1;
-            unsigned short :3;
-            unsigned short SSLKP:1;
-            unsigned short SPB0:1;
-            unsigned short SPB1:1;
-            unsigned short SPB2:1;
-            unsigned short SPB3:1;
-            unsigned short LSBF:1;
-            unsigned short SPNDEN:1;
-            unsigned short SLNDEN:1;
-            unsigned short SCKDEN:1;
+        struct {
+            unsigned short CPHA: 1;
+            unsigned short CPOL: 1;
+            unsigned short BRDV0: 1;
+            unsigned short BRDV1: 1;
+            unsigned short : 3;
+            unsigned short SSLKP: 1;
+            unsigned short SPB0: 1;
+            unsigned short SPB1: 1;
+            unsigned short SPB2: 1;
+            unsigned short SPB3: 1;
+            unsigned short LSBF: 1;
+            unsigned short SPNDEN: 1;
+            unsigned short SLNDEN: 1;
+            unsigned short SCKDEN: 1;
         } BIT;
     } SPCMD1;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CPHA:1;
-            unsigned short CPOL:1;
-            unsigned short BRDV0:1;
-            unsigned short BRDV1:1;
-            unsigned short :3;
-            unsigned short SSLKP:1;
-            unsigned short SPB0:1;
-            unsigned short SPB1:1;
-            unsigned short SPB2:1;
-            unsigned short SPB3:1;
-            unsigned short LSBF:1;
-            unsigned short SPNDEN:1;
-            unsigned short SLNDEN:1;
-            unsigned short SCKDEN:1;
+        struct {
+            unsigned short CPHA: 1;
+            unsigned short CPOL: 1;
+            unsigned short BRDV0: 1;
+            unsigned short BRDV1: 1;
+            unsigned short : 3;
+            unsigned short SSLKP: 1;
+            unsigned short SPB0: 1;
+            unsigned short SPB1: 1;
+            unsigned short SPB2: 1;
+            unsigned short SPB3: 1;
+            unsigned short LSBF: 1;
+            unsigned short SPNDEN: 1;
+            unsigned short SLNDEN: 1;
+            unsigned short SCKDEN: 1;
         } BIT;
     } SPCMD2;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CPHA:1;
-            unsigned short CPOL:1;
-            unsigned short BRDV0:1;
-            unsigned short BRDV1:1;
-            unsigned short :3;
-            unsigned short SSLKP:1;
-            unsigned short SPB0:1;
-            unsigned short SPB1:1;
-            unsigned short SPB2:1;
-            unsigned short SPB3:1;
-            unsigned short LSBF:1;
-            unsigned short SPNDEN:1;
-            unsigned short SLNDEN:1;
-            unsigned short SCKDEN:1;
+        struct {
+            unsigned short CPHA: 1;
+            unsigned short CPOL: 1;
+            unsigned short BRDV0: 1;
+            unsigned short BRDV1: 1;
+            unsigned short : 3;
+            unsigned short SSLKP: 1;
+            unsigned short SPB0: 1;
+            unsigned short SPB1: 1;
+            unsigned short SPB2: 1;
+            unsigned short SPB3: 1;
+            unsigned short LSBF: 1;
+            unsigned short SPNDEN: 1;
+            unsigned short SLNDEN: 1;
+            unsigned short SCKDEN: 1;
         } BIT;
     } SPCMD3;
     char           wk1[8];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RXTRG:3;
-            unsigned char :1;
-            unsigned char TXTRG:2;
-            unsigned char RXRST:1;
-            unsigned char TXRST:1;
+        struct {
+            unsigned char RXTRG: 3;
+            unsigned char : 1;
+            unsigned char TXTRG: 2;
+            unsigned char RXRST: 1;
+            unsigned char TXRST: 1;
         } BIT;
     } SPBFCR;
     char           wk2[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short R:6;
-            unsigned short :2;
-            unsigned short T:4;
-            unsigned short :4;
+        struct {
+            unsigned short R: 6;
+            unsigned short : 2;
+            unsigned short T: 4;
+            unsigned short : 4;
         } BIT;
     } SPBFDR;
 };

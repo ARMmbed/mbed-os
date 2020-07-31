@@ -117,18 +117,18 @@ static uint8_t write_tmp_buf[FLASH_PAGE_SIZE];
 
 /* Global function for optimization */
 RAM_CODE_SEC int32_t _sector_erase(uint32_t addr);
-RAM_CODE_SEC int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size);
+RAM_CODE_SEC int32_t _page_program(uint32_t addr, const uint8_t *buf, int32_t size);
 
 static RAM_CODE_SEC int32_t write_enable(void);
 static RAM_CODE_SEC int32_t busy_wait(void);
-static RAM_CODE_SEC int32_t read_register(uint8_t cmd, uint8_t * status);
-static RAM_CODE_SEC int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_t * buf, int32_t size);
+static RAM_CODE_SEC int32_t read_register(uint8_t cmd, uint8_t *status);
+static RAM_CODE_SEC int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_t *buf, int32_t size);
 static RAM_CODE_SEC void spi_mode(void);
 static RAM_CODE_SEC void ex_mode(void);
-static RAM_CODE_SEC void clear_spimd_reg(volatile st_spibsc_spimd_reg_t * regset);
-static RAM_CODE_SEC int32_t spibsc_transfer(st_spibsc_spimd_reg_t * regset);
-static RAM_CODE_SEC uint32_t RegRead_32(volatile unsigned long * ioreg, uint32_t shift, uint32_t mask);
-static RAM_CODE_SEC void RegWwrite_32(volatile unsigned long * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask);
+static RAM_CODE_SEC void clear_spimd_reg(volatile st_spibsc_spimd_reg_t *regset);
+static RAM_CODE_SEC int32_t spibsc_transfer(st_spibsc_spimd_reg_t *regset);
+static RAM_CODE_SEC uint32_t RegRead_32(volatile unsigned long *ioreg, uint32_t shift, uint32_t mask);
+static RAM_CODE_SEC void RegWwrite_32(volatile unsigned long *ioreg, uint32_t write_value, uint32_t shift, uint32_t mask);
 static RAM_CODE_SEC void change_mmu_ttbl_spibsc(uint32_t type);
 static RAM_CODE_SEC void spibsc_stop(void);
 
@@ -175,7 +175,7 @@ int32_t _sector_erase(uint32_t addr)
     return ret;
 }
 
-int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
+int32_t _page_program(uint32_t addr, const uint8_t *buf, int32_t size)
 {
     int32_t ret;
     int32_t program_size;
@@ -291,7 +291,7 @@ static int32_t busy_wait(void)
     return ret;
 }
 
-static int32_t read_register(uint8_t cmd, uint8_t * status)
+static int32_t read_register(uint8_t cmd, uint8_t *status)
 {
     int32_t ret;
 
@@ -323,7 +323,7 @@ static int32_t read_register(uint8_t cmd, uint8_t * status)
     return ret;
 }
 
-static int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_t * buf, int32_t size)
+static int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_t *buf, int32_t size)
 {
     int32_t ret = 0;
     int32_t unit;
@@ -340,7 +340,7 @@ static int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_
 
     /* ---- data ---- */
     spimd_reg.spidb = bit_width;
-    spimd_reg.spidre= SPIBSC_SDR_TRANS;        /* SDR */
+    spimd_reg.spidre = SPIBSC_SDR_TRANS;       /* SDR */
 
     if (((uint32_t)size & 0x3)  == 0) {
         spimd_reg.spide = SPIBSC_OUTPUT_SPID_32;  /* Enable(32bit) */
@@ -356,10 +356,10 @@ static int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_
     while (size > 0) {
         if (unit == 1) {
             buf_b = (uint8_t *)buf;
-            spimd_reg.smwdr[0] = (uint32_t)(((uint32_t)*buf_b) & 0x000000FF);
+            spimd_reg.smwdr[0] = (uint32_t)(((uint32_t) * buf_b) & 0x000000FF);
         } else if (unit == 2) {
             buf_s = (uint16_t *)buf;
-            spimd_reg.smwdr[0] = (uint32_t)(((uint32_t)*buf_s) & 0x0000FFFF);
+            spimd_reg.smwdr[0] = (uint32_t)(((uint32_t) * buf_s) & 0x0000FFFF);
         } else if (unit == 4) {
             buf_l = (uint32_t *)buf;
             spimd_reg.smwdr[0] = (uint32_t)(((uint32_t)(*buf_l)) & 0xfffffffful);
@@ -433,7 +433,7 @@ static void ex_mode(void)
     (void)dummy_read_32;
 }
 
-static void clear_spimd_reg(volatile st_spibsc_spimd_reg_t * regset)
+static void clear_spimd_reg(volatile st_spibsc_spimd_reg_t *regset)
 {
     /* ---- command ---- */
     regset->cde    = SPIBSC_OUTPUT_DISABLE;
@@ -476,7 +476,7 @@ static void clear_spimd_reg(volatile st_spibsc_spimd_reg_t * regset)
     regset->spiwe  = SPIBSC_SPIDATA_DISABLE; /* write enable/disable */
 }
 
-static int32_t spibsc_transfer(st_spibsc_spimd_reg_t * regset)
+static int32_t spibsc_transfer(st_spibsc_spimd_reg_t *regset)
 {
     if (RegRead_32(&SPIBSC.CMNCR.LONG, SPIBSC_CMNCR_MD_SHIFT, SPIBSC_CMNCR_MD) != SPIBSC_CMNCR_MD_SPI) {
         if (RegRead_32(&SPIBSC.CMNSR.LONG, SPIBSC_CMNSR_SSLF_SHIFT, SPIBSC_CMNSR_SSLF) != SPIBSC_SSL_NEGATE) {
@@ -534,12 +534,12 @@ static int32_t spibsc_transfer(st_spibsc_spimd_reg_t * regset)
     }
 
     /* ---- Dummy ---- */
-     /* Enable/Disable */
-     RegWwrite_32(&SPIBSC.SMENR.LONG, regset->dme, SPIBSC_SMENR_DME_SHIFT, SPIBSC_SMENR_DME);
-     if (regset->dme != SPIBSC_DUMMY_CYC_DISABLE) {
-         /* Dummy Cycle */
-         RegWwrite_32(&SPIBSC.SMDMCR.LONG, regset->dmcyc, SPIBSC_SMDMCR_DMCYC_SHIFT, SPIBSC_SMDMCR_DMCYC);
-     }
+    /* Enable/Disable */
+    RegWwrite_32(&SPIBSC.SMENR.LONG, regset->dme, SPIBSC_SMENR_DME_SHIFT, SPIBSC_SMENR_DME);
+    if (regset->dme != SPIBSC_DUMMY_CYC_DISABLE) {
+        /* Dummy Cycle */
+        RegWwrite_32(&SPIBSC.SMDMCR.LONG, regset->dmcyc, SPIBSC_SMDMCR_DMCYC_SHIFT, SPIBSC_SMDMCR_DMCYC);
+    }
 
     /* ---- Data ---- */
     /* Enable/Disable */
@@ -623,7 +623,7 @@ static int32_t spibsc_transfer(st_spibsc_spimd_reg_t * regset)
     return 0;
 }
 
-static uint32_t RegRead_32(volatile unsigned long * ioreg, uint32_t shift, uint32_t mask)
+static uint32_t RegRead_32(volatile unsigned long *ioreg, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
 
@@ -633,7 +633,7 @@ static uint32_t RegRead_32(volatile unsigned long * ioreg, uint32_t shift, uint3
     return reg_value;
 }
 
-static void RegWwrite_32(volatile unsigned long * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
+static void RegWwrite_32(volatile unsigned long *ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
 
@@ -646,7 +646,7 @@ static void change_mmu_ttbl_spibsc(uint32_t type)
 {
     uint32_t index;               /* Loop variable: table index */
     mmu_ttbl_desc_section_t desc; /* Loop variable: descriptor */
-    mmu_ttbl_desc_section_t * table = (mmu_ttbl_desc_section_t *)TTB;
+    mmu_ttbl_desc_section_t *table = (mmu_ttbl_desc_section_t *)TTB;
 
     /* ==== Modify SPI Multi-I/O bus space settings in the MMU translation table ==== */
     for (index = (FLASH_BASE >> 20); index < ((FLASH_BASE + FLASH_SIZE) >> 20); index++) {
@@ -668,7 +668,7 @@ static void change_mmu_ttbl_spibsc(uint32_t type)
 static void spibsc_stop(void)
 {
     if (((SPIBSC.DRCR.LONG & SPIBSC_DRCR_RBE)  != 0) &&
-        ((SPIBSC.DRCR.LONG & SPIBSC_DRCR_SSLE) != 0)) {
+            ((SPIBSC.DRCR.LONG & SPIBSC_DRCR_SSLE) != 0)) {
         RegWwrite_32(&SPIBSC.DRCR.LONG, 1, SPIBSC_DRCR_SSLN_SHIFT, SPIBSC_DRCR_SSLN);
     }
 
@@ -685,7 +685,7 @@ static void spibsc_stop(void)
 
 #if defined(USE_HYPERFLASH)
 RAM_CODE_SEC int32_t _hyperflash_sector_erase(uint32_t addr);
-RAM_CODE_SEC int32_t _hyperflash_page_program(uint32_t addr, const uint8_t * buf, int32_t size);
+RAM_CODE_SEC int32_t _hyperflash_page_program(uint32_t addr, const uint8_t *buf, int32_t size);
 
 static RAM_CODE_SEC void hyperflash_commandwrite(uint32_t caddr, uint16_t write_value);
 static RAM_CODE_SEC void hyperflash_datawrite(uint32_t offset, uint16_t write_value);
@@ -739,7 +739,7 @@ int32_t _hyperflash_sector_erase(uint32_t addr)
     return ret;
 }
 
-int32_t _hyperflash_page_program(uint32_t addr, const uint8_t * buf, int32_t size)
+int32_t _hyperflash_page_program(uint32_t addr, const uint8_t *buf, int32_t size)
 {
     uint16_t send_data;
     uint32_t send_addr = addr;
@@ -831,7 +831,7 @@ static void hyperflash_write_word(uint32_t waddr, uint16_t wdata)
 #define OCTACFG_BUS_WIDTH     32
 
 RAM_CODE_SEC int32_t _octaflash_sector_erase(uint32_t addr);
-RAM_CODE_SEC int32_t _octaflash_page_program(uint32_t addr, const uint8_t * buf, int32_t size);
+RAM_CODE_SEC int32_t _octaflash_page_program(uint32_t addr, const uint8_t *buf, int32_t size);
 
 static RAM_CODE_SEC void octaflash_wren(void);
 static RAM_CODE_SEC uint32_t octaflash_rdsr(void);
@@ -877,7 +877,7 @@ int32_t _octaflash_sector_erase(uint32_t addr)
     return 0;
 }
 
-int32_t _octaflash_page_program(uint32_t addr, const uint8_t * buf, int32_t size)
+int32_t _octaflash_page_program(uint32_t addr, const uint8_t *buf, int32_t size)
 {
     int32_t program_size;
     int32_t remainder;
@@ -902,7 +902,7 @@ int32_t _octaflash_page_program(uint32_t addr, const uint8_t * buf, int32_t size
         octaflash_wren();
 
         for (int32_t i = 0; i < program_size; i++) {
-            *(volatile uint8_t*)(RZ_A2_OCTA_FLASH_NC + addr + i) = *(buf + i);
+            *(volatile uint8_t *)(RZ_A2_OCTA_FLASH_NC + addr + i) = *(buf + i);
         }
 
         while (octaflash_rdsr() & OFLASH_STATUS_WIP);

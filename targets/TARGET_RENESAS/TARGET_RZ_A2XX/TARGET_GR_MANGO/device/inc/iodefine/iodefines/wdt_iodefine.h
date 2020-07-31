@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,97 +43,78 @@
 #ifndef WDT_IODEFINE_H
 #define WDT_IODEFINE_H
 
-struct st_wdt
-{
-    union
-    {
+struct st_wdt {
+    union {
         unsigned short WORD;
-        struct
-        {
+        struct {
             unsigned char L;
             unsigned char H;
         } BYTE;
-        struct
-        {
-            unsigned char CKS:4;
-            unsigned char :1;
-            unsigned char TME:1;
-            unsigned char WTIT:1;
-            unsigned char IOVF:1;
-            unsigned char :8;
+        struct {
+            unsigned char CKS: 4;
+            unsigned char : 1;
+            unsigned char TME: 1;
+            unsigned char WTIT: 1;
+            unsigned char IOVF: 1;
+            unsigned char : 8;
         } BIT;
     } WTCSR;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
+        struct {
             unsigned char L;
             unsigned char H;
         } BYTE;
-        struct
-        {
-            unsigned char WTCNT:8;
-            unsigned char :8;
+        struct {
+            unsigned char WTCNT: 8;
+            unsigned char : 8;
         } BIT;
     } WTCNT;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
+        struct {
             unsigned char L;
             unsigned char H;
         } BYTE;
-        struct
-        {
-            unsigned char :6;
-            unsigned char RSTE:1;
-            unsigned char WOVF:1;
-            unsigned char :8;
+        struct {
+            unsigned char : 6;
+            unsigned char RSTE: 1;
+            unsigned char WOVF: 1;
+            unsigned char : 8;
         } BIT;
     } WRCSR;
     char           wk0[26];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
+        struct {
             unsigned char L;
             unsigned char H;
         } BYTE;
-        struct
-        {
-            unsigned char PEE:8;
-            unsigned char :8;
+        struct {
+            unsigned char PEE: 8;
+            unsigned char : 8;
         } BIT;
     } PEER;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
+        struct {
             unsigned char L;
             unsigned char H;
         } BYTE;
-        struct
-        {
-            unsigned char PERIE:8;
-            unsigned char :8;
+        struct {
+            unsigned char PERIE: 8;
+            unsigned char : 8;
         } BIT;
     } PECR;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
+        struct {
             unsigned char L;
             unsigned char H;
         } BYTE;
-        struct
-        {
-            unsigned char PEF:8;
-            unsigned char :8;
+        struct {
+            unsigned char PEF: 8;
+            unsigned char : 8;
         } BIT;
     } PESR;
     char           wk1[10];

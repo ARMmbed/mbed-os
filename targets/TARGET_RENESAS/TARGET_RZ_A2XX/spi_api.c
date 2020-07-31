@@ -35,7 +35,8 @@ static inline int spi_readable(spi_t *obj);
 static inline void spi_write(spi_t *obj, int value);
 static inline int spi_read(spi_t *obj);
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     volatile uint8_t dummy;
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
@@ -45,17 +46,17 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
     uint32_t spi      = pinmap_merge(spi_data, spi_cntl);
-    
+
     MBED_ASSERT((int)spi != NC);
-    
+
     obj->spi.spi = (struct st_rspi *)RSPI[spi];
     obj->spi.index = spi;
-    
+
     // enable power and clocking
     CPG.STBCR9.BYTE &= ~(0x80 >> spi);
     dummy = CPG.STBCR9.BYTE;
     (void)dummy;
-    
+
     obj->spi.spi->SPCR.BYTE   = 0x00;  // CTRL to 0
     obj->spi.spi->SPSCR.BYTE  = 0x00;  // no sequential operation
     obj->spi.spi->SSLP.BYTE   = 0x00;  // SSL 'L' active
@@ -66,7 +67,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.spi->SPPCR.BYTE  = 0x20;  // MOSI Idle fixed value equals 0
     obj->spi.spi->SPBFCR.BYTE = 0xf0;  // and set trigger count: read 1, write 1
     obj->spi.spi->SPBFCR.BYTE = 0x30;  // and reset buffer
-    
+
     // pin out the spi pins
     if ((int)mosi != NC) {
         pinmap_pinout(mosi, PinMap_SPI_MOSI);
@@ -82,7 +83,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
 void spi_free(spi_t *obj) {}
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     int      DSS;      // DSS (data select size)
     int      polarity  = (mode & 0x2) ? 1 : 0;
     int      phase     = (mode & 0x1) ? 1 : 0;
@@ -90,7 +92,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     uint16_t mask      = 0xf03;
     uint16_t wk_spcmd0;
     uint8_t  splw;
-    
+
     switch (mode) {
         case 0:
         case 1:
@@ -102,7 +104,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
             error("SPI format error");
             return;
     }
-    
+
     switch (bits) {
         case 8:
             DSS  = 0x7;
@@ -124,7 +126,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     tmp |= (polarity << 1);
     tmp |= (DSS << 8);
     obj->spi.bits = bits;
-    
+
     spi_disable(obj);
     wk_spcmd0 = obj->spi.spi->SPCMD0.WORD;
     wk_spcmd0 &= ~mask;
@@ -132,14 +134,15 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     obj->spi.spi->SPCMD0.WORD = wk_spcmd0;
     obj->spi.spi->SPDCR.BYTE   = splw;
     if (slave) {
-        obj->spi.spi->SPCR.BYTE &=~(1 << 3);  // MSTR to 0
+        obj->spi.spi->SPCR.BYTE &= ~(1 << 3); // MSTR to 0
     } else {
         obj->spi.spi->SPCR.BYTE |= (1 << 3);  // MSTR to 1
     }
     spi_enable(obj);
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     uint32_t  pclk_base;
     uint32_t  div;
     uint32_t  brdv = 0;
@@ -147,14 +150,14 @@ void spi_frequency(spi_t *obj, int hz) {
     uint32_t  hz_min;
     uint16_t  mask = 0x000c;
     uint16_t  wk_spcmd0;
-    
+
     /* set PCLK */
     if (RZ_A2_IsClockMode0() == false) {
         pclk_base = CM1_RENESAS_RZ_A2_P1_CLK;
     } else {
         pclk_base = CM0_RENESAS_RZ_A2_P1_CLK;
     }
-    
+
     hz_min = pclk_base / 2 / 256 / 8;
     hz_max = pclk_base / 2;
     if ((uint32_t)hz < hz_min) {
@@ -163,7 +166,7 @@ void spi_frequency(spi_t *obj, int hz) {
     if ((uint32_t)hz > hz_max) {
         hz = hz_max;
     }
-    
+
     div = (pclk_base / hz / 2);
     while (div > 256) {
         div >>= 1;
@@ -171,7 +174,7 @@ void spi_frequency(spi_t *obj, int hz) {
     }
     div  -= 1;
     brdv  = (brdv << 2);
-    
+
     spi_disable(obj);
     obj->spi.spi->SPBR.BYTE = div;
     wk_spcmd0 = obj->spi.spi->SPCMD0.WORD;
@@ -181,23 +184,28 @@ void spi_frequency(spi_t *obj, int hz) {
     spi_enable(obj);
 }
 
-static inline void spi_disable(spi_t *obj) {
+static inline void spi_disable(spi_t *obj)
+{
     obj->spi.spi->SPCR.BYTE &= ~(1 << 6);       // SPE to 0
 }
 
-static inline void spi_enable(spi_t *obj) {
-    obj->spi.spi->SPCR.BYTE |=  (1 << 6);       // SPE to 1
+static inline void spi_enable(spi_t *obj)
+{
+    obj->spi.spi->SPCR.BYTE |= (1 << 6);        // SPE to 1
 }
 
-static inline int spi_readable(spi_t *obj) {
+static inline int spi_readable(spi_t *obj)
+{
     return obj->spi.spi->SPSR.BYTE & (1 << 7);  // SPRF
 }
 
-static inline int spi_tend(spi_t *obj) {
+static inline int spi_tend(spi_t *obj)
+{
     return obj->spi.spi->SPSR.BYTE & (1 << 6);  // TEND
 }
 
-static inline void spi_write(spi_t *obj, int value) {
+static inline void spi_write(spi_t *obj, int value)
+{
     if (obj->spi.bits == 8) {
         obj->spi.spi->SPDR.BYTE.LL  = (uint8_t)value;
     } else if (obj->spi.bits == 16) {
@@ -207,9 +215,10 @@ static inline void spi_write(spi_t *obj, int value) {
     }
 }
 
-static inline int spi_read(spi_t *obj) {
+static inline int spi_read(spi_t *obj)
+{
     int read_data;
-    
+
     if (obj->spi.bits == 8) {
         read_data = obj->spi.spi->SPDR.BYTE.LL;
     } else if (obj->spi.bits == 16) {
@@ -217,18 +226,20 @@ static inline int spi_read(spi_t *obj) {
     } else {
         read_data = obj->spi.spi->SPDR.LONG;
     }
-    
+
     return read_data;
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     spi_write(obj, value);
-    while(!spi_tend(obj));
+    while (!spi_tend(obj));
     return spi_read(obj);
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -242,19 +253,23 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return (spi_readable(obj) && !spi_busy(obj)) ? (1) : (0);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     return spi_read(obj);
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     spi_write(obj, value);
 }
 
-int spi_busy(spi_t *obj) {
+int spi_busy(spi_t *obj)
+{
     return 0;
 }
 
@@ -388,22 +403,28 @@ static void spi_err_irq(uint32_t index)
     }
 }
 
-static void spi0_rx_irq(void) {
+static void spi0_rx_irq(void)
+{
     spi_rx_irq(0);
 }
-static void spi0_er_irq(void) {
+static void spi0_er_irq(void)
+{
     spi_err_irq(0);
 }
-static void spi1_rx_irq(void) {
+static void spi1_rx_irq(void)
+{
     spi_rx_irq(1);
 }
-static void spi1_er_irq(void) {
+static void spi1_er_irq(void)
+{
     spi_err_irq(1);
 }
-static void spi2_rx_irq(void) {
+static void spi2_rx_irq(void)
+{
     spi_rx_irq(2);
 }
-static void spi2_er_irq(void) {
+static void spi2_er_irq(void)
+{
     spi_err_irq(2);
 }
 
@@ -434,7 +455,7 @@ static void spi_async_write(spi_t *obj)
     uint8_t **width8;
     uint16_t **width16;
     uint32_t **width32;
-    
+
     if (obj->tx_buff.buffer) {
         switch (obj->tx_buff.width) {
             case 8:
@@ -443,21 +464,21 @@ static void spi_async_write(spi_t *obj)
                 ++*width8;
                 obj->tx_buff.pos += sizeof(uint8_t);
                 break;
-                
+
             case 16:
                 width16 = (uint16_t **)&obj->tx_buff.buffer;
                 spi_write(obj, **width16);
                 ++*width16;
                 obj->tx_buff.pos += sizeof(uint16_t);
                 break;
-                
+
             case 32:
                 width32 = (uint32_t **)&obj->tx_buff.buffer;
                 spi_write(obj, **width32);
                 ++*width32;
                 obj->tx_buff.pos += sizeof(uint32_t);
                 break;
-                
+
             default:
                 MBED_ASSERT(0);
                 break;
@@ -472,7 +493,7 @@ static void spi_async_read(spi_t *obj)
     uint8_t **width8;
     uint16_t **width16;
     uint32_t **width32;
-    
+
     switch (obj->rx_buff.width) {
         case 8:
             width8 = (uint8_t **)&obj->rx_buff.buffer;
@@ -480,21 +501,21 @@ static void spi_async_read(spi_t *obj)
             ++*width8;
             obj->rx_buff.pos += sizeof(uint8_t);
             break;
-            
+
         case 16:
             width16 = (uint16_t **)&obj->rx_buff.buffer;
             **width16 = spi_read(obj);
             ++*width16;
             obj->rx_buff.pos += sizeof(uint16_t);
             break;
-            
+
         case 32:
             width32 = (uint32_t **)&obj->rx_buff.buffer;
             **width32 = spi_read(obj);
             ++*width32;
             obj->rx_buff.pos += sizeof(uint32_t);
             break;
-            
+
         default:
             MBED_ASSERT(0);
             break;
@@ -514,7 +535,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     MBED_ASSERT(rx && ! tx ? rx_length : 1);
     MBED_ASSERT(obj->spi.spi->SPCR.BYTE & (1 << 3)); /* Slave mode */
     MBED_ASSERT(bit_width == 8 || bit_width == 16 || bit_width == 32);
-    
+
     if (tx_length) {
         obj->tx_buff.buffer = (void *)tx;
     } else {
@@ -534,14 +555,14 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     for (i = 0; i < (int)obj->rx_buff.length; i++) {
         ((uint8_t *)obj->rx_buff.buffer)[i] = SPI_FILL_CHAR;
     }
-    
+
     spi_data[obj->spi.index].async_callback = handler;
     spi_data[obj->spi.index].async_obj = obj;
     spi_data[obj->spi.index].event = 0;
     spi_data[obj->spi.index].wanted_events = event;
-    
+
     spi_irqs_set(obj, 1);
-    
+
     spi_async_write(obj);
 }
 

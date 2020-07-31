@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "PeripheralPins.h"
 
 //#define ISEL_BIT    (0x40)  // use interrupt
 
 /************IRQ***************/
 enum {
-    IRQ0,IRQ1,
-    IRQ2,IRQ3,
-    IRQ4,IRQ5,
-    IRQ6,IRQ7,
+    IRQ0, IRQ1,
+    IRQ2, IRQ3,
+    IRQ4, IRQ5,
+    IRQ6, IRQ7,
 } IRQNo;
 
 const PinMap PinMap_IRQ[] = {

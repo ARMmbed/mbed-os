@@ -40,7 +40,7 @@ public:
      *  @param product_id Your product_id (default: 0x2012)
      *  @param product_release Your product_release (default: 0x0001)
      */
-    USBSerial_FileHandle(bool connect_blocking=true, uint16_t vendor_id=0x1f00, uint16_t product_id=0x2012, uint16_t product_release=0x0001)
+    USBSerial_FileHandle(bool connect_blocking = true, uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001)
         : USBCDC(connect_blocking, vendor_id, product_id, product_release) {}
 
     /** Read the contents of a file into a buffer
@@ -55,7 +55,8 @@ public:
      *  @param size     The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t read(void *buffer, size_t size) {
+    virtual ssize_t read(void *buffer, size_t size)
+    {
         uint32_t data_read = 0;
         USBCDC::receive((uint8_t *)buffer, size, &data_read);
         return (ssize_t)data_read;
@@ -73,7 +74,8 @@ public:
      *  @param size     The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t write(const void *buffer, size_t size) {
+    virtual ssize_t write(const void *buffer, size_t size)
+    {
         USBCDC::send((uint8_t *)buffer, size);
         return size;
     }
@@ -87,7 +89,8 @@ public:
      *      SEEK_END to start from end of file
      *  @return         The new offset of the file, negative error code on failure
      */
-    virtual off_t seek(off_t offset, int whence = SEEK_SET) {
+    virtual off_t seek(off_t offset, int whence = SEEK_SET)
+    {
         return -ESPIPE;
     }
 
@@ -95,7 +98,8 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int close() {
+    virtual int close()
+    {
         return 0;
     }
 
@@ -105,7 +109,8 @@ public:
      *  @return         False if the file is not a terminal
      *  @return         Negative error code on failure
      */
-    virtual int isatty() {
+    virtual int isatty()
+    {
         return true;
     }
 
@@ -113,7 +118,8 @@ public:
      *
      *  @return         Size of the file in bytes
      */
-    virtual off_t size() {
+    virtual off_t size()
+    {
         return -EINVAL;
     }
 
@@ -127,7 +133,8 @@ public:
      *
      * @returns             bitmask of poll events that have occurred.
      */
-    virtual short poll(short events) {
+    virtual short poll(short events)
+    {
         short revents = 0;
 
         USBCDC::lock();
@@ -162,7 +169,8 @@ public:
      *
      *  @param func     Function to call on state change
      */
-    virtual void sigio(Callback<void()> func) {
+    virtual void sigio(Callback<void()> func)
+    {
         core_util_critical_section_enter();
         _sigio_cb = func;
         if (_sigio_cb) {
@@ -175,7 +183,8 @@ public:
     }
 
 protected:
-    virtual void data_rx() {
+    virtual void data_rx()
+    {
         assert_locked();
         if (_sigio_cb) {
             _sigio_cb.call();

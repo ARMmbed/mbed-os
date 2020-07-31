@@ -758,14 +758,12 @@ void USBPhyHw::process()
             }
             events->ep0_out();
         }
-    }
-    else if (((ists0 & USB_BEMP) == USB_BEMP) && ((ests & USB_BEMP0) == USB_BEMP0)) {
+    } else if (((ists0 & USB_BEMP) == USB_BEMP) && ((ests & USB_BEMP0) == USB_BEMP0)) {
         /* ==== BEMP PIPE0 ==== */
         USB_MX.BEMPSTS.WORD = (uint16_t)((~USB_BEMP0) & BEMPSTS_MASK);
 
         events->ep0_in();
-    }
-    else if (((ists0 & USB_NRDY) == USB_NRDY) && ((nsts & USB_NRDY0) == USB_NRDY0)) {
+    } else if (((ists0 & USB_NRDY) == USB_NRDY) && ((nsts & USB_NRDY0) == USB_NRDY0)) {
         /* ==== NRDY PIPE0 ==== */
         USB_MX.NRDYSTS.WORD = (uint16_t)((~USB_NRDY0) & NRDYSTS_MASK);
         /* Non processing. */
@@ -840,8 +838,7 @@ void USBPhyHw::process()
                 }
             }
         }
-    }
-    else if ((ists0 & USB_BEMP) == USB_BEMP) {
+    } else if ((ists0 & USB_BEMP) == USB_BEMP) {
         /* ==== BEMP PIPEx ==== */
         USB_MX.BEMPSTS.WORD = (uint16_t)((~ests) & BEMPSTS_MASK);
 
@@ -863,8 +860,7 @@ void USBPhyHw::process()
                 }
             }
         }
-    }
-    else if ((ists0 & USB_NRDY) == USB_NRDY) {
+    } else if ((ists0 & USB_NRDY) == USB_NRDY) {
         /* ==== NRDY PIPEx ==== */
         USB_MX.NRDYSTS.WORD = (uint16_t)((~nsts) & NRDYSTS_MASK);
 
@@ -878,8 +874,7 @@ void USBPhyHw::process()
                 }
             }
         }
-    }
-    else {
+    } else {
         /* Non processing. */
     }
 }
@@ -1253,8 +1248,8 @@ void USBPhyHw::set_pid(uint16_t pipe, uint16_t new_pid)
             }
             break;
         case USB_PID_BUF:
-            if (((old_pid & USB_PID_STALL) == USB_PID_STALL) || 
-                ((old_pid & USB_PID_STALL2) == USB_PID_STALL2)) {
+            if (((old_pid & USB_PID_STALL) == USB_PID_STALL) ||
+                    ((old_pid & USB_PID_STALL2) == USB_PID_STALL2)) {
                 *p_reg &= (~USB_PID);
                 *p_reg |= USB_PID_NAK;
             }

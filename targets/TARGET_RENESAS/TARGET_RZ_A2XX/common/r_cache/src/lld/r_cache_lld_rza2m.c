@@ -89,8 +89,7 @@ Private global variables and functions
 ******************************************************************************/
 #if(0)
 /*! Version Information */
-static const st_drv_info_t gs_lld_info =
-{
+static const st_drv_info_t gs_lld_info = {
     {
         ((STDIO_CACHE_RZ_LLD_VERSION_MAJOR << 16) + STDIO_CACHE_RZ_LLD_VERSION_MINOR)
     },
@@ -195,11 +194,11 @@ End of function R_CACHE_L1DataCleanInvalidAll
 * Arguments    : line_addr -
 *                    Starting address of cache operation (virtual address).
 *                size -
-*                    The byte size from line_addr. 
+*                    The byte size from line_addr.
 * Return Value : DRV_SUCCESS : successful
 *                DRV_ERROR   : address overflow
 *******************************************************************************/
-e_err_code_t R_CACHE_L1DataInvalidLine(void* line_addr, uint32_t size)
+e_err_code_t R_CACHE_L1DataInvalidLine(void *line_addr, uint32_t size)
 {
     e_err_code_t ret   = DRV_SUCCESS;
 
@@ -209,14 +208,10 @@ e_err_code_t R_CACHE_L1DataInvalidLine(void* line_addr, uint32_t size)
     /* Casting void type address to uint64_t is valid because there is no loss of information. */
     uint64_t end_addr = ((uint64_t)((uint32_t)line_addr) & CACHE_PRV_ADDR_MASK) + ((uint64_t)size);
 
-    if (CACHE_PRV_ADDR_MAX < end_addr)
-    {
+    if (CACHE_PRV_ADDR_MAX < end_addr) {
         ret = DRV_ERROR;
-    }
-    else
-    {
-        for ( ; addr < end_addr; addr += CACHE_PRV_CA9_LINE_SIZE)
-        {
+    } else {
+        for (; addr < end_addr; addr += CACHE_PRV_CA9_LINE_SIZE) {
             r_cache_l1_d_inv_mva(addr);
         }
     }
@@ -233,11 +228,11 @@ End of function R_CACHE_L1DataInvalidLine
 * Arguments    : line_addr -
 *                    Starting address of cache operation (virtual address).
 *                size -
-*                    The byte size from line_addr. 
+*                    The byte size from line_addr.
 * Return Value : DRV_SUCCESS : successful
 *                DRV_ERROR   : address overflow
 *******************************************************************************/
-e_err_code_t R_CACHE_L1DataCleanLine(void* line_addr, uint32_t size)
+e_err_code_t R_CACHE_L1DataCleanLine(void *line_addr, uint32_t size)
 {
     e_err_code_t ret   = DRV_SUCCESS;
 
@@ -247,14 +242,10 @@ e_err_code_t R_CACHE_L1DataCleanLine(void* line_addr, uint32_t size)
     /* Casting void type address to uint64_t is valid because there is no loss of information. */
     uint64_t end_addr = ((uint64_t)((uint32_t)line_addr) & CACHE_PRV_ADDR_MASK) + ((uint64_t)size);
 
-    if (CACHE_PRV_ADDR_MAX < end_addr)
-    {
+    if (CACHE_PRV_ADDR_MAX < end_addr) {
         ret = DRV_ERROR;
-    }
-    else
-    {
-        for ( ; addr < end_addr; addr += CACHE_PRV_CA9_LINE_SIZE)
-        {
+    } else {
+        for (; addr < end_addr; addr += CACHE_PRV_CA9_LINE_SIZE) {
             r_cache_l1_d_clean_mva(addr);
         }
     }
@@ -271,11 +262,11 @@ End of function R_CACHE_L1DataCleanLine
 * Arguments    : line_addr -
 *                    Starting address of cache operation (virtual address).
 *                size -
-*                    The byte size from line_addr. 
+*                    The byte size from line_addr.
 * Return Value : DRV_SUCCESS : successful
 *                DRV_ERROR   : address overflow
 *******************************************************************************/
-e_err_code_t R_CACHE_L1DataCleanInvalidLine(void* line_addr, uint32_t size)
+e_err_code_t R_CACHE_L1DataCleanInvalidLine(void *line_addr, uint32_t size)
 {
     e_err_code_t ret   = DRV_SUCCESS;
 
@@ -285,14 +276,10 @@ e_err_code_t R_CACHE_L1DataCleanInvalidLine(void* line_addr, uint32_t size)
     /* Casting void type address to uint64_t is valid because there is no loss of information. */
     uint64_t end_addr = ((uint64_t)((uint32_t)line_addr) & CACHE_PRV_ADDR_MASK) + ((uint64_t)size);
 
-    if (CACHE_PRV_ADDR_MAX < end_addr)
-    {
+    if (CACHE_PRV_ADDR_MAX < end_addr) {
         ret = DRV_ERROR;
-    }
-    else
-    {
-        for ( ; addr < end_addr; addr += CACHE_PRV_CA9_LINE_SIZE)
-        {
+    } else {
+        for (; addr < end_addr; addr += CACHE_PRV_CA9_LINE_SIZE) {
             r_cache_l1_d_clean_inv_mva(addr);
         }
     }
@@ -528,19 +515,19 @@ void R_CACHE_L2PrefetchEnable(void)
     reg32 = RZA_IO_RegRead_32(&pl310.REG15_PREFETCH_CTRL.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
 #if   defined(PL310_CFG_DOUBLE_LINE_FILL) && (PL310_CFG_DOUBLE_LINE_FILL==1)
-    reg32 |=   (1u << PL310_REG15_PREFETCH_CTRL_Doublelinefillenable_SHIFT);
+    reg32 |= (1u << PL310_REG15_PREFETCH_CTRL_Doublelinefillenable_SHIFT);
 #elif defined(PL310_CFG_DOUBLE_LINE_FILL) && (PL310_CFG_DOUBLE_LINE_FILL==0)
     reg32 &= (~(1u << PL310_REG15_PREFETCH_CTRL_Doublelinefillenable_SHIFT));
 #endif/*PL310_CFG_DOUBLE_LINE_FILL*/
 
 #if   defined(PL310_CFG_INSTRUCTION_PREFETCH) && (PL310_CFG_INSTRUCTION_PREFETCH==1)
-    reg32 |=    (1u << PL310_REG15_PREFETCH_CTRL_Instructionprefetchenable_SHIFT);
+    reg32 |= (1u << PL310_REG15_PREFETCH_CTRL_Instructionprefetchenable_SHIFT);
 #elif defined(PL310_CFG_INSTRUCTION_PREFETCH) && (PL310_CFG_INSTRUCTION_PREFETCH==0)
-    reg32 &=  (~(1u << PL310_REG15_PREFETCH_CTRL_Instructionprefetchenable_SHIFT));
+    reg32 &= (~(1u << PL310_REG15_PREFETCH_CTRL_Instructionprefetchenable_SHIFT));
 #endif/*PL310_CFG_INSTRUCTION_PREFETCH*/
 
 #if   defined(PL310_CFG_DATA_PREFETCH) && (PL310_CFG_DATA_PREFETCH==1)
-    reg32 |=   (1u << PL310_REG15_PREFETCH_CTRL_Dataprefetchenable_SHIFT);
+    reg32 |= (1u << PL310_REG15_PREFETCH_CTRL_Dataprefetchenable_SHIFT);
 #elif defined(PL310_CFG_DATA_PREFETCH) && (PL310_CFG_DATA_PREFETCH==0)
     reg32 &= (~(1u << PL310_REG15_PREFETCH_CTRL_Dataprefetchenable_SHIFT));
 #endif/*PL310_CFG_DATA_PREFETCH*/
@@ -597,8 +584,7 @@ void R_CACHE_L2InvalidAll(void)
                        PL310_REG7_INV_WAY_Way_bits);
 
     /* Wait until complete background operation */
-    do
-    {
+    do {
         /* Casting the pointer to a uint32_t type is valid because "unsigned long" is same 4byte unsigned integer type. */
         reg32 = RZA_IO_RegRead_32(&pl310.REG7_INV_WAY.LONG,
                                   PL310_REG7_INV_WAY_Way_bits_SHIFT,
@@ -629,8 +615,7 @@ void R_CACHE_L2CleanAll(void)
                        PL310_REG7_CLEAN_WAY_Way_bits);
 
     /* Wait until complete background operation */
-    do
-    {
+    do {
         /* Casting the pointer to a uint32_t type is valid because "unsigned long" is same 4byte unsigned integer type. */
         reg32 = RZA_IO_RegRead_32(&pl310.REG7_CLEAN_WAY.LONG,
                                   PL310_REG7_CLEAN_WAY_Way_bits_SHIFT,
@@ -661,8 +646,7 @@ void R_CACHE_L2CleanInvalidAll(void)
                        PL310_REG7_CLEAN_INV_WAY_Way_bits);
 
     /* Wait until complete background operation */
-    do
-    {
+    do {
         /* Casting the pointer to a uint32_t type is valid because "unsigned long" is same 4byte unsigned integer type. */
         reg32 = RZA_IO_RegRead_32(&pl310.REG7_CLEAN_INV_WAY.LONG,
                                   PL310_REG7_CLEAN_INV_WAY_Way_bits_SHIFT,
@@ -689,8 +673,7 @@ static void cache_l2_sync(void)
     /* Casting the pointer to a uint32_t type is valid because "unsigned long" is same 4byte unsigned integer type. */
     RZA_IO_RegWrite_32(&pl310.REG7_CACHE_SYNC.LONG, 0, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
-    do
-    {
+    do {
         /* Casting the pointer to a uint32_t type is valid because "unsigned long" is same 4byte unsigned integer type. */
         reg32 = RZA_IO_RegRead_32(&pl310.REG7_CACHE_SYNC.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
     } while (0 != reg32);

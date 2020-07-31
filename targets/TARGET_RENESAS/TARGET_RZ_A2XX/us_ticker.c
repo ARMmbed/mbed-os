@@ -32,7 +32,9 @@ void us_ticker_init(void)
     dummy_buf = CPG.STBCR3.BYTE;  /* (Dummy read)                                         */
     (void)dummy_buf;
 
-    if (us_ticker_inited) return;
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     // timer settings
@@ -86,7 +88,7 @@ void us_ticker_clear_interrupt(void)
     GIC_ClearPendingIRQ(OSTMI1_IRQn);
 }
 
-const ticker_info_t* us_ticker_get_info()
+const ticker_info_t *us_ticker_get_info()
 {
     static const ticker_info_t info = {
         (uint32_t)((float)RENESAS_RZ_A2_P0_CLK * 2 / (float)(1 << SHIFT_NUM) + 0.5f),

@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,179 +43,144 @@
 #ifndef ADC_IODEFINE_H
 #define ADC_IODEFINE_H
 
-struct st_adc
-{
-    union
-    {
+struct st_adc {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short DBLANS:5;
-            unsigned short :1;
-            unsigned short GBADIE:1;
-            unsigned short DBLE:1;
-            unsigned short EXTRG:1;
-            unsigned short TRGE:1;
-            unsigned short :1;
-            unsigned short :1;
-            unsigned short ADIE:1;
-            unsigned short ADCS:2;
-            unsigned short ADST:1;
+        struct {
+            unsigned short DBLANS: 5;
+            unsigned short : 1;
+            unsigned short GBADIE: 1;
+            unsigned short DBLE: 1;
+            unsigned short EXTRG: 1;
+            unsigned short TRGE: 1;
+            unsigned short : 1;
+            unsigned short : 1;
+            unsigned short ADIE: 1;
+            unsigned short ADCS: 2;
+            unsigned short ADST: 1;
         } BIT;
     } ADCSR;
     char           wk0[1];
     char           wk1[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short ANSA0:8;
-            unsigned short :8;
+        struct {
+            unsigned short ANSA0: 8;
+            unsigned short : 8;
         } BIT;
     } ADANSA0;
     char           wk2[2];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short ADS0:8;
-            unsigned short :8;
+        struct {
+            unsigned short ADS0: 8;
+            unsigned short : 8;
         } BIT;
     } ADADS0;
     char           wk3[2];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ADC_2_0:3;
-            unsigned char :4;
-            unsigned char AVEE:1;
+        struct {
+            unsigned char ADC_2_0: 3;
+            unsigned char : 4;
+            unsigned char AVEE: 1;
         } BIT;
     } ADADC;
     char           wk4[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short :1;
-            unsigned short ADPRC:2;
-            unsigned short :1;
-            unsigned short :1;
-            unsigned short ACE:1;
-            unsigned short :2;
-            unsigned short DIAGVAL:2;
-            unsigned short DIAGLD:1;
-            unsigned short DIAGM:1;
-            unsigned short :3;
-            unsigned short ADRFMT:1;
+        struct {
+            unsigned short : 1;
+            unsigned short ADPRC: 2;
+            unsigned short : 1;
+            unsigned short : 1;
+            unsigned short ACE: 1;
+            unsigned short : 2;
+            unsigned short DIAGVAL: 2;
+            unsigned short DIAGLD: 1;
+            unsigned short DIAGM: 1;
+            unsigned short : 3;
+            unsigned short ADRFMT: 1;
         } BIT;
     } ADCER;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short TRSB:6;
-            unsigned short :2;
-            unsigned short TRSA:6;
-            unsigned short :2;
+        struct {
+            unsigned short TRSB: 6;
+            unsigned short : 2;
+            unsigned short TRSA: 6;
+            unsigned short : 2;
         } BIT;
     } ADSTRGR;
     char           wk5[2];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short ANSB0:8;
-            unsigned short :8;
+        struct {
+            unsigned short ANSB0: 8;
+            unsigned short : 8;
         } BIT;
     } ADANSB0;
     char           wk6[2];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDBLDR;
     char           wk7[2];
     char           wk8[2];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADRD;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR0;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR1;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR2;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR3;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR4;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR5;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR6;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDR7;
     char           wk9[2];
@@ -256,13 +221,11 @@ struct st_adc
     char           wk44[2];
     char           wk45[2];
     char           wk46[2];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ADNDIS:5;
-            unsigned char :3;
+        struct {
+            unsigned char ADNDIS: 5;
+            unsigned char : 3;
         } BIT;
     } ADDISCR;
     char           wk47[1];
@@ -270,154 +233,126 @@ struct st_adc
     char           wk49[1];
     char           wk50[1];
     char           wk51[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short PGS:1;
-            unsigned short GBRSCN:1;
-            unsigned short :6;
-            unsigned short :1;
-            unsigned short :5;
-            unsigned short LGRRS:1;
-            unsigned short GBRP:1;
+        struct {
+            unsigned short PGS: 1;
+            unsigned short GBRSCN: 1;
+            unsigned short : 6;
+            unsigned short : 1;
+            unsigned short : 5;
+            unsigned short LGRRS: 1;
+            unsigned short GBRP: 1;
         } BIT;
     } ADGSPCR;
     char           wk52[2];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDBLDRA;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short AD:16;
+        struct {
+            unsigned short AD: 16;
         } BIT;
     } ADDBLDRB;
     char           wk53[1];
     char           wk54[1];
     char           wk55[1];
     char           wk56[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MONCOMB:1;
-            unsigned char :3;
-            unsigned char MONCMPA:1;
-            unsigned char MONCMPB:1;
-            unsigned char :2;
+        struct {
+            unsigned char MONCOMB: 1;
+            unsigned char : 3;
+            unsigned char MONCMPA: 1;
+            unsigned char MONCMPB: 1;
+            unsigned char : 2;
         } BIT;
     } ADWINMON;
     char           wk57[3];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short :2;
-            unsigned short :7;
-            unsigned short CMPBE:1;
-            unsigned short :1;
-            unsigned short CMPAE:1;
-            unsigned short :1;
-            unsigned short CMPBIE:1;
-            unsigned short WCMPE:1;
-            unsigned short CMPAIE:1;
+        struct {
+            unsigned short : 2;
+            unsigned short : 7;
+            unsigned short CMPBE: 1;
+            unsigned short : 1;
+            unsigned short CMPAE: 1;
+            unsigned short : 1;
+            unsigned short CMPBIE: 1;
+            unsigned short WCMPE: 1;
+            unsigned short CMPAIE: 1;
         } BIT;
     } ADCMPCR;
     char           wk58[1];
     char           wk59[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CMPCHA0:8;
-            unsigned short :8;
+        struct {
+            unsigned short CMPCHA0: 8;
+            unsigned short : 8;
         } BIT;
     } ADCMPANSR0;
     char           wk60[2];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CMPLCHA0:8;
-            unsigned short :8;
+        struct {
+            unsigned short CMPLCHA0: 8;
+            unsigned short : 8;
         } BIT;
     } ADCMPLR0;
     char           wk61[2];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CMPD0:16;
+        struct {
+            unsigned short CMPD0: 16;
         } BIT;
     } ADCMPDR0;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CMPD1:16;
+        struct {
+            unsigned short CMPD1: 16;
         } BIT;
     } ADCMPDR1;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CMPSTCHA0:8;
-            unsigned short :8;
+        struct {
+            unsigned short CMPSTCHA0: 8;
+            unsigned short : 8;
         } BIT;
     } ADCMPSR0;
     char           wk62[2];
     char           wk63[1];
     char           wk64[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char CMPCHB:6;
-            unsigned char :1;
-            unsigned char CMPLB:1;
+        struct {
+            unsigned char CMPCHB: 6;
+            unsigned char : 1;
+            unsigned char CMPLB: 1;
         } BIT;
     } ADCMPBNSR;
     char           wk65[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CMPLLB:16;
+        struct {
+            unsigned short CMPLLB: 16;
         } BIT;
     } ADWINLLB;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CMPULB:16;
+        struct {
+            unsigned short CMPULB: 16;
         } BIT;
     } ADWINULB;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char CMPSTB:1;
-            unsigned char :7;
+        struct {
+            unsigned char CMPSTB: 1;
+            unsigned char : 7;
         } BIT;
     } ADCMPBSR;
     char           wk66[3];
@@ -441,93 +376,73 @@ struct st_adc
     char           wk84[1];
     char           wk85[1];
     char           wk86[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short ANSC0:8;
-            unsigned short :8;
+        struct {
+            unsigned short ANSC0: 8;
+            unsigned short : 8;
         } BIT;
     } ADANSC0;
     char           wk87[2];
     char           wk88[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char TRSC:6;
-            unsigned char GCADIE:1;
-            unsigned char GRCE:1;
+        struct {
+            unsigned char TRSC: 6;
+            unsigned char GCADIE: 1;
+            unsigned char GRCE: 1;
         } BIT;
     } ADGCTRGR;
     char           wk89[3];
     char           wk90[1];
     char           wk91[1];
     char           wk92[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR0;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR1;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR2;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR3;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR4;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR5;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR6;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SST:8;
+        struct {
+            unsigned char SST: 8;
         } BIT;
     } ADSSTR7;
     char           wk93[1];

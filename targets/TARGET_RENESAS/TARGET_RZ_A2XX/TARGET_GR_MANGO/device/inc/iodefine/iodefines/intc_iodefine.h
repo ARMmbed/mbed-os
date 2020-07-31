@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,4640 +43,3715 @@
 #ifndef INTC_IODEFINE_H
 #define INTC_IODEFINE_H
 
-struct st_intc
-{
-    union
-    {
+struct st_intc {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long EnableGrp0:1;
-            unsigned long EnableGrp1:1;
-            unsigned long :30;
+        struct {
+            unsigned long EnableGrp0: 1;
+            unsigned long EnableGrp1: 1;
+            unsigned long : 30;
         } BIT;
     } GICD_CTLR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ITLinesNumber:5;
-            unsigned long CPUNumber:3;
-            unsigned long :2;
-            unsigned long SecurityExtn:1;
-            unsigned long LSPI:5;
-            unsigned long :16;
+        struct {
+            unsigned long ITLinesNumber: 5;
+            unsigned long CPUNumber: 3;
+            unsigned long : 2;
+            unsigned long SecurityExtn: 1;
+            unsigned long LSPI: 5;
+            unsigned long : 16;
         } BIT;
     } GICD_TYPER;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Implementer:12;
-            unsigned long Revision:4;
-            unsigned long Variant:4;
-            unsigned long :4;
-            unsigned long ProductID:8;
+        struct {
+            unsigned long Implementer: 12;
+            unsigned long Revision: 4;
+            unsigned long Variant: 4;
+            unsigned long : 4;
+            unsigned long ProductID: 8;
         } BIT;
     } GICD_IIDR;
     char           wk0[116];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Securitystatusbits:32;
+        struct {
+            unsigned long Securitystatusbits: 32;
         } BIT;
     } GICD_IGROUPR15;
     char           wk1[64];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_enablebits:32;
+        struct {
+            unsigned long Set_enablebits: 32;
         } BIT;
     } GICD_ISENABLER15;
     char           wk2[64];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_enablebits:32;
+        struct {
+            unsigned long Clear_enablebits: 32;
         } BIT;
     } GICD_ICENABLER15;
     char           wk3[64];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Set_pendingbits:32;
+        struct {
+            unsigned long Set_pendingbits: 32;
         } BIT;
     } GICD_ISPENDR15;
     char           wk4[64];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Clear_pendingbits:32;
+        struct {
+            unsigned long Clear_pendingbits: 32;
         } BIT;
     } GICD_ICPENDR15;
     char           wk5[64];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ISACTIVER15;
     char           wk6[64];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Activebits:32;
+        struct {
+            unsigned long Activebits: 32;
         } BIT;
     } GICD_ICACTIVER15;
     char           wk7[64];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR15;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR16;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR17;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR18;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR19;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR20;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR21;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR22;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR23;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR24;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR25;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR26;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR27;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR28;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR29;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR30;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR31;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR32;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR33;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR34;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR35;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR36;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR37;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR38;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR39;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR40;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR41;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR42;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR43;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR44;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR45;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR46;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR47;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR48;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR49;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR50;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR51;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR52;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR53;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR54;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR55;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR56;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR57;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR58;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR59;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR60;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR61;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR62;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR63;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR64;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR65;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR66;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR67;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR68;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR69;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR70;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR71;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR72;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR73;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR74;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR75;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR76;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR77;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR78;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR79;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR80;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR81;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR82;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR83;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR84;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR85;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR86;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR87;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR88;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR89;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR90;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR91;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR92;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR93;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR94;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR95;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR96;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR97;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR98;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR99;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR100;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR101;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR102;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR103;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR104;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR105;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR106;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR107;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR108;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR109;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR110;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR111;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR112;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR113;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR114;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR115;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR116;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR117;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR118;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR119;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR120;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR121;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR122;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR123;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR124;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR125;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR126;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Prioritybyteoffset0:8;
-            unsigned long Prioritybyteoffset1:8;
-            unsigned long Prioritybyteoffset2:8;
-            unsigned long Prioritybyteoffset3:8;
+        struct {
+            unsigned long Prioritybyteoffset0: 8;
+            unsigned long Prioritybyteoffset1: 8;
+            unsigned long Prioritybyteoffset2: 8;
+            unsigned long Prioritybyteoffset3: 8;
         } BIT;
     } GICD_IPRIORITYR127;
     char           wk8[512];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR15;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR16;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR17;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR18;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR19;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR20;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR21;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR22;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR23;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR24;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR25;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR26;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR27;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR28;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR29;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR30;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR31;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR32;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR33;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR34;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR35;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR36;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR37;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR38;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR39;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR40;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR41;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR42;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR43;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR44;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR45;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR46;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR47;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR48;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR49;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR50;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR51;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR52;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR53;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR54;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR55;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR56;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR57;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR58;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR59;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR60;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR61;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR62;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR63;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR64;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR65;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR66;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR67;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR68;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR69;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR70;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR71;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR72;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR73;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR74;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR75;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR76;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR77;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR78;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR79;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR80;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR81;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR82;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR83;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR84;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR85;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR86;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR87;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR88;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR89;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR90;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR91;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR92;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR93;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR94;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR95;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR96;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR97;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR98;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR99;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR100;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR101;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR102;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR103;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR104;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR105;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR106;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR107;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR108;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR109;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR110;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR111;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR112;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR113;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR114;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR115;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR116;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR117;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR118;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR119;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR120;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR121;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR122;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR123;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR124;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR125;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR126;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CPUtargetsbyteoffset0:8;
-            unsigned long CPUtargetsbyteoffset1:8;
-            unsigned long CPUtargetsbyteoffset2:8;
-            unsigned long CPUtargetsbyteoffset3:8;
+        struct {
+            unsigned long CPUtargetsbyteoffset0: 8;
+            unsigned long CPUtargetsbyteoffset1: 8;
+            unsigned long CPUtargetsbyteoffset2: 8;
+            unsigned long CPUtargetsbyteoffset3: 8;
         } BIT;
     } GICD_ITARGETR127;
     char           wk9[512];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR14;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR15;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR16;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR17;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR18;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR19;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR20;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR21;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR22;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR23;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR24;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR25;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR26;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR27;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR28;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR29;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR30;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Int_config:32;
+        struct {
+            unsigned long Int_config: 32;
         } BIT;
     } GICD_ICFGR31;
     char           wk10[128];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ppi_status:16;
-            unsigned long :16;
+        struct {
+            unsigned long ppi_status: 16;
+            unsigned long : 16;
         } BIT;
     } GICD_PPISR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR8;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR9;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR10;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR11;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR12;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR13;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long spi_status:32;
+        struct {
+            unsigned long spi_status: 32;
         } BIT;
     } GICD_SPISR14;
     char           wk11[448];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGIINTID:4;
-            unsigned long :11;
-            unsigned long NSATT:1;
-            unsigned long CPUTargetList:8;
-            unsigned long TargetListFilter:2;
-            unsigned long :6;
+        struct {
+            unsigned long SGIINTID: 4;
+            unsigned long : 11;
+            unsigned long NSATT: 1;
+            unsigned long CPUTargetList: 8;
+            unsigned long TargetListFilter: 2;
+            unsigned long : 6;
         } BIT;
     } GICD_SGIR;
     char           wk12[12];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI0_Clers_pending:8;
-            unsigned long SGI1_Clers_pending:8;
-            unsigned long SGI2_Clers_pending:8;
-            unsigned long SGI3_Clers_pending:8;
+        struct {
+            unsigned long SGI0_Clers_pending: 8;
+            unsigned long SGI1_Clers_pending: 8;
+            unsigned long SGI2_Clers_pending: 8;
+            unsigned long SGI3_Clers_pending: 8;
         } BIT;
     } GICD_CPENDSGIR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI4_Clers_pending:8;
-            unsigned long SGI5_Clers_pending:8;
-            unsigned long SGI6_Clers_pending:8;
-            unsigned long SGI7_Clers_pending:8;
+        struct {
+            unsigned long SGI4_Clers_pending: 8;
+            unsigned long SGI5_Clers_pending: 8;
+            unsigned long SGI6_Clers_pending: 8;
+            unsigned long SGI7_Clers_pending: 8;
         } BIT;
     } GICD_CPENDSGIR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI8_Clers_pending:8;
-            unsigned long SGI9_Clers_pending:8;
-            unsigned long SGI10_Clers_pending:8;
-            unsigned long SGI11_Clers_pending:8;
+        struct {
+            unsigned long SGI8_Clers_pending: 8;
+            unsigned long SGI9_Clers_pending: 8;
+            unsigned long SGI10_Clers_pending: 8;
+            unsigned long SGI11_Clers_pending: 8;
         } BIT;
     } GICD_CPENDSGIR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI12_Clers_pending:8;
-            unsigned long SGI13_Clers_pending:8;
-            unsigned long SGI14_Clers_pending:8;
-            unsigned long SGI15_Clers_pending:8;
+        struct {
+            unsigned long SGI12_Clers_pending: 8;
+            unsigned long SGI13_Clers_pending: 8;
+            unsigned long SGI14_Clers_pending: 8;
+            unsigned long SGI15_Clers_pending: 8;
         } BIT;
     } GICD_CPENDSGIR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI0_Set_pending:8;
-            unsigned long SGI1_Set_pending:8;
-            unsigned long SGI2_Set_pending:8;
-            unsigned long SGI3_Set_pending:8;
+        struct {
+            unsigned long SGI0_Set_pending: 8;
+            unsigned long SGI1_Set_pending: 8;
+            unsigned long SGI2_Set_pending: 8;
+            unsigned long SGI3_Set_pending: 8;
         } BIT;
     } GICD_SPENDSGIR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI4_Set_pending:8;
-            unsigned long SGI5_Set_pending:8;
-            unsigned long SGI6_Set_pending:8;
-            unsigned long SGI7_Set_pending:8;
+        struct {
+            unsigned long SGI4_Set_pending: 8;
+            unsigned long SGI5_Set_pending: 8;
+            unsigned long SGI6_Set_pending: 8;
+            unsigned long SGI7_Set_pending: 8;
         } BIT;
     } GICD_SPENDSGIR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI8_Set_pending:8;
-            unsigned long SGI9_Set_pending:8;
-            unsigned long SGI10_Set_pending:8;
-            unsigned long SGI11_Set_pending:8;
+        struct {
+            unsigned long SGI8_Set_pending: 8;
+            unsigned long SGI9_Set_pending: 8;
+            unsigned long SGI10_Set_pending: 8;
+            unsigned long SGI11_Set_pending: 8;
         } BIT;
     } GICD_SPENDSGIR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SGI12_Set_pending:8;
-            unsigned long SGI13_Set_pending:8;
-            unsigned long SGI14_Set_pending:8;
-            unsigned long SGI15_Set_pending:8;
+        struct {
+            unsigned long SGI12_Set_pending: 8;
+            unsigned long SGI13_Set_pending: 8;
+            unsigned long SGI14_Set_pending: 8;
+            unsigned long SGI15_Set_pending: 8;
         } BIT;
     } GICD_SPENDSGIR3;
     char           wk13[160];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_CCfield:4;
-            unsigned long ARM_Reserved:4;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_CCfield: 4;
+            unsigned long ARM_Reserved: 4;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_Reserved:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_Reserved: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_Reserved:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_Reserved: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_Reserved:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_Reserved: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_DIDfield:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_DIDfield: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_DIDfield:4;
-            unsigned long ARM_AIDfield:4;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_DIDfield: 4;
+            unsigned long ARM_AIDfield: 4;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_AIDfield:3;
-            unsigned long ARM_UJEPfield:1;
-            unsigned long Arfield:4;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_AIDfield: 3;
+            unsigned long ARM_UJEPfield: 1;
+            unsigned long Arfield: 4;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_Reserved:4;
-            unsigned long ARM_Rfield:4;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_Reserved: 4;
+            unsigned long ARM_Rfield: 4;
+            unsigned long : 24;
         } BIT;
     } GICD_PIDR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_FVPCD:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_FVPCD: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_CIDR0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_FVPCD:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_FVPCD: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_CIDR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_FVPCD:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_FVPCD: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_CIDR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ARM_FVPCD:8;
-            unsigned long :24;
+        struct {
+            unsigned long ARM_FVPCD: 8;
+            unsigned long : 24;
         } BIT;
     } GICD_CIDR3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long EnableGrp0:1;
-            unsigned long EnableGrp1:1;
-            unsigned long AckCtl:1;
-            unsigned long FIQEn:1;
-            unsigned long CBPR:1;
-            unsigned long FIQBypDisGrp0:1;
-            unsigned long IRQBypDisGrp0:1;
-            unsigned long FIQBypDisGrp1:1;
-            unsigned long IRQBypDisGrp1:1;
-            unsigned long EOImodeS:1;
-            unsigned long EOImodeNS:1;
-            unsigned long :21;
+        struct {
+            unsigned long EnableGrp0: 1;
+            unsigned long EnableGrp1: 1;
+            unsigned long AckCtl: 1;
+            unsigned long FIQEn: 1;
+            unsigned long CBPR: 1;
+            unsigned long FIQBypDisGrp0: 1;
+            unsigned long IRQBypDisGrp0: 1;
+            unsigned long FIQBypDisGrp1: 1;
+            unsigned long IRQBypDisGrp1: 1;
+            unsigned long EOImodeS: 1;
+            unsigned long EOImodeNS: 1;
+            unsigned long : 21;
         } BIT;
     } GICC_CTLR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Priority:8;
-            unsigned long :24;
+        struct {
+            unsigned long Priority: 8;
+            unsigned long : 24;
         } BIT;
     } GICC_PMR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Binarypoint:3;
-            unsigned long :29;
+        struct {
+            unsigned long Binarypoint: 3;
+            unsigned long : 29;
         } BIT;
     } GICC_BPR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long InterruptID:10;
-            unsigned long CPUID:3;
-            unsigned long :19;
+        struct {
+            unsigned long InterruptID: 10;
+            unsigned long CPUID: 3;
+            unsigned long : 19;
         } BIT;
     } GICC_IAR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long EOIINTID:10;
-            unsigned long CPUID:3;
-            unsigned long :19;
+        struct {
+            unsigned long EOIINTID: 10;
+            unsigned long CPUID: 3;
+            unsigned long : 19;
         } BIT;
     } GICC_EOIR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Priority:8;
-            unsigned long :24;
+        struct {
+            unsigned long Priority: 8;
+            unsigned long : 24;
         } BIT;
     } GICC_RPR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PENDINTID:10;
-            unsigned long CPUID:3;
-            unsigned long :19;
+        struct {
+            unsigned long PENDINTID: 10;
+            unsigned long CPUID: 3;
+            unsigned long : 19;
         } BIT;
     } GICC_HPPIR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Binarypoint:3;
-            unsigned long :29;
+        struct {
+            unsigned long Binarypoint: 3;
+            unsigned long : 29;
         } BIT;
     } GICC_ABPR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long InterruptID:10;
-            unsigned long CPUID:3;
-            unsigned long :19;
+        struct {
+            unsigned long InterruptID: 10;
+            unsigned long CPUID: 3;
+            unsigned long : 19;
         } BIT;
     } GICC_AIAR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long InterruptID:10;
-            unsigned long CPUID:3;
-            unsigned long :19;
+        struct {
+            unsigned long InterruptID: 10;
+            unsigned long CPUID: 3;
+            unsigned long : 19;
         } BIT;
     } GICC_AEOIR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PENDINTID:10;
-            unsigned long CPUID:3;
-            unsigned long :19;
+        struct {
+            unsigned long PENDINTID: 10;
+            unsigned long CPUID: 3;
+            unsigned long : 19;
         } BIT;
     } GICC_AHPPIR;
     char           wk14[164];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long AP_Group0:32;
+        struct {
+            unsigned long AP_Group0: 32;
         } BIT;
     } GICC_APR0;
     char           wk15[12];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long AP_Group1:16;
-            unsigned long AP_Group0:16;
+        struct {
+            unsigned long AP_Group1: 16;
+            unsigned long AP_Group0: 16;
         } BIT;
     } GICC_NSAPR0;
     char           wk16[24];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long Implementer:12;
-            unsigned long Revision:4;
-            unsigned long Architectureversion:4;
-            unsigned long ProductID:12;
+        struct {
+            unsigned long Implementer: 12;
+            unsigned long Revision: 4;
+            unsigned long Architectureversion: 4;
+            unsigned long ProductID: 12;
         } BIT;
     } GICC_IIDR;
     char           wk17[3840];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long InterruptID:10;
-            unsigned long CPUID:3;
-            unsigned long :19;
+        struct {
+            unsigned long InterruptID: 10;
+            unsigned long CPUID: 3;
+            unsigned long : 19;
         } BIT;
     } GICC_DIR;
     char           wk18[350013436];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short :1;
-            unsigned short NMIF:1;
-            unsigned short :6;
-            unsigned short NMIE:1;
-            unsigned short :6;
-            unsigned short NMIL:1;
+        struct {
+            unsigned short : 1;
+            unsigned short NMIF: 1;
+            unsigned short : 6;
+            unsigned short NMIE: 1;
+            unsigned short : 6;
+            unsigned short NMIL: 1;
         } BIT;
     } ICR0;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short IRQ00S:1;
-            unsigned short IRQ01S:1;
-            unsigned short IRQ10S:1;
-            unsigned short IRQ11S:1;
-            unsigned short IRQ20S:1;
-            unsigned short IRQ21S:1;
-            unsigned short IRQ30S:1;
-            unsigned short IRQ31S:1;
-            unsigned short IRQ40S:1;
-            unsigned short IRQ41S:1;
-            unsigned short IRQ50S:1;
-            unsigned short IRQ51S:1;
-            unsigned short IRQ60S:1;
-            unsigned short IRQ61S:1;
-            unsigned short IRQ70S:1;
-            unsigned short IRQ71S:1;
+        struct {
+            unsigned short IRQ00S: 1;
+            unsigned short IRQ01S: 1;
+            unsigned short IRQ10S: 1;
+            unsigned short IRQ11S: 1;
+            unsigned short IRQ20S: 1;
+            unsigned short IRQ21S: 1;
+            unsigned short IRQ30S: 1;
+            unsigned short IRQ31S: 1;
+            unsigned short IRQ40S: 1;
+            unsigned short IRQ41S: 1;
+            unsigned short IRQ50S: 1;
+            unsigned short IRQ51S: 1;
+            unsigned short IRQ60S: 1;
+            unsigned short IRQ61S: 1;
+            unsigned short IRQ70S: 1;
+            unsigned short IRQ71S: 1;
         } BIT;
     } ICR1;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short IRQ0F:1;
-            unsigned short IRQ1F:1;
-            unsigned short IRQ2F:1;
-            unsigned short IRQ3F:1;
-            unsigned short IRQ4F:1;
-            unsigned short IRQ5F:1;
-            unsigned short IRQ6F:1;
-            unsigned short IRQ7F:1;
-            unsigned short :7;
-            unsigned short IRQMSK:1;
+        struct {
+            unsigned short IRQ0F: 1;
+            unsigned short IRQ1F: 1;
+            unsigned short IRQ2F: 1;
+            unsigned short IRQ3F: 1;
+            unsigned short IRQ4F: 1;
+            unsigned short IRQ5F: 1;
+            unsigned short IRQ6F: 1;
+            unsigned short IRQ7F: 1;
+            unsigned short : 7;
+            unsigned short IRQMSK: 1;
         } BIT;
     } IRQRR;
     char           wk19[2];
     char           wk20[2];
     char           wk21[6];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short DP:1;
-            unsigned short DM:1;
-            unsigned short :6;
-            unsigned short VBUSIN:1;
-            unsigned short OVRCLR:1;
-            unsigned short CC1_RD:1;
-            unsigned short CC2_RD:1;
-            unsigned short :4;
+        struct {
+            unsigned short DP: 1;
+            unsigned short DM: 1;
+            unsigned short : 6;
+            unsigned short VBUSIN: 1;
+            unsigned short OVRCLR: 1;
+            unsigned short CC1_RD: 1;
+            unsigned short CC2_RD: 1;
+            unsigned short : 4;
         } BIT;
     } SSTBCCR0;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short DP:1;
-            unsigned short DM:1;
-            unsigned short :6;
-            unsigned short VBUSIN:1;
-            unsigned short OVRCLR:1;
-            unsigned short CC1_RD:1;
-            unsigned short CC2_RD:1;
-            unsigned short :4;
+        struct {
+            unsigned short DP: 1;
+            unsigned short DM: 1;
+            unsigned short : 6;
+            unsigned short VBUSIN: 1;
+            unsigned short OVRCLR: 1;
+            unsigned short CC1_RD: 1;
+            unsigned short CC2_RD: 1;
+            unsigned short : 4;
         } BIT;
     } SSTBCCR1;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short DP:1;
-            unsigned short DM:1;
-            unsigned short :6;
-            unsigned short VBUSIN:1;
-            unsigned short OVRCLR:1;
-            unsigned short CC1_RD:1;
-            unsigned short CC2_RD:1;
-            unsigned short :4;
+        struct {
+            unsigned short DP: 1;
+            unsigned short DM: 1;
+            unsigned short : 6;
+            unsigned short VBUSIN: 1;
+            unsigned short OVRCLR: 1;
+            unsigned short CC1_RD: 1;
+            unsigned short CC2_RD: 1;
+            unsigned short : 4;
         } BIT;
     } SSTBCRR0;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short DP:1;
-            unsigned short DM:1;
-            unsigned short :6;
-            unsigned short VBUSIN:1;
-            unsigned short OVRCLR:1;
-            unsigned short CC1_RD:1;
-            unsigned short CC2_RD:1;
-            unsigned short :4;
+        struct {
+            unsigned short DP: 1;
+            unsigned short DM: 1;
+            unsigned short : 6;
+            unsigned short VBUSIN: 1;
+            unsigned short OVRCLR: 1;
+            unsigned short CC1_RD: 1;
+            unsigned short CC2_RD: 1;
+            unsigned short : 4;
         } BIT;
     } SSTBCRR1;
 };

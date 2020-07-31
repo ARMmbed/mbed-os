@@ -29,7 +29,8 @@ static const volatile struct st_gpt32e *GPT32E[] = {
     &GPT32E4, &GPT32E5, &GPT32E6, &GPT32E7
 };
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
     // determine the channel
     PWMName index = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(index != (PWMName)NC);
@@ -69,11 +70,13 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     obj->pwm->GTCR.BIT.CST = 0x01;
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t *obj)
+{
     pwmout_write(obj, 0);
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
+void pwmout_write(pwmout_t *obj, float value)
+{
     if (value < 0.0f) {
         value = 0.0f;
     } else if (value > 1.0f) {
@@ -109,7 +112,8 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t *obj)
+{
     float value;
 
     if (obj->type == 0) {
@@ -121,16 +125,19 @@ float pwmout_read(pwmout_t* obj) {
     return (value > 1.0f) ? (1.0f) : (value);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t *obj, int us)
+{
     uint32_t pclk_base;
     uint32_t wk_cycle;
 
@@ -159,15 +166,18 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     pwmout_write(obj, obj->duty);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
     float value = 0;
 
     if (RZ_A2_IsClockMode0() == false) {

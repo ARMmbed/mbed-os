@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,300 +43,247 @@
 #ifndef IMR_IODEFINE_H
 #define IMR_IODEFINE_H
 
-struct st_imr
-{
-    union
-    {
+struct st_imr {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long RS:1;
-            unsigned long ARS:1;
-            unsigned long SFE:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :9;
-            unsigned long SWRST:1;
-            unsigned long :16;
+        struct {
+            unsigned long RS: 1;
+            unsigned long ARS: 1;
+            unsigned long SFE: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 9;
+            unsigned long SWRST: 1;
+            unsigned long : 16;
         } BIT;
     } CR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TRA:1;
-            unsigned long IER:1;
-            unsigned long INT:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long DSA:1;
-            unsigned long SFS:1;
-            unsigned long :24;
+        struct {
+            unsigned long TRA: 1;
+            unsigned long IER: 1;
+            unsigned long INT: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long DSA: 1;
+            unsigned long SFS: 1;
+            unsigned long : 24;
         } BIT;
     } SR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TRACLR:1;
-            unsigned long IERCLR:1;
-            unsigned long INTCLR:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :27;
+        struct {
+            unsigned long TRACLR: 1;
+            unsigned long IERCLR: 1;
+            unsigned long INTCLR: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 27;
         } BIT;
     } SRCR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TRAENB:1;
-            unsigned long IERENB:1;
-            unsigned long INTENB:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :27;
+        struct {
+            unsigned long TRAENB: 1;
+            unsigned long IERENB: 1;
+            unsigned long INTENB: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 27;
         } BIT;
     } ICR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TEAM:1;
-            unsigned long IEM:1;
-            unsigned long INM:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :27;
+        struct {
+            unsigned long TEAM: 1;
+            unsigned long IEM: 1;
+            unsigned long INM: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 27;
         } BIT;
     } IMR;
     char           wk0[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DLP:32;
+        struct {
+            unsigned long DLP: 32;
         } BIT;
     } DLPR;
     char           wk1[12];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :3;
-            unsigned long DLSA:29;
+        struct {
+            unsigned long : 3;
+            unsigned long DLSA: 29;
         } BIT;
     } DLSAR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :5;
-            unsigned long DSA:27;
+        struct {
+            unsigned long : 5;
+            unsigned long DSA: 27;
         } BIT;
     } DSAR;
     char           wk2[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DST:14;
-            unsigned long :18;
+        struct {
+            unsigned long DST: 14;
+            unsigned long : 18;
         } BIT;
     } DSTR;
     char           wk3[8];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :5;
-            unsigned long DSA2:27;
+        struct {
+            unsigned long : 5;
+            unsigned long DSA2: 27;
         } BIT;
     } DSAR2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :3;
-            unsigned long DLSA2:29;
+        struct {
+            unsigned long : 3;
+            unsigned long DLSA2: 29;
         } BIT;
     } DLSAR2;
     char           wk4[4];
     char           wk5[4];
     char           wk6[4];
     char           wk7[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TME:1;
-            unsigned long BFE:1;
-            unsigned long AUTODG:1;
-            unsigned long AUTOSG:1;
-            unsigned long DXDYM:1;
-            unsigned long DUDVM:1;
-            unsigned long TCM:1;
-            unsigned long :25;
+        struct {
+            unsigned long TME: 1;
+            unsigned long BFE: 1;
+            unsigned long AUTODG: 1;
+            unsigned long AUTOSG: 1;
+            unsigned long DXDYM: 1;
+            unsigned long DUDVM: 1;
+            unsigned long TCM: 1;
+            unsigned long : 25;
         } BIT;
     } TRIMR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TMES:1;
-            unsigned long BFES:1;
-            unsigned long AUTODGS:1;
-            unsigned long AUTOSGS:1;
-            unsigned long DXDYMS:1;
-            unsigned long DUDVMS:1;
-            unsigned long TCMS:1;
-            unsigned long :25;
+        struct {
+            unsigned long TMES: 1;
+            unsigned long BFES: 1;
+            unsigned long AUTODGS: 1;
+            unsigned long AUTOSGS: 1;
+            unsigned long DXDYMS: 1;
+            unsigned long DUDVMS: 1;
+            unsigned long TCMS: 1;
+            unsigned long : 25;
         } BIT;
     } TRIMSR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TMEC:1;
-            unsigned long BFEC:1;
-            unsigned long AUTODGC:1;
-            unsigned long AUTOSGC:1;
-            unsigned long DXDYMC:1;
-            unsigned long DUDVMC:1;
-            unsigned long TCMC:1;
-            unsigned long :25;
+        struct {
+            unsigned long TMEC: 1;
+            unsigned long BFEC: 1;
+            unsigned long AUTODGC: 1;
+            unsigned long AUTOSGC: 1;
+            unsigned long DXDYMC: 1;
+            unsigned long DUDVMC: 1;
+            unsigned long TCMC: 1;
+            unsigned long : 25;
         } BIT;
     } TRIMCR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TCY:8;
-            unsigned long TCU:8;
-            unsigned long TCV:8;
-            unsigned long :2;
-            unsigned long :5;
-            unsigned long YCFORM:1;
+        struct {
+            unsigned long TCY: 8;
+            unsigned long TCU: 8;
+            unsigned long TCV: 8;
+            unsigned long : 2;
+            unsigned long : 5;
+            unsigned long YCFORM: 1;
         } BIT;
     } TRICR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long UVDPO:3;
-            unsigned long :5;
-            unsigned long DDP:1;
-            unsigned long :23;
+        struct {
+            unsigned long UVDPO: 3;
+            unsigned long : 5;
+            unsigned long DDP: 1;
+            unsigned long : 23;
         } BIT;
     } UVDPOR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SVW:11;
-            unsigned long :5;
-            unsigned long SUW:11;
-            unsigned long :5;
+        struct {
+            unsigned long SVW: 11;
+            unsigned long : 5;
+            unsigned long SUW: 11;
+            unsigned long : 5;
         } BIT;
     } SUSR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SVS:11;
-            unsigned long :21;
+        struct {
+            unsigned long SVS: 11;
+            unsigned long : 21;
         } BIT;
     } SVSR;
     char           wk8[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long XMIN:13;
-            unsigned long :19;
+        struct {
+            unsigned long XMIN: 13;
+            unsigned long : 19;
         } BIT;
     } XMINR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long YMIN:13;
-            unsigned long :19;
+        struct {
+            unsigned long YMIN: 13;
+            unsigned long : 19;
         } BIT;
     } YMINR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long XMAX:13;
-            unsigned long :19;
+        struct {
+            unsigned long XMAX: 13;
+            unsigned long : 19;
         } BIT;
     } XMAXR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long YMAX:13;
-            unsigned long :19;
+        struct {
+            unsigned long YMAX: 13;
+            unsigned long : 19;
         } BIT;
     } YMAXR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long AMXS:13;
-            unsigned long :19;
+        struct {
+            unsigned long AMXS: 13;
+            unsigned long : 19;
         } BIT;
     } AMXSR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long AMYS:13;
-            unsigned long :19;
+        struct {
+            unsigned long AMYS: 13;
+            unsigned long : 19;
         } BIT;
     } AMYSR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long AMXO:13;
-            unsigned long :19;
+        struct {
+            unsigned long AMXO: 13;
+            unsigned long : 19;
         } BIT;
     } AMXOR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long AMYO:13;
-            unsigned long :19;
+        struct {
+            unsigned long AMYO: 13;
+            unsigned long : 19;
         } BIT;
     } AMYOR;
     char           wk9[16];
@@ -352,67 +299,55 @@ struct st_imr
     char           wk19[4];
     char           wk20[4];
     char           wk21[32];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :9;
-            unsigned long :1;
-            unsigned long :2;
-            unsigned long EMAM:1;
-            unsigned long :17;
-            unsigned long :1;
-            unsigned long :1;
+        struct {
+            unsigned long : 9;
+            unsigned long : 1;
+            unsigned long : 2;
+            unsigned long EMAM: 1;
+            unsigned long : 17;
+            unsigned long : 1;
+            unsigned long : 1;
         } BIT;
     } MACR1;
     char           wk22[4];
     char           wk23[2296];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LSPR:10;
-            unsigned long :22;
+        struct {
+            unsigned long LSPR: 10;
+            unsigned long : 22;
         } BIT;
     } LSPR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LEPR:10;
-            unsigned long :22;
+        struct {
+            unsigned long LEPR: 10;
+            unsigned long : 22;
         } BIT;
     } LEPR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LMSR:3;
-            unsigned long :29;
+        struct {
+            unsigned long LMSR: 3;
+            unsigned long : 29;
         } BIT;
     } LMSR;
     char           wk24[20];
     char           wk25[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SPPC:11;
-            unsigned long :21;
+        struct {
+            unsigned long SPPC: 11;
+            unsigned long : 21;
         } BIT;
     } LMSPPCR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long EPPC:11;
-            unsigned long :21;
+        struct {
+            unsigned long EPPC: 11;
+            unsigned long : 21;
         } BIT;
     } LMEPPCR;
 };

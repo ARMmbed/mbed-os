@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,201 +43,160 @@
 #ifndef SCIM_IODEFINE_H
 #define SCIM_IODEFINE_H
 
-struct st_scim
-{
-    union
-    {
+struct st_scim {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char CKS:2;
-            unsigned char MP:1;
-            unsigned char STOP:1;
-            unsigned char PM:1;
-            unsigned char PE:1;
-            unsigned char CHR:1;
-            unsigned char CM:1;
+        struct {
+            unsigned char CKS: 2;
+            unsigned char MP: 1;
+            unsigned char STOP: 1;
+            unsigned char PM: 1;
+            unsigned char PE: 1;
+            unsigned char CHR: 1;
+            unsigned char CM: 1;
         } BIT;
     } SMR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BRR:8;
+        struct {
+            unsigned char BRR: 8;
         } BIT;
     } BRR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char CKE:2;
-            unsigned char TEIE:1;
-            unsigned char MPIE:1;
-            unsigned char RE:1;
-            unsigned char TE:1;
-            unsigned char RIE:1;
-            unsigned char TIE:1;
+        struct {
+            unsigned char CKE: 2;
+            unsigned char TEIE: 1;
+            unsigned char MPIE: 1;
+            unsigned char RE: 1;
+            unsigned char TE: 1;
+            unsigned char RIE: 1;
+            unsigned char TIE: 1;
         } BIT;
     } SCR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char TDR:8;
+        struct {
+            unsigned char TDR: 8;
         } BIT;
     } TDR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MPBT:1;
-            unsigned char MPB:1;
-            unsigned char TEND:1;
-            unsigned char PER:1;
-            unsigned char FER:1;
-            unsigned char ORER:1;
-            unsigned char RDRF:1;
-            unsigned char TDRE:1;
+        struct {
+            unsigned char MPBT: 1;
+            unsigned char MPB: 1;
+            unsigned char TEND: 1;
+            unsigned char PER: 1;
+            unsigned char FER: 1;
+            unsigned char ORER: 1;
+            unsigned char RDRF: 1;
+            unsigned char TDRE: 1;
         } BIT;
     } SSR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RDR:8;
+        struct {
+            unsigned char RDR: 8;
         } BIT;
     } RDR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SMIF:1;
-            unsigned char :1;
-            unsigned char SINV:1;
-            unsigned char SDIR:1;
-            unsigned char CHR1:1;
-            unsigned char :2;
-            unsigned char BCP2:1;
+        struct {
+            unsigned char SMIF: 1;
+            unsigned char : 1;
+            unsigned char SINV: 1;
+            unsigned char SDIR: 1;
+            unsigned char CHR1: 1;
+            unsigned char : 2;
+            unsigned char BCP2: 1;
         } BIT;
     } SCMR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ACS0:1;
-            unsigned char :1;
-            unsigned char BRME:1;
-            unsigned char :1;
-            unsigned char ABCS:1;
-            unsigned char NFEN:1;
-            unsigned char BGDM:1;
-            unsigned char RXDESEL:1;
+        struct {
+            unsigned char ACS0: 1;
+            unsigned char : 1;
+            unsigned char BRME: 1;
+            unsigned char : 1;
+            unsigned char ABCS: 1;
+            unsigned char NFEN: 1;
+            unsigned char BGDM: 1;
+            unsigned char RXDESEL: 1;
         } BIT;
     } SEMR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char NFCS:3;
-            unsigned char :5;
+        struct {
+            unsigned char NFCS: 3;
+            unsigned char : 5;
         } BIT;
     } SNFR;
     char           wk0[4];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :1;
-            unsigned char CTSE:1;
-            unsigned char :1;
-            unsigned char :1;
-            unsigned char :1;
-            unsigned char :1;
-            unsigned char :1;
-            unsigned char :1;
+        struct {
+            unsigned char : 1;
+            unsigned char CTSE: 1;
+            unsigned char : 1;
+            unsigned char : 1;
+            unsigned char : 1;
+            unsigned char : 1;
+            unsigned char : 1;
+            unsigned char : 1;
         } BIT;
     } SECR;
-    union
-    {
-        struct
-        {
-            union
-            {
+    union {
+        struct {
+            union {
                 unsigned short WORD;
-                struct
-                {
-                    unsigned short TDRHL:16;
+                struct {
+                    unsigned short TDRHL: 16;
                 } BIT;
             } TDRHL;
-        }W;
-        struct
-        {
-            union
-            {
+        } W;
+        struct {
+            union {
                 unsigned char BYTE;
-                struct
-                {
-                    unsigned char TDRH:8;
+                struct {
+                    unsigned char TDRH: 8;
                 } BIT;
             } TDRH;
-            union
-            {
+            union {
                 unsigned char BYTE;
-                struct
-                {
-                    unsigned char TDRL:8;
+                struct {
+                    unsigned char TDRL: 8;
                 } BIT;
             } TDRL;
-        }B;
+        } B;
     } TDRHL;
-    union
-    {
-        struct
-        {
-            union
-            {
+    union {
+        struct {
+            union {
                 unsigned short WORD;
-                struct
-                {
-                    unsigned short RDRHL:16;
+                struct {
+                    unsigned short RDRHL: 16;
                 } BIT;
             } RDRHL;
-        }W;
-        struct
-        {
-            union
-            {
+        } W;
+        struct {
+            union {
                 unsigned char BYTE;
-                struct
-                {
-                    unsigned char RDRH:8;
+                struct {
+                    unsigned char RDRH: 8;
                 } BIT;
             } RDRH;
-            union
-            {
+            union {
                 unsigned char BYTE;
-                struct
-                {
-                    unsigned char RDRL:8;
+                struct {
+                    unsigned char RDRL: 8;
                 } BIT;
             } RDRL;
-        }B;
+        } B;
     } RDRHL;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MDDR:8;
+        struct {
+            unsigned char MDDR: 8;
         } BIT;
     } MDDR;
 };

@@ -39,7 +39,7 @@
 
 /* Guards against multiple inclusion */
 #ifndef R_ETHER_RZA2_CONFIG_H
-    #define R_ETHER_RZA2_CONFIG_H
+#define R_ETHER_RZA2_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,52 +52,52 @@ extern "C" {
  1 = enable
  If only one of them is enabled, the API argument "channel" value is not referenced.
  */
-    #define ETHER_CH0_EN                                (0)
-    #define ETHER_CH1_EN                                (1)
+#define ETHER_CH0_EN                                (0)
+#define ETHER_CH1_EN                                (1)
 
 /* Ethernet interface select.
  0 = MII  (Media Independent Interface)
  1 = RMII (Reduced Media Independent Interface)
  */
-    #define ETHER_CFG_MODE_SEL                          (0)
+#define ETHER_CFG_MODE_SEL                          (0)
 
 /* PHY-LSI address setting for ETHER0/1.
  */
-    #define ETHER_CFG_CH0_PHY_ADDRESS                   (0)     /* Please define the PHY-LSI address in the range of 0-31. */
-    #define ETHER_CFG_CH1_PHY_ADDRESS                   (0)     /* Please define the PHY-LSI address in the range of 0-31. */
+#define ETHER_CFG_CH0_PHY_ADDRESS                   (0)     /* Please define the PHY-LSI address in the range of 0-31. */
+#define ETHER_CFG_CH1_PHY_ADDRESS                   (0)     /* Please define the PHY-LSI address in the range of 0-31. */
 
 /* The number of Rx descriptors. */
-    #define ETHER_CFG_EMAC_RX_DESCRIPTORS               (8)
+#define ETHER_CFG_EMAC_RX_DESCRIPTORS               (8)
 
 /* The number of Tx descriptors. */
-    #define ETHER_CFG_EMAC_TX_DESCRIPTORS               (8)
+#define ETHER_CFG_EMAC_TX_DESCRIPTORS               (8)
 
-/* Please define the size of the sending and receiving buffer in the value where one frame can surely be stored 
+/* Please define the size of the sending and receiving buffer in the value where one frame can surely be stored
  because the driver is single-frame/single-buffer processing.  */
-    #define ETHER_CFG_BUFSIZE                           (1536)  /* Must be 32-byte aligned */
+#define ETHER_CFG_BUFSIZE                           (1536)  /* Must be 32-byte aligned */
 
 /* Define the access timing of MII/RMII register */
-    #define ETHER_CFG_PHY_MII_WAIT                      (8)     /* Plese define the value of 1 or more */
+#define ETHER_CFG_PHY_MII_WAIT                      (8)     /* Plese define the value of 1 or more */
 
 /* Define the waiting time for reset completion of PHY-LSI */
-    #define ETHER_CFG_PHY_DELAY_RESET                   (0x00020000L)
+#define ETHER_CFG_PHY_DELAY_RESET                   (0x00020000L)
 
 /**
  * Link status read from LMON bit of ETHERC PSR register.  The state is hardware dependent.
  */
-    #define ETHER_CFG_LINK_PRESENT                      (0)
+#define ETHER_CFG_LINK_PRESENT                      (0)
 
 /*  Use LINKSTA signal for detect link status changes
  0 = unused  (use PHY-LSI status register)
  1 = use     (use LINKSTA signal)
  */
-    #define ETHER_CFG_USE_LINKSTA                       (0)     /* This setting is reflected in all channels */
+#define ETHER_CFG_USE_LINKSTA                       (0)     /* This setting is reflected in all channels */
 
 /* Definition of whether or not to use KSZ8041NL of the Micrel Inc.
  0 = unused
  1 = use
  */
-    #define ETHER_CFG_USE_PHY_KSZ8041NL                 (0)
+#define ETHER_CFG_USE_PHY_KSZ8041NL                 (0)
 
 /***********************************************************************************************************************
  Typedef definitions

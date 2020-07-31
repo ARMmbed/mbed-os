@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,89 +43,70 @@
 #ifndef DRPK_IODEFINE_H
 #define DRPK_IODEFINE_H
 
-struct st_drpk
-{
-    union
-    {
+struct st_drpk {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
-            unsigned long FIFODATA:32;
+        struct {
+            unsigned long FIFODATA: 32;
         } BIT;
     } FIFODATA0;
     char           wk0[508];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
-            unsigned long FIFODATA:32;
+        struct {
+            unsigned long FIFODATA: 32;
         } BIT;
     } FIFODATA1;
     char           wk1[508];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
-            unsigned long FIFODATA:32;
+        struct {
+            unsigned long FIFODATA: 32;
         } BIT;
     } FIFODATA2;
     char           wk2[508];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
-            unsigned long FIFODATA:32;
+        struct {
+            unsigned long FIFODATA: 32;
         } BIT;
     } FIFODATA3;
     char           wk3[508];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
-            unsigned long FIFODATA:32;
+        struct {
+            unsigned long FIFODATA: 32;
         } BIT;
     } FIFODATA4;
     char           wk4[508];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
-            unsigned long FIFODATA:32;
+        struct {
+            unsigned long FIFODATA: 32;
         } BIT;
     } FIFODATA5;
 };

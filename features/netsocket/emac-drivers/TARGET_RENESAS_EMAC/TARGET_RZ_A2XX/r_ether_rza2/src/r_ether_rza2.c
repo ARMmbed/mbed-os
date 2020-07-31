@@ -69,43 +69,43 @@
 /*
  * Private global function prototypes
  */
-static void ether_reset_mac (uint32_t channel);
-static void ether_init_descriptors (uint32_t channel);
-static void ether_config_ethernet (uint32_t channel, const uint8_t mode);
-static void ether_pause_resolution (uint16_t local_ability, uint16_t partner_ability, uint16_t *ptx_pause, 
-        uint16_t *prx_pause);
-static void ether_configure_mac (uint32_t channel, const uint8_t mac_addr[], const uint8_t mode);
-static ether_return_t ether_do_link (uint32_t channel, const uint8_t mode);
-static ether_return_t ether_set_callback (ether_param_t const control);
-static ether_return_t ether_set_promiscuous_mode (ether_param_t const control);
-static ether_return_t ether_set_int_handler (ether_param_t const control);
-static ether_return_t ether_power_on (ether_param_t const control);
-static ether_return_t ether_power_off (ether_param_t const control);
-static ether_return_t power_on (uint32_t channel);
-static void power_off (uint32_t channel);
-static ether_return_t ether_set_multicastframe_filter (ether_param_t const control);
-static ether_return_t ether_set_broadcastframe_filter (ether_param_t const control);
+static void ether_reset_mac(uint32_t channel);
+static void ether_init_descriptors(uint32_t channel);
+static void ether_config_ethernet(uint32_t channel, const uint8_t mode);
+static void ether_pause_resolution(uint16_t local_ability, uint16_t partner_ability, uint16_t *ptx_pause,
+                                   uint16_t *prx_pause);
+static void ether_configure_mac(uint32_t channel, const uint8_t mac_addr[], const uint8_t mode);
+static ether_return_t ether_do_link(uint32_t channel, const uint8_t mode);
+static ether_return_t ether_set_callback(ether_param_t const control);
+static ether_return_t ether_set_promiscuous_mode(ether_param_t const control);
+static ether_return_t ether_set_int_handler(ether_param_t const control);
+static ether_return_t ether_power_on(ether_param_t const control);
+static ether_return_t ether_power_off(ether_param_t const control);
+static ether_return_t power_on(uint32_t channel);
+static void power_off(uint32_t channel);
+static ether_return_t ether_set_multicastframe_filter(ether_param_t const control);
+static ether_return_t ether_set_broadcastframe_filter(ether_param_t const control);
 #if (ETHER_CH0_EN == 1)
-static void ether_eint0 (void);
+static void ether_eint0(void);
 #endif
 #if (ETHER_CH1_EN == 1)
-static void ether_eint1 (void);
+static void ether_eint1(void);
 #endif
-static void ether_int_common (uint32_t channel);
-static ether_return_t power_on_control (uint32_t channel);
-static void power_off_control (uint32_t channel);
-static uint8_t check_mpde_bit (void);
-static uint32_t get_control_tbl_index (uint32_t channel);
+static void ether_int_common(uint32_t channel);
+static ether_return_t power_on_control(uint32_t channel);
+static void power_off_control(uint32_t channel);
+static uint8_t check_mpde_bit(void);
+static uint32_t get_control_tbl_index(uint32_t channel);
 
 /*
  * Private global variables
  */
 
 /* Pointer to the receive descriptors */
-static descriptor_t * papp_rx_desc[ETHER_CHANNEL_MAX];
+static descriptor_t *papp_rx_desc[ETHER_CHANNEL_MAX];
 
 /* Pointer to the transmit descriptors */
-static descriptor_t * papp_tx_desc[ETHER_CHANNEL_MAX];
+static descriptor_t *papp_tx_desc[ETHER_CHANNEL_MAX];
 
 /* Pointer to the callback function */
 static ether_cb_t cb_func;
@@ -178,24 +178,24 @@ static uint32_t bc_filter_count[ETHER_CHANNEL_MAX];
  * determines how the PAUSE is configured for local transmitter
  * and receiver and partner transmitter and receiver.
  */
-static const pauseresolution_t pause_resolution[PAUSE_TABLE_ENTRIES] =
-{
-{ PAUSE_MASKC, PAUSE_VAL0, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
-{ PAUSE_MASKE, PAUSE_VAL4, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
-{ PAUSE_MASKF, PAUSE_VAL6, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
-{ PAUSE_MASKF, PAUSE_VAL7, XMIT_PAUSE_ON,  RECV_PAUSE_OFF },
-{ PAUSE_MASKE, PAUSE_VAL8, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
-{ PAUSE_MASKA, PAUSE_VALA, XMIT_PAUSE_ON,  RECV_PAUSE_ON  },
-{ PAUSE_MASKF, PAUSE_VALC, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
-{ PAUSE_MASKF, PAUSE_VALD, XMIT_PAUSE_OFF, RECV_PAUSE_ON  } };
+static const pauseresolution_t pause_resolution[PAUSE_TABLE_ENTRIES] = {
+    { PAUSE_MASKC, PAUSE_VAL0, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
+    { PAUSE_MASKE, PAUSE_VAL4, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
+    { PAUSE_MASKF, PAUSE_VAL6, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
+    { PAUSE_MASKF, PAUSE_VAL7, XMIT_PAUSE_ON,  RECV_PAUSE_OFF },
+    { PAUSE_MASKE, PAUSE_VAL8, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
+    { PAUSE_MASKA, PAUSE_VALA, XMIT_PAUSE_ON,  RECV_PAUSE_ON  },
+    { PAUSE_MASKF, PAUSE_VALC, XMIT_PAUSE_OFF, RECV_PAUSE_OFF },
+    { PAUSE_MASKF, PAUSE_VALD, XMIT_PAUSE_OFF, RECV_PAUSE_ON  }
+};
 
 /*
  * Receive, transmit descriptors and their buffer.  They are
  * defined with section pragma directives to easily locate them
  * on the memory map.
  */
-static descriptor_t rx_descriptors[ETHER_CHANNEL_MAX][ETHER_CFG_EMAC_RX_DESCRIPTORS] __attribute((section("NC_BSS"),aligned(32)));
-static descriptor_t tx_descriptors[ETHER_CHANNEL_MAX][ETHER_CFG_EMAC_TX_DESCRIPTORS] __attribute((section("NC_BSS"),aligned(32)));
+static descriptor_t rx_descriptors[ETHER_CHANNEL_MAX][ETHER_CFG_EMAC_RX_DESCRIPTORS] __attribute((section("NC_BSS"), aligned(32)));
+static descriptor_t tx_descriptors[ETHER_CHANNEL_MAX][ETHER_CFG_EMAC_TX_DESCRIPTORS] __attribute((section("NC_BSS"), aligned(32)));
 
 /*
  * As for Ethernet buffer, the size of total buffer which are use for transmission and the reception is secured.
@@ -204,21 +204,20 @@ static descriptor_t tx_descriptors[ETHER_CHANNEL_MAX][ETHER_CFG_EMAC_TX_DESCRIPT
  * The ETHER_CFG_BUFSIZE and EMAC_NUM_BUFFERS are defined by macro in the file "r_ether_private.h".
  * It is sequentially used from the head of the buffer as a receive buffer or a transmission buffer.
  */
-static etherbuffer_t ether_buffers[ETHER_CHANNEL_MAX] __attribute((section("NC_BSS"),aligned(32)));
+static etherbuffer_t ether_buffers[ETHER_CHANNEL_MAX] __attribute((section("NC_BSS"), aligned(32)));
 
 static uint8_t promiscuous_mode[ETHER_CHANNEL_MAX];
 
 static uint8_t etherc_edmac_power_cont[ETHER_CHANNEL_MAX];
 
-const ether_control_t g_eth_control_ch[ETHER_CHANNEL_MAX] =
-{
+const ether_control_t g_eth_control_ch[ETHER_CHANNEL_MAX] = {
 #if (ETHER_CH0_EN == 1)
     /* Ether = ch0, Phy access = ch0 */
-    { &ETHERC0, &EDMAC0, (volatile uint32_t*)&ETHERC0.PIR.LONG, ETHER_CFG_CH0_PHY_ADDRESS, PORT_CONNECT_ET0 },
+    { &ETHERC0, &EDMAC0, (volatile uint32_t *) &ETHERC0.PIR.LONG, ETHER_CFG_CH0_PHY_ADDRESS, PORT_CONNECT_ET0 },
 #endif
 #if (ETHER_CH1_EN == 1)
     /* Ether = ch1, Phy access = ch1 */
-    { &ETHERC1, &EDMAC1, (volatile uint32_t*)&ETHERC1.PIR.LONG, ETHER_CFG_CH1_PHY_ADDRESS, PORT_CONNECT_ET1 },
+    { &ETHERC1, &EDMAC1, (volatile uint32_t *) &ETHERC1.PIR.LONG, ETHER_CFG_CH1_PHY_ADDRESS, PORT_CONNECT_ET1 },
 #endif
 };
 
@@ -267,7 +266,7 @@ static uint32_t ether_mmu_VAtoPA(uint32_t vaddr)
  * Arguments    : none
  * Return Value : none
  ***********************************************************************************************************************/
-void R_ETHER_Initial (void)
+void R_ETHER_Initial(void)
 {
     uint32_t i;
 
@@ -332,12 +331,12 @@ void R_ETHER_Initial (void)
  *                ETHER_ERR_OTHER -
  *                    Initialization of PHY-LSI failed
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_Open_ZC2 (uint32_t channel, const uint8_t mac_addr[], uint8_t pause)
+ether_return_t R_ETHER_Open_ZC2(uint32_t channel, const uint8_t mac_addr[], uint8_t pause)
 {
     ether_return_t ret;
     int16_t phy_ret;
-    volatile struct st_etherc * petherc_adr;
-    volatile struct st_edmac * pedmac_adr;
+    volatile struct st_etherc *petherc_adr;
+    volatile struct st_edmac *pedmac_adr;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     if (NULL == mac_addr) {
@@ -419,10 +418,10 @@ ether_return_t R_ETHER_Open_ZC2 (uint32_t channel, const uint8_t mac_addr[], uin
  *                ETHER_ERR_INVALID_CHAN -
  *                    Nonexistent channel number
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_Close_ZC2 (uint32_t channel)
+ether_return_t R_ETHER_Close_ZC2(uint32_t channel)
 {
-    volatile struct st_etherc * petherc_adr;
-    volatile struct st_edmac * pedmac_adr;
+    volatile struct st_etherc *petherc_adr;
+    volatile struct st_edmac *pedmac_adr;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     petherc_adr = g_eth_control_ch[channel_index].petherc;
@@ -477,13 +476,13 @@ ether_return_t R_ETHER_Close_ZC2 (uint32_t channel)
  *                ETHER_ERR_MC_FRAME -
  *                    Multicast Frame filter is enable, and Multicast Address Frame is received.
  ***********************************************************************************************************************/
-int32_t R_ETHER_Read_ZC2 (uint32_t channel, void **pbuf)
+int32_t R_ETHER_Read_ZC2(uint32_t channel, void **pbuf)
 {
     int32_t num_recvd;
     int32_t ret;
     int32_t complete_flag;
     int32_t ret2;
-    descriptor_t * p_rx_desc;
+    descriptor_t *p_rx_desc;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     p_rx_desc = papp_rx_desc[channel_index];
@@ -572,11 +571,11 @@ int32_t R_ETHER_Read_ZC2 (uint32_t channel, void **pbuf)
  *                ETHER_ERR_MPDE -
  *                    As a Magic Packet is being detected, transmission and reception is not enabled.
  ***********************************************************************************************************************/
-int32_t R_ETHER_Read_ZC2_BufRelease (uint32_t channel)
+int32_t R_ETHER_Read_ZC2_BufRelease(uint32_t channel)
 {
-    volatile struct st_edmac * pedmac_adr;
+    volatile struct st_edmac *pedmac_adr;
     uint32_t status;
-    descriptor_t * p_rx_desc;
+    descriptor_t *p_rx_desc;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     p_rx_desc = papp_rx_desc[channel_index];
@@ -648,10 +647,10 @@ int32_t R_ETHER_Read_ZC2_BufRelease (uint32_t channel)
  *                ETHER_ERR_TACT -
  *                    Transmit buffer is not empty.
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_Write_ZC2_GetBuf (uint32_t channel, void **pbuf, uint16_t *pbuf_size)
+ether_return_t R_ETHER_Write_ZC2_GetBuf(uint32_t channel, void **pbuf, uint16_t *pbuf_size)
 {
     /* Check argument */
-    descriptor_t* p_tx_desc;
+    descriptor_t *p_tx_desc;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     p_tx_desc = papp_tx_desc[channel_index];
@@ -683,9 +682,9 @@ ether_return_t R_ETHER_Write_ZC2_GetBuf (uint32_t channel, void **pbuf, uint16_t
 
     /* Give application another buffer to work with */
 #if (ETHER_CFG_USE_VIRTUAL_ADDRESS)
-    (*pbuf) = (void*)((p_tx_desc->buf_p) + ether_mmu_uncached_diff);
+    (*pbuf) = (void *)((p_tx_desc->buf_p) + ether_mmu_uncached_diff);
 #else
-    (*pbuf) = (void*) p_tx_desc->buf_p;
+    (*pbuf) = (void *) p_tx_desc->buf_p;
 #endif
     (*pbuf_size) = ETHER_CFG_BUFSIZE;
 
@@ -712,10 +711,10 @@ ether_return_t R_ETHER_Write_ZC2_GetBuf (uint32_t channel, void **pbuf, uint16_t
  *                ETHER_ERR_MPDE -
  *                    As a Magic Packet is being detected, transmission and reception is not enabled.
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_Write_ZC2_SetBuf (uint32_t channel, const uint32_t len)
+ether_return_t R_ETHER_Write_ZC2_SetBuf(uint32_t channel, const uint32_t len)
 {
-    volatile struct st_edmac * pedmac_adr;
-    descriptor_t* p_tx_desc;
+    volatile struct st_edmac *pedmac_adr;
+    descriptor_t *p_tx_desc;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     p_tx_desc = papp_tx_desc[channel_index];
@@ -765,7 +764,7 @@ ether_return_t R_ETHER_Write_ZC2_SetBuf (uint32_t channel, const uint32_t len)
  *                ETHER_ERR_INVALID_CHAN -
  *                    Nonexistent channel number
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_CheckLink_ZC (uint32_t channel)
+ether_return_t R_ETHER_CheckLink_ZC(uint32_t channel)
 {
     if (R_PHY_ERROR == phy_get_link_status(channel)) {
         /* Link is down */
@@ -784,9 +783,9 @@ ether_return_t R_ETHER_CheckLink_ZC (uint32_t channel)
  *                    ETHERC channel number
  * Return Value : none
  ***********************************************************************************************************************/
-void R_ETHER_LinkProcess (uint32_t channel)
+void R_ETHER_LinkProcess(uint32_t channel)
 {
-    volatile struct st_etherc * petherc_adr;
+    volatile struct st_etherc *petherc_adr;
 
     int32_t ret;
     ether_cb_arg_t cb_arg;
@@ -873,11 +872,11 @@ void R_ETHER_LinkProcess (uint32_t channel)
             /* no process */
         }
 #elif (ETHER_CFG_USE_LINKSTA == 0)
-       /*
-        * The status of the LINK signal became "link-up" even if PHY-LSI did not detect "link-up"
-        * after a reset. To avoid this wrong detection, processing in R_ETHER_LinkProcess has been modified to
-        * clear the flag after link-up is confirmed in R_ETHER_CheckLink_ZC.
-        */
+        /*
+         * The status of the LINK signal became "link-up" even if PHY-LSI did not detect "link-up"
+         * after a reset. To avoid this wrong detection, processing in R_ETHER_LinkProcess has been modified to
+         * clear the flag after link-up is confirmed in R_ETHER_CheckLink_ZC.
+         */
         lchng_flag[channel_index] = ETHER_FLAG_OFF;
 
         /* Initialize the transmit and receive descriptor */
@@ -889,10 +888,10 @@ void R_ETHER_LinkProcess (uint32_t channel)
 
         transfer_enable_flag[channel_index] = ETHER_FLAG_ON;
 
-       /*
-        * ETHERC and EDMAC are set after ETHERC and EDMAC are reset in software
-        * and sending and receiving is permitted.
-        */
+        /*
+         * ETHERC and EDMAC are set after ETHERC and EDMAC are reset in software
+         * and sending and receiving is permitted.
+         */
         ether_configure_mac(channel, mac_addr_buf[channel_index], NO_USE_MAGIC_PACKET_DETECT);
         ret = ether_do_link(channel, NO_USE_MAGIC_PACKET_DETECT);
         if (ETHER_SUCCESS == ret) {
@@ -970,10 +969,10 @@ void R_ETHER_LinkProcess (uint32_t channel)
  *                ETHER_ERR_OTHER -
  *                    A switch to magic packet detection was performed when the link state was link is down.
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_WakeOnLAN (uint32_t channel)
+ether_return_t R_ETHER_WakeOnLAN(uint32_t channel)
 {
 #if (ETHER_CFG_USE_LINKSTA == 1)
-    volatile struct st_etherc * petherc_adr;
+    volatile struct st_etherc *petherc_adr;
 #endif
     ether_return_t ret;
     uint32_t channel_index = get_control_tbl_index(channel);
@@ -1030,11 +1029,11 @@ ether_return_t R_ETHER_WakeOnLAN (uint32_t channel)
  *                ETHER_ERR_MC_FRAME -
  *                    Multicast Frame filter is enable, and Multicast Address Frame is received.
  ***********************************************************************************************************************/
-int32_t R_ETHER_Read (uint32_t channel, void *pbuf)
+int32_t R_ETHER_Read(uint32_t channel, void *pbuf)
 {
     int32_t ret;
     int32_t ret2;
-    uint8_t * pread_buffer_address; /* Buffer location controlled by the Ethernet driver */
+    uint8_t *pread_buffer_address;  /* Buffer location controlled by the Ethernet driver */
 
     /* Check argument */
     if (NULL == pbuf) {
@@ -1048,7 +1047,7 @@ int32_t R_ETHER_Read (uint32_t channel, void *pbuf)
     if (ret > ETHER_NO_DATA) {
         /* (2) Copy the data read from the receive buffer which is controlled by the descriptor to
          the buffer which is specified by the user (up to 1024 bytes). */
-        memcpy(pbuf, pread_buffer_address, (uint32_t )ret);
+        memcpy(pbuf, pread_buffer_address, (uint32_t)ret);
 
         /* (3) Read the receive data from the receive buffer controlled by the descriptor,
          and then release the receive buffer. */
@@ -1096,10 +1095,10 @@ int32_t R_ETHER_Read (uint32_t channel, void *pbuf)
  *                ETHER_ERR_TACT -
  *                    Transmit buffer is not empty.
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_Write (uint32_t channel, void *pbuf, const uint32_t len)
+ether_return_t R_ETHER_Write(uint32_t channel, void *pbuf, const uint32_t len)
 {
     ether_return_t ret;
-    uint8_t * pwrite_buffer_address;
+    uint8_t *pwrite_buffer_address;
     uint16_t write_buf_size;
 
     if (NULL == pbuf) {
@@ -1149,9 +1148,9 @@ ether_return_t R_ETHER_Write (uint32_t channel, void *pbuf, const uint32_t len)
  *                ETHER_ERR_INVALID_CHAN -
  *                    Nonexistent channel number
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_CheckWrite (uint32_t channel)
+ether_return_t R_ETHER_CheckWrite(uint32_t channel)
 {
-    volatile struct st_edmac * pedmac_adr;
+    volatile struct st_edmac *pedmac_adr;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     pedmac_adr = g_eth_control_ch[channel_index].pedmac;
@@ -1180,7 +1179,7 @@ ether_return_t R_ETHER_CheckWrite (uint32_t channel)
  *                ETHER_ERR_RECV_ENABLE -
  *                    Receive function is enable.
  ***********************************************************************************************************************/
-ether_return_t R_ETHER_Control (ether_cmd_t const cmd, ether_param_t const control)
+ether_return_t R_ETHER_Control(ether_cmd_t const cmd, ether_param_t const control)
 {
     ether_return_t ret;
 
@@ -1188,36 +1187,36 @@ ether_return_t R_ETHER_Control (ether_cmd_t const cmd, ether_param_t const contr
         /* Set the callback function pointer */
         case CONTROL_SET_CALLBACK :
             ret = ether_set_callback(control);
-        break;
+            break;
 
         case CONTROL_SET_PROMISCUOUS_MODE :
             ret = ether_set_promiscuous_mode(control);
-        break;
+            break;
 
         case CONTROL_SET_INT_HANDLER :
             ret = ether_set_int_handler(control);
-        break;
+            break;
 
         case CONTROL_POWER_ON :
             ret = ether_power_on(control);
-        break;
+            break;
 
         case CONTROL_POWER_OFF :
             ret = ether_power_off(control);
-        break;
+            break;
 
         case CONTROL_MULTICASTFRAME_FILTER :
             ret = ether_set_multicastframe_filter(control);
-        break;
+            break;
 
         case CONTROL_BROADCASTFRAME_FILTER :
             ret = ether_set_broadcastframe_filter(control);
-        break;
+            break;
 
-            /* Commands not supported */
+        /* Commands not supported */
         default :
             ret = ETHER_ERR_INVALID_ARG;
-        break;
+            break;
     }
 
     return ret;
@@ -1232,7 +1231,7 @@ ether_return_t R_ETHER_Control (ether_cmd_t const cmd, ether_param_t const contr
  * Return Value : Version number
  ***********************************************************************************************************************/
 //#pragma inline(R_ETHER_GetVersion)
-uint32_t R_ETHER_GetVersion (void)
+uint32_t R_ETHER_GetVersion(void)
 {
     return ((((uint32_t) ETHER_RZA2_VERSION_MAJOR) << 16) | ((uint32_t) ETHER_RZA2_VERSION_MINOR));
 } /* End of function R_ETHER_GetVersion() */
@@ -1248,7 +1247,7 @@ uint32_t R_ETHER_GetVersion (void)
  *                    ETHERC channel number
  * Return Value : none
  ***********************************************************************************************************************/
-static void ether_reset_mac (uint32_t channel)
+static void ether_reset_mac(uint32_t channel)
 {
     volatile uint32_t i;
 
@@ -1276,9 +1275,9 @@ static void ether_reset_mac (uint32_t channel)
  *                    ETHERC channel number
  * Return Value : none
  ***********************************************************************************************************************/
-static void ether_init_descriptors (uint32_t channel)
+static void ether_init_descriptors(uint32_t channel)
 {
-    descriptor_t * pdescriptor;
+    descriptor_t *pdescriptor;
     uint32_t i;
     uint32_t channel_index = get_control_tbl_index(channel);
 
@@ -1286,9 +1285,9 @@ static void ether_init_descriptors (uint32_t channel)
     for (i = 0; i < ETHER_CFG_EMAC_RX_DESCRIPTORS; i++) {
         pdescriptor = (descriptor_t *) &rx_descriptors[channel_index][i];
 #if (ETHER_CFG_USE_VIRTUAL_ADDRESS)
-        pdescriptor->buf_p = (uint8_t *) ether_mmu_VAtoPA((uint32_t)&(ether_buffers[channel_index].buffer[i][0]));
+        pdescriptor->buf_p = (uint8_t *) ether_mmu_VAtoPA((uint32_t) & (ether_buffers[channel_index].buffer[i][0]));
 #else
-        pdescriptor->buf_p = (uint8_t *) &(ether_buffers[channel_index].buffer[i][0]);
+        pdescriptor->buf_p = (uint8_t *) & (ether_buffers[channel_index].buffer[i][0]);
 #endif
         pdescriptor->bufsize = ETHER_CFG_BUFSIZE;
         pdescriptor->size = 0;
@@ -1307,16 +1306,16 @@ static void ether_init_descriptors (uint32_t channel)
     for (i = 0; i < ETHER_CFG_EMAC_TX_DESCRIPTORS; i++) {
         pdescriptor = (descriptor_t *) &tx_descriptors[channel_index][i];
 #if (ETHER_CFG_USE_VIRTUAL_ADDRESS)
-        pdescriptor->buf_p = (uint8_t *) ether_mmu_VAtoPA((uint32_t)&(ether_buffers[channel_index].buffer[(ETHER_CFG_EMAC_RX_DESCRIPTORS + i)][0]));
+        pdescriptor->buf_p = (uint8_t *) ether_mmu_VAtoPA((uint32_t) & (ether_buffers[channel_index].buffer[(ETHER_CFG_EMAC_RX_DESCRIPTORS + i)][0]));
 #else
-        pdescriptor->buf_p = (uint8_t *) &(ether_buffers[channel_index].buffer[(ETHER_CFG_EMAC_RX_DESCRIPTORS + i)][0]);
+        pdescriptor->buf_p = (uint8_t *) & (ether_buffers[channel_index].buffer[(ETHER_CFG_EMAC_RX_DESCRIPTORS + i)][0]);
 #endif
         pdescriptor->bufsize = 1; /* Set a value equal to or greater than 1. (reference to UMH)
          When transmitting data, the value of size is set to the function argument
          R_ETHER_Write_ZC2_SetBuf. */
         pdescriptor->size = 0; /* Reserved : The write value should be 0. (reference to UMH) */
         pdescriptor->status = 0;
-        pdescriptor->next = (descriptor_t *) &(tx_descriptors[channel_index][(i + 1)]);
+        pdescriptor->next = (descriptor_t *) & (tx_descriptors[channel_index][(i + 1)]);
     }
 
     /* The last descriptor points back to the start */
@@ -1339,10 +1338,10 @@ static void ether_init_descriptors (uint32_t channel)
  *                   USE_MAGIC_PACKET_DETECT    (1) - Magic packet detection mode
  * Return Value : none
  ***********************************************************************************************************************/
-static void ether_config_ethernet (uint32_t channel, const uint8_t mode)
+static void ether_config_ethernet(uint32_t channel, const uint8_t mode)
 {
-    volatile struct st_etherc * petherc_adr;
-    volatile struct st_edmac * pedmac_adr;
+    volatile struct st_etherc *petherc_adr;
+    volatile struct st_edmac *pedmac_adr;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     petherc_adr = g_eth_control_ch[channel_index].petherc;
@@ -1438,8 +1437,8 @@ static void ether_config_ethernet (uint32_t channel, const uint8_t mode)
  *                    PAUSE. 1 is enable, 0 is disable.
  * Return Value : none
  ***********************************************************************************************************************/
-static void ether_pause_resolution (uint16_t local_ability, uint16_t partner_ability, uint16_t *ptx_pause,
-        uint16_t *prx_pause)
+static void ether_pause_resolution(uint16_t local_ability, uint16_t partner_ability, uint16_t *ptx_pause,
+                                   uint16_t *prx_pause)
 {
     uint32_t i;
     uint32_t ability_compare;
@@ -1448,8 +1447,8 @@ static void ether_pause_resolution (uint16_t local_ability, uint16_t partner_abi
      * Arrange the bits so that they correspond to the Table 28B-3
      * of the IEEE 802.3 values.
      */
-    ability_compare = (uint32_t) (((local_ability & LINK_RES_ABILITY_MASK) << LINK_RES_LOCAL_ABILITY_BITSHIFT)
-            | (partner_ability & LINK_RES_ABILITY_MASK));
+    ability_compare = (uint32_t)(((local_ability & LINK_RES_ABILITY_MASK) << LINK_RES_LOCAL_ABILITY_BITSHIFT)
+                                 | (partner_ability & LINK_RES_ABILITY_MASK));
 
     /* Walk through the look up table */
     for (i = 0; i < PAUSE_TABLE_ENTRIES; i++) {
@@ -1474,11 +1473,11 @@ static void ether_pause_resolution (uint16_t local_ability, uint16_t partner_abi
  *                    USE_MAGIC_PACKET_DETECT    (1) - Magic packet detection mode
  * Return Value : none
  ***********************************************************************************************************************/
-static void ether_configure_mac (uint32_t channel, const uint8_t mac_addr[], const uint8_t mode)
+static void ether_configure_mac(uint32_t channel, const uint8_t mac_addr[], const uint8_t mode)
 {
     uint32_t mac_h;
     uint32_t mac_l;
-    volatile struct st_etherc * petherc_adr;
+    volatile struct st_etherc *petherc_adr;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     petherc_adr = g_eth_control_ch[channel_index].petherc;
@@ -1488,7 +1487,7 @@ static void ether_configure_mac (uint32_t channel, const uint8_t mac_addr[], con
 
     /* Set MAC address */
     mac_h = (((((uint32_t) mac_addr[0] << 24) | ((uint32_t) mac_addr[1] << 16)) | ((uint32_t) mac_addr[2] << 8))
-            | (uint32_t) mac_addr[3]);
+             | (uint32_t) mac_addr[3]);
 
     mac_l = (((uint32_t) mac_addr[4] << 8) | (uint32_t) mac_addr[5]);
 
@@ -1522,7 +1521,7 @@ static void ether_configure_mac (uint32_t channel, const uint8_t mac_addr[], con
  *                ETHER_ERR_OTHER -
  *                    Auto-negotiation of PHY-LSI is not completed or result of Auto-negotiation is abnormal.
  ***********************************************************************************************************************/
-static ether_return_t ether_do_link (uint32_t channel, const uint8_t mode)
+static ether_return_t ether_do_link(uint32_t channel, const uint8_t mode)
 {
     ether_return_t ret;
     uint16_t link_speed_duplex = 0;
@@ -1532,8 +1531,8 @@ static ether_return_t ether_do_link (uint32_t channel, const uint8_t mode)
     uint16_t receive_pause_set = 0;
     uint16_t full_duplex = 0;
     uint16_t link_result = 0;
-    volatile struct st_etherc * petherc_adr;
-    volatile struct st_edmac * pedmac_adr;
+    volatile struct st_etherc *petherc_adr;
+    volatile struct st_edmac *pedmac_adr;
     uint32_t channel_index = get_control_tbl_index(channel);
 
     petherc_adr = g_eth_control_ch[channel_index].petherc;
@@ -1549,32 +1548,32 @@ static ether_return_t ether_do_link (uint32_t channel, const uint8_t mode)
                 petherc_adr->ECMR.BIT.DM = 0;
                 petherc_adr->ECMR.BIT.RTM = 1;
                 ret = ETHER_SUCCESS;
-            break;
+                break;
 
             case PHY_LINK_10H :
                 petherc_adr->ECMR.BIT.DM = 0;
                 petherc_adr->ECMR.BIT.RTM = 0;
                 ret = ETHER_SUCCESS;
-            break;
+                break;
 
-                /* Full duplex link */
+            /* Full duplex link */
             case PHY_LINK_100F :
                 petherc_adr->ECMR.BIT.DM = 1;
                 petherc_adr->ECMR.BIT.RTM = 1;
                 full_duplex = 1;
                 ret = ETHER_SUCCESS;
-            break;
+                break;
 
             case PHY_LINK_10F :
                 petherc_adr->ECMR.BIT.DM = 1;
                 petherc_adr->ECMR.BIT.RTM = 0;
                 full_duplex = 1;
                 ret = ETHER_SUCCESS;
-            break;
+                break;
 
             default :
                 ret = ETHER_ERR_OTHER;
-            break;
+                break;
         }
 
         /* At the communicate mode usually */
@@ -1600,7 +1599,7 @@ static ether_return_t ether_do_link (uint32_t channel, const uint8_t mode)
                      * the pause resolution results
                      */
                     ether_pause_resolution(local_pause_bits, partner_pause_bits, &transmit_pause_set,
-                            &receive_pause_set);
+                                           &receive_pause_set);
 
                     if (XMIT_PAUSE_ON == transmit_pause_set) {
                         /* Enable automatic PAUSE frame transmission */
@@ -1668,9 +1667,9 @@ static ether_return_t ether_do_link (uint32_t channel, const uint8_t mode)
  * Return Value : ETHER_SUCCESS
  *                    Processing completed successfully
  ***********************************************************************************************************************/
-static ether_return_t ether_set_callback (ether_param_t const control)
+static ether_return_t ether_set_callback(ether_param_t const control)
 {
-    void (*pcb_func) (void *);
+    void (*pcb_func)(void *);
 
     pcb_func = control.ether_callback.pcb_func;
 
@@ -1692,9 +1691,9 @@ static ether_return_t ether_set_callback (ether_param_t const control)
  *                ETHER_ERR_INVALID_CHAN -
  *                    Nonexistent channel number
  ***********************************************************************************************************************/
-static ether_return_t ether_set_promiscuous_mode (ether_param_t const control)
+static ether_return_t ether_set_promiscuous_mode(ether_param_t const control)
 {
-    ether_promiscuous_t * p_arg;
+    ether_promiscuous_t *p_arg;
     uint32_t channel_index = get_control_tbl_index((uint32_t)control.channel);
 
     p_arg = control.p_ether_promiscuous;
@@ -1715,9 +1714,9 @@ static ether_return_t ether_set_promiscuous_mode (ether_param_t const control)
  *                ETHER_ERR_INVALID_ARG -
  *                    Invalid argument
  ***********************************************************************************************************************/
-static ether_return_t ether_set_int_handler (ether_param_t const control)
+static ether_return_t ether_set_int_handler(ether_param_t const control)
 {
-    void (*pcb_int_hnd) (void *);
+    void (*pcb_int_hnd)(void *);
     ether_return_t ret = ETHER_ERR_INVALID_ARG;
 
     pcb_int_hnd = control.ether_int_hnd.pcb_int_hnd;
@@ -1742,7 +1741,7 @@ static ether_return_t ether_set_int_handler (ether_param_t const control)
  *                ETHER_ERR_INVALID_ARG -
  *                    Invalid argument
  ***********************************************************************************************************************/
-static ether_return_t ether_power_on (ether_param_t const control)
+static ether_return_t ether_power_on(ether_param_t const control)
 {
     uint32_t channel_index = get_control_tbl_index((uint32_t)control.channel);
 
@@ -1763,7 +1762,7 @@ static ether_return_t ether_power_on (ether_param_t const control)
  *                ETHER_ERR_INVALID_ARG -
  *                    Invalid argument
  ***********************************************************************************************************************/
-static ether_return_t ether_power_off (ether_param_t const control)
+static ether_return_t ether_power_off(ether_param_t const control)
 {
     /* ETHERC/EDMAC Power off */
     power_off_control((uint32_t)control.channel);
@@ -1783,21 +1782,21 @@ static ether_return_t ether_power_off (ether_param_t const control)
  *                ETHER_ERR_CHAN_OPEN -
  *                    Indicates the Ethernet cannot be opened because it is being used by another application
  ***********************************************************************************************************************/
-static ether_return_t power_on (uint32_t channel)
+static ether_return_t power_on(uint32_t channel)
 {
     volatile uint8_t dummy;
 
 #if (ETHER_CHANNEL_MAX == 1)
     (void)channel;
-  #if (ETHER_CH0_EN == 1)
+#if (ETHER_CH0_EN == 1)
     CPG.STBCR6.BIT.MSTP65 = 0;
     CPG.STBCR6.BIT.MSTP62 = 0;
     dummy = CPG.STBCR6.BYTE;
-  #else
+#else
     CPG.STBCR6.BIT.MSTP64 = 0;
     CPG.STBCR6.BIT.MSTP62 = 0;
     dummy = CPG.STBCR6.BYTE;
-  #endif
+#endif
 #else
     /* Check argument */
     if (ETHER_CHANNEL_MAX <= channel) {
@@ -1827,23 +1826,23 @@ static ether_return_t power_on (uint32_t channel)
  *                    ETHERC channel number
  * Return Value : none
  ***********************************************************************************************************************/
-static void power_off (uint32_t channel)
+static void power_off(uint32_t channel)
 {
     volatile uint8_t dummy;
 
 #if (ETHER_CHANNEL_MAX == 1)
     (void)channel;
-  #if (ETHER_CH0_EN == 1)
+#if (ETHER_CH0_EN == 1)
     CPG.STBCR6.BIT.MSTP65 = 1;
     dummy = CPG.STBCR6.BYTE;
     CPG.STBCR6.BIT.MSTP62 = 1;
     dummy = CPG.STBCR6.BYTE;
-  #else
+#else
     CPG.STBCR6.BIT.MSTP64 = 1;
     dummy = CPG.STBCR6.BYTE;
     CPG.STBCR6.BIT.MSTP62 = 1;
     dummy = CPG.STBCR6.BYTE;
-  #endif
+#endif
 #else
     /* Check argument */
     if (ETHER_CHANNEL_MAX <= channel) {
@@ -1882,13 +1881,13 @@ static void power_off (uint32_t channel)
  *                ETHER_ERR_RECV_ENABLE -
  *                    Receive function is enable.
  ***********************************************************************************************************************/
-static ether_return_t ether_set_multicastframe_filter (ether_param_t const control)
+static ether_return_t ether_set_multicastframe_filter(ether_param_t const control)
 {
-    ether_multicast_t * p_arg;
+    ether_multicast_t *p_arg;
     ether_mc_filter_t flag;
     ether_return_t ret;
 
-    volatile struct st_etherc * petherc_adr;
+    volatile struct st_etherc *petherc_adr;
     uint32_t channel_index = get_control_tbl_index((uint32_t)control.channel);
 
     ret = ETHER_ERR_INVALID_ARG;
@@ -1929,14 +1928,14 @@ static ether_return_t ether_set_multicastframe_filter (ether_param_t const contr
  *                ETHER_ERR_RECV_ENABLE -
  *                    Receive function is enable.
  ***********************************************************************************************************************/
-static ether_return_t ether_set_broadcastframe_filter (ether_param_t const control)
+static ether_return_t ether_set_broadcastframe_filter(ether_param_t const control)
 {
-    ether_broadcast_t * p_arg;
+    ether_broadcast_t *p_arg;
     uint32_t channel_index = get_control_tbl_index((uint32_t)control.channel);
     uint32_t counter;
     ether_return_t ret;
 
-    volatile struct st_etherc * petherc_adr;
+    volatile struct st_etherc *petherc_adr;
 
     ret = ETHER_ERR_INVALID_ARG;
     p_arg = control.p_ether_broadcast;
@@ -1974,7 +1973,7 @@ static ether_return_t ether_set_broadcastframe_filter (ether_param_t const contr
  *              : ETHER_ERR_OTHER -
  *
  ***********************************************************************************************************************/
-static ether_return_t power_on_control (uint32_t channel)
+static ether_return_t power_on_control(uint32_t channel)
 {
     uint32_t channel_index = get_control_tbl_index(channel);
     ether_return_t ret = ETHER_ERR_OTHER;
@@ -1993,7 +1992,7 @@ static ether_return_t power_on_control (uint32_t channel)
  *                    ETHERC channel number
  * Return Value : none
  ***********************************************************************************************************************/
-static void power_off_control (uint32_t channel)
+static void power_off_control(uint32_t channel)
 {
     uint32_t channel_index = get_control_tbl_index(channel);
 
@@ -2008,17 +2007,17 @@ static void power_off_control (uint32_t channel)
  * Return Value : 1: Magic Packet detection is enabled.
  *                0: Magic Packet detection is disabled.
  ***********************************************************************************************************************/
-static uint8_t check_mpde_bit (void)
+static uint8_t check_mpde_bit(void)
 {
 #if (ETHER_CHANNEL_MAX == 1)
     /* The MPDE bit can be referred to only when ETHERC operates. */
-    if ( (ETHER_MODULE_USE == etherc_edmac_power_cont[0])
-  #if (ETHER_CH0_EN == 1)
+    if ((ETHER_MODULE_USE == etherc_edmac_power_cont[0])
+#if (ETHER_CH0_EN == 1)
             && (1 == ETHERC0.ECMR.BIT.MPDE)
-  #else
+#else
             && (1 == ETHERC1.ECMR.BIT.MPDE)
-  #endif
-    ) {
+#endif
+       ) {
         return 1;
     } else {
         return 0;
@@ -2026,15 +2025,15 @@ static uint8_t check_mpde_bit (void)
 
 #else
     /* The MPDE bit can be referred to only when ETHERC0 operates. */
-    if ( ( (ETHER_MODULE_USE == etherc_edmac_power_cont[ETHER_CHANNEL_0])
-                    && (1 == ETHERC0.ECMR.BIT.MPDE)
-            )
+    if (((ETHER_MODULE_USE == etherc_edmac_power_cont[ETHER_CHANNEL_0])
+            && (1 == ETHERC0.ECMR.BIT.MPDE)
+        )
 
             /* The MPDE bit can be referred to only when ETHERC1 operates. */
-            || ( (ETHER_MODULE_USE == etherc_edmac_power_cont[ETHER_CHANNEL_1])
-                    && (1 == ETHERC1.ECMR.BIT.MPDE)
-            )
-    ) {
+            || ((ETHER_MODULE_USE == etherc_edmac_power_cont[ETHER_CHANNEL_1])
+                && (1 == ETHERC1.ECMR.BIT.MPDE)
+               )
+       ) {
         return 1;
     } else {
         return 0;
@@ -2050,7 +2049,7 @@ static uint8_t check_mpde_bit (void)
  *                    unused
  * Return Value : none
  ***********************************************************************************************************************/
-static void ether_eint0 (void)
+static void ether_eint0(void)
 {
     ether_int_common(ETHER_CHANNEL_0);
 } /* End of function ether_eint0() */
@@ -2077,12 +2076,12 @@ static void ether_eint1(void)
  *                    ETHERC channel number
  * Return Value : none
  ***********************************************************************************************************************/
-static void ether_int_common (uint32_t channel)
+static void ether_int_common(uint32_t channel)
 {
     uint32_t status_ecsr;
     uint32_t status_eesr;
-    volatile struct st_etherc * petherc_adr;
-    volatile struct st_edmac * pedmac_adr;
+    volatile struct st_etherc *petherc_adr;
+    volatile struct st_edmac *pedmac_adr;
     ether_cb_arg_t cb_arg;
     uint32_t channel_index = get_control_tbl_index(channel);
 
@@ -2148,7 +2147,7 @@ static void ether_int_common (uint32_t channel)
  *                    ETHERC channel number
  * Return Value : Index of control table
  ***********************************************************************************************************************/
-static uint32_t get_control_tbl_index (uint32_t channel)
+static uint32_t get_control_tbl_index(uint32_t channel)
 {
 #if (ETHER_CHANNEL_MAX == 1)
     return 0;

@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,151 +43,130 @@
 #ifndef SSIF_IODEFINE_H
 #define SSIF_IODEFINE_H
 
-struct st_ssif
-{
-    union
-    {
+struct st_ssif {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long REN:1;
-            unsigned long TEN:1;
-            unsigned long :1;
-            unsigned long MUEN:1;
-            unsigned long CKDV:4;
-            unsigned long DEL:1;
-            unsigned long PDTA:1;
-            unsigned long SDTA:1;
-            unsigned long SPDP:1;
-            unsigned long LRCKP:1;
-            unsigned long BCKP:1;
-            unsigned long MST:1;
-            unsigned long :1;
-            unsigned long SWL:3;
-            unsigned long DWL:3;
-            unsigned long FRM:2;
-            unsigned long :1;
-            unsigned long IIEN:1;
-            unsigned long ROIEN:1;
-            unsigned long RUIEN:1;
-            unsigned long TOIEN:1;
-            unsigned long TUIEN:1;
-            unsigned long CKS:1;
-            unsigned long :1;
+        struct {
+            unsigned long REN: 1;
+            unsigned long TEN: 1;
+            unsigned long : 1;
+            unsigned long MUEN: 1;
+            unsigned long CKDV: 4;
+            unsigned long DEL: 1;
+            unsigned long PDTA: 1;
+            unsigned long SDTA: 1;
+            unsigned long SPDP: 1;
+            unsigned long LRCKP: 1;
+            unsigned long BCKP: 1;
+            unsigned long MST: 1;
+            unsigned long : 1;
+            unsigned long SWL: 3;
+            unsigned long DWL: 3;
+            unsigned long FRM: 2;
+            unsigned long : 1;
+            unsigned long IIEN: 1;
+            unsigned long ROIEN: 1;
+            unsigned long RUIEN: 1;
+            unsigned long TOIEN: 1;
+            unsigned long TUIEN: 1;
+            unsigned long CKS: 1;
+            unsigned long : 1;
         } BIT;
     } SSICR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :25;
-            unsigned long IIRQ:1;
-            unsigned long ROIRQ:1;
-            unsigned long RUIRQ:1;
-            unsigned long TOIRQ:1;
-            unsigned long TUIRQ:1;
-            unsigned long :2;
+        struct {
+            unsigned long : 25;
+            unsigned long IIRQ: 1;
+            unsigned long ROIRQ: 1;
+            unsigned long RUIRQ: 1;
+            unsigned long TOIRQ: 1;
+            unsigned long TUIRQ: 1;
+            unsigned long : 2;
         } BIT;
     } SSISR;
     char           wk0[8];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long RFRST:1;
-            unsigned long TFRST:1;
-            unsigned long RIE:1;
-            unsigned long TIE:1;
-            unsigned long :4;
-            unsigned long RXDNCE:1;
-            unsigned long LRCKNCE:1;
-            unsigned long BCKNCE:1;
-            unsigned long BSW:1;
-            unsigned long :4;
-            unsigned long SSIRST:1;
-            unsigned long :13;
-            unsigned long :1;
-            unsigned long AUCKE:1;
+        struct {
+            unsigned long RFRST: 1;
+            unsigned long TFRST: 1;
+            unsigned long RIE: 1;
+            unsigned long TIE: 1;
+            unsigned long : 4;
+            unsigned long RXDNCE: 1;
+            unsigned long LRCKNCE: 1;
+            unsigned long BCKNCE: 1;
+            unsigned long BSW: 1;
+            unsigned long : 4;
+            unsigned long SSIRST: 1;
+            unsigned long : 13;
+            unsigned long : 1;
+            unsigned long AUCKE: 1;
         } BIT;
     } SSIFCR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long RDF:1;
-            unsigned long :7;
-            unsigned long RDC:6;
-            unsigned long :2;
-            unsigned long TDE:1;
-            unsigned long :7;
-            unsigned long TDC:6;
-            unsigned long :2;
+        struct {
+            unsigned long RDF: 1;
+            unsigned long : 7;
+            unsigned long RDC: 6;
+            unsigned long : 2;
+            unsigned long TDE: 1;
+            unsigned long : 7;
+            unsigned long TDC: 6;
+            unsigned long : 2;
         } BIT;
     } SSIFSR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
+        struct {
             unsigned char LL;
             unsigned char LH;
             unsigned char HL;
             unsigned char HH;
         } BYTE;
-        struct
-        {
-            unsigned long SSIFTDR:32;
+        struct {
+            unsigned long SSIFTDR: 32;
         } BIT;
     } SSIFTDR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
+        struct {
             unsigned short L;
             unsigned short H;
         } WORD;
-        struct
-        {
+        struct {
             unsigned char LL;
             unsigned char LH;
             unsigned char HL;
             unsigned char HH;
         } BYTE;
-        struct
-        {
-            unsigned long SSIFRDR:32;
+        struct {
+            unsigned long SSIFRDR: 32;
         } BIT;
     } SSIFRDR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long OMOD:2;
-            unsigned long :6;
-            unsigned long LRCONT:1;
-            unsigned long BCKASTP:1;
-            unsigned long :22;
+        struct {
+            unsigned long OMOD: 2;
+            unsigned long : 6;
+            unsigned long LRCONT: 1;
+            unsigned long BCKASTP: 1;
+            unsigned long : 22;
         } BIT;
     } SSIOFR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long RDFS:5;
-            unsigned long :3;
-            unsigned long TDES:5;
-            unsigned long :19;
+        struct {
+            unsigned long RDFS: 5;
+            unsigned long : 3;
+            unsigned long TDES: 5;
+            unsigned long : 19;
         } BIT;
     } SSISCR;
     char           wk1[16];

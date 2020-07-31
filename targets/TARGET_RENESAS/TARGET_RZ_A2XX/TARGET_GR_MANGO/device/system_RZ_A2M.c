@@ -61,10 +61,10 @@ static void disable_rtc(uint32_t ch)
     uint8_t dummy8;
     uint32_t mask;
     uint8_t shift;
-    static volatile struct st_rtc * const rtc[R_PRV_RTC_COUNT] = {
+    static volatile struct st_rtc *const rtc[R_PRV_RTC_COUNT] = {
         &RTC0, &RTC1
     };
-    static const uint8_t mstp_mask[R_PRV_RTC_COUNT] ={
+    static const uint8_t mstp_mask[R_PRV_RTC_COUNT] = {
         CPG_STBCR5_MSTP53, CPG_STBCR5_MSTP52
     };
     static const uint8_t mstp_shift[R_PRV_RTC_COUNT] = {
@@ -115,12 +115,12 @@ static void disable_usb(uint32_t ch)
     uint8_t shift;
 
     /* USB Host IO reg Top Address(ch0, ch1) */
-    static volatile struct st_usb00 * const usb00_host[R_PRV_USB_COUNT] = {
+    static volatile struct st_usb00 *const usb00_host[R_PRV_USB_COUNT] = {
         &USB00, &USB10
     };
 
     /* USB Function IO reg Top Address(ch0, ch1) */
-    static volatile struct st_usb01 * const usb01_func[R_PRV_USB_COUNT] = {
+    static volatile struct st_usb01 *const usb01_func[R_PRV_USB_COUNT] = {
         &USB01, &USB11
     };
 
@@ -195,10 +195,10 @@ static void disable_usb(uint32_t ch)
 
     /* 7: Pulldown resistance control is effective (LINECTRL1 = 0x000A0000) */
     RZA_IO_RegWrite_32(
-            &usb00_host[ch]->LINECTRL1.LONG,
-            (USB_LINECTRL1_DPRPD_EN | USB_LINECTRL1_DMRPD_EN),
-            IOREG_NONSHIFT_ACCESS,
-            IOREG_NONMASK_ACCESS);
+        &usb00_host[ch]->LINECTRL1.LONG,
+        (USB_LINECTRL1_DPRPD_EN | USB_LINECTRL1_DMRPD_EN),
+        IOREG_NONSHIFT_ACCESS,
+        IOREG_NONMASK_ACCESS);
 
     /* 8: USBPHY standby mode (USBCTR.DIRPD = 1) */
     RZA_IO_RegWrite_32(&usb00_host[ch]->USBCTR.LONG, 1, USB_USBCTR_DIRPD_SHIFT, USB_USBCTR_DIRPD);
@@ -215,8 +215,7 @@ static void disable_usb(uint32_t ch)
     mask  = stback_mask[ch];
     shift = stback_shift[ch];
     dummy8 = 0x0;
-    while (0x3 != dummy8)
-    {
+    while (0x3 != dummy8) {
         dummy8 = RZA_IO_RegRead_8(&CPG.STBACK3.BYTE, shift, mask);
     }
     (void)dummy8;
@@ -237,19 +236,19 @@ uint32_t SystemCoreClock = CM0_RENESAS_RZ_A2_I_CLK;
 /*----------------------------------------------------------------------------
   System Core Clock update function
  *----------------------------------------------------------------------------*/
-void SystemCoreClockUpdate (void)
+void SystemCoreClockUpdate(void)
 {
 }
 
 /*----------------------------------------------------------------------------
   IRQ Handler Register/Unregister
  *----------------------------------------------------------------------------*/
-uint32_t InterruptHandlerRegister (IRQn_Type irq, IRQHandler handler)
+uint32_t InterruptHandlerRegister(IRQn_Type irq, IRQHandler handler)
 {
     return IRQ_SetHandler(irq, handler);
 }
 
-uint32_t InterruptHandlerUnregister (IRQn_Type irq)
+uint32_t InterruptHandlerUnregister(IRQn_Type irq)
 {
     return IRQ_SetHandler(irq, (IRQHandler_t)NULL);
 }
@@ -257,10 +256,10 @@ uint32_t InterruptHandlerUnregister (IRQn_Type irq)
 /*----------------------------------------------------------------------------
   System Initialization
  *----------------------------------------------------------------------------*/
-void SystemInit (void)
+void SystemInit(void)
 {
-/*       do not use global variables because this function is called before
-         reaching pre-main. RW section may be overwritten afterwards.          */
+    /*       do not use global variables because this function is called before
+             reaching pre-main. RW section may be overwritten afterwards.          */
 #if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
     // Enable FPU
     __FPU_Enable();
@@ -302,13 +301,13 @@ void SystemInit (void)
     // Enable MMU
     MMU_Enable();
 
-#if (__L2C_PRESENT == 1) 
+#if (__L2C_PRESENT == 1)
     /* Initial setting of the level 2 cache */
     R_CACHE_L2Init();
 
     /* DRP L2 Cache ON */
     PRR.AXIBUSCTL4.BIT.DRPARCACHE = 0xF;
-    PRR.AXIBUSCTL4.BIT.DRPAWCACHE = 0xF; 
+    PRR.AXIBUSCTL4.BIT.DRPAWCACHE = 0xF;
 #endif
 
     // IRQ Initialize
@@ -330,12 +329,14 @@ void SystemInit (void)
     (void)dummy_buf_16b;
 }
 
-void mbed_sdk_init(void) {
+void mbed_sdk_init(void)
+{
     /* Initial setting of the level 1 cache */
     R_CACHE_L1Init();
 }
 
-void soft_reset(void) {
+void soft_reset(void)
+{
     volatile uint16_t data;
     WDT.WTCNT.WORD = 0x5A00;
     data = WDT.WRCSR.WORD;
@@ -344,7 +345,7 @@ void soft_reset(void) {
     WDT.WRCSR.WORD = 0xA500;
     WDT.WTCSR.WORD = 0xA578;
     WDT.WRCSR.WORD = 0x5A40;
-    
-    while(1){}
+
+    while (1) {}
 }
 

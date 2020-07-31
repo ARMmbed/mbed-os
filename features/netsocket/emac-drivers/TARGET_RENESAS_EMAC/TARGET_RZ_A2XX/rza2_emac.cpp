@@ -110,7 +110,7 @@ bool RZ_A2_EMAC::link_out(emac_mem_buf_t *buf)
     uint32_t       retry_cnt = 0;
     uint16_t       write_buf_size;
     int            total_write_size = 0;
-    uint8_t *      pwrite_buffer_address;
+    uint8_t       *pwrite_buffer_address;
 
     while (1) {
         if (R_ETHER_Write_ZC2_GetBuf(_channel, (void **) &pwrite_buffer_address, &write_buf_size) == ETHER_SUCCESS) {
@@ -213,21 +213,21 @@ void RZ_A2_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
     memory_manager = &mem_mngr;
 }
 
-void RZ_A2_EMAC::_callback_pcb(void* arg)
+void RZ_A2_EMAC::_callback_pcb(void *arg)
 {
-    ether_cb_arg_t * p_cb_arg = (ether_cb_arg_t *)arg;
+    ether_cb_arg_t *p_cb_arg = (ether_cb_arg_t *)arg;
     get_instance(p_cb_arg->channel).callback_pcb(arg);
 }
 
-void RZ_A2_EMAC::_callback_hnd(void* arg)
+void RZ_A2_EMAC::_callback_hnd(void *arg)
 {
-    ether_cb_arg_t * p_cb_arg = (ether_cb_arg_t *)arg;
+    ether_cb_arg_t *p_cb_arg = (ether_cb_arg_t *)arg;
     get_instance(p_cb_arg->channel).callback_hnd(arg);
 }
 
-void RZ_A2_EMAC::callback_pcb(void* arg)
+void RZ_A2_EMAC::callback_pcb(void *arg)
 {
-    ether_cb_arg_t * p_cb_arg = (ether_cb_arg_t *)arg;
+    ether_cb_arg_t *p_cb_arg = (ether_cb_arg_t *)arg;
 
     if (p_cb_arg->event_id == ETHER_CB_EVENT_ID_LINK_ON) {
         emac_link_state_cb(true);
@@ -238,9 +238,9 @@ void RZ_A2_EMAC::callback_pcb(void* arg)
     }
 }
 
-void RZ_A2_EMAC::callback_hnd(void* arg)
+void RZ_A2_EMAC::callback_hnd(void *arg)
 {
-    ether_cb_arg_t * p_cb_arg = (ether_cb_arg_t *)arg;
+    ether_cb_arg_t *p_cb_arg = (ether_cb_arg_t *)arg;
 
     if (p_cb_arg->status_eesr & 0x00040000) {
         sem_recv.release();
@@ -251,7 +251,7 @@ void RZ_A2_EMAC::recv_task(void)
 {
     int32_t ret;
     emac_mem_buf_t *buf;
-    uint8_t * pread_buffer_address;
+    uint8_t *pread_buffer_address;
 
     while (1) {
         sem_recv.acquire();

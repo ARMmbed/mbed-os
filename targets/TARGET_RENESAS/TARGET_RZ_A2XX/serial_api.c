@@ -58,7 +58,7 @@ static void uart4_er_irq(void);
 static uint8_t serial_available_buffer(serial_t *obj);
 static void serial_irq_err_set(serial_t *obj, uint32_t enable);
 
-static volatile struct st_scifa* SCIFA[UART_NUM] = {
+static volatile struct st_scifa *SCIFA[UART_NUM] = {
     &SCIFA0, &SCIFA1, &SCIFA2, &SCIFA3, &SCIFA4
 };
 
@@ -93,7 +93,8 @@ static const IRQHandler hander_set_tbl[UART_NUM][IRQ_NUM] = {
 };
 
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
     volatile uint8_t dummy_buf;
     int is_stdio_uart = 0;
     // determine the UART to use
@@ -107,7 +108,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         return;
     }
 #else
-   MBED_ASSERT((int)ch_no != NC);
+    MBED_ASSERT((int)ch_no != NC);
 #endif
 
     // pinout the chosen uart
@@ -185,7 +186,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
        b0 SPB2DT - Serial port break data   : High-level */
 
     obj->serial.uart->SPTR.WORD |= 0x3;   /* b1 SPB2IO - Serial port break output : Enabled    */
-                                          /* b0 SPB2DT - Serial port break data   : High-level */
+    /* b0 SPB2DT - Serial port break data   : High-level */
 
     if ((int)uart_rx != NC) {
         obj->serial.uart->SCR.BIT.TIE   = 0x1;
@@ -204,13 +205,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
 }
 
-void serial_free(serial_t *obj) {
-    
+void serial_free(serial_t *obj)
+{
+
 }
 
 // serial_baud
 // set the baud rate, taking in to account the current SystemFrequency
-void serial_baud(serial_t *obj, int baudrate) {
+void serial_baud(serial_t *obj, int baudrate)
+{
     uint32_t idx;
     uint32_t brr;
     uint32_t mddr;
@@ -239,7 +242,7 @@ void serial_baud(serial_t *obj, int baudrate) {
         /* When idx is 4 (CKS=3), it allows up to the limit value which can be adjusted with MDDR */
         if ((brr <= 255) || (idx == 4)) {
             if (brr > 255) {
-               brr = 255;
+                brr = 255;
             }
 
             /* Calculate Modulation Duty */
@@ -277,7 +280,8 @@ void serial_baud(serial_t *obj, int baudrate) {
     }
 }
 
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
+{
 #if defined(PRINTF_NOT_USE)
     if ((int)obj->serial.ch == NC) {
         return;
@@ -328,7 +332,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_tx_irq(uint32_t ch) {
+static void uart_tx_irq(uint32_t ch)
+{
     serial_t *obj = uart_data[ch].tranferring_obj;
     if (obj) {
         int i = obj->tx_buff.length - obj->tx_buff.pos;
@@ -353,7 +358,8 @@ static void uart_tx_irq(uint32_t ch) {
     irq_handler(uart_data[ch].serial_irq_id, TxIrq);
 }
 
-static void uart_rx_irq(uint32_t ch) {
+static void uart_rx_irq(uint32_t ch)
+{
     serial_t *obj = uart_data[ch].receiving_obj;
     if (obj) {
         if (obj->serial.uart->LSR.BIT.ORER == 1) {
@@ -408,7 +414,8 @@ static void uart_rx_irq(uint32_t ch) {
     irq_handler(uart_data[ch].serial_irq_id, RxIrq);
 }
 
-static void uart_err_irq(uint32_t ch) {
+static void uart_err_irq(uint32_t ch)
+{
     serial_t *obj = uart_data[ch].receiving_obj;
     if (obj) {
         serial_irq_err_set(obj, 0);
@@ -425,7 +432,7 @@ static void uart_err_irq(uint32_t ch) {
 
         core_util_critical_section_enter();
         if (obj->serial.uart->FSR.WORD & 0x009Cu) {
-            obj->serial.uart->FSR.WORD &=~0x009Cu;
+            obj->serial.uart->FSR.WORD &= ~0x009Cu;
         }
         if (obj->serial.uart->LSR.BIT.ORER == 1) {
             obj->serial.uart->LSR.BIT.ORER = 0;
@@ -434,62 +441,79 @@ static void uart_err_irq(uint32_t ch) {
     }
 }
 
-static void uart0_tx_irq(void) {
+static void uart0_tx_irq(void)
+{
     uart_tx_irq(0);
 }
-static void uart0_rx_irq(void) {
+static void uart0_rx_irq(void)
+{
     uart_rx_irq(0);
 }
-static void uart0_er_irq(void) {
+static void uart0_er_irq(void)
+{
     uart_err_irq(0);
 }
 
-static void uart1_tx_irq(void) {
+static void uart1_tx_irq(void)
+{
     uart_tx_irq(1);
 }
-static void uart1_rx_irq(void) {
+static void uart1_rx_irq(void)
+{
     uart_rx_irq(1);
 }
-static void uart1_er_irq(void) {
+static void uart1_er_irq(void)
+{
     uart_err_irq(1);
 }
 
-static void uart2_tx_irq(void) {
+static void uart2_tx_irq(void)
+{
     uart_tx_irq(2);
 }
-static void uart2_rx_irq(void) {
+static void uart2_rx_irq(void)
+{
     uart_rx_irq(2);
 }
-static void uart2_er_irq(void) {
+static void uart2_er_irq(void)
+{
     uart_err_irq(2);
 }
 
-static void uart3_tx_irq(void) {
+static void uart3_tx_irq(void)
+{
     uart_tx_irq(3);
 }
-static void uart3_rx_irq(void) {
+static void uart3_rx_irq(void)
+{
     uart_rx_irq(3);
 }
-static void uart3_er_irq(void) {
+static void uart3_er_irq(void)
+{
     uart_err_irq(3);
 }
 
-static void uart4_tx_irq(void) {
+static void uart4_tx_irq(void)
+{
     uart_tx_irq(4);
 }
-static void uart4_rx_irq(void) {
+static void uart4_rx_irq(void)
+{
     uart_rx_irq(4);
 }
-static void uart4_er_irq(void) {
+static void uart4_er_irq(void)
+{
     uart_err_irq(4);
 }
 
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     uart_data[obj->serial.ch].serial_irq_id = id;
 }
 
-static void serial_irq_set_irq(IRQn_Type IRQn, IRQHandler handler, uint32_t enable) {
+static void serial_irq_set_irq(IRQn_Type IRQn, IRQHandler handler, uint32_t enable)
+{
     if (enable) {
         InterruptHandlerRegister(IRQn, (void (*)(uint32_t))handler);
         GIC_SetPriority(IRQn, 5);
@@ -499,11 +523,13 @@ static void serial_irq_set_irq(IRQn_Type IRQn, IRQHandler handler, uint32_t enab
     }
 }
 
-static void serial_irq_err_set(serial_t *obj, uint32_t enable) {
+static void serial_irq_err_set(serial_t *obj, uint32_t enable)
+{
     serial_irq_set_irq(irq_set_tbl[obj->serial.ch][2], hander_set_tbl[obj->serial.ch][2], enable);
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
     IRQn_Type IRQn;
     IRQHandler handler;
 
@@ -518,7 +544,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
 /******************************************************************************
  * READ/WRITE
  ******************************************************************************/
-int serial_getc(serial_t *obj) {
+int serial_getc(serial_t *obj)
+{
     int data;
 
 #if defined(PRINTF_NOT_USE)
@@ -528,7 +555,7 @@ int serial_getc(serial_t *obj) {
 #endif
     /* Confirming receive error(ER,BRK,FER,PER,ORER) */
     if (((obj->serial.uart->FSR.WORD & 0x009Cu) != 0)  ||
-       (obj->serial.uart->LSR.BIT.ORER == 1)) {
+            (obj->serial.uart->LSR.BIT.ORER == 1)) {
         /* ---- Detect receive error ---- */
         /* Disable reception             */
         /* Reset receiving FIFO          */
@@ -538,7 +565,7 @@ int serial_getc(serial_t *obj) {
         obj->serial.uart->SCR.BIT.RE = 0;
         obj->serial.uart->FCR.BIT.RFRST = 1;
         obj->serial.uart->FCR.BIT.RFRST = 0;
-        obj->serial.uart->FSR.WORD &=~0x009Cu;
+        obj->serial.uart->FSR.WORD &= ~0x009Cu;
         obj->serial.uart->LSR.BIT.ORER = 0;
         obj->serial.uart->SCR.BIT.RE = 1;
         return -1;
@@ -557,7 +584,8 @@ int serial_getc(serial_t *obj) {
     return data;
 }
 
-void serial_putc(serial_t *obj, int c) {
+void serial_putc(serial_t *obj, int c)
+{
 #if defined(PRINTF_NOT_USE)
     if ((int)obj->serial.ch == NC) {
         return;
@@ -576,7 +604,8 @@ void serial_putc(serial_t *obj, int c) {
     obj->serial.uart->FSR.WORD &= ~0x0060u;
 }
 
-int serial_readable(serial_t *obj) {
+int serial_readable(serial_t *obj)
+{
     if (obj->serial.uart->FSR.BIT.RDF == 0) {
         return 0;
     } else {
@@ -584,7 +613,8 @@ int serial_readable(serial_t *obj) {
     }
 }
 
-int serial_writable(serial_t *obj) {
+int serial_writable(serial_t *obj)
+{
 #if defined(PRINTF_NOT_USE)
     if ((int)obj->serial.ch == NC) {
         return 0;
@@ -597,7 +627,8 @@ int serial_writable(serial_t *obj) {
     }
 }
 
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
 #if defined(PRINTF_NOT_USE)
     if ((int)obj->serial.ch == NC) {
         return;
@@ -610,17 +641,20 @@ void serial_clear(serial_t *obj) {
     core_util_critical_section_exit();
 }
 
-void serial_pinout_tx(PinName tx) {
+void serial_pinout_tx(PinName tx)
+{
     pinmap_pinout(tx, PinMap_UART_TX);
 }
 
-void serial_break_set(serial_t *obj) {
+void serial_break_set(serial_t *obj)
+{
     core_util_critical_section_enter();
     obj->serial.uart->SCR.BIT.TE = 0;
     core_util_critical_section_exit();
 }
 
-void serial_break_clear(serial_t *obj) {
+void serial_break_clear(serial_t *obj)
+{
 #if defined(PRINTF_NOT_USE)
     if ((int)obj->serial.ch == NC) {
         return;
@@ -632,7 +666,8 @@ void serial_break_clear(serial_t *obj) {
 }
 
 #if DEVICE_SERIAL_FC
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
     // determine the UART to use
 
     if (type == FlowControlRTSCTS) {
@@ -649,7 +684,8 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 }
 #endif
 
-static uint8_t serial_available_buffer(serial_t *obj) {
+static uint8_t serial_available_buffer(serial_t *obj)
+{
     return 1;
 }
 
@@ -678,7 +714,8 @@ const PinMap *serial_rts_pinmap()
 /******************************************************************************
  * ASYNCHRONOUS HAL
  ******************************************************************************/
-int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint) {
+int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
+{
     int i;
     buffer_t *buf = &obj->tx_buff;
     struct serial_global_data_s *data = uart_data + obj->serial.ch;
@@ -704,15 +741,16 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         uint8_t c = *(uint8_t *)buf->buffer;
         obj->tx_buff.buffer = (uint8_t *)obj->tx_buff.buffer + 1;
         ++buf->pos;
-	    obj->serial.uart->FTDR.BYTE = c;
-	    obj->serial.uart->FSR.WORD &= ~0x0060u;
+        obj->serial.uart->FTDR.BYTE = c;
+        obj->serial.uart->FSR.WORD &= ~0x0060u;
     } while (--i);
 
     return buf->length;
 }
 
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width,
-   uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint) {
+                      uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
+{
     buffer_t *buf = &obj->rx_buff;
     struct serial_global_data_s *data = uart_data + obj->serial.ch;
 
@@ -735,25 +773,30 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     serial_irq_err_set(obj, 1);
 }
 
-uint8_t serial_tx_active(serial_t *obj) {
+uint8_t serial_tx_active(serial_t *obj)
+{
     return uart_data[obj->serial.ch].tranferring_obj != NULL;
 }
 
-uint8_t serial_rx_active(serial_t *obj) {
+uint8_t serial_rx_active(serial_t *obj)
+{
     return uart_data[obj->serial.ch].receiving_obj != NULL;
 }
 
-int serial_irq_handler_asynch(serial_t *obj) {
+int serial_irq_handler_asynch(serial_t *obj)
+{
     return uart_data[obj->serial.ch].event;
 }
 
-void serial_tx_abort_asynch(serial_t *obj) {
+void serial_tx_abort_asynch(serial_t *obj)
+{
     uart_data[obj->serial.ch].tranferring_obj = NULL;
     obj->serial.uart->FCR.BIT.TFRST = 1;
     obj->serial.uart->FCR.BIT.TFRST = 0;
 }
 
-void serial_rx_abort_asynch(serial_t *obj) {
+void serial_rx_abort_asynch(serial_t *obj)
+{
     uart_data[obj->serial.ch].receiving_obj = NULL;
     obj->serial.uart->FCR.BIT.RFRST = 1;
     obj->serial.uart->FCR.BIT.RFRST = 0;

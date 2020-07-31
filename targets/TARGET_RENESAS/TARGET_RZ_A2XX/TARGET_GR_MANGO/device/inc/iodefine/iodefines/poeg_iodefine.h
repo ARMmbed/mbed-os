@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,85 +43,76 @@
 #ifndef POEG_IODEFINE_H
 #define POEG_IODEFINE_H
 
-struct st_poeg
-{
-    union
-    {
+struct st_poeg {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PIDF:1;
-            unsigned long IOCF:1;
-            unsigned long :1;
-            unsigned long SSF:1;
-            unsigned long PIDE:1;
-            unsigned long IOCE:1;
-            unsigned long :10;
-            unsigned long ST:1;
-            unsigned long :11;
-            unsigned long INV:1;
-            unsigned long NFEN:1;
-            unsigned long NFCS:2;
+        struct {
+            unsigned long PIDF: 1;
+            unsigned long IOCF: 1;
+            unsigned long : 1;
+            unsigned long SSF: 1;
+            unsigned long PIDE: 1;
+            unsigned long IOCE: 1;
+            unsigned long : 10;
+            unsigned long ST: 1;
+            unsigned long : 11;
+            unsigned long INV: 1;
+            unsigned long NFEN: 1;
+            unsigned long NFCS: 2;
         } BIT;
     } POEGGA;
     char           wk0[2044];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PIDF:1;
-            unsigned long IOCF:1;
-            unsigned long :1;
-            unsigned long SSF:1;
-            unsigned long PIDE:1;
-            unsigned long IOCE:1;
-            unsigned long :10;
-            unsigned long ST:1;
-            unsigned long :11;
-            unsigned long INV:1;
-            unsigned long NFEN:1;
-            unsigned long NFCS:2;
+        struct {
+            unsigned long PIDF: 1;
+            unsigned long IOCF: 1;
+            unsigned long : 1;
+            unsigned long SSF: 1;
+            unsigned long PIDE: 1;
+            unsigned long IOCE: 1;
+            unsigned long : 10;
+            unsigned long ST: 1;
+            unsigned long : 11;
+            unsigned long INV: 1;
+            unsigned long NFEN: 1;
+            unsigned long NFCS: 2;
         } BIT;
     } POEGGB;
     char           wk1[2044];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PIDF:1;
-            unsigned long IOCF:1;
-            unsigned long :1;
-            unsigned long SSF:1;
-            unsigned long PIDE:1;
-            unsigned long IOCE:1;
-            unsigned long :10;
-            unsigned long ST:1;
-            unsigned long :11;
-            unsigned long INV:1;
-            unsigned long NFEN:1;
-            unsigned long NFCS:2;
+        struct {
+            unsigned long PIDF: 1;
+            unsigned long IOCF: 1;
+            unsigned long : 1;
+            unsigned long SSF: 1;
+            unsigned long PIDE: 1;
+            unsigned long IOCE: 1;
+            unsigned long : 10;
+            unsigned long ST: 1;
+            unsigned long : 11;
+            unsigned long INV: 1;
+            unsigned long NFEN: 1;
+            unsigned long NFCS: 2;
         } BIT;
     } POEGGC;
     char           wk2[2044];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PIDF:1;
-            unsigned long IOCF:1;
-            unsigned long :1;
-            unsigned long SSF:1;
-            unsigned long PIDE:1;
-            unsigned long IOCE:1;
-            unsigned long :10;
-            unsigned long ST:1;
-            unsigned long :11;
-            unsigned long INV:1;
-            unsigned long NFEN:1;
-            unsigned long NFCS:2;
+        struct {
+            unsigned long PIDF: 1;
+            unsigned long IOCF: 1;
+            unsigned long : 1;
+            unsigned long SSF: 1;
+            unsigned long PIDE: 1;
+            unsigned long IOCE: 1;
+            unsigned long : 10;
+            unsigned long ST: 1;
+            unsigned long : 11;
+            unsigned long INV: 1;
+            unsigned long NFEN: 1;
+            unsigned long NFCS: 2;
         } BIT;
     } POEGGD;
 };

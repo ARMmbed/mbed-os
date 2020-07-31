@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,310 +43,249 @@
 #ifndef JCU_IODEFINE_H
 #define JCU_IODEFINE_H
 
-struct st_jcu
-{
-    union
-    {
+struct st_jcu {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char REDU:3;
-            unsigned char DSP:1;
-            unsigned char :4;
+        struct {
+            unsigned char REDU: 3;
+            unsigned char DSP: 1;
+            unsigned char : 4;
         } BIT;
     } JCMOD;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char JSRT:1;
-            unsigned char JRST:1;
-            unsigned char JEND:1;
-            unsigned char :4;
-            unsigned char BRST:1;
+        struct {
+            unsigned char JSRT: 1;
+            unsigned char JRST: 1;
+            unsigned char JEND: 1;
+            unsigned char : 4;
+            unsigned char BRST: 1;
         } BIT;
     } JCCMD;
     char           wk0[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char QT1:2;
-            unsigned char QT2:2;
-            unsigned char QT3:2;
-            unsigned char :2;
+        struct {
+            unsigned char QT1: 2;
+            unsigned char QT2: 2;
+            unsigned char QT3: 2;
+            unsigned char : 2;
         } BIT;
     } JCQTN;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char HTD1:1;
-            unsigned char HTA1:1;
-            unsigned char HTD2:1;
-            unsigned char HTA2:1;
-            unsigned char HTD3:1;
-            unsigned char HTA3:1;
-            unsigned char :2;
+        struct {
+            unsigned char HTD1: 1;
+            unsigned char HTA1: 1;
+            unsigned char HTD2: 1;
+            unsigned char HTA2: 1;
+            unsigned char HTD3: 1;
+            unsigned char HTA3: 1;
+            unsigned char : 2;
         } BIT;
     } JCHTN;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DRIU:8;
+        struct {
+            unsigned char DRIU: 8;
         } BIT;
     } JCDRIU;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DRID:8;
+        struct {
+            unsigned char DRID: 8;
         } BIT;
     } JCDRID;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char VSZU:8;
+        struct {
+            unsigned char VSZU: 8;
         } BIT;
     } JCVSZU;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char VSZD:8;
+        struct {
+            unsigned char VSZD: 8;
         } BIT;
     } JCVSZD;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char HSZU:8;
+        struct {
+            unsigned char HSZU: 8;
         } BIT;
     } JCHSZU;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char HSZD:8;
+        struct {
+            unsigned char HSZD: 8;
         } BIT;
     } JCHSZD;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DCU:8;
+        struct {
+            unsigned char DCU: 8;
         } BIT;
     } JCDTCU;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DCM:8;
+        struct {
+            unsigned char DCM: 8;
         } BIT;
     } JCDTCM;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DCD:8;
+        struct {
+            unsigned char DCD: 8;
         } BIT;
     } JCDTCD;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :3;
-            unsigned char INT3:1;
-            unsigned char :1;
-            unsigned char INT5:1;
-            unsigned char INT6:1;
-            unsigned char INT7:1;
+        struct {
+            unsigned char : 3;
+            unsigned char INT3: 1;
+            unsigned char : 1;
+            unsigned char INT5: 1;
+            unsigned char INT6: 1;
+            unsigned char INT7: 1;
         } BIT;
     } JINTE0;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :3;
-            unsigned char INS3:1;
-            unsigned char :1;
-            unsigned char INS5:1;
-            unsigned char INS6:1;
-            unsigned char :1;
+        struct {
+            unsigned char : 3;
+            unsigned char INS3: 1;
+            unsigned char : 1;
+            unsigned char INS5: 1;
+            unsigned char INS6: 1;
+            unsigned char : 1;
         } BIT;
     } JINTS0;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ERR:4;
-            unsigned char :4;
+        struct {
+            unsigned char ERR: 4;
+            unsigned char : 4;
         } BIT;
     } JCDERR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RST:1;
-            unsigned char :7;
+        struct {
+            unsigned char RST: 1;
+            unsigned char : 7;
         } BIT;
     } JCRST;
     char           wk1[1];
     char           wk2[1];
     char           wk3[44];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DINSWAP:3;
-            unsigned long :1;
-            unsigned long DINLC:1;
-            unsigned long DINRCMD:1;
-            unsigned long DINRINI:1;
-            unsigned long :1;
-            unsigned long JOUTSWAP:3;
-            unsigned long :1;
-            unsigned long JOUTC:1;
-            unsigned long JOUTRCMD:1;
-            unsigned long JOUTRINI:1;
-            unsigned long :17;
+        struct {
+            unsigned long DINSWAP: 3;
+            unsigned long : 1;
+            unsigned long DINLC: 1;
+            unsigned long DINRCMD: 1;
+            unsigned long DINRINI: 1;
+            unsigned long : 1;
+            unsigned long JOUTSWAP: 3;
+            unsigned long : 1;
+            unsigned long JOUTC: 1;
+            unsigned long JOUTRCMD: 1;
+            unsigned long JOUTRINI: 1;
+            unsigned long : 17;
         } BIT;
     } JIFECNT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ESA:32;
+        struct {
+            unsigned long ESA: 32;
         } BIT;
     } JIFESA;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ESMW:15;
-            unsigned long :17;
+        struct {
+            unsigned long ESMW: 15;
+            unsigned long : 17;
         } BIT;
     } JIFESOFST;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long EDA:32;
+        struct {
+            unsigned long EDA: 32;
         } BIT;
     } JIFEDA;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LINES:16;
-            unsigned long :16;
+        struct {
+            unsigned long LINES: 16;
+            unsigned long : 16;
         } BIT;
     } JIFESLC;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long JDATAS:16;
-            unsigned long :16;
+        struct {
+            unsigned long JDATAS: 16;
+            unsigned long : 16;
         } BIT;
     } JIFEDDC;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DOUTSWAP:3;
-            unsigned long :1;
-            unsigned long DOUTLC:1;
-            unsigned long DOUTRCMD:1;
-            unsigned long DOUTRINI:1;
-            unsigned long :1;
-            unsigned long JINSWAP:3;
-            unsigned long :1;
-            unsigned long JINC:1;
-            unsigned long JINRCMD:1;
-            unsigned long JINRINI:1;
-            unsigned long :9;
-            unsigned long OPF:2;
-            unsigned long HINTER:2;
-            unsigned long VINTER:2;
-            unsigned long :2;
+        struct {
+            unsigned long DOUTSWAP: 3;
+            unsigned long : 1;
+            unsigned long DOUTLC: 1;
+            unsigned long DOUTRCMD: 1;
+            unsigned long DOUTRINI: 1;
+            unsigned long : 1;
+            unsigned long JINSWAP: 3;
+            unsigned long : 1;
+            unsigned long JINC: 1;
+            unsigned long JINRCMD: 1;
+            unsigned long JINRINI: 1;
+            unsigned long : 9;
+            unsigned long OPF: 2;
+            unsigned long HINTER: 2;
+            unsigned long VINTER: 2;
+            unsigned long : 2;
         } BIT;
     } JIFDCNT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DSA:32;
+        struct {
+            unsigned long DSA: 32;
         } BIT;
     } JIFDSA;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DDMW:15;
-            unsigned long :17;
+        struct {
+            unsigned long DDMW: 15;
+            unsigned long : 17;
         } BIT;
     } JIFDDOFST;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DDA:32;
+        struct {
+            unsigned long DDA: 32;
         } BIT;
     } JIFDDA;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long JDATAS:16;
-            unsigned long :16;
+        struct {
+            unsigned long JDATAS: 16;
+            unsigned long : 16;
         } BIT;
     } JIFDSDC;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LINES:16;
-            unsigned long :16;
+        struct {
+            unsigned long LINES: 16;
+            unsigned long : 16;
         } BIT;
     } JIFDDLC;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ALPHA:8;
-            unsigned long :24;
+        struct {
+            unsigned long ALPHA: 8;
+            unsigned long : 24;
         } BIT;
     } JIFDADT;
     char           wk4[4];
@@ -355,56 +294,48 @@ struct st_jcu
     char           wk7[4];
     char           wk8[4];
     char           wk9[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DOUTLEN:1;
-            unsigned long JINEN:1;
-            unsigned long DBTEN:1;
-            unsigned long :1;
-            unsigned long JOUTEN:1;
-            unsigned long DINLEN:1;
-            unsigned long CBTEN:1;
-            unsigned long :25;
+        struct {
+            unsigned long DOUTLEN: 1;
+            unsigned long JINEN: 1;
+            unsigned long DBTEN: 1;
+            unsigned long : 1;
+            unsigned long JOUTEN: 1;
+            unsigned long DINLEN: 1;
+            unsigned long CBTEN: 1;
+            unsigned long : 25;
         } BIT;
     } JINTE1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DOUTLF:1;
-            unsigned long JINF:1;
-            unsigned long DBTF:1;
-            unsigned long :1;
-            unsigned long JOUTF:1;
-            unsigned long DINLF:1;
-            unsigned long CBTF:1;
-            unsigned long :25;
+        struct {
+            unsigned long DOUTLF: 1;
+            unsigned long JINF: 1;
+            unsigned long DBTF: 1;
+            unsigned long : 1;
+            unsigned long JOUTF: 1;
+            unsigned long DINLF: 1;
+            unsigned long CBTF: 1;
+            unsigned long : 25;
         } BIT;
     } JINTS1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :15;
-            unsigned long DINYCHG:1;
-            unsigned long :15;
-            unsigned long :1;
+        struct {
+            unsigned long : 15;
+            unsigned long DINYCHG: 1;
+            unsigned long : 15;
+            unsigned long : 1;
         } BIT;
     } JIFESVSZ;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :15;
-            unsigned long DOUTYCHG:1;
-            unsigned long :15;
-            unsigned long :1;
+        struct {
+            unsigned long : 15;
+            unsigned long DOUTYCHG: 1;
+            unsigned long : 15;
+            unsigned long : 1;
         } BIT;
     } JIFESHSZ;
     char           wk10[100];

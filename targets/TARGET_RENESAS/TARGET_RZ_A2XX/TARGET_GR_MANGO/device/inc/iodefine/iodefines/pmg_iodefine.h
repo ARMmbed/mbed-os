@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,149 +43,130 @@
 #ifndef PMG_IODEFINE_H
 #define PMG_IODEFINE_H
 
-struct st_pmg
-{
-    union
-    {
+struct st_pmg {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RRAMKP0:1;
-            unsigned char RRAMKP1:1;
-            unsigned char RRAMKP2:1;
-            unsigned char RRAMKP3:1;
-            unsigned char :3;
-            unsigned char :1;
+        struct {
+            unsigned char RRAMKP0: 1;
+            unsigned char RRAMKP1: 1;
+            unsigned char RRAMKP2: 1;
+            unsigned char RRAMKP3: 1;
+            unsigned char : 3;
+            unsigned char : 1;
         } BIT;
     } RRAMKP;
     char           wk0[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :6;
-            unsigned char RAMBOOT:1;
-            unsigned char EBUSKEEPE:1;
+        struct {
+            unsigned char : 6;
+            unsigned char RAMBOOT: 1;
+            unsigned char EBUSKEEPE: 1;
         } BIT;
     } DSCTR;
     char           wk1[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short P3_1:1;
-            unsigned short P3_3:1;
-            unsigned short P6_2:1;
-            unsigned short PE_1:1;
-            unsigned short PH_1:1;
-            unsigned short PG_2:1;
-            unsigned short RTCAR0:1;
-            unsigned short RTCAR1:1;
-            unsigned short NMI:1;
-            unsigned short PG_6:1;
-            unsigned short PH_0:1;
-            unsigned short PJ_1:1;
-            unsigned short PJ_5:1;
-            unsigned short PK_2:1;
-            unsigned short PK_4:1;
-            unsigned short :1;
+        struct {
+            unsigned short P3_1: 1;
+            unsigned short P3_3: 1;
+            unsigned short P6_2: 1;
+            unsigned short PE_1: 1;
+            unsigned short PH_1: 1;
+            unsigned short PG_2: 1;
+            unsigned short RTCAR0: 1;
+            unsigned short RTCAR1: 1;
+            unsigned short NMI: 1;
+            unsigned short PG_6: 1;
+            unsigned short PH_0: 1;
+            unsigned short PJ_1: 1;
+            unsigned short PJ_5: 1;
+            unsigned short PK_2: 1;
+            unsigned short PK_4: 1;
+            unsigned short : 1;
         } BIT;
     } DSSSR;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short P3_1E:1;
-            unsigned short P3_3E:1;
-            unsigned short P6_2E:1;
-            unsigned short PE_1E:1;
-            unsigned short PH_1E:1;
-            unsigned short PG_2E:1;
-            unsigned short :2;
-            unsigned short NMIE:1;
-            unsigned short PG_6E:1;
-            unsigned short PH_0E:1;
-            unsigned short PJ_1E:1;
-            unsigned short PJ_5E:1;
-            unsigned short PK_2E:1;
-            unsigned short PK_4E:1;
-            unsigned short :1;
+        struct {
+            unsigned short P3_1E: 1;
+            unsigned short P3_3E: 1;
+            unsigned short P6_2E: 1;
+            unsigned short PE_1E: 1;
+            unsigned short PH_1E: 1;
+            unsigned short PG_2E: 1;
+            unsigned short : 2;
+            unsigned short NMIE: 1;
+            unsigned short PG_6E: 1;
+            unsigned short PH_0E: 1;
+            unsigned short PJ_1E: 1;
+            unsigned short PJ_5E: 1;
+            unsigned short PK_2E: 1;
+            unsigned short PK_4E: 1;
+            unsigned short : 1;
         } BIT;
     } DSESR;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short P3_1F:1;
-            unsigned short P3_3F:1;
-            unsigned short P6_2F:1;
-            unsigned short PE_1F:1;
-            unsigned short PH_1F:1;
-            unsigned short PG_2F:1;
-            unsigned short RTCARF0:1;
-            unsigned short RTCARF1:1;
-            unsigned short NMIF:1;
-            unsigned short PG_6F:1;
-            unsigned short PH_0F:1;
-            unsigned short PJ_1F:1;
-            unsigned short PJ_5F:1;
-            unsigned short PK_2F:1;
-            unsigned short PK_4F:1;
-            unsigned short IOKEEP:1;
+        struct {
+            unsigned short P3_1F: 1;
+            unsigned short P3_3F: 1;
+            unsigned short P6_2F: 1;
+            unsigned short PE_1F: 1;
+            unsigned short PH_1F: 1;
+            unsigned short PG_2F: 1;
+            unsigned short RTCARF0: 1;
+            unsigned short RTCARF1: 1;
+            unsigned short NMIF: 1;
+            unsigned short PG_6F: 1;
+            unsigned short PH_0F: 1;
+            unsigned short PJ_1F: 1;
+            unsigned short PJ_5F: 1;
+            unsigned short PK_2F: 1;
+            unsigned short PK_4F: 1;
+            unsigned short IOKEEP: 1;
         } BIT;
     } DSFR;
     char           wk2[2];
     char           wk3[1];
     char           wk4[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short CNTD:8;
-            unsigned short :6;
-            unsigned short :1;
-            unsigned short :1;
+        struct {
+            unsigned short CNTD: 8;
+            unsigned short : 6;
+            unsigned short : 1;
+            unsigned short : 1;
         } BIT;
     } DSCNT;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char GAIN0:1;
-            unsigned char :1;
-            unsigned char :6;
+        struct {
+            unsigned char GAIN0: 1;
+            unsigned char : 1;
+            unsigned char : 6;
         } BIT;
     } XTALCTR;
     char           wk5[15];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char USBDSCE0:1;
-            unsigned char USBDSCE1:1;
-            unsigned char USBDSCE2:1;
-            unsigned char USBDSCE3:1;
-            unsigned char :4;
+        struct {
+            unsigned char USBDSCE0: 1;
+            unsigned char USBDSCE1: 1;
+            unsigned char USBDSCE2: 1;
+            unsigned char USBDSCE3: 1;
+            unsigned char : 4;
         } BIT;
     } USBDSSSR;
     char           wk6[3];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char USBDSF0:1;
-            unsigned char USBDSF1:1;
-            unsigned char USBDSF2:1;
-            unsigned char USBDSF3:1;
-            unsigned char :4;
+        struct {
+            unsigned char USBDSF0: 1;
+            unsigned char USBDSF1: 1;
+            unsigned char USBDSF2: 1;
+            unsigned char USBDSF3: 1;
+            unsigned char : 4;
         } BIT;
     } USBDSFR;
     char           wk7[11];
@@ -193,14 +174,12 @@ struct st_pmg
     char           wk9[2];
     char           wk10[2];
     char           wk11[10];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short RTC0XT:1;
-            unsigned short RTC1XT:1;
-            unsigned short :14;
+        struct {
+            unsigned short RTC0XT: 1;
+            unsigned short RTC1XT: 1;
+            unsigned short : 14;
         } BIT;
     } RTCXTALSEL;
 };

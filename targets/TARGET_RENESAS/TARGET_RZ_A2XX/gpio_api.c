@@ -19,28 +19,34 @@
 #include "gpio_addrdefine.h"
 #include "mbed_drv_cfg.h"
 
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     pin_function(pin, 0);
     return (1 << PINNO(pin));
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     uint32_t reg_group = PINGROUP(pin);
 
     obj->pin     = pin;
-    if (reg_group > GPIO_GROUP_MAX) return;
+    if (reg_group > GPIO_GROUP_MAX) {
+        return;
+    }
 
     obj->mask    = gpio_set(pin);
     obj->reg_dir = (volatile uint16_t *)PDR(reg_group);
-    obj->reg_set = (volatile uint8_t  *)PODR(reg_group);
-    obj->reg_in  = (volatile uint8_t  *)PIDR(reg_group);
+    obj->reg_set = (volatile uint8_t *)PODR(reg_group);
+    obj->reg_in  = (volatile uint8_t *)PIDR(reg_group);
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
-/* Pull up and Pull down settings aren't supported because RZ/A1H doesn't have pull up/down for pins(signals). */
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
+    /* Pull up and Pull down settings aren't supported because RZ/A1H doesn't have pull up/down for pins(signals). */
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     switch (direction) {
         case PIN_INPUT :
             *obj->reg_dir &= ~((uint16_t)(0x3 << (PINNO(obj->pin) * 2)));

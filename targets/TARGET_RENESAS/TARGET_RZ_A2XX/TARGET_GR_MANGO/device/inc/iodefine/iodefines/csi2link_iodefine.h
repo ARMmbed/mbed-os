@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,202 +43,165 @@
 #ifndef CSI2LINK_IODEFINE_H
 #define CSI2LINK_IODEFINE_H
 
-struct st_csi2link
-{
-    union
-    {
+struct st_csi2link {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TREF:1;
-            unsigned long :31;
+        struct {
+            unsigned long TREF: 1;
+            unsigned long : 31;
         } BIT;
     } TREF;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SRST:1;
-            unsigned long :31;
+        struct {
+            unsigned long SRST: 1;
+            unsigned long : 31;
         } BIT;
     } SRST;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ENABLE_0:1;
-            unsigned long ENABLE_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long ENABLECLK:1;
-            unsigned long :11;
-            unsigned long RSTZ:1;
-            unsigned long SHUTDOWNZ:1;
-            unsigned long :14;
+        struct {
+            unsigned long ENABLE_0: 1;
+            unsigned long ENABLE_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long ENABLECLK: 1;
+            unsigned long : 11;
+            unsigned long RSTZ: 1;
+            unsigned long SHUTDOWNZ: 1;
+            unsigned long : 14;
         } BIT;
     } PHYCNT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CRC_EN:1;
-            unsigned long ECC_EN:1;
-            unsigned long :30;
+        struct {
+            unsigned long CRC_EN: 1;
+            unsigned long ECC_EN: 1;
+            unsigned long : 30;
         } BIT;
     } CHKSUM;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SEL_DT:6;
-            unsigned long SEL_DT_ON:1;
-            unsigned long :1;
-            unsigned long SEL_VC:2;
-            unsigned long :5;
-            unsigned long VCDT_EN:1;
-            unsigned long :6;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :2;
-            unsigned long :5;
-            unsigned long :1;
+        struct {
+            unsigned long SEL_DT: 6;
+            unsigned long SEL_DT_ON: 1;
+            unsigned long : 1;
+            unsigned long SEL_VC: 2;
+            unsigned long : 5;
+            unsigned long VCDT_EN: 1;
+            unsigned long : 6;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 2;
+            unsigned long : 5;
+            unsigned long : 1;
         } BIT;
     } VCDT;
     char           wk0[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :16;
-            unsigned long DT_FE:6;
-            unsigned long :2;
-            unsigned long DT_FS:6;
-            unsigned long :2;
+        struct {
+            unsigned long : 16;
+            unsigned long DT_FE: 6;
+            unsigned long : 2;
+            unsigned long DT_FS: 6;
+            unsigned long : 2;
         } BIT;
     } FRDT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long FLD_EN:1;
-            unsigned long :3;
-            unsigned long FLD_DET_SEL:2;
-            unsigned long :10;
-            unsigned long FLD_NUM:16;
+        struct {
+            unsigned long FLD_EN: 1;
+            unsigned long : 3;
+            unsigned long FLD_DET_SEL: 2;
+            unsigned long : 10;
+            unsigned long FLD_NUM: 16;
         } BIT;
     } FLD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long AUTO_STANDBY_EN:5;
-            unsigned long VD_MSK_EN:1;
-            unsigned long :2;
-            unsigned long VD_MSK_CYCLE:6;
-            unsigned long :18;
+        struct {
+            unsigned long AUTO_STANDBY_EN: 5;
+            unsigned long VD_MSK_EN: 1;
+            unsigned long : 2;
+            unsigned long VD_MSK_CYCLE: 6;
+            unsigned long : 18;
         } BIT;
     } ASTBY;
     char           wk1[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LNGDT0:32;
+        struct {
+            unsigned long LNGDT0: 32;
         } BIT;
     } LNGDT0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LNGDT1:32;
+        struct {
+            unsigned long LNGDT1: 32;
         } BIT;
     } LNGDT1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long IEN:32;
+        struct {
+            unsigned long IEN: 32;
         } BIT;
     } INTEN;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ICL:32;
+        struct {
+            unsigned long ICL: 32;
         } BIT;
     } INTCLOSE;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long IST:32;
+        struct {
+            unsigned long IST: 32;
         } BIT;
     } INTSTATE;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long IEST:16;
-            unsigned long :16;
+        struct {
+            unsigned long IEST: 16;
+            unsigned long : 16;
         } BIT;
     } INTERRSTATE;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long DATA:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long DATA: 16;
+            unsigned long ECC: 8;
         } BIT;
     } SHPDAT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long NUM:4;
-            unsigned long :12;
-            unsigned long OVF:1;
-            unsigned long :15;
+        struct {
+            unsigned long NUM: 4;
+            unsigned long : 12;
+            unsigned long OVF: 1;
+            unsigned long : 15;
         } BIT;
     } SHPCNT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long :24;
-            unsigned long :1;
-            unsigned long REG_MONI_PACT_EN:1;
-            unsigned long :5;
-            unsigned long MONITOR_EN:1;
+        struct {
+            unsigned long : 24;
+            unsigned long : 1;
+            unsigned long REG_MONI_PACT_EN: 1;
+            unsigned long : 5;
+            unsigned long MONITOR_EN: 1;
         } BIT;
     } LINKCNT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long L0SEL:2;
-            unsigned long L1SEL:2;
-            unsigned long :2;
-            unsigned long :2;
-            unsigned long :24;
+        struct {
+            unsigned long L0SEL: 2;
+            unsigned long L1SEL: 2;
+            unsigned long : 2;
+            unsigned long : 2;
+            unsigned long : 24;
         } BIT;
     } LSWAP;
     char           wk2[4];
@@ -247,458 +210,378 @@ struct st_csi2link
     char           wk5[12];
     char           wk6[4];
     char           wk7[8];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ERRCONTROL_0:1;
-            unsigned long ERRCONTROL_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :4;
-            unsigned long ERRESC_0:1;
-            unsigned long ERRESC_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long CL_ERRCONTROL:1;
-            unsigned long :19;
+        struct {
+            unsigned long ERRCONTROL_0: 1;
+            unsigned long ERRCONTROL_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 4;
+            unsigned long ERRESC_0: 1;
+            unsigned long ERRESC_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long CL_ERRCONTROL: 1;
+            unsigned long : 19;
         } BIT;
     } PHEERM;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long STOPSTATECLK:1;
-            unsigned long RXCLKACTIVEHS:1;
-            unsigned long RXULPSCLKNOT:1;
-            unsigned long ULPSACTIVENOTCLK:1;
-            unsigned long :28;
+        struct {
+            unsigned long STOPSTATECLK: 1;
+            unsigned long RXCLKACTIVEHS: 1;
+            unsigned long RXULPSCLKNOT: 1;
+            unsigned long ULPSACTIVENOTCLK: 1;
+            unsigned long : 28;
         } BIT;
     } PHCLM;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long STOPSTATEDATA_0:1;
-            unsigned long STOPSTATEDATA_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :4;
-            unsigned long RXULPSESC_0:1;
-            unsigned long RXULPSESC_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long ULPSACTIVENOT_0:1;
-            unsigned long ULPSACTIVENOT_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :16;
+        struct {
+            unsigned long STOPSTATEDATA_0: 1;
+            unsigned long STOPSTATEDATA_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 4;
+            unsigned long RXULPSESC_0: 1;
+            unsigned long RXULPSESC_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long ULPSACTIVENOT_0: 1;
+            unsigned long ULPSACTIVENOT_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 16;
         } BIT;
     } PHDLM;
     char           wk8[112];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long :8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long : 8;
         } BIT;
     } PH0M0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PH_CNT:16;
-            unsigned long :16;
+        struct {
+            unsigned long PH_CNT: 16;
+            unsigned long : 16;
         } BIT;
     } PH0M1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long :8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long : 8;
         } BIT;
     } PH1M0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PH_CNT:16;
-            unsigned long :16;
+        struct {
+            unsigned long PH_CNT: 16;
+            unsigned long : 16;
         } BIT;
     } PH1M1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long :8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long : 8;
         } BIT;
     } PH2M0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PH_CNT:16;
-            unsigned long :16;
+        struct {
+            unsigned long PH_CNT: 16;
+            unsigned long : 16;
         } BIT;
     } PH2M1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long :8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long : 8;
         } BIT;
     } PH3M0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PH_CNT:16;
-            unsigned long :16;
+        struct {
+            unsigned long PH_CNT: 16;
+            unsigned long : 16;
         } BIT;
     } PH3M1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHRM0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHRM1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHRM2;
     char           wk9[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long CAL_PARITY:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long CAL_PARITY: 8;
         } BIT;
     } PHCM0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long CAL_PARITY:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long CAL_PARITY: 8;
         } BIT;
     } PHCM1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CAL_CRC:16;
-            unsigned long CRC:16;
+        struct {
+            unsigned long CAL_CRC: 16;
+            unsigned long CRC: 16;
         } BIT;
     } CRCM0;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CAL_CRC:16;
-            unsigned long CRC:16;
+        struct {
+            unsigned long CAL_CRC: 16;
+            unsigned long CRC: 16;
         } BIT;
     } CRCM1;
     char           wk10[16];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ERRSOTHS_CNT:8;
-            unsigned long :24;
+        struct {
+            unsigned long ERRSOTHS_CNT: 8;
+            unsigned long : 24;
         } BIT;
     } SERRCNT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ERRSOTSYNCHS:4;
-            unsigned long :28;
+        struct {
+            unsigned long ERRSOTSYNCHS: 4;
+            unsigned long : 28;
         } BIT;
     } SSERRCNT;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ECC_CRCT_CNT:8;
-            unsigned long :24;
+        struct {
+            unsigned long ECC_CRCT_CNT: 8;
+            unsigned long : 24;
         } BIT;
     } ECCCM;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ECC_ERR_CNT:8;
-            unsigned long :24;
+        struct {
+            unsigned long ECC_ERR_CNT: 8;
+            unsigned long : 24;
         } BIT;
     } ECECM;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CRC_ERR_CNT:8;
-            unsigned long :24;
+        struct {
+            unsigned long CRC_ERR_CNT: 8;
+            unsigned long : 24;
         } BIT;
     } CRCECM;
     char           wk11[12];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LINE_CNT:16;
-            unsigned long :16;
+        struct {
+            unsigned long LINE_CNT: 16;
+            unsigned long : 16;
         } BIT;
     } LCNT;
     char           wk12[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long MONI_LINECNT:16;
-            unsigned long :16;
+        struct {
+            unsigned long MONI_LINECNT: 16;
+            unsigned long : 16;
         } BIT;
     } LCNTM;
     char           wk13[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long MONI_FCOUNT:16;
-            unsigned long :16;
+        struct {
+            unsigned long MONI_FCOUNT: 16;
+            unsigned long : 16;
         } BIT;
     } FCNTM;
     char           wk14[4];
     char           wk15[8];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long RXDATAHS_0:8;
-            unsigned long RXDATAHS_1:8;
-            unsigned long :8;
-            unsigned long :8;
+        struct {
+            unsigned long RXDATAHS_0: 8;
+            unsigned long RXDATAHS_1: 8;
+            unsigned long : 8;
+            unsigned long : 8;
         } BIT;
     } PHYDIM;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long RXSYNCHS_0_CNT:4;
-            unsigned long RXSYNCHS_1_CNT:4;
-            unsigned long :4;
-            unsigned long :4;
-            unsigned long RXACTIVEHS_0:1;
-            unsigned long RXACTIVEHS_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long RXVALIDHS_0:1;
-            unsigned long RXVALIDHS_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long :7;
-            unsigned long RXCLK_CNT:1;
+        struct {
+            unsigned long RXSYNCHS_0_CNT: 4;
+            unsigned long RXSYNCHS_1_CNT: 4;
+            unsigned long : 4;
+            unsigned long : 4;
+            unsigned long RXACTIVEHS_0: 1;
+            unsigned long RXACTIVEHS_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long RXVALIDHS_0: 1;
+            unsigned long RXVALIDHS_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long : 7;
+            unsigned long RXCLK_CNT: 1;
         } BIT;
     } PHYIM;
     char           wk16[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CSIR_DAT:32;
+        struct {
+            unsigned long CSIR_DAT: 32;
         } BIT;
     } VINDM;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CSIR_HD_CNT:12;
-            unsigned long CSIR_VD_CNT:4;
-            unsigned long :12;
-            unsigned long :4;
+        struct {
+            unsigned long CSIR_HD_CNT: 12;
+            unsigned long CSIR_VD_CNT: 4;
+            unsigned long : 12;
+            unsigned long : 4;
         } BIT;
     } VINSM1;
     char           wk17[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CSIR_PE:1;
-            unsigned long :3;
-            unsigned long CSIR_PEB:4;
-            unsigned long CSIR_FLD:4;
-            unsigned long CSIR_TAG:2;
-            unsigned long CSIR_ERRC:1;
-            unsigned long CSIR_ERRE:1;
-            unsigned long :16;
+        struct {
+            unsigned long CSIR_PE: 1;
+            unsigned long : 3;
+            unsigned long CSIR_PEB: 4;
+            unsigned long CSIR_FLD: 4;
+            unsigned long CSIR_TAG: 2;
+            unsigned long CSIR_ERRC: 1;
+            unsigned long CSIR_ERRE: 1;
+            unsigned long : 16;
         } BIT;
     } VINSM3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ENABLE_0:1;
-            unsigned long ENABLE_1:1;
-            unsigned long :1;
-            unsigned long :1;
-            unsigned long ENABLECLK:1;
-            unsigned long :27;
+        struct {
+            unsigned long ENABLE_0: 1;
+            unsigned long ENABLE_1: 1;
+            unsigned long : 1;
+            unsigned long : 1;
+            unsigned long ENABLECLK: 1;
+            unsigned long : 27;
         } BIT;
     } PHYOM;
     char           wk18[32];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM3;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM4;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM5;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM6;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM7;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DT:6;
-            unsigned long VC:2;
-            unsigned long WC:16;
-            unsigned long ECC:8;
+        struct {
+            unsigned long DT: 6;
+            unsigned long VC: 2;
+            unsigned long WC: 16;
+            unsigned long ECC: 8;
         } BIT;
     } PHM8;
     char           wk19[4];
@@ -712,37 +595,31 @@ struct st_csi2link
     char           wk27[84];
     char           wk28[4];
     char           wk29[12];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long T_INIT_SLAVE:16;
-            unsigned long :16;
+        struct {
+            unsigned long T_INIT_SLAVE: 16;
+            unsigned long : 16;
         } BIT;
     } PHYTIM1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TCLK_PREPARE:5;
-            unsigned long :3;
-            unsigned long TCLK_SETTLE:6;
-            unsigned long :2;
-            unsigned long TCLK_MISS:5;
-            unsigned long :11;
+        struct {
+            unsigned long TCLK_PREPARE: 5;
+            unsigned long : 3;
+            unsigned long TCLK_SETTLE: 6;
+            unsigned long : 2;
+            unsigned long TCLK_MISS: 5;
+            unsigned long : 11;
         } BIT;
     } PHYTIM2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long THS_PREPARE:6;
-            unsigned long :2;
-            unsigned long THS_SETTLE:6;
-            unsigned long :18;
+        struct {
+            unsigned long THS_PREPARE: 6;
+            unsigned long : 2;
+            unsigned long THS_SETTLE: 6;
+            unsigned long : 18;
         } BIT;
     } PHYTIM3;
     char           wk30[4];

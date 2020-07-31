@@ -56,20 +56,17 @@
  *              : uint32_t mask            : Mask value for the IO register (Target bit : "1")
  * Return Value : None
  *********************************************************************************************************************/
-void RZA_IO_RegWrite_8(volatile uint8_t * ioreg, uint8_t write_value, uint8_t shift, uint32_t mask)
+void RZA_IO_RegWrite_8(volatile uint8_t *ioreg, uint8_t write_value, uint8_t shift, uint32_t mask)
 {
     uint8_t reg_value;
 
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         /* Read from register */
         reg_value = *ioreg;
 
         /* Modify value */
         reg_value = (uint8_t)((reg_value & (~mask)) | (uint8_t)(write_value << shift));
-    }
-    else
-    {
+    } else {
         reg_value = write_value;
     }
 
@@ -90,20 +87,17 @@ void RZA_IO_RegWrite_8(volatile uint8_t * ioreg, uint8_t write_value, uint8_t sh
  *              : uint32_t mask             : Mask value for the IO register (Target bit : "1")
  * Return Value : None
  *********************************************************************************************************************/
-void RZA_IO_RegWrite_16(volatile uint16_t * ioreg, uint16_t write_value, uint16_t shift, uint32_t mask)
+void RZA_IO_RegWrite_16(volatile uint16_t *ioreg, uint16_t write_value, uint16_t shift, uint32_t mask)
 {
     uint16_t reg_value;
 
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         /* Read from register */
         reg_value = *ioreg;
 
         /* Modify value */
         reg_value = (uint16_t)((reg_value & (~mask)) | (uint16_t)(write_value << shift));
-    }
-    else
-    {
+    } else {
         reg_value = write_value;
     }
 
@@ -124,20 +118,17 @@ void RZA_IO_RegWrite_16(volatile uint16_t * ioreg, uint16_t write_value, uint16_
  *              : uint32_t mask             : Mask value for the IO register (Target bit : "1")
  * Return Value : None
  *********************************************************************************************************************/
-void RZA_IO_RegWrite_32(volatile unsigned long * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
+void RZA_IO_RegWrite_32(volatile unsigned long *ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
 
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         /* Read from register */
         reg_value = *ioreg;
 
         /* Modify value */
         reg_value = (uint32_t)((reg_value & (~mask)) | (uint32_t)(write_value << shift));
-    }
-    else
-    {
+    } else {
         reg_value = write_value;
     }
 
@@ -157,15 +148,14 @@ void RZA_IO_RegWrite_32(volatile unsigned long * ioreg, uint32_t write_value, ui
  *              : uint32_t mask            : Mask bit for the IO register (Target bit: "1")
  * Return Value : uint8_t : Value of the obtained target bit
  *********************************************************************************************************************/
-uint8_t RZA_IO_RegRead_8(volatile uint8_t * ioreg, uint8_t shift, uint32_t mask)
+uint8_t RZA_IO_RegRead_8(volatile uint8_t *ioreg, uint8_t shift, uint32_t mask)
 {
     uint8_t reg_value;
 
     /* Read from register */
     reg_value = *ioreg;
 
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         /* Clear other bit and Bit shift */
         reg_value = (uint8_t)((reg_value & mask) >> shift);
     }
@@ -185,15 +175,14 @@ uint8_t RZA_IO_RegRead_8(volatile uint8_t * ioreg, uint8_t shift, uint32_t mask)
  *              : uint32_t mask             : Mask bit for the IO register (Target bit: "1")
  * Return Value : uint16_t : Value of the obtained target bit
  *********************************************************************************************************************/
-uint16_t RZA_IO_RegRead_16(volatile uint16_t * ioreg, uint16_t shift, uint32_t mask)
+uint16_t RZA_IO_RegRead_16(volatile uint16_t *ioreg, uint16_t shift, uint32_t mask)
 {
     uint16_t reg_value;
 
     /* Read from register */
     reg_value = *ioreg;
 
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         /* Clear other bit and Bit shift */
         reg_value = (uint16_t)((reg_value & mask) >> shift);
     }
@@ -213,15 +202,14 @@ uint16_t RZA_IO_RegRead_16(volatile uint16_t * ioreg, uint16_t shift, uint32_t m
  *              : uint32_t mask             : Mask bit for the IO register (Target bit: "1")
  * Return Value : uint32_t : Value of the obtained target bit
  *********************************************************************************************************************/
-uint32_t RZA_IO_RegRead_32(volatile unsigned long * ioreg, uint32_t shift, uint32_t mask)
+uint32_t RZA_IO_RegRead_32(volatile unsigned long *ioreg, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
 
     /* Read from register */
     reg_value = *ioreg;
 
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         /* Clear other bit and Bit shift */
         reg_value = (reg_value & mask) >> shift;
     }

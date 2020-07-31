@@ -161,10 +161,10 @@ private:
     int phy_task_handle; /**< Handle for phy task event */
     rtos::Semaphore sem_recv;
 
-    static void _callback_pcb(void*);
-    static void _callback_hnd(void*);
-    void callback_pcb(void*);
-    void callback_hnd(void*);
+    static void _callback_pcb(void *);
+    static void _callback_hnd(void *);
+    void callback_pcb(void *);
+    void callback_hnd(void *);
     void recv_task(void);
     void phy_task(void);
 };

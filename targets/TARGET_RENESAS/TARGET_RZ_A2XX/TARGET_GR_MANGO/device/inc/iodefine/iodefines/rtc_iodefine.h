@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,274 +43,225 @@
 #ifndef RTC_IODEFINE_H
 #define RTC_IODEFINE_H
 
-struct st_rtc
-{
-    union
-    {
+struct st_rtc {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char F64HZ:1;
-            unsigned char F32HZ:1;
-            unsigned char F16HZ:1;
-            unsigned char F8HZ:1;
-            unsigned char F4HZ:1;
-            unsigned char F2HZ:1;
-            unsigned char F1HZ:1;
-            unsigned char :1;
+        struct {
+            unsigned char F64HZ: 1;
+            unsigned char F32HZ: 1;
+            unsigned char F16HZ: 1;
+            unsigned char F8HZ: 1;
+            unsigned char F4HZ: 1;
+            unsigned char F2HZ: 1;
+            unsigned char F1HZ: 1;
+            unsigned char : 1;
         } BIT;
     } R64CNT;
     char           wk0[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SEC1:4;
-            unsigned char SEC10:3;
-            unsigned char :1;
+        struct {
+            unsigned char SEC1: 4;
+            unsigned char SEC10: 3;
+            unsigned char : 1;
         } BIT;
     } RSECCNT;
     char           wk1[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MIN1:4;
-            unsigned char MIN10:3;
-            unsigned char :1;
+        struct {
+            unsigned char MIN1: 4;
+            unsigned char MIN10: 3;
+            unsigned char : 1;
         } BIT;
     } RMINCNT;
     char           wk2[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char HR1:4;
-            unsigned char HR10:2;
-            unsigned char PM:1;
-            unsigned char :1;
+        struct {
+            unsigned char HR1: 4;
+            unsigned char HR10: 2;
+            unsigned char PM: 1;
+            unsigned char : 1;
         } BIT;
     } RHRCNT;
     char           wk3[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DAYW:3;
-            unsigned char :5;
+        struct {
+            unsigned char DAYW: 3;
+            unsigned char : 5;
         } BIT;
     } RWKCNT;
     char           wk4[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DATE1:4;
-            unsigned char DATE10:2;
-            unsigned char :2;
+        struct {
+            unsigned char DATE1: 4;
+            unsigned char DATE10: 2;
+            unsigned char : 2;
         } BIT;
     } RDAYCNT;
     char           wk5[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MON1:4;
-            unsigned char MON10:1;
-            unsigned char :3;
+        struct {
+            unsigned char MON1: 4;
+            unsigned char MON10: 1;
+            unsigned char : 3;
         } BIT;
     } RMONCNT;
     char           wk6[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short YR1:4;
-            unsigned short YR10:4;
-            unsigned short :8;
+        struct {
+            unsigned short YR1: 4;
+            unsigned short YR10: 4;
+            unsigned short : 8;
         } BIT;
     } RYRCNT;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char SEC1:4;
-            unsigned char SEC10:3;
-            unsigned char ENB:1;
+        struct {
+            unsigned char SEC1: 4;
+            unsigned char SEC10: 3;
+            unsigned char ENB: 1;
         } BIT;
     } RSECAR;
     char           wk7[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MIN1:4;
-            unsigned char MIN10:3;
-            unsigned char ENB:1;
+        struct {
+            unsigned char MIN1: 4;
+            unsigned char MIN10: 3;
+            unsigned char ENB: 1;
         } BIT;
     } RMINAR;
     char           wk8[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char HR1:4;
-            unsigned char HR10:2;
-            unsigned char PM:1;
-            unsigned char ENB:1;
+        struct {
+            unsigned char HR1: 4;
+            unsigned char HR10: 2;
+            unsigned char PM: 1;
+            unsigned char ENB: 1;
         } BIT;
     } RHRAR;
     char           wk9[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DAYW:3;
-            unsigned char :4;
-            unsigned char ENB:1;
+        struct {
+            unsigned char DAYW: 3;
+            unsigned char : 4;
+            unsigned char ENB: 1;
         } BIT;
     } RWKAR;
     char           wk10[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DATE1:4;
-            unsigned char DATE10:2;
-            unsigned char :1;
-            unsigned char ENB:1;
+        struct {
+            unsigned char DATE1: 4;
+            unsigned char DATE10: 2;
+            unsigned char : 1;
+            unsigned char ENB: 1;
         } BIT;
     } RDAYAR;
     char           wk11[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MON1:4;
-            unsigned char MON10:1;
-            unsigned char :2;
-            unsigned char ENB:1;
+        struct {
+            unsigned char MON1: 4;
+            unsigned char MON10: 1;
+            unsigned char : 2;
+            unsigned char ENB: 1;
         } BIT;
     } RMONAR;
     char           wk12[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short YR1:4;
-            unsigned short YR10:4;
-            unsigned short :8;
+        struct {
+            unsigned short YR1: 4;
+            unsigned short YR10: 4;
+            unsigned short : 8;
         } BIT;
     } RYRAR;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :7;
-            unsigned char ENB:1;
+        struct {
+            unsigned char : 7;
+            unsigned char ENB: 1;
         } BIT;
     } RYRAREN;
     char           wk13[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char AF:1;
-            unsigned char CF:1;
-            unsigned char PF:1;
-            unsigned char :5;
+        struct {
+            unsigned char AF: 1;
+            unsigned char CF: 1;
+            unsigned char PF: 1;
+            unsigned char : 5;
         } BIT;
     } RSR;
     char           wk14[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char AIE:1;
-            unsigned char CIE:1;
-            unsigned char PIE:1;
-            unsigned char :1;
-            unsigned char PES:4;
+        struct {
+            unsigned char AIE: 1;
+            unsigned char CIE: 1;
+            unsigned char PIE: 1;
+            unsigned char : 1;
+            unsigned char PES: 4;
         } BIT;
     } RCR1;
     char           wk15[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char START:1;
-            unsigned char RESET:1;
-            unsigned char ADJ30:1;
-            unsigned char :1;
-            unsigned char AADJE:1;
-            unsigned char AADJP:1;
-            unsigned char HR24:1;
-            unsigned char CNTMD:1;
+        struct {
+            unsigned char START: 1;
+            unsigned char RESET: 1;
+            unsigned char ADJ30: 1;
+            unsigned char : 1;
+            unsigned char AADJE: 1;
+            unsigned char AADJP: 1;
+            unsigned char HR24: 1;
+            unsigned char CNTMD: 1;
         } BIT;
     } RCR2;
     char           wk16[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RTCEN:1;
-            unsigned char :7;
+        struct {
+            unsigned char RTCEN: 1;
+            unsigned char : 7;
         } BIT;
     } RCR3;
     char           wk17[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RCKSEL:1;
-            unsigned char :7;
+        struct {
+            unsigned char RCKSEL: 1;
+            unsigned char : 7;
         } BIT;
     } RCR4;
     char           wk18[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short RFC:1;
-            unsigned short :15;
+        struct {
+            unsigned short RFC: 1;
+            unsigned short : 15;
         } BIT;
     } RFRH;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short RFC:16;
+        struct {
+            unsigned short RFC: 16;
         } BIT;
     } RFRL;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ADJ:6;
-            unsigned char PMADJ:2;
+        struct {
+            unsigned char ADJ: 6;
+            unsigned char PMADJ: 2;
         } BIT;
     } RADJ;
     char           wk19[3];
@@ -355,249 +306,200 @@ struct st_rtc
     char           wk58[1];
 };
 
-struct st_rtc_bcnt
-{
-    union
-    {
+struct st_rtc_bcnt {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char F64HZ:1;
-            unsigned char F32HZ:1;
-            unsigned char F16HZ:1;
-            unsigned char F8HZ:1;
-            unsigned char F4HZ:1;
-            unsigned char F2HZ:1;
-            unsigned char F1HZ:1;
-            unsigned char :1;
+        struct {
+            unsigned char F64HZ: 1;
+            unsigned char F32HZ: 1;
+            unsigned char F16HZ: 1;
+            unsigned char F8HZ: 1;
+            unsigned char F4HZ: 1;
+            unsigned char F2HZ: 1;
+            unsigned char F1HZ: 1;
+            unsigned char : 1;
         } BIT;
     } R64CNT;
     char           wk0[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNT:8;
+        struct {
+            unsigned char BCNT: 8;
         } BIT;
     } BCNT0;
     char           wk1[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNT:8;
+        struct {
+            unsigned char BCNT: 8;
         } BIT;
     } BCNT1;
     char           wk2[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNT:8;
+        struct {
+            unsigned char BCNT: 8;
         } BIT;
     } BCNT2;
     char           wk3[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNT:8;
+        struct {
+            unsigned char BCNT: 8;
         } BIT;
     } BCNT3;
     char           wk4[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char DATE1:4;
-            unsigned char DATE10:2;
-            unsigned char :2;
+        struct {
+            unsigned char DATE1: 4;
+            unsigned char DATE10: 2;
+            unsigned char : 2;
         } BIT;
     } RDAYCNT;
     char           wk5[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char MON1:4;
-            unsigned char MON10:1;
-            unsigned char :3;
+        struct {
+            unsigned char MON1: 4;
+            unsigned char MON10: 1;
+            unsigned char : 3;
         } BIT;
     } RMONCNT;
     char           wk6[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short YR1:4;
-            unsigned short YR10:4;
-            unsigned short :8;
+        struct {
+            unsigned short YR1: 4;
+            unsigned short YR10: 4;
+            unsigned short : 8;
         } BIT;
     } RYRCNT;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNTAR:8;
+        struct {
+            unsigned char BCNTAR: 8;
         } BIT;
     } BCNT0AR;
     char           wk7[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNTAR:8;
+        struct {
+            unsigned char BCNTAR: 8;
         } BIT;
     } BCNT1AR;
     char           wk8[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNTAR:8;
+        struct {
+            unsigned char BCNTAR: 8;
         } BIT;
     } BCNT2AR;
     char           wk9[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char BCNTAR:8;
+        struct {
+            unsigned char BCNTAR: 8;
         } BIT;
     } BCNT3AR;
     char           wk10[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ENB:8;
+        struct {
+            unsigned char ENB: 8;
         } BIT;
     } BCNT0AER;
     char           wk11[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ENB:8;
+        struct {
+            unsigned char ENB: 8;
         } BIT;
     } BCNT1AER;
     char           wk12[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short ENB:8;
-            unsigned short :8;
+        struct {
+            unsigned short ENB: 8;
+            unsigned short : 8;
         } BIT;
     } BCNT2AER;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ENB:8;
+        struct {
+            unsigned char ENB: 8;
         } BIT;
     } BCNT3AER;
     char           wk13[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char AF:1;
-            unsigned char CF:1;
-            unsigned char PF:1;
-            unsigned char :5;
+        struct {
+            unsigned char AF: 1;
+            unsigned char CF: 1;
+            unsigned char PF: 1;
+            unsigned char : 5;
         } BIT;
     } RSR;
     char           wk14[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char AIE:1;
-            unsigned char CIE:1;
-            unsigned char PIE:1;
-            unsigned char :1;
-            unsigned char PES:4;
+        struct {
+            unsigned char AIE: 1;
+            unsigned char CIE: 1;
+            unsigned char PIE: 1;
+            unsigned char : 1;
+            unsigned char PES: 4;
         } BIT;
     } RCR1;
     char           wk15[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char START:1;
-            unsigned char RESET:1;
-            unsigned char ADJ30:1;
-            unsigned char :1;
-            unsigned char AADJE:1;
-            unsigned char AADJP:1;
-            unsigned char HR24:1;
-            unsigned char CNTMD:1;
+        struct {
+            unsigned char START: 1;
+            unsigned char RESET: 1;
+            unsigned char ADJ30: 1;
+            unsigned char : 1;
+            unsigned char AADJE: 1;
+            unsigned char AADJP: 1;
+            unsigned char HR24: 1;
+            unsigned char CNTMD: 1;
         } BIT;
     } RCR2;
     char           wk16[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RTCEN:1;
-            unsigned char :7;
+        struct {
+            unsigned char RTCEN: 1;
+            unsigned char : 7;
         } BIT;
     } RCR3;
     char           wk17[1];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char RCKSEL:1;
-            unsigned char :7;
+        struct {
+            unsigned char RCKSEL: 1;
+            unsigned char : 7;
         } BIT;
     } RCR4;
     char           wk18[1];
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short RFC:1;
-            unsigned short :15;
+        struct {
+            unsigned short RFC: 1;
+            unsigned short : 15;
         } BIT;
     } RFRH;
-    union
-    {
+    union {
         unsigned short WORD;
-        struct
-        {
-            unsigned short RFC:16;
+        struct {
+            unsigned short RFC: 16;
         } BIT;
     } RFRL;
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char ADJ:6;
-            unsigned char PMADJ:2;
+        struct {
+            unsigned char ADJ: 6;
+            unsigned char PMADJ: 2;
         } BIT;
     } RADJ;
     char           wk19[3];

@@ -31,10 +31,10 @@ static volatile uint8_t wk_CPGSTBCR9;
 static volatile uint8_t wk_CPGSTBCR10;
 
 typedef struct {
-    volatile uint8_t * p_wk_stbcr;
-    volatile uint8_t * p_stbcr;
-    volatile uint8_t * p_stbreq;
-    volatile uint8_t * p_stback;
+    volatile uint8_t *p_wk_stbcr;
+    volatile uint8_t *p_stbcr;
+    volatile uint8_t *p_stbreq;
+    volatile uint8_t *p_stback;
     uint8_t mstp;
     uint8_t stbrq;
 } module_stanby_t;
@@ -59,10 +59,11 @@ static const module_stanby_t module_stanby[] = {
     {0, 0, 0, 0, 0}  /* None */
 };
 
-static void module_standby_in(void) {
+static void module_standby_in(void)
+{
     volatile uint32_t cnt;
     volatile uint8_t dummy_8;
-    const module_stanby_t * p_module = &module_stanby[0];
+    const module_stanby_t *p_module = &module_stanby[0];
 
     while (p_module->p_wk_stbcr != 0) {
         if ((*p_module->p_wk_stbcr & p_module->mstp) == 0) {
@@ -81,10 +82,11 @@ static void module_standby_in(void) {
     (void)dummy_8;
 }
 
-static void module_standby_out(void) {
+static void module_standby_out(void)
+{
     volatile uint32_t cnt;
     volatile uint8_t dummy_8;
-    const module_stanby_t * p_module = &module_stanby[0];
+    const module_stanby_t *p_module = &module_stanby[0];
 
     while (p_module->p_wk_stbcr != 0) {
         if ((*p_module->p_wk_stbcr & p_module->mstp) == 0) {
@@ -101,12 +103,14 @@ static void module_standby_out(void) {
     (void)dummy_8;
 }
 
-void hal_sleep(void) {
+void hal_sleep(void)
+{
     // Transition to Sleep Mode
     __WFI();
 }
 
-void hal_deepsleep(void) {
+void hal_deepsleep(void)
+{
     volatile uint8_t dummy_8;
 
     core_util_critical_section_enter();

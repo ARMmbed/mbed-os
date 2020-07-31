@@ -25,7 +25,7 @@
 * File Name    : spibsc.h
 * $Rev: 125 $
 * $Date:: 2016-09-20 11:08:14 +0900#$
-* Description  : 
+* Description  :
 ******************************************************************************/
 /* Copyright (c) 2016-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0

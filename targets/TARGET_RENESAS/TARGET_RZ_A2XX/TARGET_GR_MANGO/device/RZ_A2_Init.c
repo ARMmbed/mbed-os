@@ -114,15 +114,15 @@ void RZ_A2_InitClock(void)
 
     /* ==== CPG Settings ==== */
     CPG.FRQCR.WORD  = 0x1012u;  /* PLL(x88), I:G:B:P1:P0 = 22:11:5.5:2.75:1.375 */
-                                /* CKIO:Output at time usually,                 */
-                                /* Output when bus right is opened,             */
-                                /* output at standby"L"                         */
-                                /* Clockin  = 24MHz,                            */
-                                /* I  Clock = 528MHz,                           */
-                                /* G  Clock = 264MHz                            */
-                                /* B  Clock = 132MHz,                           */
-                                /* P1 Clock = 66MHz,                            */
-                                /* P0 Clock = 33MHz                             */
+    /* CKIO:Output at time usually,                 */
+    /* Output when bus right is opened,             */
+    /* output at standby"L"                         */
+    /* Clockin  = 24MHz,                            */
+    /* I  Clock = 528MHz,                           */
+    /* G  Clock = 264MHz                            */
+    /* B  Clock = 132MHz,                           */
+    /* P1 Clock = 66MHz,                            */
+    /* P0 Clock = 33MHz                             */
 
     return;
 }

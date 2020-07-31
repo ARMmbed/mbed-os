@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,66 +43,53 @@
 #ifndef OSTM_IODEFINE_H
 #define OSTM_IODEFINE_H
 
-struct st_ostm
-{
-    union
-    {
+struct st_ostm {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long OSTMnCMP:32;
+        struct {
+            unsigned long OSTMnCMP: 32;
         } BIT;
     } OSTMnCMP;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long OSTMnCNT:32;
+        struct {
+            unsigned long OSTMnCNT: 32;
         } BIT;
     } OSTMnCNT;
     char           wk0[1];
     char           wk1[3];
     char           wk2[1];
     char           wk3[3];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char OSTMnTE:1;
-            unsigned char :7;
+        struct {
+            unsigned char OSTMnTE: 1;
+            unsigned char : 7;
         } BIT;
     } OSTMnTE;
     char           wk4[3];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char OSTMnTS:1;
-            unsigned char :7;
+        struct {
+            unsigned char OSTMnTS: 1;
+            unsigned char : 7;
         } BIT;
     } OSTMnTS;
     char           wk5[3];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char OSTMnTT:1;
-            unsigned char :7;
+        struct {
+            unsigned char OSTMnTT: 1;
+            unsigned char : 7;
         } BIT;
     } OSTMnTT;
     char           wk6[7];
-    union
-    {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char OSTMnMD0:1;
-            unsigned char OSTMnMD1:1;
-            unsigned char :6;
+        struct {
+            unsigned char OSTMnMD0: 1;
+            unsigned char OSTMnMD1: 1;
+            unsigned char : 6;
         } BIT;
     } OSTMnCTL;
     char           wk7[3];

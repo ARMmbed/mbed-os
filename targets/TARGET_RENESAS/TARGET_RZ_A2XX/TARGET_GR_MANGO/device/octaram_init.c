@@ -280,13 +280,13 @@ void OctaRAM_Init(void)
     GPIO.PHMOM0.BIT.HOSEL = 1;           // Select Octa Memory Controller
 
     uint16_t config = 0x8021;            // CR[15]    Deep Power Down        : 1    - Normal
-                                         // CR[14:12] Driver Strength        : 000  - 100ohms
-                                         // CR[11:9]  Reserved               : 000
-                                         // CR[8]     DQSM Read Pre-Cycle    : 0    - 0 clock
-                                         // CR[7:4]   Latency Counter        : 0010 - 5 clocks
-                                         // CR[3]     Initial Access Latency : 0    - Variable Latency
-                                         // CR[2]     CLK2 Input             : 0    - No Support
-                                         // CR[1:0]   Bust Wrap Length       : 01   - 64 bytes
+    // CR[14:12] Driver Strength        : 000  - 100ohms
+    // CR[11:9]  Reserved               : 000
+    // CR[8]     DQSM Read Pre-Cycle    : 0    - 0 clock
+    // CR[7:4]   Latency Counter        : 0010 - 5 clocks
+    // CR[3]     Initial Access Latency : 0    - Variable Latency
+    // CR[2]     CLK2 Input             : 0    - No Support
+    // CR[1:0]   Bust Wrap Length       : 01   - 64 bytes
     octa_ram_mode_register_write(config);
 }
 

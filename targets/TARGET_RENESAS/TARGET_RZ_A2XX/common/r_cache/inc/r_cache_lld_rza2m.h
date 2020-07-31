@@ -65,8 +65,7 @@ Includes <System Includes> , "Project Includes"
  Macro definitions
  ******************************************************************************/
 /*!< Common error codes supported by all drivers */
-typedef enum
-{
+typedef enum {
     DRV_SUCCESS = 0,    /*!< No Error  */
     DRV_ERROR   = (-1), /*!< General error  */
 } e_err_code_t;
@@ -166,7 +165,7 @@ extern void R_CACHE_L1DataCleanInvalidAll(void);
  * @retval   0 DRV_SUCCESS
  * @retval  -1 DRV_ERROR
  */
-extern e_err_code_t R_CACHE_L1DataInvalidLine(void* line_addr, uint32_t size);
+extern e_err_code_t R_CACHE_L1DataInvalidLine(void *line_addr, uint32_t size);
 
 /**
  * @brief R_CACHE_L1DataCleanLine performs clean operations
@@ -185,7 +184,7 @@ extern e_err_code_t R_CACHE_L1DataInvalidLine(void* line_addr, uint32_t size);
  * @retval   0 DRV_SUCCESS
  * @retval  -1 DRV_ERROR
  */
-extern e_err_code_t R_CACHE_L1DataCleanLine(void* line_addr, uint32_t size);
+extern e_err_code_t R_CACHE_L1DataCleanLine(void *line_addr, uint32_t size);
 
 /**
  * @brief R_CACHE_L1DataCleanInvalidLine performs combination of clean
@@ -204,7 +203,7 @@ extern e_err_code_t R_CACHE_L1DataCleanLine(void* line_addr, uint32_t size);
  * @retval   0 DRV_SUCCESS
  * @retval  -1 DRV_ERROR
  */
-extern e_err_code_t R_CACHE_L1DataCleanInvalidLine(void* line_addr, uint32_t size);
+extern e_err_code_t R_CACHE_L1DataCleanInvalidLine(void *line_addr, uint32_t size);
 
 /**
  * @brief R_CACHE_L1InstEnable enables instruction cache of the Cortex-A9.

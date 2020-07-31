@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,18 +43,15 @@
 #ifndef IRDA_IODEFINE_H
 #define IRDA_IODEFINE_H
 
-struct st_irda
-{
-    union
-    {
+struct st_irda {
+    union {
         unsigned char BYTE;
-        struct
-        {
-            unsigned char :2;
-            unsigned char IRRXINV:1;
-            unsigned char IRTXINV:1;
-            unsigned char IRCKS:3;
-            unsigned char IRE:1;
+        struct {
+            unsigned char : 2;
+            unsigned char IRRXINV: 1;
+            unsigned char IRTXINV: 1;
+            unsigned char IRCKS: 3;
+            unsigned char IRE: 1;
         } BIT;
     } IRCR;
 };

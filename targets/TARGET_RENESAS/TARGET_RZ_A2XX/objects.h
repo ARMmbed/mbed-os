@@ -61,7 +61,7 @@ struct port_s {
 
 struct serial_s {
     uint32_t ch;
-    volatile struct st_scifa* uart;
+    volatile struct st_scifa *uart;
 };
 
 struct pwmout_s {

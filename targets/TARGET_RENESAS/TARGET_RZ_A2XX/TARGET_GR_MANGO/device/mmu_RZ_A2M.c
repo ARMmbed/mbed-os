@@ -215,8 +215,7 @@ __STATIC_INLINE void MMU_TTSection_Va(uint32_t *ttb, uint32_t vaddress, uint32_t
     //4 bytes aligned
     ttb = ttb + offset;
 
-    for (i = 0; i < count; i++ )
-    {
+    for (i = 0; i < count; i++) {
         //4 bytes aligned
         *ttb++ = entry;
         entry += OFFSET_1M;
@@ -306,17 +305,17 @@ void MMU_CreateTranslationTable(void)
      *
      */
     //Create 4GB of faulting entries
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, 0, 4096, DESCRIPTOR_FAULT);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, 0, 4096, DESCRIPTOR_FAULT);
 
     // memory map.
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_SDRAM             , 64, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_SPI_IO            ,256, Sect_Normal_Cod);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_HYPER_FLASH       ,256, Sect_Normal_Cod);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_HYPER_RAM         ,256, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_OCTA_FLASH        ,256, Sect_Normal_Cod);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_OCTA_RAM          ,256, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_PERIPH_BASE0      ,384, Sect_Device_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A2_PERIPH_BASE1      ,128, Sect_Device_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_SDRAM, 64, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_SPI_IO, 256, Sect_Normal_Cod);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_HYPER_FLASH, 256, Sect_Normal_Cod);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_HYPER_RAM, 256, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_OCTA_FLASH, 256, Sect_Normal_Cod);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_OCTA_RAM, 256, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_PERIPH_BASE0, 384, Sect_Device_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A2_PERIPH_BASE1, 128, Sect_Device_RW);
 
     // SRAM
     // Register all memory as cache.
@@ -328,8 +327,8 @@ void MMU_CreateTranslationTable(void)
                        (uint32_t *)&Image$$TTB_L2$$ZI$$Base, Page_4k_Normal_NC);
 
     // Virtual address
-    MMU_TTSection_Va (&Image$$TTB$$ZI$$Base, RZ_A2_HYPER_FLASH_IO, RZ_A2_HYPER_FLASH ,256, Sect_Device_RW);
-    MMU_TTSection_Va (&Image$$TTB$$ZI$$Base, RZ_A2_OCTA_FLASH_NC, RZ_A2_OCTA_FLASH ,256, Sect_Normal_NC);
+    MMU_TTSection_Va(&Image$$TTB$$ZI$$Base, RZ_A2_HYPER_FLASH_IO, RZ_A2_HYPER_FLASH, 256, Sect_Device_RW);
+    MMU_TTSection_Va(&Image$$TTB$$ZI$$Base, RZ_A2_OCTA_FLASH_NC, RZ_A2_OCTA_FLASH, 256, Sect_Normal_NC);
 
     /* Set location of level 1 page table
     ; 31:14 - Translation table base addr (31:14-TTBCR.N, TTBCR.N is 0 out of reset)

@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 * Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
-*******************************************************************************/ 
+*******************************************************************************/
 /* Copyright (c) 2018-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,485 +43,386 @@
 #ifndef DRW_IODEFINE_H
 #define DRW_IODEFINE_H
 
-struct st_drw
-{
-    union
-    {
+struct st_drw {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LIM1ENABLE:1;
-            unsigned long LIM2ENABLE:1;
-            unsigned long LIM3ENABLE:1;
-            unsigned long LIM4ENABLE:1;
-            unsigned long LIM5ENABLE:1;
-            unsigned long LIM6ENABLE:1;
-            unsigned long QUAD1ENABLE:1;
-            unsigned long QUAD2ENABLE:1;
-            unsigned long QUAD3ENABLE:1;
-            unsigned long LIM1THRESHOLD:1;
-            unsigned long LIM2THRESHOLD:1;
-            unsigned long LIM3THRESHOLD:1;
-            unsigned long LIM4THRESHOLD:1;
-            unsigned long LIM5THRESHOLD:1;
-            unsigned long LIM6THRESHOLD:1;
-            unsigned long BAND1ENABLE:1;
-            unsigned long BAND2ENABLE:1;
-            unsigned long UNION12:1;
-            unsigned long UNION34:1;
-            unsigned long UNION56:1;
-            unsigned long UNIONAB:1;
-            unsigned long UNIONCD:1;
-            unsigned long SPANABORT:1;
-            unsigned long SPANSTORE:1;
-            unsigned long :8;
+        struct {
+            unsigned long LIM1ENABLE: 1;
+            unsigned long LIM2ENABLE: 1;
+            unsigned long LIM3ENABLE: 1;
+            unsigned long LIM4ENABLE: 1;
+            unsigned long LIM5ENABLE: 1;
+            unsigned long LIM6ENABLE: 1;
+            unsigned long QUAD1ENABLE: 1;
+            unsigned long QUAD2ENABLE: 1;
+            unsigned long QUAD3ENABLE: 1;
+            unsigned long LIM1THRESHOLD: 1;
+            unsigned long LIM2THRESHOLD: 1;
+            unsigned long LIM3THRESHOLD: 1;
+            unsigned long LIM4THRESHOLD: 1;
+            unsigned long LIM5THRESHOLD: 1;
+            unsigned long LIM6THRESHOLD: 1;
+            unsigned long BAND1ENABLE: 1;
+            unsigned long BAND2ENABLE: 1;
+            unsigned long UNION12: 1;
+            unsigned long UNION34: 1;
+            unsigned long UNION56: 1;
+            unsigned long UNIONAB: 1;
+            unsigned long UNIONCD: 1;
+            unsigned long SPANABORT: 1;
+            unsigned long SPANSTORE: 1;
+            unsigned long : 8;
         } BIT;
     } CONTROL;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PATTERNENABLE:1;
-            unsigned long TEXTUREENABLE:1;
-            unsigned long PATTERNSOURCEL5:1;
-            unsigned long USEACB:1;
-            unsigned long READFORMAT_3_2:2;
-            unsigned long BSFA:1;
-            unsigned long BDFA:1;
-            unsigned long WRITEFORMAT_2:1;
-            unsigned long BSF:1;
-            unsigned long BDF:1;
-            unsigned long BSI:1;
-            unsigned long BDI:1;
-            unsigned long BC2:1;
-            unsigned long TEXTURECLAMPX:1;
-            unsigned long TEXTURECLAMPY:1;
-            unsigned long TEXTUREFILTERX:1;
-            unsigned long TEXTUREFILTERY:1;
-            unsigned long READFORMAT_1_0:2;
-            unsigned long WRITEFORMAT_1_0:2;
-            unsigned long WRITEALPHA:2;
-            unsigned long RLEENABLE:1;
-            unsigned long CLUTENABLE:1;
-            unsigned long COLKEYENABLE:1;
-            unsigned long CLUTFORMAT:1;
-            unsigned long BSIA:1;
-            unsigned long BDIA:1;
-            unsigned long RLEPIXELWIDTH:2;
+        struct {
+            unsigned long PATTERNENABLE: 1;
+            unsigned long TEXTUREENABLE: 1;
+            unsigned long PATTERNSOURCEL5: 1;
+            unsigned long USEACB: 1;
+            unsigned long READFORMAT_3_2: 2;
+            unsigned long BSFA: 1;
+            unsigned long BDFA: 1;
+            unsigned long WRITEFORMAT_2: 1;
+            unsigned long BSF: 1;
+            unsigned long BDF: 1;
+            unsigned long BSI: 1;
+            unsigned long BDI: 1;
+            unsigned long BC2: 1;
+            unsigned long TEXTURECLAMPX: 1;
+            unsigned long TEXTURECLAMPY: 1;
+            unsigned long TEXTUREFILTERX: 1;
+            unsigned long TEXTUREFILTERY: 1;
+            unsigned long READFORMAT_1_0: 2;
+            unsigned long WRITEFORMAT_1_0: 2;
+            unsigned long WRITEALPHA: 2;
+            unsigned long RLEENABLE: 1;
+            unsigned long CLUTENABLE: 1;
+            unsigned long COLKEYENABLE: 1;
+            unsigned long CLUTFORMAT: 1;
+            unsigned long BSIA: 1;
+            unsigned long BDIA: 1;
+            unsigned long RLEPIXELWIDTH: 2;
         } BIT;
     } CONTROL2;
     char           wk0[8];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LSTART:32;
+        struct {
+            unsigned long LSTART: 32;
         } BIT;
     } L1START;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LSTART:32;
+        struct {
+            unsigned long LSTART: 32;
         } BIT;
     } L2START;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LSTART:32;
+        struct {
+            unsigned long LSTART: 32;
         } BIT;
     } L3START;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LSTART:32;
+        struct {
+            unsigned long LSTART: 32;
         } BIT;
     } L4START;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LSTART:32;
+        struct {
+            unsigned long LSTART: 32;
         } BIT;
     } L5START;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LSTART:32;
+        struct {
+            unsigned long LSTART: 32;
         } BIT;
     } L6START;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LXADD:32;
+        struct {
+            unsigned long LXADD: 32;
         } BIT;
     } L1XADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LXADD:32;
+        struct {
+            unsigned long LXADD: 32;
         } BIT;
     } L2XADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LXADD:32;
+        struct {
+            unsigned long LXADD: 32;
         } BIT;
     } L3XADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LXADD:32;
+        struct {
+            unsigned long LXADD: 32;
         } BIT;
     } L4XADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LXADD:32;
+        struct {
+            unsigned long LXADD: 32;
         } BIT;
     } L5XADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LXADD:32;
+        struct {
+            unsigned long LXADD: 32;
         } BIT;
     } L6XADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LYADD:32;
+        struct {
+            unsigned long LYADD: 32;
         } BIT;
     } L1YADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LYADD:32;
+        struct {
+            unsigned long LYADD: 32;
         } BIT;
     } L2YADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LYADD:32;
+        struct {
+            unsigned long LYADD: 32;
         } BIT;
     } L3YADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LYADD:32;
+        struct {
+            unsigned long LYADD: 32;
         } BIT;
     } L4YADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LYADD:32;
+        struct {
+            unsigned long LYADD: 32;
         } BIT;
     } L5YADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LYADD:32;
+        struct {
+            unsigned long LYADD: 32;
         } BIT;
     } L6YADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LBAND:32;
+        struct {
+            unsigned long LBAND: 32;
         } BIT;
     } L1BAND;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LBAND:32;
+        struct {
+            unsigned long LBAND: 32;
         } BIT;
     } L2BAND;
     char           wk1[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long COLOR1B:8;
-            unsigned long COLOR1G:8;
-            unsigned long COLOR1R:8;
-            unsigned long COLOR1A:8;
+        struct {
+            unsigned long COLOR1B: 8;
+            unsigned long COLOR1G: 8;
+            unsigned long COLOR1R: 8;
+            unsigned long COLOR1A: 8;
         } BIT;
     } COLOR1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long COLOR2B:8;
-            unsigned long COLOR2G:8;
-            unsigned long COLOR2R:8;
-            unsigned long COLOR2A:8;
+        struct {
+            unsigned long COLOR2B: 8;
+            unsigned long COLOR2G: 8;
+            unsigned long COLOR2R: 8;
+            unsigned long COLOR2A: 8;
         } BIT;
     } COLOR2;
     char           wk2[8];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PATTERN:8;
-            unsigned long :24;
+        struct {
+            unsigned long PATTERN: 8;
+            unsigned long : 24;
         } BIT;
     } PATTERN;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long SIZEX:16;
-            unsigned long SIZEY:16;
+        struct {
+            unsigned long SIZEX: 16;
+            unsigned long SIZEY: 16;
         } BIT;
     } SIZE;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PITCH:16;
-            unsigned long SSD:16;
+        struct {
+            unsigned long PITCH: 16;
+            unsigned long SSD: 16;
         } BIT;
     } PITCH;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ORIGIN:32;
+        struct {
+            unsigned long ORIGIN: 32;
         } BIT;
     } ORIGIN;
     char           wk3[12];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LUSTART:32;
+        struct {
+            unsigned long LUSTART: 32;
         } BIT;
     } LUSTART;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LUXADD:32;
+        struct {
+            unsigned long LUXADD: 32;
         } BIT;
     } LUXADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LUYADD:32;
+        struct {
+            unsigned long LUYADD: 32;
         } BIT;
     } LUYADD;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LVSTARTI:32;
+        struct {
+            unsigned long LVSTARTI: 32;
         } BIT;
     } LVSTARTI;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LVSTARTF:16;
-            unsigned long :16;
+        struct {
+            unsigned long LVSTARTF: 16;
+            unsigned long : 16;
         } BIT;
     } LVSTARTF;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LVXADDI:32;
+        struct {
+            unsigned long LVXADDI: 32;
         } BIT;
     } LVXADDI;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LVYADDI:32;
+        struct {
+            unsigned long LVYADDI: 32;
         } BIT;
     } LVYADDI;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long LVXADDF:16;
-            unsigned long LVYADDF:16;
+        struct {
+            unsigned long LVXADDF: 16;
+            unsigned long LVYADDF: 16;
         } BIT;
     } LVYXADDF;
     char           wk4[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TEXPITCH:11;
-            unsigned long :21;
+        struct {
+            unsigned long TEXPITCH: 11;
+            unsigned long : 21;
         } BIT;
     } TEXPITCH;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TEXUMASK:11;
-            unsigned long TEXVMASK:21;
+        struct {
+            unsigned long TEXUMASK: 11;
+            unsigned long TEXVMASK: 21;
         } BIT;
     } TEXMASK;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long TEXORIGIN:32;
+        struct {
+            unsigned long TEXORIGIN: 32;
         } BIT;
     } TEXORIGIN;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long ENUMIRQEN:1;
-            unsigned long DLISTIRQEN:1;
-            unsigned long ENUMIRQCLR:1;
-            unsigned long DLISTIRQCLR:1;
-            unsigned long BUSIRQEN:1;
-            unsigned long BUSIRQCLR:1;
-            unsigned long :26;
+        struct {
+            unsigned long ENUMIRQEN: 1;
+            unsigned long DLISTIRQEN: 1;
+            unsigned long ENUMIRQCLR: 1;
+            unsigned long DLISTIRQCLR: 1;
+            unsigned long BUSIRQEN: 1;
+            unsigned long BUSIRQCLR: 1;
+            unsigned long : 26;
         } BIT;
     } IRQCTL;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CENABLEFX:1;
-            unsigned long CFLUSHFX:1;
-            unsigned long CENABLETX:1;
-            unsigned long CFLUSHTX:1;
-            unsigned long :28;
+        struct {
+            unsigned long CENABLEFX: 1;
+            unsigned long CFLUSHFX: 1;
+            unsigned long CENABLETX: 1;
+            unsigned long CFLUSHTX: 1;
+            unsigned long : 28;
         } BIT;
     } CACHECTL;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long DLISTSTART:32;
+        struct {
+            unsigned long DLISTSTART: 32;
         } BIT;
     } DLISTSTART;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PERFCOUNT:32;
+        struct {
+            unsigned long PERFCOUNT: 32;
         } BIT;
     } PERFCOUNT1;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PERFCOUNT:32;
+        struct {
+            unsigned long PERFCOUNT: 32;
         } BIT;
     } PERFCOUNT2;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long PERFTRIGGER1:5;
-            unsigned long :11;
-            unsigned long PERFTRIGGER2:5;
-            unsigned long :11;
+        struct {
+            unsigned long PERFTRIGGER1: 5;
+            unsigned long : 11;
+            unsigned long PERFTRIGGER2: 5;
+            unsigned long : 11;
         } BIT;
     } PERFTRIGGER;
     char           wk5[4];
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CLADDR:8;
-            unsigned long :24;
+        struct {
+            unsigned long CLADDR: 8;
+            unsigned long : 24;
         } BIT;
     } TEXCLADDR;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CLDATA:32;
+        struct {
+            unsigned long CLDATA: 32;
         } BIT;
     } TEXCLDATA;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long CLOFFSET:8;
-            unsigned long :24;
+        struct {
+            unsigned long CLOFFSET: 8;
+            unsigned long : 24;
         } BIT;
     } TEXCLOFFSET;
-    union
-    {
+    union {
         unsigned long LONG;
-        struct
-        {
-            unsigned long COLKEYB:8;
-            unsigned long COLKEYG:8;
-            unsigned long COLKEYR:8;
-            unsigned long :8;
+        struct {
+            unsigned long COLKEYB: 8;
+            unsigned long COLKEYG: 8;
+            unsigned long COLKEYR: 8;
+            unsigned long : 8;
         } BIT;
     } COLKEY;
 };

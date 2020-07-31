@@ -95,7 +95,7 @@ void rtc_init(void)
 
 /*
  * Release the RTC based on a time structure.
- * @note This function does not stop the RTC from counting 
+ * @note This function does not stop the RTC from counting
  * [in]
  * None.
  * [out]
@@ -147,9 +147,9 @@ time_t rtc_read(void)
 
             // Read RTC register
             t = ((time_t)RTC_BCNT1.BCNT0.BYTE <<  0)
-              | ((time_t)RTC_BCNT1.BCNT1.BYTE <<  8)
-              | ((time_t)RTC_BCNT1.BCNT2.BYTE << 16)
-              | ((time_t)RTC_BCNT1.BCNT3.BYTE << 24);
+                | ((time_t)RTC_BCNT1.BCNT1.BYTE <<  8)
+                | ((time_t)RTC_BCNT1.BCNT2.BYTE << 16)
+                | ((time_t)RTC_BCNT1.BCNT3.BYTE << 24);
         } while (RTC_BCNT1.RSR.BIT.CF != 0);
     } else {
         // Error

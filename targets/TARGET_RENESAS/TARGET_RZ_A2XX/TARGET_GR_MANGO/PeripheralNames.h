@@ -61,14 +61,14 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-    AN0= 0,
-    AN1= 1,
-    AN2= 2,
-    AN3= 3,
-    AN4= 4,
-    AN5= 5,
-    AN6= 6,
-    AN7= 7,
+    AN0 = 0,
+    AN1 = 1,
+    AN2 = 2,
+    AN3 = 3,
+    AN4 = 4,
+    AN5 = 5,
+    AN6 = 6,
+    AN7 = 7,
 } ADCName;
 
 typedef enum {
