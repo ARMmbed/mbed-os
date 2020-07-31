@@ -44,6 +44,8 @@
 
 #define HCI_RESET_RAND_CNT              4
 
+#define VENDOR_SPECIFIC_EVENT           0xFF
+#define EVT_BLUENRG_2_INITIALIZED       0x0001
 #define ACI_READ_CONFIG_DATA_OPCODE     0xFC0D
 #define ACI_WRITE_CONFIG_DATA_OPCODE    0xFC0C
 #define ACI_GATT_INIT_OPCODE            0xFD01
@@ -51,8 +53,11 @@
 
 #define PUBLIC_ADDRESS_OFFSET           0x00
 #define RANDOM_STATIC_ADDRESS_OFFSET    0x80
+#define LL_WITHOUT_HOST_OFFSET          0x2C
 
 #define SPI_STACK_SIZE                  1024
+
+#define IRQ_TIMEOUT_DURATION            15 //ms
 
 namespace ble {
 namespace vendor {
@@ -94,6 +99,9 @@ public:
      */
     virtual void start_reset_sequence()
     {
+        reset_received = false;
+        bluenrg_2_initialized = false;
+        enable_link_layer_mode_ongoing = false;
         /* send an HCI Reset command to start the sequence */
         HciResetCmd();
     }
@@ -127,9 +135,19 @@ public:
                 case HCI_OPCODE_RESET: {
                     /* initialize rand command count */
                     randCnt = 0;
-                    aciGattInit();
+                    reset_received = true;
+                    // bluenrg_2_initialized event has to come after the hci reset event
+                    bluenrg_2_initialized = false;
                 }
                 break;
+
+                // ACL packet
+                case ACI_WRITE_CONFIG_DATA_OPCODE:
+                    if (enable_link_layer_mode_ongoing) {
+                        enable_link_layer_mode_ongoing = false;
+                        aciGattInit();
+                    }
+                    break;
 
                 case ACI_GATT_INIT_OPCODE:
                     aciGapInit();
@@ -267,10 +285,37 @@ public:
                 default:
                     break;
             }
+        } else {
+            /**
+             * vendor specific event
+             */
+            if (pMsg[0] == VENDOR_SPECIFIC_EVENT) {
+                /* parse parameters */
+                pMsg += HCI_EVT_HDR_LEN;
+                BSTREAM_TO_UINT16(opcode, pMsg);
+
+                if (opcode == EVT_BLUENRG_2_INITIALIZED) {
+                    if (bluenrg_2_initialized) {
+                        return;
+                    }
+                    bluenrg_2_initialized = true;
+                    if (reset_received) {
+                        aciEnableLinkLayerModeOnly();
+                    }
+                }
+
+            }
         }
     }
 
 private:
+
+    void aciEnableLinkLayerModeOnly()
+    {
+        uint8_t data[1] = { 0x01 };
+        enable_link_layer_mode_ongoing = true;
+        aciWriteConfigData(LL_WITHOUT_HOST_OFFSET, data);
+    }
 
     void aciGattInit()
     {
@@ -348,7 +393,6 @@ private:
 
     void bluenrg_2_reset()
     {
-
         /* Reset BlueNRG_2 SPI interface. Hold reset line to 0 for 1500us */
         rst = 0;
         wait_us(1500);
@@ -359,6 +403,9 @@ private:
     }
 
     mbed::DigitalOut rst;
+    bool reset_received;
+    bool bluenrg_2_initialized;
+    bool enable_link_layer_mode_ongoing;
 };
 
 /**
@@ -444,11 +491,19 @@ private:
 
         _spi_mutex.lock();
 
+        irq.disable_irq();
+
         /* CS reset */
         nCS = 0;
 
-        if (irq == 0) {
+        // Wait until BlueNRG_2 is ready.
+        // When ready it will raise the IRQ pin.
+        _irq_timer.start();
+        while (!dataPresent()) {
+          auto us = _irq_timer.elapsed_time().count();
+          if (us > IRQ_TIMEOUT_DURATION*1000) {
             goto exit;
+          }
         }
 
         /* Exchange header */
@@ -472,9 +527,18 @@ private:
 exit:
         nCS = 1;
 
+        irq.enable_irq();
+
+        _irq_timer.stop();
+
         _spi_mutex.unlock();
 
         return data_written;
+    }
+
+    bool dataPresent()
+    {
+      return (irq == 1);
     }
 
     uint16_t spiRead(uint8_t *data_buffer, const uint16_t buffer_size)
@@ -483,6 +547,8 @@ exit:
         uint8_t header_slave[5];
         uint16_t read_length = 0;
         uint16_t data_available = 0;
+
+        irq.disable_irq();
 
         nCS = 0;
 
@@ -495,10 +561,12 @@ exit:
         read_length = data_available > buffer_size ? buffer_size : data_available;
 
         for (uint16_t i = 0; i < read_length; ++i) {
-            data_buffer[i] = spi.write(0xFF);
+            data_buffer[i] = spi.write(0x00);
         }
 
         nCS = 1;
+
+        irq.enable_irq();
 
         return read_length;
     }
@@ -537,6 +605,7 @@ exit:
     uint8_t _spi_thread_stack[SPI_STACK_SIZE];
     rtos::Semaphore _spi_read_sem;
     rtos::Mutex _spi_mutex;
+    mbed::Timer _irq_timer;
 };
 
 } // namespace bluenrg_2
