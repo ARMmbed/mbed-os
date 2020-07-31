@@ -4,7 +4,8 @@
 set(CMAKE_ASM_COMPILER "arm-none-eabi-gcc")
 set(CMAKE_C_COMPILER "arm-none-eabi-gcc")
 set(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
-set(ELF2BIN "arm-none-eabi-objcopy")
+set(GCC_ELF2BIN "arm-none-eabi-objcopy")
+set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
 
 list(APPEND link_options
     "-Wl,--start-group"
@@ -16,7 +17,7 @@ list(APPEND link_options
     "-lnosys"
     "-Wl,--end-group"
     "-T"
-    "${CMAKE_BINARY_DIR}/app.link_script.ld"
+    "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
 )
 
 list(APPEND common_options
