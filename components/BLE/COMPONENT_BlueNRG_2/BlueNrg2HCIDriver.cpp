@@ -500,10 +500,10 @@ private:
         // When ready it will raise the IRQ pin.
         _irq_timer.start();
         while (!dataPresent()) {
-          auto us = _irq_timer.elapsed_time().count();
-          if (us > IRQ_TIMEOUT_DURATION*1000) {
-            goto exit;
-          }
+            auto us = _irq_timer.elapsed_time().count();
+            if (us > IRQ_TIMEOUT_DURATION*1000) {
+                goto exit;
+            }
         }
 
         /* Exchange header */
@@ -538,7 +538,7 @@ exit:
 
     bool dataPresent()
     {
-      return (irq == 1);
+        return (irq == 1);
     }
 
     uint16_t spiRead(uint8_t *data_buffer, const uint16_t buffer_size)
