@@ -80,6 +80,7 @@ static void nordic_nrf5_spi_event_handler(nrfx_spim_evt_t const *p_event, void *
 void SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler(void);
 void SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler(void);
 void SPIM2_SPIS2_SPI2_IRQHandler(void);
+void SPIM3_IRQHandler(void);
 
 /**
  * Brief       Reconfigure peripheral.
@@ -248,6 +249,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         NVIC_SetVector(SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn, (uint32_t) SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler);
         NVIC_SetVector(SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn, (uint32_t) SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler);
         NVIC_SetVector(SPIM2_SPIS2_SPI2_IRQn, (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler);
+        NVIC_SetVector(SPIM3_IRQn, (uint32_t) SPIM3_IRQHandler);
     }
     DEBUG_PRINTF("spi_api: spi_init - EXIT\r\n");
 }
