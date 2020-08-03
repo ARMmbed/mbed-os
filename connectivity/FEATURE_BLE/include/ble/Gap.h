@@ -1453,11 +1453,11 @@ public:
 #endif // !defined(DOXYGEN_ONLY)
 } // namespace ble
 
+/* This includes the concrete class implementation, to provide a an alternative API implementation
+ * disable ble-api-implementation and place your header in a path with the same structure */
+#include "ble/internal/GapImpl.h"
+
+/** @deprecated Use the namespaced ble::Gap instead of the global Gap. */
+using ble::Gap;
 
 #endif // BLE_GAP_GAP_H
-
-#if (BLE_API_IMPLEMENTATION == 1)
-#include "ble/internal/GapImpl.h"
-#else
-#error "please provide alternate BLE implementation"
-#endif

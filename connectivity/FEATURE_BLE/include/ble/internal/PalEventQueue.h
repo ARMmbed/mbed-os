@@ -58,10 +58,8 @@ public:
 } // namespace interface
 } // namespace ble
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
+/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
+ * disable Cordio and place your header in a path with the same structure */
 #include "ble/internal/PalEventQueueImpl.h"
-#else
-#error "please provide alternate BLE implementation"
-#endif
 
 #endif /* BLE_PAL_EVENT_QUEUE_H_ */

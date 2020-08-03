@@ -1635,10 +1635,8 @@ public:
 } // namespace ble
 
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
+/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
+ * disable Cordio and place your header in a path with the same structure */
 #include "ble/internal/PalGapImpl.h"
-#else
-#error "please provide alternate BLE implementation"
-#endif
 
 #endif /* BLE_PAL_GAP_H_ */

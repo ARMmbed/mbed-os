@@ -2,16 +2,6 @@
     "name": "ble",
     "config": {
         "present": 1,
-        "ble-api-implementation": {
-            "help": "What BLE user API implementation is used. Available options: 1 (Mbed). You may add more. See headers in include/ble/.",
-            "value": 1,
-            "macro_name": "BLE_API_IMPLEMENTATION"
-        },
-        "ble-pal-api-implementation": {
-            "help": "What Pal API implementation is used. Available options: 1 (Cordio). You may add more. See headers in include/ble/internal/Pal*.",
-            "value": 1,
-            "macro_name": "BLE_PAL_API_IMPLEMENTATION"
-        },
         "ble-role-observer": {
             "help": "Include observer BLE role support (scanning for and processing advertising packets).",
             "value": true,

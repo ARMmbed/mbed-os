@@ -1029,10 +1029,8 @@ public:
 } /* namespace interface */
 } /* namespace ble */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
+/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
+ * disable Cordio and place your header in a path with the same structure */
 #include "ble/internal/PalSecurityManagerImpl.h"
-#else
-#error "please provide alternate BLE implementation"
-#endif
 
 #endif /* MBED_OS_FEATURES_FEATURE_BLE_BLE_PAL_PALSM_H_ */
