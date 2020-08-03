@@ -24,17 +24,19 @@
 #define RZ_A1_ETH_IF_NAME    "en"
 
 // Weak so a module can override
-MBED_WEAK EMAC &EMAC::get_default_instance() {
+MBED_WEAK EMAC &EMAC::get_default_instance()
+{
     return RZ_A1_EMAC::get_instance();
 }
 
-RZ_A1_EMAC &RZ_A1_EMAC::get_instance() {
+RZ_A1_EMAC &RZ_A1_EMAC::get_instance()
+{
     static RZ_A1_EMAC emac;
     return emac;
 }
 
 RZ_A1_EMAC::RZ_A1_EMAC() : hwaddr(), hwaddr_set(false), power_on(false), connect_sts(false),
-     link_mode_last(NEGO_FAIL), recvThread(osPriorityNormal, 896)
+    link_mode_last(NEGO_FAIL), recvThread(osPriorityNormal, 896)
 {
 }
 
@@ -168,15 +170,18 @@ void RZ_A1_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 }
 
 
-void RZ_A1_EMAC::_recv_callback(void) {
+void RZ_A1_EMAC::_recv_callback(void)
+{
     get_instance().recv_callback();
 }
 
-void RZ_A1_EMAC::recv_callback(void) {
+void RZ_A1_EMAC::recv_callback(void)
+{
     recvThread.flags_set(1);
 }
 
-void RZ_A1_EMAC::recv_task(void) {
+void RZ_A1_EMAC::recv_task(void)
+{
     uint16_t       recv_size;
     emac_mem_buf_t *buf;
     int            cnt;
