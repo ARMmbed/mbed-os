@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "mbed.h"
 #include "us_ticker_api.h"
 #include "ble/BLE.h"
@@ -605,5 +603,3 @@ CordioHCIDriver *BLEInstanceBase::_hci_driver = nullptr;
 FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> BLEInstanceBase::_init_callback;
 
 } // namespace ble
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)

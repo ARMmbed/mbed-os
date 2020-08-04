@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_API_IMPLEMENTATION == 1)
-
 #include "BLERoles.h"
 #include <algorithm>
 #include "ble/GattServer.h"
@@ -1518,5 +1516,3 @@ void GattServer::handleDataSentEvent(unsigned count)
 }
 
 } // namespace ble
-
-#endif // (BLE_API_IMPLEMENTATION == 1)

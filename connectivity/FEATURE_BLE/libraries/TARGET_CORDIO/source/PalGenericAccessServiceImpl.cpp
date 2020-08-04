@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "ble/internal/PalGenericAccessService.h"
 
 namespace ble {
@@ -118,8 +116,6 @@ ble::GattServer& PalGenericAccessService::gatt_server() {
     return ble::GattServer::getInstance();
 }
 
-}
+} // ble
 
 #endif // BLE_FEATURE_GATT_SERVER
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)

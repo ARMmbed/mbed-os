@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_API_IMPLEMENTATION == 1)
-
 #include <algorithm>
 #include <stdint.h>
 
@@ -2737,5 +2735,3 @@ void Gap::setEventHandler(Gap::EventHandler *handler) {
 }
 
 } // ble
-
-#endif // (BLE_API_IMPLEMENTATION == 1)

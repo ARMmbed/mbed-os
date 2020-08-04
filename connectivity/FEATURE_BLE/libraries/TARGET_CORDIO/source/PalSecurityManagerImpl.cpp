@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "BLERoles.h"
 
 #include <string.h>
@@ -1047,5 +1045,3 @@ PalSecurityManagerEventHandler* PalSecurityManager::get_event_handler() {
 }
 
 } // ble
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)

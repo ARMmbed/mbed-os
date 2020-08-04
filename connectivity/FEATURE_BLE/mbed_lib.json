@@ -1,5 +1,6 @@
 {
     "name": "ble",
+    "requires": ["ble-api-implementation"],
     "config": {
         "present": 1,
         "ble-role-observer": {

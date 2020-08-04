@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_API_IMPLEMENTATION == 1)
-
 #include "BLERoles.h"
 
 #if BLE_FEATURE_GATT_CLIENT
@@ -1648,5 +1646,3 @@ void GattClient::processHVXEvent(const GattHVXCallbackParams *params)
 } // namespace ble
 
 #endif // BLE_FEATURE_GATT_SERVER
-
-#endif // (BLE_API_IMPLEMENTATION == 1)

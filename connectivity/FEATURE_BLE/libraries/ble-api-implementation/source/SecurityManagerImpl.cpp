@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_API_IMPLEMENTATION == 1)
-
 #include "BLERoles.h"
 
 #include "ble/SecurityManager.h"
@@ -1944,5 +1942,3 @@ void SecurityManager::setSecurityManagerEventHandler(EventHandler* handler) {
 }
 
 } /* namespace ble */
-
-#endif // (BLE_API_IMPLEMENTATION == 1)

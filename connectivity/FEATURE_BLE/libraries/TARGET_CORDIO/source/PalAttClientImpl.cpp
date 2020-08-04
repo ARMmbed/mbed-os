@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "ble/internal/PalAttClient.h"
 #include "ble/GattServer.h"
 #include "ble/internal/PalSimpleAttServerMessage.h"
@@ -424,5 +422,3 @@ void PalAttClient::att_client_handler(const attEvt_t *event) {
 }
 
 } // ble
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)

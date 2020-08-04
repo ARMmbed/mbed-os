@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "ble/internal/PalGattClient.h"
 #include "ble/internal/PalAttClient.h"
 
@@ -233,5 +231,3 @@ ble_error_t PalGattClient::terminate() {
 }
 
 } // ble
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)

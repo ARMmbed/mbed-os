@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "ble/internal/PalSigningMonitor.h"
 #include "ble/internal/BLEInstanceBase.h"
 #include "ble/GattClient.h"
@@ -34,5 +32,3 @@ void PalSigningMonitor::set_signing_event_handler(SecurityManager *handler) {
 }
 
 }
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)

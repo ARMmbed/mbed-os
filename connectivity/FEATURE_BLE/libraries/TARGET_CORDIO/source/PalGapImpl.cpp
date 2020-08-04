@@ -15,9 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "PalGap.h"
 #include "hci_api.h"
 #include "dm_api.h"
@@ -1507,5 +1504,3 @@ PalGapEventHandler* PalGap::get_event_handler()
 }
 
 } // ble
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)

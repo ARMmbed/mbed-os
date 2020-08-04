@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#if (BLE_PAL_API_IMPLEMENTATION == 1)
-
 #include "ble/internal/PalEventQueue.h"
 #include "ble/internal/BLEInstanceBase.h"
 
@@ -29,5 +27,3 @@ void PalEventQueue::signal_event()
 }
 
 } // namespace ble
-
-#endif // (BLE_PAL_API_IMPLEMENTATION == 1)
