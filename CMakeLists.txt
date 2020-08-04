@@ -14,9 +14,14 @@ endif()
 add_library(mbed-os OBJECT)
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+
 include(${MBED_ROOT}/cmake/core.cmake)
+mbed_set_cpu_core_options(mbed-os ${MBED_TOOLCHAIN})
+
 include(${MBED_ROOT}/cmake/toolchain.cmake)
+
 include(${MBED_ROOT}/cmake/profile.cmake)
+
 include(${MBED_ROOT}/cmake/util.cmake)
 
 set_target_properties(mbed-os
