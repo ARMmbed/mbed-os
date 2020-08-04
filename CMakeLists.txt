@@ -22,6 +22,7 @@ include(${MBED_ROOT}/cmake/toolchain.cmake)
 mbed_set_toolchain_options(mbed-os)
 
 include(${MBED_ROOT}/cmake/profile.cmake)
+mbed_set_profile_options(mbed-os ${MBED_TOOLCHAIN})
 
 include(${MBED_ROOT}/cmake/util.cmake)
 
