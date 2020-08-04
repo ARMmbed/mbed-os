@@ -7,7 +7,6 @@
 ^connectivity/drivers/emac
 ^connectivity/drivers/mbedtls
 ^connectivity/mbedtls
-^features/cryptocell
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
 ^features/frameworks
