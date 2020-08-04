@@ -19,6 +19,7 @@ include(${MBED_ROOT}/cmake/core.cmake)
 mbed_set_cpu_core_options(mbed-os ${MBED_TOOLCHAIN})
 
 include(${MBED_ROOT}/cmake/toolchain.cmake)
+mbed_set_toolchain_options(mbed-os)
 
 include(${MBED_ROOT}/cmake/profile.cmake)
 
