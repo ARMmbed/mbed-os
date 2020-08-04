@@ -28,7 +28,7 @@ namespace mbed {
 SPI::spi_peripheral_s SPI::_peripherals[SPI_PERIPHERALS_USED];
 int SPI::_peripherals_used;
 
-SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
+SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName dcx) :
 #if DEVICE_SPI_ASYNCH
     _irq(this),
 #endif
@@ -36,6 +36,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     _miso(miso),
     _sclk(sclk),
     _hw_ssel(ssel),
+    _dcx(dcx),
     _sw_ssel(NC),
     _static_pinmap(NULL),
     _init_func(_do_init)
@@ -58,6 +59,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t
     _miso(miso),
     _sclk(sclk),
     _hw_ssel(NC),
+    _dcx(NC),
     _sw_ssel(ssel, 1),
     _static_pinmap(NULL),
     _init_func(_do_init)
@@ -79,6 +81,7 @@ SPI::SPI(const spi_pinmap_t &pinmap) :
     _miso(pinmap.miso_pin),
     _sclk(pinmap.sclk_pin),
     _hw_ssel(pinmap.ssel_pin),
+    _dcx(pinmap.dcx_pin),
     _sw_ssel(NC),
     _static_pinmap(&pinmap),
     _peripheral_name((SPIName)pinmap.peripheral),
@@ -96,6 +99,7 @@ SPI::SPI(const spi_pinmap_t &pinmap, PinName ssel) :
     _miso(pinmap.miso_pin),
     _sclk(pinmap.sclk_pin),
     _hw_ssel(NC),
+    _dcx(NC),
     _sw_ssel(ssel, 1),
     _static_pinmap(&pinmap),
     _peripheral_name((SPIName)pinmap.peripheral),
@@ -106,7 +110,7 @@ SPI::SPI(const spi_pinmap_t &pinmap, PinName ssel) :
 
 void SPI::_do_init(SPI *obj)
 {
-    spi_init(&obj->_peripheral->spi, obj->_mosi, obj->_miso, obj->_sclk, obj->_hw_ssel);
+    spi_init(&obj->_peripheral->spi, obj->_mosi, obj->_miso, obj->_sclk, obj->_hw_ssel, obj->_dcx);
 }
 
 void SPI::_do_init_direct(SPI *obj)

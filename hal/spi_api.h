@@ -63,6 +63,8 @@ typedef struct {
     int sclk_function;
     PinName ssel_pin;
     int ssel_function;
+    PinName dcx_pin;
+    int dcx_function;
 } spi_pinmap_t;
 
 /**
@@ -185,8 +187,9 @@ void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap);
  * @param[in]  miso The pin to use for MISO
  * @param[in]  sclk The pin to use for SCLK
  * @param[in]  ssel The pin to use for SSEL
+ * @param[in]  dcx  The pin to use for DC (Data/Command)  NC if not connected
  */
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel);
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName dcx);
 
 /** Release a SPI object
  *
@@ -325,6 +328,15 @@ const PinMap *spi_master_clk_pinmap(void);
  */
 const PinMap *spi_master_cs_pinmap(void);
 
+/** Get the pins that support SPI DC
+ *
+ * Return a PinMap array of pins that support SPI DC in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_master_dc_pinmap(void);
+
 /** Get the pins that support SPI MOSI
  *
  * Return a PinMap array of pins that support SPI MOSI in
@@ -360,6 +372,15 @@ const PinMap *spi_slave_clk_pinmap(void);
  * @return PinMap array
  */
 const PinMap *spi_slave_cs_pinmap(void);
+
+/** Get the pins that support SPI DC
+ *
+ * Return a PinMap array of pins that support SPI DC in
+ * slave mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_slave_dc_pinmap(void);
 
 /**@}*/
 

@@ -28,7 +28,7 @@
 #if DEVICE_SPI
 MBED_WEAK void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 {
-    spi_init(obj, pinmap->mosi_pin, pinmap->miso_pin, pinmap->sclk_pin, pinmap->ssel_pin);
+    spi_init(obj, pinmap->mosi_pin, pinmap->miso_pin, pinmap->sclk_pin, pinmap->ssel_pin, pinmap->dcx_pin);
 }
 #endif
 

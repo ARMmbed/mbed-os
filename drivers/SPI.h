@@ -112,8 +112,9 @@ public:
      *  @param miso SPI Master In, Slave Out pin.
      *  @param sclk SPI Clock pin.
      *  @param ssel SPI Chip Select pin.
+     *  @param dcx SPI Data/Command pin.
      */
-    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC);
+    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC, PinName dcx = NC);
 
     /** Create a SPI master connected to the specified pins.
      *
@@ -423,6 +424,7 @@ protected:
     PinName _miso;
     PinName _sclk;
     PinName _hw_ssel;
+    PinName _dcx;
 
     // The Slave Select GPIO if we're doing it ourselves.
     DigitalOut _sw_ssel;
