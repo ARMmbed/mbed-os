@@ -134,6 +134,23 @@ public:
 
     /** Create a SPI master connected to the specified pins.
      *
+     *  @note This constructor manipulates the SSEL/DCX pin as a GPIO output
+     *  using a DigitalOut object. This should work on any target, and permits
+     *  the use of select() and deselect() methods to keep the pin asserted
+     *  between transfers.
+     *
+     *  @note You can specify mosi or miso as NC if not used.
+     *
+     *  @param mosi SPI Master Out, Slave In pin.
+     *  @param miso SPI Master In, Slave Out pin.
+     *  @param sclk SPI Clock pin.
+     *  @param ssel SPI Chip Select pin.
+     *  @param dcx  SPI Data Command pin.
+     */
+    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName dcx, use_gpio_ssel_t);
+
+    /** Create a SPI master connected to the specified pins.
+     *
      *  @note This constructor passes the SSEL pin selection to the target HAL.
      *  Not all targets support SSEL, so this cannot be relied on in portable code.
      *  Portable code should use the alternative constructor that uses GPIO
@@ -159,6 +176,7 @@ public:
      *  @param ssel SPI Chip Select pin.
      */
     SPI(const spi_pinmap_t &static_pinmap, PinName ssel);
+    SPI(const spi_pinmap_t &pinmap, PinName ssel, PinName dcx);
     SPI(const spi_pinmap_t &&, PinName) = delete; // prevent passing of temporary objects
 
     virtual ~SPI();
@@ -424,10 +442,12 @@ protected:
     PinName _miso;
     PinName _sclk;
     PinName _hw_ssel;
-    PinName _dcx;
+    PinName _hw_dcx;
 
     // The Slave Select GPIO if we're doing it ourselves.
     DigitalOut _sw_ssel;
+    // The Data Command GPIO if we're doing it ourselves.
+    DigitalOut _sw_dcx;
 
     /* Size of the SPI frame */
     int _bits;
