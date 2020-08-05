@@ -4,4 +4,5 @@
 add_subdirectory(cellular)
 add_subdirectory(drivers)
 add_subdirectory(libraries)
+add_subdirectory(lwipstack)
 add_subdirectory(netsocket)
