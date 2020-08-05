@@ -22,4 +22,6 @@
 #define MBED_DEVICE_H
 
 #include "objects.h"
+#error "Iintroduce a Error"
 #endif
+
