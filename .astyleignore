@@ -8,8 +8,8 @@
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
 ^features/frameworks
-^features/lwipstack/lwip
-^features/lwipstack/lwip-sys
+^connectivity/lwipstack/lwip
+^connectivity/lwipstack/lwip-sys
 ^features/mbedtls
 ^features/nanostack/sal-stack-nanostack/source/Service_Libs/mdns/fnet
 ^features/nanostack/targets

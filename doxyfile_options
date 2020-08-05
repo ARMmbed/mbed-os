@@ -845,7 +845,7 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */features/cryptocell/* \
                          */features/mbedtls/* \
                          */features/unsupported/* \
-                         */features/lwipstack/* \
+                         */connectivity/lwipstack/* \
                          */features/nanostack/sal-stack-nanostack/* \
                          */features/nanostack/coap-service/* \
                          */mbed-trace/* \
