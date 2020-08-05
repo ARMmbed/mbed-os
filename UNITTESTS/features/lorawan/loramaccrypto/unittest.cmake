@@ -36,7 +36,7 @@ set(unittest-test-sources
   stubs/aes_stub.c
   stubs/cmac_stub.c
   stubs/mbed_assert_stub.cpp
-  ../features/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
+  ../connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
 
 )
 

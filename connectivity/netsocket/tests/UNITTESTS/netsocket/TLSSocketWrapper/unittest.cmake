@@ -23,7 +23,7 @@ set(unittest-test-sources
   stubs/mbed_atomic_stub.c
   stubs/mbed_critical_stub.c
   stubs/equeue_stub.c
-  ../features/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
+  ../connectivity/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
   stubs/EventQueue_stub.cpp
   stubs/mbed_shared_queues_stub.cpp
   stubs/nsapi_dns_stub.cpp
