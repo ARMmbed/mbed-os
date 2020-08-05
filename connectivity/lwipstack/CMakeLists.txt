@@ -1,4 +1,16 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/lwipstack
+        ${CMAKE_CURRENT_SOURCE_DIR}/lwip/src/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/lwip/src/include/lwip
+        ${CMAKE_CURRENT_SOURCE_DIR}/lwip-sys
+        ${CMAKE_CURRENT_SOURCE_DIR}/lwip-sys/arch
+)
 
 target_sources(mbed-os
     PRIVATE
@@ -66,22 +78,11 @@ target_sources(mbed-os
         lwip-sys/lwip_random.c
         lwip-sys/lwip_tcp_isn.c
 
-        LWIPInterface.cpp
-        LWIPInterfaceEMAC.cpp
-        LWIPInterfaceL3IP.cpp
-        LWIPInterfacePPP.cpp
-        LWIPMemoryManager.cpp
-        LWIPStack.cpp
-        lwip_tools.cpp
+        source/LWIPInterface.cpp
+        source/LWIPInterfaceEMAC.cpp
+        source/LWIPInterfaceL3IP.cpp
+        source/LWIPInterfacePPP.cpp
+        source/LWIPMemoryManager.cpp
+        source/LWIPStack.cpp
+        source/lwip_tools.cpp
 )
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        lwip/src/include
-        lwip/src/include/lwip
-        lwip-sys
-        lwip-sys/arch
-)
-
-mbed_add_cmake_directory_if_labels("COMPONENT")
