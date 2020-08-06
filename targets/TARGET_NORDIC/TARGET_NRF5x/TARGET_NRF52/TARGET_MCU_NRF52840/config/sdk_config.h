@@ -3218,8 +3218,6 @@
 
 // </e>
 
-// #define NRFX_SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED 1
-
 // <e> NRFX_SPIM_ENABLED - nrfx_spim - SPIM peripheral driver
 //==========================================================
 #ifndef NRFX_SPIM_ENABLED
