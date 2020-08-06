@@ -19,9 +19,16 @@ include(${MBED_ROOT}/cmake/toolchain.cmake)
 include(${MBED_ROOT}/cmake/profile.cmake)
 include(${MBED_ROOT}/cmake/util.cmake)
 
-set_target_properties(mbed-os PROPERTIES MBED_TARGET_LABELS "${MBED_TARGET_LABELS}")
-target_compile_definitions(mbed-os PUBLIC ${MBED_TARGET_DEFINITIONS})
-target_compile_definitions(mbed-os PUBLIC ${MBED_CONFIG_DEFINITIONS})
+set_target_properties(mbed-os
+    PROPERTIES
+        MBED_TARGET_LABELS "${MBED_TARGET_LABELS}"
+)
+
+target_compile_definitions(mbed-os
+    PUBLIC
+        ${MBED_TARGET_DEFINITIONS}
+        ${MBED_CONFIG_DEFINITIONS}
+)
 
 # Specify a default build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -31,7 +38,10 @@ set(CMAKE_BUILD_TYPE "RelWithDebInfo"
 endif()
 
 # Include mbed.h and config from generate folder
-target_include_directories(mbed-os PUBLIC .)
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 # Default build
 add_subdirectory(cmsis)
