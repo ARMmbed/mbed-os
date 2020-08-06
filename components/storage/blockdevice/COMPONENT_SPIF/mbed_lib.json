@@ -31,12 +31,6 @@
             "SPI_CLK":  "p19",
             "SPI_CS":   "p17"
         },
-        "NRF52840_FEATHER": {
-            "SPI_MOSI": "p20",
-            "SPI_MISO": "p21",
-            "SPI_CLK":  "p19",
-            "SPI_CS":   "p17"
-        },
         "HEXIWEAR": {
              "SPI_MOSI": "PTD6",
              "SPI_MISO": "PTD7",

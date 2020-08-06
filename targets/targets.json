@@ -5668,36 +5668,6 @@
             "full", "bare-metal"
         ]
     },
-    "NRF52840_FEATHER": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF52840"
-        ],
-        "detect_code": [
-            "1102"
-        ],
-        "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET"
-        ],
-        "extra_labels_remove": [
-            "SOFTDEVICE_NONE"
-        ],
-        "extra_labels_add": [
-            "SOFTDEVICE_COMMON",
-            "SOFTDEVICE_S140_FULL"
-        ],
-        "config": {
-            "enable-objects-extensions": {
-                "help": "Enable inclusion of objects_extensions.h",
-                "value": false
-            }
-        },
-        "supported_application_profiles": [
-            "full", "bare-metal"
-        ]
-    },
     "ARDUINO_NANO33BLE": {
         "inherits": [
             "MCU_NRF52840"
