@@ -50,7 +50,7 @@
 #include "nrfx_spi.h"
 #endif
 
-#if 1
+#if 0
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINTF(...)
@@ -236,7 +236,6 @@ void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
  */
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    DEBUG_PRINTF("spi_api: spi_init - ENTER\r\n");
 #if DEVICE_SPI_ASYNCH
     struct spi_s *spi_inst = &obj->spi;
 #else
@@ -245,8 +244,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     /* Get instance based on requested pins. */
     spi_inst->instance = pin_instance_spi(mosi, miso, sclk);
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
     MBED_ASSERT(spi_inst->instance < NRFX_SPIM_ENABLED_COUNT);
-    DEBUG_PRINTF("spi_api: spi_init - spi_inst->instance=%d\r\n", spi_inst->instance);
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
+    MBED_ASSERT(spi_inst->instance < NRFX_SPI_ENABLED_COUNT);
+#endif
 
     /* Store chip select separately for manual enabling. */
     spi_inst->cs = ssel;
@@ -305,7 +307,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         NVIC_SetVector(SPIM3_IRQn, (uint32_t) SPIM3_IRQHandler);
 #endif
     }
-    DEBUG_PRINTF("spi_api: spi_init - EXIT\r\n");
 }
 
 /** Release a SPI object
