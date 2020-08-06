@@ -1,4 +1,11 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        usb
+)
 
 target_sources(mbed-os
     PRIVATE
@@ -19,14 +26,6 @@ target_sources(mbed-os
 
         mpu/mbed_mpu_v7m.c
         mpu/mbed_mpu_v8m.c
-)
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-target_include_directories(mbed-os
-    PUBLIC
-        usb
+        usb/mbed_usb_phy.cpp
 )
