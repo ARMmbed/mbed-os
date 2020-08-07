@@ -1317,7 +1317,8 @@ ble_error_t GattClient::negotiateAttMtu(
 }
 
 
-ble_error_t GattClient::reset(void) {
+ble_error_t GattClient::reset(void)
+{
     /* Notify that the instance is about to shut down. */
     shutdownCallChain.call(this);
     shutdownCallChain.clear();
@@ -1377,7 +1378,8 @@ void GattClient::on_write_command_sent(
 
 
 
-void GattClient::on_termination(connection_handle_t connection_handle) {
+void GattClient::on_termination(connection_handle_t connection_handle)
+{
 	if (_termination_callback) {
 		_termination_callback(connection_handle);
 	}
@@ -1429,7 +1431,8 @@ void GattClient::on_server_response(
 }
 
 
-void GattClient::on_server_event(connection_handle_t connection, const AttServerMessage& message) {
+void GattClient::on_server_event(connection_handle_t connection, const AttServerMessage& message)
+{
 	GattHVXCallbackParams callbacks_params = {
 		(connection_handle_t) connection, 0
 	};
@@ -1461,7 +1464,8 @@ void GattClient::on_server_event(connection_handle_t connection, const AttServer
 }
 
 
-void GattClient::on_transaction_timeout(connection_handle_t connection) {
+void GattClient::on_transaction_timeout(connection_handle_t connection)
+{
 	ProcedureControlBlock* pcb = get_control_block(connection);
 	if (pcb == nullptr) {
 		return;
@@ -1472,7 +1476,8 @@ void GattClient::on_transaction_timeout(connection_handle_t connection) {
 
 
 typename GattClient::ProcedureControlBlock*
-GattClient::get_control_block(connection_handle_t connection) {
+GattClient::get_control_block(connection_handle_t connection)
+{
 	ProcedureControlBlock* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
@@ -1613,7 +1618,8 @@ GattClient::GattClientShutdownCallbackChain_t& GattClient::onShutdown()
 /**
  * @see GattClient::onHVX
  */
-GattClient::HVXCallbackChain_t& GattClient::onHVX() {
+GattClient::HVXCallbackChain_t& GattClient::onHVX()
+{
     return onHVXCallbackChain;
 }
 

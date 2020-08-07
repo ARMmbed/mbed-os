@@ -22,7 +22,8 @@
 
 namespace ble {
 
-void PalSigningMonitor::set_signing_event_handler(SecurityManager *handler) {
+void PalSigningMonitor::set_signing_event_handler(SecurityManager *handler)
+{
 #if BLE_FEATURE_GATT_CLIENT
     BLEInstanceBase::deviceInstance().getGattClient().set_signing_event_handler(handler);
 #endif // BLE_FEATURE_GATT_CLIENT

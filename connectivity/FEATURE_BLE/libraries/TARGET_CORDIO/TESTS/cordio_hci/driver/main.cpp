@@ -49,12 +49,14 @@ enum initialization_state_t {
 
 static initialization_state_t initialization_state = WAITING_FOR_INITIALIZATION;
 
-static void process_ble_events(BLE::OnEventsToProcessCallbackContext* context) {
+static void process_ble_events(BLE::OnEventsToProcessCallbackContext* context)
+{
     BLE &ble = BLE::Instance();
     event_queue.call(callback(&ble, &BLE::processEvents));
 }
 
-static void on_initialization_complete(BLE::InitializationCompleteCallbackContext *params) {
+static void on_initialization_complete(BLE::InitializationCompleteCallbackContext *params)
+{
     if (params->error == BLE_ERROR_NONE) {
         initialization_state = INITIALIZATION_SUCCESS;
     } else {
@@ -64,7 +66,8 @@ static void on_initialization_complete(BLE::InitializationCompleteCallbackContex
     event_queue.break_dispatch();
 }
 
-static void test_stack_initialization() {
+static void test_stack_initialization()
+{
     BLE &ble = BLE::Instance();
     ble.onEventsToProcess(process_ble_events);
     ble.init(on_initialization_complete);
@@ -102,14 +105,16 @@ Case cases[] = {
     Case("Test cordio stack reset sequence", test_stack_initialization),
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(15, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 

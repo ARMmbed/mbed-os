@@ -35,7 +35,8 @@ PalAttClient::~PalAttClient() {}
 /**
 * @see ble::PalAttClient::exchange_mtu_request
 */
-ble_error_t PalAttClient::exchange_mtu_request(connection_handle_t connection) {
+ble_error_t PalAttClient::exchange_mtu_request(connection_handle_t connection)
+{
     AttcMtuReq(connection, pAttCfg->mtu);
     return BLE_ERROR_NONE;
 }
@@ -272,19 +273,22 @@ ble_error_t PalAttClient::execute_write_request(
 /**
 * @see ble::PalAttClient::initialize
 */
-ble_error_t PalAttClient::initialize() {
+ble_error_t PalAttClient::initialize()
+{
     return BLE_ERROR_NONE;
 }
 
 /**
 * @see ble::PalAttClient::terminate
 */
-ble_error_t PalAttClient::terminate() {
+ble_error_t PalAttClient::terminate()
+{
     return BLE_ERROR_NONE;
 }
 
 // singleton of the ARM Cordio client
-PalAttClient &PalAttClient::get_client() {
+PalAttClient &PalAttClient::get_client()
+{
     static PalAttClient _client;
     return _client;
 }
@@ -302,14 +306,16 @@ void PalAttClient::when_transaction_timeout(
 }
 
 // convert an array of byte to an uint16_t
-uint16_t PalAttClient::to_uint16_t(const uint8_t *array) {
+uint16_t PalAttClient::to_uint16_t(const uint8_t *array)
+{
     uint16_t result;
     memcpy(&result, array, sizeof(result));
     return result;
 }
 
 template<typename T>
-bool PalAttClient::event_handler(const attEvt_t *event) {
+bool PalAttClient::event_handler(const attEvt_t *event)
+{
     if (T::can_convert(event)) {
         generated_handler(event, T::convert);
         return true;
@@ -317,7 +323,8 @@ bool PalAttClient::event_handler(const attEvt_t *event) {
     return false;
 }
 
-bool PalAttClient::timeout_event_handler(const attEvt_t *event) {
+bool PalAttClient::timeout_event_handler(const attEvt_t *event)
+{
     if (event->hdr.status != ATT_ERR_TIMEOUT) {
         return false;
     }
@@ -362,7 +369,8 @@ void PalAttClient::on_transaction_timeout(
     }
 }
 
-void PalAttClient::att_client_handler(const attEvt_t *event) {
+void PalAttClient::att_client_handler(const attEvt_t *event)
+{
 #if BLE_FEATURE_GATT_CLIENT
     if (event->hdr.status == ATT_SUCCESS && event->hdr.event == ATT_MTU_UPDATE_IND) {
         ble::BLEInstanceBase &ble = ble::BLEInstanceBase::deviceInstance();

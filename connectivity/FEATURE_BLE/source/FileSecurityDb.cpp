@@ -79,11 +79,13 @@ FileSecurityDb::FileSecurityDb(FILE *db_file)
     }
 }
 
-FileSecurityDb::~FileSecurityDb() {
+FileSecurityDb::~FileSecurityDb()
+{
     fclose(_db_file);
 }
 
-FILE* FileSecurityDb::open_db_file(const char *db_path) {
+FILE* FileSecurityDb::open_db_file(const char *db_path)
+{
     if (!db_path) {
         return nullptr;
     }
@@ -126,7 +128,8 @@ FILE* FileSecurityDb::open_db_file(const char *db_path) {
     return db_file;
 }
 
-FILE* FileSecurityDb::erase_db_file(FILE* db_file) {
+FILE* FileSecurityDb::erase_db_file(FILE* db_file)
+{
     fseek(db_file, 0, SEEK_SET);
 
     /* zero the file */
@@ -286,7 +289,8 @@ void FileSecurityDb::set_local_identity(
 
 /* saving and loading from nvm */
 
-void FileSecurityDb::restore() {
+void FileSecurityDb::restore()
+{
     /* restore if requested */
     bool restore_toggle = false;
     db_read(&restore_toggle, DB_OFFSET_RESTORE);
@@ -310,7 +314,8 @@ void FileSecurityDb::restore() {
 
 }
 
-void FileSecurityDb::sync(entry_handle_t db_handle) {
+void FileSecurityDb::sync(entry_handle_t db_handle)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -321,17 +326,20 @@ void FileSecurityDb::sync(entry_handle_t db_handle) {
     db_write(&_local_sign_counter, DB_OFFSET_LOCAL_SIGN_COUNT);
 }
 
-void FileSecurityDb::set_restore(bool reload) {
+void FileSecurityDb::set_restore(bool reload)
+{
     db_write(&reload, DB_OFFSET_RESTORE);
 }
 
 /* helper functions */
 
-uint8_t FileSecurityDb::get_entry_count() {
+uint8_t FileSecurityDb::get_entry_count()
+{
     return BLE_SECURITY_DATABASE_MAX_ENTRIES;
 }
 
-SecurityDistributionFlags_t* FileSecurityDb::get_entry_handle_by_index(uint8_t index) {
+SecurityDistributionFlags_t* FileSecurityDb::get_entry_handle_by_index(uint8_t index)
+{
     if (index < BLE_SECURITY_DATABASE_MAX_ENTRIES) {
         return &_entries[index].flags;
     } else {
@@ -339,7 +347,8 @@ SecurityDistributionFlags_t* FileSecurityDb::get_entry_handle_by_index(uint8_t i
     }
 }
 
-void FileSecurityDb::reset_entry(entry_handle_t db_entry) {
+void FileSecurityDb::reset_entry(entry_handle_t db_entry)
+{
     entry_t *entry = as_entry(db_entry);
     if (!entry) {
         return;
@@ -356,7 +365,8 @@ void FileSecurityDb::reset_entry(entry_handle_t db_entry) {
     entry->peer_sign_counter = 0;
 }
 
-SecurityEntryIdentity_t* FileSecurityDb::read_in_entry_peer_identity(entry_handle_t db_entry) {
+SecurityEntryIdentity_t* FileSecurityDb::read_in_entry_peer_identity(entry_handle_t db_entry)
+{
     entry_t *entry = as_entry(db_entry);
     if (!entry) {
         return nullptr;
@@ -368,7 +378,8 @@ SecurityEntryIdentity_t* FileSecurityDb::read_in_entry_peer_identity(entry_handl
     return identity;
 };
 
-SecurityEntryKeys_t* FileSecurityDb::read_in_entry_peer_keys(entry_handle_t db_entry) {
+SecurityEntryKeys_t* FileSecurityDb::read_in_entry_peer_keys(entry_handle_t db_entry)
+{
     entry_t *entry = as_entry(db_entry);
     if (!entry) {
         return nullptr;
@@ -380,7 +391,8 @@ SecurityEntryKeys_t* FileSecurityDb::read_in_entry_peer_keys(entry_handle_t db_e
     return keys;
 };
 
-SecurityEntryKeys_t* FileSecurityDb::read_in_entry_local_keys(entry_handle_t db_entry) {
+SecurityEntryKeys_t* FileSecurityDb::read_in_entry_local_keys(entry_handle_t db_entry)
+{
     entry_t *entry = as_entry(db_entry);
     if (!entry) {
         return nullptr;
@@ -392,7 +404,8 @@ SecurityEntryKeys_t* FileSecurityDb::read_in_entry_local_keys(entry_handle_t db_
     return keys;
 };
 
-SecurityEntrySigning_t* FileSecurityDb::read_in_entry_peer_signing(entry_handle_t db_entry) {
+SecurityEntrySigning_t* FileSecurityDb::read_in_entry_peer_signing(entry_handle_t db_entry)
+{
     entry_t *entry = as_entry(db_entry);
     if (!entry) {
         return nullptr;

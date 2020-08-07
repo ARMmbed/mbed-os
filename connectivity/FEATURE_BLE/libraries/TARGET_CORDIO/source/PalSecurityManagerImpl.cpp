@@ -550,7 +550,8 @@ ble_error_t PalSecurityManager::send_keypress_notification(
 
 
 
-ble_error_t PalSecurityManager::generate_secure_connections_oob() {
+ble_error_t PalSecurityManager::generate_secure_connections_oob()
+{
     uint8_t oobLocalRandom[SMP_RAND_LEN];
     SecRand(oobLocalRandom, SMP_RAND_LEN);
     DmSecCalcOobReq(oobLocalRandom, _public_key_x);
@@ -586,7 +587,8 @@ PalSecurityManager& PalSecurityManager::get_security_manager()
 }
 
 
-bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
+bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
+{
     PalSecurityManager& self = get_security_manager();
     PalSecurityManagerEventHandler* handler = self.get_event_handler();
 
@@ -957,7 +959,8 @@ void PalSecurityManager::queue_remove_device_from_resolving_list(
 }
 
 
-void PalSecurityManager::queue_clear_resolving_list() {
+void PalSecurityManager::queue_clear_resolving_list()
+{
     // Remove any pending control blocks, there's no point executing them as we're about to queue the list
     clear_privacy_control_blocks();
 
@@ -973,7 +976,8 @@ void PalSecurityManager::queue_clear_resolving_list() {
 }
 
 
-void PalSecurityManager::clear_privacy_control_blocks() {
+void PalSecurityManager::clear_privacy_control_blocks()
+{
     while(_pending_privacy_control_blocks != nullptr)
     {
         PrivacyControlBlock* next = _pending_privacy_control_blocks->next();
@@ -1026,7 +1030,8 @@ void PalSecurityManager::process_privacy_control_blocks(bool cb_completed)
 }
 
 
-void PalSecurityManager::cleanup_peer_csrks() {
+void PalSecurityManager::cleanup_peer_csrks()
+{
     for (size_t i = 0; i < DM_CONN_MAX; ++i) {
         if (_peer_csrks[i]) {
             delete _peer_csrks[i];
@@ -1040,7 +1045,8 @@ void PalSecurityManager::set_event_handler(PalSecurityManagerEventHandler *event
     _pal_event_handler = event_handler;
 }
 
-PalSecurityManagerEventHandler* PalSecurityManager::get_event_handler() {
+PalSecurityManagerEventHandler* PalSecurityManager::get_event_handler()
+{
     return _pal_event_handler;
 }
 

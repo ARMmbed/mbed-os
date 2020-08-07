@@ -143,7 +143,8 @@ ble_error_t SecurityManager::setDatabaseFilepath(
 }
 
 
-ble_error_t SecurityManager::reset(void) {
+ble_error_t SecurityManager::reset(void)
+{
     delete _db;
     _db = nullptr;
     _pal.reset();
@@ -157,7 +158,8 @@ ble_error_t SecurityManager::reset(void) {
 }
 
 
-ble_error_t SecurityManager::preserveBondingStateOnReset(bool enabled) {
+ble_error_t SecurityManager::preserveBondingStateOnReset(bool enabled)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _db->set_restore(enabled);
     return BLE_ERROR_NONE;
@@ -168,7 +170,8 @@ ble_error_t SecurityManager::preserveBondingStateOnReset(bool enabled) {
 //
 
 
-ble_error_t SecurityManager::purgeAllBondingState(void) {
+ble_error_t SecurityManager::purgeAllBondingState(void)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _db->clear_entries();
 
@@ -208,7 +211,8 @@ ble_error_t SecurityManager::generateWhitelistFromBondTable(::ble::whitelist_t *
 //
 
 
-ble_error_t SecurityManager::requestPairing(connection_handle_t connection) {
+ble_error_t SecurityManager::requestPairing(connection_handle_t connection)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -262,7 +266,8 @@ ble_error_t SecurityManager::requestPairing(connection_handle_t connection) {
 }
 
 
-ble_error_t SecurityManager::acceptPairingRequest(connection_handle_t connection) {
+ble_error_t SecurityManager::acceptPairingRequest(connection_handle_t connection)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -321,20 +326,23 @@ ble_error_t SecurityManager::acceptPairingRequest(connection_handle_t connection
 }
 
 
-ble_error_t SecurityManager::cancelPairingRequest(connection_handle_t connection) {
+ble_error_t SecurityManager::cancelPairingRequest(connection_handle_t connection)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
 }
 
 
-ble_error_t SecurityManager::setPairingRequestAuthorisation(bool required) {
+ble_error_t SecurityManager::setPairingRequestAuthorisation(bool required)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _pairing_authorisation_required = required;
     return BLE_ERROR_NONE;
 }
 
 
-ble_error_t SecurityManager::getPeerIdentity(connection_handle_t connection) {
+ble_error_t SecurityManager::getPeerIdentity(connection_handle_t connection)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (eventHandler) {
         ControlBlock_t *cb = get_control_block(connection);
@@ -365,13 +373,15 @@ ble_error_t SecurityManager::getPeerIdentity(connection_handle_t connection) {
 //
 
 
-ble_error_t SecurityManager::allowLegacyPairing(bool allow) {
+ble_error_t SecurityManager::allowLegacyPairing(bool allow)
+{
     _legacy_pairing_allowed = allow;
     return BLE_ERROR_NONE;
 }
 
 
-ble_error_t SecurityManager::getSecureConnectionsSupport(bool *enabled) {
+ble_error_t SecurityManager::getSecureConnectionsSupport(bool *enabled)
+{
     return _pal.get_secure_connections_support(*enabled);
 }
 
@@ -380,13 +390,15 @@ ble_error_t SecurityManager::getSecureConnectionsSupport(bool *enabled) {
 //
 
 
-ble_error_t SecurityManager::setIoCapability(SecurityIOCapabilities_t iocaps) {
+ble_error_t SecurityManager::setIoCapability(SecurityIOCapabilities_t iocaps)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_io_capability((io_capability_t::type) iocaps);
 }
 
 
-ble_error_t SecurityManager::setDisplayPasskey(const uint8_t* passkey) {
+ble_error_t SecurityManager::setDisplayPasskey(const uint8_t* passkey)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_display_passkey(PasskeyAscii::to_num(passkey));
 }
@@ -449,7 +461,8 @@ ble_error_t SecurityManager::setLinkSecurity(
 }
 
 
-ble_error_t SecurityManager::setKeypressNotification(bool enabled) {
+ble_error_t SecurityManager::setKeypressNotification(bool enabled)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _default_authentication.set_keypress_notification(enabled);
     return BLE_ERROR_NONE;
@@ -498,7 +511,8 @@ ble_error_t SecurityManager::enableSigning(
 }
 
 
-ble_error_t SecurityManager::setHintFutureRoleReversal(bool enable) {
+ble_error_t SecurityManager::setHintFutureRoleReversal(bool enable)
+{
     _master_sends_keys = enable;
     return BLE_ERROR_NONE;
 }
@@ -647,7 +661,8 @@ ble_error_t SecurityManager::setEncryptionKeyRequirements(
 // Keys
 //
 
-ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool authenticated) {
+ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool authenticated)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -686,7 +701,8 @@ ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool 
 //
 
 
-ble_error_t SecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
+ble_error_t SecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_private_address_timeout(timeout_in_seconds);
 }
@@ -696,7 +712,8 @@ ble_error_t SecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_second
 //
 
 
-ble_error_t SecurityManager::requestAuthentication(connection_handle_t connection) {
+ble_error_t SecurityManager::requestAuthentication(connection_handle_t connection)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -914,7 +931,8 @@ ble_error_t SecurityManager::init_database(
 }
 
 
-ble_error_t SecurityManager::init_resolving_list() {
+ble_error_t SecurityManager::init_resolving_list()
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
 
     /* match the resolving list to the currently stored set of IRKs */
@@ -940,7 +958,8 @@ ble_error_t SecurityManager::init_resolving_list() {
 }
 
 
-ble_error_t SecurityManager::init_signing() {
+ble_error_t SecurityManager::init_signing()
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     const csrk_t *pcsrk = _db->get_local_csrk();
     sign_count_t local_sign_counter = _db->get_local_sign_counter();
@@ -961,7 +980,8 @@ ble_error_t SecurityManager::init_signing() {
 }
 
 
-ble_error_t SecurityManager::init_identity() {
+ble_error_t SecurityManager::init_identity()
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     const irk_t *pirk = nullptr;
 
@@ -988,7 +1008,8 @@ ble_error_t SecurityManager::init_identity() {
 }
 
 
-ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size) {
+ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
+{
     byte_array_t<8> random_data;
 
     while (size) {
@@ -1008,7 +1029,8 @@ ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size) {
 }
 
 
-ble_error_t SecurityManager::slave_security_request(connection_handle_t connection) {
+ble_error_t SecurityManager::slave_security_request(connection_handle_t connection)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1020,7 +1042,8 @@ ble_error_t SecurityManager::slave_security_request(connection_handle_t connecti
 }
 
 
-ble_error_t SecurityManager::enable_encryption(connection_handle_t connection) {
+ble_error_t SecurityManager::enable_encryption(connection_handle_t connection)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1147,7 +1170,8 @@ void SecurityManager::return_csrk_cb(
 }
 
 
-void SecurityManager::update_oob_presence(connection_handle_t connection) {
+void SecurityManager::update_oob_presence(connection_handle_t connection)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1175,7 +1199,8 @@ void SecurityManager::update_oob_presence(connection_handle_t connection) {
 }
 
 
-void SecurityManager::set_mitm_performed(connection_handle_t connection, bool enable) {
+void SecurityManager::set_mitm_performed(connection_handle_t connection, bool enable)
+{
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
         cb->mitm_performed = enable;
@@ -1355,7 +1380,8 @@ void SecurityManager::on_pairing_error(
 }
 
 
-void SecurityManager::on_pairing_timed_out(connection_handle_t connection) {
+void SecurityManager::on_pairing_timed_out(connection_handle_t connection)
+{
     set_mitm_performed(connection, false);
 
     eventHandler->pairingResult(
@@ -1365,7 +1391,8 @@ void SecurityManager::on_pairing_timed_out(connection_handle_t connection) {
 }
 
 
-void SecurityManager::on_pairing_completed(connection_handle_t connection) {
+void SecurityManager::on_pairing_completed(connection_handle_t connection)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
@@ -1386,7 +1413,8 @@ void SecurityManager::on_pairing_completed(connection_handle_t connection) {
 //
 
 
-void SecurityManager::on_valid_mic_timeout(connection_handle_t connection) {
+void SecurityManager::on_valid_mic_timeout(connection_handle_t connection)
+{
     (void)connection;
 }
 
@@ -1430,7 +1458,8 @@ void SecurityManager::on_signed_write_verification_failure(
 }
 
 
-void SecurityManager::on_signed_write() {
+void SecurityManager::on_signed_write()
+{
     MBED_ASSERT(_db);
     _db->set_local_sign_counter(_db->get_local_sign_counter() + 1);
 }
@@ -1550,19 +1579,22 @@ void SecurityManager::on_keypress_notification(
 }
 
 
-void SecurityManager::on_passkey_request(connection_handle_t connection) {
+void SecurityManager::on_passkey_request(connection_handle_t connection)
+{
     set_mitm_performed(connection);
     eventHandler->passkeyRequest(connection);
 }
 
 
-void SecurityManager::on_confirmation_request(connection_handle_t connection) {
+void SecurityManager::on_confirmation_request(connection_handle_t connection)
+{
     set_mitm_performed(connection);
     eventHandler->confirmationRequest(connection);
 }
 
 
-void SecurityManager::on_secure_connections_oob_request(connection_handle_t connection) {
+void SecurityManager::on_secure_connections_oob_request(connection_handle_t connection)
+{
     set_mitm_performed(connection);
 
     ControlBlock_t *cb = get_control_block(connection);
@@ -1585,7 +1617,8 @@ void SecurityManager::on_secure_connections_oob_request(connection_handle_t conn
 }
 
 
-void SecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
+void SecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1920,20 +1953,24 @@ void SecurityManager::release_control_block(ControlBlock_t* cb)
     *cb = ControlBlock_t();
 }
 
-void SecurityManager::onShutdown(const SecurityManagerShutdownCallback_t& callback) {
+void SecurityManager::onShutdown(const SecurityManagerShutdownCallback_t& callback)
+{
     shutdownCallChain.add(callback);
 }
 
 template <typename T>
-void SecurityManager::onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *)) {
+void SecurityManager::onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *))
+{
     shutdownCallChain.add(objPtr, memberPtr);
 }
 
-SecurityManager::SecurityManagerShutdownCallbackChain_t& SecurityManager::onShutdown() {
+SecurityManager::SecurityManagerShutdownCallbackChain_t& SecurityManager::onShutdown()
+{
     return shutdownCallChain;
 }
 
-void SecurityManager::setSecurityManagerEventHandler(EventHandler* handler) {
+void SecurityManager::setSecurityManagerEventHandler(EventHandler* handler)
+{
     if (handler) {
         eventHandler = handler;
     } else {

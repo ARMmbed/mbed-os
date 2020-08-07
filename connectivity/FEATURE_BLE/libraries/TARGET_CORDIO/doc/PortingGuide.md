@@ -233,7 +233,8 @@ At runtime, you can get stack parameters from the controller:
 **Example:**
 
 ```
-void HCIDriver::handle_reset_sequence(uint8_t *pMsg) {
+void HCIDriver::handle_reset_sequence(uint8_t *pMsg)
+{
     // only accept command complete event:
     if (*pMsg != HCI_CMD_CMPL_EVT) {
         return;
@@ -440,7 +441,8 @@ ble::CordioHCIDriver& ble_cordio_get_hci_driver();
 **Example:**
 
 ```
-ble::CordioHCIDriver& ble_cordio_get_hci_driver() {
+ble::CordioHCIDriver& ble_cordio_get_hci_driver()
+{
     static ble::vendor::target_name::TransportDriver transport_driver(
         /* transport parameters */
     );

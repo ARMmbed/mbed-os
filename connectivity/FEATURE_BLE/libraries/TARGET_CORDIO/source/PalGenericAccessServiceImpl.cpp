@@ -22,7 +22,8 @@ namespace ble {
 
 #if 0 // Disabled until reworked and reintroduced to GattServer API
 
-virtual ble_error_t PalGenericAccessService::get_device_name_length(uint8_t& length) {
+virtual ble_error_t PalGenericAccessService::get_device_name_length(uint8_t& length)
+{
 #if BLE_FEATURE_GATT_SERVER
         const uint8_t* name = nullptr;
         uint16_t actual_length = 0;
@@ -112,7 +113,8 @@ ble_error_t PalGenericAccessService::set_peripheral_preferred_connection_paramet
 
 
 #if BLE_FEATURE_GATT_SERVER
-ble::GattServer& PalGenericAccessService::gatt_server() {
+ble::GattServer& PalGenericAccessService::gatt_server()
+{
     return ble::GattServer::getInstance();
 }
 

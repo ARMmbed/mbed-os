@@ -37,21 +37,25 @@ namespace ble {
 
 namespace {
 
-mbed::Span<const uint8_t> as_span(const int8_t& v) {
+mbed::Span<const uint8_t> as_span(const int8_t& v)
+{
     return mbed::Span<const uint8_t>(reinterpret_cast<const uint8_t*>(&v), sizeof(v));
 }
 
-mbed::Span<const uint8_t> as_span(const uint8_t& v) {
+mbed::Span<const uint8_t> as_span(const uint8_t& v)
+{
     return mbed::Span<const uint8_t>(static_cast<const uint8_t*>(&v), sizeof(v));
 }
 
 template<typename Rep, uint32_t TB, typename Range, typename F>
-mbed::Span<const uint8_t> as_span(const Duration<Rep, TB, Range, F>& d) {
+mbed::Span<const uint8_t> as_span(const Duration<Rep, TB, Range, F>& d)
+{
     return mbed::Span<const uint8_t>(reinterpret_cast<const uint8_t*>(d.storage()), sizeof(d.value()));
 }
 
 template<typename T, typename Rep>
-mbed::Span<const uint8_t> as_span(const SafeEnum<T, Rep>& v) {
+mbed::Span<const uint8_t> as_span(const SafeEnum<T, Rep>& v)
+{
     return mbed::Span<const uint8_t>(reinterpret_cast<const uint8_t*>(v.storage()), sizeof(v.value()));
 }
 

@@ -34,7 +34,8 @@ PalGattClient::PalGattClient(PalAttClient& client) : _event_handler(nullptr), _c
 }
 
 
-ble_error_t PalGattClient::exchange_mtu(connection_handle_t connection) {
+ble_error_t PalGattClient::exchange_mtu(connection_handle_t connection)
+{
     return _client.exchange_mtu_request(connection);
 }
 
@@ -221,12 +222,14 @@ ble_error_t PalGattClient::execute_write_queue(
 }
 
 
-ble_error_t PalGattClient::initialize() {
+ble_error_t PalGattClient::initialize()
+{
     return _client.initialize();
 }
 
 
-ble_error_t PalGattClient::terminate() {
+ble_error_t PalGattClient::terminate()
+{
     return _client.initialize();
 }
 

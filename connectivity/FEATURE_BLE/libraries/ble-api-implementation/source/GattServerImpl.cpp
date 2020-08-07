@@ -232,7 +232,8 @@ ble_error_t GattServer::insert_characteristic(
     return BLE_ERROR_NONE;
 }
 
-bool GattServer::is_characteristic_valid(GattCharacteristic *characteristic) {
+bool GattServer::is_characteristic_valid(GattCharacteristic *characteristic)
+{
     uint8_t properties = characteristic->getProperties();
 
     // nothing to read while the characteristic is flagged as readable
@@ -1249,7 +1250,8 @@ void GattServer::add_generic_attribute_service()
     AttsCccRegister(cccd_cnt, (attsCccSet_t*)cccds, cccd_cb);
 }
 
-void* GattServer::alloc_block(size_t block_size) {
+void* GattServer::alloc_block(size_t block_size)
+{
     alloc_block_t* block = (alloc_block_t*) malloc(sizeof(alloc_block_t) + block_size);
     if (block == nullptr) {
         return nullptr;
@@ -1464,7 +1466,8 @@ void GattServer::setEventHandler(EventHandler *handler)
     eventHandler = handler;
 }
 
-GattServer::EventHandler* GattServer::getEventHandler() {
+GattServer::EventHandler* GattServer::getEventHandler()
+{
     return eventHandler;
 }
 

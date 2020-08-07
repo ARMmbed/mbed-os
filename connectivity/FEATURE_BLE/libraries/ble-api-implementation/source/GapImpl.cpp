@@ -2730,7 +2730,8 @@ void Gap::prepare_legacy_advertising_set()
     _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
 }
 
-void Gap::setEventHandler(Gap::EventHandler *handler) {
+void Gap::setEventHandler(Gap::EventHandler *handler)
+{
     _event_handler = handler;
 }
 

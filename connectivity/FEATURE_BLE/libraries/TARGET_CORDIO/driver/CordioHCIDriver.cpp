@@ -286,7 +286,8 @@ uint16_t CordioHCIDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 void CordioHCIDriver::on_host_stack_inactivity()
 {
 }
-void CordioHCIDriver::handle_test_end(bool success, uint16_t packets) {
+void CordioHCIDriver::handle_test_end(bool success, uint16_t packets)
+{
     if (_test_end_handler) {
         _test_end_handler(success, packets);
         _test_end_handler = nullptr;
@@ -364,7 +365,8 @@ ble_error_t CordioHCIDriver::rf_test_end()
     return BLE_ERROR_NO_MEM;
 }
 
-ble_error_t CordioHCIDriver::set_tx_power(int8_t level_db) {
+ble_error_t CordioHCIDriver::set_tx_power(int8_t level_db)
+{
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 

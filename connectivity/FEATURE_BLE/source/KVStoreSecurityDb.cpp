@@ -59,10 +59,12 @@ KVStoreSecurityDb::KVStoreSecurityDb()
     }
 }
 
-KVStoreSecurityDb::~KVStoreSecurityDb() {
+KVStoreSecurityDb::~KVStoreSecurityDb()
+{
 }
 
-bool KVStoreSecurityDb::open_db() {
+bool KVStoreSecurityDb::open_db()
+{
     uint8_t version = 0;
     char db_key[DB_FULL_KEY_SIZE];
     create_key(db_key, DB_VERSION);
@@ -82,7 +84,8 @@ bool KVStoreSecurityDb::open_db() {
     return true;
 }
 
-bool KVStoreSecurityDb::erase_db() {
+bool KVStoreSecurityDb::erase_db()
+{
     union zero_t {
         int dummy; /* we need a dummy for initialisation */
         uint8_t buffer[sizeof(SecurityEntryKeys_t)];
@@ -276,7 +279,8 @@ void KVStoreSecurityDb::set_local_identity(
 
 /* saving and loading from nvm */
 
-void KVStoreSecurityDb::restore() {
+void KVStoreSecurityDb::restore()
+{
     /* restore if requested */
     bool restore_toggle = false;
     db_read(&restore_toggle, DB_RESTORE);
@@ -292,7 +296,8 @@ void KVStoreSecurityDb::restore() {
     db_read(&_local_sign_counter, DB_LOCAL_SIGN_COUNT);
 }
 
-void KVStoreSecurityDb::sync(entry_handle_t db_handle) {
+void KVStoreSecurityDb::sync(entry_handle_t db_handle)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -305,17 +310,20 @@ void KVStoreSecurityDb::sync(entry_handle_t db_handle) {
     db_write(&_local_sign_counter, DB_LOCAL_SIGN_COUNT);
 }
 
-void KVStoreSecurityDb::set_restore(bool reload) {
+void KVStoreSecurityDb::set_restore(bool reload)
+{
     db_write(&reload, DB_RESTORE);
 }
 
 /* helper functions */
 
-uint8_t KVStoreSecurityDb::get_entry_count() {
+uint8_t KVStoreSecurityDb::get_entry_count()
+{
     return BLE_SECURITY_DATABASE_MAX_ENTRIES;
 }
 
-SecurityDistributionFlags_t* KVStoreSecurityDb::get_entry_handle_by_index(uint8_t index) {
+SecurityDistributionFlags_t* KVStoreSecurityDb::get_entry_handle_by_index(uint8_t index)
+{
     if (index < get_entry_count()) {
         return &_entries[index].flags;
     } else {
@@ -323,7 +331,8 @@ SecurityDistributionFlags_t* KVStoreSecurityDb::get_entry_handle_by_index(uint8_
     }
 }
 
-void KVStoreSecurityDb::reset_entry(entry_handle_t db_handle) {
+void KVStoreSecurityDb::reset_entry(entry_handle_t db_handle)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -344,7 +353,8 @@ void KVStoreSecurityDb::reset_entry(entry_handle_t db_handle) {
     entry->peer_sign_counter = 0;
 }
 
-SecurityEntryIdentity_t* KVStoreSecurityDb::read_in_entry_peer_identity(entry_handle_t db_handle) {
+SecurityEntryIdentity_t* KVStoreSecurityDb::read_in_entry_peer_identity(entry_handle_t db_handle)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return nullptr;
@@ -356,7 +366,8 @@ SecurityEntryIdentity_t* KVStoreSecurityDb::read_in_entry_peer_identity(entry_ha
     return identity;
 };
 
-SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_peer_keys(entry_handle_t db_handle) {
+SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_peer_keys(entry_handle_t db_handle)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return nullptr;
@@ -368,7 +379,8 @@ SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_peer_keys(entry_handle_t d
     return keys;
 };
 
-SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_local_keys(entry_handle_t db_handle) {
+SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_local_keys(entry_handle_t db_handle)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return nullptr;
@@ -380,7 +392,8 @@ SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_local_keys(entry_handle_t 
     return keys;
 };
 
-SecurityEntrySigning_t* KVStoreSecurityDb::read_in_entry_peer_signing(entry_handle_t db_handle) {
+SecurityEntrySigning_t* KVStoreSecurityDb::read_in_entry_peer_signing(entry_handle_t db_handle)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return nullptr;
