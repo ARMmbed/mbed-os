@@ -1,4 +1,11 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_sources(mbed-os
     PRIVATE
@@ -6,7 +13,6 @@ target_sources(mbed-os
         arm_hal_interrupt.c
         arm_hal_random.c
         arm_hal_timer.cpp
-        mbed_lib.json
         ns_event_loop.c
         ns_event_loop_mbed.cpp
         ns_event_loop_mutex.c
@@ -14,9 +20,4 @@ target_sources(mbed-os
         ns_hal_init.c
 
         nvm/nvm_ram.c
-)
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
 )
