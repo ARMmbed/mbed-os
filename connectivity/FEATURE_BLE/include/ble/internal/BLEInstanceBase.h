@@ -27,11 +27,6 @@
 
 namespace ble {
 
-class SecurityManager;
-class Gap;
-class GattClient;
-class GattServer;
-
 /**
  * @addtogroup ble
  * @{

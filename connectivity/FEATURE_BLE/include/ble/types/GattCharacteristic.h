@@ -21,7 +21,6 @@
 
 #include "FunctionPointerWithContext.h"
 
-#include "ble/Gap.h"
 #include "ble/types/GattAttribute.h"
 #include "ble/types/GattCallbackParamTypes.h"
 

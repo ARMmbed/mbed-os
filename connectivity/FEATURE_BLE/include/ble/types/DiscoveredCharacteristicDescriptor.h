@@ -22,8 +22,11 @@
 #include "ble/types/UUID.h"
 #include "ble/Gap.h"
 #include "ble/types/GattAttribute.h"
-#include "ble/GattClient.h"
 #include "ble/types/CharacteristicDescriptorDiscovery.h"
+
+namespace ble {
+class GattClient;
+}
 
 /**
  * @addtogroup ble

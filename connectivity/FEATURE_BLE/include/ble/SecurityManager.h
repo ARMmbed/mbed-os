@@ -25,9 +25,7 @@
 
 #include "ble/types/BLETypes.h"
 #include "ble/types/blecommon.h"
-#include "ble/Gap.h"
 
-#include "ble/internal/GapTypes.h"
 #include "ble/types/BLETypes.h"
 #include "ble/internal/SecurityDb.h"
 #include "ble/internal/PalConnectionMonitor.h"
@@ -668,34 +666,6 @@ public:
      */
     ble_error_t setHintFutureRoleReversal(bool enable = true);
 
-    /**
-     * Set the time after which an event will be generated unless we received a packet with
-     * a valid MIC.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] timeout_in_ms Timeout to set.
-     *
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    ble_error_t setAuthenticationTimeout(
-        connection_handle_t connection,
-        uint32_t timeout_in_ms
-    );
-
-    /**
-     * Get the time after which an event will be generated unless we received a packet with
-     * a valid MIC.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] timeout_in_ms Returns the timeout.
-     *
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    ble_error_t getAuthenticationTimeout(
-        connection_handle_t connection,
-        uint32_t *timeout_in_ms
-    );
-
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
@@ -921,15 +891,9 @@ public:
 
 public:
 #if !defined(DOXYGEN_ONLY)
-    /** For backwards compatibility. This enm is now in BLETypes.h
-     * @deprecated, use the enum in ble namespace */
-    enum Keypress_t {
-        KEYPRESS_STARTED,   /**< Passkey entry started */
-        KEYPRESS_ENTERED,   /**< Passkey digit entered */
-        KEYPRESS_ERASED,    /**< Passkey digit erased */
-        KEYPRESS_CLEARED,   /**< Passkey cleared */
-        KEYPRESS_COMPLETED, /**< Passkey entry completed */
-    };
+    /** For backwards compatibility. This enum is now in BLETypes.h
+     * @deprecated use the enum in ble namespace */
+    typedef ble::Keypress_t Keypress_t;
 #endif // !defined(DOXYGEN_ONLY)
 };
 

@@ -555,7 +555,7 @@ public:
     /**
      * Preferred connection parameter display in Generic Access Service.
      */
-    typedef struct PreferredConnectionParams_t {
+    typedef struct {
         /**
          * Minimum interval between two connection events allowed for a
          * connection.

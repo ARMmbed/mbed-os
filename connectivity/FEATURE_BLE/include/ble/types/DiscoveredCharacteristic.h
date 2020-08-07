@@ -21,6 +21,7 @@
 
 #include "ble/types/UUID.h"
 #include "ble/types/GattAttribute.h"
+#include "ble/types/GattCallbackParamTypes.h"
 #include "ble/types/CharacteristicDescriptorDiscovery.h"
 #include "ble/types/DiscoveredCharacteristicDescriptor.h"
 

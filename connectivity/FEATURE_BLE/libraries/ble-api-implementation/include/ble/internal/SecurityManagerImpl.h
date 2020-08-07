@@ -34,9 +34,10 @@
 #include "ble/internal/PalSigningMonitor.h"
 #include "ble/internal/PalSecurityManager.h"
 #include "ble/SecurityManager.h"
-#include "ble/internal/BLEInstanceBase.h"
 
 namespace ble {
+
+class BLEInstanceBase;
 
 class SecurityManager :
     public ble::interface::SecurityManager,
@@ -118,16 +119,6 @@ public:
 
     ble_error_t setHintFutureRoleReversal(bool enable = true);
 
-    ble_error_t setAuthenticationTimeout(
-        connection_handle_t connection,
-        uint32_t timeout_in_ms
-    );
-
-    ble_error_t getAuthenticationTimeout(
-        connection_handle_t connection,
-        uint32_t *timeout_in_ms
-    );
-
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
@@ -195,6 +186,35 @@ public:
 
     /* ===================================================================== */
     /*                    private implementation follows                     */
+
+private:
+    /**
+     * Set the time after which an event will be generated unless we received a packet with
+     * a valid MIC.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] timeout_in_ms Timeout to set.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t setAuthenticationTimeout(
+        connection_handle_t connection,
+        uint32_t timeout_in_ms
+    );
+
+    /**
+     * Get the time after which an event will be generated unless we received a packet with
+     * a valid MIC.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] timeout_in_ms Returns the timeout.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t getAuthenticationTimeout(
+        connection_handle_t connection,
+        uint32_t *timeout_in_ms
+    );
 
     /* implements PalSecurityManager::EventHandler */
 private:

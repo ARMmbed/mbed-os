@@ -21,7 +21,6 @@
 
 #include "ble/types/blecommon.h"
 #include "ble/types/UUID.h"
-#include "ble/Gap.h"
 #include "ble/types/GattAttribute.h"
 
 class DiscoveredService;

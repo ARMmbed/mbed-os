@@ -31,17 +31,7 @@
 #include "ble/Gap.h"
 #include "SecurityManager.h"
 
-#include "ble/BLE.h"
-
-/*! Maximum count of characteristics that can be stored for authorisation purposes */
-#define MAX_CHARACTERISTIC_AUTHORIZATION_CNT 20
-
-/*! client characteristic configuration descriptors settings */
-#define MAX_CCCD_CNT 20
-
 namespace ble {
-class PalAttClient;
-class BLE;
 
 /**
  * @addtogroup ble
