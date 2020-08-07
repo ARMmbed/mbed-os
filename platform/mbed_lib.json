@@ -212,6 +212,10 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "ADAFRUIT_NRF52840_FEATHER": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
+        },
         "NUCLEO_L476RG": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
