@@ -21,9 +21,9 @@
 
 #include "platform/Callback.h"
 
-#include "ble/types/UUID.h"
-#include "ble/types/BLETypes.h"
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/UUID.h"
+#include "ble/common/ble/BLETypes.h"
+#include "ble/common/ble/blecommon.h"
 #include "ble/internal/AttServerMessage.h"
 
 namespace ble {

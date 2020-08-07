@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include "platform/Span.h"
 
-#include "ble/types/gap/AdvertisingDataTypes.h"
+#include "ble/common/ble/gap/AdvertisingDataTypes.h"
 
 namespace ble {
 
@@ -73,7 +73,7 @@ public:
         if (position >= data.size()) {
             return false;
         }
-        
+
         /* early termination of packet, no more meaningful octets */
         if (current_length() == 0) {
             return false;

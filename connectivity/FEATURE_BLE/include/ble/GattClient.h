@@ -24,13 +24,13 @@
 #include "CallChainOfFunctionPointersWithContext.h"
 #include <algorithm>
 
-#include "ble/types/blecommon.h"
-#include "ble/types/GattAttribute.h"
-#include "ble/types/ServiceDiscovery.h"
-#include "ble/types/CharacteristicDescriptorDiscovery.h"
-#include "ble/types/GattCallbackParamTypes.h"
-#include "ble/types/DiscoveredService.h"
-#include "ble/types/DiscoveredCharacteristic.h"
+#include "ble/common/ble/blecommon.h"
+#include "ble/common/ble/GattAttribute.h"
+#include "ble/common/ble/ServiceDiscovery.h"
+#include "ble/common/ble/CharacteristicDescriptorDiscovery.h"
+#include "ble/common/ble/GattCallbackParamTypes.h"
+#include "ble/common/ble/DiscoveredService.h"
+#include "ble/common/ble/DiscoveredCharacteristic.h"
 
 namespace ble {
 

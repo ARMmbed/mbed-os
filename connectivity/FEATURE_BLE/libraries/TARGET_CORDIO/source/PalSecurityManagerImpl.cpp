@@ -20,7 +20,7 @@
 
 #include <string.h>
 
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/blecommon.h"
 #include "ble/internal/PalSecurityManager.h"
 #include "ble/internal/PalAttClient.h"
 #include "dm_api.h"

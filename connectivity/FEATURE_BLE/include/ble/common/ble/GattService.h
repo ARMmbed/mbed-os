@@ -19,8 +19,8 @@
 #ifndef MBED_GATT_SERVICE_H__
 #define MBED_GATT_SERVICE_H__
 
-#include "ble/types/UUID.h"
-#include "ble/types/GattCharacteristic.h"
+#include "ble/common/ble/UUID.h"
+#include "ble/common/ble/GattCharacteristic.h"
 
 /**
  * @addtogroup ble

@@ -19,7 +19,7 @@
 #ifndef MBED_BLE_SIGNING_EVENT_MONITOR
 #define MBED_BLE_SIGNING_EVENT_MONITOR
 
-#include "ble/types/BLETypes.h"
+#include "ble/common/ble/BLETypes.h"
 
 namespace ble {
 

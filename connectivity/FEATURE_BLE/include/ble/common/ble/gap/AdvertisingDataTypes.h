@@ -19,7 +19,7 @@
 #ifndef BLE_GAP_ADVERTISINGDATATYPES_H
 #define BLE_GAP_ADVERTISINGDATATYPES_H
 
-#include "ble/types/SafeEnum.h"
+#include "ble/common/ble/SafeEnum.h"
 
 namespace ble {
 

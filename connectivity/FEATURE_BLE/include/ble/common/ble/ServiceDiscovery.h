@@ -19,9 +19,9 @@
 #ifndef MBED_BLE_SERVICE_DISOVERY_H__
 #define MBED_BLE_SERVICE_DISOVERY_H__
 
-#include "ble/types/blecommon.h"
-#include "ble/types/UUID.h"
-#include "ble/types/GattAttribute.h"
+#include "ble/common/ble/blecommon.h"
+#include "ble/common/ble/UUID.h"
+#include "ble/common/ble/GattAttribute.h"
 
 class DiscoveredService;
 class DiscoveredCharacteristic;

@@ -22,8 +22,8 @@
 #include <stdlib.h>
 #include "platform/Callback.h"
 
-#include "ble/internal/GapTypes.h"
-#include "ble/types/BLETypes.h"
+#include "ble/common/ble/GapTypes.h"
+#include "ble/common/ble/BLETypes.h"
 #include "ble/Gap.h"
 
 namespace ble {

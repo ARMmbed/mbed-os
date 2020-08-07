@@ -21,7 +21,7 @@
 
 #include "mbed_assert.h"
 
-#include "ble/types/BLETypes.h"
+#include "ble/common/ble/BLETypes.h"
 
 namespace ble {
 

@@ -19,8 +19,8 @@
 #ifndef BLE_PAL_ATT_SERVER_MESSAGE_H_
 #define BLE_PAL_ATT_SERVER_MESSAGE_H_
 
-#include "ble/types/BLETypes.h"
-#include "ble/types/UUID.h"
+#include "ble/common/ble/BLETypes.h"
+#include "ble/common/ble/UUID.h"
 
 namespace ble {
 

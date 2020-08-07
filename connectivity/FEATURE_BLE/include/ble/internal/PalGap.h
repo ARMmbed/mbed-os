@@ -21,9 +21,9 @@
 
 #include "platform/Callback.h"
 
-#include "ble/internal/GapTypes.h"
-#include "ble/internal/GapEvents.h"
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/GapTypes.h"
+#include "ble/common/ble/GapEvents.h"
+#include "ble/common/ble/blecommon.h"
 
 #include "dm_api.h"
 

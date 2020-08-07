@@ -19,8 +19,8 @@
 #ifndef MBED_GATT_ATTRIBUTE_H__
 #define MBED_GATT_ATTRIBUTE_H__
 
-#include "ble/types/UUID.h"
-#include "ble/types/BLETypes.h"
+#include "ble/common/ble/UUID.h"
+#include "ble/common/ble/BLETypes.h"
 
 /**
  * @addtogroup ble

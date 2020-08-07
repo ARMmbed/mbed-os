@@ -21,8 +21,8 @@
 
 #include "FunctionPointerWithContext.h"
 
-#include "ble/types/GattAttribute.h"
-#include "ble/types/GattCallbackParamTypes.h"
+#include "ble/common/ble/GattAttribute.h"
+#include "ble/common/ble/GattCallbackParamTypes.h"
 
 /**
  * @addtogroup ble

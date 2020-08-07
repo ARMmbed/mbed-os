@@ -19,9 +19,9 @@
 #ifndef BLE_GAP_TYPES_H
 #define BLE_GAP_TYPES_H
 
-#include "ble/types/Duration.h"
-#include "ble/types/Bounded.h"
-#include "ble/types/SafeEnum.h"
+#include "ble/common/ble/Duration.h"
+#include "ble/common/ble/Bounded.h"
+#include "ble/common/ble/SafeEnum.h"
 
 namespace ble {
 

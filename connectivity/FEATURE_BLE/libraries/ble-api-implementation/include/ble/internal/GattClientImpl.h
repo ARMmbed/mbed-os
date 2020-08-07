@@ -22,11 +22,11 @@
 #include "CallChainOfFunctionPointersWithContext.h"
 #include <algorithm>
 
-#include "ble/types/blecommon.h"
-#include "ble/types/GattAttribute.h"
-#include "ble/types/ServiceDiscovery.h"
-#include "ble/types/CharacteristicDescriptorDiscovery.h"
-#include "ble/types/GattCallbackParamTypes.h"
+#include "ble/common/ble/blecommon.h"
+#include "ble/common/ble/GattAttribute.h"
+#include "ble/common/ble/ServiceDiscovery.h"
+#include "ble/common/ble/CharacteristicDescriptorDiscovery.h"
+#include "ble/common/ble/GattCallbackParamTypes.h"
 #include "ble/internal/PalGattClient.h"
 #include "ble/internal/PalSigningMonitor.h"
 #include "ble/GattClient.h"

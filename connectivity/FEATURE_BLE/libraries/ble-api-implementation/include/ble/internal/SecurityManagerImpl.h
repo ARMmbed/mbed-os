@@ -23,12 +23,12 @@
 #include "CallChainOfFunctionPointersWithContext.h"
 #include "platform/Callback.h"
 
-#include "ble/types/BLETypes.h"
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/BLETypes.h"
+#include "ble/common/ble/blecommon.h"
 #include "ble/Gap.h"
 
-#include "ble/internal/GapTypes.h"
-#include "ble/types/BLETypes.h"
+#include "ble/common/ble/GapTypes.h"
+#include "ble/common/ble/BLETypes.h"
 #include "ble/internal/SecurityDb.h"
 #include "ble/internal/PalConnectionMonitor.h"
 #include "ble/internal/PalSigningMonitor.h"

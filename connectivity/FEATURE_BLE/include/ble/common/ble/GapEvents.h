@@ -19,8 +19,8 @@
 #ifndef BLE_PAL_GAP_MESSAGE_H_
 #define BLE_PAL_GAP_MESSAGE_H_
 
-#include "ble/internal/GapTypes.h"
-#include "ble/types/BLETypes.h"
+#include "ble/common/ble/GapTypes.h"
+#include "ble/common/ble/BLETypes.h"
 
 namespace ble {
 

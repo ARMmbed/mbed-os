@@ -24,9 +24,9 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
 
-#include "ble/types/BLERoles.h"
-#include "ble/types/BLETypes.h"
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/BLERoles.h"
+#include "ble/common/ble/BLETypes.h"
+#include "ble/common/ble/blecommon.h"
 
 #include "ble/Gap.h"
 #include "ble/GattClient.h"

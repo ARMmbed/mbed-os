@@ -22,7 +22,7 @@
 #include <BLETypes.h>
 #include "wsf_buf.h"
 #include "CordioHCITransportDriver.h"
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/blecommon.h"
 #include "mbed.h"
 
 namespace ble {

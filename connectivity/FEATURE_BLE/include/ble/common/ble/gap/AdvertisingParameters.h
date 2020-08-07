@@ -21,9 +21,9 @@
 
 #include <algorithm>
 
-#include "ble/types/BLETypes.h"
-#include "ble/types/blecommon.h"
-#include "ble/types/SafeEnum.h"
+#include "ble/common/ble/BLETypes.h"
+#include "ble/common/ble/blecommon.h"
+#include "ble/common/ble/SafeEnum.h"
 
 namespace ble {
 

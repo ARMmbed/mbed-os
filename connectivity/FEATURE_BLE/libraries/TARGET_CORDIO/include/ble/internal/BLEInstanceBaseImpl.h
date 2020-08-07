@@ -20,7 +20,7 @@
 #define IMPL_BLE_INSTANCE_BASE_H_
 
 #include "ble/BLE.h"
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/blecommon.h"
 #include "ble/internal/BLEInstanceBase.h"
 
 #include "CordioHCIDriver.h"

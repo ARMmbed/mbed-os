@@ -20,7 +20,7 @@
 #define MBED_BLE_CONNECTION_EVENT_MONITOR
 
 #include "ble/Gap.h"
-#include "ble/types/BLETypes.h"
+#include "ble/common/ble/BLETypes.h"
 
 namespace ble {
 

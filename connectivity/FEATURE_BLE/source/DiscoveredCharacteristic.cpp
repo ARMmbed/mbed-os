@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ble/types/DiscoveredCharacteristic.h"
+#include "ble/common/ble/DiscoveredCharacteristic.h"
 #include "ble/GattClient.h"
 
 ble_error_t
@@ -154,7 +154,7 @@ ble_error_t DiscoveredCharacteristic::write(uint16_t length, const uint8_t *valu
 }
 
 ble_error_t DiscoveredCharacteristic::discoverDescriptors(
-    const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& onCharacteristicDiscovered, 
+    const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& onCharacteristicDiscovered,
     const CharacteristicDescriptorDiscovery::TerminationCallback_t& onTermination) const {
 
     if(!gattc) {

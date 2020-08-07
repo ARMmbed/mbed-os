@@ -24,10 +24,10 @@
 #include <stdlib.h>
 
 #include "ble/internal/AttServerMessage.h"
-#include "ble/types/DiscoveredService.h"
-#include "ble/types/DiscoveredCharacteristic.h"
+#include "ble/common/ble/DiscoveredService.h"
+#include "ble/common/ble/DiscoveredCharacteristic.h"
 #include "ble/GattClient.h"
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/blecommon.h"
 #include "ble/internal/BLEInstanceBase.h"
 #include "ble/SecurityManager.h"
 #include <algorithm>

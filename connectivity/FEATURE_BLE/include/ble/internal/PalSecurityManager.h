@@ -22,8 +22,8 @@
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 
-#include "ble/types/BLETypes.h"
-#include "ble/internal/GapTypes.h"
+#include "ble/common/ble/BLETypes.h"
+#include "ble/common/ble/GapTypes.h"
 
 #include "wsf_types.h"
 #include "wsf_os.h"

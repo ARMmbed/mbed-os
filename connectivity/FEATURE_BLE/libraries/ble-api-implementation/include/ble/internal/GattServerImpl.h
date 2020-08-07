@@ -21,19 +21,19 @@
 
 #include "CallChainOfFunctionPointersWithContext.h"
 
-#include "ble/types/GattService.h"
-#include "ble/types/GattAttribute.h"
-#include "ble/types/GattServerEvents.h"
-#include "ble/types/GattCallbackParamTypes.h"
+#include "ble/common/ble/GattService.h"
+#include "ble/common/ble/GattAttribute.h"
+#include "ble/common/ble/GattServerEvents.h"
+#include "ble/common/ble/GattCallbackParamTypes.h"
 
 #include <stddef.h>
-#include "ble/types/blecommon.h"
+#include "ble/common/ble/blecommon.h"
 #include "ble/Gap.h"
 #include "wsf_types.h"
 #include "att_api.h"
 #include "SecurityManager.h"
 
-#include "ble/types/GattCallbackParamTypes.h"
+#include "ble/common/ble/GattCallbackParamTypes.h"
 #include "ble/internal/PalSigningMonitor.h"
 
 namespace ble {

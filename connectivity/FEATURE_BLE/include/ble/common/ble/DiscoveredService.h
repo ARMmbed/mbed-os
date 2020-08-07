@@ -19,8 +19,8 @@
 #ifndef MBED_DISCOVERED_SERVICE_H__
 #define MBED_DISCOVERED_SERVICE_H__
 
-#include "ble/types/UUID.h"
-#include "ble/types/GattAttribute.h"
+#include "ble/common/ble/UUID.h"
+#include "ble/common/ble/GattAttribute.h"
 
 /**
  * @addtogroup ble
