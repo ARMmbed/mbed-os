@@ -7415,7 +7415,17 @@
         "supported_toolchains": ["GCC_ARM"],
         "public": false,
         "extra_labels": ["Ambiq_Micro", "Apollo3", "CORDIO"],
-        "device_has": ["MPU", "USTICKER", "SERIAL", "INTERRUPTIN", "LPTICKER", "STDIO_MESSAGES", "FLASH"],
+        "device_has": [
+            "MPU",
+            "USTICKER",
+            "SERIAL",
+            "INTERRUPTIN",
+            "LPTICKER",
+            "STDIO_MESSAGES",
+            "FLASH",
+            "SPI",
+            "I2C"
+        ],
         "components": [
             "FLASHIAP"
         ],

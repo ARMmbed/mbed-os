@@ -33,6 +33,21 @@ typedef enum {
     UART_ANY
 } UARTName;
 
+typedef enum {
+    IOM_0 = 0,
+    IOM_1,
+    IOM_2,
+    IOM_3,
+    IOM_4,
+    IOM_5,
+
+    IOM_NUM,
+    IOM_ANY
+} IOMName;
+
+typedef IOMName SPIName;
+typedef IOMName I2CName;
+
 #ifdef __cplusplus
 }
 #endif

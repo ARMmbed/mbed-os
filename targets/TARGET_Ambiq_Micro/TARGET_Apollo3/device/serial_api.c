@@ -135,11 +135,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
   // memset(obj->serial.uart_control->cfg, 0x00, sizeof(am_hal_uart_config_t)); // ensure config begins zeroed
 
-  // // pinout the chosen uart // todo: better????
-  // pinmap_pinout(tx, serial_tx_pinmap());
-  // pinmap_pinout(rx, serial_rx_pinmap());
-  uart_configure_pin_function(tx, uart, serial_tx_pinmap());
-  uart_configure_pin_function(rx, uart, serial_rx_pinmap());
+  // config uart pins
+  pinmap_config(tx, serial_tx_pinmap());
+  pinmap_config(rx, serial_rx_pinmap());
 
   // start UART instance
   MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
