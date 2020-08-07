@@ -21,9 +21,9 @@
 #if (DEVICE_SERIAL && DEVICE_SERIAL_FC) || defined(DOXYGEN_ONLY)
 
 #include <stdint.h>
-#include "mbed.h"
 #include "CordioHCITransportDriver.h"
 #include "drivers/DigitalInOut.h"
+#include "cyhal_uart.h"
 
 namespace ble {
 namespace vendor {
@@ -88,15 +88,15 @@ private:
     // However UART APIs does not prevent the BT radio from going to sleep.
     // Use the HAL APIs to prevent the radio from going to sleep until UART transmition is complete.
     // Mbed layer has no API that distinguish between data in HW buffer v.s. data already transmitted.
-    
+
     cyhal_uart_t uart;
     PinName cts;
     PinName rts;
     PinName bt_host_wake_name;
     PinName bt_device_wake_name;
 
-    DigitalInOut bt_host_wake;
-    DigitalInOut bt_device_wake;
+    mbed::DigitalInOut bt_host_wake;
+    mbed::DigitalInOut bt_device_wake;
     bool bt_host_wake_active;
 
     bool     enabled_powersave;

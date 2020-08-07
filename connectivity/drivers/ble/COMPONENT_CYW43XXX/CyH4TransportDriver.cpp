@@ -18,11 +18,18 @@
 #if DEVICE_SERIAL && DEVICE_SERIAL_FC
 
 #include "CyH4TransportDriver.h"
+#include "mbed_power_mgmt.h"
+#include "drivers/InterruptIn.h"
+#include "cybsp_types.h"
+#include "Callback.h"
+#include "rtos/ThisThread.h"
+#include <chrono>
 
 namespace ble {
 namespace vendor {
 namespace cypress_ble {
 
+using namespace std::chrono_literals;
 
 CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name, uint8_t host_wake_irq, uint8_t dev_wake_irq) :
     cts(cts), rts(rts),
@@ -112,7 +119,7 @@ static void on_controller_irq(void *callback_arg, cyhal_uart_event_t event)
 void CyH4TransportDriver::initialize()
 {
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-	InterruptIn *host_wake_pin;
+	mbed::InterruptIn *host_wake_pin;
 #endif
 
     sleep_manager_lock_deep_sleep();
@@ -126,9 +133,9 @@ void CyH4TransportDriver::initialize()
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     if (bt_host_wake_name != NC) {
         //Register IRQ for Host WAKE
-        host_wake_pin = new InterruptIn(bt_host_wake_name);
-        host_wake_pin->fall(callback(this, &CyH4TransportDriver::bt_host_wake_fall_irq_handler));
-        host_wake_pin->rise(callback(this, &CyH4TransportDriver::bt_host_wake_rise_irq_handler));
+        host_wake_pin = new mbed::InterruptIn(bt_host_wake_name);
+        host_wake_pin->fall(mbed::callback(this, &CyH4TransportDriver::bt_host_wake_fall_irq_handler));
+        host_wake_pin->rise(mbed::callback(this, &CyH4TransportDriver::bt_host_wake_rise_irq_handler));
     }
 #endif
     if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
