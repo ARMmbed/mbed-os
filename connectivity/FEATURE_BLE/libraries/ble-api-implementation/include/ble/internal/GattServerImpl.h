@@ -33,15 +33,8 @@
 #include "att_api.h"
 #include "SecurityManager.h"
 
-#include "ble/BLE.h"
 #include "ble/types/GattCallbackParamTypes.h"
 #include "ble/internal/PalSigningMonitor.h"
-
-/*! Maximum count of characteristics that can be stored for authorisation purposes */
-#define MAX_CHARACTERISTIC_AUTHORIZATION_CNT 20
-
-/*! client characteristic configuration descriptors settings */
-#define MAX_CCCD_CNT 20
 
 namespace ble {
 
@@ -346,12 +339,12 @@ private:
 
     PalSigningMonitorEventHandler *_signing_event_handler;
 
-    attsCccSet_t cccds[MAX_CCCD_CNT];
-    uint16_t cccd_values[MAX_CCCD_CNT];
-    uint16_t cccd_handles[MAX_CCCD_CNT];
+    attsCccSet_t cccds[MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT];
+    uint16_t cccd_values[MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT];
+    uint16_t cccd_handles[MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT];
     uint8_t cccd_cnt;
 
-    GattCharacteristic *_auth_char[MAX_CHARACTERISTIC_AUTHORIZATION_CNT];
+    GattCharacteristic *_auth_char[MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CHARACTERISTIC_AUTHORISATION_COUNT];
     uint8_t _auth_char_count;
 
     struct {

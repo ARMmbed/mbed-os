@@ -20,7 +20,6 @@
 #include <algorithm>
 #include "ble/GattServer.h"
 #include "ble/internal/BLEInstanceBase.h"
-#include "mbed.h"
 #include "wsf_types.h"
 #include "att_api.h"
 
@@ -407,7 +406,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
         characteristic->isReadAuthorizationEnabled() ||
         characteristic->isWriteAuthorizationEnabled()
     ) {
-        if ( _auth_char_count >= MAX_CHARACTERISTIC_AUTHORIZATION_CNT) {
+        if ( _auth_char_count >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CHARACTERISTIC_AUTHORISATION_COUNT) {
             return BLE_ERROR_NO_MEM;
         }
         _auth_char[_auth_char_count] = characteristic;
@@ -447,7 +446,7 @@ ble_error_t GattServer::insert_descriptor(
 
     // handle the special case of a CCCD
     if (descriptor->getUUID() == UUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)) {
-        if (cccd_cnt >= MAX_CCCD_CNT) {
+        if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
             return BLE_ERROR_NO_MEM;
         }
 
@@ -553,7 +552,7 @@ ble_error_t GattServer::insert_cccd(
     GattCharacteristic *characteristic,
     attsAttr_t *&attribute_it
 ) {
-    if (cccd_cnt >= MAX_CCCD_CNT) {
+    if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
         return BLE_ERROR_NO_MEM;
     }
 
