@@ -1,6 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-mesh-api
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include
+)
+
 target_sources(mbed-os
     PRIVATE
         source/CallbackHandler.cpp
@@ -18,11 +25,4 @@ target_sources(mbed-os
         source/nd_tasklet.c
         source/thread_tasklet.c
         source/wisun_tasklet.c
-)
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-mesh-api
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/include
 )

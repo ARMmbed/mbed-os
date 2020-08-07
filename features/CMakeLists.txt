@@ -10,7 +10,6 @@ add_subdirectory(frameworks/mbed-trace)
 add_subdirectory(frameworks/mbed-client-cli)
 add_subdirectory(lorawan)
 add_subdirectory(mbedtls)
-add_subdirectory(nanostack)
 add_subdirectory(nfc)
 
 target_include_directories(mbed-os
