@@ -398,6 +398,7 @@ static nsapi_size_or_error_t nsapi_dns_cache_find(const char *host, nsapi_versio
             // Checks all entries for expired entries
             if (now > dns_cache[i]->expires) {
                 delete dns_cache[i]->host;
+                delete dns_cache[i]->address;
                 delete dns_cache[i];
                 dns_cache[i] = NULL;
             } else if ((version == NSAPI_UNSPEC || version == dns_cache[i]->address[0].version) && //only first IP address version check, others have the same version
