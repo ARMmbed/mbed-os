@@ -19,6 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #ifndef MBED_OBJECTS_GPIO_H
 #define MBED_OBJECTS_GPIO_H
 
@@ -48,6 +49,10 @@ extern "C"
         sPullNone,
         sPullUp,
         sPullDown,
+        sPullUp1K5,
+        sPullUp6K,
+        sPullUp12K,
+        sPullUp24K,
         sDriveStrength2mA,
         sDriveStrength4mA,
         sDriveStrength8mA,
@@ -77,6 +82,10 @@ extern "C"
         PinModeEntry(PullNone),
         PinModeEntry(PullUp),
         PinModeEntry(PullDown),
+        PinModeEntry(PullUp1K5),
+        PinModeEntry(PullUp6K),
+        PinModeEntry(PullUp12K),
+        PinModeEntry(PullUp24K),
         PullDefault = PullNone,
 
         PinModeEntry(DriveStrength2mA),
