@@ -424,7 +424,8 @@ ble_error_t Gap::getAddress(
 ble_error_t Gap::getRandomAddressType(
     const address_t address,
     ble::random_address_type_t* type
-) {
+)
+{
     // see section Device address in Bluetooth Link Layer specification
     // (Vol 6 - Part B)
     switch (address[5] >> 6) {

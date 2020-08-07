@@ -111,7 +111,8 @@ ble_error_t PalSecurityManager::add_device_to_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address,
     const irk_t &peer_irk
-) {
+)
+{
     if( read_resolving_list_capacity() == 0 )
     {
         // If 0 is returned as capacity, it means the controller does not support resolving addresses
@@ -128,7 +129,8 @@ ble_error_t PalSecurityManager::add_device_to_resolving_list(
 ble_error_t PalSecurityManager::remove_device_from_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t& peer_identity_address
-) {
+)
+{
     if( read_resolving_list_capacity() == 0 )
     {
         // If 0 is returned as capacity, it means the controller does not support resolving addresses
@@ -165,7 +167,8 @@ ble_error_t PalSecurityManager::clear_resolving_list()
 
 ble_error_t PalSecurityManager::set_secure_connections_support(
     bool enabled, bool secure_connections_only
-) {
+)
+{
     // secure connection support is enabled automatically at the stack level.
     if (secure_connections_only) {
         pSmpCfg->auth |= SMP_AUTH_SC_FLAG;
@@ -179,7 +182,8 @@ ble_error_t PalSecurityManager::set_secure_connections_support(
 
 ble_error_t PalSecurityManager::get_secure_connections_support(
     bool &enabled
-) {
+)
+{
     // FIXME: should depend of the controller
     enabled = false;
     return BLE_ERROR_NONE;
@@ -192,7 +196,8 @@ ble_error_t PalSecurityManager::get_secure_connections_support(
 
 ble_error_t PalSecurityManager::set_authentication_timeout(
     connection_handle_t connection, uint16_t timeout_in_10ms
-) {
+)
+{
     DmWriteAuthPayloadTimeout(connection, timeout_in_10ms);
     return BLE_ERROR_NONE;
 }
@@ -200,7 +205,8 @@ ble_error_t PalSecurityManager::set_authentication_timeout(
 
 ble_error_t PalSecurityManager::get_authentication_timeout(
     connection_handle_t connection, uint16_t &timeout_in_10ms
-) {
+)
+{
     // FIXME: Is it usefull to add dynamic timeout management for all connections ?
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -209,7 +215,8 @@ ble_error_t PalSecurityManager::get_authentication_timeout(
 ble_error_t PalSecurityManager::slave_security_request(
     connection_handle_t connection,
     AuthenticationMask authentication
-) {
+)
+{
     DmSecSlaveReq(connection, authentication.value());
     return BLE_ERROR_NONE;
 }
@@ -225,7 +232,8 @@ ble_error_t PalSecurityManager::enable_encryption(
     const rand_t &rand,
     const ediv_t &ediv,
     bool mitm
-) {
+)
+{
     dmSecLtk_t sec_ltk;
     memcpy(sec_ltk.key, ltk.data(), ltk.size());
     memcpy(sec_ltk.rand, rand.data(), rand.size());
@@ -245,7 +253,8 @@ ble_error_t PalSecurityManager::enable_encryption(
     connection_handle_t connection,
     const ltk_t &ltk,
     bool mitm
-) {
+)
+{
     dmSecLtk_t sec_ltk = { 0 };
     memcpy(sec_ltk.key, ltk.data(), ltk.size());
 
@@ -263,7 +272,8 @@ ble_error_t PalSecurityManager::enable_encryption(
 ble_error_t PalSecurityManager::encrypt_data(
     const byte_array_t<16> &key,
     encryption_block_t &data
-) {
+)
+{
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -274,7 +284,8 @@ ble_error_t PalSecurityManager::encrypt_data(
 
 ble_error_t PalSecurityManager::set_private_address_timeout(
     uint16_t timeout_in_seconds
-) {
+)
+{
     DmPrivSetResolvablePrivateAddrTimeout(timeout_in_seconds);
     return BLE_ERROR_NONE;
 }
@@ -286,7 +297,8 @@ ble_error_t PalSecurityManager::set_private_address_timeout(
 ble_error_t PalSecurityManager::get_identity_address(
     address_t& address,
     bool& public_address
-) {
+)
+{
     // On cordio, the public address is hardcoded as the identity address.
     address = address_t(HciGetBdAddr());
     public_address = true;
@@ -303,7 +315,8 @@ ble_error_t PalSecurityManager::set_ltk(
     const ltk_t& ltk,
     bool mitm,
     bool secure_connections
-) {
+)
+{
     uint8_t security_level = DM_SEC_LEVEL_NONE;
     if (secure_connections) {
         security_level = DM_SEC_LEVEL_ENC_LESC;
@@ -325,7 +338,8 @@ ble_error_t PalSecurityManager::set_ltk(
 
 ble_error_t PalSecurityManager::set_ltk_not_found(
     connection_handle_t connection
-) {
+)
+{
     DmSecLtkRsp(
         connection,
         /* key found */ false,
@@ -348,7 +362,8 @@ ble_error_t PalSecurityManager::set_irk(const irk_t& irk)
 ble_error_t PalSecurityManager::set_csrk(
     const csrk_t& csrk,
     sign_count_t sign_counter
-) {
+)
+{
     _csrk = csrk;
     DmSecSetLocalCsrk(_csrk.data());
     // extra set the sign counter used by the client
@@ -363,7 +378,8 @@ ble_error_t PalSecurityManager::set_peer_csrk(
     const csrk_t &csrk,
     bool authenticated,
     sign_count_t sign_counter
-) {
+)
+{
     if (connection == 0 || connection > DM_CONN_MAX) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -429,7 +445,8 @@ ble_error_t PalSecurityManager::set_io_capability(io_capability_t io_capability)
 ble_error_t PalSecurityManager::set_encryption_key_requirements(
     uint8_t min_encryption_key_size,
     uint8_t max_encryption_key_size
-) {
+)
+{
     if ((min_encryption_key_size < 7) || (min_encryption_key_size > 16) ||
         (min_encryption_key_size > max_encryption_key_size)) {
         return BLE_ERROR_INVALID_PARAM;
@@ -452,7 +469,8 @@ ble_error_t PalSecurityManager::send_pairing_request(
     AuthenticationMask authentication_requirements,
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
-) {
+)
+{
     DmSecPairReq(
         connection,
         oob_data_flag,
@@ -471,7 +489,8 @@ ble_error_t PalSecurityManager::send_pairing_response(
     AuthenticationMask authentication_requirements,
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
-) {
+)
+{
     DmSecPairRsp(
         connection,
         oob_data_flag,
@@ -486,7 +505,8 @@ ble_error_t PalSecurityManager::send_pairing_response(
 
 ble_error_t PalSecurityManager::cancel_pairing(
     connection_handle_t connection, pairing_failure_t reason
-) {
+)
+{
     DmSecCancelReq(connection, reason.value());
     return BLE_ERROR_NONE;
 }
@@ -505,7 +525,8 @@ ble_error_t PalSecurityManager::get_random_data(byte_array_t<8> &random_data)
 
 ble_error_t PalSecurityManager::passkey_request_reply(
     connection_handle_t connection, passkey_num_t passkey
-) {
+)
+{
     DmSecAuthRsp(
         connection,
         /* datalength */ 3,
@@ -519,7 +540,8 @@ ble_error_t PalSecurityManager::passkey_request_reply(
 ble_error_t PalSecurityManager::legacy_pairing_oob_request_reply(
     connection_handle_t connection,
     const oob_tk_t &oob_data
-) {
+)
+{
     DmSecAuthRsp(
         connection,
         /* data length */16,
@@ -532,7 +554,8 @@ ble_error_t PalSecurityManager::legacy_pairing_oob_request_reply(
 
 ble_error_t PalSecurityManager::confirmation_entered(
     connection_handle_t connection, bool confirmation
-) {
+)
+{
     DmSecCompareRsp(connection, confirmation);
     return BLE_ERROR_NONE;
 }
@@ -543,7 +566,8 @@ extern "C" void DmSecKeypressReq(dmConnId_t connId, uint8_t keypressType);
 
 ble_error_t PalSecurityManager::send_keypress_notification(
     connection_handle_t connection, ble::Keypress_t keypress
-) {
+)
+{
     DmSecKeypressReq(connection, keypress);
     return BLE_ERROR_NONE;
 }
@@ -564,7 +588,8 @@ ble_error_t PalSecurityManager::secure_connections_oob_request_reply(
     const oob_lesc_value_t &local_random,
     const oob_lesc_value_t &peer_random,
     const oob_confirm_t &peer_confirm
-) {
+)
+{
     dmSecLescOobCfg_t oob_config = { 0 };
 
     memcpy(oob_config.localRandom, local_random.data(), local_random.size());
@@ -1041,7 +1066,8 @@ void PalSecurityManager::cleanup_peer_csrks()
 }
 
 void PalSecurityManager::set_event_handler(PalSecurityManagerEventHandler *event_handler
-) {
+)
+{
     _pal_event_handler = event_handler;
 }
 

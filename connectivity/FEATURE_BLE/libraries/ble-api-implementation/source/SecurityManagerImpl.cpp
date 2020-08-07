@@ -44,7 +44,8 @@ ble_error_t SecurityManager::init(
     const uint8_t* passkey,
     bool signing,
     const char* db_path
-) {
+)
+{
 #if !(BLE_FEATURE_SIGNING)
     if (signing) {
         return BLE_ERROR_INVALID_PARAM;
@@ -120,7 +121,8 @@ ble_error_t SecurityManager::init(
 
 ble_error_t SecurityManager::setDatabaseFilepath(
     const char *db_path
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
 
     /* operation only allowed with no connections active */
@@ -407,7 +409,8 @@ ble_error_t SecurityManager::setDisplayPasskey(const uint8_t* passkey)
 ble_error_t SecurityManager::setAuthenticationTimeout(
     connection_handle_t connection,
     uint32_t timeout_in_ms
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_authentication_timeout(connection, timeout_in_ms / 10);
 }
@@ -416,7 +419,8 @@ ble_error_t SecurityManager::setAuthenticationTimeout(
 ble_error_t SecurityManager::getAuthenticationTimeout(
     connection_handle_t connection,
     uint32_t *timeout_in_ms
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     uint16_t timeout_in_10ms;
     ble_error_t status = _pal.get_authentication_timeout(connection, timeout_in_10ms);
@@ -428,7 +432,8 @@ ble_error_t SecurityManager::getAuthenticationTimeout(
 ble_error_t SecurityManager::setLinkSecurity(
     connection_handle_t connection,
     SecurityMode_t securityMode
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -472,7 +477,8 @@ ble_error_t SecurityManager::setKeypressNotification(bool enabled)
 ble_error_t SecurityManager::enableSigning(
     connection_handle_t connection,
     bool enabled
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -525,7 +531,8 @@ ble_error_t SecurityManager::setHintFutureRoleReversal(bool enable)
 ble_error_t SecurityManager::getLinkEncryption(
     connection_handle_t connection,
     link_encryption_t *encryption
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -560,7 +567,8 @@ ble_error_t SecurityManager::getLinkEncryption(
 ble_error_t SecurityManager::setLinkEncryption(
     connection_handle_t connection,
     link_encryption_t encryption
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -632,7 +640,8 @@ ble_error_t SecurityManager::setLinkEncryption(
 ble_error_t SecurityManager::getEncryptionKeySize(
     connection_handle_t connectionHandle,
     uint8_t *size
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connectionHandle);
     if (!cb) {
@@ -652,7 +661,8 @@ ble_error_t SecurityManager::getEncryptionKeySize(
 ble_error_t SecurityManager::setEncryptionKeyRequirements(
     uint8_t minimumByteSize,
     uint8_t maximumByteSize
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
 }
@@ -749,7 +759,8 @@ ble_error_t SecurityManager::requestAuthentication(connection_handle_t connectio
 
 ble_error_t SecurityManager::generateOOB(
     const address_t *address
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     /* legacy pairing */
     ble_error_t status = get_random_data(_oob_temporary_key.data(), 16);
@@ -796,7 +807,8 @@ ble_error_t SecurityManager::setOOBDataUsage(
     connection_handle_t connection,
     bool useOOB,
     bool OOBProvidesMITM
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -817,7 +829,8 @@ ble_error_t SecurityManager::setOOBDataUsage(
 ble_error_t SecurityManager::confirmationEntered(
     connection_handle_t connection,
     bool confirmation
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.confirmation_entered(connection, confirmation);
 }
@@ -826,7 +839,8 @@ ble_error_t SecurityManager::confirmationEntered(
 ble_error_t SecurityManager::passkeyEntered(
     connection_handle_t connection,
     Passkey_t passkey
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.passkey_request_reply(
         connection,
@@ -838,7 +852,8 @@ ble_error_t SecurityManager::passkeyEntered(
 ble_error_t SecurityManager::sendKeypressNotification(
     connection_handle_t connection,
     ble::Keypress_t keypress
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.send_keypress_notification(connection, keypress);
 }
@@ -847,7 +862,8 @@ ble_error_t SecurityManager::sendKeypressNotification(
 ble_error_t SecurityManager::legacyPairingOobReceived(
     const address_t *address,
     const oob_tk_t *tk
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (address && tk) {
         ControlBlock_t *cb = get_control_block(*address);
@@ -883,7 +899,8 @@ ble_error_t SecurityManager::oobReceived(
     const address_t *address,
     const oob_lesc_value_t *random,
     const oob_confirm_t *confirm
-) {
+)
+{
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (address && random && confirm) {
         _oob_peer_address = *address;
@@ -902,7 +919,8 @@ ble_error_t SecurityManager::oobReceived(
 
 ble_error_t SecurityManager::init_database(
     const char *db_path
-) {
+)
+{
     delete _db;
 
 #if BLE_SECURITY_DATABASE_FILESYSTEM
@@ -1074,7 +1092,8 @@ ble_error_t SecurityManager::enable_encryption(connection_handle_t connection)
 void SecurityManager::enable_encryption_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
@@ -1099,7 +1118,8 @@ void SecurityManager::enable_encryption_cb(
 void SecurityManager::set_ltk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
@@ -1127,7 +1147,8 @@ void SecurityManager::set_ltk_cb(
 void SecurityManager::set_peer_csrk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntrySigning_t* signing
-) {
+)
+{
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb || !signing) {
         return;
@@ -1150,7 +1171,8 @@ void SecurityManager::set_peer_csrk_cb(
 void SecurityManager::return_csrk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntrySigning_t *signing
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb || !signing) {
@@ -1220,7 +1242,8 @@ void SecurityManager::on_connected(
     address_t peer_address,
     own_address_type_t local_address_type,
     address_t local_address
-) {
+)
+{
 #if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
     ControlBlock_t *cb = acquire_control_block(connection);
@@ -1261,7 +1284,8 @@ void SecurityManager::on_connected(
 void SecurityManager::on_disconnected(
     connection_handle_t connection,
     disconnection_reason_t reason
-) {
+)
+{
 #if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
@@ -1281,7 +1305,8 @@ void SecurityManager::on_disconnected(
 void SecurityManager::on_security_entry_retrieved(
     SecurityDb::entry_handle_t entry,
     const SecurityEntryIdentity_t* identity
-) {
+)
+{
     if (!identity) {
         return;
     }
@@ -1302,7 +1327,8 @@ void SecurityManager::on_security_entry_retrieved(
 void SecurityManager::on_identity_list_retrieved(
     Span<SecurityEntryIdentity_t>& identity_list,
     size_t count
-) {
+)
+{
     typedef advertising_peer_address_type_t address_type_t;
 
     _pal.clear_resolving_list();
@@ -1332,7 +1358,8 @@ void SecurityManager::on_pairing_request(
     AuthenticationMask authentication,
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
-) {
+)
+{
     /* cancel pairing if secure connection paring is not possible */
     if (!_legacy_pairing_allowed && !authentication.get_secure_connections()) {
         cancelPairingRequest(connection);
@@ -1360,7 +1387,8 @@ void SecurityManager::on_pairing_request(
 void SecurityManager::on_pairing_error(
     connection_handle_t connection,
     pairing_failure_t error
-) {
+)
+{
     set_mitm_performed(connection, false);
 
     eventHandler->pairingResult(
@@ -1422,7 +1450,8 @@ void SecurityManager::on_valid_mic_timeout(connection_handle_t connection)
 void SecurityManager::on_signed_write_received(
     connection_handle_t connection,
     sign_count_t sign_counter
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1434,7 +1463,8 @@ void SecurityManager::on_signed_write_received(
 
 void SecurityManager::on_signed_write_verification_failure(
     connection_handle_t connection
-) {
+)
+{
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return;
@@ -1468,7 +1498,8 @@ void SecurityManager::on_signed_write()
 void SecurityManager::on_slave_security_request(
     connection_handle_t connection,
     AuthenticationMask authentication
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1508,7 +1539,8 @@ void SecurityManager::on_slave_security_request(
 void SecurityManager::on_link_encryption_result(
     connection_handle_t connection,
     link_encryption_t result
-) {
+)
+{
 
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1549,7 +1581,8 @@ void SecurityManager::on_link_encryption_result(
 
 void SecurityManager::on_link_encryption_request_timed_out(
     connection_handle_t connection
-) {
+)
+{
     eventHandler->linkEncryptionResult(
         connection,
         link_encryption_t::NOT_ENCRYPTED
@@ -1564,7 +1597,8 @@ void SecurityManager::on_link_encryption_request_timed_out(
 void SecurityManager::on_passkey_display(
     connection_handle_t connection,
     passkey_num_t passkey
-) {
+)
+{
     set_mitm_performed(connection);
     eventHandler->passkeyDisplay(connection, PasskeyAscii(passkey).value());
 }
@@ -1573,7 +1607,8 @@ void SecurityManager::on_passkey_display(
 void SecurityManager::on_keypress_notification(
     connection_handle_t connection,
     ble::Keypress_t keypress
-) {
+)
+{
     set_mitm_performed(connection);
     eventHandler->keypressNotification(connection, keypress);
 }
@@ -1653,7 +1688,8 @@ void SecurityManager::on_legacy_pairing_oob_request(connection_handle_t connecti
 void SecurityManager::on_secure_connections_oob_generated(
     const oob_lesc_value_t &random,
     const oob_confirm_t &confirm
-) {
+)
+{
     eventHandler->oobGenerated(&_oob_local_address, &random, &confirm);
     _oob_local_random = random;
 }
@@ -1666,7 +1702,8 @@ void SecurityManager::on_secure_connections_oob_generated(
 void SecurityManager::on_secure_connections_ltk_generated(
     connection_handle_t connection,
     const ltk_t &ltk
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1689,7 +1726,8 @@ void SecurityManager::on_secure_connections_ltk_generated(
 void SecurityManager::on_keys_distributed_ltk(
     connection_handle_t connection,
     const ltk_t &ltk
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1711,7 +1749,8 @@ void SecurityManager::on_keys_distributed_ediv_rand(
     connection_handle_t connection,
     const ediv_t &ediv,
     const rand_t &rand
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1725,7 +1764,8 @@ void SecurityManager::on_keys_distributed_ediv_rand(
 void SecurityManager::on_keys_distributed_local_ltk(
     connection_handle_t connection,
     const ltk_t &ltk
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1745,7 +1785,8 @@ void SecurityManager::on_keys_distributed_local_ediv_rand(
     connection_handle_t connection,
     const ediv_t &ediv,
     const rand_t &rand
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1759,7 +1800,8 @@ void SecurityManager::on_keys_distributed_local_ediv_rand(
 void SecurityManager::on_keys_distributed_irk(
     connection_handle_t connection,
     const irk_t &irk
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1779,7 +1821,8 @@ void SecurityManager::on_keys_distributed_bdaddr(
     connection_handle_t connection,
     advertising_peer_address_type_t peer_address_type,
     const address_t &peer_identity_address
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1797,7 +1840,8 @@ void SecurityManager::on_keys_distributed_bdaddr(
 void SecurityManager::on_keys_distributed_csrk(
     connection_handle_t connection,
     const csrk_t &csrk
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1824,7 +1868,8 @@ void SecurityManager::on_ltk_request(
     connection_handle_t connection,
     const ediv_t &ediv,
     const rand_t &rand
-) {
+)
+{
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1903,7 +1948,8 @@ SecurityManager::acquire_control_block(connection_handle_t connection)
 typename SecurityManager::ControlBlock_t*
 SecurityManager::get_control_block(
     connection_handle_t connection
-) {
+)
+{
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
         if (!_control_blocks[i].connected) {
             continue;
@@ -1918,7 +1964,8 @@ SecurityManager::get_control_block(
 typename SecurityManager::ControlBlock_t*
 SecurityManager::get_control_block(
     const address_t &peer_address
-) {
+)
+{
     MBED_ASSERT(_db);
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
         ControlBlock_t *cb = &_control_blocks[i];
@@ -1936,7 +1983,8 @@ SecurityManager::get_control_block(
 typename SecurityManager::ControlBlock_t*
 SecurityManager::get_control_block(
     SecurityDb::entry_handle_t db_entry
-) {
+)
+{
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
         if (!_control_blocks[i].connected) {
             continue;

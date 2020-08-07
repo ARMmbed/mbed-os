@@ -156,7 +156,8 @@ struct attribute_handle_range_t {
 static inline attribute_handle_range_t attribute_handle_range(
     attribute_handle_t begin,
     attribute_handle_t end
-) {
+)
+{
     attribute_handle_range_t result = {
         begin,
         end

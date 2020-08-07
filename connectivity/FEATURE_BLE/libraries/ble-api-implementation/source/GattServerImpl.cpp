@@ -169,7 +169,8 @@ uint16_t GattServer::compute_attributes_count(GattService& service)
 void GattServer::insert_service_attribute(
     GattService& service,
     attsAttr_t *&attribute_it
-) {
+)
+{
     ++currentHandle;
     const UUID& service_uuid = service.getUUID();
 
@@ -191,7 +192,8 @@ void GattServer::insert_service_attribute(
 ble_error_t GattServer::insert_characteristic(
     GattCharacteristic *characteristic,
     attsAttr_t *&attribute_it
-) {
+)
+{
     bool valid = is_characteristic_valid(characteristic);
     if (!valid) {
         return BLE_ERROR_INVALID_PARAM;
@@ -274,7 +276,8 @@ bool GattServer::is_characteristic_valid(GattCharacteristic *characteristic)
 void GattServer::insert_characteristic_declaration_attribute(
     GattCharacteristic *characteristic,
     attsAttr_t *&attribute_it
-) {
+)
+{
     const UUID& value_uuid = characteristic->getValueAttribute().getUUID();
 
     // move the current handle to point to the value handle
@@ -302,7 +305,8 @@ void GattServer::insert_characteristic_declaration_attribute(
 ble_error_t GattServer::insert_characteristic_value_attribute(
     GattCharacteristic *characteristic,
     attsAttr_t *&attribute_it
-) {
+)
+{
     GattAttribute &value_attribute = characteristic->getValueAttribute();
     uint8_t properties = characteristic->getProperties();
 
@@ -424,7 +428,8 @@ ble_error_t GattServer::insert_descriptor(
     GattAttribute* descriptor,
     attsAttr_t *&attribute_it,
     bool& cccd_created
-) {
+)
+{
     uint8_t properties = characteristic->getProperties();
 
     currentHandle++;
@@ -552,7 +557,8 @@ ble_error_t GattServer::insert_descriptor(
 ble_error_t GattServer::insert_cccd(
     GattCharacteristic *characteristic,
     attsAttr_t *&attribute_it
-) {
+)
+{
     if (cccd_cnt >= MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT) {
         return BLE_ERROR_NO_MEM;
     }
@@ -589,7 +595,8 @@ ble_error_t GattServer::read(
     GattAttribute::Handle_t att_handle,
     uint8_t buffer[],
     uint16_t * buffer_length
-) {
+)
+{
     uint16_t att_length = 0;
     uint8_t* att_value = nullptr;
 
@@ -611,7 +618,8 @@ ble_error_t GattServer::read(
     GattAttribute::Handle_t att_handle,
     uint8_t buffer[],
     uint16_t *buffer_length
-) {
+)
+{
     // Check to see if this is a CCCD
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
@@ -638,7 +646,8 @@ ble_error_t GattServer::write(
     const uint8_t buffer[],
     uint16_t len,
     bool local_only
-) {
+)
+{
     // Check to see if this is a CCCD, if it is the case update the value for all
     // connections
     uint8_t cccd_index;
@@ -701,7 +710,8 @@ ble_error_t GattServer::write(
     const uint8_t buffer[],
     uint16_t len,
     bool local_only
-) {
+)
+{
     // Check to see if this is a CCCD
     uint8_t cccd_index;
     if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
@@ -748,7 +758,8 @@ ble_error_t GattServer::write(
 ble_error_t GattServer::areUpdatesEnabled(
     const GattCharacteristic &characteristic,
     bool *enabled
-) {
+)
+{
     for (size_t idx = 0; idx < cccd_cnt; idx++) {
         if (characteristic.getValueHandle() == cccd_handles[idx]) {
             for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_ID_NONE; --conn_id) {
@@ -773,7 +784,8 @@ ble_error_t GattServer::areUpdatesEnabled(
     connection_handle_t connectionHandle,
     const GattCharacteristic &characteristic,
     bool *enabled
-) {
+)
+{
     if (connectionHandle == DM_CONN_ID_NONE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -931,7 +943,8 @@ uint8_t GattServer::atts_read_cb(
     uint8_t operation,
     uint16_t offset,
     attsAttr_t *pAttr
-) {
+)
+{
     GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
     if (auth_char && auth_char->isReadAuthorizationEnabled()) {
         GattReadAuthCallbackParams read_auth_params = {
@@ -973,7 +986,8 @@ uint8_t GattServer::atts_write_cb(
     uint16_t len,
     uint8_t *pValue,
     attsAttr_t *pAttr
-) {
+)
+{
     uint8_t err;
 
     /* TODO: offset is not handled properly */
@@ -1301,7 +1315,8 @@ bool GattServer::get_cccd_index_by_value_handle(GattAttribute::Handle_t char_han
 bool GattServer::is_update_authorized(
     connection_handle_t connection,
     GattAttribute::Handle_t value_handle
-) {
+)
+{
     GattCharacteristic* auth_char = get_auth_char(value_handle);
     if (!auth_char) {
         return true;
@@ -1377,7 +1392,8 @@ GattServer::GattServer() :
 
 void GattServer::set_signing_event_handler(
     PalSigningMonitorEventHandler *signing_event_handler
-) {
+)
+{
     _signing_event_handler = signing_event_handler;
 }
 
@@ -1416,7 +1432,8 @@ template <typename T>
 ble_error_t GattServer::onDataRead(
     T *objPtr,
     void (T::*memberPtr)(const GattReadCallbackParams *context)
-) {
+)
+{
     if (!isOnDataReadAvailable()) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -1484,7 +1501,8 @@ void GattServer::handleDataReadEvent(const GattReadCallbackParams *params)
 void GattServer::handleEvent(
     GattServerEvents::gattEvent_e type,
     GattAttribute::Handle_t attributeHandle
-) {
+)
+{
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
             if (updatesEnabledCallback) {

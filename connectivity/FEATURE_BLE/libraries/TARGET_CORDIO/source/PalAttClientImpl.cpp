@@ -47,7 +47,8 @@ ble_error_t PalAttClient::exchange_mtu_request(connection_handle_t connection)
 ble_error_t PalAttClient::get_mtu_size(
     connection_handle_t connection_handle,
     uint16_t &mtu_size
-) {
+)
+{
     mtu_size = AttGetMtu(connection_handle);
     return BLE_ERROR_NONE;
 }
@@ -58,7 +59,8 @@ ble_error_t PalAttClient::get_mtu_size(
 ble_error_t PalAttClient::find_information_request(
     connection_handle_t connection_handle,
     attribute_handle_range_t discovery_range
-) {
+)
+{
     AttcFindInfoReq(
         connection_handle,
         discovery_range.begin,
@@ -76,7 +78,8 @@ ble_error_t PalAttClient::find_by_type_value_request(
     attribute_handle_range_t discovery_range,
     uint16_t type,
     const Span<const uint8_t> &value
-) {
+)
+{
     AttcFindByTypeValueReq(
         connection_handle,
         discovery_range.begin,
@@ -96,7 +99,8 @@ ble_error_t PalAttClient::read_by_type_request(
     connection_handle_t connection_handle,
     attribute_handle_range_t read_range,
     const UUID &type
-) {
+)
+{
     AttcReadByTypeReq(
         connection_handle,
         read_range.begin,
@@ -114,7 +118,8 @@ ble_error_t PalAttClient::read_by_type_request(
 ble_error_t PalAttClient::read_request(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle
-) {
+)
+{
     AttcReadReq(connection_handle, attribute_handle);
     return BLE_ERROR_NONE;
 }
@@ -126,7 +131,8 @@ ble_error_t PalAttClient::read_blob_request(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     uint16_t offset
-) {
+)
+{
     AttcReadLongReq(
         connection_handle,
         attribute_handle,
@@ -142,7 +148,8 @@ ble_error_t PalAttClient::read_blob_request(
 ble_error_t PalAttClient::read_multiple_request(
     connection_handle_t connection_handle,
     const Span<const attribute_handle_t> &attribute_handles
-) {
+)
+{
     AttcReadMultipleReq(
         connection_handle,
         attribute_handles.size(),
@@ -158,7 +165,8 @@ ble_error_t PalAttClient::read_by_group_type_request(
     connection_handle_t connection_handle,
     attribute_handle_range_t read_range,
     const UUID &group_type
-) {
+)
+{
     AttcReadByGroupTypeReq(
         connection_handle,
         read_range.begin,
@@ -177,7 +185,8 @@ ble_error_t PalAttClient::write_request(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     const Span<const uint8_t> &value
-) {
+)
+{
     AttcWriteReq(
         connection_handle,
         attribute_handle,
@@ -194,7 +203,8 @@ ble_error_t PalAttClient::write_command(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     const Span<const uint8_t> &value
-) {
+)
+{
     AttcWriteCmd(
         connection_handle,
         attribute_handle,
@@ -211,7 +221,8 @@ ble_error_t PalAttClient::signed_write_command(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     const Span<const uint8_t> &value
-) {
+)
+{
     AttcSignedWriteCmd(
         connection_handle,
         attribute_handle,
@@ -231,7 +242,8 @@ ble_error_t PalAttClient::signed_write_command(
 */
 void PalAttClient::set_sign_counter(
     sign_count_t sign_counter
-) {
+)
+{
     _local_sign_counter = sign_counter;
 }
 
@@ -243,7 +255,8 @@ ble_error_t PalAttClient::prepare_write_request(
     attribute_handle_t attribute_handle,
     uint16_t offset,
     const Span<const uint8_t> &value
-) {
+)
+{
     AttcPrepareWriteReq(
         connection_handle,
         attribute_handle,
@@ -262,7 +275,8 @@ ble_error_t PalAttClient::prepare_write_request(
 ble_error_t PalAttClient::execute_write_request(
     connection_handle_t connection_handle,
     bool execute
-) {
+)
+{
     AttcExecuteWriteReq(
         connection_handle,
         execute
@@ -295,13 +309,15 @@ PalAttClient &PalAttClient::get_client()
 
 void PalAttClient::when_server_message_received(
     mbed::Callback<void(connection_handle_t, const AttServerMessage &)> cb
-) {
+)
+{
     _server_message_cb = cb;
 }
 
 void PalAttClient::when_transaction_timeout(
     mbed::Callback<void(connection_handle_t)> cb
-) {
+)
+{
     _transaction_timeout_cb = cb;
 }
 
@@ -337,7 +353,8 @@ bool PalAttClient::timeout_event_handler(const attEvt_t *event)
 template<typename ResultType>
 void PalAttClient::generated_handler(
     const attEvt_t *event, ResultType (*convert)(const attEvt_t *)
-) {
+)
+{
     get_client().on_server_event(
         event->hdr.param,
         convert(event)
@@ -347,7 +364,8 @@ void PalAttClient::generated_handler(
 void PalAttClient::on_server_event(
     connection_handle_t connection_handle,
     const AttServerMessage &server_message
-) {
+)
+{
     if (_server_message_cb) {
         _server_message_cb(connection_handle, server_message);
     }
@@ -363,7 +381,8 @@ void PalAttClient::on_server_event(
 */
 void PalAttClient::on_transaction_timeout(
     connection_handle_t connection_handle
-) {
+)
+{
     if (_transaction_timeout_cb) {
         _transaction_timeout_cb(connection_handle);
     }

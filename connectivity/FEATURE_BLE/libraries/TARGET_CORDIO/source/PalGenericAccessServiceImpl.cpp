@@ -91,7 +91,8 @@ virtual ble_error_t PalGenericAccessService::get_device_name_length(uint8_t& len
 
 ble_error_t PalGenericAccessService::get_peripheral_preferred_connection_parameters(
     ble::Gap::PreferredConnectionParams_t& parameters
-) {
+)
+{
 #if BLE_FEATURE_GATT_SERVER
     parameters = gatt_server().getPreferredConnectionParams();
     return BLE_ERROR_NONE;
@@ -102,7 +103,8 @@ ble_error_t PalGenericAccessService::get_peripheral_preferred_connection_paramet
 
 ble_error_t PalGenericAccessService::set_peripheral_preferred_connection_parameters(
     const ble::Gap::PreferredConnectionParams_t& parameters
-) {
+)
+{
 #if BLE_FEATURE_GATT_SERVER
     gatt_server().setPreferredConnectionParams(parameters);
     return BLE_ERROR_NONE;

@@ -351,7 +351,8 @@ template<typename T, typename ContextType>
 FunctionPointerWithContext<ContextType> makeFunctionPointer(
     T *object,
     void (T::*member)(ContextType context)
-) {
+)
+{
     return FunctionPointerWithContext<ContextType>(object, member);
 }
 

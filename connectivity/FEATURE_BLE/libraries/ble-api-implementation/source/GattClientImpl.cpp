@@ -976,7 +976,8 @@ ble_error_t GattClient::launchServiceDiscovery(
 	ServiceDiscovery::CharacteristicCallback_t characteristic_callback,
 	const UUID& matching_service_uuid,
 	const UUID& matching_characteristic_uuid
-) {
+)
+{
 	// verify that there is no other procedures going on this connection
 	if (_is_reseting || get_control_block(connection_handle)) {
 		return BLE_ERROR_INVALID_STATE;
@@ -1031,7 +1032,8 @@ ble_error_t GattClient::discoverServices(
     ble::connection_handle_t connectionHandle,
     ServiceDiscovery::ServiceCallback_t callback,
     const UUID &matchingServiceUUID
-) {
+)
+{
     /* We take advantage of the property
      * that providing nullptr for the characteristic callback results in
      * characteristic discovery being skipped for each matching
@@ -1222,7 +1224,8 @@ ble_error_t GattClient::write(
 
 void GattClient::onServiceDiscoveryTermination(
 	ServiceDiscovery::TerminationCallback_t callback
-) {
+)
+{
 	_termination_callback = callback;
 }
 
@@ -1231,7 +1234,8 @@ ble_error_t GattClient::discoverCharacteristicDescriptors(
 	const DiscoveredCharacteristic& characteristic,
 	const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
 	const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
-) {
+)
+{
 	// verify that there is no other procedures going on this connection
 	if (_is_reseting || get_control_block(characteristic.getConnectionHandle())) {
 		return BLE_ERROR_INVALID_STATE;
@@ -1291,7 +1295,8 @@ bool GattClient::isCharacteristicDescriptorDiscoveryActive(
 
 void GattClient::terminateCharacteristicDescriptorDiscovery(
 	const DiscoveredCharacteristic& characteristic
-) {
+)
+{
 	ProcedureControlBlock* pcb = control_blocks;
 
 	while (pcb) {
@@ -1312,7 +1317,8 @@ void GattClient::terminateCharacteristicDescriptorDiscovery(
 
 ble_error_t GattClient::negotiateAttMtu(
     connection_handle_t connection
-) {
+)
+{
     return _pal_client.exchange_mtu(connection);
 }
 
@@ -1343,7 +1349,8 @@ ble_error_t GattClient::reset(void)
 
 void GattClient::set_signing_event_handler(
 	PalSigningMonitorEventHandler *signing_event_handler
-) {
+)
+{
     _signing_event_handler = signing_event_handler;
 }
 #endif // BLE_FEATURE_SIGNING
@@ -1364,7 +1371,8 @@ void GattClient::on_write_command_sent(
     ble::connection_handle_t connection_handle,
     ble::attribute_handle_t attribute_handle,
     uint8_t status
-) {
+)
+{
     GattWriteCallbackParams response = {
         connection_handle,
         attribute_handle,
@@ -1389,7 +1397,8 @@ void GattClient::on_termination(connection_handle_t connection_handle)
 void GattClient::on_server_message_received(
 	connection_handle_t connection_handle,
 	const AttServerMessage& message
-) {
+)
+{
 	switch(message.opcode) {
 		case AttributeOpcode::ERROR_RESPONSE:
 		case AttributeOpcode::EXCHANGE_MTU_RESPONSE:
@@ -1421,7 +1430,8 @@ void GattClient::on_server_message_received(
 void GattClient::on_server_response(
 	connection_handle_t connection,
 	const AttServerMessage& message
-) {
+)
+{
 	ProcedureControlBlock* pcb = get_control_block(connection);
 	if (pcb == nullptr) {
 		return;

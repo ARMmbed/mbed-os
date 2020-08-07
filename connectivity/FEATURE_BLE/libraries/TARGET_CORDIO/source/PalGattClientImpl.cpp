@@ -43,7 +43,8 @@ ble_error_t PalGattClient::exchange_mtu(connection_handle_t connection)
 ble_error_t PalGattClient::get_mtu_size(
     connection_handle_t connection_handle,
     uint16_t& mtu_size
-) {
+)
+{
     return _client.get_mtu_size(connection_handle, mtu_size);
 }
 
@@ -51,7 +52,8 @@ ble_error_t PalGattClient::get_mtu_size(
 ble_error_t PalGattClient::discover_primary_service(
     connection_handle_t connection,
     attribute_handle_t discovery_range_begining
-) {
+)
+{
     return _client.read_by_group_type_request(
         connection,
         attribute_handle_range(discovery_range_begining, END_ATTRIBUTE_HANDLE),
@@ -64,7 +66,8 @@ ble_error_t PalGattClient::discover_primary_service_by_service_uuid(
     connection_handle_t connection_handle,
     attribute_handle_t discovery_range_begining,
     const UUID& uuid
-) {
+)
+{
     return _client.find_by_type_value_request(
         connection_handle,
         attribute_handle_range(discovery_range_begining, END_ATTRIBUTE_HANDLE),
@@ -80,7 +83,8 @@ ble_error_t PalGattClient::discover_primary_service_by_service_uuid(
 ble_error_t PalGattClient::find_included_service(
     connection_handle_t connection_handle,
     attribute_handle_range_t service_range
-) {
+)
+{
     return _client.read_by_type_request(
         connection_handle,
         service_range,
@@ -92,7 +96,8 @@ ble_error_t PalGattClient::find_included_service(
 ble_error_t PalGattClient::discover_characteristics_of_a_service(
     connection_handle_t connection_handle,
     attribute_handle_range_t discovery_range
-) {
+)
+{
     return _client.read_by_type_request(
         connection_handle,
         discovery_range,
@@ -104,7 +109,8 @@ ble_error_t PalGattClient::discover_characteristics_of_a_service(
 ble_error_t PalGattClient::discover_characteristics_descriptors(
     connection_handle_t connection_handle,
     attribute_handle_range_t descriptors_discovery_range
-) {
+)
+{
     return _client.find_information_request(
         connection_handle,
         descriptors_discovery_range
@@ -115,7 +121,8 @@ ble_error_t PalGattClient::discover_characteristics_descriptors(
 ble_error_t PalGattClient::read_attribute_value(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle
-) {
+)
+{
     return _client.read_request(
         connection_handle,
         attribute_handle
@@ -127,7 +134,8 @@ ble_error_t PalGattClient::read_using_characteristic_uuid(
     connection_handle_t connection_handle,
     attribute_handle_range_t read_range,
     const UUID& uuid
-) {
+)
+{
     return _client.read_by_type_request(
         connection_handle,
         read_range,
@@ -140,7 +148,8 @@ ble_error_t PalGattClient::read_attribute_blob(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     uint16_t offset
-) {
+)
+{
     return _client.read_blob_request(
         connection_handle,
         attribute_handle,
@@ -152,7 +161,8 @@ ble_error_t PalGattClient::read_attribute_blob(
 ble_error_t PalGattClient::read_multiple_characteristic_values(
     connection_handle_t connection_handle,
     const Span<const attribute_handle_t>& characteristic_value_handles
-) {
+)
+{
     return _client.read_multiple_request(
         connection_handle,
         characteristic_value_handles
@@ -164,7 +174,8 @@ ble_error_t PalGattClient::write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const Span<const uint8_t>& value
-) {
+)
+{
     return _client.write_command(
         connection_handle,
         characteristic_value_handle,
@@ -177,7 +188,8 @@ ble_error_t PalGattClient::signed_write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const Span<const uint8_t>& value
-) {
+)
+{
     return _client.signed_write_command(
         connection_handle,
         characteristic_value_handle,
@@ -190,7 +202,8 @@ ble_error_t PalGattClient::write_attribute(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     const Span<const uint8_t>& value
-) {
+)
+{
     return _client.write_request(
         connection_handle,
         attribute_handle,
@@ -204,7 +217,8 @@ ble_error_t PalGattClient::queue_prepare_write(
     attribute_handle_t characteristic_value_handle,
     const Span<const uint8_t>& value,
     uint16_t offset
-) {
+)
+{
     return _client.prepare_write_request(
         connection_handle,
         characteristic_value_handle,
@@ -217,7 +231,8 @@ ble_error_t PalGattClient::queue_prepare_write(
 ble_error_t PalGattClient::execute_write_queue(
     connection_handle_t connection_handle,
     bool execute
-) {
+)
+{
     return _client.execute_write_request(connection_handle, execute);
 }
 

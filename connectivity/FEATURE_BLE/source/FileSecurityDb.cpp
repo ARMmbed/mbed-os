@@ -152,7 +152,8 @@ FILE* FileSecurityDb::erase_db_file(FILE* db_file)
 
 SecurityDistributionFlags_t* FileSecurityDb::get_distribution_flags(
     entry_handle_t db_handle
-) {
+)
+{
     return reinterpret_cast<SecurityDistributionFlags_t*>(db_handle);
 }
 
@@ -162,7 +163,8 @@ SecurityDistributionFlags_t* FileSecurityDb::get_distribution_flags(
 void FileSecurityDb::set_entry_local_ltk(
     entry_handle_t db_handle,
     const ltk_t &ltk
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -177,7 +179,8 @@ void FileSecurityDb::set_entry_local_ediv_rand(
     entry_handle_t db_handle,
     const ediv_t &ediv,
     const rand_t &rand
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -194,7 +197,8 @@ void FileSecurityDb::set_entry_local_ediv_rand(
 void FileSecurityDb::set_entry_peer_ltk(
     entry_handle_t db_handle,
     const ltk_t &ltk
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -209,7 +213,8 @@ void FileSecurityDb::set_entry_peer_ediv_rand(
     entry_handle_t db_handle,
     const ediv_t &ediv,
     const rand_t &rand
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -222,7 +227,8 @@ void FileSecurityDb::set_entry_peer_ediv_rand(
 void FileSecurityDb::set_entry_peer_irk(
     entry_handle_t db_handle,
     const irk_t &irk
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -237,7 +243,8 @@ void FileSecurityDb::set_entry_peer_bdaddr(
     entry_handle_t db_handle,
     bool address_is_public,
     const address_t &peer_address
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -250,7 +257,8 @@ void FileSecurityDb::set_entry_peer_bdaddr(
 void FileSecurityDb::set_entry_peer_csrk(
     entry_handle_t db_handle,
     const csrk_t &csrk
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (!entry) {
         return;
@@ -264,7 +272,8 @@ void FileSecurityDb::set_entry_peer_csrk(
 void FileSecurityDb::set_entry_peer_sign_counter(
     entry_handle_t db_handle,
     sign_count_t sign_counter
-) {
+)
+{
     entry_t *entry = as_entry(db_handle);
     if (entry) {
         entry->peer_sign_counter = sign_counter;
@@ -273,7 +282,8 @@ void FileSecurityDb::set_entry_peer_sign_counter(
 
 void FileSecurityDb::set_local_csrk(
     const csrk_t &csrk
-) {
+)
+{
     this->SecurityDb::set_local_csrk(csrk);
     db_write(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
 }
@@ -282,7 +292,8 @@ void FileSecurityDb::set_local_identity(
     const irk_t &irk,
     const address_t &identity_address,
     bool public_address
-) {
+)
+{
     this->SecurityDb::set_local_identity(irk, identity_address, public_address);
     db_write(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
 }
