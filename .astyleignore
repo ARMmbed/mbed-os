@@ -11,8 +11,8 @@
 ^connectivity/lwipstack/lwip
 ^connectivity/lwipstack/lwip-sys
 ^features/mbedtls
-^features/nanostack/sal-stack-nanostack/source/Service_Libs/mdns/fnet
-^features/nanostack/targets
+^connectivity/nanostack/sal-stack-nanostack/source/Service_Libs/mdns/fnet
+^connectivity/nanostack/sal-stack-nanostack-eventloop
 ^storage/filesystem/fat/ChaN
 ^storage/filesystem/littlefs/littlefs/
 ^storage/filesystem/littlefsv2/littlefs/
