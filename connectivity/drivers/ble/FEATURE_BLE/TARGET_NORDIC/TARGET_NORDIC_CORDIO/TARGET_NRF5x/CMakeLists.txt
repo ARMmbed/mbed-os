@@ -17,11 +17,5 @@ target_sources(mbed-os
         stack/sources/pal_bb_ble_rf.c
         stack/sources/pal_cfg.c
         stack/sources/pal_crypto.c
-        stack/sources/pal_led.c
-        stack/sources/pal_nvm.c
-        stack/sources/pal_rtc.c
-        stack/sources/pal_sys.c
         stack/sources/pal_timer.c
-        stack/sources/pal_twi.c
-        stack/sources/pal_uart.c
 )

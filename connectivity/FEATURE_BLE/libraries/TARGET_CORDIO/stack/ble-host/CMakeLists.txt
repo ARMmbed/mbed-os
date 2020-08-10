@@ -1,13 +1,29 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/hci/dual_chip
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/sec/common
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/att
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/cfg
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/dm
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/hci
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/l2c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/smp
+)
+
 target_sources(mbed-os
     PRIVATE
         sources/hci/common/hci_core.c
 
         sources/hci/dual_chip/hci_cmd.c
         sources/hci/dual_chip/hci_cmd_ae.c
+        sources/hci/dual_chip/hci_cmd_bis.c
+        sources/hci/dual_chip/hci_cmd_cis.c
         sources/hci/dual_chip/hci_cmd_cte.c
+        sources/hci/dual_chip/hci_cmd_iso.c
         sources/hci/dual_chip/hci_cmd_past.c
         sources/hci/dual_chip/hci_cmd_phy.c
         sources/hci/dual_chip/hci_core_ps.c
@@ -15,16 +31,18 @@ target_sources(mbed-os
         sources/hci/dual_chip/hci_vs_ae.c
 
         sources/sec/common/sec_aes.c
+        sources/sec/common/sec_aes_rev.c
         sources/sec/common/sec_ccm_hci.c
         sources/sec/common/sec_cmac_hci.c
+        sources/sec/common/sec_ecc_debug.c
         sources/sec/common/sec_ecc_hci.c
         sources/sec/common/sec_main.c
 
-        sources/sec/pal/sec_ccm.c
-
+        sources/stack/att/att_eatt.c
         sources/stack/att/att_main.c
         sources/stack/att/att_uuid.c
         sources/stack/att/attc_disc.c
+        sources/stack/att/attc_eatt.c
         sources/stack/att/attc_main.c
         sources/stack/att/attc_proc.c
         sources/stack/att/attc_read.c
@@ -33,6 +51,7 @@ target_sources(mbed-os
         sources/stack/att/atts_ccc.c
         sources/stack/att/atts_csf.c
         sources/stack/att/atts_dyn.c
+        sources/stack/att/atts_eatt.c
         sources/stack/att/atts_ind.c
         sources/stack/att/atts_main.c
         sources/stack/att/atts_proc.c
@@ -45,6 +64,12 @@ target_sources(mbed-os
         sources/stack/dm/dm_adv.c
         sources/stack/dm/dm_adv_ae.c
         sources/stack/dm/dm_adv_leg.c
+        sources/stack/dm/dm_bis_master.c
+        sources/stack/dm/dm_bis_slave.c
+        sources/stack/dm/dm_cis.c
+        sources/stack/dm/dm_cis_master.c
+        sources/stack/dm/dm_cis_slave.c
+        sources/stack/dm/dm_cis_sm.c
         sources/stack/dm/dm_conn.c
         sources/stack/dm/dm_conn_cte.c
         sources/stack/dm/dm_conn_master.c
@@ -56,6 +81,7 @@ target_sources(mbed-os
         sources/stack/dm/dm_conn_sm.c
         sources/stack/dm/dm_dev.c
         sources/stack/dm/dm_dev_priv.c
+        sources/stack/dm/dm_iso.c
         sources/stack/dm/dm_main.c
         sources/stack/dm/dm_past.c
         sources/stack/dm/dm_phy.c
@@ -90,17 +116,4 @@ target_sources(mbed-os
         sources/stack/smp/smpr_sc_act.c
         sources/stack/smp/smpr_sc_sm.c
         sources/stack/smp/smpr_sm.c
-)
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/hci/dual_chip
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/sec/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/att
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/cfg
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/dm
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/hci
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/l2c
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/smp
 )

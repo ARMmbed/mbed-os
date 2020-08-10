@@ -1,7 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os
-    PRIVATE
-        HCIDriver.cpp
-)
+mbed_add_cmake_directory_if_labels("TARGET")
+
+add_subdirectory(ble-api-implementation)
