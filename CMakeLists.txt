@@ -20,6 +20,7 @@ mbed_set_cpu_core_options(mbed-os ${MBED_TOOLCHAIN})
 
 include(${MBED_ROOT}/cmake/toolchain.cmake)
 mbed_set_toolchain_options(mbed-os)
+mbed_set_language_standard(mbed-os)
 
 include(${MBED_ROOT}/cmake/profile.cmake)
 mbed_set_profile_options(mbed-os ${MBED_TOOLCHAIN})
@@ -56,6 +57,13 @@ add_subdirectory(rtos)
 add_subdirectory(storage)
 add_subdirectory(targets)
 
+
+#
+# Configures the application
+#
+function(mbed_os_configure_app_target target)
+    mbed_set_language_standard(${target})
+endfunction()
 
 #
 # Specifies linker script used for linking `target`.
