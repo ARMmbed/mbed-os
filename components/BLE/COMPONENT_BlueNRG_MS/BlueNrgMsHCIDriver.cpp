@@ -27,7 +27,7 @@
 #include "platform/mbed_wait_api.h"
 
 // FEATURE_BLE/targets/TARGET_CORDIO
-#include "CordioBLE.h"
+#include "BLEInstanceBase.h"
 #include "CordioHCIDriver.h"
 #include "CordioHCITransportDriver.h"
 #include "hci_api.h"
@@ -64,17 +64,17 @@ namespace bluenrg_ms {
 
 /**
  * BlueNRG_MS HCI driver implementation.
- * @see cordio::CordioHCIDriver
+ * @see CordioHCIDriver
  */
-class HCIDriver : public cordio::CordioHCIDriver {
+class HCIDriver : public CordioHCIDriver {
 public:
     /**
      * Construction of the BlueNRG_MS HCIDriver.
      * @param transport: Transport of the HCI commands.
      * @param rst: Name of the reset pin
      */
-    HCIDriver(cordio::CordioHCITransportDriver &transport_driver, PinName rst) :
-        cordio::CordioHCIDriver(transport_driver), rst(rst) { }
+    HCIDriver(CordioHCITransportDriver &transport_driver, PinName rst) :
+        CordioHCIDriver(transport_driver), rst(rst) { }
 
     /**
      * @see CordioHCIDriver::do_initialize
@@ -87,10 +87,10 @@ public:
     /**
      * @see CordioHCIDriver::get_buffer_pool_description
      */
-    ble::vendor::cordio::buf_pool_desc_t get_buffer_pool_description()
+    ble::buf_pool_desc_t get_buffer_pool_description()
     {
         // Use default buffer pool
-        return ble::vendor::cordio::CordioHCIDriver::get_default_buffer_pool_description();
+        return ble::CordioHCIDriver::get_default_buffer_pool_description();
     }
 
     /**
@@ -435,7 +435,7 @@ private:
  * event from the stack. This might not be the best solution for all BLE chip;
  * especially this one.
  */
-class TransportDriver : public cordio::CordioHCITransportDriver {
+class TransportDriver : public CordioHCITransportDriver {
 public:
     /**
      * Construct the transport driver required by a BlueNRG_MS module.
@@ -607,7 +607,7 @@ exit:
 /**
  * Cordio HCI driver factory
  */
-ble::vendor::cordio::CordioHCIDriver &ble_cordio_get_hci_driver()
+ble::CordioHCIDriver &ble_cordio_get_hci_driver()
 {
     static ble::vendor::bluenrg_ms::TransportDriver transport_driver(
         MBED_CONF_BLUENRG_MS_SPI_MOSI,

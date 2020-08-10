@@ -1,10 +1,11 @@
 ^BUILD
 ^cmsis
+^connectivity/drivers/ble
+^connectivity/FEATURE_BLE
 ^connectivity/libraries/mbed-coap
 ^connectivity/libraries/ppp
 ^connectivity/drivers/emac
 ^features/cryptocell
-^features/FEATURE_BLE
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
 ^features/frameworks
