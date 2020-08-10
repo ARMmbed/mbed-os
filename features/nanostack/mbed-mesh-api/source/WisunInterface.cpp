@@ -71,7 +71,7 @@ nsapi_error_t WisunInterface::do_initialize()
 
 nsapi_error_t WisunInterface::configure()
 {
-    int status;
+    mesh_error_t status;
 
     if (_configured) {
         // Already configured
@@ -82,7 +82,7 @@ nsapi_error_t WisunInterface::configure()
 #ifdef MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME
     char network_name[] = {MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME};
     status = set_network_name((char *) &network_name);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set network name!");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -92,7 +92,7 @@ nsapi_error_t WisunInterface::configure()
     status = set_network_regulatory_domain(MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
                                            MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS,
                                            MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set regulatory domain!");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -102,7 +102,7 @@ nsapi_error_t WisunInterface::configure()
     status = set_unicast_channel_function(static_cast<mesh_channel_function_t>(MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION),
                                           MBED_CONF_MBED_MESH_API_WISUN_UC_FIXED_CHANNEL,
                                           MBED_CONF_MBED_MESH_API_WISUN_UC_DWELL_INTERVAL);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set unicast channel function configuration");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -113,7 +113,7 @@ nsapi_error_t WisunInterface::configure()
                                             MBED_CONF_MBED_MESH_API_WISUN_BC_FIXED_CHANNEL,
                                             MBED_CONF_MBED_MESH_API_WISUN_BC_DWELL_INTERVAL,
                                             MBED_CONF_MBED_MESH_API_WISUN_BC_INTERVAL);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set broadcast channel function configuration");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -121,7 +121,7 @@ nsapi_error_t WisunInterface::configure()
 
 #ifdef MBED_CONF_MBED_MESH_API_WISUN_NETWORK_SIZE
     status = set_network_size(MBED_CONF_MBED_MESH_API_WISUN_NETWORK_SIZE);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set network size");
         return NSAPI_ERROR_PARAMETER;
     }

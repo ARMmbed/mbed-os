@@ -195,6 +195,18 @@
         "own-certificate-key-len": {
             "help": "Own certificate's key length; optional for PEM format, must be defined for DER format",
             "value": null
+        },
+        "radius-server-ipv6-address": {
+            "help": "RADIUS Server IPv6 address in string format (e.g. \"2001:1234::1\")",
+            "value": null
+        },
+        "radius-shared-secret": {
+            "help": "RADIUS shared secret; ASCII string (e.g. \"radiuspassword\") or sequence of bytes (e.g. 0x01, 0x02, 0x03, 0x04, 0x05)",
+            "value": null
+        },
+        "radius-shared-secret-len": {
+            "help": "RADIUS shared secret length; If length is not defined, strlen() is used to determine RADIUS shared secret length",
+            "value": null
         }        
     },
     "target_overrides": {
