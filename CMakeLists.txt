@@ -30,13 +30,6 @@ target_compile_definitions(mbed-os
         ${MBED_CONFIG_DEFINITIONS}
 )
 
-# Specify a default build type
-if(NOT CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE "RelWithDebInfo"
-        CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-        FORCE)
-endif()
-
 # Include mbed.h and config from generate folder
 target_include_directories(mbed-os
     PUBLIC
@@ -108,17 +101,17 @@ function(mbed_os_bin_hex target)
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_POST_BUILD_COMMAND
             COMMAND ${elf_to_bin} -O binary $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.bin
-            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${APP_TARGET}>.bin"
+            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${target}>.bin"
             COMMAND ${elf_to_bin} -O ihex $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.hex
-            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${APP_TARGET}>.hex"
+            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${target}>.hex"
         )
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         get_property(mbed_studio_arm_compiler GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER)
         set(CMAKE_POST_BUILD_COMMAND
             COMMAND ${elf_to_bin} ${mbed_studio_arm_compiler} --bin  -o $<TARGET_FILE:${target}>.bin $<TARGET_FILE:${target}>
-            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${APP_TARGET}>.bin"
+            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${target}>.bin"
             COMMAND ${elf_to_bin} ${mbed_studio_arm_compiler} --i32combined  -o $<TARGET_FILE:${target}>.hex $<TARGET_FILE:${target}>
-            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${APP_TARGET}>.hex"
+            COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:${target}>.hex"
         )
     endif()
     add_custom_command(
