@@ -41,13 +41,13 @@ void pinmap_config(PinName pin, const PinMap *map) {
     am_hal_gpio_pincfg_t pincfg;
     while (map->pin != NC) {
         if (map->pin == pin) {
-            pincfg = *((am_hal_gpio_pincfg_t*)map->function);
+            pincfg = *((am_hal_gpio_pincfg_t*)(map->function));
             pin_config(pin, pincfg);
             return;
         }
         map++;
     }
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "could not pinout", pin);
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "could not pinmap_config", pin);
 }
 
 void pin_function(PinName pin, int function)
