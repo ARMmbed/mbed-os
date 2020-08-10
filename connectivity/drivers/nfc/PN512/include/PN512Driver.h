@@ -25,7 +25,7 @@
 #include "nfc/acore/acore/ac_buffer.h"
 #include "nfc/acore/acore/ac_buffer_reader.h"
 #include "nfc/acore/acore/ac_buffer_builder.h"
-#include "nfc/stack/transceiver/pn512/pn512.h"
+#include "transceiver/pn512.h"
 
 namespace mbed {
 namespace nfc {
