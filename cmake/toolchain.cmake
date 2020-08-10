@@ -41,6 +41,7 @@ elseif (MBED_CPU_CORE STREQUAL Cortex-M7FD)
 endif()
 
 
+
 include(${MBED_ROOT}/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
 
 # Compiler setup
@@ -51,6 +52,23 @@ set(CMAKE_CXX_COMPILER_WORKS TRUE)
 
 # Project setup
 enable_language(C CXX ASM)
+
+# Set the language standard to use per target
+function(mbed_set_language_standard target)
+    set_target_properties(${target}
+        PROPERTIES
+            C_STANDARD 11
+            C_STANDARD_REQUIRED YES
+            C_EXTENSIONS YES
+    )
+
+    set_target_properties(${target}
+        PROPERTIES
+            CXX_STANDARD 14
+            CXX_STANDARD_REQUIRED YES
+            CXX_EXTENSIONS YES
+    )
+endfunction()
 
 # Clear toolchains options for all languages as Mbed OS uses
 # different initialisation options (such as for optimization and debug symbols)

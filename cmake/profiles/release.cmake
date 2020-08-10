@@ -8,7 +8,6 @@ function(mbed_set_profile_options target mbed_toolchain)
     if(${mbed_toolchain} STREQUAL "GCC_ARM")
         list(APPEND c_compile_options
             "-c"
-            "-std=gnu11"
             "-Os"
         )
         target_compile_options(${target}
@@ -18,7 +17,6 @@ function(mbed_set_profile_options target mbed_toolchain)
 
         list(APPEND cxx_compile_options
             "-c"
-            "-std=gnu++14"
             "-fno-rtti"
             "-Wvla"
             "-Os"
@@ -51,7 +49,6 @@ function(mbed_set_profile_options target mbed_toolchain)
         )
     elseif(${mbed_toolchain} STREQUAL "ARM")
         list(APPEND c_compile_options
-            "-std=gnu11"
             "-Oz"
         )
         target_compile_options(${target}
@@ -60,7 +57,6 @@ function(mbed_set_profile_options target mbed_toolchain)
         )
 
         list(APPEND cxx_compile_options
-            "-std=gnu++14"
             "-fno-rtti"
             "-fno-c++-static-destructors"
             "-Oz"
