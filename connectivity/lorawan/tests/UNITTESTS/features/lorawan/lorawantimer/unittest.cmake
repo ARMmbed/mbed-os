@@ -20,13 +20,13 @@ set(TEST_SUITE_NAME "lorawan_LoRaWANTimer")
 
 # Source files
 set(unittest-sources
-  ../features/lorawan/system/LoRaWANTimer.cpp
+  ../connectivity/lorawan/system/LoRaWANTimer.cpp
 )
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
   target_h
-  ../features/lorawan/system
+  ../connectivity/lorawan/system
 )
 
 # Test & stub files

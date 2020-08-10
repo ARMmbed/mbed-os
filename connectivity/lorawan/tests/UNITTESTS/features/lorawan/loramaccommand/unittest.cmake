@@ -20,13 +20,13 @@ set(TEST_SUITE_NAME "lorawan_LoRaMacCommand")
 
 # Source files
 set(unittest-sources
-  ../features/lorawan/lorastack/mac/LoRaMacCommand.cpp
+  ../connectivity/lorawan/lorastack/mac/LoRaMacCommand.cpp
 )
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
   target_h
-  ../features/lorawan/lorastack/mac
+  ../connectivity/lorawan/lorastack/mac
 )
 
 # Test & stub files

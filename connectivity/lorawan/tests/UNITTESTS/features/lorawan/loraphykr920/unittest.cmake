@@ -20,13 +20,13 @@ set(TEST_SUITE_NAME "lorawan_LoRaPHYKR920")
 
 # Source files
 set(unittest-sources
-  ../features/lorawan/lorastack/phy/LoRaPHYKR920.cpp
+  ../connectivity/lorawan/lorastack/phy/LoRaPHYKR920.cpp
 )
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
   target_h
-  ../features/lorawan/lorastack/phy
+  ../connectivity/lorawan/lorastack/phy
 )
 
 # Test & stub files

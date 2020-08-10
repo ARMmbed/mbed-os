@@ -12,7 +12,7 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [features/FEATURE_PSA/FEATURE_TFM](./features/FEATURE_PSA/FEATURE_TFM) - BSD-3-Clause
 - [features/FEATURE_PSA/FEATURE_MBED_PSA_SRV/services/attestation](./features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation) - BSD-3-Clause
 - [features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation/qcbor](./features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation/qcbor) - BSD-3-Clause
-- [connectivity/lorawan](./features/lorawan) - Revised BSD
+- [connectivity/lorawan](./connectivity/lorawan) - Revised BSD
 - [connectivity/lwipstack](./connectivity/lwipstack) - BSD-style, MIT-style
 - [connectivity/nanostack/sal-stack-nanostack](./connectivity/nanostack/sal-stack-nanostack) - BSD-3-Clause
 - [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
