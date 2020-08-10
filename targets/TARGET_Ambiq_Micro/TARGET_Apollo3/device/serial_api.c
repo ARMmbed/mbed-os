@@ -442,21 +442,6 @@ extern void am_uart1_isr(void) {
   uart_irq(UART_1);
 }
 
-void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map) {
-  while (map->pin != NC) {
-    if (map->peripheral == uart) {
-      if (map->pin == pin) {
-        am_hal_gpio_pincfg_t cfg = {
-                .uFuncSel = map->function,
-            };
-        am_hal_gpio_pinconfig(pin, cfg);
-        break;
-      }
-    }
-    map++;
-  }
-}
-
 #ifdef __cplusplus
 }
 #endif
