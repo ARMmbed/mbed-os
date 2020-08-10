@@ -28,14 +28,20 @@ target_sources(mbed-os
         stack/controller/sources/ble/bb/bb_ble_adv_master_ae.c
         stack/controller/sources/ble/bb/bb_ble_adv_slave.c
         stack/controller/sources/ble/bb/bb_ble_adv_slave_ae.c
+        stack/controller/sources/ble/bb/bb_ble_bis_master.c
+        stack/controller/sources/ble/bb/bb_ble_bis_slave.c
+        stack/controller/sources/ble/bb/bb_ble_cis.c
+        stack/controller/sources/ble/bb/bb_ble_cis_master.c
+        stack/controller/sources/ble/bb/bb_ble_cis_slave.c
         stack/controller/sources/ble/bb/bb_ble_conn.c
         stack/controller/sources/ble/bb/bb_ble_conn_master.c
         stack/controller/sources/ble/bb/bb_ble_conn_slave.c
+        stack/controller/sources/ble/bb/bb_ble_dtm.c
         stack/controller/sources/ble/bb/bb_ble_main.c
         stack/controller/sources/ble/bb/bb_ble_pdufilt.c
         stack/controller/sources/ble/bb/bb_ble_periodiclist.c
         stack/controller/sources/ble/bb/bb_ble_reslist.c
-        stack/controller/sources/ble/bb/bb_ble_test.c
+        stack/controller/sources/ble/bb/bb_ble_sniffer.c
         stack/controller/sources/ble/bb/bb_ble_whitelist.c
 )
 
@@ -118,13 +124,19 @@ target_sources(mbed-os
         stack/controller/sources/ble/lhci/lhci_cmd_adv_priv.c
         stack/controller/sources/ble/lhci/lhci_cmd_adv_slave.c
         stack/controller/sources/ble/lhci/lhci_cmd_adv_slave_ae.c
+        stack/controller/sources/ble/lhci/lhci_cmd_bis_master.c
+        stack/controller/sources/ble/lhci/lhci_cmd_bis_slave.c
+        stack/controller/sources/ble/lhci/lhci_cmd_cis_master.c
+        stack/controller/sources/ble/lhci/lhci_cmd_cis_slave.c
         stack/controller/sources/ble/lhci/lhci_cmd_conn.c
         stack/controller/sources/ble/lhci/lhci_cmd_conn_master.c
         stack/controller/sources/ble/lhci/lhci_cmd_conn_master_ae.c
         stack/controller/sources/ble/lhci/lhci_cmd_conn_priv.c
         stack/controller/sources/ble/lhci/lhci_cmd_enc_master.c
         stack/controller/sources/ble/lhci/lhci_cmd_enc_slave.c
+        stack/controller/sources/ble/lhci/lhci_cmd_iso.c
         stack/controller/sources/ble/lhci/lhci_cmd_past.c
+        stack/controller/sources/ble/lhci/lhci_cmd_pc.c
         stack/controller/sources/ble/lhci/lhci_cmd_phy.c
         stack/controller/sources/ble/lhci/lhci_cmd_sc.c
         stack/controller/sources/ble/lhci/lhci_cmd_vs.c
@@ -135,19 +147,25 @@ target_sources(mbed-os
         stack/controller/sources/ble/lhci/lhci_cmd_vs_conn.c
         stack/controller/sources/ble/lhci/lhci_cmd_vs_conn_master.c
         stack/controller/sources/ble/lhci/lhci_cmd_vs_enc_slave.c
-        stack/controller/sources/ble/lhci/lhci_cmd_vs_ext.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_iso.c
         stack/controller/sources/ble/lhci/lhci_cmd_vs_sc.c
         stack/controller/sources/ble/lhci/lhci_evt.c
         stack/controller/sources/ble/lhci/lhci_evt_adv_master.c
         stack/controller/sources/ble/lhci/lhci_evt_adv_master_ae.c
         stack/controller/sources/ble/lhci/lhci_evt_adv_slave.c
         stack/controller/sources/ble/lhci/lhci_evt_adv_slave_ae.c
+        stack/controller/sources/ble/lhci/lhci_evt_bis_master.c
+        stack/controller/sources/ble/lhci/lhci_evt_bis_slave.c
+        stack/controller/sources/ble/lhci/lhci_evt_cis_master.c
+        stack/controller/sources/ble/lhci/lhci_evt_cis_slave.c
         stack/controller/sources/ble/lhci/lhci_evt_conn.c
         stack/controller/sources/ble/lhci/lhci_evt_conn_cs2.c
         stack/controller/sources/ble/lhci/lhci_evt_conn_master.c
         stack/controller/sources/ble/lhci/lhci_evt_conn_priv.c
         stack/controller/sources/ble/lhci/lhci_evt_enc_master.c
         stack/controller/sources/ble/lhci/lhci_evt_enc_slave.c
+        stack/controller/sources/ble/lhci/lhci_evt_iso.c
+        stack/controller/sources/ble/lhci/lhci_evt_pc.c
         stack/controller/sources/ble/lhci/lhci_evt_phy.c
         stack/controller/sources/ble/lhci/lhci_evt_sc.c
         stack/controller/sources/ble/lhci/lhci_evt_vs.c
@@ -157,6 +175,10 @@ target_sources(mbed-os
         stack/controller/sources/ble/lhci/lhci_init_adv_priv.c
         stack/controller/sources/ble/lhci/lhci_init_adv_slave.c
         stack/controller/sources/ble/lhci/lhci_init_adv_slave_ae.c
+        stack/controller/sources/ble/lhci/lhci_init_bis_master.c
+        stack/controller/sources/ble/lhci/lhci_init_bis_slave.c
+        stack/controller/sources/ble/lhci/lhci_init_cis_master.c
+        stack/controller/sources/ble/lhci/lhci_init_cis_slave.c
         stack/controller/sources/ble/lhci/lhci_init_conn.c
         stack/controller/sources/ble/lhci/lhci_init_conn_cs2.c
         stack/controller/sources/ble/lhci/lhci_init_conn_master.c
@@ -164,10 +186,13 @@ target_sources(mbed-os
         stack/controller/sources/ble/lhci/lhci_init_conn_priv.c
         stack/controller/sources/ble/lhci/lhci_init_enc_master.c
         stack/controller/sources/ble/lhci/lhci_init_enc_slave.c
+        stack/controller/sources/ble/lhci/lhci_init_iso.c
         stack/controller/sources/ble/lhci/lhci_init_past.c
+        stack/controller/sources/ble/lhci/lhci_init_pc.c
         stack/controller/sources/ble/lhci/lhci_init_phy.c
         stack/controller/sources/ble/lhci/lhci_init_sc.c
         stack/controller/sources/ble/lhci/lhci_main.c
+        stack/controller/sources/ble/lhci/lhci_main_iso.c
 )
 
 target_sources(mbed-os
@@ -249,5 +274,5 @@ target_sources(mbed-os
 
 target_sources(mbed-os
     PRIVATE
-        stack_adaptation/fake_lhci_drv.cpp
+        stack_adaptation/custom_chci_tr.cpp
 )
