@@ -23,6 +23,7 @@
 #include "greentea-client/test_env.h"
 
 #include "Semaphore.h"
+#include "ThisThread.h"
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "RTST"
@@ -61,7 +62,7 @@ static volatile event_t received_event;
 
 static void tx_done()
 {
-    ThisThread::sleep_for(2);
+    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_TX_DONE;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -69,7 +70,7 @@ static void tx_done()
 
 static void tx_timeout()
 {
-    ThisThread::sleep_for(2);
+    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_TX_TIMEOUT;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -77,7 +78,7 @@ static void tx_timeout()
 
 static void rx_done(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    ThisThread::sleep_for(2);
+    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_DONE;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -85,7 +86,7 @@ static void rx_done(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 
 static void rx_timeout()
 {
-    ThisThread::sleep_for(2);
+    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_TIMEOUT;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -93,7 +94,7 @@ static void rx_timeout()
 
 static void rx_error()
 {
-    ThisThread::sleep_for(2);
+    rtos::ThisThread::sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_ERROR;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -146,7 +147,7 @@ void test_set_rx_config()
                          0,                 // payload_len,
                          false, false, 0,   // crc_on, freq_hop_on, hop_period,
                          true, false);      // iq_inverted, rx_continuous
-    radio->receive(100);
+    radio->receive();
 
     TEST_ASSERT_EQUAL(RF_RX_RUNNING, radio->get_status());
 
