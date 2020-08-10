@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,9 +26,6 @@
 
 #include "cy_result.h"
 #include "cybsp_types.h"
-#if defined(COMPONENT_BSP_DESIGN_MODUS)
-#include "cycfg.h"
-#endif
 #if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)
 #include "cyhal_sdio.h"
 #endif
@@ -66,7 +63,7 @@ cy_rslt_t cybsp_init(void);
  * \note This function should only be called after cybsp_init();
  * \returns The initialized sdio object.
  */
-cyhal_sdio_t *cybsp_get_wifi_sdio_obj(void);
+cyhal_sdio_t* cybsp_get_wifi_sdio_obj(void);
 #endif /* defined(CYBSP_WIFI_CAPABLE) */
 
 /** \} group_bsp_functions */

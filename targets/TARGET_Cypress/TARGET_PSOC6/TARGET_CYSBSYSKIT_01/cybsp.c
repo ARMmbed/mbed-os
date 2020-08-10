@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,9 +29,10 @@
 #include "cybsp.h"
 #if defined(CY_USING_HAL)
 #include "cyhal_hwmgr.h"
+#include "cyhal_syspm.h"
 #endif
 
-#if !defined (CY_CFG_PWR_SYS_IDLE_MODE)
+#if !defined (CY_CFG_PWR_SYS_IDLE_MODE) && defined(__MBED__)
 #include "mbed_power_mgmt.h"
 #endif
 
@@ -45,13 +46,13 @@ extern "C" {
 * Doing so minimizes the time spent on low power mode entry and exit.
 */
 #ifndef CYBSP_SYSCLK_PM_CALLBACK_ORDER
-#define CYBSP_SYSCLK_PM_CALLBACK_ORDER  (255u)
+    #define CYBSP_SYSCLK_PM_CALLBACK_ORDER  (255u)
 #endif
 
 #if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)
 static cyhal_sdio_t sdio_obj;
 
-cyhal_sdio_t *cybsp_get_wifi_sdio_obj(void)
+cyhal_sdio_t* cybsp_get_wifi_sdio_obj(void)
 {
     return &sdio_obj;
 }
@@ -73,7 +74,8 @@ static cy_rslt_t cybsp_register_sysclk_pm_callback(void)
         .order = CYBSP_SYSCLK_PM_CALLBACK_ORDER
     };
 
-    if (!Cy_SysPm_RegisterCallback(&cybsp_sysclk_pm_callback)) {
+    if (!Cy_SysPm_RegisterCallback(&cybsp_sysclk_pm_callback))
+    {
         result = CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK;
     }
     return result;
@@ -84,21 +86,31 @@ cy_rslt_t cybsp_init(void)
     /* Setup hardware manager to track resource usage then initialize all system (clock/power) board configuration */
 #if defined(CY_USING_HAL)
     cy_rslt_t result = cyhal_hwmgr_init();
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = cyhal_syspm_init();
+    }
 #else
     cy_rslt_t result = CY_RSLT_SUCCESS;
 #endif
 
-#if defined(COMPONENT_BSP_DESIGN_MODUS)
+#if defined(COMPONENT_BSP_DESIGN_MODUS) || defined(COMPONENT_CUSTOM_DESIGN_MODUS)
     init_cycfg_all();
 #endif
 
-    if (CY_RSLT_SUCCESS == result) {
+    if (CY_RSLT_SUCCESS == result)
+    {
         result = cybsp_register_sysclk_pm_callback();
     }
 
 #if !defined(CY_CFG_PWR_SYS_IDLE_MODE)
+#ifdef __MBED__
     /* Disable deep-sleep. */
     sleep_manager_lock_deep_sleep();
+#else
+    cyhal_syspm_lock_deepsleep();
+#endif
 #endif
 
     /* Reserve clock dividers used by NP. */

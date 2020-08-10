@@ -1,13 +1,13 @@
 /***************************************************************************//**
-* \file CYSBSYSKIT_01/cybsp_types.h
+* \file CYSBSYSKIT-01/cybsp_types.h
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
-* CYSBSYSKIT_01 kit.
+* CYSBSYSKIT-01 kit.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,9 @@
 
 #if defined(CY_USING_HAL)
 #include "cyhal_pin_package.h"
+#endif
+#if defined(COMPONENT_BSP_DESIGN_MODUS) || defined(COMPONENT_CUSTOM_DESIGN_MODUS)
+#include "cycfg.h"
 #endif
 
 #if defined(__cplusplus)
@@ -66,14 +69,22 @@ extern "C" {
 */
 
 /** Pin state for the LED on. */
+#ifndef CYBSP_LED_STATE_ON
 #define CYBSP_LED_STATE_ON          (0U)
+#endif
 /** Pin state for the LED off. */
+#ifndef CYBSP_LED_STATE_OFF
 #define CYBSP_LED_STATE_OFF         (1U)
+#endif
 
 /** Pin state for when a button is pressed. */
+#ifndef CYBSP_BTN_PRESSED
 #define CYBSP_BTN_PRESSED           (0U)
+#endif
 /** Pin state for when a button is released. */
+#ifndef CYBSP_BTN_OFF
 #define CYBSP_BTN_OFF               (1U)
+#endif
 
 /** \} group_bsp_pin_state */
 
@@ -90,7 +101,9 @@ extern "C" {
 */
 
 /** BSP user LED1 reference designator to pin mapping */
+#ifndef CYBSP_USER_LED1
 #define CYBSP_USER_LED1             (P11_1)
+#endif
 
 /** \} group_bsp_pins_led */
 
@@ -100,7 +113,9 @@ extern "C" {
 */
 
 /** BSP user button reference designator to pin mapping */
+#ifndef CYBSP_USER_BTN
 #define CYBSP_USER_BTN              (P0_4)
+#endif
 
 /** \} group_bsp_pins_btn */
 
@@ -110,50 +125,91 @@ extern "C" {
 */
 
 /** Pin: UART RX */
+#ifndef CYBSP_DEBUG_UART_RX
 #define CYBSP_DEBUG_UART_RX         (P5_4)
+#endif
 /** Pin: UART TX */
+#ifndef CYBSP_DEBUG_UART_TX
 #define CYBSP_DEBUG_UART_TX         (P5_5)
+#endif
 /** Pin: UART_RTS */
+#ifndef CYBSP_DEBUG_UART_RTS
 #define CYBSP_DEBUG_UART_RTS        (P5_6)
+#endif
 /** Pin: UART_CTS */
+#ifndef CYBSP_DEBUG_UART_CTS
 #define CYBSP_DEBUG_UART_CTS        (P5_7)
+#endif
 
 /** Pin: SWDIO */
+#ifndef CYBSP_SWDIO
 #define CYBSP_SWDIO                 (P6_6)
+#endif
 /** Pin: SWDCK */
+#ifndef CYBSP_SWDCK
 #define CYBSP_SWDCK                 (P6_7)
+#endif
 
 /** Pin: QUAD SPI SS */
+#ifndef CYBSP_QSPI_SS
 #define CYBSP_QSPI_SS               (P11_2)
+#endif
 /** Pin: QUAD SPI D3 */
+#ifndef CYBSP_QSPI_D3
 #define CYBSP_QSPI_D3               (P11_3)
+#endif
 /** Pin: QUAD SPI D2 */
+#ifndef CYBSP_QSPI_D2
 #define CYBSP_QSPI_D2               (P11_4)
+#endif
 /** Pin: QUAD SPI D1 */
+#ifndef CYBSP_QSPI_D1
 #define CYBSP_QSPI_D1               (P11_5)
+#endif
 /** Pin: QUAD SPI D0 */
+#ifndef CYBSP_QSPI_D0
 #define CYBSP_QSPI_D0               (P11_6)
+#endif
 /** Pin: QUAD SPI SCK */
+#ifndef CYBSP_QSPI_SCK
 #define CYBSP_QSPI_SCK              (P11_7)
+#endif
 
 /** Pin: I2C SCL */
+#ifndef CYBSP_I2C_SCL
 #define CYBSP_I2C_SCL               (P6_0)
+#endif
+
 /** Pin: I2C SDA */
+#ifndef CYBSP_I2C_SDA
 #define CYBSP_I2C_SDA               (P6_1)
+#endif
 
 /** Pin: SPI MOSI */
+#ifndef CYBSP_SPI_MOSI
 #define CYBSP_SPI_MOSI              (P5_0)
+#endif
 /** Pin: SPI MISO */
+#ifndef CYBSP_SPI_MISO
 #define CYBSP_SPI_MISO              (P5_1)
+#endif
 /** Pin: SPI CLK */
+#ifndef CYBSP_SPI_CLK
 #define CYBSP_SPI_CLK               (P5_2)
+#endif
 /** Pin: SPI CS */
+#ifndef CYBSP_SPI_CS
 #define CYBSP_SPI_CS                (P5_3)
+#endif
 
 /** Pin: FEATHER UART RX */
+#ifndef CYBSP_FEATHER_UART_RX
 #define CYBSP_FEATHER_UART_RX       (P6_4)
+#endif
 /** Pin: FEATHER UART TX */
+#ifndef CYBSP_FEATHER_UART_TX
 #define CYBSP_FEATHER_UART_TX       (P6_5)
+#endif
 
 /** \} group_bsp_pins_comm */
 
@@ -163,10 +219,13 @@ extern "C" {
 */
 
 /** Pin: Thermister VDD */
+#ifndef CYBSP_THERM_VDD
 #define CYBSP_THERM_VDD             (P10_6)
+#endif
 /** Pin: Thermister output */
+#ifndef CYBSP_THERM_OUT
 #define CYBSP_THERM_OUT             (P10_7)
-
+#endif
 /** \} group_bsp_pins_therm */
 
 /**
@@ -175,9 +234,13 @@ extern "C" {
 */
 
 /** Pin: ECO IN */
+#ifndef CYBSP_ECO_IN
 #define CYBSP_ECO_IN                (P12_6)
+#endif
 /** Pin: ECO IN */
+#ifndef CYBSP_ECO_OUT
 #define CYBSP_ECO_OUT               (P12_7)
+#endif
 
 /** \} group_bsp_pins_eco */
 
@@ -187,31 +250,57 @@ extern "C" {
 */
 
 /** GPIOA0 */
+#ifndef CYBSP_GPIOA0
 #define CYBSP_GPIOA0                (P10_0)
+#endif
 /** GPIOA1 */
+#ifndef CYBSP_GPIOA1
 #define CYBSP_GPIOA1                (P10_1)
+#endif
 /** GPIOA2 */
+#ifndef CYBSP_GPIOA2
 #define CYBSP_GPIOA2                (P10_2)
+#endif
 /** GPIOA3 */
+#ifndef CYBSP_GPIOA3
 #define CYBSP_GPIOA3                (P10_3)
+#endif
 /** GPIOA4 */
+#ifndef CYBSP_GPIOA4
 #define CYBSP_GPIOA4                (P10_4)
+#endif
 /** GPIOA5 */
+#ifndef CYBSP_GPIOA5
 #define CYBSP_GPIOA5                (P10_5)
+#endif
 /** GPIO5 */
+#ifndef CYBSP_GPIO5
 #define CYBSP_GPIO5                 (P8_4)
+#endif
 /** GPIO6 */
+#ifndef CYBSP_GPIO6
 #define CYBSP_GPIO6                 (P9_7)
+#endif
 /** GPIO9 */
+#ifndef CYBSP_GPIO9
 #define CYBSP_GPIO9                 (P9_4)
+#endif
 /** GPIO10 */
+#ifndef CYBSP_GPIO10
 #define CYBSP_GPIO10                (P9_3)
+#endif
 /** GPIO11 */
+#ifndef CYBSP_GPIO11
 #define CYBSP_GPIO11                (P9_2)
+#endif
 /** GPIO12 */
+#ifndef CYBSP_GPIO12
 #define CYBSP_GPIO12                (P9_1)
+#endif
 /** GPIO13 */
+#ifndef CYBSP_GPIO13
 #define CYBSP_GPIO13                (P9_0)
+#endif
 
 /** \} group_bsp_pins_feather */
 

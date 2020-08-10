@@ -5,7 +5,7 @@
 * Simple wrapper header containing all generated files.
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
-* Device Support Library (../../../psoc6pdl): 1.3.1.1499
+* Device Support Library (../../../psoc6pdl): 1.6.0.4266
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -34,7 +34,6 @@ extern "C" {
 #include "cycfg_notices.h"
 #include "cycfg_system.h"
 #include "cycfg_routing.h"
-#include "cycfg_peripherals.h"
 #include "cycfg_pins.h"
 
 void init_cycfg_all(void);
