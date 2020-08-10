@@ -6214,20 +6214,28 @@
             "MXCRYPTO_02"
         ],
         "macros_add": [
-            "CY8C624AFNI_D43",
-            "CYBSP_WIFI_CAPABLE"
+            "CY8C624AFNI_S2D43"
         ],
+        "macros_remove": [
+            "MBED_TICKLESS"
+        ],
+        "detect_code": [
+            "1912"
+        ],
+        "device_name": "CY8C624AFNI-S2D43",
+        "mbed_ram_start": "0x08080000",
+        "mbed_ram_size": "0x0007F800",
+        "mbed_rom_start": "0x10180000",
+        "mbed_rom_size": "0x80000",
+        "bootloader_supported": true,
+        "forced_reset_timeout": 5,
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
         "overrides": {
             "network-default-interface-type": "WIFI",
             "deep-sleep-latency": 0
         },
-        "detect_code": [
-            "1912"
-        ],
-        "macros_remove": [
-            "CYBSP_WIFI_CAPABLE",
-            "MBED_TICKLESS"
-        ],
         "config": {
             "np_cloud_disable": {
                 "help": "Value: Tells the np to connect to cloud or not",
@@ -6237,10 +6245,6 @@
                 "help": "Value: Tells the np to connect to wifi with its network credentials or wait till cp provides network credentials to it",
                 "value": false
             }
-        },
-        "forced_reset_timeout": 5,
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
         }
     },
     "GD32_Target": {
