@@ -40,7 +40,7 @@
 #define MBED_RAM_SIZE  0x9000
 #endif
 
-#define NVIC_NUM_VECTORS        47
+#define NVIC_NUM_VECTORS        48
 #define NVIC_RAM_VECTOR_ADDRESS MBED_RAM_START
 
 #endif

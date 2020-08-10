@@ -17,11 +17,11 @@
 
 #include "serial_api_hal.h"
 
-#define UART_NUM (5)
 
-// Retarget this IRQn symbol for chips without USART3/4
-#if defined(STM32G031xx)
-#define USART3_4_LPUART1_IRQn LPUART1_IRQn
+#if defined (STM32G031xx)
+#define UART_NUM (3)
+#else
+#define UART_NUM (5)
 #endif
 
 uint32_t serial_irq_ids[UART_NUM] = {0};
@@ -143,7 +143,11 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 #if defined(LPUART1_BASE)
     if (obj_s->uart == LPUART_1) {
+#if defined(STM32G031xx)
+        irq_n = LPUART1_IRQn;
+#else
         irq_n = USART3_4_LPUART1_IRQn;
+#endif
         vector = (uint32_t)&lpuart1_irq;
     }
 #endif
@@ -162,19 +166,13 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         if (irq == RxIrq) {
             __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
             // Check if TxIrq is disabled too
-#if defined(STM32G0)
-#define USART_CR1_TXEIE   USART_CR1_TXEIE_TXFNFIE
-#endif
-            if ((huart->Instance->CR1 & USART_CR1_TXEIE) == 0) {
+            if ((huart->Instance->CR1 & USART_CR1_TXEIE_TXFNFIE) == 0) {
                 all_disabled = 1;
             }
         } else { // TxIrq
             __HAL_UART_DISABLE_IT(huart, UART_IT_TXE);
             // Check if RxIrq is disabled too
-#if defined(STM32G0)
-#define USART_CR1_RXNEIE   USART_CR1_RXNEIE_RXFNEIE
-#endif
-            if ((huart->Instance->CR1 & USART_CR1_RXNEIE) == 0) {
+            if ((huart->Instance->CR1 & USART_CR1_RXNEIE_RXFNEIE) == 0) {
                 all_disabled = 1;
             }
         }
@@ -339,7 +337,11 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 
 #if defined(LPUART1_BASE)
         case LPUART_1:
+#if defined(STM32G031xx)
+            irq_n = LPUART1_IRQn;
+#else
             irq_n = USART3_4_LPUART1_IRQn;
+#endif
             break;
 #endif
         default:
