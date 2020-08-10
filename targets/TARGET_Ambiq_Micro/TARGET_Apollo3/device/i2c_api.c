@@ -61,8 +61,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl){
     obj->i2c.iom_obj.iom.cfg.ui32NBTxnBufLength = 0;
 
     // pin configuration
-    if((int)sda != NC){ pinmap_pinout(sda, i2c_master_sda_pinmap()); }
-    if((int)scl != NC){ pinmap_pinout(scl, i2c_master_scl_pinmap()); }
+    if((int)sda != NC){ pinmap_config(sda, i2c_master_sda_pinmap()); }
+    if((int)scl != NC){ pinmap_config(scl, i2c_master_scl_pinmap()); }
 
     // invariant xfer settings
 	xfer.ui32InstrLen = 0;
@@ -109,20 +109,17 @@ int i2c_read(i2c_t *obj, int address8bit, char *data, int length, int stop){
 
     int handled_chars = 0;
 
-    if(length){
-        xfer.uPeerInfo.ui32I2CDevAddr = (address8bit >> 1);
-        xfer.eDirection = AM_HAL_IOM_RX;
-        xfer.ui32NumBytes = length;
-        xfer.pui32RxBuffer = (uint32_t*)data;
-        xfer.pui32TxBuffer = NULL;
-        xfer.bContinue = (stop) ? false : true;
-        uint32_t status = am_hal_iom_blocking_transfer(obj->i2c.iom_obj.iom.handle, &xfer);
-        if(AM_HAL_STATUS_SUCCESS != status){
-            printf("i2c_read error: 0x%08X\n", status);
-            return I2C_ERROR_NO_SLAVE;
-        }
-        handled_chars += xfer.ui32NumBytes;
+    xfer.uPeerInfo.ui32I2CDevAddr = (address8bit >> 1);
+    xfer.eDirection = AM_HAL_IOM_RX;
+    xfer.ui32NumBytes = length;
+    xfer.pui32RxBuffer = (uint32_t*)data;
+    xfer.pui32TxBuffer = NULL;
+    xfer.bContinue = (stop) ? false : true;
+    uint32_t status = am_hal_iom_blocking_transfer(obj->i2c.iom_obj.iom.handle, &xfer);
+    if(AM_HAL_STATUS_SUCCESS != status){
+        return I2C_ERROR_NO_SLAVE;
     }
+    handled_chars += xfer.ui32NumBytes;
 
     return handled_chars;
 }
@@ -132,20 +129,17 @@ int i2c_write(i2c_t *obj, int address8bit, const char *data, int length, int sto
 
     int handled_chars = 0;
 
-    if(length){
-        xfer.uPeerInfo.ui32I2CDevAddr = (address8bit >> 1);
-        xfer.eDirection = AM_HAL_IOM_TX;
-        xfer.ui32NumBytes = length;
-        xfer.pui32TxBuffer = (uint32_t*)data;
-        xfer.pui32RxBuffer = NULL;
-        xfer.bContinue = (stop) ? false : true;
-        uint32_t status = am_hal_iom_blocking_transfer(obj->i2c.iom_obj.iom.handle, &xfer);
-        if(AM_HAL_STATUS_SUCCESS != status){
-            printf("i2c_write error: 0x%08X\n", status);
-            return I2C_ERROR_NO_SLAVE;
-        }
-        handled_chars += xfer.ui32NumBytes;
+    xfer.uPeerInfo.ui32I2CDevAddr = (address8bit >> 1);
+    xfer.eDirection = AM_HAL_IOM_TX;
+    xfer.ui32NumBytes = length;
+    xfer.pui32TxBuffer = (uint32_t*)data;
+    xfer.pui32RxBuffer = NULL;
+    xfer.bContinue = (stop) ? false : true;
+    uint32_t status = am_hal_iom_blocking_transfer(obj->i2c.iom_obj.iom.handle, &xfer);
+    if(AM_HAL_STATUS_SUCCESS != status){
+        return I2C_ERROR_NO_SLAVE;
     }
+    handled_chars += xfer.ui32NumBytes;
 
     return handled_chars;
 }
