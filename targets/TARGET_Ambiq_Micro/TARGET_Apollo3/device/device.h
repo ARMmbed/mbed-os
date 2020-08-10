@@ -36,6 +36,7 @@
 #define DEVICE_ID_LENGTH 24
 
 #include "objects.h"
+#include "extensions.h"
 #include "us_ticker_defines.h"
 
 #endif

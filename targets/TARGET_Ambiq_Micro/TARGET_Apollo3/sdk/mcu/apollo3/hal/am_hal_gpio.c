@@ -1516,41 +1516,40 @@ void ap3_gpio_get_pinconfig_bitmasks(am_hal_gpio_pincfg_allow_t sAllowableChange
     *GPCfgMask = 0;	
     *altPadCfgMask = 0;	
 
-    if (sAllowableChanges.funcSel)	
+    if (sAllowableChanges.uFuncSel)	
     {	
         *padRegMask |= 0x38; //bits 3-5              PadReg	
     }	
-    if (sAllowableChanges.powerSw)	
+    if (sAllowableChanges.ePowerSw)	
     {	
         *padRegMask |= 0xC0; //bits 6 and 7          PadReg	
     }	
-    if (sAllowableChanges.pullup)	
+    if (sAllowableChanges.ePullup)	
     {	
         *padRegMask |= 0xC1; //bits 6 and 7 and 0    PadReg	
     }	
-    if (sAllowableChanges.driveStrength)	
+    if (sAllowableChanges.eDriveStrength)	
     {	
         *padRegMask |= 0x04;    //bit 2              PadReg	
         *altPadCfgMask |= 0x10; //bit 4              AltPadReg	
     }	
-    if (sAllowableChanges.gpOutcfg)	
+    if (sAllowableChanges.eGPOutcfg)	
     {	
         *GPCfgMask |= 0x06; //bits 1 and 2          CFGReg	
     }	
-    if (sAllowableChanges.gpInput)	
+    if (sAllowableChanges.eGPInput)	
     {	
         *padRegMask |= 0x02; //bit 1                PadReg	
     }	
-    if (sAllowableChanges.intDir)	
+    if (sAllowableChanges.eIntDir)	
     {	
         *GPCfgMask |= 0x09; //bit 0 and 3           CFGReg	
     }	
-    if (sAllowableChanges.gprdZero)	
+    if (sAllowableChanges.eGPRdZero)	
     {	
         *GPCfgMask |= 0x01; //bit 0                 CFGReg	
     }	
 }
-
 
 //*****************************************************************************
 //

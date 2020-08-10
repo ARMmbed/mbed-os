@@ -377,14 +377,19 @@ typedef struct
 
 typedef struct
 {
-    uint8_t funcSel : 1;
-    uint8_t powerSw : 1;
-    uint8_t pullup : 1;
-    uint8_t driveStrength : 1;
-    uint8_t gpOutcfg : 1;
-    uint8_t gpInput : 1;
-    uint8_t intDir : 1;
-    uint8_t gprdZero : 1;
+    uint16_t uFuncSel : 1;
+    uint16_t ePowerSw : 1;
+    uint16_t ePullup : 1;
+    uint16_t eDriveStrength : 1;
+    uint16_t eGPOutcfg : 1;
+    uint16_t eGPInput : 1;
+    uint16_t eIntDir : 1;
+    uint16_t eGPRdZero : 1;
+    uint16_t uIOMnum : 1;
+    uint16_t uNCE : 1;
+    uint16_t eCEpol : 1;
+
+    uint16_t _reserved : 5;
 } am_hal_gpio_pincfg_allow_t;
 
 #define IOMNUM_MSPI         6

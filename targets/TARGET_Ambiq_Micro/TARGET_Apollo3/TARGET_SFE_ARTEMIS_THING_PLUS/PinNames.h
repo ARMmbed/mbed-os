@@ -22,7 +22,8 @@ SOFTWARE.
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
-#include "device.h"
+#include "am_bsp.h"
+#include "objects_gpio.h"
 
 #ifdef __cplusplus
 extern "C"

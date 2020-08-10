@@ -135,11 +135,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
   // memset(obj->serial.uart_control->cfg, 0x00, sizeof(am_hal_uart_config_t)); // ensure config begins zeroed
 
-  // // pinout the chosen uart // todo: better????
-  // pinmap_pinout(tx, serial_tx_pinmap());
-  // pinmap_pinout(rx, serial_rx_pinmap());
-  uart_configure_pin_function(tx, uart, serial_tx_pinmap());
-  uart_configure_pin_function(rx, uart, serial_rx_pinmap());
+  // config uart pins
+  pinmap_config(tx, serial_tx_pinmap());
+  pinmap_config(rx, serial_rx_pinmap());
 
   // start UART instance
   MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
@@ -442,21 +440,6 @@ extern void am_uart_isr(void) {
 
 extern void am_uart1_isr(void) {
   uart_irq(UART_1);
-}
-
-void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map) {
-  while (map->pin != NC) {
-    if (map->peripheral == uart) {
-      if (map->pin == pin) {
-        am_hal_gpio_pincfg_t cfg = {
-                .uFuncSel = map->function,
-            };
-        am_hal_gpio_pinconfig(pin, cfg);
-        break;
-      }
-    }
-    map++;
-  }
 }
 
 #ifdef __cplusplus
