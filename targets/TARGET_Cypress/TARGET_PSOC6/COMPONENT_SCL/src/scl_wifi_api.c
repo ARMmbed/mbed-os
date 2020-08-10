@@ -17,6 +17,7 @@
 
 #include "scl_wifi_api.h"
 #include "scl_ipc.h"
+#include "scl_types.h"
 
 /******************************************************
  *        Variables Definitions
@@ -26,6 +27,20 @@ typedef struct {
     scl_mac_t *mac;
     uint32_t retval;
 } scl_mac;
+
+typedef struct {
+    scl_scan_type_t scan_type;
+    scl_bss_type_t bss_type;
+    const scl_ssid_t *optional_ssid;
+    const scl_mac_t *optional_mac;
+    const uint16_t *optional_channel_list;
+    const scl_scan_extended_params_t *optional_extended_params;
+    //scl_scan_result_callback_t callback;
+    scl_scan_result_t *result_ptr;
+    void *user_data;
+} scl_scan_parameters_for_np_t;
+
+scl_scan_result_callback_t scan_callback;
 
 /******************************************************
  *               Function Definitions
@@ -157,4 +172,36 @@ scl_result_t scl_wifi_get_rssi(int32_t *rssi)
         SCL_LOG(("get rssi error\r\n"));
         return SCL_ERROR;
     }
+}
+
+/*
+ * NOTE: search references of function wlu_get in wl/exe/wlu.c to find what format the returned IOCTL data is.
+ */
+uint32_t scl_wifi_scan(scl_scan_type_t scan_type,
+                       scl_bss_type_t bss_type,
+                       const scl_ssid_t *optional_ssid,
+                       const scl_mac_t *optional_mac,
+                       const uint16_t *optional_channel_list,
+                       const scl_scan_extended_params_t *optional_extended_params,
+                       scl_scan_result_callback_t callback,
+                       scl_scan_result_t *result_ptr,
+                       void *user_data
+                       )
+{
+    scl_scan_parameters_for_np_t scl_scan_parameters_for_np;
+    scl_result_t retval = SCL_SUCCESS;
+    /* fill the scan parameters to a structure and send it to NP */
+    scl_scan_parameters_for_np.scan_type = scan_type;
+    scl_scan_parameters_for_np.bss_type = bss_type;
+    scl_scan_parameters_for_np.optional_ssid = optional_ssid;
+    scl_scan_parameters_for_np.optional_mac = optional_mac;
+    scl_scan_parameters_for_np.optional_channel_list = optional_channel_list;
+    scl_scan_parameters_for_np.optional_extended_params = optional_extended_params;
+    scl_scan_parameters_for_np.result_ptr = result_ptr;
+    scl_scan_parameters_for_np.user_data = user_data;
+    /* callback to be used when there is a scan result from CP */
+    scan_callback = callback;
+    /* send scan parameters to NP*/
+    retval = scl_send_data(SCL_TX_SCAN, (char *)&scl_scan_parameters_for_np, TIMER_DEFAULT_VALUE);
+    return retval;
 }

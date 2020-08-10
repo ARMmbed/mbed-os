@@ -26,6 +26,8 @@
 #include "mbed_wait_api.h"
 #include "string.h"
 #include "nsapi_types.h"
+#include "scl_wifi_api.h"
+#include "scl_types.h"
 /******************************************************
  **                      Macros
  *******************************************************/
@@ -280,6 +282,12 @@ scl_result_t scl_end(void)
 
 /** Thread to handle the received buffer
  */
+
+struct scan_callback_data {
+    scl_scan_result_t *result_ptr;
+    void *user_data;
+    scl_scan_status_t status;
+};
 static void scl_rx_handler(void)
 {
     char *buffer = NULL;
@@ -289,6 +297,8 @@ static void scl_rx_handler(void)
     scl_buffer_t cp_buffer;
     uint32_t rx_ipc_size;
     int *rx_cp_buffer;
+    struct scan_callback_data* scan_callback_data_for_cp;
+
     SCL_LOG(("Starting CP Rx thread\r\n"));
     scl_receive = Cy_IPC_Drv_GetIpcBaseAddress(SCL_RX_CHANNEL);
 
@@ -326,6 +336,16 @@ static void scl_rx_handler(void)
                     scl_emac_wifi_link_state_changed(false);
                 }
                 SCL_LOG(("connection status = %d\r\n", connection_status));
+                break;
+            }
+            case SCL_RX_SCAN_STATUS: {
+                rx_cp_buffer = (int*) REG_IPC_STRUCT_DATA1(scl_receive);
+                scan_callback_data_for_cp = (struct scan_callback_data*) scl_buffer_get_current_piece_data_pointer(rx_cp_buffer);
+                
+                scan_callback(scan_callback_data_for_cp->result_ptr,scan_callback_data_for_cp->user_data,scan_callback_data_for_cp->status);
+                scl_buffer_release(rx_cp_buffer,SCL_NETWORK_RX);
+                REG_IPC_STRUCT_RELEASE(scl_receive) = SCL_RELEASE;
+            
                 break;
             }
             default: {

@@ -27,8 +27,8 @@
 #include "scl_emac.h"
 #include "scl_ipc.h"
 #include "mbed_wait_api.h"
-
-
+#include "SclAccessPoint.h"
+#include "scl_buffer_api.h"
 /** @file
  *  Provides SCL interface functions to be used with WiFiInterface or NetworkInterface Objects
  */
@@ -43,7 +43,30 @@ struct scl_tx_net_credentials {
     const char *network_passphrase;
 } scl_tx_network_credentials;
 
+
+struct scl_scan_userdata {
+    rtos::Semaphore *sema;
+    scan_result_type sres_type;
+    WiFiAccessPoint *aps;
+    std::vector<scl_scan_result_t> *result_buff;
+    unsigned count;
+    unsigned offset;
+    bool scan_in_progress;
+};
+
+static scl_scan_userdata interal_scan_data;
+static scl_scan_result_t internal_scan_result;
 network_params_t network_parameter;
+
+/* Internal scan callback that handles the scan results */
+void scl_scan_handler(scl_scan_result_t *result_ptr,void *user_data, scl_scan_status_t status);
+
+#define CMP_MAC( a, b )  (((((unsigned char*)a)[0])==(((unsigned char*)b)[0]))&& \
+                          ((((unsigned char*)a)[1])==(((unsigned char*)b)[1]))&& \
+                          ((((unsigned char*)a)[2])==(((unsigned char*)b)[2]))&& \
+                          ((((unsigned char*)a)[3])==(((unsigned char*)b)[3]))&& \
+                          ((((unsigned char*)a)[4])==(((unsigned char*)b)[4]))&& \
+                          ((((unsigned char*)a)[5])==(((unsigned char*)b)[5])))
 
 int scl_toerror(scl_result_t res)
 {
@@ -93,14 +116,22 @@ nsapi_security_t scl_tosecurity(scl_security_t sec)
         case SCL_SECURITY_WEP_SHARED:
             return NSAPI_SECURITY_WEP;
         case SCL_SECURITY_WPA_TKIP_PSK:
+        case SCL_SECURITY_WPA_AES_PSK:
         case SCL_SECURITY_WPA_TKIP_ENT:
+        case SCL_SECURITY_WPA_AES_ENT:
+        case SCL_SECURITY_WPA_MIXED_ENT:
             return NSAPI_SECURITY_WPA;
         case SCL_SECURITY_WPA2_MIXED_PSK:
+        case SCL_SECURITY_WPA2_WPA_PSK:
+        case SCL_SECURITY_WPA2_WPA_TKIP_PSK:
             return NSAPI_SECURITY_WPA_WPA2;
+        case SCL_SECURITY_WPA2_MIXED_ENT:
+            return NSAPI_SECURITY_WPA2_ENT;
         case SCL_SECURITY_WPA2_AES_PSK:
         case SCL_SECURITY_WPA2_AES_ENT:
         case SCL_SECURITY_WPA2_FBT_PSK:
         case SCL_SECURITY_WPA2_FBT_ENT:
+        case SCL_SECURITY_WPA2_TKIP_ENT:
             return NSAPI_SECURITY_WPA2;
         default:
             return NSAPI_SECURITY_UNKNOWN;
@@ -125,12 +156,13 @@ scl_security_t scl_fromsecurity(nsapi_security_t sec)
     }
 }
 
-SclSTAInterface::SclSTAInterface(SCL_EMAC &emac, OnboardNetworkStack &stack)
+SclSTAInterface::SclSTAInterface(SCL_EMAC &emac, OnboardNetworkStack &stack, scl_interface_shared_info_t &shared)
     : EMACInterface(emac, stack),
       _ssid("\0"),
       _pass("\0"),
       _security(NSAPI_SECURITY_NONE),
-      _scl_emac(emac)
+      _scl_emac(emac),
+      _iface_shared(shared)
 {
 }
 
@@ -180,7 +212,7 @@ nsapi_error_t SclSTAInterface::connect()
     uint32_t connection_status = 0;
 
     scl_tx_network_credentials.network_ssid = _ssid;
-    if ((strlen(_ssid) < MAX_SSID_LENGTH) && (strlen(_ssid) > MIN_SSID_LENGTH)) {
+    if ((strlen(_ssid) < MAX_SSID_LENGTH) && (strlen(_ssid) > MIN_SSID_LENGTH) ) {
         scl_tx_network_credentials.ssid_len = strlen(_ssid);
     } else {
         return NSAPI_ERROR_PARAMETER;
@@ -288,10 +320,106 @@ nsapi_error_t SclSTAInterface::disconnect()
     return NSAPI_ERROR_OK;
 }
 
-int SclSTAInterface::scan(WiFiAccessPoint *res, unsigned count)
+void scl_scan_handler(scl_scan_result_t *result_ptr,
+                             void *user_data, scl_scan_status_t status)
 {
-    /* To Do */
-    return NSAPI_ERROR_UNSUPPORTED;
+    scl_scan_userdata *data = (scl_scan_userdata *)&interal_scan_data;
+    scl_scan_result_t *record = result_ptr;
+    unsigned int i;
+    nsapi_wifi_ap ap;
+    uint8_t length;
+
+    /* Even after stopping scan, some results will still come as results are already present in the queue */
+    if (data->scan_in_progress == false) {
+        return;
+    }
+
+    // finished scan, either succesfully or through an abort
+    if (status != SCL_SCAN_INCOMPLETE) {
+        data->scan_in_progress = false;
+        data->sema->release();
+        return;
+    }
+
+    // can't really keep anymore scan results
+    if (data->count > 0 && data->offset >= data->count) {
+        /* We can not abort the scan as this function is getting executed in SCL context,
+           Note that to call any SCL API, caller function should not in SCL context */
+        return;
+    }
+
+    for (i = 0; i < data->result_buff->size(); i++) {
+        if (memcmp(((*data->result_buff)[i].BSSID.octet),(record->BSSID.octet),sizeof(scl_mac_t)) == 0) {
+            return;
+        }
+    }
+
+    if (data->count > 0 && (data->aps != NULL)) {
+        // get ap stats
+        length = record->SSID.length;
+        if (length < (sizeof(ap.ssid) - 1)) {
+            length = sizeof(ap.ssid) - 1;
+        }
+        memcpy(ap.ssid, record->SSID.value, length);
+        ap.ssid[length] = '\0';
+
+        memcpy(ap.bssid, record->BSSID.octet, sizeof(ap.bssid));
+
+        ap.security = scl_tosecurity(record->security);
+        ap.rssi = record->signal_strength;
+        ap.channel = record->channel;
+        if (data->sres_type == SRES_TYPE_WIFI_ACCESS_POINT) {
+            data->aps[data->offset] = WiFiAccessPoint(ap);
+        } else if (data->sres_type == SRES_TYPE_SCL_ACCESS_POINT) {
+            SclAccessPoint *aps_sres = static_cast<SclAccessPoint *>(data->aps);
+            aps_sres[data->offset] = std::move(SclAccessPoint(ap, record->bss_type,
+                                                              record->ie_ptr, record->ie_len));
+        }
+    }
+
+    // store to result_buff for future duplication removal
+    data->result_buff->push_back(*record);
+    data->offset = data->result_buff->size();
+}
+
+int SclSTAInterface::internal_scan(WiFiAccessPoint *aps, unsigned count, scan_result_type sres_type)
+{
+    ScopedMutexLock lock(_iface_shared.mutex);
+    scl_result_t scl_res;
+    int res;
+
+    // initialize wifi, this is noop if already init
+    if (!_scl_emac.powered_up) {
+        if(!_scl_emac.power_up()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+    }
+
+    interal_scan_data.sema = new Semaphore();
+    interal_scan_data.sres_type = sres_type;
+    interal_scan_data.aps = aps;
+    interal_scan_data.count = count;
+    interal_scan_data.offset = 0;
+    interal_scan_data.scan_in_progress = true;
+    interal_scan_data.result_buff = new std::vector<scl_scan_result_t>();
+
+    scl_res = (scl_result_t)scl_wifi_scan(SCL_SCAN_TYPE_ACTIVE, SCL_BSS_TYPE_ANY,
+                                          NULL, NULL, NULL, NULL, scl_scan_handler, &internal_scan_result, &interal_scan_data);
+    if (scl_res != SCL_SUCCESS) {
+        res = scl_toerror(scl_res);
+    } else {
+        /* This semaphore will be released in scan callback once the scan is completed */
+        interal_scan_data.sema->acquire();
+        res = interal_scan_data.offset;
+    }
+    delete interal_scan_data.sema;
+    delete interal_scan_data.result_buff;
+    return res;
+}
+
+int SclSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
+{
+    return internal_scan(aps, count, SRES_TYPE_WIFI_ACCESS_POINT);
 }
 
 int8_t SclSTAInterface::get_rssi()

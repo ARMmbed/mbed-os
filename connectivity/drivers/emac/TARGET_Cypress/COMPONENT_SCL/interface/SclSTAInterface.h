@@ -29,6 +29,8 @@
 #include "scl_emac.h"
 #include "scl_wifi_api.h"
 #include "scl_types.h"
+#include "SclAccessPoint.h"
+#include "scl_interface.h"
 #define MAX_SSID_LENGTH                       (33) /**< Maximum ssid length */
 #define MAX_PASSWORD_LENGTH                   (64) /**< Maximum password length */
 
@@ -40,7 +42,8 @@ public:
 
     SclSTAInterface(
         SCL_EMAC &emac = SCL_EMAC::get_instance(),
-        OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
+        OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance(),
+        scl_interface_shared_info_t &shared = scl_iface_shared);
 
     /** Gets the current instance of the SclSTAInterface
      *
@@ -127,11 +130,16 @@ public:
      */
     int8_t get_rssi();
 
-    /** Scans for available networks - NOT SUPPORTED
+    /** Scan for available networks in WiFiAccessPoint format
      *
-     *  @return         NSAPI_ERROR_UNSUPPORTED
+     * This function will block.
+     *
+     * @param  aps      Pointer to allocated array of WiFiAccessPoint format for discovered AP
+     * @param  count    Size of allocated @a res array, or 0 to only count available AP
+     * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
+     *                  see @a nsapi_error
      */
-    int scan(WiFiAccessPoint *res, unsigned count);
+    int scan(WiFiAccessPoint *aps, unsigned count);
 
     /** This function is used to indicate if the device is connected to the network.
      *
@@ -154,6 +162,8 @@ public:
      * @return          SCL_SUCCESS if the Wi-Fi interface is set up successfully.
      */
     int wifi_set_up(void);
+protected:
+    int internal_scan(WiFiAccessPoint *aps, unsigned count, scan_result_type sres_type);
 
 private:
 
@@ -161,5 +171,6 @@ private:
     char _pass[MAX_PASSWORD_LENGTH]; /**< The longest allowed passphrase + 1 */
     nsapi_security_t _security; /**< Security type */
     SCL_EMAC &_scl_emac; /**< SCL_EMAC object */
+    scl_interface_shared_info_t &_iface_shared;
 };
 #endif /* ifndef SCL_STA_INTERFACE_H */

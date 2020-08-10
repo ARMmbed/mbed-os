@@ -26,6 +26,7 @@
 
 #include <stdbool.h>
 #include "scl_common.h"
+#include "scl_types.h"
 #ifndef INCLUDED_SCL_WIFI_API_H
 #define INCLUDED_SCL_WIFI_API_H
 
@@ -145,6 +146,54 @@ extern void scl_network_process_ethernet_data(scl_buffer_t buffer);
  */
 extern void scl_emac_wifi_link_state_changed(bool state_up);
 
+/** Scan result callback function pointer type
+ *
+ * @param result_ptr   A pointer to the pointer that indicates where to put the next scan result
+ * @param user_data    User provided data
+ * @param status       Status of scan process
+ */
+typedef void (*scl_scan_result_callback_t)(scl_scan_result_t *result_ptr, void *user_data, scl_scan_status_t status);
+
+/** Initiates a scan to search for 802.11 networks.
+ *
+ *  The scan progressively accumulates results over time, and may take between 1 and 10 seconds to complete.
+ *  The results of the scan will be individually provided to the callback function.
+ *  Note: The callback function will be executed in the context of the SCL thread and so must not perform any
+ *  actions that may cause a bus transaction.
+ *
+ *  @param   scan_type                 Specifies whether the scan should be Active, Passive or scan Prohibited channels
+ *  @param   bss_type                  Specifies whether the scan should search for Infrastructure networks (those using
+ *                                     an Access Point), Ad-hoc networks, or both types.
+ *  @param   optional_ssid             If this is non-Null, then the scan will only search for networks using the specified SSID.
+ *  @param   optional_mac              If this is non-Null, then the scan will only search for networks where
+ *                                     the BSSID (MAC address of the Access Point) matches the specified MAC address.
+ *  @param   optional_channel_list     If this is non-Null, then the scan will only search for networks on the
+ *                                     specified channels - array of channel numbers to search, terminated with a zero
+ *  @param   optional_extended_params  If this is non-Null, then the scan will obey the specifications about
+ *                                     dwell times and number of probes.
+ *  @param   callback                  The callback function which will receive and process the result data.
+ *  @param   result_ptr                Pointer to a pointer to a result storage structure.
+ *  @param   user_data                 user specific data that will be passed directly to the callback function
+ *
+ *  @note - When scanning specific channels, devices with a strong signal strength on nearby channels may be detected
+ *        - Callback must not use blocking functions, nor use SCL functions, since it is called from the context of the
+ *          SCL thread.
+ *        - The callback, result_ptr and user_data variables will be referenced after the function returns.
+ *          Those variables must remain valid until the scan is complete.
+ *
+ *  @return SCL_SUCCESS or Error code
+ */
+extern uint32_t scl_wifi_scan(scl_scan_type_t scan_type,
+                              scl_bss_type_t bss_type,
+                              const scl_ssid_t *optional_ssid,
+                              const scl_mac_t *optional_mac,
+                              const uint16_t *optional_channel_list,
+                              const scl_scan_extended_params_t *optional_extended_params,
+                              scl_scan_result_callback_t callback,
+                              scl_scan_result_t *result_ptr,
+                              void *user_data);
+
+extern scl_scan_result_callback_t scan_callback;
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
