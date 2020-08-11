@@ -23,10 +23,10 @@
 #include "NFCNDEFCapable.h"
 #include "NFCRemoteInitiator.h"
 
-#include "nfc/acore/acore/ac_buffer.h"
-#include "nfc/acore/acore/ac_buffer_reader.h"
-#include "nfc/acore/acore/ac_buffer_builder.h"
-#include "nfc/stack/tech/type4/type4_target.h"
+#include "acore/acore/ac_buffer.h"
+#include "acore/acore/ac_buffer_reader.h"
+#include "acore/acore/ac_buffer_builder.h"
+#include "stack/tech/type4/type4_target.h"
 
 #include "platform/Span.h"
 
