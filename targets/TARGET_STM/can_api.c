@@ -133,9 +133,12 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     obj->CanHandle.Init.DataSyncJumpWidth = 0x1;   // Not used - only in FDCAN
     obj->CanHandle.Init.DataTimeSeg1 = 0x1;        // Not used - only in FDCAN
     obj->CanHandle.Init.DataTimeSeg2 = 0x1;        // Not used - only in FDCAN
+#ifndef TARGET_STM32G4
     obj->CanHandle.Init.MessageRAMOffset = 0;
+#endif
     obj->CanHandle.Init.StdFiltersNbr = 1; // to be aligned with the handle parameter in can_filter
     obj->CanHandle.Init.ExtFiltersNbr = 1; // to be aligned with the handle parameter in can_filter
+#ifndef TARGET_STM32G4
     obj->CanHandle.Init.RxFifo0ElmtsNbr = 8;
     obj->CanHandle.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
     obj->CanHandle.Init.RxFifo1ElmtsNbr = 0;
@@ -145,9 +148,11 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     obj->CanHandle.Init.TxEventsNbr = 3;
     obj->CanHandle.Init.TxBuffersNbr = 0;
     obj->CanHandle.Init.TxFifoQueueElmtsNbr = 3;
+#endif
     obj->CanHandle.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
+#ifndef TARGET_STM32G4
     obj->CanHandle.Init.TxElmtSize = FDCAN_DATA_BYTES_8;
-
+#endif
     can_internal_init(obj);
 }
 
@@ -198,7 +203,9 @@ void can_irq_free(can_t *obj)
     else {
         return;
     }
+#ifndef TARGET_STM32G4
     HAL_NVIC_DisableIRQ(FDCAN_CAL_IRQn);
+#endif
     can_irq_ids[obj->index] = 0;
 }
 
@@ -441,14 +448,21 @@ static void can_irq(CANName name, int id)
             irq_handler(can_irq_ids[id], IRQ_TX);
         }
     }
-
+#ifndef TARGET_STM32G4
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_IT_RX_BUFFER_NEW_MESSAGE);
             irq_handler(can_irq_ids[id], IRQ_RX);
         }
     }
-
+#else
+    if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE)) {
+        if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE)) {
+            __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE);
+            irq_handler(can_irq_ids[id], IRQ_RX);
+        }
+    }
+#endif
     if (__HAL_FDCAN_GET_IT_SOURCE(&CanHandle, FDCAN_IT_ERROR_WARNING)) {
         if (__HAL_FDCAN_GET_FLAG(&CanHandle, FDCAN_FLAG_ERROR_WARNING)) {
             __HAL_FDCAN_CLEAR_FLAG(&CanHandle, FDCAN_FLAG_ERROR_WARNING);
@@ -501,7 +515,11 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
             interrupts = FDCAN_IT_TX_COMPLETE;
             break;
         case IRQ_RX:
+#ifndef TARGET_STM32G4
             interrupts = FDCAN_IT_RX_BUFFER_NEW_MESSAGE;
+#else
+	    interrupts = FDCAN_IT_RX_FIFO0_NEW_MESSAGE;
+#endif
             break;
         case IRQ_ERROR:
             interrupts = FDCAN_IT_ERROR_WARNING;
