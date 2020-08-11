@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ * SPDX-License-Identifier: BSD-3-Clause
  *******************************************************************************
  * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
@@ -34,7 +35,7 @@
 
 #if defined (TARGET_STM32F401xC) || defined (TARGET_STM32F401xE) || defined (TARGET_STM32F410xB) || defined (TARGET_STM32F411xE)
 #define UART_NUM (3)
-#elif defined (TARGET_STM32F412xG)
+#elif defined (TARGET_STM32F412xG) || defined(TARGET_STM32F415xG)
 #define UART_NUM (4)
 #elif defined (TARGET_STM32F407xG) || defined (TARGET_STM32F446xE)
 #define UART_NUM (6)

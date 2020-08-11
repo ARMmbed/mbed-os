@@ -1784,6 +1784,18 @@
         ],
         "device_name": "STM32F413ZH"
     },
+    "MCU_STM32F415xG": {
+      "inherits": [
+        "MCU_STM32F4"
+      ],
+      "public": false,
+      "extra_labels_add": [
+        "STM32F415xG"
+      ],
+      "macros_add": [
+        "STM32F415xx"
+      ]
+    },
     "NUCLEO_F429ZI": {
         "inherits": [
             "MCU_STM32F4"
