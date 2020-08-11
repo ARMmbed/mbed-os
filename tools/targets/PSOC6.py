@@ -211,7 +211,11 @@ def sign_application(toolchain, tools, binary, image_id):
     tools.sign_image(binary, image_id)
     toolchain.notify.debug("[PSOC6.sign_image] Slot start address and size for image ID " \
                                 + str(image_id) + " is " + hex(address) + ", " + hex(size))
-
+    # Upgrade Hex file was created. Add also bin format
+    input_file = Path(os.path.splitext(binary)[0] + '_upgrade.hex')
+    hex_data = IntelHex(input_file.as_posix())
+    output_file = input_file.with_suffix('.bin')
+    output_file.write_bytes(hex_data.tobinarray())
 
 def find_policy(toolchain):
     """
