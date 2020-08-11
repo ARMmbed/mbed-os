@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 
 /* Default to no softdevice */
 #if !defined(MBED_APP_START)
