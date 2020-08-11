@@ -135,6 +135,7 @@
         ],
         "extra_labels": [
             "TFM",
+            "TFM_V1_1",
             "TFM_V8M"
         ],
         "device_has": [
@@ -6193,6 +6194,73 @@
             "network-default-interface-type": "WIFI"
         },
         "program_cycle_s": 10
+    },
+    "CYTFM_064B0S2_4343W": {
+        "inherits": [
+            "MCU_PSOC6_M4"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "features_add": [
+            "BLE",
+            "EXPERIMENTAL_API",
+            "PSA"
+        ],
+        "components_add": [
+            "WHD",
+            "4343W",
+            "CYW43XXX",
+            "TFM_S_FW"
+        ],
+        "components_remove": [
+            "QSPIF",
+            "CM0P_SLEEP"
+        ],
+        "device_has_remove": [
+            "ANALOGOUT",
+            "QSPI",
+            "TRNG",
+            "CRC"
+        ],
+        "extra_labels_add": [
+            "PSOC6_02",
+            "CORDIO",
+            "TFM",
+            "TFM_V1_0",
+            "TFM_DUALCPU"
+        ],
+        "macros_add": [
+            "CYB0644ABZI_S2D44",
+            "CY_IPC_DEFAULT_CFG_DISABLE",
+            "CYBSP_WIFI_CAPABLE",
+            "MXCRYPTO_DISABLED",
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
+        ],
+        "detect_code": [
+            "1910"
+        ],
+        "forced_reset_timeout": 5,
+        "hex_filename": "tfm_s.hex",
+        "cm0_img_id": 1,
+        "cm4_img_id": 16,
+        "boot_scheme": "multi_image",
+        "policy_file": "policy_multi_CM0_CM4_tfm.json",
+        "post_binary_hook": {
+            "function": "PSOC6Code.sign_image"
+        },
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        },
+        "program_cycle_s": 10,
+        "tfm_target_name": "psoc64",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "GNUARM",
+        "tfm_supported_toolchains": [
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CYTFM_064B0S2_4343W/COMPONENT_TFM_S_FW",
+        "TFM_OUTPUT_EXT": "hex"
     },
     "CYSBSYSKIT_01": {
         "inherits": [

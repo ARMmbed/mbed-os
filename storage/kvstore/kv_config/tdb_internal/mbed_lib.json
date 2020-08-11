@@ -41,6 +41,10 @@
         },
         "MCU_PSOC6": {
             "internal_size": "0x10000"
+        },
+        "CYTFM_064B0S2_4343W": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x10168000"
         }
     }
 }
