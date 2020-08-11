@@ -1298,13 +1298,22 @@ public:
     /**
      * Cancel the ongoing connection creation process.
      *
+     * @param peer_address_type Type of address used by the advertiser. Not used
+     * if initiator_policy use the whitelist.
+     *
+     * @param Address used by the advertiser in its advertising packets. Not
+     * used if initiator_policy use the whitelist.
+     *
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
      * appropriate error otherwise.
      *
      * @note: See Bluetooth 5 Vol 2 PartE: 7.8.13 LE create connection cancel
      * command.
      */
-    virtual ble_error_t cancel_connection_creation() = 0;
+    virtual ble_error_t cancel_connection_creation(
+        peer_address_type_t peerAddressType,
+        const ble::address_t &peerAddress
+    ) = 0;
 
     /**
      * Return the number of total whitelist entries that can be stored in the

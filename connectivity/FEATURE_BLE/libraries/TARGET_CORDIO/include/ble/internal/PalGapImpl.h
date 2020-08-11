@@ -97,7 +97,10 @@ public:
         uint16_t maximum_connection_event_length
     );
 
-    ble_error_t cancel_connection_creation();
+    ble_error_t cancel_connection_creation(
+        peer_address_type_t peerAddressType,
+        const ble::address_t &peerAddress
+    );
 
     uint8_t read_white_list_capacity();
 

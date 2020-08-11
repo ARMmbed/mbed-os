@@ -1002,10 +1002,30 @@ public:
     /** Cancel the connection attempt. This is not guaranteed to succeed. As a result
      *  onConnectionComplete in the event handler will be called. Check the success parameter
      *  to see if the connection was created.
+     *  @depreacted This version has a defective API. You must provide the address of the peer.
+     *  Please use the cancelConnect that takes peer address as parameters.
+     *  This call will attempt to cancel the most recently requested connection.
      *
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
+     * Returns BLE_ERROR_OPERATION_NOT_PERMITTED if no ongoing connection for last used address found.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Defective API. Please use the cancelConnect that takes peer address as parameters.")
     ble_error_t cancelConnect();
+
+    /** Cancel the connection attempt. This is not guaranteed to succeed. As a result
+     *  onConnectionComplete in the event handler will be called. Check the success parameter
+     *  to see if the connection was created.
+     *
+     * @param peerAddressType Address type you want to cancel connection process for.
+     * @param peerAddress Address you want to cancel connection process for.
+     *
+     * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
+     * Returns BLE_ERROR_OPERATION_NOT_PERMITTED if no ongoing connection for address found.
+     */
+    ble_error_t cancelConnect(
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress
+    );
 #endif // BLE_ROLE_CENTRAL
 
 #if BLE_FEATURE_CONNECTABLE

@@ -507,6 +507,9 @@ ble_error_t Gap::connect(
             return BLE_ERROR_INVALID_PARAM;
         }
 
+        _last_used_peer_address_type = peerAddressType;
+        _last_used_peer_address = peerAddress;
+
         // ensure scan is stopped.
         _pal_gap.scan_enable(false, false);
 
@@ -537,6 +540,9 @@ ble_error_t Gap::connect(
     ) {
         adjusted_address_type = peer_address_type_t::RANDOM;
     }
+
+    _last_used_peer_address_type = adjusted_address_type;
+    _last_used_peer_address = peerAddress;
 
     return _pal_gap.extended_create_connection(
         connectionParams.getFilter(),
@@ -625,12 +631,21 @@ ble_error_t Gap::rejectConnectionParametersUpdate(
     );
 }
 
-
 ble_error_t Gap::cancelConnect()
 {
-    return _pal_gap.cancel_connection_creation();
+    if (_last_used_peer_address_type != peer_address_type_t::ANONYMOUS) {
+        return cancelConnect(_last_used_peer_address_type, _last_used_peer_address);
+    }
+    return BLE_ERROR_OPERATION_NOT_PERMITTED;
 }
 
+ble_error_t Gap::cancelConnect(
+    peer_address_type_t peerAddressType,
+    const ble::address_t &peerAddress
+)
+{
+    return _pal_gap.cancel_connection_creation(peerAddressType, peerAddress);
+}
 
 ble_error_t Gap::readPhy(ble::connection_handle_t connection)
 {
