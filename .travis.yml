@@ -43,7 +43,7 @@ after_failure:
 
 matrix:
   include:
-    
+
     ### Basic Tests ###
     - &basic-vm
       stage: "Basic"
@@ -128,7 +128,7 @@ matrix:
             | ( grep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
-      
+
     - <<: *docs-vm
       name: "spellcheck"
       env: NAME=doxy-spellcheck
@@ -170,13 +170,41 @@ matrix:
           find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
           tee BUILD/badlibs |
           sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
-        # Assert that all assebler files are named correctly
+        # Assert that all assembler files are named correctly
         # The strange command below asserts that there are exactly 0 libraries
         # that do end with .s
         - >
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
+    - <<: *docs-vm
+      name: "Frozen tools check"
+      env: NAME=frozen_tools_check
+      script:
+        # Reject any changes to tools that would require a re-release of the
+        # tools for the online compiler.
+        - >-
+            frozen_files=`\
+                git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+                    | egrep \
+                      -e "^tools/build_api*" \
+                      -e "^tools/config*" \
+                      -e "^tools/export*" \
+                      -e "^tools/notifier*" \
+                      -e "^tools/paths*" \
+                      -e "^tools/resources*" \
+                      -e "^tools/targets*" \
+                      -e "^tools/toolchains*" \
+                      -e "^tools/utils*" \
+                      -e "^$"`
+            if [ -z "$frozen_files" ]; then
+                echo "Success!";
+            else
+                echo -e "Failure: Frozen files were modified\n$frozen_files";
+                echo -e "Please see https://os.mbed.com/blog/entry/Introducing-the-new-Mbed-Tools/" \
+                        "\nfor why we've frozen the legacy tools.";
+                false;
+            fi
 
     ### Python Tests ###
     - &pytools-vm
@@ -225,7 +253,7 @@ matrix:
       env: NAME=tools-py3.7
       python: 3.7
 
-    
+
     ### Extended Tests ###
     - &extended-vm
       stage: "Extended"
