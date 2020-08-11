@@ -31,7 +31,7 @@ set(unittest-includes ${unittest-includes}
 
 # Test & stub files
 set(unittest-test-sources
-  features/lorawan/loraphyus915/Test_LoRaPHYUS915.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaPHYUS915.cpp
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaWANTimer_stub.cpp
   stubs/mbed_assert_stub.cpp

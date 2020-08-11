@@ -31,7 +31,7 @@ set(unittest-includes ${unittest-includes}
 
 # Test & stub files
 set(unittest-test-sources
-  features/lorawan/lorawaninterface/Test_LoRaWANInterface.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaWANInterface.cpp
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaWANStack_stub.cpp
   stubs/LoRaMac_stub.cpp

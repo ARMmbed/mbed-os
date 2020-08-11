@@ -31,7 +31,7 @@ set(unittest-includes ${unittest-includes}
 
 # Test & stub files
 set(unittest-test-sources
-  features/lorawan/loramaccrypto/Test_LoRaMacCrypto.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaMacCrypto.cpp
   stubs/cipher_stub.c
   stubs/aes_stub.c
   stubs/cmac_stub.c
