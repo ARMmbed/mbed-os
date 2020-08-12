@@ -5,13 +5,14 @@
 ^connectivity/libraries/mbed-coap
 ^connectivity/libraries/ppp
 ^connectivity/drivers/emac
+^connectivity/drivers/mbedtls
+^connectivity/mbedtls
 ^features/cryptocell
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
 ^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
 ^features/frameworks
 ^connectivity/lwipstack/lwip
 ^connectivity/lwipstack/lwip-sys
-^features/mbedtls
 ^connectivity/nanostack/sal-stack-nanostack/source/Service_Libs/mdns/fnet
 ^connectivity/nanostack/sal-stack-nanostack-eventloop
 ^storage/filesystem/fat/ChaN

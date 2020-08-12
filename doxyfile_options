@@ -843,7 +843,7 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */cmsis/* \
                          */connectivity/drivers/emac/* \
                          */features/cryptocell/* \
-                         */features/mbedtls/* \
+                         */connectivity/mbedtls/* \
                          */features/unsupported/* \
                          */connectivity/lwipstack/* \
                          */connectivity/nanostack/sal-stack-nanostack/* \

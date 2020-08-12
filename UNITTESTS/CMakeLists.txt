@@ -151,8 +151,8 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/mac"
   "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/phy"
   "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
-  "${PROJECT_SOURCE_DIR}/../features/mbedtls"
-  "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
+  "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls"
+  "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls/include"
 )
 
 # Create a list for test suites.
