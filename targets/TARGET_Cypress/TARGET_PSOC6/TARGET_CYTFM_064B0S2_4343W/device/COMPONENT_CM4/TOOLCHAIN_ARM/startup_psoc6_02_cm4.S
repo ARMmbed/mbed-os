@@ -1,5 +1,5 @@
 ;/**************************************************************************//**
-; * @file     startup_psoc6_02_cm4.s
+; * @file     startup_psoc6_02_cm4.S
 ; * @brief    CMSIS Core Device Startup File for
 ; *           ARMCM4 Device Series
 ; * @version  V5.00
@@ -282,7 +282,7 @@ Vectors_Copy
                 ; Enable the FPU if used
                 LDR     R0, =Cy_SystemInitFpuEnable
                 BLX     R0
-                
+
                 LDR     R0, =__main
                 BLX     R0
 

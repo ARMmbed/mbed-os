@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6_cm4.c
-* \version 2.70.1
+* \version 2.90
 *
 * The device system-source file.
 *
@@ -39,6 +39,10 @@
         #include "cy_flash.h"
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
+
+#if defined(CY_DEVICE_SECURE)
+    #include "cy_pra.h"
+#endif /* defined(CY_DEVICE_SECURE) */
 
 
 /*******************************************************************************
@@ -125,6 +129,7 @@ uint32_t cy_delay32kMs    = CY_DELAY_MS_OVERFLOW_THRESHOLD *
 * - Unlocks and disables WDT.
 * - Calls Cy_PDL_Init() function to define the driver library.
 * - Calls the Cy_SystemInit() function, if compiled from PSoC Creator.
+* - Calls \ref Cy_PRA_Init() for PSoC 64 devices.
 * - Calls \ref SystemCoreClockUpdate().
 * \endcond
 *******************************************************************************/
@@ -160,7 +165,7 @@ void SystemInit(void)
 #ifdef __CM0P_PRESENT
     #if (__CM0P_PRESENT == 0)
         /* Configure data register (as CM0p in deep sleep state) of IPC structure #7, reserved for the Deep-Sleep operations. */
-        REG_IPC_STRUCT_DATA(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT)) = (CY_STARTUP_CM0_DP_STATE << 
+        REG_IPC_STRUCT_DATA(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT)) = (CY_STARTUP_CM0_DP_STATE <<
                                                                     CY_STARTUP_IPC7_DP_OFFSET);
 
         /* Release IPC structure #7 to avoid deadlocks in case of SW or WDT reset during Deep-Sleep entering. */
@@ -233,6 +238,11 @@ void SystemInit(void)
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
+
+#if defined(CY_DEVICE_SECURE)
+    /* Initialize Protected Register Access driver */
+    Cy_PRA_Init();
+#endif /* defined(CY_DEVICE_SECURE) */
 }
 
 
