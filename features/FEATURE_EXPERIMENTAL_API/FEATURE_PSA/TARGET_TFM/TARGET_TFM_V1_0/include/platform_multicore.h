@@ -24,6 +24,8 @@
 #define IPC_PSA_CLIENT_REPLY_NOTIFY_MASK (1 << IPC_PSA_CLIENT_REPLY_INTR_STRUCT)
 #define IPC_PSA_CLIENT_REPLY_IPC_INTR    cpuss_interrupts_ipc_8_IRQn
 
+#define IPC_PSA_MAILBOX_LOCK_CHAN        (10)
+
 #define IPC_RX_RELEASE_MASK              (0)
 
 #define CY_IPC_NOTIFY_SHIFT              (16)
