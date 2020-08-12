@@ -61,14 +61,14 @@ add_subdirectory(targets)
 #
 # Configures the application
 #
-function(mbed_os_configure_app_target target)
+function(mbed_configure_app_target target)
     mbed_set_language_standard(${target})
 endfunction()
 
 #
 # Specifies linker script used for linking `target`.
 #
-function(mbed_os_target_linker_script target)
+function(mbed_set_mbed_target_linker_script target)
     get_property(mbed_target_startup GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
 
     # TODO: @mbed-os-tools This pre-build commands should get details from target + profile.
@@ -110,7 +110,7 @@ endfunction()
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
 #
-function(mbed_os_bin_hex target)
+function(mbed_generate_bin_hex target)
     get_property(elf_to_bin GLOBAL PROPERTY ELF2BIN)
     # TODO: @mbed-os-tools This post-build commands should get details from target + profile.
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
