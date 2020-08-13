@@ -6228,6 +6228,12 @@
         "mbed_rom_start": "0x10180000",
         "mbed_rom_size": "0x80000",
         "bootloader_supported": true,
+        "sectors": [
+            [
+                270008320,
+                512
+            ]
+        ],
         "forced_reset_timeout": 5,
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
