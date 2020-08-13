@@ -13,5 +13,10 @@
             "help": "The default will set start address to address 0",
             "value": "0"
         }
+    },
+    "target_overrides": {
+        "CY_EXTERNAL_WIFI_FW": {
+            "blockdevice": "other"
+        }
     }
 }
