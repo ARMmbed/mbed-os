@@ -25,6 +25,9 @@
     "target_overrides": {
         "MCU_PSOC6": {
             "rbp_internal_size": "7168"
+        },
+        "CY_EXTERNAL_WIFI_FW": {
+            "blockdevice": "other"
         }
     }
 }

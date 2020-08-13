@@ -5899,6 +5899,15 @@
         ],
         "public": false
     },
+    "CY_EXTERNAL_WIFI_FW": {
+        "public": false,
+        "macros_add": [
+            "CY_ENABLE_XIP_PROGRAM",
+            "CY_STORAGE_WIFI_DATA=\".cy_xip\"",
+            "CY_STORAGE_WIFI_DATA_OUTPUT=cy_xip",
+            "CY_EXT_WIFI_FW_STORAGE=QSPIF"
+        ]
+    },
     "CY8CPROTO_062_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
@@ -5979,7 +5988,8 @@
     },
     "CY8CPROTO_062S3_4343W": {
         "inherits": [
-            "MCU_PSOC6_M4"
+            "MCU_PSOC6_M4",
+            "CY_EXTERNAL_WIFI_FW"
         ],
         "features": [
             "BLE"
@@ -5988,9 +5998,6 @@
             "WHD",
             "4343W",
             "CYW43XXX"
-        ],
-        "components_remove": [
-            "QSPIF"
         ],
         "device_has_remove": [
             "ANALOGOUT"
@@ -6002,9 +6009,7 @@
         ],
         "macros_add": [
             "CY8C6245LQI_S3D72",
-            "CYBSP_WIFI_CAPABLE",
-            "CY_ENABLE_XIP_PROGRAM",
-            "CY_STORAGE_WIFI_DATA=\".cy_xip\""
+            "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6245LQI-S3D72",
         "mbed_ram_start": "0x08002000",
@@ -6013,8 +6018,7 @@
             "190E"
         ],
         "overrides": {
-            "network-default-interface-type": "WIFI",
-            "xip-enable": true
+            "network-default-interface-type": "WIFI"
         }
     },
     "CY8CKIT_062_WIFI_BT": {
