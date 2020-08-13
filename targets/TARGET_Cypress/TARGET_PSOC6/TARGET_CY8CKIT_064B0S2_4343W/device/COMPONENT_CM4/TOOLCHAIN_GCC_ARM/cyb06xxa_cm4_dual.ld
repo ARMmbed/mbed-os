@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cyb06xxa_cm4_dual.ld
-* \version 2.80
+* \version 2.90
 *
 * Linker file for the GNU C compiler.
 *
@@ -64,7 +64,7 @@ BOOT_HEADER_SIZE = 0x400;
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0xE8000
+  #define MBED_ROM_SIZE     0x000E8000
 #endif
 
 /* MBED_APP_SIZE is being  used by the bootloader build script and
@@ -180,6 +180,7 @@ SECTIONS
     /* Cortex-M4 application flash area */
     .text ORIGIN(flash) :
     {
+        /* Cortex-M4 flash vector table */
         . = ALIGN(4);
         __Vectors = . ;
         KEEP(*(.vectors))
