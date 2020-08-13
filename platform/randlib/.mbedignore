@@ -1,2 +1,2 @@
 linux/*
-test/*
+tests/unit/*
