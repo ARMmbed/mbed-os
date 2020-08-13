@@ -32,4 +32,3 @@ bool test_randLIB_randomise_base();
 #endif
 
 #endif // TEST_RANDLIB_H
-

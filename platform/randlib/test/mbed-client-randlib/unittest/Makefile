@@ -5,11 +5,11 @@ clean:
 else
 DIRS := $(filter-out ./, $(sort $(dir $(shell find . -name 'Makefile'))))
 
-all:	
+all:
 	for dir in $(DIRS); do \
 		cd $$dir; make gcov; cd ..;\
 	done
-	
+
 clean:
 	for dir in $(DIRS); do \
 		cd $$dir; make clean; cd ..;\
