@@ -11,7 +11,7 @@
 
 `greentea-client` is a client library for [the Greentea test tool](https://github.com/ARMmbed/mbed-os-tools/tree/master/packages/mbed-greentea) when used in an [Mbed OS](https://os.mbed.com/) project.
 
-This package implements the client side of the key-value protocol used  for communication between the device under test (DUT) and the host. The `Greentea` tool implements the protocol's host behavior. We use [utest](https://github.com/ARMmbed/mbed-os/blob/master/features/frameworks/utest/README.md) as our test harness.
+This package implements the client side of the key-value protocol used  for communication between the device under test (DUT) and the host. The `Greentea` tool implements the protocol's host behavior. We use [utest](https://github.com/ARMmbed/mbed-os/blob/master/TESTS/COMMON/utest/README.md) as our test harness.
 
 ```
       DUT  <--- serial port connection --->  host
