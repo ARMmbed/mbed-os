@@ -171,16 +171,6 @@ typedef enum {
 
     // Generic signals namings
     LED1        = PC_6,
-    LED2        = PC_6,
-    LED3        = PC_6,
-    LED4        = PC_6,
-
-
-
-    // This board does not have any buttons (aside from reset)
-    USER_BUTTON = PC_13,
-    // Standardized button names
-    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = STDIO_UART_TX,
     SERIAL_RX   = STDIO_UART_RX,
     USBTX       = STDIO_UART_TX,
@@ -192,8 +182,6 @@ typedef enum {
     SPI_SCK     = PA_5,
     SPI_CS      = PB_0,
     PWM_OUT     = PB_3,
-
-
 
     /**** OSCILLATOR pins ****/
     RCC_OSC32_EN = PC_15,
