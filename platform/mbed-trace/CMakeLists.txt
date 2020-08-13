@@ -15,4 +15,3 @@ set (MBED_TRACE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/source/mbed_trace.c)
 
 
 CREATE_LIBRARY(mbedTrace "${MBED_TRACE_SRC}" "")
-
