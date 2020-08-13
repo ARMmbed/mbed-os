@@ -15,7 +15,6 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [features/lorawan](./features/lorawan) - Revised BSD
 - [connectivity/lwipstack](./connectivity/lwipstack) - BSD-style, MIT-style
 - [connectivity/nanostack/sal-stack-nanostack](./connectivity/nanostack/sal-stack-nanostack) - BSD-3-Clause
-- [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
 - [features/unsupported](./features/unsupported) - MIT-style, BSD-style
 - [storage/blockdevice](./storage/blockdevice) - Apache 2.0, MIT
 - [storage/filesystem/littlefs](.storage/filesystem/littlefs) - [BSD-3-Clause](https://github.com/ARMmbed/littlefs/blob/master/LICENSE.md)
@@ -23,6 +22,7 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [rtos](./rtos) - MIT
 - [drivers](./drivers) - MIT
 - [TESTS/mbed_hal/trng/pithy](./TESTS/mbed_hal/trng/pithy) - BSD-3-Clause
+- [TESTS/COMMON/unity](./TESTS/COMMON/unity) - MIT
 - [tools/data/rpc](./tools/data/rpc) - MIT
 - [targets](./targets) - PBL, BSD-style, MIT-style, Zlib-style, Public-domain, BSD-3-Clause
 
