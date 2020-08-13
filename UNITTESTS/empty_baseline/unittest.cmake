@@ -8,7 +8,7 @@ set(unittest-includes ${unittest-includes}
   ..
   ../connectivity/mbedtls/include/mbedtls/
   ../connectivity/mbedtls/platform/inc/
-  ../platform/mbed-trace/mbed-trace/
+  ../platform/mbed-trace/include/mbed-trace/
 )
 
 set(unittest-test-sources
