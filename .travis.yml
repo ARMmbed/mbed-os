@@ -110,7 +110,7 @@ matrix:
 
     - &cmake-build-test
       stage: "CMake"
-      name: "CMake blinky example - develop"
+      name: "CMake blinky example - develop (K64F)"
       env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=K64F PROFILE=develop
       language: python
       python: 3.8
@@ -138,12 +138,36 @@ matrix:
         - cd build && cmake .. -GNinja -DCMAKE_BUILD_TYPE=${PROFILE} && cmake --build .
 
     - <<: *cmake-build-test
-      name: "CMake blinky example - release"
+      name: "CMake blinky example - release (K64F)"
       env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=K64F PROFILE=release
 
     - <<: *cmake-build-test
-      name: "CMake blinky example - debug"
+      name: "CMake blinky example - debug (K64F)"
       env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=K64F PROFILE=debug
+
+    - <<: *cmake-build-test
+      name: "CMake blinky example - develop (DISCO_L475VG_IOT01A)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=DISCO_L475VG_IOT01A PROFILE=develop
+
+    - <<: *cmake-build-test
+      name: "CMake blinky example - release (DISCO_L475VG_IOT01A)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=DISCO_L475VG_IOT01A PROFILE=release
+
+    - <<: *cmake-build-test
+      name: "CMake blinky example - debug (DISCO_L475VG_IOT01A)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=DISCO_L475VG_IOT01A PROFILE=debug
+
+    - <<: *cmake-build-test
+      name: "CMake blinky example - develop (NRF52840_DK)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=NRF52840_DK PROFILE=develop
+
+    - <<: *cmake-build-test
+      name: "CMake blinky example - release (NRF52840_DK)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=NRF52840_DK PROFILE=release
+
+    - <<: *cmake-build-test
+      name: "CMake blinky example - debug (NRF52840_DK)"
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-blinky TARGET_NAME=NRF52840_DK PROFILE=debug
 
 
     ### Docs Tests ###
