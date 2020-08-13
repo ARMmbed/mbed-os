@@ -513,7 +513,7 @@
    #endif /* CY_CFG_SYSCLK_ALTHF_BLE_ECO_TIME */&#xA;
 &#xA;
    #ifdef CY_CFG_SYSCLK_ALTHF_BLE_ECO_FREQ&#xA;
-       secure_config->altHFfreq = CY_CFG_SYSCLK_ALTHF_BLE_ECO_FREQ;&#xA;
+       secure_config->altHFclkFreq = CY_CFG_SYSCLK_ALTHF_BLE_ECO_FREQ;&#xA;
    #endif /* CY_CFG_SYSCLK_ALTHF_BLE_ECO_FREQ */&#xA;
 &#xA;
    #ifdef CY_CFG_SYSCLK_ALTHF_BLE_ECO_CLK_DIV&#xA;

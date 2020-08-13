@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_sema.h
-* \version 1.40.1
+* \version 1.40.2
 *
 * \brief
 * Header file for IPC SEM functions

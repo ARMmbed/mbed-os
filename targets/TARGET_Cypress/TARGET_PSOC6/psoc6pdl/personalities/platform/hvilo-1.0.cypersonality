@@ -39,10 +39,10 @@
     <!-- PDL documentation -->
     <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__sysclk__ilo.html" linkText="Open ILO Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
 
-    <ParamRange id="frequency" name="Frequency (kHz)" group="General" default="32000" min="32000" max="32000" resolution="1" visible="false" editable="false" desc="" />
-    <ParamChoice id="accuracy" name="Accuracy" group="General" default="30" visible="false" editable="false" desc="">
+    <ParamRange id="frequency" name="Frequency (kHz)" group="General" default="32768" min="32768" max="32768" resolution="1" visible="false" editable="false" desc="" />
+    <ParamChoice id="accuracy" name="Accuracy" group="General" default="10" visible="false" editable="false" desc="">
       <Entry name="5%" value="5" visible="true" />
-      <Entry name="30%" value="30" visible="true" />
+      <Entry name="10%" value="10" visible="true" />
     </ParamChoice>
     <ParamBool id="hibernate" name="Run In Hibernate Mode" group="General" default="true" visible="true" editable="true" desc="Enables the ILO working in Hibernate low power mode" />
     <ParamString id="frequencyInfo" name="Frequency" group="General" default="`${frequency / 1000.0 . &quot; kHz&quot;}`" visible="true" editable="false" desc="The nominal output frequency" />

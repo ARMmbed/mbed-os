@@ -1,6 +1,6 @@
  /***************************************************************************//**
 * \file cy_ble_clk.c
-* \version 3.40.1
+* \version 3.50
 *
 * \brief
 *  This driver provides the source code for API BLE ECO clock.
@@ -40,11 +40,14 @@ extern "C" {
 *       Internal functions
 *******************************************************************************/
 
+#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 static cy_en_ble_eco_status_t Cy_BLE_HAL_RcbRegRead(uint16_t addr, uint16_t *data);
 static cy_en_ble_eco_status_t Cy_BLE_HAL_RcbRegWrite(uint16_t addr, uint16_t data);
 static cy_en_ble_eco_status_t Cy_BLE_HAL_EcoSetTrim(uint32_t trim, uint32_t startUpTime);
 static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq_t ecoFreq,
                                                               cy_en_ble_eco_sys_clk_div_t sysClkDiv);
+#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
 
 /*******************************************************************************
 *       Internal Defines
@@ -202,6 +205,11 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
 *  CY_BLE_ECO_ALREADY_STARTED  | The BLE ECO clock is already started.
 *  CY_BLE_ECO_HARDWARE_ERROR   | The RCB or BLE ECO operation failed.
 *
+*  For the PSoC 64 devices, there are possible situations when the function returns
+*  the PRA error status code. This is because for PSoC 64 devices, the function
+*  uses the PRA driver to change the frequency value on the protected side.
+*  Refer to \ref cy_en_pra_status_t for more details.
+*
 *  \funcusage
 *  \snippet bleclk/snippet/main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
 *
@@ -219,6 +227,19 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
                                            uint32_t cLoad, uint32_t xtalStartUpTime, cy_en_ble_eco_voltage_reg_t voltageReg)
 {
     cy_en_ble_eco_status_t status = CY_BLE_ECO_SUCCESS;
+
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_stc_pra_ble_eco_config_t ecoConfigParams;
+    ecoConfigParams.freq = freq;
+    ecoConfigParams.sysClkDiv = sysClkDiv;
+    ecoConfigParams.cLoad = cLoad;
+    ecoConfigParams.xtalStartUpTime = xtalStartUpTime;
+    ecoConfigParams.voltageReg = voltageReg;
+
+    status = (cy_en_ble_eco_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                                                       CY_PRA_BLE_CLK_FUNC_ECO_CONFIGURE,
+                                                                       &ecoConfigParams);
+#else
     uint32_t temp = 0UL;
 
     if( (freq > CY_BLE_BLESS_ECO_FREQ_32MHZ) || (sysClkDiv > CY_BLE_SYS_ECO_CLK_DIV_8) ||
@@ -395,6 +416,7 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
             }
         }
     }
+#endif /* ((CY_CPU_CORTEX_M4) && (!defined(CY_DEVICE_SECURE))) */
 
     return(status);
 }
@@ -413,8 +435,12 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
 void Cy_BLE_EcoReset(void)
 {
     /* Initiate Soft Reset */
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_VOID(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_BLE_CLK_FUNC_ECO_RESET);
+#else
     BLE_BLESS_LL_CLK_EN |= BLE_BLESS_LL_CLK_EN_BLESS_RESET_Msk;
     cy_BleEcoClockFreqHz = 0UL; /* Reset the BLE ECO frequency */
+#endif
 }
 
 
@@ -545,6 +571,7 @@ void Cy_BLE_HAL_Init(void)
 }
 
 
+#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 /*******************************************************************************
 * Function Name: Cy_BLE_HAL_RcbRegRead
 ****************************************************************************//**
@@ -865,6 +892,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
     }
     return(status);
 }
+#endif  /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 #ifdef __cplusplus
 }

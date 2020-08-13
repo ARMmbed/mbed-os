@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.h
-* \version 5.10
+* \version 5.20
 *
 * Provides the function definitions for the power management API.
 *
@@ -724,6 +724,14 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>5.20</td>
+*     <td>
+*           Updated \ref Cy_SysPm_CpuEnterDeepSleep() function for
+*           the CYB06xx7 devices.
+*     </td>
+*     <td>Added CYB06xx7 device support.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="3">5.10</td>
 *     <td>
 *           Updated the following functions for the PSoC 64 devices:
@@ -1311,7 +1319,7 @@ extern "C" {
 #define CY_SYSPM_DRV_VERSION_MAJOR       5
 
 /** Driver minor version */
-#define CY_SYSPM_DRV_VERSION_MINOR       10
+#define CY_SYSPM_DRV_VERSION_MINOR       20
 
 /** SysPm driver identifier */
 #define CY_SYSPM_ID                      (CY_PDL_DRV_ID(0x10U))

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.c
-* \version 1.40.1
+* \version 1.40.2
 *
 *  Description:
 *   IPC Pipe Driver - This source file includes code for the Pipe layer on top
