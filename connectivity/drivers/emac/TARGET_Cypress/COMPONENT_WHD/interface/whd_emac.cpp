@@ -27,9 +27,14 @@
 #include "events/mbed_shared_queues.h"
 #include "whd_wlioctl.h"
 #include "whd_buffer_api.h"
+#include "wiced_resource.h"
 #include "cybsp_wifi.h"
 #include "emac_eapol.h"
 #include "cy_result.h"
+
+#if defined(CY_EXT_WIFI_FW_STORAGE) && !MBED_CONF_TARGET_XIP_ENABLE
+#include "cy_ext_wifi_fw_reserved_region_bd.h"
+#endif /* defined(CY_EXT_WIFI_FW_STORAGE) && !MBED_CONF_TARGET_XIP_ENABLE */
 
 #define NULL_MAC(a)  ( ( ( ( (unsigned char *)a )[0] ) == 0 ) && \
                        ( ( ( (unsigned char *)a )[1] ) == 0 ) && \
@@ -112,7 +117,17 @@ bool WHD_EMAC::power_up()
             WHD_EMAC &emac_other = WHD_EMAC::get_instance(interface_type == WHD_STA_ROLE ? WHD_AP_ROLE :
                                                           WHD_STA_ROLE);
             if (!emac_other.powered_up) {
+#if defined(CY_EXT_WIFI_FW_STORAGE) && !MBED_CONF_TARGET_XIP_ENABLE
+                CyReservedRegionBlockDevice *reserved_region_bd = cy_get_ext_wifi_fw_reserved_region_bd();
+                reserved_region_bd->init();
+
+                extern whd_resource_source_t cy_ext_wifi_fw_resource_ops;
+                res = cybsp_wifi_init_primary_extended(&ifp /* OUT */, &cy_ext_wifi_fw_resource_ops, NULL, NULL);
+
+                reserved_region_bd->deinit();
+#else
                 res = cybsp_wifi_init_primary(&ifp /* OUT */);
+#endif /* defined(CY_EXT_WIFI_FW_STORAGE) && !MBED_CONF_TARGET_XIP_ENABLE */
             } else {
                 ifp = emac_other.ifp;
             }
@@ -294,5 +309,14 @@ extern "C"
             emac.emac_link_state_cb(state_up);
         }
     }
+
+#if defined(CY_EXT_WIFI_FW_STORAGE) && !MBED_CONF_TARGET_XIP_ENABLE
+    resource_result_t platform_read_external_resource(const resource_hnd_t *resource, uint32_t offset, uint32_t maxsize, uint32_t *size, void *buffer)
+    {
+        CyReservedRegionBlockDevice *bd = cy_get_ext_wifi_fw_reserved_region_bd();
+        int status = bd->reserved_read(buffer, (mbed::bd_addr_t) resource->val.external_storage_context + offset, *size);
+        return (status == 0) ? RESOURCE_SUCCESS : RESOURCE_FILE_READ_FAIL;
+    }
+#endif /* defined(CY_EXT_WIFI_FW_STORAGE) && !MBED_CONF_TARGET_XIP_ENABLE */
 
 } // extern "C"
