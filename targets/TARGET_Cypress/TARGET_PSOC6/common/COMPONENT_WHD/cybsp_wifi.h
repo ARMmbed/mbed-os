@@ -55,10 +55,26 @@ extern "C" {
  * reinitialized, \ref cybsp_wifi_deinit must be called before calling this function
  * again.
  *
- * @param[out] interface Interface to be initialized
+ * @param[out] interface     Interface to be initialized
+ * @param[in]  resource_if   Pointer to resource interface to provide resources to the driver initialization process. Passing NULL will use the default.
+ * @param[in]  buffer_if     Pointer to a buffer interface to provide buffer related services to the driver instance. Passing NULL will use the default.
+ * @param[in]  netif_if      Pointer to a whd_netif_funcs_t to provide network stack services to the driver instance. Passing NULL will use the default.
  * @return CY_RSLT_SUCCESS for successful initialization or error if initialization failed.
  */
-cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface);
+cy_rslt_t cybsp_wifi_init_primary_extended(whd_interface_t* interface, whd_resource_source_t *resource_if, whd_buffer_funcs_t *buffer_if,
+        whd_netif_funcs_t *netif_if);
+
+/**
+ * Initializes the primary interface for the WiFi driver on the board using the default resource, buffer, and network interfaces.
+ * See cybsp_wifi_init_primary_extended() for more details.
+ *
+ * @param[out] interface     Interface to be initialized
+ * @return CY_RSLT_SUCCESS for successful initialization or error if initialization failed.
+ */
+static inline cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface)
+{
+    return cybsp_wifi_init_primary_extended(interface, NULL, NULL, NULL);
+}
 
 /** This function initializes and adds a secondary interface to the WiFi driver.
  *  @note This function does not initialize the WiFi driver or turn on the WiFi chip.

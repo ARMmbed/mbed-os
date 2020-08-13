@@ -83,7 +83,9 @@ extern "C" {
 
 static whd_driver_t whd_drv;
 
-static whd_buffer_funcs_t buffer_ops =
+extern whd_resource_source_t resource_ops;
+
+static whd_buffer_funcs_t buffer_if_default =
 {
     .whd_host_buffer_get = cy_host_buffer_get,
     .whd_buffer_release = cy_buffer_release,
@@ -93,12 +95,10 @@ static whd_buffer_funcs_t buffer_ops =
     .whd_buffer_add_remove_at_front = cy_buffer_add_remove_at_front,
 };
 
-static whd_netif_funcs_t netif_ops =
+static whd_netif_funcs_t netif_if_default =
 {
     .whd_network_process_ethernet_data = cy_network_process_ethernet_data,
 };
-
-extern whd_resource_source_t resource_ops;
 
 static cy_rslt_t sdio_try_send_cmd(const cyhal_sdio_t *sdio_object, cyhal_transfer_t direction, \
                           cyhal_sdio_command_t command, uint32_t argument, uint32_t* response)
@@ -170,7 +170,7 @@ static cy_rslt_t init_sdio_bus(void)
     if(result == CY_RSLT_SUCCESS)
     {
         cyhal_sdio_t* sdio_p = cybsp_get_wifi_sdio_obj();
-        cy_rslt_t result = cybsp_sdio_enumerate(sdio_p);
+        result = cybsp_sdio_enumerate(sdio_p);
         if(result == CY_RSLT_SUCCESS)
         {
             whd_sdio_config_t whd_sdio_config;
@@ -207,7 +207,8 @@ static cy_rslt_t init_sdio_bus(void)
     return result;
 }
 
-cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface)
+cy_rslt_t cybsp_wifi_init_primary_extended(whd_interface_t* interface, whd_resource_source_t *resource_if, whd_buffer_funcs_t *buffer_if,
+        whd_netif_funcs_t *netif_if)
 {
     whd_init_config_t whd_init_config;
     whd_init_config.thread_stack_size = (uint32_t)THREAD_STACK_SIZE;
@@ -215,7 +216,14 @@ cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface)
     whd_init_config.thread_priority =  (uint32_t)THREAD_PRIORITY;
     whd_init_config.country = COUNTRY;
 
-    cy_rslt_t result = whd_init(&whd_drv, &whd_init_config, &resource_ops, &buffer_ops, &netif_ops);
+    if (resource_if == NULL)
+        resource_if = &resource_ops;
+    if (buffer_if == NULL)
+        buffer_if = &buffer_if_default;
+    if (netif_if == NULL)
+        netif_if = &netif_if_default;
+
+    cy_rslt_t result = whd_init(&whd_drv, &whd_init_config, resource_if, buffer_if, netif_if);
     if(result == CY_RSLT_SUCCESS)
     {
         result = init_sdio_bus();
