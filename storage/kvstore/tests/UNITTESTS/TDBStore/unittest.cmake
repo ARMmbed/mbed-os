@@ -6,7 +6,7 @@
 set(unittest-includes ${unittest-includes}
   .
   ..
-  ../features/frameworks/mbed-trace/mbed-trace
+  ../platform/mbed-trace/mbed-trace
 )
 
 set(unittest-sources
@@ -14,7 +14,7 @@ set(unittest-sources
   ../storage/blockdevice/source/HeapBlockDevice.cpp
   ../storage/blockdevice/source/BufferedBlockDevice.cpp
   ../storage/kvstore/source/TDBStore.cpp
-  ../features/frameworks/mbed-trace/source/mbed_trace.c
+  ../platform/mbed-trace/source/mbed_trace.c
   stubs/mbed_atomic_stub.c
   stubs/mbed_assert_stub.cpp
   stubs/mbed_error.c
