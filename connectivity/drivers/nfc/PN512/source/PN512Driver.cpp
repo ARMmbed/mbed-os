@@ -16,7 +16,7 @@
 
 #include "PN512Driver.h"
 
-#include "nfc/stack/platform/nfc_debug.h"
+#include "stack/platform/nfc_debug.h"
 
 using namespace mbed;
 using namespace mbed::nfc;
