@@ -5893,7 +5893,6 @@
         ],
         "macros_add": [
             "MCU_PSOC6_M4",
-            "CY_RTOS_AWARE",
             "CY_USING_HAL",
             "MBED_TICKLESS"
         ],
