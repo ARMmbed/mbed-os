@@ -265,7 +265,7 @@ LR_SFLASH_RTOC_2 SFLASH_RTOC_2_START SFLASH_RTOC_2_SIZE
 ; Places the code in the Execute in Place (XIP) section. See the smif driver documentation for details.
 LR_EROM XIP_START XIP_SIZE
 {
-    .cy_xip +0
+    cy_xip +0
     {
         * (.cy_xip)
     }

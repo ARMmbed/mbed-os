@@ -198,6 +198,8 @@ define block HEAP       with expanding size, alignment = 8, minimum size = __ICF
 define block CM0P_RO with size = FLASH_CM0P_SIZE  { readonly section .cy_m0p_image };
 define block RO     {first section .intvec, readonly};
 
+define block cy_xip { section .cy_xip };
+
 /*-Initializations-*/
 initialize by copy { readwrite };
 do not initialize  { section .noinit, section .intvec_ram };
@@ -235,7 +237,7 @@ place at start of IROM1_region  { block RO };
 ".cy_efuse" : place at start of IROM8_region  { section .cy_efuse };
 
 /* Execute in Place (XIP). See the smif driver documentation for details. */
-".cy_xip" : place at start of EROM1_region  { section .cy_xip };
+"cy_xip" : place at start of EROM1_region  { block cy_xip };
 
 /* RAM */
 place at start of IRAM1_region  { readwrite section .intvec_ram};
