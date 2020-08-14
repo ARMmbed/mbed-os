@@ -1,5 +1,5 @@
-/*
- * Copyright (c) , Arm Limited and affiliates.
+#[[
+ * Copyright (c) 2018, Arm Limited and affiliates
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +13,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+]]
 
-#include "system/LoRaWANTimer.h"
+# Unit test suite name
+set(TEST_SUITE_NAME "lorawan_LoRaMacChannelPlan")
 
-namespace LoRaWANTimer_stub {
-extern lorawan_time_t time_value;
-extern bool call_cb_immediately;
-}
+# Source files
+set(unittest-sources
+  ../connectivity/lorawan/lorastack/mac/LoRaMacChannelPlan.cpp
+)
+
+# Add test specific include paths
+set(unittest-includes ${unittest-includes}
+  target_h
+  ../connectivity/lorawan/lorastack/mac
+)
+
+# Test & stub files
+set(unittest-test-sources
+  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaMacChannelPlan.cpp
+  stubs/LoRaPHY_stub.cpp
+)
+
+set(unittest-test-flags
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+)
