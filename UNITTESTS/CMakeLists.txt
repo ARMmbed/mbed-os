@@ -151,7 +151,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack"
   "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack/mac"
   "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack/phy"
-  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/system"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan"
   "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls"
   "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls/include"
 )

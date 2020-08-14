@@ -20,7 +20,7 @@ set(TEST_SUITE_NAME "lorawan_LoRaWANStack")
 
 # Source files
 set(unittest-sources
-  ../connectivity/lorawan/LoRaWANStack.cpp
+  ../connectivity/lorawan/source/LoRaWANStack.cpp
 )
 
 # Add test specific include paths

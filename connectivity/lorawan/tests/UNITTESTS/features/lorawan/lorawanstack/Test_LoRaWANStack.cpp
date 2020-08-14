@@ -22,7 +22,7 @@
 #include "LoRaPHY_stub.h"
 #include "LoRaMac_stub.h"
 #include "equeue_stub.h"
-#include "lorawan_data_structures.h"
+#include "system/lorawan_data_structures.h"
 
 static uint8_t batt_level = 0;
 
