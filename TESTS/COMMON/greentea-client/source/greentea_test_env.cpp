@@ -26,29 +26,29 @@
 /**
  *   Generic test suite transport protocol keys
  */
-const char* GREENTEA_TEST_ENV_END = "end";
-const char* GREENTEA_TEST_ENV_EXIT = "__exit";
-const char* GREENTEA_TEST_ENV_SYNC = "__sync";
-const char* GREENTEA_TEST_ENV_TIMEOUT = "__timeout";
-const char* GREENTEA_TEST_ENV_HOST_TEST_NAME = "__host_test_name";
-const char* GREENTEA_TEST_ENV_HOST_TEST_VERSION = "__version";
+const char *GREENTEA_TEST_ENV_END = "end";
+const char *GREENTEA_TEST_ENV_EXIT = "__exit";
+const char *GREENTEA_TEST_ENV_SYNC = "__sync";
+const char *GREENTEA_TEST_ENV_TIMEOUT = "__timeout";
+const char *GREENTEA_TEST_ENV_HOST_TEST_NAME = "__host_test_name";
+const char *GREENTEA_TEST_ENV_HOST_TEST_VERSION = "__version";
 
 /**
  *   Test suite success code strings
  */
-const char* GREENTEA_TEST_ENV_SUCCESS = "success";
-const char* GREENTEA_TEST_ENV_FAILURE = "failure";
+const char *GREENTEA_TEST_ENV_SUCCESS = "success";
+const char *GREENTEA_TEST_ENV_FAILURE = "failure";
 
 /**
  *   Test case transport protocol start/finish keys
  */
-const char* GREENTEA_TEST_ENV_TESTCASE_NAME = "__testcase_name";
-const char* GREENTEA_TEST_ENV_TESTCASE_COUNT = "__testcase_count";
-const char* GREENTEA_TEST_ENV_TESTCASE_START = "__testcase_start";
-const char* GREENTEA_TEST_ENV_TESTCASE_FINISH = "__testcase_finish";
-const char* GREENTEA_TEST_ENV_TESTCASE_SUMMARY = "__testcase_summary";
+const char *GREENTEA_TEST_ENV_TESTCASE_NAME = "__testcase_name";
+const char *GREENTEA_TEST_ENV_TESTCASE_COUNT = "__testcase_count";
+const char *GREENTEA_TEST_ENV_TESTCASE_START = "__testcase_start";
+const char *GREENTEA_TEST_ENV_TESTCASE_FINISH = "__testcase_finish";
+const char *GREENTEA_TEST_ENV_TESTCASE_SUMMARY = "__testcase_summary";
 // Code Coverage (LCOV)  transport protocol keys
-const char* GREENTEA_TEST_ENV_LCOV_START = "__coverage_start";
+const char *GREENTEA_TEST_ENV_LCOV_START = "__coverage_start";
 
 /**
  *   Auxilary functions
@@ -63,7 +63,8 @@ static void greentea_notify_version();
  *           GREENTEA_SETUP and GREENTEA_SETUP_UUID.
  *           This function is blocking.
  */
-void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char *buffer, size_t size) {
+void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char *buffer, size_t size)
+{
     greentea_metrics_setup();
     // Key-value protocol handshake function. Waits for {{__sync;...}} message
     // Sync preamble: "{{__sync;0dad4a9d-59a3-4aec-810d-d5fb09d852c1}}"
@@ -96,7 +97,8 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
  *           and add host test's callback handlers to main event loop
  *           This function is blocking.
  */
-extern "C" void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
+extern "C" void GREENTEA_SETUP(const int timeout, const char *host_test_name)
+{
 #if ! defined(NO_GREENTEA)
     char _value[GREENTEA_UUID_LENGTH] = {0};
     _GREENTEA_SETUP_COMMON(timeout, host_test_name, _value, GREENTEA_UUID_LENGTH);
@@ -111,7 +113,8 @@ extern "C" void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
  *           This function differs from GREENTEA_SETUP because it allows you to
  *           preserve the UUID sent during the sync process.
  */
-void GREENTEA_SETUP_UUID(const int timeout, const char *host_test_name, char *buffer, size_t size) {
+void GREENTEA_SETUP_UUID(const int timeout, const char *host_test_name, char *buffer, size_t size)
+{
     _GREENTEA_SETUP_COMMON(timeout, host_test_name, buffer, size);
 }
 
@@ -119,7 +122,8 @@ void GREENTEA_SETUP_UUID(const int timeout, const char *host_test_name, char *bu
  *  \result Test suite result
  *  \details If __exit is not received by host side we will assume TIMEOUT
  */
-void GREENTEA_TESTSUITE_RESULT(const int result) {
+void GREENTEA_TESTSUITE_RESULT(const int result)
+{
     greentea_notify_completion(result);
 }
 
@@ -130,7 +134,8 @@ void GREENTEA_TESTSUITE_RESULT(const int result) {
 /** \brief Notify host side that test case started
  *  \details test_case_name Test case name
  */
-void GREENTEA_TESTCASE_START(const char *test_case_name) {
+void GREENTEA_TESTCASE_START(const char *test_case_name)
+{
     greentea_send_kv(GREENTEA_TEST_ENV_TESTCASE_START, test_case_name);
 }
 
@@ -138,7 +143,8 @@ void GREENTEA_TESTCASE_START(const char *test_case_name) {
  *  \details test_case_name Test case name
  *  \details result Test case result (0 -OK, non zero...)
  */
-void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, const size_t failed) {
+void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, const size_t failed)
+{
     greentea_send_kv(GREENTEA_TEST_ENV_TESTCASE_FINISH, test_case_name, passes, failed);
 }
 
@@ -174,7 +180,8 @@ extern bool coverage_report;
  * \param path to file with code coverage payload (set by gcov instrumentation)
  *
  */
-void greentea_notify_coverage_start(const char *path) {
+void greentea_notify_coverage_start(const char *path)
+{
     printf("{{%s;%s;", GREENTEA_TEST_ENV_LCOV_START, path);
 }
 
@@ -192,7 +199,8 @@ void greentea_notify_coverage_start(const char *path) {
  *         Companion function greentea_notify_coverage_start() defines code coverage message structure
  *
  */
-void greentea_notify_coverage_end() {
+void greentea_notify_coverage_end()
+{
     printf("}}" NL);
 }
 
@@ -291,7 +299,8 @@ static void greentea_write_int(const int val)
  * \param value Message payload, string value
  *
  */
-extern "C" void greentea_send_kv(const char *key, const char *val) {
+extern "C" void greentea_send_kv(const char *key, const char *val)
+{
     if (key && val) {
         greentea_write_preamble();
         greentea_write_string(key);
@@ -314,7 +323,8 @@ extern "C" void greentea_send_kv(const char *key, const char *val) {
  * \param value Message payload, integer value
  *
  */
-void greentea_send_kv(const char *key, const int val) {
+void greentea_send_kv(const char *key, const int val)
+{
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
@@ -338,7 +348,8 @@ void greentea_send_kv(const char *key, const int val) {
  * \param result Send additional integer formatted data
  *
  */
-void greentea_send_kv(const char *key, const char *val, const int result) {
+void greentea_send_kv(const char *key, const char *val, const int result)
+{
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
@@ -371,7 +382,8 @@ void greentea_send_kv(const char *key, const char *val, const int result) {
  * \param failures Send additional integer formatted data
  *
  */
-void greentea_send_kv(const char *key, const char *val, const int passes, const int failures) {
+void greentea_send_kv(const char *key, const char *val, const int passes, const int failures)
+{
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
@@ -404,7 +416,8 @@ void greentea_send_kv(const char *key, const char *val, const int passes, const 
  * \param failures Send additional integer formatted data
  *
  */
-void greentea_send_kv(const char *key, const int passes, const int failures) {
+void greentea_send_kv(const char *key, const int passes, const int failures)
+{
     if (key) {
         greentea_write_preamble();
         greentea_write_string(key);
@@ -431,7 +444,8 @@ void greentea_send_kv(const char *key, const int passes, const int failures) {
  * \param timeout Test suite timeout in seconds
  *
  */
-static void greentea_notify_timeout(const int timeout) {
+static void greentea_notify_timeout(const int timeout)
+{
     greentea_send_kv(GREENTEA_TEST_ENV_TIMEOUT, timeout);
 }
 
@@ -449,7 +463,8 @@ static void greentea_notify_timeout(const int timeout) {
  *
  * \param host_test_name Host test name, host test will be loaded by mbedhtrun
  */
-static void greentea_notify_hosttest(const char *host_test_name) {
+static void greentea_notify_hosttest(const char *host_test_name)
+{
     greentea_send_kv(GREENTEA_TEST_ENV_HOST_TEST_NAME, host_test_name);
 }
 
@@ -470,7 +485,8 @@ static void greentea_notify_hosttest(const char *host_test_name) {
  * \param result Test suite result from DUT (0 - FAIl, !0 - SUCCESS)
  *
  */
-static void greentea_notify_completion(const int result) {
+static void greentea_notify_completion(const int result)
+{
     const char *val = result ? GREENTEA_TEST_ENV_SUCCESS : GREENTEA_TEST_ENV_FAILURE;
 #ifdef MBED_CFG_DEBUG_OPTIONS_COVERAGE
     coverage_report = true;
@@ -485,7 +501,8 @@ static void greentea_notify_completion(const int result) {
 /**
  * \brief Send to master greentea-client version
  */
-static void greentea_notify_version() {
+static void greentea_notify_version()
+{
     greentea_send_kv(GREENTEA_TEST_ENV_HOST_TEST_VERSION, MBED_GREENTEA_CLIENT_VERSION_STRING);
 }
 
@@ -552,7 +569,8 @@ enum Token {
  * \return Next character from the stream or EOF if stream has ended.
  *
  */
-extern "C" int greentea_getc() {
+extern "C" int greentea_getc()
+{
     uint8_t c;
     read(STDOUT_FILENO, &c, 1);
     return c;
@@ -565,7 +583,8 @@ extern "C" int greentea_getc() {
  * \return The number of bytes written
  *
  */
-extern "C" void greentea_putc(int c) {
+extern "C" void greentea_putc(int c)
+{
     uint8_t _c = c;
     write(STDOUT_FILENO, &_c, 1);
 }
@@ -586,26 +605,27 @@ extern "C" void greentea_putc(int c) {
  *
  */
 extern "C" int greentea_parse_kv(char *out_key,
-                      char *out_value,
-                      const int out_key_size,
-                      const int out_value_size) {
+                                 char *out_value,
+                                 const int out_key_size,
+                                 const int out_value_size)
+{
     getNextToken(0, 0);
     while (1) {
         switch (CurTok) {
-        case tok_eof:
-            return 0;
+            case tok_eof:
+                return 0;
 
-        case tok_open:
-            if (HandleKV(out_key, out_value, out_key_size, out_value_size)) {
-                // We've found {{ KEY ; VALUE }} expression
-                return 1;
-            }
-            break;
+            case tok_open:
+                if (HandleKV(out_key, out_value, out_key_size, out_value_size)) {
+                    // We've found {{ KEY ; VALUE }} expression
+                    return 1;
+                }
+                break;
 
-        default:
-            // Load next token and pray...
-            getNextToken(0, 0);
-            break;
+            default:
+                // Load next token and pray...
+                getNextToken(0, 0);
+                break;
         }
     }
 }
@@ -622,7 +642,8 @@ extern "C" int greentea_parse_kv(char *out_key,
  *  \param str_size Size of 'str' parameter in bytes (characters)
  *
  */
-static int getNextToken(char *str, const int str_size) {
+static int getNextToken(char *str, const int str_size)
+{
     return CurTok = gettok(str, str_size);
 }
 
@@ -639,9 +660,10 @@ static int getNextToken(char *str, const int str_size) {
  *  \return Return 1 if character is allowed punctuation character, otherwise return false
  *
  */
-static int ispunctuation(int c) {
+static int ispunctuation(int c)
+{
     static const char punctuation[] = "_-!@#$%^&*()=+:<>,./?\\\"'";  // No ";{}"
-    for (size_t i=0; i< sizeof(punctuation); ++i) {
+    for (size_t i = 0; i < sizeof(punctuation); ++i) {
         if (c == punctuation[i]) {
             return 1;
         }
@@ -668,7 +690,8 @@ static int ispunctuation(int c) {
  *  \return Return 1 if character is allowed punctuation character, otherwise return false
  *
  */
-static int isstring(int c) {
+static int isstring(int c)
+{
     return (isalpha(c) ||
             isdigit(c) ||
             isspace(c) ||
@@ -694,7 +717,8 @@ static int isstring(int c) {
  *  \return Return #Token enum value used by parser to check for key-value occurrences
  *
  */
-static int gettok(char *out_str, const int str_size) {
+static int gettok(char *out_str, const int str_size)
+{
     static int LastChar = '!';
     static int str_idx = 0;
 
@@ -737,17 +761,18 @@ static int gettok(char *out_str, const int str_size) {
     }
 
     // close ::= '}'
-	if (LastChar == '}') {
-		LastChar = greentea_getc();
-		if (LastChar == '}') {
-			greentea_getc(); //offset the extra '\n' send by Greentea python tool
-			LastChar = '!';
-			return tok_close;
-		}
-	}
+    if (LastChar == '}') {
+        LastChar = greentea_getc();
+        if (LastChar == '}') {
+            greentea_getc(); //offset the extra '\n' send by Greentea python tool
+            LastChar = '!';
+            return tok_close;
+        }
+    }
 
-    if (LastChar == EOF)
+    if (LastChar == EOF) {
         return tok_eof;
+    }
 
     // Otherwise, just return the character as its ascii value.
     int ThisChar = LastChar;
@@ -776,7 +801,8 @@ static int gettok(char *out_str, const int str_size) {
 static int HandleKV(char *out_key,
                     char *out_value,
                     const int out_key_size,
-                    const int out_value_size) {
+                    const int out_value_size)
+{
     // We already started with <open>
     if (getNextToken(out_key, out_key_size) == tok_string) {
         if (getNextToken(0, 0) == tok_semicolon) {

@@ -73,8 +73,7 @@ utest::v1::status_t teardown_case_1(const Case *const source, const size_t passe
     return utest::v1::status_t(3);
 }
 
-Case cases[] =
-{
+Case cases[] = {
     Case("Case 1", handler_case_0, teardown_case_0),
     Case("Case 2", handler_case_1, teardown_case_1),
     Case("Case 3", handler_case_2, teardown_case_2)

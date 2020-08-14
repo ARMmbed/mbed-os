@@ -36,10 +36,10 @@
 #endif
 
 #ifndef UTEST_ENTER_CRITICAL_SECTION
-#	define UTEST_ENTER_CRITICAL_SECTION utest_v1_enter_critical_section()
+#   define UTEST_ENTER_CRITICAL_SECTION utest_v1_enter_critical_section()
 #endif
 #ifndef UTEST_LEAVE_CRITICAL_SECTION
-#	define UTEST_LEAVE_CRITICAL_SECTION utest_v1_leave_critical_section()
+#   define UTEST_LEAVE_CRITICAL_SECTION utest_v1_leave_critical_section()
 #endif
 
 #ifdef __cplusplus

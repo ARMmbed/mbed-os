@@ -53,8 +53,8 @@ void conditional_test_skip_test()
 
 // Cases --------------------------------------------------------------------------------------------------------------
 Case cases[] = {
-        Case("Unconditional test skip macro test", unconditional_test_skip_test),
-        Case("Conditional test skip macro test",   conditional_test_skip_test, test_skip_case_teardown),
+    Case("Unconditional test skip macro test", unconditional_test_skip_test),
+    Case("Conditional test skip macro test",   conditional_test_skip_test, test_skip_case_teardown),
 };
 
 // Specification: Setup & Teardown ------------------------------------------------------------------------------------

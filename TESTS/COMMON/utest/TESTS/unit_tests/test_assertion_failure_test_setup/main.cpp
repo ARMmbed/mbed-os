@@ -28,8 +28,7 @@ void never_call_case()
 {
     TEST_FAIL_MESSAGE("Case handler should have never been called!");
 }
-Case cases[] =
-{
+Case cases[] = {
     Case("dummy test", never_call_case)
 };
 
@@ -59,9 +58,8 @@ void test_failure_handler(const failure_t failure)
 
         // pretend to greentea that the test was successful
         greentea_test_teardown_handler(1, 0, REASON_NONE);
-        while(1) ;
-    }
-    else {
+        while (1) ;
+    } else {
         selftest_handlers.test_failure(failure);
     }
 }

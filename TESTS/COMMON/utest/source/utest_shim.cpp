@@ -52,13 +52,12 @@ static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, ti
         ticker_callback = callback;
         // fire the interrupt in 1000us * delay_ms
         utest_timeout_object->attach(ticker_handler, milliseconds(delay_ms));
-    }
-    else {
+    } else {
         minimal_callback = callback;
     }
 
     // return a bogus handle
-    return (void*)1;
+    return (void *)1;
 }
 static int32_t utest_us_ticker_cancel(void *handle)
 {
@@ -70,11 +69,9 @@ static int32_t utest_us_ticker_cancel(void *handle)
 static int32_t utest_us_ticker_run()
 {
     UTEST_LOG_FUNCTION();
-    while(1)
-    {
+    while (1) {
         // check if a new callback has been set
-        if (minimal_callback)
-        {
+        if (minimal_callback) {
             // copy the callback
             utest_v1_harness_callback_t callback = minimal_callback;
             // reset the shared callback
@@ -87,16 +84,15 @@ static int32_t utest_us_ticker_run()
 
 
 extern "C" {
-static const utest_v1_scheduler_t utest_v1_scheduler =
-{
-    utest_us_ticker_init,
-    utest_us_ticker_post,
-    utest_us_ticker_cancel,
-    utest_us_ticker_run
-};
-utest_v1_scheduler_t utest_v1_get_scheduler()
-{
-    UTEST_LOG_FUNCTION();
-    return utest_v1_scheduler;
-}
+    static const utest_v1_scheduler_t utest_v1_scheduler = {
+        utest_us_ticker_init,
+        utest_us_ticker_post,
+        utest_us_ticker_cancel,
+        utest_us_ticker_run
+    };
+    utest_v1_scheduler_t utest_v1_get_scheduler()
+    {
+        UTEST_LOG_FUNCTION();
+        return utest_v1_scheduler;
+    }
 }

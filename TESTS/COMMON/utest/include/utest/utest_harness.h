@@ -35,62 +35,61 @@ namespace utest {
 /** @{*/
 namespace v1 {
 
-    /** Test Harness.
+/** Test Harness.
+ *
+ * This class runs a test specification for you and calls all required handlers.
+ * The harness executes the test specification in an asynchronous fashion, therefore
+ * `run()` returns immediately.
+ *
+ * @note In case of an test abort, the harness will busy-wait and never finish.
+ */
+class Harness {
+public:
+    /// Runs a test specification
+    /// @retval `true`  if the specification can be run
+    /// @retval `false` if another specification is currently running
+    static bool run(const Specification &specification);
+
+    /// @cond
+    __deprecated_message("Start case selection is done by returning the index from the test setup handler!")
+    static bool run(const Specification &specification, size_t start_case);
+    /// @endcond
+
+    /// @returns `true` if a test specification is being executed, `false` otherwise
+    static bool is_busy();
+
+    /// Sets the scheduler to be used.
+    /// @return `true` if scheduler is properly specified (all functions non-null).
+    static bool set_scheduler(utest_v1_scheduler_t scheduler);
+
+    /** Call this function in the asynchronous callback that you have been waiting for.
      *
-     * This class runs a test specification for you and calls all required handlers.
-     * The harness executes the test specification in an asynchronous fashion, therefore
-     * `run()` returns immediately.
+     * You can only validate a callback once, calling this function when no callback is expected
+     * has no side effects.
+     * After callback validation, the next test case is scheduled.
      *
-     * @note In case of an test abort, the harness will busy-wait and never finish.
+     * You may specify additional test case attributes with this callback.
+     * So for example, you may delay the decision to repeat an asynchronous test case until the callback
+     * needs to be validated.
+     *
+     * However, be aware, that only the repeat attributes can be modified and the usual arbitration rules apply.
+     * The modified case attributes are only valid until the case handler returns updated attributes.
+     *
+     * @param control   the test case attribute to be added to the existing attributes.
      */
-    class Harness
-    {
-    public:
-        /// Runs a test specification
-        /// @retval `true`  if the specification can be run
-        /// @retval `false` if another specification is currently running
-        static bool run(const Specification& specification);
+    static void validate_callback(const control_t control = control_t());
 
-        /// @cond
-        __deprecated_message("Start case selection is done by returning the index from the test setup handler!")
-        static bool run(const Specification& specification, size_t start_case);
-        /// @endcond
+    /// Raising a failure causes the failure to be counted and the failure handler to be called.
+    /// Further action then depends on its return state.
+    static void raise_failure(const failure_reason_t reason);
 
-        /// @returns `true` if a test specification is being executed, `false` otherwise
-        static bool is_busy();
-
-        /// Sets the scheduler to be used.
-        /// @return `true` if scheduler is properly specified (all functions non-null).
-        static bool set_scheduler(utest_v1_scheduler_t scheduler);
-
-        /** Call this function in the asynchronous callback that you have been waiting for.
-         *
-         * You can only validate a callback once, calling this function when no callback is expected
-         * has no side effects.
-         * After callback validation, the next test case is scheduled.
-         *
-         * You may specify additional test case attributes with this callback.
-         * So for example, you may delay the decision to repeat an asynchronous test case until the callback
-         * needs to be validated.
-         *
-         * However, be aware, that only the repeat attributes can be modified and the usual arbitration rules apply.
-         * The modified case attributes are only valid until the case handler returns updated attributes.
-         *
-         * @param control   the test case attribute to be added to the existing attributes.
-         */
-        static void validate_callback(const control_t control = control_t());
-
-        /// Raising a failure causes the failure to be counted and the failure handler to be called.
-        /// Further action then depends on its return state.
-        static void raise_failure(const failure_reason_t reason);
-
-    protected:
-        static void run_next_case();
-        static void handle_timeout();
-        static void schedule_next_case();
-    private:
-        static void notify_testcases();
-    };
+protected:
+    static void run_next_case();
+    static void handle_timeout();
+    static void schedule_next_case();
+private:
+    static void notify_testcases();
+};
 
 }   // namespace v1
 }   // namespace utest

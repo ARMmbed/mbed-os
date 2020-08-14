@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #ifdef UTEST_STACK_TRACE
- 
+
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -33,14 +33,14 @@ void utest_trace_initialise()
 {
     total_calls = 0;
     trace_index = 0;
-    for(unsigned i = 0; i < UTEST_MAX_BACKTRACE; i++) {
-        utest_trace[i].clear();        
+    for (unsigned i = 0; i < UTEST_MAX_BACKTRACE; i++) {
+        utest_trace[i].clear();
     }
 }
 
 void utest_add_to_trace(char *func_name)
-{    
-    utest_trace[trace_index] = std::string(func_name);   
+{
+    utest_trace[trace_index] = std::string(func_name);
     trace_index = (trace_index + 1 == UTEST_MAX_BACKTRACE) ? 0 : trace_index + 1;
     total_calls ++;
 }
@@ -53,7 +53,7 @@ void utest_dump_trace()
     utest_printf("Utest back trace: Total calls logged = %u.\n", total_calls);
     utest_printf("==================================================================\n");
     while (current != trace_index) {
-    
+
         utest_printf("%u > %s\n", current, utest_trace[current].c_str());
         current = (current == 0) ? UTEST_MAX_BACKTRACE - 1 : current - 1;
     }

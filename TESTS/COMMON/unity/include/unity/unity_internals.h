@@ -53,65 +53,65 @@
  * at this stage in the trnslation of the C program.
  * Therefore, infer it from UINT_MAX if possible. */
 #ifndef UNITY_INT_WIDTH
-  #ifdef UINT_MAX
-    #if (UINT_MAX == 0xFFFF)
-      #define UNITY_INT_WIDTH (16)
-    #elif (UINT_MAX == 0xFFFFFFFF)
-      #define UNITY_INT_WIDTH (32)
-    #elif (UINT_MAX == 0xFFFFFFFFFFFFFFFF)
-      #define UNITY_INT_WIDTH (64)
-    #endif
-  #endif
+#ifdef UINT_MAX
+#if (UINT_MAX == 0xFFFF)
+#define UNITY_INT_WIDTH (16)
+#elif (UINT_MAX == 0xFFFFFFFF)
+#define UNITY_INT_WIDTH (32)
+#elif (UINT_MAX == 0xFFFFFFFFFFFFFFFF)
+#define UNITY_INT_WIDTH (64)
+#endif
+#endif
 #endif
 #ifndef UNITY_INT_WIDTH
-  #define UNITY_INT_WIDTH (32)
+#define UNITY_INT_WIDTH (32)
 #endif
 
 /* Determine the size of a long, if not already specified,
  * by following the process used above to define
  * UNITY_INT_WIDTH. */
 #ifndef UNITY_LONG_WIDTH
-  #ifdef ULONG_MAX
-    #if (ULONG_MAX == 0xFFFF)
-      #define UNITY_LONG_WIDTH (16)
-    #elif (ULONG_MAX == 0xFFFFFFFF)
-      #define UNITY_LONG_WIDTH (32)
-    #elif (ULONG_MAX == 0xFFFFFFFFFFFFFFFF)
-      #define UNITY_LONG_WIDTH (64)
-    #endif
-  #endif
+#ifdef ULONG_MAX
+#if (ULONG_MAX == 0xFFFF)
+#define UNITY_LONG_WIDTH (16)
+#elif (ULONG_MAX == 0xFFFFFFFF)
+#define UNITY_LONG_WIDTH (32)
+#elif (ULONG_MAX == 0xFFFFFFFFFFFFFFFF)
+#define UNITY_LONG_WIDTH (64)
+#endif
+#endif
 #endif
 #ifndef UNITY_LONG_WIDTH
-  #define UNITY_LONG_WIDTH (32)
+#define UNITY_LONG_WIDTH (32)
 #endif
 
 /* Determine the size of a pointer, if not already specified,
  * by following the process used above to define
  * UNITY_INT_WIDTH. */
 #ifndef UNITY_POINTER_WIDTH
-  #ifdef UINTPTR_MAX
-    #if (UINTPTR_MAX+0 <= 0xFFFF)
-      #define UNITY_POINTER_WIDTH (16)
-    #elif (UINTPTR_MAX+0 <= 0xFFFFFFFF)
-      #define UNITY_POINTER_WIDTH (32)
-    #elif (UINTPTR_MAX+0 <= 0xFFFFFFFFFFFFFFFF)
-      #define UNITY_POINTER_WIDTH (64)
-    #endif
-  #endif
+#ifdef UINTPTR_MAX
+#if (UINTPTR_MAX+0 <= 0xFFFF)
+#define UNITY_POINTER_WIDTH (16)
+#elif (UINTPTR_MAX+0 <= 0xFFFFFFFF)
+#define UNITY_POINTER_WIDTH (32)
+#elif (UINTPTR_MAX+0 <= 0xFFFFFFFFFFFFFFFF)
+#define UNITY_POINTER_WIDTH (64)
+#endif
+#endif
 #endif
 #ifndef UNITY_POINTER_WIDTH
-  #ifdef INTPTR_MAX
-    #if (INTPTR_MAX+0 <= 0x7FFF)
-      #define UNITY_POINTER_WIDTH (16)
-    #elif (INTPTR_MAX+0 <= 0x7FFFFFFF)
-      #define UNITY_POINTER_WIDTH (32)
-    #elif (INTPTR_MAX+0 <= 0x7FFFFFFFFFFFFFFF)
-      #define UNITY_POINTER_WIDTH (64)
-    #endif
-  #endif
+#ifdef INTPTR_MAX
+#if (INTPTR_MAX+0 <= 0x7FFF)
+#define UNITY_POINTER_WIDTH (16)
+#elif (INTPTR_MAX+0 <= 0x7FFFFFFF)
+#define UNITY_POINTER_WIDTH (32)
+#elif (INTPTR_MAX+0 <= 0x7FFFFFFFFFFFFFFF)
+#define UNITY_POINTER_WIDTH (64)
+#endif
+#endif
 #endif
 #ifndef UNITY_POINTER_WIDTH
-  #define UNITY_POINTER_WIDTH UNITY_LONG_WIDTH
+#define UNITY_POINTER_WIDTH UNITY_LONG_WIDTH
 #endif
 
 /*-------------------------------------------------------
@@ -119,21 +119,21 @@
  *-------------------------------------------------------*/
 
 #if (UNITY_INT_WIDTH == 32)
-    typedef unsigned char   _UU8;
-    typedef unsigned short  _UU16;
-    typedef unsigned int    _UU32;
-    typedef signed char     _US8;
-    typedef signed short    _US16;
-    typedef signed int      _US32;
+typedef unsigned char   _UU8;
+typedef unsigned short  _UU16;
+typedef unsigned int    _UU32;
+typedef signed char     _US8;
+typedef signed short    _US16;
+typedef signed int      _US32;
 #elif (UNITY_INT_WIDTH == 16)
-    typedef unsigned char   _UU8;
-    typedef unsigned int    _UU16;
-    typedef unsigned long   _UU32;
-    typedef signed char     _US8;
-    typedef signed int      _US16;
-    typedef signed long     _US32;
+typedef unsigned char   _UU8;
+typedef unsigned int    _UU16;
+typedef unsigned long   _UU32;
+typedef signed char     _US8;
+typedef signed int      _US16;
+typedef signed long     _US32;
 #else
-    #error Invalid UNITY_INT_WIDTH specified! (16 or 32 are supported)
+#error Invalid UNITY_INT_WIDTH specified! (16 or 32 are supported)
 #endif
 
 /*-------------------------------------------------------
@@ -161,13 +161,13 @@ typedef _US32 _U_SINT;
 
 /* 64-bit Support */
 #if (UNITY_LONG_WIDTH == 32)
-    typedef unsigned long long _UU64;
-    typedef signed long long   _US64;
+typedef unsigned long long _UU64;
+typedef signed long long   _US64;
 #elif (UNITY_LONG_WIDTH == 64)
-    typedef unsigned long      _UU64;
-    typedef signed long        _US64;
+typedef unsigned long      _UU64;
+typedef signed long        _US64;
 #else
-    #error Invalid UNITY_LONG_WIDTH specified! (32 or 64 are supported)
+#error Invalid UNITY_LONG_WIDTH specified! (32 or 64 are supported)
 #endif
 typedef _UU64 _U_UINT;
 typedef _US64 _U_SINT;
@@ -179,16 +179,16 @@ typedef _US64 _U_SINT;
  *-------------------------------------------------------*/
 
 #if (UNITY_POINTER_WIDTH == 32)
-    typedef _UU32 _UP;
+typedef _UU32 _UP;
 #define UNITY_DISPLAY_STYLE_POINTER UNITY_DISPLAY_STYLE_HEX32
 #elif (UNITY_POINTER_WIDTH == 64)
-    typedef _UU64 _UP;
+typedef _UU64 _UP;
 #define UNITY_DISPLAY_STYLE_POINTER UNITY_DISPLAY_STYLE_HEX64
 #elif (UNITY_POINTER_WIDTH == 16)
-    typedef _UU16 _UP;
+typedef _UU16 _UP;
 #define UNITY_DISPLAY_STYLE_POINTER UNITY_DISPLAY_STYLE_HEX16
 #else
-    #error Invalid UNITY_POINTER_WIDTH specified! (16, 32 or 64 are supported)
+#error Invalid UNITY_POINTER_WIDTH specified! (16, 32 or 64 are supported)
 #endif
 
 #ifndef UNITY_PTR_ATTRIBUTE
@@ -298,10 +298,10 @@ typedef UNITY_DOUBLE_TYPE _UD;
 #include <stdio.h>
 #define UNITY_OUTPUT_CHAR(a) (void)putchar(a)
 #else
-  /* If defined as something else, make sure we declare it here so it's ready for use */
-  #ifndef UNITY_OMIT_OUTPUT_CHAR_HEADER_DECLARATION
+/* If defined as something else, make sure we declare it here so it's ready for use */
+#ifndef UNITY_OMIT_OUTPUT_CHAR_HEADER_DECLARATION
 extern void UNITY_OUTPUT_CHAR(int);
-  #endif
+#endif
 #endif
 
 #ifndef UNITY_OUTPUT_FLUSH
@@ -309,10 +309,10 @@ extern void UNITY_OUTPUT_CHAR(int);
 #include <stdio.h>
 #define UNITY_OUTPUT_FLUSH() (void)fflush(stdout)
 #else
-  /* If defined as something else, make sure we declare it here so it's ready for use */
-  #ifndef UNITY_OMIT_OUTPUT_FLUSH_HEADER_DECLARATION
+/* If defined as something else, make sure we declare it here so it's ready for use */
+#ifndef UNITY_OMIT_OUTPUT_FLUSH_HEADER_DECLARATION
 extern void UNITY_OUTPUT_FLUSH(void);
-  #endif
+#endif
 #endif
 
 #ifndef UNITY_PRINT_EOL
@@ -367,8 +367,7 @@ typedef void (*UnityTestFunction)(void);
 #define UNITY_DISPLAY_RANGE_HEX  (0x40)
 #define UNITY_DISPLAY_RANGE_AUTO (0x80)
 
-typedef enum
-{
+typedef enum {
 #if (UNITY_INT_WIDTH == 16)
     UNITY_DISPLAY_STYLE_INT      = 2 + UNITY_DISPLAY_RANGE_INT + UNITY_DISPLAY_RANGE_AUTO,
 #elif (UNITY_INT_WIDTH  == 32)
@@ -406,8 +405,7 @@ typedef enum
 } UNITY_DISPLAY_STYLE_T;
 
 #ifndef UNITY_EXCLUDE_FLOAT
-typedef enum _UNITY_FLOAT_TRAIT_T
-{
+typedef enum _UNITY_FLOAT_TRAIT_T {
     UNITY_FLOAT_IS_NOT_INF       = 0,
     UNITY_FLOAT_IS_INF,
     UNITY_FLOAT_IS_NOT_NEG_INF,
@@ -420,13 +418,12 @@ typedef enum _UNITY_FLOAT_TRAIT_T
 } UNITY_FLOAT_TRAIT_T;
 #endif
 
-struct _Unity
-{
-    const char* TestFile;
-    const char* CurrentTestName;
+struct _Unity {
+    const char *TestFile;
+    const char *CurrentTestName;
 #ifndef UNITY_EXCLUDE_DETAILS
-    const char* CurrentDetail1;
-    const char* CurrentDetail2;
+    const char *CurrentDetail1;
+    const char *CurrentDetail2;
 #endif
     UNITY_LINE_TYPE CurrentTestLineNumber;
     UNITY_COUNTER_TYPE NumberOfTests;
@@ -448,10 +445,10 @@ extern "C" {
  *-------------------------------------------------------*/
 
 
-void UnityBegin(const char* filename);
+void UnityBegin(const char *filename);
 int  UnityEnd(void);
 void UnityConcludeTest(void);
-void UnityDefaultTestRun(UnityTestFunction Func, const char* FuncName, const int FuncLineNum);
+void UnityDefaultTestRun(UnityTestFunction Func, const char *FuncName, const int FuncLineNum);
 
 /*-------------------------------------------------------
  * Details Support
@@ -479,7 +476,7 @@ void UnityDefaultTestRun(UnityTestFunction Func, const char* FuncName, const int
  * Test Output
  *-------------------------------------------------------*/
 
-void UnityPrint(const char* string);
+void UnityPrint(const char *string);
 void UnityPrintMask(const _U_UINT mask, const _U_UINT number);
 void UnityPrintNumberByStyle(const _U_SINT number, const UNITY_DISPLAY_STYLE_T style);
 void UnityPrintNumber(const _U_SINT number);
@@ -500,75 +497,75 @@ void UnityPrintFloat(const _UF number);
 
 void UnityAssertEqualNumber(const _U_SINT expected,
                             const _U_SINT actual,
-                            const char* msg,
+                            const char *msg,
                             const UNITY_LINE_TYPE lineNumber,
                             const UNITY_DISPLAY_STYLE_T style);
 
 void UnityAssertEqualIntArray(UNITY_INTERNAL_PTR expected,
                               UNITY_INTERNAL_PTR actual,
                               const _UU32 num_elements,
-                              const char* msg,
+                              const char *msg,
                               const UNITY_LINE_TYPE lineNumber,
                               const UNITY_DISPLAY_STYLE_T style);
 
 void UnityAssertBits(const _U_SINT mask,
                      const _U_SINT expected,
                      const _U_SINT actual,
-                     const char* msg,
+                     const char *msg,
                      const UNITY_LINE_TYPE lineNumber);
 
-void UnityAssertEqualString(const char* expected,
-                            const char* actual,
-                            const char* msg,
+void UnityAssertEqualString(const char *expected,
+                            const char *actual,
+                            const char *msg,
                             const UNITY_LINE_TYPE lineNumber);
 
-void UnityAssertEqualStringLen(const char* expected,
-                            const char* actual,
+void UnityAssertEqualStringLen(const char *expected,
+                               const char *actual,
+                               const _UU32 length,
+                               const char *msg,
+                               const UNITY_LINE_TYPE lineNumber);
+
+void UnityAssertEqualStringArray(const char **expected,
+                                 const char **actual,
+                                 const _UU32 num_elements,
+                                 const char *msg,
+                                 const UNITY_LINE_TYPE lineNumber);
+
+void UnityAssertEqualMemory(UNITY_INTERNAL_PTR expected,
+                            UNITY_INTERNAL_PTR actual,
                             const _UU32 length,
-                            const char* msg,
+                            const _UU32 num_elements,
+                            const char *msg,
                             const UNITY_LINE_TYPE lineNumber);
-
-void UnityAssertEqualStringArray( const char** expected,
-                                  const char** actual,
-                                  const _UU32 num_elements,
-                                  const char* msg,
-                                  const UNITY_LINE_TYPE lineNumber);
-
-void UnityAssertEqualMemory( UNITY_INTERNAL_PTR expected,
-                             UNITY_INTERNAL_PTR actual,
-                             const _UU32 length,
-                             const _UU32 num_elements,
-                             const char* msg,
-                             const UNITY_LINE_TYPE lineNumber);
 
 void UnityAssertNumbersWithin(const _U_UINT delta,
                               const _U_SINT expected,
                               const _U_SINT actual,
-                              const char* msg,
+                              const char *msg,
                               const UNITY_LINE_TYPE lineNumber,
                               const UNITY_DISPLAY_STYLE_T style);
 
-void UnityFail(const char* message, const UNITY_LINE_TYPE line);
+void UnityFail(const char *message, const UNITY_LINE_TYPE line);
 
-void UnityIgnore(const char* message, const UNITY_LINE_TYPE line);
+void UnityIgnore(const char *message, const UNITY_LINE_TYPE line);
 
-void UnitySkipPrint(const char* message, const UNITY_LINE_TYPE line);
+void UnitySkipPrint(const char *message, const UNITY_LINE_TYPE line);
 
 #ifndef UNITY_EXCLUDE_FLOAT
 void UnityAssertFloatsWithin(const _UF delta,
                              const _UF expected,
                              const _UF actual,
-                             const char* msg,
+                             const char *msg,
                              const UNITY_LINE_TYPE lineNumber);
 
-void UnityAssertEqualFloatArray(UNITY_PTR_ATTRIBUTE const _UF* expected,
-                                UNITY_PTR_ATTRIBUTE const _UF* actual,
+void UnityAssertEqualFloatArray(UNITY_PTR_ATTRIBUTE const _UF *expected,
+                                UNITY_PTR_ATTRIBUTE const _UF *actual,
                                 const _UU32 num_elements,
-                                const char* msg,
+                                const char *msg,
                                 const UNITY_LINE_TYPE lineNumber);
 
 void UnityAssertFloatSpecial(const _UF actual,
-                             const char* msg,
+                             const char *msg,
                              const UNITY_LINE_TYPE lineNumber,
                              const UNITY_FLOAT_TRAIT_T style);
 #endif
@@ -577,17 +574,17 @@ void UnityAssertFloatSpecial(const _UF actual,
 void UnityAssertDoublesWithin(const _UD delta,
                               const _UD expected,
                               const _UD actual,
-                              const char* msg,
+                              const char *msg,
                               const UNITY_LINE_TYPE lineNumber);
 
-void UnityAssertEqualDoubleArray(UNITY_PTR_ATTRIBUTE const _UD* expected,
-                                 UNITY_PTR_ATTRIBUTE const _UD* actual,
+void UnityAssertEqualDoubleArray(UNITY_PTR_ATTRIBUTE const _UD *expected,
+                                 UNITY_PTR_ATTRIBUTE const _UD *actual,
                                  const _UU32 num_elements,
-                                 const char* msg,
+                                 const char *msg,
                                  const UNITY_LINE_TYPE lineNumber);
 
 void UnityAssertDoubleSpecial(const _UD actual,
-                              const char* msg,
+                              const char *msg,
                               const UNITY_LINE_TYPE lineNumber,
                               const UNITY_FLOAT_TRAIT_T style);
 #endif

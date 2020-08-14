@@ -29,21 +29,22 @@ static Timeout utest_to;
 class Utest_func_bind {
 
 public:
-    inline Utest_func_bind( void (*f)(int), int v) : _callback_fn(f), _callback_value(v) 
-    {} 
+    inline Utest_func_bind(void (*f)(int), int v) : _callback_fn(f), _callback_value(v)
+    {}
 
-    inline void callback() {
+    inline void callback()
+    {
         (*_callback_fn)(_callback_value);
-    }  
+    }
 
 private:
     void (*_callback_fn)(int);
     int _callback_value;
 };
- 
- 
 
-void await_case_validate(int expected_call_count) 
+
+
+void await_case_validate(int expected_call_count)
 {
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(expected_call_count, call_counter++);
@@ -54,8 +55,8 @@ static Utest_func_bind validate1(await_case_validate, 7);
 static Utest_func_bind validate2(await_case_validate, 37);
 static Utest_func_bind validate3(await_case_validate, 50);
 
- 
- 
+
+
 // Control: Timeout (Failure) -----------------------------------------------------------------------------------------
 control_t timeout_failure_case(const size_t call_count)
 {
@@ -85,7 +86,8 @@ utest::v1::status_t timeout_failure_case_teardown(const Case *const source, cons
 }
 
 // Control: Timeout (Success) -----------------------------------------------------------------------------------------
-void timeout_success_case_validate() {
+void timeout_success_case_validate()
+{
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(4, call_counter++);
     Harness::validate_callback();
@@ -96,7 +98,7 @@ control_t timeout_success_case(const size_t call_count)
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(3, call_counter++);
-    utest_to.attach_us(timeout_success_case_validate, 100000); // Fire after 100 ms 
+    utest_to.attach_us(timeout_success_case_validate, 100000); // Fire after 100 ms
 
     return CaseTimeout(200);
 }
@@ -117,9 +119,9 @@ control_t await_case(const size_t call_count)
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(6, call_counter++);
-    
-    utest_to.attach_us(callback(&validate1, &Utest_func_bind::callback), (1372*1000)); // Fire after 1372 ms
-                
+
+    utest_to.attach_us(callback(&validate1, &Utest_func_bind::callback), (1372 * 1000)); // Fire after 1372 ms
+
     return CaseAwait;
 }
 
@@ -127,14 +129,14 @@ control_t await_case(const size_t call_count)
 bool repeat_all_start_flag = true;
 utest::v1::status_t repeat_all_on_timeout_case_setup(const Case *const source, const size_t index_of_case)
 {
-    if (repeat_all_start_flag){
-        UTEST_TRACE_START 
-        repeat_all_start_flag = false;    
+    if (repeat_all_start_flag) {
+        UTEST_TRACE_START
+        repeat_all_start_flag = false;
     }
     UTEST_LOG_FUNCTION();
     static int repeat_counter(0);
     TEST_ASSERT_EQUAL(3, index_of_case);
-    TEST_ASSERT_EQUAL(repeat_counter*3 + 8, call_counter++);
+    TEST_ASSERT_EQUAL(repeat_counter * 3 + 8, call_counter++);
     repeat_counter++;
     return greentea_case_setup_handler(source, index_of_case);
 }
@@ -144,9 +146,9 @@ control_t repeat_all_on_timeout_case(const size_t call_count)
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
     TEST_ASSERT(call_count <= 10);
-    TEST_ASSERT_EQUAL((call_count-1)*3 + 9, call_counter++);
+    TEST_ASSERT_EQUAL((call_count - 1) * 3 + 9, call_counter++);
     if (call_count == 10) {
-        utest_to.attach_us(callback(&validate2, &Utest_func_bind::callback), (50*1000)); // Fire after 50ms
+        utest_to.attach_us(callback(&validate2, &Utest_func_bind::callback), (50 * 1000)); // Fire after 50ms
     }
     return CaseRepeatAllOnTimeout(100);
 }
@@ -154,12 +156,12 @@ utest::v1::status_t repeat_all_on_timeout_case_teardown(const Case *const source
 {
     UTEST_LOG_FUNCTION();
     static int repeat_counter(0);
-    
+
     TEST_ASSERT_EQUAL((call_counter == 38) ? 1 : 0, passed);
     TEST_ASSERT_EQUAL(0, failed);
     TEST_ASSERT_EQUAL(REASON_NONE, failure.reason);
     TEST_ASSERT_EQUAL(LOCATION_NONE, failure.location);
-    TEST_ASSERT_EQUAL(repeat_counter*3 + ((repeat_counter == 9) ? 11 : 10), call_counter++);
+    TEST_ASSERT_EQUAL(repeat_counter * 3 + ((repeat_counter == 9) ? 11 : 10), call_counter++);
     repeat_counter++;
     return greentea_case_teardown_handler(source, passed, failed, failure);
 }
@@ -179,9 +181,9 @@ control_t repeat_handler_on_timeout_case(const size_t call_count)
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
     TEST_ASSERT(call_count <= 10);
-    TEST_ASSERT_EQUAL(call_count-1 + 40, call_counter++);
+    TEST_ASSERT_EQUAL(call_count - 1 + 40, call_counter++);
     if (call_count == 10) {
-        utest_to.attach_us(callback(&validate3, &Utest_func_bind::callback), (50*1000)); // Fire after 50ms
+        utest_to.attach_us(callback(&validate3, &Utest_func_bind::callback), (50 * 1000)); // Fire after 50ms
     }
     return CaseRepeatHandlerOnTimeout(100);
 }

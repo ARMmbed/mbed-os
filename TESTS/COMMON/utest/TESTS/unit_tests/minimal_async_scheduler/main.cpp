@@ -49,7 +49,7 @@ static int32_t utest_minimal_init()
 static void *utest_minimal_post(const utest_v1_harness_callback_t callback,  timestamp_t delay_ms)
 {
     UTEST_LOG_FUNCTION();
-    timestamp_t delay_us = delay_ms *1000;
+    timestamp_t delay_us = delay_ms * 1000;
 
     if (delay_ms) {
         ticker_callback = callback;
@@ -60,7 +60,7 @@ static void *utest_minimal_post(const utest_v1_harness_callback_t callback,  tim
     }
 
     // return a bogus handle
-    return (void*)1;
+    return (void *)1;
 }
 static int32_t utest_minimal_cancel(void *handle)
 {
@@ -76,11 +76,9 @@ static int32_t utest_minimal_run()
      * This is just a busy loop that calls the callbacks in this context.
      * THIS LOOP IS BLOCKING.
      */
-    while(1)
-    {
+    while (1) {
         // check if a new callback has been set
-        if (minimal_callback)
-        {
+        if (minimal_callback) {
             // copy the callback
             utest_v1_harness_callback_t callback = minimal_callback;
             // reset the shared callback
@@ -91,8 +89,7 @@ static int32_t utest_minimal_run()
     }
     return 0;
 }
-static const utest_v1_scheduler_t utest_minimal_scheduler =
-{
+static const utest_v1_scheduler_t utest_minimal_scheduler = {
     utest_minimal_init,
     utest_minimal_post,
     utest_minimal_cancel,

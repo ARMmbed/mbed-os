@@ -26,7 +26,7 @@ static bool never_call = false;
 
 void never_call_case()
 {
-      never_call = true;
+    never_call = true;
 }
 
 utest::v1::status_t abort_case_setup(const Case *const source, const size_t index_of_case)

@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
- #include "utest/utest_case.h"
- #include "utest/utest_print.h"
+#include "utest/utest_case.h"
+#include "utest/utest_print.h"
 
 using namespace utest::v1;
 
@@ -51,14 +51,14 @@ Case::Case(const char *description,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        handler,
-        ignore_handler,
-        ignore_handler,
-        setup_handler,
-        teardown_handler,
-        failure_handler
-    ))
+               description,
+               handler,
+               ignore_handler,
+               ignore_handler,
+               setup_handler,
+               teardown_handler,
+               failure_handler
+           ))
 
 {}
 
@@ -67,14 +67,14 @@ Case::Case(const char *description,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        handler,
-        ignore_handler,
-        ignore_handler,
-        default_handler,
-        teardown_handler,
-        failure_handler
-    ))
+               description,
+               handler,
+               ignore_handler,
+               ignore_handler,
+               default_handler,
+               teardown_handler,
+               failure_handler
+           ))
 
 {}
 
@@ -82,14 +82,14 @@ Case::Case(const char *description,
            const case_handler_t handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        handler,
-        ignore_handler,
-        ignore_handler,
-        default_handler,
-        default_handler,
-        failure_handler
-    ))
+               description,
+               handler,
+               ignore_handler,
+               ignore_handler,
+               default_handler,
+               default_handler,
+               failure_handler
+           ))
 {}
 
 // control handler
@@ -99,14 +99,14 @@ Case::Case(const char *description,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        ignore_handler,
-        handler,
-        ignore_handler,
-        setup_handler,
-        teardown_handler,
-        failure_handler
-    ))
+               description,
+               ignore_handler,
+               handler,
+               ignore_handler,
+               setup_handler,
+               teardown_handler,
+               failure_handler
+           ))
 {}
 
 Case::Case(const char *description,
@@ -114,28 +114,28 @@ Case::Case(const char *description,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        ignore_handler,
-        handler,
-        ignore_handler,
-        default_handler,
-        teardown_handler,
-        failure_handler
-    ))
+               description,
+               ignore_handler,
+               handler,
+               ignore_handler,
+               default_handler,
+               teardown_handler,
+               failure_handler
+           ))
 {}
 
 Case::Case(const char *description,
            const case_control_handler_t handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        ignore_handler,
-        handler,
-        ignore_handler,
-        default_handler,
-        default_handler,
-        failure_handler
-    ))
+               description,
+               ignore_handler,
+               handler,
+               ignore_handler,
+               default_handler,
+               default_handler,
+               failure_handler
+           ))
 {}
 
 // control flow handler
@@ -145,28 +145,28 @@ Case::Case(const char *description,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        ignore_handler,
-        ignore_handler,
-        case_repeat_count_handler,
-        setup_handler,
-        teardown_handler,
-        failure_handler
-    ))
+               description,
+               ignore_handler,
+               ignore_handler,
+               case_repeat_count_handler,
+               setup_handler,
+               teardown_handler,
+               failure_handler
+           ))
 {}
 
 Case::Case(const char *description,
            const case_call_count_handler_t case_repeat_count_handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        ignore_handler,
-        ignore_handler,
-        case_repeat_count_handler,
-        default_handler,
-        default_handler,
-        failure_handler
-    ))
+               description,
+               ignore_handler,
+               ignore_handler,
+               case_repeat_count_handler,
+               default_handler,
+               default_handler,
+               failure_handler
+           ))
 {}
 
 Case::Case(const char *description,
@@ -174,22 +174,24 @@ Case::Case(const char *description,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     case_t(make_case(
-        description,
-        ignore_handler,
-        ignore_handler,
-        case_repeat_count_handler,
-        default_handler,
-        teardown_handler,
-        failure_handler
-    ))
+               description,
+               ignore_handler,
+               ignore_handler,
+               case_repeat_count_handler,
+               default_handler,
+               teardown_handler,
+               failure_handler
+           ))
 {}
 
-const char*
-Case::get_description() const {
+const char *
+Case::get_description() const
+{
     return description;
 }
 
 bool
-Case::is_empty() const {
+Case::is_empty() const
+{
     return !(handler || control_handler || repeat_count_handler || setup_handler || teardown_handler);
 }

@@ -22,22 +22,22 @@
 #ifndef UNITY_CONFIG_H
 #define UNITY_CONFIG_H
 
-/* When using unity with the mbed RTOS printing to the serial port using the stdlib is not 
+/* When using unity with the mbed RTOS printing to the serial port using the stdlib is not
    allowed as it causes a hardfault. Unity has the following define to control how failure
    messages are written:
-   
+
    #ifndef UNITY_OUTPUT_CHAR
        #include <stdio.h>
        #define UNITY_OUTPUT_CHAR(a) (void)putchar(a)
    #endif
-   
-   To make this safe we can define our own version of UNITY_OUTPUT_CHAR and make sure it is 
+
+   To make this safe we can define our own version of UNITY_OUTPUT_CHAR and make sure it is
    thread safe.
 */
 #ifndef UNITY_OUTPUT_CHAR
 #define UNITY_OUTPUT_CHAR(a) utest_safe_putc(a)
 #endif //UNITY_OUTPUT_CHAR
-    
+
 #endif // UNITY_CONFIG_H
 
 /** @}*/
