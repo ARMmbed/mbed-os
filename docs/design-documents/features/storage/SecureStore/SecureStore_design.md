@@ -32,7 +32,7 @@
 
 ### Overview and background
 
-SecureStore is a [KVStore](../KVStore/KVStore_design.md) based storage solution, providing security features on the stored data, such as encryption, authentication, rollback protection and write once, over an underlying KVStore class. It references an additional KVStore class for storing the rollback protection keys. 
+SecureStore is a [KVStore](../KVStore/KVStore_design.md) based storage solution, providing security features on the stored data, such as encryption, authentication, rollback protection and write once, over an underlying KVStore class. It references an additional KVStore class for storing the rollback protection keys.
 
 ### Requirements and assumptions
 
@@ -44,13 +44,13 @@ SecureStore assumes that the underlying KVStore instances are instantiated and i
 
 SecureStore is a storage class, derived from KVStore. It adds security features to the underlying key value store.
  
-As such, it offers all KVStore APIs, with additional security options (which can be selected using the creation flags at set). These include:  
+As such, it offers all KVStore APIs, with additional security options (which can be selected using the creation flags at set). These include:
 
-- Encryption: Data is encrypted using the AES-CTR encryption method, with a randomly generated 8-byte IV. Key is derived from [Device Key](../../../../../../mbed-os/features/device_key/README.md), using the NIST SP 800-108 KDF in counter mode spec, where salt is the key trimmed to 32 bytes, with "ENC" as prefix. Flag here is called "require confidentiality flag".  
+- Encryption: Data is encrypted using the AES-CTR encryption method, with a randomly generated 8-byte IV. Key is derived from [Device Key](../../../../../../mbed-os/drivers/device_key/README.md), using the NIST SP 800-108 KDF in counter mode spec, where salt is the key trimmed to 32 bytes, with "ENC" as prefix. Flag here is called "require confidentiality flag".  
 - Rollback protection: (Requires authentication) CMAC is stored in a designated rollback protected storage (also of KVStore type) and compared to when reading the data under the same KVStore key. A missing or different key in the rollback protected storage results in an error. The flag here is called "Require replay protection flag".
 - Write once: Key can only be stored once and can't be removed. The flag here is called "Write once flag".
 
-SecureStore maintains data integrity using a record CMAC. This 16-byte CMAC is calculated on all stored data (including key & metadata) and stored at the end of the record. When reading the record, SecureStore compares the calculated CMAC with the stored one. In the case of encryption, CMAC is calculated on the encrypted data. The key used for generating the CMAC is derived from [Device Key](../../../../../../mbed-os/features/device_key/README.md), where salt is the key trimmed to 32 bytes, with "AUTH" as prefix.  
+SecureStore maintains data integrity using a record CMAC. This 16-byte CMAC is calculated on all stored data (including key & metadata) and stored at the end of the record. When reading the record, SecureStore compares the calculated CMAC with the stored one. In the case of encryption, CMAC is calculated on the encrypted data. The key used for generating the CMAC is derived from [Device Key](../../../../../../mbed-os/drivers/device_key/README.md), where salt is the key trimmed to 32 bytes, with "AUTH" as prefix.
  
 ![SecureStore Layers](./SecureStore_layers.jpg)
 
