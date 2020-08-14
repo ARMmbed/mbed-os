@@ -3074,7 +3074,7 @@ __STATIC_INLINE void LL_RTC_BKP_SetRegister(TAMP_TypeDef *TAMPx, uint32_t Backup
   */
 __STATIC_INLINE uint32_t LL_RTC_BKP_GetRegister(TAMP_TypeDef *TAMPx, uint32_t BackupRegister)
 {
-  register __IO uint32_t *tmp;
+  const register __IO uint32_t *tmp;
 
   tmp = &(TAMPx->BKP0R) + BackupRegister;
 
