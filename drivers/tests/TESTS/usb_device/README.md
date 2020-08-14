@@ -70,7 +70,7 @@ No setup method has been verified for this platform.
 1.  Plug both USB interfaces (*DAPLink* and *USB device*) to your host machine.
 1. An addtional macro `USB_DEVICE_TESTS` is needed to be defined when runing tests:
     ```
-    mbed test -t <toolchain> -m <target> -DUSB_DEVICE_TESTS -n tests-usb_device-*
+    mbed test -t <toolchain> -m <target> -DUSB_DEVICE_TESTS -n *-tests-usb_device-*
     ```
 
 ## Known issues
@@ -88,8 +88,8 @@ as an unprivileged user will manifest with either of the following errors:
 #### Solution
 Execute tests with elevated permissions using `sudo`:
 ```bash
-mbed test -t <toolchain> -m <target> -n tests-usb_device-* --compile
-sudo mbed test -t <toolchain> -m <target> -n tests-usb_device-* --run -v
+mbed test -t <toolchain> -m <target> -DUSB_DEVICE_TESTS -n tests-usb_device-* --compile
+sudo mbed test -t <toolchain> -m <target> -n *-tests-usb_device-* --run -v
 ```
 Note only the `mbed test --run` command requires `sudo`. You can still
 `mbed test --compile` as a normal user.
