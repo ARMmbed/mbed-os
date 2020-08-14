@@ -35,7 +35,18 @@ void AP3CordioHCIDriver::do_terminate()
 
 ble::vendor::cordio::buf_pool_desc_t AP3CordioHCIDriver::get_buffer_pool_description()
 {
-    return get_default_buffer_pool_description();
+    static union {
+        uint8_t buffer[9000];
+        uint64_t align;
+    };
+    static const wsfBufPoolDesc_t pool_desc[] = {
+        {  16, 64 },
+        {  32, 64 },
+        {  64, 32 },
+        { 128, 16 },
+        { 272, 4 }
+    };
+    return buf_pool_desc_t(buffer, pool_desc);
 }
 
 ble::vendor::cordio::CordioHCIDriver &ble_cordio_get_hci_driver()
