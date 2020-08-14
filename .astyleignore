@@ -26,6 +26,7 @@
 ^rtos/source/TARGET_CORTEX/rtx4
 ^rtos/source/TARGET_CORTEX/rtx5
 ^targets
+^TESTS/COMMON/unity
 ^TESTS/mbed_hal/trng/pithy
 ^TESTS/mbed_hal/trng/pithy
 ^tools
