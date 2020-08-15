@@ -43,9 +43,9 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
-#if NRFX_SPIM_ENABLED == 1 || defined(DEVICE_SPIM)
+#if NRFX_SPIM_ENABLED || defined(DEVICE_SPIM)
 #include "nrfx_spim.h"
-#elif NRFX_SPI_ENABLED == 1 || defined(DEVICE_SPI)
+#elif NRFX_SPI_ENABLED || defined(DEVICE_SPI)
 #include "nrfx_spi.h"
 #endif
 #include "nrf_twi.h"
@@ -94,9 +94,9 @@ struct serial_s {
 struct spi_s {
     int instance;
     PinName cs;
-#if NRFX_SPIM_ENABLED == 1 || defined(DEVICE_SPIM)
+#if NRFX_SPIM_ENABLED || defined(DEVICE_SPIM)
     nrfx_spim_config_t config;
-#elif NRFX_SPI_ENABLED == 1 || defined(DEVICE_SPI)
+#elif NRFX_SPI_ENABLED || defined(DEVICE_SPI)
     nrfx_spi_config_t config;
 #endif
     bool update;
