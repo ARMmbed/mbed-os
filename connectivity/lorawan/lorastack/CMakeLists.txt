@@ -1,6 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/mac
+        ${CMAKE_CURRENT_SOURCE_DIR}/phy
+)
+
 target_sources(mbed-os
     PRIVATE
         mac/LoRaMac.cpp
@@ -18,11 +25,4 @@ target_sources(mbed-os
         phy/LoRaPHYIN865.cpp
         phy/LoRaPHYKR920.cpp
         phy/LoRaPHYUS915.cpp
-)
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/mac
-        ${CMAKE_CURRENT_SOURCE_DIR}/phy
 )
