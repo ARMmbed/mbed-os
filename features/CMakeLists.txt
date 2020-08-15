@@ -3,13 +3,10 @@
 
 mbed_add_cmake_directory_if_labels("FEATURE")
 
-add_subdirectory(cryptocell)
 add_subdirectory(device_key)
 add_subdirectory(frameworks/mbed-client-randlib)
 add_subdirectory(frameworks/mbed-trace)
 add_subdirectory(frameworks/mbed-client-cli)
-add_subdirectory(lorawan)
-add_subdirectory(nfc)
 
 target_include_directories(mbed-os
     PUBLIC
