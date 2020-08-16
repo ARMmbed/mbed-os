@@ -134,10 +134,13 @@
 #endif
 
 #define HISTORY_MAX_COUNT MBED_CONF_MBED_CLIENT_CLI_HISTORY_SIZE
+
 //include manuals or not (save memory a little when not include)
-#ifndef MBED_CMDLINE_INCLUDE_MAN
-#define MBED_CMDLINE_INCLUDE_MAN 1
+#ifndef MBED_CONF_MBED_CLIENT_CLI_INCLUDE_MANUALS
+#define MBED_CONF_MBED_CLIENT_CLI_INCLUDE_MANUALS 1
 #endif
+
+#define MBED_CMDLINE_INCLUDE_MAN MBED_CONF_MBED_CLIENT_CLI_INCLUDE_MANUALS
 
 
 typedef struct cmd_history_s {
