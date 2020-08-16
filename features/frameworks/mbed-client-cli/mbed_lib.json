@@ -1,3 +1,17 @@
 {
-    "name": "mbed-client-cli"
+    "name": "mbed-client-cli",
+    "config": {
+        "maximum-input-line-length": {
+            "help": "Maximum input line length for any single command line entry",
+            "value": 64
+        },
+        "maximum-arg-count": {
+            "help": "Maximum number of arguments in a single command",
+            "value": 16
+        },
+        "history-size": {
+            "help": "Maximum number of previous commands that can be stored in history. Note that each line will occupy by up to maximum-input-line-length bytes on the heap. So by default the history can occupy up to 64 bytes * 16 commands = 1024 bytes.",
+            "value": 16
+        }
+    }
 }
