@@ -30,8 +30,9 @@ from copy import copy
 from yaml import dump_all
 import argparse
 from past.builtins import basestring
+from tools.utils import argparse_filestring_type
 
-from tools.targets import Target, set_targets_json_location, TARGET_MAP
+from tools.targets import Target, set_targets_json_location, update_target_data, TARGET_MAP
 
 def must_have_keys(keys, dict):
     """Require keys in an MCU/Board
@@ -211,6 +212,13 @@ def check_hierarchy(tgt):
     return to_ret
 
 PARSER = argparse.ArgumentParser(prog="targets/lint.py")
+PARSER.add_argument("--custom-targets",
+                    help="Specify directory containing custom_targets.json",
+                    type=argparse_filestring_type,
+                    dest="custom_targets_directory",
+                    action="append",
+                    default=None,
+                    required=False)
 SUBPARSERS = PARSER.add_subparsers(title="Commands")
 
 def subcommand(name, *args, **kwargs):
@@ -242,13 +250,20 @@ def subcommand(name, *args, **kwargs):
         return command
     return __subcommand
 
+
 @subcommand("targets",
             dict(name="mcus", nargs="+", metavar="MCU",
-                 choices=TARGET_MAP.keys(), type=str.upper))
+                  type=str.upper))
 def targets_cmd(mcus=[]):
     """Find and print errors about specific targets"""
-    print(dump_all([check_hierarchy(TARGET_MAP[m]) for m in mcus],
+    try:
+        print(dump_all([check_hierarchy(TARGET_MAP[m]) for m in mcus],
                    default_flow_style=False))
+    except KeyError as e:
+        key = e.args[0]
+        print "targets: error: argument MCU: invalid choice: '"+key+"' (choose from "
+        print TARGET_MAP.keys()
+        print ")"
 
 @subcommand("all-targets")
 def all_targets_cmd():
@@ -271,6 +286,17 @@ def orphans_cmd():
 def main():
     """entry point"""
     options = PARSER.parse_args()
+    try:
+        if options.custom_targets_directory:
+            for custom_targets_directory in options.custom_targets_directory:
+                Target.add_extra_targets(custom_targets_directory)
+            update_target_data()
+        elif options.source_dir:
+            for source_dir in options.source_dir:
+                Target.add_extra_targets(source_dir)
+            update_target_data()
+    except KeyError:
+        pass
     return options.command(options)
 
 if __name__ == "__main__":
