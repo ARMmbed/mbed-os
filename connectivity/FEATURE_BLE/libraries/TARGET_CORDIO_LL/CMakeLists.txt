@@ -57,6 +57,11 @@ target_sources(mbed-os
         stack/controller/sources/ble/lctr/lctr_act_adv_master_ae.c
         stack/controller/sources/ble/lctr/lctr_act_adv_slave.c
         stack/controller/sources/ble/lctr/lctr_act_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_act_bis_master.c
+        stack/controller/sources/ble/lctr/lctr_act_bis_slave.c
+        stack/controller/sources/ble/lctr/lctr_act_cis.c
+        stack/controller/sources/ble/lctr/lctr_act_cis_master.c
+        stack/controller/sources/ble/lctr/lctr_act_cis_slave.c
         stack/controller/sources/ble/lctr/lctr_act_conn.c
         stack/controller/sources/ble/lctr/lctr_act_conn_master.c
         stack/controller/sources/ble/lctr/lctr_act_conn_master_ae.c
@@ -65,11 +70,17 @@ target_sources(mbed-os
         stack/controller/sources/ble/lctr/lctr_act_enc_master.c
         stack/controller/sources/ble/lctr/lctr_act_init_master.c
         stack/controller/sources/ble/lctr/lctr_act_init_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_act_pc.c
         stack/controller/sources/ble/lctr/lctr_act_phy.c
         stack/controller/sources/ble/lctr/lctr_isr_adv_master.c
         stack/controller/sources/ble/lctr/lctr_isr_adv_master_ae.c
         stack/controller/sources/ble/lctr/lctr_isr_adv_slave.c
         stack/controller/sources/ble/lctr/lctr_isr_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_isr_bis_master.c
+        stack/controller/sources/ble/lctr/lctr_isr_bis_slave.c
+        stack/controller/sources/ble/lctr/lctr_isr_cis.c
+        stack/controller/sources/ble/lctr/lctr_isr_cis_master.c
+        stack/controller/sources/ble/lctr/lctr_isr_cis_slave.c
         stack/controller/sources/ble/lctr/lctr_isr_conn.c
         stack/controller/sources/ble/lctr/lctr_isr_conn_master.c
         stack/controller/sources/ble/lctr/lctr_isr_conn_slave.c
@@ -80,6 +91,12 @@ target_sources(mbed-os
         stack/controller/sources/ble/lctr/lctr_main_adv_master_ae.c
         stack/controller/sources/ble/lctr/lctr_main_adv_slave.c
         stack/controller/sources/ble/lctr/lctr_main_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_main_bis.c
+        stack/controller/sources/ble/lctr/lctr_main_bis_master.c
+        stack/controller/sources/ble/lctr/lctr_main_bis_slave.c
+        stack/controller/sources/ble/lctr/lctr_main_cis.c
+        stack/controller/sources/ble/lctr/lctr_main_cis_master.c
+        stack/controller/sources/ble/lctr/lctr_main_cis_slave.c
         stack/controller/sources/ble/lctr/lctr_main_conn.c
         stack/controller/sources/ble/lctr/lctr_main_conn_cs2.c
         stack/controller/sources/ble/lctr/lctr_main_conn_data.c
@@ -89,30 +106,42 @@ target_sources(mbed-os
         stack/controller/sources/ble/lctr/lctr_main_enc_slave.c
         stack/controller/sources/ble/lctr/lctr_main_init_master.c
         stack/controller/sources/ble/lctr/lctr_main_init_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_main_iso.c
+        stack/controller/sources/ble/lctr/lctr_main_iso_data.c
         stack/controller/sources/ble/lctr/lctr_main_master_phy.c
         stack/controller/sources/ble/lctr/lctr_main_past.c
+        stack/controller/sources/ble/lctr/lctr_main_pc.c
         stack/controller/sources/ble/lctr/lctr_main_priv.c
         stack/controller/sources/ble/lctr/lctr_main_sc.c
         stack/controller/sources/ble/lctr/lctr_main_slave_phy.c
         stack/controller/sources/ble/lctr/lctr_pdu_adv_master_ae.c
         stack/controller/sources/ble/lctr/lctr_pdu_adv_slave.c
         stack/controller/sources/ble/lctr/lctr_pdu_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_pdu_bis.c
         stack/controller/sources/ble/lctr/lctr_pdu_conn.c
         stack/controller/sources/ble/lctr/lctr_pdu_enc.c
+        stack/controller/sources/ble/lctr/lctr_pdu_iso.c
         stack/controller/sources/ble/lctr/lctr_sm_adv_master.c
         stack/controller/sources/ble/lctr/lctr_sm_adv_master_ae.c
         stack/controller/sources/ble/lctr/lctr_sm_adv_slave.c
         stack/controller/sources/ble/lctr/lctr_sm_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_sm_bis_master.c
+        stack/controller/sources/ble/lctr/lctr_sm_bis_slave.c
+        stack/controller/sources/ble/lctr/lctr_sm_cis.c
         stack/controller/sources/ble/lctr/lctr_sm_conn_master.c
         stack/controller/sources/ble/lctr/lctr_sm_conn_slave.c
         stack/controller/sources/ble/lctr/lctr_sm_init_master.c
         stack/controller/sources/ble/lctr/lctr_sm_init_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_cis.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_cis_master.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_cis_slave.c
         stack/controller/sources/ble/lctr/lctr_sm_llcp_conn.c
         stack/controller/sources/ble/lctr/lctr_sm_llcp_conn_master.c
         stack/controller/sources/ble/lctr/lctr_sm_llcp_conn_slave.c
         stack/controller/sources/ble/lctr/lctr_sm_llcp_enc_master.c
         stack/controller/sources/ble/lctr/lctr_sm_llcp_enc_slave.c
         stack/controller/sources/ble/lctr/lctr_sm_llcp_master_phy.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_pc.c
         stack/controller/sources/ble/lctr/lctr_sm_llcp_slave_phy.c
 )
 
@@ -202,6 +231,10 @@ target_sources(mbed-os
         stack/controller/sources/ble/ll/ll_init_adv_master_ae.c
         stack/controller/sources/ble/ll/ll_init_adv_slave.c
         stack/controller/sources/ble/ll/ll_init_adv_slave_ae.c
+        stack/controller/sources/ble/ll/ll_init_bis_master.c
+        stack/controller/sources/ble/ll/ll_init_bis_slave.c
+        stack/controller/sources/ble/ll/ll_init_cis_master.c
+        stack/controller/sources/ble/ll/ll_init_cis_slave.c
         stack/controller/sources/ble/ll/ll_init_conn_cs2.c
         stack/controller/sources/ble/ll/ll_init_conn_master.c
         stack/controller/sources/ble/ll/ll_init_conn_slave.c
@@ -209,8 +242,10 @@ target_sources(mbed-os
         stack/controller/sources/ble/ll/ll_init_enc_slave.c
         stack/controller/sources/ble/ll/ll_init_init_master.c
         stack/controller/sources/ble/ll/ll_init_init_master_ae.c
+        stack/controller/sources/ble/ll/ll_init_iso.c
         stack/controller/sources/ble/ll/ll_init_master_phy.c
         stack/controller/sources/ble/ll/ll_init_past.c
+        stack/controller/sources/ble/ll/ll_init_pc.c
         stack/controller/sources/ble/ll/ll_init_priv.c
         stack/controller/sources/ble/ll/ll_init_sc.c
         stack/controller/sources/ble/ll/ll_init_slave_phy.c
@@ -219,6 +254,10 @@ target_sources(mbed-os
         stack/controller/sources/ble/ll/ll_main_adv_master_ae.c
         stack/controller/sources/ble/ll/ll_main_adv_slave.c
         stack/controller/sources/ble/ll/ll_main_adv_slave_ae.c
+        stack/controller/sources/ble/ll/ll_main_bis_master.c
+        stack/controller/sources/ble/ll/ll_main_bis_slave.c
+        stack/controller/sources/ble/ll/ll_main_cis_master.c
+        stack/controller/sources/ble/ll/ll_main_cis_slave.c
         stack/controller/sources/ble/ll/ll_main_conn.c
         stack/controller/sources/ble/ll/ll_main_conn_master.c
         stack/controller/sources/ble/ll/ll_main_conn_master_ae.c
@@ -227,7 +266,9 @@ target_sources(mbed-os
         stack/controller/sources/ble/ll/ll_main_dtm.c
         stack/controller/sources/ble/ll/ll_main_enc_master.c
         stack/controller/sources/ble/ll/ll_main_enc_slave.c
+        stack/controller/sources/ble/ll/ll_main_iso.c
         stack/controller/sources/ble/ll/ll_main_past.c
+        stack/controller/sources/ble/ll/ll_main_pc.c
         stack/controller/sources/ble/ll/ll_main_phy.c
         stack/controller/sources/ble/ll/ll_main_priv.c
         stack/controller/sources/ble/ll/ll_main_sc.c
@@ -240,7 +281,9 @@ target_sources(mbed-os
         stack/controller/sources/ble/lmgr/lmgr_main.c
         stack/controller/sources/ble/lmgr/lmgr_main_adv_master_ae.c
         stack/controller/sources/ble/lmgr/lmgr_main_adv_slave_ae.c
+        stack/controller/sources/ble/lmgr/lmgr_main_cis_master.c
         stack/controller/sources/ble/lmgr/lmgr_main_conn.c
+        stack/controller/sources/ble/lmgr/lmgr_main_iso.c
         stack/controller/sources/ble/lmgr/lmgr_main_master.c
         stack/controller/sources/ble/lmgr/lmgr_main_priv.c
         stack/controller/sources/ble/lmgr/lmgr_main_sc.c
@@ -251,6 +294,7 @@ target_sources(mbed-os
     PRIVATE
         stack/controller/sources/ble/sch/sch_ble.c
         stack/controller/sources/ble/sch/sch_rm.c
+        stack/controller/sources/ble/sch/sch_tm.c
 )
 
 target_sources(mbed-os
