@@ -9,7 +9,10 @@ function(_mbed_get_libcc_310_core)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIBCC_310_CORE TOOLCHAIN_IAR/lib_cc310_ext.a)
     endif()
-    target_sources(mbed-os PRIVATE ${LIBCC_310_CORE})
+    target_link_libraries(mbed-os
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_CORE}
+    )
 endfunction()
 
 _mbed_get_libcc_310_core()
