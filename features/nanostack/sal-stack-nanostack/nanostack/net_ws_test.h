@@ -167,6 +167,43 @@ int ws_test_gtk_time_settings_set(
  */
 int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
 
+/**
+ * Sets 6LoWPAN fragmentation MTU size to test fragmentation
+ *
+ * \param interface_id Network interface ID.
+ * \param mtu_size Size of 6LoWPAN MTU when fragmentation occurs.
+ *
+ * \return 0                        Success
+ * \return <0                       Failure
+ */
+int ws_test_6lowpan_fragmentation_mtu_size_set(int8_t interface_id, uint16_t mtu_size);
+
+/**
+ * Disable First EDFE data packet send.
+ *
+ * Made only for test purpose for test EDFE client Data wait timeout.
+ *
+ * \param interface_id Network interface ID.
+ * \param skip True for skip first data packet false disable unused flag.
+ *
+ * \return 0                        Success
+ * \return <0                       Failure
+ */
+void ws_test_skip_edfe_data_send(int8_t interface_id, bool skip);
+
+/**
+ * Drop configured EDFE data packets.
+ *
+ * Made only for test purpose for test EDFE data sender retry send logic.
+ *
+ * \param interface_id Network interface ID.
+ * \param number_of_dropped_frames How many packets will be dropped.
+ *
+ * \return 0                        Success
+ * \return <0                       Failure
+ */
+int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames);
+
 #ifdef __cplusplus
 }
 #endif

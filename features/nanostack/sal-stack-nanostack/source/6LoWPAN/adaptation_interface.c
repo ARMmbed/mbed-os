@@ -351,17 +351,14 @@ int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_si
 
     //Allocate new
     fragmenter_interface_t *interface_ptr = ns_dyn_mem_alloc(sizeof(fragmenter_interface_t));
-    uint8_t *tx_buffer = ns_dyn_mem_alloc(mac_mtu_size);
-    if (!interface_ptr  || !tx_buffer) {
-        ns_dyn_mem_free(interface_ptr);
-        ns_dyn_mem_free(tx_buffer);
+    if (!interface_ptr) {
         return -1;
     }
 
     memset(interface_ptr, 0, sizeof(fragmenter_interface_t));
     interface_ptr->interface_id = interface_id;
-    interface_ptr->fragment_indirect_tx_buffer = tx_buffer;
-    interface_ptr->mtu_size = mac_mtu_size;
+    interface_ptr->fragment_indirect_tx_buffer = NULL;
+    interface_ptr->mtu_size = 0;
     interface_ptr->msduHandle = randLIB_get_8bit();
     interface_ptr->local_frag_tag = randLIB_get_16bit();
 
@@ -938,6 +935,7 @@ static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buf
     }
 
     if (interface_ptr->mpx_api) {
+        dataReq.ExtendedFrameExchange = buf->options.edfe_mode;
         interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id);
     } else {
         cur->mac_api->mcps_data_req(cur->mac_api, &dataReq);
@@ -996,6 +994,18 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
 
     //Check packet size
     bool fragmented_needed = lowpan_adaptation_request_longer_than_mtu(cur, buf, interface_ptr);
+    if (fragmented_needed) {
+        // If fragmentation TX buffer not allocated, do it now.
+        if (!interface_ptr->fragment_indirect_tx_buffer && !interface_ptr->mtu_size) {
+            interface_ptr->fragment_indirect_tx_buffer = ns_dyn_mem_alloc(cur->mac_api->phyMTU);
+            if (interface_ptr->fragment_indirect_tx_buffer) {
+                interface_ptr->mtu_size = cur->mac_api->phyMTU;
+            } else {
+                tr_error("Failed to allocate fragmentation buffer");
+                goto tx_error_handler;
+            }
+        }
+    }
     bool is_unicast = buf->link_specific.ieee802_15_4.requestAck;
     bool indirect = buf->link_specific.ieee802_15_4.indirectTxProcess;
 

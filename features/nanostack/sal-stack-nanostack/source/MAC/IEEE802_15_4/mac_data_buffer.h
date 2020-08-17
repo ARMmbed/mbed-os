@@ -98,6 +98,8 @@ typedef struct mac_pre_build_frame {
     bool asynch_request: 1;
     bool message_builded: 1;
     bool DSN_allocated: 1;
+    bool ExtendedFrameExchange: 1;
+    bool WaitResponse: 1;
     unsigned security_mic_len: 5;   //Max possible lengths 0, 4, 8, 16 bytes
     unsigned priority: 2;
     struct mac_pre_build_frame *next; //Pointer for queue purpose

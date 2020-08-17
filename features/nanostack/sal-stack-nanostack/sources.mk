@@ -113,12 +113,15 @@ SRCS += \
 	source/Security/protocols/sec_prot_certs.c \
 	source/Security/protocols/key_sec_prot/key_sec_prot.c \
 	source/Security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c \
+	source/Security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c \
 	source/Security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c \
 	source/Security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c \
 	source/Security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c \
 	source/Security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c \
 	source/Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c \
 	source/Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c \
+	source/Security/protocols/radius_sec_prot/radius_client_sec_prot.c \
+	source/Security/protocols/radius_sec_prot/avp_helper.c \
 	source/Security/protocols/tls_sec_prot/tls_sec_prot.c \
 	source/Security/protocols/tls_sec_prot/tls_sec_prot_lib.c \
 	source/Security/PANA/eap_protocol.c \
@@ -142,7 +145,7 @@ SRCS += \
 	source/Service_Libs/fhss/channel_list.c \
 	source/Service_Libs/fhss/fhss_test_api.c \
 	source/Service_Libs/fnv_hash/fnv_hash.c \
-	source/Service_Libs/hmac/hmac_sha1.c \
+	source/Service_Libs/hmac/hmac_md.c \
 	source/Service_Libs/ieee_802_11/ieee_802_11.c \
 	source/Service_Libs/nist_aes_kw/nist_aes_kw.c \
 	source/Service_Libs/mac_neighbor_table/mac_neighbor_table.c \
