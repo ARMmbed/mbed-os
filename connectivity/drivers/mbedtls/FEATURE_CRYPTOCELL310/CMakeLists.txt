@@ -9,7 +9,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310/internal
 )
 
 target_sources(mbed-os
