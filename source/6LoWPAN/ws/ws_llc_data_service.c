@@ -112,10 +112,16 @@ typedef struct {
     bool                            active_eapol_session: 1;        /**< Indicating active EAPOL message */
 } temp_entriest_t;
 
+/** EDFE response and Enhanced ACK data length */
+
+#define ENHANCED_FRAME_RESPONSE (WH_IE_ELEMENT_HEADER_LENGTH + 2 + WH_IE_ELEMENT_HEADER_LENGTH + 4 + WH_IE_ELEMENT_HEADER_LENGTH + 1 + WH_IE_ELEMENT_HEADER_LENGTH + 5)
+
 typedef struct {
     uint8_t                         mac_handle_base;                /**< Mac handle id base this will be updated by 1 after use */
     uint8_t                         llc_message_list_size;          /**< llc_message_list list size */
+    uint16_t                        edfe_rx_wait_timer;
     mpx_class_t                     mpx_data_base;                  /**< MPX data be including USER API Class and user call backs */
+
     llc_message_list_t              llc_message_list;               /**< Active Message list */
     llc_ie_params_t                 ie_params;                      /**< LLC IE header and Payload data configuration */
     temp_entriest_t                 *temp_entries;
@@ -123,7 +129,7 @@ typedef struct {
     ws_asynch_ind                   *asynch_ind;                    /**< LLC Asynch data indication call back configured by user */
     ws_asynch_confirm               *asynch_confirm;                /**< LLC Asynch data confirmation call back configured by user */
     ws_neighbor_info_request        *ws_neighbor_info_request_cb;   /**< LLC Neighbour discover API*/
-    uint8_t                         ws_enhanced_ack_elements[WH_IE_ELEMENT_HEADER_LENGTH + 4 + WH_IE_ELEMENT_HEADER_LENGTH + 1];
+    uint8_t                         ws_enhanced_response_elements[ENHANCED_FRAME_RESPONSE];
     ns_ie_iovec_t                   ws_header_vector;
     protocol_interface_info_entry_t *interface_ptr;                 /**< List link entry */
 
@@ -166,6 +172,30 @@ static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message);
+
+static bool test_skip_first_init_response = false;
+static uint8_t test_drop_data_message = 0;
+
+
+int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+    test_skip_first_init_response = skip;
+    return 0;
+}
+
+int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+    test_drop_data_message = number_of_dropped_frames;
+    return 0;
+}
 
 /** Discover Message by message handle id */
 static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_message_list_t *list)
@@ -304,7 +334,7 @@ static uint16_t ws_wh_headers_length(wh_ie_sub_list_t requested_list, llc_ie_par
 
     if (requested_list.fc_ie) {
         //Static 1 bytes allways
-        length += WH_IE_ELEMENT_HEADER_LENGTH + 1;
+        length += WH_IE_ELEMENT_HEADER_LENGTH + 2;
     }
 
     if (requested_list.rsl_ie) {
@@ -414,7 +444,6 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
     }
 
     protocol_interface_info_entry_t *interface = base->interface_ptr;
-
     llc_message_t *message = llc_message_discover_by_mac_handle(data->msduHandle, &base->llc_message_list);
     if (!message) {
         return;
@@ -520,14 +549,15 @@ static void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_
     memset(data, 0, sizeof(mcps_ack_data_payload_t));
     //Add just 2 header elements to inside 1 block
     data->ie_elements.headerIeVectorList = &base->ws_header_vector;
-    base->ws_header_vector.ieBase = base->ws_enhanced_ack_elements;
-    base->ws_header_vector.iovLen = sizeof(base->ws_enhanced_ack_elements);
+    base->ws_header_vector.ieBase = base->ws_enhanced_response_elements;
+
     data->ie_elements.headerIovLength = 1;
 
     //Write Data to block
-    uint8_t *ptr = base->ws_enhanced_ack_elements;
+    uint8_t *ptr = base->ws_enhanced_response_elements;
     ptr = ws_wh_utt_write(ptr, WS_FT_ACK);
-    ws_wh_rsl_write(ptr, ws_neighbor_class_rsl_from_dbm_calculate(rssi));
+    ptr = ws_wh_rsl_write(ptr, ws_neighbor_class_rsl_from_dbm_calculate(rssi));
+    base->ws_header_vector.iovLen = ptr - base->ws_enhanced_response_elements;
 }
 
 
@@ -613,8 +643,14 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
     protocol_interface_info_entry_t *interface = base->interface_ptr;
 
     //Validate Unicast shedule Channel Plan
-    if (us_ie_inline && !ws_bootstrap_validate_channel_plan(&us_ie, interface)) {
-        //Channel plan configuration mismatch
+    if (us_ie_inline &&
+            (!ws_bootstrap_validate_channel_plan(&us_ie, interface) ||
+             !ws_bootstrap_validate_channel_function(&us_ie, NULL))) {
+        //Channel plan or channel function configuration mismatch
+        return;
+    }
+
+    if (bs_ie_inline && !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie)) {
         return;
     }
 
@@ -648,14 +684,14 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         }
     }
 
-    if (!multicast && !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, data->DSN, data->timestamp)) {
+    if (!multicast && !data->DSN_suppressed && !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, data->DSN, data->timestamp)) {
         tr_info("Drop duplicate message");
         return;
     }
 
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp);
     if (us_ie_inline) {
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie, &interface->ws_info->hopping_schdule);
     }
     //Update BS if it is part of message
     if (bs_ie_inline) {
@@ -730,8 +766,14 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     protocol_interface_info_entry_t *interface = base->interface_ptr;
 
     //Validate Unicast shedule Channel Plan
-    if (us_ie_inline && !ws_bootstrap_validate_channel_plan(&us_ie, interface)) {
-        //Channel plan configuration mismatch
+    if (us_ie_inline &&
+            (!ws_bootstrap_validate_channel_plan(&us_ie, interface) ||
+             !ws_bootstrap_validate_channel_function(&us_ie, NULL))) {
+        //Channel plan or channel function configuration mismatch
+        return;
+    }
+
+    if (bs_ie_inline && !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie)) {
         return;
     }
 
@@ -755,7 +797,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     uint8_t auth_eui64[8];
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp);
     if (us_ie_inline) {
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie, &interface->ws_info->hopping_schdule);
     }
     //Update BS if it is part of message
     if (bs_ie_inline) {
@@ -933,6 +975,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         nested_wp_id.vp_ie = true;
     }
 
+    if (data->ExtendedFrameExchange && data->TxAckReq) {
+        ie_header_mask.fc_ie = true;
+    }
     if (!data->TxAckReq) {
         nested_wp_id.bs_ie = true;
     }
@@ -977,17 +1022,31 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
 
-    if (!data->TxAckReq) {
-        data_req.PanIdSuppressed = false;
-        data_req.DstAddrMode = MAC_ADDR_MODE_NONE;
-    } else {
+    if (data->ExtendedFrameExchange && data->TxAckReq) {
+        data_req.SeqNumSuppressed = true;
         data_req.PanIdSuppressed = true;
+        data_req.TxAckReq = true; // This will be changed inside MAC
+    } else {
+        data_req.ExtendedFrameExchange = false; //Do not accept EDFE for non unicast traffic
+        if (!data->TxAckReq) {
+            data_req.PanIdSuppressed = false;
+            data_req.DstAddrMode = MAC_ADDR_MODE_NONE;
+        } else {
+            data_req.PanIdSuppressed = true;
+        }
     }
 
     uint8_t *ptr = ws_message_buffer_ptr_get(message);
     message->messsage_type = WS_FT_DATA;
 
     message->ie_vector_list[0].ieBase = ptr;
+    if (ie_header_mask.fc_ie) {
+        ws_fc_ie_t fc_ie;
+        fc_ie.tx_flow_ctrl = 50;//No data at initial frame
+        fc_ie.rx_flow_ctrl = 255;
+        //Write Flow control for 1 packet send this will be modified at real data send
+        ptr = ws_wh_fc_write(ptr, &fc_ie);
+    }
     //Write UTT
 
     ptr = ws_wh_utt_write(ptr, message->messsage_type);
@@ -1022,6 +1081,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_vector_list[2].iovLen =  data->msduLength;
 
     ws_llc_lowpan_mpx_header_set(message, MPX_LOWPAN_ENC_USER_ID);
+    if (data->ExtendedFrameExchange) {
+        message->ie_ext.payloadIovLength = 0; //Set Back 2 at response handler
+    }
 
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL);
 }
@@ -1050,6 +1112,7 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->TxAckReq = message->ack_requested;
     data_req->DstPANId = message->pan_id;
     data_req->SrcAddrMode = message->src_address_type;
+    data_req->ExtendedFrameExchange = false;
     if (!data_req->TxAckReq) {
         data_req->PanIdSuppressed = false;
         data_req->DstAddrMode = MAC_ADDR_MODE_NONE;
@@ -1403,6 +1466,104 @@ void ws_llc_free_multicast_temp_entry(protocol_interface_info_entry_t *cur, ws_n
 }
 
 
+static void  ws_llc_build_edfe_response(llc_data_base_t *base, mcps_edfe_response_t *response_message, ws_fc_ie_t fc_ie)
+{
+    memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
+    response_message->ie_response.headerIeVectorList = &base->ws_header_vector;
+    base->ws_header_vector.ieBase = base->ws_enhanced_response_elements;
+    response_message->ie_response.headerIovLength = 1;
+
+    //Write Data to block
+    uint8_t *ptr = base->ws_header_vector.ieBase;
+    ptr = ws_wh_fc_write(ptr, &fc_ie);
+    ptr = ws_wh_utt_write(ptr, WS_FT_DATA);
+    ptr = ws_wh_bt_write(ptr);
+    ptr = ws_wh_rsl_write(ptr, ws_neighbor_class_rsl_from_dbm_calculate(response_message->rssi));
+    base->ws_header_vector.iovLen = ptr - base->ws_enhanced_response_elements;
+    response_message->SrcAddrMode = MAC_ADDR_MODE_NONE;
+    response_message->wait_response = false;
+    response_message->PanIdSuppressed = true;
+}
+
+static void  ws_llc_build_edfe_frame(llc_message_t *message, mcps_edfe_response_t *response_message, ws_fc_ie_t fc_ie)
+{
+    memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
+    uint8_t *ptr = message->ie_vector_list[0].ieBase;
+    fc_ie.tx_flow_ctrl = 0;//Put Data with Handshake
+    fc_ie.rx_flow_ctrl = 255;
+    //Write Flow control for 1 packet send this will be modified at real data send
+    ptr = ws_wh_fc_write(ptr, &fc_ie);
+    response_message->ie_response.headerIeVectorList = &message->ie_vector_list[0];
+    response_message->ie_response.headerIovLength = 1;
+    response_message->ie_response.payloadIeVectorList = &message->ie_vector_list[1];
+    response_message->ie_response.payloadIovLength = 2;
+    response_message->SrcAddrMode = MAC_ADDR_MODE_NONE;
+    response_message->wait_response = true;
+    response_message->PanIdSuppressed = true;
+    //tr_debug("FC:Send Data frame");
+    response_message->edfe_message_status = MCPS_EDFE_TX_FRAME;
+}
+
+static void ws_llc_mcps_edfe_handler(const mac_api_t *api, mcps_edfe_response_t *response_message)
+{
+    // INSIDE this shuold not print anything
+    response_message->edfe_message_status = MCPS_EDFE_NORMAL_FRAME;
+    llc_data_base_t *base = ws_llc_discover_by_mac(api);
+    if (!base) {
+        return;
+    }
+    //Discover Here header FC-IE element
+    ws_fc_ie_t fc_ie;
+    if (!ws_wh_fc_read(response_message->ie_elements.headerIeList, response_message->ie_elements.headerIeListLength, &fc_ie)) {
+        return;
+    }
+    //tr_debug("Flow ctrl(%u TX,%u RX)", fc_ie.tx_flow_ctrl, fc_ie.rx_flow_ctrl);
+    if (fc_ie.tx_flow_ctrl == 0 && fc_ie.rx_flow_ctrl) {
+
+        llc_message_t *message = NULL;
+        if (response_message->use_message_handle_to_discover) {
+            message = llc_message_discover_by_mac_handle(response_message->message_handle, &base->llc_message_list);
+        }
+
+        if (!message) {
+            //tr_debug("FC:Send a Final Frame");
+            if (test_drop_data_message) {
+                test_drop_data_message--;
+                base->edfe_rx_wait_timer += 99;
+                response_message->edfe_message_status = MCPS_EDFE_MALFORMED_FRAME;
+                return;
+            }
+            fc_ie.rx_flow_ctrl = 0;
+            base->edfe_rx_wait_timer = 0;
+            ws_llc_build_edfe_response(base, response_message, fc_ie);
+            response_message->edfe_message_status = MCPS_EDFE_FINAL_FRAME_TX;
+        } else {
+            if (test_skip_first_init_response) {
+                //Skip data send and test timeout at Slave side
+                test_skip_first_init_response = false;
+                response_message->edfe_message_status = MCPS_EDFE_FINAL_FRAME_RX;
+                return;
+            }
+            ws_llc_build_edfe_frame(message, response_message, fc_ie);
+        }
+
+    } else if (fc_ie.tx_flow_ctrl == 0 && fc_ie.rx_flow_ctrl == 0) {
+        //tr_debug("FC:Received a Final Frame");
+        base->edfe_rx_wait_timer = 0;
+        response_message->edfe_message_status = MCPS_EDFE_FINAL_FRAME_RX;
+    } else if (fc_ie.tx_flow_ctrl && fc_ie.rx_flow_ctrl) {
+        base->edfe_rx_wait_timer = fc_ie.tx_flow_ctrl + 99;
+        fc_ie.tx_flow_ctrl = 0;
+        fc_ie.rx_flow_ctrl = 255;
+        //tr_debug("FC:Send a response");
+        //Enable or refesh timeout timer
+        ws_llc_build_edfe_response(base, response_message, fc_ie);
+        response_message->edfe_message_status = MCPS_EDFE_RESPONSE_FRAME;
+    }
+}
+
+
+
 int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
@@ -1423,6 +1584,7 @@ int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_
     base->ws_neighbor_info_request_cb = ws_neighbor_info_request_cb;
     //Register MAC Extensions
     base->interface_ptr->mac_api->mac_mcps_extension_enable(base->interface_ptr->mac_api, &ws_llc_mac_indication_cb, &ws_llc_mac_confirm_cb, &ws_llc_ack_data_req_ext);
+    base->interface_ptr->mac_api->mac_mcps_edfe_enable(base->interface_ptr->mac_api, &ws_llc_mcps_edfe_handler);
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
     ws_llc_temp_neigh_info_table_reset(base->temp_entries);
@@ -1508,6 +1670,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     data_req.SrcAddrMode = MAC_ADDR_MODE_64_BIT;
     data_req.Key = request->security;
     data_req.msduHandle = message->msg_handle;
+    data_req.ExtendedFrameExchange = false;
     if (request->message_type == WS_FT_PAN_ADVERT_SOL) {
         // PANID not know yet must be supressed
         data_req.PanIdSuppressed = true;
@@ -1649,6 +1812,39 @@ void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interf
         return;
     }
     base->ie_params.hopping_schedule = hopping_schedule;
+}
+
+void ws_llc_fast_timer(struct protocol_interface_info_entry *interface, uint16_t ticks)
+{
+    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    if (!base || !base->edfe_rx_wait_timer) {
+        return;
+    }
+
+    if (ticks > 0xffff / 100) {
+        ticks = 0xffff;
+    } else if (ticks == 0) {
+        ticks = 1;
+    } else {
+        ticks *= 100;
+    }
+
+    if (base->edfe_rx_wait_timer > ticks) {
+        base->edfe_rx_wait_timer -= ticks;
+    } else {
+        base->edfe_rx_wait_timer = 0;
+        tr_debug("EDFE Data Wait Timeout");
+        //MAC edfe wait data timeout
+        if (interface->mac_api && interface->mac_api->mlme_req) {
+            mlme_set_t set_req;
+            uint8_t value = 0;
+            set_req.attr = macEdfeForceStop;
+            set_req.attr_index = 0;
+            set_req.value_pointer = &value;
+            set_req.value_size = 1;
+            interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
+        }
+    }
 }
 
 void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint16_t seconds_update)

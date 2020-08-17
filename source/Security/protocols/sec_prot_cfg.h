@@ -43,4 +43,19 @@ typedef struct sec_timer_cfg_s {
     uint8_t gtk_new_install_req;                     /* GTK_NEW_INSTALL_REQUIRED (percent of GTK lifetime) */
 } sec_timer_cfg_t;
 
+/* Security radius configuration settings */
+
+typedef struct sec_radius_cfg_s {
+    uint8_t radius_addr[16];                         /**< Radius server IPv6 address */
+    uint8_t *radius_shared_secret;                   /**< Radius shared secret */
+    uint16_t radius_shared_secret_len;               /**< Radius shared secret length */
+    bool radius_addr_set : 1;                        /**< Radius server address is set */
+} sec_radius_cfg_t;
+
+typedef struct sec_cfg_s {
+    sec_prot_cfg_t prot_cfg;
+    sec_timer_cfg_t timer_cfg;
+    sec_radius_cfg_t radius_cfg;
+} sec_cfg_t;
+
 #endif /* SEC_PROT_CONF_H_ */

@@ -36,8 +36,8 @@
 #include "Security/protocols/sec_prot_keys.h"
 #include "Security/protocols/sec_prot.h"
 #include "Security/protocols/sec_prot_lib.h"
+#include "Service_Libs/hmac/hmac_md.h"
 #include "Service_Libs/ieee_802_11/ieee_802_11.h"
-#include "Service_Libs/hmac/hmac_sha1.h"
 #include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
 #include "mbedtls/sha256.h"
 
@@ -297,7 +297,7 @@ int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, co
     ptr += EUI64_LEN;
     memcpy(ptr, supp_eui64, EUI64_LEN);
 
-    if (hmac_sha1_calc(pmk, PMK_LEN, data, data_len, pmkid, PMKID_LEN) < 0) {
+    if (hmac_md_calc(ALG_HMAC_SHA1_160, pmk, PMK_LEN, data, data_len, pmkid, PMKID_LEN) < 0) {
         return -1;
     }
 
@@ -319,7 +319,7 @@ int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, co
     ptr += EUI64_LEN;
     memcpy(ptr, supp_eui64, EUI64_LEN);
 
-    if (hmac_sha1_calc(ptk, PTK_LEN, data, data_len, ptkid, PTKID_LEN) < 0) {
+    if (hmac_md_calc(ALG_HMAC_SHA1_160, ptk, PTK_LEN, data, data_len, ptkid, PTKID_LEN) < 0) {
         return -1;
     }
 
@@ -351,7 +351,7 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
 
     if (eapol_pdu->msg.key.key_information.key_mic) {
         uint8_t mic[EAPOL_KEY_MIC_LEN];
-        if (hmac_sha1_calc(ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN) < 0) {
+        if (hmac_md_calc(ALG_HMAC_SHA1_160, ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN) < 0) {
             ns_dyn_mem_free(eapol_pdu_frame);
             return NULL;
         }
@@ -434,7 +434,7 @@ int8_t sec_prot_lib_mic_validate(uint8_t *ptk, uint8_t *mic, uint8_t *pdu, uint8
     eapol_write_key_packet_mic(pdu, 0);
 
     uint8_t calc_mic[EAPOL_KEY_MIC_LEN];
-    if (hmac_sha1_calc(ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic, EAPOL_KEY_MIC_LEN) < 0) {
+    if (hmac_md_calc(ALG_HMAC_SHA1_160, ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic, EAPOL_KEY_MIC_LEN) < 0) {
         tr_error("MIC invalid");
         return -1;
     }
@@ -445,7 +445,7 @@ int8_t sec_prot_lib_mic_validate(uint8_t *ptk, uint8_t *mic, uint8_t *pdu, uint8
     return 0;
 }
 
-int8_t sec_prot_lib_pmkid_generate(sec_prot_t *prot, uint8_t *pmkid, bool is_auth)
+int8_t sec_prot_lib_pmkid_generate(sec_prot_t *prot, uint8_t *pmkid, bool is_auth, bool alt_remote_eui64_use, uint8_t *used_remote_eui64)
 {
     uint8_t *pmk = sec_prot_keys_pmk_get(prot->sec_keys);
     if (!pmk) {
@@ -456,12 +456,20 @@ int8_t sec_prot_lib_pmkid_generate(sec_prot_t *prot, uint8_t *pmkid, bool is_aut
     uint8_t remote_eui64[8];
     // Tries to get the EUI-64 that is validated by PTK procedure or bound to supplicant entry
     uint8_t *remote_eui64_ptr = sec_prot_keys_ptk_eui_64_get(prot->sec_keys);
-    if (remote_eui64_ptr) {
+    if (remote_eui64_ptr && !alt_remote_eui64_use) {
         memcpy(remote_eui64, remote_eui64_ptr, 8);
         prot->addr_get(prot, local_eui64, NULL);
     } else {
+        // If request is for alternative EUI-64, but PTK EUI-64 is not present, returns failure
+        if (alt_remote_eui64_use && !remote_eui64_ptr) {
+            return -1;
+        }
         // If validated EUI-64 is not present, use the remote EUI-64
         prot->addr_get(prot, local_eui64, remote_eui64);
+    }
+
+    if (used_remote_eui64 != NULL) {
+        memcpy(used_remote_eui64, remote_eui64, 8);
     }
 
     if (is_auth) {

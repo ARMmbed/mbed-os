@@ -49,7 +49,7 @@ typedef struct {
 
 static NS_LIST_DEFINE(kmp_eapol_pdu_if_list, kmp_eapol_pdu_if_t, link);
 
-static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier);
+static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier);
 static int8_t kmp_eapol_pdu_if_tx_status(protocol_interface_info_entry_t *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
 
 int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, protocol_interface_info_entry_t *interface_ptr)
@@ -72,7 +72,7 @@ int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, protocol_interface_info
     eapol_pdu_if->kmp_service = service;
     eapol_pdu_if->interface_ptr = interface_ptr;
 
-    if (kmp_service_msg_if_register(service, kmp_eapol_pdu_if_send, EAPOL_PDU_IF_HEADER_SIZE) < 0) {
+    if (kmp_service_msg_if_register(service, 0, kmp_eapol_pdu_if_send, EAPOL_PDU_IF_HEADER_SIZE) < 0) {
         ns_dyn_mem_free(eapol_pdu_if);
         return -1;
     }
@@ -92,14 +92,16 @@ int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service)
         if (entry->kmp_service == service) {
             ns_list_remove(&kmp_eapol_pdu_if_list, entry);
             ns_dyn_mem_free(entry);
-            kmp_service_msg_if_register(service, NULL, 0);
+            kmp_service_msg_if_register(service, 0, NULL, 0);
         }
     }
     return 0;
 }
 
-static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier)
+static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier)
 {
+    (void) instance_id; // Only one instance of eapol interface possible
+
     if (!service || !addr || !pdu) {
         return -1;
     }
@@ -157,7 +159,7 @@ int8_t kmp_eapol_pdu_if_receive(protocol_interface_info_entry_t *interface_ptr, 
         return -1;
     }
 
-    int8_t ret = kmp_service_msg_if_receive(service, type, &addr, data_pdu, data_pdu_size);
+    int8_t ret = kmp_service_msg_if_receive(service, 0, type, &addr, data_pdu, data_pdu_size);
 
     return ret;
 }

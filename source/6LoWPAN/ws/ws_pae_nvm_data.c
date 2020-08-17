@@ -281,7 +281,7 @@ int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
     return 0;
 }
 
-void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t restart_cnt, frame_counters_t *counters)
+void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters)
 {
     tlv_entry->tag = PAE_NVM_FRAME_COUNTER_TAG;
     tlv_entry->len = PAE_NVM_FRAME_COUNTER_LEN;
@@ -292,6 +292,8 @@ void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t re
 
     uint64_t stored_time = ws_pae_current_time_get();
     tlv = common_write_64_bit(stored_time, tlv);
+
+    tlv = common_write_16_bit(pan_version, tlv);
 
     for (uint8_t index = 0; index < GTK_NUM; index++) {
         if (!counters->counter[index].set) {
@@ -309,7 +311,7 @@ void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t re
     tr_debug("NVM FRAME COUNTER write");
 }
 
-int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, frame_counters_t *counters)
+int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters)
 {
     if (!tlv_entry || !counters) {
         return -1;
@@ -326,6 +328,9 @@ int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_t *tlv_entry, uint32_t *r
 
     *stored_time = common_read_64_bit(tlv);
     tlv += 8;
+
+    *pan_version = common_read_16_bit(tlv);
+    tlv += 2;
 
     for (uint8_t index = 0; index < GTK_NUM; index++) {
         // Frame counter not set
