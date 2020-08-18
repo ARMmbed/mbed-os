@@ -215,7 +215,7 @@
 #endif
 // Maximum length of input line
 #ifndef MBED_CONF_CMDLINE_MAX_LINE_LENGTH
-#define MBED_CONF_CMDLINE_MAX_LINE_LENGTH 200
+#define MBED_CONF_CMDLINE_MAX_LINE_LENGTH 2000
 #endif
 // Maximum number of arguments in a single command
 #ifndef MBED_CONF_CMDLINE_ARGS_MAX_COUNT

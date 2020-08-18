@@ -42,7 +42,7 @@
       "value": null
     },
     "max_line_length": {
-      "help": "maximum input line length. Defaults to 200 when not set",
+      "help": "maximum input line length. Defaults to 2000 when not set",
       "value": null
     },
     "args_max_count": {
