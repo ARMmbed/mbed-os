@@ -23,10 +23,6 @@
  * \brief Struct ws_rpl_info Wi-SUN router RPL information.
  */
 typedef struct ws_rpl_info {
-    /** IPv6 Global Address of Router Node*/
-    uint8_t global_addr[16];
-    /** IPv6 Link Local Address of Router Node*/
-    uint8_t link_local_addr[16];
     /** Router dodag id */
     uint8_t rpl_dodag_id[16];
     /** Router instance identifier */
@@ -37,19 +33,27 @@ typedef struct ws_rpl_info {
     uint16_t curent_rank;
     /** RPL Primary Parent Rank */
     uint16_t primary_parent_rank;
-    /** RPL Primary Parent Address */
-    uint8_t rpl_parent_addr[16];
 } ws_rpl_info_t;
 
 /**
- * \brief Struct ws_radio_info Wi-SUN router Radio Quality information.
+ * \brief Struct ws_stack_state Wi-SUN stack information.
  */
-typedef struct ws_radio_info {
-/** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
-    uint8_t rsl_in;
+typedef struct ws_stack_state {
+    /** Mesh Interface Global IPv6 Address */
+    uint8_t global_addr[16];
+    /** Mesh Interface Link Local IPv6 Address */
+    uint8_t link_local_addr[16];
+    /** Parent link local address */
+    uint8_t parent_addr[16];
     /** parent RSSI Out measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
     uint8_t rsl_out;
-} ws_radio_info_t;
+    /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_in;
+    /** Wi-SUN join state defined by Wi-SUN specification 1-5 */
+    uint8_t join_state;
+    /** Network PAN ID */
+    uint16_t pan_id;
+} ws_stack_state_t;
 
 /** Wi-SUN mesh network interface class
  *
@@ -479,17 +483,17 @@ public:
     mesh_error_t info_get(ws_rpl_info_t *info_ptr);
 
     /**
-     * \brief Get Wi-SUN Radio Quality information.
+     * \brief Get Wi-SUN Stack information.
      *
      * Function reads Stack information from nanostack.
      * Mesh interface must be initialized before calling this function.
      *
-     * \param radio_info_ptr Structure given to stack where information will be stored
+     * \param stack_info_ptr Structure given to stack where information will be stored
      *
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    mesh_error_t radio_info_get(ws_radio_info_t *radio_info_ptr);
+    mesh_error_t stack_info_get(ws_stack_state_t *stack_info_ptr);
 
 protected:
     Nanostack::WisunInterface *get_interface() const;
