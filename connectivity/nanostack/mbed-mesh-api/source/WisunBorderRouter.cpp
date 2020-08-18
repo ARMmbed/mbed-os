@@ -18,6 +18,7 @@
 #include "ns_trace.h"
 #include "WisunBorderRouter.h"
 #include "MeshInterfaceNanostack.h"
+#include "net_interface.h"
 
 extern "C" {
 #include "ws_bbr_api.h"
@@ -51,6 +52,7 @@ mesh_error_t WisunBorderRouter::start(NetworkInterface *mesh_if, NetworkInterfac
     if (backbone_if_id < 0) {
         return MESH_ERROR_UNKNOWN;
     }
+    _backbone_if_id = backbone_if_id;
 
     int ret = ws_bbr_start(mesh_if_id, backbone_if_id);
     if (ret < 0) {
@@ -157,6 +159,8 @@ mesh_error_t WisunBorderRouter::validate_pan_configuration(uint16_t pan_id)
 mesh_error_t WisunBorderRouter::info_get(ws_br_info_t *info_ptr)
 {
     bbr_information_t bbr_info = {0};
+    uint8_t mesh_link_local_addr[16] = {0};
+    uint8_t backbone_global_addr[16] = {0};
 
     if (info_ptr == NULL) {
         return MESH_ERROR_PARAM;
@@ -167,13 +171,24 @@ mesh_error_t WisunBorderRouter::info_get(ws_br_info_t *info_ptr)
         return MESH_ERROR_UNKNOWN;
     }
 
+    if (arm_net_address_get(_mesh_if_id, ADDR_IPV6_LL, mesh_link_local_addr) != 0) {
+        // No global prefix available, Nothing to do.
+    }
+
+    if (arm_net_address_get(_backbone_if_id, ADDR_IPV6_GP, backbone_global_addr) != 0) {
+        // No global prefix available, Nothing to do.
+    }
+
     info_ptr->device_count = bbr_info.devices_in_network;
     info_ptr->host_timestamp = bbr_info.timestamp;
     info_ptr->instance_id = bbr_info.instance_id;
     info_ptr->version = bbr_info.version;
     memcpy(info_ptr->rpl_dodag_id, bbr_info.dodag_id, 16);
-    memcpy(info_ptr->ipv6_prefix, bbr_info.prefix, 8);
-    memcpy(info_ptr->ipv6_iid, bbr_info.IID, 8);
+    memcpy(info_ptr->global_addr, bbr_info.prefix, 8);
+    memcpy(info_ptr->global_addr + 8, bbr_info.IID, 8);
+    memcpy(info_ptr->gateway_addr, bbr_info.gateway, 16);
+    memcpy(info_ptr->link_local_addr, mesh_link_local_addr, 16);
+    memcpy(info_ptr->backbone_global_addr, backbone_global_addr, 16);
 
     return MESH_ERROR_NONE;
 }

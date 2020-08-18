@@ -21,10 +21,10 @@
  * \brief Struct br_information Border router dynamic information.
  */
 typedef struct ws_br_info {
-    /** Address prefix given to devices in network  set to 0 if not available*/
-    uint8_t ipv6_prefix[8];
-    /** IID of Border router */
-    uint8_t ipv6_iid[8];
+    /** Mesh Interface Global Address */
+    uint8_t global_addr[16];
+    /** Mesh Interface Link Local Address */
+    uint8_t link_local_addr[16];
     /** Border router dodag id */
     uint8_t rpl_dodag_id[16];
     /** Border router instance identifier defined in RPL */
@@ -35,6 +35,10 @@ typedef struct ws_br_info {
     uint64_t host_timestamp;
     /** Amount of devices in the network. */
     uint16_t device_count;
+    /** Backbone IPv6 Global Address */
+    uint8_t backbone_global_addr[16];
+    /** Gateway Local Address */
+    uint8_t gateway_addr[16];
 } ws_br_info_t;
 
 /**
@@ -209,6 +213,7 @@ public:
 
 private:
     int8_t _mesh_if_id = -1;
+    int8_t _backbone_if_id = -1;
 
 };
 
