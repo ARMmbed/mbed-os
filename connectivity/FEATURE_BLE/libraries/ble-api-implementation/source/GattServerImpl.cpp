@@ -991,9 +991,24 @@ uint8_t GattServer::atts_write_cb(
 {
     uint8_t err;
 
-    /* TODO: offset is not handled properly */
-    if ((err = AttsSetAttr(handle, len, pValue)) != ATT_SUCCESS) {
-        return err;
+    /* we don't write anything during the prepare phase */
+    bool write_happened = (operation != ATT_PDU_PREP_WRITE_REQ);
+
+    if (len > pAttr->maxLen) {
+        return ATT_ERR_LENGTH;
+    }
+
+    if (write_happened) {
+        WsfTaskLock();
+
+        memcpy((pAttr->pValue + offset), pValue, len);
+
+        /* write the length if variable length attribute */
+        if ((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) {
+            *(pAttr->pLen) = offset + len;
+        }
+
+        WsfTaskUnlock();
     }
 
     GattWriteCallbackParams::WriteOp_t writeOp;
@@ -1043,15 +1058,18 @@ uint8_t GattServer::atts_write_cb(
         }
     }
 
-    GattWriteCallbackParams write_params = {
-        connId,
-        handle,
-        writeOp,
-        offset,
-        len,
-        pValue
-    };
-    getInstance().handleDataWrittenEvent(&write_params);
+    if (write_happened) {
+        GattWriteCallbackParams write_params = {
+            connId,
+            handle,
+            writeOp,
+            offset,
+            len,
+            pValue
+        };
+
+        getInstance().handleDataWrittenEvent(&write_params);
+    }
 
     return ATT_SUCCESS;
 }
