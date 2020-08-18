@@ -23,17 +23,33 @@
  * \brief Struct ws_rpl_info Wi-SUN router RPL information.
  */
 typedef struct ws_rpl_info {
-    /** Address prefix given to devices in network  set to 0 if not available*/
-    uint8_t ipv6_prefix[8];
-    /** IID of router */
-    uint8_t ipv6_iid[8];
+    /** IPv6 Global Address of Router Node*/
+    uint8_t global_addr[16];
+    /** IPv6 Link Local Address of Router Node*/
+    uint8_t link_local_addr[16];
     /** Router dodag id */
     uint8_t rpl_dodag_id[16];
     /** Router instance identifier */
     uint8_t instance_id;
     /** RPL version number */
     uint8_t version;
+    /** RPL DODAG node current Rank */
+    uint16_t curent_rank;
+    /** RPL Primary Parent Rank */
+    uint16_t primary_parent_rank;
+    /** RPL Primary Parent Address */
+    uint8_t rpl_parent_addr[16];
 } ws_rpl_info_t;
+
+/**
+ * \brief Struct ws_radio_info Wi-SUN router Radio Quality information.
+ */
+typedef struct ws_radio_info {
+/** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_in;
+    /** parent RSSI Out measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_out;
+} ws_radio_info_t;
 
 /** Wi-SUN mesh network interface class
  *
@@ -461,6 +477,19 @@ public:
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
     mesh_error_t info_get(ws_rpl_info_t *info_ptr);
+
+    /**
+     * \brief Get Wi-SUN Radio Quality information.
+     *
+     * Function reads Stack information from nanostack.
+     * Mesh interface must be initialized before calling this function.
+     *
+     * \param radio_info_ptr Structure given to stack where information will be stored
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t radio_info_get(ws_radio_info_t *radio_info_ptr);
 
 protected:
     Nanostack::WisunInterface *get_interface() const;
