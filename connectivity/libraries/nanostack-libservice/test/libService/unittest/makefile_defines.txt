@@ -1,0 +1,20 @@
+#--- Inputs ----#
+MBED_TRACE_HOME = ../../../../../mbed-trace
+CPPUTEST_HOME = /usr
+CPPUTEST_USE_EXTENSIONS = Y
+CPPUTEST_USE_VPATH = Y
+CPPUTEST_USE_GCOV = Y
+CPP_PLATFORM = gcc
+INCLUDE_DIRS =\
+  .\
+  ../common\
+  ../stubs\
+  ../../../..\
+  ../../../../source\
+  ../../../../mbed-client-libservice\
+  $(MBED_TRACE_HOME)\
+  /usr/include\
+  $(CPPUTEST_HOME)/include\
+
+CPPUTESTFLAGS = -D__thumb2__ -w
+CPPUTEST_CFLAGS += -std=gnu99
