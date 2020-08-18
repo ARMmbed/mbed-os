@@ -49,10 +49,10 @@
 
 define symbol __ram_vector_table__ = 1;
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
+    define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }
-define symbol __stack_size__=MBED_BOOT_STACK_SIZE;
+define symbol __stack_size__=MBED_CONF_TARGET_BOOT_STACK_SIZE;
 define symbol __heap_size__=0x10000;
 
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000003C0 : 0;

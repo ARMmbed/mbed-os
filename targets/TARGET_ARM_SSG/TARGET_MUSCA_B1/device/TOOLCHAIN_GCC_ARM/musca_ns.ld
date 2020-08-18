@@ -26,8 +26,8 @@
 #include "../cmsis_nvic.h"
 
 /* Stack size is 1K for Mbed-OS */
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE      0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+  #define MBED_CONF_TARGET_BOOT_STACK_SIZE      0x400
 #endif
 
 MEMORY
@@ -37,7 +37,7 @@ MEMORY
   RAM   (rwx) : ORIGIN = NVIC_RAM_VECTOR_LIMIT, LENGTH = (NS_DATA_SIZE - NVIC_RAM_VECTOR_SIZE)
 }
 
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)

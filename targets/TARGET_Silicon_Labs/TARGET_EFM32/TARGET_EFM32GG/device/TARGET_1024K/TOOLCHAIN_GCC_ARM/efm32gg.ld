@@ -17,13 +17,13 @@
   #define MBED_APP_SIZE 1048576
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
 /* With the RTOS in use, this does not affect the main stack size. The size of
  * the stack where main runs is determined via the RTOS. */
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
+STACK_SIZE = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 HEAP_SIZE = 0x6000;
 
