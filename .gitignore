@@ -1,0 +1,7 @@
+*.a
+*.lib
+output
+lcov
+coverage
+build/
+upload.tar.gz
