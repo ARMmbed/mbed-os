@@ -594,7 +594,7 @@ mesh_error_t WisunInterface::info_get(ws_rpl_info_t *info_ptr)
 
     info_ptr->instance_id = dodag_ptr.instance_id;
     info_ptr->version = dodag_ptr.version_num;
-    info_ptr->curent_rank = dodag_ptr.curent_rank;
+    info_ptr->current_rank = dodag_ptr.curent_rank;
     info_ptr->primary_parent_rank = dodag_ptr.primary_parent_rank;
     memcpy(info_ptr->rpl_dodag_id, dodag_ptr.dodag_id, 16);
 

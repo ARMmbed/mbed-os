@@ -30,7 +30,7 @@ typedef struct ws_rpl_info {
     /** RPL version number */
     uint8_t version;
     /** RPL DODAG node current Rank */
-    uint16_t curent_rank;
+    uint16_t current_rank;
     /** RPL Primary Parent Rank */
     uint16_t primary_parent_rank;
 } ws_rpl_info_t;
