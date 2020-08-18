@@ -66,6 +66,10 @@ void ipv6_nd_ra_advert(struct protocol_interface_info_entry *cur, const uint8_t 
 void ipv6_interface_slaac_handler(struct protocol_interface_info_entry *cur, const uint8_t *slaacPrefix, uint8_t prefixLen, uint32_t validLifeTime, uint32_t preferredLifeTime);
 void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint8_t routePrefer);
 void ipv6_stack_route_advert_remove(uint8_t *address, uint8_t prefixLength);
+void ipv6_stack_route_advert_default_route(struct protocol_interface_info_entry *cur, bool enable);
+int8_t ipv6_stack_route_advert_dns_server_add(uint8_t *address);
+void ipv6_stack_route_advert_dns_server_delete(uint8_t *address);
+int8_t ipv6_stack_route_advert_dns_search_list_add(uint8_t *data, uint16_t data_len, uint32_t lifetime);
 void ipv6_prefix_on_link_update(uint8_t *address);
 void ipv6_prefix_on_link_remove(uint8_t *address);
 int8_t ipv6_interface_accept_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra);
@@ -77,6 +81,10 @@ int8_t ipv6_interface_accept_ra(int8_t interface_id, net_ipv6_accept_ra_e accept
 #define ipv6_nd_ra_advert(cur, dest) ((void)0)
 #define ipv6_interface_sitelocal_clone(buf) ((void)0)
 #define ipv6_stack_route_advert_remove(address, prefixLength) ((void)0)
+#define ipv6_stack_route_advert_default_route(cur,enable)
+#define ipv6_stack_route_advert_dns_server_add(address)
+#define ipv6_stack_route_advert_dns_server_delete(address)
+#define ipv6_stack_route_advert_dns_search_list_add(data, data_len, lifetime)
 #define ipv6_prefix_on_link_update(address) ((void)0)
 #define ipv6_prefix_on_link_remove(address) ((void)0)
 #define ipv6_stack_route_advert_update(address, prefixLength, routePrefer) ((void)0)

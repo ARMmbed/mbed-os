@@ -81,6 +81,7 @@ const uint8_t ADDR_ALL_DHCP_RELAY_AGENTS_AND_SERVERS[16] = { 0xff, 0x02, [13] = 
 const uint8_t ADDR_IPV4_MAPPED_PREFIX[12]       = { [10] = 0xff, 0xff };
 const uint8_t ADDR_LOOPBACK[16]                 = { [15] = 1 };
 const uint8_t ADDR_UNSPECIFIED[16]              = { 0 };        /* Note a few bits of code check for pointer equality with ADDR_UNSPECIFIED */
+const uint8_t ADDR_6TO4[16]                     = { 0x20, 0x02 }; /*Can be used as global address*/
 #define ADDR_IPV4_COMPATIBLE                    ADDR_LOOPBACK /* First 96 bits match...*/
 
 #define ADDR_MULTICAST_LINK_PREFIX              ADDR_LINK_LOCAL_ALL_NODES /* ff02::xx */

@@ -52,7 +52,7 @@ typedef int8_t ws_pae_br_addr_read(protocol_interface_info_entry_t *interface_pt
 typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr);
 typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
 typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
-typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name);
+typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
 typedef struct {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
@@ -75,8 +75,7 @@ typedef struct {
     uint16_t frame_cnt_store_timer;                                  /**< Timer to check if storing of frame counter value is needed */
     uint32_t frame_cnt_store_force_timer;                            /**< Timer to force storing of frame counter, if no other updates */
     frame_counters_t frame_counters;                                 /**< Frame counters */
-    sec_timer_cfg_t sec_timer_cfg;                                   /**< Timer configuration (configuration set values) */
-    sec_prot_cfg_t sec_prot_cfg;                                     /**< Configuration */
+    sec_cfg_t sec_cfg;                                               /**< Security configuration (configuration set values) */
     uint32_t restart_cnt;                                            /**< Re-start counter */
     protocol_interface_info_entry_t *interface_ptr;                  /**< List link entry */
     ws_pae_controller_auth_completed *auth_completed;                /**< Authentication completed callback, continue bootstrap */
@@ -88,6 +87,7 @@ typedef struct {
     ws_pae_controller_pan_ver_increment *pan_ver_increment;          /**< PAN version increment callback */
     ws_pae_controller_nw_info_updated *nw_info_updated;              /**< Network information updated callback */
     ws_pae_controller_auth_next_target *auth_next_target;            /**< Authentication next target callback */
+    ws_pae_controller_ip_addr_get *ip_addr_get;                      /**< IP address get callback */
     ws_pae_delete *pae_delete;                                       /**< PAE delete callback */
     ws_pae_timer *pae_fast_timer;                                    /**< PAE fast timer callback */
     ws_pae_timer *pae_slow_timer;                                    /**< PAE slow timer callback */
@@ -102,6 +102,7 @@ typedef struct {
     bool gtkhash_set : 1;                                            /**< GTK hashes are set */
     bool key_index_set : 1;                                          /**< NW key index is set */
     bool frame_counter_read : 1;                                     /**< Frame counters has been read */
+    bool auth_started : 1;                                           /**< Authenticator has been started */
 } pae_controller_t;
 
 typedef struct {
@@ -112,12 +113,15 @@ typedef struct {
 
 static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks);
 static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entry_t *interface_ptr);
+#ifdef HAVE_PAE_AUTH
+static void ws_pae_controller_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
+#endif
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_timer_trigger(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold);
 static void ws_pae_controller_nvm_frame_counter_write(nvm_tlv_t *tlv_entry);
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, frame_counters_t *counters);
+static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks);
@@ -146,6 +150,8 @@ pae_controller_config_t pae_controller_config = {
     .node_limit_set = false,
     .ext_cert_valid_enabled = false
 };
+
+sec_radius_cfg_t *pae_controller_radius_settings;
 
 int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface_ptr)
 {
@@ -211,11 +217,28 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
         return -1;
     }
 
+    if (pae_controller_radius_settings) {
+        // If either address or password is set, both must be set
+        if (controller->sec_cfg.radius_cfg.radius_addr_set || controller->sec_cfg.radius_cfg.radius_shared_secret_len > 0) {
+            if (!controller->sec_cfg.radius_cfg.radius_addr_set) {
+                return -1;
+            }
+            if (controller->sec_cfg.radius_cfg.radius_shared_secret_len == 0) {
+                return -1;
+            }
+            if (ws_pae_auth_radius_address_set(interface_ptr, controller->sec_cfg.radius_cfg.radius_addr) < 0) {
+                return -1;
+            }
+        }
+    }
+
     if (pae_controller_config.node_limit_set) {
         ws_pae_auth_node_limit_set(controller->interface_ptr, pae_controller_config.node_limit);
     }
 
-    ws_pae_auth_cb_register(interface_ptr, ws_pae_controller_gtk_hash_set, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_nw_key_index_check_and_set, ws_pae_controller_nw_info_updated_check);
+    ws_pae_auth_cb_register(interface_ptr, ws_pae_controller_gtk_hash_set, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_nw_key_index_check_and_set, ws_pae_controller_nw_info_updated_check, ws_pae_controller_auth_ip_addr_get);
+
+    controller->auth_started = true;
 
     ws_pae_auth_start(interface_ptr);
 
@@ -242,6 +265,21 @@ int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_
     controller->pan_ver_increment = pan_ver_increment;
     controller->nw_info_updated = nw_info_updated;
     controller->auth_next_target = auth_next_target;
+    return 0;
+}
+
+int8_t ws_pae_controller_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get)
+{
+    if (!interface_ptr) {
+        return -1;
+    }
+
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return -1;
+    }
+
+    controller->ip_addr_get = ip_addr_get;
     return 0;
 }
 
@@ -276,7 +314,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
     sec_keys_nw_info->updated = false;
 }
 
-int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name)
+int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, char *network_name)
 {
     (void) pan_id;
     (void) network_name;
@@ -290,20 +328,27 @@ int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_
         return -1;
     }
 
+    bool updated = false;
+
     // Network name has been modified
-    if (network_name && strncmp(controller->sec_keys_nw_info.network_name, network_name, 33) != 0) {
+    if (network_name && strcmp(controller->sec_keys_nw_info.network_name, network_name) != 0) {
         strncpy(controller->sec_keys_nw_info.network_name, network_name, 32);
         controller->sec_keys_nw_info.updated = true;
+        updated = true;
     }
 
     // PAN ID has been modified
     if (pan_id != 0xffff && pan_id != controller->sec_keys_nw_info.new_pan_id) {
         controller->sec_keys_nw_info.new_pan_id = pan_id;
         controller->sec_keys_nw_info.updated = true;
+        updated = true;
     }
 
+    // Store pan version
+    controller->sec_keys_nw_info.pan_version = pan_version;
+
     if (controller->pae_nw_info_set) {
-        controller->pae_nw_info_set(interface_ptr, pan_id, network_name);
+        controller->pae_nw_info_set(interface_ptr, pan_id, network_name, updated);
     }
 
     return 0;
@@ -326,6 +371,22 @@ static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entr
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
     }
 }
+
+#ifdef HAVE_PAE_AUTH
+static void ws_pae_controller_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address)
+{
+    if (!interface_ptr) {
+        return;
+    }
+
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return;
+    }
+
+    controller->ip_addr_get(interface_ptr, address);
+}
+#endif
 
 int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid)
 {
@@ -606,8 +667,7 @@ int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
     controller->nw_info_updated = NULL;
     controller->auth_next_target = NULL;
 
-    memset(&controller->sec_timer_cfg, 0, sizeof(ws_sec_timer_cfg_t));
-    memset(&controller->sec_prot_cfg, 0, sizeof(sec_prot_cfg_t));
+    memset(&controller->sec_cfg, 0, sizeof(sec_cfg_t));
 
     ws_pae_controller_data_init(controller);
 
@@ -624,24 +684,28 @@ int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_pt
     }
 
     if (sec_prot_cfg) {
-        controller->sec_prot_cfg.sec_prot_trickle_params.Imin = sec_prot_cfg->sec_prot_trickle_imin * 10;
-        controller->sec_prot_cfg.sec_prot_trickle_params.Imax = sec_prot_cfg->sec_prot_trickle_imax * 10;
-        controller->sec_prot_cfg.sec_prot_trickle_params.k = 0;
-        controller->sec_prot_cfg.sec_prot_trickle_params.TimerExpirations = sec_prot_cfg->sec_prot_trickle_timer_exp;
-        controller->sec_prot_cfg.sec_prot_retry_timeout = sec_prot_cfg->sec_prot_retry_timeout * 10;
+        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.Imin = sec_prot_cfg->sec_prot_trickle_imin * 10;
+        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.Imax = sec_prot_cfg->sec_prot_trickle_imax * 10;
+        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.k = 0;
+        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.TimerExpirations = sec_prot_cfg->sec_prot_trickle_timer_exp;
+        controller->sec_cfg.prot_cfg.sec_prot_retry_timeout = sec_prot_cfg->sec_prot_retry_timeout * 10;
 
-        controller->sec_prot_cfg.sec_max_ongoing_authentication = sec_prot_cfg->sec_max_ongoing_authentication;
+        controller->sec_cfg.prot_cfg.sec_max_ongoing_authentication = sec_prot_cfg->sec_max_ongoing_authentication;
 
-        controller->sec_prot_cfg.initial_key_retry_delay = sec_prot_cfg->initial_key_retry_delay;
-        controller->sec_prot_cfg.initial_key_trickle_params.Imin = sec_prot_cfg->initial_key_imin;
-        controller->sec_prot_cfg.initial_key_trickle_params.Imax = sec_prot_cfg->initial_key_imax;
-        controller->sec_prot_cfg.initial_key_trickle_params.k = 0;
-        controller->sec_prot_cfg.initial_key_trickle_params.TimerExpirations = 2;
-        controller->sec_prot_cfg.initial_key_retry_cnt = sec_prot_cfg->initial_key_retry_cnt;
+        controller->sec_cfg.prot_cfg.initial_key_retry_delay = sec_prot_cfg->initial_key_retry_delay;
+        controller->sec_cfg.prot_cfg.initial_key_trickle_params.Imin = sec_prot_cfg->initial_key_imin;
+        controller->sec_cfg.prot_cfg.initial_key_trickle_params.Imax = sec_prot_cfg->initial_key_imax;
+        controller->sec_cfg.prot_cfg.initial_key_trickle_params.k = 0;
+        controller->sec_cfg.prot_cfg.initial_key_trickle_params.TimerExpirations = 2;
+        controller->sec_cfg.prot_cfg.initial_key_retry_cnt = sec_prot_cfg->initial_key_retry_cnt;
     }
 
     if (sec_timer_cfg) {
-        ws_pae_timers_settings_init(&controller->sec_timer_cfg, sec_timer_cfg);
+        ws_pae_timers_settings_init(&controller->sec_cfg.timer_cfg, sec_timer_cfg);
+    }
+
+    if (pae_controller_radius_settings) {
+        controller->sec_cfg.radius_cfg = *pae_controller_radius_settings;
     }
 
     return 0;
@@ -676,6 +740,7 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
     controller->frame_cnt_store_force_timer = FRAME_COUNTER_STORE_FORCE_INTERVAL;
     controller->restart_cnt = 0;
+    controller->auth_started = false;
     ws_pae_controller_frame_counter_reset(&controller->frame_counters);
     sec_prot_keys_gtks_init(&controller->gtks);
     sec_prot_keys_gtks_init(&controller->next_gtks);
@@ -696,13 +761,16 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
     uint64_t stored_time = 0;
 
     // Read frame counters
-    if (ws_pae_controller_nvm_frame_counter_read(&controller->restart_cnt, &stored_time, &controller->frame_counters) >= 0) {
+    if (ws_pae_controller_nvm_frame_counter_read(&controller->restart_cnt, &stored_time, &controller->sec_keys_nw_info.pan_version, &controller->frame_counters) >= 0) {
         // Current time is not valid
         if (ws_pae_current_time_set(stored_time) < 0) {
             ret_value = -1;
         }
         // This is used to ensure that PMK replay counters are fresh after each re-start.
         controller->restart_cnt++;
+
+        // Increments PAN version to ensure that it is fresh
+        controller->sec_keys_nw_info.pan_version += PAN_VERSION_STORAGE_READ_INCREMENT;
 
         bool updated = false;
         // Checks frame counters
@@ -720,7 +788,7 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
         }
         if (updated) {
             // Writes incremented frame counters
-            ws_pae_nvm_store_frame_counter_tlv_create((nvm_tlv_t *) &controller->pae_nvm_buffer, controller->restart_cnt, &controller->frame_counters);
+            ws_pae_nvm_store_frame_counter_tlv_create((nvm_tlv_t *) &controller->pae_nvm_buffer, controller->restart_cnt, controller->sec_keys_nw_info.pan_version, &controller->frame_counters);
             ws_pae_controller_nvm_frame_counter_write((nvm_tlv_t *) &controller->pae_nvm_buffer);
         }
     }
@@ -792,7 +860,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
         return -1;
     }
 
-    if (ws_pae_supp_init(controller->interface_ptr, &controller->certs, &controller->sec_timer_cfg, &controller->sec_prot_cfg, &controller->sec_keys_nw_info) < 0) {
+    if (ws_pae_supp_init(controller->interface_ptr, &controller->certs, &controller->sec_cfg, &controller->sec_keys_nw_info) < 0) {
         return -1;
     }
 
@@ -803,7 +871,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
     controller->pae_br_addr_read = ws_pae_supp_border_router_addr_read;
     controller->pae_gtk_hash_update = ws_pae_supp_gtk_hash_update;
     controller->pae_nw_key_index_update = ws_pae_supp_nw_key_index_update;
-    controller->pae_nw_info_set = NULL;
+    controller->pae_nw_info_set = ws_pae_supp_nw_info_set;
 
     ws_pae_supp_cb_register(controller->interface_ptr, controller->auth_completed, controller->auth_next_target, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_active_nw_key_set, ws_pae_controller_gtk_hash_ptr_get, ws_pae_controller_nw_info_updated_check);
 
@@ -822,7 +890,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         return -1;
     }
 
-    if (ws_pae_auth_init(controller->interface_ptr, &controller->next_gtks, &controller->certs, &controller->sec_timer_cfg, &controller->sec_prot_cfg, &controller->sec_keys_nw_info) < 0) {
+    if (ws_pae_auth_init(controller->interface_ptr, &controller->next_gtks, &controller->certs, &controller->sec_cfg, &controller->sec_keys_nw_info) < 0) {
         return -1;
     }
 
@@ -855,7 +923,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         /* If network information i.e pan_id and network name exists updates bootstrap with it,
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {
-            controller->nw_info_updated(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name);
+            controller->nw_info_updated(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.pan_version, controller->sec_keys_nw_info.network_name);
         }
         if (!read_gtks_to || sec_prot_keys_gtk_count(read_gtks_to) == 0) {
             // Key material invalid or GTKs are expired, delete GTKs from NVM
@@ -1103,6 +1171,130 @@ int8_t ws_pae_controller_certificate_revocation_list_remove(const arm_cert_revoc
     return ret;
 }
 
+int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *address)
+{
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+
+    // If remote address is not set, clear radius information
+    if (!address) {
+        if (pae_controller_radius_settings != NULL) {
+            pae_controller_radius_settings->radius_addr_set = false;
+        }
+        if (controller) {
+            ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
+        }
+        return 0;
+    }
+
+    if (pae_controller_radius_settings == NULL) {
+        pae_controller_radius_settings = ns_dyn_mem_alloc(sizeof(sec_radius_cfg_t));
+        if (!pae_controller_radius_settings) {
+            return -1;
+        }
+        memset(pae_controller_radius_settings, 0, sizeof(sec_radius_cfg_t));
+    }
+    memcpy(pae_controller_radius_settings->radius_addr, address, 16);
+    pae_controller_radius_settings->radius_addr_set = true;
+
+    if (controller) {
+        ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
+        if (ws_pae_auth_radius_address_set(controller->interface_ptr, controller->sec_cfg.radius_cfg.radius_addr) < 0) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_controller_radius_address_get(int8_t interface_id, uint8_t *address)
+{
+    (void) interface_id;
+
+    if (address == NULL) {
+        return -1;
+    }
+
+    if (pae_controller_radius_settings == NULL || !pae_controller_radius_settings->radius_addr_set) {
+        return -1;
+    }
+
+    memcpy(address, pae_controller_radius_settings->radius_addr, 16);
+    return 0;
+}
+
+int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret)
+{
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+
+    // If shared secret is not set, clear radius information
+    if (shared_secret_len == 0 || !shared_secret) {
+        if (pae_controller_radius_settings != NULL) {
+            memset(pae_controller_radius_settings->radius_shared_secret, 0, pae_controller_radius_settings->radius_shared_secret_len);
+            pae_controller_radius_settings->radius_shared_secret_len = 0;
+        }
+        if (controller) {
+            ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
+        }
+        return 0;
+    }
+
+    if (pae_controller_radius_settings == NULL) {
+        pae_controller_radius_settings = ns_dyn_mem_alloc(sizeof(sec_radius_cfg_t));
+        if (!pae_controller_radius_settings) {
+            return -1;
+        }
+        memset(pae_controller_radius_settings, 0, sizeof(sec_radius_cfg_t));
+    }
+
+    if (pae_controller_radius_settings->radius_shared_secret != NULL &&
+            pae_controller_radius_settings->radius_shared_secret_len != shared_secret_len) {
+        ns_dyn_mem_free(pae_controller_radius_settings->radius_shared_secret);
+        pae_controller_radius_settings->radius_shared_secret = NULL;
+    }
+
+    if (pae_controller_radius_settings->radius_shared_secret == NULL) {
+        pae_controller_radius_settings->radius_shared_secret = ns_dyn_mem_alloc(shared_secret_len);
+        if (pae_controller_radius_settings->radius_shared_secret == NULL) {
+            return -1;
+        }
+    }
+
+    memcpy(pae_controller_radius_settings->radius_shared_secret, shared_secret, shared_secret_len);
+    pae_controller_radius_settings->radius_shared_secret_len = shared_secret_len;
+
+    if (controller) {
+        ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_controller_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret)
+{
+    (void) interface_id;
+
+    if (shared_secret_len == NULL) {
+        return -1;
+    }
+
+    uint16_t length = 0;
+    if (pae_controller_radius_settings != NULL) {
+        length = pae_controller_radius_settings->radius_shared_secret_len;
+        if (shared_secret != NULL) {
+            if (length > *shared_secret_len) {
+                length = *shared_secret_len;
+            }
+            if (length > 0 && pae_controller_radius_settings->radius_shared_secret != NULL) {
+                memcpy(shared_secret, pae_controller_radius_settings->radius_shared_secret, length);
+            }
+        }
+    }
+
+    *shared_secret_len = length;
+
+    return 0;
+}
+
 int8_t ws_pae_controller_border_router_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
 {
     if (!eui_64) {
@@ -1165,7 +1357,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (gtk[i]) {
             uint32_t lifetime = sec_prot_keys_gtk_install_order_last_lifetime_get(&controller->gtks);
-            lifetime += controller->sec_timer_cfg.gtk_expire_offset;
+            lifetime += controller->sec_cfg.timer_cfg.gtk_expire_offset;
             if (sec_prot_keys_gtk_set(&controller->gtks, i, gtk[i], lifetime) >= 0) {
                 controller->gtks_set = true;
                 tr_info("GTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, protocol_core_monotonic_time / 10);
@@ -1446,7 +1638,7 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
     if (update_needed || entry->frame_cnt_store_force_timer == 0) {
         tr_debug("Write frame counters: system time %"PRIu32"", protocol_core_monotonic_time / 10);
         // Writes modified frame counters
-        ws_pae_nvm_store_frame_counter_tlv_create((nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt, &entry->frame_counters);
+        ws_pae_nvm_store_frame_counter_tlv_create((nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt, entry->sec_keys_nw_info.pan_version, &entry->frame_counters);
         ws_pae_controller_nvm_frame_counter_write((nvm_tlv_t *) &entry->pae_nvm_buffer);
 
         // Reset force interval when ever values are stored
@@ -1454,7 +1646,7 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
     }
 }
 
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, frame_counters_t *counters)
+static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters)
 {
     nvm_tlv_t *tlv = ws_pae_nvm_store_generic_tlv_allocate_and_create(
                          PAE_NVM_FRAME_COUNTER_TAG, PAE_NVM_FRAME_COUNTER_LEN);
@@ -1467,7 +1659,7 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, ui
         return -1;
     }
 
-    if (ws_pae_nvm_store_frame_counter_tlv_read(tlv, restart_cnt, stored_time, counters) < 0) {
+    if (ws_pae_nvm_store_frame_counter_tlv_read(tlv, restart_cnt, stored_time, pan_version, counters) < 0) {
         ws_pae_nvm_store_generic_tlv_free(tlv);
         return -1;
     }

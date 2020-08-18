@@ -142,6 +142,7 @@ extern const uint8_t ADDR_ALL_MPL_FORWARDERS[16];                   // ff03::fc
 extern const uint8_t ADDR_ALL_DHCP_RELAY_AGENTS_AND_SERVERS[16];    // ff02::1:2
 extern const uint8_t ADDR_LOOPBACK[16];                             // ::1
 extern const uint8_t ADDR_UNSPECIFIED[16];                          // ::
+extern const uint8_t ADDR_6TO4[16];                                 // 2002::
 
 /* Don't bother having another 8 zero bytes for this - reuse ADDR_UNSPECIFIED */
 #define ADDR_EUI64_ZERO ADDR_UNSPECIFIED

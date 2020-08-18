@@ -34,7 +34,8 @@ typedef enum {
     SEC_RESULT_ERR_UNSPEC = -3,
     SEC_RESULT_TIMEOUT = -4,
     SEC_RESULT_ERROR = -5,
-    SEC_RESULT_CONF_ERROR = -6
+    SEC_RESULT_CONF_ERROR = -6,
+    SEC_RESULT_IGNORE
 } sec_prot_result_e;
 
 typedef enum {
@@ -49,7 +50,9 @@ typedef enum {
 
 typedef enum {
     SEC_PROT_TYPE_EAP_TLS = 0,
-    SEC_PROT_TYPE_TLS
+    SEC_PROT_TYPE_RADIUS_EAP_TLS,
+    SEC_PROT_TYPE_TLS,
+    SEC_PROT_TYPE_RADIUS_CLIENT
 } sec_prot_type_e;
 
 typedef enum {
@@ -217,6 +220,15 @@ typedef void sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
 typedef void sec_prot_eui64_addr_get(sec_prot_t *prot, uint8_t *local_eui64, uint8_t *remote_eui64);
 
 /**
+ * sec_prot_ip_addr_get gets IP address for security protocol
+ *
+ * \param prot protocol
+ * \param address IP address
+ *
+ */
+typedef void sec_prot_ip_addr_get(sec_prot_t *prot, uint8_t *address);
+
+/**
  * sec_prot_by_type_get gets security protocol
  *
  * \param prot protocol
@@ -237,6 +249,19 @@ typedef sec_prot_t *sec_prot_by_type_get(sec_prot_t *prot, uint8_t type);
  */
 typedef void sec_prot_receive_disable(sec_prot_t *prot);
 
+/**
+ * sec_prot_receive_check check if received message is for this protocol
+ *
+ * \param prot protocol
+ * \param pdu pdu
+ * \param size pdu size
+ *
+ * \return < 0 message is not for this protocol
+ * \return >= 0 message is for this protocol
+ *
+ */
+typedef int8_t sec_prot_receive_check(sec_prot_t *prot, const void *pdu, uint16_t size);
+
 typedef struct sec_prot_int_data_s sec_prot_int_data_t;
 
 // Security protocol data
@@ -252,6 +277,8 @@ struct sec_prot_s {
 
     sec_prot_send                 *send;                 /**< Protocol send */
     sec_prot_receive              *receive;              /**< Protocol receive */
+    sec_prot_receive              *receive_peer;         /**< Protocol receive from peer (used by peer protocol for send) */
+
     sec_prot_tx_status_ind        *tx_status_ind;        /**< TX status indication */
 
     sec_prot_delete               *delete;               /**< Protocol delete */
@@ -264,13 +291,16 @@ struct sec_prot_s {
     sec_prot_timer_timeout        *timer_timeout;        /**< Timer timeout */
 
     sec_prot_eui64_addr_get       *addr_get;             /**< Gets EUI-64 addresses */
+    sec_prot_ip_addr_get          *ip_addr_get;          /**< Gets IP address */
     sec_prot_by_type_get          *type_get;             /**< Gets security protocol by type */
     sec_prot_receive_disable      *receive_disable;      /**< Disable receiving of messages */
+    sec_prot_receive_check        *receive_check;        /**< Check if messages is for this protocol */
 
     sec_prot_keys_t               *sec_keys;             /**< Security keys storage pointer */
-    sec_prot_cfg_t                *prot_cfg;             /**< Security protocol configuration pointer */
-    sec_timer_cfg_t               *timer_cfg;            /**< Security timer configuration pointer */
+    sec_cfg_t                     *sec_cfg;              /**< Security configuration configuration pointer */
     uint8_t                       header_size;           /**< Header size */
+    uint8_t                       receive_peer_hdr_size; /**< Receive from peer header size */
+    uint8_t                       msg_if_instance_id;    /**< Message interface instance identifier */
     sec_prot_int_data_t           *data;                 /**< Protocol internal data */
 };
 

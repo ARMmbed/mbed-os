@@ -57,6 +57,11 @@ typedef struct ipv6_interface_route_on_link_t {
     ns_list_link_t                      link;
 } ipv6_interface_route_on_link_t;
 
+typedef struct ipv6_interface_dns_server_on_link_t {
+    uint8_t                             addr[16];                 /*!< DNS Server IPv6 address */
+    ns_list_link_t                      link;
+} ipv6_interface_dns_server_on_link_t;
+
 #define WB_UPDATE_PERIOD_SECONDS            23
 
 #define ROUTER_SOL_MAX_COUNTER              4
@@ -76,6 +81,14 @@ static NS_LIST_DEFINE(prefix_on_link, ipv6_interface_prefix_on_link_t, link);
 /* These are the advertised Route prefixes */
 static NS_LIST_DEFINE(route_on_link, ipv6_interface_route_on_link_t, link);
 static prefix_list_t ipv6_prefixs = NS_LIST_INIT(ipv6_prefixs);
+
+
+/*Router advertisement daemon configurations*/
+static uint16_t radv_default_route_lifetime = 0;
+static NS_LIST_DEFINE(dns_server_list, ipv6_interface_dns_server_on_link_t, link);
+
+static uint16_t dns_search_list_len = 0;
+static uint8_t *dns_search_list_ptr = NULL;
 
 bool tunnel_in_use = false;
 
@@ -426,6 +439,73 @@ void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint
     }
 }
 
+void ipv6_stack_route_advert_default_route(struct protocol_interface_info_entry *cur, bool enable)
+{
+    if (enable) {
+        radv_default_route_lifetime = icmpv6_radv_max_rtr_adv_interval(cur) * 2 / 10;
+    } else {
+        radv_default_route_lifetime = 0;
+    }
+}
+
+int8_t ipv6_stack_route_advert_dns_server_add(uint8_t *address)
+{
+
+    if (!address) {
+        return -1;
+    }
+
+    ns_list_foreach(ipv6_interface_dns_server_on_link_t, cur_server, &dns_server_list) {
+        if (memcmp(cur_server->addr, address, 16) == 0) {
+            return 0;
+        }
+    }
+    ipv6_interface_dns_server_on_link_t *new_entry = ns_dyn_mem_alloc(sizeof(ipv6_interface_dns_server_on_link_t));
+    if (!new_entry) {
+        return -1;
+    }
+    memcpy(new_entry->addr, address, 16);
+    ns_list_add_to_end(&dns_server_list, new_entry);
+    return 0;
+}
+
+void ipv6_stack_route_advert_dns_server_delete(uint8_t *address)
+{
+    /* If Address is NULL everything is cleared.
+     * */
+    ns_list_foreach_safe(ipv6_interface_dns_server_on_link_t, cur_server, &dns_server_list) {
+        if (!address || memcmp(cur_server->addr, address, 16) == 0) {
+            ns_list_remove(&dns_server_list, cur_server);
+            ns_dyn_mem_free(cur_server);
+        }
+    }
+}
+
+int8_t ipv6_stack_route_advert_dns_search_list_add(uint8_t *data, uint16_t data_len, uint32_t lifetime)
+{
+
+    if (dns_search_list_ptr) {
+        ns_dyn_mem_free(dns_search_list_ptr);
+        dns_search_list_ptr = NULL;
+        dns_search_list_len = 0;
+    }
+
+    // Check if this is delete operation
+    if (lifetime == 0 || data_len == 0 || data == NULL) {
+        return 0;
+    }
+
+    dns_search_list_len = ((data_len / 8) + 1) * 8; //Should have padding to 8 bytes
+    dns_search_list_ptr = ns_dyn_mem_alloc(dns_search_list_len);
+    if (!dns_search_list_ptr) {
+        return -1;
+    }
+
+    memset(dns_search_list_ptr, 0, dns_search_list_len);
+    memcpy(dns_search_list_ptr, data, data_len);
+    return 0;
+}
+
 void ipv6_prefix_on_link_update(uint8_t *address)
 {
     protocol_interface_info_entry_t *cur = nwk_interface_get_ipv6_ptr();
@@ -630,6 +710,7 @@ int8_t ipv6_interface_down(protocol_interface_info_entry_t *cur)
     icmpv6_prefix_list_free(&ipv6_prefixs);
     ipv6_prefix_online_list_free();
     ipv6_rote_advert_list_free();
+    ipv6_stack_route_advert_dns_server_delete(NULL);
     neighbor_cache_flush(&cur->neigh_cache);
     ipv6_route_table_remove_interface(cur->id);
     protocol_core_interface_info_reset(cur);
@@ -661,6 +742,12 @@ void ipv6_nd_ra_advert(protocol_interface_info_entry_t *cur, const uint8_t *dest
     uint16_t length = 12 + 8 + 16;
     length += 32 * ns_list_count(&ipv6_prefixs);
     length += 32 * ns_list_count(&prefix_on_link);
+    if (ns_list_count(&dns_server_list)) {
+        length += 8 + 16 * ns_list_count(&dns_server_list);
+    }
+    if (dns_search_list_len) {
+        length += 8 + dns_search_list_len;
+    }
 
     ns_list_foreach(ipv6_interface_route_on_link_t, tmp_route, &route_on_link) {
         if (tmp_route->prefix_len < 65) {
@@ -680,7 +767,7 @@ void ipv6_nd_ra_advert(protocol_interface_info_entry_t *cur, const uint8_t *dest
         *ptr++ = cur->adv_cur_hop_limit;
         *ptr++ = cur->rtr_adv_flags;
         //Do not advertise default route: set Router Lifetime to 0
-        ptr = common_write_16_bit(0, ptr);
+        ptr = common_write_16_bit(radv_default_route_lifetime, ptr);
         ptr = common_write_32_bit(cur->adv_reachable_time, ptr);
         ptr = common_write_32_bit(cur->adv_retrans_timer, ptr);
 
@@ -747,6 +834,34 @@ void ipv6_nd_ra_advert(protocol_interface_info_entry_t *cur, const uint8_t *dest
                 ns_list_remove(&route_on_link, tmp_route);
                 ns_dyn_mem_free(tmp_route);
             }
+        }
+
+        if (ns_list_count(&dns_server_list)) {
+            *ptr++ = ICMPV6_OPT_RECURSIVE_DNS_SERVER;
+            *ptr++ = 1 + 2 * ns_list_count(&dns_server_list); // length is multiples of 8
+            *ptr++ = 0; // Reserved
+            *ptr++ = 0; // Reserved
+            /* RFC8106 The value of Lifetime SHOULD by default be at least 3 * MaxRtrAdvInterval
+             *
+             * Lifetimes are short so we dont support removing entries by setting the lifetime 0
+             * Lifetime is also for all entries so no maintenance is possible
+             */
+            ptr = common_write_32_bit(icmpv6_radv_max_rtr_adv_interval(cur) * 3 / 10, ptr);
+
+            ns_list_foreach_safe(ipv6_interface_dns_server_on_link_t, dns, &dns_server_list) {
+                memcpy(ptr, dns->addr, 16);
+                ptr += 16;
+            }
+        }
+
+        if (dns_search_list_ptr && dns_search_list_len > 0) {
+            *ptr++ = ICMPV6_OPT_DNS_SEARCH_LIST;
+            *ptr++ = 1 + dns_search_list_len / 8; // length is multiples of 8
+            *ptr++ = 0; // Reserved
+            *ptr++ = 0; // Reserved
+            ptr = common_write_32_bit(icmpv6_radv_max_rtr_adv_interval(cur) * 3 / 10, ptr);
+            memcpy(ptr, dns_search_list_ptr, dns_search_list_len);
+            ptr += dns_search_list_len;
         }
 
         buffer_data_end_set(buf, ptr);

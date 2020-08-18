@@ -401,6 +401,8 @@ inet_pcb_t *socket_inet_pcb_allocate(void)
     inet_pcb->recvhoplimit = false;
     inet_pcb->recvpktinfo = false;
     inet_pcb->recvtclass = false;
+    inet_pcb->edfe_mode = false;
+
     inet_pcb->link_layer_security = -1;
 #ifndef NO_IPV6_PMTUD
     inet_pcb->use_min_mtu = -1;
@@ -1134,6 +1136,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
     buf->options.ipv6_use_min_mtu = inet_pcb->use_min_mtu;
     buf->options.ipv6_dontfrag = inet_pcb->dontfrag;
     buf->options.multicast_loop = inet_pcb->multicast_loop;
+    buf->options.edfe_mode = inet_pcb->edfe_mode;
 
     /* Set default remote address from PCB */
     if (inet_pcb->remote_port != 0 && !addr_ipv6_equal(inet_pcb->remote_address, ns_in6addr_any)) {

@@ -18,12 +18,13 @@
 #include "nsconfig.h"
 
 #include <string.h>
-#include <ns_list.h>
-#include <nsdynmemLIB.h>
-#include <net_ws_test.h>
+#include "ns_list.h"
+#include "nsdynmemLIB.h"
+#include "net_ws_test.h"
 #include "fhss_config.h"
 #include "ws_management_api.h"
 #include "mac_api.h"
+#include "6LoWPAN/MAC/mac_helper.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/ws/ws_config.h"
@@ -148,6 +149,19 @@ int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
     (void) gtk;
 
     return ws_pae_controller_next_gtk_update(interface_id, gtk);
+}
+
+int ws_test_6lowpan_fragmentation_mtu_size_set(int8_t interface_id, uint16_t mtu_size)
+{
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+
+    test_6lowpan_fragmentation_mtu_size_override = mtu_size;
+    return 0;
 }
 
 #endif // HAVE_WS

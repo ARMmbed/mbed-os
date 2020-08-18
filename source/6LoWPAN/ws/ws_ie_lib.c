@@ -110,10 +110,11 @@ uint8_t *ws_wh_bt_write(uint8_t *ptr)
 }
 
 
-uint8_t *ws_wh_fc_write(uint8_t *ptr, uint8_t flow_ctrl)
+uint8_t *ws_wh_fc_write(uint8_t *ptr, ws_fc_ie_t *fc_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, 1, WH_IE_FC_TYPE);
-    *ptr++ = flow_ctrl;
+    ptr = ws_wh_header_base_write(ptr, 2, WH_IE_FC_TYPE);
+    *ptr++ = fc_ie->tx_flow_ctrl;
+    *ptr++ = fc_ie->rx_flow_ctrl;
     return ptr;
 }
 
@@ -338,6 +339,19 @@ bool ws_wh_bt_read(uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
     data = btt_ie_data.content_ptr;
     bt_ie->broadcast_slot_number = common_read_16_bit_inverse(data);
     bt_ie->broadcast_interval_offset = common_read_24_bit_inverse(data + 2);
+    return true;
+}
+
+bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
+{
+    mac_header_IE_t fc_ie_data;
+    fc_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
+    if (2 != mac_ie_header_sub_id_discover(data, length, &fc_ie_data, WH_IE_FC_TYPE)) {
+        return false;
+    }
+    data = fc_ie_data.content_ptr;
+    fc_ie->tx_flow_ctrl = *data++;
+    fc_ie->rx_flow_ctrl = *data;
     return true;
 }
 
