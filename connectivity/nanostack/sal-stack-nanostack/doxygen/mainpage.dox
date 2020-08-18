@@ -1,0 +1,15 @@
+/** \mainpage ARM mbed Networking Stack
+
+\section intro Introduction
+This is Doxygen generated documentation of Nanostack.
+It should be used in conjunction with <b>ARM mbed Networking Stack</b> manual
+hosted in http://docs.mbed.com
+
+\section apis API documentation
+
+See <b>Files</b> section to find a documentation about specific api.
+The <b>Data Structures</b> section should contain documentation for specific
+data structures used with stack.
+
+
+*/

@@ -1,0 +1,19 @@
+{
+    "name": "nanostack",
+    "requires": ["nanostack-eventloop", "coap-service"],
+    "config": {
+        "configuration": {
+            "help": "Build time configuration. Refer to Handbook for valid values. Default: full stack",
+            "value": "nanostack_full"
+        }
+    },
+    "macros": ["NS_USE_EXTERNAL_MBED_TLS"],
+    "target_overrides": {
+        "TB_SENSE_12": {
+            "nanostack.configuration": "lowpan_router"
+        },
+        "KW41Z": {
+            "nanostack.configuration": "lowpan_router"
+        }
+    }
+}
