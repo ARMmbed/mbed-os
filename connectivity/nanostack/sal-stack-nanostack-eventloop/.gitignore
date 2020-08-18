@@ -1,0 +1,4 @@
+*.a
+output/*
+build
+*.lib
