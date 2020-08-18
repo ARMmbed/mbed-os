@@ -21,6 +21,5 @@
 #if defined(MBED_CONF_RTOS_PRESENT)
 #include "mbed_rtx_conf.h"
 #endif
-#include "mbed_cmsis_conf.h"
 
-#endif
+#endif // RTE_COMPONENTS_H

@@ -26,8 +26,7 @@
 
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include "mbed_cmsis_conf.h"
 #include "tz_context.h"
 
 /// Number of process slots (threads may call secure library code)
