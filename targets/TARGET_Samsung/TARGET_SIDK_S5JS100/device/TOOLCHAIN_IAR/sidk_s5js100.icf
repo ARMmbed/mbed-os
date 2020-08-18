@@ -29,11 +29,11 @@ define symbol S5JS100_CODE_END      = S5JS100_CODE_BASE + 1492K;
 define symbol S5JS100_FLASH_BASE    = 0x40000000;
 
 /* Stack Size & Heap Size*/
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
+    define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }
 
-define symbol CSTACK_SIZE   = MBED_BOOT_STACK_SIZE;
+define symbol CSTACK_SIZE   = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 define symbol __ICFEDIT_size_heap__   = 0x50000;
 
 /*Meory regions*/

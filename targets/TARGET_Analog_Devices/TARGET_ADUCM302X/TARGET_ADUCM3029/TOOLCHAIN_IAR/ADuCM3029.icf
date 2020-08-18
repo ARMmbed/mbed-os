@@ -38,8 +38,8 @@ if (!isdefinedsymbol(MBED_APP_SIZE)) {
     define symbol MBED_APP_SIZE = 0x40000;
 }
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
+    define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }
 
 define symbol ADUCM_SECTOR_SIZE = 0x800;
@@ -53,7 +53,7 @@ define region ROM_REGION                  = mem:[from MBED_APP_START+ADUCM_SECTO
 define region RAM_bank1_region            = mem:[from 0x20000200 size 0x00003E00];
 define region RAM_bank2_region            = mem:[from 0x20004000 size 0x00004000]
                                           | mem:[from 0x20040000 size 0x00007000];
-define block CSTACK   with alignment = 16, size = MBED_BOOT_STACK_SIZE { };
+define block CSTACK   with alignment = 16, size = MBED_CONF_TARGET_BOOT_STACK_SIZE { };
 define block HEAP     with alignment = 16, size = 0x2000 { };
 do not initialize                         { section .noinit };
 initialize by copy                        { rw };
