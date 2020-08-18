@@ -1,0 +1,49 @@
+#!/bin/bash
+# Copyright (c) 2015-2017, Arm Limited and affiliates.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+echo
+echo Build Coap-service unit tests
+echo
+
+# Remember to add new test folder to Makefile
+make clean
+make all
+
+echo
+echo Create results
+echo
+mkdir results
+find ./ -name '*.xml' | xargs cp -t ./results/
+
+echo
+echo Create coverage document
+echo
+mkdir coverages
+cd coverages
+
+lcov -q -d ../. -c -o app.info
+lcov -q -r app.info "/test*" -o app.info
+lcov -q -r app.info "/usr*" -o app.info
+lcov -q -r app.info "/libService*" -o app.info
+genhtml -q --no-branch-coverage app.info
+cd ..
+echo
+echo
+echo
+echo Have a nice bug hunt!
+echo
+echo
+echo
