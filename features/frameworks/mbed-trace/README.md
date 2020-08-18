@@ -26,7 +26,7 @@ The purpose of the library is to provide a light, simple and general tracing sol
 * The trace function uses `stdout` as the default output target because it goes directly to serial port in mbed-os.
 * The trace function produces traces like: `[<levl>][grp ]: msg`. This provides an easy way to detect trace prints and separate traces from normal prints (for example with _regex_).
 * This approach requires a `sprintf` implementation (`stdio.h`). The memory consumption is pretty high, but it allows an efficient way to format traces.
-* The solution is not Interrupt safe. (PRs are more than welcome.)
+* The solution is not Interrupt safe. ([PRs](https://github.com/ARMmbed/mbed-trace/pulls) are more than welcome.)
 * The solution is not thread safe by default. Thread safety for the actual trace calls can be enabled by providing wait and release callback functions that use mutexes defined by the application.
 
 ## Examples of traces
@@ -43,7 +43,7 @@ The purpose of the library is to provide a light, simple and general tracing sol
 ### Prerequisites
 
 * Initialize the serial port so that `stdout` works. You can verify that the serial port works using the `printf()` function.
-    * if you want to redirect the traces somewhere else, see the [trace API](https://github.com/ARMmbed/mbed-trace/blob/master/mbed-trace/mbed_trace.h#L245).
+    * If you want to redirect the traces somewhere else, see the [trace API](https://github.com/ARMmbed/mbed-trace/blob/master/mbed-trace/mbed_trace.h#L245).
 * To enable the tracing API:
     * With yotta: set `YOTTA_CFG_MBED_TRACE` to 1 or true. Setting the flag to 0 or false disables tracing.
     * [With mbed OS 5](#enabling-the-tracing-api-in-mbed-os-5)
@@ -54,7 +54,7 @@ The purpose of the library is to provide a light, simple and general tracing sol
 * If thread safety is needed, configure the wait and release callback functions before initialization to enable the protection. Usually, this needs to be done only once in the application's lifetime.
     * If [helping functions](#helping-functions) are used the mutex must be **recursive** (counting) so it can be acquired from a single thread repeatedly.
 * Call the trace initialization (`mbed_trace_init`) once before using any other APIs. It allocates the trace buffer and initializes the internal variables.
-* Define `TRACE_GROUP` in your source code (not in the header!) to use traces. It is a 1-4 characters long char-array (for example `#define TRACE_GROUP "APPL"`). This will be printed on every trace line.
+* Define `TRACE_GROUP` in your **source code (not in the header)** to use traces. It is a 1-4 characters long char-array (for example `#define TRACE_GROUP "APPL"`). This will be printed on every trace line.
 
 ### Enabling the tracing API in mbed OS 5
 
@@ -72,7 +72,7 @@ To do so, add the following to your mbed_app.json:
 }
 ```
 
-Don't forget to fulfill the other [prerequisites](#prerequisites)!
+Do not forget to fulfill the other [prerequisites](#prerequisites)!
 
 ([Click here for more information on the configuration system](https://docs.mbed.com/docs/mbed-os-api/en/latest/config_system/))
 
@@ -203,6 +203,52 @@ int main(void){
     return 0;
 }
 ```
+
+## Run-time trace group filtering
+
+The trace groups you have defined using the `TRACE_GROUP` macro in your .c/.cpp files can be used to control tracing at run-time.
+
+| Function                          | Explanation                                                  |
+|-----------------------------------|--------------------------------------------------------------|
+|`mbed_trace_include_filters_get()` | Get the exclusion filter list string.                        |
+|`mbed_trace_include_filters_set()` | Set trace list to include only the traces matching the list. |
+|`mbed_trace_exclude_filters_get()` | Get the inclusion filter list string.                        |
+|`mbed_trace_exclude_filters_set()` | Set trace list to exclude the traces matching the list.      |
+
+The filter list is a null terminated string of comma (`,`) separated trace group names. The default maximum length of the string is 24 characters, including the terminating null. Length can be changed by defining the macro `DEFAULT_TRACE_FILTER_LENGTH`. Exclude and include filters can be combined freely as they both have their own filtering list.
+
+The matching is done simply using `strstr()` from  C standard libraries.
+
+### Examples of trace group filtering
+
+Assuming we have 4 modules called "MAIN", "HELP", "CALC" and "PRNT" we could use the filters in the following ways.
+
+#### Inclusion filter
+
+To include only "MAIN" and "CALC" traces to the trace prints, we can do:
+
+```
+    mbed_trace_include_filters_set("MAIN,CALC");
+```
+
+This would print out only the traces from "MAIN" and "CALC", since they are the trace groups matching the filter list. Trace groups "HELP" and "PRNT" would not be printed out at all.
+
+## Exclusion filter
+
+```
+    mbed_trace_exclude_filters_set("HELP,PRNT");
+```
+
+This would exclue trace groups "HELP" and "PRNT" out of trace printing, thus leaving only prints from "MAIN" and "CALC" visible in the tracing.
+
+### Reset filter
+
+```
+    mbed_trace_include_filters_set(NULL);
+```
+
+This would reset the inclusion filters back to nothing and assuming no exclusion filter is in place either, all trace groups prints would get printed.
+
 
 ## Unit tests
 
