@@ -1,0 +1,38 @@
+{
+    "name": "atmel-rf",
+    "config": {
+        "full-spi-speed": {
+            "help": "Maximum SPI clock speed (Hz), as long as sufficient inter-byte spacing",
+            "value": 7500000
+        },
+        "full-spi-speed-byte-spacing": {
+            "help": "Required byte spacing in nanoseconds if full SPI speed is in use",
+            "value": 250
+        },
+        "low-spi-speed": {
+            "help": "Maximum SPI clock speed (Hz) if no inter-byte spacing",
+            "value": 3750000
+        },
+        "use-spi-spacing-api": {
+            "help": "Use SPI spacing API proposed in https://github.com/ARMmbed/mbed-os/pull/5353 to ensure spacing between bytes - either run at full speed with spacing, or low with no spacing",
+            "value": false
+        },
+        "assume-spaced-spi":  {
+            "help": "If not using SPI spacing API, assume platform has widely-spaced bytes in bursts, so use full clock speed rather than low.",
+            "value": false
+        },
+        "provide-default": {
+            "help": "Provide default NanostackRfpy. [true/false]",
+            "value": false
+        },
+        "irq-thread-stack-size":  {
+            "help": "The stack size of the Thread serving the Atmel RF interrupts",
+            "value": 1024
+        }
+    },
+    "target_overrides": {
+        "STM": {
+            "assume-spaced-spi": true
+        }
+    }
+}
