@@ -637,11 +637,14 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
 	using ProcedureControlBlock::connection_handle;
 
 	WriteControlBlock(
-		connection_handle_t connection_handle, uint16_t attribute_handle,
-		uint8_t* data, uint16_t len
+		connection_handle_t connection_handle,
+		uint16_t attribute_handle,
+		uint8_t* data,
+		uint16_t write_length,
+        uint16_t chunk_size
 	) : ProcedureControlBlock(WRITE_PROCEDURE, connection_handle),
-		attribute_handle(attribute_handle), len(len), offset(0), data(data),
-		prepare_success(false), status(BLE_ERROR_UNSPECIFIED), error_code(0xFF) {
+		attribute_handle(attribute_handle), write_length(write_length), chunk_size(chunk_size), offset(0), data(data),
+		prepare_success(false), status(BLE_ERROR_INITIALIZATION_INCOMPLETE), error_code(0xFF) {
 	}
 
 	virtual ~WriteControlBlock() {
@@ -722,19 +725,21 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
 
 	void handle_prepare_write_response(GattClient* client, const AttPrepareWriteResponse& write_response) {
 		ble_error_t err = BLE_ERROR_UNSPECIFIED;
-
 		uint16_t mtu_size = client->get_mtu(connection_handle);
-		offset = write_response.offset + write_response.partial_value.size();
-		if (offset < len) {
+		offset += chunk_size;
+        uint16_t data_left = write_length - offset; /* offset is guaranteed to be less of equal to write_length */
+		if (data_left) {
+		    if (chunk_size > data_left) {
+                chunk_size = data_left;
+		    }
 			err = client->_pal_client.queue_prepare_write(
-				connection_handle, attribute_handle,
-				make_const_Span(
-					data + offset,
-					std::min((len - offset), (mtu_size - 5))
-				),
+				connection_handle,
+				attribute_handle,
+				make_const_Span(data + offset, chunk_size),
 				offset
 			);
 		} else {
+            prepare_success = true;
 			err = client->_pal_client.execute_write_queue(
 				connection_handle, true
 			);
@@ -829,8 +834,9 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
 	}
 
 	uint16_t attribute_handle;
-	uint16_t len;
+	uint16_t write_length;
 	uint16_t offset;
+    uint16_t chunk_size;
 	uint8_t* data;
 	bool prepare_success;
 	ble_error_t status;
@@ -1184,7 +1190,8 @@ ble_error_t GattClient::write(
             connection_handle,
             attribute_handle,
             data,
-            length
+            length,
+            mtu - PREPARE_WRITE_HEADER_LENGTH
         );
 
         if (write_pcb == nullptr) {
@@ -1199,7 +1206,7 @@ ble_error_t GattClient::write(
             err = _pal_client.queue_prepare_write(
                 connection_handle,
                 attribute_handle,
-                make_const_Span(value, mtu - PREPARE_WRITE_HEADER_LENGTH),
+                make_const_Span(data, mtu - PREPARE_WRITE_HEADER_LENGTH),
                 /* offset */0
             );
         } else {
