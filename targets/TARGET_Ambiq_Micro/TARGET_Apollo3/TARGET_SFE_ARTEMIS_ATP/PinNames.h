@@ -120,6 +120,9 @@ typedef enum
     USBTX = SERIAL_TX,
     USBRX = SERIAL_RX,
 
+    SERIAL1_TX = D24,
+    SERIAL1_RX = D25,
+
     // Not connected
     NC = NC_VAL
 } PinName;
