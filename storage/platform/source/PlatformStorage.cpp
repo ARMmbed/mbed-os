@@ -16,7 +16,7 @@
 #include "blockdevice/BlockDevice.h"
 #include "filesystem/FileSystem.h"
 #include "fat/FATFileSystem.h"
-#include "littlefs/LittleFileSystem.h"
+#include "littlefsv2/LittleFileSystem2.h"
 #include "mbed_error.h"
 
 
@@ -148,7 +148,7 @@ MBED_WEAK FileSystem *FileSystem::get_default_instance()
 {
 #if COMPONENT_SPIF || COMPONENT_QSPIF || COMPONENT_DATAFLASH
 
-    static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
+    static LittleFileSystem2 flash("flash", BlockDevice::get_default_instance());
     flash.set_as_default();
 
     return &flash;
@@ -162,7 +162,7 @@ MBED_WEAK FileSystem *FileSystem::get_default_instance()
 
 #elif COMPONENT_FLASHIAP
 
-    static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
+    static LittleFileSystem2 flash("flash", BlockDevice::get_default_instance());
     flash.set_as_default();
 
     return &flash;
