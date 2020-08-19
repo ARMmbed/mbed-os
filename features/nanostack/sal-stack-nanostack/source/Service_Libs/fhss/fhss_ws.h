@@ -41,6 +41,7 @@ struct fhss_ws {
     int16_t *tr51_channel_table;
     uint8_t *tr51_output_table;
     bool unicast_timer_running;
+    bool broadcast_timer_running;
     bool is_on_bc_channel;
     struct fhss_ws_configuration fhss_configuration;
     const struct broadcast_timing_info *parent_bc_info;

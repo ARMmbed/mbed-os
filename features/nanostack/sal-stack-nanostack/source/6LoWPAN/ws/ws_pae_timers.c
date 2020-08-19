@@ -144,9 +144,9 @@ static void ws_pae_timers_calculate(sec_timer_cfg_t *timer_settings)
     }
 }
 
-bool ws_pae_timers_gtk_new_install_required(sec_timer_cfg_t *timer_settings, uint32_t seconds)
+bool ws_pae_timers_gtk_new_install_required(sec_cfg_t *sec_cfg, uint32_t seconds)
 {
-    uint32_t gtk_new_install_req_seconds = timer_settings->gtk_expire_offset - timer_settings->gtk_new_install_req * timer_settings->gtk_expire_offset / 100;
+    uint32_t gtk_new_install_req_seconds = sec_cfg->timer_cfg.gtk_expire_offset - sec_cfg->timer_cfg.gtk_new_install_req * sec_cfg->timer_cfg.gtk_expire_offset / 100;
 
     if (seconds < gtk_new_install_req_seconds) {
         return true;
@@ -155,9 +155,9 @@ bool ws_pae_timers_gtk_new_install_required(sec_timer_cfg_t *timer_settings, uin
     }
 }
 
-bool ws_pae_timers_gtk_new_activation_time(sec_timer_cfg_t *timer_settings, uint32_t seconds)
+bool ws_pae_timers_gtk_new_activation_time(sec_cfg_t *sec_cfg, uint32_t seconds)
 {
-    uint32_t gtk_gtk_new_activation_time_seconds = timer_settings->gtk_expire_offset / timer_settings->gtk_new_act_time;
+    uint32_t gtk_gtk_new_activation_time_seconds = sec_cfg->timer_cfg.gtk_expire_offset / sec_cfg->timer_cfg.gtk_new_act_time;
 
     if (seconds < gtk_gtk_new_activation_time_seconds) {
         return true;
@@ -166,9 +166,9 @@ bool ws_pae_timers_gtk_new_activation_time(sec_timer_cfg_t *timer_settings, uint
     }
 }
 
-uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_timer_cfg_t *timer_settings)
+uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_cfg_t *sec_cfg)
 {
-    return timer_settings->gtk_expire_offset / timer_settings->revocat_lifetime_reduct;
+    return sec_cfg->timer_cfg.gtk_expire_offset / sec_cfg->timer_cfg.revocat_lifetime_reduct;
 }
 
 #endif /* HAVE_WS */

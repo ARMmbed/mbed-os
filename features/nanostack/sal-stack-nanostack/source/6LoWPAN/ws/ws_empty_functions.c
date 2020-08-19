@@ -380,6 +380,14 @@ int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
     return -1;
 }
 
+int ws_test_6lowpan_fragmentation_mtu_size_set(int8_t interface_id, uint16_t mtu_size)
+{
+    (void) interface_id;
+    (void) mtu_size;
+
+    return -1;
+}
+
 int ws_statistics_start(int8_t interface_id, ws_statistics_t *stats_ptr)
 {
     (void) interface_id;
@@ -396,6 +404,13 @@ int ws_statistics_stop(int8_t interface_id)
 void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback)
 {
     (void) callback;
+}
+
+int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
+{
+    (void) interface_id;
+    (void) info_ptr;
+    return -1;
 }
 
 #endif // no HAVE_WS

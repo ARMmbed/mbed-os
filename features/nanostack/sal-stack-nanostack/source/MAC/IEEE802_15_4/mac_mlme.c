@@ -512,6 +512,10 @@ static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_set
                 rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_ACCEPT_ANY_BEACON, (uint8_t *)&value);
             }
             break;
+
+        case macEdfeForceStop:
+            return mac_data_edfe_force_stop(rf_mac_setup);
+
         case macAcceptByPassUnknowDevice:
             rf_mac_setup->mac_security_bypass_unknow_device = value;
             break;
@@ -807,6 +811,11 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
             }
             return 0;
+        case macSetDataWhitening:
+            pu8 = (uint8_t *) set_req->value_pointer;
+            rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_DATA_WHITENING, pu8);
+            tr_debug("%s data whitening", *pu8 == (bool) true ? "Enable" : "Disable");
+            return 0;
         case macCCAThresholdStart:
             pu8 = (uint8_t *) set_req->value_pointer;
             mac_cca_thr_init(rf_mac_setup, *pu8, *((int8_t *)pu8 + 1), *((int8_t *)pu8 + 2), *((int8_t *)pu8 + 3));
@@ -869,7 +878,7 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, ml
     if (!get_req || !rf_mac_setup) {
         return -1;
     }
-
+    mac_cca_threshold_s *cca_thr_table = NULL;
     switch (get_req->attr) {
         case macDeviceTable:
             get_req->value_pointer = mac_sec_mib_device_description_get_attribute_index(rf_mac_setup, get_req->attr_index);
@@ -897,6 +906,12 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, ml
             }
 
             get_req->value_size = 4;
+            break;
+
+        case macCCAThreshold:
+            cca_thr_table = mac_get_cca_threshold_table(rf_mac_setup);
+            get_req->value_size = cca_thr_table->number_of_channels;
+            get_req->value_pointer = cca_thr_table->ch_thresholds;
             break;
 
         default:
@@ -1706,6 +1721,7 @@ void mac_mlme_poll_req(protocol_interface_rf_mac_setup_s *cur, const mlme_poll_t
     }
 
     buf->fcf_dsn.frametype = FC_CMD_FRAME;
+    buf->WaitResponse = true;
     buf->fcf_dsn.ackRequested = true;
     buf->fcf_dsn.intraPan = true;
 

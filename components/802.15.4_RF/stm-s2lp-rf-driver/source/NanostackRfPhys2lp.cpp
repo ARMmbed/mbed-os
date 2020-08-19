@@ -1328,7 +1328,7 @@ NanostackRfPhys2lp::NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName
 #ifdef AT24MAC
     _mac(i2c_sda, i2c_scl),
 #endif //AT24MAC
-    _mac_addr(), _rf(NULL), _mac_set(false),
+    _mac_addr(), _rf(NULL), _test_pins(NULL), _mac_set(false),
     _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
     _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
 {

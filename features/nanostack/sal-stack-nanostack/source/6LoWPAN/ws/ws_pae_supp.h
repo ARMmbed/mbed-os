@@ -38,15 +38,14 @@
  *
  * \param interface_ptr interface
  * \param cert_chain certificate chain
- * \param sec_timer_cfg timer configuration
- * \param sec_prot_cfg protocol configuration
+ * \param sec_cfg security configuration
  * \param sec_keys_nw_info security keys network information
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info);
+int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info);
 
 /**
  * ws_pae_supp_delete deletes PAE supplicant

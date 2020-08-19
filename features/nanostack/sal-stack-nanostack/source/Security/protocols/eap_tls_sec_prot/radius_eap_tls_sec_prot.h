@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 
-#ifndef HMAC_SHA1_
-#define HMAC_SHA1_
+#ifndef RADIUS_EAP_TLS_SEC_PROT_H_
+#define RADIUS_EAP_TLS_SEC_PROT_H_
+
+/*
+ * Authenticator RADIUS EAP-TLS security protocol. Specified in RFC 5216.
+ *
+ */
 
 /**
- * \brief Calculate HMAC-SHA1-160
+ * radius_eap_tls_sec_prot_register register authenticator EAP-TLS protocol to KMP service
  *
- *  Calculate HMAC-SHA1-160
- *
- * \param key pointer to key
- * \param key_len key length
- * \param data pointer to data
- * \param data_len data length
- * \param result pointer to result
- * \param result_len in bytes, maximum is 20 bytes
+ * \param service KMP service
  *
  * \return < 0 failure
  * \return >= 0 success
- *
  */
-int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result, uint8_t result_len);
+int8_t radius_eap_tls_sec_prot_register(kmp_service_t *service);
 
-#endif /* HMAC_SHA1_ */
+#endif /* RADIUS_EAP_TLS_SEC_PROT_H_ */

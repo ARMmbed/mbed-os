@@ -731,4 +731,14 @@ int ws_management_timing_parameters_validate(
     return 0;
 }
 
+int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur) || !info_ptr) {
+        return -1;
+    }
+    return ws_bootstrap_get_info(cur, info_ptr);
+}
+
 #endif // HAVE_WS

@@ -177,6 +177,7 @@ typedef struct inet_pcb_s {
     bool        recvpktinfo: 1;
     bool        recvhoplimit: 1;
     bool        recvtclass: 1;
+    bool        edfe_mode: 1;
     int_least24_t flow_label;
     NS_LIST_HEAD(inet_group_t, link) mc_groups;
 } inet_pcb_t;

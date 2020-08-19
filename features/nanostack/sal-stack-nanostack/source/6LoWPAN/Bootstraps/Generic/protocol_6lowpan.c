@@ -75,7 +75,6 @@
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/ws/ws_common.h"
-#include "6LoWPAN/ws/ws_bootstrap.h"
 #ifdef HAVE_WS
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #endif
@@ -517,7 +516,7 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t 
         }
 
         if (new_primary) {
-            ws_primary_parent_update(cur, entry);
+            ws_common_primary_parent_update(cur, entry);
         }
         return 1;
     } else {
@@ -550,7 +549,7 @@ uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addr
             protocol_stats_update(STATS_ETX_2ND_PARENT, etx_entry->etx >> 4);
         }
         if (new_secondary) {
-            ws_secondary_parent_update(cur);
+            ws_common_secondary_parent_update(cur);
         }
         return 1;
     } else {
