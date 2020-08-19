@@ -994,9 +994,7 @@ uint8_t GattServer::atts_write_cb(
     /* we don't write anything during the prepare phase */
     bool write_happened = (operation != ATT_PDU_PREP_WRITE_REQ);
 
-    if (len > pAttr->maxLen) {
-        return ATT_ERR_LENGTH;
-    }
+    MBED_ASSERT(len + offset <= pAttr->maxLen);
 
     if (write_happened) {
         WsfTaskLock();
