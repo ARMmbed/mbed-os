@@ -640,10 +640,9 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
         connection_handle_t connection_handle,
         uint16_t attribute_handle,
         uint8_t* data,
-        uint16_t write_length,
-        uint16_t chunk_size
+        uint16_t write_length
     ) : ProcedureControlBlock(WRITE_PROCEDURE, connection_handle),
-        attribute_handle(attribute_handle), write_length(write_length), chunk_size(chunk_size), offset(0), data(data),
+        attribute_handle(attribute_handle), write_length(write_length), offset(0), data(data),
         prepare_success(false), status(BLE_ERROR_INITIALIZATION_INCOMPLETE), error_code(0xFF) {
     }
 
@@ -725,10 +724,10 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
 
     void handle_prepare_write_response(GattClient* client, const AttPrepareWriteResponse& write_response) {
         ble_error_t err = BLE_ERROR_UNSPECIFIED;
-        uint16_t mtu_size = client->get_mtu(connection_handle);
-        offset += chunk_size;
+        offset += write_response.partial_value.size();
         uint16_t data_left = write_length - offset; /* offset is guaranteed to be less of equal to write_length */
         if (data_left) {
+            uint16_t chunk_size = client->get_mtu(connection_handle) - PREPARE_WRITE_HEADER_LENGTH;
             if (chunk_size > data_left) {
                 chunk_size = data_left;
             }
@@ -836,7 +835,6 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
     uint16_t attribute_handle;
     uint16_t write_length;
     uint16_t offset;
-    uint16_t chunk_size;
     uint8_t* data;
     bool prepare_success;
     ble_error_t status;
@@ -1190,8 +1188,7 @@ ble_error_t GattClient::write(
             connection_handle,
             attribute_handle,
             data,
-            length,
-            mtu - PREPARE_WRITE_HEADER_LENGTH
+            length
         );
 
         if (write_pcb == nullptr) {
