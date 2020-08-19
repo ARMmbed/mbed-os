@@ -108,17 +108,23 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         return 0;
     }
 
-    //Find the start of first sector after text area
-    int sector_size = flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR);
-    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, sector_size);
     start_address = flash.get_flash_start();
     flash_size = flash.get_flash_size();
+
+    // Find the start of first sector after text area.
+    // Align it to the largest erase sector size which is normally contant
+    // but may monotonically increase or decrease, so we only need to
+    // check the start and the end of the region we use.
+    int max_sector_size = std::max(
+                              flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR),
+                              flash.get_sector_size(start_address + flash_size - 1));
+    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, max_sector_size);
 
     ret = flash.deinit();
 
     int  total_size = start_address + flash_size - bottom_address;
-    if (total_size % (sector_size * 2)) {
-        total_size =  align_down(total_size, sector_size * 2);
+    if (total_size % (max_sector_size * 2)) {
+        total_size =  align_down(total_size, max_sector_size * 2);
     }
     static FlashIAPBlockDevice default_bd(bottom_address, total_size);
 
