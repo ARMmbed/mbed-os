@@ -991,6 +991,23 @@ uint8_t GattServer::atts_write_cb(
 {
     uint8_t err;
 
+    GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
+    if (auth_char && auth_char->isWriteAuthorizationEnabled()) {
+        GattWriteAuthCallbackParams write_auth_params = {
+            connId,
+            handle,
+            offset,
+            len,
+            pValue,
+            AUTH_CALLBACK_REPLY_SUCCESS
+        };
+
+        GattAuthCallbackReply_t ret = auth_char->authorizeWrite(&write_auth_params);
+        if (ret!= AUTH_CALLBACK_REPLY_SUCCESS) {
+            return ret & 0xFF;
+        }
+    }
+
     /* we don't write anything during the prepare phase */
     bool write_happened = (operation != ATT_PDU_PREP_WRITE_REQ);
 
@@ -1037,23 +1054,6 @@ uint8_t GattServer::atts_write_cb(
         default:
             writeOp = GattWriteCallbackParams::OP_INVALID;
             break;
-    }
-
-    GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
-    if (auth_char && auth_char->isWriteAuthorizationEnabled()) {
-        GattWriteAuthCallbackParams write_auth_params = {
-            connId,
-            handle,
-            offset,
-            len,
-            pValue,
-            AUTH_CALLBACK_REPLY_SUCCESS
-        };
-
-        GattAuthCallbackReply_t ret = auth_char->authorizeWrite(&write_auth_params);
-        if (ret!= AUTH_CALLBACK_REPLY_SUCCESS) {
-            return ret & 0xFF;
-        }
     }
 
     if (write_happened) {
