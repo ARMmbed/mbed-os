@@ -859,6 +859,40 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
             } else {
                 ipv6_route_delete(prefix_ptr, prefix_length, cur->id, buf->src_sa.address, ROUTE_RADV);
             }
+        } else if (type == ICMPV6_OPT_DNS_SEARCH_LIST) {
+
+            if (length < 8) {
+                tr_warn("Invalid RA DNS search list opt corrupt");
+                goto next_option; // invalid not accepted
+            }
+            uint32_t dns_lifetime = common_read_32_bit(dptr + 2); // 2 x reserved
+            uint8_t *dns_search_list = dptr + 6;
+            uint8_t dns_search_list_len = length - 8; // Length includes type and length
+
+            tr_info("DNS Search List: %s Lifetime: %lu", trace_array(dns_search_list, dns_search_list_len), (unsigned long) dns_lifetime);
+            // TODO Add DNS server to DNS information storage.
+            // dns_search_list_storage(cur, buf->src_sa.address, dns_search_list, dns_search_list_len, dns_lifetime);
+            (void)dns_search_list;
+            (void)dns_search_list_len;
+            (void)dns_lifetime;
+
+        } else if (type == ICMPV6_OPT_RECURSIVE_DNS_SERVER) {
+            uint8_t dns_length = length / 8;
+
+            if (dns_length < 3) {
+                tr_warn("Invalid RA DNS server opt corrupt");
+                goto next_option; // invalid not accepted
+            }
+            uint8_t dns_count = (dns_length - 1) / 2;
+            uint32_t dns_lifetime = common_read_32_bit(dptr + 2); // 2 x reserved
+            for (int n = 0; n < dns_count; n++) {
+                uint8_t *dns_srv_addr = dptr + 6 + n * 16;
+                tr_info("DNS Server: %s Lifetime: %lu", trace_ipv6(dns_srv_addr), (unsigned long) dns_lifetime);
+                // TODO Add DNS server to DNS information storage.
+                // dns_server_storage(cur, buf->src_sa.address, dns_srv_addr, dns_lifetime);
+                (void)dns_srv_addr;
+                (void)dns_lifetime;
+            }
         } else if (type == ICMPV6_OPT_6LOWPAN_CONTEXT) {
             nd_ra_process_lowpan_context_option(cur, dptr - 2);
         }

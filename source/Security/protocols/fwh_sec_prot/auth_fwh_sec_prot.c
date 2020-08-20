@@ -36,7 +36,7 @@
 #include "Security/protocols/sec_prot.h"
 #include "Security/protocols/sec_prot_lib.h"
 #include "Security/protocols/fwh_sec_prot/auth_fwh_sec_prot.h"
-#include "Service_Libs/hmac/hmac_sha1.h"
+#include "Service_Libs/hmac/hmac_md.h"
 #include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
 
 #ifdef HAVE_WS
@@ -234,7 +234,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
     switch (msg) {
         case FWH_MESSAGE_1: {
             uint8_t pmkid[PMKID_LEN];
-            if (sec_prot_lib_pmkid_generate(prot, pmkid, true) < 0) {
+            if (sec_prot_lib_pmkid_generate(prot, pmkid, true, false, NULL) < 0) {
                 ns_dyn_mem_free(kde_start);
                 return -1;
             }
@@ -313,7 +313,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
 static void auth_fwh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
-    sec_prot_timer_timeout_handle(prot, &data->common, &prot->prot_cfg->sec_prot_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, &prot->sec_cfg->prot_cfg.sec_prot_trickle_params, ticks);
 }
 
 static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
@@ -350,7 +350,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             auth_fwh_sec_prot_message_send(prot, FWH_MESSAGE_1);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->sec_cfg->prot_cfg.sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_2);
             break;
@@ -378,7 +378,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 auth_fwh_sec_prot_message_send(prot, FWH_MESSAGE_3);
 
                 // Start trickle timer to re-send if no response
-                sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
+                sec_prot_timer_trickle_start(&data->common, &prot->sec_cfg->prot_cfg.sec_prot_trickle_params);
 
                 sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_4);
             }
@@ -406,7 +406,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 // Reset PTK mismatch
                 sec_prot_keys_ptk_mismatch_reset(prot->sec_keys);
                 // Update PTK
-                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->timer_cfg->ptk_lifetime);
+                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->sec_cfg->timer_cfg.ptk_lifetime);
                 sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             }

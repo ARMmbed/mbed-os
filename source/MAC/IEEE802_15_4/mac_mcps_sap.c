@@ -197,6 +197,18 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
     uint8_t status = MLME_SUCCESS;
     mac_pre_build_frame_t *buffer = NULL;
 
+    if (rf_mac_setup->mac_edfe_enabled && data_req->ExtendedFrameExchange) {
+        if (rf_mac_setup->mac_edfe_info->state != MAC_EDFE_FRAME_IDLE) {
+            tr_debug("Accept only 1 active Efde Data request push");
+            status = MLME_UNSUPPORTED_LEGACY;
+            goto verify_status;
+        }
+
+        if (data_req->DstAddrMode != MAC_ADDR_MODE_64_BIT) {
+            status = MLME_INVALID_PARAMETER;
+            goto verify_status;
+        }
+    }
 
     if (!rf_mac_setup->mac_security_enabled) {
         if (data_req->Key.SecurityLevel) {
@@ -254,7 +266,13 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
 
     buffer->upper_layer_request = true;
     buffer->fcf_dsn.frametype = FC_DATA_FRAME;
-    buffer->fcf_dsn.ackRequested = data_req->TxAckReq;
+    buffer->ExtendedFrameExchange = data_req->ExtendedFrameExchange;
+    buffer->WaitResponse = data_req->TxAckReq;
+    if (data_req->ExtendedFrameExchange) {
+        buffer->fcf_dsn.ackRequested = false;
+    } else {
+        buffer->fcf_dsn.ackRequested = data_req->TxAckReq;
+    }
 
     buffer->mac_header_length_with_security = 3;
     mac_header_security_parameter_set(&buffer->aux_header, &data_req->Key);
@@ -336,6 +354,7 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
     buffer->mac_payload = data_req->msdu;
     buffer->mac_payload_length = data_req->msduLength;
     //check that header + payload length is not bigger than MAC MTU
+
     if (data_req->InDirectTx) {
         mac_indirect_queue_write(rf_mac_setup, buffer);
     } else {
@@ -550,8 +569,14 @@ static uint8_t mac_data_interface_decrypt_packet(mac_pre_parsed_frame_t *b, mlme
     //READ SRC Address
 
     uint16_t SrcPANId = mac_header_get_src_panid(&b->fcf_dsn, mac_header_message_start_pointer(b), rf_mac_setup->pan_id);
-    mac_header_get_src_address(&b->fcf_dsn, mac_header_message_start_pointer(b), neighbour_validation.address);
-    neighbour_validation.addr_type = b->fcf_dsn.SrcAddrMode;
+
+    if (b->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_NONE && rf_mac_setup->mac_edfe_enabled && rf_mac_setup->mac_edfe_info->state > MAC_EDFE_FRAME_CONNECTING) {
+        memcpy(neighbour_validation.address, rf_mac_setup->mac_edfe_info->PeerAddr, 8);
+        neighbour_validation.addr_type = MAC_ADDR_MODE_64_BIT;
+    } else {
+        mac_header_get_src_address(&b->fcf_dsn, mac_header_message_start_pointer(b), neighbour_validation.address);
+        neighbour_validation.addr_type = b->fcf_dsn.SrcAddrMode;
+    }
     neighbour_validation.keyId = security_params->KeyIndex;
 
     // Get A Key description
@@ -708,6 +733,7 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
     memset(data_ind, 0, sizeof(mcps_data_ind_t));
     //Parse data
     data_ind->DSN = buf->fcf_dsn.DSN;
+    data_ind->DSN_suppressed = buf->fcf_dsn.sequenceNumberSuppress;
     data_ind->DstAddrMode = buf->fcf_dsn.DstAddrMode;
     mac_header_get_dst_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), data_ind->DstAddr);
     data_ind->SrcAddrMode = buf->fcf_dsn.SrcAddrMode;
@@ -722,6 +748,10 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
     data_ind->timestamp = buf->timestamp;
     /* Parse security part */
     mac_header_security_components_read(buf, &data_ind->Key);
+    if (data_ind->SrcAddrMode == MAC_ADDR_MODE_NONE && rf_mac_setup->mac_edfe_enabled && rf_mac_setup->mac_edfe_info->state > MAC_EDFE_FRAME_CONNECTING) {
+        memcpy(data_ind->SrcAddr, rf_mac_setup->mac_edfe_info->PeerAddr, 8);
+        data_ind->SrcAddrMode = MAC_ADDR_MODE_64_BIT;
+    }
 
     buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, data_ind->SrcAddr, data_ind->SrcAddrMode, data_ind->SrcPANId);
     if (buf->fcf_dsn.securityEnabled) {
@@ -795,7 +825,7 @@ static void mac_lib_res_no_data_to_req(mac_pre_parsed_frame_t *buffer, protocol_
 
     buf->fcf_dsn.securityEnabled = buffer->fcf_dsn.securityEnabled;
     buf->fcf_dsn.intraPan = true;
-    buf->fcf_dsn.ackRequested = true;
+    buf->WaitResponse = buf->fcf_dsn.ackRequested = true;
     buf->mac_header_length_with_security = 3;
     //Check PanID presents at header
     buf->fcf_dsn.DstPanPresents = mac_dst_panid_present(&buf->fcf_dsn);
@@ -1061,8 +1091,17 @@ void mac_mcps_trig_buffer_from_queue(protocol_interface_rf_mac_setup_s *rf_mac_s
         buffer = mcps_sap_pd_req_queue_read(rf_mac_setup, is_bc_queue, false);
 
         if (buffer) {
+            //Here
+            if (buffer->ExtendedFrameExchange) {
+                //Update here state and store peer
+                memcpy(rf_mac_setup->mac_edfe_info->PeerAddr, buffer->DstAddr, 8);
+                rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTING;
+            }
             rf_mac_setup->active_pd_data_request = buffer;
             if (mcps_pd_data_request(rf_mac_setup, buffer) != 0) {
+                if (buffer->ExtendedFrameExchange) {
+                    rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+                }
                 rf_mac_setup->active_pd_data_request = NULL;
                 mac_mcps_asynch_finish(rf_mac_setup, buffer);
                 mcps_data_confirm_handle(rf_mac_setup, buffer, NULL);
@@ -1079,15 +1118,24 @@ static int8_t mac_ack_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inter
 {
     //allocate Data ind primitiv and parse packet to that
     mlme_security_t key;
+    uint8_t srcAddressMode;
     uint8_t SrcAddr[8];         /**< Source address */
     memset(SrcAddr, 0, 8);
     memset(&key, 0, sizeof(mlme_security_t));
-    mac_header_get_src_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), SrcAddr);
+    srcAddressMode = buf->fcf_dsn.SrcAddrMode;
+    if (buf->fcf_dsn.SrcAddrMode) {
+        mac_header_get_src_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), SrcAddr);
+    } else {
+        if (rf_mac_setup->mac_edfe_enabled && (buf->fcf_dsn.frametype == FC_DATA_FRAME && !buf->fcf_dsn.ackRequested)) {
+            memcpy(SrcAddr, rf_mac_setup->mac_edfe_info->PeerAddr, 8);
+            srcAddressMode = MAC_ADDR_MODE_64_BIT;
+        }
+    }
     uint16_t pan_id = mac_header_get_src_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf), rf_mac_setup->pan_id);
     /* Parse security part */
     mac_header_security_components_read(buf, &key);
 
-    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, SrcAddr, buf->fcf_dsn.SrcAddrMode, pan_id);
+    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, SrcAddr, srcAddressMode, pan_id);
     if (buf->fcf_dsn.securityEnabled) {
         uint8_t status = mac_data_interface_decrypt_packet(buf, &key);
         if (status != MLME_SUCCESS) {
@@ -1426,6 +1474,22 @@ static void mac_data_interface_internal_tx_confirm_handle(protocol_interface_rf_
 
 }
 
+static bool mcps_buffer_edfe_data_failure(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer)
+{
+    if (!rf_ptr->mac_edfe_enabled || !buffer->ExtendedFrameExchange) {
+        return false;
+    }
+
+    if (rf_ptr->mac_edfe_info->state > MAC_EDFE_FRAME_CONNECTING) {
+        //Set to idle
+        tr_debug("Edfe Data send fail");
+        return true;
+    }
+
+    return false;
+}
+
+
 static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer, mac_pre_parsed_frame_t *ack_buf)
 {
 
@@ -1434,7 +1498,7 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
     mcps_data_conf_t confirm;
     if (rf_ptr->fhss_api && !buffer->asynch_request) {
         // FHSS checks if this failed buffer needs to be pushed back to TX queue and retransmitted
-        if ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL)) {
+        if (!mcps_buffer_edfe_data_failure(rf_ptr, buffer) && ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL))) {
             if (rf_ptr->fhss_api->data_tx_fail(rf_ptr->fhss_api, buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), rf_ptr->mac_tx_start_channel) == true) {
 
                 if (rf_ptr->mac_tx_result == MAC_TX_FAIL) {
@@ -1447,6 +1511,11 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
                 return;
             }
         }
+
+        if (rf_ptr->mac_edfe_enabled && buffer->ExtendedFrameExchange) {
+            rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+        }
+
     }
     confirm.cca_retries = rf_ptr->mac_tx_status.cca_cnt + buffer->fhss_cca_retry_count;
     confirm.tx_retries = rf_ptr->mac_tx_status.retry + buffer->fhss_retry_count;
@@ -1622,7 +1691,11 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
 
     tx_buf->len = frame_length;
     uint8_t *mhr_start = ptr;
-    buffer->tx_time = mcps_generic_backoff_calc(rf_ptr);
+    if (buffer->ExtendedFrameExchange && buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_NONE) {
+        buffer->tx_time = mac_mcps_sap_get_phy_timestamp(rf_ptr) + 300; //Send 300 us later
+    } else {
+        buffer->tx_time = mcps_generic_backoff_calc(rf_ptr);
+    }
 
     ptr = mac_generic_packet_write(rf_ptr, ptr, buffer);
 
@@ -1710,6 +1783,86 @@ int8_t mcps_generic_ack_data_request_init(protocol_interface_rf_mac_setup_s *rf_
     buffer->payloadsIeLength = ie_payload_length;
     buffer->mac_payload = ack_payload->payloadPtr;
     buffer->mac_payload_length = ack_payload->payloadLength;
+
+    //This will prepare MHR length with Header IE
+    mac_header_information_elements_preparation(buffer);
+    return 0;
+}
+
+int8_t mcps_generic_edfe_frame_init(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_edfe_response_t *response)
+{
+    //Data Here
+    mac_pre_build_frame_t *buffer;
+    if (response->wait_response) {
+        buffer = rf_ptr->active_pd_data_request;
+        buffer->message_builded = false;
+    } else {
+        buffer = &rf_ptr->enhanced_ack_buffer;
+        memset(buffer, 0, sizeof(mac_pre_build_frame_t));
+        buffer->fcf_dsn.frametype = FC_DATA_FRAME;
+        buffer->fcf_dsn.frameVersion = fcf->frameVersion;
+        buffer->fcf_dsn.DstPanPresents = fcf->DstPanPresents;
+        buffer->fcf_dsn.DstAddrMode = response->DstAddrMode;
+        buffer->DstPANId = mac_header_get_src_panid(fcf, data_ptr, rf_ptr->pan_id);
+        buffer->SrcPANId = mac_header_get_dst_panid(fcf, data_ptr, rf_ptr->pan_id);
+        memcpy(buffer->DstAddr, response->Address, 8);
+    }
+    buffer->fcf_dsn.intraPan = response->PanIdSuppressed;
+    buffer->fcf_dsn.SrcAddrMode = response->SrcAddrMode;
+    buffer->fcf_dsn.SrcPanPresents = response->SrcAddrMode;
+    buffer->fcf_dsn.framePending = false;
+    buffer->fcf_dsn.sequenceNumberSuppress = fcf->sequenceNumberSuppress;
+
+    buffer->WaitResponse = response->wait_response;
+    buffer->ExtendedFrameExchange = true;
+
+    if (buffer->fcf_dsn.sequenceNumberSuppress) {
+        buffer->mac_header_length_with_security = 2;
+    } else {
+        buffer->mac_header_length_with_security = 3;
+    }
+
+    buffer->mac_header_length_with_security += mac_header_address_length(&buffer->fcf_dsn);
+
+    //Security
+    buffer->fcf_dsn.securityEnabled = fcf->securityEnabled;
+    if (buffer->fcf_dsn.securityEnabled) {
+        //Read Security AUX headers
+        const uint8_t *ptr = data_ptr;
+        ptr += mac_header_off_set_to_aux_header(fcf);
+        //Start parsing AUX header
+        mlme_security_t aux_parse;
+        mac_header_security_aux_header_parse(ptr, &aux_parse);
+        buffer->aux_header.KeyIdMode = aux_parse.KeyIdMode;
+        buffer->aux_header.KeyIndex = aux_parse.KeyIndex;
+        buffer->aux_header.securityLevel = aux_parse.SecurityLevel;
+        memcpy(buffer->aux_header.Keysource, aux_parse.Keysource, 8);
+
+        buffer->security_mic_len = mac_security_mic_length_get(buffer->aux_header.securityLevel);
+        buffer->fcf_dsn.frameVersion = MAC_FRAME_VERSION_2006;
+        buffer->mac_header_length_with_security += mac_header_security_aux_header_length(buffer->aux_header.securityLevel, buffer->aux_header.KeyIdMode);
+
+    }
+
+    uint16_t ie_header_length = 0;
+    uint16_t ie_payload_length = 0;
+
+    if (!mac_ie_vector_length_validate(response->ie_response.headerIeVectorList, response->ie_response.headerIovLength, &ie_header_length)) {
+        return -1;
+    }
+
+    if (!mac_ie_vector_length_validate(response->ie_response.payloadIeVectorList, response->ie_response.payloadIovLength, &ie_payload_length)) {
+        return -1;
+    }
+
+    buffer->ie_elements.headerIeVectorList = response->ie_response.headerIeVectorList;
+    buffer->ie_elements.headerIovLength = response->ie_response.headerIovLength;
+    buffer->ie_elements.payloadIeVectorList = response->ie_response.payloadIeVectorList;
+    buffer->ie_elements.payloadIovLength = response->ie_response.payloadIovLength;
+    buffer->headerIeLength = ie_header_length;
+    buffer->payloadsIeLength = ie_payload_length;
+    buffer->mac_payload = NULL;
+    buffer->mac_payload_length = 0;
 
     //This will prepare MHR length with Header IE
     mac_header_information_elements_preparation(buffer);
@@ -1854,8 +2007,11 @@ static int8_t mcps_generic_packet_rebuild(protocol_interface_rf_mac_setup_s *rf_
 
     tx_buf->len = frame_length;
     uint8_t *mhr_start = ptr;
-
-    buffer->tx_time = mcps_generic_backoff_calc(rf_ptr);
+    if (buffer->ExtendedFrameExchange && buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_NONE) {
+        buffer->tx_time = mac_mcps_sap_get_phy_timestamp(rf_ptr) + 300; //Send 300 us later
+    } else {
+        buffer->tx_time = mcps_generic_backoff_calc(rf_ptr);
+    }
 
     ptr = mac_generic_packet_write(rf_ptr, ptr, buffer);
 
@@ -1884,15 +2040,39 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
             cca_enabled = false;
             rf_ptr->mac_ack_tx_active = true;
         } else {
-            if (rf_ptr->mac_ack_tx_active) {
-                mac_csma_backoff_start(rf_ptr);
-                platform_exit_critical();
-                return -1;
+            if (buffer->ExtendedFrameExchange) {
+                if (buffer->fcf_dsn.SrcAddrMode) {
+                    cca_enabled = true;
+                } else {
+                    //Response
+                    if (!buffer->WaitResponse) {
+                        //Response
+                        if (rf_ptr->mac_ack_tx_active) {
+                            mac_csma_backoff_start(rf_ptr);
+                            platform_exit_critical();
+                            return -1;
+                        }
+                        rf_ptr->mac_edfe_response_tx_active = true;
+                    } else {
+                        rf_ptr->mac_edfe_response_tx_active = false;
+                    }
+                    cca_enabled = false;
+                    rf_ptr->mac_edfe_tx_active = true;
+                }
+
+            } else {
+
+                if (rf_ptr->mac_ack_tx_active) {
+                    mac_csma_backoff_start(rf_ptr);
+                    platform_exit_critical();
+                    return -1;
+                }
+                cca_enabled = true;
             }
-            cca_enabled = true;
+
         }
         // Use double CCA check with FHSS for data packets only
-        if (rf_ptr->fhss_api && !rf_ptr->mac_ack_tx_active && !rf_ptr->active_pd_data_request->asynch_request) {
+        if (rf_ptr->fhss_api && !rf_ptr->mac_ack_tx_active && !rf_ptr->mac_edfe_tx_active && !rf_ptr->active_pd_data_request->asynch_request) {
             if ((buffer->tx_time - (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1))) > mac_mcps_sap_get_phy_timestamp(rf_ptr)) {
                 buffer->csma_periods_left = rf_ptr->number_of_csma_ca_periods - 1;
                 buffer->tx_time -= (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1));
@@ -1900,10 +2080,13 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
         }
         mac_pd_sap_set_phy_tx_time(rf_ptr, buffer->tx_time, cca_enabled);
         if (mac_plme_cca_req(rf_ptr) != 0) {
-            if (buffer->fcf_dsn.frametype == MAC_FRAME_ACK) {
+            if (buffer->fcf_dsn.frametype == MAC_FRAME_ACK || (buffer->ExtendedFrameExchange && rf_ptr->mac_edfe_response_tx_active)) {
+                //ACK or EFDE Response
                 rf_ptr->mac_ack_tx_active = false;
                 // For Ack, stop the active TX process
                 rf_ptr->macTxProcessActive = false;
+                rf_ptr->mac_edfe_tx_active = false;
+                rf_ptr->mac_edfe_response_tx_active = false;
                 // If MAC had TX process active before Ack transmission,
                 // the TX process has to be restarted in case the Ack transmission failed.
                 if (rf_ptr->active_pd_data_request) {
@@ -1925,7 +2108,6 @@ static int8_t mcps_pd_data_request(protocol_interface_rf_mac_setup_s *rf_ptr, ma
 {
     rf_ptr->macTxRequestAck = false;
 
-
     memset(&(rf_ptr->mac_tx_status), 0, sizeof(mac_tx_status_t));
     rf_ptr->mac_cca_retry = 0;
     rf_ptr->mac_tx_retry = 0;
@@ -1934,12 +2116,30 @@ static int8_t mcps_pd_data_request(protocol_interface_rf_mac_setup_s *rf_ptr, ma
     if (mcps_generic_packet_build(rf_ptr, buffer) != 0) {
         return -1;
     }
-    rf_ptr->macTxRequestAck = buffer->fcf_dsn.ackRequested;
-    if (!rf_ptr->mac_ack_tx_active) {
+    rf_ptr->macTxRequestAck = buffer->WaitResponse;
+    if (!rf_ptr->mac_ack_tx_active && !rf_ptr->mac_edfe_tx_active) {
         return mcps_pd_data_cca_trig(rf_ptr, buffer);
     } else {
         return 0;
     }
+
+}
+
+int8_t mcps_edfe_data_request(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer)
+{
+    rf_ptr->macTxRequestAck = false;
+    memset(&(rf_ptr->mac_tx_status), 0, sizeof(mac_tx_status_t));
+    rf_ptr->mac_cca_retry = 0;
+    rf_ptr->mac_tx_retry = 0;
+    rf_ptr->mac_tx_start_channel = rf_ptr->mac_channel;
+    buffer->aux_header.frameCounter = 0xffffffff;
+    mac_csma_param_init(rf_ptr);
+    if (mcps_generic_packet_build(rf_ptr, buffer) != 0) {
+        return -1;
+    }
+    rf_ptr->macTxRequestAck = buffer->WaitResponse;//buffer->fcf_dsn.ackRequested;
+
+    return mcps_pd_data_cca_trig(rf_ptr, buffer);
 
 }
 
@@ -1955,7 +2155,10 @@ int8_t mcps_pd_data_rebuild(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_b
 
 bool mac_is_ack_request_set(mac_pre_build_frame_t *buffer)
 {
-    return buffer->fcf_dsn.ackRequested;
+    if (buffer->fcf_dsn.ackRequested || buffer->WaitResponse) {
+        return true;
+    }
+    return false;
 }
 
 int mac_convert_frame_type_to_fhss(uint8_t frame_type)
@@ -1979,11 +2182,20 @@ void mcps_sap_pd_req_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup
         if ((rf_mac_setup->macBroadcastDisabled == true) && !mac_is_ack_request_set(buffer)) {
             goto push_to_queue;
         }
+
+        if (buffer->ExtendedFrameExchange) {
+            //Update here state and store peer
+            memcpy(rf_mac_setup->mac_edfe_info->PeerAddr, buffer->DstAddr, 8);
+            rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTING;
+        }
         if (rf_mac_setup->fhss_api && (buffer->asynch_request == false)) {
             uint16_t frame_length = buffer->mac_payload_length + buffer->headerIeLength + buffer->payloadsIeLength;
             if (rf_mac_setup->fhss_api->check_tx_conditions(rf_mac_setup->fhss_api, !mac_is_ack_request_set(buffer),
                                                             buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), frame_length,
                                                             rf_mac_setup->dev_driver->phy_driver->phy_header_length, rf_mac_setup->dev_driver->phy_driver->phy_tail_length) == false) {
+                if (buffer->ExtendedFrameExchange) {
+                    rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+                }
                 goto push_to_queue;
             }
         }
@@ -1992,10 +2204,16 @@ void mcps_sap_pd_req_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup
         if (mcps_pd_data_request(rf_mac_setup, buffer) != 0) {
             rf_mac_setup->mac_tx_result = MAC_TX_PRECOND_FAIL;
             rf_mac_setup->macTxRequestAck = false;
+            if (buffer->ExtendedFrameExchange) {
+                rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+            }
             if (mcps_sap_pd_confirm(rf_mac_setup) != 0) {
                 // can't send event, try calling error handler directly
                 rf_mac_setup->mac_mcps_data_conf_fail.msduHandle = buffer->msduHandle;
                 rf_mac_setup->mac_mcps_data_conf_fail.status = buffer->status;
+                if (buffer->ExtendedFrameExchange) {
+                    rf_mac_setup->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+                }
                 mcps_sap_prebuild_frame_buffer_free(buffer);
                 rf_mac_setup->active_pd_data_request = NULL;
                 mac_pd_data_confirm_failure_handle(rf_mac_setup);
@@ -2133,12 +2351,6 @@ void mcps_sap_pre_parsed_frame_buffer_free(mac_pre_parsed_frame_t *buf)
 
 mac_pre_parsed_frame_t *mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data_ptr, uint16_t frame_length)
 {
-    // check that system has enough space to handle the new packet
-    if (!ns_monitor_packet_allocation_allowed()) {
-        // stack can not handle new packets for routing
-        return NULL;
-    }
-
     mac_pre_parsed_frame_t *buffer = ns_dyn_mem_temporary_alloc(sizeof(mac_pre_parsed_frame_t) + frame_length);
 
     if (buffer) {
