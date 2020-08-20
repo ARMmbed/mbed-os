@@ -21,20 +21,20 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "mbedtls/md.h"
-#include "Service_Libs/hmac/hmac_sha1.h"
+#include "hmac_md.h"
 
 #define TRACE_GROUP "hmac"
 
-int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result, uint8_t result_len)
+int8_t hmac_md_calc(const alg_hmac_md_e md, const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result, uint8_t result_len)
 {
 #ifdef EXTRA_DEBUG_INFO
     // Extensive debug for now, to be disabled later
-    tr_debug("hmac_sha_1 key %s\n", trace_array(key, key_len));
+    tr_debug("hmac_md key %s\n", trace_array(key, key_len));
 
     const uint8_t *print_data = data;
     uint16_t print_data_len = data_len;
     while (true) {
-        tr_debug("hmac_sha_1 data %s\n", trace_array(print_data, print_data_len > 32 ? 32 : print_data_len));
+        tr_debug("hmac_md data %s\n", trace_array(print_data, print_data_len > 32 ? 32 : print_data_len));
         if (print_data_len > 32) {
             print_data_len -= 32;
             print_data += 32;
@@ -44,7 +44,12 @@ int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data,
     }
 #endif
 
-    const mbedtls_md_type_t md_type = MBEDTLS_MD_SHA1;
+    mbedtls_md_type_t md_type;
+    if (md == ALG_HMAC_MD5) {
+        md_type = MBEDTLS_MD_MD5;
+    } else {
+        md_type = MBEDTLS_MD_SHA1;
+    }
     const mbedtls_md_info_t *md_info = mbedtls_md_info_from_type(md_type);
     if (md_info == NULL) {
         return -1;
@@ -76,7 +81,7 @@ int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data,
     memcpy(result, result_value, result_len);
 
 #ifdef EXTRA_DEBUG_INFO
-    tr_debug("hmac_sha_1 result %s\n", trace_array(result_value, 20));
+    tr_debug("hmac_md result %s\n", trace_array(result_value, 20));
 #endif
     return 0;
 

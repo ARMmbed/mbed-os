@@ -147,6 +147,25 @@ typedef struct mac_mcps_data_conf_fail_s {
     uint8_t status;         /**< Status of the failing MSDU transmission */
 } mac_mcps_data_conf_fail_t;
 
+
+typedef enum  mac_edfe_frame_state {
+    MAC_EDFE_FRAME_IDLE = 0,
+    MAC_EDFE_FRAME_CONNECTING,
+    MAC_EDFE_FRAME_CONNECTED,
+    MAC_EDFE_FRAME_TX_RESPONSE,
+    MAC_EDFE_FRAME_TX_FINAL_FRAME,
+    MAC_EDFE_FRAME_WAIT_DATA,
+    MAC_EDFE_FRAME_WAIT_RESPONSE
+} mac_edfe_frame_state_e;
+
+
+typedef struct mac_mcps_edfe_info_s {
+    mac_edfe_frame_state_e state;
+    uint8_t PeerAddr[8];
+    struct mac_pre_build_frame edfe_response_buffer;
+} mac_mcps_edfe_frame_info_t;
+
+
 typedef struct protocol_interface_rf_mac_setup {
     int8_t mac_interface_id;
     bool macUpState: 1;
@@ -154,7 +173,10 @@ typedef struct protocol_interface_rf_mac_setup {
     bool beaconSrcAddressModeLong: 1; //This force beacon src to mac64 otherwise shortAdressValid will define type
     bool secFrameCounterPerKey: 1;
     bool mac_extension_enabled: 1;
+    bool mac_edfe_enabled: 1; // Indicate when EFDE exchange is possible
     bool mac_ack_tx_active: 1;
+    bool mac_edfe_tx_active: 1;
+    bool mac_edfe_response_tx_active: 1;
     bool mac_frame_pending: 1;
     /* MAC Capability Information */
     bool macCapRxOnIdle: 1;
@@ -279,6 +301,7 @@ typedef struct protocol_interface_rf_mac_setup {
     struct mac_cca_threshold *cca_threshold;
     //beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;
     struct mac_statistics_s *mac_statistics;
+    mac_mcps_edfe_frame_info_t *mac_edfe_info;
     /* FHSS API*/
     struct fhss_api *fhss_api;
 } protocol_interface_rf_mac_setup_s;

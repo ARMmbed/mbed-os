@@ -35,7 +35,7 @@
 #include "Security/protocols/sec_prot.h"
 #include "Security/protocols/sec_prot_lib.h"
 #include "Security/protocols/fwh_sec_prot/supp_fwh_sec_prot.h"
-#include "Service_Libs/hmac/hmac_sha1.h"
+#include "Service_Libs/hmac/hmac_md.h"
 #include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
 
 #ifdef HAVE_WS
@@ -139,7 +139,7 @@ static int8_t supp_fwh_sec_prot_init(sec_prot_t *prot)
     sec_prot_init(&data->common);
     sec_prot_state_set(prot, &data->common, FWH_STATE_INIT);
 
-    data->common.ticks = prot->prot_cfg->sec_prot_retry_timeout;
+    data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
     data->msg3_received = false;
     data->msg3_retry_wait = false;
     data->recv_replay_cnt = 0;
@@ -337,7 +337,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             if (sec_prot_result_ok_check(&data->common)) {
                 // Send 4WH message 2
                 supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_2);
-                data->common.ticks = prot->prot_cfg->sec_prot_retry_timeout;
+                data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
                 sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_3);
             } else {
                 // Ready to be deleted
@@ -365,7 +365,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
                 // Send 4WH message 2
                 supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_2);
-                data->common.ticks = prot->prot_cfg->sec_prot_retry_timeout;
+                data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
                 return;
             } else if (data->recv_msg != FWH_MESSAGE_3) {
                 return;
@@ -392,7 +392,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
             // Sends 4WH Message 4
             supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_4);
-            data->common.ticks = prot->prot_cfg->sec_prot_retry_timeout;
+            data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
             sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             break;
 
@@ -409,7 +409,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
                 tr_info("4WH: finish, wait Message 3 retry");
 
-                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->timer_cfg->ptk_lifetime);
+                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->sec_cfg->timer_cfg.ptk_lifetime);
                 sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
 
                 data->common.ticks = 60 * 10; // 60 seconds
@@ -473,7 +473,7 @@ static int8_t supp_fwh_sec_prot_ptk_generate(sec_prot_t *prot, sec_prot_keys_t *
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
 
     uint8_t local_eui64[8];
-    prot->addr_get(prot, local_eui64, data->remote_eui64);
+    prot->addr_get(prot, local_eui64, NULL);
 
     uint8_t *remote_nonce = data->recv_eapol_pdu.msg.key.key_nonce;
     if (!remote_nonce) {
@@ -553,11 +553,24 @@ static int8_t supp_fwh_kde_handle(sec_prot_t *prot)
             if (kde_pmkid_read(kde, kde_len, recv_pmkid) < 0) {
                 goto error;
             }
-            if (sec_prot_lib_pmkid_generate(prot, calc_pmkid, false) < 0) {
+            /* Fix the used EUI-64 for the length of the 4WH handshake using the PMKID. Try
+             * first primary BR EUI-64 (e.g. validated by PTK procedure) for PMKID.
+             */
+            if (sec_prot_lib_pmkid_generate(prot, calc_pmkid, false, false, data->remote_eui64) < 0) {
                 goto error;
             }
+            // If PMKID is not valid
             if (memcmp(recv_pmkid, calc_pmkid, PMKID_LEN) != 0) {
-                goto error;
+                tr_info("PMKID mismatch, 1st EUI-64: %s", tr_array(data->remote_eui64, 8));
+                // Try alternate EUI-64 (e.g. received during security handshake)
+                if (sec_prot_lib_pmkid_generate(prot, calc_pmkid, false, true, data->remote_eui64) < 0) {
+                    goto error;
+                }
+                // If PMKID is not valid, fail
+                if (memcmp(recv_pmkid, calc_pmkid, PMKID_LEN) != 0) {
+                    tr_error("PMKID mismatch, 2nd EUI-64: %s", tr_array(data->remote_eui64, 8));
+                    goto error;
+                }
             }
         }
         break;

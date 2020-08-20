@@ -425,7 +425,8 @@ int8_t arm_net_address_get(int8_t interface_id, net_address_t addr_id, uint8_t *
         return -1;
     }
 
-    if (!cur->global_address_available) { //Should also check Check Bootstrap state
+    if (!cur->global_address_available && addr_id != ADDR_IPV6_LL) {
+        //Should also check Check Bootstrap state
         return -1;
     }
 
@@ -1568,4 +1569,19 @@ int8_t arm_nwk_set_tx_output_power(int8_t interface_id, uint8_t tx_power)
     set_req.value_size = sizeof(tx_power);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
     return 0;
+}
+
+const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    // Interface or MAC parameters not initialized
+    if (!cur || !cur->mac_parameters) {
+        return NULL;
+    }
+    // Automatic CCA threshold not initialized
+    if (!cur->mac_parameters->cca_thr_table.cca_threshold_table || !cur->mac_parameters->cca_thr_table.number_of_channels) {
+        return NULL;
+    }
+    return &cur->mac_parameters->cca_thr_table;
 }

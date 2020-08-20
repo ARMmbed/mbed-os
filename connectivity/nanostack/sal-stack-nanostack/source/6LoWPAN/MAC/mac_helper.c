@@ -31,6 +31,8 @@
 
 static const uint8_t mac_helper_default_key_source[8] = {0xff, 0, 0, 0, 0, 0, 0, 0};
 
+uint16_t test_6lowpan_fragmentation_mtu_size_override = 0;
+
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 static void mac_helper_keytable_pairwise_descriptor_set(struct mac_api_s *api, const uint8_t *key, const uint8_t *mac64, uint8_t attribute_id);
@@ -736,7 +738,11 @@ uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, 
 {
     uint16_t max;
 
-    max = cur->mac_api->phyMTU - frame_overhead;
+    if (test_6lowpan_fragmentation_mtu_size_override == 0) {
+        max = cur->mac_api->phyMTU - frame_overhead;
+    } else {
+        max = test_6lowpan_fragmentation_mtu_size_override - frame_overhead;
+    }
 
     /* But if we want IEEE 802.15.4-2003 compatibility (and it looks like a
      * standard PHY), limit ourselves to the 2003 maximum */
@@ -744,6 +750,7 @@ uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, 
             cur->mac_api->phyMTU == MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE) {
         max = MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE;
     }
+
     return max;
 }
 
@@ -986,5 +993,25 @@ int8_t mac_helper_mac_device_description_pan_id_update(int8_t interface_id, uint
     set_req.value_pointer = &pan_id;
     set_req.value_size = sizeof(pan_id);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    return 0;
+}
+
+int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !cur->mac_api) {
+        return -1;
+    }
+    uint8_t start_cca_thr[4] = {number_of_channels, default_dbm, high_limit, low_limit};
+    mlme_set_t set_req;
+    set_req.attr = macCCAThresholdStart;
+    set_req.value_pointer = &start_cca_thr;
+    set_req.value_size = sizeof(start_cca_thr);
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    /* Get CCA threshold table. Table is stored to interface structure */
+    mlme_get_t get_req;
+    get_req.attr = macCCAThreshold;
+    cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
     return 0;
 }
