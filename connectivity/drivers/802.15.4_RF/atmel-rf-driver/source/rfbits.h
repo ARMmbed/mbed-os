@@ -17,7 +17,7 @@
 #ifndef RFBITS_H_
 #define RFBITS_H_
 
-#if DEVICE_SPI 
+#if DEVICE_SPI
 
 #include "DigitalIn.h"
 #include "DigitalOut.h"
