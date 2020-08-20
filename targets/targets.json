@@ -4150,6 +4150,7 @@
     },
     "RZ_A2XX": {
         "inherits": ["Target"],
+        "public": false,
         "core": "Cortex-A9",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["RENESAS", "RZ_A2XX"],
