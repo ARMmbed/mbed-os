@@ -48,20 +48,29 @@
 namespace ble {
 
 class PalGenericAccessService;
+
 class PalSecurityManager;
+
 class PalGap;
+
 class BLEInstanceBase;
 
+namespace impl {
+
 class Gap :
-    public ble::interface::Gap,
     public PalConnectionMonitor,
-    public PalGapEventHandler
-{
+    public PalGapEventHandler {
     friend PalConnectionMonitor;
     friend PalGapEventHandler;
     friend PalGap;
     friend BLEInstanceBase;
+
+    using EventHandler = ::ble::Gap::EventHandler;
+    using GapShutdownCallback_t = ::ble::Gap::GapShutdownCallback_t;
+    using GapShutdownCallbackChain_t  = ::ble::Gap::GapShutdownCallbackChain_t ;
 public:
+    using PreferredConnectionParams_t = ::ble::Gap::PreferredConnectionParams_t ;
+
     /**
      * Default peripheral privacy configuration.
      */
@@ -98,6 +107,7 @@ public:
     );
 
     ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
+
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     ble_error_t setAdvertisingParameters(
@@ -124,6 +134,7 @@ public:
     ble_error_t stopAdvertising(advertising_handle_t handle);
 
     bool isAdvertisingActive(advertising_handle_t handle);
+
 #endif // BLE_ROLE_BROADCASTER
 
 #if BLE_ROLE_BROADCASTER
@@ -146,6 +157,7 @@ public:
     ble_error_t stopPeriodicAdvertising(advertising_handle_t handle);
 
     bool isPeriodicAdvertisingActive(advertising_handle_t handle);
+
 #endif // BLE_ROLE_BROADCASTER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
@@ -161,6 +173,7 @@ public:
     );
 
     ble_error_t stopScan();
+
 #endif // BLE_ROLE_OBSERVER
 
 #if BLE_ROLE_OBSERVER
@@ -198,6 +211,7 @@ public:
     ble_error_t clearPeriodicAdvertiserList();
 
     uint8_t getMaxPeriodicAdvertiserListSize();
+
 #endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
@@ -210,6 +224,7 @@ public:
     );
 
     ble_error_t cancelConnect();
+
 #endif // BLE_ROLE_CENTRAL
 
 #if BLE_FEATURE_CONNECTABLE
@@ -246,6 +261,7 @@ public:
         connection_handle_t connectionHandle,
         local_disconnection_reason_t reason
     );
+
 #endif // BLE_FEATURE_CONNECTABLE
 #if BLE_FEATURE_PHY_MANAGEMENT
 
@@ -262,6 +278,7 @@ public:
         const phy_set_t *rxPhys,
         coded_symbol_per_bit_t codedSymbol
     );
+
 #endif // BLE_FEATURE_PHY_MANAGEMENT
 
 #if BLE_FEATURE_PRIVACY
@@ -277,6 +294,7 @@ public:
     ble_error_t getPeripheralPrivacyConfiguration(
         peripheral_privacy_configuration_t *configuration
     );
+
 #endif // BLE_ROLE_BROADCASTER
 
 #if BLE_ROLE_OBSERVER
@@ -288,6 +306,7 @@ public:
     ble_error_t getCentralPrivacyConfiguration(
         central_privacy_configuration_t *configuration
     );
+
 #endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 
@@ -321,12 +340,14 @@ public:
     GapShutdownCallbackChain_t &onShutdown();
 
 #if !defined(DOXYGEN_ONLY)
+
     /*
      * API reserved for the controller driver to set the random static address.
      * Setting a new random static address while the controller is operating is
      * forbidden by the Bluetooth specification.
      */
-    ble_error_t setRandomStaticAddress(const ble::address_t& address);
+    ble_error_t setRandomStaticAddress(const ble::address_t &address);
+
 #endif // !defined(DOXYGEN_ONLY)
 
     /* ===================================================================== */
@@ -335,7 +356,8 @@ public:
 private:
     /* Disallow copy and assignment. */
     Gap(const Gap &);
-    Gap& operator=(const Gap &);
+
+    Gap &operator=(const Gap &);
 
     Gap(
         PalEventQueue &event_queue,
@@ -507,6 +529,7 @@ private:
     );
 
     void on_scan_timeout();
+
     void process_legacy_scan_timeout();
 
 private:
@@ -598,6 +621,7 @@ private:
     bool _user_manage_connection_parameter_requests : 1;
 };
 
+} // namespace impl
 } // namespace ble
 
 #endif //IMPL_GAP_GAP_H

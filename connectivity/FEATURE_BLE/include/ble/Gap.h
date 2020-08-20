@@ -281,7 +281,9 @@ class PalGenericAccessService;
  * controller or by the peer.
  */
 #if !defined(DOXYGEN_ONLY)
-namespace interface {
+namespace impl {
+class Gap;
+}
 #endif // !defined(DOXYGEN_ONLY)
 class Gap {
 public:
@@ -1421,7 +1423,9 @@ public:
      * @param[in] memberPtr Shutdown event handler to register.
      */
     template<typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const Gap *));
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const Gap *)) {
+        onShutdown(GapShutdownCallback_t(objPtr, memberPtr));
+    }
 
     /**
      * Access the callchain of shutdown event handler.
@@ -1442,6 +1446,9 @@ public:
      */
     ble_error_t setRandomStaticAddress(const ble::address_t& address);
 #endif // !defined(DOXYGEN_ONLY)
+
+private:
+    impl::Gap* impl;
 };
 
 /**
@@ -1449,14 +1456,11 @@ public:
  * @}
  */
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
 } // namespace ble
 
 /* This includes the concrete class implementation, to provide a an alternative API implementation
  * disable ble-api-implementation and place your header in a path with the same structure */
-#include "ble/internal/GapImpl.h"
+//#include "ble/internal/GapImpl.h"
 
 /** @deprecated Use the namespaced ble::Gap instead of the global Gap. */
 using ble::Gap;

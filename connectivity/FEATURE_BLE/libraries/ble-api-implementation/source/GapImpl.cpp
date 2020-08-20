@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <stdint.h>
 
+#include "ble/internal/GapImpl.h"
 #include "ble/Gap.h"
 #include "ble/internal/BLEInstanceBase.h"
 #include "ble/Gap.h"
@@ -38,6 +39,7 @@ MBED_STATIC_ASSERT(BLE_GAP_MAX_ADVERTISING_SETS < 0xFF, "BLE_GAP_MAX_ADVERTISING
 MBED_STATIC_ASSERT(BLE_GAP_MAX_ADVERTISING_SETS > 0, "BLE_GAP_MAX_ADVERTISING_SETS must be a positive number");
 
 namespace ble {
+namespace impl {
 
 namespace {
 
@@ -104,7 +106,10 @@ static bool is_preferred_connection_params_valid(const Gap::PreferredConnectionP
         return true;
     }
 
-    if ((is_in_range(params->connectionSupervisionTimeout, supervision_timeout_min, supervision_timeout_max) == false)) {
+    if ((
+        is_in_range(params->connectionSupervisionTimeout, supervision_timeout_min, supervision_timeout_max) ==
+            false
+    )) {
         return false;
     }
 
@@ -282,8 +287,10 @@ static whitelist_address_type_t to_whitelist_address_type(
     peer_address_type_t address_type
 )
 {
-    return (address_type == peer_address_type_t::PUBLIC
-        || address_type == peer_address_type_t::PUBLIC_IDENTITY) ?
+    return (
+        address_type == peer_address_type_t::PUBLIC
+            || address_type == peer_address_type_t::PUBLIC_IDENTITY
+    ) ?
         whitelist_address_type_t::PUBLIC_DEVICE_ADDRESS :
         whitelist_address_type_t::RANDOM_DEVICE_ADDRESS;
 }
@@ -385,7 +392,7 @@ bool Gap::isFeatureSupported(controller_supported_features_t feature)
 
 
 ble_error_t Gap::setRandomStaticAddress(
-    const ble::address_t& address
+    const ble::address_t &address
 )
 {
     if (is_random_static_address(address.data()) == false) {
@@ -423,7 +430,7 @@ ble_error_t Gap::getAddress(
 
 ble_error_t Gap::getRandomAddressType(
     const address_t address,
-    ble::random_address_type_t* type
+    ble::random_address_type_t *type
 )
 {
     // see section Device address in Bluetooth Link Layer specification
@@ -496,7 +503,7 @@ ble_error_t Gap::connect(
                 conn_interval_t(connectionParams.getMaxConnectionIntervalArray()[i]),
                 slave_latency_t(connectionParams.getSlaveLatencyArray()[i])
             )
-        ) {
+            ) {
             return BLE_ERROR_INVALID_PARAM;
         }
     }
@@ -534,7 +541,7 @@ ble_error_t Gap::connect(
 
     if (peerAddressType == peer_address_type_t::RANDOM ||
         peerAddressType == peer_address_type_t::RANDOM_STATIC_IDENTITY
-    ) {
+        ) {
         adjusted_address_type = peer_address_type_t::RANDOM;
     }
 
@@ -903,7 +910,7 @@ ble_error_t Gap::getCentralPrivacyConfiguration(
 ble_error_t Gap::reset(void)
 {
     /* Notify that the instance is about to shut down */
-    shutdownCallChain.call(this);
+//    shutdownCallChain.call(this);
     shutdownCallChain.clear();
 
     _event_handler = nullptr;
@@ -923,7 +930,7 @@ ble_error_t Gap::reset(void)
                 _pal_gap.extended_advertising_enable(
                     /* enable */ false,
                     /* number of advertising sets */ 1,
-                    (advertising_handle_t*)&i,
+                    (advertising_handle_t *) &i,
                     nullptr,
                     nullptr
                 );
@@ -932,7 +939,7 @@ ble_error_t Gap::reset(void)
             if (_active_periodic_sets.get(i)) {
                 _pal_gap.periodic_advertising_enable(
                     /* enable */ false,
-                    (advertising_handle_t)i
+                    (advertising_handle_t) i
                 );
             }
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
@@ -948,7 +955,7 @@ ble_error_t Gap::reset(void)
             _pal_gap.extended_advertising_enable(
                 /* enable */ false,
                 /* number of advertising sets */ 1,
-                (advertising_handle_t*)&LEGACY_ADVERTISING_HANDLE,
+                (advertising_handle_t *) &LEGACY_ADVERTISING_HANDLE,
                 nullptr,
                 nullptr
             );
@@ -1120,7 +1127,7 @@ void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
                     advertising.rssi,
                     /* NO PERIODIC ADVERTISING */ 0,
                     peer_address_type_t::ANONYMOUS,
-                    ble::address_t (),
+                    ble::address_t(),
                     Span<const uint8_t>(advertising.data.data(), advertising.data.size())
                 )
             );
@@ -1161,7 +1168,7 @@ void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
     if (_privacy_enabled &&
         e.role.value() == e.role.PERIPHERAL &&
         e.peer_address_type == peer_address_type_t::RANDOM
-    ) {
+        ) {
         // Apply privacy policy if in peripheral mode for non-resolved addresses
         ble::random_address_type_t random_address_type(ble::random_address_type_t::RESOLVABLE_PRIVATE);
         ble_error_t err = getRandomAddressType(e.peer_address.data(), &random_address_type);
@@ -1409,7 +1416,8 @@ ble_error_t Gap::update_address_resolution_setting()
 
     if (_privacy_enabled) {
 #if BLE_ROLE_BROADCASTER
-        if (_peripheral_privacy_configuration.resolution_strategy != peripheral_privacy_configuration_t::DO_NOT_RESOLVE) {
+        if (_peripheral_privacy_configuration.resolution_strategy !=
+            peripheral_privacy_configuration_t::DO_NOT_RESOLVE) {
             enable = true;
         }
 #endif // BLE_ROLE_BROADCASTER
@@ -1544,7 +1552,7 @@ uint8_t Gap::getMaxAdvertisingSetNumber()
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
-        return std::min((uint8_t)BLE_GAP_MAX_ADVERTISING_SETS, set_number);
+        return std::min((uint8_t) BLE_GAP_MAX_ADVERTISING_SETS, set_number);
     } else
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
@@ -1706,8 +1714,10 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
     }
 
     /* check for illegal parameter combination */
-    if ((params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
-        params.getType() == advertising_type_t::CONNECTABLE_DIRECTED) &&
+    if ((
+        params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
+            params.getType() == advertising_type_t::CONNECTABLE_DIRECTED
+    ) &&
         params.getUseLegacyPDU() == false) {
         /* these types can only be used with legacy PDUs */
         return BLE_ERROR_INVALID_PARAM;
@@ -1852,7 +1862,7 @@ ble_error_t Gap::setAdvertisingData(
 
     if (!_active_sets.get(handle) && payload.size() > this->getMaxActiveSetAdvertisingDataLength()) {
         MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for active sets needs to fit in a single operation"
-                     " - not greater than getMaxActiveSetAdvertisingDataLength().");
+                                              " - not greater than getMaxActiveSetAdvertisingDataLength().");
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1860,7 +1870,7 @@ ble_error_t Gap::setAdvertisingData(
         if (payload.size() > this->getMaxConnectableAdvertisingDataLength()) {
             if (_active_sets.get(handle) && _set_is_connectable.get(handle)) {
                 MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for connectable advertising"
-                             " exceeds getMaxAdvertisingDataLength().");
+                                                      " exceeds getMaxAdvertisingDataLength().");
                 return BLE_ERROR_INVALID_PARAM;
             } else {
                 _connectable_payload_size_exceeded.set(handle);
@@ -2125,7 +2135,8 @@ ble_error_t Gap::setPeriodicAdvertisingPayload(
         }
 
         i += hci_length;
-    } while (i < end);
+    }
+    while (i < end);
 
     return BLE_ERROR_NONE;
 }
@@ -2260,7 +2271,7 @@ void Gap::on_extended_advertising_report(
         address_type != nullptr &&
         *address_type == connection_peer_address_type_t::RANDOM_ADDRESS &&
         is_random_private_resolvable_address(address.data())
-    ) {
+        ) {
         return;
     }
 #endif // BLE_FEATURE_PRIVACY
@@ -2436,11 +2447,12 @@ void Gap::on_remote_connection_parameter(
     if (_user_manage_connection_parameter_requests) {
         if (_event_handler) {
             _event_handler->onUpdateConnectionParametersRequest(
-                UpdateConnectionParametersRequestEvent(connection_handle,
-                conn_interval_t(connection_interval_min),
-                conn_interval_t(connection_interval_max),
-                connection_latency,
-                supervision_timeout_t(supervision_timeout))
+                UpdateConnectionParametersRequestEvent(
+                    connection_handle,
+                    conn_interval_t(connection_interval_min),
+                    conn_interval_t(connection_interval_max),
+                    connection_latency,
+                    supervision_timeout_t(supervision_timeout))
             );
         } else {
             MBED_ERROR(illegal_state_error, "Event handler required if connection params are user handled");
@@ -2735,4 +2747,5 @@ void Gap::setEventHandler(Gap::EventHandler *handler)
     _event_handler = handler;
 }
 
+} // impl
 } // ble
