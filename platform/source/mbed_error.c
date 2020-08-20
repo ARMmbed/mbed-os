@@ -26,7 +26,7 @@
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_stats.h"
 #include "platform/internal/mbed_fault_handler.h"
-#include "source/mbed_error_hist.h"
+#include "platform/internal/mbed_error_hist.h"
 #include "drivers/MbedCRC.h"
 #include "mbed_rtx.h"
 #ifdef MBED_CONF_RTOS_PRESENT
