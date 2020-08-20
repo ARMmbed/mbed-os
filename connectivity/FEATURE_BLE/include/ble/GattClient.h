@@ -90,7 +90,9 @@ namespace ble {
  * if it intends to register to server initiated events.
  */
 #if !defined(DOXYGEN_ONLY)
-namespace interface {
+namespace impl {
+class GattClient;
+}
 #endif // !defined(DOXYGEN_ONLY)
 class GattClient {
 public:
@@ -703,6 +705,9 @@ public:
      * registered handlers.
      */
     void processHVXEvent(const GattHVXCallbackParams *params);
+
+private:
+    impl::GattClient *impl;
 };
 
 /**
@@ -711,14 +716,11 @@ public:
  * @}
  */
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
 } // namespace ble
 
 /* This includes the concrete class implementation, to provide a an alternative API implementation
  * disable ble-api-implementation and place your header in a path with the same structure */
-#include "ble/internal/GattClientImpl.h"
+//#include "ble/internal/GattClientImpl.h"
 
 /** @deprecated Use the namespaced ble::GattClient instead of the global GattClient. */
 using ble::GattClient;

@@ -19,8 +19,11 @@
 #ifndef IMPL_GATT_CLIENT_H__
 #define IMPL_GATT_CLIENT_H__
 
+#include "ble/BLE.h"
+
 #include "CallChainOfFunctionPointersWithContext.h"
 #include <algorithm>
+
 
 #include "ble/common/ble/blecommon.h"
 #include "ble/common/ble/GattAttribute.h"
@@ -33,20 +36,33 @@
 
 namespace ble {
 
+class BLEInstanceBase;
+
+namespace impl {
+
 class GattClient :
-    public ble::interface::GattClient,
     public PalSigningMonitor,
-    public PalGattClientEventHandler
-{
+    public PalGattClientEventHandler {
     friend PalSigningMonitor;
     friend BLEInstanceBase;
 public:
+    using EventHandler = ble::GattClient::EventHandler;
+    using WriteOp_t = ble::GattClient::WriteOp_t;
+    using HVXCallback_t  = ble::GattClient::HVXCallback_t ;
+    using GattClientShutdownCallback_t  = ble::GattClient::GattClientShutdownCallback_t ;
+    using GattClientShutdownCallbackChain_t  = ble::GattClient::GattClientShutdownCallbackChain_t ;
+    using HVXCallbackChain_t  = ble::GattClient::HVXCallbackChain_t ;
+    using ReadCallbackChain_t  = ble::GattClient::ReadCallbackChain_t ;
+    using WriteCallbackChain_t  = ble::GattClient::WriteCallbackChain_t ;
+
+
+
     void setEventHandler(EventHandler *handler);
 
     ble_error_t launchServiceDiscovery(
         ble::connection_handle_t connectionHandle,
         ServiceDiscovery::ServiceCallback_t sc = NULL,
-        ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
+        ServiceDiscovery::CharacteristicCallback_t cc = NULL,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
         const UUID &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
     );
@@ -86,28 +102,28 @@ public:
 
     void onDataRead(ReadCallback_t callback);
 
-    ReadCallbackChain_t& onDataRead();
+    ReadCallbackChain_t &onDataRead();
 
     void onDataWritten(WriteCallback_t callback);
 
-    WriteCallbackChain_t& onDataWritten();
+    WriteCallbackChain_t &onDataWritten();
 
     void onServiceDiscoveryTermination(
         ServiceDiscovery::TerminationCallback_t callback
     );
 
     ble_error_t discoverCharacteristicDescriptors(
-        const DiscoveredCharacteristic& characteristic,
-        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
-        const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
+        const DiscoveredCharacteristic &characteristic,
+        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t &discoveryCallback,
+        const CharacteristicDescriptorDiscovery::TerminationCallback_t &terminationCallback
     );
 
     bool isCharacteristicDescriptorDiscoveryActive(
-        const DiscoveredCharacteristic& characteristic
+        const DiscoveredCharacteristic &characteristic
     ) const;
 
     void terminateCharacteristicDescriptorDiscovery(
-        const DiscoveredCharacteristic& characteristic
+        const DiscoveredCharacteristic &characteristic
     );
 
     ble_error_t negotiateAttMtu(ble::connection_handle_t connection);
@@ -122,14 +138,14 @@ public:
      */
     void onHVX(HVXCallback_t callback);
 
-    void onShutdown(const GattClientShutdownCallback_t& callback);
+    void onShutdown(const GattClientShutdownCallback_t &callback);
 
-    template <typename T>
+    template<typename T>
     void onShutdown(T *objPtr, void (T::*memberPtr)(const GattClient *));
 
-    GattClientShutdownCallbackChain_t& onShutdown();
+    GattClientShutdownCallbackChain_t &onShutdown();
 
-    HVXCallbackChain_t& onHVX();
+    HVXCallbackChain_t &onHVX();
 
     ble_error_t reset(void);
 
@@ -144,7 +160,8 @@ public:
 private:
     /* Disallow copy and assignment. */
     GattClient(const GattClient &);
-    GattClient& operator=(const GattClient &);
+
+    GattClient &operator=(const GattClient &);
 
     /* ===================================================================== */
     /*                    private implementation follows                     */
@@ -179,15 +196,22 @@ private:
     struct WriteControlBlock;
     struct DescriptorDiscoveryControlBlock;
 
-    ProcedureControlBlock* get_control_block(connection_handle_t connection);
-    const ProcedureControlBlock* get_control_block(connection_handle_t connection) const;
-    void insert_control_block(ProcedureControlBlock* cb) const;
-    void remove_control_block(ProcedureControlBlock* cb) const;
+    ProcedureControlBlock *get_control_block(connection_handle_t connection);
+
+    const ProcedureControlBlock *get_control_block(connection_handle_t connection) const;
+
+    void insert_control_block(ProcedureControlBlock *cb) const;
+
+    void remove_control_block(ProcedureControlBlock *cb) const;
 
     void on_termination(connection_handle_t connection_handle);
-    void on_server_message_received(connection_handle_t, const AttServerMessage&);
-    void on_server_response(connection_handle_t, const AttServerMessage&);
-    void on_server_event(connection_handle_t, const AttServerMessage&);
+
+    void on_server_message_received(connection_handle_t, const AttServerMessage &);
+
+    void on_server_response(connection_handle_t, const AttServerMessage &);
+
+    void on_server_event(connection_handle_t, const AttServerMessage &);
+
     void on_transaction_timeout(connection_handle_t);
 
     uint16_t get_mtu(connection_handle_t connection) const;
@@ -222,21 +246,27 @@ private:
      */
     GattClientShutdownCallbackChain_t shutdownCallChain;
 
-    PalGattClient& _pal_client;
+    PalGattClient &_pal_client;
     ServiceDiscovery::TerminationCallback_t _termination_callback;
-    PalSigningMonitorEventHandler* _signing_event_handler;
-    mutable ProcedureControlBlock* control_blocks;
+    PalSigningMonitorEventHandler *_signing_event_handler;
+    mutable ProcedureControlBlock *control_blocks;
     bool _is_reseting;
+
+    // TODO initialize
+    ::ble::GattClient *client;
 
 private:
     /**
      * Create a PalGattClient from a PalGattClient
      */
-    GattClient(PalGattClient& pal_client);
+    GattClient(PalGattClient &pal_client);
 
-    ~GattClient() { }
+    ~GattClient()
+    {
+    }
 };
 
+} // namespace impl
 } // namespace ble
 
 #endif /* ifndef IMPL_GATT_CLIENT_H__ */
