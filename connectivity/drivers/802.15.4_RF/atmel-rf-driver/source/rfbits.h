@@ -17,6 +17,8 @@
 #ifndef RFBITS_H_
 #define RFBITS_H_
 
+#if DEVICE_SPI 
+
 #include "DigitalIn.h"
 #include "DigitalOut.h"
 #include "InterruptIn.h"
@@ -78,4 +80,5 @@ public:
     DigitalOut ANT_SEL;
 };
 
+#endif /* DEVICE_SPI */
 #endif /* RFBITS_H_ */
