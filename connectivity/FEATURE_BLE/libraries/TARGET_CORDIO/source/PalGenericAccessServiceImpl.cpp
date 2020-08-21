@@ -17,6 +17,7 @@
  */
 
 #include "ble/internal/PalGenericAccessService.h"
+#include "ble/internal/GattServerImpl.h"
 
 namespace ble {
 
@@ -115,11 +116,12 @@ ble_error_t PalGenericAccessService::set_peripheral_preferred_connection_paramet
 
 
 #if BLE_FEATURE_GATT_SERVER
-ble::GattServer& PalGenericAccessService::gatt_server()
+ble::impl::GattServer& PalGenericAccessService::gatt_server()
 {
-    return ble::GattServer::getInstance();
+    return ble::impl::GattServer::getInstance();
 }
+#endif // BLE_FEATURE_GATT_SERVER
 
 } // ble
 
-#endif // BLE_FEATURE_GATT_SERVER
+

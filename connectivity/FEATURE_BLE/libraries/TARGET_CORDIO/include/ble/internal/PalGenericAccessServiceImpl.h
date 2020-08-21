@@ -20,10 +20,13 @@
 #define IMPL_PAL_GENERIC_ACCESS_SERVICE_
 
 #include "ble/internal/PalGenericAccessService.h"
-#include "ble/GattServer.h"
 #include "ble/Gap.h"
 
 namespace ble {
+namespace impl {
+class GattServer;
+}
+
 
 /**
  * Implementation of ble::PalGenericAccessService for the Cordio stack.
@@ -52,7 +55,7 @@ public:
 
 private:
 #if BLE_FEATURE_GATT_SERVER
-    ble::GattServer& gatt_server();
+    ble::impl::GattServer& gatt_server();
 #endif // BLE_FEATURE_GATT_SERVER
 };
 

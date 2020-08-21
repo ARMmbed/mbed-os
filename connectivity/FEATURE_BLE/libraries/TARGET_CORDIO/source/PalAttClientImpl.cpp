@@ -17,7 +17,7 @@
  */
 
 #include "ble/internal/PalAttClient.h"
-#include "ble/GattServer.h"
+#include "ble/internal/GattServerImpl.h"
 #include "ble/internal/PalSimpleAttServerMessage.h"
 #include "ble/internal/PalGap.h"
 #include "ble/internal/PalGattClient.h"
@@ -444,7 +444,7 @@ void PalAttClient::att_client_handler(const attEvt_t *event)
 
 #if BLE_FEATURE_GATT_SERVER
     // pass events not handled to the server side
-    ble::GattServer::getInstance().att_cb(event);
+    ble::impl::GattServer::getInstance().att_cb(event);
 #endif // BLE_FEATURE_GATT_SERVER
 }
 

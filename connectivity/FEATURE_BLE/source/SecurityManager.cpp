@@ -39,7 +39,7 @@ ble_error_t SecurityManager::setDatabaseFilepath(const char *dbFilepath)
 
 ble_error_t SecurityManager::reset()
 {
-    return impl->reset();
+    return impl->reset(this);
 }
 
 ble_error_t SecurityManager::preserveBondingStateOnReset(bool enable)

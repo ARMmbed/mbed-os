@@ -36,6 +36,11 @@
 #include "drivers/LowPowerTimer.h"
 #include "ble/internal/PalSecurityManager.h"
 
+#include "ble/internal/GapImpl.h"
+#include "ble/internal/GattClientImpl.h"
+#include "ble/internal/GattServerImpl.h"
+#include "ble/internal/SecurityManagerImpl.h"
+
 namespace ble {
 
 class PalSigningMonitor;
@@ -85,6 +90,8 @@ public:
      */
     virtual const char *getVersion();
 
+    ble::impl::Gap& getGapImpl();
+
     /**
      * @see BLEInstanceBase::getGap
      */
@@ -96,6 +103,8 @@ public:
     virtual const ble::Gap& getGap() const;
 
 #if BLE_FEATURE_GATT_SERVER
+    ble::impl::GattServer& getGattServerImpl();
+
     /**
      * @see BLEInstanceBase::getGattServer
      */
@@ -108,6 +117,8 @@ public:
 #endif // BLE_FEATURE_GATT_SERVER
 
 #if BLE_FEATURE_GATT_CLIENT
+    ble::impl::GattClient& getGattClientImpl();
+
     /**
      * @see BLEInstanceBase::getGattClient
      */
@@ -122,6 +133,8 @@ public:
 #endif // BLE_FEATURE_GATT_CLIENT
 
 #if BLE_FEATURE_SECURITY
+    ble::impl::SecurityManager& getSecurityManagerImpl();
+
     /**
      * @see BLEInstanceBase::getSecurityManager
      */
