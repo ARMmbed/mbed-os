@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <stdint.h>
 
-#include "ble/internal/GapImpl.h"
+#include "GapImpl.h"
 #include "ble/Gap.h"
 #include "ble/internal/BLEInstanceBase.h"
 #include "ble/Gap.h"

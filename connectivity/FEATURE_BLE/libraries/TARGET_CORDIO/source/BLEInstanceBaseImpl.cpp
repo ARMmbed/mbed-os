@@ -43,7 +43,7 @@
 #include "ble/internal/PalSigningMonitor.h"
 #include "ble/internal/BLEInstanceBase.h"
 #include "CordioHCIDriver.h"
-#include "ble/internal/GattServerImpl.h"
+#include "source/generic/GattServerImpl.h"
 
 using namespace std::chrono;
 

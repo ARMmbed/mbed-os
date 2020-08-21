@@ -16,7 +16,7 @@
  */
 
 #include "ble/Gap.h"
-#include "ble/internal/GapImpl.h"
+#include "source/generic/GapImpl.h"
 
 namespace ble {
 
