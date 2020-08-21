@@ -478,7 +478,7 @@ ble_error_t Gap::getAddress(
 
 
 ble_error_t Gap::getRandomAddressType(
-    const ble::address_t address,
+    ble::address_t address,
     ble::random_address_type_t *addressType
 )
 {

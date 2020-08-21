@@ -68,7 +68,7 @@ public:
     /**
      * Construct a AdvertisingDataSimpleBuilder
      */
-    AdvertisingDataSimpleBuilder() : _builder(_buffer)
+    AdvertisingDataSimpleBuilder() : _builder(_buffer), _buffer()
     {
     }
 
@@ -200,7 +200,7 @@ public:
      *
      * @return A reference to this object.
      */
-    AdvertisingDataSimpleBuilder &setServiceData(UUID service, mbed::Span<const uint8_t> data)
+    AdvertisingDataSimpleBuilder &setServiceData(const UUID& service, mbed::Span<const uint8_t> data)
     {
         ble_error_t res = _builder.setServiceData(service, data);
         MBED_ASSERT(res == BLE_ERROR_NONE);

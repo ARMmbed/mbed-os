@@ -86,7 +86,7 @@ public:
         GattService batteryService(
             GattService::UUID_BATTERY_SERVICE,
             charTable,
-            sizeof(charTable) / sizeof(GattCharacteristic *)
+            sizeof(charTable) / sizeof(charTable[0])
         );
 
         ble.gattServer().addService(batteryService);

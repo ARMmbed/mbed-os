@@ -57,7 +57,7 @@ public:
      *
      * @return A reference to the UUID of the discovered service.
      */
-    const UUID &getUUID(void) const
+    const UUID &getUUID() const
     {
         return uuid;
     }
@@ -67,7 +67,7 @@ public:
      *
      * @return A reference to the start handle.
      */
-    const GattAttribute::Handle_t& getStartHandle(void) const
+    const GattAttribute::Handle_t& getStartHandle() const
     {
         return startHandle;
     }
@@ -77,7 +77,7 @@ public:
      *
      * @return A reference to the end handle.
      */
-    const GattAttribute::Handle_t& getEndHandle(void) const
+    const GattAttribute::Handle_t& getEndHandle() const
     {
         return endHandle;
     }
@@ -95,6 +95,9 @@ public:
         endHandle(GattAttribute::INVALID_HANDLE) {
     }
 
+    DiscoveredService(const DiscoveredService &) = delete;
+    DiscoveredService operator=(const DiscoveredService &) = delete;
+
     /**
      * Set information about the discovered service.
      *
@@ -108,7 +111,7 @@ public:
      * peer's GATT server.
      */
     void setup(
-        UUID uuidIn,
+        const UUID& uuidIn,
         GattAttribute::Handle_t startHandleIn,
         GattAttribute::Handle_t endHandleIn
     ) {
@@ -152,10 +155,6 @@ public:
     ) {
          uuid.setupLong(longUUID, order);
     }
-
-
-private:
-    DiscoveredService(const DiscoveredService &);
 
 private:
     /**

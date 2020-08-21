@@ -17,7 +17,7 @@
 #ifndef IMPL_HCI_TRANSPORT_DRIVER_H_
 #define IMPL_HCI_TRANSPORT_DRIVER_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace ble {
 
@@ -34,7 +34,7 @@ public:
     /**
      * Driver destructor.
      */
-    virtual ~CordioHCITransportDriver() { }
+    virtual ~CordioHCITransportDriver() = default;
 
     /**
      * Inialization of the transport.

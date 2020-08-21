@@ -19,9 +19,9 @@
 #ifndef MBED_GAP_ADVERTISING_DATA_H__
 #define MBED_GAP_ADVERTISING_DATA_H__
 
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstring>
+#include <cstdlib>
 #include "platform/NonCopyable.h"
 
 #include "ble/common/UUID.h"

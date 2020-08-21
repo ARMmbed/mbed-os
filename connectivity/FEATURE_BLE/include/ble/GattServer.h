@@ -126,9 +126,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the GattServer class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /**
@@ -224,7 +222,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
     /**
      * Add a service declaration to the local attribute server table.

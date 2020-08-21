@@ -155,7 +155,7 @@ public:
          *
          * @see _broadcast
          */
-        bool broadcast(void) const
+        bool broadcast() const
         {
             return _broadcast;
         }
@@ -168,7 +168,7 @@ public:
          *
          * @see _read
          */
-        bool read(void) const
+        bool read() const
         {
             return _read;
         }
@@ -181,7 +181,7 @@ public:
          *
          * @see _writeWoResp
          */
-        bool writeWoResp(void) const
+        bool writeWoResp() const
         {
             return _writeWoResp;
         }
@@ -194,7 +194,7 @@ public:
          *
          * @see _write
          */
-        bool write(void) const
+        bool write() const
         {
             return _write;
         }
@@ -211,7 +211,7 @@ public:
          *
          * @see _notify
          */
-        bool notify(void) const
+        bool notify() const
         {
             return _notify;
         }
@@ -228,7 +228,7 @@ public:
          *
          * @see _indicate
          */
-        bool indicate(void) const
+        bool indicate() const
         {
             return _indicate;
         }
@@ -239,7 +239,7 @@ public:
          * @return true if the characteristic accepts authenticated signed write
          * and false otherwise.
          */
-        bool authSignedWrite(void) const
+        bool authSignedWrite() const
         {
             return _authSignedWrite;
         }
@@ -447,7 +447,7 @@ public:
      *
      * @return The UUID of this characteristic.
      */
-    const UUID &getUUID(void) const
+    const UUID &getUUID() const
     {
         return uuid;
     }
@@ -457,7 +457,7 @@ public:
      *
      * @return The set of properties of this characteristic.
      */
-    const Properties_t &getProperties(void) const
+    const Properties_t &getProperties() const
     {
         return props;
     }
@@ -477,7 +477,7 @@ public:
      *
      * @return the declaration handle of this characteristic.
      */
-    GattAttribute::Handle_t getDeclHandle(void) const
+    GattAttribute::Handle_t getDeclHandle() const
     {
         return declHandle;
     }
@@ -489,7 +489,7 @@ public:
      *
      * @return The handle to access the value of this characteristic.
      */
-    GattAttribute::Handle_t getValueHandle(void) const
+    GattAttribute::Handle_t getValueHandle() const
     {
         return valueHandle;
     }
@@ -510,7 +510,7 @@ public:
      *
      * @note This function is public for informative purposes.
      */
-    GattAttribute::Handle_t getLastHandle(void) const
+    GattAttribute::Handle_t getLastHandle() const
     {
         return lastHandle;
     }
@@ -583,7 +583,7 @@ public:
 
 public:
     DiscoveredCharacteristic() :
-        gattc(NULL),
+        gattc(nullptr),
         uuid(UUID::ShortUUIDBytes_t(0)),
         props(),
         declHandle(GattAttribute::INVALID_HANDLE),

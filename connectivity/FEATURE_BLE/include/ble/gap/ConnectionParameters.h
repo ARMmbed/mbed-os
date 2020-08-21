@@ -429,7 +429,7 @@ private:
         return index;
     }
 
-    uint8_t phyToIndex(phy_t phy) const
+    static uint8_t phyToIndex(phy_t phy)
     {
         uint8_t index;
         switch (phy.value()) {

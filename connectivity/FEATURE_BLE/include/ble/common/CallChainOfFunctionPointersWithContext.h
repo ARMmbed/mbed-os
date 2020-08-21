@@ -19,7 +19,7 @@
 #ifndef MBED_CALLCHAIN_OF_FUNCTION_POINTERS_WITH_CONTEXT_H
 #define MBED_CALLCHAIN_OF_FUNCTION_POINTERS_WITH_CONTEXT_H
 
-#include <string.h>
+#include <cstring>
 #include "ble/common/FunctionPointerWithContext.h"
 #include "ble/common/SafeBool.h"
 
@@ -95,6 +95,14 @@ public:
      * Create an empty callchain.
      */
     CallChainOfFunctionPointersWithContext() : chainHead(NULL) { }
+
+    /* Disallow copy constructor and assignment operators. */
+    CallChainOfFunctionPointersWithContext(
+        const CallChainOfFunctionPointersWithContext&
+    ) = delete;
+    CallChainOfFunctionPointersWithContext &operator=(
+        const CallChainOfFunctionPointersWithContext&
+    ) = delete;
 
     /**
      * Destruction of the callchain.
@@ -186,7 +194,7 @@ public:
     /**
      * Remove all functions registered in the chain.
      */
-    void clear(void)
+    void clear()
     {
         pFunctionPointerWithContext_t fptr = chainHead;
         while (fptr) {
@@ -203,7 +211,7 @@ public:
      *
      * @return true if the callchain is not empty and false otherwise.
      */
-    bool hasCallbacksAttached(void) const
+    bool hasCallbacksAttached() const
     {
         return (chainHead != NULL);
     }
@@ -324,16 +332,6 @@ private:
      * const from an external standpoint.
      */
     mutable pFunctionPointerWithContext_t currentCalled;
-
-
-    /* Disallow copy constructor and assignment operators. */
-private:
-    CallChainOfFunctionPointersWithContext(
-        const CallChainOfFunctionPointersWithContext&
-    );
-    CallChainOfFunctionPointersWithContext &operator=(
-        const CallChainOfFunctionPointersWithContext&
-    );
 };
 
 /**

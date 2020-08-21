@@ -549,9 +549,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the Gap class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /**
@@ -1316,7 +1314,7 @@ public:
      *
      * @return Maximum size of the whitelist.
      */
-    uint8_t getMaxWhitelistSize(void) const;
+    uint8_t getMaxWhitelistSize() const;
 
     /**
      * Get the Link Layer to use the internal whitelist when scanning,
@@ -1379,7 +1377,7 @@ public:
      * the address in input was not identifiable as a random address.
      */
     static ble_error_t getRandomAddressType(
-        const ble::address_t address,
+        ble::address_t address,
         ble::random_address_type_t *addressType
     );
 
@@ -1401,7 +1399,7 @@ public:
      * @note Currently, a call to reset() does not reset the advertising and
      * scan parameters to default values.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
         /**
      * Register a Gap shutdown event handler.

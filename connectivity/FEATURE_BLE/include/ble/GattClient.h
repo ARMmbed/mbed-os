@@ -120,9 +120,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the GattClient class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /**
@@ -235,7 +233,7 @@ public:
      * specific subclass.
      */
 
-    ~GattClient() { }
+    ~GattClient() = default;
 
     /**
      * Launch the service and characteristic discovery procedure of a GATT server
@@ -289,8 +287,8 @@ public:
      */
     ble_error_t launchServiceDiscovery(
         ble::connection_handle_t connectionHandle,
-        ServiceDiscovery::ServiceCallback_t sc = NULL,
-        ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
+        ServiceDiscovery::ServiceCallback_t sc = nullptr,
+        ServiceDiscovery::CharacteristicCallback_t  cc = nullptr,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
         const UUID &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
     );
@@ -368,7 +366,7 @@ public:
      *
      * @return true if service discovery procedure is active and false otherwise.
      */
-    bool isServiceDiscoveryActive(void) const;
+    bool isServiceDiscoveryActive() const;
 
     /**
      * Terminate all ongoing service discovery procedures.
@@ -376,7 +374,7 @@ public:
      * It results in an invocation of the service discovery termination handler
      * registered with onServiceDiscoveryTermination().
      */
-    void terminateServiceDiscovery(void);
+    void terminateServiceDiscovery();
 
     /**
      * Initiate the read procedure of an attribute handle.
@@ -627,7 +625,10 @@ public:
      * available.
      */
     template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattClient *));
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattClient *))
+    {
+        onShutdown({objPtr, memberPtr});
+    }
 
     /**
      * Get the callchain of shutdown event handlers.
@@ -668,7 +669,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
     /* Entry points for the underlying stack to report events back to the user. */
 

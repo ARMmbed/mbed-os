@@ -180,7 +180,7 @@ struct adv_data_flags_t {
 
     adv_data_flags_t &setGeneralDiscoverable(bool enable = true)
     {
-        _value &= ~0x03;
+        _value &= ~0x03U;
         if (enable) {
             _value |= LE_GENERAL_DISCOVERABLE;
         }
@@ -189,7 +189,7 @@ struct adv_data_flags_t {
 
     adv_data_flags_t &setLimitedDiscoverable(bool enable = true)
     {
-        _value &= ~0x03;
+        _value &= ~0x03U;
         if (enable) {
             _value |= LE_LIMITED_DISCOVERABLE;
         }
@@ -223,27 +223,27 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    bool getGeneralDiscoverable()
+    bool getGeneralDiscoverable() const
     {
         return _value & LE_GENERAL_DISCOVERABLE;
     }
 
-    bool getlimitedDiscoverable()
+    bool getlimitedDiscoverable() const
     {
         return _value & LE_LIMITED_DISCOVERABLE;
     }
 
-    bool getBrEdrNotSupported()
+    bool getBrEdrNotSupported() const
     {
         return _value & BREDR_NOT_SUPPORTED;
     }
 
-    bool getSimultaneousLeBredrC()
+    bool getSimultaneousLeBredrC() const
     {
         return _value & SIMULTANEOUS_LE_BREDR_C;
     }
 
-    bool getSimultaneousLeBredrH()
+    bool getSimultaneousLeBredrH() const
     {
         return _value & SIMULTANEOUS_LE_BREDR_H;
     }
@@ -253,7 +253,7 @@ struct adv_data_flags_t {
         _value = 0;
     }
 
-    uint8_t value()
+    uint8_t value() const
     {
         return _value;
     }

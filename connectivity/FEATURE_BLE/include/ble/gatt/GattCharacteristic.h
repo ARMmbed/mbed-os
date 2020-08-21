@@ -1384,7 +1384,7 @@ public:
      * @param[in] hasVariableLen Flag that indicates if the attribute's value
      * length can change throughout time.
      *
-     * @note If valuePtr is NULL, length is equal to 0 and the characteristic
+     * @note If valuePtr is nullptr, length is equal to 0 and the characteristic
      * is readable, then that particular characteristic may be considered
      * optional and dropped while instantiating the service with the underlying
      * BLE stack.
@@ -1398,11 +1398,11 @@ public:
      */
     GattCharacteristic(
         const UUID &uuid,
-        uint8_t *valuePtr = NULL,
+        uint8_t *valuePtr = nullptr,
         uint16_t len = 0,
         uint16_t maxLen = 0,
         uint8_t props = BLE_GATT_CHAR_PROPERTIES_NONE,
-        GattAttribute *descriptors[] = NULL,
+        GattAttribute *descriptors[] = nullptr,
         unsigned numDescriptors = 0,
         bool hasVariableLen = true
     ) : _valueAttribute(uuid, valuePtr, len, maxLen, hasVariableLen),
@@ -1426,6 +1426,9 @@ public:
 #endif // BLE_FEATURE_SECURITY
     }
 
+    GattCharacteristic(const GattCharacteristic &) = delete;
+    GattCharacteristic& operator=(const GattCharacteristic &) = delete;
+    
 public:
 
     /**
@@ -1639,7 +1642,7 @@ public:
      * @return A GattAuthCallbackReply_t value indicating whether authorization
      * is granted.
      *
-     * @note If the read request is approved and params->data remains NULL, then
+     * @note If the read request is approved and params->data remains nullptr, then
      * the current characteristic value is used in the read response payload.
      *
      * @note If the read is approved, the event handler can specify an outgoing
@@ -1687,7 +1690,7 @@ public:
      * @note The underlying BLE stack assigns the attribute handle when the
      * enclosing service is added.
      */
-    GattAttribute::Handle_t getValueHandle(void) const
+    GattAttribute::Handle_t getValueHandle() const
     {
         return getValueAttribute().getHandle();
     }
@@ -1699,7 +1702,7 @@ public:
      *
      * @return The characteristic's properties.
      */
-    uint8_t getProperties(void) const
+    uint8_t getProperties() const
     {
         return _properties;
     }
@@ -1709,7 +1712,7 @@ public:
      *
      * @return The total number of descriptors.
      */
-    uint8_t getDescriptorCount(void) const
+    uint8_t getDescriptorCount() const
     {
         return _descriptorCount;
     }
@@ -1746,12 +1749,12 @@ public:
      * @param[in] index The index of the descriptor to get.
      *
      * @return A pointer the requested descriptor if @p index is within the
-     * range of the descriptor array or NULL otherwise.
+     * range of the descriptor array or nullptr otherwise.
      */
     GattAttribute *getDescriptor(uint8_t index)
     {
         if (index >= _descriptorCount) {
-            return NULL;
+            return nullptr;
         }
 
         return _descriptors[index];
@@ -1799,11 +1802,6 @@ private:
      * receive updates
      */
     uint8_t _update_security: SecurityRequirement_t::size;
-
-private:
-    /* Disallow copy and assignment. */
-    GattCharacteristic(const GattCharacteristic &);
-    GattCharacteristic& operator=(const GattCharacteristic &);
 };
 
 /**
@@ -1834,7 +1832,7 @@ public:
         const UUID &uuid,
         T *valuePtr,
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
-        GattAttribute *descriptors[] = NULL,
+        GattAttribute *descriptors[] = nullptr,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
         uuid,
@@ -1877,7 +1875,7 @@ public:
         const UUID &uuid,
         T *valuePtr,
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
-        GattAttribute *descriptors[] = NULL,
+        GattAttribute *descriptors[] = nullptr,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
         uuid,
@@ -1919,7 +1917,7 @@ public:
         const UUID &uuid,
         T *valuePtr,
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
-        GattAttribute *descriptors[] = NULL,
+        GattAttribute *descriptors[] = nullptr,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
         uuid,
@@ -1962,7 +1960,7 @@ public:
         const UUID &uuid,
         T valuePtr[NUM_ELEMENTS],
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
-        GattAttribute *descriptors[] = NULL,
+        GattAttribute *descriptors[] = nullptr,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
         uuid,
@@ -2006,7 +2004,7 @@ public:
         const UUID    &uuid,
         T valuePtr[NUM_ELEMENTS],
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
-        GattAttribute *descriptors[] = NULL,
+        GattAttribute *descriptors[] = nullptr,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
         uuid,
@@ -2051,7 +2049,7 @@ public:
         const UUID    &uuid,
         T valuePtr[NUM_ELEMENTS],
         uint8_t additionalProperties = BLE_GATT_CHAR_PROPERTIES_NONE,
-        GattAttribute *descriptors[] = NULL,
+        GattAttribute *descriptors[] = nullptr,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
         uuid,

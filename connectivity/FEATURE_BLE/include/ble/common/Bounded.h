@@ -19,7 +19,7 @@
 #ifndef BLE_COMMON_BOUNDED_H_
 #define BLE_COMMON_BOUNDED_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace ble {
 
@@ -47,9 +47,9 @@ struct Bounded {
     Bounded(Rep v) : _value(v)
     {
         if (v < Min) {
-            _value = v;
+            _value = Min;
         } else if (v > Max) {
-            _value = v;
+            _value = Max;
         }
     }
 

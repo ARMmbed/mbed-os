@@ -19,9 +19,9 @@
 #ifndef MBED_UUID_H__
 #define MBED_UUID_H__
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <algorithm>
 
 #include "ble/common/blecommon.h"
@@ -250,7 +250,7 @@ public:
      * @post shortOrLong() returns the value UUID_TYPE_SHORT.
      * @post getShortUUID() returns the value BLE_UUID_UNKNOWN.
      */
-    UUID(void) :
+    UUID() :
         type(UUID_TYPE_SHORT),
         shortUUID(BLE_UUID_UNKNOWN) {
     }
@@ -283,7 +283,7 @@ public:
      * @return UUID_TYPE_SHORT if the UUID is 16-bit wide.
      * @return UUID_TYPE_LONG if the UUID is 128-bit wide.
      */
-    UUID_Type_t shortOrLong(void) const
+    UUID_Type_t shortOrLong() const
     {
         return type;
     }
@@ -294,7 +294,7 @@ public:
      * @return A pointer to an uint16_t object if the UUID is 16 bits long.
      * @return A pointer to an array of 16 bytes if the UUID is 128 bits long.
      */
-    const uint8_t *getBaseUUID(void) const
+    const uint8_t *getBaseUUID() const
     {
         if (type == UUID_TYPE_SHORT) {
             return (const uint8_t*)&shortUUID;
@@ -310,7 +310,7 @@ public:
      *
      * @return The value of the shortened UUID.
      */
-    ShortUUIDBytes_t getShortUUID(void) const
+    ShortUUIDBytes_t getShortUUID() const
     {
         return shortUUID;
     }
@@ -321,7 +321,7 @@ public:
      * @return sizeof(ShortUUIDBytes_t) if the UUID type is UUID_TYPE_SHORT.
      * @return LENGTH_OF_LONG_UUID if the UUID type is UUID_TYPE_LONG.
      */
-    uint8_t getLen(void) const
+    uint8_t getLen() const
     {
         return ((type == UUID_TYPE_SHORT) ?
             sizeof(ShortUUIDBytes_t) :
