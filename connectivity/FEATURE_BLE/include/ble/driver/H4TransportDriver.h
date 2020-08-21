@@ -21,7 +21,7 @@
 
 #include <stdint.h>
 #include "mbed.h"
-#include "CordioHCITransportDriver.h"
+#include "driver/CordioHCITransportDriver.h"
 
 namespace ble {
 

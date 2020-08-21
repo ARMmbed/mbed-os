@@ -23,7 +23,7 @@
 #include "ble/common/blecommon.h"
 #include "source/BLEInstanceBase.h"
 
-#include "CordioHCIDriver.h"
+#include "ble/driver/CordioHCIDriver.h"
 #include "ble/GattServer.h"
 #include "source/pal/PalAttClient.h"
 #include "source/pal/PalGattClient.h"

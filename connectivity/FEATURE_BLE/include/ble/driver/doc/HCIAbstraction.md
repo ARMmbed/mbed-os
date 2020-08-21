@@ -25,7 +25,7 @@ in the future with an implementation of the H5 interface. However, there is no
 plan to provide the SDIO implementation at the moment.
 
 This interface is defined in the header file
-[CordioHCITransportDriver.h](../driver/CordioHCITransportDriver.h)
+[CordioHCITransportDriver.h](../CordioHCITransportDriver.h)
 
 ## CordioHCIDriver
 
@@ -35,10 +35,10 @@ The responsibilities of this driver are:
 * Handle the reset/startup sequence of the Bluetooth controller.
 
 This interface is defined in the header file
-[CordioHCIDriver.h](../driver/CordioHCIDriver.h)
+[CordioHCIDriver.h](../CordioHCIDriver.h)
 
 A partial implementation is present in the file
-[CordioHCIDriver.cpp](../driver/CordioHCIDriver.cpp). It defines the function
+[CordioHCIDriver.cpp](../../../../source/impl/driver/CordioHCIDriver.cpp). It defines the function
 delivering memory to the stack and a complete reset sequence. However, it does
 not define any initialization for the Bluetooth controller, this part being
 specific to the controller used.

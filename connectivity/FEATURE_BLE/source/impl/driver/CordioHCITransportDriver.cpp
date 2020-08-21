@@ -17,8 +17,8 @@
 #include <algorithm>
 #include <limits>
 
-#include "CordioHCITransportDriver.h"
-#include "CordioHCIDriver.h"
+#include "ble/driver/CordioHCITransportDriver.h"
+#include "ble/driver/CordioHCIDriver.h"
 
 extern "C" void hciTrSerialRxIncoming(uint8_t *pBuf, uint8_t len);
 
