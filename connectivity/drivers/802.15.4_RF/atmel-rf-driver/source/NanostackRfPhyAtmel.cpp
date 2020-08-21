@@ -34,6 +34,21 @@
 #include "inttypes.h"
 #include "Timeout.h"
 #include "platform/mbed_error.h"
+#include "platform/mbed_version.h"
+
+#if (MBED_VERSION > MBED_ENCODE_VERSION(6, 0, 0))
+/* Mbed OS 6.0 introduces support for chrono time management */
+using namespace std::chrono;
+    #define ATMEL_RF_TIME_50US   50us
+    #define ATMEL_RF_TIME_2MS    2ms
+    #define ATMEL_RF_TIME_10MS   10ms
+    #define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach(signal_ref, timeout_ref)
+#else
+    #define ATMEL_RF_TIME_50US   50
+    #define ATMEL_RF_TIME_2MS    2
+    #define ATMEL_RF_TIME_10MS   10
+    #define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach_us(signal_ref, timeout_ref)
+#endif
 
 #define TRACE_GROUP "AtRF"
 
@@ -345,7 +360,6 @@ static rf_trx_part_e rf_radio_type_read(void)
     return ret_val;
 }
 
-
 /*
  * \brief Function starts the ACK wait timeout.
  *
@@ -356,9 +370,9 @@ static rf_trx_part_e rf_radio_type_read(void)
 static void rf_if_ack_wait_timer_start(uint16_t slots)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    rf->ack_timer.attach_us(rf_if_ack_timer_signal, slots * 50);
+    ATMEL_RF_ATTACH(rf->ack_timer, rf_if_ack_timer_signal, slots * ATMEL_RF_TIME_50US);
 #else
-    rf->ack_timer.attach_us(rf_ack_wait_timer_interrupt, slots * 50);
+    ATMEL_RF_ATTACH(rf->ack_timer, rf_ack_wait_timer_interrupt, slots * ATMEL_RF_TIME_50US);
 #endif
 }
 
@@ -372,9 +386,9 @@ static void rf_if_ack_wait_timer_start(uint16_t slots)
 static void rf_if_calibration_timer_start(uint32_t slots)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    rf->cal_timer.attach_us(rf_if_cal_timer_signal, slots * 50);
+    ATMEL_RF_ATTACH(rf->cal_timer, rf_if_cal_timer_signal, slots * ATMEL_RF_TIME_50US);
 #else
-    rf->cal_timer.attach_us(rf_calibration_timer_interrupt, slots * 50);
+    ATMEL_RF_ATTACH(rf->cal_timer, rf_calibration_timer_interrupt, slots * ATMEL_RF_TIME_50US);
 #endif
 }
 
@@ -388,9 +402,9 @@ static void rf_if_calibration_timer_start(uint32_t slots)
 static void rf_if_cca_timer_start(uint32_t slots)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    rf->cca_timer.attach_us(rf_if_cca_timer_signal, slots * 50);
+    ATMEL_RF_ATTACH(rf->cca_timer, rf_if_cca_timer_signal, slots * ATMEL_RF_TIME_50US);
 #else
-    rf->cca_timer.attach_us(rf_cca_timer_interrupt, slots * 50);
+    ATMEL_RF_ATTACH(rf->cca_timer, rf_cca_timer_interrupt, slots * ATMEL_RF_TIME_50US);
 #endif
 }
 
@@ -519,14 +533,14 @@ static void rf_if_reset_radio(void)
 #endif
     rf->IRQ.rise(nullptr);
     rf->RST = 1;
-    ThisThread::sleep_for(2);
+    ThisThread::sleep_for(ATMEL_RF_TIME_2MS);
     rf->RST = 0;
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(ATMEL_RF_TIME_10MS);
     CS_RELEASE();
     rf->SLP_TR = 0;
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(ATMEL_RF_TIME_10MS);
     rf->RST = 1;
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(ATMEL_RF_TIME_10MS);
 
     rf->IRQ.rise(&rf_if_interrupt_handler);
 }
