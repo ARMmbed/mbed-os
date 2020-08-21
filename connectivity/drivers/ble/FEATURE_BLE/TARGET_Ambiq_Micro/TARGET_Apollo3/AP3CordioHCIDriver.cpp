@@ -12,11 +12,10 @@
 
 #include "hci_drv_apollo3.h"
 
-using namespace ble::vendor::ambiq_micro;
-using namespace ble::vendor::cordio;
+using namespace ble;
 
-AP3CordioHCIDriver::AP3CordioHCIDriver(cordio::CordioHCITransportDriver &transport_driver)
-    : cordio::CordioHCIDriver(transport_driver)
+AP3CordioHCIDriver::AP3CordioHCIDriver(CordioHCITransportDriver &transport_driver)
+    : CordioHCIDriver(transport_driver)
 {
     AP3CordioHCITransportDriver *p_trspt_drv = (AP3CordioHCITransportDriver *)&transport_driver;
     _ptr_to_handle = &p_trspt_drv->handle;
@@ -33,7 +32,7 @@ void AP3CordioHCIDriver::do_terminate()
     HciDrvRadioShutdown();
 }
 
-ble::vendor::cordio::buf_pool_desc_t AP3CordioHCIDriver::get_buffer_pool_description()
+ble::buf_pool_desc_t AP3CordioHCIDriver::get_buffer_pool_description()
 {
     static union {
         uint8_t buffer[9000];
@@ -49,7 +48,7 @@ ble::vendor::cordio::buf_pool_desc_t AP3CordioHCIDriver::get_buffer_pool_descrip
     return buf_pool_desc_t(buffer, pool_desc);
 }
 
-ble::vendor::cordio::CordioHCIDriver &ble_cordio_get_hci_driver()
+ble::CordioHCIDriver &ble_cordio_get_hci_driver()
 {
     static AP3CordioHCITransportDriver transport_driver;
 

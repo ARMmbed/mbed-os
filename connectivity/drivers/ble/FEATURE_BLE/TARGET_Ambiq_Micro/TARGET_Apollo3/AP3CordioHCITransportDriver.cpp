@@ -19,18 +19,7 @@ DigitalOut debugGPIO(D28, 0);
 DigitalOut debugGPIO2(D25, 0);
 #endif
 
-volatile bool bleBusy = false;
-uint8_t ample_buffer[256];
-
-volatile uint16_t numPreviousRx = 0;
-uint16_t lenPreviousRx[5];
-uint8_t previousRx[5][256];
-
-uint32_t volatile bufferNum = 0;
-uint32_t numInterruptsSinceLast = 0;
-
-using namespace ble::vendor::ambiq_micro;
-using namespace ble::vendor::cordio;
+using namespace ble;
 
 AP3CordioHCITransportDriver::~AP3CordioHCITransportDriver() {}
 
