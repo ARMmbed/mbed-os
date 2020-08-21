@@ -1384,9 +1384,9 @@ bool GattServer::is_update_authorized(
 }
 
 GattServer::GattServer() :
+    eventHandler(nullptr),
     serviceCount(0),
     characteristicCount(0),
-    eventHandler(nullptr),
     dataSentCallChain(),
     dataWrittenCallChain(),
     dataReadCallChain(),

@@ -454,7 +454,8 @@ private:
         PalSecurityManager &palImpl,
         PalConnectionMonitor &connMonitorImpl,
         PalSigningMonitor &signingMonitorImpl
-    ) : _pal(palImpl),
+    ) : eventHandler(nullptr),
+        _pal(palImpl),
         _connection_monitor(connMonitorImpl),
         _signing_monitor(signingMonitorImpl),
         _db(NULL),
@@ -462,8 +463,7 @@ private:
         _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
         _legacy_pairing_allowed(true),
-        _master_sends_keys(false),
-        eventHandler(NULL)
+        _master_sends_keys(false)
     {
         eventHandler = &defaultEventHandler;
         _pal.set_event_handler(this);

@@ -17,8 +17,8 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "ble/internal/BLEInstanceBase.h"
 #include "ble/BLE.h"
+#include "ble/internal/BLEInstanceBase.h"
 #include "ble/Gap.h"
 #include "CordioHCIDriver.h"
 #include "hci_api.h"

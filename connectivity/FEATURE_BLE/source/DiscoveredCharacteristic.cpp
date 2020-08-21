@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#include "ble/BLE.h"
 #include "ble/common/ble/DiscoveredCharacteristic.h"
 #include "ble/GattClient.h"
 
