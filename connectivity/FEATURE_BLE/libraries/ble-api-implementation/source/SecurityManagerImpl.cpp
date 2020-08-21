@@ -18,7 +18,7 @@
 
 #include "BLERoles.h"
 
-#include "ble/SecurityManager.h"
+#include "ble/internal/SecurityManagerImpl.h"
 #include "ble/internal/PalSecurityManager.h"
 #include "ble/internal/MemorySecurityDb.h"
 #include "ble/internal/FileSecurityDb.h"
@@ -30,6 +30,33 @@ using ble::KeyDistribution;
 using ble::connection_peer_address_type_t;
 
 namespace ble {
+namespace impl {
+
+namespace {
+static constexpr auto SECURITY_MODE_ENCRYPTION_OPEN_LINK =
+    ble::SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+
+static constexpr auto SECURITY_MODE_ENCRYPTION_NO_MITM =
+    ble::SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM;
+
+static constexpr auto SECURITY_MODE_ENCRYPTION_WITH_MITM =
+    ble::SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
+
+static constexpr auto SECURITY_MODE_SIGNED_NO_MITM =
+    ble::SecurityManager::SECURITY_MODE_SIGNED_NO_MITM;
+
+static constexpr auto SECURITY_MODE_SIGNED_WITH_MITM =
+    ble::SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM;
+
+using SecurityCompletionStatus_t = ble::SecurityManager::SecurityCompletionStatus_t;
+
+static constexpr auto SEC_STATUS_TIMEOUT =
+    ble::SecurityManager::SEC_STATUS_TIMEOUT;
+
+static constexpr auto SEC_STATUS_SUCCESS =
+    ble::SecurityManager::SEC_STATUS_SUCCESS;
+
+}
 
 /* Implements PalSecurityManager */
 
@@ -95,7 +122,9 @@ ble_error_t SecurityManager::init(
     _connection_monitor.set_connection_event_handler(this);
 #endif
 #if BLE_FEATURE_SIGNING
-    _signing_monitor.set_signing_event_handler(this);
+    // TODO: FIXME
+//    _signing_monitor.set_signing_event_handler(this);
+    _signing_monitor.set_signing_event_handler(nullptr);
 #endif
     _pal.set_event_handler(this);
 
@@ -152,7 +181,9 @@ ble_error_t SecurityManager::reset(void)
     _pal.reset();
 
     /* Notify that the instance is about to shutdown */
-    shutdownCallChain.call(this);
+    // TODO: FIXME
+//    shutdownCallChain.call(this);
+    shutdownCallChain.call(nullptr);
     shutdownCallChain.clear();
     eventHandler = &defaultEventHandler;
 
@@ -2026,4 +2057,5 @@ void SecurityManager::setSecurityManagerEventHandler(EventHandler* handler)
     }
 }
 
+} /* namespace impl */
 } /* namespace ble */

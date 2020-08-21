@@ -36,19 +36,28 @@
 #include "ble/SecurityManager.h"
 
 namespace ble {
+namespace impl {
 
-class BLEInstanceBase;
+//class BLEInstanceBase;
 
 class SecurityManager :
-    public ble::interface::SecurityManager,
     public ble::PalSecurityManagerEventHandler,
     public ble::PalConnectionMonitorEventHandler,
-    public ble::PalSigningMonitorEventHandler
-{
+    public ble::PalSigningMonitorEventHandler {
     friend class ble::PalConnectionMonitorEventHandler;
-    friend BLEInstanceBase;
+
+    friend ::ble::BLEInstanceBase;
     friend PalGenericAccessService;
     friend PalSecurityManager;
+
+    using SecurityIOCapabilities_t = ble::SecurityManager::SecurityIOCapabilities_t;
+    using SecurityMode_t = ble::SecurityManager::SecurityMode_t;
+    using SecurityManagerShutdownCallback_t = ble::SecurityManager::SecurityManagerShutdownCallback_t;
+    using SecurityManagerShutdownCallbackChain_t = ble::SecurityManager::SecurityManagerShutdownCallbackChain_t;
+    using EventHandler = ble::SecurityManager::EventHandler;
+    using Passkey_t  = ble::SecurityManager::Passkey_t ;
+
+    static auto constexpr IO_CAPS_NONE = ble::SecurityManager::IO_CAPS_NONE;
 
 public:
     ////////////////////////////////////////////////////////////////////////////
@@ -56,12 +65,12 @@ public:
     //
 
     ble_error_t init(
-	    bool                     enableBonding = true,
-        bool                     requireMITM   = true,
-        SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
-        const Passkey_t          passkey       = NULL,
-        bool                     signing       = true,
-        const char              *dbFilepath    = NULL
+        bool enableBonding = true,
+        bool requireMITM = true,
+        SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
+        const Passkey_t passkey = NULL,
+        bool signing = true,
+        const char *dbFilepath = NULL
     );
 
     ble_error_t setDatabaseFilepath(const char *dbFilepath = NULL);
@@ -115,6 +124,7 @@ public:
 #if BLE_FEATURE_SIGNING
 
     ble_error_t enableSigning(ble::connection_handle_t connectionHandle, bool enabled = true);
+
 #endif // BLE_FEATURE_SIGNING
 
     ble_error_t setHintFutureRoleReversal(bool enable = true);
@@ -156,7 +166,11 @@ public:
 
     ble_error_t legacyPairingOobReceived(const ble::address_t *address, const ble::oob_tk_t *tk);
 
-    ble_error_t oobReceived(const ble::address_t *address, const ble::oob_lesc_value_t *random, const ble::oob_confirm_t *confirm);
+    ble_error_t oobReceived(
+        const ble::address_t *address,
+        const ble::oob_lesc_value_t *random,
+        const ble::oob_confirm_t *confirm
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -175,14 +189,14 @@ public:
     /* Event callback handlers. */
 public:
 
-    void onShutdown(const SecurityManagerShutdownCallback_t& callback);
+    void onShutdown(const SecurityManagerShutdownCallback_t &callback);
 
-    template <typename T>
+    template<typename T>
     void onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *));
 
-    SecurityManagerShutdownCallbackChain_t& onShutdown();
+    SecurityManagerShutdownCallbackChain_t &onShutdown();
 
-    void setSecurityManagerEventHandler(EventHandler* handler);
+    void setSecurityManagerEventHandler(EventHandler *handler);
 
     /* ===================================================================== */
     /*                    private implementation follows                     */
@@ -433,7 +447,8 @@ private:
 private:
     /* Disallow copy and assignment. */
     SecurityManager(const SecurityManager &);
-    SecurityManager& operator=(const SecurityManager &);
+
+    SecurityManager &operator=(const SecurityManager &);
 
     SecurityManager(
         PalSecurityManager &palImpl,
@@ -493,12 +508,12 @@ private:
 
     void enable_encryption_cb(
         ble::SecurityDb::entry_handle_t entry,
-        const SecurityEntryKeys_t* entryKeys
+        const SecurityEntryKeys_t *entryKeys
     );
 
     void set_ltk_cb(
         SecurityDb::entry_handle_t entry,
-        const SecurityEntryKeys_t* entryKeys
+        const SecurityEntryKeys_t *entryKeys
     );
 
     void return_csrk_cb(
@@ -536,11 +551,11 @@ private:
 
     void on_security_entry_retrieved(
         SecurityDb::entry_handle_t entry,
-        const SecurityEntryIdentity_t* identity
+        const SecurityEntryIdentity_t *identity
     );
 
     void on_identity_list_retrieved(
-        Span<SecurityEntryIdentity_t>& identity_list,
+        Span<SecurityEntryIdentity_t> &identity_list,
         size_t count
     );
 
@@ -548,16 +563,23 @@ private:
     struct ControlBlock_t {
         ControlBlock_t();
 
-        KeyDistribution get_initiator_key_distribution() {
+        KeyDistribution get_initiator_key_distribution()
+        {
             return KeyDistribution(initiator_key_distribution);
         };
-        KeyDistribution get_responder_key_distribution() {
+
+        KeyDistribution get_responder_key_distribution()
+        {
             return KeyDistribution(responder_key_distribution);
         };
-        void set_initiator_key_distribution(KeyDistribution mask) {
+
+        void set_initiator_key_distribution(KeyDistribution mask)
+        {
             initiator_key_distribution = mask.value();
         };
-        void set_responder_key_distribution(KeyDistribution mask) {
+
+        void set_responder_key_distribution(KeyDistribution mask)
+        {
             responder_key_distribution = mask.value();
         };
 
@@ -567,46 +589,46 @@ private:
         address_t local_address; /**< address used for connection, possibly different from identity */
 
     private:
-        uint8_t initiator_key_distribution:4;
-        uint8_t responder_key_distribution:4;
+        uint8_t initiator_key_distribution: 4;
+        uint8_t responder_key_distribution: 4;
     public:
-        uint8_t connected:1;
-        uint8_t authenticated:1; /**< have we turned encryption on during this connection */
-        uint8_t is_master:1;
+        uint8_t connected: 1;
+        uint8_t authenticated: 1; /**< have we turned encryption on during this connection */
+        uint8_t is_master: 1;
 
-        uint8_t encryption_requested:1;
-        uint8_t encryption_failed:1;
-        uint8_t encrypted:1;
-        uint8_t signing_requested:1;
-        uint8_t signing_override_default:1;
+        uint8_t encryption_requested: 1;
+        uint8_t encryption_failed: 1;
+        uint8_t encrypted: 1;
+        uint8_t signing_requested: 1;
+        uint8_t signing_override_default: 1;
 
-        uint8_t mitm_requested:1;
-        uint8_t mitm_performed:1; /**< keys exchange will have MITM protection */
+        uint8_t mitm_requested: 1;
+        uint8_t mitm_performed: 1; /**< keys exchange will have MITM protection */
 
-        uint8_t attempt_oob:1;
-        uint8_t oob_mitm_protection:1;
-        uint8_t oob_present:1;
-        uint8_t legacy_pairing_oob_request_pending:1;
+        uint8_t attempt_oob: 1;
+        uint8_t oob_mitm_protection: 1;
+        uint8_t oob_present: 1;
+        uint8_t legacy_pairing_oob_request_pending: 1;
 
-        uint8_t csrk_failures:2;
+        uint8_t csrk_failures: 2;
     };
 
     /* list management */
 
-    ControlBlock_t* acquire_control_block(connection_handle_t connection);
+    ControlBlock_t *acquire_control_block(connection_handle_t connection);
 
-    ControlBlock_t* get_control_block(connection_handle_t connection);
+    ControlBlock_t *get_control_block(connection_handle_t connection);
 
-    ControlBlock_t* get_control_block(const address_t &peer_address);
+    ControlBlock_t *get_control_block(const address_t &peer_address);
 
-    ControlBlock_t* get_control_block(SecurityDb::entry_handle_t db_entry);
+    ControlBlock_t *get_control_block(SecurityDb::entry_handle_t db_entry);
 
-    void release_control_block(ControlBlock_t* entry);
+    void release_control_block(ControlBlock_t *entry);
 
 private:
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
-    EventHandler* eventHandler;
-    EventHandler  defaultEventHandler;
+    EventHandler *eventHandler;
+    EventHandler defaultEventHandler;
 
     PalSecurityManager &_pal;
     PalConnectionMonitor &_connection_monitor;
@@ -634,6 +656,7 @@ private:
     ControlBlock_t _control_blocks[MAX_CONTROL_BLOCKS];
 };
 
+} // namespace impl
 } // ble
 
 #endif /*IMPL_SECURITY_MANAGER_H_*/

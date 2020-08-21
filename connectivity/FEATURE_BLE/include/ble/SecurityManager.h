@@ -187,8 +187,11 @@ namespace ble {
  *
  */
 #if !defined(DOXYGEN_ONLY)
-namespace interface {
+namespace impl {
+class SecurityManager;
+}
 #endif // !defined(DOXYGEN_ONLY)
+
 class SecurityManager
 {
 public:
@@ -895,16 +898,13 @@ public:
      * @deprecated use the enum in ble namespace */
     typedef ble::Keypress_t Keypress_t;
 #endif // !defined(DOXYGEN_ONLY)
+
+private:
+    impl::SecurityManager *impl;
 };
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
-} // ble
 
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-#include "ble/internal/SecurityManagerImpl.h"
+} // ble
 
 /** @deprecated Use the namespaced ble::SecurityManager instead of the global SecurityManager. */
 using ble::SecurityManager;
