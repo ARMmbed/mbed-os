@@ -371,7 +371,7 @@ UBLOX_AT_CellularStack::CellularSocket *UBLOX_AT_CellularStack::find_socket(int 
 {
     CellularSocket *socket = NULL;
 
-    for (unsigned int x = 0; (socket == NULL) && (x < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)); x++) {
+    for (intptr_t x = 0; (socket == NULL) && (x < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)); x++) {
         if (_socket) {
             if (_socket[x]->id == id) {
                 socket = (_socket[x]);
