@@ -19,7 +19,7 @@
 #ifndef BLE_SECURITY_MANAGER_H_
 #define BLE_SECURITY_MANAGER_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include "platform/Callback.h"
 
@@ -421,9 +421,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the SecurityManager class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /*
@@ -457,9 +455,9 @@ public:
         bool                     enableBonding = true,
         bool                     requireMITM   = true,
         SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
-        const Passkey_t          passkey       = NULL,
+        const Passkey_t          passkey       = nullptr,
         bool                     signing       = true,
-        const char              *dbFilepath    = NULL
+        const char              *dbFilepath    = nullptr
     );
 
     /**
@@ -473,7 +471,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t setDatabaseFilepath(const char *dbFilepath = NULL);
+    ble_error_t setDatabaseFilepath(const char *dbFilepath = nullptr);
 
     /**
      * Notify all registered onShutdown callbacks that the SecurityManager is
@@ -488,7 +486,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
     /**
      * Normally all bonding information is lost when device is reset, this requests that the stack
@@ -511,7 +509,7 @@ public:
      * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
      *                                    application registration.
      */
-    ble_error_t purgeAllBondingState(void);
+    ble_error_t purgeAllBondingState();
 
     /**
      * Create a list of addresses from all peers in the bond table and generate
@@ -870,7 +868,10 @@ public:
     void onShutdown(const SecurityManagerShutdownCallback_t& callback);
 
     template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *));
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *))
+    {
+        onShutdown({objPtr, memberPtr});
+    }
 
     /**
      * Provide access to the callchain of shutdown event callbacks.

@@ -19,7 +19,7 @@
 #ifndef MBED_FUNCTIONPOINTER_WITH_CONTEXT_H
 #define MBED_FUNCTIONPOINTER_WITH_CONTEXT_H
 
-#include <string.h>
+#include <cstring>
 #include "ble/common/SafeBool.h"
 
 /**
@@ -106,6 +106,10 @@ public:
      */
     FunctionPointerWithContext &operator=(const FunctionPointerWithContext &that)
     {
+        if (&that == this) {
+            return *this;
+        }
+
         _memberFunctionAndPointer = that._memberFunctionAndPointer;
         _caller = that._caller;
         _next = NULL;
@@ -222,7 +226,7 @@ public:
      * @return A pointer to the next FunctionPointerWithContext instance in the
      * chain.
      */
-    pFunctionPointerWithContext_t getNext(void) const
+    pFunctionPointerWithContext_t getNext() const
     {
         return _next;
     }

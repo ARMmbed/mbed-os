@@ -154,6 +154,10 @@ public:
      */
     static const InstanceID_t NUM_INSTANCES = 1;
 
+    // Prevent copy construction and copy assignment of BLE.
+    BLE(const BLE &) = delete;
+    BLE &operator=(const BLE &) = delete;
+
     /**
      * Get a reference to the BLE singleton.
      *
@@ -193,7 +197,7 @@ public:
      */
     MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "BLE singleton supports one instance. You may create multiple"
                           "instances by using the constructor.")
-    InstanceID_t getInstanceID(void) const
+    InstanceID_t getInstanceID() const
     {
         return DEFAULT_INSTANCE;
     }
@@ -299,7 +303,7 @@ public:
      * @attention This should be called before using anything else in the BLE
      * API.
      */
-    ble_error_t init(InitializationCompleteCallback_t completion_cb = NULL)
+    ble_error_t init(InitializationCompleteCallback_t completion_cb = nullptr)
     {
         FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(completion_cb);
         return initImplementation(callback);
@@ -331,7 +335,7 @@ public:
      * @note The application should set up a callback to signal completion of
      * initialization when using init().
      */
-    bool hasInitialized(void) const;
+    bool hasInitialized() const;
 
     /**
      * Shut down the underlying stack, and reset state of this BLE instance.
@@ -343,7 +347,7 @@ public:
      * GAP state. This API offers a way to repopulate the GATT database with new
      * services and characteristics.
      */
-    ble_error_t shutdown(void);
+    ble_error_t shutdown();
 
     /**
      * This call allows the application to get the BLE stack version information.
@@ -352,7 +356,7 @@ public:
      *
      * @note The BLE API owns the string returned.
      */
-    const char *getVersion(void);
+    const char *getVersion();
 
     /**
      * Accessor to Gap. All Gap-related functionality requires going through
@@ -464,11 +468,6 @@ private:
     ble_error_t initImplementation(
         FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback
     );
-
-private:
-    // Prevent copy construction and copy assignment of BLE.
-    BLE(const BLE &) = delete;
-    BLE &operator=(const BLE &) = delete;
 
 private:
     ble::BLEInstanceBase &transport; /* The device-specific backend */

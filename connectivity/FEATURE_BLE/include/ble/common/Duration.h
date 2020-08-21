@@ -19,8 +19,8 @@
 #ifndef BLE_COMMON_DURATION_H_
 #define BLE_COMMON_DURATION_H_
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include "platform/mbed_assert.h"
 #include "platform/mbed_chrono.h"
 
@@ -155,7 +155,7 @@ struct Duration {
      * @param other_ms The Duration in millisecond to convert.
      */
     template<typename OtherRep, typename OtherRange, typename OtherF>
-    explicit Duration(Duration<OtherRep, 1000, OtherRange, OtherF> other_ms, void* = NULL) :
+    explicit Duration(Duration<OtherRep, 1000, OtherRange, OtherF> other_ms, void* = nullptr) :
         duration(clamp(((other_ms.value() * 1000) + TB - 1) / TB))
     {
     }

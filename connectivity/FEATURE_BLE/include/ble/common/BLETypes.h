@@ -19,9 +19,9 @@
 #ifndef BLE_TYPES_H_
 #define BLE_TYPES_H_
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include "ble/common/SafeEnum.h"
 #include "platform/Span.h"
 
@@ -872,7 +872,7 @@ struct whitelist_t {
          * @post type is equal to PUBLIC and the address value is equal to
          * 00:00:00:00:00:00
          */
-        entry_t(void) : type(), address() { }
+        entry_t() : type(), address() { }
 
         /**
          * Type of the peer address.

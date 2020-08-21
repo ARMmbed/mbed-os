@@ -19,7 +19,7 @@
 
 #if (DEVICE_SERIAL && DEVICE_SERIAL_FC) || defined(DOXYGEN_ONLY)
 
-#include <stdint.h>
+#include <cstdint>
 #include "mbed.h"
 #include "driver/CordioHCITransportDriver.h"
 
@@ -47,22 +47,22 @@ public:
     /**
      * Destructor
      */
-    virtual ~H4TransportDriver() { }
+    ~H4TransportDriver() override = default;
 
     /**
      * @see CordioHCITransportDriver::initialize
      */
-    virtual void initialize();
+    void initialize() override;
 
     /**
      * @see CordioHCITransportDriver::terminate
      */
-    virtual void terminate();
+    void terminate() override;
 
     /**
      * @see CordioHCITransportDriver::write
      */
-    virtual uint16_t write(uint8_t type, uint16_t len, uint8_t *pData);
+    uint16_t write(uint8_t type, uint16_t len, uint8_t *pData) override;
 
 private:
     void on_controller_irq();

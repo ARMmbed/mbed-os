@@ -19,8 +19,8 @@
 #ifndef BLE_SAFE_ENUM_H_
 #define BLE_SAFE_ENUM_H_
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 namespace ble {
 

@@ -124,7 +124,7 @@ public:
      *
      * @return UUID of this descriptor.
      */
-    const UUID& getUUID(void) const
+    const UUID& getUUID() const
     {
         return _uuid;
     }

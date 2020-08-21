@@ -17,8 +17,8 @@
 #ifndef IMPL_HCI_DRIVER_H_
 #define IMPL_HCI_DRIVER_H_
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 #include <BLETypes.h>
 // FIXME: make this invisible!
 #include "wsf_buf.h"
@@ -74,7 +74,7 @@ public:
     /**
      * Driver destructor
      */
-    virtual ~CordioHCIDriver() { }
+    virtual ~CordioHCIDriver() = default;
 
     /**
      * Return the set of memory pool which will be used by the Cordio stack

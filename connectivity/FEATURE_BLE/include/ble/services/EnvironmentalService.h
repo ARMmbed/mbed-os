@@ -58,7 +58,7 @@ public:
                                             &pressureCharacteristic,
                                             &temperatureCharacteristic };
 
-        GattService environmentalService(GattService::UUID_ENVIRONMENTAL_SERVICE, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
+        GattService environmentalService(GattService::UUID_ENVIRONMENTAL_SERVICE, charTable, sizeof(charTable) / sizeof(charTable[0]));
 
         ble.gattServer().addService(environmentalService);
         serviceAdded = true;
@@ -97,9 +97,9 @@ public:
 private:
     BLE& ble;
 
-    TemperatureType_t temperature;
-    HumidityType_t    humidity;
-    PressureType_t    pressure;
+    TemperatureType_t temperature{};
+    HumidityType_t    humidity{};
+    PressureType_t    pressure{};
 
     ReadOnlyGattCharacteristic<TemperatureType_t> temperatureCharacteristic;
     ReadOnlyGattCharacteristic<HumidityType_t>    humidityCharacteristic;

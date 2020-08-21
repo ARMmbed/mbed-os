@@ -113,7 +113,7 @@ public:
      */
     GattAttribute(
         const UUID &uuid,
-        uint8_t *valuePtr = NULL,
+        uint8_t *valuePtr = nullptr,
         uint16_t len = 0,
         uint16_t maxLen = 0,
         bool hasVariableLen = true
@@ -129,6 +129,9 @@ public:
         _write_security(Security_t::NONE) {
     }
 
+    GattAttribute(const GattAttribute &) = delete;
+    GattAttribute& operator=(const GattAttribute &) = delete;
+
 public:
     /**
      * Get the attribute's handle in the ATT table.
@@ -138,7 +141,7 @@ public:
      *
      * @return The attribute's handle.
      */
-    Handle_t getHandle(void) const
+    Handle_t getHandle() const
     {
         return _handle;
     }
@@ -150,7 +153,7 @@ public:
      *
      * @return The attribute.
      */
-    const UUID &getUUID(void) const
+    const UUID &getUUID() const
     {
         return _uuid;
     }
@@ -160,7 +163,7 @@ public:
      *
      * @return The current length of the attribute value.
      */
-    uint16_t getLength(void) const
+    uint16_t getLength() const
     {
         return _len;
     }
@@ -170,7 +173,7 @@ public:
      *
      * The maximum length of the attribute value.
      */
-    uint16_t getMaxLength(void) const
+    uint16_t getMaxLength() const
     {
         return _lenMax;
     }
@@ -182,7 +185,7 @@ public:
      *
      * @return A pointer to the current length of the attribute value.
      */
-    uint16_t *getLengthPtr(void)
+    uint16_t *getLengthPtr()
     {
         return &_len;
     }
@@ -205,7 +208,7 @@ public:
      *
      * @return A pointer to the attribute value.
      */
-    uint8_t *getValuePtr(void)
+    uint8_t *getValuePtr()
     {
         return _valuePtr;
     }
@@ -216,7 +219,7 @@ public:
      * @return true if the attribute value has a variable length and false
      * otherwise.
      */
-    bool hasVariableLength(void) const
+    bool hasVariableLength() const
     {
         return _hasVariableLen;
     }
@@ -234,7 +237,7 @@ public:
      * Indicate if a client is allowed to read the attribute.
      * @return true if a client is allowed to read the attribute.
      */
-    bool isReadAllowed(void) const
+    bool isReadAllowed() const
     {
         return _read_allowed;
     }
@@ -270,7 +273,7 @@ public:
      * Indicate if a client is allowed to write the attribute.
      * @return true if a client is allowed to write the attribute.
      */
-    bool isWriteAllowed(void) const
+    bool isWriteAllowed() const
     {
         return _write_allowed;
     }
@@ -343,11 +346,6 @@ private:
      * Security applied to the write operation.
      */
     uint8_t _write_security: Security_t::size;
-
-private:
-    /* Disallow copy and assignment. */
-    GattAttribute(const GattAttribute &);
-    GattAttribute& operator=(const GattAttribute &);
 };
 
 /**

@@ -19,7 +19,7 @@
 #ifndef MBED_GAP_SCAN_PARAMETERS_H__
 #define MBED_GAP_SCAN_PARAMETERS_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "ble/common/blecommon.h"
 #include "ble/common/BLETypes.h"

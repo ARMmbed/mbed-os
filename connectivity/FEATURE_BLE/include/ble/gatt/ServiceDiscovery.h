@@ -138,21 +138,21 @@ public:
      *           BLE_ERROR_NONE if service discovery is launched successfully; else an appropriate error.
      */
     virtual ble_error_t launch(ble::connection_handle_t             connectionHandle,
-                               ServiceCallback_t         sc = NULL,
-                               CharacteristicCallback_t  cc = NULL,
+                               ServiceCallback_t         sc = nullptr,
+                               CharacteristicCallback_t  cc = nullptr,
                                const UUID               &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
                                const UUID               &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) = 0;
 
     /**
      * Check whether service-discovery is currently active.
      */
-    virtual bool        isActive(void) const = 0;
+    virtual bool        isActive() const = 0;
 
     /**
      * Terminate an ongoing service discovery. This should result in an
      * invocation of the TerminationCallback if service discovery is active.
      */
-    virtual void        terminate(void) = 0;
+    virtual void        terminate() = 0;
 
     /**
      * Set up a callback to be invoked when service discovery is terminated.
@@ -170,12 +170,12 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t reset(void) {
+    virtual ble_error_t reset() {
         connHandle                 = 0;
         matchingServiceUUID        = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN);
-        serviceCallback            = NULL;
+        serviceCallback            = nullptr;
         matchingCharacteristicUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN);
-        characteristicCallback     = NULL;
+        characteristicCallback     = nullptr;
 
         return BLE_ERROR_NONE;
     }

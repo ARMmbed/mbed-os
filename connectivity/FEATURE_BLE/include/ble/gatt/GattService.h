@@ -164,7 +164,7 @@ public:
      *
      * @return A reference to the service's UUID.
      */
-    const UUID &getUUID(void) const
+    const UUID &getUUID() const
     {
         return _primaryServiceID;
     }
@@ -174,7 +174,7 @@ public:
      *
      * @return The service's handle.
      */
-    uint16_t getHandle(void) const
+    uint16_t getHandle() const
     {
         return _handle;
     }
@@ -184,7 +184,7 @@ public:
      *
      * @return The total number of characteristics within this service.
      */
-    uint8_t getCharacteristicCount(void) const
+    uint8_t getCharacteristicCount() const
     {
         return _characteristicCount;
     }
@@ -211,7 +211,7 @@ public:
     GattCharacteristic *getCharacteristic(uint8_t index)
     {
         if (index >= _characteristicCount) {
-            return NULL;
+            return nullptr;
         }
 
         return _characteristics[index];

@@ -19,7 +19,7 @@
 #ifndef BLE_GAP_ADVERTISINGDATAPARSER_H
 #define BLE_GAP_ADVERTISINGDATAPARSER_H
 
-#include <stdint.h>
+#include <cstdint>
 #include "platform/Span.h"
 
 #include "ble/gap/AdvertisingDataTypes.h"
