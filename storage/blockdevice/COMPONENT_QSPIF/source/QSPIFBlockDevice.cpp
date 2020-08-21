@@ -995,18 +995,35 @@ int QSPIFBlockDevice::_sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_pa
     return status;
 }
 
+#if MBED_CONF_QSPIF_ENABLE_AND_RESET && MBED_CONF_QSPIF_DIRECT_RESET
+#error "qspif.enable-and-reset and qspif.direct-reset cannot be both true!"
+#endif
+
+#define RESET_SEQUENCE_FROM_SFDP ( !MBED_CONF_QSPIF_ENABLE_AND_RESET && !MBED_CONF_QSPIF_DIRECT_RESET )
+
 int QSPIFBlockDevice::_sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr)
 {
     int status = QSPIF_BD_ERROR_OK;
+
+#if RESET_SEQUENCE_FROM_SFDP
     uint8_t examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_SOFT_RESET_BYTE];
 
     // Ignore bit indicating need to exit 0-4-4 mode - should not enter 0-4-4 mode from QSPIFBlockDevice
     if (examined_byte & SOFT_RESET_RESET_INST_BITMASK) {
+#endif
+
+#if !MBED_CONF_QSPIF_ENABLE_AND_RESET     // i.e. direct reset, or determined from SFDP
         // Issue instruction 0xF0 to reset the device
         qspi_status_t qspi_status = _qspi_send_general_command(0xF0, QSPI_NO_ADDRESS_COMMAND, // Send reset instruction
                                                                NULL, 0, NULL, 0);
         status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+#endif
+
+#if RESET_SEQUENCE_FROM_SFDP
     } else if (examined_byte & SOFT_RESET_ENABLE_AND_RESET_INST_BITMASK) {
+#endif
+
+#if !MBED_CONF_QSPIF_DIRECT_RESET    // i.e. enable and reset, or determined from SFDP
         // Issue instruction 66h to enable resets on the device
         // Then issue instruction 99h to reset the device
         qspi_status_t qspi_status = _qspi_send_general_command(0x66, QSPI_NO_ADDRESS_COMMAND, // Send reset enable instruction
@@ -1016,10 +1033,15 @@ int QSPIFBlockDevice::_sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param
                                                      NULL, 0, NULL, 0);
         }
         status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+#endif
+
+#if RESET_SEQUENCE_FROM_SFDP
     } else {
         // Soft reset either is not supported or requires direct control over data lines
+        tr_error("Failed to determine soft reset sequence. If your device has a legacy SFDP table, please manually set enable-and-reset or direct-reset.");
         status = QSPIF_BD_ERROR_PARSING_FAILED;
     }
+#endif
 
     if (status == QSPIF_BD_ERROR_OK) {
         if (false == _is_mem_ready()) {
