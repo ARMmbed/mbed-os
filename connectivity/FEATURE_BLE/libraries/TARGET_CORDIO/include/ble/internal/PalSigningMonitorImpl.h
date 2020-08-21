@@ -19,7 +19,7 @@
 #ifndef IMPL_PAL_SIGNING_MONITOR_H_
 #define IMPL_PAL_SIGNING_MONITOR_H_
 
-#include "ble/internal/PalSigningMonitor.h"
+#include "source/pal/PalSigningMonitor.h"
 
 namespace ble {
 

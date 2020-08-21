@@ -19,7 +19,7 @@
 #ifndef BLE_PAL_SIMPLEATTSERVERMESSAGE_H_
 #define BLE_PAL_SIMPLEATTSERVERMESSAGE_H_
 
-#include "ble/internal/AttServerMessage.h"
+#include "AttServerMessage.h"
 
 namespace ble {
 

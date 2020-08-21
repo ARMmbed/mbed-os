@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-#include "ble/internal/PalAttClient.h"
+#include "source/pal/PalAttClient.h"
 #include "source/generic/GattServerImpl.h"
-#include "ble/internal/PalSimpleAttServerMessage.h"
-#include "ble/internal/PalGap.h"
-#include "ble/internal/PalGattClient.h"
+#include "source/pal/PalSimpleAttServerMessage.h"
+#include "source/pal/PalGap.h"
+#include "source/pal/PalGattClient.h"
 #include "source/BLEInstanceBase.h"
 
 #include "att_api.h"

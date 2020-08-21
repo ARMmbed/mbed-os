@@ -20,7 +20,7 @@
 #define BLE_PAL_SIMPLE_EVENT_QUEUE_H_
 
 #include <new>
-#include "ble/internal/PalEventQueue.h"
+#include "source/pal/PalEventQueue.h"
 
 #include "wsf_buf.h"
 

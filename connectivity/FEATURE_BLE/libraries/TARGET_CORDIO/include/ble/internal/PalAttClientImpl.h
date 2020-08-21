@@ -19,9 +19,9 @@
 #ifndef IMPL_PAL_ATT_CLIENT_
 #define IMPL_PAL_ATT_CLIENT_
 
-#include "PalSimpleAttServerMessage.h"
+#include "source/pal/PalSimpleAttServerMessage.h"
 #include "att_api.h"
-#include "ble/internal/PalAttClient.h"
+#include "source/pal/PalAttClient.h"
 
 namespace ble {
 

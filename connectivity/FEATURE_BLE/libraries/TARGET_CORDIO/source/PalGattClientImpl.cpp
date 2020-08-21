@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "ble/internal/PalGattClient.h"
-#include "ble/internal/PalAttClient.h"
+#include "source/pal/PalGattClient.h"
+#include "source/pal/PalAttClient.h"
 
 namespace ble {
 

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ble/internal/PalEventQueue.h"
+#include "source/pal/PalEventQueue.h"
 #include "source/BLEInstanceBase.h"
 
 namespace ble {
