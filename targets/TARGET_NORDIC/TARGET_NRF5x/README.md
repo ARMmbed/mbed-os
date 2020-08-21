@@ -90,6 +90,24 @@ The tables must be placed in a C compilation file.
 1. If an instance is being used exclusively for either I2C or SPI, the objects can safely be called from multiple threads.
 1. If an instance is being used for both I2C and SPI, the user must provide thread safety between the objects.
 
+#### SPIM
+Description below taken from nRF52840 datasheet.
+
+*The SPI master can communicate with multiple SPI slaves using individual chip select signals for each slave.*
+
+*Listed here are the main features for the SPIM*
+
+- *EasyDMA direct transfer to/from RAM*
+- *SPI mode 0-3*
+- *Individual selection of I/O pins*
+- *Optional D/CX output line for distinguishing between command and data bytes*
+
+SPIM Instance 3 can provide transfer speeds up to 32 Mhz.
+
+##### Configuration
+Enabled in the *sdk_config.h* by setting the **NRFX_SPIM_ENABLED** macro
+
+As SPI and SPIM use the same hardware you should disable the SPI configuration at the same time (**NRFX_SPI_ENABLED**)
 
 ### Serial
 

@@ -43,7 +43,11 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#if NRFX_SPIM_ENABLED && DEVICE_SPI
+#include "nrfx_spim.h"
+#elif DEVICE_SPI
 #include "nrfx_spi.h"
+#endif
 #include "nrf_twi.h"
 
 #include "nrf_pwm.h"
@@ -90,7 +94,11 @@ struct serial_s {
 struct spi_s {
     int instance;
     PinName cs;
+#if NRFX_SPIM_ENABLED && DEVICE_SPI
+    nrfx_spim_config_t config;
+#elif DEVICE_SPI
     nrfx_spi_config_t config;
+#endif
     bool update;
 
 #if DEVICE_SPI_ASYNCH
