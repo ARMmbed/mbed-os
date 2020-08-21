@@ -18,7 +18,7 @@
 
 #if BLE_SECURITY_DATABASE_KVSTORE
 
-#include "ble/internal/KVStoreSecurityDb.h"
+#include "KVStoreSecurityDb.h"
 
 namespace ble {
 

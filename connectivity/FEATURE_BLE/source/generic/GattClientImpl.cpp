@@ -1195,7 +1195,6 @@ ble_error_t GattClient::write(
     const uint8_t *value
 ) const
 {
-    // verify that there is no other procedures going on this connection
     if (_is_reseting || get_control_block(connection_handle)) {
         return BLE_ERROR_INVALID_STATE;
     }
@@ -1218,7 +1217,6 @@ ble_error_t GattClient::write(
         }
     }
 #endif // BLE_FEATURE_SIGNING
-
     if (cmd == GATT_OP_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;

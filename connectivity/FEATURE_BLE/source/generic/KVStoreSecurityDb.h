@@ -24,7 +24,7 @@
 #include "kvstore_global_api.h"
 #include "mbed_error.h"
 
-#include "ble/internal/SecurityDb.h"
+#include "SecurityDb.h"
 
 #define STR_EXPAND(tok) #tok
 #define STR(tok) STR_EXPAND(tok)

@@ -19,7 +19,7 @@
 #ifndef GENERIC_MEMORY_SECURITY_DB_H_
 #define GENERIC_MEMORY_SECURITY_DB_H_
 
-#include "ble/internal/SecurityDb.h"
+#include "SecurityDb.h"
 
 namespace ble {
 

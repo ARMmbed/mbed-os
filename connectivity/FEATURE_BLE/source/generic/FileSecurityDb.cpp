@@ -18,7 +18,7 @@
 
 #if BLE_SECURITY_DATABASE_FILESYSTEM
 
-#include "ble/internal/FileSecurityDb.h"
+#include "FileSecurityDb.h"
 
 namespace ble {
 

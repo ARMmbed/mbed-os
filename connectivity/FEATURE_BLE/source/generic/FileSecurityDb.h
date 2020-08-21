@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 
-#include "ble/internal/SecurityDb.h"
+#include "SecurityDb.h"
 
 namespace ble {
 
