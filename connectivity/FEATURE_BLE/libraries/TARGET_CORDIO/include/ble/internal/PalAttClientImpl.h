@@ -381,13 +381,11 @@ private:
     struct PrepareWriteResponseConverter : ResponseConverter<ATTC_PREPARE_WRITE_RSP> {
         static AttPrepareWriteResponse convert(const attEvt_t* event)
         {
-            // WARNING: Not sure if correct, the stack erase the length parameter
             return AttPrepareWriteResponse(
                 event->handle,
-                to_uint16_t(event->pValue + 2),
-                // FIXME: the stack set the lenght to 0, the data won't be seen ...
+                0, /* offset is lost */
                 make_const_Span(
-                    event->pValue + 4,
+                    event->pValue,
                     event->valueLen
                 )
             );

@@ -329,6 +329,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
     }
     if (properties & WRITABLE_PROPERTIES) {
         attribute_it->settings |= ATTS_SET_WRITE_CBACK;
+        attribute_it->settings |= ATTS_SET_ALLOW_OFFSET;
     }
     if (value_attribute.getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
         attribute_it->settings |= ATTS_SET_UUID_128;
@@ -990,9 +991,39 @@ uint8_t GattServer::atts_write_cb(
 {
     uint8_t err;
 
-    /* TODO: offset is not handled properly */
-    if ((err = AttsSetAttr(handle, len, pValue)) != ATT_SUCCESS) {
-        return err;
+    GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
+    if (auth_char && auth_char->isWriteAuthorizationEnabled()) {
+        GattWriteAuthCallbackParams write_auth_params = {
+            connId,
+            handle,
+            offset,
+            len,
+            pValue,
+            AUTH_CALLBACK_REPLY_SUCCESS
+        };
+
+        GattAuthCallbackReply_t ret = auth_char->authorizeWrite(&write_auth_params);
+        if (ret!= AUTH_CALLBACK_REPLY_SUCCESS) {
+            return ret & 0xFF;
+        }
+    }
+
+    /* we don't write anything during the prepare phase */
+    bool write_happened = (operation != ATT_PDU_PREP_WRITE_REQ);
+
+    MBED_ASSERT(len + offset <= pAttr->maxLen);
+
+    if (write_happened) {
+        WsfTaskLock();
+
+        memcpy((pAttr->pValue + offset), pValue, len);
+
+        /* write the length if variable length attribute */
+        if ((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) {
+            *(pAttr->pLen) = offset + len;
+        }
+
+        WsfTaskUnlock();
     }
 
     GattWriteCallbackParams::WriteOp_t writeOp;
@@ -1025,32 +1056,18 @@ uint8_t GattServer::atts_write_cb(
             break;
     }
 
-    GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
-    if (auth_char && auth_char->isWriteAuthorizationEnabled()) {
-        GattWriteAuthCallbackParams write_auth_params = {
+    if (write_happened) {
+        GattWriteCallbackParams write_params = {
             connId,
             handle,
+            writeOp,
             offset,
             len,
-            pValue,
-            AUTH_CALLBACK_REPLY_SUCCESS
+            pValue
         };
 
-        GattAuthCallbackReply_t ret = auth_char->authorizeWrite(&write_auth_params);
-        if (ret!= AUTH_CALLBACK_REPLY_SUCCESS) {
-            return ret & 0xFF;
-        }
+        getInstance().handleDataWrittenEvent(&write_params);
     }
-
-    GattWriteCallbackParams write_params = {
-        connId,
-        handle,
-        writeOp,
-        offset,
-        len,
-        pValue
-    };
-    getInstance().handleDataWrittenEvent(&write_params);
 
     return ATT_SUCCESS;
 }

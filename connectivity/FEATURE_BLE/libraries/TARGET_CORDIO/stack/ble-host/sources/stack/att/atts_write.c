@@ -260,7 +260,7 @@ void attsProcPrepWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   }
   /* verify write length, fixed length */
   else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) == 0) &&
-           (writeLen != pAttr->maxLen))
+           (writeLen > pAttr->maxLen))
   {
     err = ATT_ERR_LENGTH;
   }
