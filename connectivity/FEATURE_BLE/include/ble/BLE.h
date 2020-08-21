@@ -165,16 +165,6 @@ public:
     static BLE &Instance();
 
     /**
-     * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
-     * are thin wrappers around a transport object (that is, ptr. to
-     * ble::BLEInstanceBase).
-     *
-     * @param[in] transport Ble transport used for the BLE instance.
-     * @note Cordio supports only one instance.
-     */
-    BLE(ble::BLEInstanceBase &transport);
-
-    /**
      * Get a reference to the BLE singleton corresponding to a given interface.
      *
      * There is a static array of BLE singletons.
@@ -456,6 +446,16 @@ private:
     friend class ble::BLEInstanceBase;
 
     /**
+     * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
+     * are thin wrappers around a transport object (that is, ptr. to
+     * ble::BLEInstanceBase).
+     *
+     * @param[in] transport Ble transport used for the BLE instance.
+     * @note Cordio supports only one instance.
+     */
+    BLE(ble::BLEInstanceBase &transport);
+
+    /**
      * Implementation of init() [internal to BLE_API].
      *
      * The implementation is separated into a private method because it isn't
@@ -467,8 +467,8 @@ private:
 
 private:
     // Prevent copy construction and copy assignment of BLE.
-    BLE(const BLE &);
-    BLE &operator=(const BLE &);
+    BLE(const BLE &) = delete;
+    BLE &operator=(const BLE &) = delete;
 
 private:
     ble::BLEInstanceBase &transport; /* The device-specific backend */
