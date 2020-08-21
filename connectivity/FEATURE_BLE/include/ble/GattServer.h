@@ -507,7 +507,7 @@ public:
         void (T::*memberPtr)(const GattReadCallbackParams *context)
     )
     {
-        onDataRead({objPtr, memberPtr});
+        return onDataRead({objPtr, memberPtr});
     }
 
     /**

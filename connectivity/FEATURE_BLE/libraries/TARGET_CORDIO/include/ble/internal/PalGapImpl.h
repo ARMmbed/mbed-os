@@ -29,7 +29,7 @@ namespace ble {
  */
 class PalGap : public interface::PalGap {
 public:
-    PalGap() : use_active_scanning(false), _pal_event_handler(NULL) { };
+    PalGap() : _pal_event_handler(NULL), use_active_scanning(false) { };
     ~PalGap() { };
 
     bool is_feature_supported(

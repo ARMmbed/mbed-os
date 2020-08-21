@@ -1691,15 +1691,6 @@ void GattClient::onShutdown(const GattClientShutdownCallback_t &callback)
 /**
  * @see GattClient::onShutdown
  */
-template<typename T>
-void GattClient::onShutdown(T *objPtr, void (T::*memberPtr)(const GattClient *))
-{
-    shutdownCallChain.add(objPtr, memberPtr);
-}
-
-/**
- * @see GattClient::onShutdown
- */
 GattClient::GattClientShutdownCallbackChain_t &GattClient::onShutdown()
 {
     return shutdownCallChain;

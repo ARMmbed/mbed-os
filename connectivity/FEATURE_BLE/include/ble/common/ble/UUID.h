@@ -236,6 +236,13 @@ public:
     }
 
     /**
+     * UUID copy assignment.
+     *
+     * @param[in] source The UUID to copy.
+     */
+    UUID& operator=(const UUID &source) = default;
+
+    /**
      * Default constructor.
      *
      * Construct an invalid UUID.

@@ -344,7 +344,7 @@ public:
         Span<SecurityEntryIdentity_t>& identity_list
     ) {
         size_t count = 0;
-        for (size_t i = 0; i < get_entry_count() && count < identity_list.size(); ++i) {
+        for (size_t i = 0; i < get_entry_count() && count < (size_t) identity_list.size(); ++i) {
 
             entry_handle_t db_handle = get_entry_handle_by_index(i);
             SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);

@@ -70,7 +70,7 @@ public:
      */
     bool hasNext() const
     {
-        if (position >= data.size()) {
+        if (position >= (size_t) data.size()) {
             return false;
         }
 
@@ -79,7 +79,7 @@ public:
             return false;
         }
 
-        if (position + current_length() >= data.size()) {
+        if (position + current_length() >= (size_t) data.size()) {
             return false;
         }
 
