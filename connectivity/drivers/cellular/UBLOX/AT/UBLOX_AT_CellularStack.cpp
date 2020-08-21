@@ -169,7 +169,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
     MBED_ASSERT(socket->id != -1);
 
     int sent_len = 0;
-    uint8_t ch = 0;
 
     if (socket->proto == NSAPI_UDP) {
         if (size > UBLOX_MAX_PACKET_SIZE) {
