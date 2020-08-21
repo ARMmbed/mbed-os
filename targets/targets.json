@@ -4075,7 +4075,7 @@
         "extra_labels_add": [
             "RZA1H",
             "MBRZA1H",
-            "RZ_A1_EMAC"
+            "RENESAS_EMAC"
         ],
         "components_add": [
             "SD",
@@ -4147,6 +4147,55 @@
         "detect_code": [
             "5501"
         ]
+    },
+    "RZ_A2XX": {
+        "inherits": ["Target"],
+        "public": false,
+        "core": "Cortex-A9",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["RENESAS", "RZ_A2XX"],
+        "device_has": [
+            "SLEEP",
+            "USTICKER",
+            "RTC",
+            "ANALOGIN",
+            "ETHERNET",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "STDIO_MESSAGES",
+            "USBDEVICE"
+        ],
+        "program_cycle_s": 2
+    },
+    "GR_MANGO": {
+        "inherits": ["RZ_A2XX"],
+        "extra_labels_add": ["RZA2M", "MBRZA2M", "RENESAS_EMAC"],
+        "device_has_add": ["EMAC","FLASH"],
+        "release_versions": ["5"],
+        "device_name": "R7S921053",
+        "bootloader_supported": true,
+        "mbed_rom_start"        : "0x50000000",
+        "mbed_rom_size"         : "0x1000000",
+        "sectors": [[1342177280,4096]],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        },
+        "detect_code": [
+            "5502"
+        ]
+
     },
     "MAX32600MBED": {
         "inherits": [
