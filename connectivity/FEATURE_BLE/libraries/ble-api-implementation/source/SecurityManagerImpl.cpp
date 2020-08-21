@@ -122,9 +122,7 @@ ble_error_t SecurityManager::init(
     _connection_monitor.set_connection_event_handler(this);
 #endif
 #if BLE_FEATURE_SIGNING
-    // TODO: FIXME
-//    _signing_monitor.set_signing_event_handler(this);
-    _signing_monitor.set_signing_event_handler(nullptr);
+    _signing_monitor.set_signing_event_handler(this);
 #endif
     _pal.set_event_handler(this);
 
@@ -174,16 +172,14 @@ ble_error_t SecurityManager::setDatabaseFilepath(
 }
 
 
-ble_error_t SecurityManager::reset(void)
+ble_error_t SecurityManager::reset(ble::SecurityManager* sm)
 {
     delete _db;
     _db = nullptr;
     _pal.reset();
 
     /* Notify that the instance is about to shutdown */
-    // TODO: FIXME
-//    shutdownCallChain.call(this);
-    shutdownCallChain.call(nullptr);
+    shutdownCallChain.call(sm);
     shutdownCallChain.clear();
     eventHandler = &defaultEventHandler;
 

@@ -43,6 +43,7 @@
 #include "ble/internal/PalSigningMonitor.h"
 #include "ble/internal/BLEInstanceBase.h"
 #include "CordioHCIDriver.h"
+#include "ble/internal/GattServerImpl.h"
 
 using namespace std::chrono;
 
@@ -184,16 +185,22 @@ const char *BLEInstanceBase::getVersion()
     return version;
 }
 
-ble::Gap &BLEInstanceBase::getGap()
+ble::impl::Gap &BLEInstanceBase::getGapImpl()
 {
     static ble::PalGenericAccessService cordio_gap_service;
-    static ble::Gap gap(
+    static ble::impl::Gap gap(
         _event_queue,
         ble::PalGap::get_gap(),
         cordio_gap_service,
         ble::PalSecurityManager::get_security_manager()
     );
+    return gap;
+}
 
+ble::Gap &BLEInstanceBase::getGap()
+{
+    auto& impl = getGapImpl();
+    static ble::Gap gap(&impl);
     return gap;
 }
 
@@ -205,24 +212,39 @@ const ble::Gap &BLEInstanceBase::getGap() const
 
 #if BLE_FEATURE_GATT_SERVER
 
+ble::impl::GattServer &BLEInstanceBase::getGattServerImpl()
+{
+    return ble::impl::GattServer::getInstance();
+}
+
 GattServer &BLEInstanceBase::getGattServer()
 {
-    return GattServer::getInstance();
+    auto& impl = getGattServerImpl();
+    static GattServer server(&impl);
+    return server;
 }
 
 const GattServer &BLEInstanceBase::getGattServer() const
 {
-    return GattServer::getInstance();
+    BLEInstanceBase &self = const_cast<BLEInstanceBase &>(*this);
+    return const_cast<const ble::GattServer &>(self.getGattServer());
 }
 
 #endif // BLE_FEATURE_GATT_SERVER
 
 #if BLE_FEATURE_GATT_CLIENT
 
+ble::impl::GattClient &BLEInstanceBase::getGattClientImpl()
+{
+    static ble::impl::GattClient gatt_client(getPalGattClient());
+    return gatt_client;
+}
+
 ble::GattClient &BLEInstanceBase::getGattClient()
 {
-    static ble::GattClient gatt_client(getPalGattClient());
-
+    auto& impl = getGattClientImpl();
+    static ble::GattClient gatt_client(&impl);
+    impl.setInterface(&gatt_client);
     return gatt_client;
 }
 
@@ -236,15 +258,21 @@ PalGattClient &BLEInstanceBase::getPalGattClient()
 
 #if BLE_FEATURE_SECURITY
 
-SecurityManager &BLEInstanceBase::getSecurityManager()
+ble::impl::SecurityManager &BLEInstanceBase::getSecurityManagerImpl()
 {
     static PalSigningMonitor signing_event_monitor;
-    static ble::SecurityManager m_instance(
+    static ble::impl::SecurityManager m_instance(
         ble::PalSecurityManager::get_security_manager(),
-        getGap(),
+        getGapImpl(),
         signing_event_monitor
     );
 
+    return m_instance;
+}
+
+SecurityManager &BLEInstanceBase::getSecurityManager()
+{
+    static SecurityManager m_instance(&getSecurityManagerImpl());
     return m_instance;
 }
 
@@ -293,7 +321,7 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
     switch (msg->event) {
         case DM_RESET_CMPL_IND: {
             ::BLE::InitializationCompleteCallbackContext context = {
-                ::BLE::Instance(::BLE::DEFAULT_INSTANCE),
+                ::BLE::Instance(),
                 BLE_ERROR_NONE
             };
 #if BLE_FEATURE_EXTENDED_ADVERTISING
@@ -314,7 +342,7 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
             }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 #if BLE_FEATURE_GATT_SERVER
-            deviceInstance().getGattServer().initialize();
+            deviceInstance().getGattServerImpl().initialize();
 #endif
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
@@ -499,7 +527,7 @@ void BLEInstanceBase::stack_setup()
     AttsInit();
     AttsIndInit();
 #if BLE_FEATURE_SECURITY
-    AttsAuthorRegister(GattServer::atts_auth_cb);
+    AttsAuthorRegister(impl::GattServer::atts_auth_cb);
 #endif
 #if BLE_FEATURE_SIGNING
     AttsSignInit();

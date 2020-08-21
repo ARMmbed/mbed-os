@@ -897,6 +897,10 @@ public:
     /** For backwards compatibility. This enum is now in BLETypes.h
      * @deprecated use the enum in ble namespace */
     typedef ble::Keypress_t Keypress_t;
+
+    SecurityManager(impl::SecurityManager* impl) : impl(impl) {}
+    SecurityManager(const SecurityManager&) = delete;
+    SecurityManager& operator=(const SecurityManager&) = delete;
 #endif // !defined(DOXYGEN_ONLY)
 
 private:

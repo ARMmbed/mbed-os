@@ -594,6 +594,12 @@ public:
      */
     void onConfirmationReceived(EventCallback_t callback);
 
+#if !defined(DOXYGEN_ONLY)
+    GattServer(impl::GattServer* impl) : impl(impl) {}
+    GattServer(const GattServer&) = delete;
+    GattServer& operator=(const GattServer&) = delete;
+#endif // !defined(DOXYGEN_ONLY)
+
 private:
     impl::GattServer *impl;
 };

@@ -252,8 +252,7 @@ private:
     mutable ProcedureControlBlock *control_blocks;
     bool _is_reseting;
 
-    // TODO initialize
-    ::ble::GattClient *client;
+    ::ble::GattClient *client = nullptr;
 
 private:
     /**
@@ -263,6 +262,11 @@ private:
 
     ~GattClient()
     {
+    }
+
+    void setInterface(ble::GattClient *client_interface)
+    {
+        client = client_interface;
     }
 };
 

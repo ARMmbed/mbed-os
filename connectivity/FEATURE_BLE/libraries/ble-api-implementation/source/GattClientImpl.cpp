@@ -1207,7 +1207,7 @@ ble_error_t GattClient::write(
     if (cmd == GATT_OP_SIGNED_WRITE_CMD) {
         ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
         // FIXME: use security manager or a template if applicable
-        SecurityManager &sm = createBLEInstance()->getSecurityManager();
+        ble::SecurityManager &sm = createBLEInstance()->getSecurityManager();
         ble_error_t status = sm.getLinkEncryption(connection_handle, &encryption);
         if (status == BLE_ERROR_NONE &&
             (encryption == link_encryption_t::ENCRYPTED ||

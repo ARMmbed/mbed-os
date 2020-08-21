@@ -23,11 +23,9 @@
 
 namespace ble {
 
-class SecurityManager;
-
 class PalSigningMonitor : public interface::PalSigningMonitor {
 public:
-    void set_signing_event_handler(SecurityManager *handler);
+    void set_signing_event_handler(PalSigningMonitorEventHandler *handler);
 };
 
 } // ble

@@ -1440,6 +1440,17 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
     /*
+     * Constructor from the private implementation.
+     */
+    Gap(impl::Gap* impl) : impl(impl) {}
+
+    /*
+     * Restrict copy and move.
+     */
+    Gap(const Gap&) = delete;
+    Gap& operator=(const Gap&) = delete;
+
+    /*
      * API reserved for the controller driver to set the random static address.
      * Setting a new random static address while the controller is operating is
      * forbidden by the Bluetooth specification.

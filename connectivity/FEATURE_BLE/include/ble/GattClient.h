@@ -651,7 +651,6 @@ public:
      */
     HVXCallbackChain_t& onHVX();
 
-
     /**
      * Reset the state of the GattClient instance.
      *
@@ -705,6 +704,12 @@ public:
      * registered handlers.
      */
     void processHVXEvent(const GattHVXCallbackParams *params);
+
+#if !defined(DOXYGEN_ONLY)
+    GattClient(impl::GattClient* impl) : impl(impl) { }
+    GattClient(const GattClient&) = delete;
+    GattClient& operator=(const GattClient&) = delete;
+#endif // !defined(DOXYGEN_ONLY)
 
 private:
     impl::GattClient *impl;
