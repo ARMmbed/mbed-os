@@ -17,7 +17,7 @@
 
 #include "platform/mbed_power_mgmt.h"
 #include "platform/CriticalSectionLock.h"
-#include "paltform/internal/SysTimer.h"
+#include "platform/internal/SysTimer.h"
 #include "platform/internal/mbed_os_timer.h"
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
