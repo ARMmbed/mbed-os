@@ -151,7 +151,7 @@ public:
      */
     virtual bd_size_t get_program_size() const = 0;
 
-    /** Get the size of an erasable block
+    /** Get the minimum common size of eraseable blocks
      *
      *  @return         Size of an erasable block in bytes
      *  @note Must be a multiple of the program size

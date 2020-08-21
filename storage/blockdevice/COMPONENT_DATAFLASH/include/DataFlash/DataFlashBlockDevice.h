@@ -152,9 +152,9 @@ public:
      */
     virtual mbed::bd_size_t get_program_size() const;
 
-    /** Get the size of a eraseable block
+    /** Get the minimum common size of eraseable blocks
      *
-     *  @return         Size of a eraseable block in bytes
+     *  @return         Size of an eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
     virtual mbed::bd_size_t get_erase_size() const;
