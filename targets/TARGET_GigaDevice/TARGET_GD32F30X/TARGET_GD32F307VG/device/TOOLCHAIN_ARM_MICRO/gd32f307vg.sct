@@ -21,7 +21,11 @@
 
 
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
-  #define MBED_CONF_TARGET_BOOT_STACK_SIZE      0x400
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 ; 84 vectors (16 core + 68 peripheral) * 4 bytes = 336 bytes to reserve (0x150)

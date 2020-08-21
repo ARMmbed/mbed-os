@@ -85,7 +85,11 @@
 #endif
 
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
-  #define MBED_CONF_TARGET_BOOT_STACK_SIZE NS_MSP_STACK_SIZE
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE NS_MSP_STACK_SIZE
+#  endif
 #endif
 
 ; Shared memory area between Non-secure and Secure

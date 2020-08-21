@@ -57,7 +57,11 @@
 #endif
 
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
-  #define MBED_CONF_TARGET_BOOT_STACK_SIZE      0x400
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 ; Total: 99 vectors = 396 bytes (0x18C+0x4) to be reserved in RAM
