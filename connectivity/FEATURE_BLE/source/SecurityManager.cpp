@@ -16,7 +16,7 @@
  */
 
 #include "ble/SecurityManager.h"
-#include "ble/internal/SecurityManagerImpl.h"
+#include "source/generic/SecurityManagerImpl.h"
 
 namespace ble {
 

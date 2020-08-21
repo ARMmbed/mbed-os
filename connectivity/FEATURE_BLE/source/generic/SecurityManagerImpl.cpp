@@ -18,7 +18,7 @@
 
 #include "BLERoles.h"
 
-#include "ble/internal/SecurityManagerImpl.h"
+#include "SecurityManagerImpl.h"
 #include "ble/internal/PalSecurityManager.h"
 #include "ble/internal/MemorySecurityDb.h"
 #include "ble/internal/FileSecurityDb.h"

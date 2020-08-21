@@ -36,10 +36,10 @@
 #include "drivers/LowPowerTimer.h"
 #include "ble/internal/PalSecurityManager.h"
 
-#include "ble/internal/GapImpl.h"
-#include "ble/internal/GattClientImpl.h"
-#include "ble/internal/GattServerImpl.h"
-#include "ble/internal/SecurityManagerImpl.h"
+#include "source/generic/GapImpl.h"
+#include "source/generic/GattClientImpl.h"
+#include "source/generic/GattServerImpl.h"
+#include "source/generic/SecurityManagerImpl.h"
 
 namespace ble {
 

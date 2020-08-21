@@ -16,7 +16,7 @@
  */
 
 #include "ble/GattServer.h"
-#include "ble/internal/GattServerImpl.h"
+#include "source/generic/GattServerImpl.h"
 
 namespace ble {
 namespace interface {

@@ -16,7 +16,7 @@
  */
 
 #include "ble/GattClient.h"
-#include "ble/internal/GattClientImpl.h"
+#include "source/generic/GattClientImpl.h"
 
 namespace ble {
 

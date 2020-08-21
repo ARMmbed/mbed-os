@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ble/internal/GattClientImpl.h"
+#include "GattClientImpl.h"
 #include "ble/internal/AttServerMessage.h"
 #include "ble/common/ble/DiscoveredService.h"
 #include "ble/common/ble/DiscoveredCharacteristic.h"
