@@ -125,7 +125,7 @@ matrix:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
             | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
-            | ( grep -v -f .astyleignore || true ) \
+            | ( grep -v -f .codecheckignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
 
@@ -135,11 +135,12 @@ matrix:
       install:
         - source_pkg aspell
       script:
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket
+        # TODO: run checks on all directories once all mispellings are fixed
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket .codecheckignore
 
     - <<: *docs-vm
       name: "doxygen"
