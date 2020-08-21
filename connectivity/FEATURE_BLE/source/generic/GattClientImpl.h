@@ -26,10 +26,10 @@
 
 
 #include "ble/common/blecommon.h"
-#include "ble/common/ble/GattAttribute.h"
-#include "ble/common/ble/ServiceDiscovery.h"
-#include "ble/common/ble/CharacteristicDescriptorDiscovery.h"
-#include "ble/common/ble/GattCallbackParamTypes.h"
+#include "ble/gatt/GattAttribute.h"
+#include "ble/gatt/ServiceDiscovery.h"
+#include "ble/gatt/CharacteristicDescriptorDiscovery.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
 #include "source/pal/PalGattClient.h"
 #include "source/pal/PalSigningMonitor.h"
 #include "ble/GattClient.h"

@@ -20,7 +20,7 @@
 #define MBED_GATT_SERVICE_H__
 
 #include "ble/common/UUID.h"
-#include "ble/common/ble/GattCharacteristic.h"
+#include "ble/gatt/GattCharacteristic.h"
 
 /**
  * @addtogroup ble

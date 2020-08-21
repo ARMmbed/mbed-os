@@ -25,8 +25,8 @@
 
 #include "GattClientImpl.h"
 #include "source/pal/AttServerMessage.h"
-#include "ble/common/ble/DiscoveredService.h"
-#include "ble/common/ble/DiscoveredCharacteristic.h"
+#include "ble/gatt/DiscoveredService.h"
+#include "ble/gatt/DiscoveredCharacteristic.h"
 #include "ble/common/blecommon.h"
 #include "source/BLEInstanceBase.h"
 #include "ble/SecurityManager.h"

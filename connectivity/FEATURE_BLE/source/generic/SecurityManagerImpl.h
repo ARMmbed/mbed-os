@@ -27,7 +27,7 @@
 #include "ble/common/blecommon.h"
 #include "ble/Gap.h"
 
-#include "ble/common/ble/GapTypes.h"
+#include "source/pal/GapTypes.h"
 #include "ble/common/BLETypes.h"
 #include "SecurityDb.h"
 #include "source/pal/PalConnectionMonitor.h"

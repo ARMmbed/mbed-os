@@ -25,12 +25,12 @@
 #include <algorithm>
 
 #include "ble/common/blecommon.h"
-#include "ble/common/ble/GattAttribute.h"
-#include "ble/common/ble/ServiceDiscovery.h"
-#include "ble/common/ble/CharacteristicDescriptorDiscovery.h"
-#include "ble/common/ble/GattCallbackParamTypes.h"
-#include "ble/common/ble/DiscoveredService.h"
-#include "ble/common/ble/DiscoveredCharacteristic.h"
+#include "ble/gatt/GattAttribute.h"
+#include "ble/gatt/ServiceDiscovery.h"
+#include "ble/gatt/CharacteristicDescriptorDiscovery.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
+#include "ble/gatt/DiscoveredService.h"
+#include "ble/gatt/DiscoveredCharacteristic.h"
 
 namespace ble {
 
