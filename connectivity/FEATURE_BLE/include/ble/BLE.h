@@ -19,14 +19,14 @@
 #ifndef MBED_BLE_H__
 #define MBED_BLE_H__
 
-#include "FunctionPointerWithContext.h"
+#include "ble/common/FunctionPointerWithContext.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
 
-#include "ble/common/ble/BLERoles.h"
-#include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/BLERoles.h"
+#include "ble/common/BLETypes.h"
+#include "ble/common/blecommon.h"
 
 #include "ble/Gap.h"
 #include "ble/GattClient.h"

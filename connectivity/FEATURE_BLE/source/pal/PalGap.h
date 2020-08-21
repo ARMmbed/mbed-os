@@ -23,7 +23,7 @@
 
 #include "ble/common/ble/GapTypes.h"
 #include "ble/common/ble/GapEvents.h"
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/blecommon.h"
 
 #include "dm_api.h"
 

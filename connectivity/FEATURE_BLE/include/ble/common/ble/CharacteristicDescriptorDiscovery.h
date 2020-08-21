@@ -19,7 +19,7 @@
 #ifndef MBED_CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__
 #define MBED_CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__
 
-#include "FunctionPointerWithContext.h"
+#include "ble/common/FunctionPointerWithContext.h"
 
 class DiscoveredCharacteristic;                         // forward declaration
 class DiscoveredCharacteristicDescriptor;               // forward declaration

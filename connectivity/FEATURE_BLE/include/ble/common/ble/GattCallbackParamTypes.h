@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
 #ifndef MBED_BLE_GATT_CALLBACK_PARAM_TYPES_H__
 #define MBED_BLE_GATT_CALLBACK_PARAM_TYPES_H__

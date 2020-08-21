@@ -20,13 +20,13 @@
 #define BLE_SECURITY_MANAGER_H_
 
 #include <stdint.h>
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include "platform/Callback.h"
 
-#include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/BLETypes.h"
+#include "ble/common/blecommon.h"
 
-#include "ble/common/ble/BLETypes.h"
+#include "ble/common/BLETypes.h"
 
 namespace ble {
 

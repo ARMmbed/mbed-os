@@ -20,8 +20,8 @@
 #define MBED_CALLCHAIN_OF_FUNCTION_POINTERS_WITH_CONTEXT_H
 
 #include <string.h>
-#include "FunctionPointerWithContext.h"
-#include "SafeBool.h"
+#include "ble/common/FunctionPointerWithContext.h"
+#include "ble/common/SafeBool.h"
 
 /**
  * @addtogroup ble

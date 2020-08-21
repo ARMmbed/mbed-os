@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "SafeEnum.h"
+#include "ble/common/SafeEnum.h"
 #include "platform/Span.h"
 
 #include "ble/gap/Types.h"

@@ -19,7 +19,7 @@
 #ifndef MBED_CORDIO_GATT_SERVER_H__
 #define MBED_CORDIO_GATT_SERVER_H__
 
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
 #include "ble/common/ble/GattService.h"
 #include "ble/common/ble/GattAttribute.h"
@@ -28,7 +28,7 @@
 
 #include <stddef.h>
 #include <ble/GattServer.h>
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/blecommon.h"
 #include "ble/Gap.h"
 #include "wsf_types.h"
 #include "att_api.h"

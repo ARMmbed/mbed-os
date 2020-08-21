@@ -19,7 +19,7 @@
 #ifndef __GATT_CHARACTERISTIC_H__
 #define __GATT_CHARACTERISTIC_H__
 
-#include "FunctionPointerWithContext.h"
+#include "ble/common/FunctionPointerWithContext.h"
 
 #include "ble/common/ble/GattAttribute.h"
 #include "ble/common/ble/GattCallbackParamTypes.h"

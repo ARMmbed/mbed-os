@@ -21,10 +21,10 @@
 
 #define MBED_GATT_CLIENT_H__
 
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include <algorithm>
 
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/blecommon.h"
 #include "ble/common/ble/GattAttribute.h"
 #include "ble/common/ble/ServiceDiscovery.h"
 #include "ble/common/ble/CharacteristicDescriptorDiscovery.h"

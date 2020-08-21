@@ -19,8 +19,8 @@
 #ifndef BLE_GAP_EVENTS_H
 #define BLE_GAP_EVENTS_H
 
-#include "ble/common/ble/blecommon.h"
-#include "ble/common/ble/BLETypes.h"
+#include "ble/common/blecommon.h"
+#include "ble/common/BLETypes.h"
 
 namespace ble {
 

@@ -24,9 +24,9 @@
 #include <stdlib.h>
 #include "platform/NonCopyable.h"
 
-#include "ble/common/ble/UUID.h"
-#include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/UUID.h"
+#include "ble/common/BLETypes.h"
+#include "ble/common/blecommon.h"
 #include "ble/gap/AdvertisingDataTypes.h"
 #include "ble/gap/Types.h"
 

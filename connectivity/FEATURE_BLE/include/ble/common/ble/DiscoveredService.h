@@ -19,7 +19,7 @@
 #ifndef MBED_DISCOVERED_SERVICE_H__
 #define MBED_DISCOVERED_SERVICE_H__
 
-#include "ble/common/ble/UUID.h"
+#include "ble/common/UUID.h"
 #include "ble/common/ble/GattAttribute.h"
 
 /**
