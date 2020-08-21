@@ -5,6 +5,7 @@
   <Param name="DeviceDie" value="43012C0" />
   <Param name="Silicon_Revision" value="PRODUCTION" />
   <Param name="Package" value="300-FCBGA" />
+  <Param name="CPU" value="None" />
   <Param name="DeviceSeries" value="43012" />
   <Param name="Speed_MHz" value="80" />
   <Param name="Flash_KB" value="0" />

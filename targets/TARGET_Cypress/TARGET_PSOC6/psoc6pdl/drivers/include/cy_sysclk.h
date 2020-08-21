@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.h
-* \version 2.0
+* \version 2.20
 *
 * Provides an API declaration of the sysclk driver.
 *
@@ -26,20 +26,20 @@
 * \addtogroup group_sysclk
 * \{
 * The System Clock (SysClk) driver contains the API for configuring system and
-* peripheral clocks. 
+* peripheral clocks.
 *
-* The functions and other declarations used in this driver are in cy_sysclk.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The functions and other declarations used in this driver are in cy_sysclk.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
 *
-* Firmware uses the API to configure , enable, or disable a clock.
-* 
+* Firmware uses the API to configure, enable, or disable a clock.
+*
 * The clock system includes a variety of resources that can vary per device, including:
 * - Internal clock sources such as internal oscillators
 * - External clock sources such as crystal oscillators or a signal on an I/O pin
 * - Generated clocks such as an FLL, a PLL, and peripheral clocks
 *
-* Consult the Technical Reference Manual for your device for details of the 
+* Consult the Technical Reference Manual for your device for details of the
 * clock system.
 *
 * The PDL defines clock system capabilities in:\n
@@ -52,7 +52,7 @@
 * Consult the Technical Reference Manual for your device for details.
 * ![](sysclk_tree.png)
 *
-* The sysclk driver supports multiple peripheral clocks, as well as the fast 
+* The sysclk driver supports multiple peripheral clocks, as well as the fast
 * clock, slow clock, backup domain clock, timer clock, and pump clock. The API
 * for any given clock contains the functions to manage that clock. Functions
 * for clock measurement and trimming are also provided.
@@ -61,6 +61,13 @@
 * The availability of clock functions depend on the availability of the chip
 * resources that support those functions. Consult the device TRM before
 * attempting to use these functions.
+* For PSoC 64  devices the clocks configurations are restricted and limited.
+* Refer to the PRA driver, and the TRM and datasheet for details.
+*
+* \warning
+* On the diagram above, the yellow muxes are glitch-safe. All glitch-safe
+* mux transitions take four cycles of the source clock.
+* It is not allowed to turn off the source clock during that time.
 *
 * PSoC 6 power modes limit the maximum clock frequency.
 * Refer to the SysPm driver and the TRM for details.
@@ -104,6 +111,69 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td rowspan="3">2.20</td>
+*     <td>Added the assertion mechanism to the following functions:
+*         * Cy_SysClk_EcoDisable()
+*         * Cy_SysClk_IloEnable()
+*         * Cy_SysClk_IloHibernateOn()
+*         * Cy_SysClk_PiloEnable()
+*         * Cy_SysClk_PiloDisable()
+*         * Cy_SysClk_WcoDisable()
+*         * Cy_SysClk_WcoBypass()
+*         * Cy_SysClk_ClkFastSetDivider()
+*         * Cy_SysClk_ClkPeriSetDivider()
+*         * Cy_SysClk_ClkLfSetSource()
+*         * Cy_SysClk_ClkTimerSetSource()
+*         * Cy_SysClk_ClkTimerSetDivider()
+*         * Cy_SysClk_ClkTimerEnable()
+*         * Cy_SysClk_ClkTimerDisable()
+*         * Cy_SysClk_ClkPumpSetSource()
+*         * Cy_SysClk_ClkPumpSetDivider()
+*         * Cy_SysClk_ClkPumpEnable()
+*         * Cy_SysClk_ClkPumpDisable()
+*         * Cy_SysClk_ClkBakSetSource()
+*
+*         Now, the functions described above halt in assertion when a PRA
+*         request returns not successful operation. This change is
+*         applicable only for the PSoC 64 family devices.
+*     </td>
+*     <td>Enhancements for the debugging process.</td>
+*   </tr>
+*   <tr>
+*     <td>Added \ref Cy_SysClk_PiloInitialTrim and \ref Cy_SysClk_PiloUpdateTrimStep functions.
+*         Extended the \ref Cy_SysClk_PiloTrim function to use the step-size value calculated for PILO
+*         based on the \ref Cy_SysClk_PiloInitialTrim and \ref Cy_SysClk_PiloUpdateTrimStep
+*         functions call. </td>
+*     </td>
+*     <td>User experience enhancement.</td>
+*   </tr>
+*   <tr>
+*     <td>
+*          * Added the warning that during a glitch-safe mux, the transition is not allowed
+*            to disable the previous clock source. See more info
+*            in the \ref group_sysclk_configuration.
+*          * Removed Known Issues table.
+*     </td>
+*     <td>Documentation updates.</td>
+*   </tr>
+*   <tr>
+*     <td rowspan="3">2.10</td>
+*     <td>Updated SysClk functions for PSoC 64 devices. Now the SysClk functions can return
+*         PRA driver status value.</td>
+*     <td>The SysClk driver uses the PRA driver to change the protected registers.
+*         A SysClk driver function that calls a PRA driver function will return the PRA
+*         error status code if the called PRA function returns an error. In these cases,
+*         refer to PRA return statuses. Refer to functions description for details.</td>
+*   </tr>
+*   <tr>
+*     <td>Updated the code of \ref Cy_SysClk_ClkPathGetFrequency function.</td>
+*     <td>Make the code more error-resistant to user errors for some corner cases.</td>
+*   </tr>
+*   <tr>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>2.0</td>
 *     <td>Updated the ECO trimming values calculation algorithm in the \ref Cy_SysClk_EcoConfigure implementation. \n
 *         This change may invalidate the already used crystals, in cases: \n
@@ -116,7 +186,7 @@
 *   <tr>
 *     <td>1.60</td>
 *     <td>Added the following functions: \ref Cy_SysClk_ExtClkGetFrequency, \ref Cy_SysClk_EcoGetFrequency,\n
-*         \ref Cy_SysClk_ClkPathMuxGetFrequency, \ref Cy_SysClk_ClkPathGetFrequency, \ref Cy_SysClk_IloIsEnabled.\n 
+*         \ref Cy_SysClk_ClkPathMuxGetFrequency, \ref Cy_SysClk_ClkPathGetFrequency, \ref Cy_SysClk_IloIsEnabled.\n
 *         \ref Cy_SysClk_PiloIsEnabled, \ref Cy_SysClk_AltHfGetFrequency, \ref Cy_SysClk_ClkHfIsEnabled,\n
 *         \ref Cy_SysClk_ClkTimerIsEnabled, \ref Cy_SysClk_ClkTimerGetFrequency, \ref Cy_SysClk_ClkPumpIsEnabled and\n
 *         \ref Cy_SysClk_ClkPumpGetFrequency.</td>
@@ -140,7 +210,7 @@
 *   <tr>
 *     <td rowspan="4">1.40</td>
 *     <td>Updated the following functions implementation: \ref Cy_SysClk_PllConfigure and \ref Cy_SysClk_PllEnable.</td>
-*     <td> 
+*     <td>
 *       Fixed the \ref Cy_SysClk_PllConfigure API function behaviour when it is called with a bypass mode, \n
 *       Fixed the \ref Cy_SysClk_PllEnable API function behaviour when it is called with a zero timeout.
 *     </td>
@@ -177,7 +247,7 @@
 *   </tr>
 *   <tr>
 *     <td rowspan="4">1.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -197,12 +267,12 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
 *     <td>1.11</td>
-*     <td>Updated the following functions. Now they use a semaphore when 
+*     <td>Updated the following functions. Now they use a semaphore when
 *         try to read the status or configure the SysClk measurement counters:
 *         * Cy_SysClk_StartClkMeasurementCounters()
 *         * Cy_SysClk_ClkMeasurementCountersGetFreq()
@@ -210,7 +280,7 @@
 *         Now Cy_SysClk_ClkMeasurementCountersGetFreq() returns zero value,
 *         if during measurement device was in the Deep Sleep or partially
 *         blocking flash operation occurred </td>
-*     <td>Added arbiter mechanism for correct usage of the SysClk measurement 
+*     <td>Added arbiter mechanism for correct usage of the SysClk measurement
 *         counters</td>
 *   </tr>
 *   <tr>
@@ -287,7 +357,7 @@
 * \{
 *   Clock paths are a series of multiplexers that allow a source clock
 *   to drive multiple clocking resources down the chain. These paths are
-*   used for active domain clocks that are not operational during chip 
+*   used for active domain clocks that are not operational during chip
 *   Deep Sleep, hibernate and off modes. Illustrated below is a diagram
 *   of the clock paths for the PSoC 63 series, showing the first three
 *   clock paths. The source clocks for these paths are highlighted in
@@ -300,8 +370,8 @@
 *   - Digital Signal (DSI): Digital signal from a UDB source
 *
 *   Some clock paths such as path 0 and path 1 have additional resources
-*   that can be utilized to provide a higher frequency clock. For example, 
-*   path 0 source clock can be used as the reference clock for the FLL and 
+*   that can be utilized to provide a higher frequency clock. For example,
+*   path 0 source clock can be used as the reference clock for the FLL and
 *   path 1 source clock can be used as the reference clock for the PLL.
 *
 *   ![](sysclk_path_source.png)
@@ -324,7 +394,7 @@
 *
 *   - They may have different frequency ranges.
 *   - The FLL starts up (locks) faster and consumes less current than the PLL.
-*   - The FLL accepts a source clock with lower frequency than PLL, such as the WCO (32 KHz). 
+*   - The FLL accepts a source clock with lower frequency than PLL, such as the WCO (32 KHz).
 *   - The FLL does not lock phase. The hardware consist of a counter with a
 *     current-controlled oscillator (CCO). The counter counts the number of output
 *     clock edges in a reference clock period and adjusts the CCO until the
@@ -334,11 +404,11 @@
 *   ![](sysclk_fll.png)
 *
 *   The SysClk driver supports two models for configuring the FLL. The first
-*   model is to call the Cy_SysClk_FllConfigure() function, which calculates the 
+*   model is to call the Cy_SysClk_FllConfigure() function, which calculates the
 *   necessary parameters for the FLL at run-time. This may be necessary for dynamic
-*   run-time changes to the FLL. However this method is slow as it needs to perform 
-*   the calculation before configuring the FLL. The other model is to call 
-*   Cy_SysClk_FllManualConfigure() function with pre-calculated parameter values. 
+*   run-time changes to the FLL. However this method is slow as it needs to perform
+*   the calculation before configuring the FLL. The other model is to call
+*   Cy_SysClk_FllManualConfigure() function with pre-calculated parameter values.
 *   This method is faster but requires prior knowledge of the necessary parameters.
 *   Consult the device TRM for the FLL calculation equations.
 *
@@ -356,15 +426,15 @@
 *
 *   - They may have different frequency ranges.
 *   - The PLL starts up more slowly and consumes more current than the FLL.
-*   - The PLL requires a higher frequency source clock than PLL. 
+*   - The PLL requires a higher frequency source clock than PLL.
 *   ![](sysclk_pll.png)
 *
 *   The SysClk driver supports two models for configuring the PLL. The first
-*   model is to call the Cy_SysClk_PllConfigure() function, which calculates the 
+*   model is to call the Cy_SysClk_PllConfigure() function, which calculates the
 *   necessary parameters for the PLL at run-time. This may be necessary for dynamic
-*   run-time changes to the PLL. However this method is slow as it needs to perform 
-*   the calculation before configuring the PLL. The other model is to call 
-*   Cy_SysClk_PllManualConfigure() function with pre-calculated parameter values. 
+*   run-time changes to the PLL. However this method is slow as it needs to perform
+*   the calculation before configuring the PLL. The other model is to call
+*   Cy_SysClk_PllManualConfigure() function with pre-calculated parameter values.
 *   This method is faster but requires prior knowledge of the necessary parameters.
 *   Consult the device TRM for the PLL calculation equations.
 *
@@ -374,15 +444,15 @@
 * \defgroup group_sysclk_ilo             Internal Low-Speed Oscillator (ILO)
 * \{
 *   The ILO operates with no external components and outputs a stable clock at
-*   32.768 kHz nominal. The ILO is relatively low power and low accuracy. It is 
+*   32.768 kHz nominal. The ILO is relatively low power and low accuracy. It is
 *   available in all power modes and can be used as a source for the Backup domain clock.
 *   ![](sysclk_backup.png)
 *
 *   To ensure the ILO remains active in Hibernate mode, and across power-on-reset
-*   (POR) or brown out detect (BOD), firmware must call Cy_SysClk_IloHibernateOn(). 
+*   (POR) or brown out detect (BOD), firmware must call Cy_SysClk_IloHibernateOn().
 *
 *   Additionally, the ILO clock can be trimmed to +/- 1.5% of nominal frequency using
-*   a higher precision clock source. Use the \ref group_sysclk_calclk API to measure 
+*   a higher precision clock source. Use the \ref group_sysclk_calclk API to measure
 *   the current ILO frequency before trimming.
 *
 *   \note The ILO is always the source clock for the \ref group_wdt. Therefore:
@@ -396,18 +466,18 @@
 *   PILO provides a higher accuracy 32.768 kHz clock than the \ref group_sysclk_ilo "ILO".
 *   When periodically calibrated using a high-accuracy clock such as the
 *   \ref group_sysclk_eco "ECO", the PILO can achieve 250 ppm accuracy of nominal frequency.
-*   The PILO is capable of operating in device Active, Sleep and Deep-Sleep power modes. 
+*   The PILO is capable of operating in device Active, Sleep and Deep-Sleep power modes.
 *   It is not available in Hibernate mode.
 *
 *   The PILO can be used as a source for the \ref group_sysclk_clk_lf. However,
 *   because PILO is disabled in Hibernate mode, RTC timers cannot operate in this mode
 *   when clocked using the PILO. Instead, either the \ref group_sysclk_ilo "ILO" or
-*   \ref group_sysclk_wco "WCO" should be used when hibernate operation is required. 
+*   \ref group_sysclk_wco "WCO" should be used when hibernate operation is required.
 *
 *   ![](sysclk_backup.png)
 *
 *   Periodic calibration to a high-accuracy clock (such as ECO) is required to
-*   maintain accuracy. The application should use the functions described in the 
+*   maintain accuracy. The application should use the functions described in the
 *   \ref group_sysclk_calclk API to measure the current PILO frequency before trimming.
 *
 *   \defgroup group_sysclk_pilo_funcs      Functions
@@ -427,6 +497,7 @@
 *
 *   \defgroup group_sysclk_calclk_funcs    Functions
 *   \defgroup group_sysclk_calclk_enums    Enumerated Types
+*   \defgroup group_sysclk_calclk_structs  Data Structures
 * \}
 * \defgroup group_sysclk_trim            Clock Trim (ILO, PILO)
 * \{
@@ -450,11 +521,11 @@
 *   Deep Sleep mode entry.
 *
 *   This function can be called either by itself before initiating low-power mode
-*   entry or it can be used in conjunction with the SysPm driver as a registered 
-*   callback. To do so, register this function as a callback before calling 
-*   Cy_SysPm_DeepSleep(). Specify \ref CY_SYSPM_DEEPSLEEP as the callback type, 
+*   entry or it can be used in conjunction with the SysPm driver as a registered
+*   callback. To do so, register this function as a callback before calling
+*   Cy_SysPm_DeepSleep(). Specify \ref CY_SYSPM_DEEPSLEEP as the callback type,
 *   and call Cy_SysPm_RegisterCallback().
-*   
+*
 *   \note If the FLL or PLL source is the ECO, this function must be called.
 *
 *   \defgroup group_sysclk_pm_funcs        Functions
@@ -463,7 +534,7 @@
 * \{
 *   The WCO is a highly accurate 32.768 kHz clock source capable of operating
 *   in all power modes (excluding the Off mode). It is the primary clock source for
-*   the backup domain clock, which is used by the real-time clock (RTC). The 
+*   the backup domain clock, which is used by the real-time clock (RTC). The
 *   WCO can also be used as a source for the low-frequency clock to support other
 *   low power mode peripherals.
 *
@@ -472,7 +543,7 @@
 *   The WCO requires the configuration of the dedicated WCO pins (SRSS_WCO_IN_PIN,
 *   SRSS_WCO_OUT_PIN). These must be configured as Analog Hi-Z drive modes and the
 *   HSIOM selection set to GPIO. The WCO can also be used in bypass mode, where
-*   an external 32.768 kHz square wave is brought in directly through the 
+*   an external 32.768 kHz square wave is brought in directly through the
 *   SRSS_WCO_OUT_PIN pin.
 *
 *   \defgroup group_sysclk_wco_funcs       Functions
@@ -496,9 +567,9 @@
 *
 *   Note this is a particular example. The actual tree may vary depending on the device series.
 *   Consult the Technical Reference Manual for your device for details.
-*   
+*
 *   High frequency clocks are sourced by path clocks, which should be configured
-*   first. An exception to this rule is CLK_HF[0], which cannot be disabled. 
+*   first. An exception to this rule is CLK_HF[0], which cannot be disabled.
 *   This divided clock drives the core processors and the peripherals in the system.
 *   In order to update its clock source, CLK_HF[0] source must be selected without
 *   disabling the clock.
@@ -523,7 +594,7 @@
 * \{
 *   The peripheral clock is a divided clock of CLK_HF0 (\ref group_sysclk_clk_hf "HF Clocks").
 *   It is the source clock for the \ref group_sysclk_clk_slow, and most active domain
-*   peripheral clocks (\ref group_sysclk_clk_peripheral). A divider value of 1~256 
+*   peripheral clocks (\ref group_sysclk_clk_peripheral). A divider value of 1~256
 *   can be used to further divide the CLK_HF[0] to a desired clock speed for the peripherals.
 *
 *   ![](sysclk_peri.png)
@@ -532,8 +603,8 @@
 * \}
 * \defgroup group_sysclk_clk_peripheral  Peripherals Clock Dividers
 * \{
-*   There are multiple peripheral clock dividers that, in effect, create 
-*   multiple separate peripheral clocks. The available dividers vary per device 
+*   There are multiple peripheral clock dividers that, in effect, create
+*   multiple separate peripheral clocks. The available dividers vary per device
 *   series. As an example, for the PSoC 63 series there are 29 dividers:
 *
 *   - eight 8-bit dividers
@@ -542,7 +613,7 @@
 *   - one fractional 24.5-bit divider (24 integer bits, 5 fractional bits)
 *
 *
-*   The 8-bit and 16-bit dividers are integer dividers. A divider value of 1 
+*   The 8-bit and 16-bit dividers are integer dividers. A divider value of 1
 *   means the output frequency matches the input frequency (that is, there is
 *   no change). Otherwise the frequency is divided by the value of the divider.
 *   For example, if the input frequency is 50 MHz, and the divider is value 10,
@@ -558,7 +629,7 @@
 *
 *   Each peripheral can connect to any one of the programmable dividers. A
 *   particular peripheral clock divider can drive multiple peripherals.
-*   
+*
 *   The SysClk driver also supports phase aligning two peripheral clock dividers using
 *   Cy_SysClk_PeriphEnablePhaseAlignDivider(). Alignment works for both integer
 *   and fractional dividers. The divider to which a second divider is aligned
@@ -570,8 +641,8 @@
 * \defgroup group_sysclk_clk_slow        Slow Clock
 * \{
 *   The slow clock is the source clock for the "slow" processor (e.g. Cortex-M0+ in PSoC 6).
-*   This clock is a divided version of the \ref group_sysclk_clk_peri, which in turn is 
-*   a divided version of CLK_HF[0] (\ref group_sysclk_clk_hf "HF Clocks"). A divider 
+*   This clock is a divided version of the \ref group_sysclk_clk_peri, which in turn is
+*   a divided version of CLK_HF[0] (\ref group_sysclk_clk_hf "HF Clocks"). A divider
 *   value of 1~256 can be used to further divide the Peri clock to a desired clock speed
 *   for the processor.
 *
@@ -581,7 +652,7 @@
 * \}
  * \defgroup group_sysclk_alt_hf Alternative High-Frequency Clock
 * \{
-*   In  the BLE-enabled PSoC6 devices, the \ref group_ble_clk clock is 
+*   In  the BLE-enabled PSoC6 devices, the \ref group_ble_clk clock is
 *   connected to the system Alternative High-Frequency Clock input.
 *
 *   \defgroup group_sysclk_alt_hf_funcs    Functions
@@ -591,7 +662,7 @@
 *   The low-frequency clock is the source clock for the \ref group_mcwdt
 *   and can be the source clock for \ref group_sysclk_clk_bak, which drives the
 *   \ref group_rtc.
-*   
+*
 *   The low-frequency clock has three possible source clocks:
 *   \ref group_sysclk_ilo "ILO", \ref group_sysclk_pilo "PILO", and
 *   \ref group_sysclk_wco "WCO".
@@ -603,10 +674,10 @@
 * \}
 * \defgroup group_sysclk_clk_timer       Timer Clock
 * \{
-*   The timer clock can be a source for the alternative clock driving 
-*   the \ref group_arm_system_timer. It can also be used as a reference clock 
+*   The timer clock can be a source for the alternative clock driving
+*   the \ref group_arm_system_timer. It can also be used as a reference clock
 *   for a counter in the \ref group_energy_profiler "Energy Profiler".
-*   
+*
 *   The timer clock is a divided clock of either the IMO or CLK_HF[0]
 *   (\ref group_sysclk_clk_hf "HF Clocks").
 *
@@ -617,8 +688,8 @@
 * \{
 *   The pump clock is a clock source used to provide analog precision in low voltage
 *   applications. Depending on the usage scenario, it may be required to drive the
-*   internal voltage pump for the Continuous Time Block mini (CTBm) in the analog 
-*   subsystem. The pump clock is a divided clock of one of the clock paths 
+*   internal voltage pump for the Continuous Time Block mini (CTBm) in the analog
+*   subsystem. The pump clock is a divided clock of one of the clock paths
 *   (\ref group_sysclk_path_src).
 *
 *   \defgroup group_sysclk_clk_pump_funcs  Functions
@@ -655,6 +726,9 @@
 #include "cy_device_headers.h"
 #include "cy_syslib.h"
 #include "cy_syspm.h"
+#if defined(CY_DEVICE_SECURE)
+    #include "cy_pra.h"
+#endif /* defined(CY_DEVICE_SECURE) */
 
 
 #if defined(__cplusplus)
@@ -668,7 +742,7 @@ extern "C" {
 /** Driver major version */
 #define  CY_SYSCLK_DRV_VERSION_MAJOR   2
 /** Driver minor version */
-#define  CY_SYSCLK_DRV_VERSION_MINOR   0
+#define  CY_SYSCLK_DRV_VERSION_MINOR   20
 /** Sysclk driver identifier */
 #define CY_SYSCLK_ID   CY_PDL_DRV_ID(0x12U)
 
@@ -683,6 +757,9 @@ extern "C" {
 #define CY_SYSCLK_IMO_FREQ  (8000000UL) /* Hz */
 /** MFO clock frequency */
 #define CY_SYSCLK_MFO_FREQ  (2000000UL) /* Hz */
+
+/** CY_SYSCLK_PILO_TRIM_STEP is the default PILO TRIM Step value */
+#define CY_SYSCLK_PILO_TRIM_STEP  (5UL) /* Default PILO TRIM Step size */
 
 /** \} group_sysclk_macros */
 
@@ -701,10 +778,76 @@ typedef enum
 } cy_en_sysclk_status_t;
 /** \} group_sysclk_returns */
 
+/**
+* \addtogroup group_sysclk_calclk_enums
+* \{
+*/
+/** Defines all possible clock sources */
+typedef enum
+{
+    CY_SYSCLK_MEAS_CLK_NC =            0U,
+    CY_SYSCLK_MEAS_CLK_ILO =           1U,
+    CY_SYSCLK_MEAS_CLK_WCO =           2U,
+    CY_SYSCLK_MEAS_CLK_BAK =           3U,
+    CY_SYSCLK_MEAS_CLK_ALTLF =         4U,
+    CY_SYSCLK_MEAS_CLK_LFCLK =         5U,
+    CY_SYSCLK_MEAS_CLK_IMO =           6U,
+    CY_SYSCLK_MEAS_CLK_PILO =          8U,
+    CY_SYSCLK_MEAS_CLK_FAST_CLKS =     0x100U,
+    CY_SYSCLK_MEAS_CLK_ECO =           0x101U,
+    CY_SYSCLK_MEAS_CLK_EXT =           0x102U,
+    CY_SYSCLK_MEAS_CLK_ALTHF =         0x103U,
+    CY_SYSCLK_MEAS_CLK_TIMERCLK =      0x104U,
+    CY_SYSCLK_MEAS_CLK_PATH_CLKS =     0x500U,
+    CY_SYSCLK_MEAS_CLK_PATH0 =         0x500U,
+    CY_SYSCLK_MEAS_CLK_PATH1 =         0x501U,
+    CY_SYSCLK_MEAS_CLK_PATH2 =         0x502U,
+    CY_SYSCLK_MEAS_CLK_PATH3 =         0x503U,
+    CY_SYSCLK_MEAS_CLK_PATH4 =         0x504U,
+    CY_SYSCLK_MEAS_CLK_PATH5 =         0x505U,
+    CY_SYSCLK_MEAS_CLK_PATH6 =         0x506U,
+    CY_SYSCLK_MEAS_CLK_PATH7 =         0x507U,
+    CY_SYSCLK_MEAS_CLK_PATH8 =         0x508U,
+    CY_SYSCLK_MEAS_CLK_PATH9 =         0x509U,
+    CY_SYSCLK_MEAS_CLK_PATH10 =        0x50AU,
+    CY_SYSCLK_MEAS_CLK_PATH11 =        0x50BU,
+    CY_SYSCLK_MEAS_CLK_PATH12 =        0x50CU,
+    CY_SYSCLK_MEAS_CLK_PATH13 =        0x50DU,
+    CY_SYSCLK_MEAS_CLK_PATH14 =        0x50EU,
+    CY_SYSCLK_MEAS_CLK_PATH15 =        0x50FU,
+    CY_SYSCLK_MEAS_CLK_CLKHFS =        0x600U,
+    CY_SYSCLK_MEAS_CLK_CLKHF0 =        0x600U,
+    CY_SYSCLK_MEAS_CLK_CLKHF1 =        0x601U,
+    CY_SYSCLK_MEAS_CLK_CLKHF2 =        0x602U,
+    CY_SYSCLK_MEAS_CLK_CLKHF3 =        0x603U,
+    CY_SYSCLK_MEAS_CLK_CLKHF4 =        0x604U,
+    CY_SYSCLK_MEAS_CLK_CLKHF5 =        0x605U,
+    CY_SYSCLK_MEAS_CLK_CLKHF6 =        0x606U,
+    CY_SYSCLK_MEAS_CLK_CLKHF7 =        0x607U,
+    CY_SYSCLK_MEAS_CLK_CLKHF8 =        0x608U,
+    CY_SYSCLK_MEAS_CLK_CLKHF9 =        0x609U,
+    CY_SYSCLK_MEAS_CLK_CLKHF10 =       0x60AU,
+    CY_SYSCLK_MEAS_CLK_CLKHF11 =       0x60BU,
+    CY_SYSCLK_MEAS_CLK_CLKHF12 =       0x60CU,
+    CY_SYSCLK_MEAS_CLK_CLKHF13 =       0x60DU,
+    CY_SYSCLK_MEAS_CLK_CLKHF14 =       0x60EU,
+    CY_SYSCLK_MEAS_CLK_CLKHF15 =       0x60FU,
+    CY_SYSCLK_MEAS_CLK_LAST_CLK =      0x610U
+} cy_en_meas_clks_t;
+
+/** \} group_sysclk_calclk_enums */
+
 
 /* ========================================================================== */
 /* ===========================    EXT SECTION    ============================ */
 /* ========================================================================== */
+
+/** \cond INTERNAL */
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    /* Internal storage for external clock frequency user setting */
+    extern uint32_t cySysClkExtFreq;
+#endif
+/** \endcond */
 
 /**
 * \addtogroup group_sysclk_ext_funcs
@@ -732,12 +875,22 @@ uint32_t Cy_SysClk_ExtClkGetFrequency(void);
 #define CY_SYSCLK_ECOSTAT_INACCURATE 1UL /**< \brief ECO may not be meeting accuracy and duty cycle specs */
 #define CY_SYSCLK_ECOSTAT_STABLE     2UL /**< \brief ECO has fully stabilized */
 /** \} */
-
+# if (defined(CY_DEVICE_SECURE))
+/** PRA structure for Cy_SysClk_EcoConfigure function parameters */
+typedef struct
+{
+    uint32_t praClkEcofreq;                           /**< freq */
+    uint32_t praCsum;                           /**< cSum */
+    uint32_t praEsr;                             /**< esr */
+    uint32_t praDriveLevel;                     /**< drivelevel */
+} cy_stc_pra_clk_eco_configure_t;
+#endif /* (defined(CY_DEVICE_SECURE)) */
 /** \} group_sysclk_macros */
 
 /** \cond */
 #define SRSS_CLK_ECO_STATUS_Msk (SRSS_CLK_ECO_STATUS_ECO_OK_Msk | SRSS_CLK_ECO_STATUS_ECO_READY_Msk)
 /** \endcond */
+
 
 
 /**
@@ -763,7 +916,17 @@ __STATIC_INLINE uint32_t Cy_SysClk_EcoGetStatus(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_EcoDisable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ECO_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     SRSS_CLK_ECO_CONFIG &= ~SRSS_CLK_ECO_CONFIG_ECO_EN_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -822,6 +985,14 @@ typedef enum
                                            *   Make sure the PILO clock sources in available on used device.
                                            */
 } cy_en_clkpath_in_sources_t;
+#if (defined(CY_DEVICE_SECURE))
+/** PRA structure for Cy_SysClk_ClkPathSetSource function parameters */
+typedef struct
+{
+    uint32_t                          clk_path;      /**< clkpath  */
+    cy_en_clkpath_in_sources_t         source;        /**< Source */
+} cy_stc_pra_clkpathsetsource_t;
+#endif
 /** \} group_sysclk_path_src_enums */
 
 /**
@@ -887,6 +1058,7 @@ typedef struct
     cy_en_fll_pll_output_mode_t outputMode;      /**< CLK_FLL_CONFIG3 register, BYPASS_SEL bits */
     uint16_t                    cco_Freq;        /**< CLK_FLL_CONFIG4 register, CCO_FREQ bits */
 } cy_stc_fll_manual_config_t;
+
 /** \} group_sysclk_fll_structs */
 
 /**
@@ -929,12 +1101,12 @@ __STATIC_INLINE bool Cy_SysClk_FllIsEnabled(void)
 * Reports whether the FLL is locked first time during FLL starting.
 * Intended to be used with \ref Cy_SysClk_FllEnable with zero timeout.
 *
-* \return 
+* \return
 * false = not locked \n
 * true = locked
 *
 * \note
-* The unlock occurrence may appear during FLL normal operation, so this function 
+* The unlock occurrence may appear during FLL normal operation, so this function
 * is not recommended to check the FLL normal operation stability.
 *
 * \funcusage
@@ -954,9 +1126,14 @@ __STATIC_INLINE bool Cy_SysClk_FllLocked(void)
 * Disables the FLL and the CCO.
 *
 * \return \ref cy_en_sysclk_status_t
+* CY_SYSCLK_INVALID_STATE - ECO already enabled
+* For the PSoC 64 devices there are possible situations when function returns
+* the PRA error status code. This is because for PSoC 64 devices the function
+* uses the PRA driver to change the protected registers. Refer to
+* \ref cy_en_pra_status_t for more details.
 *
-* \note 
-* Call \ref SystemCoreClockUpdate after this function calling 
+* \note
+* Call \ref SystemCoreClockUpdate after this function calling
 * if it affects the CLK_HF0 frequency.
 *
 * \note
@@ -969,10 +1146,15 @@ __STATIC_INLINE bool Cy_SysClk_FllLocked(void)
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_FllDisable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_FLL_DISABLE, 0UL);
+
+#else
     CY_REG32_CLR_SET(SRSS_CLK_FLL_CONFIG3, SRSS_CLK_FLL_CONFIG3_BYPASS_SEL, CY_SYSCLK_FLLPLL_OUTPUT_INPUT);
     SRSS_CLK_FLL_CONFIG  &= ~SRSS_CLK_FLL_CONFIG_FLL_ENABLE_Msk;
     SRSS_CLK_FLL_CONFIG4 &= ~SRSS_CLK_FLL_CONFIG4_CCO_ENABLE_Msk;
     return (CY_SYSCLK_SUCCESS);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 /** \} group_sysclk_fll_funcs */
 
@@ -1004,6 +1186,16 @@ typedef struct
     bool                        lfMode;       /**< CLK_PLL_CONFIG register, PLL_LF_MODE bit */
     cy_en_fll_pll_output_mode_t outputMode;   /**< CLK_PLL_CONFIG register, BYPASS_SEL bits */
 } cy_stc_pll_manual_config_t;
+
+#if (defined(CY_DEVICE_SECURE))
+
+/** PRA structure for Cy_SysClk_PllManualConfigure function parameters */
+typedef struct
+{
+    uint32_t                        clkPath;       /**< clkPath */
+    cy_stc_pll_manual_config_t      *praConfig;    /**< config */
+} cy_stc_pra_clk_pll_manconfigure_t;
+#endif /* (defined(CY_DEVICE_SECURE)) */
 /** \} group_sysclk_pll_structs */
 
 /**
@@ -1052,7 +1244,7 @@ __STATIC_INLINE bool Cy_SysClk_PllIsEnabled(uint32_t clkPath)
 *
 * \param clkPath Selects which PLL to check. 1 is the first PLL; 0 is invalid.
 *
-* \return 
+* \return
 * false = not locked \n
 * true = locked
 *
@@ -1077,7 +1269,7 @@ __STATIC_INLINE bool Cy_SysClk_PllLocked(uint32_t clkPath)
 *
 * \param clkPath Selects which PLL to check. 1 is the first PLL; 0 is invalid.
 *
-* \return 
+* \return
 * false = did not lose lock \n
 * true = lost lock
 *
@@ -1087,12 +1279,18 @@ __STATIC_INLINE bool Cy_SysClk_PllLocked(uint32_t clkPath)
 *******************************************************************************/
 __STATIC_INLINE bool Cy_SysClk_PllLostLock(uint32_t clkPath)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    (void) clkPath;
+    return false;
+
+#else
     clkPath--; /* to correctly access PLL config and status registers structures */
     CY_ASSERT_L1(clkPath < CY_SRSS_NUM_PLL);
     bool retVal = _FLD2BOOL(SRSS_CLK_PLL_STATUS_UNLOCK_OCCURRED, SRSS_CLK_PLL_STATUS[clkPath]);
     /* write a 1 to clear the unlock occurred bit */
     SRSS_CLK_PLL_STATUS[clkPath] = SRSS_CLK_PLL_STATUS_UNLOCK_OCCURRED_Msk;
     return (retVal);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1107,9 +1305,14 @@ __STATIC_INLINE bool Cy_SysClk_PllLostLock(uint32_t clkPath)
 * \return Error / status code: \n
 * CY_SYSCLK_SUCCESS - PLL successfully disabled \n
 * CY_SYSCLK_BAD_PARAM - invalid clock path number
+* CY_SYSCLK_INVALID_STATE - ECO already enabled
+* For the PSoC 64 devices there are possible situations when function returns
+* the PRA error status code. This is because for PSoC 64 devices the function
+* uses the PRA driver to change the protected registers. Refer to
+* \ref cy_en_pra_status_t for more details.
 *
-* \note 
-* Call \ref SystemCoreClockUpdate after this function calling 
+* \note
+* Call \ref SystemCoreClockUpdate after this function calling
 * if it affects the CLK_HF0 frequency.
 *
 * \note
@@ -1130,6 +1333,9 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_PllDisable(uint32_t clkPath)
     clkPath--; /* to correctly access PLL config and status registers structures */
     if (clkPath < CY_SRSS_NUM_PLL)
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PLL_DISABLE, (clkPath + 1U));
+#else
         /* First bypass PLL */
         CY_REG32_CLR_SET(SRSS_CLK_PLL_CONFIG[clkPath], SRSS_CLK_PLL_CONFIG_BYPASS_SEL, CY_SYSCLK_FLLPLL_OUTPUT_INPUT);
         /* Wait at least 6 PLL clock cycles */
@@ -1137,6 +1343,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_PllDisable(uint32_t clkPath)
         /* And now disable the PLL itself */
         SRSS_CLK_PLL_CONFIG[clkPath] &= ~SRSS_CLK_PLL_CONFIG_ENABLE_Msk;
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))*/
     }
     return (retVal);
 }
@@ -1170,7 +1377,17 @@ __STATIC_INLINE void Cy_SysClk_IloHibernateOn(bool on);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_IloEnable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ILO_ENABLE, 1UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     SRSS_CLK_ILO_CONFIG |= SRSS_CLK_ILO_CONFIG_ENABLE_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1201,6 +1418,11 @@ __STATIC_INLINE bool Cy_SysClk_IloIsEnabled(void)
 * \return Error / status code: \n
 * CY_SYSCLK_SUCCESS - ILO successfully disabled \n
 * CY_SYSCLK_INVALID_STATE - Cannot disable the ILO if the WDT is enabled.
+* CY_SYSCLK_INVALID_STATE - ECO already enabled
+* For the PSoC 64 devices there are possible situations when function returns
+* the PRA error status code. This is because for PSoC 64 devices the function
+* uses the PRA driver to change the protected registers. Refer to
+* \ref cy_en_pra_status_t for more details.
 *
 * \note The watchdog timer (WDT) must be unlocked before calling this function.
 * Do not call this function if the WDT is enabled, because the WDT is clocked by
@@ -1212,6 +1434,10 @@ __STATIC_INLINE bool Cy_SysClk_IloIsEnabled(void)
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_IloDisable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ILO_DISABLE, 0UL);
+
+#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_INVALID_STATE;
     if (!_FLD2BOOL(SRSS_WDT_CTL_WDT_EN, SRSS_WDT_CTL)) /* if disabled */
     {
@@ -1219,6 +1445,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_IloDisable(void)
         retVal = CY_SYSCLK_SUCCESS;
     }
     return (retVal);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1230,7 +1457,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_IloDisable(void)
 * brown-out detect (BOD) event.
 *
 * \param on
-* true = ILO stays on during hibernate or across XRES/BOD. \n 
+* true = ILO stays on during hibernate or across XRES/BOD. \n
 * false = ILO turns off for hibernate or XRES/BOD.
 *
 * \note Writes to the register/bit are ignored if the watchdog (WDT) is locked.
@@ -1241,7 +1468,17 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_IloDisable(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_IloHibernateOn(bool on)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ILO_HIBERNATE_ON, on);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_REG32_CLR_SET(SRSS_CLK_ILO_CONFIG, SRSS_CLK_ILO_CONFIG_ILO_BACKUP, ((on) ? 1UL : 0UL));
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 /** \} group_sysclk_ilo_funcs */
 
@@ -1263,9 +1500,9 @@ __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void);
 * Function Name: Cy_SysClk_PiloEnable
 ****************************************************************************//**
 *
-* Enables the PILO. 
+* Enables the PILO.
 *
-* \note This function blocks for 1 millisecond between enabling the PILO and 
+* \note This function blocks for 1 millisecond between enabling the PILO and
 * releasing the PILO reset.
 *
 * \funcusage
@@ -1274,11 +1511,21 @@ __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_PiloEnable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PILO_ENABLE, 1UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     SRSS_CLK_PILO_CONFIG |= SRSS_CLK_PILO_CONFIG_PILO_EN_Msk; /* 1 = enable */
     Cy_SysLib_Delay(1U/*msec*/);
     /* release the reset and enable clock output */
     SRSS_CLK_PILO_CONFIG |= SRSS_CLK_PILO_CONFIG_PILO_RESET_N_Msk |
                             SRSS_CLK_PILO_CONFIG_PILO_CLK_EN_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1312,11 +1559,21 @@ __STATIC_INLINE bool Cy_SysClk_PiloIsEnabled(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_PiloDisable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PILO_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     /* Clear PILO_EN, PILO_RESET_N, and PILO_CLK_EN bitfields. This disables the
        PILO and holds the PILO in a reset state. */
     SRSS_CLK_PILO_CONFIG &= (uint32_t)~(SRSS_CLK_PILO_CONFIG_PILO_EN_Msk      |
                                         SRSS_CLK_PILO_CONFIG_PILO_RESET_N_Msk |
                                         SRSS_CLK_PILO_CONFIG_PILO_CLK_EN_Msk);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1333,7 +1590,11 @@ __STATIC_INLINE void Cy_SysClk_PiloDisable(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_PiloSetTrim(uint32_t trimVal)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_CLK_FUNC_SET_PILO_TRIM, trimVal);
+#else
     CY_REG32_CLR_SET(SRSS_CLK_PILO_CONFIG, SRSS_CLK_PILO_CONFIG_PILO_FFREQ, trimVal);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1368,7 +1629,7 @@ __STATIC_INLINE uint32_t Cy_SysClk_AltHfGetFrequency(void);
 * Function Name: Cy_SysClk_AltHfGetFrequency
 ****************************************************************************//**
 *
-* Reports the frequency of the Alternative High-Frequency Clock 
+* Reports the frequency of the Alternative High-Frequency Clock
 *
 * \funcusage
 * \snippet bleclk/snippet/main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
@@ -1405,62 +1666,20 @@ __STATIC_INLINE bool Cy_SysClk_AltLfIsEnabled(void)
 /* ====================    CLOCK MEASUREMENT SECTION    ===================== */
 /* ========================================================================== */
 /**
-* \addtogroup group_sysclk_calclk_enums
+* \addtogroup group_sysclk_calclk_structs
 * \{
 */
-/** Defines all possible clock sources */
-typedef enum
+#if (defined(CY_DEVICE_SECURE))
+/** PRA structure for Cy_SysClk_StartClkMeasurementCounters function parameters */
+typedef struct
 {
-    CY_SYSCLK_MEAS_CLK_NC =            0U,
-    CY_SYSCLK_MEAS_CLK_ILO =           1U,
-    CY_SYSCLK_MEAS_CLK_WCO =           2U,
-    CY_SYSCLK_MEAS_CLK_BAK =           3U,
-    CY_SYSCLK_MEAS_CLK_ALTLF =         4U,
-    CY_SYSCLK_MEAS_CLK_LFCLK =         5U,
-    CY_SYSCLK_MEAS_CLK_IMO =           6U,
-    CY_SYSCLK_MEAS_CLK_PILO =          8U,
-    CY_SYSCLK_MEAS_CLK_FAST_CLKS =     0x100U,
-    CY_SYSCLK_MEAS_CLK_ECO =           0x101U,
-    CY_SYSCLK_MEAS_CLK_EXT =           0x102U,
-    CY_SYSCLK_MEAS_CLK_ALTHF =         0x103U,
-    CY_SYSCLK_MEAS_CLK_TIMERCLK =      0x104U,
-    CY_SYSCLK_MEAS_CLK_PATH_CLKS =     0x500U,
-    CY_SYSCLK_MEAS_CLK_PATH0 =         0x500U,
-    CY_SYSCLK_MEAS_CLK_PATH1 =         0x501U,
-    CY_SYSCLK_MEAS_CLK_PATH2 =         0x502U,
-    CY_SYSCLK_MEAS_CLK_PATH3 =         0x503U,
-    CY_SYSCLK_MEAS_CLK_PATH4 =         0x504U,
-    CY_SYSCLK_MEAS_CLK_PATH5 =         0x505U,
-    CY_SYSCLK_MEAS_CLK_PATH6 =         0x506U,
-    CY_SYSCLK_MEAS_CLK_PATH7 =         0x507U,
-    CY_SYSCLK_MEAS_CLK_PATH8 =         0x508U,
-    CY_SYSCLK_MEAS_CLK_PATH9 =         0x509U,
-    CY_SYSCLK_MEAS_CLK_PATH10 =        0x50AU,
-    CY_SYSCLK_MEAS_CLK_PATH11 =        0x50BU,
-    CY_SYSCLK_MEAS_CLK_PATH12 =        0x50CU,
-    CY_SYSCLK_MEAS_CLK_PATH13 =        0x50DU,
-    CY_SYSCLK_MEAS_CLK_PATH14 =        0x50EU,
-    CY_SYSCLK_MEAS_CLK_PATH15 =        0x50FU,
-    CY_SYSCLK_MEAS_CLK_CLKHFS =        0x600U,
-    CY_SYSCLK_MEAS_CLK_CLKHF0 =        0x600U,
-    CY_SYSCLK_MEAS_CLK_CLKHF1 =        0x601U,
-    CY_SYSCLK_MEAS_CLK_CLKHF2 =        0x602U,
-    CY_SYSCLK_MEAS_CLK_CLKHF3 =        0x603U,
-    CY_SYSCLK_MEAS_CLK_CLKHF4 =        0x604U,
-    CY_SYSCLK_MEAS_CLK_CLKHF5 =        0x605U,
-    CY_SYSCLK_MEAS_CLK_CLKHF6 =        0x606U,
-    CY_SYSCLK_MEAS_CLK_CLKHF7 =        0x607U,
-    CY_SYSCLK_MEAS_CLK_CLKHF8 =        0x608U,
-    CY_SYSCLK_MEAS_CLK_CLKHF9 =        0x609U,
-    CY_SYSCLK_MEAS_CLK_CLKHF10 =       0x60AU,
-    CY_SYSCLK_MEAS_CLK_CLKHF11 =       0x60BU,
-    CY_SYSCLK_MEAS_CLK_CLKHF12 =       0x60CU,
-    CY_SYSCLK_MEAS_CLK_CLKHF13 =       0x60DU,
-    CY_SYSCLK_MEAS_CLK_CLKHF14 =       0x60EU,
-    CY_SYSCLK_MEAS_CLK_CLKHF15 =       0x60FU,
-    CY_SYSCLK_MEAS_CLK_LAST_CLK =      0x610U
-} cy_en_meas_clks_t;
-/** \} group_sysclk_calclk_enums */
+    cy_en_meas_clks_t clock1;        /**< clock1 */
+    uint32_t          count1;        /**< count  */
+    cy_en_meas_clks_t clock2;        /**< clock2 */
+} cy_stc_pra_start_clk_measurement_t;
+
+#endif /* (defined(CY_DEVICE_SECURE)) */
+/** \} group_sysclk_calclk_structs */
 
 /**
 * \addtogroup group_sysclk_calclk_funcs
@@ -1495,12 +1714,16 @@ __STATIC_INLINE bool Cy_SysClk_ClkMeasurementCountersDone(void)
 /* ========================================================================== */
 /* ==========================    TRIM SECTION    ============================ */
 /* ========================================================================== */
+/* nominal trim step size */
+
 /**
 * \addtogroup group_sysclk_trim_funcs
 * \{
 */
 int32_t Cy_SysClk_IloTrim(uint32_t iloFreq);
 int32_t Cy_SysClk_PiloTrim(uint32_t piloFreq);
+void Cy_SysClk_PiloInitialTrim(void);
+void Cy_SysClk_PiloUpdateTrimStep(void);
 /** \} group_sysclk_trim_funcs */
 
 
@@ -1590,6 +1813,11 @@ __STATIC_INLINE void Cy_SysClk_WcoBypass(cy_en_wco_bypass_modes_t bypass);
 * \return Error / status code: \n
 * CY_SYSCLK_SUCCESS - WCO successfully enabled \n
 * CY_SYSCLK_TIMEOUT - Timeout waiting for WCO to stabilize
+* CY_SYSCLK_INVALID_STATE - ECO already enabled
+* For the PSoC 64 devices there are possible situations when function returns
+* the PRA error status code. This is because for PSoC 64 devices the function
+* uses the PRA driver to change the protected registers. Refer to
+* \ref cy_en_pra_status_t for more details.
 *
 * \funcusage
 * \snippet sysclk/snippet/main.c snippet_Cy_SysClk_WcoEnable
@@ -1597,6 +1825,9 @@ __STATIC_INLINE void Cy_SysClk_WcoBypass(cy_en_wco_bypass_modes_t bypass);
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_WcoEnable(uint32_t timeoutus)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_WCO_ENABLE, timeoutus);
+#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_TIMEOUT;
 
     /* first set the WCO enable bit */
@@ -1614,6 +1845,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_WcoEnable(uint32_t timeoutus)
     }
 
     return (retVal);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1623,7 +1855,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_WcoEnable(uint32_t timeoutus)
 *
 * Reports the status of the WCO_OK bit.
 *
-* \return 
+* \return
 * true = okay \n
 * false = not okay
 *
@@ -1649,7 +1881,17 @@ __STATIC_INLINE bool Cy_SysClk_WcoOkay(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_WcoDisable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_WCO_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     BACKUP_CTL &= (uint32_t)~BACKUP_CTL_WCO_EN_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -1668,7 +1910,17 @@ __STATIC_INLINE void Cy_SysClk_WcoDisable(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_WcoBypass(cy_en_wco_bypass_modes_t bypass)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_WCO_BYPASS, bypass);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_REG32_CLR_SET(BACKUP_CTL, BACKUP_CTL_WCO_BYPASS, bypass);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 /** \} group_sysclk_wco_funcs */
 
@@ -1701,7 +1953,11 @@ __STATIC_INLINE void Cy_SysClk_MfoEnable(bool deepSleepEnable)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_CLK_MFO_CONFIG, (SRSS_CLK_MFO_CONFIG_ENABLE_Msk | (deepSleepEnable ? SRSS_CLK_MFO_CONFIG_DPSLP_ENABLE_Msk : 0UL)));
+    #else
         SRSS_CLK_MFO_CONFIG = SRSS_CLK_MFO_CONFIG_ENABLE_Msk | (deepSleepEnable ? SRSS_CLK_MFO_CONFIG_DPSLP_ENABLE_Msk : 0UL);
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1740,7 +1996,11 @@ __STATIC_INLINE void Cy_SysClk_MfoDisable(void)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_CLK_MFO_CONFIG, 0UL);
+    #else
         SRSS_CLK_MFO_CONFIG = 0UL;
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1767,7 +2027,11 @@ __STATIC_INLINE void Cy_SysClk_ClkMfEnable(void)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_ENABLE, 1U);
+    #else
         SRSS_CLK_MF_SELECT |= SRSS_CLK_MF_SELECT_ENABLE_Msk;
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1806,7 +2070,11 @@ __STATIC_INLINE void Cy_SysClk_ClkMfDisable(void)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_ENABLE, 0U);
+    #else
         SRSS_CLK_MF_SELECT &= ~SRSS_CLK_MF_SELECT_ENABLE_Msk;
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1836,10 +2104,14 @@ __STATIC_INLINE void Cy_SysClk_ClkMfDisable(void)
 __STATIC_INLINE void Cy_SysClk_ClkMfSetDivider(uint32_t divider)
 {
     if ((CY_SRSS_MFO_PRESENT) && CY_SYSCLK_IS_MF_DIVIDER_VALID(divider))
-    { 
+    {
         if (!Cy_SysClk_ClkMfIsEnabled())
         {
+        #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+            CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_MFCLK_DIV, divider - 1UL);
+        #else
             CY_REG32_CLR_SET(SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_MFCLK_DIV, divider - 1UL);
+        #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
         }
     }
 }
@@ -1953,6 +2225,22 @@ typedef struct
     cy_en_csv_error_actions_t lossAction;
 } cy_stc_clkhf_csv_config_t;
 
+#if (defined(CY_DEVICE_SECURE))
+/** PRA structure for Cy_SysClk_ClkHfSetSource function parameters */
+typedef struct
+{
+    uint32_t                  clkHf;         /**< clkHF  */
+    cy_en_clkhf_in_sources_t source;        /**< Source */
+} cy_stc_pra_clkhfsetsource_t;
+
+/** PRA structure for Cy_SysClk_ClkHfSetSource function parameters */
+typedef struct
+{
+    uint32_t                  clkHf;         /**< clkHF */
+    cy_en_clkhf_dividers_t divider;        /**< divider */
+} cy_stc_pra_clkhfsetdivider_t;
+#endif /* (defined(CY_DEVICE_SECURE)) */
+
 #define altHfFreq (cy_BleEcoClockFreqHz)
 /** \endcond */
 
@@ -1979,6 +2267,11 @@ __STATIC_INLINE cy_en_clkhf_dividers_t Cy_SysClk_ClkHfGetDivider(uint32_t clkHf)
 * \param clkHf Selects which clkHf to enable.
 *
 * \return \ref cy_en_sysclk_status_t
+* CY_SYSCLK_INVALID_STATE - ECO already enabled
+* For the PSoC 64 devices there are possible situations when function returns
+* the PRA error status code. This is because for PSoC 64 devices the function
+* uses the PRA driver to change the protected registers. Refer to
+* \ref cy_en_pra_status_t for more details.
 *
 * \funcusage
 * \snippet sysclk/snippet/main.c snippet_Cy_SysClk_ClkPathSetSource
@@ -1989,10 +2282,15 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfEnable(uint32_t clkHf)
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if (clkHf < CY_SRSS_NUM_HFROOT)
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_ENABLE, clkHf);
+#else
         SRSS_CLK_ROOT_SELECT[clkHf] |= SRSS_CLK_ROOT_SELECT_ENABLE_Msk;
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
+
 }
 
 
@@ -2043,8 +2341,12 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfDisable(uint32_t clkHf)
     if ((0UL < clkHf) /* prevent CLK_HF0 disabling */
            && (clkHf < CY_SRSS_NUM_HFROOT))
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_DISABLE, clkHf);
+#else
         SRSS_CLK_ROOT_SELECT[clkHf] &= ~SRSS_CLK_ROOT_SELECT_ENABLE_Msk;
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
 }
@@ -2061,12 +2363,17 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfDisable(uint32_t clkHf)
 * \param source \ref cy_en_clkhf_in_sources_t
 *
 * \return \ref cy_en_sysclk_status_t
+* CY_SYSCLK_INVALID_STATE - ECO already enabled
+* For the PSoC 64 devices there are possible situations when function returns
+* the PRA error status code. This is because for PSoC 64 devices the function
+* uses the PRA driver to change the protected registers. Refer to
+* \ref cy_en_pra_status_t for more details.
 *
-* \note 
-* Call \ref SystemCoreClockUpdate after this function calling 
+* \note
+* Call \ref SystemCoreClockUpdate after this function calling
 * if it affects the CLK_HF0 frequency.
 *
-* \note 
+* \note
 * Call \ref Cy_SysLib_SetWaitStates before calling this function if
 * CLK_HF0 frequency is increasing.
 *
@@ -2083,10 +2390,18 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfSetSource(uint32_t clkHf, c
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if ((clkHf < CY_SRSS_NUM_HFROOT) && (source <= CY_SYSCLK_CLKHF_IN_CLKPATH15))
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        cy_stc_pra_clkhfsetsource_t set_source;
+        set_source.clkHf = clkHf;
+        set_source.source = source;
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_SET_SOURCE, &set_source);
+#else
         CY_REG32_CLR_SET(SRSS_CLK_ROOT_SELECT[clkHf], SRSS_CLK_ROOT_SELECT_ROOT_MUX, source);
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (!defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
+
 }
 
 
@@ -2122,14 +2437,19 @@ __STATIC_INLINE cy_en_clkhf_in_sources_t Cy_SysClk_ClkHfGetSource(uint32_t clkHf
 * \param divider \ref cy_en_clkhf_dividers_t
 *
 * \return \ref cy_en_sysclk_status_t
+* CY_SYSCLK_INVALID_STATE - ECO already enabled
+* For the PSoC 64 devices there are possible situations when function returns
+* the PRA error status code. This is because for PSoC 64 devices the function
+* uses the PRA driver to change the protected registers. Refer to
+* \ref cy_en_pra_status_t for more details.
 *
 * \note Also call \ref Cy_SysClk_ClkHfSetSource to set the clkHf source.
 *
-* \note 
-* Call \ref SystemCoreClockUpdate after this function calling 
+* \note
+* Call \ref SystemCoreClockUpdate after this function calling
 * if it affects the CLK_HF0 frequency.
 *
-* \note 
+* \note
 * Call \ref Cy_SysLib_SetWaitStates before calling this function if
 * CLK_HF0 frequency is increasing.
 *
@@ -2146,10 +2466,18 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfSetDivider(uint32_t clkHf, 
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if ((clkHf < CY_SRSS_NUM_HFROOT) && (divider <= CY_SYSCLK_CLKHF_DIVIDE_BY_8))
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        cy_stc_pra_clkhfsetdivider_t set_divider;
+        set_divider.clkHf = clkHf;
+        set_divider.divider = divider;
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_SET_DIVIDER, &set_divider);
+#else
         CY_REG32_CLR_SET(SRSS_CLK_ROOT_SELECT[clkHf], SRSS_CLK_ROOT_SELECT_ROOT_DIV, divider);
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
+
 }
 
 
@@ -2219,10 +2547,10 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkFastGetFrequency(void)
 * \param divider divider value between 0 and 255.
 * Causes integer division of (divider value + 1), or division by 1 to 256.
 *
-* \note 
+* \note
 * Call \ref SystemCoreClockUpdate after this function calling.
 *
-* \note 
+* \note
 * Call \ref Cy_SysLib_SetWaitStates before calling this function if
 * CLK_FAST frequency is increasing.
 *
@@ -2236,7 +2564,17 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkFastGetFrequency(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkFastSetDivider(uint8_t divider)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_FAST_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_REG32_CLR_SET(CPUSS_CM4_CLOCK_CTL, CPUSS_CM4_CLOCK_CTL_FAST_INT_DIV, divider);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -2305,7 +2643,7 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkPeriGetFrequency(void)
 * \param divider divider value between 0 and 255
 * Causes integer division of (divider value + 1), or division by 1 to 256.
 *
-* \note 
+* \note
 * Call \ref SystemCoreClockUpdate after this function calling.
 *
 * \funcusage
@@ -2314,7 +2652,17 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkPeriGetFrequency(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkPeriSetDivider(uint8_t divider)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PERI_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_REG32_CLR_SET(CPUSS_CM0_CLOCK_CTL, CPUSS_CM0_CLOCK_CTL_PERI_INT_DIV, divider);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -2858,7 +3206,7 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkSlowGetFrequency(void)
 * \param divider Divider value between 0 and 255.
 * Causes integer division of (divider value + 1), or division by 1 to 256.
 *
-* \note 
+* \note
 * Call \ref SystemCoreClockUpdate after this function calling.
 *
 * \funcusage
@@ -2867,7 +3215,11 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkSlowGetFrequency(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkSlowSetDivider(uint8_t divider)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_SLOW_SET_DIVIDER, divider);
+#else
     CY_REG32_CLR_SET(CPUSS_CM0_CLOCK_CTL, CPUSS_CM0_CLOCK_CTL_SLOW_INT_DIV, divider);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -2935,8 +3287,18 @@ __STATIC_INLINE cy_en_clklf_in_sources_t Cy_SysClk_ClkLfGetSource(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkLfSetSource(cy_en_clklf_in_sources_t source)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_LF_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_ASSERT_L3(source <= CY_SYSCLK_CLKLF_IN_PILO);
     CY_REG32_CLR_SET(SRSS_CLK_SELECT, SRSS_CLK_SELECT_LFCLK_SEL, source);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3004,7 +3366,7 @@ __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void);
 ****************************************************************************//**
 *
 * Sets the source for the timer clock (clk_timer). The timer clock can be used
-* as a source for SYSTICK as an alternate clock and one or more of the energy 
+* as a source for SYSTICK as an alternate clock and one or more of the energy
 * profiler counters.
 *
 * \param source \ref cy_en_clktimer_in_sources_t
@@ -3015,9 +3377,19 @@ __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkTimerSetSource(cy_en_clktimer_in_sources_t source)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_ASSERT_L3(source <= CY_SYSCLK_CLKTIMER_IN_HF0_DIV8);
     /* set both fields TIMER_SEL and TIMER_HF0_DIV with the same input value */
     CY_REG32_CLR_SET(SRSS_CLK_TIMER_CTL, CY_SRSS_CLK_TIMER_CTL_TIMER, source);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3058,7 +3430,17 @@ __STATIC_INLINE cy_en_clktimer_in_sources_t Cy_SysClk_ClkTimerGetSource(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkTimerSetDivider(uint8_t divider)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_REG32_CLR_SET(SRSS_CLK_TIMER_CTL, SRSS_CLK_TIMER_CTL_TIMER_DIV, divider);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3093,7 +3475,17 @@ __STATIC_INLINE uint8_t Cy_SysClk_ClkTimerGetDivider(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkTimerEnable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_ENABLE, 1UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     SRSS_CLK_TIMER_CTL |= SRSS_CLK_TIMER_CTL_ENABLE_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3127,7 +3519,17 @@ __STATIC_INLINE bool Cy_SysClk_ClkTimerIsEnabled(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     SRSS_CLK_TIMER_CTL &= ~SRSS_CLK_TIMER_CTL_ENABLE_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 /** \} group_sysclk_clk_timer_funcs */
 
@@ -3220,8 +3622,18 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkPumpGetFrequency(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkPumpSetSource(cy_en_clkpump_in_sources_t source)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_ASSERT_L3(source <= CY_SYSCLK_PUMP_IN_CLKPATH15);
     CY_REG32_CLR_SET(SRSS_CLK_SELECT, SRSS_CLK_SELECT_PUMP_SEL, source);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3260,8 +3672,18 @@ __STATIC_INLINE cy_en_clkpump_in_sources_t Cy_SysClk_ClkPumpGetSource(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkPumpSetDivider(cy_en_clkpump_divide_t divider)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_ASSERT_L3(CY_SYSCLK_FLL_IS_DIVIDER_VALID(divider));
     CY_REG32_CLR_SET(SRSS_CLK_SELECT, SRSS_CLK_SELECT_PUMP_DIV, divider);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3296,7 +3718,17 @@ __STATIC_INLINE cy_en_clkpump_divide_t Cy_SysClk_ClkPumpGetDivider(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkPumpEnable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_ENABLE, 1UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     SRSS_CLK_SELECT |= SRSS_CLK_SELECT_PUMP_ENABLE_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3330,7 +3762,17 @@ __STATIC_INLINE bool Cy_SysClk_ClkPumpIsEnabled(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkPumpDisable(void)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     SRSS_CLK_SELECT &= ~SRSS_CLK_SELECT_PUMP_ENABLE_Msk;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -3401,8 +3843,18 @@ __STATIC_INLINE cy_en_clkbak_in_sources_t Cy_SysClk_ClkBakGetSource(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_ClkBakSetSource(cy_en_clkbak_in_sources_t source)
 {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_BAK_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
+#else
     CY_ASSERT_L3(source <= CY_SYSCLK_BAK_IN_CLKLF);
     CY_REG32_CLR_SET(BACKUP_CTL, BACKUP_CTL_CLK_SEL, source);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 

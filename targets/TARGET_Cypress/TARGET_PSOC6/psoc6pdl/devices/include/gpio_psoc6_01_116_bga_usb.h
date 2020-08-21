@@ -5,11 +5,11 @@
 * PSoC6_01 device GPIO header for 116-BGA-USB package
 *
 * \note
-* Generator version: 1.5.0.1304
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,16 +46,16 @@ enum
 /* AMUXBUS Segments */
 enum
 {
-    AMUXBUS_MAIN,
     AMUXBUS_ADFT0_VDDD,
-    AMUXBUS_NOISY,
     AMUXBUS_ADFT1_VDDD,
-    AMUXBUS_CSD0,
-    AMUXBUS_VDDIO_1,
-    AMUXBUS_CSD1,
-    AMUXBUS_SAR,
-    AMUXBUS_ANALOG_VDDD,
     AMUXBUS_ANALOG_VDDA,
+    AMUXBUS_ANALOG_VDDD,
+    AMUXBUS_CSD0,
+    AMUXBUS_CSD1,
+    AMUXBUS_MAIN,
+    AMUXBUS_NOISY,
+    AMUXBUS_SAR,
+    AMUXBUS_VDDIO_1,
 };
 
 /* AMUX Splitter Controls */
@@ -686,12 +686,6 @@ typedef enum
     P1_2_LCD_SEG8                   = 13,       /* Digital Deep Sleep - lcd.seg[8]:0 */
     P1_2_SCB7_UART_RTS              = 18,       /* Digital Active - scb[7].uart_rts:0 */
     P1_2_SCB7_SPI_CLK               = 20,       /* Digital Active - scb[7].spi_clk:0 */
-
-    /* USBDM */
-    USBDM_GPIO                      =  0,       /* GPIO controls 'out' */
-
-    /* USBDP */
-    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
 
     /* P5.0 */
     P5_0_GPIO                       =  0,       /* GPIO controls 'out' */
@@ -1959,7 +1953,13 @@ typedef enum
     P13_7_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:100 */
     P13_7_CSD_CSD_TX_N              = 11,       /* Digital Active - csd.csd_tx_n:100 */
     P13_7_LCD_COM38                 = 12,       /* Digital Deep Sleep - lcd.com[38]:1 */
-    P13_7_LCD_SEG38                 = 13        /* Digital Deep Sleep - lcd.seg[38]:1 */
+    P13_7_LCD_SEG38                 = 13,       /* Digital Deep Sleep - lcd.seg[38]:1 */
+
+    /* USBDP */
+    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
+
+    /* USBDM */
+    USBDM_GPIO                      =  0        /* GPIO controls 'out' */
 } en_hsiom_sel_t;
 
 #endif /* _GPIO_PSOC6_01_116_BGA_USB_H_ */

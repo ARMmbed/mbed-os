@@ -45,6 +45,10 @@
     <ParamBool id="suppressAmuxCodeGen" name="Suppress Amuxbus Configuration Code Generation" group="Internal" default="true" 
             visible="false" editable="false" desc="Prevents pins connected to this personality to generate configuration code" />
 
+    <!-- IP Block property CapSenseCapable-->
+    <ParamBool id="capSenseCapable" name="CapSense capable" group="Internal" default="`${hasBlock(&quot;csd[0].capsense[0]&quot;)}`" 
+            visible="false" editable="false" desc="This parameter specifies if CSD is CapSense capable" />
+
     <!-- Inputs -->
     <ParamSignal port="clock[0]" name="Clock" group="Inputs" visible="true" desc="Peripheral clock divider" canBeEmpty="false" />
 
@@ -80,7 +84,7 @@
             visible="false" editable="false" desc="CPU clock frequency in Hz" />
 
     <!-- CapSense -->
-    <ParamBool id="CapSenseEnable" name="Enable CapSense" group="CapSense" default="true" visible="true" editable="true" 
+    <ParamBool id="CapSenseEnable" name="Enable CapSense" group="CapSense" default="`${capSenseCapable}`" visible="`${capSenseCapable}`" editable="`${capSenseCapable}`" 
             desc="Enables CapSense function of CSD hardware block" />
     <ParamChoice id="CapSenseCore" name="Target CPU core" group="CapSense" default="4" visible="true" editable="true" desc="Configures the target CPU core for CapSense middleware" >
       <Entry name="Cortex M0+" value="0" visible="true" />
@@ -108,7 +112,7 @@
     </ParamCustom>
 
     <!-- CSDADC -->
-    <ParamBool id="CsdAdcEnable" name="Enable CSDADC" group="CSDADC" default="false" visible="true" editable="true" 
+    <ParamBool id="CsdAdcEnable" name="Enable CSDADC" group="CSDADC" default="`${!capSenseCapable}`" visible="true" editable="true" 
             desc="Enables the CSDADC function of the CSD hardware block. The CSD ADC middleware must be enabled in the Middleware Selector" />
     <ParamRange id="numChannels" name="Number of Input Channels" group="CSDADC" default="1" min="1" max="32" resolution="1" 
             visible="`${CsdAdcEnable}`" editable="true" desc="The number of channels to scan. After changing the number, check the pins assignments of all enabled CSD features (CapSense, CSDADC, CSDIDAC)." />

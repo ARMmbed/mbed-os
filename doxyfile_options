@@ -841,13 +841,13 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */BUILD/* \
                          */rtos/TARGET_CORTEX/rtx* \
                          */cmsis/* \
+                         */connectivity/drivers/emac/* \
                          */features/cryptocell/* \
-                         */features/mbedtls/* \
+                         */connectivity/mbedtls/* \
                          */features/unsupported/* \
-                         */features/lwipstack/* \
-                         */features/nanostack/sal-stack-nanostack/* \
-                         */features/nanostack/coap-service/* \
-                         */features/netsocket/emac-drivers/* \
+                         */connectivity/lwipstack/* \
+                         */connectivity/nanostack/sal-stack-nanostack/* \
+                         */connectivity/nanostack/coap-service/* \
                          */mbed-trace/* \
                          */mbed-coap/* \
                          */nanostack-libservice/* \
@@ -855,12 +855,12 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */nanostack/sal-stack-nanostack-eventloop/* \
                          */ble/generic/* \
                          */ble/pal/* \
-                         */components/802.15.4_RF/* \
+                         */connectivity/drivers/802.15.4_RF/* \
                          */components/wifi/* \
                          */UNITTESTS/* \
-                         */features/cellular/framework/AT/* \
-                         */features/cellular/framework/device/* \
-                         */features/cellular/framework/common/*
+                         */connectivity/cellular/framework/AT/* \
+                         */connectivity/cellular/framework/device/* \
+                         */connectivity/cellular/framework/common/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

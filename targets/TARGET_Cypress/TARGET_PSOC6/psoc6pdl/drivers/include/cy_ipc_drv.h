@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_ipc_drv.h
-* \version 1.40
+* \version 1.40.2
 *
 * Provides an API declaration of the IPC driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +34,8 @@
 * device can acquire and transfer data at a time so no data is lost or
 * overwritten by asynchronous processes or CPUs.
 *
-* Include either cy_ipc_pipe.h or cy_ipc_sema.h. Alternatively include cy_pdl.h 
-* (ModusToolbox only) to get access to all functions and declarations in the PDL.
+* Include either cy_ipc_pipe.h or cy_ipc_sema.h. Alternatively include cy_pdl.h
+* to get access to all functions and declarations in the PDL.
 *
 * There are three parts to the API:
 *     - Driver-level (DRV) API - used internally by Semaphore and Pipe levels
@@ -81,7 +81,7 @@
 * conduit to transfer messages or data to and from multiple processes or CPUs.
 *
 * A pipe has two endpoints, one on each core. Each endpoint contains a dedicated
-* IPC channel and an interrupt. IPC channels 0-7(8 for the CYB064XX devices) 
+* IPC channel and an interrupt. IPC channels 0-7(8 for the CYB064XX devices)
 * and IPC interrupts 0-7 are reserved for system use.
 *
 * The pipe also contains the number of clients it supports, and for each client
@@ -106,17 +106,29 @@
 * required by the application's logic.
 *
 * The PDL provides specific files that set up default IPC functionality.
-* They are system_psoc6.h, system_psoc6_cm0plus.c and system_psoc6_cm4.c. You 
-* can modify these files based on the requirements of your design. 
-* If you use PSoC Creator as a development environment, it will not overwrite 
+* They are system_psoc6.h, system_psoc6_cm0plus.c and system_psoc6_cm4.c. You
+* can modify these files based on the requirements of your design.
+* If you use PSoC Creator as a development environment, it will not overwrite
 * your changes when you generate the application or build your code.
 *
 * \section group_ipc_pipe_layer PIPE layer
 *
 * A pipe is a communication channel between two endpoints. PSoC 6 devices support
-* 16 IPC channels, and 16 IPC interrupts, each numbered 0-15. IPC Channels 0-7
-* and IPC interrupts 0-7 are reserved for system use. Channels 8-15 and
-* interrupts 8-15 are available for application use.
+* 16 IPC channels, and 16 IPC interrupts, each numbered 0-15.
+* Following IPC Channels and IPC interrupts are reserved for system use:
+* <table class="doxtable">
+*   <tr><th>IPC Resource</th><th>PSoC 61 / PSoC 62 / PSoC 63 </th><th>PSoC 64</th></tr>
+*   <tr>
+*     <td>IPC channels (16 available)</td>
+*     <td>8 reserved (0-7)</td>
+*     <td>13 reserved (0-12)</td>
+*   </tr>
+*   <tr>
+*     <td>IPC interrupts (16 available)</td>
+*     <td>8 reserved (0-7)</td>
+*     <td>13 reserved (0-12)</td>
+*   </tr>
+* </table>
 *
 * A full duplex pipe uses two IPC channels, one per endpoint. Each endpoint
 * specifies all the information required to process a message (either sent or
@@ -188,9 +200,9 @@
 *
 * \section group_ipc_configuration_sema Configuration Considerations - SEMA
 *
-* Startup code calls Cy_IPC_Sema_Init() with default values to set up semaphore 
-* functionality. By default the semaphore system uses IPC channel 4, and 
-* creates 128 semaphores. Do <b>not</b> change the IPC channel. 
+* Startup code calls Cy_IPC_Sema_Init() with default values to set up semaphore
+* functionality. By default the semaphore system uses IPC channel 4, and
+* creates 128 semaphores. Do <b>not</b> change the IPC channel.
 * You can change the number of semaphores.
 *
 * To change the number of semaphores, modify this line of code in system_psoc6.h.
@@ -206,8 +218,8 @@
 *
 * \section group_ipc_more_information More Information
 *
-* If the default startup file is not used, or SystemInit() is not called in your 
-* project, call the following three functions prior to executing any flash or 
+* If the default startup file is not used, or SystemInit() is not called in your
+* project, call the following three functions prior to executing any flash or
 * EmEEPROM write or erase operation:
 *  -# Cy_IPC_Sema_Init()
 *  -# Cy_IPC_Pipe_Config()
@@ -251,6 +263,18 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.40.2</td>
+*     <td>Updated information about IPC resources reserved for the system usage
+*         in \ref group_ipc_pipe_layer section.
+*     </td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
+*     <td>1.40.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="1">1.40</td>
 *     <td>Moved cy_semaData structure to the RAM section called ".cy_sharedmem".</td>
 *     <td>Support Secure Boot devices.</td>
@@ -267,7 +291,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -301,8 +325,8 @@
 * \{
 *   The functions of this layer are used in the higher IPC levels
 *   (Semaphores and Pipes).
-*   Users are not expected to call any of these IPC functions directly (cy_ipc_drv.h). 
-*   Instead include either of cy_ipc_sema.h or cy_ipc_pipe.h. 
+*   Users are not expected to call any of these IPC functions directly (cy_ipc_drv.h).
+*   Instead include either of cy_ipc_sema.h or cy_ipc_pipe.h.
 *   Alternatively include cy_pdl.h to get access to all functions and declarations in the PDL.
 *
 *   \defgroup group_ipc_macros Macros

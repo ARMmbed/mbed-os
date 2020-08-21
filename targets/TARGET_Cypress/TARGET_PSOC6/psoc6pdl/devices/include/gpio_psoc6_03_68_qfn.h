@@ -5,11 +5,11 @@
 * PSoC6_03 device GPIO header for 68-QFN package
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,14 +46,14 @@ enum
 /* AMUXBUS Segments */
 enum
 {
-    AMUXBUS_SRSS_AMUXBUSA_ADFT_VDDD,
-    AMUXBUS_SRSS_AMUXBUSB_ADFT_VDDD,
-    AMUXBUS_VSSA,
-    AMUXBUS_VDDIO_1,
+    AMUXBUS_ANALOG_VDDD,
     AMUXBUS_CSD0,
     AMUXBUS_CSD1,
     AMUXBUS_SAR,
-    AMUXBUS_ANALOG_VDDD,
+    AMUXBUS_VDDIO_1,
+    AMUXBUS_VSSA,
+    AMUXBUS_SRSS_AMUXBUSA_ADFT_VDDD,
+    AMUXBUS_SRSS_AMUXBUSB_ADFT_VDDD,
 };
 
 /* AMUX Splitter Controls */
@@ -453,12 +453,6 @@ typedef enum
     P0_5_SCB0_SPI_SELECT0           = 20,       /* Digital Active - scb[0].spi_select0:0 */
     P0_5_PERI_TR_IO_INPUT3          = 24,       /* Digital Active - peri.tr_io_input[3]:0 */
     P0_5_PERI_TR_IO_OUTPUT1         = 25,       /* Digital Active - peri.tr_io_output[1]:2 */
-
-    /* USBDM */
-    USBDM_GPIO                      =  0,       /* GPIO controls 'out' */
-
-    /* USBDP */
-    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
 
     /* P2.0 */
     P2_0_GPIO                       =  0,       /* GPIO controls 'out' */
@@ -1218,7 +1212,13 @@ typedef enum
     P12_7_CSD_CSD_TX                = 10,       /* Digital Active - csd.csd_tx:63 */
     P12_7_CSD_CSD_TX_N              = 11,       /* Digital Active - csd.csd_tx_n:63 */
     P12_7_LCD_COM3                  = 12,       /* Digital Deep Sleep - lcd.com[3]:1 */
-    P12_7_LCD_SEG3                  = 13        /* Digital Deep Sleep - lcd.seg[3]:1 */
+    P12_7_LCD_SEG3                  = 13,       /* Digital Deep Sleep - lcd.seg[3]:1 */
+
+    /* USBDP */
+    USBDP_GPIO                      =  0,       /* GPIO controls 'out' */
+
+    /* USBDM */
+    USBDM_GPIO                      =  0        /* GPIO controls 'out' */
 } en_hsiom_sel_t;
 
 #endif /* _GPIO_PSOC6_03_68_QFN_H_ */

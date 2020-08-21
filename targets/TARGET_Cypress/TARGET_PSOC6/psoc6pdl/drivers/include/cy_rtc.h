@@ -1,8 +1,8 @@
 /***************************************************************************//**
 * \file cy_rtc.h
-* \version 2.30
+* \version 2.30.1
 *
-* This file provides constants and parameter values for the APIs for the 
+* This file provides constants and parameter values for the APIs for the
 * Real-Time Clock (RTC).
 *
 ********************************************************************************
@@ -28,17 +28,17 @@
 * \addtogroup group_rtc
 * \{
 *
-* The Real-Time Clock (RTC) driver provides an application interface 
+* The Real-Time Clock (RTC) driver provides an application interface
 * for keeping track of time and date.
 *
-* The functions and other declarations used in this driver are in cy_rtc.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The functions and other declarations used in this driver are in cy_rtc.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
 *
-* Use the RTC driver when the system requires the current time or date. You 
-* can also use the RTC when you do not need the current time and date but you 
+* Use the RTC driver when the system requires the current time or date. You
+* can also use the RTC when you do not need the current time and date but you
 * do need accurate timing of events with one-second resolution.
-* 
+*
 * The RTC driver provides these features:
 * * Different hour format support.
 * * Multiple alarm function (two-alarms).
@@ -46,125 +46,125 @@
 * * Automatic leap year compensation.
 * * Option to drive the RTC by an external 50 Hz or 60 Hz clock source
 *
-* The RTC driver provides access to the HW real-time clock. The HW RTC is 
-* located in the Backup domain. You need to choose the clock source for the 
-* Backup domain using the Cy_SysClk_ClkBakSetSource() function. If the clock 
-* for the Backup domain is set and enabled, the RTC automatically 
+* The RTC driver provides access to the HW real-time clock. The HW RTC is
+* located in the Backup domain. You need to choose the clock source for the
+* Backup domain using the Cy_SysClk_ClkBakSetSource() function. If the clock
+* for the Backup domain is set and enabled, the RTC automatically
 * starts counting.
 *
-* The RTC driver keeps track of second, minute, hour, day of the week, day of 
+* The RTC driver keeps track of second, minute, hour, day of the week, day of
 * the month, month, and year.
 *
-* DST may be enabled and supports any start and end date. The start and end 
-* dates can be a fixed date (like 24 March) or a relative date (like the 
+* DST may be enabled and supports any start and end date. The start and end
+* dates can be a fixed date (like 24 March) or a relative date (like the
 * second Sunday in March).
 *
-* The RTC has two alarms that you can configure to generate an interrupt. 
+* The RTC has two alarms that you can configure to generate an interrupt.
 * You specify the match value for the time when you want the alarm to occur.
-* Your interrupt handler then handles the response. The alarm flexibility 
-* supports periodic alarms (such as every minute), or a single alarm 
+* Your interrupt handler then handles the response. The alarm flexibility
+* supports periodic alarms (such as every minute), or a single alarm
 * (13:45 on 28 September, 2043).
 *
 * <b> Clock Source </b>
 *
 * The Backup domain can be driven by:
 * * Watch-crystal oscillator (WCO). This is a high-accuracy oscillator that is
-* suitable for RTC applications and requires a 32.768 kHz external crystal 
-* populated on the application board. The WCO can be supplied by Backup domain 
+* suitable for RTC applications and requires a 32.768 kHz external crystal
+* populated on the application board. The WCO can be supplied by Backup domain
 * and therefore can run without Vddd/Vccd present. This can be used to wake the
 * chip from Hibernate mode.
 *
-* * The Internal Low-speed Oscillator (ILO) routed from Clk_LF or directly 
-* (as alternate backup domain clock source). Depending on the device power 
-* mode the alternate backup domain clock source is set. For example, for 
+* * The Internal Low-speed Oscillator (ILO) routed from Clk_LF or directly
+* (as alternate backup domain clock source). Depending on the device power
+* mode the alternate backup domain clock source is set. For example, for
 * Deep Sleep mode the ILO is routed through Clk_LF. But for Hibernate
 * power mode the ILO is set directly. Note that, the ILO should be configured to
 * work in the Hibernate mode. For more info refer to the \ref group_sysclk
 * driver. The ILO is a low-accuracy RC-oscillator that does not require
-* any external elements on the board. Its poor accuracy (+/- 30%) means it is 
+* any external elements on the board. Its poor accuracy (+/- 30%) means it is
 * less useful for the RTC. However, current can be supplied by an internal
 * power supply (Vback) and therefore it can run without Vddd/Vccd present.
-* This also can be used to wake the chip from Hibernate mode using RTC alarm 
+* This also can be used to wake the chip from Hibernate mode using RTC alarm
 * interrupt. For more details refer to \ref group_syspm driver description.
 *
-* * The Precision Internal Low-speed Oscillator (PILO), routed from Clk_LF 
+* * The Precision Internal Low-speed Oscillator (PILO), routed from Clk_LF
 * (alternate backup domain clock source). This is an RC-oscillator (ILO) that
-* can achieve accuracy of +/- 2% with periodic calibration. It is not expected 
-* to be accurate enough for good RTC capability. The PILO requires 
-* Vddd/Vccd present. It can be used in modes down to Deep Sleep, but ceases to 
+* can achieve accuracy of +/- 2% with periodic calibration. It is not expected
+* to be accurate enough for good RTC capability. The PILO requires
+* Vddd/Vccd present. It can be used in modes down to Deep Sleep, but ceases to
 * function in Hibernate mode.
 *
-* * External 50 Hz or 60 Hz sine-wave clock source or 32.768 kHz square clock 
+* * External 50 Hz or 60 Hz sine-wave clock source or 32.768 kHz square clock
 * source.
-* For example, the wall AC frequency can be the clock source. Such a clock 
+* For example, the wall AC frequency can be the clock source. Such a clock
 * source can be used if the external 32.768 kHz WCO is absent from the board.
-* For more details, refer to the Cy_RTC_SelectFrequencyPrescaler() function 
+* For more details, refer to the Cy_RTC_SelectFrequencyPrescaler() function
 * description.
 *
-* The WCO is the recommended clock source for the RTC, if it is present 
-* in design. For setting the Backup domain clock source, refer to the 
+* The WCO is the recommended clock source for the RTC, if it is present
+* in design. For setting the Backup domain clock source, refer to the
 * \ref group_sysclk driver.
 *
-* \note If the WCO is enabled, it should source the Backup domain directly. 
-* Do not route the WCO through the Clk_LF. This is because Clk_LF is not 
+* \note If the WCO is enabled, it should source the Backup domain directly.
+* Do not route the WCO through the Clk_LF. This is because Clk_LF is not
 * available in all low-power modes.
 *
 * \section group_rtc_section_configuration Configuration Considerations
 *
-* Before RTC set up, ensure that the Backup domain is clocked with the desired 
+* Before RTC set up, ensure that the Backup domain is clocked with the desired
 * clock source.
 *
-* To set up an RTC, provide the configuration parameters in the 
-* cy_stc_rtc_config_t structure. Then call Cy_RTC_Init(). You can also set the 
-* date and time at runtime. Call Cy_RTC_SetDateAndTime() using the filled 
-* cy_stc_rtc_config_t structure, or call Cy_RTC_SetDateAndTimeDirect() with 
-* valid time and date values. 
+* To set up an RTC, provide the configuration parameters in the
+* cy_stc_rtc_config_t structure. Then call Cy_RTC_Init(). You can also set the
+* date and time at runtime. Call Cy_RTC_SetDateAndTime() using the filled
+* cy_stc_rtc_config_t structure, or call Cy_RTC_SetDateAndTimeDirect() with
+* valid time and date values.
 *
 * <b> RTC Interrupt Handling </b>
 *
-* The RTC driver provides three interrupt handler functions: 
-* Cy_RTC_Alarm1Interrupt(), Cy_RTC_Alarm2Interrupt(), and 
-* Cy_RTC_CenturyInterrupt(). All three functions are blank functions with 
+* The RTC driver provides three interrupt handler functions:
+* Cy_RTC_Alarm1Interrupt(), Cy_RTC_Alarm2Interrupt(), and
+* Cy_RTC_CenturyInterrupt(). All three functions are blank functions with
 * the WEAK attribute. For any interrupt you use, redefine the interrupt handler
 * in your source code.
 *
-* When an interrupt occurs, call the Cy_RTC_Interrupt() function. The RTC 
-* hardware provides a single interrupt line to the NVIC for the three RTC 
-* interrupts. This function checks the interrupt register to determine which 
-* interrupt (out of the three) was generated. It then calls the 
+* When an interrupt occurs, call the Cy_RTC_Interrupt() function. The RTC
+* hardware provides a single interrupt line to the NVIC for the three RTC
+* interrupts. This function checks the interrupt register to determine which
+* interrupt (out of the three) was generated. It then calls the
 * appropriate handler.
 *
-* \warning The Cy_RTC_Alarm2Interrupt() is not called if the DST feature is 
-* enabled. If DST is enabled, the Cy_RTC_Interrupt() function redirects that 
+* \warning The Cy_RTC_Alarm2Interrupt() is not called if the DST feature is
+* enabled. If DST is enabled, the Cy_RTC_Interrupt() function redirects that
 * interrupt to manage daylight savings time using Cy_RTC_DstInterrupt().
-* In general, the RTC interrupt handler function the Cy_RTC_DstInterrupt() 
+* In general, the RTC interrupt handler function the Cy_RTC_DstInterrupt()
 * function is called instead of Cy_RTC_Alarm2Interrupt().
 *
 * For RTC interrupt handling, the user should:
-* -# Implement strong interrupt handling function(s) for the required events 
-* (see above). If DST is enabled, then Alarm2 is not available. The DST handler 
+* -# Implement strong interrupt handling function(s) for the required events
+* (see above). If DST is enabled, then Alarm2 is not available. The DST handler
 * is built into the PDL.
-* -# Implement an RTC interrupt handler and call Cy_RTC_Interrupt() 
+* -# Implement an RTC interrupt handler and call Cy_RTC_Interrupt()
 *    from there.
 * -# Configure the RTC interrupt:
-*     - Set the mask for RTC required interrupt using 
+*     - Set the mask for RTC required interrupt using
 *       Cy_RTC_SetInterruptMask().
-*     - Initialize the RTC interrupt by setting priority and the RTC interrupt 
+*     - Initialize the RTC interrupt by setting priority and the RTC interrupt
 *       vector using the Cy_SysInt_Init() function.
 *     - Enable the RTC interrupt using the CMSIS core function NVIC_EnableIRQ().
 *
 * <b> Alarm functionality </b>
 *
-* To set up an alarm, enable the required RTC interrupt. Then provide the 
-* configuration parameters in the cy_stc_rtc_alarm_t structure. You enable 
-* any item you want matched, and provide a match value. You disable any other. 
-* You do not need to set match values for disabled elements, as they are 
-* ignored. 
-* \note The alarm itself must be enabled in this structure. When a match 
+* To set up an alarm, enable the required RTC interrupt. Then provide the
+* configuration parameters in the cy_stc_rtc_alarm_t structure. You enable
+* any item you want matched, and provide a match value. You disable any other.
+* You do not need to set match values for disabled elements, as they are
+* ignored.
+* \note The alarm itself must be enabled in this structure. When a match
 * occurs, the alarm is triggered and your interrupt handler is called.
 *
-* An example is the best way to explain how this works. If you want an alarm 
-* on every hour, then in the cy_stc_rtc_alarm_t structure, you provide 
+* An example is the best way to explain how this works. If you want an alarm
+* on every hour, then in the cy_stc_rtc_alarm_t structure, you provide
 * these values:
 *
 * Alarm_1.sec         = 0u \n
@@ -176,44 +176,44 @@
 * Alarm_1.dateEn      = CY_RTC_ALARM_DISABLE \n
 * Alarm_1.monthEn     = CY_RTC_ALARM_DISABLE \n
 * Alarm_1.almEn       = CY_RTC_ALARM_ENABLE  \n
-* 
-* With this setup, every time both the second and minute are zero, Alarm1 is 
-* asserted. That happens once per hour. Note that, counterintuitively, to have 
-* an alarm every hour, Alarm_1.hourEn is disabled. This is disabled because 
+*
+* With this setup, every time both the second and minute are zero, Alarm1 is
+* asserted. That happens once per hour. Note that, counterintuitively, to have
+* an alarm every hour, Alarm_1.hourEn is disabled. This is disabled because
 * for an hourly alarm you do not match the value of the hour.
 *
-* After cy_stc_rtc_alarm_t structure is filled, call the 
-* Cy_RTC_SetAlarmDateAndTime(). The alarm can also be set without using the 
-* cy_stc_rtc_alarm_t structure. Call Cy_RTC_SetAlarmDateAndTimeDirect() with 
+* After cy_stc_rtc_alarm_t structure is filled, call the
+* Cy_RTC_SetAlarmDateAndTime(). The alarm can also be set without using the
+* cy_stc_rtc_alarm_t structure. Call Cy_RTC_SetAlarmDateAndTimeDirect() with
 * valid values.
 *
 * <b> The DST Feature </b>
 *
-* The DST feature is managed by the PDL using the RTC Alarm2 interrupt. 
-* Therefore, you cannot have both DST enabled and use the Alarm2 interrupt. 
+* The DST feature is managed by the PDL using the RTC Alarm2 interrupt.
+* Therefore, you cannot have both DST enabled and use the Alarm2 interrupt.
 *
 * To set up the DST, route the RTC interrupt to NVIC:
 *
-* -# Initialize the RTC interrupt by setting priority and the RTC interrupt 
+* -# Initialize the RTC interrupt by setting priority and the RTC interrupt
 * vector using Cy_SysInt_Init().
 * -# Enable the RTC interrupt using the CMSIS core function NVIC_EnableIRQ().
-* 
-* After this, provide the configuration parameters in the 
-* cy_stc_rtc_dst_t structure. This structure consists of two 
-* cy_stc_rtc_dst_format_t structures, one for DST Start time and one for 
+*
+* After this, provide the configuration parameters in the
+* cy_stc_rtc_dst_t structure. This structure consists of two
+* cy_stc_rtc_dst_format_t structures, one for DST Start time and one for
 * DST Stop time. You also specify whether these times are absolute or relative.
-* 
-* After the cy_stc_rtc_dst_t structure is filled, call Cy_RTC_EnableDstTime() 
+*
+* After the cy_stc_rtc_dst_t structure is filled, call Cy_RTC_EnableDstTime()
 *
 * \section group_rtc_lp Low Power Support
-* The RTC provides the callback functions to facilitate 
-* the low-power mode transition. The callback 
-* \ref Cy_RTC_DeepSleepCallback must be called during execution 
-* of \ref Cy_SysPm_CpuEnterDeepSleep, \ref Cy_RTC_HibernateCallback must be 
-* called during execution of \ref Cy_SysPm_SystemEnterHibernate. 
-* To trigger the callback execution, the callback must be registered 
-* before calling the mode transition function. 
-* Refer to \ref group_syspm driver for more 
+* The RTC provides the callback functions to facilitate
+* the low-power mode transition. The callback
+* \ref Cy_RTC_DeepSleepCallback must be called during execution
+* of \ref Cy_SysPm_CpuEnterDeepSleep, \ref Cy_RTC_HibernateCallback must be
+* called during execution of \ref Cy_SysPm_SystemEnterHibernate.
+* To trigger the callback execution, the callback must be registered
+* before calling the mode transition function.
+* Refer to \ref group_syspm driver for more
 * information about low-power mode transitions.
 *
 * \section group_rtc_section_more_information More Information
@@ -228,13 +228,18 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.30.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>2.30</td>
-*     <td> 
+*     <td>
 *          * Corrected the Cy_RTC_GetDstStatus() and Cy_RTC_SetNextDstTime()
 *            documentation.
 *          * Fixed the Cy_RTC_GetDstStatus() behaviour in the 'an hour before/after the DST stop event' period.
 *     </td>
-*     <td> 
+*     <td>
 *          * Collateral Review: user experience enhancement.
 *          * Bug fix.
 *     </td>
@@ -246,7 +251,7 @@
 *   </tr>
 *   <tr>
 *     <td rowspan="3">2.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -254,7 +259,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -263,27 +268,27 @@
 *   </tr>
 *   <tr>
 *     <td>2.10</td>
-*     <td> 
+*     <td>
 *          * Corrected Cy_RTC_SetDateAndTimeDirect(), Cy_RTC_SetNextDstTime()
 *            function.
 *          * Corrected internal macro.
 *          * Documentation updates.
 *     </td>
-*     <td> 
-*          * Incorrect behavior of \ref Cy_RTC_SetDateAndTimeDirect() and 
-*            \ref Cy_RTC_SetNextDstTime() work in debug mode. 
-*          * Debug assert correction in \ref Cy_RTC_ConvertDayOfWeek, 
+*     <td>
+*          * Incorrect behavior of \ref Cy_RTC_SetDateAndTimeDirect() and
+*            \ref Cy_RTC_SetNextDstTime() work in debug mode.
+*          * Debug assert correction in \ref Cy_RTC_ConvertDayOfWeek,
 *            \ref Cy_RTC_IsLeapYear, \ref Cy_RTC_DaysInMonth.
 *     </td>
 *   </tr>
 *   <tr>
 *     <td>2.0</td>
 *     <td>
-*         Enhancement and defect fixes: 
+*         Enhancement and defect fixes:
 *          * Added input parameter(s) validation to all public functions.
 *          * Removed "Cy_RTC_" prefixes from the internal functions names.
 *          * Renamed the elements in the cy_stc_rtc_alarm structure.
-*          * Changed the type of elements with limited set of values, from 
+*          * Changed the type of elements with limited set of values, from
 *            uint32_t to enumeration.
 *     </td>
 *     <td></td>
@@ -376,28 +381,28 @@ typedef enum cy_en_rtc_alarm
 } cy_en_rtc_alarm_t;
 
 /** This enumeration is used to set/get hours format */
-typedef enum 
+typedef enum
 {
     CY_RTC_24_HOURS,         /**< The 24 hour format */
     CY_RTC_12_HOURS          /**< The 12 hour (AM/PM) format */
 } cy_en_rtc_hours_format_t;
 
 /** Enumeration to configure the RTC Write register */
-typedef enum 
+typedef enum
 {
     CY_RTC_WRITE_DISABLED,          /**< Writing the RTC is disabled */
     CY_RTC_WRITE_ENABLED            /**< Writing the RTC is enabled */
 } cy_en_rtc_write_status_t;
 
 /** Enumeration used to set/get DST format */
-typedef enum 
+typedef enum
 {
     CY_RTC_DST_RELATIVE,        /**< Relative DST format */
     CY_RTC_DST_FIXED            /**< Fixed DST format */
 } cy_en_rtc_dst_format_t;
 
 /** Enumeration to indicate the AM/PM period of day */
-typedef enum 
+typedef enum
 {
     CY_RTC_AM,      /**< AM period of day */
     CY_RTC_PM       /**< PM period of day */
@@ -422,7 +427,7 @@ typedef enum
 */
 
 /**
-* This is the data structure that is used to configure the rtc time 
+* This is the data structure that is used to configure the rtc time
 * and date values.
 */
 typedef struct cy_stc_rtc_config
@@ -431,14 +436,14 @@ typedef struct cy_stc_rtc_config
     uint32_t sec;                    /**< Seconds value, range [0-59] */
     uint32_t min;                    /**< Minutes value, range [0-59] */
     uint32_t hour;                   /**< Hour, range depends on hrFormat, if hrFormat = CY_RTC_24_HOURS, range [0-23];
-                                              If hrFormat = CY_RTC_12_HOURS, range [1-12] and appropriate AM/PM day 
+                                              If hrFormat = CY_RTC_12_HOURS, range [1-12] and appropriate AM/PM day
                                               period should be set (amPm) */
     cy_en_rtc_am_pm_t amPm;              /**< AM/PM hour period, see \ref cy_en_rtc_am_pm_t.
-                                              This element is actual when hrFormat = CY_RTC_12_HOURS. The firmware 
+                                              This element is actual when hrFormat = CY_RTC_12_HOURS. The firmware
                                               ignores this element if hrFormat = CY_RTC_24_HOURS */
     cy_en_rtc_hours_format_t hrFormat;   /**< Hours format, see \ref cy_en_rtc_hours_format_t */
     uint32_t dayOfWeek;                  /**< Day of the week, range [1-7], see \ref group_rtc_day_of_the_week */
-    
+
     /* Date information  */
     uint32_t date;                        /**< Date of month, range [1-31] */
     uint32_t month;                       /**< Month, range [1-12]. See \ref group_rtc_month */
@@ -449,34 +454,34 @@ typedef struct cy_stc_rtc_config
 typedef struct cy_stc_rtc_alarm
 {
     /* Alarm time information  */
-    uint32_t sec;                       /**< Alarm seconds, range [0-59]. 
-                                             The appropriate ALARMX interrupt is be asserted on matching with this 
+    uint32_t sec;                       /**< Alarm seconds, range [0-59].
+                                             The appropriate ALARMX interrupt is be asserted on matching with this
                                              value if secEn is previous enabled (secEn = 1) */
     cy_en_rtc_alarm_enable_t secEn;     /**< Enable alarm on seconds matching, see \ref cy_en_rtc_alarm_enable_t. */
 
-    uint32_t min;                       /**< Alarm minutes, range [0-59]. 
+    uint32_t min;                       /**< Alarm minutes, range [0-59].
                                              The appropriate ALARMX interrupt is be asserted on matching with this
                                              value if minEn is previous enabled (minEn = 1) */
     cy_en_rtc_alarm_enable_t minEn;     /**< Enable alarm on minutes matching, see \ref cy_en_rtc_alarm_enable_t. */
 
     uint32_t hour;                      /**< Alarm hours, range [0-23]
-                                             The appropriate ALARMX interrupt is be asserted on matching with this 
+                                             The appropriate ALARMX interrupt is be asserted on matching with this
                                              value if hourEn is previous enabled (hourEn = 1) */
     cy_en_rtc_alarm_enable_t hourEn;    /**< Enable alarm on hours matching, see \ref cy_en_rtc_alarm_enable_t. */
 
     uint32_t dayOfWeek;                     /**< Alarm day of the week, range [1-7]
                                                  The appropriate ALARMX interrupt is be asserted on matching with this
                                                  value if dayOfWeek is previous enabled (dayOfWeekEn = 1) */
-    cy_en_rtc_alarm_enable_t dayOfWeekEn;   /**< Enable alarm on day of the week matching, 
+    cy_en_rtc_alarm_enable_t dayOfWeekEn;   /**< Enable alarm on day of the week matching,
                                                   see \ref cy_en_rtc_alarm_enable_t */
 
     /* Alarm date information */
-    uint32_t date;                      /**< Alarm date, range [1-31]. 
-                                             The appropriate ALARMX interrupt is be asserted on matching with this 
+    uint32_t date;                      /**< Alarm date, range [1-31].
+                                             The appropriate ALARMX interrupt is be asserted on matching with this
                                              value if dateEn is previous enabled (dateEn = 1) */
     cy_en_rtc_alarm_enable_t dateEn;    /**< Enable alarm on date matching, see \ref cy_en_rtc_alarm_enable_t. */
 
-    uint32_t month;                     /**< Alarm Month, range [1-12]. 
+    uint32_t month;                     /**< Alarm Month, range [1-12].
                                              The appropriate ALARMX interrupt is be asserted on matching with this
                                              value if dateEn is previous enabled (dateEn = 1) */
     cy_en_rtc_alarm_enable_t monthEn;   /**< Enable alarm on month matching, see \ref cy_en_rtc_alarm_enable_t. */
@@ -493,21 +498,21 @@ typedef struct cy_stc_rtc_alarm
 */
 typedef struct
 {
-    cy_en_rtc_dst_format_t format;   /**< DST format. See /ref cy_en_rtc_dst_format_t. 
+    cy_en_rtc_dst_format_t format;   /**< DST format. See /ref cy_en_rtc_dst_format_t.
                                           Based on this value other structure elements
                                           should be filled or could be ignored */
     uint32_t hour;                   /**< Should be filled for both format types.
                                           Hour is always presented in 24hour format, range[0-23] */
-    uint32_t dayOfMonth;             /**< Day of Month, range[1-31]. This element should be filled if 
+    uint32_t dayOfMonth;             /**< Day of Month, range[1-31]. This element should be filled if
                                           format = CY_RTC_DST_FIXED. Firmware calculates this value in condition that
                                           format = CY_RTC_DST_RELATIVE is selected */
-    uint32_t weekOfMonth;            /**< Week of month, range[1-6]. This element should be filled if 
+    uint32_t weekOfMonth;            /**< Week of month, range[1-6]. This element should be filled if
                                           format = CY_RTC_DST_RELATIVE.
-                                          Firmware calculates dayOfMonth value based on weekOfMonth 
+                                          Firmware calculates dayOfMonth value based on weekOfMonth
                                           and dayOfWeek values */
-    uint32_t dayOfWeek;              /**< Day of the week, this element should be filled in condition that 
-                                          format = CY_RTC_DST_RELATIVE. Range[1- 7], 
-                                          see \ref group_rtc_day_of_the_week. Firmware calculates dayOfMonth value 
+    uint32_t dayOfWeek;              /**< Day of the week, this element should be filled in condition that
+                                          format = CY_RTC_DST_RELATIVE. Range[1- 7],
+                                          see \ref group_rtc_day_of_the_week. Firmware calculates dayOfMonth value
                                           based on dayOfWeek and weekOfMonth values */
     uint32_t month;                  /**< Month value, range[1-12], see \ref group_rtc_month.
                                           This value should be filled for both format types */
@@ -539,7 +544,7 @@ typedef struct
 cy_en_rtc_status_t Cy_RTC_Init(cy_stc_rtc_config_t const *config);
 cy_en_rtc_status_t Cy_RTC_SetDateAndTime(cy_stc_rtc_config_t const *dateTime);
 void   Cy_RTC_GetDateAndTime(cy_stc_rtc_config_t *dateTime);
-cy_en_rtc_status_t Cy_RTC_SetDateAndTimeDirect(uint32_t sec, uint32_t min, uint32_t hour, 
+cy_en_rtc_status_t Cy_RTC_SetDateAndTimeDirect(uint32_t sec, uint32_t min, uint32_t hour,
                                                uint32_t date, uint32_t month, uint32_t year);
 cy_en_rtc_status_t Cy_RTC_SetHoursFormat(cy_en_rtc_hours_format_t hoursFormat);
 void Cy_RTC_SelectFrequencyPrescaler(cy_en_rtc_clock_freq_t clkSel);
@@ -551,7 +556,7 @@ void Cy_RTC_SelectFrequencyPrescaler(cy_en_rtc_clock_freq_t clkSel);
 */
 cy_en_rtc_status_t Cy_RTC_SetAlarmDateAndTime(cy_stc_rtc_alarm_t const *alarmDateTime, cy_en_rtc_alarm_t alarmIndex);
 void   Cy_RTC_GetAlarmDateAndTime(cy_stc_rtc_alarm_t *alarmDateTime, cy_en_rtc_alarm_t alarmIndex);
-cy_en_rtc_status_t Cy_RTC_SetAlarmDateAndTimeDirect(uint32_t sec, uint32_t min, uint32_t hour, 
+cy_en_rtc_status_t Cy_RTC_SetAlarmDateAndTimeDirect(uint32_t sec, uint32_t min, uint32_t hour,
                                                     uint32_t date, uint32_t month, cy_en_rtc_alarm_t alarmIndex);
 /** \} group_rtc_alarm_functions */
 
@@ -706,7 +711,7 @@ bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t co
 /**
 * \defgroup group_rtc_busy_status RTC Status definitions
 * \{
-* Definitions for indicating the RTC BUSY bit 
+* Definitions for indicating the RTC BUSY bit
 */
 #define CY_RTC_BUSY                                     (1UL) /**< RTC Busy bit is set, RTC is pending */
 #define CY_RTC_AVAILABLE                                (0UL) /**< RTC Busy bit is cleared, RTC is available */
@@ -826,7 +831,7 @@ extern uint8_t const cy_RTC_daysInMonthTbl[CY_RTC_MONTHS_PER_YEAR];
 
 /* Internal macro to validate RTC day of the week parameter */
 #define CY_RTC_IS_DOW_VALID(dayOfWeek)      (((dayOfWeek) > 0U) && ((dayOfWeek) <= CY_RTC_DAYS_PER_WEEK))
-        
+
 /* Internal macro to validate RTC day parameter */
 #define CY_RTC_IS_DAY_VALID(day)            (((day) > 0U) && ((day) <= CY_RTC_MAX_DAYS_IN_MONTH))
 
@@ -863,9 +868,9 @@ extern uint8_t const cy_RTC_daysInMonthTbl[CY_RTC_MONTHS_PER_YEAR];
 *
 * Returns a day of the week for a year, month, and day of month that are passed
 * through parameters. Zeller's congruence is used to calculate the day of
-* the week. 
-* RTC HW block does not provide the converting function for day of week. This 
-* function should be called before Cy_RTC_SetDateAndTime() to get the day of 
+* the week.
+* RTC HW block does not provide the converting function for day of week. This
+* function should be called before Cy_RTC_SetDateAndTime() to get the day of
 * week.
 *
 * For the Georgian calendar, Zeller's congruence is:
@@ -903,7 +908,7 @@ __STATIC_INLINE uint32_t Cy_RTC_ConvertDayOfWeek(uint32_t day, uint32_t month, u
     CY_ASSERT_L2(CY_RTC_IS_DAY_VALID(day));
     CY_ASSERT_L2(CY_RTC_IS_MONTH_VALID(month));
     CY_ASSERT_L2(CY_RTC_IS_YEAR_LONG_VALID(year));
-    
+
     /* Converts month number from regular convention
     * (1=January,..., 12=December) to convention required for this
     * algorithm (January and February are counted as months 13 and 14 of
@@ -916,7 +921,7 @@ __STATIC_INLINE uint32_t Cy_RTC_ConvertDayOfWeek(uint32_t day, uint32_t month, u
     }
 
     /* Calculates Day of Week using Zeller's congruence algorithms */
-    retVal = 
+    retVal =
     (day + (((month + 1UL) * 26UL) / 10UL) + year + (year / 4UL) + (6UL * (year / 100UL)) + (year / 400UL)) % 7UL;
 
     /* Makes correction for Saturday. Saturday number should be 7 instead of 0*/
@@ -936,9 +941,9 @@ __STATIC_INLINE uint32_t Cy_RTC_ConvertDayOfWeek(uint32_t day, uint32_t month, u
 * Checks whether the year passed through the parameter is leap or not.
 *
 * This API is for checking an invalid value input for leap year.
-* RTC HW block does not provide a validation checker against time/date values, 
+* RTC HW block does not provide a validation checker against time/date values,
 * the valid range of days in Month should be checked before SetDateAndTime()
-* function call. Leap year is identified as a year that is a multiple of 4 
+* function call. Leap year is identified as a year that is a multiple of 4
 * or 400 but not 100.
 *
 * \param year
@@ -963,7 +968,7 @@ __STATIC_INLINE bool Cy_RTC_IsLeapYear(uint32_t year)
 *
 *  Returns a number of days in a month passed through the parameters. This API
 *  is for checking an invalid value input for days.
-*  RTC HW block does not provide a validation checker against time/date values, 
+*  RTC HW block does not provide a validation checker against time/date values,
 *  the valid range of days in Month should be checked before SetDateAndTime()
 *  function call.
 *
@@ -1001,23 +1006,23 @@ __STATIC_INLINE uint32_t Cy_RTC_DaysInMonth(uint32_t month, uint32_t year)
 * Function Name: Cy_RTC_SyncFromRtc
 ****************************************************************************//**
 *
-* The Synchronizer updates RTC values into AHB RTC user registers from the 
-* actual RTC. By calling this function, the actual RTC register values is 
+* The Synchronizer updates RTC values into AHB RTC user registers from the
+* actual RTC. By calling this function, the actual RTC register values is
 * copied to AHB user registers.
 *
-* \note Only after calling Cy_RTC_SyncFromRtc(), the RTC time values can be 
-* read. After Cy_RTC_SyncFromRtc() calling the snapshot of the actual RTC 
-* registers are copied to the user registers. Meanwhile the RTC continues to 
+* \note Only after calling Cy_RTC_SyncFromRtc(), the RTC time values can be
+* read. After Cy_RTC_SyncFromRtc() calling the snapshot of the actual RTC
+* registers are copied to the user registers. Meanwhile the RTC continues to
 * clock.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_RTC_SyncFromRtc(void)
 {
     uint32_t interruptState;
-    
-    interruptState = Cy_SysLib_EnterCriticalSection(); 
-    
-    /* RTC Write is possible only in the condition that CY_RTC_BUSY bit = 0 
+
+    interruptState = Cy_SysLib_EnterCriticalSection();
+
+    /* RTC Write is possible only in the condition that CY_RTC_BUSY bit = 0
     *  or RTC Write bit is not set.
     */
     if ((CY_RTC_BUSY != Cy_RTC_GetSyncStatus()) && (!_FLD2BOOL(BACKUP_RTC_RW_WRITE, BACKUP_RTC_RW)))
@@ -1039,12 +1044,12 @@ __STATIC_INLINE void Cy_RTC_SyncFromRtc(void)
 * Function Name: Cy_RTC_WriteEnable
 ****************************************************************************//**
 *
-* Set/Clear writeable option for RTC user registers. When the Write bit is set, 
-* data can be written into the RTC user registers. After all the RTC writes are 
+* Set/Clear writeable option for RTC user registers. When the Write bit is set,
+* data can be written into the RTC user registers. After all the RTC writes are
 * done, the firmware must clear (call Cy_RTC_WriteEnable(RTC_WRITE_DISABLED))
-* the Write bit for the RTC update to take effect. 
+* the Write bit for the RTC update to take effect.
 *
-* Set/Clear cannot be done if the RTC is still busy with a previous update 
+* Set/Clear cannot be done if the RTC is still busy with a previous update
 * (CY_RTC_BUSY = 1) or RTC Reading is executing.
 *
 * \param writeEnable
@@ -1064,7 +1069,7 @@ __STATIC_INLINE cy_en_rtc_status_t Cy_RTC_WriteEnable(cy_en_rtc_write_status_t w
 
     if (writeEnable == CY_RTC_WRITE_ENABLED)
     {
-        /* RTC Write bit set is possible only in condition that CY_RTC_BUSY bit = 0 
+        /* RTC Write bit set is possible only in condition that CY_RTC_BUSY bit = 0
         * or RTC Read bit is not set
         */
         if ((CY_RTC_BUSY != Cy_RTC_GetSyncStatus()) && (!_FLD2BOOL(BACKUP_RTC_RW_READ, BACKUP_RTC_RW)))
@@ -1092,8 +1097,8 @@ __STATIC_INLINE cy_en_rtc_status_t Cy_RTC_WriteEnable(cy_en_rtc_write_status_t w
 ****************************************************************************//**
 *
 * Return current status of CY_RTC_BUSY. The status indicates
-* synchronization between the RTC user register and the actual RTC register. 
-* CY_RTC_BUSY bit is set if it is synchronizing. It is not possible to set 
+* synchronization between the RTC user register and the actual RTC register.
+* CY_RTC_BUSY bit is set if it is synchronizing. It is not possible to set
 * the Read or Write bit until CY_RTC_BUSY clears.
 *
 * \return
@@ -1102,7 +1107,7 @@ __STATIC_INLINE cy_en_rtc_status_t Cy_RTC_WriteEnable(cy_en_rtc_write_status_t w
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_RTC_GetSyncStatus(void)
-{  
+{
     return((_FLD2BOOL(BACKUP_STATUS_RTC_BUSY, BACKUP_STATUS)) ? CY_RTC_BUSY : CY_RTC_AVAILABLE);
 }
 
@@ -1121,7 +1126,7 @@ __STATIC_INLINE uint32_t Cy_RTC_GetSyncStatus(void)
 * \return
 * decNum An 8-bit hexadecimal equivalent number of the BCD number.
 *
-* For example, for 0x11223344 BCD number, the function returns 
+* For example, for 0x11223344 BCD number, the function returns
 * 0x2C in hexadecimal format.
 *
 *******************************************************************************/
@@ -1129,8 +1134,8 @@ __STATIC_INLINE uint32_t Cy_RTC_ConvertBcdToDec(uint32_t bcdNum)
 {
     uint32_t retVal;
 
-    retVal = 
-    ((bcdNum & (CY_RTC_BCD_ONE_DIGIT_MASK << CY_RTC_BCD_NUMBER_SIZE)) 
+    retVal =
+    ((bcdNum & (CY_RTC_BCD_ONE_DIGIT_MASK << CY_RTC_BCD_NUMBER_SIZE))
                           >> CY_RTC_BCD_NUMBER_SIZE ) * CY_RTC_BCD_DOZED_DEGREE;
 
     retVal += bcdNum & CY_RTC_BCD_ONE_DIGIT_MASK;
@@ -1147,14 +1152,14 @@ __STATIC_INLINE uint32_t Cy_RTC_ConvertBcdToDec(uint32_t bcdNum)
 * is converted individually and returned as an individual byte in the 32-bit
 * variable.
 *
-* \param 
+* \param
 * decNum An 8-bit hexadecimal number. Each byte is represented in hex.
 * 0x11223344 -> 0x20 hex format.
 *
 * \return
 * An 8-bit BCD equivalent of the passed hexadecimal number.
 *
-* For example, for 0x11223344 hexadecimal number, the function returns 
+* For example, for 0x11223344 hexadecimal number, the function returns
 * 0x20 BCD number.
 *
 *******************************************************************************/
@@ -1201,8 +1206,8 @@ __STATIC_INLINE cy_en_rtc_hours_format_t Cy_RTC_GetHoursFormat(void)
 * True if the reset reason is the power cycle and the XRES (external reset).
 * False if the reset reason is other than power cycle and the XRES.
 *
-* \note Based on a return value the RTC time and date can be updated or skipped 
-* after the device reset. For example, you should skip the 
+* \note Based on a return value the RTC time and date can be updated or skipped
+* after the device reset. For example, you should skip the
 * Cy_RTC_SetAlarmDateAndTime() call function if internal WDT reset occurs.
 *
 *******************************************************************************/
@@ -1216,11 +1221,11 @@ __STATIC_INLINE bool Cy_RTC_IsExternalResetOccurred(void)
 * Function Name: Cy_RTC_SyncToRtcAhbDateAndTime
 ****************************************************************************//**
 *
-* This function updates new time and date into the time and date RTC AHB 
+* This function updates new time and date into the time and date RTC AHB
 * registers.
 *
 * \param timeBcd
-* The BCD-formatted time variable which has the same bit masks as the 
+* The BCD-formatted time variable which has the same bit masks as the
 * RTC_TIME register:
 *
 * [0:6]   - Calendar seconds in BCD, the range 0-59. \n
@@ -1232,7 +1237,7 @@ __STATIC_INLINE bool Cy_RTC_IsExternalResetOccurred(void)
 * [26:24] - A calendar day of the week, the range 1 - 7, where 1 - Sunday. \n
 *
 * \param dateBcd
-* The BCD-formatted time variable which has the same bit masks as the 
+* The BCD-formatted time variable which has the same bit masks as the
 * RTC_DATE register:
 *
 * [5:0]   - A calendar day of a month in BCD, the range 1-31. \n
@@ -1241,15 +1246,15 @@ __STATIC_INLINE bool Cy_RTC_IsExternalResetOccurred(void)
 *
 * \note Ensure that the parameters are presented in the BCD format. Use the
 * ConstructTimeDate() function to construct BCD time and date values.
-* Refer to ConstructTimeDate() function description for more details 
-* about the RTC_TIME and RTC_DATE bit fields format.  
+* Refer to ConstructTimeDate() function description for more details
+* about the RTC_TIME and RTC_DATE bit fields format.
 *
 * The RTC AHB registers can be updated only under condition that the
-* Write bit is set and the RTC busy bit is cleared (RTC_BUSY = 0). Call the 
+* Write bit is set and the RTC busy bit is cleared (RTC_BUSY = 0). Call the
 * Cy_RTC_WriteEnable(CY_RTC_WRITE_ENABLED) and ensure that Cy_RTC_WriteEnable()
 * returned CY_RTC_SUCCESS. Then you can call Cy_RTC_SyncToRtcAhbDateAndTime().
-* Do not forget to clear the RTC Write bit to finish an RTC register update by 
-* calling Cy_RTC_WriteEnable(CY_RTC_WRITE_DISABLED) after you executed 
+* Do not forget to clear the RTC Write bit to finish an RTC register update by
+* calling Cy_RTC_WriteEnable(CY_RTC_WRITE_DISABLED) after you executed
 * Cy_RTC_SyncToRtcAhbDateAndTime(). Ensure that Cy_RTC_WriteEnable()
 * returned CY_RTC_SUCCESS.
 *
@@ -1265,18 +1270,18 @@ __STATIC_INLINE void Cy_RTC_SyncToRtcAhbDateAndTime(uint32_t timeBcd, uint32_t d
 * Function Name: Cy_RTC_SyncToRtcAhbAlarm
 ****************************************************************************//**
 *
-* This function updates new alarm time and date into the alarm tire and date 
+* This function updates new alarm time and date into the alarm tire and date
 * RTC AHB registers.
 *
 * \param alarmTimeBcd
-* The BCD-formatted time variable which has the same bit masks as the 
+* The BCD-formatted time variable which has the same bit masks as the
 * ALMx_TIME register time fields:
 *
 * [0:6]   - Alarm seconds in BCD, the range 0-59. \n
 * [7]     - Alarm seconds Enable: 0 - ignore, 1 - match. \n
 * [14:8]  - Alarm minutes in BCD, the range 0-59. \n
 * [15]    - Alarm minutes Enable: 0 - ignore, 1 - match. \n
-* [21:16] - Alarm hours in BCD, value depending on the 12/24-hour mode  
+* [21:16] - Alarm hours in BCD, value depending on the 12/24-hour mode
 * (RTC_CTRL_12HR)\n
 * 12HR: [21]:0 = AM, 1 = PM, [20:16] = 1 - 12; \n
 * 24HR: [21:16] = the range 0-23. \n
@@ -1285,7 +1290,7 @@ __STATIC_INLINE void Cy_RTC_SyncToRtcAhbDateAndTime(uint32_t timeBcd, uint32_t d
 * [31]    - An alarm day of the week Enable: 0 - ignore, 1 - match. \n
 *
 * \param alarmDateBcd
-* The BCD-formatted date variable which has the same bit masks as the 
+* The BCD-formatted date variable which has the same bit masks as the
 * ALMx_DATE register date fields: \n
 * [5:0]  - An alarm day of a month in BCD, the range 1-31. \n
 * [7]    - An alarm day of a month Enable: 0 - ignore, 1 - match. \n
@@ -1296,17 +1301,17 @@ __STATIC_INLINE void Cy_RTC_SyncToRtcAhbDateAndTime(uint32_t timeBcd, uint32_t d
 * \param alarmIndex
 * The alarm index to be configured, see \ref cy_en_rtc_alarm_t.
 *
-* \note Ensure that the parameters are presented in the BCD format. Use the 
+* \note Ensure that the parameters are presented in the BCD format. Use the
 * ConstructTimeDate() function to construct BCD time and date values.
-* Refer to ConstructTimeDate() function description for more details 
-* about the RTC ALMx_TIME and ALMx_DATE bit-fields format.  
+* Refer to ConstructTimeDate() function description for more details
+* about the RTC ALMx_TIME and ALMx_DATE bit-fields format.
 *
 * The RTC AHB registers can be updated only under condition that the
-* Write bit is set and the RTC busy bit is cleared (RTC_BUSY = 0). Call the 
+* Write bit is set and the RTC busy bit is cleared (RTC_BUSY = 0). Call the
 * Cy_RTC_WriteEnable(CY_RTC_WRITE_ENABLED) and ensure that Cy_RTC_WriteEnable()
 * returned CY_RTC_SUCCESS. Then you can call Cy_RTC_SyncToRtcAhbDateAndTime().
-* Do not forget to clear the RTC Write bit to finish an RTC register update by 
-* calling the Cy_RTC_WriteEnable(CY_RTC_WRITE_DISABLED) after you executed 
+* Do not forget to clear the RTC Write bit to finish an RTC register update by
+* calling the Cy_RTC_WriteEnable(CY_RTC_WRITE_DISABLED) after you executed
 * Cy_RTC_SyncToRtcAhbDateAndTime(). Ensure that Cy_RTC_WriteEnable()
 * returned CY_RTC_SUCCESS.
 *
@@ -1314,7 +1319,7 @@ __STATIC_INLINE void Cy_RTC_SyncToRtcAhbDateAndTime(uint32_t timeBcd, uint32_t d
 __STATIC_INLINE void Cy_RTC_SyncToRtcAhbAlarm(uint32_t alarmTimeBcd, uint32_t alarmDateBcd, cy_en_rtc_alarm_t alarmIndex)
 {
     CY_ASSERT_L3(CY_RTC_IS_ALARM_IDX_VALID(alarmIndex));
-    
+
     if (alarmIndex != CY_RTC_ALARM_2)
     {
         BACKUP_ALM1_TIME = alarmTimeBcd;

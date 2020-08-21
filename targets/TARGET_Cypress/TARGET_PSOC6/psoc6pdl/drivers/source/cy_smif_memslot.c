@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.c
-* \version 1.50
+* \version 1.50.1
 *
 * \brief
 *  This file provides the source code for the memory-level APIs of the SMIF driver.
@@ -3680,10 +3680,12 @@ cy_en_smif_status_t Cy_SMIF_MemWrite(SMIF_Type *base, cy_stc_smif_mem_config_t c
 * The memory device configuration.
 *
 * \param address
-* The address of the block to be erased.
+* The address of the block to be erased. The address should be aligned with 
+* the start address of the sector.
 *
 * \param length
-* The size of data to erase.
+* The size of data to erase. The length should be equal to the sum of all sectors
+* length to be erased.
 *
 * \param context
 * This is the pointer to the context structure \ref cy_stc_smif_context_t
@@ -3693,8 +3695,8 @@ cy_en_smif_status_t Cy_SMIF_MemWrite(SMIF_Type *base, cy_stc_smif_mem_config_t c
 *
 * \return The status of the operation. See \ref cy_en_smif_status_t.
 *
-* \note The address should be aligned with the start address of the sector. \n
-* The length should be equal to the sum of all erased sectors.
+* \note Memories like hybrid have sectors of different sizes. \n
+* Check the adress and length parameters before calling this function.
 *
 * \funcusage 
 * \snippet smif/snippet/main.c snippet_Cy_SMIF_MemEraseSector

@@ -138,10 +138,12 @@
   <ConfigFirmware>
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKHF`${clockInst}`_ENABLED" public="false" value="1" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKHF`${clockInst}`_DIVIDER" public="false" value="CY_SYSCLK_CLKHF_`${divider == 1 ? &quot;NO_DIVIDE&quot; : ((&quot;DIVIDE_BY_&quot;) . divider)}`" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKHF`${clockInst}`" public="true" value="`${clockInst}`UL" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKHF`${clockInst}`_FREQ_MHZ" public="false" value="`${frequency / 1000000}`UL" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKHF`${clockInst}`_CLKPATH" public="false" value="CY_SYSCLK_CLKHF_IN_CLKPATH`${sourceClockNumber}`" include="true" />
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkHf`${clockInst}`Init()" body="    Cy_SysClk_ClkHfSetSource(`${clockInst}`U, CY_CFG_SYSCLK_CLKHF`${clockInst}`_CLKPATH);&#xA;    Cy_SysClk_ClkHfSetDivider(`${clockInst}`U, CY_SYSCLK_CLKHF_`${divider == 1 ? &quot;NO_DIVIDE&quot; : ((&quot;DIVIDE_BY_&quot;) . divider)}`);" public="false" include="`${clockInst eq 0}`" />
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkHf`${clockInst}`Init()" body="    Cy_SysClk_ClkHfSetSource(CY_CFG_SYSCLK_CLKHF`${clockInst}`, CY_CFG_SYSCLK_CLKHF`${clockInst}`_CLKPATH);&#xA;    Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF`${clockInst}`, CY_SYSCLK_CLKHF_`${divider == 1 ? &quot;NO_DIVIDE&quot; : ((&quot;DIVIDE_BY_&quot;) . divider)}`);&#xA;    Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF`${clockInst}`);" public="false" include="`${clockInst gt 0}`" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKHF`${clockInst}`_CLKPATH_NUM" public="true" value="`${sourceClockNumber}`UL" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkHf`${clockInst}`Init()" body="    Cy_SysClk_ClkHfSetSource(`${clockInst}`U, CY_CFG_SYSCLK_CLKHF`${clockInst}`_CLKPATH);&#xA;    Cy_SysClk_ClkHfSetDivider(`${clockInst}`U, CY_SYSCLK_CLKHF_`${divider == 1 ? &quot;NO_DIVIDE&quot; : ((&quot;DIVIDE_BY_&quot;) . divider)}`);" public="false" include="`${clockInst eq 0}`" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkHf`${clockInst}`Init()" body="    Cy_SysClk_ClkHfSetSource(CY_CFG_SYSCLK_CLKHF`${clockInst}`, CY_CFG_SYSCLK_CLKHF`${clockInst}`_CLKPATH);&#xA;    Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF`${clockInst}`, CY_SYSCLK_CLKHF_`${divider == 1 ? &quot;NO_DIVIDE&quot; : ((&quot;DIVIDE_BY_&quot;) . divider)}`);&#xA;    Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF`${clockInst}`);" public="false" include="`${clockInst gt 0}`" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

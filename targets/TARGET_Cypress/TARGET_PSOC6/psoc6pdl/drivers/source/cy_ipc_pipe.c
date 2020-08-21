@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.c
-* \version 1.40
+* \version 1.40.2
 *
 *  Description:
 *   IPC Pipe Driver - This source file includes code for the Pipe layer on top
 *   of the IPC driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

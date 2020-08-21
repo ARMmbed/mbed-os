@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_pdm_pcm.h
-* \version 2.20.1
+* \version 2.20.2
 *
 * The header file of the PDM_PCM driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,9 +30,9 @@
 * API to manage PDM-PCM conversion. A PDM-PCM converter is used
 * to convert 1-bit digital audio streaming data to PCM data.
 *
-* The functions and other declarations used in this driver are in cy_pdm_pcm.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The functions and other declarations used in this driver are in cy_pdm_pcm.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
 *
 * Features:
 * * Supports FIFO buffer for Incoming Data
@@ -115,13 +115,18 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.20.2</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>2.20.1</td>
 *     <td>Snippet updated.</td>
 *     <td>Old snippet outdated.</td>
 *   </tr>
 *   <tr>
 *     <td rowspan="2">2.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -129,12 +134,12 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
 *     <td>2.10</td>
-*     <td>The gain values in range +4.5...+10.5dB (5 items) of /ref cy_en_pdm_pcm_gain_t are corrected. 
+*     <td>The gain values in range +4.5...+10.5dB (5 items) of /ref cy_en_pdm_pcm_gain_t are corrected.
 *         Added Low Power Callback section.</td>
 *     <td>Incorrect setting of gain values in limited range.
 *         Documentation update and clarification.</td>
@@ -142,7 +147,7 @@
 *   <tr>
 *     <td>2.0</td>
 *     <td>Enumeration types for gain and soft mute cycles are added.<br>
-*         Function parameter checks are added.<br>        
+*         Function parameter checks are added.<br>
 *         The next functions are removed:
 *         * Cy_PDM_PCM_EnterLowPowerCallback
 *         * Cy_PDM_PCM_ExitLowPowerCallback
@@ -375,7 +380,7 @@ typedef struct
                                                     - 1: extension by sign bits */
     cy_en_pdm_pcm_gain_t     gainLeft;            /**< Gain for left channel, see #cy_en_pdm_pcm_gain_t */
     cy_en_pdm_pcm_gain_t     gainRight;           /**< Gain for right channel, see #cy_en_pdm_pcm_gain_t */
-    uint8_t                  rxFifoTriggerLevel;  /**< Fifo interrupt trigger level (in words), 
+    uint8_t                  rxFifoTriggerLevel;  /**< Fifo interrupt trigger level (in words),
                                                     range: 0 - 253 for stereo and 0 - 254 for mono mode */
     bool                     dmaTriggerEnable;    /**< DMA trigger enable */
     uint32_t                 interruptMask;       /**< Interrupts enable mask */
@@ -455,7 +460,7 @@ typedef struct
 
 #define CY_PDM_PCM_IS_CHAN_VALID(chan)         (((chan) == CY_PDM_PCM_CHAN_LEFT) || \
                                                 ((chan) == CY_PDM_PCM_CHAN_RIGHT))
-                                                
+
 #define CY_PDM_PCM_IS_S_CYCLES_VALID(sCycles)  (((sCycles) == CY_PDM_PCM_SOFT_MUTE_CYCLES_64)  || \
                                                 ((sCycles) == CY_PDM_PCM_SOFT_MUTE_CYCLES_96)  || \
                                                 ((sCycles) == CY_PDM_PCM_SOFT_MUTE_CYCLES_128) || \
@@ -464,7 +469,7 @@ typedef struct
                                                 ((sCycles) == CY_PDM_PCM_SOFT_MUTE_CYCLES_256) || \
                                                 ((sCycles) == CY_PDM_PCM_SOFT_MUTE_CYCLES_384) || \
                                                 ((sCycles) == CY_PDM_PCM_SOFT_MUTE_CYCLES_512))
-                                                
+
 #define CY_PDM_PCM_IS_INTR_MASK_VALID(interrupt)  (0UL == ((interrupt) & ((uint32_t) ~CY_PDM_PCM_INTR_MASK)))
 #define CY_PDM_PCM_IS_SINC_RATE_VALID(sincRate)   ((sincRate) <= 127U)
 #define CY_PDM_PCM_IS_STEP_SEL_VALID(stepSel)     ((stepSel)  <= 1UL)
@@ -634,7 +639,7 @@ __STATIC_INLINE uint32_t Cy_PDM_PCM_GetInterruptStatus(PDM_Type const * base)
 * Clears one or more PDM-PCM interrupt statuses (sets an INTR register's bits).
 *
 * \param base The pointer to the PDM-PCM instance address
-* \param interrupt 
+* \param interrupt
 *  The interrupt bit mask \ref group_pdm_pcm_macros_interrupt_masks.
 *
 ******************************************************************************/

@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_ipc_sema.c
-* \version 1.40
+* \version 1.40.2
 *
 *  Description:
 *   IPC Semaphore Driver - This source file contains the source code for the
 *   semaphore level APIs for the IPC interface.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -93,7 +93,7 @@ cy_en_ipcsema_status_t Cy_IPC_Sema_Init(uint32_t ipcChannel,
 
         retStatus = Cy_IPC_Sema_InitExt(ipcChannel, &cy_semaData);
     }
-    
+
     else
     {
         retStatus = CY_IPC_SEMA_BAD_PARAM;
@@ -121,7 +121,7 @@ cy_en_ipcsema_status_t Cy_IPC_Sema_Init(uint32_t ipcChannel,
 * The IPC channel number used for semaphores
 *
 * \param ipcSema
-*  This is configuration structure of the IPC semaphore. 
+*  This is configuration structure of the IPC semaphore.
 *  See \ref cy_stc_ipc_sema_t.
 *
 * \return Status of the operation
@@ -129,7 +129,7 @@ cy_en_ipcsema_status_t Cy_IPC_Sema_Init(uint32_t ipcChannel,
 *    \retval CY_IPC_SEMA_BAD_PARAM:     Memory pointer is NULL and count is not zero,
 *                             or count not multiple of 32
 *    \retval CY_IPC_SEMA_ERROR_LOCKED:  Could not acquire semaphores IPC channel
-* 
+*
 *******************************************************************************/
 cy_en_ipcsema_status_t Cy_IPC_Sema_InitExt(uint32_t ipcChannel, cy_stc_ipc_sema_t *ipcSema)
 {

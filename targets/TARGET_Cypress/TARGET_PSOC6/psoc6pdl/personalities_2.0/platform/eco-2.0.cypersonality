@@ -41,7 +41,7 @@
     <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__sysclk__eco.html" linkText="Open ECO Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
 
     <ParamRange id="ecoFrequency" name="Frequency (MHz)" group="General" default="24.0000" visible="true" editable="true" min="16" max="35" resolution="0.0001" desc="" />
-    <ParamRange id="frequency" name="Frequency (Hz)" group="Internal" default="`${ecoFrequency * 1000000}`" visible="false" editable="false" min="4000000" max="35000000" resolution="1" desc="" />
+    <ParamRange id="frequency" name="Frequency (Hz)" group="Internal" default="`${ecoFrequency * 1000000}`" visible="false" editable="false" min="16000000" max="35000000" resolution="1" desc="" />
 
     <ParamRange id="accuracyPpm" name="Accuracy (&#177;ppm)" group="General" default="0" min="0" max="1000000" resolution="1" visible="true" editable="true" desc="Clock accuracy in ppm" />
     <ParamString id="accuracyPct" name="Accuracy (&#177;%)" group="General" default="`${accuracyPpm/10000.0}`" visible="true" editable="false" desc="Clock accuracy in %" />
@@ -90,6 +90,13 @@
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_ECO_ENABLED" value="1" public="false" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_ECO_FREQ" value="`${frequency}`UL" public="false" include="true" />
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_EcoInit()" body="    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_in_port}`, `${gpio_in_pin}`, CY_GPIO_DM_ANALOG, 0UL, HSIOM_SEL_GPIO);&#xA;    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_out_port}`, `${gpio_out_pin}`, CY_GPIO_DM_ANALOG, 0UL, HSIOM_SEL_GPIO);&#xA;    if (CY_SYSCLK_BAD_PARAM == Cy_SysClk_EcoConfigure(CY_CFG_SYSCLK_ECO_FREQ, `${csum}`UL, `${esr}`UL, `${driveLevel}`UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_ECO_ERROR);&#xA;    }&#xA;    if (CY_SYSCLK_TIMEOUT == Cy_SysClk_EcoEnable(3000UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_ECO_ERROR);&#xA;    }" public="false" include="`${!error}`" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ECO_GPIO_IN_PRT" value="GPIO_PRT`${gpio_in_port}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ECO_GPIO_IN_PIN" value="`${gpio_in_pin}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ECO_GPIO_OUT_PRT" value="GPIO_PRT`${gpio_out_port}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ECO_GPIO_OUT_PIN" value="`${gpio_out_pin}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ECO_CLOAD" value="`${cLoad}`UL" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ECO_ESR" value="`${esr}`UL" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ECO_DRIVE_LEVEL" value="`${driveLevel}`UL" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_EcoInit()" body="    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_in_port}`, `${gpio_in_pin}`, CY_GPIO_DM_ANALOG, 0UL, HSIOM_SEL_GPIO);&#xA;    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_out_port}`, `${gpio_out_pin}`, CY_GPIO_DM_ANALOG, 0UL, HSIOM_SEL_GPIO);&#xA;    if (CY_SYSCLK_BAD_PARAM == Cy_SysClk_EcoConfigure(CY_CFG_SYSCLK_ECO_FREQ, `${csum}`UL, `${esr}`UL, `${driveLevel}`UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_ECO_ERROR);&#xA;    }&#xA;    if (CY_SYSCLK_TIMEOUT == Cy_SysClk_EcoEnable(3000UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_ECO_ERROR);&#xA;    }" public="false" include="`${!error}`" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

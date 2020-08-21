@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_mcwdt.c
-* \version 1.30
+* \version 1.30.1
 *
 *  Description:
 *   Provides a system API for the MCWDT driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,10 +74,10 @@ cy_en_mcwdt_status_t Cy_MCWDT_Init(MCWDT_STRUCT_Type *base, cy_stc_mcwdt_config_
                                        _VAL2FLD(MCWDT_STRUCT_MCWDT_CONFIG_WDT_MODE1, config->c1Mode)              |
                                        (config->c0c1Cascade ? MCWDT_STRUCT_MCWDT_CONFIG_WDT_CASCADE0_1_Msk : 0UL) |
                                        _VAL2FLD(MCWDT_STRUCT_MCWDT_CONFIG_WDT_MODE0, config->c0Mode);
-                           
+
         ret = CY_MCWDT_SUCCESS;
     }
-                           
+
     return (ret);
 }
 
@@ -121,14 +121,14 @@ void Cy_MCWDT_DeInit(MCWDT_STRUCT_Type *base)
 *  The base pointer to a structure that describes the registers.
 *
 *  \note
-*  The user must enable both counters, and cascade C0 to C1, 
-*  before calling this function. C2 is not reported. 
+*  The user must enable both counters, and cascade C0 to C1,
+*  before calling this function. C2 is not reported.
 *  Instead, to get a 64-bit C2-C1-C0 cascaded value, the
 *  user must call this function followed by
 *  Cy_MCWDT_GetCount(base, CY_MCWDT_COUNTER2), and then combine the results.
-*  \note This function does not return the correct result when it is called 
-*  after the Cy_MCWDT_Enable() or Cy_MCWDT_ResetCounters() function with 
-*  a delay less than two lf_clk cycles. The recommended waitUs parameter 
+*  \note This function does not return the correct result when it is called
+*  after the Cy_MCWDT_Enable() or Cy_MCWDT_ResetCounters() function with
+*  a delay less than two lf_clk cycles. The recommended waitUs parameter
 *  value is 100 us.
 *
 * \return  The value of combined C1-C0 cascaded counters.
@@ -141,14 +141,14 @@ uint32_t Cy_MCWDT_GetCountCascaded(MCWDT_STRUCT_Type const *base)
     uint32_t counter0 = countVal & MCWDT_STRUCT_MCWDT_CNTLOW_WDT_CTR0_Msk;
     uint32_t match0 = _FLD2VAL(MCWDT_STRUCT_MCWDT_MATCH_WDT_MATCH0, MCWDT_STRUCT_MCWDT_MATCH(base));
     uint32_t match1 = _FLD2VAL(MCWDT_STRUCT_MCWDT_MATCH_WDT_MATCH1, MCWDT_STRUCT_MCWDT_MATCH(base));
-    
-    /* 
-     * The counter  counter0 goes to zero when it reaches the match0 
-     * value (c0ClearOnMatch = 1) or reaches the maximum 
-     * value (c0ClearOnMatch = 0). The counter counter1 increments on 
-     * the next rising edge of the MCWDT clock after 
-     * the Clear On Match event takes place. 
-     * The software increments counter1 to eliminate the case 
+
+    /*
+     * The counter  counter0 goes to zero when it reaches the match0
+     * value (c0ClearOnMatch = 1) or reaches the maximum
+     * value (c0ClearOnMatch = 0). The counter counter1 increments on
+     * the next rising edge of the MCWDT clock after
+     * the Clear On Match event takes place.
+     * The software increments counter1 to eliminate the case
      * when the both counter0 and counter1 counters have zeros.
     */
     if (0UL == counter0)
@@ -160,17 +160,17 @@ uint32_t Cy_MCWDT_GetCountCascaded(MCWDT_STRUCT_Type const *base)
     if (0UL == _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR0, MCWDT_STRUCT_MCWDT_CONFIG(base)))
     {
         /* Save match0 value with the correction when counter0
-         *  goes to zero when it reaches the match0 value. 
+         *  goes to zero when it reaches the match0 value.
         */
         countVal = match0 + 1UL;
-        
-        if (0UL != counter1) 
+
+        if (0UL != counter1)
         {
             /* Set match to the maximum value */
-            match0 = MCWDT_STRUCT_MCWDT_CNTLOW_WDT_CTR0_Msk; 
+            match0 = MCWDT_STRUCT_MCWDT_CNTLOW_WDT_CTR0_Msk;
         }
-        
-        if (countVal < counter0) 
+
+        if (countVal < counter0)
         {
             /* Decrement counter1 when the counter0 is great than match0 value */
             counter1--;
@@ -179,7 +179,7 @@ uint32_t Cy_MCWDT_GetCountCascaded(MCWDT_STRUCT_Type const *base)
 
     /* Add the correction to counter0 */
     counter0 += counter1;
-    
+
     /* Set counter1 match value to 65535 when the counter1 is free running */
     if (0UL == _FLD2VAL(MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR1, MCWDT_STRUCT_MCWDT_CONFIG(base)))
     {
@@ -191,9 +191,9 @@ uint32_t Cy_MCWDT_GetCountCascaded(MCWDT_STRUCT_Type const *base)
     {
         /* Reset counter0 to disable the added correction of the counter1 value */
         counter0 = 0UL;
-        
-        /* Reset counter1 to prevent the wrong cascaded value calculation 
-         * because counter1 is updated only on the following clock edge after clearing counter0 
+
+        /* Reset counter1 to prevent the wrong cascaded value calculation
+         * because counter1 is updated only on the following clock edge after clearing counter0
          */
         counter1 = 0UL;
     }

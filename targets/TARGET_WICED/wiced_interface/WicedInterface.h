@@ -17,6 +17,8 @@
 #ifndef WICED_INTERFACE_H
 #define WICED_INTERFACE_H
 
+#if defined(MBED_CONF_NSAPI_PRESENT)
+
 #include "mbed.h"
 #include "EthernetInterface.h"
 #include "netsocket/OnboardNetworkStack.h"
@@ -109,5 +111,7 @@ private:
     char _pass[64]; /* The longest allowed passphrase + 1 */
     nsapi_security_t _security;
 };
+
+#endif
 
 #endif

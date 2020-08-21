@@ -1,28 +1,43 @@
-# PSoC 6 Peripheral Driver Library v1.5.2
+# PSoC 6 Peripheral Driver Library v1.6.1
 
 Please refer to the [README.md](./README.md) and the
 [PDL API Reference Manual](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/index.html)
 for a complete description of the Peripheral Driver Library.
 
-## New Features
+Some restrictions apply to the PSoC 64 devices configuration. Please refer to [PRA (Protected Register Access)](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__pra.html) driver documentation for the details.
 
-* No new features
+## New Features
+Added support of the PSoC 64 CYB06xx7 devices.
 
 ## Updated Personalities
 
-* WiFi - Fix build warning in the generated code. Minor parameter name updates.
+## Personalities with patch version updates
+
+* HvIlo - Changed ILO frequency from 32 kHz to 32.768 kHz, and ILO accuracy from 30% to 10% to reflect the actual values.
+* Csd - Fixed the CSD resource display condition on the Peripherals tab of the Device Configurator, to display this resource for all MPNs containing the CSD HW block.
+* SysClock - Renamed cy_stc_pra_system_config_t member from altHFfreq to altHFclkFreq.
+
+## Added Drivers
 
 ## Updated Drivers
 
-* [SD Host 1.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sd__host.html)
-* [CTB 1.10.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ctb.html)
-* [SysLib 2.50.3](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
+* [SysClk 2.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
+* [SysPm 5.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
+* [PRA 2.0](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__pra.html)
+* [SysInt 1.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysint.html)
+* [Prot 1.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__prot.html)
+* [ble_clk 3.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ble__clk.html)
+* [Startup 2.90](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__config.html)
+
+### Drivers with patch version updates
+
+Minor documentation changes:
+
+* IPC 1.40.2
+* SysLib 2.60.1
+* Crypto 2.30.4
 
 ## Known Issues
-
-See the Known Issues section of
-[SysLib](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
-driver.
 
 ## Defect Fixes
 

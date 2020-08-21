@@ -60,6 +60,14 @@
                                                                                                sourceClock eq ilo    ? &quot;ILO&quot; :
                                                                                                sourceClock eq pilo   ? &quot;PILO&quot; :
                                                                                                                       &quot;WCO&quot;}`" visible="false" editable="false" desc="" />
+
+    <ParamString id="sourceClockNumber" name="Source Clock Number" group="Internal" default="`${sourceClock eq imo    ? 0 :
+                                                                                               sourceClock eq eco     ? 1 :
+                                                                                               sourceClock eq ext     ? 2 :
+                                                                                               sourceClock eq althf   ? 3 :
+                                                                                               sourceClock eq ilo     ? 4 :
+                                                                                               sourceClock eq pilo    ? 5 :
+                                                                                                                        6}`" visible="false" editable="false" desc="" />
     <!-- Set an error if the source clock is not enabled -->
     <ParamBool id="error" name="Clock Error" group="Internal" default="`${!isBlockUsed(sourceClockRsc)}`" visible="false" editable="false" desc="" />
     <!-- Use default values in case of error -->
@@ -79,6 +87,7 @@
     <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKPATH`${clockInst}`_ENABLED" value="1" public="false" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_CLKPATH`${clockInst}`_SOURCE" value="CY_SYSCLK_CLKPATH_IN_`${sourceClockApiName}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_CLKPATH`${clockInst}`_SOURCE_NUM" value="`${sourceClockNumber}`UL"  public="false" include="true" />
     
     <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">
       <Member name="type" value="CYHAL_RSC_CLKPATH" />
@@ -86,7 +95,7 @@
       <Member name="channel_num" value="0U" />
     </ConfigStruct>
     
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkPath`${clockInst}`Init()" body="    Cy_SysClk_ClkPathSetSource(`${clockInst}`U, CY_CFG_SYSCLK_CLKPATH`${clockInst}`_SOURCE);" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_ClkPath`${clockInst}`Init()" body="    Cy_SysClk_ClkPathSetSource(`${clockInst}`U, CY_CFG_SYSCLK_CLKPATH`${clockInst}`_SOURCE);" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
     
     <ConfigInstruction value="cyhal_hwmgr_reserve(&amp;`${INST_NAME}`_obj);" include="true" guard="defined (CY_USING_HAL)" />
   </ConfigFirmware>

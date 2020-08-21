@@ -6,7 +6,7 @@
         "mbedtls",
         "storage",
         "flashiap-block-device",
-        "tdbstore",
+        "kv-global-api",
         "storage_tdb_internal"
     ]
 }

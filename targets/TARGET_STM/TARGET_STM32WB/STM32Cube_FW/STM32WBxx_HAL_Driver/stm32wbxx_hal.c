@@ -56,7 +56,7 @@
  * @brief STM32WBxx HAL Driver version number
    */
 #define __STM32WBxx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32WBxx_HAL_VERSION_SUB1   (0x04U) /*!< [23:16] sub1 version */
+#define __STM32WBxx_HAL_VERSION_SUB1   (0x05U) /*!< [23:16] sub1 version */
 #define __STM32WBxx_HAL_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define __STM32WBxx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32WBxx_HAL_VERSION         ((__STM32WBxx_HAL_VERSION_MAIN << 24U)\
@@ -79,7 +79,7 @@
   */
 __IO uint32_t uwTick;
 uint32_t uwTickPrio = (1UL << __NVIC_PRIO_BITS); /* Invalid PRIO */
-uint32_t uwTickFreq = HAL_TICK_FREQ_DEFAULT;  /* 1KHz */
+HAL_TickFreqTypeDef uwTickFreq = HAL_TICK_FREQ_DEFAULT;  /* 1KHz */
 /**
   * @}
   */
@@ -346,17 +346,29 @@ uint32_t HAL_GetTickPrio(void)
   * @brief Set new tick Freq.
   * @retval Status
   */
-HAL_StatusTypeDef HAL_SetTickFreq(uint32_t Freq)
+HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 {
   HAL_StatusTypeDef status  = HAL_OK;
+  HAL_TickFreqTypeDef prevTickFreq;
+
   assert_param(IS_TICKFREQ(Freq));
 
   if (uwTickFreq != Freq)
   {
+    /* Back up uwTickFreq frequency */
+    prevTickFreq = uwTickFreq;
+
+    /* Update uwTickFreq global variable used by HAL_InitTick() */
     uwTickFreq = Freq;
 
     /* Apply the new tick Freq  */
     status = HAL_InitTick(uwTickPrio);
+
+    if (status != HAL_OK)
+    {
+      /* Restore previous tick frequency */
+      uwTickFreq = prevTickFreq;
+    }
   }
 
   return status;
@@ -366,7 +378,7 @@ HAL_StatusTypeDef HAL_SetTickFreq(uint32_t Freq)
   * @brief Return tick frequency.
   * @retval tick period in Hz
   */
-uint32_t HAL_GetTickFreq(void)
+HAL_TickFreqTypeDef HAL_GetTickFreq(void)
 {
   return uwTickFreq;
 }
@@ -626,14 +638,31 @@ uint32_t HAL_SYSCFG_IsEnabledSRAMFetch(void)
   *                                                This requires VDDA equal to or higher than 2.4 V.
   *            @arg @ref SYSCFG_VREFBUF_VOLTAGE_SCALE1 : VREF_OUT1 around 2.5 V. 
   *                                                This requires VDDA equal to or higher than 2.8 V.
+  * @note   Retrieve the TrimmingValue from factory located at
+  *         VREFBUF_SC0_CAL_ADDR or VREFBUF_SC1_CAL_ADDR addresses.
   * @retval None
   */
 void HAL_SYSCFG_VREFBUF_VoltageScalingConfig(uint32_t VoltageScaling)
 {
+  uint32_t TrimmingValue;
+
   /* Check the parameters */
   assert_param(IS_SYSCFG_VREFBUF_VOLTAGE_SCALE(VoltageScaling));
   
   LL_VREFBUF_SetVoltageScaling(VoltageScaling);
+  
+  /* Restrieve Calibration data and store them into trimming field */
+  if (VoltageScaling == SYSCFG_VREFBUF_VOLTAGE_SCALE0)
+  {
+    TrimmingValue = ((uint32_t) *VREFBUF_SC0_CAL_ADDR) & 0x3FU;
+  }
+  else
+  {
+    TrimmingValue = ((uint32_t) *VREFBUF_SC1_CAL_ADDR) & 0x3FU;
+  }
+  assert_param(IS_SYSCFG_VREFBUF_TRIMMING(TrimmingValue));
+
+  HAL_SYSCFG_VREFBUF_TrimmingConfig(TrimmingValue);
 }
 
 /**
@@ -655,6 +684,12 @@ void HAL_SYSCFG_VREFBUF_HighImpedanceConfig(uint32_t Mode)
 
 /**
   * @brief Tune the Internal Voltage Reference buffer (VREFBUF).
+  * @note  Each VrefBuf voltage scale is calibrated in production for each device,
+  *        data stored in flash memory.
+  *        Function @ref HAL_SYSCFG_VREFBUF_VoltageScalingConfig retrieves and 
+  *        applies this calibration data as trimming value at each scale change.
+  *        Therefore, optionally, function @ref HAL_SYSCFG_VREFBUF_TrimmingConfig
+  *        can be used in a second time to fine tune the trimming.
   * @param TrimmingValue specifies trimming code for VREFBUF calibration
   *          This parameter can be a number between Min_Data = 0x00 and Max_Data = 0x3F
   * @retval None

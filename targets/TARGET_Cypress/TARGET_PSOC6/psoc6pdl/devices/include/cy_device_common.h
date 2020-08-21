@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device_common.h
-* \version 2.40
+* \version 2.90
 *
 * \brief
 * This file provides types and IP block definitions common for all PSoC 6
@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

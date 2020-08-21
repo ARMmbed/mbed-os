@@ -1,0 +1,220 @@
+{
+    "name": "lwip",
+    "config": {
+        "present": 1,
+        "ipv4-enabled": {
+            "help": "Enable IPv4",
+            "value": true
+        },
+        "ipv6-enabled": {
+            "help": "Enable IPv6",
+            "value": false
+        },
+        "ip-ver-pref": {
+            "help": "On dual-stack system the preferred stack: 4 for IPv4 and 6 for IPv6",
+            "value": 4
+        },
+        "addr-timeout": {
+            "help": "On dual-stack system how long to additionally wait for other stack's address in seconds",
+            "value": 5
+        },
+        "addr-timeout-mode": {
+            "help": "Address timeout mode; true: wait both stack's addresses; false: wait for preferred stack's address",
+            "value": true
+        },
+        "dhcp-timeout": {
+            "help": "DHCP timeout value",
+            "value": 60
+        },
+        "ethernet-enabled": {
+            "help": "Enable support for Ethernet interfaces",
+            "value": true
+        },
+        "l3ip-enabled": {
+            "help": "Enable support for L3IP interfaces",
+            "value": false
+        },
+        "debug-enabled": {
+            "help": "Enable debug trace support",
+            "value": false
+        },
+        "ppp-enabled": {
+            "help": "Enable support for PPP interfaces (obsolete: use netsocket/ppp configuration instead)",
+            "value": false
+        },
+        "ppp-ipv4-enabled": {
+            "help": "Enable support for ipv4 PPP interface (obsolete: use netsocket/ppp configuration instead)",
+            "value": false
+        },
+        "ppp-ipv6-enabled": {
+            "help": "Enable support for ipv6 PPP interface (obsolete: use netsocket/ppp configuration instead)",
+            "value": false
+        },
+        "use-mbed-trace": {
+            "help": "Use mbed trace for debug, rather than printf",
+            "value": false
+        },
+        "enable-ppp-trace": {
+            "help": "Enable trace support for PPP interfaces (obsolete: use netsocket/ppp configuration instead)",
+            "value": false
+        },
+        "socket-max": {
+            "help": "Maximum number of open TCPSocket and UDPSocket instances allowed, including one used internally for DNS.  Each requires 236 bytes of pre-allocated RAM",
+            "value": 4
+        },
+        "tcp-enabled": {
+            "help": "Enable TCP",
+            "value": true
+        },
+        "tcp-server-max": {
+            "help": "Maximum number of open TCP server instances allowed.  Each requires 72 bytes of pre-allocated RAM",
+            "value": 4
+        },
+        "tcp-socket-max": {
+            "help": "Maximum number of open TCPSocket instances allowed.  Each requires 196 bytes of pre-allocated RAM",
+            "value": 4
+        },
+        "udp-socket-max": {
+            "help": "Maximum number of open UDPSocket instances allowed, including one used internally for DNS.  Each requires 84 bytes of pre-allocated RAM",
+            "value": 4
+        },
+        "memp-num-tcp-seg": {
+            "help": "Number of simultaneously queued TCP segments, see LWIP opt.h for more information. Current default is 16.",
+            "value": 16
+        },
+        "memp-num-tcpip-msg-inpkt": {
+            "help": "Number of simultaneously queued TCP messages that are received",
+            "value": 8
+        },
+        "tcp-mss": {
+            "help": "TCP Maximum segment size, see LWIP opt.h for more information. Current default is 536.",
+            "value": 536
+        },
+        "mbox-size": {
+            "help": "mailbox size",
+            "value": 8
+        },
+        "tcp-snd-buf": {
+            "help": "TCP sender buffer space (bytes), see LWIP's opt.h for more information. Current default is (2 * TCP_MSS).",
+            "value": "(2 * TCP_MSS)"
+        },
+        "tcp-wnd": {
+            "help": "TCP sender buffer space (bytes), see LWIP's opt.h for more information. Current default is (4 * TCP_MSS).",
+            "value": "(4 * TCP_MSS)"
+        },
+        "tcp-maxrtx": {
+            "help": "Maximum number of retransmissions of data segments, see LWIP's opt.h for more information. Current default is 6.",
+            "value": 6
+        },
+        "tcp-synmaxrtx": {
+            "help": "Maximum number of retransmissions of SYN segments, see LWIP's opt.h for more information. Current default is 6.",
+            "value": 6
+        },
+        "tcp-close-timeout": {
+            "help": "Maximum timeout (ms) for TCP close handshaking timeout",
+            "value": 1000
+        },
+        "tcpip-thread-priority": {
+            "help": "Priority of lwip TCPIP thread",
+            "value": "osPriorityNormal"
+        },
+        "pbuf-pool-size": {
+            "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading, see LWIP's opt.h for more information. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default  is 5.",
+            "value": 5
+        },
+        "pbuf-pool-bufsize": {
+            "help": "Size of pbufs in pool, see LWIP's opt.h for more information.",
+            "value": null
+        },
+        "mem-size": {
+            "help": "Size of heap (bytes) - used for outgoing packets, and also used by some drivers for reception, see LWIP's opt.h for more information. Current default is 1600.",
+            "value": 1600
+        },
+        "tcpip-thread-stacksize": {
+            "help": "Stack size for lwip TCPIP thread",
+            "value": 1200
+        },
+        "default-thread-stacksize": {
+            "help": "Stack size for lwip system threads",
+            "value": 512
+        },
+        "ppp-thread-stacksize": {
+            "help": "Thread stack size for PPP (obsolete: use netsocket/ppp configuration instead)",
+            "value": 768
+        },
+        "num-pbuf": {
+            "help": "Number of non-pool pbufs, each needs 92 bytes of RAM, see LWIP's opt.h for more information. Current default is 8.",
+            "value": 8
+        },
+        "num-netbuf": {
+            "help": "Number of netbufs, each netbuf requires 64 bytes of RAM, see LWIP's opt.h for more information. Current default is 8.",
+            "value": 8
+        },
+        "raw-socket-enabled": {
+            "help": "Enable lwip raw sockets, required for Mbed OS ICMPSocket",
+            "value": false
+        }
+    },
+    "target_overrides": {
+        "STM": {
+            "mem-size": 2310
+        },
+        "Freescale": {
+            "mem-size": 33270
+        },
+        "LPC1768": {
+            "mem-size": 16362
+        },
+        "ARCH_PRO": {
+            "mem-size": 16362
+        },
+        "LPC546XX": {
+            "mem-size": 36496
+        },
+        "EFM32GG11_STK3701": {
+            "mem-size": 36560
+        },
+        "RZ_A1XX": {
+            "tcpip-thread-stacksize": 1328,
+            "default-thread-stacksize": 640,
+            "memp-num-tcp-seg": 32,
+            "tcp-mss": 1440,
+            "tcp-snd-buf": "(8 * TCP_MSS)",
+            "tcp-wnd": "(TCP_MSS * 8)",
+            "pbuf-pool-size": 16,
+            "mem-size": 51200
+        },
+        "RZ_A2XX": {
+            "tcpip-thread-stacksize": 1328,
+            "default-thread-stacksize": 640,
+            "memp-num-tcp-seg": 32,
+            "tcp-mss": 1440,
+            "tcp-snd-buf": "(8 * TCP_MSS)",
+            "tcp-wnd": "(TCP_MSS * 8)",
+            "pbuf-pool-size": 16,
+            "mem-size": 51200
+        },
+        "MCU_PSOC6": {
+            "tcpip-thread-stacksize": 8192,
+            "default-thread-stacksize": 640,
+            "memp-num-tcp-seg": 24,
+            "tcp-socket-max": 10,
+            "udp-socket-max":10,
+            "socket-max":18,
+            "tcp-mss": 1540,
+            "tcp-snd-buf": "(6 * TCP_MSS)",
+            "tcp-wnd": "(TCP_MSS * 6)",
+            "pbuf-pool-size": 14,
+            "mem-size": 65536
+        },
+        "MIMXRT1050_EVK": {
+            "mem-size": 36560
+        },
+        "FVP_MPS2_M3": {
+            "mem-size": 36560
+        },
+        "MTS_DRAGONFLY_F411RE": {
+            "tcpip-thread-stacksize": 1600
+        }
+    }
+}

@@ -5,7 +5,7 @@
 * Common header file to be included by the drivers.
 *
 * \note
-* Generator version: 1.6.0.111
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
@@ -148,40 +148,18 @@
     #include "cy8c6117wi_f34.h"
 #elif defined (CY8C6247WI_D54)
     #include "cy8c6247wi_d54.h"
-#elif defined (CYB06447BZI_BLD54)
-    #include "cyb06447bzi_bld54.h"
-#elif defined (CYB06447BZI_BLD53)
-    #include "cyb06447bzi_bld53.h"
-#elif defined (CYB06447BZI_D54)
-    #include "cyb06447bzi_d54.h"
 #elif defined (CY8C6336LQI_BLF02)
     #include "cy8c6336lqi_blf02.h"
 #elif defined (CY8C6336LQI_BLF42)
     #include "cy8c6336lqi_blf42.h"
 #elif defined (CY8C6347LQI_BLD52)
     #include "cy8c6347lqi_bld52.h"
-#elif defined (CY8C624ABZI_D44)
-    #include "cy8c624abzi_d44.h"
-#elif defined (CY8C624AAZI_D44)
-    #include "cy8c624aazi_d44.h"
-#elif defined (CY8C624AFNI_D43)
-    #include "cy8c624afni_d43.h"
-#elif defined (CY8C624ABZI_D04)
-    #include "cy8c624abzi_d04.h"
-#elif defined (CY8C624ABZI_D14)
-    #include "cy8c624abzi_d14.h"
-#elif defined (CY8C624AAZI_D14)
-    #include "cy8c624aazi_d14.h"
-#elif defined (CY8C6248AZI_D14)
-    #include "cy8c6248azi_d14.h"
-#elif defined (CY8C6248BZI_D44)
-    #include "cy8c6248bzi_d44.h"
-#elif defined (CY8C6248AZI_D44)
-    #include "cy8c6248azi_d44.h"
-#elif defined (CY8C6248FNI_D43)
-    #include "cy8c6248fni_d43.h"
-#elif defined (CY8C624ALQI_D42)
-    #include "cy8c624alqi_d42.h"
+#elif defined (CYB06447BZI_BLD54)
+    #include "cyb06447bzi_bld54.h"
+#elif defined (CYB06447BZI_BLD53)
+    #include "cyb06447bzi_bld53.h"
+#elif defined (CYB06447BZI_D54)
+    #include "cyb06447bzi_d54.h"
 #elif defined (CYB0644ABZI_S2D44)
     #include "cyb0644abzi_s2d44.h"
 #elif defined (CYS0644ABZI_S2D44)
@@ -208,6 +186,48 @@
     #include "cy8c6248azi_s2d44.h"
 #elif defined (CY8C6248FNI_S2D43)
     #include "cy8c6248fni_s2d43.h"
+#elif defined (CY8C614ABZI_S2F04)
+    #include "cy8c614abzi_s2f04.h"
+#elif defined (CY8C614AAZI_S2F04)
+    #include "cy8c614aazi_s2f04.h"
+#elif defined (CY8C614AFNI_S2F03)
+    #include "cy8c614afni_s2f03.h"
+#elif defined (CY8C614AAZI_S2F14)
+    #include "cy8c614aazi_s2f14.h"
+#elif defined (CY8C614ABZI_S2F44)
+    #include "cy8c614abzi_s2f44.h"
+#elif defined (CY8C614AAZI_S2F44)
+    #include "cy8c614aazi_s2f44.h"
+#elif defined (CY8C614AFNI_S2F43)
+    #include "cy8c614afni_s2f43.h"
+#elif defined (CY8C6148BZI_S2F44)
+    #include "cy8c6148bzi_s2f44.h"
+#elif defined (CY8C6148AZI_S2F44)
+    #include "cy8c6148azi_s2f44.h"
+#elif defined (CY8C6148FNI_S2F43)
+    #include "cy8c6148fni_s2f43.h"
+#elif defined (CY8C624ABZI_D44)
+    #include "cy8c624abzi_d44.h"
+#elif defined (CY8C624AAZI_D44)
+    #include "cy8c624aazi_d44.h"
+#elif defined (CY8C624AFNI_D43)
+    #include "cy8c624afni_d43.h"
+#elif defined (CY8C624ABZI_D04)
+    #include "cy8c624abzi_d04.h"
+#elif defined (CY8C624ABZI_D14)
+    #include "cy8c624abzi_d14.h"
+#elif defined (CY8C624AAZI_D14)
+    #include "cy8c624aazi_d14.h"
+#elif defined (CY8C6248AZI_D14)
+    #include "cy8c6248azi_d14.h"
+#elif defined (CY8C6248BZI_D44)
+    #include "cy8c6248bzi_d44.h"
+#elif defined (CY8C6248AZI_D44)
+    #include "cy8c6248azi_d44.h"
+#elif defined (CY8C6248FNI_D43)
+    #include "cy8c6248fni_d43.h"
+#elif defined (CY8C624ALQI_D42)
+    #include "cy8c624alqi_d42.h"
 #elif defined (CY8C6245AZI_S3D72)
     #include "cy8c6245azi_s3d72.h"
 #elif defined (CY8C6245LQI_S3D72)
@@ -236,8 +256,32 @@
     #include "cy8c6245azi_s3d02.h"
 #elif defined (CY8C6245LQI_S3D02)
     #include "cy8c6245lqi_s3d02.h"
-#elif defined (CY8C6245W_S3D72)
-    #include "cy8c6245w_s3d72.h"
+#elif defined (CY8C6145AZI_S3F72)
+    #include "cy8c6145azi_s3f72.h"
+#elif defined (CY8C6145LQI_S3F72)
+    #include "cy8c6145lqi_s3f72.h"
+#elif defined (CY8C6145FNI_S3F71)
+    #include "cy8c6145fni_s3f71.h"
+#elif defined (CY8C6145AZI_S3F62)
+    #include "cy8c6145azi_s3f62.h"
+#elif defined (CY8C6145LQI_S3F62)
+    #include "cy8c6145lqi_s3f62.h"
+#elif defined (CY8C6145AZI_S3F42)
+    #include "cy8c6145azi_s3f42.h"
+#elif defined (CY8C6145LQI_S3F42)
+    #include "cy8c6145lqi_s3f42.h"
+#elif defined (CY8C6145FNI_S3F41)
+    #include "cy8c6145fni_s3f41.h"
+#elif defined (CY8C6145AZI_S3F12)
+    #include "cy8c6145azi_s3f12.h"
+#elif defined (CY8C6145LQI_S3F12)
+    #include "cy8c6145lqi_s3f12.h"
+#elif defined (CY8C6145FNI_S3F11)
+    #include "cy8c6145fni_s3f11.h"
+#elif defined (CY8C6145AZI_S3F02)
+    #include "cy8c6145azi_s3f02.h"
+#elif defined (CY8C6145LQI_S3F02)
+    #include "cy8c6145lqi_s3f02.h"
 #elif defined (CY8C6244AZI_S4D92)
     #include "cy8c6244azi_s4d92.h"
 #elif defined (CY8C6244LQI_S4D92)
@@ -258,6 +302,34 @@
     #include "cy8c6244azi_s4d12.h"
 #elif defined (CY8C6244LQI_S4D12)
     #include "cy8c6244lqi_s4d12.h"
+#elif defined (CY8C4588AZI_H685)
+    #include "cy8c4588azi_h685.h"
+#elif defined (CY8C4588AZI_H686)
+    #include "cy8c4588azi_h686.h"
+#elif defined (CY8C4588AZI_H675)
+    #include "cy8c4588azi_h675.h"
+#elif defined (CY8C4588AZI_H676)
+    #include "cy8c4588azi_h676.h"
+#elif defined (CY8C6144AZI_S4F92)
+    #include "cy8c6144azi_s4f92.h"
+#elif defined (CY8C6144LQI_S4F92)
+    #include "cy8c6144lqi_s4f92.h"
+#elif defined (CY8C6144AZI_S4F93)
+    #include "cy8c6144azi_s4f93.h"
+#elif defined (CY8C6144AZI_S4F82)
+    #include "cy8c6144azi_s4f82.h"
+#elif defined (CY8C6144LQI_S4F82)
+    #include "cy8c6144lqi_s4f82.h"
+#elif defined (CY8C6144AZI_S4F83)
+    #include "cy8c6144azi_s4f83.h"
+#elif defined (CY8C6144AZI_S4F62)
+    #include "cy8c6144azi_s4f62.h"
+#elif defined (CY8C6144LQI_S4F62)
+    #include "cy8c6144lqi_s4f62.h"
+#elif defined (CY8C6144AZI_S4F12)
+    #include "cy8c6144azi_s4f12.h"
+#elif defined (CY8C6144LQI_S4F12)
+    #include "cy8c6144lqi_s4f12.h"
 #else
     #include "cy_device_common.h"
 #endif

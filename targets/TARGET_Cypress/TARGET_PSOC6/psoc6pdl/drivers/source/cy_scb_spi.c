@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_spi.c
-* \version 2.40.1
+* \version 2.50
 *
 * Provides SPI API implementation of the SCB driver.
 *
@@ -52,7 +52,7 @@ static void DiscardArrayNoCheck(CySCB_Type const *base, uint32_t size);
 * by the user. The structure is used during the SPI operation for internal
 * configuration and data retention. The user must not modify anything
 * in this structure.
-* If only SPI \ref group_scb_spi_ll will be used pass NULL as pointer to 
+* If only SPI \ref group_scb_spi_ll will be used pass NULL as pointer to
 * context.
 *
 * \return
@@ -194,7 +194,7 @@ void Cy_SCB_SPI_DeInit(CySCB_Type *base)
 * TX and RX interrupt sources.
 * Note that after the block is disabled, the TX and RX FIFOs and
 * hardware statuses are cleared. Also, the hardware stops driving the output
-* and ignores the input. Refer to section \ref group_scb_spi_lp for more 
+* and ignores the input. Refer to section \ref group_scb_spi_lp for more
 * information about SPI pins when SCB disabled.
 *
 * \param base
@@ -245,30 +245,30 @@ void Cy_SCB_SPI_Disable(CySCB_Type *base, cy_stc_scb_spi_context_t *context)
 *
 * This function handles the transition of the SCB SPI into and out of
 * Deep Sleep mode. It prevents the device from entering Deep Sleep mode
-* if the SPI slave or master is actively communicating, or there is any data 
+* if the SPI slave or master is actively communicating, or there is any data
 * in the TX or RX FIFOs.
 * The following behavior of the SPI SCB depends on whether the SCB block is
 * wakeup-capable or not:
-* * <b>Wakeup-capable</b>: any transfer intended to the slave wakes up 
-*   the device from Deep Sleep mode. The slave responds with 0xFF to the  
-*   transfer and incoming data is ignored. 
+* * <b>Wakeup-capable</b>: any transfer intended to the slave wakes up
+*   the device from Deep Sleep mode. The slave responds with 0xFF to the
+*   transfer and incoming data is ignored.
 *   If the transfer occurs before the device enters Deep Sleep mode, the device
 *   will not enter Deep Sleep mode and incoming data is stored in the RX FIFO.
-*   The SCB clock is disabled before entering Deep Sleep and enabled after the 
-*   device exits Deep Sleep mode. The SCB clock disabling may lead to 
-*   corrupted data in the RX FIFO. Clear the RX FIFO after this callback is 
+*   The SCB clock is disabled before entering Deep Sleep and enabled after the
+*   device exits Deep Sleep mode. The SCB clock disabling may lead to
+*   corrupted data in the RX FIFO. Clear the RX FIFO after this callback is
 *   executed.
-*   Note that for proper SPI operation after Deep Sleep the source of 
-*   hf_clk[0] must be stable, this includes the FLL/PLL. The SysClk callback 
-*   ensures that hf_clk[0] gets stable and it must be called before 
-*   \ref Cy_SCB_SPI_DeepSleepCallback. 
+*   Note that for proper SPI operation after Deep Sleep the source of
+*   hf_clk[0] must be stable, this includes the FLL/PLL. The SysClk callback
+*   ensures that hf_clk[0] gets stable and it must be called before
+*   \ref Cy_SCB_SPI_DeepSleepCallback.
 *   Only the SPI slave can be configured to be a wakeup source from Deep Sleep
 *   mode.
-* * <b>Not wakeup-capable</b>: the SPI is disabled. It is enabled when 
-*   the device fails to enter Deep Sleep mode or it is awakened from Deep Sleep 
-*   mode. While the SPI is disabled, it stops driving the outputs and ignores 
+* * <b>Not wakeup-capable</b>: the SPI is disabled. It is enabled when
+*   the device fails to enter Deep Sleep mode or it is awakened from Deep Sleep
+*   mode. While the SPI is disabled, it stops driving the outputs and ignores
 *   the inputs. Any incoming data is ignored.
-*   Refer to section \ref group_scb_spi_lp for more information about SPI pins 
+*   Refer to section \ref group_scb_spi_lp for more information about SPI pins
 *   when SCB disabled.
 *
 * This function must be called during execution of \ref Cy_SysPm_CpuEnterDeepSleep.
@@ -386,13 +386,13 @@ cy_en_syspm_status_t Cy_SCB_SPI_DeepSleepCallback(cy_stc_syspm_callback_params_t
                 * becomes pending and prevents entering Deep Sleep mode.
                 */
                 Cy_SCB_SetSpiInterruptMask(locBase, CY_SCB_I2C_INTR_WAKEUP);
-                
+
                 /* Disable SCB clock */
                 SCB_I2C_CFG(locBase) &= (uint32_t) ~CY_SCB_I2C_CFG_CLK_ENABLE_Msk;
-                            
-                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08): 
-                * for proper entering Deep Sleep mode the SPI clock must be disabled. 
-                * This code must be inserted by the user because the driver 
+
+                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08):
+                * for proper entering Deep Sleep mode the SPI clock must be disabled.
+                * This code must be inserted by the user because the driver
                 * does not have access to the clock.
                 */
             }
@@ -407,13 +407,13 @@ cy_en_syspm_status_t Cy_SCB_SPI_DeepSleepCallback(cy_stc_syspm_callback_params_t
             {
                 /* Enable SCB clock */
                 SCB_I2C_CFG(locBase) |= CY_SCB_I2C_CFG_CLK_ENABLE_Msk;
-                
-                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08): 
-                * for proper exiting Deep Sleep mode, the SPI clock must be enabled. 
-                * This code must be inserted by the user because the driver 
+
+                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08):
+                * for proper exiting Deep Sleep mode, the SPI clock must be enabled.
+                * This code must be inserted by the user because the driver
                 * does not have access to the clock.
                 */
-                
+
                 /* The SCB is wakeup-capable: disable the SPI wakeup interrupt
                 * source
                 */
@@ -442,18 +442,18 @@ cy_en_syspm_status_t Cy_SCB_SPI_DeepSleepCallback(cy_stc_syspm_callback_params_t
 ****************************************************************************//**
 *
 * This function handles the transition of the SCB SPI into Hibernate mode.
-* It prevents the device from entering Hibernate mode if the SPI slave or 
+* It prevents the device from entering Hibernate mode if the SPI slave or
 * master is actively communicating, or there is any data in the TX or RX FIFOs.
 * If the SPI is ready to enter Hibernate mode, it is disabled. If the device
 * failed to enter Hibernate mode, the SPI is re-enabled. While the SPI is
-* disabled, it stops driving the outputs and ignores the inputs. Any incoming 
-* data is ignored. Refer to section \ref group_scb_spi_lp for more information 
+* disabled, it stops driving the outputs and ignores the inputs. Any incoming
+* data is ignored. Refer to section \ref group_scb_spi_lp for more information
 * about SPI pins when SCB disabled.
 *
 * This function must be called during execution of \ref Cy_SysPm_SystemEnterHibernate.
 * To do it, register this function as a callback before calling
 * \ref Cy_SysPm_SystemEnterHibernate : specify \ref CY_SYSPM_HIBERNATE as the callback
-* type and call \ref Cy_SysPm_RegisterCallback. 
+* type and call \ref Cy_SysPm_RegisterCallback.
 *
 * \param callbackParams
 * The pointer to the callback parameters structure
@@ -685,8 +685,8 @@ cy_en_scb_spi_status_t Cy_SCB_SPI_Transfer(CySCB_Type *base, void *txBuffer, voi
 * in this structure.
 *
 * \note
-* If slave aborts transfer and the master is still transferring data, 
-* that data will be placed in the RX FIFO, and the TX underflow will be set. 
+* If slave aborts transfer and the master is still transferring data,
+* that data will be placed in the RX FIFO, and the TX underflow will be set.
 * To drop data received into the RX FIFO, RX FIFO must be cleared when
 * the transfer is complete. Otherwise, received data will be kept and
 * copied to the buffer when \ref Cy_SCB_SPI_Transfer is called.
@@ -1043,4 +1043,3 @@ static void DiscardArrayNoCheck(CySCB_Type const *base, uint32_t size)
 #endif /* CY_IP_MXSCB */
 
 /* [] END OF FILE */
-

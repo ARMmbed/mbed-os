@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.h
-* \version 1.50
+* \version 1.50.1
 *
 * \brief
 *  This file provides the constants and parameter values for the memory-level

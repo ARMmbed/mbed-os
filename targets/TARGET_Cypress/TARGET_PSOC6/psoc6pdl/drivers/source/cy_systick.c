@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_systick.c
-* \version 1.10
+* \version 1.20
 *
 * Provides the API definitions of the SisTick driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_systick.h"
 #include <stddef.h>     /* for NULL */
-
+#include "cy_systick.h"
+#include "cy_sysint.h"
 
 static Cy_SysTick_Callback Cy_SysTick_Callbacks[CY_SYS_SYST_NUM_OF_CALLBACKS];
 static void Cy_SysTick_ServiceCallbacks(void);
@@ -117,6 +117,9 @@ void Cy_SysTick_Disable(void)
 * called to compensate this change.
 *
 * \param clockSource \ref cy_en_systick_clock_source_t Clock source.
+* For the PSoC 64 devices, passing any other value than
+* CY_SYSTICK_CLOCK_SOURCE_CLK_CPU will not affect clock source
+* and it will be as \ref Cy_SysTick_GetClockSource() reports.
 *
 *******************************************************************************/
 void Cy_SysTick_SetClockSource(cy_en_systick_clock_source_t clockSource)
@@ -127,7 +130,9 @@ void Cy_SysTick_SetClockSource(cy_en_systick_clock_source_t clockSource)
     }
     else
     {
-        CPUSS_SYSTICK_CTL = _VAL2FLD(CPUSS_SYSTICK_CTL_CLOCK_SOURCE, (uint32_t) clockSource);
+        #if ((CY_CPU_CORTEX_M0P) || (!defined(CY_DEVICE_SECURE)))
+            CPUSS_SYSTICK_CTL = _VAL2FLD(CPUSS_SYSTICK_CTL_CLOCK_SOURCE, (uint32_t) clockSource);
+        #endif /* ((CY_CPU_CORTEX_M0P) || (!defined(CY_DEVICE_SECURE))) */
         SYSTICK_CTRL &= ~SysTick_CTRL_CLKSOURCE_Msk;
     }
 }

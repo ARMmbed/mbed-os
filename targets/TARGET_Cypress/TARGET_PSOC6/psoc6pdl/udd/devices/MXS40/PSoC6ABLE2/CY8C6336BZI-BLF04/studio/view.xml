@@ -36,7 +36,10 @@
   <Param name="CapSenseADC" value="N" />
   <Param name="SMIF" value="Y" />
   <Param name="Crypto" value="N" />
-  <Param name="I2s" value="Y" />
+  <Param name="I2S_Count" value="1" />
+  <Param name="I2S_removed" value="NA" />
+  <Param name="PDM_Count" value="1" />
+  <Param name="PDM_removed" value="NA" />
   <Param name="DirDriveLCD" value="Y" />
   <Param name="DMAchannels_count" value="32" />
   <Param name="IO_Count" value="86" />

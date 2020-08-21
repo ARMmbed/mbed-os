@@ -25,27 +25,22 @@
 #include "trng_api.h"
 #include "mbed_error.h"
 #include "mbed_atomic.h"
+
 #if defined (TARGET_STM32WB)
 /*  Family specific include for WB with HW semaphores */
 #include "hw.h"
 #include "hw_conf.h"
 #endif
 
-static uint8_t users = 0;
 
 void trng_init(trng_t *obj)
 {
     uint32_t dummy;
 
-    /*  We're only supporting a single user of RNG */
-    if (core_util_atomic_incr_u8(&users, 1) > 1) {
-        error("Only 1 RNG instance supported\r\n");
-    }
-
 #if defined(RCC_PERIPHCLK_RNG) /* STM32L4 / STM32H7 / STM32WB */
 
 #if defined(TARGET_STM32WB)
-    /*  No need to reconfigure RngClockSelection as RNG is already clocked by M0 */
+    /*  No need to configure RngClockSelection as already done in SetSysClock */
 
 #elif defined(TARGET_STM32H7)
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
@@ -92,6 +87,7 @@ void trng_init(trng_t *obj)
 #else
 #error("RNG clock not configured");
 #endif
+
 #endif /* defined(RCC_PERIPHCLK_RNG) */
 
     /* RNG Peripheral clock enable */
@@ -109,6 +105,7 @@ void trng_init(trng_t *obj)
     /*  In case RNG is a shared ressource, get the HW semaphore first */
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID));
 #endif
+
     if (HAL_RNG_Init(&obj->handle) != HAL_OK) {
         error("trng_init: HAL_RNG_Init\n");
     }
@@ -122,6 +119,7 @@ void trng_init(trng_t *obj)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RNG_SEMID, 0);
 #endif
 }
+
 
 void trng_free(trng_t *obj)
 {
@@ -139,9 +137,8 @@ void trng_free(trng_t *obj)
     /* RNG Peripheral clock disable - assume we're the only users of RNG  */
     __HAL_RCC_RNG_CLK_DISABLE();
 #endif
-
-    users = 0;
 }
+
 
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
@@ -153,6 +150,11 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     /*  In case RNG is a shared ressource, get the HW semaphore first */
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID));
 #endif
+
+#if defined(TARGET_STM32WB)
+    /* M0+ could have disabled RNG */
+    __HAL_RNG_ENABLE(&obj->handle);
+#endif // TARGET_STM32WB
 
     /* Get Random byte */
     while ((*output_length < length) && (ret == 0)) {

@@ -103,48 +103,57 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNITTEST")
 # Set include dirs.
 set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/target_h"
-  "${PROJECT_SOURCE_DIR}/target_h/events"
-  "${PROJECT_SOURCE_DIR}/target_h/events/equeue"
+  "${PROJECT_SOURCE_DIR}/../events/tests/UNITTESTS/target_h"
+  "${PROJECT_SOURCE_DIR}/../events/tests/UNITTESTS/target_h/equeue"
   "${PROJECT_SOURCE_DIR}/target_h/platform"
   "${PROJECT_SOURCE_DIR}/target_h/platform/cxxsupport"
   "${PROJECT_SOURCE_DIR}/target_h/drivers"
+  "${PROJECT_SOURCE_DIR}/target_h/rtos/include"
   "${PROJECT_SOURCE_DIR}/stubs"
   "${PROJECT_SOURCE_DIR}/.."
   "${PROJECT_SOURCE_DIR}/../features"
-  "${PROJECT_SOURCE_DIR}/../features/netsocket"
-  "${PROJECT_SOURCE_DIR}/../platform"
+  "${PROJECT_SOURCE_DIR}/../platform/include"
+  "${PROJECT_SOURCE_DIR}/../platform/include/platform"
+  "${PROJECT_SOURCE_DIR}/../storage/filesystem/littlefs/include"
+  "${PROJECT_SOURCE_DIR}/../storage/filesystem/fat/include"
+  "${PROJECT_SOURCE_DIR}/../storage/blockdevice/include"
+  "${PROJECT_SOURCE_DIR}/../storage/filesystem/include"
+  "${PROJECT_SOURCE_DIR}/../storage/kvstore/include"
+  "${PROJECT_SOURCE_DIR}/../storage/kvstore/kv_config"
+  "${PROJECT_SOURCE_DIR}/../storage/kvstore/kv_config/include"
   "${PROJECT_SOURCE_DIR}/../drivers"
+  "${PROJECT_SOURCE_DIR}/../drivers/include"
+  "${PROJECT_SOURCE_DIR}/../drivers/include/drivers"
+  "${PROJECT_SOURCE_DIR}/../drivers/include/drivers/internal"
   "${PROJECT_SOURCE_DIR}/../hal"
-  "${PROJECT_SOURCE_DIR}/../events"
+  "${PROJECT_SOURCE_DIR}/../events/include"
+  "${PROJECT_SOURCE_DIR}/../events/include/events/internal"
   "${PROJECT_SOURCE_DIR}/../events/source"
-  "${PROJECT_SOURCE_DIR}/../events/internal"
-  "${PROJECT_SOURCE_DIR}/../rtos"
-  "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX"
-  "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX/rtx5/Include"
-  "${PROJECT_SOURCE_DIR}/../cmsis"
+  "${PROJECT_SOURCE_DIR}/../rtos/include"
   "${PROJECT_SOURCE_DIR}/../features/frameworks"
   "${PROJECT_SOURCE_DIR}/../features/frameworks/mbed-trace"
-  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice"
-  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice/mbed-client-libservice"
+  "${PROJECT_SOURCE_DIR}/../connectivity/libraries/nanostack-libservice"
+  "${PROJECT_SOURCE_DIR}/../connectivity/libraries/nanostack-libservice/mbed-client-libservice"
+  "${PROJECT_SOURCE_DIR}/../connectivity/netsocket/include"
   "${PROJECT_SOURCE_DIR}/../features/filesystem/fat"
   "${PROJECT_SOURCE_DIR}/../features/filesystem/fat/ChaN"
   "${PROJECT_SOURCE_DIR}/../features/filesystem/bd"
   "${PROJECT_SOURCE_DIR}/../features/filesystem/"
   "${PROJECT_SOURCE_DIR}/../features/filesystem/littlefs"
   "${PROJECT_SOURCE_DIR}/../features/filesystem/littlefs/littlefs"
-  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/API"
-  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/AT"
-  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/device"
-  "${PROJECT_SOURCE_DIR}/../features/cellular/framework"
-  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/common"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/mac"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/phy"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
-  "${PROJECT_SOURCE_DIR}/../features/mbedtls"
-  "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
-  "${PROJECT_SOURCE_DIR}/../features/storage/kvstore/conf"
+  "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework/API"
+  "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework/AT"
+  "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework/device"
+  "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework"
+  "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework/common"
+  "${PROJECT_SOURCE_DIR}/../connectivity"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/include/lorawan"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack/mac"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack/phy"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan"
+  "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls"
+  "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls/include"
 )
 
 # Create a list for test suites.
@@ -152,7 +161,7 @@ set(TEST_SUITES)
 
 # Get all matched tests.
 file(GLOB_RECURSE unittest-file-list
-  "unittest.cmake"
+  "../unittest.cmake" # matches any ../**/unittest.cmake
 )
 
 if ("${unittest-file-list}" STREQUAL "")
@@ -178,7 +187,7 @@ foreach(testfile ${unittest-file-list})
 
   file(RELATIVE_PATH
        TEST_SUITE_NAME # output
-       ${PROJECT_SOURCE_DIR} # root
+       "${PROJECT_SOURCE_DIR}/.." # root
        ${TEST_SUITE_DIR} #abs dirpath
   )
 

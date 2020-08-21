@@ -31,6 +31,7 @@
 #define MBED_I2C_DEVICE_H
 
 #include "cmsis.h"
+#include "mbed_error.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,6 +83,23 @@ static inline uint32_t get_i2c_timing(int hz)
             default:
                 break;
         }
+    } else if (SystemCoreClock == 120000000) {
+        // Common settings: I2C clock = 120 MHz, Analog filter = ON, Digital filter coefficient = 0
+        switch (hz) {
+            case 100000:
+                tim = 0x107075B0; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+                break;
+            case 400000:
+                tim = 0x00501E6C; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+                break;
+            case 1000000:
+                tim = 0x00200A26; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+                break;
+            default:
+                break;
+        }
+    } else {
+        error("get_i2c_timing error\n");
     }
     return tim;
 }

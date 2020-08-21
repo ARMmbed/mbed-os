@@ -69,7 +69,7 @@
   * @brief CMSIS Device version number
   */
 #define __STM32WBxx_CMSIS_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32WBxx_CMSIS_VERSION_SUB1   (0x03U) /*!< [23:16] sub1 version */
+#define __STM32WBxx_CMSIS_VERSION_SUB1   (0x04U) /*!< [23:16] sub1 version */
 #define __STM32WBxx_CMSIS_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define __STM32WBxx_CMSIS_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32WBxx_CMSIS_DEVICE_VERSION        ((__STM32WBxx_CMSIS_VERSION_MAIN << 24)\
@@ -87,8 +87,14 @@
 
 #if defined(STM32WB55xx)
   #include "stm32wb55xx.h"
+#elif defined(STM32WB5Mxx)
+  #include "stm32wb5mxx.h"
 #elif defined(STM32WB50xx)
   #include "stm32wb50xx.h"
+#elif defined(STM32WB35xx)
+  #include "stm32wb35xx.h"
+#elif defined(STM32WB30xx)
+  #include "stm32wb30xx.h"
 #else
  #error "Please select first the target STM32WBxx device used in your application, for instance xxx (in stm32wbxx.h file)"
 #endif

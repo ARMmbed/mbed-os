@@ -1,6 +1,6 @@
  /***************************************************************************//**
 * \file cy_ble_clk.c
-* \version 3.40
+* \version 3.50
 *
 * \brief
 *  This driver provides the source code for API BLE ECO clock.
@@ -40,11 +40,14 @@ extern "C" {
 *       Internal functions
 *******************************************************************************/
 
+#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 static cy_en_ble_eco_status_t Cy_BLE_HAL_RcbRegRead(uint16_t addr, uint16_t *data);
 static cy_en_ble_eco_status_t Cy_BLE_HAL_RcbRegWrite(uint16_t addr, uint16_t data);
 static cy_en_ble_eco_status_t Cy_BLE_HAL_EcoSetTrim(uint32_t trim, uint32_t startUpTime);
-static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq_t ecoFreq, 
+static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq_t ecoFreq,
                                                               cy_en_ble_eco_sys_clk_div_t sysClkDiv);
+#endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
 
 /*******************************************************************************
 *       Internal Defines
@@ -202,7 +205,12 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
 *  CY_BLE_ECO_ALREADY_STARTED  | The BLE ECO clock is already started.
 *  CY_BLE_ECO_HARDWARE_ERROR   | The RCB or BLE ECO operation failed.
 *
-*  \funcusage 
+*  For the PSoC 64 devices, there are possible situations when the function returns
+*  the PRA error status code. This is because for PSoC 64 devices, the function
+*  uses the PRA driver to change the frequency value on the protected side.
+*  Refer to \ref cy_en_pra_status_t for more details.
+*
+*  \funcusage
 *  \snippet bleclk/snippet/main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
 *
 *  \sideeffect
@@ -219,6 +227,19 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
                                            uint32_t cLoad, uint32_t xtalStartUpTime, cy_en_ble_eco_voltage_reg_t voltageReg)
 {
     cy_en_ble_eco_status_t status = CY_BLE_ECO_SUCCESS;
+
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    cy_stc_pra_ble_eco_config_t ecoConfigParams;
+    ecoConfigParams.freq = freq;
+    ecoConfigParams.sysClkDiv = sysClkDiv;
+    ecoConfigParams.cLoad = cLoad;
+    ecoConfigParams.xtalStartUpTime = xtalStartUpTime;
+    ecoConfigParams.voltageReg = voltageReg;
+
+    status = (cy_en_ble_eco_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY,
+                                                                       CY_PRA_BLE_CLK_FUNC_ECO_CONFIGURE,
+                                                                       &ecoConfigParams);
+#else
     uint32_t temp = 0UL;
 
     if( (freq > CY_BLE_BLESS_ECO_FREQ_32MHZ) || (sysClkDiv > CY_BLE_SYS_ECO_CLK_DIV_8) ||
@@ -395,6 +416,7 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
             }
         }
     }
+#endif /* ((CY_CPU_CORTEX_M4) && (!defined(CY_DEVICE_SECURE))) */
 
     return(status);
 }
@@ -413,8 +435,12 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
 void Cy_BLE_EcoReset(void)
 {
     /* Initiate Soft Reset */
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    CY_PRA_FUNCTION_CALL_VOID_VOID(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_BLE_CLK_FUNC_ECO_RESET);
+#else
     BLE_BLESS_LL_CLK_EN |= BLE_BLESS_LL_CLK_EN_BLESS_RESET_Msk;
     cy_BleEcoClockFreqHz = 0UL; /* Reset the BLE ECO frequency */
+#endif
 }
 
 
@@ -545,6 +571,7 @@ void Cy_BLE_HAL_Init(void)
 }
 
 
+#if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
 /*******************************************************************************
 * Function Name: Cy_BLE_HAL_RcbRegRead
 ****************************************************************************//**
@@ -630,7 +657,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_RcbRegWrite(uint16_t addr, uint16_t dat
         BLE_RCB_INTR |= BLE_RCB_INTR_RCB_DONE_Msk;
         status = CY_BLE_ECO_SUCCESS;
     }
-    
+
     return(status);
 }
 
@@ -658,21 +685,21 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_EcoSetTrim(uint32_t trim, uint32_t star
 {
     uint16_t reg = CY_BLE_RF_DCXO_CFG_REG_VALUE;
     cy_en_ble_eco_status_t status;
-    
+
     /* Load the new CAP TRIM value */
     reg |= (uint16_t)((uint16_t)trim << CY_BLE_RF_DCXO_CFG_REG_DCXO_CAP_SHIFT);
 
     /* Write the new value to the register */
     status = Cy_BLE_HAL_RcbRegWrite(CY_BLE_RF_DCXO_CFG_REG, reg);
-        
+
     if(status == CY_BLE_ECO_SUCCESS)
     {
         /* Write the new value to the CFG2 register */
         status = Cy_BLE_HAL_RcbRegWrite(CY_BLE_RF_DCXO_CFG2_REG, CY_BLE_RF_DCXO_CFG2_REG_VALUE);
     }
-    
+
     Cy_SysLib_DelayUs((uint16_t)startUpTime * CY_BLE_ECO_SET_TRIM_DELAY_COEF);
-    
+
     return(status);
 }
 
@@ -682,7 +709,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_EcoSetTrim(uint32_t trim, uint32_t star
 ****************************************************************************//**
 *
 *  Enables and configures radio clock.
-*  
+*
 *  \param ecoFreq   : ECO Frequency.
 *         sysClkDiv : System divider for ECO clock.
 *
@@ -696,7 +723,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_EcoSetTrim(uint32_t trim, uint32_t star
 *  CY_BLE_ECO_HARDWARE_ERROR   | If RCB operation failed
 *
 *******************************************************************************/
-static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq_t ecoFreq, 
+static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq_t ecoFreq,
                                                               cy_en_ble_eco_sys_clk_div_t sysClkDiv)
 {
     uint16_t temp;
@@ -728,7 +755,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
     {
         retries = CY_BLE_RCB_RETRIES;
         status = Cy_BLE_HAL_RcbRegRead(CY_BLE_PMU_PMU_CTRL_REG, &temp);
-        if((status == CY_BLE_ECO_SUCCESS) && ((temp & CY_BLE_MXD_RADIO_DIG_CLK_OUT_EN_VAL) == 0U)) 
+        if((status == CY_BLE_ECO_SUCCESS) && ((temp & CY_BLE_MXD_RADIO_DIG_CLK_OUT_EN_VAL) == 0U))
         {
             /* Enable digital ECO clock output from MXD Radio to BLESS */
             do
@@ -807,10 +834,10 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
         }
 
         temp |= (uint16_t)(blerdDivider << CY_BLE_RF_DCXO_BUF_CFG_REG_CLK_DIV_SHIFT);
-        
+
         /* Write the MXD Radio register */
         status = Cy_BLE_HAL_RcbRegWrite(CY_BLE_RF_DCXO_BUF_CFG_REG, temp);
-        
+
         /* Reduce BLESS divider by BLERD divider value */
         ecoSysDivider = (uint16_t)sysClkDiv - blerdDivider;
         temp = (uint16_t)(ecoSysDivider & BLE_BLESS_XTAL_CLK_DIV_CONFIG_SYSCLK_DIV_Msk);
@@ -819,7 +846,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
         /* Set clock divider */
         BLE_BLESS_XTAL_CLK_DIV_CONFIG = temp;
     }
-    
+
     /* Update RADIO LDO trim values */
     if((Cy_SysLib_GetDeviceRevision() != CY_SYSLIB_DEVICE_REV_0A) && (SFLASH->RADIO_LDO_TRIMS != 0U))
     {
@@ -827,44 +854,45 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
         {
             status = Cy_BLE_HAL_RcbRegRead(CY_BLE_RF_LDO_CFG_REG, &temp);
         }
-        
-        if(status == CY_BLE_ECO_SUCCESS) 
+
+        if(status == CY_BLE_ECO_SUCCESS)
         {
             /* Update LDO_IF value */
             temp &= (uint16_t)~((uint16_t) ((uint16_t)CY_BLE_RF_LDO_CFG_REG_LDO_IF_CFG_MASK << CY_BLE_RF_LDO_CFG_REG_LDO_IF_CFG_SHIFT));
             temp |= (uint16_t)(((SFLASH->RADIO_LDO_TRIMS & SFLASH_RADIO_LDO_TRIMS_LDO_IF_Msk) >>
                                 SFLASH_RADIO_LDO_TRIMS_LDO_IF_Pos) << CY_BLE_RF_LDO_CFG_REG_LDO_IF_CFG_SHIFT);
-            
+
             /* Update LDO_ACT value */
             temp &= (uint16_t)~((uint16_t) ((uint16_t)CY_BLE_RF_LDO_CFG_REG_LDO_ACT_CFG_MASK << CY_BLE_RF_LDO_CFG_REG_LDO_ACT_CFG_SHIFT));
             temp |= (uint16_t)(((SFLASH->RADIO_LDO_TRIMS & SFLASH_RADIO_LDO_TRIMS_LDO_ACT_Msk) >>
                                 SFLASH_RADIO_LDO_TRIMS_LDO_ACT_Pos) << CY_BLE_RF_LDO_CFG_REG_LDO_ACT_CFG_SHIFT);
-            
+
             /* Update LDO_DIG value */
             temp &= (uint16_t)~((uint16_t) ((uint16_t)CY_BLE_RF_LDO_CFG_REG_LDO10_CFG_MASK << CY_BLE_RF_LDO_CFG_REG_LDO10_CFG_SHIFT));
             temp |= (uint16_t)(((SFLASH->RADIO_LDO_TRIMS & SFLASH_RADIO_LDO_TRIMS_LDO_DIG_Msk) >>
                                 SFLASH_RADIO_LDO_TRIMS_LDO_DIG_Pos) << CY_BLE_RF_LDO_CFG_REG_LDO10_CFG_SHIFT);
-            
+
             status = Cy_BLE_HAL_RcbRegWrite(CY_BLE_RF_LDO_CFG_REG, temp);
         }
-        
+
         if(status == CY_BLE_ECO_SUCCESS)
         {
            status = Cy_BLE_HAL_RcbRegRead(CY_BLE_RF_LDO_EN_REG, &temp);
         }
-        
+
         if(status == CY_BLE_ECO_SUCCESS)
-        {  
+        {
             /* Update LDO_LNA value */
             temp &= (uint16_t)~(CY_BLE_RF_LDO_EN_REG_LDO_RF_CFG_MASK << CY_BLE_RF_LDO_EN_REG_LDO_RF_CFG_SHIFT);
             temp |= (uint16_t)(((SFLASH->RADIO_LDO_TRIMS & SFLASH_RADIO_LDO_TRIMS_LDO_LNA_Msk) >>
-                       SFLASH_RADIO_LDO_TRIMS_LDO_LNA_Pos) << CY_BLE_RF_LDO_EN_REG_LDO_RF_CFG_SHIFT); 
-            
+                       SFLASH_RADIO_LDO_TRIMS_LDO_LNA_Pos) << CY_BLE_RF_LDO_EN_REG_LDO_RF_CFG_SHIFT);
+
             status = Cy_BLE_HAL_RcbRegWrite(CY_BLE_RF_LDO_EN_REG, temp);
         }
     }
     return(status);
 }
+#endif  /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 
 #ifdef __cplusplus
 }

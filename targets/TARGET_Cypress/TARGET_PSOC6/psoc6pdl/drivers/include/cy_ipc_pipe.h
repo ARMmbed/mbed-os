@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.h
-* \version 1.40
+* \version 1.40.2
 *
 *  Description:
 *   IPC Pipe Driver - This header file contains all the function prototypes,
 *   structure definitions, pipe constants, and pipe endpoint address definitions.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,9 +38,9 @@
 * The Pipe functions provide a method to transfer one or more words of data
 * between CPUs or tasks.
 *
-* Include cy_ipc_pipe.h. Alternatively include cy_pdl.h (ModusToolbox only) 
+* Include cy_ipc_pipe.h. Alternatively include cy_pdl.h
 * to get access to all functions and declarations in the PDL.
-* 
+*
 * The data can be defined as a single 32-bit unsigned
 * word, an array of data, or a user-defined structure.  The only limitation is
 * that the first word in the array or structure must be a 32-bit unsigned word

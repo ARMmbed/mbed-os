@@ -49,11 +49,9 @@ using namespace utest::v1;
 
 #if !defined(MBED_CONF_APP_NO_LED)
 DigitalOut led1(LED1);
-DigitalOut led2(LED2);
 void led_thread()
 {
     led1 = !led1;
-    led2 = !led1;
 }
 #endif
 

@@ -95,12 +95,17 @@
     <ConfigInclude value="cy_gpio.h" include="true" />
     <ConfigInclude value="cy_sysclk.h" include="true" />
     <ConfigDefine name="CY_CFG_SYSCLK_WCO_ENABLED" value="1" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_WCO_IN_PRT" value="GPIO_PRT`${gpio_in_port}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_WCO_IN_PIN" value="`${gpio_in_pin}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_WCO_OUT_PRT" value="GPIO_PRT`${gpio_out_port}`" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_WCO_OUT_PIN" value="`${gpio_out_pin}`U" public="false" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_WCO_BYPASS" value="`${clockPort}`" public="false" include="true" />
     <ConfigStruct name="`${INST_NAME . &quot;_wcoCsv&quot;}`" type="cy_stc_wco_csv_config_t" const="true" public="true" include="`${WCOCSV_PRESENT}`" >
       <Member name="SupervisorClock" value="`${clockSupervisor}`" />
       <Member name="enableLossDetection" value="`${clockLostDetection}`" />
       <Member name="LossWindow" value="`${lossWindow}`" />
       <Member name="LossAction" value="`${lossAction}`" />
     </ConfigStruct>
-    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_WcoInit()" body="    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_in_port}`, `${gpio_in_pin}`U, 0x00U, 0x00U, HSIOM_SEL_GPIO);&#xA;    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_out_port}`, `${gpio_out_pin}`U, 0x00U, 0x00U, HSIOM_SEL_GPIO);&#xA;`${clockPort eq CY_SYSCLK_WCO_BYPASSED ? &quot;    Cy_SysClk_WcoBypass(CY_SYSCLK_WCO_BYPASSED);&#xA;&quot; : &quot;&quot;}`    if (CY_SYSCLK_SUCCESS != Cy_SysClk_WcoEnable(1000000UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_WCO_ERROR);&#xA;    }`${WCOCSV_PRESENT ? &quot;&#xA;    Cy_SysClk_WcoConfigureCsv(&amp;wcoCsv);&quot; : &quot;&quot;}`" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_WcoInit()" body="    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_in_port}`, `${gpio_in_pin}`U, 0x00U, 0x00U, HSIOM_SEL_GPIO);&#xA;    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT`${gpio_out_port}`, `${gpio_out_pin}`U, 0x00U, 0x00U, HSIOM_SEL_GPIO);&#xA;`${clockPort eq CY_SYSCLK_WCO_BYPASSED ? &quot;    Cy_SysClk_WcoBypass(CY_SYSCLK_WCO_BYPASSED);&#xA;&quot; : &quot;&quot;}`    if (CY_SYSCLK_SUCCESS != Cy_SysClk_WcoEnable(1000000UL))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_WCO_ERROR);&#xA;    }`${WCOCSV_PRESENT ? &quot;&#xA;    Cy_SysClk_WcoConfigureCsv(&amp;wcoCsv);&quot; : &quot;&quot;}`" public="false" include="true" guard="((!CY_CPU_CORTEX_M4) || (!defined(CY_DEVICE_SECURE)))" />
   </ConfigFirmware>
 </Personality>

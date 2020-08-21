@@ -18,21 +18,7 @@
 
 /* Nuvoton M251 GCC linker script file */
 
-#if !defined(MBED_APP_START)
-#define MBED_APP_START          0x00000000
-#endif
-
-#if !defined(MBED_APP_SIZE)
-#define MBED_APP_SIZE           0x00040000
-#endif
-
-#if !defined(MBED_RAM_APP_START)
-#define MBED_RAM_APP_START      0x20000000
-#endif
-
-#if !defined(MBED_RAM_APP_SIZE)
-#define MBED_RAM_APP_SIZE       0x8000
-#endif
+#include "../M251_mem.h"
 
 #if !defined(MBED_BOOT_STACK_SIZE)
 #define MBED_BOOT_STACK_SIZE    0x400

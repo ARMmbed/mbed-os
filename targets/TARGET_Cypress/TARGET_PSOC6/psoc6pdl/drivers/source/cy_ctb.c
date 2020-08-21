@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.c
-* \version 1.10.2
+* \version 1.20
 *
 * \brief
 * Provides the public functions for the CTB driver.
@@ -153,8 +153,8 @@ const cy_stc_ctb_fast_config_oa1_t Cy_CTB_Fast_Opamp1_Vdac_Ref_Pin5 =
 *
 * Initialize or restore the CTB and both opamps according to the
 * provided settings. Parameters are usually set only once, at initialization.
-* 
-* \note This function call disables a whole CTB block, 
+*
+* \note This function call disables a whole CTB block,
 * call \ref Cy_CTB_Enable after this function call.
 *
 * \param base
@@ -238,10 +238,10 @@ cy_en_ctb_status_t Cy_CTB_Init(CTBM_Type *base, const cy_stc_ctb_config_t *confi
         CTBM_INTR_MASK(base) = (config->oa0CompIntrEn ? CTBM_INTR_MASK_COMP0_MASK_Msk : CY_CTB_DEINIT) \
                           | (config->oa1CompIntrEn ? CTBM_INTR_MASK_COMP1_MASK_Msk : CY_CTB_DEINIT);
         CTBM_INTR(base) = (CTBM_INTR_MASK_COMP0_MASK_Msk | CTBM_INTR_MASK_COMP1_MASK_Msk);
-        
+
         CTBM_OA0_COMP_TRIM(base) = (uint32_t) ((config->oa0Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
-        CTBM_OA1_COMP_TRIM(base) = (uint32_t) ((config->oa1Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);        
-        
+        CTBM_OA1_COMP_TRIM(base) = (uint32_t) ((config->oa1Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
+
         if (config->configRouting)
         {
             CTBM_OA0_SW(base) = config->oa0SwitchCtrl;
@@ -307,7 +307,7 @@ cy_en_ctb_status_t Cy_CTB_OpampInit(CTBM_Type *base, cy_en_ctb_opamp_sel_t opamp
         CY_ASSERT_L3(CY_CTB_COMPBYPASS(config->oaCompBypass));
         CY_ASSERT_L3(CY_CTB_COMPHYST(config->oaCompHyst));
 
-        CTBM_CTB_CTRL(base) = (uint32_t) config->deepSleep;
+        CY_REG32_CLR_SET(CTBM_CTB_CTRL(base), CTBM_CTB_CTRL_DEEPSLEEP_ON, (CY_CTB_DEEPSLEEP_DISABLE != config->deepSleep) ? 1UL : 0UL);
 
         /* The two opamp control registers are symmetrical */
         oaResCtrl = (uint32_t) config->oaPower \
@@ -415,7 +415,10 @@ cy_en_ctb_status_t Cy_CTB_DeInit(CTBM_Type *base, bool deInitRouting)
 *   - .oaCompBypass = \ref CY_CTB_COMP_BYPASS_SYNC
 *   - .oaCompHyst   = \ref CY_CTB_COMP_HYST_10MV
 *   - .oaCompIntrEn = true
-
+*
+* \note This function call disables a whole CTB block,
+* call \ref Cy_CTB_Enable after this function call.
+*
 * \param base
 * Pointer to structure describing registers
 *
@@ -1377,4 +1380,3 @@ uint32_t Cy_CTB_CompGetStatus(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compN
 #endif /* CY_IP_MXS40PASS */
 
 /* [] END OF FILE */
-

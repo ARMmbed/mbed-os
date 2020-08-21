@@ -5,11 +5,11 @@
 * SAR IP definitions
 *
 * \note
-* Generator version: 1.5.1.36
+* Generator version: 1.6.0.225
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,13 +73,17 @@ typedef struct {
   __IOM uint32_t RANGE_INTR_MASK;               /*!< 0x00000238 Range detect interrupt mask register. */
    __IM uint32_t RANGE_INTR_MASKED;             /*!< 0x0000023C Range interrupt masked request register */
    __IM uint32_t INTR_CAUSE;                    /*!< 0x00000240 Interrupt cause register */
-   __IM uint32_t RESERVED5[23];
+   __IM uint32_t RESERVED5[15];
+  __IOM uint32_t INJ_CHAN_CONFIG;               /*!< 0x00000280 Injection channel configuration register. */
+   __IM uint32_t RESERVED6[3];
+   __IM uint32_t INJ_RESULT;                    /*!< 0x00000290 Injection channel result register */
+   __IM uint32_t RESERVED7[3];
    __IM uint32_t STATUS;                        /*!< 0x000002A0 Current status of internal SAR registers (mostly for debug) */
    __IM uint32_t AVG_STAT;                      /*!< 0x000002A4 Current averaging status (for debug) */
-   __IM uint32_t RESERVED6[22];
+   __IM uint32_t RESERVED8[22];
   __IOM uint32_t MUX_SWITCH0;                   /*!< 0x00000300 SARMUX Firmware switch controls */
   __IOM uint32_t MUX_SWITCH_CLEAR0;             /*!< 0x00000304 SARMUX Firmware switch control clear */
-   __IM uint32_t RESERVED7[15];
+   __IM uint32_t RESERVED9[15];
   __IOM uint32_t MUX_SWITCH_SQ_CTRL;            /*!< 0x00000344 SARMUX switch Sar Sequencer control */
    __IM uint32_t MUX_SWITCH_STATUS;             /*!< 0x00000348 SARMUX switch status */
 } SAR_V2_Type;                                  /*!< Size = 844 (0x34C) */
@@ -337,6 +341,34 @@ typedef struct {
 #define SAR_V2_INTR_CAUSE_SATURATE_MASKED_RED_Msk 0x40000000UL
 #define SAR_V2_INTR_CAUSE_RANGE_MASKED_RED_Pos  31UL
 #define SAR_V2_INTR_CAUSE_RANGE_MASKED_RED_Msk  0x80000000UL
+/* SAR.INJ_CHAN_CONFIG */
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_PIN_ADDR_Pos 0UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_PIN_ADDR_Msk 0x7UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_PORT_ADDR_Pos 4UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_PORT_ADDR_Msk 0x70UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_DIFFERENTIAL_EN_Pos 8UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_DIFFERENTIAL_EN_Msk 0x100UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_AVG_EN_Pos   10UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_AVG_EN_Msk   0x400UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_SAMPLE_TIME_SEL_Pos 12UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_SAMPLE_TIME_SEL_Msk 0x3000UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_TAILGATING_Pos 30UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_TAILGATING_Msk 0x40000000UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_START_EN_Pos 31UL
+#define SAR_V2_INJ_CHAN_CONFIG_INJ_START_EN_Msk 0x80000000UL
+/* SAR.INJ_RESULT */
+#define SAR_V2_INJ_RESULT_INJ_RESULT_Pos        0UL
+#define SAR_V2_INJ_RESULT_INJ_RESULT_Msk        0xFFFFUL
+#define SAR_V2_INJ_RESULT_INJ_NEWVALUE_Pos      27UL
+#define SAR_V2_INJ_RESULT_INJ_NEWVALUE_Msk      0x8000000UL
+#define SAR_V2_INJ_RESULT_INJ_COLLISION_INTR_MIR_Pos 28UL
+#define SAR_V2_INJ_RESULT_INJ_COLLISION_INTR_MIR_Msk 0x10000000UL
+#define SAR_V2_INJ_RESULT_INJ_SATURATE_INTR_MIR_Pos 29UL
+#define SAR_V2_INJ_RESULT_INJ_SATURATE_INTR_MIR_Msk 0x20000000UL
+#define SAR_V2_INJ_RESULT_INJ_RANGE_INTR_MIR_Pos 30UL
+#define SAR_V2_INJ_RESULT_INJ_RANGE_INTR_MIR_Msk 0x40000000UL
+#define SAR_V2_INJ_RESULT_INJ_EOC_INTR_MIR_Pos  31UL
+#define SAR_V2_INJ_RESULT_INJ_EOC_INTR_MIR_Msk  0x80000000UL
 /* SAR.STATUS */
 #define SAR_V2_STATUS_CUR_CHAN_Pos              0UL
 #define SAR_V2_STATUS_CUR_CHAN_Msk              0x1FUL

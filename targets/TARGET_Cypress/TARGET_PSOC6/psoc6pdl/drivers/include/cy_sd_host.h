@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sd_host.h
-* \version 1.50
+* \version 1.50.1
 *
 *  This file provides constants and parameter values for
 *  the SD Host Controller driver.
@@ -32,7 +32,7 @@
 * an SD card, eMMc card or a SDIO device.
 *
 * The functions and other declarations used in this driver are in cy_sd_host.h.
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions
+* You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
 * Features:
@@ -274,6 +274,11 @@
 * \section group_sd_host_Changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.50.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.50</td>
 *     <td>The default value of the SD-clock rump-up time during a wakeup

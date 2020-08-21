@@ -6,40 +6,9 @@
 set(unittest-includes ${unittest-includes}
   .
   ..
-  ../features/mbedtls/inc/mbedtls/
-  ../features/mbedtls/platform/inc/
+  ../connectivity/mbedtls/include/mbedtls/
+  ../connectivity/mbedtls/platform/inc/
   ../features/frameworks/mbed-trace/mbed-trace/
-)
-
-set(unittest-sources
-    ../features/device_key/source/DeviceKey.cpp
-    ../components/storage/blockdevice/COMPONENT_SPIF/SPIFBlockDevice.cpp
-    ../components/storage/blockdevice/COMPONENT_I2CEE/I2CEEBlockDevice.cpp
-    ../components/storage/blockdevice/COMPONENT_DATAFLASH/DataFlashBlockDevice.cpp
-    ../components/storage/blockdevice/COMPONENT_FLASHIAP/FlashIAPBlockDevice.cpp
-    ../components/storage/blockdevice/COMPONENT_SD/SDBlockDevice.cpp
-    ../components/storage/blockdevice/COMPONENT_QSPIF/QSPIFBlockDevice.cpp
-    ../features/storage/filesystem/Dir.cpp
-    ../features/storage/filesystem/FileSystem.cpp
-    ../features/storage/filesystem/File.cpp
-    ../features/storage/kvstore/global_api/kvstore_global_api.cpp
-    ../features/storage/kvstore/securestore/SecureStore.cpp
-    ../features/storage/kvstore/kv_map/KVMap.cpp
-    ../features/storage/kvstore/tdbstore/TDBStore.cpp
-    ../features/storage/kvstore/direct_access_devicekey/DirectAccessDevicekey.cpp
-    ../features/storage/kvstore/conf/kv_config.cpp
-    ../features/storage/kvstore/filesystemstore/FileSystemStore.cpp
-    ../features/storage/system_storage/SystemStorage.cpp
-    ../features/storage/blockdevice/ChainingBlockDevice.cpp
-    ../features/storage/blockdevice/ReadOnlyBlockDevice.cpp
-    ../features/storage/blockdevice/SlicingBlockDevice.cpp
-    ../features/storage/blockdevice/MBRBlockDevice.cpp
-    ../features/storage/blockdevice/HeapBlockDevice.cpp
-    ../features/storage/blockdevice/FlashSimBlockDevice.cpp
-    ../features/storage/blockdevice/ObservingBlockDevice.cpp
-    ../features/storage/blockdevice/ProfilingBlockDevice.cpp
-    ../features/storage/blockdevice/BufferedBlockDevice.cpp
-    ../features/storage/blockdevice/ExhaustibleBlockDevice.cpp
 )
 
 set(unittest-test-sources

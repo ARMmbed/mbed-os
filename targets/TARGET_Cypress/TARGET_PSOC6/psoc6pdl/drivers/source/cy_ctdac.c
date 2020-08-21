@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_ctdac.c
-* \version 2.0
+* \version 2.0.1
 *
 * Provides the public functions for the API for the CTDAC driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -735,4 +735,3 @@ cy_en_syspm_status_t Cy_CTDAC_DeepSleepCallback(cy_stc_syspm_callback_params_t *
 #endif /* CY_IP_MXS40PASS_CTDAC */
 
 /* [] END OF FILE */
-

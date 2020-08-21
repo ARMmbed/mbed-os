@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_mcwdt.h
-* \version 1.30
+* \version 1.30.1
 *
 * Provides an API declaration of the Cypress PDL 3.0 MCWDT driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,10 +27,10 @@
 * \{
 * A MCWDT has two 16-bit counters and one 32-bit counter.
 *
-* The functions and other declarations used in this driver are in cy_mcwdt.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
-* 
+* The functions and other declarations used in this driver are in cy_mcwdt.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
+*
 * You can use this driver to create a free-running
 * timer or generate periodic interrupts. The driver also
 * includes support for the watchdog function to recover from CPU or
@@ -47,45 +47,45 @@
 *
 * An additional use case is to implement a watchdog used for recovering from a CPU or
 * firmware failure.
-* 
+*
 * \section group_mcwdt_configuration Configuration Considerations
 *
-* Each MCWDT may be configured for a particular product. 
-* One MCWDT block can be associated with only one CPU during runtime. 
-* A single MCWDT is not intended to be used by multiple CPUs simultaneously. 
-* Each block contains three sub-counters, each of which can be configured for 
-* various system utility functions - free running counter, periodic interrupts, 
+* Each MCWDT may be configured for a particular product.
+* One MCWDT block can be associated with only one CPU during runtime.
+* A single MCWDT is not intended to be used by multiple CPUs simultaneously.
+* Each block contains three sub-counters, each of which can be configured for
+* various system utility functions - free running counter, periodic interrupts,
 * watchdog reset, or three interrupts followed by a watchdog reset.
-* All counters are clocked by either LFCLK (nominal 32 kHz) or by a cascaded 
+* All counters are clocked by either LFCLK (nominal 32 kHz) or by a cascaded
 * counter.
 * A simplified diagram of the MCWDT hardware is shown below:
 * \image html mcwdt.png
-* The frequency of the periodic interrupts can be configured using the Match 
-* value with combining Clear on match option, which can be set individually 
-* for each counter using Cy_MCWDT_SetClearOnMatch(). When the Clear on match option 
-* is not set, the periodic interrupts of the C0 and C1 16-bit sub-counters occur 
-* after 65535 counts and the match value defines the shift between interrupts 
-* (see the figure below). The enabled Clear on match option 
+* The frequency of the periodic interrupts can be configured using the Match
+* value with combining Clear on match option, which can be set individually
+* for each counter using Cy_MCWDT_SetClearOnMatch(). When the Clear on match option
+* is not set, the periodic interrupts of the C0 and C1 16-bit sub-counters occur
+* after 65535 counts and the match value defines the shift between interrupts
+* (see the figure below). The enabled Clear on match option
 * resets the counter when the interrupt occurs.
 * \image html mcwdt_counters.png
-* 32-bit sub-counter C2 does not have Clear on match option. 
-* The interrupt of counter C2 occurs when the counts equal 
+* 32-bit sub-counter C2 does not have Clear on match option.
+* The interrupt of counter C2 occurs when the counts equal
 * 2<sup>Toggle bit</sup> value.
 * \image html mcwdt_subcounters.png
-* To set up an MCWDT, provide the configuration parameters in the 
-* cy_stc_mcwdt_config_t structure. Then call  
-* Cy_MCWDT_Init() to initialize the driver. 
+* To set up an MCWDT, provide the configuration parameters in the
+* cy_stc_mcwdt_config_t structure. Then call
+* Cy_MCWDT_Init() to initialize the driver.
 * Call Cy_MCWDT_Enable() to enable all specified counters.
 *
 * You can also set the mode of operation for any counter. If you choose
-* interrupt mode, use Cy_MCWDT_SetInterruptMask() with the 
-* parameter for the masks described in Macro Section. All counter interrupts 
+* interrupt mode, use Cy_MCWDT_SetInterruptMask() with the
+* parameter for the masks described in Macro Section. All counter interrupts
 * are OR'd together to from a single combined MCWDT interrupt.
-* Additionally, enable the Global interrupts and initialize the referenced 
-* interrupt by setting the priority and the interrupt vector using  
+* Additionally, enable the Global interrupts and initialize the referenced
+* interrupt by setting the priority and the interrupt vector using
 * \ref Cy_SysInt_Init() of the sysint driver.
-* 
-* The values of the MCWDT counters can be monitored using 
+*
+* The values of the MCWDT counters can be monitored using
 * Cy_MCWDT_GetCount().
 *
 * \note In addition to the MCWDTs, each device has a separate watchdog timer
@@ -95,7 +95,7 @@
 *
 * \section group_mcwdt_more_information More Information
 *
-* For more information on the MCWDT peripheral, refer to 
+* For more information on the MCWDT peripheral, refer to
 * the technical reference manual (TRM).
 *
 * \section group_mcwdt_MISRA MISRA-C Compliance
@@ -105,8 +105,13 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.30.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>1.30</td>
-*     <td>In version 1.20 the Cy_MCWDT_GetCountCascaded() function 
+*     <td>In version 1.20 the Cy_MCWDT_GetCountCascaded() function
 *         returned the wrong value when counter#1 overflowed.
 *         This bug is corrected in version 1.30.
 *     </td>
@@ -115,7 +120,7 @@
 *   </tr>
 *   <tr>
 *     <td>1.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -123,7 +128,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -173,19 +178,19 @@ extern "C" {
 /** The MCWDT component configuration structure. */
 typedef struct
 {
-    uint16_t c0Match;        /**< The sub-counter#0 match comparison value, for interrupt or watchdog timeout. 
-                                  Range: 0 - 65535 for c0ClearOnMatch = 0 and 1 - 65535 for 
+    uint16_t c0Match;        /**< The sub-counter#0 match comparison value, for interrupt or watchdog timeout.
+                                  Range: 0 - 65535 for c0ClearOnMatch = 0 and 1 - 65535 for
                                   c0ClearOnMatch = 1. */
     uint16_t c1Match;        /**< The sub-counter#1 match comparison value, for interrupt or watchdog timeout.
-                                  Range: 0 - 65535 for c1ClearOnMatch = 0 and 1 - 65535 for 
+                                  Range: 0 - 65535 for c1ClearOnMatch = 0 and 1 - 65535 for
                                   c1ClearOnMatch = 1. */
-    uint8_t  c0Mode;         /**< The sub-counter#0 mode. It can have the following values: \ref CY_MCWDT_MODE_NONE, 
+    uint8_t  c0Mode;         /**< The sub-counter#0 mode. It can have the following values: \ref CY_MCWDT_MODE_NONE,
                                   \ref CY_MCWDT_MODE_INT, \ref CY_MCWDT_MODE_RESET and \ref CY_MCWDT_MODE_INT_RESET. */
-    uint8_t  c1Mode;         /**< The sub-counter#1 mode.  It can have the following values: \ref CY_MCWDT_MODE_NONE, 
+    uint8_t  c1Mode;         /**< The sub-counter#1 mode.  It can have the following values: \ref CY_MCWDT_MODE_NONE,
                                   \ref CY_MCWDT_MODE_INT, \ref CY_MCWDT_MODE_RESET and \ref CY_MCWDT_MODE_INT_RESET. */
-    uint8_t  c2ToggleBit;    /**< The sub-counter#2 Period / Toggle Bit value. 
+    uint8_t  c2ToggleBit;    /**< The sub-counter#2 Period / Toggle Bit value.
                                   Range: 0 - 31. */
-    uint8_t  c2Mode;         /**< The sub-counter#2 mode. It can have the following values: \ref CY_MCWDT_MODE_NONE 
+    uint8_t  c2Mode;         /**< The sub-counter#2 mode. It can have the following values: \ref CY_MCWDT_MODE_NONE
                                   and \ref CY_MCWDT_MODE_INT. */
     bool     c0ClearOnMatch; /**< The sub-counter#0 Clear On Match parameter enabled/disabled. */
     bool     c1ClearOnMatch; /**< The sub-counter#1 Clear On Match parameter enabled/disabled. */
@@ -227,7 +232,7 @@ typedef struct
 
 #define CY_MCWDT_ALL_WDT_ENABLE_Msk (MCWDT_STRUCT_MCWDT_CTL_WDT_ENABLE0_Msk | MCWDT_STRUCT_MCWDT_CTL_WDT_ENABLE1_Msk | \
                                   MCWDT_STRUCT_MCWDT_CTL_WDT_ENABLE2_Msk)
-                                  
+
 #define CY_MCWDT_CTR0_Pos (0u)
 #define CY_MCWDT_CTR1_Pos (1u)
 #define CY_MCWDT_CTR2_Pos (2u)
@@ -237,16 +242,16 @@ typedef struct
 
 #define CY_MCWDT_ID       CY_PDL_DRV_ID(0x35u)                      /**< MCWDT PDL ID */
 
-#define CY_MCWDT_CTR0     (1UL << CY_MCWDT_CTR0_Pos)                /**< The sub-counter#0 mask. This macro is used with functions 
+#define CY_MCWDT_CTR0     (1UL << CY_MCWDT_CTR0_Pos)                /**< The sub-counter#0 mask. This macro is used with functions
                                                                    that handle multiple counters, including Cy_MCWDT_Enable(),
                                                                    Cy_MCWDT_Disable(), Cy_MCWDT_ClearInterrupt() and Cy_MCWDT_ResetCounters(). */
-#define CY_MCWDT_CTR1     (1UL << CY_MCWDT_CTR1_Pos)                /**< The sub-counter#1 mask. This macro is used with functions 
+#define CY_MCWDT_CTR1     (1UL << CY_MCWDT_CTR1_Pos)                /**< The sub-counter#1 mask. This macro is used with functions
                                                                    that handle multiple counters, including Cy_MCWDT_Enable(),
                                                                    Cy_MCWDT_Disable(), Cy_MCWDT_ClearInterrupt() and Cy_MCWDT_ResetCounters(). */
-#define CY_MCWDT_CTR2     (1UL << CY_MCWDT_CTR2_Pos)                /**< The sub-counter#2 mask. This macro is used with functions 
+#define CY_MCWDT_CTR2     (1UL << CY_MCWDT_CTR2_Pos)                /**< The sub-counter#2 mask. This macro is used with functions
                                                                    that handle multiple counters, including Cy_MCWDT_Enable(),
                                                                    Cy_MCWDT_Disable(), Cy_MCWDT_ClearInterrupt() and Cy_MCWDT_ResetCounters(). */
-#define CY_MCWDT_CTR_Msk  (CY_MCWDT_CTR0 | CY_MCWDT_CTR1 | CY_MCWDT_CTR2) /**< The mask for all sub-counters. This macro is used with functions 
+#define CY_MCWDT_CTR_Msk  (CY_MCWDT_CTR0 | CY_MCWDT_CTR1 | CY_MCWDT_CTR2) /**< The mask for all sub-counters. This macro is used with functions
                                                                    that handle multiple counters, including Cy_MCWDT_Enable(),
                                                                    Cy_MCWDT_Disable(), Cy_MCWDT_ClearInterrupt() and Cy_MCWDT_ResetCounters(). */
 
@@ -272,7 +277,7 @@ typedef enum
     CY_MCWDT_MODE_NONE,      /**< The No action mode. It is used for Set/GetMode functions. */
     CY_MCWDT_MODE_INT,       /**< The Interrupt mode. It is used for Set/GetMode functions. */
     CY_MCWDT_MODE_RESET,     /**< The Reset mode. It is used for Set/GetMode functions. */
-    CY_MCWDT_MODE_INT_RESET  /**< The Three interrupts then watchdog reset mode. It is used for 
+    CY_MCWDT_MODE_INT_RESET  /**< The Three interrupts then watchdog reset mode. It is used for
                                Set/GetMode functions. */
 } cy_en_mcwdtmode_t;
 
@@ -280,17 +285,17 @@ typedef enum
 typedef enum
 {
     CY_MCWDT_CASCADE_NONE,  /**< The cascading is disabled. It is used for Set/GetCascade functions. */
-    CY_MCWDT_CASCADE_C0C1,  /**< The sub-counter#1 is clocked by LFCLK or from sub-counter#0 cascade. 
+    CY_MCWDT_CASCADE_C0C1,  /**< The sub-counter#1 is clocked by LFCLK or from sub-counter#0 cascade.
                               It is used for Set/GetCascade functions. */
     CY_MCWDT_CASCADE_C1C2,  /**< The sub-counter#2 is clocked by LFCLK or from sub-counter#1 cascade.
                               It is used for Set/GetCascade functions. */
-    CY_MCWDT_CASCADE_BOTH   /**< The sub-counter#1 is clocked by LFCLK or from sub-counter#0 cascade 
-                              and the sub-counter#2 is clocked by LFCLK or from sub-counter#1 cascade. 
+    CY_MCWDT_CASCADE_BOTH   /**< The sub-counter#1 is clocked by LFCLK or from sub-counter#0 cascade
+                              and the sub-counter#2 is clocked by LFCLK or from sub-counter#1 cascade.
                               It is used for Set/GetCascade functions. */
 } cy_en_mcwdtcascade_t;
 
 /** The MCWDT error codes. */
-typedef enum 
+typedef enum
 {
     CY_MCWDT_SUCCESS = 0x00u,                                            /**< Successful */
     CY_MCWDT_BAD_PARAM = CY_MCWDT_ID | CY_PDL_STATUS_ERROR | 0x01u,     /**< One or more invalid parameters */
@@ -301,9 +306,9 @@ typedef enum
 
 /** \cond PARAM_CHECK_MACROS */
 
-/** Parameter check macros */ 
-#define CY_MCWDT_IS_CNTS_MASK_VALID(counters)  (0U == ((counters) & (uint32_t)~CY_MCWDT_CTR_Msk)) 
-                                               
+/** Parameter check macros */
+#define CY_MCWDT_IS_CNTS_MASK_VALID(counters)  (0U == ((counters) & (uint32_t)~CY_MCWDT_CTR_Msk))
+
 #define CY_MCWDT_IS_CNT_NUM_VALID(counter)    ((CY_MCWDT_COUNTER0 == (counter)) || \
                                                (CY_MCWDT_COUNTER1 == (counter)) || \
                                                (CY_MCWDT_COUNTER2 == (counter)))
@@ -320,12 +325,12 @@ typedef enum
                                                (CY_MCWDT_CASCADE_C0C1 == (cascade)) || \
                                                (CY_MCWDT_CASCADE_C1C2 == (cascade)) || \
                                                (CY_MCWDT_CASCADE_BOTH == (cascade)))
-                                               
+
 #define CY_MCWDT_IS_MATCH_VALID(clearOnMatch, match)  ((clearOnMatch) ? (1UL <= (match)) : true)
 
-#define CY_MCWDT_IS_BIT_VALID(bit)            (31UL >= (bit))                                            
+#define CY_MCWDT_IS_BIT_VALID(bit)            (31UL >= (bit))
 
-                                          
+
 /** \endcond */
 
 
@@ -380,13 +385,13 @@ uint32_t Cy_MCWDT_GetCountCascaded(MCWDT_STRUCT_Type const *base);
 *  CY_MCWDT_CTR2  macros.
 *
 *  \param waitUs
-*  The function waits for some delay in microseconds before returning, 
-*  because the counter begins counting after two lf_clk cycles pass. 
+*  The function waits for some delay in microseconds before returning,
+*  because the counter begins counting after two lf_clk cycles pass.
 *  The recommended value is 93 us.
 *  \note
 *  Setting this parameter to a zero means No wait. In this case, it is
-*  the user's responsibility to check whether the selected counters were enabled 
-*  immediately after the function call. This can be done by the 
+*  the user's responsibility to check whether the selected counters were enabled
+*  immediately after the function call. This can be done by the
 *  Cy_MCWDT_GetEnabledStatus() API.
 *
 *******************************************************************************/
@@ -395,7 +400,7 @@ __STATIC_INLINE void Cy_MCWDT_Enable(MCWDT_STRUCT_Type *base, uint32_t counters,
     uint32_t enableCounters;
 
     CY_ASSERT_L2(CY_MCWDT_IS_CNTS_MASK_VALID(counters));
-    
+
     /* Extract particular counters for enable */
     enableCounters = ((0UL != (counters & CY_MCWDT_CTR0)) ? MCWDT_STRUCT_MCWDT_CTL_WDT_ENABLE0_Msk : 0UL) |
                      ((0UL != (counters & CY_MCWDT_CTR1)) ? MCWDT_STRUCT_MCWDT_CTL_WDT_ENABLE1_Msk : 0UL) |
@@ -421,13 +426,13 @@ __STATIC_INLINE void Cy_MCWDT_Enable(MCWDT_STRUCT_Type *base, uint32_t counters,
 *  CY_MCWDT_CTR2 macros.
 *
 *  \param waitUs
-*  The function waits for some delay in microseconds before returning, 
-*  because the counter stops counting after two lf_clk cycles pass. 
+*  The function waits for some delay in microseconds before returning,
+*  because the counter stops counting after two lf_clk cycles pass.
 *  The recommended value is 93 us.
 *  \note
-*  Setting this parameter to a zero means No wait. In this case, it is 
-*  the user's responsibility to check whether the selected counters were disabled 
-*  immediately after the function call. This can be done by the 
+*  Setting this parameter to a zero means No wait. In this case, it is
+*  the user's responsibility to check whether the selected counters were disabled
+*  immediately after the function call. This can be done by the
 *  Cy_MCWDT_GetEnabledStatus() API.
 *
 *******************************************************************************/
@@ -436,7 +441,7 @@ __STATIC_INLINE void Cy_MCWDT_Disable(MCWDT_STRUCT_Type *base, uint32_t counters
     uint32_t disableCounters;
 
     CY_ASSERT_L2(CY_MCWDT_IS_CNTS_MASK_VALID(counters));
-    
+
     /* Extract particular counters for disable */
     disableCounters = ((0UL != (counters & CY_MCWDT_CTR0)) ? MCWDT_STRUCT_MCWDT_CTL_WDT_ENABLE0_Msk : 0UL) |
                       ((0UL != (counters & CY_MCWDT_CTR1)) ? MCWDT_STRUCT_MCWDT_CTL_WDT_ENABLE1_Msk : 0UL) |
@@ -469,7 +474,7 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetEnabledStatus(MCWDT_STRUCT_Type const *base
     uint32_t status = 0u;
 
     CY_ASSERT_L3(CY_MCWDT_IS_CNT_NUM_VALID(counter));
-    
+
     switch (counter)
     {
         case CY_MCWDT_COUNTER0:
@@ -574,7 +579,7 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetLockedStatus(MCWDT_STRUCT_Type const *base)
 *  The mode for Counter 2 can be set only to CY_MCWDT_MODE_NONE or CY_MCWDT_MODE_INT.
 *
 *  \note
-*  This API must not be called while the counters are running. 
+*  This API must not be called while the counters are running.
 *  Prior to calling this API, the counter must be disabled.
 *
 *******************************************************************************/
@@ -641,7 +646,7 @@ __STATIC_INLINE cy_en_mcwdtmode_t Cy_MCWDT_GetMode(MCWDT_STRUCT_Type const *base
 *  Set 0 to disable; 1 to enable.
 *
 *  \note
-*  This API must not be called while the counters are running. 
+*  This API must not be called while the counters are running.
 *  Prior to calling this API, the counter must be disabled.
 *
 *******************************************************************************/
@@ -712,17 +717,17 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetClearOnMatch(MCWDT_STRUCT_Type const *base,
 *  Sets or clears each of the cascade options.
 *
 *  \note
-*  This API must not be called when the counters are running. 
+*  This API must not be called when the counters are running.
 *  Prior to calling this API, the counter must be disabled.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_MCWDT_SetCascade(MCWDT_STRUCT_Type *base, cy_en_mcwdtcascade_t cascade)
 {
     CY_ASSERT_L3(CY_MCWDT_IS_CASCADE_VALID(cascade));
-    
+
     MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_CASCADE0_1,
                                              (uint32_t) cascade);
-    MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_CASCADE1_2, 
+    MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_CASCADE1_2,
                                              ((uint32_t) cascade >> 1u));
 }
 
@@ -764,20 +769,20 @@ __STATIC_INLINE cy_en_mcwdtcascade_t Cy_MCWDT_GetCascade(MCWDT_STRUCT_Type const
 *   The number of the WDT counter. The valid range is [0-1].
 *
 *  \param match
-*  The value to match against the counter. 
-*  The valid range is [0-65535] for c0ClearOnMatch (or c1ClearOnMatch) = 0 
+*  The value to match against the counter.
+*  The valid range is [0-65535] for c0ClearOnMatch (or c1ClearOnMatch) = 0
 *  and [1-65535] for c0ClearOnMatch (or c1ClearOnMatch) = 1.
 *
 *  \note
 *  The match value is not supported by Counter 2.
 *
 *  \note
-*  Action on match is taken on the next increment after the counter value 
+*  Action on match is taken on the next increment after the counter value
 *  equal to match value.
 *
 *  \param waitUs
-*  The function waits for some delay in microseconds before returning, 
-*  because the match affects after two lf_clk cycles pass. The recommended 
+*  The function waits for some delay in microseconds before returning,
+*  because the match affects after two lf_clk cycles pass. The recommended
 *  value is 93 us.
 *  \note
 *  Setting this parameter to a zero means No wait. This must be taken
@@ -787,8 +792,8 @@ __STATIC_INLINE cy_en_mcwdtcascade_t Cy_MCWDT_GetCascade(MCWDT_STRUCT_Type const
 __STATIC_INLINE void Cy_MCWDT_SetMatch(MCWDT_STRUCT_Type *base, cy_en_mcwdtctr_t counter, uint32_t match, uint16_t waitUs)
 {
     CY_ASSERT_L3(CY_MCWDT_IS_CNT_NUM_VALID(counter));
-    CY_ASSERT_L2(CY_MCWDT_IS_MATCH_VALID((CY_MCWDT_COUNTER0 == counter) ?  
-                                         ((MCWDT_STRUCT_MCWDT_CONFIG(base) & MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR0_Msk) > 0U) : 
+    CY_ASSERT_L2(CY_MCWDT_IS_MATCH_VALID((CY_MCWDT_COUNTER0 == counter) ?
+                                         ((MCWDT_STRUCT_MCWDT_CONFIG(base) & MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR0_Msk) > 0U) :
                                          ((MCWDT_STRUCT_MCWDT_CONFIG(base) & MCWDT_STRUCT_MCWDT_CONFIG_WDT_CLEAR1_Msk) > 0U),
                                           match));
 
@@ -854,7 +859,7 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetMatch(MCWDT_STRUCT_Type const *base, cy_en_
 __STATIC_INLINE void Cy_MCWDT_SetToggleBit(MCWDT_STRUCT_Type *base, uint32_t bit)
 {
     CY_ASSERT_L2(CY_MCWDT_IS_BIT_VALID(bit));
-    
+
     MCWDT_STRUCT_MCWDT_CONFIG(base) = _CLR_SET_FLD32U(MCWDT_STRUCT_MCWDT_CONFIG(base), MCWDT_STRUCT_MCWDT_CONFIG_WDT_BITS2, bit);
 }
 
@@ -900,7 +905,7 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetCount(MCWDT_STRUCT_Type const *base, cy_en_
     uint32_t countVal = 0u;
 
     CY_ASSERT_L3(CY_MCWDT_IS_CNT_NUM_VALID(counter));
-    
+
     switch (counter)
     {
         case CY_MCWDT_COUNTER0:
@@ -936,17 +941,17 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetCount(MCWDT_STRUCT_Type const *base, cy_en_
 *  CY_MCWDT_CTR2  macros.
 *
 *  \param waitUs
-*  The function waits for some delay in microseconds before returning, because 
+*  The function waits for some delay in microseconds before returning, because
 *  a reset occurs after one lf_clk cycle passes. The recommended value is 62 us.
-*  \note This function resets the counters two times to prevent the case when 
+*  \note This function resets the counters two times to prevent the case when
 *  the Counter 1 is not reset when the counters are cascaded. The delay waitUs
-*  must be greater than 100 us when the counters are cascaded. 
-*  The total delay is greater than 2*waitUs because the function has 
+*  must be greater than 100 us when the counters are cascaded.
+*  The total delay is greater than 2*waitUs because the function has
 *  the delay after the first reset.
 *  \note
-*  Setting this parameter to a zero means No wait. In this case, it is the 
-*  user's responsibility to check whether the selected counters were reset 
-*  immediately after the function call. This can be done by the 
+*  Setting this parameter to a zero means No wait. In this case, it is the
+*  user's responsibility to check whether the selected counters were reset
+*  immediately after the function call. This can be done by the
 *  Cy_MCWDT_GetCount() API.
 *
 *******************************************************************************/
@@ -955,18 +960,18 @@ __STATIC_INLINE void Cy_MCWDT_ResetCounters(MCWDT_STRUCT_Type *base, uint32_t co
     uint32_t resetCounters;
 
     CY_ASSERT_L2(CY_MCWDT_IS_CNTS_MASK_VALID(counters));
-    
+
     /* Extract particular counters for reset */
     resetCounters = ((0UL != (counters & CY_MCWDT_CTR0)) ? MCWDT_STRUCT_MCWDT_CTL_WDT_RESET0_Msk : 0UL) |
                     ((0UL != (counters & CY_MCWDT_CTR1)) ? MCWDT_STRUCT_MCWDT_CTL_WDT_RESET1_Msk : 0UL) |
                     ((0UL != (counters & CY_MCWDT_CTR2)) ? MCWDT_STRUCT_MCWDT_CTL_WDT_RESET2_Msk : 0UL);
 
     MCWDT_STRUCT_MCWDT_CTL(base) |= resetCounters;
-    
+
     Cy_SysLib_DelayUs(waitUs);
-    
+
     MCWDT_STRUCT_MCWDT_CTL(base) |= resetCounters;
-    
+
     Cy_SysLib_DelayUs(waitUs);
 }
 
@@ -1011,7 +1016,7 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetInterruptStatus(MCWDT_STRUCT_Type const *ba
 __STATIC_INLINE void Cy_MCWDT_ClearInterrupt(MCWDT_STRUCT_Type *base, uint32_t counters)
 {
     CY_ASSERT_L2(CY_MCWDT_IS_CNTS_MASK_VALID(counters));
-    
+
     MCWDT_STRUCT_MCWDT_INTR(base) = counters;
     (void) MCWDT_STRUCT_MCWDT_INTR(base);
 }
@@ -1078,7 +1083,7 @@ __STATIC_INLINE uint32_t Cy_MCWDT_GetInterruptMask(MCWDT_STRUCT_Type const *base
 __STATIC_INLINE void Cy_MCWDT_SetInterruptMask(MCWDT_STRUCT_Type *base, uint32_t counters)
 {
     CY_ASSERT_L2(CY_MCWDT_IS_CNTS_MASK_VALID(counters));
-    
+
     MCWDT_STRUCT_MCWDT_INTR_MASK(base) = counters;
 }
 
@@ -1088,9 +1093,9 @@ __STATIC_INLINE void Cy_MCWDT_SetInterruptMask(MCWDT_STRUCT_Type *base, uint32_t
 ****************************************************************************//**
 *
 * Returns the MCWDT interrupt masked request register. This register contains
-* the logical AND of corresponding bits from the MCWDT interrupt request and 
+* the logical AND of corresponding bits from the MCWDT interrupt request and
 * mask registers.
-* In the interrupt service routine, this function identifies which of the 
+* In the interrupt service routine, this function identifies which of the
 * enabled MCWDT interrupt sources caused an interrupt event.
 *
 *  \param base

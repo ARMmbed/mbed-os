@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_ipc_sema.h
-* \version 1.40
+* \version 1.40.2
 *
 * \brief
 * Header file for IPC SEM functions
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@
 * The semaphores layer functions made use of a single IPC channel to allow
 * multiple semaphores that can be used by system or user function calls.
 *
-* Include cy_ipc_sema.h. Alternatively include cy_pdl.h (ModusToolbox only) 
+* Include cy_ipc_sema.h. Alternatively include cy_pdl.h
 * to get access to all functions and declarations in the PDL.
 *
 * By default there are 128 semaphores provided, although the user may modify
@@ -106,9 +106,9 @@ typedef enum
 typedef struct
 {
     /** Maximum semaphores in system */
-    uint32_t maxSema;      
+    uint32_t maxSema;
     /** Pointer to semaphores array  */
-    uint32_t *arrayPtr;    
+    uint32_t *arrayPtr;
 } cy_stc_ipc_sema_t;
 
 /** \} group_ipc_sema_enums */

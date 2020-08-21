@@ -71,7 +71,7 @@ def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
     #2. Run imgtool to sign the non-secure mbed binary
     sign_args = Namespace(
         layout=image_macros_ns,
-        key=path_join(SCRIPT_DIR, 'musca_b1-root-rsa-3072.pem'),
+        key=path_join(SCRIPT_DIR, 'musca_b1-root-rsa-3072_1.pem'),
         public_key_format=None,
         align=1,
         dependencies=None,

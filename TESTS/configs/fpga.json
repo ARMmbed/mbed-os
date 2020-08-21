@@ -7,6 +7,8 @@
         },
         "MCU_NRF52840": {
             "target.macros_add": [
+                "UART_7BITS_NOT_SUPPORTED",
+                "UART_9BITS_NOT_SUPPORTED",
                 "UART_TWO_STOP_BITS_NOT_SUPPORTED",
                 "UART_ODD_PARITY_NOT_SUPPORTED"
             ]

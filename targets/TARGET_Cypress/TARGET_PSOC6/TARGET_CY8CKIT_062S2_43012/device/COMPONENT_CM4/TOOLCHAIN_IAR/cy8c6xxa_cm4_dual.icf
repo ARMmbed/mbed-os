@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy8c6xxa_cm4_dual.icf
-* \version 2.70.1
+* \version 2.90
 *
 * Linker file for the IAR compiler.
 *

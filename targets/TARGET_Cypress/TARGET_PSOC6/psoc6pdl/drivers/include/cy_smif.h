@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.h
-* \version 1.50
+* \version 1.50.1
 *
 * Provides an API declaration of the Cypress SMIF driver.
 *
@@ -213,6 +213,11 @@
 * \section group_smif_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.50.1</td>
+*     <td>Minor documentation updates. </td>
+*     <td>Documentation improvement. </td>
+*   </tr>
 *   <tr>
 *     <td>1.50</td>
 *     <td>Added a new function: \ref Cy_SMIF_MemLocateHybridRegion.\n

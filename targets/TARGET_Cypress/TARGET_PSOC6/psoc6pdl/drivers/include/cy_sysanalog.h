@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_sysanalog.h
-* \version 1.10
+* \version 1.10.1
 *
 * Header file for the system level analog reference driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,9 +29,9 @@
 * This driver provides an interface for configuring the Analog Reference (AREF) block
 * and querying the INTR_CAUSE register of the PASS.
 *
-* The functions and other declarations used in this driver are in cy_sysanalog.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The functions and other declarations used in this driver are in cy_sysanalog.h.
+* You can include cy_pdl.h to get access to all functions
+* and declarations in the PDL.
 *
 * The AREF block has the following features:
 *
@@ -140,8 +140,13 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.10.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="2">1.10</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -149,7 +154,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -616,4 +621,3 @@ __STATIC_INLINE void Cy_SysAnalog_IztatSelect(cy_en_sysanalog_iztat_source_t izt
 /** \} group_sysanalog */
 
 /* [] END OF FILE */
-

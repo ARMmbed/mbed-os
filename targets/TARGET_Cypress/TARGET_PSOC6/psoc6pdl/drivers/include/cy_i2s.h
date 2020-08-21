@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_i2s.h
-* \version 2.10
-* 
+* \version 2.10.1
+*
 * The header file of the I2S driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,13 +25,13 @@
 /**
 * \addtogroup group_i2s
 * \{
-* The I2S driver provides a function API to manage Inter-IC Sound. 
+* The I2S driver provides a function API to manage Inter-IC Sound.
 *
-* The functions and other declarations used in this driver are in cy_i2s.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
+* The functions and other declarations used in this driver are in cy_i2s.h.
+* You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
-* I2S is used to send digital audio streaming data to external I2S devices,  
+* I2S is used to send digital audio streaming data to external I2S devices,
 * such as audio codecs or simple DACs. It can also receive digital audio streaming data.
 *
 * Features:
@@ -40,14 +40,14 @@
 * * Programmable Channel/Word Lengths.
 * * Supports External Clock operation.
 *
-* The I2S bus is an industry standard. The hardware interface was 
-* developed by Philips Semiconductors (now NXP Semiconductors). 
+* The I2S bus is an industry standard. The hardware interface was
+* developed by Philips Semiconductors (now NXP Semiconductors).
 *
 * \section group_i2s_configuration_considerations Configuration Considerations
 *
 * To set up an I2S, provide the configuration parameters in the
-* \ref cy_stc_i2s_config_t structure. 
-* 
+* \ref cy_stc_i2s_config_t structure.
+*
 * For example, for Tx configuration, set txEnabled to true, configure
 * txDmaTrigger (depending on whether DMA is going to be used or not), set
 * extClk (if an external clock is used), provide clkDiv, txMasterMode,
@@ -71,13 +71,13 @@
 *
 * For example:
 * \snippet i2s/snippet/main.c snippet_Cy_I2S_Init
-* 
-* If you use a DMA, the DMA channel should be previously configured. The I2S interrupts 
+*
+* If you use a DMA, the DMA channel should be previously configured. The I2S interrupts
 * (if applicable) can be enabled by calling \ref Cy_I2S_SetInterruptMask.
 *
 * For example, if the trigger interrupt is used during operation, the ISR
-* should call the \ref Cy_I2S_WriteTxData as many times as required for your 
-* FIFO payload, but not more than the FIFO size. Then call \ref Cy_I2S_ClearInterrupt 
+* should call the \ref Cy_I2S_WriteTxData as many times as required for your
+* FIFO payload, but not more than the FIFO size. Then call \ref Cy_I2S_ClearInterrupt
 * with appropriate parameters.
 *
 * The I2S/Left Justified data formats always contains two data channels.
@@ -87,7 +87,7 @@
 * or combined with zeroes: sample1-zero-sample2-zero (in this case only the
 * left channel will finally sound, for a right-only case, zero should go first).
 * The TDM frame word order in FIFOs is similar, one-by-one.
-* 
+*
 * If a DMA is used and the DMA channel is properly configured - no CPU activity
 * (or any application code) is needed for I2S operation.
 *
@@ -128,8 +128,13 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.10.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="2">2.10</td>
-*     <td>Flattened the organization of the driver source code into the single 
+*     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
 *     </td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -137,7 +142,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -234,7 +239,7 @@ extern "C" {
 * \{
 */
 
-/** Transmission is active */ 
+/** Transmission is active */
 #define CY_I2S_TX_START                (I2S_CMD_TX_START_Msk)
 /** Transmission is paused */
 #define CY_I2S_TX_PAUSE                (I2S_CMD_TX_PAUSE_Msk)
@@ -254,7 +259,7 @@ extern "C" {
 * I2S status definitions.
 */
 
-typedef enum 
+typedef enum
 {
     CY_I2S_SUCCESS   = 0x00UL, /**< Successful. */
     CY_I2S_BAD_PARAM = CY_I2S_ID | CY_PDL_STATUS_ERROR | 0x01UL /**< One or more invalid parameters. */
@@ -333,7 +338,7 @@ typedef struct
                                                    'true': SDO bit starts at rising edge which goes before the above
                                                    mentioned falling edge, i.e. the SDO signal is advanced by 0.5 SCK
                                                    period (if txSckoInversion is false).
-                                                   If txSckoInversion is true - the rising/falling edges just swaps 
+                                                   If txSckoInversion is true - the rising/falling edges just swaps
                                                    in above explanations.
                                                    Effective only in slave mode, must be false in master mode.*/
     bool                  txSckoInversion;    /**< TX SCKO polarity:
@@ -373,7 +378,7 @@ typedef struct
                                                    'true': SDI bit starts at rising edge that goes after the above
                                                    mentioned falling edge, i.e. the SDI signal is delayed by 0.5 SCK
                                                    period (if rxSckoInversion is false).
-                                                   If rxSckoInversion is true - the rising/falling edges just swaps 
+                                                   If rxSckoInversion is true - the rising/falling edges just swaps
                                                    in above explanations.
                                                    Effective only in master mode, must be false in slave mode. */
     bool                  rxSckoInversion;    /**< RX SCKO polarity:
@@ -399,7 +404,7 @@ typedef struct
     cy_en_i2s_len_t       rxWordLength;       /**< RX word length, see #cy_en_i2s_len_t,
                                                    must be less or equal to rxChannelLength. */
     bool                  rxSignExtension;    /**< RX value sign extension (when the word length is less than 32 bits),
-                                                   'false': all MSB are filled by zeroes, 
+                                                   'false': all MSB are filled by zeroes,
                                                    'true': all MSB are filled by the original sign bit value. */
     uint8_t               rxFifoTriggerLevel; /**< RX FIFO interrupt trigger level
                                                    (0, 1, ..., (255 - (number of channels))). */
@@ -503,7 +508,7 @@ typedef struct
 
   cy_en_i2s_status_t     Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * config);
                 void     Cy_I2S_DeInit(I2S_Type * base);
-                
+
 /** \addtogroup group_i2s_functions_syspm_callback
 * The driver supports SysPm callback for Deep Sleep transition.
 * \{
@@ -547,7 +552,7 @@ __STATIC_INLINE uint32_t Cy_I2S_GetInterruptStatusMasked(I2S_Type const * base);
 * Function Name: Cy_I2S_EnableTx
 ****************************************************************************//**
 *
-* Starts an I2S transmission. Interrupt enabling (by the 
+* Starts an I2S transmission. Interrupt enabling (by the
 * \ref Cy_I2S_SetInterruptMask) is required after this function call, in case
 * if any I2S interrupts are used in the application.
 *
@@ -605,7 +610,7 @@ __STATIC_INLINE void Cy_I2S_ResumeTx(I2S_Type * base)
 * Function Name: Cy_I2S_DisableTx
 ****************************************************************************//**
 *
-* Stops an I2S transmission. 
+* Stops an I2S transmission.
 *
 * \pre TX interrupt disabling (by the \ref Cy_I2S_SetInterruptMask) is required
 * prior to this function call, in case any TX I2S interrupts are used.
@@ -626,7 +631,7 @@ __STATIC_INLINE void Cy_I2S_DisableTx(I2S_Type * base)
 * Function Name: Cy_I2S_EnableRx
 ****************************************************************************//**
 *
-* Starts an I2S reception. Interrupt enabling (by the 
+* Starts an I2S reception. Interrupt enabling (by the
 * \ref Cy_I2S_SetInterruptMask) is required after this function call, in case
 * any I2S interrupts are used in the application.
 *
@@ -720,7 +725,7 @@ __STATIC_INLINE void Cy_I2S_ClearTxFifo(I2S_Type * base)
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_GetNumInTxFifo(I2S_Type const * base)
-{   
+{
     return (_FLD2VAL(I2S_TX_FIFO_STATUS_USED, REG_I2S_TX_FIFO_STATUS(base)));
 }
 
