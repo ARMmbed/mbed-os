@@ -66,7 +66,6 @@ nsapi_error_t TELIT_ME310_CellularStack::socket_connect(nsapi_socket_t handle, c
         activate_ipeasy_context(_cid);
     }
 
-    int modem_connect_id = -1;
     int err = NSAPI_ERROR_NO_CONNECTION;
 
     int request_connect_id = find_socket_index(socket);
@@ -224,9 +223,7 @@ nsapi_error_t TELIT_ME310_CellularStack::deactivate_ipeasy_context(int context_i
 
 nsapi_error_t TELIT_ME310_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int modem_connect_id = -1;
     int remote_port = 1;
-    int err = -1;
 
     if (!is_ipeasy_context_activated(_cid)) {
         tr_debug("IPEasy context not active for %d", _cid);
@@ -399,7 +396,6 @@ nsapi_size_or_error_t TELIT_ME310_CellularStack::socket_recvfrom_impl(CellularSo
             }
 
             if (socket->proto == NSAPI_UDP) {
-                int data_left = -1;
                 // UDP has remote_IP and remote_port parameters
                 _at.read_string(ip_address, sizeof(ip_address));
                 port = _at.read_int();
@@ -408,7 +404,7 @@ nsapi_size_or_error_t TELIT_ME310_CellularStack::socket_recvfrom_impl(CellularSo
                 _at.skip_param();
 
                 srecv_size = _at.read_int();
-                data_left = _at.read_int();
+                _at.read_int();
                 if (srecv_size > size) {
                     srecv_size = size;
                 }
