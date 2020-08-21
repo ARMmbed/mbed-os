@@ -20,7 +20,7 @@
 #define BLE_PAL_GAP_MESSAGE_H_
 
 #include "ble/common/ble/GapTypes.h"
-#include "ble/common/ble/BLETypes.h"
+#include "ble/common/BLETypes.h"
 
 namespace ble {
 

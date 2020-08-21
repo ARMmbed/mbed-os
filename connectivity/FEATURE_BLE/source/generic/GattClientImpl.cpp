@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "BLERoles.h"
+#include "ble/common/BLERoles.h"
 
 #if BLE_FEATURE_GATT_CLIENT
 
@@ -27,7 +27,7 @@
 #include "source/pal/AttServerMessage.h"
 #include "ble/common/ble/DiscoveredService.h"
 #include "ble/common/ble/DiscoveredCharacteristic.h"
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/blecommon.h"
 #include "source/BLEInstanceBase.h"
 #include "ble/SecurityManager.h"
 #include <algorithm>

@@ -21,8 +21,8 @@
 
 #include <stdint.h>
 
-#include "ble/common/ble/blecommon.h"
-#include "ble/common/ble/BLETypes.h"
+#include "ble/common/blecommon.h"
+#include "ble/common/BLETypes.h"
 
 namespace ble {
 

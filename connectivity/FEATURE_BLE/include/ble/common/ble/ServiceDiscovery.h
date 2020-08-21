@@ -19,8 +19,8 @@
 #ifndef MBED_BLE_SERVICE_DISOVERY_H__
 #define MBED_BLE_SERVICE_DISOVERY_H__
 
-#include "ble/common/ble/blecommon.h"
-#include "ble/common/ble/UUID.h"
+#include "ble/common/blecommon.h"
+#include "ble/common/UUID.h"
 #include "ble/common/ble/GattAttribute.h"
 
 class DiscoveredService;

@@ -20,7 +20,7 @@
 #define MBED_FUNCTIONPOINTER_WITH_CONTEXT_H
 
 #include <string.h>
-#include "SafeBool.h"
+#include "ble/common/SafeBool.h"
 
 /**
  * @file

@@ -17,7 +17,7 @@
  */
 
 #include <stdio.h>
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/blecommon.h"
 #include "CordioHCIDriver.h"
 #include "CordioHCITransportDriver.h"
 #include "mbed.h"

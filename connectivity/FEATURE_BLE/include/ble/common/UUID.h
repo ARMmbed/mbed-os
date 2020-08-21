@@ -24,7 +24,7 @@
 #include <string.h>
 #include <algorithm>
 
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/blecommon.h"
 
 /**
  * @file

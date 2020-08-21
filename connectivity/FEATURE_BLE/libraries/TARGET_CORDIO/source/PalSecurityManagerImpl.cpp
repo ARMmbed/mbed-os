@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-#include "BLERoles.h"
+#include "ble/common/BLERoles.h"
 
 #include <string.h>
 
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/blecommon.h"
 #include "source/pal/PalSecurityManager.h"
 #include "source/pal/PalAttClient.h"
 #include "dm_api.h"

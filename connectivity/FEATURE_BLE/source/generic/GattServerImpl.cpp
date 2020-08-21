@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "BLERoles.h"
+#include "ble/common/BLERoles.h"
 #include <algorithm>
 #include "GattServerImpl.h"
 #include "source/BLEInstanceBase.h"

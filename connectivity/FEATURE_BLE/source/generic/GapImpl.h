@@ -19,7 +19,7 @@
 #ifndef IMPL_GAP_GAP_H
 #define IMPL_GAP_GAP_H
 
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
 #include <algorithm>
 
@@ -27,8 +27,8 @@
 #include "drivers/LowPowerTicker.h"
 #include "platform/mbed_error.h"
 
-#include "ble/common/ble/BLERoles.h"
-#include "ble/common/ble/BLETypes.h"
+#include "ble/common/BLERoles.h"
+#include "ble/common/BLETypes.h"
 #include "ble/gap/AdvertisingDataBuilder.h"
 #include "ble/gap/AdvertisingDataSimpleBuilder.h"
 #include "ble/gap/ConnectionParameters.h"

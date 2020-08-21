@@ -20,8 +20,8 @@
 #define BLE_PAL_GENERIC_ACCESS_SERVICE_H_
 
 #include "ble/common/ble/GapTypes.h"
-#include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/blecommon.h"
+#include "ble/common/BLETypes.h"
+#include "ble/common/blecommon.h"
 #include "ble/Gap.h"
 
 namespace ble {

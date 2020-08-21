@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "BLERoles.h"
+#include "ble/common/BLERoles.h"
 
 #include "SecurityManagerImpl.h"
 #include "source/pal/PalSecurityManager.h"
