@@ -19,7 +19,7 @@
 #include "BLERoles.h"
 
 #include "SecurityManagerImpl.h"
-#include "ble/internal/PalSecurityManager.h"
+#include "source/pal/PalSecurityManager.h"
 #include "MemorySecurityDb.h"
 #include "FileSecurityDb.h"
 #include "KVStoreSecurityDb.h"

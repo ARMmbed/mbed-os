@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 #include "GattClientImpl.h"
-#include "ble/internal/AttServerMessage.h"
+#include "source/pal/AttServerMessage.h"
 #include "ble/common/ble/DiscoveredService.h"
 #include "ble/common/ble/DiscoveredCharacteristic.h"
 #include "ble/common/ble/blecommon.h"

@@ -24,12 +24,12 @@
 #include "source/BLEInstanceBase.h"
 #include "ble/Gap.h"
 #include "ble/SecurityManager.h"
-#include "ble/internal/PalGap.h"
+#include "source/pal/PalGap.h"
 #include "ble/common/ble/GapEvents.h"
 #include "ble/common/ble/GapTypes.h"
-#include "ble/internal/PalGenericAccessService.h"
-#include "ble/internal/PalEventQueue.h"
-#include "ble/internal/PalGap.h"
+#include "source/pal/PalGenericAccessService.h"
+#include "source/pal/PalEventQueue.h"
+#include "source/pal/PalGap.h"
 
 #include "drivers/Timeout.h"
 

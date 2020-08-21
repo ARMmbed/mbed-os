@@ -36,12 +36,12 @@
 #include "ble/common/ble/gap/AdvertisingParameters.h"
 #include "ble/common/ble/gap/Events.h"
 
-#include "ble/internal/PalGap.h"
+#include "source/pal/PalGap.h"
 #include "ble/common/ble/GapEvents.h"
 #include "ble/common/ble/GapTypes.h"
-#include "ble/internal/PalEventQueue.h"
-#include "ble/internal/PalConnectionMonitor.h"
-#include "PalEventQueue.h"
+#include "source/pal/PalEventQueue.h"
+#include "source/pal/PalConnectionMonitor.h"
+#include "source/pal/PalEventQueue.h"
 
 #include "ble/Gap.h"
 

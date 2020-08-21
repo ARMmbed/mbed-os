@@ -19,7 +19,7 @@
 #ifndef BLE_PAL_ATTCLIENTTOGATTCLIENTADAPTER_H_
 #define BLE_PAL_ATTCLIENTTOGATTCLIENTADAPTER_H_
 
-#include "ble/internal/PalGattClient.h"
+#include "source/pal/PalGattClient.h"
 
 namespace ble {
 

@@ -21,8 +21,8 @@
 #include <string.h>
 
 #include "ble/common/ble/blecommon.h"
-#include "ble/internal/PalSecurityManager.h"
-#include "ble/internal/PalAttClient.h"
+#include "source/pal/PalSecurityManager.h"
+#include "source/pal/PalAttClient.h"
 #include "dm_api.h"
 #include "att_api.h"
 #include "smp_api.h"

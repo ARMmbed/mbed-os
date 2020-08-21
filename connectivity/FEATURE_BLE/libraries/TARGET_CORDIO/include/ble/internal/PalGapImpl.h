@@ -19,7 +19,7 @@
 #ifndef IMPL_PAL_GAP_
 #define IMPL_PAL_GAP_
 
-#include "ble/internal/PalGap.h"
+#include "source/pal/PalGap.h"
 #include "dm_api.h"
 
 namespace ble {

@@ -30,8 +30,8 @@
 #include "ble/common/ble/ServiceDiscovery.h"
 #include "ble/common/ble/CharacteristicDescriptorDiscovery.h"
 #include "ble/common/ble/GattCallbackParamTypes.h"
-#include "ble/internal/PalGattClient.h"
-#include "ble/internal/PalSigningMonitor.h"
+#include "source/pal/PalGattClient.h"
+#include "source/pal/PalSigningMonitor.h"
 #include "ble/GattClient.h"
 
 namespace ble {

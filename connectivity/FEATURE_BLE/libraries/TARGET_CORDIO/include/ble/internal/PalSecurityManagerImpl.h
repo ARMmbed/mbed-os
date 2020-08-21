@@ -19,7 +19,7 @@
 #ifndef IMPL_PAL_SECURITY_MANAGER_
 #define IMPL_PAL_SECURITY_MANAGER_
 
-#include "ble/internal/PalSecurityManager.h"
+#include "source/pal/PalSecurityManager.h"
 #include "ble/common/ble/blecommon.h"
 #include "wsf_types.h"
 #include "wsf_os.h"

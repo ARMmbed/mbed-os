@@ -24,7 +24,7 @@
 #include "ble/common/ble/UUID.h"
 #include "ble/common/ble/BLETypes.h"
 #include "ble/common/ble/blecommon.h"
-#include "ble/internal/AttServerMessage.h"
+#include "AttServerMessage.h"
 
 namespace ble {
 

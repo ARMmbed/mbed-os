@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ble/internal/PalSigningMonitor.h"
+#include "source/pal/PalSigningMonitor.h"
 #include "source/BLEInstanceBase.h"
 
 namespace ble {

@@ -35,7 +35,9 @@
 #include "SecurityManager.h"
 
 #include "ble/common/ble/GattCallbackParamTypes.h"
-#include "ble/internal/PalSigningMonitor.h"
+#include "source/pal/PalSigningMonitor.h"
+#include "source/BLEInstanceBase.h"
+
 
 namespace ble {
 

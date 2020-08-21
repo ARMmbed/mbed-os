@@ -19,7 +19,7 @@
 #ifndef IMPL_PAL_GENERIC_ACCESS_SERVICE_
 #define IMPL_PAL_GENERIC_ACCESS_SERVICE_
 
-#include "ble/internal/PalGenericAccessService.h"
+#include "source/pal/PalGenericAccessService.h"
 #include "ble/Gap.h"
 
 namespace ble {
