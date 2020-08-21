@@ -20,9 +20,9 @@
 
 #include "SecurityManagerImpl.h"
 #include "ble/internal/PalSecurityManager.h"
-#include "ble/internal/MemorySecurityDb.h"
-#include "ble/internal/FileSecurityDb.h"
-#include "ble/internal/KVStoreSecurityDb.h"
+#include "MemorySecurityDb.h"
+#include "FileSecurityDb.h"
+#include "KVStoreSecurityDb.h"
 
 using ble::advertising_peer_address_type_t;
 using ble::AuthenticationMask;

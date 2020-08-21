@@ -27,7 +27,6 @@
 #include "ble/common/ble/blecommon.h"
 
 #include "ble/common/ble/BLETypes.h"
-#include "ble/internal/SecurityDb.h"
 #include "ble/internal/PalConnectionMonitor.h"
 #include "ble/internal/PalSecurityManager.h"
 

@@ -29,7 +29,7 @@
 
 #include "ble/common/ble/GapTypes.h"
 #include "ble/common/ble/BLETypes.h"
-#include "ble/internal/SecurityDb.h"
+#include "SecurityDb.h"
 #include "ble/internal/PalConnectionMonitor.h"
 #include "ble/internal/PalSigningMonitor.h"
 #include "ble/internal/PalSecurityManager.h"
