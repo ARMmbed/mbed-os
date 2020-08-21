@@ -21,7 +21,7 @@
 #include "ble/internal/PalSimpleAttServerMessage.h"
 #include "ble/internal/PalGap.h"
 #include "ble/internal/PalGattClient.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "source/BLEInstanceBase.h"
 
 #include "att_api.h"
 #include "att_defs.h"

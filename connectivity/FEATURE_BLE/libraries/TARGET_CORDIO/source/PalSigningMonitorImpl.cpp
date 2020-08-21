@@ -17,7 +17,7 @@
  */
 
 #include "ble/internal/PalSigningMonitor.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "source/BLEInstanceBase.h"
 
 namespace ble {
 

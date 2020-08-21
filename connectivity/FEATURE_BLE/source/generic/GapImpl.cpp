@@ -21,7 +21,7 @@
 
 #include "GapImpl.h"
 #include "ble/Gap.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "source/BLEInstanceBase.h"
 #include "ble/Gap.h"
 #include "ble/SecurityManager.h"
 #include "ble/internal/PalGap.h"

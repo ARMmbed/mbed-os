@@ -41,7 +41,7 @@
 #include "ble/internal/PalSecurityManager.h"
 #include "ble/internal/PalGap.h"
 #include "ble/internal/PalSigningMonitor.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "source/BLEInstanceBase.h"
 #include "CordioHCIDriver.h"
 #include "source/generic/GattServerImpl.h"
 

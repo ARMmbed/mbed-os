@@ -28,7 +28,7 @@
 #include "ble/common/ble/DiscoveredService.h"
 #include "ble/common/ble/DiscoveredCharacteristic.h"
 #include "ble/common/ble/blecommon.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "source/BLEInstanceBase.h"
 #include "ble/SecurityManager.h"
 #include <algorithm>
 

@@ -19,7 +19,7 @@
 #include "BLERoles.h"
 #include <algorithm>
 #include "GattServerImpl.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "source/BLEInstanceBase.h"
 #include "wsf_types.h"
 #include "att_api.h"
 
