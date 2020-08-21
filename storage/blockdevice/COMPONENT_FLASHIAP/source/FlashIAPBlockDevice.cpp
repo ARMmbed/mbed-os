@@ -211,7 +211,10 @@ bd_size_t FlashIAPBlockDevice::get_erase_size() const
         return 0;
     }
 
-    uint32_t erase_size = _flash.get_sector_size(_base);
+    // Sector size is often contant but may monotonically increase or decrease,
+    // so we only check the start and the end of the region we use.
+    uint32_t erase_size = std::max(_flash.get_sector_size(_base),
+                                    _flash.get_sector_size(_base + _size - 1));
 
     DEBUG_PRINTF("get_erase_size: %" PRIX32 "\r\n", erase_size);
 
