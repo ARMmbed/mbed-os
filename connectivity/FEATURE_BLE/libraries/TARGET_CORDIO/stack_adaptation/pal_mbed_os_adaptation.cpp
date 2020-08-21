@@ -15,8 +15,8 @@
  */
 
 #include "mbed.h"
-#include "stack/platform/include/pal_types.h"
-#include "stack/platform/include/pal_uart.h"
+#include "cordio_stack/platform/include/pal_types.h"
+#include "cordio_stack/platform/include/pal_uart.h"
 #include "hal/ticker_api.h"
 #include "mbed_critical.h"
 #include "pal_codec.h"
