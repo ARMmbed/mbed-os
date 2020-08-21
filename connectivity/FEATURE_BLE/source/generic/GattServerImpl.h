@@ -21,10 +21,10 @@
 
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
-#include "ble/common/ble/GattService.h"
-#include "ble/common/ble/GattAttribute.h"
-#include "ble/common/ble/GattServerEvents.h"
-#include "ble/common/ble/GattCallbackParamTypes.h"
+#include "ble/gatt/GattService.h"
+#include "ble/gatt/GattAttribute.h"
+#include "GattServerEvents.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
 
 #include <stddef.h>
 #include <ble/GattServer.h>
@@ -34,7 +34,7 @@
 #include "att_api.h"
 #include "SecurityManager.h"
 
-#include "ble/common/ble/GattCallbackParamTypes.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
 #include "source/pal/PalSigningMonitor.h"
 #include "source/BLEInstanceBase.h"
 

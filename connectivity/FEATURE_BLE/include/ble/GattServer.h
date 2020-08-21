@@ -22,10 +22,9 @@
 
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
-#include "ble/common/ble/GattService.h"
-#include "ble/common/ble/GattAttribute.h"
-#include "ble/common/ble/GattServerEvents.h"
-#include "ble/common/ble/GattCallbackParamTypes.h"
+#include "ble/gatt/GattService.h"
+#include "ble/gatt/GattAttribute.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
 
 #include "ble/common/blecommon.h"
 #include "ble/Gap.h"

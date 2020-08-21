@@ -21,8 +21,8 @@
 
 #include "ble/common/UUID.h"
 #include "ble/Gap.h"
-#include "ble/common/ble/GattAttribute.h"
-#include "ble/common/ble/CharacteristicDescriptorDiscovery.h"
+#include "GattAttribute.h"
+#include "ble/gatt/CharacteristicDescriptorDiscovery.h"
 
 namespace ble {
 class GattClient;

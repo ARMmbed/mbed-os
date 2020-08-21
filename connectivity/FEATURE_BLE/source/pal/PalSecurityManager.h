@@ -23,7 +23,7 @@
 #include "platform/NonCopyable.h"
 
 #include "ble/common/BLETypes.h"
-#include "ble/common/ble/GapTypes.h"
+#include "GapTypes.h"
 
 #include "wsf_types.h"
 #include "wsf_os.h"

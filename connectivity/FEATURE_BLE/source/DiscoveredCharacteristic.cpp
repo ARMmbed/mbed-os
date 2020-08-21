@@ -17,7 +17,7 @@
  */
 
 #include "ble/BLE.h"
-#include "ble/common/ble/DiscoveredCharacteristic.h"
+#include "ble/gatt/DiscoveredCharacteristic.h"
 #include "ble/GattClient.h"
 
 ble_error_t

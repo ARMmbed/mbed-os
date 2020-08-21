@@ -21,7 +21,7 @@
 
 #include "ble/common/blecommon.h"
 #include "ble/common/UUID.h"
-#include "ble/common/ble/GattAttribute.h"
+#include "ble/gatt/GattAttribute.h"
 
 class DiscoveredService;
 class DiscoveredCharacteristic;
