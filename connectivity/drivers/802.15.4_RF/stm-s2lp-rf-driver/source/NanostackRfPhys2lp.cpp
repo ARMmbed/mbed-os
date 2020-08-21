@@ -36,11 +36,11 @@
 #if (MBED_VERSION > MBED_ENCODE_VERSION(6, 0, 0))
 /* Mbed OS 6.0 introduces support for chrono time management */
 using namespace std::chrono;
-    #define S2LP_USE_CHRONO
-    #define S2LP_TIME_50US   50us
-    #define S2LP_TIME_10MS   10ms
+#define S2LP_USE_CHRONO
+#define S2LP_TIME_50US   50us
+#define S2LP_TIME_10MS   10ms
 #else
-    #define S2LP_TIME_10MS   10
+#define S2LP_TIME_10MS   10
 #endif
 
 using namespace mbed;
