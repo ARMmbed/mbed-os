@@ -20,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <BLETypes.h>
+// FIXME: make this invisible!
 #include "wsf_buf.h"
 #include "CordioHCITransportDriver.h"
 #include "ble/common/blecommon.h"

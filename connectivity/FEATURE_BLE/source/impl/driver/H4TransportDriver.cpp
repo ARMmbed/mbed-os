@@ -16,7 +16,7 @@
 
 #if DEVICE_SERIAL && DEVICE_SERIAL_FC
 
-#include "H4TransportDriver.h"
+#include "ble/driver/H4TransportDriver.h"
 
 namespace ble {
 

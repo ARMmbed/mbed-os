@@ -29,5 +29,5 @@ Build time configuration may be controlled through options set in:
 
 ## Documentation
 
-* [HCI architecture](doc/HCIAbstraction.md)
-* [Porting guide](doc/PortingGuide.md)
+* [HCI architecture](../../include/ble/driver/doc/HCIAbstraction.md)
+* [Porting guide](../../include/ble/driver/doc/PortingGuide.md)

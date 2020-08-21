@@ -19,7 +19,7 @@
 
 #include "hci_api.h"
 #include "bstream.h"
-#include "driver/CordioHCIDriver.h"
+#include "ble/driver/CordioHCIDriver.h"
 #include "drivers/IPCPipeTransportDriver.h"
 #include "psoc6_utils.h"
 

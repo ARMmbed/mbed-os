@@ -42,7 +42,7 @@
 #include "source/pal/PalGap.h"
 #include "source/pal/PalSigningMonitor.h"
 #include "source/BLEInstanceBase.h"
-#include "CordioHCIDriver.h"
+#include "ble/driver/CordioHCIDriver.h"
 #include "source/generic/GattServerImpl.h"
 
 using namespace std::chrono;
