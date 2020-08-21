@@ -27,6 +27,7 @@
 #include "ble/common/ble/GattCallbackParamTypes.h"
 
 #include <stddef.h>
+#include <ble/GattServer.h>
 #include "ble/common/ble/blecommon.h"
 #include "ble/Gap.h"
 #include "wsf_types.h"
@@ -42,29 +43,31 @@ namespace ble {
 class PalAttClient;
 class BLE;
 
-class GattServer :
-    public ble::interface::GattServer,
-    public PalSigningMonitor
-{
+namespace impl {
+class GattServer : public PalSigningMonitor {
     friend ble::BLE;
     friend ble::PalAttClient;
     friend PalSigningMonitor;
     friend BLEInstanceBase;
     friend PalGenericAccessService;
 
-// inherited typedefs have the wrong types so we have to redefine them
-public:
+    using EventHandler = ble::GattServer::EventHandler;
+    using DataSentCallback_t = ble::GattServer::DataSentCallback_t ;
+    using DataSentCallbackChain_t = ble::GattServer::DataSentCallbackChain_t ;
+    using DataWrittenCallback_t = ble::GattServer::DataWrittenCallback_t ;
+    using DataWrittenCallbackChain_t = ble::GattServer::DataWrittenCallbackChain_t ;
+    using DataReadCallback_t = ble::GattServer::DataReadCallback_t;
+    using DataReadCallbackChain_t = ble::GattServer::DataReadCallbackChain_t;
+    using GattServerShutdownCallback_t = ble::GattServer::GattServerShutdownCallback_t;
+    using GattServerShutdownCallbackChain_t = ble::GattServer::GattServerShutdownCallbackChain_t;
+    using EventCallback_t = ble::GattServer::EventCallback_t;
 
-    typedef FunctionPointerWithContext<const GattServer *>
-        GattServerShutdownCallback_t;
-
-    typedef CallChainOfFunctionPointersWithContext<const GattServer*>
-        GattServerShutdownCallbackChain_t;
+    // inherited typedefs have the wrong types so we have to redefine them
 public:
 
     void setEventHandler(EventHandler *handler);
 
-    ble_error_t reset(void);
+    ble_error_t reset(ble::GattServer* server);
 
     ble_error_t addService(GattService &service);
 
@@ -107,49 +110,30 @@ public:
         bool *enabledP
     );
 
-    Gap::PreferredConnectionParams_t getPreferredConnectionParams();
+    ble::Gap::PreferredConnectionParams_t getPreferredConnectionParams();
 
-    void setPreferredConnectionParams(const Gap::PreferredConnectionParams_t& params);
+    void setPreferredConnectionParams(const ble::Gap::PreferredConnectionParams_t &params);
 
     bool isOnDataReadAvailable() const;
 
     void onDataSent(const DataSentCallback_t &callback);
 
-    template <typename T>
-    void onDataSent(T *objPtr, void (T::*memberPtr)(unsigned count));
-
     DataSentCallbackChain_t &onDataSent();
 
-    void onDataWritten(const DataWrittenCallback_t &callback) {
+    void onDataWritten(const DataWrittenCallback_t &callback)
+    {
         dataWrittenCallChain.add(callback);
     }
-
-    template <typename T>
-    void onDataWritten(
-        T *objPtr,
-        void (T::*memberPtr)(const GattWriteCallbackParams *context)
-    ) {
-        dataWrittenCallChain.add(objPtr, memberPtr);
-    };
 
     DataWrittenCallbackChain_t &onDataWritten();
 
     ble_error_t onDataRead(const DataReadCallback_t &callback);
 
-    template <typename T>
-    ble_error_t onDataRead(
-        T *objPtr,
-        void (T::*memberPtr)(const GattReadCallbackParams *context)
-    );
-
     DataReadCallbackChain_t &onDataRead();
 
     void onShutdown(const GattServerShutdownCallback_t &callback);
 
-    template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattServer *));
-
-    GattServerShutdownCallbackChain_t& onShutdown();
+    GattServerShutdownCallbackChain_t &onShutdown();
 
     void onUpdatesEnabled(EventCallback_t callback);
 
@@ -158,7 +142,7 @@ public:
     void onConfirmationReceived(EventCallback_t callback);
 
     /* Entry points for the underlying stack to report events back to the user. */
-protected:
+    protected:
 
     void handleDataWrittenEvent(const GattWriteCallbackParams *params);
 
@@ -174,35 +158,37 @@ protected:
     /* ===================================================================== */
     /*                    private implementation follows                     */
 
-#if 0 // Disabled until reworked and reintroduced to GattServer API
-public:
-    /**
-     * @see ble::GattServer::setDeviceName
-     */
-    ble_error_t setDeviceName(const uint8_t *deviceName);
+    #if 0 // Disabled until reworked and reintroduced to GattServer API
+    public:
+        /**
+         * @see ble::GattServer::setDeviceName
+         */
+        ble_error_t setDeviceName(const uint8_t *deviceName);
 
-    /**
-     * @see ble::GattServer::getDeviceName
-     */
-    void getDeviceName(const uint8_t*& name, uint16_t& length);
+        /**
+         * @see ble::GattServer::getDeviceName
+         */
+        void getDeviceName(const uint8_t*& name, uint16_t& length);
 
-    /**
-     * @see ble::GattServer::setAppearance
-     */
-    void setAppearance(GapAdvertisingData::Appearance appearance);
+        /**
+         * @see ble::GattServer::setAppearance
+         */
+        void setAppearance(GapAdvertisingData::Appearance appearance);
 
-    /**
-     * @see ble::GattServer::getAppearance
-     */
-    GapAdvertisingData::Appearance getAppearance();
+        /**
+         * @see ble::GattServer::getAppearance
+         */
+        GapAdvertisingData::Appearance getAppearance();
 
-#endif // Disabled until reworked and reintroduced to GattServer API
+    #endif // Disabled until reworked and reintroduced to GattServer API
 
 private:
+
     GattServer();
 
     GattServer(const GattServer &);
-    const GattServer& operator=(const GattServer &);
+
+    const GattServer &operator=(const GattServer &);
 
     /**
      * Return the singleton of the Cordio implementation of ble::GattServer.
@@ -219,14 +205,14 @@ private:
         PalSigningMonitorEventHandler *signing_event_handler
     );
 
-    EventHandler* getEventHandler();
+    EventHandler *getEventHandler();
 
     void add_default_services();
 
-    static uint16_t compute_attributes_count(GattService& service);
+    static uint16_t compute_attributes_count(GattService &service);
 
     void insert_service_attribute(
-        GattService& service,
+        GattService &service,
         attsAttr_t *&attribute_it
     );
 
@@ -249,9 +235,9 @@ private:
 
     ble_error_t insert_descriptor(
         GattCharacteristic *characteristic,
-        GattAttribute* descriptor,
+        GattAttribute *descriptor,
         attsAttr_t *&attribute_it,
-        bool& cccd_created
+        bool &cccd_created
     );
 
     ble_error_t insert_cccd(
@@ -260,20 +246,39 @@ private:
     );
 
     static void cccd_cb(attsCccEvt_t *pEvt);
+
     static void att_cb(const attEvt_t *pEvt);
+
     static uint8_t atts_read_cb(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, attsAttr_t *pAttr);
-    static uint8_t atts_write_cb(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, uint16_t len, uint8_t *pValue, attsAttr_t *pAttr);
+
+    static uint8_t atts_write_cb(
+        dmConnId_t connId,
+        uint16_t handle,
+        uint8_t operation,
+        uint16_t offset,
+        uint16_t len,
+        uint8_t *pValue,
+        attsAttr_t *pAttr
+    );
+
     static uint8_t atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle);
+
     void add_generic_access_service();
+
     void add_generic_attribute_service();
-    void* alloc_block(size_t block_size);
-    GattCharacteristic* get_auth_char(uint16_t value_handle);
-    bool get_cccd_index_by_cccd_handle(GattAttribute::Handle_t cccd_handle, uint8_t& idx) const;
-    bool get_cccd_index_by_value_handle(GattAttribute::Handle_t char_handle, uint8_t& idx) const;
+
+    void *alloc_block(size_t block_size);
+
+    GattCharacteristic *get_auth_char(uint16_t value_handle);
+
+    bool get_cccd_index_by_cccd_handle(GattAttribute::Handle_t cccd_handle, uint8_t &idx) const;
+
+    bool get_cccd_index_by_value_handle(GattAttribute::Handle_t char_handle, uint8_t &idx) const;
+
     bool is_update_authorized(connection_handle_t connection, GattAttribute::Handle_t value_handle);
 
     struct alloc_block_t {
-        alloc_block_t* next;
+        alloc_block_t *next;
         uint8_t data[1];
     };
 
@@ -357,7 +362,8 @@ private:
         uint8_t ppcp_declaration_value[5];
         uint8_t ppcp[8];
 
-        uint8_t*& device_name_value() {
+        uint8_t *&device_name_value()
+        {
             return attributes[2].pValue;
         }
     } generic_access_service;
@@ -368,14 +374,15 @@ private:
         uint8_t service_changed_declaration[5];
     } generic_attribute_service;
 
-    internal_service_t* registered_service;
-    alloc_block_t* allocated_blocks;
+    internal_service_t *registered_service;
+    alloc_block_t *allocated_blocks;
 
     uint16_t currentHandle;
 
     bool default_services_added;
 };
 
+} // namespace impl
 } // ble
 
 #endif /* ifndef MBED_CORDIO_GATT_SERVER_H__ */
