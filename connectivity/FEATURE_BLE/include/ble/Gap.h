@@ -29,15 +29,15 @@
 
 #include "ble/common/ble/BLERoles.h"
 #include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/gap/AdvertisingDataBuilder.h"
-#include "ble/common/ble/gap/AdvertisingDataParser.h"
-#include "ble/common/ble/gap/AdvertisingDataSimpleBuilder.h"
-#include "ble/common/ble/gap/AdvertisingDataTypes.h"
-#include "ble/common/ble/gap/AdvertisingParameters.h"
-#include "ble/common/ble/gap/ConnectionParameters.h"
-#include "ble/common/ble/gap/Events.h"
-#include "ble/common/ble/gap/ScanParameters.h"
-#include "ble/common/ble/gap/Types.h"
+#include "ble/gap/AdvertisingDataBuilder.h"
+#include "ble/gap/AdvertisingDataParser.h"
+#include "ble/gap/AdvertisingDataSimpleBuilder.h"
+#include "ble/gap/AdvertisingDataTypes.h"
+#include "ble/gap/AdvertisingParameters.h"
+#include "ble/gap/ConnectionParameters.h"
+#include "ble/gap/Events.h"
+#include "ble/gap/ScanParameters.h"
+#include "ble/gap/Types.h"
 
 namespace ble {
 class PalGenericAccessService;

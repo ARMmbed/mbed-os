@@ -29,12 +29,12 @@
 
 #include "ble/common/ble/BLERoles.h"
 #include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/gap/AdvertisingDataBuilder.h"
-#include "ble/common/ble/gap/AdvertisingDataSimpleBuilder.h"
-#include "ble/common/ble/gap/ConnectionParameters.h"
-#include "ble/common/ble/gap/ScanParameters.h"
-#include "ble/common/ble/gap/AdvertisingParameters.h"
-#include "ble/common/ble/gap/Events.h"
+#include "ble/gap/AdvertisingDataBuilder.h"
+#include "ble/gap/AdvertisingDataSimpleBuilder.h"
+#include "ble/gap/ConnectionParameters.h"
+#include "ble/gap/ScanParameters.h"
+#include "ble/gap/AdvertisingParameters.h"
+#include "ble/gap/Events.h"
 
 #include "source/pal/PalGap.h"
 #include "ble/common/ble/GapEvents.h"
