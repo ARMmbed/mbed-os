@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include "platform/Span.h"
 
-#include "ble/common/ble/gap/AdvertisingDataTypes.h"
+#include "ble/gap/AdvertisingDataTypes.h"
 
 namespace ble {
 

@@ -25,7 +25,7 @@
 #include "SafeEnum.h"
 #include "platform/Span.h"
 
-#include "ble/common/ble/gap/Types.h"
+#include "ble/gap/Types.h"
 
 /**
  * @addtogroup ble

@@ -22,7 +22,7 @@
 #include "platform/Span.h"
 
 #include "ble/common/ble/UUID.h"
-#include "ble/common/ble/gap/AdvertisingDataBuilder.h"
+#include "ble/gap/AdvertisingDataBuilder.h"
 
 namespace ble {
 
