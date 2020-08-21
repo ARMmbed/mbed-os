@@ -28,52 +28,99 @@
 // #define TEST_GPIOS_ENABLED
 
 // Arduino pin defaults for convenience
-#if !defined(ATMEL_SPI_MOSI)
-#define ATMEL_SPI_MOSI   D11
+#if defined(MBED_CONF_ATMEL_RF_SPI_MOSI)
+#define ATMEL_SPI_MOSI      MBED_CONF_ATMEL_RF_SPI_MOSI
+#else
+#define ATMEL_SPI_MOSI      D11
 #endif
-#if !defined(ATMEL_SPI_MISO)
-#define ATMEL_SPI_MISO   D12
+
+#if defined(MBED_CONF_ATMEL_RF_SPI_MISO)
+#define ATMEL_SPI_MISO      MBED_CONF_ATMEL_RF_SPI_MISO
+#else
+#define ATMEL_SPI_MISO      D12
 #endif
-#if !defined(ATMEL_SPI_SCLK)
-#define ATMEL_SPI_SCLK   D13
+
+#if defined(MBED_CONF_ATMEL_RF_SPI_SCLK)
+#define ATMEL_SPI_SCLK      MBED_CONF_ATMEL_RF_SPI_SCLK
+#else
+#define ATMEL_SPI_SCLK      D13
 #endif
-#if !defined(ATMEL_SPI_CS)
-#define ATMEL_SPI_CS     D10
+
+#if defined(MBED_CONF_ATMEL_RF_SPI_CS)
+#define ATMEL_SPI_CS        MBED_CONF_ATMEL_RF_SPI_CS
+#else
+#define ATMEL_SPI_CS        D10
 #endif
-#if !defined(ATMEL_SPI_RST)
-#define ATMEL_SPI_RST    D5
+
+#if defined(MBED_CONF_ATMEL_RF_SPI_RST)
+#define ATMEL_SPI_RST       MBED_CONF_ATMEL_RF_SPI_RST
+#else
+#define ATMEL_SPI_RST       D5
 #endif
-#if !defined(ATMEL_SPI_SLP)
-#define ATMEL_SPI_SLP    D7
+
+#if defined(MBED_CONF_ATMEL_RF_SPI_SLP)
+#define ATMEL_SPI_SLP       MBED_CONF_ATMEL_RF_SPI_SLP
+#else
+#define ATMEL_SPI_SLP       D7
 #endif
-#if !defined(ATMEL_SPI_IRQ)
-#define ATMEL_SPI_IRQ    D9
+
+#if defined(MBED_CONF_ATMEL_RF_SPI_IRQ)
+#define ATMEL_SPI_IRQ       MBED_CONF_ATMEL_RF_SPI_IRQ
+#else
+#define ATMEL_SPI_IRQ       D9
 #endif
-#if !defined(ATMEL_I2C_SDA)
-#define ATMEL_I2C_SDA    D14
+
+#if defined(MBED_CONF_ATMEL_RF_I2C_SDA)
+#define ATMEL_I2C_SDA       MBED_CONF_ATMEL_RF_I2C_SDA
+#else
+#define ATMEL_I2C_SDA       D14
 #endif
-#if !defined(ATMEL_I2C_SCL)
-#define ATMEL_I2C_SCL    D15
+
+#if defined(MBED_CONF_ATMEL_RF_I2C_SCL)
+#define ATMEL_I2C_SCL       MBED_CONF_ATMEL_RF_I2C_SCL
+#else
+#define ATMEL_I2C_SCL       D15
 #endif
-#if !defined(TEST_PIN_TX)
-#define TEST_PIN_TX    D6
+
+#if defined(MBED_CONF_ATMEL_RF_TEST_PIN_TX)
+#define TEST_PIN_TX         MBED_CONF_ATMEL_RF_TEST_PIN_TX
+#else
+#define TEST_PIN_TX         D6
 #endif
-#if !defined(TEST_PIN_RX)
-#define TEST_PIN_RX    D3
+
+#if defined(MBED_CONF_ATMEL_RF_TEST_PIN_RX)
+#define TEST_PIN_RX         MBED_CONF_ATMEL_RF_TEST_PIN_RX
+#else
+#define TEST_PIN_RX         D3
 #endif
-#if !defined(TEST_PIN_CSMA)
-#define TEST_PIN_CSMA    D4
+
+#if defined(MBED_CONF_ATMEL_RF_TEST_PIN_CSMA)
+#define TEST_PIN_CSMA       MBED_CONF_ATMEL_RF_TEST_PIN_CSMA
+#else
+#define TEST_PIN_CSMA       D4
 #endif
-#if !defined(TEST_PIN_SPARE_1)
+
+#if defined(MBED_CONF_ATMEL_RF_TEST_PIN_SPARE_1)
+#define TEST_PIN_SPARE_1    MBED_CONF_ATMEL_RF_TEST_PIN_SPARE_1
+#else
 #define TEST_PIN_SPARE_1    D2
 #endif
-#if !defined(TEST_PIN_SPARE_2)
+
+#if defined(MBED_CONF_ATMEL_RF_TEST_PIN_SPARE_2)
+#define TEST_PIN_SPARE_2    MBED_CONF_ATMEL_RF_TEST_PIN_SPARE_2
+#else
 #define TEST_PIN_SPARE_2    D8
 #endif
-#if !defined(SE2435L_CSD)
-#define SE2435L_CSD    D2
+
+#if defined(MBED_CONF_ATMEL_RF_SE2435L_CSD)
+#define SE2435L_CSD         MBED_CONF_ATMEL_RF_SE2435L_CSD
+#else
+#define SE2435L_CSD         D2
 #endif
-#if !defined(SE2435L_ANT_SEL)
+
+#if defined(MBED_CONF_ATMEL_RF_SE2435L_ANT_SEL)
+#define SE2435L_ANT_SEL    MBED_CONF_ATMEL_RF_SE2435L_ANT_SEL
+#else
 #define SE2435L_ANT_SEL    D8
 #endif
 
