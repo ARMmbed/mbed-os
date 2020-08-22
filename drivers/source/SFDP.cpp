@@ -412,7 +412,7 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
             largest_erase_type = idx;
             if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
                     ((smptbl.region_high_boundary[region] - offset)
-                     > (int)(smptbl.erase_type_size_arr[largest_erase_type]))) {
+                     > (uint64_t)(smptbl.erase_type_size_arr[largest_erase_type]))) {
                 break;
             } else {
                 bitfield &= ~type_mask;
