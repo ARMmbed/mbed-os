@@ -517,7 +517,7 @@ extern "C" {
         }
 
         void *cb_ptr = reinterpret_cast<void *>(ppp_service_sys_timeout_id);
-        auto duration =std::chrono::milliseconds(msecs);
+        auto duration = std::chrono::milliseconds(msecs);
         int unique_id = ppp_service_ptr->event_queue_get()->call_in(duration, mbed::callback(ppp_sys_timeout_callback, cb_ptr));
         if (unique_id == 0) {
             tr_error("No free memory for timeout equeue");
