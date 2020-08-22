@@ -82,7 +82,7 @@ void tcp_test_drop_reset()
 }
 #endif
 
-#ifdef FEA_TRACE_SUPPORT
+#if defined(FEA_TRACE_SUPPORT) && MBED_CONF_MBED_TRACE_ENABLE && (MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_DEBUG)
 static const char *trace_tcp_flags(uint16_t flags)
 {
     static char buf[9];
