@@ -58,7 +58,6 @@ public:
     };
 };
 
-namespace interface {
 /**
  * Implemented by classes that need to be notified of signing events.
  * Notification is done by calling functions in the passed in event handler
@@ -70,14 +69,9 @@ public:
      *
      * @param[in] signing_event_handler Event handler being registered.
      */
-    void set_signing_event_handler(PalSigningMonitorEventHandler *signing_event_handler);
+    virtual void set_signing_event_handler(PalSigningMonitorEventHandler *signing_event_handler) = 0;
 };
 
-} // namespace interface
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/PalSigningMonitorImpl.h"
 
 #endif /* MBED_BLE_SIGNING_EVENT_MONITOR */

@@ -267,7 +267,20 @@ PalGattClient &BLEInstanceBase::getPalGattClient()
 
 ble::impl::SecurityManager &BLEInstanceBase::getSecurityManagerImpl()
 {
-    static PalSigningMonitor signing_event_monitor;
+    // Creation of a proxy monitor to let the security manager register to
+    // the gatt client and gatt server.
+    static struct : PalSigningMonitor {
+        void set_signing_event_handler(PalSigningMonitorEventHandler *handler)
+        {
+#if BLE_FEATURE_GATT_CLIENT
+            BLEInstanceBase::deviceInstance().getGattClientImpl().set_signing_event_handler(handler);
+#endif // BLE_FEATURE_GATT_CLIENT
+#if BLE_FEATURE_GATT_SERVER
+            BLEInstanceBase::deviceInstance().getGattServerImpl().set_signing_event_handler(handler);
+#endif // BLE_FEATURE_GATT_SERVER
+        }
+    } signing_event_monitor;
+
     static ble::impl::SecurityManager m_instance(
         ble::impl::PalSecurityManager::get_security_manager(),
         getGapImpl(),

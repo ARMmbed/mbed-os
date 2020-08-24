@@ -167,7 +167,7 @@ private:
     /**
      * @see ble::PalSigningMonitor::set_signing_event_handler
      */
-    void set_signing_event_handler(PalSigningMonitorEventHandler *signing_event_handler);
+    void set_signing_event_handler(PalSigningMonitorEventHandler *signing_event_handler) override;
 
     /**
      * @see PalGattClient::EventHandler::on_att_mtu_change
