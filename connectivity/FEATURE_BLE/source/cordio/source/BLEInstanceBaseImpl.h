@@ -20,27 +20,30 @@
 #define IMPL_BLE_INSTANCE_BASE_H_
 
 #include "ble/BLE.h"
-#include "ble/common/blecommon.h"
-#include "source/BLEInstanceBase.h"
 
-#include "ble/driver/CordioHCIDriver.h"
 #include "ble/GattServer.h"
+#include "ble/GattClient.h"
+#include "ble/Gap.h"
+#include "ble/SecurityManager.h"
+
+#include "ble/common/blecommon.h"
+#include "ble/driver/CordioHCIDriver.h"
+
+#include "source/BLEInstanceBase.h"
 #include "source/pal/PalAttClient.h"
 #include "source/pal/PalGattClient.h"
-#include "ble/GattClient.h"
 #include "source/pal/PalGap.h"
-#include "ble/Gap.h"
 #include "source/pal/PalGenericAccessService.h"
-#include "ble/SecurityManager.h"
 #include "source/pal/PalEventQueue.h"
-#include "drivers/LowPowerTimer.h"
 #include "source/pal/PalSecurityManager.h"
 
 #include "source/generic/GapImpl.h"
 #include "source/generic/GattClientImpl.h"
-#include "source/GattServerImpl.h"
 #include "source/generic/SecurityManagerImpl.h"
-#include "internal/PalEventQueueImpl.h"
+#include "source/GattServerImpl.h"
+#include "source/PalEventQueueImpl.h"
+
+#include "drivers/LowPowerTimer.h"
 
 namespace ble {
 
@@ -51,7 +54,7 @@ namespace impl {
 /**
  * @see BLEInstanceBase
  */
-class BLEInstanceBase : public ble::BLEInstanceBase {
+class BLEInstanceBase final : public ble::BLEInstanceBase {
     friend PalSigningMonitor;
 
     /**
@@ -75,36 +78,36 @@ public:
     /**
     * @see BLEInstanceBase::init
     */
-    virtual ble_error_t init(
+    ble_error_t init(
         FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> initCallback
-    );
+    ) final;
 
     /**
      * @see BLEInstanceBase::hasInitialized
      */
-    virtual bool hasInitialized() const;
+    bool hasInitialized() const final;
 
     /**
      * @see BLEInstanceBase::shutdown
      */
-    virtual ble_error_t shutdown();
+    ble_error_t shutdown() final;
 
     /**
      * @see BLEInstanceBase::getVersion
      */
-    virtual const char *getVersion();
+    const char *getVersion() final;
 
     ble::impl::Gap &getGapImpl();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual ble::Gap &getGap();
+    ble::Gap &getGap() final;
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const ble::Gap &getGap() const;
+    const ble::Gap &getGap() const final;
 
 #if BLE_FEATURE_GATT_SERVER
 
@@ -113,12 +116,12 @@ public:
     /**
      * @see BLEInstanceBase::getGattServer
      */
-    virtual ble::GattServer &getGattServer();
+    ble::GattServer &getGattServer() final;
 
     /**
      * @see BLEInstanceBase::getGattServer
      */
-    virtual const ble::GattServer &getGattServer() const;
+    const ble::GattServer &getGattServer() const final;
 
 #endif // BLE_FEATURE_GATT_SERVER
 
@@ -129,7 +132,7 @@ public:
     /**
      * @see BLEInstanceBase::getGattClient
      */
-    virtual ble::GattClient &getGattClient();
+    ble::GattClient &getGattClient() final;
 
     /**
      * Get the PAL Gatt Client.
@@ -147,24 +150,24 @@ public:
     /**
      * @see BLEInstanceBase::getSecurityManager
      */
-    virtual ble::SecurityManager &getSecurityManager();
+    ble::SecurityManager &getSecurityManager() final;
 
     /**
      * @see BLEInstanceBase::getSecurityManager
      */
-    virtual const ble::SecurityManager &getSecurityManager() const;
+    const ble::SecurityManager &getSecurityManager() const final;
 
 #endif // BLE_FEATURE_SECURITY
 
     /**
      * @see BLEInstanceBase::waitForEvent
      */
-    virtual void waitForEvent();
+    void waitForEvent();
 
     /**
      * @see BLEInstanceBase::processEvents
      */
-    virtual void processEvents();
+    void processEvents() final;
 
 private:
     static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg);

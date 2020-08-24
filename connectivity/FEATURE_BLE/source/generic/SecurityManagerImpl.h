@@ -41,7 +41,6 @@
 
 namespace ble {
 class PalGenericAccessService;
-class BLEInstanceBase;
 
 namespace impl {
 
@@ -450,9 +449,9 @@ private:
 
 public:
     SecurityManager(
-        PalSecurityManager &palImpl,
-        PalConnectionMonitor &connMonitorImpl,
-        PalSigningMonitor &signingMonitorImpl
+        ble::PalSecurityManager &palImpl,
+        ble::PalConnectionMonitor &connMonitorImpl,
+        ble::PalSigningMonitor &signingMonitorImpl
     ) : eventHandler(nullptr),
         _pal(palImpl),
         _connection_monitor(connMonitorImpl),

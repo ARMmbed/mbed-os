@@ -53,17 +53,17 @@ class PalSecurityManager;
 
 class PalGap;
 
-class BLEInstanceBase;
-
 namespace impl {
 
+class BLEInstanceBase;
+
 class Gap :
-    public PalConnectionMonitor,
+    public ble::PalConnectionMonitor,
     public PalGapEventHandler {
     friend PalConnectionMonitor;
     friend PalGapEventHandler;
     friend PalGap;
-    friend BLEInstanceBase;
+    friend impl::BLEInstanceBase;
 
     using EventHandler = ::ble::Gap::EventHandler;
     using GapShutdownCallback_t = ::ble::Gap::GapShutdownCallback_t;
