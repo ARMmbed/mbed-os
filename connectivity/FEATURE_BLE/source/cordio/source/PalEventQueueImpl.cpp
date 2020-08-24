@@ -16,14 +16,16 @@
  * limitations under the License.
  */
 
-#include "source/pal/PalEventQueue.h"
+#include "internal/PalEventQueueImpl.h"
 #include "source/BLEInstanceBase.h"
 
 namespace ble {
+namespace impl {
 
 void PalEventQueue::signal_event()
 {
     _ble_base->signalEventsToProcess();
 }
 
+} // namespace impl
 } // namespace ble

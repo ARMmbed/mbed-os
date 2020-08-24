@@ -357,7 +357,7 @@ private:
     Gap &operator=(const Gap &);
 
     Gap(
-        PalEventQueue &event_queue,
+        ble::PalEventQueue &event_queue,
         PalGap &pal_gap,
         PalGenericAccessService &generic_access_service,
         PalSecurityManager &pal_sm
