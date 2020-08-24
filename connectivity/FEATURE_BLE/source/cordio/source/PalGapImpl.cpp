@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "source/pal/PalGap.h"
+#include "PalGapImpl.h"
 #include "hci_api.h"
 #include "dm_api.h"
 #include "dm_main.h"
 #include "dm_conn.h"
 
 namespace ble {
+namespace impl {
 
 namespace {
 bool dummy_gap_event_handler(const wsfMsgHdr_t *msg)
@@ -67,8 +68,8 @@ bool PalGap::is_feature_supported(
 
 ble_error_t PalGap::initialize()
 {
-    for (size_t i = 0; i < DM_NUM_ADV_SETS; ++i) {
-        direct_adv_cb[i] = direct_adv_cb_t();
+    for (auto & cb : direct_adv_cb) {
+        cb = direct_adv_cb_t();
     }
     return BLE_ERROR_NONE;
 }
@@ -76,8 +77,8 @@ ble_error_t PalGap::initialize()
 
 ble_error_t PalGap::terminate()
 {
-    for (size_t i = 0; i < DM_NUM_ADV_SETS; ++i) {
-        direct_adv_cb[i] = direct_adv_cb_t();
+    for (auto & cb : direct_adv_cb) {
+        cb = direct_adv_cb_t();
     }
     return BLE_ERROR_NONE;
 }
@@ -189,7 +190,7 @@ ble_error_t PalGap::advertising_enable(bool enable)
         // the function DmConnAccept instead of the function DmAdvStart.
         // First the algorithm retrieves if direct advertising has been
         // configured and depending on the result use the right function.
-        direct_adv_cb_t* direct_adv_cb = get_pending_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
+        direct_adv_cb_t *direct_adv_cb = get_pending_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
         if (direct_adv_cb) {
             direct_adv_cb->connection_handle = DmConnAccept(
                 DM_CLIENT_ID_APP,
@@ -215,7 +216,7 @@ ble_error_t PalGap::advertising_enable(bool enable)
         // Functions to call to stop advertising if connectable direct
         // advertising is used or not. DmConnClose is used if direct
         // advertising is started otherwise use DmAdvStop.
-        direct_adv_cb_t* direct_adv_cb = get_running_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
+        direct_adv_cb_t *direct_adv_cb = get_running_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
         if (direct_adv_cb) {
             DmConnClose(
                 DM_CLIENT_ID_APP,
@@ -561,7 +562,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             if (!handler) {
                 break;
             }
-            const hciLeReadPhyCmdCmplEvt_t *evt = (const hciLeReadPhyCmdCmplEvt_t *) msg;
+            const auto *evt = (const hciLeReadPhyCmdCmplEvt_t *) msg;
 
             handler->on_read_phy(
                 (hci_error_code_t::type) msg->status,
@@ -570,14 +571,14 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 (ble::phy_t::type) evt->rxPhy
             );
         }
-        break;
+            break;
 
         case DM_PHY_UPDATE_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLePhyUpdateEvt_t *evt = (const hciLePhyUpdateEvt_t *) msg;
+            const auto *evt = (const hciLePhyUpdateEvt_t *) msg;
 
             handler->on_phy_update_complete(
                 (hci_error_code_t::type) msg->status,
@@ -586,7 +587,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 (ble::phy_t::type) evt->rxPhy
             );
         }
-        break;
+            break;
 #endif // BLE_FEATURE_PHY_MANAGEMENT
 #if BLE_FEATURE_PERIODIC_ADVERTISING
         case DM_PER_ADV_SYNC_EST_IND: {
@@ -594,7 +595,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 break;
             }
 
-            const hciLePerAdvSyncEstEvt_t *evt = (const hciLePerAdvSyncEstEvt_t *) msg;
+            const auto *evt = (const hciLePerAdvSyncEstEvt_t *) msg;
 
             handler->on_periodic_advertising_sync_established(
                 hci_error_code_t(evt->status),
@@ -607,14 +608,14 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 clock_accuracy_t(evt->clockAccuracy)
             );
         }
-        break;
+            break;
 
         case DM_PER_ADV_REPORT_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLePerAdvReportEvt_t *evt = (const hciLePerAdvReportEvt_t *) msg;
+            const auto *evt = (const hciLePerAdvReportEvt_t *) msg;
 
             handler->on_periodic_advertising_report(
                 evt->syncHandle,
@@ -625,17 +626,17 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->pData
             );
         }
-        break;
+            break;
 
         case DM_PER_ADV_SYNC_LOST_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLePerAdvSyncLostEvt_t *evt = (const hciLePerAdvSyncLostEvt_t *) msg;
+            const auto *evt = (const hciLePerAdvSyncLostEvt_t *) msg;
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
         }
-        break;
+            break;
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
@@ -644,22 +645,22 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 break;
             }
 
-            const hciLeScanReqRcvdEvt_t *evt = (const hciLeScanReqRcvdEvt_t *) msg;
+            const auto *evt = (const hciLeScanReqRcvdEvt_t *) msg;
             handler->on_scan_request_received(
                 evt->advHandle,
                 connection_peer_address_type_t(evt->scanAddrType),
                 evt->scanAddr
             );
         }
-        break;
+            break;
 
         case DM_ADV_SET_STOP_IND: {
-            const hciLeAdvSetTermEvt_t *evt = (const hciLeAdvSetTermEvt_t *) msg;
+            const auto *evt = (const hciLeAdvSetTermEvt_t *) msg;
 
             // cleanup state in direct advertising list. This event is only
             // called for set using extended advertsing when the advertising
             // module is reset.
-            direct_adv_cb_t* adv_cb = get_gap().get_running_direct_adv_cb(evt->advHandle);
+            direct_adv_cb_t *adv_cb = get_gap().get_running_direct_adv_cb(evt->advHandle);
 
             if (adv_cb) {
                 adv_cb->state = direct_adv_cb_t::free;
@@ -676,7 +677,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->numComplEvts
             );
         }
-        break;
+            break;
 #endif //  BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
@@ -688,14 +689,14 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             //const hciLeScanTimeoutEvt_t *evt = (const hciLeScanTimeoutEvt_t *) msg;
             handler->on_scan_timeout();
         }
-        break;
+            break;
 
         case DM_EXT_SCAN_REPORT_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeExtAdvReportEvt_t *evt = (const hciLeExtAdvReportEvt_t *) msg;
+            const auto *evt = (const hciLeExtAdvReportEvt_t *) msg;
             connection_peer_address_type_t addr_type(evt->addrType);
             phy_t sec_phy(evt->secPhy);
 
@@ -715,7 +716,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->pData
             );
         }
-        break;
+            break;
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
 
 #if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
@@ -724,7 +725,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 break;
             }
 
-            const hciLeRemConnParamReqEvt_t *evt = (const hciLeRemConnParamReqEvt_t *) msg;
+            const auto *evt = (const hciLeRemConnParamReqEvt_t *) msg;
             handler->on_remote_connection_parameter(
                 evt->hdr.param,
                 evt->intervalMin,
@@ -733,14 +734,14 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->timeout
             );
         }
-        break;
+            break;
 
         case DM_CONN_CLOSE_IND: {
             // Intercept connection close indication received when direct  advertising timeout.
             // Leave the rest of the processing to the event handlers bellow.
-            const hciDisconnectCmplEvt_t *evt = (const hciDisconnectCmplEvt_t *) msg;
+            const auto *evt = (const hciDisconnectCmplEvt_t *) msg;
             if (evt->status == HCI_ERR_ADV_TIMEOUT) {
-                direct_adv_cb_t* adv_cb =
+                direct_adv_cb_t *adv_cb =
                     get_gap().get_running_conn_direct_adv_cb(evt->hdr.param);
                 if (adv_cb) {
                     adv_cb->state = direct_adv_cb_t::free;
@@ -756,19 +757,19 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 }
             }
         }
-        break;
+            break;
 
         case DM_CONN_OPEN_IND: {
             // Intercept connection open indication received when direct advertising timeout.
             // Leave the rest of the processing to the event handlers bellow.
             // There is no advertising stop event generated for directed connectable advertising.
-            const hciLeConnCmplEvt_t *evt = (const hciLeConnCmplEvt_t *) msg;
-            direct_adv_cb_t* adv_cb = get_gap().get_running_conn_direct_adv_cb(evt->hdr.param);
+            const auto *evt = (const hciLeConnCmplEvt_t *) msg;
+            direct_adv_cb_t *adv_cb = get_gap().get_running_conn_direct_adv_cb(evt->hdr.param);
             if (adv_cb) {
                 adv_cb->state = direct_adv_cb_t::free;
             }
         }
-        break;
+            break;
 #endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
     }
 
@@ -790,8 +791,8 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
 
     // traverse all handlers and execute them with the event in input.
     // exit if an handler has handled the event.
-    for (size_t i = 0; i < (sizeof(handlers) / sizeof(handlers[0])); ++i) {
-        if (handlers[i](msg)) {
+    for (auto handler : handlers) {
+        if (handler(msg)) {
             return;
         }
     }
@@ -856,7 +857,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
                 adv_type = DM_ADV_CONN_UNDIRECT;
             } else if (event_properties.scannable) {
                 adv_type = DM_ADV_SCAN_UNDIRECT;
-            } else  {
+            } else {
                 adv_type = DM_ADV_NONCONN_UNDIRECT;
             }
         } else {
@@ -886,7 +887,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
                 adv_type = DM_ADV_SCAN_UNDIRECT;
             } else if (event_properties.connectable) {
                 adv_type = DM_EXT_ADV_CONN_UNDIRECT;
-            } else  {
+            } else {
                 adv_type = DM_ADV_NONCONN_UNDIRECT;
             }
         } else {
@@ -1075,7 +1076,7 @@ ble_error_t PalGap::extended_advertising_enable(
             uint32_t duration = in_durations[i] * 10;
             duration = duration > 0xFFFF ? 0xFFFF : duration;
 
-            direct_adv_cb_t* direct_adv_cb = get_pending_direct_adv_cb(in_handles[i]);
+            direct_adv_cb_t *direct_adv_cb = get_pending_direct_adv_cb(in_handles[i]);
             if (direct_adv_cb) {
                 direct_adv_cb->connection_handle = DmConnAccept(
                     DM_CLIENT_ID_APP,
@@ -1116,7 +1117,7 @@ ble_error_t PalGap::extended_advertising_enable(
         // sets broadcasting with direct advertising with DmConnClose then pass
         // the remaining advertising sets to DmAdvStop.
         for (size_t i = 0; i < number_of_sets; ++i) {
-            direct_adv_cb_t* direct_adv_cb = get_running_direct_adv_cb(in_handles[i]);
+            direct_adv_cb_t *direct_adv_cb = get_running_direct_adv_cb(in_handles[i]);
             if (direct_adv_cb) {
                 DmConnClose(
                     DM_CLIENT_ID_APP,
@@ -1407,13 +1408,13 @@ ble_error_t PalGap::update_direct_advertising_parameters(
 {
     // The case where a direct advertising is running and parameters are updated
     // is considered to be a programming error. User should stop advertising first.
-    direct_adv_cb_t* running = get_running_direct_adv_cb(advertising_handle);
+    direct_adv_cb_t *running = get_running_direct_adv_cb(advertising_handle);
     if (running) {
         return BLE_ERROR_INVALID_STATE;
     }
 
     // For pending direct advertising, update the configuration data structure
-    direct_adv_cb_t* pending = get_pending_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
+    direct_adv_cb_t *pending = get_pending_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
     if (pending) {
         // Update existing config
         if (advertising_type == DM_ADV_CONN_DIRECT ||
@@ -1433,7 +1434,7 @@ ble_error_t PalGap::update_direct_advertising_parameters(
     // then configure it.
     if (advertising_type == DM_ADV_CONN_DIRECT ||
         advertising_type == DM_ADV_CONN_DIRECT_LO_DUTY) {
-        direct_adv_cb_t* adv_cb = get_free_direct_adv_cb();
+        direct_adv_cb_t *adv_cb = get_free_direct_adv_cb();
         if (!adv_cb) {
             return BLE_ERROR_INTERNAL_STACK_FAILURE;
         }
@@ -1449,8 +1450,8 @@ ble_error_t PalGap::update_direct_advertising_parameters(
 
 
 template<class Predicate>
-typename PalGap::direct_adv_cb_t*
-PalGap::get_adv_cb(const Predicate& predicate)
+typename PalGap::direct_adv_cb_t *
+PalGap::get_adv_cb(const Predicate &predicate)
 {
     for (size_t i = 0; i < DM_NUM_ADV_SETS; ++i) {
         if (predicate(direct_adv_cb[i])) {
@@ -1461,42 +1462,50 @@ PalGap::get_adv_cb(const Predicate& predicate)
 }
 
 
-typename PalGap::direct_adv_cb_t*
+typename PalGap::direct_adv_cb_t *
 PalGap::get_running_direct_adv_cb(advertising_handle_t adv_handle)
 {
-    return get_adv_cb([adv_handle] (const direct_adv_cb_t& cb) {
-        return cb.state == direct_adv_cb_t::running &&
-            cb.advertising_handle == adv_handle;
-    });
+    return get_adv_cb(
+        [adv_handle](const direct_adv_cb_t &cb) {
+            return cb.state == direct_adv_cb_t::running &&
+                cb.advertising_handle == adv_handle;
+        }
+    );
 }
 
 
-typename PalGap::direct_adv_cb_t*
+typename PalGap::direct_adv_cb_t *
 PalGap::get_running_conn_direct_adv_cb(connection_handle_t conn_handle)
 {
-    return get_adv_cb([conn_handle] (const direct_adv_cb_t& cb) {
-        return cb.state == direct_adv_cb_t::running &&
-            cb.connection_handle == conn_handle;
-    });
+    return get_adv_cb(
+        [conn_handle](const direct_adv_cb_t &cb) {
+            return cb.state == direct_adv_cb_t::running &&
+                cb.connection_handle == conn_handle;
+        }
+    );
 }
 
 
-typename PalGap::direct_adv_cb_t*
+typename PalGap::direct_adv_cb_t *
 PalGap::get_pending_direct_adv_cb(advertising_handle_t adv_handle)
 {
-    return get_adv_cb([adv_handle] (const direct_adv_cb_t& cb) {
-        return cb.state == direct_adv_cb_t::pending &&
-            cb.advertising_handle == adv_handle;
-    });
+    return get_adv_cb(
+        [adv_handle](const direct_adv_cb_t &cb) {
+            return cb.state == direct_adv_cb_t::pending &&
+                cb.advertising_handle == adv_handle;
+        }
+    );
 }
 
 
-typename PalGap::direct_adv_cb_t*
+typename PalGap::direct_adv_cb_t *
 PalGap::get_free_direct_adv_cb()
 {
-    return get_adv_cb([](const direct_adv_cb_t& cb) {
-        return cb.state == direct_adv_cb_t::free;
-    });
+    return get_adv_cb(
+        [](const direct_adv_cb_t &cb) {
+            return cb.state == direct_adv_cb_t::free;
+        }
+    );
 }
 
 void PalGap::when_gap_event_received(mbed::Callback<void(const GapEvent &)> cb)
@@ -1509,9 +1518,10 @@ void PalGap::set_event_handler(PalGapEventHandler *event_handler)
     _pal_event_handler = event_handler;
 }
 
-PalGapEventHandler* PalGap::get_event_handler()
+PalGapEventHandler *PalGap::get_event_handler()
 {
     return _pal_event_handler;
 }
 
+} // namespace impl
 } // ble

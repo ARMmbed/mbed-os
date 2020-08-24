@@ -47,6 +47,7 @@
 #include "GattServerImpl.h"
 
 #include "internal/PalAttClientImpl.h"
+#include "PalGapImpl.h"
 
 
 using namespace std::chrono;
@@ -194,7 +195,7 @@ ble::impl::Gap &BLEInstanceBase::getGapImpl()
     static ble::PalGenericAccessService cordio_gap_service;
     static ble::impl::Gap gap(
         _event_queue,
-        ble::PalGap::get_gap(),
+        ble::impl::PalGap::get_gap(),
         cordio_gap_service,
         ble::PalSecurityManager::get_security_manager()
     );
@@ -371,7 +372,7 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
 #endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
 
         default:
-            ble::PalGap::gap_handler(msg);
+            ble::impl::PalGap::gap_handler(msg);
             break;
     }
 }
@@ -381,7 +382,7 @@ void BLEInstanceBase::device_manager_cb(dmEvt_t *dm_event)
     if (dm_event->hdr.status == HCI_SUCCESS && dm_event->hdr.event == DM_CONN_DATA_LEN_CHANGE_IND) {
         // this event can only happen after a connection has been established therefore gap is present
         ble::PalGapEventHandler *handler;
-        handler = ble::PalGap::get_gap().get_event_handler();
+        handler = ble::impl::PalGap::get_gap().get_event_handler();
         if (handler) {
             handler->on_data_length_change(
                 dm_event->hdr.param,
