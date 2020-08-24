@@ -19,21 +19,25 @@
 #ifndef IMPL_SECURITY_MANAGER_H_
 #define IMPL_SECURITY_MANAGER_H_
 
-#include <stdint.h>
-#include "ble/common/CallChainOfFunctionPointersWithContext.h"
+#include <cstdint>
+
 #include "platform/Callback.h"
 
+#include "ble/Gap.h"
+#include "ble/SecurityManager.h"
+
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include "ble/common/BLETypes.h"
 #include "ble/common/blecommon.h"
-#include "ble/Gap.h"
+#include "ble/common/BLETypes.h"
 
 #include "source/pal/GapTypes.h"
-#include "ble/common/BLETypes.h"
-#include "SecurityDb.h"
 #include "source/pal/PalConnectionMonitor.h"
 #include "source/pal/PalSigningMonitor.h"
 #include "source/pal/PalSecurityManager.h"
-#include "ble/SecurityManager.h"
+
+#include "source/generic/SecurityDb.h"
+
 
 namespace ble {
 class PalGenericAccessService;
@@ -70,12 +74,12 @@ public:
         bool enableBonding = true,
         bool requireMITM = true,
         SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-        const Passkey_t passkey = NULL,
+        const Passkey_t passkey = nullptr,
         bool signing = true,
-        const char *dbFilepath = NULL
+        const char *dbFilepath = nullptr
     );
 
-    ble_error_t setDatabaseFilepath(const char *dbFilepath = NULL);
+    ble_error_t setDatabaseFilepath(const char *dbFilepath = nullptr);
 
     ble_error_t reset(ble::SecurityManager* sm);
 
@@ -85,7 +89,7 @@ public:
     // List management
     //
 
-    ble_error_t purgeAllBondingState(void);
+    ble_error_t purgeAllBondingState();
 
     ble_error_t generateWhitelistFromBondTable(::ble::whitelist_t *whitelist) const;
 
@@ -246,26 +250,26 @@ private:
         AuthenticationMask authentication,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_pairing_error
      */
     void on_pairing_error(
         connection_handle_t connection,
         pairing_failure_t error
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_pairing_timed_out
      */
     void on_pairing_timed_out(
         connection_handle_t connection
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_pairing_completed
      */
     void on_pairing_completed(
         connection_handle_t connection
-    );
+    ) override;
 
     ////////////////////////////////////////////////////////////////////////////
     // Security
@@ -275,31 +279,31 @@ private:
      */
     void on_valid_mic_timeout(
         connection_handle_t connection
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_signed_write_received
      */
     void on_signed_write_received(
         connection_handle_t connection,
         uint32_t sign_coutner
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_signed_write_verification_failure
      */
     void on_signed_write_verification_failure(
         connection_handle_t connection
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_signed_write
      */
-    void on_signed_write();
+    void on_signed_write() override;
 
     /** @copydoc PalSecurityManager::on_slave_security_request
      */
     void on_slave_security_request(
         connection_handle_t connection,
         AuthenticationMask authentication
-    );
+    ) override;
 
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
@@ -310,13 +314,13 @@ private:
     void on_link_encryption_result(
         connection_handle_t connection,
         link_encryption_t result
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_link_encryption_request_timed_out
      */
     void on_link_encryption_request_timed_out(
         connection_handle_t connection
-    );
+    ) override;
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
@@ -327,45 +331,45 @@ private:
     void on_passkey_display(
         connection_handle_t connection,
         passkey_num_t passkey
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keypress_notification
      */
     void on_keypress_notification(
         connection_handle_t connection,
         ble::Keypress_t keypress
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_passkey_request
      */
     void on_passkey_request(
         connection_handle_t connection
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_confirmation_request
      */
     void on_confirmation_request(
         connection_handle_t connection
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_secure_connections_oob_request
      */
     void on_secure_connections_oob_request(
         connection_handle_t connection
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_legacy_pairing_oob_request
      */
     void on_legacy_pairing_oob_request(
         connection_handle_t connection
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_secure_connections_oob_generated
      */
     void on_secure_connections_oob_generated(
         const oob_lesc_value_t &random,
         const oob_confirm_t &confirm
-    );
+    ) override;
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -376,14 +380,14 @@ private:
     void on_secure_connections_ltk_generated(
         connection_handle_t connection,
         const ltk_t &ltk
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keys_distributed_ltk
      */
     void on_keys_distributed_ltk(
         connection_handle_t connection,
         const ltk_t &ltk
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keys_distributed_ediv_rand
      */
@@ -391,14 +395,14 @@ private:
         connection_handle_t connection,
         const ediv_t &ediv,
         const rand_t &rand
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keys_distributed_local_ltk
      */
     void on_keys_distributed_local_ltk(
         connection_handle_t connection,
         const ltk_t &ltk
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keys_distributed_local_ediv_rand
      */
@@ -406,14 +410,14 @@ private:
         connection_handle_t connection,
         const ediv_t &ediv,
         const rand_t &rand
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keys_distributed_irk
      */
     void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t &irk
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keys_distributed_bdaddr
      */
@@ -421,14 +425,14 @@ private:
         connection_handle_t connection,
         advertising_peer_address_type_t peer_address_type,
         const address_t &peer_identity_address
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_keys_distributed_csrk
      */
     void on_keys_distributed_csrk(
         connection_handle_t connection,
         const csrk_t &csrk
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_ltk_requeston_ltk_request
      */
@@ -436,13 +440,13 @@ private:
         connection_handle_t connection,
         const ediv_t &ediv,
         const rand_t &rand
-    );
+    ) override;
 
     /** @copydoc PalSecurityManager::on_ltk_requeston_ltk_request
      */
     void on_ltk_request(
         connection_handle_t connection
-    );
+    ) override;
 
     /* end implements PalSecurityManager::EventHandler */
 
@@ -460,7 +464,7 @@ private:
         _pal(palImpl),
         _connection_monitor(connMonitorImpl),
         _signing_monitor(signingMonitorImpl),
-        _db(NULL),
+        _db(nullptr),
         _default_authentication(0),
         _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
@@ -487,7 +491,7 @@ private:
 
 private:
 
-    ble_error_t init_database(const char *db_path = NULL);
+    ble_error_t init_database(const char *db_path = nullptr);
 
     ble_error_t init_resolving_list();
 
@@ -544,12 +548,12 @@ private:
         address_t peer_address,
         own_address_type_t local_address_type,
         address_t local_address
-    );
+    ) override;
 
     void on_disconnected(
         connection_handle_t connection,
         disconnection_reason_t reason
-    );
+    ) override;
 
     void on_security_entry_retrieved(
         SecurityDb::entry_handle_t entry,

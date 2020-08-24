@@ -17,21 +17,20 @@
  */
 
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 
-#include "GapImpl.h"
-#include "ble/Gap.h"
-#include "source/BLEInstanceBase.h"
 #include "ble/Gap.h"
 #include "ble/SecurityManager.h"
+
+#include "source/BLEInstanceBase.h"
+#include "source/generic/GapImpl.h"
+
 #include "source/pal/PalGap.h"
 #include "source/pal/GapEvents.h"
 #include "source/pal/GapTypes.h"
 #include "source/pal/PalGenericAccessService.h"
 #include "source/pal/PalEventQueue.h"
-#include "source/pal/PalGap.h"
 
-#include "drivers/Timeout.h"
 
 using namespace std::chrono;
 
@@ -44,21 +43,21 @@ namespace impl {
 namespace {
 
 // Constants
-static const uint16_t scan_interval_min = 0x0004;
-static const uint16_t scan_interval_max = 0x4000;
-static const uint16_t connection_interval_min = 0x0006;
-static const uint16_t connection_interval_max = 0x0C80;
-static const uint16_t slave_latency_min = 0x0000;
-static const uint16_t slave_latency_max = 0x01F3;
-static const uint16_t advertising_interval_min = 0x0020;
-static const uint16_t advertising_interval_max = 0x4000;
-static const uint16_t supervision_timeout_min = 0x000A;
-static const uint16_t supervision_timeout_max = 0x0C80;
+const uint16_t scan_interval_min = 0x0004;
+const uint16_t scan_interval_max = 0x4000;
+const uint16_t connection_interval_min = 0x0006;
+const uint16_t connection_interval_max = 0x0C80;
+const uint16_t slave_latency_min = 0x0000;
+const uint16_t slave_latency_max = 0x01F3;
+const uint16_t advertising_interval_min = 0x0020;
+const uint16_t advertising_interval_max = 0x4000;
+const uint16_t supervision_timeout_min = 0x000A;
+const uint16_t supervision_timeout_max = 0x0C80;
 
-static const mbed_error_status_t mixed_scan_api_error =
+const mbed_error_status_t mixed_scan_api_error =
     MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_USE_INCOMPATIBLE_API);
 
-static const mbed_error_status_t illegal_state_error =
+const mbed_error_status_t illegal_state_error =
     MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_ILLEGAL_STATE);
 
 /*
@@ -82,13 +81,13 @@ static bool is_in_range(T value, T lower_bound, T higher_bound)
  * timeout to be equal to 0xFFFF. When it is the case that value can be
  * interpreted as "non specific".
  */
-static bool is_preferred_connection_params_valid(const Gap::PreferredConnectionParams_t *params)
+bool is_preferred_connection_params_valid(const Gap::PreferredConnectionParams_t *params)
 {
     if (params == nullptr) {
         return false;
     }
 
-    if (is_in_range(params->slaveLatency, slave_latency_min, slave_latency_max) == false) {
+    if (!is_in_range(params->slaveLatency, slave_latency_min, slave_latency_max) == false) {
         return false;
     }
 
@@ -132,7 +131,7 @@ static bool is_preferred_connection_params_valid(const Gap::PreferredConnectionP
 /**
  * Check if random bytes of an address are valid.
  */
-static bool is_prand_valid(const uint8_t *bytes, size_t len)
+bool is_prand_valid(const uint8_t *bytes, size_t len)
 {
     // at least one bit of the random part of the static address shall be
     // equal to 0 and at least one bit of the random part of the static
@@ -163,7 +162,7 @@ static bool is_prand_valid(const uint8_t *bytes, size_t len)
  * or not.
  * Return true if it is the case and false otherwise.
  */
-static bool is_prand_48_bits_valid(const address_t &address)
+bool is_prand_48_bits_valid(const address_t &address)
 {
     return is_prand_valid(address.data(), 6);
 }
@@ -173,7 +172,7 @@ static bool is_prand_48_bits_valid(const address_t &address)
  * or not.
  * Return true if it is the case and false otherwise.
  */
-static bool is_prand_24_bits_valid(const address_t &address)
+bool is_prand_24_bits_valid(const address_t &address)
 {
     return is_prand_valid(address.data() + 3, 3);
 }
@@ -181,7 +180,7 @@ static bool is_prand_24_bits_valid(const address_t &address)
 /*
  * Return true if address is a random static address.
  */
-static bool is_random_static_address(const address_t &address)
+bool is_random_static_address(const address_t &address)
 {
     // top two msb bits shall be equal to 0b11.
     if ((address[5] & 0xC0) != 0xC0) {
@@ -194,7 +193,7 @@ static bool is_random_static_address(const address_t &address)
 /*
  * Return true if address is a random private non resolvable address.
  */
-static bool is_random_private_non_resolvable_address(
+bool is_random_private_non_resolvable_address(
     const address_t &address
 )
 {
@@ -209,7 +208,7 @@ static bool is_random_private_non_resolvable_address(
 /*
  * Return true if address is a random private resolvable address.
  */
-static bool is_random_private_resolvable_address(
+bool is_random_private_resolvable_address(
     const address_t &address
 )
 {
@@ -224,7 +223,7 @@ static bool is_random_private_resolvable_address(
 /*
  * Return true if the address is a random address.
  */
-static bool is_random_address(const address_t &address)
+bool is_random_address(const address_t &address)
 {
     return is_random_private_resolvable_address(address) ||
         is_random_private_non_resolvable_address(address) ||
@@ -234,7 +233,7 @@ static bool is_random_address(const address_t &address)
 /*
  * Return true if the whitelist in input is valid or false otherwise.
  */
-static bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
+bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
 {
     if (whitelist.size > whitelist.capacity) {
         return false;
@@ -266,7 +265,7 @@ static bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
 /*
  * Return true if device is present in the whitelist.
  */
-static bool is_in_whitelist(
+bool is_in_whitelist(
     const whitelist_t::entry_t &device, const whitelist_t &whitelist
 )
 {
@@ -283,7 +282,7 @@ static bool is_in_whitelist(
 /*
  * Convert a peer_address_type_t into a whitelist_address_type_t.
  */
-static whitelist_address_type_t to_whitelist_address_type(
+whitelist_address_type_t to_whitelist_address_type(
     peer_address_type_t address_type
 )
 {
@@ -354,9 +353,7 @@ Gap::Gap(
 }
 
 
-Gap::~Gap()
-{
-}
+Gap::~Gap() = default;
 
 
 bool Gap::isFeatureSupported(controller_supported_features_t feature)
@@ -907,7 +904,7 @@ ble_error_t Gap::getCentralPrivacyConfiguration(
 }
 
 
-ble_error_t Gap::reset(void)
+ble_error_t Gap::reset()
 {
     /* Notify that the instance is about to shut down */
 //    shutdownCallChain.call(this);
@@ -971,6 +968,16 @@ ble_error_t Gap::reset(void)
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     return BLE_ERROR_NONE;
+}
+
+void Gap::onShutdown(const GapShutdownCallback_t &callback)
+{
+    shutdownCallChain.add(callback);
+}
+
+Gap::GapShutdownCallbackChain_t &Gap::onShutdown()
+{
+    return shutdownCallChain;
 }
 
 

@@ -18,7 +18,7 @@
 
 #include "ble/common/BLERoles.h"
 #include <algorithm>
-#include "GattServerImpl.h"
+#include "source/generic/GattServerImpl.h"
 #include "source/BLEInstanceBase.h"
 #include "wsf_types.h"
 #include "att_api.h"
@@ -1285,7 +1285,7 @@ void GattServer::add_generic_attribute_service()
 
 void *GattServer::alloc_block(size_t block_size)
 {
-    alloc_block_t *block = (alloc_block_t *) malloc(sizeof(alloc_block_t) + block_size);
+    auto *block = (alloc_block_t *) malloc(sizeof(alloc_block_t) + block_size);
     if (block == nullptr) {
         return nullptr;
     }

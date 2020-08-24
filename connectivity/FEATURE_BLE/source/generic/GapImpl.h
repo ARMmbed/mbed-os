@@ -312,7 +312,7 @@ public:
 
 #if BLE_FEATURE_WHITELIST
 
-    uint8_t getMaxWhitelistSize(void) const;
+    uint8_t getMaxWhitelistSize() const;
 
     ble_error_t getWhitelist(whitelist_t &whitelist) const;
 
@@ -326,16 +326,13 @@ public:
     );
 
     static ble_error_t getRandomAddressType(
-        const ble::address_t address,
+        ble::address_t address,
         ble::random_address_type_t *addressType
     );
 
-    ble_error_t reset(void);
+    ble_error_t reset();
 
     void onShutdown(const GapShutdownCallback_t &callback);
-
-    template<typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const Gap *));
 
     GapShutdownCallbackChain_t &onShutdown();
 
@@ -432,20 +429,20 @@ private:
         connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
-    );
+    ) override;
 
     void on_data_length_change(
         connection_handle_t connection_handle,
         uint16_t tx_size,
         uint16_t rx_size
-    );
+    ) override;
 
     void on_phy_update_complete(
         hci_error_code_t hci_status,
         connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
-    );
+    ) override;
 
     void on_enhanced_connection_complete(
         hci_error_code_t status,
@@ -459,7 +456,7 @@ private:
         uint16_t connection_latency,
         uint16_t supervision_timeout,
         clock_accuracy_t master_clock_accuracy
-    );
+    ) override;
 
     void on_extended_advertising_report(
         advertising_event_t event_type,
@@ -475,7 +472,7 @@ private:
         const ble::address_t &direct_address,
         uint8_t data_length,
         const uint8_t *data
-    );
+    ) override;
 
     void on_periodic_advertising_sync_established(
         hci_error_code_t error,
@@ -486,7 +483,7 @@ private:
         phy_t advertiser_phy,
         uint16_t periodic_advertising_interval,
         clock_accuracy_t clock_accuracy
-    );
+    ) override;
 
     void on_periodic_advertising_report(
         sync_handle_t sync_handle,
@@ -495,22 +492,22 @@ private:
         advertising_data_status_t data_status,
         uint8_t data_length,
         const uint8_t *data
-    );
+    ) override;
 
-    void on_periodic_advertising_sync_loss(sync_handle_t sync_handle);
+    void on_periodic_advertising_sync_loss(sync_handle_t sync_handle) override;
 
     void on_advertising_set_terminated(
         hci_error_code_t status,
         advertising_handle_t advertising_handle,
         connection_handle_t connection_handle,
         uint8_t number_of_completed_extended_advertising_events
-    );
+    ) override;
 
     void on_scan_request_received(
         advertising_handle_t advertising_handle,
         connection_peer_address_type_t scanner_address_type,
         const ble::address_t &address
-    );
+    ) override;
 
     void on_connection_update_complete(
         hci_error_code_t status,
@@ -518,7 +515,7 @@ private:
         uint16_t connection_interval,
         uint16_t connection_latency,
         uint16_t supervision_timeout
-    );
+    ) override;
 
     void on_remote_connection_parameter(
         connection_handle_t connection_handle,
@@ -526,9 +523,9 @@ private:
         uint16_t connection_interval_max,
         uint16_t connection_latency,
         uint16_t supervision_timeout
-    );
+    ) override;
 
-    void on_scan_timeout();
+    void on_scan_timeout() override;
 
     void process_legacy_scan_timeout();
 

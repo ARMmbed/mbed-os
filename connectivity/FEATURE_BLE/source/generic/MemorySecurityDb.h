@@ -27,7 +27,7 @@ namespace ble {
 class MemorySecurityDb : public SecurityDb {
 private:
     struct entry_t {
-        entry_t() { };
+        entry_t() = default;
         SecurityDistributionFlags_t flags;
         SecurityEntryKeys_t local_keys;
         SecurityEntryKeys_t peer_keys;
@@ -42,21 +42,21 @@ private:
 
 public:
     MemorySecurityDb() : SecurityDb() { }
-    virtual ~MemorySecurityDb() { }
+    ~MemorySecurityDb() override = default;
 
-    virtual SecurityDistributionFlags_t* get_distribution_flags(
+    SecurityDistributionFlags_t* get_distribution_flags(
         entry_handle_t db_handle
-    ) {
+    ) override {
         return reinterpret_cast<SecurityDistributionFlags_t*>(db_handle);
     }
 
     /* local keys */
 
     /* set */
-    virtual void set_entry_local_ltk(
+    void set_entry_local_ltk(
         entry_handle_t db_handle,
         const ltk_t &ltk
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->flags.ltk_sent = true;
@@ -64,11 +64,11 @@ public:
         }
     }
 
-    virtual void set_entry_local_ediv_rand(
+    void set_entry_local_ediv_rand(
         entry_handle_t db_handle,
         const ediv_t &ediv,
         const rand_t &rand
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->local_keys.ediv = ediv;
@@ -80,10 +80,10 @@ public:
 
     /* set */
 
-    virtual void set_entry_peer_ltk(
+    void set_entry_peer_ltk(
         entry_handle_t db_handle,
         const ltk_t &ltk
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->peer_keys.ltk = ltk;
@@ -91,11 +91,11 @@ public:
         }
     }
 
-    virtual void set_entry_peer_ediv_rand(
+    void set_entry_peer_ediv_rand(
         entry_handle_t db_handle,
         const ediv_t &ediv,
         const rand_t &rand
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->peer_keys.ediv = ediv;
@@ -103,10 +103,10 @@ public:
         }
     }
 
-    virtual void set_entry_peer_irk(
+    void set_entry_peer_irk(
         entry_handle_t db_handle,
         const irk_t &irk
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->peer_identity.irk = irk;
@@ -114,11 +114,11 @@ public:
         }
     }
 
-    virtual void set_entry_peer_bdaddr(
+    void set_entry_peer_bdaddr(
         entry_handle_t db_handle,
         bool address_is_public,
         const address_t &peer_address
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->peer_identity.identity_address = peer_address;
@@ -126,10 +126,10 @@ public:
         }
     }
 
-    virtual void set_entry_peer_csrk(
+    void set_entry_peer_csrk(
         entry_handle_t db_handle,
         const csrk_t &csrk
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->flags.csrk_stored = true;
@@ -137,10 +137,10 @@ public:
         }
     }
 
-    virtual void set_entry_peer_sign_counter(
+    void set_entry_peer_sign_counter(
         entry_handle_t db_handle,
         sign_count_t sign_counter
-    ) {
+    ) override {
         entry_t *entry = as_entry(db_handle);
         if (entry) {
             entry->peer_signing.counter = sign_counter;
@@ -148,40 +148,40 @@ public:
     }
 
 private:
-    virtual uint8_t get_entry_count() {
+    uint8_t get_entry_count() override {
         return BLE_SECURITY_DATABASE_MAX_ENTRIES;
     }
 
-    virtual SecurityDistributionFlags_t* get_entry_handle_by_index(uint8_t index) {
+    SecurityDistributionFlags_t* get_entry_handle_by_index(uint8_t index) override {
         if (index < BLE_SECURITY_DATABASE_MAX_ENTRIES) {
             return &_entries[index].flags;
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
-    virtual void reset_entry(entry_handle_t db_entry) {
-        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+    void reset_entry(entry_handle_t db_entry) override{
+        auto *entry = reinterpret_cast<entry_t*>(db_entry);
         *entry = entry_t();
     }
 
-    virtual SecurityEntryIdentity_t* read_in_entry_peer_identity(entry_handle_t db_entry) {
-        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+    SecurityEntryIdentity_t* read_in_entry_peer_identity(entry_handle_t db_entry) override {
+        auto *entry = reinterpret_cast<entry_t*>(db_entry);
         return &entry->peer_identity;
     };
 
-    virtual SecurityEntryKeys_t* read_in_entry_peer_keys(entry_handle_t db_entry) {
-        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+    SecurityEntryKeys_t* read_in_entry_peer_keys(entry_handle_t db_entry) override {
+        auto *entry = reinterpret_cast<entry_t*>(db_entry);
         return &entry->peer_keys;
     };
 
-    virtual SecurityEntryKeys_t* read_in_entry_local_keys(entry_handle_t db_entry) {
-        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+    SecurityEntryKeys_t* read_in_entry_local_keys(entry_handle_t db_entry) override {
+        auto *entry = reinterpret_cast<entry_t*>(db_entry);
         return &entry->local_keys;
     };
 
-    virtual SecurityEntrySigning_t* read_in_entry_peer_signing(entry_handle_t db_entry) {
-        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+    SecurityEntrySigning_t* read_in_entry_peer_signing(entry_handle_t db_entry) override {
+        auto *entry = reinterpret_cast<entry_t*>(db_entry);
         return &entry->peer_signing;
     };
 

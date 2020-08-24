@@ -22,6 +22,7 @@
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 
+#include "ble/common/blecommon.h"
 #include "ble/common/BLETypes.h"
 #include "GapTypes.h"
 

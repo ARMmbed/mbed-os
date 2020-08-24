@@ -19,25 +19,29 @@
 #ifndef MBED_CORDIO_GATT_SERVER_H__
 #define MBED_CORDIO_GATT_SERVER_H__
 
-#include "ble/common/CallChainOfFunctionPointersWithContext.h"
+
+#include <cstddef>
+
+#include "wsf_types.h"
+#include "att_api.h"
+
+
+#include "ble/GattServer.h"
+#include "ble/Gap.h"
+#include "ble/SecurityManager.h"
 
 #include "ble/gatt/GattService.h"
 #include "ble/gatt/GattAttribute.h"
-#include "GattServerEvents.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
 #include "ble/gatt/GattCallbackParamTypes.h"
 
-#include <stddef.h>
-#include <ble/GattServer.h>
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include "ble/common/blecommon.h"
-#include "ble/Gap.h"
-#include "wsf_types.h"
-#include "att_api.h"
-#include "SecurityManager.h"
 
-#include "ble/gatt/GattCallbackParamTypes.h"
-#include "source/pal/PalSigningMonitor.h"
+
 #include "source/BLEInstanceBase.h"
-
+#include "source/generic/GattServerEvents.h"
+#include "source/pal/PalSigningMonitor.h"
 
 namespace ble {
 
