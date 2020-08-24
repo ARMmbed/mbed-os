@@ -53,14 +53,14 @@ struct PalSimpleAttFindInformationResponse : public AttFindInformationResponse {
     /**
      * @see ble::AttFindInformationResponse::size
      */
-    virtual size_t size() const {
+    size_t size() const override {
         return _information_data.size() / _item_size;
     }
 
     /**
      * @see ble::AttFindInformationResponse::operator[]
      */
-    virtual information_data_t operator[](size_t index) const  {
+    information_data_t operator[](size_t index) const override {
         const uint8_t* item = &_information_data[index * _item_size];
 
         information_data_t result;
@@ -105,14 +105,14 @@ struct PalSimpleAttFindByTypeValueResponse : public AttFindByTypeValueResponse {
     /**
      * @see ble::AttFindByTypeValueResponse::size
      */
-    virtual std::size_t size() const {
+    std::size_t size() const override {
         return _handles.size() / item_size;
     }
 
     /**
      * @see ble::AttFindByTypeValueResponse::operator[]
      */
-    virtual attribute_handle_range_t operator[](size_t index) const {
+    attribute_handle_range_t operator[](size_t index) const override {
         attribute_handle_range_t result;
         const uint8_t* item = &_handles[index * item_size];
         memcpy(&result.begin, item, sizeof(result.begin));
@@ -147,14 +147,14 @@ struct PalSimpleAttReadByTypeResponse : public AttReadByTypeResponse {
     /**
      * @see ble::AttReadByTypeResponse::size
      */
-    virtual size_t size() const {
+    size_t size() const override {
         return _attribute_data.size() / _element_size;
     }
 
     /**
      * @see ble::AttReadByTypeResponse::operator[]
      */
-    virtual attribute_data_t operator[](size_t index) const {
+    attribute_data_t operator[](size_t index) const override {
         const uint8_t* item = &_attribute_data[index * _element_size];
         uint16_t handle;
         memcpy(&handle, item, sizeof(handle));
@@ -196,14 +196,14 @@ struct PalSimpleAttReadByGroupTypeResponse : public AttReadByGroupTypeResponse {
     /**
      * @see ble::AttReadByGroupTypeResponse::size
      */
-    virtual size_t size() const {
+    size_t size() const override {
         return _attribute_data.size() / _element_size;
     }
 
     /**
      * @see ble::AttReadByGroupTypeResponse::operator[]
      */
-    virtual attribute_data_t operator[](size_t index) const {
+    attribute_data_t operator[](size_t index) const override {
         const uint8_t* item = &_attribute_data[index * _element_size];
         uint16_t begin;
         uint16_t end;
