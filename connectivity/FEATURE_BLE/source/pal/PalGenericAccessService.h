@@ -25,7 +25,6 @@
 #include "ble/Gap.h"
 
 namespace ble {
-namespace interface {
 
 /**
  * Manage state of the GAP service exposed by the GATT server.
@@ -70,11 +69,6 @@ public:
     ) = 0;
 };
 
-} // namespace interface
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/PalGenericAccessServiceImpl.h"
 
 #endif /* BLE_PAL_GENERIC_ACCESS_SERVICE_H_ */

@@ -48,6 +48,7 @@
 #include "PalSecurityManagerImpl.h"
 
 #include "internal/PalAttClientImpl.h"
+#include "internal/PalGenericAccessServiceImpl.h"
 #include "PalGapImpl.h"
 
 
@@ -193,7 +194,7 @@ const char *BLEInstanceBase::getVersion()
 
 ble::impl::Gap &BLEInstanceBase::getGapImpl()
 {
-    static ble::PalGenericAccessService cordio_gap_service;
+    static ble::impl::PalGenericAccessService cordio_gap_service;
     static ble::impl::Gap gap(
         _event_queue,
         ble::impl::PalGap::get_gap(),

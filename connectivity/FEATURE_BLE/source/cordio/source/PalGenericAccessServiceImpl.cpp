@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-#include "source/pal/PalGenericAccessService.h"
+#include "internal/PalGenericAccessServiceImpl.h"
 #include "GattServerImpl.h"
 
 namespace ble {
+namespace impl {
 
 #if 0 // Disabled until reworked and reintroduced to GattServer API
 
@@ -91,7 +92,7 @@ virtual ble_error_t PalGenericAccessService::get_device_name_length(uint8_t& len
 
 
 ble_error_t PalGenericAccessService::get_peripheral_preferred_connection_parameters(
-    ble::Gap::PreferredConnectionParams_t& parameters
+    ble::Gap::PreferredConnectionParams_t &parameters
 )
 {
 #if BLE_FEATURE_GATT_SERVER
@@ -103,7 +104,7 @@ ble_error_t PalGenericAccessService::get_peripheral_preferred_connection_paramet
 }
 
 ble_error_t PalGenericAccessService::set_peripheral_preferred_connection_parameters(
-    const ble::Gap::PreferredConnectionParams_t& parameters
+    const ble::Gap::PreferredConnectionParams_t &parameters
 )
 {
 #if BLE_FEATURE_GATT_SERVER
@@ -116,12 +117,15 @@ ble_error_t PalGenericAccessService::set_peripheral_preferred_connection_paramet
 
 
 #if BLE_FEATURE_GATT_SERVER
-ble::impl::GattServer& PalGenericAccessService::gatt_server()
+
+ble::impl::GattServer &PalGenericAccessService::gatt_server()
 {
     return ble::impl::GattServer::getInstance();
 }
+
 #endif // BLE_FEATURE_GATT_SERVER
 
-} // ble
+} // namespace impl
+} // namespace ble
 
 
