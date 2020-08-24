@@ -28,6 +28,7 @@ cache:
   pip: true
   directories:
     - ${HOME}/.cache/deps
+    - ${HOME}/.ccache
 
 
 before_install:
@@ -156,6 +157,7 @@ matrix:
           make;
           sudo make install)
         # Create BUILD directory for tests
+        - ccache -s
         - mkdir BUILD
       script:
         # Assert that the Doxygen build produced no warnings.
@@ -284,6 +286,7 @@ matrix:
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
         # Run profiling tests
         - make -C ${EVENTS}/tests/unit prof | tee prof
+        - ccache -s
       after_success:
         # Update status, comparing with master if possible.
         - |
@@ -357,6 +360,7 @@ matrix:
             OBJ="$(ls lfs*.o | tr '\n' ' ')"
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
+        - ccache -s
       after_success:
         # Update status, comparing with master if possible.
         - |
