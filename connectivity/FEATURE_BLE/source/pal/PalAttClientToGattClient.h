@@ -31,7 +31,7 @@ class PalAttClient;
  * This class let vendors define their abstraction layer in term of an PalAttClient
  * and adapt any PalAttClient into a PalGattClient.
  */
-class PalGattClient : public interface::PalGattClient {
+class PalAttClientToGattClient : public PalGattClient {
 public:
     static const uint16_t END_ATTRIBUTE_HANDLE = 0xFFFF;
     static const uint16_t SERVICE_TYPE_UUID = 0x2800;
@@ -42,12 +42,12 @@ public:
      * Construct an instance of PalGattClient from an instance of PalAttClient.
      * @param client The client to adapt.
      */
-    PalGattClient(PalAttClient& client);
+    PalAttClientToGattClient(PalAttClient& client);
 
     /**
      * @see ble::PalGattClient::exchange_mtu
      */
-    ble_error_t exchange_mtu(connection_handle_t connection);
+    ble_error_t exchange_mtu(connection_handle_t connection) override;
 
     /**
      * @see ble::PalGattClient::get_mtu_size
@@ -55,7 +55,7 @@ public:
     ble_error_t get_mtu_size(
         connection_handle_t connection_handle,
         uint16_t& mtu_size
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::discover_primary_service
@@ -63,7 +63,7 @@ public:
     ble_error_t discover_primary_service(
         connection_handle_t connection,
         attribute_handle_t discovery_range_begining
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::discover_primary_service_by_service_uuid
@@ -72,7 +72,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t discovery_range_begining,
         const UUID& uuid
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::find_included_service
@@ -80,7 +80,7 @@ public:
     ble_error_t find_included_service(
         connection_handle_t connection_handle,
         attribute_handle_range_t service_range
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::discover_characteristics_of_a_service
@@ -88,7 +88,7 @@ public:
     ble_error_t discover_characteristics_of_a_service(
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::discover_characteristics_descriptors
@@ -96,7 +96,7 @@ public:
     ble_error_t discover_characteristics_descriptors(
         connection_handle_t connection_handle,
         attribute_handle_range_t descriptors_discovery_range
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::read_attribute_value
@@ -104,7 +104,7 @@ public:
     ble_error_t read_attribute_value(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::read_using_characteristic_uuid
@@ -113,7 +113,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
         const UUID& uuid
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::read_attribute_blob
@@ -122,7 +122,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::read_multiple_characteristic_values
@@ -130,7 +130,7 @@ public:
     ble_error_t read_multiple_characteristic_values(
         connection_handle_t connection_handle,
         const Span<const attribute_handle_t>& characteristic_value_handles
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::write_without_response
@@ -139,7 +139,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
         const Span<const uint8_t>& value
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::signed_write_without_response
@@ -148,7 +148,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
         const Span<const uint8_t>& value
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::write_attribute
@@ -157,7 +157,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         const Span<const uint8_t>& value
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::queue_prepare_write
@@ -167,7 +167,7 @@ public:
         attribute_handle_t characteristic_value_handle,
         const Span<const uint8_t>& value,
         uint16_t offset
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::execute_write_queue
@@ -175,49 +175,47 @@ public:
     ble_error_t execute_write_queue(
         connection_handle_t connection_handle,
         bool execute
-    );
+    ) override;
 
     /**
      * @see ble::PalGattClient::initialize
      */
-    ble_error_t initialize();
+    ble_error_t initialize() override;
 
     /**
      * @see ble::PalGattClient::terminate
      */
-    ble_error_t terminate();
-
+    ble_error_t terminate() override;
 
     /**
      * @see ble::PalGattClient::when_server_message_received
      */
     void when_server_message_received(
         mbed::Callback<void(connection_handle_t, const AttServerMessage&)> cb
-    ) {
+    ) override {
         _server_message_cb = cb;
     }
-
 
     /**
      * @see ble::PalGattClient::when_transaction_timeout
      */
     void when_transaction_timeout(
         mbed::Callback<void(connection_handle_t)> cb
-    ) {
+    ) override {
         _transaction_timeout_cb = cb;
     }
 
     /**
      * @see ble::PalGattClient::set_event_handler
      */
-    void set_event_handler(PalGattClientEventHandler* event_handler) {
+    void set_event_handler(PalGattClientEventHandler* event_handler) override {
         _event_handler = event_handler;
     }
 
     /**
      * @see ble::PalGattClient::get_event_handler
      */
-    PalGattClientEventHandler* get_event_handler() {
+    PalGattClientEventHandler* get_event_handler() override {
         return _event_handler;
     }
 

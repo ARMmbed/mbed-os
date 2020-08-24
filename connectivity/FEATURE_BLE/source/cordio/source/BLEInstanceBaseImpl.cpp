@@ -41,9 +41,13 @@
 #include "source/pal/PalSecurityManager.h"
 #include "source/pal/PalGap.h"
 #include "source/pal/PalSigningMonitor.h"
+#include "source/pal/PalAttClientToGattClient.h"
 #include "source/BLEInstanceBase.h"
 #include "ble/driver/CordioHCIDriver.h"
 #include "source/generic/GattServerImpl.h"
+
+#include "internal/PalAttClientImpl.h"
+
 
 using namespace std::chrono;
 
@@ -250,7 +254,7 @@ ble::GattClient &BLEInstanceBase::getGattClient()
 
 PalGattClient &BLEInstanceBase::getPalGattClient()
 {
-    static PalGattClient pal_gatt_client(PalAttClient::get_client());
+    static PalAttClientToGattClient pal_gatt_client(cordio::PalAttClient::get_client());
     return pal_gatt_client;
 }
 
@@ -578,7 +582,7 @@ void BLEInstanceBase::stack_setup()
 
 #if BLE_FEATURE_ATT
 #if BLE_FEATURE_GATT_CLIENT
-    AttRegister((attCback_t) ble::PalAttClient::att_client_handler);
+    AttRegister((attCback_t) cordio::PalAttClient::att_client_handler);
 #else
     AttRegister((attCback_t) ble::GattServer::att_cb);
 #endif // BLE_FEATURE_GATT_CLIENT
