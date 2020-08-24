@@ -20,10 +20,10 @@
 #define MBED_DISCOVERED_CHARACTERISTIC_H__
 
 #include "ble/common/UUID.h"
-#include "GattAttribute.h"
-#include "GattCallbackParamTypes.h"
+#include "ble/gatt/GattAttribute.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
 #include "ble/gatt/CharacteristicDescriptorDiscovery.h"
-#include "DiscoveredCharacteristicDescriptor.h"
+#include "ble/gatt/DiscoveredCharacteristicDescriptor.h"
 
 namespace ble {
 class GattClient;

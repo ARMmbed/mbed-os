@@ -19,7 +19,7 @@
 #ifndef MBED_EXTENDED_CONNECT_PARAMETERS_H__
 #define MBED_EXTENDED_CONNECT_PARAMETERS_H__
 
-#include "mbed_assert.h"
+#include "platform/mbed_assert.h"
 
 #include "ble/common/BLETypes.h"
 

@@ -20,15 +20,18 @@
 #define BLE_SECURITY_MANAGER_H_
 
 #include <cstdint>
-#include "ble/common/CallChainOfFunctionPointersWithContext.h"
-#include "platform/Callback.h"
 
 #include "ble/common/BLETypes.h"
 #include "ble/common/blecommon.h"
-
-#include "ble/common/BLETypes.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
 namespace ble {
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class SecurityManager;
+}
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * Overview
@@ -183,12 +186,6 @@ namespace ble {
  * @endverbatim
  *
  */
-#if !defined(DOXYGEN_ONLY)
-namespace impl {
-class SecurityManager;
-}
-#endif // !defined(DOXYGEN_ONLY)
-
 class SecurityManager
 {
 public:
@@ -904,7 +901,6 @@ public:
 private:
     impl::SecurityManager *impl;
 };
-
 
 } // ble
 

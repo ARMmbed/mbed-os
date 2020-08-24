@@ -19,7 +19,6 @@
 #include "source/generic/GattServerImpl.h"
 
 namespace ble {
-namespace interface {
 
 void GattServer::setEventHandler(EventHandler *handler)
 {
@@ -153,5 +152,4 @@ void GattServer::onConfirmationReceived(EventCallback_t callback)
     return impl->onConfirmationReceived(callback);
 }
 
-} // namespace interface
 } // ble

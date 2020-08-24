@@ -19,19 +19,19 @@
 #ifndef MBED_BLE_H__
 #define MBED_BLE_H__
 
-#include "ble/common/FunctionPointerWithContext.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
-
-#include "ble/common/BLERoles.h"
-#include "ble/common/BLETypes.h"
-#include "ble/common/blecommon.h"
 
 #include "ble/Gap.h"
 #include "ble/GattClient.h"
 #include "ble/GattServer.h"
 #include "ble/SecurityManager.h"
+
+#include "ble/common/BLERoles.h"
+#include "ble/common/BLETypes.h"
+#include "ble/common/blecommon.h"
+#include "ble/common/FunctionPointerWithContext.h"
 
 /* Forward declaration for the implementation class */
 
@@ -479,7 +479,7 @@ private:
 
 using ble::BLE;
 /**
- * @namespace ble Entry namespace for all %BLE API definitions.
+ * @namespace ble Entry namespace for all BLE API definitions.
  */
 
 /**
