@@ -2387,7 +2387,24 @@
         "detect_code": [
             "0852"
         ],
-        "device_name": "STM32G031K8Tx"
+        "device_name": "STM32G031K8Tx",
+                "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
+        "supported_application_profiles": [
+            "bare-metal"
+        ]
     },
     "MCU_STM32G071xx": {
         "inherits": [
