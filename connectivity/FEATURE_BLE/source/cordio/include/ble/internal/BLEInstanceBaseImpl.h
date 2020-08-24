@@ -38,7 +38,7 @@
 
 #include "source/generic/GapImpl.h"
 #include "source/generic/GattClientImpl.h"
-#include "source/generic/GattServerImpl.h"
+#include "source/GattServerImpl.h"
 #include "source/generic/SecurityManagerImpl.h"
 
 namespace ble {
