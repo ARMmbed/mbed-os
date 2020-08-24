@@ -219,6 +219,7 @@ matrix:
       install:
         # Install gcc
         - source_pkg gcc
+        - ls -lR ${HOME}/.cache/deps
         - arm-none-eabi-gcc --version
         # Install additional python modules
         - python --version
