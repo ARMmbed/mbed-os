@@ -27,15 +27,15 @@ namespace impl {
 class GattServer;
 }
 
-
+namespace impl {
 /**
  * Implementation of ble::PalGenericAccessService for the Cordio stack.
  */
-class PalGenericAccessService : public interface::PalGenericAccessService {
+class PalGenericAccessService final : public ble::PalGenericAccessService {
 public:
-    PalGenericAccessService() { }
+    PalGenericAccessService() = default;
 
-    virtual ~PalGenericAccessService() { }
+    ~PalGenericAccessService() = default;
 
 #if 0 // Disabled until reworked and reintroduced to GattServer API
     virtual ble_error_t get_device_name_length(uint8_t& length);
@@ -45,20 +45,23 @@ public:
     virtual ble_error_t set_appearance(GapAdvertisingData::Appearance appearance);
 #endif // Disabled until reworked and reintroduced to GattServer API
 
-    virtual ble_error_t get_peripheral_preferred_connection_parameters(
-        ble::Gap::PreferredConnectionParams_t& parameters
-    );
+    ble_error_t get_peripheral_preferred_connection_parameters(
+        ble::Gap::PreferredConnectionParams_t &parameters
+    ) final;
 
-    virtual ble_error_t set_peripheral_preferred_connection_parameters(
-        const ble::Gap::PreferredConnectionParams_t& parameters
-    );
+    ble_error_t set_peripheral_preferred_connection_parameters(
+        const ble::Gap::PreferredConnectionParams_t &parameters
+    ) final;
 
 private:
 #if BLE_FEATURE_GATT_SERVER
-    ble::impl::GattServer& gatt_server();
+
+    ble::impl::GattServer &gatt_server();
+
 #endif // BLE_FEATURE_GATT_SERVER
 };
 
-} // ble
+} // namespace impl
+} // namespace ble
 
 #endif /* IMPL_PAL_GENERIC_ACCESS_SERVICE_ */
