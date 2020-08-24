@@ -19,7 +19,7 @@
 #include "ble/common/BLERoles.h"
 #include <algorithm>
 #include "GattServerImpl.h"
-#include "source/BLEInstanceBase.h"
+#include "BLEInstanceBaseImpl.h"
 #include "wsf_types.h"
 #include "att_api.h"
 
@@ -1080,7 +1080,7 @@ uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t han
 #if BLE_FEATURE_SECURITY
     // this CB is triggered when read or write of an attribute (either a value
     // handle or a descriptor) requires secure connection security.
-    ble::SecurityManager &security_manager = BLEInstanceBase::deviceInstance().getSecurityManager();
+    ble::SecurityManager &security_manager = impl::BLEInstanceBase::deviceInstance().getSecurityManager();
 
     link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
     ble_error_t err = security_manager.getLinkEncryption(connId, &encryption);
@@ -1349,7 +1349,7 @@ bool GattServer::is_update_authorized(
     }
 
 #if BLE_FEATURE_SECURITY
-    ble::SecurityManager &security_manager = BLEInstanceBase::deviceInstance().getSecurityManager();
+    ble::SecurityManager &security_manager = impl::BLEInstanceBase::deviceInstance().getSecurityManager();
     link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
     ble_error_t err = security_manager.getLinkEncryption(connection, &encryption);
     if (err) {

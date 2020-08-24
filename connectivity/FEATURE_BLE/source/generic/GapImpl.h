@@ -358,9 +358,9 @@ private:
 
     Gap(
         ble::PalEventQueue &event_queue,
-        PalGap &pal_gap,
-        PalGenericAccessService &generic_access_service,
-        PalSecurityManager &pal_sm
+        ble::PalGap &pal_gap,
+        ble::PalGenericAccessService &generic_access_service,
+        ble::PalSecurityManager &pal_sm
     );
 
     ~Gap();

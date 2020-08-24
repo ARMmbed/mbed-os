@@ -50,6 +50,7 @@
 #include "internal/PalAttClientImpl.h"
 #include "internal/PalGenericAccessServiceImpl.h"
 #include "PalGapImpl.h"
+#include "internal/BLEInstanceBaseImpl.h"
 
 
 using namespace std::chrono;
@@ -105,12 +106,13 @@ extern "C" MBED_WEAK void wsf_mbed_ble_signal_event(void)
  * BLE-API requires an implementation of the following function in order to
  * obtain its transport handle.
  */
-ble::BLEInstanceBase *createBLEInstance()
+ble::BLEInstanceBase *ble::createBLEInstance()
 {
-    return (&(ble::BLEInstanceBase::deviceInstance()));
+    return (&(ble::impl::BLEInstanceBase::deviceInstance()));
 }
 
 namespace ble {
+namespace impl {
 
 BLEInstanceBase::BLEInstanceBase(CordioHCIDriver &hci_driver) :
     initialization_status(NOT_INITIALIZED),
@@ -122,7 +124,8 @@ BLEInstanceBase::BLEInstanceBase(CordioHCIDriver &hci_driver) :
 }
 
 BLEInstanceBase::~BLEInstanceBase()
-{}
+{
+}
 
 /**
  * The singleton which represents the BLE transport for the BLE.
@@ -136,7 +139,8 @@ BLEInstanceBase &BLEInstanceBase::deviceInstance()
 }
 
 ble_error_t BLEInstanceBase::init(
-    FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> initCallback)
+    FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> initCallback
+)
 {
     switch (initialization_status) {
         case NOT_INITIALIZED:
@@ -206,7 +210,7 @@ ble::impl::Gap &BLEInstanceBase::getGapImpl()
 
 ble::Gap &BLEInstanceBase::getGap()
 {
-    auto& impl = getGapImpl();
+    auto &impl = getGapImpl();
     static ble::Gap gap(&impl);
     return gap;
 }
@@ -224,14 +228,14 @@ ble::impl::GattServer &BLEInstanceBase::getGattServerImpl()
     return ble::impl::GattServer::getInstance();
 }
 
-GattServer &BLEInstanceBase::getGattServer()
+ble::GattServer &BLEInstanceBase::getGattServer()
 {
-    auto& impl = getGattServerImpl();
-    static GattServer server(&impl);
+    auto &impl = getGattServerImpl();
+    static ble::GattServer server(&impl);
     return server;
 }
 
-const GattServer &BLEInstanceBase::getGattServer() const
+const ble::GattServer &BLEInstanceBase::getGattServer() const
 {
     BLEInstanceBase &self = const_cast<BLEInstanceBase &>(*this);
     return const_cast<const ble::GattServer &>(self.getGattServer());
@@ -249,7 +253,7 @@ ble::impl::GattClient &BLEInstanceBase::getGattClientImpl()
 
 ble::GattClient &BLEInstanceBase::getGattClient()
 {
-    auto& impl = getGattClientImpl();
+    auto &impl = getGattClientImpl();
     static ble::GattClient gatt_client(&impl);
     impl.setInterface(&gatt_client);
     return gatt_client;
@@ -290,16 +294,16 @@ ble::impl::SecurityManager &BLEInstanceBase::getSecurityManagerImpl()
     return m_instance;
 }
 
-SecurityManager &BLEInstanceBase::getSecurityManager()
+ble::SecurityManager &BLEInstanceBase::getSecurityManager()
 {
-    static SecurityManager m_instance(&getSecurityManagerImpl());
+    static ble::SecurityManager m_instance(&getSecurityManagerImpl());
     return m_instance;
 }
 
-const SecurityManager &BLEInstanceBase::getSecurityManager() const
+const ble::SecurityManager &BLEInstanceBase::getSecurityManager() const
 {
     const BLEInstanceBase &self = const_cast<BLEInstanceBase &>(*this);
-    return const_cast<const SecurityManager &>(self.getSecurityManager());
+    return const_cast<const ble::SecurityManager &>(self.getSecurityManager());
 }
 
 #endif // BLE_FEATURE_SECURITY
@@ -369,21 +373,21 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
         }
             break;
 #if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
-        case DM_UNHANDLED_CMD_CMPL_EVT_IND: {
-            // upcast to unhandled command complete event to access the payload
-            hciUnhandledCmdCmplEvt_t *unhandled = (hciUnhandledCmdCmplEvt_t *) msg;
-            if (unhandled->hdr.status == HCI_SUCCESS && unhandled->hdr.param == HCI_OPCODE_LE_TEST_END) {
-                // unhandled events are not parsed so we need to parse the payload ourselves
-                uint8_t status;
-                uint16_t packet_number;
-                status = unhandled->param[0];
-                BYTES_TO_UINT16(packet_number, unhandled->param + 1);
+            case DM_UNHANDLED_CMD_CMPL_EVT_IND: {
+                // upcast to unhandled command complete event to access the payload
+                hciUnhandledCmdCmplEvt_t *unhandled = (hciUnhandledCmdCmplEvt_t *) msg;
+                if (unhandled->hdr.status == HCI_SUCCESS && unhandled->hdr.param == HCI_OPCODE_LE_TEST_END) {
+                    // unhandled events are not parsed so we need to parse the payload ourselves
+                    uint8_t status;
+                    uint16_t packet_number;
+                    status = unhandled->param[0];
+                    BYTES_TO_UINT16(packet_number, unhandled->param + 1);
 
-                _hci_driver->handle_test_end(status == 0, packet_number);
-                return;
+                    _hci_driver->handle_test_end(status == 0, packet_number);
+                    return;
+                }
             }
-        }
-            break;
+                break;
 #endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
 
         default:
@@ -463,8 +467,8 @@ void BLEInstanceBase::stack_setup()
     // This warning will be raised if we've allocated too much memory
     if (bytes_used < buf_pool_desc.buffer_size) {
         MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_INVALID_SIZE),
-                      "Too much memory allocated for Cordio memory pool, reduce buf_pool_desc.buffer_size by value below.",
-                      buf_pool_desc.buffer_size - bytes_used);
+            "Too much memory allocated for Cordio memory pool, reduce buf_pool_desc.buffer_size by value below.",
+            buf_pool_desc.buffer_size - bytes_used);
     }
 
     WsfTimerInit();
@@ -650,4 +654,5 @@ CordioHCIDriver *BLEInstanceBase::_hci_driver = nullptr;
 
 FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> BLEInstanceBase::_init_callback;
 
+} // namespace impl
 } // namespace ble

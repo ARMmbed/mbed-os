@@ -20,8 +20,9 @@
 #define IMPL_PAL_ATT_CLIENT_
 
 #include "source/pal/PalSimpleAttServerMessage.h"
-#include "att_api.h"
 #include "source/pal/PalAttClient.h"
+
+#include "att_api.h"
 
 namespace ble {
 namespace impl {
