@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os
-	PUBLIC
-		source
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/device_key
 )
 
 target_sources(mbed-os
-	PRIVATE
-		source/DeviceKey.cpp
+    PRIVATE
+        source/DeviceKey.cpp
 )
