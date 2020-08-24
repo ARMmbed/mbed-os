@@ -51,7 +51,6 @@ class SecurityManager :
     public ble::PalSigningMonitorEventHandler {
     friend class ble::PalConnectionMonitorEventHandler;
 
-    friend ::ble::BLEInstanceBase;
     friend PalGenericAccessService;
     friend PalSecurityManager;
 
@@ -449,12 +448,7 @@ private:
 
     /* end implements PalSecurityManager::EventHandler */
 
-private:
-    /* Disallow copy and assignment. */
-    SecurityManager(const SecurityManager &);
-
-    SecurityManager &operator=(const SecurityManager &);
-
+public:
     SecurityManager(
         PalSecurityManager &palImpl,
         PalConnectionMonitor &connMonitorImpl,
@@ -483,6 +477,12 @@ private:
     {
         delete _db;
     }
+
+private:
+    /* Disallow copy and assignment. */
+    SecurityManager(const SecurityManager &);
+
+    SecurityManager &operator=(const SecurityManager &);
 
     ////////////////////////////////////////////////////////////////////////////
     // Helper functions

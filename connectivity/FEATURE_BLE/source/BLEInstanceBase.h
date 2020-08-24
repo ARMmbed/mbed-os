@@ -49,10 +49,6 @@ namespace ble {
  *
  * @see BLE
  */
-#if !defined(DOXYGEN_ONLY)
-namespace interface {
-#endif // !defined(DOXYGEN_ONLY)
-
 class BLEInstanceBase {
 public:
     /**
@@ -116,7 +112,7 @@ public:
      *
      * @see BLE::init() BLE::hasInitialized()
      */
-    virtual bool hasInitialized(void) const = 0;
+    virtual bool hasInitialized() const = 0;
 
     /**
      * Shutdown the vendor BLE subsystem.
@@ -139,7 +135,7 @@ public:
      * @see BLE::shutdown() BLE::init() BLE::hasInitialized() Gap::reset()
      * GattClient::reset() GattServer::reset() SecurityManager::reset() .
      */
-    virtual ble_error_t shutdown(void) = 0;
+    virtual ble_error_t shutdown() = 0;
 
     /**
      * Fetches a NULL terminated string representation of the underlying BLE
@@ -150,7 +146,7 @@ public:
      *
      * @see BLE::getVersion()
      */
-    virtual const char *getVersion(void) = 0;
+    virtual const char *getVersion() = 0;
 
     /**
      * Accessor to the vendor implementation of the Gap interface.
@@ -160,7 +156,7 @@ public:
      *
      * @see BLE::gap() Gap
      */
-    virtual ble::Gap &getGap(void) = 0;
+    virtual ble::Gap &getGap() = 0;
 
     /**
      * Const alternative to getGap().
@@ -170,7 +166,7 @@ public:
      *
      * @see BLE::gap() Gap
      */
-    virtual const ble::Gap &getGap(void) const = 0;
+    virtual const ble::Gap &getGap() const = 0;
 
 
 #if BLE_FEATURE_GATT_SERVER
@@ -183,7 +179,7 @@ public:
      *
      * @see BLE::gattServer() GattServer
      */
-    virtual ble::GattServer &getGattServer(void) = 0;
+    virtual ble::GattServer &getGattServer() = 0;
 
     /**
      * A const alternative to getGattServer().
@@ -193,7 +189,7 @@ public:
      *
      * @see BLE::gattServer() GattServer
      */
-    virtual const ble::GattServer &getGattServer(void) const = 0;
+    virtual const ble::GattServer &getGattServer() const = 0;
 
 #endif // BLE_FEATURE_GATT_SERVER
 
@@ -207,7 +203,7 @@ public:
      *
      * @see BLE::gattClient() GattClient
      */
-    virtual ble::GattClient &getGattClient(void) = 0;
+    virtual ble::GattClient &getGattClient() = 0;
 
 #endif
 
@@ -221,7 +217,7 @@ public:
      *
      * @see BLE::securityManager() SecurityManager
      */
-    virtual ble::SecurityManager &getSecurityManager(void) = 0;
+    virtual ble::SecurityManager &getSecurityManager() = 0;
 
     /**
      * A const alternative to getSecurityManager().
@@ -231,15 +227,10 @@ public:
      *
      * @see BLE::securityManager() SecurityManager
      */
-    virtual const ble::SecurityManager &getSecurityManager(void) const = 0;
+    virtual const ble::SecurityManager &getSecurityManager() const = 0;
 
 #endif // BLE_FEATURE_SECURITY
 };
-
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
-} // namespace ble
 
 /**
  * Return the instance of the vendor implementation of BLEInstanceBase.
@@ -250,15 +241,13 @@ public:
  * @attention The vendor library must provide an implementation for this function
  * library. Otherwise, there will be a linker error.
  */
-extern ble::BLEInstanceBase *createBLEInstance(void);
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/BLEInstanceBaseImpl.h"
+extern ble::BLEInstanceBase *createBLEInstance();
 
 /**
  * @}
  * @}
  */
+
+} // namespace ble
 
 #endif // ifndef MBED_BLE_DEVICE_INSTANCE_BASE__

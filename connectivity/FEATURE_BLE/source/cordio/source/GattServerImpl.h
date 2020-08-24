@@ -45,8 +45,9 @@
 
 namespace ble {
 
-// fwd declaration of PalAttClient and BLE
+// fwd declaration of PalAttClient, PalGenericAccessService and BLE
 class PalAttClient;
+class PalGenericAccessService;
 class BLE;
 
 namespace impl {
@@ -54,7 +55,6 @@ class GattServer : public PalSigningMonitor {
     friend ble::BLE;
     friend ble::PalAttClient;
     friend PalSigningMonitor;
-    friend BLEInstanceBase;
     friend PalGenericAccessService;
 
     using EventHandler = ble::GattServer::EventHandler;
@@ -195,6 +195,18 @@ public:
 
     static void att_cb(const attEvt_t *pEvt);
 
+    /**
+     * Initialize the GattServer and add mandatory services (generic access and
+     * generic attribute service).
+     */
+    void initialize();
+
+    static uint8_t atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle);
+
+    void set_signing_event_handler(
+        PalSigningMonitorEventHandler *signing_event_handler
+    ) override;
+
 private:
 
     GattServer();
@@ -202,16 +214,6 @@ private:
     GattServer(const GattServer &);
 
     const GattServer &operator=(const GattServer &);
-
-    /**
-     * Initialize the GattServer and add mandatory services (generic access and
-     * generic attribute service).
-     */
-    void initialize();
-
-    void set_signing_event_handler(
-        PalSigningMonitorEventHandler *signing_event_handler
-    ) override;
 
     EventHandler *getEventHandler();
 
@@ -266,8 +268,6 @@ private:
         uint8_t *pValue,
         attsAttr_t *pAttr
     );
-
-    static uint8_t atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle);
 
     void add_generic_access_service();
 

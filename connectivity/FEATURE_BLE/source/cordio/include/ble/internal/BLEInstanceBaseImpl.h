@@ -46,15 +46,18 @@ namespace ble {
 
 class PalSigningMonitor;
 
+namespace impl {
+
 /**
  * @see BLEInstanceBase
  */
-class BLEInstanceBase : public interface::BLEInstanceBase {
+class BLEInstanceBase : public ble::BLEInstanceBase {
     friend PalSigningMonitor;
+
     /**
      * Construction with an HCI driver.
      */
-    BLEInstanceBase(CordioHCIDriver& hci_driver);
+    BLEInstanceBase(CordioHCIDriver &hci_driver);
 
     /**
      * Destructor
@@ -67,13 +70,13 @@ public:
      * Access to the singleton containing the implementation of BLEInstanceBase
      * for the Cordio stack.
      */
-    static BLEInstanceBase& deviceInstance();
+    static BLEInstanceBase &deviceInstance();
 
     /**
     * @see BLEInstanceBase::init
     */
     virtual ble_error_t init(
-        FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> initCallback
+        FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> initCallback
     );
 
     /**
@@ -91,34 +94,37 @@ public:
      */
     virtual const char *getVersion();
 
-    ble::impl::Gap& getGapImpl();
+    ble::impl::Gap &getGapImpl();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual ble::Gap& getGap();
+    virtual ble::Gap &getGap();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const ble::Gap& getGap() const;
+    virtual const ble::Gap &getGap() const;
 
 #if BLE_FEATURE_GATT_SERVER
-    ble::impl::GattServer& getGattServerImpl();
+
+    ble::impl::GattServer &getGattServerImpl();
 
     /**
      * @see BLEInstanceBase::getGattServer
      */
-    virtual GattServer &getGattServer();
+    virtual ble::GattServer &getGattServer();
 
     /**
      * @see BLEInstanceBase::getGattServer
      */
-    virtual const GattServer &getGattServer() const;
+    virtual const ble::GattServer &getGattServer() const;
+
 #endif // BLE_FEATURE_GATT_SERVER
 
 #if BLE_FEATURE_GATT_CLIENT
-    ble::impl::GattClient& getGattClientImpl();
+
+    ble::impl::GattClient &getGattClientImpl();
 
     /**
      * @see BLEInstanceBase::getGattClient
@@ -131,10 +137,12 @@ public:
      * @return PAL Gatt Client.
      */
     PalGattClient &getPalGattClient();
+
 #endif // BLE_FEATURE_GATT_CLIENT
 
 #if BLE_FEATURE_SECURITY
-    ble::impl::SecurityManager& getSecurityManagerImpl();
+
+    ble::impl::SecurityManager &getSecurityManagerImpl();
 
     /**
      * @see BLEInstanceBase::getSecurityManager
@@ -159,17 +167,22 @@ public:
     virtual void processEvents();
 
 private:
-    static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg);
-    static void device_manager_cb(dmEvt_t* dm_event);
-    static void connection_handler(dmEvt_t* dm_event);
+    static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg);
+
+    static void device_manager_cb(dmEvt_t *dm_event);
+
+    static void connection_handler(dmEvt_t *dm_event);
+
     static void timeoutCallback();
 
     void stack_setup();
+
     void start_stack_reset();
+
     void callDispatcher();
 
-    static CordioHCIDriver* _hci_driver;
-    static FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> _init_callback;
+    static CordioHCIDriver *_hci_driver;
+    static FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> _init_callback;
 
     enum {
         NOT_INITIALIZED,
@@ -182,6 +195,7 @@ private:
     uint64_t _last_update_us;
 };
 
+} // namespace impl
 } // namespace ble
 
 

@@ -30,6 +30,7 @@
 #include "source/pal/GapTypes.h"
 #include "source/pal/PalGenericAccessService.h"
 #include "source/pal/PalEventQueue.h"
+#include "source/pal/PalSecurityManager.h"
 
 
 using namespace std::chrono;
@@ -319,9 +320,9 @@ const central_privacy_configuration_t Gap::default_central_privacy_configuration
 
 Gap::Gap(
     ble::PalEventQueue &event_queue,
-    PalGap &pal_gap,
-    PalGenericAccessService &generic_access_service,
-    PalSecurityManager &pal_sm
+    ble::PalGap &pal_gap,
+    ble::PalGenericAccessService &generic_access_service,
+    ble::PalSecurityManager &pal_sm
 ) : _event_queue(event_queue),
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
