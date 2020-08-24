@@ -211,7 +211,7 @@ private:
 
     void set_signing_event_handler(
         PalSigningMonitorEventHandler *signing_event_handler
-    );
+    ) override;
 
     EventHandler *getEventHandler();
 
