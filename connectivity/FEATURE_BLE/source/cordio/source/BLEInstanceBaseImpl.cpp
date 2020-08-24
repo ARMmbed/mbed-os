@@ -45,6 +45,7 @@
 #include "source/BLEInstanceBase.h"
 #include "ble/driver/CordioHCIDriver.h"
 #include "GattServerImpl.h"
+#include "PalSecurityManagerImpl.h"
 
 #include "internal/PalAttClientImpl.h"
 #include "PalGapImpl.h"
@@ -197,7 +198,7 @@ ble::impl::Gap &BLEInstanceBase::getGapImpl()
         _event_queue,
         ble::impl::PalGap::get_gap(),
         cordio_gap_service,
-        ble::PalSecurityManager::get_security_manager()
+        ble::impl::PalSecurityManager::get_security_manager()
     );
     return gap;
 }
@@ -267,7 +268,7 @@ ble::impl::SecurityManager &BLEInstanceBase::getSecurityManagerImpl()
 {
     static PalSigningMonitor signing_event_monitor;
     static ble::impl::SecurityManager m_instance(
-        ble::PalSecurityManager::get_security_manager(),
+        ble::impl::PalSecurityManager::get_security_manager(),
         getGapImpl(),
         signing_event_monitor
     );
@@ -318,7 +319,7 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
     }
 
 #if BLE_FEATURE_SECURITY
-    if (ble::PalSecurityManager::get_security_manager().sm_handler(msg)) {
+    if (ble::impl::PalSecurityManager::get_security_manager().sm_handler(msg)) {
         return;
     }
 #endif // BLE_FEATURE_SECURITY

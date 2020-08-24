@@ -28,10 +28,11 @@
 #include "cfg_stack.h"
 
 namespace ble {
+namespace impl {
 
 class BLEInstanceBase;
 
-class PalSecurityManager : public interface::PalSecurityManager {
+class PalSecurityManager final : public ble::PalSecurityManager {
     friend BLEInstanceBase;
 public:
 
@@ -46,17 +47,17 @@ public:
     /**
      * @see ::ble::PalSecurityManager::initialize
      */
-    ble_error_t initialize();
+    ble_error_t initialize() final;
 
     /**
      * @see ::ble::PalSecurityManager::terminate
      */
-    ble_error_t terminate();
+    ble_error_t terminate() final;
 
     /**
      * @see ::ble::PalSecurityManager::reset
      */
-    ble_error_t reset();
+    ble_error_t reset() final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Resolving list management
@@ -65,7 +66,7 @@ public:
     /**
      * @see ::ble::PalSecurityManager::read_resolving_list_capacity
      */
-    uint8_t read_resolving_list_capacity();
+    uint8_t read_resolving_list_capacity() final;
 
     /**
      * @see ::ble::PalSecurityManager::add_device_to_resolving_list
@@ -74,7 +75,7 @@ public:
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address,
         const irk_t &peer_irk
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::remove_device_from_resolving_list
@@ -82,12 +83,12 @@ public:
     ble_error_t remove_device_from_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::clear_resolving_list
      */
-    ble_error_t clear_resolving_list();
+    ble_error_t clear_resolving_list() final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Pairing
@@ -102,7 +103,7 @@ public:
         AuthenticationMask authentication_requirements,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::send_pairing_response
@@ -113,14 +114,14 @@ public:
         AuthenticationMask authentication_requirements,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::cancel_pairing
      */
     ble_error_t cancel_pairing(
         connection_handle_t connection, pairing_failure_t reason
-    );
+    ) final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Feature support
@@ -131,12 +132,12 @@ public:
      */
     ble_error_t get_secure_connections_support(
         bool &enabled
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_io_capability
      */
-    ble_error_t set_io_capability(io_capability_t io_capability);
+    ble_error_t set_io_capability(io_capability_t io_capability) final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
@@ -147,14 +148,14 @@ public:
      */
     ble_error_t set_authentication_timeout(
         connection_handle_t, uint16_t timeout_in_10ms
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::get_authentication_timeout
      */
     ble_error_t get_authentication_timeout(
         connection_handle_t, uint16_t &timeout_in_10ms
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_encryption_key_requirements
@@ -162,7 +163,7 @@ public:
     ble_error_t set_encryption_key_requirements(
         uint8_t min_encryption_key_size,
         uint8_t max_encryption_key_size
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::slave_security_request
@@ -170,7 +171,7 @@ public:
     ble_error_t slave_security_request(
         connection_handle_t connection,
         AuthenticationMask authentication
-    );
+    ) final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
@@ -185,7 +186,7 @@ public:
         const rand_t &rand,
         const ediv_t &ediv,
         bool mitm
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::enable_encryption
@@ -194,7 +195,7 @@ public:
         connection_handle_t connection,
         const ltk_t &ltk,
         bool mitm
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::encrypt_data
@@ -202,7 +203,7 @@ public:
     ble_error_t encrypt_data(
         const byte_array_t<16> &key,
         encryption_block_t &data
-    );
+    ) final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
@@ -211,12 +212,12 @@ public:
     /**
      * @see ::ble::PalSecurityManager::set_private_address_timeout
      */
-    ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds);
+    ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds) final;
 
     /**
      * @see ::ble::PalSecurityManager::get_identity_address
      */
-    ble_error_t get_identity_address(address_t& address, bool& public_address);
+    ble_error_t get_identity_address(address_t &address, bool &public_address) final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -230,19 +231,19 @@ public:
         const ltk_t &ltk,
         bool mitm,
         bool secure_connections
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_ltk_not_found
      */
     ble_error_t set_ltk_not_found(
         connection_handle_t connection
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_irk
      */
-    ble_error_t set_irk(const irk_t &irk);
+    ble_error_t set_irk(const irk_t &irk) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_csrk
@@ -250,7 +251,7 @@ public:
     ble_error_t set_csrk(
         const csrk_t &csrk,
         sign_count_t sign_counter
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_peer_csrk
@@ -260,9 +261,9 @@ public:
         const csrk_t &csrk,
         bool authenticated,
         sign_count_t sign_counter
-    );
+    ) final;
 
-    ble_error_t remove_peer_csrk(connection_handle_t connection);
+    ble_error_t remove_peer_csrk(connection_handle_t connection) final;
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
@@ -271,7 +272,7 @@ public:
     /**
      * @see ::ble::PalSecurityManager::get_random_data
      */
-    ble_error_t get_random_data(byte_array_t<8> &random_data);
+    ble_error_t get_random_data(byte_array_t<8> &random_data) final;
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
@@ -280,7 +281,7 @@ public:
     /**
      * @see ::ble::PalSecurityManager::set_display_passkey
      */
-    ble_error_t set_display_passkey(passkey_num_t passkey);
+    ble_error_t set_display_passkey(passkey_num_t passkey) final;
 
     /**
      * @see ::ble::PalSecurityManager::passkey_request_reply
@@ -288,7 +289,7 @@ public:
     ble_error_t passkey_request_reply(
         connection_handle_t connection,
         passkey_num_t passkey
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::secure_connections_oob_request_reply
@@ -298,7 +299,7 @@ public:
         const oob_lesc_value_t &local_random,
         const oob_lesc_value_t &peer_random,
         const oob_confirm_t &peer_confirm
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::legacy_pairing_oob_request_reply
@@ -306,43 +307,43 @@ public:
     ble_error_t legacy_pairing_oob_request_reply(
         connection_handle_t connection,
         const oob_tk_t &oob_data
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::confirmation_entered
      */
     ble_error_t confirmation_entered(
         connection_handle_t connection, bool confirmation
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::send_keypress_notification
      */
     ble_error_t send_keypress_notification(
         connection_handle_t connection, ble::Keypress_t keypress
-    );
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::generate_secure_connections_oob
      */
-    ble_error_t generate_secure_connections_oob();
+    ble_error_t generate_secure_connections_oob() final;
 
     /**
      * @see ::ble::PalSecurityManager::set_event_handler
      */
-    void set_event_handler(PalSecurityManagerEventHandler *event_handler);
+    void set_event_handler(PalSecurityManagerEventHandler *event_handler) final;
 
     /**
      * @see ::ble::PalSecurityManager::get_event_handler
      */
-    PalSecurityManagerEventHandler* get_event_handler();
+    PalSecurityManagerEventHandler *get_event_handler() final;
 
-private:
+public:
     /* used by the PAL to get the singleton */
     static PalSecurityManager &get_security_manager();
 
     /* used by PAL to handle security messages coming from the stack Event handler */
-    static bool sm_handler(const wsfMsgHdr_t* msg);
+    static bool sm_handler(const wsfMsgHdr_t *msg);
 
 private:
 
@@ -371,7 +372,7 @@ private:
     void clear_privacy_control_blocks();
 
     // Queue a control block
-    void queue_privacy_control_block(PrivacyControlBlock* block);
+    void queue_privacy_control_block(PrivacyControlBlock *block);
 
     // Try to dequeue and process the next control block
     // cb_completed is set when the previous block has completed
@@ -379,20 +380,21 @@ private:
 
     void cleanup_peer_csrks();
 
-    PalSecurityManagerEventHandler* _pal_event_handler;
+    PalSecurityManagerEventHandler *_pal_event_handler;
 
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
 
-    PrivacyControlBlock* _pending_privacy_control_blocks;
+    PrivacyControlBlock *_pending_privacy_control_blocks;
     bool _processing_privacy_control_block;
     irk_t _irk;
     csrk_t _csrk;
-    csrk_t* _peer_csrks[DM_CONN_MAX];
+    csrk_t *_peer_csrks[DM_CONN_MAX];
 };
 
-} // ble
+} // namespace impl
+} // namespace ble
 
 #endif /* IMPL_PAL_SECURITY_MANAGER_ */

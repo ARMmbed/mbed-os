@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
+#include <cstring>
+
 #include "ble/common/BLERoles.h"
-
-#include <string.h>
-
 #include "ble/common/blecommon.h"
-#include "source/pal/PalSecurityManager.h"
+#include "internal/PalSecurityManagerImpl.h"
 #include "internal/PalAttClientImpl.h"
 #include "dm_api.h"
 #include "att_api.h"
@@ -30,6 +29,7 @@
 #include "hci_core.h"
 
 namespace ble {
+namespace impl {
 
 PalSecurityManager::PalSecurityManager() :
     _pal_event_handler(nullptr),
@@ -113,8 +113,7 @@ ble_error_t PalSecurityManager::add_device_to_resolving_list(
     const irk_t &peer_irk
 )
 {
-    if( read_resolving_list_capacity() == 0 )
-    {
+    if (read_resolving_list_capacity() == 0) {
         // If 0 is returned as capacity, it means the controller does not support resolving addresses
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -128,11 +127,10 @@ ble_error_t PalSecurityManager::add_device_to_resolving_list(
 
 ble_error_t PalSecurityManager::remove_device_from_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
-    const address_t& peer_identity_address
+    const address_t &peer_identity_address
 )
 {
-    if( read_resolving_list_capacity() == 0 )
-    {
+    if (read_resolving_list_capacity() == 0) {
         // If 0 is returned as capacity, it means the controller does not support resolving addresses
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -146,8 +144,7 @@ ble_error_t PalSecurityManager::remove_device_from_resolving_list(
 
 ble_error_t PalSecurityManager::clear_resolving_list()
 {
-    if( read_resolving_list_capacity() == 0 )
-    {
+    if (read_resolving_list_capacity() == 0) {
         // If 0 is returned as capacity, it means the controller does not support resolving addresses
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -255,7 +252,7 @@ ble_error_t PalSecurityManager::enable_encryption(
     bool mitm
 )
 {
-    dmSecLtk_t sec_ltk = { 0 };
+    dmSecLtk_t sec_ltk = {0};
     memcpy(sec_ltk.key, ltk.data(), ltk.size());
 
     DmSecEncryptReq(
@@ -295,8 +292,8 @@ ble_error_t PalSecurityManager::set_private_address_timeout(
  */
 
 ble_error_t PalSecurityManager::get_identity_address(
-    address_t& address,
-    bool& public_address
+    address_t &address,
+    bool &public_address
 )
 {
     // On cordio, the public address is hardcoded as the identity address.
@@ -312,7 +309,7 @@ ble_error_t PalSecurityManager::get_identity_address(
 
 ble_error_t PalSecurityManager::set_ltk(
     connection_handle_t connection,
-    const ltk_t& ltk,
+    const ltk_t &ltk,
     bool mitm,
     bool secure_connections
 )
@@ -320,7 +317,7 @@ ble_error_t PalSecurityManager::set_ltk(
     uint8_t security_level = DM_SEC_LEVEL_NONE;
     if (secure_connections) {
         security_level = DM_SEC_LEVEL_ENC_LESC;
-    } else if(mitm) {
+    } else if (mitm) {
         security_level = DM_SEC_LEVEL_ENC_AUTH;
     } else {
         security_level = DM_SEC_LEVEL_ENC;
@@ -330,7 +327,7 @@ ble_error_t PalSecurityManager::set_ltk(
         connection,
         /* key found */ true,
         /* sec level */ security_level,
-        const_cast<uint8_t*>(ltk.data())
+        const_cast<uint8_t *>(ltk.data())
     );
     return BLE_ERROR_NONE;
 }
@@ -351,7 +348,7 @@ ble_error_t PalSecurityManager::set_ltk_not_found(
 }
 
 
-ble_error_t PalSecurityManager::set_irk(const irk_t& irk)
+ble_error_t PalSecurityManager::set_irk(const irk_t &irk)
 {
     _irk = irk;
     DmSecSetLocalIrk(_irk.data());
@@ -360,7 +357,7 @@ ble_error_t PalSecurityManager::set_irk(const irk_t& irk)
 
 
 ble_error_t PalSecurityManager::set_csrk(
-    const csrk_t& csrk,
+    const csrk_t &csrk,
     sign_count_t sign_counter
 )
 {
@@ -389,7 +386,7 @@ ble_error_t PalSecurityManager::set_peer_csrk(
     if (_peer_csrks[connection_index]) {
         *_peer_csrks[connection_index] = csrk;
     } else {
-        _peer_csrks[connection_index] = new (std::nothrow) csrk_t(csrk);
+        _peer_csrks[connection_index] = new(std::nothrow) csrk_t(csrk);
         if (_peer_csrks[connection_index] == nullptr) {
             return BLE_ERROR_NO_MEM;
         }
@@ -530,7 +527,7 @@ ble_error_t PalSecurityManager::passkey_request_reply(
     DmSecAuthRsp(
         connection,
         /* datalength */ 3,
-        reinterpret_cast<uint8_t*>(&passkey)
+        reinterpret_cast<uint8_t *>(&passkey)
     );
 
     return BLE_ERROR_NONE;
@@ -545,7 +542,7 @@ ble_error_t PalSecurityManager::legacy_pairing_oob_request_reply(
     DmSecAuthRsp(
         connection,
         /* data length */16,
-        const_cast<uint8_t*>(oob_data.data())
+        const_cast<uint8_t *>(oob_data.data())
     );
 
     return BLE_ERROR_NONE;
@@ -573,7 +570,6 @@ ble_error_t PalSecurityManager::send_keypress_notification(
 }
 
 
-
 ble_error_t PalSecurityManager::generate_secure_connections_oob()
 {
     uint8_t oobLocalRandom[SMP_RAND_LEN];
@@ -590,7 +586,7 @@ ble_error_t PalSecurityManager::secure_connections_oob_request_reply(
     const oob_confirm_t &peer_confirm
 )
 {
-    dmSecLescOobCfg_t oob_config = { 0 };
+    dmSecLescOobCfg_t oob_config = {0};
 
     memcpy(oob_config.localRandom, local_random.data(), local_random.size());
     // FIXME:
@@ -605,17 +601,17 @@ ble_error_t PalSecurityManager::secure_connections_oob_request_reply(
 }
 
 
-PalSecurityManager& PalSecurityManager::get_security_manager()
+PalSecurityManager &PalSecurityManager::get_security_manager()
 {
     static PalSecurityManager _security_manager;
     return _security_manager;
 }
 
 
-bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
+bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 {
-    PalSecurityManager& self = get_security_manager();
-    PalSecurityManagerEventHandler* handler = self.get_event_handler();
+    PalSecurityManager &self = get_security_manager();
+    PalSecurityManagerEventHandler *handler = self.get_event_handler();
 
     if ((msg == nullptr) || (handler == nullptr)) {
         return false;
@@ -623,7 +619,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
 
     switch (msg->event) {
         case DM_SEC_PAIR_CMPL_IND: {
-            dmSecPairCmplIndEvt_t* evt = (dmSecPairCmplIndEvt_t*) msg;
+            auto *evt = (dmSecPairCmplIndEvt_t *) msg;
             // Note: authentication and bonding flags present in the auth field
             handler->on_pairing_completed(evt->hdr.param);
             return true;
@@ -658,7 +654,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
         case DM_SEC_ENCRYPT_IND: {
-            dmSecEncryptIndEvt_t* evt = (dmSecEncryptIndEvt_t*) msg;
+            auto *evt = (dmSecEncryptIndEvt_t *) msg;
             // note: the field usingLtk of the message indicates if an LTK was
             // used to encrypt the link
             // FIXME: How to indicate the level of encryption ?
@@ -673,7 +669,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
         case DM_SEC_AUTH_REQ_IND: {
-            dmSecAuthReqIndEvt_t* evt = (dmSecAuthReqIndEvt_t*) msg;
+            auto *evt = (dmSecAuthReqIndEvt_t *) msg;
             connection_handle_t connection = evt->hdr.param;
 
             if (evt->oob) {
@@ -692,7 +688,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
                     DmSecAuthRsp(
                         connection,
                         /* data length */ SMP_PIN_LEN,
-                        reinterpret_cast<uint8_t*>(&(get_security_manager()._default_passkey))
+                        reinterpret_cast<uint8_t *>(&(get_security_manager()._default_passkey))
                     );
                 } else {
                     /* generate random passkey, limit to 6 digit max */
@@ -701,7 +697,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
                     passkey %= 1000000;
                     handler->on_passkey_display(connection, passkey);
                     DmSecAuthRsp(
-                        connection, SMP_PIN_LEN, reinterpret_cast<uint8_t*>(&passkey)
+                        connection, SMP_PIN_LEN, reinterpret_cast<uint8_t *>(&passkey)
                     );
                 }
             } else {
@@ -712,19 +708,19 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
 
         case DM_SEC_KEY_IND: {
             // NOTE: also report security level and encryption key len
-            dmSecKeyIndEvt_t* evt = (dmSecKeyIndEvt_t*) msg;
+            auto *evt = (dmSecKeyIndEvt_t *) msg;
             connection_handle_t connection = evt->hdr.param;
 
-            switch(evt->type) {
+            switch (evt->type) {
                 case DM_KEY_LOCAL_LTK:
                     handler->on_keys_distributed_local_ltk(
                         connection,
-                        ltk_t(reinterpret_cast<uint8_t*>(evt->keyData.ltk.key))
+                        ltk_t(reinterpret_cast<uint8_t *>(evt->keyData.ltk.key))
                     );
 
                     handler->on_keys_distributed_local_ediv_rand(
                         connection,
-                        ediv_t(reinterpret_cast<uint8_t*>(&(evt->keyData.ltk.ediv))),
+                        ediv_t(reinterpret_cast<uint8_t *>(&(evt->keyData.ltk.ediv))),
                         evt->keyData.ltk.rand
                     );
                     break;
@@ -732,12 +728,12 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
                 case DM_KEY_PEER_LTK:
                     handler->on_keys_distributed_ltk(
                         connection,
-                        ltk_t(reinterpret_cast<uint8_t*>(evt->keyData.ltk.key))
+                        ltk_t(reinterpret_cast<uint8_t *>(evt->keyData.ltk.key))
                     );
 
                     handler->on_keys_distributed_ediv_rand(
                         connection,
-                        ediv_t(reinterpret_cast<uint8_t*>(&(evt->keyData.ltk.ediv))),
+                        ediv_t(reinterpret_cast<uint8_t *>(&(evt->keyData.ltk.ediv))),
                         evt->keyData.ltk.rand
                     );
                     break;
@@ -751,7 +747,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
 
                     handler->on_keys_distributed_irk(
                         connection,
-                        irk_t(reinterpret_cast<uint8_t*>(evt->keyData.irk.key))
+                        irk_t(reinterpret_cast<uint8_t *>(evt->keyData.irk.key))
                     );
                     break;
 #endif // BLE_FEATURE_PRIVACY
@@ -768,8 +764,8 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
         case DM_SEC_LTK_REQ_IND: {
-            uint8_t null_rand[HCI_RAND_LEN] = { 0 };
-            hciLeLtkReqEvt_t* evt = (hciLeLtkReqEvt_t*) msg;
+            uint8_t null_rand[HCI_RAND_LEN] = {0};
+            auto *evt = (hciLeLtkReqEvt_t *) msg;
 
             if (evt->encDiversifier == 0 &&
                 memcmp(evt->randNum, null_rand, sizeof(null_rand))) {
@@ -779,7 +775,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
             } else {
                 handler->on_ltk_request(
                     evt->hdr.param,
-                    reinterpret_cast<uint8_t*>(&evt->encDiversifier),
+                    reinterpret_cast<uint8_t *>(&evt->encDiversifier),
                     evt->randNum
                 );
             }
@@ -787,7 +783,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
         case DM_SEC_PAIR_IND: {
-            dmSecPairIndEvt_t* evt = (dmSecPairIndEvt_t*) msg;
+            auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_pairing_request(
                 /* connection */ evt->hdr.param,
                 evt->oob,
@@ -799,7 +795,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
         case DM_SEC_SLAVE_REQ_IND: {
-            dmSecPairIndEvt_t* evt = (dmSecPairIndEvt_t*) msg;
+            auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_slave_security_request(
                 /* connection */ evt->hdr.param,
                 evt->auth
@@ -808,7 +804,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
         case DM_SEC_CALC_OOB_IND: {
-            dmSecOobCalcIndEvt_t* evt = (dmSecOobCalcIndEvt_t*) msg;
+            auto *evt = (dmSecOobCalcIndEvt_t *) msg;
             handler->on_secure_connections_oob_generated(
                 evt->random,
                 evt->confirm
@@ -818,7 +814,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
 
 #if BLE_FEATURE_SECURE_CONNECTIONS
         case DM_SEC_ECC_KEY_IND: {
-            secEccMsg_t* evt = (secEccMsg_t*) msg;
+            auto *evt = (secEccMsg_t *) msg;
             DmSecSetEccKey(&evt->data.key);
             memcpy(self._public_key_x, evt->data.key.pubKey_x, sizeof(self._public_key_x));
             self._lesc_keys_generated = true;
@@ -827,7 +823,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
 #endif // BLE_FEATURE_SECURE_CONNECTIONS
 
         case DM_SEC_COMPARE_IND: {
-            dmSecCnfIndEvt_t* evt = (dmSecCnfIndEvt_t*) msg;
+            auto *evt = (dmSecCnfIndEvt_t *) msg;
             handler->on_passkey_display(
                 /* connection */ evt->hdr.param,
                 DmSecGetCompareValue(evt->confirm)
@@ -837,7 +833,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
         case DM_SEC_KEYPRESS_IND: {
-            dmSecKeypressIndEvt_t* evt = (dmSecKeypressIndEvt_t*) msg;
+            auto *evt = (dmSecKeypressIndEvt_t *) msg;
             handler->on_keypress_notification(
                 /* connection */ evt->hdr.param,
                 (ble::Keypress_t) evt->notificationType
@@ -846,7 +842,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
         }
 
 #if BLE_FEATURE_PRIVACY
-        // Privacy
+            // Privacy
         case DM_PRIV_ADD_DEV_TO_RES_LIST_IND: // Device added to resolving list
         case DM_PRIV_REM_DEV_FROM_RES_LIST_IND: // Device removed from resolving list
         case DM_PRIV_CLEAR_RES_LIST_IND: // Resolving list cleared
@@ -862,43 +858,44 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t* msg)
 }
 
 
-struct PalSecurityManager::PrivacyControlBlock
-{
-    PrivacyControlBlock() : _next(nullptr) {}
+struct PalSecurityManager::PrivacyControlBlock {
+    PrivacyControlBlock() : _next(nullptr)
+    {
+    }
 
-    virtual ~PrivacyControlBlock() {}
+    virtual ~PrivacyControlBlock() = default;
 
     virtual void execute() = 0;
 
-    void set_next(PrivacyControlBlock* next) {
+    void set_next(PrivacyControlBlock *next)
+    {
         _next = next;
     }
 
-    PrivacyControlBlock* next() const {
+    PrivacyControlBlock *next() const
+    {
         return _next;
     }
 
 private:
-    PrivacyControlBlock* _next;
+    PrivacyControlBlock *_next;
 };
 
 
-struct PalSecurityManager::PrivacyClearResListControlBlock : PalSecurityManager::PrivacyControlBlock
-{
+struct PalSecurityManager::PrivacyClearResListControlBlock final : PalSecurityManager::PrivacyControlBlock {
     PrivacyClearResListControlBlock() : PrivacyControlBlock()
-    {}
+    {
+    }
 
-    virtual ~PrivacyClearResListControlBlock() {}
-
-    virtual void execute() {
+    void execute() final
+    {
         // Execute command
         DmPrivClearResList();
     }
 };
 
 
-struct PalSecurityManager::PrivacyAddDevToResListControlBlock : PalSecurityManager::PrivacyControlBlock
-{
+struct PalSecurityManager::PrivacyAddDevToResListControlBlock final : PalSecurityManager::PrivacyControlBlock {
     PrivacyAddDevToResListControlBlock(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address,
@@ -907,13 +904,20 @@ struct PalSecurityManager::PrivacyAddDevToResListControlBlock : PalSecurityManag
         _peer_identity_address_type(peer_identity_address_type),
         _peer_identity_address(peer_identity_address),
         _peer_irk(peer_irk)
-    {}
+    {
+    }
 
-    virtual ~PrivacyAddDevToResListControlBlock() {}
-
-    virtual void execute() {
+    void execute() final
+    {
         // Execute command
-        DmPrivAddDevToResList(_peer_identity_address_type.value(), _peer_identity_address.data(), _peer_irk.data(), DmSecGetLocalIrk(), false, 0);
+        DmPrivAddDevToResList(
+            _peer_identity_address_type.value(),
+            _peer_identity_address.data(),
+            _peer_irk.data(),
+            DmSecGetLocalIrk(),
+            false,
+            0
+        );
     }
 
 private:
@@ -923,8 +927,7 @@ private:
 };
 
 
-struct PalSecurityManager::PrivacyRemoveDevFromResListControlBlock : PalSecurityManager::PrivacyControlBlock
-{
+struct PalSecurityManager::PrivacyRemoveDevFromResListControlBlock final : PalSecurityManager::PrivacyControlBlock {
     PrivacyRemoveDevFromResListControlBlock(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
@@ -935,9 +938,8 @@ struct PalSecurityManager::PrivacyRemoveDevFromResListControlBlock : PalSecurity
 
     }
 
-    virtual ~PrivacyRemoveDevFromResListControlBlock() {}
-
-    virtual void execute() {
+    void execute() final
+    {
         // Execute command
         DmPrivRemDevFromResList(_peer_identity_address_type.value(), _peer_identity_address.data(), 0);
     }
@@ -955,10 +957,12 @@ void PalSecurityManager::queue_add_device_to_resolving_list(
     const irk_t &peer_irk
 )
 {
-    PrivacyAddDevToResListControlBlock* cb =
-        new (std::nothrow) PrivacyAddDevToResListControlBlock(peer_identity_address_type, peer_identity_address, peer_irk);
-    if( cb == nullptr )
-    {
+    auto *cb = new(std::nothrow) PrivacyAddDevToResListControlBlock(
+        peer_identity_address_type,
+        peer_identity_address,
+        peer_irk
+    );
+    if (cb == nullptr) {
         // Cannot go further
         return;
     }
@@ -972,10 +976,11 @@ void PalSecurityManager::queue_remove_device_from_resolving_list(
     const address_t &peer_identity_address
 )
 {
-    PrivacyRemoveDevFromResListControlBlock* cb =
-        new (std::nothrow) PrivacyRemoveDevFromResListControlBlock(peer_identity_address_type, peer_identity_address);
-    if( cb == nullptr )
-    {
+    auto *cb = new(std::nothrow) PrivacyRemoveDevFromResListControlBlock(
+        peer_identity_address_type,
+        peer_identity_address
+    );
+    if (cb == nullptr) {
         // Cannot go further
         return;
     }
@@ -989,10 +994,8 @@ void PalSecurityManager::queue_clear_resolving_list()
     // Remove any pending control blocks, there's no point executing them as we're about to queue the list
     clear_privacy_control_blocks();
 
-    PrivacyClearResListControlBlock* cb =
-        new (std::nothrow) PrivacyClearResListControlBlock();
-    if( cb == nullptr )
-    {
+    auto *cb = new(std::nothrow) PrivacyClearResListControlBlock();
+    if (cb == nullptr) {
         // Cannot go further
         return;
     }
@@ -1003,23 +1006,21 @@ void PalSecurityManager::queue_clear_resolving_list()
 
 void PalSecurityManager::clear_privacy_control_blocks()
 {
-    while(_pending_privacy_control_blocks != nullptr)
-    {
-        PrivacyControlBlock* next = _pending_privacy_control_blocks->next();
+    while (_pending_privacy_control_blocks != nullptr) {
+        PrivacyControlBlock *next = _pending_privacy_control_blocks->next();
         delete _pending_privacy_control_blocks;
         _pending_privacy_control_blocks = next;
     }
 }
 
 
-void PalSecurityManager::queue_privacy_control_block(PrivacyControlBlock* block)
+void PalSecurityManager::queue_privacy_control_block(PrivacyControlBlock *block)
 {
-    if( _pending_privacy_control_blocks == nullptr ) {
+    if (_pending_privacy_control_blocks == nullptr) {
         _pending_privacy_control_blocks = block;
-    }
-    else {
-        PrivacyControlBlock* node = _pending_privacy_control_blocks;
-        while(node->next() != nullptr) {
+    } else {
+        PrivacyControlBlock *node = _pending_privacy_control_blocks;
+        while (node->next() != nullptr) {
             node = node->next();
         }
         node->set_next(block);
@@ -1032,14 +1033,13 @@ void PalSecurityManager::queue_privacy_control_block(PrivacyControlBlock* block)
 
 void PalSecurityManager::process_privacy_control_blocks(bool cb_completed)
 {
-    if( (_processing_privacy_control_block == true) && !cb_completed )
-    {
+    if ((_processing_privacy_control_block == true) && !cb_completed) {
         // Busy, cannot process next control block for now
         return;
     }
 
-    PrivacyControlBlock* cb = _pending_privacy_control_blocks;
-    if(cb == nullptr) {
+    PrivacyControlBlock *cb = _pending_privacy_control_blocks;
+    if (cb == nullptr) {
         // All control blocks processed
         _processing_privacy_control_block = false;
         return;
@@ -1048,7 +1048,7 @@ void PalSecurityManager::process_privacy_control_blocks(bool cb_completed)
     // Process next block and free it
     _processing_privacy_control_block = true;
 
-    PrivacyControlBlock* next = cb->next();
+    PrivacyControlBlock *next = cb->next();
     cb->execute();
     delete cb;
     _pending_privacy_control_blocks = next;
@@ -1057,23 +1057,25 @@ void PalSecurityManager::process_privacy_control_blocks(bool cb_completed)
 
 void PalSecurityManager::cleanup_peer_csrks()
 {
-    for (size_t i = 0; i < DM_CONN_MAX; ++i) {
-        if (_peer_csrks[i]) {
-            delete _peer_csrks[i];
-            _peer_csrks[i] = nullptr;
+    for (auto & peer_csrk : _peer_csrks) {
+        if (peer_csrk) {
+            delete peer_csrk;
+            peer_csrk = nullptr;
         }
     }
 }
 
-void PalSecurityManager::set_event_handler(PalSecurityManagerEventHandler *event_handler
+void PalSecurityManager::set_event_handler(
+    PalSecurityManagerEventHandler *event_handler
 )
 {
     _pal_event_handler = event_handler;
 }
 
-PalSecurityManagerEventHandler* PalSecurityManager::get_event_handler()
+PalSecurityManagerEventHandler *PalSecurityManager::get_event_handler()
 {
     return _pal_event_handler;
 }
 
-} // ble
+} // namespace impl
+} // namespace ble
