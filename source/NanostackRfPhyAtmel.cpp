@@ -39,15 +39,15 @@
 #if (MBED_VERSION > MBED_ENCODE_VERSION(6, 0, 0))
 /* Mbed OS 6.0 introduces support for chrono time management */
 using namespace std::chrono;
-    #define ATMEL_RF_TIME_50US   50us
-    #define ATMEL_RF_TIME_2MS    2ms
-    #define ATMEL_RF_TIME_10MS   10ms
-    #define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach(signal_ref, timeout_ref)
+#define ATMEL_RF_TIME_50US   50us
+#define ATMEL_RF_TIME_2MS    2ms
+#define ATMEL_RF_TIME_10MS   10ms
+#define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach(signal_ref, timeout_ref)
 #else
-    #define ATMEL_RF_TIME_50US   50
-    #define ATMEL_RF_TIME_2MS    2
-    #define ATMEL_RF_TIME_10MS   10
-    #define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach_us(signal_ref, timeout_ref)
+#define ATMEL_RF_TIME_50US   50
+#define ATMEL_RF_TIME_2MS    2
+#define ATMEL_RF_TIME_10MS   10
+#define ATMEL_RF_ATTACH(timer_ref, signal_ref, timeout_ref) timer_ref.attach_us(signal_ref, timeout_ref)
 #endif
 
 #define TRACE_GROUP "AtRF"

@@ -16,7 +16,7 @@
 
 #include <string.h>
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "ns_types.h"
 #include "platform/arm_hal_interrupt.h"
