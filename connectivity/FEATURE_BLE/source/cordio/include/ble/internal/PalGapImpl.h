@@ -23,28 +23,32 @@
 #include "dm_api.h"
 
 namespace ble {
+namespace impl {
 
 /**
  * Implementation of ble::PalGap for the Cordio stack.
  */
-class PalGap : public interface::PalGap {
+class PalGap final : public ble::PalGap {
 public:
-    PalGap() : _pal_event_handler(NULL), use_active_scanning(false) { };
-    ~PalGap() { };
+    PalGap() : _pal_event_handler(nullptr), use_active_scanning(false)
+    {
+    };
+
+    ~PalGap() = default;
 
     bool is_feature_supported(
         ble::controller_supported_features_t feature
-    );
+    ) final;
 
-    ble_error_t initialize();
+    ble_error_t initialize() final;
 
-    ble_error_t terminate();
+    ble_error_t terminate() final;
 
-    address_t get_device_address();
+    address_t get_device_address() final;
 
-    address_t get_random_address();
+    address_t get_random_address() final;
 
-    ble_error_t set_random_address(const address_t& address);
+    ble_error_t set_random_address(const address_t &address) final;
 
     ble_error_t set_advertising_parameters(
         uint16_t advertising_interval_min,
@@ -52,22 +56,22 @@ public:
         advertising_type_t advertising_type,
         own_address_type_t own_address_type,
         advertising_peer_address_type_t peer_address_type,
-        const address_t& peer_address,
+        const address_t &peer_address,
         advertising_channel_map_t advertising_channel_map,
         advertising_filter_policy_t advertising_filter_policy
-    );
+    ) final;
 
     ble_error_t set_advertising_data(
         uint8_t advertising_data_length,
-        const advertising_data_t& advertising_data
-    );
+        const advertising_data_t &advertising_data
+    ) final;
 
     ble_error_t set_scan_response_data(
         uint8_t scan_response_data_length,
-        const advertising_data_t& scan_response_data
-    );
+        const advertising_data_t &scan_response_data
+    ) final;
 
-    ble_error_t advertising_enable(bool enable);
+    ble_error_t advertising_enable(bool enable) final;
 
     ble_error_t set_scan_parameters(
         bool active_scanning,
@@ -75,19 +79,19 @@ public:
         uint16_t scan_window,
         own_address_type_t own_address_type,
         scanning_filter_policy_t filter_policy
-    );
+    ) final;
 
     ble_error_t scan_enable(
         bool enable,
         bool filter_duplicates
-    );
+    ) final;
 
     ble_error_t create_connection(
         uint16_t scan_interval,
         uint16_t scan_window,
         initiator_policy_t initiator_policy,
         connection_peer_address_type_t peer_address_type,
-        const address_t& peer_address,
+        const address_t &peer_address,
         own_address_type_t own_address_type,
         uint16_t connection_interval_min,
         uint16_t connection_interval_max,
@@ -95,23 +99,23 @@ public:
         uint16_t supervision_timeout,
         uint16_t minimum_connection_event_length,
         uint16_t maximum_connection_event_length
-    );
+    ) final;
 
     ble_error_t cancel_connection_creation();
 
-    uint8_t read_white_list_capacity();
+    uint8_t read_white_list_capacity() final;
 
-    ble_error_t clear_whitelist();
+    ble_error_t clear_whitelist() final;
 
     ble_error_t add_device_to_whitelist(
         whitelist_address_type_t address_type,
         address_t address
-    );
+    ) final;
 
     ble_error_t remove_device_from_whitelist(
         whitelist_address_type_t address_type,
         address_t address
-    );
+    ) final;
 
     ble_error_t connection_parameters_update(
         connection_handle_t connection,
@@ -121,7 +125,7 @@ public:
         uint16_t supervision_timeout,
         uint16_t minimum_connection_event_length,
         uint16_t maximum_connection_event_length
-    );
+    ) final;
 
     ble_error_t accept_connection_parameter_request(
         connection_handle_t connection_handle,
@@ -131,50 +135,50 @@ public:
         uint16_t supervision_timeout,
         uint16_t minimum_connection_event_length,
         uint16_t maximum_connection_event_length
-    );
+    ) final;
 
     ble_error_t reject_connection_parameter_request(
         connection_handle_t connection_handle,
         hci_error_code_t rejection_reason
-    );
+    ) final;
 
     ble_error_t disconnect(
         connection_handle_t connection,
         local_disconnection_reason_t disconnection_reason
-    );
+    ) final;
 
-    bool is_privacy_supported();
+    bool is_privacy_supported() final;
 
     ble_error_t set_address_resolution(
         bool enable
-    );
+    ) final;
 
-    ble_error_t read_phy(connection_handle_t connection);
+    ble_error_t read_phy(connection_handle_t connection) final;
 
     ble_error_t set_preferred_phys(
-        const phy_set_t& tx_phys,
-        const phy_set_t& rx_phys
-    );
+        const phy_set_t &tx_phys,
+        const phy_set_t &rx_phys
+    ) final;
 
     ble_error_t set_phy(
         connection_handle_t connection,
-        const phy_set_t& tx_phys,
-        const phy_set_t& rx_phys,
+        const phy_set_t &tx_phys,
+        const phy_set_t &rx_phys,
         coded_symbol_per_bit_t coded_symbol
-    );
+    ) final;
 
     // singleton of the ARM Cordio client
-    static PalGap& get_gap();
+    static PalGap &get_gap();
 
     /**
      * Callback which handle wsfMsgHdr_t and forward them to emit_gap_event.
      */
-    static void gap_handler(const wsfMsgHdr_t* msg);
+    static void gap_handler(const wsfMsgHdr_t *msg);
 
     ble_error_t set_advertising_set_random_address(
         advertising_handle_t advertising_handle,
         const address_t &address
-    );
+    ) final;
 
     ble_error_t set_extended_advertising_parameters(
         advertising_handle_t advertising_handle,
@@ -192,14 +196,14 @@ public:
         phy_t secondary_phy,
         uint8_t advertising_sid,
         bool scan_request_notification
-    );
+    ) final;
 
     ble_error_t set_periodic_advertising_parameters(
         advertising_handle_t advertising_handle,
         periodic_advertising_interval_t periodic_advertising_min,
         periodic_advertising_interval_t periodic_advertising_max,
         bool advertise_power
-    );
+    ) final;
 
     ble_error_t set_extended_advertising_data(
         advertising_handle_t advertising_handle,
@@ -207,14 +211,14 @@ public:
         bool minimize_fragmentation,
         uint8_t advertising_data_size,
         const uint8_t *advertising_data
-    );
+    ) final;
 
     ble_error_t set_periodic_advertising_data(
         advertising_handle_t advertising_handle,
         advertising_fragment_description_t fragment_description,
         uint8_t advertising_data_size,
         const uint8_t *advertising_data
-    );
+    ) final;
 
     ble_error_t set_extended_scan_response_data(
         advertising_handle_t advertising_handle,
@@ -222,7 +226,7 @@ public:
         bool minimize_fragmentation,
         uint8_t scan_response_data_size,
         const uint8_t *scan_response_data
-    );
+    ) final;
 
     ble_error_t extended_advertising_enable(
         bool enable,
@@ -230,26 +234,26 @@ public:
         const advertising_handle_t *handles,
         const uint16_t *durations,
         const uint8_t *max_extended_advertising_events
-    );
+    ) final;
 
     ble_error_t periodic_advertising_enable(
         bool enable,
         advertising_handle_t advertising_handle
-    );
+    ) final;
 
-    uint16_t get_maximum_advertising_data_length();
+    uint16_t get_maximum_advertising_data_length() final;
 
-    uint16_t get_maximum_connectable_advertising_data_length();
+    uint16_t get_maximum_connectable_advertising_data_length() final;
 
-    uint8_t get_maximum_hci_advertising_data_length();
+    uint8_t get_maximum_hci_advertising_data_length() final;
 
-    uint8_t get_max_number_of_advertising_sets();
+    uint8_t get_max_number_of_advertising_sets() final;
 
     ble_error_t remove_advertising_set(
         advertising_handle_t advertising_handle
-    );
+    ) final;
 
-    ble_error_t clear_advertising_sets();
+    ble_error_t clear_advertising_sets() final;
 
     ble_error_t set_extended_scan_parameters(
         own_address_type_t own_address_type,
@@ -258,14 +262,14 @@ public:
         const bool *active_scanning,
         const uint16_t *scan_interval,
         const uint16_t *scan_window
-    );
+    ) final;
 
     ble_error_t extended_scan_enable(
         bool enable,
         duplicates_filter_t filter_duplicates,
         uint16_t duration,
         uint16_t period
-    );
+    ) final;
 
     ble_error_t periodic_advertising_create_sync(
         bool use_periodic_advertiser_list,
@@ -274,29 +278,29 @@ public:
         const address_t &peer_address,
         uint16_t allowed_skip,
         uint16_t sync_timeout
-    );
+    ) final;
 
-    ble_error_t cancel_periodic_advertising_create_sync();
+    ble_error_t cancel_periodic_advertising_create_sync() final;
 
     ble_error_t periodic_advertising_terminate_sync(
         sync_handle_t sync_handle
-    );
+    ) final;
 
     ble_error_t add_device_to_periodic_advertiser_list(
         advertising_peer_address_type_t advertiser_address_type,
         const address_t &advertiser_address,
         uint8_t advertising_sid
-    );
+    ) final;
 
     ble_error_t remove_device_from_periodic_advertiser_list(
         advertising_peer_address_type_t advertiser_address_type,
         const address_t &advertiser_address,
         uint8_t advertising_sid
-    );
+    ) final;
 
-    ble_error_t clear_periodic_advertiser_list();
+    ble_error_t clear_periodic_advertiser_list() final;
 
-    uint8_t read_periodic_advertiser_list_size();
+    uint8_t read_periodic_advertiser_list_size() final;
 
     ble_error_t extended_create_connection(
         initiator_policy_t initiator_policy,
@@ -312,9 +316,9 @@ public:
         const uint16_t *supervision_timeouts,
         const uint16_t *minimum_connection_event_lengths,
         const uint16_t *maximum_connection_event_lengths
-    );
+    ) final;
 
-    void when_gap_event_received(mbed::Callback<void(const GapEvent &)> cb);
+    void when_gap_event_received(mbed::Callback<void(const GapEvent &)> cb) final;
 
     /**
     * Sets the event handler that us called by the PAL porters to notify the stack of events
@@ -323,9 +327,9 @@ public:
     * @param[in] event_handler the new event handler interface implementation. Memory
     * owned by caller who is responsible for updating this pointer if interface changes.
     */
-    void set_event_handler(PalGapEventHandler *event_handler);
+    void set_event_handler(PalGapEventHandler *event_handler) final;
 
-    PalGapEventHandler *get_event_handler();
+    PalGapEventHandler *get_event_handler() final;
 
 private:
     /**
@@ -345,14 +349,15 @@ private:
      * T shall define a can_convert and convert function and a type
      */
     template<typename T>
-    static bool event_handler(const wsfMsgHdr_t* msg);
+    static bool event_handler(const wsfMsgHdr_t *msg);
 
     /**
      * Traits defining can_convert for events.
      */
     template<uint8_t EventID>
     struct MessageConverter {
-        static bool can_convert(const wsfMsgHdr_t* msg) {
+        static bool can_convert(const wsfMsgHdr_t *msg)
+        {
             if (msg->event == EventID) {
                 return true;
             }
@@ -360,10 +365,11 @@ private:
         }
     };
 
-    struct ConnectionCompleteMessageConverter : public MessageConverter<DM_CONN_OPEN_IND> {
+    struct ConnectionCompleteMessageConverter final : public MessageConverter<DM_CONN_OPEN_IND> {
         typedef hciLeConnCmplEvt_t type;
 
-        static GapConnectionCompleteEvent convert(const hciLeConnCmplEvt_t* conn_evt) {
+        static GapConnectionCompleteEvent convert(const hciLeConnCmplEvt_t *conn_evt)
+        {
             return GapConnectionCompleteEvent(
                 conn_evt->status,
                 // note the usage of the stack handle, not the HCI handle
@@ -380,28 +386,30 @@ private:
         }
     };
 
-    struct GapAdvertisingReportMessageConverter : public MessageConverter<DM_SCAN_REPORT_IND> {
+    struct GapAdvertisingReportMessageConverter final : public MessageConverter<DM_SCAN_REPORT_IND> {
         typedef hciLeAdvReportEvt_t type;
 
-        struct CordioGapAdvertisingReportEvent : public GapAdvertisingReportEvent {
-            CordioGapAdvertisingReportEvent(const advertising_t& advertising) :
-                GapAdvertisingReportEvent(), advertising(advertising) {
+        struct CordioGapAdvertisingReportEvent final : public GapAdvertisingReportEvent {
+            CordioGapAdvertisingReportEvent(const advertising_t &advertising) :
+                GapAdvertisingReportEvent(), advertising(advertising)
+            {
             }
 
-            virtual ~CordioGapAdvertisingReportEvent() { }
-
-            virtual uint8_t size() const {
+            uint8_t size() const final
+            {
                 return 1;
             }
 
-            virtual advertising_t operator[](uint8_t i) const {
+            advertising_t operator[](uint8_t i) const final
+            {
                 return advertising;
             }
 
             advertising_t advertising;
         };
 
-        static CordioGapAdvertisingReportEvent convert(const hciLeAdvReportEvt_t *scan_report) {
+        static CordioGapAdvertisingReportEvent convert(const hciLeAdvReportEvt_t *scan_report)
+        {
             GapAdvertisingReportEvent::advertising_t advertising = {
                 (received_advertising_type_t::type) scan_report->eventType,
                 (connection_peer_address_type_t::type) scan_report->addrType,
@@ -413,10 +421,11 @@ private:
         }
     };
 
-    struct DisconnectionMessageConverter : public MessageConverter<DM_CONN_CLOSE_IND> {
+    struct DisconnectionMessageConverter final : public MessageConverter<DM_CONN_CLOSE_IND> {
         typedef hciDisconnectCmplEvt_t type;
 
-        static GapDisconnectionCompleteEvent convert(const hciDisconnectCmplEvt_t* disc_evt) {
+        static GapDisconnectionCompleteEvent convert(const hciDisconnectCmplEvt_t *disc_evt)
+        {
             return GapDisconnectionCompleteEvent(
                 disc_evt->status,
                 // note the usage of the stack handle, not the HCI handle
@@ -426,10 +435,11 @@ private:
         }
     };
 
-    struct ConnectionUpdateMessageConverter : public MessageConverter<DM_CONN_UPDATE_IND> {
+    struct ConnectionUpdateMessageConverter final : public MessageConverter<DM_CONN_UPDATE_IND> {
         typedef hciLeConnUpdateCmplEvt_t type;
 
-        static GapConnectionUpdateEvent convert(const hciLeConnUpdateCmplEvt_t* evt) {
+        static GapConnectionUpdateEvent convert(const hciLeConnUpdateCmplEvt_t *evt)
+        {
             return GapConnectionUpdateEvent(
                 evt->status,
                 evt->hdr.param,
@@ -440,10 +450,11 @@ private:
         }
     };
 
-    struct RemoteConnectionParameterRequestMessageConverter : public MessageConverter<DM_REM_CONN_PARAM_REQ_IND> {
+    struct RemoteConnectionParameterRequestMessageConverter final : public MessageConverter<DM_REM_CONN_PARAM_REQ_IND> {
         typedef hciLeRemConnParamReqEvt_t type;
 
-        static GapRemoteConnectionParameterRequestEvent convert(const hciLeRemConnParamReqEvt_t* evt) {
+        static GapRemoteConnectionParameterRequestEvent convert(const hciLeRemConnParamReqEvt_t *evt)
+        {
             return GapRemoteConnectionParameterRequestEvent(
                 evt->hdr.param,
                 evt->intervalMin,
@@ -467,7 +478,8 @@ private:
         direct_adv_cb_t() :
             peer_address_type(advertising_peer_address_type_t::PUBLIC),
             state(free)
-        {}
+        {
+        }
 
         address_t peer_address;
         advertising_peer_address_type_t peer_address_type;
@@ -484,15 +496,15 @@ private:
     /* Predicate expect a const reference to a direct_adv_cb_t
      * It must returns true if the criteria are met and false otherwise. */
     template<typename Predicate>
-    direct_adv_cb_t* get_adv_cb(const Predicate& predicate);
+    direct_adv_cb_t *get_adv_cb(const Predicate &predicate);
 
-    direct_adv_cb_t* get_running_direct_adv_cb(advertising_handle_t adv_handle);
+    direct_adv_cb_t *get_running_direct_adv_cb(advertising_handle_t adv_handle);
 
-    direct_adv_cb_t* get_running_conn_direct_adv_cb(connection_handle_t adv_handle);
+    direct_adv_cb_t *get_running_conn_direct_adv_cb(connection_handle_t adv_handle);
 
-    direct_adv_cb_t* get_pending_direct_adv_cb(advertising_handle_t adv_handle);
+    direct_adv_cb_t *get_pending_direct_adv_cb(advertising_handle_t adv_handle);
 
-    direct_adv_cb_t* get_free_direct_adv_cb();
+    direct_adv_cb_t *get_free_direct_adv_cb();
 
     ble_error_t update_direct_advertising_parameters(
         advertising_handle_t advertising_handle,
@@ -523,7 +535,7 @@ private:
     }
 
 private:
-    PalGapEventHandler* _pal_event_handler;
+    PalGapEventHandler *_pal_event_handler;
     address_t device_random_address;
     bool use_active_scanning;
     uint8_t extended_scan_type[3];
@@ -536,6 +548,7 @@ private:
     mbed::Callback<void(const GapEvent &)> _gap_event_cb;
 };
 
+} // namespace impl
 } // ble
 
 #endif /* IMPL_PAL_GAP_ */

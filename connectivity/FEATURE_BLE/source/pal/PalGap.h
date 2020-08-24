@@ -21,11 +21,9 @@
 
 #include "platform/Callback.h"
 
-#include "GapTypes.h"
-#include "GapEvents.h"
+#include "source/pal/GapTypes.h"
+#include "source/pal/GapEvents.h"
 #include "ble/common/blecommon.h"
-
-#include "dm_api.h"
 
 namespace ble {
 
@@ -243,7 +241,6 @@ public:
      ) = 0;
 };
 
-namespace interface {
 /**
  * Adaptation interface for the GAP layer.
  *
@@ -1631,12 +1628,6 @@ public:
     virtual PalGapEventHandler *get_event_handler() = 0;
 };
 
-} // namespace interface
 } // namespace ble
-
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/PalGapImpl.h"
 
 #endif /* BLE_PAL_GAP_H_ */
