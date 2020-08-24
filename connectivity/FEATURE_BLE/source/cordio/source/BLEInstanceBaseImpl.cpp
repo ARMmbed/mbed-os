@@ -17,9 +17,26 @@
  */
 
 #include "mbed.h"
-#include "us_ticker_api.h"
+#include "platform/CriticalSectionLock.h"
+#include "hal/us_ticker_api.h"
+#include "platform/mbed_assert.h"
+
 #include "ble/BLE.h"
-#include "CriticalSectionLock.h"
+#include "ble/driver/CordioHCIDriver.h"
+
+#include "source/pal/PalAttClient.h"
+#include "source/pal/PalSecurityManager.h"
+#include "source/pal/PalGap.h"
+#include "source/pal/PalSigningMonitor.h"
+#include "source/pal/PalAttClientToGattClient.h"
+
+#include "source/BLEInstanceBaseImpl.h"
+#include "source/GattServerImpl.h"
+#include "source/PalSecurityManagerImpl.h"
+#include "source/PalAttClientImpl.h"
+#include "source/PalGenericAccessServiceImpl.h"
+#include "source/PalGapImpl.h"
+
 #include "wsf_types.h"
 #include "wsf_msg.h"
 #include "wsf_os.h"
@@ -34,23 +51,7 @@
 #include "att_api.h"
 #include "smp_api.h"
 #include "hci_drv.h"
-#include "mbed_assert.h"
 #include "bstream.h"
-
-#include "source/pal/PalAttClient.h"
-#include "source/pal/PalSecurityManager.h"
-#include "source/pal/PalGap.h"
-#include "source/pal/PalSigningMonitor.h"
-#include "source/pal/PalAttClientToGattClient.h"
-#include "source/BLEInstanceBase.h"
-#include "ble/driver/CordioHCIDriver.h"
-#include "GattServerImpl.h"
-#include "PalSecurityManagerImpl.h"
-
-#include "internal/PalAttClientImpl.h"
-#include "internal/PalGenericAccessServiceImpl.h"
-#include "PalGapImpl.h"
-#include "internal/BLEInstanceBaseImpl.h"
 
 
 using namespace std::chrono;
@@ -123,9 +124,7 @@ BLEInstanceBase::BLEInstanceBase(CordioHCIDriver &hci_driver) :
     stack_setup();
 }
 
-BLEInstanceBase::~BLEInstanceBase()
-{
-}
+BLEInstanceBase::~BLEInstanceBase() = default;
 
 /**
  * The singleton which represents the BLE transport for the BLE.
@@ -217,7 +216,7 @@ ble::Gap &BLEInstanceBase::getGap()
 
 const ble::Gap &BLEInstanceBase::getGap() const
 {
-    BLEInstanceBase &self = const_cast<BLEInstanceBase &>(*this);
+    auto &self = const_cast<BLEInstanceBase &>(*this);
     return const_cast<const ble::Gap &>(self.getGap());
 };
 
@@ -237,7 +236,7 @@ ble::GattServer &BLEInstanceBase::getGattServer()
 
 const ble::GattServer &BLEInstanceBase::getGattServer() const
 {
-    BLEInstanceBase &self = const_cast<BLEInstanceBase &>(*this);
+    auto &self = const_cast<BLEInstanceBase &>(*this);
     return const_cast<const ble::GattServer &>(self.getGattServer());
 }
 
@@ -273,8 +272,8 @@ ble::impl::SecurityManager &BLEInstanceBase::getSecurityManagerImpl()
 {
     // Creation of a proxy monitor to let the security manager register to
     // the gatt client and gatt server.
-    static struct : PalSigningMonitor {
-        void set_signing_event_handler(PalSigningMonitorEventHandler *handler)
+    static struct : ble::PalSigningMonitor {
+        void set_signing_event_handler(PalSigningMonitorEventHandler *handler) final
         {
 #if BLE_FEATURE_GATT_CLIENT
             BLEInstanceBase::deviceInstance().getGattClientImpl().set_signing_event_handler(handler);

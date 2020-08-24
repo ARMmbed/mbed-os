@@ -17,11 +17,12 @@
  */
 
 #include "source/pal/PalAttClient.h"
-#include "GattServerImpl.h"
 #include "source/pal/PalSimpleAttServerMessage.h"
 #include "source/pal/PalGattClient.h"
-#include "BLEInstanceBaseImpl.h"
-#include "internal/PalAttClientImpl.h"
+
+#include "source/GattServerImpl.h"
+#include "source/BLEInstanceBaseImpl.h"
+#include "source/PalAttClientImpl.h"
 
 #include "att_api.h"
 #include "att_defs.h"

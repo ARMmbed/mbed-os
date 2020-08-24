@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "PalGapImpl.h"
+#include "source/PalGapImpl.h"
 #include "hci_api.h"
 #include "dm_api.h"
 #include "dm_main.h"

@@ -25,7 +25,6 @@
 #include "wsf_types.h"
 #include "att_api.h"
 
-
 #include "ble/GattServer.h"
 #include "ble/Gap.h"
 #include "ble/SecurityManager.h"
@@ -37,7 +36,6 @@
 
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include "ble/common/blecommon.h"
-
 
 #include "source/BLEInstanceBase.h"
 #include "source/generic/GattServerEvents.h"

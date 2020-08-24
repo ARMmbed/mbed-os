@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "internal/PalGenericAccessServiceImpl.h"
-#include "GattServerImpl.h"
+#include "source/PalGenericAccessServiceImpl.h"
+#include "source/GattServerImpl.h"
 
 namespace ble {
 namespace impl {

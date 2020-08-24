@@ -20,8 +20,8 @@
 
 #include "ble/common/BLERoles.h"
 #include "ble/common/blecommon.h"
-#include "internal/PalSecurityManagerImpl.h"
-#include "internal/PalAttClientImpl.h"
+#include "source/PalSecurityManagerImpl.h"
+#include "source/PalAttClientImpl.h"
 #include "dm_api.h"
 #include "att_api.h"
 #include "smp_api.h"
