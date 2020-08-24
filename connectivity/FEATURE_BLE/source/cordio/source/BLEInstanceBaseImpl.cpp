@@ -257,7 +257,7 @@ ble::GattClient &BLEInstanceBase::getGattClient()
 
 PalGattClient &BLEInstanceBase::getPalGattClient()
 {
-    static PalAttClientToGattClient pal_gatt_client(cordio::PalAttClient::get_client());
+    static PalAttClientToGattClient pal_gatt_client(impl::PalAttClient::get_client());
     return pal_gatt_client;
 }
 
@@ -598,7 +598,7 @@ void BLEInstanceBase::stack_setup()
 
 #if BLE_FEATURE_ATT
 #if BLE_FEATURE_GATT_CLIENT
-    AttRegister((attCback_t) cordio::PalAttClient::att_client_handler);
+    AttRegister((attCback_t) impl::PalAttClient::att_client_handler);
 #else
     AttRegister((attCback_t) ble::GattServer::att_cb);
 #endif // BLE_FEATURE_GATT_CLIENT

@@ -364,7 +364,7 @@ ble_error_t PalSecurityManager::set_csrk(
     _csrk = csrk;
     DmSecSetLocalCsrk(_csrk.data());
     // extra set the sign counter used by the client
-    cordio::PalAttClient::get_client().set_sign_counter(sign_counter);
+    impl::PalAttClient::get_client().set_sign_counter(sign_counter);
 
     return BLE_ERROR_NONE;
 }

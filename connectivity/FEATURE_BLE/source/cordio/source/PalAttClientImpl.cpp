@@ -27,7 +27,7 @@
 #include "att_defs.h"
 
 namespace ble {
-namespace cordio {
+namespace impl {
 
 PalAttClient::PalAttClient() : _local_sign_counter(0)
 {
@@ -451,5 +451,5 @@ void PalAttClient::att_client_handler(const attEvt_t *event)
 #endif // BLE_FEATURE_GATT_SERVER
 }
 
-} // namespace cordio
+} // namespace impl
 } // ble

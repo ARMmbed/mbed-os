@@ -24,7 +24,7 @@
 #include "source/pal/PalAttClient.h"
 
 namespace ble {
-namespace cordio {
+namespace impl {
 
 class PalAttClient final : public ble::PalAttClient {
 
@@ -474,7 +474,7 @@ private:
     mbed::Callback<void(connection_handle_t)> _transaction_timeout_cb;
 };
 
-} // namespace cordio
+} // namespace impl
 } // namespace ble
 
 #endif /* IMPL_PAL_ATT_CLIENT_ */
