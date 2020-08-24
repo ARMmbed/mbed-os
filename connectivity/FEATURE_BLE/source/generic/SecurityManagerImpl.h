@@ -41,10 +41,9 @@
 
 namespace ble {
 class PalGenericAccessService;
+class BLEInstanceBase;
 
 namespace impl {
-
-//class BLEInstanceBase;
 
 class SecurityManager :
     public ble::PalSecurityManagerEventHandler,

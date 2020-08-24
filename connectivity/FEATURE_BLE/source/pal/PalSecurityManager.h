@@ -24,7 +24,7 @@
 
 #include "ble/common/blecommon.h"
 #include "ble/common/BLETypes.h"
-#include "GapTypes.h"
+#include "source/pal/GapTypes.h"
 
 #include "wsf_types.h"
 #include "wsf_os.h"
@@ -529,7 +529,6 @@ public:
     ) = 0;
 };
 
-namespace interface {
 /**
  * Adaptation layer of the Security Manager.
  */
@@ -1027,11 +1026,6 @@ public:
     virtual PalSecurityManagerEventHandler* get_event_handler() = 0;
 };
 
-} /* namespace interface */
 } /* namespace ble */
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/PalSecurityManagerImpl.h"
 
 #endif /* MBED_OS_FEATURES_FEATURE_BLE_BLE_PAL_PALSM_H_ */
