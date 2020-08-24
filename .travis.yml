@@ -218,6 +218,7 @@ matrix:
       python: 2.7
       install:
         # Install gcc
+        - rm -rf ${HOME}/.cache/deps/gcc
         - source_pkg gcc
         - arm-none-eabi-gcc --version
         # Install additional python modules
@@ -266,6 +267,7 @@ matrix:
       python: 3.7
       install:
         # Install gcc
+        - rm -rf ${HOME}/.cache/deps/gcc
         - source_pkg gcc
         - arm-none-eabi-gcc --version
         # Install python modules
@@ -307,6 +309,7 @@ matrix:
       env: NAME=littlefs LITTLEFS=storage/filesystem/littlefs
       install:
         # Install gcc
+        - rm -rf ${HOME}/.cache/deps/gcc
         - source_pkg gcc
         - arm-none-eabi-gcc --version
         # Install python modules
