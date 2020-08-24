@@ -40,6 +40,7 @@
 #include "source/generic/GattClientImpl.h"
 #include "source/GattServerImpl.h"
 #include "source/generic/SecurityManagerImpl.h"
+#include "internal/PalEventQueueImpl.h"
 
 namespace ble {
 
@@ -176,7 +177,7 @@ private:
         INITIALIZED
     } initialization_status;
 
-    mutable ble::PalEventQueue _event_queue;
+    mutable ble::impl::PalEventQueue _event_queue;
     mbed::LowPowerTimer _timer;
     uint64_t _last_update_us;
 };

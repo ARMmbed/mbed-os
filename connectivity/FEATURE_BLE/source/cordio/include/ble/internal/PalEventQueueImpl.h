@@ -28,10 +28,12 @@ namespace ble {
 
 class BLEInstanceBase;
 
+namespace impl {
+
 /**
  * Simple implementation of the EventQueue.
  */
-class PalEventQueue : interface::PalEventQueue {
+class PalEventQueue final : public ble::PalEventQueue {
 public:
     typedef mbed::Callback<void()> event_t;
 
@@ -41,7 +43,9 @@ public:
      * @attention a call to initialize is mandatory before any other call.
      */
     PalEventQueue() :
-        _ble_base(NULL), _events(NULL) { }
+        _ble_base(nullptr), _events(nullptr)
+    {
+    }
 
     /**
      * Initialize the event queue with a BLEInstanceBase and a ble id.
@@ -49,7 +53,7 @@ public:
      * @param ble_base the instance which will be used to signal the presence
      * of new events.
      */
-    void initialize(BLEInstanceBase* ble_base)
+    void initialize(ble::BLEInstanceBase *ble_base)
     {
         _ble_base = ble_base;
     }
@@ -65,25 +69,22 @@ public:
     /**
      * @see ble::post
      */
-    virtual bool post(const mbed::Callback<void()>& event)
+    bool post(const mbed::Callback<void()> &event) final
     {
-        if (_ble_base == NULL) {
+        if (_ble_base == nullptr) {
             return false;
         }
-        void* event_buf = WsfBufAlloc(sizeof(EventNode));
-        MBED_ASSERT(event_buf != NULL);
-        if (event_buf == NULL) {
+        void *event_buf = WsfBufAlloc(sizeof(EventNode));
+        MBED_ASSERT(event_buf != nullptr);
+        if (event_buf == nullptr) {
             return false;
         }
-        EventNode* next = new(event_buf) EventNode(event);
-        if (next == NULL) {
-            return false;
-        }
+        auto *next = new(event_buf) EventNode(event);
 
-        if (_events == NULL) {
+        if (_events == nullptr) {
             _events = next;
         } else {
-            EventNode* previous = _events;
+            EventNode *previous = _events;
             while (previous->next) {
                 previous = previous->next;
             }
@@ -102,7 +103,7 @@ public:
     void clear()
     {
         while (_events) {
-            EventNode* next = _events->next;
+            EventNode *next = _events->next;
             _events->~EventNode();
             WsfBufFree(_events);
             _events = next;
@@ -115,7 +116,7 @@ public:
     void process()
     {
         while (_events) {
-            EventNode* next = _events->next;
+            EventNode *next = _events->next;
             _events->event();
             _events->~EventNode();
             WsfBufFree(_events);
@@ -125,17 +126,21 @@ public:
 
 private:
     struct EventNode {
-        EventNode(const event_t event) : event(event), next(NULL) { }
+        EventNode(const event_t event) : event(event), next(nullptr)
+        {
+        }
+
         event_t event;
-        EventNode* next;
+        EventNode *next;
     };
 
     void signal_event();
 
-    BLEInstanceBase* _ble_base;
-    EventNode* _events;
+    ble::BLEInstanceBase *_ble_base;
+    EventNode *_events;
 };
 
+} // namespace impl
 } // namespace ble
 
 #endif /* BLE_PAL_SIMPLE_EVENT_QUEUE_H_ */

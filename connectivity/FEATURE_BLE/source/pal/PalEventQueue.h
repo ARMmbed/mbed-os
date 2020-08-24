@@ -22,7 +22,6 @@
 #include "platform/Callback.h"
 
 namespace ble {
-namespace interface {
 
 /**
  * Simple interface which allow upper layer to post an event into the event
@@ -55,11 +54,6 @@ public:
     virtual bool post(const mbed::Callback<void()>& event) = 0;
 };
 
-} // namespace interface
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/PalEventQueueImpl.h"
 
 #endif /* BLE_PAL_EVENT_QUEUE_H_ */
