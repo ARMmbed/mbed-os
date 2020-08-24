@@ -18,11 +18,12 @@
 
 #include "ble/common/BLERoles.h"
 
-#include "SecurityManagerImpl.h"
 #include "source/pal/PalSecurityManager.h"
-#include "MemorySecurityDb.h"
-#include "FileSecurityDb.h"
-#include "KVStoreSecurityDb.h"
+
+#include "source/generic/SecurityManagerImpl.h"
+#include "source/generic/MemorySecurityDb.h"
+#include "source/generic/FileSecurityDb.h"
+#include "source/generic/KVStoreSecurityDb.h"
 
 using ble::advertising_peer_address_type_t;
 using ble::AuthenticationMask;
@@ -33,27 +34,27 @@ namespace ble {
 namespace impl {
 
 namespace {
-static constexpr auto SECURITY_MODE_ENCRYPTION_OPEN_LINK =
+constexpr auto SECURITY_MODE_ENCRYPTION_OPEN_LINK =
     ble::SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
 
-static constexpr auto SECURITY_MODE_ENCRYPTION_NO_MITM =
+constexpr auto SECURITY_MODE_ENCRYPTION_NO_MITM =
     ble::SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM;
 
-static constexpr auto SECURITY_MODE_ENCRYPTION_WITH_MITM =
+constexpr auto SECURITY_MODE_ENCRYPTION_WITH_MITM =
     ble::SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
 
-static constexpr auto SECURITY_MODE_SIGNED_NO_MITM =
+constexpr auto SECURITY_MODE_SIGNED_NO_MITM =
     ble::SecurityManager::SECURITY_MODE_SIGNED_NO_MITM;
 
-static constexpr auto SECURITY_MODE_SIGNED_WITH_MITM =
+constexpr auto SECURITY_MODE_SIGNED_WITH_MITM =
     ble::SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM;
 
 using SecurityCompletionStatus_t = ble::SecurityManager::SecurityCompletionStatus_t;
 
-static constexpr auto SEC_STATUS_TIMEOUT =
+constexpr auto SEC_STATUS_TIMEOUT =
     ble::SecurityManager::SEC_STATUS_TIMEOUT;
 
-static constexpr auto SEC_STATUS_SUCCESS =
+constexpr auto SEC_STATUS_SUCCESS =
     ble::SecurityManager::SEC_STATUS_SUCCESS;
 
 }
@@ -153,8 +154,8 @@ ble_error_t SecurityManager::setDatabaseFilepath(
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
 
     /* operation only allowed with no connections active */
-    for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
-        if (_control_blocks[i].connected) {
+    for (auto & _control_block : _control_blocks) {
+        if (_control_block.connected) {
             return BLE_ERROR_OPERATION_NOT_PERMITTED;
         }
     }
@@ -982,7 +983,7 @@ ble_error_t SecurityManager::init_resolving_list()
 
     /* match the resolving list to the currently stored set of IRKs */
     uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
-    SecurityEntryIdentity_t* identity_list_p =
+    auto* identity_list_p =
         new (std::nothrow) SecurityEntryIdentity_t[resolving_list_capacity];
 
     if (identity_list_p) {
@@ -1921,7 +1922,7 @@ void SecurityManager::on_ltk_request(
 
 SecurityManager::ControlBlock_t::ControlBlock_t() :
     connection(0),
-    db_entry(0),
+    db_entry(nullptr),
     local_address(),
     connected(false),
     authenticated(false),
@@ -1959,9 +1960,9 @@ typename SecurityManager::ControlBlock_t*
 SecurityManager::acquire_control_block(connection_handle_t connection)
 {
     /* grab the first disconnected slot*/
-    for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
-        if (!_control_blocks[i].connected) {
-            ControlBlock_t* cb = &_control_blocks[i];
+    for (auto & control_block : _control_blocks) {
+        if (!control_block.connected) {
+            ControlBlock_t* cb = &control_block;
             cb->connected = true;
             cb->connection = connection;
             return cb;
@@ -1977,11 +1978,11 @@ SecurityManager::get_control_block(
     connection_handle_t connection
 )
 {
-    for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
-        if (!_control_blocks[i].connected) {
+    for (auto & cb : _control_blocks) {
+        if (!cb.connected) {
             continue;
-        } else if (connection == _control_blocks[i].connection) {
-            return &_control_blocks[i];
+        } else if (connection == cb.connection) {
+            return &cb;
         }
     }
     return nullptr;
@@ -1994,8 +1995,8 @@ SecurityManager::get_control_block(
 )
 {
     MBED_ASSERT(_db);
-    for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
-        ControlBlock_t *cb = &_control_blocks[i];
+    for (auto & control_block : _control_blocks) {
+        ControlBlock_t *cb = &control_block;
         if (cb->connected) {
             SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
             if (flags && (flags->peer_address == peer_address)) {
@@ -2012,11 +2013,11 @@ SecurityManager::get_control_block(
     SecurityDb::entry_handle_t db_entry
 )
 {
-    for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
-        if (!_control_blocks[i].connected) {
+    for (auto & cb : _control_blocks) {
+        if (!cb.connected) {
             continue;
-        } else if (db_entry == _control_blocks[i].db_entry) {
-            return &_control_blocks[i];
+        } else if (db_entry == cb.db_entry) {
+            return &cb;
         }
     }
     return nullptr;

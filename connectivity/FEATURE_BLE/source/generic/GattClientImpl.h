@@ -61,8 +61,8 @@ public:
 
     ble_error_t launchServiceDiscovery(
         ble::connection_handle_t connectionHandle,
-        ServiceDiscovery::ServiceCallback_t sc = NULL,
-        ServiceDiscovery::CharacteristicCallback_t cc = NULL,
+        ServiceDiscovery::ServiceCallback_t sc = nullptr,
+        ServiceDiscovery::CharacteristicCallback_t cc = nullptr,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
         const UUID &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
     );
@@ -140,9 +140,6 @@ public:
 
     void onShutdown(const GattClientShutdownCallback_t &callback);
 
-    template<typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattClient *));
-
     GattClientShutdownCallbackChain_t &onShutdown();
 
     HVXCallbackChain_t &onHVX();
@@ -178,7 +175,7 @@ private:
     void on_att_mtu_change(
         ble::connection_handle_t connection_handle,
         uint16_t att_mtu_size
-    );
+    ) override;
 
     /**
      * @see PalGattClient::EventHandler::on_write_command_sent
@@ -187,7 +184,7 @@ private:
         ble::connection_handle_t connection_handle,
         ble::attribute_handle_t attribute_handle,
         uint8_t status
-    );
+    ) override;
 
 private:
     struct ProcedureControlBlock;
@@ -260,9 +257,7 @@ private:
      */
     GattClient(PalGattClient &pal_client);
 
-    ~GattClient()
-    {
-    }
+    ~GattClient() = default;
 
     void setInterface(ble::GattClient *client_interface)
     {

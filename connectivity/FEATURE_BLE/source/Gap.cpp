@@ -285,14 +285,6 @@ ble_error_t Gap::cancelConnect()
 }
 
 
-ble_error_t Gap::cancelConnect(
-    peer_address_type_t peerAddressType,
-    const address_t &peerAddress
-)
-{
-    return impl->cancelConnect(peerAddressType, peerAddress);
-}
-
 #endif // BLE_ROLE_CENTRAL
 
 #if BLE_FEATURE_CONNECTABLE

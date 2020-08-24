@@ -19,7 +19,7 @@
 #ifndef GENERIC_SECURITY_MANAGER_DB_H__
 #define GENERIC_SECURITY_MANAGER_DB_H__
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "platform/Callback.h"
 
 #include "ble/common/BLETypes.h"
@@ -127,7 +127,7 @@ public:
         WhitelistDbCb_t;
 
     SecurityDb() : _local_sign_counter(0) { };
-    virtual ~SecurityDb() { };
+    virtual ~SecurityDb() = default;
 
     /**
      * Return immediately security flags associated to a db entry.
@@ -486,7 +486,7 @@ public:
             return flags;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     /**
@@ -535,7 +535,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     /**
@@ -704,7 +704,7 @@ private:
      */
     virtual SecurityDistributionFlags_t* get_free_entry_flags() {
         /* get a free one if available */
-        SecurityDistributionFlags_t* match = NULL;
+        SecurityDistributionFlags_t* match = nullptr;
         for (size_t i = 0; i < get_entry_count(); i++) {
             entry_handle_t db_handle = get_entry_handle_by_index(i);
             SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);

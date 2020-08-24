@@ -20,17 +20,17 @@
 
 #if BLE_FEATURE_GATT_CLIENT
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <algorithm>
 
-#include "GattClientImpl.h"
-#include "source/pal/AttServerMessage.h"
+#include "ble/SecurityManager.h"
 #include "ble/gatt/DiscoveredService.h"
 #include "ble/gatt/DiscoveredCharacteristic.h"
 #include "ble/common/blecommon.h"
+
+#include "source/generic/GattClientImpl.h"
+#include "source/pal/AttServerMessage.h"
 #include "source/BLEInstanceBase.h"
-#include "ble/SecurityManager.h"
-#include <algorithm>
 
 using ble::AttServerMessage;
 using ble::AttReadResponse;
@@ -86,9 +86,7 @@ struct GattClient::ProcedureControlBlock {
     {
     }
 
-    virtual ~ProcedureControlBlock()
-    {
-    }
+    virtual ~ProcedureControlBlock() = default;
 
     /*
      * Entry point of the control block stack machine.
@@ -115,7 +113,7 @@ struct GattClient::ProcedureControlBlock {
  * Procedure control block for the discovery process.
  */
 
-struct GattClient::DiscoveryControlBlock : public ProcedureControlBlock {
+struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
     DiscoveryControlBlock(
@@ -134,7 +132,7 @@ struct GattClient::DiscoveryControlBlock : public ProcedureControlBlock {
     {
     }
 
-    virtual ~DiscoveryControlBlock()
+    ~DiscoveryControlBlock() final
     {
         while (services_discovered) {
             service_t *tmp = services_discovered->next;
@@ -143,17 +141,17 @@ struct GattClient::DiscoveryControlBlock : public ProcedureControlBlock {
         }
     }
 
-    virtual void handle_timeout_error(GattClient *client)
+    void handle_timeout_error(GattClient *client)  final
     {
         terminate(client);
     }
 
-    virtual void abort(GattClient *client)
+    void abort(GattClient *client) final
     {
         terminate(client);
     }
 
-    virtual void handle(GattClient *client, const AttServerMessage &message)
+    void handle(GattClient *client, const AttServerMessage &message) final
     {
         // if end of discovery has been requested, ends it immediately
         if (done) {
@@ -178,7 +176,7 @@ struct GattClient::DiscoveryControlBlock : public ProcedureControlBlock {
                 );
                 break;
             case AttributeOpcode::ERROR_RESPONSE: {
-                const AttErrorResponse &error = static_cast<const AttErrorResponse &>(message);
+                const auto &error = static_cast<const AttErrorResponse &>(message);
                 if (error.error_code != AttErrorResponse::ATTRIBUTE_NOT_FOUND) {
                     terminate(client);
                     return;
@@ -222,7 +220,7 @@ struct GattClient::DiscoveryControlBlock : public ProcedureControlBlock {
                 discovered_service.setup(uuid, start_handle, end_handle);
                 service_callback(&discovered_service);
             } else {
-                service_t *discovered_service = new(std::nothrow) service_t(
+                auto *discovered_service = new(std::nothrow) service_t(
                     start_handle, end_handle, uuid
                 );
 
@@ -475,7 +473,7 @@ struct GattClient::DiscoveryControlBlock : public ProcedureControlBlock {
 };
 
 
-struct GattClient::ReadControlBlock : public ProcedureControlBlock {
+struct GattClient::ReadControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
     ReadControlBlock(
@@ -486,14 +484,14 @@ struct GattClient::ReadControlBlock : public ProcedureControlBlock {
     {
     }
 
-    virtual ~ReadControlBlock()
+    ~ReadControlBlock() final
     {
         if (data != nullptr) {
             free(data);
         }
     }
 
-    virtual void handle_timeout_error(GattClient *client)
+    void handle_timeout_error(GattClient *client) final
     {
         GattReadCallbackParams response = {
             connection_handle,
@@ -506,7 +504,7 @@ struct GattClient::ReadControlBlock : public ProcedureControlBlock {
         terminate(client, response);
     }
 
-    virtual void abort(GattClient *client)
+    void abort(GattClient *client) final
     {
         GattReadCallbackParams response = {
             connection_handle,
@@ -526,7 +524,7 @@ struct GattClient::ReadControlBlock : public ProcedureControlBlock {
         delete this;
     }
 
-    virtual void handle(GattClient *client, const AttServerMessage &message)
+    void handle(GattClient *client, const AttServerMessage &message) final
     {
         switch (message.opcode) {
             case AttributeOpcode::ERROR_RESPONSE:
@@ -679,7 +677,7 @@ struct GattClient::ReadControlBlock : public ProcedureControlBlock {
  * Control block for the write process
  */
 
-struct GattClient::WriteControlBlock : public ProcedureControlBlock {
+struct GattClient::WriteControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
     WriteControlBlock(
@@ -693,12 +691,12 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
     {
     }
 
-    virtual ~WriteControlBlock() 
+    ~WriteControlBlock() final
     {
         free(data);
     }
 
-    virtual void handle_timeout_error(GattClient* client) 
+    void handle_timeout_error(GattClient *client) final
     {
         GattWriteCallbackParams response = {
             connection_handle,
@@ -710,7 +708,7 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
         terminate(client, response);
     }
 
-    virtual void abort(GattClient *client)
+    void abort(GattClient *client) final
     {
         GattWriteCallbackParams response = {
             connection_handle,
@@ -729,7 +727,7 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
         delete this;
     }
 
-    virtual void handle(GattClient* client, const AttServerMessage& message) 
+    void handle(GattClient *client, const AttServerMessage &message) final
     {
         switch(message.opcode) {
             case AttributeOpcode::ERROR_RESPONSE:
@@ -814,7 +812,7 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
             connection_handle,
             attribute_handle,
             GattWriteCallbackParams::OP_WRITE_REQ,
-            status,
+            static_cast<uint16_t>(status),
             error_code
         };
 
@@ -849,20 +847,12 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
 
         switch (error.error_code) {
             case AttErrorResponse::INVALID_HANDLE:
-                status = BLE_ERROR_INVALID_PARAM;
-                break;
             case AttErrorResponse::INVALID_ATTRIBUTE_VALUE_LENGTH:
                 status = BLE_ERROR_INVALID_PARAM;
                 break;
             case AttErrorResponse::INSUFFICIENT_AUTHORIZATION:
-                status = BLE_ERROR_INVALID_STATE;
-                break;
             case AttErrorResponse::INSUFFICIENT_AUTHENTICATION:
-                status = BLE_ERROR_INVALID_STATE;
-                break;
             case AttErrorResponse::INSUFFICIENT_ENCRYPTION_KEY_SIZE:
-                status = BLE_ERROR_INVALID_STATE;
-                break;
             case AttErrorResponse::INSUFFICIENT_ENCRYPTION:
                 status = BLE_ERROR_INVALID_STATE;
                 break;
@@ -902,7 +892,7 @@ struct GattClient::WriteControlBlock : public ProcedureControlBlock {
  * Control block for the descriptor discovery process
  */
 
-struct GattClient::DescriptorDiscoveryControlBlock : public ProcedureControlBlock {
+struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureControlBlock {
     using ProcedureControlBlock::connection_handle;
 
     DescriptorDiscoveryControlBlock(
@@ -918,9 +908,7 @@ struct GattClient::DescriptorDiscoveryControlBlock : public ProcedureControlBloc
     {
     }
 
-    virtual ~DescriptorDiscoveryControlBlock()
-    {
-    }
+    ~DescriptorDiscoveryControlBlock() final = default;
 
     ble_error_t start(GattClient *client)
     {
@@ -933,17 +921,17 @@ struct GattClient::DescriptorDiscoveryControlBlock : public ProcedureControlBloc
         );
     }
 
-    virtual void handle_timeout_error(GattClient *client)
+    void handle_timeout_error(GattClient *client) final
     {
         terminate(client, BLE_ERROR_UNSPECIFIED);
     }
 
-    virtual void abort(GattClient *client)
+    void abort(GattClient *client) final
     {
         terminate(client, BLE_ERROR_INVALID_STATE);
     }
 
-    virtual void handle(GattClient *client, const AttServerMessage &message)
+    void handle(GattClient *client, const AttServerMessage &message) final
     {
         if (done) {
             terminate(client, BLE_ERROR_NONE);
@@ -1061,7 +1049,7 @@ ble_error_t GattClient::launchServiceDiscovery(
         return BLE_ERROR_NONE;
     }
 
-    DiscoveryControlBlock *discovery_pcb = new(std::nothrow) DiscoveryControlBlock(
+    auto *discovery_pcb = new(std::nothrow) DiscoveryControlBlock(
         connection_handle,
         service_callback,
         characteristic_callback,
@@ -1154,7 +1142,7 @@ ble_error_t GattClient::read(
         return BLE_ERROR_INVALID_STATE;
     }
 
-    ReadControlBlock *read_pcb = new(std::nothrow) ReadControlBlock(
+    auto *read_pcb = new(std::nothrow) ReadControlBlock(
         connection_handle,
         attribute_handle,
         offset
@@ -1253,7 +1241,7 @@ ble_error_t GattClient::write(
             memcpy(data, value, length);
         }
 
-        WriteControlBlock *write_pcb = new(std::nothrow) WriteControlBlock(
+        auto *write_pcb = new(std::nothrow) WriteControlBlock(
             connection_handle,
             attribute_handle,
             data,
@@ -1325,7 +1313,7 @@ ble_error_t GattClient::discoverCharacteristicDescriptors(
         return BLE_ERROR_NONE;
     }
 
-    DescriptorDiscoveryControlBlock *discovery_pcb =
+    auto *discovery_pcb =
         new(std::nothrow) DescriptorDiscoveryControlBlock(
             characteristic,
             discoveryCallback,
@@ -1375,8 +1363,7 @@ void GattClient::terminateCharacteristicDescriptorDiscovery(
 
     while (pcb) {
         if (pcb->type == DESCRIPTOR_DISCOVERY_PROCEDURE) {
-            DescriptorDiscoveryControlBlock *dpcb =
-                static_cast<DescriptorDiscoveryControlBlock *>(pcb);
+            auto *dpcb = static_cast<DescriptorDiscoveryControlBlock *>(pcb);
             if (dpcb->characteristic == characteristic) {
                 dpcb->done = true;
                 return;
@@ -1397,7 +1384,7 @@ ble_error_t GattClient::negotiateAttMtu(
 }
 
 
-ble_error_t GattClient::reset(void)
+ble_error_t GattClient::reset()
 {
     /* Notify that the instance is about to shut down. */
     shutdownCallChain.call(client);
@@ -1523,7 +1510,7 @@ void GattClient::on_server_event(connection_handle_t connection, const AttServer
 
     switch (message.opcode) {
         case AttributeOpcode::HANDLE_VALUE_NOTIFICATION: {
-            const AttHandleValueNotification &notification =
+            const auto &notification =
                 static_cast<const AttHandleValueNotification &>(message);
             callbacks_params.handle = notification.attribute_handle;
             callbacks_params.type = BLE_HVX_NOTIFICATION;
@@ -1532,7 +1519,7 @@ void GattClient::on_server_event(connection_handle_t connection, const AttServer
         } break;
 
         case AttributeOpcode::HANDLE_VALUE_INDICATION: {
-            const AttHandleValueIndication &indication =
+            const auto &indication =
                 static_cast<const AttHandleValueIndication &>(message);
             callbacks_params.handle = indication.attribute_handle;
             callbacks_params.type = BLE_HVX_INDICATION;
