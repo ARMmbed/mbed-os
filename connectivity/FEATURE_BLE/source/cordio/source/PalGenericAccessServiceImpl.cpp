@@ -17,7 +17,7 @@
  */
 
 #include "source/pal/PalGenericAccessService.h"
-#include "source/generic/GattServerImpl.h"
+#include "GattServerImpl.h"
 
 namespace ble {
 

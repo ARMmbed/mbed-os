@@ -17,7 +17,7 @@
  */
 
 #include "source/pal/PalAttClient.h"
-#include "source/generic/GattServerImpl.h"
+#include "GattServerImpl.h"
 #include "source/pal/PalSimpleAttServerMessage.h"
 #include "source/pal/PalGattClient.h"
 #include "source/BLEInstanceBase.h"

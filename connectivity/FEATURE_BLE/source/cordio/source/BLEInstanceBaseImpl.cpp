@@ -44,7 +44,7 @@
 #include "source/pal/PalAttClientToGattClient.h"
 #include "source/BLEInstanceBase.h"
 #include "ble/driver/CordioHCIDriver.h"
-#include "source/generic/GattServerImpl.h"
+#include "GattServerImpl.h"
 
 #include "internal/PalAttClientImpl.h"
 
