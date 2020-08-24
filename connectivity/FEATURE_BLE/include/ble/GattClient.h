@@ -22,9 +22,8 @@
 #define MBED_GATT_CLIENT_H__
 
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
-#include <algorithm>
-
 #include "ble/common/blecommon.h"
+
 #include "ble/gatt/GattAttribute.h"
 #include "ble/gatt/ServiceDiscovery.h"
 #include "ble/gatt/CharacteristicDescriptorDiscovery.h"
@@ -33,6 +32,12 @@
 #include "ble/gatt/DiscoveredCharacteristic.h"
 
 namespace ble {
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class GattClient;
+}
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * @addtogroup ble
@@ -89,11 +94,6 @@ namespace ble {
  * indicate properties are set. The client discovers that descriptor
  * if it intends to register to server initiated events.
  */
-#if !defined(DOXYGEN_ONLY)
-namespace impl {
-class GattClient;
-}
-#endif // !defined(DOXYGEN_ONLY)
 class GattClient {
 public:
     /**
@@ -723,10 +723,6 @@ private:
  */
 
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-//#include "ble/internal/GattClientImpl.h"
 
 /** @deprecated Use the namespaced ble::GattClient instead of the global GattClient. */
 using ble::GattClient;

@@ -20,7 +20,7 @@
 #define MBED_DISCOVERED_SERVICE_H__
 
 #include "ble/common/UUID.h"
-#include "GattAttribute.h"
+#include "ble/gatt/GattAttribute.h"
 
 /**
  * @addtogroup ble

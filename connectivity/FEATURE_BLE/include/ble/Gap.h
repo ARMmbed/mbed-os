@@ -21,12 +21,6 @@
 
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
-#include <algorithm>
-
-#include "drivers/LowPowerTimeout.h"
-#include "drivers/LowPowerTicker.h"
-#include "platform/mbed_error.h"
-
 #include "ble/common/BLERoles.h"
 #include "ble/common/BLETypes.h"
 #include "ble/gap/AdvertisingDataBuilder.h"
@@ -35,12 +29,17 @@
 #include "ble/gap/AdvertisingDataTypes.h"
 #include "ble/gap/AdvertisingParameters.h"
 #include "ble/gap/ConnectionParameters.h"
-#include "ble/gap/Events.h"
 #include "ble/gap/ScanParameters.h"
+#include "ble/gap/Events.h"
 #include "ble/gap/Types.h"
 
 namespace ble {
-class PalGenericAccessService;
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class Gap;
+}
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * @addtogroup ble
@@ -280,11 +279,6 @@ class PalGenericAccessService;
  * PHY and of any changes to PHYs which may be triggered autonomously by the
  * controller or by the peer.
  */
-#if !defined(DOXYGEN_ONLY)
-namespace impl {
-class Gap;
-}
-#endif // !defined(DOXYGEN_ONLY)
 class Gap {
 public:
     /**
@@ -1466,10 +1460,6 @@ private:
  */
 
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-//#include "ble/internal/GapImpl.h"
 
 /** @deprecated Use the namespaced ble::Gap instead of the global Gap. */
 using ble::Gap;

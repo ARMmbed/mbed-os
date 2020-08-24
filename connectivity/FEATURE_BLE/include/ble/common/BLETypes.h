@@ -22,9 +22,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include "ble/common/SafeEnum.h"
+
 #include "platform/Span.h"
 
+#include "ble/common/SafeEnum.h"
 #include "ble/gap/Types.h"
 
 /**

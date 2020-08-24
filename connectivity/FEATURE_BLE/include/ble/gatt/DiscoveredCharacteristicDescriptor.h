@@ -19,9 +19,9 @@
 #ifndef MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
 #define MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
 
-#include "ble/common/UUID.h"
 #include "ble/Gap.h"
-#include "GattAttribute.h"
+#include "ble/common/UUID.h"
+#include "ble/gatt/GattAttribute.h"
 #include "ble/gatt/CharacteristicDescriptorDiscovery.h"
 
 namespace ble {

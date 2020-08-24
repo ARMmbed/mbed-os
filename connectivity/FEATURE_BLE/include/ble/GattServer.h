@@ -21,16 +21,20 @@
 #define MBED_GATT_SERVER_H__
 
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/blecommon.h"
 
 #include "ble/gatt/GattService.h"
 #include "ble/gatt/GattAttribute.h"
 #include "ble/gatt/GattCallbackParamTypes.h"
 
-#include "ble/common/blecommon.h"
-#include "ble/Gap.h"
-#include "SecurityManager.h"
-
 namespace ble {
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class GattServer;
+}
+#endif // !defined(DOXYGEN_ONLY)
+
 
 /**
  * @addtogroup ble
@@ -93,13 +97,6 @@ namespace ble {
  * Characteristic Value Notification and Characteristic Value Indication when
  * the nature of the server initiated is not relevant.
  */
-#if !defined(DOXYGEN_ONLY)
-namespace impl {
-class GattServer;
-}
-
-namespace interface {
-#endif // !defined(DOXYGEN_ONLY)
 class GattServer {
 public:
     /**
@@ -607,19 +604,9 @@ private:
  * @}
  */
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
-
-using ble::interface::GattServer;
-
 } // ble
 
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-//#include "ble/internal/GattServerImpl.h"
-
 /** @deprecated Use the namespaced ble::GattServer instead of the global GattServer. */
-using ble::interface::GattServer;
+using ble::GattServer;
 
 #endif /* ifndef MBED_GATT_SERVER_H__ */

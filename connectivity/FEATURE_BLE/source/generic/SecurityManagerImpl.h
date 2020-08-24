@@ -36,6 +36,8 @@
 #include "ble/SecurityManager.h"
 
 namespace ble {
+class PalGenericAccessService;
+
 namespace impl {
 
 //class BLEInstanceBase;
