@@ -60,8 +60,6 @@ struct PalGattClientEventHandler {
     ) = 0;
 };
 
-
-namespace interface {
 /**
  * Adaptation layer for a GATT client.
  *
@@ -627,11 +625,6 @@ public:
      virtual PalGattClientEventHandler* get_event_handler() = 0;
 };
 
-} // namespace interface
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/PalGattClientImpl.h"
 
 #endif /* BLE_PAL_GATT_CLIENT_H_ */

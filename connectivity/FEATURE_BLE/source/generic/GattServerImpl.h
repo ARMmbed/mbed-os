@@ -70,7 +70,6 @@ class GattServer : public PalSigningMonitor {
 
     // inherited typedefs have the wrong types so we have to redefine them
 public:
-
     void setEventHandler(EventHandler *handler);
 
     ble_error_t reset(ble::GattServer* server);
@@ -188,6 +187,14 @@ public:
 
     #endif // Disabled until reworked and reintroduced to GattServer API
 
+public:
+    /**
+     * Return the singleton of ble::GattServer.
+     */
+    static GattServer &getInstance();
+
+    static void att_cb(const attEvt_t *pEvt);
+
 private:
 
     GattServer();
@@ -195,11 +202,6 @@ private:
     GattServer(const GattServer &);
 
     const GattServer &operator=(const GattServer &);
-
-    /**
-     * Return the singleton of the Cordio implementation of ble::GattServer.
-     */
-    static GattServer &getInstance();
 
     /**
      * Initialize the GattServer and add mandatory services (generic access and
@@ -252,8 +254,6 @@ private:
     );
 
     static void cccd_cb(attsCccEvt_t *pEvt);
-
-    static void att_cb(const attEvt_t *pEvt);
 
     static uint8_t atts_read_cb(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, attsAttr_t *pAttr);
 

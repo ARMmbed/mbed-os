@@ -27,7 +27,6 @@
 #include "AttServerMessage.h"
 
 namespace ble {
-namespace interface {
 
 /**
  * Send attribute protocol requests to an ATT server. It also handle reception
@@ -627,11 +626,6 @@ public:
      ) = 0;
 };
 
-} // namespace interface
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative BLE PAL implementation
- * disable Cordio and place your header in a path with the same structure */
-#include "ble/internal/PalAttClientImpl.h"
 
 #endif /* BLE_PAL_ATTCLIENT_H_ */

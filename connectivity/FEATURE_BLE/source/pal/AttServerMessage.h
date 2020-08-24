@@ -323,7 +323,7 @@ struct AttFindInformationResponse : public AttServerMessage {
     /**
      * virtual destructor to overide if the sub class needs it.
      */
-    virtual ~AttFindInformationResponse() { }
+    virtual ~AttFindInformationResponse() = default;
 
     /**
      * Returns the number of information_data_t present in the response.
@@ -366,7 +366,7 @@ struct AttFindByTypeValueResponse : public AttServerMessage {
     /**
      * virtual destructor to overide if the sub class needs it.
      */
-    virtual ~AttFindByTypeValueResponse() { }
+    virtual ~AttFindByTypeValueResponse() = default;
 
     /**
      * Returns the number of attribute_handle_range_t present in the response.
@@ -414,7 +414,7 @@ struct AttReadByTypeResponse : public AttServerMessage {
     /**
      * virtual destructor to overide if the sub class needs it.
      */
-    virtual ~AttReadByTypeResponse() { }
+    virtual ~AttReadByTypeResponse() = default;
 
     /**
      * Return the number of attribute_data_t presents in the response.
@@ -602,7 +602,7 @@ struct AttReadByGroupTypeResponse : public AttServerMessage {
     /**
      * virtual destructor to overide if the sub class needs it.
      */
-    virtual ~AttReadByGroupTypeResponse() { }
+    virtual ~AttReadByGroupTypeResponse() = default;
 
     /**
      * Return the number of attribute_data_t present in the response.

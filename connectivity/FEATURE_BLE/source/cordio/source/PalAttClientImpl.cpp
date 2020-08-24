@@ -19,18 +19,21 @@
 #include "source/pal/PalAttClient.h"
 #include "source/generic/GattServerImpl.h"
 #include "source/pal/PalSimpleAttServerMessage.h"
-#include "source/pal/PalGap.h"
 #include "source/pal/PalGattClient.h"
 #include "source/BLEInstanceBase.h"
+#include "internal/PalAttClientImpl.h"
 
 #include "att_api.h"
 #include "att_defs.h"
 
 namespace ble {
+namespace cordio {
 
-PalAttClient::PalAttClient() : _local_sign_counter(0) {}
+PalAttClient::PalAttClient() : _local_sign_counter(0)
+{
+}
 
-PalAttClient::~PalAttClient() {}
+PalAttClient::~PalAttClient() = default;
 
 /**
 * @see ble::PalAttClient::exchange_mtu_request
@@ -434,8 +437,8 @@ void PalAttClient::att_client_handler(const attEvt_t *event)
 
         // traverse all handlers and execute them with the event in input.
         // exit if an handler has handled the event.
-        for (size_t i = 0; i < (sizeof(handlers) / sizeof(handlers[0])); ++i) {
-            if (handlers[i](event)) {
+        for (auto handler : handlers) {
+            if (handler(event)) {
                 return;
             }
         }
@@ -444,8 +447,9 @@ void PalAttClient::att_client_handler(const attEvt_t *event)
 
 #if BLE_FEATURE_GATT_SERVER
     // pass events not handled to the server side
-    ble::impl::GattServer::getInstance().att_cb(event);
+    ble::impl::GattServer::att_cb(event);
 #endif // BLE_FEATURE_GATT_SERVER
 }
 
+} // namespace cordio
 } // ble

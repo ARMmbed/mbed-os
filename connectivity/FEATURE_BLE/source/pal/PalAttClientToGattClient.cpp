@@ -18,29 +18,30 @@
 
 #include "source/pal/PalGattClient.h"
 #include "source/pal/PalAttClient.h"
+#include "source/pal/PalAttClientToGattClient.h"
 
 namespace ble {
 
-PalGattClient::PalGattClient(PalAttClient& client) : _event_handler(nullptr), _client(client)
+PalAttClientToGattClient::PalAttClientToGattClient(PalAttClient& client) : _event_handler(nullptr), _client(client)
 {
     _client.when_server_message_received(
-        mbed::callback(this, &PalGattClient::on_server_event)
+        mbed::callback(this, &PalAttClientToGattClient::on_server_event)
     );
     _client.when_transaction_timeout(
         mbed::callback(
-            this, &PalGattClient::on_transaction_timeout
+            this, &PalAttClientToGattClient::on_transaction_timeout
         )
     );
 }
 
 
-ble_error_t PalGattClient::exchange_mtu(connection_handle_t connection)
+ble_error_t PalAttClientToGattClient::exchange_mtu(connection_handle_t connection)
 {
     return _client.exchange_mtu_request(connection);
 }
 
 
-ble_error_t PalGattClient::get_mtu_size(
+ble_error_t PalAttClientToGattClient::get_mtu_size(
     connection_handle_t connection_handle,
     uint16_t& mtu_size
 )
@@ -49,7 +50,7 @@ ble_error_t PalGattClient::get_mtu_size(
 }
 
 
-ble_error_t PalGattClient::discover_primary_service(
+ble_error_t PalAttClientToGattClient::discover_primary_service(
     connection_handle_t connection,
     attribute_handle_t discovery_range_begining
 )
@@ -62,7 +63,7 @@ ble_error_t PalGattClient::discover_primary_service(
 }
 
 
-ble_error_t PalGattClient::discover_primary_service_by_service_uuid(
+ble_error_t PalAttClientToGattClient::discover_primary_service_by_service_uuid(
     connection_handle_t connection_handle,
     attribute_handle_t discovery_range_begining,
     const UUID& uuid
@@ -80,7 +81,7 @@ ble_error_t PalGattClient::discover_primary_service_by_service_uuid(
 }
 
 
-ble_error_t PalGattClient::find_included_service(
+ble_error_t PalAttClientToGattClient::find_included_service(
     connection_handle_t connection_handle,
     attribute_handle_range_t service_range
 )
@@ -93,7 +94,7 @@ ble_error_t PalGattClient::find_included_service(
 }
 
 
-ble_error_t PalGattClient::discover_characteristics_of_a_service(
+ble_error_t PalAttClientToGattClient::discover_characteristics_of_a_service(
     connection_handle_t connection_handle,
     attribute_handle_range_t discovery_range
 )
@@ -106,7 +107,7 @@ ble_error_t PalGattClient::discover_characteristics_of_a_service(
 }
 
 
-ble_error_t PalGattClient::discover_characteristics_descriptors(
+ble_error_t PalAttClientToGattClient::discover_characteristics_descriptors(
     connection_handle_t connection_handle,
     attribute_handle_range_t descriptors_discovery_range
 )
@@ -118,7 +119,7 @@ ble_error_t PalGattClient::discover_characteristics_descriptors(
 }
 
 
-ble_error_t PalGattClient::read_attribute_value(
+ble_error_t PalAttClientToGattClient::read_attribute_value(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle
 )
@@ -130,7 +131,7 @@ ble_error_t PalGattClient::read_attribute_value(
 }
 
 
-ble_error_t PalGattClient::read_using_characteristic_uuid(
+ble_error_t PalAttClientToGattClient::read_using_characteristic_uuid(
     connection_handle_t connection_handle,
     attribute_handle_range_t read_range,
     const UUID& uuid
@@ -144,7 +145,7 @@ ble_error_t PalGattClient::read_using_characteristic_uuid(
 }
 
 
-ble_error_t PalGattClient::read_attribute_blob(
+ble_error_t PalAttClientToGattClient::read_attribute_blob(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     uint16_t offset
@@ -158,7 +159,7 @@ ble_error_t PalGattClient::read_attribute_blob(
 }
 
 
-ble_error_t PalGattClient::read_multiple_characteristic_values(
+ble_error_t PalAttClientToGattClient::read_multiple_characteristic_values(
     connection_handle_t connection_handle,
     const Span<const attribute_handle_t>& characteristic_value_handles
 )
@@ -170,7 +171,7 @@ ble_error_t PalGattClient::read_multiple_characteristic_values(
 }
 
 
-ble_error_t PalGattClient::write_without_response(
+ble_error_t PalAttClientToGattClient::write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const Span<const uint8_t>& value
@@ -184,7 +185,7 @@ ble_error_t PalGattClient::write_without_response(
 }
 
 
-ble_error_t PalGattClient::signed_write_without_response(
+ble_error_t PalAttClientToGattClient::signed_write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const Span<const uint8_t>& value
@@ -198,7 +199,7 @@ ble_error_t PalGattClient::signed_write_without_response(
 }
 
 
-ble_error_t PalGattClient::write_attribute(
+ble_error_t PalAttClientToGattClient::write_attribute(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     const Span<const uint8_t>& value
@@ -212,7 +213,7 @@ ble_error_t PalGattClient::write_attribute(
 }
 
 
-ble_error_t PalGattClient::queue_prepare_write(
+ble_error_t PalAttClientToGattClient::queue_prepare_write(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const Span<const uint8_t>& value,
@@ -228,7 +229,7 @@ ble_error_t PalGattClient::queue_prepare_write(
 }
 
 
-ble_error_t PalGattClient::execute_write_queue(
+ble_error_t PalAttClientToGattClient::execute_write_queue(
     connection_handle_t connection_handle,
     bool execute
 )
@@ -237,13 +238,13 @@ ble_error_t PalGattClient::execute_write_queue(
 }
 
 
-ble_error_t PalGattClient::initialize()
+ble_error_t PalAttClientToGattClient::initialize()
 {
     return _client.initialize();
 }
 
 
-ble_error_t PalGattClient::terminate()
+ble_error_t PalAttClientToGattClient::terminate()
 {
     return _client.initialize();
 }

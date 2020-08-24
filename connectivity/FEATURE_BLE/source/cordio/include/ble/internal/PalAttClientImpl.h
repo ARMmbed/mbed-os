@@ -24,8 +24,9 @@
 #include "source/pal/PalAttClient.h"
 
 namespace ble {
+namespace cordio {
 
-class PalAttClient : public interface::PalAttClient {
+class PalAttClient final : public ble::PalAttClient {
 
 public:
     PalAttClient();
@@ -35,15 +36,15 @@ public:
     /**
      * @see ble::PalAttClient::exchange_mtu_request
      */
-    ble_error_t exchange_mtu_request(connection_handle_t connection);
+    ble_error_t exchange_mtu_request(connection_handle_t connection) final;
 
     /**
      * @see ble::PalGattClient::get_mtu_size
      */
     ble_error_t get_mtu_size(
         connection_handle_t connection_handle,
-        uint16_t& mtu_size
-    );
+        uint16_t &mtu_size
+    ) final;
 
     /**
      * @see ble::PalAttClient::find_information_request
@@ -51,7 +52,7 @@ public:
     ble_error_t find_information_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range
-    );
+    ) final;
 
     /**
      * @see ble::PalAttClient::find_by_type_value_request
@@ -60,8 +61,8 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range,
         uint16_t type,
-        const Span<const uint8_t>& value
-    );
+        const Span<const uint8_t> &value
+    ) final;
 
     /**
      * @see ble::PalAttClient::read_by_type_request
@@ -69,8 +70,8 @@ public:
     ble_error_t read_by_type_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& type
-    );
+        const UUID &type
+    ) final;
 
     /**
      * @see ble::PalAttClient::read_request
@@ -78,7 +79,7 @@ public:
     ble_error_t read_request(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle
-    );
+    ) final;
 
     /**
      * @see ble::PalAttClient::read_blob_request
@@ -87,15 +88,15 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset
-    );
+    ) final;
 
     /**
      * @see ble::PalAttClient::read_multiple_request
      */
     ble_error_t read_multiple_request(
         connection_handle_t connection_handle,
-        const Span<const attribute_handle_t>& attribute_handles
-    );
+        const Span<const attribute_handle_t> &attribute_handles
+    ) final;
 
     /**
      * @see ble::PalAttClient::read_by_group_type_request
@@ -103,8 +104,8 @@ public:
     ble_error_t read_by_group_type_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& group_type
-    );
+        const UUID &group_type
+    ) final;
 
     /**
      * @see ble::PalAttClient::write_request
@@ -112,8 +113,8 @@ public:
     ble_error_t write_request(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const Span<const uint8_t>& value
-    );
+        const Span<const uint8_t> &value
+    ) final;
 
     /**
      * @see ble::PalAttClient::write_command
@@ -121,8 +122,8 @@ public:
     ble_error_t write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const Span<const uint8_t>& value
-    );
+        const Span<const uint8_t> &value
+    ) final;
 
     /**
      * @see ble::PalAttClient::signed_write_command
@@ -130,8 +131,8 @@ public:
     ble_error_t signed_write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const Span<const uint8_t>& value
-    );
+        const Span<const uint8_t> &value
+    ) final;
 
     /**
      * Initialises the counter used to sign messages. Counter will be incremented every
@@ -150,8 +151,8 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset,
-        const Span<const uint8_t>& value
-    );
+        const Span<const uint8_t> &value
+    ) final;
 
     /**
      * @see ble::PalAttClient::execute_write_request
@@ -159,45 +160,45 @@ public:
     ble_error_t execute_write_request(
         connection_handle_t connection_handle,
         bool execute
-    );
+    ) final;
 
     /**
      * @see ble::PalAttClient::initialize
      */
-    ble_error_t initialize();
+    ble_error_t initialize() final;
 
     /**
      * @see ble::PalAttClient::terminate
      */
-    ble_error_t terminate();
+    ble_error_t terminate() final;
 
     // singleton of the ARM Cordio client
-    static PalAttClient& get_client();
+    static PalAttClient &get_client();
 
     void when_server_message_received(
-            mbed::Callback<void(connection_handle_t, const AttServerMessage&)> cb
-    );
+        mbed::Callback<void(connection_handle_t, const AttServerMessage &)> cb
+    ) final;
 
     void when_transaction_timeout(
-            mbed::Callback<void(connection_handle_t)> cb
-    );
+        mbed::Callback<void(connection_handle_t)> cb
+    ) final;
 
 private:
     // convert an array of byte to an uint16_t
-    static uint16_t to_uint16_t(const uint8_t* array);
+    static uint16_t to_uint16_t(const uint8_t *array);
 
     /**
      * Type of an event handler.
      * @param The event to handle
      * @return true if the event has been handled and false otherwise.
      */
-    typedef bool (*event_handler_t)(const attEvt_t*);
+    typedef bool (*event_handler_t)(const attEvt_t *);
 
 public:
     /**
      * Callback which handle attEvt_t and forward them to on_server_event.
      */
-    static void att_client_handler(const attEvt_t* event);
+    static void att_client_handler(const attEvt_t *event);
 
 private:
     /**
@@ -212,13 +213,13 @@ private:
      * @return
      */
     template<typename T>
-    static bool event_handler(const attEvt_t* event);
+    static bool event_handler(const attEvt_t *event);
 
-    static bool timeout_event_handler(const attEvt_t* event);
+    static bool timeout_event_handler(const attEvt_t *event);
 
     template<typename ResultType>
     static void generated_handler(
-        const attEvt_t* event, ResultType (*convert)(const attEvt_t*)
+        const attEvt_t *event, ResultType (*convert)(const attEvt_t *)
     );
 
     /**
@@ -226,9 +227,9 @@ private:
      */
     template<uint8_t RequestID>
     struct ResponseConverter {
-        static bool can_convert(const attEvt_t* event)
+        static bool can_convert(const attEvt_t *event)
         {
-            if(event->hdr.status == ATT_SUCCESS && event->hdr.event == RequestID) {
+            if (event->hdr.status == ATT_SUCCESS && event->hdr.event == RequestID) {
                 return true;
             }
             return false;
@@ -239,15 +240,15 @@ private:
      * Converter for an AttErrorResponse.
      */
     struct ErrorResponseConverter {
-        static bool can_convert(const attEvt_t* event)
+        static bool can_convert(const attEvt_t *event)
         {
-            if(event->hdr.status != ATT_SUCCESS) {
+            if (event->hdr.status != ATT_SUCCESS) {
                 return true;
             }
             return false;
         }
 
-        static AttErrorResponse convert(const attEvt_t* event)
+        static AttErrorResponse convert(const attEvt_t *event)
         {
             return AttErrorResponse(
                 static_cast<AttributeOpcode::Code>(event->hdr.event * 2),
@@ -261,7 +262,7 @@ private:
      * Converter for a PalSimpleAttFindInformationResponse.
      */
     struct FindInformationResponseConverter : ResponseConverter<ATTC_FIND_INFO_RSP> {
-        static PalSimpleAttFindInformationResponse convert(const attEvt_t* event)
+        static PalSimpleAttFindInformationResponse convert(const attEvt_t *event)
         {
             return PalSimpleAttFindInformationResponse(
                 static_cast<PalSimpleAttFindInformationResponse::Format>(event->pValue[0]),
@@ -277,7 +278,7 @@ private:
      * Converter for a PalSimpleAttFindByTypeValueResponse.
      */
     struct FindByTypeValueResponseConverter : ResponseConverter<ATTC_FIND_BY_TYPE_VALUE_RSP> {
-        static PalSimpleAttFindByTypeValueResponse convert(const attEvt_t* event)
+        static PalSimpleAttFindByTypeValueResponse convert(const attEvt_t *event)
         {
             return PalSimpleAttFindByTypeValueResponse(
                 make_const_Span(
@@ -292,7 +293,7 @@ private:
      * Converter for a PalSimpleAttReadByTypeResponse.
      */
     struct ReadByTypeResponseConverter : ResponseConverter<ATTC_READ_BY_TYPE_RSP> {
-        static PalSimpleAttReadByTypeResponse convert(const attEvt_t* event)
+        static PalSimpleAttReadByTypeResponse convert(const attEvt_t *event)
         {
             return PalSimpleAttReadByTypeResponse(
                 event->pValue[0],
@@ -308,7 +309,7 @@ private:
      * Converter for a AttReadResponse.
      */
     struct ReadResponseConverter : ResponseConverter<ATTC_READ_RSP> {
-        static AttReadResponse convert(const attEvt_t* event)
+        static AttReadResponse convert(const attEvt_t *event)
         {
             return AttReadResponse(
                 make_const_Span(
@@ -323,7 +324,7 @@ private:
      * Converter for a AttReadBlobResponse.
      */
     struct ReadBlobResponseConverter : ResponseConverter<ATTC_READ_LONG_RSP> {
-        static AttReadBlobResponse convert(const attEvt_t* event)
+        static AttReadBlobResponse convert(const attEvt_t *event)
         {
             return AttReadBlobResponse(
                 make_const_Span(
@@ -338,7 +339,7 @@ private:
      * Converter for a AttReadMultipleResponse.
      */
     struct ReadMultipleResponseConverter : ResponseConverter<ATTC_READ_MULTIPLE_RSP> {
-        static AttReadMultipleResponse convert(const attEvt_t* event)
+        static AttReadMultipleResponse convert(const attEvt_t *event)
         {
             return AttReadMultipleResponse(
                 make_const_Span(
@@ -353,7 +354,7 @@ private:
      * Converter for a PalSimpleAttReadByGroupTypeResponse.
      */
     struct ReadBygroupTypeResponseConverter : ResponseConverter<ATTC_READ_BY_GROUP_TYPE_RSP> {
-        static PalSimpleAttReadByGroupTypeResponse convert(const attEvt_t* event)
+        static PalSimpleAttReadByGroupTypeResponse convert(const attEvt_t *event)
         {
             return PalSimpleAttReadByGroupTypeResponse(
                 event->pValue[0],
@@ -369,7 +370,7 @@ private:
      * Converter for a AttWriteResponse.
      */
     struct WriteResponseConverter : ResponseConverter<ATTC_WRITE_RSP> {
-        static AttWriteResponse convert(const attEvt_t* event)
+        static AttWriteResponse convert(const attEvt_t *event)
         {
             return AttWriteResponse();
         }
@@ -379,7 +380,7 @@ private:
      * Converter for a AttPrepareWriteResponse.
      */
     struct PrepareWriteResponseConverter : ResponseConverter<ATTC_PREPARE_WRITE_RSP> {
-        static AttPrepareWriteResponse convert(const attEvt_t* event)
+        static AttPrepareWriteResponse convert(const attEvt_t *event)
         {
             return AttPrepareWriteResponse(
                 event->handle,
@@ -396,7 +397,7 @@ private:
      * Converter for a AttExecuteWriteResponse.
      */
     struct ExecuteWriteResponseConverter : ResponseConverter<ATTC_EXECUTE_WRITE_RSP> {
-        static AttExecuteWriteResponse convert(const attEvt_t* event)
+        static AttExecuteWriteResponse convert(const attEvt_t *event)
         {
             return AttExecuteWriteResponse();
         }
@@ -406,7 +407,7 @@ private:
      * Converter for a AttHandleValueNotification.
      */
     struct HandleValueNotificationConverter : ResponseConverter<ATTC_HANDLE_VALUE_NTF> {
-        static AttHandleValueNotification convert(const attEvt_t* event)
+        static AttHandleValueNotification convert(const attEvt_t *event)
         {
             return AttHandleValueNotification(
                 event->handle,
@@ -422,7 +423,7 @@ private:
      * Converter for a AttHandleValueIndication.
      */
     struct HandleValueIndicationConverter : ResponseConverter<ATTC_HANDLE_VALUE_IND> {
-        static AttHandleValueIndication convert(const attEvt_t* event)
+        static AttHandleValueIndication convert(const attEvt_t *event)
         {
             return AttHandleValueIndication(
                 event->handle,
@@ -433,6 +434,7 @@ private:
             );
         }
     };
+
 private:
     /**
      * Upon server message reception an implementation shall call this function.
@@ -443,7 +445,7 @@ private:
      */
     void on_server_event(
         connection_handle_t connection_handle,
-        const AttServerMessage& server_message
+        const AttServerMessage &server_message
     );
 
     /**
@@ -457,13 +459,14 @@ private:
     void on_transaction_timeout(
         connection_handle_t connection_handle
     );
+
 private:
     sign_count_t _local_sign_counter;
 
     /**
      * Callback called when the client receive a message from the server.
      */
-    mbed::Callback<void(connection_handle_t, const AttServerMessage&)> _server_message_cb;
+    mbed::Callback<void(connection_handle_t, const AttServerMessage &)> _server_message_cb;
 
     /**
      * Callback called when a transaction times out.
@@ -471,6 +474,7 @@ private:
     mbed::Callback<void(connection_handle_t)> _transaction_timeout_cb;
 };
 
-} // ble
+} // namespace cordio
+} // namespace ble
 
 #endif /* IMPL_PAL_ATT_CLIENT_ */

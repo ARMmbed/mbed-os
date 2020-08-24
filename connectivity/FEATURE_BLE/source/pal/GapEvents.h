@@ -314,7 +314,7 @@ struct GapAdvertisingReportEvent : public GapEvent {
 
     GapAdvertisingReportEvent() : GapEvent(GapEventType::ADVERTISING_REPORT) { }
 
-    virtual ~GapAdvertisingReportEvent() { }
+    virtual ~GapAdvertisingReportEvent() = default;
 
     /**
      * Count of advertising in this event.
