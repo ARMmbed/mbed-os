@@ -52,6 +52,44 @@ typedef struct {
 static SingletonPtr<PlatformMutex> malloc_stats_mutex;
 static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0, 0, 0};
 
+#if defined(TOOLCHAIN_GCC)
+
+typedef struct malloc_internal_overhead {
+    /*                             ------------------
+     * malloc_internal_overhead_t->| size (4 bytes) |
+     *                             ------------------
+     *                             | Padding for    |
+     *                             | alignment      |
+     *                             | holding neg    |
+     *                             | offset to size |
+     *                             ------------------
+     *                    mem_ptr->| point to next  |
+     *                             | free when freed|
+     *                             | or data load   |
+     *                             | when allocated |
+     *                             ------------------
+     */
+    /* size of the allocated payload area, including size before
+       OVERHEAD_OFFSET */
+    int size;
+
+    /* since here, the memory is either the next free block, or data load */
+    struct malloc_internal_overhead *next;
+} malloc_internal_overhead_t;
+
+#define OVERHEAD_OFFSET ((size_t)(&(((struct malloc_internal_overhead *)0)->next)))
+
+static int get_malloc_internal_overhead(void *ptr)
+{
+    malloc_internal_overhead_t *c = (malloc_internal_overhead_t *)((char *)ptr - OVERHEAD_OFFSET);
+
+    /* Skip the padding area */
+    if (c->size < 0) {
+        c = (malloc_internal_overhead_t *)((char *)c + c->size);
+    }
+    return (c->size & ~0x1);
+}
+#else
 typedef struct  {
     size_t size;
 } mbed_heap_overhead_t;
@@ -60,7 +98,7 @@ typedef struct  {
 #define MALLOC_HEADER_PTR(p)        (mbed_heap_overhead_t *)((char *)(p) - MALLOC_HEADER_SIZE)
 #define MALLOC_HEAP_TOTAL_SIZE(p)   (((p)->size) & (~0x1))
 #endif
-
+#endif
 void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 {
 #if MBED_HEAP_STATS_ENABLED
@@ -116,7 +154,7 @@ extern "C" void *malloc_wrapper(struct _reent *r, size_t size, void *caller)
         if (heap_stats.current_size > heap_stats.max_size) {
             heap_stats.max_size = heap_stats.current_size;
         }
-        heap_stats.overhead_size += MALLOC_HEAP_TOTAL_SIZE(MALLOC_HEADER_PTR(alloc_info)) - size;
+        heap_stats.overhead_size += get_malloc_internal_overhead((void *)alloc_info) - size;
     } else {
         heap_stats.alloc_fail_cnt += 1;
     }
@@ -191,7 +229,7 @@ extern "C" void free_wrapper(struct _reent *r, void *ptr, void *caller)
         alloc_info = ((alloc_info_t *)ptr) - 1;
         if (MBED_HEAP_STATS_SIGNATURE == alloc_info->signature) {
             size_t user_size = alloc_info->size;
-            size_t alloc_size = MALLOC_HEAP_TOTAL_SIZE(MALLOC_HEADER_PTR(alloc_info));
+            size_t alloc_size = get_malloc_internal_overhead((void *)alloc_info);
             alloc_info->signature = 0x0;
             heap_stats.current_size -= user_size;
             heap_stats.alloc_cnt -= 1;
