@@ -38,7 +38,7 @@ This interface is defined in the header file
 [CordioHCIDriver.h](../CordioHCIDriver.h)
 
 A partial implementation is present in the file
-[CordioHCIDriver.cpp](../../../../source/impl/driver/CordioHCIDriver.cpp). It defines the function
+[CordioHCIDriver.cpp](../../../../source/cordio/driver/CordioHCIDriver.cpp). It defines the function
 delivering memory to the stack and a complete reset sequence. However, it does
 not define any initialization for the Bluetooth controller, this part being
 specific to the controller used.
