@@ -10,22 +10,28 @@ if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
+include(${MBED_CONFIG_PATH}/mbed_config.cmake)
+
+# Set default toolchain file
+if(NOT CMAKE_TOOLCHAIN_FILE)
+    set(CMAKE_TOOLCHAIN_FILE "${MBED_ROOT}/cmake/toolchain.cmake" CACHE INTERNAL "")
+endif()
+
+# Toolchain setup
+include(${MBED_ROOT}/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
+enable_language(C CXX ASM)
+
+include(${MBED_ROOT}/cmake/core.cmake)
+include(${MBED_ROOT}/cmake/util.cmake)
+include(${MBED_ROOT}/cmake/profile.cmake)
+
 # Create Mbed OS library
 add_library(mbed-os OBJECT)
 
-include(${MBED_CONFIG_PATH}/mbed_config.cmake)
-
-include(${MBED_ROOT}/cmake/core.cmake)
 mbed_set_cpu_core_options(mbed-os ${MBED_TOOLCHAIN})
-
-include(${MBED_ROOT}/cmake/toolchain.cmake)
 mbed_set_toolchain_options(mbed-os)
 mbed_set_language_standard(mbed-os)
-
-include(${MBED_ROOT}/cmake/profile.cmake)
 mbed_set_profile_options(mbed-os ${MBED_TOOLCHAIN})
-
-include(${MBED_ROOT}/cmake/util.cmake)
 
 set_target_properties(mbed-os
     PROPERTIES
