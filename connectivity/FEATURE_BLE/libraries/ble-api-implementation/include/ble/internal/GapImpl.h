@@ -209,11 +209,6 @@ public:
         const ConnectionParameters &connectionParams
     );
 
-    ble_error_t cancelConnect(
-        peer_address_type_t peerAddressType,
-        const address_t &peerAddress
-    );
-
     ble_error_t cancelConnect();
 #endif // BLE_ROLE_CENTRAL
 
@@ -601,10 +596,6 @@ private:
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _set_is_connectable;
 
     bool _user_manage_connection_parameter_requests : 1;
-
-    /* these need be removed when the deprecated cancelConnect() is removed */
-    peer_address_type_t _last_used_peer_address_type = peer_address_type_t::ANONYMOUS;
-    ble::address_t _last_used_peer_address;
 };
 
 } // namespace ble
