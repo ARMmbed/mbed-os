@@ -270,7 +270,7 @@ void msd_process(USBMSD *msd)
  */
 void storage_init()
 {
-    TEST_ASSERT_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
+    TEST_SKIP_UNLESS_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
     FATFileSystem::format(get_heap_block_device());
     bool result = prepare_storage(get_heap_block_device(), &heap_fs);
     TEST_ASSERT_MESSAGE(result, "heap storage initialisation failed");
@@ -457,13 +457,13 @@ void mount_unmount_and_data_test(BlockDevice *bd, FileSystem *fs)
 
 void heap_block_device_mount_unmount_test()
 {
-    TEST_ASSERT_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
+    TEST_SKIP_UNLESS_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
     mount_unmount_test<3>(get_heap_block_device(), &heap_fs);
 }
 
 void heap_block_device_mount_unmount_and_data_test()
 {
-    TEST_ASSERT_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
+    TEST_SKIP_UNLESS_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
     mount_unmount_and_data_test(get_heap_block_device(), &heap_fs);
 }
 
@@ -478,6 +478,7 @@ Case cases[] = {
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(300, "pyusb_msd");
+    utest_printf("mbed_heap_size %u MIN_HEAP_SIZE %u\n", mbed_heap_size, MIN_HEAP_SIZE);
     utest::v1::status_t status = greentea_test_setup_handler(number_of_cases);
     TestUSBMSD::setup_serial_number();
     return status;
