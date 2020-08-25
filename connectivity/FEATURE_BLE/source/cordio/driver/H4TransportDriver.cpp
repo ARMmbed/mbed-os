@@ -27,19 +27,19 @@ void H4TransportDriver::initialize()
 {
     uart.format(
         /* bits */ 8,
-        /* parity */ SerialBase::None,
+        /* parity */ mbed::SerialBase::None,
         /* stop bit */ 1
     );
 
     uart.set_flow_control(
-        /* flow */ SerialBase::RTSCTS,
+        /* flow */ mbed::SerialBase::RTSCTS,
         /* rts */ rts,
         /* cts */ cts
     );
 
     uart.attach(
-        callback(this, &H4TransportDriver::on_controller_irq),
-        SerialBase::RxIrq
+        mbed::callback(this, &H4TransportDriver::on_controller_irq),
+        mbed::SerialBase::RxIrq
     );
 }
 

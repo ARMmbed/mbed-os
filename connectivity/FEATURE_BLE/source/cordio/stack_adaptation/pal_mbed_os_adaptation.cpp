@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
 #include "cordio_stack/platform/include/pal_types.h"
 #include "cordio_stack/platform/include/pal_uart.h"
 #include "hal/ticker_api.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
 #include "pal_codec.h"
+#include "platform/mbed_error.h"
 
 #ifdef __cplusplus
 extern "C" {

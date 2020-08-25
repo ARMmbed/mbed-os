@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
 #include "platform/CriticalSectionLock.h"
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_assert.h"
@@ -309,7 +308,7 @@ const ble::SecurityManager &BLEInstanceBase::getSecurityManager() const
 
 void BLEInstanceBase::waitForEvent()
 {
-    static Timeout nextTimeout;
+    static mbed::Timeout nextTimeout;
     timestamp_t nextTimestamp;
     bool_t pTimerRunning;
 
@@ -633,8 +632,8 @@ void BLEInstanceBase::callDispatcher()
 
     wsfOsDispatcher();
 
-    static LowPowerTimeout nextTimeout;
-    CriticalSectionLock critical_section;
+    static mbed::LowPowerTimeout nextTimeout;
+    mbed::CriticalSectionLock critical_section;
 
     if (wsfOsReadyToSleep()) {
         // setup an mbed timer for the next Cordio timeout
