@@ -3,10 +3,11 @@
 
 target_sources(mbed-os
     PRIVATE
-        I2CEEBlockDevice.cpp
+        source/I2CEEBlockDevice.cpp
 )
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        include
+        include/I2CEE
 )
