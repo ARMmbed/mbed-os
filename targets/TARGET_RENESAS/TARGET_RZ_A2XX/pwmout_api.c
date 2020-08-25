@@ -166,6 +166,11 @@ void pwmout_period_us(pwmout_t *obj, int us)
     pwmout_write(obj, obj->duty);
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    return obj->pwm->GTPR.LONG;
+}
+
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
@@ -186,6 +191,14 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
         value = (float)(us * ((uint32_t)CM1_RENESAS_RZ_A2_P0_CLK / 1000000)) / (float)(obj->pwm->GTPR.LONG + 1);
     }
     pwmout_write(obj, value);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    if (obj->type == 0) {
+        return (float)obj->pwm->GTCCRC.LONG;
+    }
+    return (float)obj->pwm->GTCCRE.LONG ;
 }
 
 const PinMap *pwmout_pinmap()
