@@ -64,7 +64,7 @@ target_sources(mbed-os
 
         fnv_hash/fnv_hash.c
 
-        hmac/hmac_sha1.c
+        hmac/hmac_md.c
 
         ieee_802_11/ieee_802_11.c
 
