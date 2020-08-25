@@ -158,6 +158,16 @@ void pwmout_period_us(pwmout_t *obj, int us)
     pwmout_write(obj, dc);
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    uint32_t tmp = 0;
+    if (pwm_clock_mhz > 0) {
+        uint16_t mod = base->MOD & FTM_MOD_MOD_MASK;
+        tmp = ((mod) + 1) / pwm_clock_mhz;
+    }
+    return tmp;
+}
+
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
@@ -177,6 +187,15 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     base->CONTROLS[obj->pwm_name & 0xF].CnV = value;
     /* Software trigger to update registers */
     FTM_SetSoftwareTrigger(base, true);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    uint32_t tmp = 0;
+    if (pwm_clock_mhz > 0) {
+        tmp = (base->CONTROLS[obj->pwm_name & 0xF].CnV) / pwm_clock_mhz;
+    }
+    return tmp;
 }
 
 const PinMap *pwmout_pinmap()
