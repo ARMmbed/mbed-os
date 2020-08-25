@@ -20,7 +20,7 @@
 #if (DEVICE_SERIAL && DEVICE_SERIAL_FC) || defined(DOXYGEN_ONLY)
 
 #include <cstdint>
-#include "mbed.h"
+#include "drivers/UnbufferedSerial.h"
 #include "ble/driver/CordioHCITransportDriver.h"
 
 namespace ble {
@@ -69,7 +69,7 @@ private:
 
     // Use UnbufferedSerial as we don't require locking primitives.
     // We access the peripheral in interrupt context.
-    UnbufferedSerial uart;
+    mbed::UnbufferedSerial uart;
     PinName cts;
     PinName rts;
 };

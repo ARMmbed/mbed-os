@@ -19,10 +19,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <BLETypes.h>
+#include "platform/Callback.h"
+#include "ble/common/BLETypes.h"
 #include "ble/driver/CordioHCITransportDriver.h"
 #include "ble/common/blecommon.h"
-#include "mbed.h"
 
 // FIXME: make this invisible!
 #include "wsf_buf.h"
