@@ -7,8 +7,6 @@
 ^connectivity/drivers/emac
 ^connectivity/drivers/mbedtls
 ^connectivity/mbedtls
-^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
-^features/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
 ^features/frameworks
 ^connectivity/lwipstack/lwip
 ^connectivity/lwipstack/lwip-sys
@@ -20,6 +18,8 @@
 ^features/unsupported/
 ^hal/storage_abstraction
 ^platform/cxxsupport
+^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
+^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
 ^platform/tests/UNITTESTS
 ^events/tests/UNITTESTS
 ^rtos/source/TARGET_CORTEX/rtx4
