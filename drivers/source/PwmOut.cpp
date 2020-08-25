@@ -30,7 +30,8 @@ PwmOut::PwmOut(PinName pin) :
     _pin(pin),
     _deep_sleep_locked(false),
     _initialized(false),
-    _duty_cycle(0)
+    _duty_cycle(0),
+    _period_us(0)
 {
     PwmOut::init();
 }
@@ -83,6 +84,14 @@ void PwmOut::period_us(int us)
     core_util_critical_section_exit();
 }
 
+int PwmOut::read_period_us()
+{
+    core_util_critical_section_enter();
+    auto val = pwmout_read_period_us(&_pwm);
+    core_util_critical_section_exit();
+    return val;
+}
+
 void PwmOut::pulsewidth(float seconds)
 {
     core_util_critical_section_enter();
@@ -104,11 +113,20 @@ void PwmOut::pulsewidth_us(int us)
     core_util_critical_section_exit();
 }
 
+int PwmOut::read_pulsewitdth_us()
+{
+    core_util_critical_section_enter();
+    auto val = pwmout_read_pulsewidth_us(&_pwm);
+    core_util_critical_section_exit();
+    return val;
+}
+
 void PwmOut::suspend()
 {
     core_util_critical_section_enter();
     if (_initialized) {
         _duty_cycle = PwmOut::read();
+        _period_us = PwmOut::read_period_us();
         PwmOut::deinit();
     }
     core_util_critical_section_exit();
@@ -120,6 +138,7 @@ void PwmOut::resume()
     if (!_initialized) {
         PwmOut::init();
         PwmOut::write(_duty_cycle);
+        PwmOut::period_us(_period_us);
     }
     core_util_critical_section_exit();
 }
