@@ -3,9 +3,8 @@
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/FlashIAP
+        include
+        include/FlashIAP
 )
 
 target_sources(mbed-os
