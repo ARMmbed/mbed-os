@@ -2388,7 +2388,7 @@
             "0852"
         ],
         "device_name": "STM32G031K8Tx",
-                "supported_c_libs": {
+        "supported_c_libs": {
             "arm": [
                 "std",
                 "small"
