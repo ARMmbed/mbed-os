@@ -29,7 +29,7 @@
 #include "platform/CriticalSectionLock.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_critical.h"
-#include "platform/source/mbed_os_timer.h"
+#include "platform/internal/mbed_os_timer.h"
 
 using std::milli;
 using std::chrono::duration;

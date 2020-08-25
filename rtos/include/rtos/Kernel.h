@@ -28,7 +28,7 @@
 #include "rtos/mbed_rtos_types.h"
 #include "platform/mbed_toolchain.h"
 #if !MBED_CONF_RTOS_PRESENT
-#include "platform/source/mbed_os_timer.h"
+#include "platform/internal/mbed_os_timer.h"
 #endif
 
 

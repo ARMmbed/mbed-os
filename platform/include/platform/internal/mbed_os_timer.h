@@ -18,7 +18,7 @@
 #define MBED_MBED_SLEEP_TIMER_H
 
 #include <chrono>
-#include "platform/source/SysTimer.h"
+#include "platform/internal/SysTimer.h"
 
 #if MBED_CONF_RTOS_PRESENT
 extern "C" {
