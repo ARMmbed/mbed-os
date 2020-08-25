@@ -712,11 +712,12 @@ static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *ad
  * | SOCKET_IPV6_MULTICAST_LOOP   | bool              |     Yes         |   Yes   | No                                |
  * | SOCKET_IPV6_JOIN_GROUP       | ns_ipv6_mreq_t    |     Set only    |   No    | No                                |
  * | SOCKET_IPV6_LEAVE_GROUP      | ns_ipv6_mreq_t    |     Set only    |   No    | No                                |
+ * | SOCKET_LATENCY               | ns_ipv6_latency_t |     Get only    |   No    | No                                |
+ * | SOCKET_STAGGER               | ns_ipv6_stagger_t |     Get only    |   No    | No                                |
+ * | SOCKET_EDFE_MODE             | bool              |     Set only    |   No    | No                                |
  * | SOCKET_BROADCAST_PAN         | int8_t            |     Yes         |   No    | No                                |
  * | SOCKET_LINK_LAYER_SECURITY   | int8_t            |     Yes         |   No    | No                                |
  * | SOCKET_INTERFACE_SELECT      | int8_t            |     Yes         |   No    | No                                |
- * | SOCKET_LATENCY               | ns_ipv6_latency_t |     Get only    |   No    | No                                |
- * | SOCKET_STAGGER               | ns_ipv6_stagger_t |     Get only    |   No    | No                                |
  *
  */
 
@@ -755,11 +756,10 @@ static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *ad
 #define SOCKET_IPV6_JOIN_GROUP              15
 /** Leave a multicast group, using ns_ipv6_mreq_t */
 #define SOCKET_IPV6_LEAVE_GROUP             16
-/** Read estimated latency to reach destination */
-#define SOCKET_LATENCY                      17
-/** Read estimated stagger value that can be used as initial delay after bootstrap or firmware update. */
-#define SOCKET_STAGGER                      18
 
+#define SOCKET_LATENCY                      0xf9 /**< Not standard, read estimated latency to reach destination */
+#define SOCKET_STAGGER                      0xfa /**< Not standard, read estimated stagger value that can be used as initial delay after bootstrap or firmware update. */
+#define SOCKET_EDFE_MODE                    0xfb /**< Not standard, Extended Directed Frame Exchange mode enabled/disabled in MAC layer */
 #define SOCKET_BROADCAST_PAN                0xfc /**< Internal use - transmit with IEEE 802.15.4 broadcast PAN ID */
 #define SOCKET_LINK_LAYER_SECURITY          0xfd /**< Not standard enable or disable socket security at link layer (For 802.15.4). */
 #define SOCKET_INTERFACE_SELECT             0xfe /**< Not standard socket interface ID. */

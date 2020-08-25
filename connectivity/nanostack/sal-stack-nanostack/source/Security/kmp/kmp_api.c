@@ -61,17 +61,26 @@ typedef struct {
 
 typedef NS_LIST_HEAD(kmp_sec_prot_entry_t, link) kmp_sec_prot_list_t;
 
+typedef struct {
+    uint8_t                      instance_id;             /**< Message interface instance identifier */
+    uint8_t                      header_size;             /**< Message interface header size */
+    kmp_service_msg_if_send      *send;                   /**< Message interface callback to send KMP frames */
+    ns_list_link_t               link;                    /**< Link */
+} kmp_msg_if_entry_t;
+
+typedef NS_LIST_HEAD(kmp_msg_if_entry_t, link) kmp_msg_if_list_t;
+
 struct kmp_service_s {
     kmp_sec_prot_list_t              sec_prot_list;             /**< Security protocols list */
+    kmp_msg_if_list_t                msg_if_list;               /**< Message interface list */
     kmp_service_incoming_ind         *incoming_ind;             /**< Callback to application to indicate incoming KMP frame */
     kmp_service_tx_status_ind        *tx_status_ind;            /**< Callback to application to indicate TX status */
     kmp_service_addr_get             *addr_get;                 /**< Callback to get addresses related to KMP */
+    kmp_service_ip_addr_get          *ip_addr_get;              /**< Callback to get IP addresses related to KMP */
     kmp_service_api_get              *api_get;                  /**< Callback to get KMP API from a service */
-    kmp_service_msg_if_send          *send;                     /**< Callback to send KMP frames */
     kmp_service_timer_if_start       *timer_start;              /**< Callback to start timer */
     kmp_service_timer_if_stop        *timer_stop;               /**< Callback to stop timer */
     kmp_service_event_if_event_send  *event_send;               /**< Callback to send event */
-    uint8_t                          header_size;               /**< Header size */
     ns_list_link_t                   link;                      /**< Link */
 };
 
@@ -85,6 +94,7 @@ static NS_LIST_DEFINE(kmp_service_list, kmp_service_t, link);
 // KMP instance identifier value
 static uint8_t kmp_instance_identifier = 0;
 
+static kmp_msg_if_entry_t *kmp_api_msg_if_get(kmp_service_t *service, uint8_t msg_if_instance_id);
 static void kmp_api_sec_prot_create_confirm(sec_prot_t *prot, sec_prot_result_e result);
 static void kmp_api_sec_prot_create_indication(sec_prot_t *prot);
 static void kmp_api_sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
@@ -94,12 +104,13 @@ static void kmp_sec_prot_timer_start(sec_prot_t *prot);
 static void kmp_sec_prot_timer_stop(sec_prot_t *prot);
 static void kmp_sec_prot_state_machine_call(sec_prot_t *prot);
 static void kmp_sec_prot_eui64_addr_get(sec_prot_t *prot, uint8_t *local_eui64,  uint8_t *remote_eui64);
+static void kmp_sec_prot_ip_addr_get(sec_prot_t *prot, uint8_t *address);
 static sec_prot_t *kmp_sec_prot_by_type_get(sec_prot_t *prot, uint8_t type);
 static void kmp_sec_prot_receive_disable(sec_prot_t *prot);
 
 #define kmp_api_get_from_prot(prot) (kmp_api_t *)(((uint8_t *)prot) - offsetof(kmp_api_t, sec_prot));
 
-kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, sec_prot_cfg_t *prot_cfg, sec_timer_cfg_t *timer_cfg)
+kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, uint8_t msg_if_instance_id, sec_cfg_t *sec_cfg)
 {
     if (!service) {
         return 0;
@@ -120,6 +131,11 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, sec_prot_cfg_
     // Size for security protocol internal data
     uint16_t sec_size = sec_prot->size();
 
+    kmp_msg_if_entry_t *msg_if_entry = kmp_api_msg_if_get(service, msg_if_instance_id);
+    if (!msg_if_entry) {
+        return 0;
+    }
+
     kmp_api_t *kmp = ns_dyn_mem_temporary_alloc(sizeof(kmp_api_t) + sec_size);
     if (!kmp) {
         return 0;
@@ -137,9 +153,10 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, sec_prot_cfg_
     kmp->timer_start_pending = false;
     kmp->receive_disable = false;
 
-    memset(&kmp->sec_prot, 0, sec_size);
+    memset(&kmp->sec_prot, 0, sec_size + offsetof(sec_prot_t, data));
 
-    kmp->sec_prot.header_size = service->header_size;
+    kmp->sec_prot.header_size = msg_if_entry->header_size;
+    kmp->sec_prot.receive_peer_hdr_size = msg_if_entry->header_size;
     kmp->sec_prot.create_conf = kmp_api_sec_prot_create_confirm;
     kmp->sec_prot.create_ind = kmp_api_sec_prot_create_indication;
     kmp->sec_prot.finished_ind = kmp_api_sec_prot_finished_indication;
@@ -149,10 +166,11 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, sec_prot_cfg_
     kmp->sec_prot.timer_stop = kmp_sec_prot_timer_stop;
     kmp->sec_prot.state_machine_call = kmp_sec_prot_state_machine_call;
     kmp->sec_prot.addr_get = kmp_sec_prot_eui64_addr_get;
+    kmp->sec_prot.ip_addr_get = kmp_sec_prot_ip_addr_get;
     kmp->sec_prot.type_get = kmp_sec_prot_by_type_get;
     kmp->sec_prot.receive_disable = kmp_sec_prot_receive_disable;
-    kmp->sec_prot.prot_cfg = prot_cfg;
-    kmp->sec_prot.timer_cfg = timer_cfg;
+    kmp->sec_prot.sec_cfg = sec_cfg;
+    kmp->sec_prot.msg_if_instance_id = msg_if_instance_id;
 
     if (sec_prot->init(&kmp->sec_prot) < 0) {
         ns_dyn_mem_free(kmp);
@@ -160,6 +178,16 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, sec_prot_cfg_
     }
 
     return (kmp_api_t *) kmp;
+}
+
+static kmp_msg_if_entry_t *kmp_api_msg_if_get(kmp_service_t *service, uint8_t msg_if_instance_id)
+{
+    ns_list_foreach(kmp_msg_if_entry_t, list_entry, &service->msg_if_list) {
+        if (list_entry->instance_id == msg_if_instance_id) {
+            return list_entry;
+        }
+    }
+    return NULL;
 }
 
 int8_t kmp_api_start(kmp_api_t *kmp)
@@ -216,12 +244,19 @@ static int8_t kmp_sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size)
     kmp_type_e kmp_id = kmp->type;
     if (kmp_id > IEEE_802_1X_INITIAL_KEY) {
         kmp_id -= IEEE_802_1X_INITIAL_KEY;
+    } else if (kmp_id == RADIUS_IEEE_802_1X_MKA) {
+        kmp_id = IEEE_802_1X_MKA;
+    }
+
+    kmp_msg_if_entry_t *msg_if_entry = kmp_api_msg_if_get(kmp->service, prot->msg_if_instance_id);
+    if (!msg_if_entry) {
+        return -1;
     }
 
     int8_t result = -1;
 
-    if (kmp->service->send) {
-        result = kmp->service->send(kmp->service, kmp_id, kmp->addr, pdu, size, kmp->instance_identifier);
+    if (msg_if_entry->send) {
+        result = msg_if_entry->send(kmp->service, prot->msg_if_instance_id, kmp_id, kmp->addr, pdu, size, kmp->instance_identifier);
     }
 
     if (result < 0) {
@@ -267,6 +302,13 @@ static void kmp_sec_prot_eui64_addr_get(sec_prot_t *prot, uint8_t *local_eui64, 
     }
 }
 
+static void kmp_sec_prot_ip_addr_get(sec_prot_t *prot, uint8_t *address)
+{
+    kmp_api_t *kmp = kmp_api_get_from_prot(prot);
+
+    kmp->service->ip_addr_get(kmp->service, kmp, address);
+}
+
 static sec_prot_t *kmp_sec_prot_by_type_get(sec_prot_t *prot, uint8_t type)
 {
     kmp_api_t *kmp = kmp_api_get_from_prot(prot);
@@ -277,8 +319,14 @@ static sec_prot_t *kmp_sec_prot_by_type_get(sec_prot_t *prot, uint8_t type)
         case SEC_PROT_TYPE_EAP_TLS:
             kmp_type = IEEE_802_1X_MKA;
             break;
+        case SEC_PROT_TYPE_RADIUS_EAP_TLS:
+            kmp_type = RADIUS_IEEE_802_1X_MKA;
+            break;
         case SEC_PROT_TYPE_TLS:
             kmp_type = TLS_PROT;
+            break;
+        case SEC_PROT_TYPE_RADIUS_CLIENT:
+            kmp_type = RADIUS_CLIENT_PROT;
             break;
         default:
             return NULL;
@@ -326,6 +374,17 @@ kmp_type_e kmp_api_type_get(kmp_api_t *kmp)
 bool kmp_api_receive_disable(kmp_api_t *kmp)
 {
     return kmp->receive_disable;
+}
+
+bool kmp_api_receive_check(kmp_api_t *kmp, const void *pdu, uint16_t size)
+{
+    if (kmp->sec_prot.receive_check) {
+        int8_t ret = kmp->sec_prot.receive_check(&kmp->sec_prot, pdu, size);
+        if (ret >= 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 kmp_type_e kmp_api_type_from_id_get(uint8_t kmp_id)
@@ -380,12 +439,11 @@ kmp_service_t *kmp_service_create(void)
     }
 
     ns_list_init(&service->sec_prot_list);
+    ns_list_init(&service->msg_if_list);
     service->incoming_ind = 0;
     service->tx_status_ind = 0;
     service->addr_get = 0;
     service->api_get = 0;
-    service->send = 0;
-    service->header_size = 0;
 
     ns_list_add_to_start(&kmp_service_list, service);
 
@@ -404,7 +462,10 @@ int8_t kmp_service_delete(kmp_service_t *service)
                 ns_list_remove(&list_entry->sec_prot_list, sec_list_entry);
                 ns_dyn_mem_free(sec_list_entry);
             }
-
+            ns_list_foreach_safe(kmp_msg_if_entry_t, msg_if_list_entry, &list_entry->msg_if_list) {
+                ns_list_remove(&list_entry->msg_if_list, msg_if_list_entry);
+                ns_dyn_mem_free(msg_if_list_entry);
+            }
             ns_list_remove(&kmp_service_list, list_entry);
             ns_dyn_mem_free(list_entry);
             return 0;
@@ -420,7 +481,7 @@ static void kmp_sec_prot_state_machine_call(sec_prot_t *prot)
     kmp->service->event_send(kmp->service, prot);
 }
 
-int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_tx_status_ind *tx_status_ind, kmp_service_addr_get *addr_get, kmp_service_api_get *api_get)
+int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_tx_status_ind *tx_status_ind, kmp_service_addr_get *addr_get, kmp_service_ip_addr_get *ip_addr_get, kmp_service_api_get *api_get)
 {
     if (!service) {
         return -1;
@@ -429,30 +490,60 @@ int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind 
     service->incoming_ind = incoming_ind;
     service->tx_status_ind = tx_status_ind;
     service->addr_get = addr_get;
+    service->ip_addr_get = ip_addr_get;
     service->api_get = api_get;
 
     return 0;
 }
 
-int8_t kmp_service_msg_if_register(kmp_service_t *service, kmp_service_msg_if_send *send, uint8_t header_size)
+int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, kmp_service_msg_if_send *send, uint8_t header_size)
 {
     if (!service) {
         return -1;
     }
 
-    service->send = send;
-    service->header_size = header_size;
+    kmp_msg_if_entry_t *entry = NULL;
+
+    ns_list_foreach(kmp_msg_if_entry_t, list_entry, &service->msg_if_list) {
+        // Message interface already registered
+        if (list_entry->instance_id == instance_id) {
+            entry = list_entry;
+            break;
+        }
+    }
+
+    // If removing message interface
+    if (send == NULL) {
+        if (entry != NULL) {
+            ns_list_remove(&service->msg_if_list, entry);
+            ns_dyn_mem_free(entry);
+        }
+        return 0;
+    }
+
+    // Allocate new entry if does not exists
+    if (entry == NULL) {
+        entry = ns_dyn_mem_temporary_alloc(sizeof(kmp_msg_if_entry_t));
+        if (entry == NULL) {
+            return -1;
+        }
+        ns_list_add_to_start(&service->msg_if_list, entry);
+    }
+
+    entry->instance_id = instance_id;
+    entry->send = send;
+    entry->header_size = header_size;
 
     return 0;
 }
 
-int8_t kmp_service_msg_if_receive(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size)
+int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size)
 {
     if (!service) {
         return -1;
     }
 
-    kmp_api_t *kmp = (kmp_api_t *) service->incoming_ind(service, type, addr);
+    kmp_api_t *kmp = (kmp_api_t *) service->incoming_ind(service, instance_id, type, addr, pdu, size);
     if (!kmp) {
         return -1;
     }

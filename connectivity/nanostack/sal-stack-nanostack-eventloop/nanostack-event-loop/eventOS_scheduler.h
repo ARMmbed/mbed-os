@@ -15,10 +15,16 @@
  */
 #ifndef EVENTOS_SCHEDULER_H_
 #define EVENTOS_SCHEDULER_H_
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \file eventOS_scheduler.h
+ * \ingroup nanostack-eventloop
+ * \brief Event scheduler's control functions.
+ */
+
 #include "ns_types.h"
 
 /* Compatibility with older ns_types.h */

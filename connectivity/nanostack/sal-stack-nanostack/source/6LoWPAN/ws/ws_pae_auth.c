@@ -39,9 +39,11 @@
 #include "Security/protocols/sec_prot_keys.h"
 #include "Security/protocols/key_sec_prot/key_sec_prot.h"
 #include "Security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.h"
+#include "Security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.h"
 #include "Security/protocols/tls_sec_prot/tls_sec_prot.h"
 #include "Security/protocols/fwh_sec_prot/auth_fwh_sec_prot.h"
 #include "Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.h"
+#include "Security/protocols/radius_sec_prot/radius_client_sec_prot.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/ws/ws_pae_timers.h"
@@ -90,14 +92,16 @@ typedef struct {
     ws_pae_auth_nw_keys_remove *nw_keys_remove;              /**< Network keys remove callback */
     ws_pae_auth_nw_key_index_set *nw_key_index_set;          /**< Key index set callback */
     ws_pae_auth_nw_info_updated *nw_info_updated;            /**< Security keys network info updated callback */
+    ws_pae_auth_ip_addr_get *ip_addr_get;                    /**< IP address get callback */
     supp_list_t active_supp_list;                            /**< List of active supplicants */
     arm_event_storage_t *timer;                              /**< Timer */
     sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
     const sec_prot_certs_t *certs;                           /**< Certificates */
     sec_prot_keys_nw_info_t *sec_keys_nw_info;               /**< Security keys network information */
-    sec_timer_cfg_t *sec_timer_cfg;                          /**< Timer configuration */
-    sec_prot_cfg_t *sec_prot_cfg;                            /**< Protocol Configuration */
+    sec_cfg_t *sec_cfg;                                      /**< Security configuration */
     uint16_t supp_max_number;                                /**< Max number of stored supplicants */
+    uint8_t relay_socked_msg_if_instance_id;                 /**< Relay socket message interface instance identifier */
+    uint8_t radius_socked_msg_if_instance_id;                /**< Radius socket message interface instance identifier */
     bool timer_running : 1;                                  /**< Timer is running */
     bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
     bool gtk_new_act_time_exp: 1;                            /**< GTK new activation time expired */
@@ -119,22 +123,23 @@ static int8_t ws_pae_auth_timer_start(pae_auth_t *pae_auth);
 static int8_t ws_pae_auth_timer_stop(pae_auth_t *pae_auth);
 static bool ws_pae_auth_timer_running(pae_auth_t *pae_auth);
 static void ws_pae_auth_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
+static void ws_pae_auth_kmp_service_ip_addr_get(kmp_service_t *service, kmp_api_t *kmp, uint8_t *address);
 static kmp_api_t *ws_pae_auth_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type);
-static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr);
+static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t msg_if_instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size);
 static void ws_pae_auth_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_auth_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
 static void ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
 static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
-static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, supp_entry_t *supp_entry, sec_prot_cfg_t *prot_cfg, sec_timer_cfg_t *timer_cfg);
+static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, uint8_t socked_msg_if_instance_id, supp_entry_t *supp_entry, sec_cfg_t *sec_cfg);
 static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp);
 
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_auth_list, pae_auth_t, link);
 
-int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info)
+int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info)
 {
-    if (!interface_ptr || !next_gtks || !certs || !sec_timer_cfg || !sec_prot_cfg || !sec_keys_nw_info) {
+    if (!interface_ptr || !next_gtks || !certs || !sec_cfg || !sec_keys_nw_info) {
         return -1;
     }
 
@@ -146,7 +151,6 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     if (!pae_auth) {
         return -1;
     }
-
 
     memset(&pae_auth->network_name, 0, 33);
     pae_auth->pan_id = 0xffff;
@@ -162,19 +166,21 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->next_gtks = next_gtks;
     pae_auth->certs = certs;
     pae_auth->sec_keys_nw_info = sec_keys_nw_info;
-    pae_auth->sec_timer_cfg = sec_timer_cfg;
-    pae_auth->sec_prot_cfg = sec_prot_cfg;
+    pae_auth->sec_cfg = sec_cfg;
     pae_auth->supp_max_number = SUPPLICANT_MAX_NUMBER;
 
     pae_auth->gtk_new_inst_req_exp = false;
     pae_auth->gtk_new_act_time_exp = false;
+
+    pae_auth->relay_socked_msg_if_instance_id = 0;
+    pae_auth->radius_socked_msg_if_instance_id = 0;
 
     pae_auth->kmp_service = kmp_service_create();
     if (!pae_auth->kmp_service) {
         goto error;
     }
 
-    if (kmp_service_cb_register(pae_auth->kmp_service, ws_pae_auth_kmp_incoming_ind, NULL, ws_pae_auth_kmp_service_addr_get, ws_pae_auth_kmp_service_api_get)) {
+    if (kmp_service_cb_register(pae_auth->kmp_service, ws_pae_auth_kmp_incoming_ind, NULL, ws_pae_auth_kmp_service_addr_get, ws_pae_auth_kmp_service_ip_addr_get, ws_pae_auth_kmp_service_api_get)) {
         goto error;
     }
 
@@ -190,10 +196,18 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
         goto error;
     }
 
-    if (auth_eap_tls_sec_prot_register(pae_auth->kmp_service) < 0) {
+    // Register radius EAP-TLS and radius client security protocols
+    if (radius_eap_tls_sec_prot_register(pae_auth->kmp_service) < 0) {
+        goto error;
+    }
+    if (radius_client_sec_prot_register(pae_auth->kmp_service) < 0) {
         goto error;
     }
 
+    // Register EAP-TLS and TLS security protocols
+    if (auth_eap_tls_sec_prot_register(pae_auth->kmp_service) < 0) {
+        goto error;
+    }
     if (server_tls_sec_prot_register(pae_auth->kmp_service) < 0) {
         goto error;
     }
@@ -241,7 +255,24 @@ int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr,
         return -1;
     }
 
-    if (kmp_socket_if_register(pae_auth->kmp_service, local_port, remote_addr, remote_port) < 0) {
+    if (kmp_socket_if_register(pae_auth->kmp_service, &pae_auth->relay_socked_msg_if_instance_id, true, local_port, remote_addr, remote_port) < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface_ptr, const uint8_t *remote_addr)
+{
+    pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
+    if (!pae_auth) {
+        return -1;
+    }
+    if (!pae_auth->kmp_service) {
+        return -1;
+    }
+
+    if (kmp_socket_if_register(pae_auth->kmp_service, &pae_auth->radius_socked_msg_if_instance_id, false, 0, remote_addr, 1812) < 0) {
         return -1;
     }
 
@@ -263,7 +294,7 @@ int8_t ws_pae_auth_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated)
+void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get)
 {
     if (!interface_ptr) {
         return;
@@ -278,6 +309,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
     pae_auth->nw_key_insert = nw_key_insert;
     pae_auth->nw_key_index_set = nw_key_index_set;
     pae_auth->nw_info_updated = nw_info_updated;
+    pae_auth->ip_addr_get = ip_addr_get;
 }
 
 void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
@@ -392,7 +424,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
         // As default removes other keys than active
         int8_t not_removed_index = active_index;
 
-        uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(pae_auth->sec_timer_cfg);
+        uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(pae_auth->sec_cfg);
 
         uint32_t active_lifetime = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, active_index);
 
@@ -470,8 +502,10 @@ void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr)
     ws_pae_lib_supp_list_purge(&pae_auth->active_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE);
 }
 
-int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name)
+int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
 {
+    (void) updated;
+
     if (!interface_ptr || !network_name) {
         return -1;
     }
@@ -666,7 +700,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds);
             if (active_index == i) {
                 if (!pae_auth->gtk_new_inst_req_exp) {
-                    pae_auth->gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_timer_cfg, timer_seconds);
+                    pae_auth->gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_cfg, timer_seconds);
                     if (pae_auth->gtk_new_inst_req_exp) {
                         int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(pae_auth->sec_keys_nw_info->gtks);
                         if (second_index < 0) {
@@ -682,7 +716,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                 }
 
                 if (!pae_auth->gtk_new_act_time_exp) {
-                    pae_auth->gtk_new_act_time_exp =  ws_pae_timers_gtk_new_activation_time(pae_auth->sec_timer_cfg, timer_seconds);
+                    pae_auth->gtk_new_act_time_exp =  ws_pae_timers_gtk_new_activation_time(pae_auth->sec_cfg, timer_seconds);
                     if (pae_auth->gtk_new_act_time_exp) {
                         int8_t new_active_index = ws_pae_auth_new_gtk_activate(pae_auth);
                         tr_info("GTK new activation time active index: %i, time: %"PRIu32", new index: %i, system time: %"PRIu32"", active_index, timer_seconds, new_active_index, protocol_core_monotonic_time / 10);
@@ -737,7 +771,7 @@ static void ws_pae_auth_gtk_key_insert(pae_auth_t *pae_auth)
     }
 
     // Gets latest installed key lifetime and adds GTK expire offset to it
-    uint32_t lifetime = pae_auth->sec_timer_cfg->gtk_expire_offset;
+    uint32_t lifetime = pae_auth->sec_cfg->timer_cfg.gtk_expire_offset;
     int8_t last_index = sec_prot_keys_gtk_install_order_last_index_get(pae_auth->sec_keys_nw_info->gtks);
     if (last_index >= 0) {
         lifetime += sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, last_index);
@@ -840,6 +874,18 @@ static void ws_pae_auth_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *
     }
 }
 
+static void ws_pae_auth_kmp_service_ip_addr_get(kmp_service_t *service, kmp_api_t *kmp, uint8_t *address)
+{
+    (void) kmp;
+
+    pae_auth_t *pae_auth = ws_pae_auth_by_kmp_service_get(service);
+    if (!pae_auth) {
+        return;
+    }
+
+    pae_auth->ip_addr_get(pae_auth->interface_ptr, address);
+}
+
 static kmp_api_t *ws_pae_auth_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type)
 {
     (void) service;
@@ -852,19 +898,26 @@ static kmp_api_t *ws_pae_auth_kmp_service_api_get(kmp_service_t *service, kmp_ap
     return ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, type);
 }
 
-static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr)
+static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t msg_if_instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size)
 {
     pae_auth_t *pae_auth = ws_pae_auth_by_kmp_service_get(service);
     if (!pae_auth) {
         return NULL;
     }
 
-    // Find supplicant from list of active supplicants
+    // For radius messages
+    if (msg_if_instance_id == pae_auth->radius_socked_msg_if_instance_id) {
+        // Find KMP from list of active supplicants based on radius message
+        kmp_api_t *kmp_api = ws_pae_lib_supp_list_kmp_receive_check(&pae_auth->active_supp_list, pdu, size);
+        return kmp_api;
+    }
+
+    // For relay messages find supplicant from list of active supplicants based on EUI-64
     supp_entry_t *supp_entry = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->active_supp_list, kmp_address_eui_64_get(addr));
 
     if (!supp_entry) {
         // Checks if active supplicant list has space for new supplicants
-        if (ws_pae_lib_supp_list_active_limit_reached(&pae_auth->active_supp_list, pae_auth->sec_prot_cfg->sec_max_ongoing_authentication)) {
+        if (ws_pae_lib_supp_list_active_limit_reached(&pae_auth->active_supp_list, pae_auth->sec_cfg->prot_cfg.sec_max_ongoing_authentication)) {
             tr_debug("PAE: active limit reached, eui-64: %s", trace_array(kmp_address_eui_64_get(addr), 8));
             return NULL;
         }
@@ -892,14 +945,21 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_
     // Increases waiting time for supplicant authentication
     ws_pae_lib_supp_timer_ticks_set(supp_entry, WAIT_FOR_AUTHENTICATION_TICKS);
 
-    // Get KMP for supplicant
-    kmp_api_t *kmp = ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, type);
+    kmp_type_e kmp_type_to_search = type;
+
+    // If radius is enabled, route EAP-TLS to radius EAP-TLS
+    if (pae_auth->sec_cfg->radius_cfg.radius_addr_set && type == IEEE_802_1X_MKA) {
+        kmp_type_to_search = RADIUS_IEEE_802_1X_MKA;
+    }
+
+    // Search for existing KMP for supplicant
+    kmp_api_t *kmp = ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, kmp_type_to_search);
     if (kmp) {
         return kmp;
     }
 
     // Create a new KMP for initial eapol-key
-    kmp = kmp_api_create(service, type + IEEE_802_1X_INITIAL_KEY, pae_auth->sec_prot_cfg, pae_auth->sec_timer_cfg);
+    kmp = kmp_api_create(service, type + IEEE_802_1X_INITIAL_KEY, pae_auth->relay_socked_msg_if_instance_id, pae_auth->sec_cfg);
 
     if (!kmp) {
         return 0;
@@ -998,15 +1058,15 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     // Increases waiting time for supplicant authentication
     ws_pae_lib_supp_timer_ticks_set(supp_entry, WAIT_FOR_AUTHENTICATION_TICKS);
 
-    if (next_type == IEEE_802_1X_MKA) {
+    if (next_type == IEEE_802_1X_MKA || next_type == RADIUS_IEEE_802_1X_MKA) {
         /* For EAP-TLS, limits the number of ongoing negotiations. If limit
            is reached, authenticator does not initiate EAP-TLS right away.
            If previous EAP-TLS negotiation completes before negotiation
            trigger timeout, authenticator initiates EAP-TLS towards
            supplicant. Otherwise supplicant must re-send initial EAPOL-Key
            to try again using its trickle schedule */
-        uint16_t ongoing_eap_tls_cnt = ws_pae_lib_supp_list_kmp_count(&pae_auth->active_supp_list, IEEE_802_1X_MKA);
-        if (ongoing_eap_tls_cnt >= pae_auth->sec_prot_cfg->sec_max_ongoing_authentication) {
+        uint16_t ongoing_eap_tls_cnt = ws_pae_lib_supp_list_kmp_count(&pae_auth->active_supp_list, next_type);
+        if (ongoing_eap_tls_cnt >= pae_auth->sec_cfg->prot_cfg.sec_max_ongoing_authentication) {
             supp_entry->retry_ticks = EAP_TLS_NEGOTIATION_TRIGGER_TIMEOUT;
             tr_info("EAP-TLS max ongoing reached, count %i, delayed: eui-64: %s", ongoing_eap_tls_cnt, trace_array(supp_entry->addr.eui_64, 8));
             return;
@@ -1014,12 +1074,25 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     }
 
     // Create new instance
-    kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, next_type, supp_entry, pae_auth->sec_prot_cfg, pae_auth->sec_timer_cfg);
+    kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, next_type, pae_auth->relay_socked_msg_if_instance_id, supp_entry, pae_auth->sec_cfg);
     if (!new_kmp) {
         return;
     }
 
-    // For EAP-TLS create also TLS in addition to EAP-TLS
+    // For radius EAP-TLS create also radius client in addition to EAP-TLS
+    if (next_type == RADIUS_IEEE_802_1X_MKA) {
+        if (ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, RADIUS_CLIENT_PROT) != NULL) {
+            // Radius client already exists, wait for it to be deleted
+            ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
+            return;
+        }
+        // Create radius client instance */
+        if (ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, RADIUS_CLIENT_PROT, pae_auth->radius_socked_msg_if_instance_id, supp_entry, pae_auth->sec_cfg) == NULL) {
+            ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
+            return;
+        }
+    }
+    // For EAP-TLS create also TLS client in addition to EAP-TLS
     if (next_type == IEEE_802_1X_MKA) {
         if (ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, TLS_PROT) != NULL) {
             // TLS already exists, wait for it to be deleted
@@ -1027,7 +1100,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
             return;
         }
         // Create TLS instance */
-        if (ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, TLS_PROT, supp_entry, pae_auth->sec_prot_cfg, pae_auth->sec_timer_cfg) == NULL) {
+        if (ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, TLS_PROT, pae_auth->relay_socked_msg_if_instance_id, supp_entry, pae_auth->sec_cfg) == NULL) {
             ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
             return;
         }
@@ -1045,7 +1118,11 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     if (sec_keys->pmk_mismatch) {
         sec_keys->ptk_mismatch = true;
         // start EAP-TLS towards supplicant
-        next_type = IEEE_802_1X_MKA;
+        if (pae_auth->sec_cfg->radius_cfg.radius_addr_set) {
+            next_type = RADIUS_IEEE_802_1X_MKA;
+        } else {
+            next_type = IEEE_802_1X_MKA;
+        }
         tr_info("PAE start EAP-TLS, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     } else if (sec_keys->ptk_mismatch) {
         // start 4WH towards supplicant
@@ -1054,7 +1131,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     }
 
     int8_t gtk_index = -1;
-    if (next_type != IEEE_802_1X_MKA) {
+    if (next_type != IEEE_802_1X_MKA && next_type != RADIUS_IEEE_802_1X_MKA) {
         // Checks if GTK needs to be inserted
         gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys);
 
@@ -1071,7 +1148,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
              * has been, trigger 4WH to update also the PTK. This prevents writing multiple
              * GTK keys to same index using same PTK.
              */
-            if (pae_auth->sec_timer_cfg->gtk_expire_offset > SHORT_GTK_LIFETIME &&
+            if (pae_auth->sec_cfg->timer_cfg.gtk_expire_offset > SHORT_GTK_LIFETIME &&
                     sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys, gtk_index)) {
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;
@@ -1094,14 +1171,21 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     return next_type;
 }
 
-static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, supp_entry_t *supp_entry, sec_prot_cfg_t *prot_cfg, sec_timer_cfg_t *timer_cfg)
+static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, uint8_t socked_msg_if_instance_id, supp_entry_t *supp_entry, sec_cfg_t *sec_cfg)
 {
     // Create KMP instance for new authentication
-    kmp_api_t *kmp = kmp_api_create(service, type, prot_cfg, timer_cfg);
+    kmp_api_t *kmp = kmp_api_create(service, type, socked_msg_if_instance_id, sec_cfg);
 
     if (!kmp) {
         return NULL;
     }
+
+    kmp_api_data_set(kmp, supp_entry);
+    // Sets address to KMP
+    kmp_api_addr_set(kmp, &supp_entry->addr);
+
+    // Sets security keys to KMP
+    kmp_api_sec_keys_set(kmp, &supp_entry->sec_keys);
 
     if (ws_pae_lib_kmp_list_add(&supp_entry->kmp_list, kmp) == NULL) {
         kmp_api_delete(kmp);
@@ -1135,7 +1219,7 @@ static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp)
     pae_auth_t *pae_auth = NULL;
     supp_entry_t *retry_supp = NULL;
     // When EAP-TLS completes check if there are other supplicants that have requested it lately
-    if (kmp_api_type_get(kmp) == IEEE_802_1X_MKA) {
+    if (kmp_api_type_get(kmp) == IEEE_802_1X_MKA || kmp_api_type_get(kmp) == RADIUS_IEEE_802_1X_MKA) {
         kmp_service_t *service = kmp_api_service_get(kmp);
         pae_auth = ws_pae_auth_by_kmp_service_get(service);
         if (pae_auth) {

@@ -23,8 +23,18 @@
 extern "C" {
 #endif
 
+/** \defgroup ns_list Linked list support library.
+ *
+ * The ns_list.h file provides a doubly-linked list/queue, providing O(1)
+ * performance for all insertion/removal operations, and access to either
+ * end of the list.
+ *
+ * See \ref ns_list.h for documentation.
+ */
+
 /** \file
- * \brief Linked list support library
+ * \ingroup ns_list
+ * \brief Linked list support library.
  *
  * The ns_list.h file provides a doubly-linked list/queue, providing O(1)
  * performance for all insertion/removal operations, and access to either

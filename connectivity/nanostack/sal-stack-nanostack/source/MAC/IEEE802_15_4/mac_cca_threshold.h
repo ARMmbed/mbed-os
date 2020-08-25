@@ -49,6 +49,7 @@ int8_t mac_cca_thr_deinit(protocol_interface_rf_mac_setup_s *rf_ptr);
 
 /**
  * @brief Read CCA threshold of specific channel.
+ * @param rf_ptr Pointer to MAC instance.
  * @param channel Channel.
  * @return CCA threshold (dBm), CCA_FAILED_DBM Feature not enabled.
  */
@@ -56,10 +57,18 @@ int8_t mac_cca_thr_get_dbm(protocol_interface_rf_mac_setup_s *rf_ptr, uint8_t ch
 
 /**
  * @brief Update CCA threshold of specific channel.
+ * @param rf_ptr Pointer to MAC instance.
  * @param channel Channel.
  * @param dbm CCA threshold (dBm).
  * @return 0 Updated, negative Already using this value.
  */
 int8_t mac_cca_threshold_update(protocol_interface_rf_mac_setup_s *rf_ptr, uint8_t channel, int8_t dbm);
+
+/**
+ * @brief Get pointer to CCA threshold table.
+ * @param rf_ptr Pointer to MAC instance.
+ * @return CCA threshold table.
+ */
+mac_cca_threshold_s *mac_get_cca_threshold_table(protocol_interface_rf_mac_setup_s *rf_ptr);
 
 #endif /* MAC_CCA_THRESHOLD_H_ */

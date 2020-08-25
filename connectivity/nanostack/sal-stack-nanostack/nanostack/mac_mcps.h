@@ -44,6 +44,7 @@ typedef struct mcps_data_req_s {
     bool PendingBit: 1;             /**< Specifies whether more fragments are to be sent or not */
     bool SeqNumSuppressed: 1;       /**< True suppress sequence number from frame. This will be only checked when 2015 extension is enabled */
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
+    bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
     mlme_security_t Key;            /**< Security key */
 } mcps_data_req_t;
 
@@ -86,6 +87,7 @@ typedef struct mcps_data_ind_s {
     uint16_t SrcPANId;          /**< Source PAN ID */
     uint8_t SrcAddr[8];         /**< Source address */
     unsigned DstAddrMode: 2;    /**< Destination address mode */
+    bool DSN_suppressed: 1;     /**< Indicate when DSN not include valid sequency id */
     uint16_t DstPANId;          /**< Destination PAN ID */
     uint8_t DstAddr[8];         /**< Destination address */
     uint8_t mpduLinkQuality;    /**< LQI value measured during reception of the MPDU */
@@ -163,6 +165,32 @@ typedef struct mcps_purge_conf_s {
     uint8_t msduHandle;         /**< Handle associated with MSDU */
     uint8_t status;             /**< Status of the purge performed */
 } mcps_purge_conf_t;
+
+#define MCPS_EDFE_NORMAL_FRAME 0    /**< Normal Data message normal behaviour */
+#define MCPS_EDFE_MALFORMED_FRAME 1 /**< Drop whole packet */
+#define MCPS_EDFE_TX_FRAME  2       /**< Tx message send data if pending in 1ms -5ms time window */
+#define MCPS_EDFE_RESPONSE_FRAME 3  /**< Response message send data if pending in 1ms -5ms time window */
+#define MCPS_EDFE_FINAL_FRAME_TX 4  /**< Final response message send in 1ms -5ms time window */
+#define MCPS_EDFE_FINAL_FRAME_RX 5  /**< EDFE session can be close at MAC side and drop this packet */
+
+/**
+ * @brief struct mcps_edfe_response_t EDFE detetction and response structure
+ *
+ */
+typedef struct mcps_edfe_response_s {
+    struct mcps_data_ie_list ie_elements;   /**< IE hader and payload's elements from Packet */
+    struct mcps_data_req_ie_list ie_response; /**< IE hader and payload's elements for Response Packet */
+    uint8_t edfe_message_status; /**< Indicate Packet handler status */
+    uint8_t message_handle; /**< EDFE Data request message ID for detect pending data at LLC layer*/
+    int8_t rssi;    /**< Received packet signal streng in dbm */
+    unsigned SrcAddrMode: 2;        /**< Source address mode: used for RX validation and TX purpose */
+    unsigned DstAddrMode: 2;        /**< Destination address mode: used for RX validation and TX purpose */
+    uint8_t Address[8];             /**< RX: Packet Address Src & TX Response Destination address */
+    bool SeqNumSuppressed: 1;       /**< True suppress sequence number from frame. This will be only checked when 2015 extension is enabled */
+    bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame.  */
+    bool wait_response: 1;          /**< True enable response wait timer and re-send operation.  */
+    bool use_message_handle_to_discover: 1; /**< EDFE Data request message ID is valid at message_handle.  */
+} mcps_edfe_response_t;
 
 
 #endif // MAC_MCPS_H
