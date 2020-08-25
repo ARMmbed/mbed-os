@@ -40,18 +40,11 @@ elseif (MBED_CPU_CORE STREQUAL Cortex-M7FD)
     set(CMAKE_SYSTEM_PROCESSOR cortex-m7)
 endif()
 
-
-
-include(${MBED_ROOT}/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
-
 # Compiler setup
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_CROSSCOMPILING TRUE)
 set(CMAKE_C_COMPILER_WORKS TRUE)
 set(CMAKE_CXX_COMPILER_WORKS TRUE)
-
-# Project setup
-enable_language(C CXX ASM)
 
 # Set the language standard to use per target
 function(mbed_set_language_standard target)
