@@ -249,6 +249,11 @@ void pwmout_period_us(pwmout_t *obj, int us)
     timer_enable(obj->pwm);
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    return TIMER_CAR(obj->pwm);
+}
+
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
@@ -296,6 +301,34 @@ static uint32_t timer_get_clock(uint32_t timer_periph)
     }
 
     return timerclk;
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    uint16_t pulse = 0;
+
+    switch (obj->ch) {
+        case TIMER_CH_0:
+            pulse = TIMER_CH0CV(obj->pwm);
+            break;
+
+        case TIMER_CH_1:
+            pulse = TIMER_CH1CV(obj->pwm);
+            break;
+
+        case TIMER_CH_2:
+            pulse = TIMER_CH2CV(obj->pwm);
+            break;
+
+        case TIMER_CH_3:
+            pulse = TIMER_CH3CV(obj->pwm);
+            break;
+
+        default:
+            error("Error: pwm channel error! \r\n");
+    }
+
+    return pulse;
 }
 
 const PinMap *pwmout_pinmap()
