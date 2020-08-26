@@ -250,7 +250,7 @@ am_hal_triple_read(uint32_t u32TimerAddr, uint32_t ui32Data[])
     " str   R3, [R0, #8]\n"
     :
     : [u32TimerAddr] "r" (u32TimerAddr),
-      [u32Data] "r" (&u32Data[0])
+      [ui32Data] "r" (&ui32Data[0])
     : "r0", "r1", "r2", "r3", "r4"
   );
 }

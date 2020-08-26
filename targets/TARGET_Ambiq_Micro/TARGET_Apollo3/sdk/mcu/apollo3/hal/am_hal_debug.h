@@ -89,7 +89,7 @@ extern "C"
 //
 #define DBG_FILENAME    __MODULE__
 #elif defined(__ARMCC_VERSION)
-#define DBG_FILENAME    __MODULE__
+#define DBG_FILENAME    __FILE__
 #else
 //
 // With GCC, we're out of luck.
