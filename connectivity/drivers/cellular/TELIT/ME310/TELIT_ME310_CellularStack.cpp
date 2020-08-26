@@ -25,6 +25,10 @@ static const int sslctxID = 1;
 
 using namespace mbed;
 
+namespace mbed{
+constexpr auto ME310_SOCKET_TIMEOUT=std::chrono::milliseconds(1000);
+}
+
 TELIT_ME310_CellularStack::TELIT_ME310_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
     , _tls_sec_level(0)
@@ -436,7 +440,7 @@ nsapi_size_or_error_t TELIT_ME310_CellularStack::socket_recvfrom_impl(CellularSo
                 // read() should not fail
                 success = false;
             }
-        } else if (std::chrono::duration_cast<std::chrono::milliseconds>(timer.elapsed_time()) < std::chrono::milliseconds(ME310_SOCKET_TIMEOUT)) {
+        } else if (std::chrono::duration_cast<std::chrono::milliseconds>(timer.elapsed_time()) < mbed::ME310_SOCKET_TIMEOUT) {
             // Wait for URCs
             _at.process_oob();
         } else {
