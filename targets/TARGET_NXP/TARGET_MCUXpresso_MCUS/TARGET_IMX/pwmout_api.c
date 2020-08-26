@@ -196,6 +196,8 @@ void pwmout_period_us(pwmout_t *obj, int us)
 
 int pwmout_read_period_us(pwmout_t *obj)
 {
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
     return (base->SM[module].VAL1) & PWM_VAL1_VAL1_MASK;
 }
 
@@ -228,9 +230,11 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     PWM_SetPwmLdok(base, (1 << module), true);
 }
 
-int pwmout_read_pulsewidth_us(pwmout_t *obj {
+int pwmout_read_pulsewidth_us(pwmout_t *obj) {
     uint16_t count;
-
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
+    uint32_t pwmchannel = obj->pwm_name & 0x1;
     if (pwmchannel == 0)
     {
         count = (base->SM[module].VAL3) & PWM_VAL3_VAL3_MASK;

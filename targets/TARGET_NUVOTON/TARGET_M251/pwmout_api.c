@@ -180,7 +180,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     pwmout_config(obj, 1);
 }
 
-int pwmout_read_pulsewidth_us(pwmout_t *obj {
+int pwmout_read_pulsewidth_us(pwmout_t *obj) {
     return obj->pulsewidth_us;
 }
 

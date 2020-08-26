@@ -567,11 +567,11 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     pwmout_write(obj, value);
 }
 
-int pwmout_read_pulsewidth_us(pwmout_t *obj {
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
     uint32_t wk_pulse = 0;
 
-    if (obj->pwm >= MTU2_PWM_OFFSET)
-    {
+    if (obj->pwm >= MTU2_PWM_OFFSET) {
 #ifdef FUMC_MTU2_PWM
         /* PWM by MTU2 */
 

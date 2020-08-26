@@ -174,6 +174,8 @@ void pwmout_period_us(pwmout_t *obj, int us)
 
 int pwmout_read_period_us(pwmout_t *obj)
 {
+    timer_mr tid = pwm_timer_map[obj->pwm];
+    LPC_TMR_TypeDef *timer = Timers[tid.timer];
     return (timer->MR3);
 }
 
@@ -202,7 +204,10 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     timer->TCR = TCR_CNT_EN;
 }
 
-int pwmout_read_pulsewidth_us(pwmout_t *obj {
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    timer_mr tid = pwm_timer_map[obj->pwm];
+    LPC_TMR_TypeDef *timer = Timers[tid.timer];
     return (timer->MR3 - timer->MR[tid.mr]);
 }
 

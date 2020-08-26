@@ -236,7 +236,8 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     }
 }
 
-int pwmout_read_pulsewidth_us(pwmout_t *obj {
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
     return (!(pwm->CTRL & (1 << 2))) ? pwm->MATCHREL1 + 1 : 0;
 }
 
