@@ -25,8 +25,8 @@ static const int sslctxID = 1;
 
 using namespace mbed;
 
-namespace mbed{
-constexpr auto ME310_SOCKET_TIMEOUT=std::chrono::milliseconds(1000);
+namespace mbed {
+constexpr auto ME310_SOCKET_TIMEOUT = std::chrono::milliseconds(1000);
 }
 
 TELIT_ME310_CellularStack::TELIT_ME310_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
