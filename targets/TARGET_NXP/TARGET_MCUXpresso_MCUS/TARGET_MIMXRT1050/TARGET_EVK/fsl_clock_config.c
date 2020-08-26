@@ -139,7 +139,7 @@ sources:
  * Variables for BOARD_BootClockRUN configuration
  ******************************************************************************/
 const clock_arm_pll_config_t armPllConfig_BOARD_BootClockRUN = {
-    .loopDivider = 100, /* PLL loop divider, Fout = Fin * 50 */
+    .loopDivider = 88, /* PLL loop divider, Fout = Fin * 44 */
     .src         = 0,   /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
 };
 const clock_sys_pll_config_t sysPllConfig_BOARD_BootClockRUN = {
@@ -467,5 +467,5 @@ void BOARD_BootClockRUN(void)
     /* Set GPT2 High frequency reference clock source. */
     IOMUXC_GPR->GPR5 &= ~IOMUXC_GPR_GPR5_VREF_1M_CLK_GPT2_MASK;
     /* Set SystemCoreClock variable. */
-    SystemCoreClock = BOARD_BOOTCLOCKRUN_CORE_CLOCK;
+    SystemCoreClock = CLOCK_GetCpuClkFreq();
 }
