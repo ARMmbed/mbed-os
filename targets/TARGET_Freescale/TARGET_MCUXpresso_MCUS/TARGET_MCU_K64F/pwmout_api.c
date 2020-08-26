@@ -162,6 +162,7 @@ int pwmout_read_period_us(pwmout_t *obj)
 {
     uint32_t tmp = 0;
     if (pwm_clock_mhz > 0) {
+        FTM_Type *base = ftm_addrs[obj->pwm_name >> TPM_SHIFT];
         uint16_t mod = base->MOD & FTM_MOD_MOD_MASK;
         tmp = ((mod) + 1) / pwm_clock_mhz;
     }
@@ -193,6 +194,7 @@ int pwmout_read_pulsewidth_us(pwmout_t *obj)
 {
     uint32_t tmp = 0;
     if (pwm_clock_mhz > 0) {
+        FTM_Type *base = ftm_addrs[obj->pwm_name >> TPM_SHIFT];
         tmp = (base->CONTROLS[obj->pwm_name & 0xF].CnV) / pwm_clock_mhz;
     }
     return tmp;

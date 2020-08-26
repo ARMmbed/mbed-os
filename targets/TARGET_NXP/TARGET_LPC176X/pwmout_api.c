@@ -155,7 +155,7 @@ void pwmout_period_us(pwmout_t *obj, int us)
 
 int pwmout_read_period_us(pwmout_t *obj)
 {
-    return (float)(LPC_PWM1->MR0);
+    return (LPC_PWM1->MR0);
 }
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
@@ -185,8 +185,9 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     LPC_PWM1->LER |= 1 << obj->pwm;
 }
 
-int pwmout_read_pulsewidth_us(pwmout_t *obj {
-    return (timer->MR3 - timer->MR[tid.mr]);
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    return (*obj->MR);
 }
 
 const PinMap *pwmout_pinmap()
