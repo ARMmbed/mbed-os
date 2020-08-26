@@ -60,7 +60,7 @@ extern "C" { // "pppos.h" is missing extern C
 /* Timeout to wait for PPP connection to be terminated
  * (LCP Terminate-Request is answered with Terminate-Ack)
  */
-#define PPP_TERMINATION_TIMEOUT           30000
+constexpr auto PPP_TERMINATION_TIMEOUT=30000ms;
 
 // If both IPCP and IPCP6 are made, how long to wait for both to complete
 #define PPP_IPCP_IPCP6_DELAY              5000
@@ -358,7 +358,7 @@ nsapi_error_t ppp_service::ppp_if_disconnect()
         ret = ppp_close(ppp_service_pcb, 0);
         if (ret == ERR_OK) {
             /* close call made, now let's catch the response in the status callback */
-            ppp_service_close_sem.try_acquire_for(std::chrono::milliseconds(PPP_TERMINATION_TIMEOUT));
+            ppp_service_close_sem.try_acquire_for(PPP_TERMINATION_TIMEOUT);
         }
         ppp_service_active = false;
     }
