@@ -138,7 +138,7 @@ __Vectors
         DCD     am_iomaster3_isr            ;  9: I/O Master 3
         DCD     am_iomaster4_isr            ; 10: I/O Master 4
         DCD     am_iomaster5_isr            ; 11: I/O Master 5
-        DCD     am_ble_isr                  ; 12: BLEIF
+        DCD     HciDrvIntService            ; 12: BLEIF
         DCD     am_gpio_isr                 ; 13: GPIO
         DCD     am_ctimer_isr               ; 14: CTIMER
         DCD     am_uart_isr                 ; 15: UART0
@@ -290,7 +290,7 @@ am_default_isr\
                 EXPORT  am_iomaster3_isr            [WEAK]
                 EXPORT  am_iomaster4_isr            [WEAK]
                 EXPORT  am_iomaster5_isr            [WEAK]
-                EXPORT  am_ble_isr                  [WEAK]
+                EXPORT  HciDrvIntService            [WEAK]
                 EXPORT  am_gpio_isr                 [WEAK]
                 EXPORT  am_ctimer_isr               [WEAK]
                 EXPORT  am_uart_isr                 [WEAK]
@@ -324,7 +324,7 @@ am_iomaster2_isr
 am_iomaster3_isr
 am_iomaster4_isr
 am_iomaster5_isr
-am_ble_isr
+HciDrvIntService
 am_gpio_isr
 am_ctimer_isr
 am_uart_isr
