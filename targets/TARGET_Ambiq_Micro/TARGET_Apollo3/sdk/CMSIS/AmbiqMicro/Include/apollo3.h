@@ -210,20 +210,20 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
                                                      settings, slot configuration settings and window comparison
                                                      settings should be written prior to setting the ADCEN bit
                                                      to '1'.                                                                   */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t RPTEN      : 1;            /*!< [2..2] This bit enables Repeating Scan Mode.                              */
       __IOM uint32_t LPMODE     : 1;            /*!< [3..3] Select power mode to enter between active scans.                   */
       __IOM uint32_t CKMODE     : 1;            /*!< [4..4] Clock mode register                                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t REFSEL     : 2;            /*!< [9..8] Select the ADC reference voltage.                                  */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t DFIFORDEN  : 1;            /*!< [12..12] Destructive FIFO Read Enable. Setting this will enable
                                                      FIFO pop upon reading the FIFOPR register.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TRIGSEL    : 3;            /*!< [18..16] Select the ADC trigger source.                                   */
       __IOM uint32_t TRIGPOL    : 1;            /*!< [19..19] This bit selects the ADC trigger polarity for external
                                                      off chip triggers.                                                        */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t CLKSEL     : 2;            /*!< [25..24] Select the source and frequency for the ADC clock.
                                                      All values not enumerated below are undefined.                            */
     } CFG_b;
@@ -252,11 +252,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN0      : 1;            /*!< [0..0] This bit enables slot 0 for ADC conversions.                       */
       __IOM uint32_t WCEN0      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      0.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL0     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE0    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL0     : 3;            /*!< [26..24] Select the number of measurements to average in the
                                                      accumulate divide module for this slot.                                   */
     } SL0CFG_b;
@@ -269,11 +269,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN1      : 1;            /*!< [0..0] This bit enables slot 1 for ADC conversions.                       */
       __IOM uint32_t WCEN1      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      1.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL1     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE1    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL1     : 3;            /*!< [26..24] Select the number of measurements to average in the
                                                      accumulate divide module for this slot.                                   */
     } SL1CFG_b;
@@ -286,11 +286,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN2      : 1;            /*!< [0..0] This bit enables slot 2 for ADC conversions.                       */
       __IOM uint32_t WCEN2      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      2.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL2     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE2    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL2     : 3;            /*!< [26..24] Select the number of measurements to average in the
                                                      accumulate divide module for this slot.                                   */
     } SL2CFG_b;
@@ -303,11 +303,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN3      : 1;            /*!< [0..0] This bit enables slot 3 for ADC conversions.                       */
       __IOM uint32_t WCEN3      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      3.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL3     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE3    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL3     : 3;            /*!< [26..24] Select the number of measurements to average in the
                                                      accumulate divide module for this slot.                                   */
     } SL3CFG_b;
@@ -320,11 +320,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN4      : 1;            /*!< [0..0] This bit enables slot 4 for ADC conversions.                       */
       __IOM uint32_t WCEN4      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      4.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL4     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE4    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL4     : 3;            /*!< [26..24] Select the number of measurements to average in the
                                                      accumulate divide module for this slot.                                   */
     } SL4CFG_b;
@@ -337,11 +337,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN5      : 1;            /*!< [0..0] This bit enables slot 5 for ADC conversions.                       */
       __IOM uint32_t WCEN5      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      5.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL5     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE5    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL5     : 3;            /*!< [26..24] Select number of measurements to average in the accumulate
                                                      divide module for this slot.                                              */
     } SL5CFG_b;
@@ -354,11 +354,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN6      : 1;            /*!< [0..0] This bit enables slot 6 for ADC conversions.                       */
       __IOM uint32_t WCEN6      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      6.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL6     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE6    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL6     : 3;            /*!< [26..24] Select the number of measurements to average in the
                                                      accumulate divide module for this slot.                                   */
     } SL6CFG_b;
@@ -371,11 +371,11 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
       __IOM uint32_t SLEN7      : 1;            /*!< [0..0] This bit enables slot 7 for ADC conversions.                       */
       __IOM uint32_t WCEN7      : 1;            /*!< [1..1] This bit enables the window compare function for slot
                                                      7.                                                                        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t CHSEL7     : 4;            /*!< [11..8] Select one of the 14 channel inputs for this slot.                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t PRMODE7    : 2;            /*!< [17..16] Set the Precision Mode For Slot.                                 */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t ADSEL7     : 3;            /*!< [26..24] Select the number of measurements to average in the
                                                      accumulate divide module for this slot.                                   */
     } SL7CFG_b;
@@ -519,14 +519,14 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
 
     struct {
       __IOM uint32_t DMAEN      : 1;            /*!< [0..0] DMA Enable                                                         */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t DMADIR     : 1;            /*!< [2..2] Direction                                                          */
-      __IM  uint32_t            : 5;
+            uint32_t            : 5;
       __IOM uint32_t DMAPRI     : 1;            /*!< [8..8] Sets the Priority of the DMA request                               */
       __IOM uint32_t DMADYNPRI  : 1;            /*!< [9..9] Enables dynamic priority based on FIFO fullness. When
                                                      FIFO is full, priority is automatically set to HIGH. Otherwise,
                                                      DMAPRI is used.                                                           */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t DMAHONSTAT : 1;            /*!< [16..16] Halt New ADC conversions until DMA Status DMAERR and
                                                      DMACPL Cleared.                                                           */
       __IOM uint32_t DMAMSK     : 1;            /*!< [17..17] Mask the FIFOCNT and SLOTNUM when transferring FIFO
@@ -540,7 +540,7 @@ typedef struct {                                /*!< (@ 0x50010000) ADC Structur
     __IOM uint32_t DMATOTCOUNT;                 /*!< (@ 0x00000288) DMA Total Transfer Count                                   */
 
     struct {
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t TOTCOUNT   : 16;           /*!< [17..2] Total Transfer Count                                              */
     } DMATOTCOUNT_b;
   } ;
@@ -583,7 +583,7 @@ typedef struct {                                /*!< (@ 0x40011000) APBDMA Struc
 
     struct {
       __IOM uint32_t DATAOUT    : 8;            /*!< [7..0] Data Output Values                                                 */
-      __IM  uint32_t            : 8;
+            uint32_t            : 8;
       __IOM uint32_t PIN        : 8;            /*!< [23..16] PIO values                                                       */
     } BBVALUE_b;
   } ;
@@ -594,7 +594,7 @@ typedef struct {                                /*!< (@ 0x40011000) APBDMA Struc
     struct {
       __IOM uint32_t SET        : 8;            /*!< [7..0] Write 1 to Set PIO value (set hier priority than clear
                                                      if both bit set)                                                          */
-      __IM  uint32_t            : 8;
+            uint32_t            : 8;
       __IOM uint32_t CLEAR      : 8;            /*!< [23..16] Write 1 to Clear PIO value                                       */
     } BBSETCLEAR_b;
   } ;
@@ -676,7 +676,7 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
                                                      to signal when a data transfer of FIFORTHR bytes can be
                                                      done from the IOM module to the host via the read fifo
                                                      to support large IOM read operations.                                     */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t FIFOWTHR   : 6;            /*!< [13..8] FIFO write threshold in bytes. A value of 0 will disable
                                                      the write FIFO level from activating the threshold interrupt.
                                                      If this field is non-zero, it will trigger a threshold
@@ -738,7 +738,7 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
       __IOM uint32_t FIFOWPTR   : 4;            /*!< [3..0] Current FIFO write pointer. Value is the index into the
                                                      outgoing FIFO (FIFO0), which is used during write operations
                                                      to external devices.                                                      */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t FIFORPTR   : 4;            /*!< [11..8] Current FIFO read pointer. Used to index into the incoming
                                                      FIFO (FIFO1), which is used to store read data returned
                                                      from external devices during a read operation.                            */
@@ -752,7 +752,7 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
     struct {
       __IOM uint32_t IOCLKEN    : 1;            /*!< [0..0] Enable for the interface clock. Must be enabled prior
                                                      to executing any IO operations.                                           */
-      __IM  uint32_t            : 7;
+            uint32_t            : 7;
       __IOM uint32_t FSEL       : 3;            /*!< [10..8] Select the input clock frequency.                                 */
       __IOM uint32_t CLK32KEN   : 1;            /*!< [11..11] Enable for the 32Khz clock to the BLE module                     */
       __IOM uint32_t DIV3       : 1;            /*!< [12..12] Enable of the divide by 3 of the source IOCLK.                   */
@@ -779,7 +779,7 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
       __IOM uint32_t TSIZE      : 12;           /*!< [19..8] Defines the transaction size in bytes. The offset transfer
                                                      is not included in this size.                                             */
       __IOM uint32_t CMDSEL     : 2;            /*!< [21..20] Command Specific selection information                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t OFFSETLO   : 8;            /*!< [31..24] This register holds the low order byte of offset to
                                                      be used in the transaction. The number of offset bytes
                                                      to use is set with bits 1:0 of the command. Offset bytes
@@ -1112,7 +1112,7 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
                                                      operation. This should be the last DMA related register
                                                      set prior to issuing the command                                          */
       __IOM uint32_t DMADIR     : 1;            /*!< [1..1] Direction                                                          */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t DMAPRI     : 1;            /*!< [8..8] Sets the Priority of the DMA request                               */
       __IOM uint32_t DPWROFF    : 1;            /*!< [9..9] Power off module after DMA is complete. If this bit is
                                                      active, the module will request to power off the supply
@@ -1140,7 +1140,7 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
                                                      alignment, and does not have to be word aligned. In cases
                                                      of non-word aligned addresses, the DMA logic will take
                                                      care for ensuring only the target bytes are read/written.                 */
-      __IM  uint32_t            : 8;
+            uint32_t            : 8;
       __IOM uint32_t TARGADDR28 : 1;            /*!< [28..28] Bit 28 of the target byte address for source of DMA
                                                      (either read or write). In cases of non-word aligned addresses,
                                                      the DMA logic will take care for ensuring only the target
@@ -1183,10 +1183,10 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
     __IOM uint32_t CQADDR;                      /*!< (@ 0x0000024C) CQ Target Read Address Register                            */
 
     struct {
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CQADDR     : 18;           /*!< [19..2] Bits 19:2 of target byte address for source of CQ (read
                                                      only). The buffer must be aligned on a word boundary                      */
-      __IM  uint32_t            : 8;
+            uint32_t            : 8;
       __IOM uint32_t CQADDR28   : 1;            /*!< [28..28] Bit 28 of target byte address for source of CQ (read
                                                      only). Used to denote Flash (0) or SRAM (1) access                        */
     } CQADDR_b;
@@ -1296,12 +1296,12 @@ typedef struct {                                /*!< (@ 0x5000C000) BLEIF Struct
       __IOM uint32_t SPHA       : 1;            /*!< [1..1] Selects the SPI phase; When 1, will shift the sampling
                                                      edge by 1/2 clock.                                                        */
       __IOM uint32_t FULLDUP    : 1;            /*!< [2..2] Full Duplex mode. Capture read data during writes operations       */
-      __IM  uint32_t            : 13;
+            uint32_t            : 13;
       __IOM uint32_t WTFC       : 1;            /*!< [16..16] Enables flow control of new write transactions based
                                                      on the SPI_STATUS signal from the BLE Core.                               */
       __IOM uint32_t RDFC       : 1;            /*!< [17..17] Enables flow control of new read transactions based
                                                      on the SPI_STATUS signal from the BLE Core.                               */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t WTFCPOL    : 1;            /*!< [21..21] Selects the write flow control signal polarity. The
                                                      transfers are halted when the selected flow control signal
                                                      is OPPOSITE polarity of this bit. (For example: WTFCPOL
@@ -1457,10 +1457,10 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
       __IOM uint32_t CACHE_LS   : 1;            /*!< [11..11] Enable LS (light sleep) of cache RAMs. Software should
                                                      DISABLE this bit since cache activity is too high to benefit
                                                      from LS usage.                                                            */
-      __IM  uint32_t            : 8;
+            uint32_t            : 8;
       __IOM uint32_t DATA_CLKGATE : 1;          /*!< [20..20] Enable aggressive clock gating of entire data array.
                                                      This bit should be set to 1 for optimal power efficiency.                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t ENABLE_MONITOR : 1;        /*!< [24..24] Enable Cache Monitoring Stats. Cache monitoring consumes
                                                      additional power and should only be enabled when profiling
                                                      code and counters will increment when this bit is set.
@@ -1478,7 +1478,7 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
                                                      of 1 is recommended.                                                      */
       __IOM uint32_t SEDELAY    : 3;            /*!< [6..4] Sets SE delay (flash address setup). A value of 5 is
                                                      recommended.                                                              */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t LPM_RD_WAIT : 4;           /*!< [11..8] Sets flash waitstates when in LPM Mode 2 (RD_WAIT in
                                                      LPM mode 2 only)                                                          */
       __IOM uint32_t LPMMODE    : 2;            /*!< [13..12] Controls flash low power modes (control of LPM pin).             */
@@ -1497,7 +1497,7 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
                                                      is set.                                                                   */
       __IOM uint32_t CACHE_READY : 1;           /*!< [2..2] Cache Ready Status (enabled and not processing an invalidate
                                                      operation)                                                                */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t FLASH0_SLM_STATUS : 1;     /*!< [4..4] Flash Sleep Mode Status. 1 indicates that flash0 is in
                                                      sleep mode, 0 indicates flash0 is in normal mode.                         */
       __IOM uint32_t FLASH0_SLM_DISABLE : 1;    /*!< [5..5] Disable Flash Sleep Mode. Write 1 to wake flash0 from
@@ -1506,7 +1506,7 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
       __IOM uint32_t FLASH0_SLM_ENABLE : 1;     /*!< [6..6] Enable Flash Sleep Mode. Write to 1 to put flash 0 into
                                                      sleep mode. NOTE: there is a 5us latency after waking flash
                                                      until the first access will be returned.                                  */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t FLASH1_SLM_STATUS : 1;     /*!< [8..8] Flash Sleep Mode Status. 1 indicates that flash1 is in
                                                      sleep mode, 0 indicates flash1 is in normal mode.                         */
       __IOM uint32_t FLASH1_SLM_DISABLE : 1;    /*!< [9..9] Disable Flash Sleep Mode. Write 1 to wake flash1 from
@@ -1523,7 +1523,7 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
     __IOM uint32_t NCR0START;                   /*!< (@ 0x00000010) Flash Cache Noncachable Region 0 Start                     */
 
     struct {
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t ADDR       : 23;           /*!< [26..4] Start address for non-cacheable region 0                          */
     } NCR0START_b;
   } ;
@@ -1532,7 +1532,7 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
     __IOM uint32_t NCR0END;                     /*!< (@ 0x00000014) Flash Cache Noncachable Region 0 End                       */
 
     struct {
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t ADDR       : 23;           /*!< [26..4] End address for non-cacheable region 0                            */
     } NCR0END_b;
   } ;
@@ -1541,7 +1541,7 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
     __IOM uint32_t NCR1START;                   /*!< (@ 0x00000018) Flash Cache Noncachable Region 1 Start                     */
 
     struct {
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t ADDR       : 23;           /*!< [26..4] Start address for non-cacheable region 1                          */
     } NCR1START_b;
   } ;
@@ -1550,7 +1550,7 @@ typedef struct {                                /*!< (@ 0x40018000) CACHECTRL St
     __IOM uint32_t NCR1END;                     /*!< (@ 0x0000001C) Flash Cache Noncachable Region 1 End                       */
 
     struct {
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t ADDR       : 23;           /*!< [26..4] End address for non-cacheable region 1                            */
     } NCR1END_b;
   } ;
@@ -1682,7 +1682,7 @@ typedef struct {                                /*!< (@ 0x40004000) CLKGEN Struc
     struct {
       __IOM uint32_t STOPXT     : 1;            /*!< [0..0] Stop the XT Oscillator to the RTC                                  */
       __IOM uint32_t STOPRC     : 1;            /*!< [1..1] Stop the LFRC Oscillator to the RTC                                */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t FOS        : 1;            /*!< [6..6] Oscillator switch on failure function. If this is set,
                                                      then LFRC clock source will switch from XT to RC.                         */
       __IOM uint32_t OSEL       : 1;            /*!< [7..7] Selects the RTC oscillator (1 => LFRC, 0 => XT)                    */
@@ -1699,7 +1699,7 @@ typedef struct {                                /*!< (@ 0x40004000) CLKGEN Struc
 
     struct {
       __IOM uint32_t CKSEL      : 6;            /*!< [5..0] CLKOUT signal select                                               */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t CKEN       : 1;            /*!< [7..7] Enable the CLKOUT signal                                           */
     } CLKOUT_b;
   } ;
@@ -1737,7 +1737,7 @@ typedef struct {                                /*!< (@ 0x40004000) CLKGEN Struc
     struct {
       __IOM uint32_t HFADJEN    : 1;            /*!< [0..0] HFRC adjustment control                                            */
       __IOM uint32_t HFADJCK    : 3;            /*!< [3..1] Repeat period for HFRC adjustment                                  */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t HFXTADJ    : 12;           /*!< [19..8] Target HFRC adjustment value.                                     */
       __IOM uint32_t HFWARMUP   : 1;            /*!< [20..20] XT warmup period for HFRC adjustment                             */
       __IOM uint32_t HFADJGAIN  : 3;            /*!< [23..21] Gain control for HFRC adjustment                                 */
@@ -1894,7 +1894,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA0IE1   : 1;            /*!< [10..10] Counter/Timer A0 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA0CLR   : 1;            /*!< [11..11] Counter/Timer A0 Clear bit.                                      */
       __IOM uint32_t TMRA0POL   : 1;            /*!< [12..12] Counter/Timer A0 output polarity.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TMRB0EN    : 1;            /*!< [16..16] Counter/Timer B0 Enable bit.                                     */
       __IOM uint32_t TMRB0CLK   : 5;            /*!< [21..17] Counter/Timer B0 Clock Select.                                   */
       __IOM uint32_t TMRB0FN    : 3;            /*!< [24..22] Counter/Timer B0 Function Select.                                */
@@ -1902,7 +1902,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB0IE1   : 1;            /*!< [26..26] Counter/Timer B0 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB0CLR   : 1;            /*!< [27..27] Counter/Timer B0 Clear bit.                                      */
       __IOM uint32_t TMRB0POL   : 1;            /*!< [28..28] Counter/Timer B0 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK0    : 1;            /*!< [31..31] Counter/Timer A0/B0 Link bit.                                    */
     } CTRL0_b;
   } ;
@@ -1940,9 +1940,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA0TINV  : 1;            /*!< [12..12] Counter/Timer A0 Invert on trigger.                              */
       __IOM uint32_t TMRA0POL23 : 1;            /*!< [13..13] Counter/Timer A0 Upper output polarity                           */
       __IOM uint32_t TMRA0EN23  : 1;            /*!< [14..14] Counter/Timer A0 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB0LMT   : 6;            /*!< [21..16] Counter/Timer B0 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB0TRIG  : 4;            /*!< [26..23] Counter/Timer B0 Trigger Select.                                 */
       __IOM uint32_t TMRB0NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB0TINV  : 1;            /*!< [28..28] Counter/Timer B0 Invert on trigger.                              */
@@ -1989,7 +1989,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA1IE1   : 1;            /*!< [10..10] Counter/Timer A1 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA1CLR   : 1;            /*!< [11..11] Counter/Timer A1 Clear bit.                                      */
       __IOM uint32_t TMRA1POL   : 1;            /*!< [12..12] Counter/Timer A1 output polarity.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TMRB1EN    : 1;            /*!< [16..16] Counter/Timer B1 Enable bit.                                     */
       __IOM uint32_t TMRB1CLK   : 5;            /*!< [21..17] Counter/Timer B1 Clock Select.                                   */
       __IOM uint32_t TMRB1FN    : 3;            /*!< [24..22] Counter/Timer B1 Function Select.                                */
@@ -1997,7 +1997,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB1IE1   : 1;            /*!< [26..26] Counter/Timer B1 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB1CLR   : 1;            /*!< [27..27] Counter/Timer B1 Clear bit.                                      */
       __IOM uint32_t TMRB1POL   : 1;            /*!< [28..28] Counter/Timer B1 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK1    : 1;            /*!< [31..31] Counter/Timer A1/B1 Link bit.                                    */
     } CTRL1_b;
   } ;
@@ -2035,9 +2035,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA1TINV  : 1;            /*!< [12..12] Counter/Timer A1 Invert on trigger.                              */
       __IOM uint32_t TMRA1POL23 : 1;            /*!< [13..13] Counter/Timer A1 Upper output polarity                           */
       __IOM uint32_t TMRA1EN23  : 1;            /*!< [14..14] Counter/Timer A1 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB1LMT   : 6;            /*!< [21..16] Counter/Timer B1 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB1TRIG  : 4;            /*!< [26..23] Counter/Timer B1 Trigger Select.                                 */
       __IOM uint32_t TMRB1NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB1TINV  : 1;            /*!< [28..28] Counter/Timer B1 Invert on trigger.                              */
@@ -2084,7 +2084,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA2IE1   : 1;            /*!< [10..10] Counter/Timer A2 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA2CLR   : 1;            /*!< [11..11] Counter/Timer A2 Clear bit.                                      */
       __IOM uint32_t TMRA2POL   : 1;            /*!< [12..12] Counter/Timer A2 output polarity.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TMRB2EN    : 1;            /*!< [16..16] Counter/Timer B2 Enable bit.                                     */
       __IOM uint32_t TMRB2CLK   : 5;            /*!< [21..17] Counter/Timer B2 Clock Select.                                   */
       __IOM uint32_t TMRB2FN    : 3;            /*!< [24..22] Counter/Timer B2 Function Select.                                */
@@ -2092,7 +2092,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB2IE1   : 1;            /*!< [26..26] Counter/Timer B2 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB2CLR   : 1;            /*!< [27..27] Counter/Timer B2 Clear bit.                                      */
       __IOM uint32_t TMRB2POL   : 1;            /*!< [28..28] Counter/Timer B2 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK2    : 1;            /*!< [31..31] Counter/Timer A2/B2 Link bit.                                    */
     } CTRL2_b;
   } ;
@@ -2130,9 +2130,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA2TINV  : 1;            /*!< [12..12] Counter/Timer A2 Invert on trigger.                              */
       __IOM uint32_t TMRA2POL23 : 1;            /*!< [13..13] Counter/Timer A2 Upper output polarity                           */
       __IOM uint32_t TMRA2EN23  : 1;            /*!< [14..14] Counter/Timer A2 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB2LMT   : 6;            /*!< [21..16] Counter/Timer B2 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB2TRIG  : 4;            /*!< [26..23] Counter/Timer B2 Trigger Select.                                 */
       __IOM uint32_t TMRB2NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB2TINV  : 1;            /*!< [28..28] Counter/Timer B2 Invert on trigger.                              */
@@ -2179,7 +2179,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA3IE1   : 1;            /*!< [10..10] Counter/Timer A3 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA3CLR   : 1;            /*!< [11..11] Counter/Timer A3 Clear bit.                                      */
       __IOM uint32_t TMRA3POL   : 1;            /*!< [12..12] Counter/Timer A3 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t ADCEN      : 1;            /*!< [15..15] Special Timer A3 enable for ADC function.                        */
       __IOM uint32_t TMRB3EN    : 1;            /*!< [16..16] Counter/Timer B3 Enable bit.                                     */
       __IOM uint32_t TMRB3CLK   : 5;            /*!< [21..17] Counter/Timer B3 Clock Select.                                   */
@@ -2188,7 +2188,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB3IE1   : 1;            /*!< [26..26] Counter/Timer B3 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB3CLR   : 1;            /*!< [27..27] Counter/Timer B3 Clear bit.                                      */
       __IOM uint32_t TMRB3POL   : 1;            /*!< [28..28] Counter/Timer B3 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK3    : 1;            /*!< [31..31] Counter/Timer A3/B3 Link bit.                                    */
     } CTRL3_b;
   } ;
@@ -2226,9 +2226,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA3TINV  : 1;            /*!< [12..12] Counter/Timer A3 Invert on trigger.                              */
       __IOM uint32_t TMRA3POL23 : 1;            /*!< [13..13] Counter/Timer A3 Upper output polarity                           */
       __IOM uint32_t TMRA3EN23  : 1;            /*!< [14..14] Counter/Timer A3 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB3LMT   : 6;            /*!< [21..16] Counter/Timer B3 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB3TRIG  : 4;            /*!< [26..23] Counter/Timer B3 Trigger Select.                                 */
       __IOM uint32_t TMRB3NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB3TINV  : 1;            /*!< [28..28] Counter/Timer B3 Invert on trigger.                              */
@@ -2279,7 +2279,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA4IE1   : 1;            /*!< [10..10] Counter/Timer A4 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA4CLR   : 1;            /*!< [11..11] Counter/Timer A4 Clear bit.                                      */
       __IOM uint32_t TMRA4POL   : 1;            /*!< [12..12] Counter/Timer A4 output polarity.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TMRB4EN    : 1;            /*!< [16..16] Counter/Timer B4 Enable bit.                                     */
       __IOM uint32_t TMRB4CLK   : 5;            /*!< [21..17] Counter/Timer B4 Clock Select.                                   */
       __IOM uint32_t TMRB4FN    : 3;            /*!< [24..22] Counter/Timer B4 Function Select.                                */
@@ -2287,7 +2287,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB4IE1   : 1;            /*!< [26..26] Counter/Timer B4 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB4CLR   : 1;            /*!< [27..27] Counter/Timer B4 Clear bit.                                      */
       __IOM uint32_t TMRB4POL   : 1;            /*!< [28..28] Counter/Timer B4 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK4    : 1;            /*!< [31..31] Counter/Timer A4/B4 Link bit.                                    */
     } CTRL4_b;
   } ;
@@ -2325,9 +2325,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA4TINV  : 1;            /*!< [12..12] Counter/Timer A4 Invert on trigger.                              */
       __IOM uint32_t TMRA4POL23 : 1;            /*!< [13..13] Counter/Timer A4 Upper output polarity                           */
       __IOM uint32_t TMRA4EN23  : 1;            /*!< [14..14] Counter/Timer A4 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB4LMT   : 6;            /*!< [21..16] Counter/Timer B4 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB4TRIG  : 4;            /*!< [26..23] Counter/Timer B4 Trigger Select.                                 */
       __IOM uint32_t TMRB4NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB4TINV  : 1;            /*!< [28..28] Counter/Timer B4 Invert on trigger.                              */
@@ -2374,7 +2374,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA5IE1   : 1;            /*!< [10..10] Counter/Timer A5 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA5CLR   : 1;            /*!< [11..11] Counter/Timer A5 Clear bit.                                      */
       __IOM uint32_t TMRA5POL   : 1;            /*!< [12..12] Counter/Timer A5 output polarity.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TMRB5EN    : 1;            /*!< [16..16] Counter/Timer B5 Enable bit.                                     */
       __IOM uint32_t TMRB5CLK   : 5;            /*!< [21..17] Counter/Timer B5 Clock Select.                                   */
       __IOM uint32_t TMRB5FN    : 3;            /*!< [24..22] Counter/Timer B5 Function Select.                                */
@@ -2382,7 +2382,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB5IE1   : 1;            /*!< [26..26] Counter/Timer B5 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB5CLR   : 1;            /*!< [27..27] Counter/Timer B5 Clear bit.                                      */
       __IOM uint32_t TMRB5POL   : 1;            /*!< [28..28] Counter/Timer B5 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK5    : 1;            /*!< [31..31] Counter/Timer A5/B5 Link bit.                                    */
     } CTRL5_b;
   } ;
@@ -2420,9 +2420,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA5TINV  : 1;            /*!< [12..12] Counter/Timer A5 Invert on trigger.                              */
       __IOM uint32_t TMRA5POL23 : 1;            /*!< [13..13] Counter/Timer A5 Upper output polarity                           */
       __IOM uint32_t TMRA5EN23  : 1;            /*!< [14..14] Counter/Timer A5 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB5LMT   : 6;            /*!< [21..16] Counter/Timer B5 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB5TRIG  : 4;            /*!< [26..23] Counter/Timer B5 Trigger Select.                                 */
       __IOM uint32_t TMRB5NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB5TINV  : 1;            /*!< [28..28] Counter/Timer B5 Invert on trigger.                              */
@@ -2469,7 +2469,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA6IE1   : 1;            /*!< [10..10] Counter/Timer A6 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA6CLR   : 1;            /*!< [11..11] Counter/Timer A6 Clear bit.                                      */
       __IOM uint32_t TMRA6POL   : 1;            /*!< [12..12] Counter/Timer A6 output polarity.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TMRB6EN    : 1;            /*!< [16..16] Counter/Timer B6 Enable bit.                                     */
       __IOM uint32_t TMRB6CLK   : 5;            /*!< [21..17] Counter/Timer B6 Clock Select.                                   */
       __IOM uint32_t TMRB6FN    : 3;            /*!< [24..22] Counter/Timer B6 Function Select.                                */
@@ -2477,7 +2477,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB6IE1   : 1;            /*!< [26..26] Counter/Timer B6 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB6CLR   : 1;            /*!< [27..27] Counter/Timer B6 Clear bit.                                      */
       __IOM uint32_t TMRB6POL   : 1;            /*!< [28..28] Counter/Timer B6 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK6    : 1;            /*!< [31..31] Counter/Timer A6/B6 Link bit.                                    */
     } CTRL6_b;
   } ;
@@ -2515,9 +2515,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA6TINV  : 1;            /*!< [12..12] Counter/Timer A6 Invert on trigger.                              */
       __IOM uint32_t TMRA6POL23 : 1;            /*!< [13..13] Counter/Timer A6 Upper output polarity                           */
       __IOM uint32_t TMRA6EN23  : 1;            /*!< [14..14] Counter/Timer A6 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB6LMT   : 6;            /*!< [21..16] Counter/Timer B6 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB6TRIG  : 4;            /*!< [26..23] Counter/Timer B6 Trigger Select.                                 */
       __IOM uint32_t TMRB6NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB6TINV  : 1;            /*!< [28..28] Counter/Timer B6 Invert on trigger.                              */
@@ -2564,7 +2564,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA7IE1   : 1;            /*!< [10..10] Counter/Timer A7 Interrupt Enable bit based on COMPR1.           */
       __IOM uint32_t TMRA7CLR   : 1;            /*!< [11..11] Counter/Timer A7 Clear bit.                                      */
       __IOM uint32_t TMRA7POL   : 1;            /*!< [12..12] Counter/Timer A7 output polarity.                                */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t TMRB7EN    : 1;            /*!< [16..16] Counter/Timer B7 Enable bit.                                     */
       __IOM uint32_t TMRB7CLK   : 5;            /*!< [21..17] Counter/Timer B7 Clock Select.                                   */
       __IOM uint32_t TMRB7FN    : 3;            /*!< [24..22] Counter/Timer B7 Function Select.                                */
@@ -2572,7 +2572,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRB7IE1   : 1;            /*!< [26..26] Counter/Timer B7 Interrupt Enable bit for COMPR1.                */
       __IOM uint32_t TMRB7CLR   : 1;            /*!< [27..27] Counter/Timer B7 Clear bit.                                      */
       __IOM uint32_t TMRB7POL   : 1;            /*!< [28..28] Counter/Timer B7 output polarity.                                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTLINK7    : 1;            /*!< [31..31] Counter/Timer A7/B7 Link bit.                                    */
     } CTRL7_b;
   } ;
@@ -2610,9 +2610,9 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t TMRA7TINV  : 1;            /*!< [12..12] Counter/Timer A7 Invert on trigger.                              */
       __IOM uint32_t TMRA7POL23 : 1;            /*!< [13..13] Counter/Timer A7 Upper output polarity                           */
       __IOM uint32_t TMRA7EN23  : 1;            /*!< [14..14] Counter/Timer A7 Upper compare enable.                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB7LMT   : 6;            /*!< [21..16] Counter/Timer B7 Pattern Limit Count.                            */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t TMRB7TRIG  : 4;            /*!< [26..23] Counter/Timer B7 Trigger Select.                                 */
       __IOM uint32_t TMRB7NOSYNC : 1;           /*!< [27..27] Source clock synchronization control.                            */
       __IOM uint32_t TMRB7TINV  : 1;            /*!< [28..28] Counter/Timer B7 Invert on trigger.                              */
@@ -2653,7 +2653,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t CFG2       : 3;            /*!< [8..6] Pad output 2 configuration                                         */
       __IOM uint32_t CFG3       : 3;            /*!< [11..9] Pad output 3 configuration                                        */
       __IOM uint32_t CFG4       : 3;            /*!< [14..12] Pad output 4 configuration                                       */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t CFG5       : 3;            /*!< [18..16] Pad output 5 configuration                                       */
       __IOM uint32_t CFG6       : 3;            /*!< [21..19] Pad output 6 configuration                                       */
       __IOM uint32_t CFG7       : 3;            /*!< [24..22] Pad output 7 configuration                                       */
@@ -2671,7 +2671,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t CFG12      : 3;            /*!< [8..6] Pad output 12 configuration                                        */
       __IOM uint32_t CFG13      : 3;            /*!< [11..9] Pad output 13 configuration                                       */
       __IOM uint32_t CFG14      : 3;            /*!< [14..12] Pad output 14 configuration                                      */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t CFG15      : 3;            /*!< [18..16] Pad output 15 configuration                                      */
       __IOM uint32_t CFG16      : 3;            /*!< [21..19] Pad output 16 configuration                                      */
       __IOM uint32_t CFG17      : 3;            /*!< [24..22] Pad output 17 configuration                                      */
@@ -2689,7 +2689,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t CFG22      : 3;            /*!< [8..6] Pad output 22 configuration                                        */
       __IOM uint32_t CFG23      : 3;            /*!< [11..9] Pad output 23 configuration                                       */
       __IOM uint32_t CFG24      : 3;            /*!< [14..12] Pad output 24 configuration                                      */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t CFG25      : 3;            /*!< [18..16] Pad output 25 configuration                                      */
       __IOM uint32_t CFG26      : 3;            /*!< [21..19] Pad output 26 configuration                                      */
       __IOM uint32_t CFG27      : 3;            /*!< [24..22] Pad output 27 configuration                                      */
@@ -2738,7 +2738,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
     struct {
       __IOM uint32_t CLKSEL     : 4;            /*!< [3..0] Selects an appropriate clock source and divider to use
                                                      for the System Timer clock.                                               */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t COMPARE_A_EN : 1;          /*!< [8..8] Selects whether compare is enabled for the corresponding
                                                      SCMPR register. If compare is enabled, the interrupt status
                                                      is set once the comparision is met.                                       */
@@ -2763,7 +2763,7 @@ typedef struct {                                /*!< (@ 0x40008000) CTIMER Struc
       __IOM uint32_t COMPARE_H_EN : 1;          /*!< [15..15] Selects whether compare is enabled for the corresponding
                                                      SCMPR register. If compare is enabled, the interrupt status
                                                      is set once the comparision is met.                                       */
-      __IM  uint32_t            : 14;
+            uint32_t            : 14;
       __IOM uint32_t CLEAR      : 1;            /*!< [30..30] Set this bit to one to clear the System Timer register.
                                                      If this bit is set to '1', the system timer register will
                                                      stay cleared. It needs to be set to '0' for the system
@@ -3252,7 +3252,7 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD2INPEN  : 1;            /*!< [17..17] Pad 2 input enable                                               */
       __IOM uint32_t PAD2STRNG  : 1;            /*!< [18..18] Pad 2 drive strength                                             */
       __IOM uint32_t PAD2FNCSEL : 3;            /*!< [21..19] Pad 2 function select                                            */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD3PULL   : 1;            /*!< [24..24] Pad 3 pullup enable                                              */
       __IOM uint32_t PAD3INPEN  : 1;            /*!< [25..25] Pad 3 input enable.                                              */
       __IOM uint32_t PAD3STRNG  : 1;            /*!< [26..26] Pad 3 drive strength.                                            */
@@ -3269,7 +3269,7 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD4INPEN  : 1;            /*!< [1..1] Pad 4 input enable                                                 */
       __IOM uint32_t PAD4STRNG  : 1;            /*!< [2..2] Pad 4 drive strength                                               */
       __IOM uint32_t PAD4FNCSEL : 3;            /*!< [5..3] Pad 4 function select                                              */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD5PULL   : 1;            /*!< [8..8] Pad 5 pullup enable                                                */
       __IOM uint32_t PAD5INPEN  : 1;            /*!< [9..9] Pad 5 input enable                                                 */
       __IOM uint32_t PAD5STRNG  : 1;            /*!< [10..10] Pad 5 drive strength                                             */
@@ -3305,7 +3305,7 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD10INPEN : 1;            /*!< [17..17] Pad 10 input enable                                              */
       __IOM uint32_t PAD10STRNG : 1;            /*!< [18..18] Pad 10 drive strength                                            */
       __IOM uint32_t PAD10FNCSEL : 3;           /*!< [21..19] Pad 10 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD11PULL  : 1;            /*!< [24..24] Pad 11 pullup enable                                             */
       __IOM uint32_t PAD11INPEN : 1;            /*!< [25..25] Pad 11 input enable                                              */
       __IOM uint32_t PAD11STRNG : 1;            /*!< [26..26] Pad 11 drive strength                                            */
@@ -3321,17 +3321,17 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD12INPEN : 1;            /*!< [1..1] Pad 12 input enable                                                */
       __IOM uint32_t PAD12STRNG : 1;            /*!< [2..2] Pad 12 drive strength                                              */
       __IOM uint32_t PAD12FNCSEL : 3;           /*!< [5..3] Pad 12 function select                                             */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD13PULL  : 1;            /*!< [8..8] Pad 13 pullup enable                                               */
       __IOM uint32_t PAD13INPEN : 1;            /*!< [9..9] Pad 13 input enable                                                */
       __IOM uint32_t PAD13STRNG : 1;            /*!< [10..10] Pad 13 drive strength                                            */
       __IOM uint32_t PAD13FNCSEL : 3;           /*!< [13..11] Pad 13 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD14PULL  : 1;            /*!< [16..16] Pad 14 pullup enable                                             */
       __IOM uint32_t PAD14INPEN : 1;            /*!< [17..17] Pad 14 input enable                                              */
       __IOM uint32_t PAD14STRNG : 1;            /*!< [18..18] Pad 14 drive strength                                            */
       __IOM uint32_t PAD14FNCSEL : 3;           /*!< [21..19] Pad 14 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD15PULL  : 1;            /*!< [24..24] Pad 15 pullup enable                                             */
       __IOM uint32_t PAD15INPEN : 1;            /*!< [25..25] Pad 15 input enable                                              */
       __IOM uint32_t PAD15STRNG : 1;            /*!< [26..26] Pad 15 drive strength                                            */
@@ -3347,17 +3347,17 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD16INPEN : 1;            /*!< [1..1] Pad 16 input enable                                                */
       __IOM uint32_t PAD16STRNG : 1;            /*!< [2..2] Pad 16 drive strength                                              */
       __IOM uint32_t PAD16FNCSEL : 3;           /*!< [5..3] Pad 16 function select                                             */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD17PULL  : 1;            /*!< [8..8] Pad 17 pullup enable                                               */
       __IOM uint32_t PAD17INPEN : 1;            /*!< [9..9] Pad 17 input enable                                                */
       __IOM uint32_t PAD17STRNG : 1;            /*!< [10..10] Pad 17 drive strength                                            */
       __IOM uint32_t PAD17FNCSEL : 3;           /*!< [13..11] Pad 17 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD18PULL  : 1;            /*!< [16..16] Pad 18 pullup enable                                             */
       __IOM uint32_t PAD18INPEN : 1;            /*!< [17..17] Pad 18 input enable                                              */
       __IOM uint32_t PAD18STRNG : 1;            /*!< [18..18] Pad 18 drive strength                                            */
       __IOM uint32_t PAD18FNCSEL : 3;           /*!< [21..19] Pad 18 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD19PULL  : 1;            /*!< [24..24] Pad 19 pullup enable                                             */
       __IOM uint32_t PAD19INPEN : 1;            /*!< [25..25] Pad 19 input enable                                              */
       __IOM uint32_t PAD19STRNG : 1;            /*!< [26..26] Pad 19 drive strength                                            */
@@ -3373,17 +3373,17 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD20INPEN : 1;            /*!< [1..1] Pad 20 input enable                                                */
       __IOM uint32_t PAD20STRNG : 1;            /*!< [2..2] Pad 20 drive strength                                              */
       __IOM uint32_t PAD20FNCSEL : 3;           /*!< [5..3] Pad 20 function select                                             */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD21PULL  : 1;            /*!< [8..8] Pad 21 pullup enable                                               */
       __IOM uint32_t PAD21INPEN : 1;            /*!< [9..9] Pad 21 input enable                                                */
       __IOM uint32_t PAD21STRNG : 1;            /*!< [10..10] Pad 21 drive strength                                            */
       __IOM uint32_t PAD21FNCSEL : 3;           /*!< [13..11] Pad 21 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD22PULL  : 1;            /*!< [16..16] Pad 22 pullup enable                                             */
       __IOM uint32_t PAD22INPEN : 1;            /*!< [17..17] Pad 22 input enable                                              */
       __IOM uint32_t PAD22STRNG : 1;            /*!< [18..18] Pad 22 drive strength                                            */
       __IOM uint32_t PAD22FNCSEL : 3;           /*!< [21..19] Pad 22 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD23PULL  : 1;            /*!< [24..24] Pad 23 pullup enable                                             */
       __IOM uint32_t PAD23INPEN : 1;            /*!< [25..25] Pad 23 input enable                                              */
       __IOM uint32_t PAD23STRNG : 1;            /*!< [26..26] Pad 23 drive strength                                            */
@@ -3399,7 +3399,7 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD24INPEN : 1;            /*!< [1..1] Pad 24 input enable                                                */
       __IOM uint32_t PAD24STRNG : 1;            /*!< [2..2] Pad 24 drive strength                                              */
       __IOM uint32_t PAD24FNCSEL : 3;           /*!< [5..3] Pad 24 function select                                             */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD25PULL  : 1;            /*!< [8..8] Pad 25 pullup enable                                               */
       __IOM uint32_t PAD25INPEN : 1;            /*!< [9..9] Pad 25 input enable                                                */
       __IOM uint32_t PAD25STRNG : 1;            /*!< [10..10] Pad 25 drive strength                                            */
@@ -3409,7 +3409,7 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD26INPEN : 1;            /*!< [17..17] Pad 26 input enable                                              */
       __IOM uint32_t PAD26STRNG : 1;            /*!< [18..18] Pad 26 drive strength                                            */
       __IOM uint32_t PAD26FNCSEL : 3;           /*!< [21..19] Pad 26 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD27PULL  : 1;            /*!< [24..24] Pad 27 pullup enable                                             */
       __IOM uint32_t PAD27INPEN : 1;            /*!< [25..25] Pad 27 input enable                                              */
       __IOM uint32_t PAD27STRNG : 1;            /*!< [26..26] Pad 27 drive strength                                            */
@@ -3426,17 +3426,17 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD28INPEN : 1;            /*!< [1..1] Pad 28 input enable                                                */
       __IOM uint32_t PAD28STRNG : 1;            /*!< [2..2] Pad 28 drive strength                                              */
       __IOM uint32_t PAD28FNCSEL : 3;           /*!< [5..3] Pad 28 function select                                             */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD29PULL  : 1;            /*!< [8..8] Pad 29 pullup enable                                               */
       __IOM uint32_t PAD29INPEN : 1;            /*!< [9..9] Pad 29 input enable                                                */
       __IOM uint32_t PAD29STRNG : 1;            /*!< [10..10] Pad 29 drive strength                                            */
       __IOM uint32_t PAD29FNCSEL : 3;           /*!< [13..11] Pad 29 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD30PULL  : 1;            /*!< [16..16] Pad 30 pullup enable                                             */
       __IOM uint32_t PAD30INPEN : 1;            /*!< [17..17] Pad 30 input enable                                              */
       __IOM uint32_t PAD30STRNG : 1;            /*!< [18..18] Pad 30 drive strength                                            */
       __IOM uint32_t PAD30FNCSEL : 3;           /*!< [21..19] Pad 30 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD31PULL  : 1;            /*!< [24..24] Pad 31 pullup enable                                             */
       __IOM uint32_t PAD31INPEN : 1;            /*!< [25..25] Pad 31 input enable                                              */
       __IOM uint32_t PAD31STRNG : 1;            /*!< [26..26] Pad 31 drive strength                                            */
@@ -3452,17 +3452,17 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD32INPEN : 1;            /*!< [1..1] Pad 32 input enable                                                */
       __IOM uint32_t PAD32STRNG : 1;            /*!< [2..2] Pad 32 drive strength                                              */
       __IOM uint32_t PAD32FNCSEL : 3;           /*!< [5..3] Pad 32 function select                                             */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD33PULL  : 1;            /*!< [8..8] Pad 33 pullup enable                                               */
       __IOM uint32_t PAD33INPEN : 1;            /*!< [9..9] Pad 33 input enable                                                */
       __IOM uint32_t PAD33STRNG : 1;            /*!< [10..10] Pad 33 drive strength                                            */
       __IOM uint32_t PAD33FNCSEL : 3;           /*!< [13..11] Pad 33 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD34PULL  : 1;            /*!< [16..16] Pad 34 pullup enable                                             */
       __IOM uint32_t PAD34INPEN : 1;            /*!< [17..17] Pad 34 input enable                                              */
       __IOM uint32_t PAD34STRNG : 1;            /*!< [18..18] Pad 34 drive strength                                            */
       __IOM uint32_t PAD34FNCSEL : 3;           /*!< [21..19] Pad 34 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD35PULL  : 1;            /*!< [24..24] Pad 35 pullup enable                                             */
       __IOM uint32_t PAD35INPEN : 1;            /*!< [25..25] Pad 35 input enable                                              */
       __IOM uint32_t PAD35STRNG : 1;            /*!< [26..26] Pad 35 drive strength                                            */
@@ -3479,18 +3479,18 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD36STRNG : 1;            /*!< [2..2] Pad 36 drive strength                                              */
       __IOM uint32_t PAD36FNCSEL : 3;           /*!< [5..3] Pad 36 function select                                             */
       __IOM uint32_t PAD36PWRUP : 1;            /*!< [6..6] Pad 36 VDD power switch enable                                     */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t PAD37PULL  : 1;            /*!< [8..8] Pad 37 pullup enable                                               */
       __IOM uint32_t PAD37INPEN : 1;            /*!< [9..9] Pad 37 input enable                                                */
       __IOM uint32_t PAD37STRNG : 1;            /*!< [10..10] Pad 37 drive strength                                            */
       __IOM uint32_t PAD37FNCSEL : 3;           /*!< [13..11] Pad 37 function select                                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t PAD37PWRDN : 1;            /*!< [15..15] Pad 37 VSS power switch enable                                   */
       __IOM uint32_t PAD38PULL  : 1;            /*!< [16..16] Pad 38 pullup enable                                             */
       __IOM uint32_t PAD38INPEN : 1;            /*!< [17..17] Pad 38 input enable                                              */
       __IOM uint32_t PAD38STRNG : 1;            /*!< [18..18] Pad 38 drive strength                                            */
       __IOM uint32_t PAD38FNCSEL : 3;           /*!< [21..19] Pad 38 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD39PULL  : 1;            /*!< [24..24] Pad 39 pullup enable                                             */
       __IOM uint32_t PAD39INPEN : 1;            /*!< [25..25] Pad 39 input enable                                              */
       __IOM uint32_t PAD39STRNG : 1;            /*!< [26..26] Pad 39 drive strength                                            */
@@ -3512,7 +3512,7 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD41INPEN : 1;            /*!< [9..9] Pad 41 input enable                                                */
       __IOM uint32_t PAD41STRNG : 1;            /*!< [10..10] Pad 41 drive strength                                            */
       __IOM uint32_t PAD41FNCSEL : 3;           /*!< [13..11] Pad 41 function select                                           */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t PAD41PWRDN : 1;            /*!< [15..15] Pad 41 power switch enable                                       */
       __IOM uint32_t PAD42PULL  : 1;            /*!< [16..16] Pad 42 pullup enable                                             */
       __IOM uint32_t PAD42INPEN : 1;            /*!< [17..17] Pad 42 input enable                                              */
@@ -3535,17 +3535,17 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
       __IOM uint32_t PAD44INPEN : 1;            /*!< [1..1] Pad 44 input enable                                                */
       __IOM uint32_t PAD44STRNG : 1;            /*!< [2..2] Pad 44 drive strength                                              */
       __IOM uint32_t PAD44FNCSEL : 3;           /*!< [5..3] Pad 44 function select                                             */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD45PULL  : 1;            /*!< [8..8] Pad 45 pullup enable                                               */
       __IOM uint32_t PAD45INPEN : 1;            /*!< [9..9] Pad 45 input enable                                                */
       __IOM uint32_t PAD45STRNG : 1;            /*!< [10..10] Pad 45 drive strength                                            */
       __IOM uint32_t PAD45FNCSEL : 3;           /*!< [13..11] Pad 45 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD46PULL  : 1;            /*!< [16..16] Pad 46 pullup enable                                             */
       __IOM uint32_t PAD46INPEN : 1;            /*!< [17..17] Pad 46 input enable                                              */
       __IOM uint32_t PAD46STRNG : 1;            /*!< [18..18] Pad 46 drive strength                                            */
       __IOM uint32_t PAD46FNCSEL : 3;           /*!< [21..19] Pad 46 function select                                           */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PAD47PULL  : 1;            /*!< [24..24] Pad 47 pullup enable                                             */
       __IOM uint32_t PAD47INPEN : 1;            /*!< [25..25] Pad 47 input enable                                              */
       __IOM uint32_t PAD47STRNG : 1;            /*!< [26..26] Pad 47 drive strength                                            */
@@ -3899,13 +3899,13 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t STSEL0     : 6;            /*!< [5..0] STIMER Capture 0 Select.                                           */
       __IOM uint32_t STPOL0     : 1;            /*!< [6..6] STIMER Capture 0 Polarity.                                         */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t STSEL1     : 6;            /*!< [13..8] STIMER Capture 1 Select.                                          */
       __IOM uint32_t STPOL1     : 1;            /*!< [14..14] STIMER Capture 1 Polarity.                                       */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t STSEL2     : 6;            /*!< [21..16] STIMER Capture 2 Select.                                         */
       __IOM uint32_t STPOL2     : 1;            /*!< [22..22] STIMER Capture 2 Polarity.                                       */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t STSEL3     : 6;            /*!< [29..24] STIMER Capture 3 Select.                                         */
       __IOM uint32_t STPOL3     : 1;            /*!< [30..30] STIMER Capture 3 Polarity.                                       */
     } STMRCAP_b;
@@ -3983,22 +3983,22 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD0_DS1   : 1;            /*!< [0..0] Pad 0 high order drive strength selection. Used in conjunction
                                                      with PAD0STRNG field to set the pad drive strength.                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD0_SR    : 1;            /*!< [4..4] Pad 0 slew rate selection.                                         */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD1_DS1   : 1;            /*!< [8..8] Pad 1 high order drive strength selection. Used in conjunction
                                                      with PAD1STRNG field to set the pad drive strength.                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD1_SR    : 1;            /*!< [12..12] Pad 1 slew rate selection.                                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD2_DS1   : 1;            /*!< [16..16] Pad 2 high order drive strength selection. Used in
                                                      conjunction with PAD2STRNG field to set the pad drive strength.           */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD2_SR    : 1;            /*!< [20..20] Pad 2 slew rate selection.                                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD3_DS1   : 1;            /*!< [24..24] Pad 3 high order drive strength selection. Used in
                                                      conjunction with PAD3STRNG field to set the pad drive strength.           */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD3_SR    : 1;            /*!< [28..28] Pad 3 slew rate selection.                                       */
     } ALTPADCFGA_b;
   } ;
@@ -4009,22 +4009,22 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD4_DS1   : 1;            /*!< [0..0] Pad 4 high order drive strength selection. Used in conjunction
                                                      with PAD4STRNG field to set the pad drive strength.                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD4_SR    : 1;            /*!< [4..4] Pad 4 slew rate selection.                                         */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD5_DS1   : 1;            /*!< [8..8] Pad 5 high order drive strength selection. Used in conjunction
                                                      with PAD5STRNG field to set the pad drive strength.                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD5_SR    : 1;            /*!< [12..12] Pad 5 slew rate selection.                                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD6_DS1   : 1;            /*!< [16..16] Pad 6 high order drive strength selection. Used in
                                                      conjunction with PAD6STRNG field to set the pad drive strength.           */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD6_SR    : 1;            /*!< [20..20] Pad 6 slew rate selection.                                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD7_DS1   : 1;            /*!< [24..24] Pad 7 high order drive strength selection. Used in
                                                      conjunction with PAD7STRNG field to set the pad drive strength.           */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD7_SR    : 1;            /*!< [28..28] Pad 7 slew rate selection.                                       */
     } ALTPADCFGB_b;
   } ;
@@ -4035,24 +4035,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD8_DS1   : 1;            /*!< [0..0] Pad 8 high order drive strength selection. Used in conjunction
                                                      with PAD8STRNG field to set the pad drive strength.                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD8_SR    : 1;            /*!< [4..4] Pad 8 slew rate selection.                                         */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD9_DS1   : 1;            /*!< [8..8] Pad 9 high order drive strength selection. Used in conjunction
                                                      with PAD9STRNG field to set the pad drive strength.                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD9_SR    : 1;            /*!< [12..12] Pad 9 slew rate selection.                                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD10_DS1  : 1;            /*!< [16..16] Pad 10 high order drive strength selection. Used in
                                                      conjunction with PAD10STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD10_SR   : 1;            /*!< [20..20] Pad 10 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD11_DS1  : 1;            /*!< [24..24] Pad 11 high order drive strength selection. Used in
                                                      conjunction with PAD11STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD11_SR   : 1;            /*!< [28..28] Pad 11 slew rate selection.                                      */
     } ALTPADCFGC_b;
   } ;
@@ -4063,24 +4063,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD12_DS1  : 1;            /*!< [0..0] Pad 12 high order drive strength selection. Used in conjunction
                                                      with PAD12STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD12_SR   : 1;            /*!< [4..4] Pad 12 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD13_DS1  : 1;            /*!< [8..8] Pad 13 high order drive strength selection. Used in conjunction
                                                      with PAD13STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD13_SR   : 1;            /*!< [12..12] Pad 13 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD14_DS1  : 1;            /*!< [16..16] Pad 14 high order drive strength selection. Used in
                                                      conjunction with PAD14STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD14_SR   : 1;            /*!< [20..20] Pad 14 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD15_DS1  : 1;            /*!< [24..24] Pad 15 high order drive strength selection. Used in
                                                      conjunction with PAD15STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD15_SR   : 1;            /*!< [28..28] Pad 15 slew rate selection.                                      */
     } ALTPADCFGD_b;
   } ;
@@ -4091,24 +4091,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD16_DS1  : 1;            /*!< [0..0] Pad 16 high order drive strength selection. Used in conjunction
                                                      with PAD16STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD16_SR   : 1;            /*!< [4..4] Pad 16 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD17_DS1  : 1;            /*!< [8..8] Pad 17 high order drive strength selection. Used in conjunction
                                                      with PAD17STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD17_SR   : 1;            /*!< [12..12] Pad 17 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD18_DS1  : 1;            /*!< [16..16] Pad 18 high order drive strength selection. Used in
                                                      conjunction with PAD18STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD18_SR   : 1;            /*!< [20..20] Pad 18 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD19_DS1  : 1;            /*!< [24..24] Pad 19 high order drive strength selection. Used in
                                                      conjunction with PAD19STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD19_SR   : 1;            /*!< [28..28] Pad 19 slew rate selection.                                      */
     } ALTPADCFGE_b;
   } ;
@@ -4119,24 +4119,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD20_DS1  : 1;            /*!< [0..0] Pad 20 high order drive strength selection. Used in conjunction
                                                      with PAD20STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD20_SR   : 1;            /*!< [4..4] Pad 20 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD21_DS1  : 1;            /*!< [8..8] Pad 21 high order drive strength selection. Used in conjunction
                                                      with PAD21STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD21_SR   : 1;            /*!< [12..12] Pad 21 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD22_DS1  : 1;            /*!< [16..16] Pad 22 high order drive strength selection. Used in
                                                      conjunction with PAD22STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD22_SR   : 1;            /*!< [20..20] Pad 22 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD23_DS1  : 1;            /*!< [24..24] Pad 23 high order drive strength selection. Used in
                                                      conjunction with PAD23STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD23_SR   : 1;            /*!< [28..28] Pad 23 slew rate selection.                                      */
     } ALTPADCFGF_b;
   } ;
@@ -4147,24 +4147,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD24_DS1  : 1;            /*!< [0..0] Pad 24 high order drive strength selection. Used in conjunction
                                                      with PAD24STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD24_SR   : 1;            /*!< [4..4] Pad 24 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD25_DS1  : 1;            /*!< [8..8] Pad 25 high order drive strength selection. Used in conjunction
                                                      with PAD25STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD25_SR   : 1;            /*!< [12..12] Pad 25 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD26_DS1  : 1;            /*!< [16..16] Pad 26 high order drive strength selection. Used in
                                                      conjunction with PAD26STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD26_SR   : 1;            /*!< [20..20] Pad 26 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD27_DS1  : 1;            /*!< [24..24] Pad 27 high order drive strength selection. Used in
                                                      conjunction with PAD27STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD27_SR   : 1;            /*!< [28..28] Pad 27 slew rate selection.                                      */
     } ALTPADCFGG_b;
   } ;
@@ -4175,24 +4175,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD28_DS1  : 1;            /*!< [0..0] Pad 28 high order drive strength selection. Used in conjunction
                                                      with PAD28STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD28_SR   : 1;            /*!< [4..4] Pad 28 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD29_DS1  : 1;            /*!< [8..8] Pad 29 high order drive strength selection. Used in conjunction
                                                      with PAD29STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD29_SR   : 1;            /*!< [12..12] Pad 29 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD30_DS1  : 1;            /*!< [16..16] Pad 30 high order drive strength selection. Used in
                                                      conjunction with PAD30STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD30_SR   : 1;            /*!< [20..20] Pad 30 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD31_DS1  : 1;            /*!< [24..24] Pad 31 high order drive strength selection. Used in
                                                      conjunction with PAD31STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD31_SR   : 1;            /*!< [28..28] Pad 31 slew rate selection.                                      */
     } ALTPADCFGH_b;
   } ;
@@ -4203,24 +4203,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD32_DS1  : 1;            /*!< [0..0] Pad 32 high order drive strength selection. Used in conjunction
                                                      with PAD32STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD32_SR   : 1;            /*!< [4..4] Pad 32 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD33_DS1  : 1;            /*!< [8..8] Pad 33 high order drive strength selection. Used in conjunction
                                                      with PAD33STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD33_SR   : 1;            /*!< [12..12] Pad 33 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD34_DS1  : 1;            /*!< [16..16] Pad 34 high order drive strength selection. Used in
                                                      conjunction with PAD34STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD34_SR   : 1;            /*!< [20..20] Pad 34 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD35_DS1  : 1;            /*!< [24..24] Pad 35 high order drive strength selection. Used in
                                                      conjunction with PAD35STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD35_SR   : 1;            /*!< [28..28] Pad 35 slew rate selection.                                      */
     } ALTPADCFGI_b;
   } ;
@@ -4231,24 +4231,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD36_DS1  : 1;            /*!< [0..0] Pad 36 high order drive strength selection. Used in conjunction
                                                      with PAD36STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD36_SR   : 1;            /*!< [4..4] Pad 36 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD37_DS1  : 1;            /*!< [8..8] Pad 37 high order drive strength selection. Used in conjunction
                                                      with PAD37STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD37_SR   : 1;            /*!< [12..12] Pad 37 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD38_DS1  : 1;            /*!< [16..16] Pad 38 high order drive strength selection. Used in
                                                      conjunction with PAD38STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD38_SR   : 1;            /*!< [20..20] Pad 38 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD39_DS1  : 1;            /*!< [24..24] Pad 39 high order drive strength selection. Used in
                                                      conjunction with PAD39STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD39_SR   : 1;            /*!< [28..28] Pad 39 slew rate selection.                                      */
     } ALTPADCFGJ_b;
   } ;
@@ -4259,24 +4259,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD40_DS1  : 1;            /*!< [0..0] Pad 40 high order drive strength selection. Used in conjunction
                                                      with PAD40STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD40_SR   : 1;            /*!< [4..4] Pad 40 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD41_DS1  : 1;            /*!< [8..8] Pad 41 high order drive strength selection. Used in conjunction
                                                      with PAD41STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD41_SR   : 1;            /*!< [12..12] Pad 41 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD42_DS1  : 1;            /*!< [16..16] Pad 42 high order drive strength selection. Used in
                                                      conjunction with PAD42STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD42_SR   : 1;            /*!< [20..20] Pad 42 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD43_DS1  : 1;            /*!< [24..24] Pad 43 high order drive strength selection. Used in
                                                      conjunction with PAD43STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD43_SR   : 1;            /*!< [28..28] Pad 43 slew rate selection.                                      */
     } ALTPADCFGK_b;
   } ;
@@ -4287,24 +4287,24 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD44_DS1  : 1;            /*!< [0..0] Pad 44 high order drive strength selection. Used in conjunction
                                                      with PAD44STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD44_SR   : 1;            /*!< [4..4] Pad 44 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD45_DS1  : 1;            /*!< [8..8] Pad 45 high order drive strength selection. Used in conjunction
                                                      with PAD45STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD45_SR   : 1;            /*!< [12..12] Pad 45 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD46_DS1  : 1;            /*!< [16..16] Pad 46 high order drive strength selection. Used in
                                                      conjunction with PAD46STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD46_SR   : 1;            /*!< [20..20] Pad 46 slew rate selection.                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD47_DS1  : 1;            /*!< [24..24] Pad 47 high order drive strength selection. Used in
                                                      conjunction with PAD47STRNG field to set the pad drive
                                                      strength.                                                                 */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD47_SR   : 1;            /*!< [28..28] Pad 47 slew rate selection.                                      */
     } ALTPADCFGL_b;
   } ;
@@ -4315,12 +4315,12 @@ typedef struct {                                /*!< (@ 0x40010000) GPIO Structu
     struct {
       __IOM uint32_t PAD48_DS1  : 1;            /*!< [0..0] Pad 48 high order drive strength selection. Used in conjunction
                                                      with PAD48STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD48_SR   : 1;            /*!< [4..4] Pad 48 slew rate selection.                                        */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD49_DS1  : 1;            /*!< [8..8] Pad 49 high order drive strength selection. Used in conjunction
                                                      with PAD49STRNG field to set the pad drive strength.                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PAD49_SR   : 1;            /*!< [12..12] Pad 49 slew rate selection.                                      */
     } ALTPADCFGM_b;
   } ;
@@ -4680,7 +4680,7 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
                                                      to signal when a data transfer of FIFORTHR bytes can be
                                                      done from the IOM module to the host via the read fifo
                                                      to support large IOM read operations.                                     */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t FIFOWTHR   : 6;            /*!< [13..8] FIFO write threshold in bytes. A value of 0 will disable
                                                      the write FIFO level from activating the threshold interrupt.
                                                      If this field is non-zero, it will trigger a threshold
@@ -4742,7 +4742,7 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
       __IOM uint32_t FIFOWPTR   : 4;            /*!< [3..0] Current FIFO write pointer. Value is the index into the
                                                      outgoing FIFO (FIFO0), which is used during write operations
                                                      to external devices.                                                      */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t FIFORPTR   : 4;            /*!< [11..8] Current FIFO read pointer. Used to index into the incoming
                                                      FIFO (FIFO1), which is used to store read data returned
                                                      from external devices during a read operation.                            */
@@ -4948,14 +4948,14 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
     struct {
       __IOM uint32_t IOCLKEN    : 1;            /*!< [0..0] Enable for the interface clock. Must be enabled prior
                                                      to executing any IO operations.                                           */
-      __IM  uint32_t            : 7;
+            uint32_t            : 7;
       __IOM uint32_t FSEL       : 3;            /*!< [10..8] Select the input clock frequency.                                 */
       __IOM uint32_t DIV3       : 1;            /*!< [11..11] Enable divide by 3 of the source IOCLK. Division by
                                                      3 is done before the DIVEN programmable divider, and if
                                                      enabledwill provide the divided by 3 clock as the source
                                                      to the programmable divider.                                              */
       __IOM uint32_t DIVEN      : 1;            /*!< [12..12] Enable clock division by TOTPER and LOWPER                       */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t LOWPER     : 8;            /*!< [23..16] Clock low clock count minus 1. This provides the number
                                                      of clocks the divided clock will be low when the DIVEN
                                                      = 1.Only applicable when DIVEN = 1.                                       */
@@ -4997,7 +4997,7 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
                                                      is not included in this size.                                             */
       __IOM uint32_t CMDSEL     : 2;            /*!< [21..20] Command Specific selection information. Not used in
                                                      Master I2C. Used as CEn select for Master SPI transactions                */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t OFFSETLO   : 8;            /*!< [31..24] This register holds the low order byte of offset to
                                                      be used in the transaction. The number of offset bytes
                                                      to use is set with bits 1:0 of the command.                               */
@@ -5093,7 +5093,7 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
                                                      operation. This should be the last DMA related register
                                                      set prior to issuing the command                                          */
       __IOM uint32_t DMADIR     : 1;            /*!< [1..1] Direction                                                          */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t DMAPRI     : 1;            /*!< [8..8] Sets the Priority of the DMA request                               */
       __IOM uint32_t DPWROFF    : 1;            /*!< [9..9] Power off module after DMA is complete. If this bit is
                                                      active, the module will request to power off the supply
@@ -5122,7 +5122,7 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
                                                      alignment, and does not have to be word aligned. In cases
                                                      of non-word aligned addresses, the DMA logic will take
                                                      care for ensuring only the target bytes are read/written.                 */
-      __IM  uint32_t            : 8;
+            uint32_t            : 8;
       __IOM uint32_t TARGADDR28 : 1;            /*!< [28..28] Bit 28 of the target byte address for source of DMA
                                                      (either read or write). In cases of non-word aligned addresses,
                                                      the DMA logic will take care for ensuring only the target
@@ -5168,10 +5168,10 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
     __IOM uint32_t CQADDR;                      /*!< (@ 0x00000298) CQ Target Read Address Register                            */
 
     struct {
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CQADDR     : 18;           /*!< [19..2] Bits 19:2 of target byte address for source of CQ. The
                                                      buffer must be aligned on a word boundary                                 */
-      __IM  uint32_t            : 8;
+            uint32_t            : 8;
       __IOM uint32_t CQADDR28   : 1;            /*!< [28..28] Bit 28 of target byte address for source of CQ. Used
                                                      to denote Flash (0) or SRAM (1) access                                    */
     } CQADDR_b;
@@ -5281,11 +5281,11 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
       __IOM uint32_t SPHA       : 1;            /*!< [1..1] selects SPI phase.                                                 */
       __IOM uint32_t FULLDUP    : 1;            /*!< [2..2] Enables full duplex mode for Master SPI write operations.
                                                      Data will be captured simultaneously into the read fifo                   */
-      __IM  uint32_t            : 13;
+            uint32_t            : 13;
       __IOM uint32_t WTFC       : 1;            /*!< [16..16] enables write mode flow control.                                 */
       __IOM uint32_t RDFC       : 1;            /*!< [17..17] enables read mode flow control.                                  */
       __IOM uint32_t MOSIINV    : 1;            /*!< [18..18] inverts MOSI when flow control is enabled.                       */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t WTFCIRQ    : 1;            /*!< [20..20] selects the write mode flow control signal.                      */
       __IOM uint32_t WTFCPOL    : 1;            /*!< [21..21] selects the write flow control signal polarity. The
                                                      transfers are halted when the selected flow control signal
@@ -5318,11 +5318,11 @@ typedef struct {                                /*!< (@ 0x50004000) IOM0 Structu
       __IOM uint32_t ARBEN      : 1;            /*!< [2..2] Enables multi-master arbitration for the I2C master.
                                                      If the bus is known to have only a single master, this
                                                      function can be disabled to save clock cycles on I2C transactions         */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t SDADLY     : 2;            /*!< [5..4] Delay to enable on the SDA output. Values are 0x0-0x3.             */
       __IOM uint32_t MI2CRST    : 1;            /*!< [6..6] Not used. To reset the module, toggle the SMOD_EN for
                                                      the module                                                                */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t SCLENDLY   : 4;            /*!< [11..8] Number of IOCLK cycles to delay the rising edge of the
                                                      SCL output en (clock will go low on this edge). Used to
                                                      allow clock shaping.                                                      */
@@ -5396,11 +5396,11 @@ typedef struct {                                /*!< (@ 0x50000000) IOSLAVE Stru
       __IOM uint32_t FIFOBASE   : 5;            /*!< [4..0] These bits hold the base address of the I/O FIFO in 8
                                                      byte segments. The IO Slave FIFO is situated in LRAM at
                                                      (FIFOBASE*8) to (FIFOMAX*8-1).                                            */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t FIFOMAX    : 6;            /*!< [13..8] These bits hold the maximum FIFO address in 8 byte segments.
                                                      It is also the beginning of the RAM area of the LRAM. Note
                                                      that no RAM area is configured if FIFOMAX is set to 0x1F.                 */
-      __IM  uint32_t            : 10;
+            uint32_t            : 10;
       __IOM uint32_t ROBASE     : 6;            /*!< [29..24] Defines the read-only area. The IO Slave read-only
                                                      area is situated in LRAM at (ROBASE*8) to (FIFOBASE*8-1)                  */
     } FIFOCFG_b;
@@ -5447,11 +5447,11 @@ typedef struct {                                /*!< (@ 0x50000000) IOSLAVE Stru
       __IOM uint32_t IFCSEL     : 1;            /*!< [0..0] This bit selects the I/O interface.                                */
       __IOM uint32_t SPOL       : 1;            /*!< [1..1] This bit selects SPI polarity.                                     */
       __IOM uint32_t LSB        : 1;            /*!< [2..2] This bit selects the transfer bit ordering.                        */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t STARTRD    : 1;            /*!< [4..4] This bit holds the cycle to initiate an I/O RAM read.              */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t I2CADDR    : 12;           /*!< [19..8] 7-bit or 10-bit I2C device address.                               */
-      __IM  uint32_t            : 11;
+            uint32_t            : 11;
       __IOM uint32_t IFCEN      : 1;            /*!< [31..31] IOSLAVE interface enable.                                        */
     } CFG_b;
   } ;
@@ -5473,7 +5473,7 @@ typedef struct {                                /*!< (@ 0x50000000) IOSLAVE Stru
       __IOM uint32_t IOINT      : 8;            /*!< [15..8] These bits read the IOINT interrupts.                             */
       __IOM uint32_t IOINTCLR   : 1;            /*!< [16..16] This bit clears all of the IOINT interrupts when written
                                                      with a 1.                                                                 */
-      __IM  uint32_t            : 7;
+            uint32_t            : 7;
       __IOM uint32_t IOINTSET   : 8;            /*!< [31..24] These bits set the IOINT interrupts when written with
                                                      a 1.                                                                      */
     } IOINTCTL_b;
@@ -5661,7 +5661,7 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
       __IOM uint32_t BLEREQ     : 1;            /*!< [0..0] Controls the BLE functionality                                     */
       __IOM uint32_t BLEACK     : 1;            /*!< [1..1] ACK for BLEREQ                                                     */
       __IOM uint32_t BLEAVAIL   : 1;            /*!< [2..2] AVAILABILITY of the BLE functionality                              */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t BURSTREQ   : 1;            /*!< [4..4] Controls the Burst functionality                                   */
       __IOM uint32_t BURSTACK   : 1;            /*!< [5..5] ACK for BURSTREQ                                                   */
       __IOM uint32_t BURSTAVAIL : 1;            /*!< [6..6] Availability of Burst functionality                                */
@@ -5730,7 +5730,7 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
 
     struct {
       __IOM uint32_t ADCREFKEEPIBTRIM : 2;      /*!< [1..0] ADC Reference Ibias trim                                           */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t ADCREFBUFTRIM : 5;         /*!< [10..6] ADC Reference buffer trim                                         */
       __IOM uint32_t ADCRFBUFIBTRIM : 2;        /*!< [12..11] ADC reference buffer input bias trim                             */
     } ADCTRIM_b;
@@ -5741,9 +5741,9 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
 
     struct {
       __IOM uint32_t ADC_REFCOMP_OUT : 1;       /*!< [0..0] Output of the ADC reference comparator                             */
-      __IM  uint32_t            : 7;
+            uint32_t            : 7;
       __IOM uint32_t ADCREFKEEPTRIM : 5;        /*!< [12..8] ADC Reference Keeper Trim                                         */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t ADCRFCMPEN : 1;            /*!< [16..16] ADC Reference comparator power down                              */
     } ADCREFCOMP_b;
   } ;
@@ -5798,7 +5798,7 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
                                                      Enables system visibility to bootloader until set.                        */
       __IOM uint32_t PROTLOCK   : 1;            /*!< [2..2] Flash protection lock. Always resets to 1, write 1 to
                                                      clear. Enables writes to flash protection register set.                   */
-      __IM  uint32_t            : 23;
+            uint32_t            : 23;
       __IOM uint32_t SECBOOTFEATURE : 2;        /*!< [27..26] Indicates whether the secure boot feature is enabled.            */
       __IOM uint32_t SECBOOT    : 2;            /*!< [29..28] Indicates whether the secure boot on cold reset is
                                                      enabled                                                                   */
@@ -5945,7 +5945,7 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
       __IOM uint32_t ENABLE     : 1;            /*!< [0..0] TPIU Enable field. When set, the ARM M4 TPIU is enabled
                                                      and data can be streamed out of the MCU's SWO port using
                                                      the ARM ITM and TPIU modules.                                             */
-      __IM  uint32_t            : 7;
+            uint32_t            : 7;
       __IOM uint32_t CLKSEL     : 3;            /*!< [10..8] This field selects the frequency of the ARM M4 TPIU
                                                      port.                                                                     */
     } TPIUCTRL_b;
@@ -5975,7 +5975,7 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
                                                      a data abort (bus fault) on transactions to peripherals
                                                      that are powered down. When set to 0, writes are quietly
                                                      discarded and reads return 0.                                             */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t HYSTERESIS : 8;            /*!< [15..8] This field determines how long the DMA will remain active
                                                      during deep sleep before shutting down and returning the
                                                      system to full deep sleep. Values are based on a 94KHz
@@ -5994,7 +5994,7 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
                                                      executing instructions from SRAM.                                         */
       __IOM uint32_t IPREFETCH_CACHE : 1;       /*!< [1..1] Secondary pre-fetch feature that will cache pre-fetched
                                                      data across bus wait states (requires IPREFETCH to be set).               */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t DPREFETCH  : 1;            /*!< [4..4] When set, data bus accesses to the SRAM banks will be
                                                      pre-fetched (normally 2 cycle read access). Use of this
                                                      mode bit is only recommended if the work flow has a large
@@ -6057,9 +6057,9 @@ typedef struct {                                /*!< (@ 0x40020000) MCUCTRL Stru
 
     struct {
       __IOM uint32_t SIMOBUCKMEMLPLOWTONTRIM : 4;/*!< [3..0] simobuck_mem_lp_low_ton_trim                                      */
-      __IM  uint32_t            : 17;
+            uint32_t            : 17;
       __IOM uint32_t SIMOBUCKCLKDIVSEL : 2;     /*!< [22..21] simobuck_clkdiv_sel                                              */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t SIMOBUCKCOMP2TIMEOUTEN : 1;/*!< [24..24] simobuck_comp2_timeout_en                                        */
     } SIMOBUCK4_b;
   } ;
@@ -6201,7 +6201,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
                                                      This is typically only used when reading/writing configuration
                                                      registers in paired flash devices (do not set for memory
                                                      transfers).                                                               */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t BIGENDIAN  : 1;            /*!< [6..6] 1 indicates data in FIFO is in big endian format (MSB
                                                      first); 0 indicates little endian data (default, LSB first).              */
       __IOM uint32_t ENTURN     : 1;            /*!< [7..7] Indicates whether TX->RX turnaround cycles should be
@@ -6216,7 +6216,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
       __IOM uint32_t PIOSCRAMBLE : 1;           /*!< [11..11] Enables data scrambling for PIO operations. This should
                                                      only be used for data operations and never for commands
                                                      to a device.                                                              */
-      __IM  uint32_t            : 4;
+            uint32_t            : 4;
       __IOM uint32_t XFERBYTES  : 16;           /*!< [31..16] Number of bytes to transmit or receive (based on TXRX
                                                      bit)                                                                      */
     } CTRL_b;
@@ -6239,7 +6239,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
                                                      IN/OUT bits below should be set to map pins.                              */
       __IOM uint32_t TURNAROUND : 6;            /*!< [13..8] Number of turnaround cycles (for TX->RX transitions).
                                                      Qualified by ENTURN or XIPENTURN bit field.                               */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CPHA       : 1;            /*!< [16..16] Serial clock phase.                                              */
       __IOM uint32_t CPOL       : 1;            /*!< [17..17] Serial clock polarity.                                           */
     } CFG_b;
@@ -6304,7 +6304,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
 
     struct {
       __IOM uint32_t TXTHRESH   : 5;            /*!< [4..0] Number of entries in TX FIFO that cause TXF interrupt              */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t RXTHRESH   : 5;            /*!< [12..8] Number of entries in TX FIFO that cause RXE interrupt             */
     } THRESHOLD_b;
   } ;
@@ -6329,14 +6329,14 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
       __IOM uint32_t TXNEG      : 1;            /*!< [3..3] Launches TX data a half clock cycle (~10 ns) early. This
                                                      should normally be programmed to zero (NORMAL).                           */
       __IOM uint32_t IOMSEL     : 3;            /*!< [6..4] Selects which IOM is selected for CQ handshake status.             */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t CLKDIV     : 6;            /*!< [13..8] Clock Divider. Allows dividing 48 MHz base clock by
                                                      integer multiples. Enumerations are provided for common
                                                      frequency, but any integer divide from 48 MHz is allowed.
                                                      Odd divide ratios will result in a 33/66 percent duty cycle
                                                      with a long low clock pulse (to allow longer round-trip
                                                      for read data).                                                           */
-      __IM  uint32_t            : 15;
+            uint32_t            : 15;
       __IOM uint32_t FIFORESET  : 1;            /*!< [29..29] Reset MSPI FIFO (active high). 1=reset FIFO, 0=normal
                                                      operation. May be used to manually flush the FIFO in error
                                                      handling.                                                                 */
@@ -6358,7 +6358,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
       __IOM uint32_t OUT5       : 1;            /*!< [2..2] Output pad 5 configuration. 0=data[5] 1=data[1]                    */
       __IOM uint32_t OUT6       : 1;            /*!< [3..3] Output pad 6 configuration. 0=data[6] 1=data[2]                    */
       __IOM uint32_t OUT7       : 1;            /*!< [4..4] Output pad 7 configuration. 0=data[7] 1=data[3]                    */
-      __IM  uint32_t            : 11;
+            uint32_t            : 11;
       __IOM uint32_t IN0        : 2;            /*!< [17..16] Data Input pad 0 pin muxing: 0=pad[0] 1=pad[4] 2=pad[1]
                                                      3=pad[5]                                                                  */
       __IOM uint32_t IN1        : 1;            /*!< [18..18] Data Input pad 1 pin muxing: 0=pad[1] 1=pad[5]                   */
@@ -6388,7 +6388,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
       __IOM uint32_t XIPEN      : 1;            /*!< [0..0] Enable the XIP (eXecute In Place) function which effectively
                                                      enables the address decoding of the MSPI device in the
                                                      flash/cache address space at address 0x04000000-0x07FFFFFF.               */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t XIPACK     : 2;            /*!< [3..2] Controls transmission of Micron XIP acknowledge cycles
                                                      (Micron Flash devices only)                                               */
       __IOM uint32_t XIPBIGENDIAN : 1;          /*!< [4..4] Indicates whether XIP/AUTO DMA data transfers are in
@@ -6402,7 +6402,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
                                                      an instruction (see READINSTR field and ISIZE field in
                                                      CFG)                                                                      */
       __IOM uint32_t XIPMIXED   : 3;            /*!< [10..8] Reserved. Set to 0x0                                              */
-      __IM  uint32_t            : 5;
+            uint32_t            : 5;
       __IOM uint32_t WRITEINSTR : 8;            /*!< [23..16] Write command sent for DMA operations                            */
       __IOM uint32_t READINSTR  : 8;            /*!< [31..24] Read command sent to flash for DMA/XIP operations                */
     } FLASH_b;
@@ -6416,11 +6416,11 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
       __IOM uint32_t SCRSTART   : 10;           /*!< [9..0] Scrambling region start address [25:16] (64K block granularity).
                                                      The START block is the FIRST block included in the scrambled
                                                      address range.                                                            */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t SCREND     : 10;           /*!< [25..16] Scrambling region end address [25:16] (64K block granularity).
                                                      The END block is the LAST block included in the scrambled
                                                      address range.                                                            */
-      __IM  uint32_t            : 5;
+            uint32_t            : 5;
       __IOM uint32_t SCRENABLE  : 1;            /*!< [31..31] Enables Data Scrambling Region. When 1 reads and writes
                                                      to the range will be scrambled. When 0, data will be read/written
                                                      unmodified. Address range is specified in 64K granularity
@@ -6546,7 +6546,7 @@ typedef struct {                                /*!< (@ 0x50014000) MSPI Structu
                                                      operation                                                                 */
       __IOM uint32_t DMADIR     : 1;            /*!< [2..2] Direction                                                          */
       __IOM uint32_t DMAPRI     : 2;            /*!< [4..3] Sets the Priority of the DMA request                               */
-      __IM  uint32_t            : 13;
+            uint32_t            : 13;
       __IOM uint32_t DMAPWROFF  : 1;            /*!< [18..18] Power off MSPI domain upon completion of DMA operation.          */
     } DMACFG_b;
   } ;
@@ -6739,7 +6739,7 @@ typedef struct {                                /*!< (@ 0x50011000) PDM Structur
       __IOM uint32_t ADCHPD     : 1;            /*!< [9..9] High pass filter control.                                          */
       __IOM uint32_t SINCRATE   : 7;            /*!< [16..10] SINC decimation rate.                                            */
       __IOM uint32_t MCLKDIV    : 2;            /*!< [18..17] PDM_CLK frequency divisor.                                       */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t PGALEFT    : 5;            /*!< [25..21] Left channel PGA gain.                                           */
       __IOM uint32_t PGARIGHT   : 5;            /*!< [30..26] Right channel PGA gain.                                          */
       __IOM uint32_t LRSWAP     : 1;            /*!< [31..31] Left/right channel swap.                                         */
@@ -6750,17 +6750,17 @@ typedef struct {                                /*!< (@ 0x50011000) PDM Structur
     __IOM uint32_t VCFG;                        /*!< (@ 0x00000004) Voice Configuration Register                               */
 
     struct {
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t CHSET      : 2;            /*!< [4..3] Set PCM channels.                                                  */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t PCMPACK    : 1;            /*!< [8..8] PCM data packing enable.                                           */
-      __IM  uint32_t            : 7;
+            uint32_t            : 7;
       __IOM uint32_t SELAP      : 1;            /*!< [16..16] Select PDM input clock source.                                   */
       __IOM uint32_t DMICKDEL   : 1;            /*!< [17..17] PDM clock sampling delay.                                        */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t BCLKINV    : 1;            /*!< [19..19] I2S BCLK input inversion.                                        */
       __IOM uint32_t I2SEN      : 1;            /*!< [20..20] I2S interface enable.                                            */
-      __IM  uint32_t            : 5;
+            uint32_t            : 5;
       __IOM uint32_t PDMCLKEN   : 1;            /*!< [26..26] Enable the serial clock.                                         */
       __IOM uint32_t PDMCLKSEL  : 3;            /*!< [29..27] Select the PDM input clock.                                      */
       __IOM uint32_t RSTB       : 1;            /*!< [30..30] Reset the IP core.                                               */
@@ -6878,9 +6878,9 @@ typedef struct {                                /*!< (@ 0x50011000) PDM Structur
 
     struct {
       __IOM uint32_t DMAEN      : 1;            /*!< [0..0] DMA Enable                                                         */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t DMADIR     : 1;            /*!< [2..2] Direction                                                          */
-      __IM  uint32_t            : 5;
+            uint32_t            : 5;
       __IOM uint32_t DMAPRI     : 1;            /*!< [8..8] Sets the Priority of the DMA request                               */
       __IOM uint32_t DAUTOHIP   : 1;            /*!< [9..9] Raise priority to high on fifo full, and DMAPRI set to
                                                      low                                                                       */
@@ -6989,7 +6989,7 @@ typedef struct {                                /*!< (@ 0x40021000) PWRCTRL Stru
                                                      mode, causing the contents of the bank to be lost.                        */
       __IOM uint32_t FLASH0PWDSLP : 1;          /*!< [13..13] Powerdown flash0 in deep sleep                                   */
       __IOM uint32_t FLASH1PWDSLP : 1;          /*!< [14..14] Powerdown flash1 in deep sleep                                   */
-      __IM  uint32_t            : 16;
+            uint32_t            : 16;
       __IOM uint32_t CACHEPWDSLP : 1;           /*!< [31..31] power down cache in deep sleep                                   */
     } MEMPWDINSLEEP_b;
   } ;
@@ -7002,7 +7002,7 @@ typedef struct {                                /*!< (@ 0x40021000) PWRCTRL Stru
       __IOM uint32_t SRAM       : 10;           /*!< [12..3] Power up SRAM groups                                              */
       __IOM uint32_t FLASH0     : 1;            /*!< [13..13] Power up Flash0                                                  */
       __IOM uint32_t FLASH1     : 1;            /*!< [14..14] Power up Flash1                                                  */
-      __IM  uint32_t            : 15;
+            uint32_t            : 15;
       __IOM uint32_t CACHEB0    : 1;            /*!< [30..30] Power up Cache Bank 0. This works in conjunction with
                                                      Cache enable from flash_cache module. To power up cache
                                                      bank0, cache has to be enabled and this bit has to be set.                */
@@ -7060,12 +7060,12 @@ typedef struct {                                /*!< (@ 0x40021000) PWRCTRL Stru
     __IOM uint32_t SRAMCTRL;                    /*!< (@ 0x0000001C) SRAM Control register                                      */
 
     struct {
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t SRAMCLKGATE : 1;           /*!< [1..1] This bit is 1 if clock gating is allowed for individual
                                                      system SRAMs                                                              */
       __IOM uint32_t SRAMMASTERCLKGATE : 1;     /*!< [2..2] This bit is 1 when the master clock gate is enabled (top-level
                                                      clock gate for entire SRAM block)                                         */
-      __IM  uint32_t            : 5;
+            uint32_t            : 5;
       __IOM uint32_t SRAMLIGHTSLEEP : 12;       /*!< [19..8] Light Sleep enable for each TCM/SRAM bank. When 1, corresponding
                                                      bank will be put into light sleep. For optimal power, banks
                                                      should be put into light sleep while the system is active
@@ -7092,10 +7092,10 @@ typedef struct {                                /*!< (@ 0x40021000) PWRCTRL Stru
     __IOM uint32_t MISC;                        /*!< (@ 0x00000024) Power Optimization Control Bits                            */
 
     struct {
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t FORCEMEMVRLPTIMERS : 1;    /*!< [3..3] Control Bit to force Mem VR to LP mode in deep sleep
                                                      even when hfrc based ctimer or stimer is running.                         */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t MEMVRLPBLE : 1;            /*!< [6..6] Control Bit to let Mem VR go to lp mode in deep sleep
                                                      even when BLEL or BLEH is powered on given none of the
                                                      other domains require it.                                                 */
@@ -7116,7 +7116,7 @@ typedef struct {                                /*!< (@ 0x40021000) PWRCTRL Stru
       __IOM uint32_t MSPIEVEN   : 1;            /*!< [6..6] Control MSPI power-on status event                                 */
       __IOM uint32_t PDMEVEN    : 1;            /*!< [7..7] Control PDM power-on status event                                  */
       __IOM uint32_t BLELEVEN   : 1;            /*!< [8..8] Control BLE power-on status event                                  */
-      __IM  uint32_t            : 20;
+            uint32_t            : 20;
       __IOM uint32_t BLEFEATUREEVEN : 1;        /*!< [29..29] Control BLEFEATURE status event                                  */
       __IOM uint32_t BURSTFEATUREEVEN : 1;      /*!< [30..30] Control BURSTFEATURE status event                                */
       __IOM uint32_t BURSTEVEN  : 1;            /*!< [31..31] Control BURST status event                                       */
@@ -7132,7 +7132,7 @@ typedef struct {                                /*!< (@ 0x40021000) PWRCTRL Stru
       __IOM uint32_t SRAMEN     : 10;           /*!< [12..3] Control SRAM power-on status event                                */
       __IOM uint32_t FLASH0EN   : 1;            /*!< [13..13] Control Flash power-on status event                              */
       __IOM uint32_t FLASH1EN   : 1;            /*!< [14..14] Control Flash power-on status event                              */
-      __IM  uint32_t            : 15;
+            uint32_t            : 15;
       __IOM uint32_t CACHEB0EN  : 1;            /*!< [30..30] Control CACHE BANK 0 power-on status event                       */
       __IOM uint32_t CACHEB2EN  : 1;            /*!< [31..31] Control CACHEB2 power-on status event                            */
     } MEMPWREVENTEN_b;
@@ -7244,7 +7244,7 @@ typedef struct {                                /*!< (@ 0x40000000) RSTGEN Struc
       __IOM uint32_t BOCSTAT    : 1;            /*!< [8..8] A Core Regulator Brownout Event occurred (SBL).                    */
       __IOM uint32_t BOFSTAT    : 1;            /*!< [9..9] A Memory Regulator Brownout Event occurred (SBL).                  */
       __IOM uint32_t BOBSTAT    : 1;            /*!< [10..10] A BLE/Burst Regulator Brownout Event occurred (SBL).             */
-      __IM  uint32_t            : 19;
+            uint32_t            : 19;
       __IOM uint32_t FBOOT      : 1;            /*!< [30..30] Set if current boot was initiated by soft reset and
                                                      resulted in Fast Boot (SBL).                                              */
       __IOM uint32_t SBOOT      : 1;            /*!< [31..31] Set when booting securely (SBL).                                 */
@@ -7272,9 +7272,9 @@ typedef struct {                                /*!< (@ 0x40004200) RTC Structur
     struct {
       __IOM uint32_t CTR100     : 8;            /*!< [7..0] 100ths of a second Counter                                         */
       __IOM uint32_t CTRSEC     : 7;            /*!< [14..8] Seconds Counter                                                   */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t CTRMIN     : 7;            /*!< [22..16] Minutes Counter                                                  */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t CTRHR      : 6;            /*!< [29..24] Hours Counter                                                    */
     } CTRLOW_b;
   } ;
@@ -7284,14 +7284,14 @@ typedef struct {                                /*!< (@ 0x40004200) RTC Structur
 
     struct {
       __IOM uint32_t CTRDATE    : 6;            /*!< [5..0] Date Counter                                                       */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTRMO      : 5;            /*!< [12..8] Months Counter                                                    */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t CTRYR      : 8;            /*!< [23..16] Years Counter                                                    */
       __IOM uint32_t CTRWKDY    : 3;            /*!< [26..24] Weekdays Counter                                                 */
       __IOM uint32_t CB         : 1;            /*!< [27..27] Century                                                          */
       __IOM uint32_t CEB        : 1;            /*!< [28..28] Century enable                                                   */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t CTERR      : 1;            /*!< [31..31] Counter read error status. Error is triggered when
                                                      software reads the lower word of the counters, and fails
                                                      to read the upper counter within 1/100 second. This is
@@ -7307,9 +7307,9 @@ typedef struct {                                /*!< (@ 0x40004200) RTC Structur
     struct {
       __IOM uint32_t ALM100     : 8;            /*!< [7..0] 100ths of a second Alarm                                           */
       __IOM uint32_t ALMSEC     : 7;            /*!< [14..8] Seconds Alarm                                                     */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t ALMMIN     : 7;            /*!< [22..16] Minutes Alarm                                                    */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t ALMHR      : 6;            /*!< [29..24] Hours Alarm                                                      */
     } ALMLOW_b;
   } ;
@@ -7319,9 +7319,9 @@ typedef struct {                                /*!< (@ 0x40004200) RTC Structur
 
     struct {
       __IOM uint32_t ALMDATE    : 6;            /*!< [5..0] Date Alarm                                                         */
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t ALMMO      : 5;            /*!< [12..8] Months Alarm                                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t ALMWKDY    : 3;            /*!< [18..16] Weekdays Alarm                                                   */
     } ALMUP_b;
   } ;
@@ -7467,7 +7467,7 @@ typedef struct {                                /*!< (@ 0x40080000) SCARD Struct
 
     struct {
       __IOM uint32_t PR         : 1;            /*!< [0..0] Query Card Detect.                                                 */
-      __IM  uint32_t            : 1;
+            uint32_t            : 1;
       __IOM uint32_t STSP       : 1;            /*!< [2..2] ETU counter control. This bit is write-only.                       */
       __IOM uint32_t T1PAREN    : 1;            /*!< [3..3] Parity check control.                                              */
       __IOM uint32_t CLKIOV     : 1;            /*!< [4..4] Output clock level.                                                */
@@ -7567,9 +7567,9 @@ typedef struct {                                /*!< (@ 0x40030000) SECURITY Str
       __IOM uint32_t ENABLE     : 1;            /*!< [0..0] Function Enable. Software should set the ENABLE bit to
                                                      initiate a CRC operation. Hardware will clear the ENABLE
                                                      bit upon completion.                                                      */
-      __IM  uint32_t            : 3;
+            uint32_t            : 3;
       __IOM uint32_t FUNCTION   : 4;            /*!< [7..4] Function Select                                                    */
-      __IM  uint32_t            : 23;
+            uint32_t            : 23;
       __IOM uint32_t CRCERROR   : 1;            /*!< [31..31] CRC Error Status - Set to 1 if an error occurs during
                                                      a CRC operation. Cleared when CTRL register is written
                                                      (with any value). Usually indicates an invalid address
@@ -7592,7 +7592,7 @@ typedef struct {                                /*!< (@ 0x40030000) SECURITY Str
     __IOM uint32_t LEN;                         /*!< (@ 0x00000020) Length                                                     */
 
     struct {
-      __IM  uint32_t            : 2;
+            uint32_t            : 2;
       __IOM uint32_t LEN        : 18;           /*!< [19..2] Buffer size (bottom two bits assumed to be zero to ensure
                                                      a multiple of 4 bytes)                                                    */
     } LEN_b;
@@ -7882,9 +7882,9 @@ typedef struct {                                /*!< (@ 0x4000C000) VCOMP Struct
 
     struct {
       __IOM uint32_t PSEL       : 2;            /*!< [1..0] This bitfield selects the positive input to the comparator.        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t NSEL       : 2;            /*!< [9..8] This bitfield selects the negative input to the comparator.        */
-      __IM  uint32_t            : 6;
+            uint32_t            : 6;
       __IOM uint32_t LVLSEL     : 4;            /*!< [19..16] When the reference input NSEL is set to NSEL_DAC, this
                                                      bitfield selects the voltage level for the negative input
                                                      to the comparator.                                                        */
@@ -7974,7 +7974,7 @@ typedef struct {                                /*!< (@ 0x40024000) WDT Structur
       __IOM uint32_t RESEN      : 1;            /*!< [2..2] This bitfield enables the WDT reset. This needs to be
                                                      set together with the WDREN bit in REG_RSTGEN_CFG register
                                                      (in reset gen) to trigger the reset.                                      */
-      __IM  uint32_t            : 5;
+            uint32_t            : 5;
       __IOM uint32_t RESVAL     : 8;            /*!< [15..8] This bitfield is the compare value for counter bits
                                                      7:0 to generate a watchdog reset. This will cause a software
                                                      reset.                                                                    */

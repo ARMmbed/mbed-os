@@ -26,8 +26,9 @@ extern "C"
 #endif
 
 struct flash_u {
-
+	uint32_t reserved; //No information needs to be passed to api right now
 };
+
 struct flash_s {
 	struct flash_u flash;
 };
