@@ -2363,10 +2363,47 @@
             "lpticker_delay_ticks": 0
         },
         "device_has_add": [
-            "ANALOGOUT",
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
+        ]
+    },
+    "MCU_STM32G031xx": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G031xx"
+        ],
+        "macros_add": [
+            "STM32G031xx"
+        ]
+    },
+    "NUCLEO_G031K8": {
+        "inherits": [
+            "MCU_STM32G031xx"
+        ],
+        "detect_code": [
+            "0852"
+        ],
+        "device_name": "STM32G031K8Tx",
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
+        "supported_application_profiles": [
+            "bare-metal"
         ]
     },
     "MCU_STM32G071xx": {
@@ -2379,6 +2416,9 @@
         ],
         "macros_add": [
             "STM32G071xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
         ]
     },
     "NUCLEO_G071RB": {
