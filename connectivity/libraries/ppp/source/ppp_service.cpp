@@ -60,7 +60,7 @@ extern "C" { // "pppos.h" is missing extern C
 /* Timeout to wait for PPP connection to be terminated
  * (LCP Terminate-Request is answered with Terminate-Ack)
  */
-constexpr auto PPP_TERMINATION_TIMEOUT = 30000ms;
+#define PPP_TERMINATION_TIMEOUT 30s;
 
 // If both IPCP and IPCP6 are made, how long to wait for both to complete
 #define PPP_IPCP_IPCP6_DELAY              5000
@@ -655,4 +655,3 @@ MBED_WEAK PPP &PPP::get_default_instance()
  */
 
 /* --------------------------------- End Of File ------------------------------ */
-
