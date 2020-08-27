@@ -24,6 +24,8 @@
 static const int sslctxID = 1;
 
 using namespace mbed;
+using namespace std::chrono_literals;
+
 
 namespace mbed {
 constexpr auto ME310_SOCKET_TIMEOUT = 1s;
