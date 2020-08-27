@@ -24,7 +24,6 @@ target_sources(mbed-os
         pal/pal_client_api_empty_intf.c
         pal/pal_client_api_intf.c
         pal/pal_internal_trusted_storage_intf.c
-        pal/pal_mbed_os_intf.cpp
         pal/pal_protected_storage_intf.c
 
         src/client.c
