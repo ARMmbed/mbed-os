@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 /*
 ** ###################################################################
 **     Processors:          MK66FN2M0VLQ18
