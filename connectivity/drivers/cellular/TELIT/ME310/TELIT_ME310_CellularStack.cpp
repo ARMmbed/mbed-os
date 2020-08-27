@@ -442,7 +442,7 @@ nsapi_size_or_error_t TELIT_ME310_CellularStack::socket_recvfrom_impl(CellularSo
                 // read() should not fail
                 success = false;
             }
-        } else if (std::chrono::duration_cast<std::chrono::milliseconds>(timer.elapsed_time()) < mbed::ME310_SOCKET_TIMEOUT) {
+        } else if (std::chrono::duration_cast<std::chrono::milliseconds>(timer.elapsed_time()) < socket_timeout) {
             // Wait for URCs
             _at.process_oob();
         } else {
