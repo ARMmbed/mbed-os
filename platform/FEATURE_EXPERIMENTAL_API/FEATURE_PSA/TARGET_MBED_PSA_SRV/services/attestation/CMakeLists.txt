@@ -22,6 +22,7 @@ target_sources(mbed-os
         psa_attest_inject_key.c
         psa_attestation_stubs.c
         psa_initial_attestation_api.c
+        psa_inject_attestation_key_impl.c
 
         qcbor/src/UsefulBuf.c
         qcbor/src/ieee754.c
