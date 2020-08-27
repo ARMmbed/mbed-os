@@ -34,7 +34,7 @@
 
 #define NUM_ENDPOINTS                6
 #define MAX_PACKET_SIZE_NON_ISO      512
-#define MAX_PACKET_SIZE_ISO          1023     // Spec can go up to 1023, only ram for this though
+#define MAX_PACKET_SIZE_ISO          1023
 
 #else
 
@@ -48,6 +48,10 @@ static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
     MAX_PACKET_SIZE_NON_ISO,
     MAX_PACKET_SIZE_NON_ISO,
     MAX_PACKET_SIZE_NON_ISO,
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+    MAX_PACKET_SIZE_NON_ISO,
+    MAX_PACKET_SIZE_NON_ISO,
+#endif
     MAX_PACKET_SIZE_ISO
 };
 
@@ -438,11 +442,18 @@ void USBPhyHw::remote_wakeup()
 const usb_ep_table_t *USBPhyHw::endpoint_table()
 {
     static const usb_ep_table_t table = {
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
         1280, // 1.25K for endpoint buffers but space is allocated up front
+#else
+        4096,
+#endif
         {
             {USB_EP_ATTR_ALLOW_CTRL                         | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
             {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
             {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+            {USB_EP_ATTR_ALLOW_ALL                          | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
+#endif
             {USB_EP_ATTR_ALLOW_ALL                          | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
@@ -455,7 +466,9 @@ const usb_ep_table_t *USBPhyHw::endpoint_table()
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0}
+#endif
         }
     };
     return &table;
