@@ -21,13 +21,13 @@
 #include "CellularLog.h"
 #include "netsocket/TLSSocket.h"
 
-static const int sslctxID = 1;
 
 using namespace mbed;
 using namespace std::chrono_literals;
 
-
+constexpr int sslctxID = 1;
 constexpr auto socket_timeout = 1s;
+
 
 TELIT_ME310_CellularStack::TELIT_ME310_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
