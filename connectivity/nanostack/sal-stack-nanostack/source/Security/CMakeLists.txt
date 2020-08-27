@@ -14,6 +14,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/protocols/fwh_sec_prot
         ${CMAKE_CURRENT_SOURCE_DIR}/protocols/gkh_sec_prot
         ${CMAKE_CURRENT_SOURCE_DIR}/protocols/key_sec_prot
+        ${CMAKE_CURRENT_SOURCE_DIR}/protocols/radius_sec_prot
         ${CMAKE_CURRENT_SOURCE_DIR}/protocols/tls_sec_prot
 )
 
@@ -47,6 +48,7 @@ target_sources(mbed-os
 
         protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
         protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
+        protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
         protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
 
         protocols/fwh_sec_prot/auth_fwh_sec_prot.c
@@ -56,6 +58,9 @@ target_sources(mbed-os
         protocols/gkh_sec_prot/supp_gkh_sec_prot.c
 
         protocols/key_sec_prot/key_sec_prot.c
+
+        protocols/radius_sec_prot/avp_helper.c
+        protocols/radius_sec_prot/radius_client_sec_prot.c
 
         protocols/tls_sec_prot/tls_sec_prot.c
         protocols/tls_sec_prot/tls_sec_prot_lib.c
