@@ -75,7 +75,11 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
         case LPM_PowerModeLowSpeedRun:
         case LPM_PowerModeSysIdle:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
+#ifdef HYPERFLASH_BOOT
             CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in DDR mode
+#else
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3); // FLEXSPI in SDR mode
+#endif
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 132MHz and AHB, IPG, PERCLK to 33MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 0);
@@ -108,6 +112,7 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     /* Enable clock gate of flexspi. */
     CCM->CCGR6 |= (CCM_CCGR6_CG5_MASK);
 
+#ifdef HYPERFLASH_BOOT
     if ((LPM_PowerModeLowPowerRun == power_mode) || (LPM_PowerModeLPIdle == power_mode))
     {
         FLEXSPI_INST->DLLCR[0] = FLEXSPI_DLLCR_OVRDEN(1) | FLEXSPI_DLLCR_OVRDVAL(19);
@@ -116,7 +121,8 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     {
         FLEXSPI_INST->DLLCR[0] = FLEXSPI_DLLCR_DLLEN(1) | FLEXSPI_DLLCR_SLVDLYTARGET(15);
     }
-
+#endif
+    
     FLEXSPI_INST->MCR0 &= ~FLEXSPI_MCR0_MDIS_MASK;
     FLEXSPI_INST->MCR0 |= FLEXSPI_MCR0_SWRESET_MASK;
     while (FLEXSPI_INST->MCR0 & FLEXSPI_MCR0_SWRESET_MASK)
