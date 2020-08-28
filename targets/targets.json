@@ -2411,15 +2411,7 @@
         "inherits": [
             "MCU_STM32G0"
         ],
-<<<<<<< HEAD
         "public": false,
-=======
-        "core": "Cortex-M7FD",
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x200000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x80000",
->>>>>>> 017a98b738... fixing the issues
         "extra_labels_add": [
             "STM32G071xx"
         ],
@@ -2803,9 +2795,6 @@
             "STM32L0",
             "STML071xx"
         ],
-        "overrides": {
-            "lpticker_delay_ticks": 0
-        },
         "device_has_remove": [
             "ANALOGOUT",
             "TRNG"
