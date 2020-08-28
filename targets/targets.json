@@ -2794,14 +2794,13 @@
         ],
         "device_name": "STM32L072CZ"
     },
-    "STM32L071CXCTX": {
+    "MCU_STM32L071xx": {
         "inherits": [
             "MCU_STM32L0"
         ],
         "public": false,
         "extra_labels_add": [
             "STM32L0",
-            "STML071CxCTx",
             "STML071xx"
         ],
         "overrides": {
@@ -2811,7 +2810,7 @@
             "ANALOGOUT",
             "TRNG"
         ],
-        "device_name": "STM32L071CXCTX"
+        "device_name": "STM32L071xx"
     },
     "NUCLEO_L073RZ": {
         "inherits": [
