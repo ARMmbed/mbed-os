@@ -229,12 +229,12 @@ static uint32_t tx_start_time = 0;
 
 /* Channel configurations for sub-GHz */
 static phy_rf_channel_configuration_s phy_subghz = {
-    .channel_0_center_frequency = 868300000U,
-    .channel_spacing = 500000U,
-    .datarate = 250000U,
-    .number_of_channels = 11U,
-    .modulation = M_2FSK,
-    .modulation_index = MODULATION_INDEX_UNDEFINED
+    868300000U,
+    500000U,
+    250000U,
+    11U,
+    M_2FSK,
+    MODULATION_INDEX_UNDEFINED
 };
 
 
