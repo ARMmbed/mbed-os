@@ -50,7 +50,7 @@ using namespace std::chrono_literals;
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
     _current_op(OP_INVALID), _dcd_pin(NC), _active_high(false), _cp_req(cp_req), _is_connected(false), _at(at)
 {
-    tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
+    tr_info("New CellularContext %s (%p)", apn ? apn : "", (void*)this);
     _nonip_req = nonip_req;
     _apn = apn;
     _device = device;
@@ -58,7 +58,7 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
 
 AT_CellularContext::~AT_CellularContext()
 {
-    tr_info("Delete CellularContext with apn: [%s] (%p)", _apn ? _apn : "", this);
+    tr_info("Delete CellularContext with apn: [%s] (%p)", _apn ? _apn : "", (void*)this);
 
     _is_blocking = true;
     (void)disconnect();
