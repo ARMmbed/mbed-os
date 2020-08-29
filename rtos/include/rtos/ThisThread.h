@@ -265,7 +265,7 @@ osThreadId_t get_id();
 */
 const char *get_name();
 
-};
+}
 /** @}*/
 /** @}*/
 
