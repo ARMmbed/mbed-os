@@ -443,8 +443,8 @@ sisr_retry:
         }
         if (address) {
             char *ip_start = ip_address;
-            char *ip_stop;
-            char *port_start;
+            char *ip_stop = nullptr;
+            char *port_start = nullptr;
             if (_stack_type == IPV6_STACK) {
                 ip_start++; // skip '['
                 ip_stop = strchr(ip_address, ']');
