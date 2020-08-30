@@ -70,6 +70,9 @@ typedef enum
     A5 = D24,
     A6 = D3,
 
+    //BUTTONs
+    SW1 = AM_BSP_GPIO_BUTTON0,
+    
     // LEDs
     LED_BLUE = AM_BSP_GPIO_LED_BLUE,
 
