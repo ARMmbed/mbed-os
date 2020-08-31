@@ -6282,7 +6282,7 @@
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CKIT_064B0S2_4343W": {
+    "CY8CKIT064B0S2_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
