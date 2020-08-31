@@ -158,7 +158,7 @@ static int8_t find_interface_by_address(const uint8_t target_addr[16])
     return -1;
 }
 
-static int8_t nanostack_interface_id_parse(const char* interface_name)
+static int8_t nanostack_interface_id_parse(const char *interface_name)
 {
     int namelen;
     int8_t interface_id = -1;
@@ -190,10 +190,10 @@ static int nanostack_dns_query_result_check(const char *domain_name, SocketAddre
 
     interface_id = nanostack_interface_id_parse(interface_name);
 
-    ns_query_result = arm_net_dns_query_result_get(interface_id, dns_query_addr, (char*)domain_name);
+    ns_query_result = arm_net_dns_query_result_get(interface_id, dns_query_addr, (char *)domain_name);
 
     TRACE_DEEP("nanostack_dns_query_result_check(): interface_id=%d, ret=%d, resolved %s to %s",
-            interface_id, ns_query_result, domain_name, trace_ipv6(dns_query_addr));
+               interface_id, ns_query_result, domain_name, trace_ipv6(dns_query_addr));
 
     if (ns_query_result == 0) {
         address->set_ip_bytes(dns_query_addr, NSAPI_IPv6);
@@ -656,7 +656,7 @@ nsapi_error_t Nanostack::get_dns_server(int index, SocketAddress *address, const
 
     if (ret == 0) {
         address->set_ip_bytes(dns_srv_address, NSAPI_IPv6);
-        TRACE_DEEP("get_dns_server(), index=%d, ret=%d, address=%s", index, ret, trace_ipv6((uint8_t*)address->get_ip_bytes()));
+        TRACE_DEEP("get_dns_server(), index=%d, ret=%d, address=%s", index, ret, trace_ipv6((uint8_t *)address->get_ip_bytes()));
         return NSAPI_ERROR_OK;
     }
 
