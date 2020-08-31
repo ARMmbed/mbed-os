@@ -2793,13 +2793,12 @@
         "public": false,
         "extra_labels_add": [
             "STM32L0",
-            "STML071xx"
+            "STM32L071xx"
         ],
         "device_has_remove": [
             "ANALOGOUT",
             "TRNG"
-        ],
-        "device_name": "STM32L071xx"
+        ]
     },
     "NUCLEO_L073RZ": {
         "inherits": [
