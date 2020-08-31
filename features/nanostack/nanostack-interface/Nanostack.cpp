@@ -37,11 +37,11 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "nsif"
 
-#define NSIF_DEEP_TRACE
+//#define NSIF_DEEP_TRACE
 #ifdef NSIF_DEEP_TRACE
 #define TRACE_DEEP    tr_debug
 #else
-#define TRACE_DEP(...)
+#define TRACE_DEEP(...)
 #endif
 
 #define NS_INTERFACE_SOCKETS_MAX  16  //same as NanoStack SOCKET_MAX
@@ -160,6 +160,7 @@ static int8_t find_interface_by_address(const uint8_t target_addr[16])
 
 static int8_t nanostack_interface_id_parse(const char* interface_name)
 {
+    int namelen;
     int8_t interface_id = -1;
 
     TRACE_DEEP("nanostack_interface_id_parse() %s", interface_name ? interface_name : "null");
@@ -169,20 +170,20 @@ static int8_t nanostack_interface_id_parse(const char* interface_name)
     }
 
     // parse interface ID from the interface_name
-    if (strlen(interface_name) < 4) {
+    namelen = strlen(interface_name);
+    if (namelen < 4 || namelen > 5) {
         return -1;
     }
 
-    interface_id = atoi(&interface_name[3]);
-    if (interface_id < 0) {
-        return -1;
+    if ((strncmp("MES", interface_name, 3) == 0) && isdigit(interface_name[3])) {
+        interface_id = atoi(&interface_name[3]);
     }
 
     TRACE_DEEP("parsed interfaceID = %d", interface_id);
     return interface_id;
 }
 
-static int8_t nanostack_dns_query_result_check(const char *domain_name, SocketAddress *address, const char *interface_name)
+static int nanostack_dns_query_result_check(const char *domain_name, SocketAddress *address, const char *interface_name)
 {
     uint8_t dns_query_addr[16] = {0};
     int8_t interface_id, ns_query_result;
@@ -599,9 +600,14 @@ nsapi_error_t Nanostack::gethostbyname(const char *name, SocketAddress *address,
         return NSAPI_ERROR_OK;
     }
 
+    // Nanostack is IPv6 stack
+    if (version == NSAPI_UNSPEC) {
+        version = NSAPI_IPv6;
+    }
+
     // try nanostack DNS cache, if not found then fallback to dns query
     if (nanostack_dns_query_result_check(name, address, interface_name) == 0) {
-        return 0;
+        return NSAPI_ERROR_OK;
     }
 
     return nsapi_dns_query(this, name, address, interface_name, version);
@@ -622,6 +628,11 @@ nsapi_value_or_error_t Nanostack::gethostbyname_async(const char *name, hostbyna
         }
         callback(NSAPI_ERROR_OK, &address);
         return NSAPI_ERROR_OK;
+    }
+
+    // Nanostack is IPv6 stack
+    if (version == NSAPI_UNSPEC) {
+        version = NSAPI_IPv6;
     }
 
     // try nanostack DNS cache, if not found then fallback to dns query
