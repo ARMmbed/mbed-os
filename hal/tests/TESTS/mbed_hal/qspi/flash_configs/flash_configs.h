@@ -67,7 +67,7 @@
         defined(TARGET_CY8CKIT_062S2_43012) ||      \
         defined(TARGET_CY8CKIT_062S2_4343W) ||      \
         defined(TARGET_CY8CKIT_064S2_4343W) ||      \
-        defined(TARGET_CY8CKIT_064B0S2_4343W) ||    \
+        defined(TARGET_CY8CKIT064B0S2_4343W) ||    \
         defined(TARGET_CY8CPROTO_062_4343W) ||      \
         defined(TARGET_CY8CPROTO_062S2_43012) ||    \
         defined(TARGET_CY8CPROTO_062S3_4343W) ||    \
