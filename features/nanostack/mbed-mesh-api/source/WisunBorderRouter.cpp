@@ -130,7 +130,6 @@ mesh_error_t WisunBorderRouter::configure()
     status = set_radius_shared_secret(radius_shared_secret_len, (uint8_t *) radius_shared_secret);
     if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set RADIUS shared secret!");
-        return status;
     }
 #endif
 
@@ -139,7 +138,6 @@ mesh_error_t WisunBorderRouter::configure()
     status = set_radius_server_ipv6_address(radius_server_ipv6_addr);
     if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set RADIUS server IPv6 address!");
-        return status;
     }
 #endif
 
@@ -153,6 +151,13 @@ mesh_error_t WisunBorderRouter::apply_configuration(int8_t mesh_if_id)
         tr_error("Failed to apply RADIUS server IPv6 address!");
         return MESH_ERROR_PARAM;
     }
+
+    status = set_bbr_radius_shared_secret();
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to apply RADIUS server IPv6 address!");
+        return MESH_ERROR_PARAM;
+    }
+
     return MESH_ERROR_NONE;
 }
 
@@ -303,7 +308,33 @@ mesh_error_t WisunBorderRouter::set_radius_shared_secret(uint16_t shared_secret_
         return MESH_ERROR_PARAM;
     }
 
+    if (_shared_secret != NULL) {
+        delete[] _shared_secret;
+    }
+
+    _shared_secret = new (std::nothrow) char[shared_secret_len];
+    if (_shared_secret == NULL) {
+        return MESH_ERROR_MEMORY;
+    }
+
+    memcpy(_shared_secret, shared_secret, shared_secret_len);
+    _shared_secret_len = shared_secret_len;
+
     int status = ws_bbr_radius_shared_secret_set(_mesh_if_id, shared_secret_len, shared_secret);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return set_bbr_radius_shared_secret();
+}
+
+mesh_error_t WisunBorderRouter::set_bbr_radius_shared_secret()
+{
+    if (_shared_secret_len == 0 || _shared_secret == NULL) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    int status = ws_bbr_radius_shared_secret_set(_mesh_if_id, _shared_secret_len, (uint8_t *) _shared_secret);
     if (status != 0) {
         return MESH_ERROR_UNKNOWN;
     }
