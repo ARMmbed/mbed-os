@@ -307,6 +307,19 @@ public:
      * */
     mesh_error_t validate_radius_timing(ws_br_radius_timing_t *timing);
 
+    /**
+     * \brief Set DNS query result to Nanostack cache.
+     *
+     * Function sets DNS query result to Nanostack cache to get distributed to the devices in the Wi-SUN network.
+     * Function must be called for a running Wi-SUN Border Router instance.
+     *
+     * \param address resolved address of domain_name.
+     * \param domain_name name of the domain. Must be non-NULL.
+     * \return MESH_ERROR_NONE on success.
+     * \return error value in case of failure.
+     * */
+    mesh_error_t set_dns_query_result(SocketAddress *address, char *domain_name);
+
 private:
     mesh_error_t configure();
     mesh_error_t apply_configuration(int8_t mesh_if_id);
