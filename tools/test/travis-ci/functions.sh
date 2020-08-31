@@ -59,10 +59,10 @@ _install_gcc()
 {
   # Ignore shellcheck warnings: Variables defined in .travis.yml
   # shellcheck disable=SC2154
-  local url="${deps_url}/gcc6-linux.tar.bz2"
+  local url="${deps_url}/gcc9-linux.tar.bz2"
 
   # shellcheck disable=SC2154
-  local gcc_path="${deps_dir}/gcc/gcc-arm-none-eabi-6-2017-q2-update/"
+  local gcc_path="${deps_dir}/gcc/gcc-arm-none-eabi-9-2019-q4-major/"
 
   local archive="gcc.tar.bz2"
   
