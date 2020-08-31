@@ -335,7 +335,7 @@ mesh_error_t WisunBorderRouter::set_dns_query_result(SocketAddress *address, cha
         return MESH_ERROR_STATE;
     }
 
-    if (ws_bbr_dns_query_result_set(_mesh_if_id, (const uint8_t *)address->get_ip_bytes(), domain_name) >= 0 ) {
+    if (ws_bbr_dns_query_result_set(_mesh_if_id, (const uint8_t *)address->get_ip_bytes(), domain_name) >= 0) {
         return MESH_ERROR_NONE;
     }
 
