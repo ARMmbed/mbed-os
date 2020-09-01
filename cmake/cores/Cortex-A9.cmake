@@ -31,7 +31,7 @@ function(mbed_set_cpu_core_options target mbed_toolchain)
             PUBLIC
                 $<$<COMPILE_LANGUAGE:C>:${compile_options}>
                 $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
-                $<$<COMPILE_LANGUAGE:ASM>:--cpu=Cortex-A9>
+                $<$<COMPILE_LANGUAGE:ASM>:-mcpu=Cortex-A9>
         )
 
         target_link_options(${target}
