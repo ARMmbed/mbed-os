@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-set(CMAKE_ASM_COMPILER "armasm")
+set(CMAKE_ASM_COMPILER "armclang")
 set(CMAKE_C_COMPILER "armclang")
 set(CMAKE_CXX_COMPILER "armclang")
 set(CMAKE_AR "armar")
@@ -42,14 +42,10 @@ function(mbed_set_toolchain_options target)
             $<$<COMPILE_LANGUAGE:CXX>:${common_options}>
     )
 
-    set(asm_preproc_options
-        "--target=arm-arm-none-eabi,-D,MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED"
-    )
     target_compile_options(${target}
         PUBLIC
+            $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=armasm>
             $<$<COMPILE_LANGUAGE:ASM>:${MBED_STUDIO_ARM_COMPILER}>
-            $<$<COMPILE_LANGUAGE:ASM>:--cpreproc>
-            $<$<COMPILE_LANGUAGE:ASM>:--cpreproc_opts=${asm_preproc_options}>
     )
 
     target_compile_definitions(${target}
