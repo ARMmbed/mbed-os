@@ -44,39 +44,7 @@
 ;
 ;******************************************************************************
 
-;******************************************************************************
-;
-; <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-;************************************************************************
-Stack   EQU     0x00001000
 
-;******************************************************************************
-;
-; <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-;
-;******************************************************************************
-Heap    EQU     0x00000000
-
-;******************************************************************************
-;
-; Allocate space for the stack.
-;
-;******************************************************************************
-        AREA    STACK, NOINIT, READWRITE, ALIGN=3
-StackMem
-        SPACE   Stack
-__initial_sp
-
-;******************************************************************************
-;
-; Allocate space for the heap.
-;
-;******************************************************************************
-        AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-HeapMem
-        SPACE   Heap
-__heap_limit
 
 ;******************************************************************************
 ;
@@ -105,8 +73,12 @@ __heap_limit
 ;
 
         EXPORT  __Vectors
-__Vectors
-        DCD     StackMem + Stack            ; Top of Stack
+        EXPORT  __Vectors_End
+        EXPORT  __Vectors_Size
+        IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+
+__Vectors       
+        DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
         DCD     Reset_Handler               ; Reset Handler
         DCD     NMI_Handler                 ; NMI Handler
         DCD     HardFault_Handler           ; Hard Fault Handler
@@ -354,42 +326,7 @@ am_clkgen_isr
 
                 ENDP
 
-;******************************************************************************
-;
-; Align the end of the section.
-;
-;******************************************************************************
-                ALIGN
 
-;******************************************************************************
-;
-; Initialization of the heap and stack.
-;
-;******************************************************************************
-                AREA    |.text|, CODE, READONLY
-
-;******************************************************************************
-;
-; User Initial Stack & Heap.
-;
-;******************************************************************************
-    IF :DEF: __MICROLIB
-        EXPORT  __initial_sp
-        EXPORT  __heap_base
-        EXPORT  __heap_limit
-    ELSE
-        IMPORT  __use_two_region_memory
-        EXPORT  __user_initial_stackheap
-__user_initial_stackheap PROC
-        LDR     R0, =HeapMem
-        LDR     R1, =(StackMem + Stack)
-        LDR     R2, =(HeapMem + Heap)
-        LDR     R3, =StackMem
-        BX      LR
-
-        ENDP
-
-    ENDIF
 
 ;******************************************************************************
 ;
