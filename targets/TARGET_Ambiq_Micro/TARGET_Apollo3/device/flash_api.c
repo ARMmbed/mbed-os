@@ -46,10 +46,11 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     uint32_t words = (size + 3) / 4;
     uint32_t status = am_hal_flash_program_main(AM_HAL_FLASH_PROGRAM_KEY, (uint32_t*)data, (uint32_t*)address, words);
     if(status != AM_HAL_STATUS_SUCCESS){ return -1; }
-    return size;
+    return 0;
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address){
+    if( (address < AM_HAL_FLASH_ADDR) || (address > AM_HAL_FLASH_LARGEST_VALID_ADDR) ) { return -1; }
     return AM_HAL_FLASH_PAGE_SIZE;
 }
 

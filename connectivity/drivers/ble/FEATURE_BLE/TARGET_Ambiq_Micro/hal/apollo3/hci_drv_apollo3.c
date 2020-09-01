@@ -43,6 +43,7 @@
 // This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+#if USE_AMBIQ_DRIVER
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -514,6 +515,7 @@ HciDrvRadioBoot(bool bColdBoot)
     //
     am_hal_queue_from_array(&g_sWriteQueue, g_psWriteBuffers);
 
+    //WsfSetEvent(g_HciDrvHandleID, BLE_HEARTBEAT_EVENT);
     //
     // Reset the RX interrupt counter.
     //
@@ -894,7 +896,7 @@ HciDrvHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
     uint32_t ui32ErrorStatus, ui32TxRetries = 0;
     uint32_t ui32NumHciTransactions = 0;
     uint32_t read_hci_packet_count = 0;
-
+ 
     //
     // If this handler was called in response to a heartbeat event, then it's
     // time to run a benign HCI command. Normally, the BLE controller should
@@ -1357,3 +1359,5 @@ HciDrvEmptyWriteQueue(void)
 {
     am_hal_queue_from_array(&g_sWriteQueue, g_psWriteBuffers);
 }
+
+#endif

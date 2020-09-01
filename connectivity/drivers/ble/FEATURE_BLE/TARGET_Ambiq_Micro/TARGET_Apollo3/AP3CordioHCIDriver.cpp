@@ -25,11 +25,27 @@ AP3CordioHCIDriver::~AP3CordioHCIDriver() {}
 
 void AP3CordioHCIDriver::do_initialize()
 {
+#ifdef USE_AMBIQ_DRIVER
     HciDrvRadioBoot(true);
+#else
+    MBED_ASSERT(*_ptr_to_handle);
+    _ble_config = am_hal_ble_default_config;
+    MBED_ASSERT(am_hal_ble_power_control(*_ptr_to_handle, AM_HAL_BLE_POWER_ACTIVE) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_ble_config(*_ptr_to_handle, &_ble_config) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_ble_boot(*_ptr_to_handle) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_ble_tx_power_set(*_ptr_to_handle, 0x0F) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_ble_sleep_set(*_ptr_to_handle, false) == AM_HAL_STATUS_SUCCESS);
+    am_hal_ble_int_enable(*_ptr_to_handle, (AP3_STUPID_DEF_OF_BLECIRQ_BIT | AM_HAL_BLE_INT_ICMD | AM_HAL_BLE_INT_BLECSSTAT));
+    NVIC_EnableIRQ(BLE_IRQn);
+#endif
 }
 void AP3CordioHCIDriver::do_terminate()
 {
+#ifdef USE_AMBIQ_DRIVER
     HciDrvRadioShutdown();
+#else
+    am_hal_ble_power_control(*_ptr_to_handle, AM_HAL_BLE_POWER_OFF);
+#endif
 }
 
 ble::buf_pool_desc_t AP3CordioHCIDriver::get_buffer_pool_description()
@@ -39,12 +55,11 @@ ble::buf_pool_desc_t AP3CordioHCIDriver::get_buffer_pool_description()
         uint64_t align;
     };
     static const wsfBufPoolDesc_t pool_desc[] = {
-        {  16, 64 },
-        {  32, 64 },
-        {  64, 32 },
-        { 128, 16 },
-        { 272, 4 }
-    };
+        {16, 64},
+        {32, 64},
+        {64, 32},
+        {128, 16},
+        {272, 4}};
     return buf_pool_desc_t(buffer, pool_desc);
 }
 

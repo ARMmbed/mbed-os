@@ -19,6 +19,8 @@
 
 #if DEVICE_LPTICKER
 
+static bool lp_ticker_initialized = false;
+
 /* LP ticker is driven by 32kHz clock and counter length is 24 bits. */
 const ticker_info_t *lp_ticker_get_info()
 {
@@ -30,6 +32,11 @@ const ticker_info_t *lp_ticker_get_info()
 
 void lp_ticker_init(void)
 {
+    if (lp_ticker_initialized)
+    {
+        lp_ticker_disable_interrupt();
+        return;
+    }
     am_hal_ctimer_int_register(LP_TICKER_AM_HAL_CTIMER_CMPR_INT, lp_ticker_irq_handler);
     am_hal_ctimer_config_single(LP_TICKER_AM_HAL_CTIMER_NUMBER,
                                 LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER,
@@ -40,6 +47,7 @@ void lp_ticker_init(void)
     am_hal_ctimer_int_enable(LP_TICKER_AM_HAL_CTIMER_CMPR_INT);
     NVIC_EnableIRQ(CTIMER_IRQn);
     am_hal_ctimer_start(LP_TICKER_AM_HAL_CTIMER_NUMBER, LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER);
+    lp_ticker_initialized = true;
 }
 
 void lp_ticker_free(void)
@@ -49,6 +57,7 @@ void lp_ticker_free(void)
 
     am_hal_ctimer_clear(LP_TICKER_AM_HAL_CTIMER_NUMBER,
                         LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER);
+    lp_ticker_initialized = false;
 }
 
 uint32_t lp_ticker_read()
@@ -59,7 +68,7 @@ uint32_t lp_ticker_read()
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-
+    am_hal_ctimer_int_enable(LP_TICKER_AM_HAL_CTIMER_CMPR_INT);
     am_hal_ctimer_clear(LP_TICKER_AM_HAL_CTIMER_NUMBER, LP_TICKER_AM_HAL_CTIMER_SEGMENT_INT_COUNTER);
     // am_hal_ctimer_config_single(LP_TICKER_AM_HAL_CTIMER_NUMBER,
     //                             LP_TICKER_AM_HAL_CTIMER_SEGMENT_INT_COUNTER,
@@ -74,6 +83,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
 void lp_ticker_fire_interrupt(void)
 {
+    am_hal_ctimer_int_enable(LP_TICKER_AM_HAL_CTIMER_CMPR_INT);
     am_hal_ctimer_int_set(LP_TICKER_AM_HAL_CTIMER_CMPR_INT);
 }
 
