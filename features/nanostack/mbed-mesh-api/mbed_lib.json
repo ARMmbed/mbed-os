@@ -207,7 +207,19 @@
         "radius-shared-secret-len": {
             "help": "RADIUS shared secret length; If length is not defined, strlen() is used to determine RADIUS shared secret length",
             "value": null
-        }        
+        },
+        "radius-retry-imin": {
+            "help": "RADIUS retry trickle timer Imin; in 100ms units; range 1-1200; default 20 (2 seconds)",
+            "value": 20
+        },
+        "radius-retry-imax": {
+            "help": "RADIUS retry trickle timer Imax; in 100ms units; range 1-1200; default 30 (3 seconds)",
+            "value": 30
+        },
+        "radius-retry-count": {
+            "help": "RADIUS retry trickle count; default 3",
+            "value": 3
+        }
     },
     "target_overrides": {
         "KW24D": {
