@@ -35,6 +35,8 @@ typedef struct ws_br_info {
     uint64_t host_timestamp;
     /** Amount of devices in the network. */
     uint16_t device_count;
+    /** Gateway Local Address */
+    uint8_t gateway_addr[16];
 } ws_br_info_t;
 
 /**

@@ -22,7 +22,7 @@
  */
 #include "rtos/EventFlags.h"
 #include "rtos/ThisThread.h"
-#include "mbed_os_timer.h"
+#include "platform/internal/mbed_os_timer.h"
 #include <string.h>
 #include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"

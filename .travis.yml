@@ -28,6 +28,7 @@ cache:
   pip: true
   directories:
     - ${HOME}/.cache/deps
+    - ${HOME}/.ccache
 
 
 before_install:
@@ -43,7 +44,7 @@ after_failure:
 
 matrix:
   include:
-    
+
     ### Basic Tests ###
     - &basic-vm
       stage: "Basic"
@@ -125,21 +126,22 @@ matrix:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
             | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
-            | ( grep -v -f .astyleignore || true ) \
+            | ( grep -v -f .codecheckignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
-      
+
     - <<: *docs-vm
       name: "spellcheck"
       env: NAME=doxy-spellcheck
       install:
         - source_pkg aspell
       script:
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket
+        # TODO: run checks on all directories once all mispellings are fixed
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket .codecheckignore
 
     - <<: *docs-vm
       name: "doxygen"
@@ -155,6 +157,7 @@ matrix:
           make;
           sudo make install)
         # Create BUILD directory for tests
+        - ccache -s
         - mkdir BUILD
       script:
         # Assert that the Doxygen build produced no warnings.
@@ -170,13 +173,41 @@ matrix:
           find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
           tee BUILD/badlibs |
           sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
-        # Assert that all assebler files are named correctly
+        # Assert that all assembler files are named correctly
         # The strange command below asserts that there are exactly 0 libraries
         # that do end with .s
         - >
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
+    - <<: *docs-vm
+      name: "Frozen tools check"
+      env: NAME=frozen_tools_check
+      script:
+        # Reject any changes to tools that would require a re-release of the
+        # tools for the online compiler.
+        - >-
+            frozen_files=`\
+                git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+                    | egrep \
+                      -e "^tools/build_api*" \
+                      -e "^tools/config*" \
+                      -e "^tools/export*" \
+                      -e "^tools/notifier*" \
+                      -e "^tools/paths*" \
+                      -e "^tools/resources*" \
+                      -e "^tools/targets*" \
+                      -e "^tools/toolchains*" \
+                      -e "^tools/utils*" \
+                      -e "^$"`
+            if [ -z "$frozen_files" ]; then
+                echo "Success!";
+            else
+                echo -e "Failure: Frozen files were modified\n$frozen_files";
+                echo -e "Please see https://os.mbed.com/blog/entry/Introducing-the-new-Mbed-Tools/" \
+                        "\nfor why we've frozen the legacy tools.";
+                false;
+            fi
 
     ### Python Tests ###
     - &pytools-vm
@@ -225,7 +256,7 @@ matrix:
       env: NAME=tools-py3.7
       python: 3.7
 
-    
+
     ### Extended Tests ###
     - &extended-vm
       stage: "Extended"
@@ -255,6 +286,7 @@ matrix:
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
         # Run profiling tests
         - make -C ${EVENTS}/tests/unit prof | tee prof
+        - ccache -s
       after_success:
         # Update status, comparing with master if possible.
         - |
@@ -328,6 +360,7 @@ matrix:
             OBJ="$(ls lfs*.o | tr '\n' ' ')"
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
+        - ccache -s
       after_success:
         # Update status, comparing with master if possible.
         - |

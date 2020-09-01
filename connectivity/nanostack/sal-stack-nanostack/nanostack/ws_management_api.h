@@ -103,6 +103,24 @@ typedef struct ws_statistics {
 } ws_statistics_t;
 
 /**
+ * \brief Struct ws_info defines the Wi-SUN stack state.
+ */
+typedef struct ws_stack_info {
+    /** Parent link local address */
+    uint8_t parent[16];
+    /** parent RSSI Out measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_out;
+    /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
+    uint8_t rsl_in;
+    /** ETX To border router */
+    uint16_t routing_cost;
+    /** Network PAN ID */
+    uint16_t pan_id;
+    /** Wi-SUN join state defined by Wi-SUN specification 1-5*/
+    uint8_t join_state;
+} ws_stack_info_t;
+
+/**
  * Initialize Wi-SUN stack.
  *
  * Generates the default configuration for Wi-SUN operation
@@ -581,6 +599,20 @@ int ws_statistics_start(
  */
 int ws_statistics_stop(
     int8_t interface_id);
+
+/**
+ * Get information from the stack state.
+ * Parent information and link qualities with stack state info
+ *
+ * \param interface_id Network interface ID.
+ * \param info_ptr Pointer to stored stack state.
+ *
+ * \return 0 Success.
+ * \return <0 Failure.
+ */
+int ws_stack_info_get(
+    int8_t interface_id,
+    ws_stack_info_t *info_ptr);
 
 #ifdef __cplusplus
 }

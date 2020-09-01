@@ -146,13 +146,14 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework/device"
   "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework"
   "${PROJECT_SOURCE_DIR}/../connectivity/cellular/include/cellular/framework/common"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/mac"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/phy"
-  "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
-  "${PROJECT_SOURCE_DIR}/../features/mbedtls"
-  "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
+  "${PROJECT_SOURCE_DIR}/../connectivity"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/include/lorawan"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack/mac"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan/lorastack/phy"
+  "${PROJECT_SOURCE_DIR}/../connectivity/lorawan"
+  "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls"
+  "${PROJECT_SOURCE_DIR}/../connectivity/mbedtls/include"
 )
 
 # Create a list for test suites.

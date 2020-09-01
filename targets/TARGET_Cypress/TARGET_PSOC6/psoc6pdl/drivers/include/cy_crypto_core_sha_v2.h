@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v2.h
-* \version 2.30.3
+* \version 2.30.4
 *
 * \brief
 *  This file provides constants and function prototypes

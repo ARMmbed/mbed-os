@@ -1004,6 +1004,7 @@ public:
      *  to see if the connection was created.
      *
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
+     * Returns BLE_ERROR_OPERATION_NOT_PERMITTED if no ongoing connection for last used address found.
      */
     ble_error_t cancelConnect();
 #endif // BLE_ROLE_CENTRAL

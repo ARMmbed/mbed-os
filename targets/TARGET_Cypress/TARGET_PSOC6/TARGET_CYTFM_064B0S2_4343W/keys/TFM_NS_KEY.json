@@ -1,0 +1,11 @@
+{
+    "custom_priv_key": {
+        "crv": "P-256",
+        "d": "uR_Jq6LjMgp8DVtE7pKguttNo6L239aEcijzGOr5C70",
+        "kty": "EC",
+        "use": "sig",
+        "x": "_za6DQEnUxqOm0vK9Pgvt9GHBtFi1XIVrPvfQ5zq90k",
+        "y": "mhqW_r-kI0hWvAW_cqQmyaxlRs02bF4w-v4iV8YY-DQ",
+        "kid": "8"
+    }
+}

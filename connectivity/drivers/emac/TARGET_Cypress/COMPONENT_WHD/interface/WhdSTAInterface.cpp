@@ -299,9 +299,12 @@ nsapi_error_t WhdSTAInterface::connect()
 
     // setup ssid
     whd_ssid_t ssid;
-    strncpy((char *)ssid.value, _ssid, SSID_NAME_SIZE);
-    ssid.value[SSID_NAME_SIZE - 1] = '\0';
-    ssid.length = strlen((char *)ssid.value);
+    uint8_t ssid_len;
+
+    memset(&ssid, 0, sizeof(whd_ssid_t));
+    ssid_len  = strlen(_ssid);
+    strncpy((char *)ssid.value, _ssid, ssid_len);
+    ssid.length = ssid_len;
 
     // choose network security
     whd_security_t security = whd_fromsecurity(_security);

@@ -16,7 +16,7 @@
 
 #include <string.h>
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "ns_types.h"
 #include "platform/arm_hal_interrupt.h"
@@ -103,6 +103,7 @@ static int rf_set_fsk_symbol_rate_configuration(uint32_t symbol_rate, rf_modules
 static int rf_configure_by_ofdm_bandwidth_option(uint8_t option, uint32_t data_rate, rf_modules_e module);
 static void rf_calculate_symbol_rate(uint32_t baudrate, phy_modulation_e modulation);
 static void rf_conf_set_cca_threshold(uint8_t percent);
+static bool rf_conf_set_tx_power(uint8_t percent);
 // Defined register read/write functions
 #define rf_read_bbc_register(x, y) rf_read_rf_register(x, (rf_modules_e)(y + 2))
 #define rf_read_common_register(x) rf_read_rf_register(x, COMMON)
@@ -134,7 +135,10 @@ static uint8_t bbc0_irq_mask = 0;
 static uint8_t bbc1_irq_mask = 0;
 
 static bool rf_update_config = false;
+static bool rf_update_tx_power = false;
 static int8_t cca_threshold = -80;
+static uint8_t rf_tx_power = TXPWR_31;
+static bool data_whitening_enabled = true;
 static bool cca_enabled = true;
 static uint32_t rf_symbol_rate;
 
@@ -303,8 +307,24 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
         case PHY_EXTENSION_SET_CCA_THRESHOLD:
             rf_conf_set_cca_threshold(*data_ptr);
             break;
+        case PHY_EXTENSION_SET_TX_POWER:
+            if (*data_ptr > 100) {
+                return -1;
+            }
+            rf_update_tx_power = rf_conf_set_tx_power(*data_ptr);
+            if (rf_update_tx_power && (rf_state == RF_IDLE)) {
+                rf_receive(rf_rx_channel, rf_module);
+            }
+            break;
         case PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD:
             cca_threshold = (int8_t) *data_ptr; // *NOPAD*
+            break;
+        case PHY_EXTENSION_SET_DATA_WHITENING:
+            data_whitening_enabled = (bool) *data_ptr; // *NOPAD*
+            rf_update_config = true;
+            if (rf_state == RF_IDLE) {
+                rf_receive(rf_rx_channel, rf_module);
+            }
             break;
         case PHY_EXTENSION_SET_802_15_4_MODE:
             mac_mode = (phy_802_15_4_mode_t) *data_ptr; // *NOPAD*
@@ -418,6 +438,12 @@ static void rf_init_registers(rf_modules_e module)
         rf_write_bbc_register_field(BBC_AFC0, module, AFEN0, 0);
         // Enable FSK
         if (phy_current_config.modulation == M_2FSK) {
+            // Enable or disable data whitening
+            if (data_whitening_enabled) {
+                rf_write_bbc_register_field(BBC_FSKPHRTX, module, DW, DW);
+            } else {
+                rf_write_bbc_register_field(BBC_FSKPHRTX, module, DW, 0);
+            }
             rf_write_bbc_register_field(BBC_PC, module, PT, BB_MRFSK);
             // Set bandwidth time product
             rf_write_bbc_register_field(BBC_FSKC0, module, BT, BT_20);
@@ -474,8 +500,10 @@ static void rf_init_registers(rf_modules_e module)
         // Enable external front end with configuration 3
         rf_write_rf_register_field(RF_PADFE, module, PADFE, RF_FEMODE3);
         // Output power at 900MHz: 0 dBm with FSK/QPSK, less than -5 dBm with OFDM
-        rf_write_rf_register_field(RF_PAC, module, TXPWR, TXPWR_11);
+        rf_tx_power = TXPWR_11;
     }
+    // Set TX output power
+    rf_write_rf_register_field(RF_PAC, module, TXPWR, rf_tx_power);
     // Enable analog voltage regulator
     rf_write_rf_register_field(RF_AUXS, module, AVEN, AVEN);
     // Disable filtering FCS
@@ -695,7 +723,7 @@ static void rf_handle_rx_start(void)
 
 static void rf_receive(uint16_t rx_channel, rf_modules_e module)
 {
-    if ((receiver_enabled == true) && (rf_update_config == false) && (rx_channel == rf_rx_channel)) {
+    if ((receiver_enabled == true) && (rf_update_config == false) && (rf_update_tx_power == false) && (rx_channel == rf_rx_channel)) {
         return;
     }
     TEST_RX_DONE
@@ -704,6 +732,12 @@ static void rf_receive(uint16_t rx_channel, rf_modules_e module)
         rf_update_config = false;
         rf_change_state(RF_TRX_OFF, module);
         rf_init_registers(module);
+        rf_change_state(RF_TXPREP, module);
+    }
+    if (rf_update_tx_power == true) {
+        rf_update_tx_power = false;
+        rf_change_state(RF_TRX_OFF, module);
+        rf_write_rf_register_field(RF_PAC, module, TXPWR, rf_tx_power);
         rf_change_state(RF_TXPREP, module);
     }
     if (rx_channel != rf_rx_channel) {
@@ -1168,6 +1202,17 @@ static void rf_conf_set_cca_threshold(uint8_t percent)
 {
     uint8_t step = (MAX_CCA_THRESHOLD - MIN_CCA_THRESHOLD);
     cca_threshold = MIN_CCA_THRESHOLD + (step * percent) / 100;
+}
+
+static bool rf_conf_set_tx_power(uint8_t percent)
+{
+    uint8_t step = (TXPWR_31 - TXPWR_0);
+    uint8_t new_value = TXPWR_0 + (step * percent) / 100;
+    if (rf_tx_power != new_value) {
+        rf_tx_power = new_value;
+        return true;
+    }
+    return false;
 }
 
 static void rf_calculate_symbol_rate(uint32_t baudrate, phy_modulation_e modulation)

@@ -175,7 +175,8 @@ typedef enum {
     SCL_RX_TEST_MSG              = 1,      /**< Test message */
     SCL_RX_GET_BUFFER            = 2,      /**< Get the buffer */
     SCL_RX_GET_CONNECTION_STATUS = 3,      /**< Get the connection status */
-    SCL_RX_VERSION_COMPATIBILITY = 4       /**< Get the SCL version compatibility*/
+    SCL_RX_SCAN_STATUS           = 4,      /**< Get the scan status */
+    SCL_RX_VERSION_COMPATIBILITY = 5       /**< Get the SCL version compatibility*/
 } scl_ipc_rx_t;
 
 /**
@@ -197,7 +198,8 @@ typedef enum {
     SCL_TX_CONNECT                     = 13, /**< Wi-Fi connect */
     SCL_TX_DISCONNECT                  = 14, /**< Wi-Fi disconnect */
     SCL_TX_CONNECTION_STATUS           = 15, /**< Transmit connection status */
-    SCL_TX_SCL_VERSION_NUMBER          = 16  /**< Transmit SCL version number */
+    SCL_TX_SCL_VERSION_NUMBER          = 16, /**< Transmit SCL version number */
+    SCL_TX_SCAN                        = 17, /**< Wi-Fi scan */  
 } scl_ipc_tx_t;
 
 

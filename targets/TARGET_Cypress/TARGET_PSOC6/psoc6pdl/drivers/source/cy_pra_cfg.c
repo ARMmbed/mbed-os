@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra_cfg.c
-* \version 1.0
+* \version 2.0
 *
 * \brief The source code file for the PRA driver.  The API is not intented to
 * be used directly by user application.
@@ -51,7 +51,6 @@ __STATIC_INLINE void Cy_PRA_ExtClkInit( const cy_stc_pra_system_config_t *devCon
 __STATIC_INLINE cy_en_pra_status_t Cy_PRA_EcoInit(const cy_stc_pra_system_config_t *devConfig);
 #if defined(CY_IP_MXBLESS)
 __STATIC_INLINE cy_en_pra_status_t Cy_PRA_AltHfInit(const cy_stc_pra_system_config_t *devConfig);
-__STATIC_INLINE void Cy_PRA_AltHfReset(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateAltHf(const cy_stc_pra_system_config_t *devConfig);
 #endif
 __STATIC_INLINE void Cy_PRA_PiloInit(void);
@@ -60,6 +59,7 @@ __STATIC_INLINE cy_en_pra_status_t Cy_PRA_WcoInit(const cy_stc_pra_system_config
 __STATIC_INLINE cy_en_pra_status_t Cy_PRA_PowerInit(const cy_stc_pra_system_config_t *devConfig);
 static uint32_t Cy_PRA_GetInputPathMuxFrq(cy_en_clkpath_in_sources_t pathMuxSrc, const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_GetInputSourceFreq(uint32_t clkPath, const cy_stc_pra_system_config_t *devConfig, uint32_t *srcFreq );
+static uint32_t Cy_PRA_GetHF0FreqHz(const cy_stc_pra_system_config_t *devConfig);
 static uint32_t Cy_PRA_GetClkLfFreq(const cy_stc_pra_system_config_t *devConfig);
 static uint32_t Cy_PRA_GetClkBakFreq(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_clkpath_in_sources_t Cy_PRA_GetInputSourceClock(uint32_t clkPath, const cy_stc_pra_system_config_t *devConfig, cy_en_pra_status_t *status);
@@ -81,7 +81,6 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkPeri(const cy_stc_pra_system_config_
 static cy_en_pra_status_t Cy_PRA_ValidateClkTimer(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateClkSlow(const cy_stc_pra_system_config_t *devConfig);
 static cy_en_pra_status_t Cy_PRA_ValidateSystemConfig(const cy_stc_pra_system_config_t *devConfig);
-
 
 /*******************************************************************************
 * Function Name: Cy_PRA_IloEnable
@@ -396,6 +395,7 @@ __STATIC_INLINE void Cy_PRA_PiloInit(void)
     Cy_SysClk_PiloEnable();
 }
 
+
 #if defined(CY_IP_MXBLESS)
 /*******************************************************************************
 * Function Name: Cy_PRA_AltHfInit
@@ -413,35 +413,13 @@ __STATIC_INLINE void Cy_PRA_PiloInit(void)
 __STATIC_INLINE cy_en_pra_status_t Cy_PRA_AltHfInit(const cy_stc_pra_system_config_t *devConfig)
 {
     cy_en_ble_eco_status_t status;
-    status = Cy_BLE_EcoConfigure((cy_en_ble_eco_freq_t)devConfig->altHFfreq, (cy_en_ble_eco_sys_clk_div_t)devConfig->altHFsysClkDiv, devConfig->altHFcLoad, devConfig->altHFxtalStartUpTime, (cy_en_ble_eco_voltage_reg_t)devConfig->altHFvoltageReg);
+    status = Cy_BLE_EcoConfigure((cy_en_ble_eco_freq_t)devConfig->altHFclkFreq, (cy_en_ble_eco_sys_clk_div_t)devConfig->altHFsysClkDiv, devConfig->altHFcLoad, devConfig->altHFxtalStartUpTime, (cy_en_ble_eco_voltage_reg_t)devConfig->altHFvoltageReg);
     if ((CY_BLE_ECO_SUCCESS != status) && (CY_BLE_ECO_ALREADY_STARTED !=status))
     {
         return CY_PRA_STATUS_ERROR_PROCESSING_ALTHF;
     }
 
     return CY_PRA_STATUS_SUCCESS;
-}
-
-/*******************************************************************************
-* Function Name: Cy_PRA_AltHfReset
-****************************************************************************//**
-*
-* Reset Alternative High-Frequency Clock.
-*
-* \param devConfig
-*
-*******************************************************************************/
-__STATIC_INLINE void Cy_PRA_AltHfReset(const cy_stc_pra_system_config_t *devConfig)
-{
-    static bool firstEntryAfterReset = true;
-
-    /* Cy_BLE_EcoReset is called when this function is called the first time
-     * after a reset or ECO state change from ENABLE to DISABLE at runtime. */
-    if (firstEntryAfterReset || (Cy_BLE_EcoIsEnabled() && !(devConfig->clkAltHfEnable)))
-    {
-        Cy_BLE_EcoReset();
-        firstEntryAfterReset = false;
-    }
 }
 
 #endif /* CY_IP_MXBLESS */
@@ -534,40 +512,6 @@ __STATIC_INLINE cy_en_pra_status_t Cy_PRA_WcoInit(const cy_stc_pra_system_config
 *******************************************************************************/
 __STATIC_INLINE cy_en_pra_status_t Cy_PRA_PowerInit(const cy_stc_pra_system_config_t *devConfig)
 {
-    static bool firstCallAfterReset = true;
-    cy_en_pra_status_t status;
-
-    /* Resets the Backup domain on POR, XRES, BOD only if Backup domain is supplied by VDDD */
-    if ((devConfig->vBackupVDDDEnable) && firstCallAfterReset)
-    {
-        if (devConfig->iloEnable)
-        {
-            if (0u == Cy_SysLib_GetResetReason() /* POR, XRES, or BOD */)
-            {
-                if (CY_SYSLIB_SUCCESS != Cy_SysLib_ResetBackupDomain())
-                {
-                    return CY_PRA_STATUS_ERROR_PROCESSING_PWR;
-                }
-                status = Cy_PRA_IloDisable();
-                if (CY_PRA_STATUS_SUCCESS != status)
-                {
-                    return status;
-                }
-                status = Cy_PRA_IloEnable();
-                if (CY_PRA_STATUS_SUCCESS != status)
-                {
-                    return status;
-                }
-                status = Cy_PRA_IloHibernateOn(devConfig->iloHibernateON);
-                if (CY_PRA_STATUS_SUCCESS != status)
-                {
-                    return status;
-                }
-            }
-        }
-    }
-    firstCallAfterReset = false;
-
     if (devConfig->ldoEnable)
     {
         /* LDO valid voltage */
@@ -657,11 +601,13 @@ static uint32_t Cy_PRA_GetInputPathMuxFrq(cy_en_clkpath_in_sources_t pathMuxSrc,
             srcFreq = devConfig->ecoFreqHz;
         }
         break;
+#if defined(CY_IP_MXBLESS)
         case CY_SYSCLK_CLKPATH_IN_ALTHF:
         {
-            srcFreq = devConfig->altHFfreq;
+            (devConfig->altHFclkFreq == (uint32_t)CY_BLE_BLESS_ECO_FREQ_32MHZ) ? (srcFreq = CY_PRA_ALTHF_FREQ_32MHZ) : (srcFreq = CY_PRA_ALTHF_FREQ_16MHZ);
         }
         break;
+#endif
         case CY_SYSCLK_CLKPATH_IN_ILO:
         {
             srcFreq = CY_PRA_ILO_SRC_FREQUENCY; /* ILO Freq = 32 KHz */
@@ -809,6 +755,34 @@ static cy_en_pra_status_t Cy_PRA_GetInputSourceFreq(uint32_t clkPath, const cy_s
     return status;
 }
 
+/*******************************************************************************
+* Function Name: Cy_PRA_GetHF0FreqHz
+****************************************************************************//**
+*
+* Get HF0 frequency in Hz. When HF0 is sourced from LF clocks then the output
+* frequency of HF0 is "0" in MHz. So HF0 output frequency has to be calculated
+* and returned in Hz.
+*
+* \param devConfig System Configuration Parameter
+*
+* \return HF0 frequency in Hz
+*
+*******************************************************************************/
+static uint32_t Cy_PRA_GetHF0FreqHz(const cy_stc_pra_system_config_t *devConfig)
+{
+    uint32_t retFreq;
+    /* if HF0 output frequency is 0, then calculate HF0 output frequency from HF_PATH frequency */
+    if (devConfig->hf0OutFreqMHz != 0UL)
+    {
+        retFreq = (devConfig->hf0OutFreqMHz * CY_PRA_FREQUENCY_HZ_CONVERSION);
+    }
+    else
+    {
+        retFreq = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) devConfig->hf0Source),(1UL << devConfig->hf0Divider));
+    }
+
+    return retFreq;
+}
 
 /*******************************************************************************
 * Function Name: Cy_PRA_GetClkLfFreq
@@ -1004,16 +978,6 @@ static cy_en_clkpath_in_sources_t Cy_PRA_GetInputSourceClock(uint32_t clkPath, c
     return srcClock;
 }
 
-#define CY_PRA_SYSCLK_ECO_FREQ_MIN (16000000UL) /* 16 MHz   */
-#define CY_PRA_SYSCLK_ECO_FREQ_MAX (35000000UL) /* 35 MHz   */
-#define CY_PRA_SYSCLK_ECO_CSM_MIN  (1UL)        /* 1  pF    */
-#define CY_PRA_SYSCLK_ECO_CSM_MAX  (100UL)      /* 100 pF   */
-#define CY_PRA_SYSCLK_ECO_ESR_MIN  (1UL)        /* 1  Ohm   */
-#define CY_PRA_SYSCLK_ECO_ESR_MAX  (1000UL)     /* 1000 Ohm */
-#define CY_PRA_SYSCLK_ECO_DRV_MIN  (1UL)        /* 1 kW     */
-#define CY_PRA_SYSCLK_ECO_DRV_MAX  (1000UL)     /* 1 mW     */
-
-
 /*******************************************************************************
 * Function Name: Cy_PRA_ValidateECO
 ****************************************************************************//**
@@ -1031,14 +995,12 @@ static cy_en_pra_status_t Cy_PRA_ValidateECO(const cy_stc_pra_system_config_t *d
 {
     cy_en_pra_status_t retStatus = CY_PRA_STATUS_SUCCESS;
 
-    /* ECO cannot be the source for HF0. HF0 validation will check that.  */
-    /* The parameter validation will be implemented in DRIVERS-2751 */
     if ((CY_SYSCLK_ECOSTAT_STABLE != Cy_SysClk_EcoGetStatus()) && (devConfig->ecoEnable))
     {
-        if (((devConfig->ecoFreqHz >= CY_PRA_SYSCLK_ECO_FREQ_MIN) && (devConfig->ecoFreqHz <= CY_PRA_SYSCLK_ECO_FREQ_MAX)) /* The legal range of the ECO frequecy is [16.0000-35.0000] */
-            && ((devConfig->ecoLoad >= CY_PRA_SYSCLK_ECO_CSM_MIN) && (devConfig->ecoLoad <= CY_PRA_SYSCLK_ECO_CSM_MAX)) /* The ECO cLoad range [1 - 100] */
-            && ((devConfig->ecoEsr >= CY_PRA_SYSCLK_ECO_ESR_MIN) && (devConfig->ecoEsr <= CY_PRA_SYSCLK_ECO_ESR_MAX)) /* The ECO ESR range [1 - 1000] */
-            && ((devConfig->ecoDriveLevel >= CY_PRA_SYSCLK_ECO_DRV_MIN) && (devConfig->ecoDriveLevel <= CY_PRA_SYSCLK_ECO_DRV_MAX))) /* The ECO Drive Level range [1 - 1000] */
+        if (((devConfig->ecoFreqHz >= CY_PRA_ECO_FREQ_MIN) && (devConfig->ecoFreqHz <= CY_PRA_ECO_FREQ_MAX)) /* legal range of ECO frequecy is [16.0000-35.0000] */
+            && ((devConfig->ecoLoad >= CY_PRA_ECO_CSM_MIN) && (devConfig->ecoLoad <= CY_PRA_ECO_CSM_MAX)) /* ECO cLoad range [1 - 100] */
+            && ((devConfig->ecoEsr >= CY_PRA_ECO_ESR_MIN) && (devConfig->ecoEsr <= CY_PRA_ECO_ESR_MAX)) /* ECO ESR range [1 - 1000] */
+            && ((devConfig->ecoDriveLevel >= CY_PRA_ECO_DRV_MIN) && (devConfig->ecoDriveLevel <= CY_PRA_ECO_DRV_MAX))) /* ECO Drive Level range [1 - 1000] */
         {
             retStatus = CY_PRA_STATUS_SUCCESS;
         }
@@ -1119,7 +1081,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateAltHf(const cy_stc_pra_system_config_t 
     {
         uint32_t startupTime;
         /* Validates the frequency */
-        if ((devConfig->altHFfreq < CY_PRA_ALTHF_MIN_FREQUENCY) || (devConfig->altHFfreq > CY_PRA_ALTHF_MAX_FREQUENCY))
+        if (devConfig->altHFclkFreq > (uint32_t)CY_BLE_BLESS_ECO_FREQ_32MHZ)
         {
             return CY_PRA_STATUS_INVALID_PARAM_ALTHF;
         }
@@ -1129,8 +1091,8 @@ static cy_en_pra_status_t Cy_PRA_ValidateAltHf(const cy_stc_pra_system_config_t 
         {
             return CY_PRA_STATUS_INVALID_PARAM_ALTHF;
         }
-        /* Load Cap Range min="7.5" max="26.325" */
-        if ((devConfig->altHFcLoad < CY_PRA_ALTHF_MIN_LOAD) || (devConfig->altHFcLoad > CY_PRA_ALTHF_MAX_LOAD))
+        /* Load Cap Range min="7.5 -> 0U" max="26.325 -> 251U" */
+        if (devConfig->altHFcLoad > CY_PRA_ALTHF_MAX_LOAD)
         {
             return CY_PRA_STATUS_INVALID_PARAM_ALTHF;
         }
@@ -1165,7 +1127,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateFLL(const cy_stc_pra_system_config_t *d
     if ((!Cy_SysClk_FllIsEnabled()) && (devConfig->fllEnable))
     {
         /* FLL is always sourced from PATH_MUX0 */
-        /* If FLL is sourced from ECO, WCO, ALTHF, EXTCLK, ILO, PILO clocks, then FLL output cannot source
+        /* If FLL is sourced from ILO, PILO or any external clock, then FLL output cannot source
          * to HF0. HF0 validation will check that. */
         if (devConfig->path0Enable)
         {
@@ -1230,11 +1192,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateFLL(const cy_stc_pra_system_config_t *d
                 return CY_PRA_STATUS_INVALID_PARAM_FLL0;
             }
 
-            /* Validates the FLL output frequency */
-            if ((devConfig->fllOutFreqHz) != Cy_PRA_CalculateFLLOutFreq(devConfig))
-            {
-                return CY_PRA_STATUS_INVALID_PARAM_FLL0;
-            }
+            /* devConfig->fllOutFreqHz can be compared with calculated FLL output value with % of accuracy - DRIVERS-3751 */
 
             return CY_PRA_STATUS_SUCCESS;
         }
@@ -1293,7 +1251,7 @@ static cy_en_pra_status_t Cy_PRA_ValidatePLL(const cy_stc_pra_system_config_t *d
         return CY_PRA_STATUS_INVALID_PARAM;
     }
 
-    /* If PLL is sourced from ECO, WCO, ALTHF, EXTCLK, ILO, PILO clocks, then the PLL output cannot source
+    /* If PLL is sourced from ILO, PILO, or any external clock, then the PLL output cannot source
      * to HF0. This check is performed at HF0 validation */
     if (pllEnable)
     {
@@ -1722,12 +1680,13 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkHFs(const cy_stc_pra_system_config_t
             return CY_PRA_STATUS_INVALID_PARAM_CLKHF0;
         }
 
-        /* ECO, WCO, ALTHF, EXTCLK, ILO, PILO cannot act as the source to HF0  */
+        /* ILO, PILO, and all external clocks can't be source to HF0  */
         clkSource = Cy_PRA_GetInputSourceClock((uint32_t) devConfig->hf0Source, devConfig, &status);
-        if ((clkSource != CY_SYSCLK_CLKPATH_IN_IMO) || (status != CY_PRA_STATUS_SUCCESS))
-        {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF0;
-        }
+        if ((clkSource != CY_SYSCLK_CLKPATH_IN_IMO) ||
+            (status != CY_PRA_STATUS_SUCCESS))
+            {
+                return CY_PRA_STATUS_INVALID_PARAM_CLKHF0;
+            }
 
         /* HF0: the input source cannot be slower than legal min 200 kHz */
         status = Cy_PRA_GetInputSourceFreq((uint32_t) devConfig->hf0Source, devConfig, &freq);
@@ -1864,7 +1823,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkPump(const cy_stc_pra_system_config_
             return CY_PRA_STATUS_INVALID_PARAM_CLKPUMP;
         }
 
-        /* Output frequency range min="0" max="400000000" */
+        /* the output frequency range is min="0" max="400000000" */
         status = Cy_PRA_GetInputSourceFreq((uint32_t) devConfig->pumpSource,devConfig, &freq);
         if( status == CY_PRA_STATUS_SUCCESS )
         {
@@ -1967,7 +1926,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkFast(const cy_stc_pra_system_config_
         }
 
         /* Validates the frequency range. min="0" max="400000000" */
-        freq = devConfig->hf0OutFreqMHz*CY_PRA_FREQUENCY_HZ_CONVERSION; /* input frequency */
+        freq = Cy_PRA_GetHF0FreqHz(devConfig); /* input frequency */
         freq = freq / (devConfig->clkFastDiv+1UL); /* Calculate Output frequency */
         if (freq > CY_PRA_FAST_OUT_MAX_FREQUENCY)
         {
@@ -2006,7 +1965,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkPeri(const cy_stc_pra_system_config_
             return CY_PRA_STATUS_INVALID_PARAM_CLKPERI;
         }
 
-        freq = devConfig->hf0OutFreqMHz*CY_PRA_FREQUENCY_HZ_CONVERSION; /* input frequency */
+        freq = Cy_PRA_GetHF0FreqHz(devConfig); /* input frequency */
         if (freq > CY_HF_CLK_MAX_FREQ)
         {
             return CY_PRA_STATUS_INVALID_PARAM_CLKPERI;
@@ -2093,7 +2052,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkTimer(const cy_stc_pra_system_config
                     {
                         srcDiv = CY_PRA_DIVIDER_8;
                     }
-                    freq = devConfig->hf0OutFreqMHz*CY_PRA_FREQUENCY_HZ_CONVERSION;
+                    freq = Cy_PRA_GetHF0FreqHz(devConfig);
                 }
                 else
                 {
@@ -2145,7 +2104,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkSlow(const cy_stc_pra_system_config_
         }
 
         /* outFreq = (sourceFreq / divider) range is min="0" max="400000000" */
-        freq = devConfig->hf0OutFreqMHz*CY_PRA_FREQUENCY_HZ_CONVERSION; /* input frequency */
+        freq = Cy_PRA_GetHF0FreqHz(devConfig); /* input frequency */
         if (freq > CY_HF_CLK_MAX_FREQ)
         {
             return CY_PRA_STATUS_INVALID_PARAM_CLKPERI;
@@ -2467,8 +2426,6 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 #else
 
     cy_en_sysclk_status_t sysClkStatus;
-    bool tmp, tmp1, tmp2;
-
 
     /* Validates the input parameters */
     status = Cy_PRA_ValidateSystemConfig(devConfig);
@@ -2479,6 +2436,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 
     /* Sets the worst case memory wait states (! ultra low power, 150 MHz), update - at the end */
     Cy_SysLib_SetWaitStates(false, CY_PRA_150MHZ_FREQUENCY);
+
     if (devConfig->powerEnable)
     {
         status = Cy_PRA_PowerInit(devConfig);
@@ -2488,138 +2446,49 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
         }
     }
 
-    /* Resets the core clock path to default */
-    sysClkStatus = Cy_SysClk_ClkHfSetDivider(CY_PRA_CLKHF_0, CY_SYSCLK_CLKHF_NO_DIVIDE);
-    if (CY_SYSCLK_SUCCESS != sysClkStatus)
-    {
-        return CY_PRA_STATUS_ERROR_PROCESSING_CLKHF0;
-    }
-
-
-    tmp = Cy_SysClk_FllIsEnabled();
-    if (CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_1)
-    {
-        tmp1 = Cy_SysClk_PllIsEnabled(CY_PRA_CLKPLL_1);
-    }
-    if (CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_2)
-    {
-        tmp2 = Cy_SysClk_PllIsEnabled(CY_PRA_CLKPLL_2);
-    }
-
-    /* When FLL and PLLs change their states, i.e, ENABLE -> DISABLE
-     * or DISABLE -> ENABLE then disable all PLLs and FLL */
-    if ((tmp  != (devConfig->fllEnable))  ||
-        ((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_1) && (tmp1 != (devConfig->pll0Enable))) ||
-        ((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_2) && (tmp2 != (devConfig->pll1Enable))))
-    {
-        /* Sets the default divider for FAST, PERI and SLOW clocks */
-        Cy_SysClk_ClkFastSetDivider(CY_PRA_DIVIDER_0);
-        Cy_SysClk_ClkPeriSetDivider(CY_PRA_DIVIDER_1);
-        Cy_SysClk_ClkSlowSetDivider(CY_PRA_DIVIDER_0);
-
-        /* Disables All PLLs */
-        if ((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_1) && (!devConfig->pll0Enable))
-        {
-            SystemCoreClockUpdate();
-            sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_1);
-        }
-
-        if (CY_SYSCLK_SUCCESS != sysClkStatus)
-        {
-            return CY_PRA_STATUS_ERROR_PROCESSING_PLL0;
-        }
-
-        if ((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_2) && (!devConfig->pll1Enable))
-        {
-            SystemCoreClockUpdate();
-            sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_2);
-        }
-
-        if (CY_SYSCLK_SUCCESS != sysClkStatus)
-        {
-            return CY_PRA_STATUS_ERROR_PROCESSING_PLL1;
-        }
-
-        /* Sets the CLK_PATH1 source to IMO */
-        sysClkStatus = Cy_SysClk_ClkPathSetSource((uint32_t) CY_SYSCLK_CLKHF_IN_CLKPATH1, CY_SYSCLK_CLKPATH_IN_IMO);
-        if (CY_SYSCLK_SUCCESS != sysClkStatus)
-        {
-            return CY_PRA_STATUS_ERROR_PROCESSING_PATHMUX1;
-        }
-
-        /* Set the HF0 source to IMO if it is sourced from WCO */
-        if (CY_SYSCLK_CLKHF_IN_CLKPATH0 == Cy_SysClk_ClkHfGetSource(CY_PRA_CLKHF_0))
-        {
-                if (CY_SYSCLK_CLKPATH_IN_WCO == Cy_SysClk_ClkPathGetSource((uint32_t) CY_SYSCLK_CLKHF_IN_CLKPATH0))
-                {
-                            sysClkStatus = Cy_SysClk_ClkHfSetSource(CY_PRA_CLKHF_0, CY_SYSCLK_CLKHF_IN_CLKPATH1);
-                            if (CY_SYSCLK_SUCCESS != sysClkStatus)
-                            {
-                                        return CY_PRA_STATUS_ERROR_PROCESSING_CLKHF0;
-                            }
-                }
-        }
-
-        /* Disables FLL when its state changes ENABLE -> DISABLE */
-        if (!devConfig->fllEnable)
-        {
-            sysClkStatus = Cy_SysClk_FllDisable();
-        }
-        if (CY_SYSCLK_SUCCESS != sysClkStatus)
-        {
-            return CY_PRA_STATUS_ERROR_PROCESSING_FLL0;
-        }
-
-        /* Sets the CLK_PATH0 source to IMO */
-        sysClkStatus = Cy_SysClk_ClkPathSetSource((uint32_t) CY_SYSCLK_CLKHF_IN_CLKPATH0, CY_SYSCLK_CLKPATH_IN_IMO);
-        if (CY_SYSCLK_SUCCESS != sysClkStatus)
-        {
-            return CY_PRA_STATUS_ERROR_PROCESSING_PATHMUX0;
-        }
-
-        /* Sets the HF0 source to IMO via CLK_PATH0 */
-        sysClkStatus = Cy_SysClk_ClkHfSetSource(CY_PRA_CLKHF_0, CY_SYSCLK_CLKHF_IN_CLKPATH0);
-        if (CY_SYSCLK_SUCCESS != sysClkStatus)
-        {
-            return CY_PRA_STATUS_ERROR_PROCESSING_CLKHF0;
-        }
-    }
-
-#ifdef CY_IP_MXBLESS
-    /* BLE_ECO reset */
-    Cy_PRA_AltHfReset(devConfig);
-#endif
-
     if(CY_SRSS_PILO_PRESENT)
     {
         /* Enables all source clocks */
-        if (devConfig->piloEnable)
+        if (Cy_SysClk_PiloIsEnabled())
         {
-            SystemCoreClockUpdate();
-            Cy_PRA_PiloInit();
+            if (!devConfig->piloEnable)
+            {
+                Cy_SysClk_PiloDisable();
+            }
         }
+        /* When the PILO state changes DISABLE -> ENABLE, enable only PILO.
+         * Ignore, if PILO is already enabled */
         else
         {
-            Cy_SysClk_PiloDisable();
+            if (devConfig->piloEnable)
+            {
+                SystemCoreClockUpdate();
+                Cy_PRA_PiloInit();
+            }
         }
     }
 
-    if (devConfig->wcoEnable)
+    if (_FLD2BOOL(BACKUP_CTL_WCO_EN, BACKUP_CTL))
     {
-        SystemCoreClockUpdate();
-        status = Cy_PRA_WcoInit(devConfig);
-        if (CY_PRA_STATUS_SUCCESS != status)
-        {
-            return status;
-        }
-    }
-    else
-    {
-        if (_FLD2BOOL(BACKUP_CTL_WCO_EN, BACKUP_CTL))
+        if (!devConfig->wcoEnable)
         {
             /* Wait 4 WCO cycles before it is disabled */
             Cy_SysLib_DelayUs(WCO_DISABLE_DELAY_US);
             Cy_SysClk_WcoDisable();
+        }
+    }
+    /* When the WCO state changes DISABLE -> ENABLE, enable only WCO.
+     * Ignore, if WCO is already enabled */
+    else
+    {
+        if (devConfig->wcoEnable)
+        {
+            SystemCoreClockUpdate();
+            status = Cy_PRA_WcoInit(devConfig);
+            if (CY_PRA_STATUS_SUCCESS != status)
+            {
+                return status;
+            }
         }
     }
 
@@ -2631,19 +2500,41 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
             return status;
         }
     }
+
 #if defined(CY_IP_MXBLESS)
-    if (devConfig->clkAltHfEnable)
+    if (Cy_BLE_EcoIsEnabled())
     {
-        SystemCoreClockUpdate();
-        status = Cy_PRA_AltHfInit(devConfig);
-        if (CY_PRA_STATUS_SUCCESS != status)
+        if (!devConfig->clkAltHfEnable)
         {
-            return status;
+            Cy_BLE_EcoReset();
+        }
+    }
+    /* When the BLE_ECO state changes DISABLE -> ENABLE, enable only BLE_ECO.
+     * Ignore, if BLE_ECO is already enabled */
+    else
+    {
+        if (devConfig->clkAltHfEnable)
+        {
+            SystemCoreClockUpdate();
+            status = Cy_PRA_AltHfInit(devConfig);
+            if (CY_PRA_STATUS_SUCCESS != status)
+            {
+                return status;
+            }
         }
     }
 #endif /* CY_IP_MXBLESS */
-    tmp = (CY_SYSCLK_ECOSTAT_STABLE == Cy_SysClk_EcoGetStatus());
-    if (tmp != (devConfig->ecoEnable))
+
+    if(CY_SYSCLK_ECOSTAT_STABLE == Cy_SysClk_EcoGetStatus())
+    {
+        if (!devConfig->ecoEnable)
+        {
+            Cy_SysClk_EcoDisable();
+        }
+    }
+    /* When the ECO state changes DISABLE -> ENABLE, enable only ECO.
+     * Ignore, if ECO is already enabled */
+    else
     {
         if (devConfig->ecoEnable)
         {
@@ -2653,10 +2544,6 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
             {
                 return status;
             }
-        }
-        else
-        {
-            Cy_SysClk_EcoDisable();
         }
     }
 
@@ -2751,15 +2638,32 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
         }
     }
 
+    if(Cy_SysClk_FllIsEnabled())
+    {
+        /* Disables FLL when its state changes ENABLE -> DISABLE */
+        if (!devConfig->fllEnable)
+        {
+            sysClkStatus = Cy_SysClk_FllDisable();
+
+            if (CY_SYSCLK_SUCCESS != sysClkStatus)
+            {
+                return CY_PRA_STATUS_ERROR_PROCESSING_FLL0;
+            }
+        }
+    }
     /* When the FLL state changes DISABLE -> ENABLE, enable only FLL.
      * Ignore, if FLL is already enabled */
-    if ((!Cy_SysClk_FllIsEnabled()) && (devConfig->fllEnable))
+    else
     {
-        SystemCoreClockUpdate();
-        status = Cy_PRA_FllInit(devConfig);
-        if (CY_PRA_STATUS_SUCCESS != status)
+        if(devConfig->fllEnable)
         {
-            return status;
+            SystemCoreClockUpdate();
+            status = Cy_PRA_FllInit(devConfig);
+
+            if (CY_PRA_STATUS_SUCCESS != status)
+            {
+                return status;
+            }
         }
     }
 
@@ -2792,163 +2696,248 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 
     }
 
-    /* When the PLL1 state changes DISABLE -> ENABLE, enable only PLL.
-     * Ignore, if PLL1 is already enabled */
-    if ((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_1) && (devConfig->pll0Enable))
+    if (CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_1)
     {
-        if (!Cy_SysClk_PllIsEnabled(CY_PRA_CLKPLL_1))
+        if(Cy_SysClk_PllIsEnabled(CY_PRA_CLKPLL_1))
         {
-            const cy_stc_pll_manual_config_t pll0Config =
+            /* Disables PLL0 when its state changes ENABLE -> DISABLE */
+            if(!devConfig->pll0Enable)
             {
-                .feedbackDiv = devConfig->pll0FeedbackDiv,
-                .referenceDiv = devConfig->pll0ReferenceDiv,
-                .outputDiv = devConfig->pll0OutputDiv,
-                .lfMode = devConfig->pll0LfMode,
-                .outputMode = devConfig->pll0OutputMode,
-            };
+                SystemCoreClockUpdate();
+                sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_1);
 
-            SystemCoreClockUpdate();
-            status = Cy_PRA_PllInit(CY_PRA_CLKPLL_1, &pll0Config);
-            if (CY_PRA_STATUS_SUCCESS != status)
+                if (CY_SYSCLK_SUCCESS != sysClkStatus)
+                {
+                    return CY_PRA_STATUS_ERROR_PROCESSING_PLL0;
+                }
+            }
+        }
+        /* When the PLL0 state changes DISABLE -> ENABLE, enable only PLL0.
+         * Ignore, if PLL0 is already enabled */
+        else
+        {
+            if(devConfig->pll0Enable)
             {
-                return CY_PRA_STATUS_ERROR_PROCESSING_PLL0;
+                const cy_stc_pll_manual_config_t pll0Config =
+                {
+                    .feedbackDiv = devConfig->pll0FeedbackDiv,
+                    .referenceDiv = devConfig->pll0ReferenceDiv,
+                    .outputDiv = devConfig->pll0OutputDiv,
+                    .lfMode = devConfig->pll0LfMode,
+                    .outputMode = devConfig->pll0OutputMode,
+                };
+
+                SystemCoreClockUpdate();
+                status = Cy_PRA_PllInit(CY_PRA_CLKPLL_1, &pll0Config);
+
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_ERROR_PROCESSING_PLL0;
+                }
             }
         }
     }
 
-    /* When the PLL2 state changes DISABLE -> ENABLE, enable only PLL.
-     * Ignore, if PLL2 is already enabled */
-    if((CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_2) && (devConfig->pll1Enable))
+    if (CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_2)
     {
-        if (!Cy_SysClk_PllIsEnabled(CY_PRA_CLKPLL_2))
+        if(Cy_SysClk_PllIsEnabled(CY_PRA_CLKPLL_2))
         {
-            const cy_stc_pll_manual_config_t pll1Config =
+            /* Disables PLL0 when its state changes ENABLE -> DISABLE */
+            if(!devConfig->pll1Enable)
             {
-                .feedbackDiv = devConfig->pll1FeedbackDiv,
-                .referenceDiv = devConfig->pll1ReferenceDiv,
-                .outputDiv = devConfig->pll1OutputDiv,
-                .lfMode = devConfig->pll1LfMode,
-                .outputMode = devConfig->pll1OutputMode,
-            };
+                SystemCoreClockUpdate();
+                sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_2);
 
-            SystemCoreClockUpdate();
-            status = Cy_PRA_PllInit(CY_PRA_CLKPLL_2, &pll1Config);
-            if (CY_PRA_STATUS_SUCCESS != status)
+                if (CY_SYSCLK_SUCCESS != sysClkStatus)
+                {
+                    return CY_PRA_STATUS_ERROR_PROCESSING_PLL1;
+                }
+            }
+        }
+        /* When the PLL1 state changes DISABLE -> ENABLE, enable only PLL1.
+         * Ignore, if PLL1 is already enabled */
+        else
+        {
+            if(devConfig->pll1Enable)
             {
-                return CY_PRA_STATUS_ERROR_PROCESSING_PLL1;
+                const cy_stc_pll_manual_config_t pll1Config =
+                {
+                    .feedbackDiv = devConfig->pll1FeedbackDiv,
+                    .referenceDiv = devConfig->pll1ReferenceDiv,
+                    .outputDiv = devConfig->pll1OutputDiv,
+                    .lfMode = devConfig->pll1LfMode,
+                    .outputMode = devConfig->pll1OutputMode,
+                };
+
+                SystemCoreClockUpdate();
+                status = Cy_PRA_PllInit(CY_PRA_CLKPLL_2, &pll1Config);
+
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_ERROR_PROCESSING_PLL1;
+                }
             }
         }
     }
 
     /* Configures the HF clocks */
-    if (devConfig->clkHF1Enable)
+    if (Cy_SysClk_ClkHfIsEnabled(CY_PRA_CLKHF_1))
     {
-        status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_1, devConfig->hf1Source, devConfig->hf1Divider);
-        if (CY_PRA_STATUS_SUCCESS != status)
+        if (!devConfig->clkHF1Enable)
         {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF1;
+            status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_1);
+            if (CY_PRA_STATUS_SUCCESS != status)
+            {
+                return CY_PRA_STATUS_INVALID_PARAM_CLKHF1;
+            }
         }
     }
     else
     {
-        status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_1);
-        if (CY_PRA_STATUS_SUCCESS != status)
+        if (devConfig->clkHF1Enable)
         {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF1;
+            status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_1, devConfig->hf1Source, devConfig->hf1Divider);
+            if (CY_PRA_STATUS_SUCCESS != status)
+            {
+                return CY_PRA_STATUS_INVALID_PARAM_CLKHF1;
+            }
         }
     }
-    if (devConfig->clkHF2Enable)
-    {
-        status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_2, devConfig->hf2Source, devConfig->hf2Divider);
-        if (CY_PRA_STATUS_SUCCESS != status)
-        {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF2;
-        }
-    }
-    else
-    {
-        status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_2);
-        if (CY_PRA_STATUS_SUCCESS != status)
-        {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF2;
-        }
 
-    }
-    if ((devConfig->clkHF3Enable) && (CY_PRA_CLKHF_3 < CY_SRSS_NUM_HFROOT))
+    if (Cy_SysClk_ClkHfIsEnabled(CY_PRA_CLKHF_2))
     {
-        status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_3, devConfig->hf3Source, devConfig->hf3Divider);
-        if (CY_PRA_STATUS_SUCCESS != status)
+        if (!devConfig->clkHF2Enable)
         {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF3;
+            status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_2);
+            if (CY_PRA_STATUS_SUCCESS != status)
+            {
+                return CY_PRA_STATUS_INVALID_PARAM_CLKHF2;
+            }
         }
     }
     else
     {
-        if (CY_PRA_CLKHF_3 < CY_SRSS_NUM_HFROOT)
+        if (devConfig->clkHF2Enable)
         {
-            status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_3);
+            status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_2, devConfig->hf2Source, devConfig->hf2Divider);
             if (CY_PRA_STATUS_SUCCESS != status)
             {
-                return CY_PRA_STATUS_INVALID_PARAM_CLKHF3;
+                return CY_PRA_STATUS_INVALID_PARAM_CLKHF2;
             }
         }
+    }
 
-    }
-    if ((devConfig->clkHF4Enable) && (CY_PRA_CLKHF_4 < CY_SRSS_NUM_HFROOT))
+    if(CY_PRA_CLKHF_3 < CY_SRSS_NUM_HFROOT)
     {
-        status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_4, devConfig->hf4Source, devConfig->hf4Divider);
-        if (CY_PRA_STATUS_SUCCESS != status)
+        if (Cy_SysClk_ClkHfIsEnabled(CY_PRA_CLKHF_3))
         {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF4;
-        }
-    }
-    else
-    {
-        if(CY_PRA_CLKHF_4 < CY_SRSS_NUM_HFROOT)
-        {
-            status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_4);
-            if (CY_PRA_STATUS_SUCCESS != status)
+            if (!devConfig->clkHF3Enable)
             {
-                return CY_PRA_STATUS_INVALID_PARAM_CLKHF4;
+                status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_3);
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_INVALID_PARAM_CLKHF3;
+                }
+            }
+        }
+        else
+        {
+            if (devConfig->clkHF3Enable)
+            {
+                status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_3, devConfig->hf3Source, devConfig->hf3Divider);
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_INVALID_PARAM_CLKHF3;
+                }
             }
         }
     }
-    if ((devConfig->clkHF5Enable) && (CY_PRA_CLKHF_5 < CY_SRSS_NUM_HFROOT))
+
+    if (CY_PRA_CLKHF_4 < CY_SRSS_NUM_HFROOT)
     {
-        status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_5, devConfig->hf5Source, devConfig->hf5Divider);
-        if (CY_PRA_STATUS_SUCCESS != status)
+        if (Cy_SysClk_ClkHfIsEnabled(CY_PRA_CLKHF_4))
         {
-            return CY_PRA_STATUS_INVALID_PARAM_CLKHF5;
-        }
-    }
-    else
-    {
-        if(CY_PRA_CLKHF_5 < CY_SRSS_NUM_HFROOT)
-        {
-            status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_5);
-            if (CY_PRA_STATUS_SUCCESS != status)
+            if (!devConfig->clkHF4Enable)
             {
-                return CY_PRA_STATUS_INVALID_PARAM_CLKHF5;
+                status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_4);
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_INVALID_PARAM_CLKHF4;
+                }
+            }
+        }
+        else
+        {
+            if (devConfig->clkHF4Enable)
+            {
+                status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_4, devConfig->hf4Source, devConfig->hf4Divider);
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_INVALID_PARAM_CLKHF4;
+                }
             }
         }
     }
+
+    if (CY_PRA_CLKHF_5 < CY_SRSS_NUM_HFROOT)
+    {
+        if (Cy_SysClk_ClkHfIsEnabled(CY_PRA_CLKHF_5))
+        {
+            if (!devConfig->clkHF5Enable)
+            {
+                status = (cy_en_pra_status_t)Cy_SysClk_ClkHfDisable(CY_PRA_CLKHF_5);
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_INVALID_PARAM_CLKHF5;
+                }
+            }
+        }
+        else
+        {
+            if (devConfig->clkHF5Enable)
+            {
+                status = Cy_PRA_ClkHfInit(CY_PRA_CLKHF_5, devConfig->hf5Source, devConfig->hf5Divider);
+                if (CY_PRA_STATUS_SUCCESS != status)
+                {
+                    return CY_PRA_STATUS_INVALID_PARAM_CLKHF5;
+                }
+            }
+        }
+    }
+
     /* Configures miscellaneous clocks */
-    if (devConfig->clkTimerEnable)
+    if (Cy_SysClk_ClkTimerIsEnabled())
     {
-        Cy_PRA_ClkTimerInit(devConfig->clkTimerSource, devConfig->clkTimerDivider);
+        if (!devConfig->clkTimerEnable)
+        {
+            Cy_SysClk_ClkTimerDisable();
+        }
     }
+    /* When the TIMER state changes DISABLE -> ENABLE, enable only TIMER.
+     * Ignore, if TIMER is already enabled */
     else
     {
-         Cy_SysClk_ClkTimerDisable();
+        if (devConfig->clkTimerEnable)
+        {
+            Cy_PRA_ClkTimerInit(devConfig->clkTimerSource, devConfig->clkTimerDivider);
+        }
     }
 
-    if (devConfig->clkPumpEnable)
+    if (Cy_SysClk_ClkPumpIsEnabled())
     {
-        Cy_PRA_ClkPumpInit(devConfig->pumpSource, devConfig->pumpDivider);
+        if (!devConfig->clkPumpEnable)
+        {
+            Cy_SysClk_ClkPumpDisable();
+        }
     }
+    /* When the PUMP state changes DISABLE -> ENABLE, enable only PUMP.
+     * Ignore, if PUMP is already enabled */
     else
     {
-        Cy_SysClk_ClkPumpDisable();
+        if (devConfig->clkPumpEnable)
+        {
+            Cy_PRA_ClkPumpInit(devConfig->pumpSource, devConfig->pumpDivider);
+        }
     }
 
     if (devConfig->clkBakEnable)
@@ -2963,22 +2952,27 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
     }
 
     /* Configures the default-enabled clocks */
-    if (devConfig->iloEnable)
+    if (Cy_SysClk_IloIsEnabled())
     {
-        status = Cy_PRA_IloEnable();
-        if (CY_PRA_STATUS_SUCCESS != status)
-        {
-            return status;
-        }
-    }
-    else
-    {
-        if (Cy_SysClk_IloIsEnabled())
+        if (!devConfig->iloEnable)
         {
             /* Wait 4 ILO cycles before it is disabled */
             Cy_SysLib_DelayUs(ILO_DISABLE_DELAY_US);
 
             status = Cy_PRA_IloDisable();
+            if (CY_PRA_STATUS_SUCCESS != status)
+            {
+                return status;
+            }
+        }
+    }
+    /* When the ILO state changes DISABLE -> ENABLE, enable only ILO.
+     * Ignore, if ILO is already enabled */
+    else
+    {
+        if (devConfig->iloEnable)
+        {
+            status = Cy_PRA_IloEnable();
             if (CY_PRA_STATUS_SUCCESS != status)
             {
                 return status;
@@ -3008,44 +3002,39 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 
 
 #if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
-
-    #if !defined(CY_DEVICE_PSOC6ABLE2)
-        #define CY_PRA_ALL_PC_MASK      (CY_PROT_PCMASK1 + CY_PROT_PCMASK2 + \
-                                        CY_PROT_PCMASK3 + CY_PROT_PCMASK4 + \
-                                        CY_PROT_PCMASK5 + CY_PROT_PCMASK6 + \
-                                        CY_PROT_PCMASK7)
-
-        #define CY_PRA_SECURE_PC_MASK   (CY_PROT_PCMASK1 + CY_PROT_PCMASK2 + \
-                                        CY_PROT_PCMASK3 + CY_PROT_PCMASK4)
-    #endif /* !defined(CY_DEVICE_PSOC6ABLE2) */
-
-
 /*******************************************************************************
 * Function Name: Cy_PRA_CloseSrssMain2
 ****************************************************************************//**
 *
 * Restricts the access to the SRSS_MAIN2 region, which includes the following
-* registers: SRSS_TST_DDFT_FAST_CTL_REG, SRSS_TST_DDFT_FAST_CTL_REG.
+* registers: SRSS_TST_DDFT_SLOW_CTL_REG and SRSS_TST_DDFT_FAST_CTL_REG.
+*
+* The function is called from \ref Cy_SysPm_CpuEnterDeepSleep() only for
+* the PSOC6ABLE2 devices.
 *
 *******************************************************************************/
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    CY_RAMFUNC_BEGIN
+    #if !defined (__ICCARM__)
+        CY_NOINLINE
+    #endif
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 void Cy_PRA_CloseSrssMain2(void)
 {
     #if defined(CY_DEVICE_PSOC6ABLE2)
-        /* Will be implemented for the BLE device per DRIVERS-3084 */
-    #else
-        (void) Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_SRSS_MAIN2,
-                                    (uint16_t) CY_PRA_SECURE_PC_MASK,
-                                    CY_PROT_PERM_RW,
-                                    CY_PROT_PERM_RW,
-                                    false);
+        /* Turn off PC_MATCH for SRSS fixed PPU */
+        uint32_t slaveAtt = PERI_GR_PPU_SL_SRSS->ATT0;
+        slaveAtt &= ~PERI_GR_PPU_SL_ATT0_PC_MATCH_Msk;
+        PERI_GR_PPU_SL_SRSS->ATT0 = slaveAtt;
 
-        (void) Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_SRSS_MAIN2,
-                                    (uint16_t) (CY_PRA_ALL_PC_MASK ^ CY_PRA_SECURE_PC_MASK),
-                                    CY_PROT_PERM_DISABLED,
-                                    CY_PROT_PERM_DISABLED,
-                                    false);
+        /* Disable programmable PPUs #2 and #3 */
+        PERI_PPU_PR_ATT0(PERI_PPU_PR2) &= ~_VAL2FLD(PERI_PPU_PR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
+        PERI_PPU_PR_ATT0(PERI_PPU_PR3) &= ~_VAL2FLD(PERI_PPU_PR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 }
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    CY_RAMFUNC_END
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 
 /*******************************************************************************
@@ -3053,24 +3042,36 @@ void Cy_PRA_CloseSrssMain2(void)
 ****************************************************************************//**
 *
 * Restores the access to the SRSS_MAIN2 region, which was restricted by
-* Cy_PRA_CloseSrssMain2.
+* \ref Cy_PRA_CloseSrssMain2.
+*
+* The function is called from \ref Cy_SysPm_CpuEnterDeepSleep() only for
+* the CYB06xx7 devices.
 *
 *******************************************************************************/
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    CY_RAMFUNC_BEGIN
+    #if !defined (__ICCARM__)
+        CY_NOINLINE
+    #endif
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 void Cy_PRA_OpenSrssMain2(void)
 {
     #if defined(CY_DEVICE_PSOC6ABLE2)
-        /* Will be implemented for the BLE device per DRIVERS-3084 */
-    #else
-        (void) Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_SRSS_MAIN2,
-                                    (uint16_t) CY_PRA_ALL_PC_MASK,
-                                    CY_PROT_PERM_RW,
-                                    CY_PROT_PERM_RW,
-                                    false);
+        /* Turn on PC_MATCH for SRSS fixed PPU */
+        uint32_t slaveAtt = PERI_GR_PPU_SL_SRSS->ATT0;
+        slaveAtt |= PERI_GR_PPU_SL_ATT0_PC_MATCH_Msk;
+        PERI_GR_PPU_SL_SRSS->ATT0 = slaveAtt;
+
+        /* Enable programmable PPUs #2 and #3 */
+        PERI_PPU_PR_ATT0(PERI_PPU_PR2) |= _VAL2FLD(PERI_PPU_PR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
+        PERI_PPU_PR_ATT0(PERI_PPU_PR3) |= _VAL2FLD(PERI_PPU_PR_ATT0_ENABLED, CY_PROT_STRUCT_ENABLE);
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 }
+#if defined(CY_DEVICE_PSOC6ABLE2)
+    CY_RAMFUNC_END
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
-#endif /* (CY_CPU_CORTEX_M0P) */
-
+#endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
 
 #endif /* (CY_DEVICE_SECURE) */
 

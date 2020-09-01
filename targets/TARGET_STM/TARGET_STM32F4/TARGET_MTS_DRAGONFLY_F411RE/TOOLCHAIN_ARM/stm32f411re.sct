@@ -29,19 +29,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #if !defined(MBED_APP_START)
-  #ifdef DISABLE_POST_BINARY_HOOK
-      #define MBED_APP_START 0x08000000
-  #else
-      #define MBED_APP_START 0x08010000
-  #endif
+   #define MBED_APP_START 0x08000000
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #ifdef DISABLE_POST_BINARY_HOOK
-      #define MBED_APP_SIZE 0x80000
-  #else
-      #define MBED_APP_SIZE (0x80000 - 0x10000)
-  #endif
+   #define MBED_APP_SIZE 0x80000
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)

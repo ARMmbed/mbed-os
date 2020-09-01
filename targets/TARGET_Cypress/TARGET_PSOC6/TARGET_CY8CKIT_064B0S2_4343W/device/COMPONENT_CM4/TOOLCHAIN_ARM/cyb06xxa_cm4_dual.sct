@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cyb06xxa_cm4_dual.sct
-;* \version 2.80
+;* \version 2.90
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -66,7 +66,7 @@
 #define BOOT_HEADER_SIZE        0x00000400
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x00E8000
+  #define MBED_ROM_SIZE     0x000E8000
 #endif
 
 ;* MBED_APP_SIZE is being  used by the bootloader build script and
@@ -188,11 +188,11 @@ LR_IROM1 FLASH_START FLASH_SIZE
 
     ; Application heap area (HEAP)
     ARM_LIB_HEAP  +0 EMPTY RAM_START+RAM_SIZE-STACK_SIZE-ImageLimit(RW_IRAM1)
-    { 
+    {
     }
-    
+
     ; Stack region growing down
-    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -STACK_SIZE 
+    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -STACK_SIZE
     {
     }
 
@@ -290,7 +290,7 @@ CYMETA 0x90500000
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 #define __cy_memory_0_start 0x10000000
-#define __cy_memory_0_length  0x00200000
+#define __cy_memory_0_length  0x001D0000
 #define __cy_memory_0_row_size 0x200
 
 /* Emulated EEPROM Flash area */

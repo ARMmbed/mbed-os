@@ -83,6 +83,7 @@ static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
 static void fhss_ws_update_uc_channel_callback(fhss_structure_t *fhss_structure);
 static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure);
+static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_t channel_index, uint16_t number_of_channels);
 
 // This function supports rounding up
 static int64_t divide_integer(int64_t dividend, int32_t divisor)
@@ -235,12 +236,14 @@ static int32_t fhss_ws_calc_bc_channel(fhss_structure_t *fhss_structure)
 
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
         next_channel = tr51_get_bc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_channels, NULL);
+        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.channel_mask, next_channel, fhss_structure->number_of_channels);
         if (++fhss_structure->ws->bc_slot == fhss_structure->number_of_channels) {
             fhss_structure->ws->bc_slot = 0;
         }
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_DH1CF) {
         fhss_structure->ws->bc_slot++;
         next_channel = dh1cf_get_bc_channel_index(fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_channels);
+        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.channel_mask, next_channel, fhss_structure->number_of_channels);
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_VENDOR_DEF_CF) {
         if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
             next_channel = fhss_structure->ws->fhss_configuration.vendor_defined_cf(fhss_structure->fhss_api, fhss_structure->ws->bc_slot, NULL, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_channels);
@@ -264,6 +267,22 @@ static uint8_t calc_own_tx_trig_slot(uint8_t own_hop)
     return (own_hop & 1);
 }
 
+static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_t channel_index, uint16_t number_of_channels)
+{
+    //Function will return real active channel index at list
+    int32_t active_channels = 0;
+    // Set channel maks outside excluded channels
+    for (int32_t i = 0; i < number_of_channels; i++) {
+        if (channel_mask[0 + (i / 32)] & (1 << (i % 32))) {
+            if (channel_index == active_channels) {
+                return i;
+            }
+            active_channels++;
+        }
+    }
+    return 0;
+}
+
 static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
 {
     int32_t next_channel;
@@ -276,6 +295,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         // stop broadcast schedule
         fhss_structure->ws->is_on_bc_channel = false;
         fhss_structure->ws->synchronization_time = 0;
+        fhss_structure->ws->broadcast_timer_running = false;
         return;
     }
     if (fhss_structure->ws->is_on_bc_channel == false) {
@@ -324,6 +344,9 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
 #ifdef FHSS_CHANNEL_DEBUG
         tr_info("%"PRIu32" UC %u", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api), fhss_structure->rx_channel);
 #endif /*FHSS_CHANNEL_DEBUG*/
+#ifdef TIMING_TOOL_TRACES
+        tr_info("%u UC_change %u", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api), next_channel);
+#endif
     }
     fhss_structure->callbacks.change_channel(fhss_structure->fhss_api, next_channel);
 #ifdef FHSS_CHANNEL_DEBUG_CBS
@@ -331,6 +354,13 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         fhss_bc_switch();
     }
 #endif /*FHSS_CHANNEL_DEBUG_CBS*/
+#ifdef TIMING_TOOL_TRACES
+    if (fhss_structure->ws->is_on_bc_channel == true) {
+        tr_info("%u BC_start %u", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api), next_channel);
+    } else {
+        tr_info("%u BC_done", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api));
+    }
+#endif
 }
 
 static int own_floor(float value)
@@ -373,6 +403,9 @@ static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots)
     }
     if (queue_size) {
         fhss_structure->callbacks.tx_poll(fhss_structure->fhss_api);
+#ifdef TIMING_TOOL_TRACES
+        tr_info("%u TX_poll", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api));
+#endif
     }
 }
 
@@ -384,7 +417,10 @@ static uint32_t fhss_ws_calculate_ufsi(fhss_structure_t *fhss_structure, uint32_
         cur_slot = fhss_structure->number_of_uc_channels;
     }
     cur_slot--;
-    uint32_t remaining_time_ms = US_TO_MS(get_remaining_slots_us(fhss_structure, fhss_unicast_handler, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval)));
+    uint32_t remaining_time_ms = 0;
+    if (fhss_structure->ws->unicast_timer_running == true) {
+        remaining_time_ms = US_TO_MS(get_remaining_slots_us(fhss_structure, fhss_unicast_handler, MS_TO_US(dwell_time) - NS_TO_US(dwell_time * fhss_structure->ws->drift_per_millisecond_ns)));
+    }
     uint32_t time_to_tx = 0;
     uint32_t cur_time = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
     if (cur_time < tx_time) {
@@ -447,6 +483,7 @@ static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_stat
         // Start broadcast schedule when BC intervals are known
         if (fhss_broadcast_interval && fhss_bc_dwell_interval) {
             fhss_broadcast_handler(fhss_structure->fhss_api, 0);
+            fhss_structure->ws->broadcast_timer_running = true;
         }
         // Start unicast schedule
         if ((fhss_structure->ws->fhss_configuration.ws_uc_channel_function != WS_FIXED_CHANNEL)) {
@@ -459,6 +496,7 @@ static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_stat
         eventOS_callback_timer_stop(fhss_structure->fhss_event_timer);
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_stop_timer(fhss_structure, fhss_broadcast_handler);
+        fhss_structure->ws->broadcast_timer_running = false;
     }
 
     fhss_structure->fhss_state = fhss_state;
@@ -477,12 +515,14 @@ static void fhss_ws_update_uc_channel_callback(fhss_structure_t *fhss_structure)
     if (fhss_structure->ws->fhss_configuration.ws_uc_channel_function == WS_FIXED_CHANNEL) {
         return;
     } else if (fhss_structure->ws->fhss_configuration.ws_uc_channel_function == WS_TR51CF) {
-        next_channel = fhss_structure->rx_channel = tr51_get_uc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, fhss_structure->ws->uc_slot, mac_address, fhss_structure->number_of_uc_channels, NULL);
+        next_channel = tr51_get_uc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, fhss_structure->ws->uc_slot, mac_address, fhss_structure->number_of_uc_channels, NULL);
+        next_channel = fhss_structure->rx_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.unicast_channel_mask, next_channel, fhss_structure->number_of_channels);
         if (++fhss_structure->ws->uc_slot == fhss_structure->number_of_uc_channels) {
             fhss_structure->ws->uc_slot = 0;
         }
     } else if (fhss_structure->ws->fhss_configuration.ws_uc_channel_function == WS_DH1CF) {
-        next_channel = fhss_structure->rx_channel = dh1cf_get_uc_channel_index(fhss_structure->ws->uc_slot, mac_address, fhss_structure->number_of_uc_channels);
+        next_channel = dh1cf_get_uc_channel_index(fhss_structure->ws->uc_slot, mac_address, fhss_structure->number_of_uc_channels);
+        next_channel = fhss_structure->rx_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.unicast_channel_mask, next_channel, fhss_structure->number_of_channels);
         fhss_structure->ws->uc_slot++;
     } else if (fhss_structure->ws->fhss_configuration.ws_uc_channel_function == WS_VENDOR_DEF_CF) {
         if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
@@ -496,6 +536,9 @@ static void fhss_ws_update_uc_channel_callback(fhss_structure_t *fhss_structure)
 #ifdef FHSS_CHANNEL_DEBUG
     tr_info("%"PRIu32" UC %u %u", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api), next_channel, fhss_structure->ws->uc_slot);
 #endif /*FHSS_CHANNEL_DEBUG*/
+#ifdef TIMING_TOOL_TRACES
+    tr_info("%u UC_change %u", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api), next_channel);
+#endif
     fhss_structure->callbacks.change_channel(fhss_structure->fhss_api, next_channel);
 #ifdef FHSS_CHANNEL_DEBUG_CBS
     if (fhss_uc_switch) {
@@ -540,8 +583,10 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
         int32_t tx_channel = neighbor_timing_info->uc_timing_info.fixed_channel;
         if (neighbor_timing_info->uc_timing_info.unicast_channel_function == WS_TR51CF) {
             tx_channel = tr51_get_uc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, destination_slot, destination_address, neighbor_timing_info->uc_timing_info.unicast_number_of_channels, NULL);
+            tx_channel = fhss_channel_index_from_mask(neighbor_timing_info->uc_channel_list.channel_mask, tx_channel, fhss_structure->number_of_channels);
         } else if (neighbor_timing_info->uc_timing_info.unicast_channel_function == WS_DH1CF) {
             tx_channel = dh1cf_get_uc_channel_index(destination_slot, destination_address, neighbor_timing_info->uc_channel_list.channel_count);
+            tx_channel = fhss_channel_index_from_mask(neighbor_timing_info->uc_channel_list.channel_mask, tx_channel, fhss_structure->number_of_channels);
         } else if (neighbor_timing_info->uc_timing_info.unicast_channel_function == WS_VENDOR_DEF_CF) {
             if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
                 tx_channel = fhss_structure->ws->fhss_configuration.vendor_defined_cf(fhss_structure->fhss_api, fhss_structure->ws->bc_slot, destination_address, fhss_structure->ws->fhss_configuration.bsi, neighbor_timing_info->uc_timing_info.unicast_number_of_channels);
@@ -814,8 +859,13 @@ static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t
     if (!fhss_structure) {
         return return_value;
     }
+    // We don't know the broadcast schedule, use large backoff with MAC retries
+    if (fhss_structure->ws->broadcast_timer_running == false) {
+        return 100000;
+    }
+    // We don't know the TX/RX slots, use randomised large backoff with MAC retries
     if (fhss_structure->own_hop == 0xff) {
-        return return_value;
+        return ((uint32_t) randLIB_get_random_in_range(50, 150) * 1000);
     }
     if (fhss_structure->ws->is_on_bc_channel == true) {
         return return_value;
@@ -916,6 +966,7 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
         timeout -= MS_TO_US(bc_timing_info->broadcast_interval - bc_timing_info->broadcast_dwell_interval);
     }
     fhss_ws_start_timer(fhss_structure, timeout, fhss_broadcast_handler);
+    fhss_structure->ws->broadcast_timer_running = true;
     uint16_t slots_since_reception = (bc_timing_info->broadcast_interval_offset + time_from_reception_ms) / bc_timing_info->broadcast_interval;
     // TODO: Calculate drift error
     fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval = bc_timing_info->broadcast_dwell_interval;

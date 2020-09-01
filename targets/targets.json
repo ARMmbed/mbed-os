@@ -5,6 +5,7 @@
         "default_toolchain": "ARM",
         "supported_toolchains": null,
         "extra_labels": [],
+        "supported_form_factors": [],
         "components": [],
         "is_disk_virtual": false,
         "macros": [],
@@ -135,6 +136,7 @@
         ],
         "extra_labels": [
             "TFM",
+            "TFM_V1_1",
             "TFM_V8M"
         ],
         "device_has": [
@@ -2362,10 +2364,47 @@
             "lpticker_delay_ticks": 0
         },
         "device_has_add": [
-            "ANALOGOUT",
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
+        ]
+    },
+    "MCU_STM32G031xx": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G031xx"
+        ],
+        "macros_add": [
+            "STM32G031xx"
+        ]
+    },
+    "NUCLEO_G031K8": {
+        "inherits": [
+            "MCU_STM32G031xx"
+        ],
+        "detect_code": [
+            "0852"
+        ],
+        "device_name": "STM32G031K8Tx",
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
+        "supported_application_profiles": [
+            "bare-metal"
         ]
     },
     "MCU_STM32G071xx": {
@@ -2378,6 +2417,9 @@
         ],
         "macros_add": [
             "STM32G071xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
         ]
     },
     "NUCLEO_G071RB": {
@@ -4074,7 +4116,7 @@
         "extra_labels_add": [
             "RZA1H",
             "MBRZA1H",
-            "RZ_A1_EMAC"
+            "RENESAS_EMAC"
         ],
         "components_add": [
             "SD",
@@ -4146,6 +4188,55 @@
         "detect_code": [
             "5501"
         ]
+    },
+    "RZ_A2XX": {
+        "inherits": ["Target"],
+        "public": false,
+        "core": "Cortex-A9",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["RENESAS", "RZ_A2XX"],
+        "device_has": [
+            "SLEEP",
+            "USTICKER",
+            "RTC",
+            "ANALOGIN",
+            "ETHERNET",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "STDIO_MESSAGES",
+            "USBDEVICE"
+        ],
+        "program_cycle_s": 2
+    },
+    "GR_MANGO": {
+        "inherits": ["RZ_A2XX"],
+        "extra_labels_add": ["RZA2M", "MBRZA2M", "RENESAS_EMAC"],
+        "device_has_add": ["EMAC","FLASH"],
+        "release_versions": ["5"],
+        "device_name": "R7S921053",
+        "bootloader_supported": true,
+        "mbed_rom_start"        : "0x50000000",
+        "mbed_rom_size"         : "0x1000000",
+        "sectors": [[1342177280,4096]],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        },
+        "detect_code": [
+            "5502"
+        ]
+
     },
     "MAX32600MBED": {
         "inherits": [
@@ -5635,15 +5726,15 @@
             "MPU"
         ]
     },
-    "NUMAKER_IOT_M252": {
+    "MCU_M251": {
         "core": "Cortex-M23",
+        "public": false,
         "trustzone": false,
         "is_disk_virtual": true,
         "default_toolchain": "ARMC6",
         "extra_labels": [
             "NUVOTON",
             "M251",
-            "M252KG6AE",
             "FLASH_CMSIS_ALGO"
         ],
         "macros_add": [
@@ -5656,6 +5747,30 @@
             "IAR"
         ],
         "config": {
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "value": null
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -5714,13 +5829,6 @@
         "components_add": [
             "FLASHIAP"
         ],
-        "detect_code": [
-            "1309"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "M252KG6AE",
         "sectors": [
             [
                 0,
@@ -5728,6 +5836,24 @@
             ]
         ],
         "bootloader_supported": true
+    },
+    "NUMAKER_IOT_M252": {
+        "inherits": [
+            "MCU_M251"
+        ],
+        "detect_code": [
+            "1309"
+        ],
+        "release_versions": [
+            "2",
+            "5"
+        ],
+        "device_name": "M252KG6AE",
+        "overrides": {
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PB_13",
+            "usb-uart-rx": "PB_12"
+        }
     },
     "TMPM4G9": {
         "inherits": [
@@ -5857,7 +5983,6 @@
         ],
         "macros_add": [
             "MCU_PSOC6_M4",
-            "CY_RTOS_AWARE",
             "CY_USING_HAL",
             "MBED_TICKLESS"
         ],
@@ -6194,6 +6319,73 @@
         },
         "program_cycle_s": 10
     },
+    "CYTFM_064B0S2_4343W": {
+        "inherits": [
+            "MCU_PSOC6_M4"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "features_add": [
+            "BLE",
+            "EXPERIMENTAL_API",
+            "PSA"
+        ],
+        "components_add": [
+            "WHD",
+            "4343W",
+            "CYW43XXX",
+            "TFM_S_FW"
+        ],
+        "components_remove": [
+            "QSPIF",
+            "CM0P_SLEEP"
+        ],
+        "device_has_remove": [
+            "ANALOGOUT",
+            "QSPI",
+            "TRNG",
+            "CRC"
+        ],
+        "extra_labels_add": [
+            "PSOC6_02",
+            "CORDIO",
+            "TFM",
+            "TFM_V1_0",
+            "TFM_DUALCPU"
+        ],
+        "macros_add": [
+            "CYB0644ABZI_S2D44",
+            "CY_IPC_DEFAULT_CFG_DISABLE",
+            "CYBSP_WIFI_CAPABLE",
+            "MXCRYPTO_DISABLED",
+            "TFM_MULTI_CORE_MULTI_CLIENT_CALL=1"
+        ],
+        "detect_code": [
+            "1910"
+        ],
+        "forced_reset_timeout": 5,
+        "hex_filename": "tfm_s.hex",
+        "cm0_img_id": 1,
+        "cm4_img_id": 16,
+        "boot_scheme": "multi_image",
+        "policy_file": "policy_multi_CM0_CM4_tfm.json",
+        "post_binary_hook": {
+            "function": "PSOC6Code.sign_image"
+        },
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        },
+        "program_cycle_s": 10,
+        "tfm_target_name": "psoc64",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "GNUARM",
+        "tfm_supported_toolchains": [
+            "GNUARM"
+        ],
+        "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CYTFM_064B0S2_4343W/COMPONENT_TFM_S_FW",
+        "TFM_OUTPUT_EXT": "hex"
+    },
     "CYSBSYSKIT_01": {
         "inherits": [
             "MCU_PSOC6_M4"
@@ -6214,20 +6406,34 @@
             "MXCRYPTO_02"
         ],
         "macros_add": [
-            "CY8C624AFNI_D43",
-            "CYBSP_WIFI_CAPABLE"
+            "CY8C624AFNI_S2D43"
         ],
+        "macros_remove": [
+            "MBED_TICKLESS"
+        ],
+        "detect_code": [
+            "1912"
+        ],
+        "device_name": "CY8C624AFNI-S2D43",
+        "mbed_ram_start": "0x08080000",
+        "mbed_ram_size": "0x0007F800",
+        "mbed_rom_start": "0x10180000",
+        "mbed_rom_size": "0x80000",
+        "bootloader_supported": true,
+        "sectors": [
+            [
+                270008320,
+                512
+            ]
+        ],
+        "forced_reset_timeout": 5,
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
         "overrides": {
             "network-default-interface-type": "WIFI",
             "deep-sleep-latency": 0
         },
-        "detect_code": [
-            "1912"
-        ],
-        "macros_remove": [
-            "CYBSP_WIFI_CAPABLE",
-            "MBED_TICKLESS"
-        ],
         "config": {
             "np_cloud_disable": {
                 "help": "Value: Tells the np to connect to cloud or not",
@@ -6237,10 +6443,6 @@
                 "help": "Value: Tells the np to connect to wifi with its network credentials or wait till cp provides network credentials to it",
                 "value": false
             }
-        },
-        "forced_reset_timeout": 5,
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
         }
     },
     "GD32_Target": {
@@ -6558,7 +6760,34 @@
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
-},
+    },
+    "S1SBP6A": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "supported_toolchains": [
+            "GCC_ARM",
+            "ARMC6"
+        ],
+        "default_toolchain": "GCC_ARM",
+        "extra_labels": [
+            "Samsung",
+            "SIDK_S1SBP6A"
+        ],
+        "device_has": [
+            "USTICKER",
+            "INTERRUPTIN",
+            "SERIAL",
+            "MPU",
+            "SPI",
+            "I2C",
+            "RTC",
+            "FLASH",
+            "SLEEP",
+            "WATCHDOG"
+        ],
+        "release_versions": ["5"],
+        "detect_code": ["3703"]
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false

@@ -69,6 +69,10 @@
 
 #define PAN_VERSION_CHANGE_INTERVAL 3
 
+/* If PAN version lifetime would be 10 minutes, 1000 increments is about 7 days i.e. storage must
+   be written at least once a week */
+#define PAN_VERSION_STORAGE_READ_INCREMENT    1000
+
 // RPL version number update intervall
 // after restart version numbers are increased faster and then slowed down when network is stable
 #define RPL_VERSION_LIFETIME 12*3600

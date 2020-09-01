@@ -18,6 +18,8 @@
 #include "PalGap.h"
 #include "hci_api.h"
 #include "dm_api.h"
+#include "dm_main.h"
+#include "dm_conn.h"
 
 namespace ble {
 
@@ -322,12 +324,21 @@ ble_error_t PalGap::create_connection(
 
 ble_error_t PalGap::cancel_connection_creation()
 {
-    DmConnClose(
-        DM_CLIENT_ID_APP,
-        /* connection handle - invalid */ DM_CONN_ID_NONE,
-        /* reason - invalid (use success) */ 0x00
-    );
-    return BLE_ERROR_NONE;
+    ble_error_t error = BLE_ERROR_OPERATION_NOT_PERMITTED;
+
+    for (uint8_t connection_id = 0; connection_id < DM_CONN_MAX; connection_id++) {
+        if (dmConnCb.ccb[connection_id].inUse &&
+            dmConnCb.ccb[connection_id].state == DM_CONN_SM_ST_CONNECTING) {
+            DmConnClose(
+                DM_CLIENT_ID_APP,
+                /* connection handle */ connection_id + 1 /* connection IDs start at 1 */,
+                /* reason - invalid (use success) */ 0x00
+            );
+        }
+        error = BLE_ERROR_NONE;
+    }
+
+    return error;
 }
 
 

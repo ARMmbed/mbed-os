@@ -1,0 +1,18 @@
+{
+    "oem_priv_key": {
+        "crv": "P-256",
+        "d": "JVozA1oRvg-zSotMUbrGebV3oBhBaF1mqUyEn_Fdcqc",
+        "kty": "EC",
+        "use": "sig",
+        "x": "vfb7_jewTxpFVINcXdrZQJBArC5igrN0BLc783FigrM",
+        "y": "9rBBUKXzpj1A5K7fxPtEaJdsfo7Jj_wsF7LTZLc-sPM"
+    },
+    "oem_pub_key": {
+        "crv": "P-256",
+        "kty": "EC",
+        "use": "sig",
+        "kid": "5",
+        "x": "vfb7_jewTxpFVINcXdrZQJBArC5igrN0BLc783FigrM",
+        "y": "9rBBUKXzpj1A5K7fxPtEaJdsfo7Jj_wsF7LTZLc-sPM"
+    }
+}

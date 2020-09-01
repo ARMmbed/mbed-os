@@ -631,7 +631,6 @@ ble_error_t Gap::cancelConnect()
     return _pal_gap.cancel_connection_creation();
 }
 
-
 ble_error_t Gap::readPhy(ble::connection_handle_t connection)
 {
     return _pal_gap.read_phy(connection);

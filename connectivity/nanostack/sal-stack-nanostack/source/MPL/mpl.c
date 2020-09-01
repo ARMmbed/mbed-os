@@ -498,6 +498,7 @@ static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *me
     memcpy(buf->src_sa.address, message->message + IPV6_HDROFF_SRC_ADDR, 16);
 
     ipv6_transmit_multicast_on_interface(buf, domain->interface);
+    tr_debug("MPL transmit %u", mpl_buffer_sequence(message));
 }
 
 static void mpl_buffer_inconsistent(const mpl_domain_t *domain, mpl_buffered_message_t *message)
@@ -853,6 +854,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     const uint8_t *seed_id = opt_data + 2;
     uint8_t seed_id_len = mpl_seed_id_len(seed_id_type);
 
+    tr_debug("MPL %s %"PRIu8, seeding ? "transmit" : "received", sequence);
     /* Special handling - just ignore the MPL option if receiving loopback copy.
      * (MPL gets to process the outgoing message, and with seeding true - when
      * looping back, we want to accept it without MPL getting in the way).

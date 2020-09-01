@@ -52,17 +52,34 @@ set_status()
 #
 # Sources a pre-compiled GCC installation from AWS, installing the archive by
 #  extracting and prepending the executable directory to PATH.
+# Ccache is enabled for `arm-none-eabi-`.
 # 
 # Note: Expects 'deps_url' and 'deps_dir' to already be defined.
 # 
-_install_gcc()
+_install_gcc_and_ccache()
 {
+  # Enable Ccache in Travis
+  ccache -o compiler_check=content
+  ccache -M 1G
+  pushd /usr/lib/ccache
+  sudo ln -s ../../bin/ccache arm-none-eabi-gcc
+  sudo ln -s ../../bin/ccache arm-none-eabi-g++
+  export "PATH=/usr/lib/ccache:${PATH}"
+  popd
+
+  # Legacy Mbed build tool passes a new time stamp in commmand line argument
+  # every time mbed-os is built. This causes ccache cache miss. But there is a
+  # provision to read the time stamp from environment variable
+  # (MBED_BUILD_TIMESTAMP). Setting this variable to a fixed value improves
+  # ccache cache hits.
+  export "MBED_BUILD_TIMESTAMP=0"
+
   # Ignore shellcheck warnings: Variables defined in .travis.yml
   # shellcheck disable=SC2154
-  local url="${deps_url}/gcc6-linux.tar.bz2"
+  local url="${deps_url}/gcc9-linux.tar.bz2"
 
   # shellcheck disable=SC2154
-  local gcc_path="${deps_dir}/gcc/gcc-arm-none-eabi-6-2017-q2-update/"
+  local gcc_path="${deps_dir}/gcc/gcc-arm-none-eabi-9-2019-q4-major"
 
   local archive="gcc.tar.bz2"
   
@@ -82,7 +99,7 @@ _install_gcc()
   fi
   
   info "Installing 'gcc'"
-  export "PATH=${gcc_path}/bin:${PATH}"
+  export "PATH=${PATH}:${gcc_path}/bin"
 } 
 
 
@@ -184,7 +201,7 @@ source_pkg()
       ;;
 
     "gcc" )
-      _install_gcc \
+      _install_gcc_and_ccache \
         || die "Installation failed"
       ;;
 

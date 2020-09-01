@@ -35,6 +35,7 @@ void ws_bbr_dhcp_address_lifetime_set(protocol_interface_info_entry_t *cur, uint
 
 bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur);
 
+bool ws_bbr_backbone_address_get(uint8_t *address);
 
 #else
 
@@ -44,6 +45,7 @@ bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur);
 #define ws_bbr_rpl_config( cur, imin, doubling, redundancy, dag_max_rank_increase, min_hop_rank_increase)
 #define ws_bbr_dhcp_address_lifetime_set(cur, dhcp_address_lifetime)
 #define ws_bbr_ready_to_start(cur) true
+#define ws_bbr_backbone_address_get(address) 0
 
 #endif //HAVE_WS_BORDER_ROUTER
 

@@ -53,35 +53,35 @@ void ws_pae_timers_gtk_time_settings_set(sec_timer_cfg_t *timer_settings, uint8_
 /**
  *  ws_pae_timers_gtk_new_install_required GTK new install required check
  *
- * \param timer_settings timer settings
+ * \param sec_cfg security configuration
  * \param seconds elapsed seconds
  *
  * \return true new GTK install required expired
  * \return false GTK install not required
  *
  */
-bool ws_pae_timers_gtk_new_install_required(sec_timer_cfg_t *timer_settings, uint32_t seconds);
+bool ws_pae_timers_gtk_new_install_required(sec_cfg_t *sec_cfg, uint32_t seconds);
 
 /**
  *  ws_pae_timers_gtk_new_activation_time GTK new activation time
  *
- * \param timer_settings timer settings
+ * \param sec_cfg security configuration
  * \param seconds elapsed seconds
  *
  * \return true GTK new activation time expired
  * \return false GTK new activation time not expired
  *
  */
-bool ws_pae_timers_gtk_new_activation_time(sec_timer_cfg_t *timer_settings, uint32_t seconds);
+bool ws_pae_timers_gtk_new_activation_time(sec_cfg_t *sec_cfg, uint32_t seconds);
 
 /**
  *  ws_pae_timers_gtk_revocation_lifetime_get GTK revocation lifetime get
  *
- * \param timer_settings timer settings
+ * \param sec_cfg security configuration
  *
  * \return GTK revocation lifetime
  *
  */
-uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_timer_cfg_t *timer_settings);
+uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_cfg_t *sec_cfg);
 
 #endif /* WS_PAE_TIMERS_H_ */

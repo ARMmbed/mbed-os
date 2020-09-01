@@ -419,6 +419,19 @@ uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type)
     return kmp_count;
 }
 
+kmp_api_t *ws_pae_lib_supp_list_kmp_receive_check(supp_list_t *supp_list, const void *pdu, uint16_t size)
+{
+    ns_list_foreach(supp_entry_t, entry, supp_list) {
+        ns_list_foreach(kmp_entry_t, kmp_entry, &entry->kmp_list) {
+            if (kmp_api_receive_check(kmp_entry->kmp, pdu, size)) {
+                return kmp_entry->kmp;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 supp_entry_t *ws_pae_lib_supp_list_entry_retry_timer_get(supp_list_t *supp_list)
 {
     supp_entry_t *retry_supp = NULL;

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_drv.h
-* \version 1.40.1
+* \version 1.40.2
 *
 * Provides an API declaration of the IPC driver.
 *
@@ -114,9 +114,21 @@
 * \section group_ipc_pipe_layer PIPE layer
 *
 * A pipe is a communication channel between two endpoints. PSoC 6 devices support
-* 16 IPC channels, and 16 IPC interrupts, each numbered 0-15. IPC Channels 0-7
-* and IPC interrupts 0-7 are reserved for system use. Channels 8-15 and
-* interrupts 8-15 are available for application use.
+* 16 IPC channels, and 16 IPC interrupts, each numbered 0-15.
+* Following IPC Channels and IPC interrupts are reserved for system use:
+* <table class="doxtable">
+*   <tr><th>IPC Resource</th><th>PSoC 61 / PSoC 62 / PSoC 63 </th><th>PSoC 64</th></tr>
+*   <tr>
+*     <td>IPC channels (16 available)</td>
+*     <td>8 reserved (0-7)</td>
+*     <td>13 reserved (0-12)</td>
+*   </tr>
+*   <tr>
+*     <td>IPC interrupts (16 available)</td>
+*     <td>8 reserved (0-7)</td>
+*     <td>13 reserved (0-12)</td>
+*   </tr>
+* </table>
 *
 * A full duplex pipe uses two IPC channels, one per endpoint. Each endpoint
 * specifies all the information required to process a message (either sent or
@@ -250,6 +262,13 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.40.2</td>
+*     <td>Updated information about IPC resources reserved for the system usage
+*         in \ref group_ipc_pipe_layer section.
+*     </td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.40.1</td>
 *     <td>Minor documentation updates.</td>

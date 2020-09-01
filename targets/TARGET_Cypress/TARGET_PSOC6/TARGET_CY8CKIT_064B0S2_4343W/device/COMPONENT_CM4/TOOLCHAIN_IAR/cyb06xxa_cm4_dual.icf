@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cyb06xxa_cm4_dual.icf
-* \version 2.80
+* \version 2.90
 *
 * Linker file for the IAR compiler.
 *
@@ -65,7 +65,7 @@ if (!isdefinedsymbol(MBED_APP_START)) {
 }
 
 if (!isdefinedsymbol(MBED_ROM_SIZE)) {
-  define symbol MBED_ROM_SIZE = 0x00E8000;
+  define symbol MBED_ROM_SIZE = 0x000E8000;
 }
 
 /* MBED_APP_SIZE is being  used by the bootloader build script and
@@ -267,7 +267,7 @@ keep {  section .cy_m0p_image,
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 define exported symbol __cy_memory_0_start    = 0x10000000;
-define exported symbol __cy_memory_0_length   = 0x00200000;
+define exported symbol __cy_memory_0_length   = 0x001D0000;
 define exported symbol __cy_memory_0_row_size = 0x200;
 
 /* Emulated EEPROM Flash area */

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6.h
-* \version 2.80
+* \version 2.90
 *
 * \brief Device system header file.
 *
@@ -85,20 +85,20 @@
 * \endcode
 *
 * Change the value of the \ref CY_CORTEX_M4_APPL_ADDR macro to the ROM ORIGIN's
-* value (0x10000000) + FLASH_CM0P_SIZE value (0x2000, the size of a flash image 
-* of the Cortex-M0+ application should be the same value as the flash LENGTH in 
-* 'xx_cm0plus.ld') in the 'xx_cm4_dual.ld' file, where 'xx' is the device group. 
+* value (0x10000000) + FLASH_CM0P_SIZE value (0x2000, the size of a flash image
+* of the Cortex-M0+ application should be the same value as the flash LENGTH in
+* 'xx_cm0plus.ld') in the 'xx_cm4_dual.ld' file, where 'xx' is the device group.
 * Do this by either:
 * - Passing the following commands to the compiler:\n
 * \code -D CY_CORTEX_M4_APPL_ADDR=0x10002000 \endcode
 * or
-* - Editing the \ref CY_CORTEX_M4_APPL_ADDR value in the 'system_xx.h', where 
+* - Editing the \ref CY_CORTEX_M4_APPL_ADDR value in the 'system_xx.h', where
 * 'xx' is the device family:\n
 * \code #define CY_CORTEX_M4_APPL_ADDR (0x10002000u) \endcode
 *
 * <b>ARM Compiler</b>\n
 * The flash and RAM sections for the CPU are defined in the linker files:
-* 'xx_yy.sct', where 'xx' is the device group, and 'yy' is the target CPU; for 
+* 'xx_yy.sct', where 'xx' is the device group, and 'yy' is the target CPU; for
 * example 'cy8c6xx7_cm0plus.sct' and 'cy8c6xx7_cm4_dual.sct'.
 * \note If the start of the Cortex-M4 application image is changed, the value
 * of the of the \ref CY_CORTEX_M4_APPL_ADDR should also be changed. The
@@ -135,9 +135,9 @@
 * \endcode
 *
 * Change the value of the \ref CY_CORTEX_M4_APPL_ADDR macro to the FLASH_START
-* value (0x10000000) + FLASH_CM0P_SIZE value (0x2000, the size of a flash image 
-* of the Cortex-M0+ application should be the same value as the FLASH_SIZE in the 
-* 'xx_cm0plus.sct') in the 'xx_cm4_dual.sct' file, where 'xx' is the device group. 
+* value (0x10000000) + FLASH_CM0P_SIZE value (0x2000, the size of a flash image
+* of the Cortex-M0+ application should be the same value as the FLASH_SIZE in the
+* 'xx_cm0plus.sct') in the 'xx_cm4_dual.sct' file, where 'xx' is the device group.
 * Do this by either:
 * - Passing the following commands to the compiler:\n
 * \code -D CY_CORTEX_M4_APPL_ADDR=0x10002000 \endcode
@@ -175,11 +175,11 @@
 * define symbol __ICFEDIT_region_IRAM1_end__   = 0x080477FF;
 * \endcode
 *
-* Change the value of the \ref CY_CORTEX_M4_APPL_ADDR macro to the 
-* __ICFEDIT_region_IROM1_start__ value (0x10000000) + FLASH_CM0P_SIZE value 
-* (0x2000, the size of a flash image of the Cortex-M0+ application) in the 
+* Change the value of the \ref CY_CORTEX_M4_APPL_ADDR macro to the
+* __ICFEDIT_region_IROM1_start__ value (0x10000000) + FLASH_CM0P_SIZE value
+* (0x2000, the size of a flash image of the Cortex-M0+ application) in the
 * 'xx_cm4_dual.icf' file, where 'xx' is the device group. The sum result
-* should be the same as (__ICFEDIT_region_IROM1_end__ + 1) value in the 
+* should be the same as (__ICFEDIT_region_IROM1_end__ + 1) value in the
 * 'xx_cm0plus.icf'. Do this by either:
 * - Passing the following commands to the compiler:\n
 * \code -D CY_CORTEX_M4_APPL_ADDR=0x10002000 \endcode
@@ -212,8 +212,8 @@
 * -# Editing source code files
 * -# Specifying via command line
 *
-* By default, the stack size is set to 0x00001000 and the heap size is allocated 
-* dynamically to the whole available free memory up to stack memory and it 
+* By default, the stack size is set to 0x00001000 and the heap size is allocated
+* dynamically to the whole available free memory up to stack memory and it
 * is set to the 0x00000400 (for ARM GCC and IAR compilers) as minimal value.
 *
 * \subsubsection group_system_config_heap_stack_config_gcc ARM GCC
@@ -321,13 +321,18 @@
 *       <th>Reason for Change</th>
 *   </tr>
 *   <tr>
+*     <td>2.90</td>
+*     <td>Updated linker scripts for PSoC 64 Secure MCU cyb06xx7 devices.</td>
+*     <td>Flash allocation adjustment.</td>
+*   </tr>
+*   <tr>
 *       <td rowspan="2">2.80</td>
 *       <td>Updated linker scripts for PSoC 64 Secure MCU devices.</td>
 *       <td>Updated FLASH and SRAM memory area definitions in cyb0xxx linker script templates
 *           in accordance with the PSoC 64 Secure Boot SDK policies.</td>
 *   </tr>
 *   <tr>
-*       <td>Added \ref Cy_PRA_Init() function call to \ref SystemInit() API for CM0+ core of PSoC 64 Secure MCU.</td>
+*       <td>Added \ref Cy_PRA_Init() call to \ref SystemInit() Cortex-M0+ and Cortex-M4 functions for PSoC 64 Secure MCU.</td>
 *       <td>Updated PSoC 64 Secure MCU startup sequence to initialize the Protected Register Access driver.</td>
 *   </tr>
 *   <tr>

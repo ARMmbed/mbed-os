@@ -131,4 +131,50 @@ int8_t arm_nwk_ipv6_opaque_iid_key(const void *secret_key, uint8_t key_len);
  */
 int8_t arm_nwk_ipv6_opaque_iid_enable(int8_t interface_id, bool enable);
 
+/**
+ * \brief Enable/disable default route in Router advertisements
+ *
+ * Enable or disable RFC 4861 Default router configuration in router advertisements.
+ * This makes the device a default router in the interface.
+ *
+ * \param interface_id Interface ID.
+ * \param enable True to enable.
+ * \return 0 enabled/disabled OK.
+ * \return <0 failed (for example invalid interface ID).
+ *
+ */
+int8_t arm_nwk_ipv6_default_route_enable(int8_t interface_id, bool enable);
+
+/**
+ * \brief add Recursive DNS Server Option information to Router advertisements
+ *
+ * Add Recursive DNS Server Option from RFC 8106 to router advertisements.
+ * This makes it possible to configure DNS server address to other devices connected to the interface.
+ *
+ * \param interface_id Interface ID.
+ * \param address 16 byte array for IPv6 address.
+ * \param lifetime advertised lifetime of the entry. 0 to delete address.
+ * \return 0 DNS server option option successful.
+ * \return <0 failed (for example invalid interface ID).
+ *
+ */
+int8_t arm_nwk_ipv6_dns_server_add(int8_t interface_id, uint8_t *address, uint32_t lifetime);
+
+/**
+ * \brief add DNS Search List Option information to Router advertisements
+ *
+ * Add DNS Search List Option from RFC 8106 to router advertisements.
+ * This makes it possible to configure DNS search list to other devices connected to the interface.
+ *
+ * \param interface_id Interface ID.
+ * \param data byte array encoded following https://tools.ietf.org/html/rfc1035#section-3.1.
+ * \param data_len Length of the byte array
+ * \param lifetime advertised lifetime of the entry. 0 to delete address.
+ * \return 0 DNS server option option successful.
+ * \return <0 failed (for example invalid interface ID).
+ *
+ */
+int8_t arm_nwk_ipv6_dns_search_list_add(int8_t interface_id, uint8_t *data, uint16_t data_len, uint32_t lifetime);
+
+
 #endif /* NET_IPV6_API_H_ */
