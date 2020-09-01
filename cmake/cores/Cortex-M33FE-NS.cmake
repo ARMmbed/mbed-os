@@ -29,7 +29,7 @@ function(mbed_set_cpu_core_options target mbed_toolchain)
             PUBLIC
                 $<$<COMPILE_LANGUAGE:C>:${compile_options}>
                 $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
-                $<$<COMPILE_LANGUAGE:ASM>:--cpu=Cortex-M33>
+                $<$<COMPILE_LANGUAGE:ASM>:-mcpu=Cortex-M33>
         )
 
         target_link_options(${target}
