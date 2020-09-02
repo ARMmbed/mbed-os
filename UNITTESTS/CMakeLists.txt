@@ -126,6 +126,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../drivers/include/drivers"
   "${PROJECT_SOURCE_DIR}/../drivers/include/drivers/internal"
   "${PROJECT_SOURCE_DIR}/../hal"
+  "${PROJECT_SOURCE_DIR}/../hal/include"
   "${PROJECT_SOURCE_DIR}/../events/include"
   "${PROJECT_SOURCE_DIR}/../events/include/events/internal"
   "${PROJECT_SOURCE_DIR}/../events/source"

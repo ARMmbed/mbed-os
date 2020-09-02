@@ -17,6 +17,8 @@
 ^storage/filesystem/littlefsv2/littlefs/
 ^features/unsupported/
 ^hal/storage_abstraction
+^hal/tests/TESTS/mbed_hal/trng/pithy
+^hal/tests/TESTS/mbed_hal/trng/pithy
 ^platform/cxxsupport
 ^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
 ^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
@@ -25,8 +27,6 @@
 ^rtos/source/TARGET_CORTEX/rtx4
 ^rtos/source/TARGET_CORTEX/rtx5
 ^targets
-^TESTS/mbed_hal/trng/pithy
-^TESTS/mbed_hal/trng/pithy
 ^tools
 ^UNITTESTS
 ^storage/blockdevice/tests/UNITTESTS
