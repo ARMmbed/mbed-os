@@ -61,6 +61,9 @@ typedef enum {
     SEC_PROT_TX_ERR_UNSPEC = -2,              // Other reason
 } sec_prot_tx_status_e;
 
+// On security protocol send, do not deallocate pdu buffer
+#define SEC_PROT_SEND_FLAG_NO_DEALLOC         0x01
+
 /**
  * sec_prot_create_request KMP-CREATE.request to security protocol
  *
@@ -128,6 +131,7 @@ typedef void sec_prot_finished_send(sec_prot_t *prot);
  * \param prot protocol
  * \param pdu pdu
  * \param size pdu size
+ * \param conn_number connection number
  *
  * \return < 0 failure
  * \return >= 0 success
@@ -147,6 +151,35 @@ typedef int8_t sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size);
  *
  */
 typedef int8_t sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size);
+
+/**
+ * sec_prot_conn_receive receive a message for a connection number
+ *
+ * \param prot protocol
+ * \param pdu pdu
+ * \param size pdu size
+ * \param conn_number connection number
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t sec_prot_conn_receive(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number);
+
+/**
+ * sec_prot_conn_send send a message for a connection number and/or with flags
+ *
+ * \param prot protocol
+ * \param pdu pdu
+ * \param size pdu size
+ * \param conn_number connection number
+ * \param flags flags
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number, uint8_t flags);
 
 /**
  * sec_prot_tx_status_ind tx status indication
@@ -185,6 +218,14 @@ typedef void sec_prot_state_machine(sec_prot_t *prot);
 typedef void sec_prot_state_machine_call(sec_prot_t *prot);
 
 /**
+ * sec_prot_cont_timer_timeout cont timer timeout
+ *
+ * \param ticks timer ticks
+ *
+ */
+typedef void sec_prot_cont_timer_timeout(uint16_t ticks);
+
+/**
  * sec_prot_timer_start start timer
  *
  * \param prot protocol
@@ -208,6 +249,55 @@ typedef void sec_prot_timer_stop(sec_prot_t *prot);
  *
  */
 typedef void sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
+
+/**
+ * sec_prot_shared_comp_timer_timeout shared component timer timeout
+ *
+ * \param ticks timer ticks
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t sec_prot_shared_comp_timer_timeout(uint16_t ticks);
+
+/**
+ * sec_prot_shared_comp_delete shared component delete
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t sec_prot_shared_comp_delete(void);
+
+typedef struct {
+    sec_prot_shared_comp_timer_timeout *timeout;
+    sec_prot_shared_comp_delete *delete;
+} shared_comp_data_t;
+
+/**
+ * sec_prot_shared_comp_add add shared component
+ *
+ * \param prot protocol
+ * \param data shared component data
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t sec_prot_shared_comp_add(sec_prot_t *prot, shared_comp_data_t *data);
+
+/**
+ * sec_prot_shared_comp_remove remove shared component
+ *
+ * \param prot protocol
+ * \param data shared component data
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t sec_prot_shared_comp_remove(sec_prot_t *prot, shared_comp_data_t *data);
 
 /**
  * sec_prot_eui64_addr_get gets EUI-64 addresses
@@ -277,7 +367,10 @@ struct sec_prot_s {
 
     sec_prot_send                 *send;                 /**< Protocol send */
     sec_prot_receive              *receive;              /**< Protocol receive */
+    sec_prot_conn_send            *conn_send;            /**< Protocol connection send */
+    sec_prot_conn_receive         *conn_receive;         /**< Protocol connection receive */
     sec_prot_receive              *receive_peer;         /**< Protocol receive from peer (used by peer protocol for send) */
+    sec_prot_delete               *peer_deleted;         /**< Protocol peer has been deleted (notifies that peer no longer exists */
 
     sec_prot_tx_status_ind        *tx_status_ind;        /**< TX status indication */
 
@@ -290,6 +383,9 @@ struct sec_prot_s {
     sec_prot_timer_stop           *timer_stop;           /**< Stop timer */
     sec_prot_timer_timeout        *timer_timeout;        /**< Timer timeout */
 
+    sec_prot_shared_comp_add      *shared_comp_add;      /**< Shared component add */
+    sec_prot_shared_comp_remove   *shared_comp_remove;   /**< Shared component remove */
+
     sec_prot_eui64_addr_get       *addr_get;             /**< Gets EUI-64 addresses */
     sec_prot_ip_addr_get          *ip_addr_get;          /**< Gets IP address */
     sec_prot_by_type_get          *type_get;             /**< Gets security protocol by type */
@@ -300,6 +396,7 @@ struct sec_prot_s {
     sec_cfg_t                     *sec_cfg;              /**< Security configuration configuration pointer */
     uint8_t                       header_size;           /**< Header size */
     uint8_t                       receive_peer_hdr_size; /**< Receive from peer header size */
+    uint8_t                       number_of_conn;        /**< Number of connections */
     uint8_t                       msg_if_instance_id;    /**< Message interface instance identifier */
     sec_prot_int_data_t           *data;                 /**< Protocol internal data */
 };

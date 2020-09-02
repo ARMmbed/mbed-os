@@ -67,6 +67,7 @@ SRCS += \
 	source/libNET/src/net_mle.c \
 	source/libNET/src/net_rpl.c \
 	source/libNET/src/net_load_balance.c \
+	source/libNET/src/net_dns.c \
 	source/libNET/src/ns_net.c \
 	source/libNET/src/socket_api.c \
 	source/libNET/src/multicast_api.c \

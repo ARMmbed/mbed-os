@@ -204,7 +204,6 @@ typedef struct protocol_interface_rf_mac_setup {
     bool macBroadcastDisabled: 1;
     bool scan_active: 1;
     bool rf_csma_extension_supported: 1;
-    bool ack_tx_possible: 1;
     uint16_t mac_short_address;
     uint16_t pan_id;
     uint8_t mac64[8];

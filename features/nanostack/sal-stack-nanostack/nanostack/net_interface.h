@@ -869,6 +869,74 @@ extern int8_t arm_net_address_add_to_interface(int8_t interface_id, const uint8_
 extern int8_t arm_net_address_delete_from_interface(int8_t interface_id, const uint8_t address[16]);
 
 /**
+ * \brief A function to Get DNS server address learned by the interface setup
+ *
+ * If interface has learned DNS server address during the setup it can be used by
+ * the DNS client in that interface. This may return more than one address with DNS search list
+ *
+ * DNS server address can be learned from multiple routes
+ * * Router advertisements from Ethernet or LTE interfaces
+ * * DHCPv6 address generation
+ *
+ * If this address is not working DNS client should retry queries to other DNS servers
+ *
+ * Address is written to the buffer of the caller.
+ *
+ * DNS search list is given as pointer to stack memory where the data is present.
+ *
+ * This function should be called in loop with increasing index value starting
+ * from 0 until error is returned.
+ *
+ * \param interface_id Network interface ID. If set to -1 all interfaces are used
+ * \param address The address of the DNS server.
+ * \param dns_search_list_ptr pointer of pointer where dns search list data is pointing.
+ * \param dns_search_list_len pointer where.length of search list data
+ * \param index DNS address index that is read by the client. if that index is not available < -1 returned
+ *
+ * \return 0 on success, -1 on errors.
+ */
+extern int8_t arm_net_dns_server_get(int8_t interface_id, uint8_t address[16], uint8_t **dns_search_list_ptr, uint8_t *dns_search_list_len, uint8_t index);
+
+/**
+ * \brief A function to store cached DNS Query results
+ *
+ * Possibility to store or clear DNS query results to the stack.
+ *
+ * These are static query results that can be entered to specific interface.
+ * These are bound to single interface to allow making the actual query through other interface
+ *
+ * Lifetime should be set in value where new DNS entry is refreshed by application.
+ * This would be useful in case where servers are having DNS based load balancing.
+ *
+ * \param interface_id Network interface ID.
+ * \param address The IPv6 address of the domain. NULL to delete
+ * \param domain_name_ptr Domain name of the host.
+ * \param lifetime Lifetime of the entry 0 to delete.
+ *
+ * \return 0 on success, < 0 on errors.
+ */
+extern int8_t arm_net_dns_query_result_set(int8_t interface_id, const uint8_t address[16], const char *domain_name_ptr, uint32_t lifetime);
+
+/**
+ * \brief A function to Get cached DNS Query results
+ *
+ * If interface has learned DNS query results during the setup or operation.
+ *
+ * These are static query results that should be checked if the DNS did not find own
+ * cache entry.
+ *
+ * These will be updated during the lifetime and can be unavailable some time during
+ * the operation. This function should be called always to see if there is more recent data available.
+ *
+ * \param interface_id Network interface ID.  If set to -1 all interfaces are used
+ * \param address Return the IPv6 address of the domain.
+ * \param domain_name_ptr Domain name where address query is made.
+ *
+ * \return 0 on success, -1 on errors.
+ */
+extern int8_t arm_net_dns_query_result_get(int8_t interface_id, uint8_t address[16], char *domain_name_ptr);
+
+/**
  * \brief A function to add a route to the routing table.
  * \param prefix Destination prefix for the route to be added.
  * \param prefix_len The length of the prefix.

@@ -100,7 +100,7 @@ typedef struct {
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 #define MAX_NEIGH_TEMPORARY_MULTICAST_SIZE 5
-#define MAX_NEIGH_TEMPORRY_EAPOL_SIZE 30
+#define MAX_NEIGH_TEMPORRY_EAPOL_SIZE 20
 #define MAX_NEIGH_TEMPORAY_LIST_SIZE (MAX_NEIGH_TEMPORARY_MULTICAST_SIZE + MAX_NEIGH_TEMPORRY_EAPOL_SIZE)
 
 typedef struct {
@@ -465,10 +465,16 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
         }
     }
     //ETX update
+    llc_neighbour_req_t neighbor_info;
+    neighbor_info.ws_neighbor = NULL;
+    neighbor_info.neighbor = NULL;
     if (message->ack_requested && messsage_type == WS_FT_DATA) {
-        llc_neighbour_req_t neighbor_info;
+
         bool success = false;
 
+        if (message->dst_address_type == MAC_ADDR_MODE_64_BIT) {
+            base->ws_neighbor_info_request_cb(interface, message->dst_address, &neighbor_info, false);
+        }
         switch (data->status) {
             case MLME_SUCCESS:
             case MLME_TX_NO_ACK:
@@ -477,7 +483,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                     success = true;
                 }
 
-                if (message->dst_address_type == MAC_ADDR_MODE_64_BIT && base->ws_neighbor_info_request_cb(interface, message->dst_address, &neighbor_info, false)) {
+                if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime == WS_NEIGHBOR_LINK_TIMEOUT) {
                     etx_transm_attempts_update(interface->id, 1 + data->tx_retries, success, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
                     //TODO discover RSL from Enchanced ACK Header IE elements
                     ws_utt_ie_t ws_utt;
@@ -487,7 +493,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                             neighbor_info.neighbor->lifetime = neighbor_info.neighbor->link_lifetime;
                         }
 
-                        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp);
+                        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, neighbor_info.neighbor->mac64);
                     }
 
                     int8_t rsl;
@@ -500,6 +506,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
             default:
                 break;
         }
+
     }
     //Free message
     llc_message_free(message, base);
@@ -528,6 +535,12 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                 //Start A pending EAPOL
                 ns_list_remove(&base->temp_entries->llc_eap_pending_list, message);
                 ws_llc_mpx_eapol_send(base, message);
+            }
+        } else {
+            if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
+                //Remove temp neighbour
+                tr_debug("Remove Temp Entry by TX confirm");
+                mac_neighbor_table_neighbor_remove(mac_neighbor_info(interface), neighbor_info.neighbor);
             }
         }
 
@@ -689,7 +702,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         return;
     }
 
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp);
+    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
     if (us_ie_inline) {
         ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie, &interface->ws_info->hopping_schdule);
     }
@@ -711,7 +724,8 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         neighbor_info.ws_neighbor->unicast_data_rx = true;
     }
 
-    // Calculate RSL for all UDATA packages heard
+    // Calculate RSL for all UDATA packets heard
+    ws_neighbor_class_rf_sensitivity_calculate(interface->ws_info->device_min_sens, data->signal_dbm);
     ws_neighbor_class_rsl_in_calculate(neighbor_info.ws_neighbor, data->signal_dbm);
 
     if (neighbor_info.neighbor) {
@@ -795,7 +809,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
         temp_entry->signal_dbm = data->signal_dbm;
     }
     uint8_t auth_eui64[8];
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp);
+    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
     if (us_ie_inline) {
         ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie, &interface->ws_info->hopping_schdule);
     }
