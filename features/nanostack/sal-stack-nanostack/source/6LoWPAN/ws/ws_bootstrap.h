@@ -86,13 +86,15 @@ bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct protocol_
 
 bool ws_bootstrap_validate_channel_function(struct ws_us_ie *ws_us, struct ws_bs_ie *ws_bs);
 
-void ws_bootstrap_eapol_rx_temporary_set(struct protocol_interface_info_entry *interface, const uint8_t *src64);
-
 struct ws_neighbor_class_entry *ws_bootstrap_eapol_tx_temporary_set(struct protocol_interface_info_entry *interface, const uint8_t *src64);
 
 void ws_bootstrap_eapol_tx_temporary_clear(struct protocol_interface_info_entry *interface);
 
+void ws_bootstrap_neighbor_set_stable(struct protocol_interface_info_entry *interface, const uint8_t *src64);
+
 int ws_bootstrap_get_info(protocol_interface_info_entry_t *cur, struct ws_stack_info *info_ptr);
+
+void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_entry *interface, const uint8_t *src64, uint32_t valid_time);
 
 #else
 
@@ -101,9 +103,11 @@ int ws_bootstrap_get_info(protocol_interface_info_entry_t *cur, struct ws_stack_
 #define ws_bootstrap_restart(cur)
 #define ws_bootstrap_neighbor_remove(cur, ll_address)
 #define ws_bootstrap_aro_failure(cur, ll_address)
+#define ws_bootstrap_neighbor_set_stable(interface, src64)
 #define ws_bootstrap_primary_parent_update(interface, neighbor)
 #define ws_bootstrap_secondary_parent_update(interface)
 #define ws_bootstrap_get_info(cur, info_ptr)
+
 
 #endif //HAVE_WS
 
