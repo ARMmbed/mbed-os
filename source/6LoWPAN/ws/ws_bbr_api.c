@@ -41,6 +41,8 @@
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
 #include "DHCPv6_client/dhcpv6_client_api.h"
+#include "libNET/src/net_dns_internal.h"
+
 
 #include "ws_bbr_api.h"
 
@@ -72,6 +74,9 @@ static uint8_t current_local_prefix[8] = {0};
 static uint8_t current_global_prefix[16] = {0}; // DHCP requires 16 bytes prefix
 static uint32_t bbr_delay_timer = BBR_CHECK_INTERVAL; // initial delay.
 static uint32_t global_prefix_unavailable_timer = 0; // initial delay.
+
+static uint8_t *dhcp_vendor_data_ptr = NULL;
+static uint8_t dhcp_vendor_data_len = 0;
 
 static rpl_dodag_conf_t rpl_conf = {
     // Lifetime values
@@ -363,6 +368,23 @@ static bool wisun_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_upd
     wisun_bbr_na_send(backbone_interface_id, address_info->allocatedAddress);
     return true;
 }
+static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *cur)
+{
+    //add DNS server information to DHCP server that is learned from the backbone interface.
+    uint8_t dns_server_address[16];
+    uint8_t *dns_search_list_ptr = NULL;
+    uint8_t dns_search_list_len = 0;
+    (void)cur;
+    if (net_dns_server_get(backbone_interface_id, dns_server_address, &dns_search_list_ptr, &dns_search_list_len, 0) == 0) {
+        /*Only supporting one DNS server address*/
+        //DHCPv6_server_service_set_dns_server(cur->id, dns_server_address, dns_search_list_ptr, dns_search_list_len);
+    }
+
+    //TODO Generate vendor data in Wi-SUN network include the cached DNS query results in some sort of TLV format
+    (void)dhcp_vendor_data_ptr;
+    (void)dhcp_vendor_data_len;
+    //DHCPv6_server_service_set_vendor_data(cur->id, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
+}
 
 static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id, uint32_t dhcp_address_lifetime)
 {
@@ -383,6 +405,8 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
     DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
     DHCPv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
+
+    ws_bbr_dhcp_server_dns_info_update(cur);
 
     ws_dhcp_client_address_request(cur, global_id, ll);
 }
@@ -570,6 +594,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
             // Add also global prefix and route to RPL
             rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, current_global_prefix, 64, 0, WS_ROUTE_LIFETIME, false);
         }
+        ws_bbr_dhcp_server_dns_info_update(cur);
     }
 }
 void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
@@ -1134,6 +1159,66 @@ int ws_bbr_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret
     (void) interface_id;
     (void) shared_secret_len;
     (void) shared_secret;
+    return -1;
+#endif
+}
+
+int ws_bbr_radius_timing_set(int8_t interface_id, bbr_radius_timing_t *timing)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_radius_timing_set(interface_id, timing);
+#else
+    (void) interface_id;
+    (void) timing;
+    return -1;
+#endif
+}
+
+int ws_bbr_radius_timing_get(int8_t interface_id, bbr_radius_timing_t *timing)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_radius_timing_get(interface_id, timing);
+#else
+    (void) interface_id;
+    (void) timing;
+    return -1;
+#endif
+}
+
+int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_radius_timing_validate(interface_id, timing);
+#else
+    (void) interface_id;
+    (void) timing;
+    return -1;
+#endif
+}
+
+int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], char *domain_name_ptr)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !address || !domain_name_ptr) {
+        return -1;
+    }
+
+    /* This information is only stored to the DHCPv6 server where it is distributed to the network
+     *
+     * Border router stores a list of these entries and includes a function to parse and generate the vendor data output
+     *
+     * This is included in the vendor extension where the format is decided by the vendor
+     */
+    // TODO search if entry exists replace if address is NULL delete the entry
+    // TODO This information should expire if not updated by client
+
+    ws_bbr_dhcp_server_dns_info_update(cur);
+    return 0;
+#else
+    (void) interface_id;
+    (void) address;
+    (void) domain_name_ptr;
     return -1;
 #endif
 }

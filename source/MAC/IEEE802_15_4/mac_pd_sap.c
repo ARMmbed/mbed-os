@@ -453,37 +453,18 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
 
     if (status == PHY_LINK_CCA_PREPARE) {
 
-        if (rf_ptr->mac_ack_tx_active) {
-            //Accept direct non crypted acks and crypted only if neighbor is at list
-            if (rf_ptr->ack_tx_possible) {
-#ifdef TIMING_TOOL_TRACES
-                tr_info("%u TX_start %u", mac_mcps_sap_get_phy_timestamp(rf_ptr), rf_ptr->mac_channel);
-#endif
-                return PHY_TX_ALLOWED;
-            }
 
-            //Compare time to started time
-            if (mac_mcps_sap_get_phy_timestamp(rf_ptr) - rf_ptr->enhanced_ack_handler_timestamp > ENHANCED_ACK_NEIGHBOUR_POLL_MAX_TIME_US || mcps_generic_ack_build(rf_ptr, false) != 0) {
-                mac_data_ack_tx_finish(rf_ptr);
-            }
-
-            return PHY_TX_NOT_ALLOWED;
-        }
-
-        if (rf_ptr->mac_edfe_tx_active) {
-            return PHY_TX_ALLOWED;
+        if (rf_ptr->mac_ack_tx_active || rf_ptr->mac_edfe_tx_active) {
+            goto VALIDATE_TX_TIME;
         }
 
         if (mac_data_asynch_channel_switch(rf_ptr, rf_ptr->active_pd_data_request)) {
-#ifdef TIMING_TOOL_TRACES
-            tr_info("%u TX_start %u", mac_mcps_sap_get_phy_timestamp(rf_ptr), rf_ptr->mac_channel);
-#endif
             rf_ptr->active_pd_data_request->initial_tx_channel = rf_ptr->mac_channel;
             int8_t channel_cca_threshold = mac_cca_thr_get_dbm(rf_ptr, rf_ptr->mac_channel);
             if (CCA_FAILED_DBM != channel_cca_threshold) {
                 rf_ptr->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD, (uint8_t *)&channel_cca_threshold);
             }
-            return PHY_TX_ALLOWED;
+            goto VALIDATE_TX_TIME;
         }
 
         if (rf_ptr->fhss_api) {
@@ -525,10 +506,19 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
                 return PHY_RESTART_CSMA;
             }
         }
+VALIDATE_TX_TIME:
+        if (rf_ptr->active_pd_data_request && rf_ptr->active_pd_data_request->tx_time && !rf_ptr->mac_ack_tx_active && !rf_ptr->mac_edfe_tx_active) {
+            int32_t tx_time_error_us = mac_mcps_sap_get_phy_timestamp(rf_ptr) - rf_ptr->active_pd_data_request->tx_time;
+            // Positive error means that TX is too late. Do not allow transmit if transmission is delayed over 5ms
+            if (tx_time_error_us > 5000) {
+                mac_sap_cca_fail_cb(rf_ptr, 0xffff);
+                return PHY_TX_NOT_ALLOWED;
+            }
+        }
 #ifdef TIMING_TOOL_TRACES
         tr_info("%u TX_start %u", mac_mcps_sap_get_phy_timestamp(rf_ptr), rf_ptr->mac_channel);
 #endif
-        return 0;
+        return PHY_TX_ALLOWED;
     }
 
     if (rf_ptr->mac_ack_tx_active) {
@@ -851,6 +841,9 @@ static int8_t mac_pd_sap_generate_ack(protocol_interface_rf_mac_setup_s *rf_ptr,
         return 0;
     }
     if (rf_ptr->mac_ack_tx_active) {
+#ifdef __linux__
+        tr_debug("Drop a New ack by pending request");
+#endif
         return -1;
     }
 
@@ -861,18 +854,6 @@ static int8_t mac_pd_sap_generate_ack(protocol_interface_rf_mac_setup_s *rf_ptr,
 
     if (mcps_generic_ack_data_request_init(rf_ptr, fcf_read, pd_data_ind->data_ptr, &ack_payload) != 0) {
         return -1;
-    }
-
-
-    if (rf_ptr->enhanced_ack_buffer.fcf_dsn.securityEnabled == 0 || rf_ptr->enhanced_ack_buffer.aux_header.securityLevel == 0) {
-        //Unsecured data will be acked immediately
-        rf_ptr->ack_tx_possible = true;
-    } else {
-        if (mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode, rf_ptr->enhanced_ack_buffer.DstPANId)) {
-            rf_ptr->ack_tx_possible = true;
-        } else {
-            rf_ptr->ack_tx_possible = false;
-        }
     }
 
     return mcps_generic_ack_build(rf_ptr, true);
@@ -909,11 +890,17 @@ static mac_pre_parsed_frame_t *mac_pd_sap_allocate_receive_buffer(protocol_inter
     if (fcf_read->frametype != FC_ACK_FRAME) {
         if (!ns_monitor_packet_allocation_allowed()) {
             // stack can not handle new packets for routing
+#ifdef __linux__
+            tr_debug("Packet ingress drop buffer allocation");
+#endif
             return NULL;
         }
     }
     mac_pre_parsed_frame_t *buffer = mcps_sap_pre_parsed_frame_buffer_get(pd_data_ind->data_ptr, pd_data_ind->data_len);
     if (!buffer) {
+#ifdef __linux__
+        tr_debug("macPD buffer allocate fail %u", pd_data_ind->data_len);
+#endif
         return NULL;
     }
     //Copy Pre Parsed values
@@ -1004,6 +991,9 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         arm_pd_sap_generic_ind_t *pd_data_ind = &(message->message.generic_data_ind);
         mac_pre_parsed_frame_t *buffer = NULL;
         if (pd_data_ind->data_len == 0) {
+#ifdef TIMING_TOOL_TRACES
+            tr_info("Collission at RF?");
+#endif
             goto ERROR_HANDLER;
         }
 
@@ -1027,9 +1017,13 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 goto ERROR_HANDLER;
             }
             if (!mac_pd_sap_rx_filter(pd_data_ind->data_ptr, &fcf_read, rf_ptr->mac_frame_filters, rf_ptr->mac64, rf_ptr->mac_short_address, rf_ptr->pan_id)) {
+                pd_data_ind->data_len = 0; // Do not update RX drop in that case
                 goto ERROR_HANDLER;
             }
             if (mac_pd_sap_generate_ack(rf_ptr, &fcf_read, pd_data_ind)) {
+#ifdef __linux__
+                tr_debug("Drop a Data by ignored ACK generation");
+#endif
                 goto ERROR_HANDLER;
             }
             if (buffer) {
