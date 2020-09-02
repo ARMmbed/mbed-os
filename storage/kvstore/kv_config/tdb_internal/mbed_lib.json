@@ -45,6 +45,9 @@
         "CYTFM_064B0S2_4343W": {
             "internal_size": "0x8000",
             "internal_base_address": "0x10168000"
+        },
+        "NUMAKER_IOT_M252": {
+            "internal_size": "0x2000"
         }
     }
 }
