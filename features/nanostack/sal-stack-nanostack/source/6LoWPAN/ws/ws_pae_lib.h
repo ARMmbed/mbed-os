@@ -367,6 +367,18 @@ bool ws_pae_lib_supp_list_active_limit_reached(supp_list_t *active_supp_list, ui
 uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type);
 
 /**
+ *  ws_pae_lib_supp_list_kmp_receive_check check if received message is for this KMP in a list of supplicants
+ *
+ * \param supp_list list of supplicants
+ * \param pdu pdu
+ * \param size pdu size
+ *
+ * \return KMP api for the received message
+ *
+ */
+kmp_api_t *ws_pae_lib_supp_list_kmp_receive_check(supp_list_t *supp_list, const void *pdu, uint16_t size);
+
+/**
  *  ws_pae_lib_supp_list_entry_retry_timer_get checks if some supplicant has retry timer running
  *
  * \param supp_list list of supplicants

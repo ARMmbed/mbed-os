@@ -19,6 +19,176 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup nanostack-eventloop Nanostack's event system.
+ * Small event scheduler and timer system written in C.
+ *
+ * This event system is originating from project called Nanostack and developed within Arm. Therefore
+ * some of the types and names within this library are prefixed with `ns_*` or `arm_*` or `eventOS*`.
+ *
+ * <h3>Concept</h3>
+ *
+ * Event loop uses a concept called tasklet, which is just a callback function that receives events.
+ * There can be as many as 128 tasklets registered if memory allows. This is only limited by event ID being just 8-bits.
+ * Each tasklet is first registered to the event system, which then gives 8 bit ID number for the tasklet.
+ *
+ * @startuml
+ *      package "eventOS" {
+ *       [eventOS_event.h] - event_handler_create
+ *      }
+ *      node "application" {
+ *          [tasklet1.cpp] ..> event_handler_create : register
+ *          [tasklet1.cpp] - tasklet1
+ *          [tasklet2.cpp] ..> event_handler_create : register
+ *          [tasklet2.cpp] - tasklet2
+ *          [tasklet3.cpp] ..> event_handler_create : register
+ *          [tasklet3.cpp] - tasklet3
+ *      }
+ * @enduml
+ *
+ * Events are send to a specific tasklet, identified by its ID.
+ * Each event is coded into a \ref arm_event_s structure which is then pushed into event loop by calling eventOS_event_send().
+ *
+ * @startuml
+ *      partition tasklet1.cpp {
+ *          (*) --> tasklet1
+ *      }
+ *      partition "eventOS" {
+ *          tasklet1 -->[event:\nreceiver: 3\nevent_id: 1] eventOS_event_send
+ *      }
+ *      partition tasklet3.cpp {
+ *          eventOS_event_send -->[event:\nreceiver: 3\nevent_id: 1] tasklet3
+ *      }
+ * @enduml
+ *
+ * <h3>Usage</h3>
+ *
+ * To send or receive events, you first need to register your event handler.
+ * \code
+ *      // In header
+ *      extern uint8_t my_eventhandler_id;
+ *      #define INITIALIZATION_EVENT 0
+ *      #define MY_EVENT 1
+ *
+ *      // In my_handler.cpp
+ *      void my_event_handler(arm_event_t *e)
+ *      {
+ *          switch (e->event_type) {
+ *              case INITIALIZATION_EVENT:
+ *                  // Initialize my module
+ *                  break;
+ *              case MY_EVENT:
+ *                  // Event received
+ *                  break;
+ *          }
+ *      }
+ *
+ *      // Register the handler
+ *      my_eventhandler_id = eventOS_event_handler_create(my_event_handler, INITIALIZATION_EVENT);
+ *      if (my_eventhandler_id < 0) {
+ *          // fail
+ *      }
+ * \endcode
+ *
+ * Each event is basically a \ref arm_event_s structure. You need to fill in the arm_event_s::receiver field.
+ * Rest of the fields are optional, and used only by the receiving callback. So you have different options to
+ * deliver data to a receiving tasklet. The structure is copied by the event system, so temporary storage may be used,
+ * and the structure may be freed after it has been pushed into event system.
+ *
+ * \code
+ *      // Send the event
+ *      arm_event_t e = {
+ *       .receiver = my_eventhandler_id,
+ *       .event_type = MY_EVENT
+ *      };
+ *
+ *      if (eventOS_event_send(e) != 0) {
+ *       // fail
+ *      }
+ * \endcode
+ *
+ * Where required, event system allows you to delay the event propagation.
+ *
+ * \code
+ *      // Wait 3 seconds before the event
+ *      #define MY_DELAY_MS 3000
+ *
+ *      arm_event_t e = {
+ *          .receiver = my_eventhandler_id,
+ *          .event_type = MY_EVENT
+ *      };
+ *
+ *      uint32_t delay = eventOS_event_timer_ms_to_ticks(MY_DELAY_MS);
+ *      eventOS_event_send_after(e, delay);
+ * \endcode
+ *
+ * \sa eventOS_event.h
+ * \sa eventOS_event_send_at
+ * \sa eventOS_event_send_in
+ * \sa eventOS_event_send_after
+ * \sa eventOS_event_send_every
+ *
+ * <h3>Pre-allocated events</h3>
+ *
+ * Two options are provided to limit the heap usage. First option is to use recurring events with eventOS_event_send_every(),
+ * so your event is only allocated once. This allows you to create application that does not use heap after initialization phase.
+ *
+ * Second option is to use pre-allocated or statically allocated event structure. In this model you create a space for
+ * \ref arm_event_storage structure and send events using eventOS_event_send_user_allocated() call. This is also
+ * very robust, as there is no allocation, so the sending of the event will never fail because of lack of memory.
+ *
+ * \code
+ *   static bool pending = false;
+ *   static arm_event_storage_t e;
+ *   static int8_t foo_tasklet_id;
+ *
+ *   void notify_foo()
+ *   {
+ *       if (!pending) {
+ *           pending = true;
+ *           e.data.receiver = foo_tasklet_id;
+ *           e.data.type = MY_EVENT;
+ *           eventOS_event_send_user_allocated(&e);
+ *      }
+ *   }
+ *
+ *   void foo_event_handler(arm_event_t *e)
+ *   {
+ *       pending = false;
+ *       // ...
+ *   }
+ *
+ * \endcode
+ *
+ * <h3>Initialization</h3>
+ *
+ * Event system does not use malloc(), free() or any system heap directly, but uses nsdynmemLIB.h library instead.
+ * Event system must first be initialized by callind eventOS_scheduler_init(). This is usually done just after ns_dyn_mem_init() call.
+ * Where porting is already provided, these both are initialized in function called ns_hal_init().
+ *
+ * After initialization, you can start the event loop by calling eventOS_scheduler_run() which will never return. This is usually
+ * end of the `main()` function.
+ *
+ * \code
+ * extern void my_event_handler(arm_event_t *e);
+ * extern int8_t my_eventhandler_id;
+ *
+ * void main(void)
+ * {
+ *     ns_dyn_mem_init(NULL, HEAP_SIZE, NULL, NULL);
+ *     eventOS_scheduler_init();
+ *     my_eventhandler_id = eventOS_event_handler_create(my_event_handler, INITIALIZATION_EVENT);
+ *     eventOS_scheduler_run()
+ * }
+ * \endcode
+ */
+
+/**
+ * \file eventOS_event.h
+ * \ingroup nanostack-eventloop
+ * \brief Nanostack's event loop.
+ */
+
 #include "ns_types.h"
 #include "ns_list.h"
 
@@ -100,10 +270,10 @@ extern int8_t eventOS_event_send(const arm_event_t *event);
 
 /* Alternate names for timer function from eventOS_event_timer.h;
  * implementations may one day merge */
-#define eventOS_event_send_at(event, at)       eventOS_event_timer_request_at(event, at)
-#define eventOS_event_send_in(event, in)       eventOS_event_timer_request_in(event, in)
-#define eventOS_event_send_after(event, after) eventOS_event_timer_request_after(event, after)
-#define eventOS_event_send_every(event, every) eventOS_event_timer_request_every(event, every)
+#define eventOS_event_send_at(event, at)       eventOS_event_timer_request_at(event, at)       ///< \copydoc eventOS_event_timer_request_at
+#define eventOS_event_send_in(event, in)       eventOS_event_timer_request_in(event, in)       ///< \copydoc eventOS_event_timer_request_in
+#define eventOS_event_send_after(event, after) eventOS_event_timer_request_after(event, after) ///< \copydoc eventOS_event_timer_request_after
+#define eventOS_event_send_every(event, every) eventOS_event_timer_request_every(event, every) ///< \copydoc eventOS_event_timer_request_every
 
 /**
  * \brief Send user-allocated event to event scheduler.

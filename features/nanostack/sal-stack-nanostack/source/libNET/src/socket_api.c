@@ -960,6 +960,13 @@ static int8_t ipv6_setsockopt(socket_t *socket_ptr, uint8_t opt_name, const void
             inet_pcb->recvtclass = *(const bool *) opt_value;
             return 0;
         }
+        case SOCKET_EDFE_MODE: {
+            if (opt_len != sizeof(bool)) {
+                return -3;
+            }
+            inet_pcb->edfe_mode = *(const bool *) opt_value;
+            return 0;
+        }
         default:
             return -2;
     }

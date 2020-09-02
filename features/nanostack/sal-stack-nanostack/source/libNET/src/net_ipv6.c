@@ -25,6 +25,7 @@
 #include "Common_Protocols/ipv6_flow.h"
 #include "Common_Protocols/ipv6_fragmentation.h"
 #include "NWK_INTERFACE/Include/protocol.h"
+#include "ipv6_stack/protocol_ipv6.h"
 
 #include "net_ipv6_api.h"
 
@@ -72,4 +73,60 @@ int8_t arm_nwk_ipv6_opaque_iid_enable(int8_t interface_id, bool enable)
 
     cur->opaque_slaac_iids = enable;
     return 0;
+}
+
+int8_t arm_nwk_ipv6_default_route_enable(int8_t interface_id, bool enable)
+{
+#ifdef HAVE_ETHERNET
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return -1;
+    }
+
+    ipv6_stack_route_advert_default_route(cur, enable);
+    return 0;
+#else
+    (void)interface_id;
+    (void)enable;
+    return -1;
+#endif
+}
+
+int8_t arm_nwk_ipv6_dns_server_add(int8_t interface_id, uint8_t *address, uint32_t lifetime)
+{
+#ifdef HAVE_ETHERNET
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return -1;
+    }
+    if (lifetime == 0) {
+        ipv6_stack_route_advert_dns_server_delete(address);
+    } else {
+        return ipv6_stack_route_advert_dns_server_add(address);
+    }
+
+    return 0;
+#else
+    (void)interface_id;
+    (void)address;
+    (void)lifetime;
+    return -1;
+#endif
+}
+
+int8_t arm_nwk_ipv6_dns_search_list_add(int8_t interface_id, uint8_t *data, uint16_t data_len, uint32_t lifetime)
+{
+#ifdef HAVE_ETHERNET
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return -1;
+    }
+    return ipv6_stack_route_advert_dns_search_list_add(data, data_len, lifetime);
+#else
+    (void)interface_id;
+    (void)data;
+    (void)data_len;
+    (void)lifetime;
+    return -1;
+#endif
 }
