@@ -1,15 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os PRIVATE
-    mbed_boot.c
-    mbed_rtos_rtx.c
-    mbed_rtx_handlers.c
-    mbed_rtx_idle.cpp
-)
-
-add_subdirectory(rtx5)
-
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     target_sources(mbed-os
         PRIVATE
@@ -29,6 +20,12 @@ endif()
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        rtx4
+        include
+)
+
+target_sources(mbed-os PRIVATE
+    source/mbed_boot.c
+    source/mbed_rtos_rtx.c
+    source/mbed_rtx_handlers.c
+    source/mbed_rtx_idle.cpp
 )
