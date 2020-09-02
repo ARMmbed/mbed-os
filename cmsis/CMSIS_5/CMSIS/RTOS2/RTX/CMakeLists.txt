@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-function(_mbed_get_rtx_assembly toolchain_dir)
+function(_mbed_get_cortex_m_exception_handlers toolchain_dir)
     foreach(key ${MBED_TARGET_LABELS})
         if(${key} STREQUAL CORTEX_A)
             set(STARTUP_RTX_FILE TARGET_CORTEX_A/irq_ca.S)
@@ -26,7 +26,7 @@ function(_mbed_get_rtx_assembly toolchain_dir)
     endforeach()
 endfunction()
 
-function(_mbed_add_cortexa_handler_if)
+function(_mbed_get_cortex_a_exception_handlers)
     foreach(key ${MBED_TARGET_LABELS})
         if(${key} STREQUAL CORTEX_A)
             target_sources(mbed-os PRIVATE Config/TARGET_CORTEX_A/handlers.c)
@@ -34,27 +34,29 @@ function(_mbed_add_cortexa_handler_if)
     endforeach()
 endfunction()
 
-# Add Cortex A handlers if needed
-_mbed_add_cortexa_handler_if()
+_mbed_get_cortex_a_exception_handlers()
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    _mbed_get_rtx_assembly(TOOLCHAIN_GCC)
+    _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_GCC)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    _mbed_get_rtx_assembly(TOOLCHAIN_ARM)
+    _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_ARM)
 elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
-    _mbed_get_rtx_assembly(TOOLCHAIN_IAR)
+    _mbed_get_cortex_m_exception_handlers(TOOLCHAIN_IAR)
 endif()
 
 target_include_directories(mbed-os
     PUBLIC
         Config
         Include
+        Include1
         Source
 )
 
 target_sources(mbed-os
     PRIVATE
         Config/RTX_Config.c
+
+        Library/cmsis_os1.c
 
         Source/rtx_delay.c
         Source/rtx_evflags.c
