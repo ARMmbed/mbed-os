@@ -264,7 +264,10 @@ private:
     mesh_error_t configure();
     mesh_error_t apply_configuration(int8_t mesh_if_id);
     mesh_error_t set_bbr_radius_address(void);
+    mesh_error_t set_bbr_radius_shared_secret();
     char _radius_ipv6_addr[40];
+    char *_shared_secret = NULL;
+    uint16_t _shared_secret_len = 0;
     int8_t _mesh_if_id = -1;
     bool _radius_ipv6_addr_set = false;
     bool _configured = false;
