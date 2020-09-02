@@ -44,6 +44,8 @@
 #define TRACE_DEEP(...)
 #endif
 
+#define NANOSTACK_ISDIGIT(c)    ((c) >= '0' && (c) <= '9')
+
 #define NS_INTERFACE_SOCKETS_MAX  16  //same as NanoStack SOCKET_MAX
 
 #define MALLOC  ns_dyn_mem_alloc
@@ -175,7 +177,7 @@ static int8_t nanostack_interface_id_parse(const char *interface_name)
         return -1;
     }
 
-    if ((strncmp("MES", interface_name, 3) == 0) && isdigit(interface_name[3])) {
+    if ((strncmp("MES", interface_name, 3) == 0) && NANOSTACK_ISDIGIT(interface_name[3])) {
         interface_id = atoi(&interface_name[3]);
     }
 
