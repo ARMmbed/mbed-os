@@ -35,6 +35,7 @@ struct arm_phy_sap_msg_s;
 struct mcps_purge_s;
 struct mcps_data_req_ie_list;
 struct channel_list_s;
+struct mcps_enhanced_frame_response_s;
 
 /** Address types */
 typedef enum {
@@ -133,7 +134,11 @@ uint8_t mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_ma
 
 int8_t mcps_pd_data_rebuild(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
 
+int8_t mcps_edfe_data_request(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
+
 int8_t mcps_generic_ack_data_request_init(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload);
+
+int8_t mcps_generic_edfe_frame_init(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const struct mcps_edfe_response_s *response);
 
 int8_t mcps_generic_ack_build(struct protocol_interface_rf_mac_setup *rf_ptr, bool init_build);
 

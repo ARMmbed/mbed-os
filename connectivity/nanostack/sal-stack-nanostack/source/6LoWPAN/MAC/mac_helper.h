@@ -30,6 +30,7 @@ struct ns_sockaddr;
 struct buffer;
 struct mac_api_s;
 
+extern uint16_t test_6lowpan_fragmentation_mtu_size_override;
 
 void mac_create_scan_request(mac_scan_type_t type, struct channel_list_s *chanlist, uint8_t scan_duration, struct mlme_scan_s *request);
 
@@ -132,5 +133,7 @@ void mac_helper_devicetable_ack_trig(const mlme_device_descriptor_t *device_desc
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set);
 
 int8_t mac_helper_mac_device_description_pan_id_update(int8_t interface_id, uint16_t pan_id);
+
+int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit);
 
 #endif // MAC_HELPER_H

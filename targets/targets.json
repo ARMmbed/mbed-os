@@ -5,6 +5,7 @@
         "default_toolchain": "ARM",
         "supported_toolchains": null,
         "extra_labels": [],
+        "supported_form_factors": [],
         "components": [],
         "is_disk_virtual": false,
         "macros": [],
@@ -2363,10 +2364,47 @@
             "lpticker_delay_ticks": 0
         },
         "device_has_add": [
-            "ANALOGOUT",
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
+        ]
+    },
+    "MCU_STM32G031xx": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G031xx"
+        ],
+        "macros_add": [
+            "STM32G031xx"
+        ]
+    },
+    "NUCLEO_G031K8": {
+        "inherits": [
+            "MCU_STM32G031xx"
+        ],
+        "detect_code": [
+            "0852"
+        ],
+        "device_name": "STM32G031K8Tx",
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
+        "supported_application_profiles": [
+            "bare-metal"
         ]
     },
     "MCU_STM32G071xx": {
@@ -2379,6 +2417,9 @@
         ],
         "macros_add": [
             "STM32G071xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
         ]
     },
     "NUCLEO_G071RB": {
@@ -2744,6 +2785,20 @@
             "0833"
         ],
         "device_name": "STM32L072CZ"
+    },
+    "MCU_STM32L071xx": {
+        "inherits": [
+            "MCU_STM32L0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L0",
+            "STM32L071xx"
+        ],
+        "device_has_remove": [
+            "ANALOGOUT",
+            "TRNG"
+        ]
     },
     "NUCLEO_L073RZ": {
         "inherits": [
@@ -6365,20 +6420,34 @@
             "MXCRYPTO_02"
         ],
         "macros_add": [
-            "CY8C624AFNI_D43",
-            "CYBSP_WIFI_CAPABLE"
+            "CY8C624AFNI_S2D43"
         ],
+        "macros_remove": [
+            "MBED_TICKLESS"
+        ],
+        "detect_code": [
+            "1912"
+        ],
+        "device_name": "CY8C624AFNI-S2D43",
+        "mbed_ram_start": "0x08080000",
+        "mbed_ram_size": "0x0007F800",
+        "mbed_rom_start": "0x10180000",
+        "mbed_rom_size": "0x80000",
+        "bootloader_supported": true,
+        "sectors": [
+            [
+                270008320,
+                512
+            ]
+        ],
+        "forced_reset_timeout": 5,
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
         "overrides": {
             "network-default-interface-type": "WIFI",
             "deep-sleep-latency": 0
         },
-        "detect_code": [
-            "1912"
-        ],
-        "macros_remove": [
-            "CYBSP_WIFI_CAPABLE",
-            "MBED_TICKLESS"
-        ],
         "config": {
             "np_cloud_disable": {
                 "help": "Value: Tells the np to connect to cloud or not",
@@ -6388,10 +6457,6 @@
                 "help": "Value: Tells the np to connect to wifi with its network credentials or wait till cp provides network credentials to it",
                 "value": false
             }
-        },
-        "forced_reset_timeout": 5,
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
         }
     },
     "GD32_Target": {

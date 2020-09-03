@@ -97,6 +97,9 @@ extern "C" {
 // RF_PAC
 #define TXPWR                       0x1F
 #define TXPWR_11                    (11 << 0)
+#define TXPWR_0                     (0 << 0)
+#define TXPWR_31                    (31 << 0)
+
 
 // RF_PADFE
 #define PADFE                       0xC0
@@ -164,6 +167,9 @@ extern "C" {
 #define SR_3                        (3 << 0)
 #define SR_2                        (2 << 0)
 #define SR_1                        (1 << 0)
+
+// BBC_FSKPHRTX
+#define DW                          (1 << 2)
 
 // BBC_OFDMPHRTX
 #define MCS                         0x07

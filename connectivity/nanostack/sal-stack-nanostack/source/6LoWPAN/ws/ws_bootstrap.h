@@ -31,7 +31,9 @@ typedef enum {
 
 struct llc_neighbour_req;
 struct ws_us_ie;
+struct ws_bs_ie;
 struct ws_neighbor_class_entry;
+struct ws_stack_info;
 
 int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
@@ -64,9 +66,9 @@ void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t s
 
 void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
 
-void ws_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
+void ws_bootstrap_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
 
-void ws_secondary_parent_update(protocol_interface_info_entry_t *interface);
+void ws_bootstrap_secondary_parent_update(protocol_interface_info_entry_t *interface);
 
 void ws_nud_entry_remove_active(protocol_interface_info_entry_t *cur, void *neighbor);
 
@@ -82,11 +84,15 @@ void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, 
 
 bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct protocol_interface_info_entry *cur);
 
+bool ws_bootstrap_validate_channel_function(struct ws_us_ie *ws_us, struct ws_bs_ie *ws_bs);
+
 void ws_bootstrap_eapol_rx_temporary_set(struct protocol_interface_info_entry *interface, const uint8_t *src64);
 
 struct ws_neighbor_class_entry *ws_bootstrap_eapol_tx_temporary_set(struct protocol_interface_info_entry *interface, const uint8_t *src64);
 
 void ws_bootstrap_eapol_tx_temporary_clear(struct protocol_interface_info_entry *interface);
+
+int ws_bootstrap_get_info(protocol_interface_info_entry_t *cur, struct ws_stack_info *info_ptr);
 
 #else
 
@@ -95,8 +101,9 @@ void ws_bootstrap_eapol_tx_temporary_clear(struct protocol_interface_info_entry 
 #define ws_bootstrap_restart(cur)
 #define ws_bootstrap_neighbor_remove(cur, ll_address)
 #define ws_bootstrap_aro_failure(cur, ll_address)
-#define ws_primary_parent_update(interface, neighbor)
-#define ws_secondary_parent_update(interface)
+#define ws_bootstrap_primary_parent_update(interface, neighbor)
+#define ws_bootstrap_secondary_parent_update(interface)
+#define ws_bootstrap_get_info(cur, info_ptr)
 
 #endif //HAVE_WS
 

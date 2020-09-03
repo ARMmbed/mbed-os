@@ -18,6 +18,7 @@
 #include "ns_trace.h"
 #include "WisunBorderRouter.h"
 #include "MeshInterfaceNanostack.h"
+#include "net_interface.h"
 
 extern "C" {
 #include "ws_bbr_api.h"
@@ -174,6 +175,7 @@ mesh_error_t WisunBorderRouter::info_get(ws_br_info_t *info_ptr)
     memcpy(info_ptr->rpl_dodag_id, bbr_info.dodag_id, 16);
     memcpy(info_ptr->ipv6_prefix, bbr_info.prefix, 8);
     memcpy(info_ptr->ipv6_iid, bbr_info.IID, 8);
+    memcpy(info_ptr->gateway_addr, bbr_info.gateway, 16);
 
     return MESH_ERROR_NONE;
 }

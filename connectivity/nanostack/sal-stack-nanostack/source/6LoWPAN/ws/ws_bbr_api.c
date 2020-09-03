@@ -156,6 +156,20 @@ void ws_bbr_dhcp_address_lifetime_set(protocol_interface_info_entry_t *cur, uint
     DHCPv6_server_service_set_address_validlifetime(cur->id, current_global_prefix, dhcp_address_lifetime);
 }
 
+bool ws_bbr_backbone_address_get(uint8_t *address)
+{
+    if (backbone_interface_id < 0) {
+        return false;
+    }
+
+    if (arm_net_address_get(backbone_interface_id, ADDR_IPV6_GP, address) != 0) {
+        // No global prefix available
+        return false;
+    }
+
+    return true;
+}
+
 static void ws_bbr_rpl_root_start(protocol_interface_info_entry_t *cur, uint8_t *dodag_id)
 {
     tr_info("RPL root start");
@@ -573,6 +587,9 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
     cur->ws_info->pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
     ws_bootstrap_configuration_trickle_reset(cur);
+
+    // Indicate new pan version to PAE controller
+    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
 }
 
 void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
@@ -788,6 +805,11 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 
     if (wisun_if_addr) {
         memcpy(info_ptr->IID, wisun_if_addr + 8, 8);
+    }
+
+    ipv6_route_t *next_hop = ipv6_route_choose_next_hop(ADDR_6TO4, backbone_interface_id, NULL);
+    if (next_hop) {
+        memcpy(info_ptr->gateway, next_hop->info.next_hop_addr, 16);
     }
 
     info_ptr->devices_in_network = ws_bbr_pan_size(cur);
@@ -1066,6 +1088,52 @@ int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_numbe
     (void) alloc_max_number;
     (void) alloc_size;
     (void) storing_interval;
+    return -1;
+#endif
+}
+
+int ws_bbr_radius_address_set(int8_t interface_id, const uint8_t *address)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_radius_address_set(interface_id, address);
+#else
+    (void) interface_id;
+    (void) address;
+    return -1;
+#endif
+}
+
+int ws_bbr_radius_address_get(int8_t interface_id, uint8_t *address)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_radius_address_get(interface_id, address);
+#else
+    (void) interface_id;
+    (void) address;
+    return -1;
+#endif
+}
+
+int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_radius_shared_secret_set(interface_id, shared_secret_len, shared_secret);
+#else
+    (void) interface_id;
+    (void) shared_secret_len;
+    (void) shared_secret;
+    return -1;
+#endif
+}
+
+int ws_bbr_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_radius_shared_secret_get(interface_id, shared_secret_len, shared_secret);
+#else
+    (void) interface_id;
+    (void) shared_secret_len;
+    (void) shared_secret;
     return -1;
 #endif
 }

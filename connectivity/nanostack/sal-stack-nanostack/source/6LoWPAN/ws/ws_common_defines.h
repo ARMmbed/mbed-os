@@ -67,6 +67,7 @@ typedef struct ws_pan_information_s {
     uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
     bool use_parent_bs: 1;      /**< 1 for force to follow parent broadcast schedule. 0 node may define own schedule. */
     bool rpl_routing_method: 1; /**< 1 when RPL routing is selected and 0 when L2 routing. */
+    bool pan_version_set: 1;    /**< 1 PAN version is set. */
     unsigned version: 3;        /**< Pan version support. */
 } ws_pan_information_t;
 
@@ -130,6 +131,13 @@ typedef struct ws_bt_ie {
     uint_fast24_t broadcast_interval_offset;
 } ws_bt_ie_t;
 
+/**
+ * @brief ws_fc_ie_t WS FC-IE element
+ */
+typedef struct ws_fc_ie {
+    uint8_t tx_flow_ctrl;
+    uint8_t rx_flow_ctrl;
+} ws_fc_ie_t;
 
 /**
  * @brief ws_channel_plan_zero_t WS channel plan 0 define domain and class

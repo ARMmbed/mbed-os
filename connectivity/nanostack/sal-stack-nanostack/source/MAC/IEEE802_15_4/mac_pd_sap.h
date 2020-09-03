@@ -59,4 +59,6 @@ void mac_csma_backoff_start(struct protocol_interface_rf_mac_setup *rf_mac_setup
  */
 void mac_pd_sap_state_machine(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
+int8_t mac_data_edfe_force_stop(struct protocol_interface_rf_mac_setup *rf_ptr);
+
 #endif /* MAC_PD_SAP_H_ */
