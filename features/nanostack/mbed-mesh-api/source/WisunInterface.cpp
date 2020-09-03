@@ -486,13 +486,8 @@ mesh_error_t WisunInterface::get_device_min_sens(uint8_t *device_min_sens)
         return MESH_ERROR_PARAM;
     }
 
-    ws_stack_info_t stack_info = {0};
-
-    if (ws_stack_info_get(get_interface_id(), &stack_info)) {
-        return MESH_ERROR_UNKNOWN;
-    }
-
-    *device_min_sens = stack_info.device_min_sens;
+    /* To-Do :: Update this when device_min_sense get API is available */
+    *device_min_sens = 0;
 
     return MESH_ERROR_NONE;
 }
@@ -671,11 +666,22 @@ mesh_error_t WisunInterface::stack_info_get(ws_stack_state_t *stack_info_ptr)
     return MESH_ERROR_NONE;
 }
 
-const ws_cca_threshold_table_t *WisunInterface::cca_threshold_table_get(void)
+mesh_error_t WisunInterface::cca_threshold_table_get(ws_cca_threshold_table_t *table)
 {
-    const cca_threshold_table_s *cca_threshold_table = arm_nwk_get_cca_threshold_table(get_interface_id());
+    if (table == NULL) {
+        return MESH_ERROR_PARAM;
+    }
 
-    return (const ws_cca_threshold_table_t *)cca_threshold_table;
+    const cca_threshold_table_s *cca_table = arm_nwk_get_cca_threshold_table(get_interface_id());
+
+    if (cca_table != NULL) {
+        table->number_of_channels = cca_table->number_of_channels;
+        table->cca_threshold_table = cca_table->cca_threshold_table;
+    } else {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
 }
 
 #define WISUN 0x2345
