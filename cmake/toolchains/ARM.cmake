@@ -44,7 +44,7 @@ function(mbed_set_toolchain_options target)
 
     target_compile_options(${target}
         PUBLIC
-            $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=armasm>
+            $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=auto>
             $<$<COMPILE_LANGUAGE:ASM>:${MBED_STUDIO_ARM_COMPILER}>
     )
 
