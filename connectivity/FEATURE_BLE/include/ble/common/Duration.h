@@ -33,10 +33,11 @@ namespace ble {
  * @tparam Min left-bound
  * @tparam Max right-bound
  */
-template<uint32_t Min, uint32_t Max>
+template<uint32_t Min, uint32_t Max, uint32_t Default = Min>
 struct Range {
     static const uint32_t MIN = Min;
     static const uint32_t MAX = Max;
+    static const uint32_t DEFAULT = Default;
 };
 
 /**
@@ -111,7 +112,7 @@ struct Duration {
      *
      * It is initialized with the minimum value acceptable.
      */
-    Duration() : duration(Range::MIN)
+    Duration() : duration(Range::DEFAULT)
     {
     }
 
@@ -598,11 +599,14 @@ bool operator>(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs)
 
 #if !defined(DOXYGEN_ONLY)
 
-template<uint32_t Min, uint32_t Max>
-const uint32_t Range<Min, Max>::MIN;
+template<uint32_t Min, uint32_t Max, uint32_t Default>
+const uint32_t Range<Min, Max, Default>::MIN;
 
-template<uint32_t Min, uint32_t Max>
-const uint32_t Range<Min, Max>::MAX;
+template<uint32_t Min, uint32_t Max, uint32_t Default>
+const uint32_t Range<Min, Max, Default>::MAX;
+
+template<uint32_t Min, uint32_t Max, uint32_t Default>
+const uint32_t Range<Min, Max, Default>::DEFAULT;
 
 template<typename T, T V>
 const T Value<T, V>::VALUE;
