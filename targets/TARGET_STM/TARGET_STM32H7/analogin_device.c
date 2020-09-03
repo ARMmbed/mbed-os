@@ -143,11 +143,11 @@ void analogin_init(analogin_t *obj, PinName pin)
         error("analogin_init HAL_ADC_Init");
     }
 
-    if ( ((ADCName)obj->handle.Instance == ADC_1) || ((ADCName)obj->handle.Instance == ADC_2) ) {
+    if ((ADCName)obj->handle.Instance == ADC_1) {
         ADC_MultiModeTypeDef multimode = {0};
         multimode.Mode = ADC_MODE_INDEPENDENT;
         if (HAL_ADCEx_MultiModeConfigChannel(&obj->handle, &multimode) != HAL_OK) {
-            error("analogin_init HAL_ADC_Init");
+            error("HAL_ADCEx_MultiModeConfigChannel HAL_ADC_Init");
         }
     }
 
