@@ -3338,6 +3338,7 @@
             "MCU_STM32L4"
         ],
         "components_add": [
+            "BlueNRG_MS",
             "QSPIF",
             "FLASHIAP"
         ],
@@ -3346,6 +3347,7 @@
             "PMOD"
         ],
         "extra_labels_add": [
+            "CORDIO",
             "MX25R6435F",
             "STM32L4S5xI"
         ],
@@ -3360,6 +3362,9 @@
         "device_has_add": [
             "USBDEVICE",
             "QSPI"
+        ],
+        "features": [
+            "BLE"
         ],
         "device_name": "STM32L4S5VITx"
     },
