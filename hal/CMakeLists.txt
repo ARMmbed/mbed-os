@@ -1,31 +1,33 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+mbed_add_cmake_directory_if_labels("TARGET")
+
+add_subdirectory(usb)
+
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        usb
+        include
+        include/hal
 )
 
 target_sources(mbed-os
     PRIVATE
-        LowPowerTickerWrapper.cpp
-        mbed_compat.c
-        mbed_critical_section_api.c
-        mbed_flash_api.c
-        mbed_gpio.c
-        mbed_gpio_irq.c
-        mbed_itm_api.c
-        mbed_lp_ticker_api.c
-        mbed_lp_ticker_wrapper.cpp
-        mbed_pinmap_common.c
-        mbed_pinmap_default.cpp
-        mbed_ticker_api.c
-        mbed_us_ticker_api.c
-        static_pinmap.cpp
+        source/LowPowerTickerWrapper.cpp
+        source/mbed_compat.c
+        source/mbed_critical_section_api.c
+        source/mbed_flash_api.c
+        source/mbed_gpio.c
+        source/mbed_gpio_irq.c
+        source/mbed_itm_api.c
+        source/mbed_lp_ticker_api.c
+        source/mbed_lp_ticker_wrapper.cpp
+        source/mbed_pinmap_common.c
+        source/mbed_pinmap_default.cpp
+        source/mbed_ticker_api.c
+        source/mbed_us_ticker_api.c
+        source/static_pinmap.cpp
 
-        mpu/mbed_mpu_v7m.c
-        mpu/mbed_mpu_v8m.c
-
-        usb/mbed_usb_phy.cpp
+        source/mpu/mbed_mpu_v7m.c
+        source/mpu/mbed_mpu_v8m.c
 )
