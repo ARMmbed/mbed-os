@@ -81,6 +81,21 @@ static struct nu_spi_var spi5_var = {
 #endif
 };
 
+/* Change to QSPI version functions
+ *
+ * In most cases, we can control degraded QSPI H/W to standard through BSP SPI driver
+ * directly as if it is just SPI H/W. However, BSP SPI driver distinguishes among
+ * SPI H/W instances in below functions:
+ *
+ * SPI_Open
+ * SPI_Close
+ * SPI_SetBusClock
+ * SPI_GetBusClock
+ *
+ * In these cases, we must change to QSPI version instead for QSPI H/W.
+ */
+static int spi_is_qspi(spi_t *obj);
+
 /* Synchronous version of SPI_ENABLE()/SPI_DISABLE() macros
  *
  * The SPI peripheral clock is asynchronous with the system clock. In order to make sure the SPI
@@ -207,7 +222,11 @@ void spi_free(spi_t *obj)
     }
 #endif
 
-    SPI_Close((SPI_T *) NU_MODBASE(obj->spi.spi));
+    if (spi_is_qspi(obj)) {
+        QSPI_Close((QSPI_T *) NU_MODBASE(obj->spi.spi));
+    } else {
+        SPI_Close((SPI_T *) NU_MODBASE(obj->spi.spi));
+    }
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
@@ -242,11 +261,19 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     SPI_DISABLE_SYNC(spi_base);
 
-    SPI_Open(spi_base,
-             slave ? SPI_SLAVE : SPI_MASTER,
-             (mode == 0) ? SPI_MODE_0 : (mode == 1) ? SPI_MODE_1 : (mode == 2) ? SPI_MODE_2 : SPI_MODE_3,
-             bits,
-             SPI_GetBusClock(spi_base));
+    if (spi_is_qspi(obj)) {
+        QSPI_Open((QSPI_T *) spi_base,
+                  slave ? QSPI_SLAVE : QSPI_MASTER,
+                  (mode == 0) ? QSPI_MODE_0 : (mode == 1) ? QSPI_MODE_1 : (mode == 2) ? QSPI_MODE_2 : QSPI_MODE_3,
+                  bits,
+                  QSPI_GetBusClock((QSPI_T *)spi_base));
+    } else {
+        SPI_Open(spi_base,
+                 slave ? SPI_SLAVE : SPI_MASTER,
+                 (mode == 0) ? SPI_MODE_0 : (mode == 1) ? SPI_MODE_1 : (mode == 2) ? SPI_MODE_2 : SPI_MODE_3,
+                 bits,
+                 SPI_GetBusClock(spi_base));
+    }
     // NOTE: Hardcode to be MSB first.
     SPI_SET_MSB_FIRST(spi_base);
 
@@ -275,7 +302,11 @@ void spi_frequency(spi_t *obj, int hz)
 
     SPI_DISABLE_SYNC(spi_base);
 
-    SPI_SetBusClock((SPI_T *) NU_MODBASE(obj->spi.spi), hz);
+    if (spi_is_qspi(obj)) {
+        QSPI_SetBusClock((QSPI_T *) NU_MODBASE(obj->spi.spi), hz);
+    } else {
+        SPI_SetBusClock((SPI_T *) NU_MODBASE(obj->spi.spi), hz);
+    }
 }
 
 
@@ -611,6 +642,13 @@ uint8_t spi_active(spi_t *obj)
     return vec ? 1 : 0;
 }
 
+static int spi_is_qspi(spi_t *obj)
+{
+    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
+
+    return (spi_base == ((SPI_T *) QSPI0) || spi_base == ((SPI_T *) QSPI1));
+}
+
 static int spi_writeable(spi_t * obj)
 {
     // Receive FIFO must not be full to avoid receive FIFO overflow on next transmit/receive
@@ -904,9 +942,7 @@ static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
  */
 static uint32_t spi_fifo_depth(spi_t *obj)
 {
-    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-
-    if (spi_base == ((SPI_T *) QSPI0) || spi_base == ((SPI_T *) QSPI1)) {
+    if (spi_is_qspi(obj)) {
         return 8;
     }
 
