@@ -3351,7 +3351,8 @@
         ],
         "macros_add": [
             "HSE_VALUE=8000000",
-            "STM32L4S5xx"
+            "STM32L4S5xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "detect_code": [
             "0885"
