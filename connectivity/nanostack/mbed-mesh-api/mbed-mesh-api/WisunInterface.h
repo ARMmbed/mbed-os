@@ -538,10 +538,12 @@ public:
      *
      * Function reads CCA threshold table from nanostack.
      *
-     * \return pointer to ws_cca_threshold_table_t structure on success.
-     * \return NULL in case of failure.
+     ** \param ws_cca_threshold_table_t Structure given to stack where information will be stored
+     **
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    const ws_cca_threshold_table_t *cca_threshold_table_get(void);
+    mesh_error_t cca_threshold_table_get(ws_cca_threshold_table_t *table);
 
 protected:
     Nanostack::WisunInterface *get_interface() const;
