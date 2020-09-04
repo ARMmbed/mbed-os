@@ -201,8 +201,8 @@ static int8_t eap_tls_sec_prot_lib_ack_update(tls_data_t *tls)
         return false;
     }
 
-    if (tls->handled_len + TLS_FRAGMENT_LEN < tls->total_len) {
-        tls->handled_len += TLS_FRAGMENT_LEN;
+    if (tls->handled_len + EAP_TLS_FRAGMENT_LEN_VALUE < tls->total_len) {
+        tls->handled_len += EAP_TLS_FRAGMENT_LEN_VALUE;
         return false;
     }
 
@@ -236,8 +236,8 @@ static uint8_t *eap_tls_sec_prot_lib_fragment_write(uint8_t *data, uint16_t tota
         data_begin[0] = *flags;
     }
 
-    if (total_len - handled_len > TLS_FRAGMENT_LEN) {
-        *message_len += TLS_FRAGMENT_LEN;
+    if (total_len - handled_len > EAP_TLS_FRAGMENT_LEN_VALUE) {
+        *message_len += EAP_TLS_FRAGMENT_LEN_VALUE;
 
         if (handled_len == 0) {
             data_begin -= 4; // length

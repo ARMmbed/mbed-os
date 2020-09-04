@@ -65,6 +65,7 @@
 #include "platform/topo_trace.h"
 #include "dhcp_service_api.h"
 #include "libDHCPv6/libDHCPv6.h"
+#include "libDHCPv6/libDHCPv6_vendordata.h"
 #include "DHCPv6_client/dhcpv6_client_api.h"
 #include "ws_management_api.h"
 #include "net_rpl.h"
@@ -73,6 +74,7 @@
 #include "6LoWPAN/ws/ws_eapol_pdu.h"
 #include "6LoWPAN/ws/ws_eapol_auth_relay.h"
 #include "6LoWPAN/ws/ws_eapol_relay.h"
+#include "libNET/src/net_dns_internal.h"
 
 #define TRACE_GROUP "wsbs"
 
@@ -872,6 +874,80 @@ static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t l
     ws_bootstrap_mac_neighbor_short_time_set(cur, mac64, WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME);
 }
 
+static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notify_t *options, dhcp_server_notify_info_t *server_info)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
+    if (!cur) {
+        return;
+    }
+    uint8_t server_ll64[16];
+    memcpy(server_ll64, ADDR_LINK_LOCAL_PREFIX, 8);
+
+    if (server_info->duid_length == 8) {
+        memcpy(server_ll64 + 8, server_info->duid, 8);
+    } else {
+        server_ll64[8] = server_info->duid[0];
+        server_ll64[9] = server_info->duid[1];
+        server_ll64[10] = server_info->duid[2];
+        server_ll64[11] = 0xff;
+        server_ll64[12] = 0xfe;
+        server_ll64[13] = server_info->duid[3];
+        server_ll64[14] = server_info->duid[4];
+        server_ll64[15] = server_info->duid[5];
+    }
+    server_ll64[8] ^= 2;
+
+    switch (options->option_type) {
+        case DHCPV6_OPTION_VENDOR_SPECIFIC_INFO:
+            if (options->option.vendor_spesific.enterprise_number != ARM_ENTERPRISE_NUMBER) {
+                break;
+            }
+            while (options->option.vendor_spesific.data_length) {
+                uint16_t option_type;
+                char *domain;
+                uint8_t *address;
+                uint16_t option_len;
+                option_len = net_dns_option_vendor_option_data_get_next(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &option_type);
+                tr_debug("DHCP vendor specific data type:%u length %d", option_type, option_len);
+                //tr_debug("DHCP vendor specific data %s", trace_array(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length));
+
+                if (option_len == 0) {
+                    // Option fields were corrupted
+                    break;
+                }
+                if (option_type == ARM_DHCP_VENDOR_DATA_DNS_QUERY_RESULT) {
+                    // Process ARM DNS query result
+                    domain = NULL;
+                    address = NULL;
+                    if (net_dns_option_vendor_option_data_dns_query_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &address, &domain) > 0 ||
+                            domain || address) {
+                        // Valid ARM DNS query entry
+                        net_dns_query_result_set(interface, address, domain, server_info->life_time);
+                    }
+                }
+
+                options->option.vendor_spesific.data_length -= option_len;
+                options->option.vendor_spesific.data += option_len;
+            }
+            break;
+
+        case DHCPV6_OPTION_DNS_SERVERS:
+            while (options->option.generic.data_length) {
+                net_dns_server_address_set(interface, server_ll64, options->option.generic.data, server_info->life_time);
+                options->option.generic.data_length -= 16;
+                options->option.generic.data += 16;
+            }
+            break;
+        case DHCPV6_OPTION_DOMAIN_LIST:
+            net_dns_server_search_list_set(interface, server_ll64, options->option.generic.data, options->option.generic.data_length, server_info->life_time);
+            break;
+        default:
+            break;
+    }
+
+}
+
+
 static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
 {
     int8_t ret_val = -1;
@@ -923,6 +999,7 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     dhcp_service_link_local_rx_cb_set(cur->id, ws_bootstrap_dhcp_neighbour_update_cb);
     dhcp_client_configure(cur->id, true, true, true); //RENEW uses SOLICIT, Interface will use 1 instance for address get, IAID address hint is not used.
     dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC);
+    dhcp_client_option_notification_cb_set(cur->id, ws_bootstrap_dhcp_info_notify_cb);
 
 
     ws_nud_table_reset(cur);
@@ -1520,7 +1597,11 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
     tr_info("Updated PAN configuration own:%d, heard:%d", cur->ws_info->pan_information.pan_version, pan_version);
 
     // restart PAN version timer
-    cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
+    //Check Here Do we have a selected Primary parent
+    if (!cur->ws_info->configuration_learned || cur->ws_info->rpl_state == RPL_EVENT_DAO_DONE) {
+        cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
+    }
+
     cur->ws_info->pan_information.pan_version = pan_version;
 
     ws_pae_controller_gtk_hash_update(cur, gtkhash_ptr);

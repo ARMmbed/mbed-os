@@ -115,7 +115,7 @@ int8_t net_dns_server_address_set(int8_t interface_id, const uint8_t address[16]
     }
     info_ptr->lifetime = lifetime;
     memcpy(info_ptr->dns_server_address, dns_server_address, 16);
-    tr_info("DNS Server: %s Lifetime: %lu", trace_ipv6(info_ptr->dns_server_address), (unsigned long) info_ptr->lifetime);
+    tr_info("DNS Server: %s from: %s Lifetime: %lu", trace_ipv6(info_ptr->dns_server_address), trace_ipv6(info_ptr->address), (unsigned long) info_ptr->lifetime);
     return 0;
 }
 
@@ -234,7 +234,7 @@ static dns_query_t *dns_query_result_create(int8_t interface_id, const char *dom
     }
     this->interface_id = interface_id;
     strcpy(this->domain_str, domain_str);
-    tr_debug("Create DNS query entry for %s", this->domain_str);
+    //tr_debug("Create DNS query entry for %s", this->domain_str);
     ns_list_add_to_start(&dns_query_list, this);
     return this;
 }

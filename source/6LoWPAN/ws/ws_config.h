@@ -273,4 +273,11 @@ extern uint8_t DEVICE_MIN_SENS;
 #define RADIUS_CLIENT_RETRY_IMAX           30       // First retry maximum 3 seconds
 #define RADIUS_CLIENT_TIMER_EXPIRATIONS    3        // Number of retries is three
 
+/*
+ *  EAP-TLS fragment length
+ *
+ *  Configures both EAP-TLS and the RADIUS client (Framed-MTU on RFC 2864)
+ */
+#define EAP_TLS_FRAGMENT_LEN_VALUE         600       // EAP-TLS fragment length
+
 #endif /* WS_CONFIG_H_ */

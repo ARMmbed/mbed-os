@@ -66,11 +66,14 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
         return -1;
     }
 
-    if (ws_eapol_relay_get(interface_ptr)) {
+    eapol_relay_t *eapol_relay = ws_eapol_relay_get(interface_ptr);
+
+    if (eapol_relay) {
+        memcpy(&eapol_relay->remote_addr.address, remote_addr, 16);
         return 0;
     }
 
-    eapol_relay_t *eapol_relay = ns_dyn_mem_alloc(sizeof(eapol_relay_t));
+    eapol_relay = ns_dyn_mem_alloc(sizeof(eapol_relay_t));
     if (!eapol_relay) {
         return -1;
     }

@@ -495,7 +495,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
             // On timeout
             if (sec_prot_result_timeout_check(&data->common)) {
-                // Do nothing for now
+                // Do nothing (trickle timer not running, so should not happen)
                 return;
             }
 
