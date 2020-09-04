@@ -31,6 +31,7 @@ SOFTWARE.
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 bool value = false;
+bool serialinitialized = false;
 
 // interrupt variables
 static uart_irq_handler irq_handler;
@@ -126,31 +127,45 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
   MBED_ASSERT((int)uart != NC);
   obj->serial.uart_control = &ap3_uart_control[uart];
   obj->serial.uart_control->inst = uart;
-
-  // ensure that HAL queueing is disabled (we want to use the FIFOs directly)
-  obj->serial.uart_control->cfg.pui8RxBuffer = NULL;
-  obj->serial.uart_control->cfg.pui8TxBuffer = NULL;
-  obj->serial.uart_control->cfg.ui32RxBufferSize = 0;
-  obj->serial.uart_control->cfg.ui32TxBufferSize = 0;
-
-  // memset(obj->serial.uart_control->cfg, 0x00, sizeof(am_hal_uart_config_t)); // ensure config begins zeroed
-
-  // config uart pins
+    // config uart pins
   pinmap_config(tx, serial_tx_pinmap());
   pinmap_config(rx, serial_rx_pinmap());
 
-  // start UART instance
-  MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
-  MBED_ASSERT(am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
-  MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
+  if(!obj->serial.uart_control->handle)
+  {
+    //printf("setting up UART first time?\r\n");
+    // ensure that HAL queueing is disabled (we want to use the FIFOs directly)
+    obj->serial.uart_control->cfg.pui8RxBuffer = NULL;
+    obj->serial.uart_control->cfg.pui8TxBuffer = NULL;
+    obj->serial.uart_control->cfg.ui32RxBufferSize = 0;
+    obj->serial.uart_control->cfg.ui32TxBufferSize = 0;
 
-  // set default baud rate and format
-  serial_baud(obj, 9600);
-  serial_format(obj, 8, ParityNone, 1);
+    obj->serial.uart_control->cfg.ui32FifoLevels = AM_HAL_UART_RX_FIFO_7_8;
+
+    // start UART instance
+    MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
+
+    // am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle));
+    // am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false);
+    // am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg));
+
+    // set default baud rate and format
+    // serial_baud(obj, 9600);
+    serial_format(obj, 8, ParityNone, 1);
+  }
+  else
+  {
+    //printf("UART already set-up\r\n");
+    //while(1);
+  }
+  
 }
 
 void serial_free(serial_t *obj)
 {
+  //serialinitialized = false;
   // nothing to do unless resources are allocated for members of the serial_s serial member of obj
   // assuming mbed handles obj and its members
 }
@@ -225,21 +240,46 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-
-  am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, (AM_HAL_UART_INT_RX | AM_HAL_UART_INT_TX | AM_HAL_UART_INT_TXCMP));
-
-  switch (obj->serial.uart_control->inst)
-  {
-    case 0:
-      NVIC_SetVector((IRQn_Type)UART0_IRQn, (uint32_t)am_uart_isr);
-      break;
-    case 1:
-      NVIC_SetVector((IRQn_Type)UART1_IRQn, (uint32_t)am_uart1_isr);
-      break;
+  MBED_ASSERT(obj->serial.uart_control->handle != NULL);
+  if (enable) {
+    switch (irq) {
+      case RxIrq:
+          MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, AM_HAL_UART_INT_RX) == AM_HAL_STATUS_SUCCESS);
+        break;
+      case TxIrq:
+          MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
+        break;
+      default:
+        break;
+    }
+    // NVIC_SetVector(uart_irqs[obj->serial.index], vector);
+    NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
+  } else { // disable
+    switch (irq) {
+      case RxIrq:
+          MBED_ASSERT(am_hal_uart_interrupt_disable(obj->serial.uart_control->handle, AM_HAL_UART_INT_RX) == AM_HAL_STATUS_SUCCESS);
+        break;
+      case TxIrq:
+          MBED_ASSERT(am_hal_uart_interrupt_disable(obj->serial.uart_control->handle, AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
+        break;
+      default:
+        break;
+    }
   }
+    
+  //MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, (AM_HAL_UART_INT_RX | AM_HAL_UART_INT_TX | AM_HAL_UART_INT_TXCMP)) == AM_HAL_STATUS_SUCCESS);
+  //uint32_t retVal = (obj->serial.uart_control->handle, (AM_HAL_UART_INT_RX | AM_HAL_UART_INT_TX | AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
+  // switch (obj->serial.uart_control->inst)
+  // {
+  //   case 0:
+  //     NVIC_SetVector((IRQn_Type)UART0_IRQn, (uint32_t)am_uart_isr);
+  //     break;
+  //   case 1:
+  //     NVIC_SetVector((IRQn_Type)UART1_IRQn, (uint32_t)am_uart1_isr);
+  //     break;
+  // }
 
-  NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
+  //NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
 }
 
 int serial_getc(serial_t *obj)

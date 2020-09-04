@@ -420,7 +420,7 @@ am_hal_uart_configure(void *pHandle, const am_hal_uart_config_t *psConfig)
     UARTn(ui32Module)->LCRH = (psConfig->ui32DataBits   |
                                psConfig->ui32Parity     |
                                psConfig->ui32StopBits   |
-                               AM_HAL_UART_FIFO_ENABLE);
+                               AM_HAL_UART_FIFO_DISABLE);
 
     //
     // Enable the UART, RX, and TX.
@@ -436,11 +436,11 @@ am_hal_uart_configure(void *pHandle, const am_hal_uart_config_t *psConfig)
     //
     // Set up any buffers that might exist.
     //
-    buffer_configure(pHandle,
-                     psConfig->pui8TxBuffer,
-                     psConfig->ui32TxBufferSize,
-                     psConfig->pui8RxBuffer,
-                     psConfig->ui32RxBufferSize);
+    // buffer_configure(pHandle,
+    //                  psConfig->pui8TxBuffer,
+    //                  psConfig->ui32TxBufferSize,
+    //                  psConfig->pui8RxBuffer,
+    //                  psConfig->ui32RxBufferSize);
 
     return AM_HAL_STATUS_SUCCESS;
 } // am_hal_uart_configure()
