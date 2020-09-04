@@ -116,11 +116,13 @@ public:
     void process()
     {
         while (_events) {
-            EventNode *next = _events->next;
-            _events->event();
-            _events->~EventNode();
-            WsfBufFree(_events);
-            _events = next;
+            // pop
+            auto *event = _events;
+            _events = event->next;
+            // execute and delete
+            event->event();
+            event->~EventNode();
+            WsfBufFree(event);
         }
     }
 
