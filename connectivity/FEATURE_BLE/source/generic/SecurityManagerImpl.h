@@ -78,7 +78,7 @@ public:
 
     ble_error_t setDatabaseFilepath(const char *dbFilepath = nullptr);
 
-    ble_error_t reset(ble::SecurityManager* sm);
+    ble_error_t reset();
 
     ble_error_t preserveBondingStateOnReset(bool enable);
 

@@ -253,7 +253,6 @@ ble::GattClient &BLEInstanceBase::getGattClient()
 {
     auto &impl = getGattClientImpl();
     static ble::GattClient gatt_client(&impl);
-    impl.setInterface(&gatt_client);
     return gatt_client;
 }
 
@@ -368,8 +367,8 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
 #endif
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
-        }
-            break;
+        }   break;
+
 #if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
             case DM_UNHANDLED_CMD_CMPL_EVT_IND: {
                 // upcast to unhandled command complete event to access the payload

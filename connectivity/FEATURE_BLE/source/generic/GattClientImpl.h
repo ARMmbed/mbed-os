@@ -24,7 +24,6 @@
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include <algorithm>
 
-
 #include "ble/common/blecommon.h"
 #include "ble/gatt/GattAttribute.h"
 #include "ble/gatt/ServiceDiscovery.h"
@@ -249,8 +248,6 @@ private:
     mutable ProcedureControlBlock *control_blocks;
     bool _is_reseting;
 
-    ::ble::GattClient *client = nullptr;
-
 private:
     /**
      * Create a PalGattClient from a PalGattClient
@@ -258,11 +255,6 @@ private:
     GattClient(PalGattClient &pal_client);
 
     ~GattClient() = default;
-
-    void setInterface(ble::GattClient *client_interface)
-    {
-        client = client_interface;
-    }
 };
 
 } // namespace impl
