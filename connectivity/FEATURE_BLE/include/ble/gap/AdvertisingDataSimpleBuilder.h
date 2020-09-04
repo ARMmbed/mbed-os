@@ -68,7 +68,7 @@ public:
     /**
      * Construct a AdvertisingDataSimpleBuilder
      */
-    AdvertisingDataSimpleBuilder() : _builder(_buffer), _buffer()
+    AdvertisingDataSimpleBuilder() : _buffer(), _builder(_buffer)
     {
     }
 

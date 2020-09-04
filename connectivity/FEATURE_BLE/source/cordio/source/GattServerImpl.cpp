@@ -991,8 +991,6 @@ uint8_t GattServer::atts_write_cb(
     attsAttr_t *pAttr
 )
 {
-    uint8_t err;
-
     GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
     if (auth_char && auth_char->isWriteAuthorizationEnabled()) {
         GattWriteAuthCallbackParams write_auth_params = {
