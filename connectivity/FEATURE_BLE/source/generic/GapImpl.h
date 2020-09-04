@@ -37,11 +37,7 @@
 #include "ble/gap/Events.h"
 
 #include "source/pal/PalGap.h"
-#include "source/pal/GapEvents.h"
-#include "source/pal/GapTypes.h"
-#include "source/pal/PalEventQueue.h"
 #include "source/pal/PalConnectionMonitor.h"
-#include "source/pal/PalEventQueue.h"
 
 #include "ble/Gap.h"
 
@@ -52,6 +48,8 @@ class PalGenericAccessService;
 class PalSecurityManager;
 
 class PalGap;
+
+class PalEventQueue;
 
 namespace impl {
 
