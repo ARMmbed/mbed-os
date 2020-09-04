@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#include "ble/BLE.h"
 #include "ble/common/BLERoles.h"
 
 #include "source/pal/PalSecurityManager.h"
@@ -173,14 +174,14 @@ ble_error_t SecurityManager::setDatabaseFilepath(
 }
 
 
-ble_error_t SecurityManager::reset(ble::SecurityManager* sm)
+ble_error_t SecurityManager::reset()
 {
     delete _db;
     _db = nullptr;
     _pal.reset();
 
     /* Notify that the instance is about to shutdown */
-    shutdownCallChain.call(sm);
+    shutdownCallChain.call(&ble::BLE::Instance().securityManager());
     shutdownCallChain.clear();
     eventHandler = &defaultEventHandler;
 

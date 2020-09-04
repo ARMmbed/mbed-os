@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <algorithm>
 
+#include "ble/BLE.h"
 #include "ble/SecurityManager.h"
 #include "ble/gatt/DiscoveredService.h"
 #include "ble/gatt/DiscoveredCharacteristic.h"
@@ -401,7 +402,7 @@ struct GattClient::DiscoveryControlBlock final : public ProcedureControlBlock {
             const Span<const uint8_t> value
         ) : DiscoveredCharacteristic()
         {
-            gattc = client->client;
+            gattc = &ble::BLE::Instance().gattClient();
             uuid = get_uuid(value);
             props = get_properties(value);
             declHandle = decl_handle;
@@ -965,7 +966,7 @@ struct GattClient::DescriptorDiscoveryControlBlock final : public ProcedureContr
     {
         for (size_t i = 0; i < response.size(); ++i) {
             DiscoveredCharacteristicDescriptor descriptor(
-                client->client, connection_handle, response[i].handle, response[i].uuid
+                &ble::BLE::Instance().gattClient(), connection_handle, response[i].handle, response[i].uuid
             );
             CharacteristicDescriptorDiscovery::DiscoveryCallbackParams_t params = {
                 characteristic,
@@ -1387,7 +1388,7 @@ ble_error_t GattClient::negotiateAttMtu(
 ble_error_t GattClient::reset()
 {
     /* Notify that the instance is about to shut down. */
-    shutdownCallChain.call(client);
+    shutdownCallChain.call(&ble::BLE::Instance().gattClient());
     shutdownCallChain.clear();
 
     onDataReadCallbackChain.clear();
