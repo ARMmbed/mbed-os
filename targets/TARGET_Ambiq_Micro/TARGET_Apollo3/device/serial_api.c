@@ -384,7 +384,6 @@ static inline void uart_irq(uint32_t instance)
 }
 
 extern void am_uart_isr(void) {
-  am_hal_gpio_output_set(16); // todo: this should not be here!
   uart_irq(UART_0);
 }
 
