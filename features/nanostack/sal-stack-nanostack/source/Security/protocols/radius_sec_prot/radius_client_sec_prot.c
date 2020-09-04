@@ -508,7 +508,9 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
             if (radius_client_sec_prot_ms_mppe_recv_key_pmk_decrypt(prot, recv_key,
                                                                     recv_key_len - AVP_FIXED_LEN, data->request_authenticator, data->new_pmk) >= 0) {
                 data->new_pmk_set = true;
+#ifdef EXTRA_DEBUG_INFO
                 tr_info("RADIUS PMK: %s %s", tr_array(data->new_pmk, 16), tr_array(data->new_pmk + 16, 16));
+#endif
             }
         }
     }

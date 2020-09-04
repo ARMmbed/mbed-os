@@ -205,6 +205,7 @@ SRCS += \
 	source/DHCPv6_client/dhcpv6_client_service.c \
 	source/libDHCPv6/dhcp_service_api.c \
 	source/libDHCPv6/libDHCPv6.c \
+	source/libDHCPv6/libDHCPv6_vendordata.c \
 	source/libDHCPv6/libDHCPv6_server.c \
 	source/Service_Libs/utils/ns_crc.c \
 	source/Service_Libs/utils/isqrt.c \
