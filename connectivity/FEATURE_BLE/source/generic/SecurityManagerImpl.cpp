@@ -134,9 +134,9 @@ ble_error_t SecurityManager::init(
 
 #if BLE_FEATURE_PRIVACY
     // set the local identity address and irk
-    if (result != BLE_ERROR_NONE) {
+    if (result == BLE_ERROR_NONE) {
     	result = init_identity();
-    }
+    } 
 #endif // BLE_FEATURE_PRIVACY
 
     if (result != BLE_ERROR_NONE) {
@@ -983,7 +983,7 @@ ble_error_t SecurityManager::init_resolving_list()
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
 
     /* match the resolving list to the currently stored set of IRKs */
-    uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
+    uint8_t resolving_list_capacity = _private_address_controller.read_resolving_list_capacity();
     auto* identity_list_p =
         new (std::nothrow) SecurityEntryIdentity_t[resolving_list_capacity];
 
@@ -1051,7 +1051,11 @@ ble_error_t SecurityManager::init_identity()
         _db->set_local_identity(irk, identity_address, public_address);
     }
 
-    return _pal.set_irk(*pirk);
+    auto err = _pal.set_irk(*pirk);
+    if (!err) {
+        _private_address_controller.set_local_irk(*pirk);
+    }
+    return err;
 }
 
 
@@ -1342,7 +1346,7 @@ void SecurityManager::on_security_entry_retrieved(
 
     typedef advertising_peer_address_type_t address_type_t;
 #if BLE_FEATURE_PRIVACY
-    _pal.add_device_to_resolving_list(
+    _private_address_controller.add_device_to_resolving_list(
         identity->identity_address_is_public ?
             address_type_t::PUBLIC :
             address_type_t::RANDOM,
@@ -1360,9 +1364,9 @@ void SecurityManager::on_identity_list_retrieved(
 {
     typedef advertising_peer_address_type_t address_type_t;
 
-    _pal.clear_resolving_list();
+    _private_address_controller.clear_resolving_list();
     for (size_t i = 0; i < count; ++i) {
-        _pal.add_device_to_resolving_list(
+        _private_address_controller.add_device_to_resolving_list(
             identity_list[i].identity_address_is_public ?
                 address_type_t::PUBLIC :
                 address_type_t::RANDOM,

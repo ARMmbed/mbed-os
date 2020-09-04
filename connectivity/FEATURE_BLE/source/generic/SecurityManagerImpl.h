@@ -37,7 +37,7 @@
 #include "source/pal/PalSecurityManager.h"
 
 #include "source/generic/SecurityDb.h"
-
+#include "source/generic/PrivateAddressController.h"
 
 namespace ble {
 class PalGenericAccessService;
@@ -451,12 +451,14 @@ public:
     SecurityManager(
         ble::PalSecurityManager &palImpl,
         ble::PalConnectionMonitor &connMonitorImpl,
-        ble::PalSigningMonitor &signingMonitorImpl
+        ble::PalSigningMonitor &signingMonitorImpl,
+        PrivateAddressController &privateAddressController
     ) : eventHandler(nullptr),
         _pal(palImpl),
         _connection_monitor(connMonitorImpl),
         _signing_monitor(signingMonitorImpl),
         _db(nullptr),
+        _private_address_controller(privateAddressController),
         _default_authentication(0),
         _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
@@ -639,6 +641,7 @@ private:
     PalSigningMonitor &_signing_monitor;
 
     SecurityDb *_db;
+    PrivateAddressController &_private_address_controller;
 
     /* OOB data */
     address_t _oob_local_address;
