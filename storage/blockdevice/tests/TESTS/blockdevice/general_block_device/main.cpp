@@ -584,7 +584,6 @@ void test_program_read_small_data_sizes()
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
-    bd_size_t erase_size = block_device->get_erase_size();
     bd_size_t program_size = block_device->get_program_size();
     bd_size_t read_size = block_device->get_read_size();
     TEST_ASSERT(program_size > 0);
@@ -606,6 +605,7 @@ void test_program_read_small_data_sizes()
 
     // Determine starting address
     bd_addr_t start_address = 0;
+    bd_size_t erase_size = block_device->get_erase_size(start_address);
 
     for (int i = 1; i <= 7; i++) {
         err = buff_block_device->erase(start_address, erase_size);
