@@ -31,7 +31,6 @@ SOFTWARE.
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 bool value = false;
-bool serialinitialized = false;
 
 // interrupt variables
 static uart_irq_handler irq_handler;
@@ -147,18 +146,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     MBED_ASSERT(am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
     MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 
-    // am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle));
-    // am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false);
-    // am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg));
-
-    // set default baud rate and format
-    // serial_baud(obj, 9600);
+    // set default format
     serial_format(obj, 8, ParityNone, 1);
-  }
-  else
-  {
-    //printf("UART already set-up\r\n");
-    //while(1);
   }
   
 }
@@ -266,20 +255,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         break;
     }
   }
-    
-  //MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, (AM_HAL_UART_INT_RX | AM_HAL_UART_INT_TX | AM_HAL_UART_INT_TXCMP)) == AM_HAL_STATUS_SUCCESS);
-  //uint32_t retVal = (obj->serial.uart_control->handle, (AM_HAL_UART_INT_RX | AM_HAL_UART_INT_TX | AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
-  // switch (obj->serial.uart_control->inst)
-  // {
-  //   case 0:
-  //     NVIC_SetVector((IRQn_Type)UART0_IRQn, (uint32_t)am_uart_isr);
-  //     break;
-  //   case 1:
-  //     NVIC_SetVector((IRQn_Type)UART1_IRQn, (uint32_t)am_uart1_isr);
-  //     break;
-  // }
-
-  //NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
+  
 }
 
 int serial_getc(serial_t *obj)
@@ -381,72 +357,6 @@ const PinMap *serial_cts_pinmap(void) {
 const PinMap *serial_rts_pinmap(void) {
   return PinMap_UART_RTS;
 }
-#endif
-
-#if DEVICE_SERIAL_ASYNCH
-
-int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
-{
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-  uint32_t bytes_written = 0;
-
-  am_hal_uart_transfer_t am_hal_uart_xfer_write = {
-    .ui32Direction = AM_HAL_UART_WRITE,
-    .pui8Data = (uint8_t *)obj->tx_buff.buffer,
-    .ui32NumBytes = tx_length, // todo: consider maybe this? (uint32_t)obj->tx_buff.length,
-    .ui32TimeoutMs = 0,
-    .pui32BytesTransferred = &bytes_written,
-  };
-
-  am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_write);
-
-  return (int)bytes_written;
-}
-
-void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
-{
-  // todo: revisit
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-  uint32_t bytes_read = 0;
-
-  am_hal_uart_transfer_t am_hal_uart_xfer_read = {
-    .ui32Direction = AM_HAL_UART_READ,
-    .pui8Data = (uint8_t *)obj->rx_buff.buffer,
-    .ui32NumBytes = rx_length, // todo: consider this (uint32_t)obj->rx_buff.length,
-    .ui32TimeoutMs = 0,
-    .pui32BytesTransferred = &bytes_read,
-  };
-
-  am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_read);
-}
-
-uint8_t serial_tx_active(serial_t *obj) {
-  // todo:
-  MBED_ASSERT(0);
-}
-
-uint8_t serial_rx_active(serial_t *obj) {
-  // todo:
-  MBED_ASSERT(0);
-}
-
-int serial_irq_handler_asynch(serial_t *obj) {
-  // todo:
-  MBED_ASSERT(0);
-}
-
-void serial_tx_abort_asynch(serial_t *obj) {
-  // todo:
-  MBED_ASSERT(0);
-}
-
-void serial_rx_abort_asynch(serial_t *obj) {
-  // todo:
-  MBED_ASSERT(0);
-}
-
-/**@}*/
-
 #endif
 
 static inline void uart_irq(uint32_t instance)
