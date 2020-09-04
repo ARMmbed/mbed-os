@@ -42,6 +42,8 @@
 #include "source/generic/SecurityManagerImpl.h"
 #include "source/GattServerImpl.h"
 #include "source/PalEventQueueImpl.h"
+#include "source/PalPrivateAddressControllerImpl.h"
+#include "source/generic/PrivateAddressController.h"
 
 #include "drivers/LowPowerTimer.h"
 
@@ -156,6 +158,10 @@ public:
      * @see BLEInstanceBase::getSecurityManager
      */
     const ble::SecurityManager &getSecurityManager() const final;
+
+#if BLE_FEATURE_PRIVACY
+    ble::PrivateAddressController &getPrivateAddressRegistry();
+#endif
 
 #endif // BLE_FEATURE_SECURITY
 

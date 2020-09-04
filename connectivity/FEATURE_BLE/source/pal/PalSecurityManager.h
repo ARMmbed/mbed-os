@@ -560,56 +560,6 @@ public:
     virtual ble_error_t reset() = 0;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Resolving list management
-    //
-    /**
-     * Return the number of address translation entries that can be stored by the
-     * subsystem.
-     *
-     * @warning: The number of entries is considered fixed.
-     *
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.41
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual uint8_t read_resolving_list_capacity() = 0;
-
-    /**
-     * Add a device definition into the resolving list of the LE subsystem.
-     *
-     * @param[in] peer_identity_address_type public/private indicator
-     * @param[in] peer_identity_address address of the device whose entry is to be added
-     * @param[in] peer_irk peer identity resolving key
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.38
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t add_device_to_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address,
-        const irk_t &peer_irk
-    ) = 0;
-
-    /**
-     * Add a device definition from the resolving list of the LE subsystem.
-     *
-     * @param[in] peer_identity_address_type public/private indicator
-     * @param[in] peer_identity_address address of the device whose entry is to be removed
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.39
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t remove_device_from_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address
-    ) = 0;
-
-    /**
-     * Remove all devices from the resolving list.
-     *
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.40
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t clear_resolving_list() = 0;
-
-    ////////////////////////////////////////////////////////////////////////////
     // Pairing
     //
 
