@@ -19,11 +19,16 @@
 #include "mbed_assert.h"
 #include "NanostackMemoryManager.h"
 
+// workarround for C Style flexible array
+// see https://devblogs.microsoft.com/oldnewthing/20040826-00/?p=38043
+// for explanation
+constexpr size_t anysize_array = 1;
+
 struct ns_stack_mem_t {
     ns_stack_mem_t *next;
     void *payload;
     uint32_t len;
-    uint8_t mem[];
+    uint8_t mem[anysize_array];
 };
 
 emac_mem_buf_t *NanostackMemoryManager::alloc_heap(uint32_t size, uint32_t align)
