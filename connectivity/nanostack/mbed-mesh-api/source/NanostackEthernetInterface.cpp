@@ -131,4 +131,4 @@ char *Nanostack::EthernetInterface::get_interface_name(char *buf)
     }
     sprintf(buf, "ETH%d", interface_id);
     return buf;
-};
+}
