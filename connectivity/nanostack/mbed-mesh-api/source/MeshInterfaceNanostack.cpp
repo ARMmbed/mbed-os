@@ -99,7 +99,7 @@ char *Nanostack::MeshInterface::get_interface_name(char *buf)
     }
     sprintf(buf, "MES%d", interface_id);
     return buf;
-};
+}
 
 nsapi_error_t MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
 {
