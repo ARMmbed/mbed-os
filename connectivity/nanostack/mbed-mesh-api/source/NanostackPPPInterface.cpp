@@ -190,7 +190,7 @@ char *Nanostack::PPPInterface::get_interface_name(char *buf)
     }
     sprintf(buf, "PPP%d", interface_id);
     return buf;
-};
+}
 
 // GAH! no handles on the callback. Force a single interface
 static PPPPhy *single_phy;
