@@ -241,7 +241,7 @@ static void MPU_Config(void)
  * @param  heth: ETH handle
  * @retval None
  */
-void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
+MBED_WEAK void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
 {
     STM32_EMAC &emac = STM32_EMAC::get_instance();
     if (emac.thread) {
@@ -255,7 +255,7 @@ void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
  * @param  None
  * @retval None
  */
-void ETH_IRQHandler(void)
+MBED_WEAK void ETH_IRQHandler(void)
 {
     STM32_EMAC &emac = STM32_EMAC::get_instance();
     HAL_ETH_IRQHandler(&emac.EthHandle);
