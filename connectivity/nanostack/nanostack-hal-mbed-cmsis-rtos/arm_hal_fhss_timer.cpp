@@ -170,11 +170,11 @@ static uint32_t platform_fhss_timestamp_read(const fhss_api_t *api)
 
 static_assert(std::ratio_equal<HighResClock::period, micro>::value, "HighResClock not microseconds!");
 fhss_timer_t fhss_functions = {
-    .fhss_timer_start = platform_fhss_timer_start,
-    .fhss_timer_stop = platform_fhss_timer_stop,
-    .fhss_get_remaining_slots = platform_fhss_get_remaining_slots,
-    .fhss_get_timestamp = platform_fhss_timestamp_read,
-    .fhss_resolution_divider = 1
+    platform_fhss_timer_start,
+    platform_fhss_timer_stop,
+    platform_fhss_get_remaining_slots,
+    platform_fhss_timestamp_read,
+    1
 };
 
 #endif
