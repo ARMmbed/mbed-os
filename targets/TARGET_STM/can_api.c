@@ -999,6 +999,8 @@ int can_mode(can_t *obj, CanMode mode)
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
+    int success = 0;
+    
     // filter for CANAny format cannot be configured for STM32
     if ((format == CANStandard) || (format == CANExtended)) {
         CAN_FilterConfTypeDef  sFilterConfig;
@@ -1022,10 +1024,13 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
         sFilterConfig.FilterActivation = ENABLE;
         sFilterConfig.BankNumber = 14 + handle;
 
-        HAL_CAN_ConfigFilter(&obj->CanHandle, &sFilterConfig);
+        if (HAL_CAN_ConfigFilter(&obj->CanHandle, &sFilterConfig) == HAL_OK)
+        {
+            success = 1;
+        }
     }
 
-    return 1;
+    return success;
 }
 
 static void can_irq(CANName name, int id)

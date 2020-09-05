@@ -34,6 +34,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
+#include "mbed_power_mgmt.h"
 
 // These variables are used for the "free" function
 static int channel1_used = 0;
@@ -106,6 +107,9 @@ static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
     }
 
     analogout_write_u16(obj, 0);
+
+    /* DAC cannot be used in deepsleep/STOP mode */
+    sleep_manager_lock_deep_sleep();
 }
 
 void analogout_init(dac_t *obj, PinName pin)
@@ -138,6 +142,8 @@ void analogout_free(dac_t *obj)
 
     // Configure GPIO
     pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+
+    sleep_manager_unlock_deep_sleep();
 }
 
 const PinMap *analogout_pinmap()

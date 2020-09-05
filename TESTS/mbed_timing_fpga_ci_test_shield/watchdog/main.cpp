@@ -136,6 +136,8 @@ void fpga_test_watchdog_timeout_accuracy()
         return;
     }
 
+    uint32_t timeout_ms_clock_accuracy = (timeout_ms * features.clock_typical_frequency / features.clock_max_frequency);
+
     PinName watchdog_pulse_pin = get_pin_to_restrict(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins());
     TEST_ASSERT(watchdog_pulse_pin != NC);
     PinList *blacklist = alloc_extended_pinlist(DefaultFormFactor::restricted_pins(), watchdog_pulse_pin);
@@ -155,9 +157,9 @@ void fpga_test_watchdog_timeout_accuracy()
         if (num_falling_edges > 0) {
             actual_timeout_ms = (num_falling_edges - 1) * WATCHDOG_PULSE_PERIOD_US / 1000;
         }
-        utest_printf("The FPGA shield measured %lu ms timeout.", actual_timeout_ms);
-        TEST_ASSERT(actual_timeout_ms >= timeout_ms);
-        TEST_ASSERT(actual_timeout_ms < 2 * timeout_ms);
+        utest_printf("The FPGA shield measured %lu ms timeout (%lu)\n", actual_timeout_ms, timeout_ms_clock_accuracy);
+        TEST_ASSERT(actual_timeout_ms >= timeout_ms_clock_accuracy);
+        TEST_ASSERT(actual_timeout_ms < 2 * timeout_ms_clock_accuracy);
         free_pinlist(blacklist);
         return;
     }
@@ -170,7 +172,7 @@ void fpga_test_watchdog_timeout_accuracy()
     gpio_init_out_ex(&pulse_pin, watchdog_pulse_pin, pulse_pin_value);
     // Init the watchdog and wait for a device reset.
     watchdog_config_t config = { timeout_ms };
-    if (send_reset_notification(&current_case, 2 * timeout_ms) == false) {
+    if (send_reset_notification(&current_case, 2 * timeout_ms_clock_accuracy) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         free_pinlist(blacklist);
         return;

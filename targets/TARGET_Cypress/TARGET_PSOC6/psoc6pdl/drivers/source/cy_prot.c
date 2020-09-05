@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.c
-* \version 1.30.3
+* \version 1.40
 *
 * \brief
 * Provides an API implementation of the Protection Unit driver
@@ -24,6 +24,10 @@
 *******************************************************************************/
 
 #include "cy_prot.h"
+
+#if defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2)
+    #include "cy_pra.h"
+#endif /* defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2) */
 
 #if defined(__cplusplus)
 extern "C" {
@@ -137,6 +141,9 @@ cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool pri
 *
 * \note This function is applicable for both CPUSS ver_1 and ver_2.
 *
+* \note The function does not have access and returns an error for the secure
+* CYB06xx7 devices.
+*
 * \param busMaster
 * The bus master to configure. Refer to the CPUSS_MS_ID_X defines in the device
 * config header file.
@@ -168,8 +175,12 @@ cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
     CY_ASSERT_L1(CY_PROT_IS_BUS_MASTER_VALID(busMaster));
     CY_ASSERT_L2(CY_PROT_IS_PC_VALID(pc));
 
-    PROT_MPU_MS_CTL(busMaster) = _VAL2FLD(PROT_MPU_MS_CTL_PC, pc) | _VAL2FLD(PROT_MPU_MS_CTL_PC_SAVED, pc);
-    status = (_FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(busMaster)) != pc) ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2)
+        status = CY_PROT_UNAVAILABLE;
+    #else
+        PROT_MPU_MS_CTL(busMaster) = _VAL2FLD(PROT_MPU_MS_CTL_PC, pc) | _VAL2FLD(PROT_MPU_MS_CTL_PC_SAVED, pc);
+        status = (_FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(busMaster)) != pc) ? CY_PROT_FAILURE : CY_PROT_SUCCESS;
+    #endif
 
     return status;
 }
@@ -196,10 +207,13 @@ cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
 *******************************************************************************/
 uint32_t Cy_Prot_GetActivePC(en_prot_master_t busMaster)
 {
-
     CY_ASSERT_L1(CY_PROT_IS_BUS_MASTER_VALID(busMaster));
 
-    return ((uint32_t)_FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(busMaster)));
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2)
+        return ((uint32_t)_FLD2VAL(PROT_MPU_MS_CTL_PC, CY_PRA_REG32_GET((CY_PRA_INDX_PROT_MPU_MS_CTL + (uint16_t) busMaster))));
+    #else
+        return ((uint32_t)_FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(busMaster)));
+    #endif
 }
 
 

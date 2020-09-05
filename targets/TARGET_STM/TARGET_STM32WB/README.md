@@ -15,6 +15,8 @@ This ST MCU family is dual-core : based on an Arm Cortex-M4 core and an Arm Cort
 
 [st.com NUCLEO page](https://www.st.com/en/evaluation-tools/p-nucleo-wb55.html)
 
+[mbed.com NUCLEO page](https://os.mbed.com/platforms/ST-Nucleo-WB55RG/)
+
 - Total FLASH is 1MB, but note that it is shared by M4 and M0 cores.
     - mbed-os application size is then limited to 768 KB
 
@@ -39,6 +41,11 @@ Note that the BLE controller firmware running on the cortex-M0 is the same as in
 - within mbed, the controller will run only the below-HCI part
 - within STcubeFW (and STM32WPAN middleware), it can run also up to GATT / GAP layers ...
 
+Official ST Application Note AN5289: Building wireless applications with STM32WB Series microcontrollers :
+https://www.st.com/resource/en/application_note/dm00598033-building-wireless-applications-with-stm32wb-series-microcontrollers-stmicroelectronics.pdf
+
+
+
 ## mbed-trace support
 
 trace group: BLE_WB
@@ -56,16 +63,16 @@ example:
 
 ## BLE FW update
 
-Latest information :
-https://github.com/STMicroelectronics/STM32CubeWB/blob/master/how_to_program_wireless_stacks.txt
+Official ST Application Note AN5185: ST firmware upgrade services for STM32WB Series :
+http://www.st.com/st-web-ui/static/active/en/resource/technical/document/application_note/DM00513965.pdf
 
 Latest BLE FW :
-https://github.com/STMicroelectronics/STM32CubeWB/blob/master/Projects/STM32WB_Copro_Wireless_Binaries/stm32wb5x_BLE_Stack_fw.bin
+https://github.com/STMicroelectronics/STM32CubeWB/blob/master/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_BLE_Stack_full_fw.bin
 
 ## BLE FW flashing procedure
 
 Release Note and complete flashing procedure:
-https://htmlpreview.github.io/?https://github.com/STMicroelectronics/STM32CubeWB/blob/master/Projects/STM32WB_Copro_Wireless_Binaries/Release_Notes.html
+https://htmlpreview.github.io/?https://github.com/STMicroelectronics/STM32CubeWB/blob/master/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/Release_Notes.html
 
 
 - STEP 1: Use STM32CubeProgrammer
@@ -73,7 +80,7 @@ https://htmlpreview.github.io/?https://github.com/STMicroelectronics/STM32CubeWB
 https://www.st.com/en/development-tools/stm32cubeprog.html
 
 ````
-FLASHPATH="C:\Program Files (x86)\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin"
+FLASHPATH="C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin"
 export PATH=$FLASHPATH:$PATH
 ````
 
@@ -88,29 +95,8 @@ export PATH=$FLASHPATH:$PATH
 - STEP 3 : Delete current wireless stack :
 
 ```
-$ ./STM32_Programmer_CLI.exe -c port=usb1 -fwdelete
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.3.0
-      -------------------------------------------------------------------
-
-
-
-USB speed   : Full Speed (12MBit/s)
-Manuf. ID   : STMicroelectronics
-Product ID  : DFU in FS Mode
-SN          : 207F38933036
-FW version  : 0x011a
-Device ID   : 0x0495
-Device name : STM32WBxx
-Flash size  : 1 MBytes
-Device type : MCU
-Device CPU  : Cortex-M0+/M4
-
-
-FUS state is FUS_ERROR
-
-FUS status is FUS_NOT_RUNNING
-
+$ STM32_Programmer_CLI.exe -c port=usb1 -fwdelete
+...
 FUS state is FUS_IDLE
 
 FUS status is FUS_NO_ERROR
@@ -122,24 +108,8 @@ fwdelete command execution finished
 - STEP 4 : Read and upgrade FUS Version
 
 ```
-$ ./STM32_Programmer_CLI.exe -c port=usb1 -r32 0x20030030 1
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.3.0
-      -------------------------------------------------------------------
-
-
-
-USB speed   : Full Speed (12MBit/s)
-Manuf. ID   : STMicroelectronics
-Product ID  : DFU in FS Mode
-SN          : 207F38933036
-FW version  : 0x011a
-Device ID   : 0x0495
-Device name : STM32WBxx
-Flash size  : 1 MBytes
-Device type : MCU
-Device CPU  : Cortex-M0+/M4
-
+$ STM32_Programmer_CLI.exe -c port=usb1 -r32 0x20030030 1
+...
 
 Reading 32-bit memory content
   Size          : 4 Bytes
@@ -148,169 +118,42 @@ Reading 32-bit memory content
 0x20030030 : 00050300
 ```
 
-- STEP 5 : Download new FUS :
+- STEP 5A if last result is 00050300 : Download new FUS :
 
 ```
-$ ./STM32_Programmer_CLI.exe -c port=usb1 -fwupgrade stm32wb5x_FUS_fw.bin 0x080EC000 firstinstall=0
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.3.0
-      -------------------------------------------------------------------
-
-
-
-USB speed   : Full Speed (12MBit/s)
-Manuf. ID   : STMicroelectronics
-Product ID  : DFU in FS Mode
-SN          : 207F38933036
-FW version  : 0x011a
-Device ID   : 0x0495
-Device name : STM32WBxx
-Flash size  : 1 MBytes
-Device type : MCU
-Device CPU  : Cortex-M0+/M4
-
-
-FUS state is FUS_IDLE
-
-FUS status is FUS_NO_ERROR
-
-Old Firmware delete ...
-
-Deleting firmware ...
-Firmware delete finished
-
-FUS state is FUS_SERVICE_ONGOING
-
-FUS status is FUS_IMAGE_NOT_FOUND
-
-FUS state is FUS_IDLE
-
-FUS status is FUS_NO_ERROR
-Download firmware image at address 0x80ec000 ...
-
-Memory Programming ...
-Opening and parsing file: stm32wb5x_FUS_fw.bin
-  File          : stm32wb5x_FUS_fw.bin
-  Size          : 24492 Bytes
-  Address       : 0x080EC000
-
-
-Erasing memory corresponding to segment 0:
-Erasing internal memory sectors [236 241]
-erasing sector 0236 @: 0x080ec000 done
-erasing sector 0237 @: 0x080ed000 done
-erasing sector 0238 @: 0x080ee000 done
-erasing sector 0239 @: 0x080ef000 done
-erasing sector 0240 @: 0x080f0000 done
-erasing sector 0241 @: 0x080f1000 done
-Download in Progress:
-
-File download complete
-Time elapsed during download operation: 00:00:00.512
-
-FUS state is FUS_IDLE
-
-FUS status is FUS_NO_ERROR
-
-Firmware Upgrade process started ...
-
-Updating firmware ...
-Waiting for firmware upgrade end
-
-FUS state is FUS_UPGRADE_ONGOING
-
-FUS status is FUS_NO_ERROR
-
-FUS state is FUS_UPGRADE_ONGOING
-
-FUS status is FUS_IMAGE_NOT_AUTHENTIC
-Error: Firmware not authentic!
+$ ./STM32_Programmer_CLI.exe -c port=usb1 -fwupgrade stm32wb5x_FUS_fw_1_0_2.bin 0x080EC000 firstinstall=0
 ```
+
+- STEP 5B if last result is 01000100 or 01000200 : Download new FUS :
+
+```
+$ STM32_Programmer_CLI.exe -c port=usb1 -fwupgrade stm32wb5x_FUS_fw.bin 0x080EC000 firstinstall=0
+```
+
 
 - STEP 4 (to check) : Read and upgrade FUS Version
 
 ```
-$ ./STM32_Programmer_CLI.exe -c port=usb1 -r32 0x20030030 1
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.3.0
-      -------------------------------------------------------------------
-
-
-
-USB speed   : Full Speed (12MBit/s)
-Manuf. ID   : STMicroelectronics
-Product ID  : DFU in FS Mode
-SN          : 207F38933036
-FW version  : 0x011a
-Device ID   : 0x0495
-Device name : STM32WBxx
-Flash size  : 1 MBytes
-Device type : MCU
-Device CPU  : Cortex-M0+/M4
-
+$ STM32_Programmer_CLI.exe -c port=usb1 -r32 0x20030030 1
 
 Reading 32-bit memory content
   Size          : 4 Bytes
   Address:      : 0x20030030
 
-0x20030030 : 01000200
+0x20030030 : 01010000
 ```
 
 - STEP 6 : Download new wireless stack :
 
 
 ```
-$ ./STM32_Programmer_CLI.exe -c port=usb1 -fwupgrade stm32wb5x_BLE_Stack_fw.bin 0x080CB000 firstinstall=1
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.3.0
-      -------------------------------------------------------------------
+$ STM32_Programmer_CLI.exe -c port=usb1 -fwupgrade stm32wb5x_BLE_Stack_full_fw.bin 0x080CB000 firstinstall=1
 
-
-
-USB speed   : Full Speed (12MBit/s)
-Manuf. ID   : STMicroelectronics
-Product ID  : DFU in FS Mode
-SN          : 207F38933036
-FW version  : 0x011a
-Device ID   : 0x0495
-Device name : STM32WBxx
-Flash size  : 1 MBytes
-Device type : MCU
-Device CPU  : Cortex-M0+/M4
-
+...
 Download firmware image at address 0x80cb000 ...
-
-
-Memory Programming ...
-Opening and parsing file: stm32wb5x_BLE_Stack_fw.bin
-  File          : stm32wb5x_BLE_Stack_fw.bin
-  Size          : 165772 Bytes
-  Address       : 0x080CB000
-
-
-Erasing memory corresponding to segment 0:
-Erasing internal memory sectors [203 243]
-Download in Progress:
-
+...
 File download complete
-Time elapsed during download operation: 00:00:03.537
-
-FUS state is FUS_IDLE
-
-FUS status is FUS_NO_ERROR
-
-Firmware Upgrade process started ...
-
-Updating firmware ...
-Waiting for firmware upgrade end
-
-FUS state is WIRELESS_STACK_UPGRADE_ONGOING
-
-FUS status is FUS_NO_ERROR
-
-FUS state is FUS_ERROR
-
-FUS status is FUS_NOT_RUNNING
+...
 Firmware Upgrade Success
 ```
 

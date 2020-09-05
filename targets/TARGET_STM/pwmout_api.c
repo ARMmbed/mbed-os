@@ -276,7 +276,9 @@ void pwmout_write(pwmout_t *obj, float value)
     } else {
         // If channel already enabled, only update compare value to avoid glitch
         __HAL_TIM_SET_COMPARE(&TimHandle, channel, sConfig.Pulse);
+        return;
     }
+
 #if !defined(PWMOUT_INVERTED_NOT_SUPPORTED)
     if (obj->inverted) {
         HAL_TIMEx_PWMN_Start(&TimHandle, channel);

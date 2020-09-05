@@ -43,7 +43,7 @@ after_failure:
 
 matrix:
   include:
-    
+
     ### Basic Tests ###
     - &basic-vm
       stage: "Basic"
@@ -58,6 +58,8 @@ matrix:
       language: python
       python: 3.6.8 # scancode-toolkit v3.1.1 requires v3.6.8
       install:
+        # workaround for https://github.com/ARMmbed/mbed-os/issues/13322
+        - pip install pdfminer.six==20200517
         - pip install scancode-toolkit==3.1.1
       before_script:
         - mkdir -p SCANCODE
@@ -98,7 +100,8 @@ matrix:
         - |
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
               ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
-              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
+              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*' \
+              ':!*events/tests/*' ':!*drivers/tests/*'
 
 
     ### Docs Tests ###
@@ -125,7 +128,7 @@ matrix:
             | ( grep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
-      
+
     - <<: *docs-vm
       name: "spellcheck"
       env: NAME=doxy-spellcheck
@@ -136,7 +139,7 @@ matrix:
         - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
         - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
         - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket
 
     - <<: *docs-vm
       name: "doxygen"
@@ -167,13 +170,41 @@ matrix:
           find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
           tee BUILD/badlibs |
           sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
-        # Assert that all assebler files are named correctly
+        # Assert that all assembler files are named correctly
         # The strange command below asserts that there are exactly 0 libraries
         # that do end with .s
         - >
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
+    - <<: *docs-vm
+      name: "Frozen tools check"
+      env: NAME=frozen_tools_check
+      script:
+        # Reject any changes to tools that would require a re-release of the
+        # tools for the online compiler.
+        - >-
+            frozen_files=`\
+                git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+                    | egrep \
+                      -e "^tools/build_api*" \
+                      -e "^tools/config*" \
+                      -e "^tools/export*" \
+                      -e "^tools/notifier*" \
+                      -e "^tools/paths*" \
+                      -e "^tools/resources*" \
+                      -e "^tools/targets*" \
+                      -e "^tools/toolchains*" \
+                      -e "^tools/utils*" \
+                      -e "^$"`
+            if [ -z "$frozen_files" ]; then
+                echo "Success!";
+            else
+                echo -e "Failure: Frozen files were modified\n$frozen_files";
+                echo -e "Please see https://os.mbed.com/blog/entry/Introducing-the-new-Mbed-Tools/" \
+                        "\nfor why we've frozen the legacy tools.";
+                false;
+            fi
 
     ### Python Tests ###
     - &pytools-vm
@@ -222,7 +253,7 @@ matrix:
       env: NAME=tools-py3.7
       python: 3.7
 
-    
+
     ### Extended Tests ###
     - &extended-vm
       stage: "Extended"
@@ -246,14 +277,12 @@ matrix:
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - |
-          rm -r rtos/source/TARGET_CORTEX drivers/source/usb features/cellular features/netsocket features/nanostack \
-            features/lwipstack features/frameworks/greentea-client \
+          rm -r rtos/source/TARGET_CORTEX drivers/source/usb connectivity/cellular connectivity/drivers/cellular \
+            connectivity/libraries/ppp connectivity/netsocket connectivity/nanostack connectivity/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity components BUILD
-        - python tools/make.py -t GCC_ARM -m NUCLEO_F412ZG --source=. --build=BUILD/NUCLEO_F412ZG/GCC_ARM -j0
-        # Run local equeue tests
-        - make -C ${EVENTS}/source test
+        - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
         # Run profiling tests
-        - make -C ${EVENTS}/source prof | tee prof
+        - make -C ${EVENTS}/tests/unit prof | tee prof
       after_success:
         # Update status, comparing with master if possible.
         - |
@@ -271,7 +300,7 @@ matrix:
 
     - <<: *extended-vm
       name: "littlefs"
-      env: NAME=littlefs LITTLEFS=features/storage/filesystem/littlefs
+      env: NAME=littlefs LITTLEFS=storage/filesystem/littlefs
       install:
         # Install gcc
         - source_pkg gcc

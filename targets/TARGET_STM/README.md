@@ -73,7 +73,7 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | L1          |    1.8.1     | https://github.com/STMicroelectronics/STM32CubeL1 |
 | L4          |    1.11.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
 | L5          |    1.1.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
-| WB          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeWB |
+| WB          |    1.7.0     | https://github.com/STMicroelectronics/STM32CubeWB |
 
 In Mbed OS repository, we try to minimize the difference between "official" and copied files.
 
@@ -292,7 +292,7 @@ Depending on your PHY, you will have to customize several configuration values:
 - Duplex mask information in the PHY status register
 
 Check the default values in:
-https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/emac-drivers/TARGET_STM/mbed_lib.json
+https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/emac/TARGET_STM/mbed_lib.json
 
 Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.

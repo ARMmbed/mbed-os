@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "features/storage/kvstore/conf/kv_config.h"
+#include "kv_config/kv_config.h"
 
 const char *get_filesystemstore_folder_path()
 {

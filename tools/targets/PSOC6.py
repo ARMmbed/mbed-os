@@ -162,6 +162,7 @@ def sign_image(toolchain, resourses, elf, binf, m0hex):
     # Mapping from mbed target to cysecuretools target
     TARGET_MAPPING = {
             "CY8CKIT_064B0S2_4343W": "cy8ckit-064b0s2-4343w",
+            "CYTFM_064B0S2_4343W"  : "cy8ckit-064b0s2-4343w",
             "CY8CPROTO_064B0S1_BLE": "cy8cproto-064b0s1-ble",
             "CY8CPROTO_064S1_SB"   : "cy8cproto-064s1-sb",
             "CY8CPROTO_064B0S3"    : "cy8cproto-064b0s3"

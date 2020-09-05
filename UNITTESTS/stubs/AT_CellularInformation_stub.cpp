@@ -16,7 +16,7 @@
  */
 
 #include "AT_CellularInformation.h"
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 
 using namespace mbed;
 

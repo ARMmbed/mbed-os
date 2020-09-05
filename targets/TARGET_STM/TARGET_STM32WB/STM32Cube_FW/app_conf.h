@@ -19,8 +19,8 @@
 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __APP_CONFIG_H
-#define __APP_CONFIG_H
+#ifndef APP_CONF_H
+#define APP_CONF_H
 
 #include "hw.h"
 #include "hw_conf.h"
@@ -28,8 +28,92 @@
 // #include "hw_if.h" // MBED
 
 /******************************************************************************
- * Transparent Mode Config
+ * Application Config
  ******************************************************************************/
+
+/**< generic parameters ******************************************************/
+
+/**
+ * Define Tx Power
+ */   
+#define CFG_TX_POWER                      (0x18) /**< 0dbm */
+
+/**
+ * Define Advertising parameters
+ */
+#define CFG_ADV_BD_ADDRESS                (0x7257acd87a6c)
+#define CFG_FAST_CONN_ADV_INTERVAL_MIN    (0x80)   /**< 80ms */
+#define CFG_FAST_CONN_ADV_INTERVAL_MAX    (0xa0)  /**< 100ms */
+#define CFG_LP_CONN_ADV_INTERVAL_MIN      (0x640) /**< 1s */
+#define CFG_LP_CONN_ADV_INTERVAL_MAX      (0xfa0) /**< 2.5s */
+
+/**
+ * Define IO Authentication
+ */
+#define CFG_BONDING_MODE                 (0)
+#define CFG_FIXED_PIN                    (111111)
+#define CFG_USED_FIXED_PIN               (0)
+#define CFG_ENCRYPTION_KEY_SIZE_MAX      (16)
+#define CFG_ENCRYPTION_KEY_SIZE_MIN      (8)
+
+/**
+ * Define IO capabilities
+ */
+#define CFG_IO_CAPABILITY_DISPLAY_ONLY       (0x00)
+#define CFG_IO_CAPABILITY_DISPLAY_YES_NO     (0x01)
+#define CFG_IO_CAPABILITY_KEYBOARD_ONLY      (0x02)
+#define CFG_IO_CAPABILITY_NO_INPUT_NO_OUTPUT (0x03)
+#define CFG_IO_CAPABILITY_KEYBOARD_DISPLAY   (0x04)
+
+#define CFG_IO_CAPABILITY              CFG_IO_CAPABILITY_DISPLAY_YES_NO
+
+/**
+ * Define MITM modes
+ */
+#define CFG_MITM_PROTECTION_NOT_REQUIRED      (0x00)
+#define CFG_MITM_PROTECTION_REQUIRED          (0x01)
+
+#define CFG_MITM_PROTECTION             CFG_MITM_PROTECTION_REQUIRED
+
+/**
+ * Define Secure Connections Support
+ */
+#define CFG_SECURE_NOT_SUPPORTED       (0x00)
+#define CFG_SECURE_OPTIONAL            (0x01)
+#define CFG_SECURE_MANDATORY           (0x02)
+
+#define CFG_SC_SUPPORT                 CFG_SECURE_OPTIONAL
+
+/**
+ * Define Keypress Notification Support
+ */
+#define CFG_KEYPRESS_NOT_SUPPORTED      (0x00)
+#define CFG_KEYPRESS_SUPPORTED          (0x01)
+
+#define CFG_KEYPRESS_NOTIFICATION_SUPPORT             CFG_KEYPRESS_NOT_SUPPORTED
+   
+/**
+ * Numeric Comparison Answers
+ */   
+#define YES (0x01)
+#define NO  (0x00)
+
+/**
+ * Device name configuration for Generic Access Service
+ */
+#define CFG_GAP_DEVICE_NAME             "TEMPLATE"
+#define CFG_GAP_DEVICE_NAME_LENGTH      (8)
+
+/**
+ * Define PHY
+ */
+#define ALL_PHYS_PREFERENCE                             0x00
+#define RX_2M_PREFERRED                                 0x02
+#define TX_2M_PREFERRED                                 0x02
+#define TX_1M                                           0x01
+#define TX_2M                                           0x02
+#define RX_1M                                           0x01
+#define RX_2M                                           0x02 
 
 /**
 *   Identity root key used to derive LTK and CSRK
@@ -41,24 +125,23 @@
 */
 #define CFG_BLE_ERK     {0xfe,0xdc,0xba,0x09,0x87,0x65,0x43,0x21,0xfe,0xdc,0xba,0x09,0x87,0x65,0x43,0x21}
 
-/**< specific parameters *//*****************************************************/
-/******************************************************************************
- * Information Table
- *
-  * Version
-  * [0:3]   = Build - 0: Untracked - 15:Released - x: Tracked version
-  * [4:7]   = branch - 0: Mass Market - x: ...
-  * [8:15]  = Subversion
-  * [16:23] = Version minor
-  * [24:31] = Version major
-  *
- ******************************************************************************/
-#define CFG_FW_MAJOR_VERSION      (0)
-#define CFG_FW_MINOR_VERSION      (0)
-#define CFG_FW_SUBVERSION         (1)
-#define CFG_FW_BRANCH             (0)
-#define CFG_FW_BUILD              (0)
+/* USER CODE BEGIN Generic_Parameters */
+/**
+ * SMPS supply
+ * SMPS not used when Set to 0
+ * SMPS used when Set to 1
+ */
+#define CFG_USE_SMPS    1
+/* USER CODE END Generic_Parameters */
 
+/**< specific parameters */
+/*****************************************************/
+
+/**
+* AD Element - Group B Feature
+*/ 
+/* LSB - Second Byte */
+#define CFG_FEATURE_OTA_REBOOT                  (0x20)
 
 /******************************************************************************
  * BLE Stack
@@ -183,7 +266,6 @@
  * to the application a HCI command did not receive its command event within 30s (Default HCI Timeout).
  */
 #define CFG_TLBLE_EVT_QUEUE_LENGTH 5
-
 /**
  * This parameter should be set to fit most events received by the HCI layer. It defines the buffer size of each element
  * allocated in the queue of received events and can be used to optimize the amount of RAM allocated by the Memory Manager.
@@ -197,7 +279,6 @@
 #define CFG_TLBLE_MOST_EVENT_PAYLOAD_SIZE 255   /**< Set to 255 with the memory manager and the mailbox */
 
 #define TL_BLE_EVENT_FRAME_SIZE ( TL_EVT_HDR_SIZE + CFG_TLBLE_MOST_EVENT_PAYLOAD_SIZE )
-
 /******************************************************************************
  * UART interfaces
  ******************************************************************************/
@@ -205,10 +286,8 @@
 /**
  * Select UART interfaces
  */
-#define CFG_UART_GUI            hw_uart1
-#define DBG_TRACE_UART_CFG      hw_lpuart1
-#define CFG_CONSOLE_MENU
-
+#define CFG_DEBUG_TRACE_UART    hw_uart1
+#define CFG_CONSOLE_MENU      0
 /******************************************************************************
  * USB interface
  ******************************************************************************/
@@ -304,7 +383,7 @@
 
 typedef enum
 {
-    CFG_TIM_PROC_ID_ISR,
+  CFG_TIM_PROC_ID_ISR,
 } CFG_TimProcID_t;
 
 /******************************************************************************
@@ -317,10 +396,7 @@ typedef enum
  * This shall be set to 0 in a final product
  *
  */
-#define CFG_HW_RESET_BY_FW        1
-
-#define CFG_LED_SUPPORTED         1
-#define CFG_BUTTON_SUPPORTED      1
+#define CFG_HW_RESET_BY_FW         1
 
 /**
  * keep debugger enabled while in any low power mode when set to 1
@@ -336,18 +412,7 @@ typedef enum
 /**
  * Enable or Disable traces in application
  */
-#define CFG_DEBUG_APP_TRACE   0
-
-
-#if   defined ( __CC_ARM )     /* Keil */
-#undef CFG_DEBUG_BLE_TRACE
-#undef CFG_DEBUG_APP_TRACE
-#undef CFG_LPM_SUPPORTED
-#define CFG_DEBUG_BLE_TRACE     0
-#define CFG_DEBUG_APP_TRACE   0
-#define CFG_LPM_SUPPORTED   0
-#endif
-
+#define CFG_DEBUG_APP_TRACE     0
 
 #if (CFG_DEBUG_APP_TRACE != 0)
 #define APP_DBG_MSG                 PRINT_MESG_DBG
@@ -367,6 +432,51 @@ typedef enum
 #define CFG_DEBUGGER_SUPPORTED      1
 #endif
 
+/**
+ * When CFG_DEBUG_TRACE_FULL is set to 1, the trace are output with the API name, the file name and the line number
+ * When CFG_DEBUG_TRACE_LIGHT is set to 1, only the debug message is output
+ *
+ * When both are set to 0, no trace are output
+ * When both are set to 1,  CFG_DEBUG_TRACE_FULL is selected
+ */
+#define CFG_DEBUG_TRACE_LIGHT     1
+#define CFG_DEBUG_TRACE_FULL      0
+
+#if (( CFG_DEBUG_TRACE != 0 ) && ( CFG_DEBUG_TRACE_LIGHT == 0 ) && (CFG_DEBUG_TRACE_FULL == 0))
+#undef CFG_DEBUG_TRACE_FULL
+#undef CFG_DEBUG_TRACE_LIGHT
+#define CFG_DEBUG_TRACE_FULL      0
+#define CFG_DEBUG_TRACE_LIGHT     1
+#endif
+
+#if ( CFG_DEBUG_TRACE == 0 )
+#undef CFG_DEBUG_TRACE_FULL
+#undef CFG_DEBUG_TRACE_LIGHT
+#define CFG_DEBUG_TRACE_FULL      0
+#define CFG_DEBUG_TRACE_LIGHT     0
+#endif
+
+/**
+ * When not set, the traces is looping on sending the trace over UART
+ */
+#define DBG_TRACE_USE_CIRCULAR_QUEUE 1
+
+/**
+ * max buffer Size to queue data traces and max data trace allowed.
+ * Only Used if DBG_TRACE_USE_CIRCULAR_QUEUE is defined
+ */
+#define DBG_TRACE_MSG_QUEUE_SIZE 4096
+#define MAX_DBG_TRACE_MSG_SIZE 1024
+
+/* USER CODE BEGIN Defines */
+#define CFG_LED_SUPPORTED         0
+#define CFG_BUTTON_SUPPORTED      1
+
+#define PUSH_BUTTON_SW1_EXTI_IRQHandler     EXTI4_IRQHandler
+#define PUSH_BUTTON_SW2_EXTI_IRQHandler     EXTI0_IRQHandler
+#define PUSH_BUTTON_SW3_EXTI_IRQHandler     EXTI1_IRQHandler
+/* USER CODE END Defines */
+
 /******************************************************************************
  * Scheduler
  ******************************************************************************/
@@ -381,11 +491,9 @@ typedef enum
 /**< Add in that list all tasks that may send a ACI/HCI command */
 typedef enum
 {
-  CFG_TASK_BLE_HCI_CMD_ID,
-  CFG_TASK_SYS_HCI_CMD_ID,
-  CFG_TASK_HCI_ACL_DATA_ID,
-  CFG_TASK_SYS_LOCAL_CMD_ID,
-  CFG_TASK_TX_TO_HOST_ID,
+    CFG_TASK_ADV_UPDATE_ID,
+    CFG_TASK_MEAS_REQ_ID,
+    CFG_TASK_HCI_ASYNCH_EVT_ID,
 
     CFG_LAST_TASK_ID_WITH_HCICMD,                                               /**< Shall be LAST in the list */
 } CFG_Task_Id_With_HCI_Cmd_t;
@@ -394,9 +502,7 @@ typedef enum
 typedef enum
 {
     CFG_FIRST_TASK_ID_WITH_NO_HCICMD = CFG_LAST_TASK_ID_WITH_HCICMD - 1,        /**< Shall be FIRST in the list */
-
-  CFG_TASK_VCP_SEND_DATA_ID,
-  CFG_TASK_SYSTEM_HCI_ASYNCH_EVT_ID,
+    CFG_TASK_SYSTEM_HCI_ASYNCH_EVT_ID,
 
     CFG_LAST_TASK_ID_WITHO_NO_HCICMD                                            /**< Shall be LAST in the list */
 } CFG_Task_Id_With_NO_HCI_Cmd_t;
@@ -409,7 +515,6 @@ typedef enum
 typedef enum
 {
     CFG_SCH_PRIO_0,
-  CFG_SCH_PRIO_1,
     CFG_PRIO_NBR,
 } CFG_SCH_Prio_Id_t;
 
@@ -418,6 +523,7 @@ typedef enum
  */
 typedef enum
 {
+    CFG_IDLEEVT_HCI_CMD_EVT_RSP_ID,
     CFG_IDLEEVT_SYSTEM_HCI_CMD_EVT_RSP_ID,
 } CFG_IdleEvt_Id_t;
 
@@ -431,6 +537,7 @@ typedef enum
 typedef enum
 {
     CFG_LPM_APP,
+    CFG_LPM_APP_BLE,
 } CFG_LPM_Id_t;
 
 /******************************************************************************

@@ -36,9 +36,9 @@ FAULT_TYPE_BUS_FAULT            EQU     0x30
 FAULT_TYPE_USAGE_FAULT          EQU     0x40
 
         PRESERVE8
-        THUMB
 
         SECTION .text:CODE:NOROOT(2)
+        THUMB
 
 HardFault_Handler
         EXPORT  HardFault_Handler
@@ -111,7 +111,7 @@ Fault_Handler_Continue2
 #else
         B       .
 #endif
-        ALIGN
+        ALIGNROM 2
 #endif
 
         END

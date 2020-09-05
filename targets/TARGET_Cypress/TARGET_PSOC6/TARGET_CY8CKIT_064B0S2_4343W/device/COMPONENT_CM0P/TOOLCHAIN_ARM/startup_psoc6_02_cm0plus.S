@@ -1,5 +1,5 @@
 ;/**************************************************************************//**
-; * @file     startup_psoc6_02_cm0plus.s
+; * @file     startup_psoc6_02_cm0plus.S
 ; * @brief    CMSIS Core Device Startup File for
 ; *           ARMCM0plus Device Series
 ; * @version  V5.00

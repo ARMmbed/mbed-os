@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra_cfg.h
-* \version 1.0
+* \version 2.0
 *
 * \brief The header file of the PRA driver. The API is not intended to
 * be used directly by the user application.
@@ -61,10 +61,21 @@ extern "C" {
 #define CY_PRA_LP_MODE_MAX_FREQUENCY     100000000UL
 #define CY_PRA_ALTHF_MIN_FREQUENCY       2000000UL
 #define CY_PRA_ALTHF_MAX_FREQUENCY       32000000UL
+#define CY_PRA_ALTHF_FREQ_16MHZ          16000000UL
+#define CY_PRA_ALTHF_FREQ_32MHZ          32000000UL
 #define CY_PRA_ALTHF_MIN_STARTUP_TIME    400UL
 #define CY_PRA_ALTHF_MAX_STARTUP_TIME    4704UL
-#define CY_PRA_ALTHF_MIN_LOAD            7.5
-#define CY_PRA_ALTHF_MAX_LOAD            26.325
+#define CY_PRA_ALTHF_MIN_LOAD            0
+#define CY_PRA_ALTHF_MAX_LOAD            251
+
+#define CY_PRA_ECO_FREQ_MIN              (16000000UL) /* 16 MHz   */
+#define CY_PRA_ECO_FREQ_MAX              (35000000UL) /* 35 MHz   */
+#define CY_PRA_ECO_CSM_MIN               (1UL)        /* 1  pF    */
+#define CY_PRA_ECO_CSM_MAX               (100UL)      /* 100 pF   */
+#define CY_PRA_ECO_ESR_MIN               (1UL)        /* 1  Ohm   */
+#define CY_PRA_ECO_ESR_MAX               (1000UL)     /* 1000 Ohm */
+#define CY_PRA_ECO_DRV_MIN               (1UL)        /* 1 kW     */
+#define CY_PRA_ECO_DRV_MAX               (1000UL)     /* 1 mW     */
 
 #define CY_PRA_FLL_SRC_MIN_FREQUENCY     (1000UL)       /* 1 KHz */
 #define CY_PRA_FLL_SRC_MAX_FREQUENCY     (100000000UL)  /* 100 MHz */
@@ -94,8 +105,6 @@ extern "C" {
 #define CY_PRA_ULP_MODE_HF0_MAX_FREQUENCY  25000000UL
 
 #define CY_PRA_DEFAULT_ZERO              0U
-#define CY_PRA_STRUCT_INITIALIZED        1UL
-#define CY_PRA_STRUCT_NOT_INITIALIZED    0UL
 #define CY_PRA_DATA_ENABLE               1UL
 #define CY_PRA_DATA_DISABLE              0UL
 #define CY_PRA_CLKHF_0                   0UL
@@ -122,7 +131,7 @@ extern "C" {
 
 
 /**
-* \addtogroup group_pra_data_structures_cfg
+* \addtogroup group_pra_stc
 * \{
 */
 
@@ -279,12 +288,11 @@ typedef struct
     /* BLE ECO */
     uint32_t altHFcLoad;                                /**< Load Cap (pF) */
     uint32_t altHFxtalStartUpTime;                      /**< Startup Time (us) */
-    uint32_t altHFfreq;                                 /**< Output Frequency */
+    uint32_t altHFclkFreq;                              /**< Clock Frequency. 0 -> 16MHz and 1 -> 32MHz. Any other value except 0 and 1 is invalid */
     uint32_t altHFsysClkDiv;                            /**< Clock Divider */
     uint32_t altHFvoltageReg;                           /**< BLE Voltage Regulator */
 } cy_stc_pra_system_config_t;
-/** \} group_pra_data_structures_cfg */
-
+/** \} group_pra_stc */
 
 /*******************************************************************************
 *        Function Prototypes

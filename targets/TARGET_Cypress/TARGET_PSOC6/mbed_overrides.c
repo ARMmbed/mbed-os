@@ -22,6 +22,7 @@
 #include "cybsp.h"
 #include "cy_mbed_post_init.h"
 #include "mbed_power_mgmt.h"
+#include "mbed_error.h"
 #if MBED_CONF_RTOS_PRESENT
 #include "rtos_idle.h"
 #endif // MBED_CONF_RTOS_PRESENT
@@ -75,7 +76,9 @@ void mbed_sdk_init(void)
     SystemInit();
 
     /* Set up the device based on configurator selections */
-    cybsp_init();
+    if (CY_RSLT_SUCCESS != cybsp_init()) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_FAILED_OPERATION), "cybsp_init");
+    }
 
     cy_mbed_post_bsp_init_hook();
 

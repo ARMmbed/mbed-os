@@ -18,7 +18,7 @@
 #include "stdint.h"
 #include "stdbool.h"
 #include <cstddef>
-#include "nsapi_types.h"
+#include "netsocket/nsapi_types.h"
 #include "ATHandler.h"
 #include "FileHandle_stub.h"
 #include "Callback.h"

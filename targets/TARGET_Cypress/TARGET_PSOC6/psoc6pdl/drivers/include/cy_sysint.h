@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysint.h
-* \version 1.30.1
+* \version 1.40
 *
 * \brief
 * Provides an API declaration of the SysInt driver
@@ -170,6 +170,13 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.40</td>
+*     <td>Updated the CY_SYSINT_IS_PC_0 macro to access the protected register
+*         for the secure CYB06xx7 devices via \ref group_pra driver.
+*    </td>
+*     <td>Added PSoC 64 devices support.</td>
+*   </tr>
+*   <tr>
 *     <td>1.30.1</td>
 *     <td>Minor documentation updates.</td>
 *     <td>Documentation enhancement.</td>
@@ -240,6 +247,9 @@
 #include <stddef.h>
 #include "cy_device.h"
 #include "cy_syslib.h"
+#if defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2)
+    #include "cy_pra.h"
+#endif /* defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2) */
 #include "cy_device_headers.h"
 
 #if defined(__cplusplus)
@@ -275,7 +285,7 @@ extern cy_israddress __ramVectors[]; /**< Relocated vector table in SRAM */
 #define CY_SYSINT_DRV_VERSION_MAJOR    1
 
 /** Driver minor version */
-#define CY_SYSINT_DRV_VERSION_MINOR    30
+#define CY_SYSINT_DRV_VERSION_MINOR    40
 
 /** SysInt driver ID */
 #define CY_SYSINT_ID CY_PDL_DRV_ID     (0x15U)
@@ -370,7 +380,14 @@ typedef struct {
                                                            ((nmiNum) == CY_SYSINT_NMI2) || \
                                                            ((nmiNum) == CY_SYSINT_NMI3) || \
                                                            ((nmiNum) == CY_SYSINT_NMI4))
-    #define CY_SYSINT_IS_PC_0                             (0UL == _FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(0U)))
+
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) && defined(CY_DEVICE_PSOC6ABLE2)
+        #define CY_SYSINT_IS_PC_0                         (0UL == _FLD2VAL(PROT_MPU_MS_CTL_PC, \
+                                                           CY_PRA_REG32_GET(CY_PRA_INDX_PROT_MPU_MS_CTL)))
+    #else
+        #define CY_SYSINT_IS_PC_0                         (0UL == _FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(0U)))
+    #endif
+
 /** \endcond */
 
 

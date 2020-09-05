@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.h
-* \version 2.10
+* \version 2.20
 *
 * Provides an API declaration of the sysclk driver.
 *
@@ -32,7 +32,7 @@
 * You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
 *
-* Firmware uses the API to configure , enable, or disable a clock.
+* Firmware uses the API to configure, enable, or disable a clock.
 *
 * The clock system includes a variety of resources that can vary per device, including:
 * - Internal clock sources such as internal oscillators
@@ -63,6 +63,11 @@
 * attempting to use these functions.
 * For PSoC 64  devices the clocks configurations are restricted and limited.
 * Refer to the PRA driver, and the TRM and datasheet for details.
+*
+* \warning
+* On the diagram above, the yellow muxes are glitch-safe. All glitch-safe
+* mux transitions take four cycles of the source clock.
+* It is not allowed to turn off the source clock during that time.
 *
 * PSoC 6 power modes limit the maximum clock frequency.
 * Refer to the SysPm driver and the TRM for details.
@@ -102,20 +107,55 @@
 *   </tr>
 * </table>
 *
-* \section group_sysclk_errata Known Issues
-* <table class="doxtable">
-*   <tr><th>Issue</th><th>Workaround</th></tr>
-*   <tr>
-*     <td>The CLKLF does not work if after transition to the new clock
-*         source the previous one is immediately disabled.
-*     </td>
-*     <td>Wait 4 clock cycles of previous CLKLF clock source before disabling it.</td>
-*   </tr>
-* </table>
-*
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="3">2.20</td>
+*     <td>Added the assertion mechanism to the following functions:
+*         * Cy_SysClk_EcoDisable()
+*         * Cy_SysClk_IloEnable()
+*         * Cy_SysClk_IloHibernateOn()
+*         * Cy_SysClk_PiloEnable()
+*         * Cy_SysClk_PiloDisable()
+*         * Cy_SysClk_WcoDisable()
+*         * Cy_SysClk_WcoBypass()
+*         * Cy_SysClk_ClkFastSetDivider()
+*         * Cy_SysClk_ClkPeriSetDivider()
+*         * Cy_SysClk_ClkLfSetSource()
+*         * Cy_SysClk_ClkTimerSetSource()
+*         * Cy_SysClk_ClkTimerSetDivider()
+*         * Cy_SysClk_ClkTimerEnable()
+*         * Cy_SysClk_ClkTimerDisable()
+*         * Cy_SysClk_ClkPumpSetSource()
+*         * Cy_SysClk_ClkPumpSetDivider()
+*         * Cy_SysClk_ClkPumpEnable()
+*         * Cy_SysClk_ClkPumpDisable()
+*         * Cy_SysClk_ClkBakSetSource()
+*
+*         Now, the functions described above halt in assertion when a PRA
+*         request returns not successful operation. This change is
+*         applicable only for the PSoC 64 family devices.
+*     </td>
+*     <td>Enhancements for the debugging process.</td>
+*   </tr>
+*   <tr>
+*     <td>Added \ref Cy_SysClk_PiloInitialTrim and \ref Cy_SysClk_PiloUpdateTrimStep functions.
+*         Extended the \ref Cy_SysClk_PiloTrim function to use the step-size value calculated for PILO
+*         based on the \ref Cy_SysClk_PiloInitialTrim and \ref Cy_SysClk_PiloUpdateTrimStep
+*         functions call. </td>
+*     </td>
+*     <td>User experience enhancement.</td>
+*   </tr>
+*   <tr>
+*     <td>
+*          * Added the warning that during a glitch-safe mux, the transition is not allowed
+*            to disable the previous clock source. See more info
+*            in the \ref group_sysclk_configuration.
+*          * Removed Known Issues table.
+*     </td>
+*     <td>Documentation updates.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="3">2.10</td>
 *     <td>Updated SysClk functions for PSoC 64 devices. Now the SysClk functions can return
@@ -457,6 +497,7 @@
 *
 *   \defgroup group_sysclk_calclk_funcs    Functions
 *   \defgroup group_sysclk_calclk_enums    Enumerated Types
+*   \defgroup group_sysclk_calclk_structs  Data Structures
 * \}
 * \defgroup group_sysclk_trim            Clock Trim (ILO, PILO)
 * \{
@@ -701,7 +742,7 @@ extern "C" {
 /** Driver major version */
 #define  CY_SYSCLK_DRV_VERSION_MAJOR   2
 /** Driver minor version */
-#define  CY_SYSCLK_DRV_VERSION_MINOR   10
+#define  CY_SYSCLK_DRV_VERSION_MINOR   20
 /** Sysclk driver identifier */
 #define CY_SYSCLK_ID   CY_PDL_DRV_ID(0x12U)
 
@@ -716,6 +757,9 @@ extern "C" {
 #define CY_SYSCLK_IMO_FREQ  (8000000UL) /* Hz */
 /** MFO clock frequency */
 #define CY_SYSCLK_MFO_FREQ  (2000000UL) /* Hz */
+
+/** CY_SYSCLK_PILO_TRIM_STEP is the default PILO TRIM Step value */
+#define CY_SYSCLK_PILO_TRIM_STEP  (5UL) /* Default PILO TRIM Step size */
 
 /** \} group_sysclk_macros */
 
@@ -734,10 +778,76 @@ typedef enum
 } cy_en_sysclk_status_t;
 /** \} group_sysclk_returns */
 
+/**
+* \addtogroup group_sysclk_calclk_enums
+* \{
+*/
+/** Defines all possible clock sources */
+typedef enum
+{
+    CY_SYSCLK_MEAS_CLK_NC =            0U,
+    CY_SYSCLK_MEAS_CLK_ILO =           1U,
+    CY_SYSCLK_MEAS_CLK_WCO =           2U,
+    CY_SYSCLK_MEAS_CLK_BAK =           3U,
+    CY_SYSCLK_MEAS_CLK_ALTLF =         4U,
+    CY_SYSCLK_MEAS_CLK_LFCLK =         5U,
+    CY_SYSCLK_MEAS_CLK_IMO =           6U,
+    CY_SYSCLK_MEAS_CLK_PILO =          8U,
+    CY_SYSCLK_MEAS_CLK_FAST_CLKS =     0x100U,
+    CY_SYSCLK_MEAS_CLK_ECO =           0x101U,
+    CY_SYSCLK_MEAS_CLK_EXT =           0x102U,
+    CY_SYSCLK_MEAS_CLK_ALTHF =         0x103U,
+    CY_SYSCLK_MEAS_CLK_TIMERCLK =      0x104U,
+    CY_SYSCLK_MEAS_CLK_PATH_CLKS =     0x500U,
+    CY_SYSCLK_MEAS_CLK_PATH0 =         0x500U,
+    CY_SYSCLK_MEAS_CLK_PATH1 =         0x501U,
+    CY_SYSCLK_MEAS_CLK_PATH2 =         0x502U,
+    CY_SYSCLK_MEAS_CLK_PATH3 =         0x503U,
+    CY_SYSCLK_MEAS_CLK_PATH4 =         0x504U,
+    CY_SYSCLK_MEAS_CLK_PATH5 =         0x505U,
+    CY_SYSCLK_MEAS_CLK_PATH6 =         0x506U,
+    CY_SYSCLK_MEAS_CLK_PATH7 =         0x507U,
+    CY_SYSCLK_MEAS_CLK_PATH8 =         0x508U,
+    CY_SYSCLK_MEAS_CLK_PATH9 =         0x509U,
+    CY_SYSCLK_MEAS_CLK_PATH10 =        0x50AU,
+    CY_SYSCLK_MEAS_CLK_PATH11 =        0x50BU,
+    CY_SYSCLK_MEAS_CLK_PATH12 =        0x50CU,
+    CY_SYSCLK_MEAS_CLK_PATH13 =        0x50DU,
+    CY_SYSCLK_MEAS_CLK_PATH14 =        0x50EU,
+    CY_SYSCLK_MEAS_CLK_PATH15 =        0x50FU,
+    CY_SYSCLK_MEAS_CLK_CLKHFS =        0x600U,
+    CY_SYSCLK_MEAS_CLK_CLKHF0 =        0x600U,
+    CY_SYSCLK_MEAS_CLK_CLKHF1 =        0x601U,
+    CY_SYSCLK_MEAS_CLK_CLKHF2 =        0x602U,
+    CY_SYSCLK_MEAS_CLK_CLKHF3 =        0x603U,
+    CY_SYSCLK_MEAS_CLK_CLKHF4 =        0x604U,
+    CY_SYSCLK_MEAS_CLK_CLKHF5 =        0x605U,
+    CY_SYSCLK_MEAS_CLK_CLKHF6 =        0x606U,
+    CY_SYSCLK_MEAS_CLK_CLKHF7 =        0x607U,
+    CY_SYSCLK_MEAS_CLK_CLKHF8 =        0x608U,
+    CY_SYSCLK_MEAS_CLK_CLKHF9 =        0x609U,
+    CY_SYSCLK_MEAS_CLK_CLKHF10 =       0x60AU,
+    CY_SYSCLK_MEAS_CLK_CLKHF11 =       0x60BU,
+    CY_SYSCLK_MEAS_CLK_CLKHF12 =       0x60CU,
+    CY_SYSCLK_MEAS_CLK_CLKHF13 =       0x60DU,
+    CY_SYSCLK_MEAS_CLK_CLKHF14 =       0x60EU,
+    CY_SYSCLK_MEAS_CLK_CLKHF15 =       0x60FU,
+    CY_SYSCLK_MEAS_CLK_LAST_CLK =      0x610U
+} cy_en_meas_clks_t;
+
+/** \} group_sysclk_calclk_enums */
+
 
 /* ========================================================================== */
 /* ===========================    EXT SECTION    ============================ */
 /* ========================================================================== */
+
+/** \cond INTERNAL */
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+    /* Internal storage for external clock frequency user setting */
+    extern uint32_t cySysClkExtFreq;
+#endif
+/** \endcond */
 
 /**
 * \addtogroup group_sysclk_ext_funcs
@@ -807,7 +917,13 @@ __STATIC_INLINE uint32_t Cy_SysClk_EcoGetStatus(void);
 __STATIC_INLINE void Cy_SysClk_EcoDisable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ECO_DISABLE, 0UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ECO_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     SRSS_CLK_ECO_CONFIG &= ~SRSS_CLK_ECO_CONFIG_ECO_EN_Msk;
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -1262,8 +1378,13 @@ __STATIC_INLINE void Cy_SysClk_IloHibernateOn(bool on);
 __STATIC_INLINE void Cy_SysClk_IloEnable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ILO_ENABLE, 1UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ILO_ENABLE, 1UL);
 
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     SRSS_CLK_ILO_CONFIG |= SRSS_CLK_ILO_CONFIG_ENABLE_Msk;
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -1348,7 +1469,13 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_IloDisable(void)
 __STATIC_INLINE void Cy_SysClk_IloHibernateOn(bool on)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ILO_HIBERNATE_ON, on);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_ILO_HIBERNATE_ON, on);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_REG32_CLR_SET(SRSS_CLK_ILO_CONFIG, SRSS_CLK_ILO_CONFIG_ILO_BACKUP, ((on) ? 1UL : 0UL));
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -1385,7 +1512,13 @@ __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void);
 __STATIC_INLINE void Cy_SysClk_PiloEnable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PILO_ENABLE, 1UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PILO_ENABLE, 1UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     SRSS_CLK_PILO_CONFIG |= SRSS_CLK_PILO_CONFIG_PILO_EN_Msk; /* 1 = enable */
     Cy_SysLib_Delay(1U/*msec*/);
@@ -1427,7 +1560,13 @@ __STATIC_INLINE bool Cy_SysClk_PiloIsEnabled(void)
 __STATIC_INLINE void Cy_SysClk_PiloDisable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PILO_DISABLE, 0UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PILO_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     /* Clear PILO_EN, PILO_RESET_N, and PILO_CLK_EN bitfields. This disables the
        PILO and holds the PILO in a reset state. */
@@ -1452,7 +1591,7 @@ __STATIC_INLINE void Cy_SysClk_PiloDisable(void)
 __STATIC_INLINE void Cy_SysClk_PiloSetTrim(uint32_t trimVal)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    (void) trimVal;
+    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_SECURE_ONLY, CY_PRA_CLK_FUNC_SET_PILO_TRIM, trimVal);
 #else
     CY_REG32_CLR_SET(SRSS_CLK_PILO_CONFIG, SRSS_CLK_PILO_CONFIG_PILO_FFREQ, trimVal);
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -1527,62 +1666,20 @@ __STATIC_INLINE bool Cy_SysClk_AltLfIsEnabled(void)
 /* ====================    CLOCK MEASUREMENT SECTION    ===================== */
 /* ========================================================================== */
 /**
-* \addtogroup group_sysclk_calclk_enums
+* \addtogroup group_sysclk_calclk_structs
 * \{
 */
-/** Defines all possible clock sources */
-typedef enum
+#if (defined(CY_DEVICE_SECURE))
+/** PRA structure for Cy_SysClk_StartClkMeasurementCounters function parameters */
+typedef struct
 {
-    CY_SYSCLK_MEAS_CLK_NC =            0U,
-    CY_SYSCLK_MEAS_CLK_ILO =           1U,
-    CY_SYSCLK_MEAS_CLK_WCO =           2U,
-    CY_SYSCLK_MEAS_CLK_BAK =           3U,
-    CY_SYSCLK_MEAS_CLK_ALTLF =         4U,
-    CY_SYSCLK_MEAS_CLK_LFCLK =         5U,
-    CY_SYSCLK_MEAS_CLK_IMO =           6U,
-    CY_SYSCLK_MEAS_CLK_PILO =          8U,
-    CY_SYSCLK_MEAS_CLK_FAST_CLKS =     0x100U,
-    CY_SYSCLK_MEAS_CLK_ECO =           0x101U,
-    CY_SYSCLK_MEAS_CLK_EXT =           0x102U,
-    CY_SYSCLK_MEAS_CLK_ALTHF =         0x103U,
-    CY_SYSCLK_MEAS_CLK_TIMERCLK =      0x104U,
-    CY_SYSCLK_MEAS_CLK_PATH_CLKS =     0x500U,
-    CY_SYSCLK_MEAS_CLK_PATH0 =         0x500U,
-    CY_SYSCLK_MEAS_CLK_PATH1 =         0x501U,
-    CY_SYSCLK_MEAS_CLK_PATH2 =         0x502U,
-    CY_SYSCLK_MEAS_CLK_PATH3 =         0x503U,
-    CY_SYSCLK_MEAS_CLK_PATH4 =         0x504U,
-    CY_SYSCLK_MEAS_CLK_PATH5 =         0x505U,
-    CY_SYSCLK_MEAS_CLK_PATH6 =         0x506U,
-    CY_SYSCLK_MEAS_CLK_PATH7 =         0x507U,
-    CY_SYSCLK_MEAS_CLK_PATH8 =         0x508U,
-    CY_SYSCLK_MEAS_CLK_PATH9 =         0x509U,
-    CY_SYSCLK_MEAS_CLK_PATH10 =        0x50AU,
-    CY_SYSCLK_MEAS_CLK_PATH11 =        0x50BU,
-    CY_SYSCLK_MEAS_CLK_PATH12 =        0x50CU,
-    CY_SYSCLK_MEAS_CLK_PATH13 =        0x50DU,
-    CY_SYSCLK_MEAS_CLK_PATH14 =        0x50EU,
-    CY_SYSCLK_MEAS_CLK_PATH15 =        0x50FU,
-    CY_SYSCLK_MEAS_CLK_CLKHFS =        0x600U,
-    CY_SYSCLK_MEAS_CLK_CLKHF0 =        0x600U,
-    CY_SYSCLK_MEAS_CLK_CLKHF1 =        0x601U,
-    CY_SYSCLK_MEAS_CLK_CLKHF2 =        0x602U,
-    CY_SYSCLK_MEAS_CLK_CLKHF3 =        0x603U,
-    CY_SYSCLK_MEAS_CLK_CLKHF4 =        0x604U,
-    CY_SYSCLK_MEAS_CLK_CLKHF5 =        0x605U,
-    CY_SYSCLK_MEAS_CLK_CLKHF6 =        0x606U,
-    CY_SYSCLK_MEAS_CLK_CLKHF7 =        0x607U,
-    CY_SYSCLK_MEAS_CLK_CLKHF8 =        0x608U,
-    CY_SYSCLK_MEAS_CLK_CLKHF9 =        0x609U,
-    CY_SYSCLK_MEAS_CLK_CLKHF10 =       0x60AU,
-    CY_SYSCLK_MEAS_CLK_CLKHF11 =       0x60BU,
-    CY_SYSCLK_MEAS_CLK_CLKHF12 =       0x60CU,
-    CY_SYSCLK_MEAS_CLK_CLKHF13 =       0x60DU,
-    CY_SYSCLK_MEAS_CLK_CLKHF14 =       0x60EU,
-    CY_SYSCLK_MEAS_CLK_CLKHF15 =       0x60FU,
-    CY_SYSCLK_MEAS_CLK_LAST_CLK =      0x610U
-} cy_en_meas_clks_t;
-/** \} group_sysclk_calclk_enums */
+    cy_en_meas_clks_t clock1;        /**< clock1 */
+    uint32_t          count1;        /**< count  */
+    cy_en_meas_clks_t clock2;        /**< clock2 */
+} cy_stc_pra_start_clk_measurement_t;
+
+#endif /* (defined(CY_DEVICE_SECURE)) */
+/** \} group_sysclk_calclk_structs */
 
 /**
 * \addtogroup group_sysclk_calclk_funcs
@@ -1609,11 +1706,7 @@ uint32_t Cy_SysClk_ClkMeasurementCountersGetFreq(bool measuredClock, uint32_t re
 *******************************************************************************/
 __STATIC_INLINE bool Cy_SysClk_ClkMeasurementCountersDone(void)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    return false;
-#else
     return (_FLD2BOOL(SRSS_CLK_CAL_CNT1_CAL_COUNTER_DONE, SRSS_CLK_CAL_CNT1));
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 /** \} group_sysclk_calclk_funcs */
 
@@ -1621,12 +1714,16 @@ __STATIC_INLINE bool Cy_SysClk_ClkMeasurementCountersDone(void)
 /* ========================================================================== */
 /* ==========================    TRIM SECTION    ============================ */
 /* ========================================================================== */
+/* nominal trim step size */
+
 /**
 * \addtogroup group_sysclk_trim_funcs
 * \{
 */
 int32_t Cy_SysClk_IloTrim(uint32_t iloFreq);
 int32_t Cy_SysClk_PiloTrim(uint32_t piloFreq);
+void Cy_SysClk_PiloInitialTrim(void);
+void Cy_SysClk_PiloUpdateTrimStep(void);
 /** \} group_sysclk_trim_funcs */
 
 
@@ -1785,7 +1882,13 @@ __STATIC_INLINE bool Cy_SysClk_WcoOkay(void)
 __STATIC_INLINE void Cy_SysClk_WcoDisable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_WCO_DISABLE, 0UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_WCO_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     BACKUP_CTL &= (uint32_t)~BACKUP_CTL_WCO_EN_Msk;
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -1808,7 +1911,13 @@ __STATIC_INLINE void Cy_SysClk_WcoDisable(void)
 __STATIC_INLINE void Cy_SysClk_WcoBypass(cy_en_wco_bypass_modes_t bypass)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_WCO_BYPASS, bypass);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_WCO_BYPASS, bypass);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_REG32_CLR_SET(BACKUP_CTL, BACKUP_CTL_WCO_BYPASS, bypass);
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -2456,7 +2565,13 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkFastGetFrequency(void)
 __STATIC_INLINE void Cy_SysClk_ClkFastSetDivider(uint8_t divider)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_FAST_SET_DIVIDER, divider);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_FAST_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_REG32_CLR_SET(CPUSS_CM4_CLOCK_CTL, CPUSS_CM4_CLOCK_CTL_FAST_INT_DIV, divider);
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -2538,7 +2653,13 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkPeriGetFrequency(void)
 __STATIC_INLINE void Cy_SysClk_ClkPeriSetDivider(uint8_t divider)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PERI_SET_DIVIDER, divider);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PERI_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_REG32_CLR_SET(CPUSS_CM0_CLOCK_CTL, CPUSS_CM0_CLOCK_CTL_PERI_INT_DIV, divider);
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -3167,7 +3288,13 @@ __STATIC_INLINE cy_en_clklf_in_sources_t Cy_SysClk_ClkLfGetSource(void);
 __STATIC_INLINE void Cy_SysClk_ClkLfSetSource(cy_en_clklf_in_sources_t source)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_LF_SET_SOURCE, source);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_LF_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_ASSERT_L3(source <= CY_SYSCLK_CLKLF_IN_PILO);
     CY_REG32_CLR_SET(SRSS_CLK_SELECT, SRSS_CLK_SELECT_LFCLK_SEL, source);
@@ -3251,7 +3378,13 @@ __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void);
 __STATIC_INLINE void Cy_SysClk_ClkTimerSetSource(cy_en_clktimer_in_sources_t source)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_SET_SOURCE, source);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_ASSERT_L3(source <= CY_SYSCLK_CLKTIMER_IN_HF0_DIV8);
     /* set both fields TIMER_SEL and TIMER_HF0_DIV with the same input value */
@@ -3298,7 +3431,13 @@ __STATIC_INLINE cy_en_clktimer_in_sources_t Cy_SysClk_ClkTimerGetSource(void)
 __STATIC_INLINE void Cy_SysClk_ClkTimerSetDivider(uint8_t divider)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_SET_DIVIDER, divider);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_REG32_CLR_SET(SRSS_CLK_TIMER_CTL, SRSS_CLK_TIMER_CTL_TIMER_DIV, divider);
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -3337,7 +3476,13 @@ __STATIC_INLINE uint8_t Cy_SysClk_ClkTimerGetDivider(void)
 __STATIC_INLINE void Cy_SysClk_ClkTimerEnable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_ENABLE, 1UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_ENABLE, 1UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     SRSS_CLK_TIMER_CTL |= SRSS_CLK_TIMER_CTL_ENABLE_Msk;
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -3375,7 +3520,13 @@ __STATIC_INLINE bool Cy_SysClk_ClkTimerIsEnabled(void)
 __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_DISABLE, 0UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_TIMER_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     SRSS_CLK_TIMER_CTL &= ~SRSS_CLK_TIMER_CTL_ENABLE_Msk;
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -3472,7 +3623,13 @@ __STATIC_INLINE uint32_t Cy_SysClk_ClkPumpGetFrequency(void);
 __STATIC_INLINE void Cy_SysClk_ClkPumpSetSource(cy_en_clkpump_in_sources_t source)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_SET_SOURCE, source);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_ASSERT_L3(source <= CY_SYSCLK_PUMP_IN_CLKPATH15);
     CY_REG32_CLR_SET(SRSS_CLK_SELECT, SRSS_CLK_SELECT_PUMP_SEL, source);
@@ -3516,7 +3673,13 @@ __STATIC_INLINE cy_en_clkpump_in_sources_t Cy_SysClk_ClkPumpGetSource(void)
 __STATIC_INLINE void Cy_SysClk_ClkPumpSetDivider(cy_en_clkpump_divide_t divider)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_SET_DIVIDER, divider);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_SET_DIVIDER, divider);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_ASSERT_L3(CY_SYSCLK_FLL_IS_DIVIDER_VALID(divider));
     CY_REG32_CLR_SET(SRSS_CLK_SELECT, SRSS_CLK_SELECT_PUMP_DIV, divider);
@@ -3556,7 +3719,13 @@ __STATIC_INLINE cy_en_clkpump_divide_t Cy_SysClk_ClkPumpGetDivider(void)
 __STATIC_INLINE void Cy_SysClk_ClkPumpEnable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_ENABLE, 1UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_ENABLE, 1UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     SRSS_CLK_SELECT |= SRSS_CLK_SELECT_PUMP_ENABLE_Msk;
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -3594,7 +3763,13 @@ __STATIC_INLINE bool Cy_SysClk_ClkPumpIsEnabled(void)
 __STATIC_INLINE void Cy_SysClk_ClkPumpDisable(void)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_DISABLE, 0UL);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PUMP_DISABLE, 0UL);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     SRSS_CLK_SELECT &= ~SRSS_CLK_SELECT_PUMP_ENABLE_Msk;
 #endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
@@ -3669,7 +3844,13 @@ __STATIC_INLINE cy_en_clkbak_in_sources_t Cy_SysClk_ClkBakGetSource(void);
 __STATIC_INLINE void Cy_SysClk_ClkBakSetSource(cy_en_clkbak_in_sources_t source)
 {
 #if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    CY_PRA_FUNCTION_CALL_VOID_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_BAK_SET_SOURCE, source);
+    cy_en_pra_status_t retStatus;
+    retStatus = CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_BAK_SET_SOURCE, source);
+
+    if (retStatus != CY_PRA_STATUS_SUCCESS)
+    {
+        CY_ASSERT_L1(false);
+    }
 #else
     CY_ASSERT_L3(source <= CY_SYSCLK_BAK_IN_CLKLF);
     CY_REG32_CLR_SET(BACKUP_CTL, BACKUP_CTL_CLK_SEL, source);

@@ -1,0 +1,13 @@
+{
+    "name": "ble-api-implementation",
+    "config": {
+        "max-characteristic-authorisation-count": {
+            "help": "Maximum count of characteristics that can be stored for authorisation purposes.",
+            "value": 20
+        },
+        "max-cccd-count": {
+            "help": "Client characteristic configuration descriptors settings.",
+            "value": 20
+        }
+    }
+}

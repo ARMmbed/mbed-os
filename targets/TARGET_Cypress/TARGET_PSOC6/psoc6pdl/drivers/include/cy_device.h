@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.h
-* \version 2.20
+* \version 2.30
 *
 * This file specifies the structure for core and peripheral block HW base
 * addresses, versions, and parameters.
@@ -357,6 +357,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define FLASHC_FLASH_CMD                    (((FLASHC_V1_Type *) cy_device->flashcBase)->FLASH_CMD)
 #define FLASHC_FLASH_CTL                    (((FLASHC_V1_Type *) cy_device->flashcBase)->FLASH_CTL)
 #define FLASHC_BIST_DATA_0                  (((FLASHC_V1_Type *) cy_device->flashcBase)->BIST_DATA[0U])
+#define FLASHC_BIST_STATUS                  (((FLASHC_V1_Type *) cy_device->flashcBase)->BIST_STATUS)
 
 
 /*******************************************************************************

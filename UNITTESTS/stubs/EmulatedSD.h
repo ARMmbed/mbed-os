@@ -17,7 +17,7 @@
 #ifndef EMULATEDSD_H
 #define EMULATEDSD_H
 
-#include "features/storage/blockdevice/BlockDevice.h"
+#include "blockdevice/BlockDevice.h"
 
 class EmulatedSD_Private;
 

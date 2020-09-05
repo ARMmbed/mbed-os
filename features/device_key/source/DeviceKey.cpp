@@ -19,10 +19,10 @@
 #if DEVICEKEY_ENABLED
 #include "mbedtls/cmac.h"
 #include "mbedtls/platform.h"
-#include "features/storage/kvstore/include/KVStore.h"
-#include "features/storage/kvstore/tdbstore/TDBStore.h"
-#include "features/storage/kvstore/kv_map/KVMap.h"
-#include "features/storage/kvstore/conf/kv_config.h"
+#include "kvstore/KVStore.h"
+#include "kvstore/TDBStore.h"
+#include "kvstore/KVMap.h"
+#include "kv_config/kv_config.h"
 #include "mbed_wait_api.h"
 #include <stdlib.h>
 #include "platform/mbed_error.h"
