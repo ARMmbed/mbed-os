@@ -77,6 +77,11 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
         obj->index = 1;
     }
 #endif
+#if defined(FDCAN3_BASE)
+    else if (pinmap->peripheral == CAN_3) {
+        obj->index = 2;
+    }
+#endif
     else {
         error("can_init wrong instance\n");
         return;
@@ -198,6 +203,12 @@ void can_irq_free(can_t *obj)
     else if (can == CAN_2) {
         HAL_NVIC_DisableIRQ(FDCAN2_IT0_IRQn);
         HAL_NVIC_DisableIRQ(FDCAN2_IT1_IRQn);
+    }
+#endif
+#if defined(FDCAN3_BASE)
+    else if (can == CAN_3) {
+        HAL_NVIC_DisableIRQ(FDCAN3_IT0_IRQn);
+        HAL_NVIC_DisableIRQ(FDCAN3_IT1_IRQn);
     }
 #endif
     else {
@@ -505,6 +516,17 @@ void FDCAN2_IT1_IRQHandler(void)
     can_irq(CAN_2, 1);
 }
 
+void FDCAN3_IT0_IRQHandler(void)
+{
+    can_irq(CAN_3, 2);
+}
+
+void FDCAN3_IT1_IRQHandler(void)
+{
+    can_irq(CAN_3, 2);
+}
+
+
 // TODO Add other interrupts ?
 void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 {
@@ -548,6 +570,12 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
     NVIC_EnableIRQ(FDCAN2_IT0_IRQn);
     NVIC_SetVector(FDCAN2_IT1_IRQn, (uint32_t)&FDCAN2_IT1_IRQHandler);
     NVIC_EnableIRQ(FDCAN2_IT1_IRQn);
+#endif
+#if defined(FDCAN3_BASE)
+    NVIC_SetVector(FDCAN3_IT0_IRQn, (uint32_t)&FDCAN3_IT0_IRQHandler);
+    NVIC_EnableIRQ(FDCAN3_IT0_IRQn);
+    NVIC_SetVector(FDCAN3_IT1_IRQn, (uint32_t)&FDCAN3_IT1_IRQHandler);
+    NVIC_EnableIRQ(FDCAN3_IT1_IRQn);
 #endif
 }
 
