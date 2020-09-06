@@ -371,7 +371,7 @@ USBMouseKeyboard::USBMouseKeyboard(USBPhy *phy, MOUSE_TYPE mouse_type, uint16_t 
     _lock_status = 0;
     _button = 0;
     _mouse_type = mouse_type;
-};
+}
 
 /**
  * Destroy this object
