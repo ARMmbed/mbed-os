@@ -156,7 +156,7 @@ exit_point:
     return status;
 }
 
-int FileSystemStore::set(const char *key, const void *buffer, size_t size, uint32_t create_flags)
+int FileSystemStore::set(const char *key, const void *buffer, size_t size, uint32_t create_flags_)
 {
     int status = MBED_SUCCESS;
     set_handle_t handle;
@@ -171,7 +171,7 @@ int FileSystemStore::set(const char *key, const void *buffer, size_t size, uint3
         goto exit_point;
     }
 
-    status = set_start(&handle, key, size, create_flags);
+    status = set_start(&handle, key, size, create_flags_);
     if (status != MBED_SUCCESS) {
         tr_error("FSST Set set_start Failed: %d", status);
         goto exit_point;
@@ -250,7 +250,7 @@ exit_point:
     return status;
 }
 
-int FileSystemStore::get_info(const char *key, info_t *info)
+int FileSystemStore::get_info(const char *key, info_t *info_)
 {
     int status = MBED_SUCCESS;
     File kv_file;
@@ -269,9 +269,9 @@ int FileSystemStore::get_info(const char *key, info_t *info)
         goto exit_point;
     }
 
-    if (info != NULL) {
-        info->size = kv_file.size() - key_metadata.metadata_size;
-        info->flags = key_metadata.user_flags;
+    if (info_ != NULL) {
+        info_->size = kv_file.size() - key_metadata.metadata_size;
+        info_->flags = key_metadata.user_flags;
     }
 
 exit_point:
@@ -323,7 +323,7 @@ exit_point:
 }
 
 // Incremental set API
-int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t final_data_size, uint32_t create_flags)
+int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t final_data_size, uint32_t create_flags_)
 {
     int status = MBED_SUCCESS;
     inc_set_handle_t *set_handle = NULL;
@@ -331,7 +331,7 @@ int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t fin
     key_metadata_t key_metadata;
     int key_len = 0;
 
-    if (create_flags & ~supported_flags) {
+    if (create_flags_ & ~supported_flags) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
@@ -375,7 +375,7 @@ int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t fin
     _cur_inc_data_size = 0;
 
     set_handle = new inc_set_handle_t;
-    set_handle->create_flags = create_flags;
+    set_handle->create_flags = create_flags_;
     set_handle->data_size = final_data_size;
     set_handle->file_handle = kv_file;
     key_len = strlen(key);
@@ -386,7 +386,7 @@ int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t fin
     key_metadata.magic = FSST_MAGIC;
     key_metadata.metadata_size = sizeof(key_metadata_t);
     key_metadata.revision = FSST_REVISION;
-    key_metadata.user_flags = create_flags;
+    key_metadata.user_flags = create_flags_;
     kv_file->write(&key_metadata, sizeof(key_metadata_t));
 
 exit_point:
