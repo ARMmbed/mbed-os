@@ -52,9 +52,9 @@ public:
         init(instance, NULL, NULL);
     }
 
-    inline CThunk(T *instance, CCallback callback)
+    inline CThunk(T *instance, CCallback ccallback)
     {
-        init(instance, callback, NULL);
+        init(instance, ccallback, NULL);
     }
 
     ~CThunk()
@@ -65,34 +65,34 @@ public:
         }
     }
 
-    inline CThunk(T *instance, CCallbackSimple callback)
+    inline CThunk(T *instance, CCallbackSimple ccallbacksimple)
     {
-        init(instance, (CCallback)callback, NULL);
+        init(instance, (CCallback)ccallbacksimple, NULL);
     }
 
-    inline CThunk(T &instance, CCallback callback)
+    inline CThunk(T &instance, CCallback ccallback)
     {
-        init(instance, callback, NULL);
+        init(instance, ccallback, NULL);
     }
 
-    inline CThunk(T &instance, CCallbackSimple callback)
+    inline CThunk(T &instance, CCallbackSimple ccallbacksimple)
     {
-        init(instance, (CCallback)callback, NULL);
+        init(instance, (CCallback)ccallbacksimple, NULL);
     }
 
-    inline CThunk(T &instance, CCallback callback, void *context)
+    inline CThunk(T &instance, CCallback ccallback, void *context)
     {
-        init(instance, callback, context);
+        init(instance, ccallback, context);
     }
 
-    inline void callback(CCallback callback)
+    inline void callback(CCallback ccallback)
     {
-        _callback = callback;
+        _callback = ccallback;
     }
 
-    inline void callback(CCallbackSimple callback)
+    inline void callback(CCallbackSimple ccallbacksimple)
     {
-        _callback_simple = callback;
+        _callback_simple = ccallbacksimple;
     }
 
     inline void context(void *context)
@@ -153,11 +153,11 @@ private:
         }
     }
 
-    inline void init(T *instance, CCallback callback, void *context)
+    inline void init(T *instance, CCallback ccallback, void *context)
     {
         _instance = instance;
         _context = context;
-        _callback = callback;
+        _callback = ccallback;
         _trampoline = &trampoline;
         _entry = 0;
     }
