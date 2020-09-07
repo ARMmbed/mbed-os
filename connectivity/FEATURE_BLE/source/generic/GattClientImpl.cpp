@@ -1105,6 +1105,16 @@ ble_error_t GattClient::discoverServices(
     );
 }
 
+ble_error_t GattClient::discoverServices(
+    ble::connection_handle_t connectionHandle,
+    ServiceDiscovery::ServiceCallback_t callback,
+    GattAttribute::Handle_t startHandle,
+    GattAttribute::Handle_t endHandle
+)
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 bool GattClient::isServiceDiscoveryActive() const
 {
     ProcedureControlBlock *pcb = control_blocks;
