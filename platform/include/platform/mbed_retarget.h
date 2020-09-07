@@ -564,6 +564,15 @@ struct pollfd {
     short revents;
 };
 
+// ignore -Wshadow on GCC
+// this code mimics UNIX <sys/statvfs.h> so we can not rename the shaddowed statvfs nor the constructor
+// the warning we are ignoring is:
+// mbed_retarget.h@593,54: 'int statvfs(const char*, statvfs*)' hides constructor for 'struct statvfs' [-Wshadow]
+#ifdef __GNUC__ 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif //__GNUC__
+
 /* POSIX-compatible I/O functions */
 #if __cplusplus
 extern "C" {
@@ -601,6 +610,10 @@ extern "C" {
 #endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 #if __cplusplus
 } // extern "C"
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif //__GNUC__
 
 namespace mbed {
 #if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
