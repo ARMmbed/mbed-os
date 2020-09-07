@@ -109,6 +109,15 @@ typedef int (dhcp_service_receive_req_cb)(uint16_t instance_id, uint32_t msg_tr_
 
 typedef int (dhcp_service_receive_resp_cb)(uint16_t instance_id, void *ptr, uint8_t msg_name,  uint8_t *msg_ptr, uint16_t msg_len);
 
+/**
+ * \brief Neighbour table update callback this is called for DHCP relay and server link local responses.
+ *
+ * \param interface interface where address is got
+ * \param ll_addr Link local which neighbour must be guarantee.
+ *
+ */
+typedef void (dhcp_relay_neighbour_cb)(int8_t interface, uint8_t ll_addr[static 16]);
+
 
 /**
  * \brief Initialize a new DHCP service instance.
@@ -234,6 +243,17 @@ void dhcp_service_req_remove_all(void *msg_class_ptr);
  *
  */
 bool dhcp_service_timer_tick(uint16_t ticks);
+
+/**
+ * \brief Register callback which is called when Relay or server RX direct message.
+ *
+ * \param interface_id Interface id for registed callback.
+ * \param notify_cb callback pointer
+ *
+ * \return 0, if everything went fine.
+ * \return -1, if error occurred.
+ */
+int dhcp_service_link_local_rx_cb_set(int8_t interface_id, dhcp_relay_neighbour_cb *notify_cb);
 
 
 #endif //DHCP_SERVICE_API_H_

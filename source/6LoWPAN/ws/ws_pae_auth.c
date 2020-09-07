@@ -94,6 +94,7 @@ typedef struct {
     ws_pae_auth_nw_info_updated *nw_info_updated;            /**< Security keys network info updated callback */
     ws_pae_auth_ip_addr_get *ip_addr_get;                    /**< IP address get callback */
     supp_list_t active_supp_list;                            /**< List of active supplicants */
+    shared_comp_list_t shared_comp_list;                     /**< Shared component list */
     arm_event_storage_t *timer;                              /**< Timer */
     sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
     const sec_prot_certs_t *certs;                           /**< Certificates */
@@ -121,6 +122,8 @@ static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp)
 static int8_t ws_pae_auth_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp);
 static int8_t ws_pae_auth_timer_start(pae_auth_t *pae_auth);
 static int8_t ws_pae_auth_timer_stop(pae_auth_t *pae_auth);
+static int8_t ws_pae_auth_shared_comp_add(kmp_service_t *service, kmp_shared_comp_t *data);
+static int8_t ws_pae_auth_shared_comp_remove(kmp_service_t *service, kmp_shared_comp_t *data);
 static bool ws_pae_auth_timer_running(pae_auth_t *pae_auth);
 static void ws_pae_auth_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
 static void ws_pae_auth_kmp_service_ip_addr_get(kmp_service_t *service, kmp_api_t *kmp, uint8_t *address);
@@ -156,6 +159,7 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->pan_id = 0xffff;
     pae_auth->interface_ptr = interface_ptr;
     ws_pae_lib_supp_list_init(&pae_auth->active_supp_list);
+    ws_pae_lib_shared_comp_list_init(&pae_auth->shared_comp_list);
     pae_auth->timer = NULL;
 
     pae_auth->hash_set = NULL;
@@ -189,6 +193,10 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     }
 
     if (kmp_service_timer_if_register(pae_auth->kmp_service, ws_pae_auth_timer_if_start, ws_pae_auth_timer_if_stop)) {
+        goto error;
+    }
+
+    if (kmp_service_shared_comp_if_register(pae_auth->kmp_service, ws_pae_auth_shared_comp_add, ws_pae_auth_shared_comp_remove)) {
         goto error;
     }
 
@@ -594,6 +602,8 @@ static void ws_pae_auth_free(pae_auth_t *pae_auth)
         return;
     }
 
+    ws_pae_lib_shared_comp_list_free(&pae_auth->shared_comp_list);
+
     ws_pae_lib_supp_list_delete(&pae_auth->active_supp_list);
 
     kmp_socket_if_unregister(pae_auth->kmp_service);
@@ -741,6 +751,8 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
         }
 
         ws_pae_lib_supp_list_slow_timer_update(&pae_auth->active_supp_list, seconds);
+
+        ws_pae_lib_shared_comp_list_timeout(&pae_auth->shared_comp_list, seconds);
     }
 
     // Update key storage timer
@@ -835,6 +847,26 @@ static int8_t ws_pae_auth_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp)
 
     ws_pae_lib_kmp_timer_stop(&supp_entry->kmp_list, entry);
     return 0;
+}
+
+static int8_t ws_pae_auth_shared_comp_add(kmp_service_t *service, kmp_shared_comp_t *data)
+{
+    pae_auth_t *pae_auth = ws_pae_auth_by_kmp_service_get(service);
+    if (!pae_auth) {
+        return -1;
+    }
+
+    return ws_pae_lib_shared_comp_list_add(&pae_auth->shared_comp_list, data);
+}
+
+static int8_t ws_pae_auth_shared_comp_remove(kmp_service_t *service, kmp_shared_comp_t *data)
+{
+    pae_auth_t *pae_auth = ws_pae_auth_by_kmp_service_get(service);
+    if (!pae_auth) {
+        return -1;
+    }
+
+    return ws_pae_lib_shared_comp_list_remove(&pae_auth->shared_comp_list, data);
 }
 
 static int8_t ws_pae_auth_timer_start(pae_auth_t *pae_auth)
@@ -948,7 +980,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
     kmp_type_e kmp_type_to_search = type;
 
     // If radius is enabled, route EAP-TLS to radius EAP-TLS
-    if (pae_auth->sec_cfg->radius_cfg.radius_addr_set && type == IEEE_802_1X_MKA) {
+    if (pae_auth->sec_cfg->radius_cfg != NULL && pae_auth->sec_cfg->radius_cfg->radius_addr_set && type == IEEE_802_1X_MKA) {
         kmp_type_to_search = RADIUS_IEEE_802_1X_MKA;
     }
 
@@ -1118,7 +1150,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     if (sec_keys->pmk_mismatch) {
         sec_keys->ptk_mismatch = true;
         // start EAP-TLS towards supplicant
-        if (pae_auth->sec_cfg->radius_cfg.radius_addr_set) {
+        if (pae_auth->sec_cfg->radius_cfg != NULL && pae_auth->sec_cfg->radius_cfg->radius_addr_set) {
             next_type = RADIUS_IEEE_802_1X_MKA;
         } else {
             next_type = IEEE_802_1X_MKA;

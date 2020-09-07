@@ -240,6 +240,9 @@ typedef struct ws_bs_ie {
 #define WS_FAN_VERSION_1_0 1
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
+
+#define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 5
+#define WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME 60
 #define WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE 520
 #define WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL 260
 #define WS_NEIGHBOR_NUD_TIMEOUT WS_NEIGHBOR_LINK_TIMEOUT / 2
@@ -342,7 +345,7 @@ typedef struct ws_bs_ie {
 // With FHSS we need to check CCA twice on TX channel
 #define WS_NUMBER_OF_CSMA_PERIODS  2
 // Interval between two CCA checks
-#define WS_CSMA_MULTI_CCA_INTERVAL 1000
+#define WS_CSMA_MULTI_CCA_INTERVAL 2000
 
 /* Default FHSS timing information
  *

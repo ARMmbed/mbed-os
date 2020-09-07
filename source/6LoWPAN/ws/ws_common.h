@@ -83,6 +83,8 @@ typedef struct ws_info_s {
     uint8_t rpl_state; // state from rpl_event_t
     uint8_t pas_requests; // Amount of PAN solicits sent
     uint8_t eapol_tx_index;
+    uint8_t device_min_sens; // Device min sensitivity set by the application
+    int8_t weakest_received_rssi; // Weakest received signal (dBm)
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
     parent_info_list_t parent_list_free;
     parent_info_list_t parent_list_reserved;
@@ -155,6 +157,7 @@ void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface,
 
 void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface);
 
+uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 #define ws_info(cur) ((cur)->ws_info)
 #else
 #define ws_info(cur) ((ws_info_t *) NULL)

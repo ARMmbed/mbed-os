@@ -419,7 +419,7 @@ static uint32_t fhss_ws_calculate_ufsi(fhss_structure_t *fhss_structure, uint32_
     cur_slot--;
     uint32_t remaining_time_ms = 0;
     if (fhss_structure->ws->unicast_timer_running == true) {
-        remaining_time_ms = US_TO_MS(get_remaining_slots_us(fhss_structure, fhss_unicast_handler, MS_TO_US(dwell_time) - NS_TO_US(dwell_time * fhss_structure->ws->drift_per_millisecond_ns)));
+        remaining_time_ms = US_TO_MS(get_remaining_slots_us(fhss_structure, fhss_unicast_handler, MS_TO_US(dwell_time) - NS_TO_US((int64_t)(fhss_structure->ws->drift_per_millisecond_ns * dwell_time))));
     }
     uint32_t time_to_tx = 0;
     uint32_t cur_time = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
@@ -859,13 +859,13 @@ static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t
     if (!fhss_structure) {
         return return_value;
     }
-    // We don't know the broadcast schedule, use large backoff with MAC retries
+    // We don't know the broadcast schedule, use randomised large backoff with MAC retries
     if (fhss_structure->ws->broadcast_timer_running == false) {
-        return 100000;
+        return (uint32_t) randLIB_get_random_in_range(20000, 45000);
     }
     // We don't know the TX/RX slots, use randomised large backoff with MAC retries
     if (fhss_structure->own_hop == 0xff) {
-        return ((uint32_t) randLIB_get_random_in_range(50, 150) * 1000);
+        return (uint32_t) randLIB_get_random_in_range(20000, 45000);
     }
     if (fhss_structure->ws->is_on_bc_channel == true) {
         return return_value;
@@ -980,7 +980,6 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
         fhss_structure->ws->bc_slot %= fhss_structure->number_of_channels;
     }
-    platform_exit_critical();
     //TODO: support multiple parents
     fhss_structure->ws->parent_bc_info = bc_timing_info;
     if (prev_synchronization_time && fhss_structure->ws->fhss_configuration.ws_bc_channel_function != WS_FIXED_CHANNEL) {
@@ -993,11 +992,15 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
             } else if (drift_per_ms_tmp < -MAX_DRIFT_COMPENSATION_STEP) {
                 drift_per_ms_tmp = -MAX_DRIFT_COMPENSATION_STEP;
             }
+            // Timer drift is unpredictable with linux platform. Do not set drift compensation
+#ifndef __linux__
             fhss_structure->ws->drift_per_millisecond_ns += drift_per_ms_tmp;
+#endif
             fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, NS_TO_US((int64_t)(fhss_structure->ws->drift_per_millisecond_ns * bc_timing_info->broadcast_dwell_interval)));
         }
         tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu64" seconds, compensation: %"PRIi32"ns per ms", trace_array(eui64, 8), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
     }
+    platform_exit_critical();
     fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, US_TO_S(time_since_last_synch_us));
     return 0;
 }

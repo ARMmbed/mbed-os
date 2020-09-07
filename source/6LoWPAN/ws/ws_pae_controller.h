@@ -30,6 +30,7 @@ typedef enum {
 struct nvm_tlv_entry;
 struct ws_sec_timer_cfg_s;
 struct ws_sec_prot_cfg_s;
+struct bbr_radius_timing;
 
 /**
  * ws_pae_controller_set_target sets EAPOL target for PAE supplicant
@@ -281,6 +282,42 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
  *
  */
 int8_t ws_pae_controller_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret);
+
+/**
+ * ws_pae_controller_radius_timing_set set radius timing information
+ *
+ * \param interface_id interface identifier
+ * \param timing timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_radius_timing_set(int8_t interface_id, struct bbr_radius_timing *timing);
+
+/**
+ * ws_pae_controller_radius_timing_get get radius timing information
+ *
+ * \param interface_id interface identifier
+ * \param timing timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_radius_timing_get(int8_t interface_id, struct bbr_radius_timing *timing);
+
+/**
+ * ws_pae_controller_radius_timing_validate validate radius timing information
+ *
+ * \param interface_id interface identifier
+ * \param timing timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, struct bbr_radius_timing *timing);
 
 /**
  * ws_pae_controller_nw_info_set set network information
