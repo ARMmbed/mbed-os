@@ -46,8 +46,8 @@
 // EUI-64 in ascii string: 00-11-..-77
 #define STATION_ID_LEN                           16 + 7
 
-// MTU value TBD
-#define FRAMED_MTU                               1400
+// MTU value is set by EAP-TLS fragment length
+#define FRAMED_MTU                               EAP_TLS_FRAGMENT_LEN_VALUE
 
 #define NAS_PORT                                 1
 

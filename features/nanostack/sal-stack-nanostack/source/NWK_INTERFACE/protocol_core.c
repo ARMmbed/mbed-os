@@ -83,6 +83,7 @@
 #include "Service_Libs/load_balance/load_balance_api.h"
 #include "Service_Libs/pan_blacklist/pan_blacklist_api.h"
 #include "Service_Libs/etx/etx.h"
+#include "libNET/src/net_dns_internal.h"
 
 #include "mac_api.h"
 #include "ethernet_mac_api.h"
@@ -304,6 +305,8 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         ipv6_destination_cache_timer(seconds);
         ipv6_frag_timer(seconds);
         cipv6_frag_timer(seconds);
+        net_dns_timer_seconds(seconds);
+
 #ifdef HAVE_WS
         ws_pae_controller_slow_timer(seconds);
 #endif

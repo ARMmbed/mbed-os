@@ -58,6 +58,8 @@ static dhcpv6_gua_server_entry_s *libdhcpv6_server_entry_allocate(void)
     entry->removeCb = NULL;
     entry->addCb = NULL;
     ns_list_init(&entry->allocatedAddressList);
+    ns_list_init(&entry->dnsServerList);
+    ns_list_init(&entry->vendorDataList);
     return entry;
 }
 
@@ -338,6 +340,20 @@ void libdhcpv6_gua_server_free_by_prefix_and_interfaceid(uint8_t *prefix, int8_t
                 ns_list_remove(&serverInfo->allocatedAddressList, cur);
                 ns_dyn_mem_free(cur);
             }
+
+            ns_list_foreach_safe(dhcpv6_dns_server_data_t, cur, &serverInfo->dnsServerList) {
+                //DNS Server Info Remove
+                ns_list_remove(&serverInfo->dnsServerList, cur);
+                ns_dyn_mem_free(cur->search_list);
+                ns_dyn_mem_free(cur);
+            }
+
+            ns_list_foreach_safe(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
+                ns_list_remove(&serverInfo->vendorDataList, cur);
+                ns_dyn_mem_free(cur->vendor_data);
+                ns_dyn_mem_free(cur);
+            }
+
             ns_list_remove(&dhcpv6_gua_server_list, serverInfo);
             ns_dyn_mem_free(serverInfo->serverDynamic_DUID);
             ns_dyn_mem_free(serverInfo);
@@ -493,6 +509,120 @@ dhcpv6_allocated_address_t *libdhcpv6_address_allocated_list_scan(dhcpv6_gua_ser
 
     return newEntry;
 }
+
+dhcpv6_dns_server_data_t *libdhcpv6_dns_server_discover(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address)
+{
+    ns_list_foreach(dhcpv6_dns_server_data_t, cur, &serverInfo->dnsServerList) {
+        if (memcmp(cur->server_address, address, 16) == 0) {
+            return cur;
+        }
+    }
+    return NULL;
+}
+
+dhcpv6_dns_server_data_t *libdhcpv6_dns_server_allocate(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address)
+{
+    dhcpv6_dns_server_data_t *entry = libdhcpv6_dns_server_discover(serverInfo, address);
+    if (entry) {
+        return entry;
+    }
+
+    entry = ns_dyn_mem_alloc(sizeof(dhcpv6_dns_server_data_t));
+    if (!entry) {
+        return NULL;
+    }
+    ns_list_add_to_end(&serverInfo->dnsServerList, entry);
+    memcpy(entry->server_address, address, 16);
+    entry->search_list = NULL;
+    entry->search_list_length = 0;
+    return entry;
+}
+
+dhcpv6_vendor_data_t *libdhcpv6_vendor_data_discover(dhcpv6_gua_server_entry_s *serverInfo, uint32_t enterprise_number)
+{
+    ns_list_foreach(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
+        if (cur->enterprise_number == enterprise_number) {
+            return cur;
+        }
+    }
+    return NULL;
+}
+
+dhcpv6_vendor_data_t *libdhcpv6_vendor_data_allocate(dhcpv6_gua_server_entry_s *serverInfo, uint32_t enterprise_number)
+{
+    dhcpv6_vendor_data_t *entry = libdhcpv6_vendor_data_discover(serverInfo, enterprise_number);
+
+    if (entry) {
+        return entry;
+    }
+
+    entry = ns_dyn_mem_alloc(sizeof(dhcpv6_vendor_data_t));
+    if (!entry) {
+        return NULL;
+    }
+    ns_list_add_to_end(&serverInfo->vendorDataList, entry);
+    entry->enterprise_number = enterprise_number;
+    entry->vendor_data = NULL;
+    entry->vendor_data_length = 0;
+    return entry;
+}
+
+
+uint16_t libdhcpv6_dns_server_message_sizes(dhcpv6_gua_server_entry_s *serverInfo)
+{
+    uint16_t message_size = 0;
+    ns_list_foreach(dhcpv6_dns_server_data_t, cur, &serverInfo->dnsServerList) {
+        message_size += 4 + 16; //Type Length + address //
+        //Search List part
+        message_size += 4 + cur->search_list_length; //Type Length + search_list_length
+    }
+    return message_size;
+}
+
+uint16_t libdhcpv6_vendor_data_message_sizes(dhcpv6_gua_server_entry_s *serverInfo)
+{
+    uint16_t message_size = 0;
+    ns_list_foreach(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
+        message_size += 4 + 4 + cur->vendor_data_length; //Type + Length + enterprise + vendor_data_length
+    }
+    return message_size;
+}
+
+uint8_t *libdhcpv6_dns_server_message_writes(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *ptr)
+{
+    ns_list_foreach(dhcpv6_dns_server_data_t, cur, &serverInfo->dnsServerList) {
+        //Write first DNS Server info
+        ptr = common_write_16_bit(DHCPV6_OPTION_DNS_SERVERS, ptr);
+        ptr = common_write_16_bit(16, ptr); //Length
+        memcpy(ptr, cur->server_address, 16);
+        ptr += 16;
+
+        ptr = common_write_16_bit(DHCPV6_OPTION_DOMAIN_LIST, ptr);
+        ptr = common_write_16_bit(cur->search_list_length, ptr); //Length
+        if (cur->search_list_length) {
+            memcpy(ptr, cur->search_list, cur->search_list_length);
+            ptr += cur->search_list_length;
+        }
+    }
+    return ptr;
+}
+
+uint8_t *libdhcpv6_vendor_data_message_writes(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *ptr)
+{
+    ns_list_foreach(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
+
+        uint16_t length = cur->vendor_data_length + 4;
+        ptr = common_write_16_bit(DHCPV6_OPTION_VENDOR_SPECIFIC_INFO, ptr);
+        ptr = common_write_16_bit(length, ptr); //Length
+        ptr = common_write_32_bit(cur->enterprise_number, ptr);
+        if (cur->vendor_data_length) {
+            memcpy(ptr, cur->vendor_data, cur->vendor_data_length);
+            ptr += cur->vendor_data_length;
+        }
+    }
+    return ptr;
+}
+
 
 #endif
 
