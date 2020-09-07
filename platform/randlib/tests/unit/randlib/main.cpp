@@ -12,4 +12,3 @@ int main(int ac, char **av)
 }
 
 IMPORT_TEST_GROUP(randLIB);
-

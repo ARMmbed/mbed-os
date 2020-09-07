@@ -15,4 +15,3 @@ TEST_SRC_FILES = \
 include ../MakefileWorker.mk
 
 CPPUTESTFLAGS += -DFEA_TRACE_SUPPORT -DRANDLIB_PRNG
-

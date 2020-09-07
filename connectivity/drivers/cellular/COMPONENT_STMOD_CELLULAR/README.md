@@ -13,7 +13,7 @@ The STMOD+ Connector specification can be found [here](https://www.st.com/conten
 
 ## Debug print
 
-mbed_trace feature is used: https://github.com/ARMmbed/mbed-os/blob/master/features/frameworks/mbed-trace/README.md
+mbed_trace feature is used: https://github.com/ARMmbed/mbed-os/blob/master/platform/mbed-trace/README.md
 
 Enable it in your mbed_app.json file:
 

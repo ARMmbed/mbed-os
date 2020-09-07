@@ -26,8 +26,14 @@
 
 #if (DEVICE_SPI || DEVICE_QSPI)
 
-#include "features/frameworks/mbed-trace/mbed-trace/mbed_trace.h"
+#if MBED_CONF_MBED_TRACE_ENABLE
+#include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "SFDP"
+#else // MBED_CONF_MBED_TRACE_ENABLE
+#define tr_info(...)
+#define tr_error(...)
+#define tr_debug(...)
+#endif // MBED_CONF_MBED_TRACE_ENABLE
 
 namespace {
 
