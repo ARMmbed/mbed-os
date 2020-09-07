@@ -30,6 +30,7 @@
 
 #include "ns_types.h"
 #include "net_interface.h" /* Declaration for channel_list_s. */
+#include "fhss_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -112,6 +113,8 @@ typedef struct ws_stack_info {
     uint8_t rsl_out;
     /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
     uint8_t rsl_in;
+    /** Device RF minimum sensitivity configuration. lowest level of radio signal strength packet heard. Range of -174 (0) to +80 (254) dBm*/
+    uint8_t device_min_sens;
     /** ETX To border router */
     uint16_t routing_cost;
     /** Network PAN ID */
@@ -613,6 +616,30 @@ int ws_statistics_stop(
 int ws_stack_info_get(
     int8_t interface_id,
     ws_stack_info_t *info_ptr);
+
+/**
+ * Set minimum RF sensitivity acceptable for the parent selection
+ *
+ * Set radio signal minimum sensitivity level acceptable for parent selection.
+ * Range of -174 (0) to +80 (254) dBm.
+ *
+ * If device_min_sens is set to 0 then automatic adjustment is done by the stack.
+ *
+ * Setting a value that is not suitable for Radio might prevent the device joining to the network.
+ *
+ * NOTE: Currently lower EAPOL parents are accepted if there is no parents higher than
+ *       DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS
+ * NOTE: Currently not using this value to limit parents as it is only RECOMENDED in specification.
+ *
+ * \param interface_id Network interface ID.
+ * \param device_min_sens value used in the parent selections.
+ *
+ * \return 0 Success.
+ * \return <0 Failure.
+ */
+int ws_device_min_sens_set(
+    int8_t interface_id,
+    uint8_t device_min_sens);
 
 #ifdef __cplusplus
 }

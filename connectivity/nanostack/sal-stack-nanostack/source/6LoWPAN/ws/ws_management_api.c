@@ -741,4 +741,18 @@ int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
     return ws_bootstrap_get_info(cur, info_ptr);
 }
 
+int ws_device_min_sens_set(
+    int8_t interface_id,
+    uint8_t device_min_sens)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+    DEVICE_MIN_SENS = device_min_sens;
+    ws_info(cur)->device_min_sens = device_min_sens;
+    return 0;
+}
+
 #endif // HAVE_WS
