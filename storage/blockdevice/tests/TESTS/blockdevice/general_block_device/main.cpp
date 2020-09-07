@@ -68,6 +68,7 @@ using namespace utest::v1;
 
 uint8_t num_of_sectors = TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT;
 uint32_t sectors_addr[TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT] = {0};
+bd_size_t max_sector_size = 0;
 
 const struct {
     const char *name;
@@ -261,11 +262,16 @@ void test_init_bd()
     TEST_ASSERT_EQUAL(0, err);
 
     bd_addr_t start_address = 0;
+    bd_size_t curr_sector_size = 0;
     uint8_t i = 0;
     for (; i < num_of_sectors && start_address < block_device->size(); i++) {
         sectors_addr[i] = start_address;
-        DEBUG_PRINTF("start_address = 0x%llx, sector_size = %d\n", start_address, block_device->get_erase_size(start_address));
-        start_address += block_device->get_erase_size(start_address);
+        curr_sector_size = block_device->get_erase_size(start_address);
+        DEBUG_PRINTF("start_address = 0x%llx, sector_size = %d\n", start_address, curr_sector_size);
+        if (curr_sector_size > max_sector_size) {
+            max_sector_size = curr_sector_size;
+        }
+        start_address += curr_sector_size;
     }
     num_of_sectors = i;
 }
@@ -288,24 +294,25 @@ void test_random_program_read_erase()
         }
     }
 
-    bd_size_t block_size = block_device->get_erase_size();
     unsigned addrwidth = ceil(log(float(block_device->size() - 1)) / log(float(16))) + 1;
 
-    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
-    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *write_buffer = new (std::nothrow) uint8_t[max_sector_size];
+    uint8_t *read_buffer = new (std::nothrow) uint8_t[max_sector_size];
 
-    if (!write_block || !read_block) {
+    if (!write_buffer || !read_buffer) {
         utest_printf("Not enough memory for test\n");
         goto end;
     }
 
     for (int b = 0; b < std::min((uint8_t)TEST_BLOCK_COUNT, num_of_sectors); b++) {
-        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth, b);
+        // basic_erase_program_read_test() can handle non-uniform sector sizes
+        // and use only part of the buffers if the sector is smaller
+        basic_erase_program_read_test(block_device, max_sector_size, write_buffer, read_buffer, addrwidth, b);
     }
 
 end:
-    delete[] read_block;
-    delete[] write_block;
+    delete[] read_buffer;
+    delete[] write_buffer;
 }
 
 #if defined(MBED_CONF_RTOS_PRESENT)
@@ -318,24 +325,27 @@ static void test_thread_job()
 
     uint8_t sector_per_thread = (num_of_sectors / TEST_NUM_OF_THREADS);
 
-    bd_size_t block_size = block_device->get_erase_size();
     unsigned addrwidth = ceil(log(float(block_device->size() - 1)) / log(float(16))) + 1;
 
-    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
-    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *write_buffer = new (std::nothrow) uint8_t[max_sector_size];
+    uint8_t *read_buffer = new (std::nothrow) uint8_t[max_sector_size];
 
-    if (!write_block || !read_block) {
-        utest_printf("Not enough memory for test\n");
+    if (!write_buffer || !read_buffer) {
+        // Some targets have sectors up to 256KB each and a relatively small RAM.
+        // This test may not be able to run in this case.
+        utest_printf("Not enough memory for test, is the sector size (%llu) too big?\n", max_sector_size);
         goto end;
     }
 
     for (int b = 0; b < sector_per_thread; b++) {
-        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth, block_num * sector_per_thread + b);
+        // basic_erase_program_read_test() can handle non-uniform sector sizes
+        // and use only part of the buffers if the sector is smaller
+        basic_erase_program_read_test(block_device, max_sector_size, write_buffer, read_buffer, addrwidth, block_num * sector_per_thread + b);
     }
 
 end:
-    delete[] read_block;
-    delete[] write_block;
+    delete[] read_buffer;
+    delete[] write_buffer;
 }
 
 void test_multi_threads()
@@ -584,7 +594,6 @@ void test_program_read_small_data_sizes()
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
-    bd_size_t erase_size = block_device->get_erase_size();
     bd_size_t program_size = block_device->get_program_size();
     bd_size_t read_size = block_device->get_read_size();
     TEST_ASSERT(program_size > 0);
@@ -606,6 +615,7 @@ void test_program_read_small_data_sizes()
 
     // Determine starting address
     bd_addr_t start_address = 0;
+    bd_size_t erase_size = block_device->get_erase_size(start_address);
 
     for (int i = 1; i <= 7; i++) {
         err = buff_block_device->erase(start_address, erase_size);
