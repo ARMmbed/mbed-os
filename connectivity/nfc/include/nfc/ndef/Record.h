@@ -103,8 +103,8 @@ struct RecordType {
      *
      * @param tnf The type name format of the type.
      */
-    RecordType(tnf_t tnf) :
-        tnf(tnf), value()
+    RecordType(tnf_t tnf_) :
+        tnf(tnf_), value()
     { }
 
     /**
@@ -113,8 +113,8 @@ struct RecordType {
      * @param tnf The type name format of the record type.
      * @param value The value associated with the tnf.
      */
-    RecordType(tnf_t tnf, const Span<const uint8_t> &value) :
-        tnf(tnf), value(value)
+    RecordType(tnf_t tnf_, const Span<const uint8_t> &value_) :
+        tnf(tnf_), value(value_)
     { }
 
     /**
@@ -165,17 +165,17 @@ struct Record {
      * containing it.
      */
     Record(
-        RecordType type,
-        const RecordPayload &payload,
-        const RecordID &id,
-        bool chunk,
-        bool last_record
+        RecordType type_,
+        const RecordPayload &payload_,
+        const RecordID &id_,
+        bool chunk_,
+        bool last_record_
     ) :
-        type(type),
-        payload(payload),
-        id(id),
-        chunk(chunk),
-        last_record(last_record)
+        type(type_),
+        payload(payload_),
+        id(id_),
+        chunk(chunk_),
+        last_record(last_record_)
     { }
 
     /**
