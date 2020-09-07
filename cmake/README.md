@@ -1,6 +1,6 @@
 ## CMake for Mbed OS
 
-Until further notice, CMake for Mbed OS is still in the development. 
+Until further notice, CMake for Mbed OS is still in development. 
 
 Application profile selection (`bare metal` or `full`), printf library selection (`minimal-printf` or `std`), C library selection (`small` or `std`) and other features that require altering compiler/linker command line options are not yet supported.
 The full profile with the standard printf and C library are selected by default.
