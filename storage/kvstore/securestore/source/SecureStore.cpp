@@ -178,10 +178,10 @@ SecureStore::~SecureStore()
 
 
 int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_data_size,
-                           uint32_t create_flags)
+                           uint32_t create_flags_)
 {
     int ret, os_ret;
-    info_t info;
+    info_t info_;
     bool enc_started = false, auth_started = false;
 
     if (!_is_initialized) {
@@ -197,14 +197,14 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
 
     // Validate internal RBP data
     if (_rbp_kv) {
-        ret = _rbp_kv->get_info(key, &info);
+        ret = _rbp_kv->get_info(key, &info_);
         if (ret == MBED_SUCCESS) {
-            if (info.flags & WRITE_ONCE_FLAG) {
+            if (info_.flags & WRITE_ONCE_FLAG) {
                 // Trying to re-write a key that is write protected
                 ret = MBED_ERROR_WRITE_PROTECTED;
                 goto fail;
             }
-            if (!(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+            if (!(create_flags_ & REQUIRE_REPLAY_PROTECTION_FLAG)) {
                 // Trying to re-write a key that that has REPLAY_PROTECTION
                 // with a new key that has this flag not set.
                 ret = MBED_ERROR_INVALID_ARGUMENT;
@@ -219,7 +219,7 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         ret = _underlying_kv->get(key, &_ih->metadata, sizeof(record_metadata_t));
         if (ret == MBED_SUCCESS) {
             // Must not remove RP flag, even though internal RBP KV is not in use.
-            if (!(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) && (_ih->metadata.create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+            if (!(create_flags_ & REQUIRE_REPLAY_PROTECTION_FLAG) && (_ih->metadata.create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
                 ret = MBED_ERROR_INVALID_ARGUMENT;
                 goto fail;
             }
@@ -232,12 +232,12 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
     }
 
     // Fill metadata
-    _ih->metadata.create_flags = create_flags;
+    _ih->metadata.create_flags = create_flags_;
     _ih->metadata.data_size = final_data_size;
     _ih->metadata.metadata_size = sizeof(record_metadata_t);
     _ih->metadata.revision = securestore_revision;
 
-    if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
+    if (create_flags_ & REQUIRE_CONFIDENTIALITY_FLAG) {
         // generate a new random iv
         os_ret = mbedtls_entropy_func(_entropy, _ih->metadata.iv, iv_size);
         if (os_ret) {
@@ -279,7 +279,7 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
     // Should strip security flags from underlying storage
     ret = _underlying_kv->set_start(&_ih->underlying_handle, key,
                                     sizeof(record_metadata_t) + final_data_size + cmac_size,
-                                    create_flags & ~security_flags);
+                                    create_flags_ & ~security_flags);
     if (ret) {
         goto fail;
     }
@@ -290,7 +290,7 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         goto fail;
     }
 
-    if (create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG)) {
+    if (create_flags_ & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG)) {
         _ih->key = new char[strlen(key) + 1];
         strcpy(_ih->key, key);
     }
@@ -451,7 +451,7 @@ end:
     return ret;
 }
 
-int SecureStore::set(const char *key, const void *buffer, size_t size, uint32_t create_flags)
+int SecureStore::set(const char *key, const void *buffer, size_t size, uint32_t create_flags_)
 {
     int ret;
     set_handle_t handle;
@@ -461,7 +461,7 @@ int SecureStore::set(const char *key, const void *buffer, size_t size, uint32_t 
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    ret = set_start(&handle, key, size, create_flags);
+    ret = set_start(&handle, key, size, create_flags_);
     if (ret) {
         return ret;
     }
@@ -477,17 +477,17 @@ int SecureStore::set(const char *key, const void *buffer, size_t size, uint32_t 
 
 int SecureStore::remove(const char *key)
 {
-    info_t info;
+    info_t info_;
     _mutex.lock();
 
-    int ret = do_get(key, 0, 0, 0, 0, &info);
+    int ret = do_get(key, 0, 0, 0, 0, &info_);
     // Allow deleting key if read error is of our own errors
     if ((ret != MBED_SUCCESS) && (ret != MBED_ERROR_AUTHENTICATION_FAILED) &&
             (ret != MBED_ERROR_RBP_AUTHENTICATION_FAILED)) {
         goto end;
     }
 
-    if (ret == 0 && info.flags & WRITE_ONCE_FLAG) {
+    if (ret == 0 && info_.flags & WRITE_ONCE_FLAG) {
         ret = MBED_ERROR_WRITE_PROTECTED;
         goto end;
     }
@@ -497,7 +497,7 @@ int SecureStore::remove(const char *key)
         goto end;
     }
 
-    if (_rbp_kv && (info.flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+    if (_rbp_kv && (info_.flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
         ret = _rbp_kv->remove(key);
         if ((ret != MBED_SUCCESS) && (ret != MBED_ERROR_ITEM_NOT_FOUND)) {
             goto end;
@@ -512,7 +512,7 @@ end:
 }
 
 int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_t *actual_size,
-                        size_t offset, info_t *info)
+                        size_t offset, info_t *info_)
 {
     int os_ret, ret;
     bool rbp_key_exists = false;
@@ -525,7 +525,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     uint32_t enc_lead_size;
     uint8_t *dest_buf;
     bool enc_started = false, auth_started = false;
-    uint32_t create_flags;
+    uint32_t create_flags_;
     size_t read_len;
     info_t rbp_info;
 
@@ -565,13 +565,13 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         goto end;
     }
 
-    create_flags = _ih->metadata.create_flags;
+    create_flags_ = _ih->metadata.create_flags;
     if (!_rbp_kv) {
-        create_flags &= ~REQUIRE_REPLAY_PROTECTION_FLAG;
+        create_flags_ &= ~REQUIRE_REPLAY_PROTECTION_FLAG;
     }
 
     // Another potential attack case - key hasn't got the RP flag set, but exists in the RBP KV
-    if (rbp_key_exists && !(create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG |  WRITE_ONCE_FLAG))) {
+    if (rbp_key_exists && !(create_flags_ & (REQUIRE_REPLAY_PROTECTION_FLAG |  WRITE_ONCE_FLAG))) {
         ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
         goto end;
     }
@@ -595,7 +595,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         goto end;
     }
 
-    if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
+    if (create_flags_ & REQUIRE_CONFIDENTIALITY_FLAG) {
         os_ret = encrypt_decrypt_start(_ih->enc_ctx, _ih->metadata.iv, key, _ih->ctr_buf, _scratch_buf,
                                        scratch_buf_size);
         if (os_ret) {
@@ -623,7 +623,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
                 // A special case: encrypted user data starts at a middle of an encryption block.
                 // In this case, we need to read entire block into our scratch buffer, and copy
                 // the encrypted lead size to the user buffer start
-                if ((create_flags & REQUIRE_CONFIDENTIALITY_FLAG) &&
+                if ((create_flags_ & REQUIRE_CONFIDENTIALITY_FLAG) &&
                         (chunk_size % enc_block_size)) {
                     enc_lead_size = std::min(enc_block_size - chunk_size % enc_block_size, actual_data_size);
                     chunk_size += enc_lead_size;
@@ -646,7 +646,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
             goto end;
         }
 
-        if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
+        if (create_flags_ & REQUIRE_CONFIDENTIALITY_FLAG) {
             // Decrypt data in place
             os_ret = encrypt_decrypt_data(_ih->enc_ctx, dest_buf, dest_buf, chunk_size, _ih->ctr_buf,
                                           aes_offs);
@@ -688,7 +688,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     }
 
     // If rollback protect, check also CMAC stored in RBP store
-    if (_rbp_kv && (create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG))) {
+    if (_rbp_kv && (create_flags_ & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG))) {
         if (!rbp_key_exists) {
             ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
             goto end;
@@ -699,9 +699,9 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         }
     }
 
-    if (info) {
-        info->flags = _ih->metadata.create_flags;
-        info->size = _ih->metadata.data_size;
+    if (info_) {
+        info_->flags = _ih->metadata.create_flags;
+        info_->size = _ih->metadata.data_size;
     }
 
 end:
@@ -728,10 +728,10 @@ int SecureStore::get(const char *key, void *buffer, size_t buffer_size, size_t *
     return ret;
 }
 
-int SecureStore::get_info(const char *key, info_t *info)
+int SecureStore::get_info(const char *key, info_t *info_)
 {
     _mutex.lock();
-    int ret = do_get(key, 0, 0, 0, 0, info);
+    int ret = do_get(key, 0, 0, 0, 0, info_);
     _mutex.unlock();
 
     return ret;
