@@ -4,6 +4,8 @@
 mbed_add_cmake_directory_if_labels("FEATURE")
 
 add_subdirectory(cxxsupport)
+add_subdirectory(mbed-trace)
+add_subdirectory(randlib)
 add_subdirectory(source/TARGET_CORTEX_M)
 add_subdirectory(source/minimal-printf)
 

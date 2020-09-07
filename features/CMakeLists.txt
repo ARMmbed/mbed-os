@@ -3,8 +3,6 @@
 
 mbed_add_cmake_directory_if_labels("FEATURE")
 
-add_subdirectory(frameworks/mbed-client-randlib)
-add_subdirectory(frameworks/mbed-trace)
 add_subdirectory(frameworks/mbed-client-cli)
 
 target_include_directories(mbed-os

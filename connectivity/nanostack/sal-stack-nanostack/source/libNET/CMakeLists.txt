@@ -11,8 +11,11 @@ target_sources(mbed-os
     PRIVATE
         src/multicast_api.c
         src/net_6lowpan_parameter_api.c
+        src/net_dns.c
+        src/net_dns_internal.h
         src/net_ipv6.c
         src/net_load_balance.c
+        src/net_load_balance_internal.h
         src/net_mle.c
         src/net_rpl.c
         src/net_short_address_extension.c
