@@ -212,6 +212,15 @@ static inline void *lfs_malloc(size_t size) {
 #endif
 }
 
+// ignore -Wshadow on GCC
+// avoid breaking lfs_free 
+// the warning we are ignoring is:
+// lfs_util.h@216,36: 'void lfs_free(void*)' hides constructor for 'struct lfs_free' [-Wshadow]
+#ifdef __GNUC__ 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif //__GNUC__
+
 // Deallocate memory, only used if buffers are not provided to littlefs
 static inline void lfs_free(void *p) {
 #ifndef LFS_NO_MALLOC
@@ -221,6 +230,9 @@ static inline void lfs_free(void *p) {
 #endif
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif //__GNUC__
 
 #ifdef __cplusplus
 } /* extern "C" */
