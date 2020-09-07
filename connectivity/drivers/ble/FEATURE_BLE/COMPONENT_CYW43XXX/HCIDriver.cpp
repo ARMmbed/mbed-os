@@ -20,10 +20,15 @@
 #include "hci_api.h"
 #include "hci_cmd.h"
 #include "hci_core.h"
+#include "dm_api.h"
 #include "bstream.h"
 #include <stdbool.h>
 #include "hci_mbed_os_adaptation.h"
 #include "CyH4TransportDriver.h"
+#include "platform/mbed_power_mgmt.h"
+#include "rtos/ThisThread.h"
+
+using namespace std::chrono_literals;
 
 extern const int brcm_patch_ram_length;
 extern const uint8_t brcm_patchram_buf[];
@@ -521,7 +526,7 @@ private:
     }
 
     PinName bt_power_name;
-    DigitalInOut bt_power;
+    mbed::DigitalInOut bt_power;
 
     bool is_powersave_enabled;
     uint8_t host_wake_irq;
