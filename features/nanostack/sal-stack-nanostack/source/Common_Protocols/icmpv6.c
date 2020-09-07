@@ -639,6 +639,21 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
 }
 
 #ifdef HAVE_IPV6_ND
+
+static uint8_t icmpv6_dns_search_list_remove_pad(uint8_t *data_ptr, uint8_t length)
+{
+    while (length) {
+
+        if (data_ptr[length - 2] && data_ptr[length - 1] == 0) {
+            break;
+        } else if (data_ptr[length - 2] == 0 && data_ptr[length - 1] == 0) {
+            length--;
+        }
+    }
+
+    return length;
+}
+
 static buffer_t *icmpv6_ra_handler(buffer_t *buf)
 {
     protocol_interface_info_entry_t *cur;
@@ -869,7 +884,8 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
             uint32_t dns_lifetime = common_read_32_bit(dptr + 2); // 2 x reserved
             uint8_t *dns_search_list = dptr + 6;
             uint8_t dns_search_list_len = length - 8; // Length includes type and length
-
+            //Cut Padding
+            dns_search_list_len = icmpv6_dns_search_list_remove_pad(dns_search_list, dns_search_list_len);
             //tr_info("DNS Search List: %s Lifetime: %lu", trace_array(dns_search_list, dns_search_list_len), (unsigned long) dns_lifetime);
             // Add DNS server to DNS information storage.
             net_dns_server_search_list_set(cur->id, buf->src_sa.address, dns_search_list, dns_search_list_len, dns_lifetime);

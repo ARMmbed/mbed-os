@@ -45,6 +45,20 @@ typedef struct dhcpv6_allocated_address_entry_s {
     ns_list_link_t      link;               /*!< List link entry */
 } dhcpv6_allocated_address_entry_t;
 
+typedef struct dhcpv6_dns_server_data_s {
+    uint8_t             server_address[16];
+    uint8_t             *search_list;
+    uint8_t             search_list_length;
+    ns_list_link_t      link;               /*!< List link entry */
+} dhcpv6_dns_server_data_t;
+
+typedef struct dhcpv6_vendor_data_s {
+    uint32_t            enterprise_number;
+    uint8_t             *vendor_data;
+    uint8_t             vendor_data_length;
+    ns_list_link_t      link;               /*!< List link entry */
+} dhcpv6_vendor_data_t;
+
 
 typedef struct dhcpv6_allocated_address_s {
     uint8_t             nonTemporalAddress[16];
@@ -58,6 +72,8 @@ typedef struct dhcpv6_allocated_address_s {
 } dhcpv6_allocated_address_t;
 
 typedef NS_LIST_HEAD(dhcpv6_allocated_address_entry_t, link) dhcpv6_allocated_address_list_t;
+typedef NS_LIST_HEAD(dhcpv6_dns_server_data_t, link) dhcpv6_dns_server_list_t;
+typedef NS_LIST_HEAD(dhcpv6_vendor_data_t, link) dhcpv6_vendor_data_list_t;
 
 typedef struct dhcp_address_cache_update {
     uint8_t *allocatedAddress;
@@ -84,6 +100,8 @@ typedef struct dhcpv6_gua_server_entry_s {
     dhcp_address_prefer_remove_cb   *removeCb;
     dhcp_address_add_notify_cb *addCb;
     dhcpv6_allocated_address_list_t allocatedAddressList;
+    dhcpv6_dns_server_list_t dnsServerList;
+    dhcpv6_vendor_data_list_t vendorDataList;
     dhcpv6_allocated_address_t  tempAddressEntry;
     ns_list_link_t      link;                   /*!< List link entry */
 } dhcpv6_gua_server_entry_s;
@@ -99,6 +117,14 @@ dhcpv6_gua_server_entry_s *libdhcpv6_server_data_get_by_prefix_and_interfaceid(i
 dhcpv6_gua_server_entry_s *libdhcpv6_server_data_get_by_prefix_and_socketinstance(uint16_t socketInstance, uint8_t *prefixPtr);
 dhcpv6_allocated_address_t *libdhcpv6_address_allocated_list_scan(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *euid64, uint16_t linkType, uint32_t iaID, uint32_t T0, uint32_t T1, bool allocateNew);
 void libdhcpv6_allocated_address_write(uint8_t *ptr, dhcpv6_allocated_address_entry_t *address, dhcpv6_gua_server_entry_s *serverInfo);
+dhcpv6_dns_server_data_t *libdhcpv6_dns_server_discover(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address);
+dhcpv6_dns_server_data_t *libdhcpv6_dns_server_allocate(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address);
+dhcpv6_vendor_data_t *libdhcpv6_vendor_data_discover(dhcpv6_gua_server_entry_s *serverInfo, uint32_t enterprise_number);
+dhcpv6_vendor_data_t *libdhcpv6_vendor_data_allocate(dhcpv6_gua_server_entry_s *serverInfo, uint32_t enterprise_number);
+uint16_t libdhcpv6_dns_server_message_sizes(dhcpv6_gua_server_entry_s *serverInfo);
+uint16_t libdhcpv6_vendor_data_message_sizes(dhcpv6_gua_server_entry_s *serverInfo);
+uint8_t *libdhcpv6_dns_server_message_writes(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *ptr);
+uint8_t *libdhcpv6_vendor_data_message_writes(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *ptr);
 #else
 #define libdhcpv6_gua_server_list_empty() true
 #define libdhcpv6_server_data_get_by_prefix_and_interfaceid(interfaceId, prefixPtr) NULL

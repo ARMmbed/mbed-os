@@ -859,13 +859,13 @@ static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t
     if (!fhss_structure) {
         return return_value;
     }
-    // We don't know the broadcast schedule, use large backoff with MAC retries
+    // We don't know the broadcast schedule, use randomised large backoff with MAC retries
     if (fhss_structure->ws->broadcast_timer_running == false) {
-        return 100000;
+        return (uint32_t) randLIB_get_random_in_range(20000, 45000);
     }
     // We don't know the TX/RX slots, use randomised large backoff with MAC retries
     if (fhss_structure->own_hop == 0xff) {
-        return ((uint32_t) randLIB_get_random_in_range(50, 150) * 1000);
+        return (uint32_t) randLIB_get_random_in_range(20000, 45000);
     }
     if (fhss_structure->ws->is_on_bc_channel == true) {
         return return_value;

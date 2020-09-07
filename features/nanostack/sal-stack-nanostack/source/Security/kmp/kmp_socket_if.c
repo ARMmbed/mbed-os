@@ -91,7 +91,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
     if (*instance_id == 0) {
         socket_if->instance_id = kmp_socket_if_instance_id++;
         if (socket_if->instance_id == 0) {
-            socket_if->instance_id++;
+            socket_if->instance_id = kmp_socket_if_instance_id++;
         }
         *instance_id = socket_if->instance_id;
     }

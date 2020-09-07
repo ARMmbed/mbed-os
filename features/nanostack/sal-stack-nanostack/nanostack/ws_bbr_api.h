@@ -490,7 +490,8 @@ int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timi
  *
  * This function can be called multiple times.
  * if domain name matches a existing entry address is updated.
- * If address and domain name is set to NULL entire list is cleared
+ * If domain name is set to NULL entire list is cleared
+ * if address is set to NULL the Domain name is removed from the list.
  *
  * \param interface_id Network interface ID.
  * \param address The address of the DNS query result.

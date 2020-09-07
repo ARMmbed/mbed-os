@@ -1221,7 +1221,8 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *
     }
 
     if (ws_pae_auth_radius_address_set(controller->interface_ptr, radius_cfg->radius_addr) < 0) {
-        return -1;
+        // If not set here since authenticator not created, then set on authenticator initialization
+        return 0;
     }
 
     return 0;
