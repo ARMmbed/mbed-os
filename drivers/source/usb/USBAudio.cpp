@@ -29,8 +29,8 @@
 
 class USBAudio::AsyncWrite: public AsyncOp {
 public:
-    AsyncWrite(USBAudio *audio, uint8_t *buf, uint32_t size):
-        audio(audio), tx_buf(buf), tx_size(size), result(false)
+    AsyncWrite(USBAudio *audio_, uint8_t *buf, uint32_t size):
+        audio(audio_), tx_buf(buf), tx_size(size), result(false)
     {
 
     }
@@ -67,8 +67,8 @@ public:
 
 class USBAudio::AsyncRead: public AsyncOp {
 public:
-    AsyncRead(USBAudio *audio, uint8_t *buf, uint32_t size, uint32_t *size_read, bool read_all)
-        :   audio(audio), rx_buf(buf), rx_size(size), rx_actual(size_read), all(read_all), result(false)
+    AsyncRead(USBAudio *audio_, uint8_t *buf, uint32_t size, uint32_t *size_read, bool read_all)
+        :   audio(audio_), rx_buf(buf), rx_size(size), rx_actual(size_read), all(read_all), result(false)
     {
 
     }
@@ -117,8 +117,8 @@ static void stub_handler(USBAudio::AudioEvent event)
     (void)event;
 }
 
-USBAudio::USBAudio(bool connect, uint32_t frequency_rx, uint8_t channel_count_rx, uint32_t frequency_tx, uint8_t channel_count_tx, uint32_t buffer_ms, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBDevice(get_usb_phy(), vendor_id, product_id, product_release)
+USBAudio::USBAudio(bool connect, uint32_t frequency_rx, uint8_t channel_count_rx, uint32_t frequency_tx, uint8_t channel_count_tx, uint32_t buffer_ms, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBDevice(get_usb_phy(), vendor_id_, product_id_, product_release_)
 {
     _init(frequency_rx, channel_count_rx, frequency_tx, channel_count_tx, buffer_ms);
 
@@ -130,8 +130,8 @@ USBAudio::USBAudio(bool connect, uint32_t frequency_rx, uint8_t channel_count_rx
     }
 }
 
-USBAudio::USBAudio(USBPhy *phy, uint32_t frequency_rx, uint8_t channel_count_rx, uint32_t frequency_tx, uint8_t channel_count_tx, uint32_t buffer_ms, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBDevice(phy, vendor_id, product_id, product_release)
+USBAudio::USBAudio(USBPhy *phy, uint32_t frequency_rx, uint8_t channel_count_rx, uint32_t frequency_tx, uint8_t channel_count_tx, uint32_t buffer_ms, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBDevice(phy, vendor_id_, product_id_, product_release_)
 {
     _init(frequency_rx, channel_count_rx, frequency_tx, channel_count_tx, buffer_ms);
 }
