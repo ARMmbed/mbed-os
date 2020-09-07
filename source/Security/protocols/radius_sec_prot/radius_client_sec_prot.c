@@ -75,12 +75,17 @@ typedef enum {
 #define MS_MPPE_RECV_KEY_SALT_LEN     2
 #define MS_MPPE_RECV_KEY_BLOCK_LEN    16
 
+#define RADIUS_CONN_NUMBER            3
+#define RADIUS_ID_RANGE_SIZE          10
+#define RADIUS_ID_RANGE_NUM           (255 / RADIUS_ID_RANGE_SIZE) - 1
+
 typedef struct radius_client_sec_prot_lib_int_s radius_client_sec_prot_lib_int_t;
 
 typedef struct {
     sec_prot_common_t             common;                       /**< Common data */
     sec_prot_t                    *radius_eap_tls_prot;         /**< Radius EAP-TLS security protocol */
     sec_prot_receive              *radius_eap_tls_send;         /**< Radius EAP-TLS security protocol send (receive from peer) */
+    sec_prot_delete               *radius_eap_tls_deleted;      /**< Radius EAP-TLS security protocol peer deleted (notify to peer that radius client deleted) */
     uint8_t                       radius_eap_tls_header_size;   /**< Radius EAP-TLS header size */
     uint8_t                       new_pmk[PMK_LEN];             /**< New Pair Wise Master Key */
     uint16_t                      recv_eap_msg_len;             /**< Received EAP message length */
@@ -91,34 +96,46 @@ typedef struct {
     uint8_t                       *identity;                    /**< Supplicant EAP identity */
     uint8_t                       radius_code;                  /**< Radius code that was received */
     uint8_t                       radius_identifier;            /**< Radius identifier that was last sent */
+    uint8_t                       radius_id_conn_num;           /**< Radius identifier connection number (socket instance) */
+    uint8_t                       radius_id_range;              /**< Radius identifier range */
     uint8_t                       request_authenticator[16];    /**< Radius request authenticator that was last sent */
     uint8_t                       state_len;                    /**< Radius state length that was last received */
     uint8_t                       *state;                       /**< Radius state that was last received */
     uint8_t                       remote_eui_64_hash[8];        /**< Remote EUI-64 hash used for calling station id */
     bool                          remote_eui_64_hash_set : 1;   /**< Remote EUI-64 hash used for calling station id set */
     bool                          new_pmk_set : 1;              /**< New Pair Wise Master Key set */
+    bool                          radius_id_range_set : 1;      /**< Radius identifier start value set */
 } radius_client_sec_prot_int_t;
 
 typedef struct {
-    uint8_t radius_client_identifier;                           /**< Radius client identifier */
+    uint8_t radius_identifier_timer[RADIUS_CONN_NUMBER][RADIUS_ID_RANGE_NUM];
+    shared_comp_data_t comp_data;                               /**< Shared component data (timer, delete) */
     uint8_t local_eui64_hash[8];                                /**< Local EUI-64 hash used for called stations id */
     uint8_t hash_random[16];                                    /**< Random used to generate local and remote EUI-64 hashes */
     bool local_eui64_hash_set : 1;                              /**< Local EUI-64 hash used for called stations id set */
     bool hash_random_set : 1;                                   /**< Random used to generate local and remote EUI-64 hashes set */
+    bool radius_id_timer_running : 1;                           /**> Radius identifier timer running */
 } radius_client_sec_prot_shared_t;
 
 static uint16_t radius_client_sec_prot_size(void);
 static int8_t radius_client_sec_prot_init(sec_prot_t *prot);
+static int8_t radius_client_sec_prot_shared_data_timeout(uint16_t ticks);
+static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range, uint8_t value);
+static int8_t radius_client_sec_prot_shared_data_delete(void);
+static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range, uint8_t value);
 static void radius_client_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
 static void radius_client_sec_prot_delete(sec_prot_t *prot);
 static int8_t radius_client_sec_prot_receive_check(sec_prot_t *prot, const void *pdu, uint16_t size);
 static int8_t radius_client_sec_prot_init_radius_eap_tls(sec_prot_t *prot);
+static void radius_client_sec_prot_radius_eap_tls_deleted(sec_prot_t *prot);
 static uint16_t radius_client_sec_prot_eap_avps_handle(uint16_t avp_length, uint8_t *avp_ptr, uint8_t *copy_to_ptr);
-static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size);
+static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number);
 static int8_t radius_client_sec_prot_radius_eap_receive(sec_prot_t *prot, void *pdu, uint16_t size);
 static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t *prot);
 static int8_t radius_client_sec_prot_radius_msg_send(sec_prot_t *prot);
-static uint8_t radius_client_sec_prot_identifier_allocate(void);
+static void radius_client_sec_prot_radius_msg_free(sec_prot_t *prot);
+static uint8_t radius_client_sec_prot_identifier_allocate(sec_prot_t *prot, uint8_t value);
+static void radius_client_sec_prot_identifier_free(sec_prot_t *prot);
 static uint8_t radius_client_sec_prot_hex_to_ascii(uint8_t value);
 static int8_t radius_client_sec_prot_eui_64_hash_generate(uint8_t *eui_64, uint8_t *hashed_eui_64);
 static void radius_client_sec_prot_station_id_generate(uint8_t *eui_64, uint8_t *station_id_ptr);
@@ -152,12 +169,55 @@ static uint16_t radius_client_sec_prot_size(void)
     return sizeof(radius_client_sec_prot_int_t);
 }
 
+static int8_t radius_client_sec_prot_shared_data_timeout(uint16_t ticks)
+{
+    if (shared_data == NULL || !shared_data->radius_id_timer_running) {
+        return -1;
+    }
+
+    bool timer_running = false;
+
+    for (uint8_t conn_num = 0; conn_num < RADIUS_CONN_NUMBER; conn_num++) {
+        for (uint8_t id_range = 0; id_range < RADIUS_ID_RANGE_NUM; id_range++) {
+            if (shared_data->radius_identifier_timer[conn_num][id_range] > ticks) {
+                shared_data->radius_identifier_timer[conn_num][id_range] -= ticks;
+                timer_running = true;
+            } else {
+                shared_data->radius_identifier_timer[conn_num][id_range] = 0;
+            }
+        }
+    }
+
+    if (!timer_running) {
+        shared_data->radius_id_timer_running = false;
+    }
+
+    return 0;
+}
+
+static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range, uint8_t value)
+{
+    shared_data->radius_identifier_timer[conn_num][id_range] = value;
+    shared_data->radius_id_timer_running = true;
+}
+
+static int8_t radius_client_sec_prot_shared_data_delete(void)
+{
+    if (shared_data == NULL) {
+        return -1;
+    }
+    ns_dyn_mem_free(shared_data);
+    shared_data = NULL;
+    return 0;
+}
+
 static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
 {
     prot->create_req = NULL;
     prot->create_resp = radius_client_sec_prot_create_response;
-    prot->receive = radius_client_sec_prot_receive;
+    prot->conn_receive = radius_client_sec_prot_receive;
     prot->receive_peer = radius_client_sec_prot_radius_eap_receive;
+    prot->peer_deleted = radius_client_sec_prot_radius_eap_tls_deleted;
     prot->delete = radius_client_sec_prot_delete;
     prot->state_machine = radius_client_sec_prot_state_machine;
     prot->timer_timeout = radius_client_sec_prot_timer_timeout;
@@ -192,11 +252,14 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
         if (!shared_data) {
             return -1;
         }
-        shared_data->radius_client_identifier = 0;
-        memset(shared_data->local_eui64_hash, 0, 8);
-        memset(shared_data->hash_random, 0, 16);
+        memset(shared_data, 0, sizeof(radius_client_sec_prot_shared_t));
         shared_data->local_eui64_hash_set = false;
         shared_data->hash_random_set = false;
+        shared_data->radius_id_timer_running = false;
+        // Add as shared component to enable timers and delete
+        shared_data->comp_data.timeout = radius_client_sec_prot_shared_data_timeout;
+        shared_data->comp_data.delete = radius_client_sec_prot_shared_data_delete;
+        prot->shared_comp_add(prot, &shared_data->comp_data);
     }
 
     return 0;
@@ -256,8 +319,20 @@ static int8_t radius_client_sec_prot_init_radius_eap_tls(sec_prot_t *prot)
     }
     data->radius_eap_tls_header_size = data->radius_eap_tls_prot->receive_peer_hdr_size;
     data->radius_eap_tls_send = data->radius_eap_tls_prot->receive_peer;
+    data->radius_eap_tls_deleted = data->radius_eap_tls_prot->peer_deleted;
 
     return 0;
+}
+
+static void radius_client_sec_prot_radius_eap_tls_deleted(sec_prot_t *prot)
+{
+    radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
+
+    tr_info("Radius: EAP-TLS deleted");
+
+    data->radius_eap_tls_prot = NULL;
+    data->radius_eap_tls_send = NULL;
+    data->radius_eap_tls_deleted = NULL;
 }
 
 static uint16_t radius_client_sec_prot_eap_avps_handle(uint16_t avp_length, uint8_t *avp_ptr, uint8_t *copy_to_ptr)
@@ -290,8 +365,10 @@ static uint16_t radius_client_sec_prot_eap_avps_handle(uint16_t avp_length, uint
     return eap_len;
 }
 
-static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
+static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number)
 {
+    (void) conn_number;
+
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
     if (size < RADIUS_MSG_FIXED_LENGTH) {
@@ -311,6 +388,10 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
 
     uint16_t length = common_read_16_bit(radius_msg_ptr);
     radius_msg_ptr += 2;
+
+    if (length < RADIUS_MSG_FIXED_LENGTH) {
+        return -1;
+    }
 
     // Store response authenticator
     uint8_t recv_response_authenticator[16];
@@ -333,11 +414,23 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
         return -1;
     }
 
-    uint16_t avp_length = length - RADIUS_MSG_FIXED_LENGTH;
+    // Response authenticator matches, start validating radius EAP-TLS specific fields
+    data->recv_eap_msg = NULL;
+    data->recv_eap_msg_len = 0;
+
+    uint16_t avp_length = 0;
+    if (length >= RADIUS_MSG_FIXED_LENGTH) {
+        avp_length = length - RADIUS_MSG_FIXED_LENGTH;
+    }
 
     uint8_t *message_authenticator = avp_message_authenticator_read(radius_msg_ptr, avp_length);
-    if (message_authenticator == NULL) {
+    if (message_authenticator == NULL || avp_length == 0) {
         tr_error("No message authenticator");
+        // Message does not have radius EAP-TLS specific fields
+        data->radius_code = code;
+        prot->state_machine(prot);
+
+        return 0;
     }
 
     // Store message authenticator
@@ -415,7 +508,9 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
             if (radius_client_sec_prot_ms_mppe_recv_key_pmk_decrypt(prot, recv_key,
                                                                     recv_key_len - AVP_FIXED_LEN, data->request_authenticator, data->new_pmk) >= 0) {
                 data->new_pmk_set = true;
+#ifdef EXTRA_DEBUG_INFO
                 tr_info("RADIUS PMK: %s %s", tr_array(data->new_pmk, 16), tr_array(data->new_pmk + 16, 16));
+#endif
             }
         }
     }
@@ -442,9 +537,43 @@ static int8_t radius_client_sec_prot_radius_eap_receive(sec_prot_t *prot, void *
     return 0;
 }
 
-static uint8_t radius_client_sec_prot_identifier_allocate(void)
+static uint8_t radius_client_sec_prot_identifier_allocate(sec_prot_t *prot, uint8_t value)
 {
-    return shared_data->radius_client_identifier++;
+    radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
+
+    if (!data->radius_id_range_set || value >= (data->radius_id_range * RADIUS_ID_RANGE_SIZE) + RADIUS_ID_RANGE_SIZE) {
+        for (uint8_t conn_num = 0; conn_num < RADIUS_CONN_NUMBER; conn_num++) {
+            for (uint8_t id_range = 0; id_range < RADIUS_ID_RANGE_NUM; id_range++) {
+                if (shared_data->radius_identifier_timer[conn_num][id_range] == 0) {
+                    // If range has been already reserved
+                    if (data->radius_id_range_set) {
+                        // Set previous range to timeout in 5 seconds
+                        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, 5);
+                    }
+                    // Set timeout for new range to 60 seconds
+                    radius_identifier_timer_value_set(conn_num, id_range, 60);
+                    data->radius_id_conn_num = conn_num;
+                    data->radius_id_range = id_range;
+                    data->radius_id_range_set = true;
+                    return id_range * RADIUS_ID_RANGE_SIZE;
+                }
+            }
+        }
+    } else {
+        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, 60);
+        return value + 1;
+    }
+
+    return 0;
+}
+
+static void radius_client_sec_prot_identifier_free(sec_prot_t *prot)
+{
+    radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
+
+    if (data->radius_id_range_set) {
+        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, 5);
+    }
 }
 
 static uint8_t radius_client_sec_prot_eui_64_hash_get(sec_prot_t *prot, uint8_t *local_eui_64_hash, uint8_t *remote_eui_64_hash, bool remote_eui_64_hash_set)
@@ -524,7 +653,7 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
     uint8_t *radius_msg_start_ptr = radius_msg_ptr;
 
     *radius_msg_ptr++ = RADIUS_ACCESS_REQUEST;                                // code
-    data->radius_identifier = radius_client_sec_prot_identifier_allocate();
+    data->radius_identifier = radius_client_sec_prot_identifier_allocate(prot, data->radius_identifier);
     *radius_msg_ptr++ = data->radius_identifier;                              // identifier
     radius_msg_ptr = common_write_16_bit(radius_msg_length, radius_msg_ptr);  // length
 
@@ -604,13 +733,23 @@ static int8_t radius_client_sec_prot_radius_msg_send(sec_prot_t *prot)
         return -1;
     }
 
-    if (prot->send(prot, data->send_radius_msg, data->send_radius_msg_len) < 0) {
+    if (prot->conn_send(prot, data->send_radius_msg, data->send_radius_msg_len, data->radius_id_conn_num, SEC_PROT_SEND_FLAG_NO_DEALLOC) < 0) {
         return -1;
     }
-    data->send_radius_msg = NULL;
-    data->send_radius_msg_len = 0;
 
     return 0;
+}
+
+static void radius_client_sec_prot_radius_msg_free(sec_prot_t *prot)
+{
+    radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
+
+    if (data->send_radius_msg != NULL) {
+        ns_dyn_mem_free(data->send_radius_msg);
+    }
+
+    data->send_radius_msg = NULL;
+    data->send_radius_msg_len = 0;
 }
 
 static int8_t radius_client_sec_prot_eui_64_hash_generate(uint8_t *eui_64, uint8_t *hashed_eui_64)
@@ -678,11 +817,12 @@ static void radius_client_sec_prot_station_id_generate(uint8_t *eui_64, uint8_t 
 
 static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, uint8_t *msg_ptr, uint8_t *auth_ptr)
 {
-    const uint8_t *key = prot->sec_cfg->radius_cfg.radius_shared_secret;
-    uint16_t key_len = prot->sec_cfg->radius_cfg.radius_shared_secret_len;
-    if (prot->sec_cfg->radius_cfg.radius_shared_secret_len == 0) {
+    if (prot->sec_cfg->radius_cfg->radius_shared_secret == NULL || prot->sec_cfg->radius_cfg->radius_shared_secret_len == 0) {
         return -1;
     }
+
+    const uint8_t *key = prot->sec_cfg->radius_cfg->radius_shared_secret;
+    uint16_t key_len = prot->sec_cfg->radius_cfg->radius_shared_secret_len;
 
 #ifndef MBEDTLS_MD5_C
     tr_error("FATAL: MD5 MBEDTLS_MD5_C not enabled");
@@ -698,9 +838,13 @@ static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot
 static int8_t radius_client_sec_prot_response_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, uint8_t *msg_ptr, uint8_t *auth_ptr)
 {
 #ifdef MBEDTLS_MD5_C
-    const uint8_t *key = prot->sec_cfg->radius_cfg.radius_shared_secret;
-    uint16_t key_len = prot->sec_cfg->radius_cfg.radius_shared_secret_len;
-    if (prot->sec_cfg->radius_cfg.radius_shared_secret_len == 0) {
+    if (prot->sec_cfg->radius_cfg->radius_shared_secret == NULL || prot->sec_cfg->radius_cfg->radius_shared_secret_len == 0) {
+        return -1;
+    }
+
+    const uint8_t *key = prot->sec_cfg->radius_cfg->radius_shared_secret;
+    uint16_t key_len = prot->sec_cfg->radius_cfg->radius_shared_secret_len;
+    if (prot->sec_cfg->radius_cfg->radius_shared_secret_len == 0) {
         return -1;
     }
 
@@ -747,9 +891,13 @@ end:
 static int8_t radius_client_sec_prot_ms_mppe_recv_key_pmk_decrypt(sec_prot_t *prot, uint8_t *recv_key, uint8_t recv_key_len, uint8_t *request_authenticator, uint8_t *pmk_ptr)
 {
 #ifdef MBEDTLS_MD5_C
-    const uint8_t *key = prot->sec_cfg->radius_cfg.radius_shared_secret;
-    uint16_t key_len = prot->sec_cfg->radius_cfg.radius_shared_secret_len;
-    if (prot->sec_cfg->radius_cfg.radius_shared_secret_len == 0) {
+    if (prot->sec_cfg->radius_cfg->radius_shared_secret == NULL || prot->sec_cfg->radius_cfg->radius_shared_secret_len == 0) {
+        return -1;
+    }
+
+    const uint8_t *key = prot->sec_cfg->radius_cfg->radius_shared_secret;
+    uint16_t key_len = prot->sec_cfg->radius_cfg->radius_shared_secret_len;
+    if (prot->sec_cfg->radius_cfg->radius_shared_secret_len == 0) {
         return -1;
     }
 
@@ -852,8 +1000,7 @@ static void radius_client_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t tick
 {
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
-    sec_prot_timer_timeout_handle(prot, &data->common,
-                                  &prot->sec_cfg->prot_cfg.sec_prot_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, &prot->sec_cfg->radius_cfg->radius_retry_trickle_params, ticks);
 }
 
 static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
@@ -862,14 +1009,14 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
 
     switch (sec_prot_state_get(&data->common)) {
         case RADIUS_STATE_INIT:
-            tr_debug("Radius: init");
+            tr_info("Radius: init");
             sec_prot_state_set(prot, &data->common, RADIUS_STATE_STATE_RESPONSE_ID);
             prot->timer_start(prot);
             break;
 
         // Wait EAP response, Identity (starts RADIUS Client protocol)
         case RADIUS_STATE_STATE_RESPONSE_ID:
-            tr_debug("Radius: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_info("Radius: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -899,14 +1046,14 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case RADIUS_STATE_SEND_INITIAL_ACCESS_REQUEST:
-            tr_debug("Radius: send initial access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_info("Radius: send initial access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             if (radius_client_sec_prot_radius_msg_send(prot) < 0) {
                 tr_error("Radius: msg send error");
             }
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &prot->sec_cfg->prot_cfg.sec_prot_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->sec_cfg->radius_cfg->radius_retry_trickle_params);
 
             sec_prot_state_set(prot, &data->common, RADIUS_STATE_ACCESS_ACCEPT_REJECT_CHALLENGE);
             break;
@@ -915,14 +1062,32 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
 
             // On timeout
             if (sec_prot_result_timeout_check(&data->common)) {
-                // Do nothing for now
+                tr_info("Radius: retry access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                if (radius_client_sec_prot_radius_msg_send(prot) < 0) {
+                    tr_error("Radius: retry msg send error");
+                }
                 return;
             }
 
-            tr_debug("Radius: received access accept/reject/challenge, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_info("Radius: received access accept/reject/challenge, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+
+            // Free radius access-request buffer since answer received and retries not needed
+            radius_client_sec_prot_radius_msg_free(prot);
+
+            // Stop trickle timer, EAP-TLS will continue and on reject/accept negotiation will end
+            sec_prot_timer_trickle_stop(&data->common);
+
+            // Set timeout to wait for EAP-TLS to continue
+            data->common.ticks = prot->sec_cfg->prot_cfg.sec_prot_retry_timeout;
 
             // Send to radius EAP-TLS
-            data->radius_eap_tls_send(data->radius_eap_tls_prot, (void *) data->recv_eap_msg, data->recv_eap_msg_len);
+            if (data->radius_eap_tls_send && data->radius_eap_tls_prot && data->recv_eap_msg && data->recv_eap_msg_len > 0) {
+                data->radius_eap_tls_send(data->radius_eap_tls_prot, (void *) data->recv_eap_msg, data->recv_eap_msg_len);
+            } else {
+                if (data->recv_eap_msg) {
+                    ns_dyn_mem_free(data->recv_eap_msg);
+                }
+            }
             data->recv_eap_msg = NULL;
             data->recv_eap_msg_len = 0;
 
@@ -945,11 +1110,14 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
 
             // On timeout
             if (sec_prot_result_timeout_check(&data->common)) {
-                // Do nothing for now
+                tr_info("Radius: retry access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                if (radius_client_sec_prot_radius_msg_send(prot) < 0) {
+                    tr_error("Radius: retry msg send error");
+                }
                 return;
             }
 
-            tr_debug("Radius: send access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_info("Radius: send access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             radius_client_sec_prot_allocate_and_create_radius_message(prot);
 
@@ -957,11 +1125,14 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
                 tr_error("Radius: msg send error");
             }
 
+            // Start trickle timer to re-send if no response
+            sec_prot_timer_trickle_start(&data->common, &prot->sec_cfg->radius_cfg->radius_retry_trickle_params);
+
             sec_prot_state_set(prot, &data->common, RADIUS_STATE_ACCESS_ACCEPT_REJECT_CHALLENGE);
             break;
 
         case RADIUS_STATE_FINISH:
-            tr_debug("Radius: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_info("Radius: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             if (sec_prot_result_ok_check(&data->common)) {
                 sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk, prot->sec_cfg->timer_cfg.pmk_lifetime);
@@ -980,7 +1151,14 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
 
         case RADIUS_STATE_FINISHED: {
             uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
-            tr_debug("Radius: finished, eui-64: %s", remote_eui_64 ? trace_array(remote_eui_64, 8) : "not set");
+            tr_info("Radius: finished, eui-64: %s", remote_eui_64 ? trace_array(remote_eui_64, 8) : "not set");
+
+            radius_client_sec_prot_identifier_free(prot);
+
+            // Indicate to radius EAP-TLS peer protocol that radius client has been deleted
+            if (data->radius_eap_tls_deleted) {
+                data->radius_eap_tls_deleted(data->radius_eap_tls_prot);
+            }
 
             prot->timer_stop(prot);
             prot->finished(prot);

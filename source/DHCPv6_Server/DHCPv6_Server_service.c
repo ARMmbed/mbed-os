@@ -115,12 +115,29 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
     }
 
     response->responseLength = libdhcpv6_address_reply_message_len(replyPacket->clientDUID.duid_length, replyPacket->serverDUID.duid_length, 0, replyPacket->rapidCommit, address_allocated);
+    //Calculate DNS LIST and Vendor data lengths here
+    response->responseLength += libdhcpv6_dns_server_message_sizes(serverBase);
+    response->responseLength += libdhcpv6_vendor_data_message_sizes(serverBase);
+
     response->responsePtr = ns_dyn_mem_temporary_alloc(response->responseLength);
     if (response->responsePtr) {
+        uint8_t *ptr = response->responsePtr;
+        //Write Generic data at beginning
+        ptr = libdhcpv6_header_write(ptr, DHCPV6_REPLY_TYPE, replyPacket->transaction_ID);
+        ptr = libdhcpv6_duid_option_write(ptr, DHCPV6_SERVER_ID_OPTION, &replyPacket->serverDUID); //16
+        ptr = libdhcpv6_duid_option_write(ptr, DHCPV6_CLIENT_ID_OPTION, &replyPacket->clientDUID); //16
         if (address_allocated) {
-            libdhcpv6_reply_message_write(response->responsePtr, replyPacket, &nonTemporalAddress, NULL);
+            ptr = libdhcpv6_identity_association_option_write(ptr, replyPacket->iaId, replyPacket->T0, replyPacket->T1, true);
+            ptr = libdhcpv6_ia_address_option_write(ptr, nonTemporalAddress.requestedAddress, nonTemporalAddress.preferredLifeTime, nonTemporalAddress.validLifeTime);
+            //Write DNS LIST and Vendor data here
+            ptr = libdhcpv6_dns_server_message_writes(serverBase, ptr);
+            ptr = libdhcpv6_vendor_data_message_writes(serverBase, ptr);
         } else {
-            libdhcpv6_reply_message_write(response->responsePtr, replyPacket, NULL, NULL);
+            ptr = libdhcpv6_identity_association_option_write_with_status(ptr, replyPacket->iaId, replyPacket->T0, replyPacket->T1, DHCPV6_STATUS_NO_ADDR_AVAILABLE_CODE);
+        }
+
+        if (replyPacket->rapidCommit) {
+            ptr = libdhcpv6_rapid_commit_option_write(ptr);
         }
         return 0;
     }
@@ -407,6 +424,71 @@ int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t gu
 
     return 0;
 }
+
+int DHCPv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[static 16], uint8_t dns_server_address[static 16], uint8_t *dns_search_list_ptr, uint8_t dns_search_list_len)
+{
+    dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
+    if (!serverInfo) {
+        return -1;
+    }
+
+    dhcpv6_dns_server_data_t *dns_entry = libdhcpv6_dns_server_allocate(serverInfo, dns_server_address);
+    if (!dns_entry) {
+        return -1;
+    }
+
+    if (dns_entry->search_list_length != dns_search_list_len) {
+        ns_dyn_mem_free(dns_entry->search_list);
+        dns_entry->search_list = NULL;
+        dns_entry->search_list_length = 0;
+        if (dns_search_list_len) {
+            dns_entry->search_list = ns_dyn_mem_alloc(dns_search_list_len);
+            if (dns_entry->search_list) {
+                dns_entry->search_list_length = dns_search_list_len;
+            }
+        }
+    }
+
+    if (dns_entry->search_list_length) {
+        //Copy Search List to allocated buffer
+        memcpy(dns_entry->search_list, dns_search_list_ptr, dns_entry->search_list_length);
+    }
+
+    return 0;
+}
+
+int DHCPv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint8_t dhcp_vendor_data_len)
+{
+    dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
+    if (!serverInfo) {
+        return -1;
+    }
+
+    dhcpv6_vendor_data_t *vendor_data_entry = libdhcpv6_vendor_data_allocate(serverInfo, enterprise_number);
+
+    if (!vendor_data_entry) {
+        return -1;
+    }
+
+    if (vendor_data_entry->vendor_data_length != dhcp_vendor_data_len) {
+        ns_dyn_mem_free(vendor_data_entry->vendor_data);
+        vendor_data_entry->vendor_data = NULL;
+        vendor_data_entry->vendor_data_length = 0;
+        if (dhcp_vendor_data_len) {
+            vendor_data_entry->vendor_data = ns_dyn_mem_alloc(dhcp_vendor_data_len);
+            if (vendor_data_entry->vendor_data) {
+                vendor_data_entry->vendor_data_length = dhcp_vendor_data_len;
+            }
+        }
+    }
+
+    if (vendor_data_entry->vendor_data_length) {
+        //Copy Venfor Data to allocated buffer
+        memcpy(vendor_data_entry->vendor_data, dhcp_vendor_data_ptr, vendor_data_entry->vendor_data_length);
+    }
+    return 0;
+}
+
 #else
 
 int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)

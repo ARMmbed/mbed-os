@@ -413,4 +413,13 @@ int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
     return -1;
 }
 
+int ws_device_min_sens_set(
+    int8_t interface_id,
+    uint8_t device_min_sens)
+{
+    (void) interface_id;
+    (void) device_min_sens;
+    return -1;
+}
+
 #endif // no HAVE_WS
