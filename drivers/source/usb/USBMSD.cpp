@@ -65,8 +65,8 @@ enum Status {
     CSW_ERROR,
 };
 
-USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release),
+USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(get_usb_phy(), vendor_id_, product_id_, product_release_),
       _initialized(false), _media_removed(false),
       _addr(0), _length(0), _mem_ok(false), _block_size(0), _memory_size(0), _block_count(0),
       _out_ready(false), _in_ready(false), _bulk_out_size(0),
@@ -81,8 +81,8 @@ USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id, uint1
     }
 }
 
-USBMSD::USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release),
+USBMSD::USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(phy, vendor_id_, product_id_, product_release_),
       _initialized(false), _media_removed(false),
       _addr(0), _length(0), _mem_ok(false), _block_size(0), _memory_size(0), _block_count(0),
       _out_ready(false), _in_ready(false), _bulk_out_size(0),
