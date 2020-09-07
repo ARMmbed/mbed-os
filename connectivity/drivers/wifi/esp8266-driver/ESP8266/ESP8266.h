@@ -97,7 +97,7 @@ public:
         int major;
         int minor;
         int patch;
-        fw_sdk_version(int major, int minor, int patch) : major(major), minor(minor), patch(patch) {}
+        fw_sdk_version(int major_, int minor_, int patch_) : major(major_), minor(minor_), patch(patch_) {}
     };
 
     /**
@@ -111,7 +111,7 @@ public:
         int major;
         int minor;
         int patch;
-        fw_at_version(int major, int minor, int patch) : major(major), minor(minor), patch(patch) {}
+        fw_at_version(int major_, int minor_, int patch_) : major(major_), minor(minor_), patch(patch_) {}
     };
 
     /**

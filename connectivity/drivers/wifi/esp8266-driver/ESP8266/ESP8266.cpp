@@ -844,31 +844,31 @@ void ESP8266::_oob_packet_hdlr()
         return;
     }
 
-    struct packet *packet = (struct packet *)malloc(pdu_len);
-    if (!packet) {
+    struct packet *pack = (struct packet *)malloc(pdu_len);
+    if (!pack) {
         tr_debug("_oob_packet_hdlr(): Out of memory, unable to allocate memory for packet.");
         return;
     }
     _heap_usage += pdu_len;
 
-    packet->id = id;
+    pack->id = id;
     if (_sock_i[id].proto == NSAPI_UDP) {
-        packet->remote_port = port;
-        memcpy(packet->remote_ip, _ip_buffer, 16);
+        pack->remote_port = port;
+        memcpy(pack->remote_ip, _ip_buffer, 16);
     }
-    packet->len = amount;
-    packet->alloc_len = amount;
-    packet->next = 0;
+    pack->len = amount;
+    pack->alloc_len = amount;
+    pack->next = 0;
 
-    if (_parser.read((char *)(packet + 1), amount) < amount) {
-        free(packet);
+    if (_parser.read((char *)(pack + 1), amount) < amount) {
+        free(pack);
         _heap_usage -= pdu_len;
         return;
     }
 
     // append to packet list
-    *_packets_end = packet;
-    _packets_end = &packet->next;
+    *_packets_end = pack;
+    _packets_end = &pack->next;
 }
 
 void ESP8266::_process_oob(duration<uint32_t, milli> timeout, bool all)
@@ -1075,8 +1075,8 @@ void ESP8266::_clear_socket_packets(int id)
         }
     }
     if (id == ESP8266_ALL_SOCKET_IDS) {
-        for (int id = 0; id < 5; id++) {
-            _sock_i[id].tcp_data_avbl = 0;
+        for (int i = 0; i < 5; i++) {
+            _sock_i[i].tcp_data_avbl = 0;
         }
     } else {
         _sock_i[id].tcp_data_avbl = 0;
@@ -1184,7 +1184,7 @@ bool ESP8266::get_sntp_config(bool *enable, int *timezone, char *server0,
     _smutex.lock();
     unsigned int tmp;
     bool done = _parser.send("AT+CIPSNTPCFG?")
-                && _parser.scanf("+CIPSNTPCFG:%d,%d,\"%32[^\"]\",\"%32[^\"]\",\"%32[^\"]\"",
+                && _parser.scanf("+CIPSNTPCFG:%u,%d,\"%32[^\"]\",\"%32[^\"]\",\"%32[^\"]\"",
                                  &tmp, timezone, server0, server1, server2)
                 && _parser.recv("OK\n");
     _smutex.unlock();
