@@ -405,15 +405,7 @@ private:
 
     bool initialize_whitelist() const;
 
-    ble_error_t update_address_resolution_setting();
-
-    void set_random_address_rotation(bool enable);
-
-    void update_random_address();
-
-    bool getUnresolvableRandomAddress(ble::address_t &address);
-
-    void on_address_rotation_timeout();
+    ble_error_t update_ll_address_resolution_setting();
 
     ble_error_t setExtendedAdvertisingParameters(
         advertising_handle_t handle,
@@ -422,7 +414,7 @@ private:
 
     bool is_extended_advertising_available();
 
-    void prepare_legacy_advertising_set();
+    ble_error_t prepare_legacy_advertising_set(const AdvertisingParameters& parameters);
 
     /* implements PalGap::EventHandler */
 private:
@@ -551,6 +543,17 @@ private:
         target_peer_address_type_t identity_address_type,
         const address_t &identity_address
     ) final;
+
+private:
+    bool is_advertising() const;
+
+    bool is_radio_active() const;
+
+    void update_advertising_set_connectable_attribute(
+        advertising_handle_t handle,
+        const AdvertisingParameters& parameters
+    );
+
 private:
     /**
      * Callchain containing all registered callback handlers for shutdown
@@ -569,7 +572,6 @@ private:
     PalSecurityManager &_pal_sm;
     PrivateAddressController &_address_registry;
     ble::own_address_type_t _address_type;
-    ble::address_t _address;
     initiator_policy_t _initiator_policy_mode;
     scanning_filter_policy_t _scanning_filter_policy;
     advertising_filter_policy_t _advertising_filter_policy;
@@ -578,8 +580,6 @@ private:
     bool _privacy_enabled;
     peripheral_privacy_configuration_t _peripheral_privacy_configuration;
     central_privacy_configuration_t _central_privacy_configuration;
-    ble::address_t _random_static_identity_address;
-    bool _random_address_rotating;
 
     bool _scan_enabled;
     mbed::LowPowerTimeout _advertising_timeout;
@@ -587,6 +587,7 @@ private:
     mbed::LowPowerTicker _address_rotation_ticker;
 
     bool _initiating = false;
+
     template<size_t bit_size>
     struct BitArray {
         BitArray() : data()
@@ -638,6 +639,10 @@ private:
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _active_periodic_sets;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _set_is_connectable;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _pending_sets;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _address_refresh_sets;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _interruptible_sets;
+
 
     bool _user_manage_connection_parameter_requests : 1;
 };
