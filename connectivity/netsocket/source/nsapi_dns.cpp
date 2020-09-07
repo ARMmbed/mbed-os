@@ -302,8 +302,8 @@ static int dns_scan_response(const uint8_t *ptr, uint16_t exp_id, duration<uint3
         if (rtype == RR_A && rclass == CLASS_IN && rdlength == NSAPI_IPv4_BYTES) {
             // accept A record
             addr->version = NSAPI_IPv4;
-            for (int i = 0; i < NSAPI_IPv4_BYTES; i++) {
-                addr->bytes[i] = dns_scan_byte(p);
+            for (int j = 0; j < NSAPI_IPv4_BYTES; j++) {
+                addr->bytes[j] = dns_scan_byte(p);
             }
 
             addr += 1;
@@ -311,8 +311,8 @@ static int dns_scan_response(const uint8_t *ptr, uint16_t exp_id, duration<uint3
         } else if (rtype == RR_AAAA && rclass == CLASS_IN && rdlength == NSAPI_IPv6_BYTES) {
             // accept AAAA record
             addr->version = NSAPI_IPv6;
-            for (int i = 0; i < NSAPI_IPv6_BYTES; i++) {
-                addr->bytes[i] = dns_scan_byte(p);
+            for (int j = 0; j < NSAPI_IPv6_BYTES; j++) {
+                addr->bytes[j] = dns_scan_byte(p);
             }
 
             addr += 1;
