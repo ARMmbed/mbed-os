@@ -441,7 +441,7 @@
         "sub-repo-example": false,
         "subs": [],
         "features" : [],
-        "targets" : [ "K66F", "NUCLEO_F429ZI", "ARM_MUSCA_B1"],
+        "targets" : [ "K66F", "NUCLEO_F429ZI"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
