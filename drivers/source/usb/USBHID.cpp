@@ -23,7 +23,7 @@
 
 class USBHID::AsyncSend: public AsyncOp {
 public:
-    AsyncSend(USBHID *hid, const HID_REPORT *report): hid(hid), report(report), result(false)
+    AsyncSend(USBHID *hid_, const HID_REPORT *report_): hid(hid_), report(report_), result(false)
     {
 
     }
@@ -55,7 +55,7 @@ public:
 
 class USBHID::AsyncRead: public AsyncOp {
 public:
-    AsyncRead(USBHID *hid, HID_REPORT *report): hid(hid), report(report), result(false)
+    AsyncRead(USBHID *hid_, HID_REPORT *report_): hid(hid_), report(report_), result(false)
     {
 
     }
@@ -87,7 +87,7 @@ public:
 
 class USBHID::AsyncWait: public AsyncOp {
 public:
-    AsyncWait(USBHID *hid): hid(hid)
+    AsyncWait(USBHID *hid_): hid(hid_)
     {
 
     }
@@ -109,8 +109,8 @@ public:
     USBHID *hid;
 };
 
-USBHID::USBHID(bool connect_blocking, uint8_t output_report_length, uint8_t input_report_length, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release)
+USBHID::USBHID(bool connect_blocking, uint8_t output_report_length, uint8_t input_report_length, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(get_usb_phy(), vendor_id_, product_id_, product_release_)
 {
     _init(output_report_length, input_report_length);
     if (connect_blocking) {
@@ -122,8 +122,8 @@ USBHID::USBHID(bool connect_blocking, uint8_t output_report_length, uint8_t inpu
 
 }
 
-USBHID::USBHID(USBPhy *phy, uint8_t output_report_length, uint8_t input_report_length, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release)
+USBHID::USBHID(USBPhy *phy, uint8_t output_report_length, uint8_t input_report_length, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(phy, vendor_id_, product_id_, product_release_)
 {
     _init(output_report_length, input_report_length);
 }
