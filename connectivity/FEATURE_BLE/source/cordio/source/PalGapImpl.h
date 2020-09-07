@@ -147,12 +147,6 @@ public:
         local_disconnection_reason_t disconnection_reason
     ) final;
 
-    bool is_privacy_supported() final;
-
-    ble_error_t set_address_resolution(
-        bool enable
-    ) final;
-
     ble_error_t read_phy(connection_handle_t connection) final;
 
     ble_error_t set_preferred_phys(
