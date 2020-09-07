@@ -23,8 +23,8 @@
 
 using namespace std::chrono_literals;
 
-USBMouse::USBMouse(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBHID(get_usb_phy(), 0, 0, vendor_id, product_id, product_release)
+USBMouse::USBMouse(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBHID(get_usb_phy(), 0, 0, vendor_id_, product_id_, product_release_)
 {
     _button = 0;
     _mouse_type = mouse_type;
@@ -37,8 +37,8 @@ USBMouse::USBMouse(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor
     }
 }
 
-USBMouse::USBMouse(USBPhy *phy, MOUSE_TYPE mouse_type, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBHID(get_usb_phy(), 0, 0, vendor_id, product_id, product_release)
+USBMouse::USBMouse(USBPhy *phy, MOUSE_TYPE mouse_type, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBHID(get_usb_phy(), 0, 0, vendor_id_, product_id_, product_release_)
 {
     _button = 0;
     _mouse_type = mouse_type;
