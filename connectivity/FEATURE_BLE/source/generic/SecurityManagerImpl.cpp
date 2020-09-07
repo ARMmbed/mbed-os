@@ -502,7 +502,7 @@ ble_error_t SecurityManager::setKeypressNotification(bool enabled)
     return BLE_ERROR_NONE;
 }
 
-
+#if BLE_FEATURE_SIGNING
 ble_error_t SecurityManager::enableSigning(
     connection_handle_t connection,
     bool enabled
@@ -544,7 +544,7 @@ ble_error_t SecurityManager::enableSigning(
 
     return BLE_ERROR_NONE;
 }
-
+#endif
 
 ble_error_t SecurityManager::setHintFutureRoleReversal(bool enable)
 {
