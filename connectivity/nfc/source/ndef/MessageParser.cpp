@@ -21,8 +21,8 @@
 
 namespace {
 struct buffer_iterator_t {
-    buffer_iterator_t(const mbed::Span<const uint8_t> &buffer) :
-        buffer(buffer),
+    buffer_iterator_t(const mbed::Span<const uint8_t> &buffer_) :
+        buffer(buffer_),
         position(0)
     { }
 
