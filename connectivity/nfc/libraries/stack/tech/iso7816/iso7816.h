@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-struct nfc_tech_iso7816_c_apdu {
+struct nfc_tech_iso7816_c_apdu_ {
     uint8_t cla;
     uint8_t ins;
     uint8_t p1;
@@ -41,15 +41,15 @@ struct nfc_tech_iso7816_c_apdu {
     size_t maxRespLength;
 };
 
-struct nfc_tech_iso7816_r_apdu {
+struct nfc_tech_iso7816_r_apdu_ {
     ac_buffer_t dataOut;
     uint16_t sw;
 };
 
 #define ISO7816_RX_BUFFER_SIZE 256
 
-typedef struct nfc_tech_iso7816_c_apdu nfc_tech_iso7816_c_apdu_t;
-typedef struct nfc_tech_iso7816_r_apdu nfc_tech_iso7816_r_apdu_t;
+typedef struct nfc_tech_iso7816_c_apdu_ nfc_tech_iso7816_c_apdu_t;
+typedef struct nfc_tech_iso7816_r_apdu_ nfc_tech_iso7816_r_apdu_t;
 
 typedef struct nfc_tech_iso7816 nfc_tech_iso7816_t;
 
