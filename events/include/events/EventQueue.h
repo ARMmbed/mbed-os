@@ -1407,8 +1407,8 @@ protected:
     struct context<F> {
         F f;
 
-        constexpr context(F f)
-            : f(f) {}
+        constexpr context(F f_)
+            : f(f_) {}
 
         template <typename... ArgTs>
         void operator()(ArgTs... args)
@@ -1422,8 +1422,8 @@ protected:
         F f;
         C0 c0;
 
-        constexpr context(F f, C0 c0)
-            : f(f), c0(c0) {}
+        constexpr context(F f_, C0 c0_)
+            : f(f_), c0(c0_) {}
 
         template <typename... ArgTs>
         void operator()(ArgTs... args)
@@ -1438,8 +1438,8 @@ protected:
         C0 c0;
         C1 c1;
 
-        constexpr context(F f, C0 c0, C1 c1)
-            : f(f), c0(c0), c1(c1) {}
+        constexpr context(F f_, C0 c0_, C1 c1_)
+            : f(f_), c0(c0_), c1(c1_) {}
 
         template <typename... ArgTs>
         void operator()(ArgTs... args)
@@ -1455,8 +1455,8 @@ protected:
         C1 c1;
         C2 c2;
 
-        constexpr context(F f, C0 c0, C1 c1, C2 c2)
-            : f(f), c0(c0), c1(c1), c2(c2) {}
+        constexpr context(F f_, C0 c0_, C1 c1_, C2 c2_)
+            : f(f_), c0(c0_), c1(c1_), c2(c2_) {}
 
         template <typename... ArgTs>
         void operator()(ArgTs... args)
@@ -1473,8 +1473,8 @@ protected:
         C2 c2;
         C3 c3;
 
-        constexpr context(F f, C0 c0, C1 c1, C2 c2, C3 c3)
-            : f(f), c0(c0), c1(c1), c2(c2), c3(c3) {}
+        constexpr context(F f_, C0 c0_, C1 c1_, C2 c2_, C3 c3_)
+            : f(f_), c0(c0_), c1(c1_), c2(c2_), c3(c3_) {}
 
         template <typename... ArgTs>
         void operator()(ArgTs... args)
@@ -1492,8 +1492,8 @@ protected:
         C3 c3;
         C4 c4;
 
-        constexpr context(F f, C0 c0, C1 c1, C2 c2, C3 c3, C4 c4)
-            : f(f), c0(c0), c1(c1), c2(c2), c3(c3), c4(c4) {}
+        constexpr context(F f_, C0 c0_, C1 c1_, C2 c2_, C3 c3_, C4 c4_)
+            : f(f_), c0(c0_), c1(c1_), c2(c2_), c3(c3_), c4(c4_) {}
 
         template <typename... ArgTs>
         void operator()(ArgTs... args)
