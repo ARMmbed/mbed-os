@@ -201,7 +201,8 @@ ble::impl::Gap &BLEInstanceBase::getGapImpl()
         _event_queue,
         ble::impl::PalGap::get_gap(),
         cordio_gap_service,
-        ble::impl::PalSecurityManager::get_security_manager()
+        ble::impl::PalSecurityManager::get_security_manager(),
+        getPrivateAddressRegistry()
     );
     return gap;
 }
