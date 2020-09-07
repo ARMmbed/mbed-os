@@ -15,6 +15,7 @@
  */
 #include <string.h>
 #if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
+
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "ns_types.h"
@@ -30,6 +31,17 @@
 #include "Thread.h"
 #include "mbed_wait_api.h"
 #include "platform/mbed_error.h"
+#include "platform/mbed_version.h"
+
+#if (MBED_VERSION > MBED_ENCODE_VERSION(6, 0, 0))
+/* Mbed OS 6.0 introduces support for chrono time management */
+using namespace std::chrono;
+#define S2LP_USE_CHRONO
+#define S2LP_TIME_50US   50us
+#define S2LP_TIME_10MS   10ms
+#else
+#define S2LP_TIME_10MS   10
+#endif
 
 using namespace mbed;
 using namespace rtos;
@@ -276,7 +288,11 @@ static void rf_calculate_symbol_rate(uint32_t baudrate, phy_modulation_e modulat
 
 static uint32_t rf_get_timestamp(void)
 {
+#ifdef S2LP_USE_CHRONO
+    return (uint32_t)rf->tx_timer.elapsed_time().count();
+#else
     return (uint32_t)rf->tx_timer.read_us();
+#endif
 }
 
 static void rf_update_tx_active_time(void)
@@ -866,7 +882,11 @@ static void rf_cca_timer_stop(void)
 
 static void rf_cca_timer_start(uint32_t slots)
 {
+#ifdef S2LP_USE_CHRONO
+    rf->cca_timer.attach(rf_cca_timer_signal, microseconds(slots));
+#else
     rf->cca_timer.attach_us(rf_cca_timer_signal, slots);
+#endif
     TEST_CSMA_STARTED
 }
 
@@ -903,7 +923,11 @@ static void rf_backup_timer_stop(void)
 
 static void rf_backup_timer_start(uint32_t slots)
 {
+#ifdef S2LP_USE_CHRONO
+    rf->backup_timer.attach(rf_backup_timer_signal, microseconds(slots));
+#else
     rf->backup_timer.attach_us(rf_backup_timer_signal, slots);
+#endif
 }
 
 static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_handle, data_protocol_e data_protocol)
@@ -1177,10 +1201,10 @@ static void rf_reset(void)
 {
     // Shutdown
     rf->SDN = 1;
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(S2LP_TIME_10MS);
     // Wake up
     rf->SDN = 0;
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(S2LP_TIME_10MS);
 }
 
 static void rf_init(void)
