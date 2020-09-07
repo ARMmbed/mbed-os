@@ -25,7 +25,14 @@
 #include "acore/acore/ac_buffer.h"
 #include "acore/acore/ac_buffer_reader.h"
 #include "acore/acore/ac_buffer_builder.h"
+
+#ifdef __GNUC__ 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 #include "transceiver/pn512.h"
+#pragma GCC diagnostic pop
+#endif //__GNUC__
+
 
 namespace mbed {
 namespace nfc {
