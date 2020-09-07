@@ -51,5 +51,5 @@ From the application root run the following:
 The default build type is Develop. Use `CMAKE_BUILD_TYPE` to change it. The options are Develop, Release or Debug: 
 
 ```
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=Develop && cmake --build .
+cmake .. -GNinja -DCMAKE_BUILD_TYPE=<supported-build-type> && cmake --build .
 ```
