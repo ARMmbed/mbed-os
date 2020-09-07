@@ -24,6 +24,7 @@
 #include "fhss_config.h"
 #include "ns_address.h"
 #include "ws_management_api.h"
+#include "ws_bbr_api.h"
 #include "Service_Libs/utils/ns_file.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
@@ -106,6 +107,7 @@ typedef struct {
 } pae_controller_t;
 
 typedef struct {
+    sec_radius_cfg_t *radius_cfg;                                    /**< Radius configuration settings */
     uint16_t node_limit;                                             /**< Max number of stored supplicants */
     bool node_limit_set : 1;                                         /**< Node limit set */
     bool ext_cert_valid_enabled : 1;                                 /**< Extended certificate validation enabled */
@@ -146,12 +148,11 @@ static const char *NW_INFO_FILE = NW_INFO_FILE_NAME;
 static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
 
 pae_controller_config_t pae_controller_config = {
+    .radius_cfg = NULL,
     .node_limit = 0,
     .node_limit_set = false,
     .ext_cert_valid_enabled = false
 };
-
-sec_radius_cfg_t *pae_controller_radius_settings;
 
 int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface_ptr)
 {
@@ -217,16 +218,16 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
         return -1;
     }
 
-    if (pae_controller_radius_settings) {
-        // If either address or password is set, both must be set
-        if (controller->sec_cfg.radius_cfg.radius_addr_set || controller->sec_cfg.radius_cfg.radius_shared_secret_len > 0) {
-            if (!controller->sec_cfg.radius_cfg.radius_addr_set) {
+    // If either radius address or password is set, both must be set
+    if (controller->sec_cfg.radius_cfg != NULL) {
+        if (controller->sec_cfg.radius_cfg->radius_addr_set || controller->sec_cfg.radius_cfg->radius_shared_secret_len > 0) {
+            if (!controller->sec_cfg.radius_cfg->radius_addr_set) {
                 return -1;
             }
-            if (controller->sec_cfg.radius_cfg.radius_shared_secret_len == 0) {
+            if (controller->sec_cfg.radius_cfg->radius_shared_secret_len == 0) {
                 return -1;
             }
-            if (ws_pae_auth_radius_address_set(interface_ptr, controller->sec_cfg.radius_cfg.radius_addr) < 0) {
+            if (ws_pae_auth_radius_address_set(interface_ptr, controller->sec_cfg.radius_cfg->radius_addr) < 0) {
                 return -1;
             }
         }
@@ -704,9 +705,7 @@ int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_pt
         ws_pae_timers_settings_init(&controller->sec_cfg.timer_cfg, sec_timer_cfg);
     }
 
-    if (pae_controller_radius_settings) {
-        controller->sec_cfg.radius_cfg = *pae_controller_radius_settings;
-    }
+    controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
 
     return 0;
 }
@@ -1171,36 +1170,59 @@ int8_t ws_pae_controller_certificate_revocation_list_remove(const arm_cert_revoc
     return ret;
 }
 
+sec_radius_cfg_t *ws_pae_controller_radius_config_get(void)
+{
+    if (pae_controller_config.radius_cfg != NULL) {
+        return pae_controller_config.radius_cfg;
+    }
+
+    pae_controller_config.radius_cfg = ns_dyn_mem_alloc(sizeof(sec_radius_cfg_t));
+    if (pae_controller_config.radius_cfg == NULL) {
+        return NULL;
+    }
+
+    pae_controller_config.radius_cfg->radius_retry_trickle_params.Imin = RADIUS_CLIENT_RETRY_IMIN;
+    pae_controller_config.radius_cfg->radius_retry_trickle_params.Imax = RADIUS_CLIENT_RETRY_IMAX;
+    pae_controller_config.radius_cfg->radius_retry_trickle_params.k = 0;
+    pae_controller_config.radius_cfg->radius_retry_trickle_params.TimerExpirations = RADIUS_CLIENT_TIMER_EXPIRATIONS;
+
+    pae_controller_config.radius_cfg->radius_addr_set = false;
+    pae_controller_config.radius_cfg->radius_shared_secret_len = 0;
+    pae_controller_config.radius_cfg->radius_shared_secret = NULL;
+
+    return pae_controller_config.radius_cfg;
+}
+
 int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *address)
 {
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
+    if (radius_cfg == NULL) {
+        return -1;
+    }
 
-    // If remote address is not set, clear radius information
-    if (!address) {
-        if (pae_controller_radius_settings != NULL) {
-            pae_controller_radius_settings->radius_addr_set = false;
-        }
-        if (controller) {
-            ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
-        }
+    if (address != NULL) {
+        memcpy(radius_cfg->radius_addr, address, 16);
+        radius_cfg->radius_addr_set = true;
+    } else {
+        radius_cfg->radius_addr_set = false;
+    }
+
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    if (!controller) {
         return 0;
     }
 
-    if (pae_controller_radius_settings == NULL) {
-        pae_controller_radius_settings = ns_dyn_mem_alloc(sizeof(sec_radius_cfg_t));
-        if (!pae_controller_radius_settings) {
-            return -1;
-        }
-        memset(pae_controller_radius_settings, 0, sizeof(sec_radius_cfg_t));
+    if (ws_pae_controller_configure(controller->interface_ptr, NULL, NULL) < 0) {
+        return -1;
     }
-    memcpy(pae_controller_radius_settings->radius_addr, address, 16);
-    pae_controller_radius_settings->radius_addr_set = true;
 
-    if (controller) {
-        ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
-        if (ws_pae_auth_radius_address_set(controller->interface_ptr, controller->sec_cfg.radius_cfg.radius_addr) < 0) {
-            return -1;
-        }
+    if (!radius_cfg->radius_addr_set) {
+        return 0;
+    }
+
+    if (ws_pae_auth_radius_address_set(controller->interface_ptr, radius_cfg->radius_addr) < 0) {
+        // If not set here since authenticator not created, then set on authenticator initialization
+        return 0;
     }
 
     return 0;
@@ -1214,54 +1236,31 @@ int8_t ws_pae_controller_radius_address_get(int8_t interface_id, uint8_t *addres
         return -1;
     }
 
-    if (pae_controller_radius_settings == NULL || !pae_controller_radius_settings->radius_addr_set) {
+    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
+    if (radius_cfg == NULL) {
         return -1;
     }
 
-    memcpy(address, pae_controller_radius_settings->radius_addr, 16);
+    if (!radius_cfg->radius_addr_set) {
+        return -1;
+    }
+
+    memcpy(address, radius_cfg->radius_addr, 16);
+
     return 0;
 }
 
 int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret)
 {
+    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
+    if (radius_cfg == NULL) {
+        return -1;
+    }
+
+    radius_cfg->radius_shared_secret = shared_secret;
+    radius_cfg->radius_shared_secret_len = shared_secret_len;
+
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-
-    // If shared secret is not set, clear radius information
-    if (shared_secret_len == 0 || !shared_secret) {
-        if (pae_controller_radius_settings != NULL) {
-            memset(pae_controller_radius_settings->radius_shared_secret, 0, pae_controller_radius_settings->radius_shared_secret_len);
-            pae_controller_radius_settings->radius_shared_secret_len = 0;
-        }
-        if (controller) {
-            ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
-        }
-        return 0;
-    }
-
-    if (pae_controller_radius_settings == NULL) {
-        pae_controller_radius_settings = ns_dyn_mem_alloc(sizeof(sec_radius_cfg_t));
-        if (!pae_controller_radius_settings) {
-            return -1;
-        }
-        memset(pae_controller_radius_settings, 0, sizeof(sec_radius_cfg_t));
-    }
-
-    if (pae_controller_radius_settings->radius_shared_secret != NULL &&
-            pae_controller_radius_settings->radius_shared_secret_len != shared_secret_len) {
-        ns_dyn_mem_free(pae_controller_radius_settings->radius_shared_secret);
-        pae_controller_radius_settings->radius_shared_secret = NULL;
-    }
-
-    if (pae_controller_radius_settings->radius_shared_secret == NULL) {
-        pae_controller_radius_settings->radius_shared_secret = ns_dyn_mem_alloc(shared_secret_len);
-        if (pae_controller_radius_settings->radius_shared_secret == NULL) {
-            return -1;
-        }
-    }
-
-    memcpy(pae_controller_radius_settings->radius_shared_secret, shared_secret, shared_secret_len);
-    pae_controller_radius_settings->radius_shared_secret_len = shared_secret_len;
-
     if (controller) {
         ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
     }
@@ -1277,20 +1276,90 @@ int8_t ws_pae_controller_radius_shared_secret_get(int8_t interface_id, uint16_t 
         return -1;
     }
 
-    uint16_t length = 0;
-    if (pae_controller_radius_settings != NULL) {
-        length = pae_controller_radius_settings->radius_shared_secret_len;
-        if (shared_secret != NULL) {
-            if (length > *shared_secret_len) {
-                length = *shared_secret_len;
-            }
-            if (length > 0 && pae_controller_radius_settings->radius_shared_secret != NULL) {
-                memcpy(shared_secret, pae_controller_radius_settings->radius_shared_secret, length);
-            }
+    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
+    if (radius_cfg == NULL) {
+        return -1;
+    }
+
+    uint16_t length = radius_cfg->radius_shared_secret_len;
+    if (shared_secret != NULL) {
+        if (length > *shared_secret_len) {
+            length = *shared_secret_len;
+        }
+        if (length > 0 && radius_cfg->radius_shared_secret != NULL) {
+            memcpy(shared_secret, radius_cfg->radius_shared_secret, length);
         }
     }
 
     *shared_secret_len = length;
+
+    return 0;
+}
+
+int8_t ws_pae_controller_radius_timing_set(int8_t interface_id, bbr_radius_timing_t *timing)
+{
+    (void) interface_id;
+
+    if (timing == NULL) {
+        return -1;
+    }
+
+    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
+    if (radius_cfg == NULL) {
+        return -1;
+    }
+
+    radius_cfg->radius_retry_trickle_params.Imin = timing->radius_retry_imin;
+    radius_cfg->radius_retry_trickle_params.Imax = timing->radius_retry_imax;
+    radius_cfg->radius_retry_trickle_params.TimerExpirations = timing->radius_retry_count;
+
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    if (controller) {
+        ws_pae_controller_configure(controller->interface_ptr, NULL, NULL);
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_controller_radius_timing_get(int8_t interface_id, bbr_radius_timing_t *timing)
+{
+    (void) interface_id;
+
+    if (timing == NULL) {
+        return -1;
+    }
+
+    if (pae_controller_config.radius_cfg == NULL) {
+        timing->radius_retry_imin = RADIUS_CLIENT_RETRY_IMIN;
+        timing->radius_retry_imax = RADIUS_CLIENT_RETRY_IMAX;
+        timing->radius_retry_count = RADIUS_CLIENT_TIMER_EXPIRATIONS;
+        return 0;
+    }
+
+    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
+    if (radius_cfg == NULL) {
+        return -1;
+    }
+
+    timing->radius_retry_imin = radius_cfg->radius_retry_trickle_params.Imin;
+    timing->radius_retry_imax = radius_cfg->radius_retry_trickle_params.Imax;
+    timing->radius_retry_count = radius_cfg->radius_retry_trickle_params.TimerExpirations;
+
+    return 0;
+}
+
+int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing)
+{
+    (void) interface_id;
+
+    if (timing == NULL) {
+        return -1;
+    }
+
+    if (timing->radius_retry_imin == 0 || timing->radius_retry_imax == 0 ||
+            timing->radius_retry_imin > timing->radius_retry_imax) {
+        return -1;
+    }
 
     return 0;
 }

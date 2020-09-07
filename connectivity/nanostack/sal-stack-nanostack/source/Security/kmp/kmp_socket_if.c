@@ -39,19 +39,20 @@
 
 #define TRACE_GROUP "kmsi"
 
-#define SOCKET_IF_HEADER_SIZE    27
+#define SOCKET_IF_HEADER_SIZE        27
+#define INSTANCE_SOCKETS_NUMBER      3
 
 typedef struct {
     kmp_service_t *kmp_service;                       /**< KMP service */
     uint8_t instance_id;                              /**< Instance identifier */
     bool relay;                                       /**< Interface is relay interface */
     ns_address_t remote_addr;                         /**< Remote address */
-    int8_t socket_id;                                 /**< Socket ID */
-    bool socket_id_set;                               /**< Socket ID is set */
+    int8_t socket_id[INSTANCE_SOCKETS_NUMBER];        /**< Socket ID */
+    unsigned socket_id_in_use : 4;                    /**< Socket ID is in use */
     ns_list_link_t link;                              /**< Link */
 } kmp_socket_if_t;
 
-static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier);
+static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num, uint8_t flags);
 static void kmp_socket_if_socket_cb(void *ptr);
 
 static NS_LIST_DEFINE(kmp_socket_if_list, kmp_socket_if_t, link);
@@ -78,7 +79,10 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
             return -1;
         }
         memset(socket_if, 0, sizeof(kmp_socket_if_t));
-        socket_if->socket_id = -1;
+        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+            socket_if->socket_id[socket_num] = -1;
+        }
+        socket_if->socket_id_in_use = 1;
         new_socket_if_allocated = true;
     }
 
@@ -87,7 +91,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
     if (*instance_id == 0) {
         socket_if->instance_id = kmp_socket_if_instance_id++;
         if (socket_if->instance_id == 0) {
-            socket_if->instance_id++;
+            socket_if->instance_id = kmp_socket_if_instance_id++;
         }
         *instance_id = socket_if->instance_id;
     }
@@ -104,14 +108,19 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
     memcpy(&socket_if->remote_addr.address, remote_addr, 16);
     socket_if->remote_addr.identifier = remote_port;
 
-    if (socket_if->socket_id < 0 || address_changed) {
-        if (socket_if->socket_id >= 0) {
-            socket_close(socket_if->socket_id);
-        }
-        socket_if->socket_id = socket_open(IPV6_NH_UDP, local_port, &kmp_socket_if_socket_cb);
-        if (socket_if->socket_id < 0) {
-            ns_dyn_mem_free(socket_if);
-            return -1;
+    for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+        if (socket_if->socket_id_in_use & (1 << socket_num)) {
+
+            if ((socket_if->socket_id[socket_num] < 1) || address_changed) {
+                if (socket_if->socket_id[socket_num] >= 0) {
+                    socket_close(socket_if->socket_id[socket_num]);
+                }
+                socket_if->socket_id[socket_num] = socket_open(IPV6_NH_UDP, local_port, &kmp_socket_if_socket_cb);
+                if (socket_if->socket_id[socket_num] < 0) {
+                    ns_dyn_mem_free(socket_if);
+                    return -1;
+                }
+            }
         }
     }
 
@@ -120,7 +129,12 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
         header_size = SOCKET_IF_HEADER_SIZE;
     }
 
-    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size) < 0) {
+    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size, INSTANCE_SOCKETS_NUMBER) < 0) {
+        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+            if (socket_if->socket_id[socket_num] >= 0) {
+                socket_close(socket_if->socket_id[socket_num]);
+            }
+        }
         ns_dyn_mem_free(socket_if);
         return -1;
     }
@@ -141,19 +155,27 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service)
     ns_list_foreach_safe(kmp_socket_if_t, entry, &kmp_socket_if_list) {
         if (entry->kmp_service == service) {
             ns_list_remove(&kmp_socket_if_list, entry);
-            socket_close(entry->socket_id);
-            kmp_service_msg_if_register(service, entry->instance_id, NULL, 0);
+            for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+                if (entry->socket_id[socket_num] >= 0) {
+                    socket_close(entry->socket_id[socket_num]);
+                }
+            }
+            kmp_service_msg_if_register(service, entry->instance_id, NULL, 0, 0);
             ns_dyn_mem_free(entry);
         }
     }
     return 0;
 }
 
-static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier)
+static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num, uint8_t flags)
 {
     (void) tx_identifier;
 
     if (!service || !pdu || !addr) {
+        return -1;
+    }
+
+    if (connection_num >= INSTANCE_SOCKETS_NUMBER) {
         return -1;
     }
 
@@ -181,7 +203,26 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         *ptr = kmp_id;
     }
 
-    socket_sendto(socket_if->socket_id, &socket_if->remote_addr, pdu, size);
+    int8_t socket_id = -1;
+    if ((socket_if->socket_id_in_use & (1 << connection_num)) && socket_if->socket_id[connection_num] >= 0) {
+        socket_id = socket_if->socket_id[connection_num];
+    } else {
+        if (socket_if->socket_id[connection_num] < 0) {
+            socket_if->socket_id[connection_num] = socket_open(IPV6_NH_UDP, 0, &kmp_socket_if_socket_cb);
+        }
+        if (socket_if->socket_id[connection_num] < 0) {
+            return -1;
+        }
+        socket_if->socket_id_in_use |= (1 << connection_num);
+    }
+
+    socket_sendto(socket_id, &socket_if->remote_addr, pdu, size);
+
+    // Deallocate unless flags deny it
+    if (flags & MSG_IF_SEND_FLAG_NO_DEALLOC) {
+        return 0;
+    }
+
     ns_dyn_mem_free(pdu);
 
     return 0;
@@ -196,11 +237,15 @@ static void kmp_socket_if_socket_cb(void *ptr)
     }
 
     kmp_socket_if_t *socket_if = NULL;
+    uint8_t connection_num = 0;
 
     ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        if (entry->socket_id == cb_data->socket_id) {
-            socket_if = entry;
-            break;
+        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+            if (entry->socket_id[socket_num] == cb_data->socket_id) {
+                socket_if = entry;
+                connection_num = socket_num;
+                break;
+            }
         }
     }
 
@@ -237,7 +282,7 @@ static void kmp_socket_if_socket_cb(void *ptr)
         cb_data->d_len -= SOCKET_IF_HEADER_SIZE;
     }
 
-    kmp_service_msg_if_receive(socket_if->kmp_service, socket_if->instance_id, type, &addr, data_ptr, cb_data->d_len);
+    kmp_service_msg_if_receive(socket_if->kmp_service, socket_if->instance_id, type, &addr, data_ptr, cb_data->d_len, connection_num);
 
     ns_dyn_mem_free(pdu);
 }

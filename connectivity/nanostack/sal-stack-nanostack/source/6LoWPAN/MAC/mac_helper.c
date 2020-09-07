@@ -947,21 +947,6 @@ void mac_helper_devicetable_direct_set(struct mac_api_s *mac_api, const mlme_dev
     mac_api->mlme_req(mac_api, MLME_SET, &set_req);
 }
 
-void mac_helper_devicetable_ack_trig(const mlme_device_descriptor_t *device_desc, protocol_interface_info_entry_t *cur)
-{
-    if (!cur->mac_api) {
-        return;
-    }
-
-    mlme_set_t set_req;
-    set_req.attr = macDevicePendingAckTrig;
-    set_req.attr_index = 0;
-    set_req.value_pointer = (void *)device_desc;
-    set_req.value_size = sizeof(mlme_device_descriptor_t);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-}
-
-
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
