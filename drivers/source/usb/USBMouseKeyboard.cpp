@@ -350,8 +350,8 @@ const KEYMAP keymap[KEYMAP_SIZE] = {
 };
 #endif
 
-USBMouseKeyboard::USBMouseKeyboard(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBHID(get_usb_phy(), 0, 0, vendor_id, product_id, product_release)
+USBMouseKeyboard::USBMouseKeyboard(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBHID(get_usb_phy(), 0, 0, vendor_id_, product_id_, product_release_)
 {
     _lock_status = 0;
     _button = 0;
@@ -365,8 +365,8 @@ USBMouseKeyboard::USBMouseKeyboard(bool connect_blocking, MOUSE_TYPE mouse_type,
     }
 }
 
-USBMouseKeyboard::USBMouseKeyboard(USBPhy *phy, MOUSE_TYPE mouse_type, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBHID(phy, 0, 0, vendor_id, product_id, product_release)
+USBMouseKeyboard::USBMouseKeyboard(USBPhy *phy, MOUSE_TYPE mouse_type, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBHID(phy, 0, 0, vendor_id_, product_id_, product_release_)
 {
     _lock_status = 0;
     _button = 0;
@@ -387,7 +387,7 @@ USBMouseKeyboard::~USBMouseKeyboard()
 const uint8_t *USBMouseKeyboard::report_desc()
 {
     if (_mouse_type == REL_MOUSE) {
-        static const uint8_t reportDescriptor[] = {
+        static const uint8_t _reportDescriptor[] = {
             // Keyboard
             USAGE_PAGE(1),      0x01,
             USAGE(1),           0x06,
@@ -476,10 +476,10 @@ const uint8_t *USBMouseKeyboard::report_desc()
             INPUT(1), 0x01,
             END_COLLECTION(0),
         };
-        reportLength = sizeof(reportDescriptor);
-        return reportDescriptor;
+        reportLength = sizeof(_reportDescriptor);
+        return _reportDescriptor;
     } else if (_mouse_type == ABS_MOUSE) {
-        static const uint8_t reportDescriptor[] = {
+        static const uint8_t _reportDescriptor[] = {
 
             // Keyboard
             USAGE_PAGE(1),      0x01,
@@ -578,8 +578,8 @@ const uint8_t *USBMouseKeyboard::report_desc()
             INPUT(1), 0x01,
             END_COLLECTION(0),
         };
-        reportLength = sizeof(reportDescriptor);
-        return reportDescriptor;
+        reportLength = sizeof(_reportDescriptor);
+        return _reportDescriptor;
     }
 
     return NULL;
