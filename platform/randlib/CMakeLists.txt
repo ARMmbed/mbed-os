@@ -3,13 +3,12 @@
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        include
+        include/mbed-client-randlib
+        include/mbed-client-randlib/platform
 )
 
 target_sources(mbed-os
     PRIVATE
-        dhcp_service_api.c
-        libDHCPv6.c
-        libDHCPv6_server.c
-        libDHCPv6_vendordata.c
+        source/randLIB.c
 )
