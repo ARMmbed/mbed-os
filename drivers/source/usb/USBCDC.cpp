@@ -38,8 +38,8 @@ static const uint8_t cdc_line_coding_default[7] = {0x80, 0x25, 0x00, 0x00, 0x00,
 
 class USBCDC::AsyncWrite: public AsyncOp {
 public:
-    AsyncWrite(USBCDC *serial, uint8_t *buf, uint32_t size):
-        serial(serial), tx_buf(buf), tx_size(size), result(false)
+    AsyncWrite(USBCDC *serial_, uint8_t *buf, uint32_t size):
+        serial(serial_), tx_buf(buf), tx_size(size), result(false)
     {
 
     }
@@ -78,8 +78,8 @@ public:
 
 class USBCDC::AsyncRead: public AsyncOp {
 public:
-    AsyncRead(USBCDC *serial, uint8_t *buf, uint32_t size, uint32_t *size_read, bool read_all)
-        :   serial(serial), rx_buf(buf), rx_size(size), rx_actual(size_read), all(read_all), result(false)
+    AsyncRead(USBCDC *serial_, uint8_t *buf, uint32_t size, uint32_t *size_read, bool read_all)
+        :   serial(serial_), rx_buf(buf), rx_size(size), rx_actual(size_read), all(read_all), result(false)
     {
 
     }
@@ -121,8 +121,8 @@ public:
 
 class USBCDC::AsyncWait: public AsyncOp {
 public:
-    AsyncWait(USBCDC *serial)
-        :   serial(serial)
+    AsyncWait(USBCDC *serial_)
+        :   serial(serial_)
     {
 
     }
@@ -144,8 +144,8 @@ public:
     USBCDC *serial;
 };
 
-USBCDC::USBCDC(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release)
+USBCDC::USBCDC(bool connect_blocking, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(get_usb_phy(), vendor_id_, product_id_, product_release_)
 
 {
     _init();
@@ -157,8 +157,8 @@ USBCDC::USBCDC(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, u
     }
 }
 
-USBCDC::USBCDC(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release)
+USBCDC::USBCDC(USBPhy *phy, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(phy, vendor_id_, product_id_, product_release_)
 {
     _init();
 }
