@@ -353,8 +353,8 @@ const KEYMAP keymap[KEYMAP_SIZE] = {
 #endif
 
 
-USBKeyboard::USBKeyboard(bool connect, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBHID(get_usb_phy(), 0, 0, vendor_id, product_id, product_release)
+USBKeyboard::USBKeyboard(bool connect, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBHID(get_usb_phy(), 0, 0, vendor_id_, product_id_, product_release_)
 {
     _lock_status = 0;
     if (connect) {
@@ -365,8 +365,8 @@ USBKeyboard::USBKeyboard(bool connect, uint16_t vendor_id, uint16_t product_id, 
     }
 }
 
-USBKeyboard::USBKeyboard(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-    USBHID(phy, 0, 0, vendor_id, product_id, product_release)
+USBKeyboard::USBKeyboard(USBPhy *phy, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_):
+    USBHID(phy, 0, 0, vendor_id_, product_id_, product_release_)
 {
     _lock_status = 0;
 
@@ -380,7 +380,7 @@ USBKeyboard::~USBKeyboard()
 
 const uint8_t *USBKeyboard::report_desc()
 {
-    static const uint8_t reportDescriptor[] = {
+    static const uint8_t _reportDescriptor[] = {
         USAGE_PAGE(1), 0x01,                    // Generic Desktop
         USAGE(1), 0x06,                         // Keyboard
         COLLECTION(1), 0x01,                    // Application
@@ -442,8 +442,8 @@ const uint8_t *USBKeyboard::report_desc()
         INPUT(1), 0x01,
         END_COLLECTION(0),
     };
-    reportLength = sizeof(reportDescriptor);
-    return reportDescriptor;
+    reportLength = sizeof(_reportDescriptor);
+    return _reportDescriptor;
 }
 
 
