@@ -334,7 +334,7 @@ void PPPPhy::link_state_cb(bool up)
     }
 }
 
-void PPPPhy::get_iid64(uint8_t *iid64)
+void PPPPhy::get_iid64(uint8_t *iid64_)
 {
     if (!iid64) {
         return;
