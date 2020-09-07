@@ -91,9 +91,9 @@ namespace v1 {
     /// Contains the reason and location of the failure.
     struct failure_t {
         failure_t() : reason(REASON_NONE), location(LOCATION_NONE) {}
-        failure_t(failure_reason_t reason) : reason(reason), location(LOCATION_NONE) {}
-        failure_t(location_t location) : reason(REASON_NONE), location(location) {}
-        failure_t(failure_reason_t reason, location_t location) : reason(reason), location(location) {}
+        failure_t(failure_reason_t reason_) : reason(reason_), location(LOCATION_NONE) {}
+        failure_t(location_t location_) : reason(REASON_NONE), location(location_) {}
+        failure_t(failure_reason_t reason_, location_t location_) : reason(reason_), location(location_) {}
 
         /// Copy constructor
         failure_t(const failure_t &obj){
@@ -175,11 +175,11 @@ namespace v1 {
     {
         control_t() : base_control_t(make_base_control_t(REPEAT_UNDECLR, TIMEOUT_UNDECLR)) {}
 
-        control_t(repeat_t repeat, uint32_t timeout_ms) :
-            base_control_t(make_base_control_t(repeat, timeout_ms)) {}
+        control_t(repeat_t repeat_, uint32_t timeout_ms) :
+            base_control_t(make_base_control_t(repeat_, timeout_ms)) {}
 
-        control_t(repeat_t repeat) :
-            base_control_t(make_base_control_t(repeat, TIMEOUT_UNDECLR)) {}
+        control_t(repeat_t repeat_) :
+            base_control_t(make_base_control_t(repeat_, TIMEOUT_UNDECLR)) {}
 
         control_t(uint32_t timeout_ms) :
             base_control_t(make_base_control_t(REPEAT_UNDECLR, timeout_ms)) {}
