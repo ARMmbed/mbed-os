@@ -494,6 +494,12 @@ private:
 
     void on_periodic_advertising_sync_loss(sync_handle_t sync_handle) override;
 
+    void on_legacy_advertising_started() override;
+
+    void on_legacy_advertising_stopped() override;
+
+    void on_advertising_set_started(const mbed::Span<const uint8_t>& handles) override;
+
     void on_advertising_set_terminated(
         hci_error_code_t status,
         advertising_handle_t advertising_handle,
