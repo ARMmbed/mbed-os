@@ -48,7 +48,7 @@ From the application root run the following:
     mkdir build && cd build && cmake .. -GNinja && cmake --build .
     ```
 
-The default build type is Develop. Use `CMAKE_BUILD_TYPE` to change it. The options are Develop, Release or Debug: 
+The default build type is `Develop`. Use `CMAKE_BUILD_TYPE` to select `Develop`, `Release` or `Debug` as follows: 
 
 ```
 cmake .. -GNinja -DCMAKE_BUILD_TYPE=<supported-build-type> && cmake --build .
