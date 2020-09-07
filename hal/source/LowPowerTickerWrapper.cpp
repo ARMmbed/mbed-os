@@ -19,13 +19,13 @@
 
 using namespace mbed::chrono;
 
-LowPowerTickerWrapper::LowPowerTickerWrapper(const ticker_data_t *data, const ticker_interface_t *interface, uint32_t min_cycles_between_writes, uint32_t min_cycles_until_match)
-    : _intf(data->interface), _min_count_between_writes(min_cycles_between_writes + 1), _min_count_until_match(min_cycles_until_match + 1), _suspended(false)
+LowPowerTickerWrapper::LowPowerTickerWrapper(const ticker_data_t *data_, const ticker_interface_t *interface, uint32_t min_cycles_between_writes, uint32_t min_cycles_until_match)
+    : _intf(data_->interface), _min_count_between_writes(min_cycles_between_writes + 1), _min_count_until_match(min_cycles_until_match + 1), _suspended(false)
 {
     core_util_critical_section_enter();
 
     this->data.interface = interface;
-    this->data.queue = data->queue;
+    this->data.queue = data_->queue;
     _reset();
 
     core_util_critical_section_exit();
