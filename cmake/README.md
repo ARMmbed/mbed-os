@@ -36,7 +36,7 @@ Prerequisities:
 - mbed-tools >=3.2.0
 
 From the application root or wherever `mbed-os.lib` is found:
-1. To create the Mbed OS configuration CMake module, from the root of the application or wherever `mbed-os.lib` is found: 
+1. Run the following command to create the Mbed OS configuration CMake module: 
 
     ```
     mbedtools configure -m <mbed-target> -t <toolchain>
