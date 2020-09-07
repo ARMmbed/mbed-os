@@ -2375,6 +2375,17 @@ void Gap::on_periodic_advertising_sync_loss(sync_handle_t sync_handle)
     );
 }
 
+void Gap::on_legacy_advertising_started()
+{
+}
+
+void Gap::on_legacy_advertising_stopped()
+{
+}
+
+void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
+{
+}
 
 void Gap::on_advertising_set_terminated(
     hci_error_code_t status,
