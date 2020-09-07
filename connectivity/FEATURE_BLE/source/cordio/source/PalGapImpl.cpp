@@ -462,23 +462,6 @@ ble_error_t PalGap::disconnect(
     return BLE_ERROR_NONE;
 }
 
-
-bool PalGap::is_privacy_supported()
-{
-    // We only support controller-based privacy, so return whether the controller supports it
-    return HciLlPrivacySupported();
-}
-
-
-ble_error_t PalGap::set_address_resolution(
-    bool enable
-)
-{
-    DmPrivSetAddrResEnable(enable);
-    return BLE_ERROR_NONE;
-}
-
-
 ble_error_t PalGap::read_phy(connection_handle_t connection)
 {
     if (is_feature_supported(controller_supported_features_t::LE_2M_PHY)
@@ -488,7 +471,6 @@ ble_error_t PalGap::read_phy(connection_handle_t connection)
     }
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
-
 
 ble_error_t PalGap::set_preferred_phys(
     const phy_set_t &tx_phys,
