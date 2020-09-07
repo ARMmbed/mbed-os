@@ -25,8 +25,8 @@
 #define FLAG_DISCONNECT     (1 << 1)
 #define FLAG_CONNECT        (1 << 2)
 
-USBMIDI::USBMIDI(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release)
+USBMIDI::USBMIDI(bool connect_blocking, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(get_usb_phy(), vendor_id_, product_id_, product_release_)
 {
     _init();
 
@@ -38,8 +38,8 @@ USBMIDI::USBMIDI(bool connect_blocking, uint16_t vendor_id, uint16_t product_id,
     }
 }
 
-USBMIDI::USBMIDI(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release)
+USBMIDI::USBMIDI(USBPhy *phy, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(phy, vendor_id_, product_id_, product_release_)
 {
     _init();
 
