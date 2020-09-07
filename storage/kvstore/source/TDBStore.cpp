@@ -433,7 +433,7 @@ uint32_t TDBStore::record_size(const char *key, uint32_t data_size)
 
 
 int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data_size,
-                        uint32_t create_flags)
+                        uint32_t create_flags_)
 {
     int ret;
     uint32_t offset = 0;
@@ -445,7 +445,7 @@ int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    if (create_flags & ~(supported_flags | internal_flags)) {
+    if (create_flags_ & ~(supported_flags | internal_flags)) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
@@ -500,7 +500,7 @@ int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data
             }
             ih->new_key = false;
         } else if (ret == MBED_ERROR_ITEM_NOT_FOUND) {
-            if (create_flags & delete_flag) {
+            if (create_flags_ & delete_flag) {
                 goto fail;
             }
             if (_num_keys >= _max_keys) {
@@ -526,7 +526,7 @@ int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data
     ih->header.magic = tdbstore_magic;
     ih->header.header_size = sizeof(record_header_t);
     ih->header.revision = tdbstore_revision;
-    ih->header.flags = create_flags;
+    ih->header.flags = create_flags_;
     ih->header.key_size = strlen(key);
     ih->header.reserved = 0;
     ih->header.data_size = final_data_size;
@@ -710,7 +710,7 @@ end:
     return ret;
 }
 
-int TDBStore::set(const char *key, const void *buffer, size_t size, uint32_t create_flags)
+int TDBStore::set(const char *key, const void *buffer, size_t size, uint32_t create_flags_)
 {
     int ret;
     set_handle_t handle;
@@ -720,7 +720,7 @@ int TDBStore::set(const char *key, const void *buffer, size_t size, uint32_t cre
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    ret = set_start(&handle, key, size, create_flags);
+    ret = set_start(&handle, key, size, create_flags_);
     if (ret) {
         return ret;
     }
@@ -770,7 +770,7 @@ end:
     return ret;
 }
 
-int TDBStore::get_info(const char *key, info_t *info)
+int TDBStore::get_info(const char *key, info_t *info_)
 {
     int ret;
     uint32_t bd_offset, next_bd_offset;
@@ -799,9 +799,9 @@ int TDBStore::get_info(const char *key, info_t *info)
         goto end;
     }
 
-    if (info) {
-        info->flags = flags;
-        info->size = actual_data_size;
+    if (info_) {
+        info_->flags = flags;
+        info_->size = actual_data_size;
     }
 
 end:
