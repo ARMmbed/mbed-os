@@ -37,7 +37,7 @@ struct AllArgs<B0> {
     typedef AllArgs<B0> Self;
     B0 b0;
 
-    AllArgs(B0 b0 = B0()): b0(b0) {}
+    AllArgs(B0 b0_ = B0()): b0(b0_) {}
 
     template <typename T, typename _>
     struct Operations {
@@ -63,7 +63,7 @@ struct AllArgs<B0, B1> {
     B0 b0;
     B1 b1;
 
-    AllArgs(B0 b0 = B0(), B1 b1 = B1()): b0(b0), b1(b1) {}
+    AllArgs(B0 b0_ = B0(), B1 b1_ = B1()): b0(b0_), b1(b1_) {}
 
     template <typename T, typename _>
     struct Operations {
@@ -151,7 +151,7 @@ struct AllArgs<B0, B1, B2> {
     B2 b2;
 
 
-    AllArgs(B0 b0 = B0(), B1 b1 = B1(), B2 b2 = B2()): b0(b0), b1(b1), b2(b2) {}
+    AllArgs(B0 b0_ = B0(), B1 b1_ = B1(), B2 b2_ = B2()): b0(b0_), b1(b1_), b2(b2_) {}
 
     template <typename T, typename _>
     struct Operations {
@@ -240,7 +240,7 @@ struct AllArgs<B0, B1, B2, B3> {
     B3 b3;
 
 
-    AllArgs(B0 b0 = B0(), B1 b1 = B1(), B2 b2 = B2(), B3 b3 = B3()): b0(b0), b1(b1), b2(b2), b3(b3) {}
+    AllArgs(B0 b0_ = B0(), B1 b1_ = B1(), B2 b2_ = B2(), B3 b3_ = B3()): b0(b0_), b1(b1_), b2(b2_), b3(b3_) {}
 
     template <typename T, typename _>
     struct Operations {
@@ -330,7 +330,7 @@ struct AllArgs<B0, B1, B2, B3, B4> {
     B4 b4;
 
 
-    AllArgs(B0 b0 = B0(), B1 b1 = B1(), B2 b2 = B2(), B3 b3 = B3(), B4 b4 = B4()): b0(b0), b1(b1), b2(b2), b3(b3), b4(b4) {}
+    AllArgs(B0 b0_ = B0(), B1 b1_ = B1(), B2 b2_ = B2(), B3 b3_ = B3(), B4 b4_ = B4()): b0(b0_), b1(b1_), b2(b2_), b3(b3_), b4(b4_) {}
 
     template <typename T, typename _>
     struct Operations {
@@ -421,7 +421,7 @@ struct AllArgs {
     B5 b5;
 
 
-    AllArgs(B0 b0 = B0(), B1 b1 = B1(), B2 b2 = B2(), B3 b3 = B3(), B4 b4 = B4(), B5 b5 = B5()): b0(b0), b1(b1), b2(b2), b3(b3), b4(b4), b5(b5) {}
+    AllArgs(B0 b0_ = B0(), B1 b1_ = B1(), B2 b2_ = B2(), B3 b3_ = B3(), B4 b4_ = B4(), B5 b5_ = B5()): b0(b0_), b1(b1_), b2(b2_), b3(b3_), b4(b4_), b5(b5_) {}
 
     template <typename T, typename _>
     struct Operations {
