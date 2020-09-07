@@ -586,6 +586,7 @@ private:
     mbed::LowPowerTimeout _scan_timeout;
     mbed::LowPowerTicker _address_rotation_ticker;
 
+    bool _initiating = false;
     template<size_t bit_size>
     struct BitArray {
         BitArray() : data()
