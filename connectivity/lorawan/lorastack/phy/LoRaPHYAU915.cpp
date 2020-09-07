@@ -644,20 +644,20 @@ void LoRaPHYAU915::intersect_channel_mask(const uint16_t *source,
 }
 
 void LoRaPHYAU915::fill_channel_mask_with_fsb(const uint16_t *expectation,
-                                              const uint16_t *fsb_mask,
+                                              const uint16_t *fsb_mask_,
                                               uint16_t *destination,
                                               uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        destination[i] = expectation[i] & fsb_mask[i];
+        destination[i] = expectation[i] & fsb_mask_[i];
     }
 
 }
 
-void LoRaPHYAU915::fill_channel_mask_with_value(uint16_t *channel_mask,
+void LoRaPHYAU915::fill_channel_mask_with_value(uint16_t *channel_mask_,
                                                 uint16_t value, uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        channel_mask[i] = value;
+        channel_mask_[i] = value;
     }
 }
