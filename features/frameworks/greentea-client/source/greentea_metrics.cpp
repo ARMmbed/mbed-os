@@ -187,43 +187,43 @@ static void deque_and_print_thread_info()
     greentea_send_kv("__thread_info", buf);
 }
 
-static uint32_t print_str(char *buf, const char *value)
+static uint32_t print_str(char *buffer, const char *value)
 {
     uint32_t pos = 0;
     for (pos = 0; pos < strlen(value); pos++) {
-        buf[pos] = value[pos];
+        buffer[pos] = value[pos];
     }
     return pos;
 }
 
 
-static uint32_t print_hex(char *buf, uint32_t value)
+static uint32_t print_hex(char *buffer, uint32_t value)
 {
     uint32_t pos = 0;
-    buf[pos] = '0';
+    buffer[pos] = '0';
     pos++;
-    buf[pos] = 'x';
+    buffer[pos] = 'x';
     pos++;
     for (int i = 8; i >= 0; i--) {
         uint32_t val = (value >> (4 * i)) & 0xF;
         if (val <= 9) {
-            buf[pos] = '0' + val;
+            buffer[pos] = '0' + val;
             pos++;
         } else {
-            buf[pos] = 'a' + val - 10;
+            buffer[pos] = 'a' + val - 10;
             pos++;
         }
     }
     return pos;
 }
 
-static uint32_t print_dec(char *buf, uint32_t value)
+static uint32_t print_dec(char *buffer, uint32_t value)
 {
     uint32_t pos = 0;
 
     // The value 0 is special case
     if (0 == value) {
-        buf[pos] = '0';
+        buffer[pos] = '0';
         pos++;
         return pos;
     }
@@ -231,16 +231,16 @@ static uint32_t print_dec(char *buf, uint32_t value)
     // Write out value in reverse order
     while (value != 0) {
         uint32_t next = value / 10;
-        buf[pos] = '0' + (value - next * 10);
+        buffer[pos] = '0' + (value - next * 10);
         value = next;
         pos++;
     }
 
     // Reverse order
     for (uint32_t i = 0; i < pos / 2; i++) {
-        char temp = buf[i];
-        buf[i] = buf[pos - 1 - i];
-        buf[pos - 1 - i] = temp;
+        char temp = buffer[i];
+        buffer[i] = buffer[pos - 1 - i];
+        buffer[pos - 1 - i] = temp;
     }
 
     return pos;
