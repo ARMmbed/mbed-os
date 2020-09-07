@@ -1342,11 +1342,11 @@ void USBDevice::sof(int frame_number)
 }
 
 
-USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
+USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : vendor_id(vendor_id_),
+      product_id(product_id_),
+      product_release(product_release_)
 {
-    this->vendor_id = vendor_id;
-    this->product_id = product_id;
-    this->product_release = product_release;
 
     memset(_endpoint_info, 0, sizeof(_endpoint_info));
     memset(&_transfer, 0, sizeof(_transfer));
