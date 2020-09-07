@@ -42,8 +42,8 @@
 #define CONNECTION_SPEED_CHANGE     0x2A
 #define LINK_SPEED                  (10000000)
 
-USBCDC_ECM::USBCDC_ECM(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release), _packet_filter(0), _queue(4 * EVENTS_EVENT_SIZE)
+USBCDC_ECM::USBCDC_ECM(bool connect_blocking, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(get_usb_phy(), vendor_id_, product_id_, product_release_), _packet_filter(0), _queue(4 * EVENTS_EVENT_SIZE)
 {
     _init();
 
@@ -56,8 +56,8 @@ USBCDC_ECM::USBCDC_ECM(bool connect_blocking, uint16_t vendor_id, uint16_t produ
     }
 }
 
-USBCDC_ECM::USBCDC_ECM(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release), _packet_filter(0), _queue(4 * EVENTS_EVENT_SIZE)
+USBCDC_ECM::USBCDC_ECM(USBPhy *phy, uint16_t vendor_id_, uint16_t product_id_, uint16_t product_release_)
+    : USBDevice(phy, vendor_id_, product_id_, product_release_), _packet_filter(0), _queue(4 * EVENTS_EVENT_SIZE)
 {
 
     _init();
