@@ -646,7 +646,15 @@ ble_error_t Gap::rejectConnectionParametersUpdate(
 #if BLE_ROLE_CENTRAL
 ble_error_t Gap::cancelConnect()
 {
-    return _pal_gap.cancel_connection_creation();
+    if (!_initiating) {
+        return BLE_ERROR_NONE;
+    }
+
+    auto ret = _pal_gap.cancel_connection_creation();
+    if (ret) {
+        _initiating = false;
+    }
+    return ret;
 }
 #endif
 
@@ -1192,6 +1200,10 @@ void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
 
 void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
 {
+    if (e.role == connection_role_t::CENTRAL) {
+        _initiating = false;
+    }
+
     if (e.status != hci_error_code_t::SUCCESS) {
         if (_event_handler) {
             _event_handler->onConnectionComplete(
@@ -2330,6 +2342,10 @@ void Gap::on_enhanced_connection_complete(
 {
     if (!_event_handler) {
         return;
+    }
+
+    if (own_role == connection_role_t::CENTRAL) {
+        _initiating = false;
     }
 
     _event_handler->onConnectionComplete(
