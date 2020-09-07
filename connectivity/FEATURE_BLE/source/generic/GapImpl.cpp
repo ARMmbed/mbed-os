@@ -322,11 +322,13 @@ Gap::Gap(
     ble::PalEventQueue &event_queue,
     ble::PalGap &pal_gap,
     ble::PalGenericAccessService &generic_access_service,
-    ble::PalSecurityManager &pal_sm
+    ble::PalSecurityManager &pal_sm,
+    ble::PrivateAddressController &pal_addr_reg
 ) : _event_queue(event_queue),
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
     _pal_sm(pal_sm),
+    _address_registry(pal_addr_reg),
     _address_type(own_address_type_t::PUBLIC),
     _initiator_policy_mode(initiator_policy_t::NO_FILTER),
     _scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
@@ -351,6 +353,7 @@ Gap::Gap(
     _random_static_identity_address = _pal_gap.get_random_address();
 
     _pal_gap.set_event_handler(this);
+    _address_registry.set_event_handler(this);
 }
 
 
@@ -2766,5 +2769,29 @@ void Gap::setEventHandler(Gap::EventHandler *handler)
     _event_handler = handler;
 }
 
+
+void Gap::on_resolvable_private_addresses_generated(const address_t &address)
+{
+}
+
+void Gap::on_non_resolvable_private_addresses_generated(const address_t &address)
+{
+}
+
+void Gap::on_private_address_generated(bool connectable)
+{
+}
+
+
+void Gap::on_address_resolution_completion(
+    const address_t &peer_resolvable_address,
+    bool resolved,
+    target_peer_address_type_t identity_address_type,
+    const address_t &identity_address
+)
+{
+    // FIXME: Implement
+}
+}
 } // impl
 } // ble

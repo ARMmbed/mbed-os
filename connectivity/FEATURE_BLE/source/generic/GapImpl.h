@@ -38,6 +38,8 @@
 
 #include "source/pal/PalGap.h"
 #include "source/pal/PalConnectionMonitor.h"
+#include "source/pal/PalEventQueue.h"
+#include "source/generic/PrivateAddressController.h"
 
 #include "ble/Gap.h"
 
@@ -57,7 +59,8 @@ class BLEInstanceBase;
 
 class Gap :
     public ble::PalConnectionMonitor,
-    public PalGapEventHandler {
+    public PalGapEventHandler,
+    public PrivateAddressController::EventHandler {
     friend PalConnectionMonitor;
     friend PalGapEventHandler;
     friend PalGap;
@@ -358,7 +361,8 @@ private:
         ble::PalEventQueue &event_queue,
         ble::PalGap &pal_gap,
         ble::PalGenericAccessService &generic_access_service,
-        ble::PalSecurityManager &pal_sm
+        ble::PalSecurityManager &pal_sm,
+        ble::PrivateAddressController &pal_addr_reg
     );
 
     ~Gap();
@@ -533,6 +537,20 @@ private:
 
     void process_legacy_scan_timeout();
 
+    /* Implement PrivateAddressController::EventHandler */
+private:
+    void on_resolvable_private_addresses_generated(const address_t &address) final;
+
+    void on_non_resolvable_private_addresses_generated(const address_t &address) final;
+
+    void on_private_address_generated(bool connectable);
+
+    void on_address_resolution_completion(
+        const address_t &peer_resolvable_address,
+        bool resolved,
+        target_peer_address_type_t identity_address_type,
+        const address_t &identity_address
+    ) final;
 private:
     /**
      * Callchain containing all registered callback handlers for shutdown
@@ -549,6 +567,7 @@ private:
     PalGap &_pal_gap;
     PalGenericAccessService &_gap_service;
     PalSecurityManager &_pal_sm;
+    PrivateAddressController &_address_registry;
     ble::own_address_type_t _address_type;
     ble::address_t _address;
     initiator_policy_t _initiator_policy_mode;
