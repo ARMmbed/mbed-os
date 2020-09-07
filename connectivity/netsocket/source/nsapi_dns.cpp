@@ -489,11 +489,12 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
     nsapi_addr *tmp = new (std::nothrow) nsapi_addr_t [MBED_CONF_NSAPI_DNS_ADDRESSES_LIMIT];
     int cached = nsapi_dns_cache_find(host, version, tmp);
     if (cached > 0) {
-        for (int i = 0;  i < MIN(cached, addr_count); i++) {
+        unsigned int us_cached = cached;
+        for (unsigned int i = 0;  i < MIN(us_cached, addr_count); i++) {
             addr[i] = tmp[i];
         }
         delete [] tmp;
-        return MIN(cached, addr_count);
+        return MIN(us_cached, addr_count);
     }
     delete [] tmp;
     // create a udp socket

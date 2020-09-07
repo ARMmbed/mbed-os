@@ -107,7 +107,7 @@ void CellularContext::validate_ip_address()
 CellularContext::pdp_type_t CellularContext::string_to_pdp_type(const char *pdp_type_str)
 {
     pdp_type_t pdp_type = DEFAULT_PDP_TYPE;
-    int len = strlen(pdp_type_str);
+    size_t len = strlen(pdp_type_str);
 
     if (len == 6 && memcmp(pdp_type_str, "IPV4V6", len) == 0) {
         pdp_type = IPV4V6_PDP_TYPE;
