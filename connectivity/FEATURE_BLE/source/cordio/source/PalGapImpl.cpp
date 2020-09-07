@@ -639,6 +639,20 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             break;
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+        case DM_ADV_START_IND:
+            if (!handler) {
+                break;
+            }
+            handler->on_legacy_advertising_started();
+            break;
+
+        case DM_ADV_STOP_IND:
+            if (!handler) {
+                break;
+            }
+            handler->on_legacy_advertising_stopped();
+            break;
+
 #if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
         case DM_SCAN_REQ_RCVD_IND: {
             if (!handler) {
@@ -651,8 +665,16 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 connection_peer_address_type_t(evt->scanAddrType),
                 evt->scanAddr
             );
-        }
-            break;
+        }   break;
+
+        case DM_ADV_SET_START_IND: {
+            if (!handler) {
+                break;
+            }
+            const auto *evt = (const dmAdvSetStartEvt_t *) msg;
+            handler->on_advertising_set_started({evt->advHandle, evt->numSets});
+        }   break;
+
 
         case DM_ADV_SET_STOP_IND: {
             const auto *evt = (const hciLeAdvSetTermEvt_t *) msg;
@@ -676,8 +698,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->handle,
                 evt->numComplEvts
             );
-        }
-            break;
+        }   break;
 #endif //  BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER

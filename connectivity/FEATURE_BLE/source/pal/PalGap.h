@@ -198,6 +198,21 @@ public:
      */
     virtual void on_scan_timeout( ) = 0;
 
+    /**
+     * Called when legacy advertising has been effectively started.
+     */
+    virtual void on_legacy_advertising_started() = 0;
+
+    /**
+     * Called when legacy advertising has been stopped.
+     */
+    virtual void on_legacy_advertising_stopped() = 0;
+
+    /**
+     * Called when extended advertising has been started.
+     */
+    virtual void on_advertising_set_started(const mbed::Span<const uint8_t>& handles) = 0;
+
     /** Called when advertising set stops advertising.
      *
      * @param status SUCCESS if connection has been established.
