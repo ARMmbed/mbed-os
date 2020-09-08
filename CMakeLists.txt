@@ -97,14 +97,14 @@ set(_linker_preprocess_options @${CMAKE_BINARY_DIR}/linker_options.txt)
 # Specifies linker script used for linking `target`.
 #
 function(mbed_set_mbed_target_linker_script target)
-    get_property(mbed_target_startup GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
+    get_property(mbed_target_linker_script GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
 
     # TODO: @mbed-os-tools This pre-build commands should get details from target + profile.
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_PRE_BUILD_COMMAND
             COMMAND "arm-none-eabi-cpp" -E -P
                 ${_linker_preprocess_options} ${_linker_preprocess_definitions}
-                ${mbed_target_startup} -o ${CMAKE_BINARY_DIR}/${target}.link_script.ld
+                ${mbed_target_linker_script} -o ${CMAKE_BINARY_DIR}/${target}.link_script.ld
 
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             BYPRODUCTS "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
@@ -113,7 +113,7 @@ function(mbed_set_mbed_target_linker_script target)
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
         target_link_options(mbed-os
             PUBLIC
-                "--scatter=${mbed_target_startup}"
+                "--scatter=${mbed_target_linker_script}"
         )
     endif()
     add_custom_command(
