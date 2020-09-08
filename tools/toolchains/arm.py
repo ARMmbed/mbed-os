@@ -411,7 +411,14 @@ class ARM(mbedToolchain):
             param = ['--via', self.get_arch_file(objects)]
         else:
             param = objects
-        self.default_cmd([self.ar, '-r', lib_path] + param)
+
+        cmd = [self.ar, '-r', lib_path] + param
+
+        if self.is_mbed_studio_armc6:
+            # NOTE: the --ide=mbed argument is only for use with Mbed OS
+            cmd.insert(1, "--ide=mbed")
+
+        self.default_cmd(cmd)
 
     def get_binary_commands(self, bin_arg, bin, elf):
         return [self.elf2bin, bin_arg, '-o', bin, elf]
