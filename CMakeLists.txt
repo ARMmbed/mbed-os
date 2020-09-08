@@ -76,16 +76,22 @@ set(_compile_definitions
     "$<TARGET_PROPERTY:mbed-os,COMPILE_DEFINITIONS>"
 )
 
-set(_compile_definitions 
-    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}\", \"-D>>"
+set(_linker_options
+    "$<TARGET_PROPERTY:mbed-os,LINK_OPTIONS>"
 )
 
-function(generate_compile_definitions _filename)
-  file(GENERATE OUTPUT "${_filename}" CONTENT "${_compile_definitions}\n")
+set(_compile_definitions 
+    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
+)
+
+function(generate_definitions)
+    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
+    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/linker_options.txt" CONTENT "${_linker_options}\n")
 endfunction()
 
-generate_compile_definitions(${CMAKE_BINARY_DIR}/compile_time_defs.txt)
-set(_linker_preprocess_definitions ${CMAKE_BINARY_DIR}/compile_time_defs.txt)
+generate_definitions()
+set(_linker_preprocess_definitions @${CMAKE_BINARY_DIR}/compile_time_defs.txt)
+set(_linker_preprocess_options @${CMAKE_BINARY_DIR}/linker_options.txt)
 
 #
 # Specifies linker script used for linking `target`.
@@ -97,11 +103,7 @@ function(mbed_set_mbed_target_linker_script target)
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_PRE_BUILD_COMMAND
             COMMAND "arm-none-eabi-cpp" -E -P
-                -Wl,--gc-sections -Wl,--wrap,main -Wl,--wrap,_malloc_r -Wl,--wrap,_free_r
-                -Wl,--wrap,_realloc_r -Wl,--wrap,_memalign_r -Wl,--wrap,_calloc_r
-                -Wl,--wrap,exit -Wl,--wrap,atexit -Wl,-n
-                -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
-                @${_linker_preprocess_definitions}
+                ${_linker_preprocess_options} ${_linker_preprocess_definitions}
                 ${mbed_target_startup} -o ${CMAKE_BINARY_DIR}/${target}.link_script.ld
 
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
