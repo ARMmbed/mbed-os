@@ -6,7 +6,7 @@ add_subdirectory(minimal-printf)
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
 target_sources(mbed-os
