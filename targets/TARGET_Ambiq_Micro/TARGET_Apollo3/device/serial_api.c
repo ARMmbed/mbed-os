@@ -130,9 +130,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
   pinmap_config(tx, serial_tx_pinmap());
   pinmap_config(rx, serial_rx_pinmap());
 
-  if(!obj->serial.uart_control->handle)
-  {
-    //printf("setting up UART first time?\r\n");
+  if(!obj->serial.uart_control->handle) {
+    // if handle uninitialized this is first time set up
     // ensure that HAL queueing is disabled (we want to use the FIFOs directly)
     obj->serial.uart_control->cfg.pui8RxBuffer = NULL;
     obj->serial.uart_control->cfg.pui8TxBuffer = NULL;
