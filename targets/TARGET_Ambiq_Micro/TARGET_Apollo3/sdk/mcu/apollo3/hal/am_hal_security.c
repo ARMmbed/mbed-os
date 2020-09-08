@@ -48,6 +48,7 @@
 // This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 #include <stdint.h>
 #include <stdbool.h>
 #include "am_mcu_apollo.h"

@@ -43,6 +43,7 @@
 // This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 #if USE_AMBIQ_DRIVER
 
 #include <stdint.h>

@@ -47,6 +47,7 @@
 // This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef AM_HAL_PIN_H
 #define AM_HAL_PIN_H
