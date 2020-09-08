@@ -409,8 +409,8 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 
 int pwmout_read_pulsewidth_us(pwmout_t *obj)
 {
-    float tmp = pwmout_read(obj);
-    return (int)(tmp * (float)obj->period);
+    float pwm_duty_cycle = pwmout_read(obj);
+    return (int)(pwm_duty_cycle * (float)obj->period);
 }
 
 const PinMap *pwmout_pinmap()

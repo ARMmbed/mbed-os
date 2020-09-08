@@ -132,12 +132,12 @@ void pwmout_period_us(pwmout_t *obj, int us)
 
 int pwmout_read_period_us(pwmout_t *obj)
 {
-    uint32_t tmp = 0;
+    uint32_t pwm_period = 0;
     if (pwm_clock_mhz > 0) {
         FTM_Type *base = ftm_addrs[obj->pwm_name >> TPM_SHIFT];;
-        tmp = ((base->MOD) + 1) / pwm_clock_mhz;
+        pwm_period = ((base->MOD) + 1) / pwm_clock_mhz;
     }
-    return tmp;
+    return pwm_period;
 }
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
@@ -163,12 +163,12 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 
 int pwmout_read_pulsewidth_us(pwmout_t *obj)
 {
-    uint32_t tmp = 0;
+    uint32_t pwm_pulsewidth = 0;
     if (pwm_clock_mhz > 0) {
         FTM_Type *base = ftm_addrs[obj->pwm_name >> TPM_SHIFT];
-        tmp = (base->CONTROLS[obj->pwm_name & 0xF].CnV) / pwm_clock_mhz;
+        pwm_pulsewidth = (base->CONTROLS[obj->pwm_name & 0xF].CnV) / pwm_clock_mhz;
     }
-    return tmp;
+    return pwm_pulsewidth;
 }
 
 const PinMap *pwmout_pinmap()
