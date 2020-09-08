@@ -343,7 +343,7 @@ void pwmout_period_us(pwmout_t *obj, int us)
 
 int pwmout_read_period_us(pwmout_t *obj)
 {
-    return TIMER_TopGet(PWM_TIMER) / (REFERENCE_FREQUENCY * 1000000);
+    return (TIMER_TopGet(PWM_TIMER) * 1000000) / REFERENCE_FREQUENCY;
 }
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
@@ -366,7 +366,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 
 int pwmout_read_pulsewidth_us(pwmout_t *obj)
 {
-    return TIMER_CaptureGet(PWM_TIMER, obj->channel) / (REFERENCE_FREQUENCY * 1000000);
+    return (TIMER_CaptureGet(PWM_TIMER, obj->channel) * 1000000) / REFERENCE_FREQUENCY ;
 }
 
 const PinMap *pwmout_pinmap()
