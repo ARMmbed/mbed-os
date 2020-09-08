@@ -1516,6 +1516,7 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
     if (preferred_parent) {
         // Always stop repair if we find a parent
         rpl_instance_set_local_repair(instance, false);
+        instance->parent_was_selected = true;
         //Validate time from last DIO
 
         uint32_t time_between_parent = protocol_core_monotonic_time - preferred_parent->dio_timestamp;
@@ -1525,11 +1526,12 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
             rpl_control_transmit_dis(instance->domain, NULL, RPL_SOLINFO_PRED_INSTANCEID, instance->id, NULL, 0, preferred_parent->ll_address);
         }
 
-    } else if (original_preferred) {
-        // Only start repair if we just lost a parent
+    } else if (instance->parent_was_selected) {
+        // Only start repair if we just lost a parent or current rank goes to infinity
         rpl_instance_set_local_repair(instance, true);
+        instance->parent_was_selected = false;
     } else {
-        // !preferred_parent && !original_preferred - didn't have a parent,
+        // !preferred_parent && !instance->parent_was_selected - didn't have a parent,
         // still don't. Leave repair flag as-is (would be off on initial start
         // up, may be on if having problems mid-session).
     }
