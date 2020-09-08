@@ -55,3 +55,23 @@ function(mbed_set_toolchain_options target)
             ${link_options}
     )
 endfunction()
+
+# GCC ARM requires preprecessing linker script, execute generators to get definitions needed for
+# this step - linker options and compile definitions 
+function(mbed_generate_gcc_options_for_linker target definitions_file linker_options_file)
+    set(_compile_definitions 
+        "$<TARGET_PROPERTY:${target},COMPILE_DEFINITIONS>"
+    )
+
+    set(_linker_options
+        "$<TARGET_PROPERTY:${target},LINK_OPTIONS>"
+    )
+
+    set(_compile_definitions 
+        "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
+    )
+    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
+    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/linker_options.txt" CONTENT "${_linker_options}\n")
+    set(definitions_file @${CMAKE_BINARY_DIR}/compile_time_defs.txt)
+    set(linker_options_file @${CMAKE_BINARY_DIR}/linker_options.txt)
+endfunction()
