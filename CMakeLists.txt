@@ -71,40 +71,12 @@ function(mbed_configure_app_target target)
     mbed_set_language_standard(${target})
 endfunction()
 
-# GCC ARM requires preprecessing linker script, execute generators to get definitions needed for
-# this step - linker options and compile definitions 
-if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
-
-# Get definitions - we need them for linker preprocessing
-set(_compile_definitions 
-    "$<TARGET_PROPERTY:mbed-os,COMPILE_DEFINITIONS>"
-)
-
-set(_linker_options
-    "$<TARGET_PROPERTY:mbed-os,LINK_OPTIONS>"
-)
-
-set(_compile_definitions 
-    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
-)
-
-function(generate_definitions)
-    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
-    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/linker_options.txt" CONTENT "${_linker_options}\n")
-endfunction()
-
-generate_definitions()
-set(_linker_preprocess_definitions @${CMAKE_BINARY_DIR}/compile_time_defs.txt)
-set(_linker_preprocess_options @${CMAKE_BINARY_DIR}/linker_options.txt)
-
-endif()
-
 #
 # Specifies linker script used for linking `target`.
 #
 function(mbed_set_mbed_target_linker_script target)
     get_property(mbed_target_linker_script GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
-
+    mbed_generate_gcc_options_for_linker(${target} _linker_preprocess_definitions _linker_preprocess_options)
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_PRE_BUILD_COMMAND
             COMMAND "arm-none-eabi-cpp" -E -P
