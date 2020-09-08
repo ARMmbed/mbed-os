@@ -118,7 +118,6 @@ void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map);
  */
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
-  //TODO: we should be able to call this multiple times
   // determine the UART to use
   UARTName uart_tx = (UARTName)pinmap_peripheral(tx, serial_tx_pinmap());
   UARTName uart_rx = (UARTName)pinmap_peripheral(rx, serial_rx_pinmap());
@@ -126,7 +125,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
   MBED_ASSERT((int)uart != NC);
   obj->serial.uart_control = &ap3_uart_control[uart];
   obj->serial.uart_control->inst = uart;
-    // config uart pins
+
+  // config uart pins
   pinmap_config(tx, serial_tx_pinmap());
   pinmap_config(rx, serial_rx_pinmap());
 
@@ -149,12 +149,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // set default format
     serial_format(obj, 8, ParityNone, 1);
   }
-  
 }
 
-void serial_free(serial_t *obj)
-{
-  //serialinitialized = false;
+void serial_free(serial_t *obj) {
   // nothing to do unless resources are allocated for members of the serial_s serial member of obj
   // assuming mbed handles obj and its members
 }
@@ -164,8 +161,7 @@ void serial_baud(serial_t *obj, int baudrate) {
   MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 }
 
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
-{
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
   uint32_t am_hal_data_bits = 0;
   switch (data_bits) {
     case 5:
@@ -221,14 +217,12 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
   MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 }
 
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
-{
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
   irq_handler = handler;
   obj->serial.uart_control->serial_irq_id = id;
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
-{
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
   MBED_ASSERT(obj->serial.uart_control->handle != NULL);
   if (enable) {
     switch (irq) {
@@ -255,11 +249,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         break;
     }
   }
-  
 }
 
-int serial_getc(serial_t *obj)
-{
+int serial_getc(serial_t *obj) {
   MBED_ASSERT(obj->serial.uart_control != NULL);
 
   uint8_t rx_c = 0x00;
@@ -279,8 +271,7 @@ int serial_getc(serial_t *obj)
   return (int)rx_c;
 }
 
-void serial_putc(serial_t *obj, int c)
-{
+void serial_putc(serial_t *obj, int c) {
   MBED_ASSERT(obj->serial.uart_control != NULL);
 
   volatile uint32_t bytes_sent = 0;
