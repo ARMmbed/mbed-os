@@ -71,6 +71,10 @@ function(mbed_configure_app_target target)
     mbed_set_language_standard(${target})
 endfunction()
 
+# GCC ARM requires preprecessing linker script, execute generators to get definitions needed for
+# this step - linker options and compile definitions 
+if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
+
 # Get definitions - we need them for linker preprocessing
 set(_compile_definitions 
     "$<TARGET_PROPERTY:mbed-os,COMPILE_DEFINITIONS>"
@@ -92,6 +96,8 @@ endfunction()
 generate_definitions()
 set(_linker_preprocess_definitions @${CMAKE_BINARY_DIR}/compile_time_defs.txt)
 set(_linker_preprocess_options @${CMAKE_BINARY_DIR}/linker_options.txt)
+
+endif()
 
 #
 # Specifies linker script used for linking `target`.
