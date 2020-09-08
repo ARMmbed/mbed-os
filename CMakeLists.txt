@@ -105,7 +105,6 @@ endif()
 function(mbed_set_mbed_target_linker_script target)
     get_property(mbed_target_linker_script GLOBAL PROPERTY MBED_TARGET_LINKER_FILE)
 
-    # TODO: @mbed-os-tools This pre-build commands should get details from target + profile.
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_PRE_BUILD_COMMAND
             COMMAND "arm-none-eabi-cpp" -E -P
