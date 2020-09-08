@@ -71,6 +71,22 @@ function(mbed_configure_app_target target)
     mbed_set_language_standard(${target})
 endfunction()
 
+# Get definitions - we need them for linker preprocessing
+set(_compile_definitions 
+    "$<TARGET_PROPERTY:mbed-os,COMPILE_DEFINITIONS>"
+)
+
+set(_compile_definitions 
+    "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}\", \"-D>>"
+)
+
+function(generate_compile_definitions _filename)
+  file(GENERATE OUTPUT "${_filename}" CONTENT "${_compile_definitions}\n")
+endfunction()
+
+generate_compile_definitions(${CMAKE_BINARY_DIR}/compile_time_defs.txt)
+set(_linker_preprocess_definitions ${CMAKE_BINARY_DIR}/compile_time_defs.txt)
+
 #
 # Specifies linker script used for linking `target`.
 #
@@ -85,10 +101,7 @@ function(mbed_set_mbed_target_linker_script target)
                 -Wl,--wrap,_realloc_r -Wl,--wrap,_memalign_r -Wl,--wrap,_calloc_r
                 -Wl,--wrap,exit -Wl,--wrap,atexit -Wl,-n
                 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
-                -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM_START=0x20000000
-                -DMBED_RAM_SIZE=0x30000 -DMBED_RAM1_START=0x1fff0000
-                -DMBED_RAM1_SIZE=0x10000 -DMBED_BOOT_STACK_SIZE=1024
-                -DXIP_ENABLE=0
+                @${_linker_preprocess_definitions}
                 ${mbed_target_startup} -o ${CMAKE_BINARY_DIR}/${target}.link_script.ld
 
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
