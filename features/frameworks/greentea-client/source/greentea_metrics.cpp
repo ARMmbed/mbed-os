@@ -105,8 +105,8 @@ static void send_heap_info()
 {
     mbed_stats_heap_t heap_stats;
     mbed_stats_heap_get(&heap_stats);
-    greentea_send_kv("max_heap_usage",heap_stats.max_size);
-    greentea_send_kv("reserved_heap",heap_stats.reserved_size);
+    greentea_send_kv("max_heap_usage", heap_stats.max_size);
+    greentea_send_kv("reserved_heap", heap_stats.reserved_size);
 }
 #endif
 
@@ -129,7 +129,7 @@ MBED_UNUSED static void send_stack_info()
     }
     thread_n = osThreadEnumerate(threads, thread_n);
 
-    for(size_t i = 0; i < thread_n; i++) {
+    for (size_t i = 0; i < thread_n; i++) {
         enqeue_thread_info(threads[i]);
         deque_and_print_thread_info();
     }

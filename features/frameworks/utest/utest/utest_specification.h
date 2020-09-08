@@ -32,159 +32,158 @@ namespace utest {
 /** @{*/
 namespace v1 {
 
-    /** Test specification containing the setup and teardown handlers and test cases.
-     *
-     * This class simply holds the test cases and allows you to specify default handlers, and
-     * override setup and teardown handlers.
-     * The order of arguments is:
-     *  - test setup handler (optional)
-     *  - array of test cases (required)
-     *  - test teardown handler (optional)
-     *  - default handlers (optional)
-     *
-     * @note You cannot set the size of the test case array dynamically, it is template deducted at compile
-     *       time. Creating test specifications for unittests at runtime is explicitly not supported.
-     */
-    class Specification
+/** Test specification containing the setup and teardown handlers and test cases.
+ *
+ * This class simply holds the test cases and allows you to specify default handlers, and
+ * override setup and teardown handlers.
+ * The order of arguments is:
+ *  - test setup handler (optional)
+ *  - array of test cases (required)
+ *  - test teardown handler (optional)
+ *  - default handlers (optional)
+ *
+ * @note You cannot set the size of the test case array dynamically, it is template deducted at compile
+ *       time. Creating test specifications for unittests at runtime is explicitly not supported.
+ */
+class Specification {
+public:
+    template< size_t N, typename CaseType >
+    Specification(const CaseType(&cases_)[N],
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(default_handler), teardown_handler(default_handler), failure_handler(default_handler),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
     {
-    public:
-        template< size_t N, typename CaseType >
-        Specification(const CaseType (&cases_)[N],
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(default_handler), teardown_handler(default_handler), failure_handler(default_handler),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {
-            MBED_STATIC_ASSERT(
-                sizeof(CaseType) == sizeof(Case),
-                "CaseType and Case should have the same size"
-            );
-        }
+        MBED_STATIC_ASSERT(
+            sizeof(CaseType) == sizeof(Case),
+            "CaseType and Case should have the same size"
+        );
+    }
 
-        template< size_t N, typename CaseType  >
-        Specification(const CaseType (&cases_)[N],
-                      const test_failure_handler_t failure_handler_,
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(default_handler), teardown_handler(default_handler), failure_handler(failure_handler_),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {
-            MBED_STATIC_ASSERT(
-                sizeof(CaseType) == sizeof(Case),
-                "CaseType and Case should have the same size"
-            );
-        }
+    template< size_t N, typename CaseType  >
+    Specification(const CaseType(&cases_)[N],
+                  const test_failure_handler_t failure_handler_,
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(default_handler), teardown_handler(default_handler), failure_handler(failure_handler_),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
+    {
+        MBED_STATIC_ASSERT(
+            sizeof(CaseType) == sizeof(Case),
+            "CaseType and Case should have the same size"
+        );
+    }
 
-        template< size_t N, typename CaseType >
-        Specification(const CaseType (&cases_)[N],
-                      const test_teardown_handler_t teardown_handler_,
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(default_handler), teardown_handler(teardown_handler_), failure_handler(default_handler),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {
-            MBED_STATIC_ASSERT(
-                sizeof(CaseType) == sizeof(Case),
-                "CaseType and Case should have the same size"
-            );
-        }
+    template< size_t N, typename CaseType >
+    Specification(const CaseType(&cases_)[N],
+                  const test_teardown_handler_t teardown_handler_,
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(default_handler), teardown_handler(teardown_handler_), failure_handler(default_handler),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
+    {
+        MBED_STATIC_ASSERT(
+            sizeof(CaseType) == sizeof(Case),
+            "CaseType and Case should have the same size"
+        );
+    }
 
-        template< size_t N, typename CaseType  >
-        Specification(const CaseType (&cases_)[N],
-                      const test_teardown_handler_t teardown_handler_,
-                      const test_failure_handler_t failure_handler_,
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(default_handler), teardown_handler(teardown_handler_), failure_handler(failure_handler_),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {
-            MBED_STATIC_ASSERT(
-                sizeof(CaseType) == sizeof(Case),
-                "CaseType and Case should have the same size"
-            );     
-        }
+    template< size_t N, typename CaseType  >
+    Specification(const CaseType(&cases_)[N],
+                  const test_teardown_handler_t teardown_handler_,
+                  const test_failure_handler_t failure_handler_,
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(default_handler), teardown_handler(teardown_handler_), failure_handler(failure_handler_),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
+    {
+        MBED_STATIC_ASSERT(
+            sizeof(CaseType) == sizeof(Case),
+            "CaseType and Case should have the same size"
+        );
+    }
 
-        template< size_t N, typename CaseType >
-        Specification(const test_setup_handler_t setup_handler_,
-                      const CaseType (&cases_)[N],
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(setup_handler_), teardown_handler(default_handler), failure_handler(default_handler),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {}
+    template< size_t N, typename CaseType >
+    Specification(const test_setup_handler_t setup_handler_,
+                  const CaseType(&cases_)[N],
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(setup_handler_), teardown_handler(default_handler), failure_handler(default_handler),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
+    {}
 
-        template< size_t N, typename CaseType >
-        Specification(const test_setup_handler_t setup_handler_,
-                      const CaseType (&cases_)[N],
-                      const test_failure_handler_t failure_handler_,
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(setup_handler_), teardown_handler(default_handler), failure_handler(failure_handler_),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {
-            MBED_STATIC_ASSERT(
-                sizeof(CaseType) == sizeof(Case),
-                "CaseType and Case should have the same size"
-            );
-        }
+    template< size_t N, typename CaseType >
+    Specification(const test_setup_handler_t setup_handler_,
+                  const CaseType(&cases_)[N],
+                  const test_failure_handler_t failure_handler_,
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(setup_handler_), teardown_handler(default_handler), failure_handler(failure_handler_),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
+    {
+        MBED_STATIC_ASSERT(
+            sizeof(CaseType) == sizeof(Case),
+            "CaseType and Case should have the same size"
+        );
+    }
 
-        template< size_t N, typename CaseType >
-        Specification(const test_setup_handler_t setup_handler_,
-                      const CaseType (&cases_)[N],
-                      const test_teardown_handler_t teardown_handler_,
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(setup_handler_), teardown_handler(teardown_handler_), failure_handler(default_handler),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {
-            MBED_STATIC_ASSERT(
-                sizeof(CaseType) == sizeof(Case),
-                "CaseType and Case should have the same size"
-            );
-        }
+    template< size_t N, typename CaseType >
+    Specification(const test_setup_handler_t setup_handler_,
+                  const CaseType(&cases_)[N],
+                  const test_teardown_handler_t teardown_handler_,
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(setup_handler_), teardown_handler(teardown_handler_), failure_handler(default_handler),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
+    {
+        MBED_STATIC_ASSERT(
+            sizeof(CaseType) == sizeof(Case),
+            "CaseType and Case should have the same size"
+        );
+    }
 
-        template< size_t N, typename CaseType >
-        Specification(const test_setup_handler_t setup_handler_,
-                      const CaseType (&cases_)[N],
-                      const test_teardown_handler_t teardown_handler_,
-                      const test_failure_handler_t failure_handler_,
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(setup_handler_), teardown_handler(teardown_handler_), failure_handler(failure_handler_),
-            cases(static_cast<const Case*>(static_cast<const CaseType*>(cases_))), length(N),
-            defaults(defaults_)
-        {
-            MBED_STATIC_ASSERT(
-                sizeof(CaseType) == sizeof(Case),
-                "CaseType and Case should have the same size"
-            );
-        }
+    template< size_t N, typename CaseType >
+    Specification(const test_setup_handler_t setup_handler_,
+                  const CaseType(&cases_)[N],
+                  const test_teardown_handler_t teardown_handler_,
+                  const test_failure_handler_t failure_handler_,
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(setup_handler_), teardown_handler(teardown_handler_), failure_handler(failure_handler_),
+        cases(static_cast<const Case *>(static_cast<const CaseType *>(cases_))), length(N),
+        defaults(defaults_)
+    {
+        MBED_STATIC_ASSERT(
+            sizeof(CaseType) == sizeof(Case),
+            "CaseType and Case should have the same size"
+        );
+    }
 
-        Specification(const test_setup_handler_t setup_handler_,
-                      const Case *cases_,
-                      const size_t length_,
-                      const test_teardown_handler_t teardown_handler_,
-                      const test_failure_handler_t failure_handler_,
-                      const handlers_t defaults_ = default_handlers) :
-            setup_handler(setup_handler_), teardown_handler(teardown_handler_), failure_handler(failure_handler_),
-            cases(cases_), length(length_),
-            defaults(defaults_)
-        {
-        }
+    Specification(const test_setup_handler_t setup_handler_,
+                  const Case *cases_,
+                  const size_t length_,
+                  const test_teardown_handler_t teardown_handler_,
+                  const test_failure_handler_t failure_handler_,
+                  const handlers_t defaults_ = default_handlers) :
+        setup_handler(setup_handler_), teardown_handler(teardown_handler_), failure_handler(failure_handler_),
+        cases(cases_), length(length_),
+        defaults(defaults_)
+    {
+    }
 
-    private:
-        const test_setup_handler_t setup_handler;
-        const test_teardown_handler_t teardown_handler;
-        const test_failure_handler_t failure_handler;
-        const Case *const cases;
-        const size_t length;
-        const handlers_t defaults;
+private:
+    const test_setup_handler_t setup_handler;
+    const test_teardown_handler_t teardown_handler;
+    const test_failure_handler_t failure_handler;
+    const Case *const cases;
+    const size_t length;
+    const handlers_t defaults;
 
-        friend class Harness;
-    };
+    friend class Harness;
+};
 
 }   // namespace v1
 }   // namespace utest
 
- #endif // UTEST_SPECIFICATION_H
+#endif // UTEST_SPECIFICATION_H
 
 /** @}*/

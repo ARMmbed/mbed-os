@@ -568,7 +568,7 @@ struct pollfd {
 // this code mimics UNIX <sys/statvfs.h> so we can not rename the shaddowed statvfs nor the constructor
 // the warning we are ignoring is:
 // mbed_retarget.h@593,54: 'int statvfs(const char*, statvfs*)' hides constructor for 'struct statvfs' [-Wshadow]
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wshadow"
 #endif //__GNUC__
