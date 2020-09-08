@@ -143,7 +143,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // start UART instance
     MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
     MBED_ASSERT(am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
-    MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
 
     // set default format
     serial_format(obj, 8, ParityNone, 1);
@@ -157,7 +157,7 @@ void serial_free(serial_t *obj) {
 
 void serial_baud(serial_t *obj, int baudrate) {
   obj->serial.uart_control->cfg.ui32BaudRate = (uint32_t)baudrate;
-  MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
+  MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
@@ -213,7 +213,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
   obj->serial.uart_control->cfg.ui32DataBits = (uint32_t)am_hal_data_bits;
   obj->serial.uart_control->cfg.ui32Parity = (uint32_t)am_hal_parity;
   obj->serial.uart_control->cfg.ui32StopBits = (uint32_t)am_hal_stop_bits;
-  MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
+  MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
