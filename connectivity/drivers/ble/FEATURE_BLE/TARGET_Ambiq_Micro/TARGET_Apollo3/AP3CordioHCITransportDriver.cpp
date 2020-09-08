@@ -67,19 +67,25 @@ uint16_t AP3CordioHCITransportDriver::write(uint8_t packet_type, uint16_t len, u
         data[8] = 0;
     }
 
+    uint16_t retLen = 0;
 #ifdef USE_AMBIQ_DRIVER
-    return ap3_hciDrvWrite(packet_type, len, data);
+    retLen = ap3_hciDrvWrite(packet_type, len, data);
 #else
     if (handle)
     {
         uint16_t retVal = (uint16_t)am_hal_ble_blocking_hci_write(handle, packet_type, (uint32_t *)data, (uint16_t)len);
         if (retVal == AM_HAL_STATUS_SUCCESS)
         {
-            return len;
+            retLen = len;
         }
     }
-    return 0;
 #endif
+
+#if CORDIO_ZERO_COPY_HCI
+    WsfMsgFree(data);
+#endif
+
+    return retLen;
 }
 
 #ifdef USE_AMBIQ_DRIVER
