@@ -38,7 +38,7 @@ typedef struct {
     // struct buffer_s rx_buff; /**< Rx buffer */
 } iom_t;
 
-void iom_init(iom_t* obj);
-void iom_deinit(iom_t* obj);
+void iom_init(iom_t *obj);
+void iom_deinit(iom_t *obj);
 
 #endif // MBED_IOM_API_H

@@ -31,10 +31,10 @@ struct i2c_s {
 };
 #else
 struct i2c_u {
-	iom_t iom_obj;
+    iom_t iom_obj;
 };
 struct i2c_s {
-	struct i2c_u i2c;
+    struct i2c_u i2c;
 };
 #endif // DEVICE_I2C_ASYNCH
 

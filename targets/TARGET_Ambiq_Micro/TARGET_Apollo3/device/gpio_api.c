@@ -69,103 +69,84 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 
     obj->cfg.uFuncSel = AP3_PINCFG_FUNCSEL_GPIO; // gpio
 
-    if (mode & (PinMode)PowerSwNone)
-    {
+    if (mode & (PinMode)PowerSwNone) {
         obj->cfg.ePowerSw = AM_HAL_GPIO_PIN_POWERSW_NONE;
         pinConfigBools.ePowerSw = true;
     }
-    if (mode & (PinMode)PowerSwVDD)
-    {
+    if (mode & (PinMode)PowerSwVDD) {
         obj->cfg.ePowerSw = AM_HAL_GPIO_PIN_POWERSW_VDD;
         pinConfigBools.ePowerSw = true;
     }
-    if (mode & (PinMode)PowerSwVSS)
-    {
+    if (mode & (PinMode)PowerSwVSS) {
         obj->cfg.ePowerSw = AM_HAL_GPIO_PIN_POWERSW_VSS;
         pinConfigBools.ePowerSw = true;
     }
 
-    if (mode & (PinMode)PullNone)
-    {
+    if (mode & (PinMode)PullNone) {
         obj->cfg.ePullup = AM_HAL_GPIO_PIN_PULLUP_NONE;
         pinConfigBools.ePullup = true;
     }
-    if (mode & (PinMode)PullUp)
-    {
+    if (mode & (PinMode)PullUp) {
         obj->cfg.ePullup = AM_HAL_GPIO_PIN_PULLUP_WEAK;
         pinConfigBools.ePullup = true;
     }
-    if (mode & (PinMode)PullDown)
-    {
+    if (mode & (PinMode)PullDown) {
         obj->cfg.ePullup = AM_HAL_GPIO_PIN_PULLDOWN;
         pinConfigBools.ePullup = true;
     }
 
-    if (mode & (PinMode)DriveStrength2mA)
-    {
+    if (mode & (PinMode)DriveStrength2mA) {
         obj->cfg.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA;
         pinConfigBools.eDriveStrength = true;
     }
-    if (mode & (PinMode)DriveStrength4mA)
-    {
+    if (mode & (PinMode)DriveStrength4mA) {
         obj->cfg.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_4MA;
         pinConfigBools.eDriveStrength = true;
     }
-    if (mode & (PinMode)DriveStrength8mA)
-    {
+    if (mode & (PinMode)DriveStrength8mA) {
         obj->cfg.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA;
         pinConfigBools.eDriveStrength = true;
     }
-    if (mode & (PinMode)DriveStrength12mA)
-    {
+    if (mode & (PinMode)DriveStrength12mA) {
         obj->cfg.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA;
         pinConfigBools.eDriveStrength = true;
     }
 
-    if (mode & (PinMode)OutDisable)
-    {
+    if (mode & (PinMode)OutDisable) {
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_DISABLE;
         pinConfigBools.eGPOutcfg = true;
     }
-    if (mode & (PinMode)OutPushPull)
-    {
+    if (mode & (PinMode)OutPushPull) {
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL;
         pinConfigBools.eGPOutcfg = true;
     }
-    if (mode & (PinMode)OutOpenDrain)
-    {
+    if (mode & (PinMode)OutOpenDrain) {
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_OPENDRAIN;
         pinConfigBools.eGPOutcfg = true;
     }
-    if (mode & (PinMode)OutTristate)
-    {
+    if (mode & (PinMode)OutTristate) {
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_TRISTATE;
         pinConfigBools.eGPOutcfg = true;
     }
 
-    if (mode & (PinMode)InAuto)
-    {
+    if (mode & (PinMode)InAuto) {
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_AUTO;
         pinConfigBools.eGPInput = true;
     }
-    if (mode & (PinMode)InNone)
-    {
+    if (mode & (PinMode)InNone) {
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_NONE;
         pinConfigBools.eGPInput = true;
     }
-    if (mode & (PinMode)InEnable)
-    {
+    if (mode & (PinMode)InEnable) {
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_ENABLE;
         pinConfigBools.eGPInput = true;
     }
 
-    if (mode & (PinMode)ReadPin)
-    {
+    if (mode & (PinMode)ReadPin) {
         obj->cfg.eGPRdZero = AM_HAL_GPIO_PIN_RDZERO_READPIN;
         pinConfigBools.eGPRdZero = true;
     }
-    if (mode & (PinMode)ReadZero)
-    {
+    if (mode & (PinMode)ReadZero) {
         obj->cfg.eGPRdZero = AM_HAL_GPIO_PIN_RDZERO_ZERO;
         pinConfigBools.eGPRdZero = true;
     }
@@ -184,24 +165,19 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     MBED_ASSERT(direction < (PinDirection)PIN_DIR_ELEMENTS);
     am_hal_gpio_pincfg_allow_t pinConfigBools;
 
-    if (direction == (PinDirection)PIN_INPUT)
-    {
+    if (direction == (PinDirection)PIN_INPUT) {
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_ENABLE;
         pinConfigBools.eGPInput = true;
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_DISABLE;
         pinConfigBools.eGPOutcfg = true;
-    }
-    else if (direction == (PinDirection)PIN_OUTPUT)
-    {
+    } else if (direction == (PinDirection)PIN_OUTPUT) {
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL;
         pinConfigBools.eGPOutcfg = true;
         obj->cfg.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA;
         pinConfigBools.eDriveStrength = true;
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_NONE;
         pinConfigBools.eGPInput = true;
-    }
-    else
-    {
+    } else {
         MBED_ASSERT(false);
     }
 

@@ -47,8 +47,7 @@ static bool us_ticker_initialized = false;
  */
 void us_ticker_init(void)
 {
-    if (us_ticker_initialized)
-    {
+    if (us_ticker_initialized) {
         am_hal_stimer_int_disable(US_TICKER_STIMER_INT_COMPARE);
         return;
     }
@@ -109,33 +108,32 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 {
 
     uint32_t instance = 0;
-    switch (US_TICKER_STIMER_INT_COMPARE)
-    {
-    default:
-    case AM_HAL_STIMER_INT_COMPAREA:
-        instance = 0;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREB:
-        instance = 1;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREC:
-        instance = 2;
-        break;
-    case AM_HAL_STIMER_INT_COMPARED:
-        instance = 3;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREE:
-        instance = 4;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREF:
-        instance = 5;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREG:
-        instance = 6;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREH:
-        instance = 7;
-        break;
+    switch (US_TICKER_STIMER_INT_COMPARE) {
+        default:
+        case AM_HAL_STIMER_INT_COMPAREA:
+            instance = 0;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREB:
+            instance = 1;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREC:
+            instance = 2;
+            break;
+        case AM_HAL_STIMER_INT_COMPARED:
+            instance = 3;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREE:
+            instance = 4;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREF:
+            instance = 5;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREG:
+            instance = 6;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREH:
+            instance = 7;
+            break;
     }
 
     am_hal_stimer_int_enable(US_TICKER_STIMER_INT_COMPARE);

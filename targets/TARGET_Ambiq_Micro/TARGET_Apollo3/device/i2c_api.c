@@ -33,20 +33,22 @@ SOFTWARE.
 
 static am_hal_iom_transfer_t xfer = {0};
 
-I2CName i2c_get_peripheral_name(PinName sda, PinName scl){
+I2CName i2c_get_peripheral_name(PinName sda, PinName scl)
+{
     uint32_t iom_sda = pinmap_peripheral(sda, i2c_master_sda_pinmap());
     uint32_t iom_scl = pinmap_peripheral(scl, i2c_master_scl_pinmap());
 
     uint32_t iom = pinmap_merge(iom_sda, iom_scl);
 
-    if((int)iom == NC){
+    if ((int)iom == NC) {
         return IOM_NUM;
     }
 
     return (I2CName)iom;
 }
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl){
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{
     MBED_ASSERT(obj);
 
     // iom determination
@@ -61,50 +63,59 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl){
     obj->i2c.iom_obj.iom.cfg.ui32NBTxnBufLength = 0;
 
     // pin configuration
-    if((int)sda != NC){ pinmap_config(sda, i2c_master_sda_pinmap()); }
-    if((int)scl != NC){ pinmap_config(scl, i2c_master_scl_pinmap()); }
+    if ((int)sda != NC) {
+        pinmap_config(sda, i2c_master_sda_pinmap());
+    }
+    if ((int)scl != NC) {
+        pinmap_config(scl, i2c_master_scl_pinmap());
+    }
 
     // invariant xfer settings
-	xfer.ui32InstrLen = 0;
-	xfer.ui32Instr = 0;
-	xfer.ui8RepeatCount = 0;
-	xfer.ui8Priority = 1;
-	xfer.ui32PauseCondition = 0;
-	xfer.ui32StatusSetClr = 0;
+    xfer.ui32InstrLen = 0;
+    xfer.ui32Instr = 0;
+    xfer.ui8RepeatCount = 0;
+    xfer.ui8Priority = 1;
+    xfer.ui32PauseCondition = 0;
+    xfer.ui32StatusSetClr = 0;
 
     // initialization
     iom_init(&obj->i2c.iom_obj);
 }
 
-void i2c_free(i2c_t *obj){
+void i2c_free(i2c_t *obj)
+{
     MBED_ASSERT(obj);
     iom_deinit(&obj->i2c.iom_obj);
 }
 
-void i2c_frequency(i2c_t *obj, int hz){
+void i2c_frequency(i2c_t *obj, int hz)
+{
     MBED_ASSERT(obj);
-    if(hz > AM_HAL_IOM_MAX_FREQ){
+    if (hz > AM_HAL_IOM_MAX_FREQ) {
         hz = AM_HAL_IOM_MAX_FREQ;
     }
     obj->i2c.iom_obj.iom.cfg.ui32ClockFreq = hz;
     iom_init(&obj->i2c.iom_obj);
 }
 
-int  i2c_start(i2c_t *obj){
+int  i2c_start(i2c_t *obj)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
 
-int  i2c_stop(i2c_t *obj){
+int  i2c_stop(i2c_t *obj)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
 
-int i2c_read(i2c_t *obj, int address8bit, char *data, int length, int stop){
+int i2c_read(i2c_t *obj, int address8bit, char *data, int length, int stop)
+{
     MBED_ASSERT(obj);
 
     int handled_chars = 0;
@@ -112,11 +123,11 @@ int i2c_read(i2c_t *obj, int address8bit, char *data, int length, int stop){
     xfer.uPeerInfo.ui32I2CDevAddr = (address8bit >> 1);
     xfer.eDirection = AM_HAL_IOM_RX;
     xfer.ui32NumBytes = length;
-    xfer.pui32RxBuffer = (uint32_t*)data;
+    xfer.pui32RxBuffer = (uint32_t *)data;
     xfer.pui32TxBuffer = NULL;
     xfer.bContinue = (stop) ? false : true;
     uint32_t status = am_hal_iom_blocking_transfer(obj->i2c.iom_obj.iom.handle, &xfer);
-    if(AM_HAL_STATUS_SUCCESS != status){
+    if (AM_HAL_STATUS_SUCCESS != status) {
         return I2C_ERROR_NO_SLAVE;
     }
     handled_chars += xfer.ui32NumBytes;
@@ -124,7 +135,8 @@ int i2c_read(i2c_t *obj, int address8bit, char *data, int length, int stop){
     return handled_chars;
 }
 
-int i2c_write(i2c_t *obj, int address8bit, const char *data, int length, int stop){
+int i2c_write(i2c_t *obj, int address8bit, const char *data, int length, int stop)
+{
     MBED_ASSERT(obj);
 
     int handled_chars = 0;
@@ -132,11 +144,11 @@ int i2c_write(i2c_t *obj, int address8bit, const char *data, int length, int sto
     xfer.uPeerInfo.ui32I2CDevAddr = (address8bit >> 1);
     xfer.eDirection = AM_HAL_IOM_TX;
     xfer.ui32NumBytes = length;
-    xfer.pui32TxBuffer = (uint32_t*)data;
+    xfer.pui32TxBuffer = (uint32_t *)data;
     xfer.pui32RxBuffer = NULL;
     xfer.bContinue = (stop) ? false : true;
     uint32_t status = am_hal_iom_blocking_transfer(obj->i2c.iom_obj.iom.handle, &xfer);
-    if(AM_HAL_STATUS_SUCCESS != status){
+    if (AM_HAL_STATUS_SUCCESS != status) {
         return I2C_ERROR_NO_SLAVE;
     }
     handled_chars += xfer.ui32NumBytes;
@@ -144,72 +156,84 @@ int i2c_write(i2c_t *obj, int address8bit, const char *data, int length, int sto
     return handled_chars;
 }
 
-void i2c_reset(i2c_t *obj){
+void i2c_reset(i2c_t *obj)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
 }
 
-int i2c_byte_read(i2c_t *obj, int last){
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return I2C_ERROR_NO_SLAVE;
-}
-
-int i2c_byte_write(i2c_t *obj, int data){
+int i2c_byte_read(i2c_t *obj, int last)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
 
-const PinMap *i2c_master_sda_pinmap(void){
+int i2c_byte_write(i2c_t *obj, int data)
+{
+    MBED_ASSERT(obj);
+    standin_fn();
+    MBED_ASSERT(0);
+    return I2C_ERROR_NO_SLAVE;
+}
+
+const PinMap *i2c_master_sda_pinmap(void)
+{
     return PinMap_I2C_SDA;
 }
 
-const PinMap *i2c_master_scl_pinmap(void){
+const PinMap *i2c_master_scl_pinmap(void)
+{
     return PinMap_I2C_SCL;
 }
 
-const PinMap *i2c_slave_sda_pinmap(void){
+const PinMap *i2c_slave_sda_pinmap(void)
+{
     return PinMap_I2C_SDA;
 }
 
-const PinMap *i2c_slave_scl_pinmap(void){
+const PinMap *i2c_slave_scl_pinmap(void)
+{
     return PinMap_I2C_SCL;
 }
 
 #if DEVICE_I2CSLAVE
 
-void i2c_slave_mode(i2c_t *obj, int enable_slave){
+void i2c_slave_mode(i2c_t *obj, int enable_slave)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
 }
 
-int  i2c_slave_receive(i2c_t *obj){
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return I2C_ERROR_NO_SLAVE;
-}
-
-int  i2c_slave_read(i2c_t *obj, char *data, int length){
+int  i2c_slave_receive(i2c_t *obj)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
 
-int  i2c_slave_write(i2c_t *obj, const char *data, int length){
+int  i2c_slave_read(i2c_t *obj, char *data, int length)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
 
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask){
+int  i2c_slave_write(i2c_t *obj, const char *data, int length)
+{
+    MBED_ASSERT(obj);
+    standin_fn();
+    MBED_ASSERT(0);
+    return I2C_ERROR_NO_SLAVE;
+}
+
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
@@ -220,27 +244,31 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask){
 
 #if DEVICE_I2C_ASYNCH
 
-void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint){
+void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
 }
 
-uint32_t i2c_irq_handler_asynch(i2c_t *obj){
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return 0;
-}
-
-uint8_t i2c_active(i2c_t *obj){
+uint32_t i2c_irq_handler_asynch(i2c_t *obj)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);
     return 0;
 }
 
-void i2c_abort_asynch(i2c_t *obj){
+uint8_t i2c_active(i2c_t *obj)
+{
+    MBED_ASSERT(obj);
+    standin_fn();
+    MBED_ASSERT(0);
+    return 0;
+}
+
+void i2c_abort_asynch(i2c_t *obj)
+{
     MBED_ASSERT(obj);
     standin_fn();
     MBED_ASSERT(0);

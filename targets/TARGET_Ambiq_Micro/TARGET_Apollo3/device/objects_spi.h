@@ -31,10 +31,10 @@ struct spi_s {
 };
 #else
 struct spi_u {
-	iom_t iom_obj;
+    iom_t iom_obj;
 };
 struct spi_s {
-	struct spi_u spi;
+    struct spi_u spi;
 };
 #endif // DEVICE_SPI_ASYNCH
 

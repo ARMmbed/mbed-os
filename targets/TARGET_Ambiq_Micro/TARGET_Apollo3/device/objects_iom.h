@@ -32,8 +32,8 @@ extern "C"
 
 struct iom_s {
     uint32_t inst;              // IOM module instance
-    void *handle;		        // IOM handle
-    am_hal_iom_config_t cfg;	// IOM configuration
+    void *handle;               // IOM handle
+    am_hal_iom_config_t cfg;    // IOM configuration
 };
 
 #ifdef __cplusplus

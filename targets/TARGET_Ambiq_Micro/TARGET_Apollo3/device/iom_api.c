@@ -23,10 +23,11 @@ SOFTWARE.
 #include "iom_api.h"
 #include "mbed_assert.h"
 
-void iom_init(iom_t* obj){
+void iom_init(iom_t *obj)
+{
     MBED_ASSERT(obj);
 
-    if(obj->iom.handle){
+    if (obj->iom.handle) {
         iom_deinit(obj);
     }
 
@@ -38,10 +39,11 @@ void iom_init(iom_t* obj){
     // this merely configures the internal peripheral - the desired pins still need to be configured
 }
 
-void iom_deinit(iom_t* obj){
+void iom_deinit(iom_t *obj)
+{
     MBED_ASSERT(obj);
-    
-    if(!obj->iom.handle){
+
+    if (!obj->iom.handle) {
         return;
     }
 

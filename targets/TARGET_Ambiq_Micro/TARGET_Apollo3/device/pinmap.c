@@ -27,12 +27,16 @@ SOFTWARE.
 #include "extensions.h"
 #include "am_mcu_apollo.h"
 
-void pin_config(PinName pin, am_hal_gpio_pincfg_t pincfg){
-    if(pin == (PinName)NC){ return; }
+void pin_config(PinName pin, am_hal_gpio_pincfg_t pincfg)
+{
+    if (pin == (PinName)NC) {
+        return;
+    }
     MBED_ASSERT(AM_HAL_STATUS_SUCCESS == am_hal_gpio_pinconfig(pin, pincfg));
 }
 
-void pinmap_config(PinName pin, const PinMap *map) {
+void pinmap_config(PinName pin, const PinMap *map)
+{
     // fully configure a pin by a pin map entry
     if (pin == NC) {
         return;
@@ -41,7 +45,7 @@ void pinmap_config(PinName pin, const PinMap *map) {
     am_hal_gpio_pincfg_t pincfg;
     while (map->pin != NC) {
         if (map->pin == pin) {
-            pincfg = *((am_hal_gpio_pincfg_t*)(map->function));
+            pincfg = *((am_hal_gpio_pincfg_t *)(map->function));
             pin_config(pin, pincfg);
             return;
         }

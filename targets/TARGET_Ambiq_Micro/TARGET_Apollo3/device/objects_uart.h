@@ -32,28 +32,27 @@ typedef uint32_t ap3_uart_pad_t;
 typedef uint32_t ap3_uart_inst_t;
 
 typedef struct _ap3_uart_pad_map_elem_t {
-	ap3_uart_pad_t pad;
-	uint8_t funcsel;
+    ap3_uart_pad_t pad;
+    uint8_t funcsel;
 } ap3_uart_pad_map_elem_t;
 
-typedef struct _ap3_uart_control_t
-{
-	ap3_uart_inst_t inst;		// UART module instance
-	void *handle;				// UART handle
-	am_hal_uart_config_t cfg;	// UART configuration
-	uint32_t serial_irq_id;
+typedef struct _ap3_uart_control_t {
+    ap3_uart_inst_t inst;       // UART module instance
+    void *handle;               // UART handle
+    am_hal_uart_config_t cfg;   // UART configuration
+    uint32_t serial_irq_id;
 } ap3_uart_control_t;
 
 #if DEVICE_SERIAL_ASYNCH
 struct serial_s {
-	ap3_uart_control_t *uart_control;
+    ap3_uart_control_t *uart_control;
 };
 #else
 struct serial_u {
-	ap3_uart_control_t *uart_control;
+    ap3_uart_control_t *uart_control;
 };
 struct serial_s {
-	struct serial_u serial;
+    struct serial_u serial;
 };
 #endif // DEVICE_SERIAL_ASYNCH
 

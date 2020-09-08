@@ -16,24 +16,24 @@
 //
 // Copyright (c) 2019, Ambiq Micro
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice,
 // this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 // contributors may be used to endorse or promote products derived from this
 // software without specific prior written permission.
-// 
+//
 // Third party software included in this distribution is subject to the
 // additional license terms as defined in the /docs/licenses directory.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -57,8 +57,7 @@
 //  UART0_TX_1 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_1 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_1 = {
     .uFuncSel            = AM_HAL_PIN_1_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -68,8 +67,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_1 =
 //  UART0_TX_7 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_7 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_7 = {
     .uFuncSel            = AM_HAL_PIN_7_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -79,8 +77,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_7 =
 //  UART0_TX_16 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_16 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_16 = {
     .uFuncSel            = AM_HAL_PIN_16_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -90,8 +87,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_16 =
 //  UART0_TX_20 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_20 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_20 = {
     .uFuncSel            = AM_HAL_PIN_20_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -101,8 +97,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_20 =
 //  UART0_TX_22 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_22 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_22 = {
     .uFuncSel            = AM_HAL_PIN_22_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -112,8 +107,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_22 =
 //  UART0_TX_26 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_26 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_26 = {
     .uFuncSel            = AM_HAL_PIN_26_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -123,8 +117,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_26 =
 //  UART0_TX_28 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_28 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_28 = {
     .uFuncSel            = AM_HAL_PIN_28_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -135,8 +128,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_28 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_30 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_30 = {
     .uFuncSel            = AM_HAL_PIN_30_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -147,8 +139,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_30 =
 //  UART0_TX_39 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_39 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_39 = {
     .uFuncSel            = AM_HAL_PIN_39_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -158,8 +149,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_39 =
 //  UART0_TX_41 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_41 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_41 = {
     .uFuncSel            = AM_HAL_PIN_41_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -169,8 +159,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_41 =
 //  UART0_TX_44 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_44 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_44 = {
     .uFuncSel            = AM_HAL_PIN_44_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -180,8 +169,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_44 =
 //  UART0_TX_48 pin: UART0 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_48 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_48 = {
     .uFuncSel            = AM_HAL_PIN_48_UART0TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -191,8 +179,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_TX_48 =
 //  UART1_TX_8 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_8 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_8 = {
     .uFuncSel            = AM_HAL_PIN_8_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -202,8 +189,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_8 =
 //  UART1_TX_10 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_10 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_10 = {
     .uFuncSel            = AM_HAL_PIN_10_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -213,8 +199,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_10 =
 //  UART1_TX_12 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_12 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_12 = {
     .uFuncSel            = AM_HAL_PIN_12_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -224,8 +209,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_12 =
 //  UART1_TX_14 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_14 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_14 = {
     .uFuncSel            = AM_HAL_PIN_14_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -235,8 +219,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_14 =
 //  UART1_TX_18 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_18 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_18 = {
     .uFuncSel            = AM_HAL_PIN_18_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -246,8 +229,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_18 =
 //  UART1_TX_20 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_20 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_20 = {
     .uFuncSel            = AM_HAL_PIN_20_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -257,8 +239,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_20 =
 //  UART1_TX_24 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_24 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_24 = {
     .uFuncSel            = AM_HAL_PIN_24_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -269,8 +250,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_24 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_35 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_35 = {
     .uFuncSel            = AM_HAL_PIN_35_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -282,8 +262,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_35 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_37 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_37 = {
     .uFuncSel            = AM_HAL_PIN_37_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -294,8 +273,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_37 =
 //  UART1_TX_39 pin: UART1 Tx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_39 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_39 = {
     .uFuncSel            = AM_HAL_PIN_39_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -306,8 +284,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_39 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_42 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_42 = {
     .uFuncSel            = AM_HAL_PIN_42_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -319,8 +296,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_42 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_46 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_46 = {
     .uFuncSel            = AM_HAL_PIN_46_UART1TX,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -331,8 +307,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_TX_46 =
 //  UART0_RX_2 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_2 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_2 = {
     .uFuncSel            = AM_HAL_PIN_2_UART0RX
 };
 
@@ -341,8 +316,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_2 =
 //  UART0_RX_11 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_11 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_11 = {
     .uFuncSel            = AM_HAL_PIN_11_UART0RX
 };
 
@@ -351,8 +325,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_11 =
 //  UART0_RX_17 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_17 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_17 = {
     .uFuncSel            = AM_HAL_PIN_17_UART0RX
 };
 
@@ -361,8 +334,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_17 =
 //  UART0_RX_21 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_21 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_21 = {
     .uFuncSel            = AM_HAL_PIN_21_UART0RX
 };
 
@@ -371,8 +343,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_21 =
 //  UART0_RX_23 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_23 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_23 = {
     .uFuncSel            = AM_HAL_PIN_23_UART0RX
 };
 
@@ -381,8 +352,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_23 =
 //  UART0_RX_27 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_27 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_27 = {
     .uFuncSel            = AM_HAL_PIN_27_UART0RX
 };
 
@@ -391,8 +361,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_27 =
 //  UART0_RX_29 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_29 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_29 = {
     .uFuncSel            = AM_HAL_PIN_29_UART0RX
 };
 
@@ -402,8 +371,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_29 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_31 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_31 = {
     .uFuncSel            = AM_HAL_PIN_31_UART0RX
 };
 #endif // AM_PACKAGE_BGA
@@ -414,8 +382,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_31 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_34 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_34 = {
     .uFuncSel            = AM_HAL_PIN_34_UART0RX
 };
 #endif // AM_PACKAGE_BGA
@@ -425,8 +392,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_34 =
 //  UART0_RX_40 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_40 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_40 = {
     .uFuncSel            = AM_HAL_PIN_40_UART0RX
 };
 
@@ -436,8 +402,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_40 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_45 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_45 = {
     .uFuncSel            = AM_HAL_PIN_45_UART0RX
 };
 #endif // AM_PACKAGE_BGA
@@ -447,8 +412,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_45 =
 //  UART0_RX_49 pin: UART0 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_49 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_49 = {
     .uFuncSel            = AM_HAL_PIN_49_UART0RX
 };
 
@@ -457,8 +421,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RX_49 =
 //  UART1_RX_2 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_2 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_2 = {
     .uFuncSel            = AM_HAL_PIN_2_UART1RX
 };
 
@@ -467,8 +430,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_2 =
 //  UART1_RX_4 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_4 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_4 = {
     .uFuncSel            = AM_HAL_PIN_4_UART1RX
 };
 
@@ -477,8 +439,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_4 =
 //  UART1_RX_9 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_9 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_9 = {
     .uFuncSel            = AM_HAL_PIN_9_UART1RX
 };
 
@@ -487,8 +448,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_9 =
 //  UART1_RX_13 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_13 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_13 = {
     .uFuncSel            = AM_HAL_PIN_13_UART1RX
 };
 
@@ -497,8 +457,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_13 =
 //  UART1_RX_15 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_15 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_15 = {
     .uFuncSel            = AM_HAL_PIN_15_UART1RX
 };
 
@@ -507,8 +466,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_15 =
 //  UART1_RX_19 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_19 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_19 = {
     .uFuncSel            = AM_HAL_PIN_19_UART1RX
 };
 
@@ -517,8 +475,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_19 =
 //  UART1_RX_21 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_21 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_21 = {
     .uFuncSel            = AM_HAL_PIN_21_UART1RX
 };
 
@@ -527,8 +484,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_21 =
 //  UART1_RX_25 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_25 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_25 = {
     .uFuncSel            = AM_HAL_PIN_25_UART1RX
 };
 
@@ -538,8 +494,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_25 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_36 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_36 = {
     .uFuncSel            = AM_HAL_PIN_36_UART1RX
 };
 #endif // AM_PACKAGE_BGA
@@ -550,8 +505,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_36 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_38 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_38 = {
     .uFuncSel            = AM_HAL_PIN_38_UART1RX
 };
 #endif // AM_PACKAGE_BGA
@@ -561,8 +515,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_38 =
 //  UART1_RX_40 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_40 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_40 = {
     .uFuncSel            = AM_HAL_PIN_40_UART1RX
 };
 
@@ -572,8 +525,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_40 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_43 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_43 = {
     .uFuncSel            = AM_HAL_PIN_43_UART1RX
 };
 #endif // AM_PACKAGE_BGA
@@ -583,8 +535,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_43 =
 //  UART1_RX_47 pin: UART1 Rx Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_47 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_47 = {
     .uFuncSel            = AM_HAL_PIN_47_UART1RX
 };
 
@@ -593,8 +544,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RX_47 =
 //  UART0_RTS_3 pin: UART0 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_3 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_3 = {
     .uFuncSel            = AM_HAL_PIN_3_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -604,8 +554,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_3 =
 //  UART0_RTS_5 pin: UART0 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_5 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_5 = {
     .uFuncSel            = AM_HAL_PIN_5_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -615,8 +564,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_5 =
 //  UART0_RTS_13 pin: UART0 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_13 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_13 = {
     .uFuncSel            = AM_HAL_PIN_13_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -626,8 +574,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_13 =
 //  UART0_RTS_18 pin: UART0 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_18 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_18 = {
     .uFuncSel            = AM_HAL_PIN_18_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -638,8 +585,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_18 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_34 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_34 = {
     .uFuncSel            = AM_HAL_PIN_34_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -651,8 +597,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_34 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_35 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_35 = {
     .uFuncSel            = AM_HAL_PIN_35_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -664,8 +609,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_35 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_37 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_37 = {
     .uFuncSel            = AM_HAL_PIN_37_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -676,8 +620,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_37 =
 //  UART0_RTS_41 pin: UART0 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_41 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_41 = {
     .uFuncSel            = AM_HAL_PIN_41_UART0RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -687,8 +630,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_RTS_41 =
 //  UART1_RTS_10 pin: UART1 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_10 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_10 = {
     .uFuncSel            = AM_HAL_PIN_10_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -698,8 +640,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_10 =
 //  UART1_RTS_16 pin: UART1 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_16 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_16 = {
     .uFuncSel            = AM_HAL_PIN_16_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -709,8 +650,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_16 =
 //  UART1_RTS_20 pin: UART1 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_20 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_20 = {
     .uFuncSel            = AM_HAL_PIN_20_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -721,8 +661,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_20 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_30 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_30 = {
     .uFuncSel            = AM_HAL_PIN_30_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -734,8 +673,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_30 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_31 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_31 = {
     .uFuncSel            = AM_HAL_PIN_31_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -747,8 +685,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_31 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_34 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_34 = {
     .uFuncSel            = AM_HAL_PIN_34_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -759,8 +696,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_34 =
 //  UART1_RTS_41 pin: UART1 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_41 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_41 = {
     .uFuncSel            = AM_HAL_PIN_41_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -770,8 +706,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_41 =
 //  UART1_RTS_44 pin: UART1 RTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_44 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_44 = {
     .uFuncSel            = AM_HAL_PIN_44_UART1RTS,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -781,8 +716,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_RTS_44 =
 //  UART0_CTS_4 pin: UART0 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_4 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_4 = {
     .uFuncSel            = AM_HAL_PIN_4_UART0CTS
 };
 
@@ -791,8 +725,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_4 =
 //  UART0_CTS_6 pin: UART0 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_6 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_6 = {
     .uFuncSel            = AM_HAL_PIN_6_UART0CTS
 };
 
@@ -801,8 +734,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_6 =
 //  UART0_CTS_12 pin: UART0 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_12 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_12 = {
     .uFuncSel            = AM_HAL_PIN_12_UART0CTS
 };
 
@@ -811,8 +743,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_12 =
 //  UART0_CTS_24 pin: UART0 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_24 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_24 = {
     .uFuncSel            = AM_HAL_PIN_24_UART0CTS
 };
 
@@ -821,8 +752,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_24 =
 //  UART0_CTS_29 pin: UART0 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_29 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_29 = {
     .uFuncSel            = AM_HAL_PIN_29_UART0CTS
 };
 
@@ -832,8 +762,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_29 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_33 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_33 = {
     .uFuncSel            = AM_HAL_PIN_33_UART0CTS
 };
 #endif // AM_PACKAGE_BGA
@@ -844,8 +773,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_33 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_36 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_36 = {
     .uFuncSel            = AM_HAL_PIN_36_UART0CTS
 };
 #endif // AM_PACKAGE_BGA
@@ -856,8 +784,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_36 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_38 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_38 = {
     .uFuncSel            = AM_HAL_PIN_38_UART0CTS
 };
 #endif // AM_PACKAGE_BGA
@@ -867,8 +794,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART0_CTS_38 =
 //  UART1_CTS_11 pin: UART1 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_11 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_11 = {
     .uFuncSel            = AM_HAL_PIN_11_UART1CTS
 };
 
@@ -877,8 +803,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_11 =
 //  UART1_CTS_17 pin: UART1 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_17 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_17 = {
     .uFuncSel            = AM_HAL_PIN_17_UART1CTS
 };
 
@@ -887,8 +812,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_17 =
 //  UART1_CTS_21 pin: UART1 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_21 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_21 = {
     .uFuncSel            = AM_HAL_PIN_21_UART1CTS
 };
 
@@ -897,8 +821,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_21 =
 //  UART1_CTS_26 pin: UART1 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_26 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_26 = {
     .uFuncSel            = AM_HAL_PIN_26_UART1CTS
 };
 
@@ -907,8 +830,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_26 =
 //  UART1_CTS_29 pin: UART1 CTS Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_29 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_29 = {
     .uFuncSel            = AM_HAL_PIN_29_UART1CTS
 };
 
@@ -918,8 +840,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_29 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_32 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_32 = {
     .uFuncSel            = AM_HAL_PIN_32_UART1CTS
 };
 #endif // AM_PACKAGE_BGA
@@ -930,8 +851,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_32 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_36 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_36 = {
     .uFuncSel            = AM_HAL_PIN_36_UART1CTS
 };
 #endif // AM_PACKAGE_BGA
@@ -942,8 +862,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_36 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_45 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_45 = {
     .uFuncSel            = AM_HAL_PIN_45_UART1CTS
 };
 #endif // AM_PACKAGE_BGA
@@ -953,8 +872,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_UART1_CTS_45 =
 //  IOM0_CS pin: I/O Master 0 chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_CS =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_CS = {
     .uFuncSel            = AM_HAL_PIN_11_NCE11,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -970,8 +888,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_CS =
 //  IOM0_CS3 pin: I/O Master 0 chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_CS3 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_CS3 = {
     .uFuncSel            = AM_HAL_PIN_15_NCE15,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -987,8 +904,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_CS3 =
 //  IOM0_MISO pin: I/O Master 0 SPI MISO signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_MISO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_MISO = {
     .uFuncSel            = AM_HAL_PIN_6_M0MISO,
     .uIOMnum             = 0
 };
@@ -998,8 +914,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_MISO =
 //  IOM0_MOSI pin: I/O Master 0 SPI MOSI signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_MOSI =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_MOSI = {
     .uFuncSel            = AM_HAL_PIN_7_M0MOSI,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 0
@@ -1010,8 +925,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_MOSI =
 //  IOM0_SCK pin: I/O Master 0 SPI SCK signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SCK = {
     .uFuncSel            = AM_HAL_PIN_5_M0SCK,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 0
@@ -1022,8 +936,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SCK =
 //  IOM0_SCL pin: I/O Master 0 I2C clock signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SCL =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SCL = {
     .uFuncSel            = AM_HAL_PIN_5_M0SCL,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1036,8 +949,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SCL =
 //  IOM0_SDA pin: I/O Master 0 I2C data signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SDA =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SDA = {
     .uFuncSel            = AM_HAL_PIN_6_M0SDAWIR3,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1050,8 +962,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM0_SDA =
 //  IOM1_CS pin: I/O Master 1 chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_CS =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_CS = {
     .uFuncSel            = AM_HAL_PIN_14_NCE14,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -1067,8 +978,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_CS =
 //  IOM1_MISO pin: I/O Master 1 SPI MISO signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_MISO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_MISO = {
     .uFuncSel            = AM_HAL_PIN_9_M1MISO,
     .uIOMnum             = 1
 };
@@ -1078,8 +988,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_MISO =
 //  IOM1_MOSI pin: I/O Master 1 SPI MOSI signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_MOSI =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_MOSI = {
     .uFuncSel            = AM_HAL_PIN_10_M1MOSI,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 1
@@ -1090,8 +999,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_MOSI =
 //  IOM1_SCK pin: I/O Master 1 SPI SCK signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SCK = {
     .uFuncSel            = AM_HAL_PIN_8_M1SCK,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 1
@@ -1102,8 +1010,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SCK =
 //  IOM1_SCL pin: I/O Master 1 I2C clock signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SCL =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SCL = {
     .uFuncSel            = AM_HAL_PIN_8_M1SCL,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1116,8 +1023,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SCL =
 //  IOM1_SDA pin: I/O Master 1 I2C data signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SDA =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SDA = {
     .uFuncSel            = AM_HAL_PIN_9_M1SDAWIR3,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1130,8 +1036,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM1_SDA =
 //  IOM2_CS pin: I/O Master 2 chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_CS =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_CS = {
     .uFuncSel            = AM_HAL_PIN_15_NCE15,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -1147,8 +1052,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_CS =
 //  IOM2_MISO pin: I/O Master 2 SPI MISO signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_MISO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_MISO = {
     .uFuncSel            = AM_HAL_PIN_25_M2MISO,
     .uIOMnum             = 2
 };
@@ -1158,8 +1062,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_MISO =
 //  IOM2_MOSI pin: I/O Master 2 SPI MOSI signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_MOSI =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_MOSI = {
     .uFuncSel            = AM_HAL_PIN_28_M2MOSI,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 2
@@ -1170,8 +1073,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_MOSI =
 //  IOM2_SCK pin: I/O Master 2 SPI SCK signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SCK = {
     .uFuncSel            = AM_HAL_PIN_27_M2SCK,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 2
@@ -1182,8 +1084,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SCK =
 //  IOM2_SCL pin: I/O Master 2 I2C clock signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SCL =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SCL = {
     .uFuncSel            = AM_HAL_PIN_27_M2SCL,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1196,8 +1097,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SCL =
 //  IOM2_SDA pin: I/O Master 2 I2C data signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SDA =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SDA = {
     .uFuncSel            = AM_HAL_PIN_25_M2SDAWIR3,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1210,8 +1110,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM2_SDA =
 //  IOM3_CS pin: I/O Master 3 chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_CS =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_CS = {
     .uFuncSel            = AM_HAL_PIN_12_NCE12,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -1228,8 +1127,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_CS =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_MISO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_MISO = {
     .uFuncSel            = AM_HAL_PIN_43_M3MISO,
     .uIOMnum             = 3
 };
@@ -1241,8 +1139,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_MISO =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_MOSI =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_MOSI = {
     .uFuncSel            = AM_HAL_PIN_38_M3MOSI,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 3
@@ -1255,8 +1152,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_MOSI =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SCK = {
     .uFuncSel            = AM_HAL_PIN_42_M3SCK,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 3
@@ -1269,8 +1165,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SCK =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SCL =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SCL = {
     .uFuncSel            = AM_HAL_PIN_42_M3SCL,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1285,8 +1180,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SCL =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SDA =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SDA = {
     .uFuncSel            = AM_HAL_PIN_43_M3SDAWIR3,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1300,8 +1194,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM3_SDA =
 //  IOM4_CS pin: I/O Master 4 chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_CS =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_CS = {
     .uFuncSel            = AM_HAL_PIN_13_NCE13,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -1317,8 +1210,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_CS =
 //  IOM4_MISO pin: I/O Master 4 SPI MISO signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_MISO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_MISO = {
     .uFuncSel            = AM_HAL_PIN_40_M4MISO,
     .uIOMnum             = 4
 };
@@ -1328,8 +1220,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_MISO =
 //  IOM4_MOSI pin: I/O Master 4 SPI MOSI signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_MOSI =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_MOSI = {
     .uFuncSel            = AM_HAL_PIN_44_M4MOSI,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 4
@@ -1340,8 +1231,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_MOSI =
 //  IOM4_SCK pin: I/O Master 4 SPI SCK signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SCK = {
     .uFuncSel            = AM_HAL_PIN_39_M4SCK,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 4
@@ -1352,8 +1242,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SCK =
 //  IOM4_SCL pin: I/O Master 4 I2C clock signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SCL =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SCL = {
     .uFuncSel            = AM_HAL_PIN_39_M4SCL,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1366,8 +1255,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SCL =
 //  IOM4_SDA pin: I/O Master 4 I2C data signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SDA =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SDA = {
     .uFuncSel            = AM_HAL_PIN_40_M4SDAWIR3,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1380,8 +1268,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM4_SDA =
 //  IOM5_CS pin: I/O Master 5 chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_CS =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_CS = {
     .uFuncSel            = AM_HAL_PIN_16_NCE16,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -1397,8 +1284,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_CS =
 //  IOM5_MISO pin: I/O Master 5 SPI MISO signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_MISO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_MISO = {
     .uFuncSel            = AM_HAL_PIN_49_M5MISO,
     .uIOMnum             = 5
 };
@@ -1408,8 +1294,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_MISO =
 //  IOM5_MOSI pin: I/O Master 5 SPI MOSI signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_MOSI =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_MOSI = {
     .uFuncSel            = AM_HAL_PIN_47_M5MOSI,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 5
@@ -1420,8 +1305,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_MOSI =
 //  IOM5_SCK pin: I/O Master 5 SPI SCK signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SCK = {
     .uFuncSel            = AM_HAL_PIN_48_M5SCK,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .uIOMnum             = 5
@@ -1432,8 +1316,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SCK =
 //  IOM5_SCL pin: I/O Master 5 I2C clock signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SCL =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SCL = {
     .uFuncSel            = AM_HAL_PIN_48_M5SCL,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1446,8 +1329,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SCL =
 //  IOM5_SDA pin: I/O Master 5 I2C data signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SDA =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SDA = {
     .uFuncSel            = AM_HAL_PIN_49_M5SDAWIR3,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
@@ -1460,8 +1342,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOM5_SDA =
 //  MSPI_CE0 pin: MSPI chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_CE0 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_CE0 = {
     .uFuncSel            = AM_HAL_PIN_19_NCE19,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -1477,8 +1358,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_CE0 =
 //  MSPI_CE1 pin: MSPI chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_CE1 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_CE1 = {
     .uFuncSel            = AM_HAL_PIN_41_NCE41,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL,
@@ -1494,8 +1374,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_CE1 =
 //  MSPI_D0 pin: MSPI data 0.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D0 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D0 = {
     .uFuncSel            = AM_HAL_PIN_22_MSPI0,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1507,8 +1386,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D0 =
 //  MSPI_D1 pin: MSPI data 1.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D1 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D1 = {
     .uFuncSel            = AM_HAL_PIN_26_MSPI1,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1520,8 +1398,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D1 =
 //  MSPI_D2 pin: MSPI data 2.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D2 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D2 = {
     .uFuncSel            = AM_HAL_PIN_4_MSPI2,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1533,8 +1410,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D2 =
 //  MSPI_D3 pin: MSPI data 3.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D3 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D3 = {
     .uFuncSel            = AM_HAL_PIN_23_MSPI13,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1546,8 +1422,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D3 =
 //  MSPI_D4 pin: MSPI data 4.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D4 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D4 = {
     .uFuncSel            = AM_HAL_PIN_0_MSPI4,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1559,8 +1434,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D4 =
 //  MSPI_D5 pin: MSPI data 5.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D5 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D5 = {
     .uFuncSel            = AM_HAL_PIN_1_MSPI5,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1572,8 +1446,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D5 =
 //  MSPI_D6 pin: MSPI data 6.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D6 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D6 = {
     .uFuncSel            = AM_HAL_PIN_2_MSPI6,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1585,8 +1458,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D6 =
 //  MSPI_D7 pin: MSPI data 7.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D7 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D7 = {
     .uFuncSel            = AM_HAL_PIN_3_MSPI7,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_8MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1598,8 +1470,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_D7 =
 //  MSPI_SCK pin: MSPI clock.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_SCK = {
     .uFuncSel            = AM_HAL_PIN_24_MSPI8,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
     .eIntDir             = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
@@ -1611,8 +1482,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_MSPI_SCK =
 //  IOS_CE pin: I/O Slave chip select.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOS_CE =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOS_CE = {
     .uFuncSel            = AM_HAL_PIN_3_SLnCE,
     .eGPInput            = AM_HAL_GPIO_PIN_INPUT_ENABLE,
     .uNCE                = 0,
@@ -1624,8 +1494,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOS_CE =
 //  IOS_MISO pin: I/O Slave SPI MISO signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOS_MISO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOS_MISO = {
     .uFuncSel            = AM_HAL_PIN_2_SLMISO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA
 };
@@ -1635,8 +1504,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOS_MISO =
 //  IOS_MOSI pin: I/O Slave SPI MOSI signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOS_MOSI =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOS_MOSI = {
     .uFuncSel            = AM_HAL_PIN_1_SLMOSI,
     .eGPInput            = AM_HAL_GPIO_PIN_INPUT_ENABLE
 };
@@ -1646,8 +1514,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOS_MOSI =
 //  IOS_SCK pin: I/O Slave SPI SCK signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SCK =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SCK = {
     .uFuncSel            = AM_HAL_PIN_0_SLSCK,
     .eGPInput            = AM_HAL_GPIO_PIN_INPUT_ENABLE
 };
@@ -1657,8 +1524,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SCK =
 //  IOS_SCL pin: I/O Slave I2C clock signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SCL =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SCL = {
     .uFuncSel            = AM_HAL_PIN_0_SLSCL,
     .eGPInput            = AM_HAL_GPIO_PIN_INPUT_ENABLE
 };
@@ -1668,8 +1534,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SCL =
 //  IOS_SDA pin: I/O Slave I2C data signal.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SDA =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SDA = {
     .uFuncSel            = AM_HAL_PIN_1_SLSDAWIR3,
     .ePullup             = AM_HAL_GPIO_PIN_PULLUP_1_5K,
     .eGPOutcfg           = AM_HAL_GPIO_PIN_OUTCFG_OPENDRAIN
@@ -1680,8 +1545,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_IOS_SDA =
 //  NCE_0 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_0 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_0 = {
     .uFuncSel            = AM_HAL_PIN_0_NCE0
 };
 
@@ -1690,8 +1554,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_0 =
 //  NCE_1 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_1 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_1 = {
     .uFuncSel            = AM_HAL_PIN_1_NCE1
 };
 
@@ -1700,8 +1563,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_1 =
 //  NCE_2 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_2 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_2 = {
     .uFuncSel            = AM_HAL_PIN_2_NCE2
 };
 
@@ -1710,8 +1572,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_2 =
 //  NCE_3 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_3 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_3 = {
     .uFuncSel            = AM_HAL_PIN_3_NCE3
 };
 
@@ -1720,8 +1581,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_3 =
 //  NCE_4 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_4 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_4 = {
     .uFuncSel            = AM_HAL_PIN_4_NCE4
 };
 
@@ -1730,8 +1590,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_4 =
 //  NCE_7 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_7 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_7 = {
     .uFuncSel            = AM_HAL_PIN_7_NCE7
 };
 
@@ -1740,8 +1599,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_7 =
 //  NCE_8 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_8 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_8 = {
     .uFuncSel            = AM_HAL_PIN_8_NCE8
 };
 
@@ -1750,8 +1608,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_8 =
 //  NCE_9 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_9 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_9 = {
     .uFuncSel            = AM_HAL_PIN_9_NCE9
 };
 
@@ -1760,8 +1617,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_9 =
 //  NCE_10 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_10 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_10 = {
     .uFuncSel            = AM_HAL_PIN_10_NCE10
 };
 
@@ -1770,8 +1626,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_10 =
 //  NCE_11 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_11 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_11 = {
     .uFuncSel            = AM_HAL_PIN_11_NCE11
 };
 
@@ -1780,8 +1635,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_11 =
 //  NCE_12 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_12 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_12 = {
     .uFuncSel            = AM_HAL_PIN_12_NCE12
 };
 
@@ -1790,8 +1644,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_12 =
 //  NCE_13 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_13 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_13 = {
     .uFuncSel            = AM_HAL_PIN_13_NCE13
 };
 
@@ -1800,8 +1653,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_13 =
 //  NCE_14 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_14 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_14 = {
     .uFuncSel            = AM_HAL_PIN_14_NCE14
 };
 
@@ -1810,8 +1662,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_14 =
 //  NCE_15 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_15 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_15 = {
     .uFuncSel            = AM_HAL_PIN_15_NCE15
 };
 
@@ -1820,8 +1671,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_15 =
 //  NCE_16 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_16 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_16 = {
     .uFuncSel            = AM_HAL_PIN_16_NCE16
 };
 
@@ -1830,8 +1680,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_16 =
 //  NCE_17 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_17 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_17 = {
     .uFuncSel            = AM_HAL_PIN_17_NCE17
 };
 
@@ -1840,8 +1689,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_17 =
 //  NCE_18 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_18 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_18 = {
     .uFuncSel            = AM_HAL_PIN_18_NCE18
 };
 
@@ -1850,8 +1698,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_18 =
 //  NCE_19 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_19 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_19 = {
     .uFuncSel            = AM_HAL_PIN_19_NCE19
 };
 
@@ -1860,8 +1707,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_19 =
 //  NCE_20 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_20 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_20 = {
     .uFuncSel            = AM_HAL_PIN_20_NCE20
 };
 
@@ -1870,8 +1716,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_20 =
 //  NCE_21 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_21 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_21 = {
     .uFuncSel            = AM_HAL_PIN_21_NCE21
 };
 
@@ -1880,8 +1725,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_21 =
 //  NCE_22 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_22 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_22 = {
     .uFuncSel            = AM_HAL_PIN_22_NCE22
 };
 
@@ -1890,8 +1734,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_22 =
 //  NCE_23 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_23 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_23 = {
     .uFuncSel            = AM_HAL_PIN_23_NCE23
 };
 
@@ -1900,8 +1743,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_23 =
 //  NCE_24 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_24 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_24 = {
     .uFuncSel            = AM_HAL_PIN_24_NCE24
 };
 
@@ -1910,8 +1752,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_24 =
 //  NCE_25 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_25 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_25 = {
     .uFuncSel            = AM_HAL_PIN_25_NCE25
 };
 
@@ -1920,8 +1761,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_25 =
 //  NCE_26 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_26 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_26 = {
     .uFuncSel            = AM_HAL_PIN_26_NCE26
 };
 
@@ -1930,8 +1770,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_26 =
 //  NCE_27 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_27 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_27 = {
     .uFuncSel            = AM_HAL_PIN_27_NCE27
 };
 
@@ -1940,8 +1779,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_27 =
 //  NCE_28 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_28 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_28 = {
     .uFuncSel            = AM_HAL_PIN_28_NCE28
 };
 
@@ -1950,8 +1788,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_28 =
 //  NCE_29 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_29 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_29 = {
     .uFuncSel            = AM_HAL_PIN_29_NCE29
 };
 
@@ -1961,8 +1798,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_29 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_30 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_30 = {
     .uFuncSel            = AM_HAL_PIN_30_NCE30
 };
 #endif // AM_PACKAGE_BGA
@@ -1973,8 +1809,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_30 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_31 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_31 = {
     .uFuncSel            = AM_HAL_PIN_31_NCE31
 };
 #endif // AM_PACKAGE_BGA
@@ -1985,8 +1820,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_31 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_32 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_32 = {
     .uFuncSel            = AM_HAL_PIN_32_NCE32
 };
 #endif // AM_PACKAGE_BGA
@@ -1997,8 +1831,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_32 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_33 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_33 = {
     .uFuncSel            = AM_HAL_PIN_33_NCE33
 };
 #endif // AM_PACKAGE_BGA
@@ -2009,8 +1842,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_33 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_34 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_34 = {
     .uFuncSel            = AM_HAL_PIN_34_NCE34
 };
 #endif // AM_PACKAGE_BGA
@@ -2021,8 +1853,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_34 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_35 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_35 = {
     .uFuncSel            = AM_HAL_PIN_35_NCE35
 };
 #endif // AM_PACKAGE_BGA
@@ -2033,8 +1864,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_35 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_36 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_36 = {
     .uFuncSel            = AM_HAL_PIN_36_NCE36
 };
 #endif // AM_PACKAGE_BGA
@@ -2045,8 +1875,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_36 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_37 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_37 = {
     .uFuncSel            = AM_HAL_PIN_37_NCE37
 };
 #endif // AM_PACKAGE_BGA
@@ -2057,8 +1886,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_37 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_38 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_38 = {
     .uFuncSel            = AM_HAL_PIN_38_NCE38
 };
 #endif // AM_PACKAGE_BGA
@@ -2068,8 +1896,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_38 =
 //  NCE_41 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_41 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_41 = {
     .uFuncSel            = AM_HAL_PIN_41_NCE41
 };
 
@@ -2079,8 +1906,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_41 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_42 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_42 = {
     .uFuncSel            = AM_HAL_PIN_42_NCE42
 };
 #endif // AM_PACKAGE_BGA
@@ -2091,8 +1917,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_42 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_43 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_43 = {
     .uFuncSel            = AM_HAL_PIN_43_NCE43
 };
 #endif // AM_PACKAGE_BGA
@@ -2102,8 +1927,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_43 =
 //  NCE_44 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_44 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_44 = {
     .uFuncSel            = AM_HAL_PIN_44_NCE44
 };
 
@@ -2113,8 +1937,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_44 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_45 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_45 = {
     .uFuncSel            = AM_HAL_PIN_45_NCE45
 };
 #endif // AM_PACKAGE_BGA
@@ -2125,8 +1948,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_45 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_46 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_46 = {
     .uFuncSel            = AM_HAL_PIN_46_NCE46
 };
 #endif // AM_PACKAGE_BGA
@@ -2136,8 +1958,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_46 =
 //  NCE_47 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_47 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_47 = {
     .uFuncSel            = AM_HAL_PIN_47_NCE47
 };
 
@@ -2146,8 +1967,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_47 =
 //  NCE_48 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_48 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_48 = {
     .uFuncSel            = AM_HAL_PIN_48_NCE48
 };
 
@@ -2156,8 +1976,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_48 =
 //  NCE_49 pin: NCE Pin.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_NCE_49 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_NCE_49 = {
     .uFuncSel            = AM_HAL_PIN_49_NCE49
 };
 
@@ -2166,8 +1985,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_NCE_49 =
 //  PDM_DATA_11 pin: Data line for PDM microphones.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_11 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_11 = {
     .uFuncSel            = AM_HAL_PIN_11_PDMDATA
 };
 
@@ -2176,8 +1994,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_11 =
 //  PDM_DATA_15 pin: Data line for PDM microphones.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_15 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_15 = {
     .uFuncSel            = AM_HAL_PIN_15_PDMDATA
 };
 
@@ -2186,8 +2003,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_15 =
 //  PDM_DATA_29 pin: Data line for PDM microphones.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_29 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_29 = {
     .uFuncSel            = AM_HAL_PIN_29_PDMDATA
 };
 
@@ -2197,8 +2013,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_29 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_34 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_34 = {
     .uFuncSel            = AM_HAL_PIN_34_PDMDATA
 };
 #endif // AM_PACKAGE_BGA
@@ -2209,8 +2024,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_34 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_36 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_36 = {
     .uFuncSel            = AM_HAL_PIN_36_PDMDATA
 };
 #endif // AM_PACKAGE_BGA
@@ -2221,8 +2035,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_36 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_45 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_45 = {
     .uFuncSel            = AM_HAL_PIN_45_PDMDATA
 };
 #endif // AM_PACKAGE_BGA
@@ -2232,8 +2045,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_DATA_45 =
 //  PDM_CLK_10 pin: Clock line for PDM microphones.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_10 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_10 = {
     .uFuncSel            = AM_HAL_PIN_10_PDMCLK
 };
 
@@ -2242,8 +2054,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_10 =
 //  PDM_CLK_12 pin: Clock line for PDM microphones.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_12 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_12 = {
     .uFuncSel            = AM_HAL_PIN_12_PDMCLK
 };
 
@@ -2252,8 +2063,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_12 =
 //  PDM_CLK_14 pin: Clock line for PDM microphones.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_14 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_14 = {
     .uFuncSel            = AM_HAL_PIN_14_PDMCLK
 };
 
@@ -2262,8 +2072,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_14 =
 //  PDM_CLK_22 pin: Clock line for PDM microphones.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_22 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_22 = {
     .uFuncSel            = AM_HAL_PIN_22_PDMCLK
 };
 
@@ -2273,8 +2082,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_22 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_37 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_37 = {
     .uFuncSel            = AM_HAL_PIN_37_PDMCLK
 };
 #endif // AM_PACKAGE_BGA
@@ -2285,8 +2093,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_37 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_46 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_46 = {
     .uFuncSel            = AM_HAL_PIN_46_PDMCLK
 };
 #endif // AM_PACKAGE_BGA
@@ -2296,8 +2103,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_PDM_CLK_46 =
 //  ITM_SWO_15 pin: ITM Serial Wire Output.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_15 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_15 = {
     .uFuncSel            = AM_HAL_PIN_15_SWO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -2307,8 +2113,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_15 =
 //  ITM_SWO pin: ITM Serial Wire Output.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO = {
     .uFuncSel            = AM_HAL_PIN_22_SWO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -2318,8 +2123,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO =
 //  ITM_SWO_24 pin: ITM Serial Wire Output.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_24 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_24 = {
     .uFuncSel            = AM_HAL_PIN_24_SWO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -2330,8 +2134,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_24 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_33 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_33 = {
     .uFuncSel            = AM_HAL_PIN_33_SWO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -2342,8 +2145,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_33 =
 //  ITM_SWO_41 pin: ITM Serial Wire Output.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_41 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_41 = {
     .uFuncSel            = AM_HAL_PIN_41_SWO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -2354,8 +2156,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_41 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_45 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_45 = {
     .uFuncSel            = AM_HAL_PIN_45_SWO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -2367,8 +2168,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_45 =
 //
 //*****************************************************************************
 #if defined (AM_PACKAGE_BGA)
-const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_46 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_46 = {
     .uFuncSel            = AM_HAL_PIN_46_SWO,
     .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
 };
@@ -2379,8 +2179,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_ITM_SWO_46 =
 //  CORE_SWDCK_14 pin: Cortex Serial Wire Debug Clock.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDCK_14 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDCK_14 = {
     .uFuncSel            = AM_HAL_PIN_14_SWDCK
 };
 
@@ -2389,8 +2188,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDCK_14 =
 //  CORE_SWDCK_20 pin: Cortex Serial Wire Debug Clock.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDCK_20 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDCK_20 = {
     .uFuncSel            = AM_HAL_PIN_20_SWDCK
 };
 
@@ -2399,8 +2197,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDCK_20 =
 //  CORE_SWDIO_15 pin: Cortex Serial Wire Debug I/O.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDIO_15 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDIO_15 = {
     .uFuncSel            = AM_HAL_PIN_15_SWDIO
 };
 
@@ -2409,8 +2206,7 @@ const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDIO_15 =
 //  CORE_SWDIO_21 pin: Cortex Serial Wire Debug I/O.
 //
 //*****************************************************************************
-const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDIO_21 =
-{
+const am_hal_gpio_pincfg_t g_AP3_PER_CORE_SWDIO_21 = {
     .uFuncSel            = AM_HAL_PIN_21_SWDIO
 };
 

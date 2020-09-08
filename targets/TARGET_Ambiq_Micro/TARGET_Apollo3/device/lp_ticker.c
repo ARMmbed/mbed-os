@@ -26,14 +26,14 @@ const ticker_info_t *lp_ticker_get_info()
 {
     static const ticker_info_t info = {
         LP_TICKER_FREQ,
-        LP_TICKER_BITS};
+        LP_TICKER_BITS
+    };
     return &info;
 }
 
 void lp_ticker_init(void)
 {
-    if (lp_ticker_initialized)
-    {
+    if (lp_ticker_initialized) {
         lp_ticker_disable_interrupt();
         return;
     }
