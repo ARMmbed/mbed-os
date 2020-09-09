@@ -33,6 +33,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "lis2dh12_reg.h"
 

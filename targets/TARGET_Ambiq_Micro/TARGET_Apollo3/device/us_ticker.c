@@ -1,3 +1,26 @@
+/*
+ * Copyright (c) 2020 SparkFun Electronics
+ * SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "us_ticker_api.h"
 #include <stdio.h>
 /**
@@ -47,8 +70,7 @@ static bool us_ticker_initialized = false;
  */
 void us_ticker_init(void)
 {
-    if (us_ticker_initialized)
-    {
+    if (us_ticker_initialized) {
         am_hal_stimer_int_disable(US_TICKER_STIMER_INT_COMPARE);
         return;
     }
@@ -109,33 +131,32 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 {
 
     uint32_t instance = 0;
-    switch (US_TICKER_STIMER_INT_COMPARE)
-    {
-    default:
-    case AM_HAL_STIMER_INT_COMPAREA:
-        instance = 0;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREB:
-        instance = 1;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREC:
-        instance = 2;
-        break;
-    case AM_HAL_STIMER_INT_COMPARED:
-        instance = 3;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREE:
-        instance = 4;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREF:
-        instance = 5;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREG:
-        instance = 6;
-        break;
-    case AM_HAL_STIMER_INT_COMPAREH:
-        instance = 7;
-        break;
+    switch (US_TICKER_STIMER_INT_COMPARE) {
+        default:
+        case AM_HAL_STIMER_INT_COMPAREA:
+            instance = 0;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREB:
+            instance = 1;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREC:
+            instance = 2;
+            break;
+        case AM_HAL_STIMER_INT_COMPARED:
+            instance = 3;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREE:
+            instance = 4;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREF:
+            instance = 5;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREG:
+            instance = 6;
+            break;
+        case AM_HAL_STIMER_INT_COMPAREH:
+            instance = 7;
+            break;
     }
 
     am_hal_stimer_int_enable(US_TICKER_STIMER_INT_COMPARE);

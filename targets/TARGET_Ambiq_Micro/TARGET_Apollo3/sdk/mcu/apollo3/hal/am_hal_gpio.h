@@ -48,6 +48,7 @@
 // This is part of revision 2.4.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef AM_HAL_GPIO_H
 #define AM_HAL_GPIO_H   1
@@ -729,6 +730,22 @@ extern uint32_t am_hal_gpio_interrupt_register_adv(uint32_t ui32GPIONumber,
 //*****************************************************************************
 extern uint32_t am_hal_gpio_interrupt_service(uint64_t ui64Status);
 
+//*****************************************************************************	
+//	
+//! @brief Configure an Apollo3 pin.	
+//!	
+//! @param ui32Pin    - pin number to be configured.	
+//! @param ui32Config - Contains multiple descriptor fields.	
+//! @param sAllowableChanges - Contains bools corresponding to config fields.	
+//!	
+//! This function configures a pin according to the parameters in ui32Config.	
+//! All parameters are validated, and the given pin is configured according	
+//! to the designated parameters.	
+//!	
+//! @return Status.	
+//	
+//*****************************************************************************	
+uint32_t ap3_hal_gpio_pinconfig_partial(uint32_t ui32Pin, am_hal_gpio_pincfg_t bfGpioCfg, am_hal_gpio_pincfg_allow_t sAllowableChanges);
 
 //*****************************************************************************
 //

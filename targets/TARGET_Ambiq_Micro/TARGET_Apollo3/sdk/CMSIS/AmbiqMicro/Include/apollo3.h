@@ -39,7 +39,7 @@
  *           from File './apollo3.svd',
  *           last modified on Monday, 13.01.2020 20:44:43
  */
-
+// SPDX-License-Identifier: BSD-3-Clause
 
 
 /** @addtogroup Ambiq Micro

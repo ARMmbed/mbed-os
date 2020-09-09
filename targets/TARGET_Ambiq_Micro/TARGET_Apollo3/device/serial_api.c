@@ -1,24 +1,25 @@
 /*
-Copyright (c) 2019 SparkFun Electronics
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+ * Copyright (c) 2020 SparkFun Electronics
+ * SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #if DEVICE_SERIAL
 
@@ -117,268 +118,290 @@ void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map);
  * @{
  */
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
-  // determine the UART to use
-  UARTName uart_tx = (UARTName)pinmap_peripheral(tx, serial_tx_pinmap());
-  UARTName uart_rx = (UARTName)pinmap_peripheral(rx, serial_rx_pinmap());
-  UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-  MBED_ASSERT((int)uart != NC);
-  obj->serial.uart_control = &ap3_uart_control[uart];
-  obj->serial.uart_control->inst = uart;
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
+    // determine the UART to use
+    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, serial_tx_pinmap());
+    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, serial_rx_pinmap());
+    UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
+    MBED_ASSERT((int)uart != NC);
+    obj->serial.uart_control = &ap3_uart_control[uart];
+    obj->serial.uart_control->inst = uart;
 
-  // config uart pins
-  pinmap_config(tx, serial_tx_pinmap());
-  pinmap_config(rx, serial_rx_pinmap());
+    // config uart pins
+    pinmap_config(tx, serial_tx_pinmap());
+    pinmap_config(rx, serial_rx_pinmap());
 
-  if(!obj->serial.uart_control->handle) {
-    // if handle uninitialized this is first time set up
-    // ensure that HAL queueing is disabled (we want to use the FIFOs directly)
-    obj->serial.uart_control->cfg.pui8RxBuffer = NULL;
-    obj->serial.uart_control->cfg.pui8TxBuffer = NULL;
-    obj->serial.uart_control->cfg.ui32RxBufferSize = 0;
-    obj->serial.uart_control->cfg.ui32TxBufferSize = 0;
+    if (!obj->serial.uart_control->handle) {
+        // if handle uninitialized this is first time set up
+        // ensure that HAL queueing is disabled (we want to use the FIFOs directly)
+        obj->serial.uart_control->cfg.pui8RxBuffer = NULL;
+        obj->serial.uart_control->cfg.pui8TxBuffer = NULL;
+        obj->serial.uart_control->cfg.ui32RxBufferSize = 0;
+        obj->serial.uart_control->cfg.ui32TxBufferSize = 0;
 
-    obj->serial.uart_control->cfg.ui32FifoLevels = AM_HAL_UART_RX_FIFO_7_8;
+        obj->serial.uart_control->cfg.ui32FifoLevels = AM_HAL_UART_RX_FIFO_7_8;
 
-    // start UART instance
-    MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
-    MBED_ASSERT(am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
+        // start UART instance
+        MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
+        MBED_ASSERT(am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
+        MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
+
+        // set default format
+        serial_format(obj, 8, ParityNone, 1);
+    }
+}
+
+void serial_free(serial_t *obj)
+{
+    // nothing to do unless resources are allocated for members of the serial_s serial member of obj
+    // assuming mbed handles obj and its members
+}
+
+void serial_baud(serial_t *obj, int baudrate)
+{
+    obj->serial.uart_control->cfg.ui32BaudRate = (uint32_t)baudrate;
     MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
-
-    // set default format
-    serial_format(obj, 8, ParityNone, 1);
-  }
 }
 
-void serial_free(serial_t *obj) {
-  // nothing to do unless resources are allocated for members of the serial_s serial member of obj
-  // assuming mbed handles obj and its members
-}
-
-void serial_baud(serial_t *obj, int baudrate) {
-  obj->serial.uart_control->cfg.ui32BaudRate = (uint32_t)baudrate;
-  MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
-}
-
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-  uint32_t am_hal_data_bits = 0;
-  switch (data_bits) {
-    case 5:
-      am_hal_data_bits = AM_HAL_UART_DATA_BITS_5;
-      break;
-    case 6:
-      am_hal_data_bits = AM_HAL_UART_DATA_BITS_6;
-      break;
-    case 7:
-      am_hal_data_bits = AM_HAL_UART_DATA_BITS_7;
-      break;
-    case 8:
-      am_hal_data_bits = AM_HAL_UART_DATA_BITS_8;
-      break;
-    default:
-      MBED_ASSERT(0);
-      break;
-  }
-
-  uint32_t am_hal_parity = AM_HAL_UART_PARITY_NONE;
-  switch (parity) {
-    case ParityNone:
-      am_hal_parity = AM_HAL_UART_PARITY_NONE;
-      break;
-    case ParityOdd:
-      am_hal_parity = AM_HAL_UART_PARITY_ODD;
-      break;
-    case ParityEven:
-      am_hal_parity = AM_HAL_UART_PARITY_EVEN;
-      break;
-    default: // fall-through intentional after default
-    case ParityForced1:
-    case ParityForced0:
-      MBED_ASSERT(0);
-      break;
-  }
-
-  uint32_t am_hal_stop_bits = 0;
-  switch (stop_bits) {
-    case 1:
-      am_hal_stop_bits = AM_HAL_UART_ONE_STOP_BIT;
-      break;
-    case 2:
-      am_hal_stop_bits = AM_HAL_UART_TWO_STOP_BITS;
-      break;
-    default:
-      MBED_ASSERT(0);
-  }
-
-  obj->serial.uart_control->cfg.ui32DataBits = (uint32_t)am_hal_data_bits;
-  obj->serial.uart_control->cfg.ui32Parity = (uint32_t)am_hal_parity;
-  obj->serial.uart_control->cfg.ui32StopBits = (uint32_t)am_hal_stop_bits;
-  MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
-}
-
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
-  irq_handler = handler;
-  obj->serial.uart_control->serial_irq_id = id;
-}
-
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
-  MBED_ASSERT(obj->serial.uart_control->handle != NULL);
-  if (enable) {
-    switch (irq) {
-      case RxIrq:
-          MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, AM_HAL_UART_INT_RX) == AM_HAL_STATUS_SUCCESS);
-        break;
-      case TxIrq:
-          MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
-        break;
-      default:
-        break;
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
+{
+    uint32_t am_hal_data_bits = 0;
+    switch (data_bits) {
+        case 5:
+            am_hal_data_bits = AM_HAL_UART_DATA_BITS_5;
+            break;
+        case 6:
+            am_hal_data_bits = AM_HAL_UART_DATA_BITS_6;
+            break;
+        case 7:
+            am_hal_data_bits = AM_HAL_UART_DATA_BITS_7;
+            break;
+        case 8:
+            am_hal_data_bits = AM_HAL_UART_DATA_BITS_8;
+            break;
+        default:
+            MBED_ASSERT(0);
+            break;
     }
-    // NVIC_SetVector(uart_irqs[obj->serial.index], vector);
-    NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
-  } else { // disable
-    switch (irq) {
-      case RxIrq:
-          MBED_ASSERT(am_hal_uart_interrupt_disable(obj->serial.uart_control->handle, AM_HAL_UART_INT_RX) == AM_HAL_STATUS_SUCCESS);
-        break;
-      case TxIrq:
-          MBED_ASSERT(am_hal_uart_interrupt_disable(obj->serial.uart_control->handle, AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
-        break;
-      default:
-        break;
+
+    uint32_t am_hal_parity = AM_HAL_UART_PARITY_NONE;
+    switch (parity) {
+        case ParityNone:
+            am_hal_parity = AM_HAL_UART_PARITY_NONE;
+            break;
+        case ParityOdd:
+            am_hal_parity = AM_HAL_UART_PARITY_ODD;
+            break;
+        case ParityEven:
+            am_hal_parity = AM_HAL_UART_PARITY_EVEN;
+            break;
+        default: // fall-through intentional after default
+        case ParityForced1:
+        case ParityForced0:
+            MBED_ASSERT(0);
+            break;
     }
-  }
+
+    uint32_t am_hal_stop_bits = 0;
+    switch (stop_bits) {
+        case 1:
+            am_hal_stop_bits = AM_HAL_UART_ONE_STOP_BIT;
+            break;
+        case 2:
+            am_hal_stop_bits = AM_HAL_UART_TWO_STOP_BITS;
+            break;
+        default:
+            MBED_ASSERT(0);
+    }
+
+    obj->serial.uart_control->cfg.ui32DataBits = (uint32_t)am_hal_data_bits;
+    obj->serial.uart_control->cfg.ui32Parity = (uint32_t)am_hal_parity;
+    obj->serial.uart_control->cfg.ui32StopBits = (uint32_t)am_hal_stop_bits;
+    MBED_ASSERT(am_hal_uart_configure_fifo(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg), false) == AM_HAL_STATUS_SUCCESS);
 }
 
-int serial_getc(serial_t *obj) {
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-
-  uint8_t rx_c = 0x00;
-  volatile uint32_t bytes_read = 0x00;
-  am_hal_uart_transfer_t am_hal_uart_xfer_read_single = {
-    .ui32Direction = AM_HAL_UART_READ,
-    .pui8Data = (uint8_t *)&rx_c,
-    .ui32NumBytes = 1,
-    .ui32TimeoutMs = 0,
-    .pui32BytesTransferred = (uint32_t *)&bytes_read,
-  };
-
-  do {
-    am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_read_single);
-  } while (bytes_read == 0);
-
-  return (int)rx_c;
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
+    irq_handler = handler;
+    obj->serial.uart_control->serial_irq_id = id;
 }
 
-void serial_putc(serial_t *obj, int c) {
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-
-  volatile uint32_t bytes_sent = 0;
-  am_hal_uart_transfer_t am_hal_uart_xfer_write_single = {
-    .ui32Direction = AM_HAL_UART_WRITE,
-    .pui8Data = (uint8_t *)(&c),
-    .ui32NumBytes = 1,
-    .ui32TimeoutMs = 0,
-    .pui32BytesTransferred = (uint32_t *)&bytes_sent,
-  };
-
-  do {
-    am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_write_single);
-  } while (bytes_sent == 0);
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
+    MBED_ASSERT(obj->serial.uart_control->handle != NULL);
+    if (enable) {
+        switch (irq) {
+            case RxIrq:
+                MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, AM_HAL_UART_INT_RX) == AM_HAL_STATUS_SUCCESS);
+                break;
+            case TxIrq:
+                MBED_ASSERT(am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
+                break;
+            default:
+                break;
+        }
+        // NVIC_SetVector(uart_irqs[obj->serial.index], vector);
+        NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
+    } else { // disable
+        switch (irq) {
+            case RxIrq:
+                MBED_ASSERT(am_hal_uart_interrupt_disable(obj->serial.uart_control->handle, AM_HAL_UART_INT_RX) == AM_HAL_STATUS_SUCCESS);
+                break;
+            case TxIrq:
+                MBED_ASSERT(am_hal_uart_interrupt_disable(obj->serial.uart_control->handle, AM_HAL_UART_INT_TXCMP) == AM_HAL_STATUS_SUCCESS);
+                break;
+            default:
+                break;
+        }
+    }
 }
 
-int serial_readable(serial_t *obj) {
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-  return !(UARTn(obj->serial.uart_control->inst)->FR_b.RXFE);
+int serial_getc(serial_t *obj)
+{
+    MBED_ASSERT(obj->serial.uart_control != NULL);
+
+    uint8_t rx_c = 0x00;
+    volatile uint32_t bytes_read = 0x00;
+    am_hal_uart_transfer_t am_hal_uart_xfer_read_single = {
+        .ui32Direction = AM_HAL_UART_READ,
+        .pui8Data = (uint8_t *) &rx_c,
+        .ui32NumBytes = 1,
+        .ui32TimeoutMs = 0,
+        .pui32BytesTransferred = (uint32_t *) &bytes_read,
+    };
+
+    do {
+        am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_read_single);
+    } while (bytes_read == 0);
+
+    return (int)rx_c;
 }
 
-int serial_writable(serial_t *obj) {
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-  return !(UARTn(obj->serial.uart_control->inst)->FR_b.TXFF);
+void serial_putc(serial_t *obj, int c)
+{
+    MBED_ASSERT(obj->serial.uart_control != NULL);
+
+    volatile uint32_t bytes_sent = 0;
+    am_hal_uart_transfer_t am_hal_uart_xfer_write_single = {
+        .ui32Direction = AM_HAL_UART_WRITE,
+        .pui8Data = (uint8_t *)(&c),
+        .ui32NumBytes = 1,
+        .ui32TimeoutMs = 0,
+        .pui32BytesTransferred = (uint32_t *) &bytes_sent,
+    };
+
+    do {
+        am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_write_single);
+    } while (bytes_sent == 0);
 }
 
-void serial_clear(serial_t *obj) {
-  // todo:
-  MBED_ASSERT(0);
+int serial_readable(serial_t *obj)
+{
+    MBED_ASSERT(obj->serial.uart_control != NULL);
+    return !(UARTn(obj->serial.uart_control->inst)->FR_b.RXFE);
 }
 
-void serial_break_set(serial_t *obj) {
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-  UARTn(obj->serial.uart_control->inst)->LCRH |= UART0_LCRH_BRK_Msk;
+int serial_writable(serial_t *obj)
+{
+    MBED_ASSERT(obj->serial.uart_control != NULL);
+    return !(UARTn(obj->serial.uart_control->inst)->FR_b.TXFF);
 }
 
-void serial_break_clear(serial_t *obj) {
-  MBED_ASSERT(obj->serial.uart_control != NULL);
-  UARTn(obj->serial.uart_control->inst)->LCRH &= ~UART0_LCRH_BRK_Msk;
+void serial_clear(serial_t *obj)
+{
+    // todo:
+    MBED_ASSERT(0);
 }
 
-void serial_pinout_tx(PinName tx) {
-  // todo: vestigial?
-  MBED_ASSERT(0);
+void serial_break_set(serial_t *obj)
+{
+    MBED_ASSERT(obj->serial.uart_control != NULL);
+    UARTn(obj->serial.uart_control->inst)->LCRH |= UART0_LCRH_BRK_Msk;
+}
+
+void serial_break_clear(serial_t *obj)
+{
+    MBED_ASSERT(obj->serial.uart_control != NULL);
+    UARTn(obj->serial.uart_control->inst)->LCRH &= ~UART0_LCRH_BRK_Msk;
+}
+
+void serial_pinout_tx(PinName tx)
+{
+    // todo: vestigial?
+    MBED_ASSERT(0);
 }
 
 #if DEVICE_SERIAL_FC
 
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
-  // todo:
-  MBED_ASSERT(0);
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+    // todo:
+    MBED_ASSERT(0);
 }
 
-void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap) {
-  // todo:
-  MBED_ASSERT(0);
+void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
+{
+    // todo:
+    MBED_ASSERT(0);
 }
 #endif
 
-const PinMap *serial_tx_pinmap(void) {
-  return PinMap_UART_TX;
+const PinMap *serial_tx_pinmap(void)
+{
+    return PinMap_UART_TX;
 }
 
-const PinMap *serial_rx_pinmap(void) {
-  return PinMap_UART_RX;
+const PinMap *serial_rx_pinmap(void)
+{
+    return PinMap_UART_RX;
 }
 
 #if DEVICE_SERIAL_FC
 
-const PinMap *serial_cts_pinmap(void) {
-  return PinMap_UART_CTS;
+const PinMap *serial_cts_pinmap(void)
+{
+    return PinMap_UART_CTS;
 }
 
-const PinMap *serial_rts_pinmap(void) {
-  return PinMap_UART_RTS;
+const PinMap *serial_rts_pinmap(void)
+{
+    return PinMap_UART_RTS;
 }
 #endif
 
 static inline void uart_irq(uint32_t instance)
 {
-  void *handle = ap3_uart_control[instance].handle;
-  MBED_ASSERT(handle != NULL);
+    void *handle = ap3_uart_control[instance].handle;
+    MBED_ASSERT(handle != NULL);
 
-  // check flags
-  uint32_t status = 0x00;
-  MBED_ASSERT(am_hal_uart_interrupt_status_get(handle, &status, true) == AM_HAL_STATUS_SUCCESS);
-  MBED_ASSERT(am_hal_uart_interrupt_clear(handle, status) == AM_HAL_STATUS_SUCCESS);
+    // check flags
+    uint32_t status = 0x00;
+    MBED_ASSERT(am_hal_uart_interrupt_status_get(handle, &status, true) == AM_HAL_STATUS_SUCCESS);
+    MBED_ASSERT(am_hal_uart_interrupt_clear(handle, status) == AM_HAL_STATUS_SUCCESS);
 
-  if (ap3_uart_control[instance].serial_irq_id != 0) {
-    if (status & AM_HAL_UART_INT_TXCMP) { // for transmit complete
-      if (irq_handler) {
-        irq_handler(ap3_uart_control[instance].serial_irq_id, TxIrq);
-      }
+    if (ap3_uart_control[instance].serial_irq_id != 0) {
+        if (status & AM_HAL_UART_INT_TXCMP) { // for transmit complete
+            if (irq_handler) {
+                irq_handler(ap3_uart_control[instance].serial_irq_id, TxIrq);
+            }
+        }
+        if (status & AM_HAL_UART_INT_RX) { // for receive complete
+            if (irq_handler) {
+                irq_handler(ap3_uart_control[instance].serial_irq_id, RxIrq);
+            }
+        }
     }
-    if (status & AM_HAL_UART_INT_RX) { // for receive complete
-      if (irq_handler) {
-        irq_handler(ap3_uart_control[instance].serial_irq_id, RxIrq);
-      }
-    }
-  }
 }
 
-extern void am_uart_isr(void) {
-  uart_irq(UART_0);
+extern void am_uart_isr(void)
+{
+    uart_irq(UART_0);
 }
 
-extern void am_uart1_isr(void) {
-  uart_irq(UART_1);
+extern void am_uart1_isr(void)
+{
+    uart_irq(UART_1);
 }
 
 #ifdef __cplusplus

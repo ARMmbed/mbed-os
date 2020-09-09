@@ -41,6 +41,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <stdint.h>
 #include "system_apollo3.h"

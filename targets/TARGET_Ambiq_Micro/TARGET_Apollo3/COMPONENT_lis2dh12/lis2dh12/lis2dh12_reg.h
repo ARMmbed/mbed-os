@@ -34,6 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
+// SPDX-License-Identifier: BSD-3-Clause
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef LIS2DH12_REGS_H

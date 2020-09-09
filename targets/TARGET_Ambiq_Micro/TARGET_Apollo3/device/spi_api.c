@@ -1,24 +1,25 @@
 /*
-Copyright (c) 2020 SparkFun Electronics
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+ * Copyright (c) 2020 SparkFun Electronics
+ * SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #if DEVICE_SPI
 
@@ -32,11 +33,10 @@ SOFTWARE.
 #define DEFAULT_CLK_FREQ (4000000)
 #define DEFAULT_SPI_MODE (AM_HAL_IOM_SPI_MODE_0)
 
-#define standin_fn() printf("stand in for '%s', file: '%s', line: %d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__)
-
 static am_hal_iom_transfer_t xfer = {0};
 
-SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk){
+SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
+{
     uint32_t iom_mosi = pinmap_peripheral(mosi, spi_master_mosi_pinmap());
     uint32_t iom_miso = pinmap_peripheral(miso, spi_master_miso_pinmap());
     uint32_t iom_sclk = pinmap_peripheral(sclk, spi_master_clk_pinmap());
@@ -52,14 +52,15 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk){
         iom = pinmap_merge(iom_data, iom_sclk);
     }
 
-    if((int)iom == NC){
+    if ((int)iom == NC) {
         return IOM_NUM;
     }
 
     return (SPIName)iom;
 }
 
-void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap){
+void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
+{
     MBED_ASSERT(cap);
 
     SPIName iom_ssel = (SPIName)pinmap_peripheral(ssel, spi_master_cs_pinmap());
@@ -69,20 +70,20 @@ void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap){
     cap->word_length = 0x00000080;
     cap->slave_delay_between_symbols_ns = 0;
     cap->clk_modes = 0x0F;
-    cap->support_slave_mode = (iom_ssel == IOM_ANY) ? true : false; 
+    cap->support_slave_mode = (iom_ssel == IOM_ANY) ? true : false;
     cap->hw_cs_handle = false;
     cap->async_mode = false;
     cap->tx_rx_buffers_equal_length = false;
 }
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel){
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     MBED_ASSERT(obj);
 
     MBED_ASSERT((int)ssel == NC);
 
     // iom determination
     SPIName iom = spi_get_peripheral_name(mosi, miso, sclk);
-    SPIName iom_ssel = (SPIName)pinmap_peripheral(ssel, spi_master_cs_pinmap());
     MBED_ASSERT((int)iom != IOM_NUM);
     MBED_ASSERT((int)iom != IOM_ANY);
 
@@ -105,37 +106,48 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // pin configuration
     pinmap_config(sclk, spi_master_clk_pinmap());
-    if((int)mosi != NC){ pinmap_config(mosi, spi_master_mosi_pinmap()); }
-    if((int)miso != NC){ pinmap_config(miso, spi_master_miso_pinmap()); }
-    if((int)ssel != NC){ pinmap_config(ssel, spi_master_cs_pinmap()); }
+    if ((int)mosi != NC) {
+        pinmap_config(mosi, spi_master_mosi_pinmap());
+    }
+    if ((int)miso != NC) {
+        pinmap_config(miso, spi_master_miso_pinmap());
+    }
+    if ((int)ssel != NC) {
+        pinmap_config(ssel, spi_master_cs_pinmap());
+    }
 
     // initialization
     iom_init(&obj->spi.iom_obj);
 }
 
-void spi_free(spi_t *obj){
+void spi_free(spi_t *obj)
+{
     iom_deinit(&obj->spi.iom_obj);
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave){
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     MBED_ASSERT(obj);
     obj->spi.iom_obj.iom.cfg.eSpiMode = (am_hal_iom_spi_mode_e)mode;
     iom_init(&obj->spi.iom_obj);
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     MBED_ASSERT(obj);
     obj->spi.iom_obj.iom.cfg.ui32ClockFreq = (uint32_t)hz;
     iom_init(&obj->spi.iom_obj);
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     uint32_t rxval = 0;
-    spi_master_block_write(obj, (const char *)&value, 1, (char*)&rxval, 1, 0x00);
+    spi_master_block_write(obj, (const char *)&value, 1, (char *)&rxval, 1, 0x00);
     return rxval;
 }
 
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill){
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill)
+{
     MBED_ASSERT(obj);
 
     int chars_handled = 0;
@@ -146,40 +158,40 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     xfer.pui32RxBuffer = (uint32_t *)rx_buffer;
     xfer.pui32TxBuffer = (uint32_t *)tx_buffer;
 
-    if(xfer.ui32NumBytes){
+    if (xfer.ui32NumBytes) {
         uint32_t status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
-        if(AM_HAL_STATUS_SUCCESS != status){
+        if (AM_HAL_STATUS_SUCCESS != status) {
             return 0;
         }
         chars_handled += xfer.ui32NumBytes;
     }
 
     // handle difference between buffers
-    if(tx_length != rx_length){
+    if (tx_length != rx_length) {
         bool Rw = (rx_length >= tx_length);
 
         // set up common config
         xfer.eDirection = (Rw) ? AM_HAL_IOM_RX : AM_HAL_IOM_TX;
         xfer.ui32NumBytes = (Rw) ? (rx_length - tx_length) : (tx_length - rx_length);
-        xfer.pui32RxBuffer = (Rw) ? (uint32_t*)(rx_buffer + chars_handled) : NULL;
-        xfer.pui32TxBuffer = (Rw) ? NULL : (uint32_t*)(tx_buffer + chars_handled);
-        
+        xfer.pui32RxBuffer = (Rw) ? (uint32_t *)(rx_buffer + chars_handled) : NULL;
+        xfer.pui32TxBuffer = (Rw) ? NULL : (uint32_t *)(tx_buffer + chars_handled);
+
         uint32_t status = AM_HAL_STATUS_SUCCESS;
-        if(!Rw || (write_fill == 0x00)){
+        if (!Rw || (write_fill == 0x00)) {
             // when transmitting (w) or reading with a zero fill just use a simplex transfer
             status = am_hal_iom_blocking_transfer(obj->spi.iom_obj.iom.handle, &xfer);
-            if(AM_HAL_STATUS_SUCCESS != status){
+            if (AM_HAL_STATUS_SUCCESS != status) {
                 return chars_handled;
             }
             chars_handled += xfer.ui32NumBytes;
-        }else{
+        } else {
             // when reading with a nonzero fill use a duplex transfer
             uint8_t fill[xfer.ui32NumBytes];
             memset(fill, write_fill, xfer.ui32NumBytes);
             xfer.eDirection = AM_HAL_IOM_FULLDUPLEX;
-            xfer.pui32TxBuffer = (uint32_t*)&fill;
+            xfer.pui32TxBuffer = (uint32_t *)&fill;
             uint32_t status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
-            if(AM_HAL_STATUS_SUCCESS != status){
+            if (AM_HAL_STATUS_SUCCESS != status) {
                 return chars_handled;
             }
             chars_handled += xfer.ui32NumBytes;
@@ -189,58 +201,66 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     return chars_handled;
 }
 
-int spi_slave_receive(spi_t *obj) {
-    standin_fn();
+int spi_slave_receive(spi_t *obj)
+{
     MBED_ASSERT(0);
     return 0;
 }
 
-int spi_slave_read(spi_t *obj) {
-    standin_fn();
+int spi_slave_read(spi_t *obj)
+{
     MBED_ASSERT(0);
     return 0;
 }
 
-void spi_slave_write(spi_t *obj, int value) {
-    standin_fn();
+void spi_slave_write(spi_t *obj, int value)
+{
     MBED_ASSERT(0);
 }
 
-int spi_busy(spi_t *obj) {
-    standin_fn();
+int spi_busy(spi_t *obj)
+{
     MBED_ASSERT(0);
     return 0;
 }
 
-const PinMap *spi_master_mosi_pinmap(){
+const PinMap *spi_master_mosi_pinmap()
+{
     return PinMap_SPI_MOSI;
 }
 
-const PinMap *spi_master_miso_pinmap(){
+const PinMap *spi_master_miso_pinmap()
+{
     return PinMap_SPI_MISO;
 }
 
-const PinMap *spi_master_clk_pinmap(){
+const PinMap *spi_master_clk_pinmap()
+{
     return PinMap_SPI_SCLK;
 }
 
-const PinMap *spi_master_cs_pinmap(){
+const PinMap *spi_master_cs_pinmap()
+{
     return PinMap_SPI_SSEL;
 }
 
-const PinMap *spi_slave_mosi_pinmap(){
+const PinMap *spi_slave_mosi_pinmap()
+{
     return PinMap_SPI_MOSI;
 }
 
-const PinMap *spi_slave_miso_pinmap(){
+const PinMap *spi_slave_miso_pinmap()
+{
     return PinMap_SPI_MISO;
 }
 
-const PinMap *spi_slave_clk_pinmap(){
+const PinMap *spi_slave_clk_pinmap()
+{
     return PinMap_SPI_SCLK;
 }
 
-const PinMap *spi_slave_cs_pinmap(){
+const PinMap *spi_slave_cs_pinmap()
+{
     return PinMap_SPI_SSEL;
 }
 

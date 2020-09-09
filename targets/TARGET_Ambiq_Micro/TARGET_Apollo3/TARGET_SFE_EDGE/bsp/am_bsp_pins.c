@@ -49,6 +49,7 @@
 // This is part of revision 2.2.0-hotfix-2.2.1 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "am_bsp.h"
 
