@@ -19,12 +19,20 @@
 #include "WisunBorderRouter.h"
 #include "MeshInterfaceNanostack.h"
 #include "net_interface.h"
+#include "ip6string.h"
 
 extern "C" {
 #include "ws_bbr_api.h"
 }
 
 #define TRACE_GROUP "WSBR"
+
+
+WisunBorderRouter::WisunBorderRouter()
+{
+    // Apply mbed configuration to Wi-SUN BBR
+    configure();
+}
 
 mesh_error_t WisunBorderRouter::start(NetworkInterface *mesh_if, NetworkInterface *backbone_if)
 {
@@ -53,6 +61,8 @@ mesh_error_t WisunBorderRouter::start(NetworkInterface *mesh_if, NetworkInterfac
         return MESH_ERROR_UNKNOWN;
     }
 
+    apply_configuration(mesh_if_id);
+
     int ret = ws_bbr_start(mesh_if_id, backbone_if_id);
     if (ret < 0) {
         return MESH_ERROR_UNKNOWN;
@@ -76,6 +86,8 @@ mesh_error_t WisunBorderRouter::start(NetworkInterface *mesh_if, OnboardNetworkS
         return MESH_ERROR_UNKNOWN;
     }
 
+    apply_configuration(mesh_if_id);
+
     int ret = ws_bbr_start(mesh_if_id, backbone_if_id);
     if (ret < 0) {
         return MESH_ERROR_UNKNOWN;
@@ -93,6 +105,77 @@ void WisunBorderRouter::stop()
     ws_bbr_stop(_mesh_if_id);
 
     _mesh_if_id = -1;
+}
+
+mesh_error_t WisunBorderRouter::configure()
+{
+#if defined(MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET) || defined(MBED_CONF_MBED_MESH_API_RADIUS_SERVER_IPV6_ADDRESS)
+    mesh_error_t status;
+#endif
+
+    if (_configured) {
+        // Already configured
+        return MESH_ERROR_NONE;
+    }
+
+    _configured = true;
+
+#ifdef MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET
+    const char radius_shared_secret[] = {MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET};
+#ifdef MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET_LEN
+    const uint16_t radius_shared_secret_len = MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET_LEN;
+#else
+    uint16_t radius_shared_secret_len = strlen(radius_shared_secret);
+#endif
+    status = set_radius_shared_secret(radius_shared_secret_len, (uint8_t *) radius_shared_secret);
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to set RADIUS shared secret!");
+    }
+#endif
+
+#ifdef MBED_CONF_MBED_MESH_API_RADIUS_SERVER_IPV6_ADDRESS
+    const char radius_server_ipv6_addr[] = {MBED_CONF_MBED_MESH_API_RADIUS_SERVER_IPV6_ADDRESS};
+    status = set_radius_server_ipv6_address(radius_server_ipv6_addr);
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to set RADIUS server IPv6 address!");
+    }
+
+#if defined(MBED_CONF_MBED_MESH_API_RADIUS_RETRY_IMIN) || defined(MBED_CONF_MBED_MESH_API_RADIUS_RETRY_IMAX) || defined(MBED_CONF_MBED_MESH_API_RADIUS_RETRY_COUNT)
+    ws_br_radius_timing_t timing {
+        .radius_retry_imin = MBED_CONF_MBED_MESH_API_RADIUS_RETRY_IMIN,
+        .radius_retry_imax = MBED_CONF_MBED_MESH_API_RADIUS_RETRY_IMAX,
+        .radius_retry_count = MBED_CONF_MBED_MESH_API_RADIUS_RETRY_COUNT
+    };
+    status = set_radius_timing(&timing);
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to set RADIUS timing parameters!");
+    }
+#endif
+
+#endif
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::apply_configuration(int8_t mesh_if_id)
+{
+    configure();
+
+    mesh_error_t status = set_bbr_radius_address();
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to apply RADIUS server IPv6 address!");
+    }
+
+    status = set_bbr_radius_shared_secret();
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to apply RADIUS server IPv6 address!");
+    }
+
+    status = set_bbr_radius_timing();
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to apply RADIUS timing parameters!");
+    }
+
+    return MESH_ERROR_NONE;
 }
 
 mesh_error_t WisunBorderRouter::set_rpl_parameters(uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant)
@@ -187,4 +270,185 @@ int WisunBorderRouter::routing_table_get(ws_br_route_info_t *table_ptr, uint16_t
     }
 
     return ws_bbr_routing_table_get(_mesh_if_id, (bbr_route_info_t *)table_ptr, table_len);
+}
+
+mesh_error_t WisunBorderRouter::set_radius_server_ipv6_address(const char *address)
+{
+    if (address) {
+        uint8_t ipv6_addr[16];
+        if (!stoip6(address, strlen(address), ipv6_addr)) {
+            return MESH_ERROR_PARAM;
+        }
+        // Stored address (returned by get) is in the format given by user of the interface
+        strcpy(_radius_ipv6_addr, address);
+        _radius_ipv6_addr_set = true;
+    } else {
+        _radius_ipv6_addr_set = false;
+    }
+
+    return set_bbr_radius_address();
+}
+
+mesh_error_t WisunBorderRouter::get_radius_server_ipv6_address(char *address)
+{
+    if (!_radius_ipv6_addr_set) {
+        return MESH_ERROR_UNKNOWN;
+    }
+    strcpy(address, _radius_ipv6_addr);
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::set_bbr_radius_address(void)
+{
+    int status;
+
+    if (_radius_ipv6_addr_set) {
+        uint8_t ipv6_addr[16];
+        if (!stoip6(_radius_ipv6_addr, strlen(_radius_ipv6_addr), ipv6_addr)) {
+            return MESH_ERROR_PARAM;
+        }
+        status = ws_bbr_radius_address_set(_mesh_if_id, ipv6_addr);
+    } else {
+        status = ws_bbr_radius_address_set(_mesh_if_id, NULL);
+    }
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::set_radius_shared_secret(uint16_t shared_secret_len, const uint8_t *shared_secret)
+{
+    if (shared_secret_len == 0 || !shared_secret) {
+        return MESH_ERROR_PARAM;
+    }
+
+    if (_shared_secret != NULL) {
+        delete[] _shared_secret;
+    }
+
+    _shared_secret = new (std::nothrow) char[shared_secret_len];
+    if (_shared_secret == NULL) {
+        return MESH_ERROR_MEMORY;
+    }
+
+    memcpy(_shared_secret, shared_secret, shared_secret_len);
+    _shared_secret_len = shared_secret_len;
+
+    int status = ws_bbr_radius_shared_secret_set(_mesh_if_id, shared_secret_len, shared_secret);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return set_bbr_radius_shared_secret();
+}
+
+mesh_error_t WisunBorderRouter::set_bbr_radius_shared_secret(void)
+{
+    if (_shared_secret_len == 0 || _shared_secret == NULL) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    int status = ws_bbr_radius_shared_secret_set(_mesh_if_id, _shared_secret_len, (uint8_t *) _shared_secret);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::get_radius_shared_secret(uint16_t *shared_secret_len, uint8_t *shared_secret)
+{
+    if (shared_secret_len == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    int status = ws_bbr_radius_shared_secret_get(_mesh_if_id, shared_secret_len, shared_secret);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::set_radius_timing(ws_br_radius_timing_t *timing)
+{
+    if (timing == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    if (validate_radius_timing(timing) != MESH_ERROR_NONE) {
+        return MESH_ERROR_PARAM;
+    }
+
+    _radius_timing = *timing;
+    _radius_timing_set = true;
+
+    return set_bbr_radius_timing();
+}
+
+mesh_error_t WisunBorderRouter::set_bbr_radius_timing(void)
+{
+    if (!_radius_timing_set) {
+        return MESH_ERROR_NONE;
+    }
+
+    bbr_radius_timing_t bbr_timing = {
+        .radius_retry_imin = _radius_timing.radius_retry_imin,
+        .radius_retry_imax = _radius_timing.radius_retry_imax,
+        .radius_retry_count = _radius_timing.radius_retry_count
+    };
+
+    int status = ws_bbr_radius_timing_set(_mesh_if_id, &bbr_timing);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::get_radius_timing(ws_br_radius_timing_t *timing)
+{
+    if (timing == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    if (_radius_timing_set) {
+        *timing = _radius_timing;
+        return MESH_ERROR_NONE;
+    }
+
+    bbr_radius_timing_t bbr_timing;
+    int status = ws_bbr_radius_timing_get(_mesh_if_id, &bbr_timing);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    timing->radius_retry_imin = bbr_timing.radius_retry_imin;
+    timing->radius_retry_imax = bbr_timing.radius_retry_imax;
+    timing->radius_retry_count = bbr_timing.radius_retry_count;
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunBorderRouter::validate_radius_timing(ws_br_radius_timing_t *timing)
+{
+    if (timing == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    bbr_radius_timing_t bbr_timing = {
+        .radius_retry_imin = timing->radius_retry_imin,
+        .radius_retry_imax = timing->radius_retry_imax,
+        .radius_retry_count = timing->radius_retry_count
+    };
+
+    int status = ws_bbr_radius_timing_validate(_mesh_if_id, &bbr_timing);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
 }

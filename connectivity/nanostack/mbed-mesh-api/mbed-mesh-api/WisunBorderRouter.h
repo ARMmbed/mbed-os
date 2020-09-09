@@ -50,6 +50,18 @@ typedef struct ws_br_route_info {
     uint8_t parent[8];
 } ws_br_route_info_t;
 
+/**
+ * \brief Struct ws_br_radius_timing_t is RADIUS timing configuration structure.
+ */
+typedef struct ws_br_radius_timing {
+    /** RADIUS retry trickle timer Imin; in 100ms units; range 1-1200; default 20 (2 seconds) */
+    uint16_t radius_retry_imin;
+    /** RADIUS retry trickle timer Imax; in 100ms units; range 1-1200; default 30 (3 seconds) */
+    uint16_t radius_retry_imax;
+    /** RADIUS retry trickle count; default 3 */
+    uint8_t radius_retry_count;
+} ws_br_radius_timing_t;
+
 /** Wi-SUN Border Router class
  *
  * Class can be used to start, stop and configure Wi-SUN Border Router.
@@ -60,7 +72,7 @@ public:
     /** Create WisunBorderRouter
      *
      * */
-    WisunBorderRouter() { }
+    WisunBorderRouter();
 
     /**
      * \brief Start Wi-SUN Border Router
@@ -209,9 +221,106 @@ public:
      * */
     int routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len);
 
-private:
-    int8_t _mesh_if_id = -1;
+    /**
+     * \brief Set Wi-SUN RADIUS server IPv6 address.
+     *
+     * Function sets external RADIUS server IPv6 address to Border Router. Setting the address enables
+     * external RADIUS server interface on Border Router. To disable external RADIUS server interface,
+     * call the function with address set to NULL. The RADIUS shared secret must be set before address
+     * is set using set_radius_shared_secret() call.
+     *
+     * \param address Pointer to IPv6 address string or NULL to disable RADIUS. Address string format is e.g. 2001:1234::1 and it is NUL terminated.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t set_radius_server_ipv6_address(const char *address);
 
+    /**
+     * \brief Get Wi-SUN RADIUS server IPv6 address.
+     *
+     * Function gets external RADIUS server IPv6 address from Border Router.
+     *
+     * \param address Pointer to buffer where to write IPv6 address string. Must have space at least for 39 characters and NUL terminator.
+     * \return MESH_ERROR_NONE on success.
+     * \return error value in case of failure, e.g. if address has not been set to Border Router.
+     * */
+    mesh_error_t get_radius_server_ipv6_address(char *address);
+
+    /**
+     * \brief Set Wi-SUN RADIUS shared secret.
+     *
+     * Function sets RADIUS shared secret to Border Router. Shared secret may be an ASCII string. Check
+     * the format and length constraints for the shared secret from the documentation of RADIUS server you
+     * are connecting to.
+     *
+     * \param shared_secret_len The length of the shared secret in bytes.
+     * \param shared_secret Pointer to shared secret. Can be 8-bit ASCII string or byte array. Is not NUL terminated.
+     * \return MESH_ERROR_NONE on success.
+     * \return error value in case of failure.
+     * */
+    mesh_error_t set_radius_shared_secret(uint16_t shared_secret_len, const uint8_t *shared_secret);
+
+    /**
+     * \brief Get Wi-SUN RADIUS shared secret.
+     *
+     * Function gets RADIUS shared secret from Border Router.
+     *
+     * \param shared_secret_len On function call, is the size of the shared secret write buffer in bytes, on return is the shared secret length in bytes.
+     * \param shared_secret Pointer to buffer where to write shared secret or NULL. At maximum, bytes set by the length parameter are written. If NULL only buffer length is returned.
+     * \return MESH_ERROR_NONE on success.
+     * \return error value in case of failure.
+     * */
+    mesh_error_t get_radius_shared_secret(uint16_t *shared_secret_len, uint8_t *shared_secret);
+
+    /**
+     * \brief Set Wi-SUN RADIUS timing parameters.
+     *
+     * Function sets RADIUS timing parameters to Border Router. For RADIUS retry trickle timer default
+     * settings are that the first retry is done between 1 to 3 seconds after the initial attempt and
+     * all retries are done in maximum in 9 seconds.
+     *
+     * \param timing Timing parameters.
+     * \return MESH_ERROR_NONE on success.
+     * \return error value in case of failure.
+     * */
+    mesh_error_t set_radius_timing(ws_br_radius_timing_t *timing);
+
+    /**
+     * \brief Get Wi-SUN RADIUS timing parameters.
+     *
+     * Function gets RADIUS timing parameters from Border Router.
+     *
+     * \param timing Timing parameters.
+     * \return MESH_ERROR_NONE on success.
+     * \return error value in case of failure.
+     * */
+    mesh_error_t get_radius_timing(ws_br_radius_timing_t *timing);
+
+    /**
+     * \brief Validate Wi-SUN RADIUS timing parameters.
+     *
+     * Function validates RADIUS timing parameters on Border Router.
+     *
+     * \param timing Timing parameters.
+     * \return MESH_ERROR_NONE on success.
+     * \return error value in case of failure.
+     * */
+    mesh_error_t validate_radius_timing(ws_br_radius_timing_t *timing);
+
+private:
+    mesh_error_t configure();
+    mesh_error_t apply_configuration(int8_t mesh_if_id);
+    mesh_error_t set_bbr_radius_address(void);
+    mesh_error_t set_bbr_radius_shared_secret(void);
+    mesh_error_t set_bbr_radius_timing(void);
+    char _radius_ipv6_addr[40];
+    ws_br_radius_timing_t _radius_timing;
+    char *_shared_secret = NULL;
+    uint16_t _shared_secret_len = 0;
+    int8_t _mesh_if_id = -1;
+    bool _radius_ipv6_addr_set = false;
+    bool _configured = false;
+    bool _radius_timing_set = false;
 };
 
 #endif
