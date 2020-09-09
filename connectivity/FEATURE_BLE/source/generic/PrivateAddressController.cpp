@@ -507,7 +507,7 @@ private:
         if (!self._event_handler) {
             return;
         }
-        self._event_handler->on_address_resolution_completion(
+        self._event_handler->on_address_resolution_completed(
             peer_resolvable_address,
             resolved,
             identity ? identity->peer_address_type : target_peer_address_type_t::PUBLIC,
