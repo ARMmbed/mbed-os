@@ -585,7 +585,8 @@ private:
     peripheral_privacy_configuration_t _peripheral_privacy_configuration;
     central_privacy_configuration_t _central_privacy_configuration;
 
-    bool _scan_enabled;
+    bool _scan_enabled = false;
+    bool _scan_pending = false;
     mbed::LowPowerTimeout _advertising_timeout;
     mbed::LowPowerTimeout _scan_timeout;
     mbed::LowPowerTicker _address_rotation_ticker;
