@@ -920,7 +920,9 @@ ble_error_t Gap::setPeripheralPrivacyConfiguration(
 {
     _peripheral_privacy_configuration = *configuration;
 
-    update_ll_address_resolution_setting();
+    if (_address_registry.is_controller_privacy_supported()) {
+        update_ll_address_resolution_setting();
+    }
 
     return BLE_ERROR_NONE;
 }
@@ -950,7 +952,9 @@ ble_error_t Gap::setCentralPrivacyConfiguration(
 {
     _central_privacy_configuration = *configuration;
 
-    update_ll_address_resolution_setting();
+    if (_address_registry.is_controller_privacy_supported()) {
+        update_ll_address_resolution_setting();
+    }
 
     return BLE_ERROR_NONE;
 }
