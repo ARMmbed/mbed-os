@@ -584,6 +584,8 @@ private:
     bool _privacy_enabled;
     peripheral_privacy_configuration_t _peripheral_privacy_configuration;
     central_privacy_configuration_t _central_privacy_configuration;
+    ble::address_t _random_static_identity_address;
+
 
     bool _scan_enabled = false;
     bool _scan_pending = false;
