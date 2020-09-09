@@ -40,6 +40,13 @@
 
 #include <nrfx.h>
 
+#if 1
+#define DEBUG_PRINTF(...) do { printf(__VA_ARGS__); } while(0)
+#else
+#define DEBUG_PRINTF(...) {}
+#endif
+
+
 #if NRFX_CHECK(NRFX_SPIM_ENABLED)
 
 #if !(NRFX_CHECK(NRFX_SPIM0_ENABLED) || NRFX_CHECK(NRFX_SPIM1_ENABLED) || \
@@ -166,8 +173,36 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
                           nrfx_spim_evt_handler_t    handler,
                           void                     * p_context)
 {
+    // DEBUG_PRINTF("nrfx_spim_init:ENTER,p_instance->drv_inst_idx=%d\r\n",p_instance->drv_inst_idx);
+
     NRFX_ASSERT(p_config);
+    // DEBUG_PRINTF("nrfx_spim_init:sizeof m_cb=%d\r\n", sizeof(m_cb));
+    // DEBUG_PRINTF("nrfx_spim_init:sizeof m_cb[0]=%d\r\n", sizeof(m_cb[0]));
+
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->frequency=0x%x\r\n", p_config->frequency);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->ss_pin=%d\r\n", p_config->ss_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->miso_pin=%d\r\n", p_config->miso_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->mosi_pin=%d\r\n", p_config->mosi_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->sck_pin=%d\r\n", p_config->sck_pin);
+#if NRFX_CHECK(NRFX_SPIM_EXTENDED_ENABLED)
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->dcx_pin=%d\r\n", p_config->dcx_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->use_hw_ss=%d\r\n", p_config->use_hw_ss);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->rx_delay=%d\r\n", p_config->rx_delay);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->ss_duration=%d\r\n", p_config->ss_duration);
+#endif
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->ss_active_high=%d\r\n", p_config->ss_active_high);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->irq_priority=%d\r\n", p_config->irq_priority);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->orc=%d\r\n", p_config->orc);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->mode=%d\r\n", p_config->mode);
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->bit_order=%d\r\n", p_config->bit_order);
+
     spim_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+
+    // DEBUG_PRINTF("nrfx_spim_init:p_cb=0x%x\r\n", p_cb);
+    // DEBUG_PRINTF("nrfx_spim_init:p_cb->state=%d\r\n", p_cb->state);
+    // DEBUG_PRINTF("nrfx_spim_init:p_cb->ss_pin=%d\r\n", p_cb->ss_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:p_cb->miso_pin=%d\r\n", p_cb->miso_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:p_cb->orc=%d\r\n", p_cb->orc);
     nrfx_err_t err_code;
 
     if (p_cb->state != NRFX_DRV_STATE_UNINITIALIZED)
@@ -197,6 +232,7 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
     }
 #endif
 
+    // DEBUG_PRINTF("nrfx_spim_init:p_instance->p_reg=0x%x\r\n", p_instance->p_reg);
     NRF_SPIM_Type * p_spim = (NRF_SPIM_Type *)p_instance->p_reg;
 
 #if NRFX_CHECK(NRFX_PRS_ENABLED)
@@ -214,6 +250,8 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
         nrfx_spim_3_irq_handler,
         #endif
     };
+    // DEBUG_PRINTF("nrfx_spim_init:calling nrfx_prs_acquire\r\n");
+
     if (nrfx_prs_acquire(p_instance->p_reg,
             irq_handlers[p_instance->drv_inst_idx]) != NRFX_SUCCESS)
     {
@@ -224,6 +262,9 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
         return err_code;
     }
 #endif // NRFX_CHECK(NRFX_PRS_ENABLED)
+
+    // DEBUG_PRINTF("nrfx_spim_init:handler=0x%x\r\n", handler);
+    // DEBUG_PRINTF("nrfx_spim_init:p_context=0x%x\r\n", p_context);
 
     p_cb->handler = handler;
     p_cb->p_context = p_context;
@@ -243,24 +284,39 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
     {
         nrf_gpio_pin_set(p_config->sck_pin);
     }
+
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->sck_pin=%d\r\n", p_config->sck_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:(p_instance->drv_inst_idx == NRFX_SPIM3_INST_IDX)=%d\r\n", (p_instance->drv_inst_idx == NRFX_SPIM3_INST_IDX));
+
     nrf_gpio_cfg(p_config->sck_pin,
                  NRF_GPIO_PIN_DIR_OUTPUT,
                  NRF_GPIO_PIN_INPUT_CONNECT,
                  NRF_GPIO_PIN_NOPULL,
-                 NRF_GPIO_PIN_S0S1,
+                 (p_instance->drv_inst_idx == NRFX_SPIM3_INST_IDX) ? NRF_GPIO_PIN_H0H1 : NRF_GPIO_PIN_S0S1,
                  NRF_GPIO_PIN_NOSENSE);
+    // DEBUG_PRINTF("nrfx_spim_init:Sck High drive\r\n");
     // - MOSI (optional) - output with initial value 0,
     if (p_config->mosi_pin != NRFX_SPIM_PIN_NOT_USED)
     {
+        // DEBUG_PRINTF("nrfx_spim_init:p_config->mosi_pin=%d\r\n", p_config->mosi_pin);
         mosi_pin = p_config->mosi_pin;
         nrf_gpio_pin_clear(mosi_pin);
-        nrf_gpio_cfg_output(mosi_pin);
+        nrf_gpio_cfg(p_config->mosi_pin,
+                    NRF_GPIO_PIN_DIR_OUTPUT,
+                    NRF_GPIO_PIN_INPUT_DISCONNECT,
+                    NRF_GPIO_PIN_NOPULL,
+                    (p_instance->drv_inst_idx == NRFX_SPIM3_INST_IDX) ? NRF_GPIO_PIN_H0H1 : NRF_GPIO_PIN_S0S1,
+                    NRF_GPIO_PIN_NOSENSE);
+        // DEBUG_PRINTF("nrfx_spim_init:Mosi High drive\r\n");
+        // uint32_t pmosi_config = nrf_gpio_cfg_get(p_config->mosi_pin);
+        // DEBUG_PRINTF("nrfx_spim_init:Mosi High drive, pmosi_config=0x%x\r\n", (pmosi_config >> GPIO_PIN_CNF_DRIVE_Pos) & 0x7UL);
     }
     else
     {
         mosi_pin = NRF_SPIM_PIN_NOT_CONNECTED;
     }
     // - MISO (optional) - input,
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->miso_pin=%d\r\n", p_config->miso_pin);
     if (p_config->miso_pin != NRFX_SPIM_PIN_NOT_USED)
     {
         miso_pin = p_config->miso_pin;
@@ -272,6 +328,7 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
     }
     m_cb[p_instance->drv_inst_idx].miso_pin = p_config->miso_pin;
     // - Slave Select (optional) - output with initial value 1 (inactive).
+    // DEBUG_PRINTF("nrfx_spim_init:p_config->ss_pin=%d\r\n", p_config->ss_pin);
     if (p_config->ss_pin != NRFX_SPIM_PIN_NOT_USED)
     {
         if (p_config->ss_active_high)
@@ -311,12 +368,17 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
     nrf_spim_iftiming_set(p_spim, p_config->rx_delay);
 #endif
 
-
     nrf_spim_pins_set(p_spim, p_config->sck_pin, mosi_pin, miso_pin);
+    // DEBUG_PRINTF("nrfx_spim_init:called nrf_spim_pins_set\r\n");
     nrf_spim_frequency_set(p_spim, p_config->frequency);
+    // DEBUG_PRINTF("nrfx_spim_init:called nrf_spim_frequency_set\r\n");
     nrf_spim_configure(p_spim, p_config->mode, p_config->bit_order);
+    // DEBUG_PRINTF("nrfx_spim_init:called nrf_spim_configure\r\n");
+
 
     nrf_spim_orc_set(p_spim, p_config->orc);
+
+    // DEBUG_PRINTF("nrfx_spim_init:called nrf_spim_orc_set\r\n");
 
     if (p_cb->handler)
     {
@@ -324,6 +386,7 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
     }
 
     nrf_spim_enable(p_spim);
+    // DEBUG_PRINTF("nrfx_spim_init:called nrf_spim_enable\r\n");
 
     if (p_cb->handler)
     {
@@ -337,6 +400,8 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
 
     err_code = NRFX_SUCCESS;
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    // DEBUG_PRINTF("nrfx_spim_init:dump &NRF_SPIM3=0x%x\r\n", NRF_SPIM3);
+    // DEBUG_PRINTF("nrfx_spim_init:EXIT %s\r\n", NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
@@ -455,6 +520,13 @@ static nrfx_err_t spim_xfer(NRF_SPIM_Type               * p_spim,
                             nrfx_spim_xfer_desc_t const * p_xfer_desc,
                             uint32_t                      flags)
 {
+    // DEBUG_PRINTF("spim_xfer:ENTER\r\n");
+
+    // How do I get the GPIO state?
+    // uint32_t pmosi_config = nrf_gpio_cfg_get(13);
+    // uint32_t psck_config = nrf_gpio_cfg_get(14);
+    // DEBUG_PRINTF("spim_xfer:pmosi_config=0x%x, 0x%x\r\n", (pmosi_config >> GPIO_PIN_CNF_DRIVE_Pos) & 0x7UL, (psck_config >> GPIO_PIN_CNF_DRIVE_Pos) & 0x7UL);
+
     nrfx_err_t err_code;
     // EasyDMA requires that transfer buffers are placed in Data RAM region;
     // signal error if they are not.
@@ -537,6 +609,8 @@ static nrfx_err_t spim_xfer(NRF_SPIM_Type               * p_spim,
     }
     err_code = NRFX_SUCCESS;
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    // DEBUG_PRINTF("spim_xfer:EXIT %s\r\n", NRFX_LOG_ERROR_STRING_GET(err_code));
+
     return err_code;
 }
 

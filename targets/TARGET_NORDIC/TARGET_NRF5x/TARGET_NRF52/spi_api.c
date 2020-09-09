@@ -50,7 +50,7 @@
 #include "nrfx_spi.h"
 #endif
 
-#if 0
+#if 1
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINTF(...)
@@ -130,8 +130,13 @@ static void spi_configure_driver_instance(spi_t *obj)
     /* Get pointer to object of the current owner of the peripheral. */
     void *current_owner = object_owner_spi2c_get(instance);
 
+
     /* Check if reconfiguration is actually necessary. */
     if ((obj != current_owner) || spi_inst->update) {
+
+        // DEBUG_PRINTF("spi_configure_driver_instance:instance=%d\r\n", instance);
+        // DEBUG_PRINTF("spi_configure_driver_instance:current_owner=0x%x\r\n", current_owner);
+
 
         /* Update applied, reset flag. */
         spi_inst->update = false;
@@ -139,6 +144,7 @@ static void spi_configure_driver_instance(spi_t *obj)
         /* Clean up and uninitialize peripheral if already initialized. */
         if (nordic_nrf5_spi_initialized[instance]) {
 #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+            // DEBUG_PRINTF("spi_configure_driver_instance:calling nrfx_spim_uninit\r\n");
             nrfx_spim_uninit(&nordic_nrf5_spim_instance[instance]);
 #elif NRFX_CHECK(NRFX_SPI_ENABLED)
             nrfx_spi_uninit(&nordic_nrf5_spi_instance[instance]);
@@ -149,12 +155,14 @@ static void spi_configure_driver_instance(spi_t *obj)
         /* Set callback handler in asynchronous mode. */
         if (spi_inst->handler) {
 #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+    // DEBUG_PRINTF("spi_configure_driver_instance:calling nrfx_spim_init handler\r\n");
             nrfx_spim_init(&nordic_nrf5_spim_instance[instance], &(spi_inst->config), nordic_nrf5_spi_event_handler, obj);
 #elif NRFX_CHECK(NRFX_SPI_ENABLED)
             nrfx_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), nordic_nrf5_spi_event_handler, obj);
 #endif
         } else {
 #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+    // DEBUG_PRINTF("spi_configure_driver_instance:calling nrfx_spim_init\r\n");
             nrfx_spim_init(&nordic_nrf5_spim_instance[instance], &(spi_inst->config), NULL, NULL);
 #elif NRFX_CHECK(NRFX_SPI_ENABLED)
             nrfx_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), NULL, NULL);
@@ -163,6 +171,7 @@ static void spi_configure_driver_instance(spi_t *obj)
 #else
         /* Set callback handler to NULL in synchronous mode. */
 #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+        // DEBUG_PRINTF("spi_configure_driver_instance:calling nrfx_spim_init 3\r\n");
         nrfx_spim_init(&nordic_nrf5_spim_instance[instance], &(spi_inst->config), NULL, NULL);
 #elif NRFX_CHECK(NRFX_SPI_ENABLED)
         nrfx_spi_init(&nordic_nrf5_spim_instance[instance], &(spi_inst->config), NULL, NULL);
@@ -171,6 +180,11 @@ static void spi_configure_driver_instance(spi_t *obj)
 #endif
 
         /* Mark instance as initialized. */
+//         DEBUG_PRINTF("spi_configure_driver_instance:Mark instance as initialized.\r\n");
+//         DEBUG_PRINTF("spi_configure_driver_instance:nordic_nrf5_spi_initialized size=%d\r\n", sizeof(nordic_nrf5_spi_initialized));
+// #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+//         DEBUG_PRINTF("spi_configure_driver_instance:nordic_nrf5_spim_instance size=%d\r\n", sizeof(nordic_nrf5_spim_instance));
+// #endif
         nordic_nrf5_spi_initialized[instance] = true;
 
         /* Claim ownership of peripheral. */
@@ -249,6 +263,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 #elif NRFX_CHECK(NRFX_SPI_ENABLED)
     MBED_ASSERT(spi_inst->instance < NRFX_SPI_ENABLED_COUNT);
 #endif
+    // DEBUG_PRINTF("spi_init: spi_inst->instance=\n\r", spi_inst->instance);
+
 
     /* Store chip select separately for manual enabling. */
     spi_inst->cs = ssel;
@@ -286,6 +302,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     /* Configure peripheral. This is called on each init to ensure all pins are set correctly
      * according to the SPI mode before calling CS for the first time.
      */
+    // DEBUG_PRINTF("spi_init: calling spi_configure_driver_instance\n\r");
     spi_configure_driver_instance(obj);
 
     /* Configure GPIO pin if chip select has been set. */
@@ -413,6 +430,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
  */
 void spi_frequency(spi_t *obj, int hz)
 {
+    DEBUG_PRINTF("spi_frequency:Enter: %d\r\n", hz);
 #if DEVICE_SPI_ASYNCH
     struct spi_s *spi_inst = &obj->spi;
 #else
@@ -479,12 +497,21 @@ void spi_frequency(spi_t *obj, int hz)
  */
 int spi_master_write(spi_t *obj, int value)
 {
+    // const uint8_t tx_buff = (uint8_t) value;
+    // uint8_t rx_buff;
+
+    // struct spi_s *spi_inst = obj;
+    // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TRX(&tx_buff, 1, &rx_buff, 1);
+    // // nrfx_spim_xfer_desc_t xfer_desc = NRFX_SPIM_XFER_TRX(&m_tx_buf, 1, &m_rx_buf, 1);
+    // APP_ERROR_CHECK(nrfx_spim_xfer(&nordic_nrf5_spim_instance[spi_inst->instance], &xfer_desc, 0));
+    // return rx_buff;
+
     nrfx_err_t ret;
- #if NRFX_CHECK(NRFX_SPIM_ENABLED)
-   nrfx_spim_xfer_desc_t desc;
- #elif NRFX_CHECK(NRFX_SPI_ENABLED)
-   nrfx_spi_xfer_desc_t desc;
-#endif
+//  #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+//    nrfx_spim_xfer_desc_t desc;
+//  #elif NRFX_CHECK(NRFX_SPI_ENABLED)
+//    nrfx_spi_xfer_desc_t desc;
+// #endif
 
 #if DEVICE_SPI_ASYNCH
     struct spi_s *spi_inst = &obj->spi;
@@ -506,11 +533,17 @@ int spi_master_write(spi_t *obj, int value)
         nrf_gpio_pin_clear(spi_inst->cs);
     }
 
-    /* Transfer 1 byte. */
-    desc.p_tx_buffer = &tx_buff;
-    desc.p_rx_buffer = &rx_buff;
-    desc.tx_length = 1;
-    desc.rx_length = 1;
+ #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+   nrfx_spim_xfer_desc_t desc = NRFX_SPIM_XFER_TRX(&tx_buff, 1, &rx_buff, 1);
+ #elif NRFX_CHECK(NRFX_SPI_ENABLED)
+   nrfx_spi_xfer_desc_t desc = NRFX_SPI_XFER_TRX(&tx_buff, 1, &rx_buff, 1);
+#endif
+
+//     /* Transfer 1 byte. */
+//     desc.p_tx_buffer = &tx_buff;
+//     desc.p_rx_buffer = &rx_buff;
+//     desc.tx_length = 1;
+//     desc.rx_length = 1;
  #if NRFX_CHECK(NRFX_SPIM_ENABLED)
     ret = nrfx_spim_xfer(&nordic_nrf5_spim_instance[instance], &desc, 0);
  #elif NRFX_CHECK(NRFX_SPI_ENABLED)
@@ -518,7 +551,7 @@ int spi_master_write(spi_t *obj, int value)
 #endif
 
     if (ret != NRFX_SUCCESS) {
-        DEBUG_PRINTF("%d error returned from nrf_spi_xfer\n\r");
+        DEBUG_PRINTF("%d error returned from nrf_spi_xfer\n\r", ret);
     }
 
     /* Manually set chip select pin if defined. */
@@ -547,12 +580,6 @@ int spi_master_write(spi_t *obj, int value)
  */
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill)
 {
-#if NRFX_CHECK(NRFX_SPIM_ENABLED)
-    nrfx_spim_xfer_desc_t desc;
-#elif NRFX_CHECK(NRFX_SPI_ENABLED)
-    nrfx_spi_xfer_desc_t desc;
-#endif
-
 #if DEVICE_SPI_ASYNCH
     struct spi_s *spi_inst = &obj->spi;
 #else
@@ -586,6 +613,10 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
 
     ret_code_t result = NRFX_SUCCESS;
 
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
+    nrfx_spim_xfer_desc_t desc = NRFX_SPIM_XFER_TRX(tx_buffer, tx_length, rx_buffer, rx_length);
+    result = nrfx_spim_xfer(&nordic_nrf5_spim_instance[instance], &desc, 0);
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
     /* Loop until all data is sent and received. */
     while (((tx_length > 0) || (rx_length > 0)) && (result == NRFX_SUCCESS)) {
 
@@ -606,17 +637,9 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
                                     NULL;
 
         /* Blocking transfer. */
-        desc.p_tx_buffer = tx_actual_buffer;
-        desc.p_rx_buffer = rx_actual_buffer;
-        desc.tx_length = tx_actual_length;
-        desc.rx_length = rx_actual_length;
-#if NRFX_CHECK(NRFX_SPIM_ENABLED)
-        result = nrfx_spim_xfer(&nordic_nrf5_spim_instance[instance],
-                               &desc, 0);
-#elif NRFX_CHECK(NRFX_SPI_ENABLED)
+        nrfx_spi_xfer_desc_t desc = NRFX_SPI_XFER_TRX(tx_actual_buffer, tx_actual_length, rx_actual_buffer, rx_actual_length);
         result = nrfx_spi_xfer(&nordic_nrf5_spi_instance[instance],
                                &desc, 0);
-#endif
         /* Update loop variables. */
         tx_length -= tx_actual_length;
         tx_offset += tx_actual_length;
@@ -624,6 +647,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
         rx_length -= rx_actual_length;
         rx_offset += rx_actual_length;
     }
+#endif
 
     /* Manually set chip select pin if defined. */
     if (spi_inst->cs != NC) {
