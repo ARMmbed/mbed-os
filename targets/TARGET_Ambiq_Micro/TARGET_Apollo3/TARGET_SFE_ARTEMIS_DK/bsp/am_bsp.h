@@ -49,6 +49,7 @@
 // This is part of revision v2.0.0 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef AM_BSP_H
 #define AM_BSP_H

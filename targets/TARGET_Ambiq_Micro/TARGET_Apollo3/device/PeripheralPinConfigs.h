@@ -49,6 +49,7 @@
 // This is part of revision 2.2.0-hotfix-2.2.1 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef _APOLLO3_PERIPHERAL_PIN_CONFIGS_H_
 #define _APOLLO3_PERIPHERAL_PIN_CONFIGS_H_

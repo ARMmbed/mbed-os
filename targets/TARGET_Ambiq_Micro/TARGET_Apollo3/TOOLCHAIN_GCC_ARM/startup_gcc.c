@@ -43,6 +43,7 @@
 // This is part of revision v2.2.0-7-g63f7c2ba1 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "apollo3.h"
 #include <stdint.h>
