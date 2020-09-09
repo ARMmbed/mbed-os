@@ -476,8 +476,8 @@ def symlink_mbedos(config, path, exp_filter):
             os.chdir(name)
             logging.info("In folder '%s'" % name)
             if os.path.exists("mbed-os.lib"):
-                logging.info("Removing 'mbed-os.lib' in '%s'" % name)
-                os.remove("mbed-os.lib")
+                logging.info("Replacing 'mbed-os.lib' with empty file in '%s'" % name)
+                open("mbed-os.lib", 'w').close()
             else:
                 logging.warning("No 'mbed-os.lib' found in '%s'" % name)
             if os.path.exists("mbed-os"):
