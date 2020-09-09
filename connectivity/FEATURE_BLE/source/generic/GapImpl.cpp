@@ -461,11 +461,9 @@ ble_error_t Gap::stopScan()
 {
     ble_error_t err;
 
-    if (!_scan_enabled) {
+    if ((!_scan_enabled && !_scan_pending) || _scan_pending) {
         return BLE_ERROR_NONE;
     }
-
-    _scan_enabled = false;
 
     if (is_extended_advertising_available()) {
         err = _pal_gap.extended_scan_enable(false, duplicates_filter_t::DISABLE, 0, 0);
@@ -474,10 +472,10 @@ ble_error_t Gap::stopScan()
     }
 
     if (err) {
-        _scan_enabled = true;
         return err;
     }
 
+    _scan_pending = true;
     _scan_timeout.detach();
 
     return BLE_ERROR_NONE;
@@ -1010,10 +1008,19 @@ Gap::GapShutdownCallbackChain_t &Gap::onShutdown()
 
 void Gap::on_scan_started(bool success)
 {
+    if (success) {
+        _scan_pending = false;
+        _scan_enabled = true;
+    } else {
+        _scan_pending = false;
+        _scan_enabled = true;
+    }
 }
 
 void Gap::on_scan_stopped(bool success)
 {
+    _scan_pending = false;
+    _scan_enabled = false;
 }
 
 
@@ -1024,29 +1031,21 @@ void Gap::on_scan_timeout()
     }
 
     _scan_enabled = false;
+    _scan_pending = false;
 
-    if (!is_extended_advertising_available()) {
-        /* if timeout happened on a 4.2 chip this means legacy scanning and a timer timeout
-         * but we need to handle the event from user context - use the event queue to handle it */
-        _event_queue.post(
-            mbed::callback(
-                this,
-                &Gap::process_legacy_scan_timeout
-            )
-        );
-    } else {
-        if (_event_handler) {
-            _event_handler->onScanTimeout(ScanTimeoutEvent());
-        }
+    if (_event_handler) {
+        _event_handler->onScanTimeout(ScanTimeoutEvent());
     }
 }
 
 
 void Gap::process_legacy_scan_timeout()
 {
+    if (!_scan_enabled) {
+        return;
+    }
     /* legacy scanning timed out is based on timer so we need to stop the scan manually */
     _pal_gap.scan_enable(false, false);
-    _scan_enabled = false;
 
     if (_event_handler) {
         _event_handler->onScanTimeout(ScanTimeoutEvent());
@@ -2571,14 +2570,17 @@ ble_error_t Gap::startScan(
 
         _scan_timeout.detach();
         if (duration.value()) {
-            _scan_timeout.attach(
-                mbed::callback(this, &Gap::on_scan_timeout),
+            _scan_timeout.attach([this]() {
+                    _event_queue.post([this] { process_legacy_scan_timeout(); });
+                },
                 duration.valueChrono()
             );
         }
     }
 
-    _scan_enabled = true;
+    if (!_scan_enabled) {
+        _scan_pending = true;
+    }
 
     return BLE_ERROR_NONE;
 }
@@ -2829,7 +2831,7 @@ bool Gap::is_advertising() const
 }
 
 bool Gap::is_radio_active() const {
-    return _initiating || _scan_enabled || is_advertising();
+    return _initiating || _scan_enabled || _scan_pending || is_advertising();
 }
 
 void Gap::update_advertising_set_connectable_attribute(
