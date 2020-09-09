@@ -194,6 +194,17 @@ public:
         sync_handle_t sync_handle
      ) = 0;
 
+    /**
+     * Called when scanning start
+     */
+    virtual void on_scan_started(bool success) = 0;
+
+    /**
+     * Called when scanning stop
+     */
+    virtual void on_scan_stopped(bool success) = 0;
+
+
     /** Called when scanning times out.
      */
     virtual void on_scan_timeout( ) = 0;
