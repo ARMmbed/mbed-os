@@ -2793,7 +2793,7 @@ void Gap::on_private_address_generated(bool connectable)
 }
 
 
-void Gap::on_address_resolution_completion(
+void Gap::on_address_resolution_completed(
     const address_t &peer_resolvable_address,
     bool resolved,
     target_peer_address_type_t identity_address_type,
