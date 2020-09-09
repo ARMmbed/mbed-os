@@ -558,6 +558,12 @@ private:
         const AdvertisingParameters& parameters
     );
 
+    enum class controller_operation_t {
+        scanning, advertising, initiating
+    };
+
+    const address_t *get_random_address(controller_operation_t operation, size_t advertising_set = 0);
+
 private:
     /**
      * Callchain containing all registered callback handlers for shutdown
