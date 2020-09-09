@@ -1120,8 +1120,7 @@ void Gap::on_scan_stopped(bool success)
     if (_scan_address_refresh && !wait_for_advertising_stop) {
         if (restart_advertising) {
             _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
-            auto err = startAdvertising(LEGACY_ADVERTISING_HANDLE);
-            }
+            startAdvertising(LEGACY_ADVERTISING_HANDLE);
         }
 
         _scan_address_refresh = false;
@@ -2512,7 +2511,6 @@ void Gap::on_legacy_advertising_stopped()
 void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
 {
     for (const auto &handle : handles) {
-        printf("advertising set %d started\r\n", handle);
         _active_sets.set(handle);
         _pending_sets.clear(handle);
     }
@@ -2530,7 +2528,6 @@ void Gap::on_advertising_set_terminated(
 
     // If this is part of the address refresh start advertising again.
     if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
-        printf("restarting advertising set %d\r\n", advertising_handle);
         _address_refresh_sets.clear(advertising_handle);
         startAdvertising(advertising_handle);
         return;
@@ -2995,10 +2992,8 @@ void Gap::on_private_address_generated(bool connectable)
         if (!_pending_sets.get(i) && _active_sets.get(i) &&
             _set_is_connectable.get(i) == connectable && _interruptible_sets.get(i)
         ) {
-            printf("stop advertising set %d\r\n", i);
             auto err = stopAdvertising(i);
             if (err) {
-                printf("failed to stop advertising set %d\r\n", i);
                 continue;
             }
             _address_refresh_sets.set(i);
