@@ -67,7 +67,7 @@ public:
          * @param identity_address_type The type of the identity address resolved.
          * @param identity_address The identity address resolved.
          */
-        virtual void on_address_resolution_completion(
+        virtual void on_address_resolution_completed(
             const address_t &peer_resolvable_address,
             bool resolved,
             target_peer_address_type_t identity_address_type,
@@ -184,12 +184,12 @@ public:
      * To speedup operations, this module uses a cache to avoid too many
      * resolutions. If the entry is available in the cache, it is returned
      * immediately otherwise, the request will be completed by a report through
-     * EventHandler::on_address_resolution_completion
+     * EventHandler::on_address_resolution_completed
      *
      * @param peer_address the address to resolve.
      * @param resolution_complete Set to true if the resolution process has been
      * completed. If false, result will be made available by
-     * EventHandler::on_address_resolution_completion.
+     * EventHandler::on_address_resolution_completed.
      * @param retrieved_address_type The type of the address resolved. Valid if
      * resolution_complete is equals to true AND retrieved_address is not null.
      * @param retrieved_address If an entry has been found for the address in
