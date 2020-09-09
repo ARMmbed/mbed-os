@@ -1046,8 +1046,10 @@ void serial_baud(serial_t *obj, int baudrate)
         new_rate = NRF_UARTE_BAUDRATE_14400;
     } else if (baudrate < 28800) {
         new_rate = NRF_UARTE_BAUDRATE_19200;
-    } else if (baudrate < 38400) {
+    } else if (baudrate < 31250) {
         new_rate = NRF_UARTE_BAUDRATE_28800;
+    } else if (baudrate < 38400) {
+        new_rate = NRF_UARTE_BAUDRATE_31250;
     } else if (baudrate < 57600) {
         new_rate = NRF_UARTE_BAUDRATE_38400;
     } else if (baudrate < 76800) {
