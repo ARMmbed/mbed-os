@@ -3333,6 +3333,41 @@
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x40000"
     },
+   "B_L4S5I_IOT01A": {
+        "inherits": [
+            "MCU_STM32L4"
+        ],
+        "components_add": [
+            "BlueNRG_MS",
+            "QSPIF",
+            "FLASHIAP"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "PMOD"
+        ],
+        "extra_labels_add": [
+            "CORDIO",
+            "MX25R6435F",
+            "STM32L4S5xI"
+        ],
+        "macros_add": [
+            "HSE_VALUE=8000000",
+            "STM32L4S5xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ],
+        "detect_code": [
+            "0885"
+        ],
+        "device_has_add": [
+            "USBDEVICE",
+            "QSPI"
+        ],
+        "features": [
+            "BLE"
+        ],
+        "device_name": "STM32L4S5VITx"
+    },
     "MCU_STM32L5": {
         "inherits": [
             "MCU_STM32"
