@@ -88,16 +88,16 @@ bool is_preferred_connection_params_valid(const Gap::PreferredConnectionParams_t
         return false;
     }
 
-    if (!is_in_range(params->slaveLatency, slave_latency_min, slave_latency_max) == false) {
+    if (!is_in_range(params->slaveLatency, slave_latency_min, slave_latency_max)) {
         return false;
     }
 
-    if ((is_in_range(params->maxConnectionInterval, connection_interval_min, connection_interval_max) == false) &&
+    if (!is_in_range(params->maxConnectionInterval, connection_interval_min, connection_interval_max) &&
         (params->maxConnectionInterval != 0xFFFF)) {
         return false;
     }
 
-    if ((is_in_range(params->minConnectionInterval, connection_interval_min, params->maxConnectionInterval) == false) &&
+    if (!is_in_range(params->minConnectionInterval, connection_interval_min, params->maxConnectionInterval) &&
         (params->minConnectionInterval != 0xFFFF)) {
         return false;
     }
@@ -106,10 +106,7 @@ bool is_preferred_connection_params_valid(const Gap::PreferredConnectionParams_t
         return true;
     }
 
-    if ((
-        is_in_range(params->connectionSupervisionTimeout, supervision_timeout_min, supervision_timeout_max) ==
-            false
-    )) {
+    if (!is_in_range(params->connectionSupervisionTimeout, supervision_timeout_min, supervision_timeout_max)) {
         return false;
     }
 
