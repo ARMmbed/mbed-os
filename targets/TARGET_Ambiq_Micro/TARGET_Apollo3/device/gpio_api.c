@@ -66,7 +66,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 {
     MBED_ASSERT(gpio_is_connected(obj));
     MBED_ASSERT(mode < (PinMode)PinModeElements);
-    am_hal_gpio_pincfg_allow_t pinConfigBools;
+    am_hal_gpio_pincfg_allow_t pinConfigBools = {0};
 
     obj->cfg.uFuncSel = AP3_PINCFG_FUNCSEL_GPIO; // gpio
 
@@ -164,7 +164,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     MBED_ASSERT(gpio_is_connected(obj));
     MBED_ASSERT(direction < (PinDirection)PIN_DIR_ELEMENTS);
-    am_hal_gpio_pincfg_allow_t pinConfigBools;
+    am_hal_gpio_pincfg_allow_t pinConfigBools= {0};
 
     if (direction == (PinDirection)PIN_INPUT) {
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_ENABLE;

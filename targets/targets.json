@@ -6866,8 +6866,9 @@
         "components": [
             "FLASHIAP"
         ],
-        "macros": ["CORDIO_ZERO_COPY_HCI",
-                    "USE_AMBIQ_DRIVER"
+        "macros": [
+            "CORDIO_ZERO_COPY_HCI",
+            "USE_AMBIQ_DRIVER"
         ]
     },
     "AMA3B1KK": {

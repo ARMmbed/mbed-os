@@ -188,7 +188,4 @@ SECTIONS
   __StackLimit = __StackTop - MBED_BOOT_STACK_SIZE;
   PROVIDE(__stack = __StackTop);
   PROVIDE(_sstack = __StackTop);
-  /* Check if data + heap + stack exceeds RAM limit*/
-  /*ASSERT(1, "region RAM overflowed with stack")*/
-  /* test test test */
 }

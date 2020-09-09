@@ -36,12 +36,6 @@
 
 #define PRINT_DEBUG_HCI 0
 
-#if PRINT_DEBUG_HCI
-#include "mbed.h"
-DigitalOut debugGPIO(D28, 0);
-DigitalOut debugGPIO2(D25, 0);
-#endif
-
 using namespace ble;
 
 #ifndef USE_AMBIQ_DRIVER

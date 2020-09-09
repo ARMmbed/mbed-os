@@ -45,7 +45,7 @@ typedef enum
     D6 = 6,
     D7 = 7,
     D8 = 8,
-    D9 = 9
+    D9 = 9,
     D10 = 10,
     D11 = 11,
     D12 = 12,
@@ -95,9 +95,18 @@ typedef enum
     A34 = D34,
     A35 = D35,
 
+    LED1 = D1,
+    SERIAL_TX = 48,
+    SERIAL_RX = 49,
+    USBTX = SERIAL_TX,
+    USBRX = SERIAL_RX,
+
     // Not connected
     NC = NC_VAL
 } PinName;
+
+#define STDIO_UART_TX USBTX
+#define STDIO_UART_RX USBRX
 
 #ifdef __cplusplus
 }

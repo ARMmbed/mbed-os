@@ -57,10 +57,6 @@ void pinmap_config(PinName pin, const PinMap *map)
 
 void pin_function(PinName pin, int function)
 {
-    // am_hal_gpio_pincfg_t cfg = {0};
-    // cfg.uFuncSel = function;
-    // am_hal_gpio_pinconfig((uint32_t)(pin), cfg); // apply configuration
-
 #define PADREG_FLD_FNSEL_S 3
 
     uint32_t ui32Padreg;
@@ -95,7 +91,7 @@ void pin_function(PinName pin, int function)
     // Get the new values into their rightful bit positions.
     ui32Padreg <<= ui32PadShft;
 
-    AM_CRITICAL_BEGIN
+    core_util_critical_section_enter();
 
     GPIO->PADKEY = GPIO_PADKEY_PADKEY_Key;
 
@@ -103,15 +99,30 @@ void pin_function(PinName pin, int function)
 
     GPIO->PADKEY = 0;
 
-    AM_CRITICAL_END
+    core_util_critical_section_exit();
 }
 
+
+//pin_mode should not be utilized by apollo3 hal, but is provided to complete the pinmap API
+//Use pinmap_config for apollo3 target insted of pinmap_pinout, this will have better hal verification of settings
+//if this function does not provide sufficient functionality, try pinmap_config or gpio_mode
 void pin_mode(PinName pin, PinMode mode)
 {
-    MBED_ASSERT(0);
-    // gpio_t obj = {
-    //     .pad = (ap3_gpio_pad_t)pin,
-    //     .cfg = {0},
-    // };
-    // gpio_mode(gpio_t * obj, PinMode mode)
+    am_hal_gpio_pincfg_t bfGpioCfg = {0};
+    am_hal_gpio_pincfg_allow_t sAllowableChanges = {0};
+
+    if (mode & (PinMode)PullNone) {
+        bfGpioCfg.ePullup = AM_HAL_GPIO_PIN_PULLUP_NONE;
+        sAllowableChanges.ePullup = true;
+    }
+    if (mode & (PinMode)PullUp) {
+        bfGpioCfg.ePullup = AM_HAL_GPIO_PIN_PULLUP_WEAK;
+        sAllowableChanges.ePullup = true;
+    }
+    if (mode & (PinMode)PullDown) {
+        bfGpioCfg.ePullup = AM_HAL_GPIO_PIN_PULLDOWN;
+        sAllowableChanges.ePullup = true;
+    }
+
+    ap3_hal_gpio_pinconfig_partial(pin, bfGpioCfg, sAllowableChanges);
 }
