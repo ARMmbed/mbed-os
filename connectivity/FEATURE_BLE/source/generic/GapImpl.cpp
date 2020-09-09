@@ -509,6 +509,12 @@ ble_error_t Gap::connect(
         }
     }
 
+    // get the random address to set, if not valid, report the error
+    const address_t *address = get_random_address(controller_operation_t::initiating);
+    if (!address) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
     ble_error_t ret = BLE_ERROR_INTERNAL_STACK_FAILURE;
 
     if (is_extended_advertising_available() == false) {
@@ -517,8 +523,16 @@ ble_error_t Gap::connect(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        // ensure scan is stopped.
-        _pal_gap.scan_enable(false, false);
+        if (!_scan_enabled) {
+            if (!_active_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+                !_pending_sets.get(LEGACY_ADVERTISING_HANDLE)
+            ) {
+                _pal_gap.set_random_address(*address);
+            }
+        } else {
+            // ensure scan is stopped.
+            _pal_gap.scan_enable(false, false);
+        }
 
         ret = _pal_gap.create_connection(
             connectionParams.getScanIntervalArray()[0],
@@ -535,8 +549,13 @@ ble_error_t Gap::connect(
             connectionParams.getMaxConnectionIntervalArray()[0]
         );
     } else {
-        // ensure scan is stopped.
-        _pal_gap.extended_scan_enable(false, duplicates_filter_t::DISABLE, 0, 0);
+        // set the correct mac address before starting scanning.
+        if (!_scan_enabled) {
+            _pal_gap.set_random_address(*address);
+        } else {
+            // ensure scan is stopped.
+            _pal_gap.extended_scan_enable(false, duplicates_filter_t::DISABLE, 0, 0);
+        }
 
         // reduce the address type to public or random
         peer_address_type_t adjusted_address_type(peer_address_type_t::PUBLIC);
