@@ -445,6 +445,96 @@ am_hal_uart_configure(void *pHandle, const am_hal_uart_config_t *psConfig)
     return AM_HAL_STATUS_SUCCESS;
 } // am_hal_uart_configure()
 
+uint32_t
+am_hal_uart_configure_fifo(void *pHandle, const am_hal_uart_config_t *psConfig, bool bEnableFIFO)
+{
+    am_hal_uart_state_t *pState = (am_hal_uart_state_t *) pHandle;
+    uint32_t ui32Module = pState->ui32Module;
+
+    uint32_t ui32ErrorStatus;
+
+    //
+    // Check to make sure this is a valid handle.
+    //
+    if (!AM_HAL_UART_CHK_HANDLE(pHandle))
+    {
+        return AM_HAL_STATUS_INVALID_HANDLE;
+    }
+
+    //
+    // Reset the CR register to a known value.
+    //
+    UARTn(ui32Module)->CR = 0;
+
+    //
+    // Start by enabling the clocks, which needs to happen in a critical
+    // section.
+    //
+    AM_CRITICAL_BEGIN
+
+    UARTn(ui32Module)->CR_b.CLKEN = 1;
+    UARTn(ui32Module)->CR_b.CLKSEL = UART0_CR_CLKSEL_24MHZ;
+
+    AM_CRITICAL_END
+
+    //
+    // Disable the UART.
+    //
+    AM_CRITICAL_BEGIN
+
+    UARTn(ui32Module)->CR_b.UARTEN = 0;
+    UARTn(ui32Module)->CR_b.RXE = 0;
+    UARTn(ui32Module)->CR_b.TXE = 0;
+
+    AM_CRITICAL_END
+
+    //
+    // Set the baud rate.
+    //
+    ui32ErrorStatus = config_baudrate(ui32Module, psConfig->ui32BaudRate,
+                                          &(pState->ui32BaudRate));
+
+    RETURN_ON_ERROR(ui32ErrorStatus);
+
+    //
+    // Copy the configuration options into the appropriate registers.
+    //
+    UARTn(ui32Module)->CR_b.RTSEN = 0;
+    UARTn(ui32Module)->CR_b.CTSEN = 0;
+    UARTn(ui32Module)->CR |= psConfig->ui32FlowControl;
+
+    UARTn(ui32Module)->IFLS = psConfig->ui32FifoLevels;
+
+    UARTn(ui32Module)->LCRH = (psConfig->ui32DataBits   |
+                               psConfig->ui32Parity     |
+                               psConfig->ui32StopBits   |
+                               ((bEnableFIFO) ? AM_HAL_UART_FIFO_ENABLE : AM_HAL_UART_FIFO_DISABLE));
+
+    //
+    // Enable the UART, RX, and TX.
+    //
+    AM_CRITICAL_BEGIN
+
+    UARTn(ui32Module)->CR_b.UARTEN = 1;
+    UARTn(ui32Module)->CR_b.RXE = 1;
+    UARTn(ui32Module)->CR_b.TXE = 1;
+
+    AM_CRITICAL_END
+
+    if(bEnableFIFO){
+        //
+        // Set up any buffers that might exist.
+        //
+        buffer_configure(pHandle,
+                        psConfig->pui8TxBuffer,
+                        psConfig->ui32TxBufferSize,
+                        psConfig->pui8RxBuffer,
+                        psConfig->ui32RxBufferSize);
+    }
+
+    return AM_HAL_STATUS_SUCCESS;
+} // am_hal_uart_configure_fifo()
+
 //*****************************************************************************
 //
 // Allows the UART HAL to use extra space to store TX and RX data.
