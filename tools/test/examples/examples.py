@@ -93,6 +93,7 @@ def parse_args():
                              default=0,
                              help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
+    compile_cmd.add_argument("--cmake", action="store_true", dest="cmake", default=False, help="Use Cmake to build example")
     compile_cmd.add_argument("-v", "--verbose",
                              action="store_true",
                              dest="verbose",
