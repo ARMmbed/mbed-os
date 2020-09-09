@@ -24,8 +24,7 @@
 *******************************************************************************/
 
 #include <stdio.h>
-#include "BLEInstanceBase.h"
-#include "CordioHCIDriver.h"
+#include "ble/driver/CordioHCIDriver.h"
 #include "hci_api.h"
 #include "hci_cmd.h"
 #include "hci_core.h"

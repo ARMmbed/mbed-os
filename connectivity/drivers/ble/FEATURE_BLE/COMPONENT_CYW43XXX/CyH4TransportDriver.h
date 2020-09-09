@@ -21,7 +21,7 @@
 #if (DEVICE_SERIAL && DEVICE_SERIAL_FC) || defined(DOXYGEN_ONLY)
 
 #include <stdint.h>
-#include "CordioHCITransportDriver.h"
+#include "ble/driver/CordioHCITransportDriver.h"
 #include "drivers/DigitalInOut.h"
 #include "cyhal_uart.h"
 

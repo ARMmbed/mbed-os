@@ -63,7 +63,7 @@ public:
         tempLocation(GattCharacteristic::UUID_TEMPERATURE_TYPE_CHAR, &_location) {
 
         GattCharacteristic *hrmChars[] = {&tempMeasurement, &tempLocation, };
-        GattService         hrmService(GattService::UUID_HEALTH_THERMOMETER_SERVICE, hrmChars, sizeof(hrmChars) / sizeof(GattCharacteristic *));
+        GattService         hrmService(GattService::UUID_HEALTH_THERMOMETER_SERVICE, hrmChars, sizeof(hrmChars) / sizeof(hrmChars[0]));
 
         ble.gattServer().addService(hrmService);
     }
@@ -116,11 +116,11 @@ private:
             memcpy(&bytes[OFFSET_OF_VALUE], &temp_ieee11073, sizeof(float));
         }
 
-        uint8_t       *getPointer(void) {
+        uint8_t       *getPointer() {
             return bytes;
         }
 
-        const uint8_t *getPointer(void) const {
+        const uint8_t *getPointer() const {
             return bytes;
         }
 
@@ -130,7 +130,7 @@ private:
          * @param temperature The temperature as a float.
          * @return The temperature in 11073-20601 FLOAT-Type format.
          */
-        uint32_t quick_ieee11073_from_float(float temperature) {
+        static uint32_t quick_ieee11073_from_float(float temperature) {
             uint8_t  exponent = 0xFE; //Exponent is -2
             uint32_t mantissa = (uint32_t)(temperature * 100);
 

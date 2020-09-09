@@ -28,7 +28,7 @@
 #include <string.h>
 
 #include "NRFCordioHCITransportDriver.h"
-#include "CordioHCITransportDriver.h"
+#include "ble/driver/CordioHCITransportDriver.h"
 
 using namespace ble;
 

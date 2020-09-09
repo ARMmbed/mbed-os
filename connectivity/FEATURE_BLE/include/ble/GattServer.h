@@ -20,18 +20,21 @@
 #ifndef MBED_GATT_SERVER_H__
 #define MBED_GATT_SERVER_H__
 
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/blecommon.h"
 
-#include "ble/common/ble/GattService.h"
-#include "ble/common/ble/GattAttribute.h"
-#include "ble/common/ble/GattServerEvents.h"
-#include "ble/common/ble/GattCallbackParamTypes.h"
-
-#include "ble/common/ble/blecommon.h"
-#include "ble/Gap.h"
-#include "SecurityManager.h"
+#include "ble/gatt/GattService.h"
+#include "ble/gatt/GattAttribute.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
 
 namespace ble {
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class GattServer;
+}
+#endif // !defined(DOXYGEN_ONLY)
+
 
 /**
  * @addtogroup ble
@@ -94,9 +97,6 @@ namespace ble {
  * Characteristic Value Notification and Characteristic Value Indication when
  * the nature of the server initiated is not relevant.
  */
-#if !defined(DOXYGEN_ONLY)
-namespace interface {
-#endif // !defined(DOXYGEN_ONLY)
 class GattServer {
 public:
     /**
@@ -123,9 +123,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the GattServer class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /**
@@ -221,7 +219,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
     /**
      * Add a service declaration to the local attribute server table.
@@ -415,7 +413,10 @@ public:
      * function.
      */
     template <typename T>
-    void onDataSent(T *objPtr, void (T::*memberPtr)(unsigned count));
+    void onDataSent(T *objPtr, void (T::*memberPtr)(unsigned count))
+    {
+        onDataSent({objPtr, memberPtr});
+    }
 
     /**
      * Access the callchain of data sent event handlers.
@@ -448,7 +449,10 @@ public:
     void onDataWritten(
         T *objPtr,
         void (T::*memberPtr)(const GattWriteCallbackParams *context)
-    );
+    )
+    {
+        onDataWritten({objPtr, memberPtr});
+    }
 
     /**
      * Access the callchain of data written event handlers.
@@ -495,7 +499,10 @@ public:
     ble_error_t onDataRead(
         T *objPtr,
         void (T::*memberPtr)(const GattReadCallbackParams *context)
-    );
+    )
+    {
+        return onDataRead({objPtr, memberPtr});
+    }
 
     /**
      * Access the callchain of data read event handlers.
@@ -537,7 +544,10 @@ public:
      * function.
      */
     template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattServer *));
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattServer *))
+    {
+        onShutdown({objPtr, memberPtr});
+    }
 
     /**
      * Access the callchain of shutdown event handlers.
@@ -578,72 +588,14 @@ public:
      */
     void onConfirmationReceived(EventCallback_t callback);
 
-    /* Entry points for the underlying stack to report events back to the user. */
-protected:
-    /**
-     * Helper function that notifies all registered handlers of an occurrence
-     * of a data written event.
-     *
-     * @attention Vendor implementation must invoke this function after one of
-     * the GattServer attributes has been written.
-     *
-     * @param[in] params The data written parameters passed to the registered
-     * handlers.
-     */
-    void handleDataWrittenEvent(const GattWriteCallbackParams *params);
+#if !defined(DOXYGEN_ONLY)
+    GattServer(impl::GattServer* impl) : impl(impl) {}
+    GattServer(const GattServer&) = delete;
+    GattServer& operator=(const GattServer&) = delete;
+#endif // !defined(DOXYGEN_ONLY)
 
-    /**
-     * Helper function that notifies all registered handlers of an occurrence
-     * of a data read event.
-     *
-     * @attention Vendor implementation must invoke this function after one of
-     * the GattServer attributes has been read.
-     *
-     * @param[in] params The data read parameters passed to the registered
-     * handlers.
-     */
-    void handleDataReadEvent(const GattReadCallbackParams *params);
-
-    /**
-     * Helper function that notifies the registered handler of an occurrence
-     * of updates enabled, updates disabled or confirmation received events.
-     *
-     * @attention Vendor implementation must invoke this function when a client
-     * subscribes to characteristic updates, unsubscribes from characteristic
-     * updates or a notification confirmation has been received.
-     *
-     * @param[in] type The type of event that occurred.
-     * @param[in] attributeHandle The handle of the attribute concerned by the
-     * event.
-     */
-    void handleEvent(
-        GattServerEvents::gattEvent_e type,
-        GattAttribute::Handle_t attributeHandle
-    );
-
-    /**
-     * Helper function that notifies all registered handlers of an occurrence
-     * of a data sent event.
-     *
-     * @attention Vendor implementation must invoke this function after the
-     * emission of a notification or an indication.
-     *
-     * @param[in] count Number of packets sent.
-     */
-    void handleDataSentEvent(unsigned count);
-
-    /**
-     * Get preferred connection paramters.
-     *
-     */
-    Gap::PreferredConnectionParams_t getPreferredConnectionParams();
-
-    /**
-     * Set preferred connection parameters.
-     *
-     * @param[in] params Preferred connection parameter values to set.
-     */
-    void setPreferredConnectionParams(const Gap::PreferredConnectionParams_t& params);
+private:
+    impl::GattServer *impl;
 };
 
 /**
@@ -652,14 +604,7 @@ protected:
  * @}
  */
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
 } // ble
-
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-#include "ble/internal/GattServerImpl.h"
 
 /** @deprecated Use the namespaced ble::GattServer instead of the global GattServer. */
 using ble::GattServer;
