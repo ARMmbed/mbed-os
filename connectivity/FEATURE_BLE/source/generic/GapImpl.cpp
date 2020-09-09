@@ -354,6 +354,9 @@ Gap::Gap(
         mbed::callback(this, &Gap::on_gap_event_received)
     );
 
+    // Recover static random identity
+    _random_static_identity_address = _pal_gap.get_random_address();
+
     _pal_gap.set_event_handler(this);
     _address_registry.set_event_handler(this);
 }
@@ -407,11 +410,10 @@ ble_error_t Gap::setRandomStaticAddress(
         if (err) {
             return err;
         }
-
-        // FIXME: set random address for active sets
-
-        _address_type = own_address_type_t::RANDOM;
     }
+
+    _address_type = own_address_type_t::RANDOM;
+    _random_static_identity_address = address;
 
     return BLE_ERROR_NONE;
 }
