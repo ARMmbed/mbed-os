@@ -99,32 +99,6 @@ SECTIONS
 
   __etext = ALIGN(8);
 
-/* space for nvic table is reserved above by RAM_NVIC section. Do we need this?
-Table is copied into this section at boot.
-    .nvictable (NOLOAD) :
-    {
-      PROVIDE(__start_nvictable = .);
-      KEEP(*(.nvictable))
-      PROVIDE(__stop_nvictable = .);
-    } > RAM_NVIC */
-
-  /* data: uniquely initialized symbols */
-  /* loaded into flash region, copied to sram region at startup */
-  /* VMA appears in sram region, LMA is in flash region for initialization */
-  /* _init_data used by startup to locate flash region copy of data */
-/*  .data :
-  {
-    . = ALIGN(4);
-    _sdata = .;
-    __data_start__ = .;
-    *(.data)
-    *(.data*)
-    . = ALIGN(4);
-    _edata = .;
-    __data_end__ = .;
-  } > RAM AT>FLASH 
-  _init_data = LOADADDR(.data); /* used by startup to initialize data */
-
     .data : AT (__etext)
     {
         __data_start__ = .;

@@ -30,8 +30,6 @@
 
 #define DEFAULT_CLK_FREQ (AM_HAL_IOM_400KHZ)
 
-#define standin_fn() printf("stand in for '%s', file: '%s', line: %d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__)
-
 static am_hal_iom_transfer_t xfer = {0};
 
 I2CName i2c_get_peripheral_name(PinName sda, PinName scl)
@@ -102,7 +100,6 @@ void i2c_frequency(i2c_t *obj, int hz)
 int  i2c_start(i2c_t *obj)
 {
     MBED_ASSERT(obj);
-    standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
@@ -110,7 +107,6 @@ int  i2c_start(i2c_t *obj)
 int  i2c_stop(i2c_t *obj)
 {
     MBED_ASSERT(obj);
-    standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
@@ -160,14 +156,12 @@ int i2c_write(i2c_t *obj, int address8bit, const char *data, int length, int sto
 void i2c_reset(i2c_t *obj)
 {
     MBED_ASSERT(obj);
-    standin_fn();
     MBED_ASSERT(0);
 }
 
 int i2c_byte_read(i2c_t *obj, int last)
 {
     MBED_ASSERT(obj);
-    standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
@@ -175,7 +169,6 @@ int i2c_byte_read(i2c_t *obj, int last)
 int i2c_byte_write(i2c_t *obj, int data)
 {
     MBED_ASSERT(obj);
-    standin_fn();
     MBED_ASSERT(0);
     return I2C_ERROR_NO_SLAVE;
 }
@@ -199,82 +192,5 @@ const PinMap *i2c_slave_scl_pinmap(void)
 {
     return PinMap_I2C_SCL;
 }
-
-#if DEVICE_I2CSLAVE
-
-void i2c_slave_mode(i2c_t *obj, int enable_slave)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-}
-
-int  i2c_slave_receive(i2c_t *obj)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return I2C_ERROR_NO_SLAVE;
-}
-
-int  i2c_slave_read(i2c_t *obj, char *data, int length)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return I2C_ERROR_NO_SLAVE;
-}
-
-int  i2c_slave_write(i2c_t *obj, const char *data, int length)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return I2C_ERROR_NO_SLAVE;
-}
-
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return I2C_ERROR_NO_SLAVE;
-}
-
-#endif // DEVICE_I2CSLAVE
-
-#if DEVICE_I2C_ASYNCH
-
-void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-}
-
-uint32_t i2c_irq_handler_asynch(i2c_t *obj)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return 0;
-}
-
-uint8_t i2c_active(i2c_t *obj)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-    return 0;
-}
-
-void i2c_abort_asynch(i2c_t *obj)
-{
-    MBED_ASSERT(obj);
-    standin_fn();
-    MBED_ASSERT(0);
-}
-
-#endif // DEVICE_I2C_ASYNCH
 
 #endif // DEVICE_I2C

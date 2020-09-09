@@ -63,6 +63,8 @@
 #include <string.h>
 #include "stdio.h"
 
+extern void CordioHCITransportDriver_on_data_received(uint8_t *data, uint16_t len);
+
 //*****************************************************************************
 //
 // Use the interrupt-driven HCI driver?
@@ -539,7 +541,9 @@ HciDrvRadioShutdown(void)
 
     ERROR_CHECK_VOID(am_hal_ble_power_control(BLE, AM_HAL_BLE_POWER_OFF));
 
-    while ( PWRCTRL->DEVPWREN_b.PWRBLEL );
+    while ( PWRCTRL->DEVPWREN_b.PWRBLEL )
+    {
+    }
 
     ERROR_CHECK_VOID(am_hal_ble_deinitialize(BLE));
 
@@ -894,9 +898,7 @@ hciDrvReadCallback(uint8_t *pui8Data, uint32_t ui32Length, void *pvContext)
 void
 HciDrvHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 {
-    uint32_t ui32ErrorStatus, ui32TxRetries = 0;
-    uint32_t ui32NumHciTransactions = 0;
-    uint32_t read_hci_packet_count = 0;
+    uint32_t ui32ErrorStatus;
  
     //
     // If this handler was called in response to a heartbeat event, then it's
@@ -1295,42 +1297,6 @@ HciVsA3_SetRfPowerLevelEx(txPowerLevel_t txPowerlevel)
             return false;
             break;
     }
-}
-
-/*************************************************************************************************/
-/*!
- *  \fn     HciVsA3_ConstantTransmission
- *
- *  \brief  This procedure is to enable/disable BLE Radio into constant transmission mode.
- *
- *  \param  start  BLE controller enters constant transmission mode if true
- *
- *  \return true when success, otherwise false
- */
-/*************************************************************************************************/
-
-void
-HciVsA3_ConstantTransmission(uint8_t txchannel)
-{
-    am_util_ble_set_constant_transmission_ex(BLE, txchannel);
-}
-
-/*************************************************************************************************/
-/*!
- *  \fn     HciVsA3_SetConstantTransmission
- *
- *  \brief  This procedure is to start/stop carrier wave output in BLE Radio.
- *
- *  \param  start  BLE controller enters carrier wave output mode if true
- *
- *  \return true when success, otherwise false
- */
-/*************************************************************************************************/
-
-void
-HciVsA3_CarrierWaveMode(uint8_t txchannel)
-{
-    am_util_ble_transmitter_control_ex(BLE, txchannel);
 }
 
 /*************************************************************************************************/

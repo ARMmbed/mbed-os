@@ -44,8 +44,10 @@ DigitalOut debugGPIO2(D25, 0);
 
 using namespace ble;
 
+#ifndef USE_AMBIQ_DRIVER
 static uint8_t ample_buffer[256];
 void *ble_handle = NULL;
+#endif
 
 AP3CordioHCITransportDriver::~AP3CordioHCITransportDriver() {}
 

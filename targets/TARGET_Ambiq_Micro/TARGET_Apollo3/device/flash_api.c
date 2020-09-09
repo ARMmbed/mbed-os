@@ -70,7 +70,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    if ((address < AM_HAL_FLASH_ADDR) || (address > AM_HAL_FLASH_LARGEST_VALID_ADDR)) {
+    if (address > AM_HAL_FLASH_LARGEST_VALID_ADDR) {
         return -1;
     }
     return AM_HAL_FLASH_PAGE_SIZE;

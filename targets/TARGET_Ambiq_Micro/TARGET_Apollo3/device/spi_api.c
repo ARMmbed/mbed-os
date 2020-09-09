@@ -33,8 +33,6 @@
 #define DEFAULT_CLK_FREQ (4000000)
 #define DEFAULT_SPI_MODE (AM_HAL_IOM_SPI_MODE_0)
 
-#define standin_fn() printf("stand in for '%s', file: '%s', line: %d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__)
-
 static am_hal_iom_transfer_t xfer = {0};
 
 SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
@@ -86,7 +84,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // iom determination
     SPIName iom = spi_get_peripheral_name(mosi, miso, sclk);
-    SPIName iom_ssel = (SPIName)pinmap_peripheral(ssel, spi_master_cs_pinmap());
     MBED_ASSERT((int)iom != IOM_NUM);
     MBED_ASSERT((int)iom != IOM_ANY);
 
@@ -206,27 +203,23 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
 
 int spi_slave_receive(spi_t *obj)
 {
-    standin_fn();
     MBED_ASSERT(0);
     return 0;
 }
 
 int spi_slave_read(spi_t *obj)
 {
-    standin_fn();
     MBED_ASSERT(0);
     return 0;
 }
 
 void spi_slave_write(spi_t *obj, int value)
 {
-    standin_fn();
     MBED_ASSERT(0);
 }
 
 int spi_busy(spi_t *obj)
 {
-    standin_fn();
     MBED_ASSERT(0);
     return 0;
 }

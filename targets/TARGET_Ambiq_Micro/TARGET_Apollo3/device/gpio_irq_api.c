@@ -177,7 +177,6 @@ uint32_t ap3_gpio_enable_interrupts(uint32_t ui32Pin, am_hal_gpio_intdir_e eIntD
     //GPConfigReg_t GPCfgMask = {.bit.INCFG = 1, .bit.INTD = 1};
     // uint32_t ap3_hal_gpio_pinconfig_partial(ui32Pin, bfGpioCfg, 0, uint8_t GPCfgMask, 0);
     uint32_t ui32Padreg, ui32AltPadCfg, ui32GPCfg;
-    uint32_t ui32Funcsel, ui32PowerSw;
     bool bClearEnable = false;
 
 #ifndef AM_HAL_DISABLE_API_VALIDATION
