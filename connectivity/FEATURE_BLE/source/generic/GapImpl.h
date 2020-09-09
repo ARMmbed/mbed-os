@@ -595,6 +595,8 @@ private:
 
     bool _scan_enabled = false;
     bool _scan_pending = false;
+    bool _scan_interruptible = false;
+    bool _scan_address_refresh = false;
     mbed::LowPowerTimeout _advertising_timeout;
     mbed::LowPowerTimeout _scan_timeout;
     mbed::LowPowerTicker _address_rotation_ticker;
