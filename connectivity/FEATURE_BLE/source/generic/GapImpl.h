@@ -525,6 +525,10 @@ private:
         uint16_t supervision_timeout
     ) override;
 
+    void on_scan_started(bool success) override;
+
+    void on_scan_stopped(bool success) override;
+
     void on_scan_timeout() override;
 
     void process_legacy_scan_timeout();

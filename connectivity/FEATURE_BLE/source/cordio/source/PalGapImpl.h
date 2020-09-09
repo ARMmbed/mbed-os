@@ -535,6 +535,7 @@ private:
     uint8_t extended_scan_type[3];
     phy_set_t scanning_phys;
     direct_adv_cb_t direct_adv_cb[DM_NUM_ADV_SETS];
+    bool ext_scan_stopping = false;
 
     /**
      * Callback called when an event is emitted by the LE subsystem.

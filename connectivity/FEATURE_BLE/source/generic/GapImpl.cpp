@@ -1005,6 +1005,14 @@ Gap::GapShutdownCallbackChain_t &Gap::onShutdown()
     return shutdownCallChain;
 }
 
+void Gap::on_scan_started(bool success)
+{
+}
+
+void Gap::on_scan_stopped(bool success)
+{
+}
+
 
 void Gap::on_scan_timeout()
 {
