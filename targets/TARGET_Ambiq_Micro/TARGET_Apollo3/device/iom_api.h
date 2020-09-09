@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2020 SparkFun Electronics
  * SPDX-License-Identifier: MIT
  *
