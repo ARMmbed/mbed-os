@@ -24,7 +24,7 @@
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-
+#include "mbed_critical.h"
 #include "extensions.h"
 #include "am_mcu_apollo.h"
 
