@@ -1022,8 +1022,46 @@ void Gap::on_scan_started(bool success)
 
 void Gap::on_scan_stopped(bool success)
 {
+    if (!success) {
+        _scan_pending = false;
+        _scan_enabled = false;
+        _scan_address_refresh = false;
+        return;
+    }
+
     _scan_pending = false;
     _scan_enabled = false;
+
+    // The address is refreshed only if there's no other pending request to refresh
+    // the main address
+
+    bool wait_for_advertising_stop =
+        _address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        _active_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        _pending_sets.get(LEGACY_ADVERTISING_HANDLE);
+
+    bool restart_advertising =
+        !_active_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        !_pending_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        _address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE);
+
+#ifdef BLE_FEATURE_EXTENDED_ADVERTISING
+    if (is_extended_advertising_available()) {
+        wait_for_advertising_stop = false;
+        restart_advertising = false;
+    }
+#endif
+
+    if (_scan_address_refresh && !wait_for_advertising_stop) {
+        if (restart_advertising) {
+            _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
+            auto err = startAdvertising(LEGACY_ADVERTISING_HANDLE);
+            }
+        }
+
+        _scan_address_refresh = false;
+        startScan();
+    }
 }
 
 
@@ -1033,6 +1071,7 @@ void Gap::on_scan_timeout()
         return;
     }
 
+    _scan_address_refresh = false;
     _scan_enabled = false;
     _scan_pending = false;
 
@@ -1047,6 +1086,7 @@ void Gap::process_legacy_scan_timeout()
     if (!_scan_enabled) {
         return;
     }
+
     /* legacy scanning timed out is based on timer so we need to stop the scan manually */
     _pal_gap.scan_enable(false, false);
 
@@ -1858,8 +1898,9 @@ ble_error_t Gap::startAdvertising(
 {
     ble_error_t error = BLE_ERROR_NONE;
 
-    // invalid state because it is starting or stopping.
-    if (_pending_sets.get(handle)) {
+    // invalid state because it is starting, stopping or refreshing internally
+    // the address.
+    if (_pending_sets.get(handle) || _address_refresh_sets.get(handle)) {
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -1877,21 +1918,16 @@ ble_error_t Gap::startAdvertising(
         return BLE_ERROR_INVALID_STATE;
     }
 
-    if (is_extended_advertising_available()) {
-        // Select the advertising address to use
-        address_t adv_address;
-        if (_privacy_enabled) {
-            if (_set_is_connectable.get(handle)) {
-                adv_address= _address_registry.get_resolvable_private_address();
-            } else {
-                adv_address = _address_registry.get_non_resolvable_private_address();
-            }
-        } else {
-            adv_address = _pal_gap.get_random_address();
-        }
+    const address_t* random_address = get_random_address(controller_operation_t::advertising, handle);
+    if (!random_address) {
+        return BLE_ERROR_INVALID_STATE;
+    }
 
-        // apply it
-        _pal_gap.set_advertising_set_random_address(handle, adv_address);
+    if (is_extended_advertising_available()) {
+        // Addresses can be updated if the set is not advertising
+        if (!_active_sets.get(handle)) {
+            _pal_gap.set_advertising_set_random_address(handle, *random_address);
+        }
 
         error = _pal_gap.extended_advertising_enable(
             /* enable */ true,
@@ -1918,30 +1954,9 @@ ble_error_t Gap::startAdvertising(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        // Select the advertising address to use
-        address_t adv_address;
-        if (_privacy_enabled) {
-            if (_scan_enabled) {
-                if (_central_privacy_configuration.use_non_resolvable_random_address ==
-                    _set_is_connectable.get(handle))
-                {
-                    // Conflicting state with the address currently used
-                    return BLE_ERROR_INVALID_STATE;
-                }
-            } else {
-                // select the address to set
-                if (_set_is_connectable.get(handle)) {
-                    adv_address= _address_registry.get_resolvable_private_address();
-                } else {
-                    adv_address = _address_registry.get_non_resolvable_private_address();
-                }
-            }
-        } else {
-            adv_address = _pal_gap.get_random_address();
-        }
-
-        if (!_scan_enabled) {
-            _pal_gap.set_random_address(adv_address);
+        // Address can be updated if the device is not scanning or advertising
+        if (!_scan_enabled && !_scan_pending && !_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+            _pal_gap.set_random_address(*random_address);
         }
 
         error = _pal_gap.advertising_enable(true);
@@ -2359,7 +2374,6 @@ void Gap::on_legacy_advertising_started()
 {
     _active_sets.set(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
-    _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
 }
 
 void Gap::on_legacy_advertising_stopped()
@@ -2368,9 +2382,17 @@ void Gap::on_legacy_advertising_stopped()
     _active_sets.clear(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
 
+    bool wait_for_scan_stop = _scan_enabled && _scan_pending && _scan_address_refresh;
+    bool restart_scan = _scan_address_refresh && !_scan_enabled && !_scan_pending;
+
     // restart advertising if it was stopped to refresh the address
-    if (_address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+    if (_address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE) && !wait_for_scan_stop) {
+        _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
         startAdvertising(LEGACY_ADVERTISING_HANDLE);
+        if (restart_scan) {
+            _scan_address_refresh = false;
+            startScan();
+        }
     }
 }
 
@@ -2380,7 +2402,6 @@ void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
         printf("advertising set %d started\r\n", handle);
         _active_sets.set(handle);
         _pending_sets.clear(handle);
-        _address_refresh_sets.clear(handle);
     }
 }
 
@@ -2397,6 +2418,7 @@ void Gap::on_advertising_set_terminated(
     // If this is part of the address refresh start advertising again.
     if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
         printf("restarting advertising set %d\r\n", advertising_handle);
+        _address_refresh_sets.clear(advertising_handle);
         startAdvertising(advertising_handle);
         return;
     }
@@ -2494,6 +2516,10 @@ void Gap::on_remote_connection_parameter(
 
 ble_error_t Gap::setScanParameters(const ScanParameters &params)
 {
+    if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
             params.get1mPhyConfiguration().isActiveScanningSet(),
@@ -2543,8 +2569,21 @@ ble_error_t Gap::startScan(
     scan_period_t period
 )
 {
+    if (_scan_pending || _scan_address_refresh) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    const address_t *address = get_random_address(controller_operation_t::scanning);
+    if (!address) {
+        return BLE_ERROR_INVALID_STATE;
+    }
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
+        // set the correct mac address before starting scanning.
+        if (!_scan_enabled) {
+            _pal_gap.set_random_address(*address);
+        }
+
         ble_error_t err = _pal_gap.extended_scan_enable(
             /* enable */true,
             filtering,
@@ -2560,6 +2599,12 @@ ble_error_t Gap::startScan(
     {
         if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
+        }
+
+        // update the address if no scan or advertising is running
+        auto adv_handle = LEGACY_ADVERTISING_HANDLE;
+        if (!_scan_enabled && !_active_sets.get(adv_handle) && !_pending_sets.get(adv_handle)) {
+            _pal_gap.set_random_address(*address);
         }
 
         ble_error_t err = _pal_gap.scan_enable(
@@ -2583,6 +2628,11 @@ ble_error_t Gap::startScan(
 
     if (!_scan_enabled) {
         _scan_pending = true;
+    }
+    if (duration == scan_duration_t::forever() && period == scan_period_t(0)) {
+        _scan_interruptible = true;
+    } else {
+        _scan_interruptible = false;
     }
 
     return BLE_ERROR_NONE;
@@ -2789,6 +2839,7 @@ void Gap::on_private_address_generated(bool connectable)
         return;
     }
 
+
     // refresh for address for all connectable advertising sets
     for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
         if (!_pending_sets.get(i) && _active_sets.get(i) &&
@@ -2802,6 +2853,17 @@ void Gap::on_private_address_generated(bool connectable)
             }
             _address_refresh_sets.set(i);
         }
+    }
+
+    // refresh scanning address
+    if (_scan_enabled && !_scan_pending && _scan_interruptible &&
+        !_central_privacy_configuration.use_non_resolvable_random_address == connectable
+    ) {
+        ble_error_t err = stopScan();
+        if (err) {
+            return;
+        }
+        _scan_address_refresh = true;
     }
 }
 
