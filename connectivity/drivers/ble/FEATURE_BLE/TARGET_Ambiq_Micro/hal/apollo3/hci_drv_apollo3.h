@@ -43,6 +43,7 @@
 // This is part of revision 2.3.2 of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
+// SPDX-License-Identifier: BSD-3-Clause
 #ifndef HCI_DRV_APOLLO3_H
 #define HCI_DRV_APOLLO3_H
 
