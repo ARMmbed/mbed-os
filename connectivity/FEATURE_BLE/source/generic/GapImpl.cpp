@@ -2980,6 +2980,93 @@ void Gap::update_advertising_set_connectable_attribute(
     }
 }
 
+// Note a call to this functions implies that the
+const address_t *Gap::get_random_address(controller_operation_t operation, size_t set_id)
+{
+    const auto &resolvable_address = _address_registry.get_resolvable_private_address();
+    const auto &non_resolvable_address = _address_registry.get_non_resolvable_private_address();
+    bool central_non_resolvable = _central_privacy_configuration.use_non_resolvable_random_address;
+    bool peripheral_non_resolvable = _peripheral_privacy_configuration.use_non_resolvable_random_address;
+
+    const address_t *address_in_use = nullptr;
+    const address_t *desired_address = nullptr;
+
+    // If privacy is not enabled, then the random address is always the random
+    // static address.
+    if (_privacy_enabled == false) {
+        return &_random_static_identity_address;
+    }
+
+    bool advertising_use_main_address = true;
+    // Extended advertising is a special case as the address isn't shared with
+    // the main address.
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    if (is_extended_advertising_available()) {
+        if (operation == controller_operation_t::advertising) {
+            if (_set_is_connectable.get(set_id) == false && peripheral_non_resolvable) {
+                return &non_resolvable_address;
+            } else {
+                return &resolvable_address;
+            }
+        } else {
+            advertising_use_main_address = false;
+        }
+    }
+#endif
+
+    // For other cases we first compute the address being used and then compares
+    // it to the address to use to determine if the address is correct or not.
+    if (_initiating) {
+        address_in_use = &resolvable_address;
+    } else if (_scan_enabled || _scan_pending) {
+        if (central_non_resolvable) {
+            address_in_use = &non_resolvable_address;
+        } else {
+            address_in_use = &resolvable_address;
+        }
+    } else if (advertising_use_main_address && (_active_sets.get(set_id) || _pending_sets.get(set_id))) {
+        if (!_set_is_connectable.get(set_id) && peripheral_non_resolvable) {
+            address_in_use = &non_resolvable_address;
+        } else {
+            address_in_use = &resolvable_address;
+        }
+    } else {
+        address_in_use = nullptr;
+    }
+
+    // Compute the desired address
+    switch (operation) {
+        case controller_operation_t::initiating:
+            desired_address = &resolvable_address;
+            break;
+        case controller_operation_t::scanning:
+            if (central_non_resolvable) {
+                desired_address = &non_resolvable_address;
+            } else {
+                desired_address = &resolvable_address;
+            }
+            break;
+        case controller_operation_t::advertising:
+            if (!_set_is_connectable.get(set_id) && peripheral_non_resolvable) {
+                desired_address = &non_resolvable_address;
+            } else {
+                desired_address = &resolvable_address;
+            }
+            break;
+    }
+
+    if (!address_in_use) {
+        return desired_address;
+    }
+
+    // Request impossible to fulfill
+    if (address_in_use != desired_address) {
+        return nullptr;
+    }
+
+    return desired_address;
+}
+
 
 } // impl
 } // ble
