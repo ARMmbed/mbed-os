@@ -24,6 +24,7 @@
 #include "psa_storage_common_impl.h"
 #include "mbed_error.h"
 #include "mbed_toolchain.h"
+#include "DeviceKey.h"
 
 using namespace mbed;
 
@@ -68,6 +69,10 @@ static void ps_init(void)
         // Thus considered as unrecoverable error for runtime.
         error("Failed getting kvstore instance\n");
     }
+
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
 
     psa_storage_handle_version(kvstore, PS_VERSION_KEY, &version, ps_version_migrate);
     initialized = true;
@@ -149,7 +154,7 @@ psa_status_t psa_ps_remove(psa_storage_uid_t uid)
 
 extern "C" psa_status_t psa_ps_reset()
 {
-    // Do not call its_init here to avoid version check before reset
+    // Do not call ps_init here to avoid version check before reset
     int ret = kv_init_storage_config();
     if (ret) {
         // Can only happen due to system misconfiguration.
@@ -165,7 +170,12 @@ extern "C" psa_status_t psa_ps_reset()
         error("Failed getting kvstore instance\n");
     }
 
-    return psa_storage_reset_impl(kvstore);
+    psa_status_t psa_status = psa_storage_reset_impl(kvstore);
+    if (psa_status == PSA_SUCCESS) {
+        // force reinitialize to generate ROT and write version
+        initialized = false;
+    }
+    return psa_status;
 }
 
 #ifdef   __cplusplus
