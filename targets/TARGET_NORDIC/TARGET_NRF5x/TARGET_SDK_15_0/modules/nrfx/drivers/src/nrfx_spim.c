@@ -167,9 +167,7 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
                           void                     * p_context)
 {
     NRFX_ASSERT(p_config);
-
     spim_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
-
     nrfx_err_t err_code;
 
     if (p_cb->state != NRFX_DRV_STATE_UNINITIALIZED)
@@ -216,7 +214,6 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
         nrfx_spim_3_irq_handler,
         #endif
     };
-
     if (nrfx_prs_acquire(p_instance->p_reg,
             irq_handlers[p_instance->drv_inst_idx]) != NRFX_SUCCESS)
     {
@@ -246,7 +243,6 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
     {
         nrf_gpio_pin_set(p_config->sck_pin);
     }
-
     nrf_gpio_cfg(p_config->sck_pin,
                  NRF_GPIO_PIN_DIR_OUTPUT,
                  NRF_GPIO_PIN_INPUT_CONNECT,
@@ -547,7 +543,6 @@ static nrfx_err_t spim_xfer(NRF_SPIM_Type               * p_spim,
     }
     err_code = NRFX_SUCCESS;
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
-
     return err_code;
 }
 
