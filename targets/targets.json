@@ -2374,6 +2374,12 @@
             "MCU_STM32G0"
         ],
         "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
         "extra_labels_add": [
             "STM32G031xx"
         ],
@@ -2388,24 +2394,7 @@
         "detect_code": [
             "0852"
         ],
-        "device_name": "STM32G031K8Tx",
-        "supported_c_libs": {
-            "arm": [
-                "std",
-                "small"
-            ],
-            "gcc_arm": [
-                "std",
-                "small"
-            ],
-            "iar": [
-                "std"
-            ]
-        },
-        "c_lib": "small",
-        "supported_application_profiles": [
-            "bare-metal"
-        ]
+        "device_name": "STM32G031K8Tx"
     },
     "MCU_STM32G071xx": {
         "inherits": [
