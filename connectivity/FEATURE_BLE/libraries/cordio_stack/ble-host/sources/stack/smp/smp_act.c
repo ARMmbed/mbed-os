@@ -567,8 +567,8 @@ bool_t smpSendKey(smpCcb_t *pCcb, uint8_t keyDist)
     {
       /* send second part of IRK */
       UINT8_TO_BSTREAM(p, SMP_CMD_ID_ADDR_INFO);
-      UINT8_TO_BSTREAM(p, DM_ADDR_PUBLIC);
-      BDA_TO_BSTREAM(p, HciGetBdAddr());
+      UINT8_TO_BSTREAM(p, DmSecGetLocalIdentityAddrType());
+      BDA_TO_BSTREAM(p, DmSecGetLocalIdentityAddr());
 
     }
     else if ((keyDist & SMP_KEY_DIST_SIGN) &&
