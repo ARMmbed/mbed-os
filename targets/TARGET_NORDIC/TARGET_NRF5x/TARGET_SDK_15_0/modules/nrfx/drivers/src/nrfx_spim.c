@@ -317,6 +317,8 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t  const * const p_instance,
     // Change rx delay
     nrf_spim_iftiming_set(p_spim, p_config->rx_delay);
 #endif
+
+
     nrf_spim_pins_set(p_spim, p_config->sck_pin, mosi_pin, miso_pin);
     nrf_spim_frequency_set(p_spim, p_config->frequency);
     nrf_spim_configure(p_spim, p_config->mode, p_config->bit_order);
