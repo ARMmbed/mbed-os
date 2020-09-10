@@ -461,7 +461,7 @@ ble_error_t Gap::stopScan()
     ble_error_t err;
 
     if ((!_scan_enabled && !_scan_pending) || _scan_pending) {
-        return BLE_ERROR_NONE;
+        return BLE_STACK_BUSY;
     }
 
     if (is_extended_advertising_available()) {
@@ -1916,10 +1916,10 @@ ble_error_t Gap::startAdvertising(
 {
     ble_error_t error = BLE_ERROR_NONE;
 
-    // invalid state because it is starting, stopping or refreshing internally
+    // the stack is busy because it is starting, stopping or refreshing internally
     // the address.
     if (_pending_sets.get(handle) || _address_refresh_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_STACK_BUSY;
     }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
@@ -2014,7 +2014,7 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     if (!_active_sets.get(handle) || _pending_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_STACK_BUSY;
     }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
@@ -2586,7 +2586,7 @@ ble_error_t Gap::startScan(
 )
 {
     if (_scan_pending || _scan_address_refresh) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_STACK_BUSY;
     }
 
     const address_t *address = get_random_address(controller_operation_t::scanning);
