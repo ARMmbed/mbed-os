@@ -165,8 +165,8 @@ def do_compile(args, config, examples):
     return failures 
     
 def do_update(args, config, examples):
-    """ Test update the mbed-os to the version specified by the tag """
-    return lib.update_mbedos_version(config, args.TAG, examples)
+    """ Test update the example to the version specified by the tag """
+    return lib.update_example_version(config, args.TAG, examples)
 
 def do_list(_, config, examples):
     """List the examples in the config file"""

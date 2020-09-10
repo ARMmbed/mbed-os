@@ -16,7 +16,7 @@ The scripts in this folder are used for testing `mbed-os` official examples. It 
 
 * **deploy** - if the example directory exists as provided by the .json configuration file, pulls in the examples dependencies by using `mbed-cli deploy`.
 
-* **update** - for each example repo identified in the config .json object, updates the version of `mbed-os` to that specified by the supplied GitHub tag. This function assumes that each example repo has already been cloned.
+* **update** - for each example repo identified in the config .json object, updates the version of example to that specified by the supplied GitHub tag. This function assumes that each example repo has already been cloned.
 
 * **compile** - compiles combinations of example programs, targets and compile chains.
 
