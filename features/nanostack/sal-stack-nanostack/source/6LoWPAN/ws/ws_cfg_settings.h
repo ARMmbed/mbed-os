@@ -187,4 +187,7 @@ int8_t ws_cfg_sec_prot_get(ws_sec_prot_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_cfg);
 int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_cfg, uint8_t *flags);
 
+uint32_t ws_cfg_neighbour_temporary_lifetime_get(void);
+void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime);
+
 #endif // WS_CFG_STORAGE_H_

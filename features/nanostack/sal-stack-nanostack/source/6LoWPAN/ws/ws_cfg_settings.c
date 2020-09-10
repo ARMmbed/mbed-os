@@ -55,6 +55,7 @@ typedef struct ws_cfg_nw_size_s {
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
 } ws_cfg_nw_size_t;
 
+static uint32_t ws_test_temporary_entry_lifetime = 0;
 typedef int8_t (*ws_cfg_default_set)(void *cfg);
 typedef int8_t (*ws_cfg_validate)(void *cfg, void *new_cfg);
 typedef int8_t (*ws_cfg_set)(protocol_interface_info_entry_t *cur, void *cfg, void *new_cfg, uint8_t *flags);
@@ -1273,6 +1274,23 @@ int8_t ws_cfg_settings_set(protocol_interface_info_entry_t *cur, ws_cfg_t *new_c
     }
 
     return ret_value;
+}
+
+uint32_t ws_cfg_neighbour_temporary_lifetime_get(void)
+{
+    if (ws_test_temporary_entry_lifetime) {
+        return ws_test_temporary_entry_lifetime;
+    }
+    return WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+}
+void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime)
+{
+    if (lifetime >= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME || lifetime == 0) {
+        if (lifetime > WS_NEIGHBOR_LINK_TIMEOUT) {
+            lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
+        }
+        ws_test_temporary_entry_lifetime = lifetime;
+    }
 }
 
 #endif //HAVE_WS

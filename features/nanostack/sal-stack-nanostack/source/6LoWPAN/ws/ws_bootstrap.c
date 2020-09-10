@@ -139,8 +139,8 @@ mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct protocol_interf
     }
     // TODO only call these for new neighbour
     mlme_device_descriptor_t device_desc;
-    neighbor->lifetime = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
-    neighbor->link_lifetime = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+    neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get();
+    neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get();
     mac_helper_device_description_write(interface, &device_desc, neighbor->mac64, neighbor->mac16, 0, false);
     mac_helper_devicetable_set(&device_desc, interface, neighbor->index, interface->mac_parameters->mac_default_key_index, true);
 
@@ -1828,7 +1828,7 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
             continue;
         }
 
-        if (cur->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
+        if (cur->link_lifetime < WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
             continue;
         }
 
@@ -1959,7 +1959,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, entry_ptr->index);
     etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, entry_ptr->index);
 
-    if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry || ws_neighbor->negative_aro_send || entry_ptr->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
+    if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry || ws_neighbor->negative_aro_send || entry_ptr->link_lifetime < WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
         return false;
     }
 
