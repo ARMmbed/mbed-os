@@ -438,9 +438,9 @@ def compile_repos(config, toolchains, targets, profiles, verbose, exp_filter, jo
     return results
 
 
-def update_mbedos_version(config, tag, exp_filter):
+def update_example_version(config, tag, exp_filter):
     """ For each example repo identified in the config json object, update the version of
-        mbed-os to that specified by the supplied GitHub tag. This function assumes that each
+        example to that specified by the supplied GitHub tag. This function assumes that each
         example repo has already been cloned.
 
     Args:
@@ -448,15 +448,14 @@ def update_mbedos_version(config, tag, exp_filter):
     tag - GitHub tag corresponding to a version of mbed-os to upgrade to.
 
     """
-    print("\nUpdating mbed-os in examples to version '%s'\n" % tag)
+    print("\nUpdating example to version(branch) '%s'\n" % tag)
     for example in config['examples']:
         if example['name'] not in exp_filter:
             continue
         for name in get_sub_examples_list(example):
-            update_dir =  name + "/mbed-os"
-            os.chdir(update_dir)
+            os.chdir(name)
             logging.info("In folder '%s'" % name)
-            cmd = "mbed-cli update %s --clean" %tag
+            cmd = "git checkout -B %s origin/%s" %(tag, tag)
             logging.info("Executing command '%s'..." % cmd)
             result = subprocess.call(cmd, shell=True)
             os.chdir(CWD)
@@ -476,8 +475,8 @@ def symlink_mbedos(config, path, exp_filter):
             os.chdir(name)
             logging.info("In folder '%s'" % name)
             if os.path.exists("mbed-os.lib"):
-                logging.info("Removing 'mbed-os.lib' in '%s'" % name)
-                os.remove("mbed-os.lib")
+                logging.info("Replacing 'mbed-os.lib' with empty file in '%s'" % name)
+                open("mbed-os.lib", 'w').close()
             else:
                 logging.warning("No 'mbed-os.lib' found in '%s'" % name)
             if os.path.exists("mbed-os"):
