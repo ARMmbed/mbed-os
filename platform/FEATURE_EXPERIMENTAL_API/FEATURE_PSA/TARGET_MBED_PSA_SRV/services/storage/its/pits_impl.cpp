@@ -23,6 +23,7 @@
 #include "pits_impl.h"
 #include "mbed_error.h"
 #include "mbed_toolchain.h"
+#include "DeviceKey.h"
 
 using namespace mbed;
 
@@ -70,6 +71,10 @@ static void its_init(void)
         // Thus considered as unrecoverable error for runtime.
         error("Failed getting kvstore instance\n");
     }
+
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
 
     psa_storage_handle_version(kvstore, ITS_VERSION_KEY, &version, its_version_migrate);
     initialized = true;
