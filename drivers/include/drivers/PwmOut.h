@@ -110,6 +110,12 @@ public:
      */
     void period_us(int us);
 
+    /** Read the PWM period
+     *  @returns
+     *   The PWM period, specified in microseconds (int)
+     */
+    int read_period_us();
+
     /** Set the PWM pulsewidth, specified in seconds (float), keeping the period the same.
      *  @param seconds Change the pulse width of a PWM signal specified in seconds (float)
      */
@@ -124,6 +130,12 @@ public:
      *  @param us Change the pulse width of a PWM signal specified in microseconds
      */
     void pulsewidth_us(int us);
+
+    /** Read the PWM pulsewidth
+     *  @returns
+     *   The PWM pulsewith, specified in microseconds (int)
+     */
+    int read_pulsewitdth_us();
 
     /** Suspend PWM operation
      *
@@ -191,6 +203,7 @@ protected:
     bool _deep_sleep_locked;
     bool _initialized;
     float _duty_cycle;
+    int _period_us;
 #endif
 };
 
