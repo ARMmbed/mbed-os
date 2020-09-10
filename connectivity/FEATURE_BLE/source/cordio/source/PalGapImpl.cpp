@@ -701,7 +701,10 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             break;
 
         case DM_EXT_SCAN_STOP_IND: {
-            if (!handler) { break; }
+            if (!handler) {
+                get_gap().ext_scan_stopping = false;
+                break;
+            }
 
             if (get_gap().ext_scan_stopping) {
                 get_gap().ext_scan_stopping = false;
