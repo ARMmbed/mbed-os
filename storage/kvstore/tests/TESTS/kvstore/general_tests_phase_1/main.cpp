@@ -101,6 +101,11 @@ static void kvstore_init()
     TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
 
     if (kv_setup == TDBStoreSet) {
+#if COMPONENT_FLASHIAP && !COMPONENT_SPIF && !COMPONENT_QSPIF && !COMPONENT_DATAFLASH && !COMPONENT_SD
+        // TDBStore requires two areas of equal size, do the check for FlashIAP
+        TEST_SKIP_UNLESS(MBED_CONF_TARGET_INTERNAL_FLASH_UNIFORM_SECTORS ||
+                         (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE != 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS != 0xFFFFFFFF))
+#endif
         if (erase_val == -1) {
             flash_bd = new FlashSimBlockDevice(bd);
             kvstore = new TDBStore(flash_bd);
