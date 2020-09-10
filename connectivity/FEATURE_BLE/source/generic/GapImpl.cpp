@@ -1030,26 +1030,19 @@ Gap::GapShutdownCallbackChain_t &Gap::onShutdown()
 
 void Gap::on_scan_started(bool success)
 {
-    if (success) {
-        _scan_pending = false;
-        _scan_enabled = true;
-    } else {
-        _scan_pending = false;
-        _scan_enabled = true;
-    }
+    _scan_pending = false;
+    _scan_enabled = success;
 }
 
 void Gap::on_scan_stopped(bool success)
 {
+    _scan_pending = false;
+    _scan_enabled = false;
+
     if (!success) {
-        _scan_pending = false;
-        _scan_enabled = false;
         _scan_address_refresh = false;
         return;
     }
-
-    _scan_pending = false;
-    _scan_enabled = false;
 
     // The address is refreshed only if there's no other pending request to refresh
     // the main address
