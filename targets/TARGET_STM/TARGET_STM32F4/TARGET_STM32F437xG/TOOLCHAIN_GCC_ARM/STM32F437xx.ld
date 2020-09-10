@@ -8,11 +8,11 @@
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
+STACK_SIZE = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 /* Linker script to configure memory regions. */
 /* 0x1AC resevered for vectors; 8-byte aligned = 0x1B0 (0x1AC + 0x4)*/

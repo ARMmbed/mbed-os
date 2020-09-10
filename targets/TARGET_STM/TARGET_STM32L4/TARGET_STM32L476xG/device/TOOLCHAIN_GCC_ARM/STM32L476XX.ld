@@ -28,10 +28,10 @@
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
 
-#if !defined(MBED_BOOT_STACK_SIZE)
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
     /* This value is normally defined by the tools
        to 0x1000 for bare metal and 0x400 for RTOS */
-    #define MBED_BOOT_STACK_SIZE  0x400
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE  0x400
 #endif
 
 /* Round up VECTORS_SIZE to 8 bytes */
@@ -137,7 +137,7 @@ SECTIONS
     {
         __StackLimit = .;
         *(.stack*);
-        . += MBED_BOOT_STACK_SIZE - (. - __StackLimit);
+        . += MBED_CONF_TARGET_BOOT_STACK_SIZE - (. - __StackLimit);
     } > SRAM2
 
     /* Set stack top to end of RAM, and stack limit move down by

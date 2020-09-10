@@ -25,9 +25,13 @@
   #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
 /* This value is normally defined by the tools to 0x1000 for bare metal and 0x400 for RTOS */
-  #define MBED_BOOT_STACK_SIZE  0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 /* Round up VECTORS_SIZE to 8 bytes */
@@ -45,10 +49,10 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
     .ANY (+RW +ZI)
   }
 
-  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_START + MBED_RAM_SIZE - MBED_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_START + MBED_RAM_SIZE - MBED_CONF_TARGET_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
   }
 
-  ARM_LIB_STACK  (MBED_RAM_START + MBED_RAM_SIZE)  EMPTY  -MBED_BOOT_STACK_SIZE  { ; Stack region growing down
+  ARM_LIB_STACK  (MBED_RAM_START + MBED_RAM_SIZE)  EMPTY  -MBED_CONF_TARGET_BOOT_STACK_SIZE  { ; Stack region growing down
   }
 }
 

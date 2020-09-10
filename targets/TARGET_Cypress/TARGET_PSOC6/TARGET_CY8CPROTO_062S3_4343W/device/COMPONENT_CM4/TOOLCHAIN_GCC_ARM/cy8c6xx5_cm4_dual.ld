@@ -79,12 +79,12 @@ FLASH_CM0P_SIZE = 0x2000;
   #define MBED_RAM_SIZE     0x0003D800
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
 /* The size of the stack section at the end of CM4 SRAM */
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
+STACK_SIZE = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing
 * this may, for example, trigger linking of additional modules from standard

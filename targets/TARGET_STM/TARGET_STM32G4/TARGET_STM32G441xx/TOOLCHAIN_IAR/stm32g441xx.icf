@@ -31,10 +31,10 @@ if (!isdefinedsymbol(MBED_APP_SIZE)) {
     define symbol MBED_APP_SIZE = MBED_ROM_SIZE;
 }
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
     /* This value is normally defined by the tools 
         to 0x1000 for bare metal and 0x400 for RTOS */
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+    define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }
 
 /* Round up VECTORS_SIZE to 8 bytes */
@@ -46,7 +46,7 @@ define memory mem with size = 4G;
 define region ROM_region = mem:[from MBED_APP_START size MBED_APP_SIZE];
 define region RAM_region = mem:[from RAM_REGION_START size RAM_REGION_SIZE];
 
-define block CSTACK    with alignment = 8, size = MBED_BOOT_STACK_SIZE   { };
+define block CSTACK    with alignment = 8, size = MBED_CONF_TARGET_BOOT_STACK_SIZE   { };
 define block HEAP      with alignment = 8, size = HEAP_SIZE     { };
 
 initialize by copy { readwrite };

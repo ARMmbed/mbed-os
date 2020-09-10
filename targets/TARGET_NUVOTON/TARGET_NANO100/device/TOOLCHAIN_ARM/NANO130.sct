@@ -20,8 +20,12 @@
 
 #include "../NANO100_mem.h"
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE      0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 ; Does not support vector table relocation
@@ -33,7 +37,7 @@ LR_IROM1 MBED_APP_START  MBED_APP_SIZE  {
    .ANY (+RO)
   }
 
-  ARM_LIB_STACK MBED_RAM_APP_START EMPTY MBED_BOOT_STACK_SIZE {
+  ARM_LIB_STACK MBED_RAM_APP_START EMPTY MBED_CONF_TARGET_BOOT_STACK_SIZE {
   }
 
   RW_IRAM1  AlignExpr(+0, 16)  {  ; 16 byte-aligned

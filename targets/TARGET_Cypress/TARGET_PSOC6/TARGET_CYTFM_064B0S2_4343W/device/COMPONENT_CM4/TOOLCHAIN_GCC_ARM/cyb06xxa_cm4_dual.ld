@@ -78,8 +78,8 @@ BOOT_HEADER_SIZE = 0x400;
   #define MBED_RAM_SIZE     NS_DATA_SIZE
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE NS_MSP_STACK_SIZE
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE NS_MSP_STACK_SIZE
 #endif
 
 /* Shared memory area between Non-Secure and Secure */
@@ -336,14 +336,14 @@ SECTIONS
         __end__ = .;
         end = __end__;
         KEEP(*(.heap*))
-        . = ORIGIN(ram) + LENGTH(ram) - MBED_BOOT_STACK_SIZE - MBED_DATA_SHARED_SIZE;
+        . = ORIGIN(ram) + LENGTH(ram) - MBED_CONF_TARGET_BOOT_STACK_SIZE - MBED_DATA_SHARED_SIZE;
         . = ALIGN(4);
         __StackLimit = .;
         __HeapLimit = .;
     } > ram
 
 
-    __StackTop = (__StackLimit + MBED_BOOT_STACK_SIZE + 3) & 0xFFFFFFFC;
+    __StackTop = (__StackLimit + MBED_CONF_TARGET_BOOT_STACK_SIZE + 3) & 0xFFFFFFFC;
     PROVIDE(__stack = __StackTop);
 
     .shared __StackTop (NOLOAD):

@@ -17,14 +17,18 @@
 #endif
 
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE      0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 ; 8_byte_aligned(48 vect * 4 bytes) =  8_byte_aligned(0xC0) = 0xC0
 #define VECTOR_SIZE                 0xC0
 
-#define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE+VECTOR_SIZE)
+#define RAM_FIXED_SIZE              (MBED_CONF_TARGET_BOOT_STACK_SIZE+VECTOR_SIZE)
 
 LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
 
@@ -41,6 +45,6 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
   ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE+MBED_RAM_START-AlignExpr(ImageLimit(RW_IRAM1), 16))  {
   }
 
-  ARM_LIB_STACK  (MBED_RAM_START+MBED_RAM_SIZE)  EMPTY  -MBED_BOOT_STACK_SIZE { ; stack
+  ARM_LIB_STACK  (MBED_RAM_START+MBED_RAM_SIZE)  EMPTY  -MBED_CONF_TARGET_BOOT_STACK_SIZE { ; stack
   }
 }
