@@ -227,7 +227,7 @@ static uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
 
     /* Erase Sector  */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-    FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0xD7, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+    FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
 
     /* Page Program - single mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_SINGLE] =
