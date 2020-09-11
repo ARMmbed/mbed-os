@@ -3,15 +3,15 @@
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/hci/dual_chip
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/sec/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/att
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/cfg
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/dm
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/hci
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/l2c
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/stack/smp
+        include
+        sources/hci/dual_chip
+        sources/sec/common
+        sources/stack/att
+        sources/stack/cfg
+        sources/stack/dm
+        sources/stack/hci
+        sources/stack/l2c
+        sources/stack/smp
 )
 
 target_sources(mbed-os
