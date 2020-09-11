@@ -324,18 +324,12 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 #endif
 #if defined(USART3_BASE)
         case UART_3:
-            irq_n = USART3_4_LPUART1_IRQn;
+            irq_n = USART3_IRQn;
             break;
 #endif
-#if defined(USART4_BASE)
-        case UART_4:
-            irq_n = USART3_4_LPUART1_IRQn;
-            break;
-#endif
-
 #if defined(LPUART1_BASE)
         case LPUART_1:
-            irq_n = USART3_4_LPUART1_IRQn;
+            irq_n = LPUART1_IRQn;
             break;
 #endif
         default:

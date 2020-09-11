@@ -7256,7 +7256,8 @@
         "device_has_add": [
             "ANALOGOUT",
             "FLASH",
-            "MPU"
+            "MPU",
+            "SERIAL_ASYNCH"
         ],
         "detect_code": [
             "0841"
