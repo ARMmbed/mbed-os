@@ -5,7 +5,7 @@
 ![30% center](fpga_test_shield.jpg)
 
 ```
-mbed test -n tests*fpga* --app-config tests/configs/fpga.json
+mbed test -n hal-tests-tests*fpga* --app-config TESTS/configs/fpga.json
 ```
 
 FPGA_CI_TEST_SHIELD needed macro  
@@ -23,19 +23,19 @@ Tested from factor is defined by MBED_CONF_TARGET_DEFAULT_FORM_FACTOR
 When "default-form-factor" is not set, ARDUINO form factor is used.
 
 Default ff_arduino_pins is defined in:
-https://github.com/ARMmbed/mbed-os/blob/master/hal/mbed_pinmap_default.cpp#L28-L32
+https://github.com/ARMmbed/mbed-os/blob/master/hal/source/mbed_pinmap_default.cpp#L28-L32
 
 Default ff_arduino_names is defined in:
-https://github.com/ARMmbed/mbed-os/blob/master/hal/mbed_pinmap_default.cpp#L34-L38
+https://github.com/ARMmbed/mbed-os/blob/master/hal/source/mbed_pinmap_default.cpp#L34-L38
 
 Default empty_gpio_pinmap is defined in:
-https://github.com/ARMmbed/mbed-os/blob/master/hal/mbed_gpio.c#L89-L114
+https://github.com/ARMmbed/mbed-os/blob/master/hal/source/mbed_gpio.c#L89-L114
 
 Some pins are restricted:
-https://github.com/ARMmbed/mbed-os/blob/master/hal/mbed_pinmap_default.cpp#L69-L73
+https://github.com/ARMmbed/mbed-os/blob/master/hal/source/mbed_pinmap_default.cpp#L69-L73
 
 Some peripherals are restricted:
-https://github.com/ARMmbed/mbed-os/blob/master/hal/mbed_pinmap_default.cpp#L94-L100
+https://github.com/ARMmbed/mbed-os/blob/master/hal/source/mbed_pinmap_default.cpp#L94-L100
 
 
 ## Known issues
