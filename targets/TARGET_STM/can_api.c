@@ -405,7 +405,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
         msg->format = CANExtended;
     }
     msg->id   = RxHeader.Identifier;
-    msg->type = CANData;
+    msg->type = (RxHeader.RxFrameType == FDCAN_DATA_FRAME) ? CANData : CANRemote;
     msg->len  = RxHeader.DataLength >> 16; // see FDCAN_data_length_code value
 
     return 1;
