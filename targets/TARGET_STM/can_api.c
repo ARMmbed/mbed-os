@@ -57,62 +57,6 @@ int can_internal_init(can_t *obj)
     return 1;
 }
 
-
-/** Calculate the fdcan-core-clk value for accurate calculation of the quantum timing
- *
- * !Attention Not all bitrates can be covered with all fdcan-core-clk values. When a clk
- * does not work for the desired bitrate, change system_clock settings for PLLQ
- *
- * !Attention For now, PCLK is not supported (PLLQ is selected always anyways)
- *
- * @returns
- *  core_frequency when successful
- *  -1 when error / not supported
- */
-static int _can_get_core_frequency( void )
-{
-    int clk_sel = (RCC->CCIPR & RCC_CCIPR_FDCANSEL_Msk) >> RCC_CCIPR_FDCANSEL_Pos;
-
-    switch (clk_sel){
-    case 0: //! HSE clock selected as FDCAN clock
-    {
-        return HSE_VALUE;
-    }
-    case 1: //! PLL "Q" clock selected as FDCAN clock
-    {
-        int pll_source_clk;
-
-        int pll_source = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC_Msk);
-        if (pll_source == RCC_PLLCFGR_PLLSRC_HSE){
-            pll_source_clk = HSE_VALUE;
-        } else if (pll_source == RCC_PLLCFGR_PLLSRC_HSI){
-            pll_source_clk = HSI_VALUE;
-        } else {
-            MBED_ERROR(
-                    MBED_MAKE_ERROR(MBED_MODULE_DRIVER_CAN, MBED_ERROR_CODE_CONFIG_UNSUPPORTED),
-                    "PLL source must be HSI or HSE");
-            return -1;
-        }
-
-        int pllm = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM_Msk) >> RCC_PLLCFGR_PLLM_Pos) + 1;
-        int plln = (RCC->PLLCFGR & RCC_PLLCFGR_PLLN_Msk) >> RCC_PLLCFGR_PLLN_Pos;
-        int pllq = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLQ_Msk) >> RCC_PLLCFGR_PLLQ_Pos) + 1;
-        pllq = pllq * 2;
-        int fdcan_freq = ((pll_source_clk / pllm) * plln) / pllq;
-
-        return fdcan_freq;
-    }
-    case 2:  //! PCLK Clk selected as FDCAN clock
-    case 3:
-    default:
-        MBED_ERROR(
-                MBED_MAKE_ERROR(MBED_MODULE_DRIVER_CAN, MBED_ERROR_CODE_CONFIG_UNSUPPORTED),
-                "Wrong clk_source configuration");
-        return -1;
-    }
-}
-
-
 #if STATIC_PINMAP_READY
 #define CAN_INIT_FREQ_DIRECT can_init_freq_direct
 void can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
@@ -180,7 +124,16 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     Synchronization_Jump_width | 30 tq          | <nsjw> = <nts2>
     */
 
-    int ntq = _can_get_core_frequency() / hz;
+    // !Attention Not all bitrates can be covered with all fdcan-core-clk values. When a clk
+    // does not work for the desired bitrate, change system_clock settings for FDCAN_CLK
+    // (default FDCAN_CLK is PLLQ)
+#ifdef TARGET_STM32G4
+    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / hz;
+#else
+    // STM32H7 doesn't support yet HAL_RCCEx_GetPeriphCLKFreq for FDCAN
+    // Internal ST ticket 92465
+    int ntq = 10000000 / hz;
+#endif
 
     obj->CanHandle.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
     obj->CanHandle.Init.Mode = FDCAN_MODE_NORMAL;
@@ -310,8 +263,21 @@ int can_frequency(can_t *obj, int f)
         error("HAL_FDCAN_Stop error\n");
     }
 
-    /* See can_init_freq function for calculation details */
-    int ntq = _can_get_core_frequency() / f;
+
+    /* See can_init_freq function for calculation details
+     *
+     * !Attention Not all bitrates can be covered with all fdcan-core-clk values. When a clk
+     * does not work for the desired bitrate, change system_clock settings for FDCAN_CLK
+     * (default FDCAN_CLK is PLLQ)
+     */
+#ifdef TARGET_STM32G4
+    int ntq = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / f;
+#else
+    // STM32H7 doesn't support yet HAL_RCCEx_GetPeriphCLKFreq for FDCAN
+    // Internal ST ticket 92465
+    int ntq = 10000000 / hz;
+#endif
+
     obj->CanHandle.Init.NominalTimeSeg1 = ntq * 0.75;      // Phase_segment_1
     obj->CanHandle.Init.NominalTimeSeg2 = ntq - 1 - obj->CanHandle.Init.NominalTimeSeg1;      // Phase_segment_2
     obj->CanHandle.Init.NominalSyncJumpWidth = obj->CanHandle.Init.NominalTimeSeg2; // Synchronization_Jump_width
@@ -563,6 +529,7 @@ void FDCAN1_IT1_IRQHandler(void)
     can_irq(CAN_1, 0);
 }
 
+#if defined(FDCAN2_BASE)
 void FDCAN2_IT0_IRQHandler(void)
 {
     can_irq(CAN_2, 1);
@@ -572,7 +539,9 @@ void FDCAN2_IT1_IRQHandler(void)
 {
     can_irq(CAN_2, 1);
 }
+#endif //FDCAN2_BASE
 
+#if defined(FDCAN3_BASE)
 void FDCAN3_IT0_IRQHandler(void)
 {
     can_irq(CAN_3, 2);
@@ -582,6 +551,7 @@ void FDCAN3_IT1_IRQHandler(void)
 {
     can_irq(CAN_3, 2);
 }
+#endif //FDCAN3_BASE
 
 
 // TODO Add other interrupts ?
