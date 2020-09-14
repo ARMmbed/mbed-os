@@ -14,16 +14,16 @@ include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 
 # Set default toolchain file
 if(NOT CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "${MBED_ROOT}/cmake/toolchain.cmake" CACHE INTERNAL "")
+    set(CMAKE_TOOLCHAIN_FILE "${MBED_ROOT}/tools/cmake/toolchain.cmake" CACHE INTERNAL "")
 endif()
 
 # Toolchain setup
-include(${MBED_ROOT}/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
+include(${MBED_ROOT}/tools/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
 enable_language(C CXX ASM)
 
-include(${MBED_ROOT}/cmake/core.cmake)
-include(${MBED_ROOT}/cmake/util.cmake)
-include(${MBED_ROOT}/cmake/profile.cmake)
+include(${MBED_ROOT}/tools/cmake/core.cmake)
+include(${MBED_ROOT}/tools/cmake/util.cmake)
+include(${MBED_ROOT}/tools/cmake/profile.cmake)
 
 # Create Mbed OS library
 add_library(mbed-os OBJECT)
