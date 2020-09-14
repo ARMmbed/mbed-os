@@ -135,12 +135,24 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     int ntq = 10000000 / hz;
 #endif
 
+    int nominalPrescaler = 1;
+    // !When the sample point should be lower than 50%, this must be changed to
+    // !IS_FDCAN_NOMINAL_TSEG2(ntq/nominalPrescaler), since
+    // NTSEG2 and SJW max values are lower. For now the sample point is fix @75%
+    while (!IS_FDCAN_NOMINAL_TSEG1(ntq/nominalPrescaler)){
+        nominalPrescaler ++;
+        if (!IS_FDCAN_NOMINAL_PRESCALER(nominalPrescaler)){
+            error("Could not determine good nominalPrescaler. Bad clock value\n");
+        }
+    }
+    ntq = ntq/nominalPrescaler;
+
     obj->CanHandle.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
     obj->CanHandle.Init.Mode = FDCAN_MODE_NORMAL;
     obj->CanHandle.Init.AutoRetransmission = ENABLE;
     obj->CanHandle.Init.TransmitPause = DISABLE;
     obj->CanHandle.Init.ProtocolException = ENABLE;
-    obj->CanHandle.Init.NominalPrescaler = 1;      // Prescaler
+    obj->CanHandle.Init.NominalPrescaler = nominalPrescaler;      // Prescaler
     obj->CanHandle.Init.NominalTimeSeg1 = ntq * 0.75;      // Phase_segment_1
     obj->CanHandle.Init.NominalTimeSeg2 = ntq - 1 - obj->CanHandle.Init.NominalTimeSeg1;      // Phase_segment_2
     obj->CanHandle.Init.NominalSyncJumpWidth = obj->CanHandle.Init.NominalTimeSeg2; // Synchronization_Jump_width
@@ -278,6 +290,19 @@ int can_frequency(can_t *obj, int f)
     int ntq = 10000000 / hz;
 #endif
 
+    int nominalPrescaler = 1;
+    // !When the sample point should be lower than 50%, this must be changed to
+    // !IS_FDCAN_DATA_TSEG2(ntq/nominalPrescaler), since
+    // NTSEG2 and SJW max values are lower. For now the sample point is fix @75%
+    while (!IS_FDCAN_DATA_TSEG1(ntq/nominalPrescaler)){
+        nominalPrescaler ++;
+        if (!IS_FDCAN_NOMINAL_PRESCALER(nominalPrescaler)){
+            error("Could not determine good nominalPrescaler. Bad clock value\n");
+        }
+    }
+    ntq = ntq/nominalPrescaler;
+
+    obj->CanHandle.Init.NominalPrescaler = nominalPrescaler;
     obj->CanHandle.Init.NominalTimeSeg1 = ntq * 0.75;      // Phase_segment_1
     obj->CanHandle.Init.NominalTimeSeg2 = ntq - 1 - obj->CanHandle.Init.NominalTimeSeg1;      // Phase_segment_2
     obj->CanHandle.Init.NominalSyncJumpWidth = obj->CanHandle.Init.NominalTimeSeg2; // Synchronization_Jump_width
