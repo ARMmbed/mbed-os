@@ -29,7 +29,7 @@
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
     /* This value is normally defined by the tools
        to 0x1000 for bare metal and 0x400 for RTOS */
-    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE  0x400
 #endif
 
 /* Round up VECTORS_SIZE to 8 bytes */

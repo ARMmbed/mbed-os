@@ -55,7 +55,7 @@
   /* #define STM32L061xx */   /*!< */
   /* #define STM32L062xx */   /*!< STM32L062K8 */
   /* #define STM32L063xx */   /*!< STM32L063C8, STM32L063R8 */ 
-  #define STM32L071xx         /*!< */
+  #define STM32L073xx         /*!< */
   /* #define STM32L072xx */   /*!< */
   //#define STM32L073xx    /*!< STM32L073V8, STM32L073VB, STM32L073RB, STM32L073VZ, STM32L073RZ Devices */
   /* #define STM32L081xx */   /*!< */
@@ -87,6 +87,10 @@
                                          |(__STM32L0xx_CMSIS_VERSION_SUB2 << 8 )\
                                          |(__STM32L0xx_CMSIS_VERSION_RC))
                                              
+/**
+  * @}
+  */
+
 /** @addtogroup Device_Included
   * @{
   */
@@ -111,13 +115,11 @@
 #elif defined(STM32L061xx)
   #include "stm32l061xx.h"
 #elif defined(STM32L071xx)
-  //#include "stm32l073xx.h"
   #include "stm32l071xx.h"
 #elif defined(STM32L072xx)
   #include "stm32l072xx.h"
 #elif defined(STM32L073xx)
   #include "stm32l071xx.h"
-  //#include "stm32l073xx.h"
 #elif defined(STM32L082xx)
   #include "stm32l082xx.h"
 #elif defined(STM32L083xx)
@@ -125,7 +127,7 @@
 #elif defined(STM32L081xx)
   #include "stm32l081xx.h"
 #else
- #error "Please select first the target STM32L0xx device used in your application (in stm32l0xx.h file)"
+  #error "Please select first the target STM32L0xx device used in your application (in stm32l0xx.h file)"
 #endif
 
 /**
@@ -176,10 +178,6 @@ typedef enum
 
 #define MODIFY_REG(REG, CLEARMASK, SETMASK)  WRITE_REG((REG), (((READ_REG(REG)) & (~(CLEARMASK))) | (SETMASK)))
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
 /**
   * @}
   */
@@ -188,6 +186,9 @@ typedef enum
 #include "stm32l0xx_hal.h"
 #endif /* USE_HAL_DRIVER */
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __STM32L0xx_H */
 /**
