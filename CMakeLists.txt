@@ -48,9 +48,18 @@ elseif(NOT ${MBED_C_LIB} IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
     )
 endif()
 
+# Validate selected printf library
+set(MBED_PRINTF_LIB_TYPES std minimal-printf)
+if(NOT ${MBED_PRINTF_LIB} IN_LIST MBED_PRINTF_LIB_TYPES)
+    message(FATAL_ERROR
+        "Invalid printf library type '${MBED_PRINTF_LIB}'. Possible values:\n ${MBED_PRINTF_LIB_TYPES}"
+    )
+endif()
+
 mbed_set_cpu_core_options(mbed-os ${MBED_TOOLCHAIN})
 mbed_set_toolchain_options(mbed-os)
 mbed_set_c_lib(mbed-os ${MBED_C_LIB})
+mbed_set_printf_lib(mbed-os ${MBED_PRINTF_LIB})
 mbed_set_language_standard(mbed-os)
 mbed_set_profile_options(mbed-os ${MBED_TOOLCHAIN})
 
