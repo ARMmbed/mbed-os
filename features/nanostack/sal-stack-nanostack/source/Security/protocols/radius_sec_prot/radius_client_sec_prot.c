@@ -79,6 +79,8 @@ typedef enum {
 #define RADIUS_ID_RANGE_SIZE          10
 #define RADIUS_ID_RANGE_NUM           (255 / RADIUS_ID_RANGE_SIZE) - 1
 
+#define RADIUS_ID_TIMEOUT             60
+
 typedef struct radius_client_sec_prot_lib_int_s radius_client_sec_prot_lib_int_t;
 
 typedef struct {
@@ -120,7 +122,6 @@ typedef struct {
 static uint16_t radius_client_sec_prot_size(void);
 static int8_t radius_client_sec_prot_init(sec_prot_t *prot);
 static int8_t radius_client_sec_prot_shared_data_timeout(uint16_t ticks);
-static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range, uint8_t value);
 static int8_t radius_client_sec_prot_shared_data_delete(void);
 static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range, uint8_t value);
 static void radius_client_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
@@ -541,17 +542,17 @@ static uint8_t radius_client_sec_prot_identifier_allocate(sec_prot_t *prot, uint
 {
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
-    if (!data->radius_id_range_set || value >= (data->radius_id_range * RADIUS_ID_RANGE_SIZE) + RADIUS_ID_RANGE_SIZE) {
+    if (!data->radius_id_range_set || value >= (data->radius_id_range * RADIUS_ID_RANGE_SIZE) + RADIUS_ID_RANGE_SIZE - 1) {
         for (uint8_t conn_num = 0; conn_num < RADIUS_CONN_NUMBER; conn_num++) {
             for (uint8_t id_range = 0; id_range < RADIUS_ID_RANGE_NUM; id_range++) {
                 if (shared_data->radius_identifier_timer[conn_num][id_range] == 0) {
                     // If range has been already reserved
                     if (data->radius_id_range_set) {
-                        // Set previous range to timeout in 5 seconds
-                        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, 5);
+                        // Set previous range to timeout at 1/5 of identifier timeout
+                        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, RADIUS_ID_TIMEOUT / 5);
                     }
                     // Set timeout for new range to 60 seconds
-                    radius_identifier_timer_value_set(conn_num, id_range, 60);
+                    radius_identifier_timer_value_set(conn_num, id_range, RADIUS_ID_TIMEOUT);
                     data->radius_id_conn_num = conn_num;
                     data->radius_id_range = id_range;
                     data->radius_id_range_set = true;
@@ -560,7 +561,7 @@ static uint8_t radius_client_sec_prot_identifier_allocate(sec_prot_t *prot, uint
             }
         }
     } else {
-        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, 60);
+        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, RADIUS_ID_TIMEOUT);
         return value + 1;
     }
 
@@ -572,7 +573,8 @@ static void radius_client_sec_prot_identifier_free(sec_prot_t *prot)
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
     if (data->radius_id_range_set) {
-        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, 5);
+        // Timeout at 1/5 of identifier timeout
+        radius_identifier_timer_value_set(data->radius_id_conn_num, data->radius_id_range, RADIUS_ID_TIMEOUT / 5);
     }
 }
 
