@@ -950,7 +950,7 @@ void STM32_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
 
 void STM32_EMAC::add_multicast_group(const uint8_t *addr)
 {
-    /* No-op at this stage */
+	set_all_multicast(true);
 }
 
 void STM32_EMAC::remove_multicast_group(const uint8_t *addr)
@@ -960,7 +960,17 @@ void STM32_EMAC::remove_multicast_group(const uint8_t *addr)
 
 void STM32_EMAC::set_all_multicast(bool all)
 {
-    /* No-op at this stage */
+    STM32_EMAC &emac = STM32_EMAC::get_instance();
+
+    ETH_MACFilterConfigTypeDef pFilterConfig;
+    
+    if (HAL_ETH_GetMACFilterConfig(&emac.EthHandle, &pFilterConfig) != HAL_OK){
+        return;
+    }
+
+    pFilterConfig.PassAllMulticast = all ? ENABLE : DISABLE;
+
+    HAL_ETH_SetMACFilterConfig(&emac.EthHandle, &pFilterConfig);
 }
 
 void STM32_EMAC::power_down()
