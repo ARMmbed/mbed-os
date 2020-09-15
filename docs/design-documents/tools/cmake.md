@@ -98,6 +98,7 @@ This will output `mbed_config.cmake` in a directory named `.mbedbuild` at the ro
 * `MBED_CPU_CORE`
 * `MBED_C_LIB`
 * `MBED_TARGET_SUPPORTED_C_LIBS`
+* `MBED_PRINTF_LIB`
 
 The tools also generate an `MBED_TARGET_LABELS` variable, containing the labels, components and feature definitions from `targets.json`, used to select the required Mbed OS components to be built.
 
