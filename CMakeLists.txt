@@ -28,8 +28,29 @@ include(${MBED_ROOT}/tools/cmake/profile.cmake)
 # Create Mbed OS library
 add_library(mbed-os OBJECT)
 
+# Validate selected C library type
+# The C library type selected has to match the library that the target can support
+if(${MBED_C_LIB} STREQUAL "small")
+    if(NOT "small" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+        if("std" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+            message(WARNING
+                "We noticed that target.c_lib is set to `${MBED_C_LIB}`."
+                " As the ${MBED_TARGET} target does not support a small C library for the ${MBED_TOOLCHAIN} toolchain,"
+                " we are using the standard C library instead."
+            )
+            set(MBED_C_LIB "std" CACHE STRING "")
+        endif() 
+    endif()
+elseif(NOT ${MBED_C_LIB} IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+    message(FATAL_ERROR
+        "Invalid `target.c_lib` ('${MBED_C_LIB}') for '${MBED_TARGET}' target."
+        "\nPossible value(s): ${MBED_TARGET_SUPPORTED_C_LIBS}"
+    )
+endif()
+
 mbed_set_cpu_core_options(mbed-os ${MBED_TOOLCHAIN})
 mbed_set_toolchain_options(mbed-os)
+mbed_set_c_lib(mbed-os ${MBED_C_LIB})
 mbed_set_language_standard(mbed-os)
 mbed_set_profile_options(mbed-os ${MBED_TOOLCHAIN})
 
