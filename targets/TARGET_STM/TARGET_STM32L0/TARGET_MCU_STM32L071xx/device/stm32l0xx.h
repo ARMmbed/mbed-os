@@ -55,7 +55,7 @@
   /* #define STM32L061xx */   /*!< */
   /* #define STM32L062xx */   /*!< STM32L062K8 */
   /* #define STM32L063xx */   /*!< STM32L063C8, STM32L063R8 */ 
-  #define STM32L073xx         /*!< */
+  #define STM32L071xx         /*!< */
   /* #define STM32L072xx */   /*!< */
   //#define STM32L073xx    /*!< STM32L073V8, STM32L073VB, STM32L073RB, STM32L073VZ, STM32L073RZ Devices */
   /* #define STM32L081xx */   /*!< */
@@ -119,7 +119,7 @@
 #elif defined(STM32L072xx)
   #include "stm32l072xx.h"
 #elif defined(STM32L073xx)
-  #include "stm32l071xx.h"
+  #include "stm32l073xx.h"
 #elif defined(STM32L082xx)
   #include "stm32l082xx.h"
 #elif defined(STM32L083xx)
