@@ -25,7 +25,12 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
+#if MBED_CONF_MBED_TRACE_ENABLE
 #include "mbed-trace/mbed_trace.h"
+#else
+#define tr_info(...)
+#define tr_error(...)
+#endif // MBED_CONF_MBED_TRACE_ENABLE
 
 #if defined(OCTOSPI1)
 #define TRACE_GROUP "STOS"
