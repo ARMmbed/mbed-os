@@ -10,11 +10,9 @@ We are currently working to break down the `mbed-os` library into several indivi
 
 The following features are not yet supported and will be progressively added:
 * Application profile selection (`bare metal`)
-* C library selection (`small`)
-* `s/f/v/printf` library selection (`minimal-printf`)
-* Other features that require altering compiler/linker command line options
+* Features that require altering compiler/linker command line options (except for printf library and C selections)
 
-The full profile with the standard printf and C library are selected by default.
+The full profile with the selected printf and C libraries.
 
 ### Supported targets
 

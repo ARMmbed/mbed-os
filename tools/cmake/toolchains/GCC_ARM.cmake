@@ -75,3 +75,19 @@ function(mbed_generate_gcc_options_for_linker target definitions_file linker_opt
     set(definitions_file @${CMAKE_BINARY_DIR}/compile_time_defs.txt)
     set(linker_options_file @${CMAKE_BINARY_DIR}/linker_options.txt)
 endfunction()
+
+# Configure the toolchain to select the selected C library
+function(mbed_set_c_lib target lib_type)
+    if (${lib_type} STREQUAL "small")
+        target_compile_definitions(${target}
+            PUBLIC
+                MBED_RTOS_SINGLE_THREAD
+                __NEWLIB_NANO
+        )
+
+        target_link_options(${target}
+            PUBLIC
+                "--specs=nano.specs"
+        )
+    endif()
+endfunction()
