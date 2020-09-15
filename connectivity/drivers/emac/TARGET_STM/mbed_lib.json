@@ -42,6 +42,10 @@
         "eth-phy-duplex-status": {
             "help" : "Duplex mask information in eth-phy-status-register",
             "value" : "0x0010"
+        },
+        "multicast-unmanaged": {
+            "help": "Wether multicast pass all filter is enabled when joining any multicast group",
+            "value": "1"
         }
     },
     "target_overrides": {

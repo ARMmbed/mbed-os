@@ -950,7 +950,9 @@ void STM32_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
 
 void STM32_EMAC::add_multicast_group(const uint8_t *addr)
 {
-	set_all_multicast(true);
+#if MBED_CONF_STM32_EMAC_MULTICAST_UNMANAGED == 1
+    set_all_multicast(true);
+#endif
 }
 
 void STM32_EMAC::remove_multicast_group(const uint8_t *addr)
