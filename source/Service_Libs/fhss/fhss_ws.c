@@ -305,12 +305,12 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
 
         /* Start timer with random timeout to trigger broadcast TX queue poll event.
          * Min random is 1/50 of the channel dwell interval.
-         * Max random is 1/10 of the channel dwell interval.
+         * Max random is 3/4 of the channel dwell interval.
          * Event timer resolution is 50us.
          */
         uint32_t bc_dwell_us = MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
         uint16_t bc_min_random = (bc_dwell_us / 50) / 50;
-        uint16_t bc_max_random = (bc_dwell_us / 10) / 50;
+        uint16_t bc_max_random = (bc_dwell_us - (bc_dwell_us / 4)) / 50;
         eventOS_callback_timer_start(fhss_structure->fhss_event_timer, randLIB_get_random_in_range(bc_min_random, bc_max_random));
     } else {
         fhss_structure->ws->unicast_start_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
