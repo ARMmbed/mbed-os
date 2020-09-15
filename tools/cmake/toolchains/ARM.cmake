@@ -79,3 +79,13 @@ function(mbed_set_c_lib target lib_type)
         )
     endif()
 endfunction()
+
+# Configure the toolchain to select the selected printf library
+function(mbed_set_printf_lib target lib_type)
+    if (${lib_type} STREQUAL "minimal-printf")
+        target_compile_definitions(${target}
+            PUBLIC
+                MBED_MINIMAL_PRINTF
+        )
+    endif()
+endfunction()
