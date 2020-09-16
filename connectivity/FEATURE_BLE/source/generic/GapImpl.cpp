@@ -415,6 +415,10 @@ ble_error_t Gap::setRandomStaticAddress(
     return BLE_ERROR_NONE;
 }
 
+ble::address_t Gap::getRandomStaticAddress()
+{
+    return _random_static_identity_address;
+}
 
 ble_error_t Gap::getAddress(
     own_address_type_t &type,

@@ -346,6 +346,8 @@ public:
      */
     ble_error_t setRandomStaticAddress(const ble::address_t &address);
 
+    ble::address_t getRandomStaticAddress();
+
 #endif // !defined(DOXYGEN_ONLY)
 
     /* ===================================================================== */

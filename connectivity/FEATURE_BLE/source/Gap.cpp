@@ -501,4 +501,9 @@ ble_error_t Gap::setRandomStaticAddress(const ble::address_t &address)
     return impl->setRandomStaticAddress(address);
 }
 
+ble::address_t Gap::getRandomStaticAddress()
+{
+    return impl->getRandomStaticAddress();
+}
+
 } // namespace ble
