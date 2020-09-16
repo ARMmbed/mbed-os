@@ -761,20 +761,6 @@ public:
         uint16_t timeout_in_seconds
     ) = 0;
 
-    /**
-     * Retrieve the identity address used by the controller
-     *
-     * @param address Will contain the address retrieved.
-     * @param public_address will be true if the address is public and false
-     * otherwise.
-     * @return BLE_ERROR_NONE On success, else an error code indicating the reason
-     * of the failure
-     */
-    virtual ble_error_t get_identity_address(
-        address_t& address,
-        bool& public_address
-    ) = 0;
-
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
@@ -814,6 +800,18 @@ public:
     virtual ble_error_t set_irk(
         const irk_t &irk
     ) = 0;
+
+    /**
+     * Set the local identity address.
+     *
+     * @param[in] address identity address of the device
+     * @param[in] public_address true if a public address is used and false otherwise.
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t set_identity_address(
+        const address_t &address, bool public_address
+    ) = 0;
+
     /**
      * Set the local CSRK.
      *

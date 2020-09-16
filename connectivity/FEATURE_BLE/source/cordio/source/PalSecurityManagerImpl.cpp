@@ -220,21 +220,6 @@ ble_error_t PalSecurityManager::set_private_address_timeout(
     return BLE_ERROR_NONE;
 }
 
-/**
- * @see ::ble::PalSecurityManager::get_identity_address
- */
-
-ble_error_t PalSecurityManager::get_identity_address(
-    address_t &address,
-    bool &public_address
-)
-{
-    // On cordio, the public address is hardcoded as the identity address.
-    address = address_t(HciGetBdAddr());
-    public_address = true;
-    return BLE_ERROR_NONE;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // Keys
 //
@@ -288,6 +273,17 @@ ble_error_t PalSecurityManager::set_irk(const irk_t &irk)
     return BLE_ERROR_NONE;
 }
 
+ble_error_t PalSecurityManager::set_identity_address(
+    const address_t &address,
+    bool public_address
+)
+{
+    DmSecSetLocalIdentityAddr(
+        address.data(),
+        public_address ? DM_ADDR_PUBLIC : DM_ADDR_RANDOM
+    );
+    return BLE_ERROR_NONE;
+}
 
 ble_error_t PalSecurityManager::set_csrk(
     const csrk_t &csrk,
