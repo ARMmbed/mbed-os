@@ -17,7 +17,6 @@
 
 #include "gtest/gtest.h"
 #include "platform/CircularBuffer.h"
-#include "mbed_critical_stub.c"
 
 #define TEST_BUFFER_SIZE (10)
 
