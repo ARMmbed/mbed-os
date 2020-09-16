@@ -287,7 +287,7 @@ int can_frequency(can_t *obj, int f)
 #else
     // STM32H7 doesn't support yet HAL_RCCEx_GetPeriphCLKFreq for FDCAN
     // Internal ST ticket 92465
-    int ntq = 10000000 / hz;
+    int ntq = 10000000 / f;
 #endif
 
     int nominalPrescaler = 1;
