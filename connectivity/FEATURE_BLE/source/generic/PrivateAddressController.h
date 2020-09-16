@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -203,7 +203,34 @@ public:
         const address_t **retrieved_address
     );
 
+    /**
+     * Resolve a private address by looking in the cache.
+     *
+     * @param peer_address the address to resolve.
+     * @param retrieved_address_type The type of the address resolved. Valid if
+     * resolution_complete is equals to true AND retrieved_address is not null.
+     * @param retrieved_address If an entry has been found for the address in
+     * input this will be set to null if the address has not been resolved with
+     * the local irks or a pointer to the identity address if it has been resolved.
+     *
+     * @return True if the address has been found in cache.
+    */
+    bool resolve_address_in_cache(
+        const address_t &peer_address,
+        target_peer_address_type_t *retrieved_address_type,
+        const address_t **retrieved_address
+    );
+
+    /**
+     * Resolve a private resolvable address asynchronously. The request will be completed by a report through
+     * EventHandler::on_address_resolution_completed.
+     *
+     * @param peer_address the address to resolve.
+     */
+    ble_error_t queue_resolve_address(const address_t &peer_address);
+
 private:
+
     void generate_resolvable_address();
 
     void generate_non_resolvable_address();
@@ -243,7 +270,6 @@ private:
     ble_error_t queue_clear_resolving_list();
 
     struct PrivacyResolveAddress;
-    ble_error_t queue_resolve_address(const address_t &peer_address);
 
     void restart_resolution_process();
 

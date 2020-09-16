@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -234,24 +234,18 @@ ble_error_t PrivateAddressController::clear_resolving_list()
     }
 }
 
-ble_error_t PrivateAddressController::resolve_address(
+bool PrivateAddressController::resolve_address_in_cache(
     const address_t &peer_address,
-    bool *resolution_complete,
     target_peer_address_type_t *retrieved_address_type,
     const address_t **retrieved_address
 )
 {
-    if (is_controller_privacy_supported()) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
     // An LRU cache is used, we first traverse the list of resolved address
     // and return any match
     auto *entry = _resolved_list;
     decltype(entry) previous = nullptr;
     while (entry) {
         if (entry->address == peer_address) {
-            *resolution_complete = true;
             // The list contains resolved addresses AND unresolved addresses.
             // Fill input parameters accordingly
             if (entry->identity) {
@@ -266,16 +260,35 @@ ble_error_t PrivateAddressController::resolve_address(
                 entry->next = _resolved_list;
                 _resolved_list = entry;
             }
-            return BLE_ERROR_NONE;
+            return true;
         }
         previous = entry;
         entry = entry->next;
     }
 
+    return false;
+}
+
+ble_error_t PrivateAddressController::resolve_address(
+    const address_t &peer_address,
+    bool *resolution_complete,
+    target_peer_address_type_t *retrieved_address_type,
+    const address_t **retrieved_address
+)
+{
+    if (is_controller_privacy_supported()) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    *resolution_complete = resolve_address_in_cache(peer_address, retrieved_address_type, retrieved_address);
+
     // In the case the address has not been resolved, we start the resolution
     // process.
-    *resolution_complete = false;
-    return queue_resolve_address(peer_address);
+    if (*resolution_complete) {
+        return BLE_ERROR_NONE;
+    } else {
+        return queue_resolve_address(peer_address);
+    }
 }
 
 void PrivateAddressController::on_resolving_list_action_complete()
