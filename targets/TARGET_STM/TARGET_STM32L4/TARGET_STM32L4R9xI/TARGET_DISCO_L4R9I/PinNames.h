@@ -358,6 +358,19 @@ typedef enum {
     QSPI_FLASH1_SCK = PI_6,
     QSPI_FLASH1_CSN = PG_12,
 
+    /**** OSPI FLASH pins ****/
+    OSPI_FLASH1_IO0 = PI_11,
+    OSPI_FLASH1_IO1 = PI_10,
+    OSPI_FLASH1_IO2 = PI_9,
+    OSPI_FLASH1_IO3 = PH_8,
+    OSPI_FLASH1_IO4 = PH_9,
+    OSPI_FLASH1_IO5 = PH_10,
+    OSPI_FLASH1_IO6 = PG_9,
+    OSPI_FLASH1_IO7 = PG_10,
+    OSPI_FLASH1_DQS = PG_15,
+    OSPI_FLASH1_SCK = PI_6,
+    OSPI_FLASH1_CSN = PG_12,
+
     /**** STMOD+ pins ****/
     STMOD_1  = PA_6,
     STMOD_2  = PB_10,

@@ -93,4 +93,11 @@ MBED_WEAK qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinma
 }
 #endif
 
+#if DEVICE_OSPI
+MBED_WEAK ospi_status_t ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
+{
+    return ospi_init(obj, pinmap->data0_pin, pinmap->data1_pin, pinmap->data2_pin, pinmap->data3_pin, pinmap->data4_pin, pinmap->data5_pin, pinmap->data6_pin, pinmap->data7_pin, pinmap->sclk_pin, pinmap->ssel_pin, pinmap->dqs_pin, hz, mode);
+}
+#endif
+
 #endif
