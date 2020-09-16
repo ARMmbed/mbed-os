@@ -1,7 +1,7 @@
 # CMake Mbed OS
 
 Requirements:
-- CMake 3.13 and higher
+- CMake 3.18.2 and higher
 - `mbed-tools` (python 3.6 and higher)
 
 Two steps approach:
@@ -32,12 +32,11 @@ There are numerous CMake files in the Mbed OS repository tree:
 * A `CMakeLists.txt` entry point in the Mbed OS root, describing the top level build specification for the Mbed OS source tree.
 * `CMakeLists.txt` entry points in each Mbed OS module subdirectory, describing the build specification for a module or component
 
-A number of CMake scripts are contained in the `mbed-os/cmake` directory:
-* `toolchain.cmake` - selects the toolchain script from the `cmake/toolchains` directory, based on the value of the `MBED_TOOLCHAIN` variable
-* `profile.cmake` - selects the profile script from the `cmake/profiles` directory, based on the value of the `MBED_PROFILE` variable
+A number of CMake scripts are contained in the `mbed-os/tools/cmake` directory:
 * `core.cmake` - selects the core script from the `cmake/cores` directory, based on the value of the `MBED_CPU_CORE` variable
+* `profile.cmake` - selects the profile script from the `cmake/profiles` directory, based on the value of the `MBED_PROFILE` variable
+* `toolchain.cmake` - selects the toolchain script from the `cmake/toolchains` directory, based on the value of the `MBED_TOOLCHAIN` variable
 * `util.cmake` - custom CMake helper functions and macros
-* `app.cmake` - contains part of the build specification for an application
 
 The next sections will describe static CMake files within Mbed OS Core repository.
 
@@ -45,7 +44,7 @@ The next sections will describe static CMake files within Mbed OS Core repositor
 
 The `CMakeLists.txt` entry point in the root of the Mbed OS repository contains the top level build specification for Mbed OS. This file also includes the auto generated `mbed_config.cmake` script, which is created by `mbed-tools`.
 
-This is not intended to be included by an application.
+This is not intended to be included by an application. Applications must use `add_subdirectory(${MBED_ROOT})`.
 
 ### 2. Toolchain CMake Scripts
 
@@ -62,14 +61,6 @@ The MCU core definitions are defined in the scripts found in `cmake/cores/`.
 ### 5. Utilities CMake Scripts
 
 Custom functions/macros used within Mbed OS.
-
-### 6. Application CMake
-
-The CMake script that must be included by all applications using:
-
-```
-include(${MBED_ROOT}/cmake/app.cmake)
-```
 
 ### 7. Component `CMakeLists.txt` Entry Point
 
@@ -105,7 +96,6 @@ This will output `mbed_config.cmake` in a directory named `.mbedbuild` at the ro
 * `MBED_TOOLCHAIN`
 * `MBED_TARGET`
 * `MBED_CPU_CORE`
-* `MBED_PROFILE`
 
 The tools also generate an `MBED_TARGET_LABELS` variable, containing the labels, components and feature definitions from `targets.json`, used to select the required Mbed OS components to be built.
 
