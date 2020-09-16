@@ -33,13 +33,6 @@ cache:
 
 before_install:
   - source tools/test/travis-ci/functions.sh
-  - set_status "pending" "Test started."
-
-after_success:
-  - set_status "success" "Success!"
-
-after_failure:
-  - set_status "failure" "Test failed."
 
 
 matrix:
@@ -86,8 +79,6 @@ matrix:
               | while read file; do cp --parents "${file}" SCANCODE_NEW_FILES; done
         - scancode -l --json-pp scancode_new_files.json SCANCODE_NEW_FILES
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode_new_files.json || true
-      after_success:
-        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
         - cat scancode-evaluate.log
         - COUNT=$(cat scancode-evaluate.log | grep 'File:' | wc -l)
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode_new_files.json
@@ -96,21 +87,12 @@ matrix:
         - |
           if [ $COUNT == 0 ] && [ $COUNT_NEW_FILES == 0 ]; then
               echo "License check OK";
-              STATUSM="All licenses OK";
-              set_status "success" "$STATUSM";
             elif [ $COUNT_NEW_FILES != 0 ]; then
-              echo "License check failed, files with the license issues found";
-              STATUSM="Needs review, license issues in modified files: ${COUNT}, new files: ${COUNT_NEW_FILES}";
-              set_status "failure" "$STATUSM";
+              echo "License check failed, new files with the license issues found";
               false;
             else
               echo "License check failed, please review license issues found in modified files";
-              STATUSM="Needs review, ${COUNT} license issues found";
-              set_status "success" "$STATUSM";
-              false;
           fi
-
-
 
     - <<: *basic-vm
       name: "include check"
@@ -305,20 +287,6 @@ matrix:
         # Run profiling tests
         - make -C ${EVENTS}/tests/unit prof | tee prof
         - ccache -s
-      after_success:
-        # Update status, comparing with master if possible.
-        - |
-          CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
-          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
-              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
-                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
-                  | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
-              || echo 0)
-
-          delta=""
-          [ "${PREV}" -ne 0 ] && delta="($(printf "%+d" "$(( ${CURR} - ${PREV} ))" cycles)"
-
-          set_status "success" "Success! Runtime is ${CURR} cycles. ${delta}"
 
     - <<: *extended-vm
       name: "littlefs"
@@ -379,17 +347,3 @@ matrix:
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
         - ccache -s
-      after_success:
-        # Update status, comparing with master if possible.
-        - |
-          CURR=$(tail -n1 sizes | awk '{print $1}')
-          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
-              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
-                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
-                  | capture(\"code size is (?<size>[0-9]+)\").size" \
-              || echo 0)
-
-          delta=""
-          [ "${PREV}" -ne 0 ] && delta="($(printf "%+0.2f%%" "$(<<< "100 * ((${CURR} - ${PREV})/${PREV})" bc -l)"))"
-
-          set_status "success" "Success! Code size is ${CURR}B. ${delta}"
