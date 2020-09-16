@@ -1032,9 +1032,24 @@ ble_error_t SecurityManager::init_identity()
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     const irk_t *pirk = nullptr;
 
+    ble::Gap& gap = BLE::Instance().gap();
+
     irk_t irk = _db->get_local_irk();
     if (irk != irk_t()) {
         pirk = &irk;
+
+        if (!_db->is_local_identity_address_public()) {
+            // Some controllers doesn't store their random static address and
+            // instead generates them at each reboot.
+            // The code should replace the random static address with the identity
+            // address if this is the case.
+            if (_db->get_local_identity_address() != gap.getRandomStaticAddress()) {
+                ble_error_t err = gap.setRandomStaticAddress(_db->get_local_identity_address());
+                if (err) {
+                    return err;
+                }
+            }
+        }
     } else {
         ble_error_t ret = get_random_data(irk.data(), irk.size());
         if (ret != BLE_ERROR_NONE) {
@@ -1042,13 +1057,11 @@ ble_error_t SecurityManager::init_identity()
         }
 
         pirk = &irk;
-        address_t identity_address;
-        bool public_address;
-        ret = _pal.get_identity_address(identity_address, public_address);
+        address_t random_static_address = gap.getRandomStaticAddress();
         if (ret != BLE_ERROR_NONE) {
             return ret;
         }
-        _db->set_local_identity(irk, identity_address, public_address);
+        _db->set_local_identity(irk, random_static_address, /* public_address */ false);
     }
 
     auto err = _pal.set_irk(*pirk);
