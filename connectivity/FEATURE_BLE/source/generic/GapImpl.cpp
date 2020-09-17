@@ -2333,13 +2333,14 @@ void Gap::on_enhanced_connection_complete(
     clock_accuracy_t master_clock_accuracy
 )
 {
+    if (own_role == connection_role_t::CENTRAL) {
+        _initiating = false;
+    }
+
     if (!_event_handler) {
         return;
     }
 
-    if (own_role == connection_role_t::CENTRAL) {
-        _initiating = false;
-    }
 
     _event_handler->onConnectionComplete(
         ConnectionCompleteEvent(
