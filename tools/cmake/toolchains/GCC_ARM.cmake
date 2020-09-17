@@ -23,6 +23,13 @@ function(mbed_set_toolchain_options target)
         "-T" "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
     )
 
+    # Add linking time preprocessor macro for TFM targets
+    if("TFM" IN_LIST MBED_TARGET_LABELS)
+        list(APPEND link_options
+            "-DDOMAIN_NS=1"
+        )
+    endif()
+
     list(APPEND common_options
         "-Wall"
         "-Wextra"
@@ -48,6 +55,7 @@ function(mbed_set_toolchain_options target)
             TOOLCHAIN_GCC_ARM
             TOOLCHAIN_GCC
     )
+
 
     target_link_options(${target}
         PUBLIC
