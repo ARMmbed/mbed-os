@@ -2467,7 +2467,8 @@
         "device_has_add": [
             "ANALOGOUT",
             "FLASH",
-            "MPU"
+            "MPU",
+            "CAN"
         ]
     },
     "NUCLEO_G474RE": {
