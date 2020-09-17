@@ -58,3 +58,24 @@ function(mbed_set_toolchain_options target)
             ${MBED_STUDIO_ARM_COMPILER}
     )
 endfunction()
+
+# Configure the toolchain to select the selected C library
+function(mbed_set_c_lib target lib_type)
+    if (${lib_type} STREQUAL "small")
+        target_compile_definitions(${target}
+            PUBLIC
+                MBED_RTOS_SINGLE_THREAD
+                __MICROLIB
+        )
+
+        target_compile_options(${target}
+            PUBLIC
+                $<$<COMPILE_LANGUAGE:ASM>:"--library_type=microlib">
+        )
+
+        target_link_options(${target}
+            PUBLIC
+                "--library_type=microlib"
+        )
+    endif()
+endfunction()
