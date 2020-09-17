@@ -64,6 +64,7 @@ matrix:
         - pip install scancode-toolkit==3.1.1
       before_script:
         - mkdir -p SCANCODE
+        - mkdir -p SCANCODE_NEW_FILES
         # Fetch remaining information needed for branch comparison
         - git fetch --all --unshallow --tags
         - git fetch origin "${TRAVIS_BRANCH}"
@@ -71,25 +72,42 @@ matrix:
         # scancode does not support list of files, only one file or directory
         # we use SCANCODE directory for all changed files (their copies with full tree)
         - >-
-            git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+            git diff --name-only --diff-filter=ad FETCH_HEAD..HEAD \
               | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
               | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
               | while read file; do cp --parents "${file}" SCANCODE; done
         - scancode -l --json-pp scancode.json SCANCODE
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json || true
+        # run the same but for new files. All new files must have SPDX
+        - >-
+            git diff --name-only --diff-filter=A FETCH_HEAD..HEAD \
+              | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
+              | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
+              | while read file; do cp --parents "${file}" SCANCODE_NEW_FILES; done
+        - scancode -l --json-pp scancode_new_files.json SCANCODE_NEW_FILES
+        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode_new_files.json || true
       after_success:
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
         - cat scancode-evaluate.log
         - COUNT=$(cat scancode-evaluate.log | grep 'File:' | wc -l)
+        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode_new_files.json
+        - cat scancode-evaluate.log
+        - COUNT_NEW_FILES=$(cat scancode-evaluate.log | grep 'File:' | wc -l)
         - |
-          if [ $COUNT == 0 ]; then
+          if [ $COUNT == 0 ] && [ $COUNT_NEW_FILES == 0 ]; then
               echo "License check OK";
               STATUSM="All licenses OK";
               set_status "success" "$STATUSM";
+            elif [ $COUNT_NEW_FILES != 0 ]; then
+              echo "License check failed, files with the license issues found";
+              STATUSM="Needs review, license issues in modified files: ${COUNT}, new files: ${COUNT_NEW_FILES}";
+              set_status "failure" "$STATUSM";
+              false;
             else
-              echo "License check failed, please review license issues found";
+              echo "License check failed, please review license issues found in modified files";
               STATUSM="Needs review, ${COUNT} license issues found";
               set_status "success" "$STATUSM";
+              false;
           fi
 
 
