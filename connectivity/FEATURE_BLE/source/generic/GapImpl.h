@@ -440,20 +440,6 @@ private:
         phy_t rx_phy
     ) override;
 
-    void on_enhanced_connection_complete(
-        hci_error_code_t status,
-        connection_handle_t connection_handle,
-        connection_role_t own_role,
-        connection_peer_address_type_t peer_address_type,
-        const ble::address_t &peer_address,
-        const ble::address_t &local_resolvable_private_address,
-        const ble::address_t &peer_resolvable_private_address,
-        uint16_t connection_interval,
-        uint16_t connection_latency,
-        uint16_t supervision_timeout,
-        clock_accuracy_t master_clock_accuracy
-    ) override;
-
     void on_extended_advertising_report(
         advertising_event_t event_type,
         const connection_peer_address_type_t *address_type,

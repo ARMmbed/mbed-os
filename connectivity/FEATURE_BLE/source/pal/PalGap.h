@@ -58,59 +58,6 @@ public:
         ble::phy_t rx_phy
      ) = 0;
 
-    /**
-     * Should be invoked by the PalGap implementation when an enhanced
-     * connection complete event happens.
-     *
-     * @param status hci_error_code::SUCCESS in case of success or an error
-     * code.
-     *
-     * @param connection_handle The handle of the connection created.
-     *
-     * @param own_role Indicate if the local device operates as slave or
-     * master.
-     *
-     * @param peer_address_type Type of address of the peer.
-     *
-     * @param peer_address Address of the peer connected.
-     *
-     * @param local_resolvable_private_address Resolvable private address
-     * being used by the controller. If not applicable, the address is full
-     * of zeroes.
-     *
-     * @param peer_resolvable_private_address Resolvable private address
-     * being used by the peer. If not applicable, the address is full of
-     * zeroes.
-     *
-     * @param connection_interval Interval between two connection events.
-     * Unit is 1.25ms.
-     *
-     * @param connection_latency Slave latency for the connection in number
-     * of connection events.
-     *
-     * @param supervision_timeout Connection supervision timeout. Unit is
-     * 10ms.
-     *
-     * @param master_clock_accuracy This parameter is only valid for a slave.
-     * On a master it must be set to 0x00.
-     *
-     * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.10 LE enhanced connection
-     * complete event.
-     */
-    virtual void on_enhanced_connection_complete(
-        hci_error_code_t status,
-        connection_handle_t connection_handle,
-        connection_role_t own_role,
-        connection_peer_address_type_t peer_address_type,
-        const address_t &peer_address,
-        const address_t &local_resolvable_private_address,
-        const address_t &peer_resolvable_private_address,
-        uint16_t connection_interval,
-        uint16_t connection_latency,
-        uint16_t supervision_timeout,
-        clock_accuracy_t master_clock_accuracy
-     ) = 0;
-
     /** Called on advertising report event.
      *
      * @param event_type Type of advertising used.

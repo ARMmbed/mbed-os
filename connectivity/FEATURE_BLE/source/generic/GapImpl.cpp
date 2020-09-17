@@ -2318,48 +2318,6 @@ bool Gap::isPeriodicAdvertisingActive(advertising_handle_t handle)
 #endif
 #endif
 
-
-void Gap::on_enhanced_connection_complete(
-    hci_error_code_t status,
-    connection_handle_t connection_handle,
-    connection_role_t own_role,
-    connection_peer_address_type_t peer_address_type,
-    const ble::address_t &peer_address,
-    const ble::address_t &local_resolvable_private_address,
-    const ble::address_t &peer_resolvable_private_address,
-    uint16_t connection_interval,
-    uint16_t connection_latency,
-    uint16_t supervision_timeout,
-    clock_accuracy_t master_clock_accuracy
-)
-{
-    if (own_role == connection_role_t::CENTRAL) {
-        _initiating = false;
-    }
-
-    if (!_event_handler) {
-        return;
-    }
-
-
-    _event_handler->onConnectionComplete(
-        ConnectionCompleteEvent(
-            (status == hci_error_code_t::SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE,
-            (connection_handle_t) connection_handle,
-            own_role,
-            (peer_address_type_t::type) peer_address_type.value(),
-            peer_address,
-            local_resolvable_private_address,
-            peer_resolvable_private_address,
-            conn_interval_t(connection_interval),
-            connection_latency,
-            supervision_timeout_t(supervision_timeout),
-            master_clock_accuracy.get_ppm()
-        )
-    );
-}
-
-
 void Gap::on_extended_advertising_report(
     advertising_event_t event_type,
     const connection_peer_address_type_t *address_type,
