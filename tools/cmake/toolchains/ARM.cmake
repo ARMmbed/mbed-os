@@ -53,9 +53,20 @@ function(mbed_set_toolchain_options target)
             TOOLCHAIN_ARM
     )
 
+    list(APPEND link_options
+        "${MBED_STUDIO_ARM_COMPILER}"
+    )
+
+    # Add linking time preprocessor macro for TFM targets
+    if(MBED_CPU_CORE MATCHES "\-NS$")
+        list(APPEND link_options
+            "--predefine=\"-DDOMAIN_NS=0x1\""
+        )
+    endif()
+
     target_link_options(${target}
         PUBLIC
-            ${MBED_STUDIO_ARM_COMPILER}
+            ${link_options}
     )
 endfunction()
 
