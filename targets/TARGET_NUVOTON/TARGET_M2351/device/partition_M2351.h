@@ -21,48 +21,31 @@
 
 #include "partition_M2351_mem.h"
 
-#define NU_TZ_SECURE_FLASH_SIZE     NU_ROM_SIZE_S
-#define NU_TZ_SECURE_SRAM_SIZE      NU_RAM_SIZE_S
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION)
 
-extern int Load$$LR$$LR_IROM_NSC$$Base;
-extern int Load$$LR$$LR_IROM_NSC$$Length;
-
-#define NU_TZ_NSC_REGION_START  ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Base)
-#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Length)
+extern int Image$$ER_IROM_NSC$$Base;
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &Image$$ER_IROM_NSC$$Base)
+#define NU_TZ_NSC_REGION_SIZE   (NU_TZ_NSC_SIZE)
 
 #elif defined(__ICCARM__)
 
-extern int __NU_TZ_NSC_start__;
-extern int __NU_TZ_NSC_size__;
-
-#define NU_TZ_NSC_REGION_START  ((uint32_t) &__NU_TZ_NSC_start__)
-#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &__NU_TZ_NSC_size__)
+extern int Image$$ER_IROM_NSC$$Base;
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &Image$$ER_IROM_NSC$$Base)
+#define NU_TZ_NSC_REGION_SIZE   (NU_TZ_NSC_SIZE)
 
 #elif defined(__GNUC__)
 
-extern int __nu_tz_nsc_start;
-extern int __nu_tz_nsc_size;
-
-#define NU_TZ_NSC_REGION_START  ((uint32_t) &__nu_tz_nsc_start)
-#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &__nu_tz_nsc_size)
+extern int Image$$ER_IROM_NSC$$Base;
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &Image$$ER_IROM_NSC$$Base)
+#define NU_TZ_NSC_REGION_SIZE   (NU_TZ_NSC_SIZE)
 
 #endif
 
-/* Check relevant macros have been defined */
-#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
-#error("NU_TZ_SECURE_FLASH_SIZE not defined")
-#endif
-#if (! defined(NU_TZ_SECURE_SRAM_SIZE))
-#error("NU_TZ_SECURE_SRAM_SIZE not defined")
-#endif
-#if (! defined(NU_TZ_NSC_REGION_START))
-#error("NU_TZ_NSC_REGION_START not defined")
-#endif
-#if (! defined(NU_TZ_NSC_REGION_SIZE))
-#error("NU_TZ_NSC_REGION_SIZE not defined")
-#endif
 
 /*
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
@@ -88,7 +71,7 @@ extern int __nu_tz_nsc_size;
 //                                         <0x16000=> 88KB
 //                                         <0x18000=> 96KB
 */
-#define SCU_SECURE_SRAM_SIZE      NU_TZ_SECURE_SRAM_SIZE
+#define SCU_SECURE_SRAM_SIZE    NU_RAM_SIZE_S
 #define NON_SECURE_SRAM_BASE    (0x30000000 + SCU_SECURE_SRAM_SIZE)
 
 
@@ -103,7 +86,7 @@ extern int __nu_tz_nsc_size;
 //     <o>Secure Flash ROM Size <0x800-0x7FFFF:0x800>
 */
 
-#define FMC_SECURE_ROM_SIZE      NU_TZ_SECURE_FLASH_SIZE
+#define FMC_SECURE_ROM_SIZE      NU_ROM_SIZE_S
 
 #define FMC_NON_SECURE_BASE     (0x10000000 + FMC_SECURE_ROM_SIZE)
 
@@ -866,6 +849,10 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 }
 
 #endif  /* #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* PARTITION_M2351 */
 
