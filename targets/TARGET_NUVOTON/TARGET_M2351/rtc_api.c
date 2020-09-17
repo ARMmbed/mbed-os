@@ -26,10 +26,13 @@
 #include "partition_M2351.h"
 #include "hal_secure.h"
 
-/* NOTE: BSP RTC driver judges secure/non-secure RTC by PC. This implementation cannot support non-secure RTC
- *       controlled by secure executable. A better way would be that secure/non-secure RTC base is passed
- *       to RTC API as an argument like most other APIs. With BSP RTC driver unchanged, we must enforce 
- *       secure RTC. */
+/* Secure attribution of RTC
+ *
+ * We need RTC to be secure for security concern.
+ *
+ * On M2351, configured to secure
+ * On M2354, hard-wired to secure
+ */
 #if defined(SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (1 << 1))
 #error("Limited by BSP/RTC, we can only support secure RTC.")
 #endif
@@ -67,7 +70,7 @@ void rtc_write(time_t t)
  *
  * NOTE: This dependents on real hardware.
  */
-#define NU_RTCCLK_PER_SEC           ((CLK->CLKSEL3 & CLK_CLKSEL3_SC0SEL_Msk) ? __LIRC : __LXT)
+#define NU_RTCCLK_PER_SEC           (__LXT)
 
 /* Strategy for implementation of RTC HAL
  *
@@ -121,35 +124,37 @@ static time_t t_write = 0;
 /* Convert date time from H/W RTC to struct TM */
 static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC_TIME_DATA_T *datetime_hwrtc);
 
-static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
+static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, CLK_CLKSEL3_RTCSEL_LXT, 0, 0, RTC_IRQn, NULL};
 
-__NONSECURE_ENTRY
-void rtc_init_s(void)
+static void rtc_init_impl(void);
+static void rtc_free_impl(void);
+static int32_t rtc_isenabled_impl(void);
+static int64_t rtc_read_impl(void);
+static void rtc_write_impl(int64_t t);
+
+static void rtc_init_impl(void)
 {
-    if (rtc_isenabled()) {
+    if (rtc_isenabled_impl()) {
         return;
     }
 
     RTC_Open(NULL);
 
     /* POSIX time origin (00:00:00 UTC, Thursday, 1 January 1970) */
-    rtc_write(0);
+    rtc_write_impl(0);
 }
 
-__NONSECURE_ENTRY
-void rtc_free_s(void)
+static void rtc_free_impl(void)
 {
     CLK_DisableModuleClock_S(rtc_modinit.clkidx);
 }
 
-__NONSECURE_ENTRY
-int32_t rtc_isenabled_s(void)
+static int32_t rtc_isenabled_impl(void)
 {
-    // NOTE: To access (RTC) registers, clock must be enabled first.
-    if (! (CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk)) {
-        // Enable IP clock
-        CLK_EnableModuleClock_S(rtc_modinit.clkidx);
-    }
+    // To access (RTC) registers, clock must be enabled first.
+    // For TZ, with RTC being secure, we needn't call the secure gateway versions.
+    CLK_EnableModuleClock(rtc_modinit.clkidx);
+    CLK_SetModuleClock(rtc_modinit.clkidx, rtc_modinit.clksrc, rtc_modinit.clkdiv);
 
     RTC_T *rtc_base = (RTC_T *) NU_MODBASE(rtc_modinit.modname);
     
@@ -157,16 +162,15 @@ int32_t rtc_isenabled_s(void)
     return !! (rtc_base->INIT & RTC_INIT_ACTIVE_Msk);
 }
 
-__NONSECURE_ENTRY
-int64_t rtc_read_s(void)
+static int64_t rtc_read_impl(void)
 {
     /* NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
      *       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
      *       NUC472/M453: Known issue
      *       M487: Fixed
      */
-    if (! rtc_isenabled()) {
-        rtc_init();
+    if (! rtc_isenabled_impl()) {
+        rtc_init_impl();
     }
 
     /* Used for intermediary between date time of H/W RTC and POSIX time */
@@ -206,11 +210,10 @@ int64_t rtc_read_s(void)
     return t_present;
 }
 
-__NONSECURE_ENTRY
-void rtc_write_s(int64_t t)
+static void rtc_write_impl(int64_t t)
 {
-    if (! rtc_isenabled()) {
-        rtc_init();
+    if (! rtc_isenabled_impl()) {
+        rtc_init_impl();
     }
 
     t_write = t;
@@ -255,4 +258,39 @@ static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC
 }
 
 #endif
+
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+__NONSECURE_ENTRY
+void rtc_init_s(void)
+{
+    rtc_init_impl();
+}
+
+__NONSECURE_ENTRY
+void rtc_free_s(void)
+{
+    rtc_free_impl();
+}
+
+__NONSECURE_ENTRY
+int32_t rtc_isenabled_s(void)
+{
+    return rtc_isenabled_impl();
+}
+
+__NONSECURE_ENTRY
+int64_t rtc_read_s(void)
+{
+    return rtc_read_impl();
+}
+
+__NONSECURE_ENTRY
+void rtc_write_s(int64_t t)
+{
+    rtc_write_impl(t);
+}
+
+#endif
+
 #endif
