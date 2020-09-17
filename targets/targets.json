@@ -84,6 +84,10 @@
             "default-adc-vref": {
                 "help": "Default reference voltage for ADC (float)",
                 "value": "NAN"
+            },
+            "internal-flash-uniform-sectors": {
+                "help": "Target's internal flash has uniform sector sizes",
+                "value": true
             }
         }
     },
@@ -1344,6 +1348,9 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
+        "overrides": {
+            "internal-flash-uniform-sectors": false
+        },
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -1494,6 +1501,9 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             }
+        },
+        "overrides": {
+            "internal-flash-uniform-sectors": false
         },
         "device_has_add": [
             "SERIAL_ASYNCH",
@@ -2109,7 +2119,8 @@
             }
         },
         "overrides": {
-            "lpticker_delay_ticks": 0
+            "lpticker_delay_ticks": 0,
+            "internal-flash-uniform-sectors": false
         },
         "macros_add": [
             "MBED_TICKLESS",

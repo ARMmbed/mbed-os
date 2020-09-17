@@ -156,10 +156,17 @@ MBED_WEAK FileSystem *FileSystem::get_default_instance()
 
 #elif COMPONENT_FLASHIAP
 
+// To avoid alignment issues, initialize a filesystem if all sectors have the same size
+// OR the user has specified an address range
+#if MBED_CONF_TARGET_INTERNAL_FLASH_UNIFORM_SECTORS || \
+    (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE != 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS != 0xFFFFFFFF)
     static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
     flash.set_as_default();
 
     return &flash;
+#else
+    return NULL;
+#endif
 
 #else
 
