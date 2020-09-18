@@ -39,4 +39,6 @@
 /* Divider 1 uses 1/1 ratio, PLL x30 is ON */
 #define RENESAS_RZ_A1_SYS_CLK  (CM0_RENESAS_RZ_A1_CLKIN * 30U)
 
+#define LP_TICKER_MTU2_CH      3
+
 #endif

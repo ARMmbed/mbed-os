@@ -538,3 +538,51 @@ const PinMap PinMap_CAN_TD[] = {
 #endif
 };
 
+const PinMap PinMap_SDHI_D0[] = {
+    {P4_11 , SDHI_0, 3},
+    {P3_11 , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
+const PinMap PinMap_SDHI_D1[] = {
+    {P4_10 , SDHI_0, 3},
+    {P3_10 , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
+const PinMap PinMap_SDHI_D2[] = {
+    {P4_15 , SDHI_0, 3},
+    {P3_15 , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
+const PinMap PinMap_SDHI_D3[] = {
+    {P4_14 , SDHI_0, 3},
+    {P3_14 , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
+const PinMap PinMap_SDHI_CLK[] = {
+    {P4_12 , SDHI_0, 3},
+    {P3_12 , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
+const PinMap PinMap_SDHI_CMD[] = {
+    {P4_13 , SDHI_0, 3},
+    {P3_13 , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
+const PinMap PinMap_SDHI_CD[] = {
+    {P4_8  , SDHI_0, 3},
+    {P3_8  , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
+const PinMap PinMap_SDHI_WP[] = {
+    {P4_9  , SDHI_0, 3},
+    {P3_9  , SDHI_1, 7},
+    {NC    , NC    , 0}
+};
+
