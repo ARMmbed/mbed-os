@@ -22,7 +22,8 @@ The following targets are supported:
 - DISCO_L475VG_IOT01A 
 - K64F 
 - K66F
-- NRF52840_DK 
+- NRF52840_DK
+- NUCLEO_F401RE
 - WIO_3G
 
 ### Supported toolchains
