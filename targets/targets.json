@@ -8943,7 +8943,7 @@
         "inherits": ["NU_PFM_M2351"],
         "core": "Cortex-M23-NS",
         "trustzone": true,
-        "supported_toolchains": ["ARMC6"],
+        "supported_toolchains": ["ARMC6", "GCC_ARM"],
         "extra_labels_add": [
             "M23_NS",
             "NU_PREBUILD_SECURE"
