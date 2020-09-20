@@ -72,7 +72,7 @@ void SetSysClock(void)
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL)
         /* 2- If fail try to start with HSE and external xtal */
         if (SetSysClock_PLL_HSE(0) == 0)
-#endif
+#endif 
         {
 #if ((CLOCK_SOURCE) & USE_PLL_HSI)
             /* 3- If fail start with HSI clock */
@@ -109,11 +109,18 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     } else {
         RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     }
+    #if HSE_VALUE==8000000
+        RCC_OscInitStruct.PLL.PLLM = 4;   // 2 MHz
+        RCC_OscInitStruct.PLL.PLLN = 480; // 960 MHz
+    #elif HSE_VALUE==25000000
+        RCC_OscInitStruct.PLL.PLLM = 5;   // 5 MHz
+        RCC_OscInitStruct.PLL.PLLN = 192; // 960 MHz
+    #else
+        error("Unsupported externall clock value, check hse_value define\n")
+    #endif
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = 4;   // 2 MHz
-    RCC_OscInitStruct.PLL.PLLN = 480; // 960 MHz
     RCC_OscInitStruct.PLL.PLLP = 2;   // PLLCLK = SYSCLK = 480 MHz
     RCC_OscInitStruct.PLL.PLLQ = 96;  // PLL1Q used for FDCAN = 10 MHz
     RCC_OscInitStruct.PLL.PLLR = 2;
@@ -178,7 +185,7 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLM = 8;
-    RCC_OscInitStruct.PLL.PLLN = 100;
+    RCC_OscInitStruct.PLL.PLLN = 120;
     RCC_OscInitStruct.PLL.PLLP = 2;
     RCC_OscInitStruct.PLL.PLLQ = 2;
     RCC_OscInitStruct.PLL.PLLR = 2;
