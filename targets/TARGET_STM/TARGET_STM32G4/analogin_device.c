@@ -37,6 +37,42 @@
 #include "mbed_debug.h"
 #include "PeripheralPins.h"
 #include "stm32g4xx_ll_bus.h"
+#include "string.h"
+
+#if defined(ADC1)
+static uint8_t adc1_en_counter = 0;
+#define ADC1_EN_CTR adc1_en_counter
+#else
+#define ADC1_EN_CTR 0
+#endif
+
+#if defined(ADC2)
+static uint8_t adc2_en_counter = 0;
+#define ADC2_EN_CTR adc2_en_counter
+#else
+#define ADC2_EN_CTR 0
+#endif
+
+#if defined(ADC3)
+static uint8_t adc3_en_counter = 0;
+#define ADC3_EN_CTR adc3_en_counter
+#else
+#define ADC3_EN_CTR 0
+#endif
+
+#if defined(ADC4)
+static uint8_t adc4_en_counter = 0;
+#define ADC4_EN_CTR adc4_en_counter
+#else
+#define ADC4_EN_CTR 0
+#endif
+
+#if defined(ADC5)
+static uint8_t adc5_en_counter = 0;
+#define ADC5_EN_CTR adc5_en_counter
+#else
+#define ADC5_EN_CTR 0
+#endif
 
 #if STATIC_PINMAP_READY
 #define ANALOGIN_INIT_DIRECT analogin_init_direct
@@ -94,38 +130,38 @@ static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 
 #if defined(ADC1)
     if ((ADCName)obj->handle.Instance == ADC_1) {
-        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC12);    // TODO - disable clock with deinit?
-        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK);      // TODO - which clock?
-                                                                // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK);
+        adc1_en_counter++;
     }
 #endif
 #if defined(ADC2)
     if ((ADCName)obj->handle.Instance == ADC_2) {
-        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC12);    // TODO - disable clock with deinit?
-        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK);      // TODO - which clock?
-                                                                // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK);
+        adc2_en_counter++;
     }
 #endif
 #if defined(ADC3)
     if ((ADCName)obj->handle.Instance == ADC_3) {
-        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);   // TODO - disable clock with deinit?
-        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);    // TODO - which clock?
-                                                                // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);
+        adc3_en_counter++;
     }
 #endif
 #if defined(ADC4)
     if ((ADCName)obj->handle.Instance == ADC_4) {
-        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);   // TODO - disable clock with deinit?
-        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);    // TODO - which clock?
-                                                                // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);
+        adc4_en_counter++;
     }
 #endif
 
 #if defined(ADC5)
     if ((ADCName)obj->handle.Instance == ADC_5) {
-        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);   // TODO - disable clock with deinit?
-        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);    // TODO - which clock?
-                                                                // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);
+        adc5_en_counter++;
     }
 
 #endif
@@ -163,7 +199,7 @@ uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
@@ -257,6 +293,81 @@ uint16_t adc_read(analogin_t *obj)
 const PinMap *analogin_pinmap()
 {
     return PinMap_ADC;
+}
+
+void analogin_free(analogin_t *obj)
+{
+#if defined(ADC1)
+    if ((ADCName)obj->handle.Instance == ADC_1) {
+        adc1_en_counter--;
+        if(ADC1_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC2 is also unused
+            if(ADC2_EN_CTR == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+            }
+        }
+    }
+#endif
+#if defined(ADC2)
+    if ((ADCName)obj->handle.Instance == ADC_2) {
+        adc2_en_counter--;
+        if(ADC2_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC1 is also unused
+            if(ADC1_EN_CTR == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+            }
+        }
+    }
+#endif
+#if defined(ADC3)
+    if ((ADCName)obj->handle.Instance == ADC_3) {
+        adc3_en_counter--;
+        if(ADC3_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC4 and ADC5 are also unused
+            if((ADC4_EN_CTR + ADC5_EN_CTR) == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+            }
+        }
+    }
+#endif
+#if defined(ADC4)
+    if ((ADCName)obj->handle.Instance == ADC_4) {
+        adc4_en_counter--;
+        if(ADC4_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC3 and ADC5 are also unused
+            if((ADC3_EN_CTR + ADC5_EN_CTR) == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+            }
+        }
+    }
+#endif
+
+#if defined(ADC5)
+    if ((ADCName)obj->handle.Instance == ADC_5) {
+        adc5_en_counter--;
+        if(ADC5_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC3 and ADC4 are also unused
+            if((ADC3_EN_CTR + ADC4_EN_CTR) == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+            }
+        }
+    }
+#endif
 }
 
 #endif
