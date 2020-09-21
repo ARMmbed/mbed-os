@@ -56,7 +56,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @retval None
   */
 
-void SetSysClock(void)
+__weak void SetSysClock(void)
 {
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
     /* 1- Try to start with HSE and external clock */
@@ -88,7 +88,7 @@ void SetSysClock(void)
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+__weak uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -167,7 +167,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 /******************************************************************************/
 /*            PLL (clocked by HSI) used as System clock source                */
 /******************************************************************************/
-uint8_t SetSysClock_PLL_HSI(void)
+__weak uint8_t SetSysClock_PLL_HSI(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
