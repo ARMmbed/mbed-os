@@ -183,11 +183,6 @@ public:
      */
     ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds) final;
 
-    /**
-     * @see ::ble::PalSecurityManager::get_identity_address
-     */
-    ble_error_t get_identity_address(address_t &address, bool &public_address) final;
-
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
@@ -213,6 +208,13 @@ public:
      * @see ::ble::PalSecurityManager::set_irk
      */
     ble_error_t set_irk(const irk_t &irk) final;
+
+    /**
+     * @see ::ble::PalSecurityManager::set_identity_address
+     */
+    ble_error_t set_identity_address(
+        const address_t &address, bool public_address
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_csrk

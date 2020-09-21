@@ -450,6 +450,20 @@ public:
         return _local_identity.irk;
     }
 
+    /**
+     * Return local identity address.
+     */
+    virtual const address_t& get_local_identity_address() {
+        return _local_identity.identity_address;
+    }
+
+    /**
+     * Return if the local identity address is public or not
+     */
+    virtual bool is_local_identity_address_public() {
+        return _local_identity.identity_address_is_public;
+    }
+
     /* list management */
 
     /**
