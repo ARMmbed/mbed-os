@@ -256,12 +256,27 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_16;
+
+            if ((ADCName)obj->handle.Instance == ADC_1) {
+                sConfig.Channel = ADC_CHANNEL_TEMPSENSOR_ADC1;
+                sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
+            }
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_17;
+
+            if ((ADCName)obj->handle.Instance == ADC_1) {
+                sConfig.Channel = ADC_CHANNEL_VBAT;
+                sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
+            }
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_18;
+
+            if ((ADCName)obj->handle.Instance == ADC_1) {
+                sConfig.Channel = ADC_CHANNEL_VREFINT;
+                sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
+            }
             break;
         default:
             return 0;
@@ -282,7 +297,9 @@ uint16_t adc_read(analogin_t *obj)
     } else {
         debug("HAL_ADC_PollForConversion issue\n");
     }
+
     LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
+
     if (HAL_ADC_Stop(&obj->handle) != HAL_OK) {
         debug("HAL_ADC_Stop issue\n");;
     }
