@@ -759,7 +759,7 @@ void AT_CellularContext::check_and_deactivate_context()
     if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
         _at.clear_error();
     }
-    
+
     deactivate_context();
 
     if (_new_context_set) {
