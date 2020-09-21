@@ -171,7 +171,7 @@ endfunction()
 #
 # Configure Mbed OS CMake application (default).
 #
-function(mbed_application_configure target)
+function(mbed_configure_application target)
     mbed_configure_app_target(${target})
     mbed_set_mbed_target_linker_script(${target})
     mbed_generate_bin_hex(${target})
@@ -180,7 +180,7 @@ endfunction()
 #
 # Configure Mbed OS CMake component (default).
 #
-function(mbed_component_configure component)
+function(mbed_configure_component component)
     mbed_set_cpu_core_options(${component} ${MBED_TOOLCHAIN})
     mbed_set_toolchain_options(${component})
     mbed_set_c_lib(${component} ${MBED_C_LIB})
