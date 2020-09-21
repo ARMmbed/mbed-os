@@ -195,3 +195,15 @@ function(mbed_generate_executable target)
     mbed_generate_bin_hex(${target})
     mbed_generate_map_file(${target})
 endfunction()
+
+#
+# Configure Mbed OS CMake component (default).
+#
+function(mbed_component_configure component)
+    mbed_set_cpu_core_options(${component} ${MBED_TOOLCHAIN})
+    mbed_set_toolchain_options(${component})
+    mbed_set_c_lib(${component} ${MBED_C_LIB})
+    mbed_set_printf_lib(${component} ${MBED_PRINTF_LIB})
+    mbed_set_language_standard(${component})
+    mbed_set_profile_options(${component} ${MBED_TOOLCHAIN})
+endfunction()
