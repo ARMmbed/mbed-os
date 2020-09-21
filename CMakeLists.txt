@@ -24,6 +24,7 @@ enable_language(C CXX ASM)
 include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/util.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
+include(${MBED_ROOT}/tools/cmake/components.cmake)
 
 # Create Mbed OS library
 add_library(mbed-os OBJECT)
@@ -80,19 +81,21 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Default build
-add_subdirectory(cmsis)
-add_subdirectory(components)
-add_subdirectory(connectivity)
-add_subdirectory(drivers)
-add_subdirectory(events)
-add_subdirectory(features)
-add_subdirectory(hal)
-add_subdirectory(platform)
-add_subdirectory(rtos)
-add_subdirectory(storage)
-add_subdirectory(targets)
+# Set default core modules
+# We use internal as they have to be prefixed with the MBED_ROOT
+if(NOT DEFINED MBED_INTERNAL_COMPONENTS)
+    set(MBED_INTERNAL_COMPONENTS ${MBED_ROOT}/cmsis ${MBED_ROOT}/drivers ${MBED_ROOT}/hal ${MBED_ROOT}/platform ${MBED_ROOT}/targets)
+endif()
 
+if(NOT DEFINED MBED_BAREMETAL)
+    option(MBED_BAREMETAL "Build baremetal profile" OFF)
+endif()
+
+if(${MBED_BAREMETAL} STREQUAL OFF)
+    list(APPEND ${MBED_INTERNAL_COMPONENTS} ${MBED_ROOT}/rtos)
+endif()
+
+mbed_enable_components("${MBED_INTERNAL_COMPONENTS}" "${MBED_EXTERNAL_COMPONENTS}")
 
 #
 # Configures the application
