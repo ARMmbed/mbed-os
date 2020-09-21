@@ -446,6 +446,7 @@ ble_error_t Gap::getRandomAddressType(
 }
 
 
+#if BLE_ROLE_OBSERVER
 ble_error_t Gap::stopScan()
 {
     ble_error_t err;
@@ -476,8 +477,10 @@ ble_error_t Gap::stopScan()
 
     return BLE_ERROR_NONE;
 }
+#endif
 
 
+#if BLE_ROLE_CENTRAL
 ble_error_t Gap::connect(
     peer_address_type_t peerAddressType,
     const ble::address_t &peerAddress,
@@ -556,15 +559,19 @@ ble_error_t Gap::connect(
         connectionParams.getMaxEventLengthArray()
     );
 }
+#endif
 
 
+#if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::manageConnectionParametersUpdateRequest(bool flag)
 {
     _user_manage_connection_parameter_requests = flag;
     return BLE_ERROR_NONE;
 }
+#endif
 
 
+#if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::updateConnectionParameters(
     connection_handle_t connectionHandle,
     conn_interval_t minConnectionInterval,
@@ -589,8 +596,10 @@ ble_error_t Gap::updateConnectionParameters(
         maxConnectionEventLength.value()
     );
 }
+#endif
 
 
+#if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::acceptConnectionParametersUpdate(
     connection_handle_t connectionHandle,
     conn_interval_t minConnectionInterval,
@@ -615,8 +624,10 @@ ble_error_t Gap::acceptConnectionParametersUpdate(
         maxConnectionEventLength.value()
     );
 }
+#endif
 
 
+#if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::rejectConnectionParametersUpdate(
     connection_handle_t connectionHandle
 )
@@ -626,19 +637,25 @@ ble_error_t Gap::rejectConnectionParametersUpdate(
         hci_error_code_t::UNACCEPTABLE_CONNECTION_PARAMETERS
     );
 }
+#endif
 
 
+#if BLE_ROLE_CENTRAL
 ble_error_t Gap::cancelConnect()
 {
     return _pal_gap.cancel_connection_creation();
 }
+#endif
 
+#if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t Gap::readPhy(ble::connection_handle_t connection)
 {
     return _pal_gap.read_phy(connection);
 }
+#endif
 
 
+#if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t Gap::setPreferredPhys(
     const phy_set_t *txPhys,
     const phy_set_t *rxPhys
@@ -648,8 +665,10 @@ ble_error_t Gap::setPreferredPhys(
     phy_set_t rx_phys(rxPhys ? rxPhys->value() : 0);
     return _pal_gap.set_preferred_phys(tx_phys, rx_phys);
 }
+#endif
 
 
+#if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t Gap::setPhy(
     ble::connection_handle_t connection,
     const phy_set_t *txPhys,
@@ -661,6 +680,7 @@ ble_error_t Gap::setPhy(
     phy_set_t rx_phys(rxPhys ? rxPhys->value() : 0);
     return _pal_gap.set_phy(connection, tx_phys, rx_phys, codedSymbol);
 }
+#endif
 
 
 void Gap::on_read_phy(
@@ -711,6 +731,7 @@ void Gap::on_phy_update_complete(
 }
 
 
+#if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::disconnect(
     connection_handle_t connectionHandle,
     local_disconnection_reason_t reason
@@ -718,14 +739,18 @@ ble_error_t Gap::disconnect(
 {
     return _pal_gap.disconnect(connectionHandle, reason);
 }
+#endif
 
 
+#if BLE_FEATURE_WHITELIST
 uint8_t Gap::getMaxWhitelistSize(void) const
 {
     return _pal_gap.read_white_list_capacity();
 }
+#endif
 
 
+#if BLE_FEATURE_WHITELIST
 ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
 {
     if (initialize_whitelist() == false) {
@@ -743,8 +768,10 @@ ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
     whitelist.capacity = _whitelist.capacity;
     return BLE_ERROR_NONE;
 }
+#endif
 
 
+#if BLE_FEATURE_WHITELIST
 ble_error_t Gap::setWhitelist(const whitelist_t &whitelist)
 {
     if (is_whitelist_valid(whitelist) == false) {
@@ -836,8 +863,10 @@ ble_error_t Gap::setWhitelist(const whitelist_t &whitelist)
 
     return BLE_ERROR_NONE;
 }
+#endif
 
 
+#if BLE_FEATURE_PRIVACY
 ble_error_t Gap::enablePrivacy(bool enable)
 {
     if (enable == _privacy_enabled) {
@@ -856,8 +885,11 @@ ble_error_t Gap::enablePrivacy(bool enable)
 
     return BLE_ERROR_NONE;
 }
+#endif
 
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::setPeripheralPrivacyConfiguration(
     const peripheral_privacy_configuration_t *configuration
 )
@@ -868,8 +900,12 @@ ble_error_t Gap::setPeripheralPrivacyConfiguration(
 
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::getPeripheralPrivacyConfiguration(
     peripheral_privacy_configuration_t *configuration
 )
@@ -878,8 +914,12 @@ ble_error_t Gap::getPeripheralPrivacyConfiguration(
 
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_OBSERVER
 ble_error_t Gap::setCentralPrivacyConfiguration(
     const central_privacy_configuration_t *configuration
 )
@@ -890,8 +930,12 @@ ble_error_t Gap::setCentralPrivacyConfiguration(
 
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_OBSERVER
 ble_error_t Gap::getCentralPrivacyConfiguration(
     central_privacy_configuration_t *configuration
 )
@@ -900,6 +944,8 @@ ble_error_t Gap::getCentralPrivacyConfiguration(
 
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
 ble_error_t Gap::reset()
@@ -1552,6 +1598,7 @@ void Gap::on_address_rotation_timeout()
     _event_queue.post(mbed::callback(this, &Gap::update_random_address));
 }
 
+#if BLE_ROLE_BROADCASTER
 uint8_t Gap::getMaxAdvertisingSetNumber()
 {
 #if BLE_FEATURE_EXTENDED_ADVERTISING
@@ -1564,26 +1611,35 @@ uint8_t Gap::getMaxAdvertisingSetNumber()
         return 1;
     }
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
 uint16_t Gap::getMaxAdvertisingDataLength()
 {
     return _pal_gap.get_maximum_advertising_data_length();
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
 uint16_t Gap::getMaxConnectableAdvertisingDataLength()
 {
     return _pal_gap.get_maximum_connectable_advertising_data_length();
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
 uint16_t Gap::getMaxActiveSetAdvertisingDataLength()
 {
     return _pal_gap.get_maximum_hci_advertising_data_length();
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t Gap::createAdvertisingSet(
     advertising_handle_t *handle,
     const AdvertisingParameters &parameters
@@ -1617,8 +1673,12 @@ ble_error_t Gap::createAdvertisingSet(
 
     return BLE_ERROR_NO_MEM;
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t Gap::destroyAdvertisingSet(advertising_handle_t handle)
 {
     if (is_extended_advertising_available() == false) {
@@ -1656,8 +1716,11 @@ ble_error_t Gap::destroyAdvertisingSet(advertising_handle_t handle)
     _existing_sets.clear(handle);
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::setAdvertisingParameters(
     advertising_handle_t handle,
     const AdvertisingParameters &params
@@ -1703,6 +1766,7 @@ ble_error_t Gap::setAdvertisingParameters(
         );
     }
 }
+#endif
 
 
 ble_error_t Gap::setExtendedAdvertisingParameters(
@@ -1774,6 +1838,7 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
 }
 
 
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::setAdvertisingPayload(
     advertising_handle_t handle,
     Span<const uint8_t> payload
@@ -1786,8 +1851,10 @@ ble_error_t Gap::setAdvertisingPayload(
         /* scan response */ false
     );
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::setAdvertisingScanResponse(
     advertising_handle_t handle,
     Span<const uint8_t> response
@@ -1800,6 +1867,7 @@ ble_error_t Gap::setAdvertisingScanResponse(
         /* scan response */ true
     );
 }
+#endif
 
 
 ble_error_t Gap::setAdvertisingData(
@@ -1927,6 +1995,7 @@ ble_error_t Gap::setAdvertisingData(
 }
 
 
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::startAdvertising(
     advertising_handle_t handle,
     adv_duration_t maxDuration,
@@ -1986,8 +2055,10 @@ ble_error_t Gap::startAdvertising(
 
     return error;
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 {
     ble_error_t status;
@@ -2039,8 +2110,10 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
 
     return status;
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
 bool Gap::isAdvertisingActive(advertising_handle_t handle)
 {
     if (handle >= getMaxAdvertisingSetNumber()) {
@@ -2049,8 +2122,11 @@ bool Gap::isAdvertisingActive(advertising_handle_t handle)
 
     return _active_sets.get(handle);
 }
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::setPeriodicAdvertisingParameters(
     advertising_handle_t handle,
     periodic_interval_t periodicAdvertisingIntervalMin,
@@ -2081,8 +2157,12 @@ ble_error_t Gap::setPeriodicAdvertisingParameters(
         advertiseTxPower
     );
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::setPeriodicAdvertisingPayload(
     advertising_handle_t handle,
     Span<const uint8_t> payload
@@ -2145,8 +2225,12 @@ ble_error_t Gap::setPeriodicAdvertisingPayload(
 
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::startPeriodicAdvertising(advertising_handle_t handle)
 {
     if (handle == LEGACY_ADVERTISING_HANDLE) {
@@ -2177,8 +2261,12 @@ ble_error_t Gap::startPeriodicAdvertising(advertising_handle_t handle)
     _active_periodic_sets.set(handle);
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::stopPeriodicAdvertising(advertising_handle_t handle)
 {
     if (handle == LEGACY_ADVERTISING_HANDLE) {
@@ -2205,8 +2293,12 @@ ble_error_t Gap::stopPeriodicAdvertising(advertising_handle_t handle)
     _active_periodic_sets.clear(handle);
     return BLE_ERROR_NONE;
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 bool Gap::isPeriodicAdvertisingActive(advertising_handle_t handle)
 {
     if (handle >= getMaxAdvertisingSetNumber()) {
@@ -2215,6 +2307,8 @@ bool Gap::isPeriodicAdvertisingActive(advertising_handle_t handle)
 
     return _active_periodic_sets.get(handle);
 }
+#endif
+#endif
 
 
 void Gap::on_enhanced_connection_complete(
@@ -2474,6 +2568,7 @@ void Gap::on_remote_connection_parameter(
 }
 
 
+#if BLE_ROLE_OBSERVER
 ble_error_t Gap::setScanParameters(const ScanParameters &params)
 {
     if (is_extended_advertising_available()) {
@@ -2517,8 +2612,10 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
         );
     }
 }
+#endif
 
 
+#if BLE_ROLE_OBSERVER
 ble_error_t Gap::startScan(
     scan_duration_t duration,
     duplicates_filter_t filtering,
@@ -2571,8 +2668,11 @@ ble_error_t Gap::startScan(
 
     return BLE_ERROR_NONE;
 }
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::createSync(
     peer_address_type_t peerAddressType,
     const ble::address_t &peerAddress,
@@ -2604,8 +2704,12 @@ ble_error_t Gap::createSync(
         timeout.value()
     );
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::createSync(
     slave_latency_t maxPacketSkip,
     sync_timeout_t timeout
@@ -2624,8 +2728,12 @@ ble_error_t Gap::createSync(
         timeout.value()
     );
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::cancelCreateSync()
 {
     if (is_extended_advertising_available() == false) {
@@ -2634,8 +2742,12 @@ ble_error_t Gap::cancelCreateSync()
 
     return _pal_gap.cancel_periodic_advertising_create_sync();
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::terminateSync(periodic_sync_handle_t handle)
 {
     if (is_extended_advertising_available() == false) {
@@ -2644,8 +2756,12 @@ ble_error_t Gap::terminateSync(periodic_sync_handle_t handle)
 
     return _pal_gap.periodic_advertising_terminate_sync(handle);
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::addDeviceToPeriodicAdvertiserList(
     peer_address_type_t peerAddressType,
     const ble::address_t &peerAddress,
@@ -2672,8 +2788,12 @@ ble_error_t Gap::addDeviceToPeriodicAdvertiserList(
         sid
     );
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::removeDeviceFromPeriodicAdvertiserList(
     peer_address_type_t peerAddressType,
     const ble::address_t &peerAddress,
@@ -2700,8 +2820,12 @@ ble_error_t Gap::removeDeviceFromPeriodicAdvertiserList(
         sid
     );
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 ble_error_t Gap::clearPeriodicAdvertiserList()
 {
     if (is_extended_advertising_available() == false) {
@@ -2710,8 +2834,12 @@ ble_error_t Gap::clearPeriodicAdvertiserList()
 
     return _pal_gap.clear_periodic_advertiser_list();
 }
+#endif
+#endif
 
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 uint8_t Gap::getMaxPeriodicAdvertiserListSize()
 {
     if (is_extended_advertising_available() == false) {
@@ -2720,6 +2848,8 @@ uint8_t Gap::getMaxPeriodicAdvertiserListSize()
 
     return _pal_gap.read_periodic_advertiser_list_size();
 }
+#endif
+#endif
 
 
 bool Gap::is_extended_advertising_available()
