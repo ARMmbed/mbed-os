@@ -17,7 +17,7 @@
 #ifndef NRF_CORDIO_HCI_DRIVER_H_
 #define NRF_CORDIO_HCI_DRIVER_H_
 
-#include "CordioHCIDriver.h"
+#include "ble/driver/CordioHCIDriver.h"
 
 namespace ble {
 

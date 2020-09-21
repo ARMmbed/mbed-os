@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "mbed_trace.h"
+#include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "FSST"
 
 #define FSST_REVISION 1

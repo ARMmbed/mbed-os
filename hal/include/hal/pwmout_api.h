@@ -44,9 +44,11 @@ typedef struct pwmout_s pwmout_t;
  * * ::pwmout_period sets the PWM period specified in seconds, keeping the duty cycle the same
  * * ::pwmout_period_ms sets the PWM period specified in miliseconds, keeping the duty cycle the same
  * * ::pwmout_period_us sets the PWM period specified in microseconds, keeping the duty cycle the same
+ * * ::pwmout_read_period_us reads the PWM period specified in microseconds
  * * ::pwmout_pulsewidth sets the PWM pulsewidth specified in seconds, keeping the period the same
  * * ::pwmout_pulsewidth_ms sets the PWM pulsewidth specified in miliseconds, keeping the period the same
  * * ::pwmout_pulsewidth_us sets the PWM pulsewidth specified in microseconds, keeping the period the same
+ * * ::pwmout_read_pulsewidth_us read the PWM pulsewidth specified in microseconds
  * * The accuracy of the PWM is +/- 10%
  * * The PWM operations ::pwmout_write, ::pwmout_read, ::pwmout_read, ::pwmout_period_ms, ::pwmout_period_us
  *   ::pwmout_pulsewidth, ::pwmout_pulsewidth_ms, ::pwmout_pulsewidth_us take less than 20us to complete
@@ -125,6 +127,13 @@ void pwmout_period_ms(pwmout_t *obj, int ms);
  */
 void pwmout_period_us(pwmout_t *obj, int us);
 
+/** Read the PWM period specified in microseconds
+ *
+ * @param obj The pwmout object
+ * @return A int output period
+ */
+int pwmout_read_period_us(pwmout_t *obj);
+
 /** Set the PWM pulsewidth specified in seconds, keeping the period the same.
  *
  * @param obj     The pwmout object
@@ -145,6 +154,13 @@ void pwmout_pulsewidth_ms(pwmout_t *obj, int ms);
  * @param us  The floating-point pulsewidth in microseconds
  */
 void pwmout_pulsewidth_us(pwmout_t *obj, int us);
+
+/** Read the PWM pulsewidth specified in microseconds
+ *
+ * @param obj The pwmout object
+ * @return A int output pulsewitdth
+ */
+int pwmout_read_pulsewidth_us(pwmout_t *obj);
 
 /** Get the pins that support PWM
  *

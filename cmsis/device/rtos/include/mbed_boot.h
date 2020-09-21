@@ -134,6 +134,8 @@ MBED_NORETURN void mbed_rtos_start(void);
  *
  * Preconditions:
  * - The RTOS has been started by a call to mbed_rtos_start
+ * - If the platform is supported by TF-M, initialization
+ *   has been done by a call to mbed_tfm_init
  */
 void mbed_toolchain_init(void);
 
@@ -160,7 +162,6 @@ void mbed_sdk_init(void);
  *
  * Preconditions:
  * - The RTOS has been started by a call to mbed_rtos_start
- * - The toolchain has been initialized by a call to mbed_toolchain_init
  */
 void mbed_tfm_init(void);
 

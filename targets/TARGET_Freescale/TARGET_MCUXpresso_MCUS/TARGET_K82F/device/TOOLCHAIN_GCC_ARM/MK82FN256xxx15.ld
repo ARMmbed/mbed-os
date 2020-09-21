@@ -47,8 +47,8 @@
 ** ###################################################################
 */
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
 /* Entry Point */
@@ -58,7 +58,7 @@ __ram_vector_table__ = 1;
 
 /* With the RTOS in use, this does not affect the main stack size. The size of
  * the stack where main runs is determined via the RTOS. */
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x03C0 : 0x0;

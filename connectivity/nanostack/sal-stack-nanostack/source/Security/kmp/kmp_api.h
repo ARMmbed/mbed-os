@@ -59,6 +59,9 @@ typedef enum {
     KMP_TX_ERR_UNSPEC = -2,                // Other reason
 } kmp_tx_status_e;
 
+// On message interface send, do not deallocate pdu buffer
+#define MSG_IF_SEND_FLAG_NO_DEALLOC        0x01
+
 typedef void kmp_sec_keys_t;
 typedef struct sec_prot_s sec_prot_t;
 typedef struct kmp_api_s kmp_api_t;
@@ -367,12 +370,13 @@ int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind 
  * \param addr address
  * \param pdu pdu
  * \param size pdu size
+ * \param conn_number connection number (0 for default)
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size);
+int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t conn_number);
 
 /**
  * kmp_service_msg_if_send send a message
@@ -384,12 +388,14 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, k
  * \param pdu pdu
  * \param size pdu size
  * \param tx_identifier TX identifier
+ * \param conn_number connection number (0 for default)
+ * \param flags flags
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier);
+typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number, uint8_t flags);
 
 /**
  * kmp_service_msg_if_register registers message interface
@@ -398,12 +404,13 @@ typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_
  * \param instance_id message interface instance identifier
  * \param send KMP PDU send callback
  * \param header_size header size
+ * \param number_of_conn number of connections
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, kmp_service_msg_if_send *send, uint8_t header_size);
+int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, kmp_service_msg_if_send *send, uint8_t header_size, uint8_t number_of_conn);
 
 /**
  * kmp_service_tx_status tx status indication
@@ -467,6 +474,7 @@ int8_t kmp_service_sec_protocol_unregister(kmp_service_t *service, kmp_type_e ty
  * kmp_service_timer_if_timeout timer timeout
  *
  * \param service KMP instance
+ * \param ticks Ticks
  *
  */
 void kmp_service_timer_if_timeout(kmp_api_t *kmp, uint16_t ticks);
@@ -507,6 +515,68 @@ typedef int8_t kmp_service_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp)
  *
  */
 int8_t kmp_service_timer_if_register(kmp_service_t *service, kmp_service_timer_if_start start, kmp_service_timer_if_stop stop);
+
+/**
+ * kmp_service_shared_comp_timer_timeout shared component timer timeout
+ *
+ * \param ticks timer ticks
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t kmp_service_shared_comp_timer_timeout(uint16_t ticks);
+
+/**
+ * kmp_service_shared_comp_delete shared component delete
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t kmp_service_shared_comp_delete(void);
+
+typedef struct {
+    kmp_service_shared_comp_timer_timeout *timeout;
+    kmp_service_shared_comp_delete *delete;
+} kmp_shared_comp_t;
+
+/**
+ * kmp_service_shared_comp_add add shared component
+ *
+ * \param service KMP service
+ * \param data shared component data
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t kmp_service_shared_comp_add(kmp_service_t *service, kmp_shared_comp_t *data);
+
+/**
+ * kmp_service_shared_comp_remove remove shared component
+ *
+ * \param service KMP service
+ * \param data shared component data
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t kmp_service_shared_comp_remove(kmp_service_t *service, kmp_shared_comp_t *data);
+
+/**
+ * kmp_service_shared_comp_if_register register a continuous timer interface to KMP service
+ *
+ * \param service KMP service
+ * \param add  shared component
+ * \param remove remove shared component
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t kmp_service_shared_comp_if_register(kmp_service_t *service, kmp_service_shared_comp_add add, kmp_service_shared_comp_remove remove);
 
 /**
  * kmp_service_event_if_event event callback

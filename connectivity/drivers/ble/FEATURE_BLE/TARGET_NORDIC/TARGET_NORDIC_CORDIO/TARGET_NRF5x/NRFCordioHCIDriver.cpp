@@ -327,8 +327,8 @@ void NRFCordioHCIDriver::do_initialize()
     /* Load address from nRF configuration. */
     uint64_t address_int = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
                            (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
-    unsigned int i = 0;
-    while (i++ < BDA_ADDR_LEN) {
+
+    for (unsigned int i = 0; i < BDA_ADDR_LEN; ++i) {
         bd_addr[i] = address_int >> (i * 8);
     }
 

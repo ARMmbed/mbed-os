@@ -225,8 +225,13 @@ retry_send:
 
     // check for network congestion
     device_err_t err = _at.get_last_device_error();
-    if (err.errType == DeviceErrorTypeErrorCME &&
-            (err.errCode == AT_UART_BUFFER_ERROR || err.errCode == AT_BACK_OFF_TIMER) || err.errCode == AT_UPLINK_BUSY) {
+    if (
+        (
+            err.errType == DeviceErrorTypeErrorCME
+            && (err.errCode == AT_UART_BUFFER_ERROR || err.errCode == AT_BACK_OFF_TIMER)
+        )
+        || err.errCode == AT_UPLINK_BUSY
+    ) {
         if (socket->proto == NSAPI_UDP) {
             if (retry < 3) {
                 retry++;

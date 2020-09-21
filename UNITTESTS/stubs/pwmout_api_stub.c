@@ -51,6 +51,11 @@ void pwmout_period_us(pwmout_t *obj, int us)
 {
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    return 0;
+}
+
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
 }
@@ -61,6 +66,11 @@ void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    return 0;
 }
 
 #endif // DEVICE_PWMOUT

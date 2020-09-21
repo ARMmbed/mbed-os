@@ -89,8 +89,44 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t att
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp)
+#ifdef FEA_TRACE_SUPPORT
+static int own_ceil(float value)
 {
+    int ivalue = (int)value;
+    if (value == (float)ivalue) {
+        return ivalue;
+    }
+    return ivalue + 1;
+}
+
+static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8])
+{
+    if (ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp && ws_neighbor->fhss_data.uc_timing_info.ufsi) {
+        uint32_t seq_length = 0x10000;
+        if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function  == WS_TR51CF) {
+            seq_length = ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels;
+        }
+        // Convert 24-bit UFSI to real time before drift calculation
+        uint32_t time_since_seq_start_prev_ms = own_ceil((float)((uint64_t)ws_neighbor->fhss_data.uc_timing_info.ufsi * seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval) / 0x1000000);
+        uint32_t time_since_seq_start_cur_ms = own_ceil((float)((uint64_t)ws_utt->ufsi * seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval) / 0x1000000);
+        uint32_t time_since_last_ufsi_us = timestamp - ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
+        uint32_t ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
+        int32_t ufsi_drift_ms = (int32_t)(time_since_last_ufsi_us / 1000 - ufsi_diff_ms);
+        // Only trace if there is significant error
+        if (ufsi_drift_ms < -5 || ufsi_drift_ms > 5) {
+            tr_debug("UFSI updated: %s, drift: %"PRIi32"ms in %"PRIu32" seconds", trace_array(address, 8), ufsi_drift_ms, time_since_last_ufsi_us / 1000000);
+        }
+    }
+}
+#endif
+
+void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8])
+{
+#ifdef FEA_TRACE_SUPPORT
+    ws_neighbor_calculate_ufsi_drift(ws_neighbor, ws_utt, timestamp, address);
+#else
+    (void) address;
+#endif
     ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp = timestamp;
     ws_neighbor->fhss_data.uc_timing_info.ufsi = ws_utt->ufsi;
 }
@@ -245,8 +281,13 @@ void ws_neighbor_class_neighbor_broadcast_schedule_set(ws_neighbor_class_entry_t
     ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id = ws_bs_ie->broadcast_schedule_identifier;
 }
 
-void ws_neighbor_class_rf_sensitivity_calculate(uint8_t rsl_heard)
+void ws_neighbor_class_rf_sensitivity_calculate(uint8_t dev_min_sens_config, int8_t dbm_heard)
 {
+    if (dev_min_sens_config != 0) {
+        // Automatic mode disabled
+        return;
+    }
+    uint8_t rsl_heard = ws_neighbor_class_rsl_from_dbm_calculate(dbm_heard);
     if (DEVICE_MIN_SENS > rsl_heard) {
         // We are hearing packet with lower than min_sens dynamically learn the sensitivity
         DEVICE_MIN_SENS = rsl_heard;
@@ -285,8 +326,6 @@ static void ws_neighbor_class_parent_set_analyze(ws_neighbor_class_entry_t *ws_n
 void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, int8_t dbm_heard)
 {
     uint8_t rsl = ws_neighbor_class_rsl_from_dbm_calculate(dbm_heard);
-    // Calculate minimum sensitivity from heard packets.
-    ws_neighbor_class_rf_sensitivity_calculate(rsl);
     if (ws_neighbor->rsl_in == RSL_UNITITIALIZED) {
         ws_neighbor->rsl_in = rsl << WS_RSL_SCALING;
     }

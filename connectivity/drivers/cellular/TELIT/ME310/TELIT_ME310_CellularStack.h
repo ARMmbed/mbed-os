@@ -34,7 +34,6 @@ namespace mbed {
 #define ME310_SOCKET_BIND_FAIL 556
 #define ME310_IPEASY_ACTIVATED_CONTEXT 1
 #define ME310_IPEASY_DEACTIVATED_CONTEXT 0
-#define ME310_SOCKET_TIMEOUT 1000
 #define CTRL_Z  "\x1a"
 #define ESC     "\x1b"
 

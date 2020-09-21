@@ -22,6 +22,8 @@
 ^platform/cxxsupport
 ^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_MBED_PSA_SRV
 ^platform/FEATURE_EXPERIMENTAL_API/FEATURE_PSA/TARGET_TFM
+^platform/mbed-trace
+^platform/randlib
 ^platform/tests/UNITTESTS
 ^events/tests/UNITTESTS
 ^rtos/source/TARGET_CORTEX/rtx4

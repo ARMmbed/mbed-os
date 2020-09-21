@@ -59,7 +59,7 @@ public:
         }
 
         GattCharacteristic *charTable[] = {&alertLevelChar};
-        GattService         linkLossService(GattService::UUID_LINK_LOSS_SERVICE, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
+        GattService         linkLossService(GattService::UUID_LINK_LOSS_SERVICE, charTable, sizeof(charTable) / sizeof(charTable[0]));
 
         ble.gattServer().addService(linkLossService);
         serviceAdded = true;
@@ -95,7 +95,7 @@ protected:
         }
     }
 
-    virtual void onDisconnectionComplete(const ble::DisconnectionCompleteEvent &) {
+    void onDisconnectionComplete(const ble::DisconnectionCompleteEvent &) override {
         if (alertLevel != NO_ALERT) {
             callback(alertLevel);
         }

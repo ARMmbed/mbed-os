@@ -128,8 +128,6 @@ void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_dec, stru
 
 void mac_helper_devicetable_direct_set(struct mac_api_s *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index);
 
-void mac_helper_devicetable_ack_trig(const mlme_device_descriptor_t *device_desc, struct protocol_interface_info_entry *cur);
-
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set);
 
 int8_t mac_helper_mac_device_description_pan_id_update(int8_t interface_id, uint16_t pan_id);

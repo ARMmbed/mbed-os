@@ -27,7 +27,7 @@ using namespace utest::v1;
 #define BLOCK_COUNT 16
 #define BLOCK_SIZE 512
 
-#if ((MBED_RAM_SIZE - MBED_BOOT_STACK_SIZE) <= (BLOCK_COUNT * BLOCK_SIZE))
+#if ((MBED_RAM_SIZE - MBED_CONF_TARGET_BOOT_STACK_SIZE) <= (BLOCK_COUNT * BLOCK_SIZE))
 #error [NOT_SUPPORTED] Insufficient heap for mbr block device tests
 #endif
 

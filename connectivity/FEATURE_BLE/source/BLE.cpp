@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include "platform/mbed_critical.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "BLEInstanceBase.h"
 
 #if defined(TARGET_OTA_ENABLED)
 #include "services/DFUService.h"
@@ -28,7 +28,7 @@
 #include <mbed_toolchain.h>
 
 #include "ble/BLE.h"
-#include "ble/internal/BLEInstanceBase.h"
+#include "BLEInstanceBase.h"
 
 static const char *error_strings[] = {
     "BLE_ERROR_NONE: No error",

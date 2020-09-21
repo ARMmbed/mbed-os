@@ -90,8 +90,8 @@ Phase 2:
 Note: Heap split support across multiple RAM banks, can also be achieved post this change. 
 
 # Detailed Design
-1. Update tools to set define `MBED_BOOT_STACK_SIZE` from target config option `target.boot-stack-size`
-1. Linker Scripts - Update linker scripts for ARM, IAR and GCC toolchain to use MBED_BOOT_STACK_SIZE define for standardizing size of ISR stack.
+1. Update tools to set define `MBED_CONF_TARGET_BOOT_STACK_SIZE` from target config option `target.boot-stack-size`
+1. Linker Scripts - Update linker scripts for ARM, IAR and GCC toolchain to use MBED_CONF_TARGET_BOOT_STACK_SIZE define for standardizing size of ISR stack.
 1. Update __user_setup_stackheap() implementation to adopt 2-region RAM memory model.
 __user_setup_stackheap() works with systems where the application starts with a value of sp (r13) that is already correct. To make use of sp(stack base), implement __user_setup_stackheap() to set up r0 (heap base), r2 (heap limit), and r3 (stack limit) (for a two-region model) and return.
 Reference http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.kui0099a/armlib_cjagaaha.htm http://www.keil.com/support/man/docs/armlib/armlib_chr1359122863069.htm
@@ -99,7 +99,7 @@ Reference http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.kui0099a/a
 
 # Tools and configuration changes
 
-1. Target config option "target.boot-stack-size" which is passed to the linker as the define "MBED_BOOT_STACK_SIZE" so the linker can adjust the stack accordingly.
+1. Target config option "target.boot-stack-size" which is passed to the linker as the define "MBED_CONF_TARGET_BOOT_STACK_SIZE" so the linker can adjust the stack accordingly.
    Boot stack size - the size of ISR and main stack will be 4K as default in targets.json for bare metal (non-RTOS) builds. 
    Boot stack size - the size of ISR stack will be over-written as 1K in `rtos/mbed_lib.json` for RTOS builds.
 

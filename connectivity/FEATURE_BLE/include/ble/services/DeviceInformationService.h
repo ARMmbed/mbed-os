@@ -53,42 +53,42 @@ public:
      *                The device's software version.
      */
     DeviceInformationService(BLE        &_ble,
-                             const char *manufacturersName = NULL,
-                             const char *modelNumber       = NULL,
-                             const char *serialNumber      = NULL,
-                             const char *hardwareRevision  = NULL,
-                             const char *firmwareRevision  = NULL,
-                             const char *softwareRevision  = NULL) :
+                             const char *manufacturersName = nullptr,
+                             const char *modelNumber       = nullptr,
+                             const char *serialNumber      = nullptr,
+                             const char *hardwareRevision  = nullptr,
+                             const char *firmwareRevision  = nullptr,
+                             const char *softwareRevision  = nullptr) :
         ble(_ble),
         manufacturersNameStringCharacteristic(GattCharacteristic::UUID_MANUFACTURER_NAME_STRING_CHAR,
                                               (uint8_t *)manufacturersName,
-                                              (manufacturersName != NULL) ? strlen(manufacturersName) : 0, /* Min length */
-                                              (manufacturersName != NULL) ? strlen(manufacturersName) : 0, /* Max length */
+                                              (manufacturersName != nullptr) ? strlen(manufacturersName) : 0, /* Min length */
+                                              (manufacturersName != nullptr) ? strlen(manufacturersName) : 0, /* Max length */
                                               GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ),
         modelNumberStringCharacteristic(GattCharacteristic::UUID_MODEL_NUMBER_STRING_CHAR,
                                         (uint8_t *)modelNumber,
-                                        (modelNumber != NULL) ? strlen(modelNumber) : 0, /* Min length */
-                                        (modelNumber != NULL) ? strlen(modelNumber) : 0, /* Max length */
+                                        (modelNumber != nullptr) ? strlen(modelNumber) : 0, /* Min length */
+                                        (modelNumber != nullptr) ? strlen(modelNumber) : 0, /* Max length */
                                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ),
         serialNumberStringCharacteristic(GattCharacteristic::UUID_SERIAL_NUMBER_STRING_CHAR,
                                          (uint8_t *)serialNumber,
-                                         (serialNumber != NULL) ? strlen(serialNumber) : 0, /* Min length */
-                                         (serialNumber != NULL) ? strlen(serialNumber) : 0, /* Max length */
+                                         (serialNumber != nullptr) ? strlen(serialNumber) : 0, /* Min length */
+                                         (serialNumber != nullptr) ? strlen(serialNumber) : 0, /* Max length */
                                          GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ),
         hardwareRevisionStringCharacteristic(GattCharacteristic::UUID_HARDWARE_REVISION_STRING_CHAR,
                                              (uint8_t *)hardwareRevision,
-                                             (hardwareRevision != NULL) ? strlen(hardwareRevision) : 0, /* Min length */
-                                             (hardwareRevision != NULL) ? strlen(hardwareRevision) : 0, /* Max length */
+                                             (hardwareRevision != nullptr) ? strlen(hardwareRevision) : 0, /* Min length */
+                                             (hardwareRevision != nullptr) ? strlen(hardwareRevision) : 0, /* Max length */
                                              GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ),
         firmwareRevisionStringCharacteristic(GattCharacteristic::UUID_FIRMWARE_REVISION_STRING_CHAR,
                                              (uint8_t *)firmwareRevision,
-                                             (firmwareRevision != NULL) ? strlen(firmwareRevision) : 0, /* Min length */
-                                             (firmwareRevision != NULL) ? strlen(firmwareRevision) : 0, /* Max length */
+                                             (firmwareRevision != nullptr) ? strlen(firmwareRevision) : 0, /* Min length */
+                                             (firmwareRevision != nullptr) ? strlen(firmwareRevision) : 0, /* Max length */
                                              GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ),
         softwareRevisionStringCharacteristic(GattCharacteristic::UUID_SOFTWARE_REVISION_STRING_CHAR,
                                              (uint8_t *)softwareRevision,
-                                             (softwareRevision != NULL) ? strlen(softwareRevision) : 0, /* Min length */
-                                             (softwareRevision != NULL) ? strlen(softwareRevision) : 0, /* Max length */
+                                             (softwareRevision != nullptr) ? strlen(softwareRevision) : 0, /* Min length */
+                                             (softwareRevision != nullptr) ? strlen(softwareRevision) : 0, /* Max length */
                                              GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)
     {
         static bool serviceAdded = false; /* We only add the information service once. */
@@ -103,7 +103,7 @@ public:
                                            &firmwareRevisionStringCharacteristic,
                                            &softwareRevisionStringCharacteristic};
         GattService         deviceInformationService(GattService::UUID_DEVICE_INFORMATION_SERVICE, charTable,
-                                                     sizeof(charTable) / sizeof(GattCharacteristic *));
+                                                     sizeof(charTable) / sizeof(charTable[0]));
 
         ble.gattServer().addService(deviceInformationService);
         serviceAdded = true;

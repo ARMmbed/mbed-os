@@ -19,19 +19,19 @@
 #ifndef BLE_SECURITY_MANAGER_H_
 #define BLE_SECURITY_MANAGER_H_
 
-#include <stdint.h>
-#include "CallChainOfFunctionPointersWithContext.h"
-#include "platform/Callback.h"
+#include <cstdint>
 
-#include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/blecommon.h"
-
-#include "ble/common/ble/BLETypes.h"
-#include "ble/internal/SecurityDb.h"
-#include "ble/internal/PalConnectionMonitor.h"
-#include "ble/internal/PalSecurityManager.h"
+#include "ble/common/BLETypes.h"
+#include "ble/common/blecommon.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
 namespace ble {
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class SecurityManager;
+}
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * Overview
@@ -186,9 +186,6 @@ namespace ble {
  * @endverbatim
  *
  */
-#if !defined(DOXYGEN_ONLY)
-namespace interface {
-#endif // !defined(DOXYGEN_ONLY)
 class SecurityManager
 {
 public:
@@ -421,9 +418,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the SecurityManager class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /*
@@ -457,9 +452,9 @@ public:
         bool                     enableBonding = true,
         bool                     requireMITM   = true,
         SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
-        const Passkey_t          passkey       = NULL,
+        const Passkey_t          passkey       = nullptr,
         bool                     signing       = true,
-        const char              *dbFilepath    = NULL
+        const char              *dbFilepath    = nullptr
     );
 
     /**
@@ -473,7 +468,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t setDatabaseFilepath(const char *dbFilepath = NULL);
+    ble_error_t setDatabaseFilepath(const char *dbFilepath = nullptr);
 
     /**
      * Notify all registered onShutdown callbacks that the SecurityManager is
@@ -488,7 +483,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
     /**
      * Normally all bonding information is lost when device is reset, this requests that the stack
@@ -511,7 +506,7 @@ public:
      * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
      *                                    application registration.
      */
-    ble_error_t purgeAllBondingState(void);
+    ble_error_t purgeAllBondingState();
 
     /**
      * Create a list of addresses from all peers in the bond table and generate
@@ -870,7 +865,10 @@ public:
     void onShutdown(const SecurityManagerShutdownCallback_t& callback);
 
     template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *));
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *))
+    {
+        onShutdown({objPtr, memberPtr});
+    }
 
     /**
      * Provide access to the callchain of shutdown event callbacks.
@@ -894,17 +892,17 @@ public:
     /** For backwards compatibility. This enum is now in BLETypes.h
      * @deprecated use the enum in ble namespace */
     typedef ble::Keypress_t Keypress_t;
+
+    SecurityManager(impl::SecurityManager* impl) : impl(impl) {}
+    SecurityManager(const SecurityManager&) = delete;
+    SecurityManager& operator=(const SecurityManager&) = delete;
 #endif // !defined(DOXYGEN_ONLY)
+
+private:
+    impl::SecurityManager *impl;
 };
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
 } // ble
-
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-#include "ble/internal/SecurityManagerImpl.h"
 
 /** @deprecated Use the namespaced ble::SecurityManager instead of the global SecurityManager. */
 using ble::SecurityManager;
