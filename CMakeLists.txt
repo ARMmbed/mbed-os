@@ -199,7 +199,7 @@ endfunction()
 #
 # Configure Mbed OS CMake component (default).
 #
-function(mbed_component_configure component)
+function(mbed_configure_component component)
     mbed_set_cpu_core_options(${component} ${MBED_TOOLCHAIN})
     mbed_set_toolchain_options(${component})
     mbed_set_c_lib(${component} ${MBED_C_LIB})
