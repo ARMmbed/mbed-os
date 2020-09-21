@@ -92,7 +92,13 @@ if(NOT DEFINED MBED_BAREMETAL)
 endif()
 
 if(${MBED_BAREMETAL} STREQUAL OFF)
-    list(APPEND ${MBED_INTERNAL_COMPONENTS} ${MBED_ROOT}/rtos)
+    list(APPEND MBED_INTERNAL_COMPONENTS ${MBED_ROOT}/rtos)
+    # TODO: this needs some work, this interdependencies
+    # mbedtls is needed by device key driver
+    # events are needed by usb
+    # storage is needed  by device key driver
+    # mbed-trace needs libservice
+    list(APPEND MBED_INTERNAL_COMPONENTS ${MBED_ROOT}/connectivity/mbedtls ${MBED_ROOT}/events ${MBED_ROOT}/storage ${MBED_ROOT}/connectivity/libraries/nanostack-libservice)
 endif()
 
 mbed_enable_components("${MBED_INTERNAL_COMPONENTS}" "${MBED_EXTERNAL_COMPONENTS}")
