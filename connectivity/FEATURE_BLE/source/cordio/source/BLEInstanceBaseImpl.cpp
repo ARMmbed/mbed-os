@@ -600,7 +600,7 @@ void BLEInstanceBase::stack_setup()
 #if BLE_FEATURE_GATT_CLIENT
     AttRegister((attCback_t) impl::PalAttClient::att_client_handler);
 #else
-    AttRegister((attCback_t) ble::GattServer::att_cb);
+    AttRegister((attCback_t) impl::GattServer::att_cb);
 #endif // BLE_FEATURE_GATT_CLIENT
 #endif
 }
