@@ -354,6 +354,184 @@ public:
     /*                    private implementation follows                     */
 
 private:
+    /** List in random order */
+    template<typename EventType, typename IndexType, IndexType MAX_EVENTS>
+    class EventList {
+    public:
+        EventList()
+        {
+        };
+
+        ~EventList()
+        {
+            for (IndexType i = 0; i < _current_size; ++i) {
+                delete _pointers[i];
+            }
+        };
+
+        /** Add event to the list. List takes ownership of memory.
+         *
+         * @param event List will point to this event.
+         * @return False if list full.
+         */
+        bool push(EventType *event)
+        {
+            if (_current_size < MAX_EVENTS) {
+                _pointers[_current_size] = event;
+                _current_size++;
+                return true;
+            }
+            return false;
+        };
+
+        /** Take one entry of the list. Transfers ownership to caller.
+         *
+         * @return The event return. Memory belongs to caller.
+         */
+        EventType* pop()
+        {
+            MBED_ASSERT(_current_size);
+
+            if (!_current_size) {
+                return nullptr;
+            }
+
+            EventType* event_returned = _pointers[_current_index];
+
+            _current_size--;
+            if (_current_size != _current_index) {
+                _pointers[_current_index] = _pointers[_current_size];
+            } else {
+                _current_index = 0;
+            }
+
+            return event_returned;
+        };
+
+        /** Return pointer to the first element that fulfills the passed in condition and remove the entry
+         * that was pointing to the item. Transfers ownership to caller.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* pop(mbed::Callback<bool(EventType&)> compare_func)
+        {
+            for (IndexType i = 0; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return pop();
+                }
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return pointer to the first element that fulfills the passed in condition and remove the entry
+         * that was pointing to the item. Takes and returns number of failed matches allowing to speed up search.
+         * Transfers ownership to caller.
+         *
+         * @note Calls must be consecutive - any call to pop or find will invalidate the search.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @param events_not_matching Pointer to the number of items already searched but not matching.
+         * This is updated in the method.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* continue_pop(mbed::Callback<bool(EventType&)> compare_func, IndexType *events_not_matching)
+        {
+            _current_index = *events_not_matching;
+            for (IndexType i = *events_not_matching; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return pop();
+                }
+                (*events_not_matching)++;
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return pointer to the first element that fulfills the passed in condition. Does not remove item from list.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* find(mbed::Callback<bool(EventType&)> compare_func)
+        {
+            for (IndexType i = 0; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return _pointers[_current_index];
+                }
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return number of events stored.
+         *
+         * @return Number of events stored.
+         */
+        IndexType get_size()
+        {
+            return _current_size;
+        }
+
+    private:
+        void increment_current_index()
+        {
+            _current_index++;
+            if (_current_index == _current_size) {
+                _current_index = 0;
+            }
+        }
+
+    private:
+        EventType* _pointers[MAX_EVENTS];
+        IndexType _current_size = 0;
+        /* this helps us find the event faster */
+        IndexType _current_index = 0;
+    };
+
+    class PendingAdvertisingReportEvent {
+    public:
+        PendingAdvertisingReportEvent(
+            const AdvertisingReportEvent& event_to_copy
+        ) : event(event_to_copy)
+        {
+            /* copy the data to the buffer */
+            const mbed::Span<const uint8_t> payload = event_to_copy.getPayload();
+            if (payload.size()) {
+                advertising_data_buffer = new(std::nothrow) uint8_t[payload.size()];
+                if (advertising_data_buffer) {
+                    memcpy(advertising_data_buffer, payload.data(), payload.size());
+                    /* set the payload to our local copy of the data */
+                    event.setAdvertisingData(mbed::make_Span(advertising_data_buffer, payload.size()));
+                }
+            }
+        };
+
+        ~PendingAdvertisingReportEvent()
+        {
+            delete[] advertising_data_buffer;
+        }
+
+        bool is_valid()
+        {
+            return advertising_data_buffer || (event.getPayload().size() == 0);
+        }
+
+        AdvertisingReportEvent& get_pending_event()
+        {
+            return event;
+        }
+
+    private:
+        AdvertisingReportEvent event;
+        uint8_t *advertising_data_buffer = nullptr;
+    };
+
+private:
     /* Disallow copy and assignment. */
     Gap(const Gap &);
 
@@ -418,6 +596,50 @@ private:
 
     ble_error_t prepare_legacy_advertising_set(const AdvertisingParameters& parameters);
 
+#if BLE_FEATURE_CONNECTABLE
+    /** Pass the connection complete event to the application. This may involve privacy resolution.
+     *
+     * @param report Event to be passed to the user application.
+     */
+    void signal_connection_complete(ConnectionCompleteEvent& report);
+
+#if BLE_FEATURE_PRIVACY
+    /** Pass the connection complete event to the application after privacy resolution completed.
+     *
+     * @param event Event to be passed to the user application.
+     * @param identity_address_type Address type of the identity address.
+     * @param identity_address Address resolved by private address resolution, nullptr if no identity found.
+     */
+    void conclude_signal_connection_complete_after_address_resolution(
+        ConnectionCompleteEvent &event,
+        target_peer_address_type_t identity_address_type,
+        const address_t *identity_address
+    );
+#endif // BLE_FEATURE_PRIVACY
+#endif // BLE_FEATURE_CONNECTABLE
+
+#if BLE_ROLE_OBSERVER
+    /** Pass the advertising report to the application. This may involve privacy resolution.
+     *
+     * @param report Report to be passed to the user application.
+     */
+    void signal_advertising_report(AdvertisingReportEvent& report);
+
+#if BLE_FEATURE_PRIVACY
+    /** Pass the advertising report to the application after privacy resolution completed.
+     *
+     * @param event Event to be passed to the user application.
+     * @param identity_address_type Address type of the identity address.
+     * @param identity_address Address resolved by private address resolution, nullptr if no identity found.
+     */
+    void conclude_signal_advertising_report_after_address_resolution(
+        AdvertisingReportEvent &event,
+        target_peer_address_type_t identity_address_type,
+        const address_t *identity_address
+    );
+#endif // BLE_FEATURE_PRIVACY
+#endif // BLE_ROLE_OBSERVER
+
     /* implements PalGap::EventHandler */
 private:
     void on_read_phy(
@@ -438,20 +660,6 @@ private:
         connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
-    ) override;
-
-    void on_enhanced_connection_complete(
-        hci_error_code_t status,
-        connection_handle_t connection_handle,
-        connection_role_t own_role,
-        connection_peer_address_type_t peer_address_type,
-        const ble::address_t &peer_address,
-        const ble::address_t &local_resolvable_private_address,
-        const ble::address_t &peer_resolvable_private_address,
-        uint16_t connection_interval,
-        uint16_t connection_latency,
-        uint16_t supervision_timeout,
-        clock_accuracy_t master_clock_accuracy
     ) override;
 
     void on_extended_advertising_report(
@@ -578,6 +786,15 @@ private:
      */
     ble::Gap::EventHandler *_event_handler;
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_OBSERVER
+    EventList<PendingAdvertisingReportEvent, uint8_t, BLE_GAP_MAX_ADVERTISING_REPORTS_PENDING_ADDRESS_RESOLUTION> _reports_pending_address_resolution;
+#endif // BLE_ROLE_OBSERVER
+#if BLE_FEATURE_CONNECTABLE
+    EventList<ConnectionCompleteEvent, uint8_t, DM_CONN_MAX> _connections_pending_address_resolution;
+#endif // BLE_FEATURE_CONNECTABLE
+#endif // BLE_FEATURE_PRIVACY
+
     PalEventQueue &_event_queue;
     PalGap &_pal_gap;
     PalGenericAccessService &_gap_service;
@@ -590,8 +807,14 @@ private:
     mutable whitelist_t _whitelist;
 
     bool _privacy_enabled;
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_PERIPHERAL
     peripheral_privacy_configuration_t _peripheral_privacy_configuration;
+#endif // BLE_ROLE_PERIPHERAL
+#if BLE_ROLE_OBSERVER
     central_privacy_configuration_t _central_privacy_configuration;
+#endif //BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
 
 
