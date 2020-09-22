@@ -199,15 +199,11 @@ uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
 
-    /**
-     * TODO - what about internal channels? VBAT, VREF, Temperature?
-     * TODO - what about internal OP AMP channels?
-     */
     switch (obj->channel) {
         case 1:
             sConfig.Channel = ADC_CHANNEL_1;
