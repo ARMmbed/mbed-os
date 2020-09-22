@@ -4,7 +4,7 @@
 # Set default core modules
 # We use internal as they have to be prefixed with the MBED_ROOT
 if(NOT DEFINED MBED_INTERNAL_COMPONENTS)
-    set(MBED_INTERNAL_COMPONENTS cmsis drivers hal platform targets)
+    set(MBED_INTERNAL_COMPONENTS drivers hal platform targets)
 endif()
 
 if(NOT DEFINED MBED_BAREMETAL)
@@ -18,7 +18,7 @@ if(${MBED_BAREMETAL} STREQUAL OFF)
     # events are needed by usb
     # storage is needed  by device key driver
     # mbed-trace needs libservice
-    list(APPEND MBED_INTERNAL_COMPONENTS connectivity/mbedtls events storage connectivity/libraries/nanostack-libservice)
+    list(APPEND MBED_INTERNAL_COMPONENTS connectivity/mbedtls storage connectivity/libraries/nanostack-libservice)
 endif()
 
 # Prefix all internal components with MBED_ROOT

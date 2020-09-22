@@ -65,3 +65,11 @@ target_sources(mbed-os
         source/usb/USBMouseKeyboard.cpp
         source/usb/USBSerial.cpp
 )
+
+# Drivers DEPENDS events
+get_property(events_includes TARGET events PROPERTY INCLUDE_DIRECTORIES)
+target_include_directories(mbed-os
+    PRIVATE
+        ${events_includes}
+)
+
