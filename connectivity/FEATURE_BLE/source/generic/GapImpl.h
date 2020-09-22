@@ -493,6 +493,44 @@ private:
         IndexType _current_index = 0;
     };
 
+    class PendingAdvertisingReportEvent {
+    public:
+        PendingAdvertisingReportEvent(
+            const AdvertisingReportEvent& event_to_copy
+        ) : event(event_to_copy)
+        {
+            /* copy the data to the buffer */
+            const mbed::Span<const uint8_t> payload = event_to_copy.getPayload();
+            if (payload.size()) {
+                advertising_data_buffer = new(std::nothrow) uint8_t[payload.size()];
+                if (advertising_data_buffer) {
+                    memcpy(advertising_data_buffer, payload.data(), payload.size());
+                    /* set the payload to our local copy of the data */
+                    event.setAdvertisingData(mbed::make_Span(advertising_data_buffer, payload.size()));
+                }
+            }
+        };
+
+        ~PendingAdvertisingReportEvent()
+        {
+            delete[] advertising_data_buffer;
+        }
+
+        bool is_valid()
+        {
+            return advertising_data_buffer || (event.getPayload().size() == 0);
+        }
+
+        AdvertisingReportEvent& get_pending_event()
+        {
+            return event;
+        }
+
+    private:
+        AdvertisingReportEvent event;
+        uint8_t *advertising_data_buffer = nullptr;
+    };
+
 private:
     /* Disallow copy and assignment. */
     Gap(const Gap &);
@@ -557,6 +595,50 @@ private:
     bool is_extended_advertising_available();
 
     ble_error_t prepare_legacy_advertising_set(const AdvertisingParameters& parameters);
+
+#if BLE_FEATURE_CONNECTABLE
+    /** Pass the connection complete event to the application. This may involve privacy resolution.
+     *
+     * @param report Event to be passed to the user application.
+     */
+    void signal_connection_complete(ConnectionCompleteEvent& report);
+
+#if BLE_FEATURE_PRIVACY
+    /** Pass the connection complete event to the application after privacy resolution completed.
+     *
+     * @param event Event to be passed to the user application.
+     * @param identity_address_type Address type of the identity address.
+     * @param identity_address Address resolved by private address resolution, nullptr if no identity found.
+     */
+    void conclude_signal_connection_complete_after_address_resolution(
+        ConnectionCompleteEvent &event,
+        target_peer_address_type_t identity_address_type,
+        const address_t *identity_address
+    );
+#endif // BLE_FEATURE_PRIVACY
+#endif // BLE_FEATURE_CONNECTABLE
+
+#if BLE_ROLE_OBSERVER
+    /** Pass the advertising report to the application. This may involve privacy resolution.
+     *
+     * @param report Report to be passed to the user application.
+     */
+    void signal_advertising_report(AdvertisingReportEvent& report);
+
+#if BLE_FEATURE_PRIVACY
+    /** Pass the advertising report to the application after privacy resolution completed.
+     *
+     * @param event Event to be passed to the user application.
+     * @param identity_address_type Address type of the identity address.
+     * @param identity_address Address resolved by private address resolution, nullptr if no identity found.
+     */
+    void conclude_signal_advertising_report_after_address_resolution(
+        AdvertisingReportEvent &event,
+        target_peer_address_type_t identity_address_type,
+        const address_t *identity_address
+    );
+#endif // BLE_FEATURE_PRIVACY
+#endif // BLE_ROLE_OBSERVER
 
     /* implements PalGap::EventHandler */
 private:
@@ -704,6 +786,15 @@ private:
      */
     ble::Gap::EventHandler *_event_handler;
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_OBSERVER
+    EventList<PendingAdvertisingReportEvent, uint8_t, BLE_GAP_MAX_ADVERTISING_REPORTS_PENDING_ADDRESS_RESOLUTION> _reports_pending_address_resolution;
+#endif // BLE_ROLE_OBSERVER
+#if BLE_FEATURE_CONNECTABLE
+    EventList<ConnectionCompleteEvent, uint8_t, DM_CONN_MAX> _connections_pending_address_resolution;
+#endif // BLE_FEATURE_CONNECTABLE
+#endif // BLE_FEATURE_PRIVACY
+
     PalEventQueue &_event_queue;
     PalGap &_pal_gap;
     PalGenericAccessService &_gap_service;
@@ -716,8 +807,14 @@ private:
     mutable whitelist_t _whitelist;
 
     bool _privacy_enabled;
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_PERIPHERAL
     peripheral_privacy_configuration_t _peripheral_privacy_configuration;
+#endif // BLE_ROLE_PERIPHERAL
+#if BLE_ROLE_OBSERVER
     central_privacy_configuration_t _central_privacy_configuration;
+#endif //BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
 
 
