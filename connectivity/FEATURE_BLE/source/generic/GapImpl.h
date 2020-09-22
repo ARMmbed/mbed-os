@@ -354,6 +354,146 @@ public:
     /*                    private implementation follows                     */
 
 private:
+    /** List in random order */
+    template<typename EventType, typename IndexType, IndexType MAX_EVENTS>
+    class EventList {
+    public:
+        EventList()
+        {
+        };
+
+        ~EventList()
+        {
+            for (IndexType i = 0; i < _current_size; ++i) {
+                delete _pointers[i];
+            }
+        };
+
+        /** Add event to the list. List takes ownership of memory.
+         *
+         * @param event List will point to this event.
+         * @return False if list full.
+         */
+        bool push(EventType *event)
+        {
+            if (_current_size < MAX_EVENTS) {
+                _pointers[_current_size] = event;
+                _current_size++;
+                return true;
+            }
+            return false;
+        };
+
+        /** Take one entry of the list. Transfers ownership to caller.
+         *
+         * @return The event return. Memory belongs to caller.
+         */
+        EventType* pop()
+        {
+            MBED_ASSERT(_current_size);
+
+            if (!_current_size) {
+                return nullptr;
+            }
+
+            EventType* event_returned = _pointers[_current_index];
+
+            _current_size--;
+            if (_current_size != _current_index) {
+                _pointers[_current_index] = _pointers[_current_size];
+            } else {
+                _current_index = 0;
+            }
+
+            return event_returned;
+        };
+
+        /** Return pointer to the first element that fulfills the passed in condition and remove the entry
+         * that was pointing to the item. Transfers ownership to caller.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* pop(mbed::Callback<bool(EventType&)> compare_func)
+        {
+            for (IndexType i = 0; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return pop();
+                }
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return pointer to the first element that fulfills the passed in condition and remove the entry
+         * that was pointing to the item. Takes and returns number of failed matches allowing to speed up search.
+         * Transfers ownership to caller.
+         *
+         * @note Calls must be consecutive - any call to pop or find will invalidate the search.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @param events_not_matching Pointer to the number of items already searched but not matching.
+         * This is updated in the method.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* continue_pop(mbed::Callback<bool(EventType&)> compare_func, IndexType *events_not_matching)
+        {
+            _current_index = *events_not_matching;
+            for (IndexType i = *events_not_matching; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return pop();
+                }
+                (*events_not_matching)++;
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return pointer to the first element that fulfills the passed in condition. Does not remove item from list.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* find(mbed::Callback<bool(EventType&)> compare_func)
+        {
+            for (IndexType i = 0; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return _pointers[_current_index];
+                }
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return number of events stored.
+         *
+         * @return Number of events stored.
+         */
+        IndexType get_size()
+        {
+            return _current_size;
+        }
+
+    private:
+        void increment_current_index()
+        {
+            _current_index++;
+            if (_current_index == _current_size) {
+                _current_index = 0;
+            }
+        }
+
+    private:
+        EventType* _pointers[MAX_EVENTS];
+        IndexType _current_size = 0;
+        /* this helps us find the event faster */
+        IndexType _current_index = 0;
+    };
+
+private:
     /* Disallow copy and assignment. */
     Gap(const Gap &);
 
