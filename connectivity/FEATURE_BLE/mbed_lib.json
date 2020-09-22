@@ -92,6 +92,11 @@
             "help": "How many advertising sets the API can handle (this limits how much the stack can handle). Must be non-zero",
             "value": 15,
             "macro_name": "BLE_GAP_MAX_ADVERTISING_SETS"
+        },
+        "ble-gap-max-advertising-reports-pending-address-resolution": {
+            "help": "How many advertising reports can be pending while awaiting private address resolution. This is only used if host privacy is enabled and controller privacy is disabled. Must be non-zero",
+            "value": 16,
+            "macro_name": "BLE_GAP_MAX_ADVERTISING_REPORTS_PENDING_ADDRESS_RESOLUTION"
         }
     }
 }
