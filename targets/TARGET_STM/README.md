@@ -163,12 +163,14 @@ STM32CubeMX has to be installed first. Path has to be specified in the `cube_pat
 ```
 $ python tools/targets/STM32_gen_PeripheralPins.py -h
 
-Script version 1.9
-usage: STM32_gen_PeripheralPins.py [-h] [-l | -b | -m xml | -t HW | -c CUSTOM]
+Script version 1.17
+usage: STM32_gen_PeripheralPins.py [-h] (-l | -b | -m xml | -t HW | -c CUSTOM)
 
 Script will generate PeripheralPins.c thanks to the xml files description available in
 STM32CubeMX directory defined in 'cube_path.json':
         C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX
+
+More information in targets/TARGET_STM/README.md
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -182,6 +184,7 @@ optional arguments:
                         specify a custom board .ioc file description to use (use double quotes).
 
 Once generated, you have to check and comment pins that can not be used (specific HW, internal ADC channels, remove PWM using us ticker timer, ...)
+
 ```
 
 How to generate files for a custom boards based on a STM32F427 MCU:
@@ -195,13 +198,19 @@ STM32F427Z(G-I)Tx.xml
 
 $ python tools/targets/STM32_gen_PeripheralPins.py -m "STM32F427V(G-I)Tx.xml"
 
-Script version 1.9
-CubeMX DB version DB.5.0.60
+Script version 1.17
+CubeMX DB version DB.6.0.0
 
- * Output directory: C:\github\mbed\STM32F427V(G-I)Tx
- * Generating PeripheralPins.c and PinNames.h with 'STM32F427V(G-I)Tx.xml'
+ * Output directory: targets_custom\TARGET_STM\TARGET_STM32F4\TARGET_STM32F427xG\TARGET_STM32F427VGT
+ * Generating PeripheralPins.c and PinNames.h with 'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\STM32F427V(G-I)Tx.xml'
  * GPIO file: C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\IP\GPIO-STM32F427_gpio_v1_0_Modes.xml
- * I/O pins found: 82 connected: 0
+ * I/O pins found: 135 connected: 0
+
+ * Output directory: targets_custom\TARGET_STM\TARGET_STM32F4\TARGET_STM32F427xI\TARGET_STM32F427VIT
+ * Generating PeripheralPins.c and PinNames.h with 'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\STM32F427V(G-I)Tx.xml'
+ * GPIO file: C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\IP\GPIO-STM32F427_gpio_v1_0_Modes.xml
+ * I/O pins found: 135 connected: 0
+
 ```
 
 ### Use of custom_targets.json
@@ -213,9 +222,9 @@ Example with a board based on STM32F103C8 (like BluePill):
 
 ```
 $ python tools/targets/STM32_gen_PeripheralPins.py -m "STM32F103C(8-B)Tx.xml"
-// PeripheralPins.c and PinNames.h template files are created in STM32H745ZITx directory
+// PeripheralPins.c and PinNames.h template files are created in targets_custom/TARGET_STM/TARGET_STM32F1/TARGET_STM32F103x8/TARGET_STM32F103C8T directory
 
-$ mv STM32F103C\(8-B\)Tx/ TARGET_BLUEPILL_F103C8
+$ mv TARGET_STM32F103C8T TARGET_BLUEPILL_F103C8
 // Edit PeripheralPins.c and PinNames.h to match your board configuration
 
 // Create a custom_targets.json with:
@@ -241,9 +250,9 @@ Example with a board based on STM32H745ZI
 
 ```
 $ python tools/targets/STM32_gen_PeripheralPins.py -m "STM32H745ZITx.xml"
-// PeripheralPins.c and PinNames.h template files are created in STM32H745ZITx directory
+// PeripheralPins.c and PinNames.h template files are created in targets_custom/TARGET_STM/TARGET_STM32H7/TARGET_STM32H745xI/TARGET_STM32H745ZIT directory
 
-$ mv STM32H745ZITx TARGET_H745ZI_BOARD
+$ mv TARGET_STM32H745ZIT TARGET_H745ZI_BOARD
 // Edit PeripheralPins.c and PinNames.h to match your board configuration
 
 // Create a custom_targets.json with:
