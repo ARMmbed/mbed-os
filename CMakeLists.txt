@@ -81,30 +81,6 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Set default core modules
-# We use internal as they have to be prefixed with the MBED_ROOT
-if(NOT DEFINED MBED_INTERNAL_COMPONENTS)
-    set(MBED_INTERNAL_COMPONENTS cmsis drivers hal platform targets)
-endif()
-
-if(NOT DEFINED MBED_BAREMETAL)
-    option(MBED_BAREMETAL "Build baremetal profile" OFF)
-endif()
-
-if(${MBED_BAREMETAL} STREQUAL OFF)
-    list(APPEND MBED_INTERNAL_COMPONENTS rtos)
-    # TODO: this needs some work, this interdependencies
-    # mbedtls is needed by device key driver
-    # events are needed by usb
-    # storage is needed  by device key driver
-    # mbed-trace needs libservice
-    list(APPEND MBED_INTERNAL_COMPONENTS connectivity/mbedtls events storage connectivity/libraries/nanostack-libservice)
-endif()
-
-
-# Prefix all internal components with MBED_ROOT
-list(TRANSFORM MBED_INTERNAL_COMPONENTS PREPEND "${MBED_ROOT}/")
-
 mbed_enable_components("${MBED_INTERNAL_COMPONENTS}" "${MBED_EXTERNAL_COMPONENTS}")
 
 #
