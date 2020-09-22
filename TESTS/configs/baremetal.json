@@ -13,7 +13,6 @@
         "filesystem",
         "littlefs",
         "littlefs2",
-        "mbed-trace",
         "device_key",
         "storage_tdb_internal",
         "storage_filesystem",
@@ -38,7 +37,6 @@
     ],
     "target_overrides": {
         "*": {
-            "mbed-trace.fea-ipv6": false,
             "target.c_lib": "small"
         }
      }
