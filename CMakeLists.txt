@@ -84,7 +84,7 @@ target_include_directories(mbed-os
 # Set default core modules
 # We use internal as they have to be prefixed with the MBED_ROOT
 if(NOT DEFINED MBED_INTERNAL_COMPONENTS)
-    set(MBED_INTERNAL_COMPONENTS ${MBED_ROOT}/cmsis ${MBED_ROOT}/drivers ${MBED_ROOT}/hal ${MBED_ROOT}/platform ${MBED_ROOT}/targets)
+    set(MBED_INTERNAL_COMPONENTS cmsis drivers hal platform targets)
 endif()
 
 if(NOT DEFINED MBED_BAREMETAL)
@@ -98,8 +98,11 @@ if(${MBED_BAREMETAL} STREQUAL OFF)
     # events are needed by usb
     # storage is needed  by device key driver
     # mbed-trace needs libservice
-    list(APPEND MBED_INTERNAL_COMPONENTS ${MBED_ROOT}/connectivity/mbedtls ${MBED_ROOT}/events ${MBED_ROOT}/storage ${MBED_ROOT}/connectivity/libraries/nanostack-libservice)
+    list(APPEND MBED_INTERNAL_COMPONENTS connectivity/mbedtls events storage connectivity/libraries/nanostack-libservice)
 endif()
+
+# Prefix all internal components with MBED_ROOT
+list(TRANSFORM MBED_INTERNAL_COMPONENTS PREPEND "${MBED_ROOT}/")
 
 mbed_enable_components("${MBED_INTERNAL_COMPONENTS}" "${MBED_EXTERNAL_COMPONENTS}")
 
@@ -200,16 +203,4 @@ endfunction()
 function(mbed_generate_executable target)
     mbed_generate_bin_hex(${target})
     mbed_generate_map_file(${target})
-endfunction()
-
-#
-# Configure Mbed OS CMake component (default).
-#
-function(mbed_configure_component component)
-    mbed_set_cpu_core_options(${component} ${MBED_TOOLCHAIN})
-    mbed_set_toolchain_options(${component})
-    mbed_set_c_lib(${component} ${MBED_C_LIB})
-    mbed_set_printf_lib(${component} ${MBED_PRINTF_LIB})
-    mbed_set_language_standard(${component})
-    mbed_set_profile_options(${component} ${MBED_TOOLCHAIN})
 endfunction()
