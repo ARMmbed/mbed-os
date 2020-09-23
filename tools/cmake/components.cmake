@@ -2,9 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Set default core components. They depend on each other.
-# We use internal as they have to be prefixed with the MBED_ROOT
 if(NOT DEFINED MBED_CORE_COMPONENTS)
-    set(MBED_CORE_COMPONENTS drivers hal platform targets cmsis events)
+    set(MBED_CORE_COMPONENTS 
+        events
+        cmsis
+        drivers
+        hal
+        platform
+        targets
+    )
 endif()
 
 if(NOT DEFINED MBED_BAREMETAL)
@@ -12,7 +18,9 @@ if(NOT DEFINED MBED_BAREMETAL)
 endif()
 
 if(${MBED_BAREMETAL} STREQUAL OFF)
-    list(APPEND MBED_CORE_COMPONENTS rtos)
+    list(APPEND MBED_CORE_COMPONENTS 
+        rtos
+    )
 endif()
 
 # Prefix all internal components with MBED_ROOT
