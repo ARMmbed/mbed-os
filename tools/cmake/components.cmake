@@ -13,11 +13,6 @@ endif()
 
 if(${MBED_BAREMETAL} STREQUAL OFF)
     list(APPEND MBED_CORE_COMPONENTS rtos)
-    # TODO: this needs some work, this interdependencies
-    # mbedtls is needed by device key driver
-    # storage is needed  by device key driver
-    # mbed-trace needs libservice
-    list(APPEND MBED_CORE_COMPONENTS connectivity/mbedtls storage connectivity/libraries/nanostack-libservice)
 endif()
 
 # Prefix all internal components with MBED_ROOT
