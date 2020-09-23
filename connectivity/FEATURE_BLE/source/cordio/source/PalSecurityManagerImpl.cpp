@@ -207,18 +207,6 @@ ble_error_t PalSecurityManager::encrypt_data(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// Privacy
-//
-
-
-ble_error_t PalSecurityManager::set_private_address_timeout(
-    uint16_t timeout_in_seconds
-)
-{
-    DmPrivSetResolvablePrivateAddrTimeout(timeout_in_seconds);
-    return BLE_ERROR_NONE;
-}
 
 ////////////////////////////////////////////////////////////////////////////
 // Keys
