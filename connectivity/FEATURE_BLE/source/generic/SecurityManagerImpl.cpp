@@ -1038,8 +1038,12 @@ ble_error_t SecurityManager::init_identity()
     ble::Gap& gap = BLE::Instance().gap();
 
     irk_t irk = _db->get_local_irk();
+    address_t identity_address;
+    bool public_identity_address = false;
     if (irk != irk_t()) {
         pirk = &irk;
+        public_identity_address = _db->is_local_identity_address_public();
+        identity_address = _db->get_local_identity_address();
 
         if (!_db->is_local_identity_address_public()) {
             // Some controllers doesn't store their random static address and
@@ -1060,16 +1064,15 @@ ble_error_t SecurityManager::init_identity()
         }
 
         pirk = &irk;
-        address_t random_static_address = gap.getRandomStaticAddress();
-        if (ret != BLE_ERROR_NONE) {
-            return ret;
-        }
-        _db->set_local_identity(irk, random_static_address, /* public_address */ false);
+        public_identity_address = false;
+        identity_address = gap.getRandomStaticAddress();
+        _db->set_local_identity(irk, identity_address, public_identity_address);
     }
 
     auto err = _pal.set_irk(*pirk);
     if (!err) {
         _private_address_controller.set_local_irk(*pirk);
+        _pal.set_identity_address(identity_address, public_identity_address);
     }
     return err;
 }
