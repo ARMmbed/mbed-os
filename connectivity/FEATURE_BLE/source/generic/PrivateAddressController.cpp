@@ -541,7 +541,10 @@ ble_error_t PrivateAddressController::queue_resolve_address(const address_t &pee
         return BLE_ERROR_NO_MEM;
     }
 
-    queue_privacy_control_block(cb);
+    _event_queue.post([this, cb] {
+        queue_privacy_control_block(cb);
+    });
+
     return BLE_ERROR_NONE;
 }
 
