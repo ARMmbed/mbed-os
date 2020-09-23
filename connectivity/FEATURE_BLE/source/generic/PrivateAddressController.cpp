@@ -164,15 +164,33 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
             peer_irk
         );
     } else {
+        // ensure an entry is not added twice
+        for (auto &entry : _resolving_list) {
+            if (entry.populated &&
+                entry.peer_address_type == peer_address_type &&
+                entry.peer_address == peer_identity_address &&
+                entry.peer_irk == peer_irk
+            ) {
+                return BLE_ERROR_NONE;
+            }
+        }
+
+        bool entry_added = false;
         for (auto &entry : _resolving_list) {
             if (entry.populated == false) {
                 entry.peer_address_type = peer_address_type;
                 entry.peer_address = peer_identity_address;
                 entry.peer_irk = peer_irk;
                 entry.populated = true;
-                return BLE_ERROR_NONE;
+                entry_added = true;
+                break;
             }
         }
+
+        if (!entry_added) {
+            return BLE_ERROR_NO_MEM;
+        }
+
 
         // Remove unresolved entries from the resolved list
         remove_resolution_entry_from_cache(
