@@ -756,11 +756,11 @@ void AT_CellularContext::check_and_deactivate_context()
     rat = reg_params._act;
     // 3GPP TS 27.007:
     // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
-    if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
+    if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || rat == CellularNetwork::RAT_NB1 || active_contexts_count > 1)) {
         _at.clear_error();
-    }
 
-    deactivate_context();
+        deactivate_context();
+    }
 
     if (_new_context_set) {
         delete_current_context();
