@@ -175,15 +175,6 @@ public:
     ) final;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Privacy
-    //
-
-    /**
-     * @see ::ble::PalSecurityManager::set_private_address_timeout
-     */
-    ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds) final;
-
-    ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
 

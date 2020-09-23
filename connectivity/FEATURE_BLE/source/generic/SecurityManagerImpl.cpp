@@ -743,7 +743,10 @@ ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool 
 ble_error_t SecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds)
 {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
-    return _pal.set_private_address_timeout(timeout_in_seconds);
+    _private_address_controller.set_timeout(
+        resolvable_address_timeout_t(timeout_in_seconds)
+    );
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
