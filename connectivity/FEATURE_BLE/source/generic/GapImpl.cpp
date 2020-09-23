@@ -1260,43 +1260,24 @@ void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
     }
 #endif // BLE_ROLE_PERIPHERAL
 
-    ble::address_t address;
-    if (_address_type == own_address_type_t::PUBLIC) {
-        address = _pal_gap.get_device_address();
-    } else {
-        address = _pal_gap.get_random_address();
-    }
+    ConnectionCompleteEvent event(
+        BLE_ERROR_NONE,
+        e.connection_handle,
+        e.role,
+        e.peer_address_type,
+        e.peer_address,
+        e.local_resolvable_private_address,
+        e.peer_resolvable_private_address,
+        conn_interval_t(e.connection_interval),
+        e.connection_latency,
+        supervision_timeout_t(e.supervision_timeout),
+        /* default master clock accuracy */ ble::clock_accuracy_t::PPM_500
+    );
 
-    // signal internal stack
-    if (_connection_event_handler) {
-        _connection_event_handler->on_connected(
-            e.connection_handle,
-            e.role,
-            e.peer_address_type,
-            e.peer_address,
-            _address_type,
-            address
-        );
-    }
-
-    // signal application
     if (_event_handler) {
-        ConnectionCompleteEvent event(
-            BLE_ERROR_NONE,
-            e.connection_handle,
-            e.role,
-            e.peer_address_type,
-            e.peer_address,
-            e.local_resolvable_private_address,
-            e.peer_resolvable_private_address,
-            conn_interval_t(e.connection_interval),
-            e.connection_latency,
-            supervision_timeout_t(e.supervision_timeout),
-            /* default master clock accuracy */ ble::clock_accuracy_t::PPM_500
-        );
-        signal_connection_complete(
-            event
-        );
+        signal_connection_complete(event);
+    } else {
+        report_internal_connection_complete(event);
     }
 }
 
@@ -2204,6 +2185,30 @@ void Gap::on_extended_advertising_report(
 }
 
 #if BLE_FEATURE_CONNECTABLE
+void Gap::report_internal_connection_complete(const ConnectionCompleteEvent& event)
+{
+    if (!_connection_event_handler || event.getStatus() != BLE_ERROR_NONE) {
+        return;
+    }
+
+    ble::address_t address;
+    if (_address_type == own_address_type_t::PUBLIC) {
+        address = _pal_gap.get_device_address();
+    } else {
+        address = _pal_gap.get_random_address();
+    }
+
+    _connection_event_handler->on_connected(
+        event.getConnectionHandle(),
+        event.getOwnRole(),
+        event.getPeerAddressType(),
+        event.getPeerAddress(),
+        _address_type,
+        address
+    );
+}
+
+
 void Gap::signal_connection_complete(
     ConnectionCompleteEvent& event
 )
@@ -2259,9 +2264,8 @@ void Gap::signal_connection_complete(
 
     /* if successful then proceed to call the handler immediately same as for when privacy is disabled */
     if (address_resolved) {
-        _event_handler->onConnectionComplete(
-            event
-        );
+        report_internal_connection_complete(event);
+        _event_handler->onConnectionComplete(event);
     } else {
         bool resolution_pending = false;
         ble_error_t ret = _address_registry.queue_resolve_address(event.getPeerAddress());
@@ -2287,9 +2291,8 @@ void Gap::signal_connection_complete(
         }
     }
 #else
-    _event_handler->onConnectionComplete(
-            event
-    );
+    report_internal_connection_complete(event);
+    _event_handler->onConnectionComplete(event);
 #endif // BLE_FEATURE_PRIVACY
 }
 
@@ -2329,9 +2332,8 @@ void Gap::conclude_signal_connection_complete_after_address_resolution(
     }
 #endif // BLE_ROLE_PERIPHERAL
 
-    _event_handler->onConnectionComplete(
-        event
-    );
+    report_internal_connection_complete(event);
+    _event_handler->onConnectionComplete(event);
 #if BLE_ROLE_PERIPHERAL
 #if BLE_FEATURE_SECURITY
     if (resolvable_address_not_known) {

@@ -597,6 +597,13 @@ private:
     ble_error_t prepare_legacy_advertising_set(const AdvertisingParameters& parameters);
 
 #if BLE_FEATURE_CONNECTABLE
+    /** Call the internal handlers that report to the security manager and GATT
+     * that a connection has been established.
+     *
+     * @param report Connection event
+     */
+    void report_internal_connection_complete(const ConnectionCompleteEvent& report);
+
     /** Pass the connection complete event to the application. This may involve privacy resolution.
      *
      * @param report Event to be passed to the user application.
