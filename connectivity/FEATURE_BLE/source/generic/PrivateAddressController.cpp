@@ -164,15 +164,33 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
             peer_irk
         );
     } else {
+        // ensure an entry is not added twice
+        for (auto &entry : _resolving_list) {
+            if (entry.populated &&
+                entry.peer_address_type == peer_address_type &&
+                entry.peer_address == peer_identity_address &&
+                entry.peer_irk == peer_irk
+            ) {
+                return BLE_ERROR_NONE;
+            }
+        }
+
+        bool entry_added = false;
         for (auto &entry : _resolving_list) {
             if (entry.populated == false) {
                 entry.peer_address_type = peer_address_type;
                 entry.peer_address = peer_identity_address;
                 entry.peer_irk = peer_irk;
                 entry.populated = true;
-                return BLE_ERROR_NONE;
+                entry_added = true;
+                break;
             }
         }
+
+        if (!entry_added) {
+            return BLE_ERROR_NO_MEM;
+        }
+
 
         // Remove unresolved entries from the resolved list
         remove_resolution_entry_from_cache(
@@ -455,7 +473,7 @@ struct PrivateAddressController::PrivacyResolveAddress final :
 
     bool execute(PrivateAddressController& self) final
     {
-        if (self._resolving_list[resolving_list_index].peer_irk == irk_t{}) {
+        if (!self._resolving_list[resolving_list_index].populated) {
             // no entry at index 0, move to the next
             return start_next_resolution_round(self);
         } else {
@@ -494,7 +512,7 @@ private:
                 notify_completion(self, peer_address,false,nullptr);
                 return true;
             }
-        } while (self._resolving_list[resolving_list_index].peer_irk != irk_t{});
+        } while (!self._resolving_list[resolving_list_index].populated);
 
         start_resolution(self);
         return false;
@@ -541,7 +559,10 @@ ble_error_t PrivateAddressController::queue_resolve_address(const address_t &pee
         return BLE_ERROR_NO_MEM;
     }
 
-    queue_privacy_control_block(cb);
+    _event_queue.post([this, cb] {
+        queue_privacy_control_block(cb);
+    });
+
     return BLE_ERROR_NONE;
 }
 
