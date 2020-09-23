@@ -1935,7 +1935,7 @@ void SecurityManager::on_ltk_request(
 
     _db->get_entry_local_keys(
         mbed::callback(this, &SecurityManager::set_ltk_cb),
-        cb->db_entry,
+        &cb->db_entry,
         ediv,
         rand
     );
