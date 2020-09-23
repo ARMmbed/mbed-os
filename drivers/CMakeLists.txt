@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-TODO: because of dependency on mbedtls and storage, we remove it for now
+#TODO: because of dependency on mbedtls and storage, we remove it for now
 #add_subdirectory(device_key)
 
 target_include_directories(mbed-os

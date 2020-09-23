@@ -26,6 +26,10 @@ endif()
 # Prefix all internal components with MBED_ROOT
 list(TRANSFORM MBED_CORE_COMPONENTS PREPEND "${MBED_ROOT}/")
 
+# Gather all non-core components from the Mbed OS tree
+include(connectivity/components.cmake)
+include(storage/components.cmake)
+
 #
 # Configure Mbed OS CMake component (default).
 #
@@ -47,8 +51,14 @@ endfunction()
 # Enable Mbed OS component
 function(mbed_enable_components components)
     foreach(component IN LISTS components)
-        if(IS_DIRECTORY "${component}" AND EXISTS "${component}/CMakeLists.txt")
-            add_subdirectory("${component}")
+        # if we find ${component}_PATH, we use it for specified component name
+        # otherwise name = path
+        set(component_path ${component})
+        if (${component}_PATH)
+            set(component_path ${component}_PATH)
+        endif()
+        if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
+            add_subdirectory("${component_path}")
         endif()
     endforeach()
 endfunction()
