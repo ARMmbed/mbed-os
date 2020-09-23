@@ -4,7 +4,7 @@
 add_subdirectory(RTE)
 add_subdirectory(rtos)
 
-target_include_directories(cmsis
+target_include_directories(mbed-os
     PUBLIC
         .
 )

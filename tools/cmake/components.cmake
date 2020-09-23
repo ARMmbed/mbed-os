@@ -4,7 +4,7 @@
 # Set default core modules
 # We use internal as they have to be prefixed with the MBED_ROOT
 if(NOT DEFINED MBED_INTERNAL_COMPONENTS)
-    set(MBED_INTERNAL_COMPONENTS drivers hal platform targets)
+    set(MBED_INTERNAL_COMPONENTS drivers hal platform targets cmsis events)
 endif()
 
 if(NOT DEFINED MBED_BAREMETAL)
@@ -34,6 +34,12 @@ function(mbed_configure_component component)
     mbed_set_printf_lib(${component} ${MBED_PRINTF_LIB})
     mbed_set_language_standard(${component})
     mbed_set_profile_options(${component} ${MBED_TOOLCHAIN})
+    # Add definitions for each component
+    target_compile_definitions(${component}
+        PUBLIC
+            ${MBED_TARGET_DEFINITIONS}
+            ${MBED_CONFIG_DEFINITIONS}
+    )
 endfunction()
 
 # Enable Mbed OS component

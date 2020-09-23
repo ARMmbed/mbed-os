@@ -26,15 +26,7 @@ include(${MBED_ROOT}/tools/cmake/util.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
 include(${MBED_ROOT}/tools/cmake/components.cmake)
 
-add_subdirectory(cmsis)
-add_subdirectory(events)
-
-# Create Mbed OS library
 add_library(mbed-os OBJECT)
-target_sources(mbed-os PUBLIC $<TARGET_OBJECTS:events>)
-target_include_directories(mbed-os PUBLIC $<TARGET_PROPERTY:events,INCLUDE_DIRECTORIES>)
-target_sources(mbed-os PUBLIC $<TARGET_OBJECTS:cmsis>)
-target_include_directories(mbed-os PUBLIC $<TARGET_PROPERTY:cmsis,INCLUDE_DIRECTORIES>)
 
 # Validate selected C library type
 # The C library type selected has to match the library that the target can support
