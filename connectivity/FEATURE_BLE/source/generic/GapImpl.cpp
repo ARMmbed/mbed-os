@@ -1249,9 +1249,7 @@ void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
         return;
     }
 
-    // There is no need to check for extending advertising availability as this
-    // handler is for 4.x controllers
-    if (e.role == connection_role_t::PERIPHERAL) {
+    if (!is_extended_advertising_available() && e.role == connection_role_t::PERIPHERAL) {
         _active_sets.clear(LEGACY_ADVERTISING_HANDLE);
     }
 
