@@ -455,7 +455,7 @@ struct PrivateAddressController::PrivacyResolveAddress final :
 
     bool execute(PrivateAddressController& self) final
     {
-        if (self._resolving_list[resolving_list_index].peer_irk == irk_t{}) {
+        if (!self._resolving_list[resolving_list_index].populated) {
             // no entry at index 0, move to the next
             return start_next_resolution_round(self);
         } else {
@@ -494,7 +494,7 @@ private:
                 notify_completion(self, peer_address,false,nullptr);
                 return true;
             }
-        } while (self._resolving_list[resolving_list_index].peer_irk != irk_t{});
+        } while (!self._resolving_list[resolving_list_index].populated);
 
         start_resolution(self);
         return false;
