@@ -4,7 +4,8 @@
  * @brief    M2354 series Clock Controller (CLK) driver source file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #include "NuMicro.h"
 /** @addtogroup Standard_Driver Standard Driver
@@ -186,7 +187,7 @@ __NONSECURE_ENTRY
 uint32_t CLK_GetPCLK0Freq(void)
 {
     SystemCoreClockUpdate();
-    return (SystemCoreClock >> ((CLK->PCLKDIV & CLK_PCLKDIV_APB0DIV_Msk) >> CLK_PCLKDIV_APB0DIV_Pos));
+    return (SystemCoreClock);
 }
 #endif
 
@@ -202,7 +203,7 @@ __NONSECURE_ENTRY
 uint32_t CLK_GetPCLK1Freq(void)
 {
     SystemCoreClockUpdate();
-    return (SystemCoreClock >> ((CLK->PCLKDIV & CLK_PCLKDIV_APB1DIV_Msk) >> CLK_PCLKDIV_APB1DIV_Pos));
+    return (SystemCoreClock);
 }
 #endif
 
@@ -218,7 +219,7 @@ __NONSECURE_ENTRY
 uint32_t CLK_GetCPUFreq(void)
 {
     uint32_t u32Freq, u32HclkSrc, u32HclkDiv;
-    uint32_t au32ClkTbl[] = {__HXT, __LXT, 0UL, __LIRC, 0UL, __HIRC48, 0UL, __HIRC};
+    uint32_t au32ClkTbl[] = {__HXT, __LXT, 0UL, __LIRC, 0UL, __HIRC48, __MIRC, __HIRC};
     uint32_t u32PllReg, u32FIN, u32NF, u32NR, u32NO;
     uint8_t au8NoTbl[4] = {1U, 2U, 2U, 4U};
     uint32_t u32RTCCKEN = CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk;
@@ -379,12 +380,13 @@ uint32_t CLK_SetCoreClock(uint32_t u32Hclk)
   *             - \ref CLK_CLKSEL0_HCLKSEL_PLL
   *             - \ref CLK_CLKSEL0_HCLKSEL_LIRC
   *             - \ref CLK_CLKSEL0_HCLKSEL_HIRC48
+  *             - \ref CLK_CLKSEL0_HCLKSEL_MIRC
   *             - \ref CLK_CLKSEL0_HCLKSEL_HIRC
   * @param[in]  u32ClkDiv is HCLK clock divider. Including :
   *             - \ref CLK_CLKDIV0_HCLK(x)
   * @return     None
   * @details    This function set HCLK clock source and HCLK clock divider. \n
-  *             Power level is also set according to HCLK operation frequency. \n
+  *             Power level and flash access cycle are also set according to HCLK operation frequency. \n
   *             The register write-protection function should be disabled before using this function.
   */
 void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
@@ -403,6 +405,9 @@ void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
     while(SYS->PLCTL & SYS_PLCTL_WRBUSY_Msk);
     SYS->PLCTL = (SYS->PLCTL & (~SYS_PLCTL_PLSEL_Msk)) | SYS_PLCTL_PLSEL_PL0;
     while(SYS->PLSTS & SYS_PLSTS_PLCBUSY_Msk);
+    
+    /* Set Flash Access Cycle to 4 for safe */
+    FMC->CYCCTL = (FMC->CYCCTL & (~FMC_CYCCTL_CYCLE_Msk)) | (4);       
 
     /* Apply new Divider */
     CLK->CLKDIV0 = (CLK->CLKDIV0 & (~CLK_CLKDIV0_HCLKDIV_Msk)) | u32ClkDiv;
@@ -419,12 +424,30 @@ void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
     {
         SYS->PLCTL = (SYS->PLCTL & (~SYS_PLCTL_PLSEL_Msk)) | SYS_PLCTL_PLSEL_PL1;
     }
-    else if( SystemCoreClock<=FREQ_48MHZ )
+    else if( (SystemCoreClock>FREQ_4MHZ) && SystemCoreClock<=FREQ_48MHZ ) 
     {
         SYS->PLCTL = (SYS->PLCTL & (~SYS_PLCTL_PLSEL_Msk)) | SYS_PLCTL_PLSEL_PL2;
     }
+    if( SystemCoreClock<=FREQ_4MHZ )  
+    {
+        SYS->PLCTL = (SYS->PLCTL & (~SYS_PLCTL_PLSEL_Msk)) | SYS_PLCTL_PLSEL_PL3;        
+    }  
     while(SYS->PLSTS & SYS_PLSTS_PLCBUSY_Msk);
-
+    
+    /* Set Flash Access Cycle */
+    if( (SystemCoreClock>=FREQ_50MHZ) && SystemCoreClock<FREQ_75MHZ )
+    {
+        FMC->CYCCTL = (FMC->CYCCTL & (~FMC_CYCCTL_CYCLE_Msk)) | (3);     
+    }
+    else if( (SystemCoreClock>=FREQ_25MHZ) && SystemCoreClock<FREQ_50MHZ ) 
+    {
+        FMC->CYCCTL = (FMC->CYCCTL & (~FMC_CYCCTL_CYCLE_Msk)) | (2);     
+    }
+    if( SystemCoreClock<FREQ_25MHZ )  
+    {
+        FMC->CYCCTL = (FMC->CYCCTL & (~FMC_CYCCTL_CYCLE_Msk)) | (1);         
+    }     
+    
     /* Disable HIRC if HIRC is disabled before switching HCLK source */
     if(u32HIRCSTB == 0UL)
     {
@@ -452,8 +475,8 @@ void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
   * |\ref WWDT_MODULE    |\ref CLK_CLKSEL1_WWDTSEL_LIRC          | x                        |
   * |\ref LCD_MODULE     |\ref CLK_CLKSEL1_LCDSEL_LIRC           | x                        |
   * |\ref LCD_MODULE     |\ref CLK_CLKSEL1_LCDSEL_LXT            | x                        |
-  * |\ref LCDF_MODULE    |\ref CLK_CLKSEL1_LCDFSEL_HIRC          | x                        |
-  * |\ref LCDF_MODULE    |\ref CLK_CLKSEL1_LCDFSEL_MIRC          | x                        |
+  * |\ref LCDCP_MODULE   |\ref CLK_CLKSEL1_LCDCPSEL_HIRC         | x                        |
+  * |\ref LCDCP_MODULE   |\ref CLK_CLKSEL1_LCDCPSEL_MIRC         | x                        |
   * |\ref EWDT_MODULE    |\ref CLK_CLKSEL1_EWDTSEL_LXT           | x                        |
   * |\ref EWDT_MODULE    |\ref CLK_CLKSEL1_EWDTSEL_HCLK_DIV2048  | x                        |
   * |\ref EWDT_MODULE    |\ref CLK_CLKSEL1_EWDTSEL_LIRC          | x                        |
@@ -484,30 +507,50 @@ void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
   * |\ref TMR3_MODULE    |\ref CLK_CLKSEL1_TMR3SEL_EXT_TRG       | x                        |
   * |\ref TMR3_MODULE    |\ref CLK_CLKSEL1_TMR3SEL_LIRC          | x                        |
   * |\ref TMR3_MODULE    |\ref CLK_CLKSEL1_TMR3SEL_HIRC          | x                        |
-  * |\ref UART0_MODULE   |\ref CLK_CLKSEL1_UART0SEL_HXT          |\ref CLK_CLKDIV0_UART0(x) |
-  * |\ref UART0_MODULE   |\ref CLK_CLKSEL1_UART0SEL_PLL          |\ref CLK_CLKDIV0_UART0(x) |
-  * |\ref UART0_MODULE   |\ref CLK_CLKSEL1_UART0SEL_LXT          |\ref CLK_CLKDIV0_UART0(x) |
-  * |\ref UART0_MODULE   |\ref CLK_CLKSEL1_UART0SEL_HIRC         |\ref CLK_CLKDIV0_UART0(x) |
-  * |\ref UART1_MODULE   |\ref CLK_CLKSEL1_UART1SEL_HXT          |\ref CLK_CLKDIV0_UART1(x) |
-  * |\ref UART1_MODULE   |\ref CLK_CLKSEL1_UART1SEL_PLL          |\ref CLK_CLKDIV0_UART1(x) |
-  * |\ref UART1_MODULE   |\ref CLK_CLKSEL1_UART1SEL_LXT          |\ref CLK_CLKDIV0_UART1(x) |
-  * |\ref UART1_MODULE   |\ref CLK_CLKSEL1_UART1SEL_HIRC         |\ref CLK_CLKDIV0_UART1(x) |
-  * |\ref UART2_MODULE   |\ref CLK_CLKSEL3_UART2SEL_HXT          |\ref CLK_CLKDIV4_UART2(x) |
-  * |\ref UART2_MODULE   |\ref CLK_CLKSEL3_UART2SEL_PLL          |\ref CLK_CLKDIV4_UART2(x) |
-  * |\ref UART2_MODULE   |\ref CLK_CLKSEL3_UART2SEL_LXT          |\ref CLK_CLKDIV4_UART2(x) |
-  * |\ref UART2_MODULE   |\ref CLK_CLKSEL3_UART2SEL_HIRC         |\ref CLK_CLKDIV4_UART2(x) |
-  * |\ref UART3_MODULE   |\ref CLK_CLKSEL3_UART3SEL_HXT          |\ref CLK_CLKDIV4_UART3(x) |
-  * |\ref UART3_MODULE   |\ref CLK_CLKSEL3_UART3SEL_PLL          |\ref CLK_CLKDIV4_UART3(x) |
-  * |\ref UART3_MODULE   |\ref CLK_CLKSEL3_UART3SEL_LXT          |\ref CLK_CLKDIV4_UART3(x) |
-  * |\ref UART3_MODULE   |\ref CLK_CLKSEL3_UART3SEL_HIRC         |\ref CLK_CLKDIV4_UART3(x) |
+  * |\ref TMR4_MODULE    |\ref CLK_CLKSEL3_TMR4SEL_HXT           | x                        |
+  * |\ref TMR4_MODULE    |\ref CLK_CLKSEL3_TMR4SEL_LXT           | x                        |
+  * |\ref TMR4_MODULE    |\ref CLK_CLKSEL3_TMR4SEL_PCLK0         | x                        |
+  * |\ref TMR4_MODULE    |\ref CLK_CLKSEL3_TMR4SEL_EXT_TRG       | x                        |
+  * |\ref TMR4_MODULE    |\ref CLK_CLKSEL3_TMR4SEL_MIRC          | x                        | 
+  * |\ref TMR4_MODULE    |\ref CLK_CLKSEL3_TMR4SEL_LIRC          | x                        |
+  * |\ref TMR4_MODULE    |\ref CLK_CLKSEL3_TMR4SEL_HIRC          | x                        |  
+  * |\ref TMR5_MODULE    |\ref CLK_CLKSEL3_TMR5SEL_HXT           | x                        |
+  * |\ref TMR5_MODULE    |\ref CLK_CLKSEL3_TMR5SEL_LXT           | x                        |
+  * |\ref TMR5_MODULE    |\ref CLK_CLKSEL3_TMR5SEL_PCLK0         | x                        |
+  * |\ref TMR5_MODULE    |\ref CLK_CLKSEL3_TMR5SEL_EXT_TRG       | x                        |
+  * |\ref TMR5_MODULE    |\ref CLK_CLKSEL3_TMR5SEL_MIRC          | x                        | 
+  * |\ref TMR5_MODULE    |\ref CLK_CLKSEL3_TMR5SEL_LIRC          | x                        |
+  * |\ref TMR5_MODULE    |\ref CLK_CLKSEL3_TMR5SEL_HIRC          | x                        |    
+  * |\ref UART0_MODULE   |\ref CLK_CLKSEL2_UART0SEL_HXT          |\ref CLK_CLKDIV0_UART0(x) |
+  * |\ref UART0_MODULE   |\ref CLK_CLKSEL2_UART0SEL_PLL          |\ref CLK_CLKDIV0_UART0(x) |
+  * |\ref UART0_MODULE   |\ref CLK_CLKSEL2_UART0SEL_LXT          |\ref CLK_CLKDIV0_UART0(x) |
+  * |\ref UART0_MODULE   |\ref CLK_CLKSEL2_UART0SEL_HIRC         |\ref CLK_CLKDIV0_UART0(x) |
+  * |\ref UART0_MODULE   |\ref CLK_CLKSEL2_UART0SEL_PCLK0        |\ref CLK_CLKDIV0_UART0(x) |  
+  * |\ref UART1_MODULE   |\ref CLK_CLKSEL2_UART1SEL_HXT          |\ref CLK_CLKDIV0_UART1(x) |
+  * |\ref UART1_MODULE   |\ref CLK_CLKSEL2_UART1SEL_PLL          |\ref CLK_CLKDIV0_UART1(x) |
+  * |\ref UART1_MODULE   |\ref CLK_CLKSEL2_UART1SEL_LXT          |\ref CLK_CLKDIV0_UART1(x) |
+  * |\ref UART1_MODULE   |\ref CLK_CLKSEL2_UART1SEL_HIRC         |\ref CLK_CLKDIV0_UART1(x) |
+  * |\ref UART1_MODULE   |\ref CLK_CLKSEL2_UART1SEL_PCLK1        |\ref CLK_CLKDIV0_UART1(x) |  
+  * |\ref UART2_MODULE   |\ref CLK_CLKSEL2_UART2SEL_HXT          |\ref CLK_CLKDIV4_UART2(x) |
+  * |\ref UART2_MODULE   |\ref CLK_CLKSEL2_UART2SEL_PLL          |\ref CLK_CLKDIV4_UART2(x) |
+  * |\ref UART2_MODULE   |\ref CLK_CLKSEL2_UART2SEL_LXT          |\ref CLK_CLKDIV4_UART2(x) |
+  * |\ref UART2_MODULE   |\ref CLK_CLKSEL2_UART2SEL_HIRC         |\ref CLK_CLKDIV4_UART2(x) |
+  * |\ref UART2_MODULE   |\ref CLK_CLKSEL2_UART2SEL_PCLK0        |\ref CLK_CLKDIV4_UART2(x) |  
+  * |\ref UART3_MODULE   |\ref CLK_CLKSEL2_UART3SEL_HXT          |\ref CLK_CLKDIV4_UART3(x) |
+  * |\ref UART3_MODULE   |\ref CLK_CLKSEL2_UART3SEL_PLL          |\ref CLK_CLKDIV4_UART3(x) |
+  * |\ref UART3_MODULE   |\ref CLK_CLKSEL2_UART3SEL_LXT          |\ref CLK_CLKDIV4_UART3(x) |
+  * |\ref UART3_MODULE   |\ref CLK_CLKSEL2_UART3SEL_HIRC         |\ref CLK_CLKDIV4_UART3(x) |
+  * |\ref UART3_MODULE   |\ref CLK_CLKSEL2_UART3SEL_PCLK1        |\ref CLK_CLKDIV4_UART3(x) |
   * |\ref UART4_MODULE   |\ref CLK_CLKSEL3_UART4SEL_HXT          |\ref CLK_CLKDIV4_UART4(x) |
   * |\ref UART4_MODULE   |\ref CLK_CLKSEL3_UART4SEL_PLL          |\ref CLK_CLKDIV4_UART4(x) |
   * |\ref UART4_MODULE   |\ref CLK_CLKSEL3_UART4SEL_LXT          |\ref CLK_CLKDIV4_UART4(x) |
   * |\ref UART4_MODULE   |\ref CLK_CLKSEL3_UART4SEL_HIRC         |\ref CLK_CLKDIV4_UART4(x) |
+  * |\ref UART4_MODULE   |\ref CLK_CLKSEL3_UART4SEL_PCLK0        |\ref CLK_CLKDIV4_UART4(x) |  
   * |\ref UART5_MODULE   |\ref CLK_CLKSEL3_UART5SEL_HXT          |\ref CLK_CLKDIV4_UART5(x) |
   * |\ref UART5_MODULE   |\ref CLK_CLKSEL3_UART5SEL_PLL          |\ref CLK_CLKDIV4_UART5(x) |
   * |\ref UART5_MODULE   |\ref CLK_CLKSEL3_UART5SEL_LXT          |\ref CLK_CLKDIV4_UART5(x) |
   * |\ref UART5_MODULE   |\ref CLK_CLKSEL3_UART5SEL_HIRC         |\ref CLK_CLKDIV4_UART5(x) |
+  * |\ref UART5_MODULE   |\ref CLK_CLKSEL3_UART5SEL_PCLK1        |\ref CLK_CLKDIV4_UART5(x) |  
   * |\ref CLKO_MODULE    |\ref CLK_CLKSEL1_CLKOSEL_HXT           | x                        |
   * |\ref CLKO_MODULE    |\ref CLK_CLKSEL1_CLKOSEL_LXT           | x                        |
   * |\ref CLKO_MODULE    |\ref CLK_CLKSEL1_CLKOSEL_HCLK          | x                        |
@@ -625,6 +668,7 @@ void CLK_SetSysTickClockSrc(uint32_t u32ClkSrc)
   *             - \ref CLK_PWRCTL_HIRCEN_Msk
   *             - \ref CLK_PWRCTL_LIRCEN_Msk
   *             - \ref CLK_PWRCTL_HIRC48EN_Msk
+  *             - \ref CLK_PWRCTL_MIRC1P2MEN_Msk
   *             - \ref CLK_PWRCTL_MIRCEN_Msk
   * @return     None
   * @details    This function enable clock source. \n
@@ -643,6 +687,7 @@ void CLK_EnableXtalRC(uint32_t u32ClkMask)
   *             - \ref CLK_PWRCTL_HIRCEN_Msk
   *             - \ref CLK_PWRCTL_LIRCEN_Msk
   *             - \ref CLK_PWRCTL_HIRC48EN_Msk
+  *             - \ref CLK_PWRCTL_MIRC1P2MEN_Msk
   *             - \ref CLK_PWRCTL_MIRCEN_Msk
   * @return     None
   * @details    This function disable clock source. \n
@@ -686,6 +731,8 @@ void CLK_DisableXtalRC(uint32_t u32ClkMask)
   *             - \ref TMR1_MODULE
   *             - \ref TMR2_MODULE
   *             - \ref TMR3_MODULE
+  *             - \ref TMR4_MODULE
+  *             - \ref TMR5_MODULE  
   *             - \ref CLKO_MODULE
   *             - \ref ACMP01_MODULE
   *             - \ref I2C0_MODULE
@@ -721,6 +768,8 @@ void CLK_DisableXtalRC(uint32_t u32ClkMask)
   *             - \ref QEI0_MODULE
   *             - \ref QEI1_MODULE
   *             - \ref QEI0_MODULE
+  *             - \ref LCD_MODULE  
+  *             - \ref LCDCP_MODULE   
   *             - \ref TRNG_MODULE
   *             - \ref ECAP0_MODULE
   *             - \ref ECAP1_MODULE
@@ -771,6 +820,8 @@ void CLK_EnableModuleClock(uint32_t u32ModuleIdx)
   *             - \ref TMR1_MODULE
   *             - \ref TMR2_MODULE
   *             - \ref TMR3_MODULE
+  *             - \ref TMR4_MODULE
+  *             - \ref TMR5_MODULE  
   *             - \ref CLKO_MODULE
   *             - \ref ACMP01_MODULE
   *             - \ref I2C0_MODULE
@@ -806,6 +857,8 @@ void CLK_EnableModuleClock(uint32_t u32ModuleIdx)
   *             - \ref QEI0_MODULE
   *             - \ref QEI1_MODULE
   *             - \ref QEI0_MODULE
+  *             - \ref LCD_MODULE  
+  *             - \ref LCDCP_MODULE     
   *             - \ref TRNG_MODULE
   *             - \ref ECAP0_MODULE
   *             - \ref ECAP1_MODULE
@@ -829,7 +882,7 @@ void CLK_DisableModuleClock(uint32_t u32ModuleIdx)
   * @param[in]  u32PllClkSrc is PLL clock source. Including :
   *             - \ref CLK_PLLCTL_PLLSRC_HXT
   *             - \ref CLK_PLLCTL_PLLSRC_HIRC
-  * @param[in]  u32PllFreq is PLL frequency. The range of u32PllFreq is 24 MHz ~ 144 MHz.
+  * @param[in]  u32PllFreq is PLL frequency. The range of u32PllFreq is 24 MHz ~ 200 MHz.
   * @return     PLL frequency
   * @details    This function is used to configure PLLCTL register to set specified PLL frequency. \n
   *             The register write-protection function should be disabled before using this function.
@@ -869,8 +922,8 @@ uint32_t CLK_EnablePLL(uint32_t u32PllClkSrc, uint32_t u32PllFreq)
     }
 
     /* Check PLL frequency range */
-    /* Constraint 1: 24MHz < FOUT < 144MHz */
-    if((u32PllFreq <= FREQ_144MHZ) && (u32PllFreq >= FREQ_24MHZ))
+    /* Constraint 1: 24MHz < FOUT < 200MHz */
+    if((u32PllFreq <= FREQ_200MHZ) && (u32PllFreq >= FREQ_24MHZ))
     {
 
         /* Select "NO" according to request frequency */
@@ -974,6 +1027,7 @@ void CLK_DisablePLL(void)
   *             - \ref CLK_STATUS_HIRC48STB_Msk
   *             - \ref CLK_STATUS_EXTLXTSTB_Msk
   *             - \ref CLK_STATUS_LIRC32STB_Msk
+  *             - \ref CLK_STATUS_MIRCSTB_Msk
   * @retval     0  clock is not stable
   * @retval     1  clock is stable
   * @details    To wait for clock ready by specified clock source stable flag or timeout (~500ms)
@@ -1224,12 +1278,14 @@ uint32_t CLK_GetPLLClockFreq(void)
   *             - \ref EWDT_MODULE
   *             - \ref EWWDT_MODULE
   *             - \ref LCD_MODULE
-  *             - \ref LCDF_MODULE
+  *             - \ref LCDCP_MODULE
   *             - \ref RTC_MODULE
   *             - \ref TMR0_MODULE
   *             - \ref TMR1_MODULE
   *             - \ref TMR2_MODULE
   *             - \ref TMR3_MODULE
+  *             - \ref TMR4_MODULE
+  *             - \ref TMR5_MODULE
   *             - \ref CLKO_MODULE
   *             - \ref QSPI0_MODULE
   *             - \ref SPI0_MODULE
@@ -1350,10 +1406,10 @@ uint32_t CLK_GetModuleClockDivider(uint32_t u32ModuleIdx)
 #endif
 
 
-/*@}*/ /* end of group CLK_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group CLK_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group CLK_Driver */
+/**@}*/ /* end of group CLK_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

@@ -3,7 +3,7 @@
  * @version  V3.00
  * @brief    Window Watchdog Timer(WWDT) driver source file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -58,11 +58,10 @@ void WWDT_Open(uint32_t u32PreScale,
                 WWDT_CTL_WWDTEN_Msk;
 }
 
-/*@}*/ /* end of group WWDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group WWDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group WWDT_Driver */
+/**@}*/ /* end of group WWDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
-
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

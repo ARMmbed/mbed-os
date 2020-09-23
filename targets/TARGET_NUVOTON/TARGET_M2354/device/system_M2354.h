@@ -57,6 +57,7 @@ extern "C" {
 #define __HSI       (48000000UL)    /*!< PLL Output Clock Frequency */
 #define __HIRC48    (48000000UL)    /*!< Internal 48M RC Oscillator Frequency */
 #define __LIRC32    (32000UL)       /*!< Internal 32K RC Oscillator Frequency */
+#define __MIRC      (4000000UL)     /*!< Internal 4M RC Oscillator Frequency */
 
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3L)
@@ -88,8 +89,6 @@ extern uint32_t __PC(void);         /*!< Return the current program counter valu
  *
  * @param[in]  expr  Expression to be evaluated
  *
- * @return     None
- *
  * @details    If the expression is false, an error message will be printed out
  *             from debug port (UART0 or UART1).
  */
@@ -106,10 +105,6 @@ void AssertError(uint8_t* file, uint32_t line);
 /**
  * @brief    System Initialization
  *
- * @param    None
- *
- * @return   None
- *
  * @details  The necessary initialization of system.
  */
 extern void SystemInit(void);
@@ -117,10 +112,6 @@ extern void SystemInit(void);
 
 /**
  * @brief    Update the Variable SystemCoreClock
- *
- * @param    None
- *
- * @return   None
  *
  * @details  This function is used to update the variable SystemCoreClock
  *           and must be called whenever the core clock is changed.
@@ -139,38 +130,7 @@ uint32_t __TZ_get_PRIMASK_NS(void);
 void __TZ_set_PRIMASK_NS(uint32_t priMask);
 #endif
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
-/**
-  * \brief   Setup SAU regions
-  * \details Writes the region information contained in SAU_Region to the
-  *          registers SAU_RNR, SAU_RBAR, and SAU_RLAR
-  */
-void TZ_SAU_Setup(void);
-
-/**
-  * \brief   Setup System Control Block
-  */
-void SCB_Setup(void);
-
-/**
- * \brief   Setup NVIC interrupt target state
- */
-void TZ_NVIC_Setup(void);
-
-/**
-  *\brief   Setup SCU Configuration Unit
-  */
-void SCU_Setup(void);
-
-/**
-  * \brief  Configure Non-secure flash boundary for the first time after Mass Erase or
-  *         check if flash partition matches SCU.FNSADDR which has already configured
-  *         and fixed until next Mass Erase.
-  */
-void FMC_NSBA_Setup(void);
-
-#endif  /* #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
 #ifdef __cplusplus
 }

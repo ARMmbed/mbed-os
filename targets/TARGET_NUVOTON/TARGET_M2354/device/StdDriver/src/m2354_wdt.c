@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Watchdog Timer(WDT) driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -58,14 +59,13 @@ void WDT_Open(uint32_t u32TimeoutInterval,
                (u32EnableReset << WDT_CTL_RSTEN_Pos) |
                (u32EnableWakeup << WDT_CTL_WKEN_Pos);
 
-    while(WDT->CTL & WDT_CTL_SYNC_Msk) {} /* Wait enable WDTEN bit completed, it needs 2 * WDT_CLK. */
+    while((WDT->CTL & WDT_CTL_SYNC_Msk) == WDT_CTL_SYNC_Msk) {} /* Wait enable WDTEN bit completed, it needs 2 * WDT_CLK. */
 }
 
-/*@}*/ /* end of group WDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group WDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group WDT_Driver */
+/**@}*/ /* end of group WDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
-
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    UUART register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __UUART_REG_H__
 #define __UUART_REG_H__
@@ -19,7 +20,8 @@
 /**
     @addtogroup UUART UART Mode of USCI Controller(UUART)
     Memory Mapped Structure for UUART Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -440,7 +442,8 @@ typedef struct
 /**
     @addtogroup UUART_CONST UUART Bit Field Definition
     Constant Definitions for UUART Controller
-@{ */
+  @{ 
+*/
 
 #define UUART_CTL_FUNMODE_Pos            (0)                                               /*!< UUART_T::CTL: FUNMODE Position         */
 #define UUART_CTL_FUNMODE_Msk            (0x7ul << UUART_CTL_FUNMODE_Pos)                  /*!< UUART_T::CTL: FUNMODE Mask             */

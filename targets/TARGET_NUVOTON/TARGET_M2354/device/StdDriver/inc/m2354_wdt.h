@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Watchdog Timer(WDT) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __WDT_H__
 #define __WDT_H__
@@ -51,7 +52,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 #define WDT_RESET_COUNTER_KEYWORD   (0x00005AA5UL)    /*!< Fill this value to WDT_RSTCNT register to free reset WDT counter \hideinitializer */
 
-/*@}*/ /* end of group WDT_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group WDT_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup WDT_EXPORTED_FUNCTIONS WDT Exported Functions
@@ -203,11 +204,11 @@ __STATIC_INLINE void WDT_DisableInt(void)
 
 void WDT_Open(uint32_t u32TimeoutInterval, uint32_t u32ResetDelay, uint32_t u32EnableReset, uint32_t u32EnableWakeup);
 
-/*@}*/ /* end of group WDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group WDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group WDT_Driver */
+/**@}*/ /* end of group WDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -215,4 +216,4 @@ void WDT_Open(uint32_t u32TimeoutInterval, uint32_t u32ResetDelay, uint32_t u32E
 
 #endif /* __WDT_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

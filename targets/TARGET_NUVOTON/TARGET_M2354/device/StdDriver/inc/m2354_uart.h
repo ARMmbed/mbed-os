@@ -1,10 +1,11 @@
 /**************************************************************************//**
- * @file     UART.h
+ * @file     uart.h
  * @version  V3.00
- * @brief    M2355 series UART Interface Controller (UART) driver header file
+ * @brief    M2354 series UART Interface Controller (UART) driver header file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __UART_H__
 #define __UART_H__
@@ -114,7 +115,7 @@ extern "C"
 
 
 
-/*@}*/ /* end of group UART_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group UART_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup UART_EXPORTED_FUNCTIONS UART Exported Functions
@@ -455,6 +456,35 @@ __STATIC_INLINE void UART_SET_RTS(UART_T* uart)
 #define UART_RS485_GET_ADDR_FLAG(uart)    (((uart)->FIFOSTS  & UART_FIFOSTS_ADDRDETF_Msk) >> UART_FIFOSTS_ADDRDETF_Pos)
 
 
+/**
+ *    @brief        Enable specified UART PDMA function
+ *
+ *    @param[in]    uart        The pointer of the specified UART module
+ *    @param[in]    u32FuncSel  Combination of following functions
+ *                             - \ref UART_INTEN_TXPDMAEN_Msk
+ *                             - \ref UART_INTEN_RXPDMAEN_Msk
+ *
+ *    @return       None
+ *
+ *    @details      This macro enable specified UART PDMA function.
+ */
+#define UART_PDMA_ENABLE(uart, u32FuncSel)    ((uart)->INTEN |= (u32FuncSel))
+
+
+/**
+ *    @brief        Disable specified UART PDMA function
+ *
+ *    @param[in]    uart        The pointer of the specified UART module
+ *    @param[in]    u32FuncSel  Combination of following functions
+ *                             - \ref UART_INTEN_TXPDMAEN_Msk
+ *                             - \ref UART_INTEN_RXPDMAEN_Msk
+ *
+ *    @return       None
+ *
+ *    @details      This macro disable specified UART PDMA function.
+ */
+#define UART_PDMA_DISABLE(uart, u32FuncSel)    ((uart)->INTEN &= ~(u32FuncSel))
+
 
 void UART_ClearIntFlag(UART_T* uart, uint32_t u32InterruptFlag);
 void UART_Close(UART_T* uart);
@@ -473,11 +503,11 @@ uint32_t UART_Write(UART_T* uart, uint8_t pu8TxBuf[], uint32_t u32WriteBytes);
 void UART_SelectSingleWireMode(UART_T *uart);
 
 
-/*@}*/ /* end of group UART_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group UART_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group UART_Driver */
+/**@}*/ /* end of group UART_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -485,5 +515,4 @@ void UART_SelectSingleWireMode(UART_T *uart);
 
 #endif /* __UART_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
-
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

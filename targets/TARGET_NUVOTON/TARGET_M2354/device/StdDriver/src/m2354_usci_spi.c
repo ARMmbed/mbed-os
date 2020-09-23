@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    M2354 series USCI_SPI driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -156,7 +157,7 @@ void USPI_DisableAutoSS(USPI_T *uspi)
   */
 void USPI_EnableAutoSS(USPI_T *uspi, uint32_t u32SSPinMask, uint32_t u32ActiveLevel)
 {
-	  (void)u32SSPinMask;
+    (void)u32SSPinMask;
     uspi->LINECTL = (uspi->LINECTL & ~USPI_LINECTL_CTLOINV_Msk) | u32ActiveLevel;
     uspi->PROTCTL |= USPI_PROTCTL_AUTOSS_Msk;
 }
@@ -626,10 +627,10 @@ void USPI_DisableWakeup(USPI_T *uspi)
     uspi->WKCTL &= ~USPI_WKCTL_WKEN_Msk;
 }
 
-/*@}*/ /* end of group USCI_SPI_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group USCI_SPI_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group USCI_SPI_Driver */
+/**@}*/ /* end of group USCI_SPI_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

@@ -19,7 +19,8 @@
 /**
     @addtogroup FMC Flash Memory Controller(FMC)
     Memory Mapped Structure for FMC Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -232,125 +233,6 @@ typedef struct
      * |        |          |0 = Flash access cycle auto-tuning is enabled.
      * |        |          |1 = Flash access cycle auto-tuning is disabled.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
-     * @var FMC_T::KPKEY0
-     * Offset: 0x50  KPROM KEY0 Data Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[31:0]  |KPKEY0    |KPROM KEY0 Data (Write Only)
-     * |        |          |Write KPKEY0 data to this register before KEY Comparison operation.
-     * @var FMC_T::KPKEY1
-     * Offset: 0x54  KPROM KEY1 Data Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[31:0]  |KPKEY1    |KPROM KEY1 Data (Write Only)
-     * |        |          |Write KPKEY1 data to this register before KEY Comparison operation.
-     * @var FMC_T::KPKEY2
-     * Offset: 0x58  KPROM KEY2 Data Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[31:0]  |KPKEY2    |KPROM KEY2 Data (Write Only)
-     * |        |          |Write KPKEY2 data to this register before KEY Comparison operation.
-     * @var FMC_T::KPKEYTRG
-     * Offset: 0x5C  KPROM KEY Comparison Trigger Control Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[0]     |KPKEYGO   |KPROM KEY Comparison Start Trigger (Write Protection)
-     * |        |          |Write 1 to start KEY comparison operation and this bit will be cleared to 0 by hardware automatically when KEY comparison operation is finished
-     * |        |          |This trigger operation is valid while FORBID (FMC_KPKEYSTS [3]) is 0.
-     * |        |          |0 = KEY comparison operation is finished.
-     * |        |          |1 = KEY comparison is progressed.
-     * |        |          |Note: This bit is write-protected. Refer to the SYS_REGLCTL register.
-     * |[1]     |TCEN      |Timeout Counting Enable (Write Protection)
-     * |        |          |0 = Timeout counting is disabled.
-     * |        |          |1 = Timeout counting is enabled if input key is matched after key comparison finish.
-     * |        |          |10 minutes is at least for timeout, and average is about 20 minutes.
-     * |        |          |Note: This bit is write-protected. Refer to the SYS_REGLCTL register.
-     * @var FMC_T::KPKEYSTS
-     * Offset: 0x60  KPROM KEY Comparison Status Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[0]     |KEYBUSY   |KEY Comparison Busy (Read Only)
-     * |        |          |0 = KEY comparison is finished.
-     * |        |          |1 = KEY comparison is busy.
-     * |[1]     |KEYLOCK   |KEY LOCK Flag
-     * |        |          |This bit is set to 1 if KEYMATCH (FMC_KPKEYSTS [2]) is 0 and cleared to 0 if KEYMATCH is 1 in Security Key protection
-     * |        |          |After Mass Erase operation, users must reset or power on /off to clear this bit to 0
-     * |        |          |This bit also can be set to 1 while
-     * |        |          |l CPU write 1 to KEYLOCK(FMC_KPKEYSTS[1]) or
-     * |        |          |l KEYFLAG(FMC_KPKEYSTS[4]) is 1 at power-on or reset or
-     * |        |          |l KEYENROM is programmed a non-0x5a value or
-     * |        |          |l Timeout event or
-     * |        |          |l FORBID(FMC_KPKEYSTS[3]) is 1
-     * |        |          |0 = KPROM, LDROM and APROM (not include Data Flash) is not in write protection.
-     * |        |          |1 = KPROM, LDROM and APROM (not include Data Flash) is in write protection.
-     * |        |          |CONFIG write protect is depended on CFGFLAG
-     * |[2]     |KEYMATCH  |KEY Match Flag (Read Only)
-     * |        |          |This bit is set to 1 after KEY comparison complete if the KEY0, KEY1 and KEY2 are matched with the 96-bit security keys in KPROM; and cleared to 0 if KEYs are unmatched
-     * |        |          |This bit is also cleared to 0 while
-     * |        |          |l CPU writing 1 to KEYLOCK(FMC_KPKEYSTS[1]) or
-     * |        |          |l Timeout event or
-     * |        |          |l KPROM is erased or
-     * |        |          |l KEYENROM is programmed to a non-0x5a value.
-     * |        |          |l Chip is in power down mode.
-     * |        |          |0 = KEY0, KEY1, and KEY2 are unmatched with the KPROM setting.
-     * |        |          |1 = KEY0, KEY1, and KEY2 are matched with the KPROM setting.
-     * |[3]     |FORBID    |KEY Comparison Forbidden Flag (Read Only)
-     * |        |          |This bit is set to 1 when KPKECNT(FMC_KPKEY0[4:0]) is more than KPKEMAX (FMC_KPKEY0[12:8]) or KPCNT (FMC_KPCNT [2:0]) is more than KPMAX (FMC_KPCNT [10:8]).
-     * |        |          |0 = KEY comparison is not forbidden.
-     * |        |          |1 = KEY comparison is forbidden, KEYGO (FMC_KEYTRG [0]) cannot trigger.
-     * |[4]     |KEYFLAG   |KEY Protection Enabled Flag (Read Only)
-     * |        |          |This bit is set while the KEYENROM [7:0] is not 0x5a at power-on or reset
-     * |        |          |This bit is cleared to 0 by hardware while KPROM is erased
-     * |        |          |This bit is set to 1 by hardware while KEYENROM is programmed to a non-0x5a value.
-     * |        |          |0 = Security Key protection is disabled.
-     * |        |          |1 = Security Key protection is enabled.
-     * |[5]     |CFGFLAG   |CONFIG Write-protection Enabled Flag (Read Only)
-     * |        |          |This bit is set while the KEYENROM [0] is 0 at power-on or reset
-     * |        |          |This bit is cleared to 0 by hardware while KPROM is erased
-     * |        |          |This bit is set to 1 by hardware while KEYENROM[0] is programmed to 0.
-     * |        |          |0 = CONFIG write-protection is disabled.
-     * |        |          |1 = CONFIG write-protection is enabled.
-     * |[8]     |SBKPBUSY  |Secure Boot Key Programming BUSY (Read Only)
-     * |        |          |This bit is set to 1 while secure boot key program function is running
-     * |        |          |This bit is cleared to 0 while secure boot key key program function had been done.
-     * |        |          |0 = Secure boot key program function is done.
-     * |        |          |1 = Secure boot key program function is busy.
-     * |[9]     |SBKPFLAG  |Secure Boot Key Programming Flag (Read Only)
-     * |        |          |This bit is set to 1 while secure boot key program function fails
-     * |        |          |This bit is cleared to 0 while secure boot key had been programmed into flash memory.
-     * |        |          |0 = Secure boot key program function is successful.
-     * |        |          |1 = Secure boot key program function fails.
-     * @var FMC_T::KPKEYCNT
-     * Offset: 0x64  KPROM KEY-Unmatched Counting Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[5:0]   |KPKECNT   |Error Key Entry Counter at Each Power-on (Read Only)
-     * |        |          |KPKECNT is increased when entry keys is wrong in Security Key protection
-     * |        |          |KPKECNT is cleared to 0 if key comparison is matched or system power-on.
-     * |[13:8]  |KPKEMAX   |Maximum Number for Error Key Entry at Each Power-on (Read Only)
-     * |        |          |KPKEMAX is the maximum error key entry number at each power-on
-     * |        |          |When KPKEMAXROM of KPROM is erased or programmed, KPKEMAX will also be updated
-     * |        |          |KPKEMAX is used to limit KPKECNT(FMC_KPKEY0[5:0]) maximum counting
-     * |        |          |The FORBID (FMC_KPKEYSTS [3]) will be set to 1 when KPKECNT is more than KPKEMAX.
-     * @var FMC_T::KPCNT
-     * Offset: 0x68  KPROM KEY-Unmatched Power-On Counting Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[3:0]   |KPCNT     |Power-on Counter for Error Key Entry(Read Only)
-     * |        |          |KPCNT is the power-on counting for error key entry in Security Key protection
-     * |        |          |KPCNT is cleared to 0 if key comparison is matched.
-     * |[11:8]  |KPMAX     |Power-on Maximum Number for Error Key Entry (Read Only)
-     * |        |          |KPMAX is the power-on maximum number for error key entry
-     * |        |          |When KPMAXROM of KPROM is erased or programmed, KPMAX will also be updated
-     * |        |          |KPMAX is used to limit KPCNT (FMC_KPCNT [3:0]) maximum counting
-     * |        |          |The FORBID(FMC_KPKEYSTS[3]) will be set to 1 when KPCNT is more than KPMAX
      * @var FMC_T::MPDAT0
      * Offset: 0x80  ISP Data0 Register
      * ---------------------------------------------------------------------------------------------------
@@ -512,16 +394,18 @@ typedef struct
     __I  uint32_t XOMR3STS;              /*!< [0x00dc] XOM Region 3 Status Register                                     */
     __I  uint32_t XOMSTS;                /*!< [0x00e0] XOM Status Register                                              */
     __I  uint32_t RESERVE5[7];
-    __IO uint32_t DFCTL;              /*!< [0x0100] Data Flash Function Control Register                             */
-    __IO uint32_t DFSTS;              /*!< [0x0104] Data Flash Status Register                                       */
-    __O  uint32_t SCRKEY;		           /*!< [0x0108] Data Flash Scrambling Key Register                               */
+    __IO uint32_t DFCTL;                 /*!< [0x0100] Data Flash Function Control Register                             */
+    __I  uint32_t RESERVE6;
+    __IO uint32_t DFSTS;                 /*!< [0x0108] Data Flash Status Register                                       */
+    __O  uint32_t SCRKEY;		             /*!< [0x010c] Data Flash Scrambling Key Register                               */
 
 } FMC_T;
 
 /**
     @addtogroup FMC_CONST FMC Bit Field Definition
     Constant Definitions for FMC Controller
-@{ */
+  @{ 
+*/
 
 #define FMC_ISPCTL_ISPEN_Pos             (0)                                               /*!< FMC_T::ISPCTL: ISPEN Position          */
 #define FMC_ISPCTL_ISPEN_Msk             (0x1ul << FMC_ISPCTL_ISPEN_Pos)                   /*!< FMC_T::ISPCTL: ISPEN Mask              */
@@ -732,9 +616,6 @@ typedef struct
 
 #define FMC_DFCTL_SILENTEN_Pos           (1)                                               /*!< FMC_T::DFCTL: SILENTEN Position     */
 #define FMC_DFCTL_SILENTEN_Msk           (0x1ul << FMC_DFCTL_SILENTEN_Pos)                 /*!< FMC_T::DFCTL: SILENTEN Mask         */
-
-#define FMC_DFCTL_TMPCLR_Pos             (2)                                               /*!< FMC_T::DFCTL: TMPCLR Position     */
-#define FMC_DFCTL_TMPCLR_Msk             (0x1ul << FMC_DFCTL_TMPCLR_Pos)                   /*!< FMC_T::DFCTL: TMPCLR Mask         */
 
 #define FMC_DFSTS_TMPCLRDONE_Pos         (0)                                               /*!< FMC_T::DFSTS: TMPCLRDONE Position    */
 #define FMC_DFSTS_TMPCLRDONE_Msk         (0x1ul << FMC_DFSTS_TMPCLRDONE_Pos)               /*!< FMC_T::DFSTS: TMPCLRDONE Mask        */

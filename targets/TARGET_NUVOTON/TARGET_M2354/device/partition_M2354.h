@@ -1,11 +1,11 @@
 /**************************************************************************//**
- * @file     partition_M2354.c
+ * @file     partition_M2354.h
  * @version  V3.00
- * @brief    SAU configuration for secure/nonsecure region settings.
+ * @brief    TrustZone partition file
  *
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 #ifndef PARTITION_M2354
@@ -38,7 +38,6 @@ extern int Image$$ER_IROM_NSC$$Base;
 
 #endif
 
-
 /*
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 */
@@ -48,8 +47,8 @@ extern int Image$$ER_IROM_NSC$$Base;
     SRAMNSSET
 */
 /*
-// Bit 0..19
-// <o.0..19> Secure SRAM Size              <0=> 0 KB
+// Bit 0..18
+// <o.0..18> Secure SRAM Size              <0=> 0 KB
 //                                         <0x4000=> 16KB
 //                                         <0x8000=> 32KB
 //                                         <0xc000=> 48KB
@@ -66,10 +65,6 @@ extern int Image$$ER_IROM_NSC$$Base;
 //                                         <0x38000=> 224KB
 //                                         <0x3C000=> 240KB
 //                                         <0x40000=> 256KB
-//                                         <0x44000=> 272KB
-//                                         <0x48000=> 288KB
-//                                         <0x4C000=> 304KB
-//                                         <0x50000=> 320KB
 */
 #define SCU_SECURE_SRAM_SIZE    NU_RAM_SIZE_S
 #define NON_SECURE_SRAM_BASE    (0x30000000 + SCU_SECURE_SRAM_SIZE)
@@ -129,7 +124,9 @@ extern int Image$$ER_IROM_NSC$$Base;
 //   <o.7>  DAC         <0=> Secure <1=> Non-Secure
 //   <o.8>  I2S0        <0=> Secure <1=> Non-Secure
 //   <o.13>  OTG        <0=> Secure <1=> Non-Secure
+//   <h> TIMER
 //   <o.17>  TMR23      <0=> Secure <1=> Non-Secure
+//   <o.18>  TMR45      <0=> Secure <1=> Non-Secure
 //   <h> EPWM
 //   <o.24>  EPWM0      <0=> Secure <1=> Non-Secure
 //   <o.25>  EPWM1      <0=> Secure <1=> Non-Secure
@@ -214,7 +211,6 @@ extern int Image$$ER_IROM_NSC$$Base;
 */
 
 
-
 /*
 // <h> GPIO Secure Attribution Configuration
 */
@@ -222,16 +218,207 @@ extern int Image$$ER_IROM_NSC$$Base;
 /*
     IONSSET
 */
+
 /*
 // Bit 0..31
-//   <o.0>  PA       <0=> Secure <1=> Non-Secure
-//   <o.1>  PB   <0=> Secure <1=> Non-Secure
-//   <o.2>  PC      <0=> Secure <1=> Non-Secure
-//   <o.3>  PD    <0=> Secure <1=> Non-Secure
-//   <o.4>  PE      <0=> Secure <1=> Non-Secure
-//   <o.5>  PF      <0=> Secure <1=> Non-Secure
-//   <o.6>  PG      <0=> Secure <1=> Non-Secure
-//   <o.7>  PH      <0=> Secure <1=> Non-Secure
+//   <h> PA
+//   <o.0>  PA0       <0=> Secure <1=> Non-Secure
+//   <o.1>  PA1       <0=> Secure <1=> Non-Secure
+//   <o.2>  PA2       <0=> Secure <1=> Non-Secure
+//   <o.3>  PA3       <0=> Secure <1=> Non-Secure
+//   <o.4>  PA4       <0=> Secure <1=> Non-Secure
+//   <o.5>  PA5       <0=> Secure <1=> Non-Secure
+//   <o.6>  PA6       <0=> Secure <1=> Non-Secure
+//   <o.7>  PA7       <0=> Secure <1=> Non-Secure
+//   <o.8>  PA8       <0=> Secure <1=> Non-Secure
+//   <o.7>  PA9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PA10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PA11       <0=> Secure <1=> Non-Secure
+//   <o.12>  PA12       <0=> Secure <1=> Non-Secure
+//   <o.13>  PA13       <0=> Secure <1=> Non-Secure
+//   <o.14>  PA14       <0=> Secure <1=> Non-Secure
+//   <o.15>  PA15      <0=> Secure <1=> Non-Secure
+//   </h>
+
+*/
+#define SCU_INIT_IONSSET0_VAL      0xFFFFFFFF
+
+/*
+// Bit 0..31
+//   <h> PB
+//   <o.0>  PB0       <0=> Secure <1=> Non-Secure
+//   <o.1>  PB1       <0=> Secure <1=> Non-Secure
+//   <o.2>  PB2       <0=> Secure <1=> Non-Secure
+//   <o.3>  PB3       <0=> Secure <1=> Non-Secure
+//   <o.4>  PB4       <0=> Secure <1=> Non-Secure
+//   <o.5>  PB5       <0=> Secure <1=> Non-Secure
+//   <o.6>  PB6       <0=> Secure <1=> Non-Secure
+//   <o.7>  PB7       <0=> Secure <1=> Non-Secure
+//   <o.8>  PB8       <0=> Secure <1=> Non-Secure
+//   <o.9>  PB9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PB10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PB11       <0=> Secure <1=> Non-Secure
+//   <o.12>  PB12       <0=> Secure <1=> Non-Secure
+//   <o.13>  PB13       <0=> Secure <1=> Non-Secure
+//   <o.14>  PB14       <0=> Secure <1=> Non-Secure
+//   <o.15>  PB15       <0=> Secure <1=> Non-Secure
+//   </h>
+*/
+#define SCU_INIT_IONSSET1_VAL      0xFFFFFFFF
+
+
+/*
+// Bit 0..31
+//   <h> PC
+//   <o.0>  PC0       <0=> Secure <1=> Non-Secure
+//   <o.1>  PC1       <0=> Secure <1=> Non-Secure
+//   <o.2>  PC2       <0=> Secure <1=> Non-Secure
+//   <o.3>  PC3       <0=> Secure <1=> Non-Secure
+//   <o.4>  PC4       <0=> Secure <1=> Non-Secure
+//   <o.5>  PC5       <0=> Secure <1=> Non-Secure
+//   <o.6>  PC6       <0=> Secure <1=> Non-Secure
+//   <o.7>  PC7       <0=> Secure <1=> Non-Secure
+//   <o.8>  PC8       <0=> Secure <1=> Non-Secure
+//   <o.9>  PC9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PC10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PC11       <0=> Secure <1=> Non-Secure
+//   <o.12>  PC12       <0=> Secure <1=> Non-Secure
+//   <o.13>  PC13       <0=> Secure <1=> Non-Secure
+//   </h>
+*/
+#define SCU_INIT_IONSSET2_VAL      0xFFFFFFFF
+
+/*
+// Bit 0..31
+//   <h> PD
+//   <o.0>  PD0       <0=> Secure <1=> Non-Secure
+//   <o.1>  PD1       <0=> Secure <1=> Non-Secure
+//   <o.2>  PD2       <0=> Secure <1=> Non-Secure
+//   <o.3>  PD3       <0=> Secure <1=> Non-Secure
+//   <o.4>  PD4       <0=> Secure <1=> Non-Secure
+//   <o.5>  PD5       <0=> Secure <1=> Non-Secure
+//   <o.6>  PD6       <0=> Secure <1=> Non-Secure
+//   <o.7>  PD7       <0=> Secure <1=> Non-Secure
+//   <o.8>  PD8       <0=> Secure <1=> Non-Secure
+//   <o.9>  PD9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PD10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PD11       <0=> Secure <1=> Non-Secure
+//   <o.12>  PD12       <0=> Secure <1=> Non-Secure
+//   <o.14>  PD14       <0=> Secure <1=> Non-Secure
+//   </h>
+*/
+#define SCU_INIT_IONSSET3_VAL      0xFFFFFFFF
+
+
+/*
+// Bit 0..31
+//   <h> PE
+//   <o.0>  PE0       <0=> Secure <1=> Non-Secure
+//   <o.1>  PE1       <0=> Secure <1=> Non-Secure
+//   <o.2>  PE2       <0=> Secure <1=> Non-Secure
+//   <o.3>  PE3       <0=> Secure <1=> Non-Secure
+//   <o.4>  PE4       <0=> Secure <1=> Non-Secure
+//   <o.5>  PE5       <0=> Secure <1=> Non-Secure
+//   <o.6>  PE6       <0=> Secure <1=> Non-Secure
+//   <o.7>  PE7       <0=> Secure <1=> Non-Secure
+//   <o.8>  PE8       <0=> Secure <1=> Non-Secure
+//   <o.9>  PE9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PE10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PE11       <0=> Secure <1=> Non-Secure
+//   <o.12>  PE12       <0=> Secure <1=> Non-Secure
+//   <o.13>  PE13       <0=> Secure <1=> Non-Secure
+//   <o.14>  PE14       <0=> Secure <1=> Non-Secure
+//   <o.15>  PE15       <0=> Secure <1=> Non-Secure
+//   </h>
+*/
+#define SCU_INIT_IONSSET4_VAL      0xFFFFFFFF
+
+
+/*
+// Bit 0..31
+//   <h> PF
+//   <o.0>  PF0       <0=> Secure <1=> Non-Secure
+//   <o.1>  PF1       <0=> Secure <1=> Non-Secure
+//   <o.2>  PF2       <0=> Secure <1=> Non-Secure
+//   <o.3>  PF3       <0=> Secure <1=> Non-Secure
+//   <o.4>  PF4       <0=> Secure <1=> Non-Secure
+//   <o.5>  PF5       <0=> Secure <1=> Non-Secure
+//   <o.6>  PF6       <0=> Secure <1=> Non-Secure
+//   <o.7>  PF7       <0=> Secure <1=> Non-Secure
+//   <o.8>  PF8       <0=> Secure <1=> Non-Secure
+//   <o.9>  PF9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PF10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PF11       <0=> Secure <1=> Non-Secure
+//   </h>
+*/
+#define SCU_INIT_IONSSET5_VAL      0xFFFFFFFF
+
+
+/*
+// Bit 0..31
+//   <h> PG
+//   <o.2>  PG2       <0=> Secure <1=> Non-Secure
+//   <o.3>  PG3       <0=> Secure <1=> Non-Secure
+//   <o.4>  PG4       <0=> Secure <1=> Non-Secure
+//   <o.9>  PG9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PG10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PG11       <0=> Secure <1=> Non-Secure
+//   <o.12>  PG12       <0=> Secure <1=> Non-Secure
+//   <o.13>  PG13       <0=> Secure <1=> Non-Secure
+//   <o.14>  PG14       <0=> Secure <1=> Non-Secure
+//   <o.15>  PG15       <0=> Secure <1=> Non-Secure
+//   </h>
+*/
+#define SCU_INIT_IONSSET6_VAL      0xFFFFFFFF
+
+/*
+// Bit 0..31
+//   <h> PH
+//   <o.4>  PH4       <0=> Secure <1=> Non-Secure
+//   <o.5>  PH5       <0=> Secure <1=> Non-Secure
+//   <o.6>  PH6       <0=> Secure <1=> Non-Secure
+//   <o.7>  PH7       <0=> Secure <1=> Non-Secure
+//   <o.8>  PH8       <0=> Secure <1=> Non-Secure
+//   <o.9>  PH9       <0=> Secure <1=> Non-Secure
+//   <o.10>  PH10       <0=> Secure <1=> Non-Secure
+//   <o.11>  PH11       <0=> Secure <1=> Non-Secure
+//   </h>
+*/
+#define SCU_INIT_IONSSET7_VAL      0xFFFFFFFF
+
+/*
+// </h>
+*/
+
+
+
+/*
+// <h>Assign GPIO Interrupt to Secure or Non-secure Vector
+*/
+
+
+/*
+    Initialize GPIO ITNS (Interrupts 0..31)
+*/
+
+/*
+// Bit 0..31
+//   <o.0>  GPA         <0=> Secure <1=> Non-Secure
+//   <o.1>  GPB         <0=> Secure <1=> Non-Secure
+//   <o.2>  GPC         <0=> Secure <1=> Non-Secure
+//   <o.3>  GPD         <0=> Secure <1=> Non-Secure
+//   <o.4>  GPE         <0=> Secure <1=> Non-Secure
+//   <o.5>  GPF         <0=> Secure <1=> Non-Secure
+//   <o.6>  GPG         <0=> Secure <1=> Non-Secure
+//   <o.7>  GPH         <0=> Secure <1=> Non-Secure
+//   <o.8>  EINT0         <0=> Secure <1=> Non-Secure
+//   <o.9>  EINT1         <0=> Secure <1=> Non-Secure
+//   <o.10>  EINT2         <0=> Secure <1=> Non-Secure
+//   <o.11>  EINT3         <0=> Secure <1=> Non-Secure
+//   <o.12>  EINT4         <0=> Secure <1=> Non-Secure
+//   <o.13>  EINT5         <0=> Secure <1=> Non-Secure
+//   <o.14>  EINT6         <0=> Secure <1=> Non-Secure
+//   <o.15>  EINT7         <0=> Secure <1=> Non-Secure
 */
 #define SCU_INIT_IONSSET_VAL      0xFFFFFFFF
 /*
@@ -507,33 +694,21 @@ extern int Image$$ER_IROM_NSC$$Base;
 // </e>
 */
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-
 /*
     max 128 SAU regions.
     SAU regions are defined in partition.h
  */
 
-#if TFM_LVL == 0
 #define SAU_INIT_REGION(n) \
     SAU->RNR  =  (n                                     & SAU_RNR_REGION_Msk); \
     SAU->RBAR =  (SAU_INIT_START##n                     & SAU_RBAR_BADDR_Msk); \
     SAU->RLAR =  (SAU_INIT_END##n                       & SAU_RLAR_LADDR_Msk) | \
                 ((SAU_INIT_NSC##n << SAU_RLAR_NSC_Pos)  & SAU_RLAR_NSC_Msk)   | 1U
-#else
-#define SAU_INIT_REGION(n, tfm_n) \
-    SAU->RNR  =  (tfm_n                                 & SAU_RNR_REGION_Msk); \
-    SAU->RBAR =  (SAU_INIT_START##n                     & SAU_RBAR_BADDR_Msk); \
-    SAU->RLAR =  (SAU_INIT_END##n                       & SAU_RLAR_LADDR_Msk) | \
-                ((SAU_INIT_NSC##n << SAU_RLAR_NSC_Pos)  & SAU_RLAR_NSC_Msk)   | 1U
-#endif
 
 
 #if SCB_AIRCR_SYSRESETREQS_VAL == 1
 #warning ("Debugger (and other) resets fail when SCB_AIRCR_SYSRESETREQS_VAL == 1!!!")
 #endif
-
-#endif  /* #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
 #ifdef __cplusplus
 }

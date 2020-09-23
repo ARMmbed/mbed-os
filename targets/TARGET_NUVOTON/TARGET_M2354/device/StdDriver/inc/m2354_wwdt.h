@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Window Watchdog Timer(WWDT) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __WWDT_H__
 #define __WWDT_H__
@@ -50,7 +51,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 #define WWDT_RELOAD_WORD        (0x00005AA5)                /*!< Fill this value to WWDT_RLDCNT register to reload WWDT counter \hideinitializer */
 
-/*@}*/ /* end of group WWDT_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group WWDT_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup WWDT_EXPORTED_FUNCTIONS WWDT Exported Functions
@@ -136,11 +137,11 @@ extern "C"
 
 void WWDT_Open(uint32_t u32PreScale, uint32_t u32CmpValue, uint32_t u32EnableInt);
 
-/*@}*/ /* end of group WWDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group WWDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group WWDT_Driver */
+/**@}*/ /* end of group WWDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -148,4 +149,4 @@ void WWDT_Open(uint32_t u32PreScale, uint32_t u32CmpValue, uint32_t u32EnableInt
 
 #endif /* __WWDT_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

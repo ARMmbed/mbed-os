@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    CRC register definition header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __CRC_REG_H__
 #define __CRC_REG_H__
@@ -19,7 +20,8 @@
 /**
     @addtogroup CRC Cyclic Redundancy Check Controller(CRC)
     Memory Mapped Structure for CRC Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -108,7 +110,8 @@ typedef struct
 /**
     @addtogroup CRC_CONST CRC Bit Field Definition
     Constant Definitions for CRC Controller
-@{ */
+  @{ 
+*/
 
 #define CRC_CTL_CRCEN_Pos                (0)                                               /*!< CRC_T::CTL: CRCEN Position             */
 #define CRC_CTL_CRCEN_Msk                (0x1ul << CRC_CTL_CRCEN_Pos)                      /*!< CRC_T::CTL: CRCEN Mask                 */

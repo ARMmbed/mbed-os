@@ -4,7 +4,8 @@
  * @brief    Firmware Version Counter Driver Header
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __FVC_H__
 #define __FVC_H__
@@ -33,7 +34,7 @@ extern "C"
 #define FVC_BL33    (FVC->BL33)     /*!< Version number of BL33 Firmware */
 #define FVC_UDF     (FVC->UDF)      /*!< Version number of User Firmware */
 
-/*@}*/ /* end of group FVC_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group FVC_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup FVC_EXPORTED_FUNCTIONS FVC Exported Functions
@@ -48,11 +49,11 @@ int32_t FVC_SetBL33Ver(uint32_t u32Ver);
 int32_t FVC_SetUDFVer(uint32_t u32Ver);
 
 
-/*@}*/ /* end of group FVC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group FVC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group FVC_Driver */
+/**@}*/ /* end of group FVC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

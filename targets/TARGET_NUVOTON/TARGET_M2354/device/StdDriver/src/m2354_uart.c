@@ -4,7 +4,8 @@
  * @brief    M2354 series UART Interface Controller (UART) driver source file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include <stdio.h>
@@ -209,44 +210,56 @@ void UART_EnableInt(UART_T*  uart, uint32_t u32InterruptFlag)
 void UART_Open(UART_T* uart, uint32_t u32baudrate)
 {
     uint32_t u32UartClkSrcSel, u32UartClkDivNum;
-    uint32_t au32ClkTbl[4] = {__HXT, 0ul, __LXT, __HIRC};
+    uint32_t au32ClkTbl[8] = { __HXT, 0ul, __LXT, __HIRC, 0ul, 0ul, 0ul, 0ul};
     uint32_t u32BaudDiv = 0ul;
 
     /* Get UART clock source selection and UART clock divider number */
     switch((uint32_t)uart)
     {
-    case UART0_BASE:
-    case UART0_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART0_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART0_MODULE);
-        break;
-    case UART1_BASE:
-    case UART1_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART1_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART1_MODULE);
-        break;
-    case UART2_BASE:
-    case UART2_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART2_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART2_MODULE);
-        break;
-    case UART3_BASE:
-    case UART3_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART3_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART3_MODULE);
-        break;
-    case UART4_BASE:
-    case UART4_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART4_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART4_MODULE);
-        break;
-    case UART5_BASE:
-    case UART5_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART5_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART5_MODULE);
-        break;
-    default:
-        return;
+        case UART0_BASE:
+        case UART0_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART0_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART0_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();
+            break;
+        case UART1_BASE:
+        case UART1_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART1_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART1_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();       
+            break;
+        case UART2_BASE:
+        case UART2_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART2_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART2_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();        
+            break;
+        case UART3_BASE:
+        case UART3_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART3_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART3_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();       
+            break;
+        case UART4_BASE:
+        case UART4_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART4_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART4_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();         
+            break;
+        case UART5_BASE:
+        case UART5_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART5_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART5_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();         
+            break;
+        default:
+            return;
     }
 
     /* Select UART function */
@@ -357,50 +370,62 @@ uint32_t UART_Read(UART_T* uart, uint8_t pu8RxBuf[], uint32_t u32ReadBytes)
 void UART_SetLineConfig(UART_T* uart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t  u32stop_bits)
 {
     uint32_t u32UartClkSrcSel, u32UartClkDivNum;
-    uint32_t au32ClkTbl[4] = {__HXT, 0ul, __LXT, __HIRC};
+    uint32_t au32ClkTbl[8] = { __HXT, 0ul, __LXT, __HIRC, 0ul, 0ul, 0ul, 0ul};
     uint32_t u32BaudDiv = 0ul;
 
     /* Get UART clock source selection and UART clock divider number */
     switch((uint32_t)uart)
     {
-    case UART0_BASE:
-    case UART0_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART0_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART0_MODULE);
-        break;
-    case UART1_BASE:
-    case UART1_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART1_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART1_MODULE);
-        break;
-    case UART2_BASE:
-    case UART2_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART2_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART2_MODULE);
-        break;
-    case UART3_BASE:
-    case UART3_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART3_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART3_MODULE);
-        break;
-    case UART4_BASE:
-    case UART4_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART4_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART4_MODULE);
-        break;
-    case UART5_BASE:
-    case UART5_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART5_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART5_MODULE);
-        break;
-    default:
-        return;
+        case UART0_BASE:
+        case UART0_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART0_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART0_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();
+            break;
+        case UART1_BASE:
+        case UART1_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART1_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART1_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();       
+            break;
+        case UART2_BASE:
+        case UART2_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART2_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART2_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();        
+            break;
+        case UART3_BASE:
+        case UART3_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART3_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART3_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();       
+            break;
+        case UART4_BASE:
+        case UART4_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART4_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART4_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();         
+            break;
+        case UART5_BASE:
+        case UART5_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART5_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART5_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();         
+            break;
+        default:
+            return;
     }
 
     /* Get PLL clock frequency if UART clock source selection is PLL */
     if(u32UartClkSrcSel == 1ul)
     {
-        au32ClkTbl[u32UartClkSrcSel] = CLK_GetPLLClockFreq();
+        au32ClkTbl[1] = CLK_GetPLLClockFreq();
     }
 
     /* Set UART baud rate */
@@ -459,7 +484,7 @@ void UART_SetTimeoutCnt(UART_T* uart, uint32_t u32TOC)
 void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Direction)
 {
     uint32_t u32UartClkSrcSel = 0UL, u32UartClkDivNum = 1UL;
-    uint32_t au32ClkTbl[4] = {__HXT, 0ul, __LXT, __HIRC};
+    uint32_t au32ClkTbl[8] = { __HXT, 0ul, __LXT, __HIRC, 0ul, 0ul, 0ul, 0ul};
     uint32_t u32BaudDiv;
 
     /* Select IrDA function mode */
@@ -468,44 +493,56 @@ void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Directi
     /* Get UART clock source selection and UART clock divider number */
     switch((uint32_t)uart)
     {
-    case UART0_BASE:
-    case UART0_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART0_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART0_MODULE);
-        break;
-    case UART1_BASE:
-    case UART1_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART1_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART1_MODULE);
-        break;
-    case UART2_BASE:
-    case UART2_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART2_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART2_MODULE);
-        break;
-    case UART3_BASE:
-    case UART3_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART3_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART3_MODULE);
-        break;
-    case UART4_BASE:
-    case UART4_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART4_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART4_MODULE);
-        break;
-    case UART5_BASE:
-    case UART5_BASE+NS_OFFSET:
-        u32UartClkSrcSel = CLK_GetModuleClockSource(UART5_MODULE);
-        u32UartClkDivNum = CLK_GetModuleClockDivider(UART5_MODULE);
-        break;
-    default:
-        return;
+        case UART0_BASE:
+        case UART0_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART0_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART0_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();
+            break;
+        case UART1_BASE:
+        case UART1_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART1_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART1_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();       
+            break;
+        case UART2_BASE:
+        case UART2_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART2_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART2_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();        
+            break;
+        case UART3_BASE:
+        case UART3_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART3_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART3_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();       
+            break;
+        case UART4_BASE:
+        case UART4_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART4_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART4_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK0Freq();         
+            break;
+        case UART5_BASE:
+        case UART5_BASE+NS_OFFSET:
+            u32UartClkSrcSel = CLK_GetModuleClockSource(UART5_MODULE);
+            u32UartClkDivNum = CLK_GetModuleClockDivider(UART5_MODULE);
+            if(u32UartClkSrcSel == 4ul) 
+                au32ClkTbl[4] = CLK_GetPCLK1Freq();         
+            break;
+        default:
+            return;
     }
 
     /* Get PLL clock frequency if UART clock source selection is PLL */
     if(u32UartClkSrcSel == 1ul)
     {
-        au32ClkTbl[u32UartClkSrcSel] = CLK_GetPLLClockFreq();
+        au32ClkTbl[1] = CLK_GetPLLClockFreq();
     }
 
     /* Set UART IrDA baud rate in mode 0 */
@@ -644,10 +681,10 @@ void UART_SelectSingleWireMode(UART_T *uart)
 }
 
 
-/*@}*/ /* end of group UART_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group UART_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group UART_Driver */
+/**@}*/ /* end of group UART_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

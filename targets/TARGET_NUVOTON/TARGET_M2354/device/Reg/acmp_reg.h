@@ -19,158 +19,137 @@
 /**
     @addtogroup ACMP Analog Comparator Controller(ACMP)
     Memory Mapped Structure for ACMP Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
 
 
-    /**
-     * @var ACMP_T::CTL
-     * Offset: 0x00  Analog Comparator 0 Control Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[0]     |ACMPEN    |Comparator Enable Bit
-     * |        |          |0 = Comparator 0 Disabled.
-     * |        |          |1 = Comparator 0 Enabled.
-     * |        |          |
-     * |[1]     |ACMPIE    |Comparator Interrupt Enable Bit
-     * |        |          |0 = Comparator 0 interrupt Disabled.
-     * |        |          |1 = Comparator 0 interrupt Enabled
-     * |        |          |If WKEN (ACMP_CTL0[16]) is set to 1, the wake-up interrupt function will be enabled as well.
-     * |        |          |
-     * |[2]     |HYSEN     |Comparator Hysteresis Enable Bit
-     * |        |          |0 = Comparator 0 hysteresis Disabled.
-     * |        |          |1 = Comparator 0 hysteresis Enabled.
-     * |        |          |Note: If HYSEN = 0, user can adjust HYS by HYSSEL.
-     * |        |          |Note: If HYSEN = 1, HYSSEL is invalid. The Hysteresis is fixed to 30mV.
-     * |[3]     |ACMPOINV  |Comparator Output Inverse
-     * |        |          |0 = Comparator 0 output inverse Disabled.
-     * |        |          |1 = Comparator 0 output inverse Enabled.
-     * |        |          |
-     * |[5:4]   |NEGSEL    |Comparator Negative Input Selection
-     * |        |          |00 = ACMP0_N pin.
-     * |        |          |01 = Internal comparator reference voltage (CRV).
-     * |        |          |10 = Band-gap voltage.
-     * |        |          |11 = DAC output.
-     * |        |          |
-     * |[7:6]   |POSSEL    |Comparator Positive Input Selection
-     * |        |          |00 = Input from ACMP0_P0.
-     * |        |          |01 = Input from ACMP0_P1.
-     * |        |          |10 = Input from ACMP0_P2.
-     * |        |          |11 = Input from ACMP0_P3.
-     * |        |          |
-     * |[9:8]   |INTPOL    |Interrupt Condition Polarity Selection
-     * |        |          |ACMPIF0 will be set to 1 when comparator output edge condition is detected.
-     * |        |          |00 = Rising edge or falling edge.
-     * |        |          |01 = Rising edge.
-     * |        |          |10 = Falling edge.
-     * |        |          |11 = Reserved.
-     * |        |          |
-     * |[12]    |OUTSEL    |Comparator Output Select
-     * |        |          |0 = Comparator 0 output to ACMP0_O pin is unfiltered comparator output.
-     * |        |          |1 = Comparator 0 output to ACMP0_O pin is from filter output.
-     * |        |          |
-     * |[15:13] |FILTSEL   |Comparator Output Filter Count Selection
-     * |        |          |000 = Filter function is Disabled.
-     * |        |          |001 = ACMP0 output is sampled 1 consecutive PCLK.
-     * |        |          |010 = ACMP0 output is sampled 2 consecutive PCLKs.
-     * |        |          |011 = ACMP0 output is sampled 4 consecutive PCLKs.
-     * |        |          |100 = ACMP0 output is sampled 8 consecutive PCLKs.
-     * |        |          |101 = ACMP0 output is sampled 16 consecutive PCLKs.
-     * |        |          |110 = ACMP0 output is sampled 32 consecutive PCLKs.
-     * |        |          |111 = ACMP0 output is sampled 64 consecutive PCLKs.
-     * |        |          |
-     * |[16]    |WKEN      |Power-down Wake-up Enable Bit
-     * |        |          |0 = Wake-up function Disabled.
-     * |        |          |1 = Wake-up function Enabled.
-     * |        |          |
-     * |[17]    |WLATEN    |Window Latch Mode Enable Bit
-     * |        |          |0 = Window Latch Mode Disabled.
-     * |        |          |1 = Window Latch Mode Enabled.
-     * |        |          |
-     * |[18]    |WCMPSEL   |Window Compare Mode Selection
-     * |        |          |0 = Window Compare Mode Disabled.
-     * |        |          |1 = Window Compare Mode is Selected.
-     * |        |          |
-     * |[25:24] |HYSSEL    |Hysteresis Mode Selection
-     * |        |          |00 = Hysteresis is 0mV.
-     * |        |          |01 = Hysteresis is 10mV.
-     * |        |          |10 = Hysteresis is 20mV.
-     * |        |          |11 = Hysteresis is 30mV.
-     * |        |          |
-     * |[29:28] |MODESEL   |Propagation Delay Mode Selection
-     * |        |          |00 = Max propagation delay is 4.5uS, operation current is 1.2uA.
-     * |        |          |01 = Max propagation delay is 2uS, operation current is 3uA.
-     * |        |          |10 = Max propagation delay is 600nS, operation current is 10uA.
-     * |        |          |11 = Max propagation delay is 200nS, operation current is 75uA.
-     * |        |          |
-
-     * @var ACMP_T::STATUS
-     * Offset: 0x08  Analog Comparator Status Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[0]     |ACMPIF0   |Comparator 0 Interrupt Flag
-     * |        |          |This bit is set by hardware when the edge condition defined by INTPOL (ACMP_CTL0[9:8]) is detected on comparator 0 output
-     * |        |          |This will generate an interrupt if ACMPIE (ACMP_CTL0[1]) is set to 1.
-     * |        |          |Note: Write 1 to clear this bit to 0.
-     * |        |          |
-     * |[1]     |ACMPIF1   |Comparator 1 Interrupt Flag
-     * |        |          |This bit is set by hardware when the edge condition defined by INTPOL (ACMP_CTL1[9:8]) is detected on comparator 1 output
-     * |        |          |This will cause an interrupt if ACMPIE (ACMP_CTL1[1]) is set to 1.
-     * |        |          |Note: Write 1 to clear this bit to 0.
-     * |        |          |
-     * |[4]     |ACMPO0    |Comparator 0 Output
-     * |        |          |Synchronized to the PCLK to allow reading by software
-     * |        |          |Cleared when the comparator 0 is disabled, i.e
-     * |        |          |ACMPEN (ACMP_CTL0[0]) is cleared to 0.
-     * |        |          |
-     * |[5]     |ACMPO1    |Comparator 1 Output
-     * |        |          |Synchronized to the PCLK to allow reading by software
-     * |        |          |Cleared when the comparator 1 is disabled, i.e
-     * |        |          |ACMPEN (ACMP_CTL1[0]) is cleared to 0.
-     * |        |          |
-     * |[8]     |WKIF0     |Comparator 0 Power-down Wake-up Interrupt Flag
-     * |        |          |This bit will be set to 1 when ACMP0 wake-up interrupt event occurs.
-     * |        |          |0 = No power-down wake-up occurred.
-     * |        |          |1 = Power-down wake-up occurred.
-     * |        |          |Note: Write 1 to clear this bit to 0.
-     * |        |          |
-     * |[9]     |WKIF1     |Comparator 1 Power-down Wake-up Interrupt Flag
-     * |        |          |This bit will be set to 1 when ACMP1 wake-up interrupt event occurs.
-     * |        |          |0 = No power-down wake-up occurred.
-     * |        |          |1 = Power-down wake-up occurred.
-     * |        |          |Note: Write 1 to clear this bit to 0.
-     * |        |          |
-     * |[12]    |ACMPS0    |Comparator 0 Status
-     * |        |          |Synchronized to the PCLK to allow reading by software
-     * |        |          |Cleared when the comparator 0 is disabled, i.e
-     * |        |          |ACMPEN (ACMP_CTL0[0]) is cleared to 0.
-     * |[13]    |ACMPS1    |Comparator 1 Status
-     * |        |          |Synchronized to the PCLK to allow reading by software
-     * |        |          |Cleared when the comparator 1 is disabled, i.e
-     * |        |          |ACMPEN (ACMP_CTL1[0]) is cleared to 0.
-     * |[16]    |ACMPWO    |Comparator Window Output
-     * |        |          |This bit shows the output status of window compare mode
-     * |        |          |0 = The positive input voltage is outside the window.
-     * |        |          |1 = The positive input voltage is in the window.
-     * |        |          |
-     * @var ACMP_T::VREF
-     * Offset: 0x0C  Analog Comparator Reference Voltage Control Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[3:0]   |CRVCTL    |Comparator Reference Voltage Setting
-     * |        |          |CRV = CRV source voltage * (1/6+CRVCTL/24).
-     * |        |          |
-     * |[6]     |CRVSSEL   |CRV Source Voltage Selection
-     * |        |          |0 = VDDA is selected as CRV source voltage.
-     * |        |          |1 = The reference voltage defined by SYS_VREFCTL register is selected as CRV source voltage.
-     * |        |          |
-     */
-    __IO uint32_t CTL[2];                /*!< [0x0000~0x0004] Analog Comparator 0~1 Control Register                  */
+/**
+ * @var ACMP_T::CTL
+ * Offset: 0x00  Analog Comparator 0 Control Register
+ * ---------------------------------------------------------------------------------------------------
+ * |Bits    |Field     |Descriptions
+ * | :----: | :----:   | :---- |
+ * |[0]     |ACMPEN    |Comparator Enable Bit
+ * |        |          |0 = Comparator 0 Disabled.
+ * |        |          |1 = Comparator 0 Enabled.
+ * |[1]     |ACMPIE    |Comparator Interrupt Enable Bit
+ * |        |          |0 = Comparator 0 interrupt Disabled.
+ * |        |          |1 = Comparator 0 interrupt Enabled.
+ * |        |          |If WKEN (ACMP_CTL0[16]) is set to 1, the wake-up interrupt function will be enabled as well.
+ * |[2]     |HYSEN     |Comparator Hysteresis Enable Bit
+ * |        |          |0 = Comparator 0 hysteresis Disabled.
+ * |        |          |1 = Comparator 0 hysteresis Enabled.
+ * |        |          |Note: If HYSEN = 0, user can adjust HYS by HYSSEL.
+ * |        |          |Note: If HYSEN = 1, HYSSEL is invalid. The Hysteresis is fixed to 30mV.
+ * |[3]     |ACMPOINV  |Comparator Output Inverse
+ * |        |          |0 = Comparator 0 output inverse Disabled.
+ * |        |          |1 = Comparator 0 output inverse Enabled.
+ * |[5:4]   |NEGSEL    |Comparator Negative Input Selection
+ * |        |          |00 = ACMP0_N pin.
+ * |        |          |01 = Internal comparator reference voltage (CRV).
+ * |        |          |10 = Band-gap voltage.
+ * |        |          |11 = DAC output.
+ * |[7:6]   |POSSEL    |Comparator Positive Input Selection
+ * |        |          |00 = Input from ACMP0_P0.
+ * |        |          |01 = Input from ACMP0_P1.
+ * |        |          |10 = Input from ACMP0_P2.
+ * |        |          |11 = Input from ACMP0_P3.
+ * |[9:8]   |INTPOL    |Interrupt Condition Polarity Selection
+ * |        |          |ACMPIF0 will be set to 1 when comparator output edge condition is detected.
+ * |        |          |00 = Rising edge or falling edge.
+ * |        |          |01 = Rising edge.
+ * |        |          |10 = Falling edge.
+ * |        |          |11 = Reserved.
+ * |[12]    |OUTSEL    |Comparator Output Select
+ * |        |          |0 = Comparator 0 output to ACMP0_O pin is unfiltered comparator output.
+ * |        |          |1 = Comparator 0 output to ACMP0_O pin is from filter output.
+ * |[15:13] |FILTSEL   |Comparator Output Filter Count Selection
+ * |        |          |000 = Filter function is Disabled.
+ * |        |          |001 = ACMP0 output is sampled 1 consecutive PCLK.
+ * |        |          |010 = ACMP0 output is sampled 2 consecutive PCLKs.
+ * |        |          |011 = ACMP0 output is sampled 4 consecutive PCLKs.
+ * |        |          |100 = ACMP0 output is sampled 8 consecutive PCLKs.
+ * |        |          |101 = ACMP0 output is sampled 16 consecutive PCLKs.
+ * |        |          |110 = ACMP0 output is sampled 32 consecutive PCLKs.
+ * |        |          |111 = ACMP0 output is sampled 64 consecutive PCLKs.
+ * |[16]    |WKEN      |Power-down Wake-up Enable Bit
+ * |        |          |0 = Wake-up function Disabled.
+ * |        |          |1 = Wake-up function Enabled.
+ * |[17]    |WLATEN    |Window Latch Mode Enable Bit
+ * |        |          |0 = Window Latch Mode Disabled.
+ * |        |          |1 = Window Latch Mode Enabled.
+ * |[18]    |WCMPSEL   |Window Compare Mode Selection
+ * |        |          |0 = Window Compare Mode Disabled.
+ * |        |          |1 = Window Compare Mode is Selected.
+ * |[25:24] |HYSSEL    |Hysteresis Mode Selection
+ * |        |          |00 = Hysteresis is 0mV.
+ * |        |          |01 = Hysteresis is 10mV.
+ * |        |          |10 = Hysteresis is 20mV.
+ * |        |          |11 = Hysteresis is 30mV.
+ * |[29:28] |MODESEL   |Propagation Delay Mode Selection
+ * |        |          |00 = Max propagation delay is 4.5uS, operation current is 1.2uA.
+ * |        |          |01 = Max propagation delay is 2uS, operation current is 3uA.
+ * |        |          |10 = Max propagation delay is 600nS, operation current is 10uA.
+ * |        |          |11 = Max propagation delay is 200nS, operation current is 75uA.
+ * @var ACMP_T::STATUS
+ * Offset: 0x08  Analog Comparator Status Register
+ * ---------------------------------------------------------------------------------------------------
+ * |Bits    |Field     |Descriptions
+ * | :----: | :----:   | :---- |
+ * |[0]     |ACMPIF0   |Comparator 0 Interrupt Flag
+ * |        |          |This bit is set by hardware when the edge condition defined by INTPOL (ACMP_CTL0[9:8]) is detected on comparator 0 output
+ * |        |          |This will generate an interrupt if ACMPIE (ACMP_CTL0[1]) is set to 1.
+ * |        |          |Note: Write 1 to clear this bit to 0.
+ * |[1]     |ACMPIF1   |Comparator 1 Interrupt Flag
+ * |        |          |This bit is set by hardware when the edge condition defined by INTPOL (ACMP_CTL1[9:8]) is detected on comparator 1 output
+ * |        |          |This will cause an interrupt if ACMPIE (ACMP_CTL1[1]) is set to 1.
+ * |        |          |Note: Write 1 to clear this bit to 0.
+ * |[4]     |ACMPO0    |Comparator 0 Output
+ * |        |          |Synchronized to the PCLK to allow reading by software
+ * |        |          |Cleared when the comparator 0 is disabled, i.e
+ * |        |          |ACMPEN (ACMP_CTL0[0]) is cleared to 0.
+ * |[5]     |ACMPO1    |Comparator 1 Output
+ * |        |          |Synchronized to the PCLK to allow reading by software
+ * |        |          |Cleared when the comparator 1 is disabled, i.e
+ * |        |          |ACMPEN (ACMP_CTL1[0]) is cleared to 0.
+ * |[8]     |WKIF0     |Comparator 0 Power-down Wake-up Interrupt Flag
+ * |        |          |This bit will be set to 1 when ACMP0 wake-up interrupt event occurs.
+ * |        |          |0 = No power-down wake-up occurred.
+ * |        |          |1 = Power-down wake-up occurred.
+ * |        |          |Note: Write 1 to clear this bit to 0.
+ * |[9]     |WKIF1     |Comparator 1 Power-down Wake-up Interrupt Flag
+ * |        |          |This bit will be set to 1 when ACMP1 wake-up interrupt event occurs.
+ * |        |          |0 = No power-down wake-up occurred.
+ * |        |          |1 = Power-down wake-up occurred.
+ * |        |          |Note: Write 1 to clear this bit to 0.
+ * |[12]    |ACMPS0    |Comparator 0 Status
+ * |        |          |Synchronized to the PCLK to allow reading by software
+ * |        |          |Cleared when the comparator 0 is disabled, i.e
+ * |        |          |ACMPEN (ACMP_CTL0[0]) is cleared to 0.
+ * |[13]    |ACMPS1    |Comparator 1 Status
+ * |        |          |Synchronized to the PCLK to allow reading by software
+ * |        |          |Cleared when the comparator 1 is disabled, i.e
+ * |        |          |ACMPEN (ACMP_CTL1[0]) is cleared to 0.
+ * |[16]    |ACMPWO    |Comparator Window Output
+ * |        |          |This bit shows the output status of window compare mode
+ * |        |          |0 = The positive input voltage is outside the window.
+ * |        |          |1 = The positive input voltage is in the window.
+ * @var ACMP_T::VREF
+ * Offset: 0x0C  Analog Comparator Reference Voltage Control Register
+ * ---------------------------------------------------------------------------------------------------
+ * |Bits    |Field     |Descriptions
+ * | :----: | :----:   | :---- |
+ * |[3:0]   |CRVCTL    |Comparator Reference Voltage Setting
+ * |        |          |CRV = CRV source voltage * (1/6+CRVCTL/24).
+ * |[6]     |CRVSSEL   |CRV Source Voltage Selection
+ * |        |          |0 = VDDA is selected as CRV source voltage.
+ * |        |          |1 = The reference voltage defined by SYS_VREFCTL register is selected as CRV source voltage.
+ */              
+ 
+    __IO uint32_t CTL[2];                /*!< [0x0000~0x0004] Analog Comparator 0~1 Control Register                    */
     __IO uint32_t STATUS;                /*!< [0x0008] Analog Comparator Status Register                                */
     __IO uint32_t VREF;                  /*!< [0x000c] Analog Comparator Reference Voltage Control Register             */
 
@@ -179,7 +158,8 @@ typedef struct
 /**
     @addtogroup ACMP_CONST ACMP Bit Field Definition
     Constant Definitions for ACMP Controller
-@{ */
+  @{ 
+*/
 
 #define ACMP_CTL_ACMPEN_Pos             (0)                                               /*!< ACMP_T::CTL: ACMPEN Position          */
 #define ACMP_CTL_ACMPEN_Msk             (0x1ul << ACMP_CTL_ACMPEN_Pos)                    /*!< ACMP_T::CTL: ACMPEN Mask              */

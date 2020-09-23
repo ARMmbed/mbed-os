@@ -1,10 +1,11 @@
 /**************************************************************************//**
- * @file     SDH.c
+ * @file     sdh.c
  * @version  V1.00
  * @brief    M2354 SDH driver source file
  *
  * @note
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,8 +67,6 @@ uint32_t SDH_SwitchToHighSpeed(SDH_T *sdh, SDH_INFO_T *pSD);
 uint32_t SDH_SelectCardType(SDH_T *sdh);
 void SDH_Get_SD_info(SDH_T *sdh);
 
-static int SDH_ok = 0;
-
 SDH_INFO_T SD0;
 
 void SDH_CheckRB(SDH_T *sdh)
@@ -89,7 +88,7 @@ uint32_t SDH_SDCommand(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg)
     SDH_INFO_T *pSD;
     volatile uint32_t u32Status = Successful;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     sdh->CMDARG = u32Arg;
@@ -110,7 +109,7 @@ uint32_t SDH_SDCmdAndRsp(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg, uint32_t 
 {
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     sdh->CMDARG = u32Arg;
@@ -193,7 +192,7 @@ uint32_t SDH_SDCmdAndRsp2(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg, uint32_t
     uint32_t au32TmpBuf[5];
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     sdh->CMDARG = u32Arg;
@@ -230,7 +229,7 @@ uint32_t SDH_SDCmdAndRspDataIn(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg)
 {
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     sdh->CMDARG = u32Arg;
@@ -277,7 +276,7 @@ void SDH_Set_clock(SDH_T *sdh, uint32_t u32SDClockKhz)
         uint32_t u32Rate, u32Div1;
         static uint32_t u32SDClkSrc = 0UL;
 
-        /* M2355 is only support SDH0 */
+        /* M2354 is only support SDH0 */
         u32SDClkSrc = (CLK->CLKSEL0 & CLK_CLKSEL0_SDH0SEL_Msk);
         if(u32SDClkSrc == CLK_CLKSEL0_SDH0SEL_HXT)
         {
@@ -324,7 +323,7 @@ void SDH_Set_clock(SDH_T *sdh, uint32_t u32SDClockKhz)
         }
 
         /* --- setup register */
-        /* M2355 is only support SDH0 */
+        /* M2354 is only support SDH0 */
         CLK->CLKDIV0 &= ~CLK_CLKDIV0_SDH0DIV_Msk;
         CLK->CLKDIV0 |= (u32Div1 << CLK_CLKDIV0_SDH0DIV_Pos);
     }
@@ -335,7 +334,7 @@ uint32_t SDH_CardDetection(SDH_T *sdh)
     uint32_t i, u32Status = (uint32_t)TRUE;
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     if(sdh->INTEN & SDH_INTEN_CDSRC_Msk)   /* Card detect pin from GPIO */
@@ -381,7 +380,7 @@ uint32_t SDH_Init(SDH_T *sdh)
     uint32_t volatile u32CmdTimeOut;
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     /* set the clock to 300KHz */
@@ -580,7 +579,7 @@ uint32_t SDH_SelectCardType(SDH_T *sdh)
     uint32_t u32Param;
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     if((u32Status = SDH_SDCmdAndRsp(sdh, 7UL, pSD->RCA, 0UL)) != Successful)
@@ -602,7 +601,7 @@ uint32_t SDH_SelectCardType(SDH_T *sdh)
         }
 
         sdh->DMACTL |= 0x2;
-        while(sdh->DMACTL & 0x2) {};
+        while(sdh->DMACTL & 0x2) {}
 
         if((u32Status = SDH_SDCmdAndRspDataIn(sdh, 51UL, 0x00UL)) != Successful)
         {
@@ -698,7 +697,7 @@ void SDH_Get_SD_info(SDH_T *sdh)
     uint32_t au32Buffer[4];
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     SDH_SDCmdAndRsp2(sdh, 9UL, pSD->RCA, au32Buffer);
@@ -859,7 +858,6 @@ uint32_t SDH_Probe(SDH_T *sdh)
         return u32Val;
     }
 
-    SDH_ok = 1;
     return 0UL;
 }
 
@@ -875,17 +873,14 @@ uint32_t SDH_Probe(SDH_T *sdh)
  */
 uint32_t SDH_Read(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32_t u32SecCount)
 {
-    uint32_t volatile u32IsSendCmd = (uint32_t)FALSE, u32Buf;
+    uint32_t volatile u32IsSendCmd = (uint32_t)FALSE;
     uint32_t volatile u32Reg;
-    uint32_t volatile i, u32Loop, u32Status;
+    uint32_t volatile u32Loop, u32Status;
     uint32_t u32BlkSize = SDH_BLOCK_SIZE;
-
-    (void)u32Buf;
-    (void)i;
 
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     /* --- check input parameters */
@@ -1023,12 +1018,11 @@ uint32_t SDH_Write(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32
 {
     uint32_t volatile u32IsSendCmd = (uint32_t)FALSE;
     uint32_t volatile u32Reg;
-    uint32_t volatile i, u32Loop, u32Status;
+    uint32_t volatile u32Loop, u32Status;
 
-    (void)i;
     SDH_INFO_T *pSD;
 
-    /* M2355 is only support SDH0 */
+    /* M2354 is only support SDH0 */
     pSD = &SD0;
 
     /* --- check input parameters */
@@ -1136,11 +1130,11 @@ uint32_t SDH_Write(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32
 }
 
 
-/*@}*/ /* end of group SDH_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SDH_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SDH_Driver */
+/**@}*/ /* end of group SDH_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017-2020 Nuvoton Technology Corp. ***/
 

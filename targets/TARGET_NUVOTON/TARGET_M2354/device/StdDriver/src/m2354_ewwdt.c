@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Extra Window Watchdog Timer(EWWDT) driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -58,11 +59,10 @@ void EWWDT_Open(uint32_t u32PreScale,
                  EWWDT_CTL_WWDTEN_Msk;
 }
 
-/*@}*/ /* end of group EWWDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group EWWDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group EWWDT_Driver */
+/**@}*/ /* end of group EWWDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
-
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

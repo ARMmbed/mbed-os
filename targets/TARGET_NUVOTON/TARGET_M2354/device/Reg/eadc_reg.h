@@ -18,7 +18,8 @@
 /**
     @addtogroup EADC Enhanced Analog to Digital Converter(EADC)
     Memory Mapped Structure for EADC Controller
-@{ */
+  @{ 
+*/
 
 
 typedef struct
@@ -173,20 +174,22 @@ typedef struct
      * |        |          |5H = Timer1 overflow pulse trigger.
      * |        |          |6H = Timer2 overflow pulse trigger.
      * |        |          |7H = Timer3 overflow pulse trigger.
-     * |        |          |8H = EPWM0TG0.
-     * |        |          |9H = EPWM0TG1.
-     * |        |          |AH = EPWM0TG2.
-     * |        |          |BH = EPWM0TG3.
-     * |        |          |CH = EPWM0TG4.
-     * |        |          |DH = EPWM0TG5.
-     * |        |          |EH = EPWM1TG0.
-     * |        |          |FH = EPWM1TG1.
-     * |        |          |10H = EPWM1TG2.
-     * |        |          |11H = EPWM1TG3.
-     * |        |          |12H = EPWM1TG4.
-     * |        |          |13H = EPWM1TG5.
-     * |        |          |14H = BPWM0TG.
-     * |        |          |15H = BPWM1TG.
+     * |        |          |8H = Timer4 overflow pulse trigger.
+     * |        |          |9H = Timer5 overflow pulse trigger.
+     * |        |          |AH = EPWM0TG0.
+     * |        |          |BH = EPWM0TG1.
+     * |        |          |CH = EPWM0TG2.
+     * |        |          |DH = EPWM0TG3.
+     * |        |          |EH = EPWM0TG4.
+     * |        |          |FH = EPWM0TG5.
+     * |        |          |10H = EPWM1TG0.
+     * |        |          |11H = EPWM1TG1.
+     * |        |          |12H = EPWM1TG2.
+     * |        |          |13H = EPWM1TG3.
+     * |        |          |14H = EPWM1TG4.
+     * |        |          |15H = EPWM1TG5.
+     * |        |          |16H = BPWM0TG.
+     * |        |          |17H = BPWM1TG.
      * |        |          |other = Reserved.
      * |[22]    |INTPOS    |Interrupt Flag Position Select
      * |        |          |0 = Set ADIFn (EADC_STATUS2[n], n=0~3) at ADC end of conversion.
@@ -562,7 +565,8 @@ typedef struct
 /**
     @addtogroup EADC_CONST EADC Bit Field Definition
     Constant Definitions for EADC Controller
-@{ */
+  @{ 
+*/
 
 #define EADC_DAT_RESULT_Pos              (0)                                                /*!< EADC_T::DAT: RESULT Position          */
 #define EADC_DAT_RESULT_Msk              (0xfffful << EADC_DAT_RESULT_Pos)                  /*!< EADC_T::DAT: RESULT Mask              */

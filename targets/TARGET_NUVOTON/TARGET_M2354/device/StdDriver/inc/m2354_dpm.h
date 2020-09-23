@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Debug Protection Mechanism (DPM) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __DPM_H__
 #define __DPM_H__
@@ -41,10 +42,10 @@ extern "C"
 
 
 
-/*@}*/ /* end of group WDT_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group WDT_EXPORTED_CONSTANTS */
 
 
-/** @addtogroup DPM_EXPORTED_FUNCTIONS WDT Exported Functions
+/** @addtogroup DPM_EXPORTED_FUNCTIONS DPM Exported Functions
   @{
 */
 
@@ -111,16 +112,16 @@ uint32_t DPM_SetPasswordCompare(uint32_t u32dpm, uint32_t au32Pwd[]);
 uint32_t DPM_GetPasswordErrorFlag(uint32_t u32dpm);    
 uint32_t DPM_GetIntFlag(void);
 void DPM_ClearPasswordErrorFlag(uint32_t u32dpm);
-void DPM_EnableDebugergWriteAccess(uint32_t u32dpm);
+void DPM_EnableDebuggerWriteAccess(uint32_t u32dpm);
 void DPM_DisableDebuggerWriteAccess(uint32_t u32dpm);
 
     
     
-/*@}*/ /* end of group DPM_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group DPM_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group DPM_Driver */
+/**@}*/ /* end of group DPM_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -128,4 +129,4 @@ void DPM_DisableDebuggerWriteAccess(uint32_t u32dpm);
 
 #endif /* __DPM_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

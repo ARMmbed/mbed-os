@@ -1,10 +1,11 @@
 /**************************************************************************//**
  * @file     scu.h
- * @version  V1.00
+ * @version  V3.00
  * @brief    Secure Configuration Unit Driver Header
  *
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SCU_H__
 #define __SCU_H__
@@ -46,15 +47,16 @@ typedef enum NSATTR
     CRPT_Attr   = 32 + 18,
 
     /******  PNNSET2 **********************************************************************************/
-    RTC_Attr    = 64 + 1,
+    EWDT_Attr   = 64 + 2,
     EADC_Attr   = 64 + 3,
     ACMP01_Attr = 64 + 5,
     DAC_Attr    = 64 + 7,
     I2S0_Attr   = 64 + 8,
     OTG_Attr    = 64 + 13,
     TMR23_Attr  = 64 + 17,
-    PWM0_Attr   = 64 + 24,
-    PWM1_Attr   = 64 + 25,
+    TMR45_Attr  = 64 + 18,
+    EPWM0_Attr  = 64 + 24,
+    EPWM1_Attr  = 64 + 25,
     BPWM0_Attr  = 64 + 26,
     BPWM1_Attr  = 64 + 27,
     /******  PNNSET3 **********************************************************************************/
@@ -84,6 +86,8 @@ typedef enum NSATTR
     QEI1_Attr   = 160 + 17,
     ECAP0_Attr  = 160 + 20,
     ECAP1_Attr  = 160 + 21,
+    TRNG_Attr   = 160 + 25,
+    LCD_Attr    = 160 + 27,
 
     /******  PNNSET6 **********************************************************************************/
     USBD_Attr   = 192 + 0,
@@ -94,7 +98,7 @@ typedef enum NSATTR
 } NSATTR_T;
 
 
-/*@}*/ /* end of group SCU_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group SCU_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup SCU_EXPORTED_FUNCTIONS SCU Exported Functions
@@ -130,43 +134,30 @@ typedef enum NSATTR
 
 
 /**
- * @brief       Set secure/non-secure attribution of specified GPIO ports
+ * @brief       Set secure/non-secure attribution of specified GPIO pin
  *
- * @param[in]   mask    The port mask of each GPIO port
- *              - \ref SCU_IONSSET_PA_Msk
- *              - \ref SCU_IONSSET_PB_Msk
- *              - \ref SCU_IONSSET_PC_Msk
- *              - \ref SCU_IONSSET_PD_Msk
- *              - \ref SCU_IONSSET_PE_Msk
- *              - \ref SCU_IONSSET_PF_Msk
- *              - \ref SCU_IONSSET_PG_Msk
+ * @param[in]   port        GPIO Port. It could be PA, PB, PC, PD, PE, PF, PG and PH.
+ * @param[in]   bitmask     Bit mask of each bit. 0 is non-secure. 1 is secure.
  *
  * @return      None
  *
- * @details     This macro gets the peripheral secure/non-secure attribution.
+ * @details     This macro sets GPIO pin secure/non-secure attribution.
  */
-#define SCU_SET_IONSSET(mask)   (SCU->IONSSET |= (mask))
+#define SCU_SET_IONSSET(port, mask)   (SCU->IONSSET[((uint32_t)(port)-(GPIOA_BASE))/0x40] = (mask))
 
 
 /**
- * @brief       Get secure/non-secure attribution of specified GPIO ports
+ * @brief       Get secure/non-secure attribution of specified GPIO port
  *
- * @param[in]   port    The port mask of each GPIO port
- *              - \ref SCU_IONSSET_PA_Msk
- *              - \ref SCU_IONSSET_PB_Msk
- *              - \ref SCU_IONSSET_PC_Msk
- *              - \ref SCU_IONSSET_PD_Msk
- *              - \ref SCU_IONSSET_PE_Msk
- *              - \ref SCU_IONSSET_PF_Msk
- *              - \ref SCU_IONSSET_PG_Msk
+ * @param[in]   port        GPIO Port. It could be PA, PB, PC, PD, PE, PF, PG and PH.
  *
- * @return      The secure/non-secure attribution of specified peripheral.
- * @retval      0 The specified IO port is secure
- * @retval      1 The specified IO port is non-secure
+ * @return      The secure/non-secure attribution of the port.
+ * @retval      0 The relative bit of specified IO port is secure
+ * @retval      1 The relative bit of specified IO port is non-secure
  *
- * @details     This macro gets GPIO port secure/non-secure attribution.
+ * @details     This macro gets IO secure/non-secure attribution of specified IO port.
  */
-#define SCU_GET_IONSSET(port)   ((SCU->IONSSET&(port))?1:0)
+#define SCU_GET_IONSSET(port)   (SCU->IONSSET[((uint32_t)(port) - (GPIOA_BASE))/0x40])
 
 
 /**
@@ -354,11 +345,11 @@ __STATIC_INLINE void SCU_TimerConfig(uint32_t u32Ticks, uint32_t u32Prescale)
 
 
 
-/*@}*/ /* end of group SCU_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SCU_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SCU_Driver */
+/**@}*/ /* end of group SCU_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

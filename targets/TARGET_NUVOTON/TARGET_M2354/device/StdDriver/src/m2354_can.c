@@ -1,9 +1,10 @@
 /**************************************************************************//**
  * @file     can.c
- * @version  V1.00
+ * @version  V3.00
  * @brief    CAN driver source file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -1182,11 +1183,11 @@ void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum)
     ReleaseIF(tCAN, u32MsgIfNum);
 }
 
-/*@}*/ /* end of group CAN_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group CAN_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group CAN_Driver */
+/**@}*/ /* end of group CAN_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
 

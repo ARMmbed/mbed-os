@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    EWWDT register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __EWWDT_REG_H__
 #define __EWWDT_REG_H__
@@ -19,7 +20,8 @@
 /**
     @addtogroup EWWDT Extra Window Watchdog Timer(EWWDT)
     Memory Mapped Structure for EWWDT Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -109,7 +111,8 @@ typedef struct
 /**
     @addtogroup WWDT_CONST WWDT Bit Field Definition
     Constant Definitions for WWDT Controller
-@{ */
+  @{ 
+*/
 
 #define EWWDT_RLDCNT_RLDCNT_Pos           (0)                                               /*!< EWWDT_T::RLDCNT: RLDCNT Position        */
 #define EWWDT_RLDCNT_RLDCNT_Msk           (0xfffffffful << EWWDT_RLDCNT_RLDCNT_Pos)         /*!< EWWDT_T::RLDCNT: RLDCNT Mask            */

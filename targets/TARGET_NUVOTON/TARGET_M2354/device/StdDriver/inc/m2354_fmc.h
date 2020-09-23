@@ -108,7 +108,7 @@ extern "C"
 #define READ_ALLONE_NOT         0xA1100000UL    /*!< Check-all-one result is not all one. */
 #define READ_ALLONE_CMD_FAIL    0xFFFFFFFFUL    /*!< Check-all-one command failed.        */
 
-/*@}*/ /* end of group FMC_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group FMC_EXPORTED_CONSTANTS */
 
 /** @addtogroup FMC_EXPORTED_FUNCTIONS FMC Exported Functions
   @{
@@ -601,11 +601,11 @@ extern int32_t FMC_WriteOTP(uint32_t otp_num, uint32_t low_word, uint32_t high_w
 extern int32_t FMC_WriteMultipleA(uint32_t u32Addr, uint32_t pu32Buf[], uint32_t u32Len);
 extern int32_t FMC_SwapBank(uint32_t u32Bank);
 
-/*@}*/ /* end of group FMC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group FMC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group FMC_Driver */
+/**@}*/ /* end of group FMC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

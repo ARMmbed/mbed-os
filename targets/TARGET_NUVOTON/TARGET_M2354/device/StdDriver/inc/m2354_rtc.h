@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Real Time Clock(RTC) driver header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __RTC_H__
 #define __RTC_H__
@@ -29,7 +30,6 @@ extern "C"
 /*  RTC Initial Keyword Constant Definitions                                                               */
 /*---------------------------------------------------------------------------------------------------------*/
 #define RTC_INIT_KEY            0xA5EB1357UL    /*!< RTC Initiation Key to make RTC leaving reset state \hideinitializer */
-#define RTC_WRITE_KEY           0x0000A965UL    /*!< RTC Register Access Enable Key to enable RTC read/write accessible and kept 1024 RTC clock \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  RTC Time Attribute Constant Definitions                                                                */
@@ -63,43 +63,69 @@ extern "C"
 #define RTC_SATURDAY            0x6UL           /*!< Day of the Week is Saturday \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  RTC Miscellaneous Constant Definitions                                                                         */
+/*  RTC Miscellaneous Constant Definitions                                                                 */
 /*---------------------------------------------------------------------------------------------------------*/
 #define RTC_YEAR2000            2000UL          /*!< RTC Reference for compute year data \hideinitializer */
 #define RTC_FCR_REFERENCE       32752           /*!< RTC Reference for frequency compensation */
 
-#define RTC_TAMPER0_SELECT      (0x1ul << 0)    /*!< Select Tamper 0 \hideinitializer */
-#define RTC_TAMPER1_SELECT      (0x1ul << 1)    /*!< Select Tamper 1 \hideinitializer */
-#define RTC_TAMPER2_SELECT      (0x1ul << 2)    /*!< Select Tamper 2 \hideinitializer */
-#define RTC_TAMPER3_SELECT      (0x1ul << 3)    /*!< Select Tamper 3 \hideinitializer */
-#define RTC_TAMPER4_SELECT      (0x1ul << 4)    /*!< Select Tamper 4 \hideinitializer */
-#define RTC_TAMPER5_SELECT      (0x1ul << 5)    /*!< Select Tamper 5 \hideinitializer */
-#define MAX_TAMPER_PIN_NUM      6ul             /*!< Tamper Pin number \hideinitializer */
+/*---------------------------------------------------------------------------------------------------------*/
+/*  RTC Tamper Constant Definitions                                                                        */
+/*---------------------------------------------------------------------------------------------------------*/
+#define RTC_TAMPER0_SELECT      (0x1UL << 0)    /*!< Select Tamper 0 \hideinitializer */
+#define RTC_TAMPER1_SELECT      (0x1UL << 1)    /*!< Select Tamper 1 \hideinitializer */
+#define RTC_TAMPER2_SELECT      (0x1UL << 2)    /*!< Select Tamper 2 \hideinitializer */
+#define RTC_TAMPER3_SELECT      (0x1UL << 3)    /*!< Select Tamper 3 \hideinitializer */
+#define RTC_TAMPER4_SELECT      (0x1UL << 4)    /*!< Select Tamper 4 \hideinitializer */
+#define RTC_TAMPER5_SELECT      (0x1UL << 5)    /*!< Select Tamper 5 \hideinitializer */
+#define RTC_MAX_TAMPER_PIN_NUM  6UL             /*!< Tamper Pin number \hideinitializer */
 
-#define RTC_TAMPER_HIGH_LEVEL_DETECT    1ul     /*!< Tamper pin detect voltage level is high \hideinitializer */
-#define RTC_TAMPER_LOW_LEVEL_DETECT     0ul     /*!< Tamper pin detect voltage level is low  \hideinitializer */
+#define RTC_TAMPER_LOW_LEVEL_DETECT     0UL     /*!< Tamper pin detect voltage level is low  \hideinitializer */
+#define RTC_TAMPER_HIGH_LEVEL_DETECT    1UL     /*!< Tamper pin detect voltage level is high \hideinitializer */
 
-#define RTC_TAMPER_DEBOUNCE_ENABLE      1ul     /*!< Enable RTC tamper pin de-bounce function \hideinitializer */
-#define RTC_TAMPER_DEBOUNCE_DISABLE     0ul     /*!< Disable RTC tamper pin de-bounce function \hideinitializer */
+#define RTC_TAMPER_DEBOUNCE_DISABLE     0UL     /*!< Disable RTC tamper pin de-bounce function \hideinitializer */
+#define RTC_TAMPER_DEBOUNCE_ENABLE      1UL     /*!< Enable RTC tamper pin de-bounce function \hideinitializer */
 
-#define RTC_PAIR0_SELECT        (0x1ul << 0)    /*!< Select Pair 0 \hideinitializer */
-#define RTC_PAIR1_SELECT        (0x1ul << 1)    /*!< Select Pair 1 \hideinitializer */
-#define RTC_PAIR2_SELECT        (0x1ul << 2)    /*!< Select Pair 2 \hideinitializer */
-#define MAX_PAIR_NUM            3ul             /*!< Pair number \hideinitializer */
+#define RTC_PAIR0_SELECT        (0x1UL << 0)    /*!< Select Pair 0 \hideinitializer */
+#define RTC_PAIR1_SELECT        (0x1UL << 1)    /*!< Select Pair 1 \hideinitializer */
+#define RTC_PAIR2_SELECT        (0x1UL << 2)    /*!< Select Pair 2 \hideinitializer */
+#define RTC_MAX_PAIR_NUM        3UL             /*!< Pair number \hideinitializer */
 
-#define RTC_2POW10_CLK          (0x0ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 RTC clock cycles \hideinitializer */
-#define RTC_2POW11_CLK          (0x1ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 2 RTC clock cycles \hideinitializer */
-#define RTC_2POW12_CLK          (0x2ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 4 RTC clock cycles \hideinitializer */
-#define RTC_2POW13_CLK          (0x3ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 6 RTC clock cycles \hideinitializer */
-#define RTC_2POW14_CLK          (0x4ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 8 RTC clock cycles \hideinitializer */
-#define RTC_2POW15_CLK          (0x5ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 16 RTC clock cycles \hideinitializer */
-#define RTC_2POW16_CLK          (0x6ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 32 RTC clock cycles \hideinitializer */
-#define RTC_2POW17_CLK          (0x7ul << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 64 RTC clock cycles \hideinitializer */
+#define RTC_2POW10_CLK          (0x0UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 RTC clock cycles \hideinitializer */
+#define RTC_2POW11_CLK          (0x1UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 2 RTC clock cycles \hideinitializer */
+#define RTC_2POW12_CLK          (0x2UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 4 RTC clock cycles \hideinitializer */
+#define RTC_2POW13_CLK          (0x3UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 6 RTC clock cycles \hideinitializer */
+#define RTC_2POW14_CLK          (0x4UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 8 RTC clock cycles \hideinitializer */
+#define RTC_2POW15_CLK          (0x5UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 16 RTC clock cycles \hideinitializer */
+#define RTC_2POW16_CLK          (0x6UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 32 RTC clock cycles \hideinitializer */
+#define RTC_2POW17_CLK          (0x7UL << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 64 RTC clock cycles \hideinitializer */
 
-#define REF_RANDOM_PATTERN      0x0ul   /*!< The new reference pattern is generated by random number generator when the reference pattern run out \hideinitializer */
-#define REF_SEED                0x1ul   /*!< The new reference pattern is repeated from SEED (RTC_TAMPSEED[31:0]) when the reference pattern run out \hideinitializer */
+#define RTC_REF_RANDOM_PATTERN  0x0UL   /*!< The new reference pattern is generated by random number generator when the reference pattern run out \hideinitializer */
+#define RTC_REF_SEED_VALUE      0x1UL   /*!< The new reference pattern is repeated from SEED (RTC_TAMPSEED[31:0]) when the reference pattern run out \hideinitializer */
 
-/*@}*/ /* end of group RTC_EXPORTED_CONSTANTS */
+/*---------------------------------------------------------------------------------------------------------*/
+/*  RTC Clock Source Constant Definitions                                                                  */
+/*---------------------------------------------------------------------------------------------------------*/
+#define RTC_CLOCK_SOURCE_LXT        0UL /*!< Set RTC clock source as external LXT \hideinitializer */
+#define RTC_CLOCK_SOURCE_LIRC       1UL /*!< Set RTC clock source as LIRC \hideinitializer */
+#define RTC_CLOCK_SOURCE_LIRC32K    2UL /*!< Set RTC clock source as LIRC32K \hideinitializer */
+
+/*---------------------------------------------------------------------------------------------------------*/
+/*  RTC GPIO_MODE Constant Definitions                                                                     */
+/*---------------------------------------------------------------------------------------------------------*/
+#define RTC_IO_MODE_INPUT       0x0UL   /*!< Input Mode */
+#define RTC_IO_MODE_OUTPUT      0x1UL   /*!< Output Mode */
+#define RTC_IO_MODE_OPEN_DRAIN  0x2UL   /*!< Open-Drain Mode */
+#define RTC_IO_MODE_QUASI       0x3UL   /*!< Quasi-bidirectional Mode */
+
+#define RTC_IO_DIGITAL_ENABLE   0UL     /*!< I/O digital path is enabled */
+#define RTC_IO_DIGITAL_DISABLE  1UL     /*!< I/O digital path is disabled */
+
+#define RTC_IO_PULL_UP_DOWN_DISABLE     0x0UL   /*!< I/O pull-up and pull-down is disabled */
+#define RTC_IO_PULL_UP_ENABLE           0x1UL   /*!< I/O pull-up is enabled */
+#define RTC_IO_PULL_DOWN_ENABLE         0x2UL   /*!< I/O pull-down is enabled */
+
+
+/**@}*/ /* end of group RTC_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup RTC_EXPORTED_STRUCTS RTC Exported Structs
@@ -121,7 +147,7 @@ typedef struct
     uint32_t u32AmPm;           /*!< Only Time Scale select 12-hr used */
 } S_RTC_TIME_DATA_T;
 
-/*@}*/ /* end of group RTC_EXPORTED_STRUCTS */
+/**@}*/ /* end of group RTC_EXPORTED_STRUCTS */
 
 
 /** @addtogroup RTC_EXPORTED_FUNCTIONS RTC Exported Functions
@@ -139,7 +165,7 @@ typedef struct
   * @details    According to current date, return this year is leap year or not.
   * \hideinitializer
   */
-#define RTC_IS_LEAP_YEAR(rtc)           ((rtc)->LEAPYEAR & RTC_LEAPYEAR_LEAPYEAR_Msk ? 1:0)
+#define RTC_IS_LEAP_YEAR(rtc)           (((rtc)->LEAPYEAR & RTC_LEAPYEAR_LEAPYEAR_Msk)? 1:0)
 
 /**
   * @brief      Clear RTC Alarm Interrupt Flag
@@ -211,6 +237,43 @@ typedef struct
 #define RTC_GET_TICK_INT_FLAG(rtc)          (((rtc)->INTSTS & RTC_INTSTS_TICKIF_Msk)? 1:0)
 
 /**
+  * @brief      Set I/O Control By GPIO
+  *
+  * @param[in]  rtc         The pointer of RTC module.
+  *
+  * @return     None
+  *
+  * @details    This macro sets the PF.4~11 pin I/O is controlled by GPIO module.
+  * \hideinitializer
+  */
+#define RTC_SET_IOCTL_BY_GPIO(rtc)          ((rtc)->LXTCTL &= ~RTC_LXTCTL_IOCTLSEL_Msk)
+
+/**
+  * @brief      Set I/O Control By RTC
+  *
+  * @param[in]  rtc         The pointer of RTC module.
+  *
+  * @return     None
+  *
+  * @details    This macro sets the PF.4~11 pin I/O is controlled by RTC module.
+  * \hideinitializer
+  */
+#define RTC_SET_IOCTL_BY_RTC(rtc)           ((rtc)->LXTCTL |= RTC_LXTCTL_IOCTLSEL_Msk)
+
+/**
+  * @brief      Get I/O Control Property
+  *
+  * @param[in]  rtc         The pointer of RTC module.
+  *
+  * @retval     0   PF.4~11 pin I/O is controlled by GPIO module
+  * @retval     1   PF.4~11 pin I/O is controlled by RTC module
+  *
+  * @details    This macro indicates the PF.4~11 pin I/O control property.
+  * \hideinitializer
+  */
+#define RTC_GET_IOCTL_PROPERTY(rtc)          (((rtc)->LXTCTL & RTC_LXTCTL_IOCTLSEL_Msk)? 1:0)
+
+/**
   * @brief      Get RTC Tamper Interrupt Flag
   *
   * @param[in]  rtc         The pointer of RTC module.
@@ -273,7 +336,6 @@ typedef struct
   * @return     Spare register content
   *
   * @details    Read the specify spare register content.
-  * @note       The returned value is valid only when RWENF (RTC_RWEN[16]) bit is set. \n
   * \hideinitializer
   */
 #define RTC_READ_SPARE_REGISTER(rtc, u32RegNum)     ((rtc)->SPR[(u32RegNum)])
@@ -288,7 +350,6 @@ typedef struct
   * @return     None
   *
   * @details    Write specify data to spare register.
-  * @note       This macro is effect only when RWENF (RTC_RWEN[16]) bit is set. \n
   * \hideinitializer
   */
 #define RTC_WRITE_SPARE_REGISTER(rtc, u32RegNum, u32RegValue)   ((rtc)->SPR[(u32RegNum)] = (u32RegValue))
@@ -296,7 +357,7 @@ typedef struct
 
 void RTC_Open(S_RTC_TIME_DATA_T *sPt);
 void RTC_Close(void);
-void RTC_32KCalibration(int32_t i32FrequencyX100);
+void RTC_32KCalibration(int32_t i32FrequencyX10000);
 void RTC_GetDateAndTime(S_RTC_TIME_DATA_T *sPt);
 void RTC_GetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt);
 void RTC_SetDateAndTime(S_RTC_TIME_DATA_T *sPt);
@@ -318,13 +379,15 @@ void RTC_StaticTamperDisable(uint32_t u32TamperSelect);
 void RTC_DynamicTamperEnable(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32_t u32Pair1Source, uint32_t u32Pair2Source);
 void RTC_DynamicTamperDisable(uint32_t u32PairSel);
 void RTC_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uint32_t u32RefPattern, uint32_t u32Seed);
+uint32_t RTC_SetClockSource(uint32_t u32ClkSrc);
+void RTC_SetGPIOMode(uint32_t u32PFPin, uint32_t u32Mode, uint32_t u32DigitalCtl, uint32_t u32PullCtl, uint32_t u32OutputLevel);
+void RTC_SetGPIOLevel(uint32_t u32PFPin, uint32_t u32OutputLevel);
 
+/**@}*/ /* end of group RTC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group RTC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group RTC_Driver */
 
-/*@}*/ /* end of group RTC_Driver */
-
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -332,4 +395,4 @@ void RTC_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uin
 
 #endif /* __RTC_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

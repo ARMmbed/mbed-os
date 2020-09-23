@@ -4,7 +4,8 @@
  * @brief    M2354 series General Purpose I/O (GPIO) driver source file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -28,7 +29,7 @@
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -62,7 +63,7 @@ void GPIO_SetMode(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
  * @param[in]   u32Pin          The pin of specified GPIO port. \n
  *                              It could be 0 ~ 15 for PA, PB and PE. \n
  *                              It could be 0 ~ 13 for PC GPIO port. \n
- *                              It could be 0 ~ 14 for PD GPIO port. \n
+ *                              It could be 0 ~ 12, 14 for PD GPIO port. \n
  *                              It could be 0 ~ 11 for PF GPIO port. \n
  *                              It could be 2 ~ 4, 9 ~ 15 for PG GPIO port. \n
  *                              It could be 4 ~ 11 for PH GPIO port.
@@ -95,7 +96,7 @@ void GPIO_EnableInt(GPIO_T *port, uint32_t u32Pin, uint32_t u32IntAttribs)
  * @param[in]   u32Pin      The pin of specified GPIO port. \n
  *                          It could be 0 ~ 15 for PA, PB and PE. \n
  *                          It could be 0 ~ 13 for PC GPIO port. \n
- *                          It could be 0 ~ 14 for PD GPIO port. \n
+ *                          It could be 0 ~ 12, 14 for PD GPIO port. \n
  *                          It could be 0 ~ 11 for PF GPIO port. \n
  *                          It could be 2 ~ 4, 9 ~ 15 for PG GPIO port. \n
  *                          It could be 4 ~ 11 for PH GPIO port.
@@ -121,7 +122,7 @@ void GPIO_DisableInt(GPIO_T *port, uint32_t u32Pin)
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -155,7 +156,7 @@ void GPIO_SetSlewCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -181,10 +182,10 @@ void GPIO_SetPullCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
     }
 }
 
-/*@}*/ /* end of group GPIO_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group GPIO_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group GPIO_Driver */
+/**@}*/ /* end of group GPIO_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

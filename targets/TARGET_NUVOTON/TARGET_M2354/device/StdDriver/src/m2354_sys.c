@@ -4,7 +4,8 @@
  * @brief    M2354 series System Manager (SYS) driver source file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 /** @addtogroup Standard_Driver Standard Driver
@@ -125,6 +126,8 @@ void SYS_ResetCPU(void)
   *             - \ref TMR1_RST
   *             - \ref TMR2_RST
   *             - \ref TMR3_RST
+  *             - \ref TMR4_RST
+  *             - \ref TMR5_RST
   *             - \ref ACMP01_RST
   *             - \ref I2C0_RST
   *             - \ref I2C1_RST
@@ -161,7 +164,6 @@ void SYS_ResetCPU(void)
   *             - \ref QEI1_RST
   *             - \ref ECAP0_RST
   *             - \ref ECAP1_RST
-  *             - \ref TAMPER_RST
   * @return     None
   * @details    This function reset selected module.
   */
@@ -230,6 +232,7 @@ void SYS_DisableBOD(void)
   *             - \ref SYS_PLCTL_PLSEL_PL0  : Supports system clock up to 96MHz.
   *             - \ref SYS_PLCTL_PLSEL_PL1  : Supports system clock up to 84MHz.
   *             - \ref SYS_PLCTL_PLSEL_PL2  : Supports system clock up to 48MHz.
+  *             - \ref SYS_PLCTL_PLSEL_PL3  : Supports system clock up to 4MHz.
   * @return     None
   * @details    This function select power level.
   *             The register write-protection function should be disabled before using this function.
@@ -333,10 +336,6 @@ uint32_t SYS_SetPowerRegulator(uint32_t u32PowerRegulator)
   *             - \ref SYS_SRAMPC1_SRAM2PM3_Msk     : 0x2003_4000 - 0x2003_7FFF
   *             - \ref SYS_SRAMPC1_SRAM2PM4_Msk     : 0x2003_8000 - 0x2003_BFFF
   *             - \ref SYS_SRAMPC1_SRAM2PM5_Msk     : 0x2003_C000 - 0x2003_FFFF
-  *             - \ref SYS_SRAMPC1_SRAM2PM6_Msk     : 0x2004_0000 - 0x2004_3FFF
-  *             - \ref SYS_SRAMPC1_SRAM2PM7_Msk     : 0x2004_4000 - 0x2004_7FFF
-  *             - \ref SYS_SRAMPC1_SRAM2PM8_Msk     : 0x2004_8000 - 0x2004_BFFF
-  *             - \ref SYS_SRAMPC1_SRAM2PM9_Msk     : 0x2004_C000 - 0x2004_FFFF
   * @param[in]  u32PowerMode is SRAM power mode. Including :
   *             - \ref SYS_SRAMPC0_SRAM_NORMAL
   *             - \ref SYS_SRAMPC0_SRAM_RETENTION
@@ -439,10 +438,10 @@ void SYS_SetVRef(uint32_t u32VRefCTL)
 }
 
 
-/*@}*/ /* end of group SYS_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SYS_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SYS_Driver */
+/**@}*/ /* end of group SYS_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

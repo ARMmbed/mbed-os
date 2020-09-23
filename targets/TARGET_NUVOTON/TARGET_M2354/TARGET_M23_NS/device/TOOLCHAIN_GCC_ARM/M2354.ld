@@ -38,7 +38,7 @@ MEMORY
 /**
  * Must match cmsis_nvic.h
  */
-__vector_size = 4 * (16 + 114);
+__vector_size = 4 * (16 + 116);
 
  
 /* Linker script to place sections and symbol values. Should be used together

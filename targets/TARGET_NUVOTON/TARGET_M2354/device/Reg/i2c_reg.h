@@ -18,7 +18,8 @@
 /**
     @addtogroup I2C Inter-IC Bus Controller(I2C)
     Memory Mapped Structure for I2C Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -488,7 +489,8 @@ typedef struct
 /**
     @addtogroup I2C_CONST I2C Bit Field Definition
     Constant Definitions for I2C Controller
-@{ */
+  @{ 
+*/
 
 #define I2C_CTL0_AA_Pos                  (2)                                               /*!< I2C_T::CTL0: AA Position               */
 #define I2C_CTL0_AA_Msk                  (0x1ul << I2C_CTL0_AA_Pos)                        /*!< I2C_T::CTL0: AA Mask                   */

@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    M2354 series SPI driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -77,7 +78,7 @@ uint32_t SPI_Open(SPI_T *spi,
 
         if(u32BusClock >= u32HCLKFreq)
         {
-            if(!(__PC() & (1UL << 28UL)))
+            if(!(__PC() & NS_OFFSET))
             {
                 /* Select PCLK as the clock source of SPI */
                 if((spi == SPI0) || (spi == SPI0_NS))
@@ -227,7 +228,7 @@ uint32_t SPI_Open(SPI_T *spi,
         /* Set DIVIDER = 0 */
         spi->CLKDIV = 0UL;
 
-        if(!(__PC() & (1UL << 28UL)))
+        if(!(__PC() & NS_OFFSET))
         {
             /* Select PCLK as the clock source of SPI */
             if((spi == SPI0) || (spi == SPI0_NS))
@@ -423,7 +424,7 @@ uint32_t SPI_SetBusClock(SPI_T *spi, uint32_t u32BusClock)
 
     if(u32BusClock >= u32HCLKFreq)
     {
-        if(!(__PC() & (1UL << 28UL)))
+        if(!(__PC() & NS_OFFSET))
         {
             /* Select PCLK as the clock source of SPI */
             if((spi == SPI0) || (spi == SPI0_NS))
@@ -568,8 +569,8 @@ uint32_t SPI_SetBusClock(SPI_T *spi, uint32_t u32BusClock)
 /**
   * @brief  Configure FIFO threshold setting.
   * @param[in]  spi The pointer of the specified SPI module.
-  * @param[in]  u32TxThreshold Decides the TX FIFO threshold. It could be 0 ~ 7.
-  * @param[in]  u32RxThreshold Decides the RX FIFO threshold. It could be 0 ~ 7.
+  * @param[in]  u32TxThreshold Decides the TX FIFO threshold. It could be 0 ~ 3. If data width is 8 ~ 16 bits, it could be 0 ~ 7.
+  * @param[in]  u32RxThreshold Decides the RX FIFO threshold. It could be 0 ~ 3. If data width is 8 ~ 16 bits, it could be 0 ~ 7.
   * @return None
   * @details Set TX FIFO threshold and RX FIFO threshold configurations.
   */
@@ -1220,7 +1221,7 @@ uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate
     uint32_t u32BitRate, u32SrcClk, u32RetValue;
     uint32_t u32PCLK0Freq, u32PCLK1Freq;
 
-    if(!(__PC() & (1UL << 28UL)))
+    if(!(__PC() & NS_OFFSET))
     {
         /* Reset SPI/I2S */
         if((i2s == SPI0) || (i2s == SPI0_NS))
@@ -1285,7 +1286,7 @@ uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate
 
         if((i2s == SPI0) || (i2s == SPI0_NS))
         {
-            if(!(__PC() & (1UL << 28UL)))
+            if(!(__PC() & NS_OFFSET))
             {
                 /* Set the peripheral clock rate to equal APB clock rate */
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI0SEL_Msk)) | CLK_CLKSEL2_SPI0SEL_PCLK1;
@@ -1319,7 +1320,7 @@ uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate
         }
         else if((i2s == SPI1) || (i2s == SPI1_NS))
         {
-            if(!(__PC() & (1UL << 28UL)))
+            if(!(__PC() & NS_OFFSET))
             {
                 /* Set the peripheral clock rate to equal APB clock rate */
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI1SEL_Msk)) | CLK_CLKSEL2_SPI1SEL_PCLK0;
@@ -1353,7 +1354,7 @@ uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate
         }
         else if((i2s == SPI2) || (i2s == SPI2_NS))
         {
-            if(!(__PC() & (1UL << 28UL)))
+            if(!(__PC() & NS_OFFSET))
             {
                 /* Set the peripheral clock rate to equal APB clock rate */
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI2SEL_Msk)) | CLK_CLKSEL2_SPI2SEL_PCLK1;
@@ -1387,7 +1388,7 @@ uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate
         }
         else
         {
-            if(!(__PC() & (1UL << 28UL)))
+            if(!(__PC() & NS_OFFSET))
             {
                 /* Set the peripheral clock rate to equal APB clock rate */
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI3SEL_Msk)) | CLK_CLKSEL2_SPI3SEL_PCLK0;
@@ -1629,8 +1630,8 @@ void SPII2S_DisableMCLK(SPI_T *i2s)
 /**
   * @brief  Configure FIFO threshold setting.
   * @param[in]  i2s The pointer of the specified I2S module.
-  * @param[in]  u32TxThreshold Decides the TX FIFO threshold. It could be 0 ~ 7.
-  * @param[in]  u32RxThreshold Decides the RX FIFO threshold. It could be 0 ~ 7.
+  * @param[in]  u32TxThreshold Decides the TX FIFO threshold. It could be 0 ~ 3.
+  * @param[in]  u32RxThreshold Decides the RX FIFO threshold. It could be 0 ~ 3.
   * @return None
   * @details Set TX FIFO threshold and RX FIFO threshold configurations.
   */
@@ -1641,10 +1642,10 @@ void SPII2S_SetFIFO(SPI_T *i2s, uint32_t u32TxThreshold, uint32_t u32RxThreshold
                    (u32RxThreshold << SPI_FIFOCTL_RXTH_Pos);
 }
 
-/*@}*/ /* end of group SPI_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SPI_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SPI_Driver */
+/**@}*/ /* end of group SPI_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

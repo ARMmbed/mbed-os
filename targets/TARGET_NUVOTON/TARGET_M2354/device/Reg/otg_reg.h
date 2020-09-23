@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    OTG register definition header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __OTG_REG_H__
 #define __OTG_REG_H__
@@ -14,12 +15,12 @@
 
 */
 
-
 /*---------------------- USB On-The-Go Controller -------------------------*/
 /**
     @addtogroup OTG USB On-The-Go Controller(OTG)
     Memory Mapped Structure for OTG Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -56,7 +57,7 @@ typedef struct
      * |        |          |Note: Refer to OTG specification to get a_suspend, a_peripheral, a_idle and b_idle state.
      * |[4]     |OTGEN     |OTG Function Enable Bit
      * |        |          |User needs to set this bit to enable OTG function while USB frame configured as OTG device
-     * |        |          |When USB frame not configured as OTG device, this bit is must be low.
+     * |        |          |When USB frame is not configured as OTG device, this bit must be low.
      * |        |          |0= OTG function Disabled.
      * |        |          |1 = OTG function Enabled.
      * |[5]     |WKEN      |OTG ID Pin Wake-up Enable Bit
@@ -68,8 +69,8 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[0]     |OTGPHYEN  |OTG PHY Enable Bit
-     * |        |          |When USB frame is configured as OTG-device or ID-dependent, user needs to set this bit before using OTG function
-     * |        |          |If device is not configured as OTG-device nor ID-dependent , this bit is "don't care".
+     * |        |          |When USB frame is configured as OTG device or ID dependent, user needs to set this bit before using OTG function
+     * |        |          |If device is not configured as OTG device nor ID dependent , this bit is "don't care".
      * |        |          |0 = OTG PHY Disabled.
      * |        |          |1 = OTG PHY Enabled.
      * |[1]     |IDDETEN   |ID Detection Enable Bit
@@ -254,7 +255,8 @@ typedef struct
 /**
     @addtogroup OTG_CONST OTG Bit Field Definition
     Constant Definitions for OTG Controller
-@{ */
+  @{ 
+*/
 
 #define OTG_CTL_VBUSDROP_Pos             (0)                                               /*!< OTG_T::CTL: VBUSDROP Position          */
 #define OTG_CTL_VBUSDROP_Msk             (0x1ul << OTG_CTL_VBUSDROP_Pos)                   /*!< OTG_T::CTL: VBUSDROP Mask              */
@@ -388,7 +390,5 @@ typedef struct
 /**@}*/ /* OTG_CONST */
 /**@}*/ /* end of OTG register group */
 /**@}*/ /* end of REGISTER group */
-
-
 
 #endif /* __OTG_REG_H__ */

@@ -1,9 +1,10 @@
 /**************************************************************************//**
  * @file     crypto.c
- * @version  V1.10
+ * @version  V3.00
  * @brief  Cryptographic Accelerator driver source file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include <stdio.h>
@@ -11,7 +12,8 @@
 #include "NuMicro.h"
 
 #define ENABLE_DEBUG    0
-#define XOM_SUPPORT     0
+
+#define ECC_SCA_PROTECT 1       // Enable Side-Channel Protecton
 
 #if ENABLE_DEBUG
 #define CRPT_DBGMSG   printf
@@ -39,8 +41,6 @@
 
 /* // @cond HIDDEN_SYMBOLS */
 
-static uint32_t g_AES_CTL[4];
-static uint32_t g_TDES_CTL[4];
 
 static char  hex_char_tbl[] = "0123456789abcdef";
 
@@ -145,12 +145,13 @@ void PRNG_Read(CRPT_T *crpt, uint32_t u32RandKey[])
 void AES_Open(CRPT_T *crpt, uint32_t u32Channel, uint32_t u32EncDec,
               uint32_t u32OpMode, uint32_t u32KeySize, uint32_t u32SwapType)
 {
-    crpt->AES_CTL = (u32Channel << CRPT_AES_CTL_CHANNEL_Pos) |
-                    (u32EncDec << CRPT_AES_CTL_ENCRPT_Pos) |
+    (void)u32Channel;
+
+    crpt->AES_CTL = (u32EncDec << CRPT_AES_CTL_ENCRPT_Pos) |
                     (u32OpMode << CRPT_AES_CTL_OPMODE_Pos) |
                     (u32KeySize << CRPT_AES_CTL_KEYSZ_Pos) |
                     (u32SwapType << CRPT_AES_CTL_OUTSWAP_Pos);
-    g_AES_CTL[u32Channel] = crpt->AES_CTL;
+
 }
 
 /**
@@ -165,7 +166,8 @@ void AES_Open(CRPT_T *crpt, uint32_t u32Channel, uint32_t u32EncDec,
   */
 void AES_Start(CRPT_T *crpt, int32_t u32Channel, uint32_t u32DMAMode)
 {
-    crpt->AES_CTL = g_AES_CTL[u32Channel];
+    (void)u32Channel;
+
     crpt->AES_CTL |= CRPT_AES_CTL_START_Msk | (u32DMAMode << CRPT_AES_CTL_DMALAST_Pos);
 }
 
@@ -184,7 +186,9 @@ void AES_SetKey(CRPT_T *crpt, uint32_t u32Channel, uint32_t au32Keys[], uint32_t
 {
     uint32_t  i, wcnt, key_reg_addr;
 
-    key_reg_addr = (uint32_t)&crpt->AES0_KEY[0] + (u32Channel * 0x3CUL);
+    (void) u32Channel;
+
+    key_reg_addr = (uint32_t)&crpt->AES_KEY[0];
     wcnt = 4UL + u32KeySize * 2UL;
 
     for(i = 0U; i < wcnt; i++)
@@ -209,9 +213,9 @@ void AES_SetKey(CRPT_T *crpt, uint32_t u32Channel, uint32_t au32Keys[], uint32_t
 void AES_SetKey_KS(CRPT_T *crpt, KS_MEM_Type mem, int32_t i32KeyIdx)
 {
     /* Use key in key store */
-    crpt->AES_KSCTL |= CRPT_AES_KSCTL_RSRC_Msk /* use KS */  |
-                       (uint32_t)((int)mem << CRPT_AES_KSCTL_RSSRC_Pos) /* KS Memory type */ |
-                       (uint32_t)i32KeyIdx /* key num */ ;
+    crpt->AES_KSCTL = CRPT_AES_KSCTL_RSRC_Msk /* use KS */  |
+                      (uint32_t)((int)mem << CRPT_AES_KSCTL_RSSRC_Pos) /* KS Memory type */ |
+                      (uint32_t)i32KeyIdx /* key num */ ;
 
 }
 
@@ -227,7 +231,9 @@ void AES_SetInitVect(CRPT_T *crpt, uint32_t u32Channel, uint32_t au32IV[])
 {
     uint32_t  i, key_reg_addr;
 
-    key_reg_addr = (uint32_t)&crpt->AES0_IV[0] + (u32Channel * 0x3CUL);
+    (void) u32Channel;
+
+    key_reg_addr = (uint32_t)&crpt->AES_IV[0];
 
     for(i = 0U; i < 4U; i++)
     {
@@ -248,138 +254,12 @@ void AES_SetInitVect(CRPT_T *crpt, uint32_t u32Channel, uint32_t au32IV[])
 void AES_SetDMATransfer(CRPT_T *crpt, uint32_t u32Channel, uint32_t u32SrcAddr,
                         uint32_t u32DstAddr, uint32_t u32TransCnt)
 {
-    uint32_t  reg_addr;
+    (void) u32Channel;
 
-    reg_addr = (uint32_t)&crpt->AES0_SADDR + (u32Channel * 0x3CUL);
-    outpw(reg_addr, u32SrcAddr);
+    crpt->AES_SADDR = u32SrcAddr;
+    crpt->AES_DADDR = u32DstAddr;
+    crpt->AES_CNT   = u32TransCnt;
 
-    reg_addr = (uint32_t)&crpt->AES0_DADDR + (u32Channel * 0x3CUL);
-    outpw(reg_addr, u32DstAddr);
-
-    reg_addr = (uint32_t)&crpt->AES0_CNT + (u32Channel * 0x3CUL);
-    outpw(reg_addr, u32TransCnt);
-}
-
-/**
-  * @brief  Open TDES encrypt/decrypt function.
-  * @param[in]  crpt         The pointer of CRYPTO module
-  * @param[in]  u32Channel   TDES channel. Must be 0~3.
-  * @param[in]  u32EncDec    1: TDES encode; 0: TDES decode
-  * @param[in]  Is3DES       1: TDES; 0: DES
-  * @param[in]  Is3Key       1: TDES 3 key mode; 0: TDES 2 key mode
-  * @param[in]  u32OpMode    TDES operation mode, including:
-  *         - \ref TDES_MODE_ECB
-  *         - \ref TDES_MODE_CBC
-  *         - \ref TDES_MODE_CFB
-  *         - \ref TDES_MODE_OFB
-  *         - \ref TDES_MODE_CTR
-  * @param[in]  u32SwapType is TDES input/output data swap control and word swap control, including:
-  *         - \ref TDES_NO_SWAP
-  *         - \ref TDES_WHL_SWAP
-  *         - \ref TDES_OUT_SWAP
-  *         - \ref TDES_OUT_WHL_SWAP
-  *         - \ref TDES_IN_SWAP
-  *         - \ref TDES_IN_WHL_SWAP
-  *         - \ref TDES_IN_OUT_SWAP
-  *         - \ref TDES_IN_OUT_WHL_SWAP
-  * @return None
-  */
-void TDES_Open(CRPT_T *crpt, uint32_t u32Channel, uint32_t u32EncDec, int32_t Is3DES, int32_t Is3Key,
-               uint32_t u32OpMode, uint32_t u32SwapType)
-{
-    (void)crpt;
-    g_TDES_CTL[u32Channel] = (u32Channel << CRPT_TDES_CTL_CHANNEL_Pos) |
-                             (u32EncDec << CRPT_TDES_CTL_ENCRPT_Pos) |
-                             u32OpMode | (u32SwapType << CRPT_TDES_CTL_BLKSWAP_Pos);
-    if(Is3DES)
-    {
-        g_TDES_CTL[u32Channel] |= CRPT_TDES_CTL_TMODE_Msk;
-    }
-    if(Is3Key)
-    {
-        g_TDES_CTL[u32Channel] |= CRPT_TDES_CTL_3KEYS_Msk;
-    }
-}
-
-/**
-  * @brief  Start TDES encrypt/decrypt
-  * @param[in]  crpt        The pointer of CRYPTO module
-  * @param[in]  u32Channel  TDES channel. Must be 0~3.
-  * @param[in]  u32DMAMode  TDES DMA control, including:
-  *         - \ref CRYPTO_DMA_ONE_SHOT   One shop TDES encrypt/decrypt.
-  *         - \ref CRYPTO_DMA_CONTINUE   Continuous TDES encrypt/decrypt.
-  *         - \ref CRYPTO_DMA_LAST       Last TDES encrypt/decrypt of a series of TDES_Start.
-  * @return None
-  */
-void TDES_Start(CRPT_T *crpt, int32_t u32Channel, uint32_t u32DMAMode)
-{
-    g_TDES_CTL[u32Channel] |= CRPT_TDES_CTL_START_Msk | (u32DMAMode << CRPT_TDES_CTL_DMALAST_Pos);
-    crpt->TDES_CTL = g_TDES_CTL[u32Channel];
-}
-
-/**
-  * @brief  Set TDES keys
-  * @param[in]  crpt        The pointer of CRYPTO module
-  * @param[in]  u32Channel  TDES channel. Must be 0~3.
-  * @param[in]  au32Keys    The TDES keys. au32Keys[0][0] is Key0 high word and au32Keys[0][1] is key0 low word.
-  * @return None
-  */
-void TDES_SetKey(CRPT_T *crpt, uint32_t u32Channel, uint32_t au32Keys[3][2])
-{
-    uint32_t   i, reg_addr;
-
-    reg_addr = (uint32_t)&crpt->TDES0_KEY1H + (0x40UL * u32Channel);
-
-    for(i = 0U; i < 3U; i++)
-    {
-        outpw(reg_addr, au32Keys[i][0]);   /* TDESn_KEYxH */
-        reg_addr += 4UL;
-        outpw(reg_addr, au32Keys[i][1]);   /* TDESn_KEYxL */
-        reg_addr += 4UL;
-    }
-}
-
-/**
-  * @brief  Set TDES initial vectors
-  * @param[in]  crpt        The pointer of CRYPTO module
-  * @param[in]  u32Channel  TDES channel. Must be 0~3.
-  * @param[in]  u32IVH      TDES initial vector high word.
-  * @param[in]  u32IVL      TDES initial vector low word.
-  * @return None
-  */
-void TDES_SetInitVect(CRPT_T *crpt, uint32_t u32Channel, uint32_t u32IVH, uint32_t u32IVL)
-{
-    uint32_t  reg_addr;
-
-    reg_addr = (uint32_t)&crpt->TDES0_IVH + (u32Channel * 0x40UL);
-    outpw(reg_addr, u32IVH);
-
-    reg_addr = (uint32_t)&crpt->TDES0_IVL + (u32Channel * 0x40UL);
-    outpw(reg_addr, u32IVL);
-}
-
-/**
-  * @brief  Set TDES DMA transfer configuration.
-  * @param[in]  crpt         The pointer of CRYPTO module
-  * @param[in]  u32Channel   TDES channel. Must be 0~3.
-  * @param[in]  u32SrcAddr   TDES DMA source address
-  * @param[in]  u32DstAddr   TDES DMA destination address
-  * @param[in]  u32TransCnt  TDES DMA transfer byte count
-  * @return None
-  */
-void TDES_SetDMATransfer(CRPT_T *crpt, uint32_t u32Channel, uint32_t u32SrcAddr,
-                         uint32_t u32DstAddr, uint32_t u32TransCnt)
-{
-    uint32_t  reg_addr;
-
-    reg_addr = (uint32_t)&crpt->TDES0_SADDR + (u32Channel * 0x40UL);
-    outpw(reg_addr, u32SrcAddr);
-
-    reg_addr = (uint32_t)&crpt->TDES0_DADDR + (u32Channel * 0x40UL);
-    outpw(reg_addr, u32DstAddr);
-
-    reg_addr = (uint32_t)&crpt->TDES0_CNT + (u32Channel * 0x40UL);
-    outpw(reg_addr, u32TransCnt);
 }
 
 /**
@@ -507,7 +387,6 @@ enum
 /*-----------------------------------------------------*/
 /*  Define elliptic curve (EC):                        */
 /*-----------------------------------------------------*/
-#if !XOM_SUPPORT // Replace with XOM ready curve table
 static const ECC_CURVE _Curve[] =
 {
     {
@@ -905,10 +784,26 @@ static const ECC_CURVE _Curve[] =
         2,
         CURVE_GF_P
     },
-
+    {
+        /* NIST: Curve P-256 : y^2=x^3-ax+b (mod p) */
+        CURVE_SM2_256,
+        64,     /* Echar */
+        "FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC",  /* a */
+        "28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93",  /* b */
+        "32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7",  /* x */
+        "BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0",  /* y */
+        78,     /* Epl */
+        "FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFF",  /* p */
+        78,     /* Eol */
+        "FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF7203DF6B21C6052B53BBF40939D54123",  /* n */
+        256,    /* key_len */
+        10,
+        5,
+        2,
+        CURVE_GF_P
+    },
 
 };
-#endif
 
 
 static ECC_CURVE  *pCurve;
@@ -1292,7 +1187,7 @@ int32_t  ECC_GeneratePublicKey_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, KS_MEM_Ty
     {
 
         // key from key store
-        crpt->ECC_KSCTL = (mem << 6 )/* KS Memory Type */ |
+        crpt->ECC_KSCTL = (uint32_t)(mem << 6)/* KS Memory Type */ |
                           (CRPT_ECC_KSCTL_RSRCK_Msk)/* Key from KS */ |
                           u32ExtraOp |
                           (uint32_t)i32KeyIdx;
@@ -1505,7 +1400,7 @@ int32_t ECC_GenerateSecretZ_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, KS_MEM_Type 
     }
 
     crpt->ECC_KSCTL = CRPT_ECC_KSCTL_ECDH_Msk | CRPT_ECC_KSCTL_RSRCK_Msk |
-                      (mem << CRPT_ECC_KSCTL_RSSRCK_Pos)/* KS Memory Type */ |
+                      (uint32_t)(mem << CRPT_ECC_KSCTL_RSSRCK_Pos)/* KS Memory Type */ |
                       (uint32_t)i32KeyIdx;
 
     Hex2Reg(public_k1, crpt->ECC_X1);
@@ -1544,8 +1439,10 @@ int32_t ECC_GenerateSecretZ_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, KS_MEM_Type 
 static void run_ecc_codec(CRPT_T *crpt, uint32_t mode)
 {
     uint32_t u32Tmp;
+    uint32_t eccop;
 
-    if((mode & CRPT_ECC_CTL_ECCOP_Msk) == ECCOP_MODULE)
+    eccop = mode & CRPT_ECC_CTL_ECCOP_Msk;
+    if(eccop == ECCOP_MODULE)
     {
         crpt->ECC_CTL = CRPT_ECC_CTL_FSEL_Msk;
     }
@@ -1561,9 +1458,21 @@ static void run_ecc_codec(CRPT_T *crpt, uint32_t mode)
             /* CURVE_GF_P */
             crpt->ECC_CTL = CRPT_ECC_CTL_FSEL_Msk;
         }
+
+#ifdef ECC_SCA_PROTECT
+        if(eccop == ECCOP_POINT_MUL)
+        {
+            /* Enable side-channel protection in some operation */
+            crpt->ECC_CTL |= CRPT_ECC_CTL_SCAP_Msk;
+            /* If SCAP enabled, the curve order must be written to ECC_X2 */
+            Hex2Reg(pCurve->Eorder, crpt->ECC_X2);
+        }
+#endif
+
     }
 
     g_ECC_done = g_ECCERR_done = 0UL;
+
     crpt->ECC_CTL |= ((uint32_t)pCurve->key_len << CRPT_ECC_CTL_CURVEM_Pos) | mode | CRPT_ECC_CTL_START_Msk;
 
     do
@@ -1664,7 +1573,7 @@ int32_t  ECC_GenerateSignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messag
         Reg2Hex(pCurve->Echar, temp_result1, R);
 
         /*
-         *   4. Compute s = k ? 1 ｝ (e + d ｝ r)(mod n). If s = 0, go to step 2
+         *   4. Compute s = k^-1 * (e + d * r)(mod n). If s = 0, go to step 2
          *      (1) Write the curve order to N registers according
          *      (2) Write 0x1 to Y1 registers
          *      (3) Write the random integer k to X1 registers according
@@ -1870,7 +1779,7 @@ int32_t  ECC_GenerateSignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *mes
          */
 
         /* 3-(4) Use k in Key Store */
-        crpt->ECC_KSCTL = (mem_k << CRPT_ECC_KSCTL_RSSRCK_Pos)/* KS Memory Type */ |
+        crpt->ECC_KSCTL = (uint32_t)(mem_k << CRPT_ECC_KSCTL_RSSRCK_Pos)/* KS Memory Type */ |
                           CRPT_ECC_KSCTL_RSRCK_Msk/* Key from KS */ |
                           (uint32_t)i32KeyIdx_k;
 
@@ -1901,7 +1810,7 @@ int32_t  ECC_GenerateSignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *mes
 
 
         /*
-         *   4. Compute s = k ? 1 ｝ (e + d ｝ r)(mod n). If s = 0, go to step 2
+         *   4. Compute s = k ^-1 * (e + d * r)(mod n). If s = 0, go to step 2
          *      (1) Write the curve order to N registers according
          *      (2) Write 0x1 to Y1 registers
          *      (3) Write the random integer k to X1 registers according
@@ -1943,8 +1852,8 @@ int32_t  ECC_GenerateSignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *mes
         /* 4-(2)(3)(4)(5) Use d, k in Key Store */
         crpt->ECC_CTL = 0;
         crpt->ECC_KSXY = CRPT_ECC_KSXY_RSRCXY_Msk |
-                         (mem_k << CRPT_ECC_KSXY_RSSRCX_Pos) | ((uint32_t)i32KeyIdx_k << CRPT_ECC_KSXY_NUMX_Pos) | // Key Store index of k
-                         (mem_d << CRPT_ECC_KSXY_RSSRCY_Pos) | ((uint32_t)i32KeyIdx_d << CRPT_ECC_KSXY_NUMY_Pos);  // Key Store index of d
+                         (uint32_t)(mem_k << CRPT_ECC_KSXY_RSSRCX_Pos) | ((uint32_t)i32KeyIdx_k << CRPT_ECC_KSXY_NUMX_Pos) | // Key Store index of k
+                         (uint32_t)(mem_d << CRPT_ECC_KSXY_RSSRCY_Pos) | ((uint32_t)i32KeyIdx_d << CRPT_ECC_KSXY_NUMY_Pos);  // Key Store index of d
 
         // 4-5
         for(i=0; i<18; i++)
@@ -2057,7 +1966,7 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
 #endif
 
         /*
-         *   4. Compute u1 = e ｝ w (mod n) and u2 = r ｝ w (mod n)
+         *   4. Compute u1 = e * w (mod n) and u2 = r * w (mod n)
          *      (1) Write the curve order and curve length to N ,M registers
          *      (2) Write e, w to X1, Y1 registers
          *      (3) Set ECCOP(CRPT_ECC_CTL[10:9]) to 01
@@ -2139,7 +2048,7 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
 #endif
 
         /*
-         *   5. Compute X・ (x1・, y1・) = u1 * G + u2 * Q
+         *   5. Compute X * (x1', y1') = u1 * G + u2 * Q
          *      (1) Write the curve parameter A, B, N, and curve length M to corresponding registers
          *      (2) Write the point G(x, y) to X1, Y1 registers
          *      (3) Write u1 to K registers
@@ -2158,17 +2067,17 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
          *      (16) Set ECCOP(CRPT_ECC_CTL[10:9]) to 10
          *      (17) Set START(CRPT_ECC_CTL[0]) to 1
          *      (18) Wait for BUSY(CRPT_ECC_STS[0]) be cleared
-         *      (19) Read X1, Y1 registers to get X・(x1・, y1・)
+         *      (19) Read X1, Y1 registers to get X *(x1', y1')
          *      (20) Write the curve order and curve length to N ,M registers
-         *      (21) Write x1・ to X1 registers
+         *      (21) Write x1 * to X1 registers
          *      (22) Write 0x0 to Y1 registers
          *      (23) Set ECCOP(CRPT_ECC_CTL[10:9]) to 01
          *      (24) Set MOPOP(CRPT_ECC_CTL[12:11]) to 10
          *      (25) Set START(CRPT_ECC_CTL[0]) to 1
          *      (26) Wait for BUSY(CRPT_ECC_STS[0]) be cleared
-         *      (27) Read X1 registers to get x1・ (mod n)
+         *      (27) Read X1 registers to get x1 * (mod n)
          *
-         *   6. The signature is valid if x1・ = r, otherwise it is invalid
+         *   6. The signature is valid if x1 * = r, otherwise it is invalid
          */
 
         /*
@@ -2252,7 +2161,7 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
 
         run_ecc_codec(crpt, ECCOP_POINT_ADD);
 
-        /* (19) Read X1, Y1 registers to get X・(x1・, y1・) */
+        /* (19) Read X1, Y1 registers to get X * (x1', y1') */
         for(i = 0; i < 18; i++)
         {
             temp_x[i] = crpt->ECC_X1[i];
@@ -2274,7 +2183,7 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
         Hex2Reg(pCurve->Eorder, crpt->ECC_N);
 
         /*
-         *  (21) Write x1・ to X1 registers
+         *  (21) Write x1 * to X1 registers
          *  (22) Write 0x0 to Y1 registers
          */
         for(i = 0; i < 18; i++)
@@ -2292,11 +2201,11 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
 
         run_ecc_codec(crpt, ECCOP_MODULE | MODOP_ADD);
 
-        /*  (27) Read X1 registers to get x1・ (mod n) */
+        /*  (27) Read X1 registers to get x1 * (mod n) */
         Reg2Hex(pCurve->Echar, crpt->ECC_X1, temp_hex_str);
         CRPT_DBGMSG("5-(27) x1' (mod n) = %s\n", temp_hex_str);
 
-        /* 6. The signature is valid if x1・ = r, otherwise it is invalid */
+        /* 6. The signature is valid if x1 * = r, otherwise it is invalid */
 
         /* Compare with test pattern to check if r is correct or not */
         if(strcasecmp(temp_hex_str, R) != 0)
@@ -2309,10 +2218,6 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
 
     return ret;
 }
-
-
-
-
 
 
 
@@ -2401,7 +2306,7 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
 #endif
 
         /*
-         *   4. Compute u1 = e ｝ w (mod n) and u2 = r ｝ w (mod n)
+         *   4. Compute u1 = e  * w (mod n) and u2 = r  * w (mod n)
          *      (1) Write the curve order and curve length to N ,M registers
          *      (2) Write e, w to X1, Y1 registers
          *      (3) Set ECCOP(CRPT_ECC_CTL[10:9]) to 01
@@ -2483,7 +2388,7 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
 #endif
 
         /*
-         *   5. Compute X・ (x1・, y1・) = u1 * G + u2 * Q
+         *   5. Compute X * (x1', y1') = u1 * G + u2 * Q
          *      (1) Write the curve parameter A, B, N, and curve length M to corresponding registers
          *      (2) Write the point G(x, y) to X1, Y1 registers
          *      (3) Write u1 to K registers
@@ -2502,17 +2407,17 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
          *      (16) Set ECCOP(CRPT_ECC_CTL[10:9]) to 10
          *      (17) Set START(CRPT_ECC_CTL[0]) to 1
          *      (18) Wait for BUSY(CRPT_ECC_STS[0]) be cleared
-         *      (19) Read X1, Y1 registers to get X・(x1・, y1・)
+         *      (19) Read X1, Y1 registers to get X * (x1', y1')
          *      (20) Write the curve order and curve length to N ,M registers
-         *      (21) Write x1・ to X1 registers
+         *      (21) Write x1 * to X1 registers
          *      (22) Write 0x0 to Y1 registers
          *      (23) Set ECCOP(CRPT_ECC_CTL[10:9]) to 01
          *      (24) Set MOPOP(CRPT_ECC_CTL[12:11]) to 10
          *      (25) Set START(CRPT_ECC_CTL[0]) to 1
          *      (26) Wait for BUSY(CRPT_ECC_STS[0]) be cleared
-         *      (27) Read X1 registers to get x1・ (mod n)
+         *      (27) Read X1 registers to get x1 * (mod n)
          *
-         *   6. The signature is valid if x1・ = r, otherwise it is invalid
+         *   6. The signature is valid if x1 * = r, otherwise it is invalid
          */
 
         /*
@@ -2562,8 +2467,8 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
         /* 5-(2) Get the public key from key store */
         crpt->ECC_KSCTL = 0ul;
         crpt->ECC_KSXY = CRPT_ECC_KSXY_RSRCXY_Msk |
-                         (mem_pk1 << CRPT_ECC_KSXY_RSSRCX_Pos) | ((uint32_t)i32KeyIdx_pk1 << CRPT_ECC_KSXY_NUMX_Pos) | // Key Store index of pk1
-                         (mem_pk2 << CRPT_ECC_KSXY_RSSRCY_Pos) | ((uint32_t)i32KeyIdx_pk2 << CRPT_ECC_KSXY_NUMY_Pos);  // Key Store index of pk2
+                         (uint32_t)(mem_pk1 << CRPT_ECC_KSXY_RSSRCX_Pos) | ((uint32_t)i32KeyIdx_pk1 << CRPT_ECC_KSXY_NUMX_Pos) | // Key Store index of pk1
+                         (uint32_t)(mem_pk2 << CRPT_ECC_KSXY_RSSRCY_Pos) | ((uint32_t)i32KeyIdx_pk2 << CRPT_ECC_KSXY_NUMY_Pos);  // Key Store index of pk2
 
 #endif
 
@@ -2607,7 +2512,7 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
 
         run_ecc_codec(crpt, ECCOP_POINT_ADD);
 
-        /* (19) Read X1, Y1 registers to get X・(x1・, y1・) */
+        /* (19) Read X1, Y1 registers to get X * (x1', y1') */
         for(i = 0; i < 18; i++)
         {
             temp_x[i] = crpt->ECC_X1[i];
@@ -2629,7 +2534,7 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
         Hex2Reg(pCurve->Eorder, crpt->ECC_N);
 
         /*
-         *  (21) Write x1・ to X1 registers
+         *  (21) Write x1 * to X1 registers
          *  (22) Write 0x0 to Y1 registers
          */
         for(i = 0; i < 18; i++)
@@ -2647,11 +2552,11 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
 
         run_ecc_codec(crpt, ECCOP_MODULE | MODOP_ADD);
 
-        /*  (27) Read X1 registers to get x1・ (mod n) */
+        /*  (27) Read X1 registers to get x1 * (mod n) */
         Reg2Hex(pCurve->Echar, crpt->ECC_X1, temp_hex_str);
         CRPT_DBGMSG("5-(27) x1' (mod n) = %s\n", temp_hex_str);
 
-        /* 6. The signature is valid if x1・ = r, otherwise it is invalid */
+        /* 6. The signature is valid if x1 * = r, otherwise it is invalid */
 
         /* Compare with test pattern to check if r is correct or not */
         if(strcasecmp(temp_hex_str, R) != 0)
@@ -2666,1713 +2571,6 @@ int32_t  ECC_VerifySignature_KS(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messa
 }
 
 
-
-#if XOM_SUPPORT // To support XOM ready curve table
-
-int32_t CurveCpy(unsigned int *p32, E_ECC_CURVE id)
-{
-    int32_t i;
-
-    switch(id)
-    {
-    case CURVE_P_192:
-        p32[  0] = 0x00000000;
-        p32[  1] = 0x00000030;
-        for(i = 2; i <= 8; i++)
-            p32[i] = 0x46464646;
-
-        p32[  9] = 0x45464646;
-        p32[ 10] = 0x46464646;
-        p32[ 11] = 0x46464646;
-        p32[ 12] = 0x46464646;
-        p32[ 13] = 0x43464646;
-        for(i = 14; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x31323436;
-        p32[ 39] = 0x39313530;
-        p32[ 40] = 0x63393565;
-        p32[ 41] = 0x37653038;
-        p32[ 42] = 0x37616630;
-        p32[ 43] = 0x62613965;
-        p32[ 44] = 0x34323237;
-        p32[ 45] = 0x39343033;
-        p32[ 46] = 0x38626566;
-        p32[ 47] = 0x63656564;
-        p32[ 48] = 0x36343163;
-        p32[ 49] = 0x31623962;
-        for(i = 50; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x64383831;
-        p32[ 75] = 0x65303861;
-        p32[ 76] = 0x30333062;
-        p32[ 77] = 0x36663039;
-        p32[ 78] = 0x66626337;
-        p32[ 79] = 0x62653032;
-        p32[ 80] = 0x31613334;
-        p32[ 81] = 0x30303838;
-        p32[ 82] = 0x66663466;
-        p32[ 83] = 0x64666130;
-        p32[ 84] = 0x66663238;
-        p32[ 85] = 0x32313031;
-        for(i = 86; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x39313730;
-        p32[111] = 0x35396232;
-        p32[112] = 0x38636666;
-        p32[113] = 0x38376164;
-        p32[114] = 0x30313336;
-        p32[115] = 0x64653131;
-        p32[116] = 0x34326236;
-        p32[117] = 0x35646463;
-        p32[118] = 0x39663337;
-        p32[119] = 0x31613737;
-        p32[120] = 0x39376531;
-        p32[121] = 0x31313834;
-        for(i = 122; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x0000003a;
-        for(i = 147; i <= 153; i++)
-            p32[i] = 0x46464646;
-
-        p32[154] = 0x45464646;
-        for(i = 155; i <= 158; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 159; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x0000003a;
-        for(i = 192; i <= 197; i++)
-            p32[i] = 0x46464646;
-
-        p32[198] = 0x45443939;
-        p32[199] = 0x36333846;
-        p32[200] = 0x42363431;
-        p32[201] = 0x31423943;
-        p32[202] = 0x32443442;
-        p32[203] = 0x31333832;
-        for(i = 204; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x000000c0;
-        p32[237] = 0x00000007;
-        p32[238] = 0x00000002;
-        p32[239] = 0x00000001;
-        p32[240] = 0x00000000;
-        break;
-    case CURVE_P_224:
-        p32[  0] = 0x00000001;
-        p32[  1] = 0x00000038;
-        for(i = 2; i <= 8; i++)
-            p32[i] = 0x46464646;
-
-        p32[  9] = 0x45464646;
-        for(i = 10; i <= 14; i++)
-            p32[i] = 0x46464646;
-
-        p32[ 15] = 0x45464646;
-        for(i = 16; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x35303462;
-        p32[ 39] = 0x35386130;
-        p32[ 40] = 0x34306330;
-        p32[ 41] = 0x62613362;
-        p32[ 42] = 0x31343566;
-        p32[ 43] = 0x36353233;
-        p32[ 44] = 0x34343035;
-        p32[ 45] = 0x37623062;
-        p32[ 46] = 0x66623764;
-        p32[ 47] = 0x61623864;
-        p32[ 48] = 0x62303732;
-        p32[ 49] = 0x33343933;
-        p32[ 50] = 0x35353332;
-        p32[ 51] = 0x34626666;
-        for(i = 52; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x65303762;
-        p32[ 75] = 0x64626330;
-        p32[ 76] = 0x34626236;
-        p32[ 77] = 0x66376662;
-        p32[ 78] = 0x33313233;
-        p32[ 79] = 0x39623039;
-        p32[ 80] = 0x33306134;
-        p32[ 81] = 0x33643163;
-        p32[ 82] = 0x32633635;
-        p32[ 83] = 0x32323131;
-        p32[ 84] = 0x32333433;
-        p32[ 85] = 0x36643038;
-        p32[ 86] = 0x63353131;
-        p32[ 87] = 0x31326431;
-        for(i = 88; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x37336462;
-        p32[111] = 0x38383336;
-        p32[112] = 0x37663562;
-        p32[113] = 0x62663332;
-        p32[114] = 0x32326334;
-        p32[115] = 0x36656664;
-        p32[116] = 0x33346463;
-        p32[117] = 0x30613537;
-        p32[118] = 0x37306135;
-        p32[119] = 0x34363734;
-        p32[120] = 0x35643434;
-        p32[121] = 0x39393138;
-        p32[122] = 0x30303538;
-        p32[123] = 0x34336537;
-        for(i = 124; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000046;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000046;
-        for(i = 192; i <= 198; i++)
-            p32[i] = 0x46464646;
-
-        p32[199] = 0x32413631;
-        p32[200] = 0x38423045;
-        p32[201] = 0x45333046;
-        p32[202] = 0x44443331;
-        p32[203] = 0x35343932;
-        p32[204] = 0x43354335;
-        p32[205] = 0x44334132;
-        for(i = 206; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x000000e0;
-        p32[237] = 0x00000009;
-        p32[238] = 0x00000008;
-        p32[239] = 0x00000003;
-        p32[240] = 0x00000000;
-        break;
-    case CURVE_P_256:
-        p32[  0] = 0x00000002;
-        p32[  1] = 0x00000040;
-        p32[  2] = 0x46464646;
-        p32[  3] = 0x46464646;
-        p32[  4] = 0x30303030;
-        p32[  5] = 0x31303030;
-        for(i = 6; i <= 11; i++)
-            p32[i] = 0x30303030;
-
-        for(i = 12; i <= 16; i++)
-            p32[i] = 0x46464646;
-
-        p32[ 17] = 0x43464646;
-        for(i = 18; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x36636135;
-        p32[ 39] = 0x38643533;
-        p32[ 40] = 0x61336161;
-        p32[ 41] = 0x37653339;
-        p32[ 42] = 0x62653362;
-        p32[ 43] = 0x35356462;
-        p32[ 44] = 0x38393637;
-        p32[ 45] = 0x63623638;
-        p32[ 46] = 0x64313536;
-        p32[ 47] = 0x30623630;
-        p32[ 48] = 0x33356363;
-        p32[ 49] = 0x36663062;
-        p32[ 50] = 0x65636233;
-        p32[ 51] = 0x65336333;
-        p32[ 52] = 0x32643732;
-        p32[ 53] = 0x62343036;
-        for(i = 54; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x37316236;
-        p32[ 75] = 0x32663164;
-        p32[ 76] = 0x63323165;
-        p32[ 77] = 0x37343234;
-        p32[ 78] = 0x63623866;
-        p32[ 79] = 0x35653665;
-        p32[ 80] = 0x34613336;
-        p32[ 81] = 0x32663034;
-        p32[ 82] = 0x33303737;
-        p32[ 83] = 0x31386437;
-        p32[ 84] = 0x62656432;
-        p32[ 85] = 0x30613333;
-        p32[ 86] = 0x31613466;
-        p32[ 87] = 0x35343933;
-        p32[ 88] = 0x38393864;
-        p32[ 89] = 0x36393263;
-        for(i = 90; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x33656634;
-        p32[111] = 0x32653234;
-        p32[112] = 0x61316566;
-        p32[113] = 0x62396637;
-        p32[114] = 0x37656538;
-        p32[115] = 0x61346265;
-        p32[116] = 0x66306337;
-        p32[117] = 0x36316539;
-        p32[118] = 0x65636232;
-        p32[119] = 0x37353333;
-        p32[120] = 0x31336236;
-        p32[121] = 0x65636535;
-        p32[122] = 0x36626263;
-        p32[123] = 0x38363034;
-        p32[124] = 0x66623733;
-        p32[125] = 0x35663135;
-        for(i = 126; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x0000004e;
-        p32[147] = 0x46464646;
-        p32[148] = 0x46464646;
-        p32[149] = 0x30303030;
-        p32[150] = 0x31303030;
-        for(i = 151; i <= 156; i++)
-            p32[i] = 0x30303030;
-
-        for(i = 157; i <= 162; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 163; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x0000004e;
-        p32[192] = 0x46464646;
-        p32[193] = 0x46464646;
-        p32[194] = 0x30303030;
-        p32[195] = 0x30303030;
-        for(i = 196; i <= 199; i++)
-            p32[i] = 0x46464646;
-
-        p32[200] = 0x36454342;
-        p32[201] = 0x44414146;
-        p32[202] = 0x37313741;
-        p32[203] = 0x34384539;
-        p32[204] = 0x39423346;
-        p32[205] = 0x32434143;
-        p32[206] = 0x33364346;
-        p32[207] = 0x31353532;
-        for(i = 208; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x00000100;
-        p32[237] = 0x0000000a;
-        p32[238] = 0x00000005;
-        p32[239] = 0x00000002;
-        p32[240] = 0x00000000;
-        break;
-    case CURVE_P_384:
-        p32[  0] = 0x00000003;
-        p32[  1] = 0x00000060;
-        for(i = 2; i <= 16; i++)
-            p32[i] = 0x46464646;
-
-        p32[ 17] = 0x45464646;
-        p32[ 18] = 0x46464646;
-        p32[ 19] = 0x46464646;
-        for(i = 20; i <= 23; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 24] = 0x46464646;
-        p32[ 25] = 0x43464646;
-        for(i = 26; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x31333362;
-        p32[ 39] = 0x37616632;
-        p32[ 40] = 0x65333265;
-        p32[ 41] = 0x34653765;
-        p32[ 42] = 0x65383839;
-        p32[ 43] = 0x62363530;
-        p32[ 44] = 0x38663365;
-        p32[ 45] = 0x39316432;
-        p32[ 46] = 0x64313831;
-        p32[ 47] = 0x65366339;
-        p32[ 48] = 0x31386566;
-        p32[ 49] = 0x32313134;
-        p32[ 50] = 0x34313330;
-        p32[ 51] = 0x66383830;
-        p32[ 52] = 0x33313035;
-        p32[ 53] = 0x61353738;
-        p32[ 54] = 0x36353663;
-        p32[ 55] = 0x64383933;
-        p32[ 56] = 0x65326138;
-        p32[ 57] = 0x64393164;
-        p32[ 58] = 0x35386132;
-        p32[ 59] = 0x64653863;
-        p32[ 60] = 0x63653364;
-        p32[ 61] = 0x66656132;
-        for(i = 62; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x37386161;
-        p32[ 75] = 0x32326163;
-        p32[ 76] = 0x62386562;
-        p32[ 77] = 0x37333530;
-        p32[ 78] = 0x31626538;
-        p32[ 79] = 0x65313763;
-        p32[ 80] = 0x30323366;
-        p32[ 81] = 0x34376461;
-        p32[ 82] = 0x64316536;
-        p32[ 83] = 0x32366233;
-        p32[ 84] = 0x37616238;
-        p32[ 85] = 0x38396239;
-        p32[ 86] = 0x37663935;
-        p32[ 87] = 0x30653134;
-        p32[ 88] = 0x34353238;
-        p32[ 89] = 0x38336132;
-        p32[ 90] = 0x32303535;
-        p32[ 91] = 0x64353266;
-        p32[ 92] = 0x35356662;
-        p32[ 93] = 0x63363932;
-        p32[ 94] = 0x34356133;
-        p32[ 95] = 0x38336535;
-        p32[ 96] = 0x36373237;
-        p32[ 97] = 0x37626130;
-        for(i = 98; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x37313633;
-        p32[111] = 0x61346564;
-        p32[112] = 0x36323639;
-        p32[113] = 0x66366332;
-        p32[114] = 0x65396435;
-        p32[115] = 0x66623839;
-        p32[116] = 0x32393239;
-        p32[117] = 0x39326364;
-        p32[118] = 0x34663866;
-        p32[119] = 0x64626431;
-        p32[120] = 0x61393832;
-        p32[121] = 0x63373431;
-        p32[122] = 0x61643965;
-        p32[123] = 0x33313133;
-        p32[124] = 0x30663562;
-        p32[125] = 0x30633862;
-        p32[126] = 0x30366130;
-        p32[127] = 0x65633162;
-        p32[128] = 0x65376431;
-        p32[129] = 0x64393138;
-        p32[130] = 0x33346137;
-        p32[131] = 0x63376431;
-        p32[132] = 0x61653039;
-        p32[133] = 0x66356530;
-        for(i = 134; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000074;
-        for(i = 147; i <= 161; i++)
-            p32[i] = 0x46464646;
-
-        p32[162] = 0x45464646;
-        p32[163] = 0x46464646;
-        p32[164] = 0x46464646;
-        for(i = 165; i <= 168; i++)
-            p32[i] = 0x30303030;
-
-        p32[169] = 0x46464646;
-        p32[170] = 0x46464646;
-        for(i = 171; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000074;
-        for(i = 192; i <= 203; i++)
-            p32[i] = 0x46464646;
-
-        p32[204] = 0x33363743;
-        p32[205] = 0x31384434;
-        p32[206] = 0x37333446;
-        p32[207] = 0x46444432;
-        p32[208] = 0x41313835;
-        p32[209] = 0x32424430;
-        p32[210] = 0x30423834;
-        p32[211] = 0x41373741;
-        p32[212] = 0x43454345;
-        p32[213] = 0x41363931;
-        p32[214] = 0x35434343;
-        p32[215] = 0x33373932;
-        for(i = 216; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x00000180;
-        p32[237] = 0x0000000c;
-        p32[238] = 0x00000003;
-        p32[239] = 0x00000002;
-        p32[240] = 0x00000000;
-        break;
-    case CURVE_P_521:
-        p32[  0] = 0x00000004;
-        p32[  1] = 0x00000083;
-        p32[  2] = 0x46464631;
-        for(i = 3; i <= 33; i++)
-            p32[i] = 0x46464646;
-
-        p32[ 34] = 0x00434646;
-        p32[ 35] = 0x00000000;
-        p32[ 36] = 0x00000000;
-        p32[ 37] = 0x00000000;
-        p32[ 38] = 0x39313530;
-        p32[ 39] = 0x62653335;
-        p32[ 40] = 0x38313639;
-        p32[ 41] = 0x39633165;
-        p32[ 42] = 0x39663161;
-        p32[ 43] = 0x32613932;
-        p32[ 44] = 0x62306131;
-        p32[ 45] = 0x34353836;
-        p32[ 46] = 0x61656530;
-        p32[ 47] = 0x37616432;
-        p32[ 48] = 0x39623532;
-        p32[ 49] = 0x31336239;
-        p32[ 50] = 0x62336635;
-        p32[ 51] = 0x38346238;
-        p32[ 52] = 0x38313939;
-        p32[ 53] = 0x30316665;
-        p32[ 54] = 0x35316539;
-        p32[ 55] = 0x33393136;
-        p32[ 56] = 0x65313539;
-        p32[ 57] = 0x39653763;
-        p32[ 58] = 0x31623733;
-        p32[ 59] = 0x63323536;
-        p32[ 60] = 0x33646230;
-        p32[ 61] = 0x62316262;
-        p32[ 62] = 0x33373066;
-        p32[ 63] = 0x64333735;
-        p32[ 64] = 0x33383866;
-        p32[ 65] = 0x33633264;
-        p32[ 66] = 0x65316634;
-        p32[ 67] = 0x31353466;
-        p32[ 68] = 0x36346466;
-        p32[ 69] = 0x33303562;
-        p32[ 70] = 0x00303066;
-        p32[ 71] = 0x00000000;
-        p32[ 72] = 0x00000000;
-        p32[ 73] = 0x00000000;
-        p32[ 74] = 0x38366330;
-        p32[ 75] = 0x30653835;
-        p32[ 76] = 0x30376236;
-        p32[ 77] = 0x65343034;
-        p32[ 78] = 0x39646339;
-        p32[ 79] = 0x63653365;
-        p32[ 80] = 0x32363662;
-        p32[ 81] = 0x62353933;
-        p32[ 82] = 0x39323434;
-        p32[ 83] = 0x38343663;
-        p32[ 84] = 0x30393331;
-        p32[ 85] = 0x62663335;
-        p32[ 86] = 0x66313235;
-        p32[ 87] = 0x61383238;
-        p32[ 88] = 0x36303666;
-        p32[ 89] = 0x33643462;
-        p32[ 90] = 0x61616264;
-        p32[ 91] = 0x35623431;
-        p32[ 92] = 0x65373765;
-        p32[ 93] = 0x35376566;
-        p32[ 94] = 0x66383239;
-        p32[ 95] = 0x63643165;
-        p32[ 96] = 0x61373231;
-        p32[ 97] = 0x61666632;
-        p32[ 98] = 0x33656438;
-        p32[ 99] = 0x62383433;
-        p32[100] = 0x38316333;
-        p32[101] = 0x34613635;
-        p32[102] = 0x66623932;
-        p32[103] = 0x37653739;
-        p32[104] = 0x63313365;
-        p32[105] = 0x62356532;
-        p32[106] = 0x00363664;
-        p32[107] = 0x00000000;
-        p32[108] = 0x00000000;
-        p32[109] = 0x00000000;
-        p32[110] = 0x33383131;
-        p32[111] = 0x36393239;
-        p32[112] = 0x39383761;
-        p32[113] = 0x63623361;
-        p32[114] = 0x35343030;
-        p32[115] = 0x35613863;
-        p32[116] = 0x32346266;
-        p32[117] = 0x31643763;
-        p32[118] = 0x39396462;
-        p32[119] = 0x34356638;
-        p32[120] = 0x35393434;
-        p32[121] = 0x34623937;
-        p32[122] = 0x31383634;
-        p32[123] = 0x62666137;
-        p32[124] = 0x32373164;
-        p32[125] = 0x36653337;
-        p32[126] = 0x39633236;
-        p32[127] = 0x37656537;
-        p32[128] = 0x35393932;
-        p32[129] = 0x32346665;
-        p32[130] = 0x63303436;
-        p32[131] = 0x62303535;
-        p32[132] = 0x33313039;
-        p32[133] = 0x30646166;
-        p32[134] = 0x33313637;
-        p32[135] = 0x37633335;
-        p32[136] = 0x61363830;
-        p32[137] = 0x63323732;
-        p32[138] = 0x38303432;
-        p32[139] = 0x39656238;
-        p32[140] = 0x39363734;
-        p32[141] = 0x36316466;
-        p32[142] = 0x00303536;
-        p32[143] = 0x00000000;
-        p32[144] = 0x00000000;
-        p32[145] = 0x00000000;
-        p32[146] = 0x0000009d;
-        p32[147] = 0x46464631;
-        for(i = 148; i <= 178; i++)
-            p32[i] = 0x46464646;
-
-        p32[179] = 0x00464646;
-        for(i = 180; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x0000009d;
-        p32[192] = 0x46464631;
-        for(i = 193; i <= 207; i++)
-            p32[i] = 0x46464646;
-
-        p32[208] = 0x35414646;
-        p32[209] = 0x38363831;
-        p32[210] = 0x42333837;
-        p32[211] = 0x39463246;
-        p32[212] = 0x37423636;
-        p32[213] = 0x30434346;
-        p32[214] = 0x46383431;
-        p32[215] = 0x41393037;
-        p32[216] = 0x33304435;
-        p32[217] = 0x43354242;
-        p32[218] = 0x38384239;
-        p32[219] = 0x34433939;
-        p32[220] = 0x42454137;
-        p32[221] = 0x42463642;
-        p32[222] = 0x39453137;
-        p32[223] = 0x36383331;
-        p32[224] = 0x00393034;
-        for(i = 225; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x00000209;
-        p32[237] = 0x00000020;
-        p32[238] = 0x00000020;
-        p32[239] = 0x00000020;
-        p32[240] = 0x00000000;
-        break;
-    case CURVE_B_163:
-        p32[  0] = 0x0000000a;
-        p32[  1] = 0x00000029;
-        for(i = 2; i <= 11; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 12] = 0x00000031;
-        for(i = 13; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x36613032;
-        p32[ 39] = 0x30393130;
-        p32[ 40] = 0x63386237;
-        p32[ 41] = 0x63333539;
-        p32[ 42] = 0x38343161;
-        p32[ 43] = 0x31626531;
-        p32[ 44] = 0x32313530;
-        p32[ 45] = 0x37383766;
-        p32[ 46] = 0x33613434;
-        p32[ 47] = 0x66353032;
-        p32[ 48] = 0x00000064;
-        for(i = 49; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x65306633;
-        p32[ 75] = 0x36316162;
-        p32[ 76] = 0x61363832;
-        p32[ 77] = 0x37356432;
-        p32[ 78] = 0x39306165;
-        p32[ 79] = 0x36313139;
-        p32[ 80] = 0x39346438;
-        p32[ 81] = 0x33363439;
-        p32[ 82] = 0x33386537;
-        p32[ 83] = 0x33653334;
-        p32[ 84] = 0x00000036;
-        for(i = 85; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x31356430;
-        p32[111] = 0x36636266;
-        p32[112] = 0x61313763;
-        p32[113] = 0x34393030;
-        p32[114] = 0x63326166;
-        p32[115] = 0x34356464;
-        p32[116] = 0x31316235;
-        p32[117] = 0x30633563;
-        p32[118] = 0x37393763;
-        p32[119] = 0x66343233;
-        p32[120] = 0x00000031;
-        for(i = 121; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000031;
-        p32[192] = 0x30303034;
-        for(i = 193; i <= 196; i++)
-            p32[i] = 0x30303030;
-
-        p32[197] = 0x46323932;
-        p32[198] = 0x45373745;
-        p32[199] = 0x31433037;
-        p32[200] = 0x32344132;
-        p32[201] = 0x33433433;
-        p32[202] = 0x00000033;
-        for(i = 203; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x000000a3;
-        p32[237] = 0x00000007;
-        p32[238] = 0x00000006;
-        p32[239] = 0x00000003;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_B_233:
-        p32[  0] = 0x0000000b;
-        p32[  1] = 0x0000003b;
-        for(i = 2; i <= 15; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 16] = 0x00313030;
-        for(i = 17; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x36363630;
-        p32[ 39] = 0x64653734;
-        p32[ 40] = 0x33633665;
-        p32[ 41] = 0x37633233;
-        p32[ 42] = 0x30633866;
-        p32[ 43] = 0x62333239;
-        p32[ 44] = 0x32383562;
-        p32[ 45] = 0x33623331;
-        p32[ 46] = 0x32623333;
-        p32[ 47] = 0x63396530;
-        p32[ 48] = 0x38323465;
-        p32[ 49] = 0x31656631;
-        p32[ 50] = 0x37663531;
-        p32[ 51] = 0x39663864;
-        p32[ 52] = 0x00646130;
-        for(i = 53; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x63616630;
-        p32[ 75] = 0x63666439;
-        p32[ 76] = 0x38636162;
-        p32[ 77] = 0x62333133;
-        p32[ 78] = 0x33313262;
-        p32[ 79] = 0x62316639;
-        p32[ 80] = 0x35353762;
-        p32[ 81] = 0x36666566;
-        p32[ 82] = 0x33636235;
-        p32[ 83] = 0x38663139;
-        p32[ 84] = 0x66363362;
-        p32[ 85] = 0x65386638;
-        p32[ 86] = 0x37333762;
-        p32[ 87] = 0x35646631;
-        p32[ 88] = 0x00623835;
-        for(i = 89; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x36303031;
-        p32[111] = 0x61383061;
-        p32[112] = 0x30393134;
-        p32[113] = 0x30353333;
-        p32[114] = 0x65383736;
-        p32[115] = 0x32353835;
-        p32[116] = 0x62656238;
-        p32[117] = 0x30613866;
-        p32[118] = 0x66666562;
-        p32[119] = 0x61373638;
-        p32[120] = 0x33616337;
-        p32[121] = 0x36313736;
-        p32[122] = 0x30653766;
-        p32[123] = 0x31386631;
-        p32[124] = 0x00323530;
-        for(i = 125; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000046;
-        p32[192] = 0x30303031;
-        for(i = 193; i <= 198; i++)
-            p32[i] = 0x30303030;
-
-        p32[199] = 0x45333130;
-        p32[200] = 0x45343739;
-        p32[201] = 0x38463237;
-        p32[202] = 0x32393641;
-        p32[203] = 0x31333032;
-        p32[204] = 0x30363244;
-        p32[205] = 0x45464333;
-        p32[206] = 0x00374430;
-        for(i = 207; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x000000e9;
-        p32[237] = 0x0000004a;
-        p32[238] = 0x0000004a;
-        p32[239] = 0x0000004a;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_B_283:
-        p32[  0] = 0x0000000c;
-        p32[  1] = 0x00000047;
-        for(i = 2; i <= 18; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 19] = 0x00313030;
-        for(i = 20; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x36623732;
-        p32[ 39] = 0x63613038;
-        p32[ 40] = 0x35386238;
-        p32[ 41] = 0x61643639;
-        p32[ 42] = 0x61346135;
-        p32[ 43] = 0x31613866;
-        p32[ 44] = 0x33306139;
-        p32[ 45] = 0x63663330;
-        p32[ 46] = 0x66373961;
-        p32[ 47] = 0x34363764;
-        p32[ 48] = 0x39303335;
-        p32[ 49] = 0x61326166;
-        p32[ 50] = 0x34313835;
-        p32[ 51] = 0x66613538;
-        p32[ 52] = 0x33363236;
-        p32[ 53] = 0x33313365;
-        p32[ 54] = 0x61393762;
-        p32[ 55] = 0x00356632;
-        for(i = 56; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x33396635;
-        p32[ 75] = 0x38353239;
-        p32[ 76] = 0x64376264;
-        p32[ 77] = 0x65303964;
-        p32[ 78] = 0x34333931;
-        p32[ 79] = 0x37633866;
-        p32[ 80] = 0x64306230;
-        p32[ 81] = 0x32636566;
-        p32[ 82] = 0x32646565;
-        p32[ 83] = 0x35386235;
-        p32[ 84] = 0x61653735;
-        p32[ 85] = 0x38633963;
-        p32[ 86] = 0x65326530;
-        p32[ 87] = 0x66383931;
-        p32[ 88] = 0x62646338;
-        p32[ 89] = 0x38646365;
-        p32[ 90] = 0x32316236;
-        p32[ 91] = 0x00333530;
-        for(i = 92; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x36373633;
-        p32[111] = 0x66343538;
-        p32[112] = 0x31343265;
-        p32[113] = 0x62633134;
-        p32[114] = 0x65663839;
-        p32[115] = 0x62346436;
-        p32[116] = 0x30643032;
-        p32[117] = 0x35346232;
-        p32[118] = 0x66663631;
-        p32[119] = 0x33323037;
-        p32[120] = 0x64653035;
-        p32[121] = 0x38306264;
-        p32[122] = 0x37373632;
-        p32[123] = 0x31386339;
-        p32[124] = 0x64306633;
-        p32[125] = 0x62353466;
-        p32[126] = 0x31313865;
-        p32[127] = 0x00346632;
-        for(i = 128; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000055;
-        p32[192] = 0x46464633;
-        for(i = 193; i <= 199; i++)
-            p32[i] = 0x46464646;
-
-        p32[200] = 0x45464646;
-        p32[201] = 0x33303946;
-        p32[202] = 0x36363939;
-        p32[203] = 0x39434630;
-        p32[204] = 0x39413833;
-        p32[205] = 0x35363130;
-        p32[206] = 0x32343042;
-        p32[207] = 0x45433741;
-        p32[208] = 0x42444146;
-        p32[209] = 0x00373033;
-        for(i = 210; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x0000011b;
-        p32[237] = 0x0000000c;
-        p32[238] = 0x00000007;
-        p32[239] = 0x00000005;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_B_409:
-        p32[  0] = 0x0000000d;
-        p32[  1] = 0x00000067;
-        for(i = 2; i <= 26; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 27] = 0x00313030;
-        for(i = 28; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 38] = 0x61313230;
-        p32[ 39] = 0x63326335;
-        p32[ 40] = 0x39656538;
-        p32[ 41] = 0x35626566;
-        p32[ 42] = 0x39623463;
-        p32[ 43] = 0x33353761;
-        p32[ 44] = 0x34623762;
-        p32[ 45] = 0x37623637;
-        p32[ 46] = 0x34366466;
-        p32[ 47] = 0x66653232;
-        p32[ 48] = 0x64336631;
-        p32[ 49] = 0x34373664;
-        p32[ 50] = 0x66313637;
-        p32[ 51] = 0x64393961;
-        p32[ 52] = 0x32636136;
-        p32[ 53] = 0x61386337;
-        p32[ 54] = 0x39316139;
-        p32[ 55] = 0x37326237;
-        p32[ 56] = 0x32323832;
-        p32[ 57] = 0x64633666;
-        p32[ 58] = 0x35613735;
-        p32[ 59] = 0x34616135;
-        p32[ 60] = 0x61303566;
-        p32[ 61] = 0x37313365;
-        p32[ 62] = 0x35333162;
-        p32[ 63] = 0x00663534;
-        for(i = 64; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x34643531;
-        p32[ 75] = 0x64303638;
-        p32[ 76] = 0x64383830;
-        p32[ 77] = 0x34336264;
-        p32[ 78] = 0x30623639;
-        p32[ 79] = 0x36303663;
-        p32[ 80] = 0x36353734;
-        p32[ 81] = 0x34303632;
-        p32[ 82] = 0x64633134;
-        p32[ 83] = 0x66613465;
-        p32[ 84] = 0x31373731;
-        p32[ 85] = 0x62643464;
-        p32[ 86] = 0x66663130;
-        p32[ 87] = 0x33623565;
-        p32[ 88] = 0x39356534;
-        p32[ 89] = 0x64333037;
-        p32[ 90] = 0x35353263;
-        p32[ 91] = 0x38363861;
-        p32[ 92] = 0x38313161;
-        p32[ 93] = 0x35313530;
-        p32[ 94] = 0x61333036;
-        p32[ 95] = 0x36626165;
-        p32[ 96] = 0x34393730;
-        p32[ 97] = 0x62343565;
-        p32[ 98] = 0x39393762;
-        p32[ 99] = 0x00376136;
-        for(i = 100; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x62313630;
-        p32[111] = 0x61666331;
-        p32[112] = 0x65623662;
-        p32[113] = 0x32336635;
-        p32[114] = 0x61666262;
-        p32[115] = 0x32333837;
-        p32[116] = 0x31646534;
-        p32[117] = 0x37613630;
-        p32[118] = 0x62363336;
-        p32[119] = 0x61356339;
-        p32[120] = 0x31646237;
-        p32[121] = 0x30643839;
-        p32[122] = 0x61383531;
-        p32[123] = 0x35663461;
-        p32[124] = 0x64383834;
-        p32[125] = 0x33663830;
-        p32[126] = 0x34313538;
-        p32[127] = 0x64663166;
-        p32[128] = 0x34623466;
-        p32[129] = 0x64303466;
-        p32[130] = 0x31383132;
-        p32[131] = 0x38363362;
-        p32[132] = 0x36336331;
-        p32[133] = 0x30616234;
-        p32[134] = 0x63333732;
-        p32[135] = 0x00363037;
-        for(i = 136; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x0000007b;
-        p32[192] = 0x30303031;
-        for(i = 193; i <= 204; i++)
-            p32[i] = 0x30303030;
-
-        p32[205] = 0x41324531;
-        p32[206] = 0x41364441;
-        p32[207] = 0x46323136;
-        p32[208] = 0x30333333;
-        p32[209] = 0x35454237;
-        p32[210] = 0x37344146;
-        p32[211] = 0x39433343;
-        p32[212] = 0x32353045;
-        p32[213] = 0x38333846;
-        p32[214] = 0x43343631;
-        p32[215] = 0x44373344;
-        p32[216] = 0x31324139;
-        p32[217] = 0x00333731;
-        for(i = 218; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x00000199;
-        p32[237] = 0x00000057;
-        p32[238] = 0x00000057;
-        p32[239] = 0x00000057;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_B_571:
-        p32[  0] = 0x0000000e;
-        p32[  1] = 0x0000008f;
-        for(i = 2; i <= 36; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 37] = 0x00313030;
-        p32[ 38] = 0x30346632;
-        p32[ 39] = 0x32653765;
-        p32[ 40] = 0x66313232;
-        p32[ 41] = 0x64353932;
-        p32[ 42] = 0x37393265;
-        p32[ 43] = 0x62373131;
-        p32[ 44] = 0x64336637;
-        p32[ 45] = 0x35663236;
-        p32[ 46] = 0x39613663;
-        p32[ 47] = 0x63666637;
-        p32[ 48] = 0x65633862;
-        p32[ 49] = 0x63316666;
-        p32[ 50] = 0x61623664;
-        p32[ 51] = 0x34656338;
-        p32[ 52] = 0x31613961;
-        p32[ 53] = 0x38646138;
-        p32[ 54] = 0x61666634;
-        p32[ 55] = 0x38646262;
-        p32[ 56] = 0x35616665;
-        p32[ 57] = 0x32333339;
-        p32[ 58] = 0x61376562;
-        p32[ 59] = 0x35373664;
-        p32[ 60] = 0x36366136;
-        p32[ 61] = 0x34393265;
-        p32[ 62] = 0x31646661;
-        p32[ 63] = 0x37613538;
-        p32[ 64] = 0x31666638;
-        p32[ 65] = 0x35616132;
-        p32[ 66] = 0x34653032;
-        p32[ 67] = 0x33376564;
-        p32[ 68] = 0x63616239;
-        p32[ 69] = 0x37633061;
-        p32[ 70] = 0x66656666;
-        p32[ 71] = 0x32663766;
-        p32[ 72] = 0x37353539;
-        p32[ 73] = 0x00613732;
-        p32[ 74] = 0x30333033;
-        p32[ 75] = 0x33643130;
-        p32[ 76] = 0x35386234;
-        p32[ 77] = 0x36393236;
-        p32[ 78] = 0x63363163;
-        p32[ 79] = 0x30346430;
-        p32[ 80] = 0x64633364;
-        p32[ 81] = 0x30353737;
-        p32[ 82] = 0x64333961;
-        p32[ 83] = 0x39326431;
-        p32[ 84] = 0x61663535;
-        p32[ 85] = 0x61613038;
-        p32[ 86] = 0x30346635;
-        p32[ 87] = 0x64386366;
-        p32[ 88] = 0x32623762;
-        p32[ 89] = 0x62646261;
-        p32[ 90] = 0x33356564;
-        p32[ 91] = 0x66303539;
-        p32[ 92] = 0x64306334;
-        p32[ 93] = 0x63333932;
-        p32[ 94] = 0x31376464;
-        p32[ 95] = 0x35336131;
-        p32[ 96] = 0x66373662;
-        p32[ 97] = 0x39343162;
-        p32[ 98] = 0x36656139;
-        p32[ 99] = 0x38333030;
-        p32[100] = 0x66343136;
-        p32[101] = 0x34393331;
-        p32[102] = 0x61666261;
-        p32[103] = 0x63346233;
-        p32[104] = 0x64303538;
-        p32[105] = 0x65373239;
-        p32[106] = 0x37376531;
-        p32[107] = 0x38633936;
-        p32[108] = 0x32636565;
-        p32[109] = 0x00393164;
-        p32[110] = 0x66623733;
-        p32[111] = 0x34333732;
-        p32[112] = 0x36616432;
-        p32[113] = 0x36623933;
-        p32[114] = 0x66636364;
-        p32[115] = 0x62656666;
-        p32[116] = 0x36643337;
-        p32[117] = 0x38376439;
-        p32[118] = 0x32633663;
-        p32[119] = 0x30366137;
-        p32[120] = 0x62633930;
-        p32[121] = 0x31616362;
-        p32[122] = 0x66303839;
-        p32[123] = 0x33333538;
-        p32[124] = 0x65313239;
-        p32[125] = 0x38366138;
-        p32[126] = 0x33323434;
-        p32[127] = 0x62333465;
-        p32[128] = 0x38306261;
-        p32[129] = 0x36373561;
-        p32[130] = 0x61313932;
-        p32[131] = 0x34663866;
-        p32[132] = 0x62623136;
-        p32[133] = 0x62386132;
-        p32[134] = 0x31333533;
-        p32[135] = 0x30663264;
-        p32[136] = 0x63353834;
-        p32[137] = 0x31623931;
-        p32[138] = 0x66326536;
-        p32[139] = 0x36313531;
-        p32[140] = 0x64333265;
-        p32[141] = 0x31633364;
-        p32[142] = 0x32383461;
-        p32[143] = 0x31666137;
-        p32[144] = 0x63613862;
-        p32[145] = 0x00623531;
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x000000ac;
-        p32[192] = 0x46464633;
-        for(i = 193; i <= 208; i++)
-            p32[i] = 0x46464646;
-
-        p32[209] = 0x45464646;
-        p32[210] = 0x43313636;
-        p32[211] = 0x46383145;
-        p32[212] = 0x39353546;
-        p32[213] = 0x30333738;
-        p32[214] = 0x39353038;
-        p32[215] = 0x36383142;
-        p32[216] = 0x38333238;
-        p32[217] = 0x43453135;
-        p32[218] = 0x39444437;
-        p32[219] = 0x31314143;
-        p32[220] = 0x45443136;
-        p32[221] = 0x35443339;
-        p32[222] = 0x44343731;
-        p32[223] = 0x38453636;
-        p32[224] = 0x45323833;
-        p32[225] = 0x32424239;
-        p32[226] = 0x34384546;
-        p32[227] = 0x00373445;
-        for(i = 228; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x0000023b;
-        p32[237] = 0x0000000a;
-        p32[238] = 0x00000005;
-        p32[239] = 0x00000002;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_K_163:
-        p32[  0] = 0x00000005;
-        p32[  1] = 0x00000029;
-        for(i = 2; i <= 11; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 12] = 0x00000031;
-        for(i = 13; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        for(i = 38; i <= 47; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 48] = 0x00000031;
-        for(i = 49; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x31656632;
-        p32[ 75] = 0x35306333;
-        p32[ 76] = 0x62623733;
-        p32[ 77] = 0x61313163;
-        p32[ 78] = 0x30616163;
-        p32[ 79] = 0x39376437;
-        p32[ 80] = 0x34656433;
-        p32[ 81] = 0x35643665;
-        p32[ 82] = 0x39633565;
-        p32[ 83] = 0x65656534;
-        p32[ 84] = 0x00000038;
-        for(i = 85; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x30393832;
-        p32[111] = 0x62663037;
-        p32[112] = 0x33643530;
-        p32[113] = 0x35666638;
-        p32[114] = 0x31323338;
-        p32[115] = 0x38653266;
-        p32[116] = 0x33353030;
-        p32[117] = 0x33356436;
-        p32[118] = 0x64636338;
-        p32[119] = 0x64336161;
-        p32[120] = 0x00000039;
-        for(i = 121; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000031;
-        p32[192] = 0x30303034;
-        for(i = 193; i <= 196; i++)
-            p32[i] = 0x30303030;
-
-        p32[197] = 0x30313032;
-        p32[198] = 0x45324138;
-        p32[199] = 0x30434330;
-        p32[200] = 0x46393944;
-        p32[201] = 0x45354138;
-        p32[202] = 0x00000046;
-        for(i = 203; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x000000a3;
-        p32[237] = 0x00000007;
-        p32[238] = 0x00000006;
-        p32[239] = 0x00000003;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_K_233:
-        p32[  0] = 0x00000006;
-        p32[  1] = 0x0000003b;
-        for(i = 2; i <= 15; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 16] = 0x00303030;
-        for(i = 17; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        for(i = 38; i <= 51; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 52] = 0x00313030;
-        for(i = 53; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x33323731;
-        p32[ 75] = 0x38616232;
-        p32[ 76] = 0x37613335;
-        p32[ 77] = 0x31333765;
-        p32[ 78] = 0x32316661;
-        p32[ 79] = 0x32326639;
-        p32[ 80] = 0x31346666;
-        p32[ 81] = 0x36353934;
-        p32[ 82] = 0x31346133;
-        p32[ 83] = 0x36326339;
-        p32[ 84] = 0x30356662;
-        p32[ 85] = 0x39633461;
-        p32[ 86] = 0x65653664;
-        p32[ 87] = 0x36646166;
-        p32[ 88] = 0x00363231;
-        for(i = 89; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x35626431;
-        p32[111] = 0x65643733;
-        p32[112] = 0x31386563;
-        p32[113] = 0x66376239;
-        p32[114] = 0x35663037;
-        p32[115] = 0x36613535;
-        p32[116] = 0x32346337;
-        p32[117] = 0x63386137;
-        p32[118] = 0x66623964;
-        p32[119] = 0x65613831;
-        p32[120] = 0x35623962;
-        p32[121] = 0x63306536;
-        p32[122] = 0x35303131;
-        p32[123] = 0x65616636;
-        p32[124] = 0x00336136;
-        for(i = 125; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000046;
-        p32[192] = 0x30303038;
-        for(i = 193; i <= 198; i++)
-            p32[i] = 0x30303030;
-
-        p32[199] = 0x44393630;
-        p32[200] = 0x39424235;
-        p32[201] = 0x43423531;
-        p32[202] = 0x45363444;
-        p32[203] = 0x41314246;
-        p32[204] = 0x31463544;
-        p32[205] = 0x42413337;
-        p32[206] = 0x00004644;
-        for(i = 207; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x000000e9;
-        p32[237] = 0x0000004a;
-        p32[238] = 0x0000004a;
-        p32[239] = 0x0000004a;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_K_283:
-        p32[  0] = 0x00000007;
-        p32[  1] = 0x00000047;
-        for(i = 2; i <= 18; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 19] = 0x00303030;
-        for(i = 20; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        for(i = 38; i <= 54; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 55] = 0x00313030;
-        for(i = 56; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x32333035;
-        p32[ 75] = 0x37663331;
-        p32[ 76] = 0x34616338;
-        p32[ 77] = 0x33383834;
-        p32[ 78] = 0x33613166;
-        p32[ 79] = 0x36313862;
-        p32[ 80] = 0x38316632;
-        p32[ 81] = 0x35356538;
-        p32[ 82] = 0x32646333;
-        p32[ 83] = 0x32663536;
-        p32[ 84] = 0x35316333;
-        p32[ 85] = 0x31613736;
-        p32[ 86] = 0x36373836;
-        p32[ 87] = 0x62333139;
-        p32[ 88] = 0x61326330;
-        p32[ 89] = 0x35343263;
-        p32[ 90] = 0x32393438;
-        p32[ 91] = 0x00363338;
-        for(i = 92; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x64636331;
-        p32[111] = 0x30383361;
-        p32[112] = 0x39633166;
-        p32[113] = 0x38313365;
-        p32[114] = 0x66303964;
-        p32[115] = 0x30643539;
-        p32[116] = 0x34356537;
-        p32[117] = 0x65663632;
-        p32[118] = 0x34653738;
-        p32[119] = 0x65306335;
-        p32[120] = 0x34383138;
-        p32[121] = 0x65383936;
-        p32[122] = 0x36393534;
-        p32[123] = 0x34363332;
-        p32[124] = 0x31343365;
-        p32[125] = 0x37313631;
-        p32[126] = 0x32646437;
-        p32[127] = 0x00393532;
-        for(i = 128; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x00000055;
-        p32[192] = 0x46464631;
-        for(i = 193; i <= 199; i++)
-            p32[i] = 0x46464646;
-
-        p32[200] = 0x45464646;
-        p32[201] = 0x32454139;
-        p32[202] = 0x37304445;
-        p32[203] = 0x32373735;
-        p32[204] = 0x46443536;
-        p32[205] = 0x39463746;
-        p32[206] = 0x31353434;
-        p32[207] = 0x31363045;
-        p32[208] = 0x33363145;
-        p32[209] = 0x00313643;
-        for(i = 210; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x0000011b;
-        p32[237] = 0x0000000c;
-        p32[238] = 0x00000007;
-        p32[239] = 0x00000005;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_K_409:
-        p32[  0] = 0x00000008;
-        p32[  1] = 0x00000067;
-        for(i = 2; i <= 26; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 27] = 0x00303030;
-        for(i = 28; i <= 37; i++)
-            p32[i] = 0x00000000;
-
-        for(i = 38; i <= 62; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 63] = 0x00313030;
-        for(i = 64; i <= 73; i++)
-            p32[i] = 0x00000000;
-
-        p32[ 74] = 0x66303630;
-        p32[ 75] = 0x36663530;
-        p32[ 76] = 0x34663835;
-        p32[ 77] = 0x61316339;
-        p32[ 78] = 0x62613364;
-        p32[ 79] = 0x30393831;
-        p32[ 80] = 0x38313766;
-        p32[ 81] = 0x30313234;
-        p32[ 82] = 0x30646665;
-        p32[ 83] = 0x65373839;
-        p32[ 84] = 0x63373033;
-        p32[ 85] = 0x32633438;
-        p32[ 86] = 0x63636137;
-        p32[ 87] = 0x66386266;
-        p32[ 88] = 0x37366639;
-        p32[ 89] = 0x63326363;
-        p32[ 90] = 0x31303634;
-        p32[ 91] = 0x62653938;
-        p32[ 92] = 0x61616135;
-        p32[ 93] = 0x65323661;
-        p32[ 94] = 0x32323265;
-        p32[ 95] = 0x62316265;
-        p32[ 96] = 0x34353533;
-        p32[ 97] = 0x65666330;
-        p32[ 98] = 0x33323039;
-        p32[ 99] = 0x00363437;
-        for(i = 100; i <= 109; i++)
-            p32[i] = 0x00000000;
-
-        p32[110] = 0x36336531;
-        p32[111] = 0x30353039;
-        p32[112] = 0x34633762;
-        p32[113] = 0x61323465;
-        p32[114] = 0x31616263;
-        p32[115] = 0x62636164;
-        p32[116] = 0x32343066;
-        p32[117] = 0x33633939;
-        p32[118] = 0x37303634;
-        p32[119] = 0x39663238;
-        p32[120] = 0x61653831;
-        p32[121] = 0x65373234;
-        p32[122] = 0x35323336;
-        p32[123] = 0x65353631;
-        p32[124] = 0x31616539;
-        p32[125] = 0x64336530;
-        p32[126] = 0x36663561;
-        p32[127] = 0x65323463;
-        p32[128] = 0x35356339;
-        p32[129] = 0x61353132;
-        p32[130] = 0x61633961;
-        p32[131] = 0x35613732;
-        p32[132] = 0x65333638;
-        p32[133] = 0x64383463;
-        p32[134] = 0x32306538;
-        p32[135] = 0x00623638;
-        for(i = 136; i <= 145; i++)
-            p32[i] = 0x00000000;
-
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x0000007b;
-        p32[192] = 0x46464637;
-        for(i = 193; i <= 203; i++)
-            p32[i] = 0x46464646;
-
-        p32[204] = 0x45464646;
-        p32[205] = 0x33384635;
-        p32[206] = 0x34443242;
-        p32[207] = 0x30324145;
-        p32[208] = 0x45303034;
-        p32[209] = 0x35353443;
-        p32[210] = 0x45354437;
-        p32[211] = 0x33453344;
-        p32[212] = 0x41433745;
-        p32[213] = 0x42344235;
-        p32[214] = 0x33384335;
-        p32[215] = 0x30453842;
-        p32[216] = 0x46354531;
-        p32[217] = 0x00004643;
-        for(i = 218; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x00000199;
-        p32[237] = 0x00000057;
-        p32[238] = 0x00000057;
-        p32[239] = 0x00000057;
-        p32[240] = 0x00000001;
-        break;
-    case CURVE_K_571:
-        p32[  0] = 0x00000009;
-        p32[  1] = 0x0000008f;
-        for(i = 2; i <= 36; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 37] = 0x00303030;
-        for(i = 38; i <= 72; i++)
-            p32[i] = 0x30303030;
-
-        p32[ 73] = 0x00313030;
-        p32[ 74] = 0x62653632;
-        p32[ 75] = 0x35386137;
-        p32[ 76] = 0x33323939;
-        p32[ 77] = 0x38636266;
-        p32[ 78] = 0x39383132;
-        p32[ 79] = 0x66313336;
-        p32[ 80] = 0x33303138;
-        p32[ 81] = 0x61346566;
-        p32[ 82] = 0x61633963;
-        p32[ 83] = 0x30373932;
-        p32[ 84] = 0x64323130;
-        p32[ 85] = 0x36346435;
-        p32[ 86] = 0x38343230;
-        p32[ 87] = 0x30383430;
-        p32[ 88] = 0x31343831;
-        p32[ 89] = 0x34346163;
-        p32[ 90] = 0x39303733;
-        p32[ 91] = 0x39343835;
-        p32[ 92] = 0x30326233;
-        p32[ 93] = 0x34366535;
-        p32[ 94] = 0x33616437;
-        p32[ 95] = 0x62643430;
-        p32[ 96] = 0x62656334;
-        p32[ 97] = 0x62633830;
-        p32[ 98] = 0x62316462;
-        p32[ 99] = 0x34393361;
-        p32[100] = 0x37373439;
-        p32[101] = 0x39626636;
-        p32[102] = 0x34623838;
-        p32[103] = 0x34373137;
-        p32[104] = 0x38616364;
-        p32[105] = 0x65376338;
-        p32[106] = 0x35343932;
-        p32[107] = 0x61333832;
-        p32[108] = 0x38633130;
-        p32[109] = 0x00323739;
-        p32[110] = 0x64393433;
-        p32[111] = 0x37303863;
-        p32[112] = 0x62663466;
-        p32[113] = 0x34373366;
-        p32[114] = 0x65613466;
-        p32[115] = 0x33656461;
-        p32[116] = 0x39616362;
-        p32[117] = 0x34313335;
-        p32[118] = 0x38356464;
-        p32[119] = 0x39636563;
-        p32[120] = 0x37303366;
-        p32[121] = 0x66343561;
-        p32[122] = 0x31366366;
-        p32[123] = 0x30636665;
-        p32[124] = 0x38643630;
-        p32[125] = 0x39633261;
-        p32[126] = 0x37393464;
-        p32[127] = 0x61306339;
-        p32[128] = 0x61343463;
-        p32[129] = 0x34376165;
-        p32[130] = 0x62656266;
-        p32[131] = 0x66396262;
-        p32[132] = 0x61323737;
-        p32[133] = 0x62636465;
-        p32[134] = 0x62303236;
-        p32[135] = 0x37613130;
-        p32[136] = 0x61376162;
-        p32[137] = 0x33623166;
-        p32[138] = 0x33343032;
-        p32[139] = 0x35386330;
-        p32[140] = 0x38393139;
-        p32[141] = 0x30366634;
-        p32[142] = 0x34646331;
-        p32[143] = 0x33343163;
-        p32[144] = 0x63316665;
-        p32[145] = 0x00336137;
-        p32[146] = 0x00000044;
-        for(i = 147; i <= 154; i++)
-            p32[i] = 0x46464646;
-
-        for(i = 155; i <= 159; i++)
-            p32[i] = 0x30303030;
-
-        p32[160] = 0x31303030;
-        for(i = 161; i <= 190; i++)
-            p32[i] = 0x00000000;
-
-        p32[191] = 0x000000ac;
-        p32[192] = 0x30303032;
-        for(i = 193; i <= 208; i++)
-            p32[i] = 0x30303030;
-
-        p32[209] = 0x31303030;
-        p32[210] = 0x35383133;
-        p32[211] = 0x46314530;
-        p32[212] = 0x36413931;
-        p32[213] = 0x42344533;
-        p32[214] = 0x41313933;
-        p32[215] = 0x39424438;
-        p32[216] = 0x34463731;
-        p32[217] = 0x42383331;
-        p32[218] = 0x44303336;
-        p32[219] = 0x45423438;
-        p32[220] = 0x33364435;
-        p32[221] = 0x31383339;
-        p32[222] = 0x44313945;
-        p32[223] = 0x35344245;
-        p32[224] = 0x37454643;
-        p32[225] = 0x36463837;
-        p32[226] = 0x31433733;
-        p32[227] = 0x00313030;
-        for(i = 228; i <= 235; i++)
-            p32[i] = 0x00000000;
-
-        p32[236] = 0x0000023b;
-        p32[237] = 0x0000000a;
-        p32[238] = 0x00000005;
-        p32[239] = 0x00000002;
-        p32[240] = 0x00000001;
-        break;
-    default:
-        return -1;
-
-    }
-
-    return 0;
-}
-
-
-
-static ECC_CURVE * get_curve(E_ECC_CURVE ecc_curve)
-{
-    uint32_t   i;
-    ECC_CURVE  *ret = NULL;
-
-    if(CurveCpy((unsigned int *)&Curve_Copy, ecc_curve))
-        return NULL;
-    else
-        return &Curve_Copy;
-
-}
-
-
-#else
 static ECC_CURVE * get_curve(E_ECC_CURVE ecc_curve)
 {
     uint32_t   i;
@@ -4418,6 +2616,22 @@ void ECC_Complete(CRPT_T *crpt)
 }
 
 
+int32_t ECC_GetCurve(CRPT_T *crpt, E_ECC_CURVE ecc_curve, ECC_CURVE *curve)
+{
+    int32_t err;
+
+    /* Update pCurve pointer */
+    err = ecc_init_curve(crpt, ecc_curve);
+    if(err == 0)
+    {
+        /* get curve */
+        memcpy(curve, pCurve, sizeof(ECC_CURVE));
+    }
+
+    return err;
+}
+
+
 /*-----------------------------------------------------------------------------------------------*/
 /*                                                                                               */
 /*    RSA                                                                                        */
@@ -4426,23 +2640,72 @@ void ECC_Complete(CRPT_T *crpt)
 
 /** @cond HIDDEN_SYMBOLS */
 
-static uint32_t au32RsaN[128]; /* The base of modulus operation word. */
-static uint32_t au32RsaE[128]; /* The exponent of exponentiation words. */
-static uint32_t au32RsaM[128]; /* The base of exponentiation words. */
-static uint32_t au32RsaP[128]; /* The Factor of Modulus Operation. */
-static uint32_t au32RsaQ[128]; /* The Factor of Modulus Operation. */
-static uint32_t au32RsaTmpCp[128]; /* The Temporary Value(Cp) of RSA CRT. */
-static uint32_t au32RsaTmpCq[128]; /* The Temporary Value(Cq) of RSA CRT. */
-static uint32_t au32RsaTmpDp[128]; /* The Temporary Value(Dp) of RSA CRT. */
-static uint32_t au32RsaTmpDq[128]; /* The Temporary Value(Dq) of RSA CRT. */
-static uint32_t au32RsaTmpRp[128]; /* The Temporary Value(Rp) of RSA CRT. */
-static uint32_t au32RsaTmpRq[128]; /* The Temporary Value(Rq) of RSA CRT. */
-static uint32_t au32RsaTmpBlindKey[128]; /* The Temporary Value(blind key) of RSA SCAP. */
-static uint32_t au32RsaOutput[128]; /* The RSA answer. */
-static char RsaOutput[RSA_KBUF_HLEN];
+static void *s_pRSABuf;
+static uint32_t s_u32RsaOpMode;
+
+typedef enum
+{
+    BUF_NORMAL,
+    BUF_CRT,
+    BUF_CRTBYPASS,
+    BUF_SCAP,
+    BUF_CRT_SCAP,
+    BUF_CRTBYPASS_SCAP,
+    BUF_KS
+} E_RSA_BUF_SEL;
+
+static int32_t CheckRsaBufferSize(uint32_t u32OpMode, uint32_t u32BufSize, uint32_t u32UseKS);
 
 /** @endcond HIDDEN_SYMBOLS */
 
+/* Check the allocated buffer size for RSA operation. */
+static int32_t CheckRsaBufferSize(uint32_t u32OpMode, uint32_t u32BufSize, uint32_t u32UseKS)
+{
+    /* RSA buffer size for MODE_NORMAL, MODE_CRT, MODE_CRTBYPASS, MODE_SCAP, MODE_CRT_SCAP, MODE_CRTBYPASS_SCAP */
+    uint32_t s_au32RsaBufSizeTbl[] = {sizeof(RSA_BUF_NORMAL_T), sizeof(RSA_BUF_CRT_T), sizeof(RSA_BUF_CRT_T), \
+                                      sizeof(RSA_BUF_SCAP_T), sizeof(RSA_BUF_CRT_SCAP_T), sizeof(RSA_BUF_CRT_SCAP_T), \
+                                      sizeof(RSA_BUF_KS_T)};
+
+    if (u32UseKS)
+    {
+        if (u32BufSize != s_au32RsaBufSizeTbl[BUF_KS])
+            return (-1);
+    }
+    else
+    {
+        switch(u32OpMode)
+        {
+            case RSA_MODE_NORMAL:
+                if (u32BufSize != s_au32RsaBufSizeTbl[BUF_NORMAL])
+                    return (-1);
+                break;
+            case RSA_MODE_CRT:
+                if (u32BufSize != s_au32RsaBufSizeTbl[BUF_CRT])
+                    return (-1);
+                break;
+            case RSA_MODE_CRTBYPASS:
+                if (u32BufSize != s_au32RsaBufSizeTbl[BUF_CRTBYPASS])
+                    return (-1);
+                break;
+            case RSA_MODE_SCAP:
+                if (u32BufSize != s_au32RsaBufSizeTbl[BUF_SCAP])
+                    return (-1);
+                break;
+            case RSA_MODE_CRT_SCAP:
+                if (u32BufSize != s_au32RsaBufSizeTbl[BUF_CRT_SCAP])
+                    return (-1);
+                break;
+            case RSA_MODE_CRTBYPASS_SCAP:
+                if (u32BufSize != s_au32RsaBufSizeTbl[BUF_CRTBYPASS_SCAP])
+                    return (-1);
+                break;
+            default:
+                return (-1);
+        }
+    }
+
+    return 0;
+}
 
 /**
   * @brief  Open RSA encrypt/decrypt function.
@@ -4459,80 +2722,130 @@ static char RsaOutput[RSA_KBUF_HLEN];
   *         - \ref RSA_KEY_SIZE_2048
   *         - \ref RSA_KEY_SIZE_3072
   *         - \ref RSA_KEY_SIZE_4096
-  * @return None
+  * @param[in]  psRSA_Buf    The pointer of RSA buffer struct. User should declare correct RSA buffer for specific operation mode first.
+  *         - \ref RSA_BUF_NORMAL_T      The struct for normal mode
+  *         - \ref RSA_BUF_CRT_T         The struct for CRT ( + CRT bypass) mode
+  *         - \ref RSA_BUF_SCAP_T        The struct for SCAP mode
+  *         - \ref RSA_BUF_CRT_SCAP_T    The struct for CRT ( + CRT bypass) +SCAP mode
+  *         - \ref RSA_BUF_KS_T          The struct for using key store
+  * @param[in]  u32BufSize is RSA buffer size.
+  * @param[in]  u32UseKS is use key store function.
+  *         - \ref 0    No use key store function
+  *         - \ref 1    Use key store function
+  * @return  0    Success.
+  * @return  -1   The value of pointer of RSA buffer struct is null.
   */
-void RSA_Open(CRPT_T *crpt, uint32_t u32OpMode, uint32_t u32KeySize)
+int32_t RSA_Open(CRPT_T *crpt, uint32_t u32OpMode, uint32_t u32KeySize, \
+                 void *psRSA_Buf, uint32_t u32BufSize, uint32_t u32UseKS)
 {
-    (void)RsaOutput;
+    if(psRSA_Buf == 0)
+    {
+        return (-1);
+    }
+    if (CheckRsaBufferSize(u32OpMode, u32BufSize, u32UseKS) != 0)
+    {
+        return (-1);
+    }
+
+    s_u32RsaOpMode = u32OpMode;
+    s_pRSABuf = psRSA_Buf;
     crpt->RSA_CTL = (u32OpMode) | (u32KeySize << CRPT_RSA_CTL_KEYLENG_Pos);
+
+    return 0;
 }
 
 /**
   * @brief  Set the RSA key
   * @param[in]  crpt        The pointer of CRYPTO module
   * @param[in]  Key         The private or public key.
-  * @return None
+  * @return  0    Success.
+  * @return  -1   The value of pointer of RSA buffer struct is null.
   */
-void RSA_SetKey(CRPT_T *crpt, char *Key)
+int32_t RSA_SetKey(CRPT_T *crpt, char *Key)
 {
-    (void)crpt;
-    Hex2Reg(Key, (uint32_t *)&au32RsaE[0]);
-    CRPT->RSA_SADDR[2] = (uint32_t)&au32RsaE[0]; /* the public key or private key */
+    if(s_pRSABuf == 0)
+    {
+        return (-1);
+    }
+    Hex2Reg(Key, ((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaE);
+    crpt->RSA_SADDR[2] = (uint32_t)&((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaE; /* the public key or private key */
+
+    return 0;
 }
 
 /**
   * @brief  Set RSA DMA transfer configuration.
   * @param[in]  crpt         The pointer of CRYPTO module
-  * @param[in]  u32OpMode    RSA operation mode, including:
-  *         - \ref RSA_MODE_NORMAL
-  *         - \ref RSA_MODE_CRT
-  *         - \ref RSA_MODE_CRTBYPASS
-  *         - \ref RSA_MODE_SCAP
-  *         - \ref RSA_MODE_CRT_SCAP
-  *         - \ref RSA_MODE_CRTBYPASS_SCAP
   * @param[in]  Src   RSA DMA source data
   * @param[in]  n     The modulus for both the public and private keys
   * @param[in]  P     The factor of modulus operation(P) for CRT/SCAP mode
   * @param[in]  Q     The factor of modulus operation(Q) for CRT/SCAP mode
-  * @return None
+  * @return  0    Success.
+  * @return  -1   The value of pointer of RSA buffer struct is null.
   */
-void RSA_SetDMATransfer(CRPT_T *crpt, uint32_t u32OpMode, char *Src,
-                        char *n, char *P, char *Q)
+int32_t RSA_SetDMATransfer(CRPT_T *crpt, char *Src, char *n, char *P, char *Q)
 {
-    Hex2Reg(Src, (uint32_t *)&au32RsaM[0]);
-    Hex2Reg(n, (uint32_t *)&au32RsaN[0]);
-    (void)crpt;
+    if(s_pRSABuf == 0)
+    {
+        return (-1);
+    }
+    Hex2Reg(Src, ((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaM);
+    Hex2Reg(n, ((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaN);
 
     /* Assign the data to DMA */
-    CRPT->RSA_SADDR[0] = (uint32_t)&au32RsaM[0]; /* plaintext / encrypt data */
-    CRPT->RSA_SADDR[1] = (uint32_t)&au32RsaN[0]; /* the base of modulus operation */
-    CRPT->RSA_DADDR    = (uint32_t)&au32RsaOutput[0]; /* encrypt data / decrypt data */
+    crpt->RSA_SADDR[0] = (uint32_t)&((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaM; /* plaintext / encrypt data */
+    crpt->RSA_SADDR[1] = (uint32_t)&((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaN; /* the base of modulus operation */
+    crpt->RSA_DADDR    = (uint32_t)&((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaOutput; /* encrypt data / decrypt data */
 
-    if ((u32OpMode & CRPT_RSA_CTL_CRT_Msk) || (u32OpMode & CRPT_RSA_CTL_SCAP_Msk))
+    if ((s_u32RsaOpMode & CRPT_RSA_CTL_CRT_Msk) && (s_u32RsaOpMode & CRPT_RSA_CTL_SCAP_Msk))
     {
         /* For RSA CRT/SCAP mode, two primes of private key */
-        Hex2Reg(P, (uint32_t *)&au32RsaP[0]);
-        Hex2Reg(Q, (uint32_t *)&au32RsaQ[0]);
+        Hex2Reg(P, ((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaP);
+        Hex2Reg(Q, ((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaQ);
 
-        CRPT->RSA_SADDR[3] = (uint32_t)&au32RsaP[0]; /* prime P */
-        CRPT->RSA_SADDR[4] = (uint32_t)&au32RsaQ[0]; /* prime Q */
-    }
+        crpt->RSA_SADDR[3] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaP; /* prime P */
+        crpt->RSA_SADDR[4] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaQ; /* prime Q */
 
-    if (u32OpMode & CRPT_RSA_CTL_CRT_Msk)
-    {
-        CRPT->RSA_MADDR[0] = (uint32_t)&au32RsaTmpCp[0]; /* for storing the intermediate temporary value(Cp) */
-        CRPT->RSA_MADDR[1] = (uint32_t)&au32RsaTmpCq[0]; /* for storing the intermediate temporary value(Cq) */
-        CRPT->RSA_MADDR[2] = (uint32_t)&au32RsaTmpDp[0]; /* for storing the intermediate temporary value(Dp) */
-        CRPT->RSA_MADDR[3] = (uint32_t)&au32RsaTmpDq[0]; /* for storing the intermediate temporary value(Dq) */
-        CRPT->RSA_MADDR[4] = (uint32_t)&au32RsaTmpRp[0]; /* for storing the intermediate temporary value(Rp) */
-        CRPT->RSA_MADDR[5] = (uint32_t)&au32RsaTmpRq[0]; /* for storing the intermediate temporary value(Rq) */
-    }
+        crpt->RSA_MADDR[0] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaTmpCp; /* for storing the intermediate temporary value(Cp) */
+        crpt->RSA_MADDR[1] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaTmpCq; /* for storing the intermediate temporary value(Cq) */
+        crpt->RSA_MADDR[2] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaTmpDp; /* for storing the intermediate temporary value(Dp) */
+        crpt->RSA_MADDR[3] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaTmpDq; /* for storing the intermediate temporary value(Dq) */
+        crpt->RSA_MADDR[4] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaTmpRp; /* for storing the intermediate temporary value(Rp) */
+        crpt->RSA_MADDR[5] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaTmpRq; /* for storing the intermediate temporary value(Rq) */
 
-    if (u32OpMode & CRPT_RSA_CTL_SCAP_Msk)
-    {
         /* For SCAP mode to store the intermediate temporary value(blind key) */
-        CRPT->RSA_MADDR[6] = (uint32_t)&au32RsaTmpBlindKey[0];
+        crpt->RSA_MADDR[6] = (uint32_t)&((RSA_BUF_CRT_SCAP_T *)s_pRSABuf)->au32RsaTmpBlindKey;
     }
+    else if (s_u32RsaOpMode & CRPT_RSA_CTL_CRT_Msk)
+    {
+        /* For RSA CRT/SCAP mode, two primes of private key */
+        Hex2Reg(P, ((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaP);
+        Hex2Reg(Q, ((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaQ);
+
+        crpt->RSA_SADDR[3] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaP; /* prime P */
+        crpt->RSA_SADDR[4] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaQ; /* prime Q */
+
+        crpt->RSA_MADDR[0] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaTmpCp; /* for storing the intermediate temporary value(Cp) */
+        crpt->RSA_MADDR[1] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaTmpCq; /* for storing the intermediate temporary value(Cq) */
+        crpt->RSA_MADDR[2] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaTmpDp; /* for storing the intermediate temporary value(Dp) */
+        crpt->RSA_MADDR[3] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaTmpDq; /* for storing the intermediate temporary value(Dq) */
+        crpt->RSA_MADDR[4] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaTmpRp; /* for storing the intermediate temporary value(Rp) */
+        crpt->RSA_MADDR[5] = (uint32_t)&((RSA_BUF_CRT_T *)s_pRSABuf)->au32RsaTmpRq; /* for storing the intermediate temporary value(Rq) */
+    }
+    else if (s_u32RsaOpMode & CRPT_RSA_CTL_SCAP_Msk)
+    {
+        /* For RSA CRT/SCAP mode, two primes of private key */
+        Hex2Reg(P, ((RSA_BUF_SCAP_T *)s_pRSABuf)->au32RsaP);
+        Hex2Reg(Q, ((RSA_BUF_SCAP_T *)s_pRSABuf)->au32RsaQ);
+
+        crpt->RSA_SADDR[3] = (uint32_t)&((RSA_BUF_SCAP_T *)s_pRSABuf)->au32RsaP; /* prime P */
+        crpt->RSA_SADDR[4] = (uint32_t)&((RSA_BUF_SCAP_T *)s_pRSABuf)->au32RsaQ; /* prime Q */
+
+        /* For SCAP mode to store the intermediate temporary value(blind key) */
+        crpt->RSA_MADDR[6] = (uint32_t)&((RSA_BUF_SCAP_T *)s_pRSABuf)->au32RsaTmpBlindKey;
+    }
+
+    return 0;
 }
 
 /**
@@ -4549,15 +2862,22 @@ void RSA_Start(CRPT_T *crpt)
   * @brief  Read the RSA output.
   * @param[in]   crpt       The pointer of CRYPTO module
   * @param[out]  Output     The RSA operation output data.
-  * @return None
+  * @return  0    Success.
+  * @return  -1   The value of pointer of RSA buffer struct is null.
   */
-void RSA_Read(CRPT_T *crpt, char *Output)
+int32_t RSA_Read(CRPT_T *crpt, char *Output)
 {
+    if(s_pRSABuf == 0)
+    {
+        return (-1);
+    }
     uint32_t au32CntTbl[4] = {256, 512, 768, 1024}; /* count is key length divided by 4 */
     uint32_t u32CntIdx = 0;
 
     u32CntIdx = (crpt->RSA_CTL & CRPT_RSA_CTL_KEYLENG_Msk) >> CRPT_RSA_CTL_KEYLENG_Pos;
-    Reg2Hex((int32_t)au32CntTbl[u32CntIdx], (uint32_t *)au32RsaOutput, Output);
+    Reg2Hex((int32_t)au32CntTbl[u32CntIdx], ((RSA_BUF_NORMAL_T *)s_pRSABuf)->au32RsaOutput, Output);
+
+    return 0;
 }
 
 /**
@@ -4568,12 +2888,21 @@ void RSA_Read(CRPT_T *crpt, char *Output)
                             \ref KS_SRAM
                             \ref KS_FLASH
                             \ref KS_OTP
-  * @return None
+  * @param[in]  u32BlindKeyNum  The number of blind key in SRAM of key store for SCAP mode. This key is un-readable.
+  * @return  0    Success.
+  * @return  -1   The value of pointer of RSA buffer struct is null.
   */
-void RSA_SetKeyAccessKeyStore(CRPT_T *crpt, uint32_t u32KeyNum, uint32_t u32KSMemType)
+int32_t RSA_SetKey_KS(CRPT_T *crpt, uint32_t u32KeyNum, uint32_t u32KSMemType, uint32_t u32BlindKeyNum)
 {
-    (void)crpt;
-    CRPT->RSA_KSCTL = (u32KSMemType << CRPT_RSA_KSCTL_RSSRC_Pos) | CRPT_RSA_KSCTL_RSRC_Msk | u32KeyNum;
+    if (s_u32RsaOpMode & CRPT_RSA_CTL_SCAP_Msk)
+    {
+        crpt->RSA_KSCTL = (u32BlindKeyNum << 8) | (u32KSMemType << CRPT_RSA_KSCTL_RSSRC_Pos) | CRPT_RSA_KSCTL_RSRC_Msk | u32KeyNum;
+    }
+    else
+    {
+        crpt->RSA_KSCTL = (u32KSMemType << CRPT_RSA_KSCTL_RSSRC_Pos) | CRPT_RSA_KSCTL_RSRC_Msk | u32KeyNum;
+    }
+    return 0;
 }
 
 /**
@@ -4596,54 +2925,48 @@ void RSA_SetKeyAccessKeyStore(CRPT_T *crpt, uint32_t u32KeyNum, uint32_t u32KSMe
   * @param[in]  u32DqNum        The number of Dq in SRAM of key store for CRT mode
   * @param[in]  u32RpNum        The number of Rp in SRAM of key store for CRT mode
   * @param[in]  u32RqNum        The number of Rq in SRAM of key store for CRT mode
-  * @param[in]  u32BlindKeyNum  The number of blind key in SRAM of key store for SCAP mode. This key is un-readable.
-  * @return None
+  * @return  0    Success.
+  * @return  -1   The value of pointer of RSA buffer struct is null.
   * @note P, Q, Dp, Dq are equal to half key length. Cp, Cq, Rp, Rq, Blind key are equal to key length.
   */
-void RSA_SetDMATransferAccessKeyStore(CRPT_T *crpt, uint32_t u32OpMode, char *Src, char *n, uint32_t u32PNum,
+int32_t RSA_SetDMATransfer_KS(CRPT_T *crpt, char *Src, char *n, uint32_t u32PNum,
                                       uint32_t u32QNum, uint32_t u32CpNum, uint32_t u32CqNum, uint32_t u32DpNum,
-                                      uint32_t u32DqNum, uint32_t u32RpNum, uint32_t u32RqNum, uint32_t u32BlindKeyNum)
+                                      uint32_t u32DqNum, uint32_t u32RpNum, uint32_t u32RqNum)
 {
-    (void)crpt;
-    Hex2Reg(Src, (uint32_t *)&au32RsaM[0]);
-    Hex2Reg(n, (uint32_t *)&au32RsaN[0]);
+    if(s_pRSABuf == 0)
+    {
+        return (-1);
+    }
+    Hex2Reg(Src, ((RSA_BUF_KS_T *)s_pRSABuf)->au32RsaM);
+    Hex2Reg(n, ((RSA_BUF_KS_T *)s_pRSABuf)->au32RsaN);
 
     /* Assign the data to DMA */
-    CRPT->RSA_SADDR[0] = (uint32_t)&au32RsaM[0]; /* plaintext / encrypt data */
-    CRPT->RSA_SADDR[1] = (uint32_t)&au32RsaN[0]; /* the base of modulus operation */
-    CRPT->RSA_DADDR    = (uint32_t)&au32RsaOutput[0]; /* encrypt data / decrypt data */
+    crpt->RSA_SADDR[0] = (uint32_t)&((RSA_BUF_KS_T *)s_pRSABuf)->au32RsaM; /* plaintext / encrypt data */
+    crpt->RSA_SADDR[1] = (uint32_t)&((RSA_BUF_KS_T *)s_pRSABuf)->au32RsaN; /* the base of modulus operation */
+    crpt->RSA_DADDR    = (uint32_t)&((RSA_BUF_KS_T *)s_pRSABuf)->au32RsaOutput; /* encrypt data / decrypt data */
 
-    if ((u32OpMode & CRPT_RSA_CTL_CRT_Msk) || (u32OpMode & CRPT_RSA_CTL_SCAP_Msk))
+    if ((s_u32RsaOpMode & CRPT_RSA_CTL_CRT_Msk) || (s_u32RsaOpMode & CRPT_RSA_CTL_SCAP_Msk))
     {
         /* For RSA CRT/SCAP mode, two primes of private key */
-        CRPT->RSA_KSSTS[0] = (CRPT->RSA_KSSTS[0] & (~(CRPT_RSA_KSSTS0_NUM0_Msk | CRPT_RSA_KSSTS0_NUM1_Msk))) | \
+        crpt->RSA_KSSTS[0] = (crpt->RSA_KSSTS[0] & (~(CRPT_RSA_KSSTS0_NUM0_Msk | CRPT_RSA_KSSTS0_NUM1_Msk))) | \
                              (u32PNum << CRPT_RSA_KSSTS0_NUM0_Pos) | (u32QNum << CRPT_RSA_KSSTS0_NUM1_Pos);
-    }
 
-    if (u32OpMode & CRPT_RSA_CTL_CRT_Msk)
+    }
+    if (s_u32RsaOpMode & CRPT_RSA_CTL_CRT_Msk)
     {
         /* For RSA CRT mode, Cp, Cq, Dp, Dq, Rp, Rq */
-        CRPT->RSA_KSSTS[0] = (CRPT->RSA_KSSTS[0] & (~(CRPT_RSA_KSSTS0_NUM2_Msk | CRPT_RSA_KSSTS0_NUM3_Msk))) | \
+        crpt->RSA_KSSTS[0] = (crpt->RSA_KSSTS[0] & (~(CRPT_RSA_KSSTS0_NUM2_Msk | CRPT_RSA_KSSTS0_NUM3_Msk))) | \
                              (u32CpNum << CRPT_RSA_KSSTS0_NUM2_Pos) | (u32CqNum << CRPT_RSA_KSSTS0_NUM3_Pos);
-        CRPT->RSA_KSSTS[1] = (u32DpNum << CRPT_RSA_KSSTS1_NUM4_Pos) | (u32DqNum << CRPT_RSA_KSSTS1_NUM5_Pos) | \
+        crpt->RSA_KSSTS[1] = (u32DpNum << CRPT_RSA_KSSTS1_NUM4_Pos) | (u32DqNum << CRPT_RSA_KSSTS1_NUM5_Pos) | \
                              (u32RpNum << CRPT_RSA_KSSTS1_NUM6_Pos) | (u32RqNum << CRPT_RSA_KSSTS1_NUM7_Pos);
     }
 
-    if (u32OpMode & CRPT_RSA_CTL_SCAP_Msk)
-    {
-        /* For SCAP mode to store the intermediate temporary value(blind key) */
-        CRPT->RSA_KSCTL = (CRPT->RSA_KSCTL & (~CRPT_RSA_KSCTL_BKNUM_Msk)) | (u32BlindKeyNum << 8); /* From SRAM in KS */
-    }
+    return 0;
 }
 
-#endif
 
+/**@}*/ /* end of group CRYPTO_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group CRYPTO_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group CRYPTO_Driver */
 
-/*@}*/ /* end of group CRYPTO_Driver */
-
-/*@}*/ /* end of group Standard_Driver */
-
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
-
+/**@}*/ /* end of group Standard_Driver */

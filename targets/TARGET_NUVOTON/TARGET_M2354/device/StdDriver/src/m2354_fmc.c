@@ -902,11 +902,11 @@ int32_t FMC_SwapBank(uint32_t u32Bank)
     return ret;
 }
 
-/*@}*/ /* end of group FMC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group FMC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group FMC_Driver */
+/**@}*/ /* end of group FMC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 /*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
 

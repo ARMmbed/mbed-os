@@ -4,7 +4,8 @@
  * @brief    M2354 series EADC driver header file
  *
  * @note
- * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __EADC_H__
 #define __EADC_H__
@@ -54,20 +55,22 @@ extern "C"
 #define EADC_TIMER1_TRIGGER                 (5UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer1 overflow pulse trigger */
 #define EADC_TIMER2_TRIGGER                 (6UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer2 overflow pulse trigger */
 #define EADC_TIMER3_TRIGGER                 (7UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer3 overflow pulse trigger */
-#define EADC_PWM0TG0_TRIGGER                (8UL<<EADC_SCTL_TRGSEL_Pos)      /*!< EPWM0TG0 trigger */
-#define EADC_PWM0TG1_TRIGGER                (9UL<<EADC_SCTL_TRGSEL_Pos)      /*!< EPWM0TG1 trigger */
-#define EADC_PWM0TG2_TRIGGER                (0xAUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG2 trigger */
-#define EADC_PWM0TG3_TRIGGER                (0xBUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG3 trigger */
-#define EADC_PWM0TG4_TRIGGER                (0xCUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG4 trigger */
-#define EADC_PWM0TG5_TRIGGER                (0xDUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG5 trigger */
-#define EADC_PWM1TG0_TRIGGER                (0xEUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM1TG0 trigger */
-#define EADC_PWM1TG1_TRIGGER                (0xFUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM1TG1 trigger */
-#define EADC_PWM1TG2_TRIGGER                (0x10UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG2 trigger */
-#define EADC_PWM1TG3_TRIGGER                (0x11UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG3 trigger */
-#define EADC_PWM1TG4_TRIGGER                (0x12UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG4 trigger */
-#define EADC_PWM1TG5_TRIGGER                (0x13UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG5 trigger */
-#define EADC_BPWM0TG_TRIGGER                (0x14UL<<EADC_SCTL_TRGSEL_Pos)   /*!< BPWM0TG trigger */
-#define EADC_BPWM1TG_TRIGGER                (0x15UL<<EADC_SCTL_TRGSEL_Pos)   /*!< BPWM1TG trigger */
+#define EADC_TIMER4_TRIGGER                 (8UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer4 overflow pulse trigger */
+#define EADC_TIMER5_TRIGGER                 (9UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer5 overflow pulse trigger */
+#define EADC_PWM0TG0_TRIGGER                (0xAUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG0 trigger */
+#define EADC_PWM0TG1_TRIGGER                (0xBUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG1 trigger */
+#define EADC_PWM0TG2_TRIGGER                (0xCUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG2 trigger */
+#define EADC_PWM0TG3_TRIGGER                (0xDUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG3 trigger */
+#define EADC_PWM0TG4_TRIGGER                (0xEUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG4 trigger */
+#define EADC_PWM0TG5_TRIGGER                (0xFUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG5 trigger */
+#define EADC_PWM1TG0_TRIGGER                (0x10UL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM1TG0 trigger */
+#define EADC_PWM1TG1_TRIGGER                (0x11UL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM1TG1 trigger */
+#define EADC_PWM1TG2_TRIGGER                (0x12UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG2 trigger */
+#define EADC_PWM1TG3_TRIGGER                (0x13UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG3 trigger */
+#define EADC_PWM1TG4_TRIGGER                (0x14UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG4 trigger */
+#define EADC_PWM1TG5_TRIGGER                (0x15UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG5 trigger */
+#define EADC_BPWM0TG_TRIGGER                (0x16UL<<EADC_SCTL_TRGSEL_Pos)   /*!< BPWM0TG trigger */
+#define EADC_BPWM1TG_TRIGGER                (0x17UL<<EADC_SCTL_TRGSEL_Pos)   /*!< BPWM1TG trigger */
 
 #define EADC_SCTL_TRGDLYDIV_DIVIDER_1       (0UL<<EADC_SCTL_TRGDLYDIV_Pos)         /*!< Trigger delay clock frequency is ADC_CLK/1 */
 #define EADC_SCTL_TRGDLYDIV_DIVIDER_2       (0x1UL<<EADC_SCTL_TRGDLYDIV_Pos)       /*!< Trigger delay clock frequency is ADC_CLK/2 */
@@ -85,7 +88,7 @@ extern "C"
 #define EADC_CMP_ADCMPIE_ENABLE             (EADC_CMP_ADCMPIE_Msk)   /*!< A/D result compare interrupt enable */
 #define EADC_CMP_ADCMPIE_DISABLE            (~EADC_CMP_ADCMPIE_Msk)  /*!< A/D result compare interrupt disable */
 
-/*@}*/ /* end of group EADC_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group EADC_EXPORTED_CONSTANTS */
 
 /** @addtogroup EADC_EXPORTED_FUNCTIONS EADC Exported Functions
   @{
@@ -544,11 +547,11 @@ void EADC_ConfigSampleModule(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32Tr
 void EADC_SetTriggerDelayTime(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32TriggerDelayTime, uint32_t u32DelayClockDivider);
 void EADC_SetExtendSampleTime(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32ExtendSampleTime);
 
-/*@}*/ /* end of group EADC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group EADC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group EADC_Driver */
+/**@}*/ /* end of group EADC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -556,4 +559,4 @@ void EADC_SetExtendSampleTime(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32E
 
 #endif /* __EADC_H__ */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017-2020 Nuvoton Technology Corp. ***/

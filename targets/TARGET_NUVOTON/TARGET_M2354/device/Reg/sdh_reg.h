@@ -18,7 +18,8 @@
 /**
     @addtogroup SDH SD Card Host Interface(SDH)
     Memory Mapped Structure for SDH Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -362,7 +363,8 @@ typedef struct
 /**
     @addtogroup SDH_CONST SDH Bit Field Definition
     Constant Definitions for SDH Controller
-@{ */
+  @{ 
+*/
 
 #define SDH_DMACTL_DMAEN_Pos             (0)                                               /*!< SDH_T::DMACTL: DMAEN Position          */
 #define SDH_DMACTL_DMAEN_Msk             (0x1ul << SDH_DMACTL_DMAEN_Pos)                   /*!< SDH_T::DMACTL: DMAEN Mask              */

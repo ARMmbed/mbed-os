@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    USBH register definition header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __USBH_REG_H__
 #define __USBH_REG_H__
@@ -14,12 +15,12 @@
 
 */
 
-
 /*---------------------- USB Host Controller -------------------------*/
 /**
     @addtogroup USBH USB Host Controller(USBH)
     Memory Mapped Structure for USBH Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -44,8 +45,7 @@ typedef struct
      * |        |          |This specifies the service ratio between Control and Bulk EDs
      * |        |          |Before processing any of the non-periodic lists, HC must compare the ratio specified with its internal count on how many nonempty Control EDs have been processed, in determining whether to continue serving another Control ED or switching to Bulk EDs
      * |        |          |The internal count will be retained when crossing the frame boundary
-     * |        |          |In case of reset, HCD is responsible for restoring this
-     * |        |          |Value.
+     * |        |          |In case of reset, HCD is responsible for restoring this value.
      * |        |          |00 = Number of Control EDs over Bulk EDs served is 1:1.
      * |        |          |01 = Number of Control EDs over Bulk EDs served is 2:1.
      * |        |          |10 = Number of Control EDs over Bulk EDs served is 3:1.
@@ -57,8 +57,8 @@ typedef struct
      * |        |          |1 = Processing of the Periodic (Interrupt and Isochronous) list in the next frame Enabled.
      * |        |          |Note: To enable the processing of the Isochronous list, user has to set both PLE and IE (HcControl[3]) high.
      * |[3]     |IE        |Isochronous List Enable Bit
-     * |        |          |Both ISOEn and PLE (HcControl[2]) high enables Host Controller to process the Isochronous list
-     * |        |          |Either ISOEn or PLE (HcControl[2]) is low disables Host Controller to process the Isochronous list.
+     * |        |          |Both IE and PLE (HcControl[2]) high enables Host Controller to process the Isochronous list
+     * |        |          |Either IE or PLE (HcControl[2]) is low disables Host Controller to process the Isochronous list.
      * |        |          |0 = Processing of the Isochronous list after next SOF (Start-Of-Frame) Disabled.
      * |        |          |1 = Processing of the Isochronous list in the next frame Enabled, if the PLE (HcControl[2]) is high, too.
      * |[4]     |CLE       |Control List Enable Bit
@@ -71,10 +71,10 @@ typedef struct
      * |        |          |This field sets the Host Controller state
      * |        |          |The Controller may force a state change from USBSUSPEND to USBRESUME after detecting resume signaling from a downstream port
      * |        |          |States are:
-     * |        |          |00 = USBSUSPEND.
-     * |        |          |01 = USBOPERATIONAL.
-     * |        |          |10 = USBRESUME.
-     * |        |          |11 = USBRESET.
+     * |        |          |00 = USBRESET.
+     * |        |          |01 = USBRESUME.
+     * |        |          |10 = USBOPERATIONAL.
+     * |        |          |11 = USBSUSPEND.
      * @var USBH_T::HcCommandStatus
      * Offset: 0x08  Host Controller Command Status Register
      * ---------------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ typedef struct
      * |        |          |This bit may be set by either software or the Host Controller and cleared by the Host Controller each time it begins processing the head of the Bulk list.
      * |        |          |0 = No active TD found or Host Controller begins to process the head of the Bulk list.
      * |        |          |1 = An active TD added or found on the Bulk list.
-     * |[17:16] |SOC       |Schedule Overrun Count
+     * |[17:16] |SOC       |Schedule Overrun Count (Read-Only)
      * |        |          |These bits are incremented on each scheduling overrun error
      * |        |          |It is initialized to 00b and wraps around at 11b
      * |        |          |This will be incremented when a scheduling overrun is detected even if SO (HcInterruptStatus[0]) has already been set.
@@ -109,28 +109,34 @@ typedef struct
      * |        |          |Set when the List Processor determines a Schedule Overrun has occurred.
      * |        |          |0 = Schedule Overrun didn't occur.
      * |        |          |1 = Schedule Overrun has occurred.
+     * |        |          |Note: This bit is cleared by writing 1 to it.
      * |[1]     |WDH       |Write Back Done Head
      * |        |          |Set after the Host Controller has written HcDoneHead to HccaDoneHead
      * |        |          |Further updates of the HccaDoneHead will not occur until this bit has been cleared.
-     * |        |          |0 =.Host Controller didn't update HccaDoneHead.
-     * |        |          |1 =.Host Controller has written HcDoneHead to HccaDoneHead.
+     * |        |          |0 = Host Controller didn't update HccaDoneHead.
+     * |        |          |1 = Host Controller has written HcDoneHead to HccaDoneHead.
+     * |        |          |Note: This bit is cleared by writing 1 to it.
      * |[2]     |SF        |Start of Frame
      * |        |          |Set when the Frame Management functional block signals a u2018Start of Frame' event
      * |        |          |Host Control generates a SOF token at the same time.
-     * |        |          |0 =.Not the start of a frame.
-     * |        |          |1 =.Indicate the start of a frame and Host Controller generates a SOF token.
+     * |        |          |0 = Not the start of a frame.
+     * |        |          |1 = Indicate the start of a frame and Host Controller generates a SOF token.
+     * |        |          |Note: This bit is cleared by writing 1 to it.
      * |[3]     |RD        |Resume Detected
      * |        |          |Set when Host Controller detects resume signaling on a downstream port.
      * |        |          |0 = No resume signaling detected on a downstream port.
      * |        |          |1 = Resume signaling detected on a downstream port.
+     * |        |          |Note: This bit is cleared by writing 1 to it.
      * |[5]     |FNO       |Frame Number Overflow
      * |        |          |This bit is set when bit 15 of Frame Number changes from 1 to 0 or from 0 to 1.
      * |        |          |0 = The bit 15 of Frame Number didn't change.
      * |        |          |1 = The bit 15 of Frame Number changes from 1 to 0 or from 0 to 1.
+     * |        |          |Note: This bit is cleared by writing 1 to it.
      * |[6]     |RHSC      |Root Hub Status Change
      * |        |          |This bit is set when the content of HcRhStatus or the content of HcRhPortStatus register has changed.
      * |        |          |0 = The content of HcRhStatus and the content of HcRhPortStatus register didn't change.
      * |        |          |1 = The content of HcRhStatus or the content of HcRhPortStatus register has changed.
+     * |        |          |Note: This bit is cleared by writing ‘1Fh’ to HcRhPortStatus1[20:16].
      * @var USBH_T::HcInterruptEnable
      * Offset: 0x10  Host Controller Interrupt Enable Register
      * ---------------------------------------------------------------------------------------------------
@@ -248,21 +254,21 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[31:8]  |HCCA      |Host Controller Communication Area
-     * |        |          |Pointer to indicate base address of the Host Controller Communication Area (HCCA).
+     * |        |          |Pointer to indicate the base address of the Host Controller Communication Area (HCCA).
      * @var USBH_T::HcPeriodCurrentED
      * Offset: 0x1C  Host Controller Period Current ED Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[31:4]  |PCED      |Periodic Current ED
-     * |        |          |Pointer to indicate physical address of the current Isochronous or Interrupt Endpoint Descriptor.
+     * |        |          |Pointer to indicate the physical address of the current Isochronous or Interrupt Endpoint Descriptor.
      * @var USBH_T::HcControlHeadED
-     * Offset: 0x20  Host Controller Control Head ED Register
+     * Offset: 0x20  Host Controller Control ED Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[31:4]  |CHED      |Control Head ED
-     * |        |          |Pointer to indicate physical address of the first Endpoint Descriptor of the Control list.
+     * |        |          |Pointer to indicate the physical address of the first Endpoint Descriptor of the Control list.
      * @var USBH_T::HcControlCurrentED
      * Offset: 0x24  Host Controller Control Current ED Register
      * ---------------------------------------------------------------------------------------------------
@@ -299,7 +305,7 @@ typedef struct
      * |[13:0]  |FI        |Frame Interval
      * |        |          |This field specifies the length of a frame as (bit times - 1)
      * |        |          |For 12,000 bit times in a frame, a value of 11,999 is stored here.
-     * |[30:16] |FSMPS     |FS Largest Data Packet
+     * |[29:16] |FSMPS     |FS Largest Data Packet
      * |        |          |This field specifies a value that is loaded into the Largest Data Packet Counter at the beginning of each frame.
      * |[31]    |FIT       |Frame Interval Toggle
      * |        |          |This bit is toggled by Host Controller Driver when it loads a new value into FI (HcFmInterval[13:0]).
@@ -347,16 +353,17 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[7:0]   |NDP       |Number Downstream Ports
      * |        |          |USB host control supports two downstream ports and only one port is available in this series of chip.
+     * |        |          |Note: NDP = 1 in this series of chip.
      * |[8]     |PSM       |Power Switching Mode
      * |        |          |This bit is used to specify how the power switching of the Root Hub ports is controlled.
-     * |        |          |0 = Global Switching.
-     * |        |          |1 = Individual Switching.
-     * |[11]    |OCPM      |over Current Protection Mode
+     * |        |          |0 = Global switching.
+     * |        |          |1 = Individual switching.
+     * |[11]    |OCPM      |Over Current Protection Mode
      * |        |          |This bit describes how the over current status for the Root Hub ports reported
      * |        |          |This bit is only valid when NOCP (HcRhDescriptorA[12]) is cleared.
-     * |        |          |0 = Global Over current.
-     * |        |          |1 = Individual Over current.
-     * |[12]    |NOCP      |No over Current Protection
+     * |        |          |0 = Global over current.
+     * |        |          |1 = Individual over current.
+     * |[12]    |NOCP      |No Over Current Protection
      * |        |          |This bit describes how the over current status for the Root Hub ports reported.
      * |        |          |0 = Over current status is reported.
      * |        |          |1 = Over current status is not reported.
@@ -367,9 +374,9 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[31:16] |PPCM      |Port Power Control Mask
      * |        |          |Global power switching
-     * |        |          |This field is only valid if PowerSwitchingMode is set (individual port switching)
-     * |        |          |When set, the port only responds to individual port power switching commands (Set/ClearPortPower)
-     * |        |          |When cleared, the port only responds to global power switching commands (Set/ClearGlobalPower).
+     * |        |          |This field is only valid if Power Switching Mode is set (individual port switching)
+     * |        |          |When set, the port only responds to individual port power switching commands (Set/Clear Port Power)
+     * |        |          |When cleared, the port only responds to global power switching commands (Set/Clear Global Power).
      * |        |          |0 = Port power controlled by global power switching.
      * |        |          |1 = Port power controlled by port power switching.
      * |        |          |Note: PPCM[15:2] and PPCM[0] are reserved.
@@ -384,9 +391,9 @@ typedef struct
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
      * |        |          |1 = Clear global power.
-     * |[1]     |OCI       |over Current Indicator
+     * |[1]     |OCI       |Over Current Indicator (Read-Only)
      * |        |          |This bit reflects the state of the over current status pin
-     * |        |          |This field is only valid if NOCP (HcRhDesA[12]) and OCPM (HcRhDesA[11]) are cleared.
+     * |        |          |This field is only valid if NOCP (HcRhDescriptorA[12]) and OCPM (HcRhDescriptorA[11]) are cleared.
      * |        |          |0 = No over current condition.
      * |        |          |1 = Over current condition.
      * |[15]    |DRWE      |Device Remote Wakeup Enable Bit
@@ -403,7 +410,7 @@ typedef struct
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
      * |        |          |1 = Set global power.
-     * |[17]    |OCIC      |over Current Indicator Change
+     * |[17]    |OCIC      |Over Current Indicator Change
      * |        |          |This bit is set by hardware when a change has occurred in OCI (HcRhStatus[1]).
      * |        |          |Write 1 to clear this bit to zero.
      * |        |          |0 = OCI (HcRhStatus[1]) didn't change.
@@ -419,21 +426,21 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |CCS       |CurrentConnectStatus (Read) or ClearPortEnable Bit (Write)
+     * |[0]     |CCS       |Current Connect Status (Read) or Clear Port Enable (Write)
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
      * |        |          |1 = Clear port enable.
      * |        |          |Read Operation:
      * |        |          |0 = No device connected.
      * |        |          |1 = Device connected.
-     * |[1]     |PES       |Port Enable Status
+     * |[1]     |PES       |Port Enable Status (Read) or Set Port Enable (Write)
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
      * |        |          |1 = Set port enable.
      * |        |          |Read Operation:
      * |        |          |0 = Port Disabled.
      * |        |          |1 = Port Enabled.
-     * |[2]     |PSS       |Port Suspend Status
+     * |[2]     |PSS       |Port Suspend Status (Read) or Set Port Suspend (Write)
      * |        |          |This bit indicates the port is suspended
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
@@ -441,7 +448,7 @@ typedef struct
      * |        |          |Read Operation:
      * |        |          |0 = Port is not suspended.
      * |        |          |1 = Port is selectively suspended.
-     * |[3]     |POCI      |Port over Current Indicator (Read) or Clear Port Suspend (Write)
+     * |[3]     |POCI      |Port Over Current Indicator (Read) or Clear Port Suspend (Write)
      * |        |          |This bit reflects the state of the over current status pin dedicated to this port
      * |        |          |This field is only valid if NOCP (HcRhDescriptorA[12]) is cleared and OCPM (HcRhDescriptorA[11]) is set.
      * |        |          |This bit is also used to initiate the selective result sequence for the port.
@@ -451,7 +458,7 @@ typedef struct
      * |        |          |Read Operation:
      * |        |          |0 = No over current condition.
      * |        |          |1 = Over current condition.
-     * |[4]     |PRS       |Port Reset Status
+     * |[4]     |PRS       |Port Reset Status (Read) or Set Port Reset (Write)
      * |        |          |This bit reflects the reset state of the port.
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
@@ -459,7 +466,7 @@ typedef struct
      * |        |          |Read Operation
      * |        |          |0 = Port reset signal is not active.
      * |        |          |1 = Port reset signal is active.
-     * |[8]     |PPS       |Port Power Status
+     * |[8]     |PPS       |Port Power Status (Read) or Set Port Power (Write)
      * |        |          |This bit reflects the power state of the port regardless of the power switching mode.
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
@@ -468,7 +475,7 @@ typedef struct
      * |        |          |0 = Port power is Disabled.
      * |        |          |1 = Port power is Enabled.
      * |[9]     |LSDA      |Low Speed Device Attached (Read) or Clear Port Power (Write)
-     * |        |          |This bit defines the speed (and bud idle) of the attached device
+     * |        |          |This bit defines the speed (and bus idle) of the attached device
      * |        |          |It is only valid when CCS (HcRhPortStatus[0]) is set.
      * |        |          |This bit is also used to clear port power.
      * |        |          |Write Operation:
@@ -490,9 +497,9 @@ typedef struct
      * |[18]    |PSSC      |Port Suspend Status Change
      * |        |          |This bit indicates the completion of the selective resume sequence for the port.
      * |        |          |Write 1 to clear this bit to zero.
-     * |        |          |0 = Port resume is not completed.
-     * |        |          |1 = Port resume completed.
-     * |[19]    |OCIC      |Port over Current Indicator Change
+     * |        |          |0 = Port resume is not complete.
+     * |        |          |1 = Port resume complete.
+     * |[19]    |OCIC      |Port Over Current Indicator Change
      * |        |          |This bit is set when POCI (HcRhPortStatus[3]) changes.
      * |        |          |Write 1 to clear this bit to zero.
      * |        |          |0 = POCI (HcRhPortStatus[3]) didn't change.
@@ -516,10 +523,11 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[1]     |ABORT     |AHB Bus ERROR Response
-     * |        |          |This bit indicates there is an ERROR response received in AHB bus.
-     * |        |          |0 = No ERROR response received.
-     * |        |          |1 = ERROR response received.
+     * |[1]     |ABORT     |AHB Bus Error Response
+     * |        |          |This bit indicates there is an Error response received in AHB bus.
+     * |        |          |0 = No Error response received.
+     * |        |          |1 = Error response received.
+     * |        |          |Note: This bit is cleared by writing 1 to it.
      * |[3]     |OCAL      |over Current Active Low
      * |        |          |This bit controls the polarity of over current flag from external power IC.
      * |        |          |0 = Over current flag is high active.
@@ -562,7 +570,8 @@ typedef struct
 /**
     @addtogroup USBH_CONST USBH Bit Field Definition
     Constant Definitions for USBH Controller
-@{ */
+  @{ 
+*/
 
 #define USBH_HcRevision_REV_Pos          (0)                                               /*!< USBH_T::HcRevision: REV Position       */
 #define USBH_HcRevision_REV_Msk          (0xfful << USBH_HcRevision_REV_Pos)               /*!< USBH_T::HcRevision: REV Mask           */
@@ -682,7 +691,7 @@ typedef struct
 #define USBH_HcFmInterval_FI_Msk         (0x3ffful << USBH_HcFmInterval_FI_Pos)            /*!< USBH_T::HcFmInterval: FI Mask          */
 
 #define USBH_HcFmInterval_FSMPS_Pos      (16)                                              /*!< USBH_T::HcFmInterval: FSMPS Position   */
-#define USBH_HcFmInterval_FSMPS_Msk      (0x7ffful << USBH_HcFmInterval_FSMPS_Pos)         /*!< USBH_T::HcFmInterval: FSMPS Mask       */
+#define USBH_HcFmInterval_FSMPS_Msk      (0x3ffful << USBH_HcFmInterval_FSMPS_Pos)         /*!< USBH_T::HcFmInterval: FSMPS Mask       */
 
 #define USBH_HcFmInterval_FIT_Pos        (31)                                              /*!< USBH_T::HcFmInterval: FIT Position     */
 #define USBH_HcFmInterval_FIT_Msk        (0x1ul << USBH_HcFmInterval_FIT_Pos)              /*!< USBH_T::HcFmInterval: FIT Mask         */

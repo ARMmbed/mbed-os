@@ -1,10 +1,11 @@
 /**************************************************************************//**
  * @file     tamper.h
  * @version  V3.00
- * @brief    M2354 series Tamper driver header file
+ * @brief    M2354 series TAMPER driver header file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __TAMPER_H__
 #define __TAMPER_H__
@@ -27,48 +28,49 @@ extern "C"
   @{
 */
 
-#define TAMP_TAMPER0_SELECT      (0x1ul << 0)    /*!< Select Tamper 0 */
-#define TAMP_TAMPER1_SELECT      (0x1ul << 1)    /*!< Select Tamper 1 */
-#define TAMP_TAMPER2_SELECT      (0x1ul << 2)    /*!< Select Tamper 2 */
-#define TAMP_TAMPER3_SELECT      (0x1ul << 3)    /*!< Select Tamper 3 */
-#define TAMP_TAMPER4_SELECT      (0x1ul << 4)    /*!< Select Tamper 4 */
-#define TAMP_TAMPER5_SELECT      (0x1ul << 5)    /*!< Select Tamper 5 */
-#define MAX_TAMPER_PIN_NUM       6ul             /*!< Tamper Pin number */
+#define TAMPER_TAMPER0_SELECT      (0x1UL << 0)    /*!< Select Tamper 0 */
+#define TAMPER_TAMPER1_SELECT      (0x1UL << 1)    /*!< Select Tamper 1 */
+#define TAMPER_TAMPER2_SELECT      (0x1UL << 2)    /*!< Select Tamper 2 */
+#define TAMPER_TAMPER3_SELECT      (0x1UL << 3)    /*!< Select Tamper 3 */
+#define TAMPER_TAMPER4_SELECT      (0x1UL << 4)    /*!< Select Tamper 4 */
+#define TAMPER_TAMPER5_SELECT      (0x1UL << 5)    /*!< Select Tamper 5 */
+#define TAMPER_MAX_TAMPER_PIN_NUM  6UL             /*!< Tamper Pin number */
 
-#define TAMP_TAMPER_HIGH_LEVEL_DETECT    1ul     /*!< Tamper pin detect voltage level is high */
-#define TAMP_TAMPER_LOW_LEVEL_DETECT     0ul     /*!< Tamper pin detect voltage level is low */
+#define TAMPER_TAMPER_HIGH_LEVEL_DETECT    1UL     /*!< Tamper pin detect voltage level is high */
+#define TAMPER_TAMPER_LOW_LEVEL_DETECT     0UL     /*!< Tamper pin detect voltage level is low */
 
-#define TAMP_TAMPER_DEBOUNCE_ENABLE      1ul     /*!< Enable tamper pin de-bounce function */
-#define TAMP_TAMPER_DEBOUNCE_DISABLE     0ul     /*!< Disable tamper pin de-bounce function */
+#define TAMPER_TAMPER_DEBOUNCE_ENABLE      1UL     /*!< Enable tamper pin de-bounce function */
+#define TAMPER_TAMPER_DEBOUNCE_DISABLE     0UL     /*!< Disable tamper pin de-bounce function */
 
-#define TAMP_PAIR0_SELECT        (0x1ul << 0)    /*!< Select Pair 0 */
-#define TAMP_PAIR1_SELECT        (0x1ul << 1)    /*!< Select Pair 1 */
-#define TAMP_PAIR2_SELECT        (0x1ul << 2)    /*!< Select Pair 2 */
-#define MAX_PAIR_NUM             3ul             /*!< Pair number */
-#define ACTS_MAX_PAIR_NUM        2ul             /*!< Active Shield Pair number */
+#define TAMPER_PAIR0_SELECT        (0x1UL << 0)    /*!< Select Pair 0 */
+#define TAMPER_PAIR1_SELECT        (0x1UL << 1)    /*!< Select Pair 1 */
+#define TAMPER_PAIR2_SELECT        (0x1UL << 2)    /*!< Select Pair 2 */
+#define TAMPER_MAX_PAIR_NUM        3UL             /*!< Pair number */
 
-#define TAMP_2POW6_CLK           (0x0ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 RTC clock cycles */
-#define TAMP_2POW7_CLK           (0x1ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 x 2 RTC clock cycles */
-#define TAMP_2POW8_CLK           (0x2ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 x 4 RTC clock cycles */
-#define TAMP_2POW9_CLK           (0x3ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 x 6 RTC clock cycles */
-#define TAMP_2POW10_CLK          (0x4ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 x 8 RTC clock cycles */
-#define TAMP_2POW11_CLK          (0x5ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 x 10 RTC clock cycles */
-#define TAMP_2POW12_CLK          (0x6ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 x 12 RTC clock cycles */
-#define TAMP_2POW13_CLK          (0x7ul << TAMP_TIOCTL_DYNRATE_Pos) /*!< 64 x 14 RTC clock cycles */
+#define TAMPER_2POW6_CLK           (0x0UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 RTC clock cycles */
+#define TAMPER_2POW7_CLK           (0x1UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 x 2 RTC clock cycles */
+#define TAMPER_2POW8_CLK           (0x2UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 x 4 RTC clock cycles */
+#define TAMPER_2POW9_CLK           (0x3UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 x 6 RTC clock cycles */
+#define TAMPER_2POW10_CLK          (0x4UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 x 8 RTC clock cycles */
+#define TAMPER_2POW11_CLK          (0x5UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 x 10 RTC clock cycles */
+#define TAMPER_2POW12_CLK          (0x6UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 x 12 RTC clock cycles */
+#define TAMPER_2POW13_CLK          (0x7UL << TAMPER_TIOCTL_DYNRATE_Pos) /*!< 64 x 14 RTC clock cycles */
 
-#define TAMP_ACTS_2POW10_CLK     (0x0ul << 5)    /*!< 1024 LIRC32K clock cycles */
-#define TAMP_ACTS_2POW11_CLK     (0x1ul << 5)    /*!< 1024 x 2 LIRC32K clock cycles */
-#define TAMP_ACTS_2POW12_CLK     (0x2ul << 5)    /*!< 1024 x 4 LIRC32K clock cycles */
-#define TAMP_ACTS_2POW13_CLK     (0x3ul << 5)    /*!< 1024 x 6 LIRC32K clock cycles */
-#define TAMP_ACTS_2POW14_CLK     (0x4ul << 5)    /*!< 1024 x 8 LIRC32K clock cycles */
-#define TAMP_ACTS_2POW15_CLK     (0x5ul << 5)    /*!< 1024 x 16 LIRC32K clock cycles */
-#define TAMP_ACTS_2POW16_CLK     (0x6ul << 5)    /*!< 1024 x 32 LIRC32K clock cycles */
-#define TAMP_ACTS_2POW17_CLK     (0x7ul << 5)    /*!< 1024 x 64 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW10_CLK     (0x0UL << 5)    /*!< 1024 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW11_CLK     (0x1UL << 5)    /*!< 1024 x 2 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW12_CLK     (0x2UL << 5)    /*!< 1024 x 4 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW13_CLK     (0x3UL << 5)    /*!< 1024 x 6 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW14_CLK     (0x4UL << 5)    /*!< 1024 x 8 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW15_CLK     (0x5UL << 5)    /*!< 1024 x 16 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW16_CLK     (0x6UL << 5)    /*!< 1024 x 32 LIRC32K clock cycles */
+#define TAMPER_ACTS_2POW17_CLK     (0x7UL << 5)    /*!< 1024 x 64 LIRC32K clock cycles */
 
-#define REF_RANDOM_PATTERN       0x0ul           /*!< The new reference pattern is generated by random number generator when the reference pattern run out */
-#define REF_SEED                 0x1ul           /*!< The new reference pattern is repeated from SEED (TAMP_SEED[31:0]) when the reference pattern run out */
+#define TAMPER_REF_RANDOM_PATTERN        0x0UL     /*!< The new reference pattern is generated by random number generator when the reference pattern run out */
+#define TAMPER_REF_SEED                  0x1UL     /*!< The new reference pattern is repeated from SEED (TAMPER_SEED[31:0]) when the reference pattern run out */
 
-/*@}*/ /* end of group TAMPER_EXPORTED_CONSTANTS */
+#define TAMPER_VG_192M_SAMPLE            0x0UL     /*!< Select voltage glitch 192M sampleing rate */
+
+/**@}*/ /* end of group TAMPER_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup TAMPER_EXPORTED_FUNCTIONS Tamper Exported Functions
@@ -85,7 +87,7 @@ extern "C"
   * @details    To set TAMPER INIT control register to reset the tamper coreblock.
   *
   */
-#define TAMP_CORE_RESET()                 ((uint32_t)(TAMPER->INIT = 0x55AA))
+#define TAMPER_CORE_RESET()                 ((uint32_t)(TAMPER->INIT = 0x55AA))
 
 /**
   * @brief      Release Tamper Coreblock
@@ -97,20 +99,20 @@ extern "C"
   * @details    To set TAMPER INIT control register to release the tamper coreblock.
   *
   */
-#define TAMP_CORE_RELEASE()               ((uint32_t)(TAMPER->INIT = 0x5500))
+#define TAMPER_CORE_RELEASE()               ((uint32_t)(TAMPER->INIT = 0x5500))
 
 /**
-  * @brief      Get the TLDO Power Ready Status
+  * @brief      Get the Voltage Regulator Power Ready Status
   *
   * @param      None
   *
-  * @retval     0   The power status of TLDO is not ready.
-  * @retval     1   The power status of TLDO is ready.
+  * @retval     0   The power status of voltage regulator is not ready.
+  * @retval     1   The power status of voltage regulator is ready.
   *
-  * @details    This macro will return the power status of TLDO.
+  * @details    This macro will return the power status of voltage regulator.
   *
   */
-#define TAMP_TLDO_IS_READY()              (TAMPER->INIT & TAMP_INIT_TLDORDY_Msk ? 1:0)
+#define TAMPER_TLDO_IS_READY()              (TAMPER->INIT & TAMPER_INIT_TLDORDY_Msk ? 1:0)
 
 /**
   * @brief      Enable LXT Clock Detection
@@ -122,7 +124,7 @@ extern "C"
   * @details    To set TAMPER FUNEN control register to enable LXT clock detection.
   *
   */
-#define TAMP_ENABLE_LXTDET()              ((uint32_t)(TAMPER->FUNEN = 0x44))
+#define TAMPER_ENABLE_LXTDET()              ((uint32_t)(TAMPER->FUNEN = (TAMPER->FUNEN & ~0xFFUL) | 0x44))
 
 /**
   * @brief      Disable LXT Clock Detection
@@ -134,57 +136,33 @@ extern "C"
   * @details    To set TAMPER FUNEN control register to disable LXT clock detection.
   *
   */
-#define TAMP_DISABLE_LXTDET()             ((uint32_t)(TAMPER->FUNEN = 0x40))
-
-/**
-  * @brief      Enable HXT Clock Detection
-  *
-  * @param      None
-  *
-  * @return     None
-  *
-  * @details    To set TAMPER FUNEN control register to enable HXT clock detection.
-  *
-  */
-#define TAMP_ENABLE_HXTDET()              ((uint32_t)(TAMPER->FUNEN = 0x34))
-
-/**
-  * @brief      Disable HXT Clock Detection
-  *
-  * @param      None
-  *
-  * @return     None
-  *
-  * @details    To set TAMPER FUNEN control register to disable HXT clock detection.
-  *
-  */
-#define TAMP_DISABLE_HXTDET()             ((uint32_t)(TAMPER->FUNEN = 0x30))
+#define TAMPER_DISABLE_LXTDET()             ((uint32_t)(TAMPER->FUNEN = (TAMPER->FUNEN & ~0xFFUL) | 0x40))
 
 /**
   * @brief      Tamper I/O TAMPER Block Detection Selection
   *
   * @param[in]  u32TamperSelect   Tamper pin select. Possible options are
-  *                               - \ref TAMP_TAMPER0_SELECT
-  *                               - \ref TAMP_TAMPER1_SELECT
-  *                               - \ref TAMP_TAMPER2_SELECT
-  *                               - \ref TAMP_TAMPER3_SELECT
-  *                               - \ref TAMP_TAMPER4_SELECT
-  *                               - \ref TAMP_TAMPER5_SELECT
+  *                               - \ref TAMPER_TAMPER0_SELECT
+  *                               - \ref TAMPER_TAMPER1_SELECT
+  *                               - \ref TAMPER_TAMPER2_SELECT
+  *                               - \ref TAMPER_TAMPER3_SELECT
+  *                               - \ref TAMPER_TAMPER4_SELECT
+  *                               - \ref TAMPER_TAMPER5_SELECT
   *
   * @return     None
   *
   * @details    To set TAMPER FUNEN control register to select tamper I/O 0~5 and its function is detected through TAMPER block.
   *
   */
-__STATIC_INLINE void TAMP_IOSEL_TAMPER(uint32_t u32TamperSelect)
+__STATIC_INLINE void TAMPER_IOSEL_TAMPER(uint32_t u32TamperSelect)
 {
     uint32_t i;
 
-    for(i = 0UL; i < (uint32_t)MAX_TAMPER_PIN_NUM; i++)
+    for(i = 0UL; i < (uint32_t)TAMPER_MAX_TAMPER_PIN_NUM; i++)
     {
         if(u32TamperSelect & (0x1UL << i))
         {
-            TAMPER->FUNEN = (0x94 + i * 0x10UL);
+            TAMPER->FUNEN = (TAMPER->FUNEN & ~0xFFUL) | (0x94 + i * 0x10UL);
         }
     }
 }
@@ -193,78 +171,75 @@ __STATIC_INLINE void TAMP_IOSEL_TAMPER(uint32_t u32TamperSelect)
   * @brief      Tamper I/O RTC Block Detection Selection
   *
   * @param[in]  u32TamperSelect   Tamper pin select. Possible options are
-  *                               - \ref TAMP_TAMPER0_SELECT
-  *                               - \ref TAMP_TAMPER1_SELECT
-  *                               - \ref TAMP_TAMPER2_SELECT
-  *                               - \ref TAMP_TAMPER3_SELECT
-  *                               - \ref TAMP_TAMPER4_SELECT
-  *                               - \ref TAMP_TAMPER5_SELECT   
+  *                               - \ref TAMPER_TAMPER0_SELECT
+  *                               - \ref TAMPER_TAMPER1_SELECT
+  *                               - \ref TAMPER_TAMPER2_SELECT
+  *                               - \ref TAMPER_TAMPER3_SELECT
+  *                               - \ref TAMPER_TAMPER4_SELECT
+  *                               - \ref TAMPER_TAMPER5_SELECT
   *
   * @return     None
   *
   * @details    To set TAMPER FUNEN control register to select tamper I/O 0~5 and its function is detected through RTC block.
   *
   */
-__STATIC_INLINE void TAMP_IOSEL_RTC(uint32_t u32TamperSelect)
+__STATIC_INLINE void TAMPER_IOSEL_RTC(uint32_t u32TamperSelect)
 {
     uint32_t i;
 
-    for(i = 0UL; i < (uint32_t)MAX_TAMPER_PIN_NUM; i++)
+    for(i = 0UL; i < (uint32_t)TAMPER_MAX_TAMPER_PIN_NUM; i++)
     {
         if(u32TamperSelect & (0x1UL << i))
         {
-            TAMPER->FUNEN = (0x90 + i * 0x10UL);
+            TAMPER->FUNEN = (TAMPER->FUNEN & ~0xFFUL) | (0x90 + i * 0x10UL);
         }
     }
 }
 
 /**
-  * @brief      Enable HIRC12M
+  * @brief      Enable HIRC48M
   *
   * @param      None
   *
   * @return     None
   *
-  * @details    To set TAMPER FUNEN control register to enable HIRC12M.
+  * @details    To set TAMPER FUNEN control register to enable HIRC48M.
   *
   */
-#define TAMP_ENABLE_HIRC12M()             ((uint32_t)(TAMPER->FUNEN &= (~TAMP_FUNEN_HIRC12MEN_Msk)))
+#define TAMPER_ENABLE_HIRC48M()             ((uint32_t)(TAMPER->FUNEN &= (~TAMPER_FUNEN_HIRC48MEN_Msk)))
 
 /**
-  * @brief      Disable HIRC12M
+  * @brief      Disable HIRC48M
   *
   * @param      None
   *
   * @return     None
   *
-  * @details    To set TAMPER FUNEN control register to disable HIRC12M.
+  * @details    To set TAMPER FUNEN control register to disable HIRC48M.
   *
   */
-#define TAMP_DISABLE_HIRC12M()            ((uint32_t)(TAMPER->FUNEN = (TAMPER->FUNEN & (~TAMP_FUNEN_HIRC12MEN_Msk)) | (0x5A << TAMP_FUNEN_HIRC12MEN_Pos)))
+#define TAMPER_DISABLE_HIRC48M()            ((uint32_t)(TAMPER->FUNEN = (TAMPER->FUNEN & (~TAMPER_FUNEN_HIRC48MEN_Msk)) | (0x5A << TAMPER_FUNEN_HIRC48MEN_Pos)))
 
 /**
-  * @brief      Enable to Trigger FMC
+  * @brief      Voltage Glitch Sampling Rate Selection
   *
-  * @param      None
+  * @param[in]  u32VGSampleRate Voltage Glitch sampling rate select. Possible option is
+  *                             - \ref TAMPER_VG_192M_SAMPLE
   *
   * @return     None
   *
-  * @details    Set FMCTRIGEN bit of TAMPER TRIEN control register to trigger FMC when Tamper event is detected.
+  * @details    To set TAMPER FUNEN control register to enable voltage glitch channel 0~3 to select voltage glitch sampling rate.
   *
   */
-#define TAMP_ENABLE_FMC_TRIG()            ((uint32_t)(TAMPER->TRIEN |= TAMP_TRIEN_FMCTRIGEN_Msk))
+__STATIC_INLINE void TAMPER_VG_SAMPLE_SEL(uint32_t u32VGSampleRate)
+{
+    TAMPER->FUNEN &= ~0xF000000UL;
 
-/**
-  * @brief      Disable to Trigger FMC
-  *
-  * @param      None
-  *
-  * @return     None
-  *
-  * @details    Clear FMCTRIGEN bit of TAMPER TRIEN control register to not trigger FMC when Tamper event is detected.
-  *
-  */
-#define TAMP_DISABLE_FMC_TRIG()           ((uint32_t)(TAMPER->TRIEN &= (~TAMP_TRIEN_FMCTRIGEN_Msk)))
+    if(u32VGSampleRate == TAMPER_VG_192M_SAMPLE)
+    {
+        TAMPER->FUNEN |= TAMPER_FUNEN_VGCHEN0_Msk | TAMPER_FUNEN_VGCHEN1_Msk | TAMPER_FUNEN_VGCHEN2_Msk | TAMPER_FUNEN_VGCHEN3_Msk;
+    }
+}
 
 /**
   * @brief      Enable to Trigger Key Store
@@ -276,7 +251,7 @@ __STATIC_INLINE void TAMP_IOSEL_RTC(uint32_t u32TamperSelect)
   * @details    Set KSTRIGEN bit of TAMPER TRIEN control register to trigger Key Store when Tamper event is detected.
   *
   */
-#define TAMP_ENABLE_KS_TRIG()             ((uint32_t)(TAMPER->TRIEN |= TAMP_TRIEN_KSTRIGEN_Msk))
+#define TAMPER_ENABLE_KS_TRIG()             ((uint32_t)(TAMPER->TRIEN |= TAMPER_TRIEN_KSTRIGEN_Msk))
 
 /**
   * @brief      Disable to Trigger Key Store
@@ -288,7 +263,7 @@ __STATIC_INLINE void TAMP_IOSEL_RTC(uint32_t u32TamperSelect)
   * @details    Clear KSTRIGEN bit of TAMPER TRIEN control register to not trigger Key Store when Tamper event is detected.
   *
   */
-#define TAMP_DISABLE_KS_TRIG()            ((uint32_t)(TAMPER->TRIEN &= (~TAMP_TRIEN_KSTRIGEN_Msk)))
+#define TAMPER_DISABLE_KS_TRIG()            ((uint32_t)(TAMPER->TRIEN &= (~TAMPER_TRIEN_KSTRIGEN_Msk)))
 
 /**
   * @brief      Enable Wake-up Function
@@ -297,10 +272,10 @@ __STATIC_INLINE void TAMP_IOSEL_RTC(uint32_t u32TamperSelect)
   *
   * @return     None
   *
-  * @details    Set WakeupEN bit of TAMPER TRIEN control register to wake-up system when Tamper event is detected.
+  * @details    Set WAKEUPEN bit of TAMPER TRIEN control register to wake-up the system when Tamper event is detected.
   *
   */
-#define TAMP_ENABLE_WAKEUP()              ((uint32_t)(TAMPER->TRIEN |= TAMP_TRIEN_WakeupEN_Msk))
+#define TAMPER_ENABLE_WAKEUP()              ((uint32_t)(TAMPER->TRIEN |= TAMPER_TRIEN_WAKEUPEN_Msk))
 
 /**
   * @brief      Disable Wake-up Function
@@ -309,128 +284,178 @@ __STATIC_INLINE void TAMP_IOSEL_RTC(uint32_t u32TamperSelect)
   *
   * @return     None
   *
-  * @details    Clear WakeupEN bit of TAMPER TRIEN control register to not wake-up system when Tamper event is detected.
+  * @details    Clear WAKEUPEN bit of TAMPER TRIEN control register to not wake-up the system when Tamper event is detected.
   *
   */
-#define TAMP_DISABLE_WAKEUP()             ((uint32_t)(TAMPER->TRIEN &= (~TAMP_TRIEN_WakeupEN_Msk)))
+#define TAMPER_DISABLE_WAKEUP()             ((uint32_t)(TAMPER->TRIEN &= (~TAMPER_TRIEN_WAKEUPEN_Msk)))
 
 /**
-  * @brief      Get Tamper Event Flag
+  * @brief      Enable to Clear Crypto Function
   *
   * @param      None
   *
-  * @retval     0   Tamper event did not occur
-  * @retval     1   Tamper event occurred
+  * @return     None
   *
-  * @details    This macro indicates Tamper event occurred or not.
+  * @details    Set CRYPTOEN bit of TAMPER TRIEN control register to reset Crypto when Tamper event is detected.
   *
   */
-#define TAMP_GET_TAMPER_EVENT_FLAG()      ((TAMPER->EVSTS & (0xAA7F0FFF))? 1:0)
+#define TAMPER_ENABLE_CRYPTO()              ((uint32_t)(TAMPER->TRIEN |= TAMPER_TRIEN_CRYPTOEN_Msk))
 
 /**
-  * @brief      Clear Tamper Event Status
+  * @brief      Disable to Clear Crypto Function
   *
-  * @param[in]  u32TamperFlag   Tamper event flag. It consists of:
-  *                             - \ref TAMP_EVSTS_TAMP0IF_Msk
-  *                             - \ref TAMP_EVSTS_TAMP1IF_Msk
-  *                             - \ref TAMP_EVSTS_TAMP2IF_Msk
-  *                             - \ref TAMP_EVSTS_TAMP3IF_Msk
-  *                             - \ref TAMP_EVSTS_TAMP4IF_Msk
-  *                             - \ref TAMP_EVSTS_TAMP5IF_Msk
-  *                             - \ref TAMP_EVSTS_CLKFAIL_Msk
-  *                             - \ref TAMP_EVSTS_CLKSTOP_Msk
-  *                             - \ref TAMP_EVSTS_PWRPEV_Msk
-  *                             - \ref TAMP_EVSTS_PWRNEV_Msk
-  *                             - \ref TAMP_EVSTS_SECWDT_Msk
-  *                             - \ref TAMP_EVSTS_ACTST1IF_Msk
-  *                             - \ref TAMP_EVSTS_ACTST3IF_Msk
-  *                             - \ref TAMP_EVSTS_ACTST21IF_Msk
-  *                             - \ref TAMP_EVSTS_ACTST23IF_Msk
+  * @param      None
+  *
+  * @return     None
+  *
+  * @details    Clear CRYPTOEN bit of TAMPER TRIEN control register to not reset Crypto when Tamper event is detected.
+  *
+  */
+#define TAMPER_DISABLE_CRYPTO()             ((uint32_t)(TAMPER->TRIEN &= (~TAMPER_TRIEN_CRYPTOEN_Msk)))
+
+/**
+  * @brief      Enable to Trigger Chip Reset
+  *
+  * @param      None
+  *
+  * @return     None
+  *
+  * @details    Set CHIPRSTEN bit of TAMPER TRIEN control register to reset the system when Tamper event is detected.
+  *
+  */
+#define TAMPER_ENABLE_CHIPRST()              ((uint32_t)(TAMPER->TRIEN |= TAMPER_TRIEN_CHIPRSTEN_Msk))
+
+/**
+  * @brief      Disable to Trigger Chip Reset
+  *
+  * @param      None
+  *
+  * @return     None
+  *
+  * @details    Clear CHIPRSTEN bit of TAMPER TRIEN control register to not reset the system when Tamper event is detected.
+  *
+  */
+#define TAMPER_DISABLE_CHIPRST()             ((uint32_t)(TAMPER->TRIEN &= (~TAMPER_TRIEN_CHIPRSTEN_Msk)))
+
+/**
+  * @brief      Enable to Clear RTC Spare Register
+  *
+  * @param      None
+  *
+  * @return     None
+  *
+  * @details    Set RTCSPCLREN bit of TAMPER TRIEN control register to reset RTC spare register when Tamper event is detected.
+  *
+  */
+#define TAMPER_ENABLE_RTCSPCLR()              ((uint32_t)(TAMPER->TRIEN |= TAMPER_TRIEN_RTCSPCLREN_Msk))
+
+/**
+  * @brief      Disable to Clear RTC Spare Register
+  *
+  * @param      None
+  *
+  * @return     None
+  *
+  * @details    Clear RTCSPCLREN bit of TAMPER TRIEN control register to not reset RTC spare register when Tamper event is detected.
+  *
+  */
+#define TAMPER_DISABLE_RTCSPCLR()             ((uint32_t)(TAMPER->TRIEN &= (~TAMPER_TRIEN_RTCSPCLREN_Msk)))
+
+/**
+  * @brief      Get Tamper Interrupt Flag
+  *
+  * @param      None
+  *
+  * @retval     0   Tamper event Interrupt did not occur
+  * @retval     1   Tamper event Interrupt occurred
+  *
+  * @details    This macro indicates Tamper event intertupt occurred or not.
+  *
+  */
+#define TAMPER_GET_INT_FLAG()      ((TAMPER->INTSTS & (0xAA7FAFFF))? 1:0)
+
+/**
+  * @brief      Clear Tamper Interrupt Status
+  *
+  * @param[in]  u32TamperFlag   Tamper event interrupt flag. It consists of:
+  *                             - \ref TAMPER_INTSTS_TAMP0IF_Msk
+  *                             - \ref TAMPER_INTSTS_TAMP1IF_Msk
+  *                             - \ref TAMPER_INTSTS_TAMP2IF_Msk
+  *                             - \ref TAMPER_INTSTS_TAMP3IF_Msk
+  *                             - \ref TAMPER_INTSTS_TAMP4IF_Msk
+  *                             - \ref TAMPER_INTSTS_TAMP5IF_Msk
+  *                             - \ref TAMPER_INTSTS_CLKFAILIF_Msk
+  *                             - \ref TAMPER_INTSTS_CLKSTOPIF_Msk
+  *                             - \ref TAMPER_INTSTS_OVPOUTIF_Msk
+  *                             - \ref TAMPER_INTSTS_VGPEVIF_Msk
+  *                             - \ref TAMPER_INTSTS_VGNEVIF_Msk
+  *                             - \ref TAMPER_INTSTS_ACTSEIF_Msk
+  *                             - \ref TAMPER_INTSTS_ACTST5IF_Msk
+  *                             - \ref TAMPER_INTSTS_ACTST25IF_Msk
+  *                             - \ref TAMPER_INTSTS_BODIF_Msk
+  *                             - \ref TAMPER_INTSTS_ACTST1IF_Msk
+  *                             - \ref TAMPER_INTSTS_ACTST3IF_Msk
+  *                             - \ref TAMPER_INTSTS_ACTST21IF_Msk
+  *                             - \ref TAMPER_INTSTS_ACTST23IF_Msk
   *
   * @return     None
   *
   * @details    This macro is used to clear Tamper event flag.
   *
   */
-#define TAMP_CLR_TAMPER_EVENT_STATUS(u32TamperFlag)   (TAMPER->EVSTS = (u32TamperFlag))
+#define TAMPER_CLR_INT_STATUS(u32TamperFlag)   (TAMPER->INTSTS = (u32TamperFlag))
 
 /**
-  * @brief      Get Tamper Event Status
+  * @brief      Get Tamper Interrupt Status
   *
   * @param      None
   *
-  * @retval     TAMP_EVSTS_TAMP0IF_Msk    Tamper 0 event flag is generated
-  * @retval     TAMP_EVSTS_TAMP1IF_Msk    Tamper 1 event flag is generated
-  * @retval     TAMP_EVSTS_TAMP2IF_Msk    Tamper 2 event flag is generated
-  * @retval     TAMP_EVSTS_TAMP3IF_Msk    Tamper 3 event flag is generated
-  * @retval     TAMP_EVSTS_TAMP4IF_Msk    Tamper 4 event flag is generated
-  * @retval     TAMP_EVSTS_TAMP5IF_Msk    Tamper 5 event flag is generated
-  * @retval     TAMP_EVSTS_CLKFAIL_Msk    LXT frequency is abnormal
-  * @retval     TAMP_EVSTS_CLKSTOP_Msk    LXT frequency is almost stopped
-  * @retval     TAMP_EVSTS_OVPOUT_Msk     Core_SB over voltage detected
-  * @retval     TAMP_EVSTS_PWRPEV_Msk     Core Power postive glitch is detected
-  * @retval     TAMP_EVSTS_PWRNEV_Msk     Core Power negative glitch is detected
-  * @retval     TAMP_EVSTS_ACTSEF_Msk     Active shield event is detected including the VDD and GND attack
-  * @retval     TAMP_EVSTS_RTCLVR_Msk     RTC Power low voltage detection event is detected
-  * @retval     TAMP_EVSTS_RIOTRIG_Msk    There is RTC tamper I/O detection event
-  * @retval     TAMP_EVSTS_RCLKTRIG_Msk   There is RTC clock monitor detection event
-  * @retval     TAMP_EVSTS_HXTERR_Msk     Core HXT fail event
-  * @retval     TAMP_EVSTS_VBATLOSS_Msk   RTC VBAT Power loss detection event is detected
-  * @retval     TAMP_EVSTS_SECWDT_Msk     Security WDT event is detected
-  * @retval     TAMP_EVSTS_TLDOBOD_Msk    Brown out is detected
-  * @retval     TAMP_EVSTS_ACTST1IF_Msk   Active shiled Tamper 1 event flag is generated
-  * @retval     TAMP_EVSTS_ACTST3IF_Msk   Active shiled Tamper 3 event flag is generated
-  * @retval     TAMP_EVSTS_ACTST21IF_Msk  2th Active shiled Tamper 1 event flag is generated
-  * @retval     TAMP_EVSTS_ACTST23IF_Msk  2th Active shiled Tamper 3 event flag is generated
+  * @retval     TAMPER_INTSTS_TAMP0IF_Msk
+  * @retval     TAMPER_INTSTS_TAMP1IF_Msk
+  * @retval     TAMPER_INTSTS_TAMP2IF_Msk
+  * @retval     TAMPER_INTSTS_TAMP3IF_Msk
+  * @retval     TAMPER_INTSTS_TAMP4IF_Msk
+  * @retval     TAMPER_INTSTS_TAMP5IF_Msk
+  * @retval     TAMPER_INTSTS_CLKFAILIF_Msk
+  * @retval     TAMPER_INTSTS_CLKSTOPIF_Msk
+  * @retval     TAMPER_INTSTS_OVPOUTIF_Msk
+  * @retval     TAMPER_INTSTS_VGPEVIF_Msk
+  * @retval     TAMPER_INTSTS_VGNEVIF_Msk
+  * @retval     TAMPER_INTSTS_ACTSEFIF_Msk
+  * @retval     TAMPER_INTSTS_ACTST5IF_Msk
+  * @retval     TAMPER_INTSTS_ACTST25IF_Msk
+  * @retval     TAMPER_INTSTS_RTCLVRIF_Msk
+  * @retval     TAMPER_INTSTS_RIOTRIGIF_Msk
+  * @retval     TAMPER_INTSTS_RCLKTRIGIF_Msk
+  * @retval     TAMPER_INTSTS_BODIF_Msk
+  * @retval     TAMPER_INTSTS_ACTST1IF_Msk
+  * @retval     TAMPER_INTSTS_ACTST3IF_Msk
+  * @retval     TAMPER_INTSTS_ACTST21IF_Msk
+  * @retval     TAMPER_INTSTS_ACTST23IF_Msk
   *
   * @details    This macro indicates Tamper event status.
   *
   */
-#define TAMP_GET_TAMPER_EVENT_STATUS()    ((TAMPER->EVSTS & (0xAA7F0FFF)))
+#define TAMPER_GET_INT_STATUS()    ((TAMPER->INTSTS & (0xAA7FAFFF)))
 
-/**
-  * @brief      Power Glitch Module 12M HIRC Clock Selection
-  *
-  * @param      None
-  *
-  * @return     None
-  *
-  * @details    Set CKSEL12M bit of TAMPER LIRCTL control register to select 12M HIRC for power glitch module.
-  *
-  */
-#define TAMP_PWRG_CKSEL12M()              ((uint32_t)(TAMPER->LIRCTL |= TAMP_LIRCTL_CKSEL12M_Msk))
-
-/**
-  * @brief      Power Glitch Module 32K LIRC Clock Selection
-  *
-  * @param      None
-  *
-  * @return     None
-  *
-  * @details    Clear CKSEL12M bit of TAMPER LIRCTL control register to select 32K LIRC for power glitch module.
-  *
-  */
-#define TAMP_PWRG_CKSEL32K()              ((uint32_t)(TAMPER->LIRCTL &= (~TAMP_LIRCTL_CKSEL12M_Msk)))
+void TAMPER_EnableInt(uint32_t u32IntFlagMask);
+void TAMPER_DisableInt(uint32_t u32IntFlagMask);
+void TAMPER_StaticTamperEnable(uint32_t u32TamperSelect, uint32_t u32DetecLevel, uint32_t u32DebounceEn);
+void TAMPER_StaticTamperDisable(uint32_t u32TamperSelect);
+void TAMPER_DynamicTamperEnable(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32_t u32Pair1Source, uint32_t u32Pair2Source);
+void TAMPER_DynamicTamperDisable(uint32_t u32PairSel);
+void TAMPER_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uint32_t u32RefPattern, uint32_t u32Seed);
+void TAMPER_ActiveShieldDynamicTamperEnable(uint32_t u32PairSel1, uint32_t u32Pair1Source1, uint32_t u32PairSel2, uint32_t u32Pair1Source2);
+void TAMPER_ActiveShieldDynamicTamperDisable(uint32_t u32PairSel1, uint32_t u32PairSe2);
+void TAMPER_ActiveShieldDynamicTamperConfig(uint32_t u32ChangeRate1, uint32_t u32SeedReload1, uint32_t u32RefPattern1, uint32_t u32Seed,
+                                            uint32_t u32ChangeRate2, uint32_t u32SeedReload2, uint32_t u32RefPattern2, uint32_t u32Seed2);
 
 
+/**@}*/ /* end of group TAMPER_EXPORTED_FUNCTIONS */
 
-void TAMP_EnableInt(uint32_t u32IntFlagMask);
-void TAMP_DisableInt(uint32_t u32IntFlagMask);
-void TAMP_StaticTamperEnable(uint32_t u32TamperSelect, uint32_t u32DetecLevel, uint32_t u32DebounceEn);
-void TAMP_StaticTamperDisable(uint32_t u32TamperSelect);
-void TAMP_DynamicTamperEnable(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32_t u32Pair1Source, uint32_t u32Pair2Source);
-void TAMP_DynamicTamperDisable(uint32_t u32PairSel);
-void TAMP_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uint32_t u32RefPattern, uint32_t u32Seed);
-void TAMP_ActiveShieldDynamicTamperEnable(uint32_t u32PairSel1, uint32_t u32Pair1Source1, uint32_t u32PairSel2, uint32_t u32Pair1Source2);
-void TAMP_ActiveShieldDynamicTamperDisable(uint32_t u32PairSel1, uint32_t u32PairSe2);
-void TAMP_ActiveShieldDynamicTamperConfig(uint32_t u32ChangeRate1, uint32_t u32SeedReload1, uint32_t u32RefPattern1, uint32_t u32Seed,
-                                          uint32_t u32ChangeRate2, uint32_t u32SeedReload2, uint32_t u32RefPattern2, uint32_t u32Seed2);
+/**@}*/ /* end of group TAMPER_Driver */
 
-/*@}*/ /* end of group TAMPER_EXPORTED_FUNCTIONS */
-
-/*@}*/ /* end of group TAMPER_Driver */
-
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -438,4 +463,4 @@ void TAMP_ActiveShieldDynamicTamperConfig(uint32_t u32ChangeRate1, uint32_t u32S
 
 #endif /* __TAMPER_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

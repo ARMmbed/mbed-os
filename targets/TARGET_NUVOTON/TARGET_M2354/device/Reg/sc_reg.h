@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    SC register definition header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SC_REG_H__
 #define __SC_REG_H__
@@ -18,7 +19,8 @@
 /**
     @addtogroup SC Smart Card Host Interface Controller(SC)
     Memory Mapped Structure for SC Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -665,7 +667,8 @@ typedef struct
 /**
     @addtogroup SC_CONST SC Bit Field Definition
     Constant Definitions for SC Controller
-@{ */
+  @{ 
+*/
 
 #define SC_DAT_DAT_Pos                   (0)                                               /*!< SC_T::DAT: DAT Position                */
 #define SC_DAT_DAT_Msk                   (0xfful << SC_DAT_DAT_Pos)                        /*!< SC_T::DAT: DAT Mask                    */

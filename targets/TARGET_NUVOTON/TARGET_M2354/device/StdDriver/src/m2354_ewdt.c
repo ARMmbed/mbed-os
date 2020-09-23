@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Extra Watchdog Timer(EWDT) driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -58,14 +59,13 @@ void EWDT_Open(uint32_t u32TimeoutInterval,
                 (u32EnableReset << EWDT_CTL_RSTEN_Pos) |
                 (u32EnableWakeup << EWDT_CTL_WKEN_Pos);
 
-    while(EWDT->CTL & EWDT_CTL_SYNC_Msk) {} /* Wait enable WDTEN bit completed, it needs 2 * EWDT_CLK. */
+    while((EWDT->CTL & EWDT_CTL_SYNC_Msk) == EWDT_CTL_SYNC_Msk) {} /* Wait enable WDTEN bit completed, it needs 2 * EWDT_CLK. */
 }
 
-/*@}*/ /* end of group EWDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group EWDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group EWDT_Driver */
+/**@}*/ /* end of group EWDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
-
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

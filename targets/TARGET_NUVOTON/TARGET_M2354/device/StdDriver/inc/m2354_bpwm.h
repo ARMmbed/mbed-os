@@ -4,7 +4,8 @@
  * @brief    M2354 series BPWM driver header file
  *
  * @note
- * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __BPWM_H__
 #define __BPWM_H__
@@ -101,7 +102,7 @@ extern "C"
 #define BPWM_CLKSRC_TIMER2                        (3UL)    /*!< BPWM Clock source selects to TIMER2 overflow \hideinitializer */
 #define BPWM_CLKSRC_TIMER3                        (4UL)    /*!< BPWM Clock source selects to TIMER3 overflow \hideinitializer */
 
-/*@}*/ /* end of group BPWM_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group BPWM_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup BPWM_EXPORTED_FUNCTIONS BPWM Exported Functions
@@ -346,11 +347,11 @@ void BPWM_SetClockSource(BPWM_T *bpwm, uint32_t u32ChannelNum, uint32_t u32ClkSr
 uint32_t BPWM_GetWrapAroundFlag(BPWM_T *bpwm, uint32_t u32ChannelNum);
 void BPWM_ClearWrapAroundFlag(BPWM_T *bpwm, uint32_t u32ChannelNum);
 
-/*@}*/ /* end of group BPWM_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group BPWM_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group BPWM_Driver */
+/**@}*/ /* end of group BPWM_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -358,4 +359,4 @@ void BPWM_ClearWrapAroundFlag(BPWM_T *bpwm, uint32_t u32ChannelNum);
 
 #endif /* __BPWM_H__ */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017-2020 Nuvoton Technology Corp. ***/

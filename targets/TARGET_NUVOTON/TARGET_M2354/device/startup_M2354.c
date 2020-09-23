@@ -208,6 +208,8 @@ WEAK_ALIAS_FUNC(TAMPER_IRQHandler, Default_Handler)     // 110
 WEAK_ALIAS_FUNC(EWDT_IRQHandler, Default_Handler)       // 111
 WEAK_ALIAS_FUNC(EWWDT_IRQHandler, Default_Handler)      // 112
 WEAK_ALIAS_FUNC(NS_ISP_IRQHandler, Default_Handler)     // 113
+WEAK_ALIAS_FUNC(TMR4_IRQHandler, Default_Handler)       // 114
+WEAK_ALIAS_FUNC(TMR5_IRQHandler, Default_Handler)       // 115
 
 /* Vector table */
 #if defined(__ARMCC_VERSION)
@@ -370,6 +372,8 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) EWDT_IRQHandler,         // 111:
     (uint32_t) EWWDT_IRQHandler,        // 112:
     (uint32_t) NS_ISP_IRQHandler,       // 113:
+    (uint32_t) TMR4_IRQHandler,         // 114:
+    (uint32_t) TMR5_IRQHandler,         // 115:
 };
 
 /* Some reset handler code cannot implement in pure C. Implement it in inline/embedded assembly.

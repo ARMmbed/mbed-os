@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    SYS register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SYS_REG_H__
 #define __SYS_REG_H__
@@ -18,7 +19,8 @@
 /**
     @addtogroup SYS System Manger Controller(SYS)
     Memory Mapped Structure for SYS Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -139,7 +141,7 @@ typedef struct
      * |        |          |Setting this bit to 1 will generate a reset signal to the CRYPTO controller.
      * |        |          |User needs to set this bit to 0 to release from the reset state.
      * |        |          |0 = Key Store controller normal operation.
-     * |        |          |1 = = Key Store controller reset.
+     * |        |          |1 = Key Store controller reset.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[29]    |PDMA1RST  |PDMA1 Controller Reset (Write Protect)
      * |        |          |Setting this bit to 1 will generate a reset signal to the PDMA1.
@@ -268,6 +270,12 @@ typedef struct
      * |[19]    |BPWM1RST  |BPWM1 Controller Reset
      * |        |          |0 = BPWM1 controller normal operation.
      * |        |          |1 = BPWM1 controller reset.
+     * |[20]    |TMR4RST   |Timer4 Controller Reset
+     * |        |          |0 = Timer4 controller normal operation.
+     * |        |          |1 = Timer4 controller reset.
+     * |[21]    |TMR5RST   |Timer5 Controller Reset
+     * |        |          |0 = Timer5 controller normal operation.
+     * |        |          |1 = Timer5 controller reset.     
      * |[22]    |QEI0RST   |QEI0 Controller Reset
      * |        |          |0 = QEI0 controller normal operation.
      * |        |          |1 = QEI0 controller reset.
@@ -280,9 +288,6 @@ typedef struct
      * |[27]    |ECAP1RST  |ECAP1 Controller Reset
      * |        |          |0 = ECAP1 controller normal operation.
      * |        |          |1 = ECAP1 controller reset.
-     * |[28]    |TAMPERRST |TAMPER Controller Reset
-     * |        |          |0 = TAMPER controller normal operation.
-     * |        |          |1 = TAMPER controller reset.
      * @var SYS_T::BODCTL
      * Offset: 0x18  Brown-out Detector Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -306,11 +311,6 @@ typedef struct
      * |        |          |0 = Brown-out Detector does not detect any voltage draft at VDD down through or up through the voltage of BODVL setting.
      * |        |          |1 = When Brown-out Detector detects the VDD is dropped down through the voltage of BODVL setting or the VDD is raised up through the voltage of BODVL setting, this bit is set to 1 and the brown-out interrupt is requested if brown-out interrupt is enabled.
      * |        |          |Note: Write 1 to clear this bit to 0.
-     * |[5]     |BODLPM    |Brown-out Detector Low Power Mode (Write Protect)
-     * |        |          |0 = BOD operate in normal mode (default).
-     * |        |          |1 = BOD Low Power mode Enabled.
-     * |        |          |Note1: The BOD consumes about 100uA in normal mode, the low power mode can reduce the current to about 1/10 but slow the BOD response.
-     * |        |          |Note2: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[6]     |BODOUT    |Brown-out Detector Output Status
      * |        |          |0 = Brown-out Detector output status is 0.
      * |        |          |It means the detected voltage is higher than BODVL setting or BODEN is 0.
@@ -528,7 +528,6 @@ typedef struct
      * |[11:8]  |PD10MFP   |PD.10 Multi-function Pin Selection
      * |[15:12] |PD11MFP   |PD.11 Multi-function Pin Selection
      * |[19:16] |PD12MFP   |PD.12 Multi-function Pin Selection
-     * |[23:20] |PD13MFP   |PD.13 Multi-function Pin Selection
      * |[27:24] |PD14MFP   |PD.14 Multi-function Pin Selection
      * @var SYS_T::GPE_MFPL
      * Offset: 0x50  GPIOE Low Byte Multiple Function Control Register
@@ -616,22 +615,6 @@ typedef struct
      * |[7:4]   |PH9MFP    |PH.9 Multi-function Pin Selection
      * |[11:8]  |PH10MFP   |PH.10 Multi-function Pin Selection
      * |[15:12] |PH11MFP   |PH.11 Multi-function Pin Selection
-     * @var SYS_T::GPA_H_MFOS
-     * Offset: 0x80/0x84/0x88/0x8C/0x90/0x94/0x9C  GPIOA-H Multiple Function Output Select Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[n]     |MFOSn     |GPIOA-H Pin[n] Multiple Function Pin Output Mode Select
-     * |        |          |This bit used to select multiple function pin output mode type for Px.n pin.
-     * |        |          |0 = Multiple function pin output mode type is Push-pull mode.
-     * |        |          |1 = Multiple function pin output mode type is Open-drain mode.
-     * |        |          |Note:
-     * |        |          |Max. n=15 for port A/B/E.
-     * |        |          |Max. n=13 for port C. The PC.14/ PC.15 is ignored.
-     * |        |          |Max. n=14 for port D. The PD.15 is ignored.
-     * |        |          |Max. n=12 for port F. The PF.12/ PF.13/ PF.14/ PF.15 is ignored.
-     * |        |          |Max. n=15 for port G. The PG.0/ PG.1/ PG.5/ PG.6/ PG.7/ PG.8 is ignored.
-     * |        |          |Max. n=11 for port H. The PH.0/ PH.1/ PH.2/ PH.3/ PH.12/ PH.13/ PH.14/ PH.15 is ignored.
      * @var SYS_T::VTORSET
      * Offset: 0xA0  VTOR Setting Register
      * ---------------------------------------------------------------------------------------------------
@@ -642,7 +625,7 @@ typedef struct
      * |        |          |The value will be loaded to Vector Table Offset Register, which is at the address 0xE000ED08, when chip wake up from SPD mode.
      * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
      * @var SYS_T::SRAMICTL
-     * Offset: 0xC0  System SRAM Interrupt Enable Control Register
+     * Offset: 0xC0  System SRAM Parity Error Interrupt Enable Control Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
@@ -650,7 +633,7 @@ typedef struct
      * |        |          |0 = SRAM parity check error interrupt Disabled.
      * |        |          |1 = SRAM parity check error interrupt Enabled.
      * @var SYS_T::SRAMSTS
-     * Offset: 0xC4  System SRAM Parity Error Status Register
+     * Offset: 0xC4  System SRAM Parity Check Status Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
@@ -676,135 +659,120 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[3:2]   |SRAM0PM1  |Bank0 SRAM Power Mode Select 1 (Write Protect)
      * |        |          |This field can control SRAM bank0 selection 1 power mode for range 0x2000_1000 - 0x2000_1FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.   
      * |[5:4]   |SRAM0PM2  |Bank0 SRAM Power Mode Select 2 (Write Protect)
      * |        |          |This field can control SRAM bank0 selection 2 (8k) power mode for range 0x2000_2000 - 0x2000_3FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[7:6]   |SRAM0PM3  |Bank0 SRAM Power Mode Select 3 (Write Protect)
      * |        |          |This field can control SRAM bank0 selection 3 (8k) power mode for range 0x2000_4000 - 0x2000_5FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[9:8]   |SRAM0PM4  |Bank0 SRAM Power Mode Select 4 (Write Protect)
      * |        |          |This field can control SRAM0 bank0 selection 4 (8k) power mode for range 0x2000_6000 - 0x2000_7FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[11:10] |SRAM1PM0  |Bank1 SRAM Power Mode Select 0 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 0 (16k) power mode for range 0x2000_8000 - 0x2000_BFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note:2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[13:12] |SRAM1PM1  |Bank1 SRAM Power Mode Select 1 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 1 (16k) power mode for range 0x2000_C000 - 0x2000_FFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note:2 These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[15:14] |SRAM1PM2  |Bank1 SRAM Power Mode Select 2 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 2 (16k) power mode for range 0x2001_0000 - 0x2001_3FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[17:16] |SRAM1PM3  |Bank1 SRAM Power Mode Select 3 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 3 (16k) power mode for range 0x2001_4000 - 0x2001_7FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note:2 These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[19:18] |SRAM1PM4  |Bank1 SRAM Power Mode Select 4 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 4 (16k) power mode for range 0x2001_8000 - 0x2001_BFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[21:20] |SRAM1PM5  |Bank1 SRAM Power Mode Select 5 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 5 (16k) power mode for range 0x2001_C000 - 0x2001_FFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note:2 These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[23:22] |SRAM1PM6  |Bank1 SRAM Power Mode Select 6 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 6 (16k) power mode for range 0x2002_0000 - 0x2002_3FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[25:24] |SRAM1PM7  |Bank1 SRAM Power Mode Select 7 (Write Protect)
      * |        |          |This field can control SRAM bank1 selection 7 (16k) power mode for range 0x2002_4000 - 0x2002_7FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[27:26] |SRAM2PM0  |Bank2 SRAM Power Mode Select 0 (Write Protect)
      * |        |          |This field can control SRAM bank2 selection 0 (16k) power mode for range 0x2002_8000 - 0x2002_BFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[29:28] |SRAM2PM1  |Bank2 SRAM Power Mode Select 1 (Write Protect)
      * |        |          |This field can control SRAM bank2 selection 1 (16k) power mode for range 0x2002_C000 - 0x2002_FFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[31]    |PCBUSY    |Power Changing Busy Flag (Read Only)
      * |        |          |This bit indicate SRAM power changing. 
      * |        |          |0 = SRAM power change finish. 
@@ -820,137 +788,89 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
-     * |[3:2]   |SRAM2PM3  |Bank2 SRAM Power Mode Select 3 (Write Protect)
-     * |        |          |This field can control SRAM bank2 selection 3 (16k) power mode for range 0x2003_4000 - 0x2003_7FFF.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
+     * |[3:2]   |SRAM2PM3  |Bank2 SRAM Power Mode Select 3 (Write Protect)    
+     * |        |          |This field can control bank2 sram3 (16k) power mode for range 0x2003_4000 - 0x2003_7FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[5:4]   |SRAM2PM4  |Bank2 SRAM Power Mode Select 4 (Write Protect)
      * |        |          |This field can control SRAM bank2 selection 4 (16k) power mode for range 0x2003_8000 - 0x2003_BFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) andDeep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[7:6]   |SRAM2PM5  |Bank2 SRAM Power Mode Select 5 (Write Protect)
      * |        |          |This field can control SRAM bank2 selection 5 (16k) power mode for range 0x2003_C000 - 0x2003_FFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
-     * |[9:8]   |SRAM2PM6  |Bank2 SRAM Power Mode Select 6 (Write Protect)
-     * |        |          |This field can control SRAM bank2 selection 6 (16k) power mode for range 0x2004_0000 - 0x2004_3FFF.
-     * |        |          |00 = Normal mode.
-     * |        |          |01 = Retention mode.
-     * |        |          |10 = Power shut down mode.
-     * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
-     * |[11:10] |SRAM2PM7  |Bank2 SRAM Power Mode Select 7 (Write Protect)
-     * |        |          |This field can control SRAM bank2 selection 7 (16k) power mode for range 0x2004_4000 - 0x2004_7FFF.
-     * |        |          |00 = Normal mode.
-     * |        |          |01 = Retention mode.
-     * |        |          |10 = Power shut down mode.
-     * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
-     * |[13:12] |SRAM2PM8  |Bank2 SRAM Power Mode Select 8 (Write Protect)
-     * |        |          |This field can control SRAM bank2  selection 8 (16k) power mode for range 0x2004_8000 - 0x2004_BFFF.
-     * |        |          |00 = Normal mode.
-     * |        |          |01 = Retention mode.
-     * |        |          |10 = Power shut down mode.
-     * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
-     * |[15:14] |SRAM2PM9  |Bank2 SRAM Power Mode Select 9 (Write Protect)
-     * |        |          |This field can control SRAM bank2 selection 9 (16k) power mode for range 0x2004_C000 - 0x2004_FFFF.
-     * |        |          |00 = Normal mode.
-     * |        |          |01 = Retention mode.
-     * |        |          |10 = Power shut down mode.
-     * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: Bank2 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[17:16] |CAN       |CAN SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control CAN sram power mode.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved.
-     * |        |          |Note 1: CAN SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[19:18] |USBD      |USB Device SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control USB device sram power mode.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: USBD SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.  
      * |[21:20] |PDMA0     |PDMA SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control PDMA0 (always secure) sram power mode.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: PDMA0 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[23:22] |PDMA1     |PDMA SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control PDMA1 sram power mode.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: PDMA1 SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.
      * |[25:24] |FMCCACHE  |FMC Cache SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control FMC cache sram power mode.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: FMC cache SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.    
      * |[27:26] |RSA       |RSA SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control RSA sram power mode.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: RSA SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
-     * |        |          |Note 2: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 3: Write ignore when PCBUSY is 1.
-     * |        |          |Note 4: If CRPTPWREN of SYS_PSWCTL is set to 1, RSA SRAM is auto set to normal mode by hardware.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.     
+     * |        |          |Note 3: If CRPTPWREN of SYS_PSWCTL is set to 1, RSA SRAM is auto set to normal mode by hardware.
      * |[29:28] |KS        |Key Store SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control Key Store sram power mode.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note 1: This SRAM support retention mode in Standby Power-down Mode (SPD).
-     * |        |          |Note 2: Key Store SRAM is always operating in power shut down mode for Deep Power-down Mode (DPD).
-     * |        |          |Note 3: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note 4: Write ignore when PCBUSY is 1.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: Write ignore when PCBUSY is 1.      
      * |[31]    |PCBUSY    |Power Changing Busy Flag (Read Only)
      * |        |          |This bit indicate SRAM power changing. 
      * |        |          |0 = SRAM power change finish. 
@@ -1101,9 +1021,10 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[0]     |FREQLOCK  |HIRC Frequency Lock Status
      * |        |          |This bit indicates the HIRC frequency is locked.
-     * |        |          |This is a status bit and doesn't trigger any interrupt
-     * |        |          |Write 1 to clear this to 0
-     * |        |          |This bit will be set automatically, if the frequency is lock and the RC_TRIM is enabled.0 = The internal high-speed oscillator frequency doesn't lock at 12 MHz yet.
+     * |        |          |This is a status bit and doesn't trigger any interrupt.
+     * |        |          |Write 1 to clear this to 0.
+     * |        |          |This bit will be set automatically, if the frequency is lock and the RC_TRIM is enabled.
+     * |        |          |0 = The internal high-speed oscillator frequency doesn't lock at 12 MHz yet.
      * |        |          |1 = The internal high-speed oscillator frequency locked at 12 MHz.
      * |[1]     |TFAILIF   |Trim Failure Interrupt Status
      * |        |          |This bit indicates that HIRC trim value update limitation count reached and the HIRC clock frequency still doesn't be locked.
@@ -1143,31 +1064,10 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[0]     |INTRTEN   |CPU Interrupt Realtime Enable Bit
-     * |        |          |When this bit is 0, the latency of CPU entering to interrupt service routine (ISR) will be various but shorter.
-     * |        |          |When this bit is 1, the latency of CPU entering to ISR will be kept constant.
+     * |        |          |When this bit is 0, the latency of CPU entering interrupt service routine (ISR) will be various but shorter.
+     * |        |          |When this bit is 1, the latency of CPU entering ISR will be kept constant.
      * |        |          |0 = CPU Interrupt Realtime Disabled. 
      * |        |          |1 = CPU Interrupt Realtime Enabled.
-     * @var SYS_T::SYS_BATLDCTL
-     * Offset: 0x1DC  Battery Loss Detector Control Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[0]     |BATLDEN   |Battery Loss Detector Enable Bit (Write Protect)
-     * |        |          |0 = Battery Loss Detector Disabled.
-     * |        |          |1 = Battery Loss Detector Enabled.
-     * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
-     * @var SYS_T::SYS_OVPCTL
-     * Offset: 0x1E0  Over Voltage Detector Control Register 
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[0]     |OVDEN     |Over Voltage Detector Enable Bit (Write Protect)
-     * |        |          |0 = Over voltage detector Disabled.
-     * |        |          |1 = Over voltage detector Enabled.
-     * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
-     * |[31]    |OVDSTB    |Over Voltage Detector Stable Flag (Read Only)
-     * |        |          |0 = Over voltage detector not stable.
-     * |        |          |1 = Over voltage detector stable.
      * @var SYS_T::PORCTL1
      * Offset: 0x1EC  Power-on Reset Controller Register 1
      * ---------------------------------------------------------------------------------------------------
@@ -1199,15 +1099,17 @@ typedef struct
      * |        |          |00 = Set to Power level 0 (PL0). Support system clock up to 96MHz.
      * |        |          |01 = Set to Power level 1 (PL1). Support system clock up to 84MHz.
      * |        |          |10 = Set to Power level 2 (PL2). Support system clock up to 64MHz.
-     * |        |          |11 = Reserved.  
-     * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |11 = Set to Power level 3 (PL3). Support system clock up to 4MHz.
+     * |        |          |Note 1: These bits are write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: These bits not be reset when wake-up from Standby Power-down mode(SPD).
      * |[4]     |MVRS      |Main Voltage Regulator Type Select (Write Protect)
      * |        |          |This bit filed sets main voltage regulator type.
      * |        |          |After setting main voltage regulator type to DCDC (MVRS (SYS_PLCTL[4]) = 1) system will set main voltage regulator type change busy flag MVRCBUSY(SYS_PLSTS[1]), detect inductor connection and update inductor connection status LCONS (SYS_PLSTS[3]).
      * |        |          |If inductor exist LCONS will be cleared and main voltage regulator type can switch to DCDC (CURMVRS (SYS_PLSTS[12])=1).
      * |        |          |0 = Set main voltage regulator to LDO.
      * |        |          |1 = Set main voltage regulator to DCDC.
-     * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 1: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: This bit not be reset when wake-up from Standby Power-down mode(SPD).
      * |[7]     |WRBUSY    |Write Busy Flag 
      * |        |          |If SYS_PLCTL be written, this bit be asserted automatic by hardware, and be de-asserted when write procedure finish.
      * |        |          |0 = SYS_PLCTL register is ready for write operation.
@@ -1258,7 +1160,7 @@ typedef struct
      * |        |          |00 = Power level is PL0. Support system clock up to 96MHz.
      * |        |          |01 = Power level is PL1. Support system clock up to 84MHz.
      * |        |          |10 = Power level is PL2. Support system clock up to 48MHz.
-     * |        |          |11 = Reserved.  
+     * |        |          |11 = Power level is PL3. Support system clock up to 4MHz.
      * |[12]    |CURMVR    |Current Main Voltage Regulator Type (Read Only)
      * |        |          |This bit field reflects current main voltage regulator type.
      * |        |          |0 = Current main voltage regulator in active and Idle mode is LDO.
@@ -1336,7 +1238,6 @@ typedef struct
     __IO uint32_t PORCTL1;               /*!< [0x01EC] Power-on Reset Controller Register 1                             */
     __I  uint32_t RESERVE9[1];
     __IO uint32_t PSWCTL;                /*!< [0x01F4] Power Switch Control Register                                    */
-
     __IO uint32_t PLCTL;                 /*!< [0x01F8] Power Level Control Register                                     */
     __IO uint32_t PLSTS;                 /*!< [0x01FC] Power Level Status Register                                      */
     __I  uint32_t RESERVE10[128];
@@ -1348,7 +1249,8 @@ typedef struct
 /**
     @addtogroup SYS_CONST SYS Bit Field Definition
     Constant Definitions for SYS Controller
-@{ */
+  @{ 
+*/
 
 #define SYS_PDID_PDID_Pos                (0)                                               /*!< SYS_T::PDID: PDID Position             */
 #define SYS_PDID_PDID_Msk                (0xfffffffful << SYS_PDID_PDID_Pos)               /*!< SYS_T::PDID: PDID Mask                 */
@@ -1518,6 +1420,12 @@ typedef struct
 #define SYS_IPRST2_BPWM1RST_Pos          (19)                                              /*!< SYS_T::IPRST2: BPWM1RST Position       */
 #define SYS_IPRST2_BPWM1RST_Msk          (0x1ul << SYS_IPRST2_BPWM1RST_Pos)                /*!< SYS_T::IPRST2: BPWM1RST Mask           */
 
+#define SYS_IPRST2_TMR4RST_Pos           (20)                                              /*!< SYS_T::IPRST2: TMR4RST Position        */
+#define SYS_IPRST2_TMR4RST_Msk           (0x1ul << SYS_IPRST2_TMR4RST_Pos)                 /*!< SYS_T::IPRST2: TMR4RST Mask            */
+
+#define SYS_IPRST2_TMR5RST_Pos           (21)                                              /*!< SYS_T::IPRST2: TMR5RST Position        */
+#define SYS_IPRST2_TMR5RST_Msk           (0x1ul << SYS_IPRST2_TMR5RST_Pos)                 /*!< SYS_T::IPRST2: TMR5RST Mask            */
+
 #define SYS_IPRST2_QEI0RST_Pos           (22)                                              /*!< SYS_T::IPRST2: QEI0RST Position        */
 #define SYS_IPRST2_QEI0RST_Msk           (0x1ul << SYS_IPRST2_QEI0RST_Pos)                 /*!< SYS_T::IPRST2: QEI0RST Mask            */
 
@@ -1530,9 +1438,6 @@ typedef struct
 #define SYS_IPRST2_ECAP1RST_Pos          (27)                                              /*!< SYS_T::IPRST2: ECAP1RST Position       */
 #define SYS_IPRST2_ECAP1RST_Msk          (0x1ul << SYS_IPRST2_ECAP1RST_Pos)                /*!< SYS_T::IPRST2: ECAP1RST Mask           */
 
-#define SYS_IPRST2_TAMPERRST_Pos         (28)                                              /*!< SYS_T::IPRST2: TAMPERRST Position      */
-#define SYS_IPRST2_TAMPERRST_Msk         (0x1ul << SYS_IPRST2_TAMPERRST_Pos)               /*!< SYS_T::IPRST2: TAMPERRST Mask          */
-
 #define SYS_BODCTL_BODEN_Pos             (0)                                               /*!< SYS_T::BODCTL: BODEN Position          */
 #define SYS_BODCTL_BODEN_Msk             (0x1ul << SYS_BODCTL_BODEN_Pos)                   /*!< SYS_T::BODCTL: BODEN Mask              */
 
@@ -1541,9 +1446,6 @@ typedef struct
 
 #define SYS_BODCTL_BODIF_Pos             (4)                                               /*!< SYS_T::BODCTL: BODIF Position          */
 #define SYS_BODCTL_BODIF_Msk             (0x1ul << SYS_BODCTL_BODIF_Pos)                   /*!< SYS_T::BODCTL: BODIF Mask              */
-
-#define SYS_BODCTL_BODLPM_Pos            (5)                                               /*!< SYS_T::BODCTL: BODLPM Position         */
-#define SYS_BODCTL_BODLPM_Msk            (0x1ul << SYS_BODCTL_BODLPM_Pos)                  /*!< SYS_T::BODCTL: BODLPM Mask             */
 
 #define SYS_BODCTL_BODOUT_Pos            (6)                                               /*!< SYS_T::BODCTL: BODOUT Position         */
 #define SYS_BODCTL_BODOUT_Msk            (0x1ul << SYS_BODCTL_BODOUT_Pos)                  /*!< SYS_T::BODCTL: BODOUT Mask             */
@@ -1769,9 +1671,6 @@ typedef struct
 
 #define SYS_GPD_MFPH_PD12MFP_Pos         (16)                                              /*!< SYS_T::GPD_MFPH: PD12MFP Position      */
 #define SYS_GPD_MFPH_PD12MFP_Msk         (0xful << SYS_GPD_MFPH_PD12MFP_Pos)               /*!< SYS_T::GPD_MFPH: PD12MFP Mask          */
-
-#define SYS_GPD_MFPH_PD13MFP_Pos         (20)                                              /*!< SYS_T::GPD_MFPH: PD13MFP Position      */
-#define SYS_GPD_MFPH_PD13MFP_Msk         (0xful << SYS_GPD_MFPH_PD13MFP_Pos)               /*!< SYS_T::GPD_MFPH: PD13MFP Mask          */
 
 #define SYS_GPD_MFPH_PD14MFP_Pos         (24)                                              /*!< SYS_T::GPD_MFPH: PD14MFP Position      */
 #define SYS_GPD_MFPH_PD14MFP_Msk         (0xful << SYS_GPD_MFPH_PD14MFP_Pos)               /*!< SYS_T::GPD_MFPH: PD14MFP Mask          */
@@ -2091,9 +1990,6 @@ typedef struct
 #define SYS_GPD_MFOS_MFOS12_Pos          (12)                                              /*!< SYS_T::GPD_MFOS: MFOS12 Position       */
 #define SYS_GPD_MFOS_MFOS12_Msk          (0x1ul << SYS_GPD_MFOS_MFOS12_Pos)                /*!< SYS_T::GPD_MFOS: MFOS12 Mask           */
 
-#define SYS_GPD_MFOS_MFOS13_Pos          (13)                                              /*!< SYS_T::GPD_MFOS: MFOS13 Position       */
-#define SYS_GPD_MFOS_MFOS13_Msk          (0x1ul << SYS_GPD_MFOS_MFOS13_Pos)                /*!< SYS_T::GPD_MFOS: MFOS13 Mask           */
-
 #define SYS_GPD_MFOS_MFOS14_Pos          (14)                                              /*!< SYS_T::GPD_MFOS: MFOS14 Position       */
 #define SYS_GPD_MFOS_MFOS14_Msk          (0x1ul << SYS_GPD_MFOS_MFOS14_Pos)                /*!< SYS_T::GPD_MFOS: MFOS14 Mask           */
 
@@ -2307,18 +2203,6 @@ typedef struct
 #define SYS_SRAMPC1_SRAM2PM5_Pos         (6)                                               /*!< SYS_T::SRAMPC1: SRAM2PM5 Position      */
 #define SYS_SRAMPC1_SRAM2PM5_Msk         (0x3ul << SYS_SRAMPC1_SRAM2PM5_Pos)               /*!< SYS_T::SRAMPC1: SRAM2PM5 Mask          */
 
-#define SYS_SRAMPC1_SRAM2PM6_Pos         (8)                                               /*!< SYS_T::SRAMPC1: SRAM2PM6 Position      */
-#define SYS_SRAMPC1_SRAM2PM6_Msk         (0x3ul << SYS_SRAMPC1_SRAM2PM6_Pos)               /*!< SYS_T::SRAMPC1: SRAM2PM6 Mask          */
-
-#define SYS_SRAMPC1_SRAM2PM7_Pos         (10)                                              /*!< SYS_T::SRAMPC1: SRAM2PM7 Position      */
-#define SYS_SRAMPC1_SRAM2PM7_Msk         (0x3ul << SYS_SRAMPC1_SRAM2PM7_Pos)               /*!< SYS_T::SRAMPC1: SRAM2PM7 Mask          */
-
-#define SYS_SRAMPC1_SRAM2PM8_Pos         (12)                                              /*!< SYS_T::SRAMPC1: SRAM2PM8 Position      */
-#define SYS_SRAMPC1_SRAM2PM8_Msk         (0x3ul << SYS_SRAMPC1_SRAM2PM8_Pos)               /*!< SYS_T::SRAMPC1: SRAM2PM8 Mask          */
-
-#define SYS_SRAMPC1_SRAM2PM9_Pos         (14)                                              /*!< SYS_T::SRAMPC1: SRAM2PM9 Position      */
-#define SYS_SRAMPC1_SRAM2PM9_Msk         (0x3ul << SYS_SRAMPC1_SRAM2PM9_Pos)               /*!< SYS_T::SRAMPC1: SRAM2PM9 Mask          */
-
 #define SYS_SRAMPC1_CAN_Pos              (16)                                              /*!< SYS_T::SRAMPC1: CAN Position           */
 #define SYS_SRAMPC1_CAN_Msk              (0x3ul << SYS_SRAMPC1_CAN_Pos)                    /*!< SYS_T::SRAMPC1: CAN Mask               */
 
@@ -2426,9 +2310,6 @@ typedef struct
 
 #define SYS_CPUCFG_INTRTEN_Pos           (0)                                               /*!< SYS_T::CPUCFG: INTRTEN Position        */
 #define SYS_CPUCFG_INTRTEN_Msk           (0x1ul << SYS_CPUCFG_INTRTEN_Pos)                 /*!< SYS_T::CPUCFG: INTRTEN Mask            */
-
-#define SYS_BATLDCTL_BATLDEN_Pos         (0)                                               /*!< SYS_T::BATLDCTL: BATLDEN Position      */
-#define SYS_BATLDCTL_BATLDEN_Msk         (0x1ul << SYS_BATLDCTL_BATLDEN_Pos)               /*!< SYS_T::BATLDCTL: BATLDEN Mask          */
 
 #define SYS_OVDCTL_OVDEN_Pos             (0)                                               /*!< SYS_T::OVDCTL: OVDEN Position          */
 #define SYS_OVDCTL_OVDEN_Msk             (0x1ul << SYS_OVDCTL_OVDEN_Pos)                   /*!< SYS_T::OVDCTL: OVDEN Mask              */
@@ -2622,7 +2503,8 @@ typedef struct
 /**
     @addtogroup INT_CONST INT Bit Field Definition
     Constant Definitions for INT Controller
-@{ */
+  @{ 
+*/
 
 #define SYS_NMIEN_BODOUT_Pos             (0)                                               /*!< SYS_INT_T::NMIEN: BODOUT Position         */
 #define SYS_NMIEN_BODOUT_Msk             (0x1ul << SYS_NMIEN_BODOUT_Pos )                  /*!< SYS_INT_T::NMIEN: BODOUT Mask             */

@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    External Bus Interface(EBI) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2016-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __EBI_H__
 #define __EBI_H__
@@ -79,7 +80,7 @@ extern "C"
 #define EBI_OPMODE_CACCESS      (EBI_CTL_CACCESS_Msk) /*!< EBI bus operate in Continuous Data Access mode \hideinitializer */
 #define EBI_OPMODE_ADSEPARATE   (EBI_CTL_ADSEPEN_Msk) /*!< EBI bus operate in AD Separate mode \hideinitializer */
 
-/*@}*/ /* end of group EBI_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group EBI_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup EBI_EXPORTED_FUNCTIONS EBI Exported Functions
@@ -97,7 +98,7 @@ extern "C"
   * @details    This macro is used to read 8-bit data from specify address on EBI bank0.
   * \hideinitializer
   */
-#define EBI0_READ_DATA8(ebi, u32Addr)               (*((volatile unsigned char *)((((ebi)==EBI)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))))
+#define EBI0_READ_DATA8(ebi, u32Addr)               (*((volatile unsigned char *)((((ebi)==EBI_S)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 8-bit data to EBI bank0
@@ -111,7 +112,7 @@ extern "C"
   * @details    This macro is used to write 8-bit data to specify address on EBI bank0.
   * \hideinitializer
   */
-#define EBI0_WRITE_DATA8(ebi, u32Addr, u32Data)     (*((volatile unsigned char *)((((ebi)==EBI)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI0_WRITE_DATA8(ebi, u32Addr, u32Data)     (*((volatile unsigned char *)((((ebi)==EBI_S)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 16-bit data on EBI bank0
@@ -124,7 +125,7 @@ extern "C"
   * @details    This macro is used to read 16-bit data from specify address on EBI bank0.
   * \hideinitializer
   */
-#define EBI0_READ_DATA16(ebi, u32Addr)              (*((volatile unsigned short *)((((ebi)==EBI)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))))
+#define EBI0_READ_DATA16(ebi, u32Addr)              (*((volatile unsigned short *)((((ebi)==EBI_S)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 16-bit data to EBI bank0
@@ -138,7 +139,7 @@ extern "C"
   * @details    This macro is used to write 16-bit data to specify address on EBI bank0.
   * \hideinitializer
   */
-#define EBI0_WRITE_DATA16(ebi, u32Addr, u32Data)    (*((volatile unsigned short *)((((ebi)==EBI)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI0_WRITE_DATA16(ebi, u32Addr, u32Data)    (*((volatile unsigned short *)((((ebi)==EBI_S)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 32-bit data on EBI bank0
@@ -151,7 +152,7 @@ extern "C"
   * @details    This macro is used to read 32-bit data from specify address on EBI bank0.
   * \hideinitializer
   */
-#define EBI0_READ_DATA32(ebi, u32Addr)              (*((volatile unsigned int *)((((ebi)==EBI)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))))
+#define EBI0_READ_DATA32(ebi, u32Addr)              (*((volatile unsigned int *)((((ebi)==EBI_S)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 32-bit data to EBI bank0
@@ -165,7 +166,7 @@ extern "C"
   * @details    This macro is used to write 32-bit data to specify address on EBI bank0.
   * \hideinitializer
   */
-#define EBI0_WRITE_DATA32(ebi, u32Addr, u32Data)    (*((volatile unsigned int *)((((ebi)==EBI)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI0_WRITE_DATA32(ebi, u32Addr, u32Data)    (*((volatile unsigned int *)((((ebi)==EBI_S)? EBI_BANK0_BASE_ADDR:EBI_BANK0_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 8-bit data on EBI bank1
@@ -178,7 +179,7 @@ extern "C"
   * @details    This macro is used to read 8-bit data from specify address on EBI bank1.
   * \hideinitializer
   */
-#define EBI1_READ_DATA8(ebi, u32Addr)               (*((volatile unsigned char *)((((ebi)==EBI)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))))
+#define EBI1_READ_DATA8(ebi, u32Addr)               (*((volatile unsigned char *)((((ebi)==EBI_S)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 8-bit data to EBI bank1
@@ -192,7 +193,7 @@ extern "C"
   * @details    This macro is used to write 8-bit data to specify address on EBI bank1.
   * \hideinitializer
   */
-#define EBI1_WRITE_DATA8(ebi, u32Addr, u32Data)     (*((volatile unsigned char *)((((ebi)==EBI)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI1_WRITE_DATA8(ebi, u32Addr, u32Data)     (*((volatile unsigned char *)((((ebi)==EBI_S)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 16-bit data on EBI bank1
@@ -205,7 +206,7 @@ extern "C"
   * @details    This macro is used to read 16-bit data from specify address on EBI bank1.
   * \hideinitializer
   */
-#define EBI1_READ_DATA16(ebi, u32Addr)              (*((volatile unsigned short *)((((ebi)==EBI)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))))
+#define EBI1_READ_DATA16(ebi, u32Addr)              (*((volatile unsigned short *)((((ebi)==EBI_S)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 16-bit data to EBI bank1
@@ -219,7 +220,7 @@ extern "C"
   * @details    This macro is used to write 16-bit data to specify address on EBI bank1.
   * \hideinitializer
   */
-#define EBI1_WRITE_DATA16(ebi, u32Addr, u32Data)    (*((volatile unsigned short *)((((ebi)==EBI)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI1_WRITE_DATA16(ebi, u32Addr, u32Data)    (*((volatile unsigned short *)((((ebi)==EBI_S)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 32-bit data on EBI bank1
@@ -232,7 +233,7 @@ extern "C"
   * @details    This macro is used to read 32-bit data from specify address on EBI bank1.
   * \hideinitializer
   */
-#define EBI1_READ_DATA32(ebi, u32Addr)              (*((volatile unsigned int *)((((ebi)==EBI)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))))
+#define EBI1_READ_DATA32(ebi, u32Addr)              (*((volatile unsigned int *)((((ebi)==EBI_S)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 32-bit data to EBI bank1
@@ -246,7 +247,7 @@ extern "C"
   * @details    This macro is used to write 32-bit data to specify address on EBI bank1.
   * \hideinitializer
   */
-#define EBI1_WRITE_DATA32(ebi, u32Addr, u32Data)    (*((volatile unsigned int *)((((ebi)==EBI)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI1_WRITE_DATA32(ebi, u32Addr, u32Data)    (*((volatile unsigned int *)((((ebi)==EBI_S)? EBI_BANK1_BASE_ADDR:EBI_BANK1_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 8-bit data on EBI bank2
@@ -259,7 +260,7 @@ extern "C"
   * @details    This macro is used to read 8-bit data from specify address on EBI bank2.
   * \hideinitializer
   */
-#define EBI2_READ_DATA8(ebi, u32Addr)               (*((volatile unsigned char *)((((ebi)==EBI)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))))
+#define EBI2_READ_DATA8(ebi, u32Addr)               (*((volatile unsigned char *)((((ebi)==EBI_S)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 8-bit data to EBI bank2
@@ -273,7 +274,7 @@ extern "C"
   * @details    This macro is used to write 8-bit data to specify address on EBI bank2.
   * \hideinitializer
   */
-#define EBI2_WRITE_DATA8(ebi, u32Addr, u32Data)     (*((volatile unsigned char *)((((ebi)==EBI)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI2_WRITE_DATA8(ebi, u32Addr, u32Data)     (*((volatile unsigned char *)((((ebi)==EBI_S)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 16-bit data on EBI bank2
@@ -285,7 +286,7 @@ extern "C"
   *
   * @details    This macro is used to read 16-bit data from specify address on EBI bank2.
   */
-#define EBI2_READ_DATA16(ebi, u32Addr)              (*((volatile unsigned short *)((((ebi)==EBI)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))))
+#define EBI2_READ_DATA16(ebi, u32Addr)              (*((volatile unsigned short *)((((ebi)==EBI_S)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))))
 
 /**
   * @brief      Write 16-bit data to EBI bank2
@@ -299,7 +300,7 @@ extern "C"
   * @details    This macro is used to write 16-bit data to specify address on EBI bank2.
   * \hideinitializer
   */
-#define EBI2_WRITE_DATA16(ebi, u32Addr, u32Data)    (*((volatile unsigned short *)((((ebi)==EBI)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI2_WRITE_DATA16(ebi, u32Addr, u32Data)    (*((volatile unsigned short *)((((ebi)==EBI_S)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Read 32-bit data on EBI bank2
@@ -312,7 +313,7 @@ extern "C"
   * @details    This macro is used to read 32-bit data from specify address on EBI bank2.
   * \hideinitializer
   */
-#define EBI2_READ_DATA32(ebi, u32Addr)              (*((volatile unsigned int *)((((ebi)==EBI)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))))
+#define EBI2_READ_DATA32(ebi, u32Addr)              (*((volatile unsigned int *)((((ebi)==EBI_S)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))))
 /**
   * @brief      Write 32-bit data to EBI bank2
   *
@@ -325,7 +326,7 @@ extern "C"
   * @details    This macro is used to write 32-bit data to specify address on EBI bank2.
   * \hideinitializer
   */
-#define EBI2_WRITE_DATA32(ebi, u32Addr, u32Data)    (*((volatile unsigned int *)((((ebi)==EBI)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
+#define EBI2_WRITE_DATA32(ebi, u32Addr, u32Data)    (*((volatile unsigned int *)((((ebi)==EBI_S)? EBI_BANK2_BASE_ADDR:EBI_BANK2_BASE_ADDR_NS)+(u32Addr))) = (u32Data))
 
 /**
   * @brief      Enable EBI Write Buffer
@@ -337,7 +338,7 @@ extern "C"
   * @details    This macro is used to improve EBI write operation for all EBI banks.
   * \hideinitializer
   */
-#define EBI_ENABLE_WRITE_BUFFER(ebi)                ((ebi)->CTL0 |= EBI_CTL_WBUFEN_Msk);
+#define EBI_ENABLE_WRITE_BUFFER(ebi)                ((ebi)->CTL0 |= EBI_CTL_WBUFEN_Msk)
 
 /**
   * @brief      Disable EBI Write Buffer
@@ -349,17 +350,17 @@ extern "C"
   * @details    This macro is used to disable EBI write buffer function.
   * \hideinitializer
   */
-#define EBI_DISABLE_WRITE_BUFFER(ebi)               ((ebi)->CTL0 &= ~EBI_CTL_WBUFEN_Msk);
+#define EBI_DISABLE_WRITE_BUFFER(ebi)               ((ebi)->CTL0 &= ~EBI_CTL_WBUFEN_Msk)
 
 void EBI_Open(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, uint32_t u32BusMode, uint32_t u32CSActiveLevel);
 void EBI_Close(uint32_t u32Bank);
 void EBI_SetBusTiming(uint32_t u32Bank, uint32_t u32TimingConfig, uint32_t u32MclkDiv);
 
-/*@}*/ /* end of group EBI_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group EBI_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group EBI_Driver */
+/**@}*/ /* end of group EBI_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -367,4 +368,4 @@ void EBI_SetBusTiming(uint32_t u32Bank, uint32_t u32TimingConfig, uint32_t u32Mc
 
 #endif /* __EBI_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2016-2020 Nuvoton Technology Corp. ***/

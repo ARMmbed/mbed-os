@@ -19,7 +19,8 @@
 /**
     @addtogroup CAN Controller Area Network Controller(CAN)
     Memory Mapped Structure for CAN Controller
-@{ */
+  @{ 
+*/
 
 
 typedef struct
@@ -527,7 +528,8 @@ typedef struct
 /**
     @addtogroup CAN_CONST CAN Bit Field Definition
     Constant Definitions for CAN Controller
-@{ */
+  @{ 
+*/
 /* CAN CON Bit Field Definitions */
 #define CAN_CON_TEST_Pos           7                                    /*!< CAN_T::CON: TEST Position */
 #define CAN_CON_TEST_Msk           (0x1ul << CAN_CON_TEST_Pos)          /*!< CAN_T::CON: TEST Mask     */

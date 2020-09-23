@@ -1,9 +1,10 @@
 /**************************************************************************//**
  * @file     can.h
- * @version  V1.00
- * @brief    M2355 Series CAN Driver Header File
+ * @version  V3.00
+ * @brief    CAN Driver Header File
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *
  ******************************************************************************/
 #ifndef __CAN_H__
@@ -45,7 +46,7 @@ extern "C"
 #define    CAN_REMOTE_FRAME    0    /*!< CAN frame select remote frame */
 #define    CAN_DATA_FRAME    1      /*!< CAN frame select data frame */
 
-/*@}*/ /* end of group CAN_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group CAN_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup CAN_EXPORTED_STRUCTS CAN Exported Structs
@@ -75,7 +76,7 @@ typedef struct
     uint8_t   u8IdType;   /*!< ID type*/
 } STR_CANMASK_T;
 
-/*@}*/ /* end of group CAN_EXPORTED_STRUCTS */
+/**@}*/ /* end of group CAN_EXPORTED_STRUCTS */
 
 /** @cond HIDDEN_SYMBOLS */
 #define MSG(id)  (id)
@@ -175,11 +176,11 @@ int32_t CAN_SetRxMsgObj(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8idType, uint32_
 int32_t CAN_ReadMsgObj(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8Release, STR_CANMSG_T* pCanMsg);
 
 
-/*@}*/ /* end of group CAN_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group CAN_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group CAN_Driver */
+/**@}*/ /* end of group CAN_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

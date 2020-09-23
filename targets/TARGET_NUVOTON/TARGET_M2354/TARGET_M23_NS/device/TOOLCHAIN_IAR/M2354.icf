@@ -36,7 +36,7 @@ define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_APP_START + MBED_RAM_
     
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__           = MBED_BOOT_STACK_SIZE;
-define symbol __ICFEDIT_size_intvec__           = 4 * (16 + 114);
+define symbol __ICFEDIT_size_intvec__           = 4 * (16 + 116);
 define symbol __ICFEDIT_size_heap__             = 0x400;
 
 /**** End of ICF editor section. ###ICF###*/

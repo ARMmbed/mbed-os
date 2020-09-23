@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Extra Window Watchdog Timer(EWWDT) driver header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __EWWDT_H__
 #define __EWWDT_H__
@@ -48,9 +49,9 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  EWWDT Reload Counter Keyword Constant Definitions                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define EWWDT_RELOAD_WORD        (0x00005AA5)                /*!< Fill this value to EWWDT_RLDCNT register to reload EWWDT counter \hideinitializer */
+#define EWWDT_RELOAD_WORD        (0x00005AA5UL)         /*!< Fill this value to EWWDT_RLDCNT register to reload EWWDT counter \hideinitializer */
 
-/*@}*/ /* end of group EWWDT_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group EWWDT_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup EWWDT_EXPORTED_FUNCTIONS EWWDT Exported Functions
@@ -136,11 +137,11 @@ extern "C"
 
 void EWWDT_Open(uint32_t u32PreScale, uint32_t u32CmpValue, uint32_t u32EnableInt);
 
-/*@}*/ /* end of group EWWDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group EWWDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group EWWDT_Driver */
+/**@}*/ /* end of group EWWDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -148,4 +149,4 @@ void EWWDT_Open(uint32_t u32PreScale, uint32_t u32CmpValue, uint32_t u32EnableIn
 
 #endif /* __EWWDT_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

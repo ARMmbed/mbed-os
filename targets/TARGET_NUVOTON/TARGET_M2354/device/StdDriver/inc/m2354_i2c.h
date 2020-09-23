@@ -57,7 +57,7 @@ extern "C"
 #define I2C_PECTX_ENABLE            (1U)    /*!< Enable  SMBus Packet Error Check Transmit function                          */
 #define I2C_PECTX_DISABLE           (0U)    /*!< Disable SMBus Packet Error Check Transmit function                          */
 
-/*@}*/ /* end of group I2C_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group I2C_EXPORTED_CONSTANTS */
 
 /** @addtogroup I2C_EXPORTED_FUNCTIONS I2C Exported Functions
   @{
@@ -466,7 +466,6 @@ static __INLINE void I2C_STOP(I2C_T *i2c)
 {
 
     (i2c)->CTL0 |= (I2C_CTL0_SI_Msk | I2C_CTL0_STO_Msk);
-    CLK_SysTickDelay(10000);
     while(i2c->CTL0 & I2C_CTL0_STO_Msk) {}
 }
 
@@ -512,11 +511,11 @@ void I2C_SMBusIdleTimeout(I2C_T *i2c, uint32_t u32Us, uint32_t u32Hclk);
 void I2C_SMBusTimeout(I2C_T *i2c, uint32_t ms, uint32_t u32Pclk);
 void I2C_SMBusClockLoTimeout(I2C_T *i2c, uint32_t ms, uint32_t u32Pclk);
 
-/*@}*/ /* end of group I2C_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group I2C_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group I2C_Driver */
+/**@}*/ /* end of group I2C_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

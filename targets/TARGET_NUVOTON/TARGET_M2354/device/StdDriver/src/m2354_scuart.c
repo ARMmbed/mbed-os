@@ -3,11 +3,11 @@
  * @version  V3.00
  * @brief    Smartcard UART mode (SCUART) driver source file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2016-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
-static uint32_t SCUART_GetClock(SC_T *sc);
 
 /** @addtogroup Standard_Driver Standard Driver
   @{
@@ -47,7 +47,7 @@ void SCUART_Close(SC_T* sc)
   */
 static uint32_t SCUART_GetClock(SC_T *sc)
 {
-    uint32_t u32ClkSrc = 0, u32Num = 0, u32Clk = __HIRC, u32Div = 0;
+    uint32_t u32ClkSrc = 0, u32Num = 0, u32ClkFreq = __HIRC, u32Div = 0;
 
     /* Get smartcard module clock source and divider */
     if((sc == SC0) || (sc == SC0_NS))
@@ -70,44 +70,40 @@ static uint32_t SCUART_GetClock(SC_T *sc)
     }
     else
     {
-        u32Clk = 0UL;
+        u32ClkFreq = 0UL;
     }
 
-    if(u32Clk == 0UL)
-    {
-        ; /* Invalid sc port */
-    }
-    else
+    if(u32ClkFreq != 0UL)
     {
         /* Get smartcard module clock */
         if(u32ClkSrc == 0UL)
         {
-            u32Clk = __HXT;
+            u32ClkFreq = __HXT;
         }
         else if(u32ClkSrc == 1UL)
         {
-            u32Clk = CLK_GetPLLClockFreq();
+            u32ClkFreq = CLK_GetPLLClockFreq();
         }
         else if(u32ClkSrc == 2UL)
         {
             if(u32Num == 1UL)
             {
-                u32Clk = CLK_GetPCLK1Freq();
+                u32ClkFreq = CLK_GetPCLK1Freq();
             }
             else
             {
-                u32Clk = CLK_GetPCLK0Freq();
+                u32ClkFreq = CLK_GetPCLK0Freq();
             }
         }
         else
         {
-            u32Clk = __HIRC;
+            u32ClkFreq = __HIRC;
         }
 
-        u32Clk /= (u32Div + 1UL);
+        u32ClkFreq /= (u32Div + 1UL);
     }
 
-    return u32Clk;
+    return u32ClkFreq;
 }
 /** @endcond HIDDEN_SYMBOLS */
 
@@ -131,16 +127,16 @@ static uint32_t SCUART_GetClock(SC_T *sc)
   */
 uint32_t SCUART_Open(SC_T* sc, uint32_t u32Baudrate)
 {
-    uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
+    uint32_t u32ClkFreq = SCUART_GetClock(sc), u32Div;
 
     /* Calculate divider for target baudrate */
-    u32Div = (u32Clk + (u32Baudrate >> 1) - 1UL) / u32Baudrate - 1UL;
+    u32Div = (u32ClkFreq + (u32Baudrate >> 1) - 1UL) / u32Baudrate - 1UL;
 
     sc->CTL = SC_CTL_SCEN_Msk | SC_CTL_NSB_Msk;  /* Enable smartcard interface and stop bit = 1 */
     sc->UARTCTL = SCUART_CHAR_LEN_8 | SCUART_PARITY_NONE | SC_UARTCTL_UARTEN_Msk; /* Enable UART mode, disable parity and 8 bit per character */
     sc->ETUCTL = u32Div;
 
-    return(u32Clk / (u32Div + 1UL));
+    return (u32ClkFreq / (u32Div + 1UL));
 }
 
 /**
@@ -162,11 +158,13 @@ uint32_t SCUART_Read(SC_T* sc, uint8_t pu8RxBuf[], uint32_t u32ReadBytes)
 
     for(u32Count = 0UL; u32Count < u32ReadBytes; u32Count++)
     {
-        if(SCUART_GET_RX_EMPTY(sc))   /* no data available */
+        if(SCUART_GET_RX_EMPTY(sc) == SC_STATUS_RXEMPTY_Msk)
         {
+            /* No data available */
             break;
         }
-        pu8RxBuf[u32Count] = (uint8_t)SCUART_READ(sc);    /* get data from FIFO */
+        /* Get data from FIFO */
+        pu8RxBuf[u32Count] = (uint8_t)SCUART_READ(sc);
     }
 
     return u32Count;
@@ -200,7 +198,7 @@ uint32_t SCUART_Read(SC_T* sc, uint8_t pu8RxBuf[], uint32_t u32ReadBytes)
   */
 uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWidth, uint32_t u32Parity, uint32_t u32StopBits)
 {
-    uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
+    uint32_t u32ClkFreq = SCUART_GetClock(sc), u32Div;
 
     if(u32Baudrate == 0UL)
     {
@@ -210,14 +208,14 @@ uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWi
     else
     {
         /* Calculate divider for target baudrate */
-        u32Div = ((u32Clk + (u32Baudrate >> 1) - 1UL) / u32Baudrate) - 1UL;
+        u32Div = ((u32ClkFreq + (u32Baudrate >> 1) - 1UL) / u32Baudrate) - 1UL;
         sc->ETUCTL = u32Div;
     }
 
     sc->CTL = u32StopBits | SC_CTL_SCEN_Msk;  /* Set stop bit */
     sc->UARTCTL = u32Parity | u32DataWidth | SC_UARTCTL_UARTEN_Msk;  /* Set character width and parity */
 
-    return (u32Clk / (u32Div + 1UL));
+    return (u32ClkFreq / (u32Div + 1UL));
 }
 
 /**
@@ -258,20 +256,18 @@ void SCUART_Write(SC_T* sc, uint8_t pu8TxBuf[], uint32_t u32WriteBytes)
     for(u32Count = 0UL; u32Count != u32WriteBytes; u32Count++)
     {
         /* Wait 'til FIFO not full */
-        while(SCUART_GET_TX_FULL(sc))
-        {
-            ;
-        }
+        while(SCUART_GET_TX_FULL(sc) == SC_STATUS_TXFULL_Msk) {}
+
         /* Write 1 byte to FIFO */
         sc->DAT = pu8TxBuf[u32Count];  /* Write 1 byte to FIFO */
     }
 }
 
 
-/*@}*/ /* end of group SCUART_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SCUART_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SCUART_Driver */
+/**@}*/ /* end of group SCUART_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2016-2020 Nuvoton Technology Corp. ***/

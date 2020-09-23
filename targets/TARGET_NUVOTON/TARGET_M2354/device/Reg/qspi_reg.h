@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    QSPI register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __QSPI_REG_H__
 #define __QSPI_REG_H__
@@ -18,7 +19,8 @@
 /**
     @addtogroup QSPI Quad Serial Peripheral Interface Controller(QSPI)
     Memory Mapped Structure for QSPI Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -42,12 +44,12 @@ typedef struct
      * |[2]     |TXNEG     |Transmit on Negative Edge
      * |        |          |0 = Transmitted data output signal is changed on the rising edge of QSPI bus clock.
      * |        |          |1 = Transmitted data output signal is changed on the falling edge of QSPI bus clock.
-     * |        |          |Note: In TX DTR mode, TXNEG equals to CLKPOL (QSPI_CTL[3]).
+     * |        |          |Note: In TX DTR mode, TXNEG equals to CLKPOL (QSPIx_CTL[3]).
      * |[3]     |CLKPOL    |Clock Polarity
      * |        |          |0 = QSPI bus clock is idle low.
      * |        |          |1 = QSPI bus clock is idle high.
-     * |[7:4]   |SUSPITV   |Suspend Interval (Master Only)
-     * |        |          |The four bits provide configurable suspend interval between two successive transmit/receive transaction in a transfer
+     * |[7:4]   |SUSPITV   |Suspend Interval
+     * |        |          |The four bits provide configurable suspend interval between two successive transmit/receive transaction in a Master transfer
      * |        |          |The definition of the suspend interval is the interval between the last clock edge of the preceding transaction word and the first clock edge of the following transaction word
      * |        |          |The default value is 0x3
      * |        |          |The period of the suspend interval is obtained according to the following equation.
@@ -77,7 +79,7 @@ typedef struct
      * |        |          |The bit field DATDIR (QSPIx_CTL[20]) can be used to set the data direction in half-duplex transfer.
      * |        |          |0 = QSPI operates in full-duplex transfer.
      * |        |          |1 = QSPI operates in half-duplex transfer.
-     * |[15]    |RXONLY    |Receive-only Mode Enable Bit (Master Only)
+     * |[15]    |RXONLY    |Receive-only Mode Enable Bit
      * |        |          |This bit field is only available in Master mode
      * |        |          |In receive-only mode, QSPI Master will generate QSPI bus clock continuously for receiving data bit from QSPI slave device and assert the BUSY status.
      * |        |          |0 = Receive-only mode Disabled.
@@ -109,10 +111,10 @@ typedef struct
      * |[22]    |QUADIOEN  |Quad I/O Mode Enable Bit
      * |        |          |0 = Quad I/O mode Disabled.
      * |        |          |1 = Quad I/O mode Enabled.
-     * |[23]    |TXDTREN   |TX DTR (Transmit Double Transfer Rate) Mode Enable Bit (Master Only)
+     * |[23]    |TXDTREN   |Transmit Double Transfer Rate Mode Enable Bit
      * |        |          |0 = TX DTR mode Disabled.
      * |        |          |1 = TX DTR mode Enabled.
-     * |        |          |Note: QSPI master mode supports TXDTR mode, and QSPI slave mode does not support this mode.
+     * |        |          |Note: QSPI Master mode supports TXDTR (Transmit Double Transfer Rate) mode, and QSPI Slave mode does not support this mode.
      * @var QSPI_T::CLKDIV
      * Offset: 0x04  QSPI Clock Divider Register
      * ---------------------------------------------------------------------------------------------------
@@ -129,7 +131,7 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |SS        |Slave Selection Control (Master Only)
+     * |[0]     |SS        |Slave Selection Control
      * |        |          |If AUTOSS bit is cleared to 0,
      * |        |          |0 = Set the QSPIx_SS line to inactive state.
      * |        |          |1 = Set the QSPIx_SS line to active state.
@@ -137,15 +139,17 @@ typedef struct
      * |        |          |0 = Keep the QSPIx_SS line at inactive state.
      * |        |          |1 = QSPIx_SS line will be automatically driven to active state for the duration of data transfer, and will be driven to inactive state for the rest of the time
      * |        |          |The active state of QSPIx_SS is specified in SSACTPOL (QSPIx_SSCTL[2]).
+     * |        |          |Note: Master mode only.
      * |[2]     |SSACTPOL  |Slave Selection Active Polarity
      * |        |          |This bit defines the active polarity of slave selection signal (QSPIx_SS).
      * |        |          |0 = The slave selection signal QSPIx_SS is active low.
      * |        |          |1 = The slave selection signal QSPIx_SS is active high.
-     * |[3]     |AUTOSS    |Automatic Slave Selection Function Enable Bit (Master Only)
+     * |[3]     |AUTOSS    |Automatic Slave Selection Function Enable Bit
      * |        |          |0 = Automatic slave selection function Disabled
      * |        |          |Slave selection signal will be asserted/de-asserted according to SS (QSPIx_SSCTL[0]).
      * |        |          |1 = Automatic slave selection function Enabled.
-     * |[4]     |SLV3WIRE  |Slave 3-wire Mode Enable Bit (Slave Only)
+     * |        |          |Note: Master mode only.
+     * |[4]     |SLV3WIRE  |Slave 3-wire Mode Enable Bit
      * |        |          |In Slave 3-wire mode, the QSPI controller can work with 3-wire interface including QSPI0_CLK, QSPI0_MISO and QSPI0_MOSI pins.
      * |        |          |0 = 4-wire bi-direction interface.
      * |        |          |1 = 3-wire bi-direction interface.
@@ -241,10 +245,11 @@ typedef struct
      * |        |          |The TXFULL bit will be cleared to 0 and the TXEMPTY bit will be set to 1
      * |        |          |This bit will be cleared to 0 by hardware about 1 system clock after it is set to 1.
      * |        |          |Note: The TX shift register will not be cleared.
-     * |[10]    |SLVBERX   |RX FIFO Write Data Enable Bit When Slave Mode Bit Count Error (Slave Only)
-     * |        |          |0 = Uncompleted RX data will be dropped from RX FIFO when bit count error event happened in SPI slave mode.
-     * |        |          |1 = Uncompleted RX data will be written into RX FIFO when bit count error event happened in SPI slave mode
+     * |[10]    |SLVBERX   |RX FIFO Write Data Enable Bit When Slave Mode Bit Count Error
+     * |        |          |0 = Uncompleted RX data will be dropped from RX FIFO when bit count error event happened in QSPI Slave mode.
+     * |        |          |1 = Uncompleted RX data will be written into RX FIFO when bit count error event happened in QSPI Slave mode
      * |        |          |User can read SLVBENUM (QSPIx_STATUS2[29:24]) to know that the effective bit number of uncompleted RX data when SPI slave bit count error happened.
+     * |        |          |Note: Slave mode only.
      * |[26:24] |RXTH      |Receive FIFO Threshold
      * |        |          |If the valid data count of the receive FIFO buffer is larger than the RXTH setting, the RXTHIF bit will be set to 1, else the RXTHIF bit will be cleared to 0
      * |        |          |For QSPI0~QSPI3, the MSB of this bit field is only meaningful while QSPI mode 8~16 bits of data length.
@@ -357,10 +362,11 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[29:24] |SLVBENUM  |Effective Bit Number of Uncompleted RX Data (Slave Only)
-     * |        |          |This status register indicates that effective bit number of uncompleted RX data when SLVBERX (QSPIx_FIFOCTL[10]) is enabled and RX bit count error event happen in SPI slave mode
+     * |[29:24] |SLVBENUM  |Effective Bit Number of Uncompleted RX Data
+     * |        |          |This status register indicates that effective bit number of uncompleted RX data when SLVBERX (QSPIx_FIFOCTL[10]) is enabled and RX bit count error event happen in QSPI Slave mode
      * |        |          |This status register will be fixed to 0x0 when SLVBERX (QSPIx_FIFOCTL[10]) is disabled.
-     * |        |          |Note: This register will be cleared to 0x0 when user writes 0x1 to SLVBEIF (QSPIx_STATUS[6]).
+     * |        |          |Note 1: This register will be cleared to 0x0 when user writes 0x1 to SLVBEIF (QSPIx_STATUS[6]).
+     * |        |          |Note 2: Slave mode only.
      * @var QSPI_T::TX
      * Offset: 0x20  QSPI Data Transmit Register
      * ---------------------------------------------------------------------------------------------------
@@ -382,14 +388,13 @@ typedef struct
      * |        |          |The data receive register holds the data received from QSPI data input pin.
      * |        |          |If the RXEMPTY (QSPIx_STATUS[8]) is not set to 1, the receive FIFO buffers can be accessed through software by reading this register.
      */
-
     __IO uint32_t CTL;                   /*!< [0x0000] QSPI Control Register                                             */
     __IO uint32_t CLKDIV;                /*!< [0x0004] QSPI Clock Divider Register                                       */
     __IO uint32_t SSCTL;                 /*!< [0x0008] QSPI Slave Select Control Register                                */
     __IO uint32_t PDMACTL;               /*!< [0x000c] QSPI PDMA Control Register                                        */
     __IO uint32_t FIFOCTL;               /*!< [0x0010] QSPI FIFO Control Register                                        */
     __IO uint32_t STATUS;                /*!< [0x0014] QSPI Status Register                                              */
-	__I  uint32_t STATUS2;               /*!< [0x0018] QSPI Status2 Register                                             */
+    __I  uint32_t STATUS2;               /*!< [0x0018] QSPI Status2 Register                                             */
     __I  uint32_t RESERVE0[1];
     __O  uint32_t TX;                    /*!< [0x0020] QSPI Data Transmit Register                                       */
     __I  uint32_t RESERVE1[3];
@@ -400,7 +405,8 @@ typedef struct
 /**
     @addtogroup QSPI_CONST QSPI Bit Field Definition
     Constant Definitions for QSPI Controller
-@{ */
+  @{ 
+*/
 
 #define QSPI_CTL_SPIEN_Pos                (0)                                               /*!< QSPI_T::CTL: SPIEN Position             */
 #define QSPI_CTL_SPIEN_Msk                (0x1ul << QSPI_CTL_SPIEN_Pos)                     /*!< QSPI_T::CTL: SPIEN Mask                 */

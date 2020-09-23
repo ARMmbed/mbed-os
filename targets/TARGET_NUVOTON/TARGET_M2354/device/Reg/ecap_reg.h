@@ -8,7 +8,8 @@
 #ifndef __ECAP_REG_H__
 #define __ECAP_REG_H__
 
-/** @addtogroup REGISTER Control Register
+/**
+  @addtogroup REGISTER Control Register
 
   @{
 
@@ -16,9 +17,10 @@
 
 /*---------------------- Enhanced Input Capture Timer -------------------------*/
 /**
-    @addtogroup ECAP Enhanced Input Capture Timer(ECAP)
-    Memory Mapped Structure for ECAP Controller
-@{ */
+  @addtogroup ECAP Enhanced Input Capture Timer(ECAP)
+  Memory Mapped Structure for ECAP Controller
+  @{ 
+*/
 
 typedef struct
 {
@@ -246,9 +248,10 @@ typedef struct
 } ECAP_T;
 
 /**
-    @addtogroup ECAP_CONST ECAP Bit Field Definition
-    Constant Definitions for ECAP Controller
-@{ */
+  @addtogroup ECAP_CONST ECAP Bit Field Definition
+  Constant Definitions for ECAP Controller
+  @{ 
+*/
 
 #define ECAP_CNT_CNT_Pos                 (0)                                               /*!< ECAP_T::CNT: CNT Position              */
 #define ECAP_CNT_CNT_Msk                 (0xfffffful << ECAP_CNT_CNT_Pos)                  /*!< ECAP_T::CNT: CNT Mask                  */
