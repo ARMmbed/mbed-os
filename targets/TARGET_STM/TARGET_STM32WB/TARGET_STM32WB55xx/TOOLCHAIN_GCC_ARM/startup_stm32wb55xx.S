@@ -93,6 +93,8 @@ LoopFillZerobss:
 Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
+/* Call the clock system intitialization function.*/
+  bl  SystemInit
 
 /* Copy the data segment initializers from flash to SRAM */
   INIT_DATA _sdata, _edata, _sidata
@@ -101,9 +103,8 @@ Reset_Handler:
   INIT_BSS _sbss, _ebss
   INIT_BSS _sMB_MEM2, _eMB_MEM2
 
-/* Call the clock system intitialization function.*/
-  bl  SystemInit
 	bl _start
+	bx lr
 
 LoopForever:
   b LoopForever

@@ -196,7 +196,9 @@ void LL_LPTIM_Disable(LPTIM_TypeDef *LPTIMx)
   uint32_t tmpCFGR;
   uint32_t tmpCMP;
   uint32_t tmpARR;
+#if defined(LPTIM_OR_OR)
   uint32_t tmpOR;
+#endif
 
   /* Check the parameters */
   assert_param(IS_LPTIM_INSTANCE(LPTIMx));
@@ -224,7 +226,9 @@ void LL_LPTIM_Disable(LPTIM_TypeDef *LPTIMx)
   tmpCFGR = LPTIMx->CFGR;
   tmpCMP = LPTIMx->CMP;
   tmpARR = LPTIMx->ARR;
+#if defined(LPTIM_OR_OR)
   tmpOR = LPTIMx->OR;
+#endif
 
   /************* Reset LPTIM ************/
   (void)LL_LPTIM_DeInit(LPTIMx);
@@ -290,7 +294,9 @@ void LL_LPTIM_Disable(LPTIM_TypeDef *LPTIMx)
   LPTIMx->CR &= ~(LPTIM_CR_ENABLE);
   LPTIMx->IER = tmpIER;
   LPTIMx->CFGR = tmpCFGR;
+#if defined(LPTIM_OR_OR)
   LPTIMx->OR = tmpOR;
+#endif
 
   __enable_irq();
 }

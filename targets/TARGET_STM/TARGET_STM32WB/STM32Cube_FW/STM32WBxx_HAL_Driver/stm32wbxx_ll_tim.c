@@ -150,6 +150,9 @@
                                            || ((__VALUE__) == LL_TIM_BREAK_FILTER_FDIV32_N6) \
                                            || ((__VALUE__) == LL_TIM_BREAK_FILTER_FDIV32_N8))
 
+#define IS_LL_TIM_BREAK_AFMODE(__VALUE__) (((__VALUE__) == LL_TIM_BREAK_AFMODE_INPUT)          \
+                                           || ((__VALUE__) == LL_TIM_BREAK_AFMODE_BIDIRECTIONAL))
+
 #define IS_LL_TIM_BREAK2_STATE(__VALUE__) (((__VALUE__) == LL_TIM_BREAK2_DISABLE) \
                                            || ((__VALUE__) == LL_TIM_BREAK2_ENABLE))
 
@@ -172,6 +175,9 @@
                                             || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N5) \
                                             || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N6) \
                                             || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N8))
+
+#define IS_LL_TIM_BREAK2_AFMODE(__VALUE__) (((__VALUE__) == LL_TIM_BREAK2_AFMODE_INPUT)       \
+                                            || ((__VALUE__) == LL_TIM_BREAK2_AFMODE_BIDIRECTIONAL))
 
 #define IS_LL_TIM_AUTOMATIC_OUTPUT_STATE(__VALUE__) (((__VALUE__) == LL_TIM_AUTOMATICOUTPUT_DISABLE) \
                                                      || ((__VALUE__) == LL_TIM_AUTOMATICOUTPUT_ENABLE))
@@ -231,16 +237,20 @@ ErrorStatus LL_TIM_DeInit(TIM_TypeDef *TIMx)
     LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_TIM2);
     LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_TIM2);
   }
+#if defined(TIM16)
   else if (TIMx == TIM16)
   {
     LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_TIM16);
     LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_TIM16);
   }
+#endif
+#if defined(TIM17)
   else if (TIMx == TIM17)
   {
     LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_TIM17);
     LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_TIM17);
   }
+#endif
   else
   {
     result = ERROR;
@@ -642,9 +652,11 @@ void LL_TIM_BDTR_StructInit(LL_TIM_BDTR_InitTypeDef *TIM_BDTRInitStruct)
   TIM_BDTRInitStruct->BreakState      = LL_TIM_BREAK_DISABLE;
   TIM_BDTRInitStruct->BreakPolarity   = LL_TIM_BREAK_POLARITY_LOW;
   TIM_BDTRInitStruct->BreakFilter     = LL_TIM_BREAK_FILTER_FDIV1;
+  TIM_BDTRInitStruct->BreakAFMode     = LL_TIM_BREAK_AFMODE_INPUT;
   TIM_BDTRInitStruct->Break2State     = LL_TIM_BREAK2_DISABLE;
   TIM_BDTRInitStruct->Break2Polarity  = LL_TIM_BREAK2_POLARITY_LOW;
   TIM_BDTRInitStruct->Break2Filter    = LL_TIM_BREAK2_FILTER_FDIV1;
+  TIM_BDTRInitStruct->Break2AFMode    = LL_TIM_BREAK2_AFMODE_INPUT;
   TIM_BDTRInitStruct->AutomaticOutput = LL_TIM_AUTOMATICOUTPUT_DISABLE;
 }
 
@@ -692,7 +704,9 @@ ErrorStatus LL_TIM_BDTR_Init(TIM_TypeDef *TIMx, LL_TIM_BDTR_InitTypeDef *TIM_BDT
   if (IS_TIM_ADVANCED_INSTANCE(TIMx))
   {
     assert_param(IS_LL_TIM_BREAK_FILTER(TIM_BDTRInitStruct->BreakFilter));
+    assert_param(IS_LL_TIM_BREAK_AFMODE(TIM_BDTRInitStruct->BreakAFMode));
     MODIFY_REG(tmpbdtr, TIM_BDTR_BKF, TIM_BDTRInitStruct->BreakFilter);
+    MODIFY_REG(tmpbdtr, TIM_BDTR_BKBID, TIM_BDTRInitStruct->BreakAFMode);
   }
 
   if (IS_TIM_BKIN2_INSTANCE(TIMx))
@@ -700,11 +714,13 @@ ErrorStatus LL_TIM_BDTR_Init(TIM_TypeDef *TIMx, LL_TIM_BDTR_InitTypeDef *TIM_BDT
     assert_param(IS_LL_TIM_BREAK2_STATE(TIM_BDTRInitStruct->Break2State));
     assert_param(IS_LL_TIM_BREAK2_POLARITY(TIM_BDTRInitStruct->Break2Polarity));
     assert_param(IS_LL_TIM_BREAK2_FILTER(TIM_BDTRInitStruct->Break2Filter));
+    assert_param(IS_LL_TIM_BREAK2_AFMODE(TIM_BDTRInitStruct->Break2AFMode));
 
     /* Set the BREAK2 input related BDTR bit-fields */
     MODIFY_REG(tmpbdtr, TIM_BDTR_BK2F, (TIM_BDTRInitStruct->Break2Filter));
     MODIFY_REG(tmpbdtr, TIM_BDTR_BK2E, TIM_BDTRInitStruct->Break2State);
     MODIFY_REG(tmpbdtr, TIM_BDTR_BK2P, TIM_BDTRInitStruct->Break2Polarity);
+    MODIFY_REG(tmpbdtr, TIM_BDTR_BK2BID, TIM_BDTRInitStruct->Break2AFMode);
   }
 
   /* Set TIMx_BDTR */

@@ -65,8 +65,8 @@ PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static MB_ZigbeeTable_t TL_Zigbee_Table;
 PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static tListNode  FreeBufQueue;
 PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static tListNode  TracesEvtQueue;
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint8_t    CsBuffer[sizeof(TL_PacketHeader_t) + TL_EVT_HDR_SIZE + sizeof(TL_CsEvt_t)];
-PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static tListNode  EvtQueue;
-PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static tListNode  SystemEvtQueue;
+PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static tListNode  EvtQueue;
+PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static tListNode  SystemEvtQueue;
 
 
 static tListNode  LocalFreeBufQueue;

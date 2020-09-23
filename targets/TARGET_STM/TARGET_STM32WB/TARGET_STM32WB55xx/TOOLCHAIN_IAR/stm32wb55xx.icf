@@ -45,6 +45,8 @@ define region RAM2aRet_SHARED_region   = mem:[from __ICFEDIT_region_RAM2aRet_SHA
 define region RAM2b_SHARED_region   = mem:[from __ICFEDIT_region_RAM2b_SHARED_start__   to __ICFEDIT_region_RAM2b_SHARED_end__];
 
 if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
+    /* This value is normally defined by the tools
+        to 0x1000 for bare metal and 0x400 for RTOS */
     define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }
 

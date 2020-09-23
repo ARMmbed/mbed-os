@@ -91,7 +91,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|              ; Top of 
         DCD     USART1_IRQHandler                 ; USART1 Interrupt
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
-        DCD     TSC_IRQHandler                    ; TSC Interrupt
+        DCD     0                                 ; Reserved
         DCD     EXTI15_10_IRQHandler              ; EXTI Lines1[15:10 ]Interrupts
         DCD     RTC_Alarm_IRQHandler              ; RTC Alarms (A and B) Interrupt
         DCD     0                                 ; Reserved
@@ -211,7 +211,6 @@ Default_Handler PROC
                 EXPORT  I2C1_ER_IRQHandler                [WEAK]
                 EXPORT  SPI1_IRQHandler                   [WEAK]
                 EXPORT  USART1_IRQHandler                 [WEAK]
-                EXPORT  TSC_IRQHandler                    [WEAK]
                 EXPORT  EXTI15_10_IRQHandler              [WEAK]
                 EXPORT  RTC_Alarm_IRQHandler              [WEAK]
                 EXPORT  PWR_SOTF_BLEACT_802ACT_RFPHASE_IRQHandler [WEAK]
@@ -256,7 +255,6 @@ I2C1_EV_IRQHandler
 I2C1_ER_IRQHandler
 SPI1_IRQHandler
 USART1_IRQHandler
-TSC_IRQHandler
 EXTI15_10_IRQHandler
 RTC_Alarm_IRQHandler
 PWR_SOTF_BLEACT_802ACT_RFPHASE_IRQHandler

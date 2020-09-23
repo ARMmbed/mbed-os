@@ -157,6 +157,15 @@
 #endif /* LSE_STARTUP_TIMEOUT */
 
 /**
+  * @brief External clock source for I2S peripheral
+  *        This value is used by the RCC HAL module to compute the I2S clock source
+  *        frequency.
+  */
+#if !defined  (EXTERNAL_CLOCK_VALUE)
+#define EXTERNAL_CLOCK_VALUE    (48000UL) /*!< Value of the I2S External clock source in Hz*/
+#endif /* EXTERNAL_CLOCK_VALUE */
+
+/**
   * @brief External clock source for SAI1 peripheral
   *        This value is used by the RCC HAL module to compute the SAI1 & SAI2 clock source 
   *        frequency.

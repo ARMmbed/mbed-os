@@ -3203,7 +3203,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Seq_Transmit_IT(I2C_HandleTypeDef *hi2c, uint16
       I2C_ConvertOtherXferOptions(hi2c);
 
       /* Update xfermode accordingly if no reload is necessary */
-      if (hi2c->XferCount < MAX_NBYTE_SIZE)
+      if (hi2c->XferCount <= MAX_NBYTE_SIZE)
       {
         xfermode = hi2c->XferOptions;
       }
@@ -3288,7 +3288,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Seq_Transmit_DMA(I2C_HandleTypeDef *hi2c, uint1
       I2C_ConvertOtherXferOptions(hi2c);
 
       /* Update xfermode accordingly if no reload is necessary */
-      if (hi2c->XferCount < MAX_NBYTE_SIZE)
+      if (hi2c->XferCount <= MAX_NBYTE_SIZE)
       {
         xfermode = hi2c->XferOptions;
       }
@@ -3449,7 +3449,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Seq_Receive_IT(I2C_HandleTypeDef *hi2c, uint16_
       I2C_ConvertOtherXferOptions(hi2c);
 
       /* Update xfermode accordingly if no reload is necessary */
-      if (hi2c->XferCount < MAX_NBYTE_SIZE)
+      if (hi2c->XferCount <= MAX_NBYTE_SIZE)
       {
         xfermode = hi2c->XferOptions;
       }
@@ -3534,7 +3534,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Seq_Receive_DMA(I2C_HandleTypeDef *hi2c, uint16
       I2C_ConvertOtherXferOptions(hi2c);
 
       /* Update xfermode accordingly if no reload is necessary */
-      if (hi2c->XferCount < MAX_NBYTE_SIZE)
+      if (hi2c->XferCount <= MAX_NBYTE_SIZE)
       {
         xfermode = hi2c->XferOptions;
       }

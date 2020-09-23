@@ -68,7 +68,7 @@ extern "C" {
   * @}
   */
 
-/** @defgroup SMARTCARDEx_FIFO_mode SMARTCARDEx FIFO mode
+/** @defgroup SMARTCARDEx_FIFO_mode SMARTCARD FIFO mode
   * @brief    SMARTCARD FIFO mode
   * @{
   */
@@ -78,7 +78,7 @@ extern "C" {
   * @}
   */
 
-/** @defgroup SMARTCARDEx_TXFIFO_threshold_level SMARTCARDEx TXFIFO threshold level
+/** @defgroup SMARTCARDEx_TXFIFO_threshold_level SMARTCARD TXFIFO threshold level
   * @brief    SMARTCARD TXFIFO level
   * @{
   */
@@ -92,7 +92,7 @@ extern "C" {
   * @}
   */
 
-/** @defgroup SMARTCARDEx_RXFIFO_threshold_level SMARTCARDEx RXFIFO threshold level
+/** @defgroup SMARTCARDEx_RXFIFO_threshold_level SMARTCARD RXFIFO threshold level
   * @brief    SMARTCARD RXFIFO level
   * @{
   */
@@ -207,7 +207,7 @@ extern "C" {
   do {                                                                                                       \
     if (HAL_IS_BIT_CLR((__HANDLE__)->AdvancedInit.AdvFeatureInit, SMARTCARD_ADVFEATURE_TXCOMPLETION))        \
     {                                                                                                        \
-     (__HANDLE__)->AdvancedInit.TxCompletionIndication = SMARTCARD_TC;                                       \
+      (__HANDLE__)->AdvancedInit.TxCompletionIndication = SMARTCARD_TC;                                      \
     }                                                                                                        \
     else                                                                                                     \
     {                                                                                                        \
@@ -222,49 +222,45 @@ extern "C" {
   *        reported.
   * @retval Transmission completion flag
   */
-#define SMARTCARD_TRANSMISSION_COMPLETION_FLAG(__HANDLE__)                                                         \
+#define SMARTCARD_TRANSMISSION_COMPLETION_FLAG(__HANDLE__)  \
   (((__HANDLE__)->AdvancedInit.TxCompletionIndication == SMARTCARD_TC) ? (SMARTCARD_FLAG_TC) :  (SMARTCARD_FLAG_TCBGT))
 
 
-/**
-  * @brief Ensure that SMARTCARD frame transmission completion used flag is valid.
+/** @brief Ensure that SMARTCARD frame transmission completion used flag is valid.
   * @param __TXCOMPLETE__ SMARTCARD frame transmission completion used flag.
   * @retval SET (__TXCOMPLETE__ is valid) or RESET (__TXCOMPLETE__ is invalid)
   */
-#define IS_SMARTCARD_TRANSMISSION_COMPLETION(__TXCOMPLETE__) (((__TXCOMPLETE__) == SMARTCARD_TCBGT) ||\
+#define IS_SMARTCARD_TRANSMISSION_COMPLETION(__TXCOMPLETE__) (((__TXCOMPLETE__) == SMARTCARD_TCBGT) || \
                                                               ((__TXCOMPLETE__) == SMARTCARD_TC))
 
-/**
-  * @brief Ensure that SMARTCARD FIFO mode is valid.
+/** @brief Ensure that SMARTCARD FIFO mode is valid.
   * @param __STATE__ SMARTCARD FIFO mode.
   * @retval SET (__STATE__ is valid) or RESET (__STATE__ is invalid)
   */
 #define IS_SMARTCARD_FIFOMODE_STATE(__STATE__) (((__STATE__) == SMARTCARD_FIFOMODE_DISABLE ) || \
-                                         ((__STATE__) == SMARTCARD_FIFOMODE_ENABLE))
+                                                ((__STATE__) == SMARTCARD_FIFOMODE_ENABLE))
 
-/**
-  * @brief Ensure that SMARTCARD TXFIFO threshold level is valid.
+/** @brief Ensure that SMARTCARD TXFIFO threshold level is valid.
   * @param __THRESHOLD__ SMARTCARD TXFIFO threshold level.
   * @retval SET (__THRESHOLD__ is valid) or RESET (__THRESHOLD__ is invalid)
   */
 #define IS_SMARTCARD_TXFIFO_THRESHOLD(__THRESHOLD__) (((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_1_8) || \
-                                          ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_1_4)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_1_2)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_3_4)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_7_8)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_8_8))
+                                                      ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_1_4) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_1_2) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_3_4) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_7_8) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_TXFIFO_THRESHOLD_8_8))
 
-/**
-  * @brief Ensure that SMARTCARD RXFIFO threshold level is valid.
+/** @brief Ensure that SMARTCARD RXFIFO threshold level is valid.
   * @param __THRESHOLD__ SMARTCARD RXFIFO threshold level.
   * @retval SET (__THRESHOLD__ is valid) or RESET (__THRESHOLD__ is invalid)
   */
 #define IS_SMARTCARD_RXFIFO_THRESHOLD(__THRESHOLD__) (((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_1_8) || \
-                                          ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_1_4)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_1_2)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_3_4)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_7_8)             || \
-                                          ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_8_8))
+                                                      ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_1_4) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_1_2) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_3_4) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_7_8) || \
+                                                      ((__THRESHOLD__) == SMARTCARD_RXFIFO_THRESHOLD_8_8))
 
 /**
   * @}
@@ -322,7 +318,6 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_SetRxFifoThreshold(SMARTCARD_HandleTypeDef *hs
 /**
   * @}
   */
-
 
 /* Private functions ---------------------------------------------------------*/
 

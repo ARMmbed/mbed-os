@@ -308,7 +308,7 @@ SHCI_CmdStatus_t SHCI_C2_LLD_BLE_Init( uint8_t param_size, uint8_t * p_param )
 
   p_rsp = (TL_EvtPacket_t *)local_buffer;
 
-  shci_send( SHCI_OPCODE_C2_LLD_TESTS_INIT,
+  shci_send( SHCI_OPCODE_C2_LLD_BLE_INIT,
              param_size,
              p_param,
              p_rsp );
@@ -533,6 +533,25 @@ SHCI_CmdStatus_t SHCI_C2_SetFlashActivityControl(SHCI_C2_SET_FLASH_ACTIVITY_CONT
 
   return (SHCI_CmdStatus_t)(((TL_CcEvt_t*)(p_rsp->evtserial.evt.payload))->payload[0]);
 }
+
+SHCI_CmdStatus_t SHCI_C2_Config(SHCI_C2_CONFIG_Cmd_Param_t *pCmdPacket)
+{
+  /**
+   * Buffer is large enough to hold command complete without payload
+   */
+  uint8_t local_buffer[TL_BLEEVT_CS_BUFFER_SIZE];
+  TL_EvtPacket_t * p_rsp;
+
+  p_rsp = (TL_EvtPacket_t *)local_buffer;
+
+  shci_send( SHCI_OPCODE_C2_CONFIG,
+             sizeof(SHCI_C2_CONFIG_Cmd_Param_t),
+             (uint8_t*)pCmdPacket,
+             p_rsp );
+
+  return (SHCI_CmdStatus_t)(((TL_CcEvt_t*)(p_rsp->evtserial.evt.payload))->payload[0]);
+}
+
 
 /**
  *  Local System COMMAND

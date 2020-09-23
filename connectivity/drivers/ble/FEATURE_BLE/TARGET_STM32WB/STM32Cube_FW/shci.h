@@ -63,15 +63,90 @@ extern "C" {
   {
     SHCI_SUB_EVT_CODE_READY =  SHCI_SUB_EVT_CODE_BASE,
     SHCI_SUB_EVT_ERROR_NOTIF,
+    SHCI_SUB_EVT_BLE_NVM_RAM_UPDATE,
+    SHCI_SUB_EVT_OT_NVM_RAM_UPDATE,
+    SHCI_SUB_EVT_NVM_START_WRITE,
+    SHCI_SUB_EVT_NVM_END_WRITE,
+    SHCI_SUB_EVT_NVM_START_ERASE,
+    SHCI_SUB_EVT_NVM_END_ERASE,
   } SHCI_SUB_EVT_CODE_t;
 
+  /**
+   * SHCI_SUB_EVT_CODE_READY
+   * This notifies the CPU1 that the CPU2 is now ready to receive commands
+   * It reports as well which firmware is running on CPU2 : The wireless stack of the FUS (previously named RSS)
+   */
   typedef PACKED_STRUCT{
     SHCI_SysEvt_Ready_Rsp_t sysevt_ready_rsp;
   } SHCI_C2_Ready_Evt_t;
 
+  /**
+   * SHCI_SUB_EVT_ERROR_NOTIF
+   * This reports to the CPU1 some error form the CPU2
+   */
   typedef PACKED_STRUCT{
     SCHI_SystemErrCode_t errorCode;
   } SHCI_C2_ErrorNotif_Evt_t;
+
+  /**
+   * SHCI_SUB_EVT_BLE_NVM_RAM_UPDATE
+   * This notifies the CPU1 which part of the BLE NVM RAM has been updated so that only the modified
+   * section could be written in Flash/NVM
+   * StartAddress : Start address of the section that has been modified
+   * Size : Size (in bytes) of the section that has been modified
+   */
+  typedef PACKED_STRUCT{
+    uint32_t StartAddress;
+    uint32_t Size;
+  } SHCI_C2_BleNvmRamUpdate_Evt_t;
+
+  /**
+   * SHCI_SUB_EVT_OT_NVM_RAM_UPDATE
+   * This notifies the CPU1 which part of the OT NVM RAM has been updated so that only the modified
+   * section could be written in Flash/NVM
+   * StartAddress : Start address of the section that has been modified
+   * Size : Size (in bytes) of the section that has been modified
+   */
+  typedef PACKED_STRUCT{
+    uint32_t StartAddress;
+    uint32_t Size;
+  } SHCI_C2_OtNvmRamUpdate_Evt_t;
+
+  /**
+   * SHCI_SUB_EVT_NVM_START_WRITE
+   * This notifies the CPU1 that the CPU2 has started a write procedure in Flash
+   * NumberOfWords : The number of 64bits data the CPU2 needs to write in Flash.
+   *                 For each 64bits data, the algorithm as described in AN5289 is executed.
+   *                 When this number is reported to 0, it means the Number of 64bits to be written
+   *                 was unknown when the procedure has started.
+   * When all data are written, the SHCI_SUB_EVT_NVM_END_WRITE event is reported
+   */
+  typedef PACKED_STRUCT{
+    uint32_t NumberOfWords;
+  } SHCI_C2_NvmStartWrite_Evt_t;
+
+  /**
+   * SHCI_SUB_EVT_NVM_END_WRITE
+   * This notifies the CPU1 that the CPU2 has written all expected data in Flash
+   */
+
+  /**
+   * SHCI_SUB_EVT_NVM_START_ERASE
+   * This notifies the CPU1 that the CPU2 has started a erase procedure in Flash
+   * NumberOfSectors : The number of sectors the CPU2 needs to erase in Flash.
+   *                   For each sector, the algorithm as described in AN5289 is executed.
+   *                   When this number is reported to 0, it means the Number of sectors to be erased
+   *                   was unknown when the procedure has started.
+   * When all sectors are erased, the SHCI_SUB_EVT_NVM_END_ERASE event is reported
+   */
+  typedef PACKED_STRUCT{
+    uint32_t NumberOfSectors;
+  } SHCI_C2_NvmStartErase_Evt_t;
+
+  /**
+   * SHCI_SUB_EVT_NVM_END_ERASE
+   * This notifies the CPU1 that the CPU2 has erased all expected flash sectors
+   */
 
   /* SYSTEM COMMAND */
   typedef PACKED_STRUCT
@@ -139,7 +214,8 @@ extern "C" {
     SHCI_OCF_C2_LLD_TESTS_INIT,
     SHCI_OCF_C2_EXTPA_CONFIG,
     SHCI_OCF_C2_SET_FLASH_ACTIVITY_CONTROL,
-	SHCI_OCF_C2_LLD_BLE_INIT
+	  SHCI_OCF_C2_LLD_BLE_INIT,
+	  SHCI_OCF_C2_CONFIG,
   } SHCI_OCF_t;
 
 #define SHCI_OPCODE_C2_FUS_GET_STATE         (( SHCI_OGF << 10) + SHCI_OCF_C2_FUS_GET_STATE)
@@ -403,6 +479,62 @@ extern "C" {
 
     /** No response parameters*/
 
+#define SHCI_OPCODE_C2_CONFIG   (( SHCI_OGF << 10) + SHCI_OCF_C2_CONFIG)
+  /** Command parameters */
+    typedef PACKED_STRUCT{
+      uint8_t PayloadCmdSize;
+      uint8_t Config1;
+      uint8_t EvtMask1;
+      uint8_t Spare1;
+      uint32_t BleNvmRamAddress;
+      uint32_t ThreadNvmRamAddress;
+    } SHCI_C2_CONFIG_Cmd_Param_t;
+
+/**
+ * PayloadCmdSize
+ * Value that shall be used
+ */
+#define SHCI_C2_CONFIG_PAYLOAD_CMD_SIZE   (sizeof(SHCI_C2_CONFIG_Cmd_Param_t) - 1)
+
+/**
+ * Config1
+ * Each definition below may be added together to build the Config1 value
+ * WARNING : Only one definition per bit shall be added to build the Config1 value
+ */
+#define SHCI_C2_CONFIG_CONFIG1_BIT0_BLE_NVM_DATA_TO_INTERNAL_FLASH    (0<<0)
+#define SHCI_C2_CONFIG_CONFIG1_BIT0_BLE_NVM_DATA_TO_SRAM              (1<<0)
+#define SHCI_C2_CONFIG_CONFIG1_BIT1_THREAD_NVM_DATA_TO_INTERNAL_FLASH (0<<1)
+#define SHCI_C2_CONFIG_CONFIG1_BIT1_THREAD_NVM_DATA_TO_SRAM           (1<<1)
+
+/**
+ * EvtMask1
+ * Each definition below may be added together to build the EvtMask1 value
+ */
+#define SHCI_C2_CONFIG_EVTMASK1_BIT0_ERROR_NOTIF_ENABLE               (1<<0)
+#define SHCI_C2_CONFIG_EVTMASK1_BIT1_BLE_NVM_RAM_UPDATE_ENABLE        (1<<1)
+#define SHCI_C2_CONFIG_EVTMASK1_BIT2_OT_NVM_RAM_UPDATE_ENABLE         (1<<2)
+#define SHCI_C2_CONFIG_EVTMASK1_BIT3_NVM_START_WRITE_ENABLE           (1<<3)
+#define SHCI_C2_CONFIG_EVTMASK1_BIT4_NVM_END_WRITE_ENABLE             (1<<4)
+#define SHCI_C2_CONFIG_EVTMASK1_BIT5_NVM_START_ERASE_ENABLE           (1<<5)
+#define SHCI_C2_CONFIG_EVTMASK1_BIT6_NVM_END_ERASE_ENABLE             (1<<6)
+
+/**
+ * BleNvmRamAddress
+ * The buffer shall have a size of BLE_NVM_SRAM_SIZE number of 32bits
+ * The buffer shall be allocated in SRAM2
+ */
+#define BLE_NVM_SRAM_SIZE (507)
+
+/**
+ * ThreadNvmRamAddress
+ * The buffer shall have a size of THREAD_NVM_SRAM_SIZE number of 32bits
+ * The buffer shall be allocated in SRAM2
+ */
+#define THREAD_NVM_SRAM_SIZE (1016)
+
+
+  /** No response parameters*/
+
  /* Exported type --------------------------------------------------------*/
 
 typedef  MB_WirelessFwInfoTable_t SHCI_WirelessFwInfoTable_t;
@@ -464,6 +596,7 @@ typedef  MB_WirelessFwInfoTable_t SHCI_WirelessFwInfoTable_t;
 #define INFO_STACK_TYPE_ZIGBEE_RFD                  0x31
 #define INFO_STACK_TYPE_MAC                         0x40
 #define INFO_STACK_TYPE_BLE_THREAD_FTD_STATIC       0x50
+#define INFO_STACK_TYPE_BLE_THREAD_FTD_DYAMIC		0x51
 #define INFO_STACK_TYPE_802154_LLD_TESTS            0x60
 #define INFO_STACK_TYPE_802154_PHY_VALID            0x61
 #define INFO_STACK_TYPE_BLE_PHY_VALID               0x62
@@ -471,6 +604,8 @@ typedef  MB_WirelessFwInfoTable_t SHCI_WirelessFwInfoTable_t;
 #define INFO_STACK_TYPE_BLE_RLV                     0x64
 #define INFO_STACK_TYPE_802154_RLV                  0x65
 #define INFO_STACK_TYPE_BLE_ZIGBEE_FFD_STATIC       0x70
+#define INFO_STACK_TYPE_BLE_ZIGBEE_FFD_DYNAMIC      0x78
+#define INFO_STACK_TYPE_RLV                         0x80
 
 typedef struct {
 /**
@@ -761,6 +896,44 @@ typedef struct {
   * @retval Status
   */
   SHCI_CmdStatus_t SHCI_C2_SetFlashActivityControl(SHCI_C2_SET_FLASH_ACTIVITY_CONTROL_Source_t Source);
+
+  /**
+  * SHCI_C2_Config
+  * @brief Send the system configuration to the CPU2
+  *
+  * @param pCmdPacket: address of the buffer holding following parameters
+  *                    uint8_t PayloadCmdSize : Size of the payload - shall be SHCI_C2_CONFIG_PAYLOAD_CMD_SIZE
+  *                    uint8_t Config1 :
+  *                     - bit0 :  0 - BLE NVM Data  data are flushed in internal secure flash
+  *                               1 - BLE NVM Data are written in SRAM cache pointed by BleNvmRamAddress
+  *                     - bit1 :  0 - THREAD NVM Data  data are flushed in internal secure flash
+  *                               1 - THREAD NVM Data are written in SRAM cache pointed by ThreadNvmRamAddress
+  *                     - bit2 to bit7 : Unused, shall be set to 0
+  *                    uint8_t EvtMask1 :
+  *                            When a bit is set to 0, the event is not reported
+  *                            bit0 : Asynchronous Event with Sub Evt Code 0x9201 (= SHCI_SUB_EVT_ERROR_NOTIF)
+  *                            ...
+  *                            bit31 : Asynchronous Event with Sub Evt Code 0x9220
+  *                    uint8_t Spare1 : Unused, shall be set to 0
+  *                    uint32_t BleNvmRamAddress :
+  *                               Only considered when Config1.bit0 = 1
+  *                               When set to 0, data are kept in internal SRAM on CPU2
+  *                               Otherwise, data are copied in the cache pointed by BleNvmRamAddress
+  *                               The size of the buffer shall be BLE_NVM_SRAM_SIZE (number of 32bits)
+  *                               The buffer shall be allocated in SRAM2
+  *                    uint32_t ThreadNvmRamAddress :
+  *                               Only considered when Config1.bit1 = 1
+  *                               When set to 0, data are kept in internal SRAM on CPU2
+  *                               Otherwise, data are copied in the cache pointed by ThreadNvmRamAddress
+  *                               The size of the buffer shall be THREAD_NVM_SRAM_SIZE (number of 32bits)
+  *                               The buffer shall be allocated in SRAM2
+  *
+  *                    Please check macro definition to be used for this function
+  *                    They are defined in this file next to the definition of SHCI_OPCODE_C2_CONFIG
+  *
+  * @retval Status
+  */
+  SHCI_CmdStatus_t SHCI_C2_Config(SHCI_C2_CONFIG_Cmd_Param_t *pCmdPacket);
 
   #ifdef __cplusplus
 }

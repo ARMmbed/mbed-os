@@ -640,7 +640,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledVddUSB(void)
   *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V (*)
   *         @arg @ref LL_PWR_PVM_VDDA_1_62V
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_EnablePVM(uint32_t PeriphVoltage)
@@ -656,7 +656,7 @@ __STATIC_INLINE void LL_PWR_EnablePVM(uint32_t PeriphVoltage)
   *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V (*)
   *         @arg @ref LL_PWR_PVM_VDDA_1_62V
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_DisablePVM(uint32_t PeriphVoltage)
@@ -672,7 +672,7 @@ __STATIC_INLINE void LL_PWR_DisablePVM(uint32_t PeriphVoltage)
   *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V (*)
   *         @arg @ref LL_PWR_PVM_VDDA_1_62V
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB30xx
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_PWR_IsEnabledPVM(uint32_t PeriphVoltage)
@@ -851,7 +851,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledSRAM2Retention(void)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
@@ -873,7 +873,7 @@ __STATIC_INLINE void LL_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
@@ -895,7 +895,7 @@ __STATIC_INLINE void LL_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_PWR_IsEnabledWakeUpPin(uint32_t WakeUpPin)
@@ -972,7 +972,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledBatteryCharging(void)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityLow(uint32_t WakeUpPin)
@@ -994,7 +994,7 @@ __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityLow(uint32_t WakeUpPin)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityHigh(uint32_t WakeUpPin)
@@ -1016,7 +1016,7 @@ __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityHigh(uint32_t WakeUpPin)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_PWR_IsWakeUpPinPolarityLow(uint32_t WakeUpPin)
@@ -1353,7 +1353,7 @@ __STATIC_INLINE uint32_t LL_PWR_SMPS_GetMode(void)
   /*       for all SMPS operating mode functions:                             */
   /*       "LL_PWR_SMPS_SetMode()", "LL_PWR_SMPS_GetMode()"                   */
   /*       and "LL_PWR_SMPS_GetEffectiveMode()".                              */
-  register uint32_t OperatingMode = (READ_BIT(PWR->CR5, PWR_CR5_SMPSEN) >> (PWR_CR5_SMPSEN_Pos - PWR_SR2_SMPSF_Pos));
+  uint32_t OperatingMode = (READ_BIT(PWR->CR5, PWR_CR5_SMPSEN) >> (PWR_CR5_SMPSEN_Pos - PWR_SR2_SMPSF_Pos));
   
   OperatingMode = (OperatingMode | ((~OperatingMode >> 1U) & PWR_SR2_SMPSBF));
   
@@ -1486,9 +1486,9 @@ __STATIC_INLINE uint32_t LL_PWR_SMPS_GetStartupCurrent(void)
   */
 __STATIC_INLINE void LL_PWR_SMPS_SetOutputVoltageLevel(uint32_t OutputVoltageLevel)
 {
-  register __IO const uint32_t OutputVoltageLevel_calibration = (((*SMPS_VOLTAGE_CAL_ADDR) & SMPS_VOLTAGE_CAL) >> SMPS_VOLTAGE_CAL_POS);  /* SMPS output voltage level calibrated in production */
-  register int32_t TrimmingSteps;                               /* Trimming steps between theorical output voltage and calibrated output voltage */
-  register int32_t OutputVoltageLevelTrimmed;                   /* SMPS output voltage level after calibration: trimming value added to required level */
+  __IO const uint32_t OutputVoltageLevel_calibration = (((*SMPS_VOLTAGE_CAL_ADDR) & SMPS_VOLTAGE_CAL) >> SMPS_VOLTAGE_CAL_POS);  /* SMPS output voltage level calibrated in production */
+  int32_t TrimmingSteps;                               /* Trimming steps between theorical output voltage and calibrated output voltage */
+  int32_t OutputVoltageLevelTrimmed;                   /* SMPS output voltage level after calibration: trimming value added to required level */
 
   if(OutputVoltageLevel_calibration == 0UL)
   {
@@ -1547,9 +1547,9 @@ __STATIC_INLINE void LL_PWR_SMPS_SetOutputVoltageLevel(uint32_t OutputVoltageLev
   */
 __STATIC_INLINE uint32_t LL_PWR_SMPS_GetOutputVoltageLevel(void)
 {
-  register __IO const uint32_t OutputVoltageLevel_calibration = (((*SMPS_VOLTAGE_CAL_ADDR) & SMPS_VOLTAGE_CAL) >> SMPS_VOLTAGE_CAL_POS);  /* SMPS output voltage level calibrated in production */
-  register int32_t TrimmingSteps;                               /* Trimming steps between theorical output voltage and calibrated output voltage */
-  register int32_t OutputVoltageLevelTrimmed;                   /* SMPS output voltage level after calibration: trimming value added to required level */
+  __IO const uint32_t OutputVoltageLevel_calibration = (((*SMPS_VOLTAGE_CAL_ADDR) & SMPS_VOLTAGE_CAL) >> SMPS_VOLTAGE_CAL_POS);  /* SMPS output voltage level calibrated in production */
+  int32_t TrimmingSteps;                               /* Trimming steps between theorical output voltage and calibrated output voltage */
+  int32_t OutputVoltageLevelTrimmed;                   /* SMPS output voltage level after calibration: trimming value added to required level */
 
   if(OutputVoltageLevel_calibration == 0UL)
   {
@@ -1761,7 +1761,7 @@ __STATIC_INLINE uint32_t LL_C2_PWR_IsEnabledInternWU(void)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_C2_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
@@ -1783,7 +1783,7 @@ __STATIC_INLINE void LL_C2_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE void LL_C2_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
@@ -1805,7 +1805,7 @@ __STATIC_INLINE void LL_C2_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
   *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
   *
-  *         (*) Not available on devices STM32WB50xx
+  *         (*) Not available on devices STM32WB50xx, STM32WB35xx, STM32WB30xx
   * @retval None
   */
 __STATIC_INLINE uint32_t LL_C2_PWR_IsEnabledWakeUpPin(uint32_t WakeUpPin)

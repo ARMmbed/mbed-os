@@ -349,16 +349,25 @@ HAL_StatusTypeDef HAL_LPTIM_Init(LPTIM_HandleTypeDef *hlptim)
 
   /* Write to LPTIMx CFGR */
   hlptim->Instance->CFGR = tmpcfgr;
+#if defined(LPTIM_OR_OR)
 
   /* Configure LPTIM input sources */
   if (hlptim->Instance == LPTIM1)
   {
+#if defined(LPTIM_OR_OR_1)
     /* Check LPTIM Input1 and Input2 sources */
     assert_param(IS_LPTIM_INPUT1_SOURCE(hlptim->Instance, hlptim->Init.Input1Source));
     assert_param(IS_LPTIM_INPUT2_SOURCE(hlptim->Instance, hlptim->Init.Input2Source));
 
     /* Configure LPTIM Input1 and Input2 sources */
     hlptim->Instance->OR = (hlptim->Init.Input1Source | hlptim->Init.Input2Source);
+#else
+    /* Check LPTIM Input1 source */
+    assert_param(IS_LPTIM_INPUT1_SOURCE(hlptim->Instance, hlptim->Init.Input1Source));
+
+    /* Configure LPTIM Input1 source */
+    hlptim->Instance->OR = hlptim->Init.Input1Source;
+#endif /* LPTIM_OR_OR_1 */
   }
   else
   {
@@ -368,6 +377,7 @@ HAL_StatusTypeDef HAL_LPTIM_Init(LPTIM_HandleTypeDef *hlptim)
     /* Configure LPTIM2 Input1 source */
     hlptim->Instance->OR = hlptim->Init.Input1Source;
   }
+#endif /* LPTIM_OR_OR */
 
   /* Change the LPTIM state */
   hlptim->State = HAL_LPTIM_STATE_READY;
@@ -2380,7 +2390,9 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *hlptim)
   uint32_t tmpCFGR;
   uint32_t tmpCMP;
   uint32_t tmpARR;
+#if defined(LPTIM_OR_OR)
   uint32_t tmpOR;
+#endif /* LPTIM_OR_OR */
 
   __disable_irq();
 
@@ -2405,7 +2417,9 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *hlptim)
   tmpCFGR = hlptim->Instance->CFGR;
   tmpCMP = hlptim->Instance->CMP;
   tmpARR = hlptim->Instance->ARR;
+#if defined(LPTIM_OR_OR)
   tmpOR = hlptim->Instance->OR;
+#endif /* LPTIM_OR_OR */
 
   /*********** Reset LPTIM ***********/
   switch ((uint32_t)hlptim->Instance)
@@ -2491,7 +2505,9 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *hlptim)
   hlptim->Instance->CR &= ~(LPTIM_CR_ENABLE);
   hlptim->Instance->IER = tmpIER;
   hlptim->Instance->CFGR = tmpCFGR;
+#if defined(LPTIM_OR_OR)
   hlptim->Instance->OR = tmpOR;
+#endif /* LPTIM_OR_OR */
 
   __enable_irq();
 }

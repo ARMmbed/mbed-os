@@ -56,7 +56,7 @@
  * @brief STM32WBxx HAL Driver version number
    */
 #define __STM32WBxx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32WBxx_HAL_VERSION_SUB1   (0x05U) /*!< [23:16] sub1 version */
+#define __STM32WBxx_HAL_VERSION_SUB1   (0x06U) /*!< [23:16] sub1 version */
 #define __STM32WBxx_HAL_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define __STM32WBxx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32WBxx_HAL_VERSION         ((__STM32WBxx_HAL_VERSION_MAIN << 24U)\
@@ -253,10 +253,10 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
   HAL_StatusTypeDef  status = HAL_OK;
 
-  if (uwTickFreq != 0U)
+  if ((uint32_t)uwTickFreq != 0U)
   {
     /*Configure the SysTick to have interrupt in 1ms time basis*/
-    if (HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/ (1000U /uwTickFreq)) == 0U)
+    if (HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/ (1000U / (uint32_t)uwTickFreq)) == 0U)
     {
       /* Configure the SysTick IRQ priority */
       if (TickPriority < (1UL << __NVIC_PRIO_BITS))
@@ -759,6 +759,7 @@ void HAL_SYSCFG_DisableIOBooster(void)
   LL_SYSCFG_DisableAnalogBooster();
 }
 
+#if defined(SYSCFG_CFGR1_ANASWVDD)
 /**
   * @brief  Enable the I/O analog switch supplied by VDD
   * @note   To be used when I/O analog switch voltage booster is not enabled
@@ -778,6 +779,7 @@ void HAL_SYSCFG_DisableIOVdd(void)
 {
   LL_SYSCFG_DisableAnalogGpioSwitch();
 }
+#endif /* SYSCFG_CFGR1_ANASWVDD */
 
 /**
   * @brief  Enable the access for security IP

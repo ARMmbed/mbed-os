@@ -93,6 +93,8 @@ LoopFillZerobss:
 Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
+/* Call the clock system intitialization function.*/
+  bl  SystemInit
 
 /* Copy the data segment initializers from flash to SRAM */
   INIT_DATA _sdata, _edata, _sidata
@@ -101,8 +103,6 @@ Reset_Handler:
   INIT_BSS _sbss, _ebss
   INIT_BSS _sMB_MEM2, _eMB_MEM2
 
-/* Call the clock system intitialization function.*/
-  bl  SystemInit
 	bl _start
 	bx lr
 
@@ -190,9 +190,9 @@ g_pfnVectors:
   .word SPI1_IRQHandler
   .word 0
   .word USART1_IRQHandler
-  .word LPUART1_IRQHandler
   .word 0
-  .word TSC_IRQHandler
+  .word 0
+  .word 0
   .word EXTI15_10_IRQHandler
   .word RTC_Alarm_IRQHandler
   .word 0

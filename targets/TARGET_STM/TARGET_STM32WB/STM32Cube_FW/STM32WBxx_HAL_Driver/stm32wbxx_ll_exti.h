@@ -107,8 +107,10 @@ typedef struct
 #define LL_EXTI_LINE_17                EXTI_IMR1_IM17          /*!< Extended line 17 */
 #define LL_EXTI_LINE_18                EXTI_IMR1_IM18          /*!< Extended line 18 */
 #define LL_EXTI_LINE_19                EXTI_IMR1_IM19          /*!< Extended line 19 */
-#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined STM32WB35xx
 #define LL_EXTI_LINE_20                EXTI_IMR1_IM20          /*!< Extended line 20 */
+#endif
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define LL_EXTI_LINE_21                EXTI_IMR1_IM21          /*!< Extended line 21 */
 #endif
 #define LL_EXTI_LINE_22                EXTI_IMR1_IM22          /*!< Extended line 22 */
@@ -116,13 +118,15 @@ typedef struct
 #define LL_EXTI_LINE_23                EXTI_IMR1_IM23          /*!< Extended line 23 */
 #endif
 #define LL_EXTI_LINE_24                EXTI_IMR1_IM24          /*!< Extended line 24 */
-#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined STM32WB35xx
 #define LL_EXTI_LINE_25                EXTI_IMR1_IM25          /*!< Extended line 25 */
+#endif
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define LL_EXTI_LINE_28                EXTI_IMR1_IM28          /*!< Extended line 28 */
 #endif
 #define LL_EXTI_LINE_29                EXTI_IMR1_IM29          /*!< Extended line 29 */
 #define LL_EXTI_LINE_30                EXTI_IMR1_IM30          /*!< Extended line 30 */
-#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined STM32WB35xx
 #define LL_EXTI_LINE_31                EXTI_IMR1_IM31          /*!< Extended line 31 */
 #endif
 
@@ -161,19 +165,27 @@ typedef struct
 #endif
 #define LL_EXTI_LINE_44                EXTI_IMR2_IM44          /*!< Extended line 44 */
 #define LL_EXTI_LINE_45                EXTI_IMR2_IM45          /*!< Extended line 45 */
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB50xx) || defined (STM32WB35xx) || defined (STM32WB30xx)
 #define LL_EXTI_LINE_46                EXTI_IMR2_IM46          /*!< Extended line 46 */
+#endif
 #define LL_EXTI_LINE_48                EXTI_IMR2_IM48          /*!< Extended line 48 */
+
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx)
 #define LL_EXTI_LINE_ALL_32_63         (LL_EXTI_LINE_33 | LL_EXTI_LINE_36 | LL_EXTI_LINE_37 | \
                                         LL_EXTI_LINE_38 | LL_EXTI_LINE_39 | LL_EXTI_LINE_40 | \
                                         LL_EXTI_LINE_41 | LL_EXTI_LINE_42 | LL_EXTI_LINE_43 | \
                                         LL_EXTI_LINE_44 | LL_EXTI_LINE_45 | LL_EXTI_LINE_46 | \
-                                        LL_EXTI_LINE_48)                                        /*!< All Extended line not reserved*/
+                                        LL_EXTI_LINE_48)                    /*!< All Extended line not reserved*/
+#elif defined (STM32WB50xx) || defined (STM32WB35xx) || defined (STM32WB30xx)
+#define LL_EXTI_LINE_ALL_32_63         (LL_EXTI_LINE_33 | LL_EXTI_LINE_36 | LL_EXTI_LINE_37 | \
+                                        LL_EXTI_LINE_38 | LL_EXTI_LINE_39 | LL_EXTI_LINE_40 | \
+                                        LL_EXTI_LINE_41 | LL_EXTI_LINE_42 | LL_EXTI_LINE_44 | \
+                                        LL_EXTI_LINE_45 | LL_EXTI_LINE_48)  /*!< All Extended line not reserved*/
 #else
 #define LL_EXTI_LINE_ALL_32_63         (LL_EXTI_LINE_33 | LL_EXTI_LINE_36 | LL_EXTI_LINE_37 | \
                                         LL_EXTI_LINE_38 | LL_EXTI_LINE_39 | LL_EXTI_LINE_40 | \
                                         LL_EXTI_LINE_41 | LL_EXTI_LINE_42 | LL_EXTI_LINE_44 | \
-                                        LL_EXTI_LINE_45 | LL_EXTI_LINE_46 | LL_EXTI_LINE_48)  /*!< All Extended line not reserved*/
+                                        LL_EXTI_LINE_45 | LL_EXTI_LINE_48)  /*!< All Extended line not reserved*/
 #endif
 
 
@@ -361,7 +373,7 @@ __STATIC_INLINE void LL_C2_EXTI_EnableIT_0_31(uint32_t ExtiLine)
   *         @arg @ref LL_EXTI_LINE_43 (*)
   *         @arg @ref LL_EXTI_LINE_44
   *         @arg @ref LL_EXTI_LINE_45
-  *         @arg @ref LL_EXTI_LINE_46
+  *         @arg @ref LL_EXTI_LINE_46 (*)
   *         @arg @ref LL_EXTI_LINE_48
   *         @arg @ref LL_EXTI_LINE_ALL_32_63
   *         (*) value not defined in all devices
@@ -387,7 +399,7 @@ __STATIC_INLINE void LL_EXTI_EnableIT_32_63(uint32_t ExtiLine)
   *         @arg @ref LL_EXTI_LINE_43 (*)
   *         @arg @ref LL_EXTI_LINE_44
   *         @arg @ref LL_EXTI_LINE_45
-  *         @arg @ref LL_EXTI_LINE_46
+  *         @arg @ref LL_EXTI_LINE_46 (*)
   *         @arg @ref LL_EXTI_LINE_48
   *         @arg @ref LL_EXTI_LINE_ALL_32_63
   *         (*) value not defined in all devices
@@ -499,7 +511,7 @@ __STATIC_INLINE void LL_C2_EXTI_DisableIT_0_31(uint32_t ExtiLine)
   *         @arg @ref LL_EXTI_LINE_43 (*)
   *         @arg @ref LL_EXTI_LINE_44
   *         @arg @ref LL_EXTI_LINE_45
-  *         @arg @ref LL_EXTI_LINE_46
+  *         @arg @ref LL_EXTI_LINE_46 (*)
   *         @arg @ref LL_EXTI_LINE_48
   *         @arg @ref LL_EXTI_LINE_ALL_32_63
   *         (*) value not defined in all devices
@@ -525,7 +537,7 @@ __STATIC_INLINE void LL_EXTI_DisableIT_32_63(uint32_t ExtiLine)
   *         @arg @ref LL_EXTI_LINE_43 (*)
   *         @arg @ref LL_EXTI_LINE_44
   *         @arg @ref LL_EXTI_LINE_45
-  *         @arg @ref LL_EXTI_LINE_46
+  *         @arg @ref LL_EXTI_LINE_46 (*)
   *         @arg @ref LL_EXTI_LINE_48
   *         @arg @ref LL_EXTI_LINE_ALL_32_63
   *         (*) value not defined in all devices
@@ -637,7 +649,7 @@ __STATIC_INLINE uint32_t LL_C2_EXTI_IsEnabledIT_0_31(uint32_t ExtiLine)
   *         @arg @ref LL_EXTI_LINE_43 (*)
   *         @arg @ref LL_EXTI_LINE_44
   *         @arg @ref LL_EXTI_LINE_45
-  *         @arg @ref LL_EXTI_LINE_46
+  *         @arg @ref LL_EXTI_LINE_46 (*)
   *         @arg @ref LL_EXTI_LINE_48
   *         @arg @ref LL_EXTI_LINE_ALL_32_63
   *         (*) value not defined in all devices
@@ -663,7 +675,7 @@ __STATIC_INLINE uint32_t LL_EXTI_IsEnabledIT_32_63(uint32_t ExtiLine)
   *         @arg @ref LL_EXTI_LINE_43 (*)
   *         @arg @ref LL_EXTI_LINE_44
   *         @arg @ref LL_EXTI_LINE_45
-  *         @arg @ref LL_EXTI_LINE_46
+  *         @arg @ref LL_EXTI_LINE_46 (*)
   *         @arg @ref LL_EXTI_LINE_48
   *         @arg @ref LL_EXTI_LINE_ALL_32_63
   *         (*) value not defined in all devices
