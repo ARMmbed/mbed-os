@@ -87,11 +87,13 @@ matrix:
         - |
           if [ $COUNT == 0 ] && [ $COUNT_NEW_FILES == 0 ]; then
               echo "License check OK";
+              true;
             elif [ $COUNT_NEW_FILES != 0 ]; then
               echo "License check failed, new files with the license issues found";
               false;
             else
               echo "License check failed, please review license issues found in modified files";
+              false;
           fi
 
     - <<: *basic-vm
