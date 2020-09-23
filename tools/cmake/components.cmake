@@ -1,10 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Set default core modules
+# Set default core components. They depend on each other.
 # We use internal as they have to be prefixed with the MBED_ROOT
-if(NOT DEFINED MBED_INTERNAL_COMPONENTS)
-    set(MBED_INTERNAL_COMPONENTS drivers hal platform targets cmsis events)
+if(NOT DEFINED MBED_CORE_COMPONENTS)
+    set(MBED_CORE_COMPONENTS drivers hal platform targets cmsis events)
 endif()
 
 if(NOT DEFINED MBED_BAREMETAL)
@@ -12,17 +12,16 @@ if(NOT DEFINED MBED_BAREMETAL)
 endif()
 
 if(${MBED_BAREMETAL} STREQUAL OFF)
-    list(APPEND MBED_INTERNAL_COMPONENTS rtos)
+    list(APPEND MBED_CORE_COMPONENTS rtos)
     # TODO: this needs some work, this interdependencies
     # mbedtls is needed by device key driver
-    # events are needed by usb
     # storage is needed  by device key driver
     # mbed-trace needs libservice
-    list(APPEND MBED_INTERNAL_COMPONENTS connectivity/mbedtls storage connectivity/libraries/nanostack-libservice)
+    list(APPEND MBED_CORE_COMPONENTS connectivity/mbedtls storage connectivity/libraries/nanostack-libservice)
 endif()
 
 # Prefix all internal components with MBED_ROOT
-list(TRANSFORM MBED_INTERNAL_COMPONENTS PREPEND "${MBED_ROOT}/")
+list(TRANSFORM MBED_CORE_COMPONENTS PREPEND "${MBED_ROOT}/")
 
 #
 # Configure Mbed OS CMake component (default).
