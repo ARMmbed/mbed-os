@@ -59,15 +59,18 @@ function(mbed_enable_core_components components)
     endforeach()
 endfunction()
 
-# Enable Mbed OS component
+# Enable Mbed OS component, used by an application to enable Mbed OS component.
+# This is not for an external component oustide of Mbed OS, it is application
+# responsibility to include and link to it
 function(mbed_enable_components components)
     # Create a value in cache, components below extend the list
     list(APPEND mbed-os-internal-components CACHE INTERNAL)
+
     # Gather all non-core components from the Mbed OS tree
     include(${MBED_ROOT}/connectivity/components.cmake)
     include(${MBED_ROOT}/storage/components.cmake)
 
-
+    # Find all components and add them to the application
     foreach(component IN LISTS components)
         if(NOT component IN_LIST mbed-os-internal-components)
             message(ERROR
@@ -75,14 +78,17 @@ function(mbed_enable_components components)
             )
         endif()
 
-        # if we find ${component}_PATH, we use it for specified component name
-        # otherwise name = path
+        # if we find ${component}_PATH, we use it for the specified component name
+        # otherwise name is equaled to a path
         set(component_path ${component})
         if (${component}_PATH)
             set(component_path ${${component}_PATH})
         endif()
         set(component_path ${MBED_ROOT}/${component_path})
         if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
+            # only adding a directory. We can't link here otherwise there will be circular depedency
+            # with Mbed OS - not really needed. An application links components together as it needs
+            # to request them (enable + link)
             add_subdirectory("${component_path}")
         endif()
     endforeach()
