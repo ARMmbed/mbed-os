@@ -11,6 +11,11 @@ list(APPEND connectivity-components
     mbed-os-nfc
 )
 
-# only BLE folder is named differently
+# Components paths to the main CMake file
 set(mbed-os-ble_PATH connectivity/FEATURE_BLE)
 set(mbed-os-nfc_PATH connectivity/nfc)
+set(mbed-os-cellular_PATH connectivity/cellular)
+set(mbed-os-lorawan_PATH connectivity/lorawan)
+set(mbed-os-mbedtls_PATH connectivity/mbedtls)
+set(mbed-os-nanostack_PATH connectivity/nanostack)
+set(mbed-os-netsocket_PATH connectivity/netsocket)
