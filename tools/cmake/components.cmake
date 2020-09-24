@@ -62,7 +62,7 @@ endfunction()
 # Enable Mbed OS component, used by an application to enable Mbed OS component.
 # This is not for an external component oustide of Mbed OS, it is application
 # responsibility to include and link to it
-function(mbed_enable_components components)
+function(mbed_enable_components)
     # Create a value in cache, components below extend the list
     list(APPEND mbed-os-internal-components CACHE INTERNAL)
     list(APPEND mbed-os-internal-components-enabled CACHE)
@@ -71,7 +71,7 @@ function(mbed_enable_components components)
     include(${MBED_ROOT}/connectivity/components.cmake)
 
     # Find all components and add them to the application
-    foreach(component IN LISTS components)
+    foreach(component IN LISTS ARGV)
         if(NOT component IN_LIST mbed-os-internal-components)
             message(ERROR
                 " Component ${component} is not available. Available components are: ${mbed-os-internal-components}"
