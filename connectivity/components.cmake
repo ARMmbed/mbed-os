@@ -2,14 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 list(APPEND connectivity-components
-    cellular
-    ble
-    lorawan
-    mbedtls
-    nanostack
-    netsocket
-    nfc
+    mbed-os-cellular
+    mbed-os-ble
+    mbed-os-lorawan
+    mbed-os-mbedtls
+    mbed-os-nanostack
+    mbed-os-netsocket
+    mbed-os-nfc
 )
 
 # only BLE folder is named differently
-set(ble_PATH FEATURE_BLE)
+set(mbed-os-ble_PATH connectivity/FEATURE_BLE)
+set(mbed-os-nfc_PATH connectivity/nfc)

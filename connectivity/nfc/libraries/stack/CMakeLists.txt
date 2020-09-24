@@ -4,14 +4,14 @@
 add_subdirectory(tech)
 add_subdirectory(transceiver)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-nfc
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/ndef
         ${CMAKE_CURRENT_SOURCE_DIR}/platform
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-nfc
     PRIVATE
         ndef/ndef.c
 
