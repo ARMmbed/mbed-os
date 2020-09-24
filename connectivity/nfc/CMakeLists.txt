@@ -40,3 +40,5 @@ target_sources(mbed-os-nfc
         source/ndef/common/URI.cpp
         source/ndef/common/util.cpp
 )
+
+target_link_libraries(mbed-os-nfc mbed-os)
