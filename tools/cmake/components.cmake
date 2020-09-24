@@ -1,13 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
-
-# Using relative paths behavior
-if(POLICY CMP0076)
-    cmake_policy(SET CMP0076 NEW)
-endif()
-
 # Set default core components. They depend on each other.
 if(NOT DEFINED MBED_CORE_COMPONENTS)
     set(MBED_CORE_COMPONENTS 
