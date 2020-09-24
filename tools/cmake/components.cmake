@@ -68,11 +68,20 @@ endfunction()
 
 # Enable Mbed OS component
 function(mbed_enable_components components)
+    # Create a value in cache, components below extend the list
+    list(APPEND mbed-os-internal-components CACHE INTERNAL)
     # Gather all non-core components from the Mbed OS tree
     include(${MBED_ROOT}/connectivity/components.cmake)
     include(${MBED_ROOT}/storage/components.cmake)
 
+
     foreach(component IN LISTS components)
+        if(NOT component IN_LIST mbed-os-internal-components)
+            message(ERROR
+                " Component ${component} is not available. Available components are: ${mbed-os-internal-components}"
+            )
+        endif()
+
         # if we find ${component}_PATH, we use it for specified component name
         # otherwise name = path
         set(component_path ${component})

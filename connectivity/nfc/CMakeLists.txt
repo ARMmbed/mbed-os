@@ -3,7 +3,7 @@
 
 include(${MBED_ROOT}/tools/cmake/components.cmake)
 
-add_library(mbed-os-nfc STATIC)
+add_library(mbed-os-nfc OBJECT)
 
 mbed_configure_component(mbed-os-nfc)
 
