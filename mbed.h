@@ -18,20 +18,20 @@
 
 #include "platform/mbed_version.h"
 
-#if MBED_CONF_RTOS_API_PRESENT
+//#ifdef MBED_OS_COMPONENT_RTOS_ENABLED
 #include "rtos/rtos.h"
-#endif
+//#endif
 
-#if MBED_CONF_NSAPI_PRESENT
+#ifdef MBED_OS_COMPONENT_NETSOCKET_ENABLED
 #include "netsocket/nsapi.h"
 #include "netsocket/nsapi_ppp.h"
 #endif
 
-#if MBED_CONF_EVENTS_PRESENT
+#ifdef MBED_OS_COMPONENT_EVENTS_ENABLED
 #include "events/mbed_events.h"
 #endif
 
-#if MBED_CONF_FILESYSTEM_PRESENT
+#ifdef MBED_OS_COMPONENT_MBED_OS_FILESYSTEM_ENABLED
 #include "filesystem/mbed_filesystem.h"
 #endif
 

@@ -1,6 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Create a value in cache, components below extend the list
+list(APPEND mbed-os-internal-components CACHE INTERNAL)
+list(APPEND mbed-os-internal-components-enabled CACHE)
+
 # Set default core components. They depend on each other.
 if(NOT DEFINED MBED_CORE_COMPONENTS)
     set(MBED_CORE_COMPONENTS 
@@ -22,9 +26,6 @@ if(${MBED_BAREMETAL} STREQUAL OFF)
         rtos
     )
 endif()
-
-# Prefix all internal components with MBED_ROOT
-list(TRANSFORM MBED_CORE_COMPONENTS PREPEND "${MBED_ROOT}/")
 
 #
 # Configure Mbed OS CMake component (default).
@@ -49,12 +50,20 @@ function(mbed_enable_core_components)
     foreach(component IN LISTS MBED_CORE_COMPONENTS)
         # if we find ${component}_PATH, we use it for specified component name
         # otherwise name = path
-        set(component_path ${component})
+        set(component_path ${MBED_ROOT}/${component})
         if (${component}_PATH)
-            set(component_path ${component}_PATH)
+            set(component_path ${MBED_ROOT}/${component}_PATH)
         endif()
         if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
             add_subdirectory("${component_path}")
+            # also core components to be tracked in internal
+            list(APPEND mbed-os-internal-components-enabled ${component})
+            # 
+            string(TOUPPER ${component} component_uppercase)
+            #target_compile_definitions(mbed-os
+            #    PUBLIC
+            #        MBED_OS_COMPONENT_${component_uppercase}_ENABLED
+            #)
         endif()
     endforeach()
 endfunction()
@@ -63,10 +72,6 @@ endfunction()
 # This is not for an external component oustide of Mbed OS, it is application
 # responsibility to include and link to it
 function(mbed_enable_components)
-    # Create a value in cache, components below extend the list
-    list(APPEND mbed-os-internal-components CACHE INTERNAL)
-    list(APPEND mbed-os-internal-components-enabled CACHE)
-
     # Gather all non-core components from the Mbed OS tree
     include(${MBED_ROOT}/connectivity/components.cmake)
 
@@ -91,6 +96,12 @@ function(mbed_enable_components)
             # to request them (enable + link)
             add_subdirectory("${component_path}")
             list(APPEND mbed-os-internal-components-enabled ${component})
+            string(TOUPPER ${component} component_uppercase)
+            string(REPLACE "-" "_" ${component} ${component})
+            #target_compile_definitions(mbed-os
+            #    PUBLIC
+            #        MBED_OS_COMPONENT_${component_uppercase}_ENABLED
+            #)
         endif()
     endforeach()
 endfunction()
