@@ -171,20 +171,20 @@ endfunction()
 #
 # Configure Mbed OS CMake application (default).
 #
-function(mbed_configure_application target)
-    mbed_set_language_standard(${target})
-    mbed_set_mbed_target_linker_script(${target})
-    mbed_generate_bin_hex(${target})
+function(mbed_configure_application app_target)
+    mbed_set_language_standard(${app_target})
+    mbed_set_mbed_target_linker_script(${app_target})
+    mbed_generate_bin_hex(${app_target})
 endfunction()
 
 #
 # Configure Mbed OS CMake component (default).
 #
-function(mbed_configure_component component)
-    mbed_set_cpu_core_options(${component} ${MBED_TOOLCHAIN})
-    mbed_set_toolchain_options(${component})
-    mbed_set_c_lib(${component} ${MBED_C_LIB})
-    mbed_set_printf_lib(${component} ${MBED_PRINTF_LIB})
-    mbed_set_language_standard(${component})
-    mbed_set_profile_options(${component} ${MBED_TOOLCHAIN})
+function(mbed_configure_component component_target)
+    mbed_set_cpu_core_options(${component_target} ${MBED_TOOLCHAIN})
+    mbed_set_toolchain_options(${component_target})
+    mbed_set_c_lib(${component_target} ${MBED_C_LIB})
+    mbed_set_printf_lib(${component_target} ${MBED_PRINTF_LIB})
+    mbed_set_language_standard(${component_target})
+    mbed_set_profile_options(${component_target} ${MBED_TOOLCHAIN})
 endfunction()
