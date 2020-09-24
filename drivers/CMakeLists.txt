@@ -1,8 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-#TODO: because of dependency on mbedtls and storage, we remove it for now
-#add_subdirectory(device_key)
+# Device key is available only if storage is enabled
+if(mbed-os-storage IN_LIST mbed-os-internal-components-enabled)
+    add_subdirectory(device_key)
+endif()
 
 target_include_directories(mbed-os
     PUBLIC
@@ -35,7 +37,6 @@ target_sources(mbed-os
         source/PwmOut.cpp
         source/QSPI.cpp
         source/ResetReason.cpp
-        #source/SFDP.cpp
         source/SPI.cpp
         source/SPISlave.cpp
         source/SerialBase.cpp
@@ -46,24 +47,30 @@ target_sources(mbed-os
         source/TimerEvent.cpp
         source/UnbufferedSerial.cpp
         source/Watchdog.cpp
-
-        #source/usb/AsyncOp.cpp
-        #source/usb/ByteBuffer.cpp
-        #source/usb/EndpointResolver.cpp
-        #source/usb/LinkedListBase.cpp
-        #source/usb/OperationListBase.cpp
-        #source/usb/PolledQueue.cpp
-        #source/usb/TaskBase.cpp
-        #source/usb/USBAudio.cpp
-        #source/usb/USBCDC.cpp
-        #source/usb/USBCDC_ECM.cpp
-        #source/usb/USBDevice.cpp
-        #source/usb/USBHID.cpp
-        #source/usb/USBKeyboard.cpp
-        #source/usb/USBMIDI.cpp
-        #source/usb/USBMSD.cpp
-        #source/usb/USBMouse.cpp
-        #source/usb/USBMouseKeyboard.cpp
-        #source/usb/USBSerial.cpp
 )
+
+if(mbed-os-usb IN_LIST mbed-os-internal-components-enabled)
+target_sources(mbed-os
+    PRIVATE
+        source/SFDP.cpp
+        source/usb/AsyncOp.cpp
+        source/usb/ByteBuffer.cpp
+        source/usb/EndpointResolver.cpp
+        source/usb/LinkedListBase.cpp
+        source/usb/OperationListBase.cpp
+        source/usb/PolledQueue.cpp
+        source/usb/TaskBase.cpp
+        source/usb/USBAudio.cpp
+        source/usb/USBCDC.cpp
+        source/usb/USBCDC_ECM.cpp
+        source/usb/USBDevice.cpp
+        source/usb/USBHID.cpp
+        source/usb/USBKeyboard.cpp
+        source/usb/USBMIDI.cpp
+        source/usb/USBMSD.cpp
+        source/usb/USBMouse.cpp
+        source/usb/USBMouseKeyboard.cpp
+        source/usb/USBSerial.cpp
+)
+endif()
 

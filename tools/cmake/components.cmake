@@ -65,6 +65,7 @@ endfunction()
 function(mbed_enable_components components)
     # Create a value in cache, components below extend the list
     list(APPEND mbed-os-internal-components CACHE INTERNAL)
+    list(APPEND mbed-os-internal-components-enabled CACHE)
 
     # Gather all non-core components from the Mbed OS tree
     include(${MBED_ROOT}/connectivity/components.cmake)
@@ -89,6 +90,7 @@ function(mbed_enable_components components)
             # with Mbed OS - not really needed. An application links components together as it needs
             # to request them (enable + link)
             add_subdirectory("${component_path}")
+            list(APPEND mbed-os-internal-components-enabled ${component})
         endif()
     endforeach()
 endfunction()
