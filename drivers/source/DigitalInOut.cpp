@@ -26,6 +26,7 @@ void DigitalInOut::output()
     core_util_critical_section_enter();
     gpio_dir(&gpio, PIN_OUTPUT);
     core_util_critical_section_exit();
+    
 }
 
 void DigitalInOut::input()
