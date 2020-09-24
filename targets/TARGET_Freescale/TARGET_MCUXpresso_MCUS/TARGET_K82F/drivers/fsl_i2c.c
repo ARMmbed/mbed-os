@@ -1327,7 +1327,7 @@ status_t I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, size_t tx
     /* Read dummy to release bus. */
     dummy = base->D;
 
-    result = I2C_MasterWriteBlocking(base, txBuff, txSize, kI2C_TransferDefaultFlag);
+    result = I2C_MasterWriteBlocking(base, txBuff, txSize, kI2C_TransferNoStopFlag);
 
     /* Switch to receive mode. */
     base->C1 &= ~(I2C_C1_TX_MASK | I2C_C1_TXAK_MASK);
