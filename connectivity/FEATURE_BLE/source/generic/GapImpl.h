@@ -493,6 +493,7 @@ private:
         IndexType _current_index = 0;
     };
 
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     class PendingAdvertisingReportEvent {
     public:
         PendingAdvertisingReportEvent(
@@ -530,6 +531,7 @@ private:
         AdvertisingReportEvent event;
         uint8_t *advertising_data_buffer = nullptr;
     };
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 private:
     /* Disallow copy and assignment. */
@@ -585,7 +587,9 @@ private:
 
     bool initialize_whitelist() const;
 
+#if BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     ble_error_t update_ll_address_resolution_setting();
+#endif // BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     ble_error_t setExtendedAdvertisingParameters(
         advertising_handle_t handle,
@@ -620,7 +624,9 @@ private:
     bool apply_peripheral_privacy_connection_policy(
         const ConnectionCompleteEvent &event
     );
+#endif // BLE_FEATURE_PRIVACY
 
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     /** Pass the connection complete event to the application after privacy resolution completed.
      *
      * @param event Event to be passed to the user application.
@@ -632,7 +638,7 @@ private:
         target_peer_address_type_t identity_address_type,
         const address_t *identity_address
     );
-#endif // BLE_FEATURE_PRIVACY
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 #endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_ROLE_OBSERVER
@@ -642,7 +648,7 @@ private:
      */
     void signal_advertising_report(AdvertisingReportEvent& report);
 
-#if BLE_FEATURE_PRIVACY
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     /** Pass the advertising report to the application after privacy resolution completed.
      *
      * @param event Event to be passed to the user application.
@@ -654,7 +660,7 @@ private:
         target_peer_address_type_t identity_address_type,
         const address_t *identity_address
     );
-#endif // BLE_FEATURE_PRIVACY
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 #endif // BLE_ROLE_OBSERVER
 
     /* implements PalGap::EventHandler */
@@ -767,13 +773,14 @@ private:
     void on_non_resolvable_private_addresses_generated(const address_t &address) final;
 
     void on_private_address_generated(bool connectable);
-
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     void on_address_resolution_completed(
         const address_t &peer_resolvable_address,
         bool resolved,
         target_peer_address_type_t identity_address_type,
         const address_t &identity_address
     ) final;
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 private:
     bool is_advertising() const;
@@ -803,14 +810,14 @@ private:
      */
     ble::Gap::EventHandler *_event_handler;
 
-#if BLE_FEATURE_PRIVACY
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 #if BLE_ROLE_OBSERVER
     EventList<PendingAdvertisingReportEvent, uint8_t, BLE_GAP_MAX_ADVERTISING_REPORTS_PENDING_ADDRESS_RESOLUTION> _reports_pending_address_resolution;
 #endif // BLE_ROLE_OBSERVER
 #if BLE_FEATURE_CONNECTABLE
     EventList<ConnectionCompleteEvent, uint8_t, DM_CONN_MAX> _connections_pending_address_resolution;
 #endif // BLE_FEATURE_CONNECTABLE
-#endif // BLE_FEATURE_PRIVACY
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     PalEventQueue &_event_queue;
     PalGap &_pal_gap;
