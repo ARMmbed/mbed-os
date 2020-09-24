@@ -30,11 +30,13 @@ namespace ble {
  */
 struct PalPrivateAddressController {
     struct EventHandler {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
         /** Called when the address resolution request has completed.
          *
          * @param success true if the address has been resolved and false otherwise.
          */
         virtual void on_private_address_resolved(bool success) = 0;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
         /** Called when the resolvable private address request has completed.
          *
