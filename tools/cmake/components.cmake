@@ -45,8 +45,8 @@ function(mbed_configure_component component)
 endfunction()
 
 # Enable core Mbed OS componens (from MBED_CORE_COMPONENTS)
-function(mbed_enable_core_components components)
-    foreach(component IN LISTS components)
+function(mbed_enable_core_components)
+    foreach(component IN LISTS MBED_CORE_COMPONENTS)
         # if we find ${component}_PATH, we use it for specified component name
         # otherwise name = path
         set(component_path ${component})

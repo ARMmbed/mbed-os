@@ -80,7 +80,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-mbed_enable_core_components("${MBED_CORE_COMPONENTS}")
+mbed_enable_core_components()
 
 #
 # Configures the application
