@@ -68,7 +68,6 @@ function(mbed_enable_components components)
 
     # Gather all non-core components from the Mbed OS tree
     include(${MBED_ROOT}/connectivity/components.cmake)
-    include(${MBED_ROOT}/storage/components.cmake)
 
     # Find all components and add them to the application
     foreach(component IN LISTS components)
