@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os
+target_sources(mbed-os-nanostack
     PRIVATE
         mbed-client-libservice/common_functions.h
         mbed-client-libservice/ip4string.h
@@ -25,7 +25,7 @@ target_sources(mbed-os
         source/nsdynmemLIB/nsdynmemLIB.c
         source/nvmHelper/ns_nvm_helper.c
 )
-target_include_directories(mbed-os
+target_include_directories(mbed-os-nanostack
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice
