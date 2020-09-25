@@ -164,7 +164,7 @@ endfunction()
 #
 # Configure a Mbed OS application.
 #
-function(mbed_configure_application app_target)
+function(mbed_configure_application target)
     mbed_set_language_standard(${app_target})
     mbed_set_mbed_target_linker_script(${app_target})
     mbed_generate_bin_hex(${app_target})
