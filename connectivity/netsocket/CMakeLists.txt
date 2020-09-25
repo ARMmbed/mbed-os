@@ -40,3 +40,5 @@ target_sources(mbed-os-netsocket
         source/nsapi_dns.cpp
         source/nsapi_ppp.cpp
 )
+
+target_link_libraries(mbed-os-netsocket mbed-os)
