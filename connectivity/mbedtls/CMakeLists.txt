@@ -1,7 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
+add_library(mbed-os-mbedtls OBJECT)
+
+mbed_configure_component(mbed-os-mbedtls)
+
+target_include_directories(mbed-os-mbedtls
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -10,7 +16,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/inc
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-mbedtls
     PRIVATE
         platform/src/mbed_trng.cpp
         platform/src/platform_alt.cpp
@@ -97,3 +103,5 @@ target_sources(mbed-os
         source/x509write_csr.c
         source/xtea.c
 )
+
+target_link_libraries(mbed-os-mbedtls mbed-os)

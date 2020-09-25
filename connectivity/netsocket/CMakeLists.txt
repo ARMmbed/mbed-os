@@ -14,9 +14,17 @@ target_include_directories(mbed-os-netsocket
         ${CMAKE_CURRENT_SOURCE_DIR}/include/netsocket
 )
 
+get_property(_internal_components_enabled GLOBAL PROPERTY mbed-os-internal-components-enabled)
+if(mbed-os-cellular IN_LIST _internal_components_enabled)
 target_sources(mbed-os-netsocket
     PRIVATE
         source/CellularNonIPSocket.cpp
+)
+
+endif()
+
+target_sources(mbed-os-netsocket
+    PRIVATE
         source/DTLSSocket.cpp
         source/DTLSSocketWrapper.cpp
         source/EMACInterface.cpp
@@ -41,4 +49,7 @@ target_sources(mbed-os-netsocket
         source/nsapi_ppp.cpp
 )
 
-target_link_libraries(mbed-os-netsocket mbed-os)
+# TODO: better way to get this in
+add_subdirectory(../libraries/nanostack-libservice ${CMAKE_CURRENT_BINARY_DIR}/nanostack-libservice)
+
+target_link_libraries(mbed-os-netsocket mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os)
