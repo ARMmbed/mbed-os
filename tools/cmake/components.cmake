@@ -1,9 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Create a value in cache, components below extend the list
-list(APPEND mbed-os-internal-components CACHE INTERNAL)
-list(APPEND mbed-os-internal-components-enabled CACHE)
+# Create global values, components below extend the list
+set_property(GLOBAL PROPERTY mbed-os-internal-components)
+set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled)
 
 # Set default core components. They depend on each other.
 if(NOT DEFINED MBED_CORE_COMPONENTS)
@@ -48,60 +48,86 @@ endfunction()
 # Enable core Mbed OS componens (from MBED_CORE_COMPONENTS)
 function(mbed_enable_core_components)
     foreach(component IN LISTS MBED_CORE_COMPONENTS)
-        # if we find ${component}_PATH, we use it for specified component name
-        # otherwise name = path
-        set(component_path ${MBED_ROOT}/${component})
-        if (${component}_PATH)
-            set(component_path ${MBED_ROOT}/${component}_PATH)
-        endif()
-        if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
-            add_subdirectory("${component_path}")
-            # also core components to be tracked in internal
-            list(APPEND mbed-os-internal-components-enabled ${component})
-            # 
-            string(TOUPPER ${component} component_uppercase)
-            #target_compile_definitions(mbed-os
-            #    PUBLIC
-            #        MBED_OS_COMPONENT_${component_uppercase}_ENABLED
-            #)
-        endif()
+        add_subdirectory(${component})
     endforeach()
 endfunction()
 
 # Enable Mbed OS component, used by an application to enable Mbed OS component.
-# This is not for an external component oustide of Mbed OS, it is application
-# responsibility to include and link to it
+# Boards can enable/disable components, a user should be able to overwrite it
+# This is not for an external component oustide of Mbed OS.
+# Arguments expected:
+#   ARGV - list of components to be enabled
 function(mbed_enable_components)
     # Gather all non-core components from the Mbed OS tree
+    # Only include it in enable components
     include(${MBED_ROOT}/connectivity/components.cmake)
 
     # Find all components and add them to the application
+    get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
+    get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
     foreach(component IN LISTS ARGV)
-        if(NOT component IN_LIST mbed-os-internal-components)
+        if(NOT component IN_LIST _internal_components)
             message(ERROR
-                " Component ${component} is not available. Available components are: ${mbed-os-internal-components}"
+                " Component ${component} is not available. Available components are: ${_internal_components}"
+            )
+        endif()
+        # Add to the list to enable right before linking
+        list(APPEND _enabled_components ${component})
+    endforeach()
+    set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled ${_enabled_components})
+endfunction()
+
+# Disable Mbed OS component, used by an application to disable Mbed OS component.
+# Arguments expected:
+#   ARGV - list of components to be disabled
+function(mbed_disable_components)
+    get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
+    # Find all components and remove them
+    foreach(component IN LISTS ARGV)
+        if(NOT component IN_LIST _internal_components)
+            message(ERROR
+                " Component ${component} is not available. Available components are: ${_internal_components}"
             )
         endif()
 
-        # if we find ${component}_PATH, we use it for the specified component name
-        # otherwise name is equaled to a path
-        set(component_path ${component})
+        get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
+        list(REMOVE_ITEM _enabled_components ${component})
+        set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled ${_enabled_components})
+    endforeach()
+endfunction()
+
+# Use this function to link with Mbed OS and its components. This is just a wrapper on
+# top of target_link_libraries
+# Arguments expected:
+# app_target - the application target
+# ARGN - list of external components to link with app_target + mbed-os + mbed-os components
+function(mbed_target_link_libraries app_target)
+    # get paths for components
+    include(${MBED_ROOT}/connectivity/components.cmake)
+
+    get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
+
+    foreach(component IN LISTS _enabled_internal_components)
         if (${component}_PATH)
-            set(component_path ${${component}_PATH})
+            set(component_path ${MBED_ROOT}/${${component}_PATH})
+        else()
+            set(component_path ${MBED_ROOT}/${component})
         endif()
-        set(component_path ${MBED_ROOT}/${component_path})
         if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
-            # only adding a directory. We can't link here otherwise there will be circular depedency
-            # with Mbed OS - not really needed. An application links components together as it needs
-            # to request them (enable + link)
             add_subdirectory("${component_path}")
-            list(APPEND mbed-os-internal-components-enabled ${component})
+
             string(TOUPPER ${component} component_uppercase)
             string(REPLACE "-" "_" ${component} ${component})
             #target_compile_definitions(mbed-os
             #    PUBLIC
             #        MBED_OS_COMPONENT_${component_uppercase}_ENABLED
             #)
+        else()
+            message(ERROR
+                " Component path ${component_path} not found."
+            )
         endif()
     endforeach()
+    message(${app_target} ${_enabled_internal_components} ${ARGN})
+    target_link_libraries(${app_target} ${_enabled_internal_components} ${ARGN} mbed-os)
 endfunction()

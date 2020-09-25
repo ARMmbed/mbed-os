@@ -1,8 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Extend the cached internal components list
-list(APPEND mbed-os-internal-components
+get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
+
+list(APPEND connectivity_components
     mbed-os-cellular
     mbed-os-ble
     mbed-os-lorawan
@@ -11,6 +12,15 @@ list(APPEND mbed-os-internal-components
     mbed-os-netsocket
     mbed-os-nfc
 )
+
+# Only add once
+foreach(component IN LISTS connectivity_components)
+    if(NOT component IN_LIST _internal_components)
+        list(APPEND _internal_components ${component})
+    endif()
+endforeach()
+
+set_property(GLOBAL PROPERTY mbed-os-internal-components ${_internal_components})
 
 # Components paths to the main CMake file
 set(mbed-os-ble_PATH connectivity/FEATURE_BLE)

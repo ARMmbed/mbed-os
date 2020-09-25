@@ -18,6 +18,7 @@
 
 #include "platform/mbed_version.h"
 
+// TODO fix
 //#ifdef MBED_OS_COMPONENT_RTOS_ENABLED
 #include "rtos/rtos.h"
 //#endif
