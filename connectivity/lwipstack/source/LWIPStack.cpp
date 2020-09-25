@@ -664,6 +664,12 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
             return err_remap(igmp_err);
         }
 
+        case NSAPI_IPTOS:
+            if (optlen != sizeof(int)) {
+                 return NSAPI_ERROR_UNSUPPORTED;
+            }
+            s->conn->pcb.ip->tos = (u8_t)(*(const int *)optval);
+            return 0;
         default:
             return NSAPI_ERROR_UNSUPPORTED;
     }

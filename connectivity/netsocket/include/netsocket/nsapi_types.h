@@ -272,6 +272,7 @@ typedef enum nsapi_socket_option {
     NSAPI_BIND_TO_DEVICE,    /*!< Bind socket network interface name*/
     NSAPI_LATENCY,           /*!< Read estimated latency to destination */
     NSAPI_STAGGER,           /*!< Read estimated stagger value to destination */
+    NSAPI_IPTOS,             /*!< Set IP type of service to set specific precedence */
 } nsapi_socket_option_t;
 
 typedef enum nsapi_tlssocket_level {
