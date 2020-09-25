@@ -611,6 +611,16 @@ private:
     void signal_connection_complete(ConnectionCompleteEvent& report);
 
 #if BLE_FEATURE_PRIVACY
+    /**
+     * Apply the privacy policies when the local peripheral is connected.
+     * @param event The connection event
+     * @return true if the policy process has been successful and false if the
+     * it fails meaning the process connection shouldn't continue.
+     */
+    bool apply_peripheral_privacy_connection_policy(
+        const ConnectionCompleteEvent &event
+    );
+
     /** Pass the connection complete event to the application after privacy resolution completed.
      *
      * @param event Event to be passed to the user application.
