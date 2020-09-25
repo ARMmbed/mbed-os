@@ -33,6 +33,9 @@
 #include "source/pal/PalSecurityManager.h"
 
 
+// Cordio defines the random address used by connection to be the global one
+#define CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION 1
+
 using namespace std::chrono;
 
 MBED_STATIC_ASSERT(BLE_GAP_MAX_ADVERTISING_SETS < 0xFF, "BLE_GAP_MAX_ADVERTISING_SETS must be less than 255");
@@ -1859,6 +1862,9 @@ ble_error_t Gap::startAdvertising(
     if (is_extended_advertising_available()) {
         // Addresses can be updated if the set is not advertising
         if (!_active_sets.get(handle)) {
+#if CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION
+            _pal_gap.set_random_address(*random_address);
+#endif
             _pal_gap.set_advertising_set_random_address(handle, *random_address);
         }
 
@@ -2229,7 +2235,7 @@ void Gap::signal_connection_complete(
                 address_resolved = true;
             }
         }
-#endif BLE_ROLE_CENTRAL
+#endif
 
 #if BLE_ROLE_PERIPHERAL
         if (event.getOwnRole() == connection_role_t::PERIPHERAL) {
@@ -3075,7 +3081,7 @@ void Gap::on_address_resolution_completed(
 
         delete event;
     }
-#endif BLE_ROLE_OBSERVER
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 }
 
@@ -3132,6 +3138,7 @@ const address_t *Gap::get_random_address(controller_operation_t operation, size_
     bool advertising_use_main_address = true;
     // Extended advertising is a special case as the address isn't shared with
     // the main address.
+#if !CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         if (operation == controller_operation_t::advertising) {
@@ -3145,6 +3152,8 @@ const address_t *Gap::get_random_address(controller_operation_t operation, size_
         }
     }
 #endif
+#endif
+
 
     // For other cases we first compute the address being used and then compares
     // it to the address to use to determine if the address is correct or not.
