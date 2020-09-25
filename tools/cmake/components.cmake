@@ -88,12 +88,12 @@ endfunction()
 # Arguments expected:
 #   ARGV - list of components to be disabled
 function(mbed_disable_components)
-    get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
+    get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
     # Find all components and remove them
     foreach(component IN LISTS ARGV)
-        if(NOT component IN_LIST _internal_components)
+        if(NOT component IN_LIST _enabled_components)
             message(ERROR
-                " Component ${component} is not available. Available components are: ${_internal_components}"
+                " Component ${component} has not been enabled. Enabled components are: ${_enabled_components}"
             )
         endif()
 
