@@ -45,8 +45,9 @@ function(mbed_configure_component component)
     )
 endfunction()
 
+# Internal functionality
 # Enable core Mbed OS componens (from MBED_CORE_COMPONENTS)
-function(mbed_enable_core_components)
+function(_mbed_enable_core_components)
     foreach(component IN LISTS MBED_CORE_COMPONENTS)
         add_subdirectory(${component})
     endforeach()
