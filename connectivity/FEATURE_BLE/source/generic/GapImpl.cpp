@@ -2270,6 +2270,9 @@ void Gap::signal_connection_complete(
 
     /* if successful then proceed to call the handler immediately same as for when privacy is disabled */
     if (address_resolved) {
+        if (!apply_peripheral_privacy_connection_policy(event)) {
+            return;
+        }
         report_internal_connection_complete(event);
         _event_handler->onConnectionComplete(event);
     } else {
@@ -2303,15 +2306,64 @@ void Gap::signal_connection_complete(
 }
 
 #if BLE_FEATURE_PRIVACY
+
+bool Gap::apply_peripheral_privacy_connection_policy(
+    const ConnectionCompleteEvent &event
+)
+{
+#if BLE_ROLE_PERIPHERAL
+    if (event.getOwnRole() != connection_role_t::PERIPHERAL) {
+        return true;
+    }
+
+    if (event.getPeerAddressType() != peer_address_type_t::RANDOM) {
+        return true;
+    }
+
+    if (!is_random_private_resolvable_address(event.getPeerAddress())) {
+        return true;
+    }
+
+    auto connection_handle = event.getConnectionHandle();
+
+    switch (_peripheral_privacy_configuration.resolution_strategy) {
+        case peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS:
+            _pal_gap.disconnect(
+                connection_handle,
+                local_disconnection_reason_t::AUTHENTICATION_FAILURE
+            );
+            return false;
+
+        case peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE:
+            _event_queue.post([connection_handle] {
+                BLE::Instance().securityManager().requestAuthentication(connection_handle);
+            });
+            return true;
+
+        case peripheral_privacy_configuration_t::PERFORM_AUTHENTICATION_PROCEDURE:
+            _event_queue.post([connection_handle] {
+                BLE::Instance().securityManager().setLinkSecurity(
+                    connection_handle,
+                    ble::SecurityManager::SecurityMode_t::SECURITY_MODE_ENCRYPTION_WITH_MITM
+                );
+            });
+            return true;
+
+        default:
+            return true;
+    }
+#else
+    return true;
+#endif
+}
+
+
 void Gap::conclude_signal_connection_complete_after_address_resolution(
     ConnectionCompleteEvent &event,
     target_peer_address_type_t identity_address_type,
     const address_t *identity_address
 )
 {
-#if BLE_ROLE_PERIPHERAL
-    bool resolvable_address_not_known = false;
-#endif // BLE_ROLE_PERIPHERAL
     /* fix the event addresses */
     if (identity_address) {
         /* move old address to resolvable address */
@@ -2323,42 +2375,13 @@ void Gap::conclude_signal_connection_complete_after_address_resolution(
                                  peer_address_type_t::RANDOM_STATIC_IDENTITY
                                  : peer_address_type_t::PUBLIC_IDENTITY);
     }
-#if BLE_ROLE_PERIPHERAL
-    if (!identity_address) {
-        if (_peripheral_privacy_configuration.resolution_strategy ==
-            peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS) {
-            // Reject connection request - the user will get notified through a callback
-            _pal_gap.disconnect(
-                event.getConnectionHandle(),
-                local_disconnection_reason_t::AUTHENTICATION_FAILURE
-            );
-            return;
-        }
-        resolvable_address_not_known = true;
+
+    if (!apply_peripheral_privacy_connection_policy(event)) {
+        return;
     }
-#endif // BLE_ROLE_PERIPHERAL
 
     report_internal_connection_complete(event);
     _event_handler->onConnectionComplete(event);
-#if BLE_ROLE_PERIPHERAL
-#if BLE_FEATURE_SECURITY
-    if (resolvable_address_not_known) {
-        ble::SecurityManager &sm = BLE::Instance().securityManager();
-        if (_peripheral_privacy_configuration.resolution_strategy ==
-            peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE) {
-
-            // Request authentication to start pairing procedure
-            sm.requestAuthentication(event.getConnectionHandle());
-        } else if (_peripheral_privacy_configuration.resolution_strategy ==
-                   peripheral_privacy_configuration_t::PERFORM_AUTHENTICATION_PROCEDURE) {
-            sm.setLinkSecurity(
-                event.getConnectionHandle(),
-                ble::SecurityManager::SecurityMode_t::SECURITY_MODE_ENCRYPTION_WITH_MITM
-            );
-        }
-    }
-#endif // BLE_FEATURE_SECURITY
-#endif // BLE_ROLE_PERIPHERAL
 }
 #endif // BLE_FEATURE_PRIVACY
 #endif // BLE_FEATURE_CONNECTABLE
