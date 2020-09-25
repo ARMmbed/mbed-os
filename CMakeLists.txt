@@ -162,7 +162,7 @@ function(mbed_generate_bin_hex target)
 endfunction()
 
 #
-# Configure Mbed OS CMake application (default).
+# Configure a Mbed OS application.
 #
 function(mbed_configure_application app_target)
     mbed_set_language_standard(${app_target})
