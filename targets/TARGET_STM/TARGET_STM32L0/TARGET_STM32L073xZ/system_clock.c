@@ -91,7 +91,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
 
     /* Used to gain time after DeepSleep in case HSI is used */
     if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) != RESET) {
@@ -133,6 +132,8 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     }
 
 #if DEVICE_USBDEVICE
+    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
+
     RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
     RCC_PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
@@ -158,7 +159,6 @@ uint8_t SetSysClock_PLL_HSI(void)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
 
     /* The voltage scaling allows optimizing the power consumption when the device is
        clocked below the maximum system frequency, to update the voltage scaling value
@@ -192,6 +192,8 @@ uint8_t SetSysClock_PLL_HSI(void)
     }
 
 #if DEVICE_USBDEVICE
+    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
+
     RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
     RCC_PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {

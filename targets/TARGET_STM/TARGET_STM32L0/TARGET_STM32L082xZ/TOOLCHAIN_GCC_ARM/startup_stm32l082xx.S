@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32l082xZ.s
+  * @file      startup_stm32l082xx.s
   * @author    MCD Application Team
-  * @brief     STM32L082xx Devices vector table for Atollic TrueSTUDIO toolchain.
+  * @brief     STM32L082xx Devices vector table for GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -97,12 +97,8 @@ LoopFillZerobss:
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit
-/* Call static constructors */
-    //bl __libc_init_array
-/* Call the application's entry point.*/
-  //bl  main
-  bl _start
- 
+	bl _start
+	bx lr
 
 LoopForever:
     b LoopForever
