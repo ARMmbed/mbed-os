@@ -1,9 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+get_property(_internal_components_enabled GLOBAL PROPERTY mbed-os-internal-components-enabled)
+
 # Device key is available only if storage is enabled
-if(mbed-os-storage IN_LIST mbed-os-internal-components-enabled)
+if(mbed-os-storage IN_LIST _internal_components_enabled)
     add_subdirectory(device_key)
+
+target_sources(mbed-os
+    PRIVATE
+        source/SFDP.cpp
+)
+
 endif()
 
 target_include_directories(mbed-os
@@ -49,10 +57,9 @@ target_sources(mbed-os
         source/Watchdog.cpp
 )
 
-if(mbed-os-usb IN_LIST mbed-os-internal-components-enabled)
+if(mbed-os-usb IN_LIST _internal_components_enabled)
 target_sources(mbed-os
     PRIVATE
-        source/SFDP.cpp
         source/usb/AsyncOp.cpp
         source/usb/ByteBuffer.cpp
         source/usb/EndpointResolver.cpp
