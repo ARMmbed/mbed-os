@@ -118,7 +118,9 @@ function(mbed_target_link_libraries app_target)
         if (${component}_PATH)
             set(component_path ${MBED_ROOT}/${${component}_PATH})
         else()
-            set(component_path ${MBED_ROOT}/${component})
+            message(ERROR 
+                "${component}_PATH not found"
+            )
         endif()
         if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
             add_subdirectory("${component_path}")
