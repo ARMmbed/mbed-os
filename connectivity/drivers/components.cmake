@@ -17,4 +17,4 @@ endforeach()
 set_property(GLOBAL PROPERTY mbed-os-internal-components ${_internal_components})
 
 # Components paths to the main CMake file
-set(mbed-os-nfc-pn512_PATH nfc/PN512)
+set(mbed-os-nfc-pn512_PATH connectivity/drivers/nfc/PN512)

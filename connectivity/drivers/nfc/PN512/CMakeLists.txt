@@ -1,6 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
+add_library(mbed-os-nfc-pn512 OBJECT)
+
+mbed_configure_component(mbed-os-nfc-pn512)
+
 target_include_directories(mbed-os-nfc-pn512
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -26,3 +32,5 @@ target_sources(mbed-os-nfc-pn512
         source/transceiver/pn512_timer.c
         source/transceiver/pn512_transceive.c
 )
+
+target_link_libraries(mbed-os-nfc-pn512 mbed-os mbed-os-nfc)
