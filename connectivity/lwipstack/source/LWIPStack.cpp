@@ -666,7 +666,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
         case NSAPI_IPTOS:
             if (optlen != sizeof(int)) {
-                 return NSAPI_ERROR_UNSUPPORTED;
+                return NSAPI_ERROR_UNSUPPORTED;
             }
             s->conn->pcb.ip->tos = (u8_t)(*(const int *)optval);
             return 0;
