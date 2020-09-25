@@ -18,21 +18,20 @@
 
 #include "platform/mbed_version.h"
 
-// TODO fix
-//#ifdef MBED_OS_COMPONENT_RTOS_ENABLED
+#ifdef MBED_COMPONENT_RTOS_ENABLED
 #include "rtos/rtos.h"
-//#endif
+#endif
 
-#ifdef MBED_OS_COMPONENT_NETSOCKET_ENABLED
+#ifdef MBED_COMPONENT_NETSOCKET_ENABLED
 #include "netsocket/nsapi.h"
 #include "netsocket/nsapi_ppp.h"
 #endif
 
-#ifdef MBED_OS_COMPONENT_EVENTS_ENABLED
+#ifdef MBED_COMPONENT_EVENTS_ENABLED
 #include "events/mbed_events.h"
 #endif
 
-#ifdef MBED_OS_COMPONENT_MBED_OS_FILESYSTEM_ENABLED
+#ifdef MBED_COMPONENT_MBED_OS_FILESYSTEM_ENABLED
 #include "filesystem/mbed_filesystem.h"
 #endif
 

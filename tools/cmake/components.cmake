@@ -50,6 +50,13 @@ function(mbed_enable_core_components)
     foreach(component IN LISTS MBED_CORE_COMPONENTS)
         add_subdirectory(${component})
     endforeach()
+
+    if(rtos IN_LIST MBED_CORE_COMPONENTS)
+        target_compile_definitions(mbed-os
+            PUBLIC
+                MBED_COMPONENT_RTOS_ENABLED
+        )
+    endif()
 endfunction()
 
 # Enable Mbed OS component, used by an application to enable Mbed OS component.
@@ -116,18 +123,17 @@ function(mbed_target_link_libraries app_target)
         if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
             add_subdirectory("${component_path}")
 
-            string(TOUPPER ${component} component_uppercase)
             string(REPLACE "-" "_" ${component} ${component})
-            #target_compile_definitions(mbed-os
-            #    PUBLIC
-            #        MBED_OS_COMPONENT_${component_uppercase}_ENABLED
-            #)
+            string(TOUPPER ${component} component_uppercase)
+            target_compile_definitions(mbed-os
+                PUBLIC
+                    MBED_COMPONENT_${component_uppercase}_ENABLED
+            )
         else()
             message(ERROR
                 " Component path ${component_path} not found."
             )
         endif()
     endforeach()
-    message(${app_target} ${_enabled_internal_components} ${ARGN})
     target_link_libraries(${app_target} ${_enabled_internal_components} ${ARGN} mbed-os)
 endfunction()
