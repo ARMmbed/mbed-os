@@ -69,6 +69,7 @@ function(mbed_enable_components)
     # Gather all non-core components from the Mbed OS tree
     # Only include it in enable components
     include(${MBED_ROOT}/connectivity/components.cmake)
+    include(${MBED_ROOT}/connectivity/drivers/components.cmake)
 
     # Find all components and add them to the application
     get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
@@ -112,6 +113,7 @@ endfunction()
 function(mbed_target_link_libraries app_target)
     # get paths for components
     include(${MBED_ROOT}/connectivity/components.cmake)
+    include(${MBED_ROOT}/connectivity/drivers/components.cmake)
 
     get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
 
