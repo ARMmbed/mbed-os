@@ -125,6 +125,7 @@ function(mbed_target_link_libraries app_target)
         if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
             add_subdirectory("${component_path}")
 
+            string(REGEX REPLACE "mbed-os-" "" component ${component})
             string(REPLACE "-" "_" component ${component})
             string(TOUPPER ${component} component_uppercase)
             target_compile_definitions(mbed-os
