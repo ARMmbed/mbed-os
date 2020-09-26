@@ -60,6 +60,16 @@ function(_mbed_enable_core_components)
     endif()
 endfunction()
 
+function(mbed_enable_components_as_dependency)
+    mbed_enable_components(${ARGV})
+    # check what was actually enabled from the deps and add them
+    get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
+    foreach(component IN LISTS ARGV)
+        set(component_path ${MBED_ROOT}/${${component}_PATH})
+        add_subdirectory("${component_path}")
+    endforeach()
+endfunction()
+
 # Enable Mbed OS component, used by an application to enable Mbed OS component.
 # Boards can enable/disable components, a user should be able to overwrite it
 # This is not for an external component oustide of Mbed OS.
@@ -117,7 +127,8 @@ function(mbed_target_link_libraries app_target)
     include(${MBED_ROOT}/connectivity/drivers/components.cmake)
 
     get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
-
+    message("linking:")
+    message(${_enabled_internal_components})
     foreach(component IN LISTS _enabled_internal_components)
         if (${component}_PATH)
             set(component_path ${MBED_ROOT}/${${component}_PATH})
@@ -128,6 +139,15 @@ function(mbed_target_link_libraries app_target)
         endif()
         if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
             add_subdirectory("${component_path}")
+
+            # enable also dependencies
+            foreach(dependency IN LISTS ${component}_DEPENDS)
+                if(NOT dependency IN_LIST _enabled_internal_components)
+                    list(APPEND _enabled_internal_components ${dependency})
+                    set(dependency_path ${MBED_ROOT}/${${dependency}_PATH})
+                    add_subdirectory("${dependency_path}")
+                endif()
+            endforeach()
 
             string(REGEX REPLACE "mbed-os-" "" component ${component})
             string(REPLACE "-" "_" component ${component})
@@ -142,5 +162,6 @@ function(mbed_target_link_libraries app_target)
             )
         endif()
     endforeach()
+    set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled ${_enabled_internal_components})
     target_link_libraries(${app_target} ${_enabled_internal_components} ${ARGN} mbed-os)
 endfunction()
