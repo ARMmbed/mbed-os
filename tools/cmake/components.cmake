@@ -80,8 +80,9 @@ function(mbed_enable_components)
                 " Component ${component} is not available. Available components are: ${_internal_components}"
             )
         endif()
-        # Add to the list to enable right before linking
-        list(APPEND _enabled_components ${component})
+        if(NOT component IN_LIST _enabled_components)
+            list(APPEND _enabled_components ${component})
+        endif()
     endforeach()
     set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled ${_enabled_components})
 endfunction()
