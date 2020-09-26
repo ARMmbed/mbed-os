@@ -25,7 +25,6 @@ target_sources(mbed-os-nanostack
         source/Nanostack.cpp
 )
 
-# TODO: needs fixing, will complain if added 2x
-add_subdirectory(../libraries/mbed-coap ${CMAKE_CURRENT_BINARY_DIR}/mbed-coap)
+mbed_enable_components(mbed-os-coap mbed-os-nanostack-libservice mbed-os-netsocket)
 
 target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)

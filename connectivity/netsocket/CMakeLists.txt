@@ -49,7 +49,6 @@ target_sources(mbed-os-netsocket
         source/nsapi_ppp.cpp
 )
 
-# TODO: better way to get this in
-add_subdirectory(../libraries/nanostack-libservice ${CMAKE_CURRENT_BINARY_DIR}/nanostack-libservice)
+mbed_enable_components(mbed-os-coap mbed-os-nanostack-libservice mbed-os-mbedtls)
 
 target_link_libraries(mbed-os-netsocket mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os)

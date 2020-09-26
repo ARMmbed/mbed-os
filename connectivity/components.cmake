@@ -11,6 +11,8 @@ list(APPEND connectivity_components
     mbed-os-nanostack
     mbed-os-netsocket
     mbed-os-nfc
+    mbed-os-coap
+    mbed-os-nanostack-libservice
 )
 
 # Only add once
@@ -30,3 +32,5 @@ set(mbed-os-lorawan_PATH connectivity/lorawan)
 set(mbed-os-mbedtls_PATH connectivity/mbedtls)
 set(mbed-os-nanostack_PATH connectivity/nanostack)
 set(mbed-os-netsocket_PATH connectivity/netsocket)
+set(mbed-os-mbed-os-coap_PATH connectivity/libraries/mbed-coap)
+set(mbed-os-nanostack-libservice_PATH connectivity/libraries/nanostack-libservice)
