@@ -25,6 +25,7 @@ target_sources(mbed-os-nanostack
         source/Nanostack.cpp
 )
 
-mbed_enable_components(mbed-os-coap mbed-os-nanostack-libservice mbed-os-netsocket)
+set(mbed-os-nanostack_DEPENDS mbed-os-coap mbed-os-nanostack-libservice mbed-os-netsocket)
+mbed_enable_components(${mbed-os-nanostack_DEPENDS})
 
 target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)
