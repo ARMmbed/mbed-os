@@ -128,15 +128,17 @@ function(mbed_target_link_libraries app_target)
 
     get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
 
-    list(APPEND components_to_be_added ${_enabled_internal_components})
+    # Contains up-to-date list of components to be added
+    list(APPEND components_to_be_enabled ${_enabled_internal_components})
 
-    while(components_to_be_added)
-        message("Enablig: " "${components_to_be_added}")
+    # Continue adding until we resolve all dependencies (components_to_be_enabled is empty)
+    while(components_to_be_enabled)
         foreach(component IN LISTS _enabled_internal_components)
+            # check if we resolved this dependency already
             if(component IN_LIST components_already_enabled)
-                message("skipping: " ${component})
                 continue()
             endif()
+
             if (DEFINED ${component}_PATH)
                 set(component_path ${MBED_ROOT}/${${component}_PATH})
             else()
@@ -160,14 +162,15 @@ function(mbed_target_link_libraries app_target)
                 )
             endif()
             list(APPEND components_already_enabled ${component})
-            list(REMOVE_ITEM components_to_be_added ${component})
+            list(REMOVE_ITEM components_to_be_enabled ${component})
         endforeach()
 
-        # Resolve dependencies added after foreach above
+        # Resolve dependencies added after foreach above. Find a component we haven't
+        # yet added and append it to our components_to_be_enabled list for enabling
         get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
         foreach(component IN LISTS _enabled_internal_components)
             if(NOT component IN_LIST components_already_enabled)
-                list(APPEND components_to_be_added ${component})
+                list(APPEND components_to_be_enabled ${component})
             endif()
         endforeach()
     endwhile()
