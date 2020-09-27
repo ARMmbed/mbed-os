@@ -81,7 +81,7 @@ function(mbed_enable_components)
     include(${MBED_ROOT}/connectivity/components.cmake)
     include(${MBED_ROOT}/connectivity/drivers/components.cmake)
 
-    # Find all components and add them to the application
+    # Find all components and add them to the applicati on
     get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
     get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
     foreach(component IN LISTS ARGV)
@@ -127,41 +127,51 @@ function(mbed_target_link_libraries app_target)
     include(${MBED_ROOT}/connectivity/drivers/components.cmake)
 
     get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
-    message("linking:")
-    message(${_enabled_internal_components})
-    foreach(component IN LISTS _enabled_internal_components)
-        if (${component}_PATH)
-            set(component_path ${MBED_ROOT}/${${component}_PATH})
-        else()
-            message(ERROR 
-                "${component}_PATH not found"
-            )
-        endif()
-        if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
-            add_subdirectory("${component_path}")
 
-            # enable also dependencies
-            foreach(dependency IN LISTS ${component}_DEPENDS)
-                if(NOT dependency IN_LIST _enabled_internal_components)
-                    list(APPEND _enabled_internal_components ${dependency})
-                    set(dependency_path ${MBED_ROOT}/${${dependency}_PATH})
-                    add_subdirectory("${dependency_path}")
-                endif()
-            endforeach()
+    list(APPEND components_to_be_added ${_enabled_internal_components})
 
-            string(REGEX REPLACE "mbed-os-" "" component ${component})
-            string(REPLACE "-" "_" component ${component})
-            string(TOUPPER ${component} component_uppercase)
-            target_compile_definitions(mbed-os
-                PUBLIC
-                    "MBED_COMPONENT_${component_uppercase}_ENABLED"
-            )
-        else()
-            message(ERROR
-                " Component path ${component_path} not found."
-            )
-        endif()
-    endforeach()
-    set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled ${_enabled_internal_components})
-    target_link_libraries(${app_target} ${_enabled_internal_components} ${ARGN} mbed-os)
+    while(components_to_be_added)
+        message("Enablig: " "${components_to_be_added}")
+        foreach(component IN LISTS _enabled_internal_components)
+            if(component IN_LIST components_already_enabled)
+                message("skipping: " ${component})
+                continue()
+            endif()
+            if (DEFINED ${component}_PATH)
+                set(component_path ${MBED_ROOT}/${${component}_PATH})
+            else()
+                message(ERROR 
+                    "${${component}_PATH} not found"
+                )
+            endif()
+            if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
+                add_subdirectory("${component_path}")
+
+                string(REGEX REPLACE "mbed-os-" "" no_prefix_component ${component})
+                string(REPLACE "-" "_" no_prefix_component ${no_prefix_component})
+                string(TOUPPER ${no_prefix_component} no_prefix_component)
+                target_compile_definitions(mbed-os
+                    PUBLIC
+                        "MBED_COMPONENT_${no_prefix_component}_ENABLED"
+                )
+            else()
+                message(ERROR
+                    " Component path ${component_path} not found."
+                )
+            endif()
+            list(APPEND components_already_enabled ${component})
+            list(REMOVE_ITEM components_to_be_added ${component})
+        endforeach()
+
+        # Resolve dependencies added after foreach above
+        get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
+        foreach(component IN LISTS _enabled_internal_components)
+            if(NOT component IN_LIST components_already_enabled)
+                list(APPEND components_to_be_added ${component})
+            endif()
+        endforeach()
+    endwhile()
+
+    message("Linking these: " "${components_already_enabled}")
+    target_link_libraries(${app_target} ${components_already_enabled} ${ARGN} mbed-os)
 endfunction()
