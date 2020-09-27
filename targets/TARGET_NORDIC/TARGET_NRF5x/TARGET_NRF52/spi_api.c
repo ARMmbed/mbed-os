@@ -130,7 +130,6 @@ static void spi_configure_driver_instance(spi_t *obj)
     /* Get pointer to object of the current owner of the peripheral. */
     void *current_owner = object_owner_spi2c_get(instance);
 
-
     /* Check if reconfiguration is actually necessary. */
     if ((obj != current_owner) || spi_inst->update) {
 
