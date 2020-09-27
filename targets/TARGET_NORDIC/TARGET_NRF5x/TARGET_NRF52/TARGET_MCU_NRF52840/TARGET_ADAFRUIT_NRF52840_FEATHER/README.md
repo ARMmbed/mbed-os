@@ -107,6 +107,16 @@ mbed add https://github.com/ARMmbed/mbed-os.git
         }
     ]
 ``` 
+- Set target in .mbed file to:
+```text
+TARGET=ADAFRUIT_NRF52840_FEATHER
+```
+File should look like something of the form:
+```text
+TOOLCHAIN=GCC_ARM
+TARGET=ADAFRUIT_NRF52840_FEATHER
+ROOT=.
+```
 
 ## Compiling and Building
 
