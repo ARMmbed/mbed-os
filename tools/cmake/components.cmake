@@ -70,7 +70,8 @@ function(mbed_enable_components_as_dependency)
     endforeach()
 endfunction()
 
-# Enable Mbed OS component, used by an application to enable Mbed OS component.
+# Enable Mbed OS component, used by an application to enable Mbed OS component or a component
+# to enable its dependencies.
 # Boards can enable/disable components, a user should be able to overwrite it
 # This is not for an external component oustide of Mbed OS.
 # Arguments expected:
@@ -98,6 +99,7 @@ function(mbed_enable_components)
 endfunction()
 
 # Disable Mbed OS component, used by an application to disable Mbed OS component.
+# Be careful as there can be a component that depends on component being removed
 # Arguments expected:
 #   ARGV - list of components to be disabled
 function(mbed_disable_components)
