@@ -53,8 +53,8 @@ __ram_vector_table__ = 1;
     #define MBED_RAM_SIZE       NS_DATA_SIZE
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
 #if !defined(NVIC_INTERRUPT_NUM)
@@ -73,7 +73,7 @@ __ram_vector_table__ = 1;
   #define MBED_INTERRUPTS_SIZE ((NVIC_INTERRUPT_NUM + EXCEPTION_VECT_NUM) * MEMORY_ADDR_SIZE_IN_BYTE)
 #endif
 
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0800;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x200 : 0x0;

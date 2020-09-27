@@ -26,8 +26,14 @@
 
 #if (DEVICE_SPI || DEVICE_QSPI)
 
-#include "features/frameworks/mbed-trace/mbed-trace/mbed_trace.h"
+#if MBED_CONF_MBED_TRACE_ENABLE
+#include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "SFDP"
+#else // MBED_CONF_MBED_TRACE_ENABLE
+#define tr_info(...)
+#define tr_error(...)
+#define tr_debug(...)
+#endif // MBED_CONF_MBED_TRACE_ENABLE
 
 namespace {
 
@@ -406,7 +412,7 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
             largest_erase_type = idx;
             if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
                     ((smptbl.region_high_boundary[region] - offset)
-                     > (int)(smptbl.erase_type_size_arr[largest_erase_type]))) {
+                     > (uint64_t)(smptbl.erase_type_size_arr[largest_erase_type]))) {
                 break;
             } else {
                 bitfield &= ~type_mask;

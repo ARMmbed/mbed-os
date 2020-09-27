@@ -161,7 +161,7 @@ protected:
     /**
      * Construct and add to the GattServer the heart rate service.
      */
-    void setupService(void) {
+    void setupService() {
         GattCharacteristic *charTable[] = {
             &hrmRate,
             &hrmLocation
@@ -169,7 +169,7 @@ protected:
         GattService hrmService(
             GattService::UUID_HEART_RATE_SERVICE,
             charTable,
-            sizeof(charTable) / sizeof(GattCharacteristic*)
+            sizeof(charTable) / sizeof(charTable[0])
         );
 
         ble.gattServer().addService(hrmService);
@@ -204,17 +204,17 @@ protected:
             }
         }
 
-        uint8_t *getPointer(void)
+        uint8_t *getPointer()
         {
             return valueBytes;
         }
 
-        const uint8_t *getPointer(void) const
+        const uint8_t *getPointer() const
         {
             return valueBytes;
         }
 
-        unsigned getNumValueBytes(void) const
+        unsigned getNumValueBytes() const
         {
             if (valueBytes[FLAGS_BYTE_INDEX] & VALUE_FORMAT_FLAG) {
                 return 1 + sizeof(uint16_t);

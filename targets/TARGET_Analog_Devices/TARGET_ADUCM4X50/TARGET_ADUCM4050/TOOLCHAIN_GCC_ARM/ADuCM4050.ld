@@ -34,10 +34,10 @@ MEMORY
 GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 /* Custom stack and heap sizes */
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 __heap_size__  = 0x6000;
 
 /* select custom or default sizes for stack and heap */

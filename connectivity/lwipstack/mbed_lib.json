@@ -174,7 +174,17 @@
         "EFM32GG11_STK3701": {
             "mem-size": 36560
         },
-        "RZ_A1_EMAC": {
+        "RZ_A1XX": {
+            "tcpip-thread-stacksize": 1328,
+            "default-thread-stacksize": 640,
+            "memp-num-tcp-seg": 32,
+            "tcp-mss": 1440,
+            "tcp-snd-buf": "(8 * TCP_MSS)",
+            "tcp-wnd": "(TCP_MSS * 8)",
+            "pbuf-pool-size": 16,
+            "mem-size": 51200
+        },
+        "RZ_A2XX": {
             "tcpip-thread-stacksize": 1328,
             "default-thread-stacksize": 640,
             "memp-num-tcp-seg": 32,

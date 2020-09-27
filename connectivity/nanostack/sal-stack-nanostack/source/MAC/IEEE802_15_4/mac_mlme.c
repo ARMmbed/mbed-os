@@ -512,6 +512,10 @@ static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_set
                 rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_ACCEPT_ANY_BEACON, (uint8_t *)&value);
             }
             break;
+
+        case macEdfeForceStop:
+            return mac_data_edfe_force_stop(rf_mac_setup);
+
         case macAcceptByPassUnknowDevice:
             rf_mac_setup->mac_security_bypass_unknow_device = value;
             break;
@@ -669,50 +673,13 @@ static int8_t mac_mlme_set_ack_wait_duration(protocol_interface_rf_mac_setup_s *
     return 0;
 }
 
-static void mac_mlme_trig_pending_ack(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_device_descriptor_t *device_ptr)
-{
-    platform_enter_critical();
-    if (rf_mac_setup->mac_ack_tx_active && !rf_mac_setup->ack_tx_possible &&
-            device_ptr->PANId == rf_mac_setup->enhanced_ack_buffer.DstPANId) {
-
-        //Compare address for pending neigbour add
-        if (rf_mac_setup->enhanced_ack_buffer.fcf_dsn.DstAddrMode == MAC_ADDR_MODE_16_BIT) {
-            uint16_t short_id = common_read_16_bit(rf_mac_setup->enhanced_ack_buffer.DstAddr);
-            if (short_id == device_ptr->ShortAddress) {
-                rf_mac_setup->ack_tx_possible = true;
-            }
-        } else if (rf_mac_setup->enhanced_ack_buffer.fcf_dsn.DstAddrMode == MAC_ADDR_MODE_64_BIT) {
-            if (memcmp(device_ptr->ExtAddress, rf_mac_setup->enhanced_ack_buffer.DstAddr, 8) == 0) {
-                rf_mac_setup->ack_tx_possible = true;
-            }
-        }
-    }
-    platform_exit_critical();
-}
-
 static int8_t mac_mlme_device_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
 
     if (set_req->value_size != sizeof(mlme_device_descriptor_t)) {
         return -1;
     }
-    if (mac_sec_mib_device_description_set(set_req->attr_index, (mlme_device_descriptor_t *) set_req->value_pointer, rf_mac_setup) != 0) {
-        return -1;
-    }
-
-    mac_mlme_trig_pending_ack(rf_mac_setup, (mlme_device_descriptor_t *) set_req->value_pointer);
-    return 0;
-}
-
-static int8_t mac_mlme_device_pending_ack_trig(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
-{
-
-    if (set_req->value_size != sizeof(mlme_device_descriptor_t)) {
-        return -1;
-    }
-    mac_mlme_trig_pending_ack(rf_mac_setup, (mlme_device_descriptor_t *) set_req->value_pointer);
-
-    return 0;
+    return mac_sec_mib_device_description_set(set_req->attr_index, (mlme_device_descriptor_t *) set_req->value_pointer, rf_mac_setup);
 }
 
 static int8_t mac_mlme_key_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
@@ -791,8 +758,6 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             return mac_mlme_set_ack_wait_duration(rf_mac_setup, set_req);
         case macDeviceTable:
             return mac_mlme_device_description_set(rf_mac_setup, set_req);
-        case macDevicePendingAckTrig:
-            return mac_mlme_device_pending_ack_trig(rf_mac_setup, set_req);
         case macKeyTable:
             return mac_mlme_key_description_set(rf_mac_setup, set_req);
         case macDefaultKeySource:
@@ -806,6 +771,11 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             if (set_req->value_size == 8) {
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
             }
+            return 0;
+        case macSetDataWhitening:
+            pu8 = (uint8_t *) set_req->value_pointer;
+            rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_DATA_WHITENING, pu8);
+            tr_debug("%s data whitening", *pu8 == (bool) true ? "Enable" : "Disable");
             return 0;
         case macCCAThresholdStart:
             pu8 = (uint8_t *) set_req->value_pointer;
@@ -869,7 +839,7 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, ml
     if (!get_req || !rf_mac_setup) {
         return -1;
     }
-
+    mac_cca_threshold_s *cca_thr_table = NULL;
     switch (get_req->attr) {
         case macDeviceTable:
             get_req->value_pointer = mac_sec_mib_device_description_get_attribute_index(rf_mac_setup, get_req->attr_index);
@@ -897,6 +867,12 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, ml
             }
 
             get_req->value_size = 4;
+            break;
+
+        case macCCAThreshold:
+            cca_thr_table = mac_get_cca_threshold_table(rf_mac_setup);
+            get_req->value_size = cca_thr_table->number_of_channels;
+            get_req->value_pointer = cca_thr_table->ch_thresholds;
             break;
 
         default:
@@ -1644,6 +1620,7 @@ int8_t mac_mlme_rf_channel_change(protocol_interface_rf_mac_setup_s *rf_mac_setu
     if (new_channel == rf_mac_setup->mac_channel) {
         return 0;
     }
+
     platform_enter_critical();
     if (rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CHANNEL, &new_channel) == 0) {
         rf_mac_setup->mac_channel = new_channel;
@@ -1706,6 +1683,7 @@ void mac_mlme_poll_req(protocol_interface_rf_mac_setup_s *cur, const mlme_poll_t
     }
 
     buf->fcf_dsn.frametype = FC_CMD_FRAME;
+    buf->WaitResponse = true;
     buf->fcf_dsn.ackRequested = true;
     buf->fcf_dsn.intraPan = true;
 

@@ -31,6 +31,10 @@
             "internal_size": "0x8000",
             "internal_base_address": "0x10000000"
         },
+        "ARM_MUSCA_S1_S": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x1A1CA000"
+        },
         "FVP_MPS2": {
             "internal_size": "0x200000",
             "internal_base_address": "0x00200000"
@@ -45,6 +49,9 @@
         "CYTFM_064B0S2_4343W": {
             "internal_size": "0x8000",
             "internal_base_address": "0x10168000"
+        },
+        "NUMAKER_IOT_M252": {
+            "internal_size": "0x2000"
         }
     }
 }

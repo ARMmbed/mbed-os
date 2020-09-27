@@ -21,7 +21,7 @@
 #include "utest.h"
 #include "ticker_api.h"
 
-#include "platform/source/SysTimer.h"
+#include "platform/internal/SysTimer.h"
 
 using namespace std::chrono;
 

@@ -16,7 +16,7 @@
  */
 
 #include "SclSTAInterface.h"
-
+#include "scl_interface.h"
 /** @file
 *  Provides function definition to override get_target_default_intance of WiFiInterface and NetworkInterface classes
 */
@@ -27,6 +27,7 @@
  *
  * @return         pointer to WiFiInterface object.
  */
+scl_interface_shared_info_t scl_iface_shared;
 
 WiFiInterface *WiFiInterface::get_target_default_instance()
 {

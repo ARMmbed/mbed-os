@@ -17,10 +17,9 @@
  */
 
 #include <stdio.h>
-#include "ble/common/ble/blecommon.h"
-#include "BLEInstanceBase.h"
-#include "CordioHCIDriver.h"
-#include "CordioHCITransportDriver.h"
+#include "ble/common/blecommon.h"
+#include "ble/driver/CordioHCIDriver.h"
+#include "ble/driver/CordioHCITransportDriver.h"
 #include "mbed.h"
 #include "hci_api.h"
 #include "hci_cmd.h"

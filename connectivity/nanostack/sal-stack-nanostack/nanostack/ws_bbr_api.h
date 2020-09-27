@@ -36,6 +36,8 @@
 typedef struct bbr_information {
     /** Timestamp of the the device. Can be used as version number*/
     uint64_t timestamp;
+    /** Default route Link Local address of north bound router*/
+    uint8_t gateway[16];
     /** Border router dodag id */
     uint8_t dodag_id[16];
     /** Address prefix given to devices in network  set to 0 if not available*/
@@ -59,6 +61,18 @@ typedef struct bbr_route_info {
     /** IID of parent*/
     uint8_t parent[8];
 } bbr_route_info_t;
+
+/**
+ * \brief Struct bbr_radius_timing_t is RADIUS timing configuration structure.
+ */
+typedef struct bbr_radius_timing {
+    /** RADIUS retry timer Imin; in 100ms units; range 1-1200; default 20 (2 seconds) */
+    uint16_t radius_retry_imin;
+    /** RADIUS retry timer Imax; in 100ms units; range 1-1200; default 30 (3 seconds) */
+    uint16_t radius_retry_imax;
+    /** RADIUS retry count; default 3 */
+    uint8_t radius_retry_count;
+} bbr_radius_timing_t;
 
 /**
  * Start backbone border router service.
@@ -130,9 +144,9 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr);
  *
  * Table is Parent child relation using the Global address IID of the devices
  * To get the full IPv6 address of the device.
- *  IPv6 =  Global Prefix + IID.
+ *  IPv6 = Global Prefix + IID.
  *
- * Routing table is in the format: 18 bytes per entry
+ * Routing table is in the format: 16 bytes per entry
  * | Node IID 8 bytes   | parent IID 8 bytes |
  * | 1122112211221122   | 1111111111111111   |
  * | 1133113311331133   | 1111111111111111   |
@@ -142,15 +156,18 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr);
  * | 1177117711771177   | 1155115511551155   |
  * | 1188118811881188   | 1177117711771177   |
  *
- * Order is not assured only parent child link is given in random order
+ * Order is not assured only parent child link is given in random order,
  *
- * Return value is device amount in network divided by 16 bytes per route entry
+ * When preparing to call this function ws_bbr_info_get function should be called to get the amount of devices in the network.
+ * Memory for table is allocated based on the size of network and needs to be sizeof(bbr_route_info_t) * amount of entries.
  *
- * \param interface_id interface ID of the Wi-SUN network
- * \param table_ptr Application allocated memory block where routing table is written.
+ * Return value is amount of route entries written to the table.
+ *
+ * \param interface_id interface ID of the Wi-SUN network.
+ * \param table_ptr Application allocated memory where routing table is written.
  * \param table_len Length of the table allocated by application given as amount of entries.
  *
- * \return 0 - x on success indicates amount of bytes written to the table_ptr
+ * \return 0 - x on success indicates amount of Route entries written to the table_ptr
  * \return <0 in case of errors
  *
  */
@@ -317,7 +334,7 @@ int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id);
 int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id);
 
 /**
- * ws_bbr_key_storage_memory_set sets memory used for key storages
+ * Sets memory used for key storages
  *
  * This functions can be used to set memory used by EAPOL key storage. When memory
  * areas are set, module does not allocate memory internally from heap.
@@ -334,7 +351,7 @@ int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id);
 int ws_bbr_key_storage_memory_set(int8_t interface_id, uint8_t key_storages_number, const uint16_t *key_storage_size, void **key_storages);
 
 /**
- * ws_bbr_key_storage_settings_set sets key storage settings
+ * Sets key storage settings
  *
  * This functions can be used to set the settings of EAPOL key storage.
  * Allocation max number and allocation size sets the settings that are used when key storage
@@ -351,5 +368,138 @@ int ws_bbr_key_storage_memory_set(int8_t interface_id, uint8_t key_storages_numb
  *
  */
 int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval);
+
+/**
+ * Set RADIUS server IPv6 address
+ *
+ * Function sets external RADIUS server IPv6 address to Border Router. Setting the
+ * address enables external RADIUS server interface on Border Router. To disable external
+ * RADIUS server interface, call the function with remote address set to NULL. The RADIUS
+ * shared secret must be set before address is set using ws_bbr_radius_shared_secret_set()
+ * call.
+ *
+ * \param interface_id Network interface ID.
+ * \param address Pointer to IPv6 address or NULL to disable RADIUS. Address is in binary format (16 bytes).
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_address_set(int8_t interface_id, const uint8_t *address);
+
+/**
+ * Get RADIUS server IPv6 address
+ *
+ * Function gets external RADIUS server IPv6 address to Border Router.
+ *
+ * \param interface_id Network interface ID.
+ * \param address buffer where to write address, must have space at least for 39 characters and NUL terminator
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_address_get(int8_t interface_id, uint8_t *address);
+
+/**
+ * Set RADIUS shared secret
+ *
+ * Function sets RADIUS shared secret to Border Router. Shared secret may be an
+ * ASCII string. Check the format and length constraints for the shared secret from
+ * the documentation of RADIUS server you are connecting to. Nanostack will not
+ * make copy of the shared secret, therefore address and data must remain permanently
+ * valid.
+ *
+ * \param interface_id Network interface ID.
+ * \param shared_secret_len The length of the shared secret in bytes.
+ * \param shared_secret Pointer to shared secret. Can be 8-bit ASCII string or byte array. Is not NUL terminated.
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret);
+
+/**
+ * Get RADIUS shared secret
+ *
+ * Function gets RADIUS shared secret from Border Router.
+ *
+ * \param interface_id Network interface ID.
+ * \param shared_secret_len On function call, is the size of the shared secret write buffer in bytes, on return is the shared secret length in bytes.
+ * \param shared_secret Pointer to buffer where to write shared secret or NULL. At maximum, bytes set by the length parameter are written. If NULL only buffer length is returned.
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret);
+
+/**
+ * Set RADIUS timing information
+ *
+ * Function sets RADIUS timing information to Border Router.
+ *
+ * \param interface_id Network interface ID.
+ * \param timing Timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_timing_set(int8_t interface_id, bbr_radius_timing_t *timing);
+
+/**
+ * Get RADIUS timing information
+ *
+ * Function sets RADIUS timing information from Border Router.
+ *
+ * \param interface_id Network interface ID.
+ * \param timing Timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_timing_get(int8_t interface_id, bbr_radius_timing_t *timing);
+
+/**
+ * Validate RADIUS timing information
+ *
+ * Function validates RADIUS timing information.
+ *
+ * \param interface_id Network interface ID.
+ * \param timing Timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing);
+
+/**
+ * \brief A function to set DNS query results to border router
+ *
+ * Border router distributes these query results in DHCP Solicit responses to
+ * all the devices joining to the Wi-SUN mesh network.
+ *
+ * Border router keeps these forever, but if application does not update these in regular interval
+ * The address might stop working. So periodic keep alive is required.
+ *
+ * These cached query results will become available in the Wi-SUN interface.
+ *
+ * This function can be called multiple times.
+ * if domain name matches a existing entry address is updated.
+ * If domain name is set to NULL entire list is cleared
+ * if address is set to NULL the Domain name is removed from the list.
+ *
+ * \param interface_id Network interface ID.
+ * \param address The address of the DNS query result.
+ * \param domain_name_ptr Domain name matching the address
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ */
+int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], char *domain_name_ptr);
 
 #endif /* WS_BBR_API_H_ */

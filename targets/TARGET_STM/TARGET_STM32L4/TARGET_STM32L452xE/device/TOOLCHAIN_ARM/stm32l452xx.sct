@@ -25,9 +25,13 @@
   #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
 /* This value is normally defined by the tools to 0x1000 for bare metal and 0x400 for RTOS */
-  #define MBED_BOOT_STACK_SIZE  0x400
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
+#  if defined(MBED_BOOT_STACK_SIZE)
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE MBED_BOOT_STACK_SIZE
+#  else
+#    define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
+#  endif
 #endif
 
 /* Round up VECTORS_SIZE to 8 bytes */
@@ -47,7 +51,7 @@
 ; Minimum heap should be larger then smallest RAM bank (else can use 
 ; that bank for heap) and less then largest RAM bank.
 #define MINIMUM_HEAP                0x10000
-#define RAM_FIXED_SIZE              MBED_BOOT_STACK_SIZE
+#define RAM_FIXED_SIZE              MBED_CONF_TARGET_BOOT_STACK_SIZE
 
 LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
 
@@ -71,6 +75,6 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
    .ANY (+RW +ZI)
   }
 
-  ARM_LIB_STACK  (MBED_RAM_START + MBED_RAM_SIZE)  EMPTY  -MBED_BOOT_STACK_SIZE  { ; Stack region growing down
+  ARM_LIB_STACK  (MBED_RAM_START + MBED_RAM_SIZE)  EMPTY  -MBED_CONF_TARGET_BOOT_STACK_SIZE  { ; Stack region growing down
   }
 }

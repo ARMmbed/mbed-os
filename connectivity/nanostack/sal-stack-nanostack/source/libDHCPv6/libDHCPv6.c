@@ -234,6 +234,10 @@ dhcpv6_client_server_data_t *libdhcpv6_nonTemporal_validate_class_pointer(void *
     return NULL;
 }
 
+uint16_t libdhcpv6_vendor_option_size(uint16_t vendor_data_length)
+{
+    return vendor_data_length + 8; // ID Type 2, length 2 ,Enterpise number 4
+}
 
 uint16_t libdhcpv6_duid_option_size(uint16_t duidLength)
 {
@@ -321,15 +325,6 @@ uint8_t *libdhcpv6_rapid_commit_option_write(uint8_t *ptr)
 {
     ptr = common_write_16_bit(DHCPV6_OPTION_RAPID_COMMIT, ptr);
     ptr = common_write_16_bit(DHCPV6_OPTION_RAPID_COMMIT_LEN, ptr);
-    return ptr;
-}
-
-uint8_t *libdhcvp6_vendor_specific_option_write(uint8_t *ptr, uint8_t *data, uint16_t dataLength)
-{
-    ptr = common_write_16_bit(DHCPV6_OPTION_VENDOR_SPECIFIC_INFO, ptr);
-    ptr = common_write_16_bit(dataLength, ptr);
-    memcpy(ptr, data, dataLength);
-    ptr += dataLength;
     return ptr;
 }
 
@@ -835,31 +830,6 @@ uint8_t *libdhcpv6_generic_nontemporal_address_message_write(uint8_t *ptr, dhcpv
     ptr = libdhcpv6_identity_association_option_write(ptr, packet->iaID, packet->timerT0, packet->timerT1, add_address);
     if (add_address) {
         ptr = libdhcpv6_ia_address_option_write(ptr, nonTemporalAddress->requestedAddress, nonTemporalAddress->preferredLifeTime, nonTemporalAddress->validLifeTime);
-    }
-
-    return ptr;
-}
-
-
-uint8_t *libdhcpv6_reply_message_write(uint8_t *ptr, dhcpv6_reply_packet_s *replyPacket, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcpv6_vendor_data_packet_s *vendorData)
-{
-    ptr = libdhcpv6_header_write(ptr, DHCPV6_REPLY_TYPE, replyPacket->transaction_ID);
-    ptr = libdhcpv6_duid_option_write(ptr, DHCPV6_SERVER_ID_OPTION, &replyPacket->serverDUID); //16
-    ptr = libdhcpv6_duid_option_write(ptr, DHCPV6_CLIENT_ID_OPTION, &replyPacket->clientDUID); //16
-
-    if (nonTemporalAddress) {
-        ptr = libdhcpv6_identity_association_option_write(ptr, replyPacket->iaId, replyPacket->T0, replyPacket->T1, true);
-        ptr = libdhcpv6_ia_address_option_write(ptr, nonTemporalAddress->requestedAddress, nonTemporalAddress->preferredLifeTime, nonTemporalAddress->validLifeTime);
-    } else {
-        ptr = libdhcpv6_identity_association_option_write_with_status(ptr, replyPacket->iaId, replyPacket->T0, replyPacket->T1, DHCPV6_STATUS_NO_ADDR_AVAILABLE_CODE);
-    }
-
-    if (vendorData) {
-        ptr = libdhcvp6_vendor_specific_option_write(ptr, vendorData->vendorData, vendorData->vendorDataLength);
-    }
-
-    if (replyPacket->rapidCommit) {
-        ptr = libdhcpv6_rapid_commit_option_write(ptr);
     }
 
     return ptr;

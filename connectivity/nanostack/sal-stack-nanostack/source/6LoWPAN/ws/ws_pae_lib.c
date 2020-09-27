@@ -419,6 +419,19 @@ uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type)
     return kmp_count;
 }
 
+kmp_api_t *ws_pae_lib_supp_list_kmp_receive_check(supp_list_t *supp_list, const void *pdu, uint16_t size)
+{
+    ns_list_foreach(supp_entry_t, entry, supp_list) {
+        ns_list_foreach(kmp_entry_t, kmp_entry, &entry->kmp_list) {
+            if (kmp_api_receive_check(kmp_entry->kmp, pdu, size)) {
+                return kmp_entry->kmp;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 supp_entry_t *ws_pae_lib_supp_list_entry_retry_timer_get(supp_list_t *supp_list)
 {
     supp_entry_t *retry_supp = NULL;
@@ -433,6 +446,66 @@ supp_entry_t *ws_pae_lib_supp_list_entry_retry_timer_get(supp_list_t *supp_list)
     }
 
     return retry_supp;
+}
+
+int8_t ws_pae_lib_shared_comp_list_init(shared_comp_list_t *comp_list)
+{
+    ns_list_init(comp_list);
+    return 0;
+}
+
+int8_t ws_pae_lib_shared_comp_list_free(shared_comp_list_t *comp_list)
+{
+    ns_list_foreach_safe(shared_comp_entry_t, entry, comp_list) {
+        if (entry->data->delete) {
+            entry->data->delete ();
+        }
+        ns_list_remove(comp_list, entry);
+        ns_dyn_mem_free(entry);
+    }
+    return 0;
+}
+
+int8_t ws_pae_lib_shared_comp_list_add(shared_comp_list_t *comp_list, kmp_shared_comp_t *data)
+{
+    ns_list_foreach(shared_comp_entry_t, entry, comp_list) {
+        if (entry->data == data) {
+            return -1;
+        }
+    }
+
+    shared_comp_entry_t *entry = ns_dyn_mem_alloc(sizeof(shared_comp_entry_t));
+    if (!entry) {
+        return -1;
+    }
+    entry->data = data;
+    ns_list_add_to_end(comp_list, entry);
+
+    return 0;
+}
+
+int8_t ws_pae_lib_shared_comp_list_remove(shared_comp_list_t *comp_list, kmp_shared_comp_t *data)
+{
+    ns_list_foreach(shared_comp_entry_t, entry, comp_list) {
+        if (entry->data == data) {
+            ns_list_remove(comp_list, entry);
+            ns_dyn_mem_free(entry);
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_lib_shared_comp_list_timeout(shared_comp_list_t *comp_list, uint16_t ticks)
+{
+    ns_list_foreach(shared_comp_entry_t, entry, comp_list) {
+        if (entry->data->timeout) {
+            entry->data->timeout(ticks);
+        }
+    }
+
+    return 0;
 }
 
 #endif /* HAVE_WS */

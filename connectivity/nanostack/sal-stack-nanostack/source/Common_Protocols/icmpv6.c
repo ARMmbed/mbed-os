@@ -46,6 +46,7 @@
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
 #include "6LoWPAN/ws/ws_common.h"
+#include "libNET/src/net_dns_internal.h"
 
 #define TRACE_GROUP "icmp"
 
@@ -638,6 +639,21 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
 }
 
 #ifdef HAVE_IPV6_ND
+
+static uint8_t icmpv6_dns_search_list_remove_pad(uint8_t *data_ptr, uint8_t length)
+{
+    while (length) {
+
+        if (data_ptr[length - 2] && data_ptr[length - 1] == 0) {
+            break;
+        } else if (data_ptr[length - 2] == 0 && data_ptr[length - 1] == 0) {
+            length--;
+        }
+    }
+
+    return length;
+}
+
 static buffer_t *icmpv6_ra_handler(buffer_t *buf)
 {
     protocol_interface_info_entry_t *cur;
@@ -858,6 +874,36 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
                 ipv6_route_add(prefix_ptr, prefix_length, cur->id, buf->src_sa.address, ROUTE_RADV, route_lifetime, preference);
             } else {
                 ipv6_route_delete(prefix_ptr, prefix_length, cur->id, buf->src_sa.address, ROUTE_RADV);
+            }
+        } else if (type == ICMPV6_OPT_DNS_SEARCH_LIST) {
+
+            if (length < 8) {
+                tr_warn("Invalid RA DNS search list opt corrupt");
+                goto next_option; // invalid not accepted
+            }
+            uint32_t dns_lifetime = common_read_32_bit(dptr + 2); // 2 x reserved
+            uint8_t *dns_search_list = dptr + 6;
+            uint8_t dns_search_list_len = length - 8; // Length includes type and length
+            //Cut Padding
+            dns_search_list_len = icmpv6_dns_search_list_remove_pad(dns_search_list, dns_search_list_len);
+            //tr_info("DNS Search List: %s Lifetime: %lu", trace_array(dns_search_list, dns_search_list_len), (unsigned long) dns_lifetime);
+            // Add DNS server to DNS information storage.
+            net_dns_server_search_list_set(cur->id, buf->src_sa.address, dns_search_list, dns_search_list_len, dns_lifetime);
+
+        } else if (type == ICMPV6_OPT_RECURSIVE_DNS_SERVER) {
+            uint8_t dns_length = length / 8;
+
+            if (dns_length < 3) {
+                tr_warn("Invalid RA DNS server opt corrupt");
+                goto next_option; // invalid not accepted
+            }
+            uint8_t dns_count = (dns_length - 1) / 2;
+            uint32_t dns_lifetime = common_read_32_bit(dptr + 2); // 2 x reserved
+            for (int n = 0; n < dns_count; n++) {
+                uint8_t *dns_srv_addr = dptr + 6 + n * 16;
+                //tr_info("DNS Server: %s Lifetime: %lu", trace_ipv6(dns_srv_addr), (unsigned long) dns_lifetime);
+                // Add DNS server to DNS information storage.
+                net_dns_server_address_set(cur->id,  buf->src_sa.address, dns_srv_addr, dns_lifetime);
             }
         } else if (type == ICMPV6_OPT_6LOWPAN_CONTEXT) {
             nd_ra_process_lowpan_context_option(cur, dptr - 2);

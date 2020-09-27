@@ -69,6 +69,10 @@
 
 #define PAN_VERSION_CHANGE_INTERVAL 3
 
+/* If PAN version lifetime would be 10 minutes, 1000 increments is about 7 days i.e. storage must
+   be written at least once a week */
+#define PAN_VERSION_STORAGE_READ_INCREMENT    1000
+
 // RPL version number update intervall
 // after restart version numbers are increased faster and then slowed down when network is stable
 #define RPL_VERSION_LIFETIME 12*3600
@@ -149,9 +153,10 @@ extern uint8_t DEVICE_MIN_SENS;
  * Amount of ND reply entries left
  * rest are used as child count, but is related to neighbour table size
  */
-#define WS_RPL_CANDIDATE_PARENT_COUNT 3 // Largest possible value
-#define WS_TEMPORARY_NEIGHBOUR_ENTRIES 7
-#define WS_NON_CHILD_NEIGHBOUR_COUNT (WS_RPL_CANDIDATE_PARENT_COUNT + WS_TEMPORARY_NEIGHBOUR_ENTRIES)
+#define WS_RPL_CANDIDATE_PARENT_COUNT 3
+#define WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES 7
+#define WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES 12
+#define WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES 22
 
 /*
  * Neighbour blacklist timers
@@ -260,5 +265,19 @@ extern uint8_t DEVICE_MIN_SENS;
 
 // How many times sending of initial EAPOL-key is retried
 #define DEFAULT_INITIAL_KEY_RETRY_COUNT                2
+
+/*
+ *  RADIUS client retry timer defaults
+ */
+#define RADIUS_CLIENT_RETRY_IMIN           20       // First retry minimum 1 seconds
+#define RADIUS_CLIENT_RETRY_IMAX           30       // First retry maximum 3 seconds
+#define RADIUS_CLIENT_TIMER_EXPIRATIONS    3        // Number of retries is three
+
+/*
+ *  EAP-TLS fragment length
+ *
+ *  Configures both EAP-TLS and the RADIUS client (Framed-MTU on RFC 2864)
+ */
+#define EAP_TLS_FRAGMENT_LEN_VALUE         600       // EAP-TLS fragment length
 
 #endif /* WS_CONFIG_H_ */

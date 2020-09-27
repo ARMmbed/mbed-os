@@ -243,7 +243,7 @@ typedef enum {
     A4          = PD_12,
     A5          = PD_13,
     D0          = PC_5,
-    D1          = PC_14,
+    D1          = PC_4,
     D2          = PF_15,
     D3          = PE_13,
     D4          = PF_14,

@@ -19,28 +19,27 @@
 #ifndef BLE_GAP_GAP_H
 #define BLE_GAP_GAP_H
 
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
 
-#include <algorithm>
-
-#include "drivers/LowPowerTimeout.h"
-#include "drivers/LowPowerTicker.h"
-#include "platform/mbed_error.h"
-
-#include "ble/common/ble/BLERoles.h"
-#include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/gap/AdvertisingDataBuilder.h"
-#include "ble/common/ble/gap/AdvertisingDataParser.h"
-#include "ble/common/ble/gap/AdvertisingDataSimpleBuilder.h"
-#include "ble/common/ble/gap/AdvertisingDataTypes.h"
-#include "ble/common/ble/gap/AdvertisingParameters.h"
-#include "ble/common/ble/gap/ConnectionParameters.h"
-#include "ble/common/ble/gap/Events.h"
-#include "ble/common/ble/gap/ScanParameters.h"
-#include "ble/common/ble/gap/Types.h"
+#include "ble/common/BLERoles.h"
+#include "ble/common/BLETypes.h"
+#include "ble/gap/AdvertisingDataBuilder.h"
+#include "ble/gap/AdvertisingDataParser.h"
+#include "ble/gap/AdvertisingDataSimpleBuilder.h"
+#include "ble/gap/AdvertisingDataTypes.h"
+#include "ble/gap/AdvertisingParameters.h"
+#include "ble/gap/ConnectionParameters.h"
+#include "ble/gap/ScanParameters.h"
+#include "ble/gap/Events.h"
+#include "ble/gap/Types.h"
 
 namespace ble {
-class PalGenericAccessService;
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class Gap;
+}
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * @addtogroup ble
@@ -280,9 +279,6 @@ class PalGenericAccessService;
  * PHY and of any changes to PHYs which may be triggered autonomously by the
  * controller or by the peer.
  */
-#if !defined(DOXYGEN_ONLY)
-namespace interface {
-#endif // !defined(DOXYGEN_ONLY)
 class Gap {
 public:
     /**
@@ -547,9 +543,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the Gap class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /**
@@ -1002,30 +996,11 @@ public:
     /** Cancel the connection attempt. This is not guaranteed to succeed. As a result
      *  onConnectionComplete in the event handler will be called. Check the success parameter
      *  to see if the connection was created.
-     *  @depreacted This version has a defective API. You must provide the address of the peer.
-     *  Please use the cancelConnect that takes peer address as parameters.
-     *  This call will attempt to cancel the most recently requested connection.
      *
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
      * Returns BLE_ERROR_OPERATION_NOT_PERMITTED if no ongoing connection for last used address found.
      */
-    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Defective API. Please use the cancelConnect that takes peer address as parameters.")
     ble_error_t cancelConnect();
-
-    /** Cancel the connection attempt. This is not guaranteed to succeed. As a result
-     *  onConnectionComplete in the event handler will be called. Check the success parameter
-     *  to see if the connection was created.
-     *
-     * @param peerAddressType Address type you want to cancel connection process for.
-     * @param peerAddress Address you want to cancel connection process for.
-     *
-     * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
-     * Returns BLE_ERROR_OPERATION_NOT_PERMITTED if no ongoing connection for address found.
-     */
-    ble_error_t cancelConnect(
-        peer_address_type_t peerAddressType,
-        const address_t &peerAddress
-    );
 #endif // BLE_ROLE_CENTRAL
 
 #if BLE_FEATURE_CONNECTABLE
@@ -1333,7 +1308,7 @@ public:
      *
      * @return Maximum size of the whitelist.
      */
-    uint8_t getMaxWhitelistSize(void) const;
+    uint8_t getMaxWhitelistSize() const;
 
     /**
      * Get the Link Layer to use the internal whitelist when scanning,
@@ -1396,7 +1371,7 @@ public:
      * the address in input was not identifiable as a random address.
      */
     static ble_error_t getRandomAddressType(
-        const ble::address_t address,
+        ble::address_t address,
         ble::random_address_type_t *addressType
     );
 
@@ -1418,7 +1393,7 @@ public:
      * @note Currently, a call to reset() does not reset the advertising and
      * scan parameters to default values.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
         /**
      * Register a Gap shutdown event handler.
@@ -1440,7 +1415,9 @@ public:
      * @param[in] memberPtr Shutdown event handler to register.
      */
     template<typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const Gap *));
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const Gap *)) {
+        onShutdown(GapShutdownCallback_t(objPtr, memberPtr));
+    }
 
     /**
      * Access the callchain of shutdown event handler.
@@ -1455,12 +1432,26 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
     /*
+     * Constructor from the private implementation.
+     */
+    Gap(impl::Gap* impl) : impl(impl) {}
+
+    /*
+     * Restrict copy and move.
+     */
+    Gap(const Gap&) = delete;
+    Gap& operator=(const Gap&) = delete;
+
+    /*
      * API reserved for the controller driver to set the random static address.
      * Setting a new random static address while the controller is operating is
      * forbidden by the Bluetooth specification.
      */
     ble_error_t setRandomStaticAddress(const ble::address_t& address);
 #endif // !defined(DOXYGEN_ONLY)
+
+private:
+    impl::Gap* impl;
 };
 
 /**
@@ -1468,14 +1459,7 @@ public:
  * @}
  */
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-#include "ble/internal/GapImpl.h"
 
 /** @deprecated Use the namespaced ble::Gap instead of the global Gap. */
 using ble::Gap;

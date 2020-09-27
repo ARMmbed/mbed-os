@@ -9,7 +9,7 @@ set(unittest-includes ${unittest-includes}
   ../connectivity/cellular/tests/UNITTESTS/framework/common/util
   ../connectivity/cellular/include/cellular/framework/common
   ../connectivity/cellular/include/cellular/framework/AT
-  ../features/frameworks/mbed-client-randlib/mbed-client-randlib
+  ../platform/randlib/include/mbed-client-randlib
 
 )
 

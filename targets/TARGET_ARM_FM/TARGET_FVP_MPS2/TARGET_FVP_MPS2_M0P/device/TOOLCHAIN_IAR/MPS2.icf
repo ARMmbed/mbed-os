@@ -46,11 +46,11 @@ define symbol __ICFEDIT_region_RAM_end__      = ZBT_SRAM2_START + ZBT_SRAM2_SIZE
 
 /*-Sizes-*/
 /* Heap and Stack size */
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
+    define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }
 define symbol __ICFEDIT_size_heap__   = 0x200000;
-define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
+define symbol __ICFEDIT_size_cstack__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 /**** End of ICF editor section. ###ICF###*/
 
 define memory mem with size = 4G;

@@ -853,14 +853,13 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */nanostack-libservice/* \
                          */mbed-client-randlib/* \
                          */nanostack/sal-stack-nanostack-eventloop/* \
-                         */ble/generic/* \
-                         */ble/pal/* \
                          */connectivity/drivers/802.15.4_RF/* \
                          */components/wifi/* \
                          */UNITTESTS/* \
                          */connectivity/cellular/framework/AT/* \
                          */connectivity/cellular/framework/device/* \
-                         */connectivity/cellular/framework/common/*
+                         */connectivity/cellular/framework/common/* \
+                         */FEATURE_BLE/source/* 
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

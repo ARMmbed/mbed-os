@@ -293,7 +293,6 @@ void cmd_variable_add_int(char *variable, int value);
  */
 void cmd_request_screen_size(void);
 
-
 /** find command parameter index by key.
  * e.g.
  * \code

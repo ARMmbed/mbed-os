@@ -98,7 +98,7 @@ MBED_WEAK const PinMap PinMap_ADC[] = {
     {PF10, ADC_0, adcPosSelAPORT3XCH26},
     {PF11, ADC_0, adcPosSelAPORT4XCH27},
     {PF12, ADC_0, adcPosSelAPORT3XCH28},
-    {PF13, ADC_0, adcPosSelAPORT4XCH31},
+    {PF13, ADC_0, adcPosSelAPORT4XCH29},
     {PF14, ADC_0, adcPosSelAPORT3XCH30},
     {PF15, ADC_0, adcPosSelAPORT4XCH31},
 #endif

@@ -44,12 +44,12 @@ define region RAM_region = mem:[from __region_RAM_start__ to __region_RAM_end__]
 define region RAM2aRet_SHARED_region   = mem:[from __ICFEDIT_region_RAM2aRet_SHARED_start__   to __ICFEDIT_region_RAM2aRet_SHARED_end__];
 define region RAM2b_SHARED_region   = mem:[from __ICFEDIT_region_RAM2b_SHARED_start__   to __ICFEDIT_region_RAM2b_SHARED_end__];
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
+    define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }
 
 /* Stack and Heap */
-define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
+define symbol __size_cstack__ = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 define symbol __size_heap__   = 0x10000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };

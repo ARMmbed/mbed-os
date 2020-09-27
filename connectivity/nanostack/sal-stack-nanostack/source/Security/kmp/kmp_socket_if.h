@@ -33,6 +33,8 @@
  * kmp_socket_if_register register socket interface to KMP service
  *
  * \param service KMP service to register to
+ * \param instance_id instance identifier, for new instance set to zero when called
+ * \param relay interface is relay interface
  * \param local_port local port
  * \param remote_addr remote address
  * \param remote_port remote port
@@ -41,7 +43,7 @@
  * \return >= 0 success
  *
  */
-int8_t kmp_socket_if_register(kmp_service_t *service, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
+int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
 
 /**
  * kmp_socket_if_unregister unregister socket interface from KMP service

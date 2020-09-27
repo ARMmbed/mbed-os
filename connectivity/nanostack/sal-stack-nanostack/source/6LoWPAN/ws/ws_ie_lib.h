@@ -23,6 +23,7 @@ struct ws_utt_ie;
 struct ws_bt_ie;
 struct ws_us_ie;
 struct ws_hopping_schedule_s;
+struct ws_fc_ie;
 
 /**
  * @brief ws_wp_network_name_t WS nested payload network name
@@ -35,13 +36,14 @@ typedef struct ws_wp_network_name {
 /* WS_WH HEADER IE */
 uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type);
 uint8_t *ws_wh_bt_write(uint8_t *ptr);
-uint8_t *ws_wh_fc_write(uint8_t *ptr, uint8_t flow_ctrl);
+uint8_t *ws_wh_fc_write(uint8_t *ptr, struct ws_fc_ie *fc_ie);
 uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl);
 uint8_t *ws_wh_vh_write(uint8_t *ptr, uint8_t *vendor_header, uint8_t vendor_header_length);
 uint8_t *ws_wh_ea_write(uint8_t *ptr, uint8_t *eui64);
 
 bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
 bool ws_wh_bt_read(uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie);
+bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie);
 bool ws_wh_rsl_read(uint8_t *data, uint16_t length, int8_t *rsl);
 bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64);
 

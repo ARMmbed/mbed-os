@@ -87,9 +87,16 @@ int mac_set_channel(const fhss_api_t *fhss_api, uint8_t channel_number)
     if (!mac_setup) {
         return -1;
     }
+
     if (mac_setup->mac_ack_tx_active || (mac_setup->active_pd_data_request && (mac_setup->active_pd_data_request->asynch_request || mac_setup->timer_mac_event == MAC_TIMER_ACK))) {
         return -1;
     }
+
+    //EDFE packet check if active tx or frame change session open for example wait data
+    if (mac_setup->mac_edfe_enabled && (mac_setup->mac_edfe_tx_active || mac_setup->mac_edfe_info->state > MAC_EDFE_FRAME_CONNECTING)) {
+        return -1;
+    }
+
     return mac_mlme_rf_channel_change(mac_setup, channel_number);
 }
 

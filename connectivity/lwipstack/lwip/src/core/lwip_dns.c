@@ -491,7 +491,9 @@ dns_get_interface_server(u8_t numdns, const char *interface_name)
   if (numdns >= DNS_MAX_SERVERS) {
     return IP_ADDR_ANY;
   }
-
+  if (interface_name == NULL) {
+    return IP_ADDR_ANY;
+  }
   for (interface_server = multihoming_dns_servers; interface_server != NULL; interface_server = interface_server->next) {
     if (!strcmp(interface_name, interface_server->interface_name)) {
       return &interface_server->dns_servers[numdns];

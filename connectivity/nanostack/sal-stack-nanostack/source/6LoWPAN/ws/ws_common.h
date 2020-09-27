@@ -83,6 +83,8 @@ typedef struct ws_info_s {
     uint8_t rpl_state; // state from rpl_event_t
     uint8_t pas_requests; // Amount of PAN solicits sent
     uint8_t eapol_tx_index;
+    uint8_t device_min_sens; // Device min sensitivity set by the application
+    int8_t weakest_received_rssi; // Weakest received signal (dBm)
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
     parent_info_list_t parent_list_free;
     parent_info_list_t parent_list_reserved;
@@ -114,6 +116,8 @@ typedef struct ws_info_s {
 #ifdef HAVE_WS
 
 int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class);
+
+uint16_t ws_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels);
 
 uint32_t ws_decode_channel_spacing(uint8_t channel_spacing);
 
@@ -149,6 +153,11 @@ uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur);
 
 uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur);
 
+void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
+
+void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface);
+
+uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 #define ws_info(cur) ((cur)->ws_info)
 #else
 #define ws_info(cur) ((ws_info_t *) NULL)
@@ -162,6 +171,9 @@ uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cu
 #define ws_common_latency_estimate_get(cur) 0
 #define ws_common_datarate_get(cur) 0
 #define ws_common_network_size_estimate_get(cur) 0
+#define ws_common_primary_parent_update(interface, neighbor)
+#define ws_common_secondary_parent_update(interface)
+
 
 #endif //HAVE_WS
 #endif //WS_COMMON_H_

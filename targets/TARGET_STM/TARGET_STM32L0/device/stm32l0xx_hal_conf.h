@@ -53,31 +53,43 @@
 #define HAL_COMP_MODULE_ENABLED
 #define HAL_CRC_MODULE_ENABLED
 #define HAL_CRYP_MODULE_ENABLED
-#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4) && !defined (TARGET_STM32L071xx)
 #define HAL_DAC_MODULE_ENABLED
-#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 && !TARGET_STM32L071xx */
+
 #define HAL_DMA_MODULE_ENABLED
+
 #if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
 #define HAL_FIREWALL_MODULE_ENABLED
-#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4  */
+
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
-#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4) && !defined (TARGET_STM32L071xx) 
 #define HAL_I2S_MODULE_ENABLED
-#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 && !TARGET_STM32L071xx */
+
 #define HAL_IWDG_MODULE_ENABLED
 #define HAL_LCD_MODULE_ENABLED
 #define HAL_LPTIM_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
+
+#if !defined (TARGET_STML071xx) 
 #define HAL_RNG_MODULE_ENABLED
+#endif /* !TARGET_STM32L071xx */
+
 #define HAL_RTC_MODULE_ENABLED
 #define HAL_SPI_MODULE_ENABLED
 #define HAL_TIM_MODULE_ENABLED
-#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4) && !defined (TARGET_STM32L071xx)
 #define HAL_TSC_MODULE_ENABLED
-#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 && !TARGET_STM32L071xx */
+
 #define HAL_UART_MODULE_ENABLED
 #define HAL_USART_MODULE_ENABLED
 #define HAL_IRDA_MODULE_ENABLED
@@ -85,9 +97,10 @@
 #define HAL_SMBUS_MODULE_ENABLED
 #define HAL_WWDG_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
-#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4)
+
+#if !defined (TARGET_STM32L031K6) && !defined (TARGET_STM32L011K4) && !defined (TARGET_STM32L071xx)
 #define HAL_PCD_MODULE_ENABLED
-#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 */
+#endif /* !TARGET_STM32L031K6  && !TARGET_STM32L011K4 && !TARGET_STM32L071xx */
 
 /* ########################## Oscillator Values adaptation ####################*/
 /**
@@ -223,55 +236,55 @@
 #endif /* HAL_FLASH_MODULE_ENABLED */
 
 #ifdef HAL_I2C_MODULE_ENABLED
- #include "stm32l0xx_hal_i2c.h"
+  #include "stm32l0xx_hal_i2c.h"
 #endif /* HAL_I2C_MODULE_ENABLED */
 
 #ifdef HAL_I2S_MODULE_ENABLED
- #include "stm32l0xx_hal_i2s.h"
+  #include "stm32l0xx_hal_i2s.h"
 #endif /* HAL_I2S_MODULE_ENABLED */
 
 #ifdef HAL_IWDG_MODULE_ENABLED
- #include "stm32l0xx_hal_iwdg.h"
+  #include "stm32l0xx_hal_iwdg.h"
 #endif /* HAL_IWDG_MODULE_ENABLED */
 
 #ifdef HAL_LCD_MODULE_ENABLED
- #include "stm32l0xx_hal_lcd.h"
+  #include "stm32l0xx_hal_lcd.h"
 #endif /* HAL_LCD_MODULE_ENABLED */
 
 #ifdef HAL_LPTIM_MODULE_ENABLED
-#include "stm32l0xx_hal_lptim.h"
+  #include "stm32l0xx_hal_lptim.h"
 #endif /* HAL_LPTIM_MODULE_ENABLED */
 
 #ifdef HAL_PWR_MODULE_ENABLED
- #include "stm32l0xx_hal_pwr.h"
+  #include "stm32l0xx_hal_pwr.h"
 #endif /* HAL_PWR_MODULE_ENABLED */
 
 #ifdef HAL_RNG_MODULE_ENABLED
- #include "stm32l0xx_hal_rng.h"
+  #include "stm32l0xx_hal_rng.h"
 #endif /* HAL_RNG_MODULE_ENABLED */
 
 #ifdef HAL_RTC_MODULE_ENABLED
- #include "stm32l0xx_hal_rtc.h"
+  #include "stm32l0xx_hal_rtc.h"
 #endif /* HAL_RTC_MODULE_ENABLED */
 
 #ifdef HAL_SPI_MODULE_ENABLED
- #include "stm32l0xx_hal_spi.h"
+  #include "stm32l0xx_hal_spi.h"
 #endif /* HAL_SPI_MODULE_ENABLED */
 
 #ifdef HAL_TIM_MODULE_ENABLED
- #include "stm32l0xx_hal_tim.h"
+  #include "stm32l0xx_hal_tim.h"
 #endif /* HAL_TIM_MODULE_ENABLED */
 
 #ifdef HAL_TSC_MODULE_ENABLED
- #include "stm32l0xx_hal_tsc.h"
+  #include "stm32l0xx_hal_tsc.h"
 #endif /* HAL_TSC_MODULE_ENABLED */
 
 #ifdef HAL_UART_MODULE_ENABLED
- #include "stm32l0xx_hal_uart.h"
+  #include "stm32l0xx_hal_uart.h"
 #endif /* HAL_UART_MODULE_ENABLED */
 
 #ifdef HAL_USART_MODULE_ENABLED
- #include "stm32l0xx_hal_usart.h"
+  #include "stm32l0xx_hal_usart.h"
 #endif /* HAL_USART_MODULE_ENABLED */
 
 #ifdef HAL_IRDA_MODULE_ENABLED

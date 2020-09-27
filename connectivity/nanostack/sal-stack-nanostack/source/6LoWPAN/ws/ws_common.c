@@ -23,8 +23,12 @@
 #include <ns_list.h>
 #include <nsdynmemLIB.h>
 #include "Common_Protocols/icmpv6.h"
+#include "mac_common_defines.h"
+#include "net_interface.h"
+#include "6LoWPAN/MAC/mpx_api.h"
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
+#include "6LoWPAN/ws/ws_llc.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
@@ -79,6 +83,18 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
         }
     }
     return 0;
+}
+
+uint16_t ws_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels)
+{
+    uint16_t active_channels = 0;
+    // Set channel maks outside excluded channels
+    for (uint16_t i = 0; i < number_of_channels; i++) {
+        if (channel_mask[0 + (i / 32)] & (1 << (i % 32))) {
+            active_channels++;
+        }
+    }
+    return active_channels;
 }
 
 uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
@@ -307,6 +323,7 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
     cur->ws_info->network_pan_id = 0xffff;
     cur->ws_info->pan_information.use_parent_bs = true;
     cur->ws_info->pan_information.rpl_routing_method = true;
+    cur->ws_info->pan_information.pan_version_set = false;
     cur->ws_info->pan_information.version = WS_FAN_VERSION_1_0;
 
     cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
@@ -336,6 +353,7 @@ void ws_common_fast_timer(protocol_interface_info_entry_t *cur, uint16_t ticks)
 {
     ws_bootstrap_trickle_timer(cur, ticks);
     ws_nud_active_timer(cur, ticks);
+    ws_llc_fast_timer(cur, ticks);
 }
 
 
@@ -361,12 +379,21 @@ void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8
     ws_bootstrap_neighbor_remove(cur, ll_address);
 }
 
-
+uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
+{
+    if (mac_table_size >= 128) {
+        return (WS_RPL_CANDIDATE_PARENT_COUNT + WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES);
+    } else if (mac_table_size >= 64) {
+        return (WS_RPL_CANDIDATE_PARENT_COUNT + WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES);
+    } else {
+        return (WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES);
+    }
+}
 
 uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
 {
     uint8_t child_count = 0;
-    uint8_t max_child_count = mac_neighbor_info(interface)->list_total_size - WS_NON_CHILD_NEIGHBOUR_COUNT;
+    uint8_t max_child_count = mac_neighbor_info(interface)->list_total_size - ws_common_temporary_entry_size(mac_neighbor_info(interface)->list_total_size);
 
     // Test API to limit child count
     if (test_max_child_count_override != 0xffff) {
@@ -404,6 +431,7 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
         tr_warn("Child registration not allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
         return ARO_FULL;
     }
+    ws_bootstrap_neighbor_set_stable(interface, eui64);
     tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
     return ARO_SUCCESS;
 }
@@ -459,6 +487,16 @@ uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cu
     }
 
     return network_size_estimate;
+}
+
+void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor)
+{
+    ws_bootstrap_primary_parent_update(interface, neighbor);
+}
+
+void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface)
+{
+    ws_bootstrap_secondary_parent_update(interface);
 }
 
 #endif // HAVE_WS

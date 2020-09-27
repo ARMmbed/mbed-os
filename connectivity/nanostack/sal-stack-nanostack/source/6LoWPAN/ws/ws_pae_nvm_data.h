@@ -41,8 +41,8 @@
 // PTK EUI-64 set (1) + PTK EUI-64 (8) + PMK set (1) + PMK lifetime (4) + PMK (32) + PMK replay counter (8) + PTK set (1) + PTK lifetime (4) + PTK (48)
 #define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + 4 + PMK_LEN + 8 + 1 + 4 + PTK_LEN
 
-// restart counter + stored time + (frame counter set (1) + GTK (16) + frame counter (4)) * 4
-#define PAE_NVM_FRAME_COUNTER_LEN        4 + 8 + (1 + GTK_LEN + 4) * GTK_NUM
+// restart counter + stored time + pan version + (frame counter set (1) + GTK (16) + frame counter (4)) * 4
+#define PAE_NVM_FRAME_COUNTER_LEN        4 + 8 + 2 + (1 + GTK_LEN + 4) * GTK_NUM
 
 #define PAE_NVM_DEFAULT_BUFFER_SIZE      sizeof(nvm_tlv_t) + PAE_NVM_NW_INFO_LEN
 
@@ -119,10 +119,11 @@ int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
  *
  * \param tlv_entry TLV buffer pointer
  * \param restart_cnt re-start counter
+ * \param pan_version PAN version
  * \param counters frame counters
  *
  */
-void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t restart_cnt, frame_counters_t *counters);
+void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters);
 
 /**
  * ws_pae_nvm_store_frame_counter_tlv_read read from NVM frame counter TLV
@@ -130,13 +131,14 @@ void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_t *tlv_entry, uint32_t re
  * \param tlv_entry TLV
  * \param restart_cnt re-start counter
  * \param stored_time stored timestampt
+ * \param pan_version PAN version
  * \param counters frame counters
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, frame_counters_t *counters);
+int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 
 /**
  * ws_pae_nvm_store_key_storage_index_tlv_create create NVM key storage index TLV

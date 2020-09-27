@@ -5,7 +5,7 @@
 set(unittest-includes ${unittest-includes}
   .
   ..
-  ../features/frameworks/mbed-trace/mbed-trace
+  ../platform/mbed-trace/mbed-trace
 )
 
 set(unittest-sources
@@ -15,7 +15,7 @@ set(unittest-sources
   ../storage/filesystem/source/Dir.cpp
   ../storage/filesystem/source/File.cpp
   ../storage/filesystem/source/FileSystem.cpp
-  ../features/frameworks/mbed-trace/source/mbed_trace.c
+  ../platform/mbed-trace/source/mbed_trace.c
   ../storage/filesystem/littlefs/littlefs/lfs_util.c
   ../storage/filesystem/littlefs/littlefs/lfs.c
   ../platform/source/FileBase.cpp

@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 #include "mbed.h"
-#include "CordioHCITransportDriver.h"
+#include "ble/driver/CordioHCITransportDriver.h"
 
 
 namespace ble {

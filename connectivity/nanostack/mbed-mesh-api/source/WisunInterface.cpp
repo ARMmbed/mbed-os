@@ -71,7 +71,7 @@ nsapi_error_t WisunInterface::do_initialize()
 
 nsapi_error_t WisunInterface::configure()
 {
-    int status;
+    mesh_error_t status;
 
     if (_configured) {
         // Already configured
@@ -82,7 +82,7 @@ nsapi_error_t WisunInterface::configure()
 #ifdef MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME
     char network_name[] = {MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME};
     status = set_network_name((char *) &network_name);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set network name!");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -92,7 +92,7 @@ nsapi_error_t WisunInterface::configure()
     status = set_network_regulatory_domain(MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
                                            MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS,
                                            MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set regulatory domain!");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -102,7 +102,7 @@ nsapi_error_t WisunInterface::configure()
     status = set_unicast_channel_function(static_cast<mesh_channel_function_t>(MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION),
                                           MBED_CONF_MBED_MESH_API_WISUN_UC_FIXED_CHANNEL,
                                           MBED_CONF_MBED_MESH_API_WISUN_UC_DWELL_INTERVAL);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set unicast channel function configuration");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -113,8 +113,16 @@ nsapi_error_t WisunInterface::configure()
                                             MBED_CONF_MBED_MESH_API_WISUN_BC_FIXED_CHANNEL,
                                             MBED_CONF_MBED_MESH_API_WISUN_BC_DWELL_INTERVAL,
                                             MBED_CONF_MBED_MESH_API_WISUN_BC_INTERVAL);
-    if (status < 0) {
+    if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set broadcast channel function configuration");
+        return NSAPI_ERROR_PARAMETER;
+    }
+#endif
+
+#ifdef MBED_CONF_MBED_MESH_API_WISUN_NETWORK_SIZE
+    status = set_network_size(MBED_CONF_MBED_MESH_API_WISUN_NETWORK_SIZE);
+    if (status != MESH_ERROR_NONE) {
+        tr_error("Failed to set network size");
         return NSAPI_ERROR_PARAMETER;
     }
 #endif
@@ -553,7 +561,6 @@ mesh_error_t WisunInterface::info_get(ws_rpl_info_t *info_ptr)
     }
 
     rpl_dodag_info_t dodag_ptr = {0};
-    uint8_t global_address[16] = {0};
     uint8_t rpl_instance_count;
     uint8_t instance_id_list[10];
     uint8_t instance_id = RPL_INSTANCE_LOCAL;
@@ -587,15 +594,44 @@ mesh_error_t WisunInterface::info_get(ws_rpl_info_t *info_ptr)
         return MESH_ERROR_UNKNOWN;
     }
 
+    info_ptr->instance_id = dodag_ptr.instance_id;
+    info_ptr->version = dodag_ptr.version_num;
+    info_ptr->current_rank = dodag_ptr.curent_rank;
+    info_ptr->primary_parent_rank = dodag_ptr.primary_parent_rank;
+    memcpy(info_ptr->rpl_dodag_id, dodag_ptr.dodag_id, 16);
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::stack_info_get(ws_stack_state_t *stack_info_ptr)
+{
+    if (stack_info_ptr == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    ws_stack_info_t stack_info = {0};
+    uint8_t global_address[16] = {0};
+    uint8_t link_local_address[16] = {0};
+
+    if (ws_stack_info_get(get_interface_id(), &stack_info)) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
     if (arm_net_address_get(get_interface_id(), ADDR_IPV6_GP, global_address) != 0) {
         // No global prefix available, Nothing to do.
     }
 
-    info_ptr->instance_id = dodag_ptr.instance_id;
-    info_ptr->version = dodag_ptr.version_num;
-    memcpy(info_ptr->rpl_dodag_id, dodag_ptr.dodag_id, 16);
-    memcpy(info_ptr->ipv6_prefix, global_address, 8);
-    memcpy(info_ptr->ipv6_iid, global_address + 8, 8);
+    if (arm_net_address_get(get_interface_id(), ADDR_IPV6_LL, link_local_address) != 0) {
+        // No local prefix available, Nothing to do.
+    }
+
+    stack_info_ptr->join_state = stack_info.join_state;
+    stack_info_ptr->pan_id = stack_info.pan_id;
+    stack_info_ptr->rsl_in = stack_info.rsl_in;
+    stack_info_ptr->rsl_out = stack_info.rsl_out;
+    memcpy(stack_info_ptr->parent_addr, stack_info.parent, 16);
+    memcpy(stack_info_ptr->global_addr, global_address, 16);
+    memcpy(stack_info_ptr->link_local_addr, link_local_address, 16);
 
     return MESH_ERROR_NONE;
 }

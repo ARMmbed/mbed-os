@@ -21,18 +21,23 @@
 
 #define MBED_GATT_CLIENT_H__
 
-#include "CallChainOfFunctionPointersWithContext.h"
-#include <algorithm>
+#include "ble/common/CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/blecommon.h"
 
-#include "ble/common/ble/blecommon.h"
-#include "ble/common/ble/GattAttribute.h"
-#include "ble/common/ble/ServiceDiscovery.h"
-#include "ble/common/ble/CharacteristicDescriptorDiscovery.h"
-#include "ble/common/ble/GattCallbackParamTypes.h"
-#include "ble/common/ble/DiscoveredService.h"
-#include "ble/common/ble/DiscoveredCharacteristic.h"
+#include "ble/gatt/GattAttribute.h"
+#include "ble/gatt/ServiceDiscovery.h"
+#include "ble/gatt/CharacteristicDescriptorDiscovery.h"
+#include "ble/gatt/GattCallbackParamTypes.h"
+#include "ble/gatt/DiscoveredService.h"
+#include "ble/gatt/DiscoveredCharacteristic.h"
 
 namespace ble {
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class GattClient;
+}
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * @addtogroup ble
@@ -89,9 +94,6 @@ namespace ble {
  * indicate properties are set. The client discovers that descriptor
  * if it intends to register to server initiated events.
  */
-#if !defined(DOXYGEN_ONLY)
-namespace interface {
-#endif // !defined(DOXYGEN_ONLY)
 class GattClient {
 public:
     /**
@@ -118,9 +120,7 @@ public:
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the GattClient class will never delete the instance it contains.
          */
-        ~EventHandler()
-        {
-        }
+        ~EventHandler() = default;
     };
 
     /**
@@ -233,7 +233,7 @@ public:
      * specific subclass.
      */
 
-    ~GattClient() { }
+    ~GattClient() = default;
 
     /**
      * Launch the service and characteristic discovery procedure of a GATT server
@@ -287,8 +287,8 @@ public:
      */
     ble_error_t launchServiceDiscovery(
         ble::connection_handle_t connectionHandle,
-        ServiceDiscovery::ServiceCallback_t sc = NULL,
-        ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
+        ServiceDiscovery::ServiceCallback_t sc = nullptr,
+        ServiceDiscovery::CharacteristicCallback_t  cc = nullptr,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
         const UUID &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
     );
@@ -366,7 +366,7 @@ public:
      *
      * @return true if service discovery procedure is active and false otherwise.
      */
-    bool isServiceDiscoveryActive(void) const;
+    bool isServiceDiscoveryActive() const;
 
     /**
      * Terminate all ongoing service discovery procedures.
@@ -374,7 +374,7 @@ public:
      * It results in an invocation of the service discovery termination handler
      * registered with onServiceDiscoveryTermination().
      */
-    void terminateServiceDiscovery(void);
+    void terminateServiceDiscovery();
 
     /**
      * Initiate the read procedure of an attribute handle.
@@ -625,7 +625,10 @@ public:
      * available.
      */
     template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattClient *));
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattClient *))
+    {
+        onShutdown({objPtr, memberPtr});
+    }
 
     /**
      * Get the callchain of shutdown event handlers.
@@ -649,7 +652,6 @@ public:
      */
     HVXCallbackChain_t& onHVX();
 
-
     /**
      * Reset the state of the GattClient instance.
      *
@@ -667,7 +669,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t reset(void);
+    ble_error_t reset();
 
     /* Entry points for the underlying stack to report events back to the user. */
 
@@ -703,6 +705,15 @@ public:
      * registered handlers.
      */
     void processHVXEvent(const GattHVXCallbackParams *params);
+
+#if !defined(DOXYGEN_ONLY)
+    GattClient(impl::GattClient* impl) : impl(impl) { }
+    GattClient(const GattClient&) = delete;
+    GattClient& operator=(const GattClient&) = delete;
+#endif // !defined(DOXYGEN_ONLY)
+
+private:
+    impl::GattClient *impl;
 };
 
 /**
@@ -711,14 +722,7 @@ public:
  * @}
  */
 
-#if !defined(DOXYGEN_ONLY)
-} // namespace interface
-#endif // !defined(DOXYGEN_ONLY)
 } // namespace ble
-
-/* This includes the concrete class implementation, to provide a an alternative API implementation
- * disable ble-api-implementation and place your header in a path with the same structure */
-#include "ble/internal/GattClientImpl.h"
 
 /** @deprecated Use the namespaced ble::GattClient instead of the global GattClient. */
 using ble::GattClient;

@@ -171,7 +171,7 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
     uint8_t *pmk = sec_prot_keys_pmk_get(sec_keys);
     uint8_t pmkid[PMKID_LEN];
     if (pmk) {
-        if (sec_prot_lib_pmkid_generate(prot, pmkid, false) >= 0) {
+        if (sec_prot_lib_pmkid_generate(prot, pmkid, false, false, NULL) >= 0) {
             kde_len += KDE_PMKID_LEN;
         } else {
             pmk = NULL;
@@ -270,7 +270,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
         if (kde_pmkid_read(kde, kde_len, remote_keyid) >= 0) {
             tr_debug("recv PMKID: %s", trace_array(remote_keyid, 16));
             uint8_t pmkid[PMKID_LEN];
-            if (sec_prot_lib_pmkid_generate(prot, pmkid, true) >= 0) {
+            if (sec_prot_lib_pmkid_generate(prot, pmkid, true, false, NULL) >= 0) {
                 if (memcmp(remote_keyid, pmkid, PMKID_LEN) == 0) {
                     prot->sec_keys->pmk_mismatch = false;
                 }

@@ -89,32 +89,46 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t att
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp)
+#ifdef FEA_TRACE_SUPPORT
+static int own_ceil(float value)
 {
-    ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp = timestamp;
-    ws_neighbor->fhss_data.uc_timing_info.ufsi = ws_utt->ufsi;
+    int ivalue = (int)value;
+    if (value == (float)ivalue) {
+        return ivalue;
+    }
+    return ivalue + 1;
 }
 
-static void ws_neighbour_channel_list_enable_all(ws_channel_mask_t *channel_info, uint16_t number_of_channels)
+static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8])
 {
-    uint32_t mask;
-    channel_info->channel_count = number_of_channels;
-    for (uint8_t n = 0; n < 8; n++) {
-        if (number_of_channels >= 32) {
-            mask = 0xffffffff;
-            number_of_channels -= 32;
-        } else if (number_of_channels) {
-            mask = 0;
-            //Start bit enable to MSB
-            for (uint16_t i = 0; i < (number_of_channels % 32); i++) {
-                mask |= 1 << i;
-            }
-            number_of_channels = 0;
-        } else {
-            mask = 0;
+    if (ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp && ws_neighbor->fhss_data.uc_timing_info.ufsi) {
+        uint32_t seq_length = 0x10000;
+        if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function  == WS_TR51CF) {
+            seq_length = ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels;
         }
-        channel_info->channel_mask[n] = mask;
+        // Convert 24-bit UFSI to real time before drift calculation
+        uint32_t time_since_seq_start_prev_ms = own_ceil((float)((uint64_t)ws_neighbor->fhss_data.uc_timing_info.ufsi * seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval) / 0x1000000);
+        uint32_t time_since_seq_start_cur_ms = own_ceil((float)((uint64_t)ws_utt->ufsi * seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval) / 0x1000000);
+        uint32_t time_since_last_ufsi_us = timestamp - ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
+        uint32_t ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
+        int32_t ufsi_drift_ms = (int32_t)(time_since_last_ufsi_us / 1000 - ufsi_diff_ms);
+        // Only trace if there is significant error
+        if (ufsi_drift_ms < -5 || ufsi_drift_ms > 5) {
+            tr_debug("UFSI updated: %s, drift: %"PRIi32"ms in %"PRIu32" seconds", trace_array(address, 8), ufsi_drift_ms, time_since_last_ufsi_us / 1000000);
+        }
     }
+}
+#endif
+
+void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8])
+{
+#ifdef FEA_TRACE_SUPPORT
+    ws_neighbor_calculate_ufsi_drift(ws_neighbor, ws_utt, timestamp, address);
+#else
+    (void) address;
+#endif
+    ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp = timestamp;
+    ws_neighbor->fhss_data.uc_timing_info.ufsi = ws_utt->ufsi;
 }
 
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
@@ -210,29 +224,34 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us)
+void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, ws_hopping_schedule_t *own_shedule)
 {
     ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->channel_function;
     if (ws_us->channel_function == WS_FIXED_CHANNEL) {
         ws_neighbor->fhss_data.uc_timing_info.fixed_channel = ws_us->function.zero.fixed_channel;
         ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 1;
     } else {
+
         if (ws_us->channel_plan == 0) {
             ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulator_domain, ws_us->plan.zero.operation_class);
         } else if (ws_us->channel_plan == 1) {
             ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->plan.one.number_of_channel;
+
         }
 
         //Handle excluded channel and generate activate channel list
         if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-            ws_neighbour_channel_list_enable_all(&ws_neighbor->fhss_data.uc_channel_list, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+            ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class);
+            ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.range, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
         } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-            ws_neighbour_channel_list_enable_all(&ws_neighbor->fhss_data.uc_channel_list, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+            ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class);
+            ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
         } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
             if (ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels != ws_neighbor->fhss_data.uc_channel_list.channel_count) {
-                ws_neighbour_channel_list_enable_all(&ws_neighbor->fhss_data.uc_channel_list, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+                ws_generate_channel_list(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_shedule->regulatory_domain, own_shedule->operating_class);
+                ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             }
         }
 
@@ -262,8 +281,13 @@ void ws_neighbor_class_neighbor_broadcast_schedule_set(ws_neighbor_class_entry_t
     ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id = ws_bs_ie->broadcast_schedule_identifier;
 }
 
-void ws_neighbor_class_rf_sensitivity_calculate(uint8_t rsl_heard)
+void ws_neighbor_class_rf_sensitivity_calculate(uint8_t dev_min_sens_config, int8_t dbm_heard)
 {
+    if (dev_min_sens_config != 0) {
+        // Automatic mode disabled
+        return;
+    }
+    uint8_t rsl_heard = ws_neighbor_class_rsl_from_dbm_calculate(dbm_heard);
     if (DEVICE_MIN_SENS > rsl_heard) {
         // We are hearing packet with lower than min_sens dynamically learn the sensitivity
         DEVICE_MIN_SENS = rsl_heard;
@@ -302,8 +326,6 @@ static void ws_neighbor_class_parent_set_analyze(ws_neighbor_class_entry_t *ws_n
 void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, int8_t dbm_heard)
 {
     uint8_t rsl = ws_neighbor_class_rsl_from_dbm_calculate(dbm_heard);
-    // Calculate minimum sensitivity from heard packets.
-    ws_neighbor_class_rf_sensitivity_calculate(rsl);
     if (ws_neighbor->rsl_in == RSL_UNITITIALIZED) {
         ws_neighbor->rsl_in = rsl << WS_RSL_SCALING;
     }

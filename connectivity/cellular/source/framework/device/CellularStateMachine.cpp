@@ -307,7 +307,7 @@ void CellularStateMachine::retry_state_or_fail()
 void CellularStateMachine::state_init()
 {
     change_timeout(_state_timeout_power_on);
-    tr_info("Start connecting (timeout %d ms)", _state_timeout_power_on);
+    tr_info("Start connecting (timeout %d ms)", _state_timeout_power_on.count());
     _cb_data.error = _cellularDevice.is_ready();
     _status = _cb_data.error ? 0 : DEVICE_READY;
     if (_cb_data.error != NSAPI_ERROR_OK) {
@@ -324,7 +324,7 @@ void CellularStateMachine::state_init()
 void CellularStateMachine::state_power_on()
 {
     change_timeout(_state_timeout_power_on);
-    tr_info("Modem power ON (timeout %d ms)", _state_timeout_power_on);
+    tr_info("Modem power ON (timeout %d ms)", _state_timeout_power_on.count());
     if (power_on()) {
         enter_to_state(STATE_DEVICE_READY);
     } else {
@@ -408,7 +408,7 @@ void CellularStateMachine::state_device_ready()
 void CellularStateMachine::state_sim_pin()
 {
     change_timeout(_state_timeout_sim_pin);
-    tr_info("Setup SIM (timeout %d ms)", _state_timeout_sim_pin);
+    tr_info("Setup SIM (timeout %d ms)", _state_timeout_sim_pin.count());
     if (open_sim()) {
         bool success = false;
         for (int type = 0; type < CellularNetwork::C_MAX; type++) {
@@ -473,7 +473,7 @@ void CellularStateMachine::state_registering()
         // we are already registered, go to attach
         enter_to_state(STATE_ATTACHING_NETWORK);
     } else {
-        tr_info("Network registration (timeout %d ms)", _state_timeout_registration);
+        tr_info("Network registration (timeout %d ms)", _state_timeout_registration.count());
         change_timeout(_state_timeout_registration);
         if (!_command_success && !_plmn) { // don't call set_registration twice for manual registration
             _cb_data.error = _network.set_registration(_plmn);
@@ -487,7 +487,7 @@ void CellularStateMachine::state_attaching()
 {
     if (_status != ATTACHED_TO_NETWORK) {
         change_timeout(_state_timeout_connect);
-        tr_info("Attaching network (timeout %d ms)", _state_timeout_connect);
+        tr_info("Attaching network (timeout %d ms)", _state_timeout_connect.count());
         _cb_data.error = _network.set_attach();
     }
     if (_cb_data.error == NSAPI_ERROR_OK) {
@@ -635,7 +635,7 @@ void CellularStateMachine::event()
             tr_debug("%s => %s", get_state_string((CellularStateMachine::CellularState)_state),
                      get_state_string((CellularStateMachine::CellularState)_next_state));
         } else {
-            tr_info("Continue after %d seconds", _event_timeout);
+            tr_info("Continue after %d seconds", _event_timeout.count());
         }
         _state = _next_state;
         if (_event_timeout == -1s) {

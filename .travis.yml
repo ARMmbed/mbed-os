@@ -28,6 +28,7 @@ cache:
   pip: true
   directories:
     - ${HOME}/.cache/deps
+    - ${HOME}/.ccache
 
 
 before_install:
@@ -125,7 +126,7 @@ matrix:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
             | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
-            | ( grep -v -f .astyleignore || true ) \
+            | ( grep -v -f .codecheckignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
 
@@ -135,11 +136,12 @@ matrix:
       install:
         - source_pkg aspell
       script:
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket
+        # TODO: run checks on all directories once all mispellings are fixed
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos .codecheckignore
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh connectivity/netsocket .codecheckignore
 
     - <<: *docs-vm
       name: "doxygen"
@@ -155,6 +157,7 @@ matrix:
           make;
           sudo make install)
         # Create BUILD directory for tests
+        - ccache -s
         - mkdir BUILD
       script:
         # Assert that the Doxygen build produced no warnings.
@@ -277,12 +280,13 @@ matrix:
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - |
-          rm -r rtos/source/TARGET_CORTEX drivers/source/usb connectivity/cellular connectivity/drivers/cellular \
+          rm -r cmsis/CMSIS_5/CMSIS/RTOS2 cmsis/device/rtos drivers/source/usb connectivity/cellular connectivity/drivers/cellular \
             connectivity/libraries/ppp connectivity/netsocket connectivity/nanostack connectivity/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
         # Run profiling tests
         - make -C ${EVENTS}/tests/unit prof | tee prof
+        - ccache -s
       after_success:
         # Update status, comparing with master if possible.
         - |
@@ -356,6 +360,7 @@ matrix:
             OBJ="$(ls lfs*.o | tr '\n' ' ')"
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
+        - ccache -s
       after_success:
         # Update status, comparing with master if possible.
         - |

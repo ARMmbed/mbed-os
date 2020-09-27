@@ -45,6 +45,13 @@ typedef struct supp_entry_s {
 
 typedef NS_LIST_HEAD(supp_entry_t, link) supp_list_t;
 
+typedef struct {
+    kmp_shared_comp_t *data;           /**< KMP shared component data */
+    ns_list_link_t link;               /**< Link */
+} shared_comp_entry_t;
+
+typedef NS_LIST_HEAD(shared_comp_entry_t, link) shared_comp_list_t;
+
 /**
  * ws_pae_lib_kmp_list_init initializes KMP list
  *
@@ -367,6 +374,18 @@ bool ws_pae_lib_supp_list_active_limit_reached(supp_list_t *active_supp_list, ui
 uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type);
 
 /**
+ *  ws_pae_lib_supp_list_kmp_receive_check check if received message is for this KMP in a list of supplicants
+ *
+ * \param supp_list list of supplicants
+ * \param pdu pdu
+ * \param size pdu size
+ *
+ * \return KMP api for the received message
+ *
+ */
+kmp_api_t *ws_pae_lib_supp_list_kmp_receive_check(supp_list_t *supp_list, const void *pdu, uint16_t size);
+
+/**
  *  ws_pae_lib_supp_list_entry_retry_timer_get checks if some supplicant has retry timer running
  *
  * \param supp_list list of supplicants
@@ -375,5 +394,63 @@ uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type)
  *
  */
 supp_entry_t *ws_pae_lib_supp_list_entry_retry_timer_get(supp_list_t *supp_list);
+
+/**
+ *  ws_pae_lib_shared_comp_list_init init shared component list
+ *
+ * \param comp_list component list
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_lib_shared_comp_list_init(shared_comp_list_t *comp_list);
+
+/**
+ *  ws_pae_lib_shared_comp_list_free free shared component list
+ *
+ * \param comp_list component list
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_lib_shared_comp_list_free(shared_comp_list_t *comp_list);
+
+/**
+ *  ws_pae_lib_shared_comp_list_add add to shared component list
+ *
+ * \param comp_list component list
+ * \param data shared component
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_lib_shared_comp_list_add(shared_comp_list_t *comp_list, kmp_shared_comp_t *data);
+
+/**
+ *  ws_pae_lib_shared_comp_list_remove remove from shared component list
+ *
+ * \param comp_list component list
+ * \param data shared component
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_lib_shared_comp_list_remove(shared_comp_list_t *comp_list, kmp_shared_comp_t *data);
+
+/**
+ *  ws_pae_lib_shared_comp_list_timeout timeout to shared component list
+ *
+ * \param comp_list component list
+ * \param ticks elapsed time in seconds
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_lib_shared_comp_list_timeout(shared_comp_list_t *comp_list, uint16_t ticks);
 
 #endif /* WS_PAE_AUTH_H_ */

@@ -19,19 +19,19 @@
 #ifndef MBED_BLE_H__
 #define MBED_BLE_H__
 
-#include "FunctionPointerWithContext.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
-
-#include "ble/common/ble/BLERoles.h"
-#include "ble/common/ble/BLETypes.h"
-#include "ble/common/ble/blecommon.h"
 
 #include "ble/Gap.h"
 #include "ble/GattClient.h"
 #include "ble/GattServer.h"
 #include "ble/SecurityManager.h"
+
+#include "ble/common/BLERoles.h"
+#include "ble/common/BLETypes.h"
+#include "ble/common/blecommon.h"
+#include "ble/common/FunctionPointerWithContext.h"
 
 /* Forward declaration for the implementation class */
 
@@ -154,6 +154,10 @@ public:
      */
     static const InstanceID_t NUM_INSTANCES = 1;
 
+    // Prevent copy construction and copy assignment of BLE.
+    BLE(const BLE &) = delete;
+    BLE &operator=(const BLE &) = delete;
+
     /**
      * Get a reference to the BLE singleton.
      *
@@ -163,16 +167,6 @@ public:
      * @return A reference to a single object.
      */
     static BLE &Instance();
-
-    /**
-     * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
-     * are thin wrappers around a transport object (that is, ptr. to
-     * ble::BLEInstanceBase).
-     *
-     * @param[in] transport Ble transport used for the BLE instance.
-     * @note Cordio supports only one instance.
-     */
-    BLE(ble::BLEInstanceBase &transport);
 
     /**
      * Get a reference to the BLE singleton corresponding to a given interface.
@@ -203,7 +197,7 @@ public:
      */
     MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "BLE singleton supports one instance. You may create multiple"
                           "instances by using the constructor.")
-    InstanceID_t getInstanceID(void) const
+    InstanceID_t getInstanceID() const
     {
         return DEFAULT_INSTANCE;
     }
@@ -309,7 +303,7 @@ public:
      * @attention This should be called before using anything else in the BLE
      * API.
      */
-    ble_error_t init(InitializationCompleteCallback_t completion_cb = NULL)
+    ble_error_t init(InitializationCompleteCallback_t completion_cb = nullptr)
     {
         FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(completion_cb);
         return initImplementation(callback);
@@ -341,7 +335,7 @@ public:
      * @note The application should set up a callback to signal completion of
      * initialization when using init().
      */
-    bool hasInitialized(void) const;
+    bool hasInitialized() const;
 
     /**
      * Shut down the underlying stack, and reset state of this BLE instance.
@@ -353,7 +347,7 @@ public:
      * GAP state. This API offers a way to repopulate the GATT database with new
      * services and characteristics.
      */
-    ble_error_t shutdown(void);
+    ble_error_t shutdown();
 
     /**
      * This call allows the application to get the BLE stack version information.
@@ -362,7 +356,7 @@ public:
      *
      * @note The BLE API owns the string returned.
      */
-    const char *getVersion(void);
+    const char *getVersion();
 
     /**
      * Accessor to Gap. All Gap-related functionality requires going through
@@ -456,6 +450,16 @@ private:
     friend class ble::BLEInstanceBase;
 
     /**
+     * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
+     * are thin wrappers around a transport object (that is, ptr. to
+     * ble::BLEInstanceBase).
+     *
+     * @param[in] transport Ble transport used for the BLE instance.
+     * @note Cordio supports only one instance.
+     */
+    BLE(ble::BLEInstanceBase &transport);
+
+    /**
      * Implementation of init() [internal to BLE_API].
      *
      * The implementation is separated into a private method because it isn't
@@ -464,11 +468,6 @@ private:
     ble_error_t initImplementation(
         FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback
     );
-
-private:
-    // Prevent copy construction and copy assignment of BLE.
-    BLE(const BLE &);
-    BLE &operator=(const BLE &);
 
 private:
     ble::BLEInstanceBase &transport; /* The device-specific backend */
@@ -480,7 +479,7 @@ private:
 
 using ble::BLE;
 /**
- * @namespace ble Entry namespace for all %BLE API definitions.
+ * @namespace ble Entry namespace for all BLE API definitions.
  */
 
 /**
