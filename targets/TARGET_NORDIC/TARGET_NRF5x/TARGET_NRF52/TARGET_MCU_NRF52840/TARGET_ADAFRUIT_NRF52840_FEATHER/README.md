@@ -108,7 +108,7 @@ mbed add https://github.com/ARMmbed/mbed-os.git
     ]
 ``` 
 
-# Compiling and Building
+## Compiling and Building
 
 - Connect Adafruit board to computer via USB cable.
 - Check the virtual COM port it opened (on my laptop was COM7) but may be different on yours. If it is not COM7 then make sure to change the tasks.json file **"ada-nrfutil flash DFU pkg"** section port to match.
@@ -116,5 +116,18 @@ mbed add https://github.com/ARMmbed/mbed-os.git
 - Whilst waiting for build press the reset button on Adafruit twice quickly to enter DFU programming mode.  Neopixel LED will be green.
 - Watch Console output for compile, hex to DFU zip and eventual upload to board.
 
+## Enabling console printf back to host computer via USB
+
+To use debug printf statements and see them on your host computer you need to include into your main.cpp the header file **USBConsole.h** as below:
+```c
+#include "USBConsole.h"
+```  
+you can then use the standard printf:
+```c
+printf("main: ENTER\r\n");
+```
+To view the output you will need to use a terminal/telnet client such as Putty.  When the Adafruit board is running with the USBConsole enabled program a virtual COM port will be opened (COM8 on my computer) and the output streamed.  The program suspends until the COM port is opened....so remember to do this if you have used the USBConsole, otherwise it will look like you program is not working.
+
+You can remove the header file (USBConsole.h)...and leave the printf's in place to allow the program to run as normal and not suspend, and of course without the output.
 
 
