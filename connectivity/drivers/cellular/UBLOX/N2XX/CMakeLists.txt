@@ -1,12 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+add_library(mbed-os-cellular-ublox-n2xx OBJECT)
+
+target_include_directories(mbed-os-cellular-ublox-n2xx
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-cellular-ublox-n2xx
     PRIVATE
         UBLOX_N2XX.cpp
         UBLOX_N2XX_CellularContext.cpp

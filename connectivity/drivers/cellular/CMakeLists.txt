@@ -12,7 +12,7 @@ add_subdirectory(RiotMicro)
 add_subdirectory(TELIT)
 add_subdirectory(UBLOX)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-cellular
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

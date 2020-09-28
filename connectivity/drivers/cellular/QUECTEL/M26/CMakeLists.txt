@@ -1,12 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+add_library(mbed-os-cellular-quectel-m26 OBJECT)
+
+target_include_directories(mbed-os-cellular-quectel-m26
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-cellular-quectel-m26
     PRIVATE
         QUECTEL_M26.cpp
         QUECTEL_M26_CellularContext.cpp
