@@ -1,12 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-ble
     PUBLIC
         .
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble
     PRIVATE
         PalAttClientToGattClient.cpp
 )

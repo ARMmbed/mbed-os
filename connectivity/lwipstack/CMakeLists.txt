@@ -1,7 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
+add_library(mbed-os-lwipstack OBJECT)
+
+target_include_directories(mbed-os-lwipstack
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -12,7 +16,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/lwip-sys/arch
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-lwipstack
     PRIVATE
         lwip/src/api/lwip_api_lib.c
         lwip/src/api/lwip_api_msg.c
@@ -86,3 +90,5 @@ target_sources(mbed-os
         source/LWIPStack.cpp
         source/lwip_tools.cpp
 )
+
+target_link_libraries(mbed-os-lwipstack mbed-os-netsockets mbed-os)

@@ -5,8 +5,6 @@ include(${MBED_ROOT}/tools/cmake/components.cmake)
 
 add_library(mbed-os-nanostack OBJECT)
 
-mbed_configure_component(mbed-os-nanostack)
-
 add_subdirectory(coap-service)
 add_subdirectory(mbed-mesh-api)
 add_subdirectory(nanostack-hal-mbed-cmsis-rtos)
@@ -24,8 +22,5 @@ target_sources(mbed-os-nanostack
     PRIVATE
         source/Nanostack.cpp
 )
-
-set(mbed-os-nanostack_DEPENDS mbed-os-coap mbed-os-nanostack-libservice mbed-os-netsocket)
-mbed_enable_components(${mbed-os-nanostack_DEPENDS})
 
 target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)

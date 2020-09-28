@@ -5,8 +5,6 @@ include(${MBED_ROOT}/tools/cmake/components.cmake)
 
 add_library(mbed-os-netsocket OBJECT)
 
-mbed_configure_component(mbed-os-netsocket)
-
 target_include_directories(mbed-os-netsocket
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -48,8 +46,5 @@ target_sources(mbed-os-netsocket
         source/nsapi_dns.cpp
         source/nsapi_ppp.cpp
 )
-
-set(mbed-os-netsocket_DEPENDS mbed-os-coap mbed-os-nanostack-libservice mbed-os-mbedtls)
-mbed_enable_components(${mbed-os-netsocket_DEPENDS})
 
 target_link_libraries(mbed-os-netsocket mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os)

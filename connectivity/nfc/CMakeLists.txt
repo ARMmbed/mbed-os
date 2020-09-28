@@ -5,8 +5,6 @@ include(${MBED_ROOT}/tools/cmake/components.cmake)
 
 add_library(mbed-os-nfc OBJECT)
 
-mbed_configure_component(mbed-os-nfc)
-
 add_subdirectory(libraries)
 
 target_include_directories(mbed-os-nfc

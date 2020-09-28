@@ -80,7 +80,19 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-_mbed_enable_core_components()
+add_subdirectory(cmsis)
+add_subdirectory(connectivity)
+add_subdirectory(drivers)
+add_subdirectory(events)
+add_subdirectory(hal)
+add_subdirectory(platform)
+add_subdirectory(rtos)
+add_subdirectory(targets)
+
+# Not yet componentized
+#add_subdirectory(features)
+#add_subdirectory(components)
+#add_subdirectory(storage)
 
 #
 # Configures the application

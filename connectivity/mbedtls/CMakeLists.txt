@@ -5,8 +5,6 @@ include(${MBED_ROOT}/tools/cmake/components.cmake)
 
 add_library(mbed-os-mbedtls OBJECT)
 
-mbed_configure_component(mbed-os-mbedtls)
-
 target_include_directories(mbed-os-mbedtls
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}

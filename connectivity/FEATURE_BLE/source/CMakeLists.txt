@@ -7,7 +7,7 @@ add_subdirectory(gatt)
 add_subdirectory(generic)
 add_subdirectory(pal)
 
-target_sources(mbed-os
+target_sources(mbed-os-ble
     PRIVATE
         BLE.cpp
         Gap.cpp

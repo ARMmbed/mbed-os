@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-ble-cordio
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/stack
@@ -22,7 +22,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/stack_adaptation
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/ble/bb/bb_ble_adv_master.c
         stack/controller/sources/ble/bb/bb_ble_adv_master_ae.c
@@ -45,13 +45,13 @@ target_sources(mbed-os
         stack/controller/sources/ble/bb/bb_ble_whitelist.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/ble/init/init.c
         stack/controller/sources/ble/init/init_ctr.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/ble/lctr/lctr_act_adv_master.c
         stack/controller/sources/ble/lctr/lctr_act_adv_master_ae.c
@@ -145,7 +145,7 @@ target_sources(mbed-os
         stack/controller/sources/ble/lctr/lctr_sm_llcp_slave_phy.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/ble/lhci/lhci_cmd.c
         stack/controller/sources/ble/lhci/lhci_cmd_adv_master.c
@@ -224,7 +224,7 @@ target_sources(mbed-os
         stack/controller/sources/ble/lhci/lhci_main_iso.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/ble/ll/ll_init.c
         stack/controller/sources/ble/ll/ll_init_adv_master.c
@@ -275,7 +275,7 @@ target_sources(mbed-os
         stack/controller/sources/ble/ll/ll_math.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/ble/lmgr/lmgr_events.c
         stack/controller/sources/ble/lmgr/lmgr_main.c
@@ -290,14 +290,14 @@ target_sources(mbed-os
         stack/controller/sources/ble/lmgr/lmgr_main_slave.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/ble/sch/sch_ble.c
         stack/controller/sources/ble/sch/sch_rm.c
         stack/controller/sources/ble/sch/sch_tm.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/controller/sources/common/bb/bb_main.c
 
@@ -307,7 +307,7 @@ target_sources(mbed-os
         stack/controller/sources/common/sch/sch_main.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack/thirdparty/nordic-bsp/components/boards/boards.c
 
@@ -316,7 +316,7 @@ target_sources(mbed-os
         stack/thirdparty/uecc/uECC_ll.c
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-ble-cordio
     PRIVATE
         stack_adaptation/custom_chci_tr.cpp
 )

@@ -22,7 +22,4 @@ target_sources(mbed-os-coap
         source/sn_coap_protocol.c
 )
 
-set(mbed-os-coap_DEPENDS mbed-os-nanostack-libservice)
-mbed_enable_components(${mbed-os-coap_DEPENDS})
-
 target_link_libraries(mbed-os-coap mbed-os-nanostack-libservice mbed-os)
