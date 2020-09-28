@@ -108,5 +108,10 @@
             "value": 16,
             "macro_name": "BLE_GAP_HOST_PRIVACY_RESOLVED_CACHE_SIZE"
         }
+    },
+    "target_overrides": {
+        "MCU_NRF52840": {
+            "ble-gap-host-based-private-address-resolution": false
+        }
     }
 }
