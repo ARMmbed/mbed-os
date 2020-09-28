@@ -4,6 +4,7 @@
 # Create global values, components below extend the list
 set_property(GLOBAL PROPERTY mbed-os-internal-components)
 set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled)
+set_property(GLOBAL PROPERTY mbed-os-internal-components-disabled)
 
 # Set default core components. They depend on each other.
 if(NOT DEFINED MBED_CORE_COMPONENTS)
@@ -104,6 +105,7 @@ endfunction()
 #   ARGV - list of components to be disabled
 function(mbed_disable_components)
     get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
+    get_property(_disabled_components GLOBAL PROPERTY mbed-os-internal-components-disabled)
     # Find all components and remove them
     foreach(component IN LISTS ARGV)
         if(NOT component IN_LIST _enabled_components)
@@ -114,7 +116,9 @@ function(mbed_disable_components)
 
         get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
         list(REMOVE_ITEM _enabled_components ${component})
+        list(APPEND _disabled_components ${component})
         set_property(GLOBAL PROPERTY mbed-os-internal-components-enabled ${_enabled_components})
+        set_property(GLOBAL PROPERTY mbed-os-internal-components-disabled ${_disabled_components})
     endforeach()
 endfunction()
 
