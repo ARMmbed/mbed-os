@@ -87,13 +87,13 @@ add_subdirectory(platform)
 add_subdirectory(rtos)
 add_subdirectory(targets)
 
-# These components are option (using EXCLUDE_FROM_ALL)
+# These components are optional (using EXCLUDE_FROM_ALL)
 add_subdirectory(connectivity EXCLUDE_FROM_ALL)
 add_subdirectory(storage EXCLUDE_FROM_ALL)
 
-# sub drivers components, storage
+# Device key depends on storage, optional
 add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
-# sub drivers components, usb
+# USB component, optional
 add_subdirectory(drivers/source/usb EXCLUDE_FROM_ALL)
 
 #add_subdirectory(features EXCLUDE_FROM_ALL)

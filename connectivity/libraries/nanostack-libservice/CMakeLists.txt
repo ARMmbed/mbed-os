@@ -20,3 +20,8 @@ target_include_directories(mbed-os-nanostack-libservice
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice/platform
 )
+
+target_compile_definitions(mbed-os-nanostack-libservice
+    PUBLIC
+        MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT=1
+)

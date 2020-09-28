@@ -47,3 +47,8 @@ target_sources(mbed-os-ppp
         source/polarssl/ppp_md5.c
         source/polarssl/ppp_sha1.c
 )
+
+target_compile_definitions(mbed-os-ppp
+    PUBLIC
+        MBED_CONF_PPP_PRESENT=1
+)

@@ -18,4 +18,9 @@ target_sources(mbed-os-coap
         source/sn_coap_protocol.c
 )
 
+target_compile_definitions(mbed-os-coap
+    PUBLIC
+        MBED_CONF_COAP_PRESENT=1
+)
+
 target_link_libraries(mbed-os-coap mbed-os-nanostack-libservice mbed-os)
