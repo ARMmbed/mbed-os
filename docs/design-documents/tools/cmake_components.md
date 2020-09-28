@@ -105,71 +105,26 @@ mbed-os component (object library) consists of:
 - targets
 - platform
 
-The rest of the tree is formed by components. There are components.cmake files in the tree.
-
-Each component.cmake must add components to `mbed-os-internal-components` and add component_PATH variable. Cmake uses these path variables to find the component.
-
-An example how connectivity components.cmake can look like:
-
-```
-get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
-
-list(APPEND connectivity_components
-    mbed-os-cellular
-    mbed-os-ble
-    mbed-os-lorawan
-    mbed-os-mbedtls
-    mbed-os-nanostack
-    mbed-os-netsocket
-    mbed-os-nfc
-    mbed-os-coap
-    mbed-os-nanostack-libservice
-)
-
-# Only add once
-foreach(component IN LISTS connectivity_components)
-    if(NOT component IN_LIST _internal_components)
-        list(APPEND _internal_components ${component})
-    endif()
-endforeach()
-
-set_property(GLOBAL PROPERTY mbed-os-internal-components ${_internal_components})
-
-set(mbed-os-ble_PATH connectivity/FEATURE_BLE)
-set(mbed-os-nfc_PATH connectivity/nfc)
-set(mbed-os-cellular_PATH connectivity/cellular)
-set(mbed-os-lorawan_PATH connectivity/lorawan)
-set(mbed-os-mbedtls_PATH connectivity/mbedtls)
-set(mbed-os-nanostack_PATH connectivity/nanostack)
-set(mbed-os-netsocket_PATH connectivity/netsocket)
-set(mbed-os-coap_PATH connectivity/libraries/mbed-coap)
-set(mbed-os-nanostack-libservice_PATH connectivity/libraries/nanostack-libservice)
-```
+The rest of the tree is formed by components. 
 
 Component CMakelists must configure mbed-os component:
 
 ```
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-nanostack OBJECT)
 
-mbed_configure_component(mbed-os-nanostack)
+target_include_directorieS(mbed-os-nanostack ...)
+
+target_sources(mbed-os-nanostack ...)
 ```
 
-If there are dependencies for a component, use `mbed_enable_component`. For instance, nanostack depends on 3 components:
+If there are dependencies for a component, use `target_link_libraries`. For instance, nanostack depends on 4 other components:
 
 ```
-set(mbed-os-nanostack_DEPENDS mbed-os-coap mbed-os-nanostack-libservice mbed-os-netsocket)
-mbed_enable_components(${mbed-os-nanostack_DEPENDS})
-
 target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)
 ```
 
-The application can enable/disable a components. It must do it prior linking an application with MBed OS, use `mbed_target_link_libraries` to link all together. 
-
-The function enables requested components and links them together with an application and mbed-os.
+An application just links to what is needed
 
 ```
-mbed_enable_components(mbed-os-nfc)
-mbed_target_link_libraries(mbed-os-example-nfc)
+target_link_libraries(mbed-os-example-nanostack-example mbed-os-nanostack mbed-os)
 ```
