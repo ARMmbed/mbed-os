@@ -61,16 +61,6 @@ function(_mbed_enable_core_components)
     endif()
 endfunction()
 
-function(mbed_enable_components_as_dependency)
-    mbed_enable_components(${ARGV})
-    # check what was actually enabled from the deps and add them
-    get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
-    foreach(component IN LISTS ARGV)
-        set(component_path ${MBED_ROOT}/${${component}_PATH})
-        add_subdirectory("${component_path}")
-    endforeach()
-endfunction()
-
 # Enable Mbed OS component, used by an application to enable Mbed OS component or a component
 # to enable its dependencies.
 # Boards can enable/disable components, a user should be able to overwrite it
@@ -78,14 +68,15 @@ endfunction()
 # Arguments expected:
 #   ARGV - list of components to be enabled
 function(mbed_enable_components)
-    # Gather all non-core components from the Mbed OS tree
-    # Only include it in enable components
+    # Get paths for components
+    # All components within Mbed OS should be included here
     include(${MBED_ROOT}/connectivity/components.cmake)
     include(${MBED_ROOT}/connectivity/drivers/components.cmake)
 
-    # Find all components and add them to the applicati on
     get_property(_internal_components GLOBAL PROPERTY mbed-os-internal-components)
     get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
+    
+    # Verify we are going to enable valid component
     foreach(component IN LISTS ARGV)
         if(NOT component IN_LIST _internal_components)
             message(ERROR
@@ -106,6 +97,7 @@ endfunction()
 function(mbed_disable_components)
     get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
     get_property(_disabled_components GLOBAL PROPERTY mbed-os-internal-components-disabled)
+
     # Find all components and remove them
     foreach(component IN LISTS ARGV)
         if(NOT component IN_LIST _enabled_components)
@@ -114,6 +106,7 @@ function(mbed_disable_components)
             )
         endif()
 
+        # Update the global list of enabled/disabled components
         get_property(_enabled_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
         list(REMOVE_ITEM _enabled_components ${component})
         list(APPEND _disabled_components ${component})
@@ -128,7 +121,8 @@ endfunction()
 # app_target - the application target
 # ARGN - list of external components to link with app_target + mbed-os + mbed-os components
 function(mbed_target_link_libraries app_target)
-    # get paths for components
+    # Get paths for components
+    # All components within Mbed OS should be included here
     include(${MBED_ROOT}/connectivity/components.cmake)
     include(${MBED_ROOT}/connectivity/drivers/components.cmake)
 
@@ -137,7 +131,7 @@ function(mbed_target_link_libraries app_target)
     # Contains up-to-date list of components to be added
     list(APPEND components_to_be_enabled ${_enabled_internal_components})
 
-    # Continue adding until we resolve all dependencies (components_to_be_enabled is empty)
+    # Continue adding components until we resolve all their dependencies (until components_to_be_enabled is empty)
     while(components_to_be_enabled)
         foreach(component IN LISTS _enabled_internal_components)
             # check if we resolved this dependency already
@@ -145,6 +139,7 @@ function(mbed_target_link_libraries app_target)
                 continue()
             endif()
 
+            # _PATH is a must for a component
             if (DEFINED ${component}_PATH)
                 set(component_path ${MBED_ROOT}/${${component}_PATH})
             else()
@@ -152,6 +147,8 @@ function(mbed_target_link_libraries app_target)
                     "${${component}_PATH} not found"
                 )
             endif()
+
+            # Add the component and generate the _ENABLED definition
             if(IS_DIRECTORY "${component_path}" AND EXISTS "${component_path}/CMakeLists.txt")
                 add_subdirectory("${component_path}")
 
@@ -167,13 +164,16 @@ function(mbed_target_link_libraries app_target)
                     " Component path ${component_path} not found."
                 )
             endif()
+
             list(APPEND components_already_enabled ${component})
             list(REMOVE_ITEM components_to_be_enabled ${component})
         endforeach()
 
-        # Resolve dependencies added after foreach above. Find a component we haven't
-        # yet added and append it to our components_to_be_enabled list for enabling
+        # Resolve dependencies added after foreach above.
+        # Update internal components to be enabled, as above loop could have updated it
         get_property(_enabled_internal_components GLOBAL PROPERTY mbed-os-internal-components-enabled)
+
+        # Find a component we haven't yet added and append it to our components_to_be_enabled list for enabling.
         foreach(component IN LISTS _enabled_internal_components)
             if(NOT component IN_LIST components_already_enabled)
                 list(APPEND components_to_be_enabled ${component})
@@ -181,6 +181,5 @@ function(mbed_target_link_libraries app_target)
         endforeach()
     endwhile()
 
-    message("Linking these: " "${components_already_enabled}")
     target_link_libraries(${app_target} ${components_already_enabled} ${ARGN} mbed-os)
 endfunction()
