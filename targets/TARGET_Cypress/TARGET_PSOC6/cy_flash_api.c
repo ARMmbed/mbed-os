@@ -17,6 +17,10 @@
 #include "flash_api.h"
 #include "cyhal_flash.h"
 
+#ifdef TARGET_TFM
+#include "cytfm_flash_info.h"
+#endif
+
 #if DEVICE_FLASH
 
 #ifdef __cplusplus
@@ -28,7 +32,12 @@ int32_t flash_init(flash_t *obj)
     if (CY_RSLT_SUCCESS != cyhal_flash_init(&(obj->flash))) {
         return -1;
     }
+#ifdef TARGET_TFM
+    cytfm_flash_get_info(&(obj->flash), &(obj->info));
+#else /* TARGET_TFM */
     cyhal_flash_get_info(&(obj->flash), &(obj->info));
+#endif /* TARGET_TFM */
+
     return 0;
 }
 
