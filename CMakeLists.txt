@@ -81,7 +81,6 @@ target_include_directories(mbed-os
 )
 
 add_subdirectory(cmsis)
-add_subdirectory(connectivity)
 add_subdirectory(drivers)
 add_subdirectory(events)
 add_subdirectory(hal)
@@ -89,10 +88,11 @@ add_subdirectory(platform)
 add_subdirectory(rtos)
 add_subdirectory(targets)
 
-# Not yet componentized
-#add_subdirectory(features)
-#add_subdirectory(components)
-#add_subdirectory(storage)
+# These components are option (using EXCLUDE_FROM_ALL)
+add_subdirectory(connectivity EXCLUDE_FROM_ALL)
+#add_subdirectory(features EXCLUDE_FROM_ALL)
+#add_subdirectory(components EXCLUDE_FROM_ALL)
+#add_subdirectory(storage EXCLUDE_FROM_ALL)
 
 #
 # Configures the application
