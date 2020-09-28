@@ -1,0 +1,33 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+add_library(mbed-os-usb OBJECT)
+
+target_include_directories(mbed-os-usb
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_sources(mbed-os-usb
+    PRIVATE
+        AsyncOp.cpp
+        ByteBuffer.cpp
+        EndpointResolver.cpp
+        LinkedListBase.cpp
+        OperationListBase.cpp
+        PolledQueue.cpp
+        TaskBase.cpp
+        USBAudio.cpp
+        USBCDC.cpp
+        USBCDC_ECM.cpp
+        USBDevice.cpp
+        USBHID.cpp
+        USBKeyboard.cpp
+        USBMIDI.cpp
+        USBMSD.cpp
+        USBMouse.cpp
+        USBMouseKeyboard.cpp
+        USBSerial.cpp
+)
+
+target_link_libraries(mbed-os-usb mbed-os-storage mbed-os)

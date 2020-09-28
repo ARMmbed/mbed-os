@@ -24,7 +24,6 @@ enable_language(C CXX ASM)
 include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/util.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
-include(${MBED_ROOT}/tools/cmake/components.cmake)
 
 add_library(mbed-os OBJECT)
 
@@ -90,9 +89,15 @@ add_subdirectory(targets)
 
 # These components are option (using EXCLUDE_FROM_ALL)
 add_subdirectory(connectivity EXCLUDE_FROM_ALL)
+add_subdirectory(storage EXCLUDE_FROM_ALL)
+
+# sub drivers components, storage
+add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
+# sub drivers components, usb
+add_subdirectory(drivers/source/usb EXCLUDE_FROM_ALL)
+
 #add_subdirectory(features EXCLUDE_FROM_ALL)
 #add_subdirectory(components EXCLUDE_FROM_ALL)
-#add_subdirectory(storage EXCLUDE_FROM_ALL)
 
 #
 # Configures the application

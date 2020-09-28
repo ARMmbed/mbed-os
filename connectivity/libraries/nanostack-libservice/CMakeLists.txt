@@ -1,10 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-nanostack-libservice OBJECT)
-
-mbed_configure_component(mbed-os-nanostack-libservice)
 
 target_sources(mbed-os-nanostack-libservice
     PRIVATE

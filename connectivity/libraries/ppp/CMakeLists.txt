@@ -1,11 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-ppp OBJECT)
-
-mbed_configure_component(mbed-os-ppp)
 
 target_include_directories(mbed-os-ppp
     PUBLIC

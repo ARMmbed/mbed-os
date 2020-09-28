@@ -5,14 +5,14 @@ add_subdirectory(direct_access_devicekey)
 add_subdirectory(kv_config)
 add_subdirectory(securestore)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-storage
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/kvstore
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-storage
     PRIVATE
         source/FileSystemStore.cpp
         source/KVMap.cpp

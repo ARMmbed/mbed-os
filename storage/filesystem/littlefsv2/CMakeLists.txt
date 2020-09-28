@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+add_library(mbed-os-littlefs-v2 OBJECT)
+
+target_include_directories(mbed-os-littlefs-v2
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -9,7 +11,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/littlefs
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-littlefs-v2
     PRIVATE
         source/LittleFileSystem2.cpp
 

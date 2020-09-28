@@ -1,16 +1,21 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("COMPONENT")
+add_subdirectory(COMPONENT_DATAFLASH)
+add_subdirectory(COMPONENT_FLASHIAP)
+add_subdirectory(COMPONENT_I2CEE)
+add_subdirectory(COMPONENT_QSPIF)
+add_subdirectory(COMPONENT_SD)
+add_subdirectory(COMPONENT_SPIF)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-storage
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/blockdevice
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-storage
     PRIVATE
         source/BufferedBlockDevice.cpp
         source/ChainingBlockDevice.cpp
