@@ -2336,6 +2336,10 @@ bool Gap::apply_peripheral_privacy_connection_policy(
 
     switch (_peripheral_privacy_configuration.resolution_strategy) {
         case peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS:
+            /* if there is no bond then allow unresolved addresses */
+            if (_address_registry.read_resolving_list_size() == 0) {
+                return true;
+            }
             _pal_gap.disconnect(
                 connection_handle,
                 local_disconnection_reason_t::AUTHENTICATION_FAILURE
