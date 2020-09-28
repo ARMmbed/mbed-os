@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# This is specific driver for mbed-os-usb, it is not part of mbed-os target.
+
 add_library(mbed-os-usb OBJECT)
 
 target_include_directories(mbed-os-usb
