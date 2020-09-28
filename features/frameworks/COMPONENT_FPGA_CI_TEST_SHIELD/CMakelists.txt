@@ -1,0 +1,23 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+add_library(mbed-os-fpga-ci-test-shield OBJECT)
+
+target_include_directories(mbed-os-fpga-ci-test-shield
+    PUBLIC
+        include
+        include/fpga_ci_test_shield
+)
+
+target_sources(mbed-os-fpga-ci-test-shield
+    PRIVATE
+        source/DynamicPinList.cpp
+        source/I2CTester.cpp
+        source/MbedTester.cpp
+        source/SPIMasterTester.cpp
+        source/SPISlaveTester.cpp
+        source/SPITester.cpp
+        source/UARTTester.cpp
+)
+
+
