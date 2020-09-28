@@ -139,7 +139,7 @@ void serial_baud(serial_t *obj, int baudrate)
     struct serial_s *objs = serial_s(obj);
     float fFrac = 0;
     float fDiv  = 0;
-    uint32_t Peri_Clock = bp6a_cmu_get_clock_freq(CMU_UART0_CLK);
+    uint32_t Peri_Clock = bp6a_cmu_get_clock_freq(CMU_UART0_CLK + obj->index);
 
     fDiv = ((float)Peri_Clock / ((float)baudrate * 16)) - (float)1.0;
     fFrac = (uint32_t)((fDiv - (int32_t)fDiv) * 16.0f);
@@ -215,7 +215,7 @@ void uart1_irq(void)
 
 void uart2_irq(void)
 {
-    uint32_t uints = getreg32(BP_UART0_BASE + UART_UINTP_OFFSET);
+    uint32_t uints = getreg32(BP_UART2_BASE + UART_UINTP_OFFSET);
 
     if (uints & UART_UINTS_RXD_MASK) {
         _uart_irq_handler(RxIrq, 2);
