@@ -37,7 +37,7 @@ static void peripheral_init(void)
 {
     /*AFE Voltage Config */
     putreg32(&BP_AFE_TOP->REF_CTRL, 0x7A68201F);
-    putreg32(&BP_AFE_TOP->AFE_CLK_CTRL, 0x0);
+    putreg32(&BP_AFE_TOP->AFE_CLK_CTRL, 0x08);
 }
 
 void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency      */
