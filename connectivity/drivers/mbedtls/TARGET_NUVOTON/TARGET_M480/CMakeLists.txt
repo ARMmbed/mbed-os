@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-mbedtls
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/aes
@@ -9,7 +9,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/sha
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-mbedtls
     PRIVATE
         aes/aes_alt.c
 

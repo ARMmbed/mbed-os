@@ -4,7 +4,7 @@
 mbed_add_cmake_directory_if_labels("TARGET")
 add_subdirectory(binaries)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-mbedtls
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -12,7 +12,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310/internal
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-mbedtls
     PRIVATE
         source/aes_alt.c
         source/cc_internal.c

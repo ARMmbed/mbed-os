@@ -3,12 +3,12 @@
 
 mbed_add_cmake_directory_if_labels("TARGET")
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-mbedtls
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-mbedtls
     PRIVATE
         aes_alt.c
         crypto_common.c

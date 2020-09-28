@@ -3,7 +3,7 @@
 
 mbed_add_cmake_directory_if_labels("TARGET")
 
-target_sources(mbed-os
+target_sources(mbed-os-mbedtls
     PRIVATE
         aes_alt.cpp
         aes_alt_stm32l4.c
@@ -16,7 +16,7 @@ target_sources(mbed-os
         sha256_alt.cpp
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-mbedtls
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

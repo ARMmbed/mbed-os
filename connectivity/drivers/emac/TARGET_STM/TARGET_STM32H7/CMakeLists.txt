@@ -3,13 +3,13 @@
 
 mbed_add_cmake_directory_if_labels("TARGET")
 
-target_include_directories(mbed-os
+target_include_directories(mbed-os-emac-stm32xx
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/lan8742
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-emac-stm32xx
     PRIVATE
         lan8742/lan8742.c
 )
