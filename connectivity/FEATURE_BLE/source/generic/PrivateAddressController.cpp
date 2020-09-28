@@ -155,6 +155,11 @@ uint8_t PrivateAddressController::read_resolving_list_capacity()
 #endif //BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 }
 
+uint8_t PrivateAddressController::read_resolving_list_size()
+{
+    return _resolving_list_size;
+}
+
 ble_error_t PrivateAddressController::add_device_to_resolving_list(
     target_peer_address_type_t peer_address_type,
     const address_t &peer_identity_address,
@@ -185,6 +190,7 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
             entry.peer_irk = peer_irk;
             entry.populated = true;
             entry_added = true;
+            _resolving_list_size++;
             break;
         }
     }
@@ -234,6 +240,7 @@ ble_error_t PrivateAddressController::remove_device_from_resolving_list(
             });
 
             entry.populated = false;
+            _resolving_list_size--;
 
             restart_resolution_process_on_host();
         }
@@ -259,6 +266,7 @@ ble_error_t PrivateAddressController::clear_resolving_list()
     remove_resolution_entry_from_cache([&](resolution_entry_t& entry) {
         return entry.identity != nullptr;
     });
+    _resolving_list_size = 0;
 
     restart_resolution_process_on_host();
 
@@ -380,6 +388,7 @@ struct PrivateAddressController::PrivacyAddDevToResListControlBlock final :
             _peer_irk,
             self._local_irk
         );
+        self._resolving_list_size++;
         return false;
     }
 
@@ -428,6 +437,7 @@ struct PrivateAddressController::PrivacyRemoveDevFromResListControlBlock final :
             _peer_identity_address_type,
             _peer_identity_address
         );
+        self._resolving_list_size--;
         return false;
     }
 
@@ -464,6 +474,7 @@ struct PrivateAddressController::PrivacyClearResListControlBlock final :
     {
         // Execute command
         self._pal.clear_resolving_list();
+        self._resolving_list_size = 0;
         return false;
     }
 };
