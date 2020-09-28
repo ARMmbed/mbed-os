@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-nfc OBJECT)
 
 add_subdirectory(libraries)
@@ -42,4 +44,4 @@ target_compile_definitions(mbed-os-nfc
         MBED_CONF_NFC_PRESENT=1
 )
 
-target_link_libraries(mbed-os-nfc mbed-os)
+mbed_link_component(mbed-os-nfc mbed-os-events mbed-os)

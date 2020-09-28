@@ -24,6 +24,7 @@ enable_language(C CXX ASM)
 include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/util.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
+include(${MBED_ROOT}/tools/cmake/components.cmake)
 
 add_library(mbed-os OBJECT)
 
@@ -134,7 +135,6 @@ function(mbed_set_mbed_target_linker_script target)
         VERBATIM
     )
 endfunction()
-
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
