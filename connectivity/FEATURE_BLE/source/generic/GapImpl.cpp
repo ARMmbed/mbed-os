@@ -2401,6 +2401,9 @@ void Gap::signal_connection_complete(
         }
     }
 #else
+    if (!apply_peripheral_privacy_connection_policy(event)) {
+        return;
+    }
     report_internal_connection_complete(event);
     _event_handler->onConnectionComplete(event);
 #endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
