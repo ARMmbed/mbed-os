@@ -89,4 +89,9 @@ target_sources(mbed-os-lwipstack
         source/lwip_tools.cpp
 )
 
+target_compile_definitions(mbed-os-lwipstack
+    PUBLIC
+        MBED_CONF_LWIPSTACK_PRESENT=1
+)
+
 target_link_libraries(mbed-os-lwipstack mbed-os-netsockets mbed-os)

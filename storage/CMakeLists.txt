@@ -12,3 +12,10 @@ target_include_directories(mbed-os-storage
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+target_compile_definitions(mbed-os-storage
+    PUBLIC
+        MBED_CONF_STORAGE_PRESENT=1
+)
+
+target_link_libraries(mbed-os-storage mbed-os)

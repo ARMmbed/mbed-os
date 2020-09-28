@@ -37,4 +37,9 @@ target_sources(mbed-os-nfc
         source/ndef/common/util.cpp
 )
 
+target_compile_definitions(mbed-os-nfc
+    PUBLIC
+        MBED_CONF_NFC_PRESENT=1
+)
+
 target_link_libraries(mbed-os-nfc mbed-os)

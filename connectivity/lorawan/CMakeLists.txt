@@ -19,4 +19,9 @@ target_sources(mbed-os-lorawan
         source/LoRaWANStack.cpp
 )
 
+target_compile_definitions(mbed-os-lorawan
+    PUBLIC
+        MBED_CONF_LORAWAN_PRESENT=1
+)
+
 target_link_libraries(mbed-os-lorawan mbed-os)

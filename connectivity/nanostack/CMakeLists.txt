@@ -21,4 +21,9 @@ target_sources(mbed-os-nanostack
         source/Nanostack.cpp
 )
 
+target_compile_definitions(mbed-os-nanostack
+    PUBLIC
+        MBED_CONF_NANOSTACK_PRESENT=1
+)
+
 target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)

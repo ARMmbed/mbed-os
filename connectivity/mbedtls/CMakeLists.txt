@@ -100,4 +100,9 @@ target_sources(mbed-os-mbedtls
         source/xtea.c
 )
 
+target_compile_definitions(mbed-os-mbedtls
+    PUBLIC
+        MBED_CONF_MBEDTLS_PRESENT=1
+)
+
 target_link_libraries(mbed-os-mbedtls mbed-os)

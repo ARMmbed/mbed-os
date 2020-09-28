@@ -20,3 +20,8 @@ target_sources(mbed-os
         source/ThisThread.cpp
         source/Thread.cpp
 )
+
+target_compile_definitions(mbed-os
+    PUBLIC
+        MBED_CONF_RTOS_PRESENT=1
+)

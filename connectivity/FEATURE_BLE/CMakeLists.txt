@@ -23,4 +23,9 @@ target_include_directories(mbed-os-ble
         source
 )
 
+target_compile_definitions(mbed-os-ble
+    PUBLIC
+        MBED_CONF_BLE_PRESENT=1
+)
+
 target_link_libraries(mbed-os-ble mbed-os)

@@ -45,4 +45,9 @@ target_sources(mbed-os-netsocket
         source/nsapi_ppp.cpp
 )
 
+target_compile_definitions(mbed-os-netsocket
+    PUBLIC
+        MBED_CONF_NETSOCKET_PRESENT=1
+)
+
 target_link_libraries(mbed-os-netsocket mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os)

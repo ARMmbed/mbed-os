@@ -17,4 +17,9 @@ target_include_directories(mbed-os-cellular
         ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular/framework/device
 )
 
+target_compile_definitions(mbed-os-cellular
+    PUBLIC
+        MBED_CONF_CELLULAR_PRESENT=1
+)
+
 target_link_libraries(mbed-os-cellular mbed-os-nanostack-libservice mbed-os-netsockets mbed-os)
