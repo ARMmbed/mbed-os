@@ -1,13 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+add_library(mbed-os-cy8c63xx OBJECT)
+
+target_include_directories(mbed-os-cy8c63xx
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/drivers
+        .
+        drivers
 )
 
-target_sources(mbed-os
+target_sources(mbed-os-cy8c63xx
     PRIVATE
         Psoc6BLE.cpp
         drivers/IPCPipeTransportDriver.cpp
