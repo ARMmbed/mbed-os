@@ -33,6 +33,9 @@
 #include "source/pal/PalSecurityManager.h"
 
 
+// Cordio defines the random address used by connection to be the global one
+#define CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION 1
+
 using namespace std::chrono;
 
 MBED_STATIC_ASSERT(BLE_GAP_MAX_ADVERTISING_SETS < 0xFF, "BLE_GAP_MAX_ADVERTISING_SETS must be less than 255");
@@ -1859,6 +1862,9 @@ ble_error_t Gap::startAdvertising(
     if (is_extended_advertising_available()) {
         // Addresses can be updated if the set is not advertising
         if (!_active_sets.get(handle)) {
+#if CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION
+            _pal_gap.set_random_address(*random_address);
+#endif
             _pal_gap.set_advertising_set_random_address(handle, *random_address);
         }
 
@@ -2229,7 +2235,7 @@ void Gap::signal_connection_complete(
                 address_resolved = true;
             }
         }
-#endif BLE_ROLE_CENTRAL
+#endif
 
 #if BLE_ROLE_PERIPHERAL
         if (event.getOwnRole() == connection_role_t::PERIPHERAL) {
@@ -2264,6 +2270,9 @@ void Gap::signal_connection_complete(
 
     /* if successful then proceed to call the handler immediately same as for when privacy is disabled */
     if (address_resolved) {
+        if (!apply_peripheral_privacy_connection_policy(event)) {
+            return;
+        }
         report_internal_connection_complete(event);
         _event_handler->onConnectionComplete(event);
     } else {
@@ -2297,15 +2306,64 @@ void Gap::signal_connection_complete(
 }
 
 #if BLE_FEATURE_PRIVACY
+
+bool Gap::apply_peripheral_privacy_connection_policy(
+    const ConnectionCompleteEvent &event
+)
+{
+#if BLE_ROLE_PERIPHERAL
+    if (event.getOwnRole() != connection_role_t::PERIPHERAL) {
+        return true;
+    }
+
+    if (event.getPeerAddressType() != peer_address_type_t::RANDOM) {
+        return true;
+    }
+
+    if (!is_random_private_resolvable_address(event.getPeerAddress())) {
+        return true;
+    }
+
+    auto connection_handle = event.getConnectionHandle();
+
+    switch (_peripheral_privacy_configuration.resolution_strategy) {
+        case peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS:
+            _pal_gap.disconnect(
+                connection_handle,
+                local_disconnection_reason_t::AUTHENTICATION_FAILURE
+            );
+            return false;
+
+        case peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE:
+            _event_queue.post([connection_handle] {
+                BLE::Instance().securityManager().requestAuthentication(connection_handle);
+            });
+            return true;
+
+        case peripheral_privacy_configuration_t::PERFORM_AUTHENTICATION_PROCEDURE:
+            _event_queue.post([connection_handle] {
+                BLE::Instance().securityManager().setLinkSecurity(
+                    connection_handle,
+                    ble::SecurityManager::SecurityMode_t::SECURITY_MODE_ENCRYPTION_WITH_MITM
+                );
+            });
+            return true;
+
+        default:
+            return true;
+    }
+#else
+    return true;
+#endif
+}
+
+
 void Gap::conclude_signal_connection_complete_after_address_resolution(
     ConnectionCompleteEvent &event,
     target_peer_address_type_t identity_address_type,
     const address_t *identity_address
 )
 {
-#if BLE_ROLE_PERIPHERAL
-    bool resolvable_address_not_known = false;
-#endif // BLE_ROLE_PERIPHERAL
     /* fix the event addresses */
     if (identity_address) {
         /* move old address to resolvable address */
@@ -2317,42 +2375,13 @@ void Gap::conclude_signal_connection_complete_after_address_resolution(
                                  peer_address_type_t::RANDOM_STATIC_IDENTITY
                                  : peer_address_type_t::PUBLIC_IDENTITY);
     }
-#if BLE_ROLE_PERIPHERAL
-    if (!identity_address) {
-        if (_peripheral_privacy_configuration.resolution_strategy ==
-            peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS) {
-            // Reject connection request - the user will get notified through a callback
-            _pal_gap.disconnect(
-                event.getConnectionHandle(),
-                local_disconnection_reason_t::AUTHENTICATION_FAILURE
-            );
-            return;
-        }
-        resolvable_address_not_known = true;
+
+    if (!apply_peripheral_privacy_connection_policy(event)) {
+        return;
     }
-#endif // BLE_ROLE_PERIPHERAL
 
     report_internal_connection_complete(event);
     _event_handler->onConnectionComplete(event);
-#if BLE_ROLE_PERIPHERAL
-#if BLE_FEATURE_SECURITY
-    if (resolvable_address_not_known) {
-        ble::SecurityManager &sm = BLE::Instance().securityManager();
-        if (_peripheral_privacy_configuration.resolution_strategy ==
-            peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE) {
-
-            // Request authentication to start pairing procedure
-            sm.requestAuthentication(event.getConnectionHandle());
-        } else if (_peripheral_privacy_configuration.resolution_strategy ==
-                   peripheral_privacy_configuration_t::PERFORM_AUTHENTICATION_PROCEDURE) {
-            sm.setLinkSecurity(
-                event.getConnectionHandle(),
-                ble::SecurityManager::SecurityMode_t::SECURITY_MODE_ENCRYPTION_WITH_MITM
-            );
-        }
-    }
-#endif // BLE_FEATURE_SECURITY
-#endif // BLE_ROLE_PERIPHERAL
 }
 #endif // BLE_FEATURE_PRIVACY
 #endif // BLE_FEATURE_CONNECTABLE
@@ -3075,7 +3104,7 @@ void Gap::on_address_resolution_completed(
 
         delete event;
     }
-#endif BLE_ROLE_OBSERVER
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 }
 
@@ -3132,6 +3161,7 @@ const address_t *Gap::get_random_address(controller_operation_t operation, size_
     bool advertising_use_main_address = true;
     // Extended advertising is a special case as the address isn't shared with
     // the main address.
+#if !CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         if (operation == controller_operation_t::advertising) {
@@ -3145,6 +3175,8 @@ const address_t *Gap::get_random_address(controller_operation_t operation, size_
         }
     }
 #endif
+#endif
+
 
     // For other cases we first compute the address being used and then compares
     // it to the address to use to determine if the address is correct or not.
