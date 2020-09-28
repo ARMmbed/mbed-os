@@ -107,8 +107,6 @@ typedef enum {
     ECG_INP,
     ECG_INN,
 
-    UART_TX0 = GPIO24,
-    UART_RX0 = GPIO25,
     AN0 = GPA0_INP,
     AN1 = GPA1_INP,
     AN2 = GPA24_INP0,

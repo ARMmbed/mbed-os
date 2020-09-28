@@ -45,7 +45,7 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-#define MBED_ROM_SIZE  0x200000  // 2MB KB
+#define MBED_ROM_SIZE  0x200000  // 2MB
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -53,7 +53,7 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0x40000  // 256 KB
+#define MBED_RAM_SIZE  0x40000  // 25KB
 #endif
 
 #if !defined(MBED_APP_START)
