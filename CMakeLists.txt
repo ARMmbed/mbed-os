@@ -93,9 +93,9 @@ add_subdirectory(storage EXCLUDE_FROM_ALL)
 
 add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
 add_subdirectory(drivers/source/usb EXCLUDE_FROM_ALL)
+add_subdirectory(components EXCLUDE_FROM_ALL)
 
 #add_subdirectory(features EXCLUDE_FROM_ALL)
-#add_subdirectory(components EXCLUDE_FROM_ALL)
 
 #
 # Configures the application
