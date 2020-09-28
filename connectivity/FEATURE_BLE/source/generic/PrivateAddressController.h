@@ -148,9 +148,14 @@ public:
 #endif //!BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     /**
-     * Read the number of entry that can be put in the resolving list.
+     * Read the number of entries that can be put in the resolving list.
      */
     uint8_t read_resolving_list_capacity();
+
+    /**
+     * Read the number of entries that are in the resolving list.
+     */
+    uint8_t read_resolving_list_size();
 
     /**
      * Add a new peer to the resolving list.
@@ -312,6 +317,8 @@ private:
 
     PrivacyControlBlock *_pending_privacy_control_blocks = nullptr;
     bool _processing_privacy_control_block = false;
+
+    uint8_t _resolving_list_size = 0;
 
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     struct resolving_list_entry_t {

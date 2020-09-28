@@ -2555,6 +2555,13 @@ void Gap::signal_advertising_report(
         }
     }
 #else
+    /* filter out unresolved address if at least one bond exists */
+    if (_address_registry.read_resolving_list_size() > 0 &&
+        _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::RESOLVE_AND_FILTER &&
+        event.getPeerAddressType() != peer_address_type_t::PUBLIC &&
+        is_random_private_resolvable_address(event.getPeerAddress())) {
+        return;
+    }
     _event_handler->onAdvertisingReport(
         event
     );
@@ -2572,15 +2579,15 @@ void Gap::conclude_signal_advertising_report_after_address_resolution(
 {
     /* fix the report with the new address if there's an identity found */
     if (identity_address) {
-        /* filter out resolved address based on policy */
-        if (_central_privacy_configuration.resolution_strategy ==
-            central_privacy_configuration_t::RESOLVE_AND_FILTER) {
-            return;
-        }
         event.setPeerAddress(*identity_address);
         event.setPeerAddressType(identity_address_type == target_peer_address_type_t::RANDOM ?
                                  peer_address_type_t::RANDOM_STATIC_IDENTITY
                                  : peer_address_type_t::PUBLIC_IDENTITY);
+    } else if (_central_privacy_configuration.resolution_strategy ==
+        central_privacy_configuration_t::RESOLVE_AND_FILTER &&
+        _address_registry.read_resolving_list_size() > 0) {
+        /* filter out unresolved address if at least one bond exists */
+        return;
     }
 
     _event_handler->onAdvertisingReport(event);
