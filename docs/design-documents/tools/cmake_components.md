@@ -107,12 +107,12 @@ mbed-os component (object library) consists of:
 
 The rest of the tree is formed by components. 
 
-Component CMakelists must configure mbed-os component:
+Each component creates a new CMake library and adds includes/sources:
 
 ```
 add_library(mbed-os-nanostack OBJECT)
 
-target_include_directorieS(mbed-os-nanostack ...)
+target_include_directories(mbed-os-nanostack ...)
 
 target_sources(mbed-os-nanostack ...)
 ```
@@ -123,7 +123,7 @@ If there are dependencies for a component, use `target_link_libraries`. For inst
 target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)
 ```
 
-An application just links to what is needed
+An application just links to what is required:
 
 ```
 target_link_libraries(mbed-os-example-nanostack-example mbed-os-nanostack mbed-os)
