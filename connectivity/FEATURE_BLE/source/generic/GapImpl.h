@@ -832,6 +832,7 @@ private:
 
     bool _privacy_enabled;
 #if BLE_FEATURE_PRIVACY
+    bool _privacy_initialization_pending = false;
 #if BLE_ROLE_PERIPHERAL
     peripheral_privacy_configuration_t _peripheral_privacy_configuration;
 #endif // BLE_ROLE_PERIPHERAL
