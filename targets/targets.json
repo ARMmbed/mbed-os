@@ -2853,6 +2853,23 @@
             "STM32H7A3xxQ"
         ]
     },
+    "NUCLEO_H7A3ZI_Q": {
+        "inherits": [
+            "MCU_STM32H7A3xIQ"
+        ],
+        "config": {
+            "hse_value": {
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "detect_code": [
+            "0860"
+        ]
+    },
     "MCU_STM32L0": {
         "inherits": [
             "MCU_STM32"
