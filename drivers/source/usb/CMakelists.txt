@@ -3,6 +3,8 @@
 
 # This is specific driver for mbed-os-usb, it is not part of mbed-os target.
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-usb OBJECT)
 
 target_include_directories(mbed-os-usb
@@ -32,4 +34,4 @@ target_sources(mbed-os-usb
         USBSerial.cpp
 )
 
-target_link_libraries(mbed-os-usb mbed-os-storage mbed-os)
+mbed_link_component(mbed-os-usb mbed-os-storage mbed-os)

@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-events OBJECT)
 
 target_include_directories(mbed-os-events
@@ -20,4 +22,4 @@ target_sources(mbed-os-events
         source/mbed_shared_queues.cpp
 )
 
-target_link_libraries(mbed-os-events mbed-os)
+mbed_link_component(mbed-os-events mbed-os)

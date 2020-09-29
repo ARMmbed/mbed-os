@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-storage-dataflash OBJECT)
 
 target_sources(mbed-os-storage-dataflash
@@ -14,4 +16,4 @@ target_include_directories(mbed-os-storage-dataflash
         include/DataFlash
 )
 
-target_link_libraries(mbed-os-storage-dataflash mbed-os-storage mbed-os)
+mbed_link_component(mbed-os-storage-dataflash mbed-os-storage mbed-os)

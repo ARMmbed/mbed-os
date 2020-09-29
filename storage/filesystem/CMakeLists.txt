@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_subdirectory(fat)
 add_subdirectory(littlefs)
 add_subdirectory(littlefsv2)
@@ -19,4 +21,4 @@ target_sources(mbed-os-storage
         source/FileSystem.cpp
 )
 
-target_link_libraries(mbed-os-storage mbed-os-littlefs-v2 mbed-os)
+mbed_link_component(mbed-os-storage mbed-os-littlefs-v2 mbed-os)

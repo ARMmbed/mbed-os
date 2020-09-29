@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-cellular OBJECT)
 
 add_subdirectory(source/framework)
@@ -22,4 +24,4 @@ target_compile_definitions(mbed-os-cellular
         MBED_CONF_CELLULAR_PRESENT=1
 )
 
-target_link_libraries(mbed-os-cellular mbed-os-nanostack-libservice mbed-os-netsockets mbed-os)
+mbed_link_component(mbed-os-cellular mbed-os-nanostack-libservice mbed-os-netsockets mbed-os)

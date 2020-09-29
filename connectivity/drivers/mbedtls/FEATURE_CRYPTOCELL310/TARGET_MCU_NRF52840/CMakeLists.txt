@@ -13,7 +13,7 @@ function(_mbed_get_libcc_310_ext)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIBCC_310_EXT TOOLCHAIN_IAR/lib_cc310_ext.a)
     endif()
-    target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840
+    mbed_link_component(mbed-os-mbedtls-cryptocell310-nrf52840
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
     )
@@ -27,7 +27,7 @@ function(_mbed_get_libcc_310_trng)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIBCC_310_TRNG TOOLCHAIN_IAR/lib_cc310_trng.a)
     endif()
-    target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840
+    mbed_link_component(mbed-os-mbedtls-cryptocell310-nrf52840
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
     )
