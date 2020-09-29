@@ -538,6 +538,14 @@ public:
         )
         {
         }
+
+        /**
+         * Function invoked when the privacy subsystem has been enabled and is
+         * ready to be used.
+         */
+        virtual void onPrivacyEnabled()
+        {
+        }
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
@@ -1243,6 +1251,14 @@ public:
      * including active scanning. Addresses present in advertisement packet are
      * resolved and advertisement packets are forwarded to the application
      * even if the advertiser private address is unknown.
+     *
+     * @par Initialization of the privacy subsystem
+     *
+     * When privacy is enabled, the system generates new resolvable and non
+     * resolvable private addresses. Scan, Advertising and Connecting to a peer
+     * won't be available until the generation process completes. When addresses
+     * have been generated, the application is notified that privacy
+     * initialisation as completed with a call to EventHandler::onPrivacyEnabled .
      *
      * @param[in] enable Should be set to true to enable the privacy mode and
      * false to disable it.
