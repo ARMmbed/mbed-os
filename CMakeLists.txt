@@ -82,16 +82,15 @@ target_include_directories(mbed-os
 
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
-add_subdirectory(events)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(rtos)
 add_subdirectory(targets)
+add_subdirectory(events EXCLUDE_FROM_ALL)
 
 # The directories below contain optional target libraries
 add_subdirectory(connectivity EXCLUDE_FROM_ALL)
 add_subdirectory(storage EXCLUDE_FROM_ALL)
-
 add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
 add_subdirectory(drivers/source/usb EXCLUDE_FROM_ALL)
 add_subdirectory(features EXCLUDE_FROM_ALL)
