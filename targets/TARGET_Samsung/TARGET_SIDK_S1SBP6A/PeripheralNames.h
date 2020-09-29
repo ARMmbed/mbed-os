@@ -66,17 +66,17 @@ typedef enum {
 #define _UART_NAME(a, b)    _UART_NAME_(a, b)
 
 #ifndef UART_STDIO_PORT
-#define STDIO_UART_TX     UART_TX0
-#define STDIO_UART_RX     UART_RX0
-#define STDIO_UART        UART_0
+#define STDIO_UART_TX     UART2_TX
+#define STDIO_UART_RX     UART2_RX
+#define STDIO_UART        UART_2
 #else
 #define STDIO_UART_TX _UART_NAME(UART_TX, UART_STDIO_PORT)
 #define STDIO_UART_RX _UART_NAME(UART_RX, UART_STDIO_PORT)
 #define STDIO_UART _UART_NAME(UART_, UART_STDIO_PORT)
 #endif
 
-#define USBTX   UART_TX0
-#define USBRX   UART_RX0
+#define USBTX   UART2_TX
+#define USBRX   UART2_RX
 
 #ifdef __cplusplus
 }
