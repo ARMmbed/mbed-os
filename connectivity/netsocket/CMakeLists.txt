@@ -47,4 +47,8 @@ target_compile_definitions(mbed-os-netsocket
         MBED_CONF_CMAKE_NETSOCKET_ENABLED=1
 )
 
-target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os-events)
+target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os-lwipstack mbed-os-events)
+
+if(TARGET_Freescale_EMAC IN_LIST MBED_TARGET_DEFINITIONS)
+    target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-emac-kinetis)
+endif()

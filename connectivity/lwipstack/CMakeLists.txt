@@ -94,4 +94,4 @@ target_compile_definitions(mbed-os-lwipstack
         MBED_CONF_LWIPSTACK_PRESENT=1
 )
 
-target_link_libraries(mbed-os-lwipstack INTERFACE mbed-os-netsocket)
+target_link_libraries(mbed-os-lwipstack INTERFACE mbed-os-netsocket mbed-os-ppp mbed-os-randlib)
