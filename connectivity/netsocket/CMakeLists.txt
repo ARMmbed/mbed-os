@@ -10,14 +10,10 @@ target_include_directories(mbed-os-netsocket
         ${CMAKE_CURRENT_SOURCE_DIR}/include/netsocket
 )
 
-get_property(_internal_components_enabled GLOBAL PROPERTY mbed-os-internal-components-enabled)
-if(mbed-os-cellular IN_LIST _internal_components_enabled)
-target_sources(mbed-os-netsocket
+target_sources(mbed-os-cellular
     INTERFACE
         source/CellularNonIPSocket.cpp
 )
-
-endif()
 
 target_sources(mbed-os-netsocket
     INTERFACE
