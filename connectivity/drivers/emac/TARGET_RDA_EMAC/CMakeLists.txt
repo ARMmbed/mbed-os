@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-emac-rda5981x OBJECT)
 
 add_subdirectory(lwip-wifi)
@@ -18,4 +16,4 @@ target_sources(mbed-os-emac-rda5981x
         rda5981x_emac.cpp
 )
 
-mbed_link_component(mbed-os-emac-rda5981x mbed-os-netsocket mbed-os)
+target_link_libraries(mbed-os-emac-rda5981x mbed-os-netsocket mbed-os)

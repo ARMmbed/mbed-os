@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-nfc
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-os-nfc
-    PRIVATE
+    INTERFACE
         transceiver.c
 )

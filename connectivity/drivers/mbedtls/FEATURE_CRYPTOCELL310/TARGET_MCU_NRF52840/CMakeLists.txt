@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-mbedtls-cryptocell310-nrf52840 OBJECT)
 
 function(_mbed_get_libcc_310_ext)
@@ -13,7 +11,7 @@ function(_mbed_get_libcc_310_ext)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIBCC_310_EXT TOOLCHAIN_IAR/lib_cc310_ext.a)
     endif()
-    mbed_link_component(mbed-os-mbedtls-cryptocell310-nrf52840
+    target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
     )
@@ -27,7 +25,7 @@ function(_mbed_get_libcc_310_trng)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIBCC_310_TRNG TOOLCHAIN_IAR/lib_cc310_trng.a)
     endif()
-    mbed_link_component(mbed-os-mbedtls-cryptocell310-nrf52840
+    target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
     )
@@ -46,4 +44,4 @@ target_sources(mbed-os-mbedtls-cryptocell310-nrf52840
         crypto_device_platform.c
 )
 
-mbed_link_component(mbed-os-mbedtls-cryptocell310-nrf52840 mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840 mbed-os-mbedtls)

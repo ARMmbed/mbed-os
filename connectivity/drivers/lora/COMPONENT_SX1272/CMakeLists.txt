@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-lorawan-sx1272 OBJECT)
 
 target_include_directories(mbed-os-lorawan-sx1272
@@ -16,4 +14,4 @@ target_sources(mbed-os-lorawan-sx1272
         SX1272_LoRaRadio.cpp
 )
 
-mbed_link_component(mbed-os-lorawan-sx1272 mbed-os-lorawan mbed-os)
+target_link_libraries(mbed-os-lorawan-sx1272 mbed-os-lorawan mbed-os)

@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-mbedtls-cypress-mxcrypto OBJECT)
 
 mbed_add_cmake_directory_if_labels("TARGET")
@@ -24,4 +22,4 @@ target_sources(mbed-os-mbedtls-cypress-mxcrypto
         sha512_alt.c
 )
 
-mbed_link_component(mbed-os-mbedtls-cypress-mxcrypto mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-cypress-mxcrypto mbed-os-mbedtls)

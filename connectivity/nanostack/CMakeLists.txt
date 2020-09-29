@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-nanostack OBJECT)
 
 add_subdirectory(coap-service)
@@ -28,4 +26,4 @@ target_compile_definitions(mbed-os-nanostack
         MBED_CONF_NANOSTACK_PRESENT=1
 )
 
-mbed_link_component(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)
+target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)

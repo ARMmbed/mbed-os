@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-mbedtls-sl OBJECT)
 
 target_include_directories(mbed-os-mbedtls-sl
@@ -19,4 +17,4 @@ target_sources(mbed-os-mbedtls-sl
         crypto_sha.c
 )
 
-mbed_link_component(mbed-os-mbedtls-sl mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-sl mbed-os-mbedtls)

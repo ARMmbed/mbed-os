@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-mbedtls-cryptocell310 OBJECT)
 
 mbed_add_cmake_directory_if_labels("TARGET")
@@ -30,4 +28,4 @@ target_sources(mbed-os-mbedtls-cryptocell310
         source/trng.c
 )
 
-mbed_link_component(mbed-os-mbedtls-cryptocell310 mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-cryptocell310 mbed-os-mbedtls)

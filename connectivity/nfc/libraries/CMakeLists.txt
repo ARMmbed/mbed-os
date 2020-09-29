@@ -5,6 +5,6 @@ add_subdirectory(acore)
 add_subdirectory(stack)
 
 target_include_directories(mbed-os-nfc
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

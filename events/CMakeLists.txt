@@ -1,12 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
-add_library(mbed-os-events OBJECT)
+add_library(mbed-os-events INTERFACE)
 
 target_include_directories(mbed-os-events
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/events
@@ -14,7 +12,7 @@ target_include_directories(mbed-os-events
 )
 
 target_sources(mbed-os-events
-    PRIVATE
+    INTERFACE
         source/EventQueue.cpp
         source/equeue.c
         source/equeue_mbed.cpp
@@ -22,4 +20,9 @@ target_sources(mbed-os-events
         source/mbed_shared_queues.cpp
 )
 
-mbed_link_component(mbed-os-events mbed-os)
+target_compile_definitions(mbed-os-events
+    INTERFACE
+        MBED_CONF_EVENTS_PRESENT=1
+)
+
+target_link_libraries(mbed-os-events INTERFACE mbed-os)

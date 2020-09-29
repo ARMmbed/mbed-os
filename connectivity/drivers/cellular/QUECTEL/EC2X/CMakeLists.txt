@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-cellular-quectel-ec2x OBJECT)
 
 target_include_directories(mbed-os-cellular-quectel-ec2x
@@ -15,4 +13,4 @@ target_sources(mbed-os-cellular-quectel-ec2x
         QUECTEL_EC2X.cpp
 )
 
-mbed_link_component(mbed-os-cellular-quectel-ec2x mbed-os-cellular mbed-os)
+target_link_libraries(mbed-os-cellular-quectel-ec2x mbed-os-cellular mbed-os)

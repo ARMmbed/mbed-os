@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-mbedtls-samsung OBJECT)
 
 target_include_directories(mbed-os-mbedtls-samsung
@@ -17,4 +15,4 @@ target_sources(mbed-os-mbedtls-samsung
         sha/sha512_alt.c
 )
 
-mbed_link_component(mbed-os-mbedtls-samsung mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-samsung mbed-os-mbedtls)

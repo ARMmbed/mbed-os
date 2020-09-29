@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
 add_library(mbed-os-storage OBJECT)
 
 add_subdirectory(blockdevice)
@@ -20,4 +18,4 @@ target_compile_definitions(mbed-os-storage
         MBED_CONF_STORAGE_PRESENT=1
 )
 
-mbed_link_component(mbed-os-storage mbed-os)
+target_link_libraries(mbed-os-storage mbed-os)

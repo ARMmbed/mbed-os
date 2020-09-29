@@ -1,14 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include(${MBED_ROOT}/tools/cmake/components.cmake)
-
-add_library(mbed-os-nfc OBJECT)
+add_library(mbed-os-nfc INTERFACE)
 
 add_subdirectory(libraries)
 
 target_include_directories(mbed-os-nfc
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc
@@ -17,7 +15,7 @@ target_include_directories(mbed-os-nfc
 )
 
 target_sources(mbed-os-nfc
-    PRIVATE
+    INTERFACE
         source/NFCController.cpp
         source/NFCControllerDriver.cpp
         source/NFCEEPROM.cpp
@@ -40,8 +38,8 @@ target_sources(mbed-os-nfc
 )
 
 target_compile_definitions(mbed-os-nfc
-    PUBLIC
+    INTERFACE
         MBED_CONF_NFC_PRESENT=1
 )
 
-mbed_link_component(mbed-os-nfc mbed-os-events mbed-os)
+target_link_libraries(mbed-os-nfc INTERFACE mbed-os-events mbed-os)
