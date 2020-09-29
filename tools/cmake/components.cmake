@@ -20,12 +20,14 @@ function(mbed_link_component component_target)
         endif()
     endforeach()
     set_property(GLOBAL PROPERTY _MBED_COMPONENTS_ENABLED ${enabled_components})
+
+    message(DEBUG "Mbed OS component: " "${component_target}" " enabling components: " "${ARGN}")
     # link with all arguments provided
     target_link_libraries(${component_target} ${ARGN})
 endfunction()
 
 function(mbed_link_application application_target)
     get_property(enabled_components GLOBAL PROPERTY _MBED_COMPONENTS_ENABLED)
-    message("linking: " ${enabled_components})
+    message(DEBUG "Linking Mbed OS components: " "${enabled_components}")
     target_link_libraries(${application_target} ${enabled_components} ${ARGN} mbed-os)
 endfunction()
