@@ -110,17 +110,23 @@ The rest of the tree is formed by components.
 Each component creates a new CMake library and adds includes/sources:
 
 ```
-add_library(mbed-os-nanostack OBJECT)
+add_library(mbed-os-nanostack INTERFACE)
 
-target_include_directories(mbed-os-nanostack ...)
+target_include_directories(mbed-os-nanostack 
+    INTERFACE
+        include
+)
 
-target_sources(mbed-os-nanostack ...)
+target_sources(mbed-os-nanostack 
+    INTERFACE
+        file.c
+)
 ```
 
 If there are dependencies for a component, use `target_link_libraries`. For instance, nanostack depends on 4 other components:
 
 ```
-target_link_libraries(mbed-os-nanostack mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap mbed-os)
+target_link_libraries(mbed-os-nanostack INTERFACE mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap)
 ```
 
 An application just links to what is required:
