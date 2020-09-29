@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-mbedtls-cypress-mxcrypto OBJECT)
+add_library(mbed-os-mbedtls-cypress-mxcrypto INTERFACE)
 
 mbed_add_cmake_directory_if_labels("TARGET")
 
 target_include_directories(mbed-os-mbedtls-cypress-mxcrypto
-	PUBLIC
+	INTERFACE
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-os-mbedtls-cypress-mxcrypto
-    PRIVATE
+    INTERFACE
         aes_alt.c
         crypto_common.c
         ecdsa_alt.c
@@ -22,4 +22,4 @@ target_sources(mbed-os-mbedtls-cypress-mxcrypto
         sha512_alt.c
 )
 
-target_link_libraries(mbed-os-mbedtls-cypress-mxcrypto mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-cypress-mxcrypto INTERFACE mbed-os-mbedtls)

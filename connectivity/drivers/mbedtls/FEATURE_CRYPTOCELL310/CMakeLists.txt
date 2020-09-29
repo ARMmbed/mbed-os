@@ -1,13 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-mbedtls-cryptocell310 OBJECT)
+add_library(mbed-os-mbedtls-cryptocell310 INTERFACE)
 
 mbed_add_cmake_directory_if_labels("TARGET")
 add_subdirectory(binaries)
 
 target_include_directories(mbed-os-mbedtls-cryptocell310
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310
@@ -15,7 +15,7 @@ target_include_directories(mbed-os-mbedtls-cryptocell310
 )
 
 target_sources(mbed-os-mbedtls-cryptocell310
-    PRIVATE
+    INTERFACE
         source/aes_alt.c
         source/cc_internal.c
         source/ccm_alt.c
@@ -28,4 +28,4 @@ target_sources(mbed-os-mbedtls-cryptocell310
         source/trng.c
 )
 
-target_link_libraries(mbed-os-mbedtls-cryptocell310 mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-cryptocell310 INTERFACE mbed-os-mbedtls)

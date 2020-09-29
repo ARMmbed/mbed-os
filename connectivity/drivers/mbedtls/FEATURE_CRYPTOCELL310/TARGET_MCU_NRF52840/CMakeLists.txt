@@ -12,7 +12,7 @@ function(_mbed_get_libcc_310_ext)
         set(LIBCC_310_EXT TOOLCHAIN_IAR/lib_cc310_ext.a)
     endif()
     target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840
-        PUBLIC
+        INTERFACE
             ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
     )
 endfunction()
@@ -26,7 +26,7 @@ function(_mbed_get_libcc_310_trng)
         set(LIBCC_310_TRNG TOOLCHAIN_IAR/lib_cc310_trng.a)
     endif()
     target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840
-        PUBLIC
+        INTERFACE
             ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
     )
 endfunction()
@@ -35,13 +35,13 @@ _mbed_get_libcc_310_ext()
 _mbed_get_libcc_310_trng()
 
 target_include_directories(mbed-os-mbedtls-cryptocell310-nrf52840
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-os-mbedtls-cryptocell310-nrf52840
-    PRIVATE
+    INTERFACE
         crypto_device_platform.c
 )
 
-target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840 mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-cryptocell310-nrf52840 INTERFACE mbed-os-mbedtls)

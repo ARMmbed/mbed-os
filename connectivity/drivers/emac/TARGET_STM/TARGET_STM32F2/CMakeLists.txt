@@ -4,11 +4,11 @@
 mbed_add_cmake_directory_if_labels("TARGET")
 
 target_include_directories(mbed-os-emac-stm32xx
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-os-emac-stm32xx
-    PRIVATE
+    INTERFACE
         stm32f2_eth_conf.c
 )

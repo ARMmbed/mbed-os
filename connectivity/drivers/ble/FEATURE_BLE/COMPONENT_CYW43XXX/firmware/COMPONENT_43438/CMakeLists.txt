@@ -1,9 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-ble-cyw43438 OBJECT)
+add_library(mbed-os-ble-cyw43438 INTERFACE)
 
 target_sources(mbed-os-ble-cyw43438
-    PRIVATE
+    INTERFACE
         w_bt_firmware_controller.c
 )

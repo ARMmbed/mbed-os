@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-os-emac-lpc546xx
-    PRIVATE
+    INTERFACE
         hardware_init_LPC546XX.c
 )

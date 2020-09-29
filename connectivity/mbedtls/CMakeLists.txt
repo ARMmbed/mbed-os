@@ -1,10 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-mbedtls OBJECT)
+add_library(mbed-os-mbedtls INTERFACE)
 
 target_include_directories(mbed-os-mbedtls
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/mbedtls
@@ -13,7 +13,7 @@ target_include_directories(mbed-os-mbedtls
 )
 
 target_sources(mbed-os-mbedtls
-    PRIVATE
+    INTERFACE
         platform/src/mbed_trng.cpp
         platform/src/platform_alt.cpp
         platform/src/shared_rng.cpp
@@ -101,8 +101,6 @@ target_sources(mbed-os-mbedtls
 )
 
 target_compile_definitions(mbed-os-mbedtls
-    PUBLIC
+    INTERFACE
         MBED_CONF_MBEDTLS_PRESENT=1
 )
-
-target_link_libraries(mbed-os-mbedtls mbed-os)

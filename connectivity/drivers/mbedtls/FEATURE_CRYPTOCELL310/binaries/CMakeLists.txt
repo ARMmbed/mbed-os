@@ -10,7 +10,7 @@ function(_mbed_get_libcc_310_core)
         set(LIBCC_310_CORE TOOLCHAIN_IAR/lib_cc310_ext.a)
     endif()
     target_link_libraries(mbed-os-mbedtls-cryptocell310
-        PUBLIC
+        INTERFACE
             ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_CORE}
     )
 endfunction()

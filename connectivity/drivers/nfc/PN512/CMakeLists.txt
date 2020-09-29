@@ -1,10 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-nfc-pn512 OBJECT)
+add_library(mbed-os-nfc-pn512 INTERFACE)
 
 target_include_directories(mbed-os-nfc-pn512
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc
         ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc/controllers
@@ -13,7 +13,7 @@ target_include_directories(mbed-os-nfc-pn512
 )
 
 target_sources(mbed-os-nfc-pn512
-    PRIVATE
+    INTERFACE
         source/PN512Driver.cpp
         source/PN512SPITransportDriver.cpp
         source/PN512TransportDriver.cpp
@@ -29,4 +29,4 @@ target_sources(mbed-os-nfc-pn512
         source/transceiver/pn512_transceive.c
 )
 
-target_link_libraries(mbed-os-nfc-pn512 mbed-os mbed-os-nfc)
+target_link_libraries(mbed-os-nfc-pn512 INTERFACE mbed-os-nfc)

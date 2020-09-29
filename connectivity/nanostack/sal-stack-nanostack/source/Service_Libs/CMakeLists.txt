@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-nanostack
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/Neighbor_cache
         ${CMAKE_CURRENT_SOURCE_DIR}/Trickle
@@ -35,7 +35,7 @@ target_include_directories(mbed-os-nanostack
 )
 
 target_sources(mbed-os-nanostack
-    PRIVATE
+    INTERFACE
         CCM_lib/ccm_security.c
 
         CCM_lib/mbedOS/aes_mbedtls_adapter.c

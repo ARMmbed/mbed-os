@@ -20,7 +20,7 @@ add_subdirectory(source/libDHCPv6)
 add_subdirectory(source/libNET)
 
 target_include_directories(mbed-os-nanostack
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/nanostack
         ${CMAKE_CURRENT_SOURCE_DIR}/nanostack/platform

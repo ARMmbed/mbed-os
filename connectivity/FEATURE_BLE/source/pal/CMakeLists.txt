@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-ble
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-os-ble
-    PRIVATE
+    INTERFACE
         PalAttClientToGattClient.cpp
 )

@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-os-ble
-    PRIVATE
+    INTERFACE
         DiscoveredCharacteristic.cpp
 )

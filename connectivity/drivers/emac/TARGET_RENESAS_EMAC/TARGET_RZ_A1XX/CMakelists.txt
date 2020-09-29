@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-emac-rza
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-os-emac-rza
-    PRIVATE
+    INTERFACE
         rza1_emac.cpp
         rza1_eth.cpp
 )
 
-target_link_libraries(mbed-os-emac-rza mbed-os-netsocket mbed-os)
+target_link_libraries(mbed-os-emac-rza INTERFACE mbed-os-netsocket)

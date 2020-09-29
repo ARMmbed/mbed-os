@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-os-ble
-    PRIVATE
+    INTERFACE
         AdvertisingDataBuilder.cpp
         AdvertisingParameters.cpp
         ConnectionParameters.cpp

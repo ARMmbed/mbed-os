@@ -4,13 +4,13 @@
 add_library(mbed-os-emac-lan91c111 OBJECT)
 
 target_include_directories(mbed-os-emac-lan91c111
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-os-emac-lan91c111
-    PRIVATE
+    INTERFACE
         fvp_emac.cpp
 )
 
-target_link_libraries(mbed-os-emac-lan91c111 mbed-os-netsocket mbed-os)
+target_link_libraries(mbed-os-emac-lan91c111 INTERFACE mbed-os-netsocket)

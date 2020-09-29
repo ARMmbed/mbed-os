@@ -5,4 +5,4 @@ add_library(mbed-os-ble-nordic-cordio OBJECT)
 
 mbed_add_cmake_directory_if_labels("TARGET")
 
-target_link_libraries(mbed-os-ble-nordic-cordio mbed-os-ble mbed-os)
+target_link_libraries(mbed-os-ble-nordic-cordio INTERFACE mbed-os-ble)

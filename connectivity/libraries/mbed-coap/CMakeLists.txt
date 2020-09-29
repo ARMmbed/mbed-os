@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-coap OBJECT)
+add_library(mbed-os-coap INTERFACE)
 
 target_include_directories(mbed-os-coap
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-coap
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include
 )
 
 target_sources(mbed-os-coap
-    PRIVATE
+    INTERFACE
         source/sn_coap_builder.c
         source/sn_coap_header_check.c
         source/sn_coap_parser.c
@@ -19,8 +19,8 @@ target_sources(mbed-os-coap
 )
 
 target_compile_definitions(mbed-os-coap
-    PUBLIC
+    INTERFACE
         MBED_CONF_COAP_PRESENT=1
 )
 
-target_link_libraries(mbed-os-coap mbed-os-nanostack-libservice mbed-os)
+target_link_libraries(mbed-os-coap INTERFACE mbed-os-nanostack-libservice)

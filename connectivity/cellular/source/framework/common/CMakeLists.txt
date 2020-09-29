@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-os-cellular
-    PRIVATE
+    INTERFACE
         APN_db.cpp
         CellularLog.cpp
         CellularUtil.cpp

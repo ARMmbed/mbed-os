@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-mbedtls-nuvoton
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/aes
         ${CMAKE_CURRENT_SOURCE_DIR}/des
@@ -10,7 +10,7 @@ target_include_directories(mbed-os-mbedtls-nuvoton
 )
 
 target_sources(mbed-os-mbedtls-nuvoton
-    PRIVATE
+    INTERFACE
         aes/aes_alt.c
 
         des/des_alt.c

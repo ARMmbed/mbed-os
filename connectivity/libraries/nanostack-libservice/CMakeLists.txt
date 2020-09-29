@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-nanostack-libservice OBJECT)
+add_library(mbed-os-nanostack-libservice INTERFACE)
 
 target_sources(mbed-os-nanostack-libservice
-    PRIVATE
+    INTERFACE
         source/IPv6_fcf_lib/ip_fsc.c
         source/libBits/common_functions.c
         source/libList/ns_list.c
@@ -15,13 +15,13 @@ target_sources(mbed-os-nanostack-libservice
         source/nvmHelper/ns_nvm_helper.c
 )
 target_include_directories(mbed-os-nanostack-libservice
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice/platform
 )
 
 target_compile_definitions(mbed-os-nanostack-libservice
-    PUBLIC
+    INTERFACE
         MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT=1
 )

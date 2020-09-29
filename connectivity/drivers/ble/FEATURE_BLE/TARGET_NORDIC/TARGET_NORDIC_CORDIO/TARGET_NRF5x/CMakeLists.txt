@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-ble-nordic-cordio
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/stack/include
 )
 
 target_sources(mbed-os-ble-nordic-cordio
-    PRIVATE
+    INTERFACE
         NRFCordioHCIDriver.cpp
         NRFCordioHCITransportDriver.cpp
 

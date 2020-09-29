@@ -1,12 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-mbedtls-stm OBJECT)
+add_library(mbed-os-mbedtls-stm INTERFACE)
 
 mbed_add_cmake_directory_if_labels("TARGET")
 
 target_sources(mbed-os-mbedtls-stm
-    PRIVATE
+    INTERFACE
         aes_alt.cpp
         aes_alt_stm32l4.c
         ccm_alt.cpp
@@ -19,8 +19,8 @@ target_sources(mbed-os-mbedtls-stm
 )
 
 target_include_directories(mbed-os-mbedtls-stm
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(mbed-os-mbedtls-stm mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-stm INTERFACE mbed-os-mbedtls)

@@ -8,7 +8,7 @@ add_subdirectory(generic)
 add_subdirectory(pal)
 
 target_sources(mbed-os-ble
-    PRIVATE
+    INTERFACE
         BLE.cpp
         Gap.cpp
         GattClient.cpp

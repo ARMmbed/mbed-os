@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-nanostack
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/Common
         ${CMAKE_CURRENT_SOURCE_DIR}/PANA
@@ -19,7 +19,7 @@ target_include_directories(mbed-os-nanostack
 )
 
 target_sources(mbed-os-nanostack
-    PRIVATE
+    INTERFACE
         Common/security_lib.c
 
         PANA/eap_protocol.c

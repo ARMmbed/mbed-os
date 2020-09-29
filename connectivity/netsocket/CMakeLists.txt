@@ -1,10 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-netsocket OBJECT)
+add_library(mbed-os-netsocket INTERFACE)
 
 target_include_directories(mbed-os-netsocket
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/netsocket
@@ -13,14 +13,14 @@ target_include_directories(mbed-os-netsocket
 get_property(_internal_components_enabled GLOBAL PROPERTY mbed-os-internal-components-enabled)
 if(mbed-os-cellular IN_LIST _internal_components_enabled)
 target_sources(mbed-os-netsocket
-    PRIVATE
+    INTERFACE
         source/CellularNonIPSocket.cpp
 )
 
 endif()
 
 target_sources(mbed-os-netsocket
-    PRIVATE
+    INTERFACE
         source/DTLSSocket.cpp
         source/DTLSSocketWrapper.cpp
         source/EMACInterface.cpp
@@ -46,8 +46,8 @@ target_sources(mbed-os-netsocket
 )
 
 target_compile_definitions(mbed-os-netsocket
-    PUBLIC
+    INTERFACE
         MBED_CONF_NETSOCKET_PRESENT=1
 )
 
-target_link_libraries(mbed-os-netsocket mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os)
+target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-nanostack-libservice mbed-os-mbedtls)

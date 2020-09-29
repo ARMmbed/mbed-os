@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-ble-cordio
-    PUBLIC
+    INTERFACE
         .
         source
         stack_adaptation
 )
 
 target_sources(mbed-os-ble
-    PRIVATE
+    INTERFACE
         driver/CordioHCIDriver.cpp
         driver/CordioHCITransportDriver.cpp
         driver/H4TransportDriver.cpp

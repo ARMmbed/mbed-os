@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-lorawan
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mac
         ${CMAKE_CURRENT_SOURCE_DIR}/phy
 )
 
 target_sources(mbed-os-lorawan
-    PRIVATE
+    INTERFACE
         mac/LoRaMac.cpp
         mac/LoRaMacChannelPlan.cpp
         mac/LoRaMacCommand.cpp

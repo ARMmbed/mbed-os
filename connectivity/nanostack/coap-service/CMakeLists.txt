@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-nanostack
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/coap-service
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include
 )
 
 target_sources(mbed-os-nanostack
-    PRIVATE
+    INTERFACE
         source/coap_connection_handler.c
         source/coap_message_handler.c
         source/coap_security_handler.c

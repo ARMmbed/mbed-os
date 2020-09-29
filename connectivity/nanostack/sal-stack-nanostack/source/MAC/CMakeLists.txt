@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-os-nanostack
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/IEEE802_15_4
         ${CMAKE_CURRENT_SOURCE_DIR}/virtual_rf
 )
 
 target_sources(mbed-os-nanostack
-    PRIVATE
+    INTERFACE
         rf_driver_storage.c
 
         IEEE802_15_4/mac_cca_threshold.c

@@ -1,10 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-lwipstack OBJECT)
+add_library(mbed-os-lwipstack INTERFACE)
 
 target_include_directories(mbed-os-lwipstack
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lwipstack
@@ -15,7 +15,7 @@ target_include_directories(mbed-os-lwipstack
 )
 
 target_sources(mbed-os-lwipstack
-    PRIVATE
+    INTERFACE
         lwip/src/api/lwip_api_lib.c
         lwip/src/api/lwip_api_msg.c
         lwip/src/api/lwip_err.c
@@ -90,8 +90,8 @@ target_sources(mbed-os-lwipstack
 )
 
 target_compile_definitions(mbed-os-lwipstack
-    PUBLIC
+    INTERFACE
         MBED_CONF_LWIPSTACK_PRESENT=1
 )
 
-target_link_libraries(mbed-os-lwipstack mbed-os-netsocket mbed-os)
+target_link_libraries(mbed-os-lwipstack INTERFACE mbed-os-netsocket)

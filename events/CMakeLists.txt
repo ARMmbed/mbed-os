@@ -24,5 +24,3 @@ target_compile_definitions(mbed-os-events
     INTERFACE
         MBED_CONF_EVENTS_PRESENT=1
 )
-
-target_link_libraries(mbed-os-events INTERFACE mbed-os)

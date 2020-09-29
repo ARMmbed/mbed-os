@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-os-emac-kinetis
-    PRIVATE
+    INTERFACE
         hardware_init_MK64F12.c
 )
