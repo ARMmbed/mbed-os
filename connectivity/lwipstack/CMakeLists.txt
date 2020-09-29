@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-lwipstack OBJECT)
 
 target_include_directories(mbed-os-lwipstack
@@ -94,4 +96,4 @@ target_compile_definitions(mbed-os-lwipstack
         MBED_CONF_LWIPSTACK_PRESENT=1
 )
 
-target_link_libraries(mbed-os-lwipstack mbed-os-netsockets mbed-os)
+mbed_link_component(mbed-os-lwipstack mbed-os-netsockets mbed-os)

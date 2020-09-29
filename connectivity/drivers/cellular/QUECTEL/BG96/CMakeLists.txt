@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-cellular-quectel-bg96 OBJECT)
 
 target_include_directories(mbed-os-cellular-quectel-bg96
@@ -17,3 +19,5 @@ target_sources(mbed-os-cellular-quectel-bg96
         QUECTEL_BG96_CellularStack.cpp
         QUECTEL_BG96_ControlPlane_netif.cpp
 )
+
+mbed_link_component(mbed-os-cellular-quectel-bg96 mbed-os-cellular mbed-os)

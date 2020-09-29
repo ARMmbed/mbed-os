@@ -3,7 +3,7 @@
 
 mbed_add_cmake_directory_if_labels("TARGET")
 
-target_include_directories(mbed-os-mbedtls
+target_include_directories(mbed-os-mbedtls-nuvoton
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/aes
@@ -11,7 +11,7 @@ target_include_directories(mbed-os-mbedtls
         ${CMAKE_CURRENT_SOURCE_DIR}/sha
 )
 
-target_sources(mbed-os-mbedtls
+target_sources(mbed-os-mbedtls-nuvoton
     PRIVATE
         aes/aes_alt.c
 

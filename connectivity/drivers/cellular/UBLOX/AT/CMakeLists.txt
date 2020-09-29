@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-cellular-ublox-at OBJECT)
 
 target_include_directories(mbed-os-cellular-ublox-at
@@ -15,3 +17,5 @@ target_sources(mbed-os-cellular-ublox-at
         UBLOX_AT_CellularNetwork.cpp
         UBLOX_AT_CellularStack.cpp
 )
+
+mbed_link_component(mbed-os-cellular-ublox-at mbed-os-cellular mbed-os)

@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-cellular-generic-at3gpp OBJECT)
 
 target_include_directories(mbed-os-cellular-generic-at3gpp
@@ -12,3 +14,5 @@ target_sources(mbed-os-cellular-generic-at3gpp
     PRIVATE
         GENERIC_AT3GPP.cpp
 )
+
+mbed_link_component(mbed-os-cellular-generic-at3gpp mbed-os-cellular mbed-os)

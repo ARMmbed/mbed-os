@@ -1,6 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+include(${MBED_ROOT}/tools/cmake/components.cmake)
+
 add_library(mbed-os-emac-whd OBJECT)
 
 target_include_directories(mbed-os-emac-whd
@@ -23,3 +25,5 @@ target_sources(mbed-os-emac-whd
         utils/cydhcp_server_debug.cpp
         utils/cynetwork_utils.c
 )
+
+mbed_link_component(mbed-os-emac-whd mbed-os-netsocket mbed-os)
