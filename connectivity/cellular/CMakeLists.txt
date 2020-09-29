@@ -24,4 +24,4 @@ target_compile_definitions(mbed-os-cellular
         MBED_CONF_CELLULAR_PRESENT=1
 )
 
-mbed_link_component(mbed-os-cellular mbed-os-nanostack-libservice mbed-os-netsockets mbed-os)
+mbed_link_component(mbed-os-cellular mbed-os-nanostack-libservice mbed-os-netsocket mbed-os)

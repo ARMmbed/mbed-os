@@ -96,4 +96,4 @@ target_compile_definitions(mbed-os-lwipstack
         MBED_CONF_LWIPSTACK_PRESENT=1
 )
 
-mbed_link_component(mbed-os-lwipstack mbed-os-netsockets mbed-os)
+mbed_link_component(mbed-os-lwipstack mbed-os-netsocket mbed-os)
