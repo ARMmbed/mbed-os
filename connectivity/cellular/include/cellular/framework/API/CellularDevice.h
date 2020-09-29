@@ -114,6 +114,8 @@ protected: //Virtual functions
      *  This method will broadcast to every interested classes:
      *  CellularContext (might be many) and CellularStateMachine if available.
      */
+    friend class RIL_CellularContext;
+
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
 
 public: //Pure virtual functions
