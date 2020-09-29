@@ -502,15 +502,15 @@ int spi_master_write(spi_t *obj, int value)
     }
 
     /* Transfer 1 byte. */
- #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
    nrfx_spim_xfer_desc_t desc = NRFX_SPIM_XFER_TRX(&tx_buff, 1, &rx_buff, 1);
- #elif NRFX_CHECK(NRFX_SPI_ENABLED)
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
    nrfx_spi_xfer_desc_t desc = NRFX_SPI_XFER_TRX(&tx_buff, 1, &rx_buff, 1);
 #endif
 
- #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
     ret = nrfx_spim_xfer(&nordic_nrf5_spim_instance[instance], &desc, 0);
- #elif NRFX_CHECK(NRFX_SPI_ENABLED)
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
     ret = nrfx_spi_xfer(&nordic_nrf5_spi_instance[instance], &desc, 0);
 #endif
 
