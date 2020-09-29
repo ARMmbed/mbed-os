@@ -31,11 +31,13 @@ PrivateAddressController::PrivateAddressController(
     _pal.initialize();
     _pal.set_event_handler(this);
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     auto** next = &_free_resolution_entries;
     for (auto &entry : _resolution_list) {
         *next = &entry;
         next = &entry.next;
     }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 }
 
 PrivateAddressController::~PrivateAddressController()
@@ -132,19 +134,30 @@ bool PrivateAddressController::is_controller_privacy_supported()
     return _pal.is_ll_privacy_supported();
 }
 
+#if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 ble_error_t PrivateAddressController::enable_controller_address_resolution(bool enable)
 {
     MBED_ASSERT(is_controller_privacy_supported());
     return _pal.set_ll_address_resolution(enable);
 }
+#endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 uint8_t PrivateAddressController::read_resolving_list_capacity()
 {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    return BLE_SECURITY_DATABASE_MAX_ENTRIES;
+#else
     if (is_controller_privacy_supported()) {
         return _pal.read_resolving_list_capacity();
     } else {
-        return RESOLVING_LIST_SIZE;
+        return 0;
     }
+#endif //BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+}
+
+uint8_t PrivateAddressController::read_resolving_list_size()
+{
+    return _resolving_list_size;
 }
 
 ble_error_t PrivateAddressController::add_device_to_resolving_list(
@@ -157,6 +170,48 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
         return BLE_ERROR_INVALID_STATE;
     }
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    // ensure an entry is not added twice
+    for (auto &entry : _resolving_list) {
+        if (entry.populated &&
+            entry.peer_address_type == peer_address_type &&
+            entry.peer_address == peer_identity_address &&
+            entry.peer_irk == peer_irk
+        ) {
+            return BLE_ERROR_NONE;
+        }
+    }
+
+    bool entry_added = false;
+    for (auto &entry : _resolving_list) {
+        if (entry.populated == false) {
+            entry.peer_address_type = peer_address_type;
+            entry.peer_address = peer_identity_address;
+            entry.peer_irk = peer_irk;
+            entry.populated = true;
+            entry_added = true;
+            _resolving_list_size++;
+            break;
+        }
+    }
+
+    if (!entry_added) {
+        return BLE_ERROR_NO_MEM;
+    }
+
+
+    // Remove unresolved entries from the resolved list
+    remove_resolution_entry_from_cache(
+        [&](resolution_entry_t &entry) {
+            return entry.identity == nullptr;
+        }
+    );
+
+    // reset pending resolution request
+    restart_resolution_process_on_host();
+
+    return BLE_ERROR_NO_MEM;
+#else
     if (is_controller_privacy_supported()) {
         return queue_add_device_to_resolving_list(
             peer_address_type,
@@ -164,46 +219,9 @@ ble_error_t PrivateAddressController::add_device_to_resolving_list(
             peer_irk
         );
     } else {
-        // ensure an entry is not added twice
-        for (auto &entry : _resolving_list) {
-            if (entry.populated &&
-                entry.peer_address_type == peer_address_type &&
-                entry.peer_address == peer_identity_address &&
-                entry.peer_irk == peer_irk
-            ) {
-                return BLE_ERROR_NONE;
-            }
-        }
-
-        bool entry_added = false;
-        for (auto &entry : _resolving_list) {
-            if (entry.populated == false) {
-                entry.peer_address_type = peer_address_type;
-                entry.peer_address = peer_identity_address;
-                entry.peer_irk = peer_irk;
-                entry.populated = true;
-                entry_added = true;
-                break;
-            }
-        }
-
-        if (!entry_added) {
-            return BLE_ERROR_NO_MEM;
-        }
-
-
-        // Remove unresolved entries from the resolved list
-        remove_resolution_entry_from_cache(
-            [&](resolution_entry_t &entry) {
-                return entry.identity == nullptr;
-            }
-        );
-
-        // reset pending resolution request
-        restart_resolution_process();
-
-        return BLE_ERROR_NO_MEM;
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 }
 
 ble_error_t PrivateAddressController::remove_device_from_resolving_list(
@@ -211,48 +229,60 @@ ble_error_t PrivateAddressController::remove_device_from_resolving_list(
     const address_t &peer_identity_address
 )
 {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    for (auto &entry : _resolving_list) {
+        if (entry.populated &&
+            entry.peer_address_type == peer_address_type &&
+            entry.peer_address == peer_identity_address
+        ) {
+            remove_resolution_entry_from_cache([&](resolution_entry_t& cache_entry) {
+                return cache_entry.identity == &entry;
+            });
+
+            entry.populated = false;
+            _resolving_list_size--;
+
+            restart_resolution_process_on_host();
+        }
+    }
+    return BLE_ERROR_NONE;
+#else
     if (is_controller_privacy_supported()) {
         return queue_remove_device_from_resolving_list(peer_address_type, peer_identity_address);
     } else {
-        for (auto &entry : _resolving_list) {
-            if (entry.populated &&
-                entry.peer_address_type == peer_address_type &&
-                entry.peer_address == peer_identity_address
-            ) {
-                remove_resolution_entry_from_cache([&](resolution_entry_t& cache_entry) {
-                    return cache_entry.identity == &entry;
-                });
-
-                entry.populated = false;
-
-                restart_resolution_process();
-            }
-        }
-        return BLE_ERROR_NONE;
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 }
 
 ble_error_t PrivateAddressController::clear_resolving_list()
 {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    // Remove entry from the resolving list
+    for (auto &entry : _resolving_list) {
+        entry.populated = false;
+    }
+    // Remove all resolved entries from the cache
+    remove_resolution_entry_from_cache([&](resolution_entry_t& entry) {
+        return entry.identity != nullptr;
+    });
+    _resolving_list_size = 0;
+
+    restart_resolution_process_on_host();
+
+    return BLE_ERROR_NONE;
+#else
     if (is_controller_privacy_supported()) {
         return queue_clear_resolving_list();
     } else {
-        // Remove entry from the resolving list
-        for (auto &entry : _resolving_list) {
-            entry.populated = false;
-        }
-        // Remove all resolved entries from the cache
-        remove_resolution_entry_from_cache([&](resolution_entry_t& entry) {
-            return entry.identity != nullptr;
-        });
-
-        restart_resolution_process();
-
-        return BLE_ERROR_NONE;
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 }
 
-bool PrivateAddressController::resolve_address_in_cache(
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
+bool PrivateAddressController::resolve_address_in_host_cache(
     const address_t &peer_address,
     target_peer_address_type_t *retrieved_address_type,
     const address_t **retrieved_address
@@ -287,27 +317,24 @@ bool PrivateAddressController::resolve_address_in_cache(
     return false;
 }
 
-ble_error_t PrivateAddressController::resolve_address(
+ble_error_t PrivateAddressController::resolve_address_on_host(
     const address_t &peer_address,
     bool *resolution_complete,
     target_peer_address_type_t *retrieved_address_type,
     const address_t **retrieved_address
 )
 {
-    if (is_controller_privacy_supported()) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    *resolution_complete = resolve_address_in_cache(peer_address, retrieved_address_type, retrieved_address);
+    *resolution_complete = resolve_address_in_host_cache(peer_address, retrieved_address_type, retrieved_address);
 
     // In the case the address has not been resolved, we start the resolution
     // process.
     if (*resolution_complete) {
         return BLE_ERROR_NONE;
     } else {
-        return queue_resolve_address(peer_address);
+        return queue_resolve_address_on_host(peer_address);
     }
 }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 void PrivateAddressController::on_resolving_list_action_complete()
 {
@@ -338,6 +365,7 @@ private:
     PrivacyControlBlock *_next;
 };
 
+#if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 struct PrivateAddressController::PrivacyAddDevToResListControlBlock final :
     PrivateAddressController::PrivacyControlBlock {
     PrivacyAddDevToResListControlBlock(
@@ -360,6 +388,7 @@ struct PrivateAddressController::PrivacyAddDevToResListControlBlock final :
             _peer_irk,
             self._local_irk
         );
+        self._resolving_list_size++;
         return false;
     }
 
@@ -408,6 +437,7 @@ struct PrivateAddressController::PrivacyRemoveDevFromResListControlBlock final :
             _peer_identity_address_type,
             _peer_identity_address
         );
+        self._resolving_list_size--;
         return false;
     }
 
@@ -444,6 +474,7 @@ struct PrivateAddressController::PrivacyClearResListControlBlock final :
     {
         // Execute command
         self._pal.clear_resolving_list();
+        self._resolving_list_size = 0;
         return false;
     }
 };
@@ -462,10 +493,12 @@ ble_error_t PrivateAddressController::queue_clear_resolving_list()
     queue_privacy_control_block(cb);
     return BLE_ERROR_NONE;
 }
+#endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
-struct PrivateAddressController::PrivacyResolveAddress final :
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+struct PrivateAddressController::PrivacyResolveAddressOnHost final :
     PrivateAddressController::PrivacyControlBlock {
-    PrivacyResolveAddress(const address_t &peer_address) :
+    PrivacyResolveAddressOnHost(const address_t &peer_address) :
         PrivacyControlBlock(),
         peer_address(peer_address)
     {
@@ -508,7 +541,7 @@ private:
     bool start_next_resolution_round(PrivateAddressController& self) {
         do {
             ++resolving_list_index;
-            if (resolving_list_index == RESOLVING_LIST_SIZE) {
+            if (resolving_list_index == BLE_SECURITY_DATABASE_MAX_ENTRIES) {
                 notify_completion(self, peer_address,false,nullptr);
                 return true;
             }
@@ -551,9 +584,9 @@ private:
     bool require_restart = false;
 };
 
-ble_error_t PrivateAddressController::queue_resolve_address(const address_t &peer_address)
+ble_error_t PrivateAddressController::queue_resolve_address_on_host(const address_t &peer_address)
 {
-    auto *cb = new(std::nothrow) PrivacyResolveAddress(peer_address);
+    auto *cb = new(std::nothrow) PrivacyResolveAddressOnHost(peer_address);
     if (cb == nullptr) {
         // Cannot go further
         return BLE_ERROR_NO_MEM;
@@ -566,27 +599,27 @@ ble_error_t PrivateAddressController::queue_resolve_address(const address_t &pee
     return BLE_ERROR_NONE;
 }
 
-void PrivateAddressController::restart_resolution_process()
+void PrivateAddressController::restart_resolution_process_on_host()
 {
     // if processing is active, restart the one running.
     if (_processing_privacy_control_block && _pending_privacy_control_blocks) {
-        static_cast<PrivacyResolveAddress*>(_pending_privacy_control_blocks)->invalidate();
+        static_cast<PrivacyResolveAddressOnHost*>(_pending_privacy_control_blocks)->invalidate();
     }
 }
 
 void PrivateAddressController::on_private_address_resolved(bool success)
 {
-    MBED_ASSERT(is_controller_privacy_supported() == false);
     if (_pending_privacy_control_blocks == nullptr ||
         _processing_privacy_control_block == false
         ) {
         return;
     }
 
-    auto* cb = static_cast<PrivacyResolveAddress*>(_pending_privacy_control_blocks);
+    auto* cb = static_cast<PrivacyResolveAddressOnHost*>(_pending_privacy_control_blocks);
     bool completed = cb->on_resolution_complete(*this, success);
     process_privacy_control_blocks(completed);
 }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 void PrivateAddressController::clear_privacy_control_blocks()
 {
@@ -649,6 +682,8 @@ void PrivateAddressController::process_privacy_control_blocks(bool cb_completed)
     _pending_privacy_control_blocks = cb;
 }
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
 template<typename Pred>
 void PrivateAddressController::remove_resolution_entry_from_cache(const Pred &predicate)
 {
@@ -700,5 +735,7 @@ void PrivateAddressController::add_resolution_entry_to_cache(
     entry->next = _resolved_list;
     _resolved_list = entry;
 }
+
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 } // namespace ble

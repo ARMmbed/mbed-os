@@ -455,8 +455,8 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
         NO_FILTER = 0x00,
 
         /**
-        * Accept only advertising packets from devices in the whitelist except
-        * directed advertising packets not addressed to this device.
+        * Accept only advertising packets from devices in the whitelist.
+        * Directed advertising packets not addressed to this device will be ignored.
         */
         FILTER_ADVERTISING = 0x01,
 

@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -193,6 +193,7 @@ bool PalPrivateAddressController::cordio_handler(const wsfMsgHdr_t *msg)
             return true;
         }
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
         case DM_PRIV_RESOLVED_ADDR_IND: {
             instance()._resolving_rpa = false;
 
@@ -203,6 +204,7 @@ bool PalPrivateAddressController::cordio_handler(const wsfMsgHdr_t *msg)
             handler->on_private_address_resolved(msg->status == HCI_SUCCESS);
             return true;
         }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
         case DM_PRIV_ADD_DEV_TO_RES_LIST_IND: // Device added to resolving list
         case DM_PRIV_REM_DEV_FROM_RES_LIST_IND: // Device removed from resolving list

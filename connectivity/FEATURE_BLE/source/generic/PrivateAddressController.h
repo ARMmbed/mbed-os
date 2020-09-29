@@ -52,7 +52,7 @@ public:
         virtual void on_non_resolvable_private_addresses_generated(
             const address_t &address
         ) = 0;
-
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
         /**
          * Called when address resolution has been completed by the host.
          *
@@ -73,6 +73,7 @@ public:
             target_peer_address_type_t identity_address_type,
             const address_t &identity_address
         ) = 0;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     };
 
     /**
@@ -139,15 +140,22 @@ public:
      */
     bool is_controller_privacy_supported();
 
+#if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     /**
      * Enable address resolution by the controller.
      */
     ble_error_t enable_controller_address_resolution(bool enable);
+#endif //!BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     /**
-     * Read the number of entry that can be put in the resolving list.
+     * Read the number of entries that can be put in the resolving list.
      */
     uint8_t read_resolving_list_capacity();
+
+    /**
+     * Read the number of entries that are in the resolving list.
+     */
+    uint8_t read_resolving_list_size();
 
     /**
      * Add a new peer to the resolving list.
@@ -178,6 +186,7 @@ public:
      */
     ble_error_t clear_resolving_list();
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     /**
      * Resolve a private resolvable address on the host.
      *
@@ -196,13 +205,12 @@ public:
      * input this will be set to null if the address has not been resolved with
      * the local irks or a pointer to the identity address if it has been resolved.
      */
-    ble_error_t resolve_address(
+    ble_error_t resolve_address_on_host(
         const address_t &peer_address,
         bool *resolution_complete,
         target_peer_address_type_t *retrieved_address_type,
         const address_t **retrieved_address
     );
-
     /**
      * Resolve a private address by looking in the cache.
      *
@@ -215,7 +223,7 @@ public:
      *
      * @return True if the address has been found in cache.
     */
-    bool resolve_address_in_cache(
+    bool resolve_address_in_host_cache(
         const address_t &peer_address,
         target_peer_address_type_t *retrieved_address_type,
         const address_t **retrieved_address
@@ -227,7 +235,8 @@ public:
      *
      * @param peer_address the address to resolve.
      */
-    ble_error_t queue_resolve_address(const address_t &peer_address);
+    ble_error_t queue_resolve_address_on_host(const address_t &peer_address);
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 private:
 
@@ -238,7 +247,9 @@ private:
     // EventHandler implementation
     void on_resolvable_private_address_generated(const address_t &rpa) final;
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     void on_private_address_resolved(bool success) final;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     void on_resolving_list_action_complete() final;
 
@@ -269,9 +280,11 @@ private:
     // Queue control block to clear resolving list
     ble_error_t queue_clear_resolving_list();
 
-    struct PrivacyResolveAddress;
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    struct PrivacyResolveAddressOnHost;
 
-    void restart_resolution_process();
+    void restart_resolution_process_on_host();
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     // Clear all control blocks
     void clear_privacy_control_blocks();
@@ -283,12 +296,14 @@ private:
     // cb_completed is set when the previous block has completed
     void process_privacy_control_blocks(bool cb_completed);
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    struct resolving_list_entry_t;
+
     template<typename Pred>
     void remove_resolution_entry_from_cache(const Pred& predicate);
 
-    struct resolving_list_entry_t;
-
     void add_resolution_entry_to_cache(const address_t& address, resolving_list_entry_t* identity);
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     PalPrivateAddressController &_pal;
     PalEventQueue &_event_queue;
@@ -303,6 +318,9 @@ private:
     PrivacyControlBlock *_pending_privacy_control_blocks = nullptr;
     bool _processing_privacy_control_block = false;
 
+    uint8_t _resolving_list_size = 0;
+
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     struct resolving_list_entry_t {
         address_t peer_address = {};
         irk_t  peer_irk = {};
@@ -310,10 +328,7 @@ private:
         bool populated = false;
     };
 
-    // FIXME: Use configuration
-    static const size_t RESOLVING_LIST_SIZE = 8;
-    resolving_list_entry_t _resolving_list[RESOLVING_LIST_SIZE];
-
+    resolving_list_entry_t _resolving_list[BLE_SECURITY_DATABASE_MAX_ENTRIES];
 
     struct resolution_entry_t {
         address_t address = address_t {};
@@ -321,11 +336,10 @@ private:
         resolving_list_entry_t *identity = nullptr;
     };
 
-    // FIXME: Use configuration
-    static const size_t RESOLVED_ADDRESS_CACHE_SIZE = 16;
-    resolution_entry_t _resolution_list[RESOLVED_ADDRESS_CACHE_SIZE];
+    resolution_entry_t _resolution_list[BLE_GAP_HOST_PRIVACY_RESOLVED_CACHE_SIZE];
     resolution_entry_t *_resolved_list = nullptr;
     resolution_entry_t *_free_resolution_entries = nullptr;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 };
 
 }
