@@ -9,14 +9,14 @@ add_subdirectory(COMPONENT_SD)
 add_subdirectory(COMPONENT_SPIF)
 
 target_include_directories(mbed-os-storage
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/blockdevice
 )
 
 target_sources(mbed-os-storage
-    PRIVATE
+    INTERFACE
         source/BufferedBlockDevice.cpp
         source/ChainingBlockDevice.cpp
         source/ExhaustibleBlockDevice.cpp

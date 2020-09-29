@@ -3,15 +3,15 @@
 
 # This is specific driver for mbed-os-usb, it is not part of mbed-os target.
 
-add_library(mbed-os-usb OBJECT)
+add_library(mbed-os-usb INTERFACE)
 
 target_include_directories(mbed-os-usb
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-os-usb
-    PRIVATE
+    INTERFACE
         AsyncOp.cpp
         ByteBuffer.cpp
         EndpointResolver.cpp
@@ -32,4 +32,4 @@ target_sources(mbed-os-usb
         USBSerial.cpp
 )
 
-target_link_libraries(mbed-os-usb mbed-os-storage mbed-os)
+target_link_libraries(mbed-os-usb INTERFACE mbed-os-storage)

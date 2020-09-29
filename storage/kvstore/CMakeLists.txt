@@ -6,14 +6,14 @@ add_subdirectory(kv_config)
 add_subdirectory(securestore)
 
 target_include_directories(mbed-os-storage
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/kvstore
 )
 
 target_sources(mbed-os-storage
-    PRIVATE
+    INTERFACE
         source/FileSystemStore.cpp
         source/KVMap.cpp
         source/TDBStore.cpp

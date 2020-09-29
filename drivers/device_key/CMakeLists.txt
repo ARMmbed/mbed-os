@@ -4,13 +4,13 @@
 # This is specific driver for mbed-os-storage, it is not part of mbed-os target.
 
 target_include_directories(mbed-os-storage
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/device_key
 )
 
 target_sources(mbed-os-storage
-    PRIVATE
+    INTERFACE
         source/DeviceKey.cpp
         ../source/SFDP.cpp
 )
