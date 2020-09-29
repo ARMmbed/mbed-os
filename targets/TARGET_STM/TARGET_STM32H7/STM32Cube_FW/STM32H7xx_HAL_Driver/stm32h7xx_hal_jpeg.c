@@ -223,14 +223,14 @@
   * @{
   */
 
+#ifdef HAL_JPEG_MODULE_ENABLED
+
+#if defined (JPEG)
+
 /** @defgroup JPEG JPEG
   * @brief JPEG HAL module driver.
   * @{
   */
-
-#ifdef HAL_JPEG_MODULE_ENABLED
-
-#if defined (JPEG)
 
 /* Private define ------------------------------------------------------------*/
 /** @addtogroup JPEG_Private_Constants
@@ -4186,11 +4186,12 @@ static uint32_t JPEG_GetQuality(JPEG_HandleTypeDef *hjpeg)
   * @}
   */
 
-#endif /* JPEG */
-#endif /* HAL_JPEG_MODULE_ENABLED */
 /**
   * @}
   */
+#endif /* JPEG */
+#endif /* HAL_JPEG_MODULE_ENABLED */
+
 
 /**
   * @}

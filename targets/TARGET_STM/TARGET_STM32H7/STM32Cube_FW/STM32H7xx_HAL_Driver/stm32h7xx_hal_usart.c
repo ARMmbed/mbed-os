@@ -2150,7 +2150,7 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
     /* USART Receiver Timeout interrupt occurred ---------------------------------*/
     if (((isrflags & USART_ISR_RTOF) != 0U) && ((cr1its & USART_CR1_RTOIE) != 0U))
     {
-      __HAL_UART_CLEAR_FLAG(husart, UART_CLEAR_RTOF);
+      __HAL_USART_CLEAR_IT(husart, USART_CLEAR_RTOF);
 
       husart->ErrorCode |= HAL_USART_ERROR_RTO;
     }
