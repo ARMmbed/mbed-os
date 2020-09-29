@@ -15,5 +15,6 @@ target_include_directories(mbed-os-storage
 
 target_compile_definitions(mbed-os-storage
     INTERFACE
-        MBED_CONF_STORAGE_PRESENT=1
+        MBED_CONF_FILESYSTEM_PRESENT=1
+        MBED_CONF_CMAKE_FILESYSTEM_ENABLED=1
 )

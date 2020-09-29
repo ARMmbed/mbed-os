@@ -23,4 +23,5 @@ target_sources(mbed-os-events
 target_compile_definitions(mbed-os-events
     INTERFACE
         MBED_CONF_EVENTS_PRESENT=1
+        MBED_CONF_CMAKE_EVENTS_ENABLED
 )
