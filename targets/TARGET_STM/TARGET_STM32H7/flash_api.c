@@ -32,7 +32,11 @@ int32_t flash_init(flash_t *obj)
     }
 #endif /* DUAL_CORE */
     /* Clear pending flags (if any) */
+#if defined (FLASH_SR_OPERR)
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR);
+#else
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_WRPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR);
+#endif /* FLASH_SR_OPERR */
 #if defined(DUAL_CORE)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
@@ -69,7 +73,9 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
     /* Fill EraseInit structure */
     EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
+#if defined (FLASH_CR_PSIZE)
     EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+#endif
     EraseInitStruct.Sector = GetSector(address);
     EraseInitStruct.NbSectors = 1;
 

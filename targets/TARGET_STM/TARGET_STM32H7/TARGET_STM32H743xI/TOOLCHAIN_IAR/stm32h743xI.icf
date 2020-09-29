@@ -1,17 +1,21 @@
-//******************************************************************************
-//* @attention
-//*
-//* Copyright (c) 2019 STMicroelectronics.
-//* All rights reserved.
-//*
-//* This software component is licensed by ST under BSD 3-Clause license,
-//* the "License"; You may not use this file except in compliance with the
-//* License. You may obtain a copy of the License at:
-//*                        opensource.org/licenses/BSD-3-Clause
-//*
-//******************************************************************************
+/* Linker script to configure memory regions.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2016-2020 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+*/
+/* Device specific values */
 
-// 1MB FLASH (0x100000)
 if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x08000000; }
 if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0x200000; }
 if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) { define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400; }
