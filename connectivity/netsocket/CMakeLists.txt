@@ -50,4 +50,4 @@ target_compile_definitions(mbed-os-netsocket
         MBED_CONF_NETSOCKET_PRESENT=1
 )
 
-target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-nanostack-libservice mbed-os-mbedtls)
+target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os-events)

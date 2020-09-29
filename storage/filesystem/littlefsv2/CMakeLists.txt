@@ -18,3 +18,5 @@ target_sources(mbed-os-storage-littlefs-v2
         littlefs/lfs2.c
         littlefs/lfs2_util.c
 )
+
+target_link_libraries(mbed-os-littlefs INTERFACE mbed-os-storage)
