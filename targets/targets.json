@@ -7086,6 +7086,12 @@
             "IAR",
             "ARMC6"
         ],
+        "components": [
+            "FPGA_CI_TEST_SHIELD"
+        ],
+        "overrides": {
+            "default-form-factor": "samsung"
+        },
         "default_toolchain": "GCC_ARM",
         "extra_labels": [
             "Samsung",
@@ -7102,7 +7108,15 @@
             "USTICKER",
             "SERIAL",
             "SLEEP",
-            "TRNG"
+            "TRNG",
+            "GPIO",
+            "RTC",
+            "ANALOGIN",
+            "PWMOUT",
+            "UART",
+            "I2C",
+            "SPI"
+
         ],
         "release_versions": [
             "5"

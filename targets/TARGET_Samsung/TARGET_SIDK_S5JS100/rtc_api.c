@@ -24,11 +24,25 @@
 #include "rtc_api.h"
 #include "mbed_mktime.h"
 extern long long get_counter(void);
-time_t g_base_timeval = 0;
+time_t g_base_timeval=0;
+
+void rtc_restore(void)
+{
+	enable_counter();
+	//printf("\r\n%s, rtc retention:%s\r\n", __func__,(char*)(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR));
+	time_t rtc_ret;
+	int page;
+	rtc_ret = (unsigned int*)(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR);
+	if(rtc_ret != 0xFF) {
+		sscanf((char*)(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR), "%d", &rtc_ret);
+		g_base_timeval = rtc_ret;
+		up_progmem_early_erasepage(S5JS100_RTC_RET_OFFSET / 256);
+   	}
+}
 
 void rtc_init(void)
 {
-
+	enable_counter();
 }
 
 void rtc_free(void)
@@ -38,24 +52,26 @@ void rtc_free(void)
 
 time_t rtc_read(void)
 {
-    time_t t;
-    long long cnt;
-    cnt = get_counter(); //return aliva countvalue in 40bits
-    t = cnt / 32768;    //calculate as seconds
-    t += g_base_timeval; //accumulate base time(e.g., NTP) with counter elapsed.
+	time_t t;
+	long long cnt;
+	cnt = get_counter(); //return aliva countvalue in 40bits
+	t = cnt/32768;		//calculate as seconds
+	t+= g_base_timeval;	//accumulate base time(e.g., NTP) with counter elapsed.
 
     return t;
 }
 
 void rtc_write(time_t t)
 {
-    g_base_timeval = t;
+	g_base_timeval = t;
+	disable_counter();
+	enable_counter();
+//	printf("base time will be %d\n", g_base_timeval);
 }
 
 static uint8_t rtc_hex8_to_dec(uint8_t hex_val)
 {
     uint32_t calc_data;
-
     return (uint8_t)calc_data;
 }
 
@@ -67,6 +83,6 @@ static uint16_t rtc_hex16_to_dec(uint16_t hex_val)
 
 int rtc_isenabled(void)
 {
-    return 1;
+	return 1;
 }
 #endif /* DEVICE_RTC */

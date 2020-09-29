@@ -21,155 +21,198 @@
 #define MBED_PINNAMES_H
 
 #include "cmsis.h"
-//#include "gpio.h"
-#include "s5js100_pinconfig.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    PIN_INPUT,
-    PIN_OUTPUT
+typedef enum
+{
+	PIN_INPUT,
+	PIN_OUTPUT
 } PinDirection;
 
 #define PORT_SHIFT  5
+#define STATIC_PINMAP_READY 1
 
-typedef enum {
-    P00 = 0,
-    P01,
-    P02,
-    P03,
-    P04,
-    P05,
-    P06,
-    P07,
-    P08,
-    P09,
-    P10,
-    P11,
-    P12,
-    P13,
-    P14,
-    P15,
-    P16,
-    P17,
-    P18,
-    P19,
-    P20,
-    P21,
-    P22,
-    P23,
-    P24,
-    P25,
-    P26,
-    P27,
-    P28,
-    P29,
-    P30,
-    P31,
-    P32,
-    P33,
-    P34,
-    P35,
-    P36,
-    P37,
-    P38,
-    P39,
-    P40,
-    P41,
-    P42,
-    P43,
-    P44,
-    P45,
-    P46,
-    P47,
-    P48,
-    P49,
-    P50,
-    P51,
-    P52,
-    P53,
-    P54,
-    P55,
-    P56,
-    P57,
-    P58,
-    P59,
-    P60,
-    P61,
-    P62,
-    P63,
-    P64,
-    P65,
-    P66,
-    P67,
-    P68,
-    P69,
-    P70,
-    P71,
-    P72,
+typedef enum
+{
+	P00 = 0,
+	P01,
+	P02,
+	P03,
+	P04,
+	P05,
+	P06,
+	P07,
+	P08,
+	P09,
+	P10,
+	P11,
+	P12,
+	P13,
+	P14,
+	P15,
+	P16,
+	P17,
+	P18,
+	P19,
+	P20,
+	P21,
+	P22,
+	P23,
+	P24,
+	P25,
+	P26,
+	P27,
+	P28,
+	P29,
+	P30,
+	P31,
+	P32,
+	P33,
+	P34,
+	P35,
+	P36,
+	P37,
+	P38,
+	P39,
+	P40,
+	P41,
+	P42,
+	P43,
+	P44,
+	P45,
+	P46,
+	P47,
+	P48,
+	P49,
+	P50,
+	P51,
+	P52,
+	P53,
+	P54,
+	P55,
+	P56,
+	P57,
+	P58,
+	P59,
+	P60,
+	P61,
+	P62,
+	P63,
+	P64,
+	P65,
+	P66,
+	P67,
+	P68,
+	P69,
+	P70,
+	P71,
+	P72,
+	P73,
+	P74,
+	P75,
+	P76,
 
-    /* Actually Dummy */
-    UART_RX4,
-    UART_TX4,
-    UART_RX5,
-    UART_TX5,
+	/* Actually Dummy */
+	UART4_RXD,
+	UART4_TXD,
+	UART5_RXD,
+	UART5_TXD,
 
-    P05_GPIO = GPIO_GPIO5,
-    P06_GPIO = GPIO_GPIO6,
+	LED1 = P00,
+	LED2 = P01,
+	LED3 = P02,
+	LED4 = P03,
 
-    //Uart
-    UART_RX0 = GPIO_USI0_RXD_CLK_SCL,
-    UART_TX0 = GPIO_USI0_TXD_MOSI_SDA,
-    UART_RX1 = GPIO_USI1_RXD_CLK_SCL,
-    UART_TX1 = GPIO_USI1_TXD_MOSI_SDA,
-    UART_RX2 = GPIO_UART0_RXD,
-    UART_TX2 = GPIO_UART0_TXD,
-    UART_RX3 = GPIO_UART1_RXD,
-    UART_TX3 = GPIO_UART1_TXD,
+	USI0_RXD_CLK_SCL = P08,
+	USI0_TXD_MOSI_SDA = P09,
+	USI0_RTSN_MISO_NA = P10,
+	USI0_CTSN_CSN_NA = P11,
+	USI1_RXD_CLK_SCL = P12,
+	USI1_TXD_MOSI_SDA = P13,
+	USI1_RTSN_MISO_NA = P14,
+	USI1_CTSN_CSN_NA = P15,
 
+	UART0_RXD = USI0_RXD_CLK_SCL,
+	UART0_TXD = USI0_TXD_MOSI_SDA,
+	UART0_CTS = USI0_CTSN_CSN_NA,
+	UART0_RTS = USI0_RTSN_MISO_NA,
+	UART1_RXD = USI1_RXD_CLK_SCL,
+	UART1_TXD = USI1_TXD_MOSI_SDA,
+	UART1_CTS = USI1_CTSN_CSN_NA,
+	UART1_RTS = USI1_RTSN_MISO_NA,
 
-    UART0_RTS = GPIO_USI0_RTSN_MISO_NA,
-    UART0_CTS = GPIO_USI0_CTSN_CSN_NA,
-    UART1_RTS = GPIO_USI1_RTSN_MISO_NA,
-    UART1_CTS = GPIO_USI1_CTSN_CSN_NA,
-    UART2_CTS = GPIO_UART0_CTSB,
-    UART2_RTS = GPIO_UART0_RTSB,
-    UART3_CTS = GPIO_UART1_CTSB,
-    UART3_RTS = GPIO_UART1_RTSB,
+	UART2_RXD = P27,
+	UART2_TXD = P28,
+	UART2_CTS = P16,
+	UART2_RTS = P17,
+	UART3_RXD = P29,
+	UART3_TXD = P30,
+	UART3_CTS = P18,
+	UART3_RTS = P19,
 
-    LED1 = P00,
-    LED2 = P01,
-    LED3 = P02,
-    LED4 = P03,
+	SPI0_RXD = P31,
+	SPI0_TXD = P32,
+	SPI0_CLK = P33,
+	SPI0_CSN = P34,
 
-    /* I2C Pin Names */
-    I2C_SDA = (36 << 16 | 2 << 8),
-    I2C_SCL = (35 << 16 | 2 << 8),
+	I2C0_SCL = P35,
+	I2C0_SDA = P36,
 
-    /* SPI Pin Names */
-    SPI0_CLK = ((0 << 0) | (0x0 << 11) | (0x2 << 8) | (33 << 16)),
-    SPI0_CSN = ((0 << 0) | (0x0 << 11) | (0x2 << 8) | (34 << 16)),
-    SPI0_MISO = ((0 << 0) | (0x0 << 11) | (0x2 << 8) | (31 << 16)),
-    SPI0_MOSI = ((0 << 0) | (0x0 << 11) | (0x2 << 8) | (32 << 16)),
+	PWM_TOUT0 = P14,
+	PWM_TOUT1 = P15,
+	PWM_TOUT2 = P22,
+	PWM_TOUT3 = P23,
 
-    SPI1_CLK = ((0x1 << 0) | (0x0 << 11) | (0x0 << 8) | (12 << 16)),
-    SPI1_CSN = ((0x1 << 0) | (0x0 << 11) | (0x0 << 8) | (15 << 16)),
-    SPI1_MISO = ((0x1 << 0) | (0x0 << 11) | (0x0 << 8) | (14 << 16)),
-    SPI1_MOSI = ((0x1 << 0) | (0x0 << 11) | (0x0 << 8) | (13 << 16)),
+	ADC_CH0 = P73,
+	ADC_CH1 = P74,
+	ADC_CH2 = P75,
+	ADC_CH3 = P76,
 
-    // Not connected
-    NC = (int)0xFFFFFFFF,
+    // Arduino connector namings
+    A0          = P73,	//adc0
+    A1          = P74,	//adc1
+    A2          = P75,	//adc2
+    A3          = P76,	//adc3
+    A4          = P73,
+    A5          = P73,
+// USI
+    D1          = P12,	//usi1 rx
+    D2          = P13,	//usi1 tx
+    D3          = P14,	//usi1 rts
+    D4          = P15,	//usi1 cts
+// UART
+    D5          = P16,	//uart0 cts
+    D6          = P17,	//uart0 rts
+    D7          = P27,	//uart0 rx
+    D8          = P28,	//uart0 tx
+// PWM
+    D9          = P22,	//pwm2
+    D0          = P23,	//pwm3
+// SPI
+    D10         = P33,	//spi0 clk
+    D11         = P34,	//spi0 cs
+    D12         = P31,	//spi0 rx
+    D13         = P32,	//spi0 tx
+// I2C
+    D14         = P36,	//i2c0 sda
+    D15         = P35,	//i2c0 scl
+
+	// Not connected
+	NC = (int)0xFFFFFFFF,
+
 } PinName;
 
-typedef enum {
-    PullUp = 2,
-    PullDown = 1,
-    PullNone = 0,
-    Repeater = 3,
-    OpenDrain = 4,
-    PullDefault = PullDown
+typedef enum
+{
+	PullUp = 2,
+	PullDown = 1,
+	PullNone = 0,
+	Repeater = 3,
+	OpenDrain = 4,
+	PullDefault = PullDown
 } PinMode;
 
 #ifdef __cplusplus
