@@ -896,8 +896,20 @@ ble_error_t Gap::enablePrivacy(bool enable)
 
     if (_privacy_enabled) {
         _address_registry.start_private_address_generation();
+        if (_address_registry.get_non_resolvable_private_address() != address_t {} &&
+            _address_registry.get_resolvable_private_address() != address_t{}
+        ) {
+            _event_queue.post([this] {
+               if (_event_handler) {
+                   _event_handler->onPrivacyEnabled();
+               }
+            });
+        } else {
+            _privacy_initialization_pending = true;
+        }
     } else {
         _address_registry.stop_private_address_generation();
+        _privacy_initialization_pending = false;
     }
 
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -969,6 +981,10 @@ ble_error_t Gap::reset()
     shutdownCallChain.clear();
 
     _event_handler = nullptr;
+
+#if BLE_FEATURE_PRIVACY
+    _privacy_initialization_pending = false;
+#endif
 
 #if BLE_ROLE_BROADCASTER
     _advertising_timeout.detach();
@@ -3042,6 +3058,15 @@ void Gap::on_private_address_generated(bool connectable)
         return;
     }
 
+    if (_privacy_initialization_pending &&
+        _address_registry.get_resolvable_private_address() != address_t{} &&
+        _address_registry.get_non_resolvable_private_address() != address_t{}
+    ) {
+        _privacy_initialization_pending = false;
+        if (_event_handler) {
+            _event_handler->onPrivacyEnabled();
+        }
+    }
 
     // refresh for address for all connectable advertising sets
     for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
@@ -3238,6 +3263,10 @@ const address_t *Gap::get_random_address(controller_operation_t operation, size_
                 desired_address = &resolvable_address;
             }
             break;
+    }
+
+    if (*desired_address == address_t{}) {
+        return nullptr;
     }
 
     if (!address_in_use) {
