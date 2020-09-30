@@ -799,7 +799,7 @@ private:
     const address_t *get_random_address(controller_operation_t operation, size_t advertising_set = 0);
 
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    void connecting_to_host_resolved_address_failed();
+    void connecting_to_host_resolved_address_failed(bool inform_user = true);
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 private:

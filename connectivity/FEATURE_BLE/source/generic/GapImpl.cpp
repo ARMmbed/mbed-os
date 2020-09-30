@@ -554,7 +554,7 @@ ble_error_t Gap::connect(
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
         if (_connect_to_address_type != peer_address_type_t::ANONYMOUS) {
             ret = startScan(
-                (scan_duration_t)connectionParams.getConnectionSupervisionTimeoutArray()[0],
+                scan_duration_t::forever(),
                 duplicates_filter_t::ENABLE,
                 (scan_period_t)0
             );
@@ -697,6 +697,14 @@ ble_error_t Gap::rejectConnectionParametersUpdate(
 
 ble_error_t Gap::cancelConnect()
 {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_ready_to_connect_to_host_resolved_address) {
+        connecting_to_host_resolved_address_failed(false);
+        stopScan();
+        return BLE_ERROR_NONE;
+    }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     if (!_initiating) {
         return BLE_ERROR_NONE;
     }
@@ -1137,9 +1145,9 @@ void Gap::on_scan_stopped(bool success)
 }
 
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-void Gap::connecting_to_host_resolved_address_failed()
+void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
 {
-    if (_event_handler) {
+    if (inform_user && _event_handler) {
         _event_handler->onConnectionComplete(
             ConnectionCompleteEvent(
                 BLE_ERROR_NOT_FOUND,
@@ -1173,13 +1181,6 @@ void Gap::on_scan_timeout()
     _scan_enabled = false;
     _scan_pending = false;
 
-#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    if (_ready_to_connect_to_host_resolved_address) {
-        connecting_to_host_resolved_address_failed();
-        return;
-    }
-#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-
     if (_event_handler) {
         _event_handler->onScanTimeout(ScanTimeoutEvent());
     }
@@ -1194,13 +1195,6 @@ void Gap::process_legacy_scan_timeout()
 
     /* legacy scanning timed out is based on timer so we need to stop the scan manually */
     _pal_gap.scan_enable(false, false);
-
-#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    if (_ready_to_connect_to_host_resolved_address) {
-        connecting_to_host_resolved_address_failed();
-        return;
-    }
-#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     if (_event_handler) {
         _event_handler->onScanTimeout(ScanTimeoutEvent());
