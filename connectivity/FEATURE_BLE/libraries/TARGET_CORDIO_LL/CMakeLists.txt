@@ -22,7 +22,7 @@ target_include_directories(mbed-os-ble-cordio_ll
         ${CMAKE_CURRENT_SOURCE_DIR}/stack_adaptation
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/ble/bb/bb_ble_adv_master.c
         stack/controller/sources/ble/bb/bb_ble_adv_master_ae.c

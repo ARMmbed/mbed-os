@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-802.15.4-atmel-rf INTERFACE)
+add_library(mbed-os-802.15.4-atmel INTERFACE)
 
 target_include_directories(mbed-os-802.15.4-atmel-rf
     INTERFACE

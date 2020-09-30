@@ -8,7 +8,7 @@ target_include_directories(mbed-os-ble-cordio
         stack_adaptation
 )
 
-target_sources(mbed-os-ble
+target_sources(mbed-os-ble-cordio
     INTERFACE
         driver/CordioHCIDriver.cpp
         driver/CordioHCITransportDriver.cpp

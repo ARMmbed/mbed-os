@@ -57,7 +57,7 @@ To address the problem, CMake provides response files. They do not work out of t
 
 Note, we shall use response files with static libraries or any other solution we choose to avoid path limitation in OS.
 
-These bugs will be fixed eventually. However, we still haven not address the main problem - there are too many objects files to compile. We need a solution to split the tree into components and built only what is required. Therefore response files could be considered as a workaround for now until we get components in CMake.
+These bugs will be fixed eventually. However, we still have not addressed the main problem - there are too many objects files to compile. We need a solution to split the tree into components and built only what is required. Therefore response files could be considered as a workaround for now until we get components in CMake.
 
 ## Only core libraries built as objects
 
@@ -74,7 +74,7 @@ The rest of components and features could be static or object libraries. They co
 
 ## Components as static libraries
 
-It is known problem with static libraries - weakly linked symbols are not resolved with strong symbols as someone would have expected. We won't disallow linking with static libraries, just internal Mbed OS components should be object libraries to avoid the problem with weakly symbols as many of the components rely on them.
+It is a known problem that weakly linked symbols are not resolved with strong symbols with static libraries. We won't disallow linking with static libraries, just internal Mbed OS components should be object libraries to avoid the problem with weakly symbols as many of the components rely on them.
 
 ### Using whole-archive to workaround weak symbols limitation
 
@@ -92,7 +92,7 @@ Mbed 2 was released as a library, we provided object files for files that were p
 
 ## External components
 
-They can be either object or static library. Only one limitation due to selecting object library is that any component linked by an application shall not have circular dependencies between the components (CMake will issue an error that we are linking with an object library (mbed-s) and it does not support it - this will be fixed but no ETA given).
+They can be either object or static library. Only one limitation due to selecting object library is that any component linked by an application shall not have circular dependencies between the components (CMake will issue an error that we are linking with an object library (`mbed-os`) and it does not support it - this will be fixed but no ETA given).
 
 ## Solution: Mbed-os components
 
