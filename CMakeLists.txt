@@ -85,9 +85,9 @@ add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(rtos)
 add_subdirectory(targets)
-add_subdirectory(events EXCLUDE_FROM_ALL)
 
-# The directories below contain optional library targets
+# The directories below contain optional target libraries
+add_subdirectory(events EXCLUDE_FROM_ALL)
 add_subdirectory(connectivity EXCLUDE_FROM_ALL)
 add_subdirectory(storage EXCLUDE_FROM_ALL)
 add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
