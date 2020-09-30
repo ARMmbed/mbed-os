@@ -36,6 +36,43 @@
 #include "mbed_error.h"
 #include "mbed_debug.h"
 #include "PeripheralPins.h"
+#include "stm32g4xx_ll_bus.h"
+#include "string.h"
+
+#if defined(ADC1)
+static uint8_t adc1_en_counter = 0;
+#define ADC1_EN_CTR adc1_en_counter
+#else
+#define ADC1_EN_CTR 0
+#endif
+
+#if defined(ADC2)
+static uint8_t adc2_en_counter = 0;
+#define ADC2_EN_CTR adc2_en_counter
+#else
+#define ADC2_EN_CTR 0
+#endif
+
+#if defined(ADC3)
+static uint8_t adc3_en_counter = 0;
+#define ADC3_EN_CTR adc3_en_counter
+#else
+#define ADC3_EN_CTR 0
+#endif
+
+#if defined(ADC4)
+static uint8_t adc4_en_counter = 0;
+#define ADC4_EN_CTR adc4_en_counter
+#else
+#define ADC4_EN_CTR 0
+#endif
+
+#if defined(ADC5)
+static uint8_t adc5_en_counter = 0;
+#define ADC5_EN_CTR adc5_en_counter
+#else
+#define ADC5_EN_CTR 0
+#endif
 
 #if STATIC_PINMAP_READY
 #define ANALOGIN_INIT_DIRECT analogin_init_direct
@@ -72,6 +109,7 @@ static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 
     // Configure ADC object structures
     obj->handle.State = HAL_ADC_STATE_RESET;
+    memset(&obj->handle.Init, 0, sizeof(obj->handle.Init));
     obj->handle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
     obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
     obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
@@ -82,40 +120,48 @@ static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
     obj->handle.Init.NbrOfConversion       = 1;
     obj->handle.Init.DiscontinuousConvMode = DISABLE;
     obj->handle.Init.NbrOfDiscConversion   = 0;
-    obj->handle.Init.ExternalTrigConv      = ADC_EXTERNALTRIG_T1_CC1;
+    obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
     obj->handle.Init.DMAContinuousRequests = DISABLE;
     obj->handle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    obj->handle.Init.GainCompensation      = 0;
+    obj->handle.Init.OversamplingMode      = DISABLE;
+    obj->handle.Init.SamplingMode          = ADC_SAMPLING_MODE_NORMAL;
 
 #if defined(ADC1)
     if ((ADCName)obj->handle.Instance == ADC_1) {
-        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK); // TODO - which clock?
-                                                           // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK);
+        adc1_en_counter++;
     }
 #endif
 #if defined(ADC2)
     if ((ADCName)obj->handle.Instance == ADC_2) {
-        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK); // TODO - which clock?
-                                                           // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+        __HAL_RCC_ADC12_CONFIG(RCC_ADC12CLKSOURCE_SYSCLK);
+        adc2_en_counter++;
     }
 #endif
 #if defined(ADC3)
     if ((ADCName)obj->handle.Instance == ADC_3) {
-        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK); // TODO - which clock?
-                                                             // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);
+        adc3_en_counter++;
     }
 #endif
 #if defined(ADC4)
     if ((ADCName)obj->handle.Instance == ADC_4) {
-        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK); // TODO - which clock?
-                                                             // SYSCLK or PLL?
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);
+        adc4_en_counter++;
     }
 #endif
 
 #if defined(ADC5)
-    if ((ADCName)obj->handle.Instance == ADC_4) {
-        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK); // TODO - which clock?
-                                                             // SYSCLK or PLL?
+    if ((ADCName)obj->handle.Instance == ADC_5) {
+        LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+        __HAL_RCC_ADC345_CONFIG(RCC_ADC345CLKSOURCE_SYSCLK);
+        adc5_en_counter++;
     }
 
 #endif
@@ -153,7 +199,7 @@ uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
@@ -202,45 +248,31 @@ uint16_t adc_read(analogin_t *obj)
             sConfig.Channel = ADC_CHANNEL_14;
             break;
         case 15:
-            if ((ADCName)obj->handle.Instance == ADC_1) {
-                sConfig.Channel = ADC_CHANNEL_VOPAMP1;
-                sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
-            } else {
-                sConfig.Channel = ADC_CHANNEL_15;
-            }
+            sConfig.Channel = ADC_CHANNEL_15;
             break;
         case 16:
+            sConfig.Channel = ADC_CHANNEL_16;
+
             if ((ADCName)obj->handle.Instance == ADC_1) {
                 sConfig.Channel = ADC_CHANNEL_TEMPSENSOR_ADC1;
-                sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
-            } else {
-                sConfig.Channel = ADC_CHANNEL_16;
+                sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
             }
             break;
         case 17:
-            sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+            sConfig.Channel = ADC_CHANNEL_17;
+
             if ((ADCName)obj->handle.Instance == ADC_1) {
                 sConfig.Channel = ADC_CHANNEL_VBAT;
+                sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
             }
-#if defined(ADC2)
-            if ((ADCName)obj->handle.Instance == ADC_2) {
-                sConfig.Channel = ADC_CHANNEL_VOPAMP2;
-            }
-#endif
-#if defined(ADC3)
-            if ((ADCName)obj->handle.Instance == ADC_3) {
-                sConfig.Channel = ADC_CHANNEL_VOPAMP3_ADC3;
-            }
-#endif
-#if defined(ADC4)
-            if ((ADCName)obj->handle.Instance == ADC_4) {
-                sConfig.Channel = ADC_CHANNEL_VOPAMP4;
-            }
-#endif
             break;
         case 18:
-            sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
-            sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.Channel = ADC_CHANNEL_18;
+
+            if ((ADCName)obj->handle.Instance == ADC_1) {
+                sConfig.Channel = ADC_CHANNEL_VREFINT;
+                sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
+            }
             break;
         default:
             return 0;
@@ -261,7 +293,9 @@ uint16_t adc_read(analogin_t *obj)
     } else {
         debug("HAL_ADC_PollForConversion issue\n");
     }
+
     LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
+
     if (HAL_ADC_Stop(&obj->handle) != HAL_OK) {
         debug("HAL_ADC_Stop issue\n");;
     }
@@ -272,6 +306,81 @@ uint16_t adc_read(analogin_t *obj)
 const PinMap *analogin_pinmap()
 {
     return PinMap_ADC;
+}
+
+void analogin_free(analogin_t *obj)
+{
+#if defined(ADC1)
+    if ((ADCName)obj->handle.Instance == ADC_1) {
+        adc1_en_counter--;
+        if(ADC1_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC2 is also unused
+            if(ADC2_EN_CTR == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+            }
+        }
+    }
+#endif
+#if defined(ADC2)
+    if ((ADCName)obj->handle.Instance == ADC_2) {
+        adc2_en_counter--;
+        if(ADC2_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC1 is also unused
+            if(ADC1_EN_CTR == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC12);
+            }
+        }
+    }
+#endif
+#if defined(ADC3)
+    if ((ADCName)obj->handle.Instance == ADC_3) {
+        adc3_en_counter--;
+        if(ADC3_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC4 and ADC5 are also unused
+            if((ADC4_EN_CTR + ADC5_EN_CTR) == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+            }
+        }
+    }
+#endif
+#if defined(ADC4)
+    if ((ADCName)obj->handle.Instance == ADC_4) {
+        adc4_en_counter--;
+        if(ADC4_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC3 and ADC5 are also unused
+            if((ADC3_EN_CTR + ADC5_EN_CTR) == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+            }
+        }
+    }
+#endif
+
+#if defined(ADC5)
+    if ((ADCName)obj->handle.Instance == ADC_5) {
+        adc5_en_counter--;
+        if(ADC5_EN_CTR == 0)
+        {
+            HAL_ADC_DeInit(&obj->handle);
+
+            // Disable clock if ADC3 and ADC4 are also unused
+            if((ADC3_EN_CTR + ADC4_EN_CTR) == 0) {
+                LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
+            }
+        }
+    }
+#endif
 }
 
 #endif
