@@ -480,11 +480,6 @@ void spi_frequency(spi_t *obj, int hz)
 int spi_master_write(spi_t *obj, int value)
 {
     nrfx_err_t ret;
- #if NRFX_CHECK(NRFX_SPIM_ENABLED)
-   nrfx_spim_xfer_desc_t desc;
- #elif NRFX_CHECK(NRFX_SPI_ENABLED)
-   nrfx_spi_xfer_desc_t desc;
-#endif
 
 #if DEVICE_SPI_ASYNCH
     struct spi_s *spi_inst = &obj->spi;
@@ -507,18 +502,20 @@ int spi_master_write(spi_t *obj, int value)
     }
 
     /* Transfer 1 byte. */
-    desc.p_tx_buffer = &tx_buff;
-    desc.p_rx_buffer = &rx_buff;
-    desc.tx_length = 1;
-    desc.rx_length = 1;
- #if NRFX_CHECK(NRFX_SPIM_ENABLED)
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
+   nrfx_spim_xfer_desc_t desc = NRFX_SPIM_XFER_TRX(&tx_buff, 1, &rx_buff, 1);
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
+   nrfx_spi_xfer_desc_t desc = NRFX_SPI_XFER_TRX(&tx_buff, 1, &rx_buff, 1);
+#endif
+
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
     ret = nrfx_spim_xfer(&nordic_nrf5_spim_instance[instance], &desc, 0);
- #elif NRFX_CHECK(NRFX_SPI_ENABLED)
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
     ret = nrfx_spi_xfer(&nordic_nrf5_spi_instance[instance], &desc, 0);
 #endif
 
     if (ret != NRFX_SUCCESS) {
-        DEBUG_PRINTF("%d error returned from nrf_spi_xfer\n\r");
+        DEBUG_PRINTF("%d error returned from nrf_spi_xfer\n\r", ret);
     }
 
     /* Manually set chip select pin if defined. */
@@ -547,12 +544,6 @@ int spi_master_write(spi_t *obj, int value)
  */
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill)
 {
-#if NRFX_CHECK(NRFX_SPIM_ENABLED)
-    nrfx_spim_xfer_desc_t desc;
-#elif NRFX_CHECK(NRFX_SPI_ENABLED)
-    nrfx_spi_xfer_desc_t desc;
-#endif
-
 #if DEVICE_SPI_ASYNCH
     struct spi_s *spi_inst = &obj->spi;
 #else
@@ -586,6 +577,10 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
 
     ret_code_t result = NRFX_SUCCESS;
 
+#if NRFX_CHECK(NRFX_SPIM_ENABLED)
+    nrfx_spim_xfer_desc_t desc = NRFX_SPIM_XFER_TRX(tx_buffer, tx_length, rx_buffer, rx_length);
+    result = nrfx_spim_xfer(&nordic_nrf5_spim_instance[instance], &desc, 0);
+#elif NRFX_CHECK(NRFX_SPI_ENABLED)
     /* Loop until all data is sent and received. */
     while (((tx_length > 0) || (rx_length > 0)) && (result == NRFX_SUCCESS)) {
 
@@ -606,17 +601,9 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
                                     NULL;
 
         /* Blocking transfer. */
-        desc.p_tx_buffer = tx_actual_buffer;
-        desc.p_rx_buffer = rx_actual_buffer;
-        desc.tx_length = tx_actual_length;
-        desc.rx_length = rx_actual_length;
-#if NRFX_CHECK(NRFX_SPIM_ENABLED)
-        result = nrfx_spim_xfer(&nordic_nrf5_spim_instance[instance],
-                               &desc, 0);
-#elif NRFX_CHECK(NRFX_SPI_ENABLED)
+        nrfx_spi_xfer_desc_t desc = NRFX_SPI_XFER_TRX(tx_actual_buffer, tx_actual_length, rx_actual_buffer, rx_actual_length);
         result = nrfx_spi_xfer(&nordic_nrf5_spi_instance[instance],
                                &desc, 0);
-#endif
         /* Update loop variables. */
         tx_length -= tx_actual_length;
         tx_offset += tx_actual_length;
@@ -624,6 +611,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
         rx_length -= rx_actual_length;
         rx_offset += rx_actual_length;
     }
+#endif
 
     /* Manually set chip select pin if defined. */
     if (spi_inst->cs != NC) {
