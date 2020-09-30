@@ -217,8 +217,12 @@ typedef struct dhcpv6_relay_msg {
 #define DHCPV6_OPTION_IA_PREFIX_DELEGATION_MIN_LENGTH 0x000c
 /** Identity Association END */
 
+#define DHCPV6_OPTION_VENDOR_CLASS 0x0010
 #define DHCPV6_OPTION_VENDOR_SPECIFIC_INFO 0x0011
 /** SEQUENCYID, RouterIDMask 32-bit*/
+
+#define DHCPV6_OPTION_DNS_SERVERS         0x0017
+#define DHCPV6_OPTION_DOMAIN_LIST         0x0018
 
 #define DHCPV6_STATUS_CODE_OPTION 0x000d
 #define DHCPV6_STATUS_CODE_OPTION_LEN 0x0002
@@ -277,6 +281,7 @@ uint16_t libdhcpv6_duid_option_size(uint16_t duidLength);
 uint8_t libdhcpv6_duid_linktype_size(uint16_t linkType);
 uint16_t libdhcvp6_request_option_size(uint8_t optionCnt);
 uint16_t libdhcpv6_non_temporal_address_size(bool addressDefined);
+uint16_t libdhcpv6_vendor_option_size(uint16_t vendor_data_length);
 
 uint16_t libdhcpv6_solication_message_length(uint16_t clientDUIDLength, bool addressDefined, uint8_t requestOptionCount);
 uint16_t libdhcpv6_address_request_message_len(uint16_t clientDUIDLength, uint16_t serverDUIDLength, uint8_t requstOptionCnt, bool add_address);
@@ -287,7 +292,6 @@ uint16_t libdhcpv6_address_reply_message_len(uint16_t clientDUIDLength, uint16_t
 #endif
 
 uint8_t *libdhcpv6_generic_nontemporal_address_message_write(uint8_t *ptr, dhcpv6_solication_base_packet_s *packet, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcp_duid_options_params_t *serverLink);
-uint8_t *libdhcpv6_reply_message_write(uint8_t *ptr, dhcpv6_reply_packet_s *replyPacket, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcpv6_vendor_data_packet_s *vendorData);
 uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_limit,  uint8_t *peer_addres, uint8_t *link_address);
 uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t length);
 
@@ -326,17 +330,6 @@ uint8_t *libdhcpv6_elapsed_time_option_write(uint8_t *ptr, uint16_t elapsedTime)
  * return incremented pointer after write
  */
 uint8_t *libdhcpv6_rapid_commit_option_write(uint8_t *ptr);
-
-/**
- * This Function write dhcpv6 thread requested vendor spesific data
- *
- * \param ptr pointer where option will be writed
- * \param data Vendor Data
- * \param dataLength Vendor Data length
- *
- * return incremented pointer after write
- */
-uint8_t *libdhcvp6_vendor_specific_option_write(uint8_t *ptr, uint8_t *data, uint16_t dataLength);
 
 /**
  * This Function write dhcpv6 request option write
@@ -379,6 +372,6 @@ int libdhcpv6_solication_message_options_validate(uint8_t *ptr, uint16_t data_le
 int libdhcpv6_advertisment_message_option_validate(dhcp_duid_options_params_t *clientId, dhcp_duid_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length);
 bool libdhcpv6_rapid_commit_option_at_packet(uint8_t *ptr, uint16_t length);
 bool libdhcpv6_time_elapsed_option_at_packet(uint8_t *ptr, uint16_t length);
-bool libdhcpv6_relay_msg_read(uint8_t *ptr, uint16_t length, dhcpv6_relay_msg_t *relay_msg);
 
+bool libdhcpv6_relay_msg_read(uint8_t *ptr, uint16_t length, dhcpv6_relay_msg_t *relay_msg);
 #endif /* LIBDHCPV6_H_ */

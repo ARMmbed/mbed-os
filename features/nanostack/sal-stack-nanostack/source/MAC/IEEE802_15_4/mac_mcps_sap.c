@@ -1883,6 +1883,9 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
         //Remember to update security counter here!
         key_desc = mac_frame_security_key_get(rf_ptr, buffer);
         if (!key_desc) {
+#ifdef __linux__
+            tr_debug("Drop a ACK missing key desc");
+#endif
             buffer->status = MLME_UNAVAILABLE_KEY;
             return -2;
         }
@@ -1890,6 +1893,9 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
             buffer->aux_header.frameCounter = mac_sec_mib_key_outgoing_frame_counter_get(rf_ptr, key_desc);
         }
         if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer, key_desc)) {
+#ifdef __linux__
+            tr_debug("Drop a ACK ignored by security init");
+#endif
             return -2;
         }
         if (init_build) {
@@ -1921,6 +1927,9 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
             mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
             ccm_free(&ccm_ptr);
         }
+#ifdef __linux__
+        tr_debug("Drop a ACK send by frame too long %u", frame_length);
+#endif
         return -1;
     }
 
@@ -1932,7 +1941,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
 
     tx_buf->ack_len = frame_length;
     uint8_t *mhr_start = ptr;
-    buffer->tx_time = mac_mcps_sap_get_phy_timestamp(rf_ptr) + 300; //Send 300 us later
+    buffer->tx_time = mac_mcps_sap_get_phy_timestamp(rf_ptr) + 1000; // 1ms delay before Ack
 
     ptr = mac_generic_packet_write(rf_ptr, ptr, buffer);
 
@@ -2092,6 +2101,11 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
                 if (rf_ptr->active_pd_data_request) {
                     mac_csma_backoff_start(rf_ptr);
                 }
+#ifdef __linux__
+                if (buffer->fcf_dsn.frametype == MAC_FRAME_ACK) {
+                    tr_debug("Drop ACK by CCA request");
+                }
+#endif
                 platform_exit_critical();
                 return -1;
             }

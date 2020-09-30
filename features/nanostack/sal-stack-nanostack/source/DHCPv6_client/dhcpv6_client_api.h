@@ -79,7 +79,47 @@ void dhcp_client_delete(int8_t interface);
  */
 typedef void (dhcp_client_global_adress_cb)(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], bool register_status);
 
+typedef struct dhcp_server_notify_info {
+    uint16_t duid_type;
+    uint16_t duid_length;
+    uint32_t life_time;
+    uint8_t *duid;
+} dhcp_server_notify_info_t;
+
+
+typedef struct dhcp_gen_option {
+    uint16_t data_length;
+    uint8_t *data;
+} dhcp_gen_option_t;
+
+typedef struct dhcp_vendor_spesific_option {
+    uint32_t enterprise_number;
+    uint16_t data_length;
+    uint8_t *data;
+} dhcp_vendor_spesific_option_t;
+
+typedef struct dhcp_option_notify_s {
+    uint8_t option_type;
+    union {
+        dhcp_gen_option_t generic;
+        dhcp_vendor_spesific_option_t vendor_spesific;
+    } option;
+} dhcp_option_notify_t;
+
+/* give dhcp Client server Optional options notication
+ *
+ * /param interface interface id
+ * /param option_type Type of option
+ * /param option_data data of options.
+ * /param option_length length of option.
+ * /param server_info info inclu DUID and Life-time for notify options
+ *
+ */
+typedef void (dhcp_client_options_notify_cb)(int8_t interface, dhcp_option_notify_t *options, dhcp_server_notify_info_t *server_info);
+
 int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], dhcp_client_global_adress_cb *error_cb);
+
+int dhcp_client_option_notification_cb_set(int8_t interface, dhcp_client_options_notify_cb *notify_cb);
 
 /* Renew all leased adddresses might be used when short address changes
  *

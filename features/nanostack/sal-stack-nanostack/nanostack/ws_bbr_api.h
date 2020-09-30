@@ -63,6 +63,18 @@ typedef struct bbr_route_info {
 } bbr_route_info_t;
 
 /**
+ * \brief Struct bbr_radius_timing_t is RADIUS timing configuration structure.
+ */
+typedef struct bbr_radius_timing {
+    /** RADIUS retry timer Imin; in 100ms units; range 1-1200; default 20 (2 seconds) */
+    uint16_t radius_retry_imin;
+    /** RADIUS retry timer Imax; in 100ms units; range 1-1200; default 30 (3 seconds) */
+    uint16_t radius_retry_imax;
+    /** RADIUS retry count; default 3 */
+    uint8_t radius_retry_count;
+} bbr_radius_timing_t;
+
+/**
  * Start backbone border router service.
  *
  * if backbone interface is enabled and allows routing.
@@ -394,7 +406,9 @@ int ws_bbr_radius_address_get(int8_t interface_id, uint8_t *address);
  *
  * Function sets RADIUS shared secret to Border Router. Shared secret may be an
  * ASCII string. Check the format and length constraints for the shared secret from
- * the documentation of RADIUS server you are connecting to.
+ * the documentation of RADIUS server you are connecting to. Nanostack will not
+ * make copy of the shared secret, therefore address and data must remain permanently
+ * valid.
  *
  * \param interface_id Network interface ID.
  * \param shared_secret_len The length of the shared secret in bytes.
@@ -409,7 +423,7 @@ int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_s
 /**
  * Get RADIUS shared secret
  *
- * Function gets RADIUS shared secret to Border Router.
+ * Function gets RADIUS shared secret from Border Router.
  *
  * \param interface_id Network interface ID.
  * \param shared_secret_len On function call, is the size of the shared secret write buffer in bytes, on return is the shared secret length in bytes.
@@ -420,5 +434,72 @@ int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_s
  *
  */
 int ws_bbr_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret);
+
+/**
+ * Set RADIUS timing information
+ *
+ * Function sets RADIUS timing information to Border Router.
+ *
+ * \param interface_id Network interface ID.
+ * \param timing Timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_timing_set(int8_t interface_id, bbr_radius_timing_t *timing);
+
+/**
+ * Get RADIUS timing information
+ *
+ * Function sets RADIUS timing information from Border Router.
+ *
+ * \param interface_id Network interface ID.
+ * \param timing Timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_timing_get(int8_t interface_id, bbr_radius_timing_t *timing);
+
+/**
+ * Validate RADIUS timing information
+ *
+ * Function validates RADIUS timing information.
+ *
+ * \param interface_id Network interface ID.
+ * \param timing Timing information
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing);
+
+/**
+ * \brief A function to set DNS query results to border router
+ *
+ * Border router distributes these query results in DHCP Solicit responses to
+ * all the devices joining to the Wi-SUN mesh network.
+ *
+ * Border router keeps these forever, but if application does not update these in regular interval
+ * The address might stop working. So periodic keep alive is required.
+ *
+ * These cached query results will become available in the Wi-SUN interface.
+ *
+ * This function can be called multiple times.
+ * if domain name matches a existing entry address is updated.
+ * If domain name is set to NULL entire list is cleared
+ * if address is set to NULL the Domain name is removed from the list.
+ *
+ * \param interface_id Network interface ID.
+ * \param address The address of the DNS query result.
+ * \param domain_name_ptr Domain name matching the address
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ */
+int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], char *domain_name_ptr);
 
 #endif /* WS_BBR_API_H_ */
