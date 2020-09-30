@@ -798,6 +798,10 @@ private:
 
     const address_t *get_random_address(controller_operation_t operation, size_t advertising_set = 0);
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    void connecting_to_host_resolved_address_failed();
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
 private:
     /**
      * Callchain containing all registered callback handlers for shutdown
@@ -847,6 +851,13 @@ private:
     bool _scan_pending = false;
     bool _scan_interruptible = false;
     bool _scan_address_refresh = false;
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    bool _ready_to_connect_to_host_resolved_address = false;
+    peer_address_type_t _connect_to_address_type = peer_address_type_t::ANONYMOUS;
+    ble::address_t _connect_to_address;
+    ConnectionParameters *_connection_parameters = nullptr;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     mbed::LowPowerTimeout _advertising_timeout;
     mbed::LowPowerTimeout _scan_timeout;
     mbed::LowPowerTicker _address_rotation_ticker;
