@@ -111,8 +111,13 @@ ble_error_t PalPrivateAddressController::add_device_to_resolving_list(
         peer_identity_address.data(),
         const_cast<uint8_t*>(peer_irk.data()),
         const_cast<uint8_t*>(local_irk.data()),
-        true,
+        false,
         0
+    );
+    DmPrivSetPrivacyMode(
+        peer_address_type.value(),
+        peer_identity_address.data(),
+        DM_PRIV_MODE_DEVICE
     );
     return BLE_ERROR_NONE;
 }
