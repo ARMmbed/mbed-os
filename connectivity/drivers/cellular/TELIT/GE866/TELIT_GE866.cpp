@@ -124,7 +124,7 @@ nsapi_error_t TELIT_GE866::init()
 
     // AT#GAUTH=2
     // Set command sets the authentication type either for PPP-GPRS and PPP-GSM connections.
-    // The value 2 corresponds to CHAP authentication which is the authentication type used by default 
+    // The value 2 corresponds to CHAP authentication which is the authentication type used by default
     // in the MbedOS PPP implementation.
     _at.at_cmd_discard("#GAUTH", "=2");
 
@@ -166,7 +166,7 @@ nsapi_error_t TELIT_GE866::shutdown()
     // AT#SYSHALT=0,1
     // The module is turned off. It can be awaken by reset pin, alarm or DTR pin
     // transition to low.
-    // Note that AT#SYSHALT=0,1 is used rather than AT+CFUN=0 because this is the 
+    // Note that AT#SYSHALT=0,1 is used rather than AT+CFUN=0 because this is the
     // recommended action in the hardware guide to be taken before hard power off.
     _at.at_cmd_discard("#SYSHALT", "=0,1");
 
