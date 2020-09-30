@@ -28,6 +28,10 @@
 #include "QSPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_OSPIF
+#include "OSPIFBlockDevice.h"
+#endif
+
 #if COMPONENT_DATAFLASH
 #include "DataFlashBlockDevice.h"
 #endif
@@ -72,6 +76,12 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 #elif COMPONENT_QSPIF
 
     static QSPIFBlockDevice default_bd;
+
+    return &default_bd;
+
+#elif COMPONENT_OSPIF
+
+    static OSPIFBlockDevice default_bd;
 
     return &default_bd;
 
@@ -140,7 +150,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 MBED_WEAK FileSystem *FileSystem::get_default_instance()
 {
-#if COMPONENT_SPIF || COMPONENT_QSPIF || COMPONENT_DATAFLASH
+#if COMPONENT_SPIF || COMPONENT_QSPIF || COMPONENT_OSPIF || COMPONENT_DATAFLASH
 
     static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
     flash.set_as_default();

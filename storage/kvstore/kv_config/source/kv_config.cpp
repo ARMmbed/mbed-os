@@ -43,6 +43,10 @@
 #include "SPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_OSPIF
+#include "OSPIFBlockDevice.h"
+#endif
+
 #if COMPONENT_DATAFLASH
 #include "DataFlashBlockDevice.h"
 #endif
@@ -79,7 +83,7 @@ int _storage_config_TDB_INTERNAL();
  *        MBED_CONF_STORAGE_TDB_EXTERNAL_EXTERNAL_SIZE - Size of the external blockdevice in bytes or NULL for
  *                                                       max possible size.
  *        MBED_CONF_STORAGE_TDB_EXTERNAL_EXTERNAL_BASE_ADDRESS - The block device start address.
- *        MBED_CONF_STORAGE_TDB_EXTERNAL_EXTERNAL_BLOCK_DEVICE - Alowed vlaues are: default, SPIF, DATAFASH, QSPIF or SD
+ *        MBED_CONF_STORAGE_TDB_EXTERNAL_EXTERNAL_BLOCK_DEVICE - Alowed vlaues are: default, SPIF, DATAFASH, QSPIF, OSPIF or SD
  * @returns 0 on success or negative value on failure.
  */
 int _storage_config_TDB_EXTERNAL();
@@ -92,7 +96,7 @@ int _storage_config_TDB_EXTERNAL();
  *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_SIZE - Size of the external blockdevice in bytes
  *                                                              or NULL for max possible size.
  *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS - The block device start address
- *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BLOCK_DEVICE - Alowed vlaues are: default, SPIF, DATAFASH, QSPIF or SD
+ *        MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BLOCK_DEVICE - Alowed vlaues are: default, SPIF, DATAFASH, QSPIF, OSPIF or SD
  * @returns 0 on success or negative value on failure.
  */
 int _storage_config_TDB_EXTERNAL_NO_RBP();
@@ -109,7 +113,7 @@ int _storage_config_TDB_EXTERNAL_NO_RBP();
  *                                                         flash - rbp_internal_size.
  *        MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS - The satrt address of the internal FlashIAPBlockDevice.
  *        MBED_CONF_STORAGE_FILESYSTEM_FILESYSTEM - Allowed values are: default, FAT or LITTLE
- *        MBED_CONF_STORAGE_FILESYSTEM_BLOCKDEVICE - Allowed values are: default, SPIF, DATAFASH, QSPIF or SD
+ *        MBED_CONF_STORAGE_FILESYSTEM_BLOCKDEVICE - Allowed values are: default, SPIF, DATAFASH, QSPIF, OSPIF or SD
  *        MBED_CONF_STORAGE_FILESYSTEM_EXTERNAL_SIZE - External Blockdevice size in bytes or NULL for max possible size.
  *        MBED_CONF_STORAGE_FILESYSTEM_EXTERNAL_BASE_ADDRESS - The block device start address.
  *        MBED_CONF_STORAGE_FILESYSTEM_MOUNT_POINT - Where to mount the filesystem
@@ -125,7 +129,7 @@ int _storage_config_FILESYSTEM();
  *        filesystem with default blockdevice unless differently configured.
  *        The following is a list of configuration parameter:
  *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FILESYSTEM - Allowed values are: default, FAT or LITTLE
- *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_BLOCKDEVICE - Allowed values are: default, SPIF, DATAFASH, QSPIF or SD
+ *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_BLOCKDEVICE - Allowed values are: default, SPIF, DATAFASH, QSPIF, OSPIF or SD
  *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_SIZE - Blockdevice size in bytes. or NULL for max possible size.
  *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS - The block device start address.
  *        MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_MOUNT_POINT - Where to mount the filesystem
@@ -256,7 +260,7 @@ FileSystemStore *_get_file_system_store(FileSystem *fs)
 
 FileSystem *_get_filesystem_default(const char *mount)
 {
-#if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
+#if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH || COMPONENT_OSPIF
     return _get_filesystem_LITTLE(mount);
 #elif COMPONENT_SD
     return _get_filesystem_FAT(mount);
@@ -351,6 +355,55 @@ BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
 
     if (bd.init() != MBED_SUCCESS) {
         tr_error("KV Config: QSPIFBlockDevice init fail");
+        return NULL;
+    }
+
+    if (start_address == 0 && size == 0) {
+        return &bd;
+    }
+
+    //If address and size were specified use SlicingBlockDevice to get the correct block device size and start address.
+    if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+        tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
+        return NULL;
+    }
+
+    start_address = aligned_start_address;
+    size = aligned_end_address - aligned_start_address;
+
+    static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
+    return &sbd;
+
+#else
+    return NULL;
+#endif
+}
+
+BlockDevice *_get_blockdevice_OSPIF(bd_addr_t start_address, bd_size_t size)
+{
+#if COMPONENT_OSPIF
+
+    bd_addr_t aligned_end_address;
+    bd_addr_t aligned_start_address;
+
+    static OSPIFBlockDevice bd(
+        MBED_CONF_OSPIF_OSPI_IO0,
+        MBED_CONF_OSPIF_OSPI_IO1,
+        MBED_CONF_OSPIF_OSPI_IO2,
+        MBED_CONF_OSPIF_OSPI_IO3,
+        MBED_CONF_OSPIF_OSPI_IO4,
+        MBED_CONF_OSPIF_OSPI_IO5,
+        MBED_CONF_OSPIF_OSPI_IO6,
+        MBED_CONF_OSPIF_OSPI_IO7,
+        MBED_CONF_OSPIF_OSPI_SCK,
+        MBED_CONF_OSPIF_OSPI_CSN,
+        MBED_CONF_OSPIF_OSPI_DQS,
+        MBED_CONF_OSPIF_OSPI_POLARITY_MODE,
+        MBED_CONF_OSPIF_OSPI_FREQ
+    );
+
+    if (bd.init() != MBED_SUCCESS) {
+        tr_error("KV Config: OSPIFBlockDevice init fail");
         return NULL;
     }
 
@@ -491,6 +544,8 @@ BlockDevice *_get_blockdevice_default(bd_addr_t start_address, bd_size_t size)
     return _get_blockdevice_QSPIF(start_address, size);
 #elif COMPONENT_SPIF
     return _get_blockdevice_SPIF(start_address, size);
+#elif COMPONENT_OSPIF
+    return _get_blockdevice_OSPIF(start_address, size);
 #elif COMPONENT_DATAFLASH
     return _get_blockdevice_DATAFLASH(start_address, size);
 #elif COMPONENT_SD

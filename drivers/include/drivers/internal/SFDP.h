@@ -68,10 +68,18 @@ struct sfdp_smptbl_info {
     unsigned int erase_type_size_arr[SFDP_MAX_NUM_OF_ERASE_TYPES]; ///< Erase sizes for all different erase types
 };
 
+/** JEDEC 4-byte Address Instruction Parameter Table info */
+struct sfdp_fbatbl_info {
+    uint32_t addr; ///< Address
+    size_t size; ///< Size
+    int erase_type_4_byte_inst_arr[SFDP_MAX_NUM_OF_ERASE_TYPES]; ///< // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
+};
+
 /** SFDP JEDEC Parameter Table info */
 struct sfdp_hdr_info {
     sfdp_bptbl_info bptbl;
     sfdp_smptbl_info smptbl;
+    sfdp_fbatbl_info fbatbl;
 };
 
 /** Parse SFDP Database
