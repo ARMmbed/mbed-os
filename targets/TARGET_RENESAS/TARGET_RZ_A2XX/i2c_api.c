@@ -51,6 +51,7 @@ static const volatile struct st_riic *RIIC[] = {
 
 /* RIICnSR1 */
 #define SR1_AAS0  (1 << 0)
+#define SR1_GCA   (1 << 3)
 
 /* RIICnSR2 */
 #define SR2_START (1 << 2)
@@ -666,29 +667,26 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
 
 int i2c_slave_receive(i2c_t *obj)
 {
-    int status;
     int retval;
 
-    status = (obj->i2c.i2c->ICSR1.BYTE.LL & SR1_AAS0);
-    status |= (obj->i2c.i2c->ICCR2.BYTE.LL & CR2_TRS) >> 4;
-
-    switch (status) {
-        case 0x01:
-            /* the master is writing to this slave */
-            retval = 3;
-            break;
-        case 0x02:
-            /* the master is writing to all slave  */
-            retval = 2;
-            break;
-        case 0x03:
+    /* detected general call address */
+    if (0 != (obj->i2c.i2c->ICSR1.BYTE.LL & SR1_GCA)) {
+        /* the master is writing to all slave  */
+        retval = 2;
+    }
+    /* detected slave address */
+    else if (0 != (obj->i2c.i2c->ICSR1.BYTE.LL & SR1_AAS0)) {
+        if (0 != (obj->i2c.i2c->ICCR2.BYTE.LL & CR2_TRS)) {
             /* the master has requested a read from this slave */
             retval = 1;
-            break;
-        default :
-            /* no data */
-            retval = 0;
-            break;
+        } else {
+            /* the master is writing to this slave */
+            retval = 3;
+        }
+    }
+    /* no data */
+    else {
+        retval = 0;
     }
 
     return retval;
@@ -705,8 +703,8 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     }
     for (count = 0; ((count < (length + 1)) && (break_flg == 0)); count++) {
         /* There is no timeout, but the upper limit value is set to avoid an infinite loop. */
-        while (((i2c_status(obj) & SR2_STOP) != 0) || ((i2c_status(obj) & SR2_RDRF) == 0)) {
-            if ((i2c_status(obj) & SR2_STOP) != 0) {
+        while (((i2c_status(obj) & (SR2_STOP | SR2_START)) != 0) || ((i2c_status(obj) & SR2_RDRF) == 0)) {
+            if ((i2c_status(obj) & (SR2_STOP | SR2_START)) != 0) {
                 break_flg = 1;
                 break;
             }
