@@ -5,9 +5,9 @@ add_library(mbed-os-coap INTERFACE)
 
 target_include_directories(mbed-os-coap
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-coap
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/include
+        .
+        ./mbed-coap
+        ./source/include
 )
 
 target_sources(mbed-os-coap
@@ -23,4 +23,7 @@ target_compile_definitions(mbed-os-coap
         MBED_CONF_COAP_PRESENT=1
 )
 
-target_link_libraries(mbed-os-coap INTERFACE mbed-os-nanostack-libservice)
+target_link_libraries(mbed-os-coap
+    INTERFACE
+        mbed-os-nanostack-libservice
+)

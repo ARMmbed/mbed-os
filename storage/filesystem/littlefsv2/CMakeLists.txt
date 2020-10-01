@@ -5,10 +5,10 @@ add_library(mbed-os-storage-littlefs-v2 INTERFACE)
 
 target_include_directories(mbed-os-storage-littlefs-v2
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/littlefsv2
-        ${CMAKE_CURRENT_SOURCE_DIR}/littlefs
+        .
+        ./include
+        ./include/littlefsv2
+        ./littlefs
 )
 
 target_sources(mbed-os-storage-littlefs-v2
@@ -19,4 +19,7 @@ target_sources(mbed-os-storage-littlefs-v2
         littlefs/lfs2_util.c
 )
 
-target_link_libraries(mbed-os-littlefs-v2 INTERFACE mbed-os-storage)
+target_link_libraries(mbed-os-storage-littlefs-v2
+    INTERFACE
+        mbed-os-storage
+)

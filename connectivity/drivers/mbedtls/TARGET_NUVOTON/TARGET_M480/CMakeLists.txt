@@ -1,15 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-mbedtls-nuvoton
+target_include_directories(mbed-os-mbedtls
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/aes
-        ${CMAKE_CURRENT_SOURCE_DIR}/des
-        ${CMAKE_CURRENT_SOURCE_DIR}/sha
+        .
+        ./aes
+        ./des
+        ./sha
 )
 
-target_sources(mbed-os-mbedtls-nuvoton
+target_sources(mbed-os-mbedtls
     INTERFACE
         aes/aes_alt.c
 

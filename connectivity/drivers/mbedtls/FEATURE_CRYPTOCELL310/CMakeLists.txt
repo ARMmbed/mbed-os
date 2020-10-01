@@ -3,15 +3,18 @@
 
 add_library(mbed-os-mbedtls-cryptocell310 INTERFACE)
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("MCU_NRF52840" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_MCU_NRF52840)
+endif()
+
 add_subdirectory(binaries)
 
 target_include_directories(mbed-os-mbedtls-cryptocell310
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310/internal
+        .
+        ./include
+        ./include/cryptocell310
+        ./include/cryptocell310/internal
 )
 
 target_sources(mbed-os-mbedtls-cryptocell310
@@ -28,4 +31,7 @@ target_sources(mbed-os-mbedtls-cryptocell310
         source/trng.c
 )
 
-target_link_libraries(mbed-os-mbedtls-cryptocell310 INTERFACE mbed-os-mbedtls)
+target_link_libraries(mbed-os-mbedtls-cryptocell310
+    INTERFACE
+        mbed-os-mbedtls
+)

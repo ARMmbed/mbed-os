@@ -1,18 +1,26 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-storage
+add_library(mbed-os-storage-fat INTERFACE)
+
+target_include_directories(mbed-os-storage-fat
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/fat
-        ${CMAKE_CURRENT_SOURCE_DIR}/ChaN
+        .
+        ./include
+        ./include/fat
+        ./ChaN
 )
 
-target_sources(mbed-os-storage
+target_sources(mbed-os-storage-fat
     INTERFACE
         source/FATFileSystem.cpp
 
         ChaN/ff.cpp
         ChaN/ffunicode.cpp
 )
+
+target_link_libraries(mbed-os-storage-fat
+    INTERFACE
+        mbed-os-storage
+)
+

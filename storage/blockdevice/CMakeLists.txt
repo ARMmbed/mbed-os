@@ -1,18 +1,36 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(COMPONENT_DATAFLASH)
-add_subdirectory(COMPONENT_FLASHIAP)
-add_subdirectory(COMPONENT_I2CEE)
-add_subdirectory(COMPONENT_QSPIF)
-add_subdirectory(COMPONENT_SD)
-add_subdirectory(COMPONENT_SPIF)
+if("DATAFLASH" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_DATAFLASH)
+endif()
+
+if("FLASHIAP" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_FLASHIAP)
+endif()
+
+if("I2CEE" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_I2CEE)
+endif()
+
+if("QSPIF" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_QSPIF)
+endif()
+
+if("SD" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_SD)
+endif()
+
+if("SPIF" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_SPIF)
+endif()
+
 
 target_include_directories(mbed-os-storage
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/blockdevice
+        .
+        ./include
+        ./include/blockdevice
 )
 
 target_sources(mbed-os-storage

@@ -3,13 +3,13 @@
 
 add_subdirectory(lib)
 
-target_include_directories(mbed-os-emac-rda5981x
+target_include_directories(mbed-os-emac
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/inc
+        .
+        ./inc
 )
 
-target_sources(mbed-os-emac-rda5981x
+target_sources(mbed-os-emac
     PRIVATE
         src/maclib_task.c
         src/rda5991h_wland.c

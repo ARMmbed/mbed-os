@@ -1,8 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-mbedtls-nuvoton INTERFACE)
+if("M480" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_M480)
+elseif("NUC472" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUC472)
+endif()
 
-mbed_add_cmake_directory_if_labels("TARGET")
-
-target_link_libraries(mbed-os-mbedtls-nuvoton INTERFACE mbed-os-mbedtls)

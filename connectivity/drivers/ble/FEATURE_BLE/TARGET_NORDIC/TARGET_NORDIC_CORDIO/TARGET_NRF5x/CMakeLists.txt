@@ -1,13 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-ble-nordic-cordio
+target_include_directories(mbed-os-ble-cordio
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/include
+        .
+        ./stack/include
 )
 
-target_sources(mbed-os-ble-nordic-cordio
+target_sources(mbed-os-ble-cordio
     INTERFACE
         NRFCordioHCIDriver.cpp
         NRFCordioHCITransportDriver.cpp

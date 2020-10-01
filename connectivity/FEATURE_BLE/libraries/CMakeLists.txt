@@ -14,4 +14,7 @@ target_include_directories(mbed-os-ble-cordio
         .
 )
 
-target_link_libraries(mbed-os-ble INTERFACE mbed-os-ble-cordio)
+target_link_libraries(mbed-os-ble-cordio
+    INTERFACE
+        mbed-os-ble
+)

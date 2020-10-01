@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-ble-nordic OBJECT)
-
-mbed_add_cmake_directory_if_labels("TARGET")
-
-target_link_libraries(mbed-os-ble-nordic-cordio INTERFACE mbed-os-ble)
+if("NORDIC_CORDIO" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NORDIC_CORDIO)
+endif()

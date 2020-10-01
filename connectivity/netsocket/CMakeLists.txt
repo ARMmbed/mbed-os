@@ -3,16 +3,17 @@
 
 add_library(mbed-os-netsocket INTERFACE)
 
-target_include_directories(mbed-os-netsocket
-    INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/netsocket
-)
-
+# TODO CMake: Perhaps move this/these file(s)
 target_sources(mbed-os-cellular
     INTERFACE
         source/CellularNonIPSocket.cpp
+)
+
+target_include_directories(mbed-os-netsocket
+    INTERFACE
+        .
+        ./include
+        ./include/netsocket
 )
 
 target_sources(mbed-os-netsocket
@@ -47,8 +48,17 @@ target_compile_definitions(mbed-os-netsocket
         MBED_CONF_CMAKE_NETSOCKET_ENABLED=1
 )
 
-target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-nanostack-libservice mbed-os-mbedtls mbed-os-lwipstack mbed-os-events)
+target_link_libraries(mbed-os-netsocket
+    INTERFACE
+        mbed-os-nanostack-libservice
+        mbed-os-mbedtls
+        mbed-os-lwipstack
+        mbed-os-events
+)
 
-if(TARGET_Freescale_EMAC IN_LIST MBED_TARGET_DEFINITIONS)
-    target_link_libraries(mbed-os-netsocket INTERFACE mbed-os-emac-kinetis)
+if("Freescale_EMAC" IN_LIST MBED_TARGET_LABELS)
+    target_link_libraries(mbed-os-netsocket
+        INTERFACE
+            mbed-os-emac-kinetis
+    )
 endif()

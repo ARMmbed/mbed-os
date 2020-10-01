@@ -1,17 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-emac-whd INTERFACE)
-
-target_include_directories(mbed-os-emac-whd
+target_include_directories(mbed-os-emac
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/interface
-        ${CMAKE_CURRENT_SOURCE_DIR}/network
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils
+        .
+        ./interface
+        ./network
+        ./utils
 )
 
-target_sources(mbed-os-emac-whd
+target_sources(mbed-os-emac
     INTERFACE
         interface/CyDhcpServer.cpp
         interface/WhdAccessPoint.cpp
@@ -23,5 +21,3 @@ target_sources(mbed-os-emac-whd
         utils/cydhcp_server_debug.cpp
         utils/cynetwork_utils.c
 )
-
-target_link_libraries(mbed-os-emac-whd INTERFACE mbed-os-netsocket)

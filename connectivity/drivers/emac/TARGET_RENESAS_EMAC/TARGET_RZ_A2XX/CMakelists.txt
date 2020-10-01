@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-emac-rza
+target_include_directories(mbed-os-emac
     PUBLIC
         .
         r_ether_rza2
@@ -11,7 +11,7 @@ target_include_directories(mbed-os-emac-rza
         r_ether_rza2/src
 )
 
-target_sources(mbed-os-emac-rza
+target_sources(mbed-os-emac
     PRIVATE
         rza2_emac.cpp
         r_ether_rza2/src/r_ether_rza2.c

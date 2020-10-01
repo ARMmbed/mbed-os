@@ -5,11 +5,11 @@ add_library(mbed-os-mbedtls INTERFACE)
 
 target_include_directories(mbed-os-mbedtls
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/mbedtls
-        ${CMAKE_CURRENT_SOURCE_DIR}/platform
-        ${CMAKE_CURRENT_SOURCE_DIR}/platform/inc
+        .
+        ./include
+        ./include/mbedtls
+        ./platform
+        ./platform/inc
 )
 
 target_sources(mbed-os-mbedtls

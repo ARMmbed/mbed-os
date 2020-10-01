@@ -1,11 +1,25 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-mbedtls-stm INTERFACE)
+if("TARGET_STM32F437xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F437xG)
+elseif("STM32F439xI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F439xI)
+elseif("STM32F756xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F756xG)
+elseif("STM32L443xC" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L443xC)
+elseif("STM32L486xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L486xG)
+elseif("STM32L4S5xI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L4S5xI)
+elseif("STM32L562xx" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L562xx)
+elseif("STM32WB55xx" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32WB55xx)
+endif()
 
-mbed_add_cmake_directory_if_labels("TARGET")
-
-target_sources(mbed-os-mbedtls-stm
+target_sources(mbed-os-mbedtls
     INTERFACE
         aes_alt.cpp
         aes_alt_stm32l4.c
@@ -18,9 +32,7 @@ target_sources(mbed-os-mbedtls-stm
         sha256_alt.cpp
 )
 
-target_include_directories(mbed-os-mbedtls-stm
+target_include_directories(mbed-os-mbedtls
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
-
-target_link_libraries(mbed-os-mbedtls-stm INTERFACE mbed-os-mbedtls)

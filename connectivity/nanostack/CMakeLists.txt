@@ -26,4 +26,9 @@ target_compile_definitions(mbed-os-nanostack
         MBED_CONF_NANOSTACK_PRESENT=1
 )
 
-target_link_libraries(mbed-os-nanostack INTERFACE mbed-os-nanostack-libservice mbed-os-netsocket mbed-os-coap)
+target_link_libraries(mbed-os-nanostack
+    INTERFACE
+        mbed-os-nanostack-libservice
+        mbed-os-netsocket
+        mbed-os-coap
+)

@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-emac-imx INTERFACE)
+if("MIMXRT1050_EVK" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_MIMXRT1050_EVK)
+endif()
 
-mbed_add_cmake_directory_if_labels("TARGET")
-
-target_include_directories(mbed-os-emac-imx
+target_include_directories(mbed-os-emac
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
-target_sources(mbed-os-emac-imx
+target_sources(mbed-os-emac
     INTERFACE
         imx_emac.cpp
 )

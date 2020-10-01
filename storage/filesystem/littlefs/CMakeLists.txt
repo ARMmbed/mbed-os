@@ -1,17 +1,17 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-littlefs INTERFACE)
+add_library(mbed-os-storage-littlefs INTERFACE)
 
-target_include_directories(mbed-os-littlefs
+target_include_directories(mbed-os-storage-littlefs
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/littlefs
-        ${CMAKE_CURRENT_SOURCE_DIR}/littlefs
+        .
+        ./include
+        ./include/littlefs
+        ./littlefs
 )
 
-target_sources(mbed-os-littlefs
+target_sources(mbed-os-storage-littlefs
     INTERFACE
         source/LittleFileSystem.cpp
 
@@ -19,4 +19,7 @@ target_sources(mbed-os-littlefs
         littlefs/lfs_util.c
 )
 
-target_link_libraries(mbed-os-littlefs INTERFACE mbed-os-storage)
+target_link_libraries(mbed-os-storage-littlefs
+    INTERFACE
+        mbed-os-storage
+)

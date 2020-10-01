@@ -42,4 +42,7 @@ target_compile_definitions(mbed-os-nfc
         MBED_CONF_NFC_PRESENT=1
 )
 
-target_link_libraries(mbed-os-nfc INTERFACE mbed-os-events)
+target_link_libraries(mbed-os-nfc
+    INTERFACE
+        mbed-os-events
+)

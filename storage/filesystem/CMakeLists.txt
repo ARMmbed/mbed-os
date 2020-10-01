@@ -7,9 +7,9 @@ add_subdirectory(littlefsv2)
 
 target_include_directories(mbed-os-storage
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem
+        .
+        ./include
+        ./include/filesystem
 )
 
 target_sources(mbed-os-storage

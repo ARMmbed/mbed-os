@@ -8,9 +8,9 @@ add_subdirectory(system)
 
 target_include_directories(mbed-os-lorawan
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/lorawan
+        .
+        ./include
+        ./include/lorawan
 )
 
 target_sources(mbed-os-lorawan
@@ -24,4 +24,7 @@ target_compile_definitions(mbed-os-lorawan
         MBED_CONF_LORAWAN_PRESENT=1
 )
 
-target_link_libraries(mbed-os-lorawan INTERFACE mbed-os-events)
+target_link_libraries(mbed-os-lorawan
+    INTERFACE
+        mbed-os-events
+)

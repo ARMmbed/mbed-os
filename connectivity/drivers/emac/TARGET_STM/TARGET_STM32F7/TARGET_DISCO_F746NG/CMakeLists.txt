@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os-emac-stm32xx
+target_sources(mbed-os-emac
     INTERFACE
         stm32f7_eth_init.c
 )

@@ -3,10 +3,10 @@
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/drivers
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/drivers/internal
+        .
+        ./include
+        ./include/drivers
+        ./include/drivers/internal
 )
 
 target_sources(mbed-os

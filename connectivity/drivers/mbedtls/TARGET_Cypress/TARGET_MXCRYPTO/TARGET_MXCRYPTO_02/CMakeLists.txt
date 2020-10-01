@@ -1,11 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-mbedtls-cypress-mxcrypto-02 INTERFACE)
-
-target_include_directories(mbed-os-mbedtls-cypress-mxcrypto-02
+target_include_directories(mbed-os-mbedtls
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
-
-target_link_libraries(mbed-os-mbedtls-cypress-mxcrypto-02 INTERFACE mbed-os-mbedtls)

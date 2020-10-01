@@ -1,18 +1,18 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-emac-numaker INTERFACE)
+if("M480" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_M480)
+elseif("NUC472" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUC472)
+endif()
 
-mbed_add_cmake_directory_if_labels("TARGET")
-
-target_include_directories(mbed-os-emac-numaker
+target_include_directories(mbed-os-emac
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
-target_sources(mbed-os-emac-numaker
+target_sources(mbed-os-emac
     INTERFACE
         numaker_emac.cpp
 )
-
-target_link_libraries(mbed-os-emac-numaker INTERFACE mbed-os-netsocket)

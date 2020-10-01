@@ -10,7 +10,7 @@ add_subdirectory(platform)
 
 target_include_directories(mbed-os-storage
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
 target_compile_definitions(mbed-os-storage

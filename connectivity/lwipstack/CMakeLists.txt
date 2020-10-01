@@ -5,13 +5,13 @@ add_library(mbed-os-lwipstack INTERFACE)
 
 target_include_directories(mbed-os-lwipstack
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/lwipstack
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip/src/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip/src/include/lwip
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip-sys
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip-sys/arch
+        .
+        ./include
+        ./include/lwipstack
+        ./lwip/src/include
+        ./lwip/src/include/lwip
+        ./lwip-sys
+        ./lwip-sys/arch
 )
 
 target_sources(mbed-os-lwipstack
@@ -94,4 +94,9 @@ target_compile_definitions(mbed-os-lwipstack
         MBED_CONF_LWIPSTACK_PRESENT=1
 )
 
-target_link_libraries(mbed-os-lwipstack INTERFACE mbed-os-netsocket mbed-os-ppp mbed-os-randlib)
+target_link_libraries(mbed-os-lwipstack
+    INTERFACE
+        mbed-os-netsocket
+        mbed-os-ppp
+        mbed-os-randlib
+)

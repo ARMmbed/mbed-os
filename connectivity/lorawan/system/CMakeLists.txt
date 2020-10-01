@@ -8,5 +8,5 @@ target_sources(mbed-os-lorawan
 
 target_include_directories(mbed-os-lorawan
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )

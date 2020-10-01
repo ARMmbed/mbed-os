@@ -1,20 +1,19 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-ble-cyw43xxx INTERFACE)
+if("PSOC6" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_PSOC6)
+endif()
 
-mbed_add_cmake_directory_if_labels("TARGET")
 add_subdirectory(firmware)
 
-target_include_directories(mbed-os-ble-cyw43xxx
+target_include_directories(mbed-os-ble
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
-target_sources(mbed-os-ble-cyw43xxx
+target_sources(mbed-os-ble
     INTERFACE
         CyH4TransportDriver.cpp
         HCIDriver.cpp
 )
-
-target_link_libraries(mbed-os-ble-cyw43xxx INTERFACE mbed-os-ble)

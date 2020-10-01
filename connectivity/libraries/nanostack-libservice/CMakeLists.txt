@@ -1,6 +1,14 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 add_library(mbed-os-nanostack-libservice INTERFACE)
+
+target_include_directories(mbed-os-nanostack-libservice
+    INTERFACE
+        .
+        ./mbed-client-libservice
+        ./mbed-client-libservice/platform
+)
 
 target_sources(mbed-os-nanostack-libservice
     INTERFACE
@@ -13,12 +21,6 @@ target_sources(mbed-os-nanostack-libservice
         source/libip6string/stoip6.c
         source/nsdynmemLIB/nsdynmemLIB.c
         source/nvmHelper/ns_nvm_helper.c
-)
-target_include_directories(mbed-os-nanostack-libservice
-    INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-client-libservice/platform
 )
 
 target_compile_definitions(mbed-os-nanostack-libservice

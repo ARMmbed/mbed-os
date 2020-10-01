@@ -1,25 +1,27 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+add_library(mbed-os-ble-cordio_ll INTERFACE)
+
 target_include_directories(mbed-os-ble-cordio_ll
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/include/ble
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/include/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/bb
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/lctr
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/lhci
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/sch
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/common/bb
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/common/sch
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/thirdparty
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/thirdparty/nordic-bsp/components/boards
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack/thirdparty/uecc
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack_adaptation
+        .
+        ./stack
+        ./stack/controller
+        ./stack/controller/include
+        ./stack/controller/include/ble
+        ./stack/controller/include/common
+        ./stack/controller/sources/ble/bb
+        ./stack/controller/sources/ble/include
+        ./stack/controller/sources/ble/lctr
+        ./stack/controller/sources/ble/lhci
+        ./stack/controller/sources/ble/sch
+        ./stack/controller/sources/common/bb
+        ./stack/controller/sources/common/sch
+        ./stack/thirdparty
+        ./stack/thirdparty/nordic-bsp/components/boards
+        ./stack/thirdparty/uecc
+        ./stack_adaptation
 )
 
 target_sources(mbed-os-ble-cordio_ll
@@ -45,13 +47,13 @@ target_sources(mbed-os-ble-cordio_ll
         stack/controller/sources/ble/bb/bb_ble_whitelist.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/ble/init/init.c
         stack/controller/sources/ble/init/init_ctr.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/ble/lctr/lctr_act_adv_master.c
         stack/controller/sources/ble/lctr/lctr_act_adv_master_ae.c
@@ -145,7 +147,7 @@ target_sources(mbed-os-ble-cordio
         stack/controller/sources/ble/lctr/lctr_sm_llcp_slave_phy.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/ble/lhci/lhci_cmd.c
         stack/controller/sources/ble/lhci/lhci_cmd_adv_master.c
@@ -224,7 +226,7 @@ target_sources(mbed-os-ble-cordio
         stack/controller/sources/ble/lhci/lhci_main_iso.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/ble/ll/ll_init.c
         stack/controller/sources/ble/ll/ll_init_adv_master.c
@@ -275,7 +277,7 @@ target_sources(mbed-os-ble-cordio
         stack/controller/sources/ble/ll/ll_math.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/ble/lmgr/lmgr_events.c
         stack/controller/sources/ble/lmgr/lmgr_main.c
@@ -290,14 +292,14 @@ target_sources(mbed-os-ble-cordio
         stack/controller/sources/ble/lmgr/lmgr_main_slave.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/ble/sch/sch_ble.c
         stack/controller/sources/ble/sch/sch_rm.c
         stack/controller/sources/ble/sch/sch_tm.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/controller/sources/common/bb/bb_main.c
 
@@ -307,7 +309,7 @@ target_sources(mbed-os-ble-cordio
         stack/controller/sources/common/sch/sch_main.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack/thirdparty/nordic-bsp/components/boards/boards.c
 
@@ -316,7 +318,12 @@ target_sources(mbed-os-ble-cordio
         stack/thirdparty/uecc/uECC_ll.c
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-os-ble-cordio_ll
     INTERFACE
         stack_adaptation/custom_chci_tr.cpp
+)
+
+target_link_libraries(mbed-os-ble-cordio_ll
+    INTERFACE
+        mbed-os-ble-cordio
 )

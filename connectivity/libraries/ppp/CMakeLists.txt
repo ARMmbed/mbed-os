@@ -5,10 +5,10 @@ add_library(mbed-os-ppp INTERFACE)
 
 target_include_directories(mbed-os-ppp
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/polarssl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/ppp
+        .
+        ./include
+        ./include/polarssl
+        ./include/ppp
 )
 
 target_sources(mbed-os-ppp
