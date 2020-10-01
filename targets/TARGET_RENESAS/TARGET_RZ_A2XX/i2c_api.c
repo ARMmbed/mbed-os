@@ -48,10 +48,19 @@ static const volatile struct st_riic *RIIC[] = {
 
 /* RIICnSER */
 #define SER_SAR0E (1 << 0)
+#define SER_SAR1E (1 << 1)
+#define SER_SAR2E (1 << 2)
+#define SER_GCE   (1 << 3)
+#define SER_DIDE  (1 << 5)
+#define SER_HOAE  (1 << 7)
 
 /* RIICnSR1 */
 #define SR1_AAS0  (1 << 0)
+#define SR1_AAS1  (1 << 1)
+#define SR1_AAS2  (1 << 2)
 #define SR1_GCA   (1 << 3)
+#define SR1_DID   (1 << 5)
+#define SR1_HOA   (1 << 7)
 
 /* RIICnSR2 */
 #define SR2_START (1 << 2)
@@ -689,6 +698,12 @@ int i2c_slave_receive(i2c_t *obj)
         retval = 0;
     }
 
+    /* to detect restart-condition */
+    if (0 != retval) {
+        /* SR2.START = 0 */
+        obj->i2c.i2c->ICSR2.LONG &= ~SR2_START;
+    }
+
     return retval;
 }
 
@@ -704,6 +719,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     for (count = 0; ((count < (length + 1)) && (break_flg == 0)); count++) {
         /* There is no timeout, but the upper limit value is set to avoid an infinite loop. */
         while (((i2c_status(obj) & (SR2_STOP | SR2_START)) != 0) || ((i2c_status(obj) & SR2_RDRF) == 0)) {
+            /* received stop-condition or restart-condition */
             if ((i2c_status(obj) & (SR2_STOP | SR2_START)) != 0) {
                 break_flg = 1;
                 break;
