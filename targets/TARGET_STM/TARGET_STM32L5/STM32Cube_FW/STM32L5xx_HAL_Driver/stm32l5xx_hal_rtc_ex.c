@@ -757,7 +757,7 @@ void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
 {
   if ((RTC->SMISR & RTC_SMISR_WUTMF) != 0u)
   {
-    /* Immediatly clear flags */
+    /* Immediately clear flags */
     WRITE_REG(RTC->SCR, RTC_SCR_CWUTF);
 #if (USE_HAL_RTC_REGISTER_CALLBACKS == 1)
     /* Call wake up timer registered Callback */
@@ -1641,11 +1641,9 @@ HAL_StatusTypeDef HAL_RTCEx_SetActiveTampers(RTC_HandleTypeDef *hrtc, RTC_Active
   /* Active Tampers must not be already enabled */
   if (READ_BIT(TAMP->ATOR, TAMP_ATOR_INITS) != 0U)
   {
-    /* Disable all actives tampers with HAL_RTCEx_DeactivateActiveTampers */
-    if (HAL_RTCEx_DeactivateActiveTampers(hrtc) != HAL_OK)
-    {
-      return HAL_ERROR;
-    }
+    /* Disable all actives tampers with HAL_RTCEx_DeactivateActiveTampers.
+       No need to check return value because it returns always HAL_OK */
+    (void) HAL_RTCEx_DeactivateActiveTampers(hrtc);
   }
 
   /* Set TimeStamp on tamper detection */
@@ -1989,7 +1987,7 @@ void HAL_RTCEx_TamperIRQHandler(RTC_HandleTypeDef *hrtc)
   /* Get secure interrupt status */
   tmp = READ_REG(TAMP->SMISR);
 
-  /* Immediatly clear flags */
+  /* Immediately clear flags */
   WRITE_REG(TAMP->SCR, tmp);
 
   /* Check Tamper1 status */

@@ -185,26 +185,6 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
     if(iocurrent != 0U)
     {
       /*--------------------- GPIO Mode Configuration ------------------------*/
-      /* In case of Alternate function mode selection */
-      if((GPIO_Init->Mode == GPIO_MODE_AF_PP) || (GPIO_Init->Mode == GPIO_MODE_AF_OD))
-      {
-        /* Check the Alternate function parameters */
-        assert_param(IS_GPIO_AF_INSTANCE(GPIOx));
-        assert_param(IS_GPIO_AF(GPIO_Init->Alternate));
-
-        /* Configure Alternate function mapped with the current IO */
-        temp = GPIOx->AFR[position >> 3U];
-        temp &= ~(0x0FUL << ((position & 0x07U) * 4U)) ;
-        temp |= ((GPIO_Init->Alternate) << ((position & 0x07U) * 4U));
-        GPIOx->AFR[position >> 3U] = temp;
-      }
-
-      /* Configure IO Direction mode (Input, Output, Alternate or Analog) */
-      temp = GPIOx->MODER;
-      temp &= ~(GPIO_MODER_MODE0 << (position * 2U));
-      temp |= ((GPIO_Init->Mode & GPIO_MODE) << (position * 2U));
-      GPIOx->MODER = temp;
-
       /* In case of Output or Alternate function mode selection */
       if((GPIO_Init->Mode == GPIO_MODE_OUTPUT_PP) || (GPIO_Init->Mode == GPIO_MODE_AF_PP) ||
          (GPIO_Init->Mode == GPIO_MODE_OUTPUT_OD) || (GPIO_Init->Mode == GPIO_MODE_AF_OD))
@@ -229,6 +209,26 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
       temp &= ~(GPIO_PUPDR_PUPD0 << (position * 2U));
       temp |= ((GPIO_Init->Pull) << (position * 2U));
       GPIOx->PUPDR = temp;
+
+      /* In case of Alternate function mode selection */
+      if((GPIO_Init->Mode == GPIO_MODE_AF_PP) || (GPIO_Init->Mode == GPIO_MODE_AF_OD))
+      {
+        /* Check the Alternate function parameters */
+        assert_param(IS_GPIO_AF_INSTANCE(GPIOx));
+        assert_param(IS_GPIO_AF(GPIO_Init->Alternate));
+
+        /* Configure Alternate function mapped with the current IO */
+        temp = GPIOx->AFR[position >> 3U];
+        temp &= ~(0x0FUL << ((position & 0x07U) * 4U)) ;
+        temp |= ((GPIO_Init->Alternate) << ((position & 0x07U) * 4U));
+        GPIOx->AFR[position >> 3U] = temp;
+      }
+
+      /* Configure IO Direction mode (Input, Output, Alternate or Analog) */
+      temp = GPIOx->MODER;
+      temp &= ~(GPIO_MODER_MODE0 << (position * 2U));
+      temp |= ((GPIO_Init->Mode & GPIO_MODE) << (position * 2U));
+      GPIOx->MODER = temp;
 
       /*--------------------- EXTI Mode Configuration ------------------------*/
       /* Configure the External Interrupt or event for the current IO */
@@ -426,17 +426,16 @@ void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState Pin
   */
 void HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
+  uint32_t odr;
+
   /* Check the parameters */
   assert_param(IS_GPIO_PIN(GPIO_Pin));
 
-  if ((GPIOx->ODR & GPIO_Pin) != 0U)
-  {
-    GPIOx->BRR = (uint32_t)GPIO_Pin;
-  }
-  else
-  {
-    GPIOx->BSRR = (uint32_t)GPIO_Pin;
-  }
+  /* get current Output Data Register value */
+  odr = GPIOx->ODR;
+
+  /* Set selected pins that were at low level, and reset ones that were high */
+  GPIOx->BSRR = ((odr & GPIO_Pin) << GPIO_NUMBER) | (~odr & GPIO_Pin);
 }
 
 /**

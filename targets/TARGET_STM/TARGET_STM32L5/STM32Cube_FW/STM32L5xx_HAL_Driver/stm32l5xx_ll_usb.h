@@ -118,6 +118,10 @@ typedef struct
 
   uint32_t  xfer_count;      /*!< Partial transfer length in case of multi packet transfer                  */
 
+  uint32_t  xfer_len_db;      /*!< double buffer transfer length used with bulk double buffer in           */
+
+  uint8_t   xfer_fill_db;     /*!< double buffer Need to Fill new buffer  used with bulk_in                */
+
 } USB_EPTypeDef;
 
 
@@ -131,10 +135,10 @@ typedef struct
 /** @defgroup USB_LL_EP0_MPS USB Low Layer EP0 MPS
   * @{
   */
-#define DEP0CTL_MPS_64                         0U
-#define DEP0CTL_MPS_32                         1U
-#define DEP0CTL_MPS_16                         2U
-#define DEP0CTL_MPS_8                          3U
+#define EP_MPS_64                         0U
+#define EP_MPS_32                         1U
+#define EP_MPS_16                         2U
+#define EP_MPS_8                          3U
 /**
   * @}
   */
@@ -159,10 +163,10 @@ typedef struct
   * @}
   */
 
-#define BTABLE_ADDRESS                         0x000U
+#define BTABLE_ADDRESS                     0x000U
 #define PMA_ACCESS                             1U
 
-#define EP_ADDR_MSK                            0x7U
+#define EP_ADDR_MSK                          0x7U
 /**
   * @}
   */

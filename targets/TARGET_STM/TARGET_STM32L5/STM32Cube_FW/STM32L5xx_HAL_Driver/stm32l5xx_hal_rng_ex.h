@@ -22,7 +22,7 @@
 #define STM32L5xx_HAL_RNG_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -32,7 +32,8 @@
   * @{
   */
 
-#if defined (RNG)
+#if defined(RNG)
+#if defined(RNG_CR_CONDRST)
 
 /** @defgroup RNGEx RNGEx
   * @brief RNG Extension HAL module driver
@@ -70,40 +71,40 @@ typedef struct
   */
 
 /** @defgroup RNGEX_Clock_Divider_Factor  Value used to configure an internal
- *            programmable divider acting on the incoming RNG clock
+  *            programmable divider acting on the incoming RNG clock
   * @{
   */
 #define RNG_CLKDIV_BY_1       (0x00000000UL)      /*!< No clock division  */
 #define RNG_CLKDIV_BY_2       (RNG_CR_CLKDIV_0)
-                           /*!< 2 RNG clock cycles per internal RNG clock    */
+/*!< 2 RNG clock cycles per internal RNG clock    */
 #define RNG_CLKDIV_BY_4       (RNG_CR_CLKDIV_1)
-                           /*!< 4 RNG clock cycles per internal RNG clock    */
+/*!< 4 RNG clock cycles per internal RNG clock    */
 #define RNG_CLKDIV_BY_8       (RNG_CR_CLKDIV_1 | RNG_CR_CLKDIV_0)
-                           /*!< 8 RNG clock cycles per internal RNG clock    */
+/*!< 8 RNG clock cycles per internal RNG clock    */
 #define RNG_CLKDIV_BY_16      (RNG_CR_CLKDIV_2)
-                           /*!< 16 RNG clock cycles per internal RNG clock   */
+/*!< 16 RNG clock cycles per internal RNG clock   */
 #define RNG_CLKDIV_BY_32      (RNG_CR_CLKDIV_2 | RNG_CR_CLKDIV_0)
-                           /*!< 32 RNG clock cycles per internal RNG clock   */
+/*!< 32 RNG clock cycles per internal RNG clock   */
 #define RNG_CLKDIV_BY_64      (RNG_CR_CLKDIV_2 | RNG_CR_CLKDIV_1)
-                           /*!< 64 RNG clock cycles per internal RNG clock   */
+/*!< 64 RNG clock cycles per internal RNG clock   */
 #define RNG_CLKDIV_BY_128     (RNG_CR_CLKDIV_2 | RNG_CR_CLKDIV_1 | RNG_CR_CLKDIV_0)
-                           /*!< 128 RNG clock cycles per internal RNG clock  */
+/*!< 128 RNG clock cycles per internal RNG clock  */
 #define RNG_CLKDIV_BY_256     (RNG_CR_CLKDIV_3)
-                           /*!< 256 RNG clock cycles per internal RNG clock  */
+/*!< 256 RNG clock cycles per internal RNG clock  */
 #define RNG_CLKDIV_BY_512     (RNG_CR_CLKDIV_3 | RNG_CR_CLKDIV_0)
-                           /*!< 512 RNG clock cycles per internal RNG clock  */
+/*!< 512 RNG clock cycles per internal RNG clock  */
 #define RNG_CLKDIV_BY_1024    (RNG_CR_CLKDIV_3 | RNG_CR_CLKDIV_1)
-                           /*!< 1024 RNG clock cycles per internal RNG clock */
+/*!< 1024 RNG clock cycles per internal RNG clock */
 #define RNG_CLKDIV_BY_2048    (RNG_CR_CLKDIV_3 | RNG_CR_CLKDIV_1 | RNG_CR_CLKDIV_0)
-                          /*!< 2048 RNG clock cycles per internal RNG clock  */
+/*!< 2048 RNG clock cycles per internal RNG clock  */
 #define RNG_CLKDIV_BY_4096    (RNG_CR_CLKDIV_3 | RNG_CR_CLKDIV_2)
-                           /*!< 4096 RNG clock cycles per internal RNG clock  */
+/*!< 4096 RNG clock cycles per internal RNG clock  */
 #define RNG_CLKDIV_BY_8192    (RNG_CR_CLKDIV_3 | RNG_CR_CLKDIV_2 | RNG_CR_CLKDIV_0)
-                          /*!< 8192 RNG clock cycles per internal RNG clock  */
+/*!< 8192 RNG clock cycles per internal RNG clock  */
 #define RNG_CLKDIV_BY_16384   (RNG_CR_CLKDIV_3 | RNG_CR_CLKDIV_2 | RNG_CR_CLKDIV_1)
-                          /*!< 16384 RNG clock cycles per internal RNG clock */
+/*!< 16384 RNG clock cycles per internal RNG clock */
 #define RNG_CLKDIV_BY_32768   (RNG_CR_CLKDIV_3 | RNG_CR_CLKDIV_2 | RNG_CR_CLKDIV_1 | RNG_CR_CLKDIV_0)
-                          /*!< 32768 RNG clock cycles per internal RNG clock */
+/*!< 32768 RNG clock cycles per internal RNG clock */
 /**
   * @}
   */
@@ -183,8 +184,8 @@ typedef struct
 
 
 /**
- * @}
- */
+  * @}
+  */
 
 /* Private functions ---------------------------------------------------------*/
 /** @defgroup RNGEx_Private_Functions RNGEx Private Functions
@@ -211,9 +212,10 @@ HAL_StatusTypeDef HAL_RNGEx_LockConfig(RNG_HandleTypeDef *hrng);
   * @}
   */
 
-/**
-  * @}
+/** @addtogroup RNGEx_Exported_Functions_Group2
+  * @{
   */
+HAL_StatusTypeDef HAL_RNGEx_RecoverSeedError(RNG_HandleTypeDef *hrng);
 
 /**
   * @}
@@ -223,6 +225,15 @@ HAL_StatusTypeDef HAL_RNGEx_LockConfig(RNG_HandleTypeDef *hrng);
   * @}
   */
 
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+#endif /* RNG_CR_CONDRST */
 #endif /* RNG */
 
 /**

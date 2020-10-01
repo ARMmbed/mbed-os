@@ -273,7 +273,7 @@
   *         parameters in the OPAMP_InitTypeDef and initialize the associated handle.
   * @note   If the selected opamp is locked, initialization can't be performed.
   *         To unlock the configuration, perform a system reset.
-  * @param  hopamp: OPAMP handle
+  * @param  hopamp OPAMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp)
@@ -306,15 +306,15 @@ HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp)
     assert_param(IS_OPAMP_FUNCTIONAL_NORMALMODE(hopamp->Init.Mode));
     assert_param(IS_OPAMP_NONINVERTING_INPUT(hopamp->Init.NonInvertingInput));
 
+#if (USE_HAL_OPAMP_REGISTER_CALLBACKS == 1)
     if(hopamp->State == HAL_OPAMP_STATE_RESET)
     {  
-#if (USE_HAL_OPAMP_REGISTER_CALLBACKS == 1)
       if(hopamp->MspInitCallback == NULL)
       {
         hopamp->MspInitCallback               = HAL_OPAMP_MspInit;
       } 
-#endif /* USE_HAL_OPAMP_REGISTER_CALLBACKS */
     }
+#endif /* USE_HAL_OPAMP_REGISTER_CALLBACKS */
     
     if ((hopamp->Init.Mode) == OPAMP_STANDALONE_MODE)
     {
@@ -437,7 +437,7 @@ HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp)
   * @brief  DeInitialize the OPAMP peripheral.
   * @note   Deinitialization can be performed if the OPAMP configuration is locked.
   *         (the lock is SW in L5)
-  * @param  hopamp: OPAMP handle
+  * @param  hopamp OPAMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_OPAMP_DeInit(OPAMP_HandleTypeDef *hopamp)
@@ -487,7 +487,7 @@ HAL_StatusTypeDef HAL_OPAMP_DeInit(OPAMP_HandleTypeDef *hopamp)
 
 /**
   * @brief  Initialize the OPAMP MSP.
-  * @param  hopamp: OPAMP handle
+  * @param  hopamp OPAMP handle
   * @retval None
   */
 __weak void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp)
@@ -502,7 +502,7 @@ __weak void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp)
 
 /**
   * @brief  DeInitialize OPAMP MSP.
-  * @param  hopamp: OPAMP handle
+  * @param  hopamp OPAMP handle
   * @retval None
   */
 __weak void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef *hopamp)
@@ -537,7 +537,7 @@ __weak void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef *hopamp)
 
 /**
   * @brief  Start the OPAMP.
-  * @param  hopamp: OPAMP handle
+  * @param  hopamp OPAMP handle
   * @retval HAL status
   */
 
@@ -580,7 +580,7 @@ HAL_StatusTypeDef HAL_OPAMP_Start(OPAMP_HandleTypeDef *hopamp)
 
 /**
   * @brief  Stop the OPAMP.
-  * @param  hopamp: OPAMP handle
+  * @param  hopamp OPAMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_OPAMP_Stop(OPAMP_HandleTypeDef *hopamp)
@@ -668,8 +668,7 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
       assert_param(IS_OPAMP_ALL_INSTANCE(hopamp->Instance));
       assert_param(IS_OPAMP_POWERMODE(hopamp->Init.PowerMode));
 
-      /* Save OPAMP mode as                                          */
-      /* the calibration is not working in PGA mode                  */
+      /* The calibration is not working in PGA mode                  */
       opampmode = READ_BIT(hopamp->Instance->CSR,OPAMP_CSR_OPAMODE);
       
       /* Use of standalone mode */ 
@@ -862,7 +861,7 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
   * @note   On STM32L5, HAL OPAMP lock is software lock only (in 
   *         contrast of hardware lock available on some other STM32 
   *         devices).
-  * @param  hopamp: OPAMP handle
+  * @param  hopamp OPAMP handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_OPAMP_Lock(OPAMP_HandleTypeDef *hopamp)

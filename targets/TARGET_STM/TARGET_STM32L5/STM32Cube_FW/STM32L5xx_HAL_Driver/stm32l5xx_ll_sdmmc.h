@@ -63,8 +63,8 @@ typedef struct
                                       This parameter can be a value between Min_Data = 0 and Max_Data = 1023   */
 
 #if (USE_SD_TRANSCEIVER != 0U)
-  uint32_t TranceiverPresent;    /*!< Specifies if there is a 1V8 Tranceiver/Switcher.
-                                      This parameter can be a value of @ref SDMMC_LL_TRANCEIVER_PRESENT        */
+  uint32_t TranceiverPresent;    /*!< Specifies if there is a 1V8 Transceiver/Switcher.
+                                      This parameter can be a value of @ref SDMMC_LL_TRANSCEIVER_PRESENT       */
 #endif /* USE_SD_TRANSCEIVER */
 }SDMMC_InitTypeDef;
 
@@ -370,11 +370,11 @@ typedef struct
 #define SDMMC_SPEED_MODE_ULTRA                 ((uint32_t)0x00000003U)
 #define SDMMC_SPEED_MODE_DDR                   ((uint32_t)0x00000004U)
 
-#define IS_SDMMC_SPEED_MODE(MODE) (((MODE) == SDMMC_SPEED_MODE_AUTO) || \
-                                ((MODE) == SDMMC_SPEED_MODE_DEFAULT) || \
-                                ((MODE) == SDMMC_SPEED_MODE_HIGH) || \
-                                ((MODE) == SDMMC_SPEED_MODE_ULTRA) || \
-                                ((MODE) == SDMMC_SPEED_MODE_DDR))
+#define IS_SDMMC_SPEED_MODE(MODE) (((MODE) == SDMMC_SPEED_MODE_AUTO)    || \
+                                   ((MODE) == SDMMC_SPEED_MODE_DEFAULT) || \
+                                   ((MODE) == SDMMC_SPEED_MODE_HIGH)    || \
+                                   ((MODE) == SDMMC_SPEED_MODE_ULTRA)   || \
+                                   ((MODE) == SDMMC_SPEED_MODE_DDR))
 
 /**
   * @}
@@ -401,7 +401,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_TRANSCEIVER_PRESENT Tranceiver Present
+/** @defgroup SDMMC_LL_TRANSCEIVER_PRESENT Transceiver Present
   * @{
   */
 #define SDMMC_TRANSCEIVER_UNKNOWN             ((uint32_t)0x00000000U)
@@ -485,7 +485,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Data_Length Data Lenght
+/** @defgroup SDMMC_LL_Data_Length Data Length
   * @{
   */
 #define IS_SDMMC_DATA_LENGTH(LENGTH) ((LENGTH) <= 0x01FFFFFFU)
@@ -1040,8 +1040,14 @@ uint32_t          SDMMC_GetFIFOCount(SDMMC_TypeDef *SDMMCx);
 
 /* SDMMC Cards mode management functions */
 HAL_StatusTypeDef SDMMC_SetSDMMCReadWaitMode(SDMMC_TypeDef *SDMMCx, uint32_t SDMMC_ReadWaitMode);
+/**
+  * @}
+  */
 
-/* SDMMC Commands management functions */
+/* SDMMC Commands management functions ******************************************/
+/** @addtogroup HAL_SDMMC_LL_Group4
+  * @{
+  */
 uint32_t SDMMC_CmdBlockLength(SDMMC_TypeDef *SDMMCx, uint32_t BlockSize);
 uint32_t SDMMC_CmdReadSingleBlock(SDMMC_TypeDef *SDMMCx, uint32_t ReadAdd);
 uint32_t SDMMC_CmdReadMultiBlock(SDMMC_TypeDef *SDMMCx, uint32_t ReadAdd);
@@ -1051,7 +1057,7 @@ uint32_t SDMMC_CmdEraseStartAdd(SDMMC_TypeDef *SDMMCx, uint32_t StartAdd);
 uint32_t SDMMC_CmdSDEraseStartAdd(SDMMC_TypeDef *SDMMCx, uint32_t StartAdd);
 uint32_t SDMMC_CmdEraseEndAdd(SDMMC_TypeDef *SDMMCx, uint32_t EndAdd);
 uint32_t SDMMC_CmdSDEraseEndAdd(SDMMC_TypeDef *SDMMCx, uint32_t EndAdd);
-uint32_t SDMMC_CmdErase(SDMMC_TypeDef *SDMMCx);
+uint32_t SDMMC_CmdErase(SDMMC_TypeDef *SDMMCx, uint32_t EraseType);
 uint32_t SDMMC_CmdStopTransfer(SDMMC_TypeDef *SDMMCx);
 uint32_t SDMMC_CmdSelDesel(SDMMC_TypeDef *SDMMCx, uint64_t Addr);
 uint32_t SDMMC_CmdGoIdleState(SDMMC_TypeDef *SDMMCx);
@@ -1063,16 +1069,30 @@ uint32_t SDMMC_CmdSendSCR(SDMMC_TypeDef *SDMMCx);
 uint32_t SDMMC_CmdSendCID(SDMMC_TypeDef *SDMMCx);
 uint32_t SDMMC_CmdSendCSD(SDMMC_TypeDef *SDMMCx, uint32_t Argument);
 uint32_t SDMMC_CmdSetRelAdd(SDMMC_TypeDef *SDMMCx, uint16_t *pRCA);
+uint32_t SDMMC_CmdSetRelAddMmc(SDMMC_TypeDef *SDMMCx, uint16_t RCA);
 uint32_t SDMMC_CmdSendStatus(SDMMC_TypeDef *SDMMCx, uint32_t Argument);
 uint32_t SDMMC_CmdStatusRegister(SDMMC_TypeDef *SDMMCx);
 uint32_t SDMMC_CmdVoltageSwitch(SDMMC_TypeDef *SDMMCx);
 uint32_t SDMMC_CmdOpCondition(SDMMC_TypeDef *SDMMCx, uint32_t Argument);
 uint32_t SDMMC_CmdSwitch(SDMMC_TypeDef *SDMMCx, uint32_t Argument);
 uint32_t SDMMC_CmdSendEXTCSD(SDMMC_TypeDef *SDMMCx, uint32_t Argument);
-
 /**
   * @}
   */
+
+/* SDMMC Responses management functions *****************************************/
+/** @addtogroup HAL_SDMMC_LL_Group5
+  * @{
+  */
+uint32_t SDMMC_GetCmdResp1(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint32_t Timeout);
+uint32_t SDMMC_GetCmdResp2(SDMMC_TypeDef *SDMMCx);
+uint32_t SDMMC_GetCmdResp3(SDMMC_TypeDef *SDMMCx);
+uint32_t SDMMC_GetCmdResp6(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint16_t *pRCA);
+uint32_t SDMMC_GetCmdResp7(SDMMC_TypeDef *SDMMCx);
+/**
+  * @}
+  */
+
 
 /**
   * @}

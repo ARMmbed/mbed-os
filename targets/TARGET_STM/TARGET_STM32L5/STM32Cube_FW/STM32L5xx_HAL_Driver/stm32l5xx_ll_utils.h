@@ -298,6 +298,7 @@ void        LL_mDelay(uint32_t Delay);
   */
 
 void        LL_SetSystemCoreClock(uint32_t HCLKFrequency);
+ErrorStatus LL_SetFlashLatency(uint32_t HCLKFrequency);
 ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct,
                                          LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 ErrorStatus LL_PLL_ConfigSystemClock_HSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct,

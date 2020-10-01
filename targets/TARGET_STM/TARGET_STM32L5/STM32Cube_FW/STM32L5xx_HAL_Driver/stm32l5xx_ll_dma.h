@@ -374,11 +374,11 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_LL_SEC_PRIVILEDGE_MODE PRIVILEDGE MODE
+/** @defgroup DMA_LL_SEC_PRIVILEGE_MODE PRIVILEGE MODE
   * @{
   */
-#define LL_DMA_CHANNEL_NPRIV              0x00000000U             /*!< Disable priviledge */
-#define LL_DMA_CHANNEL_PRIV               DMA_CCR_PRIV            /*!< Enable  priviledge */
+#define LL_DMA_CHANNEL_NPRIV              0x00000000U             /*!< Disable privilege transfer to the destination */
+#define LL_DMA_CHANNEL_PRIV               DMA_CCR_PRIV            /*!< Enable  privilege transfer to the destination */
 /**
   * @}
   */
@@ -1436,7 +1436,7 @@ __STATIC_INLINE uint32_t LL_DMA_GetDataLength(DMA_TypeDef *DMAx, uint32_t Channe
 /**
   * @brief  Configure the Source and Destination addresses.
   * @note   This API must not be called when the DMA channel is enabled.
-  * @note   Each IP using DMA provides an API to get directly the register adress (LL_PPP_DMA_GetRegAddr).
+  * @note   Each IP using DMA provides an API to get directly the register address (LL_PPP_DMA_GetRegAddr).
   * @rmtoll CPAR         PA            LL_DMA_ConfigAddresses\n
   *         CM0AR         MA           LL_DMA_ConfigAddresses
   * @param  DMAx DMAx Instance

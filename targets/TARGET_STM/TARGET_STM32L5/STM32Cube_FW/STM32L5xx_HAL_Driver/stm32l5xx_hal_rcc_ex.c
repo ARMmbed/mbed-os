@@ -1917,7 +1917,7 @@ void HAL_RCCEx_EnableLSCO(uint32_t LSCOSource)
   /* LSCO Pin Clock Enable */
   __LSCO_CLK_ENABLE();
 
-  /* Configue the LSCO pin in analog mode */
+  /* Configure the LSCO pin in analog mode */
   GPIO_InitStruct.Pin = LSCO_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -2020,7 +2020,7 @@ void HAL_RCCEx_DisableMSIPLLMode(void)
                 ##### Extended Clock Recovery System Control functions  #####
  ===============================================================================
     [..]
-      For devices with Clock Recovery System feature (CRS), RCC Extention HAL driver can be used as follows:
+      For devices with Clock Recovery System feature (CRS), RCC Extension HAL driver can be used as follows:
 
       (#) In System clock config, HSI48 needs to be enabled
 

@@ -1525,7 +1525,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit_DMA(SAI_HandleTypeDef *hsai, uint8_t *pData, 
     /* Enable SAI Tx DMA Request */
     hsai->Instance->CR1 |= SAI_xCR1_DMAEN;
 
-    /* Wait untill FIFO is not empty */
+    /* Wait until FIFO is not empty */
     while ((hsai->Instance->SR & SAI_xSR_FLVL) == SAI_FIFOSTATUS_EMPTY)
     {
       /* Check for the Timeout */
@@ -2370,7 +2370,7 @@ static uint32_t SAI_InterruptFlag(const SAI_HandleTypeDef *hsai, SAI_ModeTypedef
   */
 static HAL_StatusTypeDef SAI_Disable(SAI_HandleTypeDef *hsai)
 {
-  register uint32_t count = SAI_DEFAULT_TIMEOUT * (SystemCoreClock / 7U / 1000U);
+  uint32_t count = SAI_DEFAULT_TIMEOUT * (SystemCoreClock / 7U / 1000U);
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Disable the SAI instance */

@@ -79,10 +79,10 @@
   * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
+  * This software component is licensed by ST under Apache License, Version 2.0,
   * the "License"; You may not use this file except in compliance with the
   * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  *                        opensource.org/licenses/Apache-2.0
   *
   ******************************************************************************
   */
@@ -91,7 +91,7 @@
   * @{
   */
 
-/** @addtogroup STM32L5xx_system
+/** @addtogroup STM32L5xx_System
   * @{
   */
 
@@ -100,18 +100,6 @@
   */
 
 #include "stm32l5xx.h"
-
-#if !defined  (HSE_VALUE)
-  #define HSE_VALUE    16000000U /*!< Value of the External oscillator in Hz */
-#endif /* HSE_VALUE */
-
-#if !defined  (MSI_VALUE)
-  #define MSI_VALUE    4000000U  /*!< Value of the Internal oscillator in Hz*/
-#endif /* MSI_VALUE */
-
-#if !defined  (HSI_VALUE)
-  #define HSI_VALUE    16000000U /*!< Value of the Internal oscillator in Hz*/
-#endif /* HSI_VALUE */
 
 /**
   * @}
@@ -129,12 +117,43 @@
   * @{
   */
 
-/************************* Miscellaneous Configuration ************************/
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
+#if !defined  (HSE_VALUE)
+  #define HSE_VALUE    16000000U /*!< Value of the External oscillator in Hz */
+#endif /* HSE_VALUE */
+
+#if !defined  (MSI_VALUE)
+  #define MSI_VALUE    4000000U  /*!< Value of the Internal oscillator in Hz*/
+#endif /* MSI_VALUE */
+
+#if !defined  (HSI_VALUE)
+  #define HSI_VALUE    16000000U /*!< Value of the Internal oscillator in Hz*/
+#endif /* HSI_VALUE */
+
+/* Note: Following vector table addresses must be defined in line with linker
+         configuration. */
+/*!< Uncomment the following line if you need to relocate the vector table
+     anywhere in Flash or Sram, else the vector table is kept at the automatic
+     remap of boot address selected */
+/* #define USER_VECT_TAB_ADDRESS */
+
+#if defined(USER_VECT_TAB_ADDRESS)
+/*!< Uncomment the following line if you need to relocate your vector Table
+     in Sram else user remap will be done in Flash. */
 /* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field.
-                                   This value must be a multiple of 0x200. */
+
+#if defined(VECT_TAB_SRAM)
+#define VECT_TAB_BASE_ADDRESS   SRAM1_BASE      /*!< Vector Table base address field.
+                                                     This value must be a multiple of 0x200. */
+#define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
+                                                     This value must be a multiple of 0x200. */
+#else
+#define VECT_TAB_BASE_ADDRESS   FLASH_BASE      /*!< Vector Table base address field.
+                                                     This value must be a multiple of 0x200. */
+#define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
+                                                     This value must be a multiple of 0x200. */
+#endif /* VECT_TAB_SRAM */
+#endif /* USER_VECT_TAB_ADDRESS */
+
 /******************************************************************************/
 /**
   * @}
@@ -189,17 +208,13 @@
 
 void SystemInit(void)
 {
+  /* Configure the Vector Table location -------------------------------------*/
+#include "nvic_addr.h"                   // MBED
+  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
+
   /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
   SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
-#endif
-
-  /* Configure the Vector Table location add offset address ------------------*/
-#ifdef VECT_TAB_SRAM
-  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
-#else
-#include "nvic_addr.h"                   // MBED
-  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; // MBED
 #endif
 }
 

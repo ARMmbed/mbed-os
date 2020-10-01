@@ -176,7 +176,7 @@ HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling)
 
 /**
   * @brief Enable battery charging.
-  *        When VDD is present, charge the external battery on VBAT thru an internal resistor.
+  *        When VDD is present, charge the external battery on VBAT through an internal resistor.
   * @param  ResistorSelection specifies the resistor impedance.
   *          This parameter can be one of the following values:
   *            @arg @ref PWR_BATTERY_CHARGING_RESISTOR_5     5 kOhms resistor
@@ -676,7 +676,7 @@ HAL_StatusTypeDef HAL_PWREx_ConfigPVM(PWR_PVMTypeDef *sConfigPVM)
 
 
   /* Configure EXTI 35 to 38 interrupts if so required:
-     scan thru PVMType to detect which PVMx is set and
+     scan through PVMType to detect which PVMx is set and
      configure the corresponding EXTI line accordingly. */
   switch (sConfigPVM->PVMType)
   {
@@ -1181,28 +1181,37 @@ void HAL_PWREx_EnableUCPDStandbyMode(void)
   */
 void HAL_PWREx_DisableUCPDStandbyMode(void)
 {
+  /* Write 0 immediately after Standby exit when using UCPD,
+     and before writing any UCPD registers */
   CLEAR_BIT(PWR->CR3, PWR_CR3_UCPD_STDBY);
 }
 
 /**
-  * @brief Enable dead battery behavior.
+  * @brief Enable the USB Type-C dead battery pull-down behavior
+  *        on UCPDx_CC1 and UCPDx_CC2 pins
   * @note  This feature is secured by secured UCPD1 when system implements security (TZEN=1).
   * @retval None
   */
 void HAL_PWREx_EnableUCPDDeadBattery(void)
 {
-  /* Enable dead battery behavior */
+  /* Write 0 to enable the USB Type-C dead battery pull-down behavior */
   CLEAR_BIT(PWR->CR3, PWR_CR3_UCPD_DBDIS);
 }
 
 /**
-  * @brief Disable dead battery behavior.
+  * @brief Disable the USB Type-C dead battery pull-down behavior
+  *        on UCPDx_CC1 and UCPDx_CC2 pins
   * @note  This feature is secured by secured UCPD1 when system implements security (TZEN=1).
+  * @note After exiting reset, the USB Type-C dead battery behavior will be enabled,
+  *       which may have a pull-down effect on CC1 and CC2 pins.
+  *       It is recommended to disable it in all cases, either to stop this pull-down
+  *       or to hand over control to the UCPD (which should therefore be
+  *       initialized before doing the disable).
   * @retval None
   */
 void HAL_PWREx_DisableUCPDDeadBattery(void)
 {
-  /* Disable dead battery behavior */
+  /* Write 1 to disable the USB Type-C dead battery pull-down behavior */
   SET_BIT(PWR->CR3, PWR_CR3_UCPD_DBDIS);
 }
 
@@ -1418,6 +1427,29 @@ void HAL_PWREx_SMPS_EnableExternal(void)
 void HAL_PWREx_SMPS_DisableExternal(void)
 {
   CLEAR_BIT(PWR->CR4, PWR_CR4_EXTSMPSEN);
+}
+
+/**
+  * @brief  Get Main Regulator status for use with external SMPS
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref PWR_MAINREG_READY_FOR_EXTSMPS     Main regulator ready for use with external SMPS
+  *         @arg @ref PWR_MAINREG_NOT_READY_FOR_EXTSMPS Main regulator not ready for use with external SMPS
+  */
+uint32_t HAL_PWREx_SMPS_GetMainRegulatorExtSMPSReadyStatus(void)
+{
+  uint32_t main_regulator_status;
+  uint32_t pwr_sr1;
+
+  pwr_sr1 = READ_REG(PWR->SR1);
+  if (READ_BIT(pwr_sr1, PWR_SR1_EXTSMPSRDY) != 0U)
+  {
+    main_regulator_status = PWR_MAINREG_READY_FOR_EXTSMPS;
+  }
+  else
+  {
+    main_regulator_status = PWR_MAINREG_NOT_READY_FOR_EXTSMPS;
+  }
+  return main_regulator_status;
 }
 
 /**

@@ -170,7 +170,7 @@ ErrorStatus LL_GPIO_DeInit(GPIO_TypeDef *GPIOx)
 /**
   * @brief  Initialize GPIO registers according to the specified parameters in GPIO_InitStruct.
   * @param  GPIOx GPIO Port
-  * @param  GPIO_InitStruct: pointer to a @ref LL_GPIO_InitTypeDef structure
+  * @param  GPIO_InitStruct pointer to a @ref LL_GPIO_InitTypeDef structure
   *         that contains the configuration information for the specified GPIO peripheral.
   * @retval An ErrorStatus enumeration value:
   *          - SUCCESS: GPIO registers are initialized according to GPIO_InitStruct content
@@ -199,9 +199,6 @@ ErrorStatus LL_GPIO_Init(GPIO_TypeDef *GPIOx, LL_GPIO_InitTypeDef *GPIO_InitStru
 
     if (currentpin != 0U)
     {
-      /* Pin Mode configuration */
-      LL_GPIO_SetPinMode(GPIOx, currentpin, GPIO_InitStruct->Mode);
-
       if ((GPIO_InitStruct->Mode == LL_GPIO_MODE_OUTPUT) || (GPIO_InitStruct->Mode == LL_GPIO_MODE_ALTERNATE))
       {
         /* Check Speed mode parameters */
@@ -209,6 +206,12 @@ ErrorStatus LL_GPIO_Init(GPIO_TypeDef *GPIOx, LL_GPIO_InitTypeDef *GPIO_InitStru
 
         /* Speed mode configuration */
         LL_GPIO_SetPinSpeed(GPIOx, currentpin, GPIO_InitStruct->Speed);
+
+        /* Check Output mode parameters */
+        assert_param(IS_LL_GPIO_OUTPUT_TYPE(GPIO_InitStruct->OutputType));
+
+        /* Output mode configuration*/
+        LL_GPIO_SetPinOutputType(GPIOx, currentpin, GPIO_InitStruct->OutputType);
       }
 
       /* Pull-up Pull down resistor configuration*/
@@ -219,8 +222,8 @@ ErrorStatus LL_GPIO_Init(GPIO_TypeDef *GPIOx, LL_GPIO_InitTypeDef *GPIO_InitStru
         /* Check Alternate parameter */
         assert_param(IS_LL_GPIO_ALTERNATE(GPIO_InitStruct->Alternate));
 
-        /* Speed mode configuration */
-        if (POSITION_VAL(currentpin) < 0x00000008U)
+        /* Alternate function configuration */
+        if (currentpin < LL_GPIO_PIN_8)
         {
           LL_GPIO_SetAFPin_0_7(GPIOx, currentpin, GPIO_InitStruct->Alternate);
         }
@@ -229,26 +232,20 @@ ErrorStatus LL_GPIO_Init(GPIO_TypeDef *GPIOx, LL_GPIO_InitTypeDef *GPIO_InitStru
           LL_GPIO_SetAFPin_8_15(GPIOx, currentpin, GPIO_InitStruct->Alternate);
         }
       }
+
+      /* Pin Mode configuration */
+      LL_GPIO_SetPinMode(GPIOx, currentpin, GPIO_InitStruct->Mode);
     }
     pinpos++;
   }
 
-  if ((GPIO_InitStruct->Mode == LL_GPIO_MODE_OUTPUT) || (GPIO_InitStruct->Mode == LL_GPIO_MODE_ALTERNATE))
-  {
-    /* Check Output mode parameters */
-    assert_param(IS_LL_GPIO_OUTPUT_TYPE(GPIO_InitStruct->OutputType));
-
-    /* Output mode configuration*/
-    LL_GPIO_SetPinOutputType(GPIOx, GPIO_InitStruct->Pin, GPIO_InitStruct->OutputType);
-
-  }
   return (SUCCESS);
 }
 
 /**
   * @brief Set each @ref LL_GPIO_InitTypeDef field to default value.
-  * @param GPIO_InitStruct: pointer to a @ref LL_GPIO_InitTypeDef structure
-  *                          whose fields will be set to default values.
+  * @param GPIO_InitStruct pointer to a @ref LL_GPIO_InitTypeDef structure
+  *                        whose fields will be set to default values.
   * @retval None
   */
 

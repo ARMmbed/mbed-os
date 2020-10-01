@@ -23,179 +23,195 @@
     *** Initialization ***
     ======================
     [..]
-      (#) As prerequisite, fill in the HAL_OSPI_MspInit() :
-        (++) Enable OctoSPI and OctoSPIM clocks interface with __HAL_RCC_OSPIx_CLK_ENABLE().
-        (++) Reset OctoSPI Peripheral with __HAL_RCC_OSPIx_FORCE_RESET() and __HAL_RCC_OSPIx_RELEASE_RESET().
-        (++) Enable the clocks for the OctoSPI GPIOS with __HAL_RCC_GPIOx_CLK_ENABLE().
-        (++) Configure these OctoSPI pins in alternate mode using HAL_GPIO_Init().
-        (++) If interrupt or DMA mode is used, enable and configure OctoSPI global
-            interrupt with HAL_NVIC_SetPriority() and HAL_NVIC_EnableIRQ().
-        (++) If DMA mode is used, enable the clocks for the OctoSPI DMA channel
-            with __HAL_RCC_DMAx_CLK_ENABLE(), configure DMA with HAL_DMA_Init(),
-            link it with OctoSPI handle using __HAL_LINKDMA(), enable and configure
-            DMA channel global interrupt with HAL_NVIC_SetPriority() and HAL_NVIC_EnableIRQ().
-      (#) Configure the fifo threshold, the dual-quad mode, the memory type, the
-          device size, the CS high time, the free running clock, the clock mode,
-          the wrap size, the clock prescaler, the sample shifting, the hold delay
-          and the CS boundary using the HAL_OSPI_Init() function.
-      (#) When using Hyperbus, configure the RW recovery time, the access time,
-          the write latency and the latency mode unsing the HAL_OSPI_HyperbusCfg()
-          function.
+     As prerequisite, fill in the HAL_OSPI_MspInit() :
+     (+) Enable OctoSPI clock interface with __HAL_RCC_OSPIx_CLK_ENABLE().
+     (+) Reset OctoSPI Peripheral with __HAL_RCC_OSPIx_FORCE_RESET() and __HAL_RCC_OSPIx_RELEASE_RESET().
+     (+) Enable the clocks for the OctoSPI GPIOS with __HAL_RCC_GPIOx_CLK_ENABLE().
+     (+) Configure these OctoSPI pins in alternate mode using HAL_GPIO_Init().
+     (+) If interrupt or DMA mode is used, enable and configure OctoSPI global
+         interrupt with HAL_NVIC_SetPriority() and HAL_NVIC_EnableIRQ().
+     (+) If DMA mode is used, enable the clocks for the OctoSPI DMA channel
+         with __HAL_RCC_DMAx_CLK_ENABLE(), configure DMA with HAL_DMA_Init(),
+         link it with OctoSPI handle using __HAL_LINKDMA(), enable and configure
+         DMA channel global interrupt with HAL_NVIC_SetPriority() and HAL_NVIC_EnableIRQ().
+    [..]
+     Configure the fifo threshold, the dual-quad mode, the memory type, the
+     device size, the CS high time, the free running clock, the clock mode,
+     the wrap size, the clock prescaler, the sample shifting, the hold delay
+     and the CS boundary using the HAL_OSPI_Init() function.
+    [..]
+     When using Hyperbus, configure the RW recovery time, the access time,
+     the write latency and the latency mode unsing the HAL_OSPI_HyperbusCfg()
+     function.
 
     *** Indirect functional mode ***
     ================================
     [..]
-      (#) In regular mode, configure the command sequence using the HAL_OSPI_Command()
-          or HAL_OSPI_Command_IT() functions :
-         (++) Instruction phase : the mode used and if present the size, the instruction
-              opcode and the DTR mode.
-         (++) Address phase : the mode used and if present the size, the address
-              value and the DTR mode.
-         (++) Alternate-bytes phase : the mode used and if present the size, the
-              alternate bytes values and the DTR mode.
-         (++) Dummy-cycles phase : the number of dummy cycles (mode used is same as data phase).
-         (++) Data phase : the mode used and if present the number of bytes and the DTR mode.
-         (++) Data strobe (DQS) mode : the activation (or not) of this mode
-         (++) Sending Instruction Only Once (SIOO) mode : the activation (or not) of this mode.
-         (++) Flash identifier : in dual-quad mode, indicates which flash is concerned
-         (++) Operation type : always common configuration
-      (#) In Hyperbus mode, configure the command sequence using the HAL_OSPI_HyperbusCmd()
-          function :
-         (++) Address space : indicate if the access will be done in register or memory
-         (++) Address size
-         (++) Number of data
-         (++) Data strobe (DQS) mode : the activation (or not) of this mode
-      (#) If no data is required for the command (only for regular mode, not for
-          Hyperbus mode), it is sent directly to the memory :
-         (++) In polling mode, the output of the function is done when the transfer is complete.
-         (++) In interrupt mode, HAL_OSPI_CmdCpltCallback() will be called when the transfer is complete.
-      (#) For the indirect write mode, use HAL_OSPI_Transmit(), HAL_OSPI_Transmit_DMA() or
-          HAL_OSPI_Transmit_IT() after the command configuration :
-         (++) In polling mode, the output of the function is done when the transfer is complete.
-         (++) In interrupt mode, HAL_OSPI_FifoThresholdCallback() will be called when the fifo threshold
-             is reached and HAL_OSPI_TxCpltCallback() will be called when the transfer is complete.
-         (++) In DMA mode, HAL_OSPI_TxHalfCpltCallback() will be called at the half transfer and
-             HAL_OSPI_TxCpltCallback() will be called when the transfer is complete.
-      (#) For the indirect read mode, use HAL_OSPI_Receive(), HAL_OSPI_Receive_DMA() or
-          HAL_OSPI_Receive_IT() after the command configuration :
-         (++) In polling mode, the output of the function is done when the transfer is complete.
-         (++) In interrupt mode, HAL_OSPI_FifoThresholdCallback() will be called when the fifo threshold
-             is reached and HAL_OSPI_RxCpltCallback() will be called when the transfer is complete.
-         (++) In DMA mode, HAL_OSPI_RxHalfCpltCallback() will be called at the half transfer and
-             HAL_OSPI_RxCpltCallback() will be called when the transfer is complete.
+     In regular mode, configure the command sequence using the HAL_OSPI_Command()
+     or HAL_OSPI_Command_IT() functions :
+     (+) Instruction phase : the mode used and if present the size, the instruction
+         opcode and the DTR mode.
+     (+) Address phase : the mode used and if present the size, the address
+         value and the DTR mode.
+     (+) Alternate-bytes phase : the mode used and if present the size, the
+         alternate bytes values and the DTR mode.
+     (+) Dummy-cycles phase : the number of dummy cycles (mode used is same as data phase).
+     (+) Data phase : the mode used and if present the number of bytes and the DTR mode.
+     (+) Data strobe (DQS) mode : the activation (or not) of this mode
+     (+) Sending Instruction Only Once (SIOO) mode : the activation (or not) of this mode.
+     (+) Flash identifier : in dual-quad mode, indicates which flash is concerned
+     (+) Operation type : always common configuration
+    [..]
+     In Hyperbus mode, configure the command sequence using the HAL_OSPI_HyperbusCmd()
+     function :
+     (+) Address space : indicate if the access will be done in register or memory
+     (+) Address size
+     (+) Number of data
+     (+) Data strobe (DQS) mode : the activation (or not) of this mode
+    [..]
+     If no data is required for the command (only for regular mode, not for
+     Hyperbus mode), it is sent directly to the memory :
+     (+) In polling mode, the output of the function is done when the transfer is complete.
+     (+) In interrupt mode, HAL_OSPI_CmdCpltCallback() will be called when the transfer is complete.
+    [..]
+     For the indirect write mode, use HAL_OSPI_Transmit(), HAL_OSPI_Transmit_DMA() or
+     HAL_OSPI_Transmit_IT() after the command configuration :
+     (+) In polling mode, the output of the function is done when the transfer is complete.
+     (+) In interrupt mode, HAL_OSPI_FifoThresholdCallback() will be called when the fifo threshold
+         is reached and HAL_OSPI_TxCpltCallback() will be called when the transfer is complete.
+     (+) In DMA mode, HAL_OSPI_TxHalfCpltCallback() will be called at the half transfer and
+         HAL_OSPI_TxCpltCallback() will be called when the transfer is complete.
+    [..]
+     For the indirect read mode, use HAL_OSPI_Receive(), HAL_OSPI_Receive_DMA() or
+     HAL_OSPI_Receive_IT() after the command configuration :
+     (+) In polling mode, the output of the function is done when the transfer is complete.
+     (+) In interrupt mode, HAL_OSPI_FifoThresholdCallback() will be called when the fifo threshold
+         is reached and HAL_OSPI_RxCpltCallback() will be called when the transfer is complete.
+     (+) In DMA mode, HAL_OSPI_RxHalfCpltCallback() will be called at the half transfer and
+         HAL_OSPI_RxCpltCallback() will be called when the transfer is complete.
 
     *** Auto-polling functional mode ***
     ====================================
     [..]
-      (#) Configure the command sequence by the same way than the indirect mode
-      (#) Configure the auto-polling functional mode using the HAL_OSPI_AutoPolling()
-          or HAL_OSPI_AutoPolling_IT() functions :
-         (++) The size of the status bytes, the match value, the mask used, the match mode (OR/AND),
-             the polling interval and the automatic stop activation.
-      (#) After the configuration :
-         (++) In polling mode, the output of the function is done when the status match is reached. The
-             automatic stop is activated to avoid an infinite loop.
-         (++) In interrupt mode, HAL_OSPI_StatusMatchCallback() will be called each time the status match is reached.
+     Configure the command sequence by the same way than the indirect mode
+    [..]
+     Configure the auto-polling functional mode using the HAL_OSPI_AutoPolling()
+     or HAL_OSPI_AutoPolling_IT() functions :
+     (+) The size of the status bytes, the match value, the mask used, the match mode (OR/AND),
+         the polling interval and the automatic stop activation.
+    [..]
+     After the configuration :
+     (+) In polling mode, the output of the function is done when the status match is reached. The
+         automatic stop is activated to avoid an infinite loop.
+     (+) In interrupt mode, HAL_OSPI_StatusMatchCallback() will be called each time the status match is reached.
 
     *** Memory-mapped functional mode ***
     =====================================
     [..]
-      (#) Configure the command sequence by the same way than the indirect mode except
-          for the operation type in regular mode :
-         (++) Operation type equals to read configuration : the command configuration
-              applies to read access in memory-mapped mode
-         (++) Operation type equals to write configuration : the command configuration
-              applies to write access in memory-mapped mode
-         (++) Both read and write configuration should be performed before activating
-              memory-mapped mode
-      (#) Configure the memory-mapped functional mode using the HAL_OSPI_MemoryMapped()
-          functions :
-         (++) The timeout activation and the timeout period.
-      (#) After the configuration, the OctoSPI will be used as soon as an access on the AHB is done on
-          the address range. HAL_OSPI_TimeOutCallback() will be called when the timeout expires.
+     Configure the command sequence by the same way than the indirect mode except
+     for the operation type in regular mode :
+     (+) Operation type equals to read configuration : the command configuration
+         applies to read access in memory-mapped mode
+     (+) Operation type equals to write configuration : the command configuration
+         applies to write access in memory-mapped mode
+     (+) Both read and write configuration should be performed before activating
+         memory-mapped mode
+    [..]
+     Configure the memory-mapped functional mode using the HAL_OSPI_MemoryMapped()
+     functions :
+     (+) The timeout activation and the timeout period.
+    [..]
+     After the configuration, the OctoSPI will be used as soon as an access on the AHB is done on
+     the address range. HAL_OSPI_TimeOutCallback() will be called when the timeout expires.
 
     *** Errors management and abort functionality ***
     =================================================
     [..]
-      (#) HAL_OSPI_GetError() function gives the error raised during the last operation.
-      (#) HAL_OSPI_Abort() and HAL_OSPI_AbortIT() functions aborts any on-going operation and
-          flushes the fifo :
-         (++) In polling mode, the output of the function is done when the transfer
-              complete bit is set and the busy bit cleared.
-         (++) In interrupt mode, HAL_OSPI_AbortCpltCallback() will be called when
-              the transfer complete bit is set.
+     HAL_OSPI_GetError() function gives the error raised during the last operation.
+    [..]
+     HAL_OSPI_Abort() and HAL_OSPI_AbortIT() functions aborts any on-going operation and
+     flushes the fifo :
+     (+) In polling mode, the output of the function is done when the transfer
+         complete bit is set and the busy bit cleared.
+     (+) In interrupt mode, HAL_OSPI_AbortCpltCallback() will be called when
+         the transfer complete bit is set.
 
     *** Control functions ***
     =========================
     [..]
-      (#) HAL_OSPI_GetState() function gives the current state of the HAL OctoSPI driver.
-      (#) HAL_OSPI_SetTimeout() function configures the timeout value used in the driver.
-      (#) HAL_OSPI_SetFifoThreshold() function configures the threshold on the Fifo of the OSPI Peripheral.
-      (#) HAL_OSPI_GetFifoThreshold() function gives the current of the Fifo's threshold
-
-    *** IO manager configuration functions ***
-    ==========================================
+     HAL_OSPI_GetState() function gives the current state of the HAL OctoSPI driver.
     [..]
-      (#) HAL_OSPIM_Config() function configures the IO manager for the OctoSPI instance.
+     HAL_OSPI_SetTimeout() function configures the timeout value used in the driver.
+    [..]
+     HAL_OSPI_SetFifoThreshold() function configures the threshold on the Fifo of the OSPI Peripheral.
+    [..]
+     HAL_OSPI_GetFifoThreshold() function gives the current of the Fifo's threshold
 
     *** Callback registration ***
     =============================================
     [..]
-      The compilation define  USE_HAL_OSPI_REGISTER_CALLBACKS when set to 1
-      allows the user to configure dynamically the driver callbacks.
+     The compilation define  USE_HAL_OSPI_REGISTER_CALLBACKS when set to 1
+     allows the user to configure dynamically the driver callbacks.
 
-      Use Functions @ref HAL_OSPI_RegisterCallback() to register a user callback,
-      it allows to register following callbacks:
-        (+) ErrorCallback : callback when error occurs.
-        (+) AbortCpltCallback : callback when abort is completed.
-        (+) FifoThresholdCallback : callback when the fifo threshold is reached.
-        (+) CmdCpltCallback : callback when a command without data is completed.
-        (+) RxCpltCallback : callback when a reception transfer is completed.
-        (+) TxCpltCallback : callback when a transmission transfer is completed.
-        (+) RxHalfCpltCallback : callback when half of the reception transfer is completed.
-        (+) TxHalfCpltCallback : callback when half of the transmission transfer is completed.
-        (+) StatusMatchCallback : callback when a status match occurs.
-        (+) TimeOutCallback : callback when the timeout perioed expires.
-        (+) MspInitCallback    : OSPI MspInit.
-        (+) MspDeInitCallback  : OSPI MspDeInit.
-      This function takes as parameters the HAL peripheral handle, the Callback ID
-      and a pointer to the user callback function.
+    [..]
+     Use function HAL_OSPI_RegisterCallback() to register a user callback,
+     it allows to register following callbacks:
+     (+) ErrorCallback : callback when error occurs.
+     (+) AbortCpltCallback : callback when abort is completed.
+     (+) FifoThresholdCallback : callback when the fifo threshold is reached.
+     (+) CmdCpltCallback : callback when a command without data is completed.
+     (+) RxCpltCallback : callback when a reception transfer is completed.
+     (+) TxCpltCallback : callback when a transmission transfer is completed.
+     (+) RxHalfCpltCallback : callback when half of the reception transfer is completed.
+     (+) TxHalfCpltCallback : callback when half of the transmission transfer is completed.
+     (+) StatusMatchCallback : callback when a status match occurs.
+     (+) TimeOutCallback : callback when the timeout perioed expires.
+     (+) MspInitCallback    : OSPI MspInit.
+     (+) MspDeInitCallback  : OSPI MspDeInit.
+    [..]
+	 This function takes as parameters the HAL peripheral handle, the Callback ID
+     and a pointer to the user callback function.
 
-      Use function @ref HAL_OSPI_UnRegisterCallback() to reset a callback to the default
-      weak (surcharged) function. It allows to reset following callbacks:
-        (+) ErrorCallback : callback when error occurs.
-        (+) AbortCpltCallback : callback when abort is completed.
-        (+) FifoThresholdCallback : callback when the fifo threshold is reached.
-        (+) CmdCpltCallback : callback when a command without data is completed.
-        (+) RxCpltCallback : callback when a reception transfer is completed.
-        (+) TxCpltCallback : callback when a transmission transfer is completed.
-        (+) RxHalfCpltCallback : callback when half of the reception transfer is completed.
-        (+) TxHalfCpltCallback : callback when half of the transmission transfer is completed.
-        (+) StatusMatchCallback : callback when a status match occurs.
-        (+) TimeOutCallback : callback when the timeout perioed expires.
-        (+) MspInitCallback    : OSPI MspInit.
-        (+) MspDeInitCallback  : OSPI MspDeInit.
-      This function) takes as parameters the HAL peripheral handle and the Callback ID.
+    [..]
+     Use function HAL_OSPI_UnRegisterCallback() to reset a callback to the default
+     weak (surcharged) function. It allows to reset following callbacks:
+     (+) ErrorCallback : callback when error occurs.
+     (+) AbortCpltCallback : callback when abort is completed.
+     (+) FifoThresholdCallback : callback when the fifo threshold is reached.
+     (+) CmdCpltCallback : callback when a command without data is completed.
+     (+) RxCpltCallback : callback when a reception transfer is completed.
+     (+) TxCpltCallback : callback when a transmission transfer is completed.
+     (+) RxHalfCpltCallback : callback when half of the reception transfer is completed.
+     (+) TxHalfCpltCallback : callback when half of the transmission transfer is completed.
+     (+) StatusMatchCallback : callback when a status match occurs.
+     (+) TimeOutCallback : callback when the timeout perioed expires.
+     (+) MspInitCallback    : OSPI MspInit.
+     (+) MspDeInitCallback  : OSPI MspDeInit.
+    [..]
+     This function) takes as parameters the HAL peripheral handle and the Callback ID.
 
-      By default, after the @ref HAL_OSPI_Init and if the state is HAL_OSPI_STATE_RESET
-      all callbacks are reset to the corresponding legacy weak (surcharged) functions.
-      Exception done for MspInit and MspDeInit callbacks that are respectively
-      reset to the legacy weak (surcharged) functions in the @ref HAL_OSPI_Init
-      and @ref  HAL_OSPI_DeInit only when these callbacks are null (not registered beforehand).
-      If not, MspInit or MspDeInit are not null, the @ref HAL_OSPI_Init and @ref HAL_OSPI_DeInit
-      keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
+    [..]
+     By default, after the HAL_OSPI_Init() and if the state is HAL_OSPI_STATE_RESET
+     all callbacks are reset to the corresponding legacy weak (surcharged) functions.
+     Exception done for MspInit and MspDeInit callbacks that are respectively
+     reset to the legacy weak (surcharged) functions in the HAL_OSPI_Init()
+     and HAL_OSPI_DeInit() only when these callbacks are null (not registered beforehand).
+     If not, MspInit or MspDeInit are not null, the HAL_OSPI_Init() and HAL_OSPI_DeInit()
+     keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
 
-      Callbacks can be registered/unregistered in READY state only.
-      Exception done for MspInit/MspDeInit callbacks that can be registered/unregistered
-      in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
-      during the Init/DeInit.
-      In that case first register the MspInit/MspDeInit user callbacks
-      using @ref HAL_OSPI_RegisterCallback before calling @ref HAL_OSPI_DeInit
-      or @ref HAL_OSPI_Init function.
+    [..]
+     Callbacks can be registered/unregistered in READY state only.
+     Exception done for MspInit/MspDeInit callbacks that can be registered/unregistered
+     in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
+     during the Init/DeInit.
+     In that case first register the MspInit/MspDeInit user callbacks
+     using HAL_OSPI_RegisterCallback() before calling HAL_OSPI_DeInit()
+     or HAL_OSPI_Init() function.
 
-      When The compilation define USE_HAL_OSPI_REGISTER_CALLBACKS is set to 0 or
-      not defined, the callback registering feature is not available
-      and weak (surcharged) callbacks are used.
+    [..]
+     When The compilation define USE_HAL_OSPI_REGISTER_CALLBACKS is set to 0 or
+     not defined, the callback registering feature is not available
+     and weak (surcharged) callbacks are used.
 
   @endverbatim
   ******************************************************************************
