@@ -467,7 +467,7 @@ ble_error_t Gap::stopScan()
 {
     ble_error_t err;
 
-    if ((!_scan_enabled && !_scan_pending) || _scan_pending) {
+    if ((!_scan_enabled && !_scan_pending) || _scan_pending || _initiating) {
         return BLE_STACK_BUSY;
     }
 
@@ -494,6 +494,12 @@ ble_error_t Gap::connect(
     const ConnectionParameters &connectionParams
 )
 {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+#endif BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     if (!connectionParams.getNumberOfEnabledPhys()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -521,6 +527,31 @@ ble_error_t Gap::connect(
 
     ble_error_t ret = BLE_ERROR_INTERNAL_STACK_FAILURE;
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    /* if host resolution is used we need to connect in two passes, first we scan for addresses to find
+     * a resolving match and then we call connect again with the correct address */
+    if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::idle) {
+        if (peerAddressType == peer_address_type_t::RANDOM_STATIC_IDENTITY ||
+            peerAddressType == peer_address_type_t::PUBLIC_IDENTITY) {
+
+            _connect_to_host_resolved_address_parameters = new ConnectionParameters(connectionParams);
+            if (!_connect_to_host_resolved_address_parameters) {
+                return BLE_ERROR_NO_MEM;
+            }
+
+            _connect_to_host_resolved_address_type = peerAddressType;
+            _connect_to_host_resolved_address = peerAddress;
+            _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::scan;
+        }
+    } else if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::connect) {
+        /* the first pass of connect has completed and this is the second connect that doesn't require
+         * address resolution */
+        _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+        _initiating = false;
+    }
+
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     if (is_extended_advertising_available() == false) {
         phy_set_t set(connectionParams.getPhySet());
         if (set.count() != 1 || set.get_1m() == false) {
@@ -530,35 +561,47 @@ ble_error_t Gap::connect(
         if (!_scan_enabled) {
             if (!_active_sets.get(LEGACY_ADVERTISING_HANDLE) &&
                 !_pending_sets.get(LEGACY_ADVERTISING_HANDLE)
-            ) {
+                ) {
                 _pal_gap.set_random_address(*address);
             }
         } else {
-            // ensure scan is stopped.
-            _pal_gap.scan_enable(false, false);
+            stopScan();
         }
-
-        ret = _pal_gap.create_connection(
-            connectionParams.getScanIntervalArray()[0],
-            connectionParams.getScanWindowArray()[0],
-            connectionParams.getFilter(),
-            (connection_peer_address_type_t::type) peerAddressType.value(),
-            peerAddress,
-            connectionParams.getOwnAddressType(),
-            connectionParams.getMinConnectionIntervalArray()[0],
-            connectionParams.getMaxConnectionIntervalArray()[0],
-            connectionParams.getSlaveLatencyArray()[0],
-            connectionParams.getConnectionSupervisionTimeoutArray()[0],
-            connectionParams.getMinEventLengthArray()[0],
-            connectionParams.getMaxConnectionIntervalArray()[0]
-        );
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+        if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+            ret = startScan(
+                scan_duration_t::forever(),
+                duplicates_filter_t::ENABLE,
+                (scan_period_t)0
+            );
+            if (ret != BLE_ERROR_NONE) {
+                _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+            }
+        } else
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+        {
+            ret = _pal_gap.create_connection(
+                connectionParams.getScanIntervalArray()[0],
+                connectionParams.getScanWindowArray()[0],
+                connectionParams.getFilter(),
+                (connection_peer_address_type_t::type) peerAddressType.value(),
+                peerAddress,
+                connectionParams.getOwnAddressType(),
+                connectionParams.getMinConnectionIntervalArray()[0],
+                connectionParams.getMaxConnectionIntervalArray()[0],
+                connectionParams.getSlaveLatencyArray()[0],
+                connectionParams.getConnectionSupervisionTimeoutArray()[0],
+                connectionParams.getMinEventLengthArray()[0],
+                connectionParams.getMaxConnectionIntervalArray()[0]
+            );
+        }
     } else {
         // set the correct mac address before starting scanning.
         if (!_scan_enabled) {
             _pal_gap.set_random_address(*address);
         } else {
             // ensure scan is stopped.
-            _pal_gap.extended_scan_enable(false, duplicates_filter_t::DISABLE, 0, 0);
+            stopScan();
         }
 
         // reduce the address type to public or random
@@ -665,6 +708,14 @@ ble_error_t Gap::rejectConnectionParametersUpdate(
 
 ble_error_t Gap::cancelConnect()
 {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+        connecting_to_host_resolved_address_failed(false);
+        stopScan();
+        return BLE_ERROR_NONE;
+    }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     if (!_initiating) {
         return BLE_ERROR_NONE;
     }
@@ -981,10 +1032,15 @@ ble_error_t Gap::reset()
     shutdownCallChain.clear();
 
     _event_handler = nullptr;
-
+    _initiating = false;
 #if BLE_FEATURE_PRIVACY
     _privacy_initialization_pending = false;
-#endif
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+    delete _connect_to_host_resolved_address_parameters;
+    _connect_to_host_resolved_address_parameters = nullptr;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_PRIVACY
 
 #if BLE_ROLE_BROADCASTER
     _advertising_timeout.detach();
@@ -1104,6 +1160,32 @@ void Gap::on_scan_stopped(bool success)
     }
 }
 
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
+{
+    if (inform_user && _event_handler) {
+        _event_handler->onConnectionComplete(
+            ConnectionCompleteEvent(
+                BLE_ERROR_NOT_FOUND,
+                INVALID_ADVERTISING_HANDLE,
+                connection_role_t::CENTRAL,
+                peer_address_type_t::ANONYMOUS,
+                ble::address_t(),
+                ble::address_t(),
+                ble::address_t(),
+                ble::conn_interval_t::max(),
+                /* dummy slave latency */ 0,
+                ble::supervision_timeout_t::max(),
+                /* master clock accuracy */ 0
+            )
+        );
+    }
+    _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+    delete _connect_to_host_resolved_address_parameters;
+    _connect_to_host_resolved_address_parameters = nullptr;
+    _initiating = false;
+}
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 void Gap::on_scan_timeout()
 {
@@ -2456,9 +2538,23 @@ void Gap::signal_advertising_report(
 
     /* if successful then proceed to call the handler immediately same as for when privacy is disabled */
     if (address_resolved) {
-        _event_handler->onAdvertisingReport(
-            event
-        );
+        if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+            if (_connect_to_host_resolved_address_type == event.getDirectAddressType() &&
+                _connect_to_host_resolved_address == event.getDirectAddress()) {
+                _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::connect;
+                connect(
+                    _connect_to_host_resolved_address_type,
+                    _connect_to_host_resolved_address,
+                    *_connect_to_host_resolved_address_parameters
+                );
+                delete _connect_to_host_resolved_address_parameters;
+                _connect_to_host_resolved_address_parameters = nullptr;
+            }
+        } else {
+            _event_handler->onAdvertisingReport(
+                event
+            );
+        }
     } else {
         /* check if there already is a RPA like that in the list of other pending reports */
         PendingAdvertisingReportEvent *duplicate_pending_event = _reports_pending_address_resolution.find(
@@ -2507,12 +2603,30 @@ void Gap::conclude_signal_advertising_report_after_address_resolution(
     const address_t *identity_address
 )
 {
+
+
     /* fix the report with the new address if there's an identity found */
     if (identity_address) {
+        const peer_address_type_t peer_address_type = (identity_address_type == target_peer_address_type_t::RANDOM) ?
+                                                      peer_address_type_t::RANDOM_STATIC_IDENTITY
+                                                      : peer_address_type_t::PUBLIC_IDENTITY;
+
+        if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+            if (_connect_to_host_resolved_address_type == peer_address_type && _connect_to_host_resolved_address == *identity_address) {
+                _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::connect;
+                connect(
+                    event.getPeerAddressType(),
+                    event.getPeerAddress(),
+                    *_connect_to_host_resolved_address_parameters
+                );
+                delete _connect_to_host_resolved_address_parameters;
+                _connect_to_host_resolved_address_parameters = nullptr;
+                return;
+            }
+        }
+
         event.setPeerAddress(*identity_address);
-        event.setPeerAddressType(identity_address_type == target_peer_address_type_t::RANDOM ?
-                                 peer_address_type_t::RANDOM_STATIC_IDENTITY
-                                 : peer_address_type_t::PUBLIC_IDENTITY);
+        event.setPeerAddressType(peer_address_type);
     } else if (_central_privacy_configuration.resolution_strategy ==
         central_privacy_configuration_t::RESOLVE_AND_FILTER &&
         _address_registry.read_resolving_list_size() > 0) {
@@ -2788,7 +2902,7 @@ ble_error_t Gap::startScan(
     scan_period_t period
 )
 {
-    if (_scan_pending || _scan_address_refresh) {
+    if (_scan_pending || _scan_address_refresh || _initiating) {
         return BLE_STACK_BUSY;
     }
 
