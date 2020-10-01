@@ -852,10 +852,15 @@ private:
     bool _scan_interruptible = false;
     bool _scan_address_refresh = false;
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    bool _ready_to_connect_to_host_resolved_address = false;
-    peer_address_type_t _connect_to_address_type = peer_address_type_t::ANONYMOUS;
-    ble::address_t _connect_to_address;
-    ConnectionParameters *_connection_parameters = nullptr;
+    enum class ConnectionToHostResolvedAddressState : uint8_t {
+        idle,
+        scan,
+        connect
+    };
+    ble::address_t _connect_to_host_resolved_address;
+    peer_address_type_t _connect_to_host_resolved_address_type = peer_address_type_t::ANONYMOUS;
+    ConnectionToHostResolvedAddressState _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+    ConnectionParameters *_connect_to_host_resolved_address_parameters = nullptr;
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     mbed::LowPowerTimeout _advertising_timeout;
