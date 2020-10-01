@@ -90,14 +90,6 @@ void gpio_init(gpio_t *obj, PinName pin)
     m_gpio_cfg[obj->pin].used_as_gpio = true;
 }
 
-#ifdef TARGET_SDK_11
-// implement polyfill of gpio hal for the nRF5 SDK v11
-__STATIC_INLINE uint32_t nrf_gpio_pin_out_read(uint32_t pin)
-{
-    return (NRF_GPIO->OUTSET & (1UL << (pin)));
-}
-#endif
-
 int gpio_read(gpio_t *obj)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
