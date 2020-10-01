@@ -467,11 +467,7 @@ ble_error_t Gap::stopScan()
 {
     ble_error_t err;
 
-    if ((!_scan_enabled && !_scan_pending) || _scan_pending
-#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-        || (_connect_to_host_resolved_address_state != ConnectionToHostResolvedAddressState::idle)
-#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-        ) {
+    if ((!_scan_enabled && !_scan_pending) || _scan_pending || _initiating) {
         return BLE_STACK_BUSY;
     }
 
@@ -532,15 +528,26 @@ ble_error_t Gap::connect(
     ble_error_t ret = BLE_ERROR_INTERNAL_STACK_FAILURE;
 
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    /* if host resolution is used we need to connect in two passes, first we scan for addresses to find
+     * a resolving match and then we call connect again with the correct address */
     if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::idle) {
         if (peerAddressType == peer_address_type_t::RANDOM_STATIC_IDENTITY ||
             peerAddressType == peer_address_type_t::PUBLIC_IDENTITY) {
+
+            _connect_to_host_resolved_address_parameters = new ConnectionParameters(connectionParams);
+            if (!_connect_to_host_resolved_address_parameters) {
+                return BLE_ERROR_NO_MEM;
+            }
+
             _connect_to_host_resolved_address_type = peerAddressType;
             _connect_to_host_resolved_address = peerAddress;
             _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::scan;
         }
     } else if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::connect) {
+        /* the first pass of connect has completed and this is the second connect that doesn't require
+         * address resolution */
         _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+        _initiating = false;
     }
 
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -567,13 +574,7 @@ ble_error_t Gap::connect(
                 duplicates_filter_t::ENABLE,
                 (scan_period_t)0
             );
-            if (ret == BLE_ERROR_NONE) {
-                _connect_to_host_resolved_address_parameters = new ConnectionParameters(connectionParams);
-                if (!_connect_to_host_resolved_address_parameters) {
-                    _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
-                    ret = BLE_ERROR_NO_MEM;
-                }
-            } else {
+            if (ret != BLE_ERROR_NONE) {
                 _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
             }
         } else
@@ -1031,7 +1032,7 @@ ble_error_t Gap::reset()
     shutdownCallChain.clear();
 
     _event_handler = nullptr;
-
+    _initiating = false;
 #if BLE_FEATURE_PRIVACY
     _privacy_initialization_pending = false;
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -1182,6 +1183,7 @@ void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
     _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
     delete _connect_to_host_resolved_address_parameters;
     _connect_to_host_resolved_address_parameters = nullptr;
+    _initiating = false;
 }
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
@@ -2900,11 +2902,7 @@ ble_error_t Gap::startScan(
     scan_period_t period
 )
 {
-    if (_scan_pending || _scan_address_refresh
-#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-        || (_connect_to_host_resolved_address_state != ConnectionToHostResolvedAddressState::idle)
-#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    ) {
+    if (_scan_pending || _scan_address_refresh || _initiating) {
         return BLE_STACK_BUSY;
     }
 
