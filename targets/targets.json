@@ -3565,6 +3565,7 @@
             "0774"
         ],
         "device_has_add": [
+            "QSPI",
             "OSPI",
             "USBDEVICE"
         ]
@@ -3714,10 +3715,12 @@
             "PMOD"
         ],
         "components_add": [
+            "OSPIF",
             "BlueNRG_MS"
         ],
         "device_has_add": [
-            "QSPI"
+            "QSPI",
+            "OSPI"
         ],
         "features": [
             "BLE"
