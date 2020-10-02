@@ -19,6 +19,7 @@
 
 #include "platform/mbed_critical.h"
 
+// some test
 namespace mbed {
 
 void DigitalIn::mode(PinMode pull)
@@ -28,5 +29,4 @@ void DigitalIn::mode(PinMode pull)
     core_util_critical_section_exit();
 }
 
-    
 } // namespace mbed
