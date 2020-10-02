@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-802.15.4-rf INTERFACE)
-
 if("Freescale" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Freescale)
     add_subdirectory(mcr20a-rf-driver)

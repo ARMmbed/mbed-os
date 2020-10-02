@@ -1,6 +1,27 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# List of all connectivity libraries available.
+add_library(mbed-os-802.15.4-rf INTERFACE)
+add_library(mbed-os-ble INTERFACE)
+add_library(mbed-os-ble-blue_nrg INTERFACE)
+add_library(mbed-os-ble-cordio INTERFACE)
+add_library(mbed-os-ble-cordio_ll INTERFACE)
+add_library(mbed-os-cellular INTERFACE)
+add_library(mbed-os-coap INTERFACE)
+add_library(mbed-os-emac INTERFACE)
+add_library(mbed-os-lorawan INTERFACE)
+add_library(mbed-os-lwipstack INTERFACE)
+add_library(mbed-os-mbedtls INTERFACE)
+add_library(mbed-os-mbedtls-cryptocell310 INTERFACE)
+add_library(mbed-os-nanostack INTERFACE)
+add_library(mbed-os-nanostack-libservice INTERFACE)
+add_library(mbed-os-netsocket INTERFACE)
+add_library(mbed-os-nfc INTERFACE)
+add_library(mbed-os-ppp INTERFACE)
+add_library(mbed-os-wifi INTERFACE)
+
+
 add_subdirectory(FEATURE_BLE)
 add_subdirectory(cellular)
 add_subdirectory(drivers)
