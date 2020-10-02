@@ -19,6 +19,7 @@
 
 #include "platform/mbed_critical.h"
 
+// dummy change
 namespace mbed {
 
 void DigitalIn::mode(PinMode pull)
@@ -27,6 +28,5 @@ void DigitalIn::mode(PinMode pull)
     gpio_mode(&gpio, pull);
     core_util_critical_section_exit();
 }
-
     
 } // namespace mbed
