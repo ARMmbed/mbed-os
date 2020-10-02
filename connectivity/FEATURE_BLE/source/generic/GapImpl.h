@@ -923,6 +923,7 @@ private:
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _pending_sets;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _address_refresh_sets;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _interruptible_sets;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _adv_started_from_refresh;
 
 
     bool _user_manage_connection_parameter_requests : 1;

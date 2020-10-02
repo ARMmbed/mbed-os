@@ -1199,6 +1199,7 @@ void Gap::on_scan_stopped(bool success)
         if (restart_advertising) {
             _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
             startAdvertising(LEGACY_ADVERTISING_HANDLE);
+            _adv_started_from_refresh.set(LEGACY_ADVERTISING_HANDLE);
         }
 
         _scan_address_refresh = false;
@@ -2804,11 +2805,18 @@ void Gap::on_legacy_advertising_started()
 {
     _active_sets.set(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
+
+    if (_adv_started_from_refresh.get(LEGACY_ADVERTISING_HANDLE)) {
+        _adv_started_from_refresh.clear(LEGACY_ADVERTISING_HANDLE);
+    } else if(_event_handler) {
+        _event_handler->onAdvertisingStart(
+            AdvertisingStartEvent(LEGACY_ADVERTISING_HANDLE)
+        );
+    }
 }
 
 void Gap::on_legacy_advertising_stopped()
 {
-
     _active_sets.clear(LEGACY_ADVERTISING_HANDLE);
     _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
 
@@ -2819,10 +2827,13 @@ void Gap::on_legacy_advertising_stopped()
     if (_address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE) && !wait_for_scan_stop) {
         _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
         startAdvertising(LEGACY_ADVERTISING_HANDLE);
+        _adv_started_from_refresh.set(LEGACY_ADVERTISING_HANDLE);
         if (restart_scan) {
             _scan_address_refresh = false;
             startScan();
         }
+    } else if (_event_handler) {
+        _event_handler->onAdvertisingEnd(AdvertisingEndEvent());
     }
 }
 
@@ -2831,6 +2842,13 @@ void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
     for (const auto &handle : handles) {
         _active_sets.set(handle);
         _pending_sets.clear(handle);
+        if (_adv_started_from_refresh.get(handle)) {
+            _adv_started_from_refresh.clear(handle);
+        } else if (_event_handler) {
+            _event_handler->onAdvertisingStart(
+                AdvertisingStartEvent(LEGACY_ADVERTISING_HANDLE)
+            );
+        }
     }
 }
 
@@ -2848,6 +2866,7 @@ void Gap::on_advertising_set_terminated(
     if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
         _address_refresh_sets.clear(advertising_handle);
         startAdvertising(advertising_handle);
+        _adv_started_from_refresh.set(advertising_handle);
         return;
     }
 
