@@ -883,6 +883,7 @@ ble_error_t GattServer::reset(ble::GattServer* server)
 
     serviceCount = 0;
     characteristicCount = 0;
+    default_services_added = false;
 
     dataSentCallChain.clear();
     dataWrittenCallChain.clear();
