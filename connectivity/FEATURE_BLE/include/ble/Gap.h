@@ -315,6 +315,17 @@ public:
         }
 
         /**
+         * Called when advertising starts.
+         *
+         * @param event Advertising start event.
+         *
+         * @see startAdvertising()
+         */
+        virtual void onAdvertisingStart(const AdvertisingStartEvent &event)
+        {
+        }
+
+        /**
          * Called when advertising ends.
          *
          * Advertising ends when the process timeout or if it is stopped by the
@@ -732,6 +743,7 @@ public:
      * @param maxEvents Max number of events produced during advertising - 0 means no limit.
      * @return BLE_ERROR_NONE on success.
      *
+     * @see EventHandler::onAdvertisingStart when the advertising starts.
      * @see EventHandler::onScanRequestReceived when a scan request is received.
      * @see EventHandler::onAdvertisingEnd when the advertising ends.
      * @see EventHandler::onConnectionComplete when the device gets connected

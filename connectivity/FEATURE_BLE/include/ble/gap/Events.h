@@ -576,14 +576,46 @@ private:
 struct ScanTimeoutEvent { };
 
 /**
+ * Event produced when advertising start.
+ *
+ * @see ble::Gap::EventHandler::onAdvertisingStart().
+ */
+struct AdvertisingStartEvent {
+#if !defined(DOXYGEN_ONLY)
+
+    /** Create an advertising start event.
+     *
+     * @param advHandle Advertising set handle.
+     */
+    AdvertisingStartEvent(advertising_handle_t advHandle) :
+        advHandle(advHandle)
+    {
+    }
+
+#endif
+
+    /** Get advertising handle. */
+    advertising_handle_t getAdvHandle() const
+    {
+        return advHandle;
+    }
+
+private:
+    advertising_handle_t advHandle;
+};
+
+/**
  * Event produced when advertising ends.
  *
  * @see ble::Gap::EventHandler::onAdvertisingEnd().
+ *
+ * @note The connection handle, connected flag and completed_event fields are
+ * valid if the flag legacy is not set to true.
  */
 struct AdvertisingEndEvent {
 #if !defined(DOXYGEN_ONLY)
 
-    /** Create advertising end event.
+    /** Create an extended advertising end event.
      *
      * @param advHandle Advertising set handle.
      * @param connection Connection handle.
@@ -599,7 +631,19 @@ struct AdvertisingEndEvent {
         advHandle(advHandle),
         connection(connection),
         completed_events(completed_events),
-        connected(connected)
+        connected(connected),
+        legacy(false)
+    {
+    }
+
+    /** Create a legacy advertising end event.
+     */
+    AdvertisingEndEvent() :
+        advHandle(LEGACY_ADVERTISING_HANDLE),
+        connection(),
+        completed_events(0),
+        connected(false),
+        legacy(true)
     {
     }
 
@@ -629,11 +673,22 @@ struct AdvertisingEndEvent {
         return connected;
     }
 
+    /** Is the end of legacy advertising.
+     *
+     * If it is the return of getConnection() getCompleted_events() and isConnected()
+     * must be discarded
+     */
+    bool isLegacy() const
+    {
+        return legacy;
+    }
+
 private:
     advertising_handle_t advHandle;
     connection_handle_t connection;
     uint8_t completed_events;
     bool connected;
+    bool legacy;
 };
 
 /**
