@@ -497,7 +497,6 @@ int SPIFBlockDevice::_spi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer
 {
     // Set 1-1-1 bus mode for SFDP header parsing
     // Initial SFDP read tables are read with 8 dummy cycles
-    _read_dummy_and_mode_cycles = 8;
     _dummy_and_mode_cycles = 8;
 
     int status = _spi_send_read_command(SPIF_SFDP, (uint8_t *)rx_buffer, addr, rx_length);
