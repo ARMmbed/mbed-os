@@ -1794,6 +1794,9 @@ int8_t mcps_generic_edfe_frame_init(protocol_interface_rf_mac_setup_s *rf_ptr, c
     //Data Here
     mac_pre_build_frame_t *buffer;
     if (response->wait_response) {
+        if (rf_ptr->active_pd_data_request == NULL) {
+            return -1;
+        }
         buffer = rf_ptr->active_pd_data_request;
         buffer->message_builded = false;
     } else {

@@ -55,6 +55,7 @@ typedef struct ws_cfg_nw_size_s {
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
 } ws_cfg_nw_size_t;
 
+static uint32_t ws_test_temporary_entry_lifetime = 0;
 typedef int8_t (*ws_cfg_default_set)(void *cfg);
 typedef int8_t (*ws_cfg_validate)(void *cfg, void *new_cfg);
 typedef int8_t (*ws_cfg_set)(protocol_interface_info_entry_t *cur, void *cfg, void *new_cfg, uint8_t *flags);
@@ -86,11 +87,8 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg);
 static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg);
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg);
-static int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg);
-static int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg);
 static int8_t ws_cfg_bbr_default_set(ws_bbr_cfg_t *cfg);
 static int8_t ws_cfg_mpl_default_set(ws_mpl_cfg_t *cfg);
-static int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg);
 static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg);
 static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg);
 
@@ -600,7 +598,7 @@ int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *cfg, w
     return CFG_SETTINGS_OK;
 }
 
-static int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg)
+int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg)
 {
     // FHSS configuration
     cfg->regulatory_domain = REG_DOMAIN_EU;
@@ -680,7 +678,7 @@ int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *cfg, w
     return CFG_SETTINGS_OK;
 }
 
-static int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg)
+int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg)
 {
     // Configure the Wi-SUN timing trickle parameters
     cfg->disc_trickle_imin = TRICKLE_IMIN_60_SECS;       // 60 seconds
@@ -900,7 +898,7 @@ int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *cfg, w
     return CFG_SETTINGS_OK;
 }
 
-static int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
+int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
 {
     // Set defaults for the device. user can modify these.
     cfg->fhss_uc_fixed_channel = 0xffff;
@@ -1273,6 +1271,23 @@ int8_t ws_cfg_settings_set(protocol_interface_info_entry_t *cur, ws_cfg_t *new_c
     }
 
     return ret_value;
+}
+
+uint32_t ws_cfg_neighbour_temporary_lifetime_get(void)
+{
+    if (ws_test_temporary_entry_lifetime) {
+        return ws_test_temporary_entry_lifetime;
+    }
+    return WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+}
+void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime)
+{
+    if (lifetime >= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME || lifetime == 0) {
+        if (lifetime > WS_NEIGHBOR_LINK_TIMEOUT) {
+            lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
+        }
+        ws_test_temporary_entry_lifetime = lifetime;
+    }
 }
 
 #endif //HAVE_WS

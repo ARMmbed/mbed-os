@@ -179,6 +179,7 @@ struct rpl_instance {
     bool dao_in_transit: 1;                         /* If we have a DAO in transit */
     bool requested_dao_ack: 1;                      /* If we requested an ACK (so we retry if no ACK, rather than assuming success) */
     bool pending_neighbour_confirmation: 1;         /* if we have not finished address registration state to parent */
+    bool parent_was_selected: 1;
     uint8_t poison_count;
     uint8_t repair_dis_count;
     uint16_t repair_dis_timer;

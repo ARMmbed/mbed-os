@@ -108,7 +108,7 @@ typedef struct {
     bool gtk_new_act_time_exp: 1;                            /**< GTK new activation time expired */
 } pae_auth_t;
 
-static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth);
+static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install);
 static int8_t ws_pae_auth_active_gtk_set(pae_auth_t *pae_auth, uint8_t index);
 static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index);
 static void ws_pae_auth_free(pae_auth_t *pae_auth);
@@ -345,7 +345,7 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
 
     // Inserts keys and updates GTK hash on stack
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
 
     // Sets active key index
     ws_pae_auth_network_key_index_set(pae_auth, index);
@@ -362,7 +362,7 @@ void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr)
         return;
     }
 
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
 }
 
 int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index)
@@ -440,7 +440,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 
         // If active GTK lifetime is larger than revocation lifetime decrements active GTK lifetime
         if (active_lifetime > revocation_lifetime) {
-            sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, active_index, current_time, active_lifetime - revocation_lifetime);
+            sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, active_index, current_time, active_lifetime - revocation_lifetime, true);
             tr_info("Access revocation start, GTK active index: %i, revoked lifetime: %"PRIu32"", active_index, revocation_lifetime);
         } else {
             // Otherwise decrements lifetime of the GTK to be installed after the active one
@@ -451,7 +451,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 
                 uint32_t second_lifetime = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, second_index);
                 if (second_lifetime > second_revocation_lifetime) {
-                    sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, second_index, current_time, second_lifetime - second_revocation_lifetime);
+                    sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, second_index, current_time, second_lifetime - second_revocation_lifetime, true);
                     tr_info("Access revocation start, GTK second active index: %i, revoked lifetime: %"PRIu32"", second_index, second_revocation_lifetime);
                 }
                 // Removes other keys than active and GTK to be installed next
@@ -470,7 +470,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 
     // Adds new GTK
     ws_pae_auth_gtk_key_insert(pae_auth);
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
 
     // Update keys to NVM as needed
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
@@ -535,8 +535,11 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
     }
     pae_auth->pan_id = pan_id;
 
+    bool force_install = false;
     if (strlen((char *) &pae_auth->network_name) > 0 && strcmp((char *) &pae_auth->network_name, network_name) != 0) {
         update_keys = true;
+        // Force GTK install to update the new network name to GAK
+        force_install = true;
     }
     strcpy((char *) &pae_auth->network_name, network_name);
 
@@ -548,7 +551,7 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
         pae_auth->nw_keys_remove(pae_auth->interface_ptr);
     }
 
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, force_install);
 
     int8_t index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
     if (index >= 0) {
@@ -559,7 +562,7 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
     return 0;
 }
 
-static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth)
+static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install)
 {
     // Authenticator keys are always fresh
     sec_prot_keys_gtk_status_all_fresh_set(pae_auth->sec_keys_nw_info->gtks);
@@ -571,7 +574,7 @@ static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth)
     }
 
     if (pae_auth->nw_key_insert) {
-        pae_auth->nw_key_insert(pae_auth->interface_ptr, pae_auth->sec_keys_nw_info->gtks);
+        pae_auth->nw_key_insert(pae_auth->interface_ptr, pae_auth->sec_keys_nw_info->gtks, force_install);
     }
 
     return 0;
@@ -707,7 +710,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             if (!sec_prot_keys_gtk_is_set(pae_auth->sec_keys_nw_info->gtks, i)) {
                 continue;
             }
-            uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds);
+            uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds, true);
             if (active_index == i) {
                 if (!pae_auth->gtk_new_inst_req_exp) {
                     pae_auth->gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_cfg, timer_seconds);
@@ -716,7 +719,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                         if (second_index < 0) {
                             tr_info("GTK new install required active index: %i, time: %"PRIu32", system time: %"PRIu32"", active_index, timer_seconds, protocol_core_monotonic_time / 10);
                             ws_pae_auth_gtk_key_insert(pae_auth);
-                            ws_pae_auth_network_keys_from_gtks_set(pae_auth);
+                            ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
                             // Update keys to NVM as needed
                             pae_auth->nw_info_updated(pae_auth->interface_ptr);
                         } else {
@@ -744,7 +747,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             if (timer_seconds == 0) {
                 tr_info("GTK expired index: %i, system time: %"PRIu32"", i, protocol_core_monotonic_time / 10);
                 ws_pae_auth_gtk_clear(pae_auth, i);
-                ws_pae_auth_network_keys_from_gtks_set(pae_auth);
+                ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
                 // Update keys to NVM as needed
                 pae_auth->nw_info_updated(pae_auth->interface_ptr);
             }

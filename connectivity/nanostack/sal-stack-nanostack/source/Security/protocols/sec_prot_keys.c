@@ -96,6 +96,16 @@ void sec_prot_keys_gtks_init(sec_prot_gtk_keys_t *gtks)
     gtks->updated = false;
 }
 
+void sec_prot_keys_gtks_clear(sec_prot_gtk_keys_t *gtks)
+{
+    for (uint8_t i = 0; i < GTK_NUM; i++) {
+        if (sec_prot_keys_gtk_is_set(gtks, i)) {
+            gtks->updated = true;
+        }
+    }
+    memset(gtks, 0, sizeof(sec_prot_gtk_keys_t));
+}
+
 void sec_prot_keys_gtks_delete(sec_prot_gtk_keys_t *gtks)
 {
     ns_dyn_mem_free(gtks);
@@ -113,12 +123,15 @@ void sec_prot_keys_pmk_write(sec_prot_keys_t *sec_keys, uint8_t *pmk, uint32_t p
 
 void sec_prot_keys_pmk_delete(sec_prot_keys_t *sec_keys)
 {
+    if (sec_keys->pmk_key_replay_cnt != 0 || sec_keys->pmk_key_replay_cnt_set ||
+            sec_keys->pmk_lifetime != 0 || sec_keys->pmk_set) {
+        sec_keys->updated = true;
+    }
     memset(sec_keys->pmk, 0, PMK_LEN);
     sec_keys->pmk_key_replay_cnt = 0;
     sec_keys->pmk_key_replay_cnt_set = false;
     sec_keys->pmk_lifetime = 0;
     sec_keys->pmk_set = false;
-    sec_keys->updated = true;
 }
 
 uint8_t *sec_prot_keys_pmk_get(sec_prot_keys_t *sec_keys)
@@ -222,10 +235,12 @@ void sec_prot_keys_ptk_write(sec_prot_keys_t *sec_keys, uint8_t *ptk, uint32_t p
 
 void sec_prot_keys_ptk_delete(sec_prot_keys_t *sec_keys)
 {
+    if (sec_keys->ptk_lifetime != 0 || sec_keys->ptk_set) {
+        sec_keys->updated = true;
+    }
     memset(sec_keys->ptk, 0, PTK_LEN);
     sec_keys->ptk_lifetime = 0;
     sec_keys->ptk_set = false;
-    sec_keys->updated = true;
 }
 
 uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys)
@@ -279,9 +294,11 @@ uint8_t *sec_prot_keys_ptk_eui_64_get(sec_prot_keys_t *sec_keys)
 
 void sec_prot_keys_ptk_eui_64_delete(sec_prot_keys_t *sec_keys)
 {
+    if (sec_keys->ptk_eui_64_set) {
+        sec_keys->updated = true;
+    }
     memset(sec_keys->ptk_eui_64, 0, 8);
     sec_keys->ptk_eui_64_set = false;
-    sec_keys->updated = true;
 }
 
 bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds)
@@ -490,7 +507,7 @@ uint32_t sec_prot_keys_gtk_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index
     return gtks->gtk[index].lifetime;
 }
 
-uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint16_t seconds)
+uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint16_t seconds, bool gtk_update_enable)
 {
     if (gtks->gtk[index].lifetime > seconds) {
         gtks->gtk[index].lifetime -= seconds;
@@ -508,7 +525,7 @@ uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t
         diff = expirytime - gtks->gtk[index].expirytime;
     }
     // If timestamps differ for more than 5 minutes marks field as updated (and stores to NVM)
-    if (diff > 300) {
+    if (diff > 300 && gtk_update_enable) {
         gtks->updated = true;
     }
 
@@ -588,7 +605,8 @@ int8_t sec_prot_keys_gtk_status_active_set(sec_prot_gtk_keys_t *gtks, uint8_t in
             }
         }
         gtks->gtk[index].status = GTK_STATUS_ACTIVE;
-        gtks->updated = true;
+        /* Changing fresh to active does not change the gtks updated state since active
+           keys are set to fresh on nvm read on startup */
         return 0;
     }
 
