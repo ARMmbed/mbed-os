@@ -6,6 +6,7 @@ add_subdirectory(system)
 
 target_include_directories(mbed-os-lorawan
     INTERFACE
+        ..
         .
         ./include
         ./include/lorawan
