@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("FEATURE")
+# List of all optional platform libraries available.
+add_library(mbed-os-psa INTERFACE)
+
 
 add_subdirectory(cxxsupport)
 add_subdirectory(mbed-trace)

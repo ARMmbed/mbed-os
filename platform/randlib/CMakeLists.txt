@@ -15,4 +15,7 @@ target_sources(mbed-os-randlib
         source/randLIB.c
 )
 
-target_link_libraries(mbed-os-randlib INTERFACE mbed-os-nanostack)
+target_link_libraries(mbed-os-randlib
+    INTERFACE
+        mbed-os-nanostack
+)
