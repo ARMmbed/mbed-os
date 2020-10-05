@@ -26,14 +26,14 @@ if("SPIF" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 
-target_include_directories(mbed-os-storage
+target_include_directories(mbed-os-storage-blockdevice
     INTERFACE
         .
         ./include
         ./include/blockdevice
 )
 
-target_sources(mbed-os-storage
+target_sources(mbed-os-storage-blockdevice
     INTERFACE
         source/BufferedBlockDevice.cpp
         source/ChainingBlockDevice.cpp

@@ -1,8 +1,6 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(mbed-os-storage-littlefs INTERFACE)
-
 target_include_directories(mbed-os-storage-littlefs
     INTERFACE
         .
@@ -21,5 +19,6 @@ target_sources(mbed-os-storage-littlefs
 
 target_link_libraries(mbed-os-storage-littlefs
     INTERFACE
-        mbed-os-storage
+        mbed-os-storage-blockdevice
+        mbed-os-storage-filesystem
 )

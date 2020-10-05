@@ -79,6 +79,11 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+# TODO CMake: This component is made visible here so its source files in
+# drivers/ can be added and it can be linked against by libraries in storage/.
+# Should the source files be moved from drivers/ to storage/ ?
+add_library(mbed-os-device_key INTERFACE)
+
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
 add_subdirectory(hal)
