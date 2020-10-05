@@ -42,6 +42,7 @@ typedef struct parent_info_s {
     uint16_t             pan_id;             /**< PAN ID */
     uint8_t              addr[8];            /**< address */
     uint8_t              link_quality;       /**< LQI value measured during reception of the MPDU */
+    uint8_t              tx_fail;
     int8_t               signal_dbm;         /**< This extension for normal IEEE 802.15.4 Data indication */
     ws_pan_information_t pan_information;
     ws_utt_ie_t          ws_utt;

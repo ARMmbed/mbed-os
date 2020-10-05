@@ -549,11 +549,13 @@ int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
         sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
         sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
         // Delete GTKs
-        sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
-        sec_prot_keys_gtks_updated_set(pae_supp->sec_keys_nw_info->gtks);
-        ws_pae_supp_nvm_update(pae_supp);
+        sec_prot_keys_gtks_clear(pae_supp->sec_keys_nw_info->gtks);
+        // If data is changed, store to NVM
+        if (sec_prot_keys_are_updated(&pae_supp->entry.sec_keys) ||
+                sec_prot_keys_gtks_are_updated(pae_supp->sec_keys_nw_info->gtks)) {
+            ws_pae_supp_nvm_update(pae_supp);
+        }
     }
-
     return 0;
 }
 
@@ -888,7 +890,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                 continue;
             }
             uint64_t current_time = ws_pae_current_time_get();
-            sec_prot_keys_gtk_lifetime_decrement(pae_supp->sec_keys_nw_info->gtks, i, current_time, seconds);
+            sec_prot_keys_gtk_lifetime_decrement(pae_supp->sec_keys_nw_info->gtks, i, current_time, seconds, false);
         }
 
         if (pae_supp->initial_key_timer > 0) {

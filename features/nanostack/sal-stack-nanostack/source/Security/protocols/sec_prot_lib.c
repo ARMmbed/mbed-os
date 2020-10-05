@@ -389,7 +389,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
         return kde;
     }
 
-    return NULL;   
+    return NULL;
 }
 
 int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_keys_t *sec_keys)

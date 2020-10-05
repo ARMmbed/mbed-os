@@ -729,8 +729,6 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
     ws_neighbor_class_rsl_in_calculate(neighbor_info.ws_neighbor, data->signal_dbm);
 
     if (neighbor_info.neighbor) {
-        //Refresh ETX dbm
-        etx_lqi_dbm_update(interface->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
         if (data->Key.SecurityLevel) {
             //SET trusted state
             mac_neighbor_table_trusted_neighbor(mac_neighbor_info(interface), neighbor_info.neighbor, true);

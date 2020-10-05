@@ -492,6 +492,8 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
 
     uint8_t local_prefix[8] = {0};
     uint8_t global_prefix[8] = {0};
+    uint8_t prefix_flags = 0;
+    uint32_t prefix_lifetime = 0;
 
     //tr_info("BBR status check");
 
@@ -596,7 +598,6 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
         }
         // TODO add global prefix
         if (memcmp(global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-
             tr_info("RPL global prefix activate %s", trace_ipv6_prefix(global_prefix, 64));
             // Add default route to RPL
             // Enable default routing to backbone
@@ -606,8 +607,12 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
                     return;
                 }
             }
+            if (configuration & BBR_GUA_SLAAC) {
+                prefix_flags |= PIO_A;
+                prefix_lifetime = WS_ULA_LIFETIME;
+            }
             ws_bbr_dhcp_server_start(cur, global_prefix, cur->ws_info->cfg->bbr.dhcp_address_lifetime);
-            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_prefix, 64, 0, 0, 0, false);
+            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_prefix, 64, prefix_flags, prefix_lifetime, prefix_lifetime, false);
             // no check for failure should have
 
             if (configuration & BBR_GUA_ROUTE) {
@@ -626,7 +631,11 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
          *  There is no status checks on prefix adds so this makes sure they are not lost
          *  DHCP validation should be done also
          */
-        rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, current_global_prefix, 64, 0, 0, 0, false);
+        if (configuration & BBR_GUA_SLAAC) {
+            prefix_flags |= PIO_A;
+            prefix_lifetime = WS_ULA_LIFETIME;
+        }
+        rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, current_global_prefix, 64, prefix_flags, prefix_lifetime, prefix_lifetime, false);
 
         if (configuration & BBR_GUA_ROUTE) {
             // Add also global prefix and route to RPL
