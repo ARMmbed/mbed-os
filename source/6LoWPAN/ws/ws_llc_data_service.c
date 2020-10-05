@@ -537,7 +537,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                 ws_llc_mpx_eapol_send(base, message);
             }
         } else {
-            if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
+            if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime < WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
                 //Remove temp neighbour
                 tr_debug("Remove Temp Entry by TX confirm");
                 mac_neighbor_table_neighbor_remove(mac_neighbor_info(interface), neighbor_info.neighbor);
@@ -729,8 +729,6 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
     ws_neighbor_class_rsl_in_calculate(neighbor_info.ws_neighbor, data->signal_dbm);
 
     if (neighbor_info.neighbor) {
-        //Refresh ETX dbm
-        etx_lqi_dbm_update(interface->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
         if (data->Key.SecurityLevel) {
             //SET trusted state
             mac_neighbor_table_trusted_neighbor(mac_neighbor_info(interface), neighbor_info.neighbor, true);

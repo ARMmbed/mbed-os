@@ -241,6 +241,7 @@ typedef struct ws_bs_ie {
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
 
+#define WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME 240
 #define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 5
 #define WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME 60
 #define WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE 520
@@ -254,7 +255,8 @@ typedef struct ws_bs_ie {
 #define WS_NEIGHBOR_ETX_SAMPLE_MAX 3
 #define WS_NEIGHBOR_FIRST_ETX_SAMPLE_MIN_COUNT 3 //This can't be bigger than WS_NEIGHBOR_ETX_SAMPLE_MAX
 
-#define WS_PROBE_INIT_BASE_SECONDS 8
+#define WS_SMALL_PROBE_INIT_BASE_SECONDS 4
+#define WS_NORMAL_PROBE_INIT_BASE_SECONDS 8
 
 #define WS_NUD_RAND_PROBABILITY 1
 
@@ -268,6 +270,10 @@ typedef struct ws_bs_ie {
 #define WS_ETX_MAX 1024
 
 #define WS_ETX_MIN_WAIT_TIME 60
+
+#define WS_ETX_BAD_INIT_LINK_LEVEL 3 //3 or higher attempt count will be dropped
+#define WS_ETX_MAX_BAD_LINK_DROP 2 //Drop 2 bad link from init 3
+
 
 #define WS_RPL_PARENT_CANDIDATE_MAX 5
 #define WS_RPL_SELECTED_PARENT_MAX 2
@@ -321,8 +327,12 @@ typedef struct ws_bs_ie {
  * 3                        4                               1+3*1+4=20
  *
  */
+// This configuration is used when bootstrap is ready
 #define WS_MAX_FRAME_RETRIES            3
 #define WS_NUMBER_OF_CHANNEL_RETRIES    4
+// This configuration is used during bootstrap
+#define WS_MAX_FRAME_RETRIES_BOOTSTRAP          0
+#define WS_NUMBER_OF_CHANNEL_RETRIES_BOOTSTRAP  19
 
 
 #if (1 + WS_MAX_FRAME_RETRIES) * (1 + WS_NUMBER_OF_CHANNEL_RETRIES) < 20

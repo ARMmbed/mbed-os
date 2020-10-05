@@ -204,6 +204,19 @@ void ws_test_skip_edfe_data_send(int8_t interface_id, bool skip);
  */
 int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames);
 
+/**
+ * Set neighbour temporary timeout value.
+ *
+ * Made only for test purpose for test EDFE certificatiomn test harness.
+ *
+ * \param interface_id Network interface ID.
+ * \param temporary_lifetime 0 to disable test harness, 240-2200 enable longer temporary neighbour lifetime. Values bigger than 2200 will be capped to 2200.
+ *
+ * \return 0                        Success
+ * \return <0                       Failure
+ */
+int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime);
+
 #ifdef __cplusplus
 }
 #endif

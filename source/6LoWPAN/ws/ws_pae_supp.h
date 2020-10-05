@@ -221,12 +221,13 @@ typedef const uint8_t *ws_pae_supp_auth_next_target(protocol_interface_info_entr
  *
  * \param interface_ptr interface
  * \param gtks group keys
+ * \param force_install TRUE force install keys, FALSE install keys only if GTKs has changed
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_supp_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks);
+typedef int8_t ws_pae_supp_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
 
 /**
  * ws_pae_supp_gtk_hash_ptr_get get pointer to GTK hash storage callback
