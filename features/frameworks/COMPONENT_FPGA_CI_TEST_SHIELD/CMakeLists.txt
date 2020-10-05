@@ -19,5 +19,3 @@ target_sources(mbed-os-fpga-ci-test-shield
         source/SPITester.cpp
         source/UARTTester.cpp
 )
-
-
