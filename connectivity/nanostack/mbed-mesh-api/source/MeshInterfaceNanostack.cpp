@@ -129,6 +129,7 @@ void Nanostack::Interface::network_handler(mesh_connection_status_t status)
         }
     }
 
+    bool global_up = false;
 
     if (status == MESH_CONNECTED) {
         uint8_t temp_ipv6_global[16];
@@ -139,6 +140,7 @@ void Nanostack::Interface::network_handler(mesh_connection_status_t status)
         if (arm_net_address_get(interface_id, ADDR_IPV6_GP, temp_ipv6_global) == 0
                 && (memcmp(temp_ipv6_global, temp_ipv6_local, 16) != 0)) {
             _connect_status = NSAPI_STATUS_GLOBAL_UP;
+            global_up = true;
         }
     } else if (status == MESH_CONNECTED_LOCAL) {
         _connect_status = NSAPI_STATUS_LOCAL_UP;
@@ -150,9 +152,9 @@ void Nanostack::Interface::network_handler(mesh_connection_status_t status)
         _connect_status = NSAPI_STATUS_DISCONNECTED;
     }
 
-    if (_connection_status_cb && _previous_connection_status != _connect_status
-            && (_previous_connection_status != NSAPI_STATUS_GLOBAL_UP || status != MESH_BOOTSTRAP_STARTED)
-            && (_previous_connection_status != NSAPI_STATUS_CONNECTING || status != MESH_BOOTSTRAP_START_FAILED)) {
+    if (_connection_status_cb && (global_up || (_previous_connection_status != _connect_status
+                                                && (_previous_connection_status != NSAPI_STATUS_GLOBAL_UP || status != MESH_BOOTSTRAP_STARTED)
+                                                && (_previous_connection_status != NSAPI_STATUS_CONNECTING || status != MESH_BOOTSTRAP_START_FAILED)))) {
         _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
     }
     _previous_connection_status = _connect_status;
