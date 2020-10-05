@@ -360,7 +360,17 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
     uint8_t *eui_64 = pae_supp->addr.eui_64;
 
     key_storage_array_t *key_storage_array;
-    sec_prot_keys_storage_t *key_storage = ws_pae_key_storage_get(instance, eui_64, &key_storage_array, true);
+    // Check if entry exists
+    sec_prot_keys_storage_t *key_storage = ws_pae_key_storage_get(instance, eui_64, &key_storage_array, false);
+    if (key_storage == NULL) {
+        // Do not allocate new storage if PMK and PTK are not set
+        if (!pae_supp->sec_keys.pmk_set && !pae_supp->sec_keys.ptk_set) {
+            tr_info("KeyS PMK and PTK not set, skip storing, eui64: %s", tr_array(eui_64, 8));
+            return -1;
+        }
+        // Allocate new empty entry
+        key_storage = ws_pae_key_storage_get(instance, eui_64, &key_storage_array, true);
+    }
 
     // If cannot find existing or empty storage and there is room for storages tries to allocate more storage
     if (key_storage == NULL && key_storage_params.storages_empty > 0) {

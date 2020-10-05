@@ -305,12 +305,12 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
 
         /* Start timer with random timeout to trigger broadcast TX queue poll event.
          * Min random is 1/50 of the channel dwell interval.
-         * Max random is 1/10 of the channel dwell interval.
+         * Max random is 3/4 of the channel dwell interval.
          * Event timer resolution is 50us.
          */
         uint32_t bc_dwell_us = MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
         uint16_t bc_min_random = (bc_dwell_us / 50) / 50;
-        uint16_t bc_max_random = (bc_dwell_us / 10) / 50;
+        uint16_t bc_max_random = (bc_dwell_us - (bc_dwell_us / 4)) / 50;
         eventOS_callback_timer_start(fhss_structure->fhss_event_timer, randLIB_get_random_in_range(bc_min_random, bc_max_random));
     } else {
         fhss_structure->ws->unicast_start_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
@@ -1063,7 +1063,7 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
         fhss_structure->rx_channel = fhss_configuration->unicast_fixed_channel;
     }
     platform_exit_critical();
-    tr_info("fhss Configuration set, UC channel: %d, BC channel: %d, UC CF: %d, BC CF: %d, channels: BC %d UC %d, uc dwell: %d, bc dwell: %d, bc interval: %"PRIu32", bsi:%d",
+    tr_info("fhss Configuration set, UC channel: %d, BC channel: %d, UC CF: %d, BC CF: %d, channels: BC %d UC %d, uc dwell: %d, bc dwell: %d, bc interval: %"PRIu32", bsi:%d, ch retries: %u",
             fhss_structure->ws->fhss_configuration.unicast_fixed_channel,
             fhss_structure->ws->fhss_configuration.broadcast_fixed_channel,
             fhss_structure->ws->fhss_configuration.ws_uc_channel_function,
@@ -1073,7 +1073,9 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
             fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval,
             fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval,
             fhss_structure->ws->fhss_configuration.fhss_broadcast_interval,
-            fhss_structure->ws->fhss_configuration.bsi);
+            fhss_structure->ws->fhss_configuration.bsi,
+            fhss_structure->ws->fhss_configuration.config_parameters.number_of_channel_retries);
+
     return 0;
 }
 
