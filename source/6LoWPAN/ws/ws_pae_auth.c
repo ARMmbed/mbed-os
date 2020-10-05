@@ -440,7 +440,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 
         // If active GTK lifetime is larger than revocation lifetime decrements active GTK lifetime
         if (active_lifetime > revocation_lifetime) {
-            sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, active_index, current_time, active_lifetime - revocation_lifetime);
+            sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, active_index, current_time, active_lifetime - revocation_lifetime, true);
             tr_info("Access revocation start, GTK active index: %i, revoked lifetime: %"PRIu32"", active_index, revocation_lifetime);
         } else {
             // Otherwise decrements lifetime of the GTK to be installed after the active one
@@ -451,7 +451,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 
                 uint32_t second_lifetime = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, second_index);
                 if (second_lifetime > second_revocation_lifetime) {
-                    sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, second_index, current_time, second_lifetime - second_revocation_lifetime);
+                    sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, second_index, current_time, second_lifetime - second_revocation_lifetime, true);
                     tr_info("Access revocation start, GTK second active index: %i, revoked lifetime: %"PRIu32"", second_index, second_revocation_lifetime);
                 }
                 // Removes other keys than active and GTK to be installed next
@@ -710,7 +710,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             if (!sec_prot_keys_gtk_is_set(pae_auth->sec_keys_nw_info->gtks, i)) {
                 continue;
             }
-            uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds);
+            uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds, true);
             if (active_index == i) {
                 if (!pae_auth->gtk_new_inst_req_exp) {
                     pae_auth->gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_cfg, timer_seconds);

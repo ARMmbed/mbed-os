@@ -410,7 +410,7 @@ static void radius_eap_tls_sec_prot_radius_client_deleted(sec_prot_t *prot)
 {
     radius_eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
 
-    tr_debug("EAP-TLS: client deleted");
+    tr_info("EAP-TLS: client deleted");
 
     data->radius_client_prot = NULL;
     data->radius_client_send = NULL;
@@ -526,7 +526,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
             // On timeout
             if (sec_prot_result_timeout_check(&data->common)) {
-                tr_debug("EAP-TLS: retry EAP request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                tr_info("EAP-TLS: retry EAP request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
                 if (radius_eap_tls_sec_prot_radius_eap_message_retry(prot) < 0) {
                     tr_error("EAP-TLS: retry msg send error");
                 }

@@ -783,8 +783,14 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
         // Checks frame counters
         for (uint8_t index = 0; index < GTK_NUM; index++) {
             if (controller->frame_counters.counter[index].set) {
-                // Increments frame counters
-                controller->frame_counters.counter[index].frame_counter += FRAME_COUNTER_INCREMENT;
+                // If there is room on frame counter space
+                if (controller->frame_counters.counter[index].frame_counter < (UINT32_MAX - FRAME_COUNTER_INCREMENT * 2)) {
+                    // Increments frame counters
+                    controller->frame_counters.counter[index].frame_counter += FRAME_COUNTER_INCREMENT;
+                } else {
+                    tr_error("Frame counter space exhausted");
+                    controller->frame_counters.counter[index].frame_counter = UINT32_MAX;
+                }
                 controller->frame_counters.counter[index].stored_frame_counter =
                     controller->frame_counters.counter[index].frame_counter;
 
@@ -891,6 +897,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
     ws_pae_controller_nw_info_read(controller, controller->sec_keys_nw_info.gtks);
     // Set active key back to fresh so that it can be used again after re-start
     sec_prot_keys_gtk_status_active_to_fresh_set(&controller->gtks);
+    sec_prot_keys_gtks_updated_reset(&controller->gtks);
 
     return 0;
 }
