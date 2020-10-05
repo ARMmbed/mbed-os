@@ -74,6 +74,8 @@ typedef struct {
     uint8_t etx_min_sampling_time;
     uint8_t ext_storage_list_size;
     uint8_t min_attempts_count;
+    uint8_t drop_bad_max;
+    uint8_t bad_link_level;
     bool cache_sample_requested;
     int8_t interface_id;
 } ext_info_t;
@@ -87,6 +89,8 @@ static ext_info_t etx_info = {
     .etx_cache_storage_list = NULL,
     .ext_storage_list_size = 0,
     .min_attempts_count = 0,
+    .drop_bad_max = 0,
+    .bad_link_level = 0,
     .max_etx_update = 0,
     .max_etx = 0xffff,
     .init_etx_sample_count = 1,
@@ -133,6 +137,8 @@ static void etx_calculation(etx_storage_t *entry, uint16_t attempts, uint8_t ack
     entry->tmp_etx = false;
 
     entry->etx = etx;
+    //Clear Drop count
+    entry->drop_bad_count = 0;
 
     if (entry->etx_samples >= etx_info.init_etx_sample_count) {
         etx_cache_entry_init(etx_neigh_info->attribute_index);
@@ -149,6 +155,7 @@ static void etx_cache_entry_init(uint8_t attribute_index)
 
     etx_sample_storage_t *storage = etx_info.etx_cache_storage_list + attribute_index;
     storage->attempts_count = 0;
+    storage->transition_count = 0;
     storage->etx_timer = etx_info.etx_min_sampling_time;
     storage->received_acks = 0;
 }
@@ -162,21 +169,22 @@ static bool etx_update_possible(etx_sample_storage_t *storage, etx_storage_t *en
             storage->etx_timer -= time_update;
         }
     }
+    if (entry->etx_samples == etx_info.init_etx_sample_count && time_update == 0) {
+        return true;
+    }
 
     if (entry->etx_samples > etx_info.init_etx_sample_count) {
         //Slower ETX update phase
-        if (storage->attempts_count >= etx_info.min_attempts_count) {
-
-            if (storage->etx_timer == 0 || storage->attempts_count == 0xffff || storage->received_acks == 0xff) {
+        if (storage->etx_timer == 0 || storage->attempts_count == 0xffff || storage->received_acks == 0xff) {
+            //When time is going zero or too much sample data
+            if (storage->transition_count >= etx_info.min_attempts_count) {
                 //Got least min sample in requested time or max possible sample
+                return true;
+            } else if (storage->transition_count != storage->received_acks) {
+                //Missing ack now ETX can be accelerated
                 return true;
             }
         }
-        return false;
-    }
-
-    if (time_update == 0) {
-        return true;
     }
 
     return false;
@@ -188,6 +196,7 @@ static etx_sample_storage_t *etx_cache_sample_update(uint8_t attribute_index, ui
 {
     etx_sample_storage_t *storage = etx_info.etx_cache_storage_list + attribute_index;
     storage->attempts_count += attempts;
+    storage->transition_count++;
     if (ack_rx) {
         storage->received_acks++;
     }
@@ -196,6 +205,26 @@ static etx_sample_storage_t *etx_cache_sample_update(uint8_t attribute_index, ui
 }
 
 
+static bool etx_drop_bad_sample(etx_storage_t *entry, uint8_t attempts, bool success)
+{
+    if (etx_info.bad_link_level == 0 || !success) {
+        //Not enabled or Failure
+        return false;
+    }
+
+    if (attempts < etx_info.bad_link_level) {
+        //under configured value is accepted
+        return false;
+    }
+
+    if (entry->drop_bad_count < etx_info.drop_bad_max) {
+        //Accepted only configured max value 1-2
+        entry->drop_bad_count++;
+        return true;
+    }
+
+    return false;
+}
 
 /**
  * \brief A function to update ETX value based on transmission attempts
@@ -222,6 +251,11 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
     etx_neigh_info.mac64 = mac64_addr_ptr;
 
     if (entry->etx_samples < 7) {
+
+        if (etx_drop_bad_sample(entry, attempts, success)) {
+            tr_debug("Drop bad etx init %u", attempts);
+            return;
+        }
         entry->etx_samples++;
     }
 
@@ -235,10 +269,6 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
         }
 
         etx_calculation(entry, storage->attempts_count, storage->received_acks, &etx_neigh_info);
-
-        if (entry->etx_samples < 7 && !success) {
-            entry->etx_samples = 7; //Stop Probing to failure
-        }
         return;
     }
 
@@ -409,9 +439,13 @@ uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index)
     }
 
     if (etx_info.cache_sample_requested && entry->etx_samples < etx_info.init_etx_sample_count) {
-        if (!entry->etx_samples) {
-            return 0;
+        etx_sample_storage_t *storage = etx_info.etx_cache_storage_list + attribute_index;
+        if (storage->received_acks == 0 && storage->attempts_count) {
+            //No ack so return max value
+            return etx_info.max_etx;
         }
+        //Not ready yet
+        return 0xffff;
     }
 
     return etx_current_calc(entry->etx, entry->accumulated_failures) >> 4;
@@ -665,6 +699,36 @@ bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_attempt
     etx_info.etx_min_sampling_time = min_wait_time;
     etx_info.init_etx_sample_count = init_etx_sample_count;
 
+    return true;
+}
+
+bool etx_allow_drop_for_poor_measurements(uint8_t bad_link_level, uint8_t max_allowed_drops)
+{
+    //No ini ETX allocation done yet
+    if (etx_info.ext_storage_list_size == 0) {
+        return false;
+    }
+
+    if (bad_link_level == 0) {
+        //Disable feature
+        etx_info.bad_link_level = 0;
+        etx_info.drop_bad_max = 0;
+        return true;
+    }
+
+    if (bad_link_level < 2) {
+        // 2 attepts is min value
+        return false;
+    }
+
+    if (max_allowed_drops == 0 || max_allowed_drops > 3) {
+        //Accepted values is 1-3
+        return false;
+    }
+
+
+    etx_info.bad_link_level = bad_link_level;
+    etx_info.drop_bad_max = max_allowed_drops;
     return true;
 }
 

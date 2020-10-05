@@ -159,10 +159,12 @@ int8_t ws_cfg_gen_get(ws_gen_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_gen_validate(ws_gen_cfg_t  *cfg, ws_gen_cfg_t  *new_cfg);
 int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg, uint8_t *flags);
 
+int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg);
 int8_t ws_cfg_phy_get(ws_phy_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_phy_validate(ws_phy_cfg_t *cfg, ws_phy_cfg_t *new_cfg);
 int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *cfg, ws_phy_cfg_t *new_cfg, uint8_t *flags);
 
+int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg);
 int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_timing_validate(ws_timing_cfg_t *cfg, ws_timing_cfg_t *new_cfg);
 int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *cfg, ws_timing_cfg_t *new_cfg, uint8_t *flags);
@@ -175,6 +177,7 @@ int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg);
 int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg, uint8_t *flags);
 
+int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg);
 int8_t ws_cfg_fhss_get(ws_fhss_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *cfg, ws_fhss_cfg_t *new_cfg);
 int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *cfg, ws_fhss_cfg_t *new_cfg, uint8_t *flags);
@@ -186,5 +189,8 @@ int8_t ws_cfg_sec_timer_set(protocol_interface_info_entry_t *cur, ws_sec_timer_c
 int8_t ws_cfg_sec_prot_get(ws_sec_prot_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_cfg);
 int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_cfg, uint8_t *flags);
+
+uint32_t ws_cfg_neighbour_temporary_lifetime_get(void);
+void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime);
 
 #endif // WS_CFG_STORAGE_H_
