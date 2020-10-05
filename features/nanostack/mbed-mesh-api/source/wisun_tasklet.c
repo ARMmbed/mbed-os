@@ -176,11 +176,9 @@ static void wisun_tasklet_parse_network_event(arm_event_s *event)
     switch (status) {
         case ARM_NWK_BOOTSTRAP_READY:
             /* Network is ready and node is connected to Access Point */
-            if (wisun_tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY) {
-                tr_info("Wi-SUN bootstrap ready");
-                wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_READY;
-                wisun_tasklet_network_state_changed(MESH_CONNECTED);
-            }
+            tr_info("Wi-SUN bootstrap ready");
+            wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_READY;
+            wisun_tasklet_network_state_changed(MESH_CONNECTED);
             break;
         case ARM_NWK_NWK_SCAN_FAIL:
             /* Link Layer Active Scan Fail, Stack is Already at Idle state */
