@@ -54,9 +54,14 @@ target_link_libraries(mbed-os-netsocket
         mbed-os-events
 )
 
-if("Freescale_EMAC" IN_LIST MBED_TARGET_LABELS)
+if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
     target_link_libraries(mbed-os-netsocket
         INTERFACE
-            mbed-os-emac-kinetis
+            mbed-os-emac
     )
 endif()
+
+target_link_libraries(mbed-os-netsocket
+    INTERFACE
+        mbed-os-cellular
+)
