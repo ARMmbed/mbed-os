@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-nanostack
+target_include_directories(mbed-os-nanostack-mbed_mesh_api
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbed-mesh-api
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/include
+        .
+        ./mbed-mesh-api
+        ./source/include
 )
 
-target_sources(mbed-os-nanostack
+target_sources(mbed-os-nanostack-mbed_mesh_api
     INTERFACE
         source/CallbackHandler.cpp
         source/LoWPANNDInterface.cpp
@@ -25,4 +25,9 @@ target_sources(mbed-os-nanostack
         source/nd_tasklet.c
         source/thread_tasklet.c
         source/wisun_tasklet.c
+)
+
+target_link_libraries(mbed-os-nanostack
+    INTERFACE
+        mbed-os-nanostack-hal_mbed_cmsis_rtos
 )

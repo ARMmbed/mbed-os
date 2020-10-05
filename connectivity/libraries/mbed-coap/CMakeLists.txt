@@ -20,8 +20,3 @@ target_compile_definitions(mbed-os-coap
     INTERFACE
         MBED_CONF_COAP_PRESENT=1
 )
-
-target_link_libraries(mbed-os-coap
-    INTERFACE
-        mbed-os-nanostack-libservice
-)

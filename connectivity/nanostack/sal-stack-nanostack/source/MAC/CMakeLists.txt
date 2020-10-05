@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-nanostack
+target_include_directories(mbed-os-nanostack-sal_stack
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/IEEE802_15_4
         ${CMAKE_CURRENT_SOURCE_DIR}/virtual_rf
 )
 
-target_sources(mbed-os-nanostack
+target_sources(mbed-os-nanostack-sal_stack
     INTERFACE
         rf_driver_storage.c
 

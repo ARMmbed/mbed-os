@@ -20,4 +20,8 @@ target_compile_definitions(mbed-os-cellular
         MBED_CONF_CELLULAR_PRESENT=1
 )
 
-target_link_libraries(mbed-os-cellular INTERFACE mbed-os-nanostack-libservice mbed-os-netsocket mbed-os)
+target_link_libraries(mbed-os-cellular
+    INTERFACE
+        mbed-os-netsocket
+        mbed-os
+)

@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-nanostack
+target_include_directories(mbed-os-nanostack-sal_stack-event_loop
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/nanostack-event-loop
-        ${CMAKE_CURRENT_SOURCE_DIR}/nanostack-event-loop/platform
-        ${CMAKE_CURRENT_SOURCE_DIR}/source
+        .
+        ./nanostack-event-loop
+        ./nanostack-event-loop/platform
+        ./source
 )
 
-target_sources(mbed-os-nanostack
+target_sources(mbed-os-nanostack-sal_stack-event_loop
     INTERFACE
         source/event.c
         source/ns_timeout.c

@@ -9,9 +9,9 @@ add_subdirectory(sal-stack-nanostack-eventloop)
 
 target_include_directories(mbed-os-nanostack
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/nanostack-interface
+        .
+        ./include
+        ./include/nanostack-interface
 )
 
 target_sources(mbed-os-nanostack
@@ -26,7 +26,7 @@ target_compile_definitions(mbed-os-nanostack
 
 target_link_libraries(mbed-os-nanostack
     INTERFACE
-        mbed-os-nanostack-libservice
-        mbed-os-netsocket
-        mbed-os-coap
+        mbed-os-nanostack-mbed_mesh_api
+        mbed-os-nanostack-sal_stack-event_loop
+        mbed-os-nanostack-sal_stack
 )

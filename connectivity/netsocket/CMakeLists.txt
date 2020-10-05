@@ -48,7 +48,6 @@ target_compile_definitions(mbed-os-netsocket
 
 target_link_libraries(mbed-os-netsocket
     INTERFACE
-        mbed-os-nanostack-libservice
         mbed-os-mbedtls
         mbed-os-lwipstack
         mbed-os-events
@@ -64,4 +63,5 @@ endif()
 target_link_libraries(mbed-os-netsocket
     INTERFACE
         mbed-os-cellular
+        mbed-os-nanostack-libservice
 )
