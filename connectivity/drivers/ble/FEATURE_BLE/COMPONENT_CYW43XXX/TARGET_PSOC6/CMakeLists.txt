@@ -5,8 +5,3 @@ target_sources(mbed-os-ble
     INTERFACE
         cy_bt_cordio_cfg.cpp
 )
-
-target_link_libraries(mbed-os-ble
-    INTERFACE
-        mbed-os-ble
-)
