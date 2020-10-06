@@ -42,31 +42,31 @@ public:
                 connectionHandle, attMtuSize);
     }
 
-    void onDataSent(const GattDataSentCallbackParams* params) override {
+    void onDataSent(const GattDataSentCallbackParams &params) override {
         execute_on_all(&ble::GattServer::EventHandler::onDataSent, params);
     }
 
-    void onDataWritten(const GattWriteCallbackParams *params) override {
+    void onDataWritten(const GattWriteCallbackParams &params) override {
         execute_on_all(&ble::GattServer::EventHandler::onDataWritten, params);
     }
 
-    void onDataRead(const GattReadCallbackParams *params) override {
+    void onDataRead(const GattReadCallbackParams &params) override {
         execute_on_all(&ble::GattServer::EventHandler::onDataRead, params);
     }
 
-    void onShutdown(const GattServer *server) override {
+    void onShutdown(const GattServer &server) override {
         execute_on_all(&ble::GattServer::EventHandler::onShutdown, server);
     }
 
-    void onUpdatesEnabled(const GattUpdatesEnabledCallbackParams* params) override {
+    void onUpdatesEnabled(const GattUpdatesEnabledCallbackParams &params) override {
         execute_on_all(&ble::GattServer::EventHandler::onUpdatesEnabled, params);
     }
 
-    void onUpdatesDisabled(const GattUpdatesDisabledCallbackParams* params) override {
+    void onUpdatesDisabled(const GattUpdatesDisabledCallbackParams &params) override {
         execute_on_all(&ble::GattServer::EventHandler::onUpdatesDisabled, params);
     }
 
-    void onConfirmationReceived(const GattConfirmationReceivedCallbackParams* params) override {
+    void onConfirmationReceived(const GattConfirmationReceivedCallbackParams &params) override {
         execute_on_all(&ble::GattServer::EventHandler::onConfirmationReceived, params);
     }
 
