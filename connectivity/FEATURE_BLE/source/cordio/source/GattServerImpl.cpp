@@ -588,6 +588,23 @@ ble_error_t GattServer::insert_cccd(
     cccds[cccd_cnt].secLevel = characteristic->getUpdateSecurityRequirement().value();
     cccd_handles[cccd_cnt] = characteristic->getValueAttribute().getHandle();
 
+    /**
+     * Set the characteristic's implicitly-created CCCD
+     *
+     * Ownership is passed to the GattCharacteristic
+     */
+    GattAttribute* implicit_cccd = new GattAttribute(
+                                       CCCD_UUID,
+                                       attribute_it->pValue,
+                                       *attribute_it->pLen,
+                                       attribute_it->maxLen,
+                                       false);
+
+    implicit_cccd->setHandle(cccds[cccd_cnt].handle);
+    implicit_cccd->allowRead(true);
+    implicit_cccd->allowWrite(true);
+    characteristic->_setImplicitCCCD(implicit_cccd);
+
     cccd_cnt++;
     attribute_it++;
 
