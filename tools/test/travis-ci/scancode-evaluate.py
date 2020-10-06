@@ -13,10 +13,10 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations 
+limitations
 """
 
-# Asumptions for this script: 
+# Asumptions for this script:
 # 1. directory_name is scanned directory.
 #  Files are copied to this directory with full tree. As result, if we find
 #  license offender, we can have full path (just scrape directory_name). We do this
@@ -45,11 +45,11 @@ def license_check(directory_name, file):
 
     This function does not verify if file exists, should be done prior the call.
 
-    Args:  
-    directory_name - where scancode was run, used to scrape this from paths   
+    Args:
+    directory_name - where scancode was run, used to scrape this from paths
     file - scancode json output file (output from scancode --license --json-pp)
 
-    Returns:    
+    Returns:
     0 if nothing found
     >0 - count how many license isses found
     -1 if any error in file licenses found
@@ -73,17 +73,10 @@ def license_check(directory_name, file):
                 continue
             if not license_offender['file']['licenses']:
                 license_offender['reason'] = MISSING_LICENSE_TEXT
-                offenders.append(license_offender)
+                offenders.append(license_offender.copy())
                 continue
 
-            found_spdx = False
-            for i in range(len(license_offender['file']['licenses'])):
-                if license_offender['file']['licenses'][i]['category'] != 'Permissive':
-                    license_offender['reason'] = MISSING_PERMISIVE_LICENSE_TEXT
-                    offenders.append(license_offender)
-                # find SPDX, it shall be one of licenses found
-                if license_offender['file']['licenses'][i]['matched_rule']['identifier'].find("spdx") != -1:
-                    found_spdx = True
+            found_spdx = spdx_check(offenders, license_offender)
 
             if not found_spdx:
                 try:
@@ -96,7 +89,7 @@ def license_check(directory_name, file):
                     if matches:
                         continue
                     license_offender['reason'] = MISSING_SPDX_TEXT
-                    offenders.append(license_offender)
+                    offenders.append(license_offender.copy())
                 except UnicodeDecodeError:
                     # not valid file for license check
                     continue
@@ -110,6 +103,29 @@ def license_check(directory_name, file):
             userlog.warning("File: " + offender['file']['path'][len(directory_name):] + " " + "reason: " + offender['reason'])
     return len(offenders)
 
+
+def spdx_check(offenders, license_offender):
+        """ Parse through list of licenses to determine whether licenses are permissive
+                @input list of offender, individual offender dict
+                @output none
+        """
+        found_spdx = False
+        # iterate through licenses, stop once permissive license has been found
+        for i in range(len(license_offender['file']['licenses'])):
+                # is any of the licenses permissive ?
+                if license_offender['file']['licenses'][i]['category'] == 'Permissive':
+                        # confirm that it has spdx license key
+                        if license_offender['file']['licenses'][i]['matched_rule']['identifier'].find("spdx") != -1:
+                                found_spdx = True
+                        # if no spdx found return anyway
+                        return found_spdx
+        # otherwise file is missing permissive license
+        license_offender['reason'] = MISSING_PERMISIVE_LICENSE_TEXT
+        offenders.append(license_offender.copy())
+
+        # missing spdx and permissive license
+        return found_spdx
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="License check.")
@@ -119,8 +135,8 @@ def parse_args():
                         help='Directory name where are files being checked')
     return parser.parse_args()
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     args = parse_args()
     if args.file and os.path.isfile(args.file):
         count = license_check(args.directory_name, args.file)
