@@ -1,8 +1,6 @@
 ;********************************************************************************
 ;* File Name          : startup_stm32l496xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.7.0
-;* Date               : 17-February-2017
 ;* Description        : STM32L496xx Ultra Low Power Devices vector
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -18,10 +16,10 @@
 ;* <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
 ;* All rights reserved.</center></h2>
 ;*
-;* This software component is licensed by ST under BSD 3-Clause license,
+;* This software component is licensed by ST under Apache License, Version 2.0,
 ;* the "License"; You may not use this file except in compliance with the
 ;* License. You may obtain a copy of the License at:
-;*                        opensource.org/licenses/BSD-3-Clause
+;*                        opensource.org/licenses/Apache-2.0
 ;*
 ;*******************************************************************************
 ;

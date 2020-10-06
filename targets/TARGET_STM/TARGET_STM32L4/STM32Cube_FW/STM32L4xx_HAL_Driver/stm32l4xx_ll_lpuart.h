@@ -1468,10 +1468,10 @@ __STATIC_INLINE uint32_t LL_LPUART_GetBaudRate(USART_TypeDef *LPUARTx, uint32_t 
 __STATIC_INLINE uint32_t LL_LPUART_GetBaudRate(USART_TypeDef *LPUARTx, uint32_t PeriphClk)
 #endif /* USART_PRESC_PRESCALER */
 {
-  register uint32_t lpuartdiv;
-  register uint32_t brrresult;
+  uint32_t lpuartdiv;
+  uint32_t brrresult;
 #if defined(USART_PRESC_PRESCALER)
-  register uint32_t periphclkpresc = (uint32_t)(PeriphClk / (LPUART_PRESCALER_TAB[(uint16_t)PrescalerValue]));
+  uint32_t periphclkpresc = (uint32_t)(PeriphClk / (LPUART_PRESCALER_TAB[(uint16_t)PrescalerValue]));
 #endif /* USART_PRESC_PRESCALER */
 
   lpuartdiv = LPUARTx->BRR & LPUART_BRR_MASK;
@@ -2710,7 +2710,7 @@ __STATIC_INLINE uint32_t LL_LPUART_IsEnabledDMADeactOnRxErr(USART_TypeDef *LPUAR
   */
 __STATIC_INLINE uint32_t LL_LPUART_DMA_GetRegAddr(USART_TypeDef *LPUARTx, uint32_t Direction)
 {
-  register uint32_t data_reg_addr;
+  uint32_t data_reg_addr;
 
   if (Direction == LL_LPUART_DMA_REG_DATA_TRANSMIT)
   {

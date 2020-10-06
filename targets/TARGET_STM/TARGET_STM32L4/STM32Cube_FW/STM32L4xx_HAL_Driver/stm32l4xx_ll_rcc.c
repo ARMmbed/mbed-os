@@ -208,7 +208,11 @@ ErrorStatus LL_RCC_DeInit(void)
   LL_RCC_MSI_SetCalibTrimming(0);
 
   /* Set HSITRIM bits to the reset value*/
+#if defined(RCC_ICSCR_HSITRIM_6)
+  LL_RCC_HSI_SetCalibTrimming(0x40U);
+#else
   LL_RCC_HSI_SetCalibTrimming(0x10U);
+#endif /* RCC_ICSCR_HSITRIM_6 */
 
   /* Reset CFGR register */
   LL_RCC_WriteReg(CFGR, 0x00000000U);

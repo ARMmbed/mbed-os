@@ -113,7 +113,7 @@ typedef struct
 } SMARTCARD_InitTypeDef;
 
 /**
-  * @brief  SMARTCARD advanced features initalization structure definition
+  * @brief  SMARTCARD advanced features initialization structure definition
   */
 typedef struct
 {
@@ -449,7 +449,7 @@ typedef enum
   */
 
 #if defined(USART_PRESC_PRESCALER)
-/** @defgroup SMARTCARD_ClockPrescaler  Clock Prescaler
+/** @defgroup SMARTCARD_ClockPrescaler  SMARTCARD Clock Prescaler
   * @{
   */
 #define SMARTCARD_PRESCALER_DIV1    0x00000000U  /*!< fclk_pres = fclk     */

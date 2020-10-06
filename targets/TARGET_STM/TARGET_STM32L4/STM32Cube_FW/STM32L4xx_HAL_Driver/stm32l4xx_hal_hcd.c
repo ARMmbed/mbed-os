@@ -88,8 +88,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
   */
 
 /** @defgroup HCD_Exported_Functions_Group1 Initialization and de-initialization functions
- *  @brief    Initialization and Configuration functions
- *
+  *  @brief    Initialization and Configuration functions
+  *
 @verbatim
  ===============================================================================
           ##### Initialization and de-initialization functions #####
@@ -369,14 +369,13 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
                                            uint16_t length,
                                            uint8_t do_ping)
 {
-  UNUSED(do_ping);
-
   hhcd->hc[ch_num].ep_is_in = direction;
   hhcd->hc[ch_num].ep_type  = ep_type;
 
   if (token == 0U)
   {
     hhcd->hc[ch_num].data_pid = HC_PID_SETUP;
+    hhcd->hc[ch_num].do_ping = do_ping;
   }
   else
   {
@@ -530,20 +529,19 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     /* Handle Host Disconnect Interrupts */
     if (__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT))
     {
+      __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
 
-      /* Cleanup HPRT */
-      USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET | \
-                      USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
-
-      /* Handle Host Port Disconnect Interrupt */
+      if ((USBx_HPRT0 & USB_OTG_HPRT_PCSTS) == 0U)
+      {
+        /* Handle Host Port Disconnect Interrupt */
 #if (USE_HAL_HCD_REGISTER_CALLBACKS == 1U)
-      hhcd->DisconnectCallback(hhcd);
+        hhcd->DisconnectCallback(hhcd);
 #else
-      HAL_HCD_Disconnect_Callback(hhcd);
+        HAL_HCD_Disconnect_Callback(hhcd);
 #endif /* USE_HAL_HCD_REGISTER_CALLBACKS */
 
-      (void)USB_InitFSLSPClkSel(hhcd->Instance, HCFG_48_MHZ);
-      __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
+        (void)USB_InitFSLSPClkSel(hhcd->Instance, HCFG_48_MHZ);
+      }
     }
 
     /* Handle Host Port Interrupts */
@@ -596,6 +594,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     }
   }
 }
+
 
 /**
   * @brief  SOF callback.
@@ -804,7 +803,7 @@ HAL_StatusTypeDef HAL_HCD_RegisterCallback(HCD_HandleTypeDef *hhcd, HAL_HCD_Call
 
 /**
   * @brief  Unregister an USB HCD Callback
-  *         USB HCD callabck is redirected to the weak predefined callback
+  *         USB HCD callback is redirected to the weak predefined callback
   * @param  hhcd USB HCD handle
   * @param  CallbackID ID of the callback to be unregistered
   *         This parameter can be one of the following values:
@@ -943,7 +942,7 @@ HAL_StatusTypeDef HAL_HCD_RegisterHC_NotifyURBChangeCallback(HCD_HandleTypeDef *
 }
 
 /**
-  * @brief  UnRegister the USB HCD Host Channel Notify URB Change Callback
+  * @brief  Unregister the USB HCD Host Channel Notify URB Change Callback
   *         USB HCD Host Channel Notify URB Change Callback is redirected to the weak HAL_HCD_HC_NotifyURBChange_Callback() predefined callback
   * @param  hhcd HCD handle
   * @retval HAL status
@@ -980,8 +979,8 @@ HAL_StatusTypeDef HAL_HCD_UnRegisterHC_NotifyURBChangeCallback(HCD_HandleTypeDef
   */
 
 /** @defgroup HCD_Exported_Functions_Group3 Peripheral Control functions
- *  @brief   Management functions
- *
+  *  @brief   Management functions
+  *
 @verbatim
  ===============================================================================
                       ##### Peripheral Control functions #####
@@ -1005,6 +1004,7 @@ HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd)
   __HAL_HCD_ENABLE(hhcd);
   (void)USB_DriveVbus(hhcd->Instance, 1U);
   __HAL_UNLOCK(hhcd);
+
   return HAL_OK;
 }
 
@@ -1019,6 +1019,7 @@ HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd)
   __HAL_LOCK(hhcd);
   (void)USB_StopHost(hhcd->Instance);
   __HAL_UNLOCK(hhcd);
+
   return HAL_OK;
 }
 
@@ -1037,8 +1038,8 @@ HAL_StatusTypeDef HAL_HCD_ResetPort(HCD_HandleTypeDef *hhcd)
   */
 
 /** @defgroup HCD_Exported_Functions_Group4 Peripheral State functions
- *  @brief   Peripheral State functions
- *
+  *  @brief   Peripheral State functions
+  *
 @verbatim
  ===============================================================================
                       ##### Peripheral State functions #####
@@ -1166,6 +1167,13 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
     __HAL_HCD_CLEAR_HC_INT(ch_num, USB_OTG_HCINT_AHBERR);
     __HAL_HCD_UNMASK_HALT_HC_INT(ch_num);
   }
+  else if ((USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_BBERR) == USB_OTG_HCINT_BBERR)
+  {
+    __HAL_HCD_CLEAR_HC_INT(ch_num, USB_OTG_HCINT_BBERR);
+    hhcd->hc[ch_num].state = HC_BBLERR;
+    __HAL_HCD_UNMASK_HALT_HC_INT(ch_num);
+    (void)USB_HC_Halt(hhcd->Instance, (uint8_t)ch_num);
+  }
   else if ((USBx_HC(ch_num)->HCINT & USB_OTG_HCINT_ACK) == USB_OTG_HCINT_ACK)
   {
     __HAL_HCD_CLEAR_HC_INT(ch_num, USB_OTG_HCINT_ACK);
@@ -1221,6 +1229,17 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
       HAL_HCD_HC_NotifyURBChange_Callback(hhcd, (uint8_t)ch_num, hhcd->hc[ch_num].urb_state);
 #endif /* USE_HAL_HCD_REGISTER_CALLBACKS */
     }
+    else if (hhcd->hc[ch_num].ep_type == EP_TYPE_ISOC)
+    {
+      hhcd->hc[ch_num].urb_state = URB_DONE;
+      hhcd->hc[ch_num].toggle_in ^= 1U;
+
+#if (USE_HAL_HCD_REGISTER_CALLBACKS == 1U)
+      hhcd->HC_NotifyURBChangeCallback(hhcd, (uint8_t)ch_num, hhcd->hc[ch_num].urb_state);
+#else
+      HAL_HCD_HC_NotifyURBChange_Callback(hhcd, (uint8_t)ch_num, hhcd->hc[ch_num].urb_state);
+#endif /* USE_HAL_HCD_REGISTER_CALLBACKS */
+    }
     else
     {
       /* ... */
@@ -1268,6 +1287,11 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
       tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
       tmpreg |= USB_OTG_HCCHAR_CHENA;
       USBx_HC(ch_num)->HCCHAR = tmpreg;
+    }
+    else if (hhcd->hc[ch_num].state == HC_BBLERR)
+    {
+      hhcd->hc[ch_num].ErrCnt++;
+      hhcd->hc[ch_num].urb_state = URB_ERROR;
     }
     else
     {
@@ -1533,8 +1557,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
   {
     if ((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
     {
-      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
-
 #if (USE_HAL_HCD_REGISTER_CALLBACKS == 1U)
       hhcd->ConnectCallback(hhcd);
 #else
@@ -1571,10 +1593,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
       }
 #if (USE_HAL_HCD_REGISTER_CALLBACKS == 1U)
       hhcd->PortEnabledCallback(hhcd);
-      hhcd->ConnectCallback(hhcd);
 #else
       HAL_HCD_PortEnabled_Callback(hhcd);
-      HAL_HCD_Connect_Callback(hhcd);
 #endif /* USE_HAL_HCD_REGISTER_CALLBACKS */
 
     }
@@ -1585,12 +1605,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 #else
       HAL_HCD_PortDisabled_Callback(hhcd);
 #endif /* USE_HAL_HCD_REGISTER_CALLBACKS */
-
-      /* Cleanup HPRT */
-      USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET | \
-                      USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
-
-      USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
     }
   }
 
