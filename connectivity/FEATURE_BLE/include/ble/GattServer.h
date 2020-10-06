@@ -151,12 +151,28 @@ public:
         UpdatesEnabledCallback_t;
 
     /**
+     * Callchain of UpdatesEnabledCallback_t objects.
+     *
+     * @see onUpdatesEnabled().
+     */
+    typedef CallChainOfFunctionPointersWithContext<GattUpdatesEnabledCallbackParams>
+        UpdatesEnabledCallbackChain_t;
+
+    /**
      * Event handler invoked when the client has unsubscribed from characteristic updates
      *
      * @see onUpdatesDisabled().
      */
     typedef FunctionPointerWithContext<GattUpdatesDisabledCallbackParams>
         UpdatesDisabledCallback_t;
+
+    /**
+     * Callchain of UpdatesDisabledCallback_t objects.
+     *
+     * @see onUpdatesDisabled().
+     */
+    typedef CallChainOfFunctionPointersWithContext<GattUpdatesDisabledCallbackParams>
+        UpdatesDisabledCallbackChain_t;
 
     /**
      * Event handler invoked when the an ACK has been received for an
@@ -166,6 +182,14 @@ public:
      */
     typedef FunctionPointerWithContext<GattConfirmationReceivedCallbackParams>
         ConfirmationReceivedCallback_t;
+
+    /**
+     * Callchain of ConfirmationReceivedCallback_t objects.
+     *
+     * @see onConfirmationReceived().
+     */
+    typedef CallChainOfFunctionPointersWithContext<GattUpdatesDisabledCallbackParams>
+        ConfirmationReceivedCallbackChain_t;
 
     /**
      * Event handler invoked when the client has written an attribute of the
@@ -589,12 +613,38 @@ public:
     void onUpdatesEnabled(UpdatesEnabledCallback_t callback);
 
     /**
+     * Access the callchain of updates enabled event handlers.
+     *
+     * @return A reference to the updates enabled event callbacks chain.
+     *
+     * @note It is possible to register callbacks using
+     * onUpdatesEnabled().add(callback).
+     *
+     * @note It is possible to unregister callbacks using
+     * onUpdatesEnabled().detach(callback).
+     */
+    UpdatesEnabledCallbackChain_t& onUpdatesEnabled();
+
+    /**
      * Set up an event handler that monitors unsubscription from characteristic
      * updates.
      *
      * @param[in] callback Event handler being registered.
      */
     void onUpdatesDisabled(UpdatesDisabledCallback_t callback);
+
+    /**
+     * Access the callchain of updates disabled event handlers.
+     *
+     * @return A reference to the updates disabled event callbacks chain.
+     *
+     * @note It is possible to register callbacks using
+     * onUpdatesDisabled().add(callback).
+     *
+     * @note It is possible to unregister callbacks using
+     * onUpdatesDisabled().detach(callback).
+     */
+    UpdatesEnabledCallbackChain_t& onUpdatesDisabled();
 
     /**
      * Set up an event handler that monitors notification acknowledgment.
@@ -605,6 +655,19 @@ public:
      * @param[in] callback Event handler being registered.
      */
     void onConfirmationReceived(ConfirmationReceivedCallback_t callback);
+
+    /**
+     * Access the callchain of confirmation received event handlers.
+     *
+     * @return A reference to the confirmation received event callbacks chain.
+     *
+     * @note It is possible to register callbacks using
+     * onConfirmationReceived().add(callback).
+     *
+     * @note It is possible to unregister callbacks using
+     * onConfirmationReceived().detach(callback).
+     */
+    UpdatesEnabledCallbackChain_t& onConfirmationReceived();
 
 #if !defined(DOXYGEN_ONLY)
     GattServer(impl::GattServer* impl) : impl(impl) {}

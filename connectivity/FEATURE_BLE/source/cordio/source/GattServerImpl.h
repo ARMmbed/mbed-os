@@ -65,8 +65,11 @@ class GattServer : public PalSigningMonitor {
     using GattServerShutdownCallback_t = ble::GattServer::GattServerShutdownCallback_t;
     using GattServerShutdownCallbackChain_t = ble::GattServer::GattServerShutdownCallbackChain_t;
     using UpdatesEnabledCallback_t = ble::GattServer::UpdatesEnabledCallback_t;
+    using UpdatesEnabledCallbackChain_t = ble::GattServer::UpdatesEnabledCallbackChain_t;
     using UpdatesDisabledCallback_t = ble::GattServer::UpdatesDisabledCallback_t;
+    using UpdatesDisabledCallbackChain_t = ble::GattServer::UpdatesDisabledCallbackChain_t;
     using ConfirmationReceivedCallback_t = ble::GattServer::ConfirmationReceivedCallback_t;
+    using ConfirmationReceivedCallbackChain_t = ble::GattServer::ConfirmationReceivedCallbackChain_t;
 
     // inherited typedefs have the wrong types so we have to redefine them
 public:
@@ -335,19 +338,22 @@ private:
     GattServerShutdownCallbackChain_t shutdownCallChain;
 
     /**
-     * The registered callback handler for updates enabled events.
+     * Callchain containing all registered callback handlers for
+     * updates enabled events.
      */
-    UpdatesEnabledCallback_t updatesEnabledCallback;
+    UpdatesEnabledCallbackChain_t updatesEnabledCallChain;
 
     /**
-     * The registered callback handler for updates disabled events.
+     * Callchain containing all registered callback handlers for
+     * updates disabled events.
      */
-    UpdatesDisabledCallback_t updatesDisabledCallback;
+    UpdatesDisabledCallbackChain_t updatesDisabledCallChain;
 
     /**
-     * The registered callback handler for confirmation received events.
+     * Callchain containing all registered callback handlers for
+     * confirmation received events.
      */
-    ConfirmationReceivedCallback_t confirmationReceivedCallback;
+    ConfirmationReceivedCallbackChain_t confirmationReceivedCallChain;
 
     PalSigningMonitorEventHandler *_signing_event_handler;
 
