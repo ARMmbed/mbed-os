@@ -64,7 +64,9 @@ class GattServer : public PalSigningMonitor {
     using DataReadCallbackChain_t = ble::GattServer::DataReadCallbackChain_t;
     using GattServerShutdownCallback_t = ble::GattServer::GattServerShutdownCallback_t;
     using GattServerShutdownCallbackChain_t = ble::GattServer::GattServerShutdownCallbackChain_t;
-    using EventCallback_t = ble::GattServer::EventCallback_t;
+    using UpdatesEnabledCallback_t = ble::GattServer::UpdatesEnabledCallback_t;
+    using UpdatesDisabledCallback_t = ble::GattServer::UpdatesDisabledCallback_t;
+    using ConfirmationReceivedCallback_t = ble::GattServer::ConfirmationReceivedCallback_t;
 
     // inherited typedefs have the wrong types so we have to redefine them
 public:
@@ -138,11 +140,11 @@ public:
 
     GattServerShutdownCallbackChain_t &onShutdown();
 
-    void onUpdatesEnabled(EventCallback_t callback);
+    void onUpdatesEnabled(UpdatesEnabledCallback_t callback);
 
-    void onUpdatesDisabled(EventCallback_t callback);
+    void onUpdatesDisabled(UpdatesDisabledCallback_t callback);
 
-    void onConfirmationReceived(EventCallback_t callback);
+    void onConfirmationReceived(ConfirmationReceivedCallback_t callback);
 
     /* Entry points for the underlying stack to report events back to the user. */
     protected:
@@ -153,10 +155,11 @@ public:
 
     void handleEvent(
         GattServerEvents::gattEvent_e type,
+        ble::connection_handle_t connHandle,
         GattAttribute::Handle_t attributeHandle
     );
 
-    void handleDataSentEvent(unsigned count);
+    void handleDataSentEvent(ble::connection_handle_t connHandle, GattAttribute::Handle_t attHandle);
 
     /* ===================================================================== */
     /*                    private implementation follows                     */
@@ -334,17 +337,17 @@ private:
     /**
      * The registered callback handler for updates enabled events.
      */
-    EventCallback_t updatesEnabledCallback;
+    UpdatesEnabledCallback_t updatesEnabledCallback;
 
     /**
      * The registered callback handler for updates disabled events.
      */
-    EventCallback_t updatesDisabledCallback;
+    UpdatesDisabledCallback_t updatesDisabledCallback;
 
     /**
      * The registered callback handler for confirmation received events.
      */
-    EventCallback_t confirmationReceivedCallback;
+    ConfirmationReceivedCallback_t confirmationReceivedCallback;
 
     PalSigningMonitorEventHandler *_signing_event_handler;
 

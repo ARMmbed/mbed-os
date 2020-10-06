@@ -137,19 +137,20 @@ GattServer::GattServerShutdownCallbackChain_t& GattServer::onShutdown()
     return impl->onShutdown();
 }
 
-void GattServer::onUpdatesEnabled(EventCallback_t callback)
+void GattServer::onUpdatesEnabled(UpdatesEnabledCallback_t callback)
 {
-    return impl->onUpdatesEnabled(callback);
+    impl->onUpdatesEnabled(callback);
 }
 
-void GattServer::onUpdatesDisabled(EventCallback_t callback)
+void GattServer::onUpdatesDisabled(UpdatesDisabledCallback_t callback)
 {
-    return impl->onUpdatesDisabled(callback);
+    impl->onUpdatesDisabled(callback);
 }
 
-void GattServer::onConfirmationReceived(EventCallback_t callback)
+void GattServer::onConfirmationReceived(ConfirmationReceivedCallback_t callback)
 {
-    return impl->onConfirmationReceived(callback);
+    impl->onConfirmationReceived(callback);
 }
 
 } // ble
+

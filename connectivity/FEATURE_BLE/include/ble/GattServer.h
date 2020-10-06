@@ -131,15 +131,41 @@ public:
      *
      * @see onDataSent().
      */
-    typedef FunctionPointerWithContext<unsigned> DataSentCallback_t;
+    typedef FunctionPointerWithContext<GattDataSentCallbackParams>
+        DataSentCallback_t;
 
     /**
      * Callchain of DataSentCallback_t objects.
      *
      * @see onDataSent().
      */
-    typedef CallChainOfFunctionPointersWithContext<unsigned>
+    typedef CallChainOfFunctionPointersWithContext<GattDataSentCallbackParams>
         DataSentCallbackChain_t;
+
+    /**
+     * Event handler invoked when the client has subscribed to characteristic updates
+     *
+     * @see onUpdatesEnabled().
+     */
+    typedef FunctionPointerWithContext<GattUpdatesEnabledCallbackParams>
+        UpdatesEnabledCallback_t;
+
+    /**
+     * Event handler invoked when the client has unsubscribed from characteristic updates
+     *
+     * @see onUpdatesDisabled().
+     */
+    typedef FunctionPointerWithContext<GattUpdatesDisabledCallbackParams>
+        UpdatesDisabledCallback_t;
+
+    /**
+     * Event handler invoked when the an ACK has been received for an
+     * indication sent to the client.
+     *
+     * @see onConfirmationReceived().
+     */
+    typedef FunctionPointerWithContext<GattConfirmationReceivedCallbackParams>
+        ConfirmationReceivedCallback_t;
 
     /**
      * Event handler invoked when the client has written an attribute of the
@@ -189,14 +215,6 @@ public:
      */
     typedef CallChainOfFunctionPointersWithContext<const GattServer*>
         GattServerShutdownCallbackChain_t;
-
-    /**
-     * Event handler that handles subscription to characteristic updates,
-     * unsubscription from characteristic updates and notification confirmation.
-     *
-     * @see onUpdatesEnabled() onUpdateDisabled() onConfirmationReceived()
-     */
-    typedef FunctionPointerWithContext<GattAttribute::Handle_t> EventCallback_t;
 
 public:
     /**
@@ -568,7 +586,7 @@ public:
      *
      * @param[in] callback Event handler being registered.
      */
-    void onUpdatesEnabled(EventCallback_t callback);
+    void onUpdatesEnabled(UpdatesEnabledCallback_t callback);
 
     /**
      * Set up an event handler that monitors unsubscription from characteristic
@@ -576,7 +594,7 @@ public:
      *
      * @param[in] callback Event handler being registered.
      */
-    void onUpdatesDisabled(EventCallback_t callback);
+    void onUpdatesDisabled(UpdatesDisabledCallback_t callback);
 
     /**
      * Set up an event handler that monitors notification acknowledgment.
@@ -586,7 +604,7 @@ public:
      *
      * @param[in] callback Event handler being registered.
      */
-    void onConfirmationReceived(EventCallback_t callback);
+    void onConfirmationReceived(ConfirmationReceivedCallback_t callback);
 
 #if !defined(DOXYGEN_ONLY)
     GattServer(impl::GattServer* impl) : impl(impl) {}
