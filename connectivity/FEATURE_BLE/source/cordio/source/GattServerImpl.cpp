@@ -603,7 +603,7 @@ ble_error_t GattServer::insert_cccd(
     implicit_cccd->setHandle(cccds[cccd_cnt].handle);
     implicit_cccd->allowRead(true);
     implicit_cccd->allowWrite(true);
-    characteristic->_setImplicitCCCD(implicit_cccd);
+    characteristic->setImplicitCCCD(implicit_cccd);
 
     cccd_cnt++;
     attribute_it++;

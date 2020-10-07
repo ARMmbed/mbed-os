@@ -24,6 +24,16 @@
 #include "ble/gatt/GattAttribute.h"
 #include "ble/gatt/GattCallbackParamTypes.h"
 
+// Forward declare ble::impl::GattServer
+namespace ble {
+
+#if !defined(DOXYGEN_ONLY)
+namespace impl {
+class GattServer;
+}
+#endif // !defined(DOXYGEN_ONLY)
+}
+
 /**
  * @addtogroup ble
  * @{
@@ -1774,6 +1784,10 @@ public:
         return _descriptors[index];
     }
 
+private:
+
+    friend ble::impl::GattServer;
+
     /**
      * Sets this GattCharacteristic's implicitly-created CCCD, if
      * applicable.
@@ -1781,11 +1795,8 @@ public:
      * @note once this is called, the pointed-to GattAttribute
      * is owned by this GattCharacteristic and will be deleted
      * during this object's destructor
-     *
-     * @note this is an internal function and should not be called
-     * by the application
      */
-    void _setImplicitCCCD(GattAttribute *implicit_cccd) {
+    void setImplicitCCCD(GattAttribute *implicit_cccd) {
         _implicit_cccd = implicit_cccd;
     }
 
