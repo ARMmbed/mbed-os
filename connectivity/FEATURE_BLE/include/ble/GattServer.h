@@ -20,6 +20,8 @@
 #ifndef MBED_GATT_SERVER_H__
 #define MBED_GATT_SERVER_H__
 
+#include "platform/mbed_toolchain.h"
+
 #include "ble/common/CallChainOfFunctionPointersWithContext.h"
 #include "ble/common/blecommon.h"
 
@@ -401,6 +403,8 @@ public:
      * @note It is possible to chain together multiple onDataSent callbacks
      * (potentially from different modules of an application).
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onDataSent(const DataSentCallback_t &callback);
 
     /**
@@ -413,6 +417,8 @@ public:
      * function.
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onDataSent(T *objPtr, void (T::*memberPtr)(unsigned count))
     {
         onDataSent({objPtr, memberPtr});
@@ -423,6 +429,8 @@ public:
      *
      * @return A reference to the DATA_SENT event callback chain.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     DataSentCallbackChain_t &onDataSent();
 
     /**
@@ -434,6 +442,8 @@ public:
      * @attention It is possible to set multiple event handlers. Registered
      * handlers may be removed with onDataWritten().detach(callback).
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onDataWritten(const DataWrittenCallback_t &callback);
 
     /**
@@ -446,6 +456,8 @@ public:
      * function.
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onDataWritten(
         T *objPtr,
         void (T::*memberPtr)(const GattWriteCallbackParams *context)
@@ -465,6 +477,8 @@ public:
      * @note It is possible to unregister callbacks using
      * onDataWritten().detach(callback).
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     DataWrittenCallbackChain_t &onDataWritten();
 
     /**
@@ -485,6 +499,8 @@ public:
      * @attention It is possible to set multiple event handlers. Registered
      * handlers may be removed with onDataRead().detach(callback).
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     ble_error_t onDataRead(const DataReadCallback_t &callback);
 
     /**
@@ -496,6 +512,8 @@ public:
      * function.
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     ble_error_t onDataRead(
         T *objPtr,
         void (T::*memberPtr)(const GattReadCallbackParams *context)
@@ -515,6 +533,8 @@ public:
      * @note It is possible to unregister callbacks using
      * onDataRead().detach(callback).
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     DataReadCallbackChain_t &onDataRead();
 
     /**
@@ -530,6 +550,8 @@ public:
      * @note It is possible to unregister a callback using
      * onShutdown().detach(callback)
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onShutdown(const GattServerShutdownCallback_t &callback);
 
     /**
@@ -544,6 +566,8 @@ public:
      * function.
      */
     template <typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onShutdown(T *objPtr, void (T::*memberPtr)(const GattServer *))
     {
         onShutdown({objPtr, memberPtr});
@@ -560,6 +584,8 @@ public:
      * @note It is possible to unregister callbacks using
      * onShutdown().detach(callback).
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     GattServerShutdownCallbackChain_t& onShutdown();
 
     /**
@@ -568,6 +594,8 @@ public:
      *
      * @param[in] callback Event handler being registered.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onUpdatesEnabled(EventCallback_t callback);
 
     /**
@@ -576,6 +604,8 @@ public:
      *
      * @param[in] callback Event handler being registered.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onUpdatesDisabled(EventCallback_t callback);
 
     /**
@@ -586,6 +616,8 @@ public:
      *
      * @param[in] callback Event handler being registered.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.3.0", "Individual callback-registering functions have"
+                          "been replaced by GattServer::setEventHandler. Use that function instead.")
     void onConfirmationReceived(EventCallback_t callback);
 
 #if !defined(DOXYGEN_ONLY)
