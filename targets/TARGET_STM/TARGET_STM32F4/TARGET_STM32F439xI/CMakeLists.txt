@@ -26,7 +26,11 @@ endfunction()
 _mbed_get_assembly_stm32f439xi()
 _mbed_set_linker_file()
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("NUCLEO_F439ZI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUCLEO_F439ZI)
+elseif("WIO_3G" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_WIO_3G)
+endif()
 
 target_include_directories(mbed-os
     PUBLIC

@@ -1,6 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if("NRF52840_DK" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NRF52840_DK)
+endif()
+
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -13,5 +17,4 @@ target_sources(mbed-os
         USBPhy_Nordic.cpp
 )
 
-mbed_add_cmake_directory_if_labels("TARGET")
 add_subdirectory(device)

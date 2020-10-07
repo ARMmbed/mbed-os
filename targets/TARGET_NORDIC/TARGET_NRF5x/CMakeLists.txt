@@ -1,6 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if("NRF52" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NRF52)
+endif()
+
+if("SDK_11" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_SDK_11)
+elseif("SDK_15_0" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_SDK_15_0)
+endif()
+
 target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -14,5 +24,3 @@ target_sources(mbed-os
         qspi_api.c
         rtc_api.c
 )
-
-mbed_add_cmake_directory_if_labels("TARGET")

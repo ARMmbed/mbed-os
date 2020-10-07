@@ -26,7 +26,9 @@ endfunction()
 _mbed_get_assembly_stm32f401xe()
 _mbed_set_linker_file()
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("NUCLEO_F401RE" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUCLEO_F401RE)
+endif()
 
 target_include_directories(mbed-os
     PUBLIC
