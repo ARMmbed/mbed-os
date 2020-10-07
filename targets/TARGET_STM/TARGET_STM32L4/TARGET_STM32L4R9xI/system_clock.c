@@ -33,7 +33,7 @@
 **/
 
 #include "stm32l4xx.h"
-#include "mbed_assert.h"
+#include "mbed_error.h"
 
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC 0x8 // Use external clock (ST Link MCO - not enabled by default)
@@ -84,8 +84,8 @@ void SetSysClock(void)
                 if (SetSysClock_PLL_MSI() == 0)
 #endif
                 {
-                    while (1) {
-                        MBED_ASSERT(1);
+                    {
+                        error("SetSysClock failed\n");
                     }
                 }
             }
@@ -97,24 +97,23 @@ void SetSysClock(void)
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit = {0};
 
     if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST) != HAL_OK) {
         return 0; // FAIL
     }
 
     // Enable HSE oscillator and activate PLL with HSE as source
-    RCC_OscInitStruct.OscillatorType        = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
+    RCC_OscInitStruct.OscillatorType        = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
     if (bypass == 0) {
         RCC_OscInitStruct.HSEState          = RCC_HSE_ON; // External 16 MHz xtal on OSC_IN/OSC_OUT
     } else {
         RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; // External 16 MHz clock on OSC_IN
     }
-    RCC_OscInitStruct.HSIState              = RCC_HSI_OFF;
 #if DEVICE_USBDEVICE
     RCC_OscInitStruct.HSI48State            = RCC_HSI48_ON;
 #else
@@ -133,9 +132,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     }
 
 #if DEVICE_USBDEVICE
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-    PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48; /* 48 MHz */
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    PeriphClkIniRCC_PeriphClkInittStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48; /* 48 MHz */
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
         return 0; // FAIL
     }
 #endif /* DEVICE_USBDEVICE */
@@ -162,18 +161,10 @@ uint8_t SetSysClock_PLL_HSI(void)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-
-    // Select MSI as system clock source to allow modification of the PLL configuration
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
-        return 0; // FAIL
-    }
+    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit = {0};
 
     // Enable HSI oscillator and activate PLL with HSI as source
-    RCC_OscInitStruct.OscillatorType       = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
-    RCC_OscInitStruct.HSEState             = RCC_HSE_OFF;
+    RCC_OscInitStruct.OscillatorType       = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
     RCC_OscInitStruct.HSIState             = RCC_HSI_ON;
     RCC_OscInitStruct.HSICalibrationValue  = RCC_HSICALIBRATION_DEFAULT;
 #if DEVICE_USBDEVICE
@@ -193,9 +184,9 @@ uint8_t SetSysClock_PLL_HSI(void)
     }
 
 #if DEVICE_USBDEVICE
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-    PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48; /* 48 MHz */
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    RCC_PeriphClkInit.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48; /* 48 MHz */
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
         return 0; // FAIL
     }
 #endif /* DEVICE_USBDEVICE */
@@ -207,14 +198,6 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 120 MHz
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 120 MHz
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
-        return 0; // FAIL
-    }
-
-    // Disable MSI Oscillator
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
-    RCC_OscInitStruct.MSIState       = RCC_MSI_OFF;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
 

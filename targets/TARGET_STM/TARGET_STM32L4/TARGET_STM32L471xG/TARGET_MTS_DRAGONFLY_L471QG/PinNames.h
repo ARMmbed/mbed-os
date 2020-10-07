@@ -217,6 +217,8 @@ typedef enum {
     // 40 pin USB debug port
     USBTX = PB_6,
     USBRX = PB_7,
+    STDIO_UART_TX = PB_6,
+    STDIO_UART_RX = PB_7,
 
     //UARTS
     UART3_TX = PD_2,

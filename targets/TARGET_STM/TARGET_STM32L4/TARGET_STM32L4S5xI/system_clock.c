@@ -31,7 +31,7 @@
 **/
 
 #include "stm32l4xx.h"
-#include "mbed_assert.h"
+#include "mbed_error.h"
 
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC 0x8 // Use external clock (ST Link MCO - not enabled by default)
@@ -82,8 +82,8 @@ void SetSysClock(void)
                 if (SetSysClock_PLL_MSI() == 0)
 #endif
                 {
-                    while (1) {
-                        MBED_ASSERT(1);
+                    {
+                        error("SetSysClock failed\n");
                     }
                 }
             }
@@ -95,30 +95,23 @@ void SetSysClock(void)
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit = {0};
 
-    // Used to gain time after DeepSleep in case HSI is used
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) != RESET) {
-        return 0;
+    if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST) != HAL_OK) {
+        return 0; // FAIL
     }
 
-    // Select MSI as system clock source to allow modification of the PLL configuration
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-    HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
-
     // Enable HSE oscillator and activate PLL with HSE as source
-    RCC_OscInitStruct.OscillatorType        = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.OscillatorType        = RCC_OSCILLATORTYPE_HSE;
     if (bypass == 0) {
         RCC_OscInitStruct.HSEState            = RCC_HSE_ON; // External 8 MHz xtal on OSC_IN/OSC_OUT
     } else {
         RCC_OscInitStruct.HSEState            = RCC_HSE_BYPASS; // External 8 MHz clock on OSC_IN
     }
-    RCC_OscInitStruct.HSIState              = RCC_HSI_OFF;
     RCC_OscInitStruct.PLL.PLLSource         = RCC_PLLSOURCE_HSE; // 8 MHz
     RCC_OscInitStruct.PLL.PLLState          = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLM              = 1;  // VCO input clock = 8 MHz (8 MHz / 1)
@@ -156,12 +149,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     }
 #endif /* DEVICE_USBDEVICE */
 
-    // Disable MSI Oscillator
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
-    RCC_OscInitStruct.MSIState       = RCC_MSI_OFF;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
-    HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
     return 1; // OK
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
@@ -176,14 +163,8 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit = {0};
 
-    // Select MSI as system clock source to allow modification of the PLL configuration
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-    HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
-
     // Enable HSI oscillator and activate PLL with HSI as source
-    RCC_OscInitStruct.OscillatorType       = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState             = RCC_HSE_OFF;
+    RCC_OscInitStruct.OscillatorType       = RCC_OSCILLATORTYPE_HSI;
     RCC_OscInitStruct.HSIState             = RCC_HSI_ON;
     RCC_OscInitStruct.HSICalibrationValue  = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState         = RCC_PLL_ON;
@@ -221,12 +202,6 @@ uint8_t SetSysClock_PLL_HSI(void)
         return 0; // FAIL
     }
 #endif /* DEVICE_USBDEVICE */
-
-    // Disable MSI Oscillator
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
-    RCC_OscInitStruct.MSIState       = RCC_MSI_OFF;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
-    HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
     return 1; // OK
 }

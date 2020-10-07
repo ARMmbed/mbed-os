@@ -1,39 +1,29 @@
 /* mbed Microcontroller Library
- *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
- * All rights reserved.
+ * Copyright (c) 2016-2020 STMicroelectronics
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-#ifndef MBED_COMMON_OBJECTS_H
-#define MBED_COMMON_OBJECTS_H
+
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
 #include "cmsis.h"
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "gpio_object.h"
+
 #include "stm32l4xx_ll_usart.h"
 #include "stm32l4xx_ll_lpuart.h"
 #include "stm32l4xx_ll_tim.h"
@@ -44,6 +34,14 @@
 extern "C" {
 #endif
 
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    PinName pin;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
+};
+#endif
 
 struct pwmout_s {
     PWMName pwm;
@@ -130,18 +128,24 @@ struct analogin_s {
     uint8_t channel;
 };
 
-#include "gpio_object.h"
-
-struct dac_s {
-    DACName dac;
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t irq_index;
+    uint32_t event;
     PinName pin;
-    uint32_t channel;
-    DAC_HandleTypeDef handle;
 };
 
-#ifdef __cplusplus
-}
-#endif
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
+
+struct trng_s {
+    RNG_HandleTypeDef handle;
+};
 
 #if DEVICE_CAN
 struct can_s {
@@ -187,5 +191,9 @@ struct ospi_s {
 #endif
 
 #define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

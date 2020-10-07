@@ -60,11 +60,16 @@ int spi_get_clock_freq(spi_t *obj)
             break;
 #if defined(SPI2_BASE)
         case SPI_2:
+            /* SPI_2, SPI_3. Source CLK is PCKL1 */
+            spi_hz = HAL_RCC_GetPCLK1Freq();
+            break;
 #endif
+#if defined(SPI3_BASE)
         case SPI_3:
             /* SPI_2, SPI_3. Source CLK is PCKL1 */
             spi_hz = HAL_RCC_GetPCLK1Freq();
             break;
+#endif
         default:
             error("CLK: SPI instance not set");
             break;
