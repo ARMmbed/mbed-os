@@ -1430,9 +1430,8 @@ public:
     GattCharacteristic& operator=(const GattCharacteristic &) = delete;
     
     ~GattCharacteristic() {
-        if(_implicit_cccd != nullptr) {
             delete _implicit_cccd;
-        }
+            _implicit_cccd = nullptr;
     }
 
 public:
@@ -1821,7 +1820,7 @@ private:
      * the constructor includes a CCCD this field is left as nullptr to
      * indicate the CCCD was explicitly created.
      */
-    GattAttribute* _implicit_cccd;
+    GattAttribute* _implicit_cccd = nullptr;
 
     /**
      * The registered callback handler for read authorization reply.
