@@ -58,12 +58,14 @@ typedef struct etx_storage_s {
     unsigned        tmp_etx: 1;
     unsigned        linkIdr: 4;
     unsigned        etx_samples: 3;
+    unsigned        drop_bad_count: 2;
 } etx_storage_t;
 
 typedef struct etx_sample_storage_s {
     uint16_t           attempts_count;         /*!< TX attempt count */
     uint8_t            etx_timer;              /*!< Count down from configured value 0 means that ETX Update is possible done again*/
     uint8_t            received_acks;          /*!< Received ACK's */
+    uint8_t            transition_count;
 } etx_sample_storage_t;
 
 /**
@@ -278,6 +280,15 @@ bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_attempt
  *
  */
 void etx_max_update_set(uint16_t etx_max_update);
+
+/**
+ * \brief A function for configure limit for detect bad init ETX sample
+ *
+ * \param bad_link_level 0 No limit and >=2 Level
+ * \param max_allowed_drops How many init probe is accepted to drop 1-2 are possible values
+ *
+ */
+bool etx_allow_drop_for_poor_measurements(uint8_t bad_link_level, uint8_t max_allowed_drops);
 
 /**
  * \brief A function for set Maxium ETX value

@@ -1063,7 +1063,7 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
         fhss_structure->rx_channel = fhss_configuration->unicast_fixed_channel;
     }
     platform_exit_critical();
-    tr_info("fhss Configuration set, UC channel: %d, BC channel: %d, UC CF: %d, BC CF: %d, channels: BC %d UC %d, uc dwell: %d, bc dwell: %d, bc interval: %"PRIu32", bsi:%d",
+    tr_info("fhss Configuration set, UC channel: %d, BC channel: %d, UC CF: %d, BC CF: %d, channels: BC %d UC %d, uc dwell: %d, bc dwell: %d, bc interval: %"PRIu32", bsi:%d, ch retries: %u",
             fhss_structure->ws->fhss_configuration.unicast_fixed_channel,
             fhss_structure->ws->fhss_configuration.broadcast_fixed_channel,
             fhss_structure->ws->fhss_configuration.ws_uc_channel_function,
@@ -1073,7 +1073,9 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
             fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval,
             fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval,
             fhss_structure->ws->fhss_configuration.fhss_broadcast_interval,
-            fhss_structure->ws->fhss_configuration.bsi);
+            fhss_structure->ws->fhss_configuration.bsi,
+            fhss_structure->ws->fhss_configuration.config_parameters.number_of_channel_retries);
+
     return 0;
 }
 
