@@ -70,7 +70,7 @@ matrix:
               | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
               | while read file; do cp --parents "${file}" SCANCODE; done
         - scancode -l --json-pp scancode.json SCANCODE
-        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json || true
+        - python ./tools/test/travis-ci/scancode-evaluate.py scancode.json || true
         # run the same but for new files. All new files must have SPDX
         - >-
             git diff --name-only --diff-filter=A FETCH_HEAD..HEAD \
@@ -78,10 +78,10 @@ matrix:
               | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
               | while read file; do cp --parents "${file}" SCANCODE_NEW_FILES; done
         - scancode -l --json-pp scancode_new_files.json SCANCODE_NEW_FILES
-        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode_new_files.json || true
+        - python ./tools/test/travis-ci/scancode-evaluate.py scancode_new_files.json || true
         - cat scancode-evaluate.log
         - COUNT=$(cat scancode-evaluate.log | grep 'File:' | wc -l) || true
-        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode_new_files.json
+        - python ./tools/test/travis-ci/scancode-evaluate.py scancode_new_files.json
         - cat scancode-evaluate.log
         - COUNT_NEW_FILES=$(cat scancode-evaluate.log | grep 'File:' | wc -l) || true
         - |

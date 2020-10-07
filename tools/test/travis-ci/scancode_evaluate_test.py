@@ -4,29 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 import importlib
 import os
-import sys
-from unittest import TestCase
+import pytest
 
-# TODO: fix scancode to match python naming conventROOTi
-SCANCODE_EVALUATE = importlib.import_module("scancode-evaluate")
-license_check = SCANCODE_EVALUATE.license_check
+license_check = importlib.import_module("scancode-evaluate").license_check
 
-ROOT = os.path.abspath(
-	os.path.join(os.path.dirname(__file__))
+STUBS_PATH = os.path.join(
+    os.path.abspath(os.path.join(os.path.dirname(__file__))), "scancode_test"
 )
 
-# path to stub files
-stub_path = ROOT + "/scancode_test/"
-
-# template copyright notices
-invalid_header_1 = "/* Copyright (C) Arm Limited, Inc - All Rights Reserved\
+HEADER_WITHOUT_SPDX = "/* Copyright (C) Arm Limited, Inc - All Rights Reserved\
  * Unauthorized copying of this. file, via any medium is strictly prohibited\
  * Proprietary and confidential\
  */"
 
-invalid_header_2 = "/* mbed Microcontroller Library\
+HEADER_WITH_SPDX = "/* mbed Microcontroller Library\
  * Copyright (c) 2006-2013 ARM Limited\
  *\
+ * SPDX-License-Identifier: Apache-2.0\
  * Licensed under the Apache License, Version 2.0 (the \"License\");\
  * you may not use this file except in compliance with the License.\
  * You may obtain a copy of the License at\
@@ -40,67 +34,62 @@ invalid_header_2 = "/* mbed Microcontroller Library\
  * limitations under the License.\
  */"
 
+@pytest.fixture()
+def create_scanned_files():
+    """Create stub files.
+    test3.h missing license notice
+    test4.h with license notice
+    test5.h with license notice
+    """
+    file_paths = [
+        os.path.join(STUBS_PATH, "test3.h"),
+        os.path.join(STUBS_PATH, "test4.h"),
+        os.path.join(STUBS_PATH, "test5.h")
+    ]
+    for file_path in file_paths:
+        with open(file_path, "w") as new_file:
+            if file_path in [os.path.join(STUBS_PATH, "test3.h")]:
+                new_file.write(HEADER_WITHOUT_SPDX)
+            else:
+                new_file.write(HEADER_WITH_SPDX)
+    yield
+    for file_path in file_paths:
+        os.remove(file_path)
 
-# implement test class
-class TestScancodeEvaluate(TestCase):
-	""" Test scancode evaluation script """
 
-	def test_scancode_case_1(self):
-		""" Test Case 1 -- faulty json file
-			@inputs scancode_test_1.json
-			@outputs -1 if any error in file licenses found
-		"""
-		expected_result = -1
-		test_json = ROOT + "/scancode_test/scancode_test_1.json"
+class TestScancodeEvaluate:
 
-		# pass json path to test function
-		result = license_check(ROOT, test_json)
+    def test_missing_files_attribute(self):
+        """ Missing `files` attribute in JSON.
+            @inputs scancode_test/scancode_test_1.json
+            @outputs -1
+        """
+        assert license_check(os.path.join(STUBS_PATH, "scancode_test_1.json")) == -1
 
-		self.assertEqual(expected_result, result)
+    def test_various_combinations_permissive_license_with_spdx(self):
+        """ Various combinations where at least one license in
+            a file is permissive and has spdx in the match.identifier
+            attribute.
+            @inputs scancode_test/scancode_test_2.json
+            @outputs 0
+        """
+        assert license_check(os.path.join(STUBS_PATH, "scancode_test_2.json")) == 0
 
-	def test_scancode_case_2(self):
-		""" Test Case 2 -- no errors in license headers, try multiple types i.e Apache-2.0, BSD3
-			@inputs scancode_test_2.json [4 Apache-2.0, 4 BSD-3.0]
-			@outputs 0
-		"""
-		expected_result = 0
-		test_json = ROOT + "/scancode_test/scancode_test_2.json"
+    def test_missing_license_permissive_license_and_spdx(self, create_scanned_files):
+        """ Test four files scanned with various issues.
+            test.h: Missing license text (error count += 1)
+            test3.h: Missing `Permissive` license text and `spdx` in match.identifier and not in file tested by ScanCode (error count += 2)
+            test4.h: Missing `Permissive` license text and `spdx` in match.identifier but found in file tested by ScanCode (error count += 1)
+            test5.h: Missing `spdx` in match.identifier but found in file tested by ScanCode. (error count += 0)
+            @inputs scancode_test/scancode_test_2.json
+            @output 4
+        """
+        assert license_check(os.path.join(STUBS_PATH, "scancode_test_3.json")) == 4
 
-		result = license_check(ROOT, test_json)
-		self.assertEqual(expected_result, result, "False Negative(s)")
-
-	def test_scancode_case_3(self):
-		""" Test Case 3 -- all files containing errors
-			@inputs scancode_test_3.json [2 no header, 2 non-permissive + spdx, 1 missing SPDX]
-			@output 5
-		"""
-		# create stub files with a non-permissive license and missing spdx
-		for i in range(3, 6):
-			with open(stub_path + "test" + str(i) + ".h", "w") as file:
-				if i == 5:
-					file.write(invalid_header_2)
-				else:
-					file.write(invalid_header_1)
-
-		expected_result = 7
-		test_json = ROOT + "/scancode_test/scancode_test_3.json"
-
-		result = license_check(ROOT, test_json)
-
-		self.assertEqual(expected_result, result, "False Positive(s)")
-		# delete stub files
-		os.remove(stub_path + "test3.h")
-		os.remove(stub_path + "test4.h")
-		os.remove(stub_path + "test5.h")
-
-	def test_scancode_case_4(self):
-		""" Test Case 4 -- license header permissive and non-permissive 'license' [FP]
-			@inputs scancode_test_4.json
-			@outputs 0
-		"""
-		expected_result = 0
-		test_json = ROOT + "/scancode_test/scancode_test_4.json"
-
-		result = license_check(ROOT, test_json)
-
-		self.assertEqual(expected_result, result, "Non-Permissive Header False Positive")
+    def test_permissive_license_no_spdx(self, create_scanned_files):
+        """ Multiple `Permissive` licenses in one file but none with `spdx` in
+            match.identifier and not in file tested by ScanCode (error count += 1)
+            @inputs scancode_test/scancode_test_2.json
+            @outputs 1
+        """
+        assert license_check(os.path.join(STUBS_PATH, "scancode_test_4.json")) == 1

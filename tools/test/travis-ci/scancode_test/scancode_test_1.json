@@ -1,7 +1,7 @@
 {
-    "headers": [
-      {
-        "tool_name": "scancode test fail"
-      }
-    ]
-  }
+  "headers": [
+    {
+      "tool_name": "scancode test fail"
+    }
+  ]
+}
