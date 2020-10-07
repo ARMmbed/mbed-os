@@ -10,6 +10,7 @@
 ;*                        calls main()).
 ;*                      After Reset the Cortex-M4 processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
+;* <<< Use Configuration Wizard in Context Menu >>>
 ;*******************************************************************************
 ;*
 ;* <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
@@ -21,7 +22,7 @@
 ;*                        opensource.org/licenses/BSD-3-Clause
 ;*
 ;*******************************************************************************
-;* <<< Use Configuration Wizard in Context Menu >>>
+;
                 PRESERVE8
                 THUMB
 

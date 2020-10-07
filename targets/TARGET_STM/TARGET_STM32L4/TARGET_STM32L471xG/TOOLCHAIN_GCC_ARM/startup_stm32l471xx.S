@@ -1,10 +1,8 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32l476xx.s
+  * @file      startup_stm32l471xx.s
   * @author    MCD Application Team
-  * @version   V1.1.1
-  * @date      29-April-2016
-  * @brief     STM32L476xx devices vector table GCC toolchain.
+  * @brief     STM32L471xx devices vector table for GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -17,29 +15,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -59,6 +41,10 @@ defined in linker script */
 .word	_sdata
 /* end address for the .data section. defined in linker script */
 .word	_edata
+/* start address for the .bss section. defined in linker script */
+.word	_sbss
+/* end address for the .bss section. defined in linker script */
+.word	_ebss
 
 .equ  BootRAM,        0xF1E0F85F
 /**
@@ -92,20 +78,27 @@ LoopCopyDataInit:
 	adds	r2, r0, r1
 	cmp	r2, r3
 	bcc	CopyDataInit
+	ldr	r2, =_sbss
+	b	LoopFillZerobss
+/* Zero fill the bss segment. */
+FillZerobss:
+	movs	r3, #0
+	str	r3, [r2], #4
+
+LoopFillZerobss:
+	ldr	r3, = _ebss
+	cmp	r2, r3
+	bcc	FillZerobss
 
 /* Call the clock system intitialization function.*/
     bl  SystemInit
-/* Call static constructors */
-  //bl __libc_init_array
-/* Call the application's entry point.*/
-  //bl  main
-  // Calling the crt0 'cold-start' entry point. There __libc_init_array is called
-  // and when existing hardware_init_hook() and software_init_hook() before 
-  // starting main(). software_init_hook() is available and has to be called due 
-  // to initializsation when using rtos.
-  bl _start
-  bx  lr    
-.size  Reset_Handler, .-Reset_Handler
+	bl _start
+	bx lr
+
+LoopForever:
+    b LoopForever
+    
+.size	Reset_Handler, .-Reset_Handler
 
 /**
  * @brief  This is the code that gets called when the processor receives an
@@ -216,7 +209,7 @@ g_pfnVectors:
 	.word	COMP_IRQHandler
 	.word	LPTIM1_IRQHandler
 	.word	LPTIM2_IRQHandler
-	.word	OTG_FS_IRQHandler
+	.word	0
 	.word	DMA2_Channel6_IRQHandler
 	.word	DMA2_Channel7_IRQHandler
 	.word	LPUART1_IRQHandler
@@ -227,8 +220,8 @@ g_pfnVectors:
 	.word	SAI2_IRQHandler
 	.word	SWPMI1_IRQHandler
 	.word	TSC_IRQHandler
-	.word	LCD_IRQHandler
-	.word 0
+	.word	0
+	.word	0
 	.word	RNG_IRQHandler
 	.word	FPU_IRQHandler
 
@@ -469,9 +462,6 @@ g_pfnVectors:
 	.weak	LPTIM2_IRQHandler
 	.thumb_set LPTIM2_IRQHandler,Default_Handler	
 	
-	.weak	OTG_FS_IRQHandler
-	.thumb_set OTG_FS_IRQHandler,Default_Handler	
-	
 	.weak	DMA2_Channel6_IRQHandler
 	.thumb_set DMA2_Channel6_IRQHandler,Default_Handler	
 	
@@ -501,9 +491,6 @@ g_pfnVectors:
 	
 	.weak	TSC_IRQHandler
 	.thumb_set TSC_IRQHandler,Default_Handler
-	
-	.weak	LCD_IRQHandler
-	.thumb_set LCD_IRQHandler,Default_Handler
 	
 	.weak	RNG_IRQHandler
 	.thumb_set RNG_IRQHandler,Default_Handler

@@ -7,7 +7,7 @@
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
   *                - Set the vector table entries with the exceptions ISR address,
-  *                - Configure the clock system
+  *                - Configure the clock system  
   *                - Branches to main in the C library (which eventually
   *                  calls main()).
   *            After Reset the Cortex-M4 processor is in Thread mode,
@@ -92,21 +92,13 @@ LoopFillZerobss:
 
 /* Call the clock system intitialization function.*/
     bl  SystemInit
-/* Call static constructors */
-  //bl __libc_init_array
-/* Call the application's entry point.*/
-  //bl  main
-  // Calling the crt0 'cold-start' entry point. There __libc_init_array is called
-  // and when existing hardware_init_hook() and software_init_hook() before
-  // starting main(). software_init_hook() is available and has to be called due
-  // to initializsation when using rtos.
-  bl _start
-  bx  lr
+	bl _start
+	bx lr
 
 LoopForever:
     b LoopForever
-
-.size  Reset_Handler, .-Reset_Handler
+    
+.size	Reset_Handler, .-Reset_Handler
 
 /**
  * @brief  This is the code that gets called when the processor receives an
@@ -458,6 +450,7 @@ g_pfnVectors:
 	
 	.weak	LCD_IRQHandler
 	.thumb_set LCD_IRQHandler,Default_Handler
+	
 	.weak	AES_IRQHandler
 	.thumb_set AES_IRQHandler,Default_Handler
 	

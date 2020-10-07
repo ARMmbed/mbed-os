@@ -1,4 +1,4 @@
-;/********************* COPYRIGHT(c) 2017 STMicroelectronics ********************
+;********************************************************************************
 ;* File Name          : startup_stm32l432xx.s
 ;* Author             : MCD Application Team
 ;* Description        : STM32L432xx Ultra Low Power Devices vector

@@ -50,7 +50,7 @@ if (!isdefinedsymbol(MBED_APP_SIZE)) {
 }
 
 if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
-    /* This value is normally defined by the tools 
+    /* This value is normally defined by the tools
         to 0x1000 for bare metal and 0x400 for RTOS */
     define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }

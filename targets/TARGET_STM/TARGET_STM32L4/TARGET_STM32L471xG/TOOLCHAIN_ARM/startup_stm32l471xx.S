@@ -1,9 +1,7 @@
-;********************** COPYRIGHT(c) 2016  STMicroelectronics ******************
-;* File Name          : startup_stm32l476xx.s
+;*******************************************************************************
+;* File Name          : startup_stm32l471xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.1.1
-;* Date               : 29-April-2016
-;* Description        : STM32L476xx Ultra Low Power devices vector table for MDK-ARM toolchain.
+;* Description        : STM32L471xx Ultra Low Power devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -15,30 +13,16 @@
 ;* <<< Use Configuration Wizard in Context Menu >>>
 ;*******************************************************************************
 ;*
-;* Redistribution and use in source and binary forms, with or without modification,
-;* are permitted provided that the following conditions are met:
-;*   1. Redistributions of source code must retain the above copyright notice,
-;*      this list of conditions and the following disclaimer.
-;*   2. Redistributions in binary form must reproduce the above copyright notice,
-;*      this list of conditions and the following disclaimer in the documentation
-;*      and/or other materials provided with the distribution.
-;*   3. Neither the name of STMicroelectronics nor the names of its contributors
-;*      may be used to endorse or promote products derived from this software
-;*      without specific prior written permission.
+;* <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+;* All rights reserved.</center></h2>
 ;*
-;* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-;* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-;* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-;* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-;* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-;* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-;* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-;* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-;* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-; 
+;* This software component is licensed by ST under BSD 3-Clause license,
+;* the "License"; You may not use this file except in compliance with the
+;* License. You may obtain a copy of the License at:
+;*                        opensource.org/licenses/BSD-3-Clause
+;*
 ;*******************************************************************************
-
+;
                 PRESERVE8
                 THUMB
 
@@ -48,9 +32,9 @@
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|               ; Top of Stack
                 DCD     Reset_Handler              ; Reset Handler
                 DCD     NMI_Handler                ; NMI Handler
                 DCD     HardFault_Handler          ; Hard Fault Handler
@@ -135,7 +119,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     COMP_IRQHandler                   ; COMP Interrupt
                 DCD     LPTIM1_IRQHandler                 ; LP TIM1 interrupt
                 DCD     LPTIM2_IRQHandler                 ; LP TIM2 interrupt
-                DCD     OTG_FS_IRQHandler                 ; USB OTG FS
+                DCD     0                                 ; Reserved
                 DCD     DMA2_Channel6_IRQHandler          ; DMA2 Channel 6
                 DCD     DMA2_Channel7_IRQHandler          ; DMA2 Channel 7
                 DCD     LPUART1_IRQHandler                ; LP UART1 interrupt
@@ -146,8 +130,8 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     SAI2_IRQHandler                   ; Serial Audio Interface 2 global interrupt
                 DCD     SWPMI1_IRQHandler                 ; Serial Wire Interface 1 global interrupt
                 DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
-                DCD     LCD_IRQHandler                    ; LCD global interrupt
-                DCD     0                                 ; Reserved                
+                DCD     0                                 ; Reserved
+                DCD     0                                 ; Reserved
                 DCD     RNG_IRQHandler                    ; RNG global interrupt
                 DCD     FPU_IRQHandler                    ; FPU
 
@@ -282,7 +266,6 @@ Default_Handler PROC
         EXPORT     COMP_IRQHandler                   [WEAK]
         EXPORT     LPTIM1_IRQHandler                 [WEAK]
         EXPORT     LPTIM2_IRQHandler                 [WEAK]
-        EXPORT     OTG_FS_IRQHandler                 [WEAK]
         EXPORT     DMA2_Channel6_IRQHandler          [WEAK]
         EXPORT     DMA2_Channel7_IRQHandler          [WEAK]
         EXPORT     LPUART1_IRQHandler                [WEAK]
@@ -293,7 +276,6 @@ Default_Handler PROC
         EXPORT     SAI2_IRQHandler                   [WEAK]
         EXPORT     SWPMI1_IRQHandler                 [WEAK]
         EXPORT     TSC_IRQHandler                    [WEAK]
-        EXPORT     LCD_IRQHandler                    [WEAK]
         EXPORT     RNG_IRQHandler                    [WEAK]
         EXPORT     FPU_IRQHandler                    [WEAK]
 
@@ -364,7 +346,6 @@ DFSDM1_FLT2_IRQHandler
 COMP_IRQHandler
 LPTIM1_IRQHandler
 LPTIM2_IRQHandler
-OTG_FS_IRQHandler
 DMA2_Channel6_IRQHandler
 DMA2_Channel7_IRQHandler
 LPUART1_IRQHandler
@@ -375,7 +356,6 @@ SAI1_IRQHandler
 SAI2_IRQHandler
 SWPMI1_IRQHandler
 TSC_IRQHandler
-LCD_IRQHandler
 RNG_IRQHandler
 FPU_IRQHandler
 
@@ -384,6 +364,11 @@ FPU_IRQHandler
                 ENDP
 
                 ALIGN
-                END
+
+;*******************************************************************************
+; User Stack and Heap initialization
+;*******************************************************************************
+
+                 END
 
 ;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****
