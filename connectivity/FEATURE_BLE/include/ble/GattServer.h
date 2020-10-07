@@ -120,6 +120,49 @@ public:
             (void)connectionHandle;
             (void)attMtuSize;
         }
+
+        /**
+         * Function invoked when the server has sent data to a client as
+         * part of a notification/indication.
+         *
+         * @note params has a temporary scope and should be copied by the
+         * application if needed later
+         */
+        virtual void onDataSent(const GattDataSentCallbackParams* params) {
+            (void)params;
+        }
+
+        /**
+         * Function invoked when the client has subscribed to characteristic updates
+         *
+         * @note params has a temporary scope and should be copied by the
+         * application if needed later
+         */
+        virtual void onUpdatesEnabled(const GattUpdatesEnabledCallbackParams* params) {
+            (void)params;
+        }
+
+        /**
+         * Function invoked when the client has unsubscribed to characteristic updates
+         *
+         * @note params has a temporary scope and should be copied by the
+         * application if needed later
+         */
+        virtual void onUpdatesDisabled(const GattUpdatesDisabledCallbackParams* params) {
+            (void)params;
+        }
+
+        /**
+         * Function invoked when an ACK has been received for an
+         * indication sent to the client.
+         *
+         * @note params has a temporary scope and should be copied by the
+         * application if needed later
+         */
+        virtual void onConfirmationReceived(const GattConfirmationReceivedCallbackParams* params) {
+            (void)params;
+        }
+
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor

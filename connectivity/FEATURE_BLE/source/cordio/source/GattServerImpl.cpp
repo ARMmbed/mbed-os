@@ -1497,22 +1497,62 @@ void GattServer::handleEvent(
 {
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
+
+            if(eventHandler) {
+                GattUpdatesEnabledCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onUpdatesEnabled(&params);
+            }
+
+            // Execute deprecated callback
             if (updatesEnabledCallback) {
                 updatesEnabledCallback(attributeHandle);
             }
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
+
+            if(eventHandler) {
+                GattUpdatesDisabledCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onUpdatesDisabled(&params);
+            }
+
+            // Execute deprecated callback
             if (updatesDisabledCallback) {
                 updatesDisabledCallback(attributeHandle);
             }
             break;
         case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
+
+            if(eventHandler) {
+                GattConfirmationReceivedCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onConfirmationReceived(&params);
+            }
+
+            // Execute deprecated callback
             if (confirmationReceivedCallback) {
                 confirmationReceivedCallback(attributeHandle);
             }
             break;
 
         case GattServerEvents::GATT_EVENT_DATA_SENT:
+
+            if(eventHandler) {
+                GattDataSentCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onDataSent(&params);
+            }
+
+            // Execute deprecated callback
             // Called every time a notification or indication has been sent
             handleDataSentEvent(1);
             break;

@@ -399,7 +399,7 @@ struct GattDataSentCallbackParams {
     /**
      * Attribute Handle to which the event applies
      */
-    GattAttribute::Handle_t handle;
+    GattAttribute::Handle_t attHandle;
 
 };
 
