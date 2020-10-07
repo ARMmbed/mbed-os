@@ -133,6 +133,41 @@ public:
         }
 
         /**
+         * Function invoked when a client writes an attribute
+         *
+         * @note params has a temporary scope and should be copied by the
+         * application if needed later
+         */
+        virtual void onDataWritten(const GattWriteCallbackParams *params) {
+            (void)params;
+        }
+
+        /**
+         * Function invoked when a client reads an attribute
+         *
+         * @note  This functionality may not be available on all underlying stacks.
+         * Application code may work around that limitation by monitoring read
+         * requests instead of read events.
+         *
+         * @note params has a temporary scope and should be copied by the
+         * application if needed later
+         *
+         * @see GattCharacteristic::setReadAuthorizationCallback()
+         * @see isOnDataReadAvailable().
+         */
+        virtual void onDataRead(const GattReadCallbackParams *params) {
+            (void)params;
+        }
+
+        /**
+         * Function invoked when the GattServer instance is about
+         * to be shut down. This can result in a call to reset() or BLE::reset().
+         */
+        virtual void onShutdown(const GattServer *server) {
+            (void)server;
+        }
+
+        /**
          * Function invoked when the client has subscribed to characteristic updates
          *
          * @note params has a temporary scope and should be copied by the

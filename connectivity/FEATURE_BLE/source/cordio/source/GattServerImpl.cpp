@@ -878,6 +878,11 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
 ble_error_t GattServer::reset(ble::GattServer* server)
 {
     /* Notify that the instance is about to shutdown */
+    if(eventHandler) {
+        eventHandler->onShutdown(server);
+    }
+
+    // Execute callbacks added with deprecated API
     shutdownCallChain.call(server);
     shutdownCallChain.clear();
 
@@ -1481,11 +1486,21 @@ GattServer::EventHandler *GattServer::getEventHandler()
 
 void GattServer::handleDataWrittenEvent(const GattWriteCallbackParams *params)
 {
+    if(eventHandler) {
+        eventHandler->onDataWritten(params);
+    }
+
+    // Execute callbacks added with deprecated API
     dataWrittenCallChain.call(params);
 }
 
 void GattServer::handleDataReadEvent(const GattReadCallbackParams *params)
 {
+    if(eventHandler) {
+        eventHandler->onDataRead(params);
+    }
+
+    // Execute callbacks added with deprecated API
     dataReadCallChain.call(params);
 }
 
