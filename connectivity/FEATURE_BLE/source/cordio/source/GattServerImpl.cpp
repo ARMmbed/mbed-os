@@ -1454,17 +1454,17 @@ GattServer::GattServerShutdownCallbackChain_t &GattServer::onShutdown()
     return shutdownCallChain;
 }
 
-void GattServer::onUpdatesEnabled(UpdatesEnabledCallback_t callback)
+void GattServer::onUpdatesEnabled(EventCallback_t callback)
 {
     updatesEnabledCallback = callback;
 }
 
-void GattServer::onUpdatesDisabled(UpdatesDisabledCallback_t callback)
+void GattServer::onUpdatesDisabled(EventCallback_t callback)
 {
     updatesDisabledCallback = callback;
 }
 
-void GattServer::onConfirmationReceived(ConfirmationReceivedCallback_t callback)
+void GattServer::onConfirmationReceived(EventCallback_t callback)
 {
     confirmationReceivedCallback = callback;
 }
@@ -1498,26 +1498,23 @@ void GattServer::handleEvent(
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
             if (updatesEnabledCallback) {
-                updatesEnabledCallback(GattUpdatesEnabledCallbackParams(
-                        { .connHandle = connHandle, .handle = attributeHandle }));
+                updatesEnabledCallback(attributeHandle);
             }
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
             if (updatesDisabledCallback) {
-                updatesDisabledCallback(GattUpdatesDisabledCallbackParams(
-                        { .connHandle = connHandle, .handle = attributeHandle }));
+                updatesDisabledCallback(attributeHandle);
             }
             break;
         case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
             if (confirmationReceivedCallback) {
-                confirmationReceivedCallback(GattConfirmationReceivedCallbackParams(
-                        { .connHandle = connHandle, .handle = attributeHandle }));
+                confirmationReceivedCallback(attributeHandle);
             }
             break;
 
         case GattServerEvents::GATT_EVENT_DATA_SENT:
             // Called every time a notification or indication has been sent
-            handleDataSentEvent(connHandle, attributeHandle);
+            handleDataSentEvent(1);
             break;
 
         default:
@@ -1525,9 +1522,9 @@ void GattServer::handleEvent(
     }
 }
 
-void GattServer::handleDataSentEvent(ble::connection_handle_t connHandle, GattAttribute::Handle_t attHandle)
+void GattServer::handleDataSentEvent(unsigned count)
 {
-    dataSentCallChain.call(GattDataSentCallbackParams({.connHandle = connHandle, .handle = attHandle}));
+    dataSentCallChain.call(count);
 }
 
 } // namespace impl
