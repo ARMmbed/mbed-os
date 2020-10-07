@@ -1784,10 +1784,12 @@ public:
         return _descriptors[index];
     }
 
+
 private:
 
     friend ble::impl::GattServer;
 
+#if !defined(DOXYGEN_ONLY)
     /**
      * Sets this GattCharacteristic's implicitly-created CCCD, if
      * applicable.
@@ -1799,6 +1801,8 @@ private:
     void setImplicitCCCD(GattAttribute *implicit_cccd) {
         _implicit_cccd = implicit_cccd;
     }
+#endif // !defined(DOXYGEN_ONLY)
+
 
 private:
 
