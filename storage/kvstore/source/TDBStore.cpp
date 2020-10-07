@@ -77,7 +77,6 @@ typedef struct {
     uint32_t crc;
 } reserved_trailer_t;
 
-static const uint32_t work_buf_size = 64;
 static const uint32_t initial_crc = 0xFFFFFFFF;
 static const uint32_t initial_max_keys = 16;
 
@@ -327,7 +326,7 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
                 user_key_ptr[key_size] = '\0';
             } else {
                 dest_buf = _work_buf;
-                chunk_size = std::min(key_size, work_buf_size);
+                chunk_size = std::min(key_size, _prog_size);
             }
         } else {
             // This means that we're on the data part
@@ -337,13 +336,13 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
             // 3. After actual part is finished - read to work buffer
             // 4. Copy data flag not set - read to work buffer
             if (curr_data_offset < data_offset) {
-                chunk_size = std::min((size_t)work_buf_size, (size_t)(data_offset - curr_data_offset));
+                chunk_size = std::min((size_t)_prog_size, (size_t)(data_offset - curr_data_offset));
                 dest_buf = _work_buf;
             } else if (copy_data && (curr_data_offset < data_offset + actual_data_size)) {
                 chunk_size = actual_data_size;
                 dest_buf = static_cast<uint8_t *>(data_buf);
             } else {
-                chunk_size = std::min(work_buf_size, total_size);
+                chunk_size = std::min(_prog_size, total_size);
                 dest_buf = _work_buf;
             }
         }
@@ -824,17 +823,19 @@ int TDBStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_o
                           uint32_t &to_next_offset)
 {
     int ret;
-    record_header_t header;
+    record_header_t *header = (record_header_t *) _work_buf;
     uint32_t total_size;
     uint16_t chunk_size;
 
-    ret = read_area(from_area, from_offset, sizeof(header), &header);
+    memset(_work_buf, 0, _prog_size);
+
+    ret = read_area(from_area, from_offset, sizeof(record_header_t), header);
     if (ret) {
         return ret;
     }
 
     total_size = align_up(sizeof(record_header_t), _prog_size) +
-                 align_up(header.key_size + header.data_size, _prog_size);;
+                 align_up(header->key_size + header->data_size, _prog_size);;
 
 
     if (to_offset + total_size > _size) {
@@ -847,7 +848,7 @@ int TDBStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_o
     }
 
     chunk_size = align_up(sizeof(record_header_t), _prog_size);
-    ret = write_area(1 - from_area, to_offset, chunk_size, &header);
+    ret = write_area(1 - from_area, to_offset, chunk_size, header);
     if (ret) {
         return ret;
     }
@@ -857,7 +858,7 @@ int TDBStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_o
     total_size -= chunk_size;
 
     while (total_size) {
-        chunk_size = std::min(total_size, work_buf_size);
+        chunk_size = std::min(total_size, _prog_size);
         ret = read_area(from_area, from_offset, chunk_size, _work_buf);
         if (ret) {
             return ret;
@@ -1041,7 +1042,7 @@ int TDBStore::init()
     }
 
     _prog_size = _bd->get_program_size();
-    _work_buf = new uint8_t[work_buf_size];
+    _work_buf = new uint8_t[_prog_size];
     _key_buf = new char[MAX_KEY_SIZE];
     _inc_set_handle = new inc_set_handle_t;
     memset(_inc_set_handle, 0, sizeof(inc_set_handle_t));
