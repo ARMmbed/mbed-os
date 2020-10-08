@@ -55,6 +55,7 @@ function(mbed_set_toolchain_options target)
 
     list(APPEND link_options
         "${MBED_STUDIO_ARM_COMPILER}"
+        "--map"
     )
 
     # Add linking time preprocessor macro for TFM targets
