@@ -291,6 +291,7 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
 #else
     trusted_cert.cert_len = strlen((const char *) MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) + 1;
 #endif
+    arm_network_trusted_certificates_remove();
     arm_network_trusted_certificate_add((const arm_certificate_entry_s *)&trusted_cert);
 
     arm_certificate_entry_s own_cert = {
@@ -309,6 +310,7 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
 #else
     own_cert.key_len = strlen((const char *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY) + 1;
 #endif
+    arm_network_own_certificates_remove();
     arm_network_own_certificate_add((const arm_certificate_entry_s *)&own_cert);
 #endif
 
