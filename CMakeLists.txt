@@ -167,3 +167,28 @@ function(mbed_generate_bin_hex target)
         VERBATIM
     )
 endfunction()
+
+#
+# Parse toolchain generated map file of `target` and display a readable table format.
+#
+function(mbed_generate_map_file target)
+     find_package (Python3)
+     add_custom_command(
+         TARGET
+             ${target}
+         POST_BUILD
+             COMMAND ${Python3_EXECUTABLE} ${MBED_ROOT}/tools/memap.py -t ${MBED_TOOLCHAIN} -d 4 ${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
+         WORKING_DIRECTORY
+             ${CMAKE_BINARY_DIR}
+         COMMENT
+             "Displaying memory map for ${target}"
+)
+endfunction()
+
+#
+# Generate executables
+#
+function(mbed_generate_executable target)
+    mbed_generate_bin_hex(${target})
+    mbed_generate_map_file(${target})
+endfunction()
