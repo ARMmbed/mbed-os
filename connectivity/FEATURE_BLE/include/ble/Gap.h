@@ -598,6 +598,12 @@ public:
      * module to signal events back to the application.
      *
      * @param handler Application implementation of an EventHandler.
+     *
+     * @note Multiple discrete EventHandler instances may be used by adding them
+     * to a ChainableGapEventHandler and then setting the chain as the primary
+     * Gap EventHandler using this function.
+     *
+     * @see ChainableGapEventHandler
      */
     void setEventHandler(EventHandler *handler);
 

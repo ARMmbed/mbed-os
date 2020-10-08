@@ -204,6 +204,12 @@ public:
      * module to signal events back to the application.
      *
      * @param handler Application implementation of an EventHandler.
+     *
+     * @note Multiple discrete EventHandler instances may be used by adding them
+     * to a ChainableGattServerEventHandler and then setting the chain as the primary
+     * GattServer EventHandler using this function.
+     *
+     * @see ChainableGattServerEventHandler
      */
     void setEventHandler(EventHandler *handler);
 

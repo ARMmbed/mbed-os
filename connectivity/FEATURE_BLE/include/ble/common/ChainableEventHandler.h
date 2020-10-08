@@ -33,7 +33,7 @@ public:
 
     ChainableEventHandler() { }
 
-    virtual ~ChainableEventHandler() {
+    ~ChainableEventHandler() {
         // Clean up all nodes
         auto it = head;
         while(it) {
@@ -45,13 +45,15 @@ public:
 
     /**
      * Add an EventHandler to be notified of events sent to
-     * this ChainableGattServerEventHandler
+     * this ChainableEventHandler
      *
      * @param[in] event_handler Handler to add to chain
+     *
+     * @retval true if adding EventHandler was successful, false otherwise
      */
-    void addEventHandler(T* event_handler) {
+    bool addEventHandler(T* event_handler) {
         auto eh = new (std::nothrow) node_t { event_handler, nullptr };
-        if(!eh) { return; }
+        if(!eh) { return false; }
         if(!head) {
             head = eh;
         } else {
@@ -61,6 +63,7 @@ public:
             }
             it->next = eh;
         }
+        return true;
     }
 
     /**
@@ -93,10 +96,12 @@ public:
 
 protected:
 
-    template<typename... Args>
-    void execute_on_all(void (T::*fn)(Args...), Args&... args) {
+    template<typename... FnArgs, typename... Args>
+    void execute_on_all(void (T::*fn)(FnArgs...), Args&&... args) {
         auto it = head;
         while(it) {
+            // we do not use std::forward, args have to remain lvalues
+            // as they are passed to multiple handlers
             (it->eh->*fn)(args...);
             it = it->next;
         }
