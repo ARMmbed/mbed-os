@@ -51,11 +51,11 @@ class TestScancodeEvaluate(TestCase):
             @outputs -1 if any error in file licenses found
         """
         # generate scancode_test_1.json
-        with open("scancode_test/scancode_test_1.json", 'w') as f:
+        with open(ROOT + "/scancode_test/scancode_test_1.json", 'w') as f:
             json.dump({"headers": {"tool name": "scancode test fail"}}, f)
 
         self.assertEqual(-1, license_check(ROOT, ROOT + "/scancode_test/scancode_test_1.json"))
-        os.remove("scancode_test/scancode_test_1.json")
+        os.remove(ROOT + "/scancode_test/scancode_test_1.json")
 
     def test_scancode_case_2(self):
         """ Test Case 2 -- no errors in license headers, try multiple types i.e Apache-2.0, BSD3

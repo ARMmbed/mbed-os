@@ -5,11 +5,11 @@
       "tool_version": "3.1.1",
       "options": {
         "input": [
-          "scancode_test/test.h",
-          "scancode_test/test2.h",
-          "scancode_test/test3.h",
-          "scancode_test/test4.h",
-          "scancode_test/test5.h"
+          "tools/test/travis-ci/scancode_test/test.h",
+          "tools/test/travis-ci/scancode_test/test2.h",
+          "tools/test/travis-ci/scancode_test/test3.h",
+          "tools/test/travis-ci/scancode_test/test4.h",
+          "tools/test/travis-ci/scancode_test/test5.h"
         ],
         "--json-pp": "scancode.json",
         "--license": true
@@ -26,21 +26,21 @@
   ],
   "files": [
     {
-      "path": "scancode_test/test.h",
+      "path": "tools/test/travis-ci/scancode_test/test.h",
       "type": "file",
       "licenses": [],
       "license_expressions": [],
       "scan_errors": []
     },
     {
-      "path": "scancode_test/test2.h",
+      "path": "tools/test/travis-ci/scancode_test/test2.h",
       "type": "file",
       "licenses": [],
       "license_expressions": [],
       "scan_errors": []
     },
     {
-      "path": "scancode_test/test3.h",
+      "path": "tools/test/travis-ci/scancode_test/test3.h",
       "type": "file",
       "licenses": [
         {
@@ -82,7 +82,7 @@
       "scan_errors": []
     },
     {
-      "path": "scancode_test/test4.h",
+      "path": "tools/test/travis-ci/scancode_test/test4.h",
       "type": "file",
       "licenses": [
         {
@@ -124,7 +124,7 @@
       "scan_errors": []
     },
     {
-        "path": "scancode_test/test5.h",
+        "path": "tools/test/travis-ci/scancode_test/test5.h",
         "type": "file",
         "licenses": [
           {
