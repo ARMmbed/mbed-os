@@ -314,7 +314,11 @@ private:
     mesh_error_t set_bbr_radius_shared_secret(void);
     mesh_error_t set_bbr_radius_timing(void);
     char _radius_ipv6_addr[40];
-    ws_br_radius_timing_t _radius_timing;
+    ws_br_radius_timing_t _radius_timing = {
+        .radius_retry_imin = 0,
+        .radius_retry_imax = 0,
+        .radius_retry_count = 0
+    };
     char *_shared_secret = NULL;
     uint16_t _shared_secret_len = 0;
     int8_t _mesh_if_id = -1;
