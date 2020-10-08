@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2018 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2020, Cypress Semiconductor Corporation. All rights reserved.
  *
  * Licensed under the Apache License Version 2.0 (the "License");

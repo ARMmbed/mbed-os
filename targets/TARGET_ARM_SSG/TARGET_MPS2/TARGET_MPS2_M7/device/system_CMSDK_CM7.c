@@ -1,6 +1,7 @@
 /* MPS2 CMSIS Library
 *
 * Copyright (c) 2006-2016 ARM Limited
+* SPDX-License-Identifier: BSD-3-Clause
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
