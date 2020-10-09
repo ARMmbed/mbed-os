@@ -128,7 +128,7 @@ public:
          * @note params has a temporary scope and should be copied by the
          * application if needed later
          */
-        virtual void onDataSent(const GattDataSentCallbackParams* params) {
+        virtual void onDataSent(const GattDataSentCallbackParams &params) {
             (void)params;
         }
 
@@ -138,7 +138,7 @@ public:
          * @note params has a temporary scope and should be copied by the
          * application if needed later
          */
-        virtual void onDataWritten(const GattWriteCallbackParams *params) {
+        virtual void onDataWritten(const GattWriteCallbackParams &params) {
             (void)params;
         }
 
@@ -155,7 +155,7 @@ public:
          * @see GattCharacteristic::setReadAuthorizationCallback()
          * @see isOnDataReadAvailable().
          */
-        virtual void onDataRead(const GattReadCallbackParams *params) {
+        virtual void onDataRead(const GattReadCallbackParams &params) {
             (void)params;
         }
 
@@ -163,7 +163,7 @@ public:
          * Function invoked when the GattServer instance is about
          * to be shut down. This can result in a call to reset() or BLE::reset().
          */
-        virtual void onShutdown(const GattServer *server) {
+        virtual void onShutdown(const GattServer &server) {
             (void)server;
         }
 
@@ -173,7 +173,7 @@ public:
          * @note params has a temporary scope and should be copied by the
          * application if needed later
          */
-        virtual void onUpdatesEnabled(const GattUpdatesEnabledCallbackParams* params) {
+        virtual void onUpdatesEnabled(const GattUpdatesEnabledCallbackParams &params) {
             (void)params;
         }
 
@@ -183,7 +183,7 @@ public:
          * @note params has a temporary scope and should be copied by the
          * application if needed later
          */
-        virtual void onUpdatesDisabled(const GattUpdatesDisabledCallbackParams* params) {
+        virtual void onUpdatesDisabled(const GattUpdatesDisabledCallbackParams &params) {
             (void)params;
         }
 
@@ -194,7 +194,7 @@ public:
          * @note params has a temporary scope and should be copied by the
          * application if needed later
          */
-        virtual void onConfirmationReceived(const GattConfirmationReceivedCallbackParams* params) {
+        virtual void onConfirmationReceived(const GattConfirmationReceivedCallbackParams &params) {
             (void)params;
         }
 
