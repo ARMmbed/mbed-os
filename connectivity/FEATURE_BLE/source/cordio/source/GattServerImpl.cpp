@@ -23,6 +23,8 @@
 #include "wsf_types.h"
 #include "att_api.h"
 
+#include <new>
+
 namespace ble {
 namespace impl {
 
@@ -593,12 +595,17 @@ ble_error_t GattServer::insert_cccd(
      *
      * Ownership is passed to the GattCharacteristic
      */
-    GattAttribute* implicit_cccd = new GattAttribute(
+    GattAttribute* implicit_cccd = new (std::nothrow) GattAttribute(
                                        CCCD_UUID,
                                        attribute_it->pValue,
                                        *attribute_it->pLen,
                                        attribute_it->maxLen,
                                        false);
+
+    if(implicit_cccd == nullptr) {
+        currentHandle--;
+        return BLE_ERROR_NO_MEM;
+    }
 
     implicit_cccd->setHandle(cccds[cccd_cnt].handle);
     implicit_cccd->allowRead(true);
