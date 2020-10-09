@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "watchdog_api.h"
+#include "hal/watchdog_api.h"
 
 #if DEVICE_WATCHDOG
 

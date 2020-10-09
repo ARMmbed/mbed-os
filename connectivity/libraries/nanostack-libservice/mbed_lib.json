@@ -1,0 +1,6 @@
+{
+    "name": "nanostack-libservice",
+    "config": {
+        "present": 1
+    }
+}

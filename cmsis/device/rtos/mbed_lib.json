@@ -1,0 +1,95 @@
+{
+    "name": "rtos",
+    "config": {
+        "present": 1,
+         "main-thread-stack-size": {
+            "help": "The size of the main thread's stack",
+            "value": 4096
+         },
+         "timer-thread-stack-size": {
+            "help": "The size of the timer thread's stack",
+            "value": 768
+         },
+         "idle-thread-stack-size": {
+            "help": "The size of the idle thread's stack",
+            "value": 512
+         },
+         "thread-stack-size": {
+            "help": "The default stack size of new threads",
+            "value": 4096
+         },
+         "idle-thread-stack-size-tickless-extra": {
+            "help": "Additional size to add to the idle thread when a specific target or application implementation requires it or in case tickless is enabled and LPTICKER_DELAY_TICKS is used",
+            "value": 256
+         },
+         "idle-thread-stack-size-debug-extra": {
+            "help": "Additional size to add to the idle thread when code compilation optimisation is disabled",
+            "value": 0
+         },
+         "thread-num": {
+            "help": "Maximum number of CMSIS-RTOSv2 object-pool threads that can be active at the same time",
+            "value": 0
+         },
+         "thread-user-stack-size": {
+            "help": "The total memory available for all CMSIS-RTOSv2 object-pool thread stacks combined",
+            "value": 0
+         },
+         "timer-num": {
+            "help": "Maximum number of CMSIS-RTOSv2 object-pool timers that can be active at the same time",
+            "value": 0
+         },
+         "evflags-num": {
+            "help": "Maximum number of CMSIS-RTOSv2 object-pool event flag objects that can be active at the same time",
+            "value": 0
+         },
+         "mutex-num": {
+            "help": "Maximum number of CMSIS-RTOSv2 object-pool mutexes that can be active at the same time",
+            "value": 0
+         },
+         "semaphore-num": {
+            "help": "Maximum number of CMSIS-RTOSv2 object-pool semaphores that can be active at the same time",
+            "value": 0
+         },
+         "msgqueue-num": {
+            "help": "Maximum number of CMSIS-RTOSv2 object-pool message queues that can be active at the same time",
+            "value": 0
+         },
+         "msgqueue-data-size": {
+            "help": "The total memory available for all CMSIS-RTOSv2 object-pool message queues combined",
+            "value": 0
+         }
+    },
+    "macros": ["_RTE_"],
+    "target_overrides": {
+        "*": {
+            "target.boot-stack-size": "0x400"
+        },
+        "STM": {
+            "idle-thread-stack-size-debug-extra": 128
+        },
+        "STM32L1": {
+            "idle-thread-stack-size-debug-extra": 512
+        },
+        "STM32F070RB": {
+            "main-thread-stack-size": 3072
+        },
+        "STM32F072RB": {
+            "main-thread-stack-size": 3072
+        },
+        "TMPM46B": {
+            "main-thread-stack-size": 3072
+        },
+        "NUVOTON": {
+            "idle-thread-stack-size-debug-extra": 512
+        },
+        "MCU_PSOC6_M4": {
+            "target.macros_add": ["CY_RTOS_AWARE"]
+        },
+        "ARM_MUSCA_S1": {
+            "mutex-num": 4,
+            "semaphore-num": 4,
+            "thread-num": 9,
+            "thread-user-stack-size": 8096
+        }
+    }
+}

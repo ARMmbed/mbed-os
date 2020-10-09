@@ -241,7 +241,7 @@
 #define DAC_CHIPCONNECT_ENABLE        DAC_CHIPCONNECT_INTERNAL
 #endif
 
-#if defined(STM32L1) || defined(STM32L4) || defined(STM32G0) || defined(STM32H7) || defined(STM32F4)
+#if defined(STM32L1) || defined(STM32L4) || defined(STM32G0) || defined(STM32L5) || defined(STM32H7) || defined(STM32F4) || defined(STM32G4)
 #define HAL_DAC_MSP_INIT_CB_ID       HAL_DAC_MSPINIT_CB_ID
 #define HAL_DAC_MSP_DEINIT_CB_ID     HAL_DAC_MSPDEINIT_CB_ID
 #endif
@@ -313,8 +313,8 @@
 #endif /* STM32L4 */
 
 #if defined(STM32G0)
-#define DMA_REQUEST_DAC1_CHANNEL1								 DMA_REQUEST_DAC1_CH1
-#define DMA_REQUEST_DAC1_CHANNEL2								 DMA_REQUEST_DAC1_CH2
+#define DMA_REQUEST_DAC1_CHANNEL1                DMA_REQUEST_DAC1_CH1
+#define DMA_REQUEST_DAC1_CHANNEL2                DMA_REQUEST_DAC1_CH2
 #endif
 
 #if defined(STM32H7)
@@ -579,8 +579,7 @@
 #define GPIO_AF10_SDIO2                           GPIO_AF10_SDMMC2
 #define GPIO_AF11_SDIO2                           GPIO_AF11_SDMMC2
 
-#if defined (STM32H743xx) || defined (STM32H753xx)  || defined (STM32H750xx) || defined (STM32H742xx) \
-    || defined (STM32H745xx) || defined (STM32H755xx)  || defined (STM32H747xx) || defined (STM32H757xx)
+#if defined (STM32H743xx) || defined (STM32H753xx)  || defined (STM32H750xx) || defined (STM32H742xx) || defined (STM32H745xx) || defined (STM32H755xx)  || defined (STM32H747xx) || defined (STM32H757xx)
 #define GPIO_AF10_OTG2_HS  GPIO_AF10_OTG2_FS
 #define GPIO_AF10_OTG1_FS  GPIO_AF10_OTG1_HS
 #define GPIO_AF12_OTG2_FS  GPIO_AF12_OTG1_FS
@@ -955,7 +954,7 @@
 #define OPAMP_PGACONNECT_VM0                  OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0
 #define OPAMP_PGACONNECT_VM1                  OPAMP_PGA_CONNECT_INVERTINGINPUT_IO1
 
-#if defined(STM32L1) || defined(STM32L4) || defined(STM32H7)
+#if defined(STM32L1) || defined(STM32L4) || defined(STM32L5) || defined(STM32H7) || defined(STM32G4)
 #define HAL_OPAMP_MSP_INIT_CB_ID       HAL_OPAMP_MSPINIT_CB_ID
 #define HAL_OPAMP_MSP_DEINIT_CB_ID     HAL_OPAMP_MSPDEINIT_CB_ID
 #endif
@@ -1014,7 +1013,7 @@
 /**
   * @}
   */
-
+  
 /** @defgroup HAL_RTC_Aliased_Defines HAL RTC Aliased Defines maintained for legacy purpose
   * @{
   */
@@ -1449,6 +1448,30 @@
 
 #define HASH_HMACKeyType_ShortKey  HASH_HMAC_KEYTYPE_SHORTKEY
 #define HASH_HMACKeyType_LongKey   HASH_HMAC_KEYTYPE_LONGKEY
+
+#if defined(STM32L4) || defined(STM32L5) || defined(STM32F4) || defined(STM32F7) || defined(STM32H7)
+
+#define HAL_HASH_MD5_Accumulate                HAL_HASH_MD5_Accmlt
+#define HAL_HASH_MD5_Accumulate_End            HAL_HASH_MD5_Accmlt_End
+#define HAL_HASH_MD5_Accumulate_IT             HAL_HASH_MD5_Accmlt_IT
+#define HAL_HASH_MD5_Accumulate_End_IT         HAL_HASH_MD5_Accmlt_End_IT
+
+#define HAL_HASH_SHA1_Accumulate               HAL_HASH_SHA1_Accmlt
+#define HAL_HASH_SHA1_Accumulate_End           HAL_HASH_SHA1_Accmlt_End
+#define HAL_HASH_SHA1_Accumulate_IT            HAL_HASH_SHA1_Accmlt_IT
+#define HAL_HASH_SHA1_Accumulate_End_IT        HAL_HASH_SHA1_Accmlt_End_IT
+
+#define HAL_HASHEx_SHA224_Accumulate           HAL_HASHEx_SHA224_Accmlt
+#define HAL_HASHEx_SHA224_Accumulate_End       HAL_HASHEx_SHA224_Accmlt_End
+#define HAL_HASHEx_SHA224_Accumulate_IT        HAL_HASHEx_SHA224_Accmlt_IT
+#define HAL_HASHEx_SHA224_Accumulate_End_IT    HAL_HASHEx_SHA224_Accmlt_End_IT
+
+#define HAL_HASHEx_SHA256_Accumulate           HAL_HASHEx_SHA256_Accmlt
+#define HAL_HASHEx_SHA256_Accumulate_End       HAL_HASHEx_SHA256_Accmlt_End
+#define HAL_HASHEx_SHA256_Accumulate_IT        HAL_HASHEx_SHA256_Accmlt_IT
+#define HAL_HASHEx_SHA256_Accumulate_End_IT    HAL_HASHEx_SHA256_Accmlt_End_IT
+
+#endif  /* STM32L4 || STM32L5 || STM32F4 || STM32F7 || STM32H7 */
 /**
   * @}
   */
@@ -1507,13 +1530,13 @@
 
 #define HAL_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus, cmd) (((cmd)==ENABLE)? HAL_I2CEx_EnableFastModePlus(SYSCFG_I2CFastModePlus): HAL_I2CEx_DisableFastModePlus(SYSCFG_I2CFastModePlus))
 
-#if defined(STM32H7) || defined(STM32WB) || defined(STM32G0) || defined(STM32F0) || defined(STM32F1) || defined(STM32F2) || defined(STM32F3) || defined(STM32F4) || defined(STM32F7) || defined(STM32L0) || defined(STM32L4) || defined(STM32G4)
+#if defined(STM32H7) || defined(STM32WB) || defined(STM32G0) || defined(STM32F0) || defined(STM32F1) || defined(STM32F2) || defined(STM32F3) || defined(STM32F4) || defined(STM32F7) || defined(STM32L0) || defined(STM32L4) || defined(STM32L5) || defined(STM32G4)
 #define HAL_I2C_Master_Sequential_Transmit_IT  HAL_I2C_Master_Seq_Transmit_IT
 #define HAL_I2C_Master_Sequential_Receive_IT   HAL_I2C_Master_Seq_Receive_IT
 #define HAL_I2C_Slave_Sequential_Transmit_IT   HAL_I2C_Slave_Seq_Transmit_IT
 #define HAL_I2C_Slave_Sequential_Receive_IT    HAL_I2C_Slave_Seq_Receive_IT
 #endif /* STM32H7 || STM32WB  || STM32G0 || STM32F0 || STM32F1 || STM32F2 || STM32F3 || STM32F4 || STM32F7 || STM32L0 || STM32L4 || STM32L5 || STM32G4 */
-#if defined(STM32H7) || defined(STM32WB) || defined(STM32G0) || defined(STM32F4) || defined(STM32F7) || defined(STM32L0) || defined(STM32L4) || defined(STM32G4)
+#if defined(STM32H7) || defined(STM32WB) || defined(STM32G0) || defined(STM32F4) || defined(STM32F7) || defined(STM32L0) || defined(STM32L4) || defined(STM32L5) || defined(STM32G4)
 #define HAL_I2C_Master_Sequential_Transmit_DMA HAL_I2C_Master_Seq_Transmit_DMA
 #define HAL_I2C_Master_Sequential_Receive_DMA  HAL_I2C_Master_Seq_Receive_DMA
 #define HAL_I2C_Slave_Sequential_Transmit_DMA  HAL_I2C_Slave_Seq_Transmit_DMA
@@ -1539,10 +1562,10 @@
   */
 
 #if defined(STM32G0)
-#define HAL_PWR_ConfigPVD															HAL_PWREx_ConfigPVD
-#define HAL_PWR_EnablePVD															HAL_PWREx_EnablePVD
-#define HAL_PWR_DisablePVD													  HAL_PWREx_DisablePVD
-#define HAL_PWR_PVD_IRQHandler											  HAL_PWREx_PVD_IRQHandler
+#define HAL_PWR_ConfigPVD                             HAL_PWREx_ConfigPVD
+#define HAL_PWR_EnablePVD                             HAL_PWREx_EnablePVD
+#define HAL_PWR_DisablePVD                            HAL_PWREx_DisablePVD
+#define HAL_PWR_PVD_IRQHandler                        HAL_PWREx_PVD_IRQHandler
 #endif
 #define HAL_PWR_PVDConfig                             HAL_PWR_ConfigPVD
 #define HAL_PWR_DisableBkUpReg                        HAL_PWREx_DisableBkUpReg
@@ -3219,9 +3242,8 @@
 #define RCC_MCOSOURCE_PLLCLK_NODIV  RCC_MCO1SOURCE_PLLCLK
 #define RCC_MCOSOURCE_PLLCLK_DIV2   RCC_MCO1SOURCE_PLLCLK_DIV2
 
-#if defined(STM32L4)
+#if defined(STM32L4) || defined(STM32WB) || defined(STM32G0) || defined(STM32G4) || defined(STM32L5) || defined(STM32WL)
 #define RCC_RTCCLKSOURCE_NO_CLK     RCC_RTCCLKSOURCE_NONE
-#elif defined(STM32WB) || defined(STM32G0) || defined(STM32G4)
 #else
 #define RCC_RTCCLKSOURCE_NONE       RCC_RTCCLKSOURCE_NO_CLK
 #endif
@@ -3349,7 +3371,7 @@
 /** @defgroup HAL_RTC_Aliased_Macros HAL RTC Aliased Macros maintained for legacy purpose
   * @{
   */
-#if defined (STM32G0) || defined (STM32L412xx) || defined (STM32L422xx) || defined (STM32L4P5xx) || defined (STM32L4Q5xx) || defined STM32G4
+#if defined (STM32G0) || defined (STM32L5) || defined (STM32L412xx) || defined (STM32L422xx) || defined (STM32L4P5xx) || defined (STM32L4Q5xx) || defined (STM32G4) || defined STM32WL
 #else
 #define __HAL_RTC_CLEAR_FLAG                      __HAL_RTC_EXTI_CLEAR_FLAG
 #endif
@@ -3457,9 +3479,9 @@
 #define  __HAL_SD_SDIO_CLEAR_FLAG   __HAL_SD_SDMMC_CLEAR_FLAG
 #define  __HAL_SD_SDIO_GET_IT       __HAL_SD_SDMMC_GET_IT
 #define  __HAL_SD_SDIO_CLEAR_IT     __HAL_SD_SDMMC_CLEAR_IT
-#define  SDIO_STATIC_FLAGS	        SDMMC_STATIC_FLAGS
-#define  SDIO_CMD0TIMEOUT	          SDMMC_CMD0TIMEOUT
-#define  SD_SDIO_SEND_IF_COND	      SD_SDMMC_SEND_IF_COND
+#define  SDIO_STATIC_FLAGS          SDMMC_STATIC_FLAGS
+#define  SDIO_CMD0TIMEOUT           SDMMC_CMD0TIMEOUT
+#define  SD_SDIO_SEND_IF_COND       SD_SDMMC_SEND_IF_COND
 /* alias CMSIS for compatibilities */
 #define  SDIO_IRQn                  SDMMC1_IRQn
 #define  SDIO_IRQHandler            SDMMC1_IRQHandler
@@ -3472,7 +3494,7 @@
 #define  HAL_SD_CardStateTypedef     HAL_SD_CardStateTypeDef
 #endif
 
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32L5)
 #define HAL_MMCEx_Read_DMADoubleBuffer0CpltCallback   HAL_MMCEx_Read_DMADoubleBuf0CpltCallback
 #define HAL_MMCEx_Read_DMADoubleBuffer1CpltCallback   HAL_MMCEx_Read_DMADoubleBuf1CpltCallback
 #define HAL_MMCEx_Write_DMADoubleBuffer0CpltCallback  HAL_MMCEx_Write_DMADoubleBuf0CpltCallback
@@ -3727,9 +3749,9 @@
 /** @defgroup HAL_QSPI_Aliased_Macros HAL QSPI Aliased Macros maintained for legacy purpose
   * @{
   */
-#if defined (STM32L4)
+#if defined (STM32L4) || defined (STM32F4) || defined (STM32F7) || defined(STM32H7)
 #define HAL_QPSI_TIMEOUT_DEFAULT_VALUE HAL_QSPI_TIMEOUT_DEFAULT_VALUE
-#endif
+#endif /* STM32L4 || STM32F4 || STM32F7 */
 /**
   * @}
   */

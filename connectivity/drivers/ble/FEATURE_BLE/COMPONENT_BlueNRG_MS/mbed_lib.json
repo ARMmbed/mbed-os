@@ -1,0 +1,44 @@
+{
+    "name": "bluenrg_ms",
+    "config": {
+        "SPI_MOSI":  "D11",
+        "SPI_MISO":  "D12",
+        "SPI_nCS":   "A1",
+        "SPI_RESET": "D7",
+        "SPI_IRQ":   "A0",
+        "SPI_SCK":   "D3",
+        "valid-public-bd-address": {
+            "help": "Read the BD public address at startup",
+            "value": false
+        }
+    },
+    "target_overrides": {
+        "K64F": {
+            "SPI_SCK":   "D13"
+        },
+        "DISCO_L475VG_IOT01A": {
+            "SPI_MOSI":  "PC_12",
+            "SPI_MISO":  "PC_11",
+            "SPI_nCS":   "PD_13",
+            "SPI_RESET": "PA_8",
+            "SPI_IRQ":   "PE_6",
+            "SPI_SCK":   "PC_10"
+        },
+        "B_L4S5I_IOT01A": {
+            "SPI_MOSI":  "PC_12",
+            "SPI_MISO":  "PC_11",
+            "SPI_nCS":   "PD_13",
+            "SPI_RESET": "PA_8",
+            "SPI_IRQ":   "PE_6",
+            "SPI_SCK":   "PC_10"
+        },
+        "DISCO_L562QE": {
+            "SPI_MOSI":  "PG_4",
+            "SPI_MISO":  "PG_3",
+            "SPI_nCS":   "PG_5",
+            "SPI_RESET": "PG_8",
+            "SPI_IRQ":   "PG_6",
+            "SPI_SCK":   "PG_2"
+        }
+    }
+}

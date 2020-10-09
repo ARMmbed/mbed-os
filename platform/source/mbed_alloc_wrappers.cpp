@@ -52,13 +52,22 @@ typedef struct {
 static SingletonPtr<PlatformMutex> malloc_stats_mutex;
 static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0, 0, 0};
 
-typedef struct  {
-    size_t size;
+typedef struct mbed_heap_overhead  {
+    int size; // Size of the allocated memory block, including internal overhead size
+    struct mbed_heap_overhead *next; // The memory is either the next free block, or allocated memory block
 } mbed_heap_overhead_t;
 
-#define MALLOC_HEADER_SIZE          (sizeof(mbed_heap_overhead_t))
-#define MALLOC_HEADER_PTR(p)        (mbed_heap_overhead_t *)((char *)(p) - MALLOC_HEADER_SIZE)
-#define MALLOC_HEAP_TOTAL_SIZE(p)   (((p)->size) & (~0x1))
+static int get_malloc_block_total_size(void *ptr)
+{
+    mbed_heap_overhead_t *c = (mbed_heap_overhead_t *)((char *)ptr - offsetof(mbed_heap_overhead, next));
+
+    // Skip the padding area
+    if (c->size < 0) {
+        c = (mbed_heap_overhead_t *)((char *)c + c->size);
+    }
+    //  Mask LSB as it is used for usage flags
+    return (c->size & ~0x1);
+}
 #endif
 
 void mbed_stats_heap_get(mbed_stats_heap_t *stats)
@@ -116,7 +125,7 @@ extern "C" void *malloc_wrapper(struct _reent *r, size_t size, void *caller)
         if (heap_stats.current_size > heap_stats.max_size) {
             heap_stats.max_size = heap_stats.current_size;
         }
-        heap_stats.overhead_size += MALLOC_HEAP_TOTAL_SIZE(MALLOC_HEADER_PTR(alloc_info)) - size;
+        heap_stats.overhead_size += get_malloc_block_total_size((void *)alloc_info) - size;
     } else {
         heap_stats.alloc_fail_cnt += 1;
     }
@@ -191,7 +200,7 @@ extern "C" void free_wrapper(struct _reent *r, void *ptr, void *caller)
         alloc_info = ((alloc_info_t *)ptr) - 1;
         if (MBED_HEAP_STATS_SIGNATURE == alloc_info->signature) {
             size_t user_size = alloc_info->size;
-            size_t alloc_size = MALLOC_HEAP_TOTAL_SIZE(MALLOC_HEADER_PTR(alloc_info));
+            size_t alloc_size = get_malloc_block_total_size((void *)alloc_info);
             alloc_info->signature = 0x0;
             heap_stats.current_size -= user_size;
             heap_stats.alloc_cnt -= 1;
@@ -303,7 +312,7 @@ extern "C" void *malloc_wrapper(size_t size, void *caller)
         if (heap_stats.current_size > heap_stats.max_size) {
             heap_stats.max_size = heap_stats.current_size;
         }
-        heap_stats.overhead_size += MALLOC_HEAP_TOTAL_SIZE(MALLOC_HEADER_PTR(alloc_info)) - size;
+        heap_stats.overhead_size += get_malloc_block_total_size((void *)alloc_info) - size;
     } else {
         heap_stats.alloc_fail_cnt += 1;
     }
@@ -416,7 +425,7 @@ extern "C" void free_wrapper(void *ptr, void *caller)
         alloc_info = ((alloc_info_t *)ptr) - 1;
         if (MBED_HEAP_STATS_SIGNATURE == alloc_info->signature) {
             size_t user_size = alloc_info->size;
-            size_t alloc_size = MALLOC_HEAP_TOTAL_SIZE(MALLOC_HEADER_PTR(alloc_info));
+            size_t alloc_size = get_malloc_block_total_size((void *)alloc_info);
             alloc_info->signature = 0x0;
             heap_stats.current_size -= user_size;
             heap_stats.alloc_cnt -= 1;

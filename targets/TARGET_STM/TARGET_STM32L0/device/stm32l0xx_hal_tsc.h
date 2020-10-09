@@ -38,12 +38,11 @@
 #ifndef __STM32L0xx_TSC_H
 #define __STM32L0xx_TSC_H
 
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+   
 #ifdef __cplusplus
  extern "C" {
 #endif
-
-#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
-   
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
 

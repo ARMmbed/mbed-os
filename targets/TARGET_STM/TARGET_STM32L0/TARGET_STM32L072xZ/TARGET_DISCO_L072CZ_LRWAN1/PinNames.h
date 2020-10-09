@@ -101,13 +101,16 @@ typedef enum {
     ADC_TEMP = 0xF0,
     ADC_VREF = 0xF1,
 
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
     // Arduino connector namings
     A0          = PA_0,
-    A1          = PA_0, // Alias
+    A1          = NC,   // PA_0 if SB7 fitted
     A2          = PA_4,
-    A3          = PA_4, // Alias
-    A4          = PB_9, // SB11 must be closed
-    A5          = PB_8, // SB12 must be closed
+    A3          = NC,   // PA_4 if SB7 fitted
+    A4          = NC,   // PB_9 if SB11 closed
+    A5          = NC,   // PB_8 if SB12 closed
     D0          = PA_3,
     D1          = PA_2,
     D2          = PA_10,
@@ -174,9 +177,6 @@ typedef enum {
     SYS_VREF_OUT_PB1 = PB_1,
     SYS_WKUP1 = PA_0,
     SYS_WKUP2 = PC_13,
-
-    // Not connected
-    NC = (int)0xFFFFFFFF
 } PinName;
 
 #ifdef __cplusplus

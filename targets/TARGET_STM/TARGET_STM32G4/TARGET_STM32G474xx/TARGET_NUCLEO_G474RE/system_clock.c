@@ -105,7 +105,14 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV6;
+    //! 170MHz as a core frequency for FDCAN is not suitable for many frequencies,
+    //! as it provides low accuracy. When no FDCAN is used, the full capacity of 170 MHz
+    //! should be standard.
+#if DEVICE_CAN
+    RCC_OscInitStruct.PLL.PLLN = 80;
+#else
     RCC_OscInitStruct.PLL.PLLN = 85;
+#endif
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
     RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;

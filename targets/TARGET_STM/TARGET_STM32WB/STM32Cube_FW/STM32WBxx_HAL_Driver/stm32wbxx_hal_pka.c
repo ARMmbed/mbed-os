@@ -1770,46 +1770,7 @@ uint32_t PKA_GetOptBitSize_u8(uint32_t byteNumber, uint8_t msb)
 {
   uint32_t position;
 
-#if defined(CORE_CM0PLUS)
-  if (msb > 0x7FU)
-  {
-    position = 8UL;
-  }
-  else if (msb > 0x3FU)
-  {
-    position = 7UL;
-  }
-  else if (msb > 0x1FU)
-  {
-    position = 6UL;
-  }
-  else if (msb > 0x0FU)
-  {
-    position = 5UL;
-  }
-  else if (msb > 0x07U)
-  {
-    position = 4UL;
-  }
-  else if (msb > 0x03U)
-  {
-    position = 3UL;
-  }
-  else if (msb > 0x01U)
-  {
-    position = 2UL;
-  }
-  else if (msb > 0x00U)
-  {
-    position = 1UL;
-  }
-  else
-  {
-    position = 0UL;
-  }
-#else
   position = 32UL - __CLZ(msb);
-#endif
 
   return (((byteNumber - 1UL) * 8UL) + position);
 }

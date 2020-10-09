@@ -1,0 +1,81 @@
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\a_v1_0.xml" */
+/*-Specials-*/
+if (!isdefinedsymbol(MBED_APP_START)) {
+    define symbol MBED_APP_START = 0x50000000;
+}
+if (MBED_APP_START == 0x50000000) {
+    /* No boot loader is used */
+    /* define symbol BOOT_LOADER_SIZE =  0x4000; */
+    define symbol BOOT_LOADER_SIZE =  0x0;
+} else {
+    define symbol BOOT_LOADER_SIZE =  0x0;
+}
+define symbol __ICFEDIT_intvec_start__ = MBED_APP_START + BOOT_LOADER_SIZE;
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+    define symbol MBED_APP_SIZE = 0x1000000;
+}
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_ROM_start__   = MBED_APP_START;
+define symbol __ICFEDIT_region_ROM_end__     = MBED_APP_START + MBED_APP_SIZE - 1;
+
+define symbol __ICFEDIT_region_NvRAM_start__    = 0x80000000;
+define symbol __ICFEDIT_region_NvRAM_end__      = 0x8001FFFF;
+define symbol __ICFEDIT_region_TTB_start__      = 0x80020000;
+define symbol __ICFEDIT_region_TTB_end__        = 0x80023FFF;
+define symbol __ICFEDIT_region_TTB_L2_start__   = 0x80024000;
+define symbol __ICFEDIT_region_TTB_L2_end__     = 0x80024FFF;
+define symbol __ICFEDIT_region_RAM_start__      = 0x80025000;
+define symbol __ICFEDIT_region_RAM_end__        = 0x803DAFFF;
+define symbol __ICFEDIT_region_OctaRAM_start__  = 0x60000000;
+define symbol __ICFEDIT_region_OctaRAM_end__    = 0x607FFFFF;
+
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__   = 0x00004000;
+define symbol __ICFEDIT_size_svcstack__ = 0x00008000;
+define symbol __ICFEDIT_size_irqstack__ = 0x00008000;
+define symbol __ICFEDIT_size_fiqstack__ = 0x00000100;
+define symbol __ICFEDIT_size_undstack__ = 0x00000100;
+define symbol __ICFEDIT_size_abtstack__ = 0x00000100;
+define symbol __ICFEDIT_size_heap__     = 0x00080000;
+/**** End of ICF editor section. ###ICF###*/
+
+define memory mem with size = 4G;
+
+define region ROM_region          = mem:[from __ICFEDIT_region_ROM_start__          to __ICFEDIT_region_ROM_end__];
+define region NvRAM_region        = mem:[from __ICFEDIT_region_NvRAM_start__        to __ICFEDIT_region_NvRAM_end__];
+define region TTB_region          = mem:[from __ICFEDIT_region_TTB_start__          to __ICFEDIT_region_TTB_end__];
+define region TTB_L2_region       = mem:[from __ICFEDIT_region_TTB_L2_start__       to __ICFEDIT_region_TTB_L2_end__];
+define region RAM_region          = mem:[from __ICFEDIT_region_RAM_start__          to __ICFEDIT_region_RAM_end__];
+define region OctaRAM_region      = mem:[from __ICFEDIT_region_OctaRAM_start__      to __ICFEDIT_region_OctaRAM_end__];
+
+define block ROM_FIXED_ORDER with fixed order { ro code, ro data };
+define block NC_RAM    with fixed order, alignment = 4K { section NC_DATA, section .mirrorram, section NC_BSS };
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block SVC_STACK with alignment = 8, size = __ICFEDIT_size_svcstack__ { };
+define block IRQ_STACK with alignment = 8, size = __ICFEDIT_size_irqstack__ { };
+define block FIQ_STACK with alignment = 8, size = __ICFEDIT_size_fiqstack__ { };
+define block UND_STACK with alignment = 8, size = __ICFEDIT_size_undstack__ { };
+define block ABT_STACK with alignment = 8, size = __ICFEDIT_size_abtstack__ { };
+define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block C_RAM     with alignment = 4K { block CSTACK, block SVC_STACK, block IRQ_STACK, block FIQ_STACK,
+                                             block UND_STACK, block ABT_STACK, block HEAP };
+
+initialize by copy { readwrite };
+do not initialize  { section .noinit };
+do not initialize  { section NV_DATA };
+do not initialize  { section TTB };
+do not initialize  { section TTB_L2 };
+
+place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
+
+place in ROM_region      { readonly, block ROM_FIXED_ORDER };
+place in NvRAM_region    { section NV_DATA };
+place in TTB_region      { section TTB };
+place in TTB_L2_region   { section TTB_L2 };
+place in RAM_region      { readwrite,
+                           block NC_RAM,
+                           block C_RAM };
+place in OctaRAM_region  { section OCTA_DATA, section OCTA_BSS };

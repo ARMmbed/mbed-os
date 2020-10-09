@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra.c
-* \version 1.0
+* \version 2.0
 *
 * \brief The source code file for the PRA driver. The API is not intended to
 * be used directly by the user application.
@@ -30,11 +30,13 @@
 #include "cy_gpio.h"
 #include "cy_device.h"
 #include "cy_syspm.h"
+#include "cy_ble_clk.h"
 
 #if defined (CY_DEVICE_SECURE) || defined (CY_DOXYGEN)
 
 #define CY_PRA_REG_POLICY_WRITE_ALL   (0x00000000UL)
 #define CY_PRA_REG_POLICY_WRITE_NONE  (0xFFFFFFFFUL)
+#define CY_PRA_MS_NR                  (16U)
 
 /* The table to get a register address based on its index */
 cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
@@ -44,6 +46,9 @@ cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
 #endif /* (CY_CPU_CORTEX_M0P) */
 
 
+/*******************************************************************************
+*        Internal Function Prototypes
+*******************************************************************************/
 #if (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
     static void Cy_PRA_Handler(void);
     static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message);
@@ -52,6 +57,8 @@ cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
     static cy_en_pra_status_t Cy_PRA_ClkDSBeforeTransition(void);
     static cy_en_pra_status_t Cy_PRA_ClkDSAfterTransition(void);
     static bool Cy_PRA_RegAccessRangeValid(uint16_t index);
+    static cy_en_pra_status_t Cy_PRA_ClocksReset(void);
+    static cy_en_pra_status_t Cy_PRA_BackupReset(bool iloHibernateON);
 #endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
 
 
@@ -62,6 +69,7 @@ cy_stc_pra_reg_policy_t regIndexToAddr[CY_PRA_REG_INDEX_COUNT];
 * Initializes the PRA driver:
 * - Initializes the register access array with the register addresses (Cortex-M0+)
 * - Sets up the IPC communication between CPU cores
+* - Checks that the driver versions match on the Cortex-M0+ and Cortex-M4 sides.
 *
 * Call the function before accessing any protected registers.
 * It is called during a device startup from \ref SystemInit().
@@ -98,6 +106,18 @@ void Cy_PRA_Init(void)
     regIndexToAddr[CY_PRA_INDX_FLASHC_FM_CTL_BOOKMARK].addr     = &FLASHC_FM_CTL_BOOKMARK;
     regIndexToAddr[CY_PRA_INDX_FLASHC_FM_CTL_BOOKMARK].writeMask= CY_PRA_REG_POLICY_WRITE_NONE;
 
+    /* There are up to 16 bus masters */
+    for (uint32_t i = 0UL; i < CY_PRA_MS_NR; i++)
+    {
+        #if defined(CY_DEVICE_PSOC6ABLE2)
+            regIndexToAddr[CY_PRA_INDX_PROT_MPU_MS_CTL + i].addr = &PROT_MPU_MS_CTL(i);
+        #else
+            regIndexToAddr[CY_PRA_INDX_PROT_MPU_MS_CTL + i].addr = (volatile uint32_t *) 0UL;
+        #endif /* (CY_DEVICE_PSOC6ABLE2) */
+
+        regIndexToAddr[CY_PRA_INDX_PROT_MPU_MS_CTL + i].writeMask= CY_PRA_REG_POLICY_WRITE_NONE;
+    }
+
     /* Configures the IPC interrupt handler. */
     Cy_IPC_Drv_SetInterruptMask(Cy_IPC_Drv_GetIntrBaseAddr(CY_IPC_INTR_PRA), CY_PRA_IPC_NONE_INTR, CY_PRA_IPC_CHAN_INTR);
     cy_stc_sysint_t intr = {
@@ -105,14 +125,30 @@ void Cy_PRA_Init(void)
         .cm0pSrc = (cy_en_intr_t)(int32_t) CY_IPC_INTR_NUM_TO_VECT((int32_t) CY_IPC_INTR_PRA),
         .intrPriority = 0UL
     };
-    (void) Cy_SysInt_Init(&intr, &Cy_PRA_Handler);
+
+    if (CY_SYSINT_SUCCESS != Cy_SysInt_Init(&intr, &Cy_PRA_Handler))
+    {
+        CY_HALT();
+    }
+
     NVIC_EnableIRQ(intr.intrSrc);
 #else
-
     /* Need to get this address in RAM, because there are use cases
     *  where this address is used but flash is not accessible
     */
     ipcPraBase = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_PRA);
+
+    /* Check the version of the driver on the Cortex-M0+ side to match with this one */
+    if (CY_PRA_STATUS_SUCCESS != Cy_PRA_SendCmd(CY_PRA_MSG_TYPE_VERSION_CHECK,
+                                    (uint16_t) 0U,
+                                    (uint32_t) CY_PRA_DRV_VERSION_MAJOR,
+                                    (uint32_t) CY_PRA_DRV_VERSION_MINOR))
+    {
+        /* The PRA driver may not function as expected if different versions
+        *  of the driver are on the Cortex-M0+ and Cortex-M4 sides, so halt device.
+        */
+        CY_HALT();
+    }
 #endif /* (CY_CPU_CORTEX_M0P) */
 }
 
@@ -152,12 +188,12 @@ static void Cy_PRA_Handler(void)
 * Processes and executes the command on Cortex-M0+ which was received from
 * the Cortex-M4 application.
 *
-* \param message cy_stc_pra_msg_t
+* \param message \ref cy_stc_pra_msg_t
 *
 *******************************************************************************/
 static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
 {
-    static uint32_t structInit = CY_PRA_STRUCT_NOT_INITIALIZED;
+    static bool structInit = false;
     static cy_stc_pra_system_config_t structCpy = {0UL};
 
     CY_ASSERT_L1(NULL != message);
@@ -234,15 +270,61 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
             message->praStatus = CY_PRA_STATUS_SUCCESS;
             break;
 
+        case CY_PRA_MSG_TYPE_VERSION_CHECK:
+            /* The PRA driver may not function as expected if different versions
+            *  of the driver are on the Cortex-M0+ and Cortex-M4 sides.
+            */
+            if (((uint32_t) CY_PRA_DRV_VERSION_MAJOR == (message->praData1)) &&
+                ((uint32_t) CY_PRA_DRV_VERSION_MINOR == (message->praData2)))
+            {
+                message->praStatus = CY_PRA_STATUS_SUCCESS;
+            }
+            else
+            {
+                message->praStatus = CY_PRA_STATUS_ERROR_PRA_VERSION;
+            }
+            break;
+
         case CY_PRA_MSG_TYPE_SYS_CFG_FUNC:
             CY_ASSERT_L1((cy_stc_pra_system_config_t *)(message->praData1) != NULL);
+
             if( NULL != (cy_stc_pra_system_config_t *)(message->praData1))
             {
+                cy_en_sysclk_status_t sysClkStatus = CY_SYSCLK_SUCCESS;
+                message->praStatus = CY_PRA_STATUS_SUCCESS;
+
                 structCpy = *((cy_stc_pra_system_config_t *)(message->praData1));
-                message->praStatus = Cy_PRA_SystemConfig(&structCpy);
-                if((CY_PRA_STRUCT_NOT_INITIALIZED == structInit) && (CY_PRA_STATUS_SUCCESS == message->praStatus))
+
+                /* Resets clocks configuration to the default state during system reset - DRIVERS-495 */
+                if (0u != Cy_SysLib_GetResetReason())
                 {
-                    structInit = CY_PRA_STRUCT_INITIALIZED;
+                    message->praStatus = Cy_PRA_ClocksReset();
+                }
+                /* Resets clocks configuration and backup domain to default
+                 * state during hardware reset (POR, XRES, BOD)
+                 */
+                else if (!structInit)
+                {
+                    /* Resets the Backup domain on POR, XRES, BOD only if Backup domain is supplied by VDDD */
+                    if ((structCpy.vBackupVDDDEnable) && (structCpy.iloEnable))
+                    {
+                        message->praStatus = Cy_PRA_BackupReset(structCpy.iloHibernateON);
+                    }
+                    message->praStatus = Cy_PRA_ClocksReset();
+                }
+                else
+                {
+                    /* Skip clock clocks configuration resetting */
+                }
+
+                if (CY_SYSCLK_SUCCESS == sysClkStatus)
+                {
+                    message->praStatus = Cy_PRA_SystemConfig(&structCpy);
+                }
+
+                if((!structInit) && (CY_PRA_STATUS_SUCCESS == message->praStatus))
+                {
+                    structInit = true;
                 }
             }
             else
@@ -300,6 +382,61 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                     }
                     break;
 
+            #ifdef CY_IP_MXBLESS
+                case CY_PRA_CLK_FUNC_PILO_INITIAL_TRIM:
+                    Cy_SysClk_PiloInitialTrim();
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    break;
+
+                case CY_PRA_CLK_FUNC_UPDATE_PILO_TRIM_STEP:
+                    Cy_SysClk_PiloUpdateTrimStep();
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    break;
+            #endif /* CY_IP_MXBLESS */
+
+                case CY_PRA_CLK_FUNC_START_MEASUREMENT:
+                {
+                    cy_en_meas_clks_t clockVal1, clockVal2;
+                    uint32_t countVal1;
+                    clockVal1 = ((cy_stc_pra_start_clk_measurement_t *) message->praData1)->clock1;
+                    clockVal2 = ((cy_stc_pra_start_clk_measurement_t *) message->praData1)->clock2;
+                    countVal1 = ((cy_stc_pra_start_clk_measurement_t *) message->praData1)->count1;
+                    message->praStatus = (cy_en_pra_status_t)Cy_SysClk_StartClkMeasurementCounters(clockVal1, countVal1, clockVal2);
+                }
+                    break;
+
+                case CY_PRA_CLK_FUNC_ILO_TRIM:
+                    message->praStatus = (cy_en_pra_status_t)Cy_SysClk_IloTrim(message->praData1);
+                    break;
+
+                case CY_PRA_CLK_FUNC_SET_PILO_TRIM:
+                    Cy_SysClk_PiloSetTrim(message->praData1);
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    break;
+
+            #if defined(CY_IP_MXBLESS)
+                case CY_PRA_BLE_CLK_FUNC_ECO_CONFIGURE:
+                    structCpy.altHFcLoad = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->cLoad;
+                    structCpy.altHFxtalStartUpTime = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->xtalStartUpTime;
+                    structCpy.altHFclkFreq = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->freq;
+                    structCpy.altHFsysClkDiv = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->sysClkDiv;
+                    structCpy.altHFvoltageReg = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->voltageReg;
+                    structCpy.clkAltHfEnable = true;
+
+                    message->praStatus = (cy_en_pra_status_t)Cy_BLE_EcoConfigure(
+                                                                (cy_en_ble_eco_freq_t)structCpy.altHFclkFreq,
+                                                                (cy_en_ble_eco_sys_clk_div_t)structCpy.altHFsysClkDiv,
+                                                                structCpy.altHFcLoad,
+                                                                structCpy.altHFxtalStartUpTime,
+                                                                (cy_en_ble_eco_voltage_reg_t)structCpy.altHFvoltageReg);
+                    break;
+
+                case CY_PRA_BLE_CLK_FUNC_ECO_RESET:
+                    Cy_BLE_EcoReset();
+                    message->praStatus = CY_PRA_STATUS_SUCCESS;
+                    break;
+            #endif /* CY_IP_MXBLESS */
+
                 default:
                     message->praStatus = CY_PRA_STATUS_ACCESS_DENIED;
                     break;
@@ -307,7 +444,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
             break;
 
         case CY_PRA_MSG_TYPE_FUNC_POLICY:
-            if(CY_PRA_STRUCT_NOT_INITIALIZED != structInit)
+            if(structInit)
             {
                 switch (message->praIndex)
                 {
@@ -1348,6 +1485,89 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                     break;
                                 }
                             }
+                            else
+                            {
+                                switch (((cy_stc_pra_clkpathsetsource_t *) message->praData1)->clk_path)
+                                {
+                                    case CY_PRA_CLKPATH_0:
+                                    {
+                                        if (structCpy.fllEnable)
+                                        {
+                                            /* Update FLL output frequency */
+                                            structCpy.fllOutFreqHz = Cy_PRA_CalculateFLLOutFreq(&structCpy);
+                                        }
+                                        if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH0)
+                                        {
+                                            /* Update HF0 output frequency */
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                        }
+                                    }
+                                    break;
+
+                                    case CY_PRA_CLKPATH_1:
+                                    {
+                                        if (structCpy.pll0Enable)
+                                        {
+                                            /* Update PLL0 output frequency */
+                                            structCpy.pll0OutFreqHz = Cy_PRA_CalculatePLLOutFreq(CY_PRA_CLKPLL_1, &structCpy);
+                                        }
+                                        if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH1)
+                                        {
+                                            /* Update HF0 output frequency */
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                        }
+                                    }
+                                    break;
+
+                                    case CY_PRA_CLKPATH_2:
+                                    {
+                                        if (structCpy.pll1Enable)
+                                        {
+                                            /* Update PLL1 output frequency */
+                                            structCpy.pll1OutFreqHz = Cy_PRA_CalculatePLLOutFreq(CY_PRA_CLKPLL_2, &structCpy);
+                                        }
+                                        if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH2)
+                                        {
+                                            /* Update HF0 output frequency */
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                        }
+                                    }
+                                    break;
+
+                                    case CY_PRA_CLKPATH_3:
+                                    {
+                                        if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH3)
+                                        {
+                                            /* Update HF0 output frequency */
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                        }
+                                    }
+                                    break;
+
+                                    case CY_PRA_CLKPATH_4:
+                                    {
+                                        if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH4)
+                                        {
+                                            /* Update HF0 output frequency */
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                        }
+                                    }
+                                    break;
+
+                                    case CY_PRA_CLKPATH_5:
+                                    {
+                                        if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH5)
+                                        {
+                                            /* Update HF0 output frequency */
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                        }
+                                    }
+                                    break;
+
+                                    default:
+                                    break;
+                                }
+                            }
                         }
                     }
                     break;
@@ -1390,6 +1610,15 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             {
                                 structCpy.fllOutFreqHz = CY_PRA_DEFAULT_ZERO;
                                 structCpy.fllEnable = false;
+                            }
+                            else
+                            {
+                                /* Check if FLL is source to HF0 */
+                                if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH0)
+                                {
+                                    /* Update HF0 output frequency */
+                                    structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                }
                             }
                         }
                     }
@@ -1468,6 +1697,16 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                     structCpy.pll1Enable = false;
                                 }
                             }
+                            else /* PLL is enabled successfully */
+                            {
+                                /* Check if PLL0 or PLL1 is source to HF0 */
+                                if ((structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH1) || (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH2))
+                                {
+                                    /* Update HF0 output frequency */
+                                    structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                }
+                            }
+
                         }
                     }
                     break;
@@ -1493,6 +1732,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
 
                     case CY_PRA_CLK_FUNC_EXT_CLK_SET_FREQUENCY:
                     {
+                        structCpy.extClkEnable = true;
                         structCpy.extClkFreqHz = (uint32_t)(message->praData1);
                         message->praStatus = CY_PRA_STATUS_SUCCESS;
                     }
@@ -1591,6 +1831,25 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
 
         if (CY_PRA_MSG_TYPE_SYS_CFG_FUNC == ipcMsg.praCommand)
         {
+        #if defined(CY_IP_MXBLESS)
+            /* Update cy_BleEcoClockFreqHz for the proper Cy_SysLib_Delay functionality */
+            if(((cy_stc_pra_system_config_t *) clearMask)->altHFclkFreq == CY_BLE_BLESS_ECO_FREQ_32MHZ)
+            {
+                cy_BleEcoClockFreqHz = CY_PRA_ALTHF_FREQ_32MHZ / (1UL << ((cy_stc_pra_system_config_t *) clearMask)->altHFsysClkDiv);
+            }
+            else
+            {
+                cy_BleEcoClockFreqHz = CY_PRA_ALTHF_FREQ_16MHZ / (1UL << ((cy_stc_pra_system_config_t *) clearMask)->altHFsysClkDiv);
+            }
+
+            if(((cy_stc_pra_system_config_t *) clearMask)->clkAltHfEnable == false)
+            {
+                cy_BleEcoClockFreqHz = 0UL;
+            }
+        #endif /* defined(CY_IP_MXBLESS) */
+
+            cySysClkExtFreq = ((cy_stc_pra_system_config_t *) clearMask)->extClkFreqHz;
+
             SystemCoreClockUpdate();
         }
 
@@ -1881,7 +2140,6 @@ static cy_en_pra_status_t Cy_PRA_ClkDSAfterTransition(void)
     return (retVal);
 }
 
-
 /*******************************************************************************
 * Function Name: Cy_PRA_RegAccessRangeValid
 ****************************************************************************//**
@@ -1902,16 +2160,152 @@ static bool Cy_PRA_RegAccessRangeValid(uint16_t index)
     {
         accessValid = false;
     }
-
-    /* Some registers do not exist for some families */
-    if (regIndexToAddr[index].addr == (const volatile uint32_t *) 0U)
+    else
     {
-        accessValid = false;
+        /* Some registers do not exist for some families */
+        if (regIndexToAddr[index].addr == (const volatile uint32_t *) 0U)
+        {
+            accessValid = false;
+        }
     }
 
     return accessValid;
 }
 
+
+/*******************************************************************************
+* Function Name: Cy_PRA_ClocksReset
+****************************************************************************//**
+*
+* Initializes system clocks and dividers to the default state after reset.
+*
+*******************************************************************************/
+static cy_en_pra_status_t Cy_PRA_ClocksReset(void)
+{
+    cy_en_pra_status_t returnStatus = CY_PRA_STATUS_SUCCESS;
+    cy_en_sysclk_status_t sysClkStatus = CY_SYSCLK_SUCCESS;
+
+    /* Sets the worst case memory wait states (! ultra low power, 150 MHz) */
+    Cy_SysLib_SetWaitStates(false, CY_PRA_150MHZ_FREQUENCY);
+
+    /* Resets the core clock path to default and disable all the FLLs/PLLs after Reset or Software reset */
+    sysClkStatus = Cy_SysClk_ClkHfSetDivider(CY_PRA_CLKHF_0, CY_SYSCLK_CLKHF_NO_DIVIDE);
+    if (CY_SYSCLK_SUCCESS != sysClkStatus)
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_CLKHF0;
+    }
+
+    /* Sets the default divider for FAST, PERI and SLOW clocks */
+    Cy_SysClk_ClkFastSetDivider(CY_PRA_DIVIDER_0);
+    Cy_SysClk_ClkPeriSetDivider(CY_PRA_DIVIDER_1);
+    Cy_SysClk_ClkSlowSetDivider(CY_PRA_DIVIDER_0);
+
+    SystemCoreClockUpdate();
+
+    /* Disables All PLLs */
+    if (CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_1)
+    {
+        sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_1);
+    }
+
+    if (CY_SYSCLK_SUCCESS != sysClkStatus)
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_PLL0;
+    }
+
+    if (CY_SRSS_NUM_PLL >= CY_PRA_CLKPLL_2)
+    {
+        sysClkStatus = Cy_SysClk_PllDisable(CY_PRA_CLKPLL_2);
+    }
+
+    if (CY_SYSCLK_SUCCESS != sysClkStatus)
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_PLL1;
+    }
+
+    /* Sets the CLK_PATH1 source to IMO */
+    sysClkStatus = Cy_SysClk_ClkPathSetSource((uint32_t) CY_SYSCLK_CLKHF_IN_CLKPATH1, CY_SYSCLK_CLKPATH_IN_IMO);
+    if (CY_SYSCLK_SUCCESS != sysClkStatus)
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_PATHMUX1;
+    }
+
+    /* Set the HF0 source to IMO if it is sourced from WCO */
+    if (CY_SYSCLK_CLKHF_IN_CLKPATH0 == Cy_SysClk_ClkHfGetSource(CY_PRA_CLKHF_0))
+    {
+            if (CY_SYSCLK_CLKPATH_IN_WCO == Cy_SysClk_ClkPathGetSource((uint32_t) CY_SYSCLK_CLKHF_IN_CLKPATH0))
+            {
+                sysClkStatus = Cy_SysClk_ClkHfSetSource(CY_PRA_CLKHF_0, CY_SYSCLK_CLKHF_IN_CLKPATH1);
+                if (CY_SYSCLK_SUCCESS != sysClkStatus)
+                {
+                    returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_CLKHF0;
+                }
+                SystemCoreClockUpdate();
+            }
+    }
+
+    sysClkStatus = Cy_SysClk_FllDisable();
+    if (CY_SYSCLK_SUCCESS != sysClkStatus)
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_FLL0;
+    }
+
+    /* Sets the CLK_PATH0 source to IMO */
+    sysClkStatus = Cy_SysClk_ClkPathSetSource((uint32_t) CY_SYSCLK_CLKHF_IN_CLKPATH0, CY_SYSCLK_CLKPATH_IN_IMO);
+    if (CY_SYSCLK_SUCCESS != sysClkStatus)
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_PATHMUX0;
+    }
+
+    /* Sets the HF0 source to IMO via CLK_PATH0 */
+    sysClkStatus = Cy_SysClk_ClkHfSetSource(CY_PRA_CLKHF_0, CY_SYSCLK_CLKHF_IN_CLKPATH0);
+    if (CY_SYSCLK_SUCCESS != sysClkStatus)
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_CLKHF0;
+    }
+
+    #ifdef CY_IP_MXBLESS
+        Cy_BLE_EcoReset();
+    #endif
+
+    return returnStatus;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_PRA_BackupReset
+****************************************************************************//**
+*
+* Resets the Backup domain and system clocks after System reset.
+*
+*******************************************************************************/
+static cy_en_pra_status_t Cy_PRA_BackupReset(bool iloHibernateON)
+{
+    cy_en_pra_status_t returnStatus = CY_PRA_STATUS_SUCCESS;
+
+    if (CY_SYSLIB_SUCCESS != Cy_SysLib_ResetBackupDomain())
+    {
+        returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_PWR;
+    }
+    else
+    {
+        if (Cy_SysClk_IloIsEnabled())
+        {
+            if (CY_SYSCLK_SUCCESS != Cy_SysClk_IloDisable())
+            {
+                returnStatus = CY_PRA_STATUS_ERROR_PROCESSING_PWR;
+            }
+        }
+
+        if (CY_PRA_STATUS_SUCCESS == returnStatus)
+        {
+            Cy_SysClk_IloEnable();
+            Cy_SysClk_IloHibernateOn(iloHibernateON);
+        }
+    }
+
+    return returnStatus;
+}
 
 #endif /* (CY_CPU_CORTEX_M0P) */
 

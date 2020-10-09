@@ -65,15 +65,16 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | F1          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeF1 |
 | F2          |    1.6.0     | https://github.com/STMicroelectronics/STM32CubeF2 |
 | F3          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeF3 |
-| F4          |    1.19.0    | https://github.com/STMicroelectronics/STM32CubeF4 |
+| F4          |    1.25.0    | https://github.com/STMicroelectronics/STM32CubeF4 |
 | F7          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeF7 |
 | G0          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeG0 |
+| G4          |    1.1.0     | https://github.com/STMicroelectronics/STM32CubeG4 |
 | H7          |    1.7.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
 | L0          |    1.10.0    | https://github.com/STMicroelectronics/STM32CubeL0 |
 | L1          |    1.8.1     | https://github.com/STMicroelectronics/STM32CubeL1 |
-| L4          |    1.11.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
+| L4          |    1.14.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
 | L5          |    1.1.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
-| WB          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeWB |
+| WB          |    1.7.0     | https://github.com/STMicroelectronics/STM32CubeWB |
 
 In Mbed OS repository, we try to minimize the difference between "official" and copied files.
 
@@ -269,6 +270,42 @@ $ mv STM32H745ZITx TARGET_H745ZI_BOARD
 
 ## ST specific implementation
 
+### Pin configuration
+
+It can be useful to have a look on files that describes pin configuration for your board:
+- targets/TARGET_STM/TARGET_STM32**XX**/TARGET_STM32**XXXXX**/TARGET_**XXXXX**/PeripheralPins.c
+- targets/TARGET_STM/TARGET_STM32**XX**/TARGET_STM32**XXXXX**/TARGET_**XXXXX**/PinNames.h
+
+#### Alternate feature
+
+You can easily see the alternate functions for each pin.
+
+Ex:
+```
+    {PC_10,      UART_3,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART3)},
+    {PC_10_ALT0, UART_4,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_UART4)},
+```
+- If your application is using PC_10 pin for UART, drivers will configure UART3 instance.
+- If your application is using PC_10_ALT0 pin for UART, drivers will configure UART4 instance.
+
+The same alternate choice feature is also used for PWM, ADC, SPI, etc...
+
+#### Conflict pins
+
+Sometimes there are some conflicts in pin use.
+
+Ex:
+```
+    {PA_5,       SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI1)}, // Connected to LD2 [green led]
+```
+==> You can use PA_5 pin as SPI, **only** if your application is not using LED...
+
+Sometimes, pin is explicitly removed by default to avoid issues (but you can uncomment the line for your custom board)
+```
+//  {PB_4,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to same instance as STDIO 
+```
+
+
 ### WiFi configuration
 
 https://github.com/ARMmbed/wifi-ism43362
@@ -292,7 +329,7 @@ Depending on your PHY, you will have to customize several configuration values:
 - Duplex mask information in the PHY status register
 
 Check the default values in:
-https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/emac-drivers/TARGET_STM/mbed_lib.json
+https://github.com/ARMmbed/mbed-os/blob/master/connectivity/drivers/emac/TARGET_STM/mbed_lib.json
 
 Option is also to define your own `HAL_ETH_MspInit` function,
 you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.
@@ -302,6 +339,8 @@ you then have to add **USE_USER_DEFINED_HAL_ETH_MSPINIT** macro.
 ## Mbed OS Wiki pages
 
 https://os.mbed.com/teams/ST/wiki/
+
+https://os.mbed.com/teams/ST/wiki/STDIO
 
 https://os.mbed.com/teams/ST/wiki/How-to-enable-flash-dual-bank
 

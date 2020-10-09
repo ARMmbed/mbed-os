@@ -39,7 +39,7 @@
 #include "PeripheralPins.h"
 
 //******************************************************************************
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     // Make sure the pin is free for GPIO use
     unsigned int port = (unsigned int)pin >> PORT_SHIFT;
@@ -50,7 +50,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     PinMap pwm = PinMap_PWM[0];
 
     // Check if there is a pulse train already active on this port
-    int pin_func = (MXC_GPIO->func_sel[port] & (0xF << (port_pin*4))) >> (port_pin*4);
+    int pin_func = (MXC_GPIO->func_sel[port] & (0xF << (port_pin * 4))) >> (port_pin * 4);
     MBED_ASSERT((pin_func < 1) || (pin_func > 3));
 
     // Search through PinMap_PWM to find the pin
@@ -62,7 +62,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     while (pwm.pin == pin) {
 
         // Check to see if this PT instance is free
-        if (((mxc_pt_regs_t*)pwm.peripheral)->rate_length & MXC_F_PT_RATE_LENGTH_MODE) {
+        if (((mxc_pt_regs_t *)pwm.peripheral)->rate_length & MXC_F_PT_RATE_LENGTH_MODE) {
             break;
         }
 
@@ -76,7 +76,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     MXC_CLKMAN->sys_clk_ctrl_7_pt = MXC_S_CLKMAN_CLK_SCALE_DIV_1;
 
     // Set the obj pointer to the propper PWM instance
-    obj->pwm = (mxc_pt_regs_t*)pwm.peripheral;
+    obj->pwm = (mxc_pt_regs_t *)pwm.peripheral;
 
     // Initialize object period and pulse width
     obj->period = -1;
@@ -92,17 +92,17 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_us(obj, 20000);
-    pwmout_write    (obj, 0);
+    pwmout_write(obj, 0);
 
     // Set the drive mode to normal
-    MXC_SET_FIELD(&MXC_GPIO->out_mode[port], (0x7 << (port_pin*4)), (MXC_V_GPIO_OUT_MODE_NORMAL << (port_pin*4)));
+    MXC_SET_FIELD(&MXC_GPIO->out_mode[port], (0x7 << (port_pin * 4)), (MXC_V_GPIO_OUT_MODE_NORMAL << (port_pin * 4)));
 
     // Enable this PWM channel
     MXC_PTG->enable |= (1 << MXC_PT_GET_IDX(obj->pwm));
 }
 
 //******************************************************************************
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
     // Set the registers to the reset value
     obj->pwm->train = 0;
@@ -110,36 +110,36 @@ void pwmout_free(pwmout_t* obj)
 }
 
 //******************************************************************************
-static void pwmout_update(pwmout_t* obj)
+static void pwmout_update(pwmout_t *obj)
 {
     // Calculate and set the divider ratio
-    int div = (obj->period * (SystemCoreClock/1000000))/32;
+    int div = (obj->period * (SystemCoreClock / 1000000)) / 32;
     if (div < 2) {
         div = 2;
     }
     MXC_SET_FIELD(&obj->pwm->rate_length, MXC_F_PT_RATE_LENGTH_RATE_CONTROL, div);
 
     // Change the duty cycle to adjust the pulse width
-    obj->pwm->train = (0xFFFFFFFF << (32-((32*obj->pulse_width)/obj->period)));
+    obj->pwm->train = (0xFFFFFFFF << (32 - ((32 * obj->pulse_width) / obj->period)));
 }
 
 
 //******************************************************************************
-void pwmout_write(pwmout_t* obj, float percent)
+void pwmout_write(pwmout_t *obj, float percent)
 {
     // Saturate percent if outside of range
     if (percent < 0.0f) {
         percent = 0.0f;
-    } else if(percent > 1.0f) {
+    } else if (percent > 1.0f) {
         percent = 1.0f;
     }
 
     // Resize the pulse width to set the duty cycle
-    pwmout_pulsewidth_us(obj, (int)(percent*obj->period));
+    pwmout_pulsewidth_us(obj, (int)(percent * obj->period));
 }
 
 //******************************************************************************
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
     // Check for when pulsewidth or period equals 0
     if ((obj->pulse_width == 0) || (obj->period == 0)) {
@@ -151,26 +151,26 @@ float pwmout_read(pwmout_t* obj)
 }
 
 //******************************************************************************
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, (int)(seconds * 1000000.0f));
 }
 
 //******************************************************************************
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
-    pwmout_period_us(obj, ms*1000);
+    pwmout_period_us(obj, ms * 1000);
 }
 
 //******************************************************************************
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     // Check the range of the period
-    MBED_ASSERT((us >= 0) && (us <= (int)(SystemCoreClock/32)));
+    MBED_ASSERT((us >= 0) && (us <= (int)(SystemCoreClock / 32)));
 
     // Set pulse width to half the period if uninitialized
     if (obj->pulse_width == -1) {
-        obj->pulse_width = us/2;
+        obj->pulse_width = us / 2;
     }
 
     // Save the period
@@ -181,26 +181,32 @@ void pwmout_period_us(pwmout_t* obj, int us)
 }
 
 //******************************************************************************
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    return obj->period;
+}
+
+//******************************************************************************
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, (int)(seconds * 1000000.0f));
 }
 
 //******************************************************************************
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
-    pwmout_pulsewidth_us(obj, ms*1000);
+    pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
 //******************************************************************************
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     // Check the range of the pulsewidth
-    MBED_ASSERT((us >= 0) && (us <= (int)(SystemCoreClock/32)));
+    MBED_ASSERT((us >= 0) && (us <= (int)(SystemCoreClock / 32)));
 
     // Initialize period to double the pulsewidth if uninitialized
     if (obj->period == -1) {
-        obj->period = 2*us;
+        obj->period = 2 * us;
     }
 
     // Save the pulsewidth
@@ -208,6 +214,12 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 
     // Update the register
     pwmout_update(obj);
+}
+
+//******************************************************************************
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    return obj->pulse_width;
 }
 
 const PinMap *pwmout_pinmap()

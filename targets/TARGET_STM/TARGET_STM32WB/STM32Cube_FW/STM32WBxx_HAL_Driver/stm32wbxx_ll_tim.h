@@ -120,29 +120,8 @@ static const uint8_t SHIFT_TAB_OISx[] =
 #define TIM_POSITION_BRK_SOURCE            (POSITION_VAL(Source) & 0x1FUL)
 
 /* Generic bit definitions for TIMx_AF1 register */
-#define TIMx_AF1_BKINE     TIM1_AF1_BKINE     /*!< BRK BKIN input enable */
-#if defined(COMP1) && defined(COMP2)
-#define TIMx_AF1_BKCOMP1E  TIM1_AF1_BKCMP1E   /*!< BRK COMP1 enable */
-#define TIMx_AF1_BKCOMP2E  TIM1_AF1_BKCMP2E   /*!< BRK COMP2 enable */
-#endif /* COMP1 && COMP2 */
 #define TIMx_AF1_BKINP     TIM1_AF1_BKINP     /*!< BRK BKIN input polarity */
-#if defined(COMP1) && defined(COMP2)
-#define TIMx_AF1_BKCOMP1P  TIM1_AF1_BKCMP1P   /*!< BRK COMP1 input polarity */
-#define TIMx_AF1_BKCOMP2P  TIM1_AF1_BKCMP2P   /*!< BRK COMP2 input polarity */
-#endif /* COMP1 && COMP2 */
 #define TIMx_AF1_ETRSEL    TIM1_AF1_ETRSEL    /*!< TIMx ETR source selection */
-
-/* Generic bit definitions for TIMx_AF2 register */
-#define TIMx_AF2_BK2INE    TIM1_AF2_BK2INE      /*!< BRK2 BKIN2 input enable */
-#if defined(COMP1) && defined(COMP2)
-#define TIMx_AF2_BK2COMP1E TIM1_AF2_BK2CMP1E    /*!< BRK2 COMP1 enable */
-#define TIMx_AF2_BK2COMP2E TIM1_AF2_BK2CMP2E    /*!< BRK2 COMP2 enable */
-#endif /* COMP1 && COMP2 */
-#define TIMx_AF2_BK2INP    TIM1_AF2_BK2INP      /*!< BRK2 BKIN2 input polarity */
-#if defined(COMP1) && defined(COMP2)
-#define TIMx_AF2_BK2COMP1P TIM1_AF2_BK2CMP1P    /*!< BRK2 COMP1 input polarity */
-#define TIMx_AF2_BK2COMP2P TIM1_AF2_BK2CMP2P    /*!< BRK2 COMP2 input polarity */
-#endif /* COMP1 && COMP2 */
 
 /* Remap mask definitions */
 #define TIMx_OR_RMP_SHIFT 16U
@@ -252,13 +231,14 @@ typedef struct
 
                                    This feature can be modified afterwards using unitary function @ref LL_TIM_SetClockDivision().*/
 
-  uint8_t RepetitionCounter;  /*!< Specifies the repetition counter value. Each time the RCR downcounter
+  uint32_t RepetitionCounter;  /*!< Specifies the repetition counter value. Each time the RCR downcounter
                                    reaches zero, an update event is generated and counting restarts
                                    from the RCR value (N).
                                    This means in PWM mode that (N+1) corresponds to:
                                       - the number of PWM periods in edge-aligned mode
                                       - the number of half PWM period in center-aligned mode
-                                   This parameter must be a number between 0x00 and 0xFF.
+                                   GP timers: this parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFF.
+                                   Advanced timers: this parameter must be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF.
 
                                    This feature can be modified afterwards using unitary function @ref LL_TIM_SetRepetitionCounter().*/
 } LL_TIM_InitTypeDef;
@@ -1141,7 +1121,7 @@ typedef struct
 /** @defgroup TIM_LL_EC_TIM2_ETR_RMP  TIM2 External Trigger Remap
   * @{
   */
-#define LL_TIM_TIM2_ETR_RMP_GPIO  TIM2_OR_RMP_MASK                                                   /*!< TIM2_ETR is connected to GPIO */
+#define LL_TIM_TIM2_ETR_RMP_GPIO  TIM2_OR_RMP_MASK                                                  /*!< TIM2_ETR is connected to GPIO */
 #define LL_TIM_TIM2_ETR_RMP_LSE  (TIM2_OR_ETR_RMP | TIM2_OR_RMP_MASK)                               /*!< TIM2_ETR is connected to LSE  */
 /**
   * @}
@@ -1681,7 +1661,7 @@ __STATIC_INLINE uint32_t LL_TIM_GetAutoReload(TIM_TypeDef *TIMx)
   *       whether or not a timer instance supports a repetition counter.
   * @rmtoll RCR          REP           LL_TIM_SetRepetitionCounter
   * @param  TIMx Timer instance
-  * @param  RepetitionCounter between Min_Data=0 and Max_Data=255
+  * @param  RepetitionCounter between Min_Data=0 and Max_Data=255 or 65535 for advanced timer.
   * @retval None
   */
 __STATIC_INLINE void LL_TIM_SetRepetitionCounter(TIM_TypeDef *TIMx, uint32_t RepetitionCounter)
@@ -1723,6 +1703,16 @@ __STATIC_INLINE void LL_TIM_EnableUIFRemap(TIM_TypeDef *TIMx)
 __STATIC_INLINE void LL_TIM_DisableUIFRemap(TIM_TypeDef *TIMx)
 {
   CLEAR_BIT(TIMx->CR1, TIM_CR1_UIFREMAP);
+}
+
+/**
+  * @brief  Indicate whether update interrupt flag (UIF) copy is set.
+  * @param  Counter Counter value
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_TIM_IsActiveUIFCPY(uint32_t Counter)
+{
+  return (((Counter & TIM_CNT_UIFCPY) == (TIM_CNT_UIFCPY)) ? 1UL : 0UL);
 }
 
 /**
@@ -3295,8 +3285,8 @@ __STATIC_INLINE void LL_TIM_ConfigETR(TIM_TypeDef *TIMx, uint32_t ETRPolarity, u
   * @brief  Select the external trigger (ETR) input source.
   * @note Macro IS_TIM_ETRSEL_INSTANCE(TIMx) can be used to check whether or
   *       not a timer instance supports ETR source selection.
-  * @note When this function is called with LL_TIM_ETRSOURCE_GPIO, 
-  *       LL_TIM_ETRSOURCE_ADC1_AWD1, LL_TIM_ETRSOURCE_ADC1_AWD2 or 
+  * @note When this function is called with LL_TIM_ETRSOURCE_GPIO,
+  *       LL_TIM_ETRSOURCE_ADC1_AWD1, LL_TIM_ETRSOURCE_ADC1_AWD2 or
   *       LL_TIM_ETRSOURCE_ADC1_AWD3, ETR source relies on TIMx ETR remapping
   *       capability configured through the function @ref LL_TIM_SetRemap().
   * @rmtoll AF1          ETRSEL        LL_TIM_SetETRSource
@@ -3715,7 +3705,7 @@ __STATIC_INLINE void LL_TIM_ConfigDMABurst(TIM_TypeDef *TIMx, uint32_t DMABurstB
   *         TIM2_OR    TI4_RMP           LL_TIM_SetRemap\n
   *         TIM2_OR    TI1_RMP           LL_TIM_SetRemap\n
   *         TIM16_OR   TI1_RMP           LL_TIM_SetRemap\n
-  *         TIM17_OR   TI1_RMP           LL_TIM_SetRemap\n
+  *         TIM17_OR   TI1_RMP           LL_TIM_SetRemap
   * @param  TIMx Timer instance
   * @param  Remap Remap param depends on the TIMx. Description available only
   *         in CHM version of the User Manual (not in .pdf).

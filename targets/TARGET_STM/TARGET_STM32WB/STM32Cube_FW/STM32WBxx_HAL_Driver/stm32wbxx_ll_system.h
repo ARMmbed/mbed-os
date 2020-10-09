@@ -58,6 +58,16 @@ extern "C" {
 /** @defgroup SYSTEM_LL_Private_Constants SYSTEM Private Constants
   * @{
   */
+/**
+ * @brief VREFBUF VREF_SC0 & VREF_SC1 calibration values 
+ */
+#define VREFBUF_SC0_CAL_ADDR   ((uint8_t*) (0x1FFF75F0UL)) /*!<  Address of VREFBUF trimming value for VRS=0,
+                                                                 VREF_SC0 in STM32WB datasheet */
+#define VREFBUF_SC1_CAL_ADDR   ((uint8_t*) (0x1FFF7530UL)) /*!<  Address of VREFBUF trimming value for VRS=1,
+                                                                 VREF_SC1 in STM32WB datasheet */
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -1877,6 +1887,24 @@ __STATIC_INLINE uint32_t LL_VREFBUF_GetVoltageScaling(void)
 }
 
 /**
+  * @brief  Get the VREFBUF trimming value for VRS=0 (VREF_SC0)
+  * @retval Between 0 and 0x3F
+  */
+__STATIC_INLINE uint32_t LL_VREFBUF_SC0_GetCalibration(void)
+{
+  return (uint32_t)(*VREFBUF_SC0_CAL_ADDR);
+}
+
+/**
+  * @brief  Get the VREFBUF trimming value for VRS=1 (VREF_SC1)
+  * @retval Between 0 and 0x3F
+  */
+__STATIC_INLINE uint32_t LL_VREFBUF_SC1_GetCalibration(void)
+{
+  return (uint32_t)(*VREFBUF_SC1_CAL_ADDR);
+}
+
+/**
   * @brief  Check if Voltage reference buffer is ready
   * @rmtoll VREFBUF_CSR  VRR           LL_VREFBUF_IsVREFReady
   * @retval State of bit (1 or 0).
@@ -1898,6 +1926,11 @@ __STATIC_INLINE uint32_t LL_VREFBUF_GetTrimming(void)
 
 /**
   * @brief  Set the trimming code for VREFBUF calibration (Tune the internal reference buffer voltage)
+  * @note   Each VrefBuf voltage scale is calibrated in production for each device,
+  *         data stored in flash memory.
+  *         Functions @ref LL_VREFBUF_SC0_GetCalibration and 
+  *         @ref LL_VREFBUF_SC0_GetCalibration can be used to retrieve
+  *         these calibration data.
   * @rmtoll VREFBUF_CCR  TRIM          LL_VREFBUF_SetTrimming
   * @param  Value Between 0 and 0x3F
   * @retval None

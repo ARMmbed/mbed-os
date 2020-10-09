@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "SocketStats.h"
+#include "netsocket/SocketStats.h"
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 int SocketStats::get_entry_position(const Socket *const reference_id)

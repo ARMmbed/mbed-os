@@ -24,9 +24,9 @@
 #include "platform/mbed_error.h"
 #include "drivers/internal/SFDP.h"
 
-#if (DEVICE_SPI || DEVICE_QSPI)
+#if (DEVICE_SPI || DEVICE_QSPI || DEVICE_OSPI)
 
-#include "features/frameworks/mbed-trace/mbed-trace/mbed_trace.h"
+#include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "SFDP"
 
 namespace {
@@ -130,12 +130,14 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_in
                 hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
                 hdr_info.smptbl.size = phdr_ptr->P_LEN * 4;
                 break;
+            case 0x84:
+                tr_info("Parameter header: 4-byte Address Instruction");
+                hdr_info.fbatbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+                hdr_info.fbatbl.size = phdr_ptr->P_LEN * 4;
+                break;
             /* Unsupported */
             case 0x03:
                 tr_info("UNSUPPORTED:Parameter header: Replay Protected Monotonic Counters");
-                break;
-            case 0x84:
-                tr_info("UNSUPPORTED:Parameter header: 4-byte Address Instruction");
                 break;
             case 0x05:
                 tr_info("UNSUPPORTED:Parameter header: eXtended Serial Peripheral Interface (xSPI) Profile 1.0");
@@ -406,7 +408,7 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
             largest_erase_type = idx;
             if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
                     ((smptbl.region_high_boundary[region] - offset)
-                     > (int)(smptbl.erase_type_size_arr[largest_erase_type]))) {
+                     > (uint64_t)(smptbl.erase_type_size_arr[largest_erase_type]))) {
                 break;
             } else {
                 bitfield &= ~type_mask;
@@ -437,7 +439,7 @@ int sfdp_detect_device_density(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
     return 0;
 }
 
-#if DEVICE_QSPI
+#if (DEVICE_QSPI || DEVICE_OSPI)
 int sfdp_detect_addressability(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
 {
     // Check that density is not greater than 4 gigabits (i.e. that addressing beyond 4 bytes is not required)
@@ -460,4 +462,4 @@ int sfdp_detect_addressability(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
 #endif
 
 } /* namespace mbed */
-#endif /* (DEVICE_SPI || DEVICE_QSPI) */
+#endif /* (DEVICE_SPI || DEVICE_QSPI || DEVICE_OSPI) */

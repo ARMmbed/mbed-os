@@ -32,12 +32,11 @@
         (++) min time (mS) = 1000 * (Counter - Window) / WWDG clock
         (++) max time (mS) = 1000 * (Counter - 0x40) / WWDG clock
     (+) Typical values:
-        (++) Counter min (T[5;0] = 0x00) @64 MHz (PCLK1) with zero prescaler:
-             max timeout before reset: approximately 64µs
-        (++) Counter max (T[5;0] = 0x3F) @64 MHz (PCLK1) with prescaler dividing by 128:
+        (++) Counter min (T[5;0] = 0x00) at 64 MHz (PCLK1) with zero prescaler:
+             max timeout before reset: approximately 64us
+        (++) Counter max (T[5;0] = 0x3F) at 64 MHz (PCLK1) with prescaler dividing by 128:
              max timeout before reset: approximately 524.28ms
 
-  ==============================================================================
                      ##### How to use this driver #####
   ==============================================================================
 
@@ -67,26 +66,26 @@
   [..]
     The compilation define  USE_HAL_WWDG_REGISTER_CALLBACKS when set to 1 allows
     the user to configure dynamically the driver callbacks. Use Functions
-    @ref HAL_WWDG_RegisterCallback() to register a user callback.
+    HAL_WWDG_RegisterCallback() to register a user callback.
 
-    (+) Function @ref HAL_WWDG_RegisterCallback() allows to register following
+    (+) Function HAL_WWDG_RegisterCallback() allows to register following
         callbacks:
         (++) EwiCallback : callback for Early WakeUp Interrupt.
         (++) MspInitCallback : WWDG MspInit.
     This function takes as parameters the HAL peripheral handle, the Callback ID
     and a pointer to the user callback function.
 
-    (+) Use function @ref HAL_WWDG_UnRegisterCallback() to reset a callback to
-    the default weak (surcharged) function. @ref HAL_WWDG_UnRegisterCallback()
+    (+) Use function HAL_WWDG_UnRegisterCallback() to reset a callback to
+    the default weak (surcharged) function. HAL_WWDG_UnRegisterCallback()
     takes as parameters the HAL peripheral handle and the Callback ID.
     This function allows to reset following callbacks:
         (++) EwiCallback : callback for  Early WakeUp Interrupt.
         (++) MspInitCallback : WWDG MspInit.
 
     [..]
-    When calling @ref HAL_WWDG_Init function, callbacks are reset to the
+    When calling HAL_WWDG_Init function, callbacks are reset to the
     corresponding legacy weak (surcharged) functions:
-    @ref HAL_WWDG_EarlyWakeupCallback() and HAL_WWDG_MspInit() only if they have
+    HAL_WWDG_EarlyWakeupCallback() and HAL_WWDG_MspInit() only if they have
     not been registered before.
 
     [..]

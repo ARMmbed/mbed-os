@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_crc.h
-* \version 2.30.3
+* \version 2.30.4
 *
 * \brief
 *  This file provides the headers for CRC API
@@ -372,7 +372,6 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_Calc(CRYPTO_Type *base,
 #endif /* CY_IP_MXCRYPTO */
 
 #endif /* #if !defined(CY_CRYPTO_CORE_CRC_H) */
-
 
 
 /* [] END OF FILE */

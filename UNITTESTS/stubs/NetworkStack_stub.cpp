@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#include "NetworkStack.h"
-#include "nsapi_dns.h"
+#include "netsocket/NetworkStack.h"
+#include "netsocket/nsapi_dns.h"
 #include "mbed.h"
 #include "stddef.h"
 #include <new>

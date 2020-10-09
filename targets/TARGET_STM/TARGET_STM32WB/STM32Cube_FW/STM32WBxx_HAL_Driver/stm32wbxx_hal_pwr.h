@@ -235,12 +235,22 @@ typedef struct
   *
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */  
-#define __HAL_PWR_GET_FLAG(__FLAG__)  ( ((((uint8_t)(__FLAG__)) >> 5U) == 1U)  ?\
-                                      (PWR->SR1 & (1U << ((__FLAG__) & 31U))) :\
-                                      ((((((uint8_t)(__FLAG__)) >> 5U) == 2U)) ?\
-                                      (PWR->SR2 & (1U << ((__FLAG__) & 31U))) :\
-                                      (PWR->EXTSCR & (1U << ((__FLAG__) & 31U))) ) )
-
+#define __HAL_PWR_GET_FLAG(__FLAG__)  ((((__FLAG__) & PWR_FLAG_REG_MASK) == PWR_FLAG_REG_SR1) ?   \
+                                       (                                                          \
+                                        PWR->SR1 & (1UL << ((__FLAG__) & 31UL))                   \
+                                       )                                                          \
+                                       :                                                          \
+                                       (                                                          \
+                                        (((__FLAG__) & PWR_FLAG_REG_MASK) == PWR_FLAG_REG_SR2) ? \
+                                        (                                                        \
+                                         PWR->SR2 & (1UL << ((__FLAG__) & 31UL))                 \
+                                        )                                                        \
+                                        :                                                        \
+                                        (                                                        \
+                                         PWR->EXTSCR & (1UL << ((__FLAG__) & 31UL))              \
+                                        )                                                        \
+                                       )                                                          \
+                                      )
 
 /** @brief  Clear a specific PWR flag.
   * @note   Clearing of flags {PWR_FLAG_STOP, PWR_FLAG_SB}
@@ -280,13 +290,18 @@ typedef struct
   *
   * @retval None   
   */
-#define __HAL_PWR_CLEAR_FLAG(__FLAG__)   ( ((((uint8_t)(__FLAG__)) >> 5U) == 1U) ?\
-                                         ( (((uint8_t)(__FLAG__)) == PWR_FLAG_WU) ?\
-                                         (PWR->SCR  = (__FLAG__)) : (PWR->SCR = (1U << ((__FLAG__) & 31U))) ) :\
-                                         ( (((uint8_t)(__FLAG__)) == PWR_FLAG_CRITICAL_RF_PHASE) ?\
-                                         SET_BIT (PWR->EXTSCR, PWR_EXTSCR_CCRPF) : ( ((((uint8_t)((__FLAG__)) & 31U) <= PWR_EXTSCR_C1STOPF_Pos) ?\
-                                         SET_BIT (PWR->EXTSCR, PWR_EXTSCR_C1CSSF): SET_BIT (PWR->EXTSCR, PWR_EXTSCR_C2CSSF)) ) ))
-                                       
+#define __HAL_PWR_CLEAR_FLAG(__FLAG__)   ((((__FLAG__) & PWR_FLAG_REG_MASK) == PWR_FLAG_REG_EXTSCR) ?                                  \
+                                          (                                                                                            \
+                                           PWR->EXTSCR = (1UL << (((__FLAG__) & PWR_FLAG_EXTSCR_CLR_MASK) >> PWR_FLAG_EXTSCR_CLR_POS)) \
+                                          )                                                                                            \
+                                          :                                                                                            \
+                                          (                                                                                            \
+                                           (((__FLAG__)) == PWR_FLAG_WU) ?                                                             \
+                                           (PWR->SCR = PWR_SCR_CWUF) :                                                                 \
+                                           (PWR->SCR = (1UL << ((__FLAG__) & 31UL)))                                                   \
+                                          )                                                                                            \
+                                         )
+
 /**
   * @brief Enable the PVD Extended Interrupt C1 Line.
   * @retval None

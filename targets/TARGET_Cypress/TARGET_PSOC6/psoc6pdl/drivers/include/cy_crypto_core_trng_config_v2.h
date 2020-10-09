@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_trng_config_v2.h
-* \version 2.30.3
+* \version 2.30.4
 *
 * \brief
 *  This file provides internal (not public) constants and parameters

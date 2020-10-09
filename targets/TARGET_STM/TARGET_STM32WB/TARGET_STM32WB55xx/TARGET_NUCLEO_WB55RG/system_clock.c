@@ -76,7 +76,7 @@ void SetSysClock(void)
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     /* This prevents the CPU2 (M0+) to disable the HSI48 oscillator */
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_HSI48_SEMID));
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID));
 
     /* Initializes the CPU, AHB and APB busses clocks */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;

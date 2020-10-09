@@ -1,0 +1,234 @@
+{
+    "name": "mbed-mesh-api",
+    "requires": ["nanostack"],
+    "config": {
+        "heap-size": {
+            "help": "Nanostack's heap size [bytes: 0-4294967295]",
+            "value": 32500
+        },
+        "mac-neigh-table-size": {
+            "help": "Number of devices stored to the SW MAC neighbour table",
+            "value_min": 5,
+            "value_max": 255,
+            "value": 32
+        },
+        "use-malloc-for-heap": {
+            "help": "Use `malloc()` for reserving the Nanostack's internal heap.",
+            "value": false
+        },
+        "heap-stat-info": {
+            "help": "Pointer to heap statistics `mem_stat_t` storage.",
+            "value": "NULL"
+        },
+        "heap-stat-info-definition": {
+            "help": "Definition of heap statistics `mem_stat_t` storage.",
+            "value": null
+        },
+        "6lowpan-nd-channel-mask": {
+            "help": "Channel mask, bit-mask of channels to use. [0-0x07fff800]",
+            "value": "0x7fff800"
+        },
+        "6lowpan-nd-channel-page": {
+            "help": "0 for 2.4 GHz and 2 for sub-GHz radios.",
+            "value": 0
+        },
+        "6lowpan-nd-channel": {
+            "help": "RF channel to use when `channel_mask` is not defined. [0-26].",
+            "value": 0
+        },
+        "6lowpan-nd-panid-filter": {
+            "help": "Beacon PAN ID filter, 0xffff means no filtering. [0-0xffff]",
+            "value": "0xffff"
+        },
+        "6lowpan-nd-security-mode": {
+            "help": "NONE or PSK to use either no security, or pre-shared network key.",
+            "value": "NONE"
+        },
+        "6lowpan-nd-psk-key-id": {
+            "help": "PSK key ID when PSK is enabled.",
+            "value": 1
+        },
+        "6lowpan-nd-psk-key": {
+            "help": "Pre-shared network key. Byte array of 16 bytes. In form of: {0x00, 0x11, ... 0xff}",
+            "value": "{0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf}"
+        },
+        "6lowpan-nd-sec-level": {
+            "help": "Network security level (1-7). Use default `5`.",
+            "value": 5
+        },
+        "6lowpan-nd-device-type": {
+            "help": "Device mode (NET_6LOWPAN_ROUTER or NET_6LOWPAN_HOST). Router is routing packets from other device, creating a mesh network.",
+            "value": "NET_6LOWPAN_ROUTER"
+        },
+        "thread-pskd": {
+            "help": "Human-scaled commissioning credentials. Uppercase alphanumeric string (0-9, A-Y excluding I, O, Q and Z), 6-32 characters.",
+            "value": "\"ABCDEFGH\""
+        },
+        "thread-use-static-link-config": {
+            "help": "True: Use the below link config, False: Use commissioning, ignore the below link config.",
+            "value": true
+        },
+        "thread-config-channel-mask": {
+            "help": "Channel bit mask, 0x7ffff800 scans all channels. [0-0x07fff800]",
+            "value": "0x7fff800"
+        },
+        "thread-config-channel-page": {
+            "help": "Channel page, 0 for 2.4 GHz radio.",
+            "value": 0
+        },
+        "thread-config-channel": {
+            "help": "RF channel to use. [11-26]",
+            "value": 22
+        },
+        "thread-config-panid": {
+            "help": "Network identifier [0-0xFFFF]",
+            "value": "0x0700"
+        },
+        "thread-config-network-name": {
+            "help": "Network name [string, max 16 characters]",
+            "value": "\"Thread Network\""
+        },
+        "thread-config-commissioning-dataset-timestamp": {
+            "help": "[48 bit timestamp seconds]-[15 bit timestamp ticks]-[U bit] (0-0xFFFFFFFFFFFFFFFF)",
+            "value": "0x10000"
+        },
+        "thread-config-extended-panid": {
+            "help": "Extended PAN ID. [8 byte array]",
+            "value": "{0xf1, 0xb5, 0xa1, 0xb2,0xc4, 0xd5, 0xa1, 0xbd }"
+        },
+        "thread-master-key": {
+            "help": "Network master key. [16 byte array]",
+            "value": "{0x10, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff}"
+        },
+        "thread-config-ml-prefix": {
+            "help": "Mesh Local prefix. [8 byte array]",
+            "value": "{0xfd, 0x0, 0x0d, 0xb8, 0x0, 0x0, 0x0, 0x0}"
+        },
+        "thread-config-pskc": {
+            "help": "Pre-Shared Key for the Commissioner. [16 byte array]",
+            "value": "{0xc8, 0xa6, 0x2e, 0xae, 0xf3, 0x68, 0xf3, 0x46, 0xa9, 0x9e, 0x57, 0x85, 0x98, 0x9d, 0x1c, 0xd0}"
+        },
+        "thread-device-type": {
+            "help": "Supported device operating modes: MESH_DEVICE_TYPE_THREAD_ROUTER, MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE, MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE",
+            "value": "MESH_DEVICE_TYPE_THREAD_ROUTER"
+        },
+        "thread-security-policy": {
+            "help": "Commissioning security policy bits [0-0xFF]",
+            "value": 255
+        },
+        "wisun-network-name": {
+            "help": "Network name for a wisun network. Maximum network name length can be 32 ASCII characters excluding terminating 0",
+            "value": "\"Wi-SUN Network\""
+        },
+        "wisun-network-size": {
+            "help": "Expected amount of devices in the network as 100s of devices. with possible pre defined constants NETWORK_SIZE_SMALL, NETWORK_SIZE_MEDIUM, NETWORK_SIZE_LARGE, NETWORK_SIZE_XLARGE. if set to 0 Wi-SUN Certification configuration values are used. If don't define this(default null), then NETWORK_SIZE_MEDIUM will be used.",
+            "value": null
+        },
+        "wisun-regulatory-domain": {
+            "help": "Regulator domain value as specified in the Wi-SUN PHY Specification. Default value 3 is for EU region.",
+            "value": "3"
+        },
+        "wisun-operating-class": {
+            "help": "Operating class for the regulatory-domain as specified in the Wi-SUN PHY Specification. Wi-SUN stack uses operating-class suitable for EU-region if value 255 is used.",
+            "value": "255"
+        },
+        "wisun-operating-mode": {
+            "help": "Operating mode as specified in the Wi-SUN PHY Specification. Wi-SUN stack uses operating-mode suitable for EU-region if value 255 is used.",
+            "value": "255"
+        },
+        "wisun-uc-channel-function": {
+            "help": "Unicast channel function as specified in the Wi-SUN FAN specification. Wi-SUN stack will select channel function if value 255 is used.",
+            "value": 255
+        },
+        "wisun-bc-channel-function": {
+            "help": "Broadcast channel function as specified in the Wi-SUN FAN specification. Wi-SUN stack will select channel function if value 255 is used.",
+            "value": 255
+        },
+        "wisun-uc-fixed-channel": {
+            "help": "Default 16-bit fixed channel for unicast. Used when channel hopping is not desired.",
+            "value_max": 65535,
+            "value": 65535
+        },
+        "wisun-bc-fixed-channel": {
+            "help": "Default 16-bit fixed channel for multicast. Used when channel hopping is not desired.",
+            "value_max": 65535,
+            "value": 65535
+        },
+        "wisun-bc-interval": {
+            "help": "32-bit broadcast interval. Duration between broadcast dwell intervals. Wi-SUN stack default value will be used when set to 0.",
+            "value": 0
+        },
+        "wisun-bc-dwell-interval": {
+            "help": "Broadcast dwell interval. Range: 15-255 milliseconds. Wi-SUN stack default value will be used when set to 0.",
+            "value_max": 255,
+            "value": 0
+        },
+        "wisun-uc-dwell-interval": {
+            "help": "Unicast dwell interval. Range: 15-255 milliseconds.",
+            "value_min": 15,
+            "value_max": 255,
+            "value": 255
+        },
+        "wisun-device-type": {
+            "help": "Supported device operating modes: MESH_DEVICE_TYPE_WISUN_ROUTER, MESH_DEVICE_TYPE_WISUN_BORDER_ROUTER",
+            "value": "MESH_DEVICE_TYPE_WISUN_ROUTER"
+        },
+        "certificate-header": {
+            "help": "File name of the certificate header file (used on include directive)",
+            "value": null
+        },
+        "root-certificate": {
+            "help": "Root certificate; in PEM format must be a null terminated c-string, in DER format the root-certificate-len must be set",
+            "value": null
+        },
+        "root-certificate-len": {
+            "help": "Root certificate length; optional for PEM format, must be defined for DER format",
+            "value": null
+        },
+        "own-certificate": {
+            "help": "Own certificate; in PEM format must be a null terminated c-string, in DER format the own-certificate-len must be set",
+            "value": null
+        },
+        "own-certificate-len": {
+            "help": "Own certificate length; optional for PEM format, must be defined for DER format",
+            "value": null
+        },
+        "own-certificate-key": {
+            "help": "Own certificate's key; in PEM format must be a null terminated c-string, in DER format the own-certificate-key-len must be set",
+            "value": null
+        },
+        "own-certificate-key-len": {
+            "help": "Own certificate's key length; optional for PEM format, must be defined for DER format",
+            "value": null
+        },
+        "radius-server-ipv6-address": {
+            "help": "RADIUS Server IPv6 address in string format (e.g. \"2001:1234::1\")",
+            "value": null
+        },
+        "radius-shared-secret": {
+            "help": "RADIUS shared secret; ASCII string (e.g. \"radiuspassword\") or sequence of bytes (e.g. 0x01, 0x02, 0x03, 0x04, 0x05)",
+            "value": null
+        },
+        "radius-shared-secret-len": {
+            "help": "RADIUS shared secret length; If length is not defined, strlen() is used to determine RADIUS shared secret length",
+            "value": null
+        },
+        "radius-retry-imin": {
+            "help": "RADIUS retry trickle timer Imin; in 100ms units; range 1-1200; default 20 (2 seconds)",
+            "value": 20
+        },
+        "radius-retry-imax": {
+            "help": "RADIUS retry trickle timer Imax; in 100ms units; range 1-1200; default 30 (3 seconds)",
+            "value": 30
+        },
+        "radius-retry-count": {
+            "help": "RADIUS retry trickle count; default 3",
+            "value": 3
+        }
+    },
+    "target_overrides": {
+        "KW41Z": {
+            "mbed-mesh-api.heap-size": 14000
+        }
+    }
+}

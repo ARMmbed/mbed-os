@@ -41,12 +41,12 @@ uint8_t *_sd_pSDHCBuffer;
 uint32_t _sd_ReferenceClock;
 
 #if defined (__CC_ARM)
-__align(4096) uint8_t _sd_ucSDHCBuffer[512];
+__align(4) uint8_t _sd_ucSDHCBuffer[512];
 #elif defined ( __ICCARM__ ) /*!< IAR Compiler */
-#pragma data_alignment = 4096
+#pragma data_alignment = 4
 uint8_t _sd_ucSDHCBuffer[512];
 #elif defined ( __GNUC__ )
-uint8_t _sd_ucSDHCBuffer[512] __attribute__((aligned (4096)));
+uint8_t _sd_ucSDHCBuffer[512] __attribute__((aligned (4)));
 #endif
 
 int sd0_ok = 0;

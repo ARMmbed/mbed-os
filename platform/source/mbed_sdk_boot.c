@@ -23,7 +23,7 @@
 
 /* This startup is for baremetal. There is no RTOS in baremetal,
  * therefore we protect this file with MBED_CONF_RTOS_PRESENT.
- * Note: The start-up code for mbed OS is in rtos/source/TARGET_CORTEX/mbed_boot code file.
+ * Note: The start-up code for mbed OS is in cmsis/device/rtos/TOOLCHAIN_<TOOLCHAIN>/mbed_boot_<TOOLCHAIN>.c code file.
  */
 #if !defined(MBED_CONF_RTOS_PRESENT)
 

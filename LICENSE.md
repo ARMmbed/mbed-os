@@ -4,20 +4,22 @@ as can be found in: LICENSE-apache-2.0.txt
 Folders containing files under different permissive license than Apache 2.0 are listed below. Each folder should contain its own README file with license specified for its files. The original license text is included in those source files.
 
 - [cmsis](./cmsis) - MIT, BSD-3-Clause
-- [components/802.15.4_RF/mcr20a-rf-driver](./components/802.15.4_RF/mcr20a-rf-driver) - BSD-3-Clause
+- [connectivity/drivers/802.15.4_RF/mcr20a-rf-driver](./connectivity/drivers/802.15.4_RF/mcr20a-rf-driver) - BSD-3-Clause
+- [connectivity/drivers/emac](./connectivity/drivers/emac) - BSD-style
 - [features/cryptocell/FEATURE_CRYPTOCELL310](./features/cryptocell/FEATURE_CRYPTOCELL310) - ARM Object Code and Header Files License
 - [features/FEATURE_BOOTLOADER](./features/FEATURE_BOOTLOADER) - PBL
 - [features/FEATURE_BLE/targets](./features/FEATURE_BLE/targets) - BSD-style, PBL, MIT-style
 - [features/FEATURE_PSA/FEATURE_TFM](./features/FEATURE_PSA/FEATURE_TFM) - BSD-3-Clause
 - [features/FEATURE_PSA/FEATURE_MBED_PSA_SRV/services/attestation](./features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation) - BSD-3-Clause
 - [features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation/qcbor](./features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation/qcbor) - BSD-3-Clause
-- [features/lorawan](./features/lorawan) - Revised BSD
-- [features/lwipstack](./features/lwipstack) - BSD-style, MIT-style
-- [features/nanostack/sal-stack-nanostack](./features/nanostack/sal-stack-nanostack) - BSD-3-Clause
-- [features/storage](./features/storage) - BSD-style, MIT
-- [features/netsocket/emac-drivers](./features/netsocket/emac-drivers) - BSD-style
+- [connectivity/lorawan](./connectivity/lorawan) - Revised BSD
+- [connectivity/lwipstack](./connectivity/lwipstack) - BSD-style, MIT-style
+- [connectivity/nanostack/sal-stack-nanostack](./connectivity/nanostack/sal-stack-nanostack) - BSD-3-Clause
 - [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
 - [features/unsupported](./features/unsupported) - MIT-style, BSD-style
+- [storage/blockdevice](./storage/blockdevice) - Apache 2.0, MIT
+- [storage/filesystem/littlefs](.storage/filesystem/littlefs) - [BSD-3-Clause](https://github.com/ARMmbed/littlefs/blob/master/LICENSE.md)
+- [storage/filesystem/fat/ChaN](.storage/filesystem/fat/ChaN) - BSD-style, 1 clause, [Copyright ChaN](http://www.elm-chan.org/fsw/ff/doc/appnote.html)
 - [rtos](./rtos) - MIT
 - [drivers](./drivers) - MIT
 - [TESTS/mbed_hal/trng/pithy](./TESTS/mbed_hal/trng/pithy) - BSD-3-Clause

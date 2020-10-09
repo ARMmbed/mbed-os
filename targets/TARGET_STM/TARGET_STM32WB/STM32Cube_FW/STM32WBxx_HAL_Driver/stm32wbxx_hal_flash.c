@@ -315,9 +315,9 @@ void HAL_FLASH_IRQHandler(void)
     /* return adress being programmed */
     param = pFlash.Address;
   }
-  else if ((pFlash.ProcedureOnGoing & (FLASH_TYPEERASE_MASSERASE | FLASH_TYPEERASE_PAGES)) != 0U)
+  else if ((pFlash.ProcedureOnGoing & (FLASH_TYPEERASE_PAGES)) != 0U)
   {
-    /* return page number being erased (0 for mass erase) */
+    /* return page number being erased */
     param = pFlash.Page;
   }
   else
@@ -389,7 +389,6 @@ void HAL_FLASH_IRQHandler(void)
 /**
   * @brief  FLASH end of operation interrupt callback.
   * @param  ReturnValue The value saved in this parameter depends on the ongoing procedure
-  *                  Mass Erase: 0
   *                  Page Erase: Page which has been erased
   *                  Program: Address which was selected for data program
   * @retval None
@@ -407,7 +406,6 @@ __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 /**
   * @brief  FLASH operation error interrupt callback.
   * @param  ReturnValue The value saved in this parameter depends on the ongoing procedure
-  *                 Mass Erase: 0
   *                 Page Erase: Page number which returned an error
   *                 Program: Address which was selected for data program
   * @retval None

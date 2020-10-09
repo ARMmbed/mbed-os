@@ -168,6 +168,24 @@ struct qspi_s {
 };
 #endif
 
+#if DEVICE_OSPI
+struct ospi_s {
+    OSPI_HandleTypeDef handle;
+    OSPIName ospi;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName io4;
+    PinName io5;
+    PinName io6;
+    PinName io7;
+    PinName sclk;
+    PinName ssel;
+    PinName dqs;
+};
+#endif
+
 #define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
 
 #endif

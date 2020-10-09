@@ -26,10 +26,10 @@
   #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
+#if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
     /* This value is normally defined by the tools
        to 0x1000 for bare metal and 0x400 for RTOS */
-    #define MBED_BOOT_STACK_SIZE  0x400
+    #define MBED_CONF_TARGET_BOOT_STACK_SIZE  0x400
 #endif
 
 /* Round up VECTORS_SIZE to 8 bytes */
@@ -179,7 +179,7 @@ SECTIONS
         __end__ = .;
         PROVIDE(end = .);
         *(.heap*)
-        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
+        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_CONF_TARGET_BOOT_STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 
@@ -195,7 +195,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
-    __StackLimit = __StackTop - MBED_BOOT_STACK_SIZE;
+    __StackLimit = __StackTop - MBED_CONF_TARGET_BOOT_STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

@@ -142,8 +142,8 @@ typedef struct
     #define NRFX_SPIM_DEFAULT_EXTENDED_CONFIG   \
         .dcx_pin      = NRFX_SPIM_PIN_NOT_USED, \
         .rx_delay     = 0x00,                   \
-        .ss_duration  = 0x00,                   \
-        .use_hw_ss    = false,
+        .use_hw_ss    = false,                  \
+        .ss_duration  = 0x00,
 #else
     #define NRFX_SPIM_DEFAULT_EXTENDED_CONFIG
 #endif

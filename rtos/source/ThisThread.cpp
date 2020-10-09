@@ -29,7 +29,7 @@
 #include "platform/CriticalSectionLock.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_critical.h"
-#include "platform/source/mbed_os_timer.h"
+#include "platform/internal/mbed_os_timer.h"
 
 using std::milli;
 using std::chrono::duration;
@@ -200,7 +200,7 @@ uint32_t ThisThread::flags_wait_any_for(uint32_t flags, uint32_t millisec, bool 
 
 uint32_t ThisThread::flags_wait_any_for(uint32_t flags, Clock::duration_u32 rel_time, bool clear)
 {
-    return flags_wait_for(flags, rel_time, clear, osFlagsWaitAll);
+    return flags_wait_for(flags, rel_time, clear, osFlagsWaitAny);
 }
 
 uint32_t ThisThread::flags_wait_any_until(uint32_t flags, uint64_t millisec, bool clear)

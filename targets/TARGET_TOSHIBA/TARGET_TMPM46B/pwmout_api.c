@@ -80,7 +80,7 @@ void pwmout_free(pwmout_t *obj)
 {
     // Stops and clear count operation
     TMRB_SetRunState(obj->channel, TMRB_STOP);
-    pwmout_write(obj,0);
+    pwmout_write(obj, 0);
     obj->channel = NULL;
     obj->trailing_timing = 0;
     obj->leading_timing = 0;
@@ -169,7 +169,7 @@ void pwmout_period_us(pwmout_t *obj, int us)
     // Restore the duty-cycle
     duty_cycle = (float)((obj->trailing_timing - obj->leading_timing) / obj->trailing_timing);
     obj->trailing_timing = cycles;
-    obj->leading_timing = ((cycles)- (uint16_t)(cycles * duty_cycle));
+    obj->leading_timing = ((cycles) - (uint16_t)(cycles * duty_cycle));
 
     // Change the source clock division and period
     m_tmrb.Mode = TMRB_INTERVAL_TIMER;
@@ -192,6 +192,11 @@ void pwmout_period_us(pwmout_t *obj, int us)
     TMRB_SetRunState(obj->channel, TMRB_RUN);
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+    return obj->trailing_timing;
+}
+
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, (seconds * 1000000.0f));
@@ -210,6 +215,11 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     seconds = (float)(us / 1000000.0f);
     value = (((seconds / obj->period) * 100.0f) / 100.0f);
     pwmout_write(obj, value);
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+    return obj->trailing_timing - obj->leading_timing;
 }
 
 const PinMap *pwmout_pinmap()
