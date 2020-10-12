@@ -3,16 +3,16 @@
 
 add_subdirectory(services)
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/inc
-        ${CMAKE_CURRENT_SOURCE_DIR}/inc/psa
-        ${CMAKE_CURRENT_SOURCE_DIR}/mbedtls
-        ${CMAKE_CURRENT_SOURCE_DIR}/pal
+target_include_directories(mbed-os-psa
+    INTERFACE
+        ./inc
+        ./inc/psa
+        ./mbedtls
+        ./pal
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-psa
+    INTERFACE
         mbedtls/psa_crypto.c
         mbedtls/psa_crypto_se.c
         mbedtls/psa_crypto_slot_management.c

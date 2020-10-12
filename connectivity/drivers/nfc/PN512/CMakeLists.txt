@@ -1,8 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-nfc
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc
         ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc/controllers
@@ -10,8 +10,8 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/source/transceiver
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-nfc
+    INTERFACE
         source/PN512Driver.cpp
         source/PN512SPITransportDriver.cpp
         source/PN512TransportDriver.cpp

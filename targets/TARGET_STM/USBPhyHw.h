@@ -28,6 +28,7 @@
 #include "platform/mbed_power_mgmt.h"
 #include "USBPhy.h"
 #include "PeripheralPins.h"
+#include "string.h"
 
 #if !defined(MBED_CONF_TARGET_USB_SPEED)
 

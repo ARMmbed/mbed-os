@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-ble-cordio
+    INTERFACE
         include
         include/util
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-ble-cordio
+    INTERFACE
         sources/port/baremetal/wsf_assert.c
         sources/port/baremetal/wsf_buf.c
         sources/port/baremetal/wsf_bufio.c

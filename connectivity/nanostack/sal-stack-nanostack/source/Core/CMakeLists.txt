@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-nanostack-sal_stack
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-nanostack-sal_stack
+    INTERFACE
         buffer_dyn.c
         ns_address_internal.c
         ns_monitor.c

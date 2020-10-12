@@ -25,7 +25,6 @@ include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/util.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
 
-# Create Mbed OS library
 add_library(mbed-os OBJECT)
 
 # Validate selected C library type
@@ -80,19 +79,26 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Default build
+# TODO CMake: This component is made visible here so its source files in
+# drivers/ can be added and it can be linked against by libraries in storage/.
+# Should the source files be moved from drivers/ to storage/ ?
+add_library(mbed-os-device_key INTERFACE)
+
 add_subdirectory(cmsis)
-add_subdirectory(components)
-add_subdirectory(connectivity)
 add_subdirectory(drivers)
-add_subdirectory(events)
-add_subdirectory(features)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(rtos)
-add_subdirectory(storage)
 add_subdirectory(targets)
 
+# The directories below contain optional target libraries
+add_subdirectory(events EXCLUDE_FROM_ALL)
+add_subdirectory(connectivity EXCLUDE_FROM_ALL)
+add_subdirectory(storage EXCLUDE_FROM_ALL)
+add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
+add_subdirectory(drivers/source/usb EXCLUDE_FROM_ALL)
+add_subdirectory(features EXCLUDE_FROM_ALL)
+add_subdirectory(platform/FEATURE_EXPERIMENTAL_API EXCLUDE_FROM_ALL)
 
 #
 # Configures the application
@@ -133,7 +139,6 @@ function(mbed_set_mbed_target_linker_script target)
         VERBATIM
     )
 endfunction()
-
 
 #
 # Converts output file of `target` to binary file and to Intel HEX file.
