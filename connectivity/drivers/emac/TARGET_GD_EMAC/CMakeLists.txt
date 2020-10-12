@@ -1,14 +1,18 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("GD32F30X" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_GD32F30X)
+elseif("GD32F4XX" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_GD32F4XX)
+endif()
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-emac
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-emac
+    INTERFACE
         gd32xx_emac.cpp
 )

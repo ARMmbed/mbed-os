@@ -1,8 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-ble
+    INTERFACE
         AdvertisingDataBuilder.cpp
         AdvertisingParameters.cpp
         ConnectionParameters.cpp

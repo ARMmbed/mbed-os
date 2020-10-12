@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/its
+target_include_directories(mbed-os-psa
+    INTERFACE
+        ./common
+        ./its
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-psa
+    INTERFACE
         common/psa_storage_common_impl.cpp
 
         its/pits_impl.cpp

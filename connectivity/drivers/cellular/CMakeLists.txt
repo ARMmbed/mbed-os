@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("COMPONENT")
+if("STMOD_CELLULAR" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_STMOD_CELLULAR)
+endif()
 
 add_subdirectory(Altair)
 add_subdirectory(GEMALTO)
@@ -12,7 +14,7 @@ add_subdirectory(RiotMicro)
 add_subdirectory(TELIT)
 add_subdirectory(UBLOX)
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(mbed-os-cellular
+    INTERFACE
+        .
 )

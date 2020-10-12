@@ -9,7 +9,7 @@ function(_mbed_get_lib_file_uno_91h)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIB_FILE TOOLCHAIN_IAR/libwifi_sta_ap.a)
     endif()
-    target_sources(mbed-os PRIVATE ${LIB_FILE})
+    target_sources(mbed-os-emac PRIVATE ${LIB_FILE})
 endfunction()
 
 _mbed_get_lib_file_uno_91h()

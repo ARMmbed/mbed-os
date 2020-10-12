@@ -5,15 +5,15 @@ add_subdirectory(fat)
 add_subdirectory(littlefs)
 add_subdirectory(littlefsv2)
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem
+target_include_directories(mbed-os-storage-filesystem
+    INTERFACE
+        .
+        ./include
+        ./include/filesystem
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-storage-filesystem
+    INTERFACE
         source/Dir.cpp
         source/File.cpp
         source/FileSystem.cpp

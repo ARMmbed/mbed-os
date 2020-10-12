@@ -4,8 +4,8 @@
 add_subdirectory(libraries)
 add_subdirectory(source)
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-ble
+    INTERFACE
         .
         include
         include/ble
@@ -19,4 +19,9 @@ target_include_directories(mbed-os
         include/ble/gatt
         include/ble/services
         source
+)
+
+target_compile_definitions(mbed-os-ble
+    INTERFACE
+        MBED_CONF_BLE_PRESENT=1
 )

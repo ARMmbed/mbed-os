@@ -19,10 +19,15 @@ add_subdirectory(source/ipv6_stack)
 add_subdirectory(source/libDHCPv6)
 add_subdirectory(source/libNET)
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/nanostack
-        ${CMAKE_CURRENT_SOURCE_DIR}/nanostack/platform
-        ${CMAKE_CURRENT_SOURCE_DIR}/source
+target_include_directories(mbed-os-nanostack-sal_stack
+    INTERFACE
+        .
+        ./nanostack
+        ./nanostack/platform
+        ./source
+)
+
+target_link_libraries(mbed-os-nanostack
+    INTERFACE
+        mbed-os-nanostack-coap_service
 )
