@@ -21,7 +21,7 @@ function(mbed_set_toolchain_options target)
         "-Wl,--end-group"
         "-specs=nosys.specs"
         "-T" "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
-        "-Wl,-Map=${CMAKE_BINARY_DIR}/${APP_TARGET}.map"
+        "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}.map"
         "-Wl,--cref"
     )
 
