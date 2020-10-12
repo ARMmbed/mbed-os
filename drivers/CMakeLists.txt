@@ -1,14 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(device_key)
-
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/drivers
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/drivers/internal
+        .
+        ./include
+        ./include/drivers
+        ./include/drivers/internal
 )
 
 target_sources(mbed-os
@@ -34,7 +32,6 @@ target_sources(mbed-os
         source/PwmOut.cpp
         source/QSPI.cpp
         source/ResetReason.cpp
-        source/SFDP.cpp
         source/SPI.cpp
         source/SPISlave.cpp
         source/SerialBase.cpp
@@ -45,23 +42,5 @@ target_sources(mbed-os
         source/TimerEvent.cpp
         source/UnbufferedSerial.cpp
         source/Watchdog.cpp
-
-        source/usb/AsyncOp.cpp
-        source/usb/ByteBuffer.cpp
-        source/usb/EndpointResolver.cpp
-        source/usb/LinkedListBase.cpp
-        source/usb/OperationListBase.cpp
-        source/usb/PolledQueue.cpp
-        source/usb/TaskBase.cpp
-        source/usb/USBAudio.cpp
-        source/usb/USBCDC.cpp
-        source/usb/USBCDC_ECM.cpp
-        source/usb/USBDevice.cpp
-        source/usb/USBHID.cpp
-        source/usb/USBKeyboard.cpp
-        source/usb/USBMIDI.cpp
-        source/usb/USBMSD.cpp
-        source/usb/USBMouse.cpp
-        source/usb/USBMouseKeyboard.cpp
-        source/usb/USBSerial.cpp
 )
+

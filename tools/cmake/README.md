@@ -4,9 +4,9 @@ In order to [replace the traditional Mbed tools](https://os.mbed.com/blog/entry/
 
 This is still at the experimental stage and still in development. It does not yet completely replace our current build tools. If you find a bug, please report it or raise a pull request as contributions are welcome!
 
-Mbed OS is built as collection of all libraries supported by a given Mbed target. Application project executables can be linked with the monolithic `mbed-os` library to build Mbed applications.
+Mbed OS is built as collection of all core libraries. Application project executables can be linked with the `mbed-os` library (which includes the core libraries of Mbed OS) and optional `mbed-os-` prefixed libraries depending on the additional features required by the projects and supported by the Mbed target.
 
-We are currently working to break down the `mbed-os` library into several individual libraries that applications can selectively choose to include depending on their needs.
+The list of optional libraries for each component can be seen in the CMake input source file at the root of each component directory.
 
 The following features are not yet supported and will be progressively added:
 * Application profile selection (`bare metal`)

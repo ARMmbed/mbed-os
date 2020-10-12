@@ -9,9 +9,9 @@ function(_mbed_get_libcc_310_ext)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIBCC_310_EXT TOOLCHAIN_IAR/lib_cc310_ext.a)
     endif()
-    target_link_libraries(mbed-os
-        PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
+    target_link_libraries(mbed-os-mbedtls-cryptocell310
+        INTERFACE
+            ./${LIBCC_310_EXT}
     )
 endfunction()
 
@@ -23,21 +23,21 @@ function(_mbed_get_libcc_310_trng)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(LIBCC_310_TRNG TOOLCHAIN_IAR/lib_cc310_trng.a)
     endif()
-    target_link_libraries(mbed-os
-        PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
+    target_link_libraries(mbed-os-mbedtls-cryptocell310
+        INTERFACE
+            ./${LIBCC_310_TRNG}
     )
 endfunction()
 
 _mbed_get_libcc_310_ext()
 _mbed_get_libcc_310_trng()
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(mbed-os-mbedtls-cryptocell310
+    INTERFACE
+        .
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-mbedtls-cryptocell310
+    INTERFACE
         crypto_device_platform.c
 )
