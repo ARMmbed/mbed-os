@@ -1,16 +1,21 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/netsocket
+# TODO CMake: Perhaps move this/these file(s)
+target_sources(mbed-os-cellular
+    INTERFACE
+        source/CellularNonIPSocket.cpp
 )
 
-target_sources(mbed-os
-    PRIVATE
-        source/CellularNonIPSocket.cpp
+target_include_directories(mbed-os-netsocket
+    INTERFACE
+        .
+        ./include
+        ./include/netsocket
+)
+
+target_sources(mbed-os-netsocket
+    INTERFACE
         source/DTLSSocket.cpp
         source/DTLSSocketWrapper.cpp
         source/EMACInterface.cpp
@@ -33,4 +38,30 @@ target_sources(mbed-os
         source/WiFiAccessPoint.cpp
         source/nsapi_dns.cpp
         source/nsapi_ppp.cpp
+)
+
+target_compile_definitions(mbed-os-netsocket
+    INTERFACE
+        MBED_CONF_NETSOCKET_PRESENT=1
+        MBED_CONF_CMAKE_NETSOCKET_ENABLED=1
+)
+
+target_link_libraries(mbed-os-netsocket
+    INTERFACE
+        mbed-os-mbedtls
+        mbed-os-lwipstack
+        mbed-os-events
+)
+
+if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    target_link_libraries(mbed-os-netsocket
+        INTERFACE
+            mbed-os-emac
+    )
+endif()
+
+target_link_libraries(mbed-os-netsocket
+    INTERFACE
+        mbed-os-cellular
+        mbed-os-nanostack-libservice
 )

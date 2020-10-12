@@ -1,8 +1,33 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("FEATURE")
+# List of all connectivity libraries available.
+add_library(mbed-os-802.15.4-rf INTERFACE)
+add_library(mbed-os-ble INTERFACE)
+add_library(mbed-os-ble-blue_nrg INTERFACE)
+add_library(mbed-os-ble-cordio INTERFACE)
+add_library(mbed-os-ble-cordio_ll INTERFACE)
+add_library(mbed-os-cellular INTERFACE)
+add_library(mbed-os-coap INTERFACE)
+add_library(mbed-os-emac INTERFACE)
+add_library(mbed-os-lorawan INTERFACE)
+add_library(mbed-os-lwipstack INTERFACE)
+add_library(mbed-os-mbedtls INTERFACE)
+add_library(mbed-os-mbedtls-cryptocell310 INTERFACE)
+add_library(mbed-os-nanostack INTERFACE)
+add_library(mbed-os-nanostack-coap_service INTERFACE)
+add_library(mbed-os-nanostack-mbed_mesh_api INTERFACE)
+add_library(mbed-os-nanostack-hal_mbed_cmsis_rtos INTERFACE)
+add_library(mbed-os-nanostack-sal_stack INTERFACE)
+add_library(mbed-os-nanostack-sal_stack-event_loop INTERFACE)
+add_library(mbed-os-nanostack-libservice INTERFACE)
+add_library(mbed-os-netsocket INTERFACE)
+add_library(mbed-os-nfc INTERFACE)
+add_library(mbed-os-ppp INTERFACE)
+add_library(mbed-os-wifi INTERFACE)
 
+
+add_subdirectory(FEATURE_BLE)
 add_subdirectory(cellular)
 add_subdirectory(drivers)
 add_subdirectory(libraries)
@@ -12,8 +37,3 @@ add_subdirectory(mbedtls)
 add_subdirectory(nanostack)
 add_subdirectory(netsocket)
 add_subdirectory(nfc)
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-)

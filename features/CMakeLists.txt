@@ -1,11 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("FEATURE")
+# List of all features libraries available.
+add_library(mbed-os-fpga-ci-test-shield INTERFACE)
+add_library(mbed-os-client-cli INTERFACE)
 
+add_subdirectory(frameworks/COMPONENT_FPGA_CI_TEST_SHIELD)
 add_subdirectory(frameworks/mbed-client-cli)
-
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-)

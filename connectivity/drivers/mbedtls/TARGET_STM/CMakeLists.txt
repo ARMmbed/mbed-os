@@ -1,10 +1,26 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("TARGET_STM32F437xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F437xG)
+elseif("STM32F439xI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F439xI)
+elseif("STM32F756xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F756xG)
+elseif("STM32L443xC" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L443xC)
+elseif("STM32L486xG" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L486xG)
+elseif("STM32L4S5xI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L4S5xI)
+elseif("STM32L562xx" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32L562xx)
+elseif("STM32WB55xx" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32WB55xx)
+endif()
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-mbedtls
+    INTERFACE
         aes_alt.cpp
         aes_alt_stm32l4.c
         ccm_alt.cpp
@@ -16,7 +32,7 @@ target_sources(mbed-os
         sha256_alt.cpp
 )
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(mbed-os-mbedtls
+    INTERFACE
+        .
 )

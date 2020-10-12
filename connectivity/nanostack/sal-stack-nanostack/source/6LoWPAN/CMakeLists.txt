@@ -1,8 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-nanostack-sal_stack
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/Bootstraps
         ${CMAKE_CURRENT_SOURCE_DIR}/Fragmentation
@@ -15,8 +15,8 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/ws
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-nanostack-sal_stack
+    INTERFACE
         adaptation_interface.c
 
         Bootstraps/Generic/network_lib.c
