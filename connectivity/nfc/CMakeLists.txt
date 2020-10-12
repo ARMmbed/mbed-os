@@ -3,8 +3,8 @@
 
 add_subdirectory(libraries)
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-nfc
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc
@@ -12,8 +12,8 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc/ndef/common
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-nfc
+    INTERFACE
         source/NFCController.cpp
         source/NFCControllerDriver.cpp
         source/NFCEEPROM.cpp
@@ -33,4 +33,14 @@ target_sources(mbed-os
         source/ndef/common/Text.cpp
         source/ndef/common/URI.cpp
         source/ndef/common/util.cpp
+)
+
+target_compile_definitions(mbed-os-nfc
+    INTERFACE
+        MBED_CONF_NFC_PRESENT=1
+)
+
+target_link_libraries(mbed-os-nfc
+    INTERFACE
+        mbed-os-events
 )

@@ -1,8 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-ble-cordio
+    INTERFACE
         include
         sources/hci/dual_chip
         sources/sec/common
@@ -14,8 +14,8 @@ target_include_directories(mbed-os
         sources/stack/smp
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-ble-cordio
+    INTERFACE
         sources/hci/common/hci_core.c
 
         sources/hci/dual_chip/hci_cmd.c

@@ -1,4 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("TFM_V1_0" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_TFM_V1_0)
+endif()
+
+if("TFM_V1_1" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_TFM_V1_1)
+endif()

@@ -1,17 +1,23 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("TFM_DUALCPU" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_TFM_DUALCPU)
+endif()
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/psa
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/psa_manifest
+if("TFM_V8M" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_TFM_V8M)
+endif()
+
+target_include_directories(mbed-os-psa
+    INTERFACE
+        ./include
+        ./include/psa
+        ./include/psa_manifest
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-psa
+    INTERFACE
         src/tfm_crypto_ipc_api.c
         src/tfm_initial_attestation_ipc_api.c
         src/tfm_its_ipc_api.c

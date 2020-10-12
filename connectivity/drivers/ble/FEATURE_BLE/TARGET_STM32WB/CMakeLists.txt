@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/STM32Cube_FW
+target_include_directories(mbed-os-ble
+    INTERFACE
+        .
+        ./STM32Cube_FW
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-ble
+    INTERFACE
         HCIDriver.cpp
         hw_ipcc.c
 

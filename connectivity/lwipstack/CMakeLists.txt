@@ -1,19 +1,19 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/lwipstack
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip/src/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip/src/include/lwip
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip-sys
-        ${CMAKE_CURRENT_SOURCE_DIR}/lwip-sys/arch
+target_include_directories(mbed-os-lwipstack
+    INTERFACE
+        .
+        ./include
+        ./include/lwipstack
+        ./lwip/src/include
+        ./lwip/src/include/lwip
+        ./lwip-sys
+        ./lwip-sys/arch
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-lwipstack
+    INTERFACE
         lwip/src/api/lwip_api_lib.c
         lwip/src/api/lwip_api_msg.c
         lwip/src/api/lwip_err.c
@@ -85,4 +85,16 @@ target_sources(mbed-os
         source/LWIPMemoryManager.cpp
         source/LWIPStack.cpp
         source/lwip_tools.cpp
+)
+
+target_compile_definitions(mbed-os-lwipstack
+    INTERFACE
+        MBED_CONF_LWIPSTACK_PRESENT=1
+)
+
+target_link_libraries(mbed-os-lwipstack
+    INTERFACE
+        mbed-os-netsocket
+        mbed-os-ppp
+        mbed-os-randlib
 )
