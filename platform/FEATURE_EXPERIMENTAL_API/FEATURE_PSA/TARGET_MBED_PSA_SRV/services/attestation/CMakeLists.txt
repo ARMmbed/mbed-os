@@ -1,19 +1,19 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/qcbor
-        ${CMAKE_CURRENT_SOURCE_DIR}/qcbor/inc
-        ${CMAKE_CURRENT_SOURCE_DIR}/qcbor/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/tfm_impl
-        ${CMAKE_CURRENT_SOURCE_DIR}/tfm_impl/t_cose/inc
-        ${CMAKE_CURRENT_SOURCE_DIR}/tfm_impl/t_cose/src
+target_include_directories(mbed-os-psa
+    INTERFACE
+        .
+        ./qcbor
+        ./qcbor/inc
+        ./qcbor/src
+        ./tfm_impl
+        ./tfm_impl/t_cose/inc
+        ./tfm_impl/t_cose/src
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-psa
+    INTERFACE
         attest_boot_status_loader.c
         attest_crypto.c
         attest_crypto_keys.c

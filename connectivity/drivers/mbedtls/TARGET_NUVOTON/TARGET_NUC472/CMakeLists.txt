@@ -1,18 +1,20 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("NUMAKER_PFM_NUC472" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUMAKER_PFM_NUC472)
+endif()
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/aes
-        ${CMAKE_CURRENT_SOURCE_DIR}/des
-        ${CMAKE_CURRENT_SOURCE_DIR}/sha
+target_include_directories(mbed-os-mbedtls
+    INTERFACE
+        .
+        ./aes
+        ./des
+        ./sha
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-mbedtls
+    INTERFACE
         aes/aes_alt.c
 
         des/des_alt.c

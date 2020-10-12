@@ -1,4 +1,10 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("COMPONENT")
+if("SCL" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_SCL)
+endif()
+
+if("WHD" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_WHD)
+endif()
