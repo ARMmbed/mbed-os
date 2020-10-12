@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/interface
-        ${CMAKE_CURRENT_SOURCE_DIR}/network
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils
+target_include_directories(mbed-os-emac
+    INTERFACE
+        .
+        ./interface
+        ./network
+        ./utils
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-emac
+    INTERFACE
         interface/CyDhcpServer.cpp
         interface/WhdAccessPoint.cpp
         interface/WhdSTAInterface.cpp

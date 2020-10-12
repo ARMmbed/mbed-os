@@ -1,17 +1,40 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("COMPONENT")
+if("DATAFLASH" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_DATAFLASH)
+endif()
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/blockdevice
+if("FLASHIAP" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_FLASHIAP)
+endif()
+
+if("I2CEE" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_I2CEE)
+endif()
+
+if("QSPIF" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_QSPIF)
+endif()
+
+if("SD" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_SD)
+endif()
+
+if("SPIF" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_SPIF)
+endif()
+
+
+target_include_directories(mbed-os-storage-blockdevice
+    INTERFACE
+        .
+        ./include
+        ./include/blockdevice
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-storage-blockdevice
+    INTERFACE
         source/BufferedBlockDevice.cpp
         source/ChainingBlockDevice.cpp
         source/ExhaustibleBlockDevice.cpp

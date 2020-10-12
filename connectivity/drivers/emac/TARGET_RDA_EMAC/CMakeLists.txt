@@ -3,13 +3,13 @@
 
 add_subdirectory(lwip-wifi)
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-emac
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-emac
+    INTERFACE
         RdaWiFiInterface.cpp
         rda5981x_emac.cpp
 )

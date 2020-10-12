@@ -1,16 +1,16 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/polarssl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/ppp
+target_include_directories(mbed-os-ppp
+    INTERFACE
+        .
+        ./include
+        ./include/polarssl
+        ./include/ppp
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-ppp
+    INTERFACE
         source/auth.c
         source/ccp.c
         source/chap-md5.c
@@ -44,4 +44,9 @@ target_sources(mbed-os
         source/polarssl/ppp_md4.c
         source/polarssl/ppp_md5.c
         source/polarssl/ppp_sha1.c
+)
+
+target_compile_definitions(mbed-os-ppp
+    INTERFACE
+        MBED_CONF_PPP_PRESENT=1
 )

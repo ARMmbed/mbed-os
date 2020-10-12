@@ -1,9 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("ARCH_MAX" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_ARCH_MAX)
+elseif("NUCLEO_F429ZI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUCLEO_F429ZI)
+elseif("NUCLEO_F439ZI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUCLEO_F439ZI)
+endif()
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(mbed-os-emac
+    INTERFACE
+        .
 )

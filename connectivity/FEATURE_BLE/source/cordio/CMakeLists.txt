@@ -1,15 +1,15 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-ble-cordio
+    INTERFACE
         .
         source
         stack_adaptation
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-ble-cordio
+    INTERFACE
         driver/CordioHCIDriver.cpp
         driver/CordioHCITransportDriver.cpp
         driver/H4TransportDriver.cpp

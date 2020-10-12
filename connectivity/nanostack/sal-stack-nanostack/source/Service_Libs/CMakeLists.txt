@@ -1,8 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-    PUBLIC
+target_include_directories(mbed-os-nanostack-sal_stack
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/Neighbor_cache
         ${CMAKE_CURRENT_SOURCE_DIR}/Trickle
@@ -34,8 +34,8 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/whiteboard
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-nanostack-sal_stack
+    INTERFACE
         CCM_lib/ccm_security.c
 
         CCM_lib/mbedOS/aes_mbedtls_adapter.c

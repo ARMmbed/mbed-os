@@ -1,19 +1,22 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("MCU_NRF52840" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_MCU_NRF52840)
+endif()
+
 add_subdirectory(binaries)
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cryptocell310/internal
+target_include_directories(mbed-os-mbedtls-cryptocell310
+    INTERFACE
+        .
+        ./include
+        ./include/cryptocell310
+        ./include/cryptocell310/internal
 )
 
-target_sources(mbed-os
-    PRIVATE
+target_sources(mbed-os-mbedtls-cryptocell310
+    INTERFACE
         source/aes_alt.c
         source/cc_internal.c
         source/ccm_alt.c
@@ -24,4 +27,9 @@ target_sources(mbed-os
         source/sha256_alt.c
         source/sha512_alt.c
         source/trng.c
+)
+
+target_link_libraries(mbed-os-mbedtls-cryptocell310
+    INTERFACE
+        mbed-os-mbedtls
 )
