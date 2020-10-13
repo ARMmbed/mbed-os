@@ -85,7 +85,7 @@ static uint32_t              sn_coap_calculate_new_resend_time(const uint32_t cu
 static uint16_t              read_packet_msg_id(const coap_send_msg_s *stored_msg);
 static uint16_t              get_new_message_id(void);
 
-static bool                  compare_address_and_port(const sn_nsdl_addr_s* left, const sn_nsdl_addr_s* right);
+static bool                  compare_port(const sn_nsdl_addr_s* left, const sn_nsdl_addr_s* right);
 
 /* * * * * * * * * * * * * * * * * */
 /* * * * GLOBAL DECLARATIONS * * * */
@@ -829,10 +829,8 @@ cleanup:
 
         /* Get node count i.e. count of active resending messages */
         uint16_t stored_resending_msgs_count = handle->count_resent_msgs;
-
         /* Check if there is ongoing active message resendings */
         if (stored_resending_msgs_count > 0) {
-
             /* Remove resending message from active message resending Linked list, if any exists */
             sn_coap_protocol_linked_list_send_msg_remove(handle, src_addr_ptr, returned_dst_coap_msg_ptr->msg_id);
         }
@@ -1013,13 +1011,12 @@ static void sn_coap_protocol_linked_list_send_msg_remove(struct coap_s *handle, 
     ns_list_foreach(coap_send_msg_s, stored_msg_ptr, &handle->linked_list_resent_msgs) {
         /* Get message ID from stored resending message */
         uint16_t temp_msg_id = read_packet_msg_id(stored_msg_ptr);
-
         /* If message's Message ID is same than is searched */
         if (temp_msg_id == msg_id) {
             /* If message's Source address and port is same than is searched */
-            if (compare_address_and_port(src_addr_ptr, &stored_msg_ptr->send_msg_ptr.dst_addr_ptr)) {
-                /* * * Message found * * */
 
+            if (compare_port(src_addr_ptr, &stored_msg_ptr->send_msg_ptr.dst_addr_ptr)) {
+                /* * * Message found * * */
                 /* Remove message from Linked list */
                 ns_list_remove(&handle->linked_list_resent_msgs, stored_msg_ptr);
                 --handle->count_resent_msgs;
@@ -1142,7 +1139,7 @@ static coap_duplication_info_s* sn_coap_protocol_linked_list_duplication_info_se
         /* If message's Message ID is same than is searched */
         if (stored_duplication_info_ptr->msg_id == msg_id) {
             /* If message's Source address & port is same than is searched */
-            if (compare_address_and_port(addr_ptr, stored_duplication_info_ptr->address)) {
+            if (compare_port(addr_ptr, stored_duplication_info_ptr->address)) {
                 /* * * Correct Duplication info found * * * */
                 return stored_duplication_info_ptr;
             }
@@ -1911,7 +1908,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 // Response with COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE if the payload size is more than we can handle
                 if (received_coap_msg_ptr->options_list_ptr->size1 > SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE) {
                     // Include maximum size that stack can handle into response
-                    tr_error("sn_coap_handle_blockwise_message - (recv block1) COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE!");
+                    tr_info("sn_coap_handle_blockwise_message - (recv block1) entity too large");
                     src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE;
                 }
                 else {
@@ -1924,7 +1921,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
 
                     if (block_size >  handle->sn_coap_block_data_size) {
                          // Include maximum size that stack can handle into response
-                         tr_error("sn_coap_handle_blockwise_message - (recv block1) COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE!");
+                        tr_info("sn_coap_handle_blockwise_message - (recv block1) entity too large");
                          src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE;
                          src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1 = handle->sn_coap_block_data_size;
                     }
@@ -2217,11 +2214,17 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 */
                 if (src_coap_blockwise_ack_msg_ptr->options_list_ptr &&
                     src_coap_blockwise_ack_msg_ptr->options_list_ptr->observe != COAP_OBSERVE_NONE) {
-                    if (received_coap_msg_ptr->token_len && src_coap_blockwise_ack_msg_ptr->token_ptr) {
+                    if (src_coap_blockwise_ack_msg_ptr->token_ptr) {
                         handle->sn_coap_protocol_free(src_coap_blockwise_ack_msg_ptr->token_ptr);
-                        src_coap_blockwise_ack_msg_ptr->token_ptr = sn_coap_protocol_malloc_copy(handle, received_coap_msg_ptr->token_ptr, received_coap_msg_ptr->token_len);
-                        if (src_coap_blockwise_ack_msg_ptr->token_ptr) {
-                            src_coap_blockwise_ack_msg_ptr->token_len = received_coap_msg_ptr->token_len;
+                        if (received_coap_msg_ptr->token_len) {
+                            src_coap_blockwise_ack_msg_ptr->token_ptr = sn_coap_protocol_malloc_copy(handle, received_coap_msg_ptr->token_ptr, received_coap_msg_ptr->token_len);
+                            if (src_coap_blockwise_ack_msg_ptr->token_ptr) {
+                                src_coap_blockwise_ack_msg_ptr->token_len = received_coap_msg_ptr->token_len;
+                            }
+                        }
+                        else {
+                            src_coap_blockwise_ack_msg_ptr->token_ptr = NULL;
+                            src_coap_blockwise_ack_msg_ptr->token_len = 0;
                         }
                     }
                 }
@@ -2515,14 +2518,11 @@ void *sn_coap_protocol_calloc(struct coap_s *handle, uint16_t length)
     return result;
 }
 
-static bool compare_address_and_port(const sn_nsdl_addr_s* left, const sn_nsdl_addr_s* right)
+static bool compare_port(const sn_nsdl_addr_s* left, const sn_nsdl_addr_s* right)
 {
     bool match = false;
-
     if (left->port == right->port) {
-        if (0 == memcmp(left->addr_ptr, right->addr_ptr, left->addr_len)) {
-            match = true;
-        }
+        match = true;
     }
 
     return match;
