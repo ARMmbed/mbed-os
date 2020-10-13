@@ -50,6 +50,8 @@ Only add LEDs that are available on the board. This is an example on how to defi
     .  
     #define LEDN = Px_xx   // LEDN
 
+Note this document is proposing changing LEDs from `enums` to `define`, which causes a minor change in the compile preprocessor. From application point of view, there are no implications.
+
 **Using LEDs at application**
 
 The detection of available LEDs at application level can be done as follow:
@@ -87,6 +89,8 @@ Only add buttons that are available on the board. This is an example on how to d
     .  
     #define BUTTONN = Px_xx   // BUTTONN  
 
+Note this document is proposing changing buttons from `enums` to `define`, which causes a minor change in the compile preprocessor. From application point of view, there are no implications.
+
 **Using Buttons at application**
 
 The detection of available buttons at application level can be done as follow:
@@ -116,9 +120,15 @@ The UART pins must be defined to be able to run automated tests using Greentea, 
 
 This is an example on how to define UART names in PinNames.h:
 
+    typedef enum {
+    ...
     // Px_xx relates to the processor pin connected to the UART
     USBTX       = Px_xx,
     USBRX       = Px_xx,
+    ...
+    } PinName;
+
+Note this document is proposing unifying the pin names used for UART communication between the MCU and the host PC.
 
 Note Mbed OS expects to use these names internally (a fix might be needed during the implementation), for example:
 
