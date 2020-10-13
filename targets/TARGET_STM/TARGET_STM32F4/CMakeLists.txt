@@ -1,6 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if("STM32F401xE" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F401xE)
+elseif("STM32F439xI" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F439xI)    
+endif()
+
 target_sources(mbed-os
     PRIVATE
         analogin_device.c
@@ -15,7 +21,6 @@ target_sources(mbed-os
 )
 
 add_subdirectory(STM32Cube_FW)
-mbed_add_cmake_directory_if_labels("TARGET")
 
 target_include_directories(mbed-os
     PUBLIC
