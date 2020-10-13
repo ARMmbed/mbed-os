@@ -171,9 +171,6 @@ ble_error_t BLEInstanceBase::shutdown()
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
 
-    initialization_status = NOT_INITIALIZED;
-    _hci_driver->terminate();
-
 #if BLE_FEATURE_GATT_SERVER
     getGattServer().reset();
 #endif
@@ -184,6 +181,9 @@ ble_error_t BLEInstanceBase::shutdown()
 
     getGap().reset();
     _event_queue.clear();
+
+    initialization_status = NOT_INITIALIZED;
+    _hci_driver->terminate();
 
     return BLE_ERROR_NONE;
 }
