@@ -544,6 +544,7 @@ nsapi_error_t AT_CellularContext::find_and_activate_context()
         delete_current_context();
     } else if (err == NSAPI_ERROR_OK) {
         _is_context_active = true;
+        _is_context_activated = true;
     }
 
     _at.unlock();
@@ -755,8 +756,9 @@ void AT_CellularContext::check_and_deactivate_context()
     rat = reg_params._act;
     // 3GPP TS 27.007:
     // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
-    if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
+    if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || rat == CellularNetwork::RAT_NB1 || active_contexts_count > 1)) {
         _at.clear_error();
+
         deactivate_context();
     }
 
