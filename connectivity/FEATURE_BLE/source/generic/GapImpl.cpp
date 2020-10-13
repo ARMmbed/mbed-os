@@ -340,13 +340,13 @@ Gap::Gap(
     ble::PalGap &pal_gap,
     ble::PalGenericAccessService &generic_access_service
 #if BLE_FEATURE_PRIVACY
-    , ble::PrivateAddressController &pal_addr_reg
+    , ble::PrivateAddressController &private_address_controller
 #endif //BLE_FEATURE_PRIVACY
 ) : _event_queue(event_queue),
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
 #if BLE_FEATURE_PRIVACY
-    _address_registry(pal_addr_reg),
+    _private_address_controller(private_address_controller),
 #endif // BLE_FEATURE_PRIVACY
     _address_type(own_address_type_t::PUBLIC),
     _initiator_policy_mode(initiator_policy_t::NO_FILTER),
@@ -378,7 +378,7 @@ Gap::Gap(
 
     _pal_gap.set_event_handler(this);
 #if BLE_FEATURE_PRIVACY
-    _address_registry.set_event_handler(this);
+    _private_address_controller.set_event_handler(this);
 #endif // BLE_FEATURE_PRIVACY
 }
 
@@ -973,9 +973,9 @@ ble_error_t Gap::enablePrivacy(bool enable)
     _privacy_enabled = enable;
 
     if (_privacy_enabled) {
-        _address_registry.start_private_address_generation();
-        if (_address_registry.get_non_resolvable_private_address() != address_t {} &&
-            _address_registry.get_resolvable_private_address() != address_t{}
+        _private_address_controller.start_private_address_generation();
+        if (_private_address_controller.get_non_resolvable_private_address() != address_t {} &&
+            _private_address_controller.get_resolvable_private_address() != address_t{}
         ) {
             _event_queue.post([this] {
                if (_event_handler) {
@@ -986,12 +986,12 @@ ble_error_t Gap::enablePrivacy(bool enable)
             _privacy_initialization_pending = true;
         }
     } else {
-        _address_registry.stop_private_address_generation();
+        _private_address_controller.stop_private_address_generation();
         _privacy_initialization_pending = false;
     }
 
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    if (_address_registry.is_controller_privacy_supported()) {
+    if (_private_address_controller.is_controller_privacy_supported()) {
         update_ll_address_resolution_setting();
     }
 #endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -1010,7 +1010,7 @@ ble_error_t Gap::setPeripheralPrivacyConfiguration(
     _peripheral_privacy_configuration = *configuration;
 
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    if (_address_registry.is_controller_privacy_supported()) {
+    if (_private_address_controller.is_controller_privacy_supported()) {
         update_ll_address_resolution_setting();
     }
 #endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -1038,7 +1038,7 @@ ble_error_t Gap::setCentralPrivacyConfiguration(
     _central_privacy_configuration = *configuration;
 
 #if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
-    if (_address_registry.is_controller_privacy_supported()) {
+    if (_private_address_controller.is_controller_privacy_supported()) {
         update_ll_address_resolution_setting();
     }
 #endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
@@ -1589,7 +1589,7 @@ ble_error_t Gap::update_ll_address_resolution_setting()
 #endif // BLE_ROLE_OBSERVER
     }
 
-    return _address_registry.enable_controller_address_resolution(enable);
+    return _private_address_controller.enable_controller_address_resolution(enable);
 }
 #endif // BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
@@ -2451,7 +2451,7 @@ void Gap::signal_connection_complete(
 
     /* first try to resolve synchronously in cache */
     if (!address_resolved) {
-        address_resolved = _address_registry.resolve_address_in_host_cache(
+        address_resolved = _private_address_controller.resolve_address_in_host_cache(
             event.getPeerAddress(),
             &peer_address_type,
             &peer_address
@@ -2476,7 +2476,7 @@ void Gap::signal_connection_complete(
         _event_handler->onConnectionComplete(event);
     } else {
         bool resolution_pending = false;
-        ble_error_t ret = _address_registry.queue_resolve_address_on_host(event.getPeerAddress());
+        ble_error_t ret = _private_address_controller.queue_resolve_address_on_host(event.getPeerAddress());
 
         if (ret == BLE_ERROR_NONE) {
             ConnectionCompleteEvent* event_copy = new(std::nothrow) ConnectionCompleteEvent(event);
@@ -2532,7 +2532,7 @@ bool Gap::apply_peripheral_privacy_connection_policy(
     switch (_peripheral_privacy_configuration.resolution_strategy) {
         case peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS:
             /* if there is no bond then allow unresolved addresses */
-            if (_address_registry.read_resolving_list_size() == 0) {
+            if (_private_address_controller.read_resolving_list_size() == 0) {
                 return true;
             }
             _pal_gap.disconnect(
@@ -2576,7 +2576,7 @@ void Gap::conclude_signal_connection_complete_after_address_resolution(
     if (identity_address) {
         /* move old address to resolvable address */
         event.setPeerResolvablePrivateAddress(event.getPeerAddress());
-        event.setLocalResolvablePrivateAddress(_address_registry.get_resolvable_private_address());
+        event.setLocalResolvablePrivateAddress(_private_address_controller.get_resolvable_private_address());
 
         event.setPeerAddress(*identity_address);
         event.setPeerAddressType(identity_address_type == target_peer_address_type_t::RANDOM ?
@@ -2616,7 +2616,7 @@ void Gap::signal_advertising_report(
         const address_t *peer_address = nullptr;
         target_peer_address_type_t peer_address_type(target_peer_address_type_t::RANDOM);
 
-        address_resolved = _address_registry.resolve_address_in_host_cache(
+        address_resolved = _private_address_controller.resolve_address_in_host_cache(
             event.getPeerAddress(),
             &peer_address_type,
             &peer_address
@@ -2663,7 +2663,7 @@ void Gap::signal_advertising_report(
 
         /* if there is already an item with the same address pending don't kick off resolution*/
         if (!duplicate_pending_event) {
-            ret = _address_registry.queue_resolve_address_on_host(event.getPeerAddress());
+            ret = _private_address_controller.queue_resolve_address_on_host(event.getPeerAddress());
         }
 
         if (ret == BLE_ERROR_NONE) {
@@ -2678,7 +2678,7 @@ void Gap::signal_advertising_report(
     }
 #else
     /* filter out unresolved address if at least one bond exists */
-    if (_address_registry.read_resolving_list_size() > 0 &&
+    if (_private_address_controller.read_resolving_list_size() > 0 &&
         _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::RESOLVE_AND_FILTER &&
         event.getPeerAddressType() != peer_address_type_t::PUBLIC &&
         is_random_private_resolvable_address(event.getPeerAddress())) {
@@ -2724,7 +2724,7 @@ void Gap::conclude_signal_advertising_report_after_address_resolution(
         event.setPeerAddressType(peer_address_type);
     } else if (_central_privacy_configuration.resolution_strategy ==
         central_privacy_configuration_t::RESOLVE_AND_FILTER &&
-        _address_registry.read_resolving_list_size() > 0) {
+        _private_address_controller.read_resolving_list_size() > 0) {
         /* filter out unresolved address if at least one bond exists */
         return;
     }
@@ -3333,8 +3333,8 @@ void Gap::on_private_address_generated(bool connectable)
     }
 
     if (_privacy_initialization_pending &&
-        _address_registry.get_resolvable_private_address() != address_t{} &&
-        _address_registry.get_non_resolvable_private_address() != address_t{}
+        _private_address_controller.get_resolvable_private_address() != address_t{} &&
+        _private_address_controller.get_non_resolvable_private_address() != address_t{}
     ) {
         _privacy_initialization_pending = false;
         if (_event_handler) {
@@ -3475,8 +3475,8 @@ const address_t *Gap::get_random_address(controller_operation_t operation, size_
     }
 
 #if BLE_FEATURE_PRIVACY
-    const auto &resolvable_address = _address_registry.get_resolvable_private_address();
-    const auto &non_resolvable_address = _address_registry.get_non_resolvable_private_address();
+    const auto &resolvable_address = _private_address_controller.get_resolvable_private_address();
+    const auto &non_resolvable_address = _private_address_controller.get_non_resolvable_private_address();
 
 #if BLE_ROLE_OBSERVER
     bool central_non_resolvable = _central_privacy_configuration.use_non_resolvable_random_address;

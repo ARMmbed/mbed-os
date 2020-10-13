@@ -555,7 +555,7 @@ private:
         ble::PalGap &pal_gap,
         ble::PalGenericAccessService &generic_access_service
 #if BLE_FEATURE_PRIVACY
-        , ble::PrivateAddressController &pal_addr_reg
+        , ble::PrivateAddressController &private_address_controller
 #endif // BLE_FEATURE_PRIVACY
     );
 
@@ -874,7 +874,7 @@ private:
     PalGap &_pal_gap;
     PalGenericAccessService &_gap_service;
 #if BLE_FEATURE_PRIVACY
-    PrivateAddressController &_address_registry;
+    PrivateAddressController &_private_address_controller;
 #endif // BLE_FEATURE_PRIVACY
     ble::own_address_type_t _address_type;
     initiator_policy_t _initiator_policy_mode;
