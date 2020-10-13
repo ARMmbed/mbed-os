@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+#if BLE_FEATURE_SECURITY
+
 #include <cstring>
 
 #include "ble/common/BLERoles.h"
@@ -789,3 +791,5 @@ PalSecurityManagerEventHandler *PalSecurityManager::get_event_handler()
 
 } // namespace impl
 } // namespace ble
+
+#endif // BLE_FEATURE_SECURITY

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+#if BLE_FEATURE_SECURITY
+
 #include "ble/BLE.h"
 #include "ble/common/BLERoles.h"
 
@@ -136,7 +138,7 @@ ble_error_t SecurityManager::init(
     // set the local identity address and irk
     if (result == BLE_ERROR_NONE) {
     	result = init_identity();
-    } 
+    }
 #endif // BLE_FEATURE_PRIVACY
 
     if (result != BLE_ERROR_NONE) {
@@ -739,7 +741,7 @@ ble_error_t SecurityManager::getSigningKey(connection_handle_t connection, bool 
 // Privacy
 //
 
-
+#if BLE_FEATURE_PRIVACY
 ble_error_t SecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds)
 {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -748,6 +750,7 @@ ble_error_t SecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_second
     );
     return BLE_ERROR_NONE;
 }
+#endif // BLE_FEATURE_PRIVACY
 
 ////////////////////////////////////////////////////////////////////////////
 // Authentication
@@ -980,7 +983,7 @@ ble_error_t SecurityManager::init_database(
     return BLE_ERROR_NONE;
 }
 
-
+#if BLE_FEATURE_PRIVACY
 ble_error_t SecurityManager::init_resolving_list()
 {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -1006,8 +1009,9 @@ ble_error_t SecurityManager::init_resolving_list()
 
     return BLE_ERROR_NONE;
 }
+#endif // BLE_FEATURE_PRIVACY
 
-
+#if BLE_FEATURE_SIGNING
 ble_error_t SecurityManager::init_signing()
 {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -1028,8 +1032,9 @@ ble_error_t SecurityManager::init_signing()
 
     return _pal.set_csrk(*pcsrk, local_sign_counter);
 }
+#endif // BLE_FEATURE_SIGNING
 
-
+#if BLE_FEATURE_PRIVACY
 ble_error_t SecurityManager::init_identity()
 {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -1076,7 +1081,7 @@ ble_error_t SecurityManager::init_identity()
     }
     return err;
 }
-
+#endif // BLE_FEATURE_PRIVACY
 
 ble_error_t SecurityManager::get_random_data(uint8_t *buffer, size_t size)
 {
@@ -1383,6 +1388,7 @@ void SecurityManager::on_identity_list_retrieved(
 {
     typedef advertising_peer_address_type_t address_type_t;
 
+#if BLE_FEATURE_PRIVACY
     _private_address_controller.clear_resolving_list();
     for (size_t i = 0; i < count; ++i) {
         _private_address_controller.add_device_to_resolving_list(
@@ -1393,6 +1399,7 @@ void SecurityManager::on_identity_list_retrieved(
             identity_list[i].irk
         );
     }
+#endif // BLE_FEATURE_PRIVACY
 
     delete [] identity_list.data();
 }
@@ -2080,3 +2087,5 @@ void SecurityManager::setSecurityManagerEventHandler(EventHandler* handler)
 
 } /* namespace impl */
 } /* namespace ble */
+
+#endif // BLE_FEATURE_SECURITY

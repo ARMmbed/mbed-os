@@ -18,6 +18,8 @@
 #ifndef BLE_PAL_PRIVATE_ADDRESS_CONTROLLER_H
 #define BLE_PAL_PRIVATE_ADDRESS_CONTROLLER_H
 
+#if BLE_FEATURE_PRIVACY
+
 #include "ble/common/BLETypes.h"
 #include "ble/common/blecommon.h"
 #include "GapTypes.h"
@@ -244,5 +246,6 @@ struct PalPrivateAddressController {
 
 } // namespace ble
 
+#endif // BLE_FEATURE_PRIVACY
 
 #endif //BLE_PAL_PRIVATE_ADDRESS_CONTROLLER_H

@@ -59,10 +59,15 @@ class BLEInstanceBase;
 
 class Gap :
     public ble::PalConnectionMonitor,
-    public PalGapEventHandler,
-    public PrivateAddressController::EventHandler {
+    public PalGapEventHandler
+#if BLE_FEATURE_PRIVACY
+    , public PrivateAddressController::EventHandler
+#endif //BLE_FEATURE_PRIVACY
+    {
     friend PalConnectionMonitor;
+#if BLE_FEATURE_PRIVACY
     friend PalGapEventHandler;
+#endif //BLE_FEATURE_PRIVACY
     friend PalGap;
     friend impl::BLEInstanceBase;
 
@@ -72,17 +77,23 @@ class Gap :
 public:
     using PreferredConnectionParams_t = ::ble::Gap::PreferredConnectionParams_t ;
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
     /**
      * Default peripheral privacy configuration.
      */
     static const peripheral_privacy_configuration_t
         default_peripheral_privacy_configuration;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
     /**
      * Default peripheral privacy configuration.
      */
     static const central_privacy_configuration_t
         default_central_privacy_configuration;
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
 
 public:
     void setEventHandler(EventHandler *handler);
@@ -542,13 +553,15 @@ private:
     Gap(
         ble::PalEventQueue &event_queue,
         ble::PalGap &pal_gap,
-        ble::PalGenericAccessService &generic_access_service,
-        ble::PalSecurityManager &pal_sm,
-        ble::PrivateAddressController &pal_addr_reg
+        ble::PalGenericAccessService &generic_access_service
+#if BLE_FEATURE_PRIVACY
+        , ble::PrivateAddressController &pal_addr_reg
+#endif // BLE_FEATURE_PRIVACY
     );
 
     ~Gap();
 
+#if BLE_ROLE_BROADCASTER
     ble_error_t setAdvertisingData(
         advertising_handle_t handle,
         Span<const uint8_t> payload,
@@ -559,11 +572,15 @@ private:
     void on_advertising_timeout();
 
     void process_advertising_timeout();
+#endif // BLE_ROLE_BROADCASTER
 
     void on_gap_event_received(const GapEvent &e);
 
+#if BLE_ROLE_OBSERVER
     void on_advertising_report(const GapAdvertisingReportEvent &e);
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_CONNECTABLE
     void on_connection_complete(const GapConnectionCompleteEvent &e);
 
     void on_disconnection_complete(const GapDisconnectionCompleteEvent &e);
@@ -573,6 +590,7 @@ private:
     );
 
     void on_connection_update(const GapConnectionUpdateEvent &e);
+#endif // BLE_FEATURE_CONNECTABLE
 
     void on_unexpected_error(const GapUnexpectedErrorEvent &e);
 
@@ -585,20 +603,30 @@ private:
 
     own_address_type_t get_own_address_type(AddressUseType_t address_use_type);
 
+#if BLE_FEATURE_WHITELIST
     bool initialize_whitelist() const;
+#endif // BLE_FEATURE_WHITELIST
 
 #if BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     ble_error_t update_ll_address_resolution_setting();
 #endif // BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t setExtendedAdvertisingParameters(
         advertising_handle_t handle,
         const AdvertisingParameters &parameters
     );
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
     bool is_extended_advertising_available();
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t prepare_legacy_advertising_set(const AdvertisingParameters& parameters);
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_CONNECTABLE
     /** Call the internal handlers that report to the security manager and GATT
@@ -665,12 +693,14 @@ private:
 
     /* implements PalGap::EventHandler */
 private:
+#if BLE_FEATURE_PHY_MANAGEMENT
     void on_read_phy(
         hci_error_code_t hci_status,
         connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
     ) override;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     void on_data_length_change(
         connection_handle_t connection_handle,
@@ -678,13 +708,17 @@ private:
         uint16_t rx_size
     ) override;
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     void on_phy_update_complete(
         hci_error_code_t hci_status,
         connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
     ) override;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     void on_extended_advertising_report(
         advertising_event_t event_type,
         const connection_peer_address_type_t *address_type,
@@ -700,7 +734,9 @@ private:
         uint8_t data_length,
         const uint8_t *data
     ) override;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     void on_periodic_advertising_sync_established(
         hci_error_code_t error,
         sync_handle_t sync_handle,
@@ -722,7 +758,10 @@ private:
     ) override;
 
     void on_periodic_advertising_sync_loss(sync_handle_t sync_handle) override;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_BROADCASTER
     void on_legacy_advertising_started() override;
 
     void on_legacy_advertising_stopped() override;
@@ -741,7 +780,9 @@ private:
         connection_peer_address_type_t scanner_address_type,
         const ble::address_t &address
     ) override;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_CONNECTABLE
     void on_connection_update_complete(
         hci_error_code_t status,
         connection_handle_t connection_handle,
@@ -757,7 +798,9 @@ private:
         uint16_t connection_latency,
         uint16_t supervision_timeout
     ) override;
+#endif // BLE_FEATURE_CONNECTABLE
 
+#if BLE_ROLE_OBSERVER
     void on_scan_started(bool success) override;
 
     void on_scan_stopped(bool success) override;
@@ -765,7 +808,9 @@ private:
     void on_scan_timeout() override;
 
     void process_legacy_scan_timeout();
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_PRIVACY
     /* Implement PrivateAddressController::EventHandler */
 private:
     void on_resolvable_private_addresses_generated(const address_t &address) final;
@@ -773,14 +818,16 @@ private:
     void on_non_resolvable_private_addresses_generated(const address_t &address) final;
 
     void on_private_address_generated(bool connectable);
-#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     void on_address_resolution_completed(
         const address_t &peer_resolvable_address,
         bool resolved,
         target_peer_address_type_t identity_address_type,
         const address_t &identity_address
     ) final;
-#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_PRIVACY
 
 private:
     bool is_advertising() const;
@@ -826,8 +873,9 @@ private:
     PalEventQueue &_event_queue;
     PalGap &_pal_gap;
     PalGenericAccessService &_gap_service;
-    PalSecurityManager &_pal_sm;
+#if BLE_FEATURE_PRIVACY
     PrivateAddressController &_address_registry;
+#endif // BLE_FEATURE_PRIVACY
     ble::own_address_type_t _address_type;
     initiator_policy_t _initiator_policy_mode;
     scanning_filter_policy_t _scanning_filter_policy;
