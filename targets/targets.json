@@ -8879,7 +8879,6 @@
         ],
         "OUTPUT_EXT": "hex",
         "macros": [
-            "MBED_FAULT_HANDLER_DISABLED",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "is_disk_virtual": true,
@@ -9166,7 +9165,6 @@
             "FLASH_CMSIS_ALGO"
         ],
         "macros_add": [
-            "MBED_FAULT_HANDLER_DISABLED",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
@@ -10025,7 +10023,6 @@
             "FLASH_CMSIS_ALGO"
         ],
         "macros": [
-            "MBED_FAULT_HANDLER_DISABLED",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "is_disk_virtual": true,
