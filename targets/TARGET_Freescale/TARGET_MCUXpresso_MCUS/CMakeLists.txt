@@ -1,6 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+if("K66F" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_K66F)
+elseif("MCU_K64F" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_MCU_K64F)
+endif()
+
 target_sources(mbed-os
     PRIVATE
         fsl_common.c
@@ -24,5 +30,3 @@ target_include_directories(mbed-os
     PUBLIC
         api
 )
-
-mbed_add_cmake_directory_if_labels("TARGET")
