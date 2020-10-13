@@ -2,7 +2,13 @@
 
 add_subdirectory(device)
 
-mbed_add_cmake_directory_if_labels("TARGET")
+if("FRDM" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_FRDM)
+elseif("HEXIWEAR" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_HEXIWEAR)
+elseif("SDT64B" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_SDT64B)
+endif()
 
 target_sources(mbed-os
     PRIVATE
