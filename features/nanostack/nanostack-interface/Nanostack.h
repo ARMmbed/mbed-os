@@ -111,6 +111,7 @@ protected:
      *
      *  @param index    Index of the DNS server, starts from zero
      *  @param address  Destination for the host address
+     *  @param interface_name Network interface name
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t get_dns_server(int index, SocketAddress *address, const char *interface_name);
