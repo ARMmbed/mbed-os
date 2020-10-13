@@ -22,7 +22,6 @@ include(${MBED_ROOT}/tools/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
 enable_language(C CXX ASM)
 
 include(${MBED_ROOT}/tools/cmake/core.cmake)
-include(${MBED_ROOT}/tools/cmake/util.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
 
 add_library(mbed-os OBJECT)
