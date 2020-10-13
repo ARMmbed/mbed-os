@@ -390,6 +390,24 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
     }
 }
 
+static void ws_common_neighbour_address_reg_link_update(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
+{
+    /*
+     * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
+     */
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_mac64(mac_neighbor_info(interface), eui64, false, false);
+
+    if (mac_neighbor) {
+        if (mac_neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
+            //Set Stable timeout for temporary entry here
+            mac_neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
+            tr_info("Added new neighbor %s : index:%u", trace_array(eui64, 8), mac_neighbor->index);
+        }
+        //Refresh
+        mac_neighbor->lifetime = mac_neighbor->link_lifetime;
+    }
+}
+
 uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
 {
     uint8_t child_count = 0;
@@ -402,14 +420,7 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        /*
-         * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
-         */
-        mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_mac64(mac_neighbor_info(interface), eui64, false, false);
-
-        if (mac_neighbor) {
-            mac_neighbor_table_neighbor_refresh(mac_neighbor_info(interface), mac_neighbor, mac_neighbor->link_lifetime);
-        }
+        ws_common_neighbour_address_reg_link_update(interface, eui64);
         tr_info("Child registration from old child");
         return ARO_SUCCESS;
     }
@@ -431,7 +442,8 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
         tr_warn("Child registration not allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
         return ARO_FULL;
     }
-    ws_bootstrap_neighbor_set_stable(interface, eui64);
+
+    ws_common_neighbour_address_reg_link_update(interface, eui64);
     tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
     return ARO_SUCCESS;
 }

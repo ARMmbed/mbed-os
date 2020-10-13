@@ -422,4 +422,26 @@ int ws_device_min_sens_set(
     return -1;
 }
 
+int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)
+{
+    (void) interface_id;
+    (void) temporary_lifetime;
+    return -1;
+}
+
+void ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
+{
+    (void) interface_id;
+    (void) skip;
+}
+
+
+int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames)
+{
+    (void) interface_id;
+    (void) number_of_dropped_frames;
+    return -1;
+}
+
+
 #endif // no HAVE_WS
