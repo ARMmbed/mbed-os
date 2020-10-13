@@ -345,10 +345,10 @@ typedef enum IRQn
   MMC1_IRQn            = 300,
   MMC2_IRQn            = 301,
 
-  SCHI0_3_IRQn         = 302,
+  SDHI0_3_IRQn         = 302,
   SDHI0_0_IRQn         = 303,
   SDHI0_1_IRQn         = 304,
-  SCHI1_3_IRQn         = 305,
+  SDHI1_3_IRQn         = 305,
   SDHI1_0_IRQn         = 306,
   SDHI1_1_IRQn         = 307,
 

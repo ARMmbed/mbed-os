@@ -64,6 +64,7 @@
 #include "iodefines/scim_iodefine.h"                            /* (V2.00h) */
 #include "iodefines/scux_iodefine.h"                            /* (V2.00h) */
 #include "iodefines/sdg_iodefine.h"                             /* (V2.00h) */
+#include "iodefines/sdhi_iodefine.h"                            /*          */
 #include "iodefines/spdif_iodefine.h"                           /* (V2.00h) */
 #include "iodefines/spibsc_iodefine.h"                          /* (V2.00h) */
 #include "iodefines/ssif_iodefine.h"                            /* (V2.00h) */

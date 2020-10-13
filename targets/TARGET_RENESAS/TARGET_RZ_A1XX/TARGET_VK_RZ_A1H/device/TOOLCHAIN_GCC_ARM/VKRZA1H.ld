@@ -1,7 +1,7 @@
 /* Linker script for mbed VK_RZ_A1H */
 
 /* Linker script to configure memory regions. */
-/*
+
 #ifdef RUN_FROM_SDRAM
 MEMORY
 {
@@ -11,7 +11,7 @@ MEMORY
   SRAM (rwx) : ORIGIN = 0x200A0000, LENGTH = 0x00960000
 }
 REGION_ALIAS("SFLASH", RAM);
-TTBOFFSET = 1M;
+/*TTBOFFSET = 1M;*/
 
 #elif defined (RUN_FROM_SRAM)
 MEMORY
@@ -22,19 +22,30 @@ MEMORY
   SDRAM  (rwx) : ORIGIN = 0x08000000, LENGTH = 0x02000000
 }
 REGION_ALIAS("SFLASH", RAM);
-TTBOFFSET = 1M;
+/*TTBOFFSET = 1M;*/
 #else
-*/
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x18020000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x1FE0000
+#endif
+
+  #define SFLASH_ADDR         MBED_APP_START
+  #define SFLASH_SIZE         MBED_APP_SIZE
+
 MEMORY
 {
   ROM   (rx)  : ORIGIN = 0x00000000, LENGTH = 0x02000000
-  SFLASH (rx) : ORIGIN = 0x18020000, LENGTH = 0x01FE0000 
+  SFLASH (rx) : ORIGIN = SFLASH_ADDR, LENGTH = SFLASH_SIZE 
   L_TTB (rw)  : ORIGIN = 0x20000000, LENGTH = 0x00004000 
   RAM (rwx) : ORIGIN = 0x20020000, LENGTH = 0x008E0000
   RAM_NC (rwx) : ORIGIN = 0x20900000, LENGTH = 0x00100000
   SDRAM  (rwx) : ORIGIN = 0x08000000, LENGTH = 0x02000000
 }
-/*#endif*/
+#endif
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
@@ -122,6 +133,9 @@ SECTIONS
         LONG (__etext2)
         LONG (__nc_data_start)
         LONG (__nc_data_end - __nc_data_start)
+        LONG (LOADADDR(.ram_code))
+        LONG (ADDR(.ram_code))
+        LONG (SIZEOF(.ram_code))
         __copy_table_end__ = .;
     } > SFLASH
 
@@ -136,7 +150,21 @@ SECTIONS
         __zero_table_end__ = .;
     } > SFLASH
 
-    __etext = .;
+    .ram_code : ALIGN( 0x8 ) {
+        __ram_code_load  = .;
+        __ram_code_start = LOADADDR(.ram_code) + ( __ram_code_load - ADDR(.ram_code) );
+
+        *(RAM_CODE)
+
+        *(RAM_CONST)
+
+        . = ALIGN( 0x8 );
+        __ram_code_end = LOADADDR(.ram_code) + ( . - ADDR(.ram_code) );
+    } > RAM AT > SFLASH
+
+    Load$$SEC_RAM_CODE$$Base    = LOADADDR(.ram_code);
+    Image$$SEC_RAM_CODE$$Base   = ADDR(.ram_code);
+    Load$$SEC_RAM_CODE$$Length  = SIZEOF(.ram_code);
         
     .ttb :
     {
@@ -144,6 +172,8 @@ SECTIONS
         . += 0x00004000;
         Image$$TTB$$ZI$$Limit = .;
     } > L_TTB
+
+    __etext = Load$$SEC_RAM_CODE$$Base + SIZEOF(.ram_code);
 
     .data : AT (__etext)
     {
