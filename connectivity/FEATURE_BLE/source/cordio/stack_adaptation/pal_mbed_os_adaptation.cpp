@@ -69,12 +69,12 @@ MBED_WEAK void PalRtcInit()
     MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcInit");
 }
 
-MBED_WEAK void PalRtcEnableCompareIrq()
+MBED_WEAK void PalRtcEnableCompareIrq(uint8_t channelId)
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcEnableCompareIrq");
 }
 
-MBED_WEAK void PalRtcDisableCompareIrq()
+MBED_WEAK void PalRtcDisableCompareIrq(uint8_t channelId)
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcDisableCompareIrq");
 }
@@ -85,7 +85,7 @@ MBED_WEAK uint32_t PalRtcCounterGet()
     return 0;
 }
 
-MBED_WEAK void PalRtcCompareSet(uint32_t value)
+MBED_WEAK void PalRtcCompareSet(uint8_t channelId, uint32_t value)
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcCompareSet");
 }
