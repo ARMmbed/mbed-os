@@ -184,11 +184,8 @@ FileHandle *mbed_override_console(int fd);
  */
 FileHandle *mbed_file_handle(int fd);
 }
-
-typedef mbed::DirHandle DIR;
-#else
-typedef struct Dir DIR;
 #endif
+typedef struct DIR_impl DIR;
 #endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
 /* The intent of this section is to unify the errno error values to match
