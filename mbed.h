@@ -19,22 +19,20 @@
 
 #include "platform/mbed_version.h"
 
-// MBED_CONF_CMAKE is temporary until tools do not set _PRESENT macros
-
-#if defined(MBED_CONF_RTOS_PRESENT) && defined(MBED_CONF_CMAKE_RTOS_ENABLED)
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "rtos/rtos.h"
 #endif
 
-#if defined(MBED_CONF_NETSOCKET_PRESENT) && defined(MBED_CONF_CMAKE_NETSOCKET_ENABLED)
+#if defined(MBED_CONF_NETSOCKET_PRESENT)
 #include "netsocket/nsapi.h"
 #include "netsocket/nsapi_ppp.h"
 #endif
 
-#if defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_CMAKE_EVENTS_ENABLED)
+#if defined(MBED_CONF_EVENTS_PRESENT)
 #include "events/mbed_events.h"
 #endif
 
-#if defined(MBED_CONF_FILESYSTEM_PRESENT) && defined(MBED_CONF_CMAKE_FILESYSTEM_ENABLED)
+#if defined(MBED_CONF_FILESYSTEM_PRESENT)
 #include "filesystem/mbed_filesystem.h"
 #endif
 
