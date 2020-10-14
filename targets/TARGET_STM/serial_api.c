@@ -355,6 +355,15 @@ void serial_free(serial_t *obj)
 
     pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 
+#if DEVICE_SERIAL_FC
+    if ( (obj_s->hw_flow_ctl == UART_HWCONTROL_RTS) || (obj_s->hw_flow_ctl == UART_HWCONTROL_RTS_CTS) ) {
+        pin_function(obj_s->pin_rts, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
+    if ( (obj_s->hw_flow_ctl == UART_HWCONTROL_CTS) || (obj_s->hw_flow_ctl == UART_HWCONTROL_RTS_CTS) ) {
+        pin_function(obj_s->pin_cts, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
+#endif
+
     serial_irq_ids[obj_s->index] = 0;
 }
 
