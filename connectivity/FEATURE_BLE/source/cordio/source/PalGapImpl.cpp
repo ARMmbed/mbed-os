@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 #include "source/PalGapImpl.h"
+#include "ble/common/BLERoles.h"
 #include "hci_api.h"
 #include "dm_api.h"
 #include "dm_main.h"
@@ -571,7 +572,9 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
         }
             break;
 #endif // BLE_FEATURE_PHY_MANAGEMENT
+
 #if BLE_FEATURE_PERIODIC_ADVERTISING
+#if BLE_ROLE_OBSERVER
         case DM_PER_ADV_SYNC_EST_IND: {
             if (!handler) {
                 break;
@@ -619,8 +622,10 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
         }
             break;
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_ROLE_BROADCASTER
         case DM_ADV_START_IND:
             if (!handler) {
                 break;
@@ -634,6 +639,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             }
             handler->on_legacy_advertising_stopped();
             break;
+#endif // BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
         case DM_SCAN_REQ_RCVD_IND: {
@@ -743,7 +749,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 #endif // BLE_ROLE_OBSERVER
 
-#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#if BLE_FEATURE_CONNECTABLE
         case DM_REM_CONN_PARAM_REQ_IND: {
             if (!handler) {
                 break;
@@ -769,7 +775,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                     get_gap().get_running_conn_direct_adv_cb(evt->hdr.param);
                 if (adv_cb) {
                     adv_cb->state = direct_adv_cb_t::free;
-
+#if BLE_ROLE_BROADCASTER
                     if (handler) {
                         handler->on_advertising_set_terminated(
                             hci_error_code_t(evt->status),
@@ -778,6 +784,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                             0
                         );
                     }
+#endif // BLE_ROLE_BROADCASTER
                 }
             }
         }
@@ -794,7 +801,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             }
         }
             break;
-#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#endif // BLE_FEATURE_CONNECTABLE
     }
 
     // all handlers are stored in a static array
@@ -802,12 +809,12 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
 #if BLE_ROLE_OBSERVER
         &event_handler<GapAdvertisingReportMessageConverter>,
 #endif // BLE_ROLE_OBSERVER
-#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#if BLE_FEATURE_CONNECTABLE
         &event_handler<ConnectionCompleteMessageConverter>,
         &event_handler<DisconnectionMessageConverter>,
         &event_handler<ConnectionUpdateMessageConverter>,
         &event_handler<RemoteConnectionParameterRequestMessageConverter>,
-#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#endif // BLE_FEATURE_CONNECTABLE
         &dummy_gap_event_handler
     };
 
@@ -846,7 +853,7 @@ ble_error_t PalGap::set_advertising_set_random_address(
     return BLE_ERROR_NONE;
 }
 
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t PalGap::set_extended_advertising_parameters(
     advertising_handle_t advertising_handle,
     advertising_event_properties_t event_properties,
@@ -986,7 +993,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
         peer_address_type
     );
 }
-
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
 ble_error_t PalGap::set_periodic_advertising_parameters(
     advertising_handle_t advertising_handle,

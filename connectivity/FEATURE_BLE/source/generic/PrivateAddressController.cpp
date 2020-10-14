@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if BLE_FEATURE_PRIVACY
+
 #include "PrivateAddressController.h"
 
 namespace ble {
@@ -739,3 +741,5 @@ void PrivateAddressController::add_resolution_entry_to_cache(
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 } // namespace ble
+
+#endif // BLE_FEATURE_PRIVACY

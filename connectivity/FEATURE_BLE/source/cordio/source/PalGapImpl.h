@@ -174,6 +174,7 @@ public:
         const address_t &address
     ) final;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t set_extended_advertising_parameters(
         advertising_handle_t advertising_handle,
         advertising_event_properties_t event_properties,
@@ -191,6 +192,7 @@ public:
         uint8_t advertising_sid,
         bool scan_request_notification
     ) final;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     ble_error_t set_periodic_advertising_parameters(
         advertising_handle_t advertising_handle,

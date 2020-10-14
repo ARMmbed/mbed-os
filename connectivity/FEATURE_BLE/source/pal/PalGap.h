@@ -21,6 +21,7 @@
 
 #include "platform/Callback.h"
 
+#include "ble/common/BLERoles.h"
 #include "source/pal/GapTypes.h"
 #include "source/pal/GapEvents.h"
 #include "ble/common/blecommon.h"
@@ -29,6 +30,8 @@ namespace ble {
 
 struct PalGapEventHandler {
 public:
+
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * @copydoc PalGap::EventHandler::onReadPhy
      */
@@ -38,6 +41,7 @@ public:
         ble::phy_t tx_phy,
         ble::phy_t rx_phy
     ) = 0;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * @copydoc PalGap::EventHandler::onDataLengthChange
@@ -48,6 +52,7 @@ public:
         uint16_t rx_size
     ) = 0;
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * @copydoc PalGap::EventHandler::onPhyUpdateComplete
      */
@@ -57,7 +62,10 @@ public:
         ble::phy_t tx_phy,
         ble::phy_t rx_phy
      ) = 0;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+#if BLE_ROLE_OBSERVER
     /** Called on advertising report event.
      *
      * @param event_type Type of advertising used.
@@ -92,7 +100,11 @@ public:
         uint8_t data_length,
         const uint8_t *data_size
      ) = 0;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
+#if BLE_ROLE_OBSERVER
     /** Called on advertising sync event.
      *
      * @param error SUCCESS if synchronisation was achieved.
@@ -140,7 +152,10 @@ public:
     virtual void on_periodic_advertising_sync_loss(
         sync_handle_t sync_handle
      ) = 0;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_OBSERVER
     /**
      * Called when scanning start
      */
@@ -155,7 +170,9 @@ public:
     /** Called when scanning times out.
      */
     virtual void on_scan_timeout( ) = 0;
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_BROADCASTER
     /**
      * Called when legacy advertising has been effectively started.
      */
@@ -196,7 +213,9 @@ public:
         connection_peer_address_type_t scanner_address_type,
         const address_t &address
      ) = 0;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_CONNECTABLE
     virtual void on_connection_update_complete(
         hci_error_code_t status,
         connection_handle_t connection_handle,
@@ -212,6 +231,7 @@ public:
         uint16_t connection_latency,
         uint16_t supervision_timeout
      ) = 0;
+#endif // BLE_FEATURE_CONNECTABLE
 };
 
 /**
@@ -375,6 +395,7 @@ public:
         advertising_filter_policy_t advertising_filter_policy
     ) = 0;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     /**
      * Define the advertising parameters of an advertising set.
      *
@@ -451,6 +472,7 @@ public:
         uint8_t advertising_sid,
         bool scan_request_notification
     ) = 0;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     /**
      * Configure periodic advertising parameters of an advertising set.

@@ -18,6 +18,8 @@
 #ifndef BLE_GENERIC_PRIVATE_ADDRESS_CONTROLLER_H
 #define BLE_GENERIC_PRIVATE_ADDRESS_CONTROLLER_H
 
+#if BLE_FEATURE_PRIVACY
+
 #include <cstdio>
 
 #include "drivers/LowPowerTicker.h"
@@ -343,5 +345,7 @@ private:
 };
 
 }
+
+#endif // BLE_FEATURE_PRIVACY
 
 #endif //BLE_GENERIC_PRIVATE_ADDRESS_CONTROLLER_H

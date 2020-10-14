@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if BLE_FEATURE_PRIVACY
+
 #include "PalPrivateAddressControllerImpl.h"
 #include "dm_api.h"
 
@@ -232,3 +234,4 @@ bool PalPrivateAddressController::cordio_handler(const wsfMsgHdr_t *msg)
 } // namespace impl
 } // namespace ble
 
+#endif // BLE_FEATURE_PRIVACY

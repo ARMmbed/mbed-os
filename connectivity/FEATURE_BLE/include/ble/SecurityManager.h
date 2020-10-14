@@ -835,6 +835,7 @@ public:
     // Privacy
     //
 
+#if BLE_FEATURE_PRIVACY
     /**
      * Sets how often the address is rotated when privacy is enabled.
      *
@@ -845,6 +846,7 @@ public:
     ble_error_t setPrivateAddressTimeout(
         uint16_t timeout_in_seconds
     );
+#endif // BLE_FEATURE_PRIVACY
 
     /* Event callback handlers. */
 public:
