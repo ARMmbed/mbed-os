@@ -65,9 +65,7 @@ class Gap :
 #endif //BLE_FEATURE_PRIVACY
     {
     friend PalConnectionMonitor;
-#if BLE_FEATURE_PRIVACY
     friend PalGapEventHandler;
-#endif //BLE_FEATURE_PRIVACY
     friend PalGap;
     friend impl::BLEInstanceBase;
 
