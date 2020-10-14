@@ -156,12 +156,12 @@ Copy paste, and update!
 
 It is recommended to use a python script to generate those files
 
-https://github.com/ARMmbed/mbed-os/blob/master/tools/targets/STM32_gen_PeripheralPins.py
+https://github.com/ARMmbed/mbed-os/blob/master/targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py
 
 STM32CubeMX has to be installed first. Path has to be specified in the `cube_path.json` file.
 
 ```
-$ python tools/targets/STM32_gen_PeripheralPins.py -h
+$ python targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py -h
 
 Script version 1.17
 usage: STM32_gen_PeripheralPins.py [-h] (-l | -b | -m xml | -t HW | -c CUSTOM)
@@ -189,14 +189,14 @@ Once generated, you have to check and comment pins that can not be used (specifi
 
 How to generate files for a custom boards based on a STM32F427 MCU:
 ```
-$ python tools/targets/STM32_gen_PeripheralPins.py -l | grep F427
+$ python targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py -l | grep F427
 STM32F427A(G-I)Hx.xml
 STM32F427I(G-I)Hx.xml
 STM32F427I(G-I)Tx.xml
 STM32F427V(G-I)Tx.xml
 STM32F427Z(G-I)Tx.xml
 
-$ python tools/targets/STM32_gen_PeripheralPins.py -m "STM32F427V(G-I)Tx.xml"
+$ python targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py -m "STM32F427V(G-I)Tx.xml"
 
 Script version 1.17
 CubeMX DB version DB.6.0.0
@@ -221,7 +221,7 @@ Example with a board based on STM32F103C8 (like BluePill):
 - MCU_STM32F103x8 generic configuration is already available in targets.json file
 
 ```
-$ python tools/targets/STM32_gen_PeripheralPins.py -m "STM32F103C(8-B)Tx.xml"
+$ python targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py -m "STM32F103C(8-B)Tx.xml"
 // PeripheralPins.c and PinNames.h template files are created in targets_custom/TARGET_STM/TARGET_STM32F1/TARGET_STM32F103x8/TARGET_STM32F103C8T directory
 
 $ mv TARGET_STM32F103C8T TARGET_BLUEPILL_F103C8
@@ -249,7 +249,7 @@ Example with a board based on STM32H745ZI
 - MCU_STM32H745I_CM4 and MCU_STM32H745I_CM7 generic configuration is already available in targets.json file
 
 ```
-$ python tools/targets/STM32_gen_PeripheralPins.py -m "STM32H745ZITx.xml"
+$ python targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py -m "STM32H745ZITx.xml"
 // PeripheralPins.c and PinNames.h template files are created in targets_custom/TARGET_STM/TARGET_STM32H7/TARGET_STM32H745xI/TARGET_STM32H745ZIT directory
 
 $ mv TARGET_STM32H745ZIT TARGET_H745ZI_BOARD
