@@ -24,5 +24,4 @@ target_sources(mbed-os
 target_compile_definitions(mbed-os
     PUBLIC
         MBED_CONF_RTOS_PRESENT=1
-        MBED_CONF_CMAKE_RTOS_ENABLED=1
 )
