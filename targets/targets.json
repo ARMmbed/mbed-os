@@ -6958,6 +6958,29 @@
         "inherits": ["AMA3B1KK"],
         "components_add": ["lis2dh12", "hm01b0"]
     },
+    "PIC32CX2051MTG100": {
+        "inherits": ["Target"],
+        "release_versions": ["6"],
+        "supported_toolchains": [
+            "ARM",
+            "GCC_ARM",
+            "IAR"
+        ],
+		"public": false,
+        "device_has": [
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTOUT",
+            "SERIAL"
+        ],
+        "core": "Cortex-M4",
+        "device_name": "PIC32CX2051MTG100",
+        "default_toolchain": "ARM",
+        "c_lib": "small"
+    },
+    "PIC32CXMTG_EK": {
+        "inherits": ["PIC32CX2051MTG100"]
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
