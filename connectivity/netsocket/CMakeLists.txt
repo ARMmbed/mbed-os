@@ -43,7 +43,6 @@ target_sources(mbed-os-netsocket
 target_compile_definitions(mbed-os-netsocket
     INTERFACE
         MBED_CONF_NETSOCKET_PRESENT=1
-        MBED_CONF_CMAKE_NETSOCKET_ENABLED=1
 )
 
 target_link_libraries(mbed-os-netsocket
