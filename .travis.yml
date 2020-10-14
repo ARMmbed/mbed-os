@@ -150,8 +150,10 @@ matrix:
         - >-
           git clone --depth=1 --single-branch https://github.com/ARMmbed/mbed-os.git;
           cd mbed-os;
-          git fetch origin +refs/pull/${TRAVIS_PULL_REQUEST}/merge;
-          git checkout -qf FETCH_HEAD
+          to_fetch=("${TRAVIS_COMMIT}");
+          if [ false != "${TRAVIS_PULL_REQUEST-}" ]; then to_fetch+=("+refs/pull/${TRAVIS_PULL_REQUEST}/merge:"); fi
+          git fetch -q -- origin "${to_fetch[@]}";
+          git checkout -qf "${TRAVIS_COMMIT}" --;
         - >-
           cd -;
         # Replace the content of mbed-os.lib to stay on ${TRAVIS_PULL_REQUEST}
