@@ -364,18 +364,30 @@ private:
 
         static GapConnectionCompleteEvent convert(const hciLeConnCmplEvt_t *conn_evt)
         {
+            const bdAddr_t *peer_rpa = &conn_evt->peerRpa;
+            const bdAddr_t *peer_address = &conn_evt->peerAddr;
+
+#if defined(TARGET_MCU_STM32WB55xx)
+            const bdAddr_t invalidAddress = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+            if (conn_evt->addrType == DM_ADDR_RANDOM &&
+                memcmp(peer_address, invalidAddress, sizeof(invalidAddress)) == 0 &&
+                memcmp(peer_rpa, invalidAddress, sizeof(invalidAddress) != 0)
+            ) {
+                std::swap(peer_rpa, peer_address);
+            }
+#endif
             return GapConnectionCompleteEvent(
                 conn_evt->status,
                 // note the usage of the stack handle, not the HCI handle
                 conn_evt->hdr.param,
                 (connection_role_t::type) conn_evt->role,
                 (peer_address_type_t::type) conn_evt->addrType,
-                conn_evt->peerAddr,
+                *peer_address,
                 conn_evt->connInterval,
                 conn_evt->connLatency,
                 conn_evt->supTimeout,
                 conn_evt->localRpa,
-                conn_evt->peerRpa
+                *peer_rpa
             );
         }
     };

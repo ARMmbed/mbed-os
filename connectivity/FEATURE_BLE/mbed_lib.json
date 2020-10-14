@@ -112,6 +112,9 @@
     "target_overrides": {
         "MCU_NRF52840": {
             "ble-gap-host-based-private-address-resolution": false
+        },
+        "NUCLEO_WB55RG": {
+            "ble-gap-host-based-private-address-resolution": false
         }
     }
 }
