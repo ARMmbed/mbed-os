@@ -20,6 +20,7 @@ target_sources(mbed-os-ble-cordio
         source/PalEventQueueImpl.cpp
         source/PalGapImpl.cpp
         source/PalGenericAccessServiceImpl.cpp
+        source/PalPrivateAddressControllerImpl.cpp
         source/PalSecurityManagerImpl.cpp
 
         stack_adaptation/hci_tr.c
