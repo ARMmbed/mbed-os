@@ -4568,6 +4568,9 @@
             "IAR",
             "ARM"
         ],
+	"features_add": [
+            "STORAGE"
+        ],
         "device_has": [
             "ANALOGIN",
             "I2C",
@@ -4577,6 +4580,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "SD",
             "SERIAL",
             "SERIAL_FC",
             "SPI",

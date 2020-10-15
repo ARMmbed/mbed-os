@@ -43,7 +43,9 @@
 // Create a string definition for the TARGET
 #define STRING_ARG(arg) #arg
 #define STRING_NAME(name) STRING_ARG(name)
+#if MBED_VERSION && MBED_VERSION < 51200
 #define TARGET_NAME STRING_NAME(TARGET)
+#endif
 
 // Define which revisions of the IP we are using
 #ifndef TARGET_REV
