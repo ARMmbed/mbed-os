@@ -184,7 +184,7 @@ matrix:
 
     - <<: *cmake-build-test
       name: "CMake ble example (NRF52840_DK)"
-      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-ble TARGET_NAME=NRF52840_DK SUBEXAMPLE_NAME=BLE_Button
+      env: NAME=cmake_test EXAMPLE_NAME=mbed-os-example-ble TARGET_NAME=NRF52840_DK SUBEXAMPLE_NAME=BLE_LED
 
     - <<: *cmake-build-test
       name: "CMake cellular example (WIO_3G)"
