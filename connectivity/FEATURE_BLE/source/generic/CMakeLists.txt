@@ -12,5 +12,6 @@ target_sources(mbed-os-ble
         GapImpl.cpp
         GattClientImpl.cpp
         KVStoreSecurityDb.cpp
+        PrivateAddressController.cpp
         SecurityManagerImpl.cpp
 )
