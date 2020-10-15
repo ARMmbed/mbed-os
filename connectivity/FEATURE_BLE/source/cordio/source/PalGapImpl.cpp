@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 #include "source/PalGapImpl.h"
+#include "ble/common/BLERoles.h"
 #include "hci_api.h"
 #include "dm_api.h"
 #include "dm_main.h"
@@ -462,23 +463,6 @@ ble_error_t PalGap::disconnect(
     return BLE_ERROR_NONE;
 }
 
-
-bool PalGap::is_privacy_supported()
-{
-    // We only support controller-based privacy, so return whether the controller supports it
-    return HciLlPrivacySupported();
-}
-
-
-ble_error_t PalGap::set_address_resolution(
-    bool enable
-)
-{
-    DmPrivSetAddrResEnable(enable);
-    return BLE_ERROR_NONE;
-}
-
-
 ble_error_t PalGap::read_phy(connection_handle_t connection)
 {
     if (is_feature_supported(controller_supported_features_t::LE_2M_PHY)
@@ -488,7 +472,6 @@ ble_error_t PalGap::read_phy(connection_handle_t connection)
     }
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
-
 
 ble_error_t PalGap::set_preferred_phys(
     const phy_set_t &tx_phys,
@@ -589,7 +572,9 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
         }
             break;
 #endif // BLE_FEATURE_PHY_MANAGEMENT
+
 #if BLE_FEATURE_PERIODIC_ADVERTISING
+#if BLE_ROLE_OBSERVER
         case DM_PER_ADV_SYNC_EST_IND: {
             if (!handler) {
                 break;
@@ -637,7 +622,24 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
         }
             break;
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
+
+#if BLE_ROLE_BROADCASTER
+        case DM_ADV_START_IND:
+            if (!handler) {
+                break;
+            }
+            handler->on_legacy_advertising_started();
+            break;
+
+        case DM_ADV_STOP_IND:
+            if (!handler) {
+                break;
+            }
+            handler->on_legacy_advertising_stopped();
+            break;
+#endif // BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
         case DM_SCAN_REQ_RCVD_IND: {
@@ -651,8 +653,16 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 connection_peer_address_type_t(evt->scanAddrType),
                 evt->scanAddr
             );
-        }
-            break;
+        }   break;
+
+        case DM_ADV_SET_START_IND: {
+            if (!handler) {
+                break;
+            }
+            const auto *evt = (const dmAdvSetStartEvt_t *) msg;
+            handler->on_advertising_set_started({evt->advHandle, evt->numSets});
+        }   break;
+
 
         case DM_ADV_SET_STOP_IND: {
             const auto *evt = (const hciLeAdvSetTermEvt_t *) msg;
@@ -676,20 +686,40 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->handle,
                 evt->numComplEvts
             );
-        }
-            break;
+        }   break;
 #endif //  BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
 
-#if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
+#if BLE_ROLE_OBSERVER
+        case DM_SCAN_START_IND:
+            if (!handler) { break; }
+            handler->on_scan_started(msg->status == HCI_SUCCESS);
+            break;
+
+        case DM_SCAN_STOP_IND:
+            if (!handler) { break; }
+            handler->on_scan_stopped(msg->status == HCI_SUCCESS);
+            break;
+
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+        case DM_EXT_SCAN_START_IND:
+            if (!handler) { break; }
+            handler->on_scan_started(msg->status == HCI_SUCCESS);
+            break;
+
         case DM_EXT_SCAN_STOP_IND: {
             if (!handler) {
+                get_gap().ext_scan_stopping = false;
                 break;
             }
 
-            //const hciLeScanTimeoutEvt_t *evt = (const hciLeScanTimeoutEvt_t *) msg;
-            handler->on_scan_timeout();
-        }
-            break;
+            if (get_gap().ext_scan_stopping) {
+                get_gap().ext_scan_stopping = false;
+                handler->on_scan_stopped(msg->status == HCI_SUCCESS);
+            } else {
+                handler->on_scan_timeout();
+            }
+
+        }   break;
 
         case DM_EXT_SCAN_REPORT_IND: {
             if (!handler) {
@@ -715,11 +745,11 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->len,
                 evt->pData
             );
-        }
-            break;
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
+        }   break;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
-#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#if BLE_FEATURE_CONNECTABLE
         case DM_REM_CONN_PARAM_REQ_IND: {
             if (!handler) {
                 break;
@@ -745,7 +775,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                     get_gap().get_running_conn_direct_adv_cb(evt->hdr.param);
                 if (adv_cb) {
                     adv_cb->state = direct_adv_cb_t::free;
-
+#if BLE_ROLE_BROADCASTER
                     if (handler) {
                         handler->on_advertising_set_terminated(
                             hci_error_code_t(evt->status),
@@ -754,6 +784,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
                             0
                         );
                     }
+#endif // BLE_ROLE_BROADCASTER
                 }
             }
         }
@@ -770,7 +801,7 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
             }
         }
             break;
-#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#endif // BLE_FEATURE_CONNECTABLE
     }
 
     // all handlers are stored in a static array
@@ -778,12 +809,12 @@ void PalGap::gap_handler(const wsfMsgHdr_t *msg)
 #if BLE_ROLE_OBSERVER
         &event_handler<GapAdvertisingReportMessageConverter>,
 #endif // BLE_ROLE_OBSERVER
-#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#if BLE_FEATURE_CONNECTABLE
         &event_handler<ConnectionCompleteMessageConverter>,
         &event_handler<DisconnectionMessageConverter>,
         &event_handler<ConnectionUpdateMessageConverter>,
         &event_handler<RemoteConnectionParameterRequestMessageConverter>,
-#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+#endif // BLE_FEATURE_CONNECTABLE
         &dummy_gap_event_handler
     };
 
@@ -822,7 +853,7 @@ ble_error_t PalGap::set_advertising_set_random_address(
     return BLE_ERROR_NONE;
 }
 
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t PalGap::set_extended_advertising_parameters(
     advertising_handle_t advertising_handle,
     advertising_event_properties_t event_properties,
@@ -962,7 +993,7 @@ ble_error_t PalGap::set_extended_advertising_parameters(
         peer_address_type
     );
 }
-
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
 ble_error_t PalGap::set_periodic_advertising_parameters(
     advertising_handle_t advertising_handle,
@@ -1240,6 +1271,7 @@ ble_error_t PalGap::extended_scan_enable(
     if (enable) {
         uint32_t duration_ms = duration * 10;
 
+
         DmScanStart(
             scanning_phys.value(),
             DM_DISC_MODE_NONE,
@@ -1250,6 +1282,7 @@ ble_error_t PalGap::extended_scan_enable(
         );
     } else {
         DmScanStop();
+        ext_scan_stopping = true;
     }
 
     return BLE_ERROR_NONE;

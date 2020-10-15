@@ -168,16 +168,26 @@ public:
      */
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
-        entry_handle_t db_handle,
+        entry_handle_t* db_handle,
         const ediv_t &ediv,
         const rand_t &rand
     ) {
-        SecurityEntryKeys_t* keys = read_in_entry_local_keys(db_handle);
+        SecurityEntryKeys_t* keys = read_in_entry_local_keys(*db_handle);
         /* validate we have the correct key */
         if (keys && ediv == keys->ediv && rand == keys->rand) {
-            cb(db_handle, keys);
+            cb(*db_handle, keys);
         } else {
-            cb(db_handle, NULL);
+            // Maybe this isn't the correct entry, try to find one that matches
+            entry_handle_t correct_handle = find_entry_by_peer_ediv_rand(ediv, rand);
+            if (!correct_handle) {
+                cb(*db_handle, NULL);
+            }
+            // Note: keys should never be null as a matching entry has been retrieved
+            SecurityEntryKeys_t* keys = read_in_entry_local_keys(correct_handle);
+            MBED_ASSERT(keys);
+            close_entry(*db_handle, false);
+            *db_handle = correct_handle;
+            cb(*db_handle, keys);
         }
     }
 
@@ -450,6 +460,20 @@ public:
         return _local_identity.irk;
     }
 
+    /**
+     * Return local identity address.
+     */
+    virtual const address_t& get_local_identity_address() {
+        return _local_identity.identity_address;
+    }
+
+    /**
+     * Return if the local identity address is public or not
+     */
+    virtual bool is_local_identity_address_public() {
+        return _local_identity.identity_address_is_public;
+    }
+
     /* list management */
 
     /**
@@ -539,16 +563,52 @@ public:
     }
 
     /**
+     * Find a database entry based on ediv and rand.
+     *
+     * @param[in] ediv E diversifier
+     * @param[in] rand random part
+     *
+     * @return A handle to the entry.
+     */
+    virtual entry_handle_t find_entry_by_peer_ediv_rand(
+        const ediv_t &ediv,
+        const rand_t &rand
+    ) {
+        for (size_t i = 0; i < get_entry_count(); i++) {
+            entry_handle_t db_handle = get_entry_handle_by_index(i);
+            SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
+
+            if (!flags || flags->connected) {
+                continue;
+            }
+
+            SecurityEntryKeys_t* keys = read_in_entry_local_keys(db_handle);
+            if (!keys) {
+                continue;
+            }
+
+            if (keys->ediv == ediv && keys->rand == rand) {
+                return db_handle;
+            }
+        }
+
+        return nullptr;
+    }
+
+
+    /**
      * Close a connection entry.
      *
      * @param[in] db_handle this handle will be freed up from the security db.
      */
-    virtual void close_entry(entry_handle_t db_handle) {
+    virtual void close_entry(entry_handle_t db_handle, bool require_sync = true) {
         SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
         if (flags) {
             flags->connected = false;
         }
-        sync(db_handle);
+        if (require_sync) {
+            sync(db_handle);
+        }
     }
 
     /**

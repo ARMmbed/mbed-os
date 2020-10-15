@@ -3037,6 +3037,18 @@ void DmSecSetLocalIrk(uint8_t *pIrk);
 
 /*************************************************************************************************/
 /*!
+ *  \brief  This function sets the local identity address used by the device.
+ *
+ *  \param  pAddr     Pointer to the address.
+ *  \param  type      Type of the address.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmSecSetLocalIdentityAddr(const uint8_t *pAddr, uint8_t type);
+
+/*************************************************************************************************/
+/*!
  *  \brief  This function generates an ECC key for use with LESC security.
  *
  *  \return None.
@@ -3344,6 +3356,25 @@ uint8_t *DmSecGetLocalCsrk(void);
  */
 /*************************************************************************************************/
 uint8_t *DmSecGetLocalIrk(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  For internal use only.  This function gets the local identity address used by the device.
+ *
+ *  \return Pointer to the identity address.
+ */
+/*************************************************************************************************/
+uint8_t *DmSecGetLocalIdentityAddr(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  For internal use only.  This function gets the local identity address type used by the
+ *  device.
+ *
+ *  \return The identity address type.
+ */
+/*************************************************************************************************/
+uint8_t DmSecGetLocalIdentityAddrType(void);
 
 /*************************************************************************************************/
 /*!

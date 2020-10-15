@@ -315,6 +315,17 @@ public:
         }
 
         /**
+         * Called when advertising starts.
+         *
+         * @param event Advertising start event.
+         *
+         * @see startAdvertising()
+         */
+        virtual void onAdvertisingStart(const AdvertisingStartEvent &event)
+        {
+        }
+
+        /**
          * Called when advertising ends.
          *
          * Advertising ends when the process timeout or if it is stopped by the
@@ -538,6 +549,14 @@ public:
         )
         {
         }
+
+        /**
+         * Function invoked when the privacy subsystem has been enabled and is
+         * ready to be used.
+         */
+        virtual void onPrivacyEnabled()
+        {
+        }
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
@@ -724,6 +743,7 @@ public:
      * @param maxEvents Max number of events produced during advertising - 0 means no limit.
      * @return BLE_ERROR_NONE on success.
      *
+     * @see EventHandler::onAdvertisingStart when the advertising starts.
      * @see EventHandler::onScanRequestReceived when a scan request is received.
      * @see EventHandler::onAdvertisingEnd when the advertising ends.
      * @see EventHandler::onConnectionComplete when the device gets connected
@@ -1244,6 +1264,14 @@ public:
      * resolved and advertisement packets are forwarded to the application
      * even if the advertiser private address is unknown.
      *
+     * @par Initialization of the privacy subsystem
+     *
+     * When privacy is enabled, the system generates new resolvable and non
+     * resolvable private addresses. Scan, Advertising and Connecting to a peer
+     * won't be available until the generation process completes. When addresses
+     * have been generated, the application is notified that privacy
+     * initialisation as completed with a call to EventHandler::onPrivacyEnabled .
+     *
      * @param[in] enable Should be set to true to enable the privacy mode and
      * false to disable it.
      *
@@ -1448,6 +1476,8 @@ public:
      * forbidden by the Bluetooth specification.
      */
     ble_error_t setRandomStaticAddress(const ble::address_t& address);
+
+    ble::address_t getRandomStaticAddress();
 #endif // !defined(DOXYGEN_ONLY)
 
 private:

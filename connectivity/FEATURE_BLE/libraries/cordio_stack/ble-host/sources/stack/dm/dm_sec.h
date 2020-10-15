@@ -83,6 +83,8 @@ typedef struct
 {
   uint8_t               *pIrk;
   uint8_t               *pCsrk;
+  bdAddr_t              bdAddr;
+  uint8_t               addrType;
 } dmSecCb_t;
 
 /**************************************************************************************************

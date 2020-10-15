@@ -122,6 +122,16 @@ typedef Duration<uint16_t, 10000, Range<0x0A, 0x4000> > sync_timeout_t;
 typedef Duration<uint16_t, 1250, Range<0x06, 0xFFFF> > periodic_interval_t;
 
 /**
+ * Resolvable address timeout.
+ *
+ * The duration is in seconds and ranges from 1 to 0xA1B8. The default value is
+ * 900 seconds.
+ */
+using resolvable_address_timeout_t = Duration<
+    uint16_t, second_t::TIME_BASE, Range<1, 0xA1B8, 0x0384>
+>;
+
+/**
  * Number of connection events that can be skipped by the slave.
  *
  * It ranges from 0 to 0x1F3.
@@ -445,8 +455,8 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
         NO_FILTER = 0x00,
 
         /**
-        * Accept only advertising packets from devices in the whitelist except
-        * directed advertising packets not addressed to this device.
+        * Accept only advertising packets from devices in the whitelist.
+        * Directed advertising packets not addressed to this device will be ignored.
         */
         FILTER_ADVERTISING = 0x01,
 

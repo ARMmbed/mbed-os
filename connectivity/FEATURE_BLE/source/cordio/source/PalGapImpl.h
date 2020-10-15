@@ -147,12 +147,6 @@ public:
         local_disconnection_reason_t disconnection_reason
     ) final;
 
-    bool is_privacy_supported() final;
-
-    ble_error_t set_address_resolution(
-        bool enable
-    ) final;
-
     ble_error_t read_phy(connection_handle_t connection) final;
 
     ble_error_t set_preferred_phys(
@@ -180,6 +174,7 @@ public:
         const address_t &address
     ) final;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t set_extended_advertising_parameters(
         advertising_handle_t advertising_handle,
         advertising_event_properties_t event_properties,
@@ -197,6 +192,7 @@ public:
         uint8_t advertising_sid,
         bool scan_request_notification
     ) final;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     ble_error_t set_periodic_advertising_parameters(
         advertising_handle_t advertising_handle,
@@ -370,18 +366,30 @@ private:
 
         static GapConnectionCompleteEvent convert(const hciLeConnCmplEvt_t *conn_evt)
         {
+            const bdAddr_t *peer_rpa = &conn_evt->peerRpa;
+            const bdAddr_t *peer_address = &conn_evt->peerAddr;
+
+#if defined(TARGET_MCU_STM32WB55xx)
+            const bdAddr_t invalidAddress = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+            if (conn_evt->addrType == DM_ADDR_RANDOM &&
+                memcmp(peer_address, invalidAddress, sizeof(invalidAddress)) == 0 &&
+                memcmp(peer_rpa, invalidAddress, sizeof(invalidAddress) != 0)
+            ) {
+                std::swap(peer_rpa, peer_address);
+            }
+#endif
             return GapConnectionCompleteEvent(
                 conn_evt->status,
                 // note the usage of the stack handle, not the HCI handle
                 conn_evt->hdr.param,
                 (connection_role_t::type) conn_evt->role,
                 (peer_address_type_t::type) conn_evt->addrType,
-                conn_evt->peerAddr,
+                *peer_address,
                 conn_evt->connInterval,
                 conn_evt->connLatency,
                 conn_evt->supTimeout,
                 conn_evt->localRpa,
-                conn_evt->peerRpa
+                *peer_rpa
             );
         }
     };
@@ -541,6 +549,7 @@ private:
     uint8_t extended_scan_type[3];
     phy_set_t scanning_phys;
     direct_adv_cb_t direct_adv_cb[DM_NUM_ADV_SETS];
+    bool ext_scan_stopping = false;
 
     /**
      * Callback called when an event is emitted by the LE subsystem.

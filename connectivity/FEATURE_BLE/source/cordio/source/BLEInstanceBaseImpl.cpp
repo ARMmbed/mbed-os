@@ -200,8 +200,10 @@ ble::impl::Gap &BLEInstanceBase::getGapImpl()
     static ble::impl::Gap gap(
         _event_queue,
         ble::impl::PalGap::get_gap(),
-        cordio_gap_service,
-        ble::impl::PalSecurityManager::get_security_manager()
+        cordio_gap_service
+#if BLE_FEATURE_PRIVACY
+        , getPrivateAddressRegistry()
+#endif // BLE_FEATURE_PRIVACY
     );
     return gap;
 }
@@ -220,7 +222,6 @@ const ble::Gap &BLEInstanceBase::getGap() const
 };
 
 #if BLE_FEATURE_GATT_SERVER
-
 ble::impl::GattServer &BLEInstanceBase::getGattServerImpl()
 {
     return ble::impl::GattServer::getInstance();
@@ -238,11 +239,9 @@ const ble::GattServer &BLEInstanceBase::getGattServer() const
     auto &self = const_cast<BLEInstanceBase &>(*this);
     return const_cast<const ble::GattServer &>(self.getGattServer());
 }
-
 #endif // BLE_FEATURE_GATT_SERVER
 
 #if BLE_FEATURE_GATT_CLIENT
-
 ble::impl::GattClient &BLEInstanceBase::getGattClientImpl()
 {
     static ble::impl::GattClient gatt_client(getPalGattClient());
@@ -261,11 +260,9 @@ PalGattClient &BLEInstanceBase::getPalGattClient()
     static PalAttClientToGattClient pal_gatt_client(impl::PalAttClient::get_client());
     return pal_gatt_client;
 }
-
 #endif // BLE_FEATURE_GATT_CLIENT
 
 #if BLE_FEATURE_SECURITY
-
 ble::impl::SecurityManager &BLEInstanceBase::getSecurityManagerImpl()
 {
     // Creation of a proxy monitor to let the security manager register to
@@ -286,11 +283,15 @@ ble::impl::SecurityManager &BLEInstanceBase::getSecurityManagerImpl()
         ble::impl::PalSecurityManager::get_security_manager(),
         getGapImpl(),
         signing_event_monitor
+#if BLE_FEATURE_PRIVACY
+        , getPrivateAddressRegistry()
+#endif //BLE_FEATURE_PRIVACY
     );
 
     return m_instance;
 }
 
+#if BLE_FEATURE_SECURITY
 ble::SecurityManager &BLEInstanceBase::getSecurityManager()
 {
     static ble::SecurityManager m_instance(&getSecurityManagerImpl());
@@ -302,7 +303,19 @@ const ble::SecurityManager &BLEInstanceBase::getSecurityManager() const
     const BLEInstanceBase &self = const_cast<BLEInstanceBase &>(*this);
     return const_cast<const ble::SecurityManager &>(self.getSecurityManager());
 }
+#endif // BLE_FEATURE_SECURITY
 
+#if BLE_FEATURE_PRIVACY
+ble::PrivateAddressController &BLEInstanceBase::getPrivateAddressRegistry()
+{
+    static ble::PrivateAddressController registry(
+        impl::PalPrivateAddressController::instance(),
+        _event_queue,
+        ble::resolvable_address_timeout_t{}
+    );
+    return registry;
+}
+#endif // BLE_FEATURE_PRIVACY
 #endif // BLE_FEATURE_SECURITY
 
 void BLEInstanceBase::waitForEvent()
@@ -337,6 +350,12 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
     if (ble::impl::PalSecurityManager::get_security_manager().sm_handler(msg)) {
         return;
     }
+
+#if BLE_FEATURE_PRIVACY
+    if (impl::PalPrivateAddressController::instance().cordio_handler(msg)) {
+        return;
+    }
+#endif
 #endif // BLE_FEATURE_SECURITY
 
     switch (msg->event) {
@@ -365,6 +384,7 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
 #if BLE_FEATURE_GATT_SERVER
             deviceInstance().getGattServerImpl().initialize();
 #endif
+
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
         }   break;

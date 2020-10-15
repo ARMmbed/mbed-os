@@ -33,6 +33,9 @@
 #include "source/pal/PalSecurityManager.h"
 
 
+// Cordio defines the random address used by connection to be the global one
+#define CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION 1
+
 using namespace std::chrono;
 
 MBED_STATIC_ASSERT(BLE_GAP_MAX_ADVERTISING_SETS < 0xFF, "BLE_GAP_MAX_ADVERTISING_SETS must be less than 255");
@@ -73,6 +76,7 @@ static bool is_in_range(T value, T lower_bound, T higher_bound)
     return true;
 }
 
+#if BLE_FEATURE_CONNECTABLE
 /*
  * Return true of the connection parameters are acceptable as preferred connection
  * parameters.
@@ -125,6 +129,7 @@ bool is_preferred_connection_params_valid(const Gap::PreferredConnectionParams_t
 
     return true;
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
 /**
  * Check if random bytes of an address are valid.
@@ -228,6 +233,7 @@ bool is_random_address(const address_t &address)
         is_random_static_address(address);
 }
 
+#if BLE_FEATURE_WHITELIST
 /*
  * Return true if the whitelist in input is valid or false otherwise.
  */
@@ -291,7 +297,9 @@ whitelist_address_type_t to_whitelist_address_type(
         whitelist_address_type_t::PUBLIC_DEVICE_ADDRESS :
         whitelist_address_type_t::RANDOM_DEVICE_ADDRESS;
 }
+#endif // BLE_FEATURE_WHITELIST
 
+#if BLE_FEATURE_CONNECTABLE
 microsecond_t minSupervisionTimeout(
     const conn_interval_t &maxConnectionInterval,
     const slave_latency_t &slaveLatency
@@ -301,38 +309,59 @@ microsecond_t minSupervisionTimeout(
     // Section 7.8.12 LE Create Connection
     return (1 + slaveLatency.value()) * maxConnectionInterval * 2;
 }
+#endif // BLE_FEATURE_CONNECTABLE
+
+bool is_connectable_advertising(const AdvertisingParameters &params)
+{
+    advertising_event_properties_t event_properties(params.getType());
+    return event_properties.connectable;
+}
 
 } // end of anonymous namespace
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
 const peripheral_privacy_configuration_t Gap::default_peripheral_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE
 };
+#endif // BLE_ROLE_BROADCASTER
 
-
+#if BLE_ROLE_OBSERVER
 const central_privacy_configuration_t Gap::default_central_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ central_privacy_configuration_t::RESOLVE_AND_FORWARD
 };
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
 
 Gap::Gap(
     ble::PalEventQueue &event_queue,
     ble::PalGap &pal_gap,
-    ble::PalGenericAccessService &generic_access_service,
-    ble::PalSecurityManager &pal_sm
+    ble::PalGenericAccessService &generic_access_service
+#if BLE_FEATURE_PRIVACY
+    , ble::PrivateAddressController &private_address_controller
+#endif //BLE_FEATURE_PRIVACY
 ) : _event_queue(event_queue),
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
-    _pal_sm(pal_sm),
+#if BLE_FEATURE_PRIVACY
+    _private_address_controller(private_address_controller),
+#endif // BLE_FEATURE_PRIVACY
     _address_type(own_address_type_t::PUBLIC),
     _initiator_policy_mode(initiator_policy_t::NO_FILTER),
     _scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
     _advertising_filter_policy(advertising_filter_policy_t::NO_FILTER),
     _whitelist(),
     _privacy_enabled(false),
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
     _central_privacy_configuration(default_central_privacy_configuration),
-    _random_address_rotating(false),
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
     _scan_enabled(false),
     _advertising_timeout(),
     _scan_timeout(),
@@ -348,6 +377,9 @@ Gap::Gap(
     _random_static_identity_address = _pal_gap.get_random_address();
 
     _pal_gap.set_event_handler(this);
+#if BLE_FEATURE_PRIVACY
+    _private_address_controller.set_event_handler(this);
+#endif // BLE_FEATURE_PRIVACY
 }
 
 
@@ -394,17 +426,23 @@ ble_error_t Gap::setRandomStaticAddress(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    ble_error_t err = _pal_gap.set_random_address(address);
-    if (err) {
-        return err;
+    if (!_privacy_enabled) {
+        ble_error_t err = _pal_gap.set_random_address(address);
+        if (err) {
+            return err;
+        }
     }
 
     _address_type = own_address_type_t::RANDOM;
-    _address = address;
     _random_static_identity_address = address;
+
     return BLE_ERROR_NONE;
 }
 
+ble::address_t Gap::getRandomStaticAddress()
+{
+    return _random_static_identity_address;
+}
 
 ble_error_t Gap::getAddress(
     own_address_type_t &type,
@@ -451,11 +489,9 @@ ble_error_t Gap::stopScan()
 {
     ble_error_t err;
 
-    if (!_scan_enabled) {
-        return BLE_ERROR_NONE;
+    if ((!_scan_enabled && !_scan_pending) || _scan_pending || _initiating) {
+        return BLE_STACK_BUSY;
     }
-
-    _scan_enabled = false;
 
     if (is_extended_advertising_available()) {
         err = _pal_gap.extended_scan_enable(false, duplicates_filter_t::DISABLE, 0, 0);
@@ -464,15 +500,10 @@ ble_error_t Gap::stopScan()
     }
 
     if (err) {
-        _scan_enabled = true;
         return err;
     }
 
-#if BLE_FEATURE_PRIVACY
-    // Stop address rotation if required
-    set_random_address_rotation(false);
-#endif
-
+    _scan_pending = true;
     _scan_timeout.detach();
 
     return BLE_ERROR_NONE;
@@ -487,6 +518,12 @@ ble_error_t Gap::connect(
     const ConnectionParameters &connectionParams
 )
 {
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     if (!connectionParams.getNumberOfEnabledPhys()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -506,58 +543,120 @@ ble_error_t Gap::connect(
         }
     }
 
+    // get the random address to set, if not valid, report the error
+    const address_t *address = get_random_address(controller_operation_t::initiating);
+    if (!address) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    ble_error_t ret = BLE_ERROR_INTERNAL_STACK_FAILURE;
+
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    /* if host resolution is used we need to connect in two passes, first we scan for addresses to find
+     * a resolving match and then we call connect again with the correct address */
+    if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::idle) {
+        if (peerAddressType == peer_address_type_t::RANDOM_STATIC_IDENTITY ||
+            peerAddressType == peer_address_type_t::PUBLIC_IDENTITY) {
+
+            _connect_to_host_resolved_address_parameters = new ConnectionParameters(connectionParams);
+            if (!_connect_to_host_resolved_address_parameters) {
+                return BLE_ERROR_NO_MEM;
+            }
+
+            _connect_to_host_resolved_address_type = peerAddressType;
+            _connect_to_host_resolved_address = peerAddress;
+            _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::scan;
+        }
+    } else if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::connect) {
+        /* the first pass of connect has completed and this is the second connect that doesn't require
+         * address resolution */
+        _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+        _initiating = false;
+    }
+
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     if (is_extended_advertising_available() == false) {
         phy_set_t set(connectionParams.getPhySet());
         if (set.count() != 1 || set.get_1m() == false) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        // ensure scan is stopped.
-        _pal_gap.scan_enable(false, false);
+        if (!_scan_enabled) {
+            if (!_active_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+                !_pending_sets.get(LEGACY_ADVERTISING_HANDLE)
+                ) {
+                _pal_gap.set_random_address(*address);
+            }
+        } else {
+            stopScan();
+        }
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+        if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+            ret = startScan(
+                scan_duration_t::forever(),
+                duplicates_filter_t::ENABLE,
+                (scan_period_t)0
+            );
+            if (ret != BLE_ERROR_NONE) {
+                _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+            }
+        } else
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+        {
+            ret = _pal_gap.create_connection(
+                connectionParams.getScanIntervalArray()[0],
+                connectionParams.getScanWindowArray()[0],
+                connectionParams.getFilter(),
+                (connection_peer_address_type_t::type) peerAddressType.value(),
+                peerAddress,
+                connectionParams.getOwnAddressType(),
+                connectionParams.getMinConnectionIntervalArray()[0],
+                connectionParams.getMaxConnectionIntervalArray()[0],
+                connectionParams.getSlaveLatencyArray()[0],
+                connectionParams.getConnectionSupervisionTimeoutArray()[0],
+                connectionParams.getMinEventLengthArray()[0],
+                connectionParams.getMaxConnectionIntervalArray()[0]
+            );
+        }
+    } else {
+        // set the correct mac address before starting scanning.
+        if (!_scan_enabled) {
+            _pal_gap.set_random_address(*address);
+        } else {
+            // ensure scan is stopped.
+            stopScan();
+        }
 
-        return _pal_gap.create_connection(
-            connectionParams.getScanIntervalArray()[0],
-            connectionParams.getScanWindowArray()[0],
+        // reduce the address type to public or random
+        peer_address_type_t adjusted_address_type(peer_address_type_t::PUBLIC);
+
+        if (peerAddressType == peer_address_type_t::RANDOM ||
+            peerAddressType == peer_address_type_t::RANDOM_STATIC_IDENTITY) {
+            adjusted_address_type = peer_address_type_t::RANDOM;
+        }
+
+        ret = _pal_gap.extended_create_connection(
             connectionParams.getFilter(),
-            (connection_peer_address_type_t::type) peerAddressType.value(),
-            peerAddress,
             connectionParams.getOwnAddressType(),
-            connectionParams.getMinConnectionIntervalArray()[0],
-            connectionParams.getMaxConnectionIntervalArray()[0],
-            connectionParams.getSlaveLatencyArray()[0],
-            connectionParams.getConnectionSupervisionTimeoutArray()[0],
-            connectionParams.getMinEventLengthArray()[0],
-            connectionParams.getMaxConnectionIntervalArray()[0]
+            adjusted_address_type,
+            peerAddress,
+            connectionParams.getPhySet(),
+            connectionParams.getScanIntervalArray(),
+            connectionParams.getScanWindowArray(),
+            connectionParams.getMinConnectionIntervalArray(),
+            connectionParams.getMaxConnectionIntervalArray(),
+            connectionParams.getSlaveLatencyArray(),
+            connectionParams.getConnectionSupervisionTimeoutArray(),
+            connectionParams.getMinEventLengthArray(),
+            connectionParams.getMaxEventLengthArray()
         );
     }
 
-    // ensure scan is stopped.
-    _pal_gap.extended_scan_enable(false, duplicates_filter_t::DISABLE, 0, 0);
-
-    // reduce the address type to public or random
-    peer_address_type_t adjusted_address_type(peer_address_type_t::PUBLIC);
-
-    if (peerAddressType == peer_address_type_t::RANDOM ||
-        peerAddressType == peer_address_type_t::RANDOM_STATIC_IDENTITY
-        ) {
-        adjusted_address_type = peer_address_type_t::RANDOM;
+    if (ret == BLE_ERROR_NONE) {
+        _initiating = true;
     }
-
-    return _pal_gap.extended_create_connection(
-        connectionParams.getFilter(),
-        connectionParams.getOwnAddressType(),
-        adjusted_address_type,
-        peerAddress,
-        connectionParams.getPhySet(),
-        connectionParams.getScanIntervalArray(),
-        connectionParams.getScanWindowArray(),
-        connectionParams.getMinConnectionIntervalArray(),
-        connectionParams.getMaxConnectionIntervalArray(),
-        connectionParams.getSlaveLatencyArray(),
-        connectionParams.getConnectionSupervisionTimeoutArray(),
-        connectionParams.getMinEventLengthArray(),
-        connectionParams.getMaxEventLengthArray()
-    );
+    return ret;
 }
 #endif
 
@@ -596,10 +695,7 @@ ble_error_t Gap::updateConnectionParameters(
         maxConnectionEventLength.value()
     );
 }
-#endif
 
-
-#if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::acceptConnectionParametersUpdate(
     connection_handle_t connectionHandle,
     conn_interval_t minConnectionInterval,
@@ -624,10 +720,7 @@ ble_error_t Gap::acceptConnectionParametersUpdate(
         maxConnectionEventLength.value()
     );
 }
-#endif
 
-
-#if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::rejectConnectionParametersUpdate(
     connection_handle_t connectionHandle
 )
@@ -637,25 +730,37 @@ ble_error_t Gap::rejectConnectionParametersUpdate(
         hci_error_code_t::UNACCEPTABLE_CONNECTION_PARAMETERS
     );
 }
-#endif
-
+#endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_ROLE_CENTRAL
 ble_error_t Gap::cancelConnect()
 {
-    return _pal_gap.cancel_connection_creation();
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+        connecting_to_host_resolved_address_failed(false);
+        stopScan();
+        return BLE_ERROR_NONE;
+    }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
+    if (!_initiating) {
+        return BLE_ERROR_NONE;
+    }
+
+    auto ret = _pal_gap.cancel_connection_creation();
+    if (ret) {
+        _initiating = false;
+    }
+    return ret;
 }
-#endif
+#endif // BLE_ROLE_CENTRAL
 
 #if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t Gap::readPhy(ble::connection_handle_t connection)
 {
     return _pal_gap.read_phy(connection);
 }
-#endif
 
-
-#if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t Gap::setPreferredPhys(
     const phy_set_t *txPhys,
     const phy_set_t *rxPhys
@@ -665,10 +770,7 @@ ble_error_t Gap::setPreferredPhys(
     phy_set_t rx_phys(rxPhys ? rxPhys->value() : 0);
     return _pal_gap.set_preferred_phys(tx_phys, rx_phys);
 }
-#endif
 
-
-#if BLE_FEATURE_PHY_MANAGEMENT
 ble_error_t Gap::setPhy(
     ble::connection_handle_t connection,
     const phy_set_t *txPhys,
@@ -680,8 +782,6 @@ ble_error_t Gap::setPhy(
     phy_set_t rx_phys(rxPhys ? rxPhys->value() : 0);
     return _pal_gap.set_phy(connection, tx_phys, rx_phys, codedSymbol);
 }
-#endif
-
 
 void Gap::on_read_phy(
     hci_error_code_t hci_status,
@@ -699,7 +799,7 @@ void Gap::on_read_phy(
         _event_handler->onPhyUpdateComplete(status, connection_handle, tx_phy, rx_phy);
     }
 }
-
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
 void Gap::on_data_length_change(
     connection_handle_t connection_handle,
@@ -712,7 +812,7 @@ void Gap::on_data_length_change(
     }
 }
 
-
+#if BLE_FEATURE_PHY_MANAGEMENT
 void Gap::on_phy_update_complete(
     hci_error_code_t hci_status,
     ble::connection_handle_t connection_handle,
@@ -729,7 +829,7 @@ void Gap::on_phy_update_complete(
         _event_handler->onPhyUpdateComplete(status, connection_handle, tx_phy, rx_phy);
     }
 }
-
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
 #if BLE_FEATURE_CONNECTABLE
 ble_error_t Gap::disconnect(
@@ -739,18 +839,14 @@ ble_error_t Gap::disconnect(
 {
     return _pal_gap.disconnect(connectionHandle, reason);
 }
-#endif
-
+#endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_FEATURE_WHITELIST
 uint8_t Gap::getMaxWhitelistSize(void) const
 {
     return _pal_gap.read_white_list_capacity();
 }
-#endif
 
-
-#if BLE_FEATURE_WHITELIST
 ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
 {
     if (initialize_whitelist() == false) {
@@ -768,10 +864,7 @@ ble_error_t Gap::getWhitelist(whitelist_t &whitelist) const
     whitelist.capacity = _whitelist.capacity;
     return BLE_ERROR_NONE;
 }
-#endif
 
-
-#if BLE_FEATURE_WHITELIST
 ble_error_t Gap::setWhitelist(const whitelist_t &whitelist)
 {
     if (is_whitelist_valid(whitelist) == false) {
@@ -863,8 +956,7 @@ ble_error_t Gap::setWhitelist(const whitelist_t &whitelist)
 
     return BLE_ERROR_NONE;
 }
-#endif
-
+#endif // BLE_FEATURE_WHITELIST
 
 #if BLE_FEATURE_PRIVACY
 ble_error_t Gap::enablePrivacy(bool enable)
@@ -874,18 +966,39 @@ ble_error_t Gap::enablePrivacy(bool enable)
         return BLE_ERROR_NONE;
     }
 
-    if (enable && !_pal_gap.is_privacy_supported()) {
-        // Privacy is not supported by the implementation
-        return BLE_ERROR_NOT_IMPLEMENTED;
+    if (is_radio_active()) {
+        return BLE_ERROR_INVALID_STATE;
     }
 
     _privacy_enabled = enable;
 
-    update_address_resolution_setting();
+    if (_privacy_enabled) {
+        _private_address_controller.start_private_address_generation();
+        if (_private_address_controller.get_non_resolvable_private_address() != address_t {} &&
+            _private_address_controller.get_resolvable_private_address() != address_t{}
+        ) {
+            _event_queue.post([this] {
+               if (_event_handler) {
+                   _event_handler->onPrivacyEnabled();
+               }
+            });
+        } else {
+            _privacy_initialization_pending = true;
+        }
+    } else {
+        _private_address_controller.stop_private_address_generation();
+        _privacy_initialization_pending = false;
+    }
+
+#if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_private_address_controller.is_controller_privacy_supported()) {
+        update_ll_address_resolution_setting();
+    }
+#endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     return BLE_ERROR_NONE;
 }
-#endif
+#endif // BLE_FEATURE_PRIVACY
 
 
 #if BLE_FEATURE_PRIVACY
@@ -896,16 +1009,15 @@ ble_error_t Gap::setPeripheralPrivacyConfiguration(
 {
     _peripheral_privacy_configuration = *configuration;
 
-    update_address_resolution_setting();
+#if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_private_address_controller.is_controller_privacy_supported()) {
+        update_ll_address_resolution_setting();
+    }
+#endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     return BLE_ERROR_NONE;
 }
-#endif
-#endif
 
-
-#if BLE_FEATURE_PRIVACY
-#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::getPeripheralPrivacyConfiguration(
     peripheral_privacy_configuration_t *configuration
 )
@@ -914,9 +1026,8 @@ ble_error_t Gap::getPeripheralPrivacyConfiguration(
 
     return BLE_ERROR_NONE;
 }
-#endif
-#endif
-
+#endif // BLE_ROLE_BROADCASTER
+#endif // BLE_FEATURE_PRIVACY
 
 #if BLE_FEATURE_PRIVACY
 #if BLE_ROLE_OBSERVER
@@ -926,16 +1037,15 @@ ble_error_t Gap::setCentralPrivacyConfiguration(
 {
     _central_privacy_configuration = *configuration;
 
-    update_address_resolution_setting();
+#if !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    if (_private_address_controller.is_controller_privacy_supported()) {
+        update_ll_address_resolution_setting();
+    }
+#endif // !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
     return BLE_ERROR_NONE;
 }
-#endif
-#endif
 
-
-#if BLE_FEATURE_PRIVACY
-#if BLE_ROLE_OBSERVER
 ble_error_t Gap::getCentralPrivacyConfiguration(
     central_privacy_configuration_t *configuration
 )
@@ -944,9 +1054,8 @@ ble_error_t Gap::getCentralPrivacyConfiguration(
 
     return BLE_ERROR_NONE;
 }
-#endif
-#endif
-
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
 
 ble_error_t Gap::reset()
 {
@@ -955,6 +1064,15 @@ ble_error_t Gap::reset()
     shutdownCallChain.clear();
 
     _event_handler = nullptr;
+    _initiating = false;
+#if BLE_FEATURE_PRIVACY
+    _privacy_initialization_pending = false;
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+    delete _connect_to_host_resolved_address_parameters;
+    _connect_to_host_resolved_address_parameters = nullptr;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_PRIVACY
 
 #if BLE_ROLE_BROADCASTER
     _advertising_timeout.detach();
@@ -1002,6 +1120,9 @@ ble_error_t Gap::reset()
             );
         }
         _active_sets.clear();
+        _pending_sets.clear();
+        _address_refresh_sets.clear();
+        _interruptible_sets.clear();
         _connectable_payload_size_exceeded.clear();
         _set_is_connectable.clear();
 
@@ -1024,66 +1145,133 @@ Gap::GapShutdownCallbackChain_t &Gap::onShutdown()
     return shutdownCallChain;
 }
 
+#if BLE_ROLE_OBSERVER
+void Gap::on_scan_started(bool success)
+{
+    _scan_pending = false;
+    _scan_enabled = success;
+}
 
+void Gap::on_scan_stopped(bool success)
+{
+    _scan_pending = false;
+    _scan_enabled = false;
+
+    if (!success) {
+        _scan_address_refresh = false;
+        return;
+    }
+
+    // The address is refreshed only if there's no other pending request to refresh
+    // the main address
+
+    bool wait_for_advertising_stop =
+        _address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        _active_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        _pending_sets.get(LEGACY_ADVERTISING_HANDLE);
+
+    bool restart_advertising =
+        !_active_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        !_pending_sets.get(LEGACY_ADVERTISING_HANDLE) &&
+        _address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE);
+
+#ifdef BLE_FEATURE_EXTENDED_ADVERTISING
+    if (is_extended_advertising_available()) {
+        wait_for_advertising_stop = false;
+        restart_advertising = false;
+    }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+
+    if (_scan_address_refresh && !wait_for_advertising_stop) {
+#if BLE_ROLE_BROADCASTER
+        if (restart_advertising) {
+            _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
+            startAdvertising(LEGACY_ADVERTISING_HANDLE);
+            _adv_started_from_refresh.set(LEGACY_ADVERTISING_HANDLE);
+        }
+#endif // BLE_ROLE_BROADCASTER
+
+        _scan_address_refresh = false;
+        startScan();
+    }
+}
+#endif // BLE_ROLE_OBSERVER
+
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+void Gap::connecting_to_host_resolved_address_failed(bool inform_user)
+{
+    if (inform_user && _event_handler) {
+        _event_handler->onConnectionComplete(
+            ConnectionCompleteEvent(
+                BLE_ERROR_NOT_FOUND,
+                INVALID_ADVERTISING_HANDLE,
+                connection_role_t::CENTRAL,
+                peer_address_type_t::ANONYMOUS,
+                ble::address_t(),
+                ble::address_t(),
+                ble::address_t(),
+                ble::conn_interval_t::max(),
+                /* dummy slave latency */ 0,
+                ble::supervision_timeout_t::max(),
+                /* master clock accuracy */ 0
+            )
+        );
+    }
+    _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+    delete _connect_to_host_resolved_address_parameters;
+    _connect_to_host_resolved_address_parameters = nullptr;
+    _initiating = false;
+}
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
+#if BLE_ROLE_OBSERVER
 void Gap::on_scan_timeout()
 {
     if (!_scan_enabled) {
         return;
     }
 
+    _scan_address_refresh = false;
     _scan_enabled = false;
-
-    if (!is_extended_advertising_available()) {
-        /* if timeout happened on a 4.2 chip this means legacy scanning and a timer timeout
-         * but we need to handle the event from user context - use the event queue to handle it */
-        _event_queue.post(
-            mbed::callback(
-                this,
-                &Gap::process_legacy_scan_timeout
-            )
-        );
-    } else {
-        if (_event_handler) {
-            _event_handler->onScanTimeout(ScanTimeoutEvent());
-        }
-    }
-}
-
-
-void Gap::process_legacy_scan_timeout()
-{
-    /* legacy scanning timed out is based on timer so we need to stop the scan manually */
-    _pal_gap.scan_enable(false, false);
-#if BLE_FEATURE_PRIVACY
-    set_random_address_rotation(false);
-#endif
+    _scan_pending = false;
 
     if (_event_handler) {
         _event_handler->onScanTimeout(ScanTimeoutEvent());
     }
 }
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_OBSERVER
+void Gap::process_legacy_scan_timeout()
+{
+    if (!_scan_enabled) {
+        return;
+    }
 
+    /* legacy scanning timed out is based on timer so we need to stop the scan manually */
+    _pal_gap.scan_enable(false, false);
+
+    if (_event_handler) {
+        _event_handler->onScanTimeout(ScanTimeoutEvent());
+    }
+}
+#endif // BLE_ROLE_OBSERVER
+
+#if BLE_ROLE_BROADCASTER
 void Gap::on_advertising_timeout()
 {
     _event_queue.post(mbed::callback(this, &Gap::process_advertising_timeout));
 }
 
-
 void Gap::process_advertising_timeout()
 {
-    // This will signal timeout via onAdvertisingEnd()
-    ble_error_t err = _pal_gap.advertising_enable(false);
-    if (err) {
-        // TODO: define the mechanism signaling the error
+    if (!_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+        return;
     }
 
-#if BLE_FEATURE_PRIVACY
-    // Stop address rotation if required
-    set_random_address_rotation(false);
-#endif
+    stopAdvertising(LEGACY_ADVERTISING_HANDLE);
 }
-
+#endif // BLE_ROLE_BROADCASTER
 
 void Gap::on_gap_event_received(const GapEvent &e)
 {
@@ -1119,23 +1307,11 @@ void Gap::on_gap_event_received(const GapEvent &e)
     }
 }
 
-
+#if BLE_ROLE_OBSERVER
 void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
 {
     for (size_t i = 0; i < e.size(); ++i) {
         GapAdvertisingReportEvent::advertising_t advertising = e[i];
-
-#if BLE_FEATURE_PRIVACY
-        // Check if the address hasn't been resolved
-        if (_privacy_enabled &&
-            _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::RESOLVE_AND_FILTER &&
-            advertising.address_type == connection_peer_address_type_t::RANDOM_ADDRESS &&
-            is_random_private_resolvable_address(advertising.address.data())
-            ) {
-            // Filter it out
-            continue;
-        }
-#endif // BLE_FEATURE_PRIVACY
 
         // note 1-to-1 conversion between connection_peer_address_type_t and
         // peer_address_type_t
@@ -1143,52 +1319,61 @@ void Gap::on_advertising_report(const GapAdvertisingReportEvent &e)
             static_cast<peer_address_type_t::type>(advertising.address_type.value());
 
         // report in new event handler
-        if (_event_handler) {
-            uint8_t event_type = 0;
-
-            // Conversion table available at BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E
-            // 7.7.65.13
-            switch (advertising.type.value()) {
-                case received_advertising_type_t::ADV_IND:
-                    event_type = 0x13;
-                    break;
-                case received_advertising_type_t::ADV_DIRECT_IND:
-                    event_type = 0x15;
-                    break;
-                case received_advertising_type_t::ADV_SCAN_IND:
-                    event_type = 0x12;
-                    break;
-                case received_advertising_type_t::ADV_NONCONN_IND:
-                    event_type = 0x10;
-                    break;
-                case received_advertising_type_t::SCAN_RESPONSE:
-                    event_type = 0x1B;
-                    break;
-            }
-
-            _event_handler->onAdvertisingReport(
-                AdvertisingReportEvent(
-                    advertising_event_t(event_type),
-                    peer_address_type,
-                    advertising.address,
-                    /* primary */ phy_t::LE_1M,
-                    /* secondary */ phy_t::NONE,
-                    /* SID - NO ADI FIELD IN THE PDU */ 0xFF,
-                    /* tx power information not available */ 127,
-                    advertising.rssi,
-                    /* NO PERIODIC ADVERTISING */ 0,
-                    peer_address_type_t::ANONYMOUS,
-                    ble::address_t(),
-                    Span<const uint8_t>(advertising.data.data(), advertising.data.size())
-                )
-            );
+        if (!_event_handler) {
+            continue;
         }
+
+        uint8_t event_type = 0;
+
+        // Conversion table available at BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E
+        // 7.7.65.13
+        switch (advertising.type.value()) {
+            case received_advertising_type_t::ADV_IND:
+                event_type = 0x13;
+                break;
+            case received_advertising_type_t::ADV_DIRECT_IND:
+                event_type = 0x15;
+                break;
+            case received_advertising_type_t::ADV_SCAN_IND:
+                event_type = 0x12;
+                break;
+            case received_advertising_type_t::ADV_NONCONN_IND:
+                event_type = 0x10;
+                break;
+            case received_advertising_type_t::SCAN_RESPONSE:
+                event_type = 0x1B;
+                break;
+        }
+
+        AdvertisingReportEvent event(
+            advertising_event_t(event_type),
+            peer_address_type,
+            advertising.address,
+            /* primary */ phy_t::LE_1M,
+            /* secondary */ phy_t::NONE,
+            /* SID - NO ADI FIELD IN THE PDU */ 0xFF,
+            /* tx power information not available */ 127,
+            advertising.rssi,
+            /* NO PERIODIC ADVERTISING */ 0,
+            peer_address_type_t::ANONYMOUS,
+            ble::address_t(),
+            Span<const uint8_t>(advertising.data.data(), advertising.data.size())
+        );
+
+        signal_advertising_report(
+            event
+        );
     }
 }
+#endif // BLE_ROLE_OBSERVER
 
-
+#if BLE_FEATURE_CONNECTABLE
 void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
 {
+    if (e.role == connection_role_t::CENTRAL) {
+        _initiating = false;
+    }
+
     if (e.status != hci_error_code_t::SUCCESS) {
         if (_event_handler) {
             _event_handler->onConnectionComplete(
@@ -1211,110 +1396,37 @@ void Gap::on_connection_complete(const GapConnectionCompleteEvent &e)
         return;
     }
 
-    bool needs_pairing = false;
-    bool needs_authentication = false;
+    if (!is_extended_advertising_available() && e.role == connection_role_t::PERIPHERAL) {
+        _active_sets.clear(LEGACY_ADVERTISING_HANDLE);
+    }
 
 #if BLE_ROLE_PERIPHERAL
-#if BLE_FEATURE_PRIVACY
-    if (_privacy_enabled &&
-        e.role.value() == e.role.PERIPHERAL &&
-        e.peer_address_type == peer_address_type_t::RANDOM
-        ) {
-        // Apply privacy policy if in peripheral mode for non-resolved addresses
-        ble::random_address_type_t random_address_type(ble::random_address_type_t::RESOLVABLE_PRIVATE);
-        ble_error_t err = getRandomAddressType(e.peer_address.data(), &random_address_type);
-        if (err) {
-            // FIXME: return for now; needs to report the error ?
-            return;
-        }
-
-        if (random_address_type == ble::random_address_type_t::RESOLVABLE_PRIVATE) {
-            switch (_peripheral_privacy_configuration.resolution_strategy) {
-                case peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS:
-                    // Reject connection request - the user will get notified through a callback
-                    _pal_gap.disconnect(
-                        e.connection_handle,
-                        local_disconnection_reason_t::AUTHENTICATION_FAILURE
-                    );
-                    return;
-
-                case peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE:
-                    needs_pairing = true;
-                    break;
-
-                case peripheral_privacy_configuration_t::PERFORM_AUTHENTICATION_PROCEDURE:
-                    needs_authentication = true;
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    }
-#endif // BLE_FEATURE_PRIVACY
-
     if (e.role.value() == e.role.PERIPHERAL) {
         _advertising_timeout.detach();
         _pal_gap.advertising_enable(false);
-
-#if BLE_FEATURE_PRIVACY
-        // Stop address rotation if required
-        set_random_address_rotation(false);
-#endif
     }
 #endif // BLE_ROLE_PERIPHERAL
 
-    ble::address_t address;
-    if (_address_type == own_address_type_t::PUBLIC) {
-        address = _pal_gap.get_device_address();
-    } else {
-        address = _pal_gap.get_random_address();
-    }
+    ConnectionCompleteEvent event(
+        BLE_ERROR_NONE,
+        e.connection_handle,
+        e.role,
+        e.peer_address_type,
+        e.peer_address,
+        e.local_resolvable_private_address,
+        e.peer_resolvable_private_address,
+        conn_interval_t(e.connection_interval),
+        e.connection_latency,
+        supervision_timeout_t(e.supervision_timeout),
+        /* default master clock accuracy */ ble::clock_accuracy_t::PPM_500
+    );
 
-    // signal internal stack
-    if (_connection_event_handler) {
-        _connection_event_handler->on_connected(
-            e.connection_handle,
-            e.role,
-            e.peer_address_type,
-            e.peer_address,
-            _address_type,
-            address
-        );
-    }
-
-    // signal application
     if (_event_handler) {
-        _event_handler->onConnectionComplete(
-            ConnectionCompleteEvent(
-                BLE_ERROR_NONE,
-                e.connection_handle,
-                e.role,
-                e.peer_address_type,
-                e.peer_address,
-                e.local_resolvable_private_address,
-                e.peer_resolvable_private_address,
-                conn_interval_t(e.connection_interval),
-                e.connection_latency,
-                supervision_timeout_t(e.supervision_timeout),
-                /* default master clock accuracy */ ble::clock_accuracy_t::PPM_500
-            )
-        );
+        signal_connection_complete(event);
+    } else {
+        report_internal_connection_complete(event);
     }
-
-#if BLE_FEATURE_SECURITY
-    // Now starts pairing or authentication procedures if required
-    if (needs_pairing) {
-        ble::SecurityManager &sm = createBLEInstance()->getSecurityManager();
-        // Request authentication to start pairing procedure
-        sm.requestAuthentication(e.connection_handle);
-    } else if (needs_authentication) {
-        // TODO: GAP Authentication != Security Manager authentication
-        // Needs to be implemented
-    }
-#endif // BLE_FEATURE_SECURITY
 }
-
 
 void Gap::on_disconnection_complete(const GapDisconnectionCompleteEvent &e)
 {
@@ -1340,7 +1452,6 @@ void Gap::on_disconnection_complete(const GapDisconnectionCompleteEvent &e)
         // TODO: define what to do in case of failure
     }
 }
-
 
 void Gap::on_connection_parameter_request(const GapRemoteConnectionParameterRequestEvent &e)
 {
@@ -1371,7 +1482,6 @@ void Gap::on_connection_parameter_request(const GapRemoteConnectionParameterRequ
     }
 }
 
-
 void Gap::on_connection_update(const GapConnectionUpdateEvent &e)
 {
     if (!_event_handler) {
@@ -1388,14 +1498,13 @@ void Gap::on_connection_update(const GapConnectionUpdateEvent &e)
         )
     );
 }
-
+#endif //BLE_FEATURE_CONNECTABLE
 
 void Gap::on_unexpected_error(const GapUnexpectedErrorEvent &e)
 {
     // TODO: add feature in interface to notify the user that the connection
     // has been updated.
 }
-
 
 own_address_type_t Gap::get_own_address_type(AddressUseType_t address_use_type)
 {
@@ -1435,7 +1544,7 @@ own_address_type_t Gap::get_own_address_type(AddressUseType_t address_use_type)
     }
 }
 
-
+#if BLE_FEATURE_WHITELIST
 bool Gap::initialize_whitelist() const
 {
     if (_whitelist.addresses != nullptr) {
@@ -1458,9 +1567,10 @@ bool Gap::initialize_whitelist() const
 
     return true;
 }
+#endif // BLE_FEATURE_WHITELIST
 
-
-ble_error_t Gap::update_address_resolution_setting()
+#if BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+ble_error_t Gap::update_ll_address_resolution_setting()
 {
     // enable if privacy is enabled and resolution is requested in either central or peripheral mode
     bool enable = false;
@@ -1479,124 +1589,9 @@ ble_error_t Gap::update_address_resolution_setting()
 #endif // BLE_ROLE_OBSERVER
     }
 
-    return _pal_gap.set_address_resolution(enable);
+    return _private_address_controller.enable_controller_address_resolution(enable);
 }
-
-
-void Gap::set_random_address_rotation(bool enable)
-{
-    if (enable == _random_address_rotating) {
-        return;
-    }
-
-    _random_address_rotating = enable;
-
-    if (enable) {
-        // Set first address
-        update_random_address();
-
-        // Schedule rotations every 15 minutes as recomended by the spec
-        _address_rotation_ticker.attach(
-            mbed::callback(this, &Gap::on_address_rotation_timeout),
-            15min
-        );
-    } else {
-        // Stop ticker
-        _address_rotation_ticker.detach();
-
-        // Set static random identity address
-        _pal_gap.set_random_address(
-            _random_static_identity_address
-        );
-    }
-}
-
-
-void Gap::update_random_address()
-{
-    if (!_random_address_rotating) {
-        // This event might have been queued before we disabled address rotation
-        return;
-    }
-#if BLE_FEATURE_EXTENDED_ADVERTISING
-    if (is_extended_advertising_available()) {
-        for (uint8_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
-            if (_existing_sets.get(i)) {
-                ble::address_t address;
-
-                if (!getUnresolvableRandomAddress(address)) {
-                    return;
-                }
-
-                /* ignore the error, if it fails to cycle because it's connectable */
-                _pal_gap.set_advertising_set_random_address(
-                    (advertising_handle_t) i,
-                    address
-                );
-            }
-        }
-    }
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
-
-    ble::address_t address;
-
-    if (!getUnresolvableRandomAddress(address)) {
-        return;
-    }
-
-    ble_error_t err = _pal_gap.set_random_address(
-        address
-    );
-
-    if (err) {
-        return;
-    }
-
-    _address_type = own_address_type_t::RANDOM;
-    _address = address;
-}
-
-
-bool Gap::getUnresolvableRandomAddress(ble::address_t &address)
-{
-    do {
-        byte_array_t<8> random_data;
-#if BLE_FEATURE_SECURITY
-        ble_error_t ret = _pal_sm.get_random_data(random_data);
-#else
-        ble_error_t ret = BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_FEATURE_SECURITY
-        if (ret != BLE_ERROR_NONE) {
-            // Abort
-            return false;
-        }
-
-        // Build a non-resolvable private address as specified in the Core 4.2 spec, Vol 6, Part B, 1.3.2.2
-        // Mask out two MSbs
-        random_data[5] &= 0x3F;
-
-        // Copy to address - will copy first 6 bytes
-        address = ble::address_t(random_data.data());
-
-        if (!is_random_private_non_resolvable_address(address.data())) {
-            // If address is invalid, which is unlikely (all 0s or all 1s), try again
-            // If implementation is faulty, we'll get stuck here
-            continue;
-        }
-
-        // Address is valid
-        break;
-    }
-    while (true);
-
-    return true;
-}
-
-
-void Gap::on_address_rotation_timeout()
-{
-    _event_queue.post(mbed::callback(this, &Gap::update_random_address));
-}
+#endif // BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 #if BLE_ROLE_BROADCASTER
 uint8_t Gap::getMaxAdvertisingSetNumber()
@@ -1656,18 +1651,22 @@ ble_error_t Gap::createAdvertisingSet(
 
     for (; new_handle < end; ++new_handle) {
         if (!_existing_sets.get(new_handle)) {
-            ble_error_t err = setExtendedAdvertisingParameters(
+            // Note: we use setAdvertisingParameters instead of
+            // setExtendedAdvertisingParameters as it checks all the inputs.
+            // We need to indicate the set existing before making the request
+            // in case of failure we mark it back as not existing.
+            _existing_sets.set(new_handle);
+            ble_error_t err = setAdvertisingParameters(
                 new_handle,
                 parameters
             );
+
             if (err) {
-                return err;
+                _existing_sets.clear(new_handle);
+            } else {
+                *handle = new_handle;
             }
-
-            _existing_sets.set(new_handle);
-            *handle = new_handle;
-
-            return BLE_ERROR_NONE;
+            return err;
         }
     }
 
@@ -1697,7 +1696,7 @@ ble_error_t Gap::destroyAdvertisingSet(advertising_handle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (_active_sets.get(handle)) {
+    if (_pending_sets.get(handle) || _active_sets.get(handle)) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 #if BLE_FEATURE_PERIODIC_ADVERTISING
@@ -1726,20 +1725,30 @@ ble_error_t Gap::setAdvertisingParameters(
     const AdvertisingParameters &params
 )
 {
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    // It is not permited to reconfigure an advertising set while advertising
+    if (_pending_sets.get(handle) || _active_sets.get(handle)) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
+#if BLE_FEATURE_PRIVACY
+    // If privacy is enabled, alter the own address type used during advertising
+    if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+#endif
+
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (!_existing_sets.get(handle)) {
         if (handle == LEGACY_ADVERTISING_HANDLE) {
-            prepare_legacy_advertising_set();
+            return prepare_legacy_advertising_set(params);
         } else {
             return BLE_ERROR_INVALID_PARAM;
         }
-    }
-
-    if (is_extended_advertising_available()) {
+    } else if (is_extended_advertising_available()) {
         return setExtendedAdvertisingParameters(handle, params);
     } else
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
@@ -1754,7 +1763,7 @@ ble_error_t Gap::setAdvertisingParameters(
             params.getChannel39()
         );
 
-        return _pal_gap.set_advertising_parameters(
+        auto err = _pal_gap.set_advertising_parameters(
             params.getMinPrimaryInterval().value(),
             params.getMaxPrimaryInterval().value(),
             params.getType(),
@@ -1764,30 +1773,27 @@ ble_error_t Gap::setAdvertisingParameters(
             channel_map,
             params.getFilter()
         );
+
+        if (!err) {
+            update_advertising_set_connectable_attribute(handle, params);
+        }
+        return err;
     }
 }
 #endif
 
-
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 ble_error_t Gap::setExtendedAdvertisingParameters(
     advertising_handle_t handle,
     const AdvertisingParameters &params
 )
 {
-    if (handle >= getMaxAdvertisingSetNumber()) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    if (_active_sets.get(handle)) {
-        return BLE_ERROR_OPERATION_NOT_PERMITTED;
-    }
-
     /* check for illegal parameter combination */
-    if ((
-        params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
-            params.getType() == advertising_type_t::CONNECTABLE_DIRECTED
-    ) &&
-        params.getUseLegacyPDU() == false) {
+    if ((params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
+         params.getType() == advertising_type_t::CONNECTABLE_DIRECTED) &&
+        params.getUseLegacyPDU() == false
+    ) {
         /* these types can only be used with legacy PDUs */
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1803,7 +1809,7 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
         params.getChannel39()
     );
 
-    ble_error_t err = _pal_gap.set_extended_advertising_parameters(
+    auto err = _pal_gap.set_extended_advertising_parameters(
         handle,
         event_properties,
         params.getMinPrimaryInterval().value(),
@@ -1821,22 +1827,14 @@ ble_error_t Gap::setExtendedAdvertisingParameters(
         params.getScanRequestNotification()
     );
 
-    if (err) {
-        return err;
+    if (!err) {
+        update_advertising_set_connectable_attribute(handle, params);
     }
 
-    if (event_properties.connectable) {
-        _set_is_connectable.set(handle);
-    } else {
-        _set_is_connectable.clear(handle);
-    }
-
-    return _pal_gap.set_advertising_set_random_address(
-        handle,
-        _random_static_identity_address
-    );
+    return err;
 }
-
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
 #if BLE_ROLE_BROADCASTER
 ble_error_t Gap::setAdvertisingPayload(
@@ -1869,7 +1867,7 @@ ble_error_t Gap::setAdvertisingScanResponse(
 }
 #endif
 
-
+#if BLE_ROLE_BROADCASTER
 ble_error_t Gap::setAdvertisingData(
     advertising_handle_t handle,
     Span<const uint8_t> payload,
@@ -1898,7 +1896,7 @@ ble_error_t Gap::setAdvertisingData(
 
     if (!_existing_sets.get(handle)) {
         if (handle == LEGACY_ADVERTISING_HANDLE) {
-            prepare_legacy_advertising_set();
+            prepare_legacy_advertising_set(AdvertisingParameters{});
         } else {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -1933,7 +1931,7 @@ ble_error_t Gap::setAdvertisingData(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (!_active_sets.get(handle) && payload.size() > this->getMaxActiveSetAdvertisingDataLength()) {
+    if ((_pending_sets.get(handle) || _active_sets.get(handle)) && payload.size() > this->getMaxActiveSetAdvertisingDataLength()) {
         MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for active sets needs to fit in a single operation"
                                               " - not greater than getMaxActiveSetAdvertisingDataLength().");
         return BLE_ERROR_INVALID_PARAM;
@@ -1941,7 +1939,7 @@ ble_error_t Gap::setAdvertisingData(
 
     if (!scan_response) {
         if (payload.size() > this->getMaxConnectableAdvertisingDataLength()) {
-            if (_active_sets.get(handle) && _set_is_connectable.get(handle)) {
+            if ((_pending_sets.get(handle) || _active_sets.get(handle)) && _set_is_connectable.get(handle)) {
                 MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for connectable advertising"
                                                       " exceeds getMaxAdvertisingDataLength().");
                 return BLE_ERROR_INVALID_PARAM;
@@ -1993,7 +1991,7 @@ ble_error_t Gap::setAdvertisingData(
     return BLE_ERROR_NONE;
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
-
+#endif // BLE_ROLE_BROADCASTER
 
 #if BLE_ROLE_BROADCASTER
 ble_error_t Gap::startAdvertising(
@@ -2003,6 +2001,12 @@ ble_error_t Gap::startAdvertising(
 )
 {
     ble_error_t error = BLE_ERROR_NONE;
+
+    // the stack is busy because it is starting, stopping or refreshing internally
+    // the address.
+    if (_pending_sets.get(handle) || _address_refresh_sets.get(handle)) {
+        return BLE_STACK_BUSY;
+    }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
@@ -2017,8 +2021,23 @@ ble_error_t Gap::startAdvertising(
         MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size exceeds size allowed for connectable advertising.");
         return BLE_ERROR_INVALID_STATE;
     }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
+    const address_t* random_address = get_random_address(controller_operation_t::advertising, handle);
+    if (!random_address) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
+        // Addresses can be updated if the set is not advertising
+        if (!_active_sets.get(handle)) {
+#if CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION
+            _pal_gap.set_random_address(*random_address);
+#endif
+            _pal_gap.set_advertising_set_random_address(handle, *random_address);
+        }
+
         error = _pal_gap.extended_advertising_enable(
             /* enable */ true,
             /* number of advertising sets */ 1,
@@ -2030,11 +2049,23 @@ ble_error_t Gap::startAdvertising(
         if (error) {
             return error;
         }
+
+        if (maxDuration.value() || maxEvents) {
+            _interruptible_sets.clear(handle);
+        } else {
+            _interruptible_sets.set(handle);
+        }
+
     } else
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
     {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
+        }
+
+        // Address can be updated if the device is not scanning or advertising
+        if (!_scan_enabled && !_scan_pending && !_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+            _pal_gap.set_random_address(*random_address);
         }
 
         error = _pal_gap.advertising_enable(true);
@@ -2049,9 +2080,11 @@ ble_error_t Gap::startAdvertising(
                 maxDuration.valueChrono()
             );
         }
+
+        _interruptible_sets.set(LEGACY_ADVERTISING_HANDLE);
     }
 
-    _active_sets.set(handle);
+    _pending_sets.set(handle);
 
     return error;
 }
@@ -2073,8 +2106,8 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
     }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
-    if (!_active_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+    if (!_active_sets.get(handle) || _pending_sets.get(handle)) {
+        return BLE_STACK_BUSY;
     }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
@@ -2106,7 +2139,7 @@ ble_error_t Gap::stopAdvertising(advertising_handle_t handle)
         _advertising_timeout.detach();
     }
 
-    _active_sets.clear(handle);
+    _pending_sets.set(handle);
 
     return status;
 }
@@ -2307,46 +2340,11 @@ bool Gap::isPeriodicAdvertisingActive(advertising_handle_t handle)
 
     return _active_periodic_sets.get(handle);
 }
-#endif
-#endif
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
-
-void Gap::on_enhanced_connection_complete(
-    hci_error_code_t status,
-    connection_handle_t connection_handle,
-    connection_role_t own_role,
-    connection_peer_address_type_t peer_address_type,
-    const ble::address_t &peer_address,
-    const ble::address_t &local_resolvable_private_address,
-    const ble::address_t &peer_resolvable_private_address,
-    uint16_t connection_interval,
-    uint16_t connection_latency,
-    uint16_t supervision_timeout,
-    clock_accuracy_t master_clock_accuracy
-)
-{
-    if (!_event_handler) {
-        return;
-    }
-
-    _event_handler->onConnectionComplete(
-        ConnectionCompleteEvent(
-            (status == hci_error_code_t::SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE,
-            (connection_handle_t) connection_handle,
-            own_role,
-            (peer_address_type_t::type) peer_address_type.value(),
-            peer_address,
-            local_resolvable_private_address,
-            peer_resolvable_private_address,
-            conn_interval_t(connection_interval),
-            connection_latency,
-            supervision_timeout_t(supervision_timeout),
-            master_clock_accuracy.get_ppm()
-        )
-    );
-}
-
-
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 void Gap::on_extended_advertising_report(
     advertising_event_t event_type,
     const connection_peer_address_type_t *address_type,
@@ -2363,43 +2361,381 @@ void Gap::on_extended_advertising_report(
     const uint8_t *data
 )
 {
-#if BLE_FEATURE_PRIVACY
-    // Check if the address hasn't been resolved
-    if (_privacy_enabled &&
-        _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::RESOLVE_AND_FILTER &&
-        address_type != nullptr &&
-        *address_type == connection_peer_address_type_t::RANDOM_ADDRESS &&
-        is_random_private_resolvable_address(address.data())
-        ) {
-        return;
-    }
-#endif // BLE_FEATURE_PRIVACY
-
     if (!_event_handler) {
         return;
     }
 
-    _event_handler->onAdvertisingReport(
-        AdvertisingReportEvent(
-            event_type,
-            address_type ?
-                (peer_address_type_t::type) address_type->value() :
-                peer_address_type_t::ANONYMOUS,
-            (address_t &) address,
-            primary_phy,
-            secondary_phy ? *secondary_phy : phy_t::NONE,
-            advertising_sid,
-            tx_power,
-            rssi,
-            periodic_advertising_interval,
-            (ble::peer_address_type_t::type) direct_address_type.value(),
-            (address_t &) direct_address,
-            make_Span(data, data_length)
-        )
+    peer_address_type_t peer_address_type = address_type ? (peer_address_type_t::type) address_type->value()
+                                                         : peer_address_type_t::ANONYMOUS;
+
+    AdvertisingReportEvent event(
+        event_type,
+        peer_address_type,
+        address,
+        primary_phy,
+        secondary_phy ? *secondary_phy : phy_t::NONE,
+        advertising_sid,
+        tx_power,
+        rssi,
+        periodic_advertising_interval,
+        (ble::peer_address_type_t::type) direct_address_type.value(),
+        (address_t &) direct_address,
+        make_Span(data, data_length)
+    );
+
+    signal_advertising_report(
+        event
+    );
+}
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif //BLE_ROLE_OBSERVER
+
+#if BLE_FEATURE_CONNECTABLE
+void Gap::report_internal_connection_complete(const ConnectionCompleteEvent& event)
+{
+    if (!_connection_event_handler || event.getStatus() != BLE_ERROR_NONE) {
+        return;
+    }
+
+    ble::address_t address;
+    if (_address_type == own_address_type_t::PUBLIC) {
+        address = _pal_gap.get_device_address();
+    } else {
+        address = _pal_gap.get_random_address();
+    }
+
+    _connection_event_handler->on_connected(
+        event.getConnectionHandle(),
+        event.getOwnRole(),
+        event.getPeerAddressType(),
+        event.getPeerAddress(),
+        _address_type,
+        address
     );
 }
 
 
+void Gap::signal_connection_complete(
+    ConnectionCompleteEvent& event
+)
+{
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    bool address_resolved = false;
+
+    /* if address resolution is not needed or already handled then the address is already resolved */
+    if (!_privacy_enabled ||
+        event.getPeerAddressType() == peer_address_type_t::PUBLIC ||
+        !is_random_private_resolvable_address(event.getPeerAddress())) {
+        address_resolved = true;
+    } else {
+#if BLE_ROLE_CENTRAL
+        if (event.getOwnRole() == connection_role_t::CENTRAL) {
+            if (_central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::DO_NOT_RESOLVE) {
+                address_resolved = true;
+            }
+        }
+#endif // BLE_ROLE_CENTRAL
+
+#if BLE_ROLE_PERIPHERAL
+        if (event.getOwnRole() == connection_role_t::PERIPHERAL) {
+            if (_peripheral_privacy_configuration.resolution_strategy ==
+                peripheral_privacy_configuration_t::DO_NOT_RESOLVE) {
+                address_resolved = true;
+            }
+        }
+#endif // BLE_ROLE_PERIPHERAL
+    }
+
+    const address_t *peer_address;
+    target_peer_address_type_t peer_address_type(target_peer_address_type_t::RANDOM);
+
+    /* first try to resolve synchronously in cache */
+    if (!address_resolved) {
+        address_resolved = _private_address_controller.resolve_address_in_host_cache(
+            event.getPeerAddress(),
+            &peer_address_type,
+            &peer_address
+        );
+
+        if (address_resolved) {
+            conclude_signal_connection_complete_after_address_resolution(
+                event,
+                peer_address_type,
+                peer_address
+            );
+            return;
+        }
+    }
+
+    /* if successful then proceed to call the handler immediately same as for when privacy is disabled */
+    if (address_resolved) {
+        if (!apply_peripheral_privacy_connection_policy(event)) {
+            return;
+        }
+        report_internal_connection_complete(event);
+        _event_handler->onConnectionComplete(event);
+    } else {
+        bool resolution_pending = false;
+        ble_error_t ret = _private_address_controller.queue_resolve_address_on_host(event.getPeerAddress());
+
+        if (ret == BLE_ERROR_NONE) {
+            ConnectionCompleteEvent* event_copy = new(std::nothrow) ConnectionCompleteEvent(event);
+            if (!event_copy ||  !_connections_pending_address_resolution.push(event_copy)) {
+                delete event_copy;
+            } else {
+                resolution_pending = true;
+            }
+        }
+
+        if (!resolution_pending) {
+            event.setStatus(BLE_ERROR_NO_MEM);
+            _event_handler->onConnectionComplete(
+                event
+            );
+            _pal_gap.disconnect(
+                event.getConnectionHandle(),
+                local_disconnection_reason_t::LOW_RESOURCES
+            );
+        }
+    }
+#else
+#if BLE_FEATURE_PRIVACY
+    if (!apply_peripheral_privacy_connection_policy(event)) {
+        return;
+    }
+#endif // BLE_FEATURE_PRIVACY
+    report_internal_connection_complete(event);
+    _event_handler->onConnectionComplete(event);
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+}
+
+#if BLE_FEATURE_PRIVACY
+bool Gap::apply_peripheral_privacy_connection_policy(
+    const ConnectionCompleteEvent &event
+)
+{
+#if BLE_ROLE_PERIPHERAL
+    if (event.getOwnRole() != connection_role_t::PERIPHERAL) {
+        return true;
+    }
+
+    if (event.getPeerAddressType() != peer_address_type_t::RANDOM) {
+        return true;
+    }
+
+    if (!is_random_private_resolvable_address(event.getPeerAddress())) {
+        return true;
+    }
+
+    auto connection_handle = event.getConnectionHandle();
+
+    switch (_peripheral_privacy_configuration.resolution_strategy) {
+        case peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS:
+            /* if there is no bond then allow unresolved addresses */
+            if (_private_address_controller.read_resolving_list_size() == 0) {
+                return true;
+            }
+            _pal_gap.disconnect(
+                connection_handle,
+                local_disconnection_reason_t::AUTHENTICATION_FAILURE
+            );
+            return false;
+
+        case peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE:
+            _event_queue.post([connection_handle] {
+                BLE::Instance().securityManager().requestAuthentication(connection_handle);
+            });
+            return true;
+
+        case peripheral_privacy_configuration_t::PERFORM_AUTHENTICATION_PROCEDURE:
+            _event_queue.post([connection_handle] {
+                BLE::Instance().securityManager().setLinkSecurity(
+                    connection_handle,
+                    ble::SecurityManager::SecurityMode_t::SECURITY_MODE_ENCRYPTION_WITH_MITM
+                );
+            });
+            return true;
+
+        default:
+            return true;
+    }
+#else
+    return true;
+#endif
+}
+#endif // BLE_FEATURE_PRIVACY
+
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+void Gap::conclude_signal_connection_complete_after_address_resolution(
+    ConnectionCompleteEvent &event,
+    target_peer_address_type_t identity_address_type,
+    const address_t *identity_address
+)
+{
+    /* fix the event addresses */
+    if (identity_address) {
+        /* move old address to resolvable address */
+        event.setPeerResolvablePrivateAddress(event.getPeerAddress());
+        event.setLocalResolvablePrivateAddress(_private_address_controller.get_resolvable_private_address());
+
+        event.setPeerAddress(*identity_address);
+        event.setPeerAddressType(identity_address_type == target_peer_address_type_t::RANDOM ?
+                                 peer_address_type_t::RANDOM_STATIC_IDENTITY
+                                 : peer_address_type_t::PUBLIC_IDENTITY);
+    }
+
+    if (!apply_peripheral_privacy_connection_policy(event)) {
+        return;
+    }
+
+    report_internal_connection_complete(event);
+    _event_handler->onConnectionComplete(event);
+}
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_CONNECTABLE
+
+#if BLE_ROLE_OBSERVER
+void Gap::signal_advertising_report(
+    AdvertisingReportEvent& event
+)
+{
+#if BLE_FEATURE_PRIVACY
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    bool address_resolved = false;
+
+    /* if address resolution is not needed or already handled then the address is already resolved */
+    if (!_privacy_enabled ||
+        _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::DO_NOT_RESOLVE ||
+        event.getPeerAddressType() == peer_address_type_t::PUBLIC ||
+        !is_random_private_resolvable_address(event.getPeerAddress())) {
+        address_resolved = true;
+    }
+
+    /* first try to resolve synchronously in cache */
+    if (!address_resolved) {
+        const address_t *peer_address = nullptr;
+        target_peer_address_type_t peer_address_type(target_peer_address_type_t::RANDOM);
+
+        address_resolved = _private_address_controller.resolve_address_in_host_cache(
+            event.getPeerAddress(),
+            &peer_address_type,
+            &peer_address
+        );
+
+        if (address_resolved) {
+            conclude_signal_advertising_report_after_address_resolution(
+                event,
+                peer_address_type,
+                peer_address
+            );
+            return;
+        }
+    }
+
+    /* if successful then proceed to call the handler immediately same as for when privacy is disabled */
+    if (address_resolved) {
+        if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+            if (_connect_to_host_resolved_address_type == event.getDirectAddressType() &&
+                _connect_to_host_resolved_address == event.getDirectAddress()) {
+                _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::connect;
+                connect(
+                    _connect_to_host_resolved_address_type,
+                    _connect_to_host_resolved_address,
+                    *_connect_to_host_resolved_address_parameters
+                );
+                delete _connect_to_host_resolved_address_parameters;
+                _connect_to_host_resolved_address_parameters = nullptr;
+            }
+        } else {
+            _event_handler->onAdvertisingReport(
+                event
+            );
+        }
+    } else {
+        /* check if there already is a RPA like that in the list of other pending reports */
+        PendingAdvertisingReportEvent *duplicate_pending_event = _reports_pending_address_resolution.find(
+            [&event](PendingAdvertisingReportEvent& pending_event){
+                return (pending_event.get_pending_event().getPeerAddress() == event.getPeerAddress());
+            }
+        );
+
+        ble_error_t ret = BLE_ERROR_NONE;
+
+        /* if there is already an item with the same address pending don't kick off resolution*/
+        if (!duplicate_pending_event) {
+            ret = _private_address_controller.queue_resolve_address_on_host(event.getPeerAddress());
+        }
+
+        if (ret == BLE_ERROR_NONE) {
+            PendingAdvertisingReportEvent *pending_event = new(std::nothrow) PendingAdvertisingReportEvent(event);
+
+            if (pending_event) {
+                if (!pending_event->is_valid() || !_reports_pending_address_resolution.push(pending_event)) {
+                    delete pending_event;
+                }
+            }
+        }
+    }
+#else
+    /* filter out unresolved address if at least one bond exists */
+    if (_private_address_controller.read_resolving_list_size() > 0 &&
+        _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::RESOLVE_AND_FILTER &&
+        event.getPeerAddressType() != peer_address_type_t::PUBLIC &&
+        is_random_private_resolvable_address(event.getPeerAddress())) {
+        return;
+    }
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_PRIVACY
+    _event_handler->onAdvertisingReport(
+        event
+    );
+}
+#endif //BLE_ROLE_OBSERVER
+
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#if BLE_ROLE_OBSERVER
+void Gap::conclude_signal_advertising_report_after_address_resolution(
+    AdvertisingReportEvent &event,
+    target_peer_address_type_t identity_address_type,
+    const address_t *identity_address
+)
+{
+    /* fix the report with the new address if there's an identity found */
+    if (identity_address) {
+        const peer_address_type_t peer_address_type = (identity_address_type == target_peer_address_type_t::RANDOM) ?
+                                                      peer_address_type_t::RANDOM_STATIC_IDENTITY
+                                                      : peer_address_type_t::PUBLIC_IDENTITY;
+
+        if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+            if (_connect_to_host_resolved_address_type == peer_address_type && _connect_to_host_resolved_address == *identity_address) {
+                _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::connect;
+                connect(
+                    event.getPeerAddressType(),
+                    event.getPeerAddress(),
+                    *_connect_to_host_resolved_address_parameters
+                );
+                delete _connect_to_host_resolved_address_parameters;
+                _connect_to_host_resolved_address_parameters = nullptr;
+                return;
+            }
+        }
+
+        event.setPeerAddress(*identity_address);
+        event.setPeerAddressType(peer_address_type);
+    } else if (_central_privacy_configuration.resolution_strategy ==
+        central_privacy_configuration_t::RESOLVE_AND_FILTER &&
+        _private_address_controller.read_resolving_list_size() > 0) {
+        /* filter out unresolved address if at least one bond exists */
+        return;
+    }
+
+    _event_handler->onAdvertisingReport(event);
+}
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 void Gap::on_periodic_advertising_sync_established(
     hci_error_code_t error,
     sync_handle_t sync_handle,
@@ -2465,7 +2801,62 @@ void Gap::on_periodic_advertising_sync_loss(sync_handle_t sync_handle)
         PeriodicAdvertisingSyncLoss(sync_handle)
     );
 }
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_BROADCASTER
+void Gap::on_legacy_advertising_started()
+{
+    _active_sets.set(LEGACY_ADVERTISING_HANDLE);
+    _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
+
+    if (_adv_started_from_refresh.get(LEGACY_ADVERTISING_HANDLE)) {
+        _adv_started_from_refresh.clear(LEGACY_ADVERTISING_HANDLE);
+    } else if(_event_handler) {
+        _event_handler->onAdvertisingStart(
+            AdvertisingStartEvent(LEGACY_ADVERTISING_HANDLE)
+        );
+    }
+}
+
+void Gap::on_legacy_advertising_stopped()
+{
+    _active_sets.clear(LEGACY_ADVERTISING_HANDLE);
+    _pending_sets.clear(LEGACY_ADVERTISING_HANDLE);
+
+    bool wait_for_scan_stop = _scan_enabled && _scan_pending && _scan_address_refresh;
+    bool restart_scan = _scan_address_refresh && !_scan_enabled && !_scan_pending;
+
+    // restart advertising if it was stopped to refresh the address
+    if (_address_refresh_sets.get(LEGACY_ADVERTISING_HANDLE) && !wait_for_scan_stop) {
+        _address_refresh_sets.clear(LEGACY_ADVERTISING_HANDLE);
+        startAdvertising(LEGACY_ADVERTISING_HANDLE);
+        _adv_started_from_refresh.set(LEGACY_ADVERTISING_HANDLE);
+#if BLE_ROLE_OBSERVER
+        if (restart_scan) {
+            _scan_address_refresh = false;
+            startScan();
+        }
+#endif // BLE_ROLE_OBSERVER
+    } else if (_event_handler) {
+        _event_handler->onAdvertisingEnd(AdvertisingEndEvent());
+    }
+}
+
+void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
+{
+    for (const auto &handle : handles) {
+        _active_sets.set(handle);
+        _pending_sets.clear(handle);
+        if (_adv_started_from_refresh.get(handle)) {
+            _adv_started_from_refresh.clear(handle);
+        } else if (_event_handler) {
+            _event_handler->onAdvertisingStart(
+                AdvertisingStartEvent(LEGACY_ADVERTISING_HANDLE)
+            );
+        }
+    }
+}
 
 void Gap::on_advertising_set_terminated(
     hci_error_code_t status,
@@ -2475,6 +2866,15 @@ void Gap::on_advertising_set_terminated(
 )
 {
     _active_sets.clear(advertising_handle);
+    _pending_sets.clear(advertising_handle);
+
+    // If this is part of the address refresh start advertising again.
+    if (_address_refresh_sets.get(advertising_handle) && !connection_handle) {
+        _address_refresh_sets.clear(advertising_handle);
+        startAdvertising(advertising_handle);
+        _adv_started_from_refresh.set(advertising_handle);
+        return;
+    }
 
     if (!_event_handler) {
         return;
@@ -2489,7 +2889,6 @@ void Gap::on_advertising_set_terminated(
         )
     );
 }
-
 
 void Gap::on_scan_request_received(
     advertising_handle_t advertising_handle,
@@ -2509,8 +2908,9 @@ void Gap::on_scan_request_received(
         )
     );
 }
+#endif // BLE_ROLE_BROADCASTER
 
-
+#if BLE_FEATURE_CONNECTABLE
 void Gap::on_connection_update_complete(
     hci_error_code_t status,
     connection_handle_t connection_handle,
@@ -2533,7 +2933,6 @@ void Gap::on_connection_update_complete(
         )
     );
 }
-
 
 void Gap::on_remote_connection_parameter(
     connection_handle_t connection_handle,
@@ -2566,11 +2965,15 @@ void Gap::on_remote_connection_parameter(
         );
     }
 }
-
+#endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_ROLE_OBSERVER
 ble_error_t Gap::setScanParameters(const ScanParameters &params)
 {
+    if (_privacy_enabled && params.getOwnAddressType() != own_address_type_t::RANDOM) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
             params.get1mPhyConfiguration().isActiveScanningSet(),
@@ -2622,13 +3025,21 @@ ble_error_t Gap::startScan(
     scan_period_t period
 )
 {
-#if BLE_FEATURE_PRIVACY
-    if (_privacy_enabled && _central_privacy_configuration.use_non_resolvable_random_address) {
-        set_random_address_rotation(true);
+    if (_scan_pending || _scan_address_refresh || _initiating) {
+        return BLE_STACK_BUSY;
     }
-#endif // BLE_FEATURE_PRIVACY
+
+    const address_t *address = get_random_address(controller_operation_t::scanning);
+    if (!address) {
+        return BLE_ERROR_INVALID_STATE;
+    }
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
+        // set the correct mac address before starting scanning.
+        if (!_scan_enabled) {
+            _pal_gap.set_random_address(*address);
+        }
+
         ble_error_t err = _pal_gap.extended_scan_enable(
             /* enable */true,
             filtering,
@@ -2646,6 +3057,12 @@ ble_error_t Gap::startScan(
             return BLE_ERROR_INVALID_PARAM;
         }
 
+        // update the address if no scan or advertising is running
+        auto adv_handle = LEGACY_ADVERTISING_HANDLE;
+        if (!_scan_enabled && !_active_sets.get(adv_handle) && !_pending_sets.get(adv_handle)) {
+            _pal_gap.set_random_address(*address);
+        }
+
         ble_error_t err = _pal_gap.scan_enable(
             true,
             filtering == duplicates_filter_t::DISABLE ? false : true
@@ -2657,14 +3074,22 @@ ble_error_t Gap::startScan(
 
         _scan_timeout.detach();
         if (duration.value()) {
-            _scan_timeout.attach(
-                mbed::callback(this, &Gap::on_scan_timeout),
+            _scan_timeout.attach([this]() {
+                    _event_queue.post([this] { process_legacy_scan_timeout(); });
+                },
                 duration.valueChrono()
             );
         }
     }
 
-    _scan_enabled = true;
+    if (!_scan_enabled) {
+        _scan_pending = true;
+    }
+    if (duration == scan_duration_t::forever() && period == scan_period_t(0)) {
+        _scan_interruptible = true;
+    } else {
+        _scan_interruptible = false;
+    }
 
     return BLE_ERROR_NONE;
 }
@@ -2863,24 +3288,286 @@ bool Gap::is_extended_advertising_available()
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
 
-
-void Gap::prepare_legacy_advertising_set()
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+ble_error_t Gap::prepare_legacy_advertising_set(const AdvertisingParameters& parameters)
 {
     if (_existing_sets.get(LEGACY_ADVERTISING_HANDLE)) {
-        return;
+        return BLE_ERROR_NONE;
     }
 
-    setExtendedAdvertisingParameters(
+    auto err = setExtendedAdvertisingParameters(
         LEGACY_ADVERTISING_HANDLE,
-        AdvertisingParameters()
+        parameters
     );
-    _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
+
+    if (!err) {
+        _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
+    }
+
+    return err;
 }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
 void Gap::setEventHandler(Gap::EventHandler *handler)
 {
     _event_handler = handler;
 }
+
+#if BLE_FEATURE_PRIVACY
+void Gap::on_resolvable_private_addresses_generated(const address_t &address)
+{
+    on_private_address_generated(true);
+}
+
+void Gap::on_non_resolvable_private_addresses_generated(const address_t &address)
+{
+    on_private_address_generated(false);
+}
+
+void Gap::on_private_address_generated(bool connectable)
+{
+    if (!_privacy_enabled) {
+        return;
+    }
+
+    if (_privacy_initialization_pending &&
+        _private_address_controller.get_resolvable_private_address() != address_t{} &&
+        _private_address_controller.get_non_resolvable_private_address() != address_t{}
+    ) {
+        _privacy_initialization_pending = false;
+        if (_event_handler) {
+            _event_handler->onPrivacyEnabled();
+        }
+    }
+
+#if BLE_ROLE_BROADCASTER
+    // refresh for address for all connectable advertising sets
+    for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
+        if (!_pending_sets.get(i) && _active_sets.get(i) &&
+            _set_is_connectable.get(i) == connectable && _interruptible_sets.get(i)
+        ) {
+            auto err = stopAdvertising(i);
+            if (err) {
+                continue;
+            }
+            _address_refresh_sets.set(i);
+        }
+    }
+#endif // BLE_ROLE_BROADCASTER
+
+#if BLE_ROLE_OBSERVER
+    // refresh scanning address
+    if (_scan_enabled && !_scan_pending && _scan_interruptible &&
+        !_central_privacy_configuration.use_non_resolvable_random_address == connectable
+    ) {
+        ble_error_t err = stopScan();
+        if (err) {
+            return;
+        }
+        _scan_address_refresh = true;
+    }
+#endif // BLE_ROLE_OBSERVER
+}
+
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+void Gap::on_address_resolution_completed(
+    const address_t &peer_resolvable_address,
+    bool resolved,
+    target_peer_address_type_t identity_address_type,
+    const address_t &identity_address
+)
+{
+    if (!_event_handler || !_privacy_enabled) {
+        return;
+    }
+
+#if BLE_FEATURE_CONNECTABLE
+    ConnectionCompleteEvent* pending_connection_event = _connections_pending_address_resolution.pop(
+        [peer_resolvable_address](ConnectionCompleteEvent &event){
+            return (event.getPeerAddress() == peer_resolvable_address);
+        }
+    );
+
+    if (pending_connection_event) {
+        /* move old address to resolvable address */
+        conclude_signal_connection_complete_after_address_resolution(
+            *pending_connection_event,
+            identity_address_type,
+            resolved ? &identity_address : nullptr
+        );
+
+        delete pending_connection_event;
+
+        /* we can return early, if there was a duplicate advertising report it will have its own resolution callback */
+        return;
+    }
+#endif //BLE_FEATURE_CONNECTABLE
+
+#if BLE_ROLE_OBSERVER
+    uint8_t items_searched = 0;
+    while(true) {
+        PendingAdvertisingReportEvent *event = _reports_pending_address_resolution.continue_pop(
+            [peer_resolvable_address](PendingAdvertisingReportEvent &event){
+                return (event.get_pending_event().getPeerAddress() == peer_resolvable_address);
+            },
+            &items_searched
+        );
+
+        if (!event) {
+            break;
+        }
+
+        conclude_signal_advertising_report_after_address_resolution(
+            event->get_pending_event(),
+            identity_address_type,
+            resolved ? &identity_address : nullptr
+        );
+
+        delete event;
+    }
+#endif // BLE_ROLE_OBSERVER
+}
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_PRIVACY
+
+bool Gap::is_advertising() const
+{
+    for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
+        if (_pending_sets.get(i)) {
+            return true;
+        }
+        if (_active_sets.get(i)) {
+            return true;
+        }
+        if (_active_periodic_sets.get(i)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Gap::is_radio_active() const {
+    return _initiating || _scan_enabled || _scan_pending || is_advertising();
+}
+
+void Gap::update_advertising_set_connectable_attribute(
+    advertising_handle_t handle,
+    const AdvertisingParameters& parameters
+)
+{
+    if (is_connectable_advertising(parameters)) {
+        _set_is_connectable.set(handle);
+    } else {
+        _set_is_connectable.clear(handle);
+    }
+}
+
+const address_t *Gap::get_random_address(controller_operation_t operation, size_t set_id)
+{
+    // If privacy is not enabled, then the random address is always the random static address.
+#if BLE_FEATURE_PRIVACY
+    if (_privacy_enabled == false)
+#endif // BLE_FEATURE_PRIVACY
+    {
+        return &_random_static_identity_address;
+    }
+
+#if BLE_FEATURE_PRIVACY
+    const auto &resolvable_address = _private_address_controller.get_resolvable_private_address();
+    const auto &non_resolvable_address = _private_address_controller.get_non_resolvable_private_address();
+
+#if BLE_ROLE_OBSERVER
+    bool central_non_resolvable = _central_privacy_configuration.use_non_resolvable_random_address;
+#else
+    bool central_non_resolvable = false;
+#endif // BLE_ROLE_OBSERVER
+#if BLE_ROLE_BROADCASTER
+    bool peripheral_non_resolvable = _peripheral_privacy_configuration.use_non_resolvable_random_address;
+#else
+    bool peripheral_non_resolvable = false;
+#endif // BLE_ROLE_BROADCASTER
+    const address_t *address_in_use = nullptr;
+    const address_t *desired_address = nullptr;
+
+    bool advertising_use_main_address = true;
+
+    // Extended advertising is a special case as each set has its own address
+#if !CORDIO_GLOBAL_RANDOM_ADDRESS_FOR_CONNECTION
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    if (is_extended_advertising_available()) {
+        if (operation == controller_operation_t::advertising) {
+            if (!_set_is_connectable.get(set_id) && peripheral_non_resolvable) {
+                return &non_resolvable_address;
+            } else {
+                return &resolvable_address;
+            }
+        } else {
+            advertising_use_main_address = false;
+        }
+    }
+#endif
+#endif
+
+    // For other cases we first compute the address being used and then compares
+    // it to the address to use to determine if the address is correct or not.
+    if (_initiating) {
+        address_in_use = &resolvable_address;
+    } else if (_scan_enabled || _scan_pending) {
+        if (central_non_resolvable) {
+            address_in_use = &non_resolvable_address;
+        } else {
+            address_in_use = &resolvable_address;
+        }
+    } else if (advertising_use_main_address && (_active_sets.get(set_id) || _pending_sets.get(set_id))) {
+        if (!_set_is_connectable.get(set_id) && peripheral_non_resolvable) {
+            address_in_use = &non_resolvable_address;
+        } else {
+            address_in_use = &resolvable_address;
+        }
+    } else {
+        address_in_use = nullptr;
+    }
+
+    // Compute the desired address
+    switch (operation) {
+        case controller_operation_t::initiating:
+            desired_address = &resolvable_address;
+            break;
+        case controller_operation_t::scanning:
+            if (central_non_resolvable) {
+                desired_address = &non_resolvable_address;
+            } else {
+                desired_address = &resolvable_address;
+            }
+            break;
+        case controller_operation_t::advertising:
+            if (!_set_is_connectable.get(set_id) && peripheral_non_resolvable) {
+                desired_address = &non_resolvable_address;
+            } else {
+                desired_address = &resolvable_address;
+            }
+            break;
+    }
+
+    if (*desired_address == address_t{}) {
+        return nullptr;
+    }
+
+    if (!address_in_use) {
+        return desired_address;
+    }
+
+    // Request impossible to fulfill
+    if (address_in_use != desired_address) {
+        return nullptr;
+    }
+
+    return desired_address;
+#endif // BLE_FEATURE_PRIVACY
+}
+
 
 } // impl
 } // ble

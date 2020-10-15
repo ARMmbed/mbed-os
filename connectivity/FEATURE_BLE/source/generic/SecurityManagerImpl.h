@@ -37,7 +37,7 @@
 #include "source/pal/PalSecurityManager.h"
 
 #include "source/generic/SecurityDb.h"
-
+#include "source/generic/PrivateAddressController.h"
 
 namespace ble {
 class PalGenericAccessService;
@@ -185,9 +185,11 @@ public:
     // Privacy
     //
 
+#if BLE_FEATURE_PRIVACY
     ble_error_t setPrivateAddressTimeout(
         uint16_t timeout_in_seconds
     );
+#endif // BLE_FEATURE_PRIVACY
 
     /* Event callback handlers. */
 public:
@@ -452,11 +454,17 @@ public:
         ble::PalSecurityManager &palImpl,
         ble::PalConnectionMonitor &connMonitorImpl,
         ble::PalSigningMonitor &signingMonitorImpl
+#if BLE_FEATURE_PRIVACY
+        , PrivateAddressController &privateAddressController
+#endif // BLE_FEATURE_PRIVACY
     ) : eventHandler(nullptr),
         _pal(palImpl),
         _connection_monitor(connMonitorImpl),
         _signing_monitor(signingMonitorImpl),
         _db(nullptr),
+#if BLE_FEATURE_PRIVACY
+        _private_address_controller(privateAddressController),
+#endif // BLE_FEATURE_PRIVACY
         _default_authentication(0),
         _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
@@ -491,11 +499,17 @@ private:
 
     ble_error_t init_database(const char *db_path = nullptr);
 
+#if BLE_FEATURE_PRIVACY
     ble_error_t init_resolving_list();
+#endif // BLE_FEATURE_PRIVACY
 
+#if BLE_FEATURE_SIGNING
     ble_error_t init_signing();
+#endif // BLE_FEATURE_SIGNING
 
+#if BLE_FEATURE_PRIVACY
     ble_error_t init_identity();
+#endif // BLE_FEATURE_PRIVACY
 
     ble_error_t get_random_data(
         uint8_t *buffer,
@@ -639,6 +653,9 @@ private:
     PalSigningMonitor &_signing_monitor;
 
     SecurityDb *_db;
+#if BLE_FEATURE_PRIVACY
+    PrivateAddressController &_private_address_controller;
+#endif // BLE_FEATURE_PRIVACY
 
     /* OOB data */
     address_t _oob_local_address;

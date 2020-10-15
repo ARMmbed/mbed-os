@@ -560,56 +560,6 @@ public:
     virtual ble_error_t reset() = 0;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Resolving list management
-    //
-    /**
-     * Return the number of address translation entries that can be stored by the
-     * subsystem.
-     *
-     * @warning: The number of entries is considered fixed.
-     *
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.41
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual uint8_t read_resolving_list_capacity() = 0;
-
-    /**
-     * Add a device definition into the resolving list of the LE subsystem.
-     *
-     * @param[in] peer_identity_address_type public/private indicator
-     * @param[in] peer_identity_address address of the device whose entry is to be added
-     * @param[in] peer_irk peer identity resolving key
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.38
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t add_device_to_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address,
-        const irk_t &peer_irk
-    ) = 0;
-
-    /**
-     * Add a device definition from the resolving list of the LE subsystem.
-     *
-     * @param[in] peer_identity_address_type public/private indicator
-     * @param[in] peer_identity_address address of the device whose entry is to be removed
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.39
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t remove_device_from_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address
-    ) = 0;
-
-    /**
-     * Remove all devices from the resolving list.
-     *
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.40
-     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t clear_resolving_list() = 0;
-
-    ////////////////////////////////////////////////////////////////////////////
     // Pairing
     //
 
@@ -804,28 +754,6 @@ public:
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Privacy
-    //
-
-    virtual ble_error_t set_private_address_timeout(
-        uint16_t timeout_in_seconds
-    ) = 0;
-
-    /**
-     * Retrieve the identity address used by the controller
-     *
-     * @param address Will contain the address retrieved.
-     * @param public_address will be true if the address is public and false
-     * otherwise.
-     * @return BLE_ERROR_NONE On success, else an error code indicating the reason
-     * of the failure
-     */
-    virtual ble_error_t get_identity_address(
-        address_t& address,
-        bool& public_address
-    ) = 0;
-
-    ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
 
@@ -864,6 +792,18 @@ public:
     virtual ble_error_t set_irk(
         const irk_t &irk
     ) = 0;
+
+    /**
+     * Set the local identity address.
+     *
+     * @param[in] address identity address of the device
+     * @param[in] public_address true if a public address is used and false otherwise.
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t set_identity_address(
+        const address_t &address, bool public_address
+    ) = 0;
+
     /**
      * Set the local CSRK.
      *

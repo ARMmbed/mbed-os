@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -192,12 +192,14 @@ ble_error_t SecurityManager::getSigningKey(ble::connection_handle_t connectionHa
     return impl->getSigningKey(connectionHandle, authenticated);
 }
 
+#if BLE_FEATURE_PRIVACY
 ble_error_t SecurityManager::setPrivateAddressTimeout(
     uint16_t timeout_in_seconds
 )
 {
     return impl->setPrivateAddressTimeout(timeout_in_seconds);
 }
+#endif // BLE_FEATURE_PRIVACY
 
 void SecurityManager::onShutdown(const SecurityManagerShutdownCallback_t& callback)
 {

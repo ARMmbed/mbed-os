@@ -60,37 +60,6 @@ public:
     ble_error_t reset() final;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Resolving list management
-    //
-
-    /**
-     * @see ::ble::PalSecurityManager::read_resolving_list_capacity
-     */
-    uint8_t read_resolving_list_capacity() final;
-
-    /**
-     * @see ::ble::PalSecurityManager::add_device_to_resolving_list
-     */
-    ble_error_t add_device_to_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address,
-        const irk_t &peer_irk
-    ) final;
-
-    /**
-     * @see ::ble::PalSecurityManager::remove_device_from_resolving_list
-     */
-    ble_error_t remove_device_from_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address
-    ) final;
-
-    /**
-     * @see ::ble::PalSecurityManager::clear_resolving_list
-     */
-    ble_error_t clear_resolving_list() final;
-
-    ////////////////////////////////////////////////////////////////////////////
     // Pairing
     //
 
@@ -206,20 +175,6 @@ public:
     ) final;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Privacy
-    //
-
-    /**
-     * @see ::ble::PalSecurityManager::set_private_address_timeout
-     */
-    ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds) final;
-
-    /**
-     * @see ::ble::PalSecurityManager::get_identity_address
-     */
-    ble_error_t get_identity_address(address_t &address, bool &public_address) final;
-
-    ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
 
@@ -244,6 +199,13 @@ public:
      * @see ::ble::PalSecurityManager::set_irk
      */
     ble_error_t set_irk(const irk_t &irk) final;
+
+    /**
+     * @see ::ble::PalSecurityManager::set_identity_address
+     */
+    ble_error_t set_identity_address(
+        const address_t &address, bool public_address
+    ) final;
 
     /**
      * @see ::ble::PalSecurityManager::set_csrk
@@ -347,37 +309,6 @@ public:
 
 private:
 
-    struct PrivacyControlBlock;
-    struct PrivacyClearResListControlBlock;
-    struct PrivacyAddDevToResListControlBlock;
-    struct PrivacyRemoveDevFromResListControlBlock;
-
-    // Queue control block to add device to resolving list
-    void queue_add_device_to_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address,
-        const irk_t &peer_irk
-    );
-
-    // Queue control block to remove device from resolving list
-    void queue_remove_device_from_resolving_list(
-        advertising_peer_address_type_t peer_identity_address_type,
-        const address_t &peer_identity_address
-    );
-
-    // Queue control block to clear resolving list
-    void queue_clear_resolving_list();
-
-    // Clear all control blocks
-    void clear_privacy_control_blocks();
-
-    // Queue a control block
-    void queue_privacy_control_block(PrivacyControlBlock *block);
-
-    // Try to dequeue and process the next control block
-    // cb_completed is set when the previous block has completed
-    void process_privacy_control_blocks(bool cb_completed);
-
     void cleanup_peer_csrks();
 
     PalSecurityManagerEventHandler *_pal_event_handler;
@@ -386,9 +317,6 @@ private:
     passkey_num_t _default_passkey;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
-
-    PrivacyControlBlock *_pending_privacy_control_blocks;
-    bool _processing_privacy_control_block;
     irk_t _irk;
     csrk_t _csrk;
     csrk_t *_peer_csrks[DM_CONN_MAX];

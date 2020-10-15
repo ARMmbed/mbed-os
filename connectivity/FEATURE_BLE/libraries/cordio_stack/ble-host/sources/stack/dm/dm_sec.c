@@ -329,6 +329,7 @@ void DmSecInit(void)
   dmFcnIfTbl[DM_ID_SEC] = (dmFcnIf_t *) &dmSecFcnIf;
 
   dmSecCb.pCsrk = dmSecCb.pIrk = (uint8_t *) calc128Zeros;
+  dmSecCb.addrType = DM_ADDR_NONE;
 }
 
 /*************************************************************************************************/
@@ -365,6 +366,24 @@ void DmSecSetLocalIrk(uint8_t *pIrk)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  This function sets the local identity address used by the device.
+ *
+ *  \param  pAddr     Pointer to the address.
+ *  \param  type      Type of the address.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmSecSetLocalIdentityAddr(const uint8_t *pAddr, uint8_t type)
+{
+  WsfTaskLock();
+  dmSecCb.addrType = type;
+  BdaCpy(dmSecCb.bdAddr, pAddr);
+  WsfTaskUnlock();
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  This function gets the local CSRK used by the device.
  *
  *  \return Pointer to CSRK.
@@ -385,6 +404,39 @@ uint8_t *DmSecGetLocalCsrk(void)
 uint8_t *DmSecGetLocalIrk(void)
 {
   return dmSecCb.pIrk;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  For internal use only.  This function gets the local identity address used by the device.
+ *
+ *  \return Pointer to the identity address.
+ */
+/*************************************************************************************************/
+uint8_t *DmSecGetLocalIdentityAddr(void)
+{
+  if (dmSecCb.addrType != DM_ADDR_NONE) {
+    return dmSecCb.bdAddr;
+  } else {
+    return HciGetBdAddr();
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  For internal use only.  This function gets the local identity address type used by the
+ *  device.
+ *
+ *  \return The identity address type.
+ */
+/*************************************************************************************************/
+uint8_t DmSecGetLocalIdentityAddrType(void)
+{
+  if (dmSecCb.addrType != DM_ADDR_NONE) {
+    return dmSecCb.addrType;
+  } else {
+    return DM_ADDR_PUBLIC;
+  }
 }
 
 /*************************************************************************************************/

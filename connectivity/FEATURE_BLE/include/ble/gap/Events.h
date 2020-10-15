@@ -69,15 +69,15 @@ struct AdvertisingReportEvent {
         const address_t &directAddress,
         const mbed::Span<const uint8_t> &advertisingData
     ) :
+        peerAddress(peerAddress),
         type(type),
         peerAddressType(peerAddressType),
-        peerAddress(peerAddress),
         primaryPhy(primaryPhy),
         secondaryPhy(secondaryPhy),
         SID(SID),
         txPower(txPower),
-        rssi(rssi),
         periodicInterval(periodicInterval),
+        rssi(rssi),
         directAddressType(directAddressType),
         directAddress(directAddress),
         advertisingData(advertisingData)
@@ -85,7 +85,6 @@ struct AdvertisingReportEvent {
     }
 
 #endif
-
     /** Get event type. */
     const advertising_event_t &getType() const
     {
@@ -163,18 +162,44 @@ struct AdvertisingReportEvent {
         return advertisingData;
     }
 
+    /** Set peer address. */
+    void setPeerAddress(
+        const address_t &newPeerAddress
+    )
+    {
+        peerAddress = newPeerAddress;
+    }
+
+
+    /** Set peer address type. */
+    void setPeerAddressType(
+        const peer_address_type_t &newPeerAddressType
+    )
+    {
+        peerAddressType = newPeerAddressType;
+    }
+
+    /** Set new advertising payload. */
+    void setAdvertisingData(
+        const mbed::Span<const uint8_t> &newAdvertisingData
+    )
+    {
+        advertisingData = newAdvertisingData;
+    }
+
 private:
+    address_t peerAddress;
     advertising_event_t type;
     peer_address_type_t peerAddressType;
-    address_t const &peerAddress;
     phy_t primaryPhy;
     phy_t secondaryPhy;
     advertising_sid_t SID;
     advertising_power_t txPower;
-    rssi_t rssi;
     uint16_t periodicInterval;
+    rssi_t rssi;
     peer_address_type_t directAddressType;
-    const address_t &directAddress;
+    address_t directAddress;
+    ble_error_t status;
     mbed::Span<const uint8_t> advertisingData;
 };
 
@@ -215,12 +240,12 @@ struct ConnectionCompleteEvent {
     ) :
         status(status),
         connectionHandle(connectionHandle),
+        peerAddress(peerAddress),
         ownRole(ownRole),
         peerAddressType(peerAddressType),
-        peerAddress(peerAddress),
         localResolvablePrivateAddress(localResolvablePrivateAddress),
-        peerResolvablePrivateAddress(peerResolvablePrivateAddress),
         connectionInterval(connectionInterval),
+        peerResolvablePrivateAddress(peerResolvablePrivateAddress),
         connectionLatency(connectionLatency),
         supervisionTimeout(supervisionTimeout),
         masterClockAccuracy(masterClockAccuracy)
@@ -295,15 +320,46 @@ struct ConnectionCompleteEvent {
         return masterClockAccuracy;
     }
 
+
+    /** Set connection complete event status. */
+    void setStatus(ble_error_t new_status)
+    {
+        status = new_status;
+    }
+
+    /** Set peer address type. */
+    void setPeerAddressType(const peer_address_type_t& address_type)
+    {
+        peerAddressType = address_type;
+    }
+
+    /** Set peer address. */
+    void setPeerAddress(const address_t &address)
+    {
+        peerAddress = address;
+    }
+
+    /** Set get local resolvable random address if privacy is used. */
+    void setLocalResolvablePrivateAddress(const address_t &address)
+    {
+        localResolvablePrivateAddress = address;
+    }
+
+    /** Set peer resolvable private address if privacy is used. */
+    void setPeerResolvablePrivateAddress(const address_t &address)
+    {
+        peerResolvablePrivateAddress = address;
+    }
+
 private:
     ble_error_t status;
     connection_handle_t connectionHandle;
+    address_t peerAddress;
     connection_role_t ownRole;
     peer_address_type_t peerAddressType;
-    const address_t &peerAddress;
-    const address_t &localResolvablePrivateAddress;
-    const address_t &peerResolvablePrivateAddress;
+    address_t localResolvablePrivateAddress;
     conn_interval_t connectionInterval;
+    address_t peerResolvablePrivateAddress;
     slave_latency_t connectionLatency;
     supervision_timeout_t supervisionTimeout;
     uint16_t masterClockAccuracy;
@@ -520,14 +576,46 @@ private:
 struct ScanTimeoutEvent { };
 
 /**
+ * Event produced when advertising start.
+ *
+ * @see ble::Gap::EventHandler::onAdvertisingStart().
+ */
+struct AdvertisingStartEvent {
+#if !defined(DOXYGEN_ONLY)
+
+    /** Create an advertising start event.
+     *
+     * @param advHandle Advertising set handle.
+     */
+    AdvertisingStartEvent(advertising_handle_t advHandle) :
+        advHandle(advHandle)
+    {
+    }
+
+#endif
+
+    /** Get advertising handle. */
+    advertising_handle_t getAdvHandle() const
+    {
+        return advHandle;
+    }
+
+private:
+    advertising_handle_t advHandle;
+};
+
+/**
  * Event produced when advertising ends.
  *
  * @see ble::Gap::EventHandler::onAdvertisingEnd().
+ *
+ * @note The connection handle, connected flag and completed_event fields are
+ * valid if the flag legacy is not set to true.
  */
 struct AdvertisingEndEvent {
 #if !defined(DOXYGEN_ONLY)
 
-    /** Create advertising end event.
+    /** Create an extended advertising end event.
      *
      * @param advHandle Advertising set handle.
      * @param connection Connection handle.
@@ -543,7 +631,19 @@ struct AdvertisingEndEvent {
         advHandle(advHandle),
         connection(connection),
         completed_events(completed_events),
-        connected(connected)
+        connected(connected),
+        legacy(false)
+    {
+    }
+
+    /** Create a legacy advertising end event.
+     */
+    AdvertisingEndEvent() :
+        advHandle(LEGACY_ADVERTISING_HANDLE),
+        connection(),
+        completed_events(0),
+        connected(false),
+        legacy(true)
     {
     }
 
@@ -573,11 +673,22 @@ struct AdvertisingEndEvent {
         return connected;
     }
 
+    /** Is the end of legacy advertising.
+     *
+     * If it is the return of getConnection() getCompleted_events() and isConnected()
+     * must be discarded
+     */
+    bool isLegacy() const
+    {
+        return legacy;
+    }
+
 private:
     advertising_handle_t advHandle;
     connection_handle_t connection;
     uint8_t completed_events;
     bool connected;
+    bool legacy;
 };
 
 /**

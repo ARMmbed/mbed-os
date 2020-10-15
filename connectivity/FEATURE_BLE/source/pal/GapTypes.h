@@ -652,6 +652,30 @@ struct direct_address_type_t : SafeEnum<direct_address_type_t, uint8_t> {
 
 typedef ble::clock_accuracy_t clock_accuracy_t;
 
+/**
+ * Define the privacy mode of a peer.
+ */
+struct privacy_mode_t : SafeEnum<privacy_mode_t, uint8_t> {
+    enum type {
+        /**
+         * In Network mode, an observer or peripheral does not accept advertising
+         * packets containing the identity address of peer devices that have
+         * distributed their IRK
+         */
+        NETWORK,
+
+        /**
+         * In this mode, the device is only concerned about its own privacy.
+         * This mode should only be used when the Resolvable Private Address
+         * Only characteristic is not present in the GAP service of the peer
+         * device.
+         */
+        DEVICE
+    };
+
+    privacy_mode_t(type value) : SafeEnum<privacy_mode_t, uint8_t>(value) {}
+};
+
 } // namespace ble
 
 #endif /* BLE_PAL_GAP_TYPES_H_ */

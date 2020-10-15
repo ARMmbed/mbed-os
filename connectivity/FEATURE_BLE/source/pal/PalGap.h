@@ -21,6 +21,7 @@
 
 #include "platform/Callback.h"
 
+#include "ble/common/BLERoles.h"
 #include "source/pal/GapTypes.h"
 #include "source/pal/GapEvents.h"
 #include "ble/common/blecommon.h"
@@ -29,6 +30,8 @@ namespace ble {
 
 struct PalGapEventHandler {
 public:
+
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * @copydoc PalGap::EventHandler::onReadPhy
      */
@@ -38,6 +41,7 @@ public:
         ble::phy_t tx_phy,
         ble::phy_t rx_phy
     ) = 0;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * @copydoc PalGap::EventHandler::onDataLengthChange
@@ -48,6 +52,7 @@ public:
         uint16_t rx_size
     ) = 0;
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * @copydoc PalGap::EventHandler::onPhyUpdateComplete
      */
@@ -57,60 +62,10 @@ public:
         ble::phy_t tx_phy,
         ble::phy_t rx_phy
      ) = 0;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
-    /**
-     * Should be invoked by the PalGap implementation when an enhanced
-     * connection complete event happens.
-     *
-     * @param status hci_error_code::SUCCESS in case of success or an error
-     * code.
-     *
-     * @param connection_handle The handle of the connection created.
-     *
-     * @param own_role Indicate if the local device operates as slave or
-     * master.
-     *
-     * @param peer_address_type Type of address of the peer.
-     *
-     * @param peer_address Address of the peer connected.
-     *
-     * @param local_resolvable_private_address Resolvable private address
-     * being used by the controller. If not applicable, the address is full
-     * of zeroes.
-     *
-     * @param peer_resolvable_private_address Resolvable private address
-     * being used by the peer. If not applicable, the address is full of
-     * zeroes.
-     *
-     * @param connection_interval Interval between two connection events.
-     * Unit is 1.25ms.
-     *
-     * @param connection_latency Slave latency for the connection in number
-     * of connection events.
-     *
-     * @param supervision_timeout Connection supervision timeout. Unit is
-     * 10ms.
-     *
-     * @param master_clock_accuracy This parameter is only valid for a slave.
-     * On a master it must be set to 0x00.
-     *
-     * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.10 LE enhanced connection
-     * complete event.
-     */
-    virtual void on_enhanced_connection_complete(
-        hci_error_code_t status,
-        connection_handle_t connection_handle,
-        connection_role_t own_role,
-        connection_peer_address_type_t peer_address_type,
-        const address_t &peer_address,
-        const address_t &local_resolvable_private_address,
-        const address_t &peer_resolvable_private_address,
-        uint16_t connection_interval,
-        uint16_t connection_latency,
-        uint16_t supervision_timeout,
-        clock_accuracy_t master_clock_accuracy
-     ) = 0;
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+#if BLE_ROLE_OBSERVER
     /** Called on advertising report event.
      *
      * @param event_type Type of advertising used.
@@ -145,7 +100,11 @@ public:
         uint8_t data_length,
         const uint8_t *data_size
      ) = 0;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
+#if BLE_ROLE_OBSERVER
     /** Called on advertising sync event.
      *
      * @param error SUCCESS if synchronisation was achieved.
@@ -193,10 +152,41 @@ public:
     virtual void on_periodic_advertising_sync_loss(
         sync_handle_t sync_handle
      ) = 0;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
+
+#if BLE_ROLE_OBSERVER
+    /**
+     * Called when scanning start
+     */
+    virtual void on_scan_started(bool success) = 0;
+
+    /**
+     * Called when scanning stop
+     */
+    virtual void on_scan_stopped(bool success) = 0;
+
 
     /** Called when scanning times out.
      */
     virtual void on_scan_timeout( ) = 0;
+#endif // BLE_ROLE_OBSERVER
+
+#if BLE_ROLE_BROADCASTER
+    /**
+     * Called when legacy advertising has been effectively started.
+     */
+    virtual void on_legacy_advertising_started() = 0;
+
+    /**
+     * Called when legacy advertising has been stopped.
+     */
+    virtual void on_legacy_advertising_stopped() = 0;
+
+    /**
+     * Called when extended advertising has been started.
+     */
+    virtual void on_advertising_set_started(const mbed::Span<const uint8_t>& handles) = 0;
 
     /** Called when advertising set stops advertising.
      *
@@ -223,7 +213,9 @@ public:
         connection_peer_address_type_t scanner_address_type,
         const address_t &address
      ) = 0;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_CONNECTABLE
     virtual void on_connection_update_complete(
         hci_error_code_t status,
         connection_handle_t connection_handle,
@@ -239,6 +231,7 @@ public:
         uint16_t connection_latency,
         uint16_t supervision_timeout
      ) = 0;
+#endif // BLE_FEATURE_CONNECTABLE
 };
 
 /**
@@ -402,6 +395,7 @@ public:
         advertising_filter_policy_t advertising_filter_policy
     ) = 0;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     /**
      * Define the advertising parameters of an advertising set.
      *
@@ -478,6 +472,7 @@ public:
         uint8_t advertising_sid,
         bool scan_request_notification
     ) = 0;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     /**
      * Configure periodic advertising parameters of an advertising set.
@@ -1547,27 +1542,6 @@ public:
     virtual ble_error_t disconnect(
         connection_handle_t connection,
         local_disconnection_reason_t disconnection_reason
-    ) = 0;
-
-    /** Check if privacy feature is supported by implementation
-     *
-     * @return true if privacy is supported, false otherwise.
-     *
-     * @note: See Bluetooth 5 Vol 3 Part C: 10.7 Privacy feature.
-     */
-    virtual bool is_privacy_supported() = 0;
-
-    /** Enable or disable private addresses resolution
-     *
-     * @param enable whether to enable private addresses resolution
-     *
-     * @return BLE_ERROR_NONE if the request has been successfully sent or the
-     * appropriate error otherwise.
-     *
-     * @note: See Bluetooth 5 Vol 2 PartE: 7.8.44 LE Set Address Resolution Enable command.
-     */
-    virtual ble_error_t set_address_resolution(
-        bool enable
     ) = 0;
 
     /**

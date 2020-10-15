@@ -38,6 +38,8 @@
 
 #include "source/pal/PalGap.h"
 #include "source/pal/PalConnectionMonitor.h"
+#include "source/pal/PalEventQueue.h"
+#include "source/generic/PrivateAddressController.h"
 
 #include "ble/Gap.h"
 
@@ -57,7 +59,11 @@ class BLEInstanceBase;
 
 class Gap :
     public ble::PalConnectionMonitor,
-    public PalGapEventHandler {
+    public PalGapEventHandler
+#if BLE_FEATURE_PRIVACY
+    , public PrivateAddressController::EventHandler
+#endif //BLE_FEATURE_PRIVACY
+    {
     friend PalConnectionMonitor;
     friend PalGapEventHandler;
     friend PalGap;
@@ -69,17 +75,23 @@ class Gap :
 public:
     using PreferredConnectionParams_t = ::ble::Gap::PreferredConnectionParams_t ;
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
     /**
      * Default peripheral privacy configuration.
      */
     static const peripheral_privacy_configuration_t
         default_peripheral_privacy_configuration;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
     /**
      * Default peripheral privacy configuration.
      */
     static const central_privacy_configuration_t
         default_central_privacy_configuration;
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
 
 public:
     void setEventHandler(EventHandler *handler);
@@ -343,10 +355,192 @@ public:
      */
     ble_error_t setRandomStaticAddress(const ble::address_t &address);
 
+    ble::address_t getRandomStaticAddress();
+
 #endif // !defined(DOXYGEN_ONLY)
 
     /* ===================================================================== */
     /*                    private implementation follows                     */
+
+private:
+    /** List in random order */
+    template<typename EventType, typename IndexType, IndexType MAX_EVENTS>
+    class EventList {
+    public:
+        EventList()
+        {
+        };
+
+        ~EventList()
+        {
+            for (IndexType i = 0; i < _current_size; ++i) {
+                delete _pointers[i];
+            }
+        };
+
+        /** Add event to the list. List takes ownership of memory.
+         *
+         * @param event List will point to this event.
+         * @return False if list full.
+         */
+        bool push(EventType *event)
+        {
+            if (_current_size < MAX_EVENTS) {
+                _pointers[_current_size] = event;
+                _current_size++;
+                return true;
+            }
+            return false;
+        };
+
+        /** Take one entry of the list. Transfers ownership to caller.
+         *
+         * @return The event return. Memory belongs to caller.
+         */
+        EventType* pop()
+        {
+            MBED_ASSERT(_current_size);
+
+            if (!_current_size) {
+                return nullptr;
+            }
+
+            EventType* event_returned = _pointers[_current_index];
+
+            _current_size--;
+            if (_current_size != _current_index) {
+                _pointers[_current_index] = _pointers[_current_size];
+            } else {
+                _current_index = 0;
+            }
+
+            return event_returned;
+        };
+
+        /** Return pointer to the first element that fulfills the passed in condition and remove the entry
+         * that was pointing to the item. Transfers ownership to caller.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* pop(mbed::Callback<bool(EventType&)> compare_func)
+        {
+            for (IndexType i = 0; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return pop();
+                }
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return pointer to the first element that fulfills the passed in condition and remove the entry
+         * that was pointing to the item. Takes and returns number of failed matches allowing to speed up search.
+         * Transfers ownership to caller.
+         *
+         * @note Calls must be consecutive - any call to pop or find will invalidate the search.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @param events_not_matching Pointer to the number of items already searched but not matching.
+         * This is updated in the method.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* continue_pop(mbed::Callback<bool(EventType&)> compare_func, IndexType *events_not_matching)
+        {
+            _current_index = *events_not_matching;
+            for (IndexType i = *events_not_matching; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return pop();
+                }
+                (*events_not_matching)++;
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return pointer to the first element that fulfills the passed in condition. Does not remove item from list.
+         *
+         * @param compare_func The condition that is checked for all the items.
+         * @return First element that fulfills the passed in condition or nullptr if no such item found.
+         */
+        EventType* find(mbed::Callback<bool(EventType&)> compare_func)
+        {
+            for (IndexType i = 0; i < _current_size ; ++i) {
+                if (compare_func(*_pointers[_current_index])) {
+                    return _pointers[_current_index];
+                }
+                increment_current_index();
+            }
+
+            return nullptr;
+        }
+
+        /** Return number of events stored.
+         *
+         * @return Number of events stored.
+         */
+        IndexType get_size()
+        {
+            return _current_size;
+        }
+
+    private:
+        void increment_current_index()
+        {
+            _current_index++;
+            if (_current_index == _current_size) {
+                _current_index = 0;
+            }
+        }
+
+    private:
+        EventType* _pointers[MAX_EVENTS];
+        IndexType _current_size = 0;
+        /* this helps us find the event faster */
+        IndexType _current_index = 0;
+    };
+
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    class PendingAdvertisingReportEvent {
+    public:
+        PendingAdvertisingReportEvent(
+            const AdvertisingReportEvent& event_to_copy
+        ) : event(event_to_copy)
+        {
+            /* copy the data to the buffer */
+            const mbed::Span<const uint8_t> payload = event_to_copy.getPayload();
+            if (payload.size()) {
+                advertising_data_buffer = new(std::nothrow) uint8_t[payload.size()];
+                if (advertising_data_buffer) {
+                    memcpy(advertising_data_buffer, payload.data(), payload.size());
+                    /* set the payload to our local copy of the data */
+                    event.setAdvertisingData(mbed::make_Span(advertising_data_buffer, payload.size()));
+                }
+            }
+        };
+
+        ~PendingAdvertisingReportEvent()
+        {
+            delete[] advertising_data_buffer;
+        }
+
+        bool is_valid()
+        {
+            return advertising_data_buffer || (event.getPayload().size() == 0);
+        }
+
+        AdvertisingReportEvent& get_pending_event()
+        {
+            return event;
+        }
+
+    private:
+        AdvertisingReportEvent event;
+        uint8_t *advertising_data_buffer = nullptr;
+    };
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 private:
     /* Disallow copy and assignment. */
@@ -357,12 +551,15 @@ private:
     Gap(
         ble::PalEventQueue &event_queue,
         ble::PalGap &pal_gap,
-        ble::PalGenericAccessService &generic_access_service,
-        ble::PalSecurityManager &pal_sm
+        ble::PalGenericAccessService &generic_access_service
+#if BLE_FEATURE_PRIVACY
+        , ble::PrivateAddressController &private_address_controller
+#endif // BLE_FEATURE_PRIVACY
     );
 
     ~Gap();
 
+#if BLE_ROLE_BROADCASTER
     ble_error_t setAdvertisingData(
         advertising_handle_t handle,
         Span<const uint8_t> payload,
@@ -373,11 +570,15 @@ private:
     void on_advertising_timeout();
 
     void process_advertising_timeout();
+#endif // BLE_ROLE_BROADCASTER
 
     void on_gap_event_received(const GapEvent &e);
 
+#if BLE_ROLE_OBSERVER
     void on_advertising_report(const GapAdvertisingReportEvent &e);
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_CONNECTABLE
     void on_connection_complete(const GapConnectionCompleteEvent &e);
 
     void on_disconnection_complete(const GapDisconnectionCompleteEvent &e);
@@ -387,6 +588,7 @@ private:
     );
 
     void on_connection_update(const GapConnectionUpdateEvent &e);
+#endif // BLE_FEATURE_CONNECTABLE
 
     void on_unexpected_error(const GapUnexpectedErrorEvent &e);
 
@@ -399,35 +601,104 @@ private:
 
     own_address_type_t get_own_address_type(AddressUseType_t address_use_type);
 
+#if BLE_FEATURE_WHITELIST
     bool initialize_whitelist() const;
+#endif // BLE_FEATURE_WHITELIST
 
-    ble_error_t update_address_resolution_setting();
+#if BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    ble_error_t update_ll_address_resolution_setting();
+#endif // BLE_FEATURE_PRIVACY && !BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
-    void set_random_address_rotation(bool enable);
-
-    void update_random_address();
-
-    bool getUnresolvableRandomAddress(ble::address_t &address);
-
-    void on_address_rotation_timeout();
-
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t setExtendedAdvertisingParameters(
         advertising_handle_t handle,
         const AdvertisingParameters &parameters
     );
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
     bool is_extended_advertising_available();
 
-    void prepare_legacy_advertising_set();
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    ble_error_t prepare_legacy_advertising_set(const AdvertisingParameters& parameters);
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
+
+#if BLE_FEATURE_CONNECTABLE
+    /** Call the internal handlers that report to the security manager and GATT
+     * that a connection has been established.
+     *
+     * @param report Connection event
+     */
+    void report_internal_connection_complete(const ConnectionCompleteEvent& report);
+
+    /** Pass the connection complete event to the application. This may involve privacy resolution.
+     *
+     * @param report Event to be passed to the user application.
+     */
+    void signal_connection_complete(ConnectionCompleteEvent& report);
+
+#if BLE_FEATURE_PRIVACY
+    /**
+     * Apply the privacy policies when the local peripheral is connected.
+     * @param event The connection event
+     * @return true if the policy process has been successful and false if the
+     * it fails meaning the process connection shouldn't continue.
+     */
+    bool apply_peripheral_privacy_connection_policy(
+        const ConnectionCompleteEvent &event
+    );
+#endif // BLE_FEATURE_PRIVACY
+
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    /** Pass the connection complete event to the application after privacy resolution completed.
+     *
+     * @param event Event to be passed to the user application.
+     * @param identity_address_type Address type of the identity address.
+     * @param identity_address Address resolved by private address resolution, nullptr if no identity found.
+     */
+    void conclude_signal_connection_complete_after_address_resolution(
+        ConnectionCompleteEvent &event,
+        target_peer_address_type_t identity_address_type,
+        const address_t *identity_address
+    );
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_CONNECTABLE
+
+#if BLE_ROLE_OBSERVER
+    /** Pass the advertising report to the application. This may involve privacy resolution.
+     *
+     * @param report Report to be passed to the user application.
+     */
+    void signal_advertising_report(AdvertisingReportEvent& report);
+
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    /** Pass the advertising report to the application after privacy resolution completed.
+     *
+     * @param event Event to be passed to the user application.
+     * @param identity_address_type Address type of the identity address.
+     * @param identity_address Address resolved by private address resolution, nullptr if no identity found.
+     */
+    void conclude_signal_advertising_report_after_address_resolution(
+        AdvertisingReportEvent &event,
+        target_peer_address_type_t identity_address_type,
+        const address_t *identity_address
+    );
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_ROLE_OBSERVER
 
     /* implements PalGap::EventHandler */
 private:
+#if BLE_FEATURE_PHY_MANAGEMENT
     void on_read_phy(
         hci_error_code_t hci_status,
         connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
     ) override;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     void on_data_length_change(
         connection_handle_t connection_handle,
@@ -435,27 +706,17 @@ private:
         uint16_t rx_size
     ) override;
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     void on_phy_update_complete(
         hci_error_code_t hci_status,
         connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
     ) override;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
-    void on_enhanced_connection_complete(
-        hci_error_code_t status,
-        connection_handle_t connection_handle,
-        connection_role_t own_role,
-        connection_peer_address_type_t peer_address_type,
-        const ble::address_t &peer_address,
-        const ble::address_t &local_resolvable_private_address,
-        const ble::address_t &peer_resolvable_private_address,
-        uint16_t connection_interval,
-        uint16_t connection_latency,
-        uint16_t supervision_timeout,
-        clock_accuracy_t master_clock_accuracy
-    ) override;
-
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     void on_extended_advertising_report(
         advertising_event_t event_type,
         const connection_peer_address_type_t *address_type,
@@ -471,7 +732,9 @@ private:
         uint8_t data_length,
         const uint8_t *data
     ) override;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     void on_periodic_advertising_sync_established(
         hci_error_code_t error,
         sync_handle_t sync_handle,
@@ -493,6 +756,15 @@ private:
     ) override;
 
     void on_periodic_advertising_sync_loss(sync_handle_t sync_handle) override;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
+
+#if BLE_ROLE_BROADCASTER
+    void on_legacy_advertising_started() override;
+
+    void on_legacy_advertising_stopped() override;
+
+    void on_advertising_set_started(const mbed::Span<const uint8_t>& handles) override;
 
     void on_advertising_set_terminated(
         hci_error_code_t status,
@@ -506,7 +778,9 @@ private:
         connection_peer_address_type_t scanner_address_type,
         const ble::address_t &address
     ) override;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_CONNECTABLE
     void on_connection_update_complete(
         hci_error_code_t status,
         connection_handle_t connection_handle,
@@ -522,10 +796,56 @@ private:
         uint16_t connection_latency,
         uint16_t supervision_timeout
     ) override;
+#endif // BLE_FEATURE_CONNECTABLE
+
+#if BLE_ROLE_OBSERVER
+    void on_scan_started(bool success) override;
+
+    void on_scan_stopped(bool success) override;
 
     void on_scan_timeout() override;
 
     void process_legacy_scan_timeout();
+#endif // BLE_ROLE_OBSERVER
+
+#if BLE_FEATURE_PRIVACY
+    /* Implement PrivateAddressController::EventHandler */
+private:
+    void on_resolvable_private_addresses_generated(const address_t &address) final;
+
+    void on_non_resolvable_private_addresses_generated(const address_t &address) final;
+
+    void on_private_address_generated(bool connectable);
+
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    void on_address_resolution_completed(
+        const address_t &peer_resolvable_address,
+        bool resolved,
+        target_peer_address_type_t identity_address_type,
+        const address_t &identity_address
+    ) final;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#endif // BLE_FEATURE_PRIVACY
+
+private:
+    bool is_advertising() const;
+
+    bool is_radio_active() const;
+
+    void update_advertising_set_connectable_attribute(
+        advertising_handle_t handle,
+        const AdvertisingParameters& parameters
+    );
+
+    enum class controller_operation_t {
+        scanning, advertising, initiating
+    };
+
+    const address_t *get_random_address(controller_operation_t operation, size_t advertising_set = 0);
+
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    void connecting_to_host_resolved_address_failed(bool inform_user = true);
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 
 private:
     /**
@@ -539,27 +859,61 @@ private:
      */
     ble::Gap::EventHandler *_event_handler;
 
+#if BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+#if BLE_ROLE_OBSERVER
+    EventList<PendingAdvertisingReportEvent, uint8_t, BLE_GAP_MAX_ADVERTISING_REPORTS_PENDING_ADDRESS_RESOLUTION> _reports_pending_address_resolution;
+#endif // BLE_ROLE_OBSERVER
+#if BLE_FEATURE_CONNECTABLE
+    EventList<ConnectionCompleteEvent, uint8_t, DM_CONN_MAX> _connections_pending_address_resolution;
+#endif // BLE_FEATURE_CONNECTABLE
+#endif // BLE_FEATURE_PRIVACY && BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     PalEventQueue &_event_queue;
     PalGap &_pal_gap;
     PalGenericAccessService &_gap_service;
-    PalSecurityManager &_pal_sm;
+#if BLE_FEATURE_PRIVACY
+    PrivateAddressController &_private_address_controller;
+#endif // BLE_FEATURE_PRIVACY
     ble::own_address_type_t _address_type;
-    ble::address_t _address;
     initiator_policy_t _initiator_policy_mode;
     scanning_filter_policy_t _scanning_filter_policy;
     advertising_filter_policy_t _advertising_filter_policy;
     mutable whitelist_t _whitelist;
 
     bool _privacy_enabled;
+#if BLE_FEATURE_PRIVACY
+    bool _privacy_initialization_pending = false;
+#if BLE_ROLE_PERIPHERAL
     peripheral_privacy_configuration_t _peripheral_privacy_configuration;
+#endif // BLE_ROLE_PERIPHERAL
+#if BLE_ROLE_OBSERVER
     central_privacy_configuration_t _central_privacy_configuration;
+#endif //BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
-    bool _random_address_rotating;
 
-    bool _scan_enabled;
+
+    bool _scan_enabled = false;
+    bool _scan_pending = false;
+    bool _scan_interruptible = false;
+    bool _scan_address_refresh = false;
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+    enum class ConnectionToHostResolvedAddressState : uint8_t {
+        idle,
+        scan,
+        connect
+    };
+    ble::address_t _connect_to_host_resolved_address;
+    peer_address_type_t _connect_to_host_resolved_address_type = peer_address_type_t::ANONYMOUS;
+    ConnectionToHostResolvedAddressState _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+    ConnectionParameters *_connect_to_host_resolved_address_parameters = nullptr;
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+
     mbed::LowPowerTimeout _advertising_timeout;
     mbed::LowPowerTimeout _scan_timeout;
     mbed::LowPowerTicker _address_rotation_ticker;
+
+    bool _initiating = false;
 
     template<size_t bit_size>
     struct BitArray {
@@ -612,6 +966,11 @@ private:
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _active_periodic_sets;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
     BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _set_is_connectable;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _pending_sets;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _address_refresh_sets;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _interruptible_sets;
+    BitArray<BLE_GAP_MAX_ADVERTISING_SETS> _adv_started_from_refresh;
+
 
     bool _user_manage_connection_parameter_requests : 1;
 };

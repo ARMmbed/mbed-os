@@ -92,6 +92,29 @@
             "help": "How many advertising sets the API can handle (this limits how much the stack can handle). Must be non-zero",
             "value": 15,
             "macro_name": "BLE_GAP_MAX_ADVERTISING_SETS"
+        },
+        "ble-gap-host-based-private-address-resolution": {
+            "help": "Perform address resolution on the host, not the controller. Controller based privacy is preferred as it happens lower down the stack but this can be used in case controller based privacy is unavailable. If this is enabled the controller will not be used for privacy.",
+            "value": true,
+            "macro_name": "BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION"
+        },
+        "ble-gap-max-advertising-reports-pending-address-resolution": {
+            "help": "How many advertising reports can be pending while awaiting private address resolution. This is only used if host privacy is enabled and controller privacy is disabled. Must be non-zero",
+            "value": 16,
+            "macro_name": "BLE_GAP_MAX_ADVERTISING_REPORTS_PENDING_ADDRESS_RESOLUTION"
+        },
+        "ble-gap-host-privacy-resolved-cache-size": {
+            "help": "Used for host privacy. How many last resolved addresses to store to speed up resolution. This is especially valuable for resolving advertising which creates repeated queries for the same address.",
+            "value": 16,
+            "macro_name": "BLE_GAP_HOST_PRIVACY_RESOLVED_CACHE_SIZE"
+        }
+    },
+    "target_overrides": {
+        "MCU_NRF52840": {
+            "ble-gap-host-based-private-address-resolution": false
+        },
+        "NUCLEO_WB55RG": {
+            "ble-gap-host-based-private-address-resolution": false
         }
     }
 }
