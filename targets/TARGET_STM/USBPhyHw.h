@@ -18,7 +18,13 @@
 #ifndef USBPHYHW_H
 #define USBPHYHW_H
 
-#include "mbed.h"
+#include <string.h>
+
+#include "platform/mbed_toolchain.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
+#include "platform/mbed_wait_api.h"
+#include "platform/mbed_power_mgmt.h"
 #include "USBPhy.h"
 #include "PeripheralPins.h"
 
