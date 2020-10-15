@@ -472,6 +472,37 @@ mesh_error_t WisunInterface::validate_timing_parameters(uint16_t disc_trickle_im
     return MESH_ERROR_NONE;
 }
 
+mesh_error_t WisunInterface::set_device_min_sens(uint8_t device_min_sens)
+{
+    int status = ws_device_min_sens_set(get_interface_id(), device_min_sens);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_device_min_sens(uint8_t *device_min_sens)
+{
+    if (device_min_sens == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    /* To-Do :: Update this when device_min_sense get API is available */
+    *device_min_sens = 0;
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_device_min_sens(uint8_t device_min_sens)
+{
+    if (device_min_sens == 0xFF) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
 mesh_error_t WisunInterface::set_own_certificate(uint8_t *cert, uint16_t cert_len, uint8_t *cert_key, uint16_t cert_key_len)
 {
     mesh_error_t ret_val = MESH_ERROR_NONE;
@@ -629,9 +660,28 @@ mesh_error_t WisunInterface::stack_info_get(ws_stack_state_t *stack_info_ptr)
     stack_info_ptr->pan_id = stack_info.pan_id;
     stack_info_ptr->rsl_in = stack_info.rsl_in;
     stack_info_ptr->rsl_out = stack_info.rsl_out;
+    stack_info_ptr->device_min_sens = stack_info.device_min_sens;
     memcpy(stack_info_ptr->parent_addr, stack_info.parent, 16);
     memcpy(stack_info_ptr->global_addr, global_address, 16);
     memcpy(stack_info_ptr->link_local_addr, link_local_address, 16);
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::cca_threshold_table_get(ws_cca_threshold_table_t *table)
+{
+    if (table == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    const cca_threshold_table_s *cca_table = arm_nwk_get_cca_threshold_table(get_interface_id());
+
+    if (cca_table != NULL) {
+        table->number_of_channels = cca_table->number_of_channels;
+        table->cca_threshold_table = cca_table->cca_threshold_table;
+    } else {
+        return MESH_ERROR_UNKNOWN;
+    }
 
     return MESH_ERROR_NONE;
 }

@@ -53,7 +53,19 @@ typedef struct ws_stack_state {
     uint8_t join_state;
     /** Network PAN ID */
     uint16_t pan_id;
+    /** Device RF minimum sensitivity configuration. lowest level of radio signal strength packet heard. Range of -174 (0) to +80 (254) dBm*/
+    uint8_t device_min_sens;
 } ws_stack_state_t;
+
+/**
+ * \brief Struct ws_cca_threshold_table Wi-SUN CCA threshold table information.
+ */
+typedef struct ws_cca_threshold_table {
+    /** Number of channels */
+    uint8_t number_of_channels;
+    /** CCA threshold table */
+    const int8_t *cca_threshold_table;
+} ws_cca_threshold_table_t;
 
 /** Wi-SUN mesh network interface class
  *
@@ -365,6 +377,41 @@ public:
     mesh_error_t validate_timing_parameters(uint16_t disc_trickle_imin, uint16_t disc_trickle_imax, uint8_t disc_trickle_k, uint16_t pan_timeout);
 
     /**
+     * \brief Set Wi-SUN device minimum sensitivity
+     *
+     * Function stores new parameters to mbed-mesh-api and uses them when connect() is called next time.
+     * If device is already connected to the Wi-SUN network then settings take effect right away.
+     *
+     * \param device_min_sens Device minimum sensitivity. Range 0(-174 dB) to 254(+80 dB).
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t set_device_min_sens(uint8_t device_min_sens);
+
+    /**
+     * \brief Get Wi-SUN device minimum sensitivity.
+     *
+     * Function reads device minimum sensitivity from mbed-mesh-api.
+     *
+     * \param device_min_sens Device minimum sensitivity. Range 0-254.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t get_device_min_sens(uint8_t *device_min_sens);
+
+    /**
+     * \brief Validates Device minimum sensitivity.
+     *
+     * Function validates device minimum sensitivity. Function can be used to test that values that will be used on set
+     * function are valid.
+     *
+     * \param device_min_sens Device minimum sensitivity. Range 0-254.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t validate_device_min_sens(uint8_t device_min_sens);
+
+    /**
      * \brief Set own certificate and private key reference to the Wi-SUN network.
      *
      * Function can be called several times if intermediate certificates are used. Then each call to the function
@@ -485,6 +532,18 @@ public:
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
     mesh_error_t stack_info_get(ws_stack_state_t *stack_info_ptr);
+
+    /**
+     * \brief Get Wi-SUN CCA threshold table information.
+     *
+     * Function reads CCA threshold table from nanostack.
+     *
+     ** \param ws_cca_threshold_table_t Structure given to stack where information will be stored
+     **
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t cca_threshold_table_get(ws_cca_threshold_table_t *table);
 
 protected:
     Nanostack::WisunInterface *get_interface() const;
