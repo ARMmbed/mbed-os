@@ -100,6 +100,9 @@ void COMMON_RTC_IRQ_HANDLER(void)
 __STATIC_INLINE void errata_20(void)
 {
 #if defined(NRF52_PAN_20)
+    if (COMMON_RTC_INSTANCE != NRF_RTC1) {
+        return;
+    }
     if (!NRF_HAL_SD_IS_ENABLED())
     {
         NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
@@ -129,7 +132,9 @@ void common_rtc_init(void)
 
     nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_STOP);
 
-    NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
+    if (COMMON_RTC_INSTANCE == NRF_RTC1) {
+        NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
+    }
 
     /* RTC is driven by the low frequency (32.768 kHz) clock, a proper request
      * must be made to have it running.
