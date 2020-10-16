@@ -2584,6 +2584,30 @@
             "STM32G484xx"
         ]
     },
+    "MCU_STM32G491xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G491xE"
+        ],
+        "macros_add": [
+            "STM32G491xx"
+        ]
+    },
+    "MCU_STM32G4A1xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G4A1xE"
+        ],
+        "macros_add": [
+            "STM32G4A1xx"
+        ]
+    },
     "MCU_STM32H7": {
         "inherits": [
             "MCU_STM32"

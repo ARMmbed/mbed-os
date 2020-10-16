@@ -94,7 +94,7 @@ LoopFillZerobss:
   cmp r2, r4
   bcc FillZerobss
 
-/* Call the clock system intitialization function.*/
+/* Call the clock system initialization function.*/
     bl  SystemInit
 	bl _start
 	bx lr

@@ -3,7 +3,7 @@
   * @file    stm32g4xx_hal_adc.c
   * @author  MCD Application Team
   * @brief   This file provides firmware functions to manage the following
-  *          functionalities of the Analog to Digital Convertor (ADC)
+  *          functionalities of the Analog to Digital Converter (ADC)
   *          peripheral:
   *           + Initialization and de-initialization functions
   *             ++ Initialization and Configuration of ADC
@@ -325,9 +325,9 @@
 #define ADC_CFGR_FIELDS_1  ((ADC_CFGR_RES    | ADC_CFGR_ALIGN   |\
                              ADC_CFGR_CONT   | ADC_CFGR_OVRMOD  |\
                              ADC_CFGR_DISCEN | ADC_CFGR_DISCNUM |\
-                             ADC_CFGR_EXTEN  | ADC_CFGR_EXTSEL))   /*!< ADC_CFGR fields of parameters that can be updated 
+                             ADC_CFGR_EXTEN  | ADC_CFGR_EXTSEL))   /*!< ADC_CFGR fields of parameters that can be updated
                                                                         when no regular conversion is on-going */
-  
+
 /* Timeout values for ADC operations (enable settling time,                   */
 /*   disable settling time, ...).                                             */
 /*   Values defined to be higher than worst cases: low clock frequency,       */
@@ -2158,7 +2158,7 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef *hadc)
   /* Disable ADC peripheral if conversions are effectively stopped */
   if (tmp_hal_status == HAL_OK)
   {
-    /* Disable ADC DMA (ADC DMA configuration of continous requests is kept) */
+    /* Disable ADC DMA (ADC DMA configuration of continuous requests is kept) */
     CLEAR_BIT(hadc->Instance->CFGR, ADC_CFGR_DMAEN);
 
     /* Disable the DMA channel (in case of DMA in circular mode or stop       */
@@ -2972,7 +2972,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef *hadc, ADC_ChannelConf
   *         The setting of these parameters is conditioned to ADC state.
   *         For parameters constraints, see comments of structure
   *         "ADC_AnalogWDGConfTypeDef".
-  * @note   On this STM32 serie, analog watchdog thresholds can be modified
+  * @note   On this STM32 series, analog watchdog thresholds can be modified
   *         while ADC conversion is on going.
   *         In this case, some constraints must be taken into account:
   *         the programmed threshold values are effective from the next

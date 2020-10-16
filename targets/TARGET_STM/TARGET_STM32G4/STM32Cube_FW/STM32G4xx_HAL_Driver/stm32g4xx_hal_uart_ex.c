@@ -336,9 +336,6 @@ __weak void HAL_UARTEx_TxFifoEmptyCallback(UART_HandleTypeDef *huart)
   * @{
   */
 
-
-
-
 /**
   * @brief By default in multiprocessor mode, when the wake up method is set
   *        to address mark, the UART handles only 4-bit long addresses detection;
@@ -419,7 +416,7 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
   /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart);
 
-  /* Init tickstart for timeout managment*/
+  /* Init tickstart for timeout management */
   tickstart = HAL_GetTick();
 
   /* Wait until REACK flag is set */
@@ -711,8 +708,10 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
     tx_fifo_depth = TX_FIFO_DEPTH;
     rx_fifo_threshold = (uint8_t)(READ_BIT(huart->Instance->CR3, USART_CR3_RXFTCFG) >> USART_CR3_RXFTCFG_Pos);
     tx_fifo_threshold = (uint8_t)(READ_BIT(huart->Instance->CR3, USART_CR3_TXFTCFG) >> USART_CR3_TXFTCFG_Pos);
-    huart->NbTxDataToProcess = ((uint16_t)tx_fifo_depth * numerator[tx_fifo_threshold]) / (uint16_t)denominator[tx_fifo_threshold];
-    huart->NbRxDataToProcess = ((uint16_t)rx_fifo_depth * numerator[rx_fifo_threshold]) / (uint16_t)denominator[rx_fifo_threshold];
+    huart->NbTxDataToProcess = ((uint16_t)tx_fifo_depth * numerator[tx_fifo_threshold]) /
+                               (uint16_t)denominator[tx_fifo_threshold];
+    huart->NbRxDataToProcess = ((uint16_t)rx_fifo_depth * numerator[rx_fifo_threshold]) /
+                               (uint16_t)denominator[rx_fifo_threshold];
   }
 }
 /**

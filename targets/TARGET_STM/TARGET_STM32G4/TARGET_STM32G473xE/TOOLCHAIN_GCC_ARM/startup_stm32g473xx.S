@@ -94,7 +94,7 @@ LoopFillZerobss:
   cmp r2, r4
   bcc FillZerobss
 
-/* Call the clock system intitialization function.*/
+/* Call the clock system initialization function.*/
     bl  SystemInit
 	bl _start
 	bx lr
@@ -167,8 +167,8 @@ g_pfnVectors:
 	.word	ADC1_2_IRQHandler
 	.word	USB_HP_IRQHandler
 	.word	USB_LP_IRQHandler
-	.word	0
-	.word	0
+	.word	FDCAN1_IT0_IRQHandler
+	.word	FDCAN1_IT1_IRQHandler
 	.word	EXTI9_5_IRQHandler
 	.word	TIM1_BRK_TIM15_IRQHandler
 	.word	TIM1_UP_TIM16_IRQHandler
@@ -232,10 +232,10 @@ g_pfnVectors:
 	.word	I2C4_ER_IRQHandler
 	.word	SPI4_IRQHandler
 	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	0
+	.word	FDCAN2_IT0_IRQHandler
+	.word	FDCAN2_IT1_IRQHandler
+	.word	FDCAN3_IT0_IRQHandler
+	.word	FDCAN3_IT1_IRQHandler
 	.word	RNG_IRQHandler
 	.word	LPUART1_IRQHandler
 	.word	I2C3_EV_IRQHandler
@@ -346,6 +346,12 @@ g_pfnVectors:
 
 	.weak	USB_LP_IRQHandler
 	.thumb_set USB_LP_IRQHandler,Default_Handler
+
+	.weak	FDCAN1_IT0_IRQHandler
+	.thumb_set FDCAN1_IT0_IRQHandler,Default_Handler
+
+	.weak	FDCAN1_IT1_IRQHandler
+	.thumb_set FDCAN1_IT1_IRQHandler,Default_Handler
 
 	.weak	EXTI9_5_IRQHandler
 	.thumb_set EXTI9_5_IRQHandler,Default_Handler
@@ -508,6 +514,18 @@ g_pfnVectors:
 
 	.weak	SPI4_IRQHandler
 	.thumb_set SPI4_IRQHandler,Default_Handler
+
+	.weak	FDCAN2_IT0_IRQHandler
+	.thumb_set FDCAN2_IT0_IRQHandler,Default_Handler
+
+	.weak	FDCAN2_IT1_IRQHandler
+	.thumb_set FDCAN2_IT1_IRQHandler,Default_Handler
+
+	.weak	FDCAN3_IT0_IRQHandler
+	.thumb_set FDCAN3_IT0_IRQHandler,Default_Handler
+
+	.weak	FDCAN3_IT1_IRQHandler
+	.thumb_set FDCAN3_IT1_IRQHandler,Default_Handler
 
 	.weak	RNG_IRQHandler
 	.thumb_set RNG_IRQHandler,Default_Handler

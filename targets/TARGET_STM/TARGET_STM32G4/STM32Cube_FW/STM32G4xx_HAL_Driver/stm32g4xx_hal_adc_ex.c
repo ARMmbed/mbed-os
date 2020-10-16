@@ -3,7 +3,7 @@
   * @file    stm32g4xx_hal_adc_ex.c
   * @author  MCD Application Team
   * @brief   This file provides firmware functions to manage the following
-  *          functionalities of the Analog to Digital Convertor (ADC)
+  *          functionalities of the Analog to Digital Converter (ADC)
   *          peripheral:
   *           + Operation functions
   *             ++ Start, stop, get result of conversions of ADC group injected,
