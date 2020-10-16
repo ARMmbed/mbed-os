@@ -12,12 +12,16 @@ target_include_directories(mbed-core
 
 target_sources(mbed-core
     PRIVATE
-        source/ConditionVariable.cpp
         source/EventFlags.cpp
         source/Kernel.cpp
         source/Mutex.cpp
         source/Semaphore.cpp
         source/ThisThread.cpp
+)
+
+target_sources(mbed-os
+    PRIVATE
+        source/ConditionVariable.cpp
         source/Thread.cpp
 )
 

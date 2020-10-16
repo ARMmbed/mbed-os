@@ -3,12 +3,12 @@
 
 add_subdirectory(RTX)
 
-target_include_directories(mbed-core
+target_include_directories(mbed-rtos
     PUBLIC
         Include
 )
 
-target_sources(mbed-core
+target_sources(mbed-rtos
     PRIVATE
         Source/os_systick.c
         Source/os_tick_ptim.c
