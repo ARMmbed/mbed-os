@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 add_subdirectory(RTE)
-add_subdirectory(rtos)
 
 target_include_directories(mbed-core
     PUBLIC
