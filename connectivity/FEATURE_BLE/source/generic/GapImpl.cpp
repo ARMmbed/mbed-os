@@ -633,21 +633,31 @@ ble_error_t Gap::connect(
             adjusted_address_type = peer_address_type_t::RANDOM;
         }
 
-        ret = _pal_gap.extended_create_connection(
-            connectionParams.getFilter(),
-            connectionParams.getOwnAddressType(),
-            adjusted_address_type,
-            peerAddress,
-            connectionParams.getPhySet(),
-            connectionParams.getScanIntervalArray(),
-            connectionParams.getScanWindowArray(),
-            connectionParams.getMinConnectionIntervalArray(),
-            connectionParams.getMaxConnectionIntervalArray(),
-            connectionParams.getSlaveLatencyArray(),
-            connectionParams.getConnectionSupervisionTimeoutArray(),
-            connectionParams.getMinEventLengthArray(),
-            connectionParams.getMaxEventLengthArray()
-        );
+#if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+        if (_connect_to_host_resolved_address_state == ConnectionToHostResolvedAddressState::scan) {
+            ret = startScan(scan_duration_t::forever(), duplicates_filter_t::ENABLE, scan_period_t(0));
+            if (ret != BLE_ERROR_NONE) {
+                _connect_to_host_resolved_address_state = ConnectionToHostResolvedAddressState::idle;
+            }
+        } else
+#endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
+        {
+            ret = _pal_gap.extended_create_connection(
+                connectionParams.getFilter(),
+                connectionParams.getOwnAddressType(),
+                adjusted_address_type,
+                peerAddress,
+                connectionParams.getPhySet(),
+                connectionParams.getScanIntervalArray(),
+                connectionParams.getScanWindowArray(),
+                connectionParams.getMinConnectionIntervalArray(),
+                connectionParams.getMaxConnectionIntervalArray(),
+                connectionParams.getSlaveLatencyArray(),
+                connectionParams.getConnectionSupervisionTimeoutArray(),
+                connectionParams.getMinEventLengthArray(),
+                connectionParams.getMaxEventLengthArray()
+            );
+        }
     }
 
     if (ret == BLE_ERROR_NONE) {
