@@ -29,3 +29,8 @@ target_sources(mbed-os PRIVATE
     source/mbed_rtx_handlers.c
     source/mbed_rtx_idle.cpp
 )
+
+target_compile_definitions(mbed-os
+    PUBLIC
+        MBED_CONF_RTOS_PRESENT=1
+)
