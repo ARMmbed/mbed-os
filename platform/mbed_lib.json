@@ -220,6 +220,10 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "NUCLEO_F412ZG": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
+        },
         "DISCO_F413ZH": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
