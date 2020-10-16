@@ -1,6 +1,7 @@
 /* nsapi_dns.cpp
  * Original work Copyright (c) 2013 Henry Leinen (henry[dot]leinen [at] online [dot] de)
  * Modified work Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

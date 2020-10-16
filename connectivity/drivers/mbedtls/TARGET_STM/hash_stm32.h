@@ -5,6 +5,7 @@
   * @attention
   *
   *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+  * SPDX-License-Identifier: Apache-2.0
   *  Copyright (C) 2019 STMicroelectronics, All Rights Reserved
   *
   * This software component is licensed by ST under Apache 2.0 license,
