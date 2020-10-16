@@ -23,5 +23,5 @@ target_sources(mbed-os
 
 target_compile_definitions(mbed-os
     PUBLIC
-        MBED_CONF_RTOS_PRESENT=1
+        MBED_CONF_RTOS_API_PRESENT=1
 )
