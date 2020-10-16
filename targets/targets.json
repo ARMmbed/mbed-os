@@ -2858,67 +2858,124 @@
             "lpticker_delay_ticks": 0
         },
         "device_has_add": [
-            "ANALOGOUT",
             "CRC",
             "SERIAL_ASYNCH",
-            "TRNG",
             "FLASH",
             "MPU"
         ]
     },
-    "DISCO_L072CZ_LRWAN1": {
-        "inherits": [
-            "MCU_STM32L0"
-        ],
-        "extra_labels_add": [
-            "STM32L072CZ",
-            "STM32L072xZ",
-            "STM32L072xx"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "overrides": {
-            "clock_source": "USE_PLL_HSI",
-            "lpticker_delay_ticks": 0
-        },
-        "detect_code": [
-            "0833"
-        ],
-        "device_name": "STM32L072CZ"
-    },
-    "MCU_STM32L071xx": {
+    "MCU_STM32L053x8": {
         "inherits": [
             "MCU_STM32L0"
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32L0",
-            "STM32L071xx"
+            "STM32L053x8"
         ],
-        "device_has_remove": [
+        "macros_add": [
+            "STM32L053xx"
+        ],
+        "c_lib": "small",
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "TRNG"
+        ]
+    },
+    "MCU_STM32L071xZ": {
+        "inherits": [
+            "MCU_STM32L0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L071xZ"
+        ],
+        "macros_add": [
+            "STM32L071xx"
+        ]
+    },
+    "MCU_STM32L072xZ": {
+        "inherits": [
+            "MCU_STM32L0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L072xZ"
+        ],
+        "macros_add": [
+            "STM32L072xx"
+        ],
+        "overrides": {
+            "clock_source": "USE_PLL_HSI",
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "TRNG"
+        ]
+    },
+    "DISCO_L072CZ_LRWAN1": {
+        "inherits": [
+            "MCU_STM32L072xZ"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
+        ],
+        "detect_code": [
+            "0833"
+        ],
+        "device_name": "STM32L072CZ"
+    },
+    "MCU_STM32L073xZ": {
+        "inherits": [
+            "MCU_STM32L0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L073xZ"
+        ],
+        "macros_add": [
+            "STM32L073xx"
+        ],
+        "device_has_add": [
             "ANALOGOUT",
             "TRNG"
         ]
     },
     "NUCLEO_L073RZ": {
         "inherits": [
-            "MCU_STM32L0"
+            "MCU_STM32L073xZ"
         ],
-        "c_lib": "small",
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32L073RZ",
-            "STM32L073xx"
         ],
         "detect_code": [
             "0760"
         ],
         "device_name": "STM32L073RZ"
+    },
+    "MCU_STM32L082xZ": {
+        "inherits": [
+            "MCU_STM32L0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L082xZ"
+        ],
+        "macros_add": [
+            "STM32L082xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "TRNG"
+        ]
     },
     "MCU_STM32L1": {
         "inherits": [

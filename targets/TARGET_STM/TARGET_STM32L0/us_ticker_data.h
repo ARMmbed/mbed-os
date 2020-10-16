@@ -11,39 +11,35 @@
  *                        opensource.org/licenses/BSD-3-Clause
  *
  ******************************************************************************
-
  */
-#ifndef MBED_PWMOUT_DEVICE_H
-#define MBED_PWMOUT_DEVICE_H
 
-#include "cmsis.h"
+#ifndef __US_TICKER_DATA_H
+#define __US_TICKER_DATA_H
 
 #ifdef __cplusplus
-extern "C" {
+ extern "C" {
 #endif
 
-#if DEVICE_PWMOUT
+#include "stm32l0xx.h"
+#include "stm32l0xx_ll_tim.h"
+#include "cmsis_nvic.h"
 
-#define PWMOUT_INVERTED_NOT_SUPPORTED
+#define TIM_MST      TIM21
+#define TIM_MST_IRQ  TIM21_IRQn
+#define TIM_MST_RCC  __TIM21_CLK_ENABLE()
+#define TIM_MST_DBGMCU_FREEZE  __HAL_DBGMCU_FREEZE_TIM21()
 
-typedef enum {
-    PWMOUT_ON_APB1 = 0,
-    PWMOUT_ON_APB2 = 1,
-    PWMOUT_UNKNOWN = 2
-} PwmoutApb;
+#define TIM_MST_RESET_ON   __TIM21_FORCE_RESET()
+#define TIM_MST_RESET_OFF  __TIM21_RELEASE_RESET()
 
-/*  Structure to describe Timers to APB */
-typedef struct pwm_apb_map {
-    PWMName pwm;   // an index entry for each EXIT line
-    PwmoutApb pwmoutApb;
-} pwm_apb_map_t;
+#define TIM_MST_BIT_WIDTH  16 // 16 or 32
 
-extern const pwm_apb_map_t pwm_apb_map_table[];
+#define TIM_MST_PCLK  2 // Select the peripheral clock number (1 or 2)
 
-#endif // DEVICE_PWMOUT
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // __US_TICKER_DATA_H
+

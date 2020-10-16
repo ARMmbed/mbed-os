@@ -1,9 +1,10 @@
 /* mbed Microcontroller Library
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
+ * @attention
  *
- * Copyright (c) 2016-2020 STMicroelectronics.
- * All rights reserved.
+ * <h2><center>&copy; Copyright (c) 2016-2020 STMicroelectronics.
+ * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under BSD 3-Clause license,
  * the "License"; You may not use this file except in compliance with the
@@ -11,28 +12,28 @@
  *                        opensource.org/licenses/BSD-3-Clause
  *
  ******************************************************************************
+*/
 
- */
-#include "cmsis.h"
-#include "pwmout_api.h"
-#include "pwmout_device.h"
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-#if DEVICE_PWMOUT
+#if !defined(MBED_ROM_START)
+#define MBED_ROM_START  0x8000000
+#endif
 
-const pwm_apb_map_t pwm_apb_map_table[] = {
-#if defined(TIM2_BASE)
-    {PWM_2, PWMOUT_ON_APB1},
+#if !defined(MBED_ROM_SIZE)
+#define MBED_ROM_SIZE  0x30000  // 192 KB
 #endif
-#if defined(TIM3_BASE)
-    {PWM_3, PWMOUT_ON_APB1},
-#endif
-#if defined(TIM21_BASE)
-    {PWM_21, PWMOUT_ON_APB2},
-#endif
-#if defined(TIM22_BASE)
-    {PWM_22, PWMOUT_ON_APB2},
-#endif
-    {(PWMName) 0, PWMOUT_UNKNOWN}
-};
 
-#endif // DEVICE_PWMOUT
+#if !defined(MBED_RAM_START)
+#define MBED_RAM_START  0x20000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+#define MBED_RAM_SIZE  0x5000  // 20 KB
+#endif
+
+#define NVIC_NUM_VECTORS        48
+#define NVIC_RAM_VECTOR_ADDRESS MBED_RAM_START
+
+#endif
