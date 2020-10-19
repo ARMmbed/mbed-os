@@ -54,7 +54,8 @@ static void HW_IPCC_MAC_802_15_4_NotEvtHandler( void );
 #ifdef ZIGBEE_WB
 static void HW_IPCC_ZIGBEE_CmdEvtHandler( void );
 static void HW_IPCC_ZIGBEE_StackNotifEvtHandler( void );
-static void HW_IPCC_ZIGBEE_CliNotifEvtHandler( void );
+static void HW_IPCC_ZIGBEE_StackM0RequestHandler( void );
+
 #endif
 
 /* Public function definition -----------------------------------------------*/
@@ -85,13 +86,13 @@ void HW_IPCC_Rx_Handler( void )
   }
 #endif /* THREAD_WB */
 #ifdef ZIGBEE_WB
-  else if (HW_IPCC_RX_PENDING( HW_IPCC_THREAD_NOTIFICATION_ACK_CHANNEL ))
+  else if (HW_IPCC_RX_PENDING( HW_IPCC_ZIGBEE_APPLI_NOTIF_ACK_CHANNEL ))
   {
     HW_IPCC_ZIGBEE_StackNotifEvtHandler();
   }
-  else if (HW_IPCC_RX_PENDING( HW_IPCC_THREAD_CLI_NOTIFICATION_ACK_CHANNEL ))
+  else if (HW_IPCC_RX_PENDING( HW_IPCC_ZIGBEE_M0_REQUEST_CHANNEL ))
   {
-      HW_IPCC_ZIGBEE_CliNotifEvtHandler();
+    HW_IPCC_ZIGBEE_StackM0RequestHandler();
   }
 #endif /* ZIGBEE_WB */
   else if (HW_IPCC_RX_PENDING( HW_IPCC_BLE_EVENT_CHANNEL ))
@@ -125,7 +126,7 @@ void HW_IPCC_Tx_Handler( void )
   }
 #endif /* THREAD_WB */
 #ifdef ZIGBEE_WB
-  if (HW_IPCC_TX_PENDING( HW_IPCC_THREAD_OT_CMD_RSP_CHANNEL ))
+  if (HW_IPCC_TX_PENDING( HW_IPCC_ZIGBEE_CMD_APPLI_CHANNEL ))
   {
       HW_IPCC_ZIGBEE_CmdEvtHandler();
   }
@@ -400,73 +401,66 @@ __weak void HW_IPCC_THREAD_EvtNot( void ){};
 #ifdef ZIGBEE_WB
 void HW_IPCC_ZIGBEE_Init( void )
 {
-  LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_THREAD_NOTIFICATION_ACK_CHANNEL );
-  LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_THREAD_CLI_NOTIFICATION_ACK_CHANNEL );
+  LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_ZIGBEE_APPLI_NOTIF_ACK_CHANNEL );
+  LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_ZIGBEE_M0_REQUEST_CHANNEL );
 
   return;
 }
 
-void HW_IPCC_ZIGBEE_SendAppliCmd( void )
+void HW_IPCC_ZIGBEE_SendM4RequestToM0( void )
 {
-  LL_C1_IPCC_SetFlag_CHx( IPCC, HW_IPCC_THREAD_OT_CMD_RSP_CHANNEL );
-  LL_C1_IPCC_EnableTransmitChannel( IPCC, HW_IPCC_THREAD_OT_CMD_RSP_CHANNEL );
+  LL_C1_IPCC_SetFlag_CHx( IPCC, HW_IPCC_ZIGBEE_CMD_APPLI_CHANNEL );
+  LL_C1_IPCC_EnableTransmitChannel( IPCC, HW_IPCC_ZIGBEE_CMD_APPLI_CHANNEL );
 
   return;
 }
 
-void HW_IPCC_ZIGBEE_SendCliCmd( void )
+void HW_IPCC_ZIGBEE_SendM4AckToM0Notify( void )
 {
-  LL_C1_IPCC_SetFlag_CHx( IPCC, HW_IPCC_THREAD_CLI_CMD_CHANNEL );
-
-   return;
-}
-
-void HW_IPCC_ZIGBEE_SendAppliCmdAck( void )
-{
-  LL_C1_IPCC_ClearFlag_CHx( IPCC, HW_IPCC_THREAD_NOTIFICATION_ACK_CHANNEL );
-  LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_THREAD_NOTIFICATION_ACK_CHANNEL );
+  LL_C1_IPCC_ClearFlag_CHx( IPCC, HW_IPCC_ZIGBEE_APPLI_NOTIF_ACK_CHANNEL );
+  LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_ZIGBEE_APPLI_NOTIF_ACK_CHANNEL );
 
   return;
-}
-
-void HW_IPCC_ZIGBEE_SendCliCmdAck( void )
-{
-    LL_C1_IPCC_ClearFlag_CHx( IPCC, HW_IPCC_THREAD_CLI_NOTIFICATION_ACK_CHANNEL );
-    LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_THREAD_CLI_NOTIFICATION_ACK_CHANNEL );
-
-    return;
 }
 
 static void HW_IPCC_ZIGBEE_CmdEvtHandler( void )
 {
-    LL_C1_IPCC_DisableTransmitChannel( IPCC, HW_IPCC_THREAD_OT_CMD_RSP_CHANNEL );
+    LL_C1_IPCC_DisableTransmitChannel( IPCC, HW_IPCC_ZIGBEE_CMD_APPLI_CHANNEL );
 
-    HW_IPCC_ZIGBEE_AppliCmdNotification();
+    HW_IPCC_ZIGBEE_RecvAppliAckFromM0();
 
     return;
 }
 
 static void HW_IPCC_ZIGBEE_StackNotifEvtHandler( void )
 {
-    LL_C1_IPCC_DisableReceiveChannel( IPCC, HW_IPCC_THREAD_NOTIFICATION_ACK_CHANNEL );
+    LL_C1_IPCC_DisableReceiveChannel( IPCC, HW_IPCC_ZIGBEE_APPLI_NOTIF_ACK_CHANNEL );
 
-    HW_IPCC_ZIGBEE_AppliAsyncEvtNotification();
+    HW_IPCC_ZIGBEE_RecvM0NotifyToM4();
 
     return;
 }
 
-static void HW_IPCC_ZIGBEE_CliNotifEvtHandler( void )
+static void HW_IPCC_ZIGBEE_StackM0RequestHandler( void )
 {
-  LL_C1_IPCC_DisableReceiveChannel( IPCC, HW_IPCC_THREAD_CLI_NOTIFICATION_ACK_CHANNEL );
+    LL_C1_IPCC_DisableReceiveChannel( IPCC, HW_IPCC_ZIGBEE_M0_REQUEST_CHANNEL );
 
-  HW_IPCC_ZIGBEE_CliEvtNotification();
+    HW_IPCC_ZIGBEE_RecvM0RequestToM4();
 
-  return;
+    return;
 }
 
-__weak void HW_IPCC_ZIGBEE_AppliCmdNotification( void ){};
-__weak void HW_IPCC_ZIGBEE_AppliAsyncEvtNotification( void ){};
-__weak void HW_IPCC_ZIGBEE_CliEvtNotification( void ){};
+void HW_IPCC_ZIGBEE_SendM4AckToM0Request( void )
+{
+    LL_C1_IPCC_ClearFlag_CHx( IPCC, HW_IPCC_ZIGBEE_M0_REQUEST_CHANNEL );
+    LL_C1_IPCC_EnableReceiveChannel( IPCC, HW_IPCC_ZIGBEE_M0_REQUEST_CHANNEL );
+
+    return;
+}
+
+__weak void HW_IPCC_ZIGBEE_RecvAppliAckFromM0( void ){};
+__weak void HW_IPCC_ZIGBEE_RecvM0NotifyToM4( void ){};
+__weak void HW_IPCC_ZIGBEE_RecvM0RequestToM4( void ){};
 #endif /* ZIGBEE_WB */
 
 /******************************************************************************

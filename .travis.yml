@@ -80,10 +80,10 @@ matrix:
         - scancode -l --json-pp scancode_new_files.json SCANCODE_NEW_FILES
         - python ./tools/test/travis-ci/scancode-evaluate.py scancode_new_files.json || true
         - cat scancode-evaluate.log
-        - COUNT=$(cat scancode-evaluate.log | grep 'File:' | wc -l) || true
+        - COUNT=$(cat scancode-evaluate.log | grep 'File:' | grep -v 'SPDX' | wc -l) || true
         - python ./tools/test/travis-ci/scancode-evaluate.py scancode_new_files.json
         - cat scancode-evaluate.log
-        - COUNT_NEW_FILES=$(cat scancode-evaluate.log | grep 'File:' | wc -l) || true
+        - COUNT_NEW_FILES=$(cat scancode-evaluate.log | grep 'File:' | grep -v 'SPDX' | wc -l) || true
         - |
           if [ $COUNT == 0 ] && [ $COUNT_NEW_FILES == 0 ]; then
               echo "License check OK";

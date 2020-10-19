@@ -1208,6 +1208,9 @@ typedef struct
 /*                      Analog to Digital Converter (ADC)                     */
 /*                                                                            */
 /******************************************************************************/
+
+#define ADC_SUPPORT_5_MSPS   /* ADC sampling rate 5 Msamples/sec */
+
 /********************  Bit definition for ADC_ISR register  *******************/
 #define ADC_ISR_ADRDY_Pos            (0U)                                    
 #define ADC_ISR_ADRDY_Msk            (0x1UL << ADC_ISR_ADRDY_Pos)              /*!< 0x00000001 */
@@ -2779,7 +2782,7 @@ typedef struct
 /******************************************************************************/
 /********************  Bits definition for DMAMUX_CxCR register  **************/
 #define DMAMUX_CxCR_DMAREQ_ID_Pos              (0U)                            
-#define DMAMUX_CxCR_DMAREQ_ID_Msk              (0xFFUL << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x000000FF */
+#define DMAMUX_CxCR_DMAREQ_ID_Msk              (0x3FUL << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x0000003F */
 #define DMAMUX_CxCR_DMAREQ_ID                  DMAMUX_CxCR_DMAREQ_ID_Msk       /*!< DMA Request ID                       */
 #define DMAMUX_CxCR_DMAREQ_ID_0                (0x01U << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x00000001 */
 #define DMAMUX_CxCR_DMAREQ_ID_1                (0x02U << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x00000002 */
@@ -2787,8 +2790,6 @@ typedef struct
 #define DMAMUX_CxCR_DMAREQ_ID_3                (0x08U << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x00000008 */
 #define DMAMUX_CxCR_DMAREQ_ID_4                (0x10U << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x00000010 */
 #define DMAMUX_CxCR_DMAREQ_ID_5                (0x20U << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x00000020 */
-#define DMAMUX_CxCR_DMAREQ_ID_6                (0x40U << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x00000040 */
-#define DMAMUX_CxCR_DMAREQ_ID_7                (0x80U << DMAMUX_CxCR_DMAREQ_ID_Pos) /*!< 0x00000080 */
 #define DMAMUX_CxCR_SOIE_Pos                   (8U)                            
 #define DMAMUX_CxCR_SOIE_Msk                   (0x1UL << DMAMUX_CxCR_SOIE_Pos) /*!< 0x00000100 */
 #define DMAMUX_CxCR_SOIE                       DMAMUX_CxCR_SOIE_Msk            /*!< Synchro overrun interrupt enable     */
@@ -3635,6 +3636,7 @@ typedef struct
 #define EXTI_C2IMR1_IM31_Pos     (31U)                                         
 #define EXTI_C2IMR1_IM31_Msk     (0x1UL << EXTI_C2IMR1_IM31_Pos)               /*!< 0x80000000 */
 #define EXTI_C2IMR1_IM31         EXTI_C2IMR1_IM31_Msk                          /*!< CPU2 Interrupt Mask on line 31 */
+
 /********************  Bits definition for EXTI_C2EMR1 register  **************/
 #define EXTI_C2EMR1_Pos          (0U)                                          
 #define EXTI_C2EMR1_Msk          (0x003EFFFFUL << EXTI_C2EMR1_Pos)             /*!< 0xFFFFFFFF */
@@ -4269,7 +4271,7 @@ typedef struct
 /******************  Bits definition for FLASH_SRRVR register  ************/
 #define FLASH_SRRVR_SBRV_Pos                (0U)                               
 #define FLASH_SRRVR_SBRV_Msk                (0x3FFFFUL << FLASH_SRRVR_SBRV_Pos) /*!< 0x0003FFFF */
-#define FLASH_SRRVR_SBRV                    FLASH_SRRVR_SBRV_Msk                /* SCPU2 boot reset vector memory offset                 */
+#define FLASH_SRRVR_SBRV                    FLASH_SRRVR_SBRV_Msk                /* CPU2 boot reset vector memory offset                  */
 
 #define FLASH_SRRVR_SBRSA_Pos               (18U)                              
 #define FLASH_SRRVR_SBRSA_Msk               (0x1FUL << FLASH_SRRVR_SBRSA_Pos)   /*!< 0x007C0000 */
@@ -4286,7 +4288,7 @@ typedef struct
 #define FLASH_SRRVR_NBRSD                   FLASH_SRRVR_NBRSD_Msk               /* Non-backup SRAM2B secure mode                          */
 #define FLASH_SRRVR_C2OPT_Pos               (31U)                              
 #define FLASH_SRRVR_C2OPT_Msk               (0x1UL << FLASH_SRRVR_C2OPT_Pos)    /*!< 0x80000000 */
-#define FLASH_SRRVR_C2OPT                   FLASH_SRRVR_C2OPT_Msk               /* SCPU2 boot reset vector memory selection               */
+#define FLASH_SRRVR_C2OPT                   FLASH_SRRVR_C2OPT_Msk               /* CPU2 boot reset vector memory selection                */
 
 /******************  Bits definition for FLASH_C2ACR register  ************/
 #define FLASH_C2ACR_PRFTEN_Pos              (8U)                               
@@ -6242,6 +6244,8 @@ typedef struct
 /*                                                                            */
 /******************************************************************************/
 
+#define PWR_SUPPORT_STOP2
+
 /********************  Bit definition for PWR_CR1 register  ********************/
 #define PWR_CR1_LPMS_Pos               (0U)                                    
 #define PWR_CR1_LPMS_Msk               (0x7UL << PWR_CR1_LPMS_Pos)             /*!< 0x00000007 */
@@ -7268,6 +7272,8 @@ typedef struct
 #define RCC_SMPS_SUPPORT
 #define RCC_MCO3_SUPPORT
 #define RCC_LSCO3_SUPPORT
+#define RCC_HSI48_SUPPORT
+#define RCC_802_SUPPORT
 
 /********************  Bit definition for RCC_CR register  *****************/
 #define RCC_CR_MSION_Pos                     (0U)                              
@@ -7797,22 +7803,22 @@ typedef struct
  
 /********************  Bit definition for RCC_APB2RSTR register  **************/
 #define RCC_APB2RSTR_TIM1RST_Pos            (11U)                              
-#define RCC_APB2RSTR_TIM1RST_Msk            (0x1UL << RCC_APB2RSTR_TIM1RST_Pos) /*!< 0x00000800 */
+#define RCC_APB2RSTR_TIM1RST_Msk            (0x1UL << RCC_APB2RSTR_TIM1RST_Pos)   /*!< 0x00000800 */
 #define RCC_APB2RSTR_TIM1RST                RCC_APB2RSTR_TIM1RST_Msk           
 #define RCC_APB2RSTR_SPI1RST_Pos            (12U)                              
-#define RCC_APB2RSTR_SPI1RST_Msk            (0x1UL << RCC_APB2RSTR_SPI1RST_Pos) /*!< 0x00001000 */
+#define RCC_APB2RSTR_SPI1RST_Msk            (0x1UL << RCC_APB2RSTR_SPI1RST_Pos)   /*!< 0x00001000 */
 #define RCC_APB2RSTR_SPI1RST                RCC_APB2RSTR_SPI1RST_Msk           
 #define RCC_APB2RSTR_USART1RST_Pos          (14U)                              
 #define RCC_APB2RSTR_USART1RST_Msk          (0x1UL << RCC_APB2RSTR_USART1RST_Pos) /*!< 0x00004000 */
 #define RCC_APB2RSTR_USART1RST              RCC_APB2RSTR_USART1RST_Msk         
 #define RCC_APB2RSTR_TIM16RST_Pos           (17U)                              
-#define RCC_APB2RSTR_TIM16RST_Msk           (0x1UL << RCC_APB2RSTR_TIM16RST_Pos) /*!< 0x00020000 */
+#define RCC_APB2RSTR_TIM16RST_Msk           (0x1UL << RCC_APB2RSTR_TIM16RST_Pos)  /*!< 0x00020000 */
 #define RCC_APB2RSTR_TIM16RST               RCC_APB2RSTR_TIM16RST_Msk          
 #define RCC_APB2RSTR_TIM17RST_Pos           (18U)                              
-#define RCC_APB2RSTR_TIM17RST_Msk           (0x1UL << RCC_APB2RSTR_TIM17RST_Pos) /*!< 0x00040000 */
+#define RCC_APB2RSTR_TIM17RST_Msk           (0x1UL << RCC_APB2RSTR_TIM17RST_Pos)  /*!< 0x00040000 */
 #define RCC_APB2RSTR_TIM17RST               RCC_APB2RSTR_TIM17RST_Msk          
 #define RCC_APB2RSTR_SAI1RST_Pos            (21U)                              
-#define RCC_APB2RSTR_SAI1RST_Msk            (0x1UL << RCC_APB2RSTR_SAI1RST_Pos) /*!< 0x00200000 */
+#define RCC_APB2RSTR_SAI1RST_Msk            (0x1UL << RCC_APB2RSTR_SAI1RST_Pos)   /*!< 0x00200000 */
 #define RCC_APB2RSTR_SAI1RST                RCC_APB2RSTR_SAI1RST_Msk            
 
 /********************  Bit definition for RCC_APB3RSTR register  **************/
@@ -7928,19 +7934,19 @@ typedef struct
  
 /********************  Bit definition for RCC_APB2ENR register  **************/
 #define RCC_APB2ENR_TIM1EN_Pos              (11U)                              
-#define RCC_APB2ENR_TIM1EN_Msk              (0x1UL << RCC_APB2ENR_TIM1EN_Pos)  /*!< 0x00000800 */
+#define RCC_APB2ENR_TIM1EN_Msk              (0x1UL << RCC_APB2ENR_TIM1EN_Pos)   /*!< 0x00000800 */
 #define RCC_APB2ENR_TIM1EN                  RCC_APB2ENR_TIM1EN_Msk             
 #define RCC_APB2ENR_SPI1EN_Pos              (12U)                              
-#define RCC_APB2ENR_SPI1EN_Msk              (0x1UL << RCC_APB2ENR_SPI1EN_Pos)  /*!< 0x00001000 */
+#define RCC_APB2ENR_SPI1EN_Msk              (0x1UL << RCC_APB2ENR_SPI1EN_Pos)   /*!< 0x00001000 */
 #define RCC_APB2ENR_SPI1EN                  RCC_APB2ENR_SPI1EN_Msk             
 #define RCC_APB2ENR_USART1EN_Pos            (14U)                              
 #define RCC_APB2ENR_USART1EN_Msk            (0x1UL << RCC_APB2ENR_USART1EN_Pos) /*!< 0x00004000 */
 #define RCC_APB2ENR_USART1EN                RCC_APB2ENR_USART1EN_Msk           
 #define RCC_APB2ENR_TIM16EN_Pos             (17U)                              
-#define RCC_APB2ENR_TIM16EN_Msk             (0x1UL << RCC_APB2ENR_TIM16EN_Pos) /*!< 0x00020000 */
+#define RCC_APB2ENR_TIM16EN_Msk             (0x1UL << RCC_APB2ENR_TIM16EN_Pos)  /*!< 0x00020000 */
 #define RCC_APB2ENR_TIM16EN                 RCC_APB2ENR_TIM16EN_Msk            
 #define RCC_APB2ENR_TIM17EN_Pos             (18U)                              
-#define RCC_APB2ENR_TIM17EN_Msk             (0x1UL << RCC_APB2ENR_TIM17EN_Pos) /*!< 0x00040000 */
+#define RCC_APB2ENR_TIM17EN_Msk             (0x1UL << RCC_APB2ENR_TIM17EN_Pos)  /*!< 0x00040000 */
 #define RCC_APB2ENR_TIM17EN                 RCC_APB2ENR_TIM17EN_Msk            
 #define RCC_APB2ENR_SAI1EN_Pos              (21U)                              
 #define RCC_APB2ENR_SAI1EN_Msk              (0x1UL << RCC_APB2ENR_SAI1EN_Pos)   /*!< 0x00200000 */
@@ -8054,22 +8060,22 @@ typedef struct
  
 /********************  Bit definition for RCC_APB2SMENR register  **************/
 #define RCC_APB2SMENR_TIM1SMEN_Pos          (11U)                              
-#define RCC_APB2SMENR_TIM1SMEN_Msk          (0x1UL << RCC_APB2SMENR_TIM1SMEN_Pos) /*!< 0x00000800 */
+#define RCC_APB2SMENR_TIM1SMEN_Msk          (0x1UL << RCC_APB2SMENR_TIM1SMEN_Pos)   /*!< 0x00000800 */
 #define RCC_APB2SMENR_TIM1SMEN              RCC_APB2SMENR_TIM1SMEN_Msk         
 #define RCC_APB2SMENR_SPI1SMEN_Pos          (12U)                              
-#define RCC_APB2SMENR_SPI1SMEN_Msk          (0x1UL << RCC_APB2SMENR_SPI1SMEN_Pos) /*!< 0x00001000 */
+#define RCC_APB2SMENR_SPI1SMEN_Msk          (0x1UL << RCC_APB2SMENR_SPI1SMEN_Pos)   /*!< 0x00001000 */
 #define RCC_APB2SMENR_SPI1SMEN              RCC_APB2SMENR_SPI1SMEN_Msk         
 #define RCC_APB2SMENR_USART1SMEN_Pos        (14U)                              
 #define RCC_APB2SMENR_USART1SMEN_Msk        (0x1UL << RCC_APB2SMENR_USART1SMEN_Pos) /*!< 0x00004000 */
 #define RCC_APB2SMENR_USART1SMEN            RCC_APB2SMENR_USART1SMEN_Msk       
 #define RCC_APB2SMENR_TIM16SMEN_Pos         (17U)                              
-#define RCC_APB2SMENR_TIM16SMEN_Msk         (0x1UL << RCC_APB2SMENR_TIM16SMEN_Pos) /*!< 0x00020000 */
+#define RCC_APB2SMENR_TIM16SMEN_Msk         (0x1UL << RCC_APB2SMENR_TIM16SMEN_Pos)  /*!< 0x00020000 */
 #define RCC_APB2SMENR_TIM16SMEN             RCC_APB2SMENR_TIM16SMEN_Msk        
 #define RCC_APB2SMENR_TIM17SMEN_Pos         (18U)                              
-#define RCC_APB2SMENR_TIM17SMEN_Msk         (0x1UL << RCC_APB2SMENR_TIM17SMEN_Pos) /*!< 0x00040000 */
+#define RCC_APB2SMENR_TIM17SMEN_Msk         (0x1UL << RCC_APB2SMENR_TIM17SMEN_Pos)  /*!< 0x00040000 */
 #define RCC_APB2SMENR_TIM17SMEN             RCC_APB2SMENR_TIM17SMEN_Msk        
 #define RCC_APB2SMENR_SAI1SMEN_Pos          (21U)                              
-#define RCC_APB2SMENR_SAI1SMEN_Msk          (0x1UL << RCC_APB2SMENR_SAI1SMEN_Pos) /*!< 0x00200000 */
+#define RCC_APB2SMENR_SAI1SMEN_Msk          (0x1UL << RCC_APB2SMENR_SAI1SMEN_Pos)   /*!< 0x00200000 */
 #define RCC_APB2SMENR_SAI1SMEN              RCC_APB2SMENR_SAI1SMEN_Msk          
 
 /********************  Bit definition for RCC_CCIPR register  ******************/
@@ -8427,22 +8433,22 @@ typedef struct
  
 /********************  Bit definition for RCC_C2APB2ENR register  **************/
 #define RCC_C2APB2ENR_TIM1EN_Pos           (11U)                              
-#define RCC_C2APB2ENR_TIM1EN_Msk           (0x1UL << RCC_C2APB2ENR_TIM1EN_Pos) /*!< 0x00000800 */
+#define RCC_C2APB2ENR_TIM1EN_Msk           (0x1UL << RCC_C2APB2ENR_TIM1EN_Pos)   /*!< 0x00000800 */
 #define RCC_C2APB2ENR_TIM1EN               RCC_C2APB2ENR_TIM1EN_Msk          
 #define RCC_C2APB2ENR_SPI1EN_Pos           (12U)                              
-#define RCC_C2APB2ENR_SPI1EN_Msk           (0x1UL << RCC_C2APB2ENR_SPI1EN_Pos) /*!< 0x00001000 */
+#define RCC_C2APB2ENR_SPI1EN_Msk           (0x1UL << RCC_C2APB2ENR_SPI1EN_Pos)   /*!< 0x00001000 */
 #define RCC_C2APB2ENR_SPI1EN               RCC_C2APB2ENR_SPI1EN_Msk          
 #define RCC_C2APB2ENR_USART1EN_Pos         (14U)                              
 #define RCC_C2APB2ENR_USART1EN_Msk         (0x1UL << RCC_C2APB2ENR_USART1EN_Pos) /*!< 0x00004000 */
 #define RCC_C2APB2ENR_USART1EN             RCC_C2APB2ENR_USART1EN_Msk        
 #define RCC_C2APB2ENR_TIM16EN_Pos          (17U)                              
-#define RCC_C2APB2ENR_TIM16EN_Msk          (0x1UL << RCC_C2APB2ENR_TIM16EN_Pos) /*!< 0x00020000 */
+#define RCC_C2APB2ENR_TIM16EN_Msk          (0x1UL << RCC_C2APB2ENR_TIM16EN_Pos)  /*!< 0x00020000 */
 #define RCC_C2APB2ENR_TIM16EN              RCC_C2APB2ENR_TIM16EN_Msk         
 #define RCC_C2APB2ENR_TIM17EN_Pos          (18U)                              
-#define RCC_C2APB2ENR_TIM17EN_Msk          (0x1UL << RCC_C2APB2ENR_TIM17EN_Pos) /*!< 0x00040000 */
+#define RCC_C2APB2ENR_TIM17EN_Msk          (0x1UL << RCC_C2APB2ENR_TIM17EN_Pos)  /*!< 0x00040000 */
 #define RCC_C2APB2ENR_TIM17EN              RCC_C2APB2ENR_TIM17EN_Msk         
 #define RCC_C2APB2ENR_SAI1EN_Pos           (21U)                              
-#define RCC_C2APB2ENR_SAI1EN_Msk           (0x1UL << RCC_C2APB2ENR_SAI1EN_Pos) /*!< 0x00200000 */
+#define RCC_C2APB2ENR_SAI1EN_Msk           (0x1UL << RCC_C2APB2ENR_SAI1EN_Pos)   /*!< 0x00200000 */
 #define RCC_C2APB2ENR_SAI1EN               RCC_C2APB2ENR_SAI1EN_Msk           
 
 /********************  Bit definition for RCC_C2APB3ENR register  **************/
@@ -8555,22 +8561,22 @@ typedef struct
  
 /********************  Bit definition for RCC_C2APB2SMENR register  **************/
 #define RCC_C2APB2SMENR_TIM1SMEN_Pos       (11U)                              
-#define RCC_C2APB2SMENR_TIM1SMEN_Msk       (0x1UL << RCC_C2APB2SMENR_TIM1SMEN_Pos) /*!< 0x00000800 */
+#define RCC_C2APB2SMENR_TIM1SMEN_Msk       (0x1UL << RCC_C2APB2SMENR_TIM1SMEN_Pos)   /*!< 0x00000800 */
 #define RCC_C2APB2SMENR_TIM1SMEN           RCC_C2APB2SMENR_TIM1SMEN_Msk      
 #define RCC_C2APB2SMENR_SPI1SMEN_Pos       (12U)                              
-#define RCC_C2APB2SMENR_SPI1SMEN_Msk       (0x1UL << RCC_C2APB2SMENR_SPI1SMEN_Pos) /*!< 0x00001000 */
+#define RCC_C2APB2SMENR_SPI1SMEN_Msk       (0x1UL << RCC_C2APB2SMENR_SPI1SMEN_Pos)   /*!< 0x00001000 */
 #define RCC_C2APB2SMENR_SPI1SMEN           RCC_C2APB2SMENR_SPI1SMEN_Msk      
 #define RCC_C2APB2SMENR_USART1SMEN_Pos     (14U)                              
 #define RCC_C2APB2SMENR_USART1SMEN_Msk     (0x1UL << RCC_C2APB2SMENR_USART1SMEN_Pos) /*!< 0x00004000 */
 #define RCC_C2APB2SMENR_USART1SMEN         RCC_C2APB2SMENR_USART1SMEN_Msk    
 #define RCC_C2APB2SMENR_TIM16SMEN_Pos      (17U)                              
-#define RCC_C2APB2SMENR_TIM16SMEN_Msk      (0x1UL << RCC_C2APB2SMENR_TIM16SMEN_Pos) /*!< 0x00020000 */
+#define RCC_C2APB2SMENR_TIM16SMEN_Msk      (0x1UL << RCC_C2APB2SMENR_TIM16SMEN_Pos)  /*!< 0x00020000 */
 #define RCC_C2APB2SMENR_TIM16SMEN          RCC_C2APB2SMENR_TIM16SMEN_Msk     
 #define RCC_C2APB2SMENR_TIM17SMEN_Pos      (18U)                              
-#define RCC_C2APB2SMENR_TIM17SMEN_Msk      (0x1UL << RCC_C2APB2SMENR_TIM17SMEN_Pos) /*!< 0x00040000 */
+#define RCC_C2APB2SMENR_TIM17SMEN_Msk      (0x1UL << RCC_C2APB2SMENR_TIM17SMEN_Pos)  /*!< 0x00040000 */
 #define RCC_C2APB2SMENR_TIM17SMEN          RCC_C2APB2SMENR_TIM17SMEN_Msk     
 #define RCC_C2APB2SMENR_SAI1SMEN_Pos       (21U)                              
-#define RCC_C2APB2SMENR_SAI1SMEN_Msk       (0x1UL << RCC_C2APB2SMENR_SAI1SMEN_Pos) /*!< 0x00200000 */
+#define RCC_C2APB2SMENR_SAI1SMEN_Msk       (0x1UL << RCC_C2APB2SMENR_SAI1SMEN_Pos)   /*!< 0x00200000 */
 #define RCC_C2APB2SMENR_SAI1SMEN           RCC_C2APB2SMENR_SAI1SMEN_Msk       
 
 /********************  Bit definition for RCC_C2APB3SMENR register  **************/
@@ -11806,7 +11812,7 @@ typedef struct
 /*******************  Bit definition for TIM2_OR register  *******************/
 #define TIM2_OR_TI4_RMP_Pos      (2U)                                         
 #define TIM2_OR_TI4_RMP_Msk      (0x3UL << TIM2_OR_TI4_RMP_Pos)              /*!< 0x0000000C */
-#define TIM2_OR_TI4_RMP          TIM2_OR_TI4_RMP_Msk                         /*!< TI4 RMA[1:0]Input capture 4 remap*/
+#define TIM2_OR_TI4_RMP          TIM2_OR_TI4_RMP_Msk                         /*!< TI4 RMP[1:0]Input capture 4 remap*/
 #define TIM2_OR_TI4_RMP_0        (0x1U << TIM2_OR_TI4_RMP_Pos)               /*!< 0x00000004 */
 #define TIM2_OR_TI4_RMP_1        (0x2U << TIM2_OR_TI4_RMP_Pos)               /*!< 0x00000008 */
 #define TIM2_OR_ETR_RMP_Pos      (1U)                                         
@@ -11926,9 +11932,10 @@ typedef struct
 
 /******************************************************************************/
 /*                                                                            */
-/*                         Low Power Timer (LPTTIM)                           */
+/*                         Low Power Timer (LPTIM)                            */
 /*                                                                            */
 /******************************************************************************/
+
 /******************  Bit definition for LPTIM_ISR register  *******************/
 #define LPTIM_ISR_CMPM_Pos          (0U)                                       
 #define LPTIM_ISR_CMPM_Msk          (0x1UL << LPTIM_ISR_CMPM_Pos)              /*!< 0x00000001 */
@@ -12943,7 +12950,7 @@ typedef struct
 
 /******************************************************************************/
 /*                                                                            */
-/*                                Debug MCU                                         */
+/*                                Debug MCU                                   */
 /*                                                                            */
 /******************************************************************************/
 /********************  Bit definition for DBGMCU_IDCODE register  *************/
@@ -13287,7 +13294,7 @@ typedef struct
 
 /*********************** UART Instances : FIFO mode ***************************/
 #define IS_UART_FIFO_INSTANCE(INSTANCE) (((INSTANCE) == USART1) || \
-                                           ((INSTANCE) == LPUART1))
+                                         ((INSTANCE) == LPUART1))
 
 /*********************** UART Instances : SPI Slave mode **********************/
 #define IS_UART_SPI_SLAVE_INSTANCE(INSTANCE) ((INSTANCE) == USART1)
@@ -13563,7 +13570,6 @@ typedef struct
     (((INSTANCE) == TIM16) &&                   \
      ((CHANNEL) == TIM_CHANNEL_1)))
 
-
 /****************** TIM Instances : supporting clock division *****************/
 #define IS_TIM_CLOCK_DIVISION_INSTANCE(INSTANCE)   (((INSTANCE) == TIM1)    || \
                                                     ((INSTANCE) == TIM2)    || \
@@ -13590,7 +13596,9 @@ typedef struct
 #define IS_TIM_COMBINED3PHASEPWM_INSTANCE(INSTANCE) ((INSTANCE) == TIM1)
 
 /****************** TIM Instances : supporting commutation event generation ***/
-#define IS_TIM_COMMUTATION_EVENT_INSTANCE(INSTANCE) ((INSTANCE) == TIM1)
+#define IS_TIM_COMMUTATION_EVENT_INSTANCE(INSTANCE)   (((INSTANCE) == TIM1)    || \
+                                                       ((INSTANCE) == TIM16)   || \
+                                                       ((INSTANCE) == TIM17))
 
 /****************** TIM Instances : supporting counting mode selection ********/
 #define IS_TIM_COUNTER_MODE_SELECT_INSTANCE(INSTANCE)  (((INSTANCE) == TIM1) || \

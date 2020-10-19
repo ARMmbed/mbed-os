@@ -81,7 +81,9 @@ extern "C" {
 #define LL_AHB1_GRP1_PERIPH_DMAMUX1        RCC_AHB1ENR_DMAMUX1EN
 #define LL_AHB1_GRP1_PERIPH_SRAM1          RCC_AHB1SMENR_SRAM1SMEN
 #define LL_AHB1_GRP1_PERIPH_CRC            RCC_AHB1ENR_CRCEN
+#if defined(TSC)
 #define LL_AHB1_GRP1_PERIPH_TSC            RCC_AHB1ENR_TSCEN
+#endif
 /**
   * @}
   */
@@ -204,7 +206,9 @@ extern "C" {
 #define LL_C2_AHB1_GRP1_PERIPH_DMAMUX1      RCC_C2AHB1ENR_DMAMUX1EN
 #define LL_C2_AHB1_GRP1_PERIPH_SRAM1        RCC_C2AHB1ENR_SRAM1EN
 #define LL_C2_AHB1_GRP1_PERIPH_CRC          RCC_C2AHB1ENR_CRCEN
+#if defined(TSC)
 #define LL_C2_AHB1_GRP1_PERIPH_TSC          RCC_C2AHB1ENR_TSCEN
+#endif
 /**
   * @}
   */

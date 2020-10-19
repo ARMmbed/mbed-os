@@ -727,6 +727,9 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
     /* Clear the transfer complete flag */
     hdma->DmaBaseAddress->IFCR = (DMA_FLAG_TC1 << (hdma->ChannelIndex & 0x1cU));
 
+    /* Process unlocked */
+    __HAL_UNLOCK(hdma);
+
     /* The selected Channelx EN bit is cleared (DMA is disabled and
     all transfers are complete) */
     hdma->State = HAL_DMA_STATE_READY;
@@ -736,9 +739,6 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
     /* Clear the half transfer complete flag */
     hdma->DmaBaseAddress->IFCR = (DMA_FLAG_HT1 << (hdma->ChannelIndex & 0x1cU));
   }
-
-  /* Process unlocked */
-  __HAL_UNLOCK(hdma);
 
   return HAL_OK;
 }
@@ -1075,7 +1075,9 @@ static void DMA_CalcDMAMUXChannelBaseAndMask(DMA_HandleTypeDef *hdma)
 #endif
   channel_number = (((uint32_t)hdma->Instance & 0xFFU) - 8U) / 20U;
   hdma->DMAmuxChannelStatus = DMAMUX1_ChannelStatus;
-  hdma->DMAmuxChannelStatusMask = 1UL << (channel_number & 0x1cU);
+
+  /* Initialize the field DMAmuxChannelStatusMask with the corresponding index of the DMAMUX channel selected for the current ChannelIndex */
+  hdma->DMAmuxChannelStatusMask = 1UL << (channel_number & 0x1FU);
 }
 
 /**

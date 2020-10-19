@@ -35,8 +35,8 @@
 
 /**
  * Define Tx Power
- */   
-#define CFG_TX_POWER                      (0x18) /**< 0dbm */
+ */
+#define CFG_TX_POWER                      (0x18) /* -0.15dBm */
 
 /**
  * Define Advertising parameters
@@ -50,7 +50,7 @@
 /**
  * Define IO Authentication
  */
-#define CFG_BONDING_MODE                 (0)
+#define CFG_BONDING_MODE                 (1)
 #define CFG_FIXED_PIN                    (111111)
 #define CFG_USED_FIXED_PIN               (0)
 #define CFG_ENCRYPTION_KEY_SIZE_MAX      (16)
@@ -91,10 +91,10 @@
 #define CFG_KEYPRESS_SUPPORTED          (0x01)
 
 #define CFG_KEYPRESS_NOTIFICATION_SUPPORT             CFG_KEYPRESS_NOT_SUPPORTED
-   
+
 /**
  * Numeric Comparison Answers
- */   
+ */
 #define YES (0x01)
 #define NO  (0x00)
 
@@ -113,7 +113,7 @@
 #define TX_1M                                           0x01
 #define TX_2M                                           0x02
 #define RX_1M                                           0x01
-#define RX_2M                                           0x02 
+#define RX_2M                                           0x02
 
 /**
 *   Identity root key used to derive LTK and CSRK
@@ -139,7 +139,7 @@
 
 /**
 * AD Element - Group B Feature
-*/ 
+*/
 /* LSB - Second Byte */
 #define CFG_FEATURE_OTA_REBOOT                  (0x20)
 
@@ -185,14 +185,14 @@
 #define CFG_BLE_ATT_VALUE_ARRAY_SIZE    (1344)
 
 /**
- * Prepare Write List size in terms of number of packet with ATT_MTU=23 bytes
+ * Prepare Write List size in terms of number of packet
  */
-#define CFG_BLE_PREPARE_WRITE_LIST_SIZE         ( 0x3A )
+#define CFG_BLE_PREPARE_WRITE_LIST_SIZE         BLE_PREP_WRITE_X_ATT(CFG_BLE_MAX_ATT_MTU)
 
 /**
  * Number of allocated memory blocks
  */
-#define CFG_BLE_MBLOCK_COUNT            ( 0x79 )
+#define CFG_BLE_MBLOCK_COUNT            (BLE_MBLOCKS_CALC(CFG_BLE_PREPARE_WRITE_LIST_SIZE, CFG_BLE_MAX_ATT_MTU, CFG_BLE_NUM_LINK))
 
 /**
  * Enable or disable the Extended Packet length feature. Valid values are 0 or 1.
@@ -419,7 +419,6 @@ typedef enum
 #else
 #define APP_DBG_MSG                 PRINT_NO_MESG
 #endif
-
 
 #if ( (CFG_DEBUG_BLE_TRACE != 0) || (CFG_DEBUG_APP_TRACE != 0) )
 #define CFG_DEBUG_TRACE             1

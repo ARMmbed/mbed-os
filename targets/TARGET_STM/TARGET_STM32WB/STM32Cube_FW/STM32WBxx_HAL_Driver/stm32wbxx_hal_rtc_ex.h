@@ -991,7 +991,7 @@ typedef struct
   * @brief Check whether the RTC Tamper and Timestamp associated Exti line interrupt flag is set or not of core 2.
   * @retval Line Status.
   */
-#define __HAL_RTC_TAMPER_TIMESTAMP_EXTIC2_GET_FLAG()       (EXTI->PR2 & RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT)
+#define __HAL_RTC_TAMPER_TIMESTAMP_EXTIC2_GET_FLAG()       (EXTI->PR1 & RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT)
 
 /**
   * @brief Clear the RTC Tamper and Timestamp associated Exti line flag of core 1.

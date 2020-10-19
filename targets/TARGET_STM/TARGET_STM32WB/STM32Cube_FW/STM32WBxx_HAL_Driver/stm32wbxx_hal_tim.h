@@ -282,12 +282,16 @@ typedef struct
                                       This parameter can be a value of @ref TIM_Break_Polarity */
   uint32_t BreakFilter;          /*!< Specifies the break input filter.
                                       This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */
+  uint32_t BreakAFMode;          /*!< Specifies the alternate function mode of the break input.
+                                      This parameter can be a value of @ref TIM_Break_Input_AF_Mode */
   uint32_t Break2State;          /*!< TIM Break2 State
                                       This parameter can be a value of @ref TIM_Break2_Input_enable_disable */
   uint32_t Break2Polarity;       /*!< TIM Break2 input polarity
                                       This parameter can be a value of @ref TIM_Break2_Polarity */
   uint32_t Break2Filter;         /*!< TIM break2 input filter.
                                       This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */
+  uint32_t Break2AFMode;         /*!< Specifies the alternate function mode of the break2 input.
+                                      This parameter can be a value of @ref TIM_Break2_Input_AF_Mode */
   uint32_t AutomaticOutput;      /*!< TIM Automatic Output Enable state
                                       This parameter can be a value of @ref TIM_AOE_Bit_Set_Reset */
 } TIM_BreakDeadTimeConfigTypeDef;
@@ -303,6 +307,26 @@ typedef enum
   HAL_TIM_STATE_TIMEOUT           = 0x03U,    /*!< Timeout state                               */
   HAL_TIM_STATE_ERROR             = 0x04U     /*!< Reception process is ongoing                */
 } HAL_TIM_StateTypeDef;
+
+/**
+  * @brief  TIM Channel States definition
+  */
+typedef enum
+{
+  HAL_TIM_CHANNEL_STATE_RESET             = 0x00U,    /*!< TIM Channel initial state                         */
+  HAL_TIM_CHANNEL_STATE_READY             = 0x01U,    /*!< TIM Channel ready for use                         */
+  HAL_TIM_CHANNEL_STATE_BUSY              = 0x02U,    /*!< An internal process is ongoing on the TIM channel */
+} HAL_TIM_ChannelStateTypeDef;
+
+/**
+  * @brief  DMA Burst States definition
+  */
+typedef enum
+{
+  HAL_DMA_BURST_STATE_RESET             = 0x00U,    /*!< DMA Burst initial state */
+  HAL_DMA_BURST_STATE_READY             = 0x01U,    /*!< DMA Burst ready for use */
+  HAL_DMA_BURST_STATE_BUSY              = 0x02U,    /*!< Ongoing DMA Burst       */
+} HAL_TIM_DMABurstStateTypeDef;
 
 /**
   * @brief  HAL Active channel structures definition
@@ -327,13 +351,16 @@ typedef struct __TIM_HandleTypeDef
 typedef struct
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 {
-  TIM_TypeDef                 *Instance;     /*!< Register base address             */
-  TIM_Base_InitTypeDef        Init;          /*!< TIM Time Base required parameters */
-  HAL_TIM_ActiveChannel       Channel;       /*!< Active channel                    */
-  DMA_HandleTypeDef           *hdma[7];      /*!< DMA Handlers array
-                                                  This array is accessed by a @ref DMA_Handle_index */
-  HAL_LockTypeDef             Lock;          /*!< Locking object                    */
-  __IO HAL_TIM_StateTypeDef   State;         /*!< TIM operation state               */
+  TIM_TypeDef                        *Instance;         /*!< Register base address                             */
+  TIM_Base_InitTypeDef               Init;              /*!< TIM Time Base required parameters                 */
+  HAL_TIM_ActiveChannel              Channel;           /*!< Active channel                                    */
+  DMA_HandleTypeDef                  *hdma[7];          /*!< DMA Handlers array
+                                                             This array is accessed by a @ref DMA_Handle_index */
+  HAL_LockTypeDef                    Lock;              /*!< Locking object                                    */
+  __IO HAL_TIM_StateTypeDef          State;             /*!< TIM operation state                               */
+  __IO HAL_TIM_ChannelStateTypeDef   ChannelState[6];   /*!< TIM channel operation state                       */
+  __IO HAL_TIM_ChannelStateTypeDef   ChannelNState[4];  /*!< TIM complementary channel operation state         */
+  __IO HAL_TIM_DMABurstStateTypeDef  DMABurstState;     /*!< DMA burst operation state                         */
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
   void (* Base_MspInitCallback)(struct __TIM_HandleTypeDef *htim);              /*!< TIM Base Msp Init Callback                              */
@@ -857,6 +884,15 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   * @}
   */
 
+/** @defgroup TIM_Break_Input_AF_Mode TIM Break Input Alternate Function Mode
+  * @{
+  */
+#define TIM_BREAK_AFMODE_INPUT             0x00000000U                          /*!< Break input BRK in input mode */
+#define TIM_BREAK_AFMODE_BIDIRECTIONAL     TIM_BDTR_BKBID                       /*!< Break input BRK in bidirectional mode */
+/**
+  * @}
+  */
+
 /** @defgroup TIM_Break2_Input_enable_disable TIM Break input 2 Enable
   * @{
   */
@@ -871,6 +907,15 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   */
 #define TIM_BREAK2POLARITY_LOW             0x00000000U                          /*!< Break input BRK2 is active low   */
 #define TIM_BREAK2POLARITY_HIGH            TIM_BDTR_BK2P                        /*!< Break input BRK2 is active high  */
+/**
+  * @}
+  */
+
+/** @defgroup TIM_Break2_Input_AF_Mode TIM Break2 Input Alternate Function Mode
+  * @{
+  */
+#define TIM_BREAK2_AFMODE_INPUT            0x00000000U                          /*!< Break2 input BRK2 in input mode */
+#define TIM_BREAK2_AFMODE_BIDIRECTIONAL    TIM_BDTR_BK2BID                      /*!< Break2 input BRK2 in bidirectional mode */
 /**
   * @}
   */
@@ -1101,25 +1146,49 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   * @retval None
   */
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-#define __HAL_TIM_RESET_HANDLE_STATE(__HANDLE__) do {                                                        \
-                                                      (__HANDLE__)->State             = HAL_TIM_STATE_RESET; \
-                                                      (__HANDLE__)->Base_MspInitCallback         = NULL;     \
-                                                      (__HANDLE__)->Base_MspDeInitCallback       = NULL;     \
-                                                      (__HANDLE__)->IC_MspInitCallback           = NULL;     \
-                                                      (__HANDLE__)->IC_MspDeInitCallback         = NULL;     \
-                                                      (__HANDLE__)->OC_MspInitCallback           = NULL;     \
-                                                      (__HANDLE__)->OC_MspDeInitCallback         = NULL;     \
-                                                      (__HANDLE__)->PWM_MspInitCallback          = NULL;     \
-                                                      (__HANDLE__)->PWM_MspDeInitCallback        = NULL;     \
-                                                      (__HANDLE__)->OnePulse_MspInitCallback     = NULL;     \
-                                                      (__HANDLE__)->OnePulse_MspDeInitCallback   = NULL;     \
-                                                      (__HANDLE__)->Encoder_MspInitCallback      = NULL;     \
-                                                      (__HANDLE__)->Encoder_MspDeInitCallback    = NULL;     \
-                                                      (__HANDLE__)->HallSensor_MspInitCallback   = NULL;     \
-                                                      (__HANDLE__)->HallSensor_MspDeInitCallback = NULL;     \
+#define __HAL_TIM_RESET_HANDLE_STATE(__HANDLE__) do {                                                               \
+                                                      (__HANDLE__)->State            = HAL_TIM_STATE_RESET;         \
+                                                      (__HANDLE__)->ChannelState[0]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[1]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[2]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[3]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[4]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[5]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[0] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[1] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[2] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[3] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->DMABurstState    = HAL_DMA_BURST_STATE_RESET;   \
+                                                      (__HANDLE__)->Base_MspInitCallback         = NULL;            \
+                                                      (__HANDLE__)->Base_MspDeInitCallback       = NULL;            \
+                                                      (__HANDLE__)->IC_MspInitCallback           = NULL;            \
+                                                      (__HANDLE__)->IC_MspDeInitCallback         = NULL;            \
+                                                      (__HANDLE__)->OC_MspInitCallback           = NULL;            \
+                                                      (__HANDLE__)->OC_MspDeInitCallback         = NULL;            \
+                                                      (__HANDLE__)->PWM_MspInitCallback          = NULL;            \
+                                                      (__HANDLE__)->PWM_MspDeInitCallback        = NULL;            \
+                                                      (__HANDLE__)->OnePulse_MspInitCallback     = NULL;            \
+                                                      (__HANDLE__)->OnePulse_MspDeInitCallback   = NULL;            \
+                                                      (__HANDLE__)->Encoder_MspInitCallback      = NULL;            \
+                                                      (__HANDLE__)->Encoder_MspDeInitCallback    = NULL;            \
+                                                      (__HANDLE__)->HallSensor_MspInitCallback   = NULL;            \
+                                                      (__HANDLE__)->HallSensor_MspDeInitCallback = NULL;            \
                                                      } while(0)
 #else
-#define __HAL_TIM_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_TIM_STATE_RESET)
+#define __HAL_TIM_RESET_HANDLE_STATE(__HANDLE__) do {                                                               \
+                                                      (__HANDLE__)->State            = HAL_TIM_STATE_RESET;         \
+                                                      (__HANDLE__)->ChannelState[0]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[1]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[2]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[3]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[4]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelState[5]  = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[0] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[1] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[2] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->ChannelNState[3] = HAL_TIM_CHANNEL_STATE_RESET; \
+                                                      (__HANDLE__)->DMABurstState    = HAL_DMA_BURST_STATE_RESET;   \
+                                                     } while(0)
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
 /**
@@ -1828,11 +1897,19 @@ mode.
 #define IS_TIM_BREAK_POLARITY(__POLARITY__) (((__POLARITY__) == TIM_BREAKPOLARITY_LOW) || \
                                              ((__POLARITY__) == TIM_BREAKPOLARITY_HIGH))
 
+#define IS_TIM_BREAK_AFMODE(__AFMODE__) (((__AFMODE__) == TIM_BREAK_AFMODE_INPUT) || \
+                                         ((__AFMODE__) == TIM_BREAK_AFMODE_BIDIRECTIONAL))
+
+
 #define IS_TIM_BREAK2_STATE(__STATE__)     (((__STATE__) == TIM_BREAK2_ENABLE) || \
                                             ((__STATE__) == TIM_BREAK2_DISABLE))
 
 #define IS_TIM_BREAK2_POLARITY(__POLARITY__) (((__POLARITY__) == TIM_BREAK2POLARITY_LOW) || \
                                               ((__POLARITY__) == TIM_BREAK2POLARITY_HIGH))
+
+#define IS_TIM_BREAK2_AFMODE(__AFMODE__) (((__AFMODE__) == TIM_BREAK2_AFMODE_INPUT) || \
+                                          ((__AFMODE__) == TIM_BREAK2_AFMODE_BIDIRECTIONAL))
+
 
 #define IS_TIM_AUTOMATIC_OUTPUT_STATE(__STATE__) (((__STATE__) == TIM_AUTOMATICOUTPUT_ENABLE) || \
                                                   ((__STATE__) == TIM_AUTOMATICOUTPUT_DISABLE))
@@ -1923,15 +2000,15 @@ mode.
 #define IS_TIM_TI1SELECTION(__TI1SELECTION__)  (((__TI1SELECTION__) == TIM_TI1SELECTION_CH1) || \
                                                 ((__TI1SELECTION__) == TIM_TI1SELECTION_XORCOMBINATION))
 
-#define IS_TIM_DMA_LENGTH(__LENGTH__)      (((__LENGTH__) == TIM_DMABURSTLENGTH_1TRANSFER) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_2TRANSFERS) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_3TRANSFERS) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_4TRANSFERS) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_5TRANSFERS) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_6TRANSFERS) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_7TRANSFERS) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_8TRANSFERS) || \
-                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_9TRANSFERS) || \
+#define IS_TIM_DMA_LENGTH(__LENGTH__)      (((__LENGTH__) == TIM_DMABURSTLENGTH_1TRANSFER)   || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_2TRANSFERS)  || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_3TRANSFERS)  || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_4TRANSFERS)  || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_5TRANSFERS)  || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_6TRANSFERS)  || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_7TRANSFERS)  || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_8TRANSFERS)  || \
+                                            ((__LENGTH__) == TIM_DMABURSTLENGTH_9TRANSFERS)  || \
                                             ((__LENGTH__) == TIM_DMABURSTLENGTH_10TRANSFERS) || \
                                             ((__LENGTH__) == TIM_DMABURSTLENGTH_11TRANSFERS) || \
                                             ((__LENGTH__) == TIM_DMABURSTLENGTH_12TRANSFERS) || \
@@ -1977,6 +2054,50 @@ mode.
    ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP)) :\
    ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC3P | TIM_CCER_CC3NP)) :\
    ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC4P | TIM_CCER_CC4NP)))
+
+#define TIM_CHANNEL_STATE_GET(__HANDLE__, __CHANNEL__)\
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? (__HANDLE__)->ChannelState[0] :\
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? (__HANDLE__)->ChannelState[1] :\
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? (__HANDLE__)->ChannelState[2] :\
+   ((__CHANNEL__) == TIM_CHANNEL_4) ? (__HANDLE__)->ChannelState[3] :\
+   ((__CHANNEL__) == TIM_CHANNEL_5) ? (__HANDLE__)->ChannelState[4] :\
+   (__HANDLE__)->ChannelState[5])
+    
+#define TIM_CHANNEL_STATE_SET(__HANDLE__, __CHANNEL__, __CHANNEL_STATE__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->ChannelState[0] = (__CHANNEL_STATE__)) :\
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->ChannelState[1] = (__CHANNEL_STATE__)) :\
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->ChannelState[2] = (__CHANNEL_STATE__)) :\
+   ((__CHANNEL__) == TIM_CHANNEL_4) ? ((__HANDLE__)->ChannelState[3] = (__CHANNEL_STATE__)) :\
+   ((__CHANNEL__) == TIM_CHANNEL_5) ? ((__HANDLE__)->ChannelState[4] = (__CHANNEL_STATE__)) :\
+   ((__HANDLE__)->ChannelState[5] = (__CHANNEL_STATE__)))
+
+#define TIM_CHANNEL_STATE_SET_ALL(__HANDLE__,  __CHANNEL_STATE__) do { \
+  (__HANDLE__)->ChannelState[0]  = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelState[1]  = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelState[2]  = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelState[3]  = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelState[4]  = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelState[5]  = (__CHANNEL_STATE__);  \
+ } while(0)
+
+#define TIM_CHANNEL_N_STATE_GET(__HANDLE__, __CHANNEL__)\
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? (__HANDLE__)->ChannelNState[0] :\
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? (__HANDLE__)->ChannelNState[1] :\
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? (__HANDLE__)->ChannelNState[2] :\
+   (__HANDLE__)->ChannelNState[3])
+    
+#define TIM_CHANNEL_N_STATE_SET(__HANDLE__, __CHANNEL__, __CHANNEL_STATE__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->ChannelNState[0] = (__CHANNEL_STATE__)) :\
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->ChannelNState[1] = (__CHANNEL_STATE__)) :\
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->ChannelNState[2] = (__CHANNEL_STATE__)) :\
+   ((__HANDLE__)->ChannelNState[3] = (__CHANNEL_STATE__)))
+
+#define TIM_CHANNEL_N_STATE_SET_ALL(__HANDLE__,  __CHANNEL_STATE__) do { \
+  (__HANDLE__)->ChannelNState[0] = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelNState[1] = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelNState[2] = (__CHANNEL_STATE__);  \
+  (__HANDLE__)->ChannelNState[3] = (__CHANNEL_STATE__);  \
+ } while(0)
 
 /**
   * @}
@@ -2197,6 +2318,11 @@ HAL_TIM_StateTypeDef HAL_TIM_PWM_GetState(TIM_HandleTypeDef *htim);
 HAL_TIM_StateTypeDef HAL_TIM_IC_GetState(TIM_HandleTypeDef *htim);
 HAL_TIM_StateTypeDef HAL_TIM_OnePulse_GetState(TIM_HandleTypeDef *htim);
 HAL_TIM_StateTypeDef HAL_TIM_Encoder_GetState(TIM_HandleTypeDef *htim);
+
+/* Peripheral Channel state functions  ************************************************/
+HAL_TIM_ActiveChannel HAL_TIM_GetActiveChannel(TIM_HandleTypeDef *htim);
+HAL_TIM_ChannelStateTypeDef HAL_TIM_GetChannelState(TIM_HandleTypeDef *htim,  uint32_t Channel);
+HAL_TIM_DMABurstStateTypeDef HAL_TIM_DMABurstState(TIM_HandleTypeDef *htim);
 /**
   * @}
   */
@@ -2216,7 +2342,6 @@ void TIM_OC2_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
 void TIM_ETR_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ExtTRGPrescaler,
                        uint32_t TIM_ExtTRGPolarity, uint32_t ExtTRGFilter);
 
-void TIM_DMADelayPulseCplt(DMA_HandleTypeDef *hdma);
 void TIM_DMADelayPulseHalfCplt(DMA_HandleTypeDef *hdma);
 void TIM_DMAError(DMA_HandleTypeDef *hdma);
 void TIM_DMACaptureCplt(DMA_HandleTypeDef *hdma);

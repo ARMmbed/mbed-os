@@ -182,17 +182,11 @@ extern "C" {
 #endif
 #endif
 
-#if defined(STM32WB55xx) || defined (STM32WB5Mxx)
+#if defined(STM32WB55xx) || defined (STM32WB5Mxx) || defined(STM32WB35xx)
 #define IS_RCC_ADCCLKSOURCE(__SOURCE__)  \
                (((__SOURCE__) == RCC_ADCCLKSOURCE_NONE)    || \
                 ((__SOURCE__) == RCC_ADCCLKSOURCE_PLL)     || \
                 ((__SOURCE__) == RCC_ADCCLKSOURCE_PLLSAI1) || \
-                ((__SOURCE__) == RCC_ADCCLKSOURCE_SYSCLK))
-#elif defined(STM32WB35xx)
-#define IS_RCC_ADCCLKSOURCE(__SOURCE__)  \
-               (((__SOURCE__) == RCC_ADCCLKSOURCE_NONE) || \
-                ((__SOURCE__) == RCC_ADCCLKSOURCE_PLL)  || \
-                ((__SOURCE__) == RCC_ADCCLKSOURCE_HSI)  || \
                 ((__SOURCE__) == RCC_ADCCLKSOURCE_SYSCLK))
 #else
 #define IS_RCC_ADCCLKSOURCE(__SOURCE__)  \
@@ -201,11 +195,18 @@ extern "C" {
                 ((__SOURCE__) == RCC_ADCCLKSOURCE_SYSCLK))
 #endif
 
+#if defined(STM32WB55xx) || defined (STM32WB5Mxx) || defined(STM32WB35xx) || defined (STM32WB15xx)
 #define IS_RCC_RFWKPCLKSOURCE(__SOURCE__)  \
                (((__SOURCE__) == RCC_RFWKPCLKSOURCE_NONE) || \
                 ((__SOURCE__) == RCC_RFWKPCLKSOURCE_LSE) || \
                 ((__SOURCE__) == RCC_RFWKPCLKSOURCE_LSI) || \
                 ((__SOURCE__) == RCC_RFWKPCLKSOURCE_HSE_DIV1024))
+#else
+#define IS_RCC_RFWKPCLKSOURCE(__SOURCE__)  \
+               (((__SOURCE__) == RCC_RFWKPCLKSOURCE_NONE) || \
+                ((__SOURCE__) == RCC_RFWKPCLKSOURCE_LSE) || \
+                ((__SOURCE__) == RCC_RFWKPCLKSOURCE_HSE_DIV1024))
+#endif
 
 #if defined(RCC_SMPS_SUPPORT)
 #define IS_RCC_SMPSCLKDIV(__DIV__)  \
@@ -599,10 +600,8 @@ typedef struct
   */
 
 #define RCC_ADCCLKSOURCE_NONE          LL_RCC_ADC_CLKSOURCE_NONE      /*!< None clock selected as ADC clock        */
-#if defined(STM32WB55xx) || defined (STM32WB5Mxx)
+#if defined(STM32WB55xx) || defined (STM32WB5Mxx) || defined(STM32WB35xx)
 #define RCC_ADCCLKSOURCE_PLLSAI1       LL_RCC_ADC_CLKSOURCE_PLLSAI1   /*!< PLLSAI1 "R" clock selected as ADC clock */
-#elif defined(STM32WB35xx)
-#define RCC_ADCCLKSOURCE_HSI           LL_RCC_ADC_CLKSOURCE_HSI       /*!< HSI clock selected as ADC clock */
 #endif
 #define RCC_ADCCLKSOURCE_PLL           LL_RCC_ADC_CLKSOURCE_PLL       /*!< PLL "P" clock selected as ADC clock     */
 #define RCC_ADCCLKSOURCE_SYSCLK        LL_RCC_ADC_CLKSOURCE_SYSCLK    /*!< SYSCLK clock selected as ADC clock      */
@@ -626,9 +625,11 @@ typedef struct
   * @{
   */
 
-#define RCC_RFWKPCLKSOURCE_NONE          LL_RCC_RFWKP_CLKSOURCE_NONE  /*!< None clock selected as RF system wakeup clock                      */
-#define RCC_RFWKPCLKSOURCE_LSE           LL_RCC_RFWKP_CLKSOURCE_LSE   /*!< LSE clock selected as RF system wakeup clock                       */
-#define RCC_RFWKPCLKSOURCE_LSI           LL_RCC_RFWKP_CLKSOURCE_LSI   /*!< LSI clock selected as RF system wakeup clock                       */
+#define RCC_RFWKPCLKSOURCE_NONE          LL_RCC_RFWKP_CLKSOURCE_NONE        /*!< None clock selected as RF system wakeup clock                */
+#define RCC_RFWKPCLKSOURCE_LSE           LL_RCC_RFWKP_CLKSOURCE_LSE         /*!< LSE clock selected as RF system wakeup clock                 */
+#if defined(STM32WB55xx) || defined (STM32WB5Mxx) || defined(STM32WB35xx) || defined (STM32WB15xx)
+#define RCC_RFWKPCLKSOURCE_LSI           LL_RCC_RFWKP_CLKSOURCE_LSI         /*!< LSI clock selected as RF system wakeup clock                 */
+#endif
 #define RCC_RFWKPCLKSOURCE_HSE_DIV1024   LL_RCC_RFWKP_CLKSOURCE_HSE_DIV1024 /*!< HSE clock divided by 1024 selected as RF system wakeup clock */
 
 /**
@@ -1219,8 +1220,9 @@ typedef struct
   *         This parameter can be one of the following values:
   *            @arg @ref RCC_RFWKPCLKSOURCE_NONE         No clock selected as RFWKP clock
   *            @arg @ref RCC_RFWKPCLKSOURCE_LSE          LSE Clock selected as RFWKP clock
-  *            @arg @ref RCC_RFWKPCLKSOURCE_LSI          LSI Clock selected as RFWKP clock
+  *            @arg @ref RCC_RFWKPCLKSOURCE_LSI          LSI Clock selected as RFWKP clock (*)
   *            @arg @ref RCC_RFWKPCLKSOURCE_HSE_DIV1024  HSE div1024 Clock selected as RFWKP clock
+  * @note      (*) Value not defined for all devices
   * @retval None
   */
 #define __HAL_RCC_RFWAKEUP_CONFIG(__RFWKP_CLKSOURCE__)  LL_RCC_SetRFWKPClockSource(__RFWKP_CLKSOURCE__)
@@ -1229,8 +1231,9 @@ typedef struct
   *         This parameter can be one of the following values:
   *            @arg @ref RCC_RFWKPCLKSOURCE_NONE         No clock selected as RFWKP clock
   *            @arg @ref RCC_RFWKPCLKSOURCE_LSE          LSE Clock selected as RFWKP clock
-  *            @arg @ref RCC_RFWKPCLKSOURCE_LSI          LSI Clock selected as RFWKP clock
+  *            @arg @ref RCC_RFWKPCLKSOURCE_LSI          LSI Clock selected as RFWKP clock (*)
   *            @arg @ref RCC_RFWKPCLKSOURCE_HSE_DIV1024  HSE div1024 Clock selected as RFWKP clock
+  * @note      (*) Value not defined for all devices
   */
 #define __HAL_RCC_GET_RFWAKEUP_SOURCE()  LL_RCC_GetRFWKPClockSource()
 

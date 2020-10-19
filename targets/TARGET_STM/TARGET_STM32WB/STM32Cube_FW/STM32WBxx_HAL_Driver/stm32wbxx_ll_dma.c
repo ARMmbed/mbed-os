@@ -6,11 +6,11 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the 
+  * the "License"; You may not use this file except in compliance with the
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
@@ -145,7 +145,7 @@
   *         @arg @ref LL_DMA_CHANNEL_6
   *         @arg @ref LL_DMA_CHANNEL_7
   *         @arg @ref LL_DMA_CHANNEL_ALL
-  * @retval An ErrorStatus enumeration value:
+  * @retval ErrorStatus
   *          - SUCCESS: DMA registers are de-initialized
   *          - ERROR: DMA registers are not de-initialized
   */
@@ -226,7 +226,6 @@ ErrorStatus LL_DMA_DeInit(DMA_TypeDef *DMAx, uint32_t Channel)
       /* Reset interrupt pending bits for DMAx Channel5 */
       LL_DMA_ClearFlag_GI5(DMAx);
     }
-
     else if (Channel == LL_DMA_CHANNEL_6)
     {
       /* Reset interrupt pending bits for DMAx Channel6 */
@@ -261,7 +260,7 @@ ErrorStatus LL_DMA_DeInit(DMA_TypeDef *DMAx, uint32_t Channel)
   *         @arg @ref LL_DMA_CHANNEL_6
   *         @arg @ref LL_DMA_CHANNEL_7
   * @param  DMA_InitStruct pointer to a @ref LL_DMA_InitTypeDef structure.
-  * @retval An ErrorStatus enumeration value:
+  * @retval ErrorStatus
   *          - SUCCESS: DMA registers are initialized
   *          - ERROR: Not applicable
   */

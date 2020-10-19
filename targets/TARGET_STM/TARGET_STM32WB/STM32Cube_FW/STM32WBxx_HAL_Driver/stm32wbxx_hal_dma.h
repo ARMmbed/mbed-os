@@ -190,26 +190,34 @@ typedef struct __DMA_HandleTypeDef
 
 #define DMA_REQUEST_SPI1_RX             LL_DMAMUX_REQ_SPI1_RX           /*!< DMAMUX SPI1 RX request     */
 #define DMA_REQUEST_SPI1_TX             LL_DMAMUX_REQ_SPI1_TX           /*!< DMAMUX SPI1 TX request     */
+#if defined(SPI2)
 #define DMA_REQUEST_SPI2_RX             LL_DMAMUX_REQ_SPI2_RX           /*!< DMAMUX SPI2 RX request     */
 #define DMA_REQUEST_SPI2_TX             LL_DMAMUX_REQ_SPI2_TX           /*!< DMAMUX SPI2 TX request     */
+#endif /* SPI2 */
 
 #define DMA_REQUEST_I2C1_RX             LL_DMAMUX_REQ_I2C1_RX           /*!< DMAMUX I2C1 RX request     */
 #define DMA_REQUEST_I2C1_TX             LL_DMAMUX_REQ_I2C1_TX           /*!< DMAMUX I2C1 TX request     */
+#if defined(I2C3)
 #define DMA_REQUEST_I2C3_RX             LL_DMAMUX_REQ_I2C3_RX           /*!< DMAMUX I2C3 RX request     */
 #define DMA_REQUEST_I2C3_TX             LL_DMAMUX_REQ_I2C3_TX           /*!< DMAMUX I2C3 TX request     */
+#endif /* I2C3 */
 
 #define DMA_REQUEST_USART1_RX           LL_DMAMUX_REQ_USART1_RX         /*!< DMAMUX USART1 RX request   */
 #define DMA_REQUEST_USART1_TX           LL_DMAMUX_REQ_USART1_TX         /*!< DMAMUX USART1 TX request   */
 
+#if defined(LPUART1)
 #define DMA_REQUEST_LPUART1_RX          LL_DMAMUX_REQ_LPUART1_RX        /*!< DMAMUX LP_UART1_RX request */
 #define DMA_REQUEST_LPUART1_TX          LL_DMAMUX_REQ_LPUART1_TX        /*!< DMAMUX LP_UART1_RX request */
+#endif /* LPUART1 */
 
 #if defined (SAI1)
 #define DMA_REQUEST_SAI1_A              LL_DMAMUX_REQ_SAI1_A            /*!< DMAMUX SAI1 A request      */
 #define DMA_REQUEST_SAI1_B              LL_DMAMUX_REQ_SAI1_B            /*!< DMAMUX SAI1 B request      */
 #endif /* SAI1 */
 
+#if defined(QUADSPI)
 #define DMA_REQUEST_QUADSPI             LL_DMAMUX_REQ_QUADSPI           /*!< DMAMUX QUADSPI request     */
+#endif /* QUADSPI */
 
 #define DMA_REQUEST_TIM1_CH1            LL_DMAMUX_REQ_TIM1_CH1          /*!< DMAMUX TIM1 CH1 request    */
 #define DMA_REQUEST_TIM1_CH2            LL_DMAMUX_REQ_TIM1_CH2          /*!< DMAMUX TIM1 CH2 request    */
@@ -231,8 +239,10 @@ typedef struct __DMA_HandleTypeDef
 #define DMA_REQUEST_TIM17_CH1           LL_DMAMUX_REQ_TIM17_CH1         /*!< DMAMUX TIM17 CH1 request   */
 #define DMA_REQUEST_TIM17_UP            LL_DMAMUX_REQ_TIM17_UP          /*!< DMAMUX TIM17 UP  request   */
 
+#if defined(AES1)
 #define DMA_REQUEST_AES1_IN             LL_DMAMUX_REQ_AES1_IN           /*!< DMAMUX AES1 IN request     */
 #define DMA_REQUEST_AES1_OUT            LL_DMAMUX_REQ_AES1_OUT          /*!< DMAMUX AES1 OUT request    */
+#endif /* AES1 */
 
 #define DMA_REQUEST_AES2_IN             LL_DMAMUX_REQ_AES2_IN           /*!< DMAMUX AES2 IN request     */
 #define DMA_REQUEST_AES2_OUT            LL_DMAMUX_REQ_AES2_OUT          /*!< DMAMUX AES2 OUT request    */

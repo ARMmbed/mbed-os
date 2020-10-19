@@ -524,10 +524,8 @@ typedef struct
   * @{
   */
 #define LL_RCC_ADC_CLKSOURCE_NONE             0x00000000U        /*!< no Clock used as ADC clock*/
-#if defined(STM32WB55xx) || defined (STM32WB5Mxx)
+#if defined(STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define LL_RCC_ADC_CLKSOURCE_PLLSAI1          RCC_CCIPR_ADCSEL_0 /*!< PLLSAI1 selected as ADC clock*/
-#elif defined(STM32WB35xx)
-#define LL_RCC_ADC_CLKSOURCE_HSI              RCC_CCIPR_ADCSEL_0 /*!< HSI selected as ADC clock*/
 #endif
 #define LL_RCC_ADC_CLKSOURCE_PLL              RCC_CCIPR_ADCSEL_1 /*!< PLL selected as ADC clock*/
 #define LL_RCC_ADC_CLKSOURCE_SYSCLK           RCC_CCIPR_ADCSEL   /*!< SYSCLK selected as ADC clock*/
@@ -1364,6 +1362,7 @@ __STATIC_INLINE void LL_RCC_HSE_EnableCSS(void)
   SET_BIT(RCC->CR, RCC_CR_CSSON);
 }
 
+#if defined(RCC_CR_HSEBYP)
 /**
   * @brief  Enable HSE external oscillator (HSE Bypass)
   * @rmtoll CR           HSEBYP        LL_RCC_HSE_EnableBypass
@@ -1383,6 +1382,7 @@ __STATIC_INLINE void LL_RCC_HSE_DisableBypass(void)
 {
   CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
 }
+#endif
 
 /**
   * @brief  Enable HSE crystal oscillator (HSE ON)
@@ -2164,8 +2164,9 @@ __STATIC_INLINE uint32_t LL_RCC_GetRFClockSource(void)
   * @param  Source This parameter can be one of the following values:
   *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_NONE
   *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_LSE
-  *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_LSI
+  *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_LSI (*)
   *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_HSE_DIV1024
+  * @note   (*) Value not defined for all devices
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_SetRFWKPClockSource(uint32_t Source)
@@ -2179,8 +2180,9 @@ __STATIC_INLINE void LL_RCC_SetRFWKPClockSource(uint32_t Source)
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_NONE
   *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_LSE
-  *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_LSI
+  *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_LSI (*)
   *         @arg @ref LL_RCC_RFWKP_CLKSOURCE_HSE_DIV1024
+  * @note   (*) Value not defined for all devices
   */
 __STATIC_INLINE uint32_t LL_RCC_GetRFWKPClockSource(void)
 {
@@ -2730,7 +2732,6 @@ __STATIC_INLINE void LL_RCC_ConfigRNGClockSource(uint32_t RNGxSource, uint32_t C
   *         @arg @ref LL_RCC_ADC_CLKSOURCE_PLLSAI1 (*)
   *         @arg @ref LL_RCC_ADC_CLKSOURCE_PLL
   *         @arg @ref LL_RCC_ADC_CLKSOURCE_SYSCLK
-  *         @arg @ref LL_RCC_ADC_CLKSOURCE_HSI (*)
   * @note   (*) Value not defined for all devices
   * @retval None
   */
@@ -2908,7 +2909,6 @@ __STATIC_INLINE uint32_t LL_RCC_GetUSBClockSource(uint32_t USBx)
   *         @arg @ref LL_RCC_ADC_CLKSOURCE_PLLSAI1 (*)
   *         @arg @ref LL_RCC_ADC_CLKSOURCE_PLL
   *         @arg @ref LL_RCC_ADC_CLKSOURCE_SYSCLK
-  *         @arg @ref LL_RCC_ADC_CLKSOURCE_HSI (*)
   * @note   (*) Value not defined for all devices
   */
 __STATIC_INLINE uint32_t LL_RCC_GetADCClockSource(uint32_t ADCx)

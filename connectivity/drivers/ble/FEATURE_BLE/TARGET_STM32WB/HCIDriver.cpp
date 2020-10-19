@@ -32,6 +32,7 @@
 /* STM32WB include files */
 #include "stm32wbxx_ll_ipcc.h"
 #include "stm32wbxx_ll_system.h"
+#include "ble_bufsize.h"
 #include "tl.h"
 #include "shci.h"
 #include "shci_tl.h"

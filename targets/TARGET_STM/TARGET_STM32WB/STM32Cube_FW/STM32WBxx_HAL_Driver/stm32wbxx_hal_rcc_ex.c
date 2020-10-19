@@ -111,7 +111,7 @@ static uint32_t          RCC_PLLSAI1_GetFreqDomain_Q(void);
     This subsection provides a set of functions allowing to control the RCC Clocks
     frequencies.
     [..]
-    (@) Important note: Care must be taken when @ref HAL_RCCEx_PeriphCLKConfig() is used to
+    (@) Important note: Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to
         select the RTC clock source; in this case the Backup domain will be reset in
         order to modify the RTC Clock source, as consequence RTC registers (including
         the backup registers) and RCC_BDCR register are set to their reset values.
@@ -865,7 +865,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   {
     switch (LL_RCC_GetADCClockSource(LL_RCC_ADC_CLKSOURCE))
     {
-#if defined(STM32WB55xx) || defined (STM32WB5Mxx)
+#if defined(STM32WB55xx) || defined (STM32WB5Mxx) || defined(STM32WB35xx)
     case LL_RCC_ADC_CLKSOURCE_PLLSAI1:       /* PLLSAI1 clock used as ADC clock source */
       if (LL_RCC_PLLSAI1_IsReady() == 1U)
       {
@@ -876,22 +876,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         /* Nothing to do as frequency already initialized to 0U */
       }
       break;
-#elif defined(STM32WB35xx)
-    case LL_RCC_ADC_CLKSOURCE_HSI:           /* HSI clock used as ADC clock source */
-      if (LL_RCC_HSI_IsReady() == 1U)
-      {
-        frequency = HSI_VALUE;
-      }
-      else
-      {
-        /* Nothing to do as frequency already initialized to 0U */
-      }
-      break;
 #endif
     case LL_RCC_ADC_CLKSOURCE_SYSCLK:        /* SYSCLK clock used as ADC clock source */
       frequency = HAL_RCC_GetSysClockFreq();
       break;
-      
     case LL_RCC_ADC_CLKSOURCE_PLL:           /* PLL clock used as ADC clock source */
       if (LL_RCC_PLL_IsReady() == 1U)
       {
@@ -1395,7 +1383,7 @@ void HAL_RCCEx_LSECSS_IRQHandler(void)
 __weak void HAL_RCCEx_LSECSS_Callback(void)
 {
   /* NOTE : This function should not be modified, when the callback is needed,
-            the @ref HAL_RCCEx_LSECSS_Callback should be implemented in the user file
+            the HAL_RCCEx_LSECSS_Callback should be implemented in the user file
    */
 }
 
@@ -1644,9 +1632,9 @@ HAL_StatusTypeDef HAL_RCCEx_TrimOsc(uint32_t OscillatorType)
           (##) Prepare synchronization configuration necessary for HSI48 calibration
               (+++) Default values can be set for frequency Error Measurement (reload and error limit)
                         and also HSI48 oscillator smooth trimming.
-              (+++) Macro @ref __HAL_RCC_CRS_RELOADVALUE_CALCULATE can be also used to calculate
+              (+++) Macro __HAL_RCC_CRS_RELOADVALUE_CALCULATE can be also used to calculate
                         directly reload value with target and sychronization frequencies values
-          (##) Call function @ref HAL_RCCEx_CRSConfig which
+          (##) Call function HAL_RCCEx_CRSConfig which
               (+++) Resets CRS registers to their default values.
               (+++) Configures CRS registers with synchronization configuration
               (+++) Enables automatic calibration and frequency error counter feature
@@ -1657,12 +1645,12 @@ HAL_StatusTypeDef HAL_RCCEx_TrimOsc(uint32_t OscillatorType)
            should be used as SYNC signal.
 
           (##) A polling function is provided to wait for complete synchronization
-              (+++) Call function @ref HAL_RCCEx_CRSWaitSynchronization()
+              (+++) Call function HAL_RCCEx_CRSWaitSynchronization()
               (+++) According to CRS status, user can decide to adjust again the calibration or continue
                         application if synchronization is OK
 
       (#) User can retrieve information related to synchronization in calling function
-            @ref HAL_RCCEx_CRSGetSynchronizationInfo()
+            HAL_RCCEx_CRSGetSynchronizationInfo()
 
       (#) Regarding synchronization status and synchronization information, user can try a new calibration
            in changing synchronization configuration and call again HAL_RCCEx_CRSConfig.
@@ -1673,18 +1661,18 @@ HAL_StatusTypeDef HAL_RCCEx_TrimOsc(uint32_t OscillatorType)
 
       (#) In interrupt mode, user can resort to the available macros (__HAL_RCC_CRS_XXX_IT). Interrupts will go
           through CRS Handler (CRS_IRQn/CRS_IRQHandler)
-              (++) Call function @ref HAL_RCCEx_CRSConfig()
+              (++) Call function HAL_RCCEx_CRSConfig()
               (++) Enable CRS_IRQn (thanks to NVIC functions)
-              (++) Enable CRS interrupt (@ref __HAL_RCC_CRS_ENABLE_IT)
+              (++) Enable CRS interrupt (__HAL_RCC_CRS_ENABLE_IT)
               (++) Implement CRS status management in the following user callbacks called from
                    HAL_RCCEx_CRS_IRQHandler():
-                   (+++) @ref HAL_RCCEx_CRS_SyncOkCallback()
-                   (+++) @ref HAL_RCCEx_CRS_SyncWarnCallback()
-                   (+++) @ref HAL_RCCEx_CRS_ExpectedSyncCallback()
-                   (+++) @ref HAL_RCCEx_CRS_ErrorCallback()
+                   (+++) HAL_RCCEx_CRS_SyncOkCallback()
+                   (+++) HAL_RCCEx_CRS_SyncWarnCallback()
+                   (+++) HAL_RCCEx_CRS_ExpectedSyncCallback()
+                   (+++) HAL_RCCEx_CRS_ErrorCallback()
 
-      (#) To force a SYNC EVENT, user can use the function @ref HAL_RCCEx_CRSSoftwareSynchronizationGenerate().
-          This function can be called before calling @ref HAL_RCCEx_CRSConfig (for instance in Systick handler)
+      (#) To force a SYNC EVENT, user can use the function HAL_RCCEx_CRSSoftwareSynchronizationGenerate().
+          This function can be called before calling HAL_RCCEx_CRSConfig (for instance in Systick handler)
 
 @endverbatim
  * @{
@@ -1943,7 +1931,7 @@ __weak void HAL_RCCEx_CRS_SyncOkCallback(void)
 __weak void HAL_RCCEx_CRS_SyncWarnCallback(void)
 {
   /* NOTE : This function should not be modified, when the callback is needed,
-            the @ref HAL_RCCEx_CRS_SyncWarnCallback should be implemented in the user file
+            the HAL_RCCEx_CRS_SyncWarnCallback should be implemented in the user file
    */
 }
 
@@ -1954,7 +1942,7 @@ __weak void HAL_RCCEx_CRS_SyncWarnCallback(void)
 __weak void HAL_RCCEx_CRS_ExpectedSyncCallback(void)
 {
   /* NOTE : This function should not be modified, when the callback is needed,
-            the @ref HAL_RCCEx_CRS_ExpectedSyncCallback should be implemented in the user file
+            the HAL_RCCEx_CRS_ExpectedSyncCallback should be implemented in the user file
    */
 }
 
