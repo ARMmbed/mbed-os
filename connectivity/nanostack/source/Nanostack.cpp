@@ -30,11 +30,21 @@
 #include "mesh_system.h" // from inside mbed-mesh-api
 #include "socket_api.h"
 #include "net_interface.h"
+#include "nsapi_dns.h"
 
 // Uncomment to enable trace
 //#define HAVE_DEBUG
 #include "ns_trace.h"
 #define TRACE_GROUP "nsif"
+
+//#define NSIF_DEEP_TRACE
+#ifdef NSIF_DEEP_TRACE
+#define TRACE_DEEP    tr_debug
+#else
+#define TRACE_DEEP(...)
+#endif
+
+#define NANOSTACK_ISDIGIT(c)    ((c) >= '0' && (c) <= '9')
 
 #define NS_INTERFACE_SOCKETS_MAX  16  //same as NanoStack SOCKET_MAX
 
@@ -147,6 +157,51 @@ static int8_t find_interface_by_address(const uint8_t target_addr[16])
             }
         }
     }
+    return -1;
+}
+
+static int8_t nanostack_interface_id_parse(const char *interface_name)
+{
+    int namelen;
+    int8_t interface_id = -1;
+
+    TRACE_DEEP("nanostack_interface_id_parse() %s", interface_name ? interface_name : "null");
+
+    if (!interface_name) {
+        return -1;
+    }
+
+    // parse interface ID from the interface_name
+    namelen = strlen(interface_name);
+    if (namelen < 4 || namelen > 5) {
+        return -1;
+    }
+
+    if ((strncmp("MES", interface_name, 3) == 0) && NANOSTACK_ISDIGIT(interface_name[3])) {
+        interface_id = atoi(&interface_name[3]);
+    }
+
+    TRACE_DEEP("parsed interfaceID = %d", interface_id);
+    return interface_id;
+}
+
+static int nanostack_dns_query_result_check(const char *domain_name, SocketAddress *address, const char *interface_name)
+{
+    uint8_t dns_query_addr[16] = {0};
+    int8_t interface_id, ns_query_result;
+
+    interface_id = nanostack_interface_id_parse(interface_name);
+
+    ns_query_result = arm_net_dns_query_result_get(interface_id, dns_query_addr, (char *)domain_name);
+
+    TRACE_DEEP("nanostack_dns_query_result_check(): interface_id=%d, ret=%d, resolved %s to %s",
+               interface_id, ns_query_result, domain_name, trace_ipv6(dns_query_addr));
+
+    if (ns_query_result == 0) {
+        address->set_ip_bytes(dns_query_addr, NSAPI_IPv6);
+        return 0;
+    }
+
     return -1;
 }
 
@@ -529,6 +584,84 @@ nsapi_error_t Nanostack::get_ip_address(SocketAddress *sockAddr)
             return NSAPI_ERROR_OK;
         }
     }
+    return NSAPI_ERROR_NO_ADDRESS;
+}
+
+nsapi_error_t Nanostack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
+{
+    if (name[0] == '\0') {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    // check for simple ip addresses
+    if (address->set_ip_address(name)) {
+        if (version != NSAPI_UNSPEC && address->get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+        return NSAPI_ERROR_OK;
+    }
+
+    // Nanostack is IPv6 stack
+    if (version == NSAPI_UNSPEC) {
+        version = NSAPI_IPv6;
+    }
+
+    // try nanostack DNS cache, if not found then fallback to dns query
+    if (nanostack_dns_query_result_check(name, address, interface_name) == 0) {
+        return NSAPI_ERROR_OK;
+    }
+
+    return nsapi_dns_query(this, name, address, interface_name, version);
+}
+
+nsapi_value_or_error_t Nanostack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version, const char *interface_name)
+{
+    SocketAddress address;
+
+    if (name[0] == '\0') {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    // check for simple ip addresses
+    if (address.set_ip_address(name)) {
+        if (version != NSAPI_UNSPEC && address.get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+        callback(NSAPI_ERROR_OK, &address);
+        return NSAPI_ERROR_OK;
+    }
+
+    // Nanostack is IPv6 stack
+    if (version == NSAPI_UNSPEC) {
+        version = NSAPI_IPv6;
+    }
+
+    // try nanostack DNS cache, if not found then fallback to dns query
+    if (nanostack_dns_query_result_check(name, &address, interface_name) == 0) {
+        // hit found, return result immediately
+        callback(NSAPI_ERROR_OK, &address);
+        return NSAPI_ERROR_OK;
+    }
+
+    call_in_callback_cb_t call_in_cb = get_call_in_callback();
+    return nsapi_dns_query_async(this, name, callback, call_in_cb, interface_name, version);
+}
+
+nsapi_error_t Nanostack::get_dns_server(int index, SocketAddress *address, const char *interface_name)
+{
+    uint8_t dns_srv_address[16];
+    int8_t interface_id;
+    int8_t ret;
+
+    interface_id = nanostack_interface_id_parse(interface_name);
+
+    ret = arm_net_dns_server_get(interface_id, dns_srv_address, NULL, 0, index);
+
+    if (ret == 0) {
+        address->set_ip_bytes(dns_srv_address, NSAPI_IPv6);
+        TRACE_DEEP("get_dns_server(), index=%d, ret=%d, address=%s", index, ret, trace_ipv6((uint8_t *)address->get_ip_bytes()));
+        return NSAPI_ERROR_OK;
+    }
+
     return NSAPI_ERROR_NO_ADDRESS;
 }
 
