@@ -384,6 +384,29 @@ struct GattHVXCallbackParams {
 
 };
 
+/**
+ * Gatt Data Sent Attribute related events
+ *
+ * Used by `onDataSent`
+ */
+struct GattDataSentCallbackParams {
+
+    /**
+     * The handle of the connection that triggered the event.
+     */
+    ble::connection_handle_t connHandle;
+
+    /**
+     * Attribute Handle to which the event applies
+     */
+    GattAttribute::Handle_t attHandle;
+
+};
+
+using GattUpdatesEnabledCallbackParams        = GattDataSentCallbackParams;
+using GattUpdatesDisabledCallbackParams       = GattDataSentCallbackParams;
+using GattConfirmationReceivedCallbackParams  = GattDataSentCallbackParams;
+
 namespace ble {
 
 /**

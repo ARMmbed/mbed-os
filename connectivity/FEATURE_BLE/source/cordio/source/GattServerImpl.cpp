@@ -902,6 +902,11 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
 ble_error_t GattServer::reset(ble::GattServer* server)
 {
     /* Notify that the instance is about to shutdown */
+    if(eventHandler) {
+        eventHandler->onShutdown(*server);
+    }
+
+    // Execute callbacks added with deprecated API
     shutdownCallChain.call(server);
     shutdownCallChain.clear();
 
@@ -950,7 +955,7 @@ void GattServer::cccd_cb(attsCccEvt_t *evt)
             GattServerEvents::GATT_EVENT_UPDATES_ENABLED :
             GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
 
-    getInstance().handleEvent(evt_type, evt->handle);
+    getInstance().handleEvent(evt_type, evt->hdr.param, evt->handle);
 }
 
 void GattServer::att_cb(const attEvt_t *evt)
@@ -961,7 +966,7 @@ void GattServer::att_cb(const attEvt_t *evt)
             handler->onAttMtuChange(evt->hdr.param, evt->mtu);
         }
     } else if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATTS_HANDLE_VALUE_CNF) {
-        getInstance().handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT, evt->handle);
+        getInstance().handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT, evt->hdr.param, evt->handle);
     }
 }
 
@@ -1506,37 +1511,88 @@ GattServer::EventHandler *GattServer::getEventHandler()
 
 void GattServer::handleDataWrittenEvent(const GattWriteCallbackParams *params)
 {
+    if(eventHandler) {
+        eventHandler->onDataWritten(*params);
+    }
+
+    // Execute callbacks added with deprecated API
     dataWrittenCallChain.call(params);
 }
 
 void GattServer::handleDataReadEvent(const GattReadCallbackParams *params)
 {
+    if(eventHandler) {
+        eventHandler->onDataRead(*params);
+    }
+
+    // Execute callbacks added with deprecated API
     dataReadCallChain.call(params);
 }
 
 void GattServer::handleEvent(
     GattServerEvents::gattEvent_e type,
+    ble::connection_handle_t connHandle,
     GattAttribute::Handle_t attributeHandle
 )
 {
     switch (type) {
         case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
+
+            if(eventHandler) {
+                GattUpdatesEnabledCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onUpdatesEnabled(params);
+            }
+
+            // Execute deprecated callback
             if (updatesEnabledCallback) {
                 updatesEnabledCallback(attributeHandle);
             }
             break;
         case GattServerEvents::GATT_EVENT_UPDATES_DISABLED:
+
+            if(eventHandler) {
+                GattUpdatesDisabledCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onUpdatesDisabled(params);
+            }
+
+            // Execute deprecated callback
             if (updatesDisabledCallback) {
                 updatesDisabledCallback(attributeHandle);
             }
             break;
         case GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED:
+
+            if(eventHandler) {
+                GattConfirmationReceivedCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onConfirmationReceived(params);
+            }
+
+            // Execute deprecated callback
             if (confirmationReceivedCallback) {
                 confirmationReceivedCallback(attributeHandle);
             }
             break;
 
         case GattServerEvents::GATT_EVENT_DATA_SENT:
+
+            if(eventHandler) {
+                GattDataSentCallbackParams params({
+                    .connHandle = connHandle,
+                    .attHandle = attributeHandle
+                });
+                eventHandler->onDataSent(params);
+            }
+
+            // Execute deprecated callback
             // Called every time a notification or indication has been sent
             handleDataSentEvent(1);
             break;

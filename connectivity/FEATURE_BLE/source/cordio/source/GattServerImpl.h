@@ -153,6 +153,7 @@ public:
 
     void handleEvent(
         GattServerEvents::gattEvent_e type,
+        ble::connection_handle_t connHandle,
         GattAttribute::Handle_t attributeHandle
     );
 
