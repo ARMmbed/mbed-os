@@ -2658,10 +2658,9 @@ void Gap::signal_advertising_report(
                 delete _connect_to_host_resolved_address_parameters;
                 _connect_to_host_resolved_address_parameters = nullptr;
             }
-        } else {
-            _event_handler->onAdvertisingReport(
-                event
-            );
+
+            /* do not report it as this was a scan run for connection purposes */
+            return;
         }
     } else {
         /* check if there already is a RPA like that in the list of other pending reports */
@@ -2687,6 +2686,9 @@ void Gap::signal_advertising_report(
                 }
             }
         }
+
+        /* we need to wait until the address is resolved before reporting it */
+        return;
     }
 #else
     /* filter out unresolved address if at least one bond exists */
