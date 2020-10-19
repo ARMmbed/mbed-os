@@ -366,7 +366,7 @@ void attsClearPrepWrites(attsCcb_t *pCcb)
 {
   void *pBuf;
 
-  while ((pBuf = WsfQueueDeq(&attsCb.prepWriteQueue[pCcb->connId])) != NULL)
+  while ((pBuf = WsfQueueDeq(&attsCb.prepWriteQueue[pCcb->connId - 1])) != NULL)
   {
     WsfBufFree(pBuf);
   }
