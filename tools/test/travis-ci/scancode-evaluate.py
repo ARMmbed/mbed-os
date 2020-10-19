@@ -89,7 +89,8 @@ def license_check(scancode_output_path):
     ReturnCode.ERROR.value if any error in file licenses found
     """
 
-    offenders = []
+    license_offenders = []
+    spdx_offenders = []
     try:
         with open(scancode_output_path, 'r') as read_file:
             scancode_output_data = json.load(read_file)
@@ -107,13 +108,13 @@ def license_check(scancode_output_path):
 
         if not scancode_output_data_file['licenses']:
             scancode_output_data_file['fail_reason'] = MISSING_LICENSE_TEXT
-            offenders.append(scancode_output_data_file)
+            license_offenders.append(scancode_output_data_file)
             # check the next file in the scancode output
             continue
 
         if not has_permissive_text_in_scancode_output(scancode_output_data_file['licenses']):
             scancode_output_data_file['fail_reason'] = MISSING_PERMISSIVE_LICENSE_TEXT
-            offenders.append(scancode_output_data_file)
+            license_offenders.append(scancode_output_data_file)
 
         if not has_spdx_text_in_scancode_output(scancode_output_data_file['licenses']):
             # Scancode does not recognize license notice in Python file headers.
@@ -131,13 +132,17 @@ def license_check(scancode_output_path):
 
             if not has_spdx_text_in_analysed_file(scanned_file_content):
                 scancode_output_data_file['fail_reason'] = MISSING_SPDX_TEXT
-                offenders.append(scancode_output_data_file)
+                spdx_offenders.append(scancode_output_data_file)
 
-    if offenders:
+    if license_offenders:
         userlog.warning("Found files with missing license details, please review and fix")
-        for offender in offenders:
+        for offender in license_offenders:
             userlog.warning("File: %s reason: %s" % (path_leaf(offender['path']), offender['fail_reason']))
-    return len(offenders)
+    if spdx_offenders:
+        userlog.warning("Found files with missing SPDX identifier, please review and fix")
+        for offender in spdx_offenders:
+            userlog.warning("File: %s reason: %s" % (path_leaf(offender['path']), offender['fail_reason']))
+    return len(license_offenders)
 
 
 def parse_args():
