@@ -78,18 +78,18 @@ class TestScancodeEvaluate:
     def test_missing_license_permissive_license_and_spdx(self, create_scanned_files):
         """ Test four files scanned with various issues.
             test.h: Missing license text (error count += 1)
-            test3.h: Missing `Permissive` license text and `spdx` in match.identifier and not in file tested by ScanCode (error count += 2)
+            test3.h: Missing `Permissive` license text and `spdx` in match.identifier and not in file tested by ScanCode (error count += 1)
             test4.h: Missing `Permissive` license text and `spdx` in match.identifier but found in file tested by ScanCode (error count += 1)
             test5.h: Missing `spdx` in match.identifier but found in file tested by ScanCode. (error count += 0)
             @inputs scancode_test/scancode_test_2.json
-            @output 4
+            @output 3
         """
-        assert license_check(os.path.join(STUBS_PATH, "scancode_test_3.json")) == 4
+        assert license_check(os.path.join(STUBS_PATH, "scancode_test_3.json")) == 3
 
     def test_permissive_license_no_spdx(self, create_scanned_files):
         """ Multiple `Permissive` licenses in one file but none with `spdx` in
-            match.identifier and not in file tested by ScanCode (error count += 1)
+            match.identifier and not in file tested by ScanCode (error count += 0)
             @inputs scancode_test/scancode_test_2.json
-            @outputs 1
+            @outputs 0
         """
-        assert license_check(os.path.join(STUBS_PATH, "scancode_test_4.json")) == 1
+        assert license_check(os.path.join(STUBS_PATH, "scancode_test_4.json")) == 0
