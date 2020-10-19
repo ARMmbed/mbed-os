@@ -591,9 +591,9 @@ static void attcConnCback(attCcb_t *pCcb, dmEvt_t *pDmEvt)
     }
 
     /* free any req on deck */
-    if (attcCb.onDeck[pCcb->connId].hdr.event != ATTC_MSG_API_NONE)
+    if (attcCb.onDeck[pCcb->connId - 1].hdr.event != ATTC_MSG_API_NONE)
     {
-      attcReqClear(pCcb->connId, &attcCb.onDeck[pCcb->connId], status);
+      attcReqClear(pCcb->connId, &attcCb.onDeck[pCcb->connId - 1], status);
     }
 
     for (i = 0; i < ATT_BEARER_MAX; i++)
@@ -672,7 +672,7 @@ void attcMsgCback(attcApiMsg_t *pMsg)
     /* verify no API request already waiting on deck, in progress, or no pending write command
        already for this handle */
     if (((pCcb->slot == ATT_BEARER_SLOT_ID) &&
-         (attcCb.onDeck[pCcb->connId].hdr.event != ATTC_MSG_API_NONE)) ||
+         (attcCb.onDeck[pCcb->connId - 1].hdr.event != ATTC_MSG_API_NONE)) ||
         (pCcb->outReq.hdr.event > ATTC_MSG_API_MTU)   ||
         ((pMsg->hdr.event == ATTC_MSG_API_WRITE_CMD)  &&
          attcPendWriteCmd(pCcb, pMsg->handle)))
@@ -686,7 +686,7 @@ void attcMsgCback(attcApiMsg_t *pMsg)
     if ((pCcb->slot == ATT_BEARER_SLOT_ID) && (pCcb->outReq.hdr.event == ATTC_MSG_API_MTU))
     {
       /* put request "on deck" for processing later */
-      attcCb.onDeck[pCcb->connId] = *pMsg;
+      attcCb.onDeck[pCcb->connId - 1] = *pMsg;
     }
     /* otherwise ready to send; set up request */
     else
@@ -706,9 +706,9 @@ void attcMsgCback(attcApiMsg_t *pMsg)
     }
     /* else free any req on deck */
     else if ((pCcb->slot == ATT_BEARER_SLOT_ID) &
-             (attcCb.onDeck[pCcb->connId].hdr.event != ATTC_MSG_API_NONE))
+             (attcCb.onDeck[pCcb->connId - 1].hdr.event != ATTC_MSG_API_NONE))
     {
-      attcReqClear(pCcb->connId, &attcCb.onDeck[pCcb->connId], ATT_ERR_CANCELLED);
+      attcReqClear(pCcb->connId, &attcCb.onDeck[pCcb->connId - 1], ATT_ERR_CANCELLED);
     }
   }
   /* else if timeout */
