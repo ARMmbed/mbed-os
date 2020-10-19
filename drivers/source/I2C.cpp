@@ -124,6 +124,7 @@ int I2C::read(int address, char *data, int length, bool repeated)
 int I2C::read(int ack)
 {
     lock();
+    
     int ret;
     if (ack) {
         ret = i2c_byte_read(&_i2c, 0);
