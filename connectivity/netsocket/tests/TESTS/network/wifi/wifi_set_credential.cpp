@@ -43,9 +43,6 @@ void wifi_set_credential(void)
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_WEP);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
-    error = iface->set_credentials("OK", "", NSAPI_SECURITY_WEP);
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
-
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_WPA_WPA2);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
