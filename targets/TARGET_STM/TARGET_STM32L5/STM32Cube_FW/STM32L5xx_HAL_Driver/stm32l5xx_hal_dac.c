@@ -740,8 +740,6 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, u
   */
 HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel)
 {
-  HAL_StatusTypeDef status;
-
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
 
@@ -757,7 +755,7 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel)
   if (Channel == DAC_CHANNEL_1)
   {
     /* Disable the DMA channel */
-    status = HAL_DMA_Abort(hdac->DMA_Handle1);
+    (void)HAL_DMA_Abort(hdac->DMA_Handle1);
 
     /* Disable the DAC DMA underrun interrupt */
     __HAL_DAC_DISABLE_IT(hdac, DAC_IT_DMAUDR1);
@@ -765,26 +763,17 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel)
   else /* Channel2 is used for */
   {
     /* Disable the DMA channel */
-    status = HAL_DMA_Abort(hdac->DMA_Handle2);
+    (void)HAL_DMA_Abort(hdac->DMA_Handle2);
 
     /* Disable the DAC DMA underrun interrupt */
     __HAL_DAC_DISABLE_IT(hdac, DAC_IT_DMAUDR2);
   }
 
-  /* Check if DMA Channel effectively disabled */
-  if (status != HAL_OK)
-  {
-    /* Update DAC state machine to error */
-    hdac->State = HAL_DAC_STATE_ERROR;
-  }
-  else
-  {
-    /* Change DAC state */
-    hdac->State = HAL_DAC_STATE_READY;
-  }
+  /* Change DAC state */
+  hdac->State = HAL_DAC_STATE_READY;
 
   /* Return function status */
-  return status;
+  return HAL_OK;
 }
 
 /**
@@ -1021,7 +1010,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
 {
   uint32_t tmpreg1;
   uint32_t tmpreg2;
-  uint32_t tickstart = 0U;
+  uint32_t tickstart;
   uint32_t hclkfreq;
 
   /* Check the DAC parameters */
@@ -1049,15 +1038,14 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_BUSY;
 
+  /* Sample and hold configuration */
   if (sConfig->DAC_SampleAndHold == DAC_SAMPLEANDHOLD_ENABLE)
-    /* Sample on old configuration */
   {
-    /* SampleTime */
+    /* Get timeout */
+    tickstart = HAL_GetTick();
+
     if (Channel == DAC_CHANNEL_1)
     {
-      /* Get timeout */
-      tickstart = HAL_GetTick();
-
       /* SHSR1 can be written when BWST1 is cleared */
       while (((hdac->Instance->SR) & DAC_SR_BWST1) != 0UL)
       {
@@ -1079,7 +1067,6 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
     else /* Channel 2 */
     {
       /* SHSR2 can be written when BWST2 is cleared */
-
       while (((hdac->Instance->SR) & DAC_SR_BWST2) != 0UL)
       {
         /* Check for the Timeout */
@@ -1099,9 +1086,11 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConf
     }
 
     /* HoldTime */
-    MODIFY_REG(hdac->Instance->SHHR, DAC_SHHR_THOLD1 << (Channel & 0x10UL), (sConfig->DAC_SampleAndHoldConfig.DAC_HoldTime) << (Channel & 0x10UL));
+    MODIFY_REG(hdac->Instance->SHHR, DAC_SHHR_THOLD1 << (Channel & 0x10UL),
+               (sConfig->DAC_SampleAndHoldConfig.DAC_HoldTime) << (Channel & 0x10UL));
     /* RefreshTime */
-    MODIFY_REG(hdac->Instance->SHRR, DAC_SHRR_TREFRESH1 << (Channel & 0x10UL), (sConfig->DAC_SampleAndHoldConfig.DAC_RefreshTime) << (Channel & 0x10UL));
+    MODIFY_REG(hdac->Instance->SHRR, DAC_SHRR_TREFRESH1 << (Channel & 0x10UL),
+               (sConfig->DAC_SampleAndHoldConfig.DAC_RefreshTime) << (Channel & 0x10UL));
   }
 
   if (sConfig->DAC_UserTrimming == DAC_TRIMMING_USER)
@@ -1359,7 +1348,7 @@ HAL_StatusTypeDef HAL_DAC_RegisterCallback(DAC_HandleTypeDef *hdac, HAL_DAC_Call
   * @param  hdac DAC handle
   * @param  CallbackID ID of the callback to be unregistered
   *         This parameter can be one of the following values:
-  *          @arg @ref HAL_DAC_CH1_COMPLETE_CB_ID          DAC CH1 tranfer Complete Callback ID
+  *          @arg @ref HAL_DAC_CH1_COMPLETE_CB_ID          DAC CH1 transfer Complete Callback ID
   *          @arg @ref HAL_DAC_CH1_HALF_COMPLETE_CB_ID     DAC CH1 Half Complete Callback ID
   *          @arg @ref HAL_DAC_CH1_ERROR_ID                DAC CH1 Error Callback ID
   *          @arg @ref HAL_DAC_CH1_UNDERRUN_CB_ID          DAC CH1 UnderRun Callback ID

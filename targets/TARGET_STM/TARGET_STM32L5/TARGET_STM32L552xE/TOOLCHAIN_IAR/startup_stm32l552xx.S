@@ -1,7 +1,7 @@
 ;********************************************************************************
-;* File Name          : startup_stm32l562xx.s
+;* File Name          : startup_stm32l552xx.s
 ;* Author             : MCD Application Team
-;* Description        : STM32L562xx Ultra Low Power Devices vector
+;* Description        : STM32L552xx Ultra Low Power Devices vector
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == _iar_program_start,
@@ -16,10 +16,10 @@
 ;* <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
 ;* All rights reserved.</center></h2>
 ;*
-;* This software component is licensed by ST under BSD 3-Clause license,
+;* This software component is licensed by ST under Apache License, Version 2.0,
 ;* the "License"; You may not use this file except in compliance with the
 ;* License. You may obtain a copy of the License at:
-;*                        opensource.org/licenses/BSD-3-Clause
+;*                        opensource.org/licenses/Apache-2.0
 ;*
 ;*******************************************************************************
 ;
@@ -167,11 +167,11 @@ __vector_table
         DCD     SAI1_IRQHandler                   ; Serial Audio Interface 1 global interrupt
         DCD     SAI2_IRQHandler                   ; Serial Audio Interface 2 global interrupt
         DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
-        DCD     AES_IRQHandler                    ; AES global interrupt
+        DCD     0                                 ; Reserved
         DCD     RNG_IRQHandler                    ; RNG global interrupt
         DCD     FPU_IRQHandler                    ; FPU
         DCD     HASH_IRQHandler                   ; HASH
-        DCD     PKA_IRQHandler                    ; PKA
+        DCD     0                                 ; Reserved
         DCD     LPTIM3_IRQHandler                 ; LP TIM3
         DCD     SPI3_IRQHandler                   ; SPI3
         DCD     I2C4_ER_IRQHandler                ; I2C4 error
@@ -182,7 +182,7 @@ __vector_table
         DCD     DFSDM1_FLT3_IRQHandler            ; DFSDM1 Filter 3 global Interrupt
         DCD     UCPD1_IRQHandler                  ; UCPD1
         DCD     ICACHE_IRQHandler                 ; ICACHE
-        DCD     OTFDEC1_IRQHandler                ; OTFDEC1
+        DCD     0                                 ; Reserved
 __Vectors_End
 
 __Vectors       EQU   __vector_table
@@ -706,11 +706,6 @@ SAI2_IRQHandler
 TSC_IRQHandler
        B TSC_IRQHandler
 
-        PUBWEAK AES_IRQHandler
-        SECTION .text:CODE:NOROOT:REORDER(1)
-AES_IRQHandler
-        B AES_IRQHandler
-
         PUBWEAK RNG_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 RNG_IRQHandler
@@ -725,11 +720,6 @@ FPU_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 HASH_IRQHandler
         B HASH_IRQHandler
-
-        PUBWEAK PKA_IRQHandler
-        SECTION .text:CODE:NOROOT:REORDER(1)
-PKA_IRQHandler
-        B PKA_IRQHandler
 
         PUBWEAK LPTIM3_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
@@ -780,11 +770,6 @@ UCPD1_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 ICACHE_IRQHandler
         B ICACHE_IRQHandler
-
-        PUBWEAK OTFDEC1_IRQHandler
-        SECTION .text:CODE:NOROOT:REORDER(1)
-OTFDEC1_IRQHandler
-        B OTFDEC1_IRQHandler
 
         END
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

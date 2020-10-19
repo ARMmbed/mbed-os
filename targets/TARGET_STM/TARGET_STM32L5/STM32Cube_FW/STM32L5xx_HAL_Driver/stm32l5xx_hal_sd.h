@@ -56,7 +56,7 @@ typedef enum
   HAL_SD_STATE_BUSY                   = ((uint32_t)0x00000003U),  /*!< SD process ongoing                  */
   HAL_SD_STATE_PROGRAMMING            = ((uint32_t)0x00000004U),  /*!< SD Programming State                */
   HAL_SD_STATE_RECEIVING              = ((uint32_t)0x00000005U),  /*!< SD Receiving State                  */
-  HAL_SD_STATE_TRANSFER               = ((uint32_t)0x00000006U),  /*!< SD Transfert State                  */
+  HAL_SD_STATE_TRANSFER               = ((uint32_t)0x00000006U),  /*!< SD Transfer State                   */
   HAL_SD_STATE_ERROR                  = ((uint32_t)0x0000000FU)   /*!< SD is in error state                */
 }HAL_SD_StateTypeDef;
 /**
@@ -156,7 +156,6 @@ typedef struct
   void (* Read_DMADblBuf1CpltCallback)    (struct __SD_HandleTypeDef *hsd);
   void (* Write_DMADblBuf0CpltCallback)   (struct __SD_HandleTypeDef *hsd);
   void (* Write_DMADblBuf1CpltCallback)   (struct __SD_HandleTypeDef *hsd);
-
 #if (USE_SD_TRANSCEIVER != 0U)
   void (* DriveTransceiver_1_8V_Callback) (FlagStatus status);
 #endif /* USE_SD_TRANSCEIVER */

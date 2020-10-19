@@ -191,7 +191,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_LSIPRE  LSI prescaler
   * @{
   */
-#define LL_RCC_LSI_DIV_1                   0x00000000U          /*!< LSI divided by 1   */
+#define LL_RCC_LSI_DIV_1                   0UL                  /*!< LSI divided by 1   */
 #define LL_RCC_LSI_DIV_128                 RCC_CSR_LSIPRE       /*!< LSI divided by 128 */
 /**
   * @}
@@ -200,7 +200,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_LSEDRIVE  LSE oscillator drive capability
   * @{
   */
-#define LL_RCC_LSEDRIVE_LOW                0x00000000U             /*!< Xtal mode lower driving capability */
+#define LL_RCC_LSEDRIVE_LOW                0UL                     /*!< Xtal mode lower driving capability */
 #define LL_RCC_LSEDRIVE_MEDIUMLOW          RCC_BDCR_LSEDRV_0       /*!< Xtal mode medium low driving capability */
 #define LL_RCC_LSEDRIVE_MEDIUMHIGH         RCC_BDCR_LSEDRV_1       /*!< Xtal mode medium high driving capability */
 #define LL_RCC_LSEDRIVE_HIGH               RCC_BDCR_LSEDRV         /*!< Xtal mode higher driving capability */
@@ -211,18 +211,18 @@ typedef struct
 /** @defgroup RCC_LL_EC_MSIRANGE  MSI clock ranges
   * @{
   */
-#define LL_RCC_MSIRANGE_0                  RCC_CR_MSIRANGE_0  /*!< MSI = 100 KHz  */
-#define LL_RCC_MSIRANGE_1                  RCC_CR_MSIRANGE_1  /*!< MSI = 200 KHz  */
-#define LL_RCC_MSIRANGE_2                  RCC_CR_MSIRANGE_2  /*!< MSI = 400 KHz  */
-#define LL_RCC_MSIRANGE_3                  RCC_CR_MSIRANGE_3  /*!< MSI = 800 KHz  */
-#define LL_RCC_MSIRANGE_4                  RCC_CR_MSIRANGE_4  /*!< MSI = 1 MHz    */
-#define LL_RCC_MSIRANGE_5                  RCC_CR_MSIRANGE_5  /*!< MSI = 2 MHz    */
-#define LL_RCC_MSIRANGE_6                  RCC_CR_MSIRANGE_6  /*!< MSI = 4 MHz    */
-#define LL_RCC_MSIRANGE_7                  RCC_CR_MSIRANGE_7  /*!< MSI = 8 MHz    */
-#define LL_RCC_MSIRANGE_8                  RCC_CR_MSIRANGE_8  /*!< MSI = 16 MHz   */
-#define LL_RCC_MSIRANGE_9                  RCC_CR_MSIRANGE_9  /*!< MSI = 24 MHz   */
-#define LL_RCC_MSIRANGE_10                 RCC_CR_MSIRANGE_10 /*!< MSI = 32 MHz   */
-#define LL_RCC_MSIRANGE_11                 RCC_CR_MSIRANGE_11 /*!< MSI = 48 MHz   */
+#define LL_RCC_MSIRANGE_0                  0UL                                                         /*!< MSI = 100 kHz  */
+#define LL_RCC_MSIRANGE_1                  RCC_CR_MSIRANGE_0                                           /*!< MSI = 200 kHz  */
+#define LL_RCC_MSIRANGE_2                  RCC_CR_MSIRANGE_1                                           /*!< MSI = 400 kHz  */
+#define LL_RCC_MSIRANGE_3                  (RCC_CR_MSIRANGE_1 | RCC_CR_MSIRANGE_0)                     /*!< MSI = 800 kHz  */
+#define LL_RCC_MSIRANGE_4                  RCC_CR_MSIRANGE_2                                           /*!< MSI = 1 MHz    */
+#define LL_RCC_MSIRANGE_5                  (RCC_CR_MSIRANGE_2 | RCC_CR_MSIRANGE_0)                     /*!< MSI = 2 MHz    */
+#define LL_RCC_MSIRANGE_6                  (RCC_CR_MSIRANGE_2 | RCC_CR_MSIRANGE_1)                     /*!< MSI = 4 MHz    */
+#define LL_RCC_MSIRANGE_7                  (RCC_CR_MSIRANGE_2 | RCC_CR_MSIRANGE_1 | RCC_CR_MSIRANGE_0) /*!< MSI = 8 MHz    */
+#define LL_RCC_MSIRANGE_8                  RCC_CR_MSIRANGE_3                                           /*!< MSI = 16 MHz   */
+#define LL_RCC_MSIRANGE_9                  (RCC_CR_MSIRANGE_3 | RCC_CR_MSIRANGE_0)                     /*!< MSI = 24 MHz   */
+#define LL_RCC_MSIRANGE_10                 (RCC_CR_MSIRANGE_3 | RCC_CR_MSIRANGE_1)                     /*!< MSI = 32 MHz   */
+#define LL_RCC_MSIRANGE_11                 (RCC_CR_MSIRANGE_3 | RCC_CR_MSIRANGE_1 | RCC_CR_MSIRANGE_0) /*!< MSI = 48 MHz   */
 /**
   * @}
   */
@@ -230,10 +230,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_MSISRANGE  MSI range after Standby mode
   * @{
   */
-#define LL_RCC_MSISRANGE_4                 RCC_CSR_MSISRANGE_1  /*!< MSI = 1 MHz    */
-#define LL_RCC_MSISRANGE_5                 RCC_CSR_MSISRANGE_2  /*!< MSI = 2 MHz    */
-#define LL_RCC_MSISRANGE_6                 RCC_CSR_MSISRANGE_4  /*!< MSI = 4 MHz    */
-#define LL_RCC_MSISRANGE_7                 RCC_CSR_MSISRANGE_8  /*!< MSI = 8 MHz    */
+#define LL_RCC_MSISRANGE_4                 RCC_CSR_MSISRANGE_2                                               /*!< MSI = 1 MHz    */
+#define LL_RCC_MSISRANGE_5                 (RCC_CSR_MSISRANGE_2 | RCC_CSR_MSISRANGE_0)                       /*!< MSI = 2 MHz    */
+#define LL_RCC_MSISRANGE_6                 (RCC_CSR_MSISRANGE_2 | RCC_CSR_MSISRANGE_1)                       /*!< MSI = 4 MHz    */
+#define LL_RCC_MSISRANGE_7                 (RCC_CSR_MSISRANGE_2 | RCC_CSR_MSISRANGE_1 | RCC_CSR_MSISRANGE_0) /*!< MSI = 8 MHz    */
 /**
   * @}
   */
@@ -241,8 +241,8 @@ typedef struct
 /** @defgroup RCC_LL_EC_LSCO_CLKSOURCE  LSCO Selection
   * @{
   */
-#define LL_RCC_LSCO_CLKSOURCE_LSI          0x00000000U                 /*!< LSI selection for low speed clock  */
-#define LL_RCC_LSCO_CLKSOURCE_LSE          RCC_BDCR_LSCOSEL      /*!< LSE selection for low speed clock  */
+#define LL_RCC_LSCO_CLKSOURCE_LSI          0UL                    /*!< LSI selection for low speed clock  */
+#define LL_RCC_LSCO_CLKSOURCE_LSE          RCC_BDCR_LSCOSEL       /*!< LSE selection for low speed clock  */
 /**
   * @}
   */
@@ -250,10 +250,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_SYS_CLKSOURCE  System clock switch
   * @{
   */
-#define LL_RCC_SYS_CLKSOURCE_MSI           RCC_CFGR_SW_MSI    /*!< MSI selection as system clock */
-#define LL_RCC_SYS_CLKSOURCE_HSI           RCC_CFGR_SW_HSI    /*!< HSI selection as system clock */
-#define LL_RCC_SYS_CLKSOURCE_HSE           RCC_CFGR_SW_HSE    /*!< HSE selection as system clock */
-#define LL_RCC_SYS_CLKSOURCE_PLL           RCC_CFGR_SW_PLL    /*!< PLL selection as system clock */
+#define LL_RCC_SYS_CLKSOURCE_MSI           0UL                    /*!< MSI selection as system clock */
+#define LL_RCC_SYS_CLKSOURCE_HSI           RCC_CFGR_SW_0          /*!< HSI selection as system clock */
+#define LL_RCC_SYS_CLKSOURCE_HSE           RCC_CFGR_SW_1          /*!< HSE selection as system clock */
+#define LL_RCC_SYS_CLKSOURCE_PLL           RCC_CFGR_SW            /*!< PLL selection as system clock */
 /**
   * @}
   */
@@ -261,10 +261,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_SYS_CLKSOURCE_STATUS  System clock switch status
   * @{
   */
-#define LL_RCC_SYS_CLKSOURCE_STATUS_MSI    RCC_CFGR_SWS_MSI   /*!< MSI used as system clock */
-#define LL_RCC_SYS_CLKSOURCE_STATUS_HSI    RCC_CFGR_SWS_HSI   /*!< HSI used as system clock */
-#define LL_RCC_SYS_CLKSOURCE_STATUS_HSE    RCC_CFGR_SWS_HSE   /*!< HSE used as system clock */
-#define LL_RCC_SYS_CLKSOURCE_STATUS_PLL    RCC_CFGR_SWS_PLL   /*!< PLL used as system clock */
+#define LL_RCC_SYS_CLKSOURCE_STATUS_MSI    0UL                    /*!< MSI used as system clock */
+#define LL_RCC_SYS_CLKSOURCE_STATUS_HSI    RCC_CFGR_SWS_0         /*!< HSI used as system clock */
+#define LL_RCC_SYS_CLKSOURCE_STATUS_HSE    RCC_CFGR_SWS_1         /*!< HSE used as system clock */
+#define LL_RCC_SYS_CLKSOURCE_STATUS_PLL    RCC_CFGR_SWS           /*!< PLL used as system clock */
 /**
   * @}
   */
@@ -272,39 +272,39 @@ typedef struct
 /** @defgroup RCC_LL_EC_SYSCLK_DIV  AHB prescaler
   * @{
   */
-#define LL_RCC_SYSCLK_DIV_1                RCC_CFGR_HPRE_DIV1   /*!< SYSCLK not divided */
-#define LL_RCC_SYSCLK_DIV_2                RCC_CFGR_HPRE_DIV2   /*!< SYSCLK divided by 2 */
-#define LL_RCC_SYSCLK_DIV_4                RCC_CFGR_HPRE_DIV4   /*!< SYSCLK divided by 4 */
-#define LL_RCC_SYSCLK_DIV_8                RCC_CFGR_HPRE_DIV8   /*!< SYSCLK divided by 8 */
-#define LL_RCC_SYSCLK_DIV_16               RCC_CFGR_HPRE_DIV16  /*!< SYSCLK divided by 16 */
-#define LL_RCC_SYSCLK_DIV_64               RCC_CFGR_HPRE_DIV64  /*!< SYSCLK divided by 64 */
-#define LL_RCC_SYSCLK_DIV_128              RCC_CFGR_HPRE_DIV128 /*!< SYSCLK divided by 128 */
-#define LL_RCC_SYSCLK_DIV_256              RCC_CFGR_HPRE_DIV256 /*!< SYSCLK divided by 256 */
-#define LL_RCC_SYSCLK_DIV_512              RCC_CFGR_HPRE_DIV512 /*!< SYSCLK divided by 512 */
+#define LL_RCC_SYSCLK_DIV_1      0UL                                                   /*!< SYSCLK not divided */
+#define LL_RCC_SYSCLK_DIV_2      RCC_CFGR_HPRE_3                                       /*!< SYSCLK divided by 2 */
+#define LL_RCC_SYSCLK_DIV_4      (RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_0)                   /*!< SYSCLK divided by 4 */
+#define LL_RCC_SYSCLK_DIV_8      (RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_1)                   /*!< SYSCLK divided by 8 */
+#define LL_RCC_SYSCLK_DIV_16     (RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_1 | RCC_CFGR_HPRE_0) /*!< SYSCLK divided by 16 */
+#define LL_RCC_SYSCLK_DIV_64     (RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_2)                   /*!< SYSCLK divided by 64 */
+#define LL_RCC_SYSCLK_DIV_128    (RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_2 | RCC_CFGR_HPRE_0) /*!< SYSCLK divided by 128 */
+#define LL_RCC_SYSCLK_DIV_256    (RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_2 | RCC_CFGR_HPRE_1) /*!< SYSCLK divided by 256 */
+#define LL_RCC_SYSCLK_DIV_512    RCC_CFGR_HPRE_3                                       /*!< SYSCLK divided by 512 */
 /**
   * @}
   */
 
-/** @defgroup RCC_LL_EC_APB1_DIV  APB low-speed prescaler (APB1)
+/** @defgroup RCC_LL_EC_APB1_DIV  APB1 prescaler
   * @{
   */
-#define LL_RCC_APB1_DIV_1                  RCC_CFGR_PPRE1_DIV1  /*!< HCLK not divided */
-#define LL_RCC_APB1_DIV_2                  RCC_CFGR_PPRE1_DIV2  /*!< HCLK divided by 2 */
-#define LL_RCC_APB1_DIV_4                  RCC_CFGR_PPRE1_DIV4  /*!< HCLK divided by 4 */
-#define LL_RCC_APB1_DIV_8                  RCC_CFGR_PPRE1_DIV8  /*!< HCLK divided by 8 */
-#define LL_RCC_APB1_DIV_16                 RCC_CFGR_PPRE1_DIV16 /*!< HCLK divided by 16 */
+#define LL_RCC_APB1_DIV_1        0UL                                    /*!< HCLK not divided */
+#define LL_RCC_APB1_DIV_2        RCC_CFGR_PPRE1_2                       /*!< HCLK divided by 2 */
+#define LL_RCC_APB1_DIV_4        (RCC_CFGR_PPRE1_2 | RCC_CFGR_PPRE1_0)  /*!< HCLK divided by 4 */
+#define LL_RCC_APB1_DIV_8        (RCC_CFGR_PPRE1_2 | RCC_CFGR_PPRE1_1)  /*!< HCLK divided by 8 */
+#define LL_RCC_APB1_DIV_16       RCC_CFGR_PPRE1                         /*!< HCLK divided by 16 */
 /**
   * @}
   */
 
-/** @defgroup RCC_LL_EC_APB2_DIV  APB high-speed prescaler (APB2)
+/** @defgroup RCC_LL_EC_APB2_DIV  APB2 prescaler
   * @{
   */
-#define LL_RCC_APB2_DIV_1                  RCC_CFGR_PPRE2_DIV1  /*!< HCLK not divided */
-#define LL_RCC_APB2_DIV_2                  RCC_CFGR_PPRE2_DIV2  /*!< HCLK divided by 2 */
-#define LL_RCC_APB2_DIV_4                  RCC_CFGR_PPRE2_DIV4  /*!< HCLK divided by 4 */
-#define LL_RCC_APB2_DIV_8                  RCC_CFGR_PPRE2_DIV8  /*!< HCLK divided by 8 */
-#define LL_RCC_APB2_DIV_16                 RCC_CFGR_PPRE2_DIV16 /*!< HCLK divided by 16 */
+#define LL_RCC_APB2_DIV_1        0UL                                    /*!< HCLK not divided */
+#define LL_RCC_APB2_DIV_2        RCC_CFGR_PPRE2_2                       /*!< HCLK divided by 2 */
+#define LL_RCC_APB2_DIV_4        (RCC_CFGR_PPRE2_2 | RCC_CFGR_PPRE2_0)  /*!< HCLK divided by 4 */
+#define LL_RCC_APB2_DIV_8        (RCC_CFGR_PPRE2_2 | RCC_CFGR_PPRE2_1)  /*!< HCLK divided by 8 */
+#define LL_RCC_APB2_DIV_16       RCC_CFGR_PPRE2                         /*!< HCLK divided by 16 */
 /**
   * @}
   */
@@ -312,7 +312,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_STOP_WAKEUPCLOCK  Wakeup from Stop and CSS backup clock selection
   * @{
   */
-#define LL_RCC_STOP_WAKEUPCLOCK_MSI        0x00000000U             /*!< MSI selection after wake-up from STOP */
+#define LL_RCC_STOP_WAKEUPCLOCK_MSI        0UL                     /*!< MSI selection after wake-up from STOP */
 #define LL_RCC_STOP_WAKEUPCLOCK_HSI        RCC_CFGR_STOPWUCK       /*!< HSI selection after wake-up from STOP */
 /**
   * @}
@@ -321,7 +321,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_MCO1SOURCE  MCO1 SOURCE selection
   * @{
   */
-#define LL_RCC_MCO1SOURCE_NOCLOCK          0x00000000U                            /*!< MCO output disabled, no clock on MCO */
+#define LL_RCC_MCO1SOURCE_NOCLOCK          0UL                                    /*!< MCO output disabled, no clock on MCO */
 #define LL_RCC_MCO1SOURCE_SYSCLK           RCC_CFGR_MCOSEL_0                      /*!< SYSCLK selection as MCO1 source */
 #define LL_RCC_MCO1SOURCE_MSI              RCC_CFGR_MCOSEL_1                      /*!< MSI selection as MCO1 source */
 #define LL_RCC_MCO1SOURCE_HSI              (RCC_CFGR_MCOSEL_0| RCC_CFGR_MCOSEL_1) /*!< HSI16 selection as MCO1 source */
@@ -337,11 +337,11 @@ typedef struct
 /** @defgroup RCC_LL_EC_MCO1_DIV  MCO1 prescaler
   * @{
   */
-#define LL_RCC_MCO1_DIV_1                  RCC_CFGR_MCOPRE_DIV1       /*!< MCO not divided */
-#define LL_RCC_MCO1_DIV_2                  RCC_CFGR_MCOPRE_DIV2       /*!< MCO divided by 2 */
-#define LL_RCC_MCO1_DIV_4                  RCC_CFGR_MCOPRE_DIV4       /*!< MCO divided by 4 */
-#define LL_RCC_MCO1_DIV_8                  RCC_CFGR_MCOPRE_DIV8       /*!< MCO divided by 8 */
-#define LL_RCC_MCO1_DIV_16                 RCC_CFGR_MCOPRE_DIV16      /*!< MCO divided by 16 */
+#define LL_RCC_MCO1_DIV_1                  0UL                                      /*!< MCO not divided */
+#define LL_RCC_MCO1_DIV_2                  RCC_CFGR_MCOPRE_0                        /*!< MCO divided by 2 */
+#define LL_RCC_MCO1_DIV_4                  RCC_CFGR_MCOPRE_1                        /*!< MCO divided by 4 */
+#define LL_RCC_MCO1_DIV_8                  (RCC_CFGR_MCOPRE_1 | RCC_CFGR_MCOPRE_0)  /*!< MCO divided by 8 */
+#define LL_RCC_MCO1_DIV_16                 RCC_CFGR_MCOPRE_2                        /*!< MCO divided by 16 */
 /**
   * @}
   */
@@ -350,8 +350,8 @@ typedef struct
 /** @defgroup RCC_LL_EC_PERIPH_FREQUENCY Peripheral clock frequency
   * @{
   */
-#define LL_RCC_PERIPH_FREQUENCY_NO         0x00000000U                 /*!< No clock enabled for the peripheral            */
-#define LL_RCC_PERIPH_FREQUENCY_NA         0xFFFFFFFFU                 /*!< Frequency cannot be provided as external clock */
+#define LL_RCC_PERIPH_FREQUENCY_NO         0UL                        /*!< No clock enabled for the peripheral            */
+#define LL_RCC_PERIPH_FREQUENCY_NA         0xFFFFFFFFUL               /*!< Frequency cannot be provided as external clock */
 /**
   * @}
   */
@@ -360,7 +360,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_RTC_CLKSOURCE  RTC clock source selection
   * @{
   */
-#define LL_RCC_RTC_CLKSOURCE_NONE          0x00000000U             /*!< No clock used as RTC clock */
+#define LL_RCC_RTC_CLKSOURCE_NONE          0UL                     /*!< No clock used as RTC clock */
 #define LL_RCC_RTC_CLKSOURCE_LSE           RCC_BDCR_RTCSEL_0       /*!< LSE oscillator clock used as RTC clock */
 #define LL_RCC_RTC_CLKSOURCE_LSI           RCC_BDCR_RTCSEL_1       /*!< LSI oscillator clock used as RTC clock */
 #define LL_RCC_RTC_CLKSOURCE_HSE_DIV32     RCC_BDCR_RTCSEL         /*!< HSE oscillator clock divided by 32 used as RTC clock */
@@ -405,7 +405,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_LPUART_CLKSOURCE  Peripheral LPUARTx clock source selection
   * @{
   */
-#define LL_RCC_LPUART1_CLKSOURCE_PCLK1     0x00000000U                     /*!< PCLK1 clock used as LPUART1 clock source */
+#define LL_RCC_LPUART1_CLKSOURCE_PCLK1     0UL                             /*!< PCLK1 clock used as LPUART1 clock source */
 #define LL_RCC_LPUART1_CLKSOURCE_SYSCLK    RCC_CCIPR1_LPUART1SEL_0          /*!< SYSCLK clock used as LPUART1 clock source */
 #define LL_RCC_LPUART1_CLKSOURCE_HSI       RCC_CCIPR1_LPUART1SEL_1          /*!< HSI clock used as LPUART1 clock source */
 #define LL_RCC_LPUART1_CLKSOURCE_LSE       RCC_CCIPR1_LPUART1SEL            /*!< LSE clock used as LPUART1 clock source */
@@ -454,7 +454,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_FDCAN_CLKSOURCE  Peripheral FDCAN kernel clock source selection
   * @{
   */
-#define LL_RCC_FDCAN_CLKSOURCE_HSE         0x00000000U           /*!< HSE clock used as FDCAN kernel clock source */
+#define LL_RCC_FDCAN_CLKSOURCE_HSE         0UL                   /*!< HSE clock used as FDCAN kernel clock source */
 #define LL_RCC_FDCAN_CLKSOURCE_PLL         RCC_CCIPR1_FDCANSEL_0 /*!< PLL clock used as FDCAN kernel clock source */
 #define LL_RCC_FDCAN_CLKSOURCE_PLLSAI1     RCC_CCIPR1_FDCANSEL_1 /*!< PLLSAI1 clock used as FDCAN kernel clock source */
 /**
@@ -481,7 +481,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_SDMMC1_KERNELCLKSOURCE  Peripheral SDMMC kernel clock source selection
   * @{
   */
-#define LL_RCC_SDMMC1_KERNELCLKSOURCE_48CLK  0x00000000U          /*!< 48MHz clock from internal multiplexor used as SDMMC1 clock source */
+#define LL_RCC_SDMMC1_KERNELCLKSOURCE_48CLK   0UL                 /*!< 48MHz clock from internal multiplexor used as SDMMC1 clock source */
 #define LL_RCC_SDMMC1_KERNELCLKSOURCE_PLLP    RCC_CCIPR2_SDMMCSEL /*!< PLLP clock (PLLSAI3CLK) used as SDMMC1 clock source */
 /**
   * @}
@@ -490,7 +490,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_SDMMC1_CLKSOURCE  Peripheral SDMMC clock source selection
   * @{
   */
-#define LL_RCC_SDMMC1_CLKSOURCE_HSI48      0x00000000U            /*!< HSI48 clock used as SDMMC1 clock source in internal multiplexor */
+#define LL_RCC_SDMMC1_CLKSOURCE_HSI48      0UL                    /*!< HSI48 clock used as SDMMC1 clock source in internal multiplexor */
 #define LL_RCC_SDMMC1_CLKSOURCE_PLLSAI1    RCC_CCIPR1_CLK48MSEL_0 /*!< PLLSAI1 clock used as SDMMC1 clock source in internal multiplexor */
 #define LL_RCC_SDMMC1_CLKSOURCE_PLL        RCC_CCIPR1_CLK48MSEL_1 /*!< PLLQ clock used as SDMMC1 clock source in internal multiplexor */
 #define LL_RCC_SDMMC1_CLKSOURCE_MSI        RCC_CCIPR1_CLK48MSEL   /*!< MSI clock used as SDMMC1 clock source in internal multiplexor */
@@ -501,7 +501,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_RNG_CLKSOURCE  Peripheral RNG clock source selection
   * @{
   */
-#define LL_RCC_RNG_CLKSOURCE_HSI48         0x00000000U            /*!< HSI48 clock used as RNG clock source */
+#define LL_RCC_RNG_CLKSOURCE_HSI48         0UL                    /*!< HSI48 clock used as RNG clock source */
 #define LL_RCC_RNG_CLKSOURCE_PLLSAI1       RCC_CCIPR1_CLK48MSEL_0 /*!< PLLSAI1 clock used as RNG clock source */
 #define LL_RCC_RNG_CLKSOURCE_PLL           RCC_CCIPR1_CLK48MSEL_1 /*!< PLL clock used as RNG clock source */
 #define LL_RCC_RNG_CLKSOURCE_MSI           RCC_CCIPR1_CLK48MSEL   /*!< MSI clock used as RNG clock source */
@@ -512,7 +512,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_USB_CLKSOURCE  Peripheral USB clock source selection
   * @{
   */
-#define LL_RCC_USB_CLKSOURCE_HSI48         0x00000000U            /*!< HSI48 clock used as USB clock source */
+#define LL_RCC_USB_CLKSOURCE_HSI48         0UL                    /*!< HSI48 clock used as USB clock source */
 #define LL_RCC_USB_CLKSOURCE_PLLSAI1       RCC_CCIPR1_CLK48MSEL_0 /*!< PLLSAI1 clock used as USB clock source */
 #define LL_RCC_USB_CLKSOURCE_PLL           RCC_CCIPR1_CLK48MSEL_1 /*!< PLL clock used as USB clock source */
 #define LL_RCC_USB_CLKSOURCE_MSI           RCC_CCIPR1_CLK48MSEL   /*!< MSI clock used as USB clock source */
@@ -523,7 +523,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_ADC_CLKSOURCE  Peripheral ADCx clock source selection
   * @{
   */
-#define LL_RCC_ADC_CLKSOURCE_NONE          0x00000000U          /*!< No clock used as ADC clock source */
+#define LL_RCC_ADC_CLKSOURCE_NONE          0UL                  /*!< No clock used as ADC clock source */
 #define LL_RCC_ADC_CLKSOURCE_PLLSAI1       RCC_CCIPR1_ADCSEL_0  /*!< PLLSAI1 clock used as ADC clock source */
 #define LL_RCC_ADC_CLKSOURCE_SYSCLK        RCC_CCIPR1_ADCSEL    /*!< SYSCLK clock used as ADC clock source */
 /**
@@ -533,7 +533,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_DFSDM_AUDIO_CLKSOURCE  Peripheral DFSDMx Audio clock source selection
   * @{
   */
-#define LL_RCC_DFSDM1_AUDIO_CLKSOURCE_SAI1 0x00000000U             /*!< SAI1 clock used as DFSDM1 Audio clock */
+#define LL_RCC_DFSDM1_AUDIO_CLKSOURCE_SAI1 0UL                     /*!< SAI1 clock used as DFSDM1 Audio clock */
 #define LL_RCC_DFSDM1_AUDIO_CLKSOURCE_HSI  RCC_CCIPR2_ADFSDMSEL_0  /*!< HSI clock used as DFSDM1 Audio clock */
 #define LL_RCC_DFSDM1_AUDIO_CLKSOURCE_MSI  RCC_CCIPR2_ADFSDMSEL_1  /*!< MSI clock used as DFSDM1 Audio clock */
 /**
@@ -543,7 +543,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_DFSDM1_CLKSOURCE  Peripheral DFSDM1 clock source selection
   * @{
   */
-#define LL_RCC_DFSDM1_CLKSOURCE_PCLK2      0x00000000U          /*!< PCLK2 clock used as DFSDM1 clock source */
+#define LL_RCC_DFSDM1_CLKSOURCE_PCLK2      0UL                  /*!< PCLK2 clock used as DFSDM1 clock source */
 #define LL_RCC_DFSDM1_CLKSOURCE_SYSCLK     RCC_CCIPR2_DFSDMSEL  /*!< SYSCLK clock used as DFSDM1 clock source */
 /**
   * @}
@@ -552,7 +552,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_OCTOSPI_CLKSOURCE  Peripheral OCTOSPI kernel clock source selection
   * @{
   */
-#define LL_RCC_OCTOSPI_CLKSOURCE_SYSCLK    0x00000000U           /*!< SYSCLK clock used as OctoSPI kernel clock source */
+#define LL_RCC_OCTOSPI_CLKSOURCE_SYSCLK    0UL                   /*!< SYSCLK clock used as OctoSPI kernel clock source */
 #define LL_RCC_OCTOSPI_CLKSOURCE_MSI       RCC_CCIPR2_OSPISEL_0  /*!< MSI clock used as OctoSPI kernel clock source */
 #define LL_RCC_OCTOSPI_CLKSOURCE_PLL       RCC_CCIPR2_OSPISEL_1  /*!< PLL clock used as OctoSPI kernel clock source */
 /**
@@ -691,10 +691,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSOURCE  PLL entry clock source
   * @{
   */
-#define LL_RCC_PLLSOURCE_NONE              0x00000000U             /*!< No clock selected as main PLL entry clock source */
-#define LL_RCC_PLLSOURCE_MSI               RCC_PLLCFGR_PLLSRC_MSI  /*!< MSI clock selected as main PLL entry clock source */
-#define LL_RCC_PLLSOURCE_HSI               RCC_PLLCFGR_PLLSRC_HSI  /*!< HSI16 clock selected as main PLL entry clock source */
-#define LL_RCC_PLLSOURCE_HSE               RCC_PLLCFGR_PLLSRC_HSE  /*!< HSE clock selected as main PLL entry clock source */
+#define LL_RCC_PLLSOURCE_NONE              0UL                                            /*!< No clock selected as main PLL entry clock source */
+#define LL_RCC_PLLSOURCE_MSI               RCC_PLLCFGR_PLLSRC_0                           /*!< MSI clock selected as main PLL entry clock source */
+#define LL_RCC_PLLSOURCE_HSI               RCC_PLLCFGR_PLLSRC_1                           /*!< HSI16 clock selected as main PLL entry clock source */
+#define LL_RCC_PLLSOURCE_HSE               (RCC_PLLCFGR_PLLSRC_1 | RCC_PLLCFGR_PLLSRC_0)  /*!< HSE clock selected as main PLL entry clock source */
 /**
   * @}
   */
@@ -702,7 +702,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLM_DIV  PLL division factor
   * @{
   */
-#define LL_RCC_PLLM_DIV_1                  0x00000000U                                                    /*!< Main PLL division factor for PLLM input by 1 */
+#define LL_RCC_PLLM_DIV_1                  0UL                                                            /*!< Main PLL division factor for PLLM input by 1 */
 #define LL_RCC_PLLM_DIV_2                  (RCC_PLLCFGR_PLLM_0)                                           /*!< Main PLL division factor for PLLM input by 2 */
 #define LL_RCC_PLLM_DIV_3                  (RCC_PLLCFGR_PLLM_1)                                           /*!< Main PLL division factor for PLLM input by 3 */
 #define LL_RCC_PLLM_DIV_4                  (RCC_PLLCFGR_PLLM_1 | RCC_PLLCFGR_PLLM_0)                      /*!< Main PLL division factor for PLLM input by 4 */
@@ -725,7 +725,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLR_DIV  PLL division factor (PLLR)
   * @{
   */
-#define LL_RCC_PLLR_DIV_2                  0x00000000U            /*!< Main PLL division factor for PLLCLK (system clock) by 2 */
+#define LL_RCC_PLLR_DIV_2                  0UL                    /*!< Main PLL division factor for PLLCLK (system clock) by 2 */
 #define LL_RCC_PLLR_DIV_4                  (RCC_PLLCFGR_PLLR_0)   /*!< Main PLL division factor for PLLCLK (system clock) by 4 */
 #define LL_RCC_PLLR_DIV_6                  (RCC_PLLCFGR_PLLR_1)   /*!< Main PLL division factor for PLLCLK (system clock) by 6 */
 #define LL_RCC_PLLR_DIV_8                  (RCC_PLLCFGR_PLLR)     /*!< Main PLL division factor for PLLCLK (system clock) by 8 */
@@ -773,7 +773,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLQ_DIV  PLL division factor (PLLQ)
   * @{
   */
-#define LL_RCC_PLLQ_DIV_2                  0x00000000U             /*!< Main PLL division factor for PLLQ output by 2 */
+#define LL_RCC_PLLQ_DIV_2                  0UL                     /*!< Main PLL division factor for PLLQ output by 2 */
 #define LL_RCC_PLLQ_DIV_4                  (RCC_PLLCFGR_PLLQ_0)    /*!< Main PLL division factor for PLLQ output by 4 */
 #define LL_RCC_PLLQ_DIV_6                  (RCC_PLLCFGR_PLLQ_1)    /*!< Main PLL division factor for PLLQ output by 6 */
 #define LL_RCC_PLLQ_DIV_8                  (RCC_PLLCFGR_PLLQ)      /*!< Main PLL division factor for PLLQ output by 8 */
@@ -784,10 +784,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSAI1SOURCE  PLLSAI1 entry clock source
   * @{
   */
-#define LL_RCC_PLLSAI1SOURCE_NONE          0x00000000U                     /*!< No clock selected as PLLSAI1 entry clock source */
-#define LL_RCC_PLLSAI1SOURCE_MSI           RCC_PLLSAI1CFGR_PLLSAI1SRC_MSI  /*!< MSI clock selected as PLLSAI1 entry clock source */
-#define LL_RCC_PLLSAI1SOURCE_HSI           RCC_PLLSAI1CFGR_PLLSAI1SRC_HSI  /*!< HSI16 clock selected as PLLSAI1 entry clock source */
-#define LL_RCC_PLLSAI1SOURCE_HSE           RCC_PLLSAI1CFGR_PLLSAI1SRC_HSE  /*!< HSE clock selected as PLLSAI1 entry clock source */
+#define LL_RCC_PLLSAI1SOURCE_NONE          0UL                                                           /*!< No clock selected as PLLSAI1 entry clock source */
+#define LL_RCC_PLLSAI1SOURCE_MSI           RCC_PLLSAI1CFGR_PLLSAI1SRC_0                                  /*!< MSI clock selected as PLLSAI1 entry clock source */
+#define LL_RCC_PLLSAI1SOURCE_HSI           RCC_PLLSAI1CFGR_PLLSAI1SRC_1                                  /*!< HSI16 clock selected as PLLSAI1 entry clock source */
+#define LL_RCC_PLLSAI1SOURCE_HSE           (RCC_PLLSAI1CFGR_PLLSAI1SRC_1 | RCC_PLLSAI1CFGR_PLLSAI1SRC_0) /*!< HSE clock selected as PLLSAI1 entry clock source */
 /**
   * @}
   */
@@ -795,7 +795,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSAI1M  PLLSAI1 division factor (PLLSAI1M)
   * @{
   */
-#define LL_RCC_PLLSAI1M_DIV_1              0x00000000U                                             /*!< PLLSAI1 division factor for PLLSAI1M input by 1 */
+#define LL_RCC_PLLSAI1M_DIV_1              0UL                                                     /*!< PLLSAI1 division factor for PLLSAI1M input by 1 */
 #define LL_RCC_PLLSAI1M_DIV_2              (RCC_PLLSAI1CFGR_PLLSAI1M_0)                            /*!< PLLSAI1 division factor for PLLSAI1M input by 2 */
 #define LL_RCC_PLLSAI1M_DIV_3              (RCC_PLLSAI1CFGR_PLLSAI1M_1)                            /*!< PLLSAI1 division factor for PLLSAI1M input by 3 */
 #define LL_RCC_PLLSAI1M_DIV_4              (RCC_PLLSAI1CFGR_PLLSAI1M_1|RCC_PLLSAI1CFGR_PLLSAI1M_0) /*!< PLLSAI1 division factor for PLLSAI1M input by 4 */
@@ -818,7 +818,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSAI1Q  PLLSAI1 division factor (PLLSAI1Q)
   * @{
   */
-#define LL_RCC_PLLSAI1Q_DIV_2              0x00000000U                  /*!< PLLSAI1 division factor for PLLSAI1Q output by 2 */
+#define LL_RCC_PLLSAI1Q_DIV_2              0UL                          /*!< PLLSAI1 division factor for PLLSAI1Q output by 2 */
 #define LL_RCC_PLLSAI1Q_DIV_4              (RCC_PLLSAI1CFGR_PLLSAI1Q_0) /*!< PLLSAI1 division factor for PLLSAI1Q output by 4 */
 #define LL_RCC_PLLSAI1Q_DIV_6              (RCC_PLLSAI1CFGR_PLLSAI1Q_1) /*!< PLLSAI1 division factor for PLLSAI1Q output by 6 */
 #define LL_RCC_PLLSAI1Q_DIV_8              (RCC_PLLSAI1CFGR_PLLSAI1Q)   /*!< PLLSAI1 division factor for PLLSAI1Q output by 8 */
@@ -866,7 +866,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSAI1R  PLLSAI1 division factor (PLLSAI1R)
   * @{
   */
-#define LL_RCC_PLLSAI1R_DIV_2              0x00000000U                  /*!< PLLSAI1 division factor for PLLSAI1R output by 2 */
+#define LL_RCC_PLLSAI1R_DIV_2              0UL                          /*!< PLLSAI1 division factor for PLLSAI1R output by 2 */
 #define LL_RCC_PLLSAI1R_DIV_4              (RCC_PLLSAI1CFGR_PLLSAI1R_0) /*!< PLLSAI1 division factor for PLLSAI1R output by 4 */
 #define LL_RCC_PLLSAI1R_DIV_6              (RCC_PLLSAI1CFGR_PLLSAI1R_1) /*!< PLLSAI1 division factor for PLLSAI1R output by 6 */
 #define LL_RCC_PLLSAI1R_DIV_8              (RCC_PLLSAI1CFGR_PLLSAI1R)   /*!< PLLSAI1 division factor for PLLSAI1R output by 8 */
@@ -877,10 +877,10 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSAI2SOURCE  PLLSAI2 entry clock source
   * @{
   */
-#define LL_RCC_PLLSAI2SOURCE_NONE          0x00000000U                     /*!< No clock selected as PLLSAI2 entry clock source */
-#define LL_RCC_PLLSAI2SOURCE_MSI           RCC_PLLSAI2CFGR_PLLSAI2SRC_MSI  /*!< MSI clock selected as PLLSAI2 entry clock source */
-#define LL_RCC_PLLSAI2SOURCE_HSI           RCC_PLLSAI2CFGR_PLLSAI2SRC_HSI  /*!< HSI16 clock selected as PLLSAI2 entry clock source */
-#define LL_RCC_PLLSAI2SOURCE_HSE           RCC_PLLSAI2CFGR_PLLSAI2SRC_HSE  /*!< HSE clock selected as PLLSAI2 entry clock source */
+#define LL_RCC_PLLSAI2SOURCE_NONE          0UL                                                           /*!< No clock selected as PLLSAI2 entry clock source */
+#define LL_RCC_PLLSAI2SOURCE_MSI           RCC_PLLSAI2CFGR_PLLSAI2SRC_0                                  /*!< MSI clock selected as PLLSAI2 entry clock source */
+#define LL_RCC_PLLSAI2SOURCE_HSI           RCC_PLLSAI2CFGR_PLLSAI2SRC_1                                  /*!< HSI16 clock selected as PLLSAI2 entry clock source */
+#define LL_RCC_PLLSAI2SOURCE_HSE           (RCC_PLLSAI2CFGR_PLLSAI2SRC_1 | RCC_PLLSAI2CFGR_PLLSAI2SRC_0) /*!< HSE clock selected as PLLSAI2 entry clock source */
 /**
   * @}
   */
@@ -888,7 +888,7 @@ typedef struct
 /** @defgroup RCC_LL_EC_PLLSAI2M  PLLSAI2 division factor (PLLSAI2M)
   * @{
   */
-#define LL_RCC_PLLSAI2M_DIV_1              0x00000000U                                             /*!< PLLSAI2 division factor for PLLSAI2M input by 1 */
+#define LL_RCC_PLLSAI2M_DIV_1              0UL                                                     /*!< PLLSAI2 division factor for PLLSAI2M input by 1 */
 #define LL_RCC_PLLSAI2M_DIV_2              (RCC_PLLSAI2CFGR_PLLSAI2M_0)                            /*!< PLLSAI2 division factor for PLLSAI2M input by 2 */
 #define LL_RCC_PLLSAI2M_DIV_3              (RCC_PLLSAI2CFGR_PLLSAI2M_1)                            /*!< PLLSAI2 division factor for PLLSAI2M input by 3 */
 #define LL_RCC_PLLSAI2M_DIV_4              (RCC_PLLSAI2CFGR_PLLSAI2M_1|RCC_PLLSAI2CFGR_PLLSAI2M_0) /*!< PLLSAI2 division factor for PLLSAI2M input by 4 */

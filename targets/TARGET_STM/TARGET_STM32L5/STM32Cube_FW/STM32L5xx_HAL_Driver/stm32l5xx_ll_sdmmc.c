@@ -170,11 +170,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static uint32_t SDMMC_GetCmdError(SDMMC_TypeDef *SDMMCx);
-static uint32_t SDMMC_GetCmdResp1(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint32_t Timeout);
-static uint32_t SDMMC_GetCmdResp2(SDMMC_TypeDef *SDMMCx);
-static uint32_t SDMMC_GetCmdResp3(SDMMC_TypeDef *SDMMCx);
-static uint32_t SDMMC_GetCmdResp7(SDMMC_TypeDef *SDMMCx);
-static uint32_t SDMMC_GetCmdResp6(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint16_t *pRCA);
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -511,7 +506,7 @@ HAL_StatusTypeDef SDMMC_SetSDMMCReadWaitMode(SDMMC_TypeDef *SDMMCx, uint32_t SDM
   */
 
 /**
-  * @brief  Send the Data Block Lenght command and check the response
+  * @brief  Send the Data Block Length command and check the response
   * @param  SDMMCx: Pointer to SDMMC register base
   * @retval HAL status
   */
@@ -728,16 +723,17 @@ uint32_t SDMMC_CmdEraseEndAdd(SDMMC_TypeDef *SDMMCx, uint32_t EndAdd)
 
 /**
   * @brief  Send the Erase command and check the response
-  * @param  SDMMCx: Pointer to SDMMC register base
+  * @param  SDMMCx Pointer to SDMMC register base
+  * @param  EraseType Type of erase to be performed
   * @retval HAL status
   */
-uint32_t SDMMC_CmdErase(SDMMC_TypeDef *SDMMCx)
+uint32_t SDMMC_CmdErase(SDMMC_TypeDef *SDMMCx, uint32_t EraseType)
 {
   SDMMC_CmdInitTypeDef  sdmmc_cmdinit;
   uint32_t errorstate;
 
   /* Set Block Size for Card */
-  sdmmc_cmdinit.Argument         = 0U;
+  sdmmc_cmdinit.Argument         = EraseType;
   sdmmc_cmdinit.CmdIndex         = SDMMC_CMD_ERASE;
   sdmmc_cmdinit.Response         = SDMMC_RESPONSE_SHORT;
   sdmmc_cmdinit.WaitForInterrupt = SDMMC_WAIT_NO;
@@ -1039,6 +1035,31 @@ uint32_t SDMMC_CmdSetRelAdd(SDMMC_TypeDef *SDMMCx, uint16_t *pRCA)
 }
 
 /**
+  * @brief  Send the Set Relative Address command to MMC card (not SD card).
+  * @param  SDMMCx Pointer to SDMMC register base
+  * @param  RCA Card RCA
+  * @retval HAL status
+  */
+uint32_t SDMMC_CmdSetRelAddMmc(SDMMC_TypeDef *SDMMCx, uint16_t RCA)
+{
+  SDMMC_CmdInitTypeDef  sdmmc_cmdinit;
+  uint32_t errorstate;
+
+  /* Send CMD3 SD_CMD_SET_REL_ADDR */
+  sdmmc_cmdinit.Argument         = ((uint32_t)RCA << 16U);
+  sdmmc_cmdinit.CmdIndex         = SDMMC_CMD_SET_REL_ADDR;
+  sdmmc_cmdinit.Response         = SDMMC_RESPONSE_SHORT;
+  sdmmc_cmdinit.WaitForInterrupt = SDMMC_WAIT_NO;
+  sdmmc_cmdinit.CPSM             = SDMMC_CPSM_ENABLE;
+  (void)SDMMC_SendCommand(SDMMCx, &sdmmc_cmdinit);
+
+  /* Check for error conditions */
+  errorstate = SDMMC_GetCmdResp1(SDMMCx, SDMMC_CMD_SET_REL_ADDR, SDMMC_CMDTIMEOUT);
+
+  return errorstate;
+}
+
+/**
   * @brief  Send the Status command and check the response.
   * @param  SDMMCx: Pointer to SDMMC register base
   * @param  Argument: Command Argument
@@ -1111,7 +1132,7 @@ uint32_t SDMMC_CmdOpCondition(SDMMC_TypeDef *SDMMCx, uint32_t Argument)
 }
 
 /**
-  * @brief  Checks switchable function and switch card function. SDMMC_CMD_HS_SWITCH comand
+  * @brief  Checks switchable function and switch card function. SDMMC_CMD_HS_SWITCH command
   * @param  SDMMCx: Pointer to SDMMC register base
   * @parame Argument: Argument used for the command
   * @retval HAL status
@@ -1185,56 +1206,38 @@ uint32_t SDMMC_CmdSendEXTCSD(SDMMC_TypeDef *SDMMCx, uint32_t Argument)
   return errorstate;
 }
 
-
 /**
   * @}
   */
 
-/* Private function ----------------------------------------------------------*/
-/** @addtogroup SD_Private_Functions
+
+/** @defgroup HAL_SDMMC_LL_Group5 Responses management functions
+ *  @brief   Responses functions
+ *
+@verbatim
+ ===============================================================================
+                   ##### Responses management functions #####
+ ===============================================================================
+    [..]
+    This subsection provides a set of functions allowing to manage the needed responses.
+
+@endverbatim
   * @{
   */
-
-/**
-  * @brief  Checks for error conditions for CMD0.
-  * @param  hsd: SD handle
-  * @retval SD Card error state
-  */
-static uint32_t SDMMC_GetCmdError(SDMMC_TypeDef *SDMMCx)
-{
-  /* 8 is the number of required instructions cycles for the below loop statement.
-  The SDMMC_CMDTIMEOUT is expressed in ms */
-  register uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
-
-  do
-  {
-    if (count-- == 0U)
-    {
-      return SDMMC_ERROR_TIMEOUT;
-    }
-
-  }while(!__SDMMC_GET_FLAG(SDMMCx, SDMMC_FLAG_CMDSENT));
-
-  /* Clear all the static flags */
-  __SDMMC_CLEAR_FLAG(SDMMCx, SDMMC_STATIC_CMD_FLAGS);
-
-  return SDMMC_ERROR_NONE;
-}
-
 /**
   * @brief  Checks for error conditions for R1 response.
   * @param  hsd: SD handle
   * @param  SD_CMD: The sent command index
   * @retval SD Card error state
   */
-static uint32_t SDMMC_GetCmdResp1(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint32_t Timeout)
+uint32_t SDMMC_GetCmdResp1(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint32_t Timeout)
 {
   uint32_t response_r1;
   uint32_t sta_reg;
 
   /* 8 is the number of required instructions cycles for the below loop statement.
   The Timeout is expressed in ms */
-  register uint32_t count = Timeout * (SystemCoreClock / 8U /1000U);
+  uint32_t count = Timeout * (SystemCoreClock / 8U /1000U);
 
   do
   {
@@ -1362,12 +1365,12 @@ static uint32_t SDMMC_GetCmdResp1(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint32_
   * @param  hsd: SD handle
   * @retval SD Card error state
   */
-static uint32_t SDMMC_GetCmdResp2(SDMMC_TypeDef *SDMMCx)
+uint32_t SDMMC_GetCmdResp2(SDMMC_TypeDef *SDMMCx)
 {
   uint32_t sta_reg;
   /* 8 is the number of required instructions cycles for the below loop statement.
   The SDMMC_CMDTIMEOUT is expressed in ms */
-  register uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
+  uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
 
   do
   {
@@ -1406,12 +1409,12 @@ static uint32_t SDMMC_GetCmdResp2(SDMMC_TypeDef *SDMMCx)
   * @param  hsd: SD handle
   * @retval SD Card error state
   */
-static uint32_t SDMMC_GetCmdResp3(SDMMC_TypeDef *SDMMCx)
+uint32_t SDMMC_GetCmdResp3(SDMMC_TypeDef *SDMMCx)
 {
   uint32_t sta_reg;
   /* 8 is the number of required instructions cycles for the below loop statement.
   The SDMMC_CMDTIMEOUT is expressed in ms */
-  register uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
+  uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
 
   do
   {
@@ -1446,14 +1449,14 @@ static uint32_t SDMMC_GetCmdResp3(SDMMC_TypeDef *SDMMCx)
   *         address RCA
   * @retval SD Card error state
   */
-static uint32_t SDMMC_GetCmdResp6(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint16_t *pRCA)
+uint32_t SDMMC_GetCmdResp6(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint16_t *pRCA)
 {
   uint32_t response_r1;
   uint32_t sta_reg;
 
   /* 8 is the number of required instructions cycles for the below loop statement.
   The SDMMC_CMDTIMEOUT is expressed in ms */
-  register uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
+  uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
 
   do
   {
@@ -1519,12 +1522,12 @@ static uint32_t SDMMC_GetCmdResp6(SDMMC_TypeDef *SDMMCx, uint8_t SD_CMD, uint16_
   * @param  hsd: SD handle
   * @retval SD Card error state
   */
-static uint32_t SDMMC_GetCmdResp7(SDMMC_TypeDef *SDMMCx)
+uint32_t SDMMC_GetCmdResp7(SDMMC_TypeDef *SDMMCx)
 {
   uint32_t sta_reg;
   /* 8 is the number of required instructions cycles for the below loop statement.
   The SDMMC_CMDTIMEOUT is expressed in ms */
-  register uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
+  uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
 
   do
   {
@@ -1564,6 +1567,41 @@ static uint32_t SDMMC_GetCmdResp7(SDMMC_TypeDef *SDMMCx)
 
   return SDMMC_ERROR_NONE;
 
+}
+
+/**
+  * @}
+  */
+
+/* Private function ----------------------------------------------------------*/
+/** @addtogroup SD_Private_Functions
+  * @{
+  */
+
+/**
+  * @brief  Checks for error conditions for CMD0.
+  * @param  hsd: SD handle
+  * @retval SD Card error state
+  */
+static uint32_t SDMMC_GetCmdError(SDMMC_TypeDef *SDMMCx)
+{
+  /* 8 is the number of required instructions cycles for the below loop statement.
+  The SDMMC_CMDTIMEOUT is expressed in ms */
+  uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
+
+  do
+  {
+    if (count-- == 0U)
+    {
+      return SDMMC_ERROR_TIMEOUT;
+    }
+
+  }while(!__SDMMC_GET_FLAG(SDMMCx, SDMMC_FLAG_CMDSENT));
+
+  /* Clear all the static flags */
+  __SDMMC_CLEAR_FLAG(SDMMCx, SDMMC_STATIC_CMD_FLAGS);
+
+  return SDMMC_ERROR_NONE;
 }
 
 /**

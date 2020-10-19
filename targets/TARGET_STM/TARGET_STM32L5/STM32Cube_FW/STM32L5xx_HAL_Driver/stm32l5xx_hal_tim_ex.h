@@ -199,14 +199,14 @@ TIMEx_BreakInputConfigTypeDef;
 /** @defgroup TIMEx_Private_Macros TIM Extended Private Macros
   * @{
   */
-#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                             \
-          ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFECU) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM2)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM3)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM8)  && ((((__REMAP__) & 0xFFFFFFEFU) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM15) && ((((__REMAP__) & 0xFFFFFFFEU) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U)))  \
-        || (((__INSTANCE__) == TIM17) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
+#define IS_TIM_REMAP(__INSTANCE__, __REMAP__)                                        \
+  ((((__INSTANCE__) == TIM1)  && ((((__REMAP__) & 0xFFFFFFECU) == 0x00000000U)))     \
+   || (((__INSTANCE__) == TIM2)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM3)  && ((((__REMAP__) & 0xFFFFFFF0U) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM8)  && ((((__REMAP__) & 0xFFFFFFEFU) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM15) && ((((__REMAP__) & 0xFFFFFFFEU) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM16) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U)))  \
+   || (((__INSTANCE__) == TIM17) && ((((__REMAP__) & 0xFFFFFFFCU) == 0x00000000U))))
 
 #define IS_TIM_BREAKINPUT(__BREAKINPUT__)  (((__BREAKINPUT__) == TIM_BREAKINPUT_BRK)  || \
                                             ((__BREAKINPUT__) == TIM_BREAKINPUT_BRK2))
@@ -356,6 +356,7 @@ void HAL_TIMEx_Break2Callback(TIM_HandleTypeDef *htim);
   */
 /* Extended Peripheral State functions  ***************************************/
 HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim);
+HAL_TIM_ChannelStateTypeDef HAL_TIMEx_GetChannelNState(TIM_HandleTypeDef *htim,  uint32_t ChannelN);
 /**
   * @}
   */

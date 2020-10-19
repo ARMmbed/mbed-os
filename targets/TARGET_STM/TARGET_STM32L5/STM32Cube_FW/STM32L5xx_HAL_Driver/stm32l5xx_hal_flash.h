@@ -82,8 +82,11 @@ typedef struct
                                   @ref FLASH_OB_USER_nRST_STOP, @ref FLASH_OB_USER_nRST_STANDBY,
                                   @ref FLASH_OB_USER_nRST_SHUTDOWN, @ref FLASH_OB_USER_IWDG_SW,
                                   @ref FLASH_OB_USER_IWDG_STOP, @ref FLASH_OB_USER_IWDG_STANDBY,
-                                  @ref FLASH_OB_USER_WWDG_SW, @ref FLASH_OB_USER_DUALBANK,
-                                  @ref FLASH_OB_USER_SRAM2_PAR and @ref FLASH_OB_USER_SRAM2_RST */
+                                  @ref FLASH_OB_USER_WWDG_SW, @ref FLASH_OB_USER_SWAP_BANK,
+								  @ref FLASH_OB_USER_DUALBANK, @ref FLASH_OB_USER_DBANK,
+                                  @ref FLASH_OB_USER_SRAM2_PAR, @ref FLASH_OB_USER_SRAM2_RST,
+                                  @ref FLASH_OB_USER_nSWBOOT0, @ref FLASH_OB_USER_nBOOT0,
+                                  @ref FLASH_OB_USER_PA15_PUPEN and @ref FLASH_OB_USER_TZEN */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
   uint32_t WMSecConfig;      /*!< Configuration of the Watermark-based Secure Area (used for OPTIONBYTE_WMSEC).
                                   This parameter must be a value of @ref FLASH_OB_WMSEC */
@@ -108,13 +111,13 @@ typedef struct
   */
 typedef struct
 {
-  HAL_LockTypeDef        Lock;              /* FLASH locking object */
-  uint32_t               ErrorCode;         /* FLASH error code */
-  uint32_t               ProcedureOnGoing;  /* Internal variable to indicate which procedure is ongoing or not in IT context */
-  uint32_t               Address;           /* Internal variable to save address selected for program in IT context */
-  uint32_t               Bank;              /* Internal variable to save current bank selected during erase in IT context */
-  uint32_t               Page;              /* Internal variable to define the current page which is being erased in IT context */
-  uint32_t               NbPagesToErase;    /* Internal variable to save the remaining pages to erase in IT context */
+  HAL_LockTypeDef        Lock;              /*!< FLASH locking object */
+  uint32_t               ErrorCode;         /*!< FLASH error code */
+  uint32_t               ProcedureOnGoing;  /*!< Internal variable to indicate which procedure is ongoing or not in IT context */
+  uint32_t               Address;           /*!< Internal variable to save address selected for program in IT context */
+  uint32_t               Bank;              /*!< Internal variable to save current bank selected during erase in IT context */
+  uint32_t               Page;              /*!< Internal variable to define the current page which is being erased in IT context */
+  uint32_t               NbPagesToErase;    /*!< Internal variable to save the remaining pages to erase in IT context */
 }FLASH_ProcessTypeDef;
 
 /**
@@ -143,9 +146,9 @@ typedef struct
 #define FLASH_FLAG_ECCD      (FLASH_ECCR_ECCD | FLASH_ECCR_ECCD2) /*!< FLASH ECC detection */
 
 #define FLASH_FLAG_SR_ERRORS    (FLASH_FLAG_OPERR  | FLASH_FLAG_PROGERR | FLASH_FLAG_WRPERR | \
-                                 FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR  | FLASH_FLAG_PGSERR)
-#define FLASH_FLAG_ECCR_ERRORS  (FLASH_FLAG_ECCD | FLASH_FLAG_ECCC)
-#define FLASH_FLAG_ALL_ERRORS   (FLASH_FLAG_SR_ERRORS | FLASH_FLAG_OPTWERR | FLASH_FLAG_ECCR_ERRORS)
+                                 FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR  | FLASH_FLAG_PGSERR)         /*!< Flash all flags from Status Register */
+#define FLASH_FLAG_ECCR_ERRORS  (FLASH_FLAG_ECCD | FLASH_FLAG_ECCC)                                  /*!< Flash all flags from ECC Register */
+#define FLASH_FLAG_ALL_ERRORS   (FLASH_FLAG_SR_ERRORS | FLASH_FLAG_OPTWERR | FLASH_FLAG_ECCR_ERRORS) /*!< Flash all flags */
 #else
 #define FLASH_FLAG_EOP       FLASH_NSSR_NSEOP                     /*!< FLASH End of operation flag */
 #define FLASH_FLAG_OPERR     FLASH_NSSR_NSOPERR                   /*!< FLASH Operation error flag */
@@ -161,9 +164,9 @@ typedef struct
 
 #define FLASH_FLAG_SR_ERRORS    (FLASH_FLAG_OPERR  | FLASH_FLAG_PROGERR | FLASH_FLAG_WRPERR  | \
                                  FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR  | FLASH_FLAG_PGSERR  | \
-                                 FLASH_FLAG_OPTWERR)
-#define FLASH_FLAG_ECCR_ERRORS  (FLASH_FLAG_ECCD | FLASH_FLAG_ECCC)
-#define FLASH_FLAG_ALL_ERRORS   (FLASH_FLAG_SR_ERRORS | FLASH_FLAG_ECCR_ERRORS)
+                                 FLASH_FLAG_OPTWERR)                            /*!< Flash all flags from Status Register */
+#define FLASH_FLAG_ECCR_ERRORS  (FLASH_FLAG_ECCD | FLASH_FLAG_ECCC)             /*!< Flash all flags from ECC Register */
+#define FLASH_FLAG_ALL_ERRORS   (FLASH_FLAG_SR_ERRORS | FLASH_FLAG_ECCR_ERRORS) /*!< Flash all flags */
 #endif
 /**
   * @}
@@ -189,19 +192,19 @@ typedef struct
 /** @defgroup FLASH_Error FLASH Error
   * @{
   */
-#define HAL_FLASH_ERROR_NONE   0x00000000U
-#define HAL_FLASH_ERROR_OP     FLASH_FLAG_OPERR
-#define HAL_FLASH_ERROR_PROG   FLASH_FLAG_PROGERR
-#define HAL_FLASH_ERROR_WRP    FLASH_FLAG_WRPERR
-#define HAL_FLASH_ERROR_PGA    FLASH_FLAG_PGAERR
-#define HAL_FLASH_ERROR_SIZ    FLASH_FLAG_SIZERR
-#define HAL_FLASH_ERROR_PGS    FLASH_FLAG_PGSERR
+#define HAL_FLASH_ERROR_NONE   0x00000000U        /*!< Flash no error */
+#define HAL_FLASH_ERROR_OP     FLASH_FLAG_OPERR   /*!< Flash operation error */
+#define HAL_FLASH_ERROR_PROG   FLASH_FLAG_PROGERR /*!< Flash programming error */
+#define HAL_FLASH_ERROR_WRP    FLASH_FLAG_WRPERR  /*!< Flash write protection error */
+#define HAL_FLASH_ERROR_PGA    FLASH_FLAG_PGAERR  /*!< Flash programming alignment error */
+#define HAL_FLASH_ERROR_SIZ    FLASH_FLAG_SIZERR  /*!< Flash size error */
+#define HAL_FLASH_ERROR_PGS    FLASH_FLAG_PGSERR  /*!< Flash programming sequence error */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #else
-#define HAL_FLASH_ERROR_OPTW   FLASH_FLAG_OPTWERR
+#define HAL_FLASH_ERROR_OPTW   FLASH_FLAG_OPTWERR /*!< Flash option modification error */
 #endif
-#define HAL_FLASH_ERROR_ECCC   FLASH_FLAG_ECCC
-#define HAL_FLASH_ERROR_ECCD   FLASH_FLAG_ECCD
+#define HAL_FLASH_ERROR_ECCC   FLASH_FLAG_ECCC    /*!< Flash ECC correction error */
+#define HAL_FLASH_ERROR_ECCD   FLASH_FLAG_ECCD    /*!< Flash ECC detection error */
 /**
   * @}
   */
@@ -274,11 +277,12 @@ typedef struct
 /** @defgroup FLASH_OB_Read_Protection FLASH Option Bytes Read Protection
   * @{
   */
-#define OB_RDP_LEVEL_0   ((uint32_t)0xAA)
-#define OB_RDP_LEVEL_0_5 ((uint32_t)0x55)
-#define OB_RDP_LEVEL_1   ((uint32_t)0xBB)
-#define OB_RDP_LEVEL_2   ((uint32_t)0xCC) /*!< Warning: When enabling read protection level 2
-                                               it's no more possible to go back to level 1 or 0 */
+#define OB_RDP_LEVEL_0   ((uint32_t)0xAA) /*!< RDP level 0 code */
+#define OB_RDP_LEVEL_0_5 ((uint32_t)0x55) /*!< RDP level 0.5 code */
+#define OB_RDP_LEVEL_1   ((uint32_t)0xBB) /*!< RDP level 1 code */
+#define OB_RDP_LEVEL_2   ((uint32_t)0xCC) /*!< RDP level 2 code.
+                                               Warning: When enabling read protection level 2
+                                               it's no more possible to go back to level 1 or 0. */
 /**
   * @}
   */
@@ -467,7 +471,7 @@ typedef struct
 /** @defgroup FLASH_OB_BOOT_LOCK FLASH Option Bytes Boot Lock
   * @{
   */
-#define OB_BOOT_LOCK_DISABLE   0x00000000U            /*!< Boot lock disable */
+#define OB_BOOT_LOCK_DISABLE   0x00000000U                  /*!< Boot lock disable */
 #define OB_BOOT_LOCK_ENABLE    FLASH_SECBOOTADD0R_BOOT_LOCK /*!< Boot lock enable */
 /**
   * @}
@@ -604,6 +608,7 @@ typedef struct
 
 /**
   * @brief  Enable the FLASH power down during Low-power run mode.
+  * @retval None
   * @note   Writing this bit to 0, automatically the keys are
   *         lost and a new unlock sequence is necessary to re-write it to 1.
   */
@@ -614,6 +619,7 @@ typedef struct
 
 /**
   * @brief  Disable the FLASH power down during Low-power run mode.
+  * @retval None
   * @note   Writing this bit to 1, automatically the keys are
   *         loss and a new unlock sequence is necessary to re-write it to 0.
   */
@@ -624,13 +630,13 @@ typedef struct
 
 /**
   * @brief  Enable the FLASH power down during Low-Power sleep mode
-  * @retval none
+  * @retval None
   */
 #define __HAL_FLASH_SLEEP_POWERDOWN_ENABLE()    SET_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD)
 
 /**
   * @brief  Disable the FLASH power down during Low-Power sleep mode
-  * @retval none
+  * @retval None
   */
 #define __HAL_FLASH_SLEEP_POWERDOWN_DISABLE()   CLEAR_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD)
 
@@ -643,48 +649,90 @@ typedef struct
  * @{
  */
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 /**
-  * @brief  Enable the specified FLASH interrupt.
+  * @brief  Enable secure FLASH interrupts from the secure world.
   * @param  __INTERRUPT__ FLASH interrupt.
   *         This parameter can be any combination of the following values:
   *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
   *     @arg FLASH_IT_OPERR: Error Interrupt
   *     @arg FLASH_IT_ECCC: ECC Correction Interrupt
-  * @retval none
+  * @retval None
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+/* Enable secure FLASH interrupts from the secure world */
 #define __HAL_FLASH_ENABLE_IT(__INTERRUPT__)    do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { SET_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
-                                                     if((((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) && IS_FLASH_SECURE_OPERATION()) { SET_BIT(FLASH->SECCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
-                                                     if((((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) && (!IS_FLASH_SECURE_OPERATION())) { SET_BIT(FLASH->NSCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
+                                                     if(((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) { SET_BIT(FLASH->SECCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
+                                                   } while(0)
+/**
+  * @brief  Enable non-secure FLASH interrupts from the secure world.
+  * @param  __INTERRUPT__ FLASH interrupt.
+  *         This parameter can be any combination of the following values:
+  *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
+  *     @arg FLASH_IT_OPERR: Error Interrupt
+  *     @arg FLASH_IT_ECCC: ECC Correction Interrupt
+  * @retval None
+  */
+#define __HAL_FLASH_ENABLE_IT_NS(__INTERRUPT__) do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { SET_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
+                                                     if(((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) { SET_BIT(FLASH->NSCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
                                                    } while(0)
 #else
+/**
+  * @brief  Enable non-secure FLASH interrupts from the non-secure world.
+  * @param  __INTERRUPT__ FLASH interrupt.
+  *         This parameter can be any combination of the following values:
+  *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
+  *     @arg FLASH_IT_OPERR: Error Interrupt
+  *     @arg FLASH_IT_ECCC: ECC Correction Interrupt
+  * @retval None
+  */
 #define __HAL_FLASH_ENABLE_IT(__INTERRUPT__)    do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { SET_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
                                                      if(((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) { SET_BIT(FLASH->NSCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
                                                    } while(0)
-#endif
+#endif /* __ARM_FEATURE_CMSE */
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 /**
-  * @brief  Disable the specified FLASH interrupt.
+  * @brief  Disable secure FLASH interrupts from the secure world.
   * @param  __INTERRUPT__ FLASH interrupt.
   *         This parameter can be any combination of the following values:
   *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
   *     @arg FLASH_IT_OPERR: Error Interrupt
   *     @arg FLASH_IT_ECCC: ECC Correction Interrupt
-  * @retval none
+  * @retval None
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-#define __HAL_FLASH_DISABLE_IT(__INTERRUPT__)   do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { CLEAR_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
-                                                     if((((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) && IS_FLASH_SECURE_OPERATION()) { CLEAR_BIT(FLASH->SECCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
-                                                     if((((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) && (!IS_FLASH_SECURE_OPERATION())) { CLEAR_BIT(FLASH->NSCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
-                                                   } while(0)
-#else
-#define __HAL_FLASH_DISABLE_IT(__INTERRUPT__)   do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { CLEAR_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
-                                                     if(((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) { CLEAR_BIT(FLASH->NSCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
-                                                   } while(0)
-#endif
-
+#define __HAL_FLASH_DISABLE_IT(__INTERRUPT__)    do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { CLEAR_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
+                                                      if(((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) { CLEAR_BIT(FLASH->SECCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
+                                                    } while(0)
 /**
-  * @brief  Check whether the specified FLASH flag is set or not.
+  * @brief  Disable non-secure FLASH interrupts from the secure world.
+  * @param  __INTERRUPT__ FLASH interrupt.
+  *         This parameter can be any combination of the following values:
+  *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
+  *     @arg FLASH_IT_OPERR: Error Interrupt
+  *     @arg FLASH_IT_ECCC: ECC Correction Interrupt
+  * @retval None
+  */
+#define __HAL_FLASH_DISABLE_IT_NS(__INTERRUPT__) do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { CLEAR_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
+                                                      if(((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) { CLEAR_BIT(FLASH->NSCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
+                                                    } while(0)
+#else
+/**
+  * @brief  Disable non-secure FLASH interrupts from the non-secure world.
+  * @param  __INTERRUPT__ FLASH interrupt.
+  *         This parameter can be any combination of the following values:
+  *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
+  *     @arg FLASH_IT_OPERR: Error Interrupt
+  *     @arg FLASH_IT_ECCC: ECC Correction Interrupt
+  * @retval None
+  */
+#define __HAL_FLASH_DISABLE_IT(__INTERRUPT__)    do { if(((__INTERRUPT__) & FLASH_IT_ECCC) != 0U) { CLEAR_BIT(FLASH->ECCR, FLASH_ECCR_ECCIE); }\
+                                                      if(((__INTERRUPT__) & (~FLASH_IT_ECCC)) != 0U) { CLEAR_BIT(FLASH->NSCR, ((__INTERRUPT__) & (~FLASH_IT_ECCC))); }\
+                                                    } while(0)
+#endif /* __ARM_FEATURE_CMSE */
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+/**
+  * @brief  Check whether the specified secure FLASH flags from the secure world is set or not.
   * @param  __FLAG__ specifies the FLASH flag to check.
   *   This parameter can be one of the following values:
   *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag
@@ -700,20 +748,57 @@ typedef struct
   *     @arg FLASH_FLAG_ECCD: FLASH two ECC errors have been detected
   * @retval The new state of FLASH_FLAG (SET or RESET).
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #define __HAL_FLASH_GET_FLAG(__FLAG__)          ((((__FLAG__) & FLASH_FLAG_ECCR_ERRORS) != 0U) ? \
                                                  (READ_BIT(FLASH->ECCR, (__FLAG__)) == (__FLAG__)) : \
-                                                 ((READ_BIT(FLASH->NSSR, (__FLAG__)) == (__FLAG__)) ? \
+                                                 ((((__FLAG__) & (FLASH_FLAG_OPTWERR)) != 0U) ? \
                                                   (READ_BIT(FLASH->NSSR, (__FLAG__)) == (__FLAG__)) : \
                                                   (READ_BIT(FLASH->SECSR, (__FLAG__)) == (__FLAG__))))
+/**
+  * @brief  Check whether the specified non-secure FLASH flags from the secure world is set or not.
+  * @param  __FLAG__ specifies the FLASH flag to check.
+  *   This parameter can be one of the following values:
+  *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag
+  *     @arg FLASH_FLAG_OPERR: FLASH Operation error flag
+  *     @arg FLASH_FLAG_PROGERR: FLASH Programming error flag
+  *     @arg FLASH_FLAG_WRPERR: FLASH Write protection error flag
+  *     @arg FLASH_FLAG_PGAERR: FLASH Programming alignment error flag
+  *     @arg FLASH_FLAG_SIZERR: FLASH Size error flag
+  *     @arg FLASH_FLAG_PGSERR: FLASH Programming sequence error flag
+  *     @arg FLASH_FLAG_OPTWERR: FLASH Option modification error flag
+  *     @arg FLASH_FLAG_BSY: FLASH write/erase operations in progress flag
+  *     @arg FLASH_FLAG_ECCC: FLASH one ECC error has been detected and corrected
+  *     @arg FLASH_FLAG_ECCD: FLASH two ECC errors have been detected
+  * @retval The new state of FLASH_FLAG (SET or RESET).
+  */
+#define __HAL_FLASH_GET_FLAG_NS(__FLAG__)       ((((__FLAG__) & FLASH_FLAG_ECCR_ERRORS) != 0U) ? \
+                                                 (READ_BIT(FLASH->ECCR, (__FLAG__)) == (__FLAG__)) : \
+                                                 (READ_BIT(FLASH->NSSR, (__FLAG__)) == (__FLAG__)))
 #else
+/**
+  * @brief  Check whether the specified non-secure FLASH flags from the non-secure world is set or not.
+  * @param  __FLAG__ specifies the FLASH flag to check.
+  *   This parameter can be one of the following values:
+  *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag
+  *     @arg FLASH_FLAG_OPERR: FLASH Operation error flag
+  *     @arg FLASH_FLAG_PROGERR: FLASH Programming error flag
+  *     @arg FLASH_FLAG_WRPERR: FLASH Write protection error flag
+  *     @arg FLASH_FLAG_PGAERR: FLASH Programming alignment error flag
+  *     @arg FLASH_FLAG_SIZERR: FLASH Size error flag
+  *     @arg FLASH_FLAG_PGSERR: FLASH Programming sequence error flag
+  *     @arg FLASH_FLAG_OPTWERR: FLASH Option modification error flag
+  *     @arg FLASH_FLAG_BSY: FLASH write/erase operations in progress flag
+  *     @arg FLASH_FLAG_ECCC: FLASH one ECC error has been detected and corrected
+  *     @arg FLASH_FLAG_ECCD: FLASH two ECC errors have been detected
+  * @retval The new state of FLASH_FLAG (SET or RESET).
+  */
 #define __HAL_FLASH_GET_FLAG(__FLAG__)          ((((__FLAG__) & FLASH_FLAG_ECCR_ERRORS) != 0U) ? \
                                                  (READ_BIT(FLASH->ECCR, (__FLAG__)) == (__FLAG__)) : \
                                                  (READ_BIT(FLASH->NSSR, (__FLAG__)) == (__FLAG__)))
-#endif
+#endif /* __ARM_FEATURE_CMSE */
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 /**
-  * @brief  Clear the FLASH's pending flags.
+  * @brief  Clear secure FLASH flags from the secure world.
   * @param  __FLAG__ specifies the FLASH flags to clear.
   *   This parameter can be any combination of the following values:
   *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag
@@ -729,16 +814,52 @@ typedef struct
   *     @arg FLASH_FLAG_ALL_ERRORS: FLASH All errors flags
   * @retval None
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #define __HAL_FLASH_CLEAR_FLAG(__FLAG__)        do { if(((__FLAG__) & FLASH_FLAG_ECCR_ERRORS) != 0U) { SET_BIT(FLASH->ECCR, ((__FLAG__) & FLASH_FLAG_ECCR_ERRORS)); }\
-                                                     if(((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS)) != 0U) { WRITE_REG(FLASH->NSSR, ((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS))); \
-                                                                                                          WRITE_REG(FLASH->SECSR, ((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS))); } \
+                                                     if(((__FLAG__) & FLASH_FLAG_OPTWERR) != 0U) { SET_BIT(FLASH->NSSR, ((__FLAG__) & (FLASH_FLAG_OPTWERR))); }\
+                                                     if(((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS | FLASH_FLAG_OPTWERR)) != 0U) { WRITE_REG(FLASH->SECSR, ((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS | FLASH_FLAG_OPTWERR))); } \
+                                                   } while(0)
+/**
+  * @brief  Clear non-secure FLASH flags from the secure world.
+  * @param  __FLAG__ specifies the FLASH flags to clear.
+  *   This parameter can be any combination of the following values:
+  *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag
+  *     @arg FLASH_FLAG_OPERR: FLASH Operation error flag
+  *     @arg FLASH_FLAG_PROGERR: FLASH Programming error flag
+  *     @arg FLASH_FLAG_WRPERR: FLASH Write protection error flag
+  *     @arg FLASH_FLAG_PGAERR: FLASH Programming alignment error flag
+  *     @arg FLASH_FLAG_SIZERR: FLASH Size error flag
+  *     @arg FLASH_FLAG_PGSERR: FLASH Programming sequence error flag
+  *     @arg FLASH_FLAG_OPTWERR: FLASH Option modification error flag (Only in non-secure)
+  *     @arg FLASH_FLAG_ECCC: FLASH one ECC error has been detected and corrected
+  *     @arg FLASH_FLAG_ECCD: FLASH two ECC errors have been detected
+  *     @arg FLASH_FLAG_ALL_ERRORS: FLASH All errors flags
+  * @retval None
+  */
+#define __HAL_FLASH_CLEAR_FLAG_NS(__FLAG__)     do { if(((__FLAG__) & FLASH_FLAG_ECCR_ERRORS) != 0U) { SET_BIT(FLASH->ECCR, ((__FLAG__) & FLASH_FLAG_ECCR_ERRORS)); }\
+                                                     if(((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS)) != 0U) { WRITE_REG(FLASH->NSSR, ((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS))); }\
                                                    } while(0)
 #else
+/**
+  * @brief  Clear non-secure FLASH flags from the non-secure world.
+  * @param  __FLAG__ specifies the FLASH flags to clear.
+  *   This parameter can be any combination of the following values:
+  *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag
+  *     @arg FLASH_FLAG_OPERR: FLASH Operation error flag
+  *     @arg FLASH_FLAG_PROGERR: FLASH Programming error flag
+  *     @arg FLASH_FLAG_WRPERR: FLASH Write protection error flag
+  *     @arg FLASH_FLAG_PGAERR: FLASH Programming alignment error flag
+  *     @arg FLASH_FLAG_SIZERR: FLASH Size error flag
+  *     @arg FLASH_FLAG_PGSERR: FLASH Programming sequence error flag
+  *     @arg FLASH_FLAG_OPTWERR: FLASH Option modification error flag (Only in non-secure)
+  *     @arg FLASH_FLAG_ECCC: FLASH one ECC error has been detected and corrected
+  *     @arg FLASH_FLAG_ECCD: FLASH two ECC errors have been detected
+  *     @arg FLASH_FLAG_ALL_ERRORS: FLASH All errors flags
+  * @retval None
+  */
 #define __HAL_FLASH_CLEAR_FLAG(__FLAG__)        do { if(((__FLAG__) & FLASH_FLAG_ECCR_ERRORS) != 0U) { SET_BIT(FLASH->ECCR, ((__FLAG__) & FLASH_FLAG_ECCR_ERRORS)); }\
                                                      if(((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS)) != 0U) { WRITE_REG(FLASH->NSSR, ((__FLAG__) & ~(FLASH_FLAG_ECCR_ERRORS))); }\
                                                    } while(0)
-#endif
+#endif /* __ARM_FEATURE_CMSE */
 /**
   * @}
   */
@@ -821,11 +942,13 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
 #define FLASH_PAGE_SIZE          0x00000800U
 #define FLASH_PAGE_SIZE_128_BITS 0x00001000U
 
+#define FLASH_PAGE_NB            (FLASH_SIZE / FLASH_PAGE_SIZE)
+#define FLASH_PAGE_NB_PER_BANK   (FLASH_BANK_SIZE / FLASH_PAGE_SIZE)
+#define FLASH_PAGE_NB_128_BITS   (FLASH_SIZE / FLASH_PAGE_SIZE_128_BITS)
+
 #define FLASH_TIMEOUT_VALUE      1000u /* 1 s */
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #define FLASH_NON_SECURE_MASK    0x80000000U
-#endif
 /**
   * @}
   */
@@ -953,12 +1076,9 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #define IS_FLASH_SECURE_OPERATION()        ((pFlash.ProcedureOnGoing & FLASH_NON_SECURE_MASK) == 0U)
-
-#define FLASH_ALLOW_ACCESS_NS_TO_SEC()     do { if ((!IS_FLASH_SECURE_OPERATION())) { SAU->CTRL |= SAU_CTRL_ALLNS_Msk; SAU->CTRL &= ~(SAU_CTRL_ENABLE_Msk); __DSB(); } \
-                                              } while(0)
-#define FLASH_DENY_ACCESS_NS_TO_SEC()      do { if ((!IS_FLASH_SECURE_OPERATION())) { SAU->CTRL |= SAU_CTRL_ENABLE_Msk; SAU->CTRL &= ~(SAU_CTRL_ALLNS_Msk); __DSB(); } \
-                                              } while(0)
-#endif
+#else
+#define IS_FLASH_SECURE_OPERATION()        (0U)
+#endif /* __ARM_FEATURE_CMSE */
 /**
   * @}
   */

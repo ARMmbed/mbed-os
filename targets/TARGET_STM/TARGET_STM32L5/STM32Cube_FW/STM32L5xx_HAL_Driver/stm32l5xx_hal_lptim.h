@@ -128,7 +128,7 @@ typedef struct
                                                     reaches zero, an update event is generated and counting restarts
                                                     from the RCR value (N).
                                                     Note: When using repetition counter the UpdateMode field must be set to
-                                                          LPTIM_UPDATE_ENDOFPERIOD otherwise unpredictable bahavior may occur.
+                                                          LPTIM_UPDATE_ENDOFPERIOD otherwise unpredictable behavior may occur.
                                                     This parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFF. */
 } LPTIM_InitTypeDef;
 

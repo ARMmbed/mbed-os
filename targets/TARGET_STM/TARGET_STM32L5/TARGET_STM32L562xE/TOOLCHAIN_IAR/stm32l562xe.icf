@@ -19,7 +19,7 @@
 /* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
 
 define symbol VECTORS     = 125; /* This value must match NVIC_NUM_VECTORS in cmsis_nvic.h */
-define symbol HEAP_SIZE   = 0x10000;
+define symbol HEAP_SIZE   = 0x1000;
 
 /* Common - Do not change */
 
@@ -32,7 +32,7 @@ if (!isdefinedsymbol(MBED_APP_SIZE)) {
 }
 
 if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) {
-    /* This value is normally defined by the tools 
+    /* This value is normally defined by the tools
         to 0x1000 for bare metal and 0x400 for RTOS */
     define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400;
 }

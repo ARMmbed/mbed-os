@@ -3503,22 +3503,45 @@
             "TRNG"
         ]
     },
-    "NUCLEO_L552ZE_Q": {
+    "MCU_STM32L552xE": {
         "inherits": [
             "MCU_STM32L5"
         ],
+        "public": false,
         "extra_labels_add": [
+            "STM32L552xE"
+        ],
+        "macros_add": [
             "STM32L552xx"
+        ],
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x80000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x40000"
+    },
+    "NUCLEO_L552ZE_Q": {
+        "inherits": [
+            "MCU_STM32L552xE"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
         ],
-        "macros_add": [
-            "STM32L552xx"
-        ],
         "detect_code": [
             "0854"
+        ]
+    },
+    "MCU_STM32L562xE": {
+        "inherits": [
+            "MCU_STM32L5"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32L562xE"
+        ],
+        "macros_add": [
+            "STM32L562xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x80000",
@@ -3527,11 +3550,10 @@
     },
     "DISCO_L562QE": {
         "inherits": [
-            "MCU_STM32L5"
+            "MCU_STM32L562xE"
         ],
         "extra_labels_add": [
             "CORDIO",
-            "STM32L562xx",
             "MX25LM51245G"
         ],
         "supported_form_factors": [
@@ -3542,10 +3564,6 @@
         "components_add": [
             "BlueNRG_MS"
         ],
-        "macros_add": [
-            "STM32L562xx",
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
         "device_has_add": [
             "QSPI"
         ],
@@ -3554,11 +3572,7 @@
         ],
         "detect_code": [
             "0854"
-        ],
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x80000",
-        "mbed_ram_start": "0x20000000",
-        "mbed_ram_size": "0x40000"
+        ]
     },
     "MCU_STM32WB": {
         "inherits": [

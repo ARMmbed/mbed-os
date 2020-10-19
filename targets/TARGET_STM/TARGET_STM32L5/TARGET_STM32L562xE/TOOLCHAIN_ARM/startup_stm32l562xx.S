@@ -1,7 +1,7 @@
 ;*******************************************************************************
-;* File Name          : startup_stm32l552xx.s
+;* File Name          : startup_stm32l562xx.s
 ;* Author             : MCD Application Team
-;* Description        : STM32L552xx Ultra Low Power devices vector table for MDK-ARM toolchain.
+;* Description        : STM32L562xx Ultra Low Power devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -15,10 +15,10 @@
 ;* <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
 ;* All rights reserved.</center></h2>
 ;*
-;* This software component is licensed by ST under BSD 3-Clause license,
+;* This software component is licensed by ST under Apache License, Version 2.0,
 ;* the "License"; You may not use this file except in compliance with the
 ;* License. You may obtain a copy of the License at:
-;*                        opensource.org/licenses/BSD-3-Clause
+;*                        opensource.org/licenses/Apache-2.0
 ;*
 ;*******************************************************************************
 ;* <<< Use Configuration Wizard in Context Menu >>>
@@ -146,11 +146,11 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|              ; Top of 
                 DCD     SAI1_IRQHandler           ; Serial Audio Interface 1 global interrupt
                 DCD     SAI2_IRQHandler           ; Serial Audio Interface 2 global interrupt
                 DCD     TSC_IRQHandler            ; Touch Sense Controller global interrupt
-                DCD     0                         ; Reserved
+                DCD     AES_IRQHandler            ; AES global interrupt
                 DCD     RNG_IRQHandler            ; RNG global interrupt
                 DCD     FPU_IRQHandler            ; FPU
                 DCD     HASH_IRQHandler           ; HASH
-                DCD     0                         ; Reserved
+                DCD     PKA_IRQHandler            ; PKA
                 DCD     LPTIM3_IRQHandler         ; LP TIM3
                 DCD     SPI3_IRQHandler           ; SPI3
                 DCD     I2C4_ER_IRQHandler        ; I2C4 error
@@ -161,7 +161,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|              ; Top of 
                 DCD     DFSDM1_FLT3_IRQHandler    ; DFSDM1 Filter 3 global Interrupt
                 DCD     UCPD1_IRQHandler          ; UCPD1
                 DCD     ICACHE_IRQHandler         ; ICACHE
-                DCD     0                         ; Reserved
+                DCD     OTFDEC1_IRQHandler        ; OTFDEC1
 __Vectors_End
 
 __Vectors_Size  EQU     __Vectors_End - __Vectors
@@ -328,9 +328,11 @@ Default_Handler PROC
                 EXPORT  SAI1_IRQHandler           [WEAK]
                 EXPORT  SAI2_IRQHandler           [WEAK]
                 EXPORT  TSC_IRQHandler            [WEAK]
+                EXPORT  AES_IRQHandler            [WEAK]
                 EXPORT  RNG_IRQHandler            [WEAK]
                 EXPORT  FPU_IRQHandler            [WEAK]
                 EXPORT  HASH_IRQHandler           [WEAK]
+                EXPORT  PKA_IRQHandler            [WEAK]
                 EXPORT  LPTIM3_IRQHandler         [WEAK]
                 EXPORT  SPI3_IRQHandler           [WEAK]
                 EXPORT  I2C4_ER_IRQHandler        [WEAK]
@@ -341,6 +343,7 @@ Default_Handler PROC
                 EXPORT  DFSDM1_FLT3_IRQHandler    [WEAK]
                 EXPORT  UCPD1_IRQHandler          [WEAK]
                 EXPORT  ICACHE_IRQHandler         [WEAK]
+                EXPORT  OTFDEC1_IRQHandler        [WEAK]
 
 WWDG_IRQHandler
 PVD_PVM_IRQHandler
@@ -433,9 +436,11 @@ I2C3_ER_IRQHandler
 SAI1_IRQHandler
 SAI2_IRQHandler
 TSC_IRQHandler
+AES_IRQHandler
 RNG_IRQHandler
 FPU_IRQHandler
 HASH_IRQHandler
+PKA_IRQHandler
 LPTIM3_IRQHandler
 SPI3_IRQHandler
 I2C4_ER_IRQHandler
@@ -446,6 +451,7 @@ DFSDM1_FLT2_IRQHandler
 DFSDM1_FLT3_IRQHandler
 UCPD1_IRQHandler
 ICACHE_IRQHandler
+OTFDEC1_IRQHandler
                 B       .
 
                 ENDP

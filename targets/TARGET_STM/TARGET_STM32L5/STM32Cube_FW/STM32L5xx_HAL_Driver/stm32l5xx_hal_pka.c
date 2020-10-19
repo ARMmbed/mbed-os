@@ -94,7 +94,7 @@
       (++) HAL_PKA_Arithmetic_GetResult() to retrieve the result of the operation.
             The resulting size can be the input parameter or the input parameter size + 1 (overflow).
 
-      (+) Arithmetic substraction using:
+      (+) Arithmetic subtraction using:
       (++) HAL_PKA_Sub().
       (++) HAL_PKA_Sub_IT().
       (++) HAL_PKA_Arithmetic_GetResult() to retrieve the result of the operation.
@@ -114,7 +114,7 @@
       (++) HAL_PKA_ModAdd_IT().
       (++) HAL_PKA_Arithmetic_GetResult() to retrieve the result of the operation.
 
-      (+) Modular substraction using:
+      (+) Modular subtraction using:
       (++) HAL_PKA_ModSub().
       (++) HAL_PKA_ModSub_IT().
       (++) HAL_PKA_Arithmetic_GetResult() to retrieve the result of the operation.
@@ -156,7 +156,7 @@
     [..]
       (+) Add HAL_PKA_IRQHandler to the IRQHandler of PKA.
       (+) Enable the IRQ using HAL_NVIC_EnableIRQ().
-      (+) When an operation is started in interrupt mode, the function returns immediatly.
+      (+) When an operation is started in interrupt mode, the function returns immediately.
       (+) When the operation is completed, the callback HAL_PKA_OperationCpltCallback is called.
       (+) When an error is encountered, the callback HAL_PKA_ErrorCallback is called.
       (+) To stop any operation in interrupt mode, use HAL_PKA_Abort().
@@ -440,7 +440,7 @@ HAL_StatusTypeDef HAL_PKA_DeInit(PKA_HandleTypeDef *hpka)
     hpka->State = HAL_PKA_STATE_BUSY;
 
     /* Reset the control register */
-    /* This abort any operation in progress (PKA RAM content is not guaranted in this case) */
+    /* This abort any operation in progress (PKA RAM content is not guaranteed in this case) */
     hpka->Instance->CR = 0;
 
     /* Reset any pending flag */
@@ -692,7 +692,7 @@ HAL_StatusTypeDef HAL_PKA_UnRegisterCallback(PKA_HandleTypeDef *hpka, HAL_PKA_Ca
        (++) Blocking mode : The operation is performed in the polling mode.
             These functions return when data operation is completed.
        (++) No-Blocking mode : The operation is performed using Interrupts.
-            These functions return immediatly.
+            These functions return immediately.
             The end of the operation is indicated by HAL_PKA_ErrorCallback in case of error.
             The end of the operation is indicated by HAL_PKA_OperationCpltCallback in case of success.
             To stop any operation in interrupt mode, use HAL_PKA_Abort().
@@ -891,7 +891,7 @@ HAL_StatusTypeDef HAL_PKA_ECDSASign_IT(PKA_HandleTypeDef *hpka, PKA_ECDSASignInT
   * @brief  Retrieve operation result.
   * @param  hpka PKA handle
   * @param  out Output information
-  * @param  outExt Additionnal Output information (facultative)
+  * @param  outExt Additional Output information (facultative)
   */
 void HAL_PKA_ECDSASign_GetResult(PKA_HandleTypeDef *hpka, PKA_ECDSASignOutTypeDef *out, PKA_ECDSASignOutExtParamTypeDef *outExt)
 {
@@ -905,7 +905,7 @@ void HAL_PKA_ECDSASign_GetResult(PKA_HandleTypeDef *hpka, PKA_ECDSASignOutTypeDe
     PKA_Memcpy_u32_to_u8(out->SSign, &hpka->Instance->RAM[PKA_ECDSA_SIGN_OUT_SIGNATURE_S], size);
   }
 
-  /* If user requires the additionnal information */
+  /* If user requires the additional information */
   if (outExt != NULL)
   {
     /* Move the result to appropriate location (indicated in outExt parameter) */
@@ -1041,7 +1041,7 @@ HAL_StatusTypeDef HAL_PKA_PointCheck_IT(PKA_HandleTypeDef *hpka, PKA_PointCheckI
   */
 uint32_t HAL_PKA_PointCheck_IsOnCurve(PKA_HandleTypeDef const *const hpka)
 {
-  /* Invert the value of the PKA RAM containig the result of the operation */
+  /* Invert the value of the PKA RAM containing the result of the operation */
   return (hpka->Instance->RAM[PKA_POINT_CHECK_OUT_ERROR] == 0UL) ? 1UL : 0UL;
 }
 
@@ -1159,7 +1159,7 @@ HAL_StatusTypeDef HAL_PKA_Add_IT(PKA_HandleTypeDef *hpka, PKA_AddInTypeDef *in)
 }
 
 /**
-  * @brief  Arithmetic substraction in blocking mode.
+  * @brief  Arithmetic subtraction in blocking mode.
   * @param  hpka PKA handle
   * @param  in Input information
   * @param  Timeout Timeout duration
@@ -1175,7 +1175,7 @@ HAL_StatusTypeDef HAL_PKA_Sub(PKA_HandleTypeDef *hpka, PKA_SubInTypeDef *in, uin
 }
 
 /**
-  * @brief  Arithmetic substraction in non-blocking mode with Interrupt.
+  * @brief  Arithmetic subtraction in non-blocking mode with Interrupt.
   * @param  hpka PKA handle
   * @param  in Input information
   * @retval HAL status
@@ -1314,7 +1314,7 @@ HAL_StatusTypeDef HAL_PKA_ModInv_IT(PKA_HandleTypeDef *hpka, PKA_ModInvInTypeDef
 }
 
 /**
-  * @brief  Modular substraction in blocking mode.
+  * @brief  Modular subtraction in blocking mode.
   * @param  hpka PKA handle
   * @param  in Input information
   * @param  Timeout Timeout duration
@@ -1330,7 +1330,7 @@ HAL_StatusTypeDef HAL_PKA_ModSub(PKA_HandleTypeDef *hpka, PKA_ModSubInTypeDef *i
 }
 
 /**
-  * @brief  Modular substraction in non-blocking mode with Interrupt.
+  * @brief  Modular subtraction in non-blocking mode with Interrupt.
   * @param  hpka PKA handle
   * @param  in Input information
   * @retval HAL status
@@ -1527,7 +1527,7 @@ HAL_StatusTypeDef HAL_PKA_Abort(PKA_HandleTypeDef *hpka)
   HAL_StatusTypeDef err = HAL_OK;
 
   /* Clear EN bit */
-  /* This abort any operation in progress (PKA RAM content is not guaranted in this case) */
+  /* This abort any operation in progress (PKA RAM content is not guaranteed in this case) */
   CLEAR_BIT(hpka->Instance->CR, PKA_CR_EN);
   SET_BIT(hpka->Instance->CR, PKA_CR_EN);
 

@@ -149,6 +149,14 @@ typedef struct
   * @}
   */
 
+/** @defgroup PWREx_EXT_SMPS_MAIN_REG_READY PWR SMPS main regulator ready for external SMPS
+  * @{
+  */
+#define PWR_MAINREG_READY_FOR_EXTSMPS       PWR_SR1_EXTSMPSRDY  /*!< Main Regulator ready for use with external SMPS */
+#define PWR_MAINREG_NOT_READY_FOR_EXTSMPS   0U                  /*!< Main Regulator not ready for use with external SMPS */
+/**
+  * @}
+  */
 
 /** @defgroup PWREx_VBAT_Battery_Charging_Selection PWR battery charging resistor selection
   * @{
@@ -855,6 +863,7 @@ void HAL_PWREx_DisableUCPDDeadBattery(void);
 
 HAL_StatusTypeDef HAL_PWREx_SMPS_SetMode(uint32_t OperatingMode);
 uint32_t HAL_PWREx_SMPS_GetEffectiveMode(void);
+uint32_t HAL_PWREx_SMPS_GetMainRegulatorExtSMPSReadyStatus(void);
 void HAL_PWREx_SMPS_EnableFastStart(void);
 void HAL_PWREx_SMPS_DisableFastStart(void);
 

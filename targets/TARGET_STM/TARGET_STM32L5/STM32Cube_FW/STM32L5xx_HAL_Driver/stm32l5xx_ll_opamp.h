@@ -144,8 +144,8 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_POWERSUPPLY_RANGE OPAMP power supply range
   * @{
   */
-#define LL_OPAMP_POWERSUPPLY_RANGE_LOW   0x00000000U            /*!< Power supply range low. On STM32L5 serie: Vdda lower than 2.4V. */
-#define LL_OPAMP_POWERSUPPLY_RANGE_HIGH (OPAMP1_CSR_OPARANGE)   /*!< Power supply range high. On STM32L5 serie: Vdda higher than 2.4V. */
+#define LL_OPAMP_POWERSUPPLY_RANGE_LOW   0x00000000U            /*!< Power supply range low. On STM32L5 series: Vdda lower than 2.4V. */
+#define LL_OPAMP_POWERSUPPLY_RANGE_HIGH (OPAMP1_CSR_OPARANGE)   /*!< Power supply range high. On STM32L5 series: Vdda higher than 2.4V. */
 /**
   * @}
   */
@@ -359,7 +359,7 @@ typedef struct
   * @brief  Set OPAMP power range.
   * @note   The OPAMP power range applies to several OPAMP instances
   *         (if several OPAMP instances available on the selected device).
-  * @note   On this STM32 serie, setting of this feature is conditioned to
+  * @note   On this STM32 series, setting of this feature is conditioned to
   *         OPAMP state:
   *         All OPAMP instances of the OPAMP common group must be disabled.
   *         This check can be done with function @ref LL_OPAMP_IsEnabled() for each
@@ -433,7 +433,7 @@ __STATIC_INLINE void LL_OPAMP_SetPowerMode(OPAMP_TypeDef *OPAMPx, uint32_t Power
   */
 __STATIC_INLINE uint32_t LL_OPAMP_GetPowerMode(OPAMP_TypeDef *OPAMPx)
 {
-  register uint32_t power_mode = (READ_BIT(OPAMPx->CSR, OPAMP_CSR_OPALPM));
+  uint32_t power_mode = (READ_BIT(OPAMPx->CSR, OPAMP_CSR_OPALPM));
 
   return (uint32_t)(power_mode | (power_mode >> (OPAMP_CSR_OPALPM_Pos)));
 }
@@ -446,7 +446,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetPowerMode(OPAMP_TypeDef *OPAMPx)
   *            @ref LL_OPAMP_SetFunctionalMode().
   *          - calibration mode: offset calibration of the selected
   *            transistors differential pair NMOS or PMOS.
-  * @note   On this STM32 serie, during calibration, OPAMP functional
+  * @note   On this STM32 series, during calibration, OPAMP functional
   *         mode must be set to standalone or follower mode
   *         (in order to open internal connections to resistors
   *         of PGA mode).
@@ -707,7 +707,7 @@ __STATIC_INLINE void LL_OPAMP_SetCalibrationSelection(OPAMP_TypeDef *OPAMPx, uin
   */
 __STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationSelection(OPAMP_TypeDef *OPAMPx)
 {
-  register uint32_t CalibrationSelection = (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALSEL));
+  uint32_t CalibrationSelection = (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALSEL));
 
   return (CalibrationSelection |
           (((CalibrationSelection & OPAMP_CSR_CALSEL) == 0UL) ? OPAMP_OTR_TRIMOFFSETN : OPAMP_OTR_TRIMOFFSETP));
@@ -747,7 +747,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_IsCalibrationOutputSet(OPAMP_TypeDef *OPAMPx)
   */
 __STATIC_INLINE void LL_OPAMP_SetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32_t PowerMode, uint32_t TransistorsDiffPair, uint32_t TrimmingValue)
 {
-  register uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
+  uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
 
   /* Set bits with position in register depending on parameter                */
   /* "TransistorsDiffPair".                                                   */
@@ -777,7 +777,7 @@ __STATIC_INLINE void LL_OPAMP_SetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32_t P
   */
 __STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32_t PowerMode, uint32_t TransistorsDiffPair)
 {
-  register const uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
+  const uint32_t *preg = __OPAMP_PTR_REG_OFFSET(OPAMPx->OTR, (PowerMode & OPAMP_POWERMODE_OTR_REGOFFSET_MASK));
 
   /* Retrieve bits with position in register depending on parameter           */
   /* "TransistorsDiffPair".                                                   */
@@ -797,7 +797,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32
 /**
   * @brief  Enable OPAMP instance.
   * @note   After enable from off state, OPAMP requires a delay
-  *         to fullfill wake up time specification.
+  *         to fulfill wake up time specification.
   *         Refer to device datasheet, parameter "tWAKEUP".
   * @rmtoll CSR      OPAMPXEN       LL_OPAMP_Enable
   * @param  OPAMPx OPAMP instance

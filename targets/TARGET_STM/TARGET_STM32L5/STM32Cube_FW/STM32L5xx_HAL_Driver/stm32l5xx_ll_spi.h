@@ -266,8 +266,8 @@ typedef struct
 /** @defgroup SPI_LL_EC_RX_FIFO_TH RX FIFO Threshold
   * @{
   */
-#define LL_SPI_RX_FIFO_TH_HALF             0x00000000U               /*!< RXNE event is generated if FIFO level is greater than or equel to 1/2 (16-bit) */
-#define LL_SPI_RX_FIFO_TH_QUARTER          (SPI_CR2_FRXTH)           /*!< RXNE event is generated if FIFO level is greater than or equel to 1/4 (8-bit)  */
+#define LL_SPI_RX_FIFO_TH_HALF             0x00000000U               /*!< RXNE event is generated if FIFO level is greater than or equal to 1/2 (16-bit) */
+#define LL_SPI_RX_FIFO_TH_QUARTER          (SPI_CR2_FRXTH)           /*!< RXNE event is generated if FIFO level is greater than or equal to 1/4 (8-bit)  */
 /**
   * @}
   */
@@ -848,8 +848,8 @@ __STATIC_INLINE void LL_SPI_SetNSSMode(SPI_TypeDef *SPIx, uint32_t NSS)
   */
 __STATIC_INLINE uint32_t LL_SPI_GetNSSMode(SPI_TypeDef *SPIx)
 {
-  register uint32_t Ssm  = (READ_BIT(SPIx->CR1, SPI_CR1_SSM));
-  register uint32_t Ssoe = (READ_BIT(SPIx->CR2,  SPI_CR2_SSOE) << 16U);
+  uint32_t Ssm  = (READ_BIT(SPIx->CR1, SPI_CR1_SSM));
+  uint32_t Ssoe = (READ_BIT(SPIx->CR2,  SPI_CR2_SSOE) << 16U);
   return (Ssm | Ssoe);
 }
 

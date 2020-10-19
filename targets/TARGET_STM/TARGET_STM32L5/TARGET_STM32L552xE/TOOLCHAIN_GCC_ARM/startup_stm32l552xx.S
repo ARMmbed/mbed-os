@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32l562xx.s
+  * @file      startup_stm32l552xx.s
   * @author    MCD Application Team
-  * @brief     STM32L562xx devices vector table GCC toolchain.
+  * @brief     STM32L552xx devices vector table GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -18,10 +18,10 @@
   * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
+  * This software component is licensed by ST under Apache License, Version 2.0,
   * the "License"; You may not use this file except in compliance with the
   * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  *                        opensource.org/licenses/Apache-2.0
   *
   ******************************************************************************
   */
@@ -62,6 +62,9 @@ defined in linker script */
 Reset_Handler:
   ldr   sp, =_estack    /* set stack pointer */
 
+/* Call the clock system initialization function.*/
+  bl  SystemInit
+
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0
   b	LoopCopyDataInit
@@ -90,8 +93,6 @@ LoopFillZerobss:
 	cmp	r2, r3
 	bcc	FillZerobss
 
-/* Call the clock system intitialization function.*/
-    bl  SystemInit
 	bl _start
 	bx lr
 
@@ -235,11 +236,11 @@ g_pfnVectors:
 	.word	SAI1_IRQHandler
 	.word	SAI2_IRQHandler
 	.word	TSC_IRQHandler
-	.word	AES_IRQHandler
+	.word	0
 	.word	RNG_IRQHandler
 	.word	FPU_IRQHandler
 	.word	HASH_IRQHandler
-	.word	PKA_IRQHandler
+	.word	0
 	.word	LPTIM3_IRQHandler
 	.word	SPI3_IRQHandler
 	.word	I2C4_ER_IRQHandler
@@ -250,7 +251,7 @@ g_pfnVectors:
 	.word	DFSDM1_FLT3_IRQHandler
 	.word	UCPD1_IRQHandler
 	.word	ICACHE_IRQHandler
-	.word	OTFDEC1_IRQHandler
+	.word	0
 
 
 /*******************************************************************************
@@ -564,9 +565,6 @@ g_pfnVectors:
 	.weak	TSC_IRQHandler
 	.thumb_set TSC_IRQHandler,Default_Handler
 
-	.weak	AES_IRQHandler
-	.thumb_set AES_IRQHandler,Default_Handler
-
 	.weak	RNG_IRQHandler
 	.thumb_set RNG_IRQHandler,Default_Handler
 
@@ -575,9 +573,6 @@ g_pfnVectors:
 
 	.weak	HASH_IRQHandler
 	.thumb_set HASH_IRQHandler,Default_Handler
-
-	.weak	PKA_IRQHandler
-	.thumb_set PKA_IRQHandler,Default_Handler
 
 	.weak	LPTIM3_IRQHandler
 	.thumb_set LPTIM3_IRQHandler,Default_Handler
@@ -608,8 +603,5 @@ g_pfnVectors:
 
 	.weak	ICACHE_IRQHandler
 	.thumb_set ICACHE_IRQHandler,Default_Handler
-
-	.weak	OTFDEC1_IRQHandler
-	.thumb_set OTFDEC1_IRQHandler,Default_Handler
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -324,7 +324,7 @@ typedef struct
   * @{
   */
 #define LL_DAC_OUTPUT_CONNECT_GPIO         0x00000000U             /*!< The selected DAC channel output is connected to external pin */
-#define LL_DAC_OUTPUT_CONNECT_INTERNAL     (DAC_MCR_MODE1_0)       /*!< The selected DAC channel output is connected to on-chip peripherals via internal paths. On this STM32 serie, output connection depends on output mode (normal or sample and hold) and output buffer state. Refer to comments of function @ref LL_DAC_SetOutputConnection(). */
+#define LL_DAC_OUTPUT_CONNECT_INTERNAL     (DAC_MCR_MODE1_0)       /*!< The selected DAC channel output is connected to on-chip peripherals via internal paths. On this STM32 series, output connection depends on output mode (normal or sample and hold) and output buffer state. Refer to comments of function @ref LL_DAC_SetOutputConnection(). */
 /**
   * @}
   */
@@ -899,7 +899,7 @@ __STATIC_INLINE uint32_t LL_DAC_GetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint
   *         - @ref LL_DAC_SetOutputBuffer()
   *         - @ref LL_DAC_SetOutputMode()
   *         - @ref LL_DAC_SetOutputConnection()
-  * @note   On this STM32 serie, output connection depends on output mode
+  * @note   On this STM32 series, output connection depends on output mode
   *         (normal or sample and hold) and output buffer state.
   *         - if output connection is set to internal path and output buffer
   *           is enabled (whatever output mode):
@@ -988,7 +988,7 @@ __STATIC_INLINE uint32_t LL_DAC_GetOutputMode(DAC_TypeDef *DACx, uint32_t DAC_Ch
 
 /**
   * @brief  Set the output buffer for the selected DAC channel.
-  * @note   On this STM32 serie, when buffer is enabled, its offset can be
+  * @note   On this STM32 series, when buffer is enabled, its offset can be
   *         trimmed: factory calibration default values can be
   *         replaced by user trimming values, using function
   *         @ref LL_DAC_SetTrimmingValue().
@@ -1031,7 +1031,7 @@ __STATIC_INLINE uint32_t LL_DAC_GetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_
 
 /**
   * @brief  Set the output connection for the selected DAC channel.
-  * @note   On this STM32 serie, output connection depends on output mode (normal or
+  * @note   On this STM32 series, output connection depends on output mode (normal or
   *         sample and hold) and output buffer state.
   *         - if output connection is set to internal path and output buffer
   *           is enabled (whatever output mode):
@@ -1061,7 +1061,7 @@ __STATIC_INLINE void LL_DAC_SetOutputConnection(DAC_TypeDef *DACx, uint32_t DAC_
 
 /**
   * @brief  Get the output connection for the selected DAC channel.
-  * @note   On this STM32 serie, output connection depends on output mode (normal or
+  * @note   On this STM32 series, output connection depends on output mode (normal or
   *         sample and hold) and output buffer state.
   *         - if output connection is set to internal path and output buffer
   *           is enabled (whatever output mode):

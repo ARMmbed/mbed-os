@@ -1842,14 +1842,14 @@ typedef struct
 #define __HAL_RCC_CRS_FREQ_ERROR_COUNTER_DISABLE() CLEAR_BIT(CRS->CR, CRS_CR_CEN)
 
 /**
-  * @brief  Enable the automatic hardware adjustement of TRIM bits.
+  * @brief  Enable the automatic hardware adjustment of TRIM bits.
   * @note   When the AUTOTRIMEN bit is set the CRS_CFGR register becomes write-protected.
   * @retval None
   */
 #define __HAL_RCC_CRS_AUTOMATIC_CALIB_ENABLE()     SET_BIT(CRS->CR, CRS_CR_AUTOTRIMEN)
 
 /**
-  * @brief  Enable or disable the automatic hardware adjustement of TRIM bits.
+  * @brief  Enable or disable the automatic hardware adjustment of TRIM bits.
   * @retval None
   */
 #define __HAL_RCC_CRS_AUTOMATIC_CALIB_DISABLE()    CLEAR_BIT(CRS->CR, CRS_CR_AUTOTRIMEN)
