@@ -89,7 +89,7 @@ typedef enum {
 /**
  * Prototypes
  */
-static void mbed_minimal_formatted_string_signed(char *buffer, size_t length, int *result, MBED_SIGNED_STORAGE value, FILE *stream);
+static void mbed_minimal_formatted_string_signed(char *buffer, size_t length, int *result, double value, FILE *stream);
 static void mbed_minimal_formatted_string_unsigned(char *buffer, size_t length, int *result, MBED_UNSIGNED_STORAGE value, FILE *stream);
 static void mbed_minimal_formatted_string_hexadecimal(char *buffer, size_t length, int *result, MBED_UNSIGNED_STORAGE value, FILE *stream, bool upper);
 static void mbed_minimal_formatted_string_void_pointer(char *buffer, size_t length, int *result, const void *value, FILE *stream);
@@ -137,19 +137,20 @@ static void mbed_minimal_putchar(char *buffer, size_t length, int *result, char 
  * @param      result  The current output location.
  * @param[in]  value   The value to be printed.
  */
-static void mbed_minimal_formatted_string_signed(char *buffer, size_t length, int *result, MBED_SIGNED_STORAGE value, FILE *stream)
+static void mbed_minimal_formatted_string_signed(char *buffer, size_t length, int *result, double value, FILE *stream)
 {
     MBED_UNSIGNED_STORAGE new_value = 0;
+    MBED_SIGNED_STORAGE integer = value;
 
     /* if value is negative print sign and treat as positive number */
-    if (value < 0) {
+    if (value < (double)0) {
         /* write sign */
         mbed_minimal_putchar(buffer, length, result, '-', stream);
 
         /* get absolute value using two's complement */
-        new_value = ~((MBED_UNSIGNED_STORAGE) value) + 1;
+        new_value = ~((MBED_UNSIGNED_STORAGE) integer) + 1;
     } else {
-        new_value = value;
+        new_value = integer;
     }
 
     /* use unsigned long int function */
@@ -265,7 +266,7 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
     MBED_SIGNED_STORAGE integer = value;
 
     /* write integer part */
-    mbed_minimal_formatted_string_signed(buffer, length, result, integer, stream);
+    mbed_minimal_formatted_string_signed(buffer, length, result, value, stream);
 
     /* write decimal point */
     mbed_minimal_putchar(buffer, length, result, '.', stream);
