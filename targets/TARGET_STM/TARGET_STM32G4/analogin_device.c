@@ -1,30 +1,18 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016, STMicroelectronics
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ *
+ * Copyright (c) 2015-2020 STMicroelectronics.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ******************************************************************************
  */
+
 #include "mbed_assert.h"
 #include "analogin_api.h"
 
@@ -313,12 +301,11 @@ void analogin_free(analogin_t *obj)
 #if defined(ADC1)
     if ((ADCName)obj->handle.Instance == ADC_1) {
         adc1_en_counter--;
-        if(ADC1_EN_CTR == 0)
-        {
+        if (ADC1_EN_CTR == 0) {
             HAL_ADC_DeInit(&obj->handle);
 
             // Disable clock if ADC2 is also unused
-            if(ADC2_EN_CTR == 0) {
+            if (ADC2_EN_CTR == 0) {
                 LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC12);
             }
         }
@@ -327,12 +314,11 @@ void analogin_free(analogin_t *obj)
 #if defined(ADC2)
     if ((ADCName)obj->handle.Instance == ADC_2) {
         adc2_en_counter--;
-        if(ADC2_EN_CTR == 0)
-        {
+        if (ADC2_EN_CTR == 0) {
             HAL_ADC_DeInit(&obj->handle);
 
             // Disable clock if ADC1 is also unused
-            if(ADC1_EN_CTR == 0) {
+            if (ADC1_EN_CTR == 0) {
                 LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC12);
             }
         }
@@ -341,12 +327,11 @@ void analogin_free(analogin_t *obj)
 #if defined(ADC3)
     if ((ADCName)obj->handle.Instance == ADC_3) {
         adc3_en_counter--;
-        if(ADC3_EN_CTR == 0)
-        {
+        if (ADC3_EN_CTR == 0) {
             HAL_ADC_DeInit(&obj->handle);
 
             // Disable clock if ADC4 and ADC5 are also unused
-            if((ADC4_EN_CTR + ADC5_EN_CTR) == 0) {
+            if ((ADC4_EN_CTR + ADC5_EN_CTR) == 0) {
                 LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
             }
         }
@@ -355,12 +340,11 @@ void analogin_free(analogin_t *obj)
 #if defined(ADC4)
     if ((ADCName)obj->handle.Instance == ADC_4) {
         adc4_en_counter--;
-        if(ADC4_EN_CTR == 0)
-        {
+        if (ADC4_EN_CTR == 0) {
             HAL_ADC_DeInit(&obj->handle);
 
             // Disable clock if ADC3 and ADC5 are also unused
-            if((ADC3_EN_CTR + ADC5_EN_CTR) == 0) {
+            if ((ADC3_EN_CTR + ADC5_EN_CTR) == 0) {
                 LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
             }
         }
@@ -370,12 +354,11 @@ void analogin_free(analogin_t *obj)
 #if defined(ADC5)
     if ((ADCName)obj->handle.Instance == ADC_5) {
         adc5_en_counter--;
-        if(ADC5_EN_CTR == 0)
-        {
+        if (ADC5_EN_CTR == 0) {
             HAL_ADC_DeInit(&obj->handle);
 
             // Disable clock if ADC3 and ADC4 are also unused
-            if((ADC3_EN_CTR + ADC4_EN_CTR) == 0) {
+            if ((ADC3_EN_CTR + ADC4_EN_CTR) == 0) {
                 LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_ADC345);
             }
         }

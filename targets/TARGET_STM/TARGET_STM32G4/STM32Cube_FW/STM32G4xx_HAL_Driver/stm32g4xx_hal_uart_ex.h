@@ -69,9 +69,9 @@ typedef struct
 /** @defgroup UARTEx_Word_Length UARTEx Word Length
   * @{
   */
-#define UART_WORDLENGTH_7B                  USART_CR1_M1   /*!< 7-bit long UART frame */
-#define UART_WORDLENGTH_8B                  0x00000000U    /*!< 8-bit long UART frame */
-#define UART_WORDLENGTH_9B                  USART_CR1_M0   /*!< 9-bit long UART frame */
+#define UART_WORDLENGTH_7B          USART_CR1_M1   /*!< 7-bit long UART frame */
+#define UART_WORDLENGTH_8B          0x00000000U    /*!< 8-bit long UART frame */
+#define UART_WORDLENGTH_9B          USART_CR1_M0   /*!< 9-bit long UART frame */
 /**
   * @}
   */
@@ -79,8 +79,8 @@ typedef struct
 /** @defgroup UARTEx_WakeUp_Address_Length UARTEx WakeUp Address Length
   * @{
   */
-#define UART_ADDRESS_DETECT_4B              0x00000000U      /*!< 4-bit long wake-up address */
-#define UART_ADDRESS_DETECT_7B              USART_CR2_ADDM7  /*!< 7-bit long wake-up address */
+#define UART_ADDRESS_DETECT_4B      0x00000000U      /*!< 4-bit long wake-up address */
+#define UART_ADDRESS_DETECT_7B      USART_CR2_ADDM7  /*!< 7-bit long wake-up address */
 /**
   * @}
   */
@@ -89,8 +89,8 @@ typedef struct
   * @brief    UART FIFO mode
   * @{
   */
-#define UART_FIFOMODE_DISABLE        0x00000000U       /*!< FIFO mode disable */
-#define UART_FIFOMODE_ENABLE         USART_CR1_FIFOEN  /*!< FIFO mode enable  */
+#define UART_FIFOMODE_DISABLE       0x00000000U       /*!< FIFO mode disable */
+#define UART_FIFOMODE_ENABLE        USART_CR1_FIFOEN  /*!< FIFO mode enable  */
 /**
   * @}
   */
@@ -166,7 +166,9 @@ void HAL_UARTEx_TxFifoEmptyCallback(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
 HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart);
+
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength);
+
 HAL_StatusTypeDef HAL_UARTEx_EnableFifoMode(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UARTEx_DisableFifoMode(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UARTEx_SetTxFifoThreshold(UART_HandleTypeDef *huart, uint32_t Threshold);

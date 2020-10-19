@@ -2454,6 +2454,11 @@
                 "value": "USE_PLL_HSE_EXTC",
                 "macro_name": "CLOCK_SOURCE"
             },
+            "hse_value": {
+                "help": "HSE default value is 8MHz in stm32g4xx_hal_conf.h",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
@@ -2479,33 +2484,129 @@
             "CAN"
         ]
     },
-    "NUCLEO_G474RE": {
+    "MCU_STM32G431xB": {
         "inherits": [
             "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G431xB"
+        ],
+        "macros_add": [
+            "STM32G431xx"
+        ]
+    },
+    "MCU_STM32G441xB": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G441xB"
+        ],
+        "macros_add": [
+            "STM32G441xx"
+        ]
+    },
+    "MCU_STM32G471xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G471xE"
+        ],
+        "macros_add": [
+            "STM32G471xx"
+        ]
+    },
+    "MCU_STM32G473xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G473xE"
+        ],
+        "macros_add": [
+            "STM32G473xx"
+        ]
+    },
+    "MCU_STM32G474xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G474xE"
+        ],
+        "macros_add": [
+            "STM32G474xx"
+        ]
+    },
+    "NUCLEO_G474RE": {
+        "inherits": [
+            "MCU_STM32G474xE"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
         ],
-        "config": {
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "24000000",
-                "macro_name": "HSE_VALUE"
-            }
+        "overrides": {
+            "hse_value": 24000000
         },
-        "extra_labels_add": [
-            "STM32G474xx",
-            "STM32G474RE"
-        ],
-        "macros_add": [
-            "STM32G474xx",
-            "STM32G474RE"
-        ],
         "detect_code": [
             "0841"
         ],
         "device_name": "STM32G474RETx"
+    },
+    "MCU_STM32G483xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G483xE"
+        ],
+        "macros_add": [
+            "STM32G483xx"
+        ]
+    },
+    "MCU_STM32G484xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G484xE"
+        ],
+        "macros_add": [
+            "STM32G484xx"
+        ]
+    },
+    "MCU_STM32G491xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G491xE"
+        ],
+        "macros_add": [
+            "STM32G491xx"
+        ]
+    },
+    "MCU_STM32G4A1xE": {
+        "inherits": [
+            "MCU_STM32G4"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G4A1xE"
+        ],
+        "macros_add": [
+            "STM32G4A1xx"
+        ]
     },
     "MCU_STM32H7": {
         "inherits": [

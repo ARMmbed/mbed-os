@@ -79,7 +79,7 @@
 #include "stm32g4xx.h"
 
 #if !defined  (HSE_VALUE)
-  #define HSE_VALUE     8000000U /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE     24000000U /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSI_VALUE)
@@ -201,7 +201,7 @@ void SystemInit(void)
   *              in voltage and temperature.
   *
   *         (***) HSE_VALUE is a constant defined in stm32g4xx_hal.h file (default value
-  *              8 MHz), user has to ensure that HSE_VALUE is same as the real
+  *              24 MHz), user has to ensure that HSE_VALUE is same as the real
   *              frequency of the crystal used. Otherwise, this function may
   *              have wrong result.
   *
