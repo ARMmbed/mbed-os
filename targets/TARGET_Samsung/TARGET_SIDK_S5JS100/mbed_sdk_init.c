@@ -39,5 +39,8 @@ void mbed_sdk_init(void)
     SFlash_DriverInitialize();
 
     sflash_os_env_parser();
+#if DEVICE_RTC
+    rtc_restore();
+#endif
 }
 

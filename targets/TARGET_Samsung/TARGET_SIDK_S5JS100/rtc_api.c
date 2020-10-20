@@ -55,7 +55,7 @@ time_t rtc_read(void)
 	time_t t;
 	long long cnt;
 	cnt = get_counter(); //return aliva countvalue in 40bits
-	t = cnt/32768;		//calculate as seconds
+	t = cnt/32000;		//calculate as seconds
 	t+= g_base_timeval;	//accumulate base time(e.g., NTP) with counter elapsed.
 
     return t;
@@ -66,7 +66,7 @@ void rtc_write(time_t t)
 	g_base_timeval = t;
 	disable_counter();
 	enable_counter();
-//	printf("base time will be %d\n", g_base_timeval);
+	// printf("base time will be %d\n", g_base_timeval);
 }
 
 static uint8_t rtc_hex8_to_dec(uint8_t hex_val)
