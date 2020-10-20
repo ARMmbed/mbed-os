@@ -265,7 +265,7 @@ void attsProcPrepWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     err = ATT_ERR_LENGTH;
   }
   /* verify prepare write queue limit not reached */
-  else if (WsfQueueCount(&attsCb.prepWriteQueue[pCcb->connId]) >= pAttCfg->numPrepWrites)
+  else if (WsfQueueCount(&attsCb.prepWriteQueue[pCcb->connId - 1]) >= pAttCfg->numPrepWrites)
   {
     err = ATT_ERR_QUEUE_FULL;
   }
@@ -288,7 +288,7 @@ void attsProcPrepWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     pPrep->handle = handle;
     pPrep->offset = offset;
     memcpy(pPrep->packet, pPacket, writeLen);
-    WsfQueueEnq(&attsCb.prepWriteQueue[pCcb->connId], pPrep);
+    WsfQueueEnq(&attsCb.prepWriteQueue[pCcb->connId - 1], pPrep);
 
     /* allocate response buffer */
     if ((pBuf = attMsgAlloc(L2C_PAYLOAD_START + ATT_PREP_WRITE_RSP_LEN + writeLen)) != NULL)
@@ -342,7 +342,7 @@ void attsProcExecWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   else if (*pPacket == ATT_EXEC_WRITE_ALL)
   {
     /* iterate over prepare write queue and verify offset and length */
-    for (pPrep = attsCb.prepWriteQueue[pCcb->connId].pHead; pPrep != NULL; pPrep = pPrep->pNext)
+    for (pPrep = attsCb.prepWriteQueue[pCcb->connId - 1].pHead; pPrep != NULL; pPrep = pPrep->pNext)
     {
       /* find attribute */
       if ((pAttr = attsFindByHandle(pPrep->handle, &pGroup)) != NULL)
@@ -371,7 +371,7 @@ void attsProcExecWriteReq(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     if (err == ATT_SUCCESS)
     {
       /* for each buffer */
-      while ((pPrep = WsfQueueDeq(&attsCb.prepWriteQueue[pCcb->connId])) != NULL)
+      while ((pPrep = WsfQueueDeq(&attsCb.prepWriteQueue[pCcb->connId - 1])) != NULL)
       {
         /* write buffer */
         if ((err = attsExecPrepWrite(pCcb, pPrep)) != ATT_SUCCESS)
