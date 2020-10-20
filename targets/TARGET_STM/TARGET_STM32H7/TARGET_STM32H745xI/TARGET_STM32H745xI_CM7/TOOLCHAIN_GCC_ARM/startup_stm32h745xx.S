@@ -61,6 +61,9 @@ defined in linker script */
 Reset_Handler:  
   ldr   sp, =_estack      /* set stack pointer */
 
+/* Call the clock system intitialization function.*/
+  bl  SystemInit
+
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
@@ -89,18 +92,9 @@ LoopFillZerobss:
   cmp  r2, r3
   bcc  FillZerobss
 
-/* Call the clock system intitialization function.*/
-  bl  SystemInit   
-/* Call static constructors */
-  //bl __libc_init_array
-/* Call the application's entry point.*/
-  //bl  main
-  // Calling the crt0 'cold-start' entry point. There __libc_init_array is called
-  // and when existing hardware_init_hook() and software_init_hook() before 
-  // starting main(). software_init_hook() is available and has to be called due 
-  // to initializsation when using rtos.
   bl _start
-  bx  lr    
+  bx lr
+
 .size  Reset_Handler, .-Reset_Handler
 
 /**

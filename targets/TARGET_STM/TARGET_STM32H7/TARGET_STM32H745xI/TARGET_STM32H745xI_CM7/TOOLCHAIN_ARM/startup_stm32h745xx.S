@@ -1,5 +1,5 @@
 ;******************** (C) COPYRIGHT 2019 STMicroelectronics ********************
-;* File Name          : startup_stm32h747xx.s
+;* File Name          : startup_stm32h745xx.s
 ;* @author  MCD Application Team
 ;* Description        : STM32H7xx devices vector table for MDK-ARM toolchain. 
 ;*                      This module performs:
@@ -33,9 +33,9 @@
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|                      ; Top of Stack
                 DCD     Reset_Handler                     ; Reset Handler
                 DCD     NMI_Handler                       ; NMI Handler
                 DCD     HardFault_Handler                 ; Hard Fault Handler
@@ -176,7 +176,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     MDIOS_IRQHandler                  ;  MDIOS global Interrupt                                            
                 DCD     JPEG_IRQHandler                   ;  JPEG global Interrupt                                             
                 DCD     MDMA_IRQHandler                   ;  MDMA global Interrupt                                             
-                DCD     0                                 ;  Reserved
+                DCD     0                                 ; Reserved                                              
                 DCD     SDMMC2_IRQHandler                 ;  SDMMC2 global Interrupt                                           
                 DCD     HSEM1_IRQHandler                  ;  HSEM1 global Interrupt                                             
                 DCD     HSEM2_IRQHandler                  ;  HSEM2 global Interrupt                                             
@@ -198,7 +198,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     LPUART1_IRQHandler                ;  LP UART1 interrupt                                                
                 DCD     WWDG_RST_IRQHandler               ; Window Watchdog reset interrupt (exti_d2_wwdg_it, exti_d1_wwdg_it)                                
                 DCD     CRS_IRQHandler                    ;  Clock Recovery Global Interrupt                                   
-                DCD     ECC_IRQHandler                    ; ECC diagnostic Global Interrupt                                              
+                DCD     ECC_IRQHandler                    ; ECC diagnostic Global Interrupt                                             
                 DCD     SAI4_IRQHandler                   ;  SAI4 global interrupt                                                
                 DCD     0                                 ; Reserved                                
                 DCD     HOLD_CORE_IRQHandler              ;  Hold core interrupt                                   
@@ -478,7 +478,7 @@ DMA2_Stream3_IRQHandler
 DMA2_Stream4_IRQHandler                                        
 ETH_IRQHandler                                                         
 ETH_WKUP_IRQHandler                                
-FDCAN_CAL_IRQHandler
+FDCAN_CAL_IRQHandler                                                                                                                                                                                                                            
 CM7_SEV_IRQHandler
 CM4_SEV_IRQHandler                                                                                                                                                                                                                             
 DMA2_Stream5_IRQHandler                                          
@@ -534,7 +534,7 @@ TIM17_IRQHandler
 MDIOS_WKUP_IRQHandler                                                              
 MDIOS_IRQHandler                                                                    
 JPEG_IRQHandler                                                                      
-MDMA_IRQHandler                                                                      
+MDMA_IRQHandler                                                                         
 SDMMC2_IRQHandler                                                                  
 HSEM1_IRQHandler                                                                     
 HSEM2_IRQHandler                                                                     
@@ -566,6 +566,11 @@ WAKEUP_PIN_IRQHandler
                 ENDP
 
                 ALIGN
+
+;*******************************************************************************
+; User Stack and Heap initialization
+;*******************************************************************************
+
                  END
 
 ;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****

@@ -2646,10 +2646,11 @@
             "MPU"
         ]
     },
-    "NUCLEO_H743ZI2": {
+    "MCU_STM32H743xI": {
         "inherits": [
             "MCU_STM32H7"
         ],
+        "public": false,
         "core": "Cortex-M7FD",
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x200000",
@@ -2657,6 +2658,14 @@
         "mbed_ram_size": "0x80000",
         "extra_labels_add": [
             "STM32H743xI"
+        ],
+        "macros_add": [
+            "STM32H743xx"
+        ]
+    },
+    "NUCLEO_H743ZI2": {
+        "inherits": [
+            "MCU_STM32H743xI"
         ],
         "config": {
             "d11_configuration": {
@@ -2670,9 +2679,6 @@
                 "macro_name": "HSE_VALUE"
             }
         },
-        "macros_add": [
-            "STM32H743xx"
-        ],
         "device_has_add": [
             "EMAC"
         ],

@@ -472,7 +472,10 @@ HAL_StatusTypeDef HAL_SD_InitCard(SD_HandleTypeDef *hsd)
   Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
   Init.BusWide             = SDMMC_BUS_WIDE_1B;
   Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-  Init.ClockDiv            = SDMMC_INIT_CLK_DIV;
+
+  /* Init Clock should be less or equal to 400Khz*/
+  sdmmc_clk     = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC);
+  Init.ClockDiv = sdmmc_clk/(2U*400000U);
 
 #if (USE_SD_TRANSCEIVER != 0U)
   if (hsd->Init.TranceiverPresent == SDMMC_TRANSCEIVER_PRESENT)
@@ -491,9 +494,9 @@ HAL_StatusTypeDef HAL_SD_InitCard(SD_HandleTypeDef *hsd)
   /* Set Power State to ON */
   (void)SDMMC_PowerState_ON(hsd->Instance);
 
-  /* wait 74 Cycles: required power up waiting time before starting 
+  /* wait 74 Cycles: required power up waiting time before starting
      the SD initialization sequence */
-  sdmmc_clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC)/(2U*SDMMC_INIT_CLK_DIV);
+  sdmmc_clk = sdmmc_clk/(2U*Init.ClockDiv);
 
   if(sdmmc_clk != 0U)
   {
@@ -1477,7 +1480,7 @@ HAL_StatusTypeDef HAL_SD_Erase(SD_HandleTypeDef *hsd, uint32_t BlockStartAdd, ui
     }
 
     /* Send CMD38 ERASE */
-    errorstate = SDMMC_CmdErase(hsd->Instance);
+    errorstate = SDMMC_CmdErase(hsd->Instance, 0UL);
     if(errorstate != HAL_SD_ERROR_NONE)
     {
       /* Clear all the static flags */
@@ -2127,7 +2130,7 @@ HAL_StatusTypeDef HAL_SD_UnRegisterTransceiverCallback(SD_HandleTypeDef *hsd)
   * @brief  Returns information the information of the card which are stored on
   *         the CID register.
   * @param  hsd: Pointer to SD handle
-  * @param  pCID: Pointer to a HAL_SD_CardCIDTypeDef structure that  
+  * @param  pCID: Pointer to a HAL_SD_CardCIDTypeDef structure that
   *         contains all CID register parameters
   * @retval HAL status
   */
@@ -2160,7 +2163,7 @@ HAL_StatusTypeDef HAL_SD_GetCardCID(SD_HandleTypeDef *hsd, HAL_SD_CardCIDTypeDef
   * @brief  Returns information the information of the card which are stored on
   *         the CSD register.
   * @param  hsd: Pointer to SD handle
-  * @param  pCSD: Pointer to a HAL_SD_CardCSDTypeDef structure that  
+  * @param  pCSD: Pointer to a HAL_SD_CardCSDTypeDef structure that
   *         contains all CSD register parameters
   * @retval HAL status
   */
@@ -2274,7 +2277,7 @@ HAL_StatusTypeDef HAL_SD_GetCardCSD(SD_HandleTypeDef *hsd, HAL_SD_CardCSDTypeDef
 /**
   * @brief  Gets the SD status info.
   * @param  hsd: Pointer to SD handle
-  * @param  pStatus: Pointer to the HAL_SD_CardStatusTypeDef structure that 
+  * @param  pStatus: Pointer to the HAL_SD_CardStatusTypeDef structure that
   *         will contain the SD card status information
   * @retval HAL status
   */

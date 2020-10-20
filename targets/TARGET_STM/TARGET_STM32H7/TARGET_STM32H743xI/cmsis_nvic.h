@@ -30,8 +30,10 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-#define MBED_RAM_SIZE  0x80000  // 128 KB
+#define MBED_RAM_SIZE  0x80000  // 512 KB
 #endif
+
+// DON'T USE MBED_RAM1_START and MBED_RAM1_SIZE (wrong values in tools/arm_pack_manager/index.json)
 
 #define NVIC_NUM_VECTORS        166
 #define NVIC_RAM_VECTOR_ADDRESS 0x20000000

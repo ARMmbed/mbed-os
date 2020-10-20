@@ -120,6 +120,7 @@ HAL_StatusTypeDef HAL_SDEx_ReadBlocksDMAMultiBuffer(SD_HandleTypeDef *hsd, uint3
 
     DmaBase0_reg = hsd->Instance->IDMABASE0;
     DmaBase1_reg = hsd->Instance->IDMABASE1;
+
     if ((hsd->Instance->IDMABSIZE == 0U) || (DmaBase0_reg == 0U) || (DmaBase1_reg == 0U))
     {
       hsd->ErrorCode = HAL_SD_ERROR_ADDR_OUT_OF_RANGE;
