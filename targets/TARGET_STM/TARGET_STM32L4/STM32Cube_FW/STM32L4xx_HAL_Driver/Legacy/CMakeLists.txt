@@ -3,7 +3,7 @@
 
 target_sources(mbed-os
     PRIVATE
-        PeripheralPins.c
+        stm32l4xx_hal_can_legacy.c
 )
 
 target_include_directories(mbed-os
