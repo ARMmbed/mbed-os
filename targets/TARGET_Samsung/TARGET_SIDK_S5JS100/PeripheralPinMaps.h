@@ -174,22 +174,22 @@ MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_UART_RTS[] = {
 
 /************QSPI**************/
 MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_QSPI_DQ0[]={
-
+	{NC, NC, NC}
 };
 MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_QSPI_DQ1[]={
-
+	{NC, NC, NC}
 };
 MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_QSPI_DQ2[]={
-
+	{NC, NC, NC}
 };
 MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_QSPI_DQ3[]={
-
+	{NC, NC, NC}
 };
 MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_QSPI_SCLK[]={
-
+	{NC, NC, NC}
 };
 MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_QSPI_CS0[]={
-
+	{NC, NC, NC}
 };
 
 #define PINMAP_ANALOGIN PinMap_ADC

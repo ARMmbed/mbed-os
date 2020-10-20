@@ -242,7 +242,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
 	int irqvector;
 	irqvector = s5js100_gpio_irqvector(obj->pincfg);
 	if (!irqvector) {
-		return -EINVAL;
+		//return -EINVAL;
 	}
 
 	obj->pincfg |= GPIO_EINT;
@@ -264,7 +264,7 @@ void gpio_irq_disable(gpio_irq_t *obj)
 	int irqvector;
 	irqvector = s5js100_gpio_irqvector(obj->pincfg);
 	if (!irqvector) {
-		return -EINVAL;
+		//return -EINVAL;
 	}
 
 	obj->pincfg &= ~GPIO_EINT;

@@ -32,7 +32,7 @@ void rtc_restore(void)
 	//printf("\r\n%s, rtc retention:%s\r\n", __func__,(char*)(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR));
 	time_t rtc_ret;
 	int page;
-	rtc_ret = (unsigned int*)(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR);
+	rtc_ret = (time_t)((unsigned int*)(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR));
 	if(rtc_ret != 0xFF) {
 		sscanf((char*)(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR), "%d", &rtc_ret);
 		g_base_timeval = rtc_ret;

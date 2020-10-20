@@ -90,7 +90,7 @@ static void adc_reset(analogin_t *obj)
 
 	/* Configuration of the channel conversions */
 	adc_set_ch(obj, obj->current);
-	putreg32(ADC_INT_ENABLE, S5JS100_ADC_INT);
+	// putreg32(ADC_INT_ENABLE, S5JS100_ADC_INT);
 }
 
 

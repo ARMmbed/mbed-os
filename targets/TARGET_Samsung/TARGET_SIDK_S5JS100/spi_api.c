@@ -449,8 +449,8 @@ int spi_busy(spi_t *obj)
 void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
 {
     uint32_t peripheral = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    uint32_t ssp_cr0 = ssp_getreg(peripheral, S5JS100_SSP_CR0_OFFSET);
-    uint32_t ssp_cr1 = ssp_getreg(peripheral, S5JS100_SSP_CR1_OFFSET);
+    uint32_t ssp_cr0 = ssp_getreg((spi_t *)peripheral, S5JS100_SSP_CR0_OFFSET);
+    uint32_t ssp_cr1 = ssp_getreg((spi_t *)peripheral, S5JS100_SSP_CR1_OFFSET);
 
     if (!cap)
         return;
