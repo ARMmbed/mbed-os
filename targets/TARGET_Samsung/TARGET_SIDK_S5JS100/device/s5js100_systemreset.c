@@ -62,13 +62,13 @@
  ****************************************************************************/
 void up_systemreset(void)
 {
-//#if DEVICE_RTC
+#if DEVICE_RTC
 	printf("\r\n reset..now\r\n");
 	char rtc_string[100] = {0};	
 	up_progmem_erasepage(S5JS100_RTC_RET_OFFSET / 256);
 	sprintf(rtc_string,"%d", rtc_read());
 	up_progmem_write(S5JS100_RTC_RET_OFFSET+S5JS100_FLASH_PADDR, rtc_string, sizeof(rtc_string));
-//#endif
+#endif
 
     putreg32(0x1, 0x8301100C);
     putreg32(0x1 << 1, 0x82020018);
