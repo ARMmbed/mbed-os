@@ -1020,7 +1020,7 @@ int s5js100_i2c_write(struct i2c_s *obj, const uint8_t *buffer, int buflen, int 
 
 	msg.addr = obj->slave_addr;
 	msg.flags = (obj->addrlen == 10) ? I2C_M_TEN : 0;
-	msg.buffer = buffer;
+	msg.buffer = (unsigned char *)buffer;
 	msg.length = buflen;
 
 	return s5js100_i2c_transfer(obj, &msg, 1, stop);
