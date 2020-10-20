@@ -107,7 +107,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 	} else if (mode == PullDown) {
 		obj->pincfg |= GPIO_PULLDOWN;
 	} else {
-		return -EINVAL;
+		//return -EINVAL;
 	}
 	s5js100_pullup(obj->pincfg);
 }
