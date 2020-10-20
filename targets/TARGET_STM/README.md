@@ -72,7 +72,7 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 | H7          |    1.7.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
 | L0          |    1.11.3    | https://github.com/STMicroelectronics/STM32CubeL0 |
 | L1          |    1.8.1     | https://github.com/STMicroelectronics/STM32CubeL1 |
-| L4          |    1.14.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
+| L4          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
 | L5          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
 | WB          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeWB |
 
