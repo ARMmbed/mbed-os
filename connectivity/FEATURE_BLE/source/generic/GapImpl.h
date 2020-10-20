@@ -182,6 +182,8 @@ public:
         scan_period_t period = scan_period_t(0)
     );
 
+    ble_error_t initiate_scan();
+
     ble_error_t stopScan();
 
 #endif // BLE_ROLE_OBSERVER
@@ -892,11 +894,21 @@ private:
 #endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
 
+    enum class ScanState : uint8_t {
+        idle,
+        scan,
+        pending_scan,
+        pending_stop_scan
+    };
 
-    bool _scan_enabled = false;
-    bool _scan_pending = false;
-    bool _scan_interruptible = false;
-    bool _scan_address_refresh = false;
+    ScanState _scan_state = ScanState::idle;
+
+    scan_duration_t _scan_requested_duration = scan_duration_t::forever();
+    duplicates_filter_t _scan_requested_filtering = duplicates_filter_t::DISABLE;
+    scan_period_t _scan_requested_period = scan_period_t(0);
+
+    bool _scan_requested = false;
+
 #if BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
     enum class ConnectionToHostResolvedAddressState : uint8_t {
         idle,
