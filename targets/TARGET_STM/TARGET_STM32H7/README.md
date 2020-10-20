@@ -73,6 +73,31 @@ so you just have to create a custom_targets.json file with:
 }
 ```
 
+## STM32H7A3xx
+
+STM32H7A3/7B3 devices are based on an Arm Cortex-M7 core (with double-precision floating point unit) running up to 280 MHz.
+
+[st.com STM32H743ZI MCU page](https://www.st.com/en/microcontrollers-microprocessors/stm32h7a3-7b3.html)
+
+### NUCLEO_H7A3ZI_Q
+
+[st.com NUCLEO page](https://www.st.com/en/evaluation-tools/nucleo-h7a3zi-q.html)
+
+[mbed.com Target page](https://os.mbed.com/platforms/ST-Nucleo-H7A3ZI-Q/)
+
+- Total FLASH is 2 MB (0x200000)
+    - 2x128 sectors of 8 KB
+    - Flash memory bank 1 @ 0x0800 0000
+    - Flash memory bank 2 @ 0x0810 0000
+
+- RAM: 1312 KB
+    - DTCM  :    128 KB (0x20000)  @0x2000 0000
+    - SRAM  :   1024 KB (0x100000) @0x2400 0000
+    - SRAM1 :     64 KB (0x10000)  @0x3000 0000
+    - SRAM2 :     64 KB (0x10000)  @0x3001 0000
+    - SRAM3 :     32 KB (0x8000)   @0x3800 0000
+
+
 # Dual core STM32
 
 ## STM32H747xx
