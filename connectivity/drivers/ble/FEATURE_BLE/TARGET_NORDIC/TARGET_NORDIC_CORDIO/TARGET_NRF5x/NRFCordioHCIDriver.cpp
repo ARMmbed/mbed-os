@@ -19,6 +19,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "pal_rtc.h"
+
 
 // mbed Includes
 #include "mbed_assert.h"
@@ -179,6 +181,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 
 extern "C" void TIMER0_IRQHandler(void);
 extern "C" void TIMER2_IRQHandler(void);
+extern "C" void RTC1_IRQHandler(void);
 
 NRFCordioHCIDriver::NRFCordioHCIDriver(CordioHCITransportDriver& transport_driver) : CordioHCIDriver(transport_driver), _is_init(false), _stack_buffer(NULL)
 {
@@ -247,6 +250,9 @@ void NRFCordioHCIDriver::do_initialize()
         .freeMemAvail = MBED_CONF_CORDIO_NORDIC_LL_HCI_DRIVER_BUFFER_SIZE
     };
 
+    /* Enable Flash cache */
+    NRF_NVMC->ICACHECNF |= (NVMC_ICACHECNF_CACHEEN_Enabled << NVMC_ICACHECNF_CACHEEN_Pos);
+
     /* switch to more accurate 16 MHz crystal oscillator (system starts up using 16MHz RC oscillator) */
     NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
     NRF_CLOCK->TASKS_HFCLKSTART    = 1;
@@ -254,29 +260,15 @@ void NRFCordioHCIDriver::do_initialize()
     {
     }
 
-    /* configure low-frequency clock */
-    NRF_CLOCK->LFCLKSRC             = (NRF_LF_CLK_SRC << CLOCK_LFCLKSRC_SRC_Pos);
-    NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
-    NRF_CLOCK->TASKS_LFCLKSTART     = 1;
-    while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0)
-    {
-    }
-    NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
 
-    // Start RTC0
-    NRF_RTC0->TASKS_STOP  = 1;
-    NRF_RTC0->TASKS_CLEAR = 1;
-    NRF_RTC0->PRESCALER   = 0;            /* clear prescaler */
-    NRF_RTC0->TASKS_START = 1;
-
-    // Cycle radio peripheral power to guarantee known radio state
-    NRF_RADIO->POWER = 0;
-    NRF_RADIO->POWER = 1;
 
     // mbed-os target uses IRQ Handler names with _v added at the end
     // (TIMER0_IRQHandler_v and TIMER2_IRQHandler_v) so we need to register these manually
     NVIC_SetVector(TIMER0_IRQn, (uint32_t)TIMER0_IRQHandler);
-    NVIC_SetVector(TIMER2_IRQn, (uint32_t)TIMER2_IRQHandler);
+    NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
+
+    PalRtcInit();
+
 
     // Extremely ugly
     for(uint32_t irqn = 0; irqn < 32; irqn++)
