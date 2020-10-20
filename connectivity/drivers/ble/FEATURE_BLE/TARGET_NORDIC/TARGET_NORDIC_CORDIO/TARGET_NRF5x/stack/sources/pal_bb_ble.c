@@ -781,12 +781,12 @@ void PalBbBleEnable(void)
    *   This channel is used to trigger starting TIMER[0] for radio operations.
    */
 #if (USE_RTC_BB_CLK)
-  /* timer0 starts when RTC0.COMPARE[1] event is triggered */
+  /* timer0 starts when RTC1.COMPARE[1] event is triggered */
   NRF_PPI->CH[13].EEP = (uint32_t) &NRF_RTC1->EVENTS_COMPARE[1];
   NRF_PPI->CH[13].TEP = (uint32_t) &NRF_TIMER0->TASKS_START;
   NRF_PPI->CHENSET = PPI_CHENSET_CH13_Msk;                                        /* enable channel */
 
-  /* HFCLK starts when RTC0.COMPARE[2] event is triggered */
+  /* HFCLK starts when RTC1.COMPARE[2] event is triggered */
   NRF_PPI->CH[10].EEP = (uint32_t) &NRF_RTC1->EVENTS_COMPARE[2];
   NRF_PPI->CH[10].TEP = (uint32_t) &NRF_CLOCK->TASKS_HFCLKSTART;
   NRF_PPI->CHENSET = PPI_CHENSET_CH10_Msk;                                        /* enable channel */
