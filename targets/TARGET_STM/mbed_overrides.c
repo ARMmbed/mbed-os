@@ -27,9 +27,68 @@
  */
 #include "cmsis.h"
 #include "objects.h"
+#include "platform/mbed_error.h"
 
 int mbed_sdk_inited = 0;
 extern void SetSysClock(void);
+
+#if MBED_CONF_TARGET_LSE_AVAILABLE
+
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
+    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
+#   if MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#   else
+#       define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_HIGHDRIVE_MODE
+#   endif
+#else // defined(STM32F4xx)
+#   if MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#   else
+#       define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_MEDIUMHIGH
+#   endif
+#endif
+
+/**
+ * @brief configure the LSE crystal driver load
+ * This settings ist target hardware dependend and 
+ * depends on the crystal that is used for LSE clock.
+ * For low power requirements, crystals with low load capacitors can be used and
+ * driver setting is RCC_LSEDRIVE_LOW.
+ * For higher stablity, crystals with higher load capacitys can be used and
+ * driver setting is RCC_LSEDRIVE_HIGH.
+ * 
+ * A detailed description about this setting can be found here:
+ * https://www.st.com/resource/en/application_note/cd00221665-oscillator-design-guide-for-stm8afals-stm32-mcus-and-mpus-stmicroelectronics.pdf
+ * 
+ * LSE maybe used later, but crystal load drive setting is necessary before 
+ * enabling LSE.
+ *   
+ * @param None
+ * @retval None
+ */
+
+static void LSEDriveConfig(void) {
+    // this config can be changed only when LSE is stopped
+    // LSE could be enabled before a reset and will remain running, disable first
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+        error("LSEDriveConfig : failed to disable LSE\n");
+    }
+
+   // set LSE drive level. Exception only for F4_g2 series
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
+    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
+    HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
+#else
+    HAL_PWR_EnableBkUpAccess();
+    __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
+#endif 
+}
+#endif  // MBED_CONF_TARGET_LSE_AVAILABLE
 
 /**
  * @brief Setup the target board-specific configuration
@@ -120,6 +179,11 @@ void mbed_sdk_init()
 
     /* Configure the System clock source, PLL Multiplier and Divider factors,
        AHB/APBx prescalers and Flash settings */
+#if MBED_CONF_TARGET_LSE_AVAILABLE
+    // LSE maybe used later, but crystal load drive setting is necessary before 
+    // enabling LSE
+    LSEDriveConfig();
+#endif
     SetSysClock();
     SystemCoreClockUpdate();
 
@@ -142,6 +206,9 @@ void mbed_sdk_init()
 
     /* Configure the System clock source, PLL Multiplier and Divider factors,
        AHB/APBx prescalers and Flash settings */
+#if MBED_CONF_TARGET_LSE_AVAILABLE
+    LSEDriveConfig();
+#endif
     SetSysClock();
     SystemCoreClockUpdate();
 #endif /* DUAL_CORE */
