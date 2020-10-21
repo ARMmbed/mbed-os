@@ -307,4 +307,16 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 	pwmout_timer_config(priv, priv->period_us, priv->width_us);
 }
 
+int pwmout_read_period_us(pwmout_t *obj)
+{
+	struct pwmout_s *priv = (struct pwmout_s *)obj;
+	return priv->period_us;
+}
+
+int pwmout_read_pulsewidth_us(pwmout_t *obj)
+{
+	struct pwmout_s *priv = (struct pwmout_s *)obj;
+	return priv->width_us;
+}
+
 #endif
