@@ -10,17 +10,6 @@ if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
-include(${MBED_CONFIG_PATH}/mbed_config.cmake)
-
-# Set default toolchain file
-if(NOT CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "${MBED_ROOT}/tools/cmake/toolchain.cmake" CACHE INTERNAL "")
-endif()
-
-# Toolchain setup
-include(${MBED_ROOT}/tools/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
-enable_language(C CXX ASM)
-
 include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
 
