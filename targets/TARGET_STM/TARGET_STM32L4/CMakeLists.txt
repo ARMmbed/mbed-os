@@ -5,7 +5,7 @@ if("STM32L475xG" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32L475xG)
 endif()
 
-add_subdirectory(device)
+add_subdirectory(STM32Cube_FW)
 
 target_sources(mbed-os
     PRIVATE
@@ -20,5 +20,5 @@ target_sources(mbed-os
 
 target_include_directories(mbed-os
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
