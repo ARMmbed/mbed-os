@@ -164,4 +164,17 @@ int ws_test_6lowpan_fragmentation_mtu_size_set(int8_t interface_id, uint16_t mtu
     return 0;
 }
 
+int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)
+{
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+
+    ws_cfg_neighbour_temporary_lifetime_set(temporary_lifetime);
+    return 0;
+}
+
 #endif // HAVE_WS

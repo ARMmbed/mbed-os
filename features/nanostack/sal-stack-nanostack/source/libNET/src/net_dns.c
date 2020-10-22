@@ -150,15 +150,17 @@ int8_t net_dns_server_search_list_set(int8_t interface_id, const uint8_t address
         info_ptr->dns_search_list_ptr = NULL;
     }
 
-    if (!info_ptr->dns_search_list_ptr) {
-        info_ptr->dns_search_list_ptr = ns_dyn_mem_alloc(dns_search_list_len);
+    if (dns_search_list_len) {
+        if (!info_ptr->dns_search_list_ptr) {
+            info_ptr->dns_search_list_ptr = ns_dyn_mem_alloc(dns_search_list_len);
+        }
+
+        if (!info_ptr->dns_search_list_ptr) {
+            return -2;
+        }
+        memcpy(info_ptr->dns_search_list_ptr, dns_search_list_ptr, dns_search_list_len);
     }
 
-    if (!info_ptr->dns_search_list_ptr) {
-        return -2;
-    }
-
-    memcpy(info_ptr->dns_search_list_ptr, dns_search_list_ptr, dns_search_list_len);
     info_ptr->dns_search_list_len = dns_search_list_len;
     tr_info("DNS Search List: %s Lifetime: %lu", trace_array(info_ptr->dns_search_list_ptr, info_ptr->dns_search_list_len), (unsigned long) info_ptr->lifetime);
 

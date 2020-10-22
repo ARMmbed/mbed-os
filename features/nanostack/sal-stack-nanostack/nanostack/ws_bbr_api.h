@@ -97,6 +97,7 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 #define BBR_BB_WAIT               0x0004 /**< Wait backbone availability before starting Wi-SUN network */
 #define BBR_DEFAULT_ROUTE         0x0008 /**< Add default route parameter to DIO */
 #define BBR_REQUIRE_DAO_REFRESH   0x0010 /**< Do not increment PAN version number when active forces DAO update from nodes*/
+#define BBR_GUA_SLAAC             0x0020 /**< in Global prefix use SLAAC address generation to reduce traffic during bootstrap */
 
 /**
  * Configure border router features.
