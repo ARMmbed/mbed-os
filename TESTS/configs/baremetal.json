@@ -32,8 +32,7 @@
         "sd",
         "qspif",
         "spif-driver",
-        "cryptocell310",
-        "drivers-usb"
+        "cryptocell310"
     ],
     "target_overrides": {
         "*": {
