@@ -32,18 +32,23 @@
 int mbed_sdk_inited = 0;
 extern void SetSysClock(void);
 
-#if MBED_CONF_TARGET_LSE_AVAILABLE
-
-// set defaults for LSE drive load level, with exception for F4_g2 MCU
-#if MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
-#   define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
-#else
-#   ifdef RCC_LSE_HIGHDRIVE_MODE
-#       define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_HIGHDRIVE_MODE
-#   else
-#       define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_MEDIUMHIGH
-#   endif
+#if defined(RCC_LSE_HIGHDRIVE_MODE) || defined(RCC_LSEDRIVE_HIGH)
+#   define LSE_CONFIG_AVAILABLE
 #endif
+
+// set defaults for LSE drive load level
+#if defined(LSE_CONFIG_AVAILABLE)
+
+#   ifdef MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#   else
+#       ifdef RCC_LSE_HIGHDRIVE_MODE
+#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_HIGHDRIVE_MODE
+#       else
+#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_MEDIUMHIGH
+#       endif
+#   endif
+
 
 /**
  * @brief configure the LSE crystal driver load
@@ -77,13 +82,13 @@ static void LSEDriveConfig(void) {
 
    // set LSE drive level. Exception only for F4_g2 series
     HAL_PWR_EnableBkUpAccess();
-    #ifdef  __HAL_RCC_LSEDRIVE_CONFIG
+    #if defined(LSE_CONFIG_AVAILABLE)
         __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
     #else
         HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
     #endif
 }
-#endif  // MBED_CONF_TARGET_LSE_AVAILABLE
+#endif  // LSE_CONFIG_AVAILABLE
 
 /**
  * @brief Setup the target board-specific configuration
@@ -174,7 +179,7 @@ void mbed_sdk_init()
 
     /* Configure the System clock source, PLL Multiplier and Divider factors,
        AHB/APBx prescalers and Flash settings */
-#if MBED_CONF_TARGET_LSE_AVAILABLE
+#if defined(LSE_CONFIG_AVAILABLE)
     // LSE maybe used later, but crystal load drive setting is necessary before 
     // enabling LSE
     LSEDriveConfig();
@@ -201,7 +206,7 @@ void mbed_sdk_init()
 
     /* Configure the System clock source, PLL Multiplier and Divider factors,
        AHB/APBx prescalers and Flash settings */
-#if MBED_CONF_TARGET_LSE_AVAILABLE
+#if defined(LSE_CONFIG_AVAILABLE)
     LSEDriveConfig();
 #endif
     SetSysClock();
