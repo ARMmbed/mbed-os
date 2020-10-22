@@ -25,14 +25,6 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-#include "mbed-trace/mbed_trace.h"
-
-#if defined(OCTOSPI1)
-#define TRACE_GROUP "STOS"
-#else
-#define TRACE_GROUP "STQS"
-#endif /* OCTOSPI1 */
-
 // activate / de-activate extra debug
 #define qspi_api_c_debug 0
 
@@ -387,8 +379,6 @@ qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_
 static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #endif
 {
-    tr_info("qspi_init mode %u", mode);
-
     // Reset handle internal state
     obj->handle.State = HAL_OSPI_STATE_RESET;
 
@@ -535,7 +525,6 @@ qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_
 static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #endif
 {
-    tr_info("qspi_init mode %u", mode);
     // Enable interface clock for QSPI
     __HAL_RCC_QSPI_CLK_ENABLE();
 
@@ -632,7 +621,6 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 #if defined(OCTOSPI1)
 qspi_status_t qspi_free(qspi_t *obj)
 {
-    tr_info("qspi_free");
     if (HAL_OSPI_DeInit(&obj->handle) != HAL_OK) {
         return QSPI_STATUS_ERROR;
     }
@@ -664,8 +652,6 @@ qspi_status_t qspi_free(qspi_t *obj)
 #else /* OCTOSPI */
 qspi_status_t qspi_free(qspi_t *obj)
 {
-    tr_info("qspi_free");
-
     if (HAL_QSPI_DeInit(&obj->handle) != HAL_OK) {
         return QSPI_STATUS_ERROR;
     }
@@ -701,7 +687,6 @@ qspi_status_t qspi_free(qspi_t *obj)
 #if defined(OCTOSPI1)
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
-    tr_info("qspi_frequency hz %d", hz);
     qspi_status_t status = QSPI_STATUS_OK;
 
     /* HCLK drives QSPI. QSPI clock depends on prescaler value:
@@ -728,7 +713,6 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 #else /* OCTOSPI */
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
-    tr_info("qspi_frequency hz %d", hz);
     qspi_status_t status = QSPI_STATUS_OK;
 
     /* HCLK drives QSPI. QSPI clock depends on prescaler value:
@@ -863,8 +847,6 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 #if defined(OCTOSPI1)
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-    tr_info("qspi_command_transfer tx %u rx %u command %#04x", tx_size, rx_size, command->instruction.value);
-
     qspi_status_t status = QSPI_STATUS_OK;
 
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {
@@ -903,7 +885,6 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
 #else /* OCTOSPI */
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-    tr_info("qspi_command_transfer tx %u rx %u command %#04x", tx_size, rx_size, command->instruction.value);
     qspi_status_t status = QSPI_STATUS_OK;
 
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {
