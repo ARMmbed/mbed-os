@@ -10,7 +10,7 @@ elseif("SDT64B" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_SDT64B)
 endif()
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         mbed_crc_api.c
         pwmout_api.c
@@ -60,7 +60,7 @@ target_sources(mbed-os
         drivers/fsl_wdog.c
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         drivers

@@ -3,7 +3,7 @@
 
 add_subdirectory(source/framework)
 
-target_include_directories(mbed-os-cellular
+target_include_directories(mbed-cellular
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -15,13 +15,13 @@ target_include_directories(mbed-os-cellular
         ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular/framework/device
 )
 
-target_compile_definitions(mbed-os-cellular
+target_compile_definitions(mbed-cellular
     INTERFACE
         MBED_CONF_CELLULAR_PRESENT=1
 )
 
-target_link_libraries(mbed-os-cellular
+target_link_libraries(mbed-cellular
     INTERFACE
-        mbed-os-netsocket
-        mbed-os
+        mbed-netsocket
+        mbed-core
 )

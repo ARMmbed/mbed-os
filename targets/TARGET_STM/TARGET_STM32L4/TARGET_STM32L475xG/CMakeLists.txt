@@ -5,7 +5,7 @@ if("DISCO_L475VG_IOT01A" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_DISCO_L475VG_IOT01A)
 endif()
 
-function(_mbed_get_assembly_disco_l475vg_iot01a)
+function(_mbed_get_assembly_stm32l475xg)
     if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32l475xx.S)
     elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
@@ -13,10 +13,10 @@ function(_mbed_get_assembly_disco_l475vg_iot01a)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(STARTUP_FILE TOOLCHAIN_IAR/startup_stm32l475xx.S)
     endif()
-    target_sources(mbed-os PRIVATE ${STARTUP_FILE})
+    target_sources(mbed-core PRIVATE ${STARTUP_FILE})
 endfunction()
 
-function(_mbed_set_linker_file)
+function(_mbed_set_linker_file_stm32l475xg)
     if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/TOOLCHAIN_GCC_ARM/stm32l475xg.ld)
     elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
@@ -27,15 +27,15 @@ function(_mbed_set_linker_file)
     set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${LINKER_FILE})
 endfunction()
 
-_mbed_get_assembly_disco_l475vg_iot01a()
-_mbed_set_linker_file()
+_mbed_get_assembly_stm32l475xg()
+_mbed_set_linker_file_stm32l475xg()
 
-target_sources(mbed-os
-    PRIVATE
-        system_clock.c
+target_include_directories(mbed-core
+    PUBLIC
+        .
 )
 
-target_include_directories(mbed-os
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+target_sources(mbed-core
+    PRIVATE
+        system_clock.c
 )

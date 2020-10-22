@@ -25,7 +25,7 @@ elseif("Silicon_Labs" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Silicon_Labs)
 endif()
 
-target_link_libraries(mbed-os-emac
+target_link_libraries(mbed-emac
     INTERFACE
-        mbed-os-netsocket
+        mbed-netsocket
 )

@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-ppp
+target_include_directories(mbed-ppp
     INTERFACE
         .
         ./include
@@ -9,7 +9,7 @@ target_include_directories(mbed-os-ppp
         ./include/ppp
 )
 
-target_sources(mbed-os-ppp
+target_sources(mbed-ppp
     INTERFACE
         source/auth.c
         source/ccp.c
@@ -46,7 +46,7 @@ target_sources(mbed-os-ppp
         source/polarssl/ppp_sha1.c
 )
 
-target_compile_definitions(mbed-os-ppp
+target_compile_definitions(mbed-ppp
     INTERFACE
         MBED_CONF_PPP_PRESENT=1
 )

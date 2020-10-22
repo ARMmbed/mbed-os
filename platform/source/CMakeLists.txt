@@ -9,12 +9,12 @@ endif()
 
 add_subdirectory(minimal-printf)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         .
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         ATCmdParser.cpp
         CThunkBase.cpp

@@ -13,7 +13,7 @@ endif()
 include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
 
-add_library(mbed-os OBJECT)
+add_library(mbed-core OBJECT)
 
 # Validate selected C library type
 # The C library type selected has to match the library that the target can support
@@ -43,26 +43,26 @@ if(NOT ${MBED_PRINTF_LIB} IN_LIST MBED_PRINTF_LIB_TYPES)
     )
 endif()
 
-mbed_set_cpu_core_options(mbed-os ${MBED_TOOLCHAIN})
-mbed_set_toolchain_options(mbed-os)
-mbed_set_c_lib(mbed-os ${MBED_C_LIB})
-mbed_set_printf_lib(mbed-os ${MBED_PRINTF_LIB})
-mbed_set_language_standard(mbed-os)
-mbed_set_profile_options(mbed-os ${MBED_TOOLCHAIN})
+mbed_set_cpu_core_options(mbed-core ${MBED_TOOLCHAIN})
+mbed_set_toolchain_options(mbed-core)
+mbed_set_c_lib(mbed-core ${MBED_C_LIB})
+mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
+mbed_set_language_standard(mbed-core)
+mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
 
-set_target_properties(mbed-os
+set_target_properties(mbed-core
     PROPERTIES
         MBED_TARGET_LABELS "${MBED_TARGET_LABELS}"
 )
 
-target_compile_definitions(mbed-os
+target_compile_definitions(mbed-core
     PUBLIC
         ${MBED_TARGET_DEFINITIONS}
         ${MBED_CONFIG_DEFINITIONS}
 )
 
 # Include mbed.h and config from generate folder
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -70,7 +70,7 @@ target_include_directories(mbed-os
 # TODO CMake: This component is made visible here so its source files in
 # drivers/ can be added and it can be linked against by libraries in storage/.
 # Should the source files be moved from drivers/ to storage/ ?
-add_library(mbed-os-device_key INTERFACE)
+add_library(mbed-device_key INTERFACE)
 
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
@@ -111,7 +111,7 @@ function(mbed_set_mbed_target_linker_script target)
         )
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
-        target_link_options(mbed-os
+        target_link_options(mbed-core
             PUBLIC
                 "--scatter=${mbed_target_linker_script}"
         )

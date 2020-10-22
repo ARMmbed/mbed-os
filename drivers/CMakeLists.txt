@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         .
         ./include
@@ -9,7 +9,7 @@ target_include_directories(mbed-os
         ./include/drivers/internal
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         source/AnalogIn.cpp
         source/AnalogOut.cpp
