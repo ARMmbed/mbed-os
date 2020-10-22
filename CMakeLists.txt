@@ -25,6 +25,8 @@ include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
 
 add_library(mbed-core OBJECT)
+# TODO CMAKE: Replace mbed-os by a new one that will include mbed-core and mbed-rtos
+add_library(mbed-os ALIAS mbed-core)
 
 # Validate selected C library type
 # The C library type selected has to match the library that the target can support
