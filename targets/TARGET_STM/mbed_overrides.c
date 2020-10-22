@@ -34,14 +34,14 @@ extern void SetSysClock(void);
 
 #if MBED_CONF_TARGET_LSE_AVAILABLE
 
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
-    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
+// set defaults for LSE drive load level, with exception for F4_g2 MCU
+#ifdef RCC_LSE_HIGHDRIVE_MODE
 #   if MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
 #       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
 #   else
 #       define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_HIGHDRIVE_MODE
 #   endif
-#else // defined(STM32F4xx)
+#else
 #   if MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
 #       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
 #   else
@@ -80,13 +80,12 @@ static void LSEDriveConfig(void) {
     }
 
    // set LSE drive level. Exception only for F4_g2 series
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
-    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
-    HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
-#else
     HAL_PWR_EnableBkUpAccess();
-    __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
-#endif 
+    #ifdef  __HAL_RCC_LSEDRIVE_CONFIG
+        __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
+    #else
+        HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
+    #endif
 }
 #endif  // MBED_CONF_TARGET_LSE_AVAILABLE
 
