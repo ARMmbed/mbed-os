@@ -134,7 +134,6 @@ uint8_t SetSysClock_PLL_MSI(void)
     __HAL_RCC_RTCAPB_CLK_ENABLE();
 
 #if MBED_CONF_TARGET_LSE_AVAILABLE
-    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;   // External 32.768 kHz clock on OSC_IN/OSC_OUT
