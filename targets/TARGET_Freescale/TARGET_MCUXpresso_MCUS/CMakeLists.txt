@@ -7,7 +7,7 @@ elseif("MCU_K64F" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_MCU_K64F)
 endif()
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         fsl_common.c
 
@@ -26,7 +26,7 @@ target_sources(mbed-os
         api/sleep.c
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         api
 )

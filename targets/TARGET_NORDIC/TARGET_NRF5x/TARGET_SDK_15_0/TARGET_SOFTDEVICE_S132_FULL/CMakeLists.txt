@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/headers
         ${CMAKE_CURRENT_SOURCE_DIR}/headers/nrf52

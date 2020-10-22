@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
     ONBOARD_QUECTEL_UG96.cpp
     PeripheralPins.c
@@ -9,7 +9,7 @@ target_sources(mbed-os
     system_clock.c
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

@@ -5,14 +5,14 @@ add_subdirectory(direct_access_devicekey)
 add_subdirectory(kv_config)
 add_subdirectory(securestore)
 
-target_include_directories(mbed-os-storage-kvstore
+target_include_directories(mbed-storage-kvstore
     INTERFACE
         .
         ./include
         ./include/kvstore
 )
 
-target_sources(mbed-os-storage-kvstore
+target_sources(mbed-storage-kvstore
     INTERFACE
         source/FileSystemStore.cpp
         source/KVMap.cpp
@@ -20,13 +20,13 @@ target_sources(mbed-os-storage-kvstore
         source/kvstore_global_api.cpp
 )
 
-target_link_libraries(mbed-os-storage-kvstore
+target_link_libraries(mbed-storage-kvstore
     INTERFACE
-        mbed-os-device_key
-        mbed-os-storage-blockdevice
-        mbed-os-storage-filesystem
-        mbed-os-storage-fat
-        mbed-os-storage-littlefs
-        mbed-os-storage-flashiap
-        mbed-os-storage-sd
+        mbed-device_key
+        mbed-storage-blockdevice
+        mbed-storage-filesystem
+        mbed-storage-fat
+        mbed-storage-littlefs
+        mbed-storage-flashiap
+        mbed-storage-sd
 )

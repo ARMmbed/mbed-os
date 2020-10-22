@@ -11,12 +11,12 @@ elseif("STM32H7" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32H7)
 endif()
 
-target_include_directories(mbed-os-emac
+target_include_directories(mbed-emac
     INTERFACE
         .
 )
 
-target_sources(mbed-os-emac
+target_sources(mbed-emac
     INTERFACE
         stm32xx_emac.cpp
 )

@@ -19,7 +19,7 @@ add_subdirectory(source/ipv6_stack)
 add_subdirectory(source/libDHCPv6)
 add_subdirectory(source/libNET)
 
-target_include_directories(mbed-os-nanostack-sal_stack
+target_include_directories(mbed-nanostack-sal_stack
     INTERFACE
         .
         ./nanostack
@@ -27,7 +27,7 @@ target_include_directories(mbed-os-nanostack-sal_stack
         ./source
 )
 
-target_link_libraries(mbed-os-nanostack
+target_link_libraries(mbed-nanostack
     INTERFACE
-        mbed-os-nanostack-coap_service
+        mbed-nanostack-coap_service
 )

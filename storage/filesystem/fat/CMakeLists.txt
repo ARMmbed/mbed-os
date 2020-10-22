@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-storage-fat
+target_include_directories(mbed-storage-fat
     INTERFACE
         .
         ./include
@@ -9,7 +9,7 @@ target_include_directories(mbed-os-storage-fat
         ./ChaN
 )
 
-target_sources(mbed-os-storage-fat
+target_sources(mbed-storage-fat
     INTERFACE
         source/FATFileSystem.cpp
 

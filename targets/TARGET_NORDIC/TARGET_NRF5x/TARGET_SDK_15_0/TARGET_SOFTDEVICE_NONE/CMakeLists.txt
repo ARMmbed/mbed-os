@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/fstorage
         ${CMAKE_CURRENT_SOURCE_DIR}/nrf_soc_nosd/
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         libraries/fstorage/nrf_fstorage_nvmc.c
 

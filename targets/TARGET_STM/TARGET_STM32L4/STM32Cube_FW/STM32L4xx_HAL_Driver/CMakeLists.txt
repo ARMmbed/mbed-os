@@ -3,12 +3,12 @@
 
 add_subdirectory(Legacy)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         .
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         stm32l4xx_hal_adc.c
         stm32l4xx_hal_adc_ex.c

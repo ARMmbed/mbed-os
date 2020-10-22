@@ -5,12 +5,12 @@ if("Apollo3" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Apollo3)
 endif()
 
-target_include_directories(mbed-os-ble
+target_include_directories(mbed-ble
     INTERFACE
         hal/apollo3
 )
 
-target_sources(mbed-os-ble
+target_sources(mbed-ble
     INTERFACE
         hal/hci_drv_apollo3.c
 )

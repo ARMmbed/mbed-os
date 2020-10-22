@@ -3,7 +3,7 @@
 
 function(_mbed_get_system_init)
     if(${MBED_TOOLCHAIN} STREQUAL "IAR")
-        target_sources(mbed-os PRIVATE TOOLCHAIN_IAR/cmain.S)
+        target_sources(mbed-core PRIVATE TOOLCHAIN_IAR/cmain.S)
     endif()
 endfunction()
 

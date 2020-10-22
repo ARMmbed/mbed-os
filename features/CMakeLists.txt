@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # List of all features libraries available.
-add_library(mbed-os-fpga-ci-test-shield INTERFACE)
-add_library(mbed-os-client-cli INTERFACE)
+add_library(mbed-fpga-ci-test-shield INTERFACE)
+add_library(mbed-client-cli INTERFACE)
 
 add_subdirectory(frameworks/COMPONENT_FPGA_CI_TEST_SHIELD)
 add_subdirectory(frameworks/mbed-client-cli)

@@ -1,13 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-ble-cordio
+target_include_directories(mbed-ble-cordio
     INTERFACE
         .
         ./stack/include
 )
 
-target_sources(mbed-os-ble-cordio
+target_sources(mbed-ble-cordio
     INTERFACE
         NRFCordioHCIDriver.cpp
         NRFCordioHCITransportDriver.cpp

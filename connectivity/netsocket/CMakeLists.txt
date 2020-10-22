@@ -2,19 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # TODO CMake: Perhaps move this/these file(s)
-target_sources(mbed-os-cellular
+target_sources(mbed-cellular
     INTERFACE
         source/CellularNonIPSocket.cpp
 )
 
-target_include_directories(mbed-os-netsocket
+target_include_directories(mbed-netsocket
     INTERFACE
         .
         ./include
         ./include/netsocket
 )
 
-target_sources(mbed-os-netsocket
+target_sources(mbed-netsocket
     INTERFACE
         source/DTLSSocket.cpp
         source/DTLSSocketWrapper.cpp
@@ -40,27 +40,27 @@ target_sources(mbed-os-netsocket
         source/nsapi_ppp.cpp
 )
 
-target_compile_definitions(mbed-os-netsocket
+target_compile_definitions(mbed-netsocket
     INTERFACE
         MBED_CONF_NSAPI_PRESENT=1
 )
 
-target_link_libraries(mbed-os-netsocket
+target_link_libraries(mbed-netsocket
     INTERFACE
-        mbed-os-mbedtls
-        mbed-os-lwipstack
-        mbed-os-events
+        mbed-mbedtls
+        mbed-lwipstack
+        mbed-events
 )
 
 if("DEVICE_EMAC=1" IN_LIST MBED_TARGET_DEFINITIONS)
-    target_link_libraries(mbed-os-netsocket
+    target_link_libraries(mbed-netsocket
         INTERFACE
-            mbed-os-emac
+            mbed-emac
     )
 endif()
 
-target_link_libraries(mbed-os-netsocket
+target_link_libraries(mbed-netsocket
     INTERFACE
-        mbed-os-cellular
-        mbed-os-nanostack-libservice
+        mbed-cellular
+        mbed-nanostack-libservice
 )

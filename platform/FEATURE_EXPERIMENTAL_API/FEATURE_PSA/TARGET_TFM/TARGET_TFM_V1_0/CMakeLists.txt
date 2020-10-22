@@ -9,14 +9,14 @@ if("TFM_V8M" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_TFM_V8M)
 endif()
 
-target_include_directories(mbed-os-psa
+target_include_directories(mbed-psa
     INTERFACE
         ./include
         ./include/psa
         ./include/psa_manifest
 )
 
-target_sources(mbed-os-psa
+target_sources(mbed-psa
     INTERFACE
         src/tfm_crypto_ipc_api.c
         src/tfm_initial_attestation_ipc_api.c

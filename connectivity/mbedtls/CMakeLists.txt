@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-mbedtls
+target_include_directories(mbed-mbedtls
     INTERFACE
         .
         ./include
@@ -10,7 +10,7 @@ target_include_directories(mbed-os-mbedtls
         ./platform/inc
 )
 
-target_sources(mbed-os-mbedtls
+target_sources(mbed-mbedtls
     INTERFACE
         platform/src/mbed_trng.cpp
         platform/src/platform_alt.cpp
@@ -98,7 +98,7 @@ target_sources(mbed-os-mbedtls
         source/xtea.c
 )
 
-target_compile_definitions(mbed-os-mbedtls
+target_compile_definitions(mbed-mbedtls
     INTERFACE
         MBED_CONF_MBEDTLS_PRESENT=1
 )

@@ -13,7 +13,7 @@ function(_mbed_get_assembly_stm32l475xg)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(STARTUP_FILE TOOLCHAIN_IAR/startup_stm32l475xx.S)
     endif()
-    target_sources(mbed-os PRIVATE ${STARTUP_FILE})
+    target_sources(mbed-core PRIVATE ${STARTUP_FILE})
 endfunction()
 
 function(_mbed_set_linker_file_stm32l475xg)
@@ -30,12 +30,12 @@ endfunction()
 _mbed_get_assembly_stm32l475xg()
 _mbed_set_linker_file_stm32l475xg()
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         .
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         system_clock.c
 )

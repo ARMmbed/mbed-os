@@ -1,12 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-nanostack-hal_mbed_cmsis_rtos
+target_include_directories(mbed-nanostack-hal_mbed_cmsis_rtos
     INTERFACE
         .
 )
 
-target_sources(mbed-os-nanostack-hal_mbed_cmsis_rtos
+target_sources(mbed-nanostack-hal_mbed_cmsis_rtos
     INTERFACE
         arm_hal_fhss_timer.cpp
         arm_hal_interrupt.c

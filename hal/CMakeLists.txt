@@ -7,13 +7,13 @@ endif()
 
 add_subdirectory(usb)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         include
         include/hal
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         source/LowPowerTickerWrapper.cpp
         source/mbed_compat.c

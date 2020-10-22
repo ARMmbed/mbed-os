@@ -7,13 +7,13 @@ endif()
 
 add_subdirectory(device)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         .
         drivers
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         pwmout_api.c
         serial_api.c

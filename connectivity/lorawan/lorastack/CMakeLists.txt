@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-lorawan
+target_include_directories(mbed-lorawan
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mac
         ${CMAKE_CURRENT_SOURCE_DIR}/phy
 )
 
-target_sources(mbed-os-lorawan
+target_sources(mbed-lorawan
     INTERFACE
         mac/LoRaMac.cpp
         mac/LoRaMacChannelPlan.cpp

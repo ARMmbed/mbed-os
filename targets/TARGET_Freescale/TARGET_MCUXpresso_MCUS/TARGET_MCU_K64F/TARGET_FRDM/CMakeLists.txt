@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         crc.c
         fsl_clock_config.c
@@ -9,7 +9,7 @@ target_sources(mbed-os
         PeripheralPins.c
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os-psa
+target_sources(mbed-psa
     INTERFACE
         src/cmsis_nvic_virtual.c
         src/tfm_mbed_boot.c

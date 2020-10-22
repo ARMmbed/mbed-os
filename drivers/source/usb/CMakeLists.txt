@@ -1,16 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This is specific driver for mbed-os-usb, it is not part of mbed-os target.
+add_library(mbed-usb INTERFACE)
 
-add_library(mbed-os-usb INTERFACE)
-
-target_include_directories(mbed-os-usb
+target_include_directories(mbed-usb
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os-usb
+target_sources(mbed-usb
     INTERFACE
         AsyncOp.cpp
         ByteBuffer.cpp
@@ -32,4 +30,4 @@ target_sources(mbed-os-usb
         USBSerial.cpp
 )
 
-target_link_libraries(mbed-os-usb INTERFACE mbed-os-storage)
+target_link_libraries(mbed-usb INTERFACE mbed-storage)

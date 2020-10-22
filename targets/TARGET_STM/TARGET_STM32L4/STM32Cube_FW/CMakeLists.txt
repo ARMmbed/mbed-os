@@ -3,12 +3,12 @@
 
 add_subdirectory(STM32L4xx_HAL_Driver)
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         system_stm32l4xx.c
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         .
         CMSIS

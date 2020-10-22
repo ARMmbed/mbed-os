@@ -7,7 +7,7 @@ endif()
 
 add_subdirectory(STM32Cube_FW)
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         analogin_device.c
         analogout_device.c
@@ -18,7 +18,7 @@ target_sources(mbed-os
         spi_api.c
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         .
 )

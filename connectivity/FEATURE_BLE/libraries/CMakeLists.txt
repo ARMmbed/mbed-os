@@ -7,12 +7,12 @@ endif()
 
 add_subdirectory(cordio_stack)
 
-target_include_directories(mbed-os-ble-cordio
+target_include_directories(mbed-ble-cordio
     INTERFACE
         .
 )
 
-target_link_libraries(mbed-os-ble-cordio
+target_link_libraries(mbed-ble-cordio
     INTERFACE
-        mbed-os-ble
+        mbed-ble
 )
