@@ -9,7 +9,7 @@ function(_mbed_get_assembly_nrf52840_dk)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(STARTUP_FILE TOOLCHAIN_IAR/startup_NRF52840_IAR.S)
     endif()
-    target_sources(mbed-os PRIVATE ${STARTUP_FILE})
+    target_sources(mbed-core PRIVATE ${STARTUP_FILE})
 endfunction()
 
 function(_mbed_set_linker_file)
@@ -26,12 +26,12 @@ endfunction()
 _mbed_get_assembly_nrf52840_dk()
 _mbed_set_linker_file()
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         cmsis_nvic.c
         system_nrf52840.c

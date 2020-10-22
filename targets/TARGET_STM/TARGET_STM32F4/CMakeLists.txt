@@ -7,7 +7,7 @@ elseif("STM32F439xI" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32F439xI)    
 endif()
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         analogin_device.c
         analogout_device.c
@@ -22,7 +22,7 @@ target_sources(mbed-os
 
 add_subdirectory(STM32Cube_FW)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/STM32Cube_FW

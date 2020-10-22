@@ -7,12 +7,12 @@ elseif("LPCXpresso" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_LPCXpresso)
 endif()
 
-target_include_directories(mbed-os-emac
+target_include_directories(mbed-emac
     INTERFACE
         .
 )
 
-target_sources(mbed-os-emac
+target_sources(mbed-emac
     INTERFACE
         lpc546xx_emac.cpp
 )

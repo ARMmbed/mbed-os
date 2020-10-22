@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/nrfx
@@ -16,7 +16,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/softdevice/common
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         nrfx/drivers/src/nrfx_adc.c
         nrfx/drivers/src/nrfx_clock.c

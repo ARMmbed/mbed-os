@@ -4,12 +4,12 @@
 add_subdirectory(attestation)
 add_subdirectory(storage)
 
-target_include_directories(mbed-os-psa
+target_include_directories(mbed-psa
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/platform
 )
 
-target_sources(mbed-os-psa
+target_sources(mbed-psa
     INTERFACE
         platform/platform_emul.c
         platform/platform_srv_impl.c

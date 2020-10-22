@@ -3,7 +3,7 @@
 
 add_subdirectory(Legacy)
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         stm32f4xx_hal.c
         stm32f4xx_hal_adc.c
@@ -96,7 +96,7 @@ target_sources(mbed-os
         stm32f4xx_ll_utils.c
 )
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

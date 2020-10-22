@@ -4,7 +4,7 @@
 add_subdirectory(libraries)
 add_subdirectory(source)
 
-target_include_directories(mbed-os-ble
+target_include_directories(mbed-ble
     INTERFACE
         .
         include
@@ -21,7 +21,7 @@ target_include_directories(mbed-os-ble
         source
 )
 
-target_compile_definitions(mbed-os-ble
+target_compile_definitions(mbed-ble
     INTERFACE
         MBED_CONF_BLE_PRESENT=1
 )

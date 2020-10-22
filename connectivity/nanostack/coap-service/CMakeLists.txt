@@ -1,14 +1,14 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-nanostack-coap_service
+target_include_directories(mbed-nanostack-coap_service
     INTERFACE
         .
         ./coap-service
         ./source/include
 )
 
-target_sources(mbed-os-nanostack-coap_service
+target_sources(mbed-nanostack-coap_service
     INTERFACE
         source/coap_connection_handler.c
         source/coap_message_handler.c
@@ -16,7 +16,7 @@ target_sources(mbed-os-nanostack-coap_service
         source/coap_service_api.c
 )
 
-target_link_libraries(mbed-os-nanostack
+target_link_libraries(mbed-nanostack
     INTERFACE
-        mbed-os-coap
+        mbed-coap
 )

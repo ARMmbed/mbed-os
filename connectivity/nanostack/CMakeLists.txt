@@ -7,26 +7,26 @@ add_subdirectory(nanostack-hal-mbed-cmsis-rtos)
 add_subdirectory(sal-stack-nanostack)
 add_subdirectory(sal-stack-nanostack-eventloop)
 
-target_include_directories(mbed-os-nanostack
+target_include_directories(mbed-nanostack
     INTERFACE
         .
         ./include
         ./include/nanostack-interface
 )
 
-target_sources(mbed-os-nanostack
+target_sources(mbed-nanostack
     INTERFACE
         source/Nanostack.cpp
 )
 
-target_compile_definitions(mbed-os-nanostack
+target_compile_definitions(mbed-nanostack
     INTERFACE
         MBED_CONF_NANOSTACK_PRESENT=1
 )
 
-target_link_libraries(mbed-os-nanostack
+target_link_libraries(mbed-nanostack
     INTERFACE
-        mbed-os-nanostack-mbed_mesh_api
-        mbed-os-nanostack-sal_stack-event_loop
-        mbed-os-nanostack-sal_stack
+        mbed-nanostack-mbed_mesh_api
+        mbed-nanostack-sal_stack-event_loop
+        mbed-nanostack-sal_stack
 )

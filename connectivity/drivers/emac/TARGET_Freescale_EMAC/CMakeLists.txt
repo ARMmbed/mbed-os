@@ -7,12 +7,12 @@ elseif("K66F" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_K66F)
 endif()
 
-target_include_directories(mbed-os-emac
+target_include_directories(mbed-emac
     INTERFACE
         .
 )
 
-target_sources(mbed-os-emac
+target_sources(mbed-emac
     INTERFACE
         kinetis_emac.cpp
 )

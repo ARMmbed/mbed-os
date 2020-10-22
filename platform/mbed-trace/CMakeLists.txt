@@ -3,13 +3,13 @@
 
 add_subdirectory(source)
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         include
         include/mbed-trace
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         source/mbed_trace.c
 )

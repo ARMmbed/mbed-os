@@ -9,7 +9,7 @@ function(_mbed_get_assembly_stm32f439xi)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(STARTUP_FILE TOOLCHAIN_IAR/startup_stm32f439xx.S)
     endif()
-    target_sources(mbed-os PRIVATE ${STARTUP_FILE})
+    target_sources(mbed-core PRIVATE ${STARTUP_FILE})
 endfunction()
 
 function(_mbed_set_linker_file)
@@ -32,7 +32,7 @@ elseif("WIO_3G" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_WIO_3G)
 endif()
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

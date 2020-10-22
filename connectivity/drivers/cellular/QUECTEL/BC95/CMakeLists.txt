@@ -1,12 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-cellular
+target_include_directories(mbed-cellular
     INTERFACE
         .
 )
 
-target_sources(mbed-os-cellular
+target_sources(mbed-cellular
     INTERFACE
         QUECTEL_BC95.cpp
         QUECTEL_BC95_CellularContext.cpp

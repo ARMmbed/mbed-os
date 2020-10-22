@@ -9,13 +9,13 @@ elseif("NUCLEO_H743ZI2" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_H743ZI2)
 endif()
 
-target_include_directories(mbed-os-emac
+target_include_directories(mbed-emac
     PRIVATE
         .
         ./lan8742
 )
 
-target_sources(mbed-os-emac
+target_sources(mbed-emac
     PRIVATE
         lan8742/lan8742.c
 )

@@ -3,7 +3,7 @@
 
 add_subdirectory(esp8266-driver)
 
-target_link_libraries(mbed-os-wifi
+target_link_libraries(mbed-wifi
     INTERFACE
-        mbed-os-netsocket
+        mbed-netsocket
 )
