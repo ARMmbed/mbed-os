@@ -5,14 +5,14 @@ add_subdirectory(fat)
 add_subdirectory(littlefs)
 add_subdirectory(littlefsv2)
 
-target_include_directories(mbed-os-storage-filesystem
+target_include_directories(mbed-storage-filesystem
     INTERFACE
         .
         ./include
         ./include/filesystem
 )
 
-target_sources(mbed-os-storage-filesystem
+target_sources(mbed-storage-filesystem
     INTERFACE
         source/Dir.cpp
         source/File.cpp

@@ -1,13 +1,13 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os-psa
+target_include_directories(mbed-psa
     INTERFACE
         ./common
         ./its
 )
 
-target_sources(mbed-os-psa
+target_sources(mbed-psa
     INTERFACE
         common/psa_storage_common_impl.cpp
 

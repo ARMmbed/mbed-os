@@ -7,12 +7,12 @@ elseif("STM32L4" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32L4)    
 endif()
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         USBPhy_STM32.cpp
         analogin_api.c

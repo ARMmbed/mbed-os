@@ -3,13 +3,13 @@
 
 add_subdirectory(lib)
 
-target_include_directories(mbed-os-emac
+target_include_directories(mbed-emac
     PUBLIC
         .
         ./inc
 )
 
-target_sources(mbed-os-emac
+target_sources(mbed-emac
     PRIVATE
         src/maclib_task.c
         src/rda5991h_wland.c

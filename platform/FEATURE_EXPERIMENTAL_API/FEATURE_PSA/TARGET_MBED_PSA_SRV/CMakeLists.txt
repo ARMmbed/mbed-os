@@ -3,7 +3,7 @@
 
 add_subdirectory(services)
 
-target_include_directories(mbed-os-psa
+target_include_directories(mbed-psa
     INTERFACE
         ./inc
         ./inc/psa
@@ -11,7 +11,7 @@ target_include_directories(mbed-os-psa
         ./pal
 )
 
-target_sources(mbed-os-psa
+target_sources(mbed-psa
     INTERFACE
         mbedtls/psa_crypto.c
         mbedtls/psa_crypto_se.c

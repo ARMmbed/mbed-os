@@ -5,12 +5,12 @@ if("MCU_NRF52840" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_MCU_NRF52840)
 endif()
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         PeripheralPinsDefault.c
         analogin_api.c

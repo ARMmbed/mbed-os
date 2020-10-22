@@ -7,12 +7,12 @@ elseif("GD32F4XX" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_GD32F4XX)
 endif()
 
-target_include_directories(mbed-os-emac
+target_include_directories(mbed-emac
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_sources(mbed-os-emac
+target_sources(mbed-emac
     INTERFACE
         gd32xx_emac.cpp
 )

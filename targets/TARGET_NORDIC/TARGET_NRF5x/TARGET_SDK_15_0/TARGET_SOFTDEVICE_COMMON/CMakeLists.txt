@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-target_include_directories(mbed-os
+target_include_directories(mbed-core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/ble
         ${CMAKE_CURRENT_SOURCE_DIR}/ble/ble_radio_notification
@@ -11,7 +11,7 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/fstorage
 )
 
-target_sources(mbed-os
+target_sources(mbed-core
     PRIVATE
         ble/ble_radio_notification/ble_radio_notification.c
 

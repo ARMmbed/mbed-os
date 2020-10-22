@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os-psa
+target_sources(mbed-psa
     INTERFACE
         src/platform_multicore.c
         src/platform_ns_mailbox.c
