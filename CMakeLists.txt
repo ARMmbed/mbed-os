@@ -143,7 +143,6 @@ endfunction()
 #
 function(mbed_generate_bin_hex target)
     get_property(elf_to_bin GLOBAL PROPERTY ELF2BIN)
-    # TODO: @mbed-os-tools This post-build commands should get details from target + profile.
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_POST_BUILD_COMMAND
             COMMAND ${elf_to_bin} -O binary $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.bin
