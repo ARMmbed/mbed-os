@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_CELLULAR_PRESENT
+
 #include "platform/Callback.h"
 #include "netsocket/CellularNonIPSocket.h"
 #include <stdio.h>
@@ -267,3 +269,5 @@ nsapi_error_t CellularNonIPSocket::bind(const SocketAddress &address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
+
+#endif
