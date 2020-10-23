@@ -414,6 +414,7 @@ void BLEInstanceBase::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
 
 void BLEInstanceBase::device_manager_cb(dmEvt_t *dm_event)
 {
+#if BLE_FEATURE_CONNECTABLE
     if (dm_event->hdr.status == HCI_SUCCESS && dm_event->hdr.event == DM_CONN_DATA_LEN_CHANGE_IND) {
         // this event can only happen after a connection has been established therefore gap is present
         ble::PalGapEventHandler *handler;
@@ -427,6 +428,7 @@ void BLEInstanceBase::device_manager_cb(dmEvt_t *dm_event)
         }
         return;
     }
+#endif
 
     BLEInstanceBase::deviceInstance().stack_handler(0, &dm_event->hdr);
 }

@@ -494,9 +494,12 @@ ble_error_t Gap::stopScan()
     _scan_requested = false;
 
     if (_scan_state == ScanState::scan) {
+#if BLE_FEATURE_EXTENDED_ADVERTISING
         if (is_extended_advertising_available()) {
             err = _pal_gap.extended_scan_enable(false, duplicates_filter_t::DISABLE, 0, 0);
-        } else {
+        } else
+#endif
+        {
             err = _pal_gap.scan_enable(false, false);
         }
 
@@ -616,7 +619,9 @@ ble_error_t Gap::connect(
                 connectionParams.getMaxConnectionIntervalArray()[0]
             );
         }
-    } else {
+    }
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    else {
         // set the correct mac address before starting scanning.
         if (_scan_state == ScanState::idle) {
             _pal_gap.set_random_address(*address);
@@ -659,6 +664,7 @@ ble_error_t Gap::connect(
             );
         }
     }
+#endif
 
     if (ret == BLE_ERROR_NONE) {
         _initiating = true;
@@ -808,6 +814,7 @@ void Gap::on_read_phy(
 }
 #endif // BLE_FEATURE_PHY_MANAGEMENT
 
+#if BLE_FEATURE_CONNECTABLE
 void Gap::on_data_length_change(
     connection_handle_t connection_handle,
     uint16_t tx_size,
@@ -818,6 +825,7 @@ void Gap::on_data_length_change(
         _event_handler->onDataLengthChange(connection_handle, tx_size, rx_size);
     }
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_FEATURE_PHY_MANAGEMENT
 void Gap::on_phy_update_complete(
@@ -1083,13 +1091,12 @@ ble_error_t Gap::reset()
 #endif // BLE_GAP_HOST_BASED_PRIVATE_ADDRESS_RESOLUTION
 #endif // BLE_FEATURE_PRIVACY
 
-#if BLE_ROLE_BROADCASTER
-    _advertising_timeout.detach();
-#endif
 #if BLE_ROLE_OBSERVER
     _scan_timeout.detach();
 #endif
 
+#if BLE_ROLE_BROADCASTER
+    _advertising_timeout.detach();
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         /* stop all advertising sets */
@@ -1120,6 +1127,7 @@ ble_error_t Gap::reset()
         _active_periodic_sets.clear();
 #endif
         if (_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+#if BLE_FEATURE_EXTENDED_ADVERTISING
             _pal_gap.extended_advertising_enable(
                 /* enable */ false,
                 /* number of advertising sets */ 1,
@@ -1127,6 +1135,9 @@ ble_error_t Gap::reset()
                 nullptr,
                 nullptr
             );
+#else
+            _pal_gap.advertising_enable(false);
+#endif
         }
         _active_sets.clear();
         _pending_sets.clear();
@@ -1135,11 +1146,12 @@ ble_error_t Gap::reset()
         _connectable_payload_size_exceeded.clear();
         _set_is_connectable.clear();
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
         /* clear advertising set data on the controller */
         _pal_gap.clear_advertising_sets();
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // #BLE_ROLE_BROADCASTER
 
     return BLE_ERROR_NONE;
 }
@@ -2854,6 +2866,7 @@ void Gap::on_legacy_advertising_stopped()
     }
 }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
 {
     for (const auto &handle : handles) {
@@ -2919,6 +2932,7 @@ void Gap::on_scan_request_received(
         )
     );
 }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 #endif // BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_CONNECTABLE
@@ -2985,6 +2999,7 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
         return BLE_ERROR_INVALID_PARAM;
     }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
             params.get1mPhyConfiguration().isActiveScanningSet(),
@@ -3009,7 +3024,9 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
             scan_interval,
             scan_window
         );
-    } else {
+    } else
+#endif
+    {
         if (params.getPhys().get_coded()) {
             return BLE_ERROR_INVALID_PARAM;
         }
