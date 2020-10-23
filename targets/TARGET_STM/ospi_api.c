@@ -264,6 +264,9 @@ static ospi_status_t _ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap,
 #if defined(HAL_OSPI_DELAY_BLOCK_USED) // STM32L5
     obj->handle.Init.DelayBlockBypass = HAL_OSPI_DELAY_BLOCK_USED;
 #endif
+#if defined(TARGET_STM32L5)
+    obj->handle.Init.Refresh = 0;
+#endif
 
     // tested all combinations, take first
     obj->ospi = pinmap->peripheral;
