@@ -57,15 +57,19 @@ ble_error_t SecurityManager::generateWhitelistFromBondTable(::ble::whitelist_t *
     return impl->generateWhitelistFromBondTable(whitelist);
 }
 
+#if BLE_ROLE_CENTRAL
 ble_error_t SecurityManager::requestPairing(ble::connection_handle_t connectionHandle)
 {
     return impl->requestPairing(connectionHandle);
 }
+#endif
 
+#if BLE_ROLE_PERIPHERAL
 ble_error_t SecurityManager::acceptPairingRequest(ble::connection_handle_t connectionHandle)
 {
     return impl->acceptPairingRequest(connectionHandle);
 }
+#endif
 
 ble_error_t SecurityManager::cancelPairingRequest(ble::connection_handle_t connectionHandle)
 {
@@ -82,6 +86,7 @@ ble_error_t SecurityManager::getPeerIdentity(ble::connection_handle_t connection
     return impl->getPeerIdentity(connectionHandle);
 }
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
 ble_error_t SecurityManager::allowLegacyPairing(bool allow)
 {
     return impl->allowLegacyPairing(allow);
@@ -91,6 +96,7 @@ ble_error_t SecurityManager::getSecureConnectionsSupport(bool *enabled)
 {
     return impl->getSecureConnectionsSupport(enabled);
 }
+#endif
 
 ble_error_t SecurityManager::setIoCapability(SecurityIOCapabilities_t iocaps)
 {
@@ -162,35 +168,43 @@ ble_error_t SecurityManager::setOOBDataUsage(ble::connection_handle_t connection
     return impl->setOOBDataUsage(connectionHandle, useOOB, OOBProvidesMITM);
 }
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
 ble_error_t SecurityManager::confirmationEntered(ble::connection_handle_t connectionHandle, bool confirmation)
 {
     return impl->confirmationEntered(connectionHandle, confirmation);
 }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
 ble_error_t SecurityManager::passkeyEntered(ble::connection_handle_t connectionHandle, Passkey_t passkey)
 {
     return impl->passkeyEntered(connectionHandle, passkey);
 }
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
 ble_error_t SecurityManager::sendKeypressNotification(ble::connection_handle_t connectionHandle, ble::Keypress_t keypress)
 {
     return impl->sendKeypressNotification(connectionHandle, keypress);
 }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
 ble_error_t SecurityManager::legacyPairingOobReceived(const ble::address_t *address, const ble::oob_tk_t *tk)
 {
     return impl->legacyPairingOobReceived(address, tk);
 }
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
 ble_error_t SecurityManager::oobReceived(const ble::address_t *address, const ble::oob_lesc_value_t *random, const ble::oob_confirm_t *confirm)
 {
     return impl->oobReceived(address, random, confirm);
 }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
+#if BLE_FEATURE_SIGNING
 ble_error_t SecurityManager::getSigningKey(ble::connection_handle_t connectionHandle, bool authenticated)
 {
     return impl->getSigningKey(connectionHandle, authenticated);
 }
+#endif // BLE_FEATURE_SIGNING
 
 #if BLE_FEATURE_PRIVACY
 ble_error_t SecurityManager::setPrivateAddressTimeout(

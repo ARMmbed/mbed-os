@@ -36,10 +36,7 @@ namespace impl {
 PalSecurityManager::PalSecurityManager() :
     _pal_event_handler(nullptr),
     _use_default_passkey(false),
-    _default_passkey(0),
-    _lesc_keys_generated(false),
-    _public_key_x(),
-    _peer_csrks()
+    _default_passkey(0)
 {
 }
 
@@ -57,7 +54,9 @@ ble_error_t PalSecurityManager::initialize()
     // reset local state
     _use_default_passkey = false;
     _default_passkey = 0;
+#if BLE_FEATURE_SECURE_CONNECTIONS
     _lesc_keys_generated = false;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 #if BLE_FEATURE_SIGNING
     memset(_peer_csrks, 0, sizeof(_peer_csrks));
 #endif
@@ -116,9 +115,14 @@ ble_error_t PalSecurityManager::get_secure_connections_support(
     bool &enabled
 )
 {
+#if BLE_FEATURE_SECURE_CONNECTIONS
     // FIXME: should depend of the controller
     enabled = false;
     return BLE_ERROR_NONE;
+#else
+    enabled = false;
+    return BLE_ERROR_NONE;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -143,7 +147,7 @@ ble_error_t PalSecurityManager::get_authentication_timeout(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-
+#if BLE_ROLE_PERIPHERAL
 ble_error_t PalSecurityManager::slave_security_request(
     connection_handle_t connection,
     AuthenticationMask authentication
@@ -152,12 +156,13 @@ ble_error_t PalSecurityManager::slave_security_request(
     DmSecSlaveReq(connection, authentication.value());
     return BLE_ERROR_NONE;
 }
+#endif // BLE_ROLE_PERIPHERAL
 
 ////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
 
-
+#if BLE_ROLE_CENTRAL
 ble_error_t PalSecurityManager::enable_encryption(
     connection_handle_t connection,
     const ltk_t &ltk,
@@ -180,7 +185,7 @@ ble_error_t PalSecurityManager::enable_encryption(
     return BLE_ERROR_NONE;
 }
 
-
+#if BLE_FEATURE_SECURE_CONNECTIONS
 ble_error_t PalSecurityManager::enable_encryption(
     connection_handle_t connection,
     const ltk_t &ltk,
@@ -199,6 +204,8 @@ ble_error_t PalSecurityManager::enable_encryption(
 
     return BLE_ERROR_NONE;
 }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_ROLE_CENTRAL
 
 
 ble_error_t PalSecurityManager::encrypt_data(
@@ -275,6 +282,7 @@ ble_error_t PalSecurityManager::set_identity_address(
     return BLE_ERROR_NONE;
 }
 
+#if BLE_FEATURE_SIGNING
 ble_error_t PalSecurityManager::set_csrk(
     const csrk_t &csrk,
     sign_count_t sign_counter
@@ -335,6 +343,7 @@ ble_error_t PalSecurityManager::remove_peer_csrk(connection_handle_t connection)
     AttsSetCsrk(connection, nullptr, false);
     return BLE_ERROR_NONE;
 }
+#endif // BLE_FEATURE_SIGNING
 
 ////////////////////////////////////////////////////////////////////////////
 // Global parameters
@@ -380,7 +389,7 @@ ble_error_t PalSecurityManager::set_encryption_key_requirements(
 // Authentication
 //
 
-
+#if BLE_ROLE_CENTRAL
 ble_error_t PalSecurityManager::send_pairing_request(
     connection_handle_t connection,
     bool oob_data_flag,
@@ -399,8 +408,9 @@ ble_error_t PalSecurityManager::send_pairing_request(
 
     return BLE_ERROR_NONE;
 }
+#endif // BLE_ROLE_CENTRAL
 
-
+#if BLE_ROLE_PERIPHERAL
 ble_error_t PalSecurityManager::send_pairing_response(
     connection_handle_t connection,
     bool oob_data_flag,
@@ -419,6 +429,7 @@ ble_error_t PalSecurityManager::send_pairing_response(
 
     return BLE_ERROR_NONE;
 }
+#endif // BLE_ROLE_PERIPHERAL
 
 
 ble_error_t PalSecurityManager::cancel_pairing(
@@ -469,7 +480,7 @@ ble_error_t PalSecurityManager::legacy_pairing_oob_request_reply(
     return BLE_ERROR_NONE;
 }
 
-
+#if BLE_FEATURE_SECURE_CONNECTIONS
 ble_error_t PalSecurityManager::confirmation_entered(
     connection_handle_t connection, bool confirmation
 )
@@ -520,6 +531,7 @@ ble_error_t PalSecurityManager::secure_connections_oob_request_reply(
 
     return BLE_ERROR_NONE;
 }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
 
 PalSecurityManager &PalSecurityManager::get_security_manager()
@@ -703,6 +715,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
             return true;
         }
 
+#if BLE_ROLE_PERIPHERAL
         case DM_SEC_PAIR_IND: {
             auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_pairing_request(
@@ -714,7 +727,9 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
             );
             return true;
         }
+#endif // BLE_ROLE_PERIPHERAL
 
+#if BLE_ROLE_CENTRAL
         case DM_SEC_SLAVE_REQ_IND: {
             auto *evt = (dmSecPairIndEvt_t *) msg;
             handler->on_slave_security_request(
@@ -723,7 +738,9 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
             );
             return true;
         }
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
         case DM_SEC_CALC_OOB_IND: {
             auto *evt = (dmSecOobCalcIndEvt_t *) msg;
             handler->on_secure_connections_oob_generated(
@@ -733,7 +750,6 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
             return true;
         }
 
-#if BLE_FEATURE_SECURE_CONNECTIONS
         case DM_SEC_ECC_KEY_IND: {
             auto *evt = (secEccMsg_t *) msg;
             DmSecSetEccKey(&evt->data.key);
@@ -741,7 +757,6 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
             self._lesc_keys_generated = true;
             return true;
         }
-#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
         case DM_SEC_COMPARE_IND: {
             auto *evt = (dmSecCnfIndEvt_t *) msg;
@@ -761,6 +776,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
             );
             return true;
         }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
         default:
             return false;
@@ -769,6 +785,7 @@ bool PalSecurityManager::sm_handler(const wsfMsgHdr_t *msg)
 
 // Helper functions for privacy
 
+#if BLE_FEATURE_SIGNING
 void PalSecurityManager::cleanup_peer_csrks()
 {
     for (auto & peer_csrk : _peer_csrks) {
@@ -778,6 +795,7 @@ void PalSecurityManager::cleanup_peer_csrks()
         }
     }
 }
+#endif // BLE_FEATURE_SIGNING
 
 void PalSecurityManager::set_event_handler(
     PalSecurityManagerEventHandler *event_handler

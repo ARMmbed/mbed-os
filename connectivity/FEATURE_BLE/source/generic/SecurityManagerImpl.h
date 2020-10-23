@@ -46,8 +46,11 @@ namespace impl {
 
 class SecurityManager :
     public ble::PalSecurityManagerEventHandler,
-    public ble::PalConnectionMonitorEventHandler,
-    public ble::PalSigningMonitorEventHandler {
+    public ble::PalConnectionMonitorEventHandler
+#if BLE_FEATURE_SIGNING
+    , public ble::PalSigningMonitorEventHandler
+#endif // BLE_FEATURE_SIGNING
+    {
     friend class ble::PalConnectionMonitorEventHandler;
 
     friend PalGenericAccessService;
@@ -94,9 +97,13 @@ public:
     // Pairing
     //
 
+#if BLE_ROLE_CENTRAL
     ble_error_t requestPairing(ble::connection_handle_t connectionHandle);
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_ROLE_PERIPHERAL
     ble_error_t acceptPairingRequest(ble::connection_handle_t connectionHandle);
+#endif // BLE_ROLE_PERIPHERAL
 
     ble_error_t cancelPairingRequest(ble::connection_handle_t connectionHandle);
 
@@ -107,10 +114,11 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Feature support
     //
-
+#if BLE_FEATURE_SECURE_CONNECTIONS
     ble_error_t allowLegacyPairing(bool allow = true);
 
     ble_error_t getSecureConnectionsSupport(bool *enabled);
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
@@ -161,26 +169,27 @@ public:
 
     ble_error_t setOOBDataUsage(ble::connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true);
 
-    ble_error_t confirmationEntered(ble::connection_handle_t connectionHandle, bool confirmation);
-
     ble_error_t passkeyEntered(ble::connection_handle_t connectionHandle, Passkey_t passkey);
 
-    ble_error_t sendKeypressNotification(ble::connection_handle_t connectionHandle, ble::Keypress_t keypress);
-
     ble_error_t legacyPairingOobReceived(const ble::address_t *address, const ble::oob_tk_t *tk);
+#if BLE_FEATURE_SECURE_CONNECTIONS
+    ble_error_t confirmationEntered(ble::connection_handle_t connectionHandle, bool confirmation);
+
+    ble_error_t sendKeypressNotification(ble::connection_handle_t connectionHandle, ble::Keypress_t keypress);
 
     ble_error_t oobReceived(
         const ble::address_t *address,
         const ble::oob_lesc_value_t *random,
         const ble::oob_confirm_t *confirm
     );
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
-
+#if BLE_FEATURE_SIGNING
     ble_error_t getSigningKey(ble::connection_handle_t connectionHandle, bool authenticated);
-
+#endif // BLE_FEATURE_SIGNING
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
     //
@@ -241,6 +250,7 @@ private:
     // Pairing
     //
 
+#if BLE_ROLE_PERIPHERAL
     /** @copydoc PalSecurityManager::on_pairing_request
      */
     void on_pairing_request(
@@ -250,6 +260,7 @@ private:
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     ) override;
+#endif
 
     /** @copydoc PalSecurityManager::on_pairing_error
      */
@@ -280,6 +291,7 @@ private:
         connection_handle_t connection
     ) override;
 
+#if BLE_FEATURE_SIGNING
     /** @copydoc PalSecurityManager::on_signed_write_received
      */
     void on_signed_write_received(
@@ -296,13 +308,16 @@ private:
     /** @copydoc PalSecurityManager::on_signed_write
      */
     void on_signed_write() override;
+#endif // BLE_FEATURE_SIGNING
 
+#if BLE_ROLE_CENTRAL
     /** @copydoc PalSecurityManager::on_slave_security_request
      */
     void on_slave_security_request(
         connection_handle_t connection,
         AuthenticationMask authentication
     ) override;
+#endif // BLE_ROLE_CENTRAL
 
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
@@ -332,12 +347,14 @@ private:
         passkey_num_t passkey
     ) override;
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
     /** @copydoc PalSecurityManager::on_keypress_notification
      */
     void on_keypress_notification(
         connection_handle_t connection,
         ble::Keypress_t keypress
     ) override;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
     /** @copydoc PalSecurityManager::on_passkey_request
      */
@@ -345,6 +362,7 @@ private:
         connection_handle_t connection
     ) override;
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
     /** @copydoc PalSecurityManager::on_confirmation_request
      */
     void on_confirmation_request(
@@ -356,6 +374,7 @@ private:
     void on_secure_connections_oob_request(
         connection_handle_t connection
     ) override;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
     /** @copydoc PalSecurityManager::on_legacy_pairing_oob_request
      */
@@ -363,23 +382,27 @@ private:
         connection_handle_t connection
     ) override;
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
     /** @copydoc PalSecurityManager::on_secure_connections_oob_generated
      */
     void on_secure_connections_oob_generated(
         const oob_lesc_value_t &random,
         const oob_confirm_t &confirm
     ) override;
+#endif
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
     /** @copydoc PalSecurityManager::on_secure_connections_ltk_generated
      */
     void on_secure_connections_ltk_generated(
         connection_handle_t connection,
         const ltk_t &ltk
     ) override;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
     /** @copydoc PalSecurityManager::on_keys_distributed_ltk
      */
@@ -426,12 +449,14 @@ private:
         const address_t &peer_identity_address
     ) override;
 
+#if BLE_FEATURE_SIGNING
     /** @copydoc PalSecurityManager::on_keys_distributed_csrk
      */
     void on_keys_distributed_csrk(
         connection_handle_t connection,
         const csrk_t &csrk
     ) override;
+#endif // BLE_FEATURE_SIGNING
 
     /** @copydoc PalSecurityManager::on_ltk_requeston_ltk_request
      */
@@ -516,9 +541,11 @@ private:
         size_t size
     );
 
+#if BLE_ROLE_PERIPHERAL
     ble_error_t slave_security_request(
         connection_handle_t connection
     );
+#endif
 
     ble_error_t enable_encryption(
         connection_handle_t connection
@@ -534,6 +561,7 @@ private:
         const SecurityEntryKeys_t *entryKeys
     );
 
+#if BLE_FEATURE_SIGNING
     void return_csrk_cb(
         SecurityDb::entry_handle_t connection,
         const SecurityEntrySigning_t *signing
@@ -543,6 +571,7 @@ private:
         SecurityDb::entry_handle_t connection,
         const SecurityEntrySigning_t *signing
     );
+#endif
 
     void update_oob_presence(
         connection_handle_t connection
