@@ -39,10 +39,10 @@ extern void SetSysClock(void);
 // set defaults for LSE drive load level
 #if defined(LSE_CONFIG_AVAILABLE)
 
-#   ifdef MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
+#   if defined(MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL)
 #       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
 #   else
-#       ifdef RCC_LSE_HIGHDRIVE_MODE
+#       if defined(RCC_LSE_HIGHDRIVE_MODE)
 #           define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_HIGHDRIVE_MODE
 #       else
 #           define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_MEDIUMHIGH
@@ -82,7 +82,7 @@ static void LSEDriveConfig(void) {
 
    // set LSE drive level. Exception only for F4_g2 series
     HAL_PWR_EnableBkUpAccess();
-    #if defined(LSE_CONFIG_AVAILABLE)
+    #if defined(__HAL_RCC_LSEDRIVE_CONFIG)
         __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
     #else
         HAL_RCCEx_SelectLSEMode(LSE_DRIVE_LOAD_LEVEL);
