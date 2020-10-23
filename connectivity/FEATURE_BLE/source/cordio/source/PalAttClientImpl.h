@@ -173,8 +173,10 @@ public:
      */
     ble_error_t terminate() final;
 
+#if BLE_FEATURE_GATT_CLIENT
     // singleton of the ARM Cordio client
     static PalAttClient &get_client();
+#endif
 
     void when_server_message_received(
         mbed::Callback<void(connection_handle_t, const AttServerMessage &)> cb
@@ -199,7 +201,9 @@ public:
     /**
      * Callback which handle attEvt_t and forward them to on_server_event.
      */
+#if BLE_FEATURE_GATT_CLIENT
     static void att_client_handler(const attEvt_t *event);
+#endif
 
 private:
     /**

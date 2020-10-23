@@ -282,8 +282,10 @@ ble_error_t PalSecurityManager::set_csrk(
 {
     _csrk = csrk;
     DmSecSetLocalCsrk(_csrk.data());
+#if BLE_FEATURE_GATT_CLIENT
     // extra set the sign counter used by the client
     impl::PalAttClient::get_client().set_sign_counter(sign_counter);
+#endif
 
     return BLE_ERROR_NONE;
 }
