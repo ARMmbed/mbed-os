@@ -580,6 +580,11 @@ nsapi_error_t TLSSocketWrapper::close()
         }
     }
 
+    if (_ssl) {
+        wolfSSL_free(_ssl);
+        _ssl = NULL;
+    }
+
     _transport = NULL;
 
     return ret;
