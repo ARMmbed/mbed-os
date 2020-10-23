@@ -43,9 +43,9 @@ extern void SetSysClock(void);
 #       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
 #   else
 #       if defined(RCC_LSE_HIGHDRIVE_MODE)
-#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_HIGHDRIVE_MODE
+#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_LOWPOWER_MODE
 #       else
-#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_MEDIUMHIGH
+#           define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_LOW
 #       endif
 #   endif
 
