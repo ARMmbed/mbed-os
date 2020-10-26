@@ -27,9 +27,21 @@ extern "C" {
  *
  * \param network_name_buf Buffer for the network name
  * \param network_name_buf_len Length of provided buffer
+ * \return 0 on success, -1 on errors
  *
  */
-void mesh_kcm_wisun_network_name_init(char *network_name_buf, size_t network_name_buf_len);
+int mesh_kcm_wisun_network_name_init(char *network_name_buf, size_t network_name_buf_len);
+
+/*
+ * \brief Initialize Wi-SUN network size
+ *
+ * \param network_size Buffer for the network size, size 1 byte
+ * \return 0 on success.
+ * \return 1 if network size is not configured.
+ * \return -1 if network size configuration error.
+ *
+ */
+int mesh_kcm_wisun_network_size_init(uint8_t *network_size);
 
 
 #ifdef __cplusplus
