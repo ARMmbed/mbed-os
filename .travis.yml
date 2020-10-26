@@ -282,7 +282,7 @@ matrix:
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - |
-          rm -r cmsis/CMSIS_5/CMSIS/RTOS2 cmsis/device/rtos drivers/source/usb connectivity/cellular connectivity/drivers/cellular \
+          rm -r cmsis/CMSIS_5/CMSIS/RTOS2 cmsis/device/rtos connectivity/cellular connectivity/drivers/cellular \
             connectivity/libraries/ppp connectivity/netsocket connectivity/nanostack connectivity/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity BUILD
         - python tools/make.py -t GCC_ARM -m NUCLEO_F103RB --source=. --build=BUILD/NUCLEO_F103RB/GCC_ARM -j0
