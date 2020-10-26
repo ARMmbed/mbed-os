@@ -61,10 +61,7 @@
       "sub-repo-example": true,
       "subs": [
             "BLE_BatteryLevel",
-            "BLE_Beacon",
-            "BLE_Button",
             "BLE_GAP",
-            "BLE_GAPButton",
             "BLE_GattClient",
             "BLE_GattServer",
             "BLE_HeartRate",
@@ -72,8 +69,7 @@
             "BLE_LEDBlinker",
             "BLE_PeriodicAdvertising",
             "BLE_Privacy",
-            "BLE_SM",
-            "BLE_Thermometer"
+            "BLE_SM"
       ],
       "features" : [],
       "targets" : ["NRF52_DK", "DISCO_L475VG_IOT01A"],
