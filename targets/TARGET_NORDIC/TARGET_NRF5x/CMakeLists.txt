@@ -12,12 +12,12 @@ elseif("SDK_15_0" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         lp_ticker.c
         pinmap.c
         port_api.c

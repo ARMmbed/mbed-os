@@ -3,7 +3,7 @@
 
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/atomic
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/atomic_fifo
@@ -23,7 +23,7 @@ target_include_directories(mbed-core
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         libraries/atomic/nrf_atomic.c
 
         libraries/atomic_fifo/nrf_atfifo.c

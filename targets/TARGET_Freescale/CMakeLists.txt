@@ -6,11 +6,11 @@ if("MCUXpresso_MCUS" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         USBPhy_Kinetis.cpp
 )

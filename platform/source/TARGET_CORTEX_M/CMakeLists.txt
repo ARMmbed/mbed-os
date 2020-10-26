@@ -4,12 +4,12 @@
 
 function(_mbed_set_assembly_source)
     if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-        target_sources(mbed-core PRIVATE TOOLCHAIN_GCC/except.S)
+        target_sources(mbed-core INTERFACE TOOLCHAIN_GCC/except.S)
     elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-        target_sources(mbed-core PRIVATE TOOLCHAIN_ARM/except.S)
+        target_sources(mbed-core INTERFACE TOOLCHAIN_ARM/except.S)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         target_sources(mbed-core
-            PRIVATE
+            INTERFACE
                 TOOLCHAIN_IAR/except.S
                 TOOLCHAIN_IAR/cmain.S
         )
@@ -19,6 +19,6 @@ endfunction()
 _mbed_set_assembly_source()
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         mbed_fault_handler.c
 )

@@ -8,7 +8,7 @@ endif()
 add_subdirectory(STM32Cube_FW)
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         analogin_device.c
         analogout_device.c
         flash_api.c
@@ -19,6 +19,6 @@ target_sources(mbed-core
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

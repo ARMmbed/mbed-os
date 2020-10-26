@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         include
         include/usb
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         source/mbed_usb_phy.cpp
 )

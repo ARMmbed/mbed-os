@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-core
-    PRIVATE
-    ONBOARD_QUECTEL_UG96.cpp
-    PeripheralPins.c
-    PinNames.h
-    system_clock.c
+    INTERFACE
+        ONBOARD_QUECTEL_UG96.cpp
+        PeripheralPins.c
+        PinNames.h
+        system_clock.c
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

@@ -11,7 +11,7 @@ function(mbed_set_profile_options target mbed_toolchain)
             "-Os"
         )
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 $<$<COMPILE_LANGUAGE:C>:${c_compile_options}>
         )
 
@@ -22,7 +22,7 @@ function(mbed_set_profile_options target mbed_toolchain)
             "-Os"
         )
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 $<$<COMPILE_LANGUAGE:CXX>:${cxx_compile_options}>
         )
 
@@ -31,7 +31,7 @@ function(mbed_set_profile_options target mbed_toolchain)
             "-x" "assembler-with-cpp"
         )
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 $<$<COMPILE_LANGUAGE:ASM>:${asm_compile_options}>
         )
 
@@ -52,7 +52,7 @@ function(mbed_set_profile_options target mbed_toolchain)
             "-Oz"
         )
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 $<$<COMPILE_LANGUAGE:C>:${c_compile_options}>
         )
 
@@ -62,7 +62,7 @@ function(mbed_set_profile_options target mbed_toolchain)
             "-Oz"
         )
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 $<$<COMPILE_LANGUAGE:CXX>:${cxx_compile_options}>
         )
 
@@ -75,18 +75,18 @@ function(mbed_set_profile_options target mbed_toolchain)
         )
 
         target_compile_definitions(${target}
-            PUBLIC
+            INTERFACE
                 __ASSERT_MSG
         )
     endif()
 
     target_compile_definitions(${target}
-        PUBLIC
+        INTERFACE
             NDEBUG
     )
 
     target_link_options(${target}
-        PUBLIC
+        INTERFACE
             ${link_options}
     )
 endfunction()

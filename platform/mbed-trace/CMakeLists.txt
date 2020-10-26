@@ -4,12 +4,12 @@
 add_subdirectory(source)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         include
         include/mbed-trace
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         source/mbed_trace.c
 )
