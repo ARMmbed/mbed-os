@@ -8,13 +8,13 @@ endif()
 add_subdirectory(usb)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         include
         include/hal
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         source/LowPowerTickerWrapper.cpp
         source/mbed_compat.c
         source/mbed_critical_section_api.c

@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         flash_common_algo.c
 )

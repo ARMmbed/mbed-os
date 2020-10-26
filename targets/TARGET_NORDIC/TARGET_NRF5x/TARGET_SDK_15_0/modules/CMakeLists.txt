@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/nrfx
         ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/drivers
@@ -17,7 +17,7 @@ target_include_directories(mbed-core
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         nrfx/drivers/src/nrfx_adc.c
         nrfx/drivers/src/nrfx_clock.c
         nrfx/drivers/src/nrfx_comp.c

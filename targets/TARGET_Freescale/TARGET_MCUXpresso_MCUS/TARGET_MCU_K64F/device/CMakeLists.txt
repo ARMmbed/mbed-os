@@ -8,7 +8,7 @@ function(_mbed_get_assembly_k64f)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(STARTUP_FILE TOOLCHAIN_IAR/startup_MK64F12.S)
     endif()
-    target_sources(mbed-core PRIVATE ${STARTUP_FILE})
+    target_sources(mbed-core INTERFACE ${STARTUP_FILE})
 endfunction()
 
 function(_mbed_set_linker_file)
@@ -26,11 +26,11 @@ _mbed_get_assembly_k64f()
 _mbed_set_linker_file()
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         system_MK64F12.c
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

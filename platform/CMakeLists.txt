@@ -11,7 +11,7 @@ add_subdirectory(randlib)
 add_subdirectory(source)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         include
         include/platform
         include/platform/internal

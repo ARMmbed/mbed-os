@@ -4,12 +4,12 @@
 add_subdirectory(Legacy)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         stm32l4xx_hal_adc.c
         stm32l4xx_hal_adc_ex.c
         stm32l4xx_hal.c

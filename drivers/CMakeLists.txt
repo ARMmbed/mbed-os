@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
         ./include
         ./include/drivers
@@ -10,7 +10,7 @@ target_include_directories(mbed-core
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         source/AnalogIn.cpp
         source/AnalogOut.cpp
         source/BufferedSerial.cpp
