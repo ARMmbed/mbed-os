@@ -142,7 +142,7 @@ void spi_frequency(spi_t *obj, int hz)
 int spi_master_write(spi_t *obj, int value)
 {
     uint32_t rxval = 0;
-    spi_master_block_write(obj, (const char *)&value, 1, (char *)&rxval, 1, 0x00);
+    spi_master_block_write(obj, (const char *)&value, 1, (char *)&rxval, 1, SPI_FILL_CHAR);
     return rxval;
 }
 
@@ -167,7 +167,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     }
 
     // handle difference between buffers
-    if (tx_length != rx_length) {
+    else if (tx_length != rx_length) {
         bool Rw = (rx_length >= tx_length);
 
         // set up common config
@@ -177,9 +177,13 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
         xfer.pui32TxBuffer = (Rw) ? NULL : (uint32_t *)(tx_buffer + chars_handled);
 
         uint32_t status = AM_HAL_STATUS_SUCCESS;
-        if (!Rw || (write_fill == 0x00)) {
+        if (!Rw || (write_fill == SPI_FILL_CHAR)) {
             // when transmitting (w) or reading with a zero fill just use a simplex transfer
-            status = am_hal_iom_blocking_transfer(obj->spi.iom_obj.iom.handle, &xfer);
+            uint8_t fill[xfer.ui32NumBytes];
+            memset(fill, write_fill, xfer.ui32NumBytes);
+            xfer.eDirection = AM_HAL_IOM_FULLDUPLEX;
+            xfer.pui32RxBuffer = (uint32_t *)&fill;
+            uint32_t status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
             if (AM_HAL_STATUS_SUCCESS != status) {
                 return chars_handled;
             }
