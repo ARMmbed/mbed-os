@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         stm32f4xx_hal_can_legacy.c
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

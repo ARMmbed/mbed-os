@@ -6,12 +6,12 @@ if("MCU_NRF52840" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         PeripheralPinsDefault.c
         analogin_api.c
         common_rtc.c

@@ -3,7 +3,7 @@
 
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/headers
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/fstorage
@@ -11,7 +11,7 @@ target_include_directories(mbed-core
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         libraries/fstorage/nrf_fstorage_nvmc.c
         nrf_soc_nosd/nrf_nvic.c
         nrf_soc_nosd/nrf_soc.c

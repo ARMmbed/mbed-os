@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         crc.c
         fsl_clock_config.c
         fsl_phy.c
@@ -10,6 +10,6 @@ target_sources(mbed-core
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

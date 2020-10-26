@@ -4,6 +4,6 @@
 add_subdirectory(RTE)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
 )

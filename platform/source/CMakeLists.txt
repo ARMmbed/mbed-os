@@ -10,12 +10,12 @@ endif()
 add_subdirectory(minimal-printf)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         ATCmdParser.cpp
         CThunkBase.cpp
         CriticalSectionLock.cpp

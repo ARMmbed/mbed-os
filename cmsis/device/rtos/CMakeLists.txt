@@ -3,34 +3,35 @@
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
     target_sources(mbed-rtos
-        PRIVATE
+        INTERFACE
             TOOLCHAIN_GCC_ARM/mbed_boot_gcc_arm.c
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     target_sources(mbed-rtos
-        PRIVATE
+        INTERFACE
             TOOLCHAIN_ARM_STD/mbed_boot_arm_std.c
     )
 elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
     target_sources(mbed-rtos
-        PRIVATE
+        INTERFACE
             TOOLCHAIN_IAR/mbed_boot_iar.c
     )
 endif()
 
 target_include_directories(mbed-rtos
-    PUBLIC
+    INTERFACE
         include
 )
 
-target_sources(mbed-rtos PRIVATE
-    source/mbed_boot.c
-    source/mbed_rtos_rtx.c
-    source/mbed_rtx_handlers.c
-    source/mbed_rtx_idle.cpp
+target_sources(mbed-rtos
+    INTERFACE
+        source/mbed_boot.c
+        source/mbed_rtos_rtx.c
+        source/mbed_rtx_handlers.c
+        source/mbed_rtx_idle.cpp
 )
 
 target_compile_definitions(mbed-rtos
-    PUBLIC
+    INTERFACE
         MBED_CONF_RTOS_PRESENT=1
 )
