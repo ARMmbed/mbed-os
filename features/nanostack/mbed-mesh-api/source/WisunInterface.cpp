@@ -17,6 +17,7 @@
 #include "WisunInterface.h"
 #include "NanostackRfPhy.h"
 #include "include/wisun_tasklet.h"
+#include "include/MeshKcm.h"
 #include "callback_handler.h"
 #include "NanostackLockGuard.h"
 #include "mesh_system.h"
@@ -26,7 +27,6 @@
 #include "ws_management_api.h"
 #include "net_rpl.h"
 #include "net_interface.h"
-
 #include "ns_trace.h"
 #define TRACE_GROUP "WSIn"
 
@@ -71,6 +71,7 @@ nsapi_error_t WisunInterface::do_initialize()
 
 nsapi_error_t WisunInterface::configure()
 {
+    char network_name[33];
     mesh_error_t status;
 
     if (_configured) {
@@ -79,14 +80,13 @@ nsapi_error_t WisunInterface::configure()
     }
 
     _configured = true;
-#ifdef MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME
-    char network_name[] = {MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME};
+
+    mesh_kcm_wisun_network_name_init(network_name, 33);
     status = set_network_name((char *) &network_name);
     if (status != MESH_ERROR_NONE) {
         tr_error("Failed to set network name!");
         return NSAPI_ERROR_PARAMETER;
     }
-#endif
 
 #if (MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN != 255) || (MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS != 255) || (MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE != 255)
     status = set_network_regulatory_domain(MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
