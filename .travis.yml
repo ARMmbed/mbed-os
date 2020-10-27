@@ -143,10 +143,8 @@ matrix:
         # Replace the content of mbed-os.lib to stay on ${TRAVIS_PULL_REQUEST}
         -  echo “” > mbed-os.lib
         -  mbedtools checkout;
-        -  mbedtools configure -t GCC_ARM -m ${TARGET_NAME};
-        -  mkdir -p build
       script:
-        - cd build && cmake .. -GNinja -DCMAKE_BUILD_TYPE=${PROFILE} && cmake --build .
+        - mbedtools build -t GCC_ARM -m ${TARGET_NAME} -b ${PROFILE} -c
 
     - <<: *cmake-build-test
       name: "CMake blinky example - release (K64F)"
