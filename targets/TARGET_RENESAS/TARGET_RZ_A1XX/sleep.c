@@ -38,10 +38,10 @@ static volatile uint8_t wk_CPGSTBREQ1;
 static volatile uint8_t wk_CPGSTBREQ2;
 
 typedef struct {
-    volatile uint8_t * p_wk_stbcr;
-    volatile uint8_t * p_stbcr;
-    volatile uint8_t * p_stbreq;
-    volatile uint8_t * p_stback;
+    volatile uint8_t *p_wk_stbcr;
+    volatile uint8_t *p_stbcr;
+    volatile uint8_t *p_stbreq;
+    volatile uint8_t *p_stback;
     uint8_t mstp;
     uint8_t stbrq;
 } module_stanby_t;
@@ -63,10 +63,11 @@ static const module_stanby_t module_stanby[] = {
     {0, 0, 0, 0, 0}  /* None */
 };
 
-static void module_standby_in(void) {
+static void module_standby_in(void)
+{
     volatile uint32_t cnt;
     volatile uint8_t dummy_8;
-    const module_stanby_t * p_module = &module_stanby[0];
+    const module_stanby_t *p_module = &module_stanby[0];
 
     while (p_module->p_wk_stbcr != 0) {
         if ((*p_module->p_wk_stbcr & p_module->mstp) == 0) {
@@ -85,10 +86,11 @@ static void module_standby_in(void) {
     (void)dummy_8;
 }
 
-static void module_standby_out(void) {
+static void module_standby_out(void)
+{
     volatile uint32_t cnt;
     volatile uint8_t dummy_8;
-    const module_stanby_t * p_module = &module_stanby[0];
+    const module_stanby_t *p_module = &module_stanby[0];
 
     while (p_module->p_wk_stbcr != 0) {
         if ((*p_module->p_wk_stbcr & p_module->mstp) == 0) {
@@ -105,13 +107,27 @@ static void module_standby_out(void) {
     (void)dummy_8;
 }
 
-void hal_sleep(void) {
+void hal_sleep(void)
+{
     // Transition to Sleep Mode
     __WFI();
 }
 
-void hal_deepsleep(void) {
+void hal_deepsleep(void)
+{
     volatile uint8_t dummy_8;
+
+    /* Waits for the serial transmission to complete */
+    const struct st_scif *SCIF[SCIF_COUNT] = SCIF_ADDRESS_LIST;
+
+    for (int uart = 0; uart < SCIF_COUNT; uart++) {
+        if ((wk_CPGSTBCR4 & (1 << (7 - uart))) == 0) {     // Is the power turned on?
+            if ((SCIF[uart]->SCSCR & 0x00A0) == 0x00A0) {  // Is transmission enabled? (TE = 1, TIE = 1)
+                /* Waits for the transmission to complete (TEND = 1) */
+                while ((SCIF[uart]->SCFSR & 0x0040) == 0); // Waits for the transmission to complete (TEND = 1)
+            }
+        }
+    }
 
     core_util_critical_section_enter();
     /* For powerdown the peripheral module, save current standby control register values(just in case) */
@@ -128,17 +144,6 @@ void hal_deepsleep(void) {
 #if defined(TARGET_RZA1H)
     wk_CPGSTBCR13 = CPGSTBCR13;
 #endif
-
-    /* Waits for the serial transmission to complete */
-    const struct st_scif *SCIF[SCIF_COUNT] = SCIF_ADDRESS_LIST;
-
-    for (int uart = 0; uart < SCIF_COUNT; uart++) {
-        if ((wk_CPGSTBCR4 & (1 << (7 - uart))) == 0) {     // Is the power turned on?
-            if ((SCIF[uart]->SCSCR & 0x00A0) == 0x00A0) {  // Is transmission enabled? (TE = 1, TIE = 1)
-                while ((SCIF[uart]->SCFSR & 0x0040) == 0); // Waits for the transmission to complete (TEND = 1)
-            }
-        }
-    }
 
     /* MTU2 (for low power ticker) */
     CPGSTBCR3  |= ~(CPG_STBCR3_BIT_MSTP33);

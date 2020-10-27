@@ -59,6 +59,16 @@ static const module_stanby_t module_stanby[] = {
     {0, 0, 0, 0, 0}  /* None */
 };
 
+/* Channel array defines of SCIF */
+/*(Sample) value = SCIF[ channel ]->SCSMR; */
+#define SCIFA_COUNT  (5)
+#define SCIFA_ADDRESS_LIST \
+{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
+    &SCIFA0, &SCIFA1, &SCIFA2, &SCIFA3, &SCIFA4 \
+}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
+
+/* End of channel array defines of SCIF */
+
 static void module_standby_in(void)
 {
     volatile uint32_t cnt;
@@ -112,6 +122,20 @@ void hal_sleep(void)
 void hal_deepsleep(void)
 {
     volatile uint8_t dummy_8;
+
+    /* Waits for the serial transmission to complete */
+    volatile const struct st_scifa *SCIFA[SCIFA_COUNT] = SCIFA_ADDRESS_LIST;
+
+    for (int uart = 0; uart < SCIFA_COUNT; uart++) {
+        /* Is the power turned on? */
+        if ((wk_CPGSTBCR4 & (1 << (7 - uart))) == 0) {
+            /* Is transmission enabled? (TE = 1, TIE = 1) */
+            if ((SCIFA[uart]->SCR.WORD & 0x00A0) == 0x00A0) {
+                /* Waits for the transmission to complete (TEND = 1) */
+                while ((SCIFA[uart]->FSR.WORD & 0x0040) == 0);
+            }
+        }
+    }
 
     core_util_critical_section_enter();
     /* For powerdown the peripheral module, save current standby control register values(just in case) */

@@ -22,9 +22,6 @@
  * limitations under the License.
  */
 
-#ifdef MBED_CONF_RTOS_PRESENT
-
-#include "os_tick.h"
 #include "irq_ctrl.h"
 
 #include <MBRZA2M.h>
@@ -41,6 +38,9 @@
 #define OSTM                        (OSTM0)
 #define OSTM_IRQn                   ((IRQn_ID_t)OSTMI0_IRQn)
 
+#ifdef MBED_CONF_RTOS_PRESENT
+
+#include "os_tick.h"
 
 static uint32_t OSTM_Clock;         // Timer tick frequency
 static uint8_t  OSTM_PendIRQ;       // Timer interrupt pending flag
@@ -188,11 +188,11 @@ uint32_t OS_Tick_GetOverflow(void)
 {
     return (IRQ_GetPending(OSTM_IRQn));
 }
+#endif
 
 // Get Cortex-A9 OS Timer interrupt number
 IRQn_ID_t mbed_get_a9_tick_irqn()
 {
     return OSTM_IRQn;
 }
-#endif
 
