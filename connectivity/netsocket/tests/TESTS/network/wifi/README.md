@@ -179,7 +179,6 @@ Call `set_credentials()` with various parameters described in "Expected results"
 | ssid="OK"  | [any 63 character string] | NSAPI_SECURITY_WPA2              | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | ""                        | NSAPI_SECURITY_WPA_WPA2          | NSAPI_ERROR_PARAMETER                               |
 | ssid="OK"  | ""                        | NSAPI_SECURITY_WPA3_WPA2         | NSAPI_ERROR_PARAMETER                               |
-| ssid="OK"  | ""                        | NSAPI_SECURITY_WEP               | NSAPI_ERROR_PARAMETER because password is missing.  |
 | ssid="OK"  | ""                        | NSAPI_SECURITY_NONE              | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | "12345678"                | NSAPI_SECURITY_WPA_WPA2          | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | "12345678"                | NSAPI_SECURITY_WPA3_WPA2         | NSAPI_ERROR_OK                                      |
