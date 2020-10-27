@@ -17,10 +17,6 @@ target_sources(mbed-core
         source/Mutex.cpp
         source/Semaphore.cpp
         source/ThisThread.cpp
-)
-
-target_sources(mbed-core
-    INTERFACE
         source/ConditionVariable.cpp
         source/Thread.cpp
 )
