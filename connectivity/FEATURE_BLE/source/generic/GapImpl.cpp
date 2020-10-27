@@ -3219,9 +3219,8 @@ ble_error_t Gap::addDeviceToPeriodicAdvertiserList(
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != peer_address_type_t::PUBLIC ||
-        peerAddressType != peer_address_type_t::RANDOM
-        ) {
+    if ((peerAddressType != peer_address_type_t::PUBLIC) &&
+        (peerAddressType != peer_address_type_t::RANDOM)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -3251,9 +3250,8 @@ ble_error_t Gap::removeDeviceFromPeriodicAdvertiserList(
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != peer_address_type_t::PUBLIC ||
-        peerAddressType != peer_address_type_t::RANDOM
-        ) {
+    if ((peerAddressType != peer_address_type_t::PUBLIC) &&
+        (peerAddressType != peer_address_type_t::RANDOM)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
