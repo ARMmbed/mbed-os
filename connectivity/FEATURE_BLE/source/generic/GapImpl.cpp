@@ -1096,11 +1096,10 @@ ble_error_t Gap::reset()
 #endif
 
 #if BLE_ROLE_BROADCASTER
-    _advertising_timeout.detach();
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         /* stop all advertising sets */
-        for (size_t i = 1; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
+        for (size_t i = 0; i < BLE_GAP_MAX_ADVERTISING_SETS; ++i) {
             if (_active_sets.get(i)) {
                 _pal_gap.extended_advertising_enable(
                     /* enable */ false,
@@ -1117,40 +1116,31 @@ ble_error_t Gap::reset()
                     (advertising_handle_t) i
                 );
             }
+            _active_periodic_sets.clear();
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
         }
 
         /* clear state of all advertising sets */
         _existing_sets.clear();
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
-#if BLE_FEATURE_PERIODIC_ADVERTISING
-        _active_periodic_sets.clear();
-#endif
-        if (_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
-#if BLE_FEATURE_EXTENDED_ADVERTISING
-            _pal_gap.extended_advertising_enable(
-                /* enable */ false,
-                /* number of advertising sets */ 1,
-                (advertising_handle_t *) &LEGACY_ADVERTISING_HANDLE,
-                nullptr,
-                nullptr
-            );
-#else
-            _pal_gap.advertising_enable(false);
-#endif
-        }
-        _active_sets.clear();
-        _pending_sets.clear();
-        _address_refresh_sets.clear();
-        _interruptible_sets.clear();
-        _connectable_payload_size_exceeded.clear();
-        _set_is_connectable.clear();
 
-#if BLE_FEATURE_EXTENDED_ADVERTISING
         /* clear advertising set data on the controller */
         _pal_gap.clear_advertising_sets();
+    } else
+#else // BLE_FEATURE_EXTENDED_ADVERTISING
+    {
+        if (_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+            _pal_gap.advertising_enable(false);
+        }
     }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
+
+    _active_sets.clear();
+    _pending_sets.clear();
+    _address_refresh_sets.clear();
+    _interruptible_sets.clear();
+    _connectable_payload_size_exceeded.clear();
+    _set_is_connectable.clear();
+    _advertising_timeout.detach();
 #endif // #BLE_ROLE_BROADCASTER
 
     return BLE_ERROR_NONE;
