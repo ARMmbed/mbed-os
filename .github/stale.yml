@@ -1,0 +1,15 @@
+# Number of days of inactivity before an issue becomes stale
+daysUntilStale: 3
+# Number of days of inactivity before a stale issue is closed
+daysUntilClose: 30
+# Issues or Pull Requests with these labels will never be considered stale. Set to `[]` to disable
+exemptLabels: []
+# Label to use when marking an issue as stale
+staleLabel: stale
+# Comment to post when marking an issue as stale. Set to `false` to disable
+markComment: false
+# Comment to post when closing a stale issue. Set to `false` to disable
+closeComment: >
+  This pull request is being closed due to inactivity. Please reopen with an update.
+# Limit to only `pulls`
+only: pulls
