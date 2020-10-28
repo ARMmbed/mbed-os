@@ -13,7 +13,6 @@ if(MBEDIDE)
     set_property(GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER "--ide=mbed")
 endif()
 
-
 # Sets toolchain options
 function(mbed_set_toolchain_options target)
     get_property(mbed_studio_arm_compiler GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER)
@@ -46,11 +45,6 @@ function(mbed_set_toolchain_options target)
         INTERFACE
             $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=auto>
             $<$<COMPILE_LANGUAGE:ASM>:${MBED_STUDIO_ARM_COMPILER}>
-    )
-
-    target_compile_definitions(${target}
-        INTERFACE
-            TOOLCHAIN_ARM
     )
 
     list(APPEND link_options

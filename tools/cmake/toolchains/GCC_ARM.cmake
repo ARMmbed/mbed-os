@@ -7,7 +7,6 @@ set(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
 set(GCC_ELF2BIN "arm-none-eabi-objcopy")
 set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
 
-
 # Sets toolchain options
 function(mbed_set_toolchain_options target)
     list(APPEND link_options
@@ -51,13 +50,6 @@ function(mbed_set_toolchain_options target)
         INTERFACE
             ${common_options}
     )
-
-    target_compile_definitions(${target}
-        INTERFACE
-            TOOLCHAIN_GCC_ARM
-            TOOLCHAIN_GCC
-    )
-
 
     target_link_options(${target}
         INTERFACE
