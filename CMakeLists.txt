@@ -10,6 +10,7 @@ if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
+include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(${MBED_PATH}/tools/cmake/core.cmake)
 include(${MBED_PATH}/tools/cmake/profile.cmake)
 
@@ -73,6 +74,22 @@ target_compile_definitions(mbed-core
         ${MBED_TARGET_DEFINITIONS}
         ${MBED_CONFIG_DEFINITIONS}
 )
+
+# Add compile definitions for backward compatibility with the toolchain
+# supported. New source files should instead check for __GNUC__ and __clang__
+# for the GCC_ARM and ARM toolchains respectively. 
+if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    target_compile_definitions(mbed-core
+        INTERFACE
+            TOOLCHAIN_GCC_ARM
+            TOOLCHAIN_GCC
+    )
+elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    target_compile_definitions(mbed-core
+        INTERFACE
+            TOOLCHAIN_ARM
+    )
+endif()
 
 # Include mbed.h and config from generate folder
 target_include_directories(mbed-core
