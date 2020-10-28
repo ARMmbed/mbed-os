@@ -23,6 +23,7 @@ The following targets are supported:
 - K64F 
 - K66F
 - NRF52840_DK
+- NUCLEO_F303K8
 - NUCLEO_F401RE
 - WIO_3G
 
