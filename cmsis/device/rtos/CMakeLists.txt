@@ -35,3 +35,15 @@ target_compile_definitions(mbed-rtos
     INTERFACE
         MBED_CONF_RTOS_PRESENT=1
 )
+
+if(NOT "full" IN_LIST MBED_TARGET_SUPPORTED_APPLICATION_PROFILES)
+   message(FATAL_ERROR
+       "Select baremetal profile as this target does not support full profile"
+   )
+endif()
+
+if(${MBED_C_LIB} STREQUAL "small")
+   message(FATAL_ERROR
+       "Small C libraries are not RTOS thread safe."
+   )
+endif()

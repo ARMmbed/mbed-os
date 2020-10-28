@@ -30,26 +30,6 @@ target_link_libraries(mbed-baremetal
         mbed-core
 )
 
-# Validate selected C library type
-# The C library type selected has to match the library that the target can support
-if(${MBED_C_LIB} STREQUAL "small")
-    if(NOT "small" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
-        if("std" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
-            message(WARNING
-                "We noticed that target.c_lib is set to `${MBED_C_LIB}`."
-                " As the ${MBED_TARGET} target does not support a small C library for the ${MBED_TOOLCHAIN} toolchain,"
-                " we are using the standard C library instead."
-            )
-            set(MBED_C_LIB "std" CACHE STRING "")
-        endif() 
-    endif()
-elseif(NOT ${MBED_C_LIB} IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
-    message(FATAL_ERROR
-        "Invalid `target.c_lib` ('${MBED_C_LIB}') for '${MBED_TARGET}' target."
-        "\nPossible value(s): ${MBED_TARGET_SUPPORTED_C_LIBS}"
-    )
-endif()
-
 # Validate selected printf library
 set(MBED_PRINTF_LIB_TYPES std minimal-printf)
 if(NOT ${MBED_PRINTF_LIB} IN_LIST MBED_PRINTF_LIB_TYPES)
@@ -94,6 +74,37 @@ add_subdirectory(platform)
 add_subdirectory(rtos)
 add_subdirectory(targets)
 
+#Verify that the selected application OS profile is supported by the Mbed target
+if(NOT MBED_CONF_RTOS_PRESENT)
+    if(NOT "bare-metal" IN_LIST MBED_TARGET_SUPPORTED_APPLICATION_PROFILES)
+        message(FATAL_ERROR
+            "Baremetal profile is not supported for this target")
+    else()
+        set(MBED_C_LIB "small" CACHE STRING "")        
+    endif()
+endif()
+
+
+# Validate selected C library type
+# The C library type selected has to match the library that the target can support
+if(${MBED_C_LIB} STREQUAL "small")
+    if(NOT "small" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+        if("std" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+            message(WARNING
+                "We noticed that target.c_lib is set to `${MBED_C_LIB}`."
+                " As the ${MBED_TARGET} target does not support a small C library for the ${MBED_TOOLCHAIN} toolchain,"
+                " we are using the standard C library instead."
+            )
+            set(MBED_C_LIB "std" CACHE STRING "")
+        endif() 
+    endif()
+elseif(NOT ${MBED_C_LIB} IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+    message(FATAL_ERROR
+        "Invalid `target.c_lib` ('${MBED_C_LIB}') for '${MBED_TARGET}' target."
+        "\nPossible value(s): ${MBED_TARGET_SUPPORTED_C_LIBS}"
+    )
+endif()
+
 # The directories below contain optional target libraries
 add_subdirectory(events EXCLUDE_FROM_ALL)
 add_subdirectory(connectivity EXCLUDE_FROM_ALL)
@@ -129,7 +140,7 @@ function(mbed_set_mbed_target_linker_script target)
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
         target_link_options(mbed-core
-            PUBLIC
+            INTERFACE
                 "--scatter=${mbed_target_linker_script}"
         )
     endif()
