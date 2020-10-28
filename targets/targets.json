@@ -3162,7 +3162,10 @@
         ],
         "detect_code": ["0813"],
         "components_add": [
-            "QSPIF"
+            "QSPIF",
+            "WHD",
+            "4343W_FS",
+            "CYW43XXX"
         ],
         "device_has_add": [
             "USBDEVICE",
