@@ -16,8 +16,6 @@ target_sources(mbed-core
         pwmout_device.c
         serial_device.c
         spi_api.c
-
-
 )
 
 add_subdirectory(STM32Cube_FW)
