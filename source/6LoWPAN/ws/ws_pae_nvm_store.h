@@ -40,8 +40,8 @@ typedef struct nvm_tlv {
 
 typedef struct {
     nvm_tlv_t nvm_tlv;                  /**< NVM TLV */
-    uint64_t reference_time;            /**< Reference time used for timers (set when file is created) */
     uint32_t reference_restart_cnt;     /**< Reference re-start counter set when file is created) */
+    uint64_t reference_time;            /**< Reference time used for timers (set when file is created) */
 } key_storage_nvm_tlv_entry_t;
 
 // tag + length

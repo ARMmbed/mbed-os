@@ -1183,14 +1183,23 @@ static void mac_pd_data_confirm_failure_handle(protocol_interface_rf_mac_setup_s
     mcps_data_confirm_cb(rf_mac_setup, &mcps_data_conf, NULL);
 }
 
+
 static void mac_pd_data_ack_handler(mac_pre_parsed_frame_t *buf)
 {
     protocol_interface_rf_mac_setup_s *rf_mac_setup = buf->mac_class_ptr;
 
     if (!rf_mac_setup->active_pd_data_request) {
         mcps_sap_pre_parsed_frame_buffer_free(buf);
+        tr_debug("RX ack without active buffer");
     } else {
         mac_pre_build_frame_t *buffer = rf_mac_setup->active_pd_data_request;
+
+        //Validate here ack is proper to active buffer
+        if (!mac_pd_sap_ack_validation(rf_mac_setup, &buf->fcf_dsn, mac_header_message_start_pointer(buf))) {
+            tr_debug("Not a valid ACK for active tx process");
+            mcps_sap_pre_parsed_frame_buffer_free(buf);
+            return;
+        }
 
         if (mac_ack_sap_rx_handler(buf, rf_mac_setup)) {
             //Do not forward ACK payload but Accept ACK

@@ -26,6 +26,7 @@
 
 struct protocol_interface_rf_mac_setup;
 struct arm_phy_sap_msg_s;
+struct mac_fcf_sequence_s;
 
 #define ENHANCED_ACK_NEIGHBOUR_POLL_MAX_TIME_US 3500
 
@@ -60,5 +61,7 @@ void mac_csma_backoff_start(struct protocol_interface_rf_mac_setup *rf_mac_setup
 void mac_pd_sap_state_machine(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
 int8_t mac_data_edfe_force_stop(struct protocol_interface_rf_mac_setup *rf_ptr);
+
+bool mac_pd_sap_ack_validation(struct protocol_interface_rf_mac_setup *rf_ptr, const struct mac_fcf_sequence_s *fcf_dsn, const uint8_t *data_ptr);
 
 #endif /* MAC_PD_SAP_H_ */
