@@ -26,10 +26,9 @@ env:
 
 cache:
   pip: true
+  ccache: true
   directories:
     - ${HOME}/.cache/deps
-    - ${HOME}/.ccache
-
 
 before_install:
   - source tools/test/travis-ci/functions.sh
