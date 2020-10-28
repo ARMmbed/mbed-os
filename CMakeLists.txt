@@ -12,16 +12,15 @@ endif()
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(${MBED_PATH}/tools/cmake/core.cmake)
-include(${MBED_PATH}/tools/cmake/profile.cmake)
 
 add_library(mbed-core INTERFACE)
 
 add_library(mbed-os INTERFACE)
 
 target_link_libraries(mbed-os
-        INTERFACE
-            mbed-rtos
-            mbed-core
+    INTERFACE
+        mbed-rtos
+        mbed-core
 )
 
 add_library(mbed-baremetal INTERFACE)
@@ -59,14 +58,18 @@ if(NOT ${MBED_PRINTF_LIB} IN_LIST MBED_PRINTF_LIB_TYPES)
     )
 endif()
 
-mbed_set_cpu_core_options(mbed-core ${MBED_TOOLCHAIN})
-mbed_set_toolchain_options(mbed-core)
-mbed_set_c_lib(mbed-core ${MBED_C_LIB})
-mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
-mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
+mbed_set_cpu_core_definitions(mbed-core)
+if(${MBED_TOOLCHAIN_FILE_USED})
+    mbed_set_cpu_core_options(mbed-core ${MBED_TOOLCHAIN})
+    mbed_set_toolchain_options(mbed-core)
+    mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
+    mbed_set_c_lib(mbed-core ${MBED_C_LIB})
+    mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
+endif()
+
 
 set(MBED_TARGET_LABELS
-         ${MBED_TARGET_LABELS} CACHE INTERNAL ""
+    ${MBED_TARGET_LABELS} CACHE INTERNAL ""
 )
 
 target_compile_definitions(mbed-core
