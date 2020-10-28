@@ -12,12 +12,12 @@ function(mbed_set_cpu_core_options target mbed_toolchain)
         )
 
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 ${common_toolchain_options}
         )
 
         target_link_options(${target}
-            PUBLIC
+            INTERFACE
                 ${common_toolchain_options}
         )
     elseif(${mbed_toolchain} STREQUAL "ARM")
@@ -26,20 +26,20 @@ function(mbed_set_cpu_core_options target mbed_toolchain)
         )
 
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 $<$<COMPILE_LANGUAGE:C>:${compile_options}>
                 $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
                 $<$<COMPILE_LANGUAGE:ASM>:-mcpu=Cortex-M33>
         )
 
         target_link_options(${target}
-            PUBLIC
+            INTERFACE
                 "--cpu=Cortex-M33"
         )
     endif()
 
     target_compile_definitions(${target}
-        PUBLIC
+        INTERFACE
             __CORTEX_M33
             ARM_MATH_ARMV8MML
             DOMAIN_NS=1

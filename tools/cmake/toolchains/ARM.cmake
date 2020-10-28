@@ -33,23 +33,23 @@ function(mbed_set_toolchain_options target)
     )
 
     target_compile_options(${target}
-        PUBLIC
+        INTERFACE
             $<$<COMPILE_LANGUAGE:C>:${common_options}>
     )
 
     target_compile_options(${target}
-        PUBLIC
+        INTERFACE
             $<$<COMPILE_LANGUAGE:CXX>:${common_options}>
     )
 
     target_compile_options(${target}
-        PUBLIC
+        INTERFACE
             $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=auto>
             $<$<COMPILE_LANGUAGE:ASM>:${MBED_STUDIO_ARM_COMPILER}>
     )
 
     target_compile_definitions(${target}
-        PUBLIC
+        INTERFACE
             TOOLCHAIN_ARM
     )
 
@@ -66,7 +66,7 @@ function(mbed_set_toolchain_options target)
     endif()
 
     target_link_options(${target}
-        PUBLIC
+        INTERFACE
             ${link_options}
     )
 endfunction()
@@ -75,18 +75,18 @@ endfunction()
 function(mbed_set_c_lib target lib_type)
     if (${lib_type} STREQUAL "small")
         target_compile_definitions(${target}
-            PUBLIC
+            INTERFACE
                 MBED_RTOS_SINGLE_THREAD
                 __MICROLIB
         )
 
         target_compile_options(${target}
-            PUBLIC
+            INTERFACE
                 $<$<COMPILE_LANGUAGE:ASM>:"--library_type=microlib">
         )
 
         target_link_options(${target}
-            PUBLIC
+            INTERFACE
                 "--library_type=microlib"
         )
     endif()
@@ -96,7 +96,7 @@ endfunction()
 function(mbed_set_printf_lib target lib_type)
     if (${lib_type} STREQUAL "minimal-printf")
         target_compile_definitions(${target}
-            PUBLIC
+            INTERFACE
                 MBED_MINIMAL_PRINTF
         )
     endif()
