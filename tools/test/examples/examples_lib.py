@@ -493,6 +493,8 @@ def symlink_mbedos(config, path, exp_filter):
             else:
                 logging.info("Creating Symbolic link '%s'->'mbed-os'" % path)
                 os.symlink(path, "mbed-os")
+                #Cmake tool currently require 'mbed-os.lib' to be present to perform build.
+                #Add a empty 'mbed-os.lib' as a workaround
                 open('mbed-os.lib', 'a').close()
             os.chdir(CWD)
     return 0

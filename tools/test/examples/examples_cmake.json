@@ -114,6 +114,31 @@
         "auto-update" : true
     },
     {
+      "name": "mbed-os-example-ble",
+      "github":"https://github.com/ARMmbed/mbed-os-example-ble",
+      "sub-repo-example": true,
+      "subs": [
+            "BLE_BatteryLevel",
+            "BLE_GAP",
+            "BLE_GattClient",
+            "BLE_GattServer",
+            "BLE_HeartRate",
+            "BLE_LED",
+            "BLE_LEDBlinker",
+            "BLE_PeriodicAdvertising",
+            "BLE_Privacy",
+            "BLE_SM"
+      ],
+      "features" : [],
+      "targets" : ["NRF52840_DK", "DISCO_L475VG_IOT01A"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "test" : false,
+      "auto-update" : true
+    },
+    {
         "name": "mbed-os-example-kvstore",
         "github":"https://github.com/ARMmbed/mbed-os-example-kvstore",
         "sub-repo-example": false,
