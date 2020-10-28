@@ -2863,7 +2863,7 @@ void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
             _adv_started_from_refresh.clear(handle);
         } else if (_event_handler) {
             _event_handler->onAdvertisingStart(
-                AdvertisingStartEvent(LEGACY_ADVERTISING_HANDLE)
+                AdvertisingStartEvent(handle)
             );
         }
     }
