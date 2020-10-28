@@ -252,6 +252,7 @@ void mbed_sdk_init()
     SetSysClock();
     SystemCoreClockUpdate();
 
+#ifndef CM4_BOOT_BY_APPLICATION
     /* Check wether CM4 boot in parallel with CM7. If CM4 was gated but CM7 trigger the CM4 boot. No need to wait for synchronization.
        otherwise CM7 should wakeup CM4 when system clocks initialization is done.  */
     if (READ_BIT(SYSCFG->UR1, SYSCFG_UR1_BCM4)) {
@@ -263,6 +264,7 @@ void mbed_sdk_init()
     }
     /* wait until CPU2 wakes up from stop mode */
     while (LL_RCC_D2CK_IsReady() == 0);
+#endif /* CM4_BOOT_BY_APPLICATION */
 #endif /* CORE_M4 */
 
 #else /* Single core */
