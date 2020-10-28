@@ -1,6 +1,11 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+	set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 
 # Set default toolchain file
