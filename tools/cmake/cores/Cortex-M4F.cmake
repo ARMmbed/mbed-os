@@ -3,15 +3,6 @@
 
 # Sets cpu core options
 function(mbed_set_cpu_core_options target mbed_toolchain)
-    target_compile_definitions(${target}
-        INTERFACE
-            __CORTEX_M4
-            ARM_MATH_CM4
-            __FPU_PRESENT=1
-            __CMSIS_RTOS
-            __MBED_CMSIS_RTOS_CM
-    )
-
     if(${mbed_toolchain} STREQUAL "GCC_ARM")
         list(APPEND common_toolchain_options
             "-mthumb"
@@ -48,4 +39,15 @@ function(mbed_set_cpu_core_options target mbed_toolchain)
                 "--cpu=Cortex-M4"
         )
     endif()
+endfunction()
+
+function(mbed_set_cpu_core_definitions target)
+    target_compile_definitions(${target}
+        INTERFACE
+            __CORTEX_M4
+            ARM_MATH_CM4
+            __FPU_PRESENT=1
+            __CMSIS_RTOS
+            __MBED_CMSIS_RTOS_CM
+    )
 endfunction()
