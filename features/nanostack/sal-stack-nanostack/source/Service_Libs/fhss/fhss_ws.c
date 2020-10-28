@@ -82,6 +82,7 @@ static int fhss_ws_manage_channel_table_allocation(fhss_structure_t *fhss_struct
 static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
 static void fhss_ws_update_uc_channel_callback(fhss_structure_t *fhss_structure);
 static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay);
+static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure);
 static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_t channel_index, uint16_t number_of_channels);
 
@@ -114,6 +115,11 @@ void fhss_ws_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (
     // Reduce the compensation (per millisecond) from timeout.
     time -= NS_TO_US(time_in_ms * fhss_structure->ws->drift_per_millisecond_ns);
     fhss_start_timer(fhss_structure, time, callback);
+    if (callback == fhss_unicast_handler) {
+        fhss_structure->ws->next_uc_timeout = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) + time;
+    } else if (callback == fhss_broadcast_handler) {
+        fhss_structure->ws->next_bc_timeout = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) + time;
+    }
 }
 
 fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer)
@@ -285,6 +291,7 @@ static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_
 
 static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
 {
+    (void) delay;
     int32_t next_channel;
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
     if (!fhss_structure) {
@@ -298,8 +305,44 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         fhss_structure->ws->broadcast_timer_running = false;
         return;
     }
+
+    int32_t delay_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - fhss_structure->ws->next_bc_timeout;
+    // Assume this was initial call for this function without timer
+    if (!fhss_structure->ws->bc_slot && !fhss_structure->ws->next_bc_timeout) {
+        delay_us = 0;
+    }
+
     if (fhss_structure->ws->is_on_bc_channel == false) {
-        fhss_ws_start_timer(fhss_structure, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) - (delay * fhss_structure->platform_functions.fhss_resolution_divider), fhss_broadcast_handler);
+        // If callback was delayed longer than broadcast interval, BC slot must be updated
+        fhss_structure->ws->bc_slot += (US_TO_MS(delay_us) + (fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval)) / fhss_structure->ws->fhss_configuration.fhss_broadcast_interval;
+        // We weren't on broadcast channel. Check if after delayed interrupt we still shouldn't go to broadcast channel. Setting is_on_bc_channel to true forces to skip BC dwell interval next.
+        if ((US_TO_MS(delay_us) % fhss_structure->ws->fhss_configuration.fhss_broadcast_interval) > fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) {
+            fhss_structure->ws->is_on_bc_channel = true;
+            // If delay + assumed timeout is longer than broadcast interval, delay value must be computed differently to make compensation work properly
+            if (US_TO_MS(delay_us) + (fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) > fhss_structure->ws->fhss_configuration.fhss_broadcast_interval) {
+                delay_us = (MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) + delay_us) % MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval);
+            }
+        } else {
+            if (US_TO_MS(delay_us) + (fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) > fhss_structure->ws->fhss_configuration.fhss_broadcast_interval) {
+                delay_us = ((MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) + delay_us) % MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval)) - MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
+            }
+        }
+    } else {
+        // If callback was delayed longer than broadcast interval, BC slot must be updated
+        fhss_structure->ws->bc_slot += (US_TO_MS(delay_us) + fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) / fhss_structure->ws->fhss_configuration.fhss_broadcast_interval;
+        // We were on broadcast channel. Check if after delayed interrupt we should go broadcast channel again. Setting is_on_bc_channel to false forces to start BC dwell interval next.
+        if ((US_TO_MS(delay_us) % fhss_structure->ws->fhss_configuration.fhss_broadcast_interval) > (fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval)) {
+            fhss_structure->ws->is_on_bc_channel = false;
+        }
+        delay_us %= MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval);
+    }
+
+    if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
+        fhss_structure->ws->bc_slot %= fhss_structure->number_of_channels;
+    }
+
+    if (fhss_structure->ws->is_on_bc_channel == false) {
+        fhss_ws_start_timer(fhss_structure, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) - (delay_us * fhss_structure->platform_functions.fhss_resolution_divider), fhss_broadcast_handler);
         fhss_structure->ws->is_on_bc_channel = true;
         next_channel = fhss_structure->ws->bc_channel = fhss_ws_calc_bc_channel(fhss_structure);
 
@@ -315,7 +358,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     } else {
         fhss_structure->ws->unicast_start_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
         uint32_t timeout = MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
-        fhss_ws_start_timer(fhss_structure, timeout - (delay * fhss_structure->platform_functions.fhss_resolution_divider), fhss_broadcast_handler);
+        fhss_ws_start_timer(fhss_structure, timeout - (delay_us * fhss_structure->platform_functions.fhss_resolution_divider), fhss_broadcast_handler);
         fhss_structure->ws->is_on_bc_channel = false;
         // Should return to own (unicast) listening channel after broadcast channel
         next_channel = fhss_structure->rx_channel;
@@ -413,8 +456,10 @@ static uint32_t fhss_ws_calculate_ufsi(fhss_structure_t *fhss_structure, uint32_
 {
     uint8_t dwell_time = fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval;
     uint16_t cur_slot = fhss_structure->ws->uc_slot;
-    if (cur_slot == 0) {
-        cur_slot = fhss_structure->number_of_uc_channels;
+    if (fhss_structure->ws->fhss_configuration.ws_uc_channel_function == WS_TR51CF) {
+        if (cur_slot == 0) {
+            cur_slot = fhss_structure->number_of_uc_channels;
+        }
     }
     cur_slot--;
     uint32_t remaining_time_ms = 0;
@@ -497,6 +542,8 @@ static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_stat
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_stop_timer(fhss_structure, fhss_broadcast_handler);
         fhss_structure->ws->broadcast_timer_running = false;
+        fhss_structure->ws->is_on_bc_channel = false;
+        fhss_structure->ws->synchronization_time = 0;
     }
 
     fhss_structure->fhss_state = fhss_state;
@@ -570,13 +617,9 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     }
     if (fhss_structure->fhss_state == FHSS_SYNCHRONIZED) {
         fhss_ws_neighbor_timing_info_t *neighbor_timing_info = fhss_structure->ws->get_neighbor_info(api, destination_address);
-        if (!neighbor_timing_info) {
+        if (!neighbor_timing_info || neighbor_timing_info->uc_timing_info.unicast_number_of_channels == 0) {
             fhss_stats_update(fhss_structure, STATS_FHSS_UNKNOWN_NEIGHBOR, 1);
             return -2;
-        }
-
-        if (neighbor_timing_info->uc_timing_info.unicast_number_of_channels == 0) {
-            return -1;
         }
 
         uint16_t destination_slot = fhss_ws_calculate_destination_slot(neighbor_timing_info, tx_time);
@@ -896,18 +939,34 @@ static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t
 
 static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
 {
+    (void) delay;
     uint32_t timeout = 0;
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
     if (!fhss_structure) {
         return;
     }
+    int32_t delay_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - fhss_structure->ws->next_uc_timeout;
+    if (!fhss_structure->ws->uc_slot && !fhss_structure->ws->next_uc_timeout) {
+        delay_us = 0;
+    }
+
+    // If callback was delayed longer than dwell time, UC slot must be updated
+    if ((fhss_structure->ws->fhss_configuration.ws_uc_channel_function != WS_FIXED_CHANNEL)) {
+        fhss_structure->ws->uc_slot += US_TO_MS(delay_us) / fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval;
+        if (fhss_structure->ws->fhss_configuration.ws_uc_channel_function == WS_TR51CF) {
+            fhss_structure->ws->uc_slot %= fhss_structure->number_of_uc_channels;
+        }
+    }
+    delay_us %= MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval);
+
+
     timeout = fhss_ws_get_sf_timeout_callback(fhss_structure);
     if (!timeout) {
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_structure->ws->unicast_timer_running = false;
         return;
     }
-    fhss_ws_start_timer(fhss_structure, timeout - (delay * fhss_structure->platform_functions.fhss_resolution_divider), fhss_unicast_handler);
+    fhss_ws_start_timer(fhss_structure, timeout - (delay_us * fhss_structure->platform_functions.fhss_resolution_divider), fhss_unicast_handler);
     fhss_structure->ws->unicast_timer_running = true;
     fhss_ws_update_uc_channel_callback(fhss_structure);
     // Unless we have broadcast schedule, we have to poll unicast queue when changing channel. This is randomized by the unicast schedule.

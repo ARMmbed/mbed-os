@@ -886,6 +886,11 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
             uint8_t dns_search_list_len = length - 8; // Length includes type and length
             //Cut Padding
             dns_search_list_len = icmpv6_dns_search_list_remove_pad(dns_search_list, dns_search_list_len);
+
+            // validate lifetime to be at least same amount as default route lifetime
+            if (dns_lifetime > 0 && dns_lifetime < router_lifetime) {
+                dns_lifetime = router_lifetime;
+            }
             //tr_info("DNS Search List: %s Lifetime: %lu", trace_array(dns_search_list, dns_search_list_len), (unsigned long) dns_lifetime);
             // Add DNS server to DNS information storage.
             net_dns_server_search_list_set(cur->id, buf->src_sa.address, dns_search_list, dns_search_list_len, dns_lifetime);
@@ -899,6 +904,12 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
             }
             uint8_t dns_count = (dns_length - 1) / 2;
             uint32_t dns_lifetime = common_read_32_bit(dptr + 2); // 2 x reserved
+
+            // validate lifetime to be at least same amount as default route lifetime
+            if (dns_lifetime > 0 && dns_lifetime < router_lifetime) {
+                dns_lifetime = router_lifetime;
+            }
+
             for (int n = 0; n < dns_count; n++) {
                 uint8_t *dns_srv_addr = dptr + 6 + n * 16;
                 //tr_info("DNS Server: %s Lifetime: %lu", trace_ipv6(dns_srv_addr), (unsigned long) dns_lifetime);

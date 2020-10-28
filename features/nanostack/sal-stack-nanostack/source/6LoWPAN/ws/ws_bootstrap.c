@@ -1045,6 +1045,15 @@ cleanup:
     return ret_val;
 }
 
+static void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur)
+{
+    cur->ws_info->trickle_pas_running = false;
+    cur->ws_info->trickle_pa_running = false;
+    cur->ws_info->trickle_pcs_running = false;
+    cur->ws_info->trickle_pc_running = false;
+    cur->ws_info->trickle_pc_consistency_block_period = 0;
+}
+
 static int8_t ws_bootstrap_down(protocol_interface_info_entry_t *cur)
 {
     if (!cur || !(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
@@ -1058,7 +1067,7 @@ static int8_t ws_bootstrap_down(protocol_interface_info_entry_t *cur)
     ns_fhss_delete(cur->ws_info->fhss_api);
     cur->ws_info->fhss_api = NULL;
     // Reset WS information
-    // ws_common_reset(cur)
+    ws_bootstrap_asynch_trickle_stop(cur);
     ws_llc_reset(cur);
     if (nd_proxy_downstream_interface_unregister(cur->id) != 0) {
         tr_warn("nd proxy unregister failed");
@@ -1103,11 +1112,7 @@ void ws_bootstrap_configuration_reset(protocol_interface_info_entry_t *cur)
 
     cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
     cur->ws_info->network_pan_id = 0xffff;
-    cur->ws_info->trickle_pas_running = false;
-    cur->ws_info->trickle_pa_running = false;
-    cur->ws_info->trickle_pcs_running = false;
-    cur->ws_info->trickle_pc_running = false;
-    cur->ws_info->trickle_pc_consistency_block_period = 0;
+    ws_bootstrap_asynch_trickle_stop(cur);
 
     //cur->mac_security_key_usage_update_cb = ws_management_mac_security_key_update_cb;
     return;
@@ -3228,6 +3233,9 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
         case WS_DISCOVERY_START:
             tr_info("Discovery start");
 
+            protocol_mac_reset(cur);
+            ws_llc_reset(cur);
+            lowpan_adaptation_interface_reset(cur->id);
             //Clear Pending Key Index State
             cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
             cur->mac_parameters->mac_default_key_index = 0;
@@ -3236,11 +3244,7 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
             blacklist_clear();
 
             // All trickle timers stopped to allow entry from any state
-            cur->ws_info->trickle_pa_running = false;
-            cur->ws_info->trickle_pc_running = false;
-            cur->ws_info->trickle_pas_running = false;
-            cur->ws_info->trickle_pcs_running = false;
-            cur->ws_info->trickle_pc_consistency_block_period = 0;
+            ws_bootstrap_asynch_trickle_stop(cur);
 
             if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                 tr_info("Border router start network");
@@ -3329,11 +3333,7 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
         case WS_CONFIGURATION_START:
             tr_info("Configuration start");
             // Old configuration is considered invalid stopping all
-            cur->ws_info->trickle_pa_running = false;
-            cur->ws_info->trickle_pc_running = false;
-            cur->ws_info->trickle_pas_running = false;
-            cur->ws_info->trickle_pcs_running = false;
-            cur->ws_info->trickle_pc_consistency_block_period = 0;
+            ws_bootstrap_asynch_trickle_stop(cur);
 
             // Build list of possible neighbours and learn first broadcast schedule
 
@@ -3342,11 +3342,7 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
         case WS_OPERATION_START:
             tr_info("operation start");
             // Advertisements stopped during the RPL scan
-            cur->ws_info->trickle_pa_running = false;
-            cur->ws_info->trickle_pc_running = false;
-            cur->ws_info->trickle_pas_running = false;
-            cur->ws_info->trickle_pcs_running = false;
-            cur->ws_info->trickle_pc_consistency_block_period = 0;
+            ws_bootstrap_asynch_trickle_stop(cur);
             // Activate RPL
             // Activate IPv6 stack
             ws_bootstrap_ip_stack_activate(cur);
@@ -3362,11 +3358,7 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
         case WS_ROUTING_READY:
             tr_info("Routing ready");
             // stopped all to make sure we can enter here from any state
-            cur->ws_info->trickle_pa_running = false;
-            cur->ws_info->trickle_pc_running = false;
-            cur->ws_info->trickle_pas_running = false;
-            cur->ws_info->trickle_pcs_running = false;
-            cur->ws_info->trickle_pc_consistency_block_period = 0;
+            ws_bootstrap_asynch_trickle_stop(cur);
 
             // Indicate PAE controller that bootstrap is ready
             ws_pae_controller_bootstrap_done(cur);
@@ -3547,11 +3539,7 @@ void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
         case ER_PANA_AUTH:
             tr_info("authentication start");
             // Advertisements stopped during the EAPOL
-            cur->ws_info->trickle_pa_running = false;
-            cur->ws_info->trickle_pc_running = false;
-            cur->ws_info->trickle_pas_running = false;
-            cur->ws_info->trickle_pcs_running = false;
-            cur->ws_info->trickle_pc_consistency_block_period = 0;
+            ws_bootstrap_asynch_trickle_stop(cur);
             ws_fhss_configure(cur, false);
             int8_t new_default = cur->ws_info->weakest_received_rssi - 1;
             if ((new_default < CCA_DEFAULT_DBM) && (new_default >= CCA_LOW_LIMIT) && (new_default <= CCA_HIGH_LIMIT)) {
