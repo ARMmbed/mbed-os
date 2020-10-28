@@ -3182,7 +3182,8 @@
         },
         "macros_add": [
             "CM4_BOOT_BY_APPLICATION",
-            "QSPI_NO_SAMPLE_SHIFT"
+            "QSPI_NO_SAMPLE_SHIFT",
+            "CYW43XXX_UNBUFFERED_UART"
         ],
         "detect_code": ["0813"],
         "components_add": [
@@ -3190,6 +3191,12 @@
             "WHD",
             "4343W_FS",
             "CYW43XXX"
+        ],
+        "extra_labels_add": [
+            "CORDIO"
+        ],
+        "features": [
+            "BLE"
         ],
         "device_has_add": [
             "USBDEVICE",
