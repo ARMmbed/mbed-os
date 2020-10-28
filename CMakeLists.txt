@@ -22,33 +22,15 @@ target_link_libraries(mbed-os
             mbed-rtos
             mbed-core
 )
-
+message(STATUS
+    ${MBED_BAREMETAL_PROFILE}
+)
 add_library(mbed-baremetal INTERFACE)
 
 target_link_libraries(mbed-baremetal
     INTERFACE
         mbed-core
 )
-
-# Validate selected C library type
-# The C library type selected has to match the library that the target can support
-if(${MBED_C_LIB} STREQUAL "small")
-    if(NOT "small" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
-        if("std" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
-            message(WARNING
-                "We noticed that target.c_lib is set to `${MBED_C_LIB}`."
-                " As the ${MBED_TARGET} target does not support a small C library for the ${MBED_TOOLCHAIN} toolchain,"
-                " we are using the standard C library instead."
-            )
-            set(MBED_C_LIB "std" CACHE STRING "")
-        endif() 
-    endif()
-elseif(NOT ${MBED_C_LIB} IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
-    message(FATAL_ERROR
-        "Invalid `target.c_lib` ('${MBED_C_LIB}') for '${MBED_TARGET}' target."
-        "\nPossible value(s): ${MBED_TARGET_SUPPORTED_C_LIBS}"
-    )
-endif()
 
 # Validate selected printf library
 set(MBED_PRINTF_LIB_TYPES std minimal-printf)
@@ -94,6 +76,36 @@ add_subdirectory(platform)
 add_subdirectory(rtos)
 add_subdirectory(targets)
 
+
+# Idea-1
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+get_target_property(_compile_defs mbed-os 
+INTERFACE_COMPILE_DEFINITIONS)
+message(STATUS ${_compile_defs})
+
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_test.txt" CONTENT "${_compile_definitions}\n")
+message(STATUS ${_compile_definitions})
+
+# Validate selected C library type
+# The C library type selected has to match the library that the target can support
+if(${MBED_C_LIB} STREQUAL "small")
+    if(NOT "small" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+        if("std" IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+            message(WARNING
+                "We noticed that target.c_lib is set to `${MBED_C_LIB}`."
+                " As the ${MBED_TARGET} target does not support a small C library for the ${MBED_TOOLCHAIN} toolchain,"
+                " we are using the standard C library instead."
+            )
+            set(MBED_C_LIB "std" CACHE STRING "")
+        endif() 
+    endif()
+elseif(NOT ${MBED_C_LIB} IN_LIST MBED_TARGET_SUPPORTED_C_LIBS)
+    message(FATAL_ERROR
+        "Invalid `target.c_lib` ('${MBED_C_LIB}') for '${MBED_TARGET}' target."
+        "\nPossible value(s): ${MBED_TARGET_SUPPORTED_C_LIBS}"
+    )
+endif()
+
 # The directories below contain optional target libraries
 add_subdirectory(events EXCLUDE_FROM_ALL)
 add_subdirectory(connectivity EXCLUDE_FROM_ALL)
@@ -105,6 +117,32 @@ add_subdirectory(platform/FEATURE_EXPERIMENTAL_API EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
+# Idea 2
+set(_compile_definitions 
+"$<TARGET_PROPERTY:${APP_TARGET},COMPILE_DEFINITIONS>"
+)
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_tests1.txt" CONTENT "${_compile_definitions}\n")
+file(READ ${CMAKE_BINARY_DIR}/compile_time_tests1.txt __mbed_rtos_used)
+#file(STRINGS "${CMAKE_BINARY_DIR}/compile_time_tests1.txt" __mbed_rtos_used REGEX MBED_CONF_RTOS_PRESENT)
+message(STATUS "test 1 ${__mbed_rtos_used}")
+get_target_property(__mbed_rtos_used mbed-rtos INTERFACE_MBED_RTOS_USED) 
+
+message(STATUS ${__mbed_rtos_used})
+#Verify that the selected application OS profile is supported by the Mbed target
+if(NOT __mbed_rtos_used)
+    message("TESTEd TESSSS")
+    if(NOT "bare-metal" IN_LIST MBED_TARGET_SUPPORTED_APPLICATION_PROFILES)
+        message(FATAL_ERROR
+            "Baremetal profile is not supported for this target")
+    else()
+        set(MBED_C_LIB "small" CACHE STRING "")        
+    endif()
+else()
+    message("ARM ARM")    
+endif()
+message(STATUS
+    ${MBED_BAREMETAL_PROFILE}
+)
 #
 # Configures the application
 #
@@ -129,7 +167,7 @@ function(mbed_set_mbed_target_linker_script target)
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
         target_link_options(mbed-core
-            PUBLIC
+            INTERFACE
                 "--scatter=${mbed_target_linker_script}"
         )
     endif()
