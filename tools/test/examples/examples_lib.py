@@ -459,9 +459,8 @@ def update_example_version(config, tag, exp_filter):
     """
     print("\nUpdating example to version(branch) '%s'\n" % tag)
     for example in config['examples']:
-        if example['name'] not in exp_filter:
-            continue
-        for name in get_sub_examples_list(example):
+        name = example['name']
+        if name in exp_filter:
             os.chdir(name)
             logging.info("In folder '%s'" % name)
             cmd = "git checkout -B %s origin/%s" %(tag, tag)
