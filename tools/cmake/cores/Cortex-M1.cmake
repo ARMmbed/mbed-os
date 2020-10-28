@@ -34,7 +34,9 @@ function(mbed_set_cpu_core_options target mbed_toolchain)
                 "--cpu=Cortex-M1"
         )
     endif()
+endfunction()
 
+function(mbed_set_cpu_core_definitions target)
     target_compile_definitions(${target}
         INTERFACE
             __CORTEX_M3
