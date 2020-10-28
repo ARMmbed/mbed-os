@@ -129,7 +129,7 @@ function(mbed_set_mbed_target_linker_script target)
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
         target_link_options(mbed-core
-            PUBLIC
+            INTERFACE
                 "--scatter=${mbed_target_linker_script}"
         )
     endif()
