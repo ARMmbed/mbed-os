@@ -13,9 +13,22 @@ endif()
 include(${MBED_ROOT}/tools/cmake/core.cmake)
 include(${MBED_ROOT}/tools/cmake/profile.cmake)
 
-add_library(mbed-core OBJECT)
-# TODO CMAKE: Replace mbed-os by a new one that will include mbed-core and mbed-rtos
-add_library(mbed-os ALIAS mbed-core)
+add_library(mbed-core INTERFACE)
+
+add_library(mbed-os INTERFACE)
+
+target_link_libraries(mbed-os
+        INTERFACE
+            mbed-rtos
+            mbed-core
+)
+
+add_library(mbed-baremetal INTERFACE)
+
+target_link_libraries(mbed-baremetal
+    INTERFACE
+        mbed-core
+)
 
 # Validate selected C library type
 # The C library type selected has to match the library that the target can support
@@ -49,30 +62,30 @@ mbed_set_cpu_core_options(mbed-core ${MBED_TOOLCHAIN})
 mbed_set_toolchain_options(mbed-core)
 mbed_set_c_lib(mbed-core ${MBED_C_LIB})
 mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
-mbed_set_language_standard(mbed-core)
 mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
 
-set_target_properties(mbed-core
-    PROPERTIES
-        MBED_TARGET_LABELS "${MBED_TARGET_LABELS}"
+set(MBED_TARGET_LABELS
+         ${MBED_TARGET_LABELS} CACHE INTERNAL ""
 )
 
 target_compile_definitions(mbed-core
-    PUBLIC
+    INTERFACE
         ${MBED_TARGET_DEFINITIONS}
         ${MBED_CONFIG_DEFINITIONS}
 )
 
 # Include mbed.h and config from generate folder
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# TODO CMake: This component is made visible here so its source files in
-# drivers/ can be added and it can be linked against by libraries in storage/.
-# Should the source files be moved from drivers/ to storage/ ?
+# These targets are made visible here so their source files which
+# are spread in different directories can be referenced and can be linked against
+# by libraries that depend on them.
+# TODO CMake: Should the source files be moved?
 add_library(mbed-device_key INTERFACE)
+add_library(mbed-rtos INTERFACE)
 
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
@@ -89,6 +102,8 @@ add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
 add_subdirectory(drivers/source/usb EXCLUDE_FROM_ALL)
 add_subdirectory(features EXCLUDE_FROM_ALL)
 add_subdirectory(platform/FEATURE_EXPERIMENTAL_API EXCLUDE_FROM_ALL)
+add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
+add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
 #
 # Configures the application

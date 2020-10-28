@@ -1,19 +1,21 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("STM32F4" IN_LIST MBED_TARGET_LABELS)
+if("STM32F3" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_STM32F3)
+elseif("STM32F4" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_STM32F4)
 elseif("STM32L4" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_STM32L4)    
+    add_subdirectory(TARGET_STM32L4)
 endif()
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         USBPhy_STM32.cpp
         analogin_api.c
         analogout_api.c

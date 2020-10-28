@@ -11,7 +11,7 @@ elseif("SDT64B" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         mbed_crc_api.c
         pwmout_api.c
         reset_reason.c
@@ -61,7 +61,7 @@ target_sources(mbed-core
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         drivers
 )

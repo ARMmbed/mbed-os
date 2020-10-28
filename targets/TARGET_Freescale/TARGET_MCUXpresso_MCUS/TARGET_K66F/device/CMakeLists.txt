@@ -9,7 +9,7 @@ function(_mbed_get_assembly_mk66f18)
     elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
         set(STARTUP_FILE TOOLCHAIN_IAR/startup_MK66F18.S)
     endif()
-    target_sources(mbed-core PRIVATE ${STARTUP_FILE})
+    target_sources(mbed-core INTERFACE ${STARTUP_FILE})
 endfunction()
 
 function(_mbed_set_mk66f18_linker_file)
@@ -27,11 +27,11 @@ _mbed_get_assembly_mk66f18()
 _mbed_set_mk66f18_linker_file()
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         system_MK66F18.c
 )

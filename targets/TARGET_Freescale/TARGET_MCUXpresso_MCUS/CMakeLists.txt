@@ -8,7 +8,7 @@ elseif("MCU_K64F" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         fsl_common.c
 
         api/analogin_api.c
@@ -27,6 +27,6 @@ target_sources(mbed-core
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         api
 )

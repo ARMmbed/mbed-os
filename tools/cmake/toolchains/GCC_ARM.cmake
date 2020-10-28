@@ -48,19 +48,19 @@ function(mbed_set_toolchain_options target)
     )
 
     target_compile_options(${target}
-        PUBLIC
+        INTERFACE
             ${common_options}
     )
 
     target_compile_definitions(${target}
-        PUBLIC
+        INTERFACE
             TOOLCHAIN_GCC_ARM
             TOOLCHAIN_GCC
     )
 
 
     target_link_options(${target}
-        PUBLIC
+        INTERFACE
             ${common_options}
             ${link_options}
     )
@@ -92,13 +92,13 @@ endfunction()
 function(mbed_set_c_lib target lib_type)
     if (${lib_type} STREQUAL "small")
         target_compile_definitions(${target}
-            PUBLIC
+            INTERFACE
                 MBED_RTOS_SINGLE_THREAD
                 __NEWLIB_NANO
         )
 
         target_link_options(${target}
-            PUBLIC
+            INTERFACE
                 "--specs=nano.specs"
         )
     endif()
@@ -108,7 +108,7 @@ endfunction()
 function(mbed_set_printf_lib target lib_type)
     if (${lib_type} STREQUAL "minimal-printf")
         target_compile_definitions(${target}
-            PUBLIC
+            INTERFACE
                 MBED_MINIMAL_PRINTF
         )
 
@@ -123,7 +123,7 @@ function(mbed_set_printf_lib target lib_type)
             "-Wl,--wrap,vfprintf"
         )
         target_link_options(${target}
-            PUBLIC
+            INTERFACE
                 ${link_options}
         )
     endif()

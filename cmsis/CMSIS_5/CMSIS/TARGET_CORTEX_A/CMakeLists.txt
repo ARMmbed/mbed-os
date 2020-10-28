@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         Include
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         Source/irq_ctrl_gic.c
 )

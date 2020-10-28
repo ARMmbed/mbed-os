@@ -8,7 +8,7 @@ elseif("STM32F439xI" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         analogin_device.c
         analogout_device.c
         flash_api.c
@@ -16,14 +16,12 @@ target_sources(mbed-core
         pwmout_device.c
         serial_device.c
         spi_api.c
-
-
 )
 
 add_subdirectory(STM32Cube_FW)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/STM32Cube_FW
         ${CMAKE_CURRENT_SOURCE_DIR}/STM32Cube_FW/CMSIS

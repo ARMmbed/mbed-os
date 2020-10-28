@@ -3,7 +3,7 @@
 
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/ble
         ${CMAKE_CURRENT_SOURCE_DIR}/ble/ble_radio_notification
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/bootloader
@@ -12,7 +12,7 @@ target_include_directories(mbed-core
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         ble/ble_radio_notification/ble_radio_notification.c
 
         libraries/bootloader/dfu/nrf_dfu_mbr.c

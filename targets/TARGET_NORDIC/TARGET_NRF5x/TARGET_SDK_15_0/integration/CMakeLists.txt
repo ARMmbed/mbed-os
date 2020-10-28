@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/nrfx
         ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/legacy
@@ -10,7 +10,7 @@ target_include_directories(mbed-core
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         nrfx/legacy/nrf_drv_rng.c
         nrfx/legacy/nrf_drv_usbd.c
 

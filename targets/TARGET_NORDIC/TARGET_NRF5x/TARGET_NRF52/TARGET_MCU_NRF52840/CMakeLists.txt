@@ -6,13 +6,13 @@ if("NRF52840_DK" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/config
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         PeripheralPins.c
         USBPhy_Nordic.cpp
 )

@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         PeripheralPins.c
         crc.c
         fsl_clock_config.c

@@ -8,13 +8,13 @@ endif()
 add_subdirectory(device)
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         .
         drivers
 )
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         pwmout_api.c
         serial_api.c
         spi_api.c

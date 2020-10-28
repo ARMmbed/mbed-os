@@ -4,12 +4,12 @@
 add_subdirectory(STM32F4xx_HAL_Driver)
 
 target_sources(mbed-core
-    PRIVATE
+    INTERFACE
         system_stm32f4xx.c
 )
 
 target_include_directories(mbed-core
-    PUBLIC
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/CMSIS
 )
