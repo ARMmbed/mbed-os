@@ -43,7 +43,7 @@ Supported examples can be identified by the presence of a top level `CMakelists.
 
 Prerequisities:
 - CMake >=3.19.0
-- mbed-tools >=3.2.0
+- mbed-tools >=3.4.0
 
 From the application root or wherever `mbed-os.lib` is found:
 1. Run the following command to create the Mbed OS configuration CMake module: 
