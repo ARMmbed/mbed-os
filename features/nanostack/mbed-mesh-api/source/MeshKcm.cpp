@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef ARM_UC_PROFILE_MBED_CLOUD_CLIENT
+#ifdef MBED_CONF_MBED_CLOUD_CLIENT_EXTERNAL_SST_SUPPORT
 /* key_config_manager is available via mbed-cloud-client */
 #include "key_config_manager.h"
 #define MESH_KCM_CLOUD_CLIENT_AVAILABLE
