@@ -73,6 +73,7 @@ nsapi_error_t WisunInterface::configure()
 {
     char network_name[33];
     uint8_t network_size;
+    uint8_t regulatory_domain, operating_class, operating_mode;
     int ret_val;
     mesh_error_t status;
 
@@ -95,15 +96,19 @@ nsapi_error_t WisunInterface::configure()
         return NSAPI_ERROR_PARAMETER;
     }
 
-#if (MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN != 255) || (MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS != 255) || (MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE != 255)
-    status = set_network_regulatory_domain(MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
-                                           MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS,
-                                           MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE);
-    if (status != MESH_ERROR_NONE) {
-        tr_error("Failed to set regulatory domain!");
+    ret_val = mesh_kcm_wisun_network_regulatory_domain_init(&regulatory_domain, &operating_class, &operating_mode);
+    if (ret_val == 0) {
+        status = set_network_regulatory_domain(regulatory_domain,
+                                               operating_class,
+                                               operating_mode);
+        if (status != MESH_ERROR_NONE) {
+            tr_error("Failed to set regulatory domain!");
+            return NSAPI_ERROR_PARAMETER;
+        }
+    } else {
+        tr_error("Failed to configure regulatory domain!");
         return NSAPI_ERROR_PARAMETER;
     }
-#endif
 
 #if (MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION != 255)
     status = set_unicast_channel_function(static_cast<mesh_channel_function_t>(MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION),

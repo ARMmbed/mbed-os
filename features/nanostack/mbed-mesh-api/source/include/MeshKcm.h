@@ -43,6 +43,18 @@ int mesh_kcm_wisun_network_name_init(char *network_name_buf, size_t network_name
  */
 int mesh_kcm_wisun_network_size_init(uint8_t *network_size);
 
+/*
+ * \brief Initialize Wi-SUN network regulatory domain including operating mode and class.
+ *
+ * \param regulatory_domain
+ * \param operating_class
+ * \param operating_mode
+ * \return 0 on success.
+ * \return -1 in case of configuration error
+ *
+ */
+int mesh_kcm_wisun_network_regulatory_domain_init(uint8_t *regulatory_domain, uint8_t *operating_class, uint8_t *operating_mode);
+
 
 #ifdef __cplusplus
 }

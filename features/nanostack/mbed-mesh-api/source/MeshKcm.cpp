@@ -48,6 +48,10 @@ typedef enum {
 /* KCM configuration item names */
 static const char MESH_WISUN_NETWORK_NAME_KEY[] = "mesh_wisun_network_name";
 static const char MESH_WISUN_NETWORK_SIZE_KEY[] = "mesh_wisun_network_size";
+static const char MESH_WISUN_REGULATORY_DOMAIN[] = "mesh_wisun_regulatory_domain";
+static const char MESH_WISUN_OPERATING_MODE[] = "mesh_wisun_operating_mode";
+static const char MESH_WISUN_OPERATING_CLASS[] = "mesh_wisun_operating_class";
+
 
 /*
  * Weak definition for kcm_item_get_data_size.
@@ -132,6 +136,84 @@ int mesh_kcm_wisun_network_size_init(uint8_t *network_size)
         // size is not set to Mbed OS config, and not found from KCM
         config_status = 1;
 #endif
+    }
+
+    free(kcm_item_buffer);
+
+    return config_status;
+}
+
+int mesh_kcm_wisun_network_regulatory_domain_init(uint8_t *regulatory_domain, uint8_t *operating_class, uint8_t *operating_mode)
+{
+    kcm_status_e kcm_status;
+    int config_status = -1;
+    uint8_t *kcm_item_buffer = NULL;
+    size_t kcm_item_buff_size;
+
+    // Init REGULATORY DOMAIN
+    kcm_status = kcm_item_get_size_and_data((uint8_t *)MESH_WISUN_REGULATORY_DOMAIN,
+                                            sizeof(MESH_WISUN_REGULATORY_DOMAIN) - 1,
+                                            KCM_CONFIG_ITEM,
+                                            &kcm_item_buffer,
+                                            &kcm_item_buff_size);
+
+    if (kcm_status == KCM_STATUS_SUCCESS && kcm_item_buff_size == 1) {
+        // network size as hundreds of devices
+        *regulatory_domain = kcm_item_buffer[0];
+        config_status = 0;
+    }
+
+    if (kcm_status == KCM_STATUS_ITEM_NOT_FOUND) {
+        *regulatory_domain = MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN;
+        config_status = 0;
+    }
+
+    free(kcm_item_buffer);
+
+    if (config_status != 0) {
+        // error occurred, return
+        return -1;
+    }
+
+    // Init OPERATING MODE
+    kcm_status = kcm_item_get_size_and_data((uint8_t *)MESH_WISUN_OPERATING_MODE,
+                                            sizeof(MESH_WISUN_OPERATING_MODE) - 1,
+                                            KCM_CONFIG_ITEM,
+                                            &kcm_item_buffer,
+                                            &kcm_item_buff_size);
+
+    if (kcm_status == KCM_STATUS_SUCCESS && kcm_item_buff_size == 1) {
+        *operating_mode = kcm_item_buffer[0];
+        config_status = 0;
+    }
+
+    if (kcm_status == KCM_STATUS_ITEM_NOT_FOUND) {
+        *operating_mode = MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE;
+        config_status = 0;
+    }
+
+    free(kcm_item_buffer);
+
+    if (config_status != 0) {
+        // error occurred, return
+        return -1;
+    }
+
+    // Init OPERATING CLASS
+    kcm_status = kcm_item_get_size_and_data((uint8_t *)MESH_WISUN_OPERATING_CLASS,
+                                            sizeof(MESH_WISUN_OPERATING_CLASS) - 1,
+                                            KCM_CONFIG_ITEM,
+                                            &kcm_item_buffer,
+                                            &kcm_item_buff_size);
+
+    if (kcm_status == KCM_STATUS_SUCCESS && kcm_item_buff_size == 1) {
+        *operating_class = kcm_item_buffer[0];
+        config_status = 0;
+    }
+
+    if (kcm_status == KCM_STATUS_ITEM_NOT_FOUND) {
+        *operating_class = MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS;
+        config_status = 0;
     }
 
     free(kcm_item_buffer);
