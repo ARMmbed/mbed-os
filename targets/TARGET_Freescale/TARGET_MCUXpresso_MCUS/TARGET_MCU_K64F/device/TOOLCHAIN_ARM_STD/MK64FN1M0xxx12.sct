@@ -58,8 +58,8 @@
 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0
-#elif MBED_APP_START < 0x400
-    #error MBED_APP_START too small and will overwrite flash config
+#elif MBED_APP_START > 0 && MBED_APP_START < 0x410
+    #error MBED_APP_START too small and will overwrite interrupts and flash config
 #endif
 
 #if !defined(MBED_APP_SIZE)
