@@ -37,13 +37,12 @@ Supported examples can be identified by the presence of a top level `CMakelists.
 
 ### Known issues
 
-- ARMClang6: the assembler does not include definitions. It will be fixed in the upcoming release (>3.18.2). Reference: https://gitlab.kitware.com/cmake/cmake/-/issues/21148#note_823305
-- Ninja: ARMClang6 response files require unix paths on Windows. Reference: https://gitlab.kitware.com/cmake/cmake/-/issues/21093
+- Ninja: ARMClang6 response files require unix paths on Windows. Reference: https://gitlab.kitware.com/cmake/cmake/-/issues/21093. We disabled response files for Ninja on Windows until CMake is fixed.
 
 ## How to build an application
 
 Prerequisities:
-- CMake >=3.18.2
+- CMake >=3.19.0
 - mbed-tools >=3.2.0
 
 From the application root or wherever `mbed-os.lib` is found:
