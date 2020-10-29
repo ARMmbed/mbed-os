@@ -942,7 +942,7 @@ int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *cfg, ws_fhss_cfg_t *new_cfg)
             return CFG_SETTINGS_ERROR_FHSS_CONF;
         }
 
-        if (new_cfg->fhss_bc_dwell_interval < 15) {
+        if (new_cfg->fhss_bc_dwell_interval < 100) {
             return CFG_SETTINGS_ERROR_FHSS_CONF;
         }
 

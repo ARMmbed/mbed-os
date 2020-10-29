@@ -415,25 +415,25 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
 
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
 {
-    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
     if (!tlv) {
         return -1;
     }
 
     ws_pae_nvm_store_keys_tlv_create(tlv, &pae_supp->entry.sec_keys);
-    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, tlv);
+    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, (nvm_tlv_t *) tlv);
 
     return 0;
 }
 
 static int8_t ws_pae_supp_nvm_keys_read(pae_supp_t *pae_supp)
 {
-    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
     if (!tlv) {
         return -1;
     }
-    ws_pae_nvm_store_generic_tlv_create(tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
-    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, tlv) < 0) {
+    ws_pae_nvm_store_generic_tlv_create((nvm_tlv_t *) tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
+    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, (nvm_tlv_t *) tlv) < 0) {
         return -1;
     }
     ws_pae_nvm_store_keys_tlv_read(tlv, &pae_supp->entry.sec_keys);
