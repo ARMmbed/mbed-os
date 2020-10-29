@@ -383,7 +383,7 @@ def compile_repos(config, toolchains, targets, profiles, verbose, exp_filter, cm
                     logging.info("Compiling %s" % summary_string)
 
                     if cmake:
-                        build_command_seq = ["mbed-tools configure -t {} -m {}".format(toolchain,target), "cmake -S . -B CMAKE_BUILD -GNinja", "cmake --build CMAKE_BUILD"]
+                        build_command_seq = ["mbed-tools build -t {} -m {} -c".format(toolchain, target)]
                     else:
                         build_command_seq = ["mbed-cli compile -t {} -m {} -j {} {}".format(toolchain, target, str(jobs), '-vv' if verbose else '') ]
                         if profiles:
