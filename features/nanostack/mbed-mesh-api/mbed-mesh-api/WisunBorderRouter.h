@@ -233,7 +233,7 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    mesh_error_t set_radius_server_ipv6_address(const char *address);
+    mesh_error_t set_radius_server_ipv6_address(char *address);
 
     /**
      * \brief Get Wi-SUN RADIUS server IPv6 address.
@@ -258,7 +258,7 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return error value in case of failure.
      * */
-    mesh_error_t set_radius_shared_secret(uint16_t shared_secret_len, const uint8_t *shared_secret);
+    mesh_error_t set_radius_shared_secret(uint16_t shared_secret_len, uint8_t *shared_secret);
 
     /**
      * \brief Get Wi-SUN RADIUS shared secret.

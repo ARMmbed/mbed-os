@@ -55,6 +55,32 @@ int mesh_kcm_wisun_network_size_init(uint8_t *network_size);
  */
 int mesh_kcm_wisun_network_regulatory_domain_init(uint8_t *regulatory_domain, uint8_t *operating_class, uint8_t *operating_mode);
 
+/*
+ * \brief Initialize Wi-SUN network radius server address.
+ *
+ * \param srv_addr Pointer where address can be read
+ * \param srv_addr_len Length of data
+ * \return 0 if configuration is read successfully, caller must free the memory.
+ * \return 1 in case of static configuration is used, no memory free needed.
+ * \return -1 in case of configuration is not available.
+ *
+ */
+int mesh_kcm_wisun_network_radius_addr_init(uint8_t **srv_addr, size_t *srv_addr_len);
+
+/*
+ * \brief Initialize Wi-SUN network radius server secret.
+ *
+ * Shared secret can be ascii string (not NULL terminated) or byte array.
+ *
+ * \param srv_secret_buf Pointer where secret data will be available
+ * \param actual_secret_len Actual secret length in successful case.
+ * \return 0 if configuration read successfully, caller must free the memory.
+ * \return 1 in case of static configuration is used, no memory free needed
+ * \return -1 in case of configuration is not available
+ *
+ */
+int mesh_kcm_wisun_network_radius_secret_init(uint8_t **srv_secret_buf, size_t *actual_secret_len);
+
 
 #ifdef __cplusplus
 }

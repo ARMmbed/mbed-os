@@ -20,6 +20,7 @@
 #include "MeshInterfaceNanostack.h"
 #include "net_interface.h"
 #include "ip6string.h"
+#include "include/MeshKcm.h"
 
 extern "C" {
 #include "ws_bbr_api.h"
@@ -109,9 +110,10 @@ void WisunBorderRouter::stop()
 
 mesh_error_t WisunBorderRouter::configure()
 {
-#if defined(MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET) || defined(MBED_CONF_MBED_MESH_API_RADIUS_SERVER_IPV6_ADDRESS)
     mesh_error_t status;
-#endif
+    int ret_val;
+    size_t radius_buf_len = 0;
+    uint8_t *radius_buf_ptr = NULL;
 
     if (_configured) {
         // Already configured
@@ -120,24 +122,32 @@ mesh_error_t WisunBorderRouter::configure()
 
     _configured = true;
 
-#ifdef MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET
-    const char radius_shared_secret[] = {MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET};
-#ifdef MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET_LEN
-    const uint16_t radius_shared_secret_len = MBED_CONF_MBED_MESH_API_RADIUS_SHARED_SECRET_LEN;
-#else
-    uint16_t radius_shared_secret_len = strlen(radius_shared_secret);
-#endif
-    status = set_radius_shared_secret(radius_shared_secret_len, (uint8_t *) radius_shared_secret);
-    if (status != MESH_ERROR_NONE) {
-        tr_error("Failed to set RADIUS shared secret!");
+    // Radius server secret
+    ret_val = mesh_kcm_wisun_network_radius_secret_init(&radius_buf_ptr, &radius_buf_len);
+    if (ret_val >= 0) {
+        status = set_radius_shared_secret((uint16_t)radius_buf_len, radius_buf_ptr);
+        //tr_debug("radius secret = %s, len=%d, status=%d", tr_array(radius_buf_ptr, radius_buf_len), radius_buf_len, status);
+        if (status != MESH_ERROR_NONE) {
+            tr_error("Failed to set RADIUS shared secret! %d", status);
+        }
+        if (ret_val == 0) {
+            free(radius_buf_ptr);
+            radius_buf_ptr = NULL;
+        }
     }
-#endif
 
-#ifdef MBED_CONF_MBED_MESH_API_RADIUS_SERVER_IPV6_ADDRESS
-    const char radius_server_ipv6_addr[] = {MBED_CONF_MBED_MESH_API_RADIUS_SERVER_IPV6_ADDRESS};
-    status = set_radius_server_ipv6_address(radius_server_ipv6_addr);
-    if (status != MESH_ERROR_NONE) {
-        tr_error("Failed to set RADIUS server IPv6 address!");
+    // Radius server address
+    ret_val = mesh_kcm_wisun_network_radius_addr_init(&radius_buf_ptr, &radius_buf_len);
+    if (ret_val >= 0) {
+        status = set_radius_server_ipv6_address((char *)radius_buf_ptr);
+        //tr_debug("radius addr = %s, len=%d, status=%d", radius_buf_ptr, radius_buf_len, status);
+        if (status != MESH_ERROR_NONE) {
+            tr_error("Failed to set RADIUS server IPv6 address!");
+        }
+        if (ret_val == 0) {
+            free(radius_buf_ptr);
+            radius_buf_ptr = NULL;
+        }
     }
 
 #if defined(MBED_CONF_MBED_MESH_API_RADIUS_RETRY_IMIN) || defined(MBED_CONF_MBED_MESH_API_RADIUS_RETRY_IMAX) || defined(MBED_CONF_MBED_MESH_API_RADIUS_RETRY_COUNT)
@@ -152,7 +162,6 @@ mesh_error_t WisunBorderRouter::configure()
     }
 #endif
 
-#endif
     return MESH_ERROR_NONE;
 }
 
@@ -272,7 +281,7 @@ int WisunBorderRouter::routing_table_get(ws_br_route_info_t *table_ptr, uint16_t
     return ws_bbr_routing_table_get(_mesh_if_id, (bbr_route_info_t *)table_ptr, table_len);
 }
 
-mesh_error_t WisunBorderRouter::set_radius_server_ipv6_address(const char *address)
+mesh_error_t WisunBorderRouter::set_radius_server_ipv6_address(char *address)
 {
     if (address) {
         uint8_t ipv6_addr[16];
@@ -325,7 +334,7 @@ mesh_error_t WisunBorderRouter::set_bbr_radius_address(void)
     return MESH_ERROR_NONE;
 }
 
-mesh_error_t WisunBorderRouter::set_radius_shared_secret(uint16_t shared_secret_len, const uint8_t *shared_secret)
+mesh_error_t WisunBorderRouter::set_radius_shared_secret(uint16_t shared_secret_len, uint8_t *shared_secret)
 {
     if (shared_secret_len == 0 || !shared_secret) {
         return MESH_ERROR_PARAM;
