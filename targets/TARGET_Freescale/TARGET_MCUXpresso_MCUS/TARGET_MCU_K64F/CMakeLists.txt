@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(device)
-
 if("FRDM" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_FRDM)
 elseif("HEXIWEAR" IN_LIST MBED_TARGET_LABELS)
@@ -10,8 +8,24 @@ elseif("SDT64B" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_SDT64B)
 endif()
 
+if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MK64F12.S)
+    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MK64FN1M0xxx12.ld)
+elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MK64FN1M0xxx12.sct)
+    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MK64F12.S)
+elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
+    set(STARTUP_FILE device/TOOLCHAIN_IAR/startup_MK64F12.S)
+    set(LINKER_FILE device/TOOLCHAIN_IAR/MK64FN1M0xxx12.icf)
+endif()
+
+set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${LINKER_FILE})
+
 target_sources(mbed-core
     INTERFACE
+        ${STARTUP_FILE}
+        device/system_MK64F12.c
+
         mbed_crc_api.c
         pwmout_api.c
         reset_reason.c
@@ -64,4 +78,5 @@ target_include_directories(mbed-core
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         drivers
+        device
 )
