@@ -75,10 +75,9 @@ TLSSocketWrapper::~TLSSocketWrapper()
         wolfSSL_free(_ssl);
         _ssl = NULL;
     }
-    if (_ssl_conf && _ssl_conf_allocated) {
-        wolfSSL_CTX_free(_ssl_conf);
-        _ssl_conf = NULL;
-    }
+    set_ssl_config(NULL);
+    set_own_cert(NULL);
+    set_ca_chain(NULL);
     wolfSSL_Cleanup();
 }
 
