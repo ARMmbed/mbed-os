@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    SPI register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SPI_REG_H__
 #define __SPI_REG_H__
@@ -18,7 +19,8 @@
 /**
     @addtogroup SPI Serial Peripheral Interface Controller(SPI)
     Memory Mapped Structure for SPI Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -113,7 +115,7 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |SS        |Slave Selection Control (Master Only)
+     * |[0]     |SS        |Slave Selection Control
      * |        |          |If AUTOSS bit is cleared to 0,
      * |        |          |0 = set the SPIx_SS line to inactive state.
      * |        |          |1 = set the SPIx_SS line to active state.
@@ -121,6 +123,7 @@ typedef struct
      * |        |          |0 = Keep the SPIx_SS line at inactive state.
      * |        |          |1 = SPIx_SS line will be automatically driven to active state for the duration of data transfer, and will be driven to inactive state for the rest of the time
      * |        |          |The active state of SPIx_SS is specified in SSACTPOL (SPIx_SSCTL[2]).
+     * |        |          |Note: Master mode only.
      * |[2]     |SSACTPOL  |Slave Selection Active Polarity
      * |        |          |This bit defines the active polarity of slave selection signal (SPIx_SS).
      * |        |          |0 = The slave selection signal SPIx_SS is active low.
@@ -129,7 +132,8 @@ typedef struct
      * |        |          |0 = Automatic slave selection function Disabled
      * |        |          |Slave selection signal will be asserted/de-asserted according to SS (SPIx_SSCTL[0]).
      * |        |          |1 = Automatic slave selection function Enabled.
-     * |[4]     |SLV3WIRE  |Slave 3-wire Mode Enable Bit (Slave Only)
+     * |        |          |Note: Master mode only.
+     * |[4]     |SLV3WIRE  |Slave 3-wire Mode Enable Bit
      * |        |          |In Slave 3-wire mode, the SPI controller can work with 3-wire interface including SPIx_CLK, SPIx_MISO and SPIx_MOSI pins.
      * |        |          |0 = 4-wire bi-direction interface.
      * |        |          |1 = 3-wire bi-direction interface.
@@ -217,10 +221,11 @@ typedef struct
      * |        |          |The TXFULL bit will be cleared to 0 and the TXEMPTY bit will be set to 1
      * |        |          |This bit will be cleared to 0 by hardware about 1 system clock after it is set to 1.
      * |        |          |Note: The TX shift register will not be cleared.
-     * |[10]    |SLVBERX   |RX FIFO Write Data Enable Bit When Slave Mode Bit Count Error (Slave Only)
-     * |        |          |0 = Uncompleted RX data will be dropped from RX FIFO when bit count error event happened in SPI slave mode.
-     * |        |          |1 = Uncompleted RX data will be written into RX FIFO when bit count error event happened in SPI slave mode
+     * |[10]    |SLVBERX   |RX FIFO Write Data Enable Bit When Slave Mode Bit Count Error
+     * |        |          |0 = Uncompleted RX data will be dropped from RX FIFO when bit count error event happened in SPI Slave mode.
+     * |        |          |1 = Uncompleted RX data will be written into RX FIFO when bit count error event happened in SPI Slave mode
      * |        |          |User can read SLVBENUM (SPIx_STATUS2[29:24]) to know that the effective bit number of uncompleted RX data when SPI slave bit count error happened.
+     * |        |          |Note: Slave mode only.
      * |[26:24] |RXTH      |Receive FIFO Threshold
      * |        |          |If the valid data count of the receive FIFO buffer is larger than the RXTH setting, the RXTHIF bit will be set to 1, else the RXTHIF bit will be cleared to 0
      * |        |          |For SPI0~SPI3, the MSB of this bit field is only meaningful while SPI mode 8~16 bits of data length.
@@ -327,10 +332,11 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[29:24] |SLVBENUM  |Effective Bit Number of Uncompleted RX Data (Slave Only)
-     * |        |          |This status register indicates that effective bit number of uncompleted RX data when SLVBERX (SPIx_FIFOCTL[10]) is enabled and RX bit count error event happen in SPI slave mode
+     * |[29:24] |SLVBENUM  |Effective Bit Number of Uncompleted RX Data
+     * |        |          |This status register indicates that effective bit number of uncompleted RX data when SLVBERX (SPIx_FIFOCTL[10]) is enabled and RX bit count error event happen in SPI Slave mode
      * |        |          |This status register will be fixed to 0x0 when SLVBERX (SPIx_FIFOCTL[10]) is disabled.
-     * |        |          |Note: This register will be cleared to 0x0 when user writes 0x1 to SLVBEIF (SPIx_STATUS[6]).
+     * |        |          |Note 1: This register will be cleared to 0x0 when user writes 0x1 to SLVBEIF (SPIx_STATUS[6]).
+     * |        |          |Note 2: Slave mode only.
      * @var SPI_T::TX
      * Offset: 0x20  SPI Data Transmit Register
      * ---------------------------------------------------------------------------------------------------
@@ -387,7 +393,7 @@ typedef struct
      * |        |          |1 = Left channel data at low byte.
      * |[8]     |SLAVE     |Slave Mode
      * |        |          |I2S can operate as master or slave
-     * |        |          |For Master mode, I2Sx_BCLK and I2Sx_LRCLK pins are output mode and send bit clock from NuMicro M2355 series to audio CODEC chip
+     * |        |          |For Master mode, I2Sx_BCLK and I2Sx_LRCLK pins are output mode and send bit clock from NuMicro M2354 series to audio CODEC chip
      * |        |          |In Slave mode, I2Sx_BCLK and I2Sx_LRCLK pins are input mode and I2Sx_BCLK and I2Sx_LRCLK signals are received from outer audio CODEC chip.
      * |        |          |0 = Master mode.
      * |        |          |1 = Slave mode.
@@ -456,8 +462,8 @@ typedef struct
      * |[25]    |I2SSLAVE  |I2S Clock Divider Number Selection for I2S Slave Mode and I2S Master Mode
      * |        |          |User sets I2SSLAVE to set frequency of peripheral clock of I2S master mode and I2S slave mode when BCLKDIV (SPIx_I2SCLK[17:8]) is set.
      * |        |          |I2SSLAVE needs to set before I2SEN (SPIx_I2SCTL[0]) is enabled.
-     * |        |          |0 = The frequency of peripheral clock is set to I2S master mode.
-     * |        |          |1 = The frequency of peripheral clock is set to I2S slave mode.
+     * |        |          |0 = The frequency of peripheral clock is set to I2S Master mode.
+     * |        |          |1 = The frequency of peripheral clock is set to I2S Slave mode.
      * @var SPI_T::I2SSTS
      * Offset: 0x68  I2S Status Register
      * ---------------------------------------------------------------------------------------------------
@@ -523,7 +529,6 @@ typedef struct
      * |[30:28] |TXCNT     |Transmit FIFO Data Count (Read Only)
      * |        |          |This bit field indicates the valid data count of transmit FIFO buffer.
      */
-
     __IO uint32_t CTL;                   /*!< [0x0000] SPI Control Register                                             */
     __IO uint32_t CLKDIV;                /*!< [0x0004] SPI Clock Divider Register                                       */
     __IO uint32_t SSCTL;                 /*!< [0x0008] SPI Slave Select Control Register                                */
@@ -545,7 +550,8 @@ typedef struct
 /**
     @addtogroup SPI_CONST SPI Bit Field Definition
     Constant Definitions for SPI Controller
-@{ */
+  @{ 
+*/
 
 #define SPI_CTL_SPIEN_Pos                (0)                                               /*!< SPI_T::CTL: SPIEN Position             */
 #define SPI_CTL_SPIEN_Msk                (0x1ul << SPI_CTL_SPIEN_Pos)                      /*!< SPI_T::CTL: SPIEN Mask                 */
@@ -844,6 +850,5 @@ typedef struct
 /**@}*/ /* SPI_CONST */
 /**@}*/ /* end of SPI register group */
 /**@}*/ /* end of REGISTER group */
-
 
 #endif /* __SPI_REG_H__ */

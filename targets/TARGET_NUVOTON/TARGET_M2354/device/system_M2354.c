@@ -35,35 +35,21 @@ uint32_t PllClock         = __HSI;              /*!< PLL Output Clock Frequency 
 
 void FMC_NSBA_Setup(void);
 void SCU_Setup(void);
-void NSC_Init(uint32_t u32Region);
+void NSC_Init(void);
 void TZ_SAU_Setup(void);
 
 
-
+#if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
+extern void SCU_IRQHandler(void);
+#else
 extern void SCU_IRQHandler(void)__attribute__((noreturn));
+#endif
+
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-#if TFM_LVL > 0
-
-#include "tfm_secure_api.h"
-#include "platform/mbed_assert.h"
-
-/* The configuration of TDB internal storage area defined in "partition_M2354_mem.h"
- * must match "tdb_internal/mbed_lib.json", so it can pass to linker files for
- * memory layout check. */
-MBED_STATIC_ASSERT(NU_TDB_INTERNAL_STORAGE_START == MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS,
-    "NU_TDB_INTERNAL_STORAGE_START must be equal to MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS");
-MBED_STATIC_ASSERT(NU_TDB_INTERNAL_STORAGE_SIZE == MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE,
-    "NU_TDB_INTERNAL_STORAGE_SIZE must be equal to MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE");
-
-#endif
 
 /**
  * @brief    Setup Non-secure boundary
- *
- * @param    None
- *
- * @return   None
  *
  * @details  This function is used to set Non-secure boundary according to
  *           the configuration of partition header file
@@ -135,17 +121,21 @@ void SCU_Setup(void)
     SCU->PNSSET[6] = SCU_INIT_PNSSET6_VAL;
 
 
-    SCU->IONSSET = SCU_INIT_IONSSET_VAL;
+    SCU->IONSSET[0] = SCU_INIT_IONSSET0_VAL;
+    SCU->IONSSET[1] = SCU_INIT_IONSSET1_VAL;
+    SCU->IONSSET[2] = SCU_INIT_IONSSET2_VAL;
+    SCU->IONSSET[3] = SCU_INIT_IONSSET3_VAL;
+    SCU->IONSSET[4] = SCU_INIT_IONSSET4_VAL;
+    SCU->IONSSET[5] = SCU_INIT_IONSSET5_VAL;
+    SCU->IONSSET[6] = SCU_INIT_IONSSET6_VAL;
+    SCU->IONSSET[7] = SCU_INIT_IONSSET7_VAL;
 
     /* Set Non-secure SRAM */
-    for(i = 19; i >= SCU_SECURE_SRAM_SIZE / 16384; i--)
+    for(i = 15; i >= SCU_SECURE_SRAM_SIZE / 16384; i--)
     {
         SCU->SRAMNSSET |= (1U << i);
     }
-}
 
-void TZ_NVIC_Setup(void)
-{
     /* Set interrupt to non-secure according to PNNSET settings */
     if(SCU_INIT_PNSSET0_VAL & BIT9 ) NVIC->ITNS[1] |= BIT22; /* Int of USBH_INT     */
     if(SCU_INIT_PNSSET0_VAL & BIT13) NVIC->ITNS[2] |= BIT0 ; /* Int of SDHOST0_INT  */
@@ -163,6 +153,8 @@ void TZ_NVIC_Setup(void)
     if(SCU_INIT_PNSSET2_VAL & BIT13) NVIC->ITNS[1] |= BIT23; /* Int of USBOTG_INT   */
     if(SCU_INIT_PNSSET2_VAL & BIT17) NVIC->ITNS[1] |= BIT2 ; /* Int of TMR2_INT     */
     if(SCU_INIT_PNSSET2_VAL & BIT17) NVIC->ITNS[1] |= BIT3 ; /* Int of TMR3_INT     */
+    if(SCU_INIT_PNSSET2_VAL & BIT18) NVIC->ITNS[3] |= BIT18; /* Int of TMR4_INT     */
+    if(SCU_INIT_PNSSET2_VAL & BIT18) NVIC->ITNS[3] |= BIT19; /* Int of TMR5_INT     */    
     if(SCU_INIT_PNSSET2_VAL & BIT24) NVIC->ITNS[0] |= BIT25; /* Int of EPWM0_P0_INT */
     if(SCU_INIT_PNSSET2_VAL & BIT24) NVIC->ITNS[0] |= BIT26; /* Int of EPWM0_P1_INT */
     if(SCU_INIT_PNSSET2_VAL & BIT24) NVIC->ITNS[0] |= BIT27; /* Int of EPWM0_P2_INT */
@@ -206,7 +198,14 @@ void TZ_NVIC_Setup(void)
     if(SCU_INIT_IONSSET_VAL & BIT5 ) NVIC->ITNS[0] |= BIT21; /* Int of PF           */
     if(SCU_INIT_IONSSET_VAL & BIT6 ) NVIC->ITNS[2] |= BIT8 ; /* Int of PG           */
     if(SCU_INIT_IONSSET_VAL & BIT7 ) NVIC->ITNS[2] |= BIT24; /* Int of PH           */
-
+    if(SCU_INIT_IONSSET_VAL & BIT8 ) NVIC->ITNS[0] |= BIT10; /* Int of EINT0        */
+    if(SCU_INIT_IONSSET_VAL & BIT9 ) NVIC->ITNS[0] |= BIT11; /* Int of EINT1        */
+    if(SCU_INIT_IONSSET_VAL & BIT10) NVIC->ITNS[0] |= BIT12; /* Int of EINT2        */
+    if(SCU_INIT_IONSSET_VAL & BIT11) NVIC->ITNS[0] |= BIT13; /* Int of EINT3        */
+    if(SCU_INIT_IONSSET_VAL & BIT12) NVIC->ITNS[0] |= BIT14; /* Int of EINT4        */
+    if(SCU_INIT_IONSSET_VAL & BIT13) NVIC->ITNS[0] |= BIT15; /* Int of EINT5        */
+    if(SCU_INIT_IONSSET_VAL & BIT14) NVIC->ITNS[2] |= BIT9;  /* Int of EINT6        */
+    if(SCU_INIT_IONSSET_VAL & BIT15) NVIC->ITNS[2] |= BIT25; /* Int of EINT7        */
 
     /* Enable SCU Int status */
     SCU->SVIOIEN = (uint32_t)(-1);
@@ -221,8 +220,6 @@ __WEAK
 #else
 __attribute__((weak))
 #endif
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Winvalid-noreturn"
 void SCU_IRQHandler(void)
 {
     char const *master[] = {"CPU", 0, 0, "PDMA0", "SDH0", "CRPT", "USBH", 0,0,0,0,"PDMA1"};
@@ -245,6 +242,7 @@ void SCU_IRQHandler(void)
             {
                 u32Addr = M32(SCU_BASE+info[i]+4);
                 /* We cannot call printf(...) from interrupt context. Change to error(...) instead. */
+                //printf("  %s(0x%08x) Alarm! illegal access by %s\n",ipname[i], u32Addr,master[M32(SCU_BASE+info[i])]);
                 error("  %s(0x%08x) Alarm! illegal access by %s\n",ipname[i], u32Addr,master[M32(SCU_BASE+info[i])]);
                 SCU->SVINTSTS = (1 << i);
                 break;
@@ -270,20 +268,23 @@ void SCU_IRQHandler(void)
     }
 
 }
-#pragma clang diagnostic pop
+
 
 /**
   \brief   Setup a Nonsecure callable Region
   \details The base and limit of Nonsecure callable region is dependent on the
            application code size.
  */
-void NSC_Init(uint32_t u32Region)
+void NSC_Init(void)
 {
+    uint32_t u32Region;
     uint32_t u32Base, u32Limit;
 
     u32Base = NU_TZ_NSC_REGION_START;
     u32Limit = (NU_TZ_NSC_REGION_START + NU_TZ_NSC_REGION_SIZE - 1);
 
+    /* SAU region 3 is dedicated for NSC */
+    u32Region = 3;
     SAU->RNR  =  (u32Region & SAU_RNR_REGION_Msk);
     SAU->RBAR =  (u32Base & SAU_RBAR_BADDR_Msk);
     SAU->RLAR =  (u32Limit & SAU_RLAR_LADDR_Msk) |
@@ -302,75 +303,35 @@ void TZ_SAU_Setup(void)
 #if defined (__SAU_PRESENT) && (__SAU_PRESENT == 1U)
 
 #if defined (SAU_INIT_REGION0) && (SAU_INIT_REGION0 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(0);
-#else
-    #error("TFM doesn't support SAU_INIT_REGION0")
-#endif
 #endif
 
 #if defined (SAU_INIT_REGION1) && (SAU_INIT_REGION1 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(1);
-#else
-    #error("TFM doesn't support SAU_INIT_REGION1")
-#endif
 #endif
 
 #if defined (SAU_INIT_REGION2) && (SAU_INIT_REGION2 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(2);
-#else
-    #error("TFM doesn't support SAU_INIT_REGION2")
-#endif
 #endif
 
 #if defined (SAU_INIT_REGION3) && (SAU_INIT_REGION3 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(3);
-#else
-    SAU_INIT_REGION(3, TFM_NS_REGION_VENEER);
-#endif
-#else
-    /* To align with BSP code, we add NSC_Init(...) here. Actually, we can configure
-     * NSC region through SAU_INIT_REGION3. */
-#if TFM_LVL == 0
-    NSC_Init(3);
-#else
-    NSC_Init(TFM_NS_REGION_VENEER);
-#endif
 #endif
 
 #if defined (SAU_INIT_REGION4) && (SAU_INIT_REGION4 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(4);
-#else
-    SAU_INIT_REGION(4, TFM_NS_REGION_CODE);
-#endif
 #endif
 
 #if defined (SAU_INIT_REGION5) && (SAU_INIT_REGION5 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(5);
-#else
-    #warning("TFM doesn't support SAU_INIT_REGION5")
-#endif
 #endif
 
 #if defined (SAU_INIT_REGION6) && (SAU_INIT_REGION6 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(6);
-#else
-    SAU_INIT_REGION(6, TFM_NS_REGION_DATA);
-#endif
 #endif
 
 #if defined (SAU_INIT_REGION7) && (SAU_INIT_REGION7 == 1U)
-#if TFM_LVL == 0
     SAU_INIT_REGION(7);
-#else
-    SAU_INIT_REGION(7, TFM_NS_REGION_PERIPH_1);
-#endif
 #endif
 
     /* repeat this for all possible SAU regions */
@@ -382,10 +343,7 @@ void TZ_SAU_Setup(void)
 #endif
 
 #endif /* defined (__SAU_PRESENT) && (__SAU_PRESENT == 1U) */
-}
 
-void SCB_Setup(void)
-{
 #if defined (SCB_CSR_AIRCR_INIT) && (SCB_CSR_AIRCR_INIT == 1U)
     SCB->SCR   = (SCB->SCR   & ~(SCB_SCR_SLEEPDEEPS_Msk)) |
                  ((SCB_CSR_DEEPSLEEPS_VAL     << SCB_SCR_SLEEPDEEPS_Pos)     & SCB_SCR_SLEEPDEEPS_Msk);
@@ -405,8 +363,16 @@ void SCB_Setup(void)
 #endif /* defined (SCB_ICSR_INIT) && (SCB_ICSR_INIT == 1U) */
 
     /* repeat this for all possible ITNS elements */
+
+    /* Initial Nonsecure callable region */
+    NSC_Init();
 }
 #else
+#if defined( __ICCARM__ )
+__WEAK
+#else
+__attribute__((weak))
+#endif
 void SCU_IRQHandler(void)
 {
     while(1);
@@ -416,10 +382,6 @@ void SCU_IRQHandler(void)
 
 /**
  * @brief    Update the Variable SystemCoreClock
- *
- * @param    None
- *
- * @return   None
  *
  * @details  This function is used to update the variable SystemCoreClock
  *           and must be called whenever the core clock is changed.
@@ -441,10 +403,6 @@ void SystemCoreClockUpdate(void)
 /**
  * @brief    System Initialization
  *
- * @param    None
- *
- * @return   None
- *
  * @details  The necessary initialization of system. Global variables are forbidden here.
  */
 void SystemInit(void)
@@ -465,7 +423,7 @@ void SystemInit(void)
         // GPIO clk
         CLK->AHBCLK |= (0xffful << 20) | (1ul << 14);
     }
-    
+
 #if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
 #if defined(__ICCARM__)
     SCB->VTOR = (uint32_t) &__vector_table;
@@ -475,15 +433,11 @@ void SystemInit(void)
 #endif
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3)
-#if TFM_LVL == 0
     TZ_SAU_Setup();
-    SCB_Setup();
-    TZ_NVIC_Setup();
     SCU_Setup();
     FMC_NSBA_Setup();
 #endif
-#endif
-    
+
 #ifdef INIT_SYSCLK_AT_BOOTING
 
 #endif
@@ -498,8 +452,6 @@ void SystemInit(void)
  *
  * @param[in]  file  the source file name
  * @param[in]  line  line number
- *
- * @return     None
  *
  * @details    The function prints the source file name and line number where
  *             the ASSERT_PARAM() error occurs, and then stops in an infinite loop.

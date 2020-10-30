@@ -1,9 +1,10 @@
 /****************************************************************************//**
  * @file     usci_spi.h
  * @version  V3.00
- * @brief    M2355 series USCI_SPI driver header file
+ * @brief    M2354 series USCI_SPI driver header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __USCI_SPI_H__
 #define __USCI_SPI_H__
@@ -58,7 +59,7 @@ extern "C"
 #define USPI_TX_FULL_MASK            (0x10UL)                          /*!< TX full status mask */
 #define USPI_SSLINE_STS_MASK         (0x20UL)                          /*!< USCI_SPI_SS line status mask */
 
-/*@}*/ /* end of group USCI_SPI_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group USCI_SPI_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup USCI_SPI_EXPORTED_FUNCTIONS USCI_SPI Exported Functions
@@ -221,7 +222,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_CLR_WAKEUP_FLAG(uspi)  ( (uspi)->WKSTS |= USPI_WKSTS_WKF_Msk )
+#define USPI_CLR_WAKEUP_FLAG(uspi) ( (uspi)->WKSTS |= USPI_WKSTS_WKF_Msk )
 
 /**
   * @brief Get protocol interrupt flag/status.
@@ -229,7 +230,7 @@ extern "C"
   * @return The interrupt flag/status of protocol status register.
   * \hideinitializer
   */
-#define USPI_GET_PROT_STATUS(uspi)    ( (uspi)->PROTSTS )
+#define USPI_GET_PROT_STATUS(uspi) ( (uspi)->PROTSTS )
 
 /**
   * @brief Clear specified protocol interrupt flag.
@@ -246,7 +247,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_CLR_PROT_INT_FLAG(uspi, u32IntTypeFlag)    ( (uspi)->PROTSTS = (u32IntTypeFlag) )
+#define USPI_CLR_PROT_INT_FLAG(uspi, u32IntTypeFlag) ( (uspi)->PROTSTS = (u32IntTypeFlag) )
 
 /**
   * @brief Get buffer interrupt flag/status.
@@ -254,7 +255,7 @@ extern "C"
   * @return The interrupt flag/status of buffer status register.
   * \hideinitializer
   */
-#define USPI_GET_BUF_STATUS(uspi)    ( (uspi)->BUFSTS )
+#define USPI_GET_BUF_STATUS(uspi) ( (uspi)->BUFSTS )
 
 /**
   * @brief Clear specified buffer interrupt flag.
@@ -265,7 +266,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_CLR_BUF_INT_FLAG(uspi, u32IntTypeFlag)    ( (uspi)->BUFSTS = (u32IntTypeFlag) )
+#define USPI_CLR_BUF_INT_FLAG(uspi, u32IntTypeFlag) ( (uspi)->BUFSTS = (u32IntTypeFlag) )
 
 /**
   * @brief Enable specified protocol interrupt.
@@ -278,7 +279,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_ENABLE_PROT_INT(uspi, u32IntSel)    ( (uspi)->PROTIEN |= (u32IntSel) )
+#define USPI_ENABLE_PROT_INT(uspi, u32IntSel) ( (uspi)->PROTIEN |= (u32IntSel) )
 
 /**
   * @brief Disable specified protocol interrupt.
@@ -291,7 +292,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_DISABLE_PROT_INT(uspi, u32IntSel)    ( (uspi)->PROTIEN &= ~ (u32IntSel) )
+#define USPI_DISABLE_PROT_INT(uspi, u32IntSel) ( (uspi)->PROTIEN &= ~ (u32IntSel) )
 
 /**
   * @brief Enable specified buffer interrupt.
@@ -302,7 +303,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_ENABLE_BUF_INT(uspi, u32IntSel)    ( (uspi)->BUFCTL |= (u32IntSel) )
+#define USPI_ENABLE_BUF_INT(uspi, u32IntSel) ( (uspi)->BUFCTL |= (u32IntSel) )
 
 /**
   * @brief Disable specified buffer interrupt.
@@ -313,7 +314,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_DISABLE_BUF_INT(uspi, u32IntSel)    ( (uspi)->BUFCTL &= ~ (u32IntSel) )
+#define USPI_DISABLE_BUF_INT(uspi, u32IntSel) ( (uspi)->BUFCTL &= ~ (u32IntSel) )
 
 /**
   * @brief Enable specified transfer interrupt.
@@ -326,7 +327,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_ENABLE_TRANS_INT(uspi, u32IntSel)    ( (uspi)->INTEN |= (u32IntSel) )
+#define USPI_ENABLE_TRANS_INT(uspi, u32IntSel) ( (uspi)->INTEN |= (u32IntSel) )
 
 /**
   * @brief Disable specified transfer interrupt.
@@ -339,7 +340,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_DISABLE_TRANS_INT(uspi, u32IntSel)    ( (uspi)->INTEN &= ~ (u32IntSel) )
+#define USPI_DISABLE_TRANS_INT(uspi, u32IntSel) ( (uspi)->INTEN &= ~ (u32IntSel) )
 
 /**
   * @brief      Trigger RX PDMA function.
@@ -347,7 +348,7 @@ extern "C"
   * @return     None.
   * @details    Set RXPDMAEN bit of USPI_PDMACTL register to enable RX PDMA transfer function.
   */
-#define USPI_TRIGGER_RX_PDMA(uspi)   ( (uspi)->PDMACTL |= USPI_PDMACTL_RXPDMAEN_Msk | USPI_PDMACTL_PDMAEN_Msk )
+#define USPI_TRIGGER_RX_PDMA(uspi) ( (uspi)->PDMACTL |= USPI_PDMACTL_RXPDMAEN_Msk | USPI_PDMACTL_PDMAEN_Msk )
 
 /**
   * @brief      Trigger TX PDMA function.
@@ -355,7 +356,15 @@ extern "C"
   * @return     None.
   * @details    Set TXPDMAEN bit of USPI_PDMACTL register to enable TX PDMA transfer function.
   */
-#define USPI_TRIGGER_TX_PDMA(uspi)   ( (uspi)->PDMACTL |= USPI_PDMACTL_TXPDMAEN_Msk | USPI_PDMACTL_PDMAEN_Msk )
+#define USPI_TRIGGER_TX_PDMA(uspi) ( (uspi)->PDMACTL |= USPI_PDMACTL_TXPDMAEN_Msk | USPI_PDMACTL_PDMAEN_Msk )
+
+/**
+  * @brief      Trigger TX and RX PDMA function.
+  * @param[in]  uspi The pointer of the specified USCI_SPI module.
+  * @return     None.
+  * @details    Set TXPDMAEN bit and RXPDMAEN bit of USPI_PDMACTL register to enable TX and RX PDMA transfer function.
+  */
+#define USPI_TRIGGER_TX_RX_PDMA(uspi) ( (uspi)->PDMACTL |= USPI_PDMACTL_TXPDMAEN_Msk | USPI_PDMACTL_RXPDMAEN_Msk | USPI_PDMACTL_PDMAEN_Msk )
 
 /**
   * @brief      Disable RX PDMA transfer.
@@ -372,6 +381,14 @@ extern "C"
   * @details    Clear TXPDMAEN bit of USPI_PDMACTL register to disable TX PDMA transfer function.
   */
 #define USPI_DISABLE_TX_PDMA(uspi) ( (uspi)->PDMACTL &= ~USPI_PDMACTL_TXPDMAEN_Msk )
+
+/**
+  * @brief      Disable TX and RX PDMA transfer.
+  * @param[in]  uspi The pointer of the specified USCI_SPI module.
+  * @return     None.
+  * @details    Clear TXPDMAEN bit and RXPDMAEN bit of USPI_PDMACTL register to disable TX and RX PDMA transfer function.
+  */
+#define USPI_DISABLE_TX_RX_PDMA(uspi) ( (uspi)->PDMACTL &= ~(USPI_PDMACTL_TXPDMAEN_Msk | USPI_PDMACTL_RXPDMAEN_Msk) )
 
 uint32_t USPI_Open(USPI_T *uspi, uint32_t u32MasterSlave, uint32_t u32SPIMode,  uint32_t u32DataWidth, uint32_t u32BusClock);
 void USPI_Close(USPI_T *uspi);
@@ -390,11 +407,11 @@ void USPI_EnableWakeup(USPI_T *uspi);
 void USPI_DisableWakeup(USPI_T *uspi);
 
 
-/*@}*/ /* end of group USCI_SPI_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group USCI_SPI_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group USCI_SPI_Driver */
+/**@}*/ /* end of group USCI_SPI_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -402,4 +419,4 @@ void USPI_DisableWakeup(USPI_T *uspi);
 
 #endif /* __USCI_SPI_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

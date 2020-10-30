@@ -37,7 +37,7 @@ typedef enum
 
 #define PLM_VCODE   (0x475A0000ul)  /*!< The key code for PLM_CTL write. */
 
-/*@}*/ /* end of group FVC_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group FVC_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup FVC_EXPORTED_FUNCTIONS FVC Exported Functions
@@ -81,11 +81,11 @@ __STATIC_INLINE int32_t PLM_SetStage(PLM_STAGE_T stage)
     return 0;
 }
 
-/*@}*/ /* end of group PLM_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group PLM_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group PLM_Driver */
+/**@}*/ /* end of group PLM_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

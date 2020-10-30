@@ -48,7 +48,7 @@ extern "C"
 
 
 
-/*@}*/ /* end of group QEI_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group QEI_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup QEI_EXPORTED_FUNCTIONS QEI Exported Functions
@@ -375,11 +375,11 @@ void QEI_Start(QEI_T* qei);
 void QEI_Stop(QEI_T* qei);
 
 
-/*@}*/ /* end of group QEI_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group QEI_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group QEI_Driver */
+/**@}*/ /* end of group QEI_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

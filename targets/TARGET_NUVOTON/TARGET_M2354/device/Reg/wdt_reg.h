@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    WDT register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __WDT_REG_H__
 #define __WDT_REG_H__
@@ -19,7 +20,8 @@
 /**
     @addtogroup WDT Watch Dog Timer Controller(WDT)
     Memory Mapped Structure for WDT Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -128,7 +130,8 @@ typedef struct
 /**
     @addtogroup WDT_CONST WDT Bit Field Definition
     Constant Definitions for WDT Controller
-@{ */
+  @{ 
+*/
 
 #define WDT_CTL_RSTEN_Pos                (1)                                               /*!< WDT_T::CTL: RSTEN Position             */
 #define WDT_CTL_RSTEN_Msk                (0x1ul << WDT_CTL_RSTEN_Pos)                      /*!< WDT_T::CTL: RSTEN Mask                 */

@@ -1,10 +1,11 @@
 /******************************************************************************
  * @file     usci_uart.h
  * @version  V3.00
- * @brief    M2355 series USCI UART (UUART) driver header file
+ * @brief    M2354 series USCI UART (UUART) driver header file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __USCI_UART_H__
 #define __USCI_UART_H__
@@ -58,7 +59,7 @@ extern "C"
 #define UUART_RXEND_INT_MASK    (0x080UL) /*!< RX end interrupt mask */
 
 
-/*@}*/ /* end of group USCI_UART_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group USCI_UART_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup USCI_UART_EXPORTED_FUNCTIONS USCI_UART Exported Functions
@@ -386,6 +387,37 @@ extern "C"
 #define UUART_CLR_WAKEUP_FLAG(uuart)    ((uuart)->WKSTS = UUART_WKSTS_WKF_Msk)
 
 
+/**
+ *    @brief        Enable specified USCI_UART PDMA function
+ *
+ *    @param[in]    uuart      The pointer of the specified USCI_UART module
+ *    @param[in]    u32FuncSel Combination of following functions
+ *                             - \ref UUART_PDMACTL_TXPDMAEN_Msk
+ *                             - \ref UUART_PDMACTL_RXPDMAEN_Msk
+ *                             - \ref UUART_PDMACTL_PDMAEN_Msk
+ *
+ *    @return       None
+ *
+ *    @details      This macro enable specified USCI_UART PDMA function.
+ */
+#define UUART_PDMA_ENABLE(uuart, u32FuncSel)   ((uuart)->PDMACTL |= (u32FuncSel))
+
+/**
+ *    @brief        Disable specified USCI_UART PDMA function
+ *
+ *    @param[in]    uuart      The pointer of the specified USCI_UART module
+ *    @param[in]    u32FuncSel Combination of following functions
+ *                             - \ref UUART_PDMACTL_TXPDMAEN_Msk
+ *                             - \ref UUART_PDMACTL_RXPDMAEN_Msk
+ *                             - \ref UUART_PDMACTL_PDMAEN_Msk
+ *
+ *    @return       None
+ *
+ *    @details      This macro disable specified USCI_UART PDMA function.
+ */
+#define UUART_PDMA_DISABLE(uuart, u32FuncSel)   ((uuart)->PDMACTL &= ~(u32FuncSel))
+
+
 void UUART_ClearIntFlag(UUART_T* uuart, uint32_t u32Mask);
 uint32_t UUART_GetIntFlag(UUART_T* uuart, uint32_t u32Mask);
 void UUART_Close(UUART_T* uuart);
@@ -401,11 +433,11 @@ void UUART_EnableFlowCtrl(UUART_T* uuart);
 void UUART_DisableFlowCtrl(UUART_T* uuart);
 
 
-/*@}*/ /* end of group USCI_UART_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group USCI_UART_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group USCI_UART_Driver */
+/**@}*/ /* end of group USCI_UART_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -413,4 +445,4 @@ void UUART_DisableFlowCtrl(UUART_T* uuart);
 
 #endif /* __USCI_UART_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

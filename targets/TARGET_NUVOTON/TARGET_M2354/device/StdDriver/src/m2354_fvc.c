@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    FVC driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -158,9 +159,9 @@ int32_t FVC_SetUDFVer(uint32_t u32Ver)
 }
 
 
-/*@}*/ /* end of group FVC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group FVC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group FVC_Driver */
+/**@}*/ /* end of group FVC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 

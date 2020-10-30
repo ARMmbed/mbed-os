@@ -1,9 +1,10 @@
 /**************************************************************************//**
  * @file     otg.h
  * @version  V3.00
- * @brief    M2355 series OTG driver header file
+ * @brief    M2354 series OTG driver header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __OTG_H__
 #define __OTG_H__
@@ -43,7 +44,7 @@ extern "C"
 #define OTG_VBUS_ST_VALID_LOW        (1UL) /*!< USB VBUS power switch valid status is low. */
 
 
-/*@}*/ /* end of group OTG_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group OTG_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup OTG_EXPORTED_FUNCTIONS OTG Exported Functions
@@ -240,11 +241,11 @@ extern "C"
 
 
 
-/*@}*/ /* end of group OTG_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group OTG_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group OTG_Driver */
+/**@}*/ /* end of group OTG_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -253,4 +254,4 @@ extern "C"
 
 #endif /* __OTG_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

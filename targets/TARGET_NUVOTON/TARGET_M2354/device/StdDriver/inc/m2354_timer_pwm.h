@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Timer PWM Controller(Timer PWM) driver header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __TIMER_PWM_H__
 #define __TIMER_PWM_H__
@@ -53,13 +54,14 @@ extern "C"
 #define TPWM_OUTPUT_HIGH                        (3UL)      /*!< Timer PWM output high \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Trigger ADC Source Select Constant Definitions                                                         */
+/*  Trigger Event Source Select Constant Definitions                                                       */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TPWM_TRIGGER_ADC_AT_ZERO_POINT                      (0UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter zero point event occurred \hideinitializer */
-#define TPWM_TRIGGER_ADC_AT_PERIOD_POINT                    (1UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter period point event occurred \hideinitializer */
-#define TPWM_TRIGGER_ADC_AT_ZERO_OR_PERIOD_POINT            (2UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter zero or period point event occurred \hideinitializer */
-#define TPWM_TRIGGER_ADC_AT_COMPARE_UP_COUNT_POINT          (3UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter up count compare point event occurred \hideinitializer */
-#define TPWM_TRIGGER_ADC_AT_COMPARE_DOWN_COUNT_POINT        (4UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter down count compare point event occurred \hideinitializer */
+#define TPWM_TRIGGER_EVENT_AT_ZERO_POINT                    (0UL << TIMER_PWMTRGCTL_TRGSEL_Pos)     /*!< Timer PWM trigger event while counter zero point event occurred \hideinitializer */
+#define TPWM_TRIGGER_EVENT_AT_PERIOD_POINT                  (1UL << TIMER_PWMTRGCTL_TRGSEL_Pos)     /*!< Timer PWM trigger event while counter period point event occurred \hideinitializer */
+#define TPWM_TRIGGER_EVENT_AT_ZERO_OR_PERIOD_POINT          (2UL << TIMER_PWMTRGCTL_TRGSEL_Pos)     /*!< Timer PWM trigger event while counter zero or period point event occurred \hideinitializer */
+#define TPWM_TRIGGER_EVENT_AT_COMPARE_UP_POINT              (3UL << TIMER_PWMTRGCTL_TRGSEL_Pos)     /*!< Timer PWM trigger event while counter up count compare point event occurred \hideinitializer */
+#define TPWM_TRIGGER_EVENT_AT_COMPARE_DOWN_POINT            (4UL << TIMER_PWMTRGCTL_TRGSEL_Pos)     /*!< Timer PWM trigger event while counter down count compare point event occurred \hideinitializer */
+#define TPWM_TRIGGER_EVENT_AT_PERIOD_OR_COMPARE_UP_POINT    (5UL << TIMER_PWMTRGCTL_TRGSEL_Pos)     /*!< Timer PWM trigger event while counter period or up count compare point event occurred \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Brake Control Constant Definitions                                                                     */
@@ -128,7 +130,7 @@ extern "C"
 #define TPWM_CNTR_SYNC_START_BY_TIMER2          ((1<<TIMER_PWMSCTL_SYNCSRC_Pos) | (1<<TIMER_PWMSCTL_SYNCMODE_Pos))  /*!< PWM counter synchronous start by TIMER2 PWM \hideinitializer */
 #define TPWM_CNTR_SYNC_CLEAR_BY_TIMER2          ((1<<TIMER_PWMSCTL_SYNCSRC_Pos) | (3<<TIMER_PWMSCTL_SYNCMODE_Pos))  /*!< PWM counter synchronous clear by TIMER2 PWM \hideinitializer */
 
-/*@}*/ /* end of group TIMER_PWM_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group TIMER_PWM_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup TIMER_PWM_EXPORTED_FUNCTIONS TIMER PWM Exported Functions
@@ -138,7 +140,7 @@ extern "C"
 /**
   * @brief      Enable PWM Counter Mode
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -146,12 +148,21 @@ extern "C"
   * @note       All registers about time counter function will be cleared to 0 and timer clock source will be changed to PCLKx automatically after executing this macro.
   * \hideinitializer
   */
-#define TPWM_ENABLE_PWM_MODE(timer)             ((timer)->ALTCTL = (1 << TIMER_ALTCTL_FUNCSEL_Pos))
-
+#define TPWM_ENABLE_PWM_MODE(timer) \
+    do{ \
+        if(((uint32_t)&((timer)->PWMCTL) & TMR45_BASE) == TMR45_BASE) { \
+            (timer)->CTL |= TIMER_CTL_FUNCSEL_Msk; \
+            while(((timer)->CTL & TIMER_CTL_FUNCSEL_Msk) == 0) {} \
+        } else { \
+            (timer)->ALTCTL = TIMER_ALTCTL_FUNCSEL_Msk; \
+            while(((timer)->ALTCTL & TIMER_ALTCTL_FUNCSEL_Msk) == 0) {} \
+        } \
+    }while(0)
+    
 /**
   * @brief      Disable PWM Counter Mode
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -159,7 +170,17 @@ extern "C"
   * @note       All registers about PWM counter function will be cleared to 0 after executing this macro.
   * \hideinitializer
   */
-#define TPWM_DISABLE_PWM_MODE(timer)            ((timer)->ALTCTL = (0 << TIMER_ALTCTL_FUNCSEL_Pos))
+#define TPWM_DISABLE_PWM_MODE(timer) \
+    do{ \
+        if(((uint32_t)&((timer)->PWMCTL) & TMR45_BASE) == TMR45_BASE) { \
+            (timer)->CTL &= ~TIMER_CTL_FUNCSEL_Msk; \
+            while(((timer)->CTL & TIMER_CTL_FUNCSEL_Msk) == TIMER_CTL_FUNCSEL_Msk) {} \
+        } else { \
+            (timer)->ALTCTL &= ~TIMER_ALTCTL_FUNCSEL_Msk; \
+            while(((timer)->ALTCTL & TIMER_ALTCTL_FUNCSEL_Msk) == TIMER_ALTCTL_FUNCSEL_Msk) {} \
+        } \
+    }while(0)
+
 
 /**
   * @brief      Enable Independent Mode
@@ -169,6 +190,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable independent mode of TIMER PWM module and complementary mode will be disabled.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_ENABLE_INDEPENDENT_MODE(timer)     ((timer)->PWMCTL &= ~(1ul << TIMER_PWMCTL_OUTMODE_Pos))
@@ -181,6 +203,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable complementary mode of Timer PWM module and independent mode will be disabled.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_ENABLE_COMPLEMENTARY_MODE(timer)   ((timer)->PWMCTL |= (1 << TIMER_PWMCTL_OUTMODE_Pos))
@@ -197,6 +220,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set Timer PWM counter type.
+  * @note       NOT available on TIMER4 and TIMER5. Both TIMER4 and TIMER5 are only support count up.
   * \hideinitializer
   */
 #define TPWM_SET_COUNTER_TYPE(timer, type)      ((timer)->PWMCTL = ((timer)->PWMCTL & ~TIMER_PWMCTL_CNTTYPE_Msk) | (type))
@@ -204,7 +228,7 @@ extern "C"
 /**
   * @brief      Start PWM Counter
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -216,7 +240,7 @@ extern "C"
 /**
   * @brief      Stop PWM Counter
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -228,9 +252,11 @@ extern "C"
 /**
   * @brief      Set Counter Clock Prescaler
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
-  * @param[in]  prescaler    Clock prescaler of specified channel. Valid values are between 0x0~0xFFF.
+  * @param[in]  prescaler   Clock prescaler of specified channel.
+  *                         Valid values are between 0x0~0xFFF for TIMER0, TIMER1, TIMER2, TIMER3, and
+  *                         valid values are between 0x0~0xFF for TIMER4 and TIMER5.
   *
   * @return     None
   *
@@ -243,7 +269,7 @@ extern "C"
 /**
   * @brief      Get Counter Clock Prescaler
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     Target prescaler setting, CLKPSC (TIMERx_PWMCLKPSC[11:0])
   *
@@ -255,7 +281,7 @@ extern "C"
 /**
   * @brief      Set Couner Period
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @param[in]  period      Period of specified channel. Valid values are between 0x0~0xFFFF.
   *
@@ -269,7 +295,7 @@ extern "C"
 /**
   * @brief      Get Couner Period
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     Target period setting, PERIOD (TIMERx_PWMPERIOD[15:0])
   *
@@ -281,7 +307,7 @@ extern "C"
 /**
   * @brief      Set Comparator Value
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @param[in]  cmp     Comparator of specified channel. Valid values are between 0x0~0xFFFF.
   *
@@ -295,7 +321,7 @@ extern "C"
 /**
   * @brief      Get Comparator Value
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     Target comparator setting, CMPDAT (TIMERx_PWMCMPDAT[15:0])
   *
@@ -307,7 +333,7 @@ extern "C"
 /**
   * @brief      Clear Counter
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -328,6 +354,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to trigger brake event by writing PWMSWBRK register.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_SW_TRIGGER_BRAKE(timer, type)      ((timer)->PWMSWBRK = (type))
@@ -335,52 +362,65 @@ extern "C"
 /**
   * @brief      Enable Output Function
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @param[in]  ch          Enable specified channel output function. Valid values are:
-  *                             - \ref TPWM_CH0
-  *                             - \ref TPWM_CH1
+  *                         For TIMER0 ~ TIMER3, the valid value could be a combination of \ref TPWM_CH0 and \ref TPWM_CH1.
+  *                         For TIMER4, TIMER5, the valid value could be \ref TPWM_CH0 or \ref TPWM_CH1.
   *
   * @return     None
   *
   * @details    This macro is used to enable output function of specified output pins.
-  * @note       If the corresponding bit in u32ChMask parameter is 0, then output function will be disabled in this channel.
   * \hideinitializer
   */
-#define TPWM_ENABLE_OUTPUT(timer, ch)           ((timer)->PWMPOEN = (ch))
+#define TPWM_ENABLE_OUTPUT(timer, ch) \
+    do{ \
+        if(((uint32_t)&((timer)->PWMCTL) & TMR45_BASE) == TMR45_BASE) { \
+            if((ch) == BIT0) \
+                (timer)->PWMPOEN = BIT0; \
+            else \
+                (timer)->PWMPOEN = (BIT0 | BIT8); \
+        } else { \
+            (timer)->PWMPOEN = (ch); \
+        } \
+    }while(0)
 
 /**
   * @brief      Set Output Inverse
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
-  * @param[in]  ch          Set specified channel output is inversed or not. Valid values are:
-  *                             - \ref TPWM_CH0
-  *                             - \ref TPWM_CH1
+  * @param[in]  ch          Set specified channel output is inversed or not.
+  *                         For TIMER0 ~ TIMER3, the valid value could be a combination of \ref TPWM_CH0 and \ref TPWM_CH1.
+  *                         But this parameter is no effect on TIMER4 and TIMER5.
   *
   * @return     None
   *
   * @details    This macro is used to enable output inverse of specified output pins.
-  * @note       If u32ChMask parameter is 0, then output inverse function will be disabled.
   * \hideinitializer
   */
-#define TPWM_SET_OUTPUT_INVERSE(timer, ch)      ((timer)->PWMPOLCTL = (ch))
+#define TPWM_SET_OUTPUT_INVERSE(timer, ch) \
+    do{ \
+        if(((uint32_t)&((timer)->PWMCTL) & TMR45_BASE) == TMR45_BASE) { \
+            (timer)->PWMPOLCTL = BIT0; \
+        } else { \
+            (timer)->PWMPOLCTL = (ch); \
+        } \
+    }while(0)
 
 /**
-  * @brief      Enable Output Function
+  * @brief      Enable Output Mask Function
   *
   * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   *
-  * @param[in]  ch       Enable specified channel output mask function. Valid values are:
-  *                             - \ref TPWM_CH0
-  *                             - \ref TPWM_CH1
+  * @param[in]  ch       Enable specified channel output mask function. Valid value could be a combination of \ref TPWM_CH0 and \ref TPWM_CH1.
   *
   * @param[in]  level    Output to high or low on specified mask channel.
   *
   * @return     None
   *
-  * @details    This macro is used to enable output function of specified output pins.
-  * @note       If u32ChMask parameter is 0, then output mask function will be disabled.
+  * @details    This macro is used to enable output mask function of specified output pins.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_SET_MASK_OUTPUT(timer, ch, level) do {(timer)->PWMMSKEN = (ch); (timer)->PWMMSK = (level); }while(0)
@@ -402,6 +442,7 @@ extern "C"
   * @details    This macro is used to set counter synchronous mode of specified Timer PWM module.
   * @note       Only support all PWM counters are synchronous by TIMER0 PWM or TIMER0~1 PWM counter synchronous by TIMER0 PWM and
   *             TIMER2~3 PWM counter synchronous by TIMER2 PWM.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_SET_COUNTER_SYNC_MODE(timer, mode)     ((timer)->PWMSCTL = (mode))
@@ -416,9 +457,36 @@ extern "C"
   * @details    This macro is used to trigger synchronous event by specified TIMER PWM.
   * @note       1. This macro is only available for TIMER0 PWM and TIMER2 PWM. \n
   *             2. STRGEN (PWMSTRG[0]) is write only and always read as 0.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_TRIGGER_COUNTER_SYNC(timer)            ((timer)->PWMSTRG = TIMER_PWMSTRG_STRGEN_Msk)
+
+/**
+  * @brief      Enable Timer PWM Interrupt Wake-up Function
+  *
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER4 or TIMER5.
+  *
+  * @return     None
+  *
+  * @details    This macro is used to enable the timer pwm interrupt wake-up function.
+  * @note       Only available on TIMER4 and TIMER5.
+  * \hideinitializer
+  */
+#define TPWM_ENABLE_PWMINT_WAKEUP(timer)            ((timer)->PWMCTL |= TIMER_PWMCTL_WKEN_Msk)
+
+/**
+  * @brief      Disable Timer PWM Interrupt Wake-up Function
+  *
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER4 or TIMER5.
+  *
+  * @return     None
+  *
+  * @details    This macro is used to disable the timer pwm interrupt wake-up function.
+  * @note       Only available on TIMER4 and TIMER5.
+  * \hideinitializer
+  */
+#define TPWM_DISABLE_PWMINT_WAKEUP(timer)           ((timer)->PWMCTL &= ~TIMER_PWMCTL_WKEN_Msk)
 
 /**
   * @brief      Enable Zero Event Interrupt
@@ -428,6 +496,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable the zero event interrupt function.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_ENABLE_ZERO_INT(timer)                 ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_ZIEN_Msk)
@@ -440,6 +509,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to disable the zero event interrupt function.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_DISABLE_ZERO_INT(timer)                ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_ZIEN_Msk)
@@ -453,6 +523,7 @@ extern "C"
   * @retval     1   Zero event interrupt occurred
   *
   * @details    This macro indicates zero event occurred or not.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_GET_ZERO_INT_FLAG(timer)               (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_ZIF_Msk)? 1 : 0)
@@ -465,6 +536,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro clears zero event interrupt flag.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_CLEAR_ZERO_INT_FLAG(timer)             ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_ZIF_Msk)
@@ -472,7 +544,7 @@ extern "C"
 /**
   * @brief      Enable Period Event Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -484,7 +556,7 @@ extern "C"
 /**
   * @brief      Disable Period Event Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -496,7 +568,7 @@ extern "C"
 /**
   * @brief      Get Period Event Interrupt Flag
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0   Period event interrupt did not occur
   * @retval     1   Period event interrupt occurred
@@ -509,7 +581,7 @@ extern "C"
 /**
   * @brief      Clear Period Event Interrupt Flag
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -521,7 +593,7 @@ extern "C"
 /**
   * @brief      Enable Compare Up Event Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -533,7 +605,7 @@ extern "C"
 /**
   * @brief      Disable Compare Up Event Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -545,7 +617,7 @@ extern "C"
 /**
   * @brief      Get Compare Up Event Interrupt Flag
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0   Compare up event interrupt did not occur
   * @retval     1   Compare up event interrupt occurred
@@ -558,7 +630,7 @@ extern "C"
 /**
   * @brief      Clear Compare Up Event Interrupt Flag
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -575,6 +647,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable the compare down event interrupt function.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_ENABLE_CMP_DOWN_INT(timer)             ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_CMPDIEN_Msk)
@@ -587,6 +660,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to disable the compare down event interrupt function.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_DISABLE_CMP_DOWN_INT(timer)            ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_CMPDIEN_Msk)
@@ -600,6 +674,7 @@ extern "C"
   * @retval     1   Compare down event interrupt occurred
   *
   * @details    This macro indicates compare down event occurred or not.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_GET_CMP_DOWN_INT_FLAG(timer)           (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_CMPDIF_Msk)? 1 : 0)
@@ -612,6 +687,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro clears compare down event interrupt flag.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_CLEAR_CMP_DOWN_INT_FLAG(timer)         ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_CMPDIF_Msk)
@@ -619,7 +695,7 @@ extern "C"
 /**
   * @brief      Get Counter Reach Maximum Count Status
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0   Timer PWM counter never counts to maximum value
   * @retval     1   Timer PWM counter counts to maximum value, 0xFFFF
@@ -632,7 +708,7 @@ extern "C"
 /**
   * @brief      Clear Counter Reach Maximum Count Status
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -644,7 +720,7 @@ extern "C"
 /**
   * @brief      Get Trigger ADC Status
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0       Trigger ADC start conversion is not occur
   * @retval     1       Specified counter compare event has trigger ADC start conversion
@@ -657,7 +733,7 @@ extern "C"
 /**
   * @brief      Clear Trigger ADC Status
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -665,6 +741,59 @@ extern "C"
   * \hideinitializer
   */
 #define TPWM_CLEAR_TRG_ADC_STATUS(timer)            ((timer)->PWMSTATUS = TIMER_PWMSTATUS_EADCTRGF_Msk)
+
+/**
+  * @brief      Get Trigger PDMA Status
+  *
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER4 ~ TIMER5.
+  *
+  * @retval     0       Trigger PDMA transfer data is not occur
+  * @retval     1       Specified counter compare event has trigger PDMA transfer data
+  *
+  * @details    This macro is used to indicate PWM counter compare event has triggered PDMA start transfer data.
+  * @note       Only available on TIMER4 and TIMER5.
+  * \hideinitializer
+  */
+#define TPWM_GET_TRG_PDMA_STATUS(timer)             (((timer)->PWMSTATUS & TIMER_PWMSTATUS_PDMATRGF_Msk)? 1 : 0)
+
+/**
+  * @brief      Clear Trigger PDMA Status
+  *
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER4 ~ TIMER5.
+  *
+  * @return     None
+  *
+  * @details    This macro is used to clear PWM counter compare event trigger PDMA status.
+  * @note       Only available on TIMER4 and TIMER5.
+  * \hideinitializer
+  */
+#define TPWM_CLEAR_TRG_PDMA_STATUS(timer)           ((timer)->PWMSTATUS = TIMER_PWMSTATUS_PDMATRGF_Msk)
+
+/**
+  * @brief      Get PWM Interrupt Wake-up Flag
+  *
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER4 ~ TIMER5.
+  *
+  * @retval     0   PWM does not cause CPU wake-up
+  * @retval     1   PWM interrupt event cause CPU wake-up
+  *
+  * @details    This function indicates PWM interrupt event has waked up system or not.
+  * @note       Only available on TIMER4 and TIMER5.
+  */
+#define TPWM_GET_PWMINT_WAKEUP_STATUS(timer)        (((timer)->PWMSTATUS & TIMER_PWMSTATUS_WKF_Msk)? 1 : 0)
+
+/**
+  * @brief      Clear PWM Interrupt Wake-up Flag
+  *
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER4 ~ TIMER5.
+  *
+  * @return     None
+  *
+  * @details    This macro is used to clear PWM interrupt wakeup status.
+  * @note       Only available on TIMER4 and TIMER5.
+  * \hideinitializer
+  */
+#define TPWM_CLEAR_PWMINT_WAKEUP_STATUS(timer)           ((timer)->PWMSTATUS = TIMER_PWMSTATUS_WKF_Msk)
 
 /**
   * @brief      Set Brake Event at Brake Pin High or Low-to-High
@@ -675,6 +804,7 @@ extern "C"
   *
   * @details    This macro is used to set detect brake event when external brake pin at high level or transfer from low to high.
   * @note       The default brake pin detection is high level or from low to high.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_SET_BRAKE_PIN_HIGH_DETECT(timer)       ((timer)->PWMBNF &= ~TIMER_PWMBNF_BRKPINV_Msk)
@@ -687,6 +817,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set detect brake event when external brake pin at low level or transfer from high to low.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_SET_BRAKE_PIN_LOW_DETECT(timer)        ((timer)->PWMBNF |= TIMER_PWMBNF_BRKPINV_Msk)
@@ -704,6 +835,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set detect brake event when external brake pin at high level or transfer from low to high.
+  * @note       NOT available on TIMER4 and TIMER5.
   * \hideinitializer
   */
 #define TPWM_SET_BRAKE_PIN_SOURCE(timer, pin)       ((timer)->PWMBNF = ((timer)->PWMBNF & ~TIMER_PWMBNF_BKPINSRC_Msk) | ((pin)<<TIMER_PWMBNF_BKPINSRC_Pos))
@@ -718,6 +850,8 @@ void TPWM_EnableCounter(TIMER_T *timer);
 void TPWM_DisableCounter(TIMER_T *timer);
 void TPWM_EnableTriggerADC(TIMER_T *timer, uint32_t u32Condition);
 void TPWM_DisableTriggerADC(TIMER_T *timer);
+void TPWM_EnableTriggerPDMA(TIMER_T *timer, uint32_t u32Condition);
+void TPWM_DisableTriggerPDMA(TIMER_T *timer);
 void TPWM_EnableFaultBrake(TIMER_T *timer, uint32_t u32CH0Level, uint32_t u32CH1Level, uint32_t u32BrakeSource);
 void TPWM_EnableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource);
 void TPWM_DisableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource);
@@ -730,11 +864,11 @@ void TPWM_EnableBrakePinInverse(TIMER_T *timer);
 void TPWM_DisableBrakePinInverse(TIMER_T *timer);
 void TPWM_SetBrakePinSource(TIMER_T *timer, uint32_t u32BrakePinNum);
 
-/*@}*/ /* end of group TIMER_PWM_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group TIMER_PWM_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group TIMER_PWM_Driver */
+/**@}*/ /* end of group TIMER_PWM_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -742,4 +876,4 @@ void TPWM_SetBrakePinSource(TIMER_T *timer, uint32_t u32BrakePinNum);
 
 #endif /* __TIMER_PWM_H__ */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

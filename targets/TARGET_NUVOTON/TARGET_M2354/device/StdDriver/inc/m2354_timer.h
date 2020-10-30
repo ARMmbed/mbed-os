@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Timer Controller(Timer) driver header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __TIMER_H__
 #define __TIMER_H__
@@ -47,14 +48,35 @@ extern "C"
 #define TIMER_CAPTURE_EVENT_GET_LOW_PERIOD      (6UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< First capture event is at falling edge, follows are at at rising edge \hideinitializer */
 #define TIMER_CAPTURE_EVENT_GET_HIGH_PERIOD     (7UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< First capture event is at rising edge, follows are at at falling edge \hideinitializer */
 
+#define TIMER_CAPTURE_SOURCE_FROM_PIN           (0UL << TIMER_CTL_CAPSRC_Pos) /*!< The capture source is from TMx_EXT pin \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_FROM_INTERNAL      (1UL << TIMER_CTL_CAPSRC_Pos) /*!< The capture source is from internal ACMPx signal or clock source \hideinitializer */
+
+#define TIMER_CAPTURE_SOURCE_DIV_1              (0UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 1 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_2              (1UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 2 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_4              (2UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 4 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_8              (3UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 8 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_16             (4UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 16 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_32             (5UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 32 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_64             (6UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 64 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_128            (7UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 128 \hideinitializer */
+#define TIMER_CAPTURE_SOURCE_DIV_256            (8UL << TIMER_EXTCTL_CAPDIVSCL_Pos) /*!< Input capture source divide 256 \hideinitializer */
+
+#define TIMER_INTER_CAPTURE_SOURCE_ACMP0        (0UL << TIMER_EXTCTL_INTERCAPSEL_Pos) /*!< Capture source from internal ACMP0 output signal \hideinitializer */
+#define TIMER_INTER_CAPTURE_SOURCE_ACMP1        (1UL << TIMER_EXTCTL_INTERCAPSEL_Pos) /*!< Capture source from internal ACMP1 output signal \hideinitializer */
+#define TIMER_INTER_CAPTURE_SOURCE_HXT          (2UL << TIMER_EXTCTL_INTERCAPSEL_Pos) /*!< Capture source from HXT \hideinitializer */
+#define TIMER_INTER_CAPTURE_SOURCE_LXT          (3UL << TIMER_EXTCTL_INTERCAPSEL_Pos) /*!< Capture source from LXT \hideinitializer */
+#define TIMER_INTER_CAPTURE_SOURCE_HIRC         (4UL << TIMER_EXTCTL_INTERCAPSEL_Pos) /*!< Capture source from HIRC \hideinitializer */
+#define TIMER_INTER_CAPTURE_SOURCE_LIRC         (5UL << TIMER_EXTCTL_INTERCAPSEL_Pos) /*!< Capture source from LIRC \hideinitializer */
+#define TIMER_INTER_CAPTURE_SOURCE_MIRC         (6UL << TIMER_EXTCTL_INTERCAPSEL_Pos) /*!< Capture source from MIRC. Only available on TIMER4 and TIMER5 \hideinitializer */
+
 #define TIMER_TRGSRC_TIMEOUT_EVENT              (0UL << TIMER_TRGCTL_TRGSSEL_Pos) /*!< Select internal trigger source from timer time-out event \hideinitializer */
 #define TIMER_TRGSRC_CAPTURE_EVENT              (1UL << TIMER_TRGCTL_TRGSSEL_Pos) /*!< Select internal trigger source from timer capture event \hideinitializer */
-#define TIMER_TRG_TO_EPWM                       (TIMER_TRGCTL_TRGEPWM_Msk)        /*!< Each timer event as EPWM counter clock source \hideinitializer */
+#define TIMER_TRG_TO_PWM                        (TIMER_TRGCTL_TRGPWM_Msk)         /*!< Each timer event as EPWM and BPWM counter clock source. NOT supported on TIMER4 and TIMER5 \hideinitializer */
 #define TIMER_TRG_TO_EADC                       (TIMER_TRGCTL_TRGEADC_Msk)        /*!< Each timer event to start ADC conversion \hideinitializer */
-#define TIMER_TRG_TO_DAC                        (TIMER_TRGCTL_TRGDAC_Msk)         /*!< Each timer event to start DAC conversion \hideinitializer */
+#define TIMER_TRG_TO_DAC                        (TIMER_TRGCTL_TRGDAC_Msk)         /*!< Each timer event to start DAC conversion. NOT supported on TIMER4 and TIMER5 \hideinitializer */
 #define TIMER_TRG_TO_PDMA                       (TIMER_TRGCTL_TRGPDMA_Msk)        /*!< Each timer event to trigger PDMA transfer \hideinitializer */
 
-/*@}*/ /* end of group TIMER_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group TIMER_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup TIMER_EXPORTED_FUNCTIONS TIMER Exported Functions
@@ -64,7 +86,7 @@ extern "C"
 /**
   * @brief      Set Timer Compared Value
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   * @param[in]  u32Value    Timer compare value. Valid values are between 2 to 0xFFFFFF.
   *
   * @return     None
@@ -80,7 +102,7 @@ extern "C"
 /**
   * @brief      Set Timer Prescale Value
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   * @param[in]  u32Value    Timer prescale value. Valid values are between 0 to 0xFF.
   *
   * @return     None
@@ -94,7 +116,7 @@ extern "C"
 /**
   * @brief      Check specify Timer Status
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0   Timer 24-bit up counter is inactive
   * @retval     1   Timer 24-bit up counter is active
@@ -102,12 +124,12 @@ extern "C"
   * @details    This macro is used to check if specify Timer counter is inactive or active.
   * \hideinitializer
   */
-#define TIMER_IS_ACTIVE(timer)                      (((timer)->CTL & TIMER_CTL_ACTSTS_Msk)? 1 : 0)
+#define TIMER_IS_ACTIVE(timer)                      ((((timer)->CTL & TIMER_CTL_ACTSTS_Msk) == TIMER_CTL_ACTSTS_Msk)? 1 : 0)
 
 /**
   * @brief      Select Toggle-output Pin
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   * @param[in]  u32ToutSel  Toggle-output pin selection, valid values are:
   *                         - \ref TIMER_TOUT_PIN_FROM_TMX
   *                         - \ref TIMER_TOUT_PIN_FROM_TMX_EXT
@@ -118,6 +140,21 @@ extern "C"
   * \hideinitializer
   */
 #define TIMER_SELECT_TOUT_PIN(timer, u32ToutSel)    ((timer)->CTL = ((timer)->CTL & ~TIMER_CTL_TGLPINSEL_Msk) | (u32ToutSel))
+
+/**
+  * @brief      Set Timer Operating Mode
+  *
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
+  * @param[in]  u32OpMode   Operation mode. Possible options are
+  *                         - \ref TIMER_ONESHOT_MODE
+  *                         - \ref TIMER_PERIODIC_MODE
+  *                         - \ref TIMER_TOGGLE_MODE
+  *                         - \ref TIMER_CONTINUOUS_MODE
+  *
+  * @return     None
+  * \hideinitializer
+  */
+#define TIMER_SET_OPMODE(timer, u32OpMode)   ((timer)->CTL = ((timer)->CTL & ~TIMER_CTL_OPMODE_Msk) | (u32OpMode))
 
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -152,7 +189,7 @@ __STATIC_INLINE void TIMER_ResetCounter(TIMER_T *timer);
 /**
   * @brief      Start Timer Counting
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -166,7 +203,7 @@ __STATIC_INLINE void TIMER_Start(TIMER_T *timer)
 /**
   * @brief      Stop Timer Counting
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -180,7 +217,7 @@ __STATIC_INLINE void TIMER_Stop(TIMER_T *timer)
 /**
   * @brief      Enable Timer Interrupt Wake-up Function
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -196,7 +233,7 @@ __STATIC_INLINE void TIMER_EnableWakeup(TIMER_T *timer)
 /**
   * @brief      Disable Timer Wake-up Function
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -210,7 +247,7 @@ __STATIC_INLINE void TIMER_DisableWakeup(TIMER_T *timer)
 /**
   * @brief      Start Timer Capture Function
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -224,7 +261,7 @@ __STATIC_INLINE void TIMER_StartCapture(TIMER_T *timer)
 /**
   * @brief      Stop Timer Capture Function
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -238,7 +275,7 @@ __STATIC_INLINE void TIMER_StopCapture(TIMER_T *timer)
 /**
   * @brief      Enable Capture Pin De-bounce
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -252,7 +289,7 @@ __STATIC_INLINE void TIMER_EnableCaptureDebounce(TIMER_T *timer)
 /**
   * @brief      Disable Capture Pin De-bounce
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -266,7 +303,7 @@ __STATIC_INLINE void TIMER_DisableCaptureDebounce(TIMER_T *timer)
 /**
   * @brief      Enable Counter Pin De-bounce
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -280,7 +317,7 @@ __STATIC_INLINE void TIMER_EnableEventCounterDebounce(TIMER_T *timer)
 /**
   * @brief      Disable Counter Pin De-bounce
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -294,7 +331,7 @@ __STATIC_INLINE void TIMER_DisableEventCounterDebounce(TIMER_T *timer)
 /**
   * @brief      Enable Timer Time-out Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -308,7 +345,7 @@ __STATIC_INLINE void TIMER_EnableInt(TIMER_T *timer)
 /**
   * @brief      Disable Timer Time-out Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -322,7 +359,7 @@ __STATIC_INLINE void TIMER_DisableInt(TIMER_T *timer)
 /**
   * @brief      Enable Capture Trigger Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -336,7 +373,7 @@ __STATIC_INLINE void TIMER_EnableCaptureInt(TIMER_T *timer)
 /**
   * @brief      Disable Capture Trigger Interrupt
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -350,7 +387,7 @@ __STATIC_INLINE void TIMER_DisableCaptureInt(TIMER_T *timer)
 /**
   * @brief      Get Timer Time-out Interrupt Flag
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0   Timer time-out interrupt did not occur
   * @retval     1   Timer time-out interrupt occurred
@@ -359,13 +396,13 @@ __STATIC_INLINE void TIMER_DisableCaptureInt(TIMER_T *timer)
   */
 __STATIC_INLINE uint32_t TIMER_GetIntFlag(TIMER_T *timer)
 {
-    return ((timer->INTSTS & TIMER_INTSTS_TIF_Msk) ? 1UL : 0UL);
+    return (((timer->INTSTS & TIMER_INTSTS_TIF_Msk) == TIMER_INTSTS_TIF_Msk)? 1UL : 0UL);
 }
 
 /**
   * @brief      Clear Timer Time-out Interrupt Flag
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -379,7 +416,7 @@ __STATIC_INLINE void TIMER_ClearIntFlag(TIMER_T *timer)
 /**
   * @brief      Get Timer Capture Interrupt Flag
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0   Timer capture interrupt did not occur
   * @retval     1   Timer capture interrupt occurred
@@ -394,7 +431,7 @@ __STATIC_INLINE uint32_t TIMER_GetCaptureIntFlag(TIMER_T *timer)
 /**
   * @brief      Clear Timer Capture Interrupt Flag
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -408,7 +445,7 @@ __STATIC_INLINE void TIMER_ClearCaptureIntFlag(TIMER_T *timer)
 /**
   * @brief      Get Timer Wake-up Flag
   *
-  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @retval     0   Timer does not cause CPU wake-up
   * @retval     1   Timer interrupt event cause CPU wake-up
@@ -417,13 +454,13 @@ __STATIC_INLINE void TIMER_ClearCaptureIntFlag(TIMER_T *timer)
   */
 __STATIC_INLINE uint32_t TIMER_GetWakeupFlag(TIMER_T *timer)
 {
-    return (timer->INTSTS & TIMER_INTSTS_TWKF_Msk ? 1UL : 0UL);
+    return (((timer->INTSTS & TIMER_INTSTS_TWKF_Msk) == TIMER_INTSTS_TWKF_Msk)? 1UL : 0UL);
 }
 
 /**
   * @brief      Clear Timer Wake-up Flag
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -437,7 +474,7 @@ __STATIC_INLINE void TIMER_ClearWakeupFlag(TIMER_T *timer)
 /**
   * @brief      Get Capture value
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     24-bit Capture Value
   *
@@ -451,7 +488,7 @@ __STATIC_INLINE uint32_t TIMER_GetCaptureData(TIMER_T *timer)
 /**
   * @brief      Get Counter value
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     24-bit Counter Value
   *
@@ -465,7 +502,7 @@ __STATIC_INLINE uint32_t TIMER_GetCounter(TIMER_T *timer)
 /**
   * @brief      Reset Counter
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -491,11 +528,11 @@ void TIMER_DisableFreqCounter(TIMER_T *timer);
 void TIMER_SetTriggerSource(TIMER_T *timer, uint32_t u32Src);
 void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask);
 
-/*@}*/ /* end of group TIMER_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group TIMER_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group TIMER_Driver */
+/**@}*/ /* end of group TIMER_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -503,4 +540,4 @@ void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask);
 
 #endif /* __TIMER_H__ */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

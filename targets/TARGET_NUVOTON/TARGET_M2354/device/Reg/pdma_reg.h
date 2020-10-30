@@ -18,7 +18,8 @@
 /**
     @addtogroup PDMA Peripheral Direct Memory Access Controller(PDMA)
     Memory Mapped Structure for PDMA Controller
-@{ */
+  @{ 
+*/
 
 
 
@@ -435,6 +436,7 @@ typedef struct
      * |        |          |27 = Channel connects to SPI2_RX.
      * |        |          |28 = Channel connects to SPI3_TX.
      * |        |          |29 = Channel connects to SPI3_RX.
+     * |        |          |30 = Channel connects to ADC_RX.
      * |        |          |32 = Channel connects to EPWM0_P1_RX.
      * |        |          |33 = Channel connects to EPWM0_P2_RX.
      * |        |          |34 = Channel connects to EPWM0_P3_RX.
@@ -453,21 +455,22 @@ typedef struct
      * |        |          |47 = Channel connects to TMR1.
      * |        |          |48 = Channel connects to TMR2.
      * |        |          |49 = Channel connects to TMR3.
-     * |        |          |50 = Channel connects to ADC_RX.
-     * |        |          |51 = Channel connects to DAC0_TX.
-     * |        |          |52 = Channel connects to DAC1_TX.
-     * |        |          |53 = Channel connects to EPWM0_CH0_TX.
-     * |        |          |54 = Channel connects to EPWM0_CH1_TX.
-     * |        |          |55 = Channel connects to EPWM0_CH2_TX.
-     * |        |          |56 = Channel connects to EPWM0_CH3_TX.
-     * |        |          |57 = Channel connects to EPWM0_CH4_TX.
-     * |        |          |58 = Channel connects to EPWM0_CH5_TX.
-     * |        |          |59 = Channel connects to EPWM1_CH0_TX.
-     * |        |          |60 = Channel connects to EPWM1_CH1_TX.
-     * |        |          |61 = Channel connects to EPWM1_CH2_TX.
-     * |        |          |62 = Channel connects to EPWM1_CH3_TX.
-     * |        |          |63 = Channel connects to EPWM1_CH4_TX.
-     * |        |          |64 = Channel connects to EPWM1_CH5_TX.
+     * |        |          |50 = Channel connects to TMR4.
+     * |        |          |51 = Channel connects to TMR5.
+     * |        |          |52 = Channel connects to DAC0_TX.
+     * |        |          |53 = Channel connects to DAC1_TX.
+     * |        |          |54 = Channel connects to EPWM0_CH0_TX.
+     * |        |          |55 = Channel connects to EPWM0_CH1_TX.
+     * |        |          |56 = Channel connects to EPWM0_CH2_TX.
+     * |        |          |57 = Channel connects to EPWM0_CH3_TX.
+     * |        |          |58 = Channel connects to EPWM0_CH4_TX.
+     * |        |          |59 = Channel connects to EPWM0_CH5_TX.
+     * |        |          |60 = Channel connects to EPWM1_CH0_TX.
+     * |        |          |61 = Channel connects to EPWM1_CH1_TX.
+     * |        |          |62 = Channel connects to EPWM1_CH2_TX.
+     * |        |          |63 = Channel connects to EPWM1_CH3_TX.
+     * |        |          |64 = Channel connects to EPWM1_CH4_TX.
+     * |        |          |65 = Channel connects to EPWM1_CH5_TX.
      * |        |          |Others = Reserved.
      * |        |          |Note 1: A request source cannot assign to two channels at the same time.
      * |        |          |Note 2: This field is useless when transfer between memory and memory.
@@ -550,7 +553,8 @@ typedef struct
 /**
     @addtogroup PDMA_CONST PDMA Bit Field Definition
     Constant Definitions for PDMA Controller
-@{ */
+  @{ 
+*/
 
 #define PDMA_DSCT_CTL_OPMODE_Pos        (0)                                               /*!< PDMA_T::DSCT_CTL: OPMODE Position     */
 #define PDMA_DSCT_CTL_OPMODE_Msk        (0x3ul << PDMA_DSCT_CTL_OPMODE_Pos)               /*!< PDMA_T::DSCT_CTL: OPMODE Mask         */

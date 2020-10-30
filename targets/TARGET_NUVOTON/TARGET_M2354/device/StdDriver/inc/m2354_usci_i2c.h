@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * @file     USCI_I2C.h
+ * @file     usci_i2c.h
  * @version  V3.0
  * $Revision: 1 $
  * $Date: 16/07/07 7:50p $
@@ -91,7 +91,7 @@ enum UI2C_SLAVE_EVENT
 #define UI2C_ERR_INT_MASK          (0x020U)    /*!< Error interrupt mask */
 #define UI2C_ACK_INT_MASK          (0x040U)    /*!< Acknowledge interrupt mask */
 
-/*@}*/ /* end of group USCI_I2C_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group USCI_I2C_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup USCI_I2C_EXPORTED_FUNCTIONS USCI_I2C Exported Functions
@@ -305,11 +305,11 @@ uint8_t UI2C_ReadByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAdd
 uint32_t UI2C_ReadMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAddr, uint8_t rdata[], uint32_t u32rLen);
 uint8_t UI2C_ReadByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16DataAddr);
 uint32_t UI2C_ReadMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16DataAddr, uint8_t rdata[], uint32_t u32rLen);
-/*@}*/ /* end of group USCI_I2C_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group USCI_I2C_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group USCI_I2C_Driver */
+/**@}*/ /* end of group USCI_I2C_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

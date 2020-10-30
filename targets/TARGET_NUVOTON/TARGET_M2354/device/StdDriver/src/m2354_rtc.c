@@ -3,18 +3,13 @@
  * @version  V3.00
  * @brief    Real Time Clock(RTC) driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
 
 /** @cond HIDDEN_SYMBOLS */
-
-/*---------------------------------------------------------------------------------------------------------*/
-/* Macro, type and constant definitions                                                                    */
-/*---------------------------------------------------------------------------------------------------------*/
-#define RTC_GLOBALS
-
 /*---------------------------------------------------------------------------------------------------------*/
 /* Global file scope (static) variables                                                                    */
 /*---------------------------------------------------------------------------------------------------------*/
@@ -58,6 +53,7 @@ static volatile uint32_t g_u32hiHour, g_u32loHour, g_u32hiMin, g_u32loMin, g_u32
   *                 1. Write initial key to let RTC start count.  \n
   *                 2. Input parameter indicates start date/time. \n
   *                 3. User has to make sure that parameters of RTC date/time are reasonable. \n
+  *                 4. Enable frequency dynamic compensation function. \n
   * @note       Null pointer for using default starting date/time.
   */
 void RTC_Open(S_RTC_TIME_DATA_T *sPt)
@@ -69,13 +65,12 @@ void RTC_Open(S_RTC_TIME_DATA_T *sPt)
         RTC->INIT = RTC_INIT_KEY;
         while(RTC->INIT != RTC_INIT_ACTIVE_Msk) {}
     }
-
-    if(sPt == 0)
+    
+    if(sPt != 0)
     {
-        ; /* No RTC date/time data */
-    }
-    else
-    {
+        /* Enable frequency dynamic compensation function */
+        RTC->CLKFMT |= RTC_CLKFMT_DCOMPEN_Msk;
+        
         /* Set RTC date and time */
         RTC_SetDateAndTime(sPt);
     }
@@ -92,38 +87,42 @@ void RTC_Open(S_RTC_TIME_DATA_T *sPt)
   */
 void RTC_Close(void)
 {
-    if((__PC()&NS_OFFSET) == NS_OFFSET)
+    if((__PC()&NS_OFFSET) != NS_OFFSET)
     {
-        ; /* Disable RTC clock in secure mode only */
-    }
-    else
-    {
+        /* Only available in Secure code */
         CLK->APBCLK0 &= ~CLK_APBCLK0_RTCCKEN_Msk;
     }
 }
 
 /**
-  * @brief      Set 32k Frequency Compensation Data
+  * @brief      Set 32K Frequency Compensation Data
   *
-  * @param[in]  i32FrequencyX100    Specify the RTC clock X100, ex: 3277365 means 32773.65.
+  * @param[in]  i32FrequencyX10000  Specify the RTC clock X10000, ex: 327736512 means 32773.6512.
   *
   * @return     None
   *
   * @details    This API is used to compensate the 32 kHz frequency by current LXT frequency for RTC application.
   */
-void RTC_32KCalibration(int32_t i32FrequencyX100)
+void RTC_32KCalibration(int32_t i32FrequencyX10000)
 {
     int32_t i32RegInt, i32RegFra;
 
     /* Compute integer and fraction for RTC FCR register */
-    i32RegInt = (i32FrequencyX100 / 100) - RTC_FCR_REFERENCE;
-    i32RegFra = (((i32FrequencyX100 % 100)) * 64) / 100;
+    i32RegInt = (i32FrequencyX10000 / 10000) - RTC_FCR_REFERENCE;
+    i32RegFra = ((((i32FrequencyX10000 % 10000)) * 64) + 5000) / 10000;
 
-    /* If the integer part is reasonable */
+    if(i32RegFra >= 0x40)
+    {
+        i32RegFra = 0x0;
+        i32RegInt++;
+    }
+    
+    /* Judge Integer part is reasonable */
     if((i32RegInt >= 0) && (i32RegInt <= 31))
     {
-        while(RTC->FREQADJ == RTC_FREQADJ_FCRBUSY_Msk) {}
+        while((RTC->FREQADJ & RTC_FREQADJ_FCRBUSY_Msk) == RTC_FREQADJ_FCRBUSY_Msk) {}
         RTC->FREQADJ = (uint32_t)((i32RegInt << 8) | i32RegFra);
+        while((RTC->FREQADJ & RTC_FREQADJ_FCRBUSY_Msk) == RTC_FREQADJ_FCRBUSY_Msk) {}
     }
 }
 
@@ -179,12 +178,12 @@ void RTC_GetDateAndTime(S_RTC_TIME_DATA_T *sPt)
 
     /* Compute 0~31 day */
     u32Tmp = (g_u32hiDay * 10UL);
-    sPt->u32Day =  u32Tmp  + g_u32loDay;
+    sPt->u32Day = u32Tmp + g_u32loDay;
 
     /* Compute 12/24 hour */
     if(sPt->u32TimeScale == (uint32_t)RTC_CLOCK_12)
     {
-        u32Tmp = (g_u32hiHour * 10UL);
+        u32Tmp  = (g_u32hiHour * 10UL);
         u32Tmp += g_u32loHour;
         sPt->u32Hour = u32Tmp;          /* AM: 1~12. PM: 21~32. */
 
@@ -341,11 +340,7 @@ void RTC_SetDateAndTime(S_RTC_TIME_DATA_T *sPt)
 {
     uint32_t u32RegCAL, u32RegTIME;
 
-    if(sPt == 0)
-    {
-        ; /* No RTC date/time data */
-    }
-    else
+    if(sPt != 0)
     {
         /*-----------------------------------------------------------------------------------------------------*/
         /* Set RTC 24/12 hour setting and Day of the Week                                                      */
@@ -419,11 +414,7 @@ void RTC_SetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
 {
     uint32_t u32RegCALM, u32RegTALM;
 
-    if(sPt == 0)
-    {
-        ; /* No RTC date/time data */
-    }
-    else
+    if(sPt != 0)
     {
         /*-----------------------------------------------------------------------------------------------------*/
         /* Set RTC 24/12 hour setting and Day of the Week                                                      */
@@ -722,7 +713,7 @@ void RTC_SetTickPeriod(uint32_t u32TickSelection)
   *                                     - \ref RTC_INTEN_TAMP4IEN_Msk : Tamper 4 Pin Event Detection interrupt
   *                                     - \ref RTC_INTEN_TAMP5IEN_Msk : Tamper 5 or Pair 2 Pin Event Detection interrupt
   *                                     - \ref RTC_INTEN_CLKFIEN_Msk  : LXT Clock Frequency Monitor Fail interrupt
-  *                                     - \ref RTC_INTEN_CLKSPIEN_Msk : LXT Clock Frequency Monitor Stop interrupt
+  *                                     - \ref RTC_INTEN_CLKSTIEN_Msk : LXT Clock Frequency Monitor Stop interrupt
   *
   * @return     None
   *
@@ -746,7 +737,7 @@ void RTC_EnableInt(uint32_t u32IntFlagMask)
   *                                     - \ref RTC_INTEN_TAMP4IEN_Msk : Tamper 4 Pin Event Detection interrupt
   *                                     - \ref RTC_INTEN_TAMP5IEN_Msk : Tamper 5 or Pair 2 Pin Event Detection interrupt
   *                                     - \ref RTC_INTEN_CLKFIEN_Msk  : LXT Clock Frequency Monitor Fail interrupt
-  *                                     - \ref RTC_INTEN_CLKSPIEN_Msk : LXT Clock Frequency Monitor Stop interrupt
+  *                                     - \ref RTC_INTEN_CLKSTIEN_Msk : LXT Clock Frequency Monitor Stop interrupt
   *
   * @return     None
   *
@@ -821,7 +812,7 @@ void RTC_StaticTamperEnable(uint32_t u32TamperSelect, uint32_t u32DetecLevel, ui
     u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk | (u32DetecLevel << RTC_TAMPCTL_TAMP0LV_Pos) |
                  (u32DebounceEn << RTC_TAMPCTL_TAMP0DBEN_Pos));
 
-    for(i = 0UL; i < (uint32_t)MAX_TAMPER_PIN_NUM; i++)
+    for(i = 0UL; i < (uint32_t)RTC_MAX_TAMPER_PIN_NUM; i++)
     {
         if(u32TamperSelect & (0x1UL << i))
         {
@@ -859,7 +850,7 @@ void RTC_StaticTamperDisable(uint32_t u32TamperSelect)
 
     u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk);
 
-    for(i = 0UL; i < (uint32_t)MAX_TAMPER_PIN_NUM; i++)
+    for(i = 0UL; i < (uint32_t)RTC_MAX_TAMPER_PIN_NUM; i++)
     {
         if(u32TamperSelect & (0x1UL << i))
         {
@@ -923,7 +914,7 @@ void RTC_DynamicTamperEnable(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32
         u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk | RTC_TAMPCTL_TAMP1EN_Msk | RTC_TAMPCTL_DYNPR0EN_Msk);
     }
 
-    for(i = 0UL; i < (uint32_t)MAX_PAIR_NUM; i++)
+    for(i = 0UL; i < (uint32_t)RTC_MAX_PAIR_NUM; i++)
     {
         if(u32PairSel & (0x1UL << i))
         {
@@ -980,7 +971,7 @@ void RTC_DynamicTamperDisable(uint32_t u32PairSel)
 
     u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk | RTC_TAMPCTL_TAMP1EN_Msk | RTC_TAMPCTL_DYNPR0EN_Msk);
 
-    for(i = 0UL; i < (uint32_t)MAX_PAIR_NUM; i++)
+    for(i = 0UL; i < (uint32_t)RTC_MAX_PAIR_NUM; i++)
     {
         if(u32PairSel & (0x1UL << i))
         {
@@ -994,7 +985,7 @@ void RTC_DynamicTamperDisable(uint32_t u32PairSel)
 }
 
 /**
-  * @brief      Config dynamic tamper
+  * @brief      Config Dynamic Tamper
   *
   * @param[in]  u32ChangeRate       The dynamic tamper output change rate
   *                                 - \ref RTC_2POW10_CLK
@@ -1011,8 +1002,8 @@ void RTC_DynamicTamperDisable(uint32_t u32PairSel)
   *                                 1: reload new seed
   *
   * @param[in]  u32RefPattern       Reference pattern
-  *                                 - \ref REF_RANDOM_PATTERN
-  *                                 - \ref REF_SEED
+  *                                 - \ref RTC_REF_RANDOM_PATTERN
+  *                                 - \ref RTC_REF_SEED_VALUE
   *
   * @param[in]  u32Seed             Seed Value (0x0 ~ 0xFFFFFFFF)
   *
@@ -1035,11 +1026,149 @@ void RTC_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uin
     RTC->TAMPCTL = u32Reg;
 }
 
-/*@}*/ /* end of group RTC_EXPORTED_FUNCTIONS */
+/**
+  * @brief      Set RTC Clock Source
+  *
+  * @param[in]  u32ClkSrc       u32ClkSrc is the RTC clock source. It could be
+  *                             - \ref RTC_CLOCK_SOURCE_LXT
+  *                             - \ref RTC_CLOCK_SOURCE_LIRC
+  *                             - \ref RTC_CLOCK_SOURCE_LIRC32K
+  *
+  * @retval     RTC_CLOCK_SOURCE_LXT
+  * @retval     RTC_CLOCK_SOURCE_LIRC
+  * @retval     RTC_CLOCK_SOURCE_LIRC32K
+  *
+  * @details    This API is used to get the setting of RTC clock source.
+  *             User must to enable the selected clock source by themselves executing perform this API.
+  */
+uint32_t RTC_SetClockSource(uint32_t u32ClkSrc)
+{
+    if(u32ClkSrc == RTC_CLOCK_SOURCE_LXT)
+    {
+        /* RTC clock source is external LXT */
+        RTC->LXTCTL &= ~RTC_LXTCTL_RTCCKSEL_Msk;
+        RTC->LXTCTL &= ~RTC_LXTCTL_C32KSEL_Msk;
+        
+        return RTC_CLOCK_SOURCE_LXT;
+    }
+    else if(u32ClkSrc == RTC_CLOCK_SOURCE_LIRC32K)
+    {
+        /* Load LIRC32 trim setting */
+        RTC->LXTCTL = ((RTC->LXTCTL & ~(0x1FFul << 16)) | ((inpw(SYS_BASE+0x14Cul) & 0x1FFul) << 16));
 
-/*@}*/ /* end of group RTC_Driver */
+        /* RTC clock source is LIRC32K */
+        RTC->LXTCTL |= RTC_LXTCTL_LIRC32KEN_Msk;
+        RTC->LXTCTL &= ~RTC_LXTCTL_RTCCKSEL_Msk;
+        RTC->LXTCTL |= RTC_LXTCTL_C32KSEL_Msk;
+        
+        return RTC_CLOCK_SOURCE_LIRC32K;
+    }
+    else if(u32ClkSrc == RTC_CLOCK_SOURCE_LIRC)
+    {
+        /* RTC clock source is LIRC */
+        RTC->LXTCTL |= RTC_LXTCTL_RTCCKSEL_Msk;
+        
+        return RTC_CLOCK_SOURCE_LIRC;
+    }
+    else
+    {
+        /* Set the default RTC clock source is LIRC */
+        RTC->LXTCTL |= RTC_LXTCTL_RTCCKSEL_Msk;
+        
+        return RTC_CLOCK_SOURCE_LIRC;
+    }
+}
 
-/*@}*/ /* end of group Standard_Driver */
+/**
+ * @brief       Set RTC GPIO Operation Mode
+ *
+ * @param[in]   u32Pin          The single pin of GPIO-F port.
+ *                              It could be 4~11, which means PF.4~PF.11.
+ * @param[in]   u32Mode         Operation mode. It could be
+ *                              - \ref RTC_IO_MODE_INPUT
+ *                              - \ref RTC_IO_MODE_OUTPUT
+ *                              - \ref RTC_IO_MODE_OPEN_DRAIN
+ *                              - \ref RTC_IO_MODE_QUASI
+ * @param[in]   u32DigitalCtl   The digital input path control of specified pin. It could be
+ *                              - \ref RTC_IO_DIGITAL_ENABLE
+ *                              - \ref RTC_IO_DIGITAL_DISABLE
+ * @param[in]   u32PullCtl      The pull-up or pull-down control of specified pin. It could be
+ *                              - \ref RTC_IO_PULL_UP_DOWN_DISABLE
+ *                              - \ref RTC_IO_PULL_UP_ENABLE
+ *                              - \ref RTC_IO_PULL_DOWN_ENABLE
+ * @param[in]   u32OutputLevel  The I/O output level. 0: output low; 1: output high.
+ *
+ * @return      None
+ *
+ * @details     This function is used to set specified GPIO operation mode controlled by RTC module.
+ */
+void RTC_SetGPIOMode(uint32_t u32PFPin, uint32_t u32Mode, uint32_t u32DigitalCtl, uint32_t u32PullCtl, uint32_t u32OutputLevel)
+{        
+    uint32_t u32Offset;
+    
+    if((u32PFPin == 4) || (u32PFPin == 5) || (u32PFPin == 6) || (u32PFPin == 7))
+    {
+        u32Offset = u32PFPin - 4;
+        
+        RTC_SET_IOCTL_BY_RTC(RTC);
+                
+        RTC->GPIOCTL0 = (RTC->GPIOCTL0 & ~(0x3FUL << (u32Offset*8))) |
+                        (u32Mode << (u32Offset*8)) |
+                        (u32OutputLevel << ((u32Offset*8) + 2)) |
+                        (u32DigitalCtl << ((u32Offset*8) + 3)) |
+                        (u32PullCtl << ((u32Offset*8) + 4));
+    }
+    
+    if((u32PFPin == 8) || (u32PFPin == 9) || (u32PFPin == 10) || (u32PFPin == 11))
+    {
+        u32Offset = u32PFPin - 8;
+        
+        RTC_SET_IOCTL_BY_RTC(RTC);
+                
+        RTC->GPIOCTL1 = (RTC->GPIOCTL1 & ~(0x3FUL << (u32Offset*8))) |
+                        (u32Mode << (u32Offset*8)) |
+                        (u32OutputLevel << ((u32Offset*8) + 2)) |
+                        (u32DigitalCtl << ((u32Offset*8) + 3)) |
+                        (u32PullCtl << ((u32Offset*8) + 4));
+    }
+}
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/**
+ * @brief       Set RTC GPIO Output Level
+ *
+ * @param[in]   u32Pin          The single pin of GPIO-F port.
+ *                              It could be 4~11, which means PF.4~PF.11.
+ * @param[in]   u32OutputLevel  The I/O output level. 0: output low; 1: output high.
+ *
+ * @return      None
+ *
+ * @details     This function is used to set GPIO output level by RTC module.
+ */
+void RTC_SetGPIOLevel(uint32_t u32PFPin, uint32_t u32OutputLevel)
+{
+    uint32_t u32Offset;
+    
+    if((u32PFPin == 4) || (u32PFPin == 5) || (u32PFPin == 6) || (u32PFPin == 7))
+    {
+        u32Offset = u32PFPin - 4;
+                        
+        RTC->GPIOCTL0 = (RTC->GPIOCTL0 & ~(0x4UL << (u32Offset*8))) |
+                        (u32OutputLevel << ((u32Offset*8) + 2));
+    }
+    
+    if((u32PFPin == 8) || (u32PFPin == 9) || (u32PFPin == 10) || (u32PFPin == 11))
+    {
+        u32Offset = u32PFPin - 8;
+                        
+        RTC->GPIOCTL1 = (RTC->GPIOCTL1 & ~(0x4UL << (u32Offset*8))) |
+                        (u32OutputLevel << ((u32Offset*8) + 2));
+    }
+}
 
+/**@}*/ /* end of group RTC_EXPORTED_FUNCTIONS */
+
+/**@}*/ /* end of group RTC_Driver */
+
+/**@}*/ /* end of group Standard_Driver */
+
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

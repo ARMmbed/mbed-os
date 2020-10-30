@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    M2354 series QSPI driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -70,7 +71,7 @@ uint32_t QSPI_Open(QSPI_T *qspi,
 
         if(u32BusClock >= u32HCLKFreq)
         {
-            if(!(__PC() & (1UL << 28UL)))
+            if(!(__PC() & NS_OFFSET))
             {
                 /* Select PCLK as the clock source of QSPI */
                 if((qspi == QSPI0) || (qspi == QSPI0_NS))
@@ -151,7 +152,7 @@ uint32_t QSPI_Open(QSPI_T *qspi,
         /* Set DIVIDER = 0 */
         qspi->CLKDIV = 0UL;
 
-        if(!(__PC() & (1UL << 28UL)))
+        if(!(__PC() & NS_OFFSET))
         {
             /* Select PCLK as the clock source of QSPI */
             if((qspi == QSPI0) || (qspi == QSPI0_NS))
@@ -278,7 +279,7 @@ uint32_t QSPI_SetBusClock(QSPI_T *qspi, uint32_t u32BusClock)
 
     if(u32BusClock >= u32HCLKFreq)
     {
-        if(!(__PC() & (1UL << 28UL)))
+        if(!(__PC() & NS_OFFSET))
         {
             /* Select PCLK as the clock source of QSPI */
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_QSPI0SEL_Msk)) | CLK_CLKSEL2_QSPI0SEL_PCLK0;
@@ -849,10 +850,10 @@ uint32_t QSPI_GetStatus2(QSPI_T *qspi, uint32_t u32Mask)
     return u32Number;
 }
 
-/*@}*/ /* end of group QSPI_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group QSPI_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group QSPI_Driver */
+/**@}*/ /* end of group QSPI_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

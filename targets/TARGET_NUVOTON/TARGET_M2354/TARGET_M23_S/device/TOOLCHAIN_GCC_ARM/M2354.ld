@@ -26,17 +26,7 @@
 #define MBED_BOOT_STACK_SIZE    0x400
 #endif
 
-#if (TFM_LVL == 0)
-
 StackSize = MBED_BOOT_STACK_SIZE;
-
-#else
-
-#warning("Ignore MBED_BOOT_STACK_SIZE in Secure PSA build")
-__msp_stack_size__ = 0x00000800;
-__psp_stack_size__ = 0x00000800;
-
-#endif
 
 MEMORY
 {
@@ -49,7 +39,7 @@ MEMORY
 /**
  * Must match cmsis_nvic.h
  */
-__vector_size = 4 * (16 + 114);
+__vector_size = 4 * (16 + 116);
 
  
 /* Linker script to place sections and symbol values. Should be used together
@@ -89,8 +79,6 @@ SECTIONS
          . = ALIGN(8);
     } > VECTORS
 
-#if (TFM_LVL == 0)
-
     .copy.table : ALIGN(4)
     {
         __copy_table_start__ = .;
@@ -107,35 +95,6 @@ SECTIONS
         LONG (SIZEOF(.bss))
         __zero_table_end__ = .;
     } > FLASH
-
-#elif (TFM_LVL == 1)
-
-    .copy.table : ALIGN(4)
-    {
-        __copy_table_start__ = .;
-        LONG (LOADADDR(.TFM_DATA))
-        LONG (ADDR(.TFM_DATA))
-        LONG (SIZEOF(.TFM_DATA))
-        __copy_table_end__ = .;
-    } > FLASH
-
-    .zero.table : ALIGN(4)
-    {
-        __zero_table_start__ = .;
-        LONG (ADDR(.TFM_BSS))
-        LONG (SIZEOF(.TFM_BSS))
-        LONG (ADDR(.TFM_SECURE_STACK))
-        LONG (SIZEOF(.TFM_SECURE_STACK))
-        LONG (ADDR(.TFM_UNPRIV_SCRATCH))
-        LONG (SIZEOF(.TFM_UNPRIV_SCRATCH))
-        __zero_table_end__ = .;
-    } > FLASH
-
-#else
-
-    #error("TFM level 2/3 are not supported yet")
-    
-#endif
 
     .text :
     {
@@ -174,8 +133,6 @@ SECTIONS
      * is assigned conditionally according to Secure PSA or not.
      */
 
-#if (TFM_LVL == 0)
-
     .stack (NOLOAD) :
     {
         . = ALIGN(8);
@@ -185,54 +142,6 @@ SECTIONS
     } > RAM_INTERN
 
     PROVIDE(__stack = __StackTop);
-
-#else
-
-    .msp_stack (NOLOAD) :
-    {
-        . = ALIGN(32);
-        . += __msp_stack_size__;
-    } > RAM_INTERN
-    Image$$ARM_LIB_STACK_MSP$$ZI$$Base = ADDR(.msp_stack);
-    Image$$ARM_LIB_STACK_MSP$$ZI$$Limit = ADDR(.msp_stack) + SIZEOF(.msp_stack);
-    __StackLimit = Image$$ARM_LIB_STACK_MSP$$ZI$$Base;
-    __StackTop = Image$$ARM_LIB_STACK_MSP$$ZI$$Limit;
-
-    .psp_stack (NOLOAD) :
-    {
-        . = ALIGN(32);
-        . += __psp_stack_size__;
-    } > RAM_INTERN
-    Image$$ARM_LIB_STACK$$ZI$$Base = ADDR(.psp_stack);
-    Image$$ARM_LIB_STACK$$ZI$$Limit = ADDR(.psp_stack) + SIZEOF(.psp_stack);
-
-    PROVIDE(__stack = Image$$ARM_LIB_STACK$$ZI$$Limit);
-
-#endif
-
-#if (TFM_LVL == 1)
-
-    .TFM_SECURE_STACK (NOLOAD) :
-    {
-        . = ALIGN(128);
-        . += 0x1000;
-    } > RAM_INTERN
-    Image$$TFM_SECURE_STACK$$ZI$$Base = ADDR(.TFM_SECURE_STACK);
-    Image$$TFM_SECURE_STACK$$ZI$$Limit = ADDR(.TFM_SECURE_STACK) + SIZEOF(.TFM_SECURE_STACK);
-
-    .TFM_UNPRIV_SCRATCH (NOLOAD) :
-    {
-        . = ALIGN(32);
-        . += 0x400;
-    } > RAM_INTERN
-    Image$$TFM_UNPRIV_SCRATCH$$ZI$$Base = ADDR(.TFM_UNPRIV_SCRATCH);
-    Image$$TFM_UNPRIV_SCRATCH$$ZI$$Limit = ADDR(.TFM_UNPRIV_SCRATCH) + SIZEOF(.TFM_UNPRIV_SCRATCH);
-
-#elif (TFM_LVL > 1)
-
-    #error("TFM level 2/3 are not supported yet")
-
-#endif
 
     .ARM.extab :
     {
@@ -254,8 +163,6 @@ SECTIONS
         . += __vector_size;
         PROVIDE(__end_vector_table__ = .);
     } > RAM_INTERN
-
-#if (TFM_LVL == 0)
 
     .data :
     {
@@ -298,66 +205,6 @@ SECTIONS
         *(COMMON)
         __bss_end__ = .;
     } > RAM_INTERN
-
-#else
-
-    .TFM_DATA :
-    {
-        PROVIDE( __etext = LOADADDR(.TFM_DATA) );
-
-        . = ALIGN(4);
-
-        __data_start__ = .;
-
-        *(.data*)
-
-        . = ALIGN(4);
-        /* preinit data */
-        PROVIDE_HIDDEN (__preinit_array_start = .);
-        KEEP(*(.preinit_array))
-        PROVIDE_HIDDEN (__preinit_array_end = .);
-
-        . = ALIGN(4);
-        /* init data */
-        PROVIDE_HIDDEN (__init_array_start = .);
-        KEEP(*(SORT(.init_array.*)))
-        KEEP(*(.init_array))
-        PROVIDE_HIDDEN (__init_array_end = .);
-
-        . = ALIGN(4);
-        /* finit data */
-        PROVIDE_HIDDEN (__fini_array_start = .);
-        KEEP(*(SORT(.fini_array.*)))
-        KEEP(*(.fini_array))
-        PROVIDE_HIDDEN (__fini_array_end = .);
-
-        KEEP(*(.jcr*))
-        . = ALIGN(4);
-
-        __data_end__ = .;
-
-    } > RAM_INTERN AT>FLASH
-    Image$$ER_TFM_DATA$$RW$$Base = ADDR(.TFM_DATA);
-    Image$$ER_TFM_DATA$$RW$$Limit = ADDR(.TFM_DATA) + SIZEOF(.TFM_DATA);
-
-    .TFM_BSS (NOLOAD) :
-    {
-        . = ALIGN(4);
-        __bss_start__ = .;
-        *(.bss*)
-        *(COMMON)
-        . = ALIGN(4);
-        __bss_end__ = .;
-    } > RAM_INTERN
-    Image$$ER_TFM_DATA$$ZI$$Base = ADDR(.TFM_BSS);
-    Image$$ER_TFM_DATA$$ZI$$Limit = ADDR(.TFM_BSS) + SIZEOF(.TFM_BSS);
-
-#endif
-
-#if (TFM_LVL > 0)
-    /* Application ROM code cannot overlap with TDB internal storage area. */
-    ASSERT((LOADADDR(.TFM_DATA) + SIZEOF(.TFM_DATA)) <= NU_TDB_INTERNAL_STORAGE_START, "Application ROM code cannot overlap with TDB internal storage area.")
-#endif
 
     /* Veneer$$CMSE : */
     .gnu.sgstubs NU_TZ_NSC_START :

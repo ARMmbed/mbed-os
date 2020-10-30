@@ -1,10 +1,11 @@
 /******************************************************************************
  * @file     dac.h
  * @version  V1.00
- * @brief    M2355 series DAC driver header file
+ * @brief    M2354 series DAC driver header file
  *
  * @note
- * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __DAC_H__
 #define __DAC_H__
@@ -51,7 +52,7 @@ extern "C"
 #define DAC_TRIGGER_MODE_ENABLE    (1UL<<DAC_CTL_TRGEN_Pos)   /*!< Trigger mode enable */
 
 
-/*@}*/ /* end of group DAC_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group DAC_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup DAC_EXPORTED_FUNCTIONS DAC Exported Functions
@@ -241,11 +242,11 @@ void DAC_Open(DAC_T *dac, uint32_t u32Ch, uint32_t u32TrgSrc);
 void DAC_Close(DAC_T *dac, uint32_t u32Ch);
 uint32_t DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay);
 
-/*@}*/ /* end of group DAC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group DAC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group DAC_Driver */
+/**@}*/ /* end of group DAC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -253,4 +254,4 @@ uint32_t DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay);
 
 #endif /* __DAC_H__ */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017-2020 Nuvoton Technology Corp. ***/

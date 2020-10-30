@@ -111,11 +111,11 @@ void ECAP_DisableINT(ECAP_T* ecap, uint32_t u32Mask)
     }
 }
 
-/*@}*/ /* end of group ECAP_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group ECAP_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group ECAP_Driver */
+/**@}*/ /* end of group ECAP_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 
 /*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

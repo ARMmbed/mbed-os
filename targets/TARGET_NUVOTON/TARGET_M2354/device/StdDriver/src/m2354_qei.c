@@ -137,10 +137,10 @@ void QEI_Stop(QEI_T* qei)
 }
 
 
-/*@}*/ /* end of group QEI_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group QEI_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group QEI_Driver */
+/**@}*/ /* end of group QEI_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 /*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

@@ -29,27 +29,6 @@
 #error("NU_ROM_SIZE_S not defined")
 #endif
 
-/* Determine vector table management
- *
- * 1. Non-secure non-PSA/Non-secure PSA
- * 2. Secure non-PSA (TFM_LVL == 0)
- * 3. Secure PSA (TFM_LVL > 0)
- *
- * In Case 1/2, Mbed OS takes over vector table.
- * In Case 3, TFM takes over vector table.
- *
- * If TFM_LVL isn't defined, it is equivalent to TFM_LVL == 0.
- *
- * FIXME: Currently, we still go mbed relocating vector table sequence. When TFM (Secure PSA)
- *        updates to take over NVIC itself, we must disable this sequence:
- *        1. Do not allocate vector RAM (cmsis.h/cmsis_nvic.h/linker files):
- *           Image$$ER_IRAMVEC$$ZI$$Base
- *           __section_begin("IRAMVEC")
- *           __start_vector_table__
- *        2. Secure PSA may go mbed boot sequence. We must leave NVIC_RAM_VECTOR_ADDRESS
- *           undefined to make the mbed_copy_nvic() function dummy (cmsis_nvic.h).
- */
-
 // Support linker-generated symbol as start of relocated vector table.
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$ER_IRAMVEC$$ZI$$Base;

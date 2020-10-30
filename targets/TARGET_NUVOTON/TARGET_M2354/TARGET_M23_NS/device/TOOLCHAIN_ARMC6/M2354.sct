@@ -42,7 +42,7 @@ LR_IROM1    MBED_APP_START
      *
      * Vector table base address is required to be 128-byte aligned at a minimum.
      * A PE might impose further restrictions on it. */
-    ER_IRAMVEC  AlignExpr(+0, 128)  EMPTY   (4*(16 + 114))
+    ER_IRAMVEC  AlignExpr(+0, 128)  EMPTY   (4*(16 + 116))
     {
     }
 

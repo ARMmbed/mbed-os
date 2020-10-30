@@ -1,12 +1,11 @@
 /**************************************************************************//**
  * @file     acmp.c
  * @version  V3.00
- * $Revision: 1 $
- * $Date: 16/07/07 7:50p $
  * @brief    Analog Comparator(ACMP) driver source file
  *
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include "NuMicro.h"
@@ -72,11 +71,11 @@ void ACMP_Close(ACMP_T *acmp, uint32_t u32ChNum)
 
 
 
-/*@}*/ /* end of group ACMP_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group ACMP_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group ACMP_Driver */
+/**@}*/ /* end of group ACMP_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    UART register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __UART_REG_H__
 #define __UART_REG_H__
@@ -19,7 +20,8 @@
 /**
     @addtogroup UART Universal Asynchronous Receiver/Transmitter Controller(UART)
     Memory Mapped Structure for UART Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -847,7 +849,8 @@ typedef struct
 /**
     @addtogroup UART_CONST UART Bit Field Definition
     Constant Definitions for UART Controller
-@{ */
+  @{ 
+*/
 
 #define UART_DAT_DAT_Pos                 (0)                                               /*!< UART_T::DAT: DAT Position              */
 #define UART_DAT_DAT_Msk                 (0xfful << UART_DAT_DAT_Pos)                      /*!< UART_T::DAT: DAT Mask                  */

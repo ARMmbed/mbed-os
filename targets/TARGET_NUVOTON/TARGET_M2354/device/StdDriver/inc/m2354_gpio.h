@@ -1,11 +1,11 @@
 /**************************************************************************//**
- * @file     GPIO.h
+ * @file     gpio.h
  * @version  V3.0
- * @brief    M2355 series General Purpose I/O (GPIO) driver header file
+ * @brief    M2354 series General Purpose I/O (GPIO) driver header file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __GPIO_H__
 #define __GPIO_H__
@@ -114,160 +114,546 @@ extern "C"
  *
  *  If PA.0 pin status is high, then set PA.0 data output to low.
  */
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT0 )
-# define PA_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+ 
+ 
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT0 )
+#define PA0             PA0_NS  /*!< Specify PA.0 Pin Data Input/Output */
 #else
-# define PA_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PA0             PA0_S   /*!< Specify PA.0 Pin Data Input/Output */
 #endif
-#define PA0             PA_PIN_DATA(0, 0 ) /*!< Specify PA.0 Pin Data Input/Output */
-#define PA1             PA_PIN_DATA(0, 1 ) /*!< Specify PA.1 Pin Data Input/Output */
-#define PA2             PA_PIN_DATA(0, 2 ) /*!< Specify PA.2 Pin Data Input/Output */
-#define PA3             PA_PIN_DATA(0, 3 ) /*!< Specify PA.3 Pin Data Input/Output */
-#define PA4             PA_PIN_DATA(0, 4 ) /*!< Specify PA.4 Pin Data Input/Output */
-#define PA5             PA_PIN_DATA(0, 5 ) /*!< Specify PA.5 Pin Data Input/Output */
-#define PA6             PA_PIN_DATA(0, 6 ) /*!< Specify PA.6 Pin Data Input/Output */
-#define PA7             PA_PIN_DATA(0, 7 ) /*!< Specify PA.7 Pin Data Input/Output */
-#define PA8             PA_PIN_DATA(0, 8 ) /*!< Specify PA.8 Pin Data Input/Output */
-#define PA9             PA_PIN_DATA(0, 9 ) /*!< Specify PA.9 Pin Data Input/Output */
-#define PA10            PA_PIN_DATA(0, 10) /*!< Specify PA.10 Pin Data Input/Output */
-#define PA11            PA_PIN_DATA(0, 11) /*!< Specify PA.11 Pin Data Input/Output */
-#define PA12            PA_PIN_DATA(0, 12) /*!< Specify PA.12 Pin Data Input/Output */
-#define PA13            PA_PIN_DATA(0, 13) /*!< Specify PA.13 Pin Data Input/Output */
-#define PA14            PA_PIN_DATA(0, 14) /*!< Specify PA.14 Pin Data Input/Output */
-#define PA15            PA_PIN_DATA(0, 15) /*!< Specify PA.15 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT1 )
+#define PA1             PA1_NS  /*!< Specify PA.1 Pin Data Input/Output */
+#else
+#define PA1             PA1_S   /*!< Specify PA.1 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT2 )
+#define PA2             PA2_NS  /*!< Specify PA.2 Pin Data Input/Output */
+#else
+#define PA2             PA2_S   /*!< Specify PA.2 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT3 )
+#define PA3             PA3_NS  /*!< Specify PA.3 Pin Data Input/Output */
+#else
+#define PA3             PA3_S   /*!< Specify PA.3 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT4 )
+#define PA4             PA4_NS  /*!< Specify PA.4 Pin Data Input/Output */
+#else
+#define PA4             PA4_S   /*!< Specify PA.4 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT5 )
+#define PA5             PA5_NS  /*!< Specify PA.5 Pin Data Input/Output */
+#else
+#define PA5             PA5_S   /*!< Specify PA.5 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT6 )
+#define PA6             PA6_NS  /*!< Specify PA.6 Pin Data Input/Output */
+#else
+#define PA6             PA6_S   /*!< Specify PA.6 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT7 )
+#define PA7             PA7_NS  /*!< Specify PA.7 Pin Data Input/Output */
+#else
+#define PA7             PA7_S   /*!< Specify PA.7 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT8 )
+#define PA8             PA8_NS  /*!< Specify PA.8 Pin Data Input/Output */
+#else
+#define PA8             PA8_S   /*!< Specify PA.8 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT9 )
+#define PA9             PA9_NS  /*!< Specify PA.9 Pin Data Input/Output */
+#else
+#define PA9             PA9_S   /*!< Specify PA.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT10 )
+#define PA10             PA10_NS  /*!< Specify PA.10 Pin Data Input/Output */
+#else
+#define PA10             PA10_S   /*!< Specify PA.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT11 )
+#define PA11             PA11_NS  /*!< Specify PA.11 Pin Data Input/Output */
+#else
+#define PA11             PA11_S   /*!< Specify PA.11 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT12 )
+#define PA12             PA12_NS  /*!< Specify PA.12 Pin Data Input/Output */
+#else
+#define PA12             PA12_S   /*!< Specify PA.12 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT13 )
+#define PA13             PA13_NS  /*!< Specify PA.13 Pin Data Input/Output */
+#else
+#define PA13             PA13_S   /*!< Specify PA.13 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT14 )
+#define PA14             PA14_NS  /*!< Specify PA.14 Pin Data Input/Output */
+#else
+#define PA14             PA14_S   /*!< Specify PA.14 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET0_VAL) && (SCU_INIT_IONSSET0_VAL & BIT15 )
+#define PA15             PA15_NS  /*!< Specify PA.15 Pin Data Input/Output */
+#else
+#define PA15             PA15_S   /*!< Specify PA.15 Pin Data Input/Output */
+#endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT1 )
-# define PB_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT0 )
+#define PB0              PB0_NS   /*!< Specify PB.0 Pin Data Input/Output */
 #else
-# define PB_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PB0              PB0_S    /*!< Specify PB.0 Pin Data Input/Output */
 #endif
-#define PB0             PB_PIN_DATA(1, 0 ) /*!< Specify PB.0 Pin Data Input/Output */
-#define PB1             PB_PIN_DATA(1, 1 ) /*!< Specify PB.1 Pin Data Input/Output */
-#define PB2             PB_PIN_DATA(1, 2 ) /*!< Specify PB.2 Pin Data Input/Output */
-#define PB3             PB_PIN_DATA(1, 3 ) /*!< Specify PB.3 Pin Data Input/Output */
-#define PB4             PB_PIN_DATA(1, 4 ) /*!< Specify PB.4 Pin Data Input/Output */
-#define PB5             PB_PIN_DATA(1, 5 ) /*!< Specify PB.5 Pin Data Input/Output */
-#define PB6             PB_PIN_DATA(1, 6 ) /*!< Specify PB.6 Pin Data Input/Output */
-#define PB7             PB_PIN_DATA(1, 7 ) /*!< Specify PB.7 Pin Data Input/Output */
-#define PB8             PB_PIN_DATA(1, 8 ) /*!< Specify PB.8 Pin Data Input/Output */
-#define PB9             PB_PIN_DATA(1, 9 ) /*!< Specify PB.9 Pin Data Input/Output */
-#define PB10            PB_PIN_DATA(1, 10) /*!< Specify PB.10 Pin Data Input/Output */
-#define PB11            PB_PIN_DATA(1, 11) /*!< Specify PB.11 Pin Data Input/Output */
-#define PB12            PB_PIN_DATA(1, 12) /*!< Specify PB.12 Pin Data Input/Output */
-#define PB13            PB_PIN_DATA(1, 13) /*!< Specify PB.13 Pin Data Input/Output */
-#define PB14            PB_PIN_DATA(1, 14) /*!< Specify PB.14 Pin Data Input/Output */
-#define PB15            PB_PIN_DATA(1, 15) /*!< Specify PB.15 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT1 )
+#define PB1              PB1_NS   /*!< Specify PB.1 Pin Data Input/Output */
+#else
+#define PB1              PB1_S    /*!< Specify PB.1 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT2 )
+#define PB2              PB2_NS   /*!< Specify PB.2 Pin Data Input/Output */
+#else
+#define PB2              PB2_S    /*!< Specify PB.2 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT3 )
+#define PB3              PB3_NS   /*!< Specify PB.3 Pin Data Input/Output */
+#else
+#define PB3              PB3_S    /*!< Specify PB.3 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT4 )
+#define PB4              PB4_NS   /*!< Specify PB.4 Pin Data Input/Output */
+#else
+#define PB4              PB4_S    /*!< Specify PB.4 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT5 )
+#define PB5              PB5_NS   /*!< Specify PB.5 Pin Data Input/Output */
+#else
+#define PB5              PB5_S    /*!< Specify PB.5 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT6 )
+#define PB6              PB6_NS   /*!< Specify PB.6 Pin Data Input/Output */
+#else
+#define PB6              PB6_S    /*!< Specify PB.6 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT7 )
+#define PB7              PB7_NS   /*!< Specify PB.7 Pin Data Input/Output */
+#else
+#define PB7              PB7_S    /*!< Specify PB.7 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT8 )
+#define PB8              PB8_NS   /*!< Specify PB.8 Pin Data Input/Output */
+#else
+#define PB8              PB8_S    /*!< Specify PB.8 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT9 )
+#define PB9              PB9_NS   /*!< Specify PB.9 Pin Data Input/Output */
+#else
+#define PB9              PB9_S    /*!< Specify PB.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT10 )
+#define PB10              PB10_NS   /*!< Specify PB.10 Pin Data Input/Output */
+#else
+#define PB10              PB10_S    /*!< Specify PB.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT11 )
+#define PB11              PB11_NS   /*!< Specify PB.11 Pin Data Input/Output */
+#else
+#define PB11              PB11_S    /*!< Specify PB.11 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT12 )
+#define PB12              PB12_NS   /*!< Specify PB.12 Pin Data Input/Output */
+#else
+#define PB12              PB12_S    /*!< Specify PB.12 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT13 )
+#define PB13              PB13_NS   /*!< Specify PB.13 Pin Data Input/Output */
+#else
+#define PB13              PB13_S    /*!< Specify PB.13 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT14 )
+#define PB14              PB14_NS   /*!< Specify PB.14 Pin Data Input/Output */
+#else
+#define PB14              PB14_S    /*!< Specify PB.14 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET1_VAL) && (SCU_INIT_IONSSET1_VAL & BIT15 )
+#define PB15              PB15_NS   /*!< Specify PB.15 Pin Data Input/Output */
+#else
+#define PB15              PB15_S    /*!< Specify PB.15 Pin Data Input/Output */
+#endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT2 )
-# define PC_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT0 )
+#define PC0              PC0_NS   /*!< Specify PC.0 Pin Data Input/Output */
 #else
-# define PC_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PC0              PC0_S    /*!< Specify PC.0 Pin Data Input/Output */
 #endif
-#define PC0             PC_PIN_DATA(2, 0 ) /*!< Specify PC.0 Pin Data Input/Output */
-#define PC1             PC_PIN_DATA(2, 1 ) /*!< Specify PC.1 Pin Data Input/Output */
-#define PC2             PC_PIN_DATA(2, 2 ) /*!< Specify PC.2 Pin Data Input/Output */
-#define PC3             PC_PIN_DATA(2, 3 ) /*!< Specify PC.3 Pin Data Input/Output */
-#define PC4             PC_PIN_DATA(2, 4 ) /*!< Specify PC.4 Pin Data Input/Output */
-#define PC5             PC_PIN_DATA(2, 5 ) /*!< Specify PC.5 Pin Data Input/Output */
-#define PC6             PC_PIN_DATA(2, 6 ) /*!< Specify PC.6 Pin Data Input/Output */
-#define PC7             PC_PIN_DATA(2, 7 ) /*!< Specify PC.7 Pin Data Input/Output */
-#define PC8             PC_PIN_DATA(2, 8 ) /*!< Specify PC.8 Pin Data Input/Output */
-#define PC9             PC_PIN_DATA(2, 9 ) /*!< Specify PC.9 Pin Data Input/Output */
-#define PC10            PC_PIN_DATA(2, 10) /*!< Specify PC.10 Pin Data Input/Output */
-#define PC11            PC_PIN_DATA(2, 11) /*!< Specify PC.11 Pin Data Input/Output */
-#define PC12            PC_PIN_DATA(2, 12) /*!< Specify PC.12 Pin Data Input/Output */
-#define PC13            PC_PIN_DATA(2, 13) /*!< Specify PC.13 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT1 )
+#define PC1              PC1_NS   /*!< Specify PC.1 Pin Data Input/Output */
+#else
+#define PC1              PC1_S    /*!< Specify PC.1 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT2 )
+#define PC2              PC2_NS   /*!< Specify PC.2 Pin Data Input/Output */
+#else
+#define PC2              PC2_S    /*!< Specify PC.2 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT3 )
+#define PC3              PC3_NS   /*!< Specify PC.3 Pin Data Input/Output */
+#else
+#define PC3              PC3_S    /*!< Specify PC.3 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT4 )
+#define PC4              PC4_NS   /*!< Specify PC.4 Pin Data Input/Output */
+#else
+#define PC4              PC4_S    /*!< Specify PC.4 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT5 )
+#define PC5              PC5_NS   /*!< Specify PC.5 Pin Data Input/Output */
+#else
+#define PC5              PC5_S    /*!< Specify PC.5 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT6 )
+#define PC6              PC6_NS   /*!< Specify PC.6 Pin Data Input/Output */
+#else
+#define PC6              PC6_S    /*!< Specify PC.6 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT7 )
+#define PC7              PC7_NS   /*!< Specify PC.7 Pin Data Input/Output */
+#else
+#define PC7              PC7_S    /*!< Specify PC.7 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT8 )
+#define PC8              PC8_NS   /*!< Specify PC.8 Pin Data Input/Output */
+#else
+#define PC8              PC8_S    /*!< Specify PC.8 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT9 )
+#define PC9              PC9_NS   /*!< Specify PC.9 Pin Data Input/Output */
+#else
+#define PC9              PC9_S    /*!< Specify PC.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT10 )
+#define PC10              PC10_NS   /*!< Specify PC.10 Pin Data Input/Output */
+#else
+#define PC10              PC10_S    /*!< Specify PC.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT11 )
+#define PC11              PC11_NS   /*!< Specify PC.11 Pin Data Input/Output */
+#else
+#define PC11              PC11_S    /*!< Specify PC.11 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT12 )
+#define PC12              PC12_NS   /*!< Specify PC.12 Pin Data Input/Output */
+#else
+#define PC12              PC12_S    /*!< Specify PC.12 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET2_VAL) && (SCU_INIT_IONSSET2_VAL & BIT13 )
+#define PC13              PC13_NS   /*!< Specify PC.13 Pin Data Input/Output */
+#else
+#define PC13              PC13_S    /*!< Specify PC.13 Pin Data Input/Output */
+#endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT3 )
-# define PD_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT0 )
+#define PD0              PD0_NS   /*!< Specify PD.0 Pin Data Input/Output */
 #else
-# define PD_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PD0              PD0_S    /*!< Specify PD.0 Pin Data Input/Output */
 #endif
-#define PD0             PD_PIN_DATA(3, 0 ) /*!< Specify PD.0 Pin Data Input/Output */
-#define PD1             PD_PIN_DATA(3, 1 ) /*!< Specify PD.1 Pin Data Input/Output */
-#define PD2             PD_PIN_DATA(3, 2 ) /*!< Specify PD.2 Pin Data Input/Output */
-#define PD3             PD_PIN_DATA(3, 3 ) /*!< Specify PD.3 Pin Data Input/Output */
-#define PD4             PD_PIN_DATA(3, 4 ) /*!< Specify PD.4 Pin Data Input/Output */
-#define PD5             PD_PIN_DATA(3, 5 ) /*!< Specify PD.5 Pin Data Input/Output */
-#define PD6             PD_PIN_DATA(3, 6 ) /*!< Specify PD.6 Pin Data Input/Output */
-#define PD7             PD_PIN_DATA(3, 7 ) /*!< Specify PD.7 Pin Data Input/Output */
-#define PD8             PD_PIN_DATA(3, 8 ) /*!< Specify PD.8 Pin Data Input/Output */
-#define PD9             PD_PIN_DATA(3, 9 ) /*!< Specify PD.9 Pin Data Input/Output */
-#define PD10            PD_PIN_DATA(3, 10) /*!< Specify PD.10 Pin Data Input/Output */
-#define PD11            PD_PIN_DATA(3, 11) /*!< Specify PD.11 Pin Data Input/Output */
-#define PD12            PD_PIN_DATA(3, 12) /*!< Specify PD.12 Pin Data Input/Output */
-#define PD13            PD_PIN_DATA(3, 13) /*!< Specify PD.13 Pin Data Input/Output */
-#define PD14            PD_PIN_DATA(3, 14) /*!< Specify PD.14 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT1 )
+#define PD1              PD1_NS   /*!< Specify PD.1 Pin Data Input/Output */
+#else
+#define PD1              PD1_S    /*!< Specify PD.1 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT2 )
+#define PD2              PD2_NS   /*!< Specify PD.2 Pin Data Input/Output */
+#else
+#define PD2              PD2_S    /*!< Specify PD.2 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT3 )
+#define PD3              PD3_NS   /*!< Specify PD.3 Pin Data Input/Output */
+#else
+#define PD3              PD3_S    /*!< Specify PD.3 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT4 )
+#define PD4              PD4_NS   /*!< Specify PD.4 Pin Data Input/Output */
+#else
+#define PD4              PD4_S    /*!< Specify PD.4 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT5 )
+#define PD5              PD5_NS   /*!< Specify PD.5 Pin Data Input/Output */
+#else
+#define PD5              PD5_S    /*!< Specify PD.5 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT6 )
+#define PD6              PD6_NS   /*!< Specify PD.6 Pin Data Input/Output */
+#else
+#define PD6              PD6_S    /*!< Specify PD.6 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT7 )
+#define PD7              PD7_NS   /*!< Specify PD.7 Pin Data Input/Output */
+#else
+#define PD7              PD7_S    /*!< Specify PD.7 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT8 )
+#define PD8              PD8_NS   /*!< Specify PD.8 Pin Data Input/Output */
+#else
+#define PD8              PD8_S    /*!< Specify PD.8 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT9 )
+#define PD9              PD9_NS   /*!< Specify PD.9 Pin Data Input/Output */
+#else
+#define PD9              PD9_S    /*!< Specify PD.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT10 )
+#define PD10              PD10_NS   /*!< Specify PD.10 Pin Data Input/Output */
+#else
+#define PD10              PD10_S    /*!< Specify PD.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT11 )
+#define PD11              PD11_NS   /*!< Specify PD.11 Pin Data Input/Output */
+#else
+#define PD11              PD11_S    /*!< Specify PD.11 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT12 )
+#define PD12              PD12_NS   /*!< Specify PD.12 Pin Data Input/Output */
+#else
+#define PD12              PD12_S    /*!< Specify PD.12 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET3_VAL) && (SCU_INIT_IONSSET3_VAL & BIT14 )
+#define PD14              PD14_NS   /*!< Specify PD.14 Pin Data Input/Output */
+#else
+#define PD14              PD14_S    /*!< Specify PD.14 Pin Data Input/Output */
+#endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT4 )
-# define PE_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT0 )
+#define PE0              PE0_NS   /*!< Specify PE.0 Pin Data Input/Output */
 #else
-# define PE_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PE0              PE0_S    /*!< Specify PE.0 Pin Data Input/Output */
 #endif
-#define PE0             PE_PIN_DATA(4, 0 ) /*!< Specify PE.0 Pin Data Input/Output */
-#define PE1             PE_PIN_DATA(4, 1 ) /*!< Specify PE.1 Pin Data Input/Output */
-#define PE2             PE_PIN_DATA(4, 2 ) /*!< Specify PE.2 Pin Data Input/Output */
-#define PE3             PE_PIN_DATA(4, 3 ) /*!< Specify PE.3 Pin Data Input/Output */
-#define PE4             PE_PIN_DATA(4, 4 ) /*!< Specify PE.4 Pin Data Input/Output */
-#define PE5             PE_PIN_DATA(4, 5 ) /*!< Specify PE.5 Pin Data Input/Output */
-#define PE6             PE_PIN_DATA(4, 6 ) /*!< Specify PE.6 Pin Data Input/Output */
-#define PE7             PE_PIN_DATA(4, 7 ) /*!< Specify PE.7 Pin Data Input/Output */
-#define PE8             PE_PIN_DATA(4, 8 ) /*!< Specify PE.8 Pin Data Input/Output */
-#define PE9             PE_PIN_DATA(4, 9 ) /*!< Specify PE.9 Pin Data Input/Output */
-#define PE10            PE_PIN_DATA(4, 10) /*!< Specify PE.10 Pin Data Input/Output */
-#define PE11            PE_PIN_DATA(4, 11) /*!< Specify PE.11 Pin Data Input/Output */
-#define PE12            PE_PIN_DATA(4, 12) /*!< Specify PE.12 Pin Data Input/Output */
-#define PE13            PE_PIN_DATA(4, 13) /*!< Specify PE.13 Pin Data Input/Output */
-#define PE14            PE_PIN_DATA(4, 14) /*!< Specify PE.14 Pin Data Input/Output */
-#define PE15            PE_PIN_DATA(4, 15) /*!< Specify PE.15 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT1 )
+#define PE1              PE1_NS   /*!< Specify PE.1 Pin Data Input/Output */
+#else
+#define PE1              PE1_S    /*!< Specify PE.1 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT2 )
+#define PE2              PE2_NS   /*!< Specify PE.2 Pin Data Input/Output */
+#else
+#define PE2              PE2_S    /*!< Specify PE.2 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT3 )
+#define PE3              PE3_NS   /*!< Specify PE.3 Pin Data Input/Output */
+#else
+#define PE3              PE3_S    /*!< Specify PE.3 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT4 )
+#define PE4              PE4_NS   /*!< Specify PE.4 Pin Data Input/Output */
+#else
+#define PE4              PE4_S    /*!< Specify PE.4 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT5 )
+#define PE5              PE5_NS   /*!< Specify PE.5 Pin Data Input/Output */
+#else
+#define PE5              PE5_S    /*!< Specify PE.5 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT6 )
+#define PE6              PE6_NS   /*!< Specify PE.6 Pin Data Input/Output */
+#else
+#define PE6              PE6_S    /*!< Specify PE.6 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT7 )
+#define PE7              PE7_NS   /*!< Specify PE.7 Pin Data Input/Output */
+#else
+#define PE7              PE7_S    /*!< Specify PE.7 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT8 )
+#define PE8              PE8_NS   /*!< Specify PE.8 Pin Data Input/Output */
+#else
+#define PE8              PE8_S    /*!< Specify PE.8 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT9 )
+#define PE9              PE9_NS   /*!< Specify PE.9 Pin Data Input/Output */
+#else
+#define PE9              PE9_S    /*!< Specify PE.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT10 )
+#define PE10              PE10_NS   /*!< Specify PE.10 Pin Data Input/Output */
+#else
+#define PE10              PE10_S    /*!< Specify PE.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT11 )
+#define PE11              PE11_NS   /*!< Specify PE.11 Pin Data Input/Output */
+#else
+#define PE11              PE11_S    /*!< Specify PE.11 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT12 )
+#define PE12              PE12_NS   /*!< Specify PE.12 Pin Data Input/Output */
+#else
+#define PE12              PE12_S    /*!< Specify PE.12 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT13 )
+#define PE13              PE13_NS   /*!< Specify PE.13 Pin Data Input/Output */
+#else
+#define PE13              PE13_S    /*!< Specify PE.13 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT14 )
+#define PE14              PE14_NS   /*!< Specify PE.14 Pin Data Input/Output */
+#else
+#define PE14              PE14_S    /*!< Specify PE.14 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET4_VAL) && (SCU_INIT_IONSSET4_VAL & BIT15 )
+#define PE15              PE15_NS   /*!< Specify PE.15 Pin Data Input/Output */
+#else
+#define PE15              PE15_S    /*!< Specify PE.15 Pin Data Input/Output */
+#endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT5 )
-# define PF_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT0 )
+#define PF0              PF0_NS   /*!< Specify PF.0 Pin Data Input/Output */
 #else
-# define PF_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PF0              PF0_S    /*!< Specify PF.0 Pin Data Input/Output */
 #endif
-#define PF0             PF_PIN_DATA(5, 0 ) /*!< Specify PF.0 Pin Data Input/Output */
-#define PF1             PF_PIN_DATA(5, 1 ) /*!< Specify PF.1 Pin Data Input/Output */
-#define PF2             PF_PIN_DATA(5, 2 ) /*!< Specify PF.2 Pin Data Input/Output */
-#define PF3             PF_PIN_DATA(5, 3 ) /*!< Specify PF.3 Pin Data Input/Output */
-#define PF4             PF_PIN_DATA(5, 4 ) /*!< Specify PF.4 Pin Data Input/Output */
-#define PF5             PF_PIN_DATA(5, 5 ) /*!< Specify PF.5 Pin Data Input/Output */
-#define PF6             PF_PIN_DATA(5, 6 ) /*!< Specify PF.6 Pin Data Input/Output */
-#define PF7             PF_PIN_DATA(5, 7 ) /*!< Specify PF.7 Pin Data Input/Output */
-#define PF8             PF_PIN_DATA(5, 8 ) /*!< Specify PF.8 Pin Data Input/Output */
-#define PF9             PF_PIN_DATA(5, 9 ) /*!< Specify PF.9 Pin Data Input/Output */
-#define PF10            PF_PIN_DATA(5, 10) /*!< Specify PF.10 Pin Data Input/Output */
-#define PF11            PF_PIN_DATA(5, 11) /*!< Specify PF.11 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT1 )
+#define PF1              PF1_NS   /*!< Specify PF.1 Pin Data Input/Output */
+#else
+#define PF1              PF1_S    /*!< Specify PF.1 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT2 )
+#define PF2              PF2_NS   /*!< Specify PF.2 Pin Data Input/Output */
+#else
+#define PF2              PF2_S    /*!< Specify PF.2 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT3 )
+#define PF3              PF3_NS   /*!< Specify PF.3 Pin Data Input/Output */
+#else
+#define PF3              PF3_S    /*!< Specify PF.3 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT4 )
+#define PF4              PF4_NS   /*!< Specify PF.4 Pin Data Input/Output */
+#else
+#define PF4              PF4_S    /*!< Specify PF.4 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT5 )
+#define PF5              PF5_NS   /*!< Specify PF.5 Pin Data Input/Output */
+#else
+#define PF5              PF5_S    /*!< Specify PF.5 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT6 )
+#define PF6              PF6_NS   /*!< Specify PF.6 Pin Data Input/Output */
+#else
+#define PF6              PF6_S    /*!< Specify PF.6 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT7 )
+#define PF7              PF7_NS   /*!< Specify PF.7 Pin Data Input/Output */
+#else
+#define PF7              PF7_S    /*!< Specify PF.7 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT8 )
+#define PF8              PF8_NS   /*!< Specify PF.8 Pin Data Input/Output */
+#else
+#define PF8              PF8_S    /*!< Specify PF.8 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT9 )
+#define PF9              PF9_NS   /*!< Specify PF.9 Pin Data Input/Output */
+#else
+#define PF9              PF9_S    /*!< Specify PF.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT10 )
+#define PF10              PF10_NS   /*!< Specify PF.10 Pin Data Input/Output */
+#else
+#define PF10              PF10_S    /*!< Specify PF.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET5_VAL) && (SCU_INIT_IONSSET5_VAL & BIT11 )
+#define PF11              PF11_NS   /*!< Specify PF.11 Pin Data Input/Output */
+#else
+#define PF11              PF11_S    /*!< Specify PF.11 Pin Data Input/Output */
+#endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT6 )
-# define PG_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT2 )
+#define PG2              PG2_NS   /*!< Specify PG.2 Pin Data Input/Output */
 #else
-# define PG_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PG2              PG2_S    /*!< Specify PG.2 Pin Data Input/Output */
 #endif
-#define PG2             PG_PIN_DATA(6, 2 ) /*!< Specify PG.2 Pin Data Input/Output */
-#define PG3             PG_PIN_DATA(6, 3 ) /*!< Specify PG.3 Pin Data Input/Output */
-#define PG4             PG_PIN_DATA(6, 4 ) /*!< Specify PG.4 Pin Data Input/Output */
-#define PG9             PG_PIN_DATA(6, 9 ) /*!< Specify PG.9 Pin Data Input/Output */
-#define PG10            PG_PIN_DATA(6, 10) /*!< Specify PG.10 Pin Data Input/Output */
-#define PG11            PG_PIN_DATA(6, 11) /*!< Specify PG.11 Pin Data Input/Output */
-#define PG12            PG_PIN_DATA(6, 12) /*!< Specify PG.12 Pin Data Input/Output */
-#define PG13            PG_PIN_DATA(6, 13) /*!< Specify PG.13 Pin Data Input/Output */
-#define PG14            PG_PIN_DATA(6, 14) /*!< Specify PG.14 Pin Data Input/Output */
-#define PG15            PG_PIN_DATA(6, 15) /*!< Specify PG.15 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT3 )
+#define PG3              PG3_NS   /*!< Specify PG.3 Pin Data Input/Output */
+#else
+#define PG3              PG3_S    /*!< Specify PG.3 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT4 )
+#define PG4              PG4_NS   /*!< Specify PG.4 Pin Data Input/Output */
+#else
+#define PG4              PG4_S    /*!< Specify PG.4 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT9 )
+#define PG9              PG9_NS   /*!< Specify PG.9 Pin Data Input/Output */
+#else
+#define PG9              PG9_S    /*!< Specify PG.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT10 )
+#define PG10              PG10_NS   /*!< Specify PG.10 Pin Data Input/Output */
+#else
+#define PG10              PG10_S    /*!< Specify PG.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT11 )
+#define PG11              PG11_NS   /*!< Specify PG.11 Pin Data Input/Output */
+#else
+#define PG11              PG11_S    /*!< Specify PG.11 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT12 )
+#define PG12              PG12_NS   /*!< Specify PG.12 Pin Data Input/Output */
+#else
+#define PG12              PG12_S    /*!< Specify PG.12 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT13 )
+#define PG13              PG13_NS   /*!< Specify PG.13 Pin Data Input/Output */
+#else
+#define PG13              PG13_S    /*!< Specify PG.13 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT14 )
+#define PG14              PG14_NS   /*!< Specify PG.14 Pin Data Input/Output */
+#else
+#define PG14              PG14_S    /*!< Specify PG.14 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET6_VAL) && (SCU_INIT_IONSSET6_VAL & BIT15 )
+#define PG15              PG15_NS   /*!< Specify PG.15 Pin Data Input/Output */
+#else
+#define PG15              PG15_S    /*!< Specify PG.15 Pin Data Input/Output */
+#endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT7 )
-# define PH_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+NS_OFFSET+(0x40*(port))) + ((pin)<<2))))
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT4 )
+#define PH4              PH4_NS   /*!< Specify PH.4 Pin Data Input/Output */
 #else
-# define PH_PIN_DATA(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
+#define PH4              PH4_S    /*!< Specify PH.4 Pin Data Input/Output */
 #endif
-#define PH4             PH_PIN_DATA(7, 4 ) /*!< Specify PH.4 Pin Data Input/Output */
-#define PH5             PH_PIN_DATA(7, 5 ) /*!< Specify PH.5 Pin Data Input/Output */
-#define PH6             PH_PIN_DATA(7, 6 ) /*!< Specify PH.6 Pin Data Input/Output */
-#define PH7             PH_PIN_DATA(7, 7 ) /*!< Specify PH.7 Pin Data Input/Output */
-#define PH8             PH_PIN_DATA(7, 8 ) /*!< Specify PH.8 Pin Data Input/Output */
-#define PH9             PH_PIN_DATA(7, 9 ) /*!< Specify PH.9 Pin Data Input/Output */
-#define PH10            PH_PIN_DATA(7, 10) /*!< Specify PH.10 Pin Data Input/Output */
-#define PH11            PH_PIN_DATA(7, 11) /*!< Specify PH.11 Pin Data Input/Output */
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT5 )
+#define PH5              PH5_NS   /*!< Specify PH.5 Pin Data Input/Output */
+#else
+#define PH5              PH5_S    /*!< Specify PH.5 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT6 )
+#define PH6              PH6_NS   /*!< Specify PH.6 Pin Data Input/Output */
+#else
+#define PH6              PH6_S    /*!< Specify PH.6 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT7 )
+#define PH7              PH7_NS   /*!< Specify PH.7 Pin Data Input/Output */
+#else
+#define PH7              PH7_S    /*!< Specify PH.7 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT8 )
+#define PH8              PH8_NS   /*!< Specify PH.8 Pin Data Input/Output */
+#else
+#define PH8              PH8_S    /*!< Specify PH.8 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT9 )
+#define PH9              PH9_NS   /*!< Specify PH.9 Pin Data Input/Output */
+#else
+#define PH9              PH9_S    /*!< Specify PH.9 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT10 )
+#define PH10              PH10_NS   /*!< Specify PH.10 Pin Data Input/Output */
+#else
+#define PH10              PH10_S    /*!< Specify PH.10 Pin Data Input/Output */
+#endif
+#if defined (SCU_INIT_IONSSET7_VAL) && (SCU_INIT_IONSSET7_VAL & BIT11 )
+#define PH11              PH11_NS   /*!< Specify PH.11 Pin Data Input/Output */
+#else
+#define PH11              PH11_S    /*!< Specify PH.11 Pin Data Input/Output */
+#endif
+
 
 /* GPIO bit definitions for secure */
 #define GPIO_PIN_DATA_S(port, pin)    (*((volatile uint32_t *)((GPIO_PIN_DATA_BASE+(0x40*(port))) + ((pin)<<2))))
@@ -330,7 +716,6 @@ extern "C"
 #define PD10_S           GPIO_PIN_DATA_S(3, 10) /*!< Specify PD.10 Pin Data Input/Output */
 #define PD11_S           GPIO_PIN_DATA_S(3, 11) /*!< Specify PD.11 Pin Data Input/Output */
 #define PD12_S           GPIO_PIN_DATA_S(3, 12) /*!< Specify PD.12 Pin Data Input/Output */
-#define PD13_S           GPIO_PIN_DATA_S(3, 13) /*!< Specify PD.13 Pin Data Input/Output */
 #define PD14_S           GPIO_PIN_DATA_S(3, 14) /*!< Specify PD.14 Pin Data Input/Output */
 #define PE0_S            GPIO_PIN_DATA_S(4, 0 ) /*!< Specify PE.0 Pin Data Input/Output */
 #define PE1_S            GPIO_PIN_DATA_S(4, 1 ) /*!< Specify PE.1 Pin Data Input/Output */
@@ -440,7 +825,6 @@ extern "C"
 #define PD10_NS           GPIO_PIN_DATA_NS(3, 10) /*!< Specify PD.10 Pin Data Input/Output */
 #define PD11_NS           GPIO_PIN_DATA_NS(3, 11) /*!< Specify PD.11 Pin Data Input/Output */
 #define PD12_NS           GPIO_PIN_DATA_NS(3, 12) /*!< Specify PD.12 Pin Data Input/Output */
-#define PD13_NS           GPIO_PIN_DATA_NS(3, 13) /*!< Specify PD.13 Pin Data Input/Output */
 #define PD14_NS           GPIO_PIN_DATA_NS(3, 14) /*!< Specify PD.14 Pin Data Input/Output */
 #define PE0_NS            GPIO_PIN_DATA_NS(4, 0 ) /*!< Specify PE.0 Pin Data Input/Output */
 #define PE1_NS            GPIO_PIN_DATA_NS(4, 1 ) /*!< Specify PE.1 Pin Data Input/Output */
@@ -490,7 +874,7 @@ extern "C"
 #define PH11_NS           GPIO_PIN_DATA_NS(7, 11) /*!< Specify PH.11 Pin Data Input/Output */
 
 
-/*@}*/ /* end of group GPIO_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group GPIO_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup GPIO_EXPORTED_FUNCTIONS GPIO Exported Functions
@@ -504,7 +888,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -522,7 +906,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -540,7 +924,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -557,7 +941,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -575,7 +959,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -593,7 +977,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -611,7 +995,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -629,7 +1013,7 @@ extern "C"
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
  *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
  *                          It could be BIT0 ~ BIT13 for PC. \n
- *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT12, BIT14 for PD. \n
  *                          It could be BIT0 ~ BIT11 for PF. \n
  *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
  *                          It could be BIT4 ~ BIT11 for PH.
@@ -716,7 +1100,7 @@ extern "C"
  * @param[in]   u32Pin          The pin of specified GPIO port. \n
  *                              It could be 0 ~ 15 for PA, PB and PE. \n
  *                              It could be 0 ~ 13 for PC GPIO port. \n
- *                              It could be 0 ~ 14 for PD GPIO port. \n
+ *                              It could be 0 ~ 12, 14 for PD GPIO port. \n
  *                              It could be 0 ~ 11 for PF GPIO port. \n
  *                              It could be 2 ~ 4, 9 ~ 15 for PG GPIO port. \n
  *                              It could be 4 ~ 11 for PH GPIO port.
@@ -740,7 +1124,7 @@ extern "C"
  * @param[in]   u32Pin      The pin of specified GPIO port. \n
  *                          It could be 0 ~ 15 for PA, PB and PE. \n
  *                          It could be 0 ~ 13 for PC GPIO port. \n
- *                          It could be 0 ~ 14 for PD GPIO port. \n
+ *                          It could be 0 ~ 12, 14 for PD GPIO port. \n
  *                          It could be 0 ~ 11 for PF GPIO port. \n
  *                          It could be 2 ~ 4, 9 ~ 15 for PG GPIO port. \n
  *                          It could be 4 ~ 11 for PH GPIO port.
@@ -759,11 +1143,11 @@ void GPIO_SetSlewCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode);
 void GPIO_SetPullCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode);
 	
 
-/*@}*/ /* end of group GPIO_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group GPIO_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group GPIO_Driver */
+/**@}*/ /* end of group GPIO_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -771,4 +1155,4 @@ void GPIO_SetPullCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode);
 
 #endif /* __GPIO_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

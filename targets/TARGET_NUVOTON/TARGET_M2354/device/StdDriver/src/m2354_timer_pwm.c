@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Timer PWM Controller(Timer PWM) driver source file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -34,16 +35,83 @@
   * @return     None
   *
   * @details    This function is used to set PWM counter clock source.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_SetCounterClockSource(TIMER_T *timer, uint32_t u32CntClkSrc)
 {
     (timer)->PWMCLKSRC = ((timer)->PWMCLKSRC & ~TIMER_PWMCLKSRC_CLKSRC_Msk) | u32CntClkSrc;
 }
 
+/** @cond HIDDEN_SYMBOLS */
+/**
+  * @brief      Get Timer PWM Clock Frequency
+  *
+  * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
+  *
+  * @return     Timer clock frequency
+  *
+  * @details    This API is used to get the timer pwm clock frequency.
+  * @note       This API cannot return correct clock rate if timer source is from external clock input.
+  */
+static uint32_t TPWM_GetModuleClockFreq(TIMER_T *timer)
+{
+    uint32_t u32Src, u32ClkFreq = __HIRC;
+    const uint32_t au32Clk[] = {__HXT, __LXT, 0UL, 0UL, __MIRC, __LIRC, 0UL, __HIRC};
+
+    if(timer == TIMER0)
+    {
+        u32Src = CLK_GetModuleClockSource(TMR0_MODULE);
+    }
+    else if(timer == TIMER1)
+    {
+        u32Src = CLK_GetModuleClockSource(TMR1_MODULE);
+    }
+    else if((timer == TIMER2) || (timer == TIMER2_NS))
+    {
+        u32Src = CLK_GetModuleClockSource(TMR2_MODULE);
+    }
+    else if((timer == TIMER3) || (timer == TIMER3_NS))
+    {
+        u32Src = CLK_GetModuleClockSource(TMR3_MODULE);
+    }
+    else if((timer == TIMER4) || (timer == TIMER4_NS))
+    {
+        u32Src = CLK_GetModuleClockSource(TMR4_MODULE);
+    }
+    else if((timer == TIMER5) || (timer == TIMER5_NS))
+    {
+        u32Src = CLK_GetModuleClockSource(TMR5_MODULE);
+    }
+    else
+    {
+        return 0UL;
+    }
+
+    if(u32Src == 2UL)
+    {
+        if((timer == TIMER0) || (timer == TIMER1) || 
+           (timer == TIMER4) || (timer == TIMER4_NS) || (timer == TIMER5) || (timer == TIMER5_NS))
+        {
+            u32ClkFreq = CLK_GetPCLK0Freq();
+        }
+        else
+        {
+            u32ClkFreq = CLK_GetPCLK1Freq();
+        }
+    }
+    else
+    {
+        u32ClkFreq = au32Clk[u32Src];
+    }
+
+    return u32ClkFreq;
+}
+/** @endcond HIDDEN_SYMBOLS */
+
 /**
   * @brief      Configure PWM Output Frequency and Duty Cycle
   *
-  * @param[in]  timer           The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   	    The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   * @param[in]  u32Frequency    Target generator frequency.
   * @param[in]  u32DutyCycle    Target generator duty cycle percentage. Valid range are between 0~100. 10 means 10%, 20 means 20%...
   *
@@ -55,19 +123,28 @@ void TPWM_SetCounterClockSource(TIMER_T *timer, uint32_t u32CntClkSrc)
 uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uint32_t u32DutyCycle)
 {
     uint32_t u32PWMClockFreq, u32TargetFreq;
-    uint32_t u32Prescaler = 0x1000UL, u32Period = 1UL, u32CMP;
+    uint32_t u32Prescaler = 0x1000UL, u32Period = 1UL, u32CMP, u32MaxCLKPSC = 0x1000UL;
 
     if((timer == TIMER0) || (timer == TIMER1))
     {
         u32PWMClockFreq = CLK_GetPCLK0Freq();
+    }
+    else if((timer == TIMER4) || (timer == TIMER4_NS) || (timer == TIMER5) || (timer == TIMER5_NS))
+    {
+        u32PWMClockFreq = TPWM_GetModuleClockFreq(timer);
     }
     else
     {
         u32PWMClockFreq = CLK_GetPCLK1Freq();
     }
 
+    if((timer == TIMER4) || (timer == TIMER4_NS) || (timer == TIMER5) || (timer == TIMER5_NS))
+        u32MaxCLKPSC = 0x100UL; // 8-bit clock prescale on TIMER4 and TIMER5 PWM
+    else 
+        u32MaxCLKPSC = 0x1000UL; // 12-bit clock prescale on TIMER0 ~ TIMER3 PWM
+    
     /* Calculate u16PERIOD and u16PSC */
-    for(u32Prescaler = 1UL; u32Prescaler <= 0x1000UL; u32Prescaler++)
+    for(u32Prescaler = 1UL; u32Prescaler <= u32MaxCLKPSC; u32Prescaler++)
     {
         u32Period = (u32PWMClockFreq / u32Prescaler) / u32Frequency;
 
@@ -114,6 +191,7 @@ uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uin
   *
   * @details    This function is used to enable Dead-Time function and counter source is the same as Timer PWM clock source.
   * @note       The register write-protection function should be disabled before using this function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_EnableDeadTime(TIMER_T *timer, uint32_t u32DTCount)
 {
@@ -130,6 +208,7 @@ void TPWM_EnableDeadTime(TIMER_T *timer, uint32_t u32DTCount)
   *
   * @details    This function is used to enable Dead-Time function and counter source is the Timer PWM clock source with prescale.
   * @note       The register write-protection function should be disabled before using this function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_EnableDeadTimeWithPrescale(TIMER_T *timer, uint32_t u32DTCount)
 {
@@ -145,6 +224,7 @@ void TPWM_EnableDeadTimeWithPrescale(TIMER_T *timer, uint32_t u32DTCount)
   *
   * @details    This function is used to disable Dead-time of selected channel.
   * @note       The register write-protection function should be disabled before using this function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_DisableDeadTime(TIMER_T *timer)
 {
@@ -154,7 +234,7 @@ void TPWM_DisableDeadTime(TIMER_T *timer)
 /**
   * @brief      Enable PWM Counter
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   	The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -168,7 +248,7 @@ void TPWM_EnableCounter(TIMER_T *timer)
 /**
   * @brief      Disable PWM Generator
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   	The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -182,27 +262,30 @@ void TPWM_DisableCounter(TIMER_T *timer)
 /**
   * @brief      Enable Trigger ADC
   *
-  * @param[in]  timer           The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer   	    The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   * @param[in]  u32Condition    The condition to trigger ADC. It could be one of following conditions:
-  *                                 - \ref TPWM_TRIGGER_ADC_AT_ZERO_POINT
-  *                                 - \ref TPWM_TRIGGER_ADC_AT_PERIOD_POINT
-  *                                 - \ref TPWM_TRIGGER_ADC_AT_ZERO_OR_PERIOD_POINT
-  *                                 - \ref TPWM_TRIGGER_ADC_AT_COMPARE_UP_COUNT_POINT
-  *                                 - \ref TPWM_TRIGGER_ADC_AT_COMPARE_DOWN_COUNT_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_ZERO_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_PERIOD_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_ZERO_OR_PERIOD_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_COMPARE_UP_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_COMPARE_DOWN_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_PERIOD_OR_COMPARE_UP_POINT
   *
   * @return     None
   *
   * @details    This function is used to enable specified counter compare event to trigger ADC.
+  * @note       TIMER4 and TIMER5 only supports \ref TPWM_TRIGGER_EVENT_AT_PERIOD_POINT, \ref TPWM_TRIGGER_EVENT_AT_COMPARE_UP_POINT,
+  *             and \ref TPWM_TRIGGER_EVENT_AT_PERIOD_OR_COMPARE_UP_POINT.
   */
 void TPWM_EnableTriggerADC(TIMER_T *timer, uint32_t u32Condition)
 {
-    timer->PWMEADCTS = TIMER_PWMEADCTS_TRGEN_Msk | u32Condition;
+    timer->PWMTRGCTL = ((timer->PWMTRGCTL & ~TIMER_PWMTRGCTL_TRGSEL_Msk) | (u32Condition)) | TIMER_PWMTRGCTL_TRGEADC_Msk;
 }
 
 /**
   * @brief      Disable Trigger ADC
   *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0 ~ TIMER5.
   *
   * @return     None
   *
@@ -210,7 +293,41 @@ void TPWM_EnableTriggerADC(TIMER_T *timer, uint32_t u32Condition)
   */
 void TPWM_DisableTriggerADC(TIMER_T *timer)
 {
-    timer->PWMEADCTS = 0x0UL;
+    timer->PWMTRGCTL &= ~TIMER_PWMTRGCTL_TRGEADC_Msk;
+}
+
+/**
+  * @brief      Enable Trigger PDMA
+  *
+  * @param[in]  timer   	    The pointer of the specified Timer module. It could be TIMER4 or TIMER5.
+  * @param[in]  u32Condition    The condition to trigger PDMA. It could be one of following conditions:
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_PERIOD_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_COMPARE_UP_POINT
+  *                                 - \ref TPWM_TRIGGER_EVENT_AT_PERIOD_OR_COMPARE_UP_POINT
+  *
+  * @return     None
+  *
+  * @details    This function is used to enable specified counter compare event to trigger PDMA.
+  * @note       Only available on TIMER4 and TIMER5.
+  */
+void TPWM_EnableTriggerPDMA(TIMER_T *timer, uint32_t u32Condition)
+{
+    timer->PWMTRGCTL = ((timer->PWMTRGCTL & ~TIMER_PWMTRGCTL_TRGSEL_Msk) | (u32Condition)) | TIMER_PWMTRGCTL_TRGPDMA_Msk;
+}
+
+/**
+  * @brief      Disable Trigger PDMA
+  *
+  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER4 or TIMER5.
+  *
+  * @return     None
+  *
+  * @details    This function is used to disable counter compare event to trigger ADC.
+  * @note       Only available on TIMER4 and TIMER5.
+  */
+void TPWM_DisableTriggerPDMA(TIMER_T *timer)
+{
+    timer->PWMTRGCTL &= ~TIMER_PWMTRGCTL_TRGPDMA_Msk;
 }
 
 /**
@@ -247,6 +364,7 @@ void TPWM_DisableTriggerADC(TIMER_T *timer)
   *
   * @details    This function is used to enable fault brake function.
   * @note       The register write-protection function should be disabled before using this function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_EnableFaultBrake(TIMER_T *timer, uint32_t u32CH0Level, uint32_t u32CH1Level, uint32_t u32BrakeSource)
 {
@@ -267,6 +385,7 @@ void TPWM_EnableFaultBrake(TIMER_T *timer, uint32_t u32CH0Level, uint32_t u32CH1
   *
   * @details    This function is used to enable fault brake interrupt.
   * @note       The register write-protection function should be disabled before using this function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_EnableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource)
 {
@@ -285,6 +404,7 @@ void TPWM_EnableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource)
   *
   * @details    This function is used to disable fault brake interrupt.
   * @note       The register write-protection function should be disabled before using this function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_DisableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource)
 {
@@ -304,6 +424,7 @@ void TPWM_DisableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource)
   * @retval     1       Fault brake interrupt occurred
   *
   * @details    This function is used to indicate fault brake interrupt flag occurred or not of selected source.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 uint32_t TPWM_GetFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
 {
@@ -322,6 +443,7 @@ uint32_t TPWM_GetFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
   *
   * @details    This function is used to clear fault brake interrupt flags of selected source.
   * @note       The register write-protection function should be disabled before using this function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_ClearFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
 {
@@ -341,6 +463,7 @@ void TPWM_ClearFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
   *
   * @details    This function is used to enable load mode of selected channel.
   * @note       The default loading mode is period loading mode.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_SetLoadMode(TIMER_T *timer, uint32_t u32LoadMode)
 {
@@ -371,6 +494,7 @@ void TPWM_SetLoadMode(TIMER_T *timer, uint32_t u32LoadMode)
   * @return     None
   *
   * @details    This function is used to enable external brake pin detector noise filter function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_EnableBrakePinDebounce(TIMER_T *timer, uint32_t u32BrakePinSrc, uint32_t u32DebounceCnt, uint32_t u32ClkSrcSel)
 {
@@ -388,6 +512,7 @@ void TPWM_EnableBrakePinDebounce(TIMER_T *timer, uint32_t u32BrakePinSrc, uint32
   * @return     None
   *
   * @details    This function is used to disable external brake pin detector noise filter function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_DisableBrakePinDebounce(TIMER_T *timer)
 {
@@ -402,6 +527,7 @@ void TPWM_DisableBrakePinDebounce(TIMER_T *timer)
   * @return     None
   *
   * @details    This function is used to enable PWM brake pin inverse function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_EnableBrakePinInverse(TIMER_T *timer)
 {
@@ -416,6 +542,7 @@ void TPWM_EnableBrakePinInverse(TIMER_T *timer)
   * @return     None
   *
   * @details    This function is used to disable PWM brake pin inverse function.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_DisableBrakePinInverse(TIMER_T *timer)
 {
@@ -435,6 +562,7 @@ void TPWM_DisableBrakePinInverse(TIMER_T *timer)
   * @return     None
   *
   * @details    This function is used to set PWM brake pin source.
+  * @note       NOT available on TIMER4 and TIMER5.
   */
 void TPWM_SetBrakePinSource(TIMER_T *timer, uint32_t u32BrakePinNum)
 {
@@ -442,10 +570,10 @@ void TPWM_SetBrakePinSource(TIMER_T *timer, uint32_t u32BrakePinNum)
 }
 
 
-/*@}*/ /* end of group TIMER_PWM_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group TIMER_PWM_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group TIMER_PWM_Driver */
+/**@}*/ /* end of group TIMER_PWM_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

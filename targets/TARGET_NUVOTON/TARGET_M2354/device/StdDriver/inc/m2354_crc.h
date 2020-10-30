@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Cyclic Redundancy Check(CRC) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2016-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __CRC_H__
 #define __CRC_H__
@@ -48,7 +49,7 @@ extern "C"
 #define CRC_CPU_WDATA_16    (1UL << CRC_CTL_DATLEN_Pos) /*!<CRC CPU Write Data length is 16-bit \hideinitializer */
 #define CRC_CPU_WDATA_32    (2UL << CRC_CTL_DATLEN_Pos) /*!<CRC CPU Write Data length is 32-bit \hideinitializer */
 
-/*@}*/ /* end of group CRC_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group CRC_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup CRC_EXPORTED_FUNCTIONS CRC Exported Functions
@@ -69,7 +70,7 @@ extern "C"
   *             to CRC controller.
   * \hideinitializer
   */
-#define CRC_SET_SEED(crc, u32Seed)          do{ (crc)->SEED = (u32Seed); (crc)->CTL |= CRC_CTL_CHKSINIT_Msk; }while(0)
+#define CRC_SET_SEED(crc, u32Seed)          do{ (crc)->SEED = (u32Seed); (crc)->CTL |= CRC_CTL_CHKSINIT_Msk; } while(0)
 
 /**
   * @brief      Get CRC Seed Value
@@ -100,11 +101,11 @@ extern "C"
 void CRC_Open(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_t u32DataLen);
 uint32_t CRC_GetChecksum(void);
 
-/*@}*/ /* end of group CRC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group CRC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group CRC_Driver */
+/**@}*/ /* end of group CRC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -112,4 +113,4 @@ uint32_t CRC_GetChecksum(void);
 
 #endif /* __CRC_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2016-2020 Nuvoton Technology Corp. ***/

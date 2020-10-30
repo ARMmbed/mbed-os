@@ -23,7 +23,8 @@
 /**
     @addtogroup BTF Booting Flag
     Memory Mapped Structure for BTF Controller
-@{ */
+  @{ 
+*/
  
 typedef struct
 {
@@ -45,7 +46,8 @@ typedef struct
 /**
     @addtogroup BTF_CONST BTF Bit Field Definition
     Constant Definitions for BTF Controller
-@{ */
+  @{ 
+*/
 
 #define BTF_BTF_BL2_Pos                  (0)                                               /*!< BTF_T::BTF: BL2 Position               */
 #define BTF_BTF_BL2_Msk                  (0x1ul << BTF_BTF_BL2_Pos)                        /*!< BTF_T::BTF: BL2 Mask                   */
@@ -58,7 +60,8 @@ typedef struct
 /**
     @addtogroup DPM Debug Protection Mechanism(DPM)
     Memory Mapped Structure for DPM Controller
-@{ */
+  @{ 
+*/
  
 typedef struct
 {
@@ -158,7 +161,7 @@ typedef struct
  * |        |          |This bit indicates the Secure DPM password has been checked and is correct.
  * |        |          |0 = The Secure DPM password has not been checked pass, yet.
  * |        |          |1 = The Secure DPM password has been checked pass since last cold reset.
- * @var DPM_T::SPW0
+ * @var DPM_T::SPW
  * Offset: 0x10  Secure DPM Password 0
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -166,7 +169,6 @@ typedef struct
  * |[31:0]  |PW        |Password
  * |        |          |Write password[31:0] to this register to update or compare Secure DPM password.
  * |        |          |It is write-only and always read as 0xFFFFFFFF.
- * @var DPM_T::SPW1
  * Offset: 0x14  Secure DPM Password 1
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -174,7 +176,6 @@ typedef struct
  * |[31:0]  |PW        |Password
  * |        |          |Write password[63:32] to this register to update or compare Secure DPM password
  * |        |          |It is write-only and always read as 0xFFFFFFFF.
- * @var DPM_T::SPW2
  * Offset: 0x18  Secure DPM Password 2
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -182,7 +183,6 @@ typedef struct
  * |[31:0]  |PW        |Password
  * |        |          |Write password[95:64] to this register to update or compare Secure DPM password.
  * |        |          |It is write-only and always read as 0xFFFFFFFF.
- * @var DPM_T::SPW3
  * Offset: 0x1C  Secure DPM Password 3
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -270,7 +270,7 @@ typedef struct
  * |        |          |This bit indicates the Non-secure DPM password has been checked and is correct.
  * |        |          |0 = The Non-secure DPM password has not been checked pass, yet.
  * |        |          |1 = The Non-secure DPM password has been checked pass since last cold reset.
- * @var DPM_T::NSPW0
+ * @var DPM_T::NSPW
  * Offset: 0x60  Non-secure DPM Password 0
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -278,7 +278,6 @@ typedef struct
  * |[31:0]  |PW        |Password
  * |        |          |Write password[31:0] to this register to update or compare Non-secure DPM password.
  * |        |          |It is write-only and always read as 0xFFFFFFFF.
- * @var DPM_T::NSPW1
  * Offset: 0x64  Non-secure DPM Password 1
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -286,7 +285,6 @@ typedef struct
  * |[31:0]  |PW        |Password
  * |        |          |Write password[63:32] to this register to update or compare Non-secure DPM password.
  * |        |          |It is write-only and always read as 0xFFFFFFFF.
- * @var DPM_T::NSPW2
  * Offset: 0x68  Non-secure DPM Password 2
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -294,7 +292,6 @@ typedef struct
  * |[31:0]  |PW        |Password
  * |        |          |Write password[95:64] to this register to update or compare Non-secure DPM password.
  * |        |          |It is write-only and always read as 0xFFFFFFFF.
- * @var DPM_T::NSPW3
  * Offset: 0x6C  Non-secure DPM Password 3
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -319,7 +316,8 @@ typedef struct
 /**
     @addtogroup DPM_CONST DPM Bit Field Definition
     Constant Definitions for DPM Controller
-@{ */
+  @{ 
+*/
 
 #define DPM_CTL_DBGDIS_Pos               (0)                                               /*!< DPM_T::CTL: DBGDIS Position            */
 #define DPM_CTL_DBGDIS_Msk               (0x1ul << DPM_CTL_DBGDIS_Pos)                     /*!< DPM_T::CTL: DBGDIS Mask                */
@@ -454,7 +452,8 @@ typedef struct
 /**
     @addtogroup FVC Firmware Version Counter(FVC)
     Memory Mapped Structure for FVC Controller
-@{ */
+  @{ 
+*/
  
 typedef struct
 {
@@ -547,7 +546,8 @@ typedef struct
 /**
     @addtogroup FVC_CONST FVC Bit Field Definition
     Constant Definitions for FVC Controller
-@{ */
+  @{ 
+*/
 
 #define FVC_CTL_INIT_Pos                 (0)                                               /*!< FVC_T::CTL: INIT Position              */
 #define FVC_CTL_INIT_Msk                 (0x1ul << FVC_CTL_INIT_Pos)                       /*!< FVC_T::CTL: INIT Mask                  */
@@ -596,7 +596,8 @@ typedef struct
 /**
     @addtogroup PLM Product Life-cycle Manager(PLM)
     Memory Mapped Structure for PLM Controller
-@{ */
+  @{ 
+*/
  
 typedef struct
 {
@@ -641,7 +642,8 @@ typedef struct
 /**
     @addtogroup PLM_CONST PLM Bit Field Definition
     Constant Definitions for PLM Controller
-@{ */
+  @{ 
+*/
 
 #define PLM_CTL_STAGE_Pos                (0)                                               /*!< PLM_T::CTL: STAGE Position             */
 #define PLM_CTL_STAGE_Msk                (0x7ul << PLM_CTL_STAGE_Pos)                      /*!< PLM_T::CTL: STAGE Mask                 */
@@ -663,14 +665,15 @@ typedef struct
 /**
     @addtogroup SCU Secure configuration Unit(SCU)
     Memory Mapped Structure for SCU Controller
-@{ */
+  @{ 
+*/
  
 typedef struct
 {
 
 
 /**
- * @var SCU_T::PNSSET0
+ * @var SCU_T::PNSSET
  * Offset: 0x00  Peripheral Non-secure Attribution Set Register0 (0x4000_0000~0x4001_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -691,7 +694,6 @@ typedef struct
  * |        |          |Write 1 to set PDMA1 to non-secure state. Write 0 has no effect.
  * |        |          |0 = PDMA1 is a secure module (default).
  * |        |          |1 = PDMA1 is a non-secure module.
- * @var SCU_T::PNSSET1
  * Offset: 0x04  Peripheral Non-secure Attribution Set Register1 (0x4002_0000~0x4003_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -703,7 +705,6 @@ typedef struct
  * |[18]    |CRPT      |Set CRPT to Non-secure State
  * |        |          |0 = CRPT is a secure module (default).
  * |        |          |1 = CRPT is a non-secure module.
- * @var SCU_T::PNSSET2
  * Offset: 0x08  Peripheral Non-secure Attribution Set Register2 (0x4004_0000~0x4005_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -752,7 +753,6 @@ typedef struct
  * |        |          |Write 1 to set BPWM1 to non-secure state. Write 0 has no effect.
  * |        |          |0 = BPWM1 is a secure module (default).
  * |        |          |1 = BPWM1 is a non-secure module.
- * @var SCU_T::PNSSET3
  * Offset: 0x0C  Peripheral Non-secure Attribution Set Register3 (0x4006_0000~0x4007_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -801,7 +801,6 @@ typedef struct
  * |        |          |Write 1 to set UART5 to non-secure state. Write 0 has no effect.
  * |        |          |0 = UART5 is a secure module (default).
  * |        |          |1 = UART5 is a non-secure module.
- * @var SCU_T::PNSSET4
  * Offset: 0x10  Peripheral Non-secure Attribution Set Register4 (0x4008_0000~0x4009_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -830,7 +829,6 @@ typedef struct
  * |        |          |Write 1 to set SC2 to non-secure state. Write 0 has no effect.
  * |        |          |0 = SC2 is a secure module (default).
  * |        |          |1 = SC2 is a non-secure module.
- * @var SCU_T::PNSSET5
  * Offset: 0x14  Peripheral Non-secure Attribution Set Register5 (0x400A_0000~0x400B_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -863,7 +861,6 @@ typedef struct
  * |        |          |Write 1 to set LCD to non-secure state. Write 0 has no effect.
  * |        |          |0 = LCD is a secure module (default).
  * |        |          |1 = LCD is a non-secure module.
- * @var SCU_T::PNSSET6
  * Offset: 0x18  Peripheral Non-secure Attribution Set Register6 (0x400C_0000~0x400D_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1459,7 +1456,7 @@ typedef struct
  * |[2]     |FMCSIAEN  |FMC Shared Information Access Enable Bit
  * |        |          |0 = Non-secure CPU access FMC Shared information Disabled.
  * |        |          |1 = Non-secure CPU access FMC Shared information Enabled.
- * @var SCU_T::PNPSET0
+ * @var SCU_T::PNPSET
  * Offset: 0x100  Peripheral Non-privileged Attribution Set Register0 (0x4000_0000~0x4001_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1485,7 +1482,6 @@ typedef struct
  * |[24]    |PDMA1     |Set PDMA1 to Non-privileged State
  * |        |          |0 = PDMA1 is a privileged module (default).
  * |        |          |1 = PDMA1 is a non-privileged module.
- * @var SCU_T::PNPSET1
  * Offset: 0x104  Peripheral Non-privileged Attribution Set Register1 (0x4002_0000~0x4003_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1502,7 +1498,6 @@ typedef struct
  * |[21]    |KS        |Set KS to Non-privileged State
  * |        |          |0 = KS is a privileged module (default).
  * |        |          |1 = KS is a non-privileged module.
- * @var SCU_T::PNPSET2
  * Offset: 0x108  Peripheral Non-privileged Attribution Set Register2 (0x4004_0000~0x4005_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1549,7 +1544,6 @@ typedef struct
  * |[27]    |BPWM1     |Set BPWM1 to Non-privileged State
  * |        |          |0 = BPWM1 is a privileged module (default).
  * |        |          |1 = BPWM1 is a non-privileged module.
- * @var SCU_T::PNPSET3
  * Offset: 0x10C  Peripheral Non-privileged Attribution Set Register3 (0x4006_0000~0x4007_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1587,7 +1581,6 @@ typedef struct
  * |[21]    |UART5     |Set UART5 to Non-privileged State
  * |        |          |0 = UART5 is a privileged module (default).
  * |        |          |1 = UART5 is a non-privileged module.
- * @var SCU_T::PNPSET4
  * Offset: 0x110  Peripheral Non-privileged Attribution Set Register4 (0x4008_0000~0x4009_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1610,7 +1603,6 @@ typedef struct
  * |[18]    |SC2       |Set SC2 to Non-privileged State
  * |        |          |0 = SC2 is a privileged module (default).
  * |        |          |1 = SC2 is a non-privileged module.
- * @var SCU_T::PNPSET5
  * Offset: 0x114  Peripheral Non-privileged Attribution Set Register5 (0x400A_0000~0x400B_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1639,7 +1631,6 @@ typedef struct
  * |[29]    |TAMPER    |Set TAMPER to Non-privileged State
  * |        |          |0 = TAMPER is a privileged module (default).
  * |        |          |1 = TAMPER is a non-privileged module.
- * @var SCU_T::PNPSET6
  * Offset: 0x118  Peripheral Non-privileged Attribution Set Register6 (0x400C_0000~0x400D_FFFF)
  * ---------------------------------------------------------------------------------------------------
  * |Bits    |Field     |Descriptions
@@ -1928,8 +1919,7 @@ typedef struct
  * |        |          |Major version number is correlated to product line.
  */
     __IO uint32_t PNSSET[7];             /*!< [0x0000:0x0018] Peripheral Non-secure Attribution Set Register0 (0x4000_0000~0x400D_FFFF) */
-    __I  uint32_t RESERVE0[1];
-    __IO uint32_t IONSSET;               /*!< [0x0020] IO Non-secure Attribution Set Register                           */
+    __I  uint32_t RESERVE0[2];
     __IO uint32_t SRAMNSSET;             /*!< [0x0024] SRAM Non-secure Attribution Set Register                         */
     __I  uint32_t FNSADDR;               /*!< [0x0028] Flash Non-secure Boundary Address Register                       */
     __IO uint32_t SVIOIEN;               /*!< [0x002c] Security Violation Interrupt Enable Register                     */
@@ -1981,15 +1971,17 @@ typedef struct
     __IO uint32_t MEMNPSET;              /*!< [0x0128] Other Memory Non-privileged Attribution Set Register             */
     __IO uint32_t PVIOIEN;               /*!< [0x012c] Privileged Violation Interrupt Enable Register                   */
     __IO uint32_t PVINTSTS;              /*!< [0x0130] Privileged Violation Interrupt Status Register                   */
-    __I  uint32_t RESERVE5[51];
+    __I  uint32_t RESERVE5[3];    
+    __IO uint32_t IONSSET[8];            /*!< [0x0140:0x015C] IO Non-secure Attribution Set Register                    */    
+    __I  uint32_t RESERVE6[40];
     __IO uint32_t NSMCTL;                /*!< [0x0200] Non-secure State Monitor Control Register                        */
     __IO uint32_t NSMLOAD;               /*!< [0x0204] Non-secure State Monitor Reload Value Register                   */
     __IO uint32_t NSMVAL;                /*!< [0x0208] Non-secure State Monitor Counter Value Register                  */
     __IO uint32_t NSMSTS;                /*!< [0x020c] Non-secure State Monitor Status Register                         */
-    __I  uint32_t RESERVE6[60];
+    __I  uint32_t RESERVE7[60];
     __IO uint32_t BBE;                   /*!< [0x0300] Block Bus Error Register                                         */
     __IO uint32_t IDAUANS;               /*!< [0x0304] IDAU All Non-secure Set Register                                 */
-    __I  uint32_t RESERVE7[829];
+    __I  uint32_t RESERVE8[829];
     __I  uint32_t VERSION;               /*!< [0x0ffc] SCU RTL Design Version Register                                  */
 
 } SCU_T;
@@ -1997,7 +1989,8 @@ typedef struct
 /**
     @addtogroup SCU_CONST SCU Bit Field Definition
     Constant Definitions for SCU Controller
-@{ */
+  @{ 
+*/
 
 #define SCU_PNSSET0_USBH_Pos             (9)                                               /*!< SCU_T::PNSSET0: USBH Position          */
 #define SCU_PNSSET0_USBH_Msk             (0x1ul << SCU_PNSSET0_USBH_Pos)                   /*!< SCU_T::PNSSET0: USBH Mask              */

@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Debug Protection Mechanism (DPM) driver source file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -400,10 +401,10 @@ void DPM_DisableDebuggerWriteAccess(uint32_t u32dpm)
 }
 
 
-/*@}*/ /* end of group DPM_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group DPM_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group DPM_Driver */
+/**@}*/ /* end of group DPM_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

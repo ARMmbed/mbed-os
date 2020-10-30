@@ -4,6 +4,7 @@
  * @brief    Key store driver source file
  *
  * @note
+ * SPDX-License-Identifier: Apache-2.0
  * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
@@ -394,6 +395,32 @@ uint32_t KS_GetRemainSize(KS_MEM_Type mem)
 }
 
 
+
+/**
+  * @brief      Get remain key count of specified Key Store memory
+  * @param[in]  eType       The memory type. It could be:
+                            \ref KS_SRAM
+                            \ref KS_FLASH
+  * @retval     Remain key count in the specified key store memory
+  * @details    This function is used to get remain key count in specified key store memory.
+  */
+uint32_t KS_GetRemainKeyCount(KS_MEM_Type mem)
+{
+    uint32_t u32Reg;
+    uint32_t u32SramRemain, u32FlashRemain;
+
+    u32Reg = KS->REMKCNT;
+    u32SramRemain = (u32Reg & KS_REMKCNT_RRMKCNT_Msk) >> KS_REMKCNT_RRMKCNT_Pos;
+    u32FlashRemain = (u32Reg & KS_REMKCNT_FRMKCNT_Msk) >> KS_REMKCNT_FRMKCNT_Pos;
+
+    if(mem == KS_SRAM)
+        return u32SramRemain;
+    else
+        return u32FlashRemain;
+}
+
+
+
 /**
   * @brief      Write OTP key to key store
   * @param[in]  i32KeyIdx   The OTP key index to store the key. It could be 0~7.
@@ -525,10 +552,10 @@ int32_t KS_ToggleSRAM(void)
 }
 
 
-/*@}*/ /* end of group KS_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group KS_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group KS_Driver */
+/**@}*/ /* end of group KS_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 /*** (C) COPYRIGHT 2018 Nuvoton Technology Corp. ***/

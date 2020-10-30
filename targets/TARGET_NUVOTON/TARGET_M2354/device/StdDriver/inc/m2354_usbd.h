@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    M2354 series USBD driver header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_H__
 #define __USBD_H__
@@ -27,28 +28,28 @@ extern "C"
 /** @addtogroup USBD_EXPORTED_STRUCTS USBD Exported Structs
   @{
 */
+
 typedef struct s_usbd_info
 {
-    const uint8_t *gu8DevDesc;            /*!< Pointer for USB Device Descriptor          */
-    const uint8_t *gu8ConfigDesc;         /*!< Pointer for USB Configuration Descriptor   */
-    const uint8_t **gu8StringDesc;        /*!< Pointer for USB String Descriptor pointers */
-    const uint8_t **gu8HidReportDesc;     /*!< Pointer for USB HID Report Descriptor      */
-    const uint8_t *gu8BosDesc;            /*!< Pointer for USB BOS Descriptor             */
-    const uint32_t *gu32HidReportSize;    /*!< Pointer for HID Report descriptor Size */
-    const uint32_t *gu32ConfigHidDescIdx; /*!< Pointer for HID Descriptor start index */
+    uint8_t *gu8DevDesc;            /*!< Pointer for USB Device Descriptor          */
+    uint8_t *gu8ConfigDesc;         /*!< Pointer for USB Configuration Descriptor   */
+    uint8_t **gu8StringDesc;        /*!< Pointer for USB String Descriptor pointers */
+    uint8_t **gu8HidReportDesc;     /*!< Pointer for USB HID Report Descriptor      */
+    uint8_t *gu8BosDesc;            /*!< Pointer for USB BOS Descriptor             */
+    uint32_t *gu32HidReportSize;    /*!< Pointer for HID Report descriptor Size */
+    uint32_t *gu32ConfigHidDescIdx; /*!< Pointer for HID Descriptor start index */
 
 } S_USBD_INFO_T;  /*!< Device description structure */
 
 extern const S_USBD_INFO_T gsInfo;
 
-/*@}*/ /* end of group USBD_EXPORTED_STRUCTS */
-
-
+/**@}*/ /* end of group USBD_EXPORTED_STRUCTS */
 
 
 /** @addtogroup USBD_EXPORTED_CONSTANTS USBD Exported Constants
   @{
 */
+
 #define USBD_BUF_BASE      (uint32_t)(((__PC() & NS_OFFSET) == NS_OFFSET)? (USBD_BASE+NS_OFFSET+0x100UL):(USBD_BASE+0x100UL))  /*!< USBD buffer base address */
 #define USBD_MAX_EP        12UL  /*!< Total EP number */
 
@@ -173,7 +174,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_STATE_TIMEOUT      USBD_ATTR_TOUT_Msk          /*!< USB Bus Timeout */
 #define USBD_STATE_L1SUSPEND    USBD_ATTR_L1SUSPEND_Msk     /*!< USB Bus L1SUSPEND */
 #define USBD_STATE_L1RESUME     USBD_ATTR_L1RESUME_Msk      /*!< USB Bus L1RESUME */
-#define USBD_STATE_SE1          USBD_ATTR_SE1_Msk           /*!< USB Bus SE1 */
 
 #define USBD_CFG_DB_EN          USBD_CFG_DBEN_Msk           /*!< Double Buffer Enable */
 #define USBD_CFG_DBTGACTIVE     USBD_CFG_DBTGACTIVE_Msk     /*!< Double Buffer Toggle Active */
@@ -186,8 +186,7 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_CFG_EPMODE_IN      (2UL << USBD_CFG_STATE_Pos)/*!< In Endpoint */
 #define USBD_CFG_TYPE_ISO       (1UL << USBD_CFG_ISOCH_Pos)/*!< Isochronous */
 
-
-/*@}*/ /* end of group USBD_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group USBD_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup USBD_EXPORTED_FUNCTIONS USBD Exported Functions
@@ -206,7 +205,6 @@ extern const S_USBD_INFO_T gsInfo;
   */
 #define USBD_Maximum(a,b)        ((a)>(b) ? (a) : (b))
 
-
 /**
   * @brief      Compare two input numbers and return minimum one
   *
@@ -218,7 +216,6 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    If a < b, then return a. Otherwise, return b.
   */
 #define USBD_Minimum(a,b)        ((a)<(b) ? (a) : (b))
-
 
 /**
   * @brief    Enable USB
@@ -375,19 +372,18 @@ extern const S_USBD_INFO_T gsInfo;
   *
   * @param    None
   *
-  * @return   The value of USB_ATTR[14:12] and USB_ATTR[3:0].
+  * @return   The value of USB_ATTR[13:12] and USB_ATTR[3:0].
   *           Bit 0  indicates USB bus reset status.
   *           Bit 1  indicates USB bus suspend status.
   *           Bit 2  indicates USB bus resume status.
   *           Bit 3  indicates USB bus time-out status.
   *           Bit 12 indicates USB bus LPM L1 suspend status.
   *           Bit 13 indicates USB bus LPM L1 resume status.
-  *           Bit 14 indicates USB bus SE1 status.
   *
-  * @details  Return USB_ATTR[14:12] and USB_ATTR[3:0] for USB bus events.
+  * @details  Return USB_ATTR[13:12] and USB_ATTR[3:0] for USB bus events.
   *
   */
-#define USBD_GET_BUS_STATE()        (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->ATTR & 0x700F)):((uint32_t)(USBD->ATTR & 0x700F)))
+#define USBD_GET_BUS_STATE()        (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->ATTR & 0x300F)):((uint32_t)(USBD->ATTR & 0x300F)))
 
 /**
   * @brief    Check cable connection state
@@ -618,7 +614,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    This function will copy the number of data specified by size and src parameters to the address specified by dest parameter.
   *
   */
-__STATIC_INLINE void USBD_MemCopy(uint8_t dest[], const uint8_t src[], uint32_t size)
+__STATIC_INLINE void USBD_MemCopy(uint8_t dest[], uint8_t src[], uint32_t size)
 {
     uint32_t volatile i = 0UL;
 
@@ -628,7 +624,6 @@ __STATIC_INLINE void USBD_MemCopy(uint8_t dest[], const uint8_t src[], uint32_t 
         i++;
     }
 }
-
 
 /**
   * @brief       Set USB endpoint stall state
@@ -778,7 +773,7 @@ void USBD_GetSetupPacket(uint8_t *buf);
 void USBD_ProcessSetupPacket(void);
 void USBD_GetDescriptor(void);
 void USBD_StandardRequest(void);
-void USBD_PrepareCtrlIn(const uint8_t pu8Buf[], uint32_t u32Size);
+void USBD_PrepareCtrlIn(uint8_t pu8Buf[], uint32_t u32Size);
 void USBD_CtrlIn(void);
 void USBD_PrepareCtrlOut(uint8_t *pu8Buf, uint32_t u32Size);
 void USBD_CtrlOut(void);
@@ -788,11 +783,11 @@ void USBD_SetConfigCallback(SET_CONFIG_CB pfnSetConfigCallback);
 void USBD_LockEpStall(uint32_t u32EpBitmap);
 
 
-/*@}*/ /* end of group USBD_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group USBD_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group USBD_Driver */
+/**@}*/ /* end of group USBD_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -800,4 +795,4 @@ void USBD_LockEpStall(uint32_t u32EpBitmap);
 
 #endif /* __USBD_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

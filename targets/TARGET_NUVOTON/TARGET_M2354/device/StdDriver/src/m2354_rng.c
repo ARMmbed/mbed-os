@@ -4,7 +4,8 @@
  * @brief    Show how to get true random number.
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include <stdio.h>
@@ -58,7 +59,7 @@ int32_t RNG_Open(void)
     CLK->APBCLK1 |= CLK_APBCLK1_TRNGCKEN_Msk;
     CLK->APBCLK0 |= CLK_APBCLK0_RTCCKEN_Msk;
 
-    RTC->LXTCTL |= (RTC_LXTCTL_C32KSEL_Msk | RTC_LXTCTL_RC32KEN_Msk); //To use LIRC32K
+    RTC->LXTCTL |= (RTC_LXTCTL_C32KSEL_Msk | RTC_LXTCTL_LIRC32KEN_Msk); //To use LIRC32K
 
     TRNG->ACT |= TRNG_ACT_ACT_Msk;
     /* Waiting for ready */
@@ -72,7 +73,7 @@ int32_t RNG_Open(void)
         }
     }
 
-    TRNG->CTL = (0 << TRNG_CTL_CLKP_Pos);
+    TRNG->CTL = (0 << TRNG_CTL_CLKPSC_Pos);
 
 
     /* Enable SEEDGEN */
@@ -195,7 +196,7 @@ int32_t RNG_ECDSA_Init(uint32_t u32KeySize, uint32_t au32ECC_N[18])
     CLK->APBCLK1 |= CLK_APBCLK1_TRNGCKEN_Msk;
     CLK->APBCLK0 |= CLK_APBCLK0_RTCCKEN_Msk;
 
-    RTC->LXTCTL |= (RTC_LXTCTL_C32KSEL_Msk | RTC_LXTCTL_RC32KEN_Msk); //To use LIRC32K
+    RTC->LXTCTL |= (RTC_LXTCTL_C32KSEL_Msk | RTC_LXTCTL_LIRC32KEN_Msk); //To use LIRC32K
 
     TRNG->ACT |= TRNG_ACT_ACT_Msk;
     /* Waiting for ready */
@@ -204,51 +205,49 @@ int32_t RNG_ECDSA_Init(uint32_t u32KeySize, uint32_t au32ECC_N[18])
     {
         if(i++ > timeout)
         {
-            printf("TRNG ready timeout\n");
             return -1; // Timeout
         }
     }
 
-    TRNG->CTL = (0 << TRNG_CTL_CLKP_Pos);
+    TRNG->CTL = (0 << TRNG_CTL_CLKPSC_Pos);
 
+    /* Reset seed select of PRNG */
+    CRPT->PRNG_CTL = 0;
+    
 
     /* Enable SEEDGEN */
-    TRNG->CTL |= (1 << 8);
+    TRNG->CTL |= TRNG_CTL_SEEDGEN_Msk;
 
     /* Waiting for seed ready */
     i = 0;
-    while((TRNG->CTL & (1 << 9)) == 0)
+    while((TRNG->CTL & TRNG_CTL_SEEDRDY_Msk) == 0)
     {
         if(i++ > timeout)
         {
-            //printf("seed ready timeout\n");
             return -1; // Timeout
         }
     }
 
     // Waiting for PRNG busy
     i = 0;
-    while(CRPT->PRNG_CTL & (1 << 8))
+    while(CRPT->PRNG_CTL & CRPT_PRNG_CTL_BUSY_Msk)
     {
         if(i++ > timeout)
         {
-            //printf("PRNG busy timeout\n");
             return -1; // Timeout
         }
     }
 
 
-
     // Set seed select to TRNG
-    CRPT->PRNG_CTL = (1 << 6);
+    CRPT->PRNG_CTL = 1 << CRPT_PRNG_CTL_SEEDSEL_Pos;
 
     // Waiting for seed src ok
     i = 0;
-    while((CRPT->PRNG_CTL & (1 << 7)) == 0)
+    while((CRPT->PRNG_CTL & CRPT_PRNG_CTL_SEEDSRC_Msk) == 0)
     {
         if(i++ > timeout)
         {
-            //printf("PRNG src timeout\n");
             return -1; // Timeout
         }
     }
@@ -269,7 +268,6 @@ int32_t RNG_ECDSA_Init(uint32_t u32KeySize, uint32_t au32ECC_N[18])
     {
         if(i++ > timeout)
         {
-            //printf("busy timeout\n");
             return -1; // Timeout
         }
     }
@@ -348,7 +346,7 @@ int32_t RNG_ECDH_Init(uint32_t u32KeySize, uint32_t au32ECC_N[18])
     CLK->APBCLK1 |= CLK_APBCLK1_TRNGCKEN_Msk;
     CLK->APBCLK0 |= CLK_APBCLK0_RTCCKEN_Msk;
 
-    RTC->LXTCTL |= (RTC_LXTCTL_C32KSEL_Msk | RTC_LXTCTL_RC32KEN_Msk); //To use LIRC32K
+    RTC->LXTCTL |= (RTC_LXTCTL_C32KSEL_Msk | RTC_LXTCTL_LIRC32KEN_Msk); //To use LIRC32K
 
     TRNG->ACT |= TRNG_ACT_ACT_Msk;
     /* Waiting for ready */
@@ -362,15 +360,15 @@ int32_t RNG_ECDH_Init(uint32_t u32KeySize, uint32_t au32ECC_N[18])
         }
     }
 
-    TRNG->CTL = (0 << TRNG_CTL_CLKP_Pos);
+    TRNG->CTL = (0 << TRNG_CTL_CLKPSC_Pos);
 
 
     /* Enable SEEDGEN */
-    TRNG->CTL |= (1 << 8);
+    TRNG->CTL |= TRNG_CTL_SEEDGEN_Msk;
 
     /* Waiting for seed ready */
     i = 0;
-    while((TRNG->CTL & (1 << 9)) == 0)
+    while((TRNG->CTL & TRNG_CTL_SEEDRDY_Msk) == 0)
     {
         if(i++ > timeout)
         {
@@ -381,7 +379,7 @@ int32_t RNG_ECDH_Init(uint32_t u32KeySize, uint32_t au32ECC_N[18])
 
     /* Waiting for PRNG busy */
     i = 0;
-    while(CRPT->PRNG_CTL & (1 << 8))
+    while(CRPT->PRNG_CTL & TRNG_CTL_SEEDGEN_Msk)
     {
         if(i++ > timeout)
         {
@@ -469,9 +467,9 @@ int32_t RNG_ECDH(uint32_t u32KeySize)
     return (CRPT->PRNG_KSSTS & CRPT_PRNG_KSCTL_NUM_Msk);
 }
 
-/*@}*/ /* end of group RNG_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group RNG_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group RNG_Driver */
+/**@}*/ /* end of group RNG_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 

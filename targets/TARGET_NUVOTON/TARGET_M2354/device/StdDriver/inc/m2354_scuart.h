@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Smartcard UART mode (SCUART) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2016-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SCUART_H__
 #define __SCUART_H__
@@ -37,7 +38,7 @@ extern "C"
 #define SCUART_STOP_BIT_1     (SC_CTL_NSB_Msk)                  /*!< Set SCUART transfer with one stop bit  \hideinitializer */
 #define SCUART_STOP_BIT_2     (0UL)                             /*!< Set SCUART transfer with two stop bits \hideinitializer */
 
-/*@}*/ /* end of group SCUART_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group SCUART_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup SCUART_EXPORTED_FUNCTIONS SCUART Exported Functions
@@ -99,7 +100,7 @@ extern "C"
   * @note       This macro blocks until transmit complete.
   * \hideinitializer
   */
-#define SCUART_WAIT_TX_EMPTY(sc)    while((sc)->STATUS & SC_STATUS_TXACT_Msk)
+#define SCUART_WAIT_TX_EMPTY(sc)    while(((sc)->STATUS & SC_STATUS_TXACT_Msk) == SC_STATUS_TXACT_Msk)
 
 /**
   * @brief      Check specified smartcard port transmit FIFO is full or not
@@ -339,11 +340,11 @@ uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWi
 void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC);
 void SCUART_Write(SC_T* sc, uint8_t pu8TxBuf[], uint32_t u32WriteBytes);
 
-/*@}*/ /* end of group SCUART_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SCUART_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SCUART_Driver */
+/**@}*/ /* end of group SCUART_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -351,4 +352,4 @@ void SCUART_Write(SC_T* sc, uint8_t pu8TxBuf[], uint32_t u32WriteBytes);
 
 #endif /* __SCUART_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2016-2020 Nuvoton Technology Corp. ***/

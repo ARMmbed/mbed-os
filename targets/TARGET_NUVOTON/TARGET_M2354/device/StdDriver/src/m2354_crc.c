@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Cyclic Redundancy Check(CRC) driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2016-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -68,30 +69,30 @@ uint32_t CRC_GetChecksum(void)
 
     switch(CRC->CTL & CRC_CTL_CRCMODE_Msk)
     {
-    case CRC_CCITT:
-    case CRC_16:
-        u32Checksum = (CRC->CHECKSUM & 0xFFFFUL);
-        break;
+        case CRC_CCITT:
+        case CRC_16:
+            u32Checksum = (CRC->CHECKSUM & 0xFFFFUL);
+            break;
 
-    case CRC_32:
-        u32Checksum = CRC->CHECKSUM;
-        break;
+        case CRC_32:
+            u32Checksum = CRC->CHECKSUM;
+            break;
 
-    case CRC_8:
-        u32Checksum = (CRC->CHECKSUM & 0xFFUL);
-        break;
+        case CRC_8:
+            u32Checksum = (CRC->CHECKSUM & 0xFFUL);
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
     return u32Checksum;
 }
 
-/*@}*/ /* end of group CRC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group CRC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group CRC_Driver */
+/**@}*/ /* end of group CRC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2016-2020 Nuvoton Technology Corp. ***/

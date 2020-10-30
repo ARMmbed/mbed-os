@@ -4,7 +4,8 @@
  * @brief    M2354 series USCI UART (UUART) driver source file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include <stdio.h>
@@ -722,11 +723,10 @@ void UUART_DisableFlowCtrl(UUART_T* uuart)
 
 
 
-/*@}*/ /* end of group USCI_UART_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group USCI_UART_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group USCI_UART_Driver */
+/**@}*/ /* end of group USCI_UART_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
-
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

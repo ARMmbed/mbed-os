@@ -1,10 +1,11 @@
 /**************************************************************************//**
  * @file     pdma.h
  * @version  V3.00
- * @brief    M2355 series PDMA driver header file
+ * @brief    M2354 series PDMA driver header file
  *
  * @note
- * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __PDMA_H__
 #define __PDMA_H__
@@ -103,6 +104,7 @@ extern "C"
 #define PDMA_SPI2_RX       27UL            /*!<DMA Connect to SPI2 RX  \hideinitializer */
 #define PDMA_SPI3_TX       28UL            /*!<DMA Connect to SPI3 TX  \hideinitializer */
 #define PDMA_SPI3_RX       29UL            /*!<DMA Connect to SPI3 RX  \hideinitializer */
+#define PDMA_ADC_RX        30UL            /*!<DMA Connect to ADC RX  \hideinitializer */
 #define PDMA_EPWM0_P1_RX   32UL            /*!<DMA Connect to EPWM0 P1 RX  \hideinitializer */
 #define PDMA_EPWM0_P2_RX   33UL            /*!<DMA Connect to EPWM0 P2 RX  \hideinitializer */
 #define PDMA_EPWM0_P3_RX   34UL            /*!<DMA Connect to EPWM0 P3 RX  \hideinitializer */
@@ -121,21 +123,22 @@ extern "C"
 #define PDMA_TMR1          47UL            /*!<DMA Connect to TMR1  \hideinitializer */
 #define PDMA_TMR2          48UL            /*!<DMA Connect to TMR2  \hideinitializer */
 #define PDMA_TMR3          49UL            /*!<DMA Connect to TMR3  \hideinitializer */
-#define PDMA_ADC_RX        50UL            /*!<DMA Connect to ADC RX  \hideinitializer */
-#define PDMA_DAC0_TX       51UL            /*!<DMA Connect to DAC0 TX  \hideinitializer */
-#define PDMA_DAC1_TX       52UL            /*!<DMA Connect to DAC1 TX  \hideinitializer */
-#define PDMA_EPWM0_CH0_TX  53UL            /*!<DMA Connect to EPWM0 CH0 TX  \hideinitializer */
-#define PDMA_EPWM0_CH1_TX  54UL            /*!<DMA Connect to EPWM0 CH1 TX  \hideinitializer */
-#define PDMA_EPWM0_CH2_TX  55UL            /*!<DMA Connect to EPWM0 CH2 TX  \hideinitializer */
-#define PDMA_EPWM0_CH3_TX  56UL            /*!<DMA Connect to EPWM0 CH3 TX  \hideinitializer */
-#define PDMA_EPWM0_CH4_TX  57UL            /*!<DMA Connect to EPWM0 CH4 TX  \hideinitializer */
-#define PDMA_EPWM0_CH5_TX  58UL            /*!<DMA Connect to EPWM0 CH5 TX  \hideinitializer */
-#define PDMA_EPWM1_CH0_TX  59UL            /*!<DMA Connect to EPWM1 CH0 TX  \hideinitializer */
-#define PDMA_EPWM1_CH1_TX  60UL            /*!<DMA Connect to EPWM1 CH1 TX  \hideinitializer */
-#define PDMA_EPWM1_CH2_TX  61UL            /*!<DMA Connect to EPWM1 CH2 TX  \hideinitializer */
-#define PDMA_EPWM1_CH3_TX  62UL            /*!<DMA Connect to EPWM1 CH3 TX  \hideinitializer */
-#define PDMA_EPWM1_CH4_TX  63UL            /*!<DMA Connect to EPWM1 CH4 TX  \hideinitializer */
-#define PDMA_EPWM1_CH5_TX  64UL            /*!<DMA Connect to EPWM1 CH5 TX  \hideinitializer */
+#define PDMA_TMR4          50UL            /*!<DMA Connect to TMR4  \hideinitializer */
+#define PDMA_TMR5          51UL            /*!<DMA Connect to TMR5  \hideinitializer */
+#define PDMA_DAC0_TX       52UL            /*!<DMA Connect to DAC0 TX  \hideinitializer */
+#define PDMA_DAC1_TX       53UL            /*!<DMA Connect to DAC1 TX  \hideinitializer */
+#define PDMA_EPWM0_CH0_TX  54UL            /*!<DMA Connect to EPWM0 CH0 TX  \hideinitializer */
+#define PDMA_EPWM0_CH1_TX  55UL            /*!<DMA Connect to EPWM0 CH1 TX  \hideinitializer */
+#define PDMA_EPWM0_CH2_TX  56UL            /*!<DMA Connect to EPWM0 CH2 TX  \hideinitializer */
+#define PDMA_EPWM0_CH3_TX  57UL            /*!<DMA Connect to EPWM0 CH3 TX  \hideinitializer */
+#define PDMA_EPWM0_CH4_TX  58UL            /*!<DMA Connect to EPWM0 CH4 TX  \hideinitializer */
+#define PDMA_EPWM0_CH5_TX  59UL            /*!<DMA Connect to EPWM0 CH5 TX  \hideinitializer */
+#define PDMA_EPWM1_CH0_TX  60UL            /*!<DMA Connect to EPWM1 CH0 TX  \hideinitializer */
+#define PDMA_EPWM1_CH1_TX  61UL            /*!<DMA Connect to EPWM1 CH1 TX  \hideinitializer */
+#define PDMA_EPWM1_CH2_TX  62UL            /*!<DMA Connect to EPWM1 CH2 TX  \hideinitializer */
+#define PDMA_EPWM1_CH3_TX  63UL            /*!<DMA Connect to EPWM1 CH3 TX  \hideinitializer */
+#define PDMA_EPWM1_CH4_TX  64UL            /*!<DMA Connect to EPWM1 CH4 TX  \hideinitializer */
+#define PDMA_EPWM1_CH5_TX  65UL            /*!<DMA Connect to EPWM1 CH5 TX  \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Interrupt Type Constant Definitions                                                                    */
@@ -146,7 +149,7 @@ extern "C"
 #define PDMA_INT_ALIGN      0x00000003UL            /*!<Transfer Alignment Interrupt  \hideinitializer */
 
 
-/*@}*/ /* end of group PDMA_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group PDMA_EXPORTED_CONSTANTS */
 
 /** @addtogroup PDMA_EXPORTED_FUNCTIONS PDMA Exported Functions
   @{
@@ -365,11 +368,11 @@ void PDMA_EnableInt(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Mask);
 void PDMA_DisableInt(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Mask);
 
 
-/*@}*/ /* end of group PDMA_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group PDMA_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group PDMA_Driver */
+/**@}*/ /* end of group PDMA_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -377,4 +380,4 @@ void PDMA_DisableInt(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Mask);
 
 #endif /* __PDMA_H__ */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017-2020 Nuvoton Technology Corp. ***/

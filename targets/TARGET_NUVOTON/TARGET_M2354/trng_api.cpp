@@ -27,9 +27,6 @@
 #include "platform/mbed_error.h"
 #include "nu_modutil.h"
 #include "hal_secure.h"
-#if defined(DOMAIN_NS) && (DOMAIN_NS == 1L) && (TFM_LVL > 0)
-#include "tfm_ns_lock.h"
-#endif
 #include "partition_M2354.h"
 
 #if defined(SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & (1 << 25))
@@ -141,97 +138,24 @@ static int32_t trng_get_bytes_impl(MBED_UNUSED void *obj, uint8_t *output, uint3
     return 0;
 }
 
-#if (TFM_LVL > 0)
-
 /* Add 'extern "C"' here to get around compile error on ARMC6 */
 
 extern "C"
 __NONSECURE_ENTRY
-int32_t trng_init_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    void *obj = (void *) arg0;
-    trng_init_impl(obj);
-    return 0;
-}
-
-extern "C"
-__NONSECURE_ENTRY
-int32_t trng_free_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    void *obj = (void *) arg0;
-    trng_free_impl(obj);
-    return 0;
-}
-
-extern "C"
-__NONSECURE_ENTRY
-int32_t trng_get_bytes_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    void *obj = (void *) arg0;
-    uint8_t *output = (uint8_t *) arg1;
-    uint32_t *length_bidi = (uint32_t *) arg2;
-    int32_t *status = (int32_t *) arg3;
-    *status = trng_get_bytes_impl(obj, output, *length_bidi, length_bidi);
-
-    return 0;
-}
-
-#endif
-
-#endif
-
-#if defined(DOMAIN_NS) && (DOMAIN_NS == 1) && (TFM_LVL > 0)
-
-void trng_init_s(void *obj)
-{
-    tfm_ns_lock_dispatch(trng_init_veneer, (uint32_t) obj, 0, 0, 0);
-}
-
-void trng_free_s(void *obj)
-{
-    tfm_ns_lock_dispatch(trng_free_veneer, (uint32_t) obj, 0, 0, 0);
-}
-
-int32_t trng_get_bytes_s(void *obj, uint8_t *output, uint32_t length, uint32_t *output_length)
-{
-    uint32_t length_bidi = length;
-    int32_t status;
-
-    tfm_ns_lock_dispatch(trng_get_bytes_veneer, (uint32_t) obj, (uint32_t) output, (uint32_t) &length_bidi, (uint32_t) &status);
-
-    if (output_length) {
-        *output_length = length_bidi;
-    }
-    
-    return status;
-}
-
-#elif defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-
-/* Add 'extern "C"' here to get around compile error on ARMC6 */
-
-#if (TFM_LVL == 0)
-extern "C"
-__NONSECURE_ENTRY
-#endif
 void trng_init_s(void *obj)
 {
     trng_init_impl(obj);
 }
 
-#if (TFM_LVL == 0)
 extern "C"
 __NONSECURE_ENTRY
-#endif
 void trng_free_s(void *obj)
 {
     trng_free_impl(obj);
 }
 
-#if (TFM_LVL == 0)
 extern "C"
 __NONSECURE_ENTRY
-#endif
 int32_t trng_get_bytes_s(void *obj, uint8_t *output, uint32_t length, uint32_t *output_length)
 {
     return trng_get_bytes_impl(obj, output, length, output_length);
@@ -239,4 +163,4 @@ int32_t trng_get_bytes_s(void *obj, uint8_t *output, uint32_t length, uint32_t *
 
 #endif
 
-#endif
+#endif  /* #if DEVICE_TRNG */

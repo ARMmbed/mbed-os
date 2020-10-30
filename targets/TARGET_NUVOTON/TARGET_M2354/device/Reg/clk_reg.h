@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    CLK register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __CLK_REG_H__
 #define __CLK_REG_H__
@@ -19,7 +20,8 @@
 /**
     @addtogroup CLK System Clock Controller(CLK)
     Memory Mapped Structure for CLK Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -45,8 +47,7 @@ typedef struct
      * |        |          |0 = 12 MHz internal high speed RC oscillator (HIRC) Disabled.
      * |        |          |1 = 12 MHz internal high speed RC oscillator (HIRC) Enabled.
      * |        |          |Note1: This bit is write protected. Refer to the SYS_REGLCTL register.
-     * |        |          |Note2: HIRC cannot be disabled and HIRCEN will always read as 1 if Flash access cycle auto-tuning function is enabled or HCLK clock source is selected from HIRC or PLL (clock source from HIRC).
-     * |        |          |Flash access cycle auto-tuning function can be disabled by setting FADIS (FMC_CYCCTL[8]).
+     * |        |          |Note2: HIRC cannot be disabled and HIRCEN will always read as 1 if HCLK clock source is selected from HIRC or PLL (clock source from HIRC).
      * |[3]     |LIRCEN    |LIRC Enable Bit (Write Protect)
      * |        |          |0 = 32 kHz internal low speed RC oscillator (LIRC) Disabled.
      * |        |          |1 = 32 kHz internal low speed RC oscillator (LIRC) Enabled.
@@ -62,13 +63,14 @@ typedef struct
      * |        |          |Note2: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[6]     |PDWKIF    |Power-down Mode Wake-up Interrupt Status
      * |        |          |Set by Power-down wake-up event, it indicates that resume from Power-down mode.
-     * |        |          |The flag is set if the EINT7~0, GPIO, UART0~5, USBH, USBD, OTG, CAN0, BOD, ACMP, WDT, SDH0, TMR0~3, I2C0~2, USCI0~1, RTC and TAMPER wake-up occurred.
+     * |        |          |The flag is set if the EINT7~0, GPIO, UART0~5, USBH, USBD, OTG, CAN0, BOD, ACMP, WDT, EWDT, SDH0, TIMER, I2C0~2, USCI0~1, RTC, TAMPER and CLKD wake-up occurred.
      * |        |          |Note1: Write 1 to clear the bit to 0.
      * |        |          |Note2: This bit works only if PDWKIEN (CLK_PWRCTL[5]) set to 1.
      * |[7]     |PDEN      |System Power-down Enable (Write Protect)
      * |        |          |When this bit is set to 1, Power-down mode is enabled and the chip keeps active till the CPU sleep mode is also active and then the chip enters Power-down mode.
      * |        |          |When chip wakes up from Power-down mode, this bit is auto cleared. Users need to set this bit again for next Power-down.
-     * |        |          |In Power-down mode, HXT, HIRC, HIRC48, PLL and system clock will be disabled and ignored the clock source selection. The clocks of peripheral are not controlled by Power-down mode, if the peripheral clock source is from LXT or LIRC.
+     * |        |          |In Power-down mode, HXT, HIRC, HIRC48, PLL and system clock will be disabled and ignored the clock source selection. 
+     * |        |          |The clocks of peripheral are not controlled by Power-down mode, if the peripheral clock source is from LXT, LIRC or MIRC.
      * |        |          |0 = Chip operating normally or chip in idle mode because of WFI command.
      * |        |          |1 = Chip waits CPU sleep command WFI and then enters Power-down mode.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
@@ -91,12 +93,18 @@ typedef struct
      * |[18]    |HIRC48EN  |HIRC48 Enable Bit (Write Protect)
      * |        |          |0 = 48 MHz internal high speed RC oscillator (HIRC48) Disabled.
      * |        |          |1 = 48 MHz internal high speed RC oscillator (HIRC48) Enabled.
-     * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
-     * |[19]    |MIRCEN    |MIRC Enable Bit (Write Protect)
-     * |        |          |0 = 1 MHz internal medium speed RC oscillator (MIRC) Disabled.
-     * |        |          |1 = 1 MHz internal medium speed RC oscillator (MIRC) Enabled.
-     * |        |          |Note 1: This bit is write protected. Refer to the SYS_REGLCTL register. 
+     * |        |          |Note 1: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: HIRC48 cannot be disabled and HIRC48EN will always read as 1 if HCLK clock source is selected from HIRC48.     
+     * |[20]    |MIRC1P2MEN|MIRC1P2M Enable Bit (Write Protect)
+     * |        |          |0 = 1.2 MHz internal medium speed RC oscillator (MIRC1P2M) Disabled.
+     * |        |          |1 = 1.2 MHz internal medium speed RC oscillator (MIRC1P2M) Enabled.
+     * |        |          |Note 1: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |        |          |Note 2: This clock source only for LCD use.
+     * |[21]    |MIRCEN    |MIRC Enable Bit (Write Protect)
+     * |        |          |0 = 4 MHz internal medium speed RC oscillator (MIRC) Disabled.
+     * |        |          |1 = 4 MHz internal medium speed RC oscillator (MIRC) Enabled.
+     * |        |          |Note 1: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * |        |          |Note 2: MIRC cannot be disabled and MIRC will always read as 1 if HCLK clock source is selected from MIRC.          
      * @var CLK_T::AHBCLK
      * Offset: 0x04  AHB Devices Clock Enable Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -177,8 +185,8 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[0]     |WDTCKEN   |Watchdog Timer Clock Enable Bit (Write Protect)
-     * |        |          |0 = Watchdog timer clock Disabled.
-     * |        |          |1 = Watchdog timer clock Enabled.
+     * |        |          |0 = Watchdog timer and Windows watchdog timer clock Disabled.
+     * |        |          |1 = Watchdog timer and Windows watchdog timer clock Enabled.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[1]     |RTCCKEN   |Real-time-clock APB Interface Clock Enable Bit
      * |        |          |This bit is used to control the RTC APB clock only.
@@ -258,9 +266,9 @@ typedef struct
      * |[29]    |I2S0CKEN  |I2S0 Clock Enable Bit
      * |        |          |0 = I2S0 Clock Disabled.
      * |        |          |1 = I2S0 Clock Enabled.
-     * |[0]     |EWDTCKEN  |Extra Watchdog Timer Clock Enable Bit (Write Protect)
-     * |        |          |0 = Extra Watchdog timer clock Disabled.
-     * |        |          |1 = Extra Watchdog timer clock Enabled.
+     * |[31]    |EWDTCKEN |Extra Watchdog Timer Clock Enable Bit (Write Protect)
+     * |        |          |0 = Extra Watchdog timer and Extra Windows watchdog timer clock Disabled.
+     * |        |          |1 = Extra Watchdog timer and Extra Windows watchdog timer clock Enabled.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.     
      * @var CLK_T::APBCLK1
      * Offset: 0x0C  APB Devices Clock Enable Control Register 1
@@ -276,6 +284,12 @@ typedef struct
      * |[2]     |SC2CKEN   |Smart Card 2 (SC2) Clock Enable Bit
      * |        |          |0 = SC2 clock Disabled.
      * |        |          |1 = SC2 clock Enabled.
+     * |[4]     |TMR4CKEN  |Timer4 Clock Enable Bit
+     * |        |          |0 = Timer4 clock Disabled.
+     * |        |          |1 = Timer4 clock Enabled.
+     * |[5]     |TMR5CKEN  |Timer5 Clock Enable Bit
+     * |        |          |0 = Timer5 clock Disabled.
+     * |        |          |1 = Timer5 clock Enabled.     
      * |[6]     |SPI3CKEN  |SPI3 Clock Enable Bit
      * |        |          |0 = SPI3 clock Disabled.
      * |        |          |1 = SPI3 clock Enabled.
@@ -315,9 +329,9 @@ typedef struct
      * |[27]    |ECAP1CKEN |ECAP1 Clock Enable Bit
      * |        |          |0 = ECAP1 clock Disabled.
      * |        |          |1 = ECAP1 clock Enabled.
-     * |[28]    |LCDFCKEN  |LCD Fast Clock Enable Bit
-     * |        |          |0 = LCD Fast clock Disabled.
-     * |        |          |1 = LCD Fast clock Enabled.
+     * |[28]    |LCDCPCKEN |LCD Charge Pump Clock Enable Bit
+     * |        |          |0 = LCD charge pump clock Disabled.
+     * |        |          |1 = LCD charge pump clock Enabled.    
      * @var CLK_T::CLKSEL0
      * Offset: 0x10  Clock Source Select Control Register 0
      * ---------------------------------------------------------------------------------------------------
@@ -331,7 +345,7 @@ typedef struct
      * |        |          |011 = Clock source from LIRC.
      * |        |          |100 = Reserved.
      * |        |          |101 = Clock source from HIRC48.
-     * |        |          |110 = Reserved.     
+     * |        |          |110 = Clock source from MIRC. 
      * |        |          |111 = Clock source from HIRC.
      * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[5:3]   |STCLKSEL  |SysTick Clock Source Selection (Write Protect)
@@ -369,9 +383,9 @@ typedef struct
      * |[2]     |LCDSEL    |LCD Clock Source Selection
      * |        |          |0 = Clock source from 32 kHz internal low speed RC oscillator (LIRC).
      * |        |          |1 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |[3]     |LCDFSEL   |LCD Fast Clock Source Selection
-     * |        |          |0 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
-     * |        |          |1 = Clock source from 1 MHz internal medium speed RC oscillator (MIRC).
+     * |[3]     |LCDCPSEL  |LCD Charge Pump Clock Source Selection
+     * |        |          |0 = Clock source from 1.2 MHz internal medium speed RC oscillator (MIRC1P2M).
+     * |        |          |1 = Clock source from 4 MHz internal medium speed RC oscillator (MIRC).
      * |[5:4]   |EWDTSEL   |Extra Watchdog Timer Clock Source Selection (Write Protect)
      * |        |          |00 = Reserved.
      * |        |          |01 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
@@ -415,16 +429,6 @@ typedef struct
      * |        |          |101 = Clock source from 32 kHz internal low speed RC oscillator (LIRC).
      * |        |          |111 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
      * |        |          |Others = Reserved.
-     * |[25:24] |UART0SEL  |UART0 Clock Source Selection
-     * |        |          |00 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
-     * |        |          |01 = Clock source from PLL.
-     * |        |          |10 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
-     * |[27:26] |UART1SEL  |UART1 Clock Source Selection
-     * |        |          |00 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
-     * |        |          |01 = Clock source from PLL.
-     * |        |          |10 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
      * |[29:28] |CLKOSEL   |Clock Output Clock Source Selection
      * |        |          |00 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
      * |        |          |01 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
@@ -477,6 +481,34 @@ typedef struct
      * |        |          |01 = Clock source from PLL.
      * |        |          |10 = Clock source from PCLK0.
      * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |[18:16] |UART0SEL  |UART0 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from PLL.
+     * |        |          |010 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |011 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |        |          |100 = Clock source from PCLK0.
+     * |        |          |Others = Reserved.
+     * |[22:20] |UART1SEL  |UART1 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from PLL.
+     * |        |          |010 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |011 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |        |          |100 = Clock source from PCLK1.
+     * |        |          |Others = Reserved.     
+     * |[26:24] |UART2SEL  |UART2 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from PLL.
+     * |        |          |010 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |011 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |        |          |100 = Clock source from PCLK0.
+     * |        |          |Others = Reserved.     
+     * |[32:28] |UART3SEL  |UART3 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from PLL.
+     * |        |          |010 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |011 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |        |          |100 = Clock source from PCLK1.
+     * |        |          |Others = Reserved.          
      * @var CLK_T::CLKSEL3
      * Offset: 0x1C  Clock Source Select Control Register 3
      * ---------------------------------------------------------------------------------------------------
@@ -497,34 +529,43 @@ typedef struct
      * |        |          |01 = Clock source from PLL.
      * |        |          |10 = Clock source from PCLK0.
      * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
-     * |[8]     |RTCSEL    |RTC Clock Source Selection
-     * |        |          |0 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |        |          |1 = Clock source from 10 kHz internal low speed RC oscillator (LIRC).
+     * |[10:8]  |TMR4SEL   |TIMER4 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |010 = Clock source from PCLK0.
+     * |        |          |011 = Clock source from external clock TM4 pin.
+     * |        |          |100 = Clock source from 4 MHz internal medium speed RC oscillator (MIRC).
+     * |        |          |101 = Clock source from 32 kHz internal low speed RC oscillator (LIRC).
+     * |        |          |110 = Reserved.     
+     * |        |          |111 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |[14:12] |TMR5SEL   |TIMER5 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |010 = Clock source from PCLK0.
+     * |        |          |011 = Clock source from external clock TM5 pin.
+     * |        |          |100 = Clock source from 4 MHz internal medium speed RC oscillator (MIRC).
+     * |        |          |101 = Clock source from 32 kHz internal low speed RC oscillator (LIRC).
+     * |        |          |110 = Reserved.         
+     * |        |          |111 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
      * |[17:16] |I2S0SEL   |I2S0 Clock Source Selection
      * |        |          |00 = Clock source from HXT clock.
      * |        |          |01 = Clock source from PLL clock.
      * |        |          |10 = Clock source from PCLK0.
      * |        |          |11 = Clock source from HIRC clock.
-     * |[25:24] |UART2SEL  |UART2 Clock Source Selection
-     * |        |          |00 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
-     * |        |          |01 = Clock source from PLL.
-     * |        |          |10 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
-     * |[27:26] |UART3SEL  |UART3 Clock Source Selection
-     * |        |          |00 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
-     * |        |          |01 = Clock source from PLL.
-     * |        |          |10 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
-     * |[29:28] |UART4SEL  |UART4 Clock Source Selection
-     * |        |          |00 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
-     * |        |          |01 = Clock source from PLL.
-     * |        |          |10 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
-     * |[31:30] |UART5SEL  |UART5 Clock Source Selection
-     * |        |          |00 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
-     * |        |          |01 = Clock source from PLL.
-     * |        |          |10 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
-     * |        |          |11 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |[27:24] |UART4SEL  |UART4 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from PLL.
+     * |        |          |010 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |011 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |        |          |100 = Clock source from PCLK0.
+     * |        |          |Others = Reserved.               
+     * |[28:30] |UART5SEL  |UART5 Clock Source Selection
+     * |        |          |000 = Clock source from 4~24 MHz external high speed crystal oscillator (HXT).
+     * |        |          |001 = Clock source from PLL.
+     * |        |          |010 = Clock source from 32.768 kHz external low speed crystal oscillator (LXT).
+     * |        |          |011 = Clock source from 12 MHz internal high speed RC oscillator (HIRC).
+     * |        |          |100 = Clock source from PCLK1.
+     * |        |          |Others = Reserved.  
      * @var CLK_T::CLKDIV0
      * Offset: 0x20  Clock Divider Number Register 0
      * ---------------------------------------------------------------------------------------------------
@@ -566,29 +607,6 @@ typedef struct
      * |        |          |UART4 clock frequency = (UART4 clock source frequency) / (UART4DIV + 1).
      * |[15:12] |UART5DIV  |UART5 Clock Divide Number from UART5 Clock Source
      * |        |          |UART5 clock frequency = (UART5 clock source frequency) / (UART5DIV + 1).
-     * @var CLK_T::PCLKDIV
-     * Offset: 0x34  APB Clock Divider Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[2:0]   |APB0DIV   |APB0 Clock Divider
-     * |        |          |APB0 clock can be divided from HCLK.
-     * |        |          |000 = PCLK0 frequency is HCLK.
-     * |        |          |001 = PCLK0 frequency is 1/2 HCLK.
-     * |        |          |010 = PCLK0 frequency is 1/4 HCLK.
-     * |        |          |011 = PCLK0 frequency is 1/8 HCLK.
-     * |        |          |100 = PCLK0 frequency is 1/16 HCLK.
-     * |        |          |101 = PCLK0 frequency is 1/32 HCLK.
-     * |        |          |Others = Reserved.
-     * |[6:4]   |APB1DIV   |APB1 Clock Divider
-     * |        |          |APB1 clock can be divided from HCLK.
-     * |        |          |000 = PCLK1 frequency is HCLK.
-     * |        |          |001 = PCLK1 frequency is 1/2 HCLK.
-     * |        |          |010 = PCLK1 frequency is 1/4 HCLK.
-     * |        |          |011 = PCLK1 frequency is 1/8 HCLK.
-     * |        |          |100 = PCLK1 frequency is 1/16 HCLK.
-     * |        |          |101 = PCLK1 frequency is 1/32 HCLK.
-     * |        |          |Others = Reserved.
     * @var CLK_T::PLLCTL
      * Offset: 0x40  PLL Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -643,6 +661,12 @@ typedef struct
      * |[4]     |HIRCSTB   |HIRC Clock Source Stable Flag (Read Only)
      * |        |          |0 = 12 MHz internal high speed RC oscillator (HIRC) clock is not stable or disabled.
      * |        |          |1 = 12 MHz internal high speed RC oscillator (HIRC) clock is stable and enabled.
+     * |[5]     |MIRCSTB   |MIRC Clock Source Stable Flag (Read Only)
+     * |        |          |0 = 4 MHz internal medium speed RC oscillator (MIRC) clock is not stable or disabled.
+     * |        |          |1 = 4 MHz internal medium speed RC oscillator (MIRC) clock is stable and enabled. 
+     * |[6]     |HIRC48STB |HIRC48 Clock Source Stable Flag (Read Only)     
+     * |        |          |0 = 48 MHz internal high speed RC oscillator (HIRC48) clock is not stable or disabled.
+     * |        |          |1 = 48 MHz internal high speed RC oscillator (HIRC48) clock is stable and enabled.
      * |[7]     |CLKSFAIL  |Clock Switching Fail Flag (Read Only)
      * |        |          |This bit is updated when software switches system clock source.
      * |        |          |If switch target clock is stable, this bit will be set to 0.
@@ -687,6 +711,10 @@ typedef struct
      * |[5]     |HXTFIEN   |HXT Clock Fail Interrupt Enable Bit
      * |        |          |0 = 4~24 MHz external high speed crystal oscillator (HXT) clock fail interrupt Disabled.
      * |        |          |1 = 4~24 MHz external high speed crystal oscillator (HXT) clock fail interrupt Enabled.
+     * |[6]     |HXTFDSEL  |HXT Clock Fail Detector Selection
+     * |        |          |0 = 4~24 MHz external high speed crystal oscillator (HXT) clock fail detector after HXT stable.
+     * |        |          |1 = 4~24 MHz external high speed crystal oscillator (HXT) clock fail detector bypass HXT stable.
+     * |        |          |Note: When HXT Clock Fail Detector Selection is set, detector will keep detect whether HXT is stable or not, prevent HXT fail before stable.
      * |[12]    |LXTFDEN   |LXT Clock Fail Detector Enable Bit
      * |        |          |0 = 32.768 kHz external low speed crystal oscillator (LXT) clock fail detector Disabled.
      * |        |          |1 = 32.768 kHz external low speed crystal oscillator (LXT) clock fail detector Enabled.
@@ -752,7 +780,7 @@ typedef struct
      * |        |          |111 = Reserved.
      * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[4]     |VDROPEN   |Standby Power Down Mode Regulator Output Voltage Drop Enable Bit (Write Protect)
-     * |        |          |If this bit be asserted, regulator output voltage drop to 1.0v when SPD mode. 
+     * |        |          |If this bit be asserted, regulator output voltage drop to 0.9V when SPD mode. 
      * |        |          |0 = Regulator voltage auto drop function Disabled. 
      * |        |          |1 = Regulator voltage auto drop function Enabled. (default)
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
@@ -870,7 +898,7 @@ typedef struct
      * |        |          |This flag indicates that wake-up of device from Standby Power-down mode (SPD) was requested with a ACMP transition.
      * |        |          |This flag is cleared when SPD mode is entered.
      * |[15]    |TAMPERWK  |Tamper Wake-up Flag (Read Only)
-     * |        |          |This flag indicates that wakeup of device from Standby Power-down mode (SPD) was requested with a Tamper event occur. 
+     * |        |          |This flag indicates that wakeup of device from Standby Power-down mode (SPD) was requested with a Tamper event occurred. 
      * |        |          |This flag is cleared when SPD mode is entered.     
      * |[31]    |CLRWK     |Clear Wake-up Flag
      * |        |          |0 = No clear.
@@ -1041,7 +1069,7 @@ typedef struct
      * |        |          |1010 = GPD.10 wake-up function enabled.
      * |        |          |1011 = GPD.11 wake-up function enabled.
      * |        |          |1100 = GPD.12 wake-up function enabled.
-     * |        |          |1101 = GPD.13 wake-up function enabled.
+     * |        |          |1101 = Reserved.
      * |        |          |1110 = GPD.14 wake-up function enabled.
      * |        |          |1111 = Reserved.
      * |[8]     |DBEN      |GPD Input Signal De-bounce Enable Bit
@@ -1084,7 +1112,7 @@ typedef struct
     __IO uint32_t CLKDIV1;               /*!< [0x0024] Clock Divider Number Register 1                                  */
     __I  uint32_t RESERVE0[2];
     __IO uint32_t CLKDIV4;               /*!< [0x0030] Clock Divider Number Register 4                                  */
-    __IO uint32_t PCLKDIV;               /*!< [0x0034] APB Clock Divider Register                                       */
+    __I  uint32_t RESERVE7[1];
     __I  uint32_t RESERVE1[2];
     __IO uint32_t PLLCTL;                /*!< [0x0040] PLL Control Register                                             */
     __I  uint32_t RESERVE2[3];
@@ -1113,7 +1141,8 @@ typedef struct
 /**
     @addtogroup CLK_CONST CLK Bit Field Definition
     Constant Definitions for CLK Controller
-@{ */
+  @{ 
+*/
 
 #define CLK_PWRCTL_HXTEN_Pos             (0)                                               /*!< CLK_T::PWRCTL: HXTEN Position          */
 #define CLK_PWRCTL_HXTEN_Msk             (0x1ul << CLK_PWRCTL_HXTEN_Pos)                   /*!< CLK_T::PWRCTL: HXTEN Mask              */
@@ -1148,7 +1177,10 @@ typedef struct
 #define CLK_PWRCTL_HIRC48EN_Pos          (18)                                              /*!< CLK_T::PWRCTL: HIRC48EN Position       */
 #define CLK_PWRCTL_HIRC48EN_Msk          (0x1ul << CLK_PWRCTL_HIRC48EN_Pos)                /*!< CLK_T::PWRCTL: HIRC48EN Mask           */
 
-#define CLK_PWRCTL_MIRCEN_Pos            (19)                                              /*!< CLK_T::PWRCTL: MIRCEN Position         */
+#define CLK_PWRCTL_MIRC1P2MEN_Pos        (20)                                              /*!< CLK_T::PWRCTL: MIRC1P2MEN Position     */
+#define CLK_PWRCTL_MIRC1P2MEN_Msk        (0x1ul << CLK_PWRCTL_MIRC1P2MEN_Pos)              /*!< CLK_T::PWRCTL: MIRC1P2MEN Mask         */
+
+#define CLK_PWRCTL_MIRCEN_Pos            (21)                                              /*!< CLK_T::PWRCTL: MIRCEN Position         */
 #define CLK_PWRCTL_MIRCEN_Msk            (0x1ul << CLK_PWRCTL_MIRCEN_Pos)                  /*!< CLK_T::PWRCTL: MIRCEN Mask             */
 
 #define CLK_AHBCLK_PDMA0CKEN_Pos         (0)                                               /*!< CLK_T::AHBCLK: PDMA0CKEN Position      */
@@ -1316,6 +1348,12 @@ typedef struct
 #define CLK_APBCLK1_SC2CKEN_Pos          (2)                                               /*!< CLK_T::APBCLK1: SC2CKEN Position       */
 #define CLK_APBCLK1_SC2CKEN_Msk          (0x1ul << CLK_APBCLK1_SC2CKEN_Pos)                /*!< CLK_T::APBCLK1: SC2CKEN Mask           */
 
+#define CLK_APBCLK1_TMR4CKEN_Pos         (4)                                               /*!< CLK_T::APBCLK1: TMR4CKEN Position      */
+#define CLK_APBCLK1_TMR4CKEN_Msk         (0x1ul << CLK_APBCLK1_TMR4CKEN_Pos)               /*!< CLK_T::APBCLK1: TMR4CKEN Mask          */
+
+#define CLK_APBCLK1_TMR5CKEN_Pos         (5)                                               /*!< CLK_T::APBCLK1: TMR5CKEN Position      */
+#define CLK_APBCLK1_TMR5CKEN_Msk         (0x1ul << CLK_APBCLK1_TMR5CKEN_Pos)               /*!< CLK_T::APBCLK1: TMR5CKEN Mask          */
+
 #define CLK_APBCLK1_SPI3CKEN_Pos         (6)                                               /*!< CLK_T::APBCLK1: SPI3CKEN Position      */
 #define CLK_APBCLK1_SPI3CKEN_Msk         (0x1ul << CLK_APBCLK1_SPI3CKEN_Pos)               /*!< CLK_T::APBCLK1: SPI3CKEN Mask          */
 
@@ -1358,8 +1396,8 @@ typedef struct
 #define CLK_APBCLK1_ECAP1CKEN_Pos        (27)                                              /*!< CLK_T::APBCLK1: ECAP1CKEN Position     */
 #define CLK_APBCLK1_ECAP1CKEN_Msk        (0x1ul << CLK_APBCLK1_ECAP1CKEN_Pos)              /*!< CLK_T::APBCLK1: ECAP1CKEN Mask         */
 
-#define CLK_APBCLK1_LCDFCKEN_Pos         (28)                                              /*!< CLK_T::APBCLK1: LCDFCKEN Position      */
-#define CLK_APBCLK1_LCDFCKEN_Msk         (0x1ul << CLK_APBCLK1_LCDFCKEN_Pos)               /*!< CLK_T::APBCLK1: LCKFCKEN Mask          */
+#define CLK_APBCLK1_LCDCPCKEN_Pos        (28)                                              /*!< CLK_T::APBCLK1: LCDCPCKEN Position     */
+#define CLK_APBCLK1_LCDCPCKEN_Msk        (0x1ul << CLK_APBCLK1_LCDCPCKEN_Pos)              /*!< CLK_T::APBCLK1: LCDCPCKEN Mask         */
 
 #define CLK_CLKSEL0_HCLKSEL_Pos          (0)                                               /*!< CLK_T::CLKSEL0: HCLKSEL Position       */
 #define CLK_CLKSEL0_HCLKSEL_Msk          (0x7ul << CLK_CLKSEL0_HCLKSEL_Pos)                /*!< CLK_T::CLKSEL0: HCLKSEL Mask           */
@@ -1379,8 +1417,8 @@ typedef struct
 #define CLK_CLKSEL1_LCDSEL_Pos           (2)                                               /*!< CLK_T::CLKSEL1: LCDSEL Position        */
 #define CLK_CLKSEL1_LCDSEL_Msk           (0x1ul << CLK_CLKSEL1_LCDSEL_Pos)                 /*!< CLK_T::CLKSEL1: LCDSEL Mask            */
 
-#define CLK_CLKSEL1_LCDFSEL_Pos          (3)                                               /*!< CLK_T::CLKSEL1: LCDFSEL Position       */
-#define CLK_CLKSEL1_LCDFSEL_Msk          (0x1ul << CLK_CLKSEL1_LCDFSEL_Pos)                /*!< CLK_T::CLKSEL1: LCDFSEL Mask           */
+#define CLK_CLKSEL1_LCDCPSEL_Pos         (3)                                               /*!< CLK_T::CLKSEL1: LCDCPSEL Position      */
+#define CLK_CLKSEL1_LCDCPSEL_Msk         (0x1ul << CLK_CLKSEL1_LCDCPSEL_Pos)               /*!< CLK_T::CLKSEL1: LCDCPSEL Mask          */
 
 #define CLK_CLKSEL1_EWDTSEL_Pos          (4)                                               /*!< CLK_T::CLKSEL1: EWDTSEL Position       */
 #define CLK_CLKSEL1_EWDTSEL_Msk          (0x3ul << CLK_CLKSEL1_EWDTSEL_Pos)                /*!< CLK_T::CLKSEL1: EWDTSEL Mask           */
@@ -1399,12 +1437,6 @@ typedef struct
 
 #define CLK_CLKSEL1_TMR3SEL_Pos          (20)                                              /*!< CLK_T::CLKSEL1: TMR3SEL Position       */
 #define CLK_CLKSEL1_TMR3SEL_Msk          (0x7ul << CLK_CLKSEL1_TMR3SEL_Pos)                /*!< CLK_T::CLKSEL1: TMR3SEL Mask           */
-
-#define CLK_CLKSEL1_UART0SEL_Pos         (24)                                              /*!< CLK_T::CLKSEL1: UART0SEL Position      */
-#define CLK_CLKSEL1_UART0SEL_Msk         (0x3ul << CLK_CLKSEL1_UART0SEL_Pos)               /*!< CLK_T::CLKSEL1: UART0SEL Mask          */
-
-#define CLK_CLKSEL1_UART1SEL_Pos         (26)                                              /*!< CLK_T::CLKSEL1: UART1SEL Position      */
-#define CLK_CLKSEL1_UART1SEL_Msk         (0x3ul << CLK_CLKSEL1_UART1SEL_Pos)               /*!< CLK_T::CLKSEL1: UART1SEL Mask          */
 
 #define CLK_CLKSEL1_CLKOSEL_Pos          (28)                                              /*!< CLK_T::CLKSEL1: CLKOSEL Position       */
 #define CLK_CLKSEL1_CLKOSEL_Msk          (0x3ul << CLK_CLKSEL1_CLKOSEL_Pos)                /*!< CLK_T::CLKSEL1: CLKOSEL Mask           */
@@ -1439,6 +1471,18 @@ typedef struct
 #define CLK_CLKSEL2_SPI3SEL_Pos          (12)                                              /*!< CLK_T::CLKSEL2: SPI3SEL Position       */
 #define CLK_CLKSEL2_SPI3SEL_Msk          (0x3ul << CLK_CLKSEL2_SPI3SEL_Pos)                /*!< CLK_T::CLKSEL2: SPI3SEL Mask           */
 
+#define CLK_CLKSEL2_UART0SEL_Pos         (16)                                              /*!< CLK_T::CLKSEL2: UART0SEL Position      */
+#define CLK_CLKSEL2_UART0SEL_Msk         (0x7ul << CLK_CLKSEL2_UART0SEL_Pos)               /*!< CLK_T::CLKSEL2: UART0SEL Mask          */
+
+#define CLK_CLKSEL2_UART1SEL_Pos         (20)                                              /*!< CLK_T::CLKSEL2: UART1SEL Position      */
+#define CLK_CLKSEL2_UART1SEL_Msk         (0x7ul << CLK_CLKSEL2_UART1SEL_Pos)               /*!< CLK_T::CLKSEL2: UART1SEL Mask          */
+
+#define CLK_CLKSEL2_UART2SEL_Pos         (24)                                              /*!< CLK_T::CLKSEL2: UART2SEL Position      */
+#define CLK_CLKSEL2_UART2SEL_Msk         (0x7ul << CLK_CLKSEL2_UART2SEL_Pos)               /*!< CLK_T::CLKSEL2: UART2SEL Mask          */
+
+#define CLK_CLKSEL2_UART3SEL_Pos         (28)                                              /*!< CLK_T::CLKSEL2: UART3SEL Position      */
+#define CLK_CLKSEL2_UART3SEL_Msk         (0x7ul << CLK_CLKSEL2_UART3SEL_Pos)               /*!< CLK_T::CLKSEL2: UART3SEL Mask          */
+
 #define CLK_CLKSEL3_SC0SEL_Pos           (0)                                               /*!< CLK_T::CLKSEL3: SC0SEL Position        */
 #define CLK_CLKSEL3_SC0SEL_Msk           (0x3ul << CLK_CLKSEL3_SC0SEL_Pos)                 /*!< CLK_T::CLKSEL3: SC0SEL Mask            */
 
@@ -1448,20 +1492,20 @@ typedef struct
 #define CLK_CLKSEL3_SC2SEL_Pos           (4)                                               /*!< CLK_T::CLKSEL3: SC2SEL Position        */
 #define CLK_CLKSEL3_SC2SEL_Msk           (0x3ul << CLK_CLKSEL3_SC2SEL_Pos)                 /*!< CLK_T::CLKSEL3: SC2SEL Mask            */
 
+#define CLK_CLKSEL3_TMR4SEL_Pos          (8)                                               /*!< CLK_T::CLKSEL3: TMR4SEL Position       */
+#define CLK_CLKSEL3_TMR4SEL_Msk          (0x7ul << CLK_CLKSEL3_TMR4SEL_Pos)                /*!< CLK_T::CLKSEL3: TMR4SEL Mask           */
+
+#define CLK_CLKSEL3_TMR5SEL_Pos          (12)                                              /*!< CLK_T::CLKSEL3: TMR5SEL Position       */
+#define CLK_CLKSEL3_TMR5SEL_Msk          (0x7ul << CLK_CLKSEL3_TMR5SEL_Pos)                /*!< CLK_T::CLKSEL3: TMR5SEL Mask           */
+
 #define CLK_CLKSEL3_I2S0SEL_Pos          (16)                                              /*!< CLK_T::CLKSEL3: I2S0SEL Position       */
 #define CLK_CLKSEL3_I2S0SEL_Msk          (0x3ul << CLK_CLKSEL3_I2S0SEL_Pos)                /*!< CLK_T::CLKSEL3: I2S0SEL Mask           */
 
-#define CLK_CLKSEL3_UART2SEL_Pos         (24)                                              /*!< CLK_T::CLKSEL3: UART2SEL Position      */
-#define CLK_CLKSEL3_UART2SEL_Msk         (0x3ul << CLK_CLKSEL3_UART2SEL_Pos)               /*!< CLK_T::CLKSEL3: UART2SEL Mask          */
+#define CLK_CLKSEL3_UART4SEL_Pos         (24)                                              /*!< CLK_T::CLKSEL3: UART4SEL Position      */
+#define CLK_CLKSEL3_UART4SEL_Msk         (0x7ul << CLK_CLKSEL3_UART4SEL_Pos)               /*!< CLK_T::CLKSEL3: UART4SEL Mask          */
 
-#define CLK_CLKSEL3_UART3SEL_Pos         (26)                                              /*!< CLK_T::CLKSEL3: UART3SEL Position      */
-#define CLK_CLKSEL3_UART3SEL_Msk         (0x3ul << CLK_CLKSEL3_UART3SEL_Pos)               /*!< CLK_T::CLKSEL3: UART3SEL Mask          */
-
-#define CLK_CLKSEL3_UART4SEL_Pos         (28)                                              /*!< CLK_T::CLKSEL3: UART4SEL Position      */
-#define CLK_CLKSEL3_UART4SEL_Msk         (0x3ul << CLK_CLKSEL3_UART4SEL_Pos)               /*!< CLK_T::CLKSEL3: UART4SEL Mask          */
-
-#define CLK_CLKSEL3_UART5SEL_Pos         (30)                                              /*!< CLK_T::CLKSEL3: UART5SEL Position      */
-#define CLK_CLKSEL3_UART5SEL_Msk         (0x3ul << CLK_CLKSEL3_UART5SEL_Pos)               /*!< CLK_T::CLKSEL3: UART5SEL Mask          */
+#define CLK_CLKSEL3_UART5SEL_Pos         (28)                                              /*!< CLK_T::CLKSEL3: UART5SEL Position      */
+#define CLK_CLKSEL3_UART5SEL_Msk         (0x7ul << CLK_CLKSEL3_UART5SEL_Pos)               /*!< CLK_T::CLKSEL3: UART5SEL Mask          */
 
 #define CLK_CLKDIV0_HCLKDIV_Pos          (0)                                               /*!< CLK_T::CLKDIV0: HCLKDIV Position       */
 #define CLK_CLKDIV0_HCLKDIV_Msk          (0xful << CLK_CLKDIV0_HCLKDIV_Pos)                /*!< CLK_T::CLKDIV0: HCLKDIV Mask           */
@@ -1502,12 +1546,6 @@ typedef struct
 #define CLK_CLKDIV4_UART5DIV_Pos         (12)                                              /*!< CLK_T::CLKDIV4: UART5DIV Position      */
 #define CLK_CLKDIV4_UART5DIV_Msk         (0xful << CLK_CLKDIV4_UART5DIV_Pos)               /*!< CLK_T::CLKDIV4: UART5DIV Mask          */
 
-#define CLK_PCLKDIV_APB0DIV_Pos          (0)                                               /*!< CLK_T::PCLKDIV: APB0DIV Position       */
-#define CLK_PCLKDIV_APB0DIV_Msk          (0x7ul << CLK_PCLKDIV_APB0DIV_Pos)                /*!< CLK_T::PCLKDIV: APB0DIV Mask           */
-
-#define CLK_PCLKDIV_APB1DIV_Pos          (4)                                               /*!< CLK_T::PCLKDIV: APB1DIV Position       */
-#define CLK_PCLKDIV_APB1DIV_Msk          (0x7ul << CLK_PCLKDIV_APB1DIV_Pos)                /*!< CLK_T::PCLKDIV: APB1DIV Mask           */
-
 #define CLK_PLLCTL_FBDIV_Pos             (0)                                               /*!< CLK_T::PLLCTL: FBDIV Position          */
 #define CLK_PLLCTL_FBDIV_Msk             (0x1fful << CLK_PLLCTL_FBDIV_Pos)                 /*!< CLK_T::PLLCTL: FBDIV Mask              */
 
@@ -1544,6 +1582,9 @@ typedef struct
 #define CLK_STATUS_HIRCSTB_Pos           (4)                                               /*!< CLK_T::STATUS: HIRCSTB Position        */
 #define CLK_STATUS_HIRCSTB_Msk           (0x1ul << CLK_STATUS_HIRCSTB_Pos)                 /*!< CLK_T::STATUS: HIRCSTB Mask            */
 
+#define CLK_STATUS_MIRCSTB_Pos           (5)                                               /*!< CLK_T::STATUS: MIRCSTB Position        */
+#define CLK_STATUS_MIRCSTB_Msk           (0x1ul << CLK_STATUS_MIRCSTB_Pos)                 /*!< CLK_T::STATUS: MIRCSTB Mask            */
+
 #define CLK_STATUS_HIRC48STB_Pos         (6)                                               /*!< CLK_T::STATUS: HIRC48STB Position      */
 #define CLK_STATUS_HIRC48STB_Msk         (0x1ul << CLK_STATUS_HIRC48STB_Pos)               /*!< CLK_T::STATUS: HIRC48STB Mask          */
 
@@ -1573,6 +1614,9 @@ typedef struct
 
 #define CLK_CLKDCTL_HXTFIEN_Pos          (5)                                               /*!< CLK_T::CLKDCTL: HXTFIEN Position       */
 #define CLK_CLKDCTL_HXTFIEN_Msk          (0x1ul << CLK_CLKDCTL_HXTFIEN_Pos)                /*!< CLK_T::CLKDCTL: HXTFIEN Mask           */
+
+#define CLK_CLKDCTL_HXTFDSEL_Pos         (6)                                               /*!< CLK_T::CLKDCTL: HXTFDSEL Position      */
+#define CLK_CLKDCTL_HXTFDSEL_Msk         (0x1ul << CLK_CLKDCTL_HXTFDSEL_Pos)               /*!< CLK_T::CLKDCTL: HXTFDSEL Mask          */
 
 #define CLK_CLKDCTL_LXTFDEN_Pos          (12)                                              /*!< CLK_T::CLKDCTL: LXTFDEN Position       */
 #define CLK_CLKDCTL_LXTFDEN_Msk          (0x1ul << CLK_CLKDCTL_LXTFDEN_Pos)                /*!< CLK_T::CLKDCTL: LXTFDEN Mask           */
@@ -1687,6 +1731,9 @@ typedef struct
 
 #define CLK_PMUSTS_ACMPWK_Pos            (14)                                              /*!< CLK_T::PMUSTS: ACMPWK Position         */
 #define CLK_PMUSTS_ACMPWK_Msk            (0x1ul << CLK_PMUSTS_ACMPWK_Pos)                  /*!< CLK_T::PMUSTS: ACMPWK Mask             */
+
+#define CLK_PMUSTS_TAMPERWK_Pos          (15)                                              /*!< CLK_T::PMUSTS: TAMPERWK Position       */
+#define CLK_PMUSTS_TAMPERWK_Msk          (0x1ul << CLK_PMUSTS_TAMPERWK_Pos)                /*!< CLK_T::PMUSTS: TAMPERWK Mask           */
 
 #define CLK_PMUSTS_CLRWK_Pos             (31)                                              /*!< CLK_T::PMUSTS: CLRWK Position          */
 #define CLK_PMUSTS_CLRWK_Msk             (0x1ul << CLK_PMUSTS_CLRWK_Pos)                   /*!< CLK_T::PMUSTS: CLRWK Mask              */

@@ -1651,10 +1651,10 @@ uint32_t UI2C_ReadMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t 
     return u32rxLen;                                                        /* Return bytes length that have been received */
 }
 
-/*@}*/ /* end of group USCI_I2C_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group USCI_I2C_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group USCI_I2C_Driver */
+/**@}*/ /* end of group USCI_I2C_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

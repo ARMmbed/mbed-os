@@ -18,7 +18,8 @@
 /**
     @addtogroup UI2C I2C Mode of USCI Controller(UI2C)
     Memory Mapped Structure for UI2C Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -391,7 +392,8 @@ typedef struct
 /**
     @addtogroup UI2C_CONST UI2C Bit Field Definition
     Constant Definitions for UI2C Controller
-@{ */
+  @{ 
+*/
 
 #define UI2C_CTL_FUNMODE_Pos             (0)                                               /*!< UI2C_T::CTL: FUNMODE Position          */
 #define UI2C_CTL_FUNMODE_Msk             (0x7ul << UI2C_CTL_FUNMODE_Pos)                   /*!< UI2C_T::CTL: FUNMODE Mask              */

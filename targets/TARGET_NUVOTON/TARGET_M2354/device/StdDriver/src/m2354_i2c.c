@@ -72,25 +72,6 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
 
 void I2C_Close(I2C_T *i2c)
 {
-    if(!(__PC() & NS_OFFSET))
-    {
-        /* Reset I2C Controller */
-        if(i2c ==  I2C0)
-        {
-            SYS->IPRST1 |= SYS_IPRST1_I2C0RST_Msk;
-            SYS->IPRST1 &= ~SYS_IPRST1_I2C0RST_Msk;
-        }
-        else if(i2c ==  I2C1)
-        {
-            SYS->IPRST1 |= SYS_IPRST1_I2C1RST_Msk;
-            SYS->IPRST1 &= ~SYS_IPRST1_I2C1RST_Msk;
-        }
-        else if(i2c ==  I2C2)
-        {
-            SYS->IPRST1 |= SYS_IPRST1_I2C2RST_Msk;
-            SYS->IPRST1 &= ~SYS_IPRST1_I2C2RST_Msk;
-        }
-    }
     /* Disable I2C */
     i2c->CTL0 &= ~I2C_CTL0_I2CEN_Msk;
 }
@@ -1453,10 +1434,10 @@ uint32_t I2C_ReadMultiBytesTwoRegs(I2C_T *i2c, uint8_t u8SlaveAddr, uint16_t u16
     return u32rxLen;                                                        /* Return bytes length that have been received */
 }
 
-/*@}*/ /* end of group I2C_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group I2C_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group I2C_Driver */
+/**@}*/ /* end of group I2C_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

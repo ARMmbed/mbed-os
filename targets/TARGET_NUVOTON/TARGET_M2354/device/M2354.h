@@ -229,6 +229,8 @@ typedef enum IRQn
     EWDT_IRQn                     = 111,      /*!< Extra Watchdog Timer interrupt                   */
     EWWDT_IRQn                    = 112,      /*!< Extra Window Watchdog Timer interrupt            */
     NS_ISP_IRQn                   = 113,      /*!< Non-secure FMC ISP interrupt                     */
+    TMR4_IRQn                     = 114,      /*!< Timer 4 Interrupt                                */
+    TMR5_IRQn                     = 115,      /*!< Timer 5 Interrupt                                */
 
 
 } IRQn_Type;
@@ -262,9 +264,16 @@ typedef enum IRQn
 
 
 /* --------  Configuration of the Cortex-ARMv8MBL Processor and Core Peripherals  ------- */
-#include "system_core_M2354.h"
+#define __ARMv8MBL_REV            0x0000U   /* Core revision r0p0 */
+#define __SAU_PRESENT             1U        /* SAU present */
+#define __SAUREGION_PRESENT       1U        /* SAU present */
+#define __MPU_PRESENT             1U        /* MPU present */
+#define __VTOR_PRESENT            1U        /* VTOR present */
+#define __NVIC_PRIO_BITS          2U        /* Number of Bits used for Priority Levels */
+#define __Vendor_SysTickConfig    0U        /* Set to 1 if different SysTick Config is used */
+#define USE_ASSERT                0U        /* Define to use Assert function or not */
 
-/*@}*/ /* end of group CMSIS */
+/**@}*/ /* end of group CMSIS */
 
 #include "core_cm23.h"                      /* Processor and core peripherals */
 #include "system_M2354.h"                   /* System Header */
@@ -272,9 +281,6 @@ typedef enum IRQn
 
 /**
  * Initialize the system clock
- *
- * @param  none
- * @return none
  *
  * @brief  Setup the micro controller system
  *         Initialize the PLL and update the SystemFrequency variable
@@ -392,6 +398,7 @@ extern void SystemInit(void);
 #define OTG_BASE             (APBPERIPH_BASE + 0x0D000UL)
 #define TMR01_BASE           (APBPERIPH_BASE + 0x10000UL)
 #define TMR23_BASE           (APBPERIPH_BASE + 0x11000UL)
+#define TMR45_BASE           (APBPERIPH_BASE + 0x12000UL)
 #define EPWM0_BASE           (APBPERIPH_BASE + 0x18000UL)
 #define EPWM1_BASE           (APBPERIPH_BASE + 0x19000UL)
 #define BPWM0_BASE           (APBPERIPH_BASE + 0x1A000UL)
@@ -467,10 +474,12 @@ extern void SystemInit(void);
 #define UART5_S               ((UART_T *) UART5_BASE)                     /*!< UART5 Pointer                      */
 
 
-#define TIMER0_S              ((TIMER_T *) TMR01_BASE)                   /*!< TIMER0 Pointer                      */
-#define TIMER1_S              ((TIMER_T *) (TMR01_BASE + 0x100UL))         /*!< TIMER1 Pointer                      */
-#define TIMER2_S              ((TIMER_T *) TMR23_BASE)                   /*!< TIMER2 Pointer                      */
-#define TIMER3_S              ((TIMER_T *) (TMR23_BASE + 0x100UL))         /*!< TIMER3 Pointer                      */
+#define TIMER0_S              ((TIMER_T *) TMR01_BASE)                    /*!< TIMER0 Pointer                      */
+#define TIMER1_S              ((TIMER_T *) (TMR01_BASE + 0x100UL))        /*!< TIMER1 Pointer                      */
+#define TIMER2_S              ((TIMER_T *) TMR23_BASE)                    /*!< TIMER2 Pointer                      */
+#define TIMER3_S              ((TIMER_T *) (TMR23_BASE + 0x100UL))        /*!< TIMER3 Pointer                      */
+#define TIMER4_S              ((TIMER_T *) TMR45_BASE)                    /*!< TIMER4 Pointer                      */
+#define TIMER5_S              ((TIMER_T *) (TMR45_BASE + 0x100UL))        /*!< TIMER5 Pointer                      */
 
 #define WDT_S                 ((WDT_T *) WDT_BASE)                        /*!< Watch Dog Timer Pointer             */
 
@@ -536,7 +545,6 @@ extern void SystemInit(void);
 
 #define UI2C0_S               ((UI2C_T *) USCI0_BASE)                     /*!< UI2C0 Pointer                       */
 #define UI2C1_S               ((UI2C_T *) USCI1_BASE)                     /*!< UI2C1 Pointer                       */
-#define UI2C2_S               ((UI2C_T *) USCI2_BASE)                     /*!< UI2C2 Pointer                       */
 
 #define USPI0_S               ((USPI_T *) USCI0_BASE)                     /*!< USPI0 Pointer                       */
 #define USPI1_S               ((USPI_T *) USCI1_BASE)                     /*!< USPI1 Pointer                       */
@@ -551,7 +559,7 @@ extern void SystemInit(void);
 #define CAN0_S                ((CAN_T *)CAN0_BASE)                        /*!< CAN0 Pointer                        */
 
 #define KS_S                  ((KS_T *)KS_BASE)                           /*!< Key Store Pointer                   */
-#define TAMPER_S              ((TAMP_T *)TAMPER_BASE)                     /*!< TAMPER Pointer                      */
+#define TAMPER_S              ((TAMPER_T *)TAMPER_BASE)                   /*!< TAMPER Pointer                      */
 #define LCD_S                 ((LCD_T *)LCD_BASE)                         /*!< LCD Pointer                         */
 
 #define EWDT_S                ((EWDT_T *) EWDT_BASE)                      /*!< Extra Watch Dog Timer Pointer       */
@@ -588,6 +596,8 @@ extern void SystemInit(void);
 #define UART5_NS               ((UART_T *)  (UART5_BASE+NS_OFFSET))                     /*!< UART5 Pointer                       */
 #define TIMER2_NS              ((TIMER_T *) (TMR23_BASE+NS_OFFSET))                     /*!< TIMER2 Pointer                      */
 #define TIMER3_NS              ((TIMER_T *) (TMR23_BASE+NS_OFFSET+0x100UL))             /*!< TIMER3 Pointer                      */
+#define TIMER4_NS              ((TIMER_T *) (TMR45_BASE+NS_OFFSET))                     /*!< TIMER4 Pointer                      */
+#define TIMER5_NS              ((TIMER_T *) (TMR45_BASE+NS_OFFSET+0x100UL))             /*!< TIMER5 Pointer                      */
 #define QSPI0_NS               ((QSPI_T *)  (QSPI0_BASE+NS_OFFSET))                      /*!< QSPI0 Pointer                       */
 #define SPI0_NS                ((SPI_T *)   (SPI0_BASE+NS_OFFSET))                       /*!< SPI0 Pointer                        */
 #define SPI1_NS                ((SPI_T *)   (SPI1_BASE+NS_OFFSET))                       /*!< SPI1 Pointer                        */
@@ -621,7 +631,6 @@ extern void SystemInit(void);
 #define PDMA1_NS               ((PDMA_T *)   (PDMA1_BASE +NS_OFFSET))                     /*!< PDMA1 Pointer                        */
 #define UI2C0_NS                ((UI2C_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< UI2C0 Pointer                       */
 #define UI2C1_NS                ((UI2C_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< UI2C1 Pointer                       */
-#define UI2C2_NS                ((UI2C_T *)  (USCI2_BASE +NS_OFFSET))                     /*!< UI2C2 Pointer                       */
 #define USPI0_NS                ((USPI_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< USPI0 Pointer                       */
 #define USPI1_NS                ((USPI_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< USPI1 Pointer                       */
 #define UUART0_NS               ((UUART_T *) (USCI0_BASE+NS_OFFSET))                    /*!< UUART0 Pointer                      */
@@ -645,6 +654,10 @@ extern void SystemInit(void);
 
 /**@}*/ /* end of group PMODULE_NS */
 
+/** @addtogroup PMODULE_SNS Peripheral Pointer
+ The Declaration of Peripheral Pointer
+ @{
+*/
 
 /* Always Secure Modules */
 #define SYS SYS_S
@@ -764,6 +777,14 @@ extern void SystemInit(void);
 #else
 # define TIMER2 TIMER2_S
 # define TIMER3 TIMER3_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT18)
+# define TIMER4 TIMER4_NS
+# define TIMER5 TIMER5_NS
+#else
+# define TIMER4 TIMER4_S
+# define TIMER5 TIMER5_S
 #endif
 
 #if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT24)
@@ -991,55 +1012,16 @@ extern void SystemInit(void);
 # define UUART1 UUART1_S
 #endif
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT0 )
-# define PA PA_NS
-#else
-# define PA PA_S
-#endif
+#define PA  ( (__PC() & NS_OFFSET) ? PA_NS : PA_S)
+#define PB  ( (__PC() & NS_OFFSET) ? PB_NS : PB_S)
+#define PC  ( (__PC() & NS_OFFSET) ? PC_NS : PC_S)
+#define PD  ( (__PC() & NS_OFFSET) ? PD_NS : PD_S)
+#define PE  ( (__PC() & NS_OFFSET) ? PE_NS : PE_S)
+#define PF  ( (__PC() & NS_OFFSET) ? PF_NS : PF_S)
+#define PG  ( (__PC() & NS_OFFSET) ? PG_NS : PG_S)
+#define PH  ( (__PC() & NS_OFFSET) ? PH_NS : PH_S)
 
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT1 )
-# define PB PB_NS
-#else
-# define PB PB_S
-#endif
-
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT2 )
-# define PC PC_NS
-#else
-# define PC PC_S
-#endif
-
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT3 )
-# define PD PD_NS
-#else
-# define PD PD_S
-#endif
-
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT4 )
-# define PE PE_NS
-#else
-# define PE PE_S
-#endif
-
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT5 )
-# define PF PF_NS
-#else
-# define PF PF_S
-#endif
-
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT6 )
-# define PG PG_NS
-#else
-# define PG PG_S
-#endif
-
-#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT7 )
-# define PH PH_NS
-#else
-# define PH PH_S
-#endif
-
-
+/**@}*/ /* end of group PMODULE_SNS */
 
 /**@}*/ /* end of group PMODULE */
 
@@ -1118,7 +1100,4 @@ extern void SystemInit(void);
 #include "m2354_lcd.h"
 
 #endif  /* __M2354_H__ */
-
-
-
 

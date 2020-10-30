@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Extra Watchdog Timer(EWDT) driver header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __EWDT_H__
 #define __EWDT_H__
@@ -51,7 +52,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 #define EWDT_RESET_COUNTER_KEYWORD   (0x00005AA5UL)    /*!< Fill this value to EWDT_RSTCNT register to free reset EWDT counter \hideinitializer */
 
-/*@}*/ /* end of group EWDT_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group EWDT_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup EWDT_EXPORTED_FUNCTIONS EWDT Exported Functions
@@ -169,7 +170,7 @@ __STATIC_INLINE void EWDT_DisableInt(void);
 __STATIC_INLINE void EWDT_Close(void)
 {
     EWDT->CTL = 0UL;
-    while(EWDT->CTL & EWDT_CTL_SYNC_Msk) {} /* Wait disable WDTEN bit completed, it needs 2 * EWDT_CLK. */
+    while((EWDT->CTL & EWDT_CTL_SYNC_Msk) == EWDT_CTL_SYNC_Msk) {} /* Wait disable WDTEN bit completed, it needs 2 * EWDT_CLK. */
 }
 
 /**
@@ -203,11 +204,11 @@ __STATIC_INLINE void EWDT_DisableInt(void)
 
 void EWDT_Open(uint32_t u32TimeoutInterval, uint32_t u32ResetDelay, uint32_t u32EnableReset, uint32_t u32EnableWakeup);
 
-/*@}*/ /* end of group WDT_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group WDT_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group WDT_Driver */
+/**@}*/ /* end of group WDT_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -215,4 +216,4 @@ void EWDT_Open(uint32_t u32TimeoutInterval, uint32_t u32ResetDelay, uint32_t u32
 
 #endif /* __EWDT_H__ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2019-2020 Nuvoton Technology Corp. ***/

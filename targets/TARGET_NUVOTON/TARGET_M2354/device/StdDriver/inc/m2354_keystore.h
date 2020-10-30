@@ -4,7 +4,8 @@
  * @brief    Key Store Driver Header
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __KEYSTORE_H__
 #define __KEYSTORE_H__
@@ -51,12 +52,12 @@ typedef enum KSMEM
 #define KS_OWNER_ECC        (4ul)
 #define KS_OWNER_CPU        (5ul)
 
-#define KS_META_AES     (0ul << KS_METADATA_TYPE_Pos)   /*!< AES Access Only                                */
-#define KS_META_HMAC    (1ul << KS_METADATA_TYPE_Pos)   /*!< HMAC Access Only                               */
-#define KS_META_RSA_EXP (2ul << KS_METADATA_TYPE_Pos)   /*!< RSA_EXP Access Only                            */
-#define KS_META_RSA_MID (3ul << KS_METADATA_TYPE_Pos)   /*!< RSA_MID Access Only                            */
-#define KS_META_ECC     (4ul << KS_METADATA_TYPE_Pos)   /*!< ECC Access Only                                */
-#define KS_META_CPU     (5ul << KS_METADATA_TYPE_Pos)   /*!< CPU Access Only                                */
+#define KS_META_AES     (0ul << KS_METADATA_OWNER_Pos)   /*!< AES Access Only                                */
+#define KS_META_HMAC    (1ul << KS_METADATA_OWNER_Pos)   /*!< HMAC Access Only                               */
+#define KS_META_RSA_EXP (2ul << KS_METADATA_OWNER_Pos)   /*!< RSA_EXP Access Only                            */
+#define KS_META_RSA_MID (3ul << KS_METADATA_OWNER_Pos)   /*!< RSA_MID Access Only                            */
+#define KS_META_ECC     (4ul << KS_METADATA_OWNER_Pos)   /*!< ECC Access Only                                */
+#define KS_META_CPU     (5ul << KS_METADATA_OWNER_Pos)   /*!< CPU Access Only                                */
 
 #define KS_META_128     ( 0ul << KS_METADATA_SIZE_Pos)  /*!< Key size 128 bits                              */
 #define KS_META_163     ( 1ul << KS_METADATA_SIZE_Pos)  /*!< Key size 163 bits                              */
@@ -98,7 +99,7 @@ typedef enum KSMEM
 
 
 
-/*@}*/ /* end of group KS_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group KS_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup KS_EXPORTED_FUNCTIONS Key Store Exported Functions
@@ -115,12 +116,13 @@ int32_t KS_RevokeKey(KS_MEM_Type eType, int32_t i32KeyIdx);
 uint32_t KS_GetRemainSize(KS_MEM_Type eType);
 int32_t KS_ToggleSRAM(void);
 uint32_t KS_GetKeyWordCnt(uint32_t u32Meta);
+uint32_t KS_GetRemainKeyCount(KS_MEM_Type mem);
 
-/*@}*/ /* end of group KS_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group KS_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group KS_Driver */
+/**@}*/ /* end of group KS_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

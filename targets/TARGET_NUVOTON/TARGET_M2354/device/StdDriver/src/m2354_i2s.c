@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    M2354 series I2S driver source file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include <stdio.h>
@@ -27,37 +28,36 @@ static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s);
   * @brief  This function is used to get I2S source clock frequency.
   * @param[in]  i2s The base address of I2S module.
   * @return I2S source clock frequency (Hz).
-  * @details Return the source clock frequency according to the setting of I2S0_SEL (CLK_CLKSEL3[17:16]).
+  * @details Return the source clock frequency according to the setting of I2S0SEL (CLK_CLKSEL3[17:16]).
   */
 static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s)
 {
-    uint32_t u32Freq, u32ClkSrcSel;
-
     (void)i2s;
+    uint32_t u32Freq, u32ClkSrcSel;
 
     u32ClkSrcSel = CLK_GetModuleClockSource(I2S0_MODULE) << CLK_CLKSEL3_I2S0SEL_Pos;
 
     switch(u32ClkSrcSel)
     {
-    case CLK_CLKSEL3_I2S0SEL_HXT:
-        u32Freq = __HXT;
-        break;
+        case CLK_CLKSEL3_I2S0SEL_HXT:
+            u32Freq = __HXT;
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_PLL:
-        u32Freq = CLK_GetPLLClockFreq();
-        break;
+        case CLK_CLKSEL3_I2S0SEL_PLL:
+            u32Freq = CLK_GetPLLClockFreq();
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_HIRC:
-        u32Freq = __HIRC;
-        break;
+        case CLK_CLKSEL3_I2S0SEL_HIRC:
+            u32Freq = __HIRC;
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_PCLK0:
-        u32Freq = CLK_GetPCLK0Freq();
-        break;
+        case CLK_CLKSEL3_I2S0SEL_PCLK0:
+            u32Freq = CLK_GetPCLK0Freq();
+            break;
 
-    default:
-        u32Freq = __HXT;
-        break;
+        default:
+            u32Freq = CLK_GetPCLK0Freq();
+            break;
     }
 
     return u32Freq;
@@ -75,7 +75,7 @@ static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s)
   *                                     - \ref I2S_DATABIT_16
   *                                     - \ref I2S_DATABIT_24
   *                                     - \ref I2S_DATABIT_32
-  * @param[in] u32MonoData: Set audio data to mono or not. Valid values are:
+  * @param[in] u32MonoData Set audio data to mono or not. Valid values are:
   *                                     - \ref I2S_ENABLE_MONO
   *                                     - \ref I2S_DISABLE_MONO
   * @param[in] u32DataFormat Data format. This is also used to select I2S or PCM(TDM) function. Valid values are:
@@ -96,7 +96,7 @@ uint32_t I2S_Open(I2S_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, u
     uint16_t u16Divider;
     uint32_t u32BitRate, u32SrcClk;
 
-    if(!(__PC() & (1UL << 28UL)))
+    if(!(__PC() & NS_OFFSET))
     {
         /* Reset I2S */
         SYS->IPRST1 |= SYS_IPRST1_I2S0RST_Msk;
@@ -256,11 +256,10 @@ void I2S_ConfigureTDM(I2S_T *i2s, uint32_t u32ChannelWidth, uint32_t u32ChannelN
                 (u32SyncWidth << I2S_CTL0_PCMSYNC_Pos);
 }
 
-/*@}*/ /* end of group I2S_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group I2S_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group I2S_Driver */
+/**@}*/ /* end of group I2S_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
-
+/*** (C) COPYRIGHT 2020 Nuvoton Technology Corp. ***/

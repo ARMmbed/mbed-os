@@ -1,10 +1,11 @@
 /**************************************************************************//**
  * @file     rng.h
  * @version  V3.00
- * @brief    M2355 series rng Interface Controller (rng) driver header file
+ * @brief    Random Number Generator Interface Controller (rng) driver header file
  *
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __RNG_H__
 #define __RNG_H__
@@ -28,7 +29,7 @@ extern "C"
   @{
 */
 
-/*@}*/ /* end of group RNG_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group RNG_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup RNG_EXPORTED_FUNCTIONS RNG Exported Functions
@@ -43,11 +44,11 @@ int32_t RNG_ECDSA(uint32_t u32KeySize);
 int32_t RNG_ECDH_Init(uint32_t u32KeySize, uint32_t au32ECC_N[18]);
 int32_t RNG_ECDH(uint32_t u32KeySize);
 
-/*@}*/ /* end of group RNG_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group RNG_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group RNG_Driver */
+/**@}*/ /* end of group RNG_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

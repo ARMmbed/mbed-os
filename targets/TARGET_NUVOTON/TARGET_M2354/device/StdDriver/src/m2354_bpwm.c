@@ -4,7 +4,8 @@
  * @brief    M2354 series BPWM driver source file
  *
  * @note
- * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"
 
@@ -414,10 +415,11 @@ uint32_t BPWM_GetCaptureIntFlag(BPWM_T *bpwm, uint32_t u32ChannelNum)
 {
     uint32_t u32CapIf = 0UL;
 
-    u32CapIf = ((((bpwm)->CAPIF & (BYTE1_Msk << u32ChannelNum)) ? 1UL : 0UL) << 1);
-    u32CapIf |= (((bpwm)->CAPIF & (BYTE0_Msk << u32ChannelNum)) ? 1UL : 0UL);
+    u32CapIf = ((((bpwm)->CAPIF & (BPWM_CAPIF_CAPFIF0_Msk << u32ChannelNum)) ? 1UL : 0UL) << 1);
+    u32CapIf |= (((bpwm)->CAPIF & (BPWM_CAPIF_CAPRIF0_Msk << u32ChannelNum)) ? 1UL : 0UL);
     return u32CapIf;
 }
+
 /**
  * @brief Enable duty interrupt of selected channel
  * @param[in] bpwm The pointer of the specified BPWM module
@@ -460,7 +462,7 @@ void BPWM_DisableDutyInt(BPWM_T *bpwm, uint32_t u32ChannelNum)
  */
 void BPWM_ClearDutyIntFlag(BPWM_T *bpwm, uint32_t u32ChannelNum)
 {
-    (bpwm)->INTSTS = (BYTE2_Msk | BYTE3_Msk) << u32ChannelNum;
+    (bpwm)->INTSTS = (BPWM_INTSTS_CMPUIF0_Msk | BPWM_INTSTS_CMPDIF0_Msk) << u32ChannelNum;
 }
 
 /**
@@ -476,7 +478,7 @@ void BPWM_ClearDutyIntFlag(BPWM_T *bpwm, uint32_t u32ChannelNum)
  */
 uint32_t BPWM_GetDutyIntFlag(BPWM_T *bpwm, uint32_t u32ChannelNum)
 {
-    return ((((bpwm)->INTSTS & ((BYTE2_Msk | BYTE3_Msk) << u32ChannelNum))) ? 1UL : 0UL);
+    return ((((bpwm)->INTSTS & ((BPWM_INTSTS_CMPDIF0_Msk | BPWM_INTSTS_CMPUIF0_Msk) << u32ChannelNum))) ? 1UL : 0UL);
 }
 
 /**
@@ -704,10 +706,10 @@ void BPWM_ClearWrapAroundFlag(BPWM_T *bpwm, uint32_t u32ChannelNum)
 }
 
 
-/*@}*/ /* end of group BPWM_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group BPWM_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group BPWM_Driver */
+/**@}*/ /* end of group BPWM_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017-2020 Nuvoton Technology Corp. ***/

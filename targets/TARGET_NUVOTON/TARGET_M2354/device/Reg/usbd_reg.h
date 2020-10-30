@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    USBD register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __USBD_REG_H__
 #define __USBD_REG_H__
@@ -18,7 +19,8 @@
 /**
     @addtogroup USBD USB Device Controller(USBD)
     Memory Mapped Structure for USBD Controller
-@{ */
+  @{ 
+*/
 
 
 
@@ -35,9 +37,9 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[8:3]   |BUFSEG    |Endpoint Buffer Segmentation
      * |        |          |It is used to indicate the offset address for each endpoint with the USB SRAM starting address The effective starting address of the endpoint is
-     * |        |          |USBD_SRAM address + { BUFSEG, 3'b000}
+     * |        |          |USBD_SRAM address + {BUFSEG, 3'b000}
      * |        |          |Where the USBD_SRAM address = USBD_BA+0x100h.
-     * |        |          |Refer to the section 6.29.5.7 for the endpoint SRAM structure and its description.
+     * |        |          |Refer to the section 6.32.5.7 for the endpoint SRAM structure and its description.
      * @var USBD_EP_T::MXPLD
      * Offset: 0x504/0x514/0x524/0x534/0x544/0x554/0x564/0x574/0x584/0x594/0x5A4/0x5B4  Endpoint Maximal Payload Register
      * ---------------------------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ typedef struct
      * |        |          |For IN token, the value of MXPLD is used to define the data length to be transmitted and indicate the data buffer is ready.
      * |        |          |For OUT token, it means that the controller is ready to receive data from the host and the value of MXPLD is the maximal data length comes from host.
      * |        |          |(2) When the register is read by CPU,
-     * |        |          |For IN token, the value of MXPLD is indicated by the data length be transmitted to host
+     * |        |          |For IN token, the value of MXPLD is indicated by the data length be transmitted to host.
      * |        |          |For OUT token, the value of MXPLD is indicated the actual data length receiving from host.
      * |        |          |Note: Once MXPLD is written, the data packets will be transmitted/received immediately after IN/OUT token arrived.
      * @var USBD_EP_T::CFG
@@ -59,12 +61,12 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[3:0]   |EPNUM     |Endpoint Number
-     * |        |          |These bits are used to define the endpoint number of the current endpoint
+     * |        |          |These bits are used to define the endpoint number of the current endpoint.
      * |[4]     |ISOCH     |Isochronous Endpoint
      * |        |          |This bit is used to set the endpoint as Isochronous endpoint, no handshake.
      * |        |          |0 = No Isochronous endpoint.
      * |        |          |1 = Isochronous endpoint.
-     * |[6:5]   |STATE     |Endpoint STATE
+     * |[6:5]   |STATE     |Endpoint State
      * |        |          |00 = Endpoint Disabled.
      * |        |          |01 = Out endpoint.
      * |        |          |10 = IN endpoint.
@@ -221,22 +223,18 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |USBRST    |USB Reset Status
+     * |[0]     |USBRST    |USB Reset Status (Read Only)
      * |        |          |0 = Bus no reset.
      * |        |          |1 = Bus reset when SE0 (single-ended 0) more than 2.5us.
-     * |        |          |Note: This bit is read only.
-     * |[1]     |SUSPEND   |Suspend Status
+     * |[1]     |SUSPEND   |Suspend Status (Read Only)
      * |        |          |0 = Bus no suspend.
      * |        |          |1 = Bus idle more than 3ms, either cable is plugged-out or host is sleeping.
-     * |        |          |Note: This bit is read only.
-     * |[2]     |RESUME    |Resume Status
+     * |[2]     |RESUME    |Resume Status (Read Only)
      * |        |          |0 = No bus resume.
      * |        |          |1 = Resume from suspend.
-     * |        |          |Note: This bit is read only.
-     * |[3]     |TOUT      |Time-out Status
+     * |[3]     |TOUT      |Time-out Status (Read Only)
      * |        |          |0 = No time-out.
      * |        |          |1 = No Bus response more than 18 bits time.
-     * |        |          |Note: This bit is read only.
      * |[4]     |PHYEN     |PHY Transceiver Function Enable Bit
      * |        |          |0 = PHY transceiver function Disabled.
      * |        |          |1 = PHY transceiver function Enabled.
@@ -256,17 +254,12 @@ typedef struct
      * |        |          |The NYET/ACK will be returned only on a successful LPM transaction if no errors in both the EXT token and the LPM token and a valid bLinkState = 0001 (L1) is received, else ERROR and STALL will be returned automatically, respectively.
      * |        |          |0= The valid LPM Token will be NYET.
      * |        |          |1= The valid LPM Token will be ACK.
-     * |[12]    |L1SUSPEND |LPM L1 Suspend
+     * |[12]    |L1SUSPEND |LPM L1 Suspend (Read Only)
      * |        |          |0 = Bus no L1 state suspend.
      * |        |          |1 = This bit is set by the hardware when LPM command to enter the L1 state is successfully received and acknowledged.
-     * |        |          |Note: This bit is read only.
-     * |[13]    |L1RESUME  |LPM L1 Resume
+     * |[13]    |L1RESUME  |LPM L1 Resume (Read Only)
      * |        |          |0 = Bus no LPM L1 state resume.
-     * |        |          |1 = LPM L1 state Resume from LPM L1 state suspend.
-     * |        |          |Note: This bit is read only.
-     * |[14]    |SE1       |SE1 Event Occur (Read Only)
-     * |        |          |0 = NOo SeE1 event occurred.
-     * |        |          |1 = SE1 event occurred. It will be automatically cleared by hardware when device receives complete data packet.
+     * |        |          |1 = LPM L1 state resume from LPM L1 state suspend.
      * @var USBD_T::VBUSDET
      * Offset: 0x14  USB Device VBUS Detection Register
      * ---------------------------------------------------------------------------------------------------
@@ -410,7 +403,7 @@ typedef struct
      * |[8]     |LPMRWAKUP |LPM Remote Wakeup
      * |        |          |This bit contains the bRemoteWake value received with last ACK LPM Token.
      * @var USBD_T::FN
-     * Offset: 0x8C  USB Frame number Register
+     * Offset: 0x8C  USB Frame Number Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
@@ -426,7 +419,6 @@ typedef struct
      * |        |          |0 = Normal operation.
      * |        |          |1 = Force USB PHY transceiver to drive SE0.
      */
-
     __IO uint32_t INTEN;                 /*!< [0x0000] USB Device Interrupt Enable Register                             */
     __IO uint32_t INTSTS;                /*!< [0x0004] USB Device Interrupt Event Status Register                       */
     __IO uint32_t FADDR;                 /*!< [0x0008] USB Device Function Address Register                             */
@@ -439,7 +431,7 @@ typedef struct
     __I  uint32_t EPSTS1;                /*!< [0x0024] USB Device Endpoint Status Register 1                            */
     __I  uint32_t RESERVE1[24];
     __I  uint32_t LPMATTR;               /*!< [0x0088] USB LPM Attribution Register                                     */
-    __I  uint32_t FN;                    /*!< [0x008c] USB Frame number Register                                        */
+    __I  uint32_t FN;                    /*!< [0x008c] USB Frame Number Register                                        */
     __IO uint32_t SE0;                   /*!< [0x0090] USB Device Drive SE0 Control Register                            */
     __I  uint32_t RESERVE2[283];
     USBD_EP_T     EP[12];                /*!< [0x500~0x5bc] USB End Point 0 ~ 11 Configuration Register                 */
@@ -449,7 +441,8 @@ typedef struct
 /**
     @addtogroup USBD_CONST USBD Bit Field Definition
     Constant Definitions for USBD Controller
-@{ */
+  @{ 
+*/
 
 #define USBD_INTEN_BUSIEN_Pos            (0)                                               /*!< USBD_T::INTEN: BUSIEN Position         */
 #define USBD_INTEN_BUSIEN_Msk            (0x1ul << USBD_INTEN_BUSIEN_Pos)                  /*!< USBD_T::INTEN: BUSIEN Mask             */
@@ -568,9 +561,6 @@ typedef struct
 #define USBD_ATTR_L1RESUME_Pos           (13)                                              /*!< USBD_T::ATTR: L1RESUME Position        */
 #define USBD_ATTR_L1RESUME_Msk           (0x1ul << USBD_ATTR_L1RESUME_Pos)                 /*!< USBD_T::ATTR: L1RESUME Mask            */
 
-#define USBD_ATTR_SE1_Pos                (14)                                              /*!< USBD_T::ATTR: SE1 Position             */
-#define USBD_ATTR_SE1_Msk                (0x1ul << USBD_ATTR_SE1_Pos)                      /*!< USBD_T::ATTR: SE1 Mask                 */
-
 #define USBD_VBUSDET_VBUSDET_Pos         (0)                                               /*!< USBD_T::VBUSDET: VBUSDET Position      */
 #define USBD_VBUSDET_VBUSDET_Msk         (0x1ul << USBD_VBUSDET_VBUSDET_Pos)               /*!< USBD_T::VBUSDET: VBUSDET Mask          */
 
@@ -660,7 +650,6 @@ typedef struct
 
 #define USBD_CFGP_SSTALL_Pos             (1)                                               /*!< USBD_EP_T::CFGP: SSTALL Position       */
 #define USBD_CFGP_SSTALL_Msk             (0x1ul << USBD_CFGP_SSTALL_Pos)                   /*!< USBD_EP_T::CFGP: SSTALL Mask           */
-
 
 /**@}*/ /* USBD_CONST */
 /**@}*/ /* end of USBD register group */

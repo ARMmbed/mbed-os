@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    USPI register definition header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __USPI_REG_H__
 #define __USPI_REG_H__
@@ -14,12 +15,12 @@
 
 */
 
-
 /*---------------------- SPI Mode of USCI Controller -------------------------*/
 /**
     @addtogroup USPI SPI Mode of USCI Controller(USPI)
     Memory Mapped Structure for USPI Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -102,12 +103,12 @@ typedef struct
      * |        |          |This bit selects if the un-synchronized input signal (with optionally inverted) or the   synchronized (and optionally filtered) signal can be used as input for the   data shift unit.
      * |        |          |0 = The un-synchronized signal can be taken as input for the data shift unit.
      * |        |          |1 = The synchronized signal can be taken as input for the data shift unit.
-     * |        |          |Note: In SPI protocol, we suggest this bit   should be set as 0.
+     * |        |          |Note: In SPI protocol, it is suggested this bit should be set as 0.
      * |[2]     |ININV     |Input Signal Inverse Selection
      * |        |          |This bit defines the inverter enable of the input asynchronous signal.
      * |        |          |0 = The un-synchronized input signal will not be inverted.
      * |        |          |1 = The un-synchronized input signal will be inverted.
-     * |        |          |Note: In SPI protocol, we suggest this bit   should be set as 0.
+     * |        |          |Note: In SPI protocol, it is suggested this bit should be set as 0.
      * @var USPI_T::CTLIN0
      * Offset: 0x20  USCI Input Control Signal Configuration Register 0
      * ---------------------------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ typedef struct
      * |        |          |This bit selects if the un-synchronized input signal (with optionally inverted) or the   synchronized (and optionally filtered) signal can be used as input for the   data shift unit.
      * |        |          |0 = The un-synchronized signal can be taken as input for the data shift unit.
      * |        |          |1 = The synchronized signal can be taken as input for the data shift unit.
-     * |        |          |Note: In SPI protocol, we suggest this bit   should be set as 0.
+     * |        |          |Note: In SPI protocol, it is suggested this bit should be set as 0.
      * |[2]     |ININV     |Input Signal Inverse Selection
      * |        |          |This bit defines the inverter enable of the input asynchronous signal.
      * |        |          |0 = The un-synchronized input signal will not be inverted.
@@ -131,7 +132,7 @@ typedef struct
      * |        |          |This bit selects if the un-synchronized input signal or the synchronized (and   optionally filtered) signal can be used as input for the data shift unit.
      * |        |          |0 = The un-synchronized signal can be taken as input for the data shift unit.
      * |        |          |1 = The synchronized signal can be taken as input for the data shift unit.
-     * |        |          |Note: In SPI protocol, we suggest this bit   should be set as 0.
+     * |        |          |Note: In SPI protocol, it is suggested this bit should be set as 0.
      * @var USPI_T::LINECTL
      * Offset: 0x2C  USCI Line Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -207,7 +208,8 @@ typedef struct
      * |[16]    |TXRST     |Transmit Reset
      * |        |          |0 = No effect.
      * |        |          |1 = Reset the transmit-related counters, state machine, and the content of transmit shift register and data buffer.
-     * |        |          |Note: It is cleared automatically after one PCLK cycle.
+     * |        |          |Note 1: It is cleared automatically after one PCLK cycle.
+     * |        |          |Note 2: Write 1 to this bit will set the output data pin to zero if USPI_PROTCTL[28]=0.
      * |[17]    |RXRST     |Receive Reset
      * |        |          |0 = No effect.
      * |        |          |1 = Reset the receive-related counters, state machine, and the content of receive shift register and data buffer.
@@ -217,10 +219,10 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |RXEMPTY   |Receive Buffer Empty Indicator
+     * |[0]     |RXEMPTY   |Receive Buffer Empty Indicator (Read Only)
      * |        |          |0 = Receive buffer is not empty.
      * |        |          |1 = Receive buffer is empty.
-     * |[1]     |RXFULL    |Receive Buffer Full Indicator
+     * |[1]     |RXFULL    |Receive Buffer Full Indicator (Read Only)
      * |        |          |0 = Receive buffer is not full.
      * |        |          |1 = Receive buffer is full.
      * |[3]     |RXOVIF    |Receive Buffer Overrun Interrupt Status
@@ -229,10 +231,10 @@ typedef struct
      * |        |          |It is cleared by software writes 1 to this bit.
      * |        |          |0 = A receive buffer overrun event has not been detected.
      * |        |          |1 = A receive buffer overrun event has been detected.
-     * |[8]     |TXEMPTY   |Transmit Buffer Empty Indicator
+     * |[8]     |TXEMPTY   |Transmit Buffer Empty Indicator (Read Only)
      * |        |          |0 = Transmit buffer is not empty.
      * |        |          |1 = Transmit buffer is empty and available for the next transmission datum.
-     * |[9]     |TXFULL    |Transmit Buffer Full Indicator
+     * |[9]     |TXFULL    |Transmit Buffer Full Indicator (Read Only)
      * |        |          |0 = Transmit buffer is not full.
      * |        |          |1 = Transmit buffer is full.
      * |[11]    |TXUDRIF   |Transmit Buffer Under-run Interrupt Status
@@ -258,7 +260,7 @@ typedef struct
      * |[3]     |PDMAEN    |PDMA Mode Enable Bit
      * |        |          |0 = PDMA function Disabled.
      * |        |          |1 = PDMA function Enabled.
-     * |        |          |Notice: The I2C is not supporting PDMA function.
+     * |        |          |Note: The I2C is not supporting PDMA function.
      * @var USPI_T::WKCTL
      * Offset: 0x54  USCI Wake-up Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -303,13 +305,13 @@ typedef struct
      * |        |          |The slave select signal will be asserted by the SPI controller when transmit/receive is started, and will be de-asserted after each transmit/receive is finished.
      * |[7:6]   |SCLKMODE  |Serial Bus Clock Mode
      * |        |          |This bit field defines the SCLK idle status, data transmit, and data receive edge.
-     * |        |          |MODE0 = The idle state of SPI clock is low level
+     * |        |          |00 = MODE0. The idle state of SPI clock is low level.
      * |        |          |Data is transmitted with falling edge and received with rising edge.
-     * |        |          |MODE1 = The idle state of SPI clock is low level
+     * |        |          |01 = MODE1. The idle state of SPI clock is low level.
      * |        |          |Data is transmitted with rising edge and received with falling edge.
-     * |        |          |MODE2 = The idle state of SPI clock is high level
+     * |        |          |10 = MODE2. The idle state of SPI clock is high level.
      * |        |          |Data is transmitted with rising edge and received with falling edge.
-     * |        |          |MODE3 = The idle state of SPI clock is high level
+     * |        |          |11 = MODE3. The idle state of SPI clock is high level.
      * |        |          |Data is transmitted with falling edge and received with rising edge.
      * |[11:8]  |SUSPITV   |Suspend Interval (Master Only)
      * |        |          |This bit field provides the configurable suspend interval between two successive transmit/receive transaction in a transfer
@@ -327,14 +329,14 @@ typedef struct
      * |        |          |This bit field describes how receive and transmit data is shifted in and out.
      * |        |          |TSMSEL = 000b: Full-duplex SPI.
      * |        |          |TSMSEL = 100b: Half-duplex SPI.
-     * |        |          |Other values are reserved.
+     * |        |          |Others = Reserved.
      * |        |          |Note: Changing the value of this bit field will produce the TXRST and RXRST to clear the TX/RX data buffer automatically.
      * |[25:16] |SLVTOCNT  |Slave Mode Time-out Period (Slave Only)
      * |        |          |In Slave mode, this bit field is used for Slave time-out period
      * |        |          |This bit field indicates how many clock periods (selected by TMCNTSRC, USPI_BRGEN[5]) between the two edges of input SCLK will assert the Slave time-out event
      * |        |          |Writing 0x0 into this bit field will disable the Slave time-out function.
      * |        |          |Example: Assume SLVTOCNT is 0x0A and TMCNTSRC (USPI_BRGEN[5]) is 1, it means the time-out event will occur if the state of SPI bus clock pin is not changed more than (10+1) periods of fDIV_CLK.
-     * |[28]    |TXUDRPOL  |Transmit Under-run Data Polarity (for Slave)
+     * |[28]    |TXUDRPOL  |Transmit Under-run Data Polarity (Slave Only)
      * |        |          |This bit defines the transmitting data level when no data is available for transferring.
      * |        |          |0 = The output data level is 0 if TX under-run event occurs.
      * |        |          |1 = The output data level is 1 if TX under-run event occurs.
@@ -346,19 +348,19 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |SSINAIEN  |Slave Select Inactive Interrupt Enable Control
+     * |[0]     |SSINAIEN  |Slave Select Inactive Interrupt Enable Bit
      * |        |          |This bit enables/disables the generation of a slave select interrupt if the slave select changes to inactive.
      * |        |          |0 = Slave select inactive interrupt generation Disabled.
      * |        |          |1 = Slave select inactive interrupt generation Enabled.
-     * |[1]     |SSACTIEN  |Slave Select Active Interrupt Enable Control
+     * |[1]     |SSACTIEN  |Slave Select Active Interrupt Enable Bit
      * |        |          |This bit enables/disables the generation of a slave select interrupt if the slave select changes to active.
      * |        |          |0 = Slave select active interrupt generation Disabled.
      * |        |          |1 = Slave select active interrupt generation Enabled.
-     * |[2]     |SLVTOIEN  |Slave Time-out Interrupt Enable Control
+     * |[2]     |SLVTOIEN  |Slave Time-out Interrupt Enable Bit
      * |        |          |In SPI protocol, this bit enables the interrupt generation in case of a Slave time-out event.
      * |        |          |0 = The Slave time-out interrupt Disabled.
      * |        |          |1 = The Slave time-out interrupt Enabled.
-     * |[3]     |SLVBEIEN  |Slave Mode Bit Count Error Interrupt Enable Control
+     * |[3]     |SLVBEIEN  |Slave Mode Bit Count Error Interrupt Enable Bit
      * |        |          |If data transfer is terminated by slave time-out or slave select inactive event in Slave mode, so that the transmit/receive data bit count does not match the setting of DWIDTH (USPI_LINECTL[11:8])
      * |        |          |Bit count error event occurs.
      * |        |          |0 = The Slave mode bit count error interrupt Disabled.
@@ -369,36 +371,36 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[1]     |TXSTIF    |Transmit Start Interrupt Flag
-     * |        |          |0 = Transmit start event does not occur.
-     * |        |          |1 = Transmit start event occurs.
-     * |        |          |Note: It is cleared by software writes 1 to this bit
+     * |        |          |0 = Transmit start event did not occur.
+     * |        |          |1 = Transmit start event occurred.
+     * |        |          |Note: It is cleared by software write 1 to this bit
      * |[2]     |TXENDIF   |Transmit End Interrupt Flag
-     * |        |          |0 = Transmit end event does not occur.
-     * |        |          |1 = Transmit end event occurs.
-     * |        |          |Note: It is cleared by software writes 1 to this bit
+     * |        |          |0 = Transmit end event did not occur.
+     * |        |          |1 = Transmit end event occurred.
+     * |        |          |Note: It is cleared by software write 1 to this bit
      * |[3]     |RXSTIF    |Receive Start Interrupt Flag
-     * |        |          |0 = Receive start event does not occur.
-     * |        |          |1 = Receive start event occurs.
-     * |        |          |Note: It is cleared by software writes 1 to this bit
+     * |        |          |0 = Receive start event did not occur.
+     * |        |          |1 = Receive start event occurred.
+     * |        |          |Note: It is cleared by software write 1 to this bit
      * |[4]     |RXENDIF   |Receive End Interrupt Flag
-     * |        |          |0 = Receive end event does not occur.
-     * |        |          |1 = Receive end event occurs.
-     * |        |          |Note: It is cleared by software writes 1 to this bit
-     * |[5]     |SLVTOIF   |Slave Time-out Interrupt Flag (for Slave Only)
-     * |        |          |0 = Slave time-out event does not occur.
-     * |        |          |1 = Slave time-out event occurs.
-     * |        |          |Note: It is cleared by software writes 1 to this bit
-     * |[6]     |SLVBEIF   |Slave Bit Count Error Interrupt Flag (for Slave Only)
-     * |        |          |0 = Slave bit count error event does not occur.
-     * |        |          |1 = Slave bit count error event occurs.
-     * |        |          |Note: It is cleared by software writes 1 to this bit.
-     * |[8]     |SSINAIF   |Slave Select Inactive Interrupt Flag (for Slave Only)
+     * |        |          |0 = Receive end event did not occur.
+     * |        |          |1 = Receive end event occurred.
+     * |        |          |Note: It is cleared by software write 1 to this bit
+     * |[5]     |SLVTOIF   |Slave Time-out Interrupt Flag (Slave Only)
+     * |        |          |0 = Slave time-out event did not occur.
+     * |        |          |1 = Slave time-out event occurred.
+     * |        |          |Note: It is cleared by software write 1 to this bit
+     * |[6]     |SLVBEIF   |Slave Bit Count Error Interrupt Flag (Slave Only)
+     * |        |          |0 = Slave bit count error event did not occur.
+     * |        |          |1 = Slave bit count error event occurred.
+     * |        |          |Note: It is cleared by software write 1 to this bit.
+     * |[8]     |SSINAIF   |Slave Select Inactive Interrupt Flag (Slave Only)
      * |        |          |This bit indicates that the internal slave select signal has changed to inactive
      * |        |          |It is cleared by software writes 1 to this bit
      * |        |          |0 = The slave select signal has not changed to inactive.
      * |        |          |1 = The slave select signal has changed to inactive.
      * |        |          |Note: The internal slave select signal is active high.
-     * |[9]     |SSACTIF   |Slave Select Active Interrupt Flag (for Slave Only)
+     * |[9]     |SSACTIF   |Slave Select Active Interrupt Flag (Slave Only)
      * |        |          |This bit indicates that the internal slave select signal has changed to active
      * |        |          |It is cleared by software writes one to this bit
      * |        |          |0 = The slave select signal has not changed to active.
@@ -420,8 +422,8 @@ typedef struct
      * |[18]    |SLVUDR    |Slave Mode Transmit Under-run Status (Read Only)
      * |        |          |In Slave mode, if there is no available transmit data in buffer while transmit data shift out caused by input serial bus clock, this status flag will be set to 1
      * |        |          |This bit indicates whether the current shift-out data of word transmission is switched to TXUDRPOL (USPI_PROTCTL[28]) or not.
-     * |        |          |0 = Slave transmit under-run event does not occur.
-     * |        |          |1 = Slave transmit under-run event occurs.
+     * |        |          |0 = Slave transmit under-run event did not occur.
+     * |        |          |1 = Slave transmit under-run event occurred.
      */
     __IO uint32_t CTL;                   /*!< [0x0000] USCI Control Register                                            */
     __IO uint32_t INTEN;                 /*!< [0x0004] USCI Interrupt Enable Register                                   */
@@ -450,7 +452,8 @@ typedef struct
 /**
     @addtogroup USPI_CONST USPI Bit Field Definition
     Constant Definitions for USPI Controller
-@{ */
+  @{ 
+*/
 
 #define USPI_CTL_FUNMODE_Pos             (0)                                               /*!< USPI_T::CTL: FUNMODE Position          */
 #define USPI_CTL_FUNMODE_Msk             (0x7ul << USPI_CTL_FUNMODE_Pos)                   /*!< USPI_T::CTL: FUNMODE Mask              */
@@ -659,6 +662,5 @@ typedef struct
 /**@}*/ /* USPI_CONST */
 /**@}*/ /* end of USPI register group */
 /**@}*/ /* end of REGISTER group */
-
 
 #endif /* __USPI_REG_H__ */

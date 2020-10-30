@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    RTC register definition header file
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2019-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __RTC_REG_H__
 #define __RTC_REG_H__
@@ -18,7 +19,8 @@
 /**
     @addtogroup RTC Real Time Clock Controller(RTC)
     Memory Mapped Structure for RTC Controller
-@{ */
+  @{ 
+*/
 
 typedef struct
 {
@@ -33,42 +35,56 @@ typedef struct
      * |[0]     |INIT_ACTIVE|RTC Active Status (Read Only)
      * |        |          |0 = RTC is at reset state.
      * |        |          |1 = RTC is at normal active state.
-     * |[31:1]  |INIT      |RTC Initiation
-     * |        |          |When RTC block is powered on, RTC is at reset state
-     * |        |          |User has to write a number (0x a5eb1357) to INIT to make RTC leaving reset state
+     * |[31:1]  |INIT      |RTC Initiation (Write Only)
+     * |        |          |When RTC block is powered on, RTC is at reset state.
+     * |        |          |User has to write a number (0xa5eb1357) to INIT to make RTC leave reset state.
      * |        |          |Once the INIT is written as 0xa5eb1357, the RTC will be in un-reset state permanently.
      * |        |          |The INIT is a write-only field and read value will be always 0.
-     * @var RTC_T::RWEN
-     * Offset: 0x04  RTC Access Enable Register
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |RWEN      |RTC Register Access Enable Password (Write Only)
-     * |        |          |Writing 0xA965 to this field will enable RTC accessible period keeps 1024 RTC clocks.
-     * |        |          |Note: Writing other value will clear RWENF and disable RTC register access function immediately.
-     * |[16]    |RWENF     |RTC Register Access Enable Flag (Read Only)
-     * |        |          |0 = RTC register read/write Disabled.
-     * |        |          |1 = RTC register read/write Enabled.
-     * |        |          |This bit will be set after RTC_RWEN[15:0] register is load a 0xA965, and be cleared automatically after 1024 RTC clocks expired.
-     * |        |          |Note: RWENF will be mask to 0 during RTCBUSY is 1, and first turn on RTCCKEN (CLK_APBCLK[1]) also.
-     * |[24]    |RTCBUSY   |RTC Write Busy Flag
-     * |        |          |This bit indicates RTC registers are busy or not. RTC register R/W is invalid during RTCBUSY.
-     * |        |          |0: RTC registers are readable and writable.
-     * |        |          |1: RTC registers can't R/W, RTC under Busy Status.
-     * |        |          |Note: RTCBUSY flag will be set when execute write RTC register command exceed 6 times within 1120 PCLK cycles or PCLKRTC switch on first few cycles.
-     * |        |          |Note: The bit reflect RWENF (RWENF = 0 when RTCBUSY).
      * @var RTC_T::FREQADJ
      * Offset: 0x08  RTC Frequency Compensation Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[21:0]  |FREQADJ   |Frequency Compensation Register
-     * |        |          |User must to get actual LXT frequency for RTC application.
-     * |        |          |FCR = 0x200000 * (32768 / LXT frequency).
-     * |        |          |Note: This formula is suitable only when RTC clock source is from LXT, RTCSEL (CLK_CLKSEL3[8]) is 0.
-     * |        |          |If set RTCSEL (CLK_CLKSEL3[8]) to 1, RTC clock source is from LIRC.
-     * |        |          |User can set FREQADJ to execute LIRC compensation for RTC counter more accurate and the formula as below,
-     * |        |          |FCR = 0x80000 * (32768 / LIRC frequency).
+     * |[5:0]   |FRACTION  |Fraction Part
+     * |        |          |Formula: FRACTION = (fraction part of detected value) X 64.
+     * |        |          |Note: Digit in FCR must be expressed as hexadecimal number.
+     * |[12:8]  |INTEGER   |Integer Part
+     * |        |          |00000 = Integer part of detected value is 32752.
+     * |        |          |00001 = Integer part of detected value is 32753.
+     * |        |          |00010 = Integer part of detected value is 32754.
+     * |        |          |00011 = Integer part of detected value is 32755.
+     * |        |          |00100 = Integer part of detected value is 32756.
+     * |        |          |00101 = Integer part of detected value is 32757.
+     * |        |          |00110 = Integer part of detected value is 32758.
+     * |        |          |00111 = Integer part of detected value is 32759.
+     * |        |          |01000 = Integer part of detected value is 32760.
+     * |        |          |01001 = Integer part of detected value is 32761.
+     * |        |          |01010 = Integer part of detected value is 32762.
+     * |        |          |01011 = Integer part of detected value is 32763.
+     * |        |          |01100 = Integer part of detected value is 32764.
+     * |        |          |01101 = Integer part of detected value is 32765.
+     * |        |          |01110 = Integer part of detected value is 32766.
+     * |        |          |01111 = Integer part of detected value is 32767.
+     * |        |          |10000 = Integer part of detected value is 32768.
+     * |        |          |10001 = Integer part of detected value is 32769.
+     * |        |          |10010 = Integer part of detected value is 32770.
+     * |        |          |10011 = Integer part of detected value is 32771.
+     * |        |          |10100 = Integer part of detected value is 32772.
+     * |        |          |10101 = Integer part of detected value is 32773.
+     * |        |          |10110 = Integer part of detected value is 32774.
+     * |        |          |10111 = Integer part of detected value is 32775.
+     * |        |          |11000 = Integer part of detected value is 32776.
+     * |        |          |11001 = Integer part of detected value is 32777.
+     * |        |          |11010 = Integer part of detected value is 32778.
+     * |        |          |11011 = Integer part of detected value is 32779.
+     * |        |          |11100 = Integer part of detected value is 32780.
+     * |        |          |11101 = Integer part of detected value is 32781.
+     * |        |          |11110 = Integer part of detected value is 32782.
+     * |        |          |11111 = Integer part of detected value is 32783.
+     * |[31]    |FCRBUSY   |Frequency Compensation Register Write Operation Busy (Read Only)
+     * |        |          |0 = The new register write operation is acceptable.
+     * |        |          |1 = The last write operation is in progress and new register write operation prohibited.
+     * |        |          |Note: This bit is only used when DCOMPEN(RTC_CLKFMT[16]) is enabled.
      * @var RTC_T::TIME
      * Offset: 0x0C  RTC Time Loading Register
      * ---------------------------------------------------------------------------------------------------
@@ -81,7 +97,6 @@ typedef struct
      * |[19:16] |HR        |1-Hour Time Digit (0~9)
      * |[21:20] |TENHR     |10-Hour Time Digit (0~2)
      * |        |          |When RTC runs as 12-hour time scale mode, RTC_TIME[21] (the high bit of TENHR[1:0]) means AM/PM indication (If RTC_TIME[21] is 1, it indicates PM time message.)
-     * |[30:24] |HZCNT     |Index of sub-second counter(0x00 ~0x7F)
      * @var RTC_T::CAL
      * Offset: 0x10  RTC Calendar Loading Register
      * ---------------------------------------------------------------------------------------------------
@@ -99,12 +114,12 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[0]     |24HEN     |24-hour / 12-hour Time Scale Selection
-     * |        |          |Indicates that RTC_TIME and RTC_TALM are in 24-hour time scale or 12-hour time scale
+     * |        |          |The RTC_TIME and RTC_TALM are in 24-hour time scale or 12-hour time scale.
      * |        |          |0 = 12-hour time scale with AM and PM indication selected.
      * |        |          |1 = 24-hour time scale selected.
-     * |[8]     |HZCNTEN   |Sub-second Counter Enable Bit
-     * |        |          |0 = HZCNT disabled in RTC_TIME and RTC_TALM.
-     * |        |          |1 = HZCNT enabled in RTC_TIME and RTC_TALM .
+     * |[16]    |DCOMPEN   |Dynamic Compensation Enable Bit
+     * |        |          |0 = Dynamic Compensation Disabled.
+     * |        |          |1 = Dynamic Compensation Enabled.
      * @var RTC_T::WEEKDAY
      * Offset: 0x18  RTC Day of the Week Register
      * ---------------------------------------------------------------------------------------------------
@@ -131,7 +146,6 @@ typedef struct
      * |[19:16] |HR        |1-Hour Time Digit of Alarm Setting (0~9)
      * |[21:20] |TENHR     |10-Hour Time Digit of Alarm Setting (0~2)
      * |        |          |When RTC runs as 12-hour time scale mode, RTC_TIME[21] (the high bit of TENHR[1:0]) means AM/PM indication (If RTC_TIME[21] is 1, it indicates PM time message.)
-     * |[30:24] |HZCNT     |Index of sub-second counter(0x00 ~0x7F)
      * @var RTC_T::CALM
      * Offset: 0x20  RTC Calendar Alarm Register
      * ---------------------------------------------------------------------------------------------------
@@ -148,7 +162,7 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |LEAPYEAR  |Leap Year Indication Register (Read Only)
+     * |[0]     |LEAPYEAR  |Leap Year Indication (Read Only)
      * |        |          |0 = This year is not a leap year.
      * |        |          |1 = This year is leap year.
      * @var RTC_T::INTEN
@@ -191,7 +205,7 @@ typedef struct
      * |[24]    |CLKFIEN   |LXT Clock Frequency Monitor Fail Interrupt Enable Bit
      * |        |          |0 = LXT Frequency Fail interrupt Disabled.
      * |        |          |1 = LXT Frequency Fail interrupt Enabled.
-     * |[25]    |CLKSPIEN  |LXT Clock Frequency Monitor Stop Interrupt Enable Bit
+     * |[25]    |CLKSTIEN  |LXT Clock Frequency Monitor Stop Interrupt Enable Bit
      * |        |          |0 = LXT Frequency Stop interrupt Disabled.
      * |        |          |1 = LXT Frequency Stop interrupt Enabled.
      * @var RTC_T::INTSTS
@@ -208,43 +222,57 @@ typedef struct
      * |        |          |1 = Tick condition occur.
      * |        |          |Note: Write 1 to clear this bit.
      * |[8]     |TAMP0IF   |Tamper 0 Interrupt Flag
+     * |        |          |This bit is set when TAMP0_PIN detected level non-equal TAMP0LV (RTC_TAMPCTL[9]).
      * |        |          |0 = No Tamper 0 interrupt flag is generated.
      * |        |          |1 = Tamper 0 interrupt flag is generated.
      * |        |          |Note1: Write 1 to clear this bit.
-     * |        |          |Note2: Clear all TAPMxIF will clear RTC_TAMPTIME and RTC_TAMPCAL automatically.
+     * |        |          |Note2: This interrupt flag will be generated again when Tamper setting condition is not restoration.
+     * |        |          |Note3: Need to clear all TAMPxIF, after that, new RTC_TAMPTIME and RTC_TAMPCAL values are loaded while a tamper event occurred.
      * |[9]     |TAMP1IF   |Tamper 1 or Pair 0 Interrupt Flag
+     * |        |          |This bit is set when TAMP1_PIN detected level non-equal TAMP1LV (RTC_TAMPCTL[13]) or TAMP0_PIN and TAMP1_PIN disconnected during DYNPR0EN (RTC_TAMPCTL[15]) is activated.
      * |        |          |0 = No Tamper 1 or Pair 0 interrupt flag is generated.
      * |        |          |1 = Tamper 1 or Pair 0 interrupt flag is generated.
      * |        |          |Note1: Write 1 to clear this bit.
-     * |        |          |Note2: Clear all TAPMxIF will clear RTC_TAMPTIME and RTC_TAMPCAL automatically.
+     * |        |          |Note2: This interrupt flag will be generated again when Tamper setting condition is not restoration.
+     * |        |          |Note3: Need to clear all TAMPxIF, after that, new RTC_TAMPTIME and RTC_TAMPCAL values are loaded while a tamper event occurred.
      * |[10]    |TAMP2IF   |Tamper 2 Interrupt Flag
+     * |        |          |This bit is set when TAMP2_PIN detected level non-equal TAMP2LV (RTC_TAMPCTL[17]).
      * |        |          |0 = No Tamper 2 interrupt flag is generated.
      * |        |          |1 = Tamper 2 interrupt flag is generated.
      * |        |          |Note1: Write 1 to clear this bit.
-     * |        |          |Note2: Clear all TAPMxIF will clear RTC_TAMPTIME and RTC_TAMPCAL automatically.
+     * |        |          |Note2: This interrupt flag will be generated again when Tamper setting condition is not restoration.
+     * |        |          |Note3: Need to clear all TAMPxIF, after that, new RTC_TAMPTIME and RTC_TAMPCAL values are loaded while a tamper event occurred.
      * |[11]    |TAMP3IF   |Tamper 3 or Pair 1 Interrupt Flag
+     * |        |          |This bit is set when TAMP3_PIN detected level non-equal TAMP3LV (RTC_TAMPCTL[21]) or TAMP2_PIN and TAMP3_PIN disconnected during DYNPR1EN (RTC_TAMPCTL[23]) is activated or
+     * |        |          |TAMP0_PIN and TAMP3_PIN disconnected during DYNPR1EN (RTC_TAMPCTL[23]) and DYN1ISS (RTC_TAMPCTL[0]) are activated.
      * |        |          |0 = No Tamper 3 or Pair 1 interrupt flag is generated.
      * |        |          |1 = Tamper 3 or Pair 1 interrupt flag is generated.
      * |        |          |Note1: Write 1 to clear this bit.
-     * |        |          |Note2: Clear all TAPMxIF will clear RTC_TAMPTIME and RTC_TAMPCAL automatically.
+     * |        |          |Note2: This interrupt flag will be generated again when Tamper setting condition is not restoration.
+     * |        |          |Note3: Need to clear all TAMPxIF, after that, new RTC_TAMPTIME and RTC_TAMPCAL values are loaded while a tamper event occurred.
      * |[12]    |TAMP4IF   |Tamper 4 Interrupt Flag
+     * |        |          |This bit is set when TAMP4_PIN detected level non-equal TAMP4LV (RTC_TAMPCTL[25]).
      * |        |          |0 = No Tamper 4 interrupt flag is generated.
      * |        |          |1 = Tamper 4 interrupt flag is generated.
      * |        |          |Note1: Write 1 to clear this bit.
-     * |        |          |Note2: Clear all TAPMxIF will clear RTC_TAMPTIME and RTC_TAMPCAL automatically.
+     * |        |          |Note2: This interrupt flag will be generated again when Tamper setting condition is not restoration.
+     * |        |          |Note3: Need to clear all TAMPxIF, after that, new RTC_TAMPTIME and RTC_TAMPCAL values are loaded while a tamper event occurred.
      * |[13]    |TAMP5IF   |Tamper 5 or Pair 2 Interrupt Flag
+     * |        |          |This bit is set when TAMP5_PIN detected level non-equal TAMP5LV (RTC_TAMPCTL[29]) or TAMP4_PIN and TAMP5_PIN disconnected during DYNPR2EN (RTC_TAMPCTL[31]) is activated or
+     * |        |          |TAMP0_PIN and TAMP5_PIN disconnected during DYNPR2EN (RTC_TAMPCTL[31]) and DYN2ISS (RTC_TAMPCTL[1]) are activated.
      * |        |          |0 = No Tamper 5 or Pair 2 interrupt flag is generated.
      * |        |          |1 = Tamper 5 or Pair 2 interrupt flag is generated.
      * |        |          |Note1: Write 1 to clear this bit.
-     * |        |          |Note2: Clear all TAPMxIF will clear RTC_TAMPTIME and RTC_TAMPCAL automatically.
+     * |        |          |Note2: This interrupt flag will be generated again when Tamper setting condition is not restoration.
+     * |        |          |Note3: Need to clear all TAMPxIF, after that, new RTC_TAMPTIME and RTC_TAMPCAL values are loaded while a tamper event occurred.
      * |[24]    |CLKFIF    |LXT Clock Frequency Monitor Fail Interrupt Flag
      * |        |          |0 = LXT frequency is normal.
      * |        |          |1 = LXT frequency is abnormal.
      * |        |          |Note1: Write 1 to clear the bit to 0.
      * |        |          |Note2: LXT detector will automatic disable when Fail/Stop Flag rise, resume after Fail/Stop Flag clear.
-     * |[25]    |CLKSPIF   |LXT Clock Frequency Monitor Stop Interrupt Flag
+     * |[25]    |CLKSTIF   |LXT Clock Frequency Monitor Stop Interrupt Flag
      * |        |          |0 = LXT frequency is normal.
-     * |        |          |1 = LXT frequency is almost stop ..
+     * |        |          |1 = LXT frequency is almost stop.
      * |        |          |Note1: Write 1 to clear the bit to 0.
      * |        |          |Note2: LXT detector will automatic disable when Fail/Stop Flag rise, resume after Fail/Stop Flag clear.
      * @var RTC_T::TICK
@@ -262,7 +290,6 @@ typedef struct
      * |        |          |101 = Time tick is 1/32 second.
      * |        |          |110 = Time tick is 1/64 second.
      * |        |          |111 = Time tick is 1/128 second.
-     * |        |          |Note: This register can be read back after the RTC register access enable bit RWENF (RTC_RWEN[16]) is active.
      * @var RTC_T::TAMSK
      * Offset: 0x34  RTC Time Alarm Mask Register
      * ---------------------------------------------------------------------------------------------------
@@ -293,18 +320,18 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[2]     |SPRRWEN   |Spare Register Enable Bit
-     * |        |          |0 = Spare register is Disabled.
-     * |        |          |1 = Spare register is Enabled.
+     * |        |          |0 = Spare register Disabled.
+     * |        |          |1 = Spare register Enabled.
      * |        |          |Note: When spare register is disabled, RTC_SPR0 ~ RTC_SPR19 cannot be accessed.
      * |[5]     |SPRCSTS   |SPR Clear Flag
-     * |        |          |This bit indicates if the RTC_SPR0 ~RTC_SPR19 content is cleared when specify snoop event is detected.
+     * |        |          |This bit indicates if the RTC_SPR0 ~ RTC_SPR19 content is cleared when specify tamper event is detected.
      * |        |          |0 = Spare register content is not cleared.
      * |        |          |1 = Spare register content is cleared.
-     * |        |          |Writes 1 to clear this bit.
-     * |        |          |Note: This bit keep 1 when RTC_INTSTS[13:8] or RTC_INTSTS[25:24] are not equal zero.
-     * |[16]    |LXTFCLR   |LXT Clock Monitor Fail/Stop to Clear Spare Enable Bit
-     * |        |          |0 = LXT monitor Fail/Stop to clear Spare register content is Disabled..
-     * |        |          |1 = LXT monitor Fail/Stop to clear Spare register content is Enabled.
+     * |        |          |Note 1: Writes 1 to clear this bit.
+     * |        |          |Note 2: This bit keep 1 when RTC_INTSTS[13:8] or RTC_INTSTS[25:24] are not equal zero.
+     * |[16]    |LXTFCLR   |LXT Clock Fail/Stop to Clear Spare Enable Bit
+     * |        |          |0 = LXT Fail/Stop to clear Spare register content Disabled.
+     * |        |          |1 = LXT Fail/Stop to clear Spare register content Enabled.
      * @var RTC_T::SPR[20]
      * Offset: 0x40 ~ 0x8C  RTC Spare Register 0 ~ 19
      * ---------------------------------------------------------------------------------------------------
@@ -312,18 +339,18 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[31:0]  |SPARE     |Spare Register
      * |        |          |This field is used to store back-up information defined by user.
-     * |        |          |This field will be cleared by hardware automatically once a tamper pin event is detected.
-     * |        |          |Before storing back-up information in to RTC_SPRx register, user should write 0xA965 to RTC_RWEN[15:0] to make sure register read/write enable bit REWNF (RTC_RWEN[16]) is enabled.
+     * |        |          |This field will be cleared by hardware automatically in the following conditions, a tamper pin event is detected, 
+     * |        |          |LXT clock fail/stop event occurs if LXTFCLR(RTC_SPRCTL[16]) is 1, or after Flash mass operation.
      * @var RTC_T::LXTCTL
      * Offset: 0x100  RTC 32.768 kHz Oscillator Control Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[0]     |LIRC32KEN |LIRC 32K Source Enable Bit
+     * |[0]     |LIRC32KEN |Enable LIRC32K Source
      * |        |          |0 = LIRC32K Disabled.
-     * |        |          |1 = LIRC32K.Enabled.
+     * |        |          |1 = LIRC32K Enabled.
      * |[3:1]   |GAIN      |Oscillator Gain Option
-     * |        |          |User can select oscillator gain according to crystal external loading and operating temperature range
+     * |        |          |User can select oscillator gain according to crystal external loading and operating temperature range.
      * |        |          |The larger gain value corresponding to stronger driving capability and higher power consumption.
      * |        |          |000 = L0 mode.
      * |        |          |001 = L1 mode.
@@ -333,227 +360,181 @@ typedef struct
      * |        |          |101 = L5 mode.
      * |        |          |110 = L6 mode.
      * |        |          |111 = L7 mode (Default).
-     * |[7]     |C32KS     |Clock 32K Source Selection:
-     * |        |          |0 = Internal 32K clock is from 32K crystal .
-     * |        |          |1 = Internal 32K clock is from LIRC32K.
+     * |[6]     |C32KSEL   |Clock 32K Source Selection
+     * |        |          |0 = Clock source from external low speed crystal oscillator (LXT).
+     * |        |          |1 = Clock source from internal low speed RC 32K oscillator (LIRC32K).
+     * |[7]     |RTCCKSEL  |RTC Clock Source Selection
+     * |        |          |0 = Clock source from external low speed crystal oscillator (LXT) or internal low speed RC 32K oscillator (LIRC32K) depended on C32KSEL value.
+     * |        |          |1 = Clock source from internal low speed RC oscillator (LIRC).
+     * |[8]     |IOCTLSEL  |IO Pin Backup Control Selection
+     * |        |          |When low speed 32 kHz oscillator is disabled or TAMPxEN is disabled, 
+     * |        |          |PF.4 pin (X32KO pin), PF.5 pin (X32KI pin) or PF.6~11 pin (TAMPERx pin) can be used as GPIO function.
+     * |        |          |User can program IOCTLSEL to decide PF.4~11 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL0/1 control register.
+     * |        |          |0 = PF.4~11 pin I/O function is controlled by GPIO module.
+     * |        |          |1 = PF.4~11 pin I/O function is controlled by VBAT power domain.
+     * |        |          |Note: IOCTLSEL will automatically be set by hardware to 1 when system power is off and any writable RTC registers has been written at RTCCKEN(CLK_APBCLK0[1]) enabled.
      * @var RTC_T::GPIOCTL0
      * Offset: 0x104  RTC GPIO Control 0 Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[1:0]   |OPMODE0   |IO Operation Mode
-     * |        |          |00 = PF.0 is input only mode, without pull-up resistor.
-     * |        |          |01 = PF.0 is output push pull mode.
-     * |        |          |10 = PF.0 is open drain mode.
-     * |        |          |11 = PF.0 is quasi-bidirectional mode with internal pull up.
+     * |        |          |00 = PF.4 is input only mode.
+     * |        |          |01 = PF.4 is output push pull mode.
+     * |        |          |10 = PF.4 is open drain mode.
+     * |        |          |11 = PF.4 is quasi-bidirectional mod.
      * |[2]     |DOUT0     |IO Output Data
-     * |        |          |0 = PF.0 output low.
-     * |        |          |1 = PF.0 output high.
-     * |[3]     |CTLSEL0   |IO Pin State Backup Selection
-     * |        |          |When low speed 32 kHz oscillator is disabled, PF.0 pin (X32KO pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL0 to decide PF.0 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL0 control register.
-     * |        |          |0 = PF.0 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL0 = 1 when system power is turned off.
-     * |        |          |1 = PF.0 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.0 pin function and I/O status are controlled by OPMODE0[1:0] and DOUT0 after CTLSEL0 is set to 1.
-     * |        |          |Note: CTLSEL0 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[5:4]   |PUSEL0    |IO Pull-up and Pull-down Enable Bit
-     * |        |          |Determine PF.0 I/O pull-up or pull-down.
-     * |        |          |00 = PF.0 pull-up and pull-up disable.
-     * |        |          |01 = PF.0 pull-down enable.
-     * |        |          |10 = PF.0 pull-up enable.
-     * |        |          |11 = PF.0 pull-up and pull-up disable.
-     * |        |          |Note:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE0 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE0 set as input tri-state mode.
+     * |        |          |0 = PF.4 output low.
+     * |        |          |1 = PF.4 output high.
+     * |[3]     |DINOFF0   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.4 digital input path Enabled.
+     * |        |          |1 = PF.4 digital input path Disabled (digital input tied to low).
+     * |[5:4]   |PUSEL0    |IO Pull-up and Pull-down Enable Bits
+     * |        |          |Determine PF.4 I/O pull-up or pull-down.
+     * |        |          |00 = PF.4 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.4 pull-up Enabled.
+     * |        |          |10 = PF.4 pull-down Enabled.
+     * |        |          |11 = PF.4 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE0 is set as input tri-state and open-drain mode.
      * |[9:8]   |OPMODE1   |IO Operation Mode
-     * |        |          |00 = PF.1 is input only mode, without pull-up resistor.
-     * |        |          |01 = PF.1 is output push pull mode.
-     * |        |          |10 = PF.1 is open drain mode.
-     * |        |          |11 = PF.1 is quasi-bidirectional mode with internal pull up.
+     * |        |          |00 = PF.5 is input only mode.
+     * |        |          |01 = PF.5 is output push pull mode.
+     * |        |          |10 = PF.5 is open drain mode.
+     * |        |          |11 = PF.5 is quasi-bidirectional mod.
      * |[10]    |DOUT1     |IO Output Data
-     * |        |          |0 = PF.1 output low.
-     * |        |          |1 = PF.1 output high.
-     * |[11]    |CTLSEL1   |IO Pin State Backup Selection
-     * |        |          |When low speed 32 kHz oscillator is disabled, PF.1 pin (X32KI pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL1 to decide PF.1 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL0 control register.
-     * |        |          |0 = PF.1 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL1 = 1 when system power is turned off.
-     * |        |          |1 = PF.1 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.1 pin function and I/O status are controlled by OPMODE1[1:0] and DOUT1 after CTLSEL1 is set to 1.
-     * |        |          |Note: CTLSEL1 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[13:12] |PUSEL1    |IO Pull-up and Pull-down Enable Bit
-     * |        |          |Determine PF.1 I/O pull-up or pull-down.
-     * |        |          |00 = PF.1 pull-up and pull-up disable.
-     * |        |          |01 = PF.1 pull-down enable.
-     * |        |          |10 = PF.1 pull-up enable.
-     * |        |          |11 = PF.1 pull-up and pull-up disable.
-     * |        |          |Note:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE1 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE1 set as input tri-state mode.
+     * |        |          |0 = PF.5 output low.
+     * |        |          |1 = PF.5 output high.
+     * |[11     |DINOFF1   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.5 digital input path Enabled.
+     * |        |          |1 = PF.5 digital input path Disabled (digital input tied to low).
+     * |[13:12] |PUSEL1    |IO Pull-up and Pull-down Enable Bits
+     * |        |          |Determine PF.5 I/O pull-up or pull-down.
+     * |        |          |00 = PF.5 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.5 pull-up Enabled.
+     * |        |          |10 = PF.5 pull-down Enabled.
+     * |        |          |11 = PF.5 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE1 is set as input tri-state and open-drain mode.
      * |[17:16] |OPMODE2   |IO Operation Mode
-     * |        |          |00 = PF.2 is input only mode, without pull-up resistor.
-     * |        |          |01 = PF.2 is output push pull mode.
-     * |        |          |10 = PF.2 is open drain mode.
-     * |        |          |11 = PF.2 is quasi-bidirectional mode with internal pull up.
+     * |        |          |00 = PF.6 is input only mode.
+     * |        |          |01 = PF.6 is output push pull mode.
+     * |        |          |10 = PF.6 is open drain mode.
+     * |        |          |11 = PF.6 is quasi-bidirectional mod.
      * |[18]    |DOUT2     |IO Output Data
-     * |        |          |0 = PF.2 output low.
-     * |        |          |1 = PF.2 output high.
-     * |[19]    |CTLSEL2   |IO Pin State Backup Selection
-     * |        |          |When TAMP0EN is disabled, PF.2 pin (TAMPER0 pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL2 to decide PF.2 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL0 control register.
-     * |        |          |0 = PF.2 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL2 = 1 when system power is turned off.
-     * |        |          |1 = PF.2 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.2 pin function and I/O status are controlled by OPMODE2[1:0] and DOUT2 after CTLSEL2 is set to 1.
-     * |        |          |Note: CTLSEL2 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[21:20] |PUSEL2    |IO Pull-up and Pull-down Enable Bit
-     * |        |          |Determine PF.2 I/O pull-up or pull-down.
-     * |        |          |00 = PF.2 pull-up and pull-up disable.
-     * |        |          |01 = PF.2 pull-down enable.
-     * |        |          |10 = PF.2 pull-up enable.
-     * |        |          |11 = PF.2 pull-up and pull-up disable.
-     * |        |          |Note1:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE2 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE2 set as input tri-state mode.
+     * |        |          |0 = PF.6 output low.
+     * |        |          |1 = PF.6 output high.
+     * |[19     |DINOFF2   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.6 digital input path Enabled.
+     * |        |          |1 = PF.6 digital input path Disabled (digital input tied to low).
+     * |[21:20] |PUSEL2    |IO Pull-up and Pull-down Enable Bits
+     * |        |          |Determine PF.6 I/O pull-up or pull-down.
+     * |        |          |00 = PF.6 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.6 pull-up Enabled.
+     * |        |          |10 = PF.6 pull-down Enabled.
+     * |        |          |11 = PF.6 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE2 is set as input tri-state and open-drain mode.
      * |[25:24] |OPMODE3   |IO Operation Mode
-     * |        |          |00 = PF.7 is input only mode, without pull-up resistor.
+     * |        |          |00 = PF.7 is input only mode.
      * |        |          |01 = PF.7 is output push pull mode.
      * |        |          |10 = PF.7 is open drain mode.
-     * |        |          |11 = PF.7 is quasi-bidirectional mode with with internal pull up.
+     * |        |          |11 = PF.7 is quasi-bidirectional mod.
      * |[26]    |DOUT3     |IO Output Data
      * |        |          |0 = PF.7 output low.
      * |        |          |1 = PF.7 output high.
-     * |[27]    |CTLSEL3   |IO Pin State Backup Selection
-     * |        |          |When TAMP1EN is disabled, PF.7 pin (TAMPER1 pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL3 to decide PF.7 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL0 control register.
-     * |        |          |0 = PF.7 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL3 = 1 when system power is turned off.
-     * |        |          |1 = PF.7 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.7 pin function and I/O status are controlled by OPMODE3[1:0] and DOUT3 after CTLSEL3 is set to 1.
-     * |        |          |Note: CTLSEL3 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[29:28] |PUSEL3    |IO Pull-up and Pull-down Enable Bit
+     * |[27     |DINOFF3   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.7 digital input path Enabled.
+     * |        |          |1 = PF.7 digital input path Disabled (digital input tied to low).
+     * |[29:28] |PUSEL3    |IO Pull-up and Pull-down Enable Bits
      * |        |          |Determine PF.7 I/O pull-up or pull-down.
-     * |        |          |00 = PF.7 pull-up and pull-down disable.
-     * |        |          |01 = PF.7 pull-down enable.
-     * |        |          |10 = PF.7 pull-up enable.
-     * |        |          |11 = PF.7 pull-up and pull-down disable.
-     * |        |          |Note:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE3 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE3 set as input tri-state mode.
+     * |        |          |00 = PF.7 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.7 pull-up Enabled.
+     * |        |          |10 = PF.7 pull-down Enabled.
+     * |        |          |11 = PF.7 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE3 is set as input tri-state and open-drain mode.
      * @var RTC_T::GPIOCTL1
      * Offset: 0x108  RTC GPIO Control 1 Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[1:0]   |OPMODE4   |IO Operation Mode
-     * |        |          |00 = PF.8 is input only mode, without pull-up resistor.
+     * |        |          |00 = PF.8 is input only mode.
      * |        |          |01 = PF.8 is output push pull mode.
      * |        |          |10 = PF.8 is open drain mode.
-     * |        |          |11 = PF.8 is quasi-bidirectional mode with with internal pull up.
+     * |        |          |11 = PF.8 is quasi-bidirectional mod.
      * |[2]     |DOUT4     |IO Output Data
      * |        |          |0 = PF.8 output low.
      * |        |          |1 = PF.8 output high.
-     * |[3]     |CTLSEL4   |IO Pin State Backup Selection
-     * |        |          |When TAMP2EN is disabled, PF.8 pin (TAMPER2 pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL4 to decide PF.8 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL1 control register.
-     * |        |          |0 = PF.8 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL4 = 1 when system power is turned off.
-     * |        |          |1 = PF.8 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.8 pin function and I/O status are controlled by OPMODE4[1:0] and DOUT4 after CTLSEL4 is set to 1.
-     * |        |          |Note: CTLSEL4 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[5:4]   |PUSEL4    |IO Pull-up and Pull-down Enable Bit
+     * |[3]     |DINOFF4   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.8 digital input path Enabled.
+     * |        |          |1 = PF.8 digital input path Disabled (digital input tied to low).
+     * |[5:4]   |PUSEL4    |IO Pull-up and Pull-down Enable Bits
      * |        |          |Determine PF.8 I/O pull-up or pull-down.
-     * |        |          |00 = PF.8 pull-up and pull-down disable.
-     * |        |          |01 = PF.8 pull-down enable.
-     * |        |          |10 = PF.8 pull-up enable.
-     * |        |          |11 = PF.8 pull-up and pull-down disable.
-     * |        |          |Note:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE4 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE4 set as input tri-state mode.
+     * |        |          |00 = PF.8 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.8 pull-up Enabled.
+     * |        |          |10 = PF.8 pull-down Enabled.
+     * |        |          |11 = PF.8 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE4 is set as input tri-state and open-drain mode.
      * |[9:8]   |OPMODE5   |IO Operation Mode
-     * |        |          |00 = PF.9 is input only mode, without pull-up resistor.
+     * |        |          |00 = PF.9 is input only mode.
      * |        |          |01 = PF.9 is output push pull mode.
      * |        |          |10 = PF.9 is open drain mode.
-     * |        |          |11 = PF.9 is quasi-bidirectional mode with with internal pull up.
+     * |        |          |11 = PF.9 is quasi-bidirectional mod.
      * |[10]    |DOUT5     |IO Output Data
      * |        |          |0 = PF.9 output low.
      * |        |          |1 = PF.9 output high.
-     * |[11]    |CTLSEL5   |IO Pin State Backup Selection
-     * |        |          |When TAMP3EN is disabled, PF.9 pin (TAMPER3 pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL5 to decide PF.9 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL1 control register.
-     * |        |          |0 = PF.9 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL5 = 1 when system power is turned off.
-     * |        |          |1 = PF.9 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.9 pin function and I/O status are controlled by OPMODE5[1:0] and DOUT5 after CTLSEL5 is set to 1.
-     * |        |          |Note: CTLSEL5 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[13:12] |PUSEL5    |IO Pull-up and Pull-down Enable Bit
+     * |[11     |DINOFF5   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.9 digital input path Enabled.
+     * |        |          |1 = PF.9 digital input path Disabled (digital input tied to low).
+     * |[13:12] |PUSEL5    |IO Pull-up and Pull-down Enable Bits
      * |        |          |Determine PF.9 I/O pull-up or pull-down.
-     * |        |          |00 = PF.9 pull-up and pull-down disable.
-     * |        |          |01 = PF.9 pull-down enable.
-     * |        |          |10 = PF.9 pull-up enable.
-     * |        |          |11 = PF.9 pull-up and pull-down disable.
-     * |        |          |.Note:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE5 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE5 set as input tri-state mode.
+     * |        |          |00 = PF.9 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.9 pull-up Enabled.
+     * |        |          |10 = PF.9 pull-down Enabled.
+     * |        |          |11 = PF.9 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE5 is set as input tri-state and open-drain mode.
      * |[17:16] |OPMODE6   |IO Operation Mode
-     * |        |          |00 = PF.10 is input only mode, without pull-up resistor.
+     * |        |          |00 = PF.10 is input only mode.
      * |        |          |01 = PF.10 is output push pull mode.
      * |        |          |10 = PF.10 is open drain mode.
-     * |        |          |11 = PF.10 is quasi-bidirectional mode with with internal pull up.
+     * |        |          |11 = PF.10 is quasi-bidirectional mod.
      * |[18]    |DOUT6     |IO Output Data
      * |        |          |0 = PF.10 output low.
      * |        |          |1 = PF.10 output high.
-     * |[19]    |CTLSEL6   |IO Pin State Backup Selection
-     * |        |          |When TAMP4EN is disabled, PF.10 pin (TAMPER4 pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL6 to decide PF.10 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL1 control register.
-     * |        |          |0 = PF.10 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL6 = 1 when system power is turned off.
-     * |        |          |1 = PF.10 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.10 pin function and I/O status are controlled by OPMODE6[1:0] and DOUT6 after CTLSEL6 is set to 1.
-     * |        |          |Note: CTLSEL6 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[21:20] |PUSEL6    |IO Pull-up and Pull-down Enable Bit
+     * |[19     |DINOFF6   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.10 digital input path Enabled.
+     * |        |          |1 = PF.10 digital input path Disabled (digital input tied to low).
+     * |[21:20] |PUSEL6    |IO Pull-up and Pull-down Enable Bits
      * |        |          |Determine PF.10 I/O pull-up or pull-down.
-     * |        |          |00 = PF.10 pull-up and pull-down disable.
-     * |        |          |01 = PF.10 pull-down enable.
-     * |        |          |10 = PF.10 pull-up enable.
-     * |        |          |11 = PF.10 pull-up and pull-down disable.
-     * |        |          |Note:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE6 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE6 set as input tri-state mode.
+     * |        |          |00 = PF.10 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.10 pull-up Enabled.
+     * |        |          |10 = PF.10 pull-down Enabled.
+     * |        |          |11 = PF.10 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE6 is set as input tri-state and open-drain mode.
      * |[25:24] |OPMODE7   |IO Operation Mode
-     * |        |          |00 = PF.11 is input only mode, without pull-up resistor.
+     * |        |          |00 = PF.11 is input only mode.
      * |        |          |01 = PF.11 is output push pull mode.
      * |        |          |10 = PF.11 is open drain mode.
-     * |        |          |11 = PF.11 is quasi-bidirectional mode with with internal pull up.
+     * |        |          |11 = PF.11 is quasi-bidirectional mod.
      * |[26]    |DOUT7     |IO Output Data
      * |        |          |0 = PF.11 output low.
      * |        |          |1 = PF.11 output high.
-     * |[27]    |CTLSEL7   |IO Pin State Backup Selection
-     * |        |          |When TAMP5EN is disabled, PF.11 pin (TAMPER5 pin) can be used as GPIO function
-     * |        |          |User can program CTLSEL7 to decide PF.11 I/O function is controlled by system power domain GPIO module or VBAT power domain RTC_GPIOCTL1 control register.
-     * |        |          |0 = PF.11 pin I/O function is controlled by GPIO module.
-     * |        |          |Hardware auto becomes CTLSEL7 = 1 when system power is turned off.
-     * |        |          |1 = PF.11 pin I/O function is controlled by VBAT power domain.
-     * |        |          |PF.11 pin function and I/O status are controlled by OPMODE7[1:0] and DOUT7 after CTLSEL7 is set to 1.
-     * |        |          |Note: CTLSEL7 will automatically be set by hardware to 1 when system power is off and RTC_INIT[0] (RTC Active Status) is 1.
-     * |[29:28] |PUSEL7    |IO Pull-up and Pull-down Enable Bit
+     * |[27     |DINOFF7   |IO Pin Digital Input Path Disable Bit
+     * |        |          |0 = PF.11 digital input path Enabled.
+     * |        |          |1 = PF.11 digital input path Disabled (digital input tied to low).
+     * |[29:28] |PUSEL7    |IO Pull-up and Pull-down Enable Bits
      * |        |          |Determine PF.11 I/O pull-up or pull-down.
-     * |        |          |00 = PF.11 pull-up and pull-down disable.
-     * |        |          |01 = PF.11 pull-down enable.
-     * |        |          |10 = PF.11 pull-up enable.
-     * |        |          |11 = PF.11 pull-up and pull-down disable.
-     * |        |          |Note:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
-     * |        |          |The independent pull-up control register only valid when OPMODE7 set as input tri-state and open-drain mode.
-     * |        |          |The independent pull-down control register only valid when OPMODE7 set as input tri-state mode.
+     * |        |          |00 = PF.11 pull-up and pull-down Disabled.
+     * |        |          |01 = PF.11 pull-up Enabled.
+     * |        |          |10 = PF.11 pull-down Enabled.
+     * |        |          |11 = PF.11 pull-up and pull-down Disabled.
+     * |        |          |Note: Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up/pull-down control register is only valid when OPMODE7 is set as input tri-state and open-drain mode.
      * @var RTC_T::DSTCTL
      * Offset: 0x110  RTC Daylight Saving Time Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -566,8 +547,8 @@ typedef struct
      * |        |          |0 = No effect.
      * |        |          |1 = Indicates RTC hour digit has been subtracted one hour for winter time change.
      * |[2]     |DSBAK     |Daylight Saving Back
-     * |        |          |0= Daylight Saving Change is not performed.
-     * |        |          |1= Daylight Saving Change is performed.
+     * |        |          |0 = Daylight Saving Change is not performed.
+     * |        |          |1 = Daylight Saving Change is performed.
      * @var RTC_T::TAMPCTL
      * Offset: 0x120  RTC Tamper Pin Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -577,23 +558,23 @@ typedef struct
      * |        |          |This bit determine Tamper 3 input is from Tamper 2 or Tamper 0 in dynamic mode.
      * |        |          |0 = Tamper input is from Tamper 2.
      * |        |          |1 = Tamper input is from Tamper 0.
-     * |        |          |Note: This bit has effect only when DYNPR1EN (RTC_TAMPCTL[16]) and DYNPR0EN (RTC_TAMPCTL[15]) are set
+     * |        |          |Note: This bit is effective only when DYNPR1EN (RTC_TAMPCTL[23]) and DYNPR0EN (RTC_TAMPCTL[15]) are set.
      * |[1]     |DYN2ISS   |Dynamic Pair 2 Input Source Select
      * |        |          |This bit determine Tamper 5 input is from Tamper 4 or Tamper 0 in dynamic mode.
      * |        |          |0 = Tamper input is from Tamper 4.
      * |        |          |1 = Tamper input is from Tamper 0.
-     * |        |          |Note: This bit has effect only when DYNPR2EN (RTC_TAMPCTL[24]) and DYNPR0EN (RTC_TAMPCTL[15]) are set
-     * |[3:2]   |DYNSRC    |Dynamic Reference Pattern
+     * |        |          |Note: This bit is effective only when DYNPR2EN (RTC_TAMPCTL[31]) and DYNPR0EN (RTC_TAMPCTL[15]) are set.
+     * |[3]     |DYNSRC    |Dynamic Reference Pattern
      * |        |          |This fields determine the new reference pattern when current pattern run out in dynamic pair mode.
-     * |        |          |00 or 10 = The new reference pattern is generated by random number generator when the reference pattern run out.
-     * |        |          |01 = The new reference pattern is repeated previous random value when the reference pattern run out.
-     * |        |          |11 = The new reference pattern is repeated from SEED (RTC_TAMPSEED[31:0]) when the reference pattern run out.
-     * |        |          |Note: After revise this bit, the SEEDRLD (RTC_TAMPCTL[4]) should be set.
+     * |        |          |0 = The new reference pattern is generated by random number generator when the reference pattern run out.
+     * |        |          |1 = The new reference pattern is repeated from SEED (RTC_TAMPSEED[31:0]) when the reference pattern run out.
+     * |        |          |Note: After this bit is modified, the SEEDRLD (RTC_TAMPCTL[4]) should be set.
      * |[4]     |SEEDRLD   |Reload New Seed for PRNG Engine
      * |        |          |Setting this bit, the tamper configuration will be reload.
      * |        |          |0 = Generating key based on the current seed.
      * |        |          |1 = Reload new seed.
-     * |        |          |Note: Before set this bit, the tamper configuration should be set to complete.
+     * |        |          |Note 1: Before this bit is set, the tamper configuration should be set to complete and this bit will be auto clear to 0 after reload new seed completed.
+     * |        |          |Note 2: The reference is RTC clock. Tamper detector need sync 2 ~ 3 RTC clock.
      * |[7:5]   |DYNRATE   |Dynamic Change Rate
      * |        |          |This item is choice the dynamic tamper output change rate.
      * |        |          |000 = 2^10 * RTC_CLK.
@@ -604,11 +585,11 @@ typedef struct
      * |        |          |101 = 2^15 * RTC_CLK.
      * |        |          |110 = 2^16 * RTC_CLK.
      * |        |          |111 = 2^17 * RTC_CLK.
-     * |        |          |Note: After revise this field, set SEEDRLD (RTC_TAMPCTL[4]) can reload chage rate immediately.
+     * |        |          |Note: After revising this field, set SEEDRLD (RTC_TAMPCTL[4]) can reload change rate immediately.
      * |[8]     |TAMP0EN   |Tamper0 Detect Enable Bit
      * |        |          |0 = Tamper 0 detect Disabled.
      * |        |          |1 = Tamper 0 detect Enabled.
-     * |        |          |Note1: The reference is RTC-clock . Tamper detector need sync 2 ~ 3 RTC-clock.
+     * |        |          |Note1: The reference is RTC clock. Tamper detector need sync 2 ~ 3 RTC clock.
      * |[9]     |TAMP0LV   |Tamper 0 Level
      * |        |          |This bit depend on level attribute of tamper pin for static tamper detection.
      * |        |          |0 = Detect voltage level is low.
@@ -619,7 +600,7 @@ typedef struct
      * |[12]    |TAMP1EN   |Tamper 1 Detect Enable Bit
      * |        |          |0 = Tamper 1 detect Disabled.
      * |        |          |1 = Tamper 1 detect Enabled.
-     * |        |          |Note1: The reference is RTC-clock . Tamper detector need sync 2 ~ 3 RTC-clock.
+     * |        |          |Note1: The reference is RTC clock. Tamper detector need sync 2 ~ 3 RTC clock.
      * |[13]    |TAMP1LV   |Tamper 1 Level
      * |        |          |This bit depend on level attribute of tamper pin for static tamper detection.
      * |        |          |0 = Detect voltage level is low.
@@ -633,7 +614,7 @@ typedef struct
      * |[16]    |TAMP2EN   |Tamper 2 Detect Enable Bit
      * |        |          |0 = Tamper 2 detect Disabled.
      * |        |          |1 = Tamper 2 detect Enabled.
-     * |        |          |Note1: The reference is RTC-clock . Tamper detector need sync 2 ~ 3 RTC-clock.
+     * |        |          |Note1: The reference is RTC clock. Tamper detector need sync 2 ~ 3 RTC clock.
      * |[17]    |TAMP2LV   |Tamper 2 Level
      * |        |          |This bit depend on level attribute of tamper pin for static tamper detection.
      * |        |          |0 = Detect voltage level is low.
@@ -644,7 +625,7 @@ typedef struct
      * |[20]    |TAMP3EN   |Tamper 3 Detect Enable Bit
      * |        |          |0 = Tamper 3 detect Disabled.
      * |        |          |1 = Tamper 3 detect Enabled.
-     * |        |          |Note1: The reference is RTC-clock . Tamper detector need sync 2 ~ 3 RTC-clock.
+     * |        |          |Note1: The reference is RTC clock. Tamper detector need sync 2 ~ 3 RTC clock.
      * |[21]    |TAMP3LV   |Tamper 3 Level
      * |        |          |This bit depend on level attribute of tamper pin for static tamper detection.
      * |        |          |0 = Detect voltage level is low.
@@ -658,7 +639,7 @@ typedef struct
      * |[24]    |TAMP4EN   |Tamper4 Detect Enable Bit
      * |        |          |0 = Tamper 4 detect Disabled.
      * |        |          |1 = Tamper 4 detect Enabled.
-     * |        |          |Note1: The reference is RTC-clock . Tamper detector need sync 2 ~ 3 RTC-clock.
+     * |        |          |Note1: The reference is RTC clock. Tamper detector need sync 2 ~ 3 RTC clock.
      * |[25]    |TAMP4LV   |Tamper 4 Level
      * |        |          |This bit depend on level attribute of tamper pin for static tamper detection.
      * |        |          |0 = Detect voltage level is low.
@@ -669,7 +650,7 @@ typedef struct
      * |[28]    |TAMP5EN   |Tamper 5 Detect Enable Bit
      * |        |          |0 = Tamper 5 detect Disabled.
      * |        |          |1 = Tamper 5 detect Enabled.
-     * |        |          |Note1: The reference is RTC-clock . Tamper detector need sync 2 ~ 3 RTC-clock.
+     * |        |          |Note1: The reference is RTC clock. Tamper detector need sync 2 ~ 3 RTC clock.
      * |[29]    |TAMP5LV   |Tamper 5 Level
      * |        |          |This bit depend on level attribute of tamper pin for static tamper detection.
      * |        |          |0 = Detect voltage level is low.
@@ -696,8 +677,8 @@ typedef struct
      * |[11:8]  |MIN       |1-Min Time Digit of TAMPER Time (0~9)
      * |[14:12] |TENMIN    |10-Min Time Digit of TAMPER Time (0~5)
      * |[19:16] |HR        |1-Hour Time Digit of TAMPER Time (0~9)
-     * |[21:20] |TENHR     |10-Hour Time Digit of TAMPER Time (0~2) Note: 24-hour time scale only .
-     * |[30:24] |HZCNT     |Index of sub-second counter(0x00 ~0x7F)
+     * |[21:20] |TENHR     |10-Hour Time Digit of TAMPER Time (0~2)
+     * |        |          |Note: 24-hour time scale only.
      * @var RTC_T::TAMPCAL
      * Offset: 0x134  RTC Tamper Calendar Register
      * ---------------------------------------------------------------------------------------------------
@@ -710,41 +691,42 @@ typedef struct
      * |[19:16] |YEAR      |1-Year Calendar Digit of TAMPER Calendar (0~9)
      * |[23:20] |TENYEAR   |10-Year Calendar Digit of TAMPER Calendar (0~9)
      * @var RTC_T::CLKDCTL
-     * Offset: 0x140  Clock Fail Detector Control Register
+     * Offset: 0x140  RTC Clock Fail Detector Control Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[0]     |LXTFDEN   |LXT Clock Fail/Stop Detector Enable Bit
-     * |        |          |0 = LXT clock fail/stop detector Disabled.
-     * |        |          |1 = LXT clock fail/stop detector Enabled.
-     * |        |          |Note:
+     * |        |          |0 = LXT clock Fail/Stop detector Disabled.
+     * |        |          |1 = LXT clock Fail/Stop detector Enabled.
+     * |        |          |Note: LXT detector will automatic disable when Fail/Stop Flag rise, resume after Fail/Stop Flag clear.
      * |[1]     |LXTFSW    |LXT Clock Fail Detector Switch LIRC32K Enable Bit
-     * |        |          |0 = LXT Clock Fail Detector Switch LIRC32K Disabled.
-     * |        |          |1 = Enabled
+     * |        |          |0 = LXT clock Fail switch LIRC32K Disabled.
+     * |        |          |1 = LXT clock Fail detector rise, RTC clock source switch from LIRC32K.
      * |        |          |If LXT clock fail detector flag CLKFIF (RTC_INTSTS[24]) is generated, RTC clock source will switch to LIRC32K automatically.
-     * |[2]     |LXTSPSW   |LXT Clock Stop Detector Switch LIRC32K Enable Bit
-     * |        |          |0 = LXT Clock Stop Detector Switch LIRC32K Disabled.
-     * |        |          |1 = Enabled
-     * |        |          |If LXT clock stop detector flag CLKSPIF (RTC_INTSTS[25]) is generated, RTC clock source will switch to LIRC32K automatically
-     * |[16]    |CLKSWLIRCF|LXT Clock Detector Fail/Stop Switch LIRC32K Flag (Read Only)
-     * |        |          |0 = RTC clock source from LXT.
-     * |        |          |1 = RTC clock source from LIRC32K .
-     * |[17]    |LXTFASTF  |LXT Faster Than LIRX32K Flag (Read Only)
-     * |        |          |0 = LXT frequency is slowly.
-     * |        |          |1 = LXT frequency faster than LIRC32K.
+     * |[2]     |LXTSTSW   |LXT Clock Stop Detector Switch LIRC32K Enable Bit
+     * |        |          |0 = LXT clock Stop switch LIRC32K Disabled.
+     * |        |          |1 = LXT clock Stop detector rise, RTC clock source switch from LIRC32K.
+     * |        |          |If LXT clock stop detector flag CLKSTIF (RTC_INTSTS[25]) is generated, RTC clock source will switch to LIRC32K automatically
+     * |[16]    |SWLIRCF   |LXT Clock Detector Fail/Stop Switch LIRC32K Flag (Read Only)
+     * |        |          |0 = Indicate RTC clock source from LXT.
+     * |        |          |1 = Indicate RTC clock source from LIRC32K.
+     * |[17]    |LXTSLOWF  |LXT Slower Than LIRC32K Flag (Read Only) 
+     * |        |          |0 = LXT frequency faster than LIRC32K.
+     * |        |          |1 = LXT frequency is slowly.
+     * |        |          |Note: LXTSLOWF is vaild during CLKSTIF (RTC_INTSTS[25]) or CLKFIF (RTC_INTSTS[24]) rising.
      * @var RTC_T::CDBR
-     * Offset: 0x144  Clock Frequency Detector Boundary Register
+     * Offset: 0x144  RTC Clock Frequency Detector Boundary Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[7:0]   |STOPBD    |LXT Clock Frequency Detector Stop Boundary
-     * |        |          |The bits define the stop value of frequency monitor window.
-     * |        |          |When LXT frequency monitor counter lower than Clock Frequency Detector Stop Boundary , the LXT frequency detect Stop interrupt flag will set to 1.
+     * |[7:0]   |STOPBD    |LXT Clock Stop Frequency Detector Stop Boundary
+     * |        |          |These bits define the stop value of frequency monitor window.
+     * |        |          |When LXT frequency monitor counter lower than STOPBD, the LXT frequency detect Stop interrupt flag will set to 1.
      * |        |          |Note: The boundary is defined as the maximum value of LXT among 256 LIRC32K clock time.
      * |[23:16] |FAILBD    |LXT Clock Frequency Detector Fail Boundary
-     * |        |          |The bits define the fail value of frequency monitor window.
-     * |        |          |When LXT frequency monitor counter lower than Clock Frequency Detector fail Boundary , the LXT frequency detect fail interrupt flag will set to 1.
-     * |        |          |Note: The boundary is defined as the minimum value of LXT among 256 LIRC32K clock time.
+     * |        |          |These bits define the fail value of frequency monitor window.
+     * |        |          |When LXT frequency monitor counter lower than FAILBD, the LXT frequency detect fail interrupt flag will set to 1.
+     * |        |          |Note: The boundary is defined as the maximum value of LXT among 256 LIRC32K clock time.
      */
     __IO uint32_t INIT;                  /*!< [0x0000] RTC Initiation Register                                          */
     __I uint32_t  RESERVE0[1];           /* 0x4 */
@@ -777,15 +759,16 @@ typedef struct
     __I  uint32_t TAMPTIME;              /*!< [0x0130] RTC Tamper Time Register                                         */
     __I  uint32_t TAMPCAL;               /*!< [0x0134] RTC Tamper Calendar Register                                     */
     __I  uint32_t RESERVE6[2];           /* 0x138 ~ 0x13c */
-    __IO uint32_t CLKDCTL;               /*!< [0x0140] Clock Fail Detector Control Register                             */
-    __IO uint32_t CDBR;                  /*!< [0x0144] Clock Frequency Detector Boundary Register                       */
+    __IO uint32_t CLKDCTL;               /*!< [0x0140] RTC Clock Fail Detector Control Register                         */
+    __IO uint32_t CDBR;                  /*!< [0x0144] RTC Clock Frequency Detector Boundary Register                   */
 
 } RTC_T;
 
 /**
     @addtogroup RTC_CONST RTC Bit Field Definition
     Constant Definitions for RTC Controller
-@{ */
+  @{ 
+*/
 
 #define RTC_INIT_ACTIVE_Pos              (0)                                               /*!< RTC_T::INIT: ACTIVE Position           */
 #define RTC_INIT_ACTIVE_Msk              (0x1ul << RTC_INIT_ACTIVE_Pos)                    /*!< RTC_T::INIT: ACTIVE Mask               */
@@ -913,8 +896,8 @@ typedef struct
 #define RTC_INTEN_CLKFIEN_Pos            (24)                                              /*!< RTC_T::INTEN: CLKFIEN Position         */
 #define RTC_INTEN_CLKFIEN_Msk            (0x1ul << RTC_INTEN_CLKFIEN_Pos)                  /*!< RTC_T::INTEN: CLKFIEN Mask             */
 
-#define RTC_INTEN_CLKSPIEN_Pos           (25)                                              /*!< RTC_T::INTEN: CLKSPIEN Position        */
-#define RTC_INTEN_CLKSPIEN_Msk           (0x1ul << RTC_INTEN_CLKSPIEN_Pos)                 /*!< RTC_T::INTEN: CLKSPIEN Mask            */
+#define RTC_INTEN_CLKSTIEN_Pos           (25)                                              /*!< RTC_T::INTEN: CLKSTIEN Position        */
+#define RTC_INTEN_CLKSTIEN_Msk           (0x1ul << RTC_INTEN_CLKSTIEN_Pos)                 /*!< RTC_T::INTEN: CLKSTIEN Mask            */
 
 #define RTC_INTSTS_ALMIF_Pos             (0)                                               /*!< RTC_T::INTSTS: ALMIF Position          */
 #define RTC_INTSTS_ALMIF_Msk             (0x1ul << RTC_INTSTS_ALMIF_Pos)                   /*!< RTC_T::INTSTS: ALMIF Mask              */
@@ -943,8 +926,8 @@ typedef struct
 #define RTC_INTSTS_CLKFIF_Pos            (24)                                              /*!< RTC_T::INTSTS: CLKFIF Position         */
 #define RTC_INTSTS_CLKFIF_Msk            (0x1ul << RTC_INTSTS_CLKFIF_Pos)                  /*!< RTC_T::INTSTS: CLKFIF Mask             */
 
-#define RTC_INTSTS_CLKSPIF_Pos           (25)                                              /*!< RTC_T::INTSTS: CLKSPIF Position        */
-#define RTC_INTSTS_CLKSPIF_Msk           (0x1ul << RTC_INTSTS_CLKSPIF_Pos)                 /*!< RTC_T::INTSTS: CLKSPIF Mask            */
+#define RTC_INTSTS_CLKSTIF_Pos           (25)                                              /*!< RTC_T::INTSTS: CLKSTIF Position        */
+#define RTC_INTSTS_CLKSTIF_Msk           (0x1ul << RTC_INTSTS_CLKSTIF_Pos)                 /*!< RTC_T::INTSTS: CLKSTIF Mask            */
 
 #define RTC_TICK_TICK_Pos                (0)                                               /*!< RTC_T::TICK: TICK Position             */
 #define RTC_TICK_TICK_Msk                (0x7ul << RTC_TICK_TICK_Pos)                      /*!< RTC_T::TICK: TICK Mask                 */
@@ -1054,8 +1037,8 @@ typedef struct
 #define RTC_SPR19_SPARE_Pos              (0)                                               /*!< RTC_T::SPR19: SPARE Position           */
 #define RTC_SPR19_SPARE_Msk              (0xfffffffful << RTC_SPR19_SPARE_Pos)             /*!< RTC_T::SPR19: SPARE Mask               */
 
-#define RTC_LXTCTL_RC32KEN_Pos           (0)                                               /*!< RTC_T::LXTCTL: RC32KEN Position        */
-#define RTC_LXTCTL_RC32KEN_Msk           (0x1ul << RTC_LXTCTL_RC32KEN_Pos)                 /*!< RTC_T::LXTCTL: RC32KEN Mask            */
+#define RTC_LXTCTL_LIRC32KEN_Pos         (0)                                               /*!< RTC_T::LXTCTL: LIRC32KEN Position      */
+#define RTC_LXTCTL_LIRC32KEN_Msk         (0x1ul << RTC_LXTCTL_LIRC32KEN_Pos)               /*!< RTC_T::LXTCTL: LIRC32KEN Mask          */
 
 #define RTC_LXTCTL_GAIN_Pos              (1)                                               /*!< RTC_T::LXTCTL: GAIN Position           */
 #define RTC_LXTCTL_GAIN_Msk              (0x7ul << RTC_LXTCTL_GAIN_Pos)                    /*!< RTC_T::LXTCTL: GAIN Mask               */
@@ -1297,8 +1280,8 @@ typedef struct
 #define RTC_CLKDCTL_LXTFSW_Pos           (1)                                               /*!< RTC_T::CLKDCTL: LXTFSW Position        */
 #define RTC_CLKDCTL_LXTFSW_Msk           (0x1ul << RTC_CLKDCTL_LXTFSW_Pos)                 /*!< RTC_T::CLKDCTL: LXTFSW Mask            */
 
-#define RTC_CLKDCTL_LXTSPSW_Pos          (2)                                               /*!< RTC_T::CLKDCTL: LXTSPSW Position       */
-#define RTC_CLKDCTL_LXTSPSW_Msk          (0x1ul << RTC_CLKDCTL_LXTSPSW_Pos)                /*!< RTC_T::CLKDCTL: LXTSPSW Mask           */
+#define RTC_CLKDCTL_LXTSTSW_Pos          (2)                                               /*!< RTC_T::CLKDCTL: LXTSTSW Position       */
+#define RTC_CLKDCTL_LXTSTSW_Msk          (0x1ul << RTC_CLKDCTL_LXTSTSW_Pos)                /*!< RTC_T::CLKDCTL: LXTSTSW Mask           */
 
 #define RTC_CLKDCTL_SWLIRCF_Pos          (16)                                              /*!< RTC_T::CLKDCTL: SWLIRCF Position       */
 #define RTC_CLKDCTL_SWLIRCF_Msk          (0x1ul << RTC_CLKDCTL_SWLIRCF_Pos)                /*!< RTC_T::CLKDCTL: SWLIRCF Mask           */

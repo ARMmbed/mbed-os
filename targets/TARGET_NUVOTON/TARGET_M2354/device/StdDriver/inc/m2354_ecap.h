@@ -70,7 +70,7 @@ extern "C"
 #define ECAP_CAPTURE_TIMER_CLK_SRC_CAP1        (2UL<<ECAP_CTL1_CNTSRCSEL_Pos)    /*!< ECAP capture timer/clock source from CAP1    \hideinitializer */
 #define ECAP_CAPTURE_TIMER_CLK_SRC_CAP2        (3UL<<ECAP_CTL1_CNTSRCSEL_Pos)    /*!< ECAP capture timer/clock source from CAP2    \hideinitializer */
 
-/*@}*/ /* end of group ECAP_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group ECAP_EXPORTED_CONSTANTS */
 
 /** @addtogroup ECAP_EXPORTED_FUNCTIONS ECAP Exported Functions
   @{
@@ -445,11 +445,11 @@ void ECAP_Open(ECAP_T* ecap, uint32_t u32FuncMask);
 void ECAP_Close(ECAP_T* ecap);
 void ECAP_EnableINT(ECAP_T* ecap, uint32_t u32Mask);
 void ECAP_DisableINT(ECAP_T* ecap, uint32_t u32Mask);
-/*@}*/ /* end of group ECAP_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group ECAP_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group ECAP_Driver */
+/**@}*/ /* end of group ECAP_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }

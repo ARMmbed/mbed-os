@@ -3,7 +3,8 @@
  * @version  V1.00
  * @brief    M2354 SDH driver header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2017-2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __SDH_H__
 #define __SDH_H__
@@ -63,13 +64,15 @@ extern "C"
 #define    CardDetect_From_GPIO  (1UL << 8)   /*!< Card detection pin is GPIO \hideinitializer */
 #define    CardDetect_From_DAT3  (1UL << 9)   /*!< Card detection pin is DAT3 \hideinitializer */
 
-/*@}*/ /* end of group SDH_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group SDH_EXPORTED_CONSTANTS */
 
 /** @addtogroup SDH_EXPORTED_TYPEDEF SDH Exported Type Defines
   @{
 */
+#if defined ( __ARMCC_VERSION )
 #pragma pack(push)
 #pragma pack(1)
+#endif
 typedef struct SDH_info_t
 {
     unsigned int    CardType;       /*!< SDHC, SD, or MMC */
@@ -79,8 +82,10 @@ typedef struct SDH_info_t
     unsigned int    diskSize;       /*!< Disk size in K bytes */
     int             sectorSize;     /*!< Sector size in bytes */
 } SDH_INFO_T;                       /*!< Structure holds SD card info */
+#if defined ( __ARMCC_VERSION )
 #pragma pack(pop)
-/*@}*/ /* end of group SDH_EXPORTED_TYPEDEF */
+#endif
+/**@}*/ /* end of group SDH_EXPORTED_TYPEDEF */
 
 /** @cond HIDDEN_SYMBOLS */
 extern SDH_INFO_T SD0;
@@ -185,15 +190,15 @@ uint32_t SDH_CardDetection(SDH_T *sdh);
 void SDH_Open_Disk(SDH_T *sdh, uint32_t u32CardDetSrc);
 void SDH_Close_Disk(SDH_T *sdh);
 
-/*@}*/ /* end of group SDH_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SDH_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SDH_Driver */
+/**@}*/ /* end of group SDH_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif  /* end of __SDH_H__ */
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017-2020 Nuvoton Technology Corp. ***/

@@ -19,7 +19,7 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#define NVIC_NUM_VECTORS           (16 + 114)
+#define NVIC_NUM_VECTORS           (16 + 116)
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 #   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &Image$$ER_IRAMVEC$$ZI$$Base)

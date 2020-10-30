@@ -8989,7 +8989,6 @@
         ],
         "OUTPUT_EXT": "hex",
         "macros": [
-            "MBED_FAULT_HANDLER_DISABLED",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "is_disk_virtual": true,

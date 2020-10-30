@@ -22,9 +22,6 @@
 #include "partition_M2354.h"
 #include "stddriver_secure.h"
 #include "mbed_error.h"
-#if defined(DOMAIN_NS) && (DOMAIN_NS == 1L) && (TFM_LVL > 0)
-#include "tfm_ns_lock.h"
-#endif
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
@@ -73,6 +70,8 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
     {OTG_RST,               OTG_MODULE,             SCU_INIT_PNSSET2_VAL & (1 << 13)},
     {TMR2_RST,              TMR2_MODULE,            SCU_INIT_PNSSET2_VAL & (1 << 17)},
     {TMR3_RST,              TMR3_MODULE,            SCU_INIT_PNSSET2_VAL & (1 << 17)},
+    {TMR4_RST,              TMR4_MODULE,            SCU_INIT_PNSSET2_VAL & (1 << 18)},
+    {TMR5_RST,              TMR5_MODULE,            SCU_INIT_PNSSET2_VAL & (1 << 18)},
     {EPWM0_RST,             EPWM0_MODULE,           SCU_INIT_PNSSET2_VAL & (1 << 24)},
     {EPWM1_RST,             EPWM1_MODULE,           SCU_INIT_PNSSET2_VAL & (1 << 25)},
     {BPWM0_RST,             BPWM0_MODULE,           SCU_INIT_PNSSET2_VAL & (1 << 26)},
@@ -109,6 +108,7 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
     {ECAP0_RST,             ECAP0_MODULE,           SCU_INIT_PNSSET5_VAL & (1 << 20)},
     {ECAP1_RST,             ECAP1_MODULE,           SCU_INIT_PNSSET5_VAL & (1 << 21)},
     {TRNG_RST,              TRNG_MODULE,            SCU_INIT_PNSSET5_VAL & (1 << 25)},
+    {LCD_RST,               LCD_MODULE,             SCU_INIT_PNSSET5_VAL & (1 << 27)},
 #endif
 
 #if defined(SCU_INIT_PNSSET6_VAL) && SCU_INIT_PNSSET6_VAL
@@ -231,212 +231,59 @@ static bool check_mod_ns(int modclass, uint32_t modidx)
     return false;
 }
 
-#if (TFM_LVL > 0)
-
-__NONSECURE_ENTRY
-int32_t SYS_ResetModule_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    uint32_t u32ModuleIndex = (uint32_t) arg0;
-    SYS_ResetModule_Impl(u32ModuleIndex, cmse_nonsecure_caller());
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t CLK_SetModuleClock_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    uint32_t u32ModuleIndex = (uint32_t) arg0;
-    uint32_t u32ClkSrc = (uint32_t) arg1;
-    uint32_t u32ClkDiv = (uint32_t) arg2;
-    CLK_SetModuleClock_Impl(u32ModuleIndex, u32ClkSrc, u32ClkDiv, cmse_nonsecure_caller());
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t CLK_EnableModuleClock_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    uint32_t u32ModuleIndex = (uint32_t) arg0;
-    CLK_EnableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t CLK_DisableModuleClock_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    uint32_t u32ModuleIndex = (uint32_t) arg0;
-    CLK_DisableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t SYS_LockReg_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    SYS_LockReg_Impl();
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t SYS_UnlockReg_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    SYS_UnlockReg_Impl();
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t CLK_Idle_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    CLK_Idle_Impl();
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t CLK_PowerDown_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    CLK_PowerDown_Impl();
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t nu_idle_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    SYS_UnlockReg_Impl();
-    CLK_Idle_Impl();
-    SYS_LockReg_Impl();
-    return 0;
-}
-
-__NONSECURE_ENTRY
-int32_t nu_powerdown_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
-{
-    SYS_UnlockReg_Impl();
-    CLK_PowerDown_Impl();
-    SYS_LockReg_Impl();
-    return 0;
-}
-
-#endif
 #endif
 
-#if defined(DOMAIN_NS) && (DOMAIN_NS == 1) && (TFM_LVL > 0)
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
-void SYS_ResetModule_S(uint32_t u32ModuleIndex)
-{
-    tfm_ns_lock_dispatch(SYS_ResetModule_Veneer, u32ModuleIndex, 0, 0, 0);
-}
-
-void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv)
-{
-    tfm_ns_lock_dispatch(CLK_SetModuleClock_Veneer, u32ModuleIndex, u32ClkSrc, u32ClkDiv, 0);
-}
-
-void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
-{
-    tfm_ns_lock_dispatch(CLK_EnableModuleClock_Veneer, u32ModuleIndex, 0, 0, 0);
-}
-
-void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
-{
-    tfm_ns_lock_dispatch(CLK_DisableModuleClock_Veneer, u32ModuleIndex, 0, 0, 0);
-}
-
-void SYS_LockReg_S(void)
-{
-    tfm_ns_lock_dispatch(SYS_LockReg_Veneer, 0, 0, 0, 0);
-}
-
-void SYS_UnlockReg_S(void)
-{
-    tfm_ns_lock_dispatch(SYS_UnlockReg_Veneer, 0, 0, 0, 0);
-}
-
-void CLK_Idle_S(void)
-{
-    tfm_ns_lock_dispatch(CLK_Idle_Veneer, 0, 0, 0, 0);
-}
-
-void CLK_PowerDown_S(void)
-{
-    tfm_ns_lock_dispatch(CLK_PowerDown_Veneer, 0, 0, 0, 0);
-}
-
-void nu_idle_s(void)
-{
-    tfm_ns_lock_dispatch(nu_idle_veneer, 0, 0, 0, 0);
-}
-
-void nu_powerdown_s(void)
-{
-    tfm_ns_lock_dispatch(nu_powerdown_veneer, 0, 0, 0, 0);
-}
-
-#elif defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void SYS_ResetModule_S(uint32_t u32ModuleIndex)
 {
     SYS_ResetModule_Impl(u32ModuleIndex, cmse_nonsecure_caller());
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv)
 {
     CLK_SetModuleClock_Impl(u32ModuleIndex, u32ClkSrc, u32ClkDiv, cmse_nonsecure_caller());
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
 {
     CLK_EnableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
 {
     CLK_DisableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void SYS_LockReg_S(void)
 {
     SYS_LockReg_Impl();
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void SYS_UnlockReg_S(void)
 {
     SYS_UnlockReg_Impl();
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void CLK_Idle_S(void)
 {
     CLK_Idle_Impl();
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void CLK_PowerDown_S(void)
 {
     CLK_PowerDown_Impl();
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void nu_idle_s(void)
 {
     SYS_UnlockReg_Impl();
@@ -444,9 +291,7 @@ void nu_idle_s(void)
     SYS_LockReg_Impl();
 }
 
-#if (TFM_LVL == 0)
 __NONSECURE_ENTRY
-#endif
 void nu_powerdown_s(void)
 {
     SYS_UnlockReg_Impl();

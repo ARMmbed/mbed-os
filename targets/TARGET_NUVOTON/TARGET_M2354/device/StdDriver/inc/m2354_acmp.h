@@ -1,12 +1,11 @@
 /**************************************************************************//**
- * @file     ACMP.h
- * @version  V0.10
- * $Revision: 1 $
- * $Date: 16/07/07 7:50p $
- * @brief    M0564 Series ACMP Driver Header File
+ * @file     acmp.h
+ * @version  V3.00
+ * @brief    ACMP Driver Header File
  *
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *
  ******************************************************************************/
 #ifndef __ACMP_H__
@@ -67,7 +66,7 @@ extern "C"
 #define ACMP_VREF_CRVSSEL_INTVREF    (1UL << 6)  /*!< ACMP_VREF setting for selecting internal reference voltage as the CRV source voltage */
 
 
-/*@}*/ /* end of group ACMP_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group ACMP_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup ACMP_EXPORTED_FUNCTIONS ACMP Exported Functions
@@ -372,17 +371,14 @@ void ACMP_Open(ACMP_T *acmp, uint32_t u32ChNum, uint32_t u32NegSrc, uint32_t u32
 void ACMP_Close(ACMP_T *acmp, uint32_t u32ChNum);
 
 
-/*@}*/ /* end of group ACMP_EXPORTED_FUNCTIONS */
-
-/*@}*/ /* end of group ACMP_Driver */
-
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group ACMP_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group ACMP_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
 #endif
 
-
 #endif /* __ACMP_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+

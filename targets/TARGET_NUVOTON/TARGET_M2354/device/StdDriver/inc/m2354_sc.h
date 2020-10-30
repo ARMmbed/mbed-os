@@ -3,7 +3,8 @@
  * @version  V3.00
  * @brief    Smartcard(SC) driver header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2016-2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SC_H__
 #define __SC_H__
@@ -25,25 +26,25 @@ extern "C"
 /** @addtogroup SC_EXPORTED_CONSTANTS SC Exported Constants
   @{
 */
-#define SC_INTERFACE_NUM                (3ul)                /*!< Smartcard interface numbers \hideinitializer */
-#define SC_PIN_STATE_HIGH               (1ul)                /*!< Smartcard pin status high   \hideinitializer */
-#define SC_PIN_STATE_LOW                (0ul)                /*!< Smartcard pin status low    \hideinitializer */
-#define SC_PIN_STATE_IGNORE             (0xFFFFFFFFul)       /*!< Ignore pin status           \hideinitializer */
-#define SC_CLK_ON                       (1ul)                /*!< Smartcard clock on          \hideinitializer */
-#define SC_CLK_OFF                      (0ul)                /*!< Smartcard clock off         \hideinitializer */
+#define SC_INTERFACE_NUM                (3UL)               /*!< Smartcard interface numbers \hideinitializer */
+#define SC_PIN_STATE_HIGH               (1UL)               /*!< Smartcard pin status high   \hideinitializer */
+#define SC_PIN_STATE_LOW                (0UL)               /*!< Smartcard pin status low    \hideinitializer */
+#define SC_PIN_STATE_IGNORE             (0xFFFFFFFFUL)      /*!< Ignore pin status           \hideinitializer */
+#define SC_CLK_ON                       (1UL)               /*!< Smartcard clock on          \hideinitializer */
+#define SC_CLK_OFF                      (0UL)               /*!< Smartcard clock off         \hideinitializer */
 
-#define SC_TMR_MODE_0                   (0ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 0, down count                                                      \hideinitializer */
-#define SC_TMR_MODE_1                   (1ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 1, down count, start after detect start bit                        \hideinitializer */
-#define SC_TMR_MODE_2                   (2ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 2, down count, start after receive start bit                       \hideinitializer */
-#define SC_TMR_MODE_3                   (3ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 3, down count, use for activation, only timer 0 support this mode  \hideinitializer */
-#define SC_TMR_MODE_4                   (4ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 4, down count with reload after timeout                            \hideinitializer */
-#define SC_TMR_MODE_5                   (5ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 5, down count, start after detect start bit, reload after timeout  \hideinitializer */
-#define SC_TMR_MODE_6                   (6ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 6, down count, start after receive start bit, reload after timeout \hideinitializer */
-#define SC_TMR_MODE_7                   (7ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 7, down count, start and reload after detect start bit             \hideinitializer */
-#define SC_TMR_MODE_8                   (8ul << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 8, up count                                                        \hideinitializer */
-#define SC_TMR_MODE_F                   (0xF << SC_TMRCTL0_OPMODE_Pos)     /*!<Timer Operation Mode 15, down count, reload after detect start bit                      \hideinitializer */
+#define SC_TMR_MODE_0                   (0UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 0, down count                                                      \hideinitializer */
+#define SC_TMR_MODE_1                   (1UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 1, down count, start after detect start bit                        \hideinitializer */
+#define SC_TMR_MODE_2                   (2UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 2, down count, start after receive start bit                       \hideinitializer */
+#define SC_TMR_MODE_3                   (3UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 3, down count, use for activation, only timer 0 support this mode  \hideinitializer */
+#define SC_TMR_MODE_4                   (4UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 4, down count with reload after timeout                            \hideinitializer */
+#define SC_TMR_MODE_5                   (5UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 5, down count, start after detect start bit, reload after timeout  \hideinitializer */
+#define SC_TMR_MODE_6                   (6UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 6, down count, start after receive start bit, reload after timeout \hideinitializer */
+#define SC_TMR_MODE_7                   (7UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 7, down count, start and reload after detect start bit             \hideinitializer */
+#define SC_TMR_MODE_8                   (8UL << SC_TMRCTL0_OPMODE_Pos)      /*!<Timer Operation Mode 8, up count                                                        \hideinitializer */
+#define SC_TMR_MODE_F                   (0xFUL << SC_TMRCTL0_OPMODE_Pos)    /*!<Timer Operation Mode 15, down count, reload after detect start bit                      \hideinitializer */
 
-/*@}*/ /* end of group SC_EXPORTED_CONSTANTS */
+/**@}*/ /* end of group SC_EXPORTED_CONSTANTS */
 
 
 /** @addtogroup SC_EXPORTED_FUNCTIONS SC Exported Functions
@@ -115,7 +116,7 @@ extern "C"
   */
 #define SC_SET_VCC_PIN(sc, u32State) \
     do {\
-            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while(((sc)->PINCTL & SC_PINCTL_SYNC_Msk) == SC_PINCTL_SYNC_Msk);\
             if(u32State)\
                 (sc)->PINCTL |= SC_PINCTL_PWREN_Msk;\
             else\
@@ -136,7 +137,7 @@ extern "C"
   */
 #define SC_SET_CLK_PIN(sc, u32OnOff)\
     do {\
-            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while(((sc)->PINCTL & SC_PINCTL_SYNC_Msk) == SC_PINCTL_SYNC_Msk);\
             if(u32OnOff)\
                 (sc)->PINCTL |= SC_PINCTL_CLKKEEP_Msk;\
             else\
@@ -156,7 +157,7 @@ extern "C"
   */
 #define SC_SET_IO_PIN(sc, u32State)\
     do {\
-            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while(((sc)->PINCTL & SC_PINCTL_SYNC_Msk) == SC_PINCTL_SYNC_Msk);\
             if(u32State)\
                 (sc)->PINCTL |= SC_PINCTL_SCDATA_Msk;\
             else\
@@ -176,7 +177,7 @@ extern "C"
   */
 #define SC_SET_RST_PIN(sc, u32State)\
     do {\
-            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while(((sc)->PINCTL & SC_PINCTL_SYNC_Msk) == SC_PINCTL_SYNC_Msk);\
             if(u32State)\
                 (sc)->PINCTL |= SC_PINCTL_RSTEN_Msk;\
             else\
@@ -242,14 +243,14 @@ __STATIC_INLINE void SC_SetRxRetry(SC_T *sc, uint32_t u32Count);
   */
 __STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while((sc)->CTL & SC_CTL_SYNC_Msk) {}
+    while(((sc)->CTL & SC_CTL_SYNC_Msk) == SC_CTL_SYNC_Msk) {}
 
     /* Retry count must set while enable bit disabled, so disable it first */
     (sc)->CTL &= ~(SC_CTL_TXRTY_Msk | SC_CTL_TXRTYEN_Msk);
 
     if((u32Count) != 0UL)
     {
-        while((sc)->CTL & SC_CTL_SYNC_Msk) {}
+        while(((sc)->CTL & SC_CTL_SYNC_Msk) == SC_CTL_SYNC_Msk) {}
         (sc)->CTL |= (((u32Count) - 1UL) << SC_CTL_TXRTY_Pos) | SC_CTL_TXRTYEN_Msk;
     }
 }
@@ -266,14 +267,14 @@ __STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count)
   */
 __STATIC_INLINE void SC_SetRxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while((sc)->CTL & SC_CTL_SYNC_Msk) {}
+    while(((sc)->CTL & SC_CTL_SYNC_Msk) == SC_CTL_SYNC_Msk) {}
 
     /* Retry count must set while enable bit disabled, so disable it first */
     (sc)->CTL &= ~(SC_CTL_RXRTY_Msk | SC_CTL_RXRTYEN_Msk);
 
     if((u32Count) != 0UL)
     {
-        while((sc)->CTL & SC_CTL_SYNC_Msk) {}
+        while(((sc)->CTL & SC_CTL_SYNC_Msk) == SC_CTL_SYNC_Msk){}
         (sc)->CTL |= (((u32Count) - 1UL) << SC_CTL_RXRTY_Pos) | SC_CTL_RXRTYEN_Msk;
     }
 }
@@ -291,11 +292,11 @@ void SC_StartTimer(SC_T *sc, uint32_t u32TimerNum, uint32_t u32Mode, uint32_t u3
 void SC_StopTimer(SC_T *sc, uint32_t u32TimerNum);
 uint32_t SC_GetInterfaceClock(SC_T *sc);
 
-/*@}*/ /* end of group SC_EXPORTED_FUNCTIONS */
+/**@}*/ /* end of group SC_EXPORTED_FUNCTIONS */
 
-/*@}*/ /* end of group SC_Driver */
+/**@}*/ /* end of group SC_Driver */
 
-/*@}*/ /* end of group Standard_Driver */
+/**@}*/ /* end of group Standard_Driver */
 
 #ifdef __cplusplus
 }
@@ -303,4 +304,4 @@ uint32_t SC_GetInterfaceClock(SC_T *sc);
 
 #endif /* __SC_H__ */
 
-/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2016-2020 Nuvoton Technology Corp. ***/
