@@ -149,7 +149,27 @@ void CyH4TransportDriver::initialize()
     rtos::ThisThread::sleep_for(500ms);
 }
 
-void CyH4TransportDriver::terminate() {  }
+void CyH4TransportDriver::terminate() 
+{  
+    cyhal_uart_event_t enable_irq_event = (cyhal_uart_event_t)(CYHAL_UART_IRQ_RX_DONE
+                                       | CYHAL_UART_IRQ_TX_DONE
+                                       | CYHAL_UART_IRQ_RX_NOT_EMPTY
+                                        );
+
+    cyhal_uart_enable_event(&uart,
+                        enable_irq_event,
+                        CYHAL_ISR_PRIORITY_DEFAULT,
+                        false
+                       );
+
+    cyhal_uart_register_callback(&uart, NULL, NULL);
+    cyhal_uart_free(&uart);
+
+    cyhal_gpio_free(CYBSP_BT_DEVICE_WAKE);
+    cyhal_gpio_free(CYBSP_BT_HOST_WAKE);
+    cyhal_gpio_write(CYBSP_BT_POWER, false);
+    cyhal_gpio_free(CYBSP_BT_POWER);    
+}
 
 uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 {
