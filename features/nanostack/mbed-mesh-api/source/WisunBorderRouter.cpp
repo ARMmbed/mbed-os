@@ -281,8 +281,10 @@ mesh_error_t WisunBorderRouter::set_radius_server_ipv6_address(const char *addre
         }
         // Stored address (returned by get) is in the format given by user of the interface
         strcpy(_radius_ipv6_addr, address);
+        _radius_ipv6_addr_init = true;
         _radius_ipv6_addr_set = true;
     } else {
+        _radius_ipv6_addr_init = true;
         _radius_ipv6_addr_set = false;
     }
 
@@ -302,6 +304,10 @@ mesh_error_t WisunBorderRouter::get_radius_server_ipv6_address(char *address)
 mesh_error_t WisunBorderRouter::set_bbr_radius_address(void)
 {
     int status;
+
+    if (!_radius_ipv6_addr_init) {
+        return MESH_ERROR_NONE;
+    }
 
     if (_radius_ipv6_addr_set) {
         uint8_t ipv6_addr[16];
@@ -348,7 +354,7 @@ mesh_error_t WisunBorderRouter::set_radius_shared_secret(uint16_t shared_secret_
 mesh_error_t WisunBorderRouter::set_bbr_radius_shared_secret(void)
 {
     if (_shared_secret_len == 0 || _shared_secret == NULL) {
-        return MESH_ERROR_UNKNOWN;
+        return MESH_ERROR_NONE;
     }
 
     int status = ws_bbr_radius_shared_secret_set(_mesh_if_id, _shared_secret_len, (uint8_t *) _shared_secret);

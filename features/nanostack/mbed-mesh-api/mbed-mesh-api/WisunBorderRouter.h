@@ -331,6 +331,7 @@ private:
     char *_shared_secret = NULL;
     uint16_t _shared_secret_len = 0;
     int8_t _mesh_if_id = -1;
+    bool _radius_ipv6_addr_init = false;
     bool _radius_ipv6_addr_set = false;
     bool _configured = false;
     bool _radius_timing_set = false;
