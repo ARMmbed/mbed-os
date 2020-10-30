@@ -13,17 +13,25 @@ A simple table like this could help:
 
 The library uses ARM Cordio stack. It does not work with the stock firmware that is loaded in the BLE module of the X-NUCLEO-BNRG2A1 expansion board.
 
-In order to use this library with X-NUCLEO-BNRG2A1, you need to replace the firmware of the BLUENRG-M2SP BLE module mounted on that expansion using this binary (provided for STM32 NUCLEO-L476RG):
+In order to use this library with X-NUCLEO-BNRG2A1, you need to replace the firmware of the BLUENRG-M2SP BLE module mounted on that expansion by using one of these binaries (provided for both STM32 NUCLEO-L476RG and STM32 NUCLEO-F401RE):
 
 [BlueNrg2FwUpdater_L4.bin](fwupdater/BlueNrg2FwUpdater_L4.bin)
 
-Before flashing the binary, be careful to properly set the SPI reset on pin **D7** as reported in the picture below:
+[BlueNrg2FwUpdater_F4.bin](fwupdater/BlueNrg2FwUpdater_F4.bin)
+
+Before flashing your target board with the respective binary, be careful to properly set the SPI reset on pin **D7** as reported in the picture below:
 
 ![D7_SPI_rst](img/D7_SPI_rst.jpg)
 
 At the end of the updating procedure, the LED labeled as **LD2** on the STM32 NUCLEO board will be blinking.
 
-## Board
+If, for some reason, the updating procedure does not succeed you can use the PC utility included in the [STSW-BNRGFLASHER](https://www.st.com/content/st_com/en/products/embedded-software/wireless-connectivity-software/stsw-bnrgflasher.html) package along with the [ST-LINK/V2](https://www.st.com/content/st_com/en/products/development-tools/hardware-development-tools/hardware-development-tools-for-stm32/st-link-v2.html) programmer.
+The steps of the updating procedure through the PC utility are also described in this [document](https://www.st.com/resource/en/errata_sheet/dm00691490-board-limitations-stmicroelectronics.pdf).
+The Image file to be selected and loaded is the following:
+
+[DTM_SPI.bin](fwupdater/DTM_SPI.bin)
+
+## Expansion Board
 
 ### X-NUCLEO-BNRG2A1
 
