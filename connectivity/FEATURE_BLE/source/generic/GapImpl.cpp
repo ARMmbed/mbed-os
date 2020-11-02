@@ -2863,7 +2863,7 @@ void Gap::on_advertising_set_started(const mbed::Span<const uint8_t>& handles)
             _adv_started_from_refresh.clear(handle);
         } else if (_event_handler) {
             _event_handler->onAdvertisingStart(
-                AdvertisingStartEvent(LEGACY_ADVERTISING_HANDLE)
+                AdvertisingStartEvent(handle)
             );
         }
     }
@@ -3219,9 +3219,8 @@ ble_error_t Gap::addDeviceToPeriodicAdvertiserList(
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != peer_address_type_t::PUBLIC ||
-        peerAddressType != peer_address_type_t::RANDOM
-        ) {
+    if ((peerAddressType != peer_address_type_t::PUBLIC) &&
+        (peerAddressType != peer_address_type_t::RANDOM)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -3251,9 +3250,8 @@ ble_error_t Gap::removeDeviceFromPeriodicAdvertiserList(
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != peer_address_type_t::PUBLIC ||
-        peerAddressType != peer_address_type_t::RANDOM
-        ) {
+    if ((peerAddressType != peer_address_type_t::PUBLIC) &&
+        (peerAddressType != peer_address_type_t::RANDOM)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
