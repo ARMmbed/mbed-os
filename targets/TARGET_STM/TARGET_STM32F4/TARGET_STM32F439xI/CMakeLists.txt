@@ -17,10 +17,14 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
     set(STARTUP_FILE TOOLCHAIN_IAR/startup_stm32f439xx.S)
     set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/TOOLCHAIN_IAR/stm32f439xx_flash.icf)
 endif()
-target_sources(mbed-core INTERFACE ${STARTUP_FILE})
 set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${LINKER_FILE})
 
 target_include_directories(mbed-core
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_sources(mbed-core
+    INTERFACE
+        ${STARTUP_FILE}
 )

@@ -15,7 +15,7 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
     set(STARTUP_FILE device/TOOLCHAIN_IAR/startup_MK66F18.S)
     set(LINKER_FILE device/TOOLCHAIN_IAR/MK66FN2M0xxx18.icf)
 endif()
-target_sources(mbed-core INTERFACE ${STARTUP_FILE})
+
 set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${LINKER_FILE})
 
 target_include_directories(mbed-core
@@ -27,6 +27,7 @@ target_include_directories(mbed-core
 
 target_sources(mbed-core
     INTERFACE
+        ${STARTUP_FILE}
         pwmout_api.c
         serial_api.c
         spi_api.c

@@ -16,7 +16,6 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
     set(LINKER_FILE device/TOOLCHAIN_IAR/nRF52840.icf)
 endif()
 
-target_sources(mbed-core INTERFACE ${STARTUP_FILE})
 set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${LINKER_FILE})
 
 target_include_directories(mbed-core
@@ -28,8 +27,10 @@ target_include_directories(mbed-core
 
 target_sources(mbed-core
     INTERFACE
+        ${STARTUP_FILE})
         PeripheralPins.c
         USBPhy_Nordic.cpp
 
+        device/cmsis_nvic.c
         device/system_nrf52840.c
 )

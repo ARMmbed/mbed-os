@@ -15,11 +15,16 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
     set(STARTUP_FILE device/TOOLCHAIN_IAR/startup_stm32f303x8.S)
     set(LINKER_FILE device/TOOLCHAIN_IAR/stm32f303x8.icf)
 endif()
-target_sources(mbed-core INTERFACE ${STARTUP_FILE})
+
 set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${LINKER_FILE})
 
 target_include_directories(mbed-core
     INTERFACE
         .
         device
+)
+
+target_sources(mbed-core
+    INTERFACE
+        ${STARTUP_FILE}
 )
