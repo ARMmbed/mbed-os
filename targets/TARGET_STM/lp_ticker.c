@@ -170,7 +170,11 @@ void lp_ticker_init(void)
 
     /* Enable LSE clock */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+#if MBED_CONF_TARGET_LSE_BYPASS
+    RCC_OscInitStruct.LSEState = RCC_LSE_BYPASS;
+#else
     RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+#endif
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 
     /* Select the LSE clock as LPTIM peripheral clock */

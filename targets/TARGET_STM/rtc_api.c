@@ -65,7 +65,11 @@ void rtc_init(void)
 #if MBED_CONF_TARGET_LSE_AVAILABLE
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+#if MBED_CONF_TARGET_LSE_BYPASS
+    RCC_OscInitStruct.LSEState       = RCC_LSE_BYPASS;
+#else
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
+#endif
 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("Cannot initialize RTC with LSE\n");
