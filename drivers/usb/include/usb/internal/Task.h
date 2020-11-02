@@ -19,7 +19,7 @@
 #define MBED_TASK_H
 
 #include "events/EventQueue.h"
-#include "drivers/internal/TaskBase.h"
+#include "usb/internal/TaskBase.h"
 #include "platform/mbed_assert.h"
 #include "platform/Callback.h"
 

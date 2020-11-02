@@ -22,8 +22,8 @@
 #include "USBDescriptor.h"
 #include "USBDevice_Types.h"
 #include "platform/Callback.h"
-#include "drivers/internal/PolledQueue.h"
-#include "drivers/internal/Task.h"
+#include "usb/internal/PolledQueue.h"
+#include "usb/internal/Task.h"
 #include "BlockDevice.h"
 #include "Mutex.h"
 

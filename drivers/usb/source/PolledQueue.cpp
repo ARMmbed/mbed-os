@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "drivers/internal/PolledQueue.h"
+#include "usb/internal/PolledQueue.h"
 
 #include "events/mbed_events.h"
 #include "platform/Callback.h"

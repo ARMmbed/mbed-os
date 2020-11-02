@@ -18,7 +18,7 @@
 #ifndef TASK_QUEUE_H
 #define TASK_QUEUE_H
 
-#include "drivers/internal/TaskBase.h"
+#include "usb/internal/TaskBase.h"
 #include "platform/Callback.h"
 #include "mbed_critical.h"
 
