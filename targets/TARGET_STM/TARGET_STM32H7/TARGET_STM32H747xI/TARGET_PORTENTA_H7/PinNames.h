@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2018, STMicroelectronics
+ * Copyright (c) 2020, Arduino SA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
