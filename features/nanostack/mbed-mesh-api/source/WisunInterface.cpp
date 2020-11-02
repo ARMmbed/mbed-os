@@ -71,11 +71,11 @@ nsapi_error_t WisunInterface::do_initialize()
 
 nsapi_error_t WisunInterface::configure()
 {
-    char network_name[33];
-    uint8_t network_size;
-    uint8_t regulatory_domain, operating_class, operating_mode;
+    char *network_name_ptr;
     int ret_val;
     mesh_error_t status;
+    uint8_t network_size;
+    uint8_t regulatory_domain, operating_class, operating_mode;
 
     if (_configured) {
         // Already configured
@@ -84,16 +84,16 @@ nsapi_error_t WisunInterface::configure()
 
     _configured = true;
 
-    ret_val = mesh_kcm_wisun_network_name_init(network_name, 33);
-    if (ret_val == 0) {
-        status = set_network_name((char *) &network_name);
+    ret_val = mesh_kcm_wisun_network_name_init(&network_name_ptr);
+    if (ret_val >= 0) {
+        status = set_network_name((char *)network_name_ptr);
+        if (ret_val == 0) {
+            free(network_name_ptr);
+        }
         if (status != MESH_ERROR_NONE) {
             tr_error("Failed to set network name!");
             return NSAPI_ERROR_PARAMETER;
         }
-    } else {
-        tr_error("Failed to configure network name!");
-        return NSAPI_ERROR_PARAMETER;
     }
 
     ret_val = mesh_kcm_wisun_network_regulatory_domain_init(&regulatory_domain, &operating_class, &operating_mode);
@@ -105,9 +105,6 @@ nsapi_error_t WisunInterface::configure()
             tr_error("Failed to set regulatory domain!");
             return NSAPI_ERROR_PARAMETER;
         }
-    } else {
-        tr_error("Failed to configure regulatory domain!");
-        return NSAPI_ERROR_PARAMETER;
     }
 
 #if (MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION != 255)
@@ -132,16 +129,12 @@ nsapi_error_t WisunInterface::configure()
 #endif
 
     ret_val = mesh_kcm_wisun_network_size_init(&network_size);
-
     if (ret_val == 0) {
         status = set_network_size(network_size);
         if (status != MESH_ERROR_NONE) {
             tr_error("Failed to set network size");
             return NSAPI_ERROR_PARAMETER;
         }
-    } else if (ret_val == -1) {
-        tr_error("Failed to configure network size!");
-        return NSAPI_ERROR_PARAMETER;
     }
 
     return NSAPI_ERROR_OK;

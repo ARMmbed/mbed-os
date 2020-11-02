@@ -25,32 +25,31 @@ extern "C" {
 /*
  * \brief Initialize Wi-SUN network name
  *
- * \param network_name_buf Buffer for the network name
- * \param network_name_buf_len Length of provided buffer
- * \return 0 on success, -1 on errors
+ * \param network_name_buf Address for network name buffer
+ * \return 0 if network name is read from kcm, caller must free the memory.
+ * \return 1 if static configuration is used, no memory free needed.
+ * \return -1 if network name is not configured.
  *
  */
-int mesh_kcm_wisun_network_name_init(char *network_name_buf, size_t network_name_buf_len);
+int mesh_kcm_wisun_network_name_init(char **network_name_buf);
 
 /*
  * \brief Initialize Wi-SUN network size
  *
- * \param network_size Buffer for the network size, size 1 byte
+ * \param network_size Address to write network size
  * \return 0 on success.
- * \return 1 if network size is not configured.
- * \return -1 if network size configuration error.
+ * \return -1 if network size is not configured.
  *
  */
 int mesh_kcm_wisun_network_size_init(uint8_t *network_size);
 
 /*
- * \brief Initialize Wi-SUN network regulatory domain including operating mode and class.
+ * \brief Initialize Wi-SUN network regulatory domain, operating mode and class.
  *
- * \param regulatory_domain
- * \param operating_class
- * \param operating_mode
+ * \param regulatory_domain address to write regulatory_domain
+ * \param operating_class address to write operating_class
+ * \param operating_mode address to write operating_mode
  * \return 0 on success.
- * \return -1 in case of configuration error
  *
  */
 int mesh_kcm_wisun_network_regulatory_domain_init(uint8_t *regulatory_domain, uint8_t *operating_class, uint8_t *operating_mode);
