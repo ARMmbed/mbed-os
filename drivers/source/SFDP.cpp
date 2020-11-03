@@ -377,9 +377,9 @@ int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfd
     return 0;
 }
 
-int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info)
+int sfdp_find_addr_region(bd_addr_t offset, const sfdp_hdr_info &sfdp_info)
 {
-    if ((offset > sfdp_info.bptbl.device_size_bytes) || (sfdp_info.smptbl.region_cnt == 0)) {
+    if ((offset >= sfdp_info.bptbl.device_size_bytes) || (sfdp_info.smptbl.region_cnt == 0)) {
         return -1;
     }
 
@@ -387,10 +387,10 @@ int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info)
         return 0;
     }
 
-    for (int idx = sfdp_info.smptbl.region_cnt - 2; idx >= 0; idx--) {
+    for (int idx = 0; idx < sfdp_info.smptbl.region_cnt; idx++) {
 
-        if (offset > sfdp_info.smptbl.region_high_boundary[idx]) {
-            return (idx + 1);
+        if (offset <= sfdp_info.smptbl.region_high_boundary[idx]) {
+            return idx;
         }
     }
     return -1;
