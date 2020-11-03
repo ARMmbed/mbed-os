@@ -54,12 +54,13 @@ def path_leaf(path):
     return tail or os.path.basename(head)
 
 
-def has_permissive_text_in_scancode_output(scancode_output_data_file_licenses):
-    """Returns true if at list one license in the scancode output is permissive."""
+def has_permissive_text_in_scancode_output(scancode_output_data_file):
+    """Returns true if at least one license in the scancode output is permissive or is a Permissive Binary License"""
+    # temporary workaround for files with Permissive Binary Licenses
     return any(
         scancode_output_data_file_license['category'] == 'Permissive'
-        for scancode_output_data_file_license in scancode_output_data_file_licenses
-    )
+        for scancode_output_data_file_license in scancode_output_data_file['licenses']
+    ) or has_binary_license(scancode_output_data_file)
 
 
 def has_spdx_text_in_scancode_output(scancode_output_data_file_licenses):
@@ -73,6 +74,18 @@ def has_spdx_text_in_scancode_output(scancode_output_data_file_licenses):
 def has_spdx_text_in_analysed_file(scanned_file_content):
     """Returns true if the file analysed by ScanCode contains SPDX identifier."""
     return bool(re.findall("SPDX-License-Identifier:?", scanned_file_content))
+
+
+def has_binary_license(scancode_output_data_file):
+    """Returns true if the file analysed by ScanCode contains a Permissive Binary License."""
+    file_path = os.path.abspath(scancode_output_data_file['path'])
+    try:
+        with open(file_path, 'r') as read_file:
+            scanned_file_content = read_file.read()
+        return bool(re.findall("Permissive Binary License", scanned_file_content))
+    except UnicodeDecodeError:
+        userlog.warning("Unable to look for PBL text in `{}`:".format(file_path))
+        return False
 
 
 def license_check(scancode_output_path):
@@ -112,7 +125,7 @@ def license_check(scancode_output_path):
             # check the next file in the scancode output
             continue
 
-        if not has_permissive_text_in_scancode_output(scancode_output_data_file['licenses']):
+        if not has_permissive_text_in_scancode_output(scancode_output_data_file):
             scancode_output_data_file['fail_reason'] = MISSING_PERMISSIVE_LICENSE_TEXT
             license_offenders.append(scancode_output_data_file)
 
