@@ -7167,7 +7167,7 @@
         "features": ["BLE"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": [
-            "GCC_ARM", 
+            "GCC_ARM",
             "ARMC6"
         ],
         "public": false,
@@ -7185,7 +7185,8 @@
             "STDIO_MESSAGES",
             "FLASH",
             "SPI",
-            "I2C"
+            "I2C",
+            "SLEEP"
         ],
         "components": [
             "FLASHIAP"
@@ -7218,7 +7219,7 @@
     },
     "SFE_ARTEMIS_THING_PLUS": {
         "inherits": ["AMA3B1KK"]
-    },   
+    },
     "SFE_EDGE": {
         "inherits": ["AMA3B1KK"],
         "components_add": ["lis2dh12", "hm01b0"]
