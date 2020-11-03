@@ -7193,13 +7193,14 @@
         ],
         "macros": [
             "CORDIO_ZERO_COPY_HCI",
-            "USE_AMBIQ_DRIVER"
+            "USE_AMBIQ_DRIVER",
+            "MBED_TICKLESS"
         ]
     },
     "AMA3B1KK": {
         "public": false,
         "inherits": ["FAMILY_Apollo3"],
-        "macros_add": ["AM_PACKAGE_BGA"]
+        "macros_add": ["AM_PACKAGE_BGA", "MBED_TICKLESS"]
     },
     "SFE_ARTEMIS": {
         "inherits": ["AMA3B1KK"]
