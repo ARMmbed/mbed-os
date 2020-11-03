@@ -175,10 +175,13 @@ USBPhyHw::~USBPhyHw()
 }
 
 #if defined(TARGET_STM32F1)
+
+#include "drivers/DigitalOut.h"
+
 void USB_reenumerate()
 {
     // Force USB_DP pin (with external pull up) to 0
-    DigitalOut usb_dp_pin(USB_DP, 0) ;
+    mbed::DigitalOut usb_dp_pin(USB_DP, 0) ;
     wait_us(10000); // 10ms
 }
 #endif
