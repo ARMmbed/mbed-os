@@ -194,9 +194,27 @@ function(mbed_generate_map_file target)
 endfunction()
 
 #
-# Generate executables
+# Validate selected application profile.
 #
-function(mbed_generate_executable target)
+function(mbed_validate_application_profile target)
+    get_target_property(app_link_libraries ${target} LINK_LIBRARIES)
+    string(FIND ${app_link_libraries} "mbed-baremetal" string_found_position)
+    if(${string_found_position} GREATER_EQUAL 0)
+        if(NOT "bare-metal" IN_LIST MBED_TARGET_SUPPORTED_APPLICATION_PROFILES)
+            message(FATAL_ERROR
+                "Use full profile as baremetal profile is not supported for this Mbed target")
+        endif()
+    elseif(NOT "full" IN_LIST MBED_TARGET_SUPPORTED_APPLICATION_PROFILES)
+        message(FATAL_ERROR
+            "The full profile is not supported for this Mbed target")
+    endif()
+endfunction()
+
+#
+# Set post build operations
+#
+function(mbed_set_post_build target)
+    mbed_validate_application_profile(${target})
     mbed_generate_bin_hex(${target})
     mbed_generate_map_file(${target})
 endfunction()
