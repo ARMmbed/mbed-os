@@ -171,3 +171,8 @@ nsapi_error_t AT_CellularNetwork::clear()
 {
     return NSAPI_ERROR_OK;
 }
+
+nsapi_error_t AT_CellularNetwork::do_user_authentication()
+{
+    return NSAPI_ERROR_OK;
+}
