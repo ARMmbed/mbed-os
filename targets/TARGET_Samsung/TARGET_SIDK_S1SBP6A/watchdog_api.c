@@ -25,7 +25,6 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "cmsis_os.h"
 #include "cmsis.h"
 #include "watchdog_api.h"
 
