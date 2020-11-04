@@ -3279,6 +3279,9 @@
         "extra_labels_add": [
             "STM32L475xG"
         ],
+        "overrides": {
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+        },
         "macros_add": [
             "STM32L475xx",
             "MBED_SPLIT_HEAP"
@@ -3322,6 +3325,9 @@
         "components_add": [
             "FLASHIAP"
         ],
+        "overrides": {
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+        },
         "macros_add": [
             "STM32L476xx",
             "MBED_SPLIT_HEAP"
@@ -3385,6 +3391,9 @@
         "components_add": [
             "FLASHIAP"
         ],
+        "overrides": {
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+        },
         "macros_add": [
             "STM32L486xx",
             "MBEDTLS_CONFIG_HW_SUPPORT",
@@ -3409,8 +3418,7 @@
             "MCU_STM32L486xG"
         ],
         "overrides": {
-            "clock_source": "USE_PLL_HSE_XTAL",
-            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+            "clock_source": "USE_PLL_HSE_XTAL"
         },
         "detect_code": [
             "0460"
@@ -3432,6 +3440,9 @@
         "components_add": [
             "FLASHIAP"
         ],
+        "overrides": {
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+        },
         "macros_add": [
             "STM32L496xx"
         ]
