@@ -10,8 +10,8 @@ if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
-include(${MBED_ROOT}/tools/cmake/core.cmake)
-include(${MBED_ROOT}/tools/cmake/profile.cmake)
+include(${MBED_PATH}/tools/cmake/core.cmake)
+include(${MBED_PATH}/tools/cmake/profile.cmake)
 
 add_library(mbed-core INTERFACE)
 
@@ -185,7 +185,7 @@ function(mbed_generate_map_file target)
          TARGET
              ${target}
          POST_BUILD
-             COMMAND ${Python3_EXECUTABLE} ${MBED_ROOT}/tools/memap.py -t ${MBED_TOOLCHAIN} -d 4 ${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
+             COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/tools/memap.py -t ${MBED_TOOLCHAIN} -d 4 ${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
          WORKING_DIRECTORY
              ${CMAKE_BINARY_DIR}
          COMMENT

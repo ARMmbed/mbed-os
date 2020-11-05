@@ -46,7 +46,7 @@ The next sections will describe static CMake files within Mbed OS Core repositor
 
 The `CMakeLists.txt` entry point in the root of the Mbed OS repository contains the top level build specification for Mbed OS. This file also includes the auto generated `mbed_config.cmake` script, which is created by `mbed-tools`.
 
-This is not intended to be included by an application. Applications must use `add_subdirectory(${MBED_ROOT})`.
+This is not intended to be included by an application. Applications must use `add_subdirectory(${MBED_PATH})`.
 
 ### 2. Toolchain CMake Scripts
 
