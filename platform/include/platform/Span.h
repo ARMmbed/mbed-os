@@ -19,6 +19,7 @@
 #define MBED_PLATFORM_SPAN_H_
 
 #include <algorithm>
+#include <array>
 #include <iterator>
 #include <stddef.h>
 #include <stdint.h>
@@ -310,7 +311,7 @@ struct Span {
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
     /**
-     * Construct a Span from the reference to an array.
+     * Construct a Span from the reference to a C/C++ array.
      *
      * @param elements Reference to the array viewed.
      *
@@ -319,6 +320,44 @@ struct Span {
      */
     Span(element_type (&elements)[Extent]):
         _data(elements) { }
+
+    /**
+     * Construct a Span from the reference to an std::array.
+     *
+     * @param array Reference to the array viewed.
+     *
+     * @post a call to size() returns Extent, and data() returns a
+     * pointer to elements as if by @p array.data().
+     */
+    template<typename OtherElementType>
+    Span(std::array<OtherElementType, Extent> &array):
+        _data(array.data())
+    {
+        MBED_STATIC_ASSERT(
+            (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
+            "OtherElementType(*)[] should be convertible to ElementType (*)[]"
+        );
+    }
+
+    /**
+     * Construct a Span from the reference to a const std::array.
+     *
+     * @param array Const reference to the array viewed.
+     *
+     * @post a call to size() returns Extent, and data() returns a
+     * pointer to elements as if by @p array.data().
+     *
+     * @note ElementType must be const to accept a const std::array.
+     */
+    template<typename OtherElementType>
+    Span(const std::array<OtherElementType, Extent> &array):
+        _data(array.data())
+    {
+        MBED_STATIC_ASSERT(
+            (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
+            "OtherElementType(*)[] should be convertible to ElementType (*)[]"
+        );
+    }
 
     /**
      * Construct a Span object from another Span of the same size.
@@ -652,7 +691,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
     /**
-     * Construct a Span from the reference to an array.
+     * Construct a Span from the reference to a C/C++ array.
      *
      * @param elements Reference to the array viewed.
      *
@@ -664,6 +703,44 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     template<size_t Count>
     Span(element_type (&elements)[Count]):
         _data(elements), _size(Count) { }
+
+    /**
+     * Construct a Span from the reference to a std::array.
+     *
+     * @param array Reference to the array viewed.
+     *
+     * @post a call to size() returns Count, and data() returns a
+     * pointer to elements as if by array.data().
+     */
+    template<typename OtherElementType, size_t Count>
+    Span(std::array<OtherElementType, Count> &array):
+        _data(array.data()), _size(Count)
+    {
+        MBED_STATIC_ASSERT(
+            (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
+            "OtherElementType(*)[] should be convertible to ElementType (*)[]"
+        );
+    }
+
+    /**
+     * Construct a Span from the reference to a const std::array.
+     *
+     * @param array Const reference to the array viewed.
+     *
+     * @post a call to size() returns Count, and data() returns a
+     * pointer to elements as if by array.data().
+     *
+     * @note ElementType must be const to accept a const std::array.
+     */
+    template<typename OtherElementType, size_t Count>
+    Span(const std::array<OtherElementType, Count> &arr):
+        _data(arr.data()), _size(Count)
+    {
+        MBED_STATIC_ASSERT(
+            (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
+            "OtherElementType(*)[] should be convertible to ElementType (*)[]"
+        );
+    }
 
     /**
      * Construct a Span object from another Span.
@@ -1018,6 +1095,24 @@ Span<T, Size> make_Span(T (&elements)[Size])
 }
 
 /**
+ * Generate a Span from a reference to an std::array.
+ *
+ * @tparam T Type of elements held in elements.
+ * @tparam Extent Number of items held in elements.
+ *
+ * @param array The array viewed.
+ * @return The Span to elements.
+ *
+ * @note This helper avoids the typing of template parameter when Span is
+ * created 'inline'.
+ */
+template<typename T, size_t Extent>
+Span<T, Extent> make_Span(std::array<T, Extent> &array)
+{
+    return Span<T, Extent>(array);
+}
+
+/**
  * Generate a Span from a pointer to a C/C++ array.
  *
  * @tparam Extent Number of items held in elements.
@@ -1048,7 +1143,7 @@ Span<T, Extent> make_Span(T *elements)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
- * 
+ *
  * @relates Span
  */
 template<typename T>
@@ -1073,6 +1168,24 @@ template<typename T, size_t Extent>
 Span<const T, Extent> make_const_Span(const T (&elements)[Extent])
 {
     return Span<const T, Extent>(elements);
+}
+
+/**
+ * Generate a Span to a const content from a reference to an std::array.
+ *
+ * @tparam T Type of elements held in elements.
+ * @tparam Extent Number of items held in elements.
+ *
+ * @param array The array viewed.
+ * @return The Span to elements.
+ *
+ * @note This helper avoids the typing of template parameter when Span is
+ * created 'inline'.
+ */
+template<typename T, size_t Extent>
+Span<const T, Extent> make_const_Span(const std::array<T, Extent> &array)
+{
+    return Span<const T, Extent>(array);
 }
 // *INDENT-ON*
 /**
