@@ -667,6 +667,7 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
     if (type == FlowControlRTS) {
         // Enable RTS
         MBED_ASSERT(pinmap->rx_flow_pin != NC);
+        obj_s->hw_flow_ctl = UART_HWCONTROL_RTS;
         obj_s->pin_rts = pinmap->rx_flow_pin;
         // Enable the pin for RTS function
         pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
