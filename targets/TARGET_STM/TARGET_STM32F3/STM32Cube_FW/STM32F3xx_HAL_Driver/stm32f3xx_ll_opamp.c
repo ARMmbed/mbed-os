@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -81,7 +65,7 @@
    || ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINVERT_IO2)               \
    || ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINVERT_IO3)               \
   )
-  
+
 /* Note: Comparator non-inverting inputs parameters are the same on all       */
 /*       OPAMP instances.                                                     */
 /*       However, comparator instance kept as macro parameter for             */
@@ -91,7 +75,7 @@
    || ((__INPUT_INVERTING__) == LL_OPAMP_INPUT_INVERT_IO1)                     \
    || ((__INPUT_INVERTING__) == LL_OPAMP_INPUT_INVERT_CONNECT_NO)              \
   )
-  
+
 /**
   * @}
   */
@@ -122,15 +106,15 @@
 ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef* OPAMPx)
 {
   ErrorStatus status = SUCCESS;
-  
+
   /* Check the parameters */
   assert_param(IS_OPAMP_ALL_INSTANCE(OPAMPx));
-  
+
   /* Note: Hardware constraint (refer to description of this function):       */
   /*       OPAMP instance must not be locked.                                 */
-  if(LL_OPAMP_IsLocked(OPAMPx) == 0U)
+  if (LL_OPAMP_IsLocked(OPAMPx) == 0U)
   {
-  LL_OPAMP_WriteReg(OPAMPx, CSR, 0x00000000U);
+    LL_OPAMP_WriteReg(OPAMPx, CSR, 0x00000000U);
   }
   else
   {
@@ -139,7 +123,7 @@ ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef* OPAMPx)
     /* The only way to unlock the OPAMP is a device hardware reset.            */
     status = ERROR;
   }
-  
+
   return status;
 }
 
@@ -158,31 +142,31 @@ ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef* OPAMPx)
 ErrorStatus LL_OPAMP_Init(OPAMP_TypeDef *OPAMPx, LL_OPAMP_InitTypeDef *OPAMP_InitStruct)
 {
   ErrorStatus status = SUCCESS;
-  
+
   /* Check the parameters */
   assert_param(IS_OPAMP_ALL_INSTANCE(OPAMPx));
   assert_param(IS_LL_OPAMP_FUNCTIONAL_MODE(OPAMP_InitStruct->FunctionalMode));
   assert_param(IS_LL_OPAMP_INPUT_NONINVERTING(OPAMPx, OPAMP_InitStruct->InputNonInverting));
-  
+
   /* Note: OPAMP inverting input can be used with OPAMP in mode standalone    */
   /*       or PGA with external capacitors for filtering circuit.             */
   /*       Otherwise (OPAMP in mode follower), OPAMP inverting input is       */
   /*       not used (not connected to GPIO pin).                              */
-  if(OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER)
+  if (OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER)
   {
     assert_param(IS_LL_OPAMP_INPUT_INVERTING(OPAMPx, OPAMP_InitStruct->InputInverting));
   }
-  
+
   /* Note: Hardware constraint (refer to description of this function):       */
   /*       OPAMP instance must not be locked.                                 */
-  if(LL_OPAMP_IsLocked(OPAMPx) == 0U)
+  if (LL_OPAMP_IsLocked(OPAMPx) == 0U)
   {
     /* Configuration of OPAMP instance :                                      */
     /*  - Functional mode                                                     */
     /*  - Input non-inverting                                                 */
     /*  - Input inverting                                                     */
     /* Note: Bit OPAMP_CSR_CALON reset to ensure to be in functional mode.    */
-    if(OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER)
+    if (OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER)
     {
       MODIFY_REG(OPAMPx->CSR,
                    OPAMP_CSR_CALON

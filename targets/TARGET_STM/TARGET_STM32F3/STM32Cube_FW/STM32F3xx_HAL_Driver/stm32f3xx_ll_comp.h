@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -93,37 +77,37 @@ typedef struct
 {
   uint32_t PowerMode;                   /*!< Set comparator operating mode to adjust power and speed.
                                              This parameter can be a value of @ref COMP_LL_EC_POWERMODE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetPowerMode(). */
 
   uint32_t InputPlus;                   /*!< Set comparator input plus (non-inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_PLUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputPlus(). */
 
   uint32_t InputMinus;                  /*!< Set comparator input minus (inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_MINUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputMinus(). */
 
   uint32_t InputHysteresis;             /*!< Set comparator hysteresis mode of the input minus.
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_HYSTERESIS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputHysteresis(). */
 
   uint32_t OutputSelection;             /*!< Set comparator output selection.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_SELECTION
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputSelection(). */
 
   uint32_t OutputPolarity;              /*!< Set comparator output polarity.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_POLARITY
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputPolarity(). */
 
   uint32_t OutputBlankingSource;        /*!< Set comparator blanking source.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_BLANKING_SOURCE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputBlankingSource(). */
 
 } LL_COMP_InitTypeDef;
@@ -784,7 +768,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetCommonWindowMode(COMP_Common_TypeDef *COMPxy
   *         @arg @ref LL_COMP_POWERMODE_MEDIUMSPEED   (1)
   *         @arg @ref LL_COMP_POWERMODE_LOWPOWER      (1)
   *         @arg @ref LL_COMP_POWERMODE_ULTRALOWPOWER (1)
-  *         
+  *
   *         (1) Parameter available only on devices: STM32F302xB/C, STM32F303xB/C, STM32F358xC
   * @retval None
   */
@@ -808,7 +792,7 @@ __STATIC_INLINE void LL_COMP_SetPowerMode(COMP_TypeDef *COMPx, uint32_t PowerMod
   *         @arg @ref LL_COMP_POWERMODE_MEDIUMSPEED   (1)
   *         @arg @ref LL_COMP_POWERMODE_LOWPOWER      (1)
   *         @arg @ref LL_COMP_POWERMODE_ULTRALOWPOWER (1)
-  *         
+  *
   *         (1) Parameter available only on devices: STM32F302xB/C, STM32F303xB/C, STM32F358xC
   */
 __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
@@ -862,7 +846,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO2            (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1_COMP1 (2)
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1_COMP2 (3)
-  *         
+  *
   *         (1) Parameter available only on devices STM32F302xB/C, STM32F303xB/C, STM32F358xC.\n
   *         (2) Parameter available on devices: STM32F302xB/C, STM32F302xD/E, STM32F303xB/C/D/E, STM32F358xC, STM32F398xE.\n
   *         (3) Parameter available on devices: STM32F301x6/8, STM32F318xx, STM32F302x6/8.
@@ -906,7 +890,7 @@ __STATIC_INLINE void LL_COMP_ConfigInputs(COMP_TypeDef *COMPx, uint32_t InputMin
   *         @arg @ref LL_COMP_INPUT_PLUS_IO2            (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1_COMP1 (2)
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1_COMP2 (3)
-  *         
+  *
   *         (1) Parameter available only on devices STM32F302xB/C, STM32F303xB/C, STM32F358xC.\n
   *         (2) Parameter available on devices: STM32F302xB/C, STM32F302xD/E, STM32F303xB/C/D/E, STM32F358xC, STM32F398xE.\n
   *         (3) Parameter available on devices: STM32F301x6/8, STM32F318xx, STM32F302x6/8.
@@ -941,7 +925,7 @@ __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlu
   *         @arg @ref LL_COMP_INPUT_PLUS_IO2            (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1_COMP1 (2)
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1_COMP2 (3)
-  *         
+  *
   *         (1) Parameter available only on devices STM32F302xB/C, STM32F303xB/C, STM32F358xC.\n
   *         (2) Parameter available on devices: STM32F302xB/C, STM32F302xD/E, STM32F303xB/C/D/E, STM32F358xC, STM32F398xE.\n
   *         (3) Parameter available on devices: STM32F301x6/8, STM32F318xx, STM32F302x6/8.
@@ -1035,7 +1019,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputMinus(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_HYSTERESIS_LOW         (1)
   *         @arg @ref LL_COMP_HYSTERESIS_MEDIUM      (1)
   *         @arg @ref LL_COMP_HYSTERESIS_HIGH        (1)
-  *         
+  *
   *         (1) Parameter available only on devices: STM32F302xB/C, STM32F303xB/C, STM32F358xC
   * @retval None
   */
@@ -1059,7 +1043,7 @@ __STATIC_INLINE void LL_COMP_SetInputHysteresis(COMP_TypeDef *COMPx, uint32_t In
   *         @arg @ref LL_COMP_HYSTERESIS_LOW         (1)
   *         @arg @ref LL_COMP_HYSTERESIS_MEDIUM      (1)
   *         @arg @ref LL_COMP_HYSTERESIS_HIGH        (1)
-  *         
+  *
   *         (1) Parameter available only on devices: STM32F302xB/C, STM32F303xB/C, STM32F358xC
   */
 __STATIC_INLINE uint32_t LL_COMP_GetInputHysteresis(COMP_TypeDef *COMPx)
@@ -1130,7 +1114,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputHysteresis(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_OUTPUT_TIM2_IC3_COMP7         (4)
   *         @arg @ref LL_COMP_OUTPUT_TIM17_OCCLR_COMP7      (4)
   *         @arg @ref LL_COMP_OUTPUT_TIM17_BKIN             (4)
-  *         
+  *
   *         (1) Parameter available on devices: STM32F302x8, STM32F318xx, STM32F303x8, STM32F328xx, STM32F334x8, STM32F302xC, STM32F302xE, STM32F303xC, STM32F358xx, STM32F303xE, STM32F398xx.\n
   *         (2) Parameter available on devices: STM32F301x8, STM32F302x8, STM32F318xx, STM32F303x8, STM32F328xx, STM32F334x8.\n
   *         (3) Parameter available on devices: STM32F302xC, STM32F302xE, STM32F303xC, STM32F358xx, STM32F303xE, STM32F398xx.\n
@@ -1141,7 +1125,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputHysteresis(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE void LL_COMP_SetOutputSelection(COMP_TypeDef *COMPx, uint32_t OutputSelection)
 {
-  MODIFY_REG(COMPx->CSR, COMP_CSR_COMPxOUTSEL , OutputSelection);
+  MODIFY_REG(COMPx->CSR, COMP_CSR_COMPxOUTSEL, OutputSelection);
 }
 
 /**
@@ -1194,7 +1178,7 @@ __STATIC_INLINE void LL_COMP_SetOutputSelection(COMP_TypeDef *COMPx, uint32_t Ou
   *         @arg @ref LL_COMP_OUTPUT_TIM2_IC3_COMP7         (4)
   *         @arg @ref LL_COMP_OUTPUT_TIM17_OCCLR_COMP7      (4)
   *         @arg @ref LL_COMP_OUTPUT_TIM17_BKIN             (4)
-  *         
+  *
   *         (1) Parameter available on devices: STM32F302x8, STM32F318xx, STM32F303x8, STM32F328xx, STM32F334x8, STM32F302xC, STM32F302xE, STM32F303xC, STM32F358xx, STM32F303xE, STM32F398xx.\n
   *         (2) Parameter available on devices: STM32F301x8, STM32F302x8, STM32F318xx, STM32F303x8, STM32F328xx, STM32F334x8.\n
   *         (3) Parameter available on devices: STM32F302xC, STM32F302xE, STM32F303xC, STM32F358xx, STM32F303xE, STM32F398xx.\n
@@ -1258,7 +1242,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetOutputPolarity(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM2_OC4_COMP3_6     (3)
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM8_OC5_COMP4_5_6_7 (3)
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM15_OC2_COMP6_7    (3)
-  *         
+  *
   *         (1) Parameter available on devices: STM32F301x8, STM32F302x8, STM32F318xx, STM32F303x8, STM32F334x8, STM32F328xx.\n
   *         (2) Parameter available on devices: STM32F302xE, STM32F302xC.\n
   *         (3) Parameter available on devices: STM32F303xE, STM32F398xx, STM32F303xC, STM32F358xx.
@@ -1293,7 +1277,7 @@ __STATIC_INLINE void LL_COMP_SetOutputBlankingSource(COMP_TypeDef *COMPx, uint32
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM2_OC4_COMP3_6     (3)
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM8_OC5_COMP4_5_6_7 (3)
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM15_OC2_COMP6_7    (3)
-  *         
+  *
   *         (1) Parameter available on devices: STM32F301x8, STM32F302x8, STM32F318xx, STM32F303x8, STM32F334x8, STM32F328xx.\n
   *         (2) Parameter available on devices: STM32F302xE, STM32F302xC.\n
   *         (3) Parameter available on devices: STM32F303xE, STM32F398xx, STM32F303xC, STM32F358xx.
@@ -1513,32 +1497,32 @@ typedef struct
 {
   uint32_t PowerMode;                   /*!< Set comparator operating mode to adjust power and speed.
                                              This parameter can be a value of @ref COMP_LL_EC_POWERMODE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetPowerMode(). */
 
   uint32_t InputPlus;                   /*!< Set comparator input plus (non-inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_PLUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputPlus(). */
 
   uint32_t InputMinus;                  /*!< Set comparator input minus (inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_MINUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputMinus(). */
 
   uint32_t InputHysteresis;             /*!< Set comparator hysteresis mode of the input minus.
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_HYSTERESIS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputHysteresis(). */
 
   uint32_t OutputSelection;             /*!< Set comparator output selection.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_SELECTION
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputSelection(). */
 
   uint32_t OutputPolarity;              /*!< Set comparator output polarity.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_POLARITY
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputPolarity(). */
 
 } LL_COMP_InitTypeDef;
@@ -1815,7 +1799,7 @@ __STATIC_INLINE void LL_COMP_SetPowerMode(COMP_TypeDef *COMPx, uint32_t PowerMod
 {
   MODIFY_REG(COMP->CSR,
              COMP_CSR_COMP1MODE << __COMP_BITOFFSET_INSTANCE(COMPx),
-             PowerMode          << __COMP_BITOFFSET_INSTANCE(COMPx) );
+             PowerMode          << __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -1869,7 +1853,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   * @param  InputPlus This parameter can be one of the following values:
   *         @arg @ref LL_COMP_INPUT_PLUS_IO1
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1 (1)
-  *         
+  *
   *         (1) Parameter available only on COMP instance: COMP1.
   * @retval None
   */
@@ -1880,7 +1864,7 @@ __STATIC_INLINE void LL_COMP_ConfigInputs(COMP_TypeDef *COMPx, uint32_t InputMin
   /*       kept unmodified.                                                   */
   MODIFY_REG(COMP->CSR,
              (COMP_CSR_COMP1INSEL | (COMP_CSR_COMP1SW1 * __COMP_IS_INSTANCE_ODD(COMPx))) << __COMP_BITOFFSET_INSTANCE(COMPx),
-             (InputMinus | InputPlus)                                        << __COMP_BITOFFSET_INSTANCE(COMPx) );
+             (InputMinus | InputPlus)                                        << __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -1894,7 +1878,7 @@ __STATIC_INLINE void LL_COMP_ConfigInputs(COMP_TypeDef *COMPx, uint32_t InputMin
   * @param  InputPlus This parameter can be one of the following values:
   *         @arg @ref LL_COMP_INPUT_PLUS_IO1
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1 (1)
-  *         
+  *
   *         (1) Parameter available only on COMP instance: COMP1.
   * @retval None
   */
@@ -1905,7 +1889,7 @@ __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlu
   /*       kept unmodified.                                                   */
   MODIFY_REG(COMP->CSR,
              (COMP_CSR_COMP1SW1 * __COMP_IS_INSTANCE_ODD(COMPx)) << __COMP_BITOFFSET_INSTANCE(COMPx),
-             InputPlus                                           << __COMP_BITOFFSET_INSTANCE(COMPx) );
+             InputPlus                                           << __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -1919,7 +1903,7 @@ __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlu
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_COMP_INPUT_PLUS_IO1
   *         @arg @ref LL_COMP_INPUT_PLUS_DAC1_CH1 (1)
-  *         
+  *
   *         (1) Parameter available only on COMP instance: COMP1.
   */
 __STATIC_INLINE uint32_t LL_COMP_GetInputPlus(COMP_TypeDef *COMPx)
@@ -1957,7 +1941,7 @@ __STATIC_INLINE void LL_COMP_SetInputMinus(COMP_TypeDef *COMPx, uint32_t InputMi
 {
   MODIFY_REG(COMP->CSR,
              COMP_CSR_COMP1INSEL << __COMP_BITOFFSET_INSTANCE(COMPx),
-             InputMinus          << __COMP_BITOFFSET_INSTANCE(COMPx) );
+             InputMinus          << __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -2004,7 +1988,7 @@ __STATIC_INLINE void LL_COMP_SetInputHysteresis(COMP_TypeDef *COMPx, uint32_t In
 {
   MODIFY_REG(COMP->CSR,
              COMP_CSR_COMP1HYST << __COMP_BITOFFSET_INSTANCE(COMPx),
-             InputHysteresis    << __COMP_BITOFFSET_INSTANCE(COMPx) );
+             InputHysteresis    << __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -2051,7 +2035,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputHysteresis(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_OUTPUT_TIM2_OCCLR     (1)
   *         @arg @ref LL_COMP_OUTPUT_TIM3_IC1       (1)
   *         @arg @ref LL_COMP_OUTPUT_TIM3_OCCLR     (1)
-  *         
+  *
   *         (1) Parameter availability depending on timer availability
   *             on the selected device.
   * @retval None
@@ -2060,7 +2044,7 @@ __STATIC_INLINE void LL_COMP_SetOutputSelection(COMP_TypeDef *COMPx, uint32_t Ou
 {
   MODIFY_REG(COMP->CSR,
              COMP_CSR_COMP1OUTSEL << __COMP_BITOFFSET_INSTANCE(COMPx),
-             OutputSelection      << __COMP_BITOFFSET_INSTANCE(COMPx) );
+             OutputSelection      << __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -2079,7 +2063,7 @@ __STATIC_INLINE void LL_COMP_SetOutputSelection(COMP_TypeDef *COMPx, uint32_t Ou
   *         @arg @ref LL_COMP_OUTPUT_TIM2_OCCLR     (1)
   *         @arg @ref LL_COMP_OUTPUT_TIM3_IC1       (1)
   *         @arg @ref LL_COMP_OUTPUT_TIM3_OCCLR     (1)
-  *         
+  *
   *         (1) Parameter availability depending on timer availability
   *             on the selected device.
   */
@@ -2105,7 +2089,7 @@ __STATIC_INLINE void LL_COMP_SetOutputPolarity(COMP_TypeDef *COMPx, uint32_t Out
 {
   MODIFY_REG(COMP->CSR,
              COMP_CSR_COMP1POL << __COMP_BITOFFSET_INSTANCE(COMPx),
-             OutputPolarity    << __COMP_BITOFFSET_INSTANCE(COMPx) );
+             OutputPolarity    << __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -2170,7 +2154,8 @@ __STATIC_INLINE void LL_COMP_Disable(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE uint32_t LL_COMP_IsEnabled(COMP_TypeDef *COMPx)
 {
-  return (READ_BIT(COMP->CSR, COMP_CSR_COMP1EN << __COMP_BITOFFSET_INSTANCE(COMPx)) == COMP_CSR_COMP1EN << __COMP_BITOFFSET_INSTANCE(COMPx));
+  return (READ_BIT(COMP->CSR, COMP_CSR_COMP1EN << __COMP_BITOFFSET_INSTANCE(COMPx)) == COMP_CSR_COMP1EN <<
+          __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**
@@ -2199,7 +2184,8 @@ __STATIC_INLINE void LL_COMP_Lock(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE uint32_t LL_COMP_IsLocked(COMP_TypeDef *COMPx)
 {
-  return (READ_BIT(COMP->CSR, COMP_CSR_COMP1LOCK << __COMP_BITOFFSET_INSTANCE(COMPx)) == COMP_CSR_COMP1LOCK << __COMP_BITOFFSET_INSTANCE(COMPx));
+  return (READ_BIT(COMP->CSR, COMP_CSR_COMP1LOCK << __COMP_BITOFFSET_INSTANCE(COMPx)) == COMP_CSR_COMP1LOCK <<
+          __COMP_BITOFFSET_INSTANCE(COMPx));
 }
 
 /**

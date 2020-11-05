@@ -6,29 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -617,13 +601,13 @@
 ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
 {
   ErrorStatus status = SUCCESS;
-  
+
   /* Check the parameters */
   assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  
+
   /* Note: Hardware constraint (refer to description of this function):       */
   /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
+  if (LL_COMP_IsLocked(COMPx) == 0U)
   {
     LL_COMP_WriteReg(COMPx, CSR, 0x00000000U);
   }
@@ -634,7 +618,7 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
     /* The only way to unlock the comparator is a device hardware reset.       */
     status = ERROR;
   }
-  
+
   return status;
 }
 
@@ -653,7 +637,7 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
 ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStruct)
 {
   ErrorStatus status = SUCCESS;
-  
+
   /* Check the parameters */
   assert_param(IS_COMP_ALL_INSTANCE(COMPx));
   assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
@@ -663,10 +647,10 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
   assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMPx, COMP_InitStruct->OutputSelection));
   assert_param(IS_LL_COMP_OUTPUT_POLARITY(COMP_InitStruct->OutputPolarity));
   assert_param(IS_LL_COMP_OUTPUT_BLANKING_SOURCE(COMPx, COMP_InitStruct->OutputBlankingSource));
-  
+
   /* Note: Hardware constraint (refer to description of this function)        */
   /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
+  if (LL_COMP_IsLocked(COMPx) == 0U)
   {
     /* Configuration of comparator instance :                                 */
     /*  - PowerMode                                                           */
@@ -714,7 +698,7 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
     /* Initialization error: COMP instance is locked.                         */
     status = ERROR;
   }
-  
+
   return status;
 }
 
@@ -870,18 +854,18 @@ void LL_COMP_StructInit(LL_COMP_InitTypeDef *COMP_InitStruct)
 ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
 {
   ErrorStatus status = SUCCESS;
-  
+
   /* Check the parameters */
   assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  
+
   /* Note: Hardware constraint (refer to description of this function):       */
   /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
+  if (LL_COMP_IsLocked(COMPx) == 0U)
   {
     /* Note: Connection switch is applicable only to COMP instance COMP1,     */
     /*       therefore is COMP2 is selected the equivalent bit is             */
     /*       kept unmodified.                                                 */
-    if(COMPx == COMP1)
+    if (COMPx == COMP1)
     {
       CLEAR_BIT(COMP->CSR,
                 (  COMP_CSR_COMP1MODE
@@ -906,7 +890,7 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
                 ) << __COMP_BITOFFSET_INSTANCE(COMPx)
                );
     }
-    
+
   }
   else
   {
@@ -915,7 +899,7 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
     /* The only way to unlock the comparator is a device hardware reset.       */
     status = ERROR;
   }
-  
+
   return status;
 }
 
@@ -934,7 +918,7 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
 ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStruct)
 {
   ErrorStatus status = SUCCESS;
-  
+
   /* Check the parameters */
   assert_param(IS_COMP_ALL_INSTANCE(COMPx));
   assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
@@ -943,10 +927,10 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
   assert_param(IS_LL_COMP_INPUT_HYSTERESIS(COMP_InitStruct->InputHysteresis));
   assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMP_InitStruct->OutputSelection));
   assert_param(IS_LL_COMP_OUTPUT_POLARITY(COMP_InitStruct->OutputPolarity));
-  
+
   /* Note: Hardware constraint (refer to description of this function)        */
   /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
+  if (LL_COMP_IsLocked(COMPx) == 0U)
   {
     /* Configuration of comparator instance :                                 */
     /*  - PowerMode                                                           */
@@ -958,7 +942,7 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
     /* Note: Connection switch is applicable only to COMP instance COMP1,     */
     /*       therefore is COMP2 is selected the equivalent bit is             */
     /*       kept unmodified.                                                 */
-    if(COMPx == COMP1)
+    if (COMPx == COMP1)
     {
       MODIFY_REG(COMP->CSR,
                  (  COMP_CSR_COMP1MODE
@@ -997,14 +981,14 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
                  ) << __COMP_BITOFFSET_INSTANCE(COMPx)
                 );
     }
-    
+
   }
   else
   {
     /* Initialization error: COMP instance is locked.                         */
     status = ERROR;
   }
-  
+
   return status;
 }
 

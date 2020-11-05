@@ -6,31 +6,15 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -38,7 +22,7 @@
 #define __STM32F3xx_HAL_COMP_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -50,9 +34,9 @@
 
 /** @defgroup COMPEx COMPEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup COMPEx_Exported_Constants COMP Extended Exported Constants
   * @{
@@ -89,7 +73,9 @@
 #define COMP_INVERTINGINPUT_3_4VREFINT     COMP_CSR_COMPxINSEL_1                         /*!< 3U/4 VREFINT connected to comparator inverting input */
 #define COMP_INVERTINGINPUT_VREFINT        (COMP_CSR_COMPxINSEL_1|COMP_CSR_COMPxINSEL_0) /*!< VREFINT connected to comparator inverting input */
 #define COMP_INVERTINGINPUT_DAC1_CH1       COMP_CSR_COMPxINSEL_2                         /*!< DAC1_CH1_OUT (PA4) connected to comparator inverting input */
-#define COMP_INVERTINGINPUT_IO1            (COMP_CSR_COMPxINSEL_2|COMP_CSR_COMPxINSEL_1) /*!< IO1 (PA2 for COMP2, PB2 for COMP4, PB15 for COMP6)
+#define COMP_INVERTINGINPUT_IO1            (COMP_CSR_COMPxINSEL_2|COMP_CSR_COMPxINSEL_1) /*!< IO1 (PA2 for COMP2),
+                                                                                              connected to comparator inverting input */
+#define COMP_INVERTINGINPUT_IO2            COMP_CSR_COMPxINSEL                           /*!< IO2 (PB2 for COMP4, PB15 for COMP6)
                                                                                               connected to comparator inverting input */
 /* Aliases for compatibility */
 #define COMP_INVERTINGINPUT_DAC1           COMP_INVERTINGINPUT_DAC1_CH1
@@ -112,7 +98,7 @@
 #define COMP_INVERTINGINPUT_DAC1_CH2       (COMP_CSR_COMPxINSEL_2|COMP_CSR_COMPxINSEL_0) /*!< DAC1_CH2_OUT (PA5) connected to comparator inverting input */
 #define COMP_INVERTINGINPUT_IO1            (COMP_CSR_COMPxINSEL_2|COMP_CSR_COMPxINSEL_1) /*!< IO1 (PA2 for COMP2),
                                                                                               connected to comparator inverting input */
-#define COMP_INVERTINGINPUT_IO2            (COMP_CSR_COMPxINSEL_2|COMP_CSR_COMPxINSEL_1|COMP_CSR_COMPxINSEL_0) /*!< IO2 (PB2 for COMP4, PB15 for COMP6)
+#define COMP_INVERTINGINPUT_IO2            COMP_CSR_COMPxINSEL                           /*!< IO2 (PB2 for COMP4, PB15 for COMP6)
                                                                                               connected to comparator inverting input */
 #define COMP_INVERTINGINPUT_DAC2_CH1       COMP_CSR_COMPxINSEL_3                         /*!< DAC2_CH1_OUT connected to comparator inverting input */
 
@@ -156,7 +142,7 @@
 #define COMP_NONINVERTINGINPUT_DAC1SWITCHCLOSED  COMP1_CSR_COMP1SW1     /*!< DAC ouput connected to comparator COMP1 non inverting input */
 /**
   * @}
-  */ 
+  */
 #elif defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /** @defgroup COMPEx_NonInvertingInput COMP Extended NonInvertingInput (STM32F301x8/STM32F302x8/STM32F318xx Product devices)
   * @{
@@ -166,7 +152,7 @@
 #define COMP_NONINVERTINGINPUT_DAC1SWITCHCLOSED  COMP2_CSR_COMP2INPDAC  /*!< DAC ouput connected to comparator COMP2 non inverting input */
 /**
   * @}
-  */ 
+  */
 #elif defined(STM32F373xC) || defined(STM32F378xx)
 /** @defgroup COMPEx_NonInvertingInput COMP Extended NonInvertingInput (STM32F373xC/STM32F378xx Product devices)
   * @{
@@ -187,7 +173,7 @@
 #define COMP_NONINVERTINGINPUT_DAC1SWITCHCLOSED COMP1_CSR_COMP1SW1      /*!< DAC ouput connected to comparator COMP1 non inverting input */
 /**
   * @}
-  */ 
+  */
 #else
 /** @defgroup COMPEx_NonInvertingInput COMP Extended NonInvertingInput (Other Product devices)
   * @{
@@ -226,7 +212,7 @@
 #define COMP_OUTPUT_TIM16IC1              (0x00002820U)   /*!< COMP6 output connected to TIM16 Input Capture 1U */
 /**
   * @}
-  */ 
+  */
 #elif  defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
 /** @defgroup COMPEx_Output COMP Extended Output (STM32F303x8/STM32F334x8/STM32F328xx Product devices)
   *        Elements value convention on 16 LSB: 00XXXX0000YYYYYYb
@@ -257,7 +243,7 @@
 #define COMP_OUTPUT_TIM16IC1              (0x00002820U)   /*!< COMP6 output connected to TIM16 Input Capture 1U */
 /**
   * @}
-  */ 
+  */
 #elif  defined(STM32F302xC) || defined(STM32F302xE)
 /** @defgroup COMPEx_Output COMP Extended Output (STM32F302xC/STM32F302xE Product devices)
   *        Elements value convention on 16 LSB: 00XXXX0000YYYYYYb
@@ -291,7 +277,7 @@
 #define COMP_OUTPUT_TIM4IC4               (0x00002C20U)   /*!< COMP6 output connected to TIM4 Input Capture 4U */
 /**
   * @}
-  */ 
+  */
 #elif  defined(STM32F303xC) || defined(STM32F358xx)
 /** @defgroup COMPEx_Output COMP Extended Output (STM32F303xC/STM32F358xx Product devices)
   *        Elements value convention on 16 LSB: 00XXXX000YYYYYYYb
@@ -346,7 +332,7 @@
 #define COMP_OUTPUT_TIM17BKIN             (0x00002C40U)   /*!< COMP7 output connected to TIM17 Break Input (BKIN) */
 /**
   * @}
-  */ 
+  */
 #elif defined(STM32F303xE) || defined(STM32F398xx)
 /** @defgroup COMPEx_Output COMP Extended Output (STM32F303xE/STM32F398xx Product devices)
   *        Elements value convention on 16 LSB: 00XXXX000YYYYYYYb
@@ -406,7 +392,7 @@
 #define COMP_OUTPUT_TIM17BKIN             (0x00002C40U)   /*!< COMP7 output connected to TIM17 Break Input (BKIN) */
 /**
   * @}
-  */ 
+  */
 #elif  defined(STM32F373xC) || defined(STM32F378xx)
 /** @defgroup COMPEx_Output COMP Extended Output (STM32F373xC/STM32F378xx Product devices)
   *        Elements value convention: 00000XXX000000YYb
@@ -432,7 +418,7 @@
 #define COMP_OUTPUT_COMP2_TIM3OCREFCLR    (0x0702U)   /*!< COMP2 output connected to TIM3 OCREF Clear */
 /**
   * @}
-  */ 
+  */
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
 
 #if  defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
@@ -554,7 +540,7 @@
 
 #endif /* STM32F302xE || */
        /* STM32F302xC    */
-   
+
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F303xC) || defined(STM32F358xx)
 /** @defgroup COMPEx_BlankingSrce COMP Extended Blanking Source (STM32F303xE/STM32F398xx/STM32F303xC/STM32F358xx Product devices)
@@ -650,12 +636,12 @@
           }                                                                    \
           CLEAR_BIT(COMP->CSR, (uint32_t)COMP_CSR_COMPxEN << regshift);        \
         } while(0U)
-  
+
 /**
   * @brief  Lock a comparator instance
   * @param  __HANDLE__  COMP handle
   * @retval None.
-  */                                         
+  */
 #define __HAL_COMP_LOCK(__HANDLE__)                                            \
         do {                                                                   \
           uint32_t regshift = COMP_CSR_COMP1_SHIFT;                            \
@@ -674,9 +660,9 @@
   *            @arg @ref COMP_FLAG_LOCK   lock flag
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
-#define __HAL_COMP_GET_FLAG(__HANDLE__, __FLAG__)                              \
-        (((__HANDLE__)->Instance == COMP1) ? (((__HANDLE__)->Instance->CSR & (__FLAG__)) == (__FLAG__)) \
-         (((__HANDLE__)->Instance->CSR & (uint32_t)((__FLAG__) << COMP_CSR_COMP2_SHIFT) == (__FLAG__)))) 
+#define __HAL_COMP_GET_FLAG(__HANDLE__, __FLAG__)                                                 \
+  (((__HANDLE__)->Instance == COMP1) ? (((__HANDLE__)->Instance->CSR & (__FLAG__)) == (__FLAG__)) \
+   (((__HANDLE__)->Instance->CSR & (uint32_t)((__FLAG__) << COMP_CSR_COMP2_SHIFT) == (__FLAG__))))
 
 #else
 
@@ -698,7 +684,7 @@
   * @brief  Lock a comparator instance
   * @param  __HANDLE__  COMP handle
   * @retval None.
-  */                                         
+  */
 #define __HAL_COMP_LOCK(__HANDLE__)      SET_BIT((__HANDLE__)->Instance->CSR, COMP_CSR_COMPxLOCK)
 
 /** @brief  Check whether the specified COMP flag is set or not.
@@ -708,7 +694,7 @@
   *            @arg @ref COMP_FLAG_LOCK   lock flag
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
-#define __HAL_COMP_GET_FLAG(__HANDLE__, __FLAG__)     (((__HANDLE__)->Instance->CSR & (__FLAG__)) == (__FLAG__))   
+#define __HAL_COMP_GET_FLAG(__HANDLE__, __FLAG__)     (((__HANDLE__)->Instance->CSR & (__FLAG__)) == (__FLAG__))
 
 #endif /* STM32F373xC || STM32F378xx */
 
@@ -719,49 +705,49 @@
 /**
   * @brief  Enable the COMP1 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP1)
 
 /**
   * @brief  Disable the COMP1 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP1)
 
 /**
   * @brief  Enable the COMP1 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP1)
 
 /**
   * @brief  Disable the COMP1 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP1)
 
 /**
   * @brief  Enable the COMP1 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP1_EXTI_ENABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP1_EXTI_ENABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP1_EXTI_ENABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP1_EXTI_ENABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Disable the COMP1 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_FALLING_EDGE()  do { \
-                                                               __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Enable the COMP1 EXTI line in interrupt mode.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP1)
 
 /**
@@ -793,7 +779,7 @@
   * @retval RESET or SET
   */
 #define __HAL_COMP_COMP1_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP1)
-     
+
 /**
   * @brief  Clear the COMP1 EXTI flag.
   * @retval None
@@ -807,49 +793,49 @@
 /**
   * @brief  Enable the COMP2 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Disable the COMP2 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Enable the COMP2 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Disable the COMP2 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Enable the COMP2 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Disable the COMP2 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Enable the COMP2 EXTI line in interrupt mode.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP2)
 
 /**
@@ -881,7 +867,7 @@
   * @retval RESET or SET
   */
 #define __HAL_COMP_COMP2_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP2)
-     
+
 /**
   * @brief  Clear the COMP2 EXTI flag.
   * @retval None
@@ -894,49 +880,49 @@
 /**
   * @brief  Enable the COMP3 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP3_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP3)
 
 /**
   * @brief  Disable the COMP3 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP3_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP3)
 
 /**
   * @brief  Enable the COMP3 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP3_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP3)
 
 /**
   * @brief  Disable the COMP3 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP3_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP3)
 
 /**
   * @brief  Enable the COMP3 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP3_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP3_EXTI_ENABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP3_EXTI_ENABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP3_EXTI_ENABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP3_EXTI_ENABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Disable the COMP3 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP3_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP3_EXTI_DISABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP3_EXTI_DISABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP3_EXTI_DISABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP3_EXTI_DISABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Enable the COMP3 EXTI line in interrupt mode.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP3_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP3)
 
 /**
@@ -968,7 +954,7 @@
   * @retval RESET or SET
   */
 #define __HAL_COMP_COMP3_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP3)
-     
+
 /**
   * @brief  Clear the COMP3 EXTI flag.
   * @retval None
@@ -986,49 +972,49 @@
 /**
   * @brief  Enable the COMP4 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP4_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP4)
 
 /**
   * @brief  Disable the COMP4 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP4_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP4)
 
 /**
   * @brief  Enable the COMP4 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP4_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP4)
 
 /**
   * @brief  Disable the COMP4 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP4_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP4)
 
 /**
   * @brief  Enable the COMP4 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP4_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP4_EXTI_ENABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP4_EXTI_ENABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP4_EXTI_ENABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP4_EXTI_ENABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Disable the COMP4 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP4_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP4_EXTI_DISABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP4_EXTI_DISABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP4_EXTI_DISABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP4_EXTI_DISABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Enable the COMP4 EXTI line in interrupt mode.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP4_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP4)
 
 /**
@@ -1060,7 +1046,7 @@
   * @retval RESET or SET
   */
 #define __HAL_COMP_COMP4_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP4)
-     
+
 /**
   * @brief  Clear the COMP4 EXTI flag.
   * @retval None
@@ -1078,49 +1064,49 @@
 /**
   * @brief  Enable the COMP5 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP5_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP5)
 
 /**
   * @brief  Disable the COMP5 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP5_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP5)
 
 /**
   * @brief  Enable the COMP5 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP5_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP5)
 
 /**
   * @brief  Disable the COMP5 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP5_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP5)
 
 /**
   * @brief  Enable the COMP5 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP5_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP5_EXTI_ENABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP5_EXTI_ENABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP5_EXTI_ENABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP5_EXTI_ENABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Disable the COMP5 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP5_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP5_EXTI_DISABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP5_EXTI_DISABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP5_EXTI_DISABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP5_EXTI_DISABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Enable the COMP5 EXTI line in interrupt mode.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP5_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP5)
 
 /**
@@ -1152,7 +1138,7 @@
   * @retval RESET or SET
   */
 #define __HAL_COMP_COMP5_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP5)
-     
+
 /**
   * @brief  Clear the COMP5 EXTI flag.
   * @retval None
@@ -1170,49 +1156,49 @@
 /**
   * @brief  Enable the COMP6 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP6_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR2, COMP_EXTI_LINE_COMP6)
 
 /**
   * @brief  Disable the COMP6 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP6_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR2, COMP_EXTI_LINE_COMP6)
 
 /**
   * @brief  Enable the COMP6 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP6_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR2, COMP_EXTI_LINE_COMP6)
 
 /**
   * @brief  Disable the COMP6 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP6_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR2, COMP_EXTI_LINE_COMP6)
 
 /**
   * @brief  Enable the COMP6 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP6_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP6_EXTI_ENABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP6_EXTI_ENABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP6_EXTI_ENABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP6_EXTI_ENABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Disable the COMP6 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP6_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP6_EXTI_DISABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP6_EXTI_DISABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP6_EXTI_DISABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP6_EXTI_DISABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Enable the COMP6 EXTI line in interrupt mode.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP6_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR2, COMP_EXTI_LINE_COMP6)
 
 /**
@@ -1244,7 +1230,7 @@
   * @retval RESET or SET
   */
 #define __HAL_COMP_COMP6_EXTI_GET_FLAG()              READ_BIT(EXTI->PR2, COMP_EXTI_LINE_COMP6)
-     
+
 /**
   * @brief  Clear the COMP6 EXTI flag.
   * @retval None
@@ -1261,49 +1247,49 @@
 /**
   * @brief  Enable the COMP7 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP7_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR2, COMP_EXTI_LINE_COMP7)
 
 /**
   * @brief  Disable the COMP7 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP7_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR2, COMP_EXTI_LINE_COMP7)
 
 /**
   * @brief  Enable the COMP7 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP7_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR2, COMP_EXTI_LINE_COMP7)
 
 /**
   * @brief  Disable the COMP7 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP7_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR2, COMP_EXTI_LINE_COMP7)
 
 /**
   * @brief  Enable the COMP7 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP7_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP7_EXTI_ENABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP7_EXTI_ENABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP7_EXTI_ENABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP7_EXTI_ENABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Disable the COMP7 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP7_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
-                                                               __HAL_COMP_COMP7_EXTI_DISABLE_RISING_EDGE(); \
-                                                               __HAL_COMP_COMP7_EXTI_DISABLE_FALLING_EDGE(); \
-                                                             } while(0U)
+    __HAL_COMP_COMP7_EXTI_DISABLE_RISING_EDGE(); \
+    __HAL_COMP_COMP7_EXTI_DISABLE_FALLING_EDGE(); \
+  } while(0U)
 
 /**
   * @brief  Enable the COMP7 EXTI line in interrupt mode.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP7_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR2, COMP_EXTI_LINE_COMP7)
 
 /**
@@ -1335,7 +1321,7 @@
   * @retval RESET or SET
   */
 #define __HAL_COMP_COMP7_EXTI_GET_FLAG()              READ_BIT(EXTI->PR2, COMP_EXTI_LINE_COMP7)
-     
+
 /**
   * @brief  Clear the COMP7 EXTI flag.
   * @retval None
@@ -1348,7 +1334,7 @@
 /**
   * @}
   */
-  
+
 /* Private types -------------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
 /** @defgroup COMPEx_Private_Constants COMP Extended Private Constants
@@ -1356,7 +1342,7 @@
   */
 /** @defgroup COMPEx_ExtiLineEvent COMP Extended EXTI lines
   * @{
-  */  
+  */
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
 
@@ -1411,22 +1397,22 @@
 
 /** @defgroup COMPEx_Misc COMP Extended miscellaneous defines
   * @{
-  */  
+  */
 
 /* CSR masks redefinition for internal use */
 #define COMP_CSR_COMPxINSEL_MASK              COMP_CSR_COMPxINSEL   /*!< COMP_CSR_COMPxINSEL Mask */
-#define COMP_CSR_COMPxOUTSEL_MASK             COMP_CSR_COMPxOUTSEL  /*!< COMP_CSR_COMPxOUTSEL Mask */  
+#define COMP_CSR_COMPxOUTSEL_MASK             COMP_CSR_COMPxOUTSEL  /*!< COMP_CSR_COMPxOUTSEL Mask */
 #define COMP_CSR_COMPxPOL_MASK                COMP_CSR_COMPxPOL     /*!< COMP_CSR_COMPxPOL Mask   */
 #if  defined(STM32F373xC) || defined(STM32F378xx)
-/* CSR register reset value */ 
+/* CSR register reset value */
 #define COMP_CSR_RESET_VALUE                  (0x00000000U)
 #define COMP_CSR_RESET_PARAMETERS_MASK        (0x00003FFFU)
 #define COMP_CSR_UPDATE_PARAMETERS_MASK       (0x00003FFEU)
-/* CSR COMP1/COMP2 shift */ 
+/* CSR COMP1/COMP2 shift */
 #define COMP_CSR_COMP1_SHIFT                  0U
 #define COMP_CSR_COMP2_SHIFT                  16U
 #else
-/* CSR register reset value */ 
+/* CSR register reset value */
 #define COMP_CSR_RESET_VALUE                  (0x00000000U)
 #endif /* STM32F373xC || STM32F378xx */
 
@@ -1482,7 +1468,7 @@
 /** @defgroup COMPEx_Private_Macros COMP Extended Private Macros
   * @{
   */
-/** @defgroup COMP_GET_EXTI_LINE COMP Extended Private macro to get the EXTI line associated with a comparator handle 
+/** @defgroup COMP_GET_EXTI_LINE COMP Extended Private macro to get the EXTI line associated with a comparator handle
   * @{
   */
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
@@ -1511,7 +1497,7 @@
                                           COMP_EXTI_LINE_COMP6)
 #endif /* STM32F302xE || */
        /* STM32F302xC    */
-   
+
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F303xC) || defined(STM32F358xx)
 /**
@@ -1528,7 +1514,7 @@
                                           COMP_EXTI_LINE_COMP7)
 #endif /* STM32F303xE || STM32F398xx || */
        /* STM32F303xC || STM32F358xx    */
-                                                 
+
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
   * @brief  Get the specified EXTI line for a comparator instance
@@ -1545,7 +1531,7 @@
 
 /** @defgroup COMPEx_Private_Macros_Misc COMP Extended miscellaneous private macros
   * @{
-  */  
+  */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -1553,8 +1539,7 @@
   * @param  __HANDLE__  COMP handle
   * @note   The common output selection is checked versus the COMP instance to set the right output configuration
   * @retval None.
-  */                                         
-
+  */
 #define COMP_INIT(__HANDLE__)                                                          \
         do {                                                                           \
           uint32_t regshift = COMP_CSR_COMP1_SHIFT;                                    \
@@ -1586,7 +1571,7 @@
   * @brief  DeInit a comparator instance
   * @param  __HANDLE__  COMP handle
   * @retval None.
-  */                                         
+  */
 #define COMP_DEINIT(__HANDLE__)                                                \
         do {                                                                   \
           uint32_t regshift = COMP_CSR_COMP1_SHIFT;                            \
@@ -1604,47 +1589,47 @@
 /**
   * @brief  Enable the Exti Line rising edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_RISING_ENABLE(__EXTILINE__)      SET_BIT(EXTI->RTSR, (__EXTILINE__))
 
 /**
   * @brief  Disable the Exti Line rising edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_RISING_DISABLE(__EXTILINE__)     CLEAR_BIT(EXTI->RTSR, (__EXTILINE__))
 
 /**
   * @brief  Enable the Exti Line falling edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_FALLING_ENABLE(__EXTILINE__)     SET_BIT(EXTI->FTSR, (__EXTILINE__))
 
 /**
   * @brief  Disable the Exti Line falling edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_FALLING_DISABLE(__EXTILINE__)    CLEAR_BIT(EXTI->FTSR, (__EXTILINE__))
 
 /**
   * @brief  Enable the COMP Exti Line interrupt generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_ENABLE_IT(__EXTILINE__)          SET_BIT(EXTI->IMR, (__EXTILINE__))
-                                             
+
 /**
   * @brief  Disable the COMP Exti Line interrupt generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
   */
 #define COMP_EXTI_DISABLE_IT(__EXTILINE__)         CLEAR_BIT(EXTI->IMR, (__EXTILINE__))
@@ -1652,15 +1637,15 @@
 /**
   * @brief  Enable the COMP Exti Line event generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_ENABLE_EVENT(__EXTILINE__)       SET_BIT(EXTI->EMR, (__EXTILINE__))
-                                             
+
 /**
   * @brief  Disable the COMP Exti Line event generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
   */
 #define COMP_EXTI_DISABLE_EVENT(__EXTILINE__)      CLEAR_BIT(EXTI->EMR, (__EXTILINE__))
@@ -1668,15 +1653,15 @@
 /**
   * @brief  Check whether the specified EXTI line flag is set or not.
   * @param  __FLAG__ specifies the COMP Exti sources to be checked.
-  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval The state of __FLAG__ (SET or RESET).
   */
 #define COMP_EXTI_GET_FLAG(__FLAG__)               READ_BIT(EXTI->PR, (__FLAG__))
-     
+
 /**
   * @brief Clear the COMP Exti flags.
   * @param  __FLAG__ specifies the COMP Exti sources to be cleared.
-  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
   */
 #define COMP_EXTI_CLEAR_FLAG(__FLAG__)             WRITE_REG(EXTI->PR, (__FLAG__))
@@ -1688,10 +1673,10 @@
   * @brief  Init a comparator instance
   * @param  __HANDLE__  COMP handle
   * @retval None.
-  */                                         
+  */
 #define COMP_INIT(__HANDLE__)                                                                                   \
         do {                                                                                                    \
-          __IO uint32_t     csrreg = 0U;                                                                         \
+          __IO uint32_t     csrreg = 0U;                                                                        \
                                                                                                                 \
           csrreg = READ_REG((__HANDLE__)->Instance->CSR);                                                       \
           MODIFY_REG(csrreg, COMP_CSR_COMPxINSEL_MASK, (__HANDLE__)->Init.InvertingInput);                      \
@@ -1709,53 +1694,53 @@
   * @brief  DeInit a comparator instance
   * @param  __HANDLE__  COMP handle
   * @retval None.
-  */                                         
+  */
 #define COMP_DEINIT(__HANDLE__)    WRITE_REG((__HANDLE__)->Instance->CSR, COMP_CSR_RESET_VALUE)
 
 /**
   * @brief  Enable the Exti Line rising edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_RISING_ENABLE(__EXTILINE__)      ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? SET_BIT(EXTI->RTSR2, (__EXTILINE__)) : SET_BIT(EXTI->RTSR, (__EXTILINE__)))
 
 /**
   * @brief  Disable the Exti Line rising edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_RISING_DISABLE(__EXTILINE__)     ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? CLEAR_BIT(EXTI->RTSR2, (__EXTILINE__)) : CLEAR_BIT(EXTI->RTSR, (__EXTILINE__)))
 
 /**
   * @brief  Enable the Exti Line falling edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_FALLING_ENABLE(__EXTILINE__)     ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? SET_BIT(EXTI->FTSR2, (__EXTILINE__)) : SET_BIT(EXTI->FTSR, (__EXTILINE__)))
 
 /**
   * @brief  Disable the Exti Line falling edge trigger.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_FALLING_DISABLE(__EXTILINE__)    ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? CLEAR_BIT(EXTI->FTSR2, (__EXTILINE__)) : CLEAR_BIT(EXTI->FTSR, (__EXTILINE__)))
 
 /**
   * @brief  Enable the COMP Exti Line interrupt generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_ENABLE_IT(__EXTILINE__)          ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? SET_BIT(EXTI->IMR2, (__EXTILINE__)) : SET_BIT(EXTI->IMR, (__EXTILINE__)))
-                                             
+
 /**
   * @brief  Disable the COMP Exti Line interrupt generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
   */
 #define COMP_EXTI_DISABLE_IT(__EXTILINE__)         ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? CLEAR_BIT(EXTI->IMR2, (__EXTILINE__)) : CLEAR_BIT(EXTI->IMR, (__EXTILINE__)))
@@ -1763,15 +1748,15 @@
 /**
   * @brief  Enable the COMP Exti Line event generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
-  */                                         
+  */
 #define COMP_EXTI_ENABLE_EVENT(__EXTILINE__)       ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? SET_BIT(EXTI->EMR2, (__EXTILINE__)) : SET_BIT(EXTI->EMR, (__EXTILINE__)))
-                                             
+
 /**
   * @brief  Disable the COMP Exti Line event generation.
   * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *         This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
   */
 #define COMP_EXTI_DISABLE_EVENT(__EXTILINE__)      ((((__EXTILINE__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? CLEAR_BIT(EXTI->EMR2, (__EXTILINE__)) : CLEAR_BIT(EXTI->EMR, (__EXTILINE__)))
@@ -1779,15 +1764,15 @@
 /**
   * @brief  Check whether the specified EXTI line flag is set or not.
   * @param  __FLAG__ specifies the COMP Exti sources to be checked.
-  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval The state of __FLAG__ (SET or RESET).
   */
 #define COMP_EXTI_GET_FLAG(__FLAG__)               ((((__FLAG__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? READ_BIT(EXTI->PR2, (__FLAG__)) : READ_BIT(EXTI->PR, (__FLAG__)))
-     
+
 /**
   * @brief Clear the COMP Exti flags.
   * @param  __FLAG__ specifies the COMP Exti sources to be cleared.
-  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
+  *          This parameter can be a value of @ref COMPEx_ExtiLineEvent
   * @retval None.
   */
 #define COMP_EXTI_CLEAR_FLAG(__FLAG__)             ((((__FLAG__) & COMP_EXTI_LINE_REG2_MASK) != RESET) ? WRITE_REG(EXTI->PR2, (__FLAG__)) : WRITE_REG(EXTI->PR, (__FLAG__)))
@@ -1801,7 +1786,7 @@
   *         - On devices STM32F302x, STM32F32xx, STM32F33x, there is
   *           only 1 comparator inverting input connected to a GPIO.
   *           Legacy definition of literal COMP_INVERTINGINPUT_IO1
-  *           was initially the only selection, but depending on 
+  *           was initially the only selection, but depending on
   *           comparator instance it corresponds to COMP_INVERTINGINPUT_IO2
   *           (for instances COMP4, COMP6).
   *           Since, COMP_INVERTINGINPUT_IO2 has been created and this macro
@@ -1809,7 +1794,7 @@
   *           of comparator instance.
   *         - On other STM32F3 devices, this macro performs no action.
   * @param  __COMP_INSTANCE__  COMP instance
-  * @param  __INVERTINGINPUT__  COMP inverting input 
+  * @param  __INVERTINGINPUT__  COMP inverting input
   * @retval None.
   */
 #if defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
@@ -1843,7 +1828,7 @@
   */
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-          
+
 #define IS_COMP_INVERTINGINPUT(INPUT) (((INPUT) == COMP_INVERTINGINPUT_1_4VREFINT)       || \
                                        ((INPUT) == COMP_INVERTINGINPUT_1_2VREFINT)       || \
                                        ((INPUT) == COMP_INVERTINGINPUT_3_4VREFINT)       || \
@@ -2383,7 +2368,7 @@
     ||                                                         \
     (((INPUT) == COMP_NONINVERTINGINPUT_IO1)))
 
-#define IS_COMP_WINDOWMODE(WINDOWMODE) ((WINDOWMODE) == (WINDOWMODE))    /*!< Not available: check always true */ 
+#define IS_COMP_WINDOWMODE(WINDOWMODE) ((WINDOWMODE) == (WINDOWMODE))    /*!< Not available: check always true */
 
 #define IS_COMP_MODE(MODE)  ((MODE) == (MODE))  /*!< Not available: check always true */
 
@@ -2502,7 +2487,7 @@
                                 ((OUTPUT) == COMP_OUTPUT_TIM8BKIN)            || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2)           || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM8BKIN2)           || \
-                                ((OUTPUT) == COMP_OUTPUT_TIM2OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15OCREFCLR)       || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2) || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM20BKIN)           || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM20BKIN2)          || \
@@ -2513,8 +2498,8 @@
                                 ((OUTPUT) == COMP_OUTPUT_TIM15BKIN)           || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM8OCREFCLR)        || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM3IC3)             || \
-                                ((OUTPUT) == COMP_OUTPUT_TIM4IC1)             || \
-                                ((OUTPUT) == COMP_OUTPUT_TIM15IC1)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15IC2)            || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM2IC1)             || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM4IC3)             || \
                                 ((OUTPUT) == COMP_OUTPUT_TIM16BKIN)           || \
@@ -2574,9 +2559,12 @@
      ((OUTPUT) == COMP_OUTPUT_TIM20BKIN)                      ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM20BKIN2)                     ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2_TIM20BKIN2) ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM1OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM3IC2)                        ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM2OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM4IC1)                        ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM15IC1)                       ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM3OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM15BKIN)))                         \
     ||                                                             \
     (((INSTANCE) == COMP4)  &&                                     \
@@ -2593,6 +2581,7 @@
      ((OUTPUT) == COMP_OUTPUT_TIM4IC2)                        ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM8OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM15IC2)                       ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM3OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM15OCREFCLR)))                     \
     ||                                                             \
     (((INSTANCE) == COMP5)  &&                                     \
@@ -2606,8 +2595,10 @@
      ((OUTPUT) == COMP_OUTPUT_TIM20BKIN2)                     ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2_TIM20BKIN2) ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM2IC1)                        ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM8OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM4IC3)                        ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM16BKIN)                      ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM3OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM17IC1)))                          \
     ||                                                             \
     (((INSTANCE) == COMP6)  &&                                     \
@@ -2621,6 +2612,7 @@
      ((OUTPUT) == COMP_OUTPUT_TIM20BKIN2)                     ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2_TIM20BKIN2) ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM2IC2)                        ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM8OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_COMP6_TIM2OCREFCLR)             ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM4IC4)                        ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM16IC1)                       ||   \
@@ -2633,6 +2625,8 @@
      ((OUTPUT) == COMP_OUTPUT_TIM8BKIN)                       ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM8BKIN2)                      ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2)            ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM1OCREFCLR)                   ||   \
+     ((OUTPUT) == COMP_OUTPUT_TIM8OCREFCLR)                   ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM20BKIN)                      ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM20BKIN2)                     ||   \
      ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2_TIM20BKIN2) ||   \
@@ -2780,11 +2774,11 @@
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

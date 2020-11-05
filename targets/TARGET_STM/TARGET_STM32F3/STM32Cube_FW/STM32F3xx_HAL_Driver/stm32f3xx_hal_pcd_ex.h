@@ -6,107 +6,39 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F3xx_HAL_PCD_EX_H
-#define __STM32F3xx_HAL_PCD_EX_H
+#ifndef STM32F3xx_HAL_PCD_EX_H
+#define STM32F3xx_HAL_PCD_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
-
-#if defined(STM32F302xE) || defined(STM32F303xE) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || \
-    defined(STM32F302x8)                         || \
-    defined(STM32F373xC)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal_def.h"
 
+#if defined (USB)
 /** @addtogroup STM32F3xx_HAL_Driver
   * @{
   */
 
 /** @addtogroup PCDEx
   * @{
-  */ 
-
-/* Exported types ------------------------------------------------------------*/ 
+  */
+/* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/* Exported macros -----------------------------------------------------------*/                                              
-/** @defgroup PCDEx_Exported_Macros PCD Extended Exported Macros
-  * @{
-  */
-/**
-  * @brief  Gets address in an endpoint register.
-  * @param  USBx USB peripheral instance register address.
-  * @param  bEpNum Endpoint Number.
-  * @retval None
-  */
-   
-#if defined(STM32F302xC) || defined(STM32F303xC) || \
-    defined(STM32F373xC)
-      
-#define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8)*2+     ((uint32_t)(USBx) + 0x400U)))))
-#define PCD_EP_TX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+2)*2+  ((uint32_t)(USBx) + 0x400U)))))
-#define PCD_EP_RX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+4)*2+ ((uint32_t)(USBx) + 0x400U)))))
-#define PCD_EP_RX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+6)*2+  ((uint32_t)(USBx) + 0x400U)))))
-
-      
-#define PCD_SET_EP_RX_CNT(USBx, bEpNum,wCount) {\
-    uint16_t *pdwReg =PCD_EP_RX_CNT((USBx),(bEpNum)); \
-    PCD_SET_EP_CNT_RX_REG((pdwReg), (wCount))\
-  }
-
-#endif /* STM32F302xC || STM32F303xC || */
-       /* STM32F373xC                   */
-   
-      
-#if defined(STM32F302xE) || defined(STM32F303xE) || \
-    defined(STM32F302x8)
-           
-#define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8)+     ((uint32_t)(USBx) + 0x400U)))))
-#define PCD_EP_TX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+2)+  ((uint32_t)(USBx) + 0x400U)))))
-#define PCD_EP_RX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+4)+ ((uint32_t)(USBx) + 0x400U)))))
-#define PCD_EP_RX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+6)+  ((uint32_t)(USBx) + 0x400U)))))
-
-#define PCD_SET_EP_RX_CNT(USBx, bEpNum,wCount) {\
-    uint16_t *pdwReg = PCD_EP_RX_CNT((USBx), (bEpNum));\
-    PCD_SET_EP_CNT_RX_REG((pdwReg), (wCount))\
-  }
-
-#endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302x8                   */
-/**
-  * @}
-  */ 
-
+/* Exported macros -----------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
   * @{
@@ -114,20 +46,16 @@
 /** @addtogroup PCDEx_Exported_Functions_Group1 Peripheral Control functions
   * @{
   */
-HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
-                                     uint16_t ep_addr,
-                                     uint16_t ep_kind,
-                                     uint32_t pmaadress);
+
+
+
+HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, uint16_t ep_addr,
+                                       uint16_t ep_kind, uint32_t pmaadress);
 
 void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
 
-/**
-  * @}
-  */ 
-  
-/**
-  * @}
-  */ 
+void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg);
+void HAL_PCDEx_BCD_Callback(PCD_HandleTypeDef *hpcd, PCD_BCD_MsgTypeDef msg);
 
 /**
   * @}
@@ -137,16 +65,20 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
   * @}
   */
 
-#endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302xC || STM32F303xC || */
-       /* STM32F302x8                || */
-       /* STM32F373xC                   */
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+#endif /* defined (USB) */
 
 #ifdef __cplusplus
 }
 #endif
 
 
-#endif /* __STM32F3xx_HAL_PCD_EX_H */
+#endif /* STM32F3xx_HAL_PCD_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

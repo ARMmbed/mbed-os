@@ -6,36 +6,20 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F3xx_LL_HRTIM_H
-#define __STM32F3xx_LL_HRTIM_H
+#ifndef STM32F3xx_LL_HRTIM_H
+#define STM32F3xx_LL_HRTIM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,10 +47,10 @@ static const uint16_t REG_OFFSET_TAB_TIMER[] =
 {
   0x00U,   /* 0: MASTER  */
   0x80U,   /* 1: TIMER A */
-  0x100U,  /* 2: TIMER B  */
+  0x100U,  /* 2: TIMER B */
   0x180U,  /* 3: TIMER C */
-  0x200U,  /* 4: TIMER D  */
-  0x280U,  /* 5: TIMER E */
+  0x200U,  /* 4: TIMER D */
+  0x280U   /* 5: TIMER E */
 };
 
 static const uint8_t REG_OFFSET_TAB_ADCxR[] =
@@ -79,37 +63,30 @@ static const uint8_t REG_OFFSET_TAB_ADCxR[] =
 
 static const uint16_t REG_OFFSET_TAB_SETxR[] =
 {
-  0x00U,   /* 0: TA1  */
+  0x00U,   /* 0: TA1 */
   0x08U,   /* 1: TA2 */
-  0x80U,   /* 2: TB1  */
+  0x80U,   /* 2: TB1 */
   0x88U,   /* 3: TB2 */
-  0x100U,  /* 4: TC1  */
+  0x100U,  /* 4: TC1 */
   0x108U,  /* 5: TC2 */
-  0x180U,  /* 6: TD1  */
+  0x180U,  /* 6: TD1 */
   0x188U,  /* 7: TD2 */
-  0x200U,  /* 8: TE1  */
+  0x200U,  /* 8: TE1 */
   0x208U   /* 9: TE2 */
 };
 
 static const uint16_t REG_OFFSET_TAB_OUTxR[] =
 {
-  0x00U,   /* 0: TA1  */
-  0x00U,   /* 1: TA2 */
-  0x80U,   /* 2: TB1  */
-  0x80U,   /* 3: TB2 */
-  0x100U,  /* 4: TC1  */
-  0x100U,  /* 5: TC2 */
-  0x180U,  /* 6: TD1  */
-  0x180U,  /* 7: TD2 */
-  0x200U,  /* 8: TE1  */
-  0x200U   /* 9: TE2 */
-};
-
-
-static const uint8_t REG_OFFSET_TAB_OUT_LEVEL[] =
-{
-  0x04U,   /* 0: LL_HRTIM_OUT_LEVEL_INACTIVE  */
-  0x00U    /* 1: LL_HRTIM_OUT_LEVEL_ACTIVE  */
+  0x00U,   /*  0: TA1 */
+  0x00U,   /*  1: TA2 */
+  0x80U,   /*  2: TB1 */
+  0x80U,   /*  3: TB2 */
+  0x100U,  /*  4: TC1 */
+  0x100U,  /*  5: TC2 */
+  0x180U,  /*  6: TD1 */
+  0x180U,  /*  7: TD2 */
+  0x200U,  /*  8: TE1 */
+  0x200U   /*  9: TE2 */
 };
 
 static const uint8_t REG_OFFSET_TAB_EECR[] =
@@ -142,7 +119,7 @@ static const uint32_t REG_MASK_TAB_UPDATETRIG[] =
   0x01FE0000U,  /* 2: TIMER B */
   0x01FE0000U,  /* 3: TIMER C */
   0x01FE0000U,  /* 4: TIMER D */
-  0x01FE0000U,  /* 5: TIMER E */
+  0x01FE0000U   /* 5: TIMER E */
 };
 
 static const uint8_t REG_SHIFT_TAB_UPDATETRIG[] =
@@ -152,20 +129,20 @@ static const uint8_t REG_SHIFT_TAB_UPDATETRIG[] =
   0U,  /* 2: TIMER B  */
   0U,  /* 3: TIMER C */
   0U,  /* 4: TIMER D  */
-  0U,  /* 5: TIMER E */
+  0U   /* 5: TIMER E */
 };
 
 static const uint8_t REG_SHIFT_TAB_EExSRC[] =
 {
-  0U,  /* LL_HRTIM_EVENT_1 */
-  6U,  /* LL_HRTIM_EVENT_2 */
-  12U, /* LL_HRTIM_EVENT_3 */
-  18U, /* LL_HRTIM_EVENT_4 */
-  24U, /* LL_HRTIM_EVENT_5 */
-  0U,  /* LL_HRTIM_EVENT_6 */
-  6U,  /* LL_HRTIM_EVENT_7 */
-  12U, /* LL_HRTIM_EVENT_8 */
-  18U, /* LL_HRTIM_EVENT_9 */
+  0U,  /* LL_HRTIM_EVENT_1  */
+  6U,  /* LL_HRTIM_EVENT_2  */
+  12U, /* LL_HRTIM_EVENT_3  */
+  18U, /* LL_HRTIM_EVENT_4  */
+  24U, /* LL_HRTIM_EVENT_5  */
+  0U,  /* LL_HRTIM_EVENT_6  */
+  6U,  /* LL_HRTIM_EVENT_7  */
+  12U, /* LL_HRTIM_EVENT_8  */
+  18U, /* LL_HRTIM_EVENT_9  */
   24U  /* LL_HRTIM_EVENT_10 */
 };
 
@@ -176,7 +153,7 @@ static const uint32_t REG_MASK_TAB_UPDATEGATING[] =
   HRTIM_TIMCR_UPDGAT,  /* 2: TIMER B  */
   HRTIM_TIMCR_UPDGAT,  /* 3: TIMER C */
   HRTIM_TIMCR_UPDGAT,  /* 4: TIMER D  */
-  HRTIM_TIMCR_UPDGAT,  /* 5: TIMER E */
+  HRTIM_TIMCR_UPDGAT   /* 5: TIMER E */
 };
 
 static const uint8_t REG_SHIFT_TAB_UPDATEGATING[] =
@@ -186,7 +163,7 @@ static const uint8_t REG_SHIFT_TAB_UPDATEGATING[] =
   0U, /* 2: TIMER B  */
   0U, /* 3: TIMER C */
   0U, /* 4: TIMER D  */
-  0U, /* 5: TIMER E */
+  0U  /* 5: TIMER E */
 };
 
 static const uint8_t REG_SHIFT_TAB_OUTxR[] =
@@ -219,11 +196,11 @@ static const uint8_t REG_SHIFT_TAB_OxSTAT[] =
 
 static const uint8_t REG_SHIFT_TAB_FLTxE[] =
 {
-  0U,  /* LL_HRTIM_FAULT_1 */
-  8U,  /* LL_HRTIM_FAULT_2 */
-  16U, /* LL_HRTIM_FAULT_3 */
-  24U, /* LL_HRTIM_FAULT_4 */
-  0U   /* LL_HRTIM_FAULT_5 */
+  0U,   /* LL_HRTIM_FAULT_1 */
+  8U,   /* LL_HRTIM_FAULT_2 */
+  16U,  /* LL_HRTIM_FAULT_3 */
+  24U,  /* LL_HRTIM_FAULT_4 */
+  0U    /* LL_HRTIM_FAULT_5 */
 };
 
 /**
@@ -242,19 +219,19 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
                                           HRTIM_CR1_TDUDIS |\
                                           HRTIM_CR1_TEUDIS))
 
-#define HRTIM_CR2_SWUPD_MASK   ((uint32_t)(HRTIM_CR2_MSWU  |\
-                                          HRTIM_CR2_TASWU |\
-                                          HRTIM_CR2_TBSWU |\
-                                          HRTIM_CR2_TCSWU |\
-                                          HRTIM_CR2_TDSWU |\
-                                          HRTIM_CR2_TESWU))
+#define HRTIM_CR2_SWUPD_MASK   ((uint32_t)(HRTIM_CR2_MSWU |\
+                                           HRTIM_CR2_TASWU |\
+                                           HRTIM_CR2_TBSWU |\
+                                           HRTIM_CR2_TCSWU |\
+                                           HRTIM_CR2_TDSWU |\
+                                           HRTIM_CR2_TESWU))
 
-#define HRTIM_CR2_SWRST_MASK   ((uint32_t)(HRTIM_CR2_MRST  |\
-                                          HRTIM_CR2_TARST |\
-                                          HRTIM_CR2_TBRST |\
-                                          HRTIM_CR2_TCRST |\
-                                          HRTIM_CR2_TDRST |\
-                                          HRTIM_CR2_TERST))
+#define HRTIM_CR2_SWRST_MASK   ((uint32_t)(HRTIM_CR2_MRST |\
+                                           HRTIM_CR2_TARST |\
+                                           HRTIM_CR2_TBRST |\
+                                           HRTIM_CR2_TCRST |\
+                                           HRTIM_CR2_TDRST |\
+                                           HRTIM_CR2_TERST))
 
 #define HRTIM_OENR_OEN_MASK   ((uint32_t)(HRTIM_OENR_TA1OEN |\
                                           HRTIM_OENR_TA2OEN |\
@@ -304,22 +281,12 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
 
 /* Private macros ------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
-#if defined(USE_FULL_LL_DRIVER)
-/** @defgroup HRTIM_LL_ES_INIT HRTIM Exported Init structure
-  * @{
-  */
-/* TO BE COMPLETED */
-/**
-  * @}
-  */
-#endif /* USE_FULL_LL_DRIVER */
-
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup HRTIM_LL_Exported_Constants HRTIM Exported Constants
   * @{
   */
 
-/** @defgroup HRTIM_EC_GET_FLAG Get Flags Defines
+/** @defgroup HRTIM_LL_EC_GET_FLAG Get Flags Defines
   * @brief    Flags defines which can be used with LL_HRTIM_ReadReg function
   * @{
   */
@@ -358,7 +325,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_IT IT Defines
+/** @defgroup HRTIM_LL_EC_IT IT Defines
   * @brief    IT defines which can be used with LL_HRTIM_ReadReg and LL_HRTIM_WriteReg functions
   * @{
   */
@@ -379,7 +346,6 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
 #define LL_HRTIM_MDIER_SYNCIE              HRTIM_MDIER_SYNCIE
 #define LL_HRTIM_MDIER_MUPDIE              HRTIM_MDIER_MUPDIE
 
-
 #define LL_HRTIM_TIMDIER_CMP1IE            HRTIM_TIMDIER_CMP1IE
 #define LL_HRTIM_TIMDIER_CMP2IE            HRTIM_TIMDIER_CMP2IE
 #define LL_HRTIM_TIMDIER_CMP3IE            HRTIM_TIMDIER_CMP3IE
@@ -398,22 +364,22 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_SYNCIN_SRC  SYNCHRONIZATION INPUT SOURCE
+/** @defgroup HRTIM_LL_EC_SYNCIN_SRC  SYNCHRONIZATION INPUT SOURCE
   * @{
   * @brief Constants defining defining the synchronization input source.
   */
-#define LL_HRTIM_SYNCIN_SRC_NONE            ((uint32_t)0x00000000U)                      /*!< HRTIM is not synchronized and runs in standalone mode */
+#define LL_HRTIM_SYNCIN_SRC_NONE            0x00000000U                      /*!< HRTIM is not synchronized and runs in standalone mode */
 #define LL_HRTIM_SYNCIN_SRC_TIM_EVENT       (HRTIM_MCR_SYNC_IN_1)                        /*!< The HRTIM is synchronized with the on-chip timer */
 #define LL_HRTIM_SYNCIN_SRC_EXTERNAL_EVENT  (HRTIM_MCR_SYNC_IN_1 | HRTIM_MCR_SYNC_IN_0)  /*!< A positive pulse on SYNCIN input triggers the HRTIM */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_SYNCOUT_SRC  SYNCHRONIZATION OUTPUT SOURCE
+/** @defgroup HRTIM_LL_EC_SYNCOUT_SRC  SYNCHRONIZATION OUTPUT SOURCE
   * @{
   * @brief Constants defining the source and event to be sent on the synchronization output.
   */
-#define LL_HRTIM_SYNCOUT_SRC_MASTER_START  ((uint32_t)0x00000000U)                        /*!< A pulse is sent on the SYNCOUT output upon master timer start event */
+#define LL_HRTIM_SYNCOUT_SRC_MASTER_START  0x00000000U                        /*!< A pulse is sent on the SYNCOUT output upon master timer start event */
 #define LL_HRTIM_SYNCOUT_SRC_MASTER_CMP1   (HRTIM_MCR_SYNC_SRC_0)                         /*!< A pulse is sent on the SYNCOUT output upon master timer compare 1 event*/
 #define LL_HRTIM_SYNCOUT_SRC_TIMA_START    (HRTIM_MCR_SYNC_SRC_1)                         /*!< A pulse is sent on the SYNCOUT output upon timer A start or reset events */
 #define LL_HRTIM_SYNCOUT_SRC_TIMA_CMP1     (HRTIM_MCR_SYNC_SRC_1 | HRTIM_MCR_SYNC_SRC_0)  /*!< A pulse is sent on the SYNCOUT output upon timer A compare 1 event */
@@ -421,32 +387,38 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_SYNCOUT_POLARITY  SYNCHRONIZATION OUTPUT POLARITY
+/** @defgroup HRTIM_LL_EC_SYNCOUT_POLARITY  SYNCHRONIZATION OUTPUT POLARITY
   * @{
   * @brief Constants defining the routing and conditioning of the synchronization output event.
   */
-#define LL_HRTIM_SYNCOUT_DISABLED     ((uint32_t)0x00000000U)                         /*!< Synchronization output event is disabled */
+#define LL_HRTIM_SYNCOUT_DISABLED     0x00000000U                         /*!< Synchronization output event is disabled */
 #define LL_HRTIM_SYNCOUT_POSITIVE_PULSE (HRTIM_MCR_SYNC_OUT_1)                        /*!< SCOUT pin has a low idle level and issues a positive pulse of 16 fHRTIM clock cycles length for the synchronization */
 #define LL_HRTIM_SYNCOUT_NEGATIVE_PULSE (HRTIM_MCR_SYNC_OUT_1 | HRTIM_MCR_SYNC_OUT_0) /*!< SCOUT pin has a high idle level and issues a negative pulse of 16 fHRTIM clock cycles length for the synchronization */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_TIMER  TIMER ID
+/** @defgroup HRTIM_LL_EC_TIMER  TIMER ID
   * @{
   * @brief Constants identifying a timing unit.
   */
+#define LL_HRTIM_TIMER_NONE                0U   /*!< Master timer identifier */
 #define LL_HRTIM_TIMER_MASTER              HRTIM_MCR_MCEN   /*!< Master timer identifier */
 #define LL_HRTIM_TIMER_A                   HRTIM_MCR_TACEN  /*!< Timer A identifier */
 #define LL_HRTIM_TIMER_B                   HRTIM_MCR_TBCEN  /*!< Timer B identifier */
 #define LL_HRTIM_TIMER_C                   HRTIM_MCR_TCCEN  /*!< Timer C identifier */
 #define LL_HRTIM_TIMER_D                   HRTIM_MCR_TDCEN  /*!< Timer D identifier */
 #define LL_HRTIM_TIMER_E                   HRTIM_MCR_TECEN  /*!< Timer E identifier */
+#define LL_HRTIM_TIMER_X                  (HRTIM_MCR_TACEN |\
+                                           HRTIM_MCR_TBCEN | HRTIM_MCR_TCCEN |\
+                                           HRTIM_MCR_TDCEN | HRTIM_MCR_TECEN )
+#define LL_HRTIM_TIMER_ALL                (LL_HRTIM_TIMER_MASTER | LL_HRTIM_TIMER_X)
+
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_OUTPUT  OUTPUT ID
+/** @defgroup HRTIM_LL_EC_OUTPUT  OUTPUT ID
   * @{
   * @brief Constants identifying an HRTIM output.
   */
@@ -464,7 +436,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_COMPAREUNIT  COMPARE UNIT ID
+/** @defgroup HRTIM_LL_EC_COMPAREUNIT  COMPARE UNIT ID
   * @{
   * @brief Constants identifying a compare unit.
   */
@@ -474,7 +446,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_CAPTUREUNIT  CAPTURE UNIT ID
+/** @defgroup HRTIM_LL_EC_CAPTUREUNIT  CAPTURE UNIT ID
   * @{
   * @brief Constants identifying a capture unit.
   */
@@ -484,7 +456,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_FAULT  FAULT ID
+/** @defgroup HRTIM_LL_EC_FAULT  FAULT ID
   * @{
   * @brief Constants identifying a fault channel.
   */
@@ -497,7 +469,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_EVENT  EXTERNAL EVENT ID
+/** @defgroup HRTIM_LL_EC_EVENT  EXTERNAL EVENT ID
   * @{
   * @brief Constants identifying an external event channel.
   */
@@ -515,7 +487,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_OUTPUTSTATE  OUTPUT STATE
+/** @defgroup HRTIM_LL_EC_OUTPUTSTATE  OUTPUT STATE
   * @{
   * @brief Constants defining the state of an HRTIM output.
   */
@@ -526,7 +498,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_ADCTRIG  ADC TRIGGER
+/** @defgroup HRTIM_LL_EC_ADCTRIG  ADC TRIGGER
   * @{
   * @brief Constants identifying an ADC trigger.
   */
@@ -538,11 +510,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_ADCTRIG_UPDATE ADC TRIGGER UPDATE
+/** @defgroup HRTIM_LL_EC_ADCTRIG_UPDATE ADC TRIGGER UPDATE
   * @{
   * @brief constants defining the source triggering the update of the HRTIM_ADCxR register (transfer from preload to active register).
   */
-#define LL_HRTIM_ADCTRIG_UPDATE_MASTER  ((uint32_t)0x00000000U)                       /*!< HRTIM_ADCxR register update is triggered by the Master timer */
+#define LL_HRTIM_ADCTRIG_UPDATE_MASTER  0x00000000U                       /*!< HRTIM_ADCxR register update is triggered by the Master timer */
 #define LL_HRTIM_ADCTRIG_UPDATE_TIMER_A (HRTIM_CR1_ADC1USRC_0)                        /*!< HRTIM_ADCxR register update is triggered by the Timer A */
 #define LL_HRTIM_ADCTRIG_UPDATE_TIMER_B (HRTIM_CR1_ADC1USRC_1)                        /*!< HRTIM_ADCxR register update is triggered by the Timer B */
 #define LL_HRTIM_ADCTRIG_UPDATE_TIMER_C (HRTIM_CR1_ADC1USRC_1 | HRTIM_CR1_ADC1USRC_0) /*!< HRTIM_ADCxR register update is triggered by the Timer C */
@@ -552,11 +524,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_ADCTRIG_SRC13  ADC TRIGGER 1/3 SOURCE
+/** @defgroup HRTIM_LL_EC_ADCTRIG_SRC13  ADC TRIGGER 1/3 SOURCE
   * @{
   * @brief constants defining the events triggering ADC conversion for ADC Triggers 1 and 3.
   */
-#define LL_HRTIM_ADCTRIG_SRC13_NONE           ((uint32_t)0x00000000U)  /*!< No ADC trigger event */
+#define LL_HRTIM_ADCTRIG_SRC13_NONE           0x00000000U              /*!< No ADC trigger event */
 #define LL_HRTIM_ADCTRIG_SRC13_MCMP1          HRTIM_ADC1R_AD1MC1       /*!< ADC Trigger on master compare 1 */
 #define LL_HRTIM_ADCTRIG_SRC13_MCMP2          HRTIM_ADC1R_AD1MC2       /*!< ADC Trigger on master compare 2 */
 #define LL_HRTIM_ADCTRIG_SRC13_MCMP3          HRTIM_ADC1R_AD1MC3       /*!< ADC Trigger on master compare 3 */
@@ -593,11 +565,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_ADCTRIG_SRC24  ADC TRIGGER 2/4 SOURCE
+/** @defgroup HRTIM_LL_EC_ADCTRIG_SRC24  ADC TRIGGER 2/4 SOURCE
   * @{
   * @brief constants defining the events triggering ADC conversion for ADC Triggers 2 and 4.
   */
-#define LL_HRTIM_ADCTRIG_SRC24_NONE           ((uint32_t)0x00000000U)/*!< No ADC trigger event */
+#define LL_HRTIM_ADCTRIG_SRC24_NONE           0x00000000U            /*!< No ADC trigger event */
 #define LL_HRTIM_ADCTRIG_SRC24_MCMP1          HRTIM_ADC2R_AD2MC1     /*!< ADC Trigger on master compare 1 */
 #define LL_HRTIM_ADCTRIG_SRC24_MCMP2          HRTIM_ADC2R_AD2MC2     /*!< ADC Trigger on master compare 2 */
 #define LL_HRTIM_ADCTRIG_SRC24_MCMP3          HRTIM_ADC2R_AD2MC3     /*!< ADC Trigger on master compare 3 */
@@ -634,21 +606,21 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_DLLCALIBRATION_MODE  DLL CALIBRATION MODE
+/** @defgroup HRTIM_LL_EC_DLLCALIBRATION_MODE  DLL CALIBRATION MODE
   * @{
   * @brief Constants defining the DLL calibration mode.
   */
-#define LL_HRTIM_DLLCALIBRATION_MODE_SINGLESHOT   ((uint32_t)0x00000000U)/*!<Calibration is perfomed only once */
+#define LL_HRTIM_DLLCALIBRATION_MODE_SINGLESHOT   0x00000000U            /*!<Calibration is perfomed only once */
 #define LL_HRTIM_DLLCALIBRATION_MODE_CONTINUOUS   HRTIM_DLLCR_CALEN      /*!<Calibration is performed periodically */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_CALIBRATIONRATE  DLL CALIBRATION RATE
+/** @defgroup HRTIM_LL_EC_CALIBRATIONRATE  DLL CALIBRATION RATE
   * @{
   * @brief Constants defining the DLL calibration periods (in micro seconds).
   */
-#define LL_HRTIM_DLLCALIBRATION_RATE_7300      ((uint32_t)0x00000000U)                        /*!< Periodic DLL calibration: T = 1048576 * tHRTIM (7.3 ms) */
+#define LL_HRTIM_DLLCALIBRATION_RATE_7300      0x00000000U                        /*!< Periodic DLL calibration: T = 1048576 * tHRTIM (7.3 ms) */
 #define LL_HRTIM_DLLCALIBRATION_RATE_910       (HRTIM_DLLCR_CALRTE_0)                         /*!< Periodic DLL calibration: T = 131072 * tHRTIM (910 ms) */
 #define LL_HRTIM_DLLCALIBRATION_RATE_114       (HRTIM_DLLCR_CALRTE_1)                         /*!< Periodic DLL calibration: T = 16384 * tHRTIM (114 ms) */
 #define LL_HRTIM_DLLCALIBRATION_RATE_14        (HRTIM_DLLCR_CALRTE_1 | HRTIM_DLLCR_CALRTE_0)  /*!< Periodic DLL calibration: T = 2048 * tHRTIM (14 ms) */
@@ -656,11 +628,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_PRESCALERRATIO  PRESCALER RATIO
+/** @defgroup HRTIM_LL_EC_PRESCALERRATIO  PRESCALER RATIO
   * @{
   * @brief Constants defining timer high-resolution clock prescaler ratio.
   */
-#define LL_HRTIM_PRESCALERRATIO_MUL32      ((uint32_t)0x00000000U) /*!< fHRCK: fHRTIM x 32 = 4.608 GHz - Resolution: 217 ps - Min PWM frequency: 70.3 kHz (fHRTIM=144MHz)      */
+#define LL_HRTIM_PRESCALERRATIO_MUL32      0x00000000U              /*!< fHRCK: fHRTIM x 32 = 4.608 GHz - Resolution: 217 ps - Min PWM frequency: 70.3 kHz (fHRTIM=144MHz)      */
 #define LL_HRTIM_PRESCALERRATIO_MUL16      ((uint32_t)0x00000001U)  /*!< fHRCK: fHRTIM x 16 = 2.304 GHz - Resolution: 434 ps - Min PWM frequency: 35.1 KHz (fHRTIM=144MHz)      */
 #define LL_HRTIM_PRESCALERRATIO_MUL8       ((uint32_t)0x00000002U)  /*!< fHRCK: fHRTIM x 8 = 1.152 GHz - Resolution: 868 ps - Min PWM frequency: 17.6 kHz (fHRTIM=144MHz)      */
 #define LL_HRTIM_PRESCALERRATIO_MUL4       ((uint32_t)0x00000003U)  /*!< fHRCK: fHRTIM x 4 = 576 MHz - Resolution: 1.73 ns - Min PWM frequency: 8.8 kHz (fHRTIM=144MHz)      */
@@ -672,22 +644,22 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_MODE  COUNTER MODE
+/** @defgroup HRTIM_LL_EC_MODE  COUNTER MODE
   * @{
   * @brief Constants defining timer counter operating mode.
   */
 #define LL_HRTIM_MODE_CONTINUOUS           ((uint32_t)0x00000008U)  /*!< The timer operates in continuous (free-running) mode */
-#define LL_HRTIM_MODE_SINGLESHOT           ((uint32_t)0x00000000U) /*!< The timer operates in non retriggerable single-shot mode */
+#define LL_HRTIM_MODE_SINGLESHOT           0x00000000U              /*!< The timer operates in non retriggerable single-shot mode */
 #define LL_HRTIM_MODE_RETRIGGERABLE        ((uint32_t)0x00000010U)  /*!< The timer operates in retriggerable single-shot mode */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_DACTRIG  DAC TRIGGER
+/** @defgroup HRTIM_LL_EC_DACTRIG  DAC TRIGGER
   * @{
   * @brief Constants defining on which output the DAC synchronization event is sent.
   */
-#define LL_HRTIM_DACTRIG_NONE           ((uint32_t)0x00000000U)                     /*!< No DAC synchronization event generated */
+#define LL_HRTIM_DACTRIG_NONE           0x00000000U                     /*!< No DAC synchronization event generated */
 #define LL_HRTIM_DACTRIG_DACTRIGOUT_1   (HRTIM_MCR_DACSYNC_0)                       /*!< DAC synchronization event generated on DACTrigOut1 output upon timer update */
 #define LL_HRTIM_DACTRIG_DACTRIGOUT_2   (HRTIM_MCR_DACSYNC_1)                       /*!< DAC synchronization event generated on DACTrigOut2 output upon timer update */
 #define LL_HRTIM_DACTRIG_DACTRIGOUT_3   (HRTIM_MCR_DACSYNC_1 | HRTIM_MCR_DACSYNC_0) /*!< DAC synchronization event generated on DACTrigOut3 output upon timer update */
@@ -695,11 +667,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_UPDATETRIG  UPDATE TRIGGER
+/** @defgroup HRTIM_LL_EC_UPDATETRIG  UPDATE TRIGGER
   * @{
   * @brief Constants defining whether the registers update is done synchronously with any other timer or master update.
   */
-#define LL_HRTIM_UPDATETRIG_NONE        ((uint32_t)0x00000000U)/*!< Register update is disabled */
+#define LL_HRTIM_UPDATETRIG_NONE        0x00000000U            /*!< Register update is disabled */
 #define LL_HRTIM_UPDATETRIG_MASTER      HRTIM_TIMCR_MSTU       /*!< Register update is triggered by the master timer update */
 #define LL_HRTIM_UPDATETRIG_TIMER_A     HRTIM_TIMCR_TAU        /*!< Register update is triggered by the timer A update */
 #define LL_HRTIM_UPDATETRIG_TIMER_B     HRTIM_TIMCR_TBU        /*!< Register update is triggered by the timer B update */
@@ -712,11 +684,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_UPDATEGATING  UPDATE GATING
+/** @defgroup HRTIM_LL_EC_UPDATEGATING  UPDATE GATING
   * @{
   * @brief Constants defining how the update occurs relatively to the burst DMA transaction and the external update request on update enable inputs 1 to 3.
   */
-#define LL_HRTIM_UPDATEGATING_INDEPENDENT     ((uint32_t)0x00000000U)                                               /*!< Update done independently from the DMA burst transfer completion */
+#define LL_HRTIM_UPDATEGATING_INDEPENDENT     0x00000000U                                               /*!< Update done independently from the DMA burst transfer completion */
 #define LL_HRTIM_UPDATEGATING_DMABURST        (HRTIM_TIMCR_UPDGAT_0)                                                /*!< Update done when the DMA burst transfer is completed */
 #define LL_HRTIM_UPDATEGATING_DMABURST_UPDATE (HRTIM_TIMCR_UPDGAT_1)                                                /*!< Update done on timer roll-over following a DMA burst transfer completion*/
 #define LL_HRTIM_UPDATEGATING_UPDEN1          (HRTIM_TIMCR_UPDGAT_1 | HRTIM_TIMCR_UPDGAT_0)                         /*!< Slave timer only - Update done on a rising edge of HRTIM update enable input 1 */
@@ -729,11 +701,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_COMPAREMODE  COMPARE MODE
+/** @defgroup HRTIM_LL_EC_COMPAREMODE  COMPARE MODE
   * @{
   * @brief Constants defining whether the compare register is behaving in regular mode (compare match issued as soon as counter equal compare) or in auto-delayed mode.
   */
-#define LL_HRTIM_COMPAREMODE_REGULAR          ((uint32_t)0x00000000U)                         /*!< standard compare mode */
+#define LL_HRTIM_COMPAREMODE_REGULAR          0x00000000U                         /*!< standard compare mode */
 #define LL_HRTIM_COMPAREMODE_DELAY_NOTIMEOUT  (HRTIM_TIMCR_DELCMP2_0)                         /*!< Compare event generated only if a capture has occurred */
 #define LL_HRTIM_COMPAREMODE_DELAY_CMP1       (HRTIM_TIMCR_DELCMP2_1)                         /*!< Compare event generated if a capture has occurred or after a Compare 1 match (timeout if capture event is missing) */
 #define LL_HRTIM_COMPAREMODE_DELAY_CMP3       (HRTIM_TIMCR_DELCMP2_1 | HRTIM_TIMCR_DELCMP2_0) /*!< Compare event generated if a capture has occurred or after a Compare 3 match (timeout if capture event is missing) */
@@ -741,11 +713,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_RESETTRIG  RESET TRIGGER
+/** @defgroup HRTIM_LL_EC_RESETTRIG  RESET TRIGGER
   * @{
   * @brief Constants defining the events that can be selected to trigger the reset of the timer counter.
   */
-#define LL_HRTIM_RESETTRIG_NONE        ((uint32_t)0x00000000U)/*!< No counter reset trigger */
+#define LL_HRTIM_RESETTRIG_NONE        0x00000000U            /*!< No counter reset trigger */
 #define LL_HRTIM_RESETTRIG_UPDATE      HRTIM_RSTR_UPDATE      /*!< The timer counter is reset upon update event */
 #define LL_HRTIM_RESETTRIG_CMP2        HRTIM_RSTR_CMP2        /*!< The timer counter is reset upon Timer Compare 2 event */
 #define LL_HRTIM_RESETTRIG_CMP4        HRTIM_RSTR_CMP4        /*!< The timer counter is reset upon Timer Compare 4 event */
@@ -780,7 +752,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_CAPTURETRIG  CAPTURE TRIGGER
+/** @defgroup HRTIM_LL_EC_CAPTURETRIG  CAPTURE TRIGGER
   * @{
   * @brief Constants defining the events that can be selected to trigger the capture of the timing unit counter.
   */
@@ -820,11 +792,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_DLYPRT  DELAYED PROTECTION (DLYPRT) MODE
+/** @defgroup HRTIM_LL_EC_DLYPRT  DELAYED PROTECTION (DLYPRT) MODE
   * @{
   * @brief Constants defining all possible delayed protection modes for a timer (also define the source and outputs on which the delayed protection schemes are applied).
   */
-#define LL_HRTIM_DLYPRT_DELAYOUT1_EEV6  ((uint32_t)0x00000000U)                                            /*!< Timers A, B, C: Output 1 delayed Idle on external Event 6 */
+#define LL_HRTIM_DLYPRT_DELAYOUT1_EEV6  0x00000000U                                            /*!< Timers A, B, C: Output 1 delayed Idle on external Event 6 */
 #define LL_HRTIM_DLYPRT_DELAYOUT2_EEV6  (HRTIM_OUTR_DLYPRT_0)                                             /*!< Timers A, B, C: Output 2 delayed Idle on external Event 6 */
 #define LL_HRTIM_DLYPRT_DELAYBOTH_EEV6  (HRTIM_OUTR_DLYPRT_1)                                             /*!< Timers A, B, C: Output 1 and output 2 delayed Idle on external Event 6 */
 #define LL_HRTIM_DLYPRT_BALANCED_EEV6   (HRTIM_OUTR_DLYPRT_1 | HRTIM_OUTR_DLYPRT_0)                       /*!< Timers A, B, C: Balanced Idle on external Event 6 */
@@ -833,7 +805,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
 #define LL_HRTIM_DLYPRT_DELAYBOTH_EEV7  (HRTIM_OUTR_DLYPRT_2 | HRTIM_OUTR_DLYPRT_1)                       /*!< Timers A, B, C: Output 1 and output2 delayed Idle on external Event 7 */
 #define LL_HRTIM_DLYPRT_BALANCED_EEV7   (HRTIM_OUTR_DLYPRT_2 | HRTIM_OUTR_DLYPRT_1 | HRTIM_OUTR_DLYPRT_0) /*!< Timers A, B, C: Balanced Idle on external Event 7 */
 
-#define LL_HRTIM_DLYPRT_DELAYOUT1_EEV8  ((uint32_t)0x00000000U)                                             /*!< Timers D, E: Output 1 delayed Idle on external Event 8 */
+#define LL_HRTIM_DLYPRT_DELAYOUT1_EEV8  0x00000000U                                             /*!< Timers D, E: Output 1 delayed Idle on external Event 8 */
 #define LL_HRTIM_DLYPRT_DELAYOUT2_EEV8  (HRTIM_OUTR_DLYPRT_0)                                               /*!< Timers D, E: Output 2 delayed Idle on external Event 8 */
 #define LL_HRTIM_DLYPRT_DELAYBOTH_EEV8  (HRTIM_OUTR_DLYPRT_1)                                               /*!< Timers D, E: Output 1 and output 2 delayed Idle on external Event 8 */
 #define LL_HRTIM_DLYPRT_BALANCED_EEV8   (HRTIM_OUTR_DLYPRT_1 | HRTIM_OUTR_DLYPRT_0)                         /*!< Timers D, E: Balanced Idle on external Event 8 */
@@ -845,7 +817,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_BURSTMODE  BURST MODE
+/** @defgroup HRTIM_LL_EC_BURSTMODE  BURST MODE
   * @{
   * @brief Constants defining how the timer behaves during a burst mode operation.
   */
@@ -855,23 +827,21 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_BURSTDMA  BURST DMA
+/** @defgroup HRTIM_LL_EC_BURSTDMA  BURST DMA
   * @{
   * @brief Constants defining the registers that can be written during a burst DMA operation.
   */
-#define LL_HRTIM_BURSTDMA_NONE  ((uint32_t)0x00000000U)     /*!< No register is updated by Burst DMA accesses */
-
-#define LL_HRTIM_BURSTDMA_MCR    (HRTIM_BDMUPR_MCR)          /*!< MCR  register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MICR   (HRTIM_BDMUPR_MICR)         /*!< MICR register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MDIER  (HRTIM_BDMUPR_MDIER)        /*!< MDIER register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MCNT   (HRTIM_BDMUPR_MCNT)         /*!< MCNTR register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MPER   (HRTIM_BDMUPR_MPER)         /*!< MPER register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MREP   (HRTIM_BDMUPR_MREP)         /*!< MREPR register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MCMP1  (HRTIM_BDMUPR_MCMP1)        /*!< MCMP1R register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MCMP2  (HRTIM_BDMUPR_MCMP2)        /*!< MCMP2R register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MCMP3  (HRTIM_BDMUPR_MCMP3)        /*!< MCMP3R register is updated by Burst DMA accesses */
-#define LL_HRTIM_BURSTDMA_MCMP4  (HRTIM_BDMUPR_MCMP4)        /*!< MCMP4R register is updated by Burst DMA accesses */
-
+#define LL_HRTIM_BURSTDMA_NONE     0x00000000U               /*!< No register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MCR      (HRTIM_BDMUPR_MCR)        /*!< MCR  register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MICR     (HRTIM_BDMUPR_MICR)       /*!< MICR register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MDIER    (HRTIM_BDMUPR_MDIER)      /*!< MDIER register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MCNT     (HRTIM_BDMUPR_MCNT)       /*!< MCNTR register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MPER     (HRTIM_BDMUPR_MPER)       /*!< MPER register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MREP     (HRTIM_BDMUPR_MREP)       /*!< MREPR register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MCMP1    (HRTIM_BDMUPR_MCMP1)      /*!< MCMP1R register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MCMP2    (HRTIM_BDMUPR_MCMP2)      /*!< MCMP2R register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MCMP3    (HRTIM_BDMUPR_MCMP3)      /*!< MCMP3R register is updated by Burst DMA accesses */
+#define LL_HRTIM_BURSTDMA_MCMP4    (HRTIM_BDMUPR_MCMP4)      /*!< MCMP4R register is updated by Burst DMA accesses */
 #define LL_HRTIM_BURSTDMA_TIMMCR   (HRTIM_BDTUPR_TIMCR)      /*!< TIMxCR register is updated by Burst DMA accesses */
 #define LL_HRTIM_BURSTDMA_TIMICR   (HRTIM_BDTUPR_TIMICR)     /*!< TIMxICR register is updated by Burst DMA accesses */
 #define LL_HRTIM_BURSTDMA_TIMDIER  (HRTIM_BDTUPR_TIMDIER)    /*!< TIMxDIER register is updated by Burst DMA accesses */
@@ -897,7 +867,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_CPPSTAT  CURRENT PUSH-PULL STATUS
+/** @defgroup HRTIM_LL_EC_CPPSTAT  CURRENT PUSH-PULL STATUS
   * @{
   * @brief Constants defining on which output the signal is currently applied in push-pull mode.
   */
@@ -907,7 +877,7 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_IPPSTAT  IDLE PUSH-PULL STATUS
+/** @defgroup HRTIM_LL_EC_IPPSTAT  IDLE PUSH-PULL STATUS
   * @{
   * @brief Constants defining on which output the signal was applied, in push-pull mode balanced fault mode or delayed idle mode, when the protection was triggered.
   */
@@ -917,45 +887,45 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_TIM_EEFLTR TIMER EXTERNAL EVENT FILTER
+/** @defgroup HRTIM_LL_EC_TIM_EEFLTR TIMER EXTERNAL EVENT FILTER
   * @{
   * @brief Constants defining the event filtering applied to external events by a timer.
   */
-#define LL_HRTIM_EEFLTR_NONE             ((uint32_t)0x00000000U)
-#define LL_HRTIM_EEFLTR_BLANKINGCMP1     (HRTIM_EEFR1_EE1FLTR_0)                                                                                                                           /*!< Blanking from counter reset/roll-over to Compare 1 */
-#define LL_HRTIM_EEFLTR_BLANKINGCMP2     (HRTIM_EEFR1_EE1FLTR_1)                                                                                                                           /*!< Blanking from counter reset/roll-over to Compare 2 */
-#define LL_HRTIM_EEFLTR_BLANKINGCMP3     (HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_0)                                                                                                   /*!< Blanking from counter reset/roll-over to Compare 3 */
-#define LL_HRTIM_EEFLTR_BLANKINGCMP4     (HRTIM_EEFR1_EE1FLTR_2)                                                                                                                           /*!< Blanking from counter reset/roll-over to Compare 4 */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR1    (HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_0)                                                                                                   /*!< Blanking from another timing unit: TIMFLTR1 source */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR2    (HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1)                                                                                                   /*!< Blanking from another timing unit: TIMFLTR2 source */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR3    (HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_0)                                                                           /*!< Blanking from another timing unit: TIMFLTR3 source */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR4    (HRTIM_EEFR1_EE1FLTR_3)                                                                                                                           /*!< Blanking from another timing unit: TIMFLTR4 source */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR5    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_0)                                                                                                   /*!< Blanking from another timing unit: TIMFLTR5 source */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR6    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_1)                                                                                                   /*!< Blanking from another timing unit: TIMFLTR6 source */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR7    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_0)                                                                           /*!< Blanking from another timing unit: TIMFLTR7 source */
-#define LL_HRTIM_EEFLTR_BLANKINGFLTR8    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2)                                                                                                   /*!< Blanking from another timing unit: TIMFLTR8 source */
-#define LL_HRTIM_EEFLTR_WINDOWINGCMP2    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_0)                                                                           /*!< Windowing from counter reset/roll-over to Compare 2 */
-#define LL_HRTIM_EEFLTR_WINDOWINGCMP3    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1)                                                                           /*!< Windowing from counter reset/roll-over to Compare 3 */
-#define LL_HRTIM_EEFLTR_WINDOWINGTIM     (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_0)  /*!< Windowing from another timing unit: TIMWIN source */
+#define LL_HRTIM_EEFLTR_NONE             (0x00000000U)
+#define LL_HRTIM_EEFLTR_BLANKINGCMP1     (HRTIM_EEFR1_EE1FLTR_0)                                                                         /*!< Blanking from counter reset/roll-over to Compare 1 */
+#define LL_HRTIM_EEFLTR_BLANKINGCMP2     (HRTIM_EEFR1_EE1FLTR_1)                                                                         /*!< Blanking from counter reset/roll-over to Compare 2 */
+#define LL_HRTIM_EEFLTR_BLANKINGCMP3     (HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_0)                                                 /*!< Blanking from counter reset/roll-over to Compare 3 */
+#define LL_HRTIM_EEFLTR_BLANKINGCMP4     (HRTIM_EEFR1_EE1FLTR_2)                                                                         /*!< Blanking from counter reset/roll-over to Compare 4 */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR1    (HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_0)                                                 /*!< Blanking from another timing unit: TIMFLTR1 source */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR2    (HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1)                                                 /*!< Blanking from another timing unit: TIMFLTR2 source */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR3    (HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_0)                         /*!< Blanking from another timing unit: TIMFLTR3 source */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR4    (HRTIM_EEFR1_EE1FLTR_3)                                                                         /*!< Blanking from another timing unit: TIMFLTR4 source */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR5    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_0)                                                 /*!< Blanking from another timing unit: TIMFLTR5 source */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR6    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_1)                                                 /*!< Blanking from another timing unit: TIMFLTR6 source */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR7    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_0)                         /*!< Blanking from another timing unit: TIMFLTR7 source */
+#define LL_HRTIM_EEFLTR_BLANKINGFLTR8    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2)                                                 /*!< Blanking from another timing unit: TIMFLTR8 source */
+#define LL_HRTIM_EEFLTR_WINDOWINGCMP2    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_0)                         /*!< Windowing from counter reset/roll-over to Compare 2 */
+#define LL_HRTIM_EEFLTR_WINDOWINGCMP3    (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1)                         /*!< Windowing from counter reset/roll-over to Compare 3 */
+#define LL_HRTIM_EEFLTR_WINDOWINGTIM     (HRTIM_EEFR1_EE1FLTR_3 | HRTIM_EEFR1_EE1FLTR_2 | HRTIM_EEFR1_EE1FLTR_1 | HRTIM_EEFR1_EE1FLTR_0) /*!< Windowing from another timing unit: TIMWIN source */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_TIM_LATCHSTATUS TIMER EXTERNAL EVENT LATCH STATUS
+/** @defgroup HRTIM_LL_EC_TIM_LATCHSTATUS TIMER EXTERNAL EVENT LATCH STATUS
   * @{
   * @brief Constants defining whether or not the external event is memorized (latched) and generated as soon as the blanking period is completed or the window ends.
   */
-#define LL_HRTIM_EELATCH_DISABLED    ((uint32_t)0x00000000U) /*!< Event is ignored if it happens during a blank, or passed through during a window */
+#define LL_HRTIM_EELATCH_DISABLED    0x00000000U             /*!< Event is ignored if it happens during a blank, or passed through during a window */
 #define LL_HRTIM_EELATCH_ENABLED     HRTIM_EEFR1_EE1LTCH     /*!< Event is latched and delayed till the end of the blanking or windowing period */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_DT_PRESCALER DEADTIME PRESCALER
+/** @defgroup HRTIM_LL_EC_DT_PRESCALER DEADTIME PRESCALER
   * @{
   * @brief Constants defining division ratio between the timer clock frequency (fHRTIM) and the deadtime generator clock (fDTG).
   */
-#define LL_HRTIM_DT_PRESCALER_MUL8    ((uint32_t)0x00000000U)                                         /*!< fDTG = fHRTIM * 8 */
+#define LL_HRTIM_DT_PRESCALER_MUL8    0x00000000U                                         /*!< fDTG = fHRTIM * 8 */
 #define LL_HRTIM_DT_PRESCALER_MUL4    (HRTIM_DTR_DTPRSC_0)                                            /*!< fDTG = fHRTIM * 4 */
 #define LL_HRTIM_DT_PRESCALER_MUL2    (HRTIM_DTR_DTPRSC_1)                                            /*!< fDTG = fHRTIM * 2 */
 #define LL_HRTIM_DT_PRESCALER_DIV1    (HRTIM_DTR_DTPRSC_1 | HRTIM_DTR_DTPRSC_0)                       /*!< fDTG = fHRTIM */
@@ -967,31 +937,31 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_DT_RISING_SIGN DEADTIME RISING SIGN
+/** @defgroup HRTIM_LL_EC_DT_RISING_SIGN DEADTIME RISING SIGN
   * @{
   * @brief Constants defining whether the deadtime is positive or negative (overlapping signal) on rising edge.
   */
-#define LL_HRTIM_DT_RISING_POSITIVE    ((uint32_t)0x00000000U) /*!< Positive deadtime on rising edge */
+#define LL_HRTIM_DT_RISING_POSITIVE    0x00000000U             /*!< Positive deadtime on rising edge */
 #define LL_HRTIM_DT_RISING_NEGATIVE    (HRTIM_DTR_SDTR)        /*!< Negative deadtime on rising edge */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_DT_FALLING_SIGN DEADTIME FALLING SIGN
+/** @defgroup HRTIM_LL_EC_DT_FALLING_SIGN DEADTIME FALLING SIGN
   * @{
   * @brief Constants defining whether the deadtime is positive or negative (overlapping signal) on falling edge.
   */
-#define LL_HRTIM_DT_FALLING_POSITIVE    ((uint32_t)0x00000000U) /*!< Positive deadtime on falling edge */
+#define LL_HRTIM_DT_FALLING_POSITIVE    0x00000000U             /*!< Positive deadtime on falling edge */
 #define LL_HRTIM_DT_FALLING_NEGATIVE    (HRTIM_DTR_SDTF)        /*!< Negative deadtime on falling edge */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_CHP_PRESCALER CHOPPER MODE PRESCALER
+/** @defgroup HRTIM_LL_EC_CHP_PRESCALER CHOPPER MODE PRESCALER
   * @{
   * @brief Constants defining the frequency of the generated high frequency carrier (fCHPFRQ).
   */
-#define LL_HRTIM_CHP_PRESCALER_DIV16  ((uint32_t)0x00000000U)                                                                     /*!< fCHPFRQ = fHRTIM / 16  */
+#define LL_HRTIM_CHP_PRESCALER_DIV16  0x00000000U                                                                     /*!< fCHPFRQ = fHRTIM / 16  */
 #define LL_HRTIM_CHP_PRESCALER_DIV32  (HRTIM_CHPR_CARFRQ_0)                                                                    /*!< fCHPFRQ = fHRTIM / 32  */
 #define LL_HRTIM_CHP_PRESCALER_DIV48  (HRTIM_CHPR_CARFRQ_1)                                                                    /*!< fCHPFRQ = fHRTIM / 48  */
 #define LL_HRTIM_CHP_PRESCALER_DIV64  (HRTIM_CHPR_CARFRQ_1 | HRTIM_CHPR_CARFRQ_0)                                              /*!< fCHPFRQ = fHRTIM / 64  */
@@ -1008,14 +978,14 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
 #define LL_HRTIM_CHP_PRESCALER_DIV240 (HRTIM_CHPR_CARFRQ_3 | HRTIM_CHPR_CARFRQ_2 | HRTIM_CHPR_CARFRQ_1)                        /*!< fCHPFRQ = fHRTIM / 240  */
 #define LL_HRTIM_CHP_PRESCALER_DIV256 (HRTIM_CHPR_CARFRQ_3 | HRTIM_CHPR_CARFRQ_2 | HRTIM_CHPR_CARFRQ_1 | HRTIM_CHPR_CARFRQ_0)  /*!< fCHPFRQ = fHRTIM / 256  */
 /**
- * @}
- */
+  * @}
+  */
 
-/** @defgroup HRTIM_EC_CHP_DUTYCYCLE CHOPPER MODE DUTY CYCLE
+/** @defgroup HRTIM_LL_EC_CHP_DUTYCYCLE CHOPPER MODE DUTY CYCLE
   * @{
   * @brief Constants defining the duty cycle of the generated high frequency carrier. Duty cycle can be adjusted by 1/8 step (from 0/8 up to 7/8).
   */
-#define LL_HRTIM_CHP_DUTYCYCLE_0    ((uint32_t)0x00000000U)                                              /*!< Only 1st pulse is present */
+#define LL_HRTIM_CHP_DUTYCYCLE_0    0x00000000U                                              /*!< Only 1st pulse is present */
 #define LL_HRTIM_CHP_DUTYCYCLE_125  (HRTIM_CHPR_CARDTY_0)                                             /*!< Duty cycle of the carrier signal is 12.5 % */
 #define LL_HRTIM_CHP_DUTYCYCLE_250  (HRTIM_CHPR_CARDTY_1)                                             /*!< Duty cycle of the carrier signal is 25 % */
 #define LL_HRTIM_CHP_DUTYCYCLE_375  (HRTIM_CHPR_CARDTY_1 | HRTIM_CHPR_CARDTY_0)                       /*!< Duty cycle of the carrier signal is 37.5 % */
@@ -1027,11 +997,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_CHP_PULSEWIDTH CHOPPER MODE PULSE WIDTH
+/** @defgroup HRTIM_LL_EC_CHP_PULSEWIDTH CHOPPER MODE PULSE WIDTH
   * @{
   * @brief Constants defining the pulse width of the first pulse of the generated high frequency carrier.
   */
-#define LL_HRTIM_CHP_PULSEWIDTH_16   ((uint32_t)0x00000000U)                                                                 /*!< tSTPW = tHRTIM x 16  */
+#define LL_HRTIM_CHP_PULSEWIDTH_16   0x00000000U                                                                 /*!< tSTPW = tHRTIM x 16  */
 #define LL_HRTIM_CHP_PULSEWIDTH_32   (HRTIM_CHPR_STRPW_0)                                                                 /*!< tSTPW = tHRTIM x 32  */
 #define LL_HRTIM_CHP_PULSEWIDTH_48   (HRTIM_CHPR_STRPW_1)                                                                 /*!< tSTPW = tHRTIM x 48  */
 #define LL_HRTIM_CHP_PULSEWIDTH_64   (HRTIM_CHPR_STRPW_1 | HRTIM_CHPR_STRPW_0)                                            /*!< tSTPW = tHRTIM x 64  */
@@ -1051,11 +1021,11 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_CROSSBAR_INPUT CROSSBAR INPUT
+/** @defgroup HRTIM_LL_EC_CROSSBAR_INPUT CROSSBAR INPUT
   * @{
   * @brief Constants defining the events that can be selected to configure the set/reset crossbar of a timer output.
   */
-#define LL_HRTIM_CROSSBAR_NONE       ((uint32_t)0x00000000U) /*!< Reset the output set crossbar */
+#define LL_HRTIM_CROSSBAR_NONE       0x00000000U             /*!< Reset the output set crossbar */
 #define LL_HRTIM_CROSSBAR_RESYNC     (HRTIM_SET1R_RESYNC)    /*!< Timer reset event coming solely from software or SYNC input forces an output level transision */
 #define LL_HRTIM_CROSSBAR_TIMPER     (HRTIM_SET1R_PER)       /*!< Timer period event forces an output level transision */
 #define LL_HRTIM_CROSSBAR_TIMCMP1    (HRTIM_SET1R_CMP1)      /*!< Timer compare 1 event forces an output level transision */
@@ -1091,41 +1061,51 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_OUT_POLARITY OUPUT_POLARITY
+/** @defgroup HRTIM_LL_EC_OUT_POLARITY OUPUT_POLARITY
   * @{
   * @brief Constants defining the polarity of a timer output.
   */
-#define LL_HRTIM_OUT_POSITIVE_POLARITY    ((uint32_t)0x00000000U) /*!< Output is acitve HIGH */
-#define LL_HRTIM_OUT_NEGATIVE_POLARITY     (HRTIM_OUTR_POL1)       /*!< Output is active LOW */
+#define LL_HRTIM_OUT_POSITIVE_POLARITY    0x00000000U             /*!< Output is acitve HIGH */
+#define LL_HRTIM_OUT_NEGATIVE_POLARITY    (HRTIM_OUTR_POL1)       /*!< Output is active LOW */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_OUT_IDLEMODE OUTPUT IDLE MODE
+/** @defgroup HRTIM_LL_EC_OUT_IDLEMODE OUTPUT IDLE MODE
   * @{
   * @brief Constants defining whether or not the timer output transition to its IDLE state when burst mode is entered.
   */
-#define LL_HRTIM_OUT_NO_IDLE             ((uint32_t)0x00000000U)/*!< The output is not affected by the burst mode operation */
+#define LL_HRTIM_OUT_NO_IDLE             0x00000000U            /*!< The output is not affected by the burst mode operation */
 #define LL_HRTIM_OUT_IDLE_WHEN_BURST     (HRTIM_OUTR_IDLM1)     /*!< The output is in idle state when requested by the burst mode controller */
 /**
- * @}
- */
+  * @}
+  */
 
-/** @defgroup HRTIM_EC_OUT_IDLELEVEL OUTPUT IDLE LEVEL
+/** @defgroup HRTIM_LL_EC_HALF_MODE HALF MODE
+  * @{
+  * @brief Constants defining the half mode of an HRTIM Timer instance.
+  */
+#define LL_HRTIM_HALF_MODE_DISABLED          0x000U              /*!< HRTIM Half Mode is disabled */
+#define LL_HRTIM_HALF_MODE_ENABLE            HRTIM_MCR_HALF      /*!< HRTIM Half Mode is Half */
+/**
+  * @}
+  */
+
+/** @defgroup HRTIM_LL_EC_OUT_IDLELEVEL OUTPUT IDLE LEVEL
   * @{
   * @brief Constants defining the output level when output is in IDLE state
   */
-#define LL_HRTIM_OUT_IDLELEVEL_INACTIVE   ((uint32_t)0x00000000U)/*!< Output at inactive level when in IDLE state */
+#define LL_HRTIM_OUT_IDLELEVEL_INACTIVE   0x00000000U           /*!< Output at inactive level when in IDLE state */
 #define LL_HRTIM_OUT_IDLELEVEL_ACTIVE     (HRTIM_OUTR_IDLES1)   /*!< Output at active level when in IDLE state */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_OUT_FAULTSTATE OUTPUT FAULT STATE
- * @{
- * @brief Constants defining the output level when output is in FAULT state.
- */
-#define LL_HRTIM_OUT_FAULTSTATE_NO_ACTION ((uint32_t)0x00000000U)                      /*!< The output is not affected by the fault input */
+/** @defgroup HRTIM_LL_EC_OUT_FAULTSTATE OUTPUT FAULT STATE
+  * @{
+  * @brief Constants defining the output level when output is in FAULT state.
+  */
+#define LL_HRTIM_OUT_FAULTSTATE_NO_ACTION 0x00000000U                      /*!< The output is not affected by the fault input */
 #define LL_HRTIM_OUT_FAULTSTATE_ACTIVE    (HRTIM_OUTR_FAULT1_0)                        /*!< Output at active level when in FAULT state */
 #define LL_HRTIM_OUT_FAULTSTATE_INACTIVE  (HRTIM_OUTR_FAULT1_1)                        /*!< Output at inactive level when in FAULT state */
 #define LL_HRTIM_OUT_FAULTSTATE_HIGHZ     (HRTIM_OUTR_FAULT1_1 | HRTIM_OUTR_FAULT1_0)  /*!< Output is tri-stated when in FAULT state */
@@ -1133,62 +1113,62 @@ static const uint8_t REG_SHIFT_TAB_FLTxE[] =
   * @}
   */
 
-/** @defgroup HRTIM_EC_OUT_CHOPPERMODE OUTPUT CHOPPER MODE
+/** @defgroup HRTIM_LL_EC_OUT_CHOPPERMODE OUTPUT CHOPPER MODE
   * @{
   * @brief Constants defining whether or not chopper mode is enabled for a timer output.
   */
-#define LL_HRTIM_OUT_CHOPPERMODE_DISABLED   ((uint32_t)0x00000000U) /*!< Output signal is not altered  */
+#define LL_HRTIM_OUT_CHOPPERMODE_DISABLED   0x00000000U             /*!< Output signal is not altered  */
 #define LL_HRTIM_OUT_CHOPPERMODE_ENABLED    (HRTIM_OUTR_CHP1)       /*!< Output signal is chopped by a carrier signal  */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_OUT_BM_ENTRYMODE OUTPUT BURST MODE ENTRY MODE
+/** @defgroup HRTIM_LL_EC_OUT_BM_ENTRYMODE OUTPUT BURST MODE ENTRY MODE
   * @{
   * @brief Constants defining the idle state entry mode during a burst mode operation. It is possible to delay the burst mode entry and force the output to an inactive state
 during a programmable period before the output takes its idle state.
   */
-#define LL_HRTIM_OUT_BM_ENTRYMODE_REGULAR   ((uint32_t)0x00000000U)/*!< The programmed Idle state is applied immediately to the Output */
+#define LL_HRTIM_OUT_BM_ENTRYMODE_REGULAR   0x00000000U            /*!< The programmed Idle state is applied immediately to the Output */
 #define LL_HRTIM_OUT_BM_ENTRYMODE_DELAYED   (HRTIM_OUTR_DIDL1)     /*!< Deadtime is inserted on output before entering the idle mode */
 /**
   * @}
   */
-/** @defgroup HRTIM_EC_OUT_LEVEL OUTPUT LEVEL
+/** @defgroup HRTIM_LL_EC_OUT_LEVEL OUTPUT LEVEL
   * @{
   * @brief Constants defining the level of a timer output.
   */
-#define LL_HRTIM_OUT_LEVEL_INACTIVE   ((uint32_t)0x00000000U)/*!< Corresponds to a logic level 0 for a positive polarity (High) and to a logic level 1 for a negative polarity (Low) */
+#define LL_HRTIM_OUT_LEVEL_INACTIVE   0x00000000U            /*!< Corresponds to a logic level 0 for a positive polarity (High) and to a logic level 1 for a negative polarity (Low) */
 #define LL_HRTIM_OUT_LEVEL_ACTIVE     ((uint32_t)0x00000001) /*!< Corresponds to a logic level 1 for a positive polarity (High) and to a logic level 0 for a negative polarity (Low) */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_EE_SRC EXTERNAL EVENT SOURCE
+/** @defgroup HRTIM_LL_EC_EE_SRC EXTERNAL EVENT SOURCE
   * @{
   * @brief Constants defining available sources associated to external events.
   */
-#define LL_HRTIM_EE_SRC_1         ((uint32_t)0x00000000U)                        /*!< External event source 1 (EExSrc1)*/
+#define LL_HRTIM_EE_SRC_1         0x00000000U                                    /*!< External event source 1 (EExSrc1)*/
 #define LL_HRTIM_EE_SRC_2         (HRTIM_EECR1_EE1SRC_0)                         /*!< External event source 2 (EExSrc2) */
 #define LL_HRTIM_EE_SRC_3         (HRTIM_EECR1_EE1SRC_1)                         /*!< External event source 3 (EExSrc3) */
 #define LL_HRTIM_EE_SRC_4         (HRTIM_EECR1_EE1SRC_1 | HRTIM_EECR1_EE1SRC_0)  /*!< External event source 4 (EExSrc4) */
 /**
   * @}
   */
-/** @defgroup HRTIM_EC_EE_POLARITY EXTERNAL EVENT POLARITY
+/** @defgroup HRTIM_LL_EC_EE_POLARITY EXTERNAL EVENT POLARITY
   * @{
   * @brief Constants defining the polarity of an external event.
   */
-#define LL_HRTIM_EE_POLARITY_HIGH    ((uint32_t)0x00000000U) /*!< External event is active high */
+#define LL_HRTIM_EE_POLARITY_HIGH    0x00000000U             /*!< External event is active high */
 #define LL_HRTIM_EE_POLARITY_LOW     (HRTIM_EECR1_EE1POL)    /*!< External event is active low */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_EE_SENSITIVITY EXTERNAL EVENT SENSITIVITY
+/** @defgroup HRTIM_LL_EC_EE_SENSITIVITY EXTERNAL EVENT SENSITIVITY
   * @{
   * @brief Constants defining the sensitivity (level-sensitive or edge-sensitive) of an external event.
   */
-#define LL_HRTIM_EE_SENSITIVITY_LEVEL          ((uint32_t)0x00000000U)                        /*!< External event is active on level */
+#define LL_HRTIM_EE_SENSITIVITY_LEVEL          0x00000000U                        /*!< External event is active on level */
 #define LL_HRTIM_EE_SENSITIVITY_RISINGEDGE     (HRTIM_EECR1_EE1SNS_0)                         /*!< External event is active on Rising edge */
 #define LL_HRTIM_EE_SENSITIVITY_FALLINGEDGE    (HRTIM_EECR1_EE1SNS_1)                         /*!< External event is active on Falling edge */
 #define LL_HRTIM_EE_SENSITIVITY_BOTHEDGES      (HRTIM_EECR1_EE1SNS_1 | HRTIM_EECR1_EE1SNS_0)  /*!< External event is active on Rising and Falling edges */
@@ -1196,21 +1176,21 @@ during a programmable period before the output takes its idle state.
   * @}
   */
 
-/** @defgroup HRTIM_EC_EE_FASTMODE EXTERNAL EVENT FAST MODE
+/** @defgroup HRTIM_LL_EC_EE_FASTMODE EXTERNAL EVENT FAST MODE
   * @{
   * @brief Constants defining whether or not an external event is programmed in fast mode.
   */
-#define LL_HRTIM_EE_FASTMODE_DISABLE         ((uint32_t)0x00000000U)  /*!< External Event is re-synchronized by the HRTIM logic before acting on outputs */
+#define LL_HRTIM_EE_FASTMODE_DISABLE         0x00000000U              /*!< External Event is re-synchronized by the HRTIM logic before acting on outputs */
 #define LL_HRTIM_EE_FASTMODE_ENABLE          (HRTIM_EECR1_EE1FAST)    /*!< External Event is acting asynchronously on outputs (low latency mode) */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_EE_FILTER EXTERNAL EVENT DIGITAL FILTER
+/** @defgroup HRTIM_LL_EC_EE_FILTER EXTERNAL EVENT DIGITAL FILTER
   * @{
   * @brief Constants defining the frequency used to sample an external event input (fSAMPLING) and the length (N) of the digital filter applied.
   */
-#define LL_HRTIM_EE_FILTER_NONE      ((uint32_t)0x00000000U)                                                               /*!< Filter disabled */
+#define LL_HRTIM_EE_FILTER_NONE      0x00000000U                                                               /*!< Filter disabled */
 #define LL_HRTIM_EE_FILTER_1         (HRTIM_EECR3_EE6F_0)                                                                  /*!< fSAMPLING = fHRTIM, N=2 */
 #define LL_HRTIM_EE_FILTER_2         (HRTIM_EECR3_EE6F_1)                                                                  /*!< fSAMPLING = fHRTIM, N=4 */
 #define LL_HRTIM_EE_FILTER_3         (HRTIM_EECR3_EE6F_1 | HRTIM_EECR3_EE6F_0)                                             /*!< fSAMPLING = fHRTIM, N=8 */
@@ -1230,11 +1210,11 @@ during a programmable period before the output takes its idle state.
   * @}
   */
 
-/** @defgroup HRTIM_EC_EE_PRESCALER EXTERNAL EVENT PRESCALER
+/** @defgroup HRTIM_LL_EC_EE_PRESCALER EXTERNAL EVENT PRESCALER
   * @{
   * @brief Constants defining division ratio between the timer clock frequency (fHRTIM) and the external event signal sampling clock (fEEVS) used by the digital filters.
   */
-#define LL_HRTIM_EE_PRESCALER_DIV1    ((uint32_t)0x00000000U)                     /*!< fEEVS = fHRTIM */
+#define LL_HRTIM_EE_PRESCALER_DIV1    0x00000000U                     /*!< fEEVS = fHRTIM */
 #define LL_HRTIM_EE_PRESCALER_DIV2    (HRTIM_EECR3_EEVSD_0)                       /*!< fEEVS = fHRTIM / 2 */
 #define LL_HRTIM_EE_PRESCALER_DIV4    (HRTIM_EECR3_EEVSD_1)                       /*!< fEEVS = fHRTIM / 4 */
 #define LL_HRTIM_EE_PRESCALER_DIV8    (HRTIM_EECR3_EEVSD_1 | HRTIM_EECR3_EEVSD_0) /*!< fEEVS = fHRTIM / 8 */
@@ -1242,31 +1222,31 @@ during a programmable period before the output takes its idle state.
   * @}
   */
 
-/** @defgroup HRTIM_EC_FLT_SRC FAULT SOURCE
+/** @defgroup HRTIM_LL_EC_FLT_SRC FAULT SOURCE
   * @{
   * @brief Constants defining whether a faults is be triggered by any external or internal fault source.
   */
-#define LL_HRTIM_FLT_SRC_DIGITALINPUT      ((uint32_t)0x00000000U)    /*!< Fault input is FLT input pin */
-#define LL_HRTIM_FLT_SRC_INTERNAL          (HRTIM_FLTINR1_FLT1SRC)    /*!< Fault input is FLT_Int signal (e.g. internal comparator) */
+#define LL_HRTIM_FLT_SRC_DIGITALINPUT         0x00000000U                /*!< Fault input is FLT input pin */
+#define LL_HRTIM_FLT_SRC_INTERNAL             HRTIM_FLTINR1_FLT1SRC      /*!< Fault input is FLT_Int signal (e.g. internal comparator) */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_FLT_POLARITY FAULT POLARITY
+/** @defgroup HRTIM_LL_EC_FLT_POLARITY FAULT POLARITY
   * @{
   * @brief Constants defining the polarity of a fault event.
   */
-#define LL_HRTIM_FLT_POLARITY_LOW     ((uint32_t)0x00000000U)  /*!< Fault input is active low */
-#define LL_HRTIM_FLT_POLARITY_HIGH    (HRTIM_FLTINR1_FLT1P)    /*!< Fault input is active high */
+#define LL_HRTIM_FLT_POLARITY_LOW     0x00000000U                /*!< Fault input is active low */
+#define LL_HRTIM_FLT_POLARITY_HIGH    (HRTIM_FLTINR1_FLT1P)      /*!< Fault input is active high */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_FLT_FILTER FAULT DIGITAL FILTER
+/** @defgroup HRTIM_LL_EC_FLT_FILTER FAULT DIGITAL FILTER
   * @{
   * @brief Constants defining the frequency used to sample the fault input (fSAMPLING) and the length (N) of the digital filter applied.
   */
-#define LL_HRTIM_FLT_FILTER_NONE      ((uint32_t)0x00000000U)                                                                          /*!< Filter disabled */
+#define LL_HRTIM_FLT_FILTER_NONE      0x00000000U                                                                          /*!< Filter disabled */
 #define LL_HRTIM_FLT_FILTER_1         (HRTIM_FLTINR1_FLT1F_0)                                                                          /*!< fSAMPLING= fHRTIM, N=2 */
 #define LL_HRTIM_FLT_FILTER_2         (HRTIM_FLTINR1_FLT1F_1)                                                                          /*!< fSAMPLING= fHRTIM, N=4 */
 #define LL_HRTIM_FLT_FILTER_3         (HRTIM_FLTINR1_FLT1F_1 | HRTIM_FLTINR1_FLT1F_0)                                                  /*!< fSAMPLING= fHRTIM, N=8 */
@@ -1286,11 +1266,11 @@ during a programmable period before the output takes its idle state.
   * @}
   */
 
-/** @defgroup HRTIM_EC_FLT_PRESCALER BURST FAULT PRESCALER
+/** @defgroup HRTIM_LL_EC_FLT_PRESCALER BURST FAULT PRESCALER
   * @{
   * @brief Constants defining the division ratio between the timer clock frequency (fHRTIM) and the fault signal sampling clock (fFLTS) used  by the digital filters.
   */
-#define LL_HRTIM_FLT_PRESCALER_DIV1    ((uint32_t)0x00000000U)                         /*!< fFLTS = fHRTIM */
+#define LL_HRTIM_FLT_PRESCALER_DIV1    0x00000000U                                     /*!< fFLTS = fHRTIM */
 #define LL_HRTIM_FLT_PRESCALER_DIV2    (HRTIM_FLTINR2_FLTSD_0)                         /*!< fFLTS = fHRTIM / 2 */
 #define LL_HRTIM_FLT_PRESCALER_DIV4    (HRTIM_FLTINR2_FLTSD_1)                         /*!< fFLTS = fHRTIM / 4 */
 #define LL_HRTIM_FLT_PRESCALER_DIV8    (HRTIM_FLTINR2_FLTSD_1 | HRTIM_FLTINR2_FLTSD_0) /*!< fFLTS = fHRTIM / 8 */
@@ -1298,21 +1278,21 @@ during a programmable period before the output takes its idle state.
   * @}
   */
 
-/** @defgroup HRTIM_EC_BM_MODE BURST MODE OPERATING MODE
+/** @defgroup HRTIM_LL_EC_BM_MODE BURST MODE OPERATING MODE
   * @{
   * @brief Constants defining if the burst mode is entered once or if it is continuously operating.
   */
-#define LL_HRTIM_BM_MODE_SINGLESHOT ((uint32_t)0x00000000U) /*!< Burst mode operates in single shot mode */
+#define LL_HRTIM_BM_MODE_SINGLESHOT  0x00000000U            /*!< Burst mode operates in single shot mode */
 #define LL_HRTIM_BM_MODE_CONTINOUS   (HRTIM_BMCR_BMOM)      /*!< Burst mode operates in continuous mode */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_BM_CLKSRC BURST MODE CLOCK SOURCE
+/** @defgroup HRTIM_LL_EC_BM_CLKSRC BURST MODE CLOCK SOURCE
   * @{
   * @brief Constants defining the clock source for the burst mode counter.
   */
-#define LL_HRTIM_BM_CLKSRC_MASTER     ((uint32_t)0x00000000U)                                         /*!< Master timer counter reset/roll-over is used as clock source for the burst mode counter */
+#define LL_HRTIM_BM_CLKSRC_MASTER     0x00000000U                                         /*!< Master timer counter reset/roll-over is used as clock source for the burst mode counter */
 #define LL_HRTIM_BM_CLKSRC_TIMER_A    (HRTIM_BMCR_BMCLK_0)                                            /*!< Timer A counter reset/roll-over is used as clock source for the burst mode counter */
 #define LL_HRTIM_BM_CLKSRC_TIMER_B    (HRTIM_BMCR_BMCLK_1)                                            /*!< Timer B counter reset/roll-over is used as clock source for the burst mode counter */
 #define LL_HRTIM_BM_CLKSRC_TIMER_C    (HRTIM_BMCR_BMCLK_1 | HRTIM_BMCR_BMCLK_0)                       /*!< Timer C counter reset/roll-over is used as clock source for the burst mode counter */
@@ -1326,11 +1306,11 @@ during a programmable period before the output takes its idle state.
   * @}
   */
 
-/** @defgroup HRTIM_EC_BM_PRESCALER BURST MODE PRESCALER
+/** @defgroup HRTIM_LL_EC_BM_PRESCALER BURST MODE PRESCALER
   * @{
   * @brief Constants defining the prescaling ratio of the fHRTIM clock for the burst mode controller (fBRST).
   */
-#define LL_HRTIM_BM_PRESCALER_DIV1     ((uint32_t)0x00000000U)                                                                 /*!< fBRST = fHRTIM */
+#define LL_HRTIM_BM_PRESCALER_DIV1     0x00000000U                                                                 /*!< fBRST = fHRTIM */
 #define LL_HRTIM_BM_PRESCALER_DIV2     (HRTIM_BMCR_BMPRSC_0)                                                                   /*!< fBRST = fHRTIM/2 */
 #define LL_HRTIM_BM_PRESCALER_DIV4     (HRTIM_BMCR_BMPRSC_1)                                                                   /*!< fBRST = fHRTIM/4 */
 #define LL_HRTIM_BM_PRESCALER_DIV8     (HRTIM_BMCR_BMPRSC_1 | HRTIM_BMCR_BMPRSC_0)                                             /*!< fBRST = fHRTIM/8 */
@@ -1350,11 +1330,11 @@ during a programmable period before the output takes its idle state.
   * @}
   */
 
-/** @defgroup HRTIM_EC_BM_TRIG HRTIM BURST MODE TRIGGER
+/** @defgroup HRTIM_LL_EC_BM_TRIG HRTIM BURST MODE TRIGGER
   * @{
   * @brief Constants defining the events that can be used to trig the burst mode operation.
   */
-#define LL_HRTIM_BM_TRIG_NONE               (uint32_t)0x00000000    /*!<  No trigger */
+#define LL_HRTIM_BM_TRIG_NONE               0x00000000U             /*!<  No trigger */
 #define LL_HRTIM_BM_TRIG_MASTER_RESET       (HRTIM_BMTRGR_MSTRST)   /*!<  Master timer reset event is starting the burst mode operation */
 #define LL_HRTIM_BM_TRIG_MASTER_REPETITION  (HRTIM_BMTRGR_MSTREP)   /*!<  Master timer repetition event is starting the burst mode operation */
 #define LL_HRTIM_BM_TRIG_MASTER_CMP1        (HRTIM_BMTRGR_MSTCMP1)  /*!<  Master timer compare 1 event is starting the burst mode operation */
@@ -1381,24 +1361,21 @@ during a programmable period before the output takes its idle state.
 #define LL_HRTIM_BM_TRIG_TIME_REPETITION    (HRTIM_BMTRGR_TEREP)    /*!< Timer E repetition event is starting the burst mode operation */
 #define LL_HRTIM_BM_TRIG_TIME_CMP1          (HRTIM_BMTRGR_TECMP1)   /*!< Timer E compare 1 event is starting the burst mode operation */
 #define LL_HRTIM_BM_TRIG_TIME_CMP2          (HRTIM_BMTRGR_TECMP2)   /*!< Timer E compare 2 event is starting the burst mode operation */
-#define LL_HRTIM_BM_TRIG_TIMA_EVENT7        (HRTIM_BMTRGR_TAEEV7)   /*!< Timer A period following an external event 7 (conditioned by TIMA filters) is starting the burst
-mode operation  */
-#define LL_HRTIM_BM_TRIG_TIMD_EVENT8        (HRTIM_BMTRGR_TDEEV8)   /*!< Timer D period following an external event 8 (conditioned by TIMD filters) is starting the burst
-mode operation  */
+#define LL_HRTIM_BM_TRIG_TIMA_EVENT7        (HRTIM_BMTRGR_TAEEV7)   /*!< Timer A period following an external event 7 (conditioned by TIMA filters) is starting the burst mode operation  */
+#define LL_HRTIM_BM_TRIG_TIMD_EVENT8        (HRTIM_BMTRGR_TDEEV8)   /*!< Timer D period following an external event 8 (conditioned by TIMD filters) is starting the burst mode operation  */
 #define LL_HRTIM_BM_TRIG_EVENT_7            (HRTIM_BMTRGR_EEV7)     /*!< External event 7 conditioned by TIMA filters is starting the burst mode operation */
 #define LL_HRTIM_BM_TRIG_EVENT_8            (HRTIM_BMTRGR_EEV8)     /*!< External event 8 conditioned by TIMD filters is starting the burst mode operation */
-#define LL_HRTIM_BM_TRIG_EVENT_ONCHIP       (HRTIM_BMTRGR_OCHPEV)   /*!< A rising edge on an on-chip Event (for instance from GP timer or comparator) triggers the burst mode
-operation */
+#define LL_HRTIM_BM_TRIG_EVENT_ONCHIP       (HRTIM_BMTRGR_OCHPEV)   /*!< A rising edge on an on-chip Event (for instance from GP timer or comparator) triggers the burst mode operation */
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EC_BM_STATUS HRTIM BURST MODE STATUS
+/** @defgroup HRTIM_LL_EC_BM_STATUS HRTIM BURST MODE STATUS
   * @{
   * @brief Constants defining the operating state of the burst mode controller.
   */
-#define LL_HRTIM_BM_STATUS_NORMAL        ((uint32_t) 0x00000000U) /*!< Normal operation */
-#define LL_HRTIM_BM_STATUS_BURST_ONGOING (HRTIM_BMCR_BMSTAT)     /*!< Burst operation on-going */
+#define LL_HRTIM_BM_STATUS_NORMAL             0x00000000U           /*!< Normal operation */
+#define LL_HRTIM_BM_STATUS_BURST_ONGOING      HRTIM_BMCR_BMSTAT     /*!< Burst operation on-going */
 /**
   * @}
   */
@@ -1447,14 +1424,13 @@ operation */
   *         @arg @ref LL_HRTIM_OUTPUTSTATE_IDLE
   *         @arg @ref LL_HRTIM_OUTPUTSTATE_RUN
   *         @arg @ref LL_HRTIM_OUTPUTSTATE_FAULT
-*/
+  */
 #define __LL_HRTIM_GET_OUTPUT_STATE(__OUTPUT_STATUS_EN__, __OUTPUT_STATUS_DIS__)\
   (((__OUTPUT_STATUS_EN__) == 1) ?  LL_HRTIM_OUTPUTSTATE_RUN :\
    ((__OUTPUT_STATUS_DIS__) == 0) ? LL_HRTIM_OUTPUTSTATE_IDLE : LL_HRTIM_OUTPUTSTATE_FAULT)
 /**
   * @}
   */
-
 
 /**
   * @}
@@ -1464,7 +1440,7 @@ operation */
 /** @defgroup HRTIM_LL_Exported_Functions HRTIM Exported Functions
   * @{
   */
-/** @defgroup HRTIM_EF_HRTIM_Control HRTIM_Control
+/** @defgroup HRTIM_LL_EF_HRTIM_Control HRTIM_Control
   * @{
   */
 
@@ -1767,7 +1743,7 @@ __STATIC_INLINE void LL_HRTIM_DisableOutput(HRTIM_TypeDef *HRTIMx, uint32_t Outp
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledOutput(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.OENR, Output) == Output);
+  return ((READ_BIT(HRTIMx->sCommonRegs.OENR, Output) == Output) ? 1UL : 0UL);
 }
 
 /**
@@ -1794,11 +1770,11 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledOutput(HRTIM_TypeDef *HRTIMx, uint32_
   *         @arg @ref LL_HRTIM_OUTPUT_TD2
   *         @arg @ref LL_HRTIM_OUTPUT_TE1
   *         @arg @ref LL_HRTIM_OUTPUT_TE2
-  * @retval State of TxyODS bit in HRTIM_ODSR register (1 or 0).
+  * @retval State of TxyODS bit in HRTIM_OENR register (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsDisabledOutput(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ODISR, Output) == Output);
+  return ((READ_BIT(HRTIMx->sCommonRegs.OENR, Output) == 0U) ? 1UL : 0UL);
 }
 
 /**
@@ -1807,6 +1783,9 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsDisabledOutput(HRTIM_TypeDef *HRTIMx, uint32
   *         CR1          ADC2USRC        LL_HRTIM_ConfigADCTrig\n
   *         CR1          ADC3USRC        LL_HRTIM_ConfigADCTrig\n
   *         CR1          ADC4USRC        LL_HRTIM_ConfigADCTrig\n
+  *         ADC1R        ADC1MC1         LL_HRTIM_ConfigADCTrig\n
+  *         ADC1R        ADC1MC2         LL_HRTIM_ConfigADCTrig\n
+  *         ADC1R        ADC1MC3         LL_HRTIM_ConfigADCTrig\n
   *         ADC1R        ADC1MC4         LL_HRTIM_ConfigADCTrig\n
   *         ADC1R        ADC1MPER        LL_HRTIM_ConfigADCTrig\n
   *         ADC1R        ADC1EEV1        LL_HRTIM_ConfigADCTrig\n
@@ -1954,15 +1933,15 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsDisabledOutput(HRTIM_TypeDef *HRTIMx, uint32
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MPER
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP2
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP3
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP4
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMAPER
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV1
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV5
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP2
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP3
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP4
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMAPER
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMARST
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMBCMP2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMBCMP3
@@ -2016,13 +1995,14 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsDisabledOutput(HRTIM_TypeDef *HRTIMx, uint32
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_TIMECMP3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_TIMECMP4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_TIMERST
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_HRTIM_ConfigADCTrig(HRTIM_TypeDef *HRTIMx, uint32_t ADCTrig, uint32_t Update, uint32_t Src)
 {
-  register uint32_t shift = 3 * ADCTrig;
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.ADC1R) +
-                                                    REG_OFFSET_TAB_ADCxR[ADCTrig]));
+  register uint32_t shift = ((3U * ADCTrig) & 0x1FU);
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.ADC1R) +
+                                                              REG_OFFSET_TAB_ADCxR[ADCTrig]));
   MODIFY_REG(HRTIMx->sCommonRegs.CR1, (HRTIM_CR1_ADC1USRC << shift), (Update << shift));
   WRITE_REG(*pReg, Src);
 }
@@ -2032,7 +2012,7 @@ __STATIC_INLINE void LL_HRTIM_ConfigADCTrig(HRTIM_TypeDef *HRTIMx, uint32_t ADCT
   * @rmtoll CR1          ADC1USRC         LL_HRTIM_SetADCTrigUpdate\n
   *         CR1          ADC2USRC         LL_HRTIM_SetADCTrigUpdate\n
   *         CR1          ADC3USRC         LL_HRTIM_SetADCTrigUpdate\n
-  *         CR1          ADC4USRC         LL_HRTIM_SetADCTrigUpdate
+  *         CR1          ADC4USRC         LL_HRTIM_SetADCTrigUpdate\n
   * @note When the preload is disabled in the source timer, the HRTIM_ADCxR
   *       registers are not preloaded either: a write access will result in an
   *       immediate update of the trigger source.
@@ -2053,7 +2033,7 @@ __STATIC_INLINE void LL_HRTIM_ConfigADCTrig(HRTIM_TypeDef *HRTIMx, uint32_t ADCT
   */
 __STATIC_INLINE void LL_HRTIM_SetADCTrigUpdate(HRTIM_TypeDef *HRTIMx, uint32_t ADCTrig, uint32_t Update)
 {
-  register uint32_t shift = 3 * ADCTrig;
+  register uint32_t shift = ((3U * ADCTrig) & 0x1FU);
   MODIFY_REG(HRTIMx->sCommonRegs.CR1, (HRTIM_CR1_ADC1USRC << shift), (Update << shift));
 }
 
@@ -2062,7 +2042,7 @@ __STATIC_INLINE void LL_HRTIM_SetADCTrigUpdate(HRTIM_TypeDef *HRTIMx, uint32_t A
   * @rmtoll CR1          ADC1USRC        LL_HRTIM_GetADCTrigUpdate\n
   *         CR1          ADC2USRC        LL_HRTIM_GetADCTrigUpdate\n
   *         CR1          ADC3USRC        LL_HRTIM_GetADCTrigUpdate\n
-  *         CR1          ADC4USRC        LL_HRTIM_GetADCTrigUpdate
+  *         CR1          ADC4USRC        LL_HRTIM_GetADCTrigUpdate\n
   * @param  HRTIMx High Resolution Timer instance
   * @param  ADCTrig This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_ADCTRIG_1
@@ -2079,13 +2059,16 @@ __STATIC_INLINE void LL_HRTIM_SetADCTrigUpdate(HRTIM_TypeDef *HRTIMx, uint32_t A
   */
 __STATIC_INLINE uint32_t LL_HRTIM_GetADCTrigUpdate(HRTIM_TypeDef *HRTIMx, uint32_t ADCTrig)
 {
-  register uint32_t shift = 3 * ADCTrig;
-  return (READ_BIT(HRTIMx->sCommonRegs.CR1, (HRTIM_CR1_ADC1USRC << shift)) >> shift);
+  register const uint32_t shift = ((3U * ADCTrig) & 0x1FU);
+  return (READ_BIT(HRTIMx->sCommonRegs.CR1, (uint32_t)(HRTIM_CR1_ADC1USRC) << shift) >> shift);
 }
 
 /**
   * @brief  Specify which events (timer events and/or external events) are used as triggers for ADC conversion.
-  * @rmtoll ADC1R        ADC1MC4         LL_HRTIM_SetADCTrigSrc\n
+  * @rmtoll ADC1R        ADC1MC1         LL_HRTIM_SetADCTrigSrc\n
+  *         ADC1R        ADC1MC2         LL_HRTIM_SetADCTrigSrc\n
+  *         ADC1R        ADC1MC3         LL_HRTIM_SetADCTrigSrc\n
+  *         ADC1R        ADC1MC4         LL_HRTIM_SetADCTrigSrc\n
   *         ADC1R        ADC1MPER        LL_HRTIM_SetADCTrigSrc\n
   *         ADC1R        ADC1EEV1        LL_HRTIM_SetADCTrigSrc\n
   *         ADC1R        ADC1EEV2        LL_HRTIM_SetADCTrigSrc\n
@@ -2209,31 +2192,31 @@ __STATIC_INLINE uint32_t LL_HRTIM_GetADCTrigUpdate(HRTIM_TypeDef *HRTIMx, uint32
   *         ADC4R        ADC4TEC2        LL_HRTIM_SetADCTrigSrc\n
   *         ADC4R        ADC4TEC3        LL_HRTIM_SetADCTrigSrc\n
   *         ADC4R        ADC4TEC4        LL_HRTIM_SetADCTrigSrc\n
-  *         ADC4R        ADC4TERST       LL_HRTIM_SetADCTrigSrc
+  *         ADC4R        ADC4TERST       LL_HRTIM_SetADCTrigSrc\n
   * @param  HRTIMx High Resolution Timer instance
   * @param  ADCTrig This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_ADCTRIG_1
   *         @arg @ref LL_HRTIM_ADCTRIG_2
   *         @arg @ref LL_HRTIM_ADCTRIG_3
   *         @arg @ref LL_HRTIM_ADCTRIG_4
-  * @param  Src This parameter can be a combination of the following values:
-  *
-  *         For ADC trigger 1 and ADC trigger 3:
+  * @param  Src
+  *         For ADC trigger 1 and ADC trigger 3 this parameter can be a
+  *         combination of the following values:
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_NONE
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP1
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MPER
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP2
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP3
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP4
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMAPER
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV1
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV5
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP2
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP3
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP4
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMAPER
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMARST
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMBCMP2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMBCMP3
@@ -2253,7 +2236,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_GetADCTrigUpdate(HRTIM_TypeDef *HRTIMx, uint32
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMECMP4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMEPER
   *
-  *         For ADC trigger 2 and ADC trigger 4:
+  *         For ADC trigger 2 and ADC trigger 4 this parameter can be a
+  *         combination of the following values:
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_NONE
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_MCMP1
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_MCMP2
@@ -2287,18 +2271,22 @@ __STATIC_INLINE uint32_t LL_HRTIM_GetADCTrigUpdate(HRTIM_TypeDef *HRTIMx, uint32
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_TIMECMP3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_TIMECMP4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_TIMERST
-* @retval None
+  *
+  * @retval None
   */
 __STATIC_INLINE void LL_HRTIM_SetADCTrigSrc(HRTIM_TypeDef *HRTIMx, uint32_t ADCTrig, uint32_t Src)
 {
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.ADC1R) +
-                                                    REG_OFFSET_TAB_ADCxR[ADCTrig]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.ADC1R) +
+                                                              REG_OFFSET_TAB_ADCxR[ADCTrig]));
   WRITE_REG(*pReg, Src);
 }
 
 /**
   * @brief  Indicate which events (timer events and/or external events) are currently used as triggers for ADC conversion.
-  * @rmtoll ADC1R        ADC1MC4         LL_HRTIM_GetADCTrigSrc\n
+  * @rmtoll ADC1R        ADC1MC1         LL_HRTIM_GetADCTrigSrc\n
+  *         ADC1R        ADC1MC2         LL_HRTIM_GetADCTrigSrc\n
+  *         ADC1R        ADC1MC3         LL_HRTIM_GetADCTrigSrc\n
+  *         ADC1R        ADC1MC4         LL_HRTIM_GetADCTrigSrc\n
   *         ADC1R        ADC1MPER        LL_HRTIM_GetADCTrigSrc\n
   *         ADC1R        ADC1EEV1        LL_HRTIM_GetADCTrigSrc\n
   *         ADC1R        ADC1EEV2        LL_HRTIM_GetADCTrigSrc\n
@@ -2431,22 +2419,23 @@ __STATIC_INLINE void LL_HRTIM_SetADCTrigSrc(HRTIM_TypeDef *HRTIMx, uint32_t ADCT
   *         @arg @ref LL_HRTIM_ADCTRIG_4
   * @retval Src This parameter can be a combination of the following values:
   *
-  *         For ADC trigger 1 and ADC trigger 3:
+  *         For ADC trigger 1 and ADC trigger 3 this parameter can be a
+  *         combination of the following values:
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_NONE
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP1
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MCMP4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_MPER
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP2
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP3
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP4
-  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMAPER
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV1
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV3
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_EEV5
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP2
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP3
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMACMP4
+  *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMAPER
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMARST
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMBCMP2
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMBCMP3
@@ -2466,7 +2455,8 @@ __STATIC_INLINE void LL_HRTIM_SetADCTrigSrc(HRTIM_TypeDef *HRTIMx, uint32_t ADCT
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMECMP4
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC13_TIMEPER
   *
-  *         For ADC trigger 2 and ADC trigger 4:
+  *         For ADC trigger 2 and ADC trigger 4 this parameter can be a
+  *         combination of the following values:
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_NONE
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_MCMP1
   *         @arg @ref LL_HRTIM_ADCTRIG_SRC24_MCMP2
@@ -2503,10 +2493,12 @@ __STATIC_INLINE void LL_HRTIM_SetADCTrigSrc(HRTIM_TypeDef *HRTIMx, uint32_t ADCT
   */
 __STATIC_INLINE uint32_t LL_HRTIM_GetADCTrigSrc(HRTIM_TypeDef *HRTIMx, uint32_t ADCTrig)
 {
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.ADC1R) +
-                                                    REG_OFFSET_TAB_ADCxR[ADCTrig]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.ADC1R) +
+                                                                    REG_OFFSET_TAB_ADCxR[ADCTrig]));
   return (*pReg);
+
 }
+
 
 /**
   * @brief  Configure the DLL calibration mode.
@@ -2516,12 +2508,12 @@ __STATIC_INLINE uint32_t LL_HRTIM_GetADCTrigSrc(HRTIM_TypeDef *HRTIMx, uint32_t 
   * @param  Mode This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_DLLCALIBRATION_MODE_SINGLESHOT
   *         @arg @ref LL_HRTIM_DLLCALIBRATION_MODE_CONTINUOUS
-   * @param  Period This parameter can be one of the following values:
+  * @param  Period This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_DLLCALIBRATION_RATE_7300
   *         @arg @ref LL_HRTIM_DLLCALIBRATION_RATE_910
   *         @arg @ref LL_HRTIM_DLLCALIBRATION_RATE_114
   *         @arg @ref LL_HRTIM_DLLCALIBRATION_RATE_14
- * @retval None
+  * @retval None
   */
 __STATIC_INLINE void LL_HRTIM_ConfigDLLCalibration(HRTIM_TypeDef *HRTIMx, uint32_t Mode, uint32_t Period)
 {
@@ -2543,7 +2535,7 @@ __STATIC_INLINE void LL_HRTIM_StartDLLCalibration(HRTIM_TypeDef *HRTIMx)
   * @}
   */
 
-/** @defgroup HRTIM_EF_HRTIM_Timer_Control HRTIM_Timer_Control
+/** @defgroup HRTIM_LL_EF_HRTIM_Timer_Control HRTIM_Timer_Control
   * @{
   */
 
@@ -2613,7 +2605,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_CounterDisable(HRTIM_TypeDef *HRTIMx, uint32_t
   */
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsCounterEnabled(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
-  return (READ_BIT(HRTIMx->sMasterRegs.MCR, Timer) == (Timer));
+  return ((READ_BIT(HRTIMx->sMasterRegs.MCR, Timer) == (Timer)) ? 1UL : 0UL);
 }
 
 /**
@@ -2644,7 +2636,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsCounterEnabled(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_TIM_SetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Prescaler)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_MCR_CK_PSC, Prescaler);
 }
 
@@ -2673,7 +2665,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MCR_CK_PSC));
 }
 
@@ -2700,7 +2692,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetPrescaler(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_TIM_SetCounterMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Mode)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, (HRTIM_TIMCR_RETRIG | HRTIM_MCR_CONT), Mode);
 }
 
@@ -2726,7 +2718,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCounterMode(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCounterMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, (HRTIM_MCR_RETRIG | HRTIM_MCR_CONT)));
 }
 
@@ -2750,7 +2742,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCounterMode(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_TIM_EnableHalfMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MCR_HALF);
 }
 
@@ -2771,7 +2763,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnableHalfMode(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE void LL_HRTIM_TIM_DisableHalfMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MCR_HALF);
 }
 
@@ -2792,10 +2784,10 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisableHalfMode(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledHalfMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MCR_HALF) == HRTIM_MCR_HALF);
-}
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
 
+  return ((READ_BIT(*pReg, HRTIM_MCR_HALF) == (HRTIM_MCR_HALF)) ? 1UL : 0UL);
+}
 /**
   * @brief  Enable the timer start when receiving a synchronization input event.
   * @rmtoll MCR        SYNCSTRTM        LL_HRTIM_TIM_EnableStartOnSync\n
@@ -2813,7 +2805,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledHalfMode(HRTIM_TypeDef *HRTIMx, u
 __STATIC_INLINE void LL_HRTIM_TIM_EnableStartOnSync(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MCR_SYNCSTRTM);
 }
 
@@ -2834,7 +2826,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnableStartOnSync(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_TIM_DisableStartOnSync(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MCR_SYNCSTRTM);
 }
 
@@ -2855,8 +2847,9 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisableStartOnSync(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledStartOnSync(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MCR_SYNCSTRTM) == HRTIM_MCR_SYNCSTRTM);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MCR_SYNCSTRTM) == (HRTIM_MCR_SYNCSTRTM)) ? 1UL : 0UL);
 }
 
 /**
@@ -2876,7 +2869,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledStartOnSync(HRTIM_TypeDef *HRTIMx
 __STATIC_INLINE void LL_HRTIM_TIM_EnableResetOnSync(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MCR_SYNCRSTM);
 }
 
@@ -2897,7 +2890,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnableResetOnSync(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_TIM_DisableResetOnSync(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MCR_SYNCRSTM);
 }
 
@@ -2918,8 +2911,9 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisableResetOnSync(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledResetOnSync(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MCR_SYNCRSTM) == HRTIM_MCR_SYNCRSTM);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MCR_SYNCRSTM) == (HRTIM_MCR_SYNCRSTM)) ? 1UL : 0UL);
 }
 
 /**
@@ -2944,7 +2938,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledResetOnSync(HRTIM_TypeDef *HRTIMx
 __STATIC_INLINE void LL_HRTIM_TIM_SetDACTrig(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t DACTrig)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_MCR_DACSYNC, DACTrig);
 }
 
@@ -2969,7 +2963,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetDACTrig(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetDACTrig(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MCR_DACSYNC));
 }
 
@@ -2993,7 +2987,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetDACTrig(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE void LL_HRTIM_TIM_EnablePreload(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MCR_PREEN);
 }
 
@@ -3014,7 +3008,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnablePreload(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_TIM_DisablePreload(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MCR_PREEN);
 }
 
@@ -3035,8 +3029,9 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisablePreload(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledPreload(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MCR_PREEN) == HRTIM_MCR_PREEN);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MCR_PREEN) == (HRTIM_MCR_PREEN)) ? 1UL : 0UL);
 }
 
 /**
@@ -3078,19 +3073,19 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledPreload(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_TIM_SetUpdateTrig(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t UpdateTrig)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, REG_MASK_TAB_UPDATETRIG[iTimer], UpdateTrig << REG_SHIFT_TAB_UPDATETRIG[iTimer]);
 }
 
 /**
-  * @brief  Set the timer register update trigger.
+  * @brief  Get the timer register update trigger.
   * @rmtoll MCR           MREPU      LL_HRTIM_TIM_GetUpdateTrig\n
   *         TIMxCR        TBU        LL_HRTIM_TIM_GetUpdateTrig\n
   *         TIMxCR        TCU        LL_HRTIM_TIM_GetUpdateTrig\n
   *         TIMxCR        TDU        LL_HRTIM_TIM_GetUpdateTrig\n
   *         TIMxCR        TEU        LL_HRTIM_TIM_GetUpdateTrig\n
   *         TIMxCR        MSTU       LL_HRTIM_TIM_GetUpdateTrig
- * @param  HRTIMx High Resolution Timer instance
+  * @param  HRTIMx High Resolution Timer instance
   * @param  Timer This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_TIMER_MASTER
   *         @arg @ref LL_HRTIM_TIMER_A
@@ -3119,7 +3114,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetUpdateTrig(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetUpdateTrig(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, REG_MASK_TAB_UPDATETRIG[iTimer]) >>  REG_SHIFT_TAB_UPDATETRIG[iTimer]);
 }
 
@@ -3157,7 +3152,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetUpdateTrig(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_TIM_SetUpdateGating(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t UpdateGating)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, REG_MASK_TAB_UPDATEGATING[iTimer], (UpdateGating << REG_SHIFT_TAB_UPDATEGATING[iTimer]));
 }
 
@@ -3194,7 +3189,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetUpdateGating(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetUpdateGating(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCR) + REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, REG_MASK_TAB_UPDATEGATING[iTimer]) >>  REG_SHIFT_TAB_UPDATEGATING[iTimer]);
 }
 
@@ -3213,8 +3208,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetUpdateGating(HRTIM_TypeDef *HRTIMx, uin
 __STATIC_INLINE void LL_HRTIM_TIM_EnablePushPullMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMCR_PSHPLL);
 }
 
@@ -3233,8 +3228,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnablePushPullMode(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_TIM_DisablePushPullMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMCR_PSHPLL);
 }
 
@@ -3253,9 +3248,9 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisablePushPullMode(HRTIM_TypeDef *HRTIMx, uin
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledPushPullMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMCR_PSHPLL) == HRTIM_TIMCR_PSHPLL);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  return ((READ_BIT(*pReg, HRTIM_TIMCR_PSHPLL) == (HRTIM_TIMCR_PSHPLL)) ? 1UL : 0UL);
 }
 
 /**
@@ -3284,9 +3279,9 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCompareMode(HRTIM_TypeDef *HRTIMx, uint32_t
                                                  uint32_t Mode)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  register uint32_t shift = POSITION_VAL(CompareUnit) - POSITION_VAL(LL_HRTIM_COMPAREUNIT_2);
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
+  register uint32_t shift = (((uint32_t)POSITION_VAL(CompareUnit) - (uint32_t)POSITION_VAL(LL_HRTIM_COMPAREUNIT_2)) & 0x1FU);
   MODIFY_REG(* pReg, (HRTIM_TIMCR_DELCMP2 << shift), (Mode << shift));
 }
 
@@ -3313,9 +3308,9 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCompareMode(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompareMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t CompareUnit)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  register uint32_t shift = POSITION_VAL(CompareUnit) - POSITION_VAL(LL_HRTIM_COMPAREUNIT_2);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxCR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register uint32_t shift = (((uint32_t)POSITION_VAL(CompareUnit) - (uint32_t)POSITION_VAL(LL_HRTIM_COMPAREUNIT_2)) & 0x1FU);
   return (READ_BIT(*pReg, (HRTIM_TIMCR_DELCMP2 << shift)) >>  shift);
 }
 
@@ -3343,8 +3338,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompareMode(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_TIM_SetCounter(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Counter)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCNTR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCNTR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(* pReg, HRTIM_MCNTR_MCNTR, Counter);
 }
 
@@ -3365,8 +3360,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCounter(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCounter(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCNTR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCNTR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MCNTR_MCNTR));
 }
 
@@ -3388,8 +3383,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCounter(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE void LL_HRTIM_TIM_SetPeriod(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Period)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MPER) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MPER) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(* pReg, HRTIM_MPER_MPER, Period);
 }
 
@@ -3410,8 +3405,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetPeriod(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetPeriod(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MPER) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MPER) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MPER_MPER));
 }
 
@@ -3433,8 +3428,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetPeriod(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_TIM_SetRepetition(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Repetition)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MREP) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MREP) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(* pReg, HRTIM_MREP_MREP, Repetition);
 }
 
@@ -3455,8 +3450,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetRepetition(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetRepetition(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MREP) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MREP) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MREP_MREP));
 }
 
@@ -3480,8 +3475,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetRepetition(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_TIM_SetCompare1(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t CompareValue)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP1R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP1R) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(* pReg, HRTIM_MCMP1R_MCMP1R, CompareValue);
 }
 
@@ -3504,8 +3499,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCompare1(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP1R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP1R) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MCMP1R_MCMP1R));
 }
 
@@ -3529,8 +3524,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare1(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_TIM_SetCompare2(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t CompareValue)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP2R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP2R) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(* pReg, HRTIM_MCMP1R_MCMP2R, CompareValue);
 }
 
@@ -3553,8 +3548,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCompare2(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP2R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP2R) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MCMP1R_MCMP2R));
 }
 
@@ -3578,8 +3573,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare2(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_TIM_SetCompare3(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t CompareValue)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP3R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP3R) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(* pReg, HRTIM_MCMP1R_MCMP3R, CompareValue);
 }
 
@@ -3602,8 +3597,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCompare3(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP3R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP3R) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MCMP1R_MCMP3R));
 }
 
@@ -3627,8 +3622,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare3(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_TIM_SetCompare4(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t CompareValue)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP4R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP4R) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(* pReg, HRTIM_MCMP1R_MCMP4R, CompareValue);
 }
 
@@ -3651,8 +3646,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCompare4(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP4R) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MCMP4R) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_MCMP1R_MCMP4R));
 }
 
@@ -3738,8 +3733,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCompare4(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_TIM_SetResetTrig(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t ResetTrig)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   WRITE_REG(*pReg, ResetTrig);
 }
 
@@ -3818,8 +3813,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetResetTrig(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetResetTrig(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_REG(*pReg));
 }
 
@@ -3838,8 +3833,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetResetTrig(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCapture1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CPT1xR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CPT1xR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_REG(*pReg));
 }
 
@@ -3858,8 +3853,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCapture1(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCapture2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CPT2xR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CPT2xR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_REG(*pReg));
 }
 
@@ -3946,8 +3941,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCaptureTrig(HRTIM_TypeDef *HRTIMx, uint32_t
                                                  uint32_t CaptureTrig)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CPT1xCR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer] + CaptureUnit * 4));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0U].CPT1xCR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer] + (CaptureUnit * 4U)));
   WRITE_REG(*pReg, CaptureTrig);
 }
 
@@ -4032,8 +4027,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetCaptureTrig(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCaptureTrig(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t CaptureUnit)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CPT1xCR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer] + CaptureUnit * 4));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0U].CPT1xCR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer] + (CaptureUnit * 4U)));
   return (READ_REG(*pReg));
 }
 
@@ -4052,8 +4047,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCaptureTrig(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_TIM_EnableDeadTime(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_OUTR_DTEN);
 }
 
@@ -4072,8 +4067,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnableDeadTime(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE void LL_HRTIM_TIM_DisableDeadTime(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_OUTR_DTEN);
 }
 
@@ -4092,9 +4087,10 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisableDeadTime(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledDeadTime(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_OUTR_DTEN) == HRTIM_OUTR_DTEN);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_OUTR_DTEN) == (HRTIM_OUTR_DTEN)) ? 1UL : 0UL);
 }
 
 /**
@@ -4112,7 +4108,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledDeadTime(HRTIM_TypeDef *HRTIMx, u
   *         @arg @ref LL_HRTIM_TIMER_E
   * @param  DLYPRTMode Delayed protection (DLYPRT) mode
   *
-  *         For timers A, B and C this parameter can be one of the following vallues:
+  *         For timers A, B and C this parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT1_EEV6
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT2_EEV6
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYBOTH_EEV6
@@ -4122,7 +4118,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledDeadTime(HRTIM_TypeDef *HRTIMx, u
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYBOTH_EEV7
   *         @arg @ref LL_HRTIM_DLYPRT_BALANCED_EEV7
   *
-  *         For timers D and E this parameter can be one of the following vallues:
+  *         For timers D and E this parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT1_EEV8
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT2_EEV8
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYBOTH_EEV8
@@ -4136,8 +4132,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledDeadTime(HRTIM_TypeDef *HRTIMx, u
 __STATIC_INLINE void LL_HRTIM_TIM_SetDLYPRTMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t DLYPRTMode)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_OUTR_DLYPRT, DLYPRTMode);
 }
 
@@ -4154,7 +4150,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetDLYPRTMode(HRTIM_TypeDef *HRTIMx, uint32_t 
   *         @arg @ref LL_HRTIM_TIMER_E
   * @retval DLYPRTMode Delayed protection (DLYPRT) mode
   *
-  *         For timers A, B and C this parameter can be one of the following vallues:
+  *         For timers A, B and C this parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT1_EEV6
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT2_EEV6
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYBOTH_EEV6
@@ -4164,7 +4160,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetDLYPRTMode(HRTIM_TypeDef *HRTIMx, uint32_t 
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYBOTH_EEV7
   *         @arg @ref LL_HRTIM_DLYPRT_BALANCED_EEV7
   *
-  *         For timers D and E this parameter can be one of the following vallues:
+  *         For timers D and E this parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT1_EEV8
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYOUT2_EEV8
   *         @arg @ref LL_HRTIM_DLYPRT_DELAYBOTH_EEV8
@@ -4177,8 +4173,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetDLYPRTMode(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetDLYPRTMode(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_OUTR_DLYPRT));
 }
 
@@ -4198,8 +4194,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetDLYPRTMode(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_TIM_EnableDLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_OUTR_DLYPRTEN);
 }
 
@@ -4219,8 +4215,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnableDLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE void LL_HRTIM_TIM_DisableDLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_OUTR_DLYPRTEN);
 }
 
@@ -4239,9 +4235,9 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisableDLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledDLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_OUTR_DLYPRTEN) == HRTIM_OUTR_DLYPRTEN);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  return ((READ_BIT(*pReg, HRTIM_OUTR_DLYPRTEN) == (HRTIM_OUTR_DLYPRTEN)) ? 1UL : 0UL);
 }
 
 /**
@@ -4269,8 +4265,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledDLYPRT(HRTIM_TypeDef *HRTIMx, uin
 __STATIC_INLINE void LL_HRTIM_TIM_EnableFault(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Faults)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, Faults);
 }
 
@@ -4299,8 +4295,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_EnableFault(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE void LL_HRTIM_TIM_DisableFault(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Faults)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, Faults);
 }
 
@@ -4329,9 +4325,10 @@ __STATIC_INLINE void LL_HRTIM_TIM_DisableFault(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledFault(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Fault)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, Fault) == (Fault));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, Fault) == (Fault)) ? 1UL : 0UL);
 }
 
 /**
@@ -4350,8 +4347,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_IsEnabledFault(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_TIM_LockFault(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].FLTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_FLTR_FLTLCK);
 }
 
@@ -4379,7 +4376,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_LockFault(HRTIM_TypeDef *HRTIMx, uint32_t Time
   */
 __STATIC_INLINE void LL_HRTIM_TIM_SetBurstModeOption(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t BurtsModeOption)
 {
-  register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
+  register uint32_t iTimer = (uint8_t)((POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos) & 0x1FU);
   MODIFY_REG(HRTIMx->sCommonRegs.BMCR, Timer, BurtsModeOption << iTimer);
 }
 
@@ -4405,7 +4402,7 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetBurstModeOption(HRTIM_TypeDef *HRTIMx, uint
   */
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetBurstModeOption(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
-  register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
+  register uint32_t iTimer = (uint8_t)((POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos) & 0x1FU);
   return (READ_BIT(HRTIMx->sCommonRegs.BMCR, Timer) >> iTimer);
 }
 
@@ -4436,7 +4433,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetBurstModeOption(HRTIM_TypeDef *HRTIMx, 
   *         BDTxUPDR     TIMxRST1R   LL_HRTIM_TIM_ConfigBurstDMA\n
   *         BDTxUPDR     TIMxSET2R   LL_HRTIM_TIM_ConfigBurstDMA\n
   *         BDTxUPDR     TIMxRST2R   LL_HRTIM_TIM_ConfigBurstDMA\n
-  *         BDTxUPDR     TIAEEFR1    LL_HRTIM_TIM_ConfigBurstDMA\n
+  *         BDTxUPDR     TIMxEEFR1   LL_HRTIM_TIM_ConfigBurstDMA\n
   *         BDTxUPDR     TIMxEEFR2   LL_HRTIM_TIM_ConfigBurstDMA\n
   *         BDTxUPDR     TIMxRSTR    LL_HRTIM_TIM_ConfigBurstDMA\n
   *         BDTxUPDR     TIMxOUTR    LL_HRTIM_TIM_ConfigBurstDMA\n
@@ -4491,8 +4488,9 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetBurstModeOption(HRTIM_TypeDef *HRTIMx, 
   */
 __STATIC_INLINE void LL_HRTIM_TIM_ConfigBurstDMA(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Registers)
 {
+
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.BDMUPR) + 4 * iTimer));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.BDMUPR) + (4U * iTimer)));
   WRITE_REG(*pReg, Registers);
 }
 
@@ -4514,8 +4512,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_ConfigBurstDMA(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCurrentPushPullStatus(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_TIMISR_CPPSTAT));
 }
 
@@ -4536,8 +4534,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetCurrentPushPullStatus(HRTIM_TypeDef *HR
 __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetIdlePushPullStatus(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_TIMISR_IPPSTAT));
 }
 
@@ -4589,14 +4587,15 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetIdlePushPullStatus(HRTIM_TypeDef *HRTIM
   *         @arg @ref LL_HRTIM_EEFLTR_WINDOWINGCMP2
   *         @arg @ref LL_HRTIM_EEFLTR_WINDOWINGCMP3
   *         @arg @ref LL_HRTIM_EEFLTR_WINDOWINGTIM
+
   * @retval None
   */
 __STATIC_INLINE void LL_HRTIM_TIM_SetEventFilter(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Event, uint32_t Filter)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - POSITION_VAL(LL_HRTIM_TIMER_A));
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
   MODIFY_REG(*pReg, (HRTIM_EEFR1_EE1FLTR << REG_SHIFT_TAB_EExSRC[iEvent]), (Filter << REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
@@ -4652,9 +4651,9 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetEventFilter(HRTIM_TypeDef *HRTIMx, uint
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - POSITION_VAL(LL_HRTIM_TIMER_A));
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
-  return (READ_BIT(*pReg, HRTIM_EEFR1_EE1FLTR << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_EEFR1_EE1FLTR) << (REG_SHIFT_TAB_EExSRC[iEvent])) >> (REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
 /**
@@ -4698,8 +4697,8 @@ __STATIC_INLINE void LL_HRTIM_TIM_SetEventLatchStatus(HRTIM_TypeDef *HRTIMx, uin
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - POSITION_VAL(LL_HRTIM_TIMER_A));
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
   MODIFY_REG(*pReg, (HRTIM_EEFR1_EE1LTCH << REG_SHIFT_TAB_EExSRC[iEvent]), (LatchStatus << REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
@@ -4741,16 +4740,16 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetEventLatchStatus(HRTIM_TypeDef *HRTIMx,
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - POSITION_VAL(LL_HRTIM_TIMER_A));
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
-  return (READ_BIT(*pReg, HRTIM_EEFR1_EE1LTCH << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].EEFxR1) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer] + REG_OFFSET_TAB_EECR[iEvent]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_EEFR1_EE1LTCH) << REG_SHIFT_TAB_EExSRC[iEvent]) >> (REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EF_Dead_Time_Configuration Dead_Time_Configuration
+/** @defgroup HRTIM_LL_EF_Dead_Time_Configuration Dead_Time_Configuration
   * @{
   */
 
@@ -4775,8 +4774,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_TIM_GetEventLatchStatus(HRTIM_TypeDef *HRTIMx,
 __STATIC_INLINE void LL_HRTIM_DT_Config(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Configuration)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_DTR_SDTF | HRTIM_DTR_DTPRSC | HRTIM_DTR_SDTR, Configuration);
 }
 
@@ -4804,8 +4803,8 @@ __STATIC_INLINE void LL_HRTIM_DT_Config(HRTIM_TypeDef *HRTIMx, uint32_t Timer, u
 __STATIC_INLINE void LL_HRTIM_DT_SetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Prescaler)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_DTR_DTPRSC, Prescaler);
 }
 
@@ -4832,8 +4831,8 @@ __STATIC_INLINE void LL_HRTIM_DT_SetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE uint32_t LL_HRTIM_DT_GetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_DTR_DTPRSC));
 }
 
@@ -4853,8 +4852,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_DT_GetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_DT_SetRisingValue(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t RisingValue)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_DTR_DTR, RisingValue);
 }
 
@@ -4868,13 +4867,13 @@ __STATIC_INLINE void LL_HRTIM_DT_SetRisingValue(HRTIM_TypeDef *HRTIMx, uint32_t 
   *         @arg @ref LL_HRTIM_TIMER_C
   *         @arg @ref LL_HRTIM_TIMER_D
   *         @arg @ref LL_HRTIM_TIMER_E
- * @retval RisingValue Value between 0 and 0x1FF
+  * @retval RisingValue Value between 0 and 0x1FF
   */
 __STATIC_INLINE uint32_t LL_HRTIM_DT_GetRisingValue(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_DTR_DTR));
 }
 
@@ -4896,8 +4895,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_DT_GetRisingValue(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_DT_SetRisingSign(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t RisingSign)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_DTR_SDTR, RisingSign);
 }
 
@@ -4918,8 +4917,8 @@ __STATIC_INLINE void LL_HRTIM_DT_SetRisingSign(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_DT_GetRisingSign(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_DTR_SDTR));
 }
 
@@ -4939,8 +4938,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_DT_GetRisingSign(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_DT_SetFallingValue(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t FallingValue)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_DTR_DTF, FallingValue << HRTIM_DTR_DTF_Pos);
 }
 
@@ -4954,13 +4953,13 @@ __STATIC_INLINE void LL_HRTIM_DT_SetFallingValue(HRTIM_TypeDef *HRTIMx, uint32_t
   *         @arg @ref LL_HRTIM_TIMER_C
   *         @arg @ref LL_HRTIM_TIMER_D
   *         @arg @ref LL_HRTIM_TIMER_E
- * @retval FallingValue Value between 0 and 0x1FF
+  * @retval FallingValue Value between 0 and 0x1FF
   */
 __STATIC_INLINE uint32_t LL_HRTIM_DT_GetFallingValue(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return ((READ_BIT(*pReg, HRTIM_DTR_DTF)) >> HRTIM_DTR_DTF_Pos);
 }
 
@@ -4982,8 +4981,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_DT_GetFallingValue(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_DT_SetFallingSign(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t FallingSign)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_DTR_SDTF, FallingSign);
 }
 
@@ -5004,8 +5003,8 @@ __STATIC_INLINE void LL_HRTIM_DT_SetFallingSign(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_DT_GetFallingSign(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_DTR_SDTF));
 }
 
@@ -5024,8 +5023,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_DT_GetFallingSign(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_DT_LockRising(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_DTR_DTRLK);
 }
 
@@ -5044,8 +5043,8 @@ __STATIC_INLINE void LL_HRTIM_DT_LockRising(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DT_LockRisingSign(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_DTR_DTRSLK);
 }
 
@@ -5064,8 +5063,8 @@ __STATIC_INLINE void LL_HRTIM_DT_LockRisingSign(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DT_LockFalling(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_DTR_DTFLK);
 }
 
@@ -5084,8 +5083,8 @@ __STATIC_INLINE void LL_HRTIM_DT_LockFalling(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE void LL_HRTIM_DT_LockFallingSign(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].DTxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_DTR_DTFSLK);
 }
 
@@ -5093,7 +5092,7 @@ __STATIC_INLINE void LL_HRTIM_DT_LockFallingSign(HRTIM_TypeDef *HRTIMx, uint32_t
   * @}
   */
 
-/** @defgroup HRTIM_EF_Chopper_Mode_Configuration Chopper_Mode_Configuration
+/** @defgroup HRTIM_LL_EF_Chopper_Mode_Configuration Chopper_Mode_Configuration
   * @{
   */
 
@@ -5120,8 +5119,8 @@ __STATIC_INLINE void LL_HRTIM_DT_LockFallingSign(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE void LL_HRTIM_CHP_Config(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Configuration)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_CHPR_STRPW | HRTIM_CHPR_CARDTY | HRTIM_CHPR_CARFRQ, Configuration);
 }
 
@@ -5160,8 +5159,8 @@ __STATIC_INLINE void LL_HRTIM_CHP_Config(HRTIM_TypeDef *HRTIMx, uint32_t Timer, 
 __STATIC_INLINE void LL_HRTIM_CHP_SetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t Prescaler)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_CHPR_CARFRQ, Prescaler);
 }
 
@@ -5196,8 +5195,8 @@ __STATIC_INLINE void LL_HRTIM_CHP_SetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_CHP_GetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_CHPR_CARFRQ));
 }
 
@@ -5228,8 +5227,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_CHP_GetPrescaler(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_CHP_SetDutyCycle(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t DutyCycle)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_CHPR_CARDTY, DutyCycle);
 }
 
@@ -5256,8 +5255,8 @@ __STATIC_INLINE void LL_HRTIM_CHP_SetDutyCycle(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_CHP_GetDutyCycle(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_CHPR_CARDTY));
 }
 
@@ -5295,8 +5294,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_CHP_GetDutyCycle(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_CHP_SetPulseWidth(HRTIM_TypeDef *HRTIMx, uint32_t Timer, uint32_t PulseWidth)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   MODIFY_REG(*pReg, HRTIM_CHPR_STRPW, PulseWidth);
 }
 
@@ -5331,8 +5330,8 @@ __STATIC_INLINE void LL_HRTIM_CHP_SetPulseWidth(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_CHP_GetPulseWidth(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_TACEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].CHPxR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
   return (READ_BIT(*pReg, HRTIM_CHPR_STRPW));
 }
 
@@ -5340,7 +5339,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_CHP_GetPulseWidth(HRTIM_TypeDef *HRTIMx, uint3
   * @}
   */
 
-/** @defgroup HRTIM_EF_Output_Management Output_Management
+/** @defgroup HRTIM_LL_EF_Output_Management Output_Management
   * @{
   */
 
@@ -5460,8 +5459,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_CHP_GetPulseWidth(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_OUT_SetOutputSetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t SetSrc)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].SETx1R) +
-                                                    REG_OFFSET_TAB_SETxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].SETx1R) +
+                                                              REG_OFFSET_TAB_SETxR[iOutput]));
   WRITE_REG(*pReg, SetSrc);
 }
 
@@ -5580,8 +5579,8 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetOutputSetSrc(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetOutputSetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].SETx1R) +
-                                                    REG_OFFSET_TAB_SETxR[iOutput]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].SETx1R) +
+                                                                    REG_OFFSET_TAB_SETxR[iOutput]));
   return (uint32_t) READ_REG(*pReg);
 }
 
@@ -5701,8 +5700,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetOutputSetSrc(HRTIM_TypeDef *HRTIMx, uin
 __STATIC_INLINE void LL_HRTIM_OUT_SetOutputResetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t ResetSrc)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTx1R) +
-                                                    REG_OFFSET_TAB_SETxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTx1R) +
+                                                              REG_OFFSET_TAB_SETxR[iOutput]));
   WRITE_REG(*pReg, ResetSrc);
 }
 
@@ -5821,8 +5820,8 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetOutputResetSrc(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetOutputResetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTx1R) +
-                                                    REG_OFFSET_TAB_SETxR[iOutput]));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].RSTx1R) +
+                                                                    REG_OFFSET_TAB_SETxR[iOutput]));
   return (uint32_t) READ_REG(*pReg);
 }
 
@@ -5864,8 +5863,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetOutputResetSrc(HRTIM_TypeDef *HRTIMx, u
 __STATIC_INLINE void LL_HRTIM_OUT_Config(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t Configuration)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_OUTxR[iOutput]));
   MODIFY_REG(*pReg, (HRTIM_OUT_CONFIG_MASK << REG_SHIFT_TAB_OUTxR[iOutput]),
              (Configuration << REG_SHIFT_TAB_OUTxR[iOutput]));
 }
@@ -5894,8 +5893,8 @@ __STATIC_INLINE void LL_HRTIM_OUT_Config(HRTIM_TypeDef *HRTIMx, uint32_t Output,
 __STATIC_INLINE void LL_HRTIM_OUT_SetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t Polarity)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_OUTxR[iOutput]));
   MODIFY_REG(*pReg, (HRTIM_OUTR_POL1 << REG_SHIFT_TAB_OUTxR[iOutput]), (Polarity << REG_SHIFT_TAB_OUTxR[iOutput]));
 }
 
@@ -5922,9 +5921,9 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Ou
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return (READ_BIT(*pReg, (HRTIM_OUTR_POL1 << REG_SHIFT_TAB_OUTxR[iOutput])) >> REG_SHIFT_TAB_OUTxR[iOutput]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_OUTR_POL1) << REG_SHIFT_TAB_OUTxR[iOutput]) >> REG_SHIFT_TAB_OUTxR[iOutput]);
 }
 
 /**
@@ -5952,9 +5951,9 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetPolarity(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_OUT_SetIdleMode(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t IdleMode)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  MODIFY_REG(*pReg, (HRTIM_OUTR_IDLM1 << REG_SHIFT_TAB_OUTxR[iOutput]), (IdleMode << REG_SHIFT_TAB_OUTxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_OUTxR[iOutput]));
+  MODIFY_REG(*pReg, (HRTIM_OUTR_IDLM1 << (REG_SHIFT_TAB_OUTxR[iOutput])), (IdleMode << (REG_SHIFT_TAB_OUTxR[iOutput])));
 }
 
 /**
@@ -5980,9 +5979,9 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetIdleMode(HRTIM_TypeDef *HRTIMx, uint32_t Ou
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetIdleMode(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return (READ_BIT(*pReg, (HRTIM_OUTR_IDLM1 << REG_SHIFT_TAB_OUTxR[iOutput])) >> REG_SHIFT_TAB_OUTxR[iOutput]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_OUTR_IDLM1) << REG_SHIFT_TAB_OUTxR[iOutput]) >> REG_SHIFT_TAB_OUTxR[iOutput]);
 }
 
 /**
@@ -6011,8 +6010,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetIdleMode(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_OUT_SetIdleLevel(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t IdleLevel)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_OUTxR[iOutput]));
   MODIFY_REG(*pReg, (HRTIM_OUTR_IDLES1 << REG_SHIFT_TAB_OUTxR[iOutput]), (IdleLevel << REG_SHIFT_TAB_OUTxR[iOutput]));
 }
 
@@ -6039,9 +6038,9 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetIdleLevel(HRTIM_TypeDef *HRTIMx, uint32_t O
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetIdleLevel(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return (READ_BIT(*pReg, (HRTIM_OUTR_IDLES1 << REG_SHIFT_TAB_OUTxR[iOutput])) >> REG_SHIFT_TAB_OUTxR[iOutput]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_OUTR_IDLES1) << REG_SHIFT_TAB_OUTxR[iOutput]) >> REG_SHIFT_TAB_OUTxR[iOutput]);
 }
 
 /**
@@ -6072,8 +6071,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetIdleLevel(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_OUT_SetFaultState(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t FaultState)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_OUTxR[iOutput]));
   MODIFY_REG(*pReg, (HRTIM_OUTR_FAULT1 << REG_SHIFT_TAB_OUTxR[iOutput]), (FaultState << REG_SHIFT_TAB_OUTxR[iOutput]));
 }
 
@@ -6102,9 +6101,9 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetFaultState(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetFaultState(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return (READ_BIT(*pReg, (HRTIM_OUTR_FAULT1 << REG_SHIFT_TAB_OUTxR[iOutput])) >> REG_SHIFT_TAB_OUTxR[iOutput]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_OUTR_FAULT1) << REG_SHIFT_TAB_OUTxR[iOutput]) >> REG_SHIFT_TAB_OUTxR[iOutput]);
 }
 
 /**
@@ -6132,8 +6131,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetFaultState(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_OUT_SetChopperMode(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t ChopperMode)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_OUTxR[iOutput]));
   MODIFY_REG(*pReg, (HRTIM_OUTR_CHP1 << REG_SHIFT_TAB_OUTxR[iOutput]), (ChopperMode << REG_SHIFT_TAB_OUTxR[iOutput]));
 }
 
@@ -6160,9 +6159,9 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetChopperMode(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetChopperMode(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return (READ_BIT(*pReg, (HRTIM_OUTR_CHP1 << REG_SHIFT_TAB_OUTxR[iOutput])) >> REG_SHIFT_TAB_OUTxR[iOutput]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_OUTR_CHP1) << REG_SHIFT_TAB_OUTxR[iOutput]) >> REG_SHIFT_TAB_OUTxR[iOutput]);
 }
 
 /**
@@ -6190,8 +6189,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetChopperMode(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_OUT_SetBMEntryMode(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t BMEntryMode)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                              REG_OFFSET_TAB_OUTxR[iOutput]));
   MODIFY_REG(*pReg, (HRTIM_OUTR_DIDL1 << REG_SHIFT_TAB_OUTxR[iOutput]), (BMEntryMode << REG_SHIFT_TAB_OUTxR[iOutput]));
 }
 
@@ -6218,9 +6217,9 @@ __STATIC_INLINE void LL_HRTIM_OUT_SetBMEntryMode(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetBMEntryMode(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return (READ_BIT(*pReg, (HRTIM_OUTR_DIDL1 << REG_SHIFT_TAB_OUTxR[iOutput])) >> REG_SHIFT_TAB_OUTxR[iOutput]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].OUTxR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_OUTR_DIDL1) << REG_SHIFT_TAB_OUTxR[iOutput]) >> REG_SHIFT_TAB_OUTxR[iOutput]);
 }
 
 /**
@@ -6247,9 +6246,9 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetBMEntryMode(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetDLYPRTOutStatus(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxISR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return ((READ_BIT(*pReg, (HRTIM_TIMISR_O1STAT << REG_SHIFT_TAB_OxSTAT[iOutput])) >> REG_SHIFT_TAB_OxSTAT[iOutput]) >>
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxISR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return ((READ_BIT(*pReg, (uint32_t)(HRTIM_TIMISR_O1STAT) << REG_SHIFT_TAB_OxSTAT[iOutput]) >> REG_SHIFT_TAB_OxSTAT[iOutput]) >>
           HRTIM_TIMISR_O1STAT_Pos);
 }
 
@@ -6278,9 +6277,15 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetDLYPRTOutStatus(HRTIM_TypeDef *HRTIMx, 
   */
 __STATIC_INLINE void LL_HRTIM_OUT_ForceLevel(HRTIM_TypeDef *HRTIMx, uint32_t Output, uint32_t OutputLevel)
 {
+  const uint8_t REG_OFFSET_TAB_OUT_LEVEL[] =
+  {
+    0x04U,   /* 0: LL_HRTIM_OUT_LEVEL_INACTIVE  */
+    0x00U    /* 1: LL_HRTIM_OUT_LEVEL_ACTIVE  */
+  };
+
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].SETx1R) +
-                                                    REG_OFFSET_TAB_SETxR[iOutput] + REG_OFFSET_TAB_OUT_LEVEL[OutputLevel]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].SETx1R) +
+                                                              REG_OFFSET_TAB_SETxR[iOutput] + REG_OFFSET_TAB_OUT_LEVEL[OutputLevel]));
   SET_BIT(*pReg, HRTIM_SET1R_SST);
 }
 
@@ -6307,9 +6312,9 @@ __STATIC_INLINE void LL_HRTIM_OUT_ForceLevel(HRTIM_TypeDef *HRTIMx, uint32_t Out
 __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetLevel(HRTIM_TypeDef *HRTIMx, uint32_t Output)
 {
   register uint32_t iOutput = (uint8_t)(POSITION_VAL(Output) - POSITION_VAL(LL_HRTIM_OUTPUT_TA1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxISR) +
-                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
-  return ((READ_BIT(*pReg, (HRTIM_TIMISR_O1CPY << REG_SHIFT_TAB_OxSTAT[iOutput])) >> REG_SHIFT_TAB_OxSTAT[iOutput]) >>
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sTimerxRegs[0].TIMxISR) +
+                                                                    REG_OFFSET_TAB_OUTxR[iOutput]));
+  return ((READ_BIT(*pReg, (uint32_t)(HRTIM_TIMISR_O1CPY) << REG_SHIFT_TAB_OxSTAT[iOutput]) >> REG_SHIFT_TAB_OxSTAT[iOutput]) >>
           HRTIM_TIMISR_O1CPY_Pos);
 }
 
@@ -6317,7 +6322,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetLevel(HRTIM_TypeDef *HRTIMx, uint32_t O
   * @}
   */
 
-/** @defgroup HRTIM_EF_External_Event_management External_Event_management
+/** @defgroup HRTIM_LL_EF_External_Event_management External_Event_management
   * @{
   */
 
@@ -6379,7 +6384,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetLevel(HRTIM_TypeDef *HRTIMx, uint32_t O
   *         @arg @ref LL_HRTIM_EVENT_9
   *         @arg @ref LL_HRTIM_EVENT_10
   * @param  Configuration This parameter must be a combination of all the following values:
-  *         @arg @ref LL_HRTIM_EE_SRC_1 or @ref LL_HRTIM_EE_SRC_2 or @ref LL_HRTIM_EE_SRC_3 or @ref LL_HRTIM_EE_SRC_4
+  *         @arg External event source 1 or External event source 2 or External event source 3 or External event source 4
   *         @arg @ref LL_HRTIM_EE_POLARITY_HIGH or @ref LL_HRTIM_EE_POLARITY_LOW
   *         @arg @ref LL_HRTIM_EE_SENSITIVITY_LEVEL or @ref LL_HRTIM_EE_SENSITIVITY_RISINGEDGE or @ref LL_HRTIM_EE_SENSITIVITY_FALLINGEDGE or @ref LL_HRTIM_EE_SENSITIVITY_BOTHEDGES
   *         @arg @ref LL_HRTIM_EE_FASTMODE_DISABLE or @ref LL_HRTIM_EE_FASTMODE_ENABLE
@@ -6388,8 +6393,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_OUT_GetLevel(HRTIM_TypeDef *HRTIMx, uint32_t O
 __STATIC_INLINE void LL_HRTIM_EE_Config(HRTIM_TypeDef *HRTIMx, uint32_t Event, uint32_t Configuration)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                              REG_OFFSET_TAB_EECR[iEvent]));
   MODIFY_REG(*pReg, (HRTIM_EE_CONFIG_MASK << REG_SHIFT_TAB_EExSRC[iEvent]),
              (Configuration << REG_SHIFT_TAB_EExSRC[iEvent]));
 }
@@ -6419,17 +6424,17 @@ __STATIC_INLINE void LL_HRTIM_EE_Config(HRTIM_TypeDef *HRTIMx, uint32_t Event, u
   *         @arg @ref LL_HRTIM_EVENT_9
   *         @arg @ref LL_HRTIM_EVENT_10
   * @param  Src This parameter can be one of the following values:
-  *         @arg @ref LL_HRTIM_EE_SRC_1
-  *         @arg @ref LL_HRTIM_EE_SRC_2
-  *         @arg @ref LL_HRTIM_EE_SRC_3
-  *         @arg @ref LL_HRTIM_EE_SRC_4
+  *         @arg External event source 1
+  *         @arg External event source 2
+  *         @arg External event source 3
+  *         @arg External event source 4
   * @retval None
   */
 __STATIC_INLINE void LL_HRTIM_EE_SetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Event, uint32_t Src)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                              REG_OFFSET_TAB_EECR[iEvent]));
   MODIFY_REG(*pReg, (HRTIM_EECR1_EE1SRC << REG_SHIFT_TAB_EExSRC[iEvent]), (Src << REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
@@ -6458,17 +6463,17 @@ __STATIC_INLINE void LL_HRTIM_EE_SetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Event, u
   *         @arg @ref LL_HRTIM_EVENT_9
   *         @arg @ref LL_HRTIM_EVENT_10
   * @retval EventSrc This parameter can be one of the following values:
-  *         @arg @ref LL_HRTIM_EE_SRC_1
-  *         @arg @ref LL_HRTIM_EE_SRC_2
-  *         @arg @ref LL_HRTIM_EE_SRC_3
-  *         @arg @ref LL_HRTIM_EE_SRC_4
+  *         @arg External event source 1
+  *         @arg External event source 2
+  *         @arg External event source 3
+  *         @arg External event source 4
   */
 __STATIC_INLINE uint32_t LL_HRTIM_EE_GetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Event)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
-  return (READ_BIT(*pReg, HRTIM_EECR1_EE1SRC << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_EECR1_EE1SRC) << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
 }
 
 /**
@@ -6505,8 +6510,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_EE_GetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Even
 __STATIC_INLINE void LL_HRTIM_EE_SetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Event, uint32_t Polarity)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                              REG_OFFSET_TAB_EECR[iEvent]));
   MODIFY_REG(*pReg, (HRTIM_EECR1_EE1POL << REG_SHIFT_TAB_EExSRC[iEvent]), (Polarity << REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
@@ -6541,9 +6546,9 @@ __STATIC_INLINE void LL_HRTIM_EE_SetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Eve
 __STATIC_INLINE uint32_t LL_HRTIM_EE_GetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Event)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
-  return (READ_BIT(*pReg, HRTIM_EECR1_EE1POL << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_EECR1_EE1POL) << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
 }
 
 /**
@@ -6581,8 +6586,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_EE_GetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE void LL_HRTIM_EE_SetSensitivity(HRTIM_TypeDef *HRTIMx, uint32_t Event, uint32_t Sensitivity)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                              REG_OFFSET_TAB_EECR[iEvent]));
   MODIFY_REG(*pReg, (HRTIM_EECR1_EE1SNS << REG_SHIFT_TAB_EExSRC[iEvent]), (Sensitivity << REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
@@ -6619,9 +6624,9 @@ __STATIC_INLINE void LL_HRTIM_EE_SetSensitivity(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_EE_GetSensitivity(HRTIM_TypeDef *HRTIMx, uint32_t Event)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
-  return (READ_BIT(*pReg, HRTIM_EECR1_EE1SNS << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_EECR1_EE1SNS) << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
 }
 
 /**
@@ -6652,8 +6657,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_EE_GetSensitivity(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_EE_SetFastMode(HRTIM_TypeDef *HRTIMx, uint32_t Event, uint32_t FastMode)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                              REG_OFFSET_TAB_EECR[iEvent]));
   MODIFY_REG(*pReg, (HRTIM_EECR1_EE1FAST << REG_SHIFT_TAB_EExSRC[iEvent]), (FastMode << REG_SHIFT_TAB_EExSRC[iEvent]));
 }
 
@@ -6683,9 +6688,9 @@ __STATIC_INLINE void LL_HRTIM_EE_SetFastMode(HRTIM_TypeDef *HRTIMx, uint32_t Eve
 __STATIC_INLINE uint32_t LL_HRTIM_EE_GetFastMode(HRTIM_TypeDef *HRTIMx, uint32_t Event)
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_1));
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
-                                                    REG_OFFSET_TAB_EECR[iEvent]));
-  return (READ_BIT(*pReg, HRTIM_EECR1_EE1FAST << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.EECR1) +
+                                                                    REG_OFFSET_TAB_EECR[iEvent]));
+  return (READ_BIT(*pReg, (uint32_t)(HRTIM_EECR1_EE1FAST) << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
 }
 
 /**
@@ -6764,7 +6769,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_EE_GetFilter(HRTIM_TypeDef *HRTIMx, uint32_t E
 {
   register uint32_t iEvent = (uint8_t)(POSITION_VAL(Event) - POSITION_VAL(LL_HRTIM_EVENT_6));
   return (READ_BIT(HRTIMx->sCommonRegs.EECR3,
-                   (HRTIM_EECR3_EE6F << REG_SHIFT_TAB_EExSRC[iEvent])) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
+                   (uint32_t)(HRTIM_EECR3_EE6F) << REG_SHIFT_TAB_EExSRC[iEvent]) >>  REG_SHIFT_TAB_EExSRC[iEvent]);
 }
 
 /**
@@ -6804,12 +6809,11 @@ __STATIC_INLINE uint32_t LL_HRTIM_EE_GetPrescaler(HRTIM_TypeDef *HRTIMx)
   * @}
   */
 
-/** @defgroup HRTIM_EF_Fault_management Fault_management
+/** @defgroup HRTIM_LL_EF_Fault_management Fault_management
   * @{
   */
-
 /**
-  * @brief  Configure fault signal conditioning.
+  * @brief  Configure fault signal conditioning Polarity and Source.
   * @rmtoll FLTINR1     FLT1P        LL_HRTIM_FLT_Config\n
   *         FLTINR1     FLT1SRC      LL_HRTIM_FLT_Config\n
   *         FLTINR1     FLT2P        LL_HRTIM_FLT_Config\n
@@ -6829,15 +6833,15 @@ __STATIC_INLINE uint32_t LL_HRTIM_EE_GetPrescaler(HRTIM_TypeDef *HRTIMx)
   *         @arg @ref LL_HRTIM_FAULT_4
   *         @arg @ref LL_HRTIM_FAULT_5
   * @param  Configuration This parameter must be a combination of all the following values:
-  *         @arg @ref LL_HRTIM_FLT_SRC_DIGITALINPUT or @ref LL_HRTIM_FLT_SRC_INTERNAL
-  *         @arg @ref LL_HRTIM_FLT_POLARITY_LOW or @ref LL_HRTIM_FLT_POLARITY_HIGH
+  *         @arg @ref LL_HRTIM_FLT_SRC_DIGITALINPUT..LL_HRTIM_FLT_SRC_INTERNAL
+  *         @arg @ref LL_HRTIM_FLT_POLARITY_LOW..LL_HRTIM_FLT_POLARITY_HIGH
   * @retval None
   */
 __STATIC_INLINE void LL_HRTIM_FLT_Config(HRTIM_TypeDef *HRTIMx, uint32_t Fault, uint32_t Configuration)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   MODIFY_REG(*pReg, (HRTIM_FLT_CONFIG_MASK << REG_SHIFT_TAB_FLTxE[iFault]),
              (Configuration << REG_SHIFT_TAB_FLTxE[iFault]));
 }
@@ -6865,8 +6869,8 @@ __STATIC_INLINE void LL_HRTIM_FLT_Config(HRTIM_TypeDef *HRTIMx, uint32_t Fault, 
 __STATIC_INLINE void LL_HRTIM_FLT_SetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Fault, uint32_t Src)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   MODIFY_REG(*pReg, (HRTIM_FLTINR1_FLT1SRC << REG_SHIFT_TAB_FLTxE[iFault]), (Src << REG_SHIFT_TAB_FLTxE[iFault]));
 }
 
@@ -6884,15 +6888,15 @@ __STATIC_INLINE void LL_HRTIM_FLT_SetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Fault, 
   *         @arg @ref LL_HRTIM_FAULT_3
   *         @arg @ref LL_HRTIM_FAULT_4
   *         @arg @ref LL_HRTIM_FAULT_5
-  * @retval Src This parameter can be one of the following values:
+  * @retval Source This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_FLT_SRC_DIGITALINPUT
   *         @arg @ref LL_HRTIM_FLT_SRC_INTERNAL
   */
 __STATIC_INLINE uint32_t LL_HRTIM_FLT_GetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   return (READ_BIT(*pReg, (HRTIM_FLTINR1_FLT1SRC << REG_SHIFT_TAB_FLTxE[iFault])) >>  REG_SHIFT_TAB_FLTxE[iFault]);
 }
 
@@ -6919,8 +6923,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_FLT_GetSrc(HRTIM_TypeDef *HRTIMx, uint32_t Fau
 __STATIC_INLINE void LL_HRTIM_FLT_SetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Fault, uint32_t Polarity)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   MODIFY_REG(*pReg, (HRTIM_FLTINR1_FLT1P << REG_SHIFT_TAB_FLTxE[iFault]), (Polarity << REG_SHIFT_TAB_FLTxE[iFault]));
 }
 
@@ -6945,8 +6949,8 @@ __STATIC_INLINE void LL_HRTIM_FLT_SetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Fa
 __STATIC_INLINE uint32_t LL_HRTIM_FLT_GetPolarity(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   return (READ_BIT(*pReg, (HRTIM_FLTINR1_FLT1P << REG_SHIFT_TAB_FLTxE[iFault])) >>  REG_SHIFT_TAB_FLTxE[iFault]);
 }
 
@@ -6987,8 +6991,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_FLT_GetPolarity(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_FLT_SetFilter(HRTIM_TypeDef *HRTIMx, uint32_t Fault, uint32_t Filter)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   MODIFY_REG(*pReg, (HRTIM_FLTINR1_FLT1F << REG_SHIFT_TAB_FLTxE[iFault]), (Filter << REG_SHIFT_TAB_FLTxE[iFault]));
 }
 
@@ -7027,9 +7031,10 @@ __STATIC_INLINE void LL_HRTIM_FLT_SetFilter(HRTIM_TypeDef *HRTIMx, uint32_t Faul
 __STATIC_INLINE uint32_t LL_HRTIM_FLT_GetFilter(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   return (READ_BIT(*pReg, (HRTIM_FLTINR1_FLT1F << REG_SHIFT_TAB_FLTxE[iFault])) >>  REG_SHIFT_TAB_FLTxE[iFault]);
+
 }
 
 /**
@@ -7061,7 +7066,6 @@ __STATIC_INLINE void LL_HRTIM_FLT_SetPrescaler(HRTIM_TypeDef *HRTIMx, uint32_t P
 __STATIC_INLINE uint32_t LL_HRTIM_FLT_GetPrescaler(HRTIM_TypeDef *HRTIMx)
 {
   return (READ_BIT(HRTIMx->sCommonRegs.FLTINR2, HRTIM_FLTINR2_FLTSD));
-
 }
 
 /**
@@ -7083,8 +7087,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_FLT_GetPrescaler(HRTIM_TypeDef *HRTIMx)
 __STATIC_INLINE void LL_HRTIM_FLT_Lock(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   SET_BIT(*pReg, (HRTIM_FLTINR1_FLT1LCK << REG_SHIFT_TAB_FLTxE[iFault]));
 }
 
@@ -7107,8 +7111,8 @@ __STATIC_INLINE void LL_HRTIM_FLT_Lock(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 __STATIC_INLINE void LL_HRTIM_FLT_Enable(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   SET_BIT(*pReg, (HRTIM_FLTINR1_FLT1E << REG_SHIFT_TAB_FLTxE[iFault]));
 }
 
@@ -7131,8 +7135,8 @@ __STATIC_INLINE void LL_HRTIM_FLT_Enable(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 __STATIC_INLINE void LL_HRTIM_FLT_Disable(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                              REG_OFFSET_TAB_FLTINR[iFault]));
   CLEAR_BIT(*pReg, (HRTIM_FLTINR1_FLT1E << REG_SHIFT_TAB_FLTxE[iFault]));
 }
 
@@ -7143,7 +7147,7 @@ __STATIC_INLINE void LL_HRTIM_FLT_Disable(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
   *         FLTINR1     FLT3E      LL_HRTIM_FLT_IsEnabled\n
   *         FLTINR1     FLT4E      LL_HRTIM_FLT_IsEnabled\n
   *         FLTINR2     FLT5E      LL_HRTIM_FLT_IsEnabled
-  * @param  HRTIMx High Resolution Timer instance  * @param  HRTIMx High Resolution Timer instance
+  * @param  HRTIMx High Resolution Timer instance
   * @param  Fault This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_FAULT_1
   *         @arg @ref LL_HRTIM_FAULT_2
@@ -7155,17 +7159,17 @@ __STATIC_INLINE void LL_HRTIM_FLT_Disable(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 __STATIC_INLINE uint32_t LL_HRTIM_FLT_IsEnabled(HRTIM_TypeDef *HRTIMx, uint32_t Fault)
 {
   register uint32_t iFault = (uint8_t)POSITION_VAL(Fault);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
-                                                    REG_OFFSET_TAB_FLTINR[iFault]));
-  return ((READ_BIT(*pReg, (HRTIM_FLTINR1_FLT1E << REG_SHIFT_TAB_FLTxE[iFault])) >> REG_SHIFT_TAB_FLTxE[iFault]) ==
-          (HRTIM_IER_FLT1));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sCommonRegs.FLTINR1) +
+                                                                    REG_OFFSET_TAB_FLTINR[iFault]));
+  return (((READ_BIT(*pReg, (HRTIM_FLTINR1_FLT1E << REG_SHIFT_TAB_FLTxE[iFault])) >> REG_SHIFT_TAB_FLTxE[iFault]) ==
+           (HRTIM_IER_FLT1)) ? 1UL : 0UL);
 }
 
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EF_Burst_Mode_management Burst_Mode_management
+/** @defgroup HRTIM_LL_EF_Burst_Mode_management Burst_Mode_management
   * @{
   */
 
@@ -7239,6 +7243,17 @@ __STATIC_INLINE void LL_HRTIM_BM_SetClockSrc(HRTIM_TypeDef *HRTIMx, uint32_t Clo
   * @brief  Get actual burst mode controller clock source.
   * @rmtoll BMCR     BMCLK       LL_HRTIM_BM_GetClockSrc
   * @param  HRTIMx High Resolution Timer instance
+  * @retval ClockSrc This parameter can be one of the following values:
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_MASTER
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIMER_A
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIMER_B
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIMER_C
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIMER_D
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIMER_E
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIM16_OC
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIM17_OC
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_TIM7_TRGO
+  *         @arg @ref LL_HRTIM_BM_CLKSRC_FHRTIM
   * @retval ClockSrc This parameter can be one of the following values:
   *         @arg @ref LL_HRTIM_BM_CLKSRC_MASTER
   *         @arg @ref LL_HRTIM_BM_CLKSRC_TIMER_A
@@ -7341,7 +7356,10 @@ __STATIC_INLINE void LL_HRTIM_BM_DisablePreload(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_BM_IsEnabledPreload(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.BMCR, HRTIM_BMCR_BMPREN) == HRTIM_BMCR_BMPREN);
+  uint32_t temp; /* MISRAC-2012 compliancy */
+  temp = READ_BIT(HRTIMx->sCommonRegs.BMCR, HRTIM_BMCR_BMPREN);
+
+  return ((temp == (HRTIM_BMCR_BMPREN)) ? 1UL : 0UL);
 }
 
 /**
@@ -7577,7 +7595,7 @@ __STATIC_INLINE void LL_HRTIM_BM_Disable(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_BM_IsEnabled(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.BMCR, HRTIM_BMCR_BME) == HRTIM_BMCR_BME);
+  return ((READ_BIT(HRTIMx->sCommonRegs.BMCR, HRTIM_BMCR_BME) == (HRTIM_BMCR_BME)) ? 1UL : 0UL);
 }
 
 /**
@@ -7620,7 +7638,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_BM_GetStatus(HRTIM_TypeDef *HRTIMx)
   * @}
   */
 
-/** @defgroup HRTIM_EF_FLAG_Management FLAG_Management
+/** @defgroup HRTIM_LL_EF_FLAG_Management FLAG_Management
   * @{
   */
 
@@ -7643,7 +7661,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_FLT1(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_FLT1(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT1) == (HRTIM_ISR_FLT1));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT1) == (HRTIM_ISR_FLT1)) ? 1UL : 0UL);
 }
 
 /**
@@ -7665,7 +7683,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_FLT2(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_FLT2(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT2) == (HRTIM_ISR_FLT2));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT2) == (HRTIM_ISR_FLT2)) ? 1UL : 0UL);
 }
 
 /**
@@ -7687,7 +7705,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_FLT3(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_FLT3(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT3) == (HRTIM_ISR_FLT3));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT3) == (HRTIM_ISR_FLT3)) ? 1UL : 0UL);
 }
 
 /**
@@ -7709,7 +7727,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_FLT4(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_FLT4(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT4) == (HRTIM_ISR_FLT4));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT4) == (HRTIM_ISR_FLT4)) ? 1UL : 0UL);
 }
 
 /**
@@ -7731,7 +7749,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_FLT5(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_FLT5(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT5) == (HRTIM_ISR_FLT5));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_FLT5) == (HRTIM_ISR_FLT5)) ? 1UL : 0UL);
 }
 
 /**
@@ -7753,7 +7771,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_SYSFLT(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_SYSFLT(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_SYSFLT) == (HRTIM_ISR_SYSFLT));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_SYSFLT) == (HRTIM_ISR_SYSFLT)) ? 1UL : 0UL);
 }
 
 /**
@@ -7775,7 +7793,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_DLLRDY(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_DLLRDY(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_DLLRDY) == (HRTIM_ISR_DLLRDY));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_DLLRDY) == (HRTIM_ISR_DLLRDY)) ? 1UL : 0UL);
 }
 
 /**
@@ -7797,7 +7815,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_BMPER(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_BMPER(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_BMPER) == (HRTIM_ISR_BMPER));
+  return ((READ_BIT(HRTIMx->sCommonRegs.ISR, HRTIM_ISR_BMPER) == (HRTIM_ISR_BMPER)) ? 1UL : 0UL);
 }
 
 /**
@@ -7819,7 +7837,7 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_SYNC(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_SYNC(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sMasterRegs.MISR, HRTIM_MISR_SYNC) == (HRTIM_MISR_SYNC));
+  return ((READ_BIT(HRTIMx->sMasterRegs.MISR, HRTIM_MISR_SYNC) == (HRTIM_MISR_SYNC)) ? 1UL : 0UL);
 }
 
 /**
@@ -7839,8 +7857,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_SYNC(HRTIM_TypeDef *HRTIMx)
 __STATIC_INLINE void LL_HRTIM_ClearFlag_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MICR_MUPD);
 }
 
@@ -7861,9 +7879,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MISR_MUPD) == (HRTIM_MISR_MUPD));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MISR_MUPD) == (HRTIM_MISR_MUPD)) ? 1UL : 0UL);
 }
 
 /**
@@ -7883,8 +7902,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_UPDATE(HRTIM_TypeDef *HRTIMx, uin
 __STATIC_INLINE void LL_HRTIM_ClearFlag_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MICR_MREP);
 
 }
@@ -7906,9 +7925,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_REP(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MISR_MREP) == (HRTIM_MISR_MREP));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MISR_MREP) == (HRTIM_MISR_MREP)) ? 1UL : 0UL);
 }
 
 /**
@@ -7928,8 +7948,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_REP(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MICR_MCMP1);
 }
 
@@ -7950,9 +7970,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MISR_MCMP1) == (HRTIM_MISR_MCMP1));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MISR_MCMP1) == (HRTIM_MISR_MCMP1)) ? 1UL : 0UL);
 }
 
 /**
@@ -7972,8 +7993,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP1(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MICR_MCMP2);
 }
 
@@ -7994,9 +8015,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MISR_MCMP2) == (HRTIM_MISR_MCMP2));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MISR_MCMP2) == (HRTIM_MISR_MCMP2)) ? 1UL : 0UL);
 }
 
 /**
@@ -8016,8 +8038,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP2(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MICR_MCMP3);
 }
 
@@ -8038,9 +8060,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MISR_MCMP3) == (HRTIM_MISR_MCMP3));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MISR_MCMP3) == (HRTIM_MISR_MCMP3)) ? 1UL : 0UL);
 }
 
 /**
@@ -8060,8 +8083,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP3(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MICR_MCMP4);
 }
 
@@ -8082,9 +8105,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MISR_MCMP4) == (HRTIM_MISR_MCMP4));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_MISR_MCMP4) == (HRTIM_MISR_MCMP4)) ? 1UL : 0UL);
 }
 
 /**
@@ -8102,8 +8126,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CMP4(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMICR_CPT1C);
 }
 
@@ -8122,9 +8146,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_CPT1) == (HRTIM_TIMISR_CPT1));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_CPT1) == (HRTIM_TIMISR_CPT1)) ? 1UL : 0UL);
 }
 
 /**
@@ -8142,8 +8167,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CPT1(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMICR_CPT2C);
 }
 
@@ -8162,9 +8187,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_CPT2) == (HRTIM_TIMISR_CPT2));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_CPT2) == (HRTIM_TIMISR_CPT2)) ? 1UL : 0UL);
 }
 
 /**
@@ -8182,8 +8208,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_CPT2(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMICR_SET1C);
 }
 
@@ -8202,9 +8228,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_SET1) == (HRTIM_TIMISR_SET1));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_SET1) == (HRTIM_TIMISR_SET1)) ? 1UL : 0UL);
 }
 
 /**
@@ -8222,8 +8249,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_SET1(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMICR_RST1C);
 }
 
@@ -8242,9 +8269,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_RST1) == (HRTIM_TIMISR_RST1));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_RST1) == (HRTIM_TIMISR_RST1)) ? 1UL : 0UL);
 }
 
 /**
@@ -8262,8 +8290,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_RST1(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMICR_SET2C);
 }
 
@@ -8282,9 +8310,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_SET2) == (HRTIM_TIMISR_SET2));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_SET2) == (HRTIM_TIMISR_SET2)) ? 1UL : 0UL);
 }
 
 /**
@@ -8302,8 +8331,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_SET2(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMICR_RST2C);
 }
 
@@ -8322,9 +8351,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_RST2) == (HRTIM_TIMISR_RST2));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_RST2) == (HRTIM_TIMISR_RST2)) ? 1UL : 0UL);
 }
 
 /**
@@ -8342,8 +8372,8 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_RST2(HRTIM_TypeDef *HRTIMx, uint3
 __STATIC_INLINE void LL_HRTIM_ClearFlag_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMICR_RSTC);
 }
 
@@ -8362,9 +8392,10 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_RST(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_RST) == (HRTIM_TIMISR_RST));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_RST) == (HRTIM_TIMISR_RST)) ? 1UL : 0UL);
 }
 
 /**
@@ -8382,9 +8413,9 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_RST(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_ClearFlag_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  SET_BIT(*pReg, HRTIM_TIMICR_DLYPRT1C);
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MICR) +
+                                                              REG_OFFSET_TAB_TIMER[iTimer]));
+  SET_BIT(*pReg, HRTIM_TIMICR_DLYPRTC);
 }
 
 /**
@@ -8402,16 +8433,17 @@ __STATIC_INLINE void LL_HRTIM_ClearFlag_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_IsActiveFlag_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
-                                                    REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMISR_DLYPRT) == (HRTIM_TIMISR_DLYPRT));
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MISR) +
+                                                                    REG_OFFSET_TAB_TIMER[iTimer]));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMISR_DLYPRT) == (HRTIM_TIMISR_DLYPRT)) ? 1UL : 0UL);
 }
 
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EF_IT_Management IT_Management
+/** @defgroup HRTIM_LL_EF_IT_Management IT_Management
   * @{
   */
 
@@ -8445,7 +8477,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_FLT1(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_FLT1(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT1) == (HRTIM_IER_FLT1));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT1) == (HRTIM_IER_FLT1)) ? 1UL : 0UL);
 }
 
 /**
@@ -8478,7 +8510,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_FLT2(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_FLT2(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT2) == (HRTIM_IER_FLT2));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT2) == (HRTIM_IER_FLT2)) ? 1UL : 0UL);
 }
 
 /**
@@ -8511,7 +8543,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_FLT3(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_FLT3(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT3) == (HRTIM_IER_FLT3));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT3) == (HRTIM_IER_FLT3)) ? 1UL : 0UL);
 }
 
 /**
@@ -8544,7 +8576,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_FLT4(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_FLT4(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT4) == (HRTIM_IER_FLT4));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT4) == (HRTIM_IER_FLT4)) ? 1UL : 0UL);
 }
 
 /**
@@ -8577,7 +8609,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_FLT5(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_FLT5(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT5) == (HRTIM_IER_FLT5));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_FLT5) == (HRTIM_IER_FLT5)) ? 1UL : 0UL);
 }
 
 /**
@@ -8610,7 +8642,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_SYSFLT(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_SYSFLT(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_SYSFLT) == (HRTIM_IER_SYSFLT));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_SYSFLT) == (HRTIM_IER_SYSFLT)) ? 1UL : 0UL);
 }
 
 /**
@@ -8643,7 +8675,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_DLLRDY(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_DLLRDY(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_DLLRDY) == (HRTIM_IER_DLLRDY));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_DLLRDY) == (HRTIM_IER_DLLRDY)) ? 1UL : 0UL);
 }
 
 /**
@@ -8676,7 +8708,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_BMPER(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_BMPER(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_BMPER) == (HRTIM_IER_BMPER));
+  return ((READ_BIT(HRTIMx->sCommonRegs.IER, HRTIM_IER_BMPER) == (HRTIM_IER_BMPER)) ? 1UL : 0UL);
 }
 
 /**
@@ -8709,7 +8741,7 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_SYNC(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_SYNC(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sMasterRegs.MDIER, HRTIM_MDIER_SYNCIE) == (HRTIM_MDIER_SYNCIE));
+  return ((READ_BIT(HRTIMx->sMasterRegs.MDIER, HRTIM_MDIER_SYNCIE) == (HRTIM_MDIER_SYNCIE)) ? 1UL : 0UL);
 }
 
 /**
@@ -8729,7 +8761,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_SYNC(HRTIM_TypeDef *HRTIMx)
 __STATIC_INLINE void LL_HRTIM_EnableIT_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MUPDIE);
 }
@@ -8751,7 +8783,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE void LL_HRTIM_DisableIT_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MUPDIE);
 }
@@ -8773,9 +8805,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MUPDIE) == (HRTIM_MDIER_MUPDIE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MUPDIE) == (HRTIM_MDIER_MUPDIE)) ? 1UL : 0UL);
 }
 
 /**
@@ -8795,7 +8828,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_UPDATE(HRTIM_TypeDef *HRTIMx, uint
 __STATIC_INLINE void LL_HRTIM_EnableIT_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MREPIE);
 }
@@ -8817,7 +8850,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer
 __STATIC_INLINE void LL_HRTIM_DisableIT_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MREPIE);
 }
@@ -8839,9 +8872,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_REP(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MREPIE) == (HRTIM_MDIER_MREPIE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MREPIE) == (HRTIM_MDIER_MREPIE)) ? 1UL : 0UL);
 }
 
 /**
@@ -8861,7 +8895,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_REP(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_EnableIT_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP1IE);
 }
@@ -8883,7 +8917,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP1IE);
 }
@@ -8905,9 +8939,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP1IE) == (HRTIM_MDIER_MCMP1IE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP1IE) == (HRTIM_MDIER_MCMP1IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -8927,7 +8962,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP1(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP2IE);
 }
@@ -8949,7 +8984,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP2IE);
 }
@@ -8971,9 +9006,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP2IE) == (HRTIM_MDIER_MCMP2IE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP2IE) == (HRTIM_MDIER_MCMP2IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -8993,7 +9029,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP2(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP3IE);
 }
@@ -9015,7 +9051,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP3IE);
 }
@@ -9037,9 +9073,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP3IE) == (HRTIM_MDIER_MCMP3IE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP3IE) == (HRTIM_MDIER_MCMP3IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9059,7 +9096,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP3(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP4IE);
 }
@@ -9081,7 +9118,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP4IE);
 }
@@ -9103,9 +9140,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP4IE) == (HRTIM_MDIER_MCMP4IE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP4IE) == (HRTIM_MDIER_MCMP4IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9123,7 +9161,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CMP4(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_CPT1IE);
 }
@@ -9143,7 +9181,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_CPT1IE);
 }
@@ -9163,9 +9201,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_CPT1IE) == (HRTIM_TIMDIER_CPT1IE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_CPT1IE) == (HRTIM_TIMDIER_CPT1IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9183,7 +9222,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CPT1(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_CPT2IE);
 }
@@ -9203,7 +9242,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_CPT2IE);
 }
@@ -9223,9 +9262,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_CPT2IE) == (HRTIM_TIMDIER_CPT2IE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_CPT2IE) == (HRTIM_TIMDIER_CPT2IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9243,7 +9283,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_CPT2(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_SET1IE);
 }
@@ -9263,7 +9303,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_SET1IE);
 }
@@ -9283,9 +9323,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_SET1IE) == (HRTIM_TIMDIER_SET1IE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_SET1IE) == (HRTIM_TIMDIER_SET1IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9303,7 +9344,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_SET1(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_RST1IE);
 }
@@ -9323,7 +9364,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_RST1IE);
 }
@@ -9343,9 +9384,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_RST1IE) == (HRTIM_TIMDIER_RST1IE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_RST1IE) == (HRTIM_TIMDIER_RST1IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9363,7 +9405,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_RST1(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_SET2IE);
 }
@@ -9383,7 +9425,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_SET2IE);
 }
@@ -9403,9 +9445,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_SET2IE) == (HRTIM_TIMDIER_SET2IE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_SET2IE) == (HRTIM_TIMDIER_SET2IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9423,7 +9466,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_SET2(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_RST2IE);
 }
@@ -9443,7 +9486,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE void LL_HRTIM_DisableIT_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_RST2IE);
 }
@@ -9463,9 +9506,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Tim
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_RST2IE) == (HRTIM_TIMDIER_RST2IE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_RST2IE) == (HRTIM_TIMDIER_RST2IE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9483,7 +9527,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_RST2(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE void LL_HRTIM_EnableIT_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_RSTIE);
 }
@@ -9503,7 +9547,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer
 __STATIC_INLINE void LL_HRTIM_DisableIT_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_RSTIE);
 }
@@ -9523,9 +9567,10 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_RST(HRTIM_TypeDef *HRTIMx, uint32_t Time
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_RSTIE) == (HRTIM_TIMDIER_RSTIE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_RSTIE) == (HRTIM_TIMDIER_RSTIE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9543,7 +9588,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_RST(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_EnableIT_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_DLYPRTIE);
 }
@@ -9563,7 +9608,7 @@ __STATIC_INLINE void LL_HRTIM_EnableIT_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Ti
 __STATIC_INLINE void LL_HRTIM_DisableIT_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_DLYPRTIE);
 }
@@ -9583,16 +9628,17 @@ __STATIC_INLINE void LL_HRTIM_DisableIT_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledIT_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_DLYPRTIE) == (HRTIM_TIMDIER_DLYPRTIE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_DLYPRTIE) == (HRTIM_TIMDIER_DLYPRTIE)) ? 1UL : 0UL);
 }
 
 /**
   * @}
   */
 
-/** @defgroup HRTIM_EF_DMA_Management DMA_Management
+/** @defgroup HRTIM_LL_EF_DMA_Management DMA_Management
   * @{
   */
 
@@ -9626,7 +9672,7 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_SYNC(HRTIM_TypeDef *HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_SYNC(HRTIM_TypeDef *HRTIMx)
 {
-  return (READ_BIT(HRTIMx->sMasterRegs.MDIER, HRTIM_MDIER_SYNCDE) == (HRTIM_MDIER_SYNCDE));
+  return ((READ_BIT(HRTIMx->sMasterRegs.MDIER, HRTIM_MDIER_SYNCDE) == (HRTIM_MDIER_SYNCDE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9646,7 +9692,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_SYNC(HRTIM_TypeDef *HRTIMx)
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MUPDDE);
 }
@@ -9668,7 +9714,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MUPDDE);
 }
@@ -9690,9 +9736,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_UPDATE(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_UPDATE(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MUPDDE) == (HRTIM_MDIER_MUPDDE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MUPDDE) == (HRTIM_MDIER_MUPDDE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9712,7 +9759,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_UPDATE(HRTIM_TypeDef *HRTIMx, 
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MREPDE);
 }
@@ -9734,7 +9781,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_REP(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MREPDE);
 }
@@ -9756,9 +9803,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_REP(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_REP(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MREPDE) == (HRTIM_MDIER_MREPDE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MREPDE) == (HRTIM_MDIER_MREPDE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9778,7 +9826,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_REP(HRTIM_TypeDef *HRTIMx, uin
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP1DE);
 }
@@ -9800,7 +9848,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP1DE);
 }
@@ -9822,9 +9870,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP1DE) == (HRTIM_MDIER_MCMP1DE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP1DE) == (HRTIM_MDIER_MCMP1DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9844,7 +9893,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP1(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP2DE);
 }
@@ -9866,7 +9915,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP2DE);
 }
@@ -9888,9 +9937,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP2DE) == (HRTIM_MDIER_MCMP2DE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP2DE) == (HRTIM_MDIER_MCMP2DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9910,7 +9960,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP2(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP3DE);
 }
@@ -9932,7 +9982,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP3DE);
 }
@@ -9954,9 +10004,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP3(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP3DE) == (HRTIM_MDIER_MCMP3DE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP3DE) == (HRTIM_MDIER_MCMP3DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -9976,7 +10027,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP3(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_MDIER_MCMP4DE);
 }
@@ -9998,7 +10049,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_MDIER_MCMP4DE);
 }
@@ -10020,9 +10071,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP4(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_MDIER_MCMP4DE) == (HRTIM_MDIER_MCMP4DE));
+
+  return ((READ_BIT(*pReg, HRTIM_MDIER_MCMP4DE) == (HRTIM_MDIER_MCMP4DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10040,7 +10092,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CMP4(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_CPT1DE);
 }
@@ -10060,7 +10112,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_CPT1DE);
 }
@@ -10080,9 +10132,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CPT1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_CPT1DE) == (HRTIM_TIMDIER_CPT1DE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_CPT1DE) == (HRTIM_TIMDIER_CPT1DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10100,7 +10153,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CPT1(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_CPT2DE);
 }
@@ -10120,7 +10173,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_CPT2DE);
 }
@@ -10140,9 +10193,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CPT2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_CPT2DE) == (HRTIM_TIMDIER_CPT2DE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_CPT2DE) == (HRTIM_TIMDIER_CPT2DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10160,7 +10214,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_CPT2(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_SET1DE);
 }
@@ -10180,7 +10234,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_SET1(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_SET1DE);
 }
@@ -10200,9 +10254,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_SET1(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_SET1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_SET1DE) == (HRTIM_TIMDIER_SET1DE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_SET1DE) == (HRTIM_TIMDIER_SET1DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10220,7 +10275,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_SET1(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_RST1DE);
 }
@@ -10240,7 +10295,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_RST1(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_RST1DE);
 }
@@ -10260,9 +10315,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_RST1(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_RST1(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_RST1DE) == (HRTIM_TIMDIER_RST1DE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_RST1DE) == (HRTIM_TIMDIER_RST1DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10280,7 +10336,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_RST1(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_SET2DE);
 }
@@ -10300,7 +10356,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_SET2(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_SET2DE);
 }
@@ -10320,9 +10376,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_SET2(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_SET2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_SET2DE) == (HRTIM_TIMDIER_SET2DE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_SET2DE) == (HRTIM_TIMDIER_SET2DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10340,7 +10397,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_SET2(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_RST2DE);
 }
@@ -10360,7 +10417,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_RST2(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_RST2DE);
 }
@@ -10380,9 +10437,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_RST2(HRTIM_TypeDef *HRTIMx, uint32_t
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_RST2(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_RST2DE) == (HRTIM_TIMDIER_RST2DE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_RST2DE) == (HRTIM_TIMDIER_RST2DE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10400,7 +10458,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_RST2(HRTIM_TypeDef *HRTIMx, ui
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_RSTDE);
 }
@@ -10420,7 +10478,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_RST(HRTIM_TypeDef *HRTIMx, uint32_t T
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_RSTDE);
 }
@@ -10440,9 +10498,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_RST(HRTIM_TypeDef *HRTIMx, uint32_t 
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_RST(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_RSTDE) == (HRTIM_TIMDIER_RSTDE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_RSTDE) == (HRTIM_TIMDIER_RSTDE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10460,7 +10519,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_RST(HRTIM_TypeDef *HRTIMx, uin
 __STATIC_INLINE void LL_HRTIM_EnableDMAReq_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   SET_BIT(*pReg, HRTIM_TIMDIER_DLYPRTDE);
 }
@@ -10480,7 +10539,7 @@ __STATIC_INLINE void LL_HRTIM_EnableDMAReq_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_
 __STATIC_INLINE void LL_HRTIM_DisableDMAReq_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
   CLEAR_BIT(*pReg, HRTIM_TIMDIER_DLYPRTDE);
 }
@@ -10500,9 +10559,10 @@ __STATIC_INLINE void LL_HRTIM_DisableDMAReq_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32
 __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_DLYPRT(HRTIM_TypeDef *HRTIMx, uint32_t Timer)
 {
   register uint32_t iTimer = (uint8_t)(POSITION_VAL(Timer) - HRTIM_MCR_MCEN_Pos);
-  register uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
+  register const __IO uint32_t *pReg = (__IO uint32_t *)((uint32_t)((uint32_t)(&HRTIMx->sMasterRegs.MDIER) +
                                                     REG_OFFSET_TAB_TIMER[iTimer]));
-  return (READ_BIT(*pReg, HRTIM_TIMDIER_DLYPRTDE) == (HRTIM_TIMDIER_DLYPRTDE));
+
+  return ((READ_BIT(*pReg, HRTIM_TIMDIER_DLYPRTDE) == (HRTIM_TIMDIER_DLYPRTDE)) ? 1UL : 0UL);
 }
 
 /**
@@ -10510,7 +10570,7 @@ __STATIC_INLINE uint32_t LL_HRTIM_IsEnabledDMAReq_DLYPRT(HRTIM_TypeDef *HRTIMx, 
   */
 
 #if defined(USE_FULL_LL_DRIVER)
-/** @defgroup HRTIM_LL_EF_Init Initialisation and deinitialisation functions
+/** @defgroup HRTIM_LL_LL_EF_Init In-initialization and de-initialization functions
   * @{
   */
 ErrorStatus LL_HRTIM_DeInit(HRTIM_TypeDef* HRTIMx);
@@ -10537,6 +10597,8 @@ ErrorStatus LL_HRTIM_DeInit(HRTIM_TypeDef* HRTIMx);
 }
 #endif
 
-#endif /* __STM32F3xx_LL_HRTIM_H */
+#endif /* STM32F3xx_LL_HRTIM_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+

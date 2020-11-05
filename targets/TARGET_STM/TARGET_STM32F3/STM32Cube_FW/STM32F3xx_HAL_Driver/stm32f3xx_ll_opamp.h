@@ -6,36 +6,20 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F3xx_LL_OPAMP_H
-#define __STM32F3xx_LL_OPAMP_H
+#ifndef STM32F3xx_LL_OPAMP_H
+#define STM32F3xx_LL_OPAMP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,18 +97,18 @@ typedef struct
   uint32_t FunctionalMode;              /*!< Set OPAMP functional mode by setting internal connections: OPAMP operation in standalone, follower, ...
                                              This parameter can be a value of @ref OPAMP_LL_EC_FUNCTIONAL_MODE
                                              @note If OPAMP is configured in mode PGA, the gain can be configured using function @ref LL_OPAMP_SetPGAGain().
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_OPAMP_SetFunctionalMode(). */
 
   uint32_t InputNonInverting;           /*!< Set OPAMP input non-inverting connection.
                                              This parameter can be a value of @ref OPAMP_LL_EC_INPUT_NONINVERTING
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_OPAMP_SetInputNonInverting(). */
 
   uint32_t InputInverting;              /*!< Set OPAMP inverting input connection.
                                              This parameter can be a value of @ref OPAMP_LL_EC_INPUT_INVERTING
                                              @note OPAMP inverting input is used with OPAMP in mode standalone or PGA with external capacitors for filtering circuit. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin), this parameter is discarded.
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_OPAMP_SetInputInverting(). */
 
 } LL_OPAMP_InitTypeDef;
@@ -142,7 +126,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_MODE OPAMP mode calibration or functional.
   * @{
   */
-#define LL_OPAMP_MODE_FUNCTIONAL        ((uint32_t)0x00000000U)                     /*!< OPAMP functional mode */
+#define LL_OPAMP_MODE_FUNCTIONAL        (0x00000000U)                               /*!< OPAMP functional mode */
 #define LL_OPAMP_MODE_CALIBRATION       (OPAMP_CSR_CALON)                           /*!< OPAMP calibration mode */
 /**
   * @}
@@ -151,7 +135,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_FUNCTIONAL_MODE OPAMP functional mode
   * @{
   */
-#define LL_OPAMP_MODE_STANDALONE        ((uint32_t)0x00000000U)                     /*!< OPAMP functional mode, OPAMP operation in standalone */
+#define LL_OPAMP_MODE_STANDALONE        (0x00000000U)                               /*!< OPAMP functional mode, OPAMP operation in standalone */
 #define LL_OPAMP_MODE_FOLLOWER          (OPAMP_CSR_VMSEL_1 | OPAMP_CSR_VMSEL_0)     /*!< OPAMP functional mode, OPAMP operation in follower */
 #define LL_OPAMP_MODE_PGA               (OPAMP_CSR_VMSEL_1)                         /*!< OPAMP functional mode, OPAMP operation in PGA */
 #define LL_OPAMP_MODE_PGA_EXT_FILT_IO0  (OPAMP_CSR_PGGAIN_3                      | OPAMP_CSR_VMSEL_1) /*!< OPAMP functional mode, OPAMP operation in PGA with external filtering on OPAMP input IO0. */
@@ -163,7 +147,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_MODE_PGA_GAIN OPAMP PGA gain (relevant when OPAMP is in functional mode PGA)
   * @{
   */
-#define LL_OPAMP_PGA_GAIN_2             ((uint32_t)0x00000000U)                    /*!< OPAMP PGA gain 2 */
+#define LL_OPAMP_PGA_GAIN_2             (0x00000000U)                              /*!< OPAMP PGA gain 2 */
 #define LL_OPAMP_PGA_GAIN_4             (OPAMP_CSR_PGGAIN_0)                       /*!< OPAMP PGA gain 4 */
 #define LL_OPAMP_PGA_GAIN_8             (OPAMP_CSR_PGGAIN_1)                       /*!< OPAMP PGA gain 8 */
 #define LL_OPAMP_PGA_GAIN_16            (OPAMP_CSR_PGGAIN_1 | OPAMP_CSR_PGGAIN_0 ) /*!< OPAMP PGA gain 16 */
@@ -175,7 +159,7 @@ typedef struct
   * @{
   */
 #define LL_OPAMP_INPUT_NONINVERT_IO0      (OPAMP_CSR_VPSEL)       /*!< OPAMP non inverting input connected to GPIO pin (pin PA1 for OPAMP1, pin PA7  for OPAMP2, pin PB0  for OPAMP3, pin PB13 for OPAMP4) */
-#define LL_OPAMP_INPUT_NONINVERT_IO1      ((uint32_t)0x00000000)  /*!< OPAMP non inverting input connected to GPIO pin (pin PA7 for OPAMP1, pin PD14 for OPAMP2, pin PB13 for OPAMP3, pin PD11 for OPAMP4) */
+#define LL_OPAMP_INPUT_NONINVERT_IO1      (0x00000000)            /*!< OPAMP non inverting input connected to GPIO pin (pin PA7 for OPAMP1, pin PD14 for OPAMP2, pin PB13 for OPAMP3, pin PD11 for OPAMP4) */
 #define LL_OPAMP_INPUT_NONINVERT_IO2      (OPAMP_CSR_VPSEL_1)     /*!< OPAMP non inverting input connected to GPIO pin (pin PA3 for OPAMP1, pin PB0  for OPAMP2, pin PA1  for OPAMP3, pin PB11 for OPAMP4) */
 #define LL_OPAMP_INPUT_NONINVERT_IO3      (OPAMP_CSR_VPSEL_0)     /*!< OPAMP non inverting input connected to GPIO pin (pin PA5 for OPAMP1, pin PB14 for OPAMP2, pin PA5  for OPAMP3, pin PA4  for OPAMP4) */
 #define LL_OPAMP_INPUT_NONINV_DAC1_CH1    (LL_OPAMP_INPUT_NONINVERT_IO3) /*!< OPAMP non inverting input connected to DAC1 channel1 output (specific to OPAMP instances: OPAMP4) */
@@ -187,7 +171,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_INPUT_INVERTING OPAMP input inverting
   * @{
   */
-#define LL_OPAMP_INPUT_INVERT_IO0        ((uint32_t)0x00000000U) /*!< OPAMP inverting input connected to GPIO pin (pin PC5 for OPAMP1, pin PC5 for OPAMP2, pin PB10  for OPAMP3, pin PB10 for OPAMP4). Note: OPAMP inverting input is used with OPAMP in mode standalone or PGA with external capacitors for filtering circuit. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
+#define LL_OPAMP_INPUT_INVERT_IO0        (0x00000000U)           /*!< OPAMP inverting input connected to GPIO pin (pin PC5 for OPAMP1, pin PC5 for OPAMP2, pin PB10  for OPAMP3, pin PB10 for OPAMP4). Note: OPAMP inverting input is used with OPAMP in mode standalone or PGA with external capacitors for filtering circuit. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
 #define LL_OPAMP_INPUT_INVERT_IO1        (OPAMP_CSR_VMSEL_0)     /*!< OPAMP inverting input connected to GPIO pin (pin PA3 for OPAMP1, pin PA5 for OPAMP2, pin PB2   for OPAMP3, pin PD8  for OPAMP4). Note: OPAMP inverting input is used with OPAMP in mode standalone or PGA with external capacitors for filtering circuit. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
 #define LL_OPAMP_INPUT_INVERT_CONNECT_NO (OPAMP_CSR_VMSEL_1)     /*!< OPAMP inverting input not externally connected (intended for OPAMP in mode follower or PGA without external capacitors for filtering). Note: On this STM32 serie, this literal include cases of value 0x11 for mode follower and value 0x10 for mode PGA. */
 /**
@@ -207,7 +191,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup OPAMP_LL_EC_INPUT_INVERTING_SECONDARY OPAMP input inverting secondary
   * @{
   */
@@ -220,7 +204,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_INPUT_MUX_MODE OPAMP inputs multiplexer mode
   * @{
   */
-#define LL_OPAMP_INPUT_MUX_DISABLE       ((uint32_t)0x00000000U)  /*!< OPAMP inputs multiplexer mode dosabled. */
+#define LL_OPAMP_INPUT_MUX_DISABLE     (0x00000000U)            /*!< OPAMP inputs multiplexer mode dosabled. */
 #define LL_OPAMP_INPUT_MUX_TIM1_CH6    (OPAMP_CSR_TCMEN)        /*!< OPAMP inputs multiplexer mode enabled, controlled by TIM1 CC6. */
 /**
   * @}
@@ -229,7 +213,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_VREF_OUTPUT OPAMP internal reference voltage path state to output
   * @{
   */
-#define LL_OPAMP_VREF_OUTPUT_DISABLE    ((uint32_t)0x00000000U)  /*!< OPAMP internal reference voltage path to output is disabled. */
+#define LL_OPAMP_VREF_OUTPUT_DISABLE    (0x00000000U)            /*!< OPAMP internal reference voltage path to output is disabled. */
 #define LL_OPAMP_VREF_OUTPUT_ENABLE     (OPAMP_CSR_TSTREF)       /*!< OPAMP internal reference voltage path to output is enabled. */
 /**
   * @}
@@ -238,7 +222,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_TRIMMING_MODE OPAMP trimming mode
   * @{
   */
-#define LL_OPAMP_TRIMMING_FACTORY       ((uint32_t)0x00000000U) /*!< OPAMP trimming factors set to factory values */
+#define LL_OPAMP_TRIMMING_FACTORY       (0x00000000U)           /*!< OPAMP trimming factors set to factory values */
 #define LL_OPAMP_TRIMMING_USER          (OPAMP_CSR_USERTRIM)    /*!< OPAMP trimming factors set to user values */
 /**
   * @}
@@ -274,7 +258,7 @@ typedef struct
 /* Literal set to maximum value (refer to device datasheet,                   */
 /* parameter "tWAKEUP").                                                      */
 /* Unit: us                                                                   */
-#define LL_OPAMP_DELAY_STARTUP_US         ((uint32_t)  5U)  /*!< Delay for OPAMP startup time */
+#define LL_OPAMP_DELAY_STARTUP_US         (5U)  /*!< Delay for OPAMP startup time */
 
 /**
   * @}
@@ -298,7 +282,7 @@ typedef struct
   * @param  __VALUE__ Value to be written in the register
   * @retval None
   */
-#define LL_OPAMP_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG(__INSTANCE__->__REG__, (__VALUE__))
+#define LL_OPAMP_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG((__INSTANCE__)->__REG__, (__VALUE__))
 
 /**
   * @brief  Read a value in OPAMP register
@@ -306,7 +290,7 @@ typedef struct
   * @param  __REG__ Register to be read
   * @retval Register value
   */
-#define LL_OPAMP_ReadReg(__INSTANCE__, __REG__) READ_REG(__INSTANCE__->__REG__)
+#define LL_OPAMP_ReadReg(__INSTANCE__, __REG__) READ_REG((__INSTANCE__)->__REG__)
 /**
   * @}
   */
@@ -457,7 +441,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetPGAGain(OPAMP_TypeDef *OPAMPx)
   *         @arg @ref LL_OPAMP_INPUT_NONINVERT_IO3
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH1 (1)
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH2 (2)
-  *         
+  *
   *         (1) Parameter specific to OPAMP instances: OPAMP4.\n
   *         (2) Parameter specific to OPAMP instances: OPAMP1, OPAMP3.
   * @retval None
@@ -478,7 +462,7 @@ __STATIC_INLINE void LL_OPAMP_SetInputNonInverting(OPAMP_TypeDef *OPAMPx, uint32
   *         @arg @ref LL_OPAMP_INPUT_NONINVERT_IO3
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH1 (1)
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH2 (2)
-  *         
+  *
   *         (1) Parameter specific to OPAMP instances: OPAMP4.\n
   *         (2) Parameter specific to OPAMP instances: OPAMP1, OPAMP3.
   */
@@ -521,7 +505,7 @@ __STATIC_INLINE void LL_OPAMP_SetInputInverting(OPAMP_TypeDef *OPAMPx, uint32_t 
 __STATIC_INLINE uint32_t LL_OPAMP_GetInputInverting(OPAMP_TypeDef *OPAMPx)
 {
   register uint32_t input_inverting = READ_BIT(OPAMPx->CSR, OPAMP_CSR_VMSEL);
-  
+
   /* Manage cases 0x10 and 0x11 to return the same value: OPAMP inverting     */
   /* input not connected.                                                     */
   return (input_inverting & ~((input_inverting >> 1) & OPAMP_CSR_VMSEL_0));
@@ -538,7 +522,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetInputInverting(OPAMP_TypeDef *OPAMPx)
   *         @arg @ref LL_OPAMP_INPUT_NONINVERT_IO3_SEC
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH1_SEC (1)
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH2_SEC (2)
-  *         
+  *
   *         (1) Parameter specific to OPAMP instances: OPAMP4.\n
   *         (2) Parameter specific to OPAMP instances: OPAMP1, OPAMP3.
   * @retval None
@@ -559,7 +543,7 @@ __STATIC_INLINE void LL_OPAMP_SetInputNonInvertingSecondary(OPAMP_TypeDef *OPAMP
   *         @arg @ref LL_OPAMP_INPUT_NONINVERT_IO3_SEC
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH1_SEC (1)
   *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH2_SEC (2)
-  *         
+  *
   *         (1) Parameter specific to OPAMP instances: OPAMP4.\n
   *         (2) Parameter specific to OPAMP instances: OPAMP1, OPAMP3.
   */
@@ -581,7 +565,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetInputNonInvertingSecondary(OPAMP_TypeDef *O
   *         @arg @ref LL_OPAMP_INPUT_INVERT_IO1_SEC
   * @retval None
   */
-__STATIC_INLINE void LL_OPAMP_SetInputInvertingSecondary (OPAMP_TypeDef *OPAMPx, uint32_t InputInverting)
+__STATIC_INLINE void LL_OPAMP_SetInputInvertingSecondary(OPAMP_TypeDef *OPAMPx, uint32_t InputInverting)
 {
   MODIFY_REG(OPAMPx->CSR, OPAMP_CSR_VMSSEL, InputInverting);
 }
@@ -673,8 +657,8 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingMode(OPAMP_TypeDef *OPAMPx)
   *         @arg @ref LL_OPAMP_TRIMMING_PMOS            (1)
   *         @arg @ref LL_OPAMP_TRIMMING_NMOS_VREF_50PC_VDDA
   *         @arg @ref LL_OPAMP_TRIMMING_PMOS_VREF_3_3PC_VDDA
-  *         
-  *         (1) Default parameters to be used for calibration 
+  *
+  *         (1) Default parameters to be used for calibration
   *             using two trimming steps (one with each transistors differential
   *             pair NMOS and PMOS)
   * @retval None
@@ -698,17 +682,17 @@ __STATIC_INLINE void LL_OPAMP_SetCalibrationSelection(OPAMP_TypeDef *OPAMPx, uin
   *         @arg @ref LL_OPAMP_TRIMMING_PMOS            (1)
   *         @arg @ref LL_OPAMP_TRIMMING_NMOS_VREF_50PC_VDDA
   *         @arg @ref LL_OPAMP_TRIMMING_PMOS_VREF_3_3PC_VDDA
-  *         
-  *         (1) Default parameters to be used for calibration 
+  *
+  *         (1) Default parameters to be used for calibration
   *             using two trimming steps (one with each transistors differential
   *             pair NMOS and PMOS)
   */
 __STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationSelection(OPAMP_TypeDef *OPAMPx)
 {
   register uint32_t CalibrationSelection = (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALSEL));
-  
+
   return (CalibrationSelection |
-          ((OPAMP_CSR_TRIMOFFSETN) << (POSITION_VAL(OPAMP_CSR_TRIMOFFSETP) * (CalibrationSelection && OPAMP_CSR_CALSEL))));
+          (((CalibrationSelection & OPAMP_CSR_CALSEL) == 0UL) ? OPAMP_CSR_TRIMOFFSETN : OPAMP_CSR_TRIMOFFSETP));
 }
 
 /**
@@ -749,7 +733,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationVrefOutput(OPAMP_TypeDef *OPAMPx
   */
 __STATIC_INLINE uint32_t LL_OPAMP_IsCalibrationOutputSet(OPAMP_TypeDef *OPAMPx)
 {
-  return (READ_BIT(OPAMPx->CSR, OPAMP_CSR_OUTCAL) == OPAMP_CSR_OUTCAL);
+  return ((READ_BIT(OPAMPx->CSR, OPAMP_CSR_OUTCAL) == OPAMP_CSR_OUTCAL) ? 1UL : 0UL);
 }
 
 /**
@@ -769,7 +753,7 @@ __STATIC_INLINE void LL_OPAMP_SetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32_t T
 {
   MODIFY_REG(OPAMPx->CSR,
              (TransistorsDiffPair & OPAMP_TRIMMING_VALUE_MASK),
-             TrimmingValue << (POSITION_VAL(TransistorsDiffPair & OPAMP_TRIMMING_VALUE_MASK)));
+             TrimmingValue << ((TransistorsDiffPair == LL_OPAMP_TRIMMING_NMOS) ? OPAMP_CSR_TRIMOFFSETN_Pos : OPAMP_CSR_TRIMOFFSETP_Pos));
 }
 
 /**
@@ -787,8 +771,7 @@ __STATIC_INLINE void LL_OPAMP_SetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32_t T
 __STATIC_INLINE uint32_t LL_OPAMP_GetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32_t TransistorsDiffPair)
 {
   return (uint32_t)(READ_BIT(OPAMPx->CSR, (TransistorsDiffPair & OPAMP_TRIMMING_VALUE_MASK))
-                    >> (POSITION_VAL(TransistorsDiffPair & OPAMP_TRIMMING_VALUE_MASK))
-                   );
+                    >> ((TransistorsDiffPair == LL_OPAMP_TRIMMING_NMOS) ? OPAMP_CSR_TRIMOFFSETN_Pos : OPAMP_CSR_TRIMOFFSETP_Pos));
 }
 
 /**
@@ -832,7 +815,7 @@ __STATIC_INLINE void LL_OPAMP_Disable(OPAMP_TypeDef *OPAMPx)
   */
 __STATIC_INLINE uint32_t LL_OPAMP_IsEnabled(OPAMP_TypeDef *OPAMPx)
 {
-  return (READ_BIT(OPAMPx->CSR, OPAMP_CSR_OPAMPxEN) == (OPAMP_CSR_OPAMPxEN));
+  return ((READ_BIT(OPAMPx->CSR, OPAMP_CSR_OPAMPxEN) == (OPAMP_CSR_OPAMPxEN)) ? 1UL : 0UL);
 }
 
 /**
@@ -859,7 +842,7 @@ __STATIC_INLINE void LL_OPAMP_Lock(OPAMP_TypeDef *OPAMPx)
   */
 __STATIC_INLINE uint32_t LL_OPAMP_IsLocked(OPAMP_TypeDef *OPAMPx)
 {
-  return (READ_BIT(OPAMPx->CSR, OPAMP_CSR_LOCK) == (OPAMP_CSR_LOCK));
+  return ((READ_BIT(OPAMPx->CSR, OPAMP_CSR_LOCK) == (OPAMP_CSR_LOCK)) ? 1UL : 0UL);
 }
 
 /**
@@ -898,6 +881,6 @@ void        LL_OPAMP_StructInit(LL_OPAMP_InitTypeDef *OPAMP_InitStruct);
 }
 #endif
 
-#endif /* __STM32F3xx_LL_OPAMP_H */
+#endif /* STM32F3xx_LL_OPAMP_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

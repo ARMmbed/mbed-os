@@ -42,7 +42,7 @@
         (++) If DMA mode is used, configure DMA with HAL_DMA_Init and link it
             with SDADC handle using __HAL_LINKDMA.
       (#) Configure the SDADC low power mode, fast conversion mode, slow clock
-          mode and SDADC1 reference voltage using the HAL_ADC_Init() function.
+          mode and SDADC1 reference voltage using the HAL_SDADC_Init() function.
           Note: Common reference voltage. is common to all SDADC instances.
       (#) Prepare channel configurations (input mode, common mode, gain and
           offset) using HAL_SDADC_PrepareChannelConfig and associate channel
@@ -154,36 +154,87 @@
           for SDADC1.
       (#) Stop injected conversion using HAL_SDADC_InjectedStop for SDADC2
           (or SDADC3).
+    
+    *** Callback registration ***
+    =============================================
+    [..]
 
+     The compilation flag USE_HAL_SDADC_REGISTER_CALLBACKS, when set to 1,
+     allows the user to configure dynamically the driver callbacks.
+     Use Functions @ref HAL_SDADC_RegisterCallback()
+     to register an interrupt callback.
+    [..]
+
+     Function @ref HAL_SDADC_RegisterCallback() allows to register following callbacks:
+       (+) ConvHalfCpltCallback : callback for half regular conversion complete.
+       (+) ConvCpltCallback : callback for regular conversion complete
+       (+) InjectedConvHalfCpltCallback : callback for half injected conversion complete
+       (+) InjectedConvCpltCallback : callback for injected conversion complete
+       (+) CalibrationCpltCallback : callback for calibration
+       (+) ErrorCallback : callback for error detection.
+       (+) MspInitCallback : callback for Msp Init.
+       (+) MspDeInitCallback : callback for Msp DeInit.
+     This function takes as parameters the HAL peripheral handle, the Callback ID
+     and a pointer to the user callback function.
+    [..]
+
+     Use function @ref HAL_SDADC_UnRegisterCallback to reset a callback to the default
+     weak function.
+    [..]
+
+     @ref HAL_SDADC_UnRegisterCallback takes as parameters the HAL peripheral handle,
+     and the Callback ID.
+     This function allows to reset following callbacks:
+       (+) ConvHalfCpltCallback : callback for half regular conversion complete.
+       (+) ConvCpltCallback : callback for regular conversion complete
+       (+) InjectedConvHalfCpltCallback : callback for half injected conversion complete
+       (+) InjectedConvCpltCallback : callback for injected conversion complete
+       (+) CalibrationCpltCallback : callback for calibration
+       (+) ErrorCallback : callback for error detection.
+       (+) MspInitCallback : callback for Msp Init.
+       (+) MspDeInitCallback : callback for Msp DeInit.
+     [..]
+
+     By default, after the @ref HAL_SDADC_Init() and when the state is @ref HAL_SDADC_STATE_RESET
+     all callbacks are set to the corresponding weak functions:
+     examples @ref HAL_SDADC_ConvCpltCallback(), @ref HAL_SDADC_ErrorCallback().
+     Exception done for MspInit and MspDeInit functions that are
+     reset to the legacy weak functions in the @ref HAL_SDADC_Init()/ @ref HAL_SDADC_DeInit() only when
+     these callbacks are null (not registered beforehand).
+    [..]
+
+     If MspInit or MspDeInit are not null, the @ref HAL_SDADC_Init()/ @ref HAL_SDADC_DeInit()
+     keep and use the user MspInit/MspDeInit callbacks (registered beforehand) whatever the state.
+     [..]
+
+     Callbacks can be registered/unregistered in @ref HAL_SDADC_STATE_READY state only.
+     Exception done MspInit/MspDeInit functions that can be registered/unregistered
+     in @ref HAL_SDADC_STATE_READY or @ref HAL_SDADC_STATE_RESET state,
+     thus registered (user) MspInit/DeInit callbacks can be used during the Init/DeInit.
+    [..]
+
+     Then, the user first registers the MspInit/MspDeInit user callbacks
+     using @ref HAL_SDADC_RegisterCallback() before calling @ref HAL_SDADC_DeInit()
+     or @ref HAL_SDADC_Init() function.
+     [..]
+
+     When the compilation flag USE_HAL_SDADC_REGISTER_CALLBACKS is set to 0 or
+     not defined, the callback registration feature is not available and all callbacks
+     are set to the corresponding weak functions.
+  
     @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************  
+  ******************************************************************************
   */ 
 
 /* Includes ------------------------------------------------------------------*/
@@ -194,7 +245,7 @@
   */
 
 #ifdef HAL_SDADC_MODULE_ENABLED
-#if defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(SDADC1) || defined(SDADC2) || defined(SDADC3)
 /** @defgroup SDADC SDADC
   * @brief SDADC HAL driver modules
   * @{
@@ -205,11 +256,11 @@
 /** @defgroup SDADC_Private_Define SDADC Private Define
  * @{
  */
-#define SDADC_TIMEOUT          200
-#define SDADC_CONFREG_OFFSET   0x00000020
-#define SDADC_JDATAR_CH_OFFSET 24
-#define SDADC_MSB_MASK         0xFFFF0000U
-#define SDADC_LSB_MASK         0x0000FFFFU
+#define SDADC_TIMEOUT          200UL
+#define SDADC_CONFREG_OFFSET   0x00000020UL
+#define SDADC_JDATAR_CH_OFFSET 24UL
+#define SDADC_MSB_MASK         0xFFFF0000UL
+#define SDADC_LSB_MASK         0x0000FFFFUL
 /**
   * @}
   */
@@ -292,9 +343,30 @@ HAL_StatusTypeDef HAL_SDADC_Init(SDADC_HandleTypeDef* hsdadc)
   hsdadc->RegularMultimode    = SDADC_MULTIMODE_SDADC1_SDADC2;
   hsdadc->InjectedMultimode   = SDADC_MULTIMODE_SDADC1_SDADC2;
   hsdadc->ErrorCode           = SDADC_ERROR_NONE;
-    
-  /* Call MSP init function */
+  
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+  if(hsdadc->State == HAL_SDADC_STATE_RESET)
+  {
+    /* Init the SDADC Callback settings */
+    hsdadc->ConvHalfCpltCallback         = HAL_SDADC_ConvHalfCpltCallback;
+    hsdadc->ConvCpltCallback             = HAL_SDADC_ConvCpltCallback;
+    hsdadc->InjectedConvHalfCpltCallback = HAL_SDADC_InjectedConvHalfCpltCallback;
+    hsdadc->InjectedConvCpltCallback     = HAL_SDADC_InjectedConvCpltCallback;
+    hsdadc->CalibrationCpltCallback      = HAL_SDADC_CalibrationCpltCallback;
+    hsdadc->ErrorCallback                = HAL_SDADC_ErrorCallback;
+  }
+  
+  if (hsdadc->MspInitCallback == NULL)
+  {
+    hsdadc->MspInitCallback = HAL_SDADC_MspInit; /* Legacy weak MspInit  */
+  }
+  
+  /* Init the low level hardware */
+  hsdadc->MspInitCallback(hsdadc);
+#else
+  /* Init the low level hardware */
   HAL_SDADC_MspInit(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
   
   /* Set idle low power and slow clock modes */
   hsdadc->Instance->CR1 &= ~(SDADC_CR1_SBI|SDADC_CR1_PDI|SDADC_CR1_SLOWCK);
@@ -322,7 +394,7 @@ HAL_StatusTypeDef HAL_SDADC_Init(SDADC_HandleTypeDef* hsdadc)
   hsdadc->Instance->CR2 |= SDADC_CR2_ADON;
 
   /* Wait end of stabilization */
-  while((hsdadc->Instance->ISR & SDADC_ISR_STABIP) != 0U)
+  while((hsdadc->Instance->ISR & SDADC_ISR_STABIP) != 0UL)
   {
   }
   
@@ -353,17 +425,27 @@ HAL_StatusTypeDef HAL_SDADC_DeInit(SDADC_HandleTypeDef* hsdadc)
   hsdadc->Instance->CR2 &= ~(SDADC_CR2_ADON);
 
   /* Reset all registers */
-  hsdadc->Instance->CR1      = 0x00000000U;
-  hsdadc->Instance->CR2      = 0x00000000U;
-  hsdadc->Instance->JCHGR    = 0x00000001U;
-  hsdadc->Instance->CONF0R   = 0x00000000U;
-  hsdadc->Instance->CONF1R   = 0x00000000U;
-  hsdadc->Instance->CONF2R   = 0x00000000U;
-  hsdadc->Instance->CONFCHR1 = 0x00000000U;
-  hsdadc->Instance->CONFCHR2 = 0x00000000U;
+  hsdadc->Instance->CR1      = 0x00000000UL;
+  hsdadc->Instance->CR2      = 0x00000000UL;
+  hsdadc->Instance->JCHGR    = 0x00000001UL;
+  hsdadc->Instance->CONF0R   = 0x00000000UL;
+  hsdadc->Instance->CONF1R   = 0x00000000UL;
+  hsdadc->Instance->CONF2R   = 0x00000000UL;
+  hsdadc->Instance->CONFCHR1 = 0x00000000UL;
+  hsdadc->Instance->CONFCHR2 = 0x00000000UL;
 
-  /* Call MSP deinit function */
-  HAL_SDADC_MspDeInit(hsdadc);
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+    if (hsdadc->MspDeInitCallback == NULL)
+    {
+      hsdadc->MspDeInitCallback = HAL_SDADC_MspDeInit; /* Legacy weak MspDeInit */
+    }
+    
+    /* DeInit the low level hardware */
+    hsdadc->MspDeInitCallback(hsdadc);
+#else
+    /* DeInit the low level hardware */
+    HAL_SDADC_MspDeInit(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 
   /* Set SDADC in reset state */
   hsdadc->State = HAL_SDADC_STATE_RESET;
@@ -401,6 +483,215 @@ __weak void HAL_SDADC_MspDeInit(SDADC_HandleTypeDef* hsdadc)
             the HAL_SDADC_MspDeInit could be implemented in the user file.
    */ 
 }
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+/**
+  * @brief  Register a User SDADC Callback
+  *         To be used instead of the weak predefined callback
+  * @param  hsdadc Pointer to a SDADC_HandleTypeDef structure that contains
+  *                the configuration information for the specified SDADC.
+  * @param  CallbackID ID of the callback to be registered
+  *         This parameter can be one of the following values:
+  *          @arg @ref HAL_SDADC_CONVERSION_HALF_CB_ID          SDADC half regular conversion complete callback ID
+  *          @arg @ref HAL_SDADC_CONVERSION_COMPLETE_CB_ID      SDADC regular conversion complete callback ID
+  *          @arg @ref HAL_SDADC_INJ_CONVERSION_HALF_CB_ID      SDADC half injected conversion complete callback ID
+  *          @arg @ref HAL_SDADC_INJ_CONVERSION_COMPLETE_CB_ID  SDADC injected conversion complete callback ID
+  *          @arg @ref HAL_SDADC_CALIBRATION_COMPLETE_CB_ID     SDADC calibration callback ID
+  *          @arg @ref HAL_SDADC_ERROR_CB_ID                    SDADC error callback ID
+  *          @arg @ref HAL_SDADC_MSPINIT_CB_ID                  SDADC Msp Init callback ID
+  *          @arg @ref HAL_SDADC_MSPDEINIT_CB_ID                SDADC Msp DeInit callback ID
+  * @param  pCallback pointer to the Callback function
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_SDADC_RegisterCallback(SDADC_HandleTypeDef *hsdadc, HAL_SDADC_CallbackIDTypeDef CallbackID, pSDADC_CallbackTypeDef pCallback)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  
+  if (pCallback == NULL)
+  {
+    /* Update the error code */
+    hsdadc->ErrorCode |= SDADC_ERROR_INVALID_CALLBACK;
+
+    return HAL_ERROR;
+  }
+  
+  if (HAL_SDADC_STATE_READY == hsdadc->State)
+  {
+    switch (CallbackID)
+    {
+      case HAL_SDADC_CONVERSION_HALF_CB_ID :
+        hsdadc->ConvHalfCpltCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_CONVERSION_COMPLETE_CB_ID :
+        hsdadc->ConvCpltCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_INJ_CONVERSION_HALF_CB_ID :
+        hsdadc->InjectedConvHalfCpltCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_INJ_CONVERSION_COMPLETE_CB_ID :
+        hsdadc->InjectedConvCpltCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_CALIBRATION_COMPLETE_CB_ID :
+        hsdadc->CalibrationCpltCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_ERROR_CB_ID :
+        hsdadc->ErrorCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_MSPINIT_CB_ID :
+        hsdadc->MspInitCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_MSPDEINIT_CB_ID :
+        hsdadc->MspDeInitCallback = pCallback;
+        break;
+      
+      default :
+        /* Update the error code */
+        hsdadc->ErrorCode |= SDADC_ERROR_INVALID_CALLBACK;
+
+        /* Return error status */
+        status = HAL_ERROR;
+        break;
+    }
+  }
+  else if (HAL_SDADC_STATE_RESET == hsdadc->State)
+  {
+    switch (CallbackID)
+    {
+      case HAL_SDADC_MSPINIT_CB_ID :
+        hsdadc->MspInitCallback = pCallback;
+        break;
+      
+      case HAL_SDADC_MSPDEINIT_CB_ID :
+        hsdadc->MspDeInitCallback = pCallback;
+        break;
+      
+      default :
+        /* Update the error code */
+        hsdadc->ErrorCode |= SDADC_ERROR_INVALID_CALLBACK;
+        
+        /* Return error status */
+        status = HAL_ERROR;
+        break;
+    }
+  }
+  else
+  {
+    /* Update the error code */
+    hsdadc->ErrorCode |= SDADC_ERROR_INVALID_CALLBACK;
+    
+    /* Return error status */
+    status =  HAL_ERROR;
+  }
+  
+  return status;
+}
+
+/**
+  * @brief  Unregister a SDADC Callback
+  *         ADC callback is redirected to the weak predefined callback
+  * @param  hsdadc Pointer to a SDADC_HandleTypeDef structure that contains
+  *                the configuration information for the specified ADC.
+  * @param  CallbackID ID of the callback to be unregistered
+  *         This parameter can be one of the following values:
+  *          @arg @ref HAL_SDADC_CONVERSION_HALF_CB_ID          SDADC half regular conversion complete callback ID
+  *          @arg @ref HAL_SDADC_CONVERSION_COMPLETE_CB_ID      SDADC regular conversion complete callback ID
+  *          @arg @ref HAL_SDADC_INJ_CONVERSION_HALF_CB_ID      SDADC half injected conversion complete callback ID
+  *          @arg @ref HAL_SDADC_INJ_CONVERSION_COMPLETE_CB_ID  SDADC injected conversion complete callback ID
+  *          @arg @ref HAL_SDADC_CALIBRATION_COMPLETE_CB_ID     SDADC calibration callback ID
+  *          @arg @ref HAL_SDADC_ERROR_CB_ID                    SDADC error callback ID
+  *          @arg @ref HAL_SDADC_MSPINIT_CB_ID                  SDADC Msp Init callback ID
+  *          @arg @ref HAL_SDADC_MSPDEINIT_CB_ID                SDADC Msp DeInit callback ID
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_SDADC_UnRegisterCallback(SDADC_HandleTypeDef *hsdadc, HAL_SDADC_CallbackIDTypeDef CallbackID)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  
+  if (HAL_SDADC_STATE_READY == hsdadc->State)
+  {
+    switch (CallbackID)
+    {
+      case HAL_SDADC_CONVERSION_HALF_CB_ID :
+        hsdadc->ConvHalfCpltCallback = HAL_SDADC_ConvHalfCpltCallback;
+        break;
+      
+      case HAL_SDADC_CONVERSION_COMPLETE_CB_ID :
+        hsdadc->ConvCpltCallback = HAL_SDADC_ConvCpltCallback;
+        break;
+      
+      case HAL_SDADC_INJ_CONVERSION_HALF_CB_ID :
+        hsdadc->InjectedConvHalfCpltCallback = HAL_SDADC_InjectedConvHalfCpltCallback;
+        break;
+      
+      case HAL_SDADC_INJ_CONVERSION_COMPLETE_CB_ID :
+        hsdadc->InjectedConvCpltCallback = HAL_SDADC_InjectedConvCpltCallback;
+        break;
+      
+      case HAL_SDADC_CALIBRATION_COMPLETE_CB_ID :
+        hsdadc->CalibrationCpltCallback = HAL_SDADC_CalibrationCpltCallback;
+        break;
+      
+      case HAL_SDADC_ERROR_CB_ID :
+        hsdadc->ErrorCallback = HAL_SDADC_ErrorCallback;
+        break;
+      
+      case HAL_SDADC_MSPINIT_CB_ID :
+        hsdadc->MspInitCallback = HAL_SDADC_MspInit;
+        break;
+      
+      case HAL_SDADC_MSPDEINIT_CB_ID :
+        hsdadc->MspDeInitCallback = HAL_SDADC_MspDeInit;
+        break;
+      
+      default :
+        /* Update the error code */
+        hsdadc->ErrorCode |= SDADC_ERROR_INVALID_CALLBACK;
+        
+        /* Return error status */
+        status =  HAL_ERROR;
+        break;
+    }
+  }
+  else if (HAL_SDADC_STATE_RESET == hsdadc->State)
+  {
+    switch (CallbackID)
+    {
+      case HAL_SDADC_MSPINIT_CB_ID :
+        hsdadc->MspInitCallback = HAL_SDADC_MspInit;                   /* Legacy weak MspInit              */
+        break;
+        
+      case HAL_SDADC_MSPDEINIT_CB_ID :
+        hsdadc->MspDeInitCallback = HAL_SDADC_MspDeInit;               /* Legacy weak MspDeInit            */
+        break;
+        
+      default :
+        /* Update the error code */
+        hsdadc->ErrorCode |= SDADC_ERROR_INVALID_CALLBACK;
+        
+        /* Return error status */
+        status =  HAL_ERROR;
+        break;
+    }
+  }
+  else
+  {
+    /* Update the error code */
+    hsdadc->ErrorCode |= SDADC_ERROR_INVALID_CALLBACK;
+    
+    /* Return error status */
+    status =  HAL_ERROR;
+  }
+  
+  return status;
+}
+
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 
 /**
   * @}
@@ -443,12 +734,12 @@ HAL_StatusTypeDef HAL_SDADC_PrepareChannelConfig(SDADC_HandleTypeDef *hsdadc,
                                                  SDADC_ConfParamTypeDef* ConfParamStruct)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint32_t          tmp = 0U;
+  uint32_t          tmp;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
   assert_param(IS_SDADC_CONF_INDEX(ConfIndex));
-  assert_param(ConfParamStruct != NULL);
+  assert_param(ConfParamStruct != ((void*) 0));
   assert_param(IS_SDADC_INPUT_MODE(ConfParamStruct->InputMode));
   assert_param(IS_SDADC_GAIN(ConfParamStruct->Gain));
   assert_param(IS_SDADC_COMMON_MODE(ConfParamStruct->CommonMode));
@@ -473,7 +764,7 @@ HAL_StatusTypeDef HAL_SDADC_PrepareChannelConfig(SDADC_HandleTypeDef *hsdadc,
       /* Program configuration register with parameters */
       tmp = (uint32_t)((uint32_t)(hsdadc->Instance) + \
                        SDADC_CONFREG_OFFSET + \
-                       (uint32_t)(ConfIndex << 2U));
+                       (uint32_t)(ConfIndex << 2UL));
       *(__IO uint32_t *) (tmp) = (uint32_t) (ConfParamStruct->InputMode | \
                                              ConfParamStruct->Gain | \
                                              ConfParamStruct->CommonMode | \
@@ -503,7 +794,7 @@ HAL_StatusTypeDef HAL_SDADC_AssociateChannelConfig(SDADC_HandleTypeDef *hsdadc,
                                                    uint32_t ConfIndex)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint32_t          channelnum = 0U;
+  uint32_t          channelnum;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -530,11 +821,11 @@ HAL_StatusTypeDef HAL_SDADC_AssociateChannelConfig(SDADC_HandleTypeDef *hsdadc,
       if(Channel != SDADC_CHANNEL_8)
       {
         /* Get channel number */
-        channelnum = (uint32_t)(Channel>>16U);
+        channelnum = (uint32_t)(Channel>>16UL);
 
         /* Set the channel configuration */
-        hsdadc->Instance->CONFCHR1 &= (uint32_t) ~((uint32_t)SDADC_CONFCHR1_CONFCH0 << (channelnum << 2U));
-        hsdadc->Instance->CONFCHR1 |= (uint32_t) (ConfIndex << (channelnum << 2U));
+        hsdadc->Instance->CONFCHR1 &= (uint32_t) ~((uint32_t)SDADC_CONFCHR1_CONFCH0 << ((channelnum << 2UL) & 0x1FUL));
+        hsdadc->Instance->CONFCHR1 |= (uint32_t) (ConfIndex << ((channelnum << 2UL) & 0x1FUL));
       }
       else
       {
@@ -1014,7 +1305,7 @@ HAL_StatusTypeDef HAL_SDADC_PollForCalibEvent(SDADC_HandleTypeDef* hsdadc, uint3
       /* Check the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0U) || ((HAL_GetTick()-tickstart) > Timeout))
+        if(((HAL_GetTick()-tickstart) > Timeout) || (Timeout == 0UL))
         {
           /* Return timeout status */
           return HAL_TIMEOUT;
@@ -1096,7 +1387,7 @@ HAL_StatusTypeDef HAL_SDADC_CalibrationStart_IT(SDADC_HandleTypeDef *hsdadc,
   */
 HAL_StatusTypeDef HAL_SDADC_Start(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1148,7 +1439,7 @@ HAL_StatusTypeDef HAL_SDADC_PollForConversion(SDADC_HandleTypeDef* hsdadc, uint3
       /* Check the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0U) || ((HAL_GetTick()-tickstart) > Timeout))
+        if(((HAL_GetTick()-tickstart) > Timeout) || (Timeout == 0UL))
         {
           /* Return timeout status */
           return HAL_TIMEOUT;
@@ -1160,7 +1451,11 @@ HAL_StatusTypeDef HAL_SDADC_PollForConversion(SDADC_HandleTypeDef* hsdadc, uint3
     {
       /* Update error code and call error callback */
       hsdadc->ErrorCode = SDADC_ERROR_REGULAR_OVERRUN;
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+      hsdadc->ErrorCallback(hsdadc);
+#else
       HAL_SDADC_ErrorCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 
       /* Set CLRROVRF bit in SDADC_CLRISR register */
       hsdadc->Instance->CLRISR |= SDADC_ISR_CLRROVRF;
@@ -1185,7 +1480,7 @@ HAL_StatusTypeDef HAL_SDADC_PollForConversion(SDADC_HandleTypeDef* hsdadc, uint3
   */
 HAL_StatusTypeDef HAL_SDADC_Stop(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1215,7 +1510,7 @@ HAL_StatusTypeDef HAL_SDADC_Stop(SDADC_HandleTypeDef *hsdadc)
   */
 HAL_StatusTypeDef HAL_SDADC_Start_IT(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1246,7 +1541,7 @@ HAL_StatusTypeDef HAL_SDADC_Start_IT(SDADC_HandleTypeDef *hsdadc)
   */
 HAL_StatusTypeDef HAL_SDADC_Stop_IT(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1282,12 +1577,12 @@ HAL_StatusTypeDef HAL_SDADC_Stop_IT(SDADC_HandleTypeDef *hsdadc)
 HAL_StatusTypeDef HAL_SDADC_Start_DMA(SDADC_HandleTypeDef *hsdadc, uint32_t *pData,
                                       uint32_t Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
-  assert_param(Length != 0U);
+  assert_param(pData != ((void*) 0));
+  assert_param(Length != 0UL);
 
   /* Check that DMA is not enabled for injected conversion */
   if((hsdadc->Instance->CR1 & SDADC_CR1_JDMAEN) == SDADC_CR1_JDMAEN)
@@ -1353,7 +1648,7 @@ HAL_StatusTypeDef HAL_SDADC_Start_DMA(SDADC_HandleTypeDef *hsdadc, uint32_t *pDa
   */
 HAL_StatusTypeDef HAL_SDADC_Stop_DMA(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1410,7 +1705,7 @@ uint32_t HAL_SDADC_GetValue(SDADC_HandleTypeDef *hsdadc)
   */
 HAL_StatusTypeDef HAL_SDADC_InjectedStart(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1463,7 +1758,7 @@ HAL_StatusTypeDef HAL_SDADC_PollForInjectedConversion(SDADC_HandleTypeDef* hsdad
       /* Check the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0U) || ((HAL_GetTick()-tickstart) > Timeout))
+        if(((HAL_GetTick()-tickstart) > Timeout) || (Timeout == 0UL))
         {
           /* Return timeout status */
           return HAL_TIMEOUT;
@@ -1475,14 +1770,18 @@ HAL_StatusTypeDef HAL_SDADC_PollForInjectedConversion(SDADC_HandleTypeDef* hsdad
     {
       /* Update error code and call error callback */
       hsdadc->ErrorCode = SDADC_ERROR_INJECTED_OVERRUN;
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+      hsdadc->ErrorCallback(hsdadc);
+#else
       HAL_SDADC_ErrorCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 
       /* Set CLRJOVRF bit in SDADC_CLRISR register */
       hsdadc->Instance->CLRISR |= SDADC_ISR_CLRJOVRF;
     }
     /* Update remaining injected conversions */
     hsdadc->InjConvRemaining--;
-    if(hsdadc->InjConvRemaining == 0U)
+    if(hsdadc->InjConvRemaining == 0UL)
     {
       /* end of injected sequence, reset the value */
       hsdadc->InjConvRemaining = hsdadc->InjectedChannelsNbr;
@@ -1510,7 +1809,7 @@ HAL_StatusTypeDef HAL_SDADC_PollForInjectedConversion(SDADC_HandleTypeDef* hsdad
   */
 HAL_StatusTypeDef HAL_SDADC_InjectedStop(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1540,7 +1839,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStop(SDADC_HandleTypeDef *hsdadc)
   */
 HAL_StatusTypeDef HAL_SDADC_InjectedStart_IT(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1571,7 +1870,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStart_IT(SDADC_HandleTypeDef *hsdadc)
   */
 HAL_StatusTypeDef HAL_SDADC_InjectedStop_IT(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1607,12 +1906,12 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStop_IT(SDADC_HandleTypeDef *hsdadc)
 HAL_StatusTypeDef HAL_SDADC_InjectedStart_DMA(SDADC_HandleTypeDef *hsdadc, uint32_t *pData,
                                               uint32_t Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
-  assert_param(Length != 0U);
+  assert_param(pData != ((void*) 0));
+  assert_param(Length != 0UL);
 
   /* Check that DMA is not enabled for regular conversion */
   if((hsdadc->Instance->CR1 & SDADC_CR1_RDMAEN) == SDADC_CR1_RDMAEN)
@@ -1678,7 +1977,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStart_DMA(SDADC_HandleTypeDef *hsdadc, uint3
   */
 HAL_StatusTypeDef HAL_SDADC_InjectedStop_DMA(SDADC_HandleTypeDef *hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1720,11 +2019,11 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStop_DMA(SDADC_HandleTypeDef *hsdadc)
   */
 uint32_t HAL_SDADC_InjectedGetValue(SDADC_HandleTypeDef *hsdadc, uint32_t* Channel)
 {
-  uint32_t value = 0U;
+  uint32_t value;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(Channel != NULL);
+  assert_param(Channel != ((void*) 0));
 
   /* Read SDADC_JDATAR register and extract channel and conversion value */
   value = hsdadc->Instance->JDATAR;
@@ -1747,12 +2046,12 @@ uint32_t HAL_SDADC_InjectedGetValue(SDADC_HandleTypeDef *hsdadc, uint32_t* Chann
 HAL_StatusTypeDef HAL_SDADC_MultiModeStart_DMA(SDADC_HandleTypeDef* hsdadc, uint32_t* pData,
                                                uint32_t Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
-  assert_param(Length != 0U);
+  assert_param(pData != ((void*) 0));
+  assert_param(Length != 0UL);
 
   /* Check instance is SDADC1 */
   if(hsdadc->Instance != SDADC1)
@@ -1831,7 +2130,7 @@ HAL_StatusTypeDef HAL_SDADC_MultiModeStart_DMA(SDADC_HandleTypeDef* hsdadc, uint
   */
 HAL_StatusTypeDef HAL_SDADC_MultiModeStop_DMA(SDADC_HandleTypeDef* hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1877,7 +2176,7 @@ HAL_StatusTypeDef HAL_SDADC_MultiModeStop_DMA(SDADC_HandleTypeDef* hsdadc)
   */
 uint32_t HAL_SDADC_MultiModeGetValue(SDADC_HandleTypeDef* hsdadc)
 {
-  uint32_t value = 0U;
+  uint32_t value;
   
   /* Check parameters and check instance is SDADC1 */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -1903,12 +2202,12 @@ uint32_t HAL_SDADC_MultiModeGetValue(SDADC_HandleTypeDef* hsdadc)
 HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStart_DMA(SDADC_HandleTypeDef* hsdadc,
                                                        uint32_t* pData, uint32_t Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
-  assert_param(Length != 0U);
+  assert_param(pData != ((void*) 0));
+  assert_param(Length != 0UL);
 
   /* Check instance is SDADC1 */
   if(hsdadc->Instance != SDADC1)
@@ -1987,7 +2286,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStart_DMA(SDADC_HandleTypeDef* hsda
   */
 HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStop_DMA(SDADC_HandleTypeDef* hsdadc)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status;
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -2033,7 +2332,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStop_DMA(SDADC_HandleTypeDef* hsdad
   */
 uint32_t HAL_SDADC_InjectedMultiModeGetValue(SDADC_HandleTypeDef* hsdadc)
 {
-  uint32_t value = 0U;
+  uint32_t value;
   
   /* Check parameters and check instance is SDADC1 */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
@@ -2054,12 +2353,18 @@ uint32_t HAL_SDADC_InjectedMultiModeGetValue(SDADC_HandleTypeDef* hsdadc)
   */
 void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef* hsdadc)
 {
+  uint32_t tmp_isr = hsdadc->Instance->ISR;
+    
   /* Check if end of regular conversion */
-  if(((hsdadc->Instance->ISR & SDADC_ISR_REOCF) == SDADC_ISR_REOCF) && \
-          ((hsdadc->Instance->CR1 & SDADC_CR1_REOCIE) == SDADC_CR1_REOCIE))
+  if(((hsdadc->Instance->CR1 & SDADC_CR1_REOCIE) == SDADC_CR1_REOCIE) &&
+     ((tmp_isr & SDADC_ISR_REOCF) == SDADC_ISR_REOCF))
   {
     /* Call regular conversion complete callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+    hsdadc->ConvCpltCallback(hsdadc);
+#else
     HAL_SDADC_ConvCpltCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 
     /* End of conversion if mode is not continuous and software trigger */
     if((hsdadc->RegularContMode == SDADC_CONTINUOUS_CONV_OFF) && \
@@ -2074,15 +2379,19 @@ void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef* hsdadc)
     }
   }
   /* Check if end of injected conversion */
-  else if(((hsdadc->Instance->ISR & SDADC_ISR_JEOCF) == SDADC_ISR_JEOCF) && \
-          ((hsdadc->Instance->CR1 & SDADC_CR1_JEOCIE) == SDADC_CR1_JEOCIE))
+  else if(((hsdadc->Instance->CR1 & SDADC_CR1_JEOCIE) == SDADC_CR1_JEOCIE) &&
+          ((tmp_isr & SDADC_ISR_JEOCF) == SDADC_ISR_JEOCF))
   {
     /* Call injected conversion complete callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+    hsdadc->InjectedConvCpltCallback(hsdadc);
+#else
     HAL_SDADC_InjectedConvCpltCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 
     /* Update remaining injected conversions */
     hsdadc->InjConvRemaining--;
-    if(hsdadc->InjConvRemaining ==0U)
+    if(hsdadc->InjConvRemaining ==0UL)
     {
       /* end of injected sequence, reset the value */
       hsdadc->InjConvRemaining = hsdadc->InjectedChannelsNbr;
@@ -2102,8 +2411,8 @@ void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef* hsdadc)
     }
   }
   /* Check if end of calibration */
-  else if(((hsdadc->Instance->ISR & SDADC_ISR_EOCALF) == SDADC_ISR_EOCALF) && \
-          ((hsdadc->Instance->CR1 & SDADC_CR1_EOCALIE) == SDADC_CR1_EOCALIE))
+  else if(((hsdadc->Instance->CR1 & SDADC_CR1_EOCALIE) == SDADC_CR1_EOCALIE) &&
+          ((tmp_isr & SDADC_ISR_EOCALF) == SDADC_ISR_EOCALF))
   {
     /* Clear EOCALIE bit in SDADC_CR1 register */
     hsdadc->Instance->CR1 &= ~(SDADC_CR1_EOCALIE);
@@ -2112,14 +2421,18 @@ void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef* hsdadc)
     hsdadc->Instance->CLRISR |= SDADC_ISR_CLREOCALF;
 
     /* Call calibration callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+    hsdadc->CalibrationCpltCallback(hsdadc);
+#else
     HAL_SDADC_CalibrationCpltCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 
     /* Update SDADC state */
     hsdadc->State = HAL_SDADC_STATE_READY;
   }
   /* Check if overrun occurs during regular conversion */
-  else if(((hsdadc->Instance->ISR & SDADC_ISR_ROVRF) == SDADC_ISR_ROVRF) && \
-          ((hsdadc->Instance->CR1 & SDADC_CR1_ROVRIE) == SDADC_CR1_ROVRIE))
+  else if(((hsdadc->Instance->CR1 & SDADC_CR1_ROVRIE) == SDADC_CR1_ROVRIE) &&
+          ((tmp_isr & SDADC_ISR_ROVRF) == SDADC_ISR_ROVRF))
   {
     /* Set CLRROVRF bit in SDADC_CLRISR register */
     hsdadc->Instance->CLRISR |= SDADC_ISR_CLRROVRF;
@@ -2128,11 +2441,15 @@ void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef* hsdadc)
     hsdadc->ErrorCode = SDADC_ERROR_REGULAR_OVERRUN;
 
     /* Call error callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+    hsdadc->ErrorCallback(hsdadc);
+#else
     HAL_SDADC_ErrorCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
   }
   /* Check if overrun occurs during injected conversion */
-  else if(((hsdadc->Instance->ISR & SDADC_ISR_JOVRF) == SDADC_ISR_JOVRF) && \
-          ((hsdadc->Instance->CR1 & SDADC_CR1_JOVRIE) == SDADC_CR1_JOVRIE))
+  else if(((hsdadc->Instance->CR1 & SDADC_CR1_JOVRIE) == SDADC_CR1_JOVRIE) &&
+          ((tmp_isr & SDADC_ISR_JOVRF) == SDADC_ISR_JOVRF))
   {
     /* Set CLRJOVRF bit in SDADC_CLRISR register */
     hsdadc->Instance->CLRISR |= SDADC_ISR_CLRJOVRF;
@@ -2141,7 +2458,11 @@ void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef* hsdadc)
     hsdadc->ErrorCode = SDADC_ERROR_INJECTED_OVERRUN;
 
     /* Call error callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+    hsdadc->ErrorCallback(hsdadc);
+#else
     HAL_SDADC_ErrorCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
   }
   else
   {
@@ -2256,7 +2577,11 @@ static void SDADC_DMARegularHalfConvCplt(DMA_HandleTypeDef *hdma)
   SDADC_HandleTypeDef* hsdadc = (SDADC_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
 
   /* Call regular half conversion complete callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+  hsdadc->ConvHalfCpltCallback(hsdadc);
+#else
   HAL_SDADC_ConvHalfCpltCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 }
 
 /**
@@ -2270,7 +2595,11 @@ static void SDADC_DMARegularConvCplt(DMA_HandleTypeDef *hdma)
   SDADC_HandleTypeDef* hsdadc = (SDADC_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
 
   /* Call regular conversion complete callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+  hsdadc->ConvCpltCallback(hsdadc);
+#else
   HAL_SDADC_ConvCpltCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 }
 
 /**
@@ -2284,7 +2613,11 @@ static void SDADC_DMAInjectedHalfConvCplt(DMA_HandleTypeDef *hdma)
   SDADC_HandleTypeDef* hsdadc = (SDADC_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
 
   /* Call injected half conversion complete callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+  hsdadc->InjectedConvHalfCpltCallback(hsdadc);
+#else
   HAL_SDADC_InjectedConvHalfCpltCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 }
 
 /**
@@ -2298,7 +2631,11 @@ static void SDADC_DMAInjectedConvCplt(DMA_HandleTypeDef *hdma)
   SDADC_HandleTypeDef* hsdadc = (SDADC_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
 
   /* Call injected conversion complete callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+  hsdadc->InjectedConvCpltCallback(hsdadc);
+#else
   HAL_SDADC_InjectedConvCpltCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 }
 
 /**
@@ -2315,7 +2652,11 @@ static void SDADC_DMAError(DMA_HandleTypeDef *hdma)
   hsdadc->ErrorCode = SDADC_ERROR_DMA;
 
   /* Call error callback */
+#if (USE_HAL_SDADC_REGISTER_CALLBACKS == 1)
+  hsdadc->ErrorCallback(hsdadc);
+#else
   HAL_SDADC_ErrorCallback(hsdadc);
+#endif /* USE_HAL_SDADC_REGISTER_CALLBACKS */
 }
 
 /**
@@ -2372,7 +2713,7 @@ uint32_t HAL_SDADC_GetError(SDADC_HandleTypeDef* hsdadc)
   */
 static HAL_StatusTypeDef SDADC_EnterInitMode(SDADC_HandleTypeDef* hsdadc)
 {
-  uint32_t tickstart = 0U;
+  uint32_t tickstart;
   
   /* Set INIT bit on SDADC_CR1 register */
   hsdadc->Instance->CR1 |= SDADC_CR1_INIT;
@@ -2409,18 +2750,18 @@ static void SDADC_ExitInitMode(SDADC_HandleTypeDef* hsdadc)
   */
 static uint32_t SDADC_GetInjChannelsNbr(uint32_t Channels)
 {
-  uint32_t nbChannels = 0U;
+  uint32_t nbChannels = 0UL;
   uint32_t tmp,i;
   
   /* Get the number of channels from bitfield */
   tmp = (uint32_t) (Channels & SDADC_LSB_MASK);
-  for(i = 0U ; i < 9U ; i++)
+  for(i = 0UL ; i < 9UL ; i++)
   {
-    if((tmp & 0x00000001U) != 0U)
+    if((tmp & 0x00000001UL) != 0UL)
     {
       nbChannels++;
     }
-    tmp = (uint32_t) (tmp >> 1U);
+    tmp = (uint32_t) (tmp >> 1UL);
   }
   return nbChannels;
 }
@@ -2490,7 +2831,7 @@ static HAL_StatusTypeDef SDADC_RegConvStop(SDADC_HandleTypeDef* hsdadc)
   }
   /* Wait for the end of regular conversion */
   tickstart = HAL_GetTick();  
-  while((hsdadc->Instance->ISR & SDADC_ISR_RCIP) != 0U)
+  while((hsdadc->Instance->ISR & SDADC_ISR_RCIP) != 0UL)
   {
     if((HAL_GetTick()-tickstart) > SDADC_TIMEOUT)
     {
@@ -2614,7 +2955,7 @@ static HAL_StatusTypeDef SDADC_InjConvStop(SDADC_HandleTypeDef* hsdadc)
   }
   /* Wait for the end of injected conversion */
   tickstart = HAL_GetTick();  
-  while((hsdadc->Instance->ISR & SDADC_ISR_JCIP) != 0U)
+  while((hsdadc->Instance->ISR & SDADC_ISR_JCIP) != 0UL)
   {
     if((HAL_GetTick()-tickstart) > SDADC_TIMEOUT)
     {
@@ -2683,7 +3024,7 @@ static HAL_StatusTypeDef SDADC_InjConvStop(SDADC_HandleTypeDef* hsdadc)
   * @}
   */ 
 
-#endif /* defined(STM32F373xC) || defined(STM32F378xx) */
+#endif /* SDADC1 || SDADC2 || SDADC3 */
 #endif /* HAL_SDADC_MODULE_ENABLED */
 /**
   * @}
