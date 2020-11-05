@@ -19,9 +19,9 @@ To this aim, attach the X-NUCLEO-BNRG2A1 to the STM32 NUCLEO board through the A
 
 Download the binaries from the links below:
 
-[BLE2_StackUpdater_F401RE.bin](https://github.com/STMicroelectronics/mbed-ble/BlueNRG2_StackUpdater/BLE2_StackUpdater_F401RE.bin)
+[BLE2_StackUpdater_F401RE.bin](https://github.com/STMicroelectronics/mbed-ble/blob/master/BlueNRG2_StackUpdater/BLE2_StackUpdater_F401RE.bin)
 
-[BLE2_StackUpdater_L476RG.bin](https://github.com/STMicroelectronics/mbed-ble/BlueNRG2_StackUpdater/BLE2_StackUpdater_L476RG.bin)
+[BLE2_StackUpdater_L476RG.bin](https://github.com/STMicroelectronics/mbed-ble/blob/master/BlueNRG2_StackUpdater/BLE2_StackUpdater_L476RG.bin)
 
 Before flashing your target board with the respective binary, be careful to properly set the SPI reset on pin **D7** as reported in the picture below:
 
@@ -34,21 +34,21 @@ The picture below shows the log upon success:
 ![updLog](img/updLog.jpg)
 
 If, for some reason, the updating procedure does not succeed you can use a standard ST-Link V2 with 5 jumper wires female-female together with the
-[BlueNRG2_FlasherUtility](https://github.com/STMicroelectronics/mbed-ble/BlueNRG2_FlasherUtility/en.STSW_BNRGFLASHER.zip) software tool (currently available only for Windows PC).
+[BlueNRG2_FlasherUtility](https://github.com/STMicroelectronics/mbed-ble/blob/master/BlueNRG2_FlasherUtility/en.STSW_BNRGFLASHER.zip) software tool (currently available only for Windows PC).
 
 You need to connect the J12 pins of the X-NUCLEO-BNRG2A1 to the pins of the ST-Link V2 as shown in the picture below:
 
 ![ST-LINK](img/ST-LINK.jpg)
 
-In particular we have the following connections:
+In particular, we have the following connections:
 
-|    |J12|ST/Link V2|
+|Pin number on J12|Pin number on ST/Link V2|
 |--------|----------|
-|Pin |1  |1         |
-|Pin |2  |9         |
-|Pin |3  |12        |
-|Pin |4  |7         |
-|Pin |5  |15        |
+|1       |1         |
+|2       |9         |
+|3       |12        |
+|4       |7         |
+|5       |15        |
 
 Install the ST BlueNRG-1_2 Flasher Utility and open it, then select the SWD tab:
 
@@ -60,7 +60,7 @@ Erase the flash memory of the BlueNRG-2 chip:
 
 Download the Firmware for the BLE module from the following link:
 
-[DTM_SPI.hex](https://github.com/STMicroelectronics/mbed-ble/BlueNRG2_Firmware/DTM_SPI.hex)
+[DTM_SPI.hex](https://github.com/STMicroelectronics/mbed-ble/blob/master/BlueNRG2_Firmware/DTM_SPI.hex)
 
 Load the Firmware in the ST BlueNRG-1_2 Flasher Utility and then press the "Flash" button:
 
