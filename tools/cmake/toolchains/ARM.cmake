@@ -80,11 +80,6 @@ function(mbed_set_c_lib target lib_type)
                 __MICROLIB
         )
 
-        target_compile_options(${target}
-            INTERFACE
-                $<$<COMPILE_LANGUAGE:ASM>:"--library_type=microlib">
-        )
-
         target_link_options(${target}
             INTERFACE
                 "--library_type=microlib"
