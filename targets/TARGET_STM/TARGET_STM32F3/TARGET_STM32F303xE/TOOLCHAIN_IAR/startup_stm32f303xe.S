@@ -1,4 +1,4 @@
-;/******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
+;/******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
 ;* File Name          : startup_stm32f303xe.s
 ;* Author             : MCD Application Team
 ;* Description        : STM32F303RE/STM32F303VE/STM32F303ZE devices vector table 

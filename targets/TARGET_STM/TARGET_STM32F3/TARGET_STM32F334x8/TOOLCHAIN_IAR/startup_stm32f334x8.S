@@ -1,4 +1,4 @@
-;/******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
+;/******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
 ;* File Name          : startup_stm32f334x8.s
 ;* Author             : MCD Application Team
 ;* Description        : STM32F334x4/STM32F334x6/STM32F334x8 devices vector table for EWARM toolchain.

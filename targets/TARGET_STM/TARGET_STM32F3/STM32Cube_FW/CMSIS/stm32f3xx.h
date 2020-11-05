@@ -96,7 +96,7 @@
   /* #define STM32F373xC */   /*!< STM32F373C8, STM32F373CB, STM32F373CC,
                                    STM32F373R8, STM32F373RB, STM32F373RC,
                                    STM32F373V8, STM32F373VB and STM32F373VC Devices */
-#define STM32F334x8    /*!< STM32F334K4, STM32F334K6, STM32F334K8,
+  /* #define STM32F334x8 */   /*!< STM32F334K4, STM32F334K6, STM32F334K8,
                                    STM32F334C4, STM32F334C6, STM32F334C8,
                                    STM32F334R4, STM32F334R6 and STM32F334R8 Devices */
   /* #define STM32F318xx */   /*!< STM32F318K8, STM32F318C8: STM32F301x8 with regulator off: STM32F318xx Devices */
@@ -115,7 +115,7 @@
    In this case, these drivers will not be included and the application code will 
    be based on direct access to peripherals registers 
    */
-#define USE_HAL_DRIVER
+  /*#define USE_HAL_DRIVER */
 #endif /* USE_HAL_DRIVER */
 
 /**

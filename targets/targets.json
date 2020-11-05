@@ -1418,14 +1418,22 @@
             "LPTICKER"
         ]
     },
-    "NUCLEO_F303K8": {
+    "MCU_STM32F303x8": {
         "inherits": [
             "MCU_STM32F3"
         ],
+        "public": false,
         "c_lib": "small",
         "extra_labels_add": [
-            "STM32F303x8",
-            "STM32F303K8"
+            "STM32F303x8"
+        ],
+        "macros_add": [
+            "STM32F303x8"
+        ]
+    },
+    "NUCLEO_F303K8": {
+        "inherits": [
+            "MCU_STM32F303x8"
         ],
         "overrides": {
             "clock_source": "USE_PLL_HSI",
@@ -1436,50 +1444,49 @@
         ],
         "device_name": "STM32F303K8"
     },
-    "NUCLEO_F303RE": {
+    "MCU_STM32F303xE": {
         "inherits": [
             "MCU_STM32F3"
         ],
-        "c_lib": "small",
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
+        "public": false,
         "extra_labels_add": [
-            "STM32F303xE",
-            "STM32F303RE"
+            "STM32F303xE"
+        ],
+        "macros_add": [
+            "STM32F303xE"
         ],
         "components_add": [
             "FLASHIAP"
-        ],
-        "detect_code": [
-            "0745"
         ],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ],
-        "device_name": "STM32F303RE"
+        ]
     },
-    "NUCLEO_F303ZE": {
+    "NUCLEO_F303RE": {
         "inherits": [
-            "MCU_STM32F3"
+            "MCU_STM32F303xE"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
         ],
-        "extra_labels_add": [
-            "STM32F303xE",
-            "STM32F303ZE"
+        "detect_code": [
+            "0745"
+        ],
+        "device_name": "STM32F303RE"
+    },
+    "NUCLEO_F303ZE": {
+        "inherits": [
+            "MCU_STM32F303xE"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
         ],
         "detect_code": [
             "0747"
-        ],
-        "device_has_add": [
-            "FLASH",
-            "MPU"
         ],
         "device_name": "STM32F303ZE"
     },

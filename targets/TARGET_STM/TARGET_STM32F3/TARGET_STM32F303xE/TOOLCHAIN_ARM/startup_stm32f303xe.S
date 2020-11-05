@@ -1,4 +1,4 @@
-;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
 ;* File Name          : startup_stm32f303xe.s
 ;* Author             : MCD Application Team
 ;* Description        : STM32F303xE devices vector table for MDK-ARM toolchain.
@@ -46,9 +46,9 @@
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|               ; Top of Stack
                 DCD     Reset_Handler              ; Reset Handler
                 DCD     NMI_Handler                ; NMI Handler
                 DCD     HardFault_Handler          ; Hard Fault Handler
@@ -372,6 +372,10 @@ SPI4_IRQHandler
 
                 ALIGN
 
-                END
+;*******************************************************************************
+; User Stack and Heap initialization
+;*******************************************************************************
+
+                 END
 
 ;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****
