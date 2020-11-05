@@ -264,6 +264,12 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
     /* get integer part */
     MBED_SIGNED_STORAGE integer = value;
 
+    /* write sign if integer part is zero and value is negative */
+    if ((value < 0.0) && (integer == 0)) {
+        /* write sign */
+        mbed_minimal_putchar(buffer, length, result, '-', stream);
+    }
+
     /* write integer part */
     mbed_minimal_formatted_string_signed(buffer, length, result, integer, stream);
 
