@@ -163,4 +163,3 @@ You may want to connect the device directly to the host machine with no hubs on 
 [LN-linux_xhci_patch]: https://github.com/torvalds/linux/commit/f5249461b504d35aa1a40140983b7ec415807d9e
 [LN-xhci_lkml_discussion]: https://lkml.org/lkml/2016/12/15/388
 [LN-xhci_setpci]: https://linuxmusicians.com/viewtopic.php?t=16901
-

@@ -185,7 +185,7 @@ class MSDUtils(object):
         return False
 
     @staticmethod
-    def _disk_path_windows(serial):        
+    def _disk_path_windows(serial):
         c = wmi.WMI()
         for physical_disk in c.Win32_DiskDrive():
             if serial == physical_disk.SerialNumber:
