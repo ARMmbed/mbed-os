@@ -49,7 +49,9 @@
 #define __MPU_PRESENT             0U       /*!< STM32F301x8 devices do not provide an MPU */
 #define __NVIC_PRIO_BITS          4U       /*!< STM32F301x8 devices use 4 Bits for the Priority Levels */
 #define __Vendor_SysTickConfig    0U       /*!< Set to 1 if different SysTick Config is used */
+#ifndef __FPU_PRESENT
 #define __FPU_PRESENT             1U       /*!< STM32F301x8 devices provide an FPU */
+#endif
 
 /**
   * @}

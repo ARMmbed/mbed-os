@@ -49,7 +49,9 @@
 #define __MPU_PRESENT             0U       /*!< STM32F328xx devices do not provide an MPU */
 #define __NVIC_PRIO_BITS          4U       /*!< STM32F328xx devices use 4 Bits for the Priority Levels */
 #define __Vendor_SysTickConfig    0U       /*!< Set to 1 if different SysTick Config is used */
+#ifndef __FPU_PRESENT
 #define __FPU_PRESENT             1U       /*!< STM32F328xx devices provide an FPU */
+#endif
 
 /**
   * @}
@@ -727,7 +729,7 @@ typedef struct
 #define USART2              ((USART_TypeDef *) USART2_BASE)
 #define USART3              ((USART_TypeDef *) USART3_BASE)
 #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
-#define CAN                 ((CAN_TypeDef *) CAN_BASE)
+#define CAN1                ((CAN_TypeDef *) CAN_BASE)
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
 #define DAC                 ((DAC_TypeDef *) DAC_BASE)
 #define DAC1                ((DAC_TypeDef *) DAC1_BASE)
@@ -11650,7 +11652,7 @@ typedef struct
 
 #define IS_ADC_COMMON_INSTANCE(INSTANCE) ((INSTANCE) == ADC12_COMMON)
 /****************************** CAN Instances *********************************/
-#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN)
+#define IS_CAN_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CAN1)
 
 /****************************** COMP Instances ********************************/
 #define IS_COMP_ALL_INSTANCE(INSTANCE) (((INSTANCE) == COMP2) || \

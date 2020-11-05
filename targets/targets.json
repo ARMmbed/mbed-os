@@ -1418,6 +1418,19 @@
             "LPTICKER"
         ]
     },
+    "MCU_STM32F302x8": {
+        "inherits": [
+            "MCU_STM32F3"
+        ],
+        "public": false,
+        "c_lib": "small",
+        "extra_labels_add": [
+            "STM32F302x8"
+        ],
+        "macros_add": [
+            "STM32F302x8"
+        ]
+    },
     "MCU_STM32F303x8": {
         "inherits": [
             "MCU_STM32F3"
@@ -1443,6 +1456,22 @@
             "0775"
         ],
         "device_name": "STM32F303K8"
+    },
+    "MCU_STM32F303xC": {
+        "inherits": [
+            "MCU_STM32F3"
+        ],
+        "public": false,
+        "c_lib": "small",
+        "extra_labels_add": [
+            "STM32F303xC"
+        ],
+        "macros_add": [
+            "STM32F303xC"
+        ],
+        "device_has_add": [
+            "MPU"
+        ]
     },
     "MCU_STM32F303xE": {
         "inherits": [
@@ -1489,6 +1518,19 @@
             "0747"
         ],
         "device_name": "STM32F303ZE"
+    },
+    "MCU_STM32F334x8": {
+        "inherits": [
+            "MCU_STM32F3"
+        ],
+        "public": false,
+        "c_lib": "small",
+        "extra_labels_add": [
+            "STM32F334x8"
+        ],
+        "macros_add": [
+            "STM32F334x8"
+        ]
     },
     "MCU_STM32F4": {
         "inherits": [

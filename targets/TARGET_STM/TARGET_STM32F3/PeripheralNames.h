@@ -38,7 +38,9 @@ extern "C" {
 
 typedef enum {
     ADC_1 = (int)ADC1_BASE,
+#if defined ADC2_BASE
     ADC_2 = (int)ADC2_BASE,
+#endif
 #if defined ADC3_BASE
     ADC_3 = (int)ADC3_BASE,
 #endif
@@ -68,7 +70,9 @@ typedef enum {
 
 #define DEVICE_SPI_COUNT 4
 typedef enum {
+#if defined SPI1_BASE
     SPI_1 = (int)SPI1_BASE,
+#endif
 #if defined SPI2_BASE
     SPI_2 = (int)SPI2_BASE,
 #endif
@@ -93,7 +97,9 @@ typedef enum {
 typedef enum {
     PWM_1  = (int)TIM1_BASE,
     PWM_2  = (int)TIM2_BASE,
+#if defined TIM3_BASE
     PWM_3  = (int)TIM3_BASE,
+#endif
 #if defined TIM4_BASE
     PWM_4  = (int)TIM4_BASE,
 #endif
