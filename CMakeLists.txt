@@ -185,7 +185,7 @@ function(mbed_generate_map_file target)
          TARGET
              ${target}
          POST_BUILD
-             COMMAND ${Python3_EXECUTABLE} ${MBED_ROOT}/tools/memap.py -t ${MBED_TOOLCHAIN} ${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
+         COMMAND ${Python3_EXECUTABLE} ${MBED_PATH}/tools/memap.py -t ${MBED_TOOLCHAIN} ${CMAKE_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}.map
          WORKING_DIRECTORY
              ${CMAKE_BINARY_DIR}
          COMMENT
@@ -198,7 +198,7 @@ endfunction()
 #
 function(mbed_validate_application_profile target)
     get_target_property(app_link_libraries ${target} LINK_LIBRARIES)
-    string(FIND ${app_link_libraries} "mbed-baremetal" string_found_position)
+    string(FIND "${app_link_libraries}" "mbed-baremetal" string_found_position)
     if(${string_found_position} GREATER_EQUAL 0)
         if(NOT "bare-metal" IN_LIST MBED_TARGET_SUPPORTED_APPLICATION_PROFILES)
             message(FATAL_ERROR
