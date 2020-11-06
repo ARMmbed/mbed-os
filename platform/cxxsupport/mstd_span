@@ -1,0 +1,286 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef MSTD_SPAN_
+#define MSTD_SPAN_
+
+#include <mstd_iterator>
+#include <mstd_type_traits>
+
+namespace mstd {
+
+inline constexpr size_t dynamic_extent = -1;
+
+namespace detail {
+template<typename ElementType, size_t Extent>
+class storage {
+public:
+    constexpr storage() noexcept = default;
+
+    constexpr storage(ElementType *ptr, size_t) noexcept :
+        _data(ptr)
+    {}
+
+    ElementType* _data;
+    static constexpr size_t _size = Extent;
+};
+
+template<typename ElementType>
+class storage<ElementType, dynamic_extent> {
+public:
+    constexpr storage() noexcept = default;
+
+    constexpr storage(ElementType *ptr, size_t size) noexcept :
+        _data(ptr), _size(size)
+    {}
+
+    ElementType* _data;
+    size_t _size;
+};
+} // namespace detail
+
+template<typename ElementType, size_t Extent = dynamic_extent>
+class span {
+public:
+    using element_type = ElementType;
+    using value_type = typename mstd::remove_cv_t<element_type>;
+    using index_type = size_t;
+    using difference_type = ptrdiff_t;
+    using pointer = element_type*;
+    using const_pointer = const element_type*;
+    using reference = element_type&;
+    using const_reference = const element_type&;
+    using iterator = pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+
+    static constexpr index_type extent = Extent;
+
+    // Constructors, copy and assignment
+    template<size_t E = Extent,
+        typename mstd::enable_if_t<E == dynamic_extent, int> = 0>
+    constexpr span() noexcept
+    {}
+
+    constexpr span(pointer ptr, index_type count) :
+        _storage(ptr, count)
+    {
+        MBED_ASSERT(extent == dynamic_extent || extent == count);
+    }
+
+    constexpr span(pointer first, pointer last) :
+        _storage(first, last - first)
+    {
+        MBED_ASSERT(first <= last);
+        MBED_ASSERT(extent == dynamic_extent || extent == last - first);
+        MBED_ASSERT(extent == 0 || nullptr != first);
+    }
+
+    template<size_t N, size_t E = Extent,
+    typename mstd::enable_if_t<E == dynamic_extent || N == E, int> = 0>
+    constexpr span(element_type (&arr)[N]) noexcept:
+        _storage(arr, N)
+    {}
+
+    template<size_t N, size_t E = Extent,
+    typename mstd::enable_if_t<E == dynamic_extent || N == E, int> = 0>
+        constexpr span(array<value_type, N>& arr) noexcept:
+        _storage(arr.data(), N)
+    {}
+
+    template<size_t N, size_t E = Extent,
+    typename mstd::enable_if_t<E == dynamic_extent || N == E, int> = 0>
+        constexpr span(const array<value_type, N>& arr) noexcept:
+        _storage(arr.data(), N)
+    {}
+
+    /* TODO
+    template<class R>
+    constexpr explicit(extent != dynamic_extent) span(R&& r)
+    */
+
+    constexpr span(const span& other) noexcept = default;
+
+    template<class OtherElementType, size_t OtherExtent,
+    typename mstd::enable_if_t<(Extent == dynamic_extent || OtherExtent == Extent) &&
+        is_convertible<OtherElementType(*)[], ElementType (*)[]>::value, int> = 0>
+    constexpr span(const span<OtherElementType, OtherExtent>& s) noexcept:
+        _storage(s.data(), s.size())
+    {}
+
+    ~span() noexcept = default;
+
+    constexpr span& operator=(const span& other) noexcept = default;
+
+    // Subviews
+    template<size_t Count>
+    constexpr span<element_type, Count> first() const
+    {
+        static_assert(Count <= extent);
+        MBED_ASSERT(Count <= size());
+        return span<element_type, Count>(data(), Count);
+    }
+
+    template<size_t Count>
+    constexpr span<element_type, Count> last() const
+    {
+        static_assert(Count <= extent);
+        MBED_ASSERT(Count <= size());
+        return span<element_type, Count>(data() + (size() - Count), Count);
+    }
+
+    template<size_t Offset, size_t Count = dynamic_extent>
+    constexpr span<element_type, Count != dynamic_extent ? Count
+        : (Extent != dynamic_extent ? Extent - Offset : dynamic_extent)> subspan() const
+    {
+        static_assert(Offset <= extent && (Count == dynamic_extent || Count <= extent - Offset));
+        MBED_ASSERT(Offset <= size() && (Count == dynamic_extent || Count <= size() - Offset));
+        return {data() + Offset, Count != dynamic_extent ? Count : size() - Offset};
+    }
+
+    constexpr span<element_type, dynamic_extent> first(index_type count) const
+    {
+        MBED_ASSERT(count <= size());
+        return span<element_type>(data(), count);
+    }
+
+    constexpr span<element_type, dynamic_extent> last(index_type count) const
+    {
+        MBED_ASSERT(count <= size());
+        return span<element_type>(data() + (size() - count), count);
+    }
+
+    constexpr span<element_type, dynamic_extent>
+        subspan(index_type offset, index_type count = dynamic_extent) const
+    {
+        MBED_ASSERT(offset <= size() && (count == dynamic_extent || count <= size() - offset ));
+        return span<element_type, dynamic_extent>(data() + offset, count == dynamic_extent ? size() - offset : count );
+    }
+
+    // Observers
+    constexpr index_type size() const noexcept
+    {
+        return _storage._size;
+    }
+
+    constexpr index_type size_bytes() const noexcept
+    {
+        return size() * sizeof(element_type);
+    }
+
+    constexpr bool empty() const noexcept
+    {
+        return size() == 0;
+    }
+
+    // Element access
+    constexpr reference operator[](index_type idx) const
+    {
+        MBED_ASSERT(idx < size());
+        return *(data() + idx);
+    }
+
+    constexpr reference front() const
+    {
+        MBED_ASSERT(not empty());
+        return *data();
+    }
+
+    constexpr reference back() const
+    {
+        MBED_ASSERT(not empty());
+        return *(data() + (size() - 1));
+    }
+
+    constexpr pointer data() const noexcept
+    {
+        return _storage._data;
+    }
+
+    // Iterators
+    constexpr iterator begin() const noexcept
+    {
+        return data();
+    }
+
+    constexpr iterator end() const noexcept
+    {
+        return data() + size();
+    }
+
+    constexpr reverse_iterator rbegin() const noexcept
+    {
+        return reverse_iterator(end());
+    }
+
+    constexpr reverse_iterator rend() const noexcept
+    {
+        return reverse_iterator(begin());
+    }
+
+private:
+    detail::storage<element_type, extent> _storage;
+};
+
+template<class ElementType, size_t Extent>
+span<const unsigned char, Extent == dynamic_extent ? dynamic_extent : sizeof(ElementType) * Extent>
+as_bytes(span<ElementType, Extent> s) noexcept
+{
+    return {reinterpret_cast<const unsigned char*>(s.data()), s.size_bytes()};
+}
+
+template<class ElementType, size_t Extent>
+span<unsigned char, Extent == dynamic_extent ? dynamic_extent : sizeof(ElementType) * Extent>
+as_writable_bytes(span<ElementType, Extent> s) noexcept
+{
+    static_assert(not is_const<ElementType>::value);
+    return {reinterpret_cast<unsigned char*>(s.data()), s.size_bytes()};
+}
+
+template<class ElementType, size_t Extent>
+constexpr span<ElementType, Extent> make_span(ElementType (&arr)[Extent])
+{
+    return span<ElementType, Extent>(arr);
+}
+
+template<class ElementType, size_t Extent>
+constexpr span<const ElementType, Extent> make_span(const ElementType (&arr)[Extent])
+{
+    return span<const ElementType, Extent>(arr);
+}
+
+template<class ElementType, size_t Extent>
+constexpr span<ElementType, Extent> make_span(array<ElementType, Extent>& arr)
+{
+    return span<ElementType, Extent>(arr);
+}
+
+template<class ElementType, size_t Extent>
+constexpr span<const ElementType, Extent> make_span(const array<ElementType, Extent>& arr)
+{
+    return span<const ElementType, Extent>(arr);
+}
+
+/* TODO
+template<class R>
+constexpr span<typename Container::value_type> make_span(R&& cont)
+{
+    return {cont};
+}
+*/
+
+} // namespace mstd
+
+#endif // MSTD_MUTEX_
