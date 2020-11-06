@@ -546,7 +546,7 @@ void test_contiguous_erase_write_read()
 
     bd_size_t contiguous_erase_size = stop_address - start_address;
     TEST_ASSERT(contiguous_erase_size > 0);
-    utest_printf("contiguous_erase_size=%d\n", contiguous_erase_size);
+    utest_printf("contiguous_erase_size=0x%" PRIx64 "\n", contiguous_erase_size);
 
     bd_size_t write_read_buf_size = program_size;
     if (contiguous_erase_size / program_size > 8 && contiguous_erase_size % (program_size * 8) == 0) {
