@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,9 +31,9 @@ public:
      *  NSAPI_ERROR_PARAMETER       if buf_size is not big enough
      *  NSAPI_ERROR_WOULD_BLOCK     if unsolicited response has not arrived
      */
-    virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
+    nsapi_error_t get_iccid(char *buf, size_t buf_size) override;
 protected:
-    virtual void unsolicited_response(int response_id, const void *data, size_t data_len);
+    void unsolicited_response(int response_id, const void *data, size_t data_len) override;
 private:
     char *_iccid;
 };

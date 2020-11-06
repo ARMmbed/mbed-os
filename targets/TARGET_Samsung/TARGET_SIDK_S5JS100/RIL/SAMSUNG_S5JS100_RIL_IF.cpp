@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,17 +31,14 @@
 #endif
 #define SAMSUNG_S5JS100_PPP_RIL_DBG        if (SAMSUNG_S5JS100_PPP_RIL_DBG_ON) tr_info
 
-#define SAMSUNG_S5JS100_MAX_SLEEP_TYPE      2
-static void (*ril_sleep_cbs[SAMSUNG_S5JS100_MAX_SLEEP_TYPE])(void) = {NULL};
-
 namespace mbed
 {
 
 extern "C" {
     extern void dcxo_init(void);
     extern void shmem_save_init(void);
-	extern void s5js100_modem_start(void);
-	extern void s5js100_modem_stop(void);
+    extern void s5js100_modem_start(void);
+    extern void s5js100_modem_stop(void);
 #ifdef SAMSUNG_S5JS100_IF5_EN
 #if SAMSUNG_S5JS100_IF5_EN==1
     extern void if5_init(void);
@@ -60,6 +57,8 @@ struct {
     void *response;
     size_t responselen;
 } sync_res_msg;
+
+int first_RIL_REQUEST_SET_INITIAL_ATTACH_APN = 1;
 
 static void rilifwork_func(void)
 {
@@ -93,6 +92,12 @@ SAMSUNG_S5JS100_RIL_IF *SAMSUNG_S5JS100_RIL_IF::GetInstance()
     return s5js100_rilInstance;
 }
 
+void restart_cb(void)
+{
+    tr_info("RESTART Modem!!!");
+    mbed::SAMSUNG_S5JS100_RIL_IF::GetInstance()->OnUnsolicitedResponse(RIL_UNSOL_RIL_RESTART_REQUIRED, NULL, 0);
+}
+
 bool SAMSUNG_S5JS100_RIL_IF::Init(const struct RIL_Env *env)
 {
     if (env == NULL)
@@ -119,6 +124,7 @@ bool SAMSUNG_S5JS100_RIL_IF::Init(const struct RIL_Env *env)
     }
     rilcallback = *env;
 
+    pShmemLinkDevice->fail_cb = restart_cb;
     pShmemLinkDevice->mbox_init();
 
     dcxo_init();
@@ -168,7 +174,7 @@ SAMSUNG_S5JS100_RIL_IF::~SAMSUNG_S5JS100_RIL_IF()
     DeInit();
     delete mModemProxy;
 }
-int first_RIL_REQUEST_SET_INITIAL_ATTACH_APN = 1;
+
 void SAMSUNG_S5JS100_RIL_IF::OnRequest(int request, void *data, unsigned int datalen, RIL_Token t)
 {
     SAMSUNG_S5JS100_PPP_RIL_DBG("SAMSUNG_S5JS100_PPP_RIL::OnRequest request(%d) data(%p) datalen(%u)\n", request, data, datalen);
@@ -254,9 +260,6 @@ void SAMSUNG_S5JS100_RIL_IF::OnRequest(int request, void *data, unsigned int dat
     case RIL_REQUEST_SET_EDRX:
         mModemProxy->setEdrx(data, datalen, t);
         break;
-    case RIL_REQUEST_GET_PSM_TIMER:
-        mModemProxy->getPsmTimer(data, datalen, t);
-        break;
     case RIL_REQUEST_SET_FORWARDING_AT_COMMAND:
         mModemProxy->setForwardingAtCommand(data, datalen, t);
         break;
@@ -287,9 +290,9 @@ void SAMSUNG_S5JS100_RIL_IF::OnRequest(int request, void *data, unsigned int dat
     case RIL_REQUEST_SET_PDN_IP_ADDR:
         mModemProxy->setPdnIpAddress(data, datalen, t);
         break;
-	case RIL_REQUEST_SET_DEBUG_TRACE:
-		mModemProxy->setDebugTrace(data, datalen, t);
-		break;
+    case RIL_REQUEST_SET_DEBUG_TRACE:
+        mModemProxy->setDebugTrace(data, datalen, t);
+        break;
     default:
         //RilLogW("%s Unsupported request %d", __FUNCTION__, request);
         OnRequestComplete(t, RIL_E_REQUEST_NOT_SUPPORTED, NULL, 0);
@@ -455,8 +458,6 @@ void SAMSUNG_S5JS100_RIL_IF::OnUnsolicitedResponse(int unsolResponse, const void
     mCallback.OnUnsolicitedResponse(unsolResponse, data, datalen);
 }
 
-#ifndef RIL_SIMULATOR
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -504,20 +505,6 @@ const RIL_RadioFunctions * RIL_Init(const struct RIL_Env *env, int argc, char **
     return &s_callbacks;
 }
 
-const void RIL_Register_sleep_cb(int type, void (*cb)(void))
-{
-    ril_sleep_cbs[type] = cb;
-}
-
-int RIL_Invoke_sleep_cb(int type)
-{
-    if (ril_sleep_cbs[type]) {
-        ril_sleep_cbs[type]();
-        return 0;
-    }
-
-    return -1;
-}
 
 void RIL_Reinit(void)
 {
@@ -534,14 +521,13 @@ void RIL_Reinit(void)
 void RIL_Deinit(void)
 {
     mbed::SAMSUNG_S5JS100_RIL_IF *inst = mbed::SAMSUNG_S5JS100_RIL_IF::GetInstance();
+
     inst->DeInit();
-	first_RIL_REQUEST_SET_INITIAL_ATTACH_APN = 1;
+    first_RIL_REQUEST_SET_INITIAL_ATTACH_APN = 1;
 }
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif //RIL_SIMULATOR
 
 } /* namespace mbed */

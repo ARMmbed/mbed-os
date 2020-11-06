@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 #include "SAMSUNG_S5JS100_RIL_CellularNetwork.h"
+#include "RIL_CellularDevice.h"
 #include "CellularContext.h"
 #include "CellularLog.h"
+#include "ScopedLock.h"
 
 namespace mbed {
 
@@ -43,7 +45,6 @@ nsapi_error_t SAMSUNG_S5JS100_RIL_CellularNetwork::set_access_technology_impl(Ra
 nsapi_error_t SAMSUNG_S5JS100_RIL_CellularNetwork::set_receive_period(int mode, EDRXAccessTechnology act_type,
                                                                       uint8_t edrx_value)
 {
-#if defined(TARGET_S5JS100)
     if (mode > 1) {
         tr_warning("Invalid eDRX mode: %d", mode);
         return NSAPI_ERROR_UNSUPPORTED;
@@ -52,63 +53,42 @@ nsapi_error_t SAMSUNG_S5JS100_RIL_CellularNetwork::set_receive_period(int mode, 
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    _api_mutex.lock();
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
 
     _int_data = mode;
     // eDRX enable/disable is set via RIL_REQUEST_PSM_ENABLED
-    lock_and_send_request(RIL_REQUEST_PSM_ENABLED, &_int_data, 1, callback(this, &SAMSUNG_S5JS100_RIL_CellularNetwork::request_set_psm_edrx_response));
-
+    nsapi_error_t ret = _device.lock_and_send_request(RIL_REQUEST_PSM_ENABLED, &_int_data, 1,
+                                                      callback(this, &SAMSUNG_S5JS100_RIL_CellularNetwork::request_set_psm_edrx_response));
 
     // we disabled eDRX or there was an error, no need to set any values
-    if (!_int_data || _error) {
-        _cond_mutex.unlock();
-        _api_mutex.unlock();
-        return _error;
+    if (!_int_data || ret != NSAPI_ERROR_OK) {
+        return ret;
     }
 
     // try to set values only if PSM enable was successful. For now we use default value(0) as we don't
     // have PTW in API.
-    if (_error == NSAPI_ERROR_OK) {
+    if (ret == NSAPI_ERROR_OK) {
         unsigned int *data = new unsigned int[2];
         _edrx = edrx_value;
         data[0] = 0;
         data[1] = _edrx;
-        _cond_mutex.unlock();
-        ril_token_t *token = lock_and_send_request(RIL_REQUEST_SET_EDRX, (void *)data, sizeof(unsigned int) * 2, callback(this, &SAMSUNG_S5JS100_RIL_CellularNetwork::request_set_psm_edrx_response));
-        if (token == NULL) {
-            delete [] data;
-        }
+        ret = _device.lock_and_send_request(RIL_REQUEST_SET_EDRX, (void *)data, sizeof(unsigned int) * 2,
+                                            callback(this, &SAMSUNG_S5JS100_RIL_CellularNetwork::request_set_psm_edrx_response));
+        delete [] data;
     }
 
-    _cond_mutex.unlock();
-    _api_mutex.unlock();
-    return _error;
-#else
-    return NSAPI_ERROR_UNSUPPORTED;
-#endif //#if defined(TARGET_S5JS100)
+    return ret;
 }
 
 void SAMSUNG_S5JS100_RIL_CellularNetwork::request_set_psm_edrx_response(ril_token_t *token, RIL_Errno err, void *response,
                                                                         size_t response_len)
 {
-#if defined(TARGET_S5JS100)
-    _cond_mutex.lock();
-    if (err == RIL_E_SUCCESS) {
-        _error = NSAPI_ERROR_OK;
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    if (token->request_id == RIL_REQUEST_SET_EDRX) {
-        unsigned int *req_data = (unsigned int *)token->data;
-        delete [] req_data;
-    }
-
     if (err != RIL_E_CANCELLED) {
-        _cond_var.notify_one();
+        token->cond_mutex->lock();
+        token->response_error = (err == RIL_E_SUCCESS) ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
+        token->cond_var->notify_one();
+        token->cond_mutex->unlock();
     }
-    _cond_mutex.unlock();
-#endif // #if defined(TARGET_S5JS100)
 }
 
 } /* namespace mbed */

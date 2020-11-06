@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +17,13 @@
 #ifndef MBED_OS_FEATURES_CELLULAR_FRAMEWORK_RIL_RIL_H_
 #define MBED_OS_FEATURES_CELLULAR_FRAMEWORK_RIL_RIL_H_
 
-// Define ril headers for different targets using different versions of ril.h header. Header also can
+// Define RIL headers for different targets using different versions of ril.h header. Header also can
 // contain target specific RIL request/responses which are not present in original ril.h by Google.
-#if defined(TARGET_S5JS100)
-#include "SAMSUNG_S5JS100_RIL_HEADER.h"
+
+#if defined(CELLULAR_RIL_HEADER)
+#include CELLULAR_RIL_HEADER
 #else
 #include "default_ril.h"
-#endif // #if defined(TARGET_S5JS100)
-
-
+#endif
 
 #endif /* MBED_OS_FEATURES_CELLULAR_FRAMEWORK_RIL_RIL_H_ */

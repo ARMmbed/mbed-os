@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@
 #include "SAMSUNG_S5JS100_Modem_Proxy.h"
 #include "SAMSUNG_S5JS100_STK.h"
 #include "CellularContext.h"
-#include "SAMSUNG_S5JS100_RIL.h"
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "STK"
@@ -324,13 +323,10 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
         return;
     }
 
+    stk->connection.context = (CellularContext *)(NetworkInterface::get_default_instance());
     if (stk->connection.apn[0] != 0) {
-        SAMSUNG_S5JS100_RIL *s1 = new SAMSUNG_S5JS100_RIL();
-        stk->connection.context = s1->create_context();
         stk->connection.context->set_credentials((char *)(stk->connection.apn), (char *)(stk->connection.login), (char *)(stk->connection.password));
         stk->connection.context->connect();
-    } else {
-        stk->connection.context = (CellularContext *)(NetworkInterface::get_default_instance());
     }
 
     SAMSUNG_S5JS100_STK_DBG("Open socket ip: %s port:%d\n", (char *)(stk->connection.dest_address), stk->connection.port);
@@ -343,7 +339,7 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
         while (retcode != NSAPI_ERROR_OK)
         {
             tr_error("UDPSocket.open() fails & retry, code: %d\n", retcode);
-            thread_sleep_for(1000);
+            ThisThread::sleep_for(1000);
             retcode = stk->connection.udp.open(stk->connection.context);
         }
         stk->connection.udp.set_timeout(5000);
@@ -351,7 +347,7 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
         while (retcode != NSAPI_ERROR_OK)
         {
             tr_error("UDPSocket.connect() fails & retry, code: %d\n", retcode);
-            thread_sleep_for(1000);
+            ThisThread::sleep_for(1000);
             retcode = stk->connection.udp.connect(sock_addr);
         }
     }
@@ -361,7 +357,7 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
         while (retcode != NSAPI_ERROR_OK)
         {
             tr_error("TCPSocket.open() fails & retry, code: %d\n", retcode);
-            thread_sleep_for(1000);
+            ThisThread::sleep_for(1000);
             retcode = stk->connection.tcp.open(stk->connection.context);
         }
         stk->connection.tcp.set_timeout(5000);
@@ -369,7 +365,7 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
         while (retcode != NSAPI_ERROR_OK)
         {
             tr_error("TCPSocket.connect() fails & retry, code: %d\n", retcode);
-            thread_sleep_for(1000);
+            ThisThread::sleep_for(1000);
             stk->connection.tcp.close();
             stk->connection.tcp.open(stk->connection.context);
             retcode = stk->connection.tcp.connect(sock_addr);
@@ -420,7 +416,7 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
         usat_mutex.unlock();
 
         while ((t = alloc_recv_buf(retcode)) == NULL)
-            thread_sleep_for(1000);
+            ThisThread::sleep_for(1000);
 
         memcpy(t->buf, tbuf, retcode);
         t->bufsize = retcode;
@@ -792,7 +788,7 @@ void receive_work_task(void)
 int SAMSUNG_S5JS100_STK::proactive_receive_data(void *msg, unsigned int msglen)
 {
     while ((receive_msg = (void *)malloc(msglen)) == NULL)
-        thread_sleep_for(1000);
+        ThisThread::sleep_for(1000);
     receive_msglen = msglen;
     memcpy(receive_msg, msg, msglen);
     usat_wqueue->call(receive_work_task);
@@ -872,7 +868,7 @@ void send_work_task(void)
         usat_mutex.lock();
         channel_status = stk->openchannel;
         usat_mutex.unlock();
-        thread_sleep_for(1000);
+        ThisThread::sleep_for(1000);
     }
 
     if (details->qualifier == 1) {
@@ -894,7 +890,7 @@ void send_work_task(void)
         }
     } else {
         while ((send_stored_buf = (char *)malloc(4096)) == NULL)
-            thread_sleep_for(1000);
+            ThisThread::sleep_for(1000);
         memcpy(send_stored_buf + send_stored_size, m.channel_data->channel_data_string, m.channel_data->length);
         send_stored_size += m.channel_data->length;
     }
@@ -906,7 +902,7 @@ void send_work_task(void)
 int SAMSUNG_S5JS100_STK::proactive_send_data(void *msg, unsigned int msglen)
 {
     while ((send_msg = (void *)malloc(msglen)) == NULL)
-        thread_sleep_for(1000);
+        ThisThread::sleep_for(1000);
     memcpy(send_msg, msg, msglen);
     send_msglen = msglen;
     usat_wqueue->call(send_work_task);

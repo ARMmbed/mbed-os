@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,10 +47,10 @@ public:
      *       TEDRX_5242_88_SEC = 0x0E,
      *       TEDRX_10485_76_SEC = 0x0F,
      */
-    virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value);
+    nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) override;
 
 protected: // from RIL_CellularNetwork
-    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology rat);
+    nsapi_error_t set_access_technology_impl(RadioAccessTechnology rat) override;
     void request_set_psm_edrx_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len);
 private:
     int _edrx;

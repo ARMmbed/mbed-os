@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,64 +20,63 @@
 #include "CellularContext.h"
 #include "OnboardNetworkStack.h"
 #include "RIL_CellularDevice.h"
-#include "RIL_CellularBase.h"
 class L3IP;
 
 namespace mbed {
 
-#define MAX_IPV6_SIZE 63+1
 class RIL_CellularDevice;
 
-class RIL_CellularContext: public CellularContext, public RIL_CellularBase {
+class RIL_CellularContext: public CellularContext {
 public:
     RIL_CellularContext(RIL_CellularDevice &device, const char *apn = 0, bool cp_req = false, bool nonip_req = false);
     virtual ~RIL_CellularContext();
 
     // from CellularBase/NetworkInterface
-    virtual nsapi_error_t set_blocking(bool blocking);
-    virtual NetworkStack *get_stack();
-    virtual nsapi_error_t get_ip_address(SocketAddress *address);
-    virtual char *get_interface_name(char *interface_name);
-    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
-    virtual nsapi_error_t connect();
-    virtual nsapi_error_t disconnect();
-    virtual bool is_connected();
+    nsapi_error_t set_blocking(bool blocking) override;
+    NetworkStack *get_stack() override;
+    nsapi_error_t get_ip_address(SocketAddress *address) override;
+    char *get_interface_name(char *interface_name) override;
+    void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) override;
+    nsapi_error_t connect() override;
+    nsapi_error_t disconnect() override;
+    bool is_connected() override;
+
     // from CellularBase
-    virtual void set_plmn(const char *plmn);
-    virtual void set_sim_pin(const char *sim_pin);
-    virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
-                                  const char *pwd = 0);
-    virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0);
-    virtual const char *get_netmask();
-    virtual const char *get_gateway();
-    virtual nsapi_connection_status_t get_connection_status() const;
+    void set_plmn(const char *plmn) override;
+    void set_sim_pin(const char *sim_pin) override;
+    nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0, const char *pwd = 0) override;
+    void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0) override;
+    nsapi_error_t get_netmask(SocketAddress *address) override;
+    nsapi_error_t get_gateway(SocketAddress *address) override;
+    nsapi_connection_status_t get_connection_status() const override;
 
     // from CellularContext
-    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list);
-    virtual nsapi_error_t get_rate_control(CellularContext::RateControlExceptionReports &reports,
-                                           CellularContext::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);
-    virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer);
-    virtual nsapi_error_t set_device_ready();
-    virtual nsapi_error_t set_sim_ready();
-    virtual nsapi_error_t register_to_network();
-    virtual nsapi_error_t attach_to_network();
-    virtual void set_file_handle(FileHandle *fh);
-    virtual ControlPlane_netif *get_cp_netif();
-    virtual CellularDevice *get_device() const;
-    virtual nsapi_error_t configure_hup(PinName dcd_pin, bool active_high);
-
-    virtual const char *get_nonip_context_type_str();
-
+    nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list) override;
+    nsapi_error_t get_rate_control(CellularContext::RateControlExceptionReports &reports,
+                                   CellularContext::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) override;
+    nsapi_error_t get_apn_backoff_timer(int &backoff_timer) override;
+    nsapi_error_t set_device_ready() override;
+    nsapi_error_t set_sim_ready() override;
+    nsapi_error_t register_to_network() override;
+    nsapi_error_t attach_to_network() override;
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN)
+    nsapi_error_t configure_hup(PinName dcd_pin = NC, bool active_high = false) override;
+#endif
+    ControlPlane_netif *get_cp_netif() override;
     static const char *pdp_type_to_string(pdp_type_t pdp_type);
     static RIL_CellularDevice::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     static nsapi_ip_stack_t pdp_type_to_ip_stack(pdp_type_t pdp_type);
 
+    nsapi_error_t disconnect(bool request_deactivate_data_call);
+
 protected:
     // from CellularContext
-    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr);
-    virtual void enable_hup(bool enable);
-    virtual void create_interface_and_connect();
-    virtual void do_connect();
+    void cellular_callback(nsapi_event_t ev, intptr_t ptr) override;
+    const char *get_nonip_context_type_str() override;
+    void do_connect() override;
+
+    void create_interface_and_connect();
+
     virtual L3IP *get_L3IP_driver();
     virtual void delete_L3IP_driver();
 
@@ -92,8 +91,6 @@ protected:
     friend class RIL_CellularDevice;
     void unsolicited_response(int response_id, const void *data, size_t data_len);
 
-    nsapi_error_t disconnect(bool request_deactivate_data_call);
-
     L3IP *_l3ip_driver;
     char *_ifname;
     int _mtu;
@@ -101,26 +98,14 @@ protected:
 private:
 
     struct data_call_addr_data_t {
-        char _local_addr_ipv4[NSAPI_IPv4_SIZE];
-        char _local_addr_ipv6[NSAPI_IPv6_SIZE];
-        char _gateway_addr_ipv4[NSAPI_IPv4_SIZE];
-        char _gateway_addr_ipv6[NSAPI_IPv6_SIZE];
-        char _primary_dns_addr_ipv4[NSAPI_IPv4_SIZE];
-        char _secondary_dns_addr_ipv4[NSAPI_IPv4_SIZE];
-        char _primary_dns_addr_ipv6[NSAPI_IPv6_SIZE];
-        char _secondary_dns_addr_ipv6[NSAPI_IPv6_SIZE];
-
-        data_call_addr_data_t()
-        {
-            memset(_local_addr_ipv4, 0, sizeof(_local_addr_ipv4));
-            memset(_local_addr_ipv6, 0, sizeof(_local_addr_ipv6));
-            memset(_gateway_addr_ipv4, 0, sizeof(_gateway_addr_ipv4));
-            memset(_gateway_addr_ipv6, 0, sizeof(_gateway_addr_ipv6));
-            memset(_primary_dns_addr_ipv4, 0, sizeof(_primary_dns_addr_ipv4));
-            memset(_secondary_dns_addr_ipv4, 0, sizeof(_secondary_dns_addr_ipv4));
-            memset(_primary_dns_addr_ipv6, 0, sizeof(_primary_dns_addr_ipv6));
-            memset(_secondary_dns_addr_ipv6, 0, sizeof(_secondary_dns_addr_ipv6));
-        }
+        char _local_addr_ipv4[NSAPI_IPv4_SIZE] = {};
+        char _local_addr_ipv6[NSAPI_IPv6_SIZE] = {};
+        char _gateway_addr_ipv4[NSAPI_IPv4_SIZE] = {};
+        char _gateway_addr_ipv6[NSAPI_IPv6_SIZE] = {};
+        char _primary_dns_addr_ipv4[NSAPI_IPv4_SIZE] = {};
+        char _secondary_dns_addr_ipv4[NSAPI_IPv4_SIZE] = {};
+        char _primary_dns_addr_ipv6[NSAPI_IPv6_SIZE] = {};
+        char _secondary_dns_addr_ipv6[NSAPI_IPv6_SIZE] = {};
     };
 
     struct attach_req_t {
@@ -171,8 +156,8 @@ private:
     void request_setup_data_call_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len);
     void request_deactivate_data_call_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len);
     void set_state(cell_callback_data_t *data, cellular_connection_status_t st);
-    void do_connect_with_retry();
-    void do_initial_attach();
+    void do_connect_with_retry() override;
+    nsapi_error_t do_initial_attach();
     void request_set_initial_attach_apn_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len);
     nsapi_error_t close_stack_interface();
     nsapi_error_t add_dns_server_to_stack(const char *dns_server_address);

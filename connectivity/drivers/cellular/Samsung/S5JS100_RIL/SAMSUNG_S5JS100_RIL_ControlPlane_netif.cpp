@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,8 @@
 namespace mbed {
 
 SAMSUNG_S5JS100_RIL_ControlPlane_netif::SAMSUNG_S5JS100_RIL_ControlPlane_netif(char *ifname)
-    : _cb(NULL),
-      _data(NULL),
+    : _cb(nullptr),
+      _data(nullptr),
       _recv_len(0)
 {
     _io_device = getModemIoDeviceByName(ifname);
@@ -38,8 +38,8 @@ SAMSUNG_S5JS100_RIL_ControlPlane_netif::SAMSUNG_S5JS100_RIL_ControlPlane_netif(c
 SAMSUNG_S5JS100_RIL_ControlPlane_netif::~SAMSUNG_S5JS100_RIL_ControlPlane_netif()
 {
     if (_io_device) {
-        _io_device->register_ReadCb(NULL, NULL);
-        _io_device = NULL;
+        _io_device->register_ReadCb(nullptr, nullptr);
+        _io_device = nullptr;
     }
 }
 

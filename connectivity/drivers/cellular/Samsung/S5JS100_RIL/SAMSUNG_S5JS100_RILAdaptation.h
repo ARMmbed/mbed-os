@@ -14,29 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef RIL_CELLULARBASE_H_
-#define RIL_CELLULARBASE_H_
+#ifndef SAMSUNG_S5JS100_RIL_ADAPTATION_H_
+#define SAMSUNG_S5JS100_RIL_ADAPTATION_H_
 
 #include "RILAdaptation.h"
-#include "ConditionVariable.h"
-#include "nsapi_types.h"
-#include "CellularContext.h"
+
 namespace mbed {
 
-class RIL_CellularBase {
+class SAMSUNG_S5JS100_RILAdaptation : public RILAdaptation {
 public:
-    RIL_CellularBase();
-    virtual ~RIL_CellularBase();
+    SAMSUNG_S5JS100_RILAdaptation();
+    virtual ~SAMSUNG_S5JS100_RILAdaptation();
 
-    ril_token_t *lock_and_send_request(int request_id, void *data, size_t data_len,
-                                       Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> callback);
-protected:
-    nsapi_error_t _error;
-    rtos::ConditionVariable _cond_var;
-    rtos::Mutex _cond_mutex;
+    nsapi_error_t deinit_ril() override;
 
+#if MBED_CONF_MBED_TRACE_ENABLE
+    const char *get_ril_name(int request) override;
+#endif
 };
 
 } /* namespace mbed */
 
-#endif // RIL_CELLULARBASE_H_
+#endif /* SAMSUNG_S5JS100_RIL_ADAPTATION_H_ */

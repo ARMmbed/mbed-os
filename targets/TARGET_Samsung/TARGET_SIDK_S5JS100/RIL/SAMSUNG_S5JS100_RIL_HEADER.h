@@ -5383,21 +5383,6 @@ typedef struct
  *  GENERIC_FAILURE
  */
 
-/*
- * RIL_REQUEST_GET_PSM_TIMER
- *
- * "data" is NULL
- * "response" is unsigned int *
- * ((unsigned int *)data)[0] is T3412 timer (in seconds)
- * ((unsigned int *)data)[1] is T3324 timer (in seconds)
- * Valid errors:
- *  SUCCESS
- *  GENERIC_FAILURE
- */
-#define RIL_REQUEST_GET_PSM_TIMER  (RIL_REQUEST_EXTENSION_BASE+9)
-
-/***********************************************************************/
-
 
 #define RIL_RESPONSE_ACKNOWLEDGEMENT 800
 
@@ -6059,6 +6044,8 @@ typedef struct
  * "data" is char *, Card BCD low data
  */
 #define RIL_UNSOL_ICCID_INFO   (RIL_UNSOL_EXTENSION_BASE+6)
+
+#define RIL_UNSOL_RIL_RESTART_REQUIRED   (RIL_UNSOL_EXTENSION_BASE+7)
 
 /***********************************************************************/
 

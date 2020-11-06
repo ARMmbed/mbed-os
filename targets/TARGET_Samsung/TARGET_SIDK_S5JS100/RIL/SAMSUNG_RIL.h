@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,6 @@ public:
     virtual void setPsmEnabled(int status) = 0;
     virtual void setPsmTimer(UINT t3412, UINT t3324) = 0;
     virtual void setEdrx(int ptw, int t_edrx) = 0;
-    virtual void getPsmTimer() = 0;
     virtual void setForwardingAtCommand(char *command) = 0;
     virtual int acknowledgeLastIncomingGsmSms(int result, int failcause) = 0;
     virtual int acknowledgeIncomingGsmSmsWithPdu(int success, const char *ackPdu) = 0;
@@ -87,7 +86,6 @@ public:
     virtual void setPsmEnabledResponse(ResponseInfo *responseInfo) = 0;
     virtual void setPsmTimerResponse(ResponseInfo *responseInfo) = 0;
     virtual void setEdrxResponse(ResponseInfo *responseInfo) = 0;
-    virtual void getPsmTimerResponse(ResponseInfo *responseInfo) = 0;
     virtual void setForwardingAtCommandResponse(ResponseInfo *responseInfo) = 0;
     virtual void acknowledgeLastIncomingGsmSmsResponse(ResponseInfo *responseInfo) = 0;
     virtual void acknowledgeIncomingGsmSmsWithPduResponse(ResponseInfo *responseInfo) = 0;

@@ -18,17 +18,20 @@
 #if MBED_CONF_NSAPI_PRESENT
 
 #include "ONBOARD_SAMSUNG_S5JS100_RIL.h"
+#include "SAMSUNG_S5JS100_RILAdaptation.h"
 #include "CellularLog.h"
 
 using namespace mbed;
 
-ONBOARD_SAMSUNG_S5JS100_RIL::ONBOARD_SAMSUNG_S5JS100_RIL() : SAMSUNG_S5JS100_RIL()
+ONBOARD_SAMSUNG_S5JS100_RIL::ONBOARD_SAMSUNG_S5JS100_RIL(SAMSUNG_S5JS100_RILAdaptation &ril)
+    : SAMSUNG_S5JS100_RIL(ril)
 {
 }
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static ONBOARD_SAMSUNG_S5JS100_RIL device;
+    static SAMSUNG_S5JS100_RILAdaptation ril;
+    static ONBOARD_SAMSUNG_S5JS100_RIL device(ril);
     return &device;
 }
 

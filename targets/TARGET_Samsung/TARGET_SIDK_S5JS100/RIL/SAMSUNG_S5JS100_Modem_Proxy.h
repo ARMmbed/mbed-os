@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,7 +67,6 @@ public:
     void setPsmEnabled(void *data, unsigned int datalen, RIL_Token t);
     void setPsmTimer(void *data, unsigned int datalen, RIL_Token t);
     void setEdrx(void *data, unsigned int datalen, RIL_Token t);
-    void getPsmTimer(void *data, unsigned int datalen, RIL_Token t);
     void setForwardingAtCommand(void *data, unsigned int datalen, RIL_Token t);
     void smsAck(void *data, unsigned int datalen, RIL_Token t);
     void smsAckWithPdu(void *data, unsigned int datalen, RIL_Token t);
@@ -80,7 +79,7 @@ public:
     void setPdnIpAddress(void *data, unsigned int datalen, RIL_Token t);
     void sendStkTerminalRsp(void *data, unsigned int datalen);
     void sendStkEnvelopeCmd(void *data, unsigned int datalen);
-	void setDebugTrace(void *data, unsigned int datalen, RIL_Token t);
+    void setDebugTrace(void *data, unsigned int datalen, RIL_Token t);
 
     void setRadioPowerResponse(void *data, unsigned int datalen);
     void getIccCardStatusResponse(void *data, unsigned int datalen);
@@ -102,7 +101,6 @@ public:
     void setPsmEnabledResponse(void *data, unsigned int datalen);
     void setPsmTimerResponse(void *data, unsigned int datalen);
     void setEdrxResponse(void *data, unsigned int datalen);
-    void getPsmTimerResponse(void *data, unsigned int datalen);
     void setForwardingAtCommandResponse(void *data, unsigned int datalen);
     void smsAckResponse(void *data, unsigned int datalen);
     void smsAckWithPduResponse(void *data, unsigned int datalen);

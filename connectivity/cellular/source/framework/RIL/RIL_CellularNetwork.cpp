@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@
 #include "RIL_CellularContext.h"
 #include "RIL_CellularDevice.h"
 #include "mbed_wait_api.h"
+#include "ScopedLock.h"
 
 using namespace mbed_cellular_util;
 using namespace mbed;
@@ -28,8 +29,9 @@ using namespace mbed;
 #define TWO_BYTES_HEX 4
 #define FOUR_BYTES_HEX 8
 
-RIL_CellularNetwork::RIL_CellularNetwork(RIL_CellularDevice &device) : _rat(RAT_UNKNOWN), _int_data(-1),
-    _rssi(-1), _ber(-1), _active_context(false), _connection_status_cb(0), _device(device)
+RIL_CellularNetwork::RIL_CellularNetwork(RIL_CellularDevice &device)
+    : _rat(RAT_UNKNOWN), _int_data(-1), _device(device),
+      _rssi(-1), _ber(-1), _active_context(false), _connection_status_cb()
 {
 }
 
@@ -82,17 +84,17 @@ nsapi_error_t RIL_CellularNetwork::set_registration(const char *plmn)
 
 nsapi_error_t RIL_CellularNetwork::get_network_registering_mode(NWRegisteringMode &mode)
 {
-    _api_mutex.lock();
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
 
-    lock_and_send_request(RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE, NULL, 0, callback(this, &RIL_CellularNetwork::network_registering_mode_response));
+    nsapi_error_t ret = _device.lock_and_send_request(RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE, nullptr, 0,
+                                                      callback(this, &RIL_CellularNetwork::network_registering_mode_response));
 
-    if (_error == NSAPI_ERROR_OK) {
+    if (ret == NSAPI_ERROR_OK) {
         MBED_ASSERT(_int_data == 0 || _int_data == 1);
         mode = (NWRegisteringMode)_int_data;
     }
-    _cond_mutex.unlock();
-    _api_mutex.lock();
-    return _error;
+
+    return ret;
 }
 
 nsapi_error_t RIL_CellularNetwork::set_attach()
@@ -152,18 +154,18 @@ nsapi_error_t RIL_CellularNetwork::get_ciot_network_optimization_config(CIoT_Sup
 
 nsapi_error_t RIL_CellularNetwork::get_signal_quality(int &rssi, int *ber)
 {
-    _api_mutex.lock();
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
     _rssi = -1;
     _ber = -1;
-    lock_and_send_request(RIL_REQUEST_SIGNAL_STRENGTH, NULL, 0, callback(this, &RIL_CellularNetwork::signal_strength_response));
+    nsapi_error_t ret = _device.lock_and_send_request(RIL_REQUEST_SIGNAL_STRENGTH, nullptr, 0,
+                                                      callback(this, &RIL_CellularNetwork::signal_strength_response));
 
-    if (_error == NSAPI_ERROR_OK) {
+    if (ret == NSAPI_ERROR_OK) {
         rssi = _rssi;
         *ber = _ber;
     }
-    _cond_mutex.unlock();
-    _api_mutex.unlock();
-    return _error;
+
+    return ret;
 }
 
 int RIL_CellularNetwork::get_3gpp_error()
@@ -206,17 +208,15 @@ nsapi_error_t RIL_CellularNetwork::get_registration_params(RegistrationType type
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    _api_mutex.lock();
-    lock_and_send_request(RIL_REQUEST_DATA_REGISTRATION_STATE, NULL, 0,
-                          callback(this, &RIL_CellularNetwork::data_registration_state_response));
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+    nsapi_error_t ret = _device.lock_and_send_request(RIL_REQUEST_DATA_REGISTRATION_STATE, nullptr, 0,
+                                                      callback(this, &RIL_CellularNetwork::data_registration_state_response));
 
-    if (_error == NSAPI_ERROR_OK) {
+    if (ret == NSAPI_ERROR_OK) {
         reg_params = _reg_params;
     }
 
-    _cond_mutex.unlock();
-    _api_mutex.unlock();
-    return _error;
+    return ret;
 }
 
 nsapi_error_t RIL_CellularNetwork::set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value)
@@ -272,159 +272,158 @@ CellularNetwork::RadioAccessTechnology RIL_CellularNetwork::RILrat_to_rat(RIL_Ra
 void RIL_CellularNetwork::data_registration_state_response(ril_token_t *token, RIL_Errno err, void *response,
                                                            size_t response_len)
 {
-    _cond_mutex.lock();
-    if (err == RIL_E_SUCCESS && response && response_len > 0) {
-        const char **resp = (const char **)response;
-        char attach_reject_cause = atoi(resp[4]);
-
-        int tmp = atoi(resp[0]); // ((const char **)response)[0] is registration state 0-5 from TS 27.007 10.1.20 AT+CGREG
-        MBED_ASSERT(tmp >= 0 && tmp < 6);
-
-        /* In normal ways, it will return registration state with resp[0], and return reaseon
-        with resp[4], but in fact, because of the CP solution, if the registration is denied,
-        it will only return "0x21" with resp[4] to indicate that the registration state is
-        RegistrationDenied and no reason returned.
-        */
-        if (attach_reject_cause == 0x21) {
-            _reg_params._status = (CellularNetwork::RegistrationStatus)RegistrationDenied;
-        } else {
+    if (err != RIL_E_CANCELLED) {
+        token->cond_mutex->lock();
+        if (err == RIL_E_SUCCESS && response && response_len > 0) {
+            const char **resp = (const char **)response;
+            int tmp = atoi(resp[0]); // ((const char **)response)[0] is registration state 0-5 from TS 27.007 10.1.20 AT+CGREG
+            MBED_ASSERT(tmp >= 0 && tmp < 6);
             _reg_params._status = (CellularNetwork::RegistrationStatus)tmp;
-        }
-        tr_info("_reg_params._status: %d", _reg_params._status);
+            tr_info("_reg_params._status: %d", _reg_params._status);
 
-        if (resp[1]) {
-            _reg_params._lac = hex_str_to_int(resp[1], TWO_BYTES_HEX);
-        }
+            if (resp[1]) {
+                _reg_params._lac = hex_str_to_int(resp[1], TWO_BYTES_HEX);
+            }
 
-        tmp = atoi(resp[3]); // indicates the available data radio technology, valid values as defined by RIL_RadioTechnology.
-        MBED_ASSERT(RADIO_TECH_UNKNOWN <= tmp && tmp <= RADIO_TECH_IWLAN);
-        _reg_params._act  = RILrat_to_rat((RIL_RadioTechnology)tmp);
-        tr_info("_reg_params._act: %d", _reg_params._act);
+            tmp = atoi(resp[3]); // indicates the available data radio technology, valid values as defined by RIL_RadioTechnology.
+            MBED_ASSERT(RADIO_TECH_UNKNOWN <= tmp && tmp <= RADIO_TECH_IWLAN);
+            _reg_params._act  = RILrat_to_rat((RIL_RadioTechnology)tmp);
+            tr_info("_reg_params._act: %d", _reg_params._act);
 
 #if MBED_CONF_MBED_TRACE_ENABLE
-        if (_reg_params._status == CellularNetwork::RegistrationDenied) {
-            /*((const char **)response)[4] if registration state is 3 (Registration denied) this is an enumerated reason why
-                                registration was denied.  See 3GPP TS 24.008, Annex G.6 "Additonal cause codes for GMM".
-                                   7 == GPRS services not allowed
-                                   8 == GPRS services and non-GPRS services not allowed
-                                   9 == MS identity cannot be derived by the network
-                                   10 == Implicitly detached
-                                   14 == GPRS services not allowed in this PLMN
-                                   16 == MSC temporarily not reachable
-                                   40 == No PDP context activated */
-            tmp = atoi(resp[4]);
-            const char *reason = NULL;
-            switch (tmp) {
-                case 7:
-                    reason = "GPRS services not allowed";
-                    break;
-                case 8:
-                    reason = "GPRS services and non-GPRS services not allowed";
-                    break;
-                case 9:
-                    reason = "MS identity cannot be derived by the network";
-                    break;
-                case 10:
-                    reason = "Implicitly detached";
-                    break;
-                case 14:
-                    reason = "GPRS services not allowed in this PLMN";
-                    break;
-                case 16:
-                    reason = "MSC temporarily not reachable";
-                    break;
-                case 40:
-                    reason = "No PDP context activated";
-                    break;
-                default:
-                    break;
+            if (_reg_params._status == CellularNetwork::RegistrationDenied) {
+                /*((const char **)response)[4] if registration state is 3 (Registration denied) this is an enumerated reason why
+                                    registration was denied.  See 3GPP TS 24.008, Annex G.6 "Additonal cause codes for GMM".
+                                       7 == GPRS services not allowed
+                                       8 == GPRS services and non-GPRS services not allowed
+                                       9 == MS identity cannot be derived by the network
+                                       10 == Implicitly detached
+                                       14 == GPRS services not allowed in this PLMN
+                                       16 == MSC temporarily not reachable
+                                       40 == No PDP context activated */
+                tmp = atoi(resp[4]);
+                const char *reason = nullptr;
+                switch (tmp) {
+                    case 7:
+                        reason = "GPRS services not allowed";
+                        break;
+                    case 8:
+                        reason = "GPRS services and non-GPRS services not allowed";
+                        break;
+                    case 9:
+                        reason = "MS identity cannot be derived by the network";
+                        break;
+                    case 10:
+                        reason = "Implicitly detached";
+                        break;
+                    case 14:
+                        reason = "GPRS services not allowed in this PLMN";
+                        break;
+                    case 16:
+                        reason = "MSC temporarily not reachable";
+                        break;
+                    case 40:
+                        reason = "No PDP context activated";
+                        break;
+                    default:
+                        reason = "Unknown reason";
+                        break;
 
+                }
+                tr_info("Registration was denied because of: '%s'", reason);
             }
-            tr_info("Registration was denied because of: '%s'", reason);
-        }
 #endif
-        if (resp[7]) {
-            _reg_params._cell_id = hex_str_to_int(resp[7], FOUR_BYTES_HEX);
-        } else if (resp[8]) {
-            _reg_params._cell_id = hex_str_to_int(resp[8], FOUR_BYTES_HEX);
+            if (resp[7]) {
+                _reg_params._cell_id = hex_str_to_int(resp[7], FOUR_BYTES_HEX);
+            } else if (resp[8]) {
+                _reg_params._cell_id = hex_str_to_int(resp[8], FOUR_BYTES_HEX);
+            }
+            token->response_error = NSAPI_ERROR_OK;
+        } else {
+            token->response_error = NSAPI_ERROR_DEVICE_ERROR;
         }
-        _error = NSAPI_ERROR_OK;
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
+
+        token->cond_var->notify_one();
+        token->cond_mutex->unlock();
     }
-    if (err != RIL_E_CANCELLED) {
-        _cond_var.notify_one();
-    }
-    _cond_mutex.unlock();
 }
 
 void RIL_CellularNetwork::network_registering_mode_response(ril_token_t *token, RIL_Errno err, void *response,
                                                             size_t response_len)
 {
-    _cond_mutex.lock();
-    if (err == RIL_E_SUCCESS) {
-        _error = NSAPI_ERROR_OK;
-        _int_data = ((const int *)response)[0];
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-    }
     if (err != RIL_E_CANCELLED) {
-        _cond_var.notify_one();
+        token->cond_mutex->lock();
+
+        if (err == RIL_E_SUCCESS) {
+            token->response_error = NSAPI_ERROR_OK;
+            _int_data = ((const int *)response)[0];
+        } else {
+            token->response_error = NSAPI_ERROR_DEVICE_ERROR;
+        }
+
+        token->cond_var->notify_one();
+        token->cond_mutex->unlock();
     }
-    _cond_mutex.unlock();
 }
 
 void RIL_CellularNetwork::signal_strength_response(ril_token_t *token, RIL_Errno err, void *response,
                                                    size_t response_len)
 {
-    _cond_mutex.lock();
-    if (err == RIL_E_SUCCESS && response && sizeof(RIL_SignalStrength_v10) == response_len) {
-        RIL_SignalStrength_v10 *resp = (RIL_SignalStrength_v10 *)response;
-        tr_debug("RIL_CellularNetwork::signal_strength_response, rat: %d", _rat);
-        int rssi = -1;
-        _error = NSAPI_ERROR_OK;
-        if (_rat >= RAT_E_UTRAN) {
-            // LTE
-            RIL_LTE_SignalStrength_v8 lte_signal = resp->LTE_SignalStrength;
-            rssi = lte_signal.signalStrength;
-        } else {
-            // GSM
-            RIL_GW_SignalStrength gsm_signal = resp->GW_SignalStrength;
-            rssi = gsm_signal.signalStrength;
-            if (gsm_signal.bitErrorRate < 0) {
-                _error = NSAPI_ERROR_DEVICE_ERROR;
-            } else {
-                _ber = gsm_signal.bitErrorRate;
-            }
+    if (err != RIL_E_CANCELLED) {
+        if (token) {
+            token->cond_mutex->lock();
         }
 
-        if (_error == NSAPI_ERROR_OK) {
-            if (rssi < 0) {
-                _error = NSAPI_ERROR_DEVICE_ERROR;
+        nsapi_error_t error = NSAPI_ERROR_OK;
+
+        if (err == RIL_E_SUCCESS && response && sizeof(RIL_SignalStrength_v10) == response_len) {
+            RIL_SignalStrength_v10 *resp = (RIL_SignalStrength_v10 *)response;
+            tr_debug("RIL_CellularNetwork::signal_strength_response, rat: %d", _rat);
+            int rssi = -1;
+
+            if (_rat >= RAT_E_UTRAN) {
+                // LTE
+                RIL_LTE_SignalStrength_v8 lte_signal = resp->LTE_SignalStrength;
+                rssi = lte_signal.signalStrength;
             } else {
-                if (rssi == 99) {
-                    _rssi = 0;
+                // GSM
+                RIL_GW_SignalStrength gsm_signal = resp->GW_SignalStrength;
+                rssi = gsm_signal.signalStrength;
+                if (gsm_signal.bitErrorRate < 0) {
+                    error = NSAPI_ERROR_DEVICE_ERROR;
                 } else {
-                    _rssi = -113 + 2 * rssi;
+                    _ber = gsm_signal.bitErrorRate;
                 }
-                _error = NSAPI_ERROR_OK;
             }
-        }
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-    }
 
-    if (err != RIL_E_CANCELLED && token) {
-        _cond_var.notify_one();
+            if (error == NSAPI_ERROR_OK) {
+                if (rssi < 0) {
+                    error = NSAPI_ERROR_DEVICE_ERROR;
+                } else {
+                    if (rssi == 99) {
+                        _rssi = 0;
+                    } else {
+                        _rssi = -113 + 2 * rssi;
+                    }
+                }
+            }
+        } else {
+            error = NSAPI_ERROR_DEVICE_ERROR;
+        }
+
+        if (token) {
+            token->response_error = error;
+            token->cond_var->notify_one();
+            token->cond_mutex->unlock();
+        }
     }
-    _cond_mutex.unlock();
 }
 
 void RIL_CellularNetwork::unsolicited_response(int response_id, const void *data, size_t data_len)
 {
     switch (response_id) {
         case RIL_UNSOL_SIGNAL_STRENGTH:
-            signal_strength_response(NULL, RIL_E_SUCCESS, (void *)data, data_len);
+            signal_strength_response(nullptr, RIL_E_SUCCESS, (void *)data, data_len);
             break;
         default:
             break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,7 @@
 #define SAMSUNG_S5JS100_RIL_CELLULARCONTEXT_H_
 
 #include "RIL_CellularContext.h"
-
-#if defined(TARGET_S5JS100)
 #include "SAMSUNG_S5JS100_RIL_ControlPlane_netif.h"
-#else
-#include "ControlPlane_netif.h"
-#endif
 
 namespace mbed {
 
@@ -33,17 +28,13 @@ public:
                                         bool nonip_req = false);
     virtual ~SAMSUNG_S5JS100_RIL_CellularContext();
 
-    virtual ControlPlane_netif *get_cp_netif();
+    ControlPlane_netif *get_cp_netif() override;
 
 protected: // from RIL_CellularContext
-    virtual L3IP *get_L3IP_driver();
-    virtual void delete_L3IP_driver();
+    L3IP *get_L3IP_driver() override;
+    void delete_L3IP_driver() override;
 
-#if defined(TARGET_S5JS100)
     SAMSUNG_S5JS100_RIL_ControlPlane_netif *_cp_netif;
-#else
-    ControlPlane_netif *_cp_netif;
-#endif
 };
 
 } /* namespace mbed */

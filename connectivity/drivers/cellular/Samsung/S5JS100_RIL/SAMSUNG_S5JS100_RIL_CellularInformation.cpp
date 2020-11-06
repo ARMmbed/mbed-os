@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ SAMSUNG_S5JS100_RIL_CellularInformation::~SAMSUNG_S5JS100_RIL_CellularInformatio
 {
     if (_iccid) {
         delete [] _iccid;
-        _iccid = NULL;
+        _iccid = nullptr;
     }
 }
 
@@ -48,16 +48,13 @@ nsapi_error_t SAMSUNG_S5JS100_RIL_CellularInformation::get_iccid(char *buf, size
 
 void SAMSUNG_S5JS100_RIL_CellularInformation::unsolicited_response(int response_id, const void *data, size_t data_len)
 {
-#if defined(TARGET_S5JS100)
     if (response_id == RIL_UNSOL_ICCID_INFO) {
-        _cond_mutex.lock();
         if (data_len > 0 && data) {
+            delete [] _iccid;
             _iccid = new char[data_len + 1];
             memcpy(_iccid, (const char *)data, data_len + 1);
         }
-        _cond_mutex.unlock();
     }
-#endif // #if defined(TARGET_S5JS100)
 
     RIL_CellularInformation::unsolicited_response(response_id, data, data_len);
 }
