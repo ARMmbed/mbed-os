@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,8 @@
 #define RIL_CELLULARDEVICE_H_
 
 #include "CellularDevice.h"
-#include "RIL_CellularBase.h"
+#include "CellularContext.h"
+#include "RILAdaptation.h"
 #include "Semaphore.h"
 
 namespace mbed {
@@ -28,9 +29,9 @@ class RIL_CellularContext;
 class RIL_CellularNetwork;
 class RIL_CellularInformation;
 
-class RIL_CellularDevice: public CellularDevice, public RIL_CellularBase {
+class RIL_CellularDevice: public CellularDevice {
 public:
-    RIL_CellularDevice();
+    RIL_CellularDevice(RILAdaptation &ril);
     virtual ~RIL_CellularDevice();
 
     // Cellular properties. Defines what features/technologies are supported/used by the module
@@ -48,58 +49,39 @@ public:
     intptr_t get_property(CellularProperty key);
 
     // from CellularDevice
-    virtual void register_sleep_cb(int type, void (*cb)(void));
+    nsapi_error_t hard_power_on() override;
+    nsapi_error_t hard_power_off() override;
+    nsapi_error_t soft_power_on() override;
+    nsapi_error_t soft_power_off() override;
+    nsapi_error_t set_pin(const char *sim_pin) override;
+    nsapi_error_t get_sim_state(SimState &state) override;
+    CellularContext *create_context(const char *apn = NULL, bool cp_req = false, bool nonip_req = false) override;
+    void delete_context(CellularContext *context) override;
+    CellularNetwork *open_network() override;
+#if MBED_CONF_CELLULAR_USE_SMS || defined(DOXYGEN_ONLY)
+    CellularSMS *open_sms() override;
+    void close_sms() override;
+#endif
+    CellularInformation *open_information() override;
+    void close_network() override;
+    void close_information() override;
+    void set_timeout(int timeout) override;
+    void modem_debug_on(bool on) override;
+    nsapi_error_t init() override;
+    nsapi_error_t is_ready() override;
+    void set_ready_cb(Callback<void()> callback) override;
+    nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0) override;
+    ATHandler *get_at_handler() override;
+    nsapi_error_t clear() override;
+    CellularContext *get_context_list() const override;
+    nsapi_error_t set_baud_rate(int baud_rate) override;
+    nsapi_error_t send_at_command(char *data, size_t data_len);
 
-    virtual nsapi_error_t hard_power_on();
+    nsapi_error_t lock_and_send_request(int request_id, void *data, size_t data_len,
+                                        Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> callback);
 
-    virtual nsapi_error_t hard_power_off();
+    RILAdaptation &get_ril();
 
-    virtual nsapi_error_t soft_power_on();
-
-    virtual nsapi_error_t soft_power_off();
-
-    virtual nsapi_error_t set_pin(const char *sim_pin);
-
-    virtual nsapi_error_t get_sim_state(SimState &state);
-
-    virtual CellularContext *create_context(const char *apn = NULL, bool cp_req = false,
-                                            bool nonip_req = false);
-
-    virtual void delete_context(CellularContext *context);
-
-    virtual CellularNetwork *open_network();
-
-    virtual CellularSMS *open_sms();
-
-    virtual CellularInformation *open_information();
-
-    virtual void close_network();
-
-    virtual void close_sms();
-
-    virtual void close_information();
-
-    virtual void set_timeout(int timeout);
-
-    virtual void modem_debug_on(bool on);
-
-    virtual nsapi_error_t init();
-
-    virtual nsapi_error_t is_ready();
-
-    virtual void set_ready_cb(Callback<void()> callback);
-
-    virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0);
-
-    virtual ATHandler *get_at_handler();
-
-    virtual nsapi_error_t release_at_handler(ATHandler *at_handler);
-
-    virtual CellularContext *get_context_list() const;
-
-    virtual nsapi_error_t send_at_command(char *data, size_t data_len);
-    virtual nsapi_error_t set_baud_rate(int baud_rate);
-    virtual nsapi_error_t clear();
 protected:
     virtual RIL_CellularContext *create_context_impl(const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual RIL_CellularNetwork *open_network_impl();
@@ -109,8 +91,11 @@ protected:
     const intptr_t *_property_array;
     int _data;
     rtos::Mutex _api_mutex;
+    RIL_CellularContext *_context_list;
 
 private:
+    RIL_CellularDevice();
+
     friend class RILAdaptation;
     void request_ack(ril_token_t *token);
     void request_timed_callback(RIL_TimedCallback callback, void *param, const struct timeval *relative_time);
@@ -120,11 +105,9 @@ private:
     void common_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len);
     void check_registration_state();
 
-    RILAdaptation *_ril;
+    RILAdaptation &_ril;
     RIL_CellularNetwork *_network;
     RIL_CellularInformation *_information;
-    RIL_CellularContext *_context_list;
-    int _registation_status;
 
     bool _device_ready;
     Callback<void()> _device_ready_cb;

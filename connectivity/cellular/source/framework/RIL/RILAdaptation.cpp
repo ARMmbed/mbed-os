@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,12 +20,20 @@
 
 namespace mbed {
 
-RILAdaptation::RILAdaptation() : _device(0), _radio_funcs(0), _ril_token_id(0)
+static RILAdaptation *handle = nullptr;
+
+RILAdaptation::RILAdaptation()
+    : _device(nullptr),
+      _radio_funcs(nullptr),
+      _ril_token_id(0)
 {
+    MBED_ASSERT(!handle);
+    handle = this;
 }
 
 RILAdaptation::~RILAdaptation()
 {
+    handle = nullptr;
 }
 
 void RILAdaptation::set_device(RIL_CellularDevice *device)
@@ -37,13 +45,7 @@ void RILAdaptation::set_device(RIL_CellularDevice *device)
 extern "C"
 MBED_WEAK const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **argv)
 {
-    return NULL;
-}
-
-extern "C"
-MBED_WEAK const void RIL_Register_sleep_cb(int type, void (*cb)(void))
-{
-    return;
+    return nullptr;
 }
 
 nsapi_error_t RILAdaptation::init_ril()
@@ -56,7 +58,7 @@ nsapi_error_t RILAdaptation::init_ril()
             RILAdaptation::request_ack
         };
 
-        _radio_funcs = RIL_Init(&env, 0, NULL);
+        _radio_funcs = RIL_Init(&env, 0, nullptr);
 
         if (!_radio_funcs) {
             tr_warning("RILAdaptation::init_ril(failed)");
@@ -68,9 +70,10 @@ nsapi_error_t RILAdaptation::init_ril()
     return NSAPI_ERROR_OK;
 }
 
-void RILAdaptation::register_sleep_cb(int type, void (*cb)(void))
+nsapi_error_t RILAdaptation::deinit_ril()
 {
-    RIL_Register_sleep_cb(type, cb);
+    _radio_funcs = nullptr;
+    return NSAPI_ERROR_OK;
 }
 
 RIL_CellularDevice *RILAdaptation::get_device() const
@@ -79,17 +82,18 @@ RIL_CellularDevice *RILAdaptation::get_device() const
 }
 
 // request methods for ril requests
-ril_token_t *RILAdaptation::send_request(int request, void *data, size_t datalen, Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> callback)
+ril_token_t *RILAdaptation::send_request(int request, void *data, size_t datalen, Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> callback,
+                                         rtos::Mutex *cond_mutex, rtos::ConditionVariable *cond_var)
 {
     if (!_radio_funcs) {
         tr_warning("RILAdaptation::send_request, Radio funcs not available");
-        return NULL;
+        return nullptr;
     }
 
     RIL_RadioState radio_state = _radio_funcs->onStateRequest();
     if (radio_state == RADIO_STATE_UNAVAILABLE) {
         tr_warning("RILAdaptation::send_request() Radio state was RADIO_STATE_UNAVAILABLE, return NULL");
-        return NULL;
+        return nullptr;
     }
 
     _ril_token_id++;
@@ -97,8 +101,9 @@ ril_token_t *RILAdaptation::send_request(int request, void *data, size_t datalen
     ril_token_t *token = new ril_token_t();
     token->token_id = _ril_token_id;
     token->request_id = request;
-    token->data = data;
     token->cb = callback;
+    token->cond_mutex = cond_mutex;
+    token->cond_var = cond_var;
 
     tr_debug("RILAdaptation::send_request, request_id: %s (%d), token_id: %d",
              get_ril_name(token->request_id), token->request_id, token->token_id);
@@ -124,7 +129,7 @@ const char *RILAdaptation::get_version(void)
         return _radio_funcs->getVersion();
     } else {
         tr_warning("RILAdaptation::get_version, Radio funcs not available");
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -139,8 +144,7 @@ void RILAdaptation::cancel_request(ril_token_t *token)
 
 RILAdaptation *RILAdaptation::get_instance()
 {
-    static RILAdaptation ad;
-    return &ad;
+    return handle;
 }
 
 // callback methods from ril
@@ -162,7 +166,7 @@ void RILAdaptation::request_timed_callback(RIL_TimedCallback callback, void *par
 void RILAdaptation::unsolicited_response(int response_id, const void *data, size_t data_len)
 {
     tr_debug("RILAdaptation::unsolicited_response, response_id: %s (%d)",
-             get_ril_name(response_id), response_id);
+             RILAdaptation::get_instance()->get_ril_name(response_id), response_id);
     RILAdaptation::get_instance()->get_device()->unsolicited_response(response_id, data, data_len);
 }
 
@@ -170,10 +174,9 @@ void RILAdaptation::request_complete(RIL_Token t, RIL_Errno e, void *response, s
 {
     ril_token_t *token = (ril_token_t *)t;
     tr_debug("RILAdaptation::request_complete, request_id: %s (%d), token_id: %d error: %d",
-             get_ril_name(token->request_id), token->request_id, token->token_id, e);
+             RILAdaptation::get_instance()->get_ril_name(token->request_id), token->request_id, token->token_id, e);
 
     token->cb(token, e, response, response_len);
-    delete token;
 }
 
 #if MBED_CONF_MBED_TRACE_ENABLE
@@ -197,20 +200,6 @@ const char *RILAdaptation::get_ril_name(int request)
             RIL_DEFINE(RIL_REQUEST_BASEBAND_VERSION);
             RIL_DEFINE(RIL_REQUEST_GET_SIM_STATUS);
             RIL_DEFINE(RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE);
-
-#if defined(TARGET_S5JS100)
-            // Extensions
-            RIL_DEFINE(RIL_REQUEST_SET_EDRX);
-            RIL_DEFINE(RIL_REQUEST_SET_FORWARDING_AT_COMMAND);
-            RIL_DEFINE(RIL_REQUEST_PSM_ENABLED);
-            RIL_DEFINE(RIL_REQUEST_PSM_TIMER);
-
-            // Unsolicited responses (extensions)
-            RIL_DEFINE(RIL_UNSOL_FORWARDING_AT_COMMAND_IND);
-            RIL_DEFINE(RIL_UNSOL_PSM_TIMER_CHANGED);
-            RIL_DEFINE(RIL_UNSOL_PSM_STATUS_CHANGED);
-            RIL_DEFINE(RIL_UNSOL_ICCID_INFO);
-#endif // #if defined(TARGET_S5JS100)
 
             // Unsolicited responses
             RIL_DEFINE(RIL_UNSOL_NITZ_TIME_RECEIVED);

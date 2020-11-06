@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +20,10 @@
 #include "RILAdaptation.h"
 #include "LWIPStack.h"
 #include "CellularLog.h"
+#include "ScopedLock.h"
 #include "mbed.h"
 #define NETWORK_TIMEOUT 30min
 #define DEVICE_TIMEOUT 5min
-#if PLMN_LOCK_ENABLE
-#define NSAPI_ERROR_PLMN_LOCK     -1234
-extern int jio_client_compare_plmn(void);
-#endif
-
 #define ril_itoa(v, s, d)    sprintf(s, "%d", v)
 
 const char *local_subnet_mask = "255.255.255.255";
@@ -36,9 +32,9 @@ using namespace mbed_cellular_util;
 using namespace mbed;
 
 RIL_CellularContext::RIL_CellularContext(RIL_CellularDevice &device, const char *apn, bool cp_req, bool nonip_req) :
-    _l3ip_driver(0), _ifname(0), _is_connected(false), _is_running(false), _current_op(OP_INVALID),
-    _final_op(OP_CONNECT), _current_state(OP_INVALID), _stack_interface(0),
-    _connect_state(CS_INVALID), _set_registration_complete(false), _data_call_addresses(NULL)
+    _l3ip_driver(nullptr), _ifname(nullptr), _is_connected(false), _is_running(false), _current_op(OP_INVALID),
+    _final_op(OP_CONNECT), _current_state(OP_INVALID), _stack_interface(nullptr),
+    _connect_state(CS_INVALID), _set_registration_complete(false), _data_call_addresses(nullptr)
 {
     tr_info("New RIL_CellularContext %s (%p)", apn ? apn : "", this);
     _stack = get_stack();
@@ -47,18 +43,18 @@ RIL_CellularContext::RIL_CellularContext(RIL_CellularDevice &device, const char 
     _is_context_active = false;
     _is_context_activated = false;
     _apn = apn;
-    _uname = NULL;
-    _pwd = NULL;
-    _status_cb = NULL;
+    _uname = nullptr;
+    _pwd = nullptr;
+    _status_cb = nullptr;
     _cid = -1;
     _new_context_set = false;
-    _next = NULL;
-    memset(_retry_timeout_array, 0, CELLULAR_RETRY_ARRAY_SIZE);
+    _next = nullptr;
+    memset(_retry_timeout_array, 0, sizeof(_retry_timeout_array));
     _retry_array_length = 0;
     _retry_count = 0;
     _is_blocking = true;
     _device = &device;
-    _nw = NULL;
+    _nw = nullptr;
 
     if (nonip_req) {
         _pdp_type = NON_IP_PDP_TYPE;
@@ -82,12 +78,7 @@ RIL_CellularContext::~RIL_CellularContext()
     }
 
     delete _data_call_addresses;
-    _data_call_addresses = NULL;
-}
-
-CellularDevice *RIL_CellularContext::get_device() const
-{
-    return _device;
+    _data_call_addresses = nullptr;
 }
 
 nsapi_error_t RIL_CellularContext::set_blocking(bool blocking)
@@ -108,11 +99,11 @@ NetworkStack *RIL_CellularContext::get_stack()
 
 nsapi_error_t RIL_CellularContext::get_ip_address(SocketAddress *address)
 {
-    // if (_stack_interface)
-    // {
-    //     return _stack_interface->get_ip_address(address);
-    // }
-    return _stack_interface->get_ip_address(address);
+    if (_stack_interface) {
+        return _stack_interface->get_ip_address(address);
+    } else {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
 }
 
 char *RIL_CellularContext::get_interface_name(char *interface_name)
@@ -123,7 +114,7 @@ char *RIL_CellularContext::get_interface_name(char *interface_name)
         sprintf(interface_name, "ni%d", _cid);
         return interface_name;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -135,6 +126,8 @@ void RIL_CellularContext::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> s
 nsapi_error_t RIL_CellularContext::connect()
 {
     tr_info("CellularContext connect");
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+
     if (_is_connected) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
@@ -142,7 +135,7 @@ nsapi_error_t RIL_CellularContext::connect()
     if (_is_running) {
         return NSAPI_ERROR_BUSY;
     }
-    _api_mutex.lock();
+
     _is_running = true;
     _final_op = OP_CONNECT;
     nsapi_error_t err = _device->set_sim_ready();
@@ -161,15 +154,12 @@ nsapi_error_t RIL_CellularContext::connect()
                 _is_running = false;
                 _final_op = OP_INVALID;
                 _current_op = OP_INVALID;
-                _api_mutex. unlock();
                 return NSAPI_ERROR_NO_MEMORY;
             }
-            _api_mutex. unlock();
             return NSAPI_ERROR_OK;
         }
     }
 
-    _api_mutex. unlock();
     return _cb_data.error;
 }
 
@@ -178,22 +168,32 @@ void RIL_CellularContext::do_connect_with_retry()
     CellularContext::do_connect_with_retry();
 }
 
-void RIL_CellularContext::do_initial_attach()
+nsapi_error_t RIL_CellularContext::do_initial_attach()
 {
-    _api_mutex.lock();
-    
-    tr_debug("RIL_CellularContext::do_initial_attach(), plmn: %s", (plmn ? plmn : "NULL"));
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+
     _set_registration_complete = false;
-    _error = NSAPI_ERROR_OK;
+    nsapi_error_t ret = NSAPI_ERROR_OK;
 
-    ril_token_t *token;
+    rtos::Mutex *cond_mutex = new rtos::Mutex;
+    rtos::ConditionVariable *cond_var = new rtos::ConditionVariable(*cond_mutex);
 
-    token = RILAdaptation::get_instance()->send_request(RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC, NULL, 0, callback(this, &RIL_CellularContext::request_set_initial_attach_apn_response));
+    cond_mutex->lock();
 
-    if (token == NULL) {
-        _api_mutex.unlock();
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-        return;
+    RILAdaptation &ril = static_cast<RIL_CellularDevice *>(_device)->get_ril();
+
+    ril_token_t *token1;
+    
+    token1 = ril.send_request(RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC,
+                                nullptr, 0,
+                                callback(this, &RIL_CellularContext::request_set_initial_attach_apn_response),
+                                cond_mutex, cond_var);
+    
+
+    if (token1 == nullptr) {
+        delete cond_var;
+        delete cond_mutex;
+        return NSAPI_ERROR_DEVICE_ERROR;
     }
 
     // don't wait response to RIL_REQUEST_SET_NETWORK_SELECTION_XXX here as it comes after we got response to RIL_REQUEST_SET_INITIAL_ATTACH_APN
@@ -207,46 +207,61 @@ void RIL_CellularContext::do_initial_attach()
     data->data[2] = data->auth;
     data->data[3] = _uname;
     data->data[4] = _pwd;
-    data->data[5] = NULL;
+    data->data[5] = nullptr;
 
     tr_debug("Initial attach, apn: %s", data->data[0]);
     tr_debug("Initial attach, pdp_type: %s", data->data[1]);
     tr_debug("Initial attach, authentication type: %s", data-> data[2]);
 
-    token = lock_and_send_request(RIL_REQUEST_SET_INITIAL_ATTACH_APN, (void *)data, sizeof(char *) * 6, callback(this, &RIL_CellularContext::request_set_initial_attach_apn_response));
 
-    if (token == NULL) {
-        delete data;
+    ril_token_t *token2 = ril.send_request(RIL_REQUEST_SET_INITIAL_ATTACH_APN,
+                                           (void *)data, sizeof(char *) * 6,
+                                           callback(this, &RIL_CellularContext::request_set_initial_attach_apn_response),
+                                           cond_mutex, cond_var);
+
+    if (token2) {
+        rtos::cv_status time_out = cond_var->wait_for(DEVICE_TIMEOUT);
+        if (time_out == rtos::cv_status::timeout) {
+            ret = NSAPI_ERROR_TIMEOUT;
+            ril.cancel_request(token1);
+            ril.cancel_request(token2);
+            tr_warning("do_initial_attach timeout");
+        }
     }
 
-    _cond_mutex.unlock();
-    _api_mutex.unlock();
+    delete data;
+
+    if (ret == NSAPI_ERROR_OK) {
+        ret = token1->response_error;
+    }
+    if (ret == NSAPI_ERROR_OK) {
+        ret = token2->response_error;
+    }
+
+    delete token2;
+    delete token1;
+
+    delete cond_var;
+    delete cond_mutex;
+
+    return ret;
 }
 
 void RIL_CellularContext::request_set_initial_attach_apn_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len)
 {
-    _cond_mutex.lock();
-    if (token->request_id == RIL_REQUEST_SET_INITIAL_ATTACH_APN) {
-        attach_req_t *data = (attach_req_t *)token->data;
-        delete data;
-        token->data = NULL;
-    }
+    if (err != RIL_E_CANCELLED) {
+        token->cond_mutex->lock();
 
-    // both requests must be successful for this operation to be successful
-    if (err == RIL_E_SUCCESS && _error == NSAPI_ERROR_OK) {
-        _error = NSAPI_ERROR_OK;
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-    }
+        token->response_error = (err == RIL_E_SUCCESS) ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 
-    if (_set_registration_complete) {
-        if (err != RIL_E_CANCELLED) {
-            _cond_var.notify_one();
+        if (_set_registration_complete) {
+            token->cond_var->notify_one();
+        } else {
+            _set_registration_complete = true;
         }
-    } else {
-        _set_registration_complete = true;
+
+        token->cond_mutex->unlock();
     }
-    _cond_mutex.unlock();
 }
 
 void RIL_CellularContext::get_signal_quality()
@@ -266,11 +281,17 @@ void RIL_CellularContext::get_signal_quality()
 
 void RIL_CellularContext::do_connect()
 {
+    nsapi_error_t ret = NSAPI_ERROR_OK;
+
+    if (!_nw) {
+        _nw = _device->open_network();
+    }
+
     if (_connect_state < CS_INITIAL_ATTACH) {
         get_signal_quality(); // mimic state machine so AT and RIL api's look same to application. Same below.
-        do_initial_attach();
-        if (_error) {
-            _cb_data.error = _error;
+        ret = do_initial_attach();
+        if (ret != NSAPI_ERROR_OK) {
+            _cb_data.error = ret;
             if (_retry_count == _retry_array_length - 1) {
                 _is_running = false;
             }
@@ -286,16 +307,6 @@ void RIL_CellularContext::do_connect()
             return;
         }
     }
-
-#if PLMN_LOCK_ENABLE
-    if (jio_client_compare_plmn())
-    {
-        _cb_data.error = NSAPI_ERROR_PLMN_LOCK;
-        _retry_count = 1;
-        _is_running = false;
-        return;
-    }
-#endif
 
     if (_connect_state < CS_ATTACH) {
         get_signal_quality();
@@ -324,7 +335,7 @@ void RIL_CellularContext::do_connect()
         data->pwd = _pwd;
         ril_itoa(_authentication_type, data->auth, 10);
         data->pdp_type = pdp_type_to_string(_pdp_type);
-        data->opt = NULL;
+        data->opt = nullptr;
 
         data->data[0] = data->rat;
         data->data[1] = data->data_profile;
@@ -341,15 +352,11 @@ void RIL_CellularContext::do_connect()
         tr_debug("Setup datacall, authentication: %s", data->auth);
         tr_debug("Setup datacall, pdp type: %s", data->pdp_type);
 
-        ril_token_t *token = lock_and_send_request(RIL_REQUEST_SETUP_DATA_CALL, (void *)data, sizeof(char *) * 8,
-                                                   callback(this, &RIL_CellularContext::request_setup_data_call_response));
+        ret = static_cast<RIL_CellularDevice *>(_device)->lock_and_send_request(RIL_REQUEST_SETUP_DATA_CALL, (void *)data, sizeof(char *) * 8,
+                                                                                callback(this, &RIL_CellularContext::request_setup_data_call_response));
+        delete data;
+        _cb_data.error = ret;
 
-        if (token == NULL) {
-            delete data;
-            _cb_data.error = _error;
-        }
-
-        _cond_mutex.unlock();
         if (_cb_data.error) {
             if (_retry_count == _retry_array_length - 1) {
                 _is_running = false;
@@ -359,14 +366,16 @@ void RIL_CellularContext::do_connect()
         _cb_data.error = NSAPI_ERROR_OK;
         _connect_state = CS_SETUP_DATA_CALL;
         _retry_count = 0; // kind of new state so start retry logic
-    }
 
-    create_interface_and_connect();
+        if (ret == NSAPI_ERROR_OK) {
+            create_interface_and_connect();
+        }
+    }
 }
 
 L3IP *RIL_CellularContext::get_L3IP_driver()
 {
-    return NULL;
+    return nullptr;
 }
 
 void RIL_CellularContext::delete_L3IP_driver()
@@ -396,7 +405,7 @@ void RIL_CellularContext::create_interface_and_connect()
 
         if (_connect_state < CS_INTERFACE_ADDED) {
             _cb_data.error = static_cast<OnboardNetworkStack *>(_stack)->add_l3ip_interface(*_l3ip_driver, true, &_stack_interface);
-            tr_debug("RIL_CellularContext::do_connect(stack->add_l3ip_interface): %d", _cb_data.error);
+            tr_debug("RIL_CellularContext::create_interface_and_connect: add_l3ip_interface = %d", _cb_data.error);
             if (_cb_data.error) {
                 if (_retry_count == _retry_array_length - 1) {
                     _is_running = false;
@@ -430,7 +439,6 @@ void RIL_CellularContext::create_interface_and_connect()
             bringup_gw = _data_call_addresses->_gateway_addr_ipv6;
         }
 
-        // _local_addr_ipv6 is actually a link-local address from RIL
         _cb_data.error = _stack_interface->bringup(false,
                                                    bringup_ip,
                                                    local_subnet_mask,
@@ -448,13 +456,15 @@ void RIL_CellularContext::create_interface_and_connect()
 
     if (_cb_data.error == NSAPI_ERROR_OK) {
         delete _data_call_addresses;
-        _data_call_addresses = NULL;
+        _data_call_addresses = nullptr;
 
         _connect_state = CS_INVALID;
         _current_state = OP_CONNECT;
+        _is_connected = true;
     }
     _is_running = false;
-    tr_debug("RIL_CellularContext::do_connect(stack.bringup): %d, pdp_type = %s", _cb_data.error, pdp_type_to_string(_pdp_type));
+    tr_debug("RIL_CellularContext::create_interface_and_connect: bringup = %d, pdp_type = %s",
+             _cb_data.error, pdp_type_to_string(_pdp_type));
 }
 
 nsapi_error_t RIL_CellularContext::close_stack_interface()
@@ -467,10 +477,10 @@ nsapi_error_t RIL_CellularContext::close_stack_interface()
             ret = static_cast<OnboardNetworkStack *>(_stack)->remove_l3ip_interface(&_stack_interface);
 
             if (ret == NSAPI_ERROR_OK) {
-                _stack_interface = NULL;
+                _stack_interface = nullptr;
 
                 delete_L3IP_driver();
-                _l3ip_driver = NULL;
+                _l3ip_driver = nullptr;
             }
         }
     }
@@ -479,10 +489,16 @@ nsapi_error_t RIL_CellularContext::close_stack_interface()
 
 nsapi_error_t RIL_CellularContext::disconnect(bool request_deactivate_data_call)
 {
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+
     if (_is_running) {
         return NSAPI_ERROR_BUSY;
     }
-    _api_mutex.lock();
+
+    if (!_is_connected) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
     _is_running = true;
     nsapi_error_t ret = NSAPI_ERROR_OK;
 
@@ -498,14 +514,10 @@ nsapi_error_t RIL_CellularContext::disconnect(bool request_deactivate_data_call)
         data->data[0] = data->cid;
         data->data[1] = data->reason;
 
-        ril_token_t *token = lock_and_send_request(RIL_REQUEST_DEACTIVATE_DATA_CALL, (void *)data, sizeof(char *) * 2,
-                                                   callback(this, &RIL_CellularContext::request_deactivate_data_call_response));
-        if (token == NULL) {
-            delete data;
-        }
-
-        ret = _error;
-        _cond_mutex.unlock();
+        tr_debug("Deactivate data call: cid = %s, reason = %s", data->cid, data->reason);
+        ret = static_cast<RIL_CellularDevice *>(_device)->lock_and_send_request(RIL_REQUEST_DEACTIVATE_DATA_CALL, (void *)data, sizeof(char *) * 2,
+                                                                                callback(this, &RIL_CellularContext::request_deactivate_data_call_response));
+        delete data;
     }
 
     _connect_state = CS_INVALID;
@@ -518,7 +530,6 @@ nsapi_error_t RIL_CellularContext::disconnect(bool request_deactivate_data_call)
 
     tr_info("Disconnect %s", ret ? "failed" : "success");
 
-    _api_mutex.unlock();
     return ret;
 }
 
@@ -532,8 +543,7 @@ nsapi_error_t RIL_CellularContext::check_operation(nsapi_error_t err, ContextOpe
     _current_op = op;
     if (err == NSAPI_ERROR_IN_PROGRESS || err == NSAPI_ERROR_OK) {
         if (_is_blocking) {
-            int sema_err = _semaphore.try_acquire_for(get_timeout_for_operation(op)); // cellular network searching may take several minutes
-            if (sema_err != 1) {
+            if (!_semaphore.try_acquire_for(get_timeout_for_operation(op))) { // cellular network searching may take several minutes
                 tr_error("Operation timeout, no cellular connection");
                 return NSAPI_ERROR_TIMEOUT;
             }
@@ -560,7 +570,6 @@ bool RIL_CellularContext::is_connected()
 
 void RIL_CellularContext::set_plmn(const char *plmn)
 {
-    printf("enter set_plmn\n");
     _device->set_plmn(plmn);
 }
 
@@ -586,25 +595,26 @@ void RIL_CellularContext::set_credentials(const char *apn, const char *uname, co
     _pwd = pwd;
 }
 
-const char *RIL_CellularContext::get_netmask()
+nsapi_error_t RIL_CellularContext::get_netmask(SocketAddress *address)
 {
-    return local_subnet_mask;
+    if (_stack_interface) {
+        return _stack_interface->get_netmask(address);
+    }
+    return NSAPI_ERROR_NO_CONNECTION;
 }
 
-const char *RIL_CellularContext::get_gateway()
+nsapi_error_t RIL_CellularContext::get_gateway(SocketAddress *address)
 {
-    // if (_stack_interface) {
-    //     static char ip[NSAPI_IPv6_SIZE];
-    //     return _stack_interface->get_gateway(ip, sizeof(ip));
-    // }
-    // return "";
-    return "";
+    if (_stack_interface) {
+        return _stack_interface->get_gateway(address);
+    }
+    return NSAPI_ERROR_NO_CONNECTION;
 }
 
 nsapi_error_t RIL_CellularContext::get_pdpcontext_params(pdpContextList_t &params_list)
 {
     // This will return only the current context params.
-    pdpcontext_params_t *params = NULL;
+    pdpcontext_params_t *params = nullptr;
     params = params_list.add_new();
 
     if (_apn) {
@@ -612,19 +622,40 @@ nsapi_error_t RIL_CellularContext::get_pdpcontext_params(pdpContextList_t &param
     } else {
         strncpy(params->apn, "", sizeof(params->apn));
     }
-    SocketAddress local_address;
-    get_ip_address(&local_address);
-    strncpy(params->local_addr, local_address.get_ip_address(), sizeof(params->local_addr));
-    strncpy(params->local_subnet_mask, get_netmask(), sizeof(params->local_subnet_mask));
-    strncpy(params->gateway_addr, get_gateway(), sizeof(params->gateway_addr));
+
+    SocketAddress addr = 0;
+
+    if (get_ip_address(&addr) == NSAPI_ERROR_OK) {
+        strncpy(params->local_addr, addr.get_ip_address(), sizeof(params->local_addr));
+    } else {
+        strncpy(params->local_addr, "", sizeof(params->local_addr));
+    }
+
+    addr = 0;
+    if (get_netmask(&addr) == NSAPI_ERROR_OK) {
+        strncpy(params->local_subnet_mask, addr.get_ip_address(), sizeof(params->local_subnet_mask));
+    } else {
+        strncpy(params->local_subnet_mask, "", sizeof(params->local_subnet_mask));
+    }
+
+    addr = 0;
+    if (get_gateway(&addr) == NSAPI_ERROR_OK) {
+        strncpy(params->gateway_addr, addr.get_ip_address(), sizeof(params->gateway_addr));
+    } else {
+        strncpy(params->gateway_addr, "", sizeof(params->gateway_addr));
+    }
 
     char ifn[4];
     SocketAddress dns1;
     SocketAddress dns2;
     get_dns_server(0, &dns1, get_interface_name(ifn));
     get_dns_server(1, &dns2, get_interface_name(ifn));
-    strncpy(params->dns_primary_addr, dns1.get_ip_address(), sizeof(params->dns_primary_addr));
-    strncpy(params->dns_secondary_addr, dns2.get_ip_address(), sizeof(params->dns_secondary_addr));
+    if (dns1) {
+        strncpy(params->dns_primary_addr, dns1.get_ip_address(), sizeof(params->dns_primary_addr));
+    }
+    if (dns2) {
+        strncpy(params->dns_secondary_addr, dns2.get_ip_address(), sizeof(params->dns_secondary_addr));
+    }
 
     params->p_cscf_prim_addr[0] = '\0';
     params->p_cscf_sec_addr[0] = '\0';
@@ -654,12 +685,14 @@ nsapi_error_t RIL_CellularContext::get_apn_backoff_timer(int &backoff_timer)
 
 nsapi_error_t RIL_CellularContext::set_device_ready()
 {
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+
     if (_is_running) {
         return NSAPI_ERROR_BUSY;
     } else if (_current_state >= OP_DEVICE_READY) {
         return NSAPI_ERROR_ALREADY;
     }
-    _api_mutex.lock();
+
     _is_running = true;
     _final_op = OP_DEVICE_READY;
     nsapi_error_t err = _device->set_device_ready();
@@ -667,18 +700,19 @@ nsapi_error_t RIL_CellularContext::set_device_ready()
     if (_is_blocking) {
         _is_running = false;
     }
-    _api_mutex.unlock();
     return err;
 }
 
 nsapi_error_t RIL_CellularContext::set_sim_ready()
 {
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+
     if (_is_running) {
         return NSAPI_ERROR_BUSY;
     } else if (_current_state >= OP_SIM_READY) {
         return NSAPI_ERROR_ALREADY;
     }
-    _api_mutex.lock();
+
     _is_running = true;
     _final_op = OP_SIM_READY;
     nsapi_error_t err = _device->set_sim_ready();
@@ -686,18 +720,20 @@ nsapi_error_t RIL_CellularContext::set_sim_ready()
     if (_is_blocking) {
         _is_running = false;
     }
-    _api_mutex.unlock();
+
     return err;
 }
 
 nsapi_error_t RIL_CellularContext::register_to_network()
 {
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+
     if (_is_running) {
         return NSAPI_ERROR_BUSY;
     } else if (_current_state >= OP_REGISTER) {
         return NSAPI_ERROR_ALREADY;
     }
-    _api_mutex.lock();
+
     _is_running = true;
     _final_op = OP_REGISTER;
     nsapi_error_t err = _device->set_sim_ready();
@@ -719,24 +755,23 @@ nsapi_error_t RIL_CellularContext::register_to_network()
             _is_running = false;
             _final_op = OP_INVALID;
             _current_op = OP_INVALID;
-            _api_mutex. unlock();
             return NSAPI_ERROR_NO_MEMORY;
         }
-        _api_mutex. unlock();
         return NSAPI_ERROR_OK;
     }
-    _api_mutex.unlock();
     return err;
 }
 
 nsapi_error_t RIL_CellularContext::attach_to_network()
 {
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+
     if (_is_running) {
         return NSAPI_ERROR_BUSY;
     } else if (_current_state >= OP_ATTACH) {
         return NSAPI_ERROR_ALREADY;
     }
-    _api_mutex.lock();
+
     _is_running = true;
     _final_op = OP_ATTACH;
     nsapi_error_t err = _device->set_sim_ready();
@@ -758,24 +793,24 @@ nsapi_error_t RIL_CellularContext::attach_to_network()
             _is_running = false;
             _final_op = OP_INVALID;
             _current_op = OP_INVALID;
-            _api_mutex. unlock();
             return NSAPI_ERROR_NO_MEMORY;
         }
-        _api_mutex. unlock();
         return NSAPI_ERROR_OK;
     }
 
-    _api_mutex.unlock();
     return err;
 }
 
-void RIL_CellularContext::set_file_handle(FileHandle */*fh*/)
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN)
+nsapi_error_t RIL_CellularContext::configure_hup(PinName /*dcd_pin*/, bool /*active_high*/)
 {
+    return NSAPI_ERROR_UNSUPPORTED;
 }
+#endif
 
 ControlPlane_netif *RIL_CellularContext::get_cp_netif()
 {
-    return NULL;
+    return nullptr;
 }
 
 void RIL_CellularContext::set_state(cell_callback_data_t *data, cellular_connection_status_t st)
@@ -828,10 +863,6 @@ void RIL_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         _cb_data.error = data->error;
         tr_debug("CellularContext: event %d, err %d, data %d", ev, data->error, data->status_data);
         set_state(data, st);
-
-        if (!_nw && st == CellularDeviceReady && data->error == NSAPI_ERROR_OK) {
-            _nw = _device->open_network();
-        }
 
         if (_is_blocking) {
             if (data->error != NSAPI_ERROR_OK) {
@@ -893,66 +924,63 @@ void RIL_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
     }
 }
 
-void RIL_CellularContext::enable_hup(bool /*enable*/)
+const char *RIL_CellularContext::get_nonip_context_type_str()
 {
+    return nullptr;
 }
 
 void RIL_CellularContext::request_setup_data_call_response(ril_token_t *token, RIL_Errno err, void *response,
                                                            size_t response_len)
 {
-    _cond_mutex.lock();
-    if (err == RIL_E_SUCCESS && response && response_len) {
-        RIL_Data_Call_Response_v11 *v11;
-        // only one response in RIL_REQUEST_SETUP_DATA_CALL
-        v11 = (RIL_Data_Call_Response_v11 *)response;
-        _cb_data.error = NSAPI_ERROR_OK;
-        if (v11->status == PDP_FAIL_NONE && v11->active == 2) {
-            _cid = v11->cid;
+    if (err != RIL_E_CANCELLED) {
+        token->cond_mutex->lock();
+        if (err == RIL_E_SUCCESS && response && response_len) {
+            RIL_Data_Call_Response_v11 *v11;
+            // only one response in RIL_REQUEST_SETUP_DATA_CALL
+            v11 = (RIL_Data_Call_Response_v11 *)response;
+            _cb_data.error = NSAPI_ERROR_OK;
+            if (v11->status == PDP_FAIL_NONE && v11->active == 2) {
+                _cid = v11->cid;
 
-            _pdp_type = string_to_pdp_type(v11->type);
-            tr_debug("RIL_CellularContext::request_setup_data_call_response, cid: %d, pdp_type: %s", _cid, v11->type);
+                _pdp_type = string_to_pdp_type(v11->type);
+                tr_debug("RIL_CellularContext::request_setup_data_call_response, cid: %d, pdp_type: %s", _cid, v11->type);
 
-            if (v11->ifname) {
-                const uint32_t len = strlen(v11->ifname) + 1;
-                delete [] _ifname;
-                _ifname = new char[len];
-                memcpy(_ifname, v11->ifname, len);
-                tr_debug("RIL_CellularContext::request_setup_data_call_response, _ifname: %s", _ifname);
+                if (v11->ifname) {
+                    const uint32_t len = strlen(v11->ifname) + 1;
+                    delete [] _ifname;
+                    _ifname = new char[len];
+                    memcpy(_ifname, v11->ifname, len);
+                    tr_debug("RIL_CellularContext::request_setup_data_call_response, _ifname: %s", _ifname);
+                } else {
+                    _cb_data.error = NSAPI_ERROR_DEVICE_ERROR;
+                }
+
+                // Skip address fields in case of NonIP context
+                if (_pdp_type != NON_IP_PDP_TYPE && !_cb_data.error) {
+                    _cb_data.error = handle_data_call_setup_addresses(v11);
+                } else {
+                    tr_debug("Skipping address fields as not needed for NonIP context");
+                }
+
+                if (v11->mtu && !_cb_data.error) {
+                    _mtu = v11->mtu;
+                    tr_debug("RIL_CellularContext::request_setup_data_call_response, _mtu: %d", _mtu);
+                }
             } else {
+                tr_error("RIL_CellularContext::request_setup_data_call_response fail: status = %d, active = %d",
+                         v11->status, v11->active);
                 _cb_data.error = NSAPI_ERROR_DEVICE_ERROR;
             }
-
-            // Skip address fields in case of NonIP context
-            if (_pdp_type != NON_IP_PDP_TYPE && !_cb_data.error) {
-                _cb_data.error = handle_data_call_setup_addresses(v11);
-            } else {
-                tr_debug("Skipping address fields as not needed for NonIP context");
-            }
-
-            if (v11->mtu && !_cb_data.error) {
-                _mtu = v11->mtu;
-                tr_debug("RIL_CellularContext::request_setup_data_call_response, _mtu: %d", _mtu);
-            }
         } else {
-            tr_error("RIL_CellularContext::request_setup_data_call_response fail: status = %d, active = %d",
-                     v11->status, v11->active);
+            tr_error("RIL_CellularContext::request_setup_data_call_response fail: err = %d, response = %p, response_len = %d",
+                     err, response, response_len);
             _cb_data.error = NSAPI_ERROR_DEVICE_ERROR;
         }
-    } else {
-        tr_error("RIL_CellularContext::request_setup_data_call_response fail: err = %d, response = %p, response_len = %d",
-                 err, response, response_len);
-        _cb_data.error = NSAPI_ERROR_DEVICE_ERROR;
-    }
 
-    // delete data needed for request
-    connect_req_t *reg_data = (connect_req_t *)token->data;
-    delete reg_data;
-    token->data = NULL;
-
-    if (err != RIL_E_CANCELLED) {
-        _cond_var.notify_one();
+        token->response_error = _cb_data.error;
+        token->cond_var->notify_one();
+        token->cond_mutex->unlock();
     }
-    _cond_mutex.unlock();
 }
 
 nsapi_error_t RIL_CellularContext::handle_data_call_setup_addresses(const RIL_Data_Call_Response_v11 *response)
@@ -1039,30 +1067,6 @@ nsapi_ip_stack_t RIL_CellularContext::pdp_type_to_ip_stack(pdp_type_t pdp_type)
     return (nsapi_ip_stack_t)pdp_type;
 }
 
-const char *RIL_CellularContext::pdp_type_to_string(pdp_type_t pdp_type)
-{
-    const char *ret;
-
-    switch (pdp_type) {
-        case IPV4_PDP_TYPE:
-            ret = "IP";
-            break;
-        case IPV6_PDP_TYPE:
-            ret = "IPV6";
-            break;
-        case IPV4V6_PDP_TYPE:
-            ret = "IPV4V6";
-            break;
-        case NON_IP_PDP_TYPE:
-            ret = "Non-IP";
-            break;
-        default:
-            ret = "";
-    }
-
-    return ret;
-}
-#if 0
 void RIL_CellularContext::call_network_cb(nsapi_connection_status_t status)
 {
     if (_connect_status != status) {
@@ -1076,26 +1080,6 @@ void RIL_CellularContext::call_network_cb(nsapi_connection_status_t status)
         }
     }
 }
-#else
-
-void RIL_CellularContext::call_network_cb(nsapi_connection_status_t status)
-{
-    if (_connect_status != status) {
-        _connect_status = status;
-// first clean up
-        if (_nw && _connect_status == NSAPI_STATUS_DISCONNECTED) {
-            disconnect(false); // Clean up network interface objects if network dropped
-            tr_info("CellularContext disconnected with cid: %d and apn: %s", _cid, _apn);
-        }
-// Then notify application
-        if (_status_cb) {
-            _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
-        }
-    }
-}
-
-
-#endif
 
 void RIL_CellularContext::stack_status_cb(nsapi_event_t ev, intptr_t ptr)
 {
@@ -1123,21 +1107,12 @@ nsapi_connection_status_t RIL_CellularContext::get_connection_status() const
 void RIL_CellularContext::request_deactivate_data_call_response(ril_token_t *token, RIL_Errno err, void *response,
                                                                 size_t response_len)
 {
-    _cond_mutex.lock();
-    // delete data needed for request
-    disconnect_ret_t *data = (disconnect_ret_t *)token->data;
-    delete data;
-    token->data = NULL;
-
-    if (err == RIL_E_SUCCESS) {
-        _error = NSAPI_ERROR_OK;
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-    }
     if (err != RIL_E_CANCELLED) {
-        _cond_var.notify_one();
+        token->cond_mutex->lock();
+        token->response_error = (err == RIL_E_SUCCESS) ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
+        token->cond_var->notify_one();
+        token->cond_mutex->unlock();
     }
-    _cond_mutex.unlock();
 }
 
 void RIL_CellularContext::unsolicited_response(int response_id, const void *data, size_t data_len)
@@ -1146,16 +1121,12 @@ void RIL_CellularContext::unsolicited_response(int response_id, const void *data
 
     if (response_id == RIL_UNSOL_DATA_CALL_LIST_CHANGED) {
         const int items = data_len / sizeof(RIL_Data_Call_Response_v11);
+        MBED_ASSERT(data_len == items * sizeof(RIL_Data_Call_Response_v11));
         if (items) {
             MBED_ASSERT(data);
-            MBED_ASSERT(data_len == items * sizeof(RIL_Data_Call_Response_v11));
-
-            RIL_Data_Call_Response_v11 *resp_data = (RIL_Data_Call_Response_v11 *)data;
-
+            const RIL_Data_Call_Response_v11 *resp_data = (const RIL_Data_Call_Response_v11 *)data;
             for (int i = 0; i < items; i++) {
-    			tr_info("i:%d, items:%d", i, items);
                 const RIL_Data_Call_Response_v11 &resp_item = resp_data[i];
-    			tr_info("resp_item.cid:%d, resp_item.active:%d, resp_item.status:%d", resp_item.cid, resp_item.active, resp_item.status);
                 if (resp_item.cid == _cid) { // this context cid, continue processing
                     if (resp_item.active == 0 && resp_item.status != PDP_FAIL_NONE && resp_item.suggestedRetryTime == -1) {
                         // This context was active, clean up the network interface and send NSAPI_STATUS_DISCONNECTED to application
@@ -1167,13 +1138,27 @@ void RIL_CellularContext::unsolicited_response(int response_id, const void *data
         }
     }
 }
-#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-nsapi_error_t RIL_CellularContext::configure_hup(PinName dcd_pin, bool active_high)
+
+const char *RIL_CellularContext::pdp_type_to_string(pdp_type_t pdp_type)
 {
-    return NSAPI_ERROR_OK;
-}
-#endif
-const char *RIL_CellularContext::get_nonip_context_type_str()
-{
-    return NULL;
+    const char *ret;
+
+    switch (pdp_type) {
+        case IPV4_PDP_TYPE:
+            ret = "IP";
+            break;
+        case IPV6_PDP_TYPE:
+            ret = "IPV6";
+            break;
+        case IPV4V6_PDP_TYPE:
+            ret = "IPV4V6";
+            break;
+        case NON_IP_PDP_TYPE:
+            ret = "Non-IP";
+            break;
+        default:
+            ret = "";
+    }
+
+    return ret;
 }

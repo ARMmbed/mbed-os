@@ -21,8 +21,7 @@
 #include "L3IP.h"
 #include "modem_io_device.h"
 
-class SAMSUNG_S5JS100_L3IP_Driver : public L3IP
-{
+class SAMSUNG_S5JS100_L3IP_Driver : public L3IP {
 
 public:
 
@@ -34,7 +33,7 @@ public:
      *
      * @return     MTU in bytes
      */
-    virtual uint32_t get_mtu_size() const;
+    uint32_t get_mtu_size() const override;
 
     /**
      * Gets memory buffer alignment preference
@@ -42,7 +41,7 @@ public:
      * Gets preferred memory buffer alignment of the cellular device.
      * @return         Memory alignment requirement in bytes
      */
-    virtual uint32_t get_align_preference() const;
+    uint32_t get_align_preference() const override;
 
     /**
      * Return interface name
@@ -50,7 +49,7 @@ public:
      * @param name Pointer to where the name should be written
      * @param size Maximum number of characters to copy
      */
-    virtual void get_ifname(char *name, uint8_t size) const;
+    void get_ifname(char *name, uint8_t size) const override;
 
     /**
      * Sends the packet over the link
@@ -60,71 +59,71 @@ public:
      * @param buf  Packet to be sent
      * @return     True if the packet was sent, false otherwise
      */
-    virtual bool link_out(net_stack_mem_buf_t *buf);
+    bool link_out(net_stack_mem_buf_t *buf) override;
 
     /**
      * Initializes the hardware
      *
      * @return True on success, False in case of an error.
      */
-    virtual bool power_up();
+    bool power_up() override;
 
     /**
      * Deinitializes the hardware
      *
      */
-    virtual void power_down();
+    void power_down() override;
 
     /**
      * Sets a callback that needs to be called for packets received for that interface
      *
      * @param input_cb Function to be register as a callback
      */
-    virtual void set_link_input_cb(l3ip_link_input_cb_t input_cb);
+    void set_link_input_cb(l3ip_link_input_cb_t input_cb) override;
 
     /**
      * Sets a callback that needs to be called on link status changes for given interface
      *
      * @param state_cb Function to be register as a callback
      */
-    virtual void set_link_state_cb(l3ip_link_state_change_cb_t state_cb);
+    void set_link_state_cb(l3ip_link_state_change_cb_t state_cb) override;
 
     /** Add device to an IP4 multicast group
      *
-     * @param address an IP4 multicast group address
+     * @param address  An IP4 multicast group address
      */
-    virtual void add_ipv4_multicast_group(const SocketAddress &address);
+    void add_ipv4_multicast_group(const SocketAddress &address) override;
 
     /** Add device to an IP6 multicast group
-    *
-    * @param address  an IP6 multicast group address
-    */
-    virtual void add_ipv6_multicast_group(const SocketAddress &address);
+     *
+     * @param address  An IP6 multicast group address
+     */
+    void add_ipv6_multicast_group(const SocketAddress &address) override;
 
     /** Remove device from an IPV4 multicast group
      *
      * @param address  An IPV4 multicast group address
      */
-    virtual void remove_ipv4_multicast_group(const SocketAddress &address);
+    void remove_ipv4_multicast_group(const SocketAddress &address) override;
 
     /** Remove device from an IPV6 multicast group
     *
     * @param address  An IPV6 multicast group address
     */
-    virtual void remove_ipv6_multicast_group(const SocketAddress &address);
+    void remove_ipv6_multicast_group(const SocketAddress &address) override;
 
     /** Request reception of all multicast packets
      *
      * @param all True to receive all multicasts
      *            False to receive only multicasts addressed to specified groups
      */
-    virtual void set_all_multicast(bool all);
+    void set_all_multicast(bool all) override;
 
     /** Sets memory manager that is used to handle memory buffers
      *
      * @param mem_mngr Pointer to memory manager
      */
-    virtual void set_memory_manager(NetStackMemoryManager &mem_mngr);
+    void set_memory_manager(NetStackMemoryManager &mem_mngr) override;
 
 private:
 
@@ -151,7 +150,7 @@ private:
     l3ip_link_state_change_cb_t _l3ip_link_state_cb;    /**< Link state change callback */
     NetStackMemoryManager       *_memory_manager;       /**< Memory manager */
 
-    ModemIoDevice*              _io_device;             /**< Handle to modem */
+    ModemIoDevice              *_io_device;             /**< Handle to modem */
     char                        _ifname[32];            /**< Interface name */
     int                         _mtu;                   /**< MTU */
 };
