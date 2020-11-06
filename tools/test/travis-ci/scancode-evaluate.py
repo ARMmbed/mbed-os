@@ -30,6 +30,7 @@ MISSING_SPDX_TEXT = "Missing SPDX license identifier"
 
 userlog = logging.getLogger("scancode-evaluate")
 
+
 class ReturnCode(Enum):
     """Return codes."""
 
@@ -54,13 +55,12 @@ def path_leaf(path):
     return tail or os.path.basename(head)
 
 
-def has_permissive_text_in_scancode_output(scancode_output_data_file):
-    """Returns true if at least one license in the scancode output is permissive or is a Permissive Binary License"""
-    # temporary workaround for files with Permissive Binary Licenses
+def has_permissive_text_in_scancode_output(scancode_output_data_file_licenses):
+    """Returns true if at least one license in the scancode output is permissive"""
     return any(
         scancode_output_data_file_license['category'] == 'Permissive'
-        for scancode_output_data_file_license in scancode_output_data_file['licenses']
-    ) or has_binary_license(scancode_output_data_file)
+        for scancode_output_data_file_license in scancode_output_data_file_licenses
+    )
 
 
 def has_spdx_text_in_scancode_output(scancode_output_data_file_licenses):
@@ -76,16 +76,20 @@ def has_spdx_text_in_analysed_file(scanned_file_content):
     return bool(re.findall("SPDX-License-Identifier:?", scanned_file_content))
 
 
-def has_binary_license(scancode_output_data_file):
+def has_binary_license(scanned_file_content):
     """Returns true if the file analysed by ScanCode contains a Permissive Binary License."""
+    return bool(re.findall("Permissive Binary License", scanned_file_content))
+
+
+def get_file_text(scancode_output_data_file):
+    """Returns file text for scancode output file"""
     file_path = os.path.abspath(scancode_output_data_file['path'])
     try:
         with open(file_path, 'r') as read_file:
-            scanned_file_content = read_file.read()
-        return bool(re.findall("Permissive Binary License", scanned_file_content))
+            return read_file.read()
     except UnicodeDecodeError:
-        userlog.warning("Unable to look for PBL text in `{}`:".format(file_path))
-        return False
+        userlog.warning("Unable to decode file text in: %s" % file_path)
+        # Ignore files that cannot be decoded
 
 
 def license_check(scancode_output_path):
@@ -98,7 +102,7 @@ def license_check(scancode_output_path):
 
     Returns:
     0 if nothing found
-    >0 - count how many license isses found
+    >0 - count how many license issues found
     ReturnCode.ERROR.value if any error in file licenses found
     """
 
@@ -125,25 +129,21 @@ def license_check(scancode_output_path):
             # check the next file in the scancode output
             continue
 
-        if not has_permissive_text_in_scancode_output(scancode_output_data_file):
-            scancode_output_data_file['fail_reason'] = MISSING_PERMISSIVE_LICENSE_TEXT
-            license_offenders.append(scancode_output_data_file)
+        if not has_permissive_text_in_scancode_output(scancode_output_data_file['licenses']):
+            scanned_file_content = get_file_text(scancode_output_data_file)
+            if not (scanned_file_content and has_binary_license(scanned_file_content)):
+                scancode_output_data_file['fail_reason'] = MISSING_PERMISSIVE_LICENSE_TEXT
+                license_offenders.append(scancode_output_data_file)
 
         if not has_spdx_text_in_scancode_output(scancode_output_data_file['licenses']):
             # Scancode does not recognize license notice in Python file headers.
             # Issue: https://github.com/nexB/scancode-toolkit/issues/1913
             # Therefore check if the file tested by ScanCode actually has a licence notice.
-            file_path = os.path.abspath(scancode_output_data_file['path'])
-            try:
-                with open(file_path, 'r') as read_file:
-                    scanned_file_content = read_file.read()
-            except UnicodeDecodeError:
-                userlog.warning("Unable to look for SPDX text in `{}`:".format(file_path))
-                # Ignore files that cannot be decoded
-                # check the next file in the scancode output
-                continue
+            scanned_file_content = get_file_text(scancode_output_data_file)
 
-            if not has_spdx_text_in_analysed_file(scanned_file_content):
+            if not scanned_file_content:
+                continue
+            elif not has_spdx_text_in_analysed_file(scanned_file_content):
                 scancode_output_data_file['fail_reason'] = MISSING_SPDX_TEXT
                 spdx_offenders.append(scancode_output_data_file)
 
