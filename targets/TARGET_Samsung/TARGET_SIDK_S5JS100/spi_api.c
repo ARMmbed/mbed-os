@@ -166,14 +166,22 @@ static uint32_t ssp_setfrequency(spi_t *priv, uint32_t frequency)
     uint32_t scr;
     uint32_t regval;
     uint32_t actual;
+    uint32_t actual_frequency;
 
     /* Check if the requested frequency is the same as the frequency selection */
 
-    if (!(priv && frequency <= SSP_MAX_FREQUENCE)) {
-        error("SSP Frequency error");
+    if (!priv) {
+        error("priv null");
     }
 
-    if (priv->frequency == frequency) {
+    if (frequency > SPI_MAX_FREQUENCY)
+    {
+        actual_frequency = SPI_MAX_FREQUENCY;
+    } else {
+        actual_frequency = frequency;
+    }
+
+    if (priv->frequency == actual_frequency) {
         /* We are already at this frequency.  Return the actual. */
 
         return priv->actual;
@@ -194,7 +202,7 @@ static uint32_t ssp_setfrequency(spi_t *priv, uint32_t frequency)
     for (scr = 1; scr <= 256; scr++) {
         /* CPSDVSR = SSP_CLOCK / (SCR + 1) / frequency */
 
-        cpsdvsr = (SSP_CLOCK / scr) / frequency;
+        cpsdvsr = (SSP_CLOCK / scr) / actual_frequency;
 
         /* Break out on the first solution we find with the smallest value
          * of SCR and with CPSDVSR within the maximum range or 254.
@@ -236,7 +244,7 @@ static uint32_t ssp_setfrequency(spi_t *priv, uint32_t frequency)
     actual = (SSP_CLOCK / cpsdvsr) / scr;
     /* Save the frequency setting */
 
-    priv->frequency = frequency;
+    priv->frequency = actual_frequency;
     priv->actual = actual;
 
     return actual;

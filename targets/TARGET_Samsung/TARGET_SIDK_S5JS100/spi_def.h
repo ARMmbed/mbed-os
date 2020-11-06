@@ -284,6 +284,7 @@ enum spi_mode_e {
 /* Clock Prescale Register */
 
 #define SSP_MAX_FREQUENCE           (SSP_CLOCK / 26)
+#define SPI_MAX_FREQUENCY           (SSP_CLOCK / 6)
 #define SSP_MIN_FREQUENCE           (SSP_CLOCK / (254 * 256))
 
 #endif
