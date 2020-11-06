@@ -499,9 +499,9 @@ def symlink_mbedos(config, path, exp_filter):
     return 0
 
 def fetch_output_image(output,cmake):
-    """Find the build image from the last 30 lines of a given log"""
+    """Find the build image from the last 200 lines of a given log"""
     lines = output.splitlines()
-    last_index = -31 if len(lines)>29 else (-1 - len(lines))
+    last_index = -201 if len(lines)>199 else (-1 - len(lines))
     for index in range(-1,last_index,-1):
         if cmake:
             if lines[index].startswith("-- built:") and lines[index].endswith(".bin"):
