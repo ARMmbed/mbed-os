@@ -27,17 +27,37 @@
 /* ---- serial flash command ---- */
 #if (FLASH_SIZE > 0x1000000)
 #define SPIBSC_OUTPUT_ADDR           SPIBSC_OUTPUT_ADDR_32
-#define SFLASHCMD_SECTOR_ERASE       (0x21u)    /* SE4B   4-byte address(1bit)             */
-#define SFLASHCMD_PAGE_PROGRAM       (0x12u)    /* PP4B   4-byte address(1bit), data(1bit) */
+ #if DEVICE_QSPIx2
+  #define SFLASHCMD_SECTOR_ERASE     (0xDCu)    /* SE4B   4-byte address(1bit)             */
+  #define SFLASHCMD_PAGE_PROGRAM     (0x34u)    /* QPP4B  4-byte address(1bit), data(4bit) */
+ #else
+  #define SFLASHCMD_SECTOR_ERASE     (0x21u)    /* SE4B   4-byte address(1bit)             */
+  #define SFLASHCMD_PAGE_PROGRAM     (0x12u)    /* PP4B   4-byte address(1bit), data(1bit) */
+ #endif
 #else
 #define SPIBSC_OUTPUT_ADDR           SPIBSC_OUTPUT_ADDR_24
-#define SFLASHCMD_SECTOR_ERASE       (0x20u)    /* SE     3-byte address(1bit)             */
-#define SFLASHCMD_PAGE_PROGRAM       (0x02u)    /* PP     3-byte address(1bit), data(1bit) */
+ #if DEVICE_QSPIx2
+  #define SFLASHCMD_SECTOR_ERASE     (0xD8u)    /* SE     3-byte address(1bit)             */
+  #define SFLASHCMD_PAGE_PROGRAM     (0x32u)    /* PP     3-byte address(1bit), data(4bit) */
+ #else
+  #define SFLASHCMD_SECTOR_ERASE     (0x20u)    /* SE     3-byte address(1bit)             */
+  #define SFLASHCMD_PAGE_PROGRAM     (0x02u)    /* PP     3-byte address(1bit), data(1bit) */
+ #endif
 #endif
 #define SFLASHCMD_READ_STATUS_REG    (0x05u)    /* RDSR                         data(1bit) */
 #define SFLASHCMD_WRITE_ENABLE       (0x06u)    /* WREN                                    */
 /* ---- serial flash register definitions ---- */
+#if DEVICE_QSPIx2
+#define STREG_BUSY_BIT               (0x0101u)  /* SR.[0]BUSY Erase/Write In Progress (RO) */
+#define SPIBSC_BUS_MODE              SPIBSC_CMNCR_BSZ_DUAL
+#define CHIP_SIZE                    (FLASH_SIZE + FLASH_SECTOR_SIZE)
+#define CHIP_BASE                    (FLASH_BASE - FLASH_SECTOR_SIZE)
+#else
 #define STREG_BUSY_BIT               (0x01u)    /* SR.[0]BUSY Erase/Write In Progress (RO) */
+#define SPIBSC_BUS_MODE              SPIBSC_CMNCR_BSZ_SINGLE
+#define CHIP_SIZE                    FLASH_SIZE
+#define CHIP_BASE                    FLASH_BASE
+#endif
 
 /* Definition of the base address for the MMU translation table */
 #if defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__GNUC__)
@@ -100,7 +120,7 @@ typedef struct {
     uint32_t base_addr      : 12;       /* bit 31-20    : PA[31:20] PA(physical address) bits:bit31-20    */
 } mmu_ttbl_desc_section_t;
 
-static mmu_ttbl_desc_section_t desc_tbl[(FLASH_SIZE >> 20)];
+static mmu_ttbl_desc_section_t desc_tbl[(CHIP_SIZE >> 20)];
 static volatile struct st_spibsc*  SPIBSC = &SPIBSC0;
 static st_spibsc_spimd_reg_t spimd_reg;
 static uint8_t write_tmp_buf[FLASH_PAGE_SIZE];
@@ -117,7 +137,7 @@ RAM_CODE_SEC int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t s
 
 static RAM_CODE_SEC int32_t write_enable(void);
 static RAM_CODE_SEC int32_t busy_wait(void);
-static RAM_CODE_SEC int32_t read_register(uint8_t cmd, uint8_t * status);
+static RAM_CODE_SEC int32_t read_register(uint8_t cmd, uint16_t * status);
 static RAM_CODE_SEC int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_t * buf, int32_t size);
 static RAM_CODE_SEC void spi_mode(void);
 static RAM_CODE_SEC void ex_mode(void);
@@ -141,12 +161,12 @@ int32_t flash_free(flash_t *obj)
 
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
-    return _sector_erase(address - FLASH_BASE);
+    return _sector_erase(address - CHIP_BASE);
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
-    return _page_program(address - FLASH_BASE, data, size);
+    return _page_program(address - CHIP_BASE, data, size);
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
@@ -160,7 +180,7 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    return 8;
+    return (SPIBSC_BUS_MODE == SPIBSC_CMNCR_BSZ_DUAL)? 32 : 8;
 }
 
 uint32_t flash_get_start_address(const flash_t *obj)
@@ -176,6 +196,11 @@ uint32_t flash_get_size(const flash_t *obj)
 int32_t _sector_erase(uint32_t addr)
 {
     int32_t ret;
+
+    #if DEVICE_QSPIx2
+    if(addr < FLASH_SECTOR_SIZE)
+        return -1; /* Do not mess around with the 1-st sector (Bootloader) */
+    #endif
 
     core_util_critical_section_enter();
     spi_mode();
@@ -200,7 +225,7 @@ int32_t _sector_erase(uint32_t addr)
     spimd_reg.ade    = SPIBSC_OUTPUT_ADDR;
     spimd_reg.addre  = SPIBSC_SDR_TRANS;       /* SDR */
     spimd_reg.adb    = SPIBSC_1BIT;
-    spimd_reg.addr   = addr;
+    spimd_reg.addr   = (SPIBSC_BUS_MODE == SPIBSC_CMNCR_BSZ_DUAL)? addr>>1 : addr;
 
     ret = spibsc_transfer(&spimd_reg);
     if (ret != 0) {
@@ -222,6 +247,11 @@ int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
     int32_t program_size;
     int32_t remainder;
     int32_t idx = 0;
+
+    #if DEVICE_QSPIx2
+    if(addr < FLASH_SECTOR_SIZE)
+        return -1; /* Do not mess around with the 1-st sector (Bootloader) */
+    #endif
 
     while (size > 0) {
         if (size > FLASH_PAGE_SIZE) {
@@ -259,7 +289,7 @@ int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
         spimd_reg.ade    = SPIBSC_OUTPUT_ADDR;
         spimd_reg.addre  = SPIBSC_SDR_TRANS;       /* SDR */
         spimd_reg.adb    = SPIBSC_1BIT;
-        spimd_reg.addr   = addr;
+        spimd_reg.addr   = (SPIBSC_BUS_MODE == SPIBSC_CMNCR_BSZ_DUAL)? addr>>1 : addr;
 
         /* ---- Others ---- */
         spimd_reg.sslkp  = SPIBSC_SPISSL_KEEP;     /* SPBSSL level */
@@ -272,7 +302,7 @@ int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
         }
 
         /* ----------- 2. Data ---------------*/
-        ret = data_send(SPIBSC_1BIT, SPIBSC_SPISSL_NEGATE, write_tmp_buf, program_size);
+        ret = data_send((SPIBSC_BUS_MODE == SPIBSC_CMNCR_BSZ_DUAL)? SPIBSC_4BIT : SPIBSC_1BIT, SPIBSC_SPISSL_NEGATE, write_tmp_buf, program_size);
         if (ret != 0) {
             ex_mode();
             core_util_critical_section_exit();
@@ -317,7 +347,7 @@ static int32_t write_enable(void)
 static int32_t busy_wait(void)
 {
     int32_t ret;
-    uint8_t st_reg;
+    uint16_t st_reg;
 
     while (1) {
         ret = read_register(SFLASHCMD_READ_STATUS_REG, &st_reg);
@@ -332,7 +362,7 @@ static int32_t busy_wait(void)
     return ret;
 }
 
-static int32_t read_register(uint8_t cmd, uint8_t * status)
+static int32_t read_register(uint8_t cmd, uint16_t * status)
 {
     int32_t ret;
 
@@ -358,7 +388,7 @@ static int32_t read_register(uint8_t cmd, uint8_t * status)
 
     ret = spibsc_transfer(&spimd_reg);
     if (ret == 0) {
-        *status = (uint8_t)(spimd_reg.smrdr[0]);   /* Data[7:0]  */
+        *status = (SPIBSC_BUS_MODE == SPIBSC_CMNCR_BSZ_DUAL)? (uint16_t)(spimd_reg.smrdr[0]) : (uint8_t)(spimd_reg.smrdr[0]);   /* Data[15:8] / Data[7:0] */
     }
 
     return ret;
@@ -383,6 +413,19 @@ static int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_
     spimd_reg.spidb = bit_width;
     spimd_reg.spidre= SPIBSC_SDR_TRANS;        /* SDR */
 
+#if (SPIBSC_BUS_MODE == SPIBSC_CMNCR_BSZ_DUAL)
+    if (((uint32_t)size & 0x7)  == 0) {
+        spimd_reg.spide = SPIBSC_OUTPUT_SPID_32;  /* Enable(64bit) */
+        unit = 8;
+    } else if (((uint32_t)size & 0x3)  == 0) {
+        spimd_reg.spide = SPIBSC_OUTPUT_SPID_32;  /* Enable(32bit) */
+        unit = 4;
+    } else if (((uint32_t)size & 0x1) == 0) {
+        spimd_reg.spide = SPIBSC_OUTPUT_SPID_16;  /* Enable(16bit) */
+        unit = 2;
+    } else
+        return -1;
+#else
     if (((uint32_t)size & 0x3)  == 0) {
         spimd_reg.spide = SPIBSC_OUTPUT_SPID_32;  /* Enable(32bit) */
         unit = 4;
@@ -393,6 +436,7 @@ static int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_
         spimd_reg.spide = SPIBSC_OUTPUT_SPID_8;   /* Enable(8bit) */
         unit = 1;
     }
+#endif
 
     while (size > 0) {
         if (unit == 1) {
@@ -403,6 +447,11 @@ static int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_
             spimd_reg.smwdr[0] = (uint32_t)(((uint32_t)*buf_s) & 0x0000FFFF);
         } else if (unit == 4) {
             buf_l = (uint32_t *)buf;
+            spimd_reg.smwdr[0] = (uint32_t)(((uint32_t)(*buf_l)) & 0xfffffffful);
+        } else if (unit == 8) {
+            buf_l = (uint32_t *)buf;
+            spimd_reg.smwdr[1] = (uint32_t)(((uint32_t)(*buf_l)) & 0xfffffffful);
+            buf_l++;
             spimd_reg.smwdr[0] = (uint32_t)(((uint32_t)(*buf_l)) & 0xfffffffful);
         } else {
             /* Do Nothing */
@@ -701,6 +750,9 @@ static void change_mmu_ttbl_spibsc(uint32_t type)
             desc.XN    = 0x1u;   /* XN = 1 (Execute never) */
         } else {                 /* Xip */
             desc = desc_tbl[index - (FLASH_BASE >> 20)];
+            #if (FLASH_SIZE > 0x01000000)
+            __NOP(); /* prevents '__aeabi_memcpy4' function insertion by the ARM compiler, which sabotages the RAM_CODE execution and respectively rises the DAbt_Handler exeption */
+            #endif
         }
         /* Write descriptor back to translation table */
         table[index] = desc;

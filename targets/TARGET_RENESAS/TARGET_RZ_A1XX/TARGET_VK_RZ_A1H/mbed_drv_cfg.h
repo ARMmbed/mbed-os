@@ -41,4 +41,12 @@
 
 #define LP_TICKER_MTU2_CH      3
 
+/* flash 2x(S25FL128S) */
+#define FLASH_BASE                 (0x18020000UL) /**< Flash Base Address */
+#define FLASH_SIZE                 (0x01FE0000UL) /**< Available Flash Memory */
+
+#define FLASH_PAGE_SIZE            512            /**< Flash Memory page size (interleaving off) */
+                                                  /**< Maximum size per one writing is 256 byte and minimum size per one writing is 1 byte */
+#define FLASH_SECTOR_SIZE          131072         /**< Flash Memory sector size (interleaving off) */
+
 #endif

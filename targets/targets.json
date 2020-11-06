@@ -5912,9 +5912,14 @@
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
         "extra_labels_add": ["RZA1H", "VKRZA1H", "RZ_A1_EMAC"],
-        "device_has_add": ["USBDEVICE", "EMAC", "LPTICKER", "SDHI"],
+        "components_add": ["FLASHIAP"],
+        "device_has_add": ["USBDEVICE", "EMAC", "QSPIx2", "FLASH", "LPTICKER", "SDHI"],
         "release_versions": ["2", "5"],
-        "device_name": "R7S72100"
+        "device_name": "R7S72100",
+        "bootloader_supported": true,
+        "mbed_rom_start"        : "0x18020000",
+        "mbed_rom_size"         : "0x1FE0000",
+        "sectors": [[402784256,131072]]
     },
     "GR_LYCHEE": {
         "inherits": ["RZ_A1XX"],
