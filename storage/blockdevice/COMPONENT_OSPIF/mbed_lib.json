@@ -23,7 +23,7 @@
         "OSPI_POLARITY_MODE": 0,
         "OSPI_FREQ": "40000000",
         "OSPI_MIN_READ_SIZE": "1",
-        "OSPI_MIN_PROG_SIZE": "256"
+        "OSPI_MIN_PROG_SIZE": "1"
     },
     "target_overrides": {
         "MX25LM51245G": {
