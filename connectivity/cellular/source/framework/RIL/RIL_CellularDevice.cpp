@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,23 @@
 #include "RIL_CellularNetwork.h"
 #include "RIL_CellularInformation.h"
 #include "CellularLog.h"
-
+#include "ScopedLock.h"
+#include "mbed.h"
+#define DEVICE_TIMEOUT 5min
 namespace mbed {
 
-RIL_CellularDevice::RIL_CellularDevice() : CellularDevice(), _property_array(0), _data(0),
-    _ril(0), _network(0), _information(0), _context_list(0), _device_ready(false), _device_ready_cb(0), _registation_status(0)
+RIL_CellularDevice::RIL_CellularDevice(RILAdaptation &ril)
+    : CellularDevice(),
+      _property_array(nullptr),
+      _data(0),
+      _context_list(nullptr),
+      _ril(ril),
+      _network(nullptr),
+      _information(nullptr),
+      _device_ready(false),
+      _device_ready_cb()
 {
-    RILAdaptation::get_instance()->set_device(this);
+    _ril.set_device(this);
 }
 
 RIL_CellularDevice::~RIL_CellularDevice()
@@ -40,11 +50,8 @@ RIL_CellularDevice::~RIL_CellularDevice()
         delete _context_list;
         _context_list = next;
     }
-}
 
-void RIL_CellularDevice::register_sleep_cb(int type, void (*cb)(void))
-{
-    RILAdaptation::get_instance()->register_sleep_cb(type, cb);
+    _ril.set_device(nullptr);
 }
 
 intptr_t RIL_CellularDevice::get_property(CellularProperty key)
@@ -54,34 +61,28 @@ intptr_t RIL_CellularDevice::get_property(CellularProperty key)
 
 nsapi_error_t RIL_CellularDevice::hard_power_on()
 {
-    return RILAdaptation::get_instance()->init_ril();
+    return _ril.init_ril();
 }
 
 nsapi_error_t RIL_CellularDevice::hard_power_off()
 {
-    return NSAPI_ERROR_OK;
+    return _ril.deinit_ril();
 }
 
 nsapi_error_t RIL_CellularDevice::soft_power_on()
 {
-    _api_mutex.lock();
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
     _data = 1;
-    lock_and_send_request(RIL_REQUEST_RADIO_POWER, &_data, 1, callback(this, &RIL_CellularDevice::common_response));
-    _cond_mutex.unlock();
-    _api_mutex.unlock();
-
-    return _error;
+    nsapi_error_t ret = lock_and_send_request(RIL_REQUEST_RADIO_POWER, &_data, 1, callback(this, &RIL_CellularDevice::common_response));
+    return ret;
 }
 
 nsapi_error_t RIL_CellularDevice::soft_power_off()
 {
-    _api_mutex.lock();
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
     _data = 0;
-    lock_and_send_request(RIL_REQUEST_RADIO_POWER, &_data, 1, callback(this, &RIL_CellularDevice::common_response));
-    _cond_mutex.unlock();
-    _api_mutex.unlock();
-
-    return _error;
+    nsapi_error_t ret = lock_and_send_request(RIL_REQUEST_RADIO_POWER, &_data, 1, callback(this, &RIL_CellularDevice::common_response));
+    return ret;
 }
 
 nsapi_error_t RIL_CellularDevice::set_pin(const char *sim_pin)
@@ -91,24 +92,21 @@ nsapi_error_t RIL_CellularDevice::set_pin(const char *sim_pin)
 
 nsapi_error_t RIL_CellularDevice::get_sim_state(SimState &state)
 {
-    _api_mutex.lock();
-    lock_and_send_request(RIL_REQUEST_GET_SIM_STATUS, NULL, 0, callback(this, &RIL_CellularDevice::sim_status_response));
+    ScopedLock<rtos::Mutex> lock(_api_mutex);
+    nsapi_error_t ret = lock_and_send_request(RIL_REQUEST_GET_SIM_STATUS, nullptr, 0, callback(this, &RIL_CellularDevice::sim_status_response));
 
-    if (_error == NSAPI_ERROR_OK) {
+    if (ret == NSAPI_ERROR_OK) {
         get_radiostatus(&state);
     }
 
-    _cond_mutex.unlock();
-    _api_mutex.unlock();
-
-    return _error;
+    return ret;
 }
 
 CellularContext *RIL_CellularDevice::create_context(const char *apn, bool cp_req, bool nonip_req)
 {
     RIL_CellularContext *ctx = create_context_impl(apn, cp_req, nonip_req);
 
-    if (_context_list == NULL) {
+    if (_context_list == nullptr) {
         _context_list = ctx;
         return ctx;
     }
@@ -130,14 +128,14 @@ RIL_CellularContext *RIL_CellularDevice::create_context_impl(const char *apn, bo
 void RIL_CellularDevice::delete_context(CellularContext *context)
 {
     RIL_CellularContext *curr = _context_list;
-    RIL_CellularContext *prev = NULL;
+    RIL_CellularContext *prev = nullptr;
     while (curr) {
         if (curr == context) {
             // delete context first as RIL_CellularContext::~RIL_CellularContext() will call disconnect which makes
             // RIL request and ril responses are forwarded only to context which started it.
             curr = (RIL_CellularContext *)curr->_next;
             delete (RIL_CellularContext *)context;
-            if (prev == NULL) {
+            if (prev == nullptr) {
                 _context_list = curr;
             } else {
                 prev->_next = curr;
@@ -149,9 +147,19 @@ void RIL_CellularDevice::delete_context(CellularContext *context)
     }
 }
 
+nsapi_error_t RIL_CellularDevice::clear()
+{
+    return NSAPI_ERROR_OK;
+}
+
 CellularContext *RIL_CellularDevice::get_context_list() const
 {
     return _context_list;
+}
+
+nsapi_error_t RIL_CellularDevice::set_baud_rate(int baud_rate)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t RIL_CellularDevice::send_at_command(char *data, size_t data_len)
@@ -173,10 +181,16 @@ RIL_CellularNetwork *RIL_CellularDevice::open_network_impl()
     return new RIL_CellularNetwork(*this);
 }
 
+#if MBED_CONF_CELLULAR_USE_SMS || defined(DOXYGEN_ONLY)
 CellularSMS *RIL_CellularDevice::open_sms()
 {
-    return NULL;
+    return nullptr;
 }
+
+void RIL_CellularDevice::close_sms()
+{
+}
+#endif
 
 CellularInformation *RIL_CellularDevice::open_information()
 {
@@ -198,13 +212,9 @@ void RIL_CellularDevice::close_network()
         _network_ref_count--;
         if (_network_ref_count == 0) {
             delete _network;
-            _network = NULL;
+            _network = nullptr;
         }
     }
-}
-
-void RIL_CellularDevice::close_sms()
-{
 }
 
 void RIL_CellularDevice::close_information()
@@ -213,7 +223,7 @@ void RIL_CellularDevice::close_information()
         _info_ref_count--;
         if (_info_ref_count == 0) {
             delete _information;
-            _information = NULL;
+            _information = nullptr;
         }
     }
 }
@@ -250,17 +260,9 @@ nsapi_error_t RIL_CellularDevice::set_power_save_mode(int periodic_time, int act
 
 ATHandler *RIL_CellularDevice::get_at_handler()
 {
-    return NULL;
+    return nullptr;
 }
 
-nsapi_error_t RIL_CellularDevice::release_at_handler(ATHandler *at_handler)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-nsapi_error_t RIL_CellularDevice::set_baud_rate(int baud_rate)
-{
-    return NSAPI_ERROR_OK;
-}
 void RIL_CellularDevice::get_radiostatus(SimState *state, bool unsolicited_resp)
 {
     _device_ready = false;
@@ -268,7 +270,7 @@ void RIL_CellularDevice::get_radiostatus(SimState *state, bool unsolicited_resp)
         *state = SimStateUnknown;
     }
     // status changed, we need to query it, sync method
-    RIL_RadioState radio_state = RILAdaptation::get_instance()->get_radio_state();
+    RIL_RadioState radio_state = _ril.get_radio_state();
     tr_debug("RIL_CellularDevice: Radio state: %d", radio_state);
 
     switch (radio_state) {
@@ -320,38 +322,35 @@ void RIL_CellularDevice::request_timed_callback(RIL_TimedCallback /*callback*/, 
 
 void RIL_CellularDevice::sim_status_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len)
 {
-    _cond_mutex.lock();
-    if (err == RIL_E_SUCCESS && response && response_len) {
-        const RIL_CardStatus_v6 *v6 = (const RIL_CardStatus_v6 *)response;
-        RIL_CardState card_state = v6->card_state;
-        tr_debug("get_sim_status_complete, %s", (card_state == RIL_CARDSTATE_PRESENT) ? "SIM Card present" : "SIM error");
-        if (card_state != RIL_CARDSTATE_PRESENT) {
-            _error = NSAPI_ERROR_DEVICE_ERROR;
-        } else {
-            _error = NSAPI_ERROR_OK;
-        }
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-    }
     if (err != RIL_E_CANCELLED) {
-        _cond_var.notify_one();
+        token->cond_mutex->lock();
+
+        if (err == RIL_E_SUCCESS && response && response_len) {
+            const RIL_CardStatus_v6 *v6 = (const RIL_CardStatus_v6 *)response;
+            RIL_CardState card_state = v6->card_state;
+            tr_debug("get_sim_status_complete, %s", (card_state == RIL_CARDSTATE_PRESENT) ? "SIM Card present" : "SIM error");
+            if (card_state != RIL_CARDSTATE_PRESENT) {
+                token->response_error = NSAPI_ERROR_DEVICE_ERROR;
+            } else {
+                token->response_error = NSAPI_ERROR_OK;
+            }
+        } else {
+            token->response_error = NSAPI_ERROR_DEVICE_ERROR;
+        }
+
+        token->cond_var->notify_one();
+        token->cond_mutex->unlock();
     }
-    _cond_mutex.unlock();
 }
 
 void RIL_CellularDevice::common_response(ril_token_t *token, RIL_Errno err, void *response, size_t response_len)
 {
-    _cond_mutex.lock();
-    if (err == RIL_E_SUCCESS) {
-        _error = NSAPI_ERROR_OK;
-    } else {
-        _error = NSAPI_ERROR_DEVICE_ERROR;
-    }
-
     if (err != RIL_E_CANCELLED) {
-        _cond_var.notify_one();
+        token->cond_mutex->lock();
+        token->response_error = (err == RIL_E_SUCCESS) ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
+        token->cond_var->notify_one();
+        token->cond_mutex->unlock();
     }
-    _cond_mutex.unlock();
 }
 
 void RIL_CellularDevice::check_registration_state()
@@ -387,7 +386,7 @@ void RIL_CellularDevice::unsolicited_response(int response_id, const void *data,
     //RIL_UNSOL_CELL_INFO_LIST if we need to forward cell info changes
     switch (response_id) {
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED: // comes usually when device is registers so used here to make registration phase faster
-            get_radiostatus(NULL, true);
+            get_radiostatus(nullptr, true);
             break;
         case RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED:
             _queue.call_in(0, this, &RIL_CellularDevice::check_registration_state);
@@ -413,9 +412,42 @@ void RIL_CellularDevice::unsolicited_response(int response_id, const void *data,
     }
 }
 
-nsapi_error_t RIL_CellularDevice::clear()
+nsapi_error_t RIL_CellularDevice::lock_and_send_request(int request_id, void *data, size_t data_len,
+                                                        Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> callback)
 {
-    return NSAPI_ERROR_OK;
+    rtos::Mutex *cond_mutex = new rtos::Mutex;
+    rtos::ConditionVariable *cond_var = new rtos::ConditionVariable(*cond_mutex);
+
+    cond_mutex->lock();
+
+    nsapi_error_t ret = NSAPI_ERROR_OK;
+
+    // If token is created, the ownership of cond_mutex and cond_var is moved to token
+    ril_token_t *token = _ril.send_request(request_id, data, data_len, callback, cond_mutex, cond_var);
+    if (token) {
+        std::chrono::duration<uint32_t, std::milli> default_timeout = DEVICE_TIMEOUT;
+        rtos::cv_status time_out = token->cond_var->wait_for(default_timeout);
+        if (time_out == rtos::cv_status::timeout) {
+            ret = NSAPI_ERROR_TIMEOUT;
+            _ril.cancel_request(token);
+            tr_warning("%s timeout for request %s", __FUNCTION__, _ril.get_ril_name(request_id));
+        } else {
+            ret = token->response_error;
+        }
+        delete token;
+    } else {
+        ret = NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    delete cond_var;
+    delete cond_mutex;
+
+    return ret;
+}
+
+RILAdaptation &RIL_CellularDevice::get_ril()
+{
+    return _ril;
 }
 
 } /* namespace mbed */

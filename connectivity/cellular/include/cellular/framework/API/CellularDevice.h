@@ -114,8 +114,6 @@ protected: //Virtual functions
      *  This method will broadcast to every interested classes:
      *  CellularContext (might be many) and CellularStateMachine if available.
      */
-    friend class RIL_CellularContext;
-
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
 
 public: //Pure virtual functions
@@ -436,6 +434,7 @@ public: //Common functions
 protected: //Common functions
     friend class AT_CellularNetwork;
     friend class AT_CellularContext;
+    friend class RIL_CellularContext;
     friend class CellularContext;
 
     /** Get the retry array from the CellularStateMachine. Array is used in retry logic.

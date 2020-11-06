@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,10 +30,10 @@ public:
 
 protected:
     // ControlPlane_netif
-    virtual nsapi_size_or_error_t send(const void *cpdata, nsapi_size_t cpdata_length);
-    virtual nsapi_size_or_error_t recv(void *cpdata, nsapi_size_t cpdata_length);
-    virtual void data_received();
-    virtual void attach(void (*callback)(void *), void *data);
+    nsapi_size_or_error_t send(const void *cpdata, nsapi_size_t cpdata_length) override;
+    nsapi_size_or_error_t recv(void *cpdata, nsapi_size_t cpdata_length) override;
+    void data_received() override;
+    void attach(void (*callback)(void *), void *data) override;
 
 private:
     static void read_cb(mio_buf *buf, void *param);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,8 @@
 
 #include "ril.h"
 #include "nsapi.h"
+#include "rtos/ConditionVariable.h"
+#include "rtos/Mutex.h"
 
 namespace mbed {
 
@@ -26,29 +28,19 @@ class RIL_CellularDevice;
 
 /** struct to identify RIL request and all the data needed to make successful requests */
 struct ril_token_t {
-    int token_id;
-    int request_id;
-    void *data;
+    int token_id = 0;
+    int request_id = 0;
+    nsapi_error_t response_error = NSAPI_ERROR_OK;
     Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> cb;
-    ril_token_t()
-    {
-        token_id = 0;
-        request_id = 0;
-        data = NULL;
-        cb = NULL;
-    }
+
+    rtos::Mutex *cond_mutex = nullptr;
+    rtos::ConditionVariable *cond_var = nullptr;
 };
 
 class RILAdaptation {
 public:
     RILAdaptation();
     virtual ~RILAdaptation();
-
-    /** Get singleton instance of class RILAdaptation
-     *
-     *  @return pointer to singleton instance of class RILAdaptation
-     */
-    static RILAdaptation *get_instance();
 
     /** Device must create this class first and set itself here in constructor so it's there when
      *  the first requests kick in.
@@ -57,19 +49,19 @@ public:
      */
     void set_device(RIL_CellularDevice *device);
 
-    /** Initializes RILD. Powers the modem.
+    /** Initializes RILD
      *
      *  @return NSAPI_ERROR_OK for success
-     *          NSAPI_ERROR_DEVICE_ERROR if RIL_Init to RILD fails
+     *          NSAPI_ERROR_DEVICE_ERROR if error
      */
-    nsapi_error_t init_ril();
+    virtual nsapi_error_t init_ril();
 
-    /** Register sleep cb to board.
+    /** Deinitializes RILD.
      *
-     *  @param cb   sleep cb to register
-     *  @return void
+     *  @return NSAPI_ERROR_OK for success,
+     *          NSAPI_ERROR_DEVICE_ERROR if error
      */
-    void register_sleep_cb(int type, void (*cb)(void));
+    virtual nsapi_error_t deinit_ril();
 
     /** Getter for RIL_CellularDevice instance.
      *
@@ -83,12 +75,15 @@ public:
      *  @param data     Data needed for RIL request
      *  @param data_len Length of the data
      *  @param callback Callback to call when request is completed/cancelled
+     *  @param cond_mutex Optional pointer to mutex held by condition variable cond_var
+     *  @param cond_var   Optional condition variable to be included in RIL request token
      *
      *  @return         pointer to token which identifies the request and holds data. Token is owned by this class and it will
      *                  be deleted after token callback function is called. Caller is responsible about deleting possible
      *                  data inside the token as it's request specific
      */
-    ril_token_t *send_request(int request, void *data, size_t data_len, Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> callback);
+    ril_token_t *send_request(int request, void *data, size_t data_len, Callback<void(ril_token_t *, RIL_Errno, void *, size_t)> callback,
+                              rtos::Mutex *cond_mutex, rtos::ConditionVariable *cond_var);
 
     /** Synchronous call to get radio state from RILD
      *
@@ -109,10 +104,16 @@ public:
     void cancel_request(ril_token_t *token);
 
 #if MBED_CONF_MBED_TRACE_ENABLE
-    static const char *get_ril_name(int request);
+    virtual const char *get_ril_name(int request);
 #endif
 
 private:
+    /** Get singleton instance of class RILAdaptation
+     *
+     *  @return pointer to singleton instance of class RILAdaptation
+     */
+    static RILAdaptation *get_instance();
+
     static void request_complete(RIL_Token t, RIL_Errno e, void *response, size_t response_len);
     static void unsolicited_response(int response_id, const void *data, size_t data_len);
     static void request_ack(RIL_Token t);
