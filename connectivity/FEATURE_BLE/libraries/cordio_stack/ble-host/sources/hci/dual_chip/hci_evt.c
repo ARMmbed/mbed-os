@@ -217,6 +217,7 @@ static const hciEvtParse_t hciEvtParseFcnTbl[] =
   hciEvtParseLeConnCteReqEnableCmdCmpl,
   hciEvtParseLeConnCteRspEnableCmdCmpl,
   hciEvtParseLeReadAntennaInfoCmdCmpl,
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
   hciEvtParseLeCisEst,
   hciEvtParseLeCisReq,
   hciEvtParseDisconnectCmpl,
@@ -235,6 +236,7 @@ static const hciEvtParse_t hciEvtParseFcnTbl[] =
   hciEvtParseLeBigSyncLost,
   hciEvtParseLeBigTermSyncCmpl,
   hciEvtParseLeBigInfoAdvRpt
+#endif // HCI_VER_BT_CORE_SPEC_5_2
 };
 
 /* HCI event structure length table, indexed by internal callback event value */
@@ -308,6 +310,7 @@ static const uint8_t hciEvtCbackLen[] =
   sizeof(hciLeConnCteReqEnableCmdCmplEvt_t),
   sizeof(hciLeConnCteRspEnableCmdCmplEvt_t),
   sizeof(hciLeReadAntennaInfoCmdCmplEvt_t),
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
   sizeof(HciLeCisEstEvt_t),
   sizeof(HciLeCisReqEvt_t),
   sizeof(hciDisconnectCmplEvt_t),
@@ -326,6 +329,7 @@ static const uint8_t hciEvtCbackLen[] =
   sizeof(HciLeBigSyncLostEvt_t),
   sizeof(HciLeBigTermSyncCmplEvt_t),
   sizeof(HciLeBigInfoAdvRptEvt_t)
+#endif
 };
 
 /* Global event statistics. */
@@ -2583,6 +2587,7 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
     cbackEvt = HCI_LE_PER_ADV_SET_INFO_TRSF_CMD_CMPL_CBACK_EVT;
     break;
 
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
   case HCI_OPCODE_LE_SET_CIG_PARAMS:
     cbackEvt = HCI_LE_SET_CIG_PARAMS_CMD_CMPL_CBACK_EVT;
     break;
@@ -2618,6 +2623,7 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
   case HCI_OPCODE_READ_LOCAL_SUP_CONTROLLER_DLY:
     cbackEvt = HCI_READ_LOCAL_SUP_CTR_DLY_CMD_CMPL_CBACK_EVT;
     break;
+#endif
 
   default:
     /* test for vendor specific command completion OGF. */
@@ -2851,6 +2857,7 @@ void hciEvtProcessMsg(uint8_t *pEvt)
           cbackEvt = HCI_LE_CTE_REQ_FAILED_CBACK_EVT;
           break;
 
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
         case HCI_LE_CIS_EST_EVT:
           /* if CIS connection created successfully */
           if (*pEvt == HCI_SUCCESS)
@@ -2888,6 +2895,7 @@ void hciEvtProcessMsg(uint8_t *pEvt)
         case HCI_LE_BIG_INFO_ADV_REPORT_EVT:
           cbackEvt = HCI_LE_BIG_INFO_ADV_REPORT_CBACK_EVT;
           break;
+#endif
 
         default:
           break;
@@ -2899,11 +2907,13 @@ void hciEvtProcessMsg(uint8_t *pEvt)
 
       /* if disconnect is for CIS connection */
       BYTES_TO_UINT16(handle, (pEvt + 1));
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
       if (hciCoreCisByHandle(handle) != NULL)
       {
         cbackEvt = HCI_CIS_DISCONNECT_CMPL_CBACK_EVT;
       }
       else
+#endif
       {
         cbackEvt = HCI_DISCONNECT_CMPL_CBACK_EVT;
       }
@@ -2991,11 +3001,13 @@ void hciEvtProcessMsg(uint8_t *pEvt)
       BYTES_TO_UINT16(handle, (pEvt + 1));
       hciCoreConnClose(handle);
     }
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
     else if (cbackEvt == HCI_CIS_DISCONNECT_CMPL_CBACK_EVT)
     {
       BYTES_TO_UINT16(handle, (pEvt + 1));
       hciCoreCisClose(handle);
     }
+#endif
   }
 }
 

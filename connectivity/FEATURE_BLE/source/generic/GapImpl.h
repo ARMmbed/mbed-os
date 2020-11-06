@@ -702,11 +702,13 @@ private:
     ) override;
 #endif // BLE_FEATURE_PHY_MANAGEMENT
 
+#if BLE_FEATURE_CONNECTABLE
     void on_data_length_change(
         connection_handle_t connection_handle,
         uint16_t tx_size,
         uint16_t rx_size
     ) override;
+#endif
 
 #if BLE_FEATURE_PHY_MANAGEMENT
     void on_phy_update_complete(
@@ -766,6 +768,7 @@ private:
 
     void on_legacy_advertising_stopped() override;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     void on_advertising_set_started(const mbed::Span<const uint8_t>& handles) override;
 
     void on_advertising_set_terminated(
@@ -780,6 +783,7 @@ private:
         connection_peer_address_type_t scanner_address_type,
         const ble::address_t &address
     ) override;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 #endif // BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_CONNECTABLE

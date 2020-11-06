@@ -304,12 +304,14 @@ ble_error_t PalAttClient::terminate()
     return BLE_ERROR_NONE;
 }
 
+#if BLE_FEATURE_GATT_CLIENT
 // singleton of the ARM Cordio client
 PalAttClient &PalAttClient::get_client()
 {
     static PalAttClient _client;
     return _client;
 }
+#endif
 
 void PalAttClient::when_server_message_received(
     mbed::Callback<void(connection_handle_t, const AttServerMessage &)> cb
@@ -345,12 +347,17 @@ bool PalAttClient::event_handler(const attEvt_t *event)
 
 bool PalAttClient::timeout_event_handler(const attEvt_t *event)
 {
+#if BLE_FEATURE_GATT_CLIENT
+
     if (event->hdr.status != ATT_ERR_TIMEOUT) {
         return false;
     }
 
     get_client().on_transaction_timeout(event->hdr.param);
     return true;
+#else
+    return false;
+#endif
 }
 
 
@@ -359,10 +366,12 @@ void PalAttClient::generated_handler(
     const attEvt_t *event, ResultType (*convert)(const attEvt_t *)
 )
 {
+#if BLE_FEATURE_GATT_CLIENT
     get_client().on_server_event(
         event->hdr.param,
         convert(event)
     );
+#endif
 }
 
 void PalAttClient::on_server_event(
@@ -392,9 +401,9 @@ void PalAttClient::on_transaction_timeout(
     }
 }
 
+#if BLE_FEATURE_GATT_CLIENT
 void PalAttClient::att_client_handler(const attEvt_t *event)
 {
-#if BLE_FEATURE_GATT_CLIENT
     if (event->hdr.status == ATT_SUCCESS && event->hdr.event == ATT_MTU_UPDATE_IND) {
         ble::impl::BLEInstanceBase &ble = BLEInstanceBase::deviceInstance();
         PalGattClientEventHandler *handler = ble.getPalGattClient().get_event_handler();
@@ -444,13 +453,13 @@ void PalAttClient::att_client_handler(const attEvt_t *event)
             }
         }
     }
-#endif // BLE_FEATURE_GATT_CLIENT
 
 #if BLE_FEATURE_GATT_SERVER
     // pass events not handled to the server side
     ble::impl::GattServer::att_cb(event);
 #endif // BLE_FEATURE_GATT_SERVER
 }
+#endif // BLE_FEATURE_GATT_CLIENT
 
 } // namespace impl
 } // ble

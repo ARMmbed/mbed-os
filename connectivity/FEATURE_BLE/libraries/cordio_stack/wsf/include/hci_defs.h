@@ -1421,6 +1421,11 @@ extern "C" {
 #define HCI_VER_BT_CORE_SPEC_5_2                     0x0B    /*!< Bluetooth core specification 5.2 */
 /**@}*/
 
+#ifndef HCI_VER_BT
+#define HCI_VER_BT HCI_VER_BT_CORE_SPEC_5_1
+#endif
+
+
 /** \name Parameter lengths
  *
  */
