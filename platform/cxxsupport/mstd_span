@@ -219,7 +219,9 @@ public:
         : (Extent != dynamic_extent ? Extent - Offset : dynamic_extent)> subspan() const
     {
         static_assert(Offset <= extent && (Count == dynamic_extent || Count <= extent - Offset));
-        MBED_ASSERT(Offset <= size() && (Count == dynamic_extent || Count <= size() - Offset));
+        // Only check against Offset == 0 to prevent a warning for subspan<0, N>
+        MBED_ASSERT((Offset == 0 || Offset <= size())
+                    && (Count == dynamic_extent || Count <= size() - Offset));
         return {data() + Offset, Count != dynamic_extent ? Count : size() - Offset};
     }
 
