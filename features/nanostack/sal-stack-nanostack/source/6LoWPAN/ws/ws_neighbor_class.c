@@ -102,6 +102,10 @@ static int own_ceil(float value)
 static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8])
 {
     if (ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp && ws_neighbor->fhss_data.uc_timing_info.ufsi) {
+        // No UFSI on fixed channel
+        if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_FIXED_CHANNEL) {
+            return;
+        }
         uint32_t seq_length = 0x10000;
         if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_TR51CF) {
             seq_length = ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels;

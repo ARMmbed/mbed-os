@@ -56,12 +56,12 @@ typedef struct ws_timing_cfg_s {
  * \brief Struct ws_rpl_cfg_t RPL configuration
  */
 typedef struct ws_bbr_cfg_s {
-    uint8_t dio_interval_min;           /**> DIO interval min; DEFAULT_DIO_INTERVAL_MIN; 2^value in milliseconds; range 1-255; default */
-    uint8_t dio_interval_doublings;     /**> DIO interval doublings; DEFAULT_DIO_INTERVAL_DOUBLINGS; range 1-8; default */
-    uint8_t dio_redundancy_constant;    /**> DIO redundancy constant; DEFAULT_DIO_REDUNDANCY_CONSTANT; range 0-10; default */
+    uint8_t dio_interval_min;           /**< DIO interval min; DEFAULT_DIO_INTERVAL_MIN; 2^value in milliseconds; range 1-255; default */
+    uint8_t dio_interval_doublings;     /**< DIO interval doublings; DEFAULT_DIO_INTERVAL_DOUBLINGS; range 1-8; default */
+    uint8_t dio_redundancy_constant;    /**< DIO redundancy constant; DEFAULT_DIO_REDUNDANCY_CONSTANT; range 0-10; default */
     uint16_t dag_max_rank_increase;
     uint16_t min_hop_rank_increase;
-    uint32_t dhcp_address_lifetime;     /**> DHCP address lifetime in seconds minimum 2 hours and maximum as days hours*/
+    uint32_t dhcp_address_lifetime;     /**< DHCP address lifetime in seconds minimum 2 hours and maximum as days hours*/
 } ws_bbr_cfg_t;
 
 /**

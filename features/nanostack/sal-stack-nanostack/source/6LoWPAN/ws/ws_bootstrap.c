@@ -670,6 +670,9 @@ static int8_t ws_fhss_border_router_configure(protocol_interface_info_entry_t *c
     if (ns_fhss_ws_configuration_get(cur->ws_info->fhss_api)) {
         memcpy(&fhss_configuration, ns_fhss_ws_configuration_get(cur->ws_info->fhss_api), sizeof(fhss_ws_configuration_t));
     }
+
+    //GET BSI from BBR module
+    fhss_configuration.bsi = ws_bbr_bsi_generate(cur);
     ws_fhss_set_defaults(cur, &fhss_configuration);
     ws_fhss_configure_channel_masks(cur, &fhss_configuration);
     ns_fhss_ws_configuration_set(cur->ws_info->fhss_api, &fhss_configuration);
@@ -988,7 +991,10 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
         tr_error("fhss initialization failed");
         return -3;
     }
-
+    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        //BBR init like NVM read
+        ws_bbr_init(cur);
+    }
     // Save FHSS api
     cur->ws_info->fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
 
@@ -996,7 +1002,6 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
 
     addr_interface_set_ll64(cur, NULL);
     cur->nwk_nd_re_scan_count = 0;
-    //WS_interface_up(cur);
     // Trigger discovery for bootstrap
     ret_val = nwk_6lowpan_up(cur);
     if (ret_val) {
@@ -1487,12 +1492,6 @@ static void ws_bootstrap_pan_advertisement_analyse(struct protocol_interface_inf
         ws_bootsrap_create_ll_address(ll_address, neighbor_info.neighbor->mac64);
 
         if (rpl_control_is_dodag_parent(cur, ll_address)) {
-            // automatic network size adjustment learned
-            if (cur->ws_info->cfg->gen.network_size == NETWORK_SIZE_AUTOMATIC &&
-                    cur->ws_info->pan_information.pan_size != pan_information.pan_size) {
-                ws_cfg_network_size_configure(cur, pan_information.pan_size);
-            }
-
             cur->ws_info->pan_information.pan_size = pan_information.pan_size;
             cur->ws_info->pan_information.routing_cost = pan_information.routing_cost;
             cur->ws_info->pan_information.rpl_routing_method = pan_information.rpl_routing_method;
@@ -1583,6 +1582,27 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
 
     llc_neighbour_req_t neighbor_info;
     bool neighbour_pointer_valid;
+
+    //Validate BSI
+    if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+
+        if (cur->ws_info->ws_bsi_block.block_time && cur->ws_info->ws_bsi_block.old_bsi == ws_bs_ie.broadcast_schedule_identifier) {
+            tr_debug("Do not accept a old BSI: %u in time %"PRIu32, cur->ws_info->ws_bsi_block.old_bsi, cur->ws_info->ws_bsi_block.block_time);
+            //Refresh Block time when hear a old BSI
+            cur->ws_info->ws_bsi_block.block_time = cur->ws_info->cfg->timing.pan_timeout;
+            return;
+        }
+
+        //When Config is learned and USE Parent BS is enabled compare is this new BSI
+        if (cur->ws_info->configuration_learned && cur->ws_info->pan_information.use_parent_bs && ws_bs_ie.broadcast_schedule_identifier != cur->ws_info->hopping_schdule.fhss_bsi) {
+            tr_debug("NEW Brodcast Schedule %u...BR rebooted", ws_bs_ie.broadcast_schedule_identifier);
+            cur->ws_info->ws_bsi_block.block_time = cur->ws_info->cfg->timing.pan_timeout;
+            cur->ws_info->ws_bsi_block.old_bsi = cur->ws_info->hopping_schdule.fhss_bsi;
+            ws_bootstrap_event_discovery_start(cur);
+            return;
+        }
+    }
+
 
     if (cur->ws_info->configuration_learned || cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         //If we are border router or learned configuration we only update already learned neighbours.
@@ -2491,6 +2511,13 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
             ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
             // Network key is valid, indicate border router IID to controller
             ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
+            //Update here Suplikant target by validated Primary Parent
+            if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+                mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
+                if (mac_neighbor) {
+                    ws_pae_controller_set_target(cur, cur->ws_info->network_pan_id, mac_neighbor->mac64);
+                }
+            }
 
             // After successful DAO ACK connection to border router is verified
             cur->ws_info->pan_timeout_timer = cur->ws_info->cfg->timing.pan_timeout;
@@ -3654,6 +3681,16 @@ void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t s
             // Update all addressess. This function will update the timer value if needed
             cur->ws_info->aro_registration_timer = 0;
             ws_address_registration_update(cur, NULL);
+        }
+    }
+
+    if (cur->ws_info->ws_bsi_block.block_time) {
+        if (cur->ws_info->ws_bsi_block.block_time > seconds) {
+            cur->ws_info->ws_bsi_block.block_time -= seconds;
+        } else {
+            //Clear A BSI blokker
+            cur->ws_info->ws_bsi_block.block_time = 0;
+            cur->ws_info->ws_bsi_block.old_bsi = 0;
         }
     }
 

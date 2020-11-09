@@ -335,6 +335,19 @@ int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id);
 int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id);
 
 /**
+ * Sets Wi-SUN BSI
+ *
+ * Sets Wi-SUN PAN BSI.
+ *
+ * \param interface_id Network interface ID.
+ * \param new_bsi Identifier.
+ *
+ * \return 0, PAN BSI set.
+ * \return <0 PAN BSI set failed.
+ */
+int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi);
+
+/**
  * Sets memory used for key storages
  *
  * This functions can be used to set memory used by EAPOL key storage. When memory
