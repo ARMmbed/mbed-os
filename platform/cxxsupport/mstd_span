@@ -17,8 +17,10 @@
 #ifndef MSTD_SPAN_
 #define MSTD_SPAN_
 
+#include <array>
 #include <mstd_iterator>
 #include <mstd_type_traits>
+#include "mbed_assert.h"
 
 namespace mstd {
 
@@ -55,29 +57,29 @@ public:
 };
 
 template<typename>
-struct is_span: false_type {};
+struct is_span: std::false_type {};
 
 template<typename T, size_t E>
-struct is_span<span<T, E>>: true_type {};
+struct is_span<span<T, E>>: std::true_type {};
 
 template<typename>
-struct is_std_array: false_type {};
+struct is_std_array: std::false_type {};
 
 template<typename T, size_t N>
-struct is_std_array<std::array<T, N>>: true_type {};
+struct is_std_array<std::array<T, N>>: std::true_type {};
 
 template<typename, typename = void>
 struct has_size : std::false_type {};
 
 template<typename T>
-struct has_size<T, void_t<decltype(mstd::size(mstd::declval<T>()))>>:
+struct has_size<T, void_t<decltype(mstd::size(std::declval<T>()))>>:
     std::true_type {};
 
 template<typename, typename = void>
 struct has_data : std::false_type {};
 
 template<typename T>
-struct has_data<T, void_t<decltype(mstd::data(mstd::declval<T>()))>>:
+struct has_data<T, void_t<decltype(mstd::data(std::declval<T>()))>>:
     std::true_type {};
 
 template<typename T, typename U = mstd::remove_cvref_t<T>>
@@ -89,7 +91,7 @@ struct is_container{
 };
 
 template <class T>
-using iterator_t = decltype(mstd::begin(mstd::declval<T&>()));
+using iterator_t = decltype(mstd::begin(std::declval<T&>()));
 
 template <class R>
 using range_reference_t = mstd::iter_reference_t<iterator_t<R>>;
@@ -101,10 +103,10 @@ template <typename T, typename E>
 struct is_compatible<T, E,
     typename mstd::enable_if_t<not mstd::is_same<
             typename mstd::remove_cv_t<
-                decltype(mstd::data(mstd::declval<T>()))
+                decltype(mstd::data(std::declval<T>()))
             >, void>::value>>:
 mstd::is_convertible<remove_pointer_t<
-    decltype(mstd::data(mstd::declval<T>()))> (*)[], E (*)[]>{};
+    decltype(mstd::data(std::declval<T>()))> (*)[], E (*)[]>{};
 
 } // namespace detail
 
@@ -160,7 +162,7 @@ public:
     {}
 
     template<class T, size_t N>
-    constexpr span(array<T, N>& arr,
+    constexpr span(std::array<T, N>& arr,
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
             mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
@@ -168,7 +170,7 @@ public:
     {}
 
     template<class T, size_t N>
-    constexpr span(const array<T, N>& arr,
+    constexpr span(const std::array<T, N>& arr,
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
             mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
@@ -188,7 +190,7 @@ public:
 
     template<class OtherElementType, size_t OtherExtent,
     typename mstd::enable_if_t<(Extent == dynamic_extent || OtherExtent == Extent) &&
-        mstd:is_convertible<OtherElementType(*)[], ElementType(*)[]>::value, int> = 0>
+        mstd::is_convertible<OtherElementType(*)[], ElementType(*)[]>::value, int> = 0>
     constexpr span(const span<OtherElementType, OtherExtent>& s) noexcept:
         _storage(s.data(), s.size())
     {}
@@ -337,13 +339,13 @@ constexpr span<const ElementType, Extent> make_span(const ElementType (&arr)[Ext
 }
 
 template<class ElementType, size_t Extent>
-constexpr span<ElementType, Extent> make_span(array<ElementType, Extent>& arr)
+constexpr span<ElementType, Extent> make_span(std::array<ElementType, Extent>& arr)
 {
     return span<ElementType, Extent>(arr);
 }
 
 template<class ElementType, size_t Extent>
-constexpr span<const ElementType, Extent> make_span(const array<ElementType, Extent>& arr)
+constexpr span<const ElementType, Extent> make_span(const std::array<ElementType, Extent>& arr)
 {
     return span<const ElementType, Extent>(arr);
 }
