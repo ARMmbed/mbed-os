@@ -39,7 +39,7 @@ public:
         _data(ptr)
     {}
 
-    ElementType* _data = nullptr;
+    ElementType *_data = nullptr;
     static constexpr size_t _size = Extent;
 };
 
