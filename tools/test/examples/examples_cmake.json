@@ -118,7 +118,7 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-ble",
       "sub-repo-example": true,
       "subs": [
-            "BLE_LED"
+            "BLE_Advertising"
 
       ],
       "features" : [],
