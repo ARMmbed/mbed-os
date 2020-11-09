@@ -53,6 +53,41 @@ public:
     ElementType* _data;
     size_t _size;
 };
+
+template<typename>
+struct is_span: false_type {};
+
+template<typename T, size_t E>
+struct is_span<span<T, E>>: true_type {};
+
+template<typename>
+struct is_std_array: false_type {};
+
+template<typename T, size_t N>
+struct is_std_array<std::array<T, N>>: true_type {};
+
+template<typename, typename = void>
+struct has_size : std::false_type {};
+
+template<typename T>
+struct has_size<T, void_t<decltype(mstd::size(std::declval<T>()))>>:
+    std::true_type {};
+
+template<typename, typename = void>
+struct has_data : std::false_type {};
+
+template<typename T>
+struct has_data<T, void_t<decltype(mstd::data(std::declval<T>()))>>:
+    std::true_type {};
+
+template<typename T, typename U = mstd::remove_cvref_t<T>>
+struct is_container{
+    static constexpr bool value =
+        not is_span<U>::value && not is_std_array<U>::value &&
+            not std::is_array<U>::value && has_size<T>::value &&
+                has_data<T>::value;
+};
+
 template <class T>
 using iterator_t = decltype(mstd::begin(std::declval<T&>()));
 
@@ -140,10 +175,14 @@ public:
         _storage(arr.data(), N)
     {}
 
-    /* TODO
-    template<class R>
-    constexpr explicit(extent != dynamic_extent) span(R&& r)
-    */
+    template<class R,
+    typename mstd::enable_if_t<detail::is_container<R>::value &&
+            detail::is_compatible<R&, ElementType>::value, int> = 0>
+    constexpr span(R&& r) :
+        _storage( mstd::data( r ), mstd::size( r ))
+    {
+        MBED_ASSERT(extent == dynamic_extent || extent == mstd::size( r ));
+    }
 
     constexpr span(const span& other) noexcept = default;
 
@@ -307,13 +346,17 @@ constexpr span<const ElementType, Extent> make_span(const array<ElementType, Ext
     return span<const ElementType, Extent>(arr);
 }
 
-/* TODO
 template<class R>
-constexpr span<typename Container::value_type> make_span(R&& cont)
+constexpr span<typename R::value_type> make_span(R& cont)
 {
     return {cont};
 }
-*/
+
+template<class R>
+constexpr span<const typename R::value_type> make_span(const R& cont)
+{
+    return {cont};
+}
 
 } // namespace mstd
 
