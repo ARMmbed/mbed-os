@@ -52,7 +52,7 @@ public:
         _data(ptr), _size(size)
     {}
 
-    ElementType* _data = nullptr;
+    ElementType *_data = nullptr;
     size_t _size = 0;
 };
 
@@ -117,10 +117,10 @@ public:
     using value_type = typename mstd::remove_cv_t<element_type>;
     using index_type = size_t;
     using difference_type = ptrdiff_t;
-    using pointer = element_type*;
-    using const_pointer = const element_type*;
-    using reference = element_type&;
-    using const_reference = const element_type&;
+    using pointer = element_type *;
+    using const_pointer = const element_type *;
+    using reference = element_type &;
+    using const_reference = const element_type &;
     using iterator = pointer;
     using reverse_iterator = std::reverse_iterator<iterator>;
 
@@ -154,7 +154,7 @@ public:
     }
 
     template<size_t N>
-    constexpr span(type_identity_t<element_type> (&arr)[N],
+    constexpr span(type_identity_t<element_type>(&arr)[N],
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
             mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
@@ -162,7 +162,7 @@ public:
     {}
 
     template<class T, size_t N>
-    constexpr span(std::array<T, N>& arr,
+    constexpr span(std::array<T, N> &arr,
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
             mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
@@ -170,7 +170,7 @@ public:
     {}
 
     template<class T, size_t N>
-    constexpr span(const std::array<T, N>& arr,
+    constexpr span(const std::array<T, N> &arr,
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
             mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
@@ -180,13 +180,13 @@ public:
     template<class R,
     typename mstd::enable_if_t<detail::is_container<R>::value &&
             detail::is_compatible<R&, ElementType>::value, int> = 0>
-    constexpr span(R&& r) :
+    constexpr span(R &&r) :
         _storage( mstd::data( r ), mstd::size( r ))
     {
         MBED_ASSERT(extent == dynamic_extent || extent == mstd::size( r ));
     }
 
-    constexpr span(const span& other) noexcept = default;
+    constexpr span(const span &other) noexcept = default;
 
     template<class OtherElementType, size_t OtherExtent,
     typename mstd::enable_if_t<(Extent == dynamic_extent || OtherExtent == Extent) &&
@@ -197,7 +197,7 @@ public:
 
     ~span() noexcept = default;
 
-    constexpr span& operator=(const span& other) noexcept = default;
+    constexpr span& operator=(const span &other) noexcept = default;
 
     // Subviews
     template<size_t Count>
@@ -315,7 +315,7 @@ template<class ElementType, size_t Extent>
 span<const unsigned char, Extent == dynamic_extent ? dynamic_extent : sizeof(ElementType) * Extent>
 as_bytes(span<ElementType, Extent> s) noexcept
 {
-    return {reinterpret_cast<const unsigned char*>(s.data()), s.size_bytes()};
+    return {reinterpret_cast<const unsigned char *>(s.data()), s.size_bytes()};
 }
 
 template<class ElementType, size_t Extent>
@@ -323,7 +323,7 @@ span<unsigned char, Extent == dynamic_extent ? dynamic_extent : sizeof(ElementTy
 as_writable_bytes(span<ElementType, Extent> s) noexcept
 {
     static_assert(not is_const<ElementType>::value);
-    return {reinterpret_cast<unsigned char*>(s.data()), s.size_bytes()};
+    return {reinterpret_cast<unsigned char *>(s.data()), s.size_bytes()};
 }
 
 template<class ElementType, size_t Extent>
@@ -339,25 +339,25 @@ constexpr span<const ElementType, Extent> make_span(const ElementType (&arr)[Ext
 }
 
 template<class ElementType, size_t Extent>
-constexpr span<ElementType, Extent> make_span(std::array<ElementType, Extent>& arr)
+constexpr span<ElementType, Extent> make_span(std::array<ElementType, Extent> &arr)
 {
     return arr;
 }
 
 template<class ElementType, size_t Extent>
-constexpr span<const ElementType, Extent> make_span(const std::array<ElementType, Extent>& arr)
+constexpr span<const ElementType, Extent> make_span(const std::array<ElementType, Extent> &arr)
 {
     return arr;
 }
 
 template<class R>
-constexpr span<typename R::value_type> make_span(R& cont)
+constexpr span<typename R::value_type> make_span(R &cont)
 {
     return cont;
 }
 
 template<class R>
-constexpr span<const typename R::value_type> make_span(const R& cont)
+constexpr span<const typename R::value_type> make_span(const R &cont)
 {
     return cont;
 }
