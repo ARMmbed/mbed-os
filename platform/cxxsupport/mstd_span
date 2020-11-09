@@ -22,7 +22,7 @@
 
 namespace mstd {
 
-inline constexpr size_t dynamic_extent = -1;
+constexpr size_t dynamic_extent = -1;
 
 template <typename, size_t = dynamic_extent> class span;
 
