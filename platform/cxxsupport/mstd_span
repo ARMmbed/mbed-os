@@ -39,7 +39,7 @@ public:
         _data(ptr)
     {}
 
-    ElementType* _data;
+    ElementType* _data = nullptr;
     static constexpr size_t _size = Extent;
 };
 
@@ -52,8 +52,8 @@ public:
         _data(ptr), _size(size)
     {}
 
-    ElementType* _data;
-    size_t _size;
+    ElementType* _data = nullptr;
+    size_t _size = 0;
 };
 
 template<typename>
