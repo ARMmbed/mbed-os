@@ -54,6 +54,13 @@
 #endif
 #endif /* HAVE_WS */
 
+/* Configure trace level for Nanostack */
+#ifdef MBED_CONF_NANOSTACK_TRACE_MAX_LEVEL
+#ifdef MBED_TRACE_MAX_LEVEL
+#undef MBED_TRACE_MAX_LEVEL
+#endif /* MBED_TRACE_MAX_LEVEL */
+#define MBED_TRACE_MAX_LEVEL MBED_CONF_NANOSTACK_TRACE_MAX_LEVEL
+#endif /* MBED_CONF_NANOSTACK_TRACE_MAX_LEVEL */
 
 #endif // ifndef _NANOSTACK_SOURCE_CONFIG_H
 
