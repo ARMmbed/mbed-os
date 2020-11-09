@@ -24,7 +24,7 @@ namespace mstd {
 
 inline constexpr size_t dynamic_extent = -1;
 
-template <typename, std::size_t> class span;
+template <typename, size_t = dynamic_extent> class span;
 
 namespace detail {
 
@@ -70,14 +70,14 @@ template<typename, typename = void>
 struct has_size : std::false_type {};
 
 template<typename T>
-struct has_size<T, void_t<decltype(mstd::size(std::declval<T>()))>>:
+struct has_size<T, void_t<decltype(mstd::size(mstd::declval<T>()))>>:
     std::true_type {};
 
 template<typename, typename = void>
 struct has_data : std::false_type {};
 
 template<typename T>
-struct has_data<T, void_t<decltype(mstd::data(std::declval<T>()))>>:
+struct has_data<T, void_t<decltype(mstd::data(mstd::declval<T>()))>>:
     std::true_type {};
 
 template<typename T, typename U = mstd::remove_cvref_t<T>>
@@ -89,7 +89,7 @@ struct is_container{
 };
 
 template <class T>
-using iterator_t = decltype(mstd::begin(std::declval<T&>()));
+using iterator_t = decltype(mstd::begin(mstd::declval<T&>()));
 
 template <class R>
 using range_reference_t = mstd::iter_reference_t<iterator_t<R>>;
@@ -103,12 +103,12 @@ struct is_compatible<T, E,
             typename mstd::remove_cv_t<
                 decltype(mstd::data(mstd::declval<T>()))
             >, void>::value>>:
-std::is_convertible<remove_pointer_t<
+mstd::is_convertible<remove_pointer_t<
     decltype(mstd::data(mstd::declval<T>()))> (*)[], E (*)[]>{};
 
 } // namespace detail
 
-template<typename ElementType, size_t Extent = dynamic_extent>
+template<typename ElementType, size_t Extent>
 class span {
 public:
     using element_type = ElementType;
@@ -131,7 +131,7 @@ public:
     {}
 
     template<class It, size_t E = Extent,
-        typename mstd::enable_if_t<is_convertible<
+        typename mstd::enable_if_t<mstd::is_convertible<
         remove_reference_t<mstd::iter_reference_t<It>>(*)[],
         ElementType(*)[]>::value, int> = 0>
     constexpr span(It ptr, index_type count) :
@@ -140,7 +140,7 @@ public:
         MBED_ASSERT(extent == dynamic_extent || extent == count);
     }
 
-    template<class It, typename mstd::enable_if_t<is_convertible<
+    template<class It, typename mstd::enable_if_t<mstd::is_convertible<
         remove_reference_t<mstd::iter_reference_t<It>>(*)[],
         ElementType(*)[]>::value, int> = 0>
     constexpr span(It first, It last) :
@@ -154,7 +154,7 @@ public:
     template<size_t N>
     constexpr span(type_identity_t<element_type> (&arr)[N],
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
-            is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
+            mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
         _storage(arr, N)
     {}
@@ -162,7 +162,7 @@ public:
     template<class T, size_t N>
     constexpr span(array<T, N>& arr,
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
-            is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
+            mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
         _storage(arr.data(), N)
     {}
@@ -170,7 +170,7 @@ public:
     template<class T, size_t N>
     constexpr span(const array<T, N>& arr,
             typename mstd::enable_if_t<(Extent == dynamic_extent || Extent == N) &&
-            is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
+            mstd::is_convertible<remove_pointer_t<decltype(mstd::data(arr))>(*)[],
             ElementType(*)[]>::value, int> = 0) noexcept:
         _storage(arr.data(), N)
     {}
@@ -188,7 +188,7 @@ public:
 
     template<class OtherElementType, size_t OtherExtent,
     typename mstd::enable_if_t<(Extent == dynamic_extent || OtherExtent == Extent) &&
-        is_convertible<OtherElementType(*)[], ElementType(*)[]>::value, int> = 0>
+        mstd:is_convertible<OtherElementType(*)[], ElementType(*)[]>::value, int> = 0>
     constexpr span(const span<OtherElementType, OtherExtent>& s) noexcept:
         _storage(s.data(), s.size())
     {}
