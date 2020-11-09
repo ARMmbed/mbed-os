@@ -40,6 +40,35 @@ uint32_t bp6a_rtc_bin2bcd(uint8_t bin)
     return ((bin / 10u) << 4u) + (bin % 10);
 }
 
+void bp6a_rtc_offset_write(uint32_t offset, uint32_t flag)
+{
+    uint8_t i;
+
+    bp6a_rtc_unlock(true);
+    for (i = 0; i < 4; i++)
+        putreg32(0x40019000 + 0xB8 + i * 4, ((offset >> (i * 8)) & 0xFF));
+
+    putreg32(0x40019000 + 0x90, flag);
+    bp6a_rtc_unlock(false);
+}
+
+uint32_t bp6a_rtc_read_offset(uint32_t *flag)
+{
+    uint8_t i;
+    uint32_t offset = 0;
+
+    bp6a_rtc_unlock(true);
+
+    for (i = 0; i < 4; i++)
+        offset |= getreg32(0x40019000 + 0xB8 + i * 4)  << (i * 8);
+
+    *flag = getreg32(0x40019000 + 0x90);
+
+    bp6a_rtc_unlock(false);
+
+    return offset;
+}
+
 void bp6a_rtc_getdatetime(struct rtc_bcd_s *rtc)
 {
     bp6a_rtc_unlock(true);
