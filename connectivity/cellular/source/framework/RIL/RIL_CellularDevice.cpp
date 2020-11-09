@@ -21,8 +21,7 @@
 #include "RIL_CellularInformation.h"
 #include "CellularLog.h"
 #include "ScopedLock.h"
-#include "mbed.h"
-#define DEVICE_TIMEOUT 5min
+
 namespace mbed {
 
 RIL_CellularDevice::RIL_CellularDevice(RILAdaptation &ril)
@@ -425,9 +424,8 @@ nsapi_error_t RIL_CellularDevice::lock_and_send_request(int request_id, void *da
     // If token is created, the ownership of cond_mutex and cond_var is moved to token
     ril_token_t *token = _ril.send_request(request_id, data, data_len, callback, cond_mutex, cond_var);
     if (token) {
-        std::chrono::duration<uint32_t, std::milli> default_timeout = DEVICE_TIMEOUT;
-        rtos::cv_status time_out = token->cond_var->wait_for(default_timeout);
-        if (time_out == rtos::cv_status::timeout) {
+        bool time_out = token->cond_var->wait_for(RIL_CellularContext::DEVICE_TIMEOUT);
+        if (time_out) {
             ret = NSAPI_ERROR_TIMEOUT;
             _ril.cancel_request(token);
             tr_warning("%s timeout for request %s", __FUNCTION__, _ril.get_ril_name(request_id));
