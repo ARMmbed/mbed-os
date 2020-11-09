@@ -28,6 +28,10 @@ class RIL_CellularDevice;
 
 class RIL_CellularContext: public CellularContext {
 public:
+
+    static const int NETWORK_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    static const int DEVICE_TIMEOUT = 5 * 60 * 1000;   // 5 minutes
+
     RIL_CellularContext(RIL_CellularDevice &device, const char *apn = 0, bool cp_req = false, bool nonip_req = false);
     virtual ~RIL_CellularContext();
 

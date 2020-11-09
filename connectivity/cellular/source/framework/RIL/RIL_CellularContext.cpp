@@ -21,9 +21,7 @@
 #include "LWIPStack.h"
 #include "CellularLog.h"
 #include "ScopedLock.h"
-#include "mbed.h"
-#define NETWORK_TIMEOUT 30min
-#define DEVICE_TIMEOUT 5min
+
 #define ril_itoa(v, s, d)    sprintf(s, "%d", v)
 
 const char *local_subnet_mask = "255.255.255.255";
@@ -220,8 +218,8 @@ nsapi_error_t RIL_CellularContext::do_initial_attach()
                                            cond_mutex, cond_var);
 
     if (token2) {
-        rtos::cv_status time_out = cond_var->wait_for(DEVICE_TIMEOUT);
-        if (time_out == rtos::cv_status::timeout) {
+        bool time_out = cond_var->wait_for(RIL_CellularContext::DEVICE_TIMEOUT);
+        if (time_out) {
             ret = NSAPI_ERROR_TIMEOUT;
             ril.cancel_request(token1);
             ril.cancel_request(token2);
@@ -556,11 +554,11 @@ nsapi_error_t RIL_CellularContext::check_operation(nsapi_error_t err, ContextOpe
 
 uint32_t RIL_CellularContext::get_timeout_for_operation(ContextOperation op) const
 {
-    std::chrono::duration<uint32_t, std::milli> timeout = NETWORK_TIMEOUT; // default timeout is 30 minutes as registration and attach may take time
+    uint32_t timeout = NETWORK_TIMEOUT; // default timeout is 30 minutes as registration and attach may take time
     if (op == OP_SIM_READY || op == OP_DEVICE_READY) {
         timeout = DEVICE_TIMEOUT; // use 5 minutes for device ready and sim
     }
-    return timeout.count();
+    return timeout;
 }
 
 bool RIL_CellularContext::is_connected()
