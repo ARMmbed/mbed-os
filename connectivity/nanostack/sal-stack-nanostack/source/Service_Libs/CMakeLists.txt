@@ -3,35 +3,35 @@
 
 target_include_directories(mbed-nanostack-sal_stack
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/Neighbor_cache
-        ${CMAKE_CURRENT_SOURCE_DIR}/Trickle
-        ${CMAKE_CURRENT_SOURCE_DIR}/blacklist
-        ${CMAKE_CURRENT_SOURCE_DIR}/etx
-        ${CMAKE_CURRENT_SOURCE_DIR}/fhss
-        ${CMAKE_CURRENT_SOURCE_DIR}/fnv_hash
-        ${CMAKE_CURRENT_SOURCE_DIR}/hmac
-        ${CMAKE_CURRENT_SOURCE_DIR}/ieee_802_11
-        ${CMAKE_CURRENT_SOURCE_DIR}/load_balance
-        ${CMAKE_CURRENT_SOURCE_DIR}/mac_neighbor_table
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/port
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/port/compiler
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/port/cpu
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/services
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/services/dns
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/services/mdns
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/services/poll
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/services/serial
-        ${CMAKE_CURRENT_SOURCE_DIR}/mdns/fnet/fnet_stack/stack
-        ${CMAKE_CURRENT_SOURCE_DIR}/mle_service
-        ${CMAKE_CURRENT_SOURCE_DIR}/nd_proxy
-        ${CMAKE_CURRENT_SOURCE_DIR}/nist_aes_kw
-        ${CMAKE_CURRENT_SOURCE_DIR}/pan_blacklist
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils
-        ${CMAKE_CURRENT_SOURCE_DIR}/whiteboard
+        .
+        ./Neighbor_cache
+        ./Trickle
+        ./blacklist
+        ./etx
+        ./fhss
+        ./fnv_hash
+        ./hmac
+        ./ieee_802_11
+        ./load_balance
+        ./mac_neighbor_table
+        ./mdns
+        ./mdns/fnet
+        ./mdns/fnet/fnet_stack
+        ./mdns/fnet/fnet_stack/port
+        ./mdns/fnet/fnet_stack/port/compiler
+        ./mdns/fnet/fnet_stack/port/cpu
+        ./mdns/fnet/fnet_stack/services
+        ./mdns/fnet/fnet_stack/services/dns
+        ./mdns/fnet/fnet_stack/services/mdns
+        ./mdns/fnet/fnet_stack/services/poll
+        ./mdns/fnet/fnet_stack/services/serial
+        ./mdns/fnet/fnet_stack/stack
+        ./mle_service
+        ./nd_proxy
+        ./nist_aes_kw
+        ./pan_blacklist
+        ./utils
+        ./whiteboard
 )
 
 target_sources(mbed-nanostack-sal_stack

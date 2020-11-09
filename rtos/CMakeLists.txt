@@ -3,11 +3,11 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/rtos
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/rtos/internal
-        ${CMAKE_CURRENT_SOURCE_DIR}/source
+        .
+        ./include
+        ./include/rtos
+        ./include/rtos/internal
+        ./source
 )
 
 target_sources(mbed-core

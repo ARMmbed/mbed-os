@@ -3,9 +3,9 @@
 
 target_include_directories(mbed-nfc
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/iso7816
-        ${CMAKE_CURRENT_SOURCE_DIR}/isodep
-        ${CMAKE_CURRENT_SOURCE_DIR}/type4
+        ./iso7816
+        ./isodep
+        ./type4
 )
 
 target_sources(mbed-nfc

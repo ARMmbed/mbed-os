@@ -4,11 +4,11 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/ble
-        ${CMAKE_CURRENT_SOURCE_DIR}/ble/ble_radio_notification
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/bootloader
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/bootloader/dfu
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/fstorage
+        ./ble
+        ./ble/ble_radio_notification
+        ./libraries/bootloader
+        ./libraries/bootloader/dfu
+        ./libraries/fstorage
 )
 
 target_sources(mbed-core

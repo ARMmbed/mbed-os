@@ -6,5 +6,5 @@ add_subdirectory(stack)
 
 target_include_directories(mbed-nfc
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )

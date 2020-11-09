@@ -3,19 +3,19 @@
 
 target_include_directories(mbed-nanostack-sal_stack
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/Common
-        ${CMAKE_CURRENT_SOURCE_DIR}/PANA
-        ${CMAKE_CURRENT_SOURCE_DIR}/TLS
-        ${CMAKE_CURRENT_SOURCE_DIR}/eapol
-        ${CMAKE_CURRENT_SOURCE_DIR}/kmp
-        ${CMAKE_CURRENT_SOURCE_DIR}/protocols
-        ${CMAKE_CURRENT_SOURCE_DIR}/protocols/eap_tls_sec_prot
-        ${CMAKE_CURRENT_SOURCE_DIR}/protocols/fwh_sec_prot
-        ${CMAKE_CURRENT_SOURCE_DIR}/protocols/gkh_sec_prot
-        ${CMAKE_CURRENT_SOURCE_DIR}/protocols/key_sec_prot
-        ${CMAKE_CURRENT_SOURCE_DIR}/protocols/radius_sec_prot
-        ${CMAKE_CURRENT_SOURCE_DIR}/protocols/tls_sec_prot
+        .
+        ./Common
+        ./PANA
+        ./TLS
+        ./eapol
+        ./kmp
+        ./protocols
+        ./protocols/eap_tls_sec_prot
+        ./protocols/fwh_sec_prot
+        ./protocols/gkh_sec_prot
+        ./protocols/key_sec_prot
+        ./protocols/radius_sec_prot
+        ./protocols/tls_sec_prot
 )
 
 target_sources(mbed-nanostack-sal_stack

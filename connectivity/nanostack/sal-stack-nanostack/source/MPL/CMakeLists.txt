@@ -3,7 +3,7 @@
 
 target_include_directories(mbed-nanostack-sal_stack
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
 target_sources(mbed-nanostack-sal_stack

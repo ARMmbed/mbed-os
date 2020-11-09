@@ -5,14 +5,14 @@ add_subdirectory(source/framework)
 
 target_include_directories(mbed-cellular
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular/framework
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular/framework/API
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular/framework/AT
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular/framework/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cellular/framework/device
+        .
+        ./include
+        ./include/cellular
+        ./include/cellular/framework
+        ./include/cellular/framework/API
+        ./include/cellular/framework/AT
+        ./include/cellular/framework/common
+        ./include/cellular/framework/device
 )
 
 target_compile_definitions(mbed-cellular

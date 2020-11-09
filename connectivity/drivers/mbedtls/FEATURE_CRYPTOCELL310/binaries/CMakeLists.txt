@@ -11,7 +11,7 @@ function(_mbed_get_libcc_310_core)
     endif()
     target_link_libraries(mbed-mbedtls-cryptocell310
         INTERFACE
-            ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_CORE}
+            ./${LIBCC_310_CORE}
     )
 endfunction()
 

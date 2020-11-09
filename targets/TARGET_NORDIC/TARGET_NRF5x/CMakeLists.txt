@@ -13,7 +13,7 @@ endif()
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
 target_sources(mbed-core

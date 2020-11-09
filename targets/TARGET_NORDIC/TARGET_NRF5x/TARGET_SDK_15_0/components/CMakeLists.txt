@@ -4,22 +4,22 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/atomic
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/atomic_fifo
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/balloc
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/delay
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/experimental_log
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/experimental_log/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/experimental_memobj
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/experimental_section_vars
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/fds
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/fstorage
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/queue
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/spi_mngr
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/strerror
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/twi_mngr
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/util
+        ./libraries
+        ./libraries/atomic
+        ./libraries/atomic_fifo
+        ./libraries/balloc
+        ./libraries/delay
+        ./libraries/experimental_log
+        ./libraries/experimental_log/src
+        ./libraries/experimental_memobj
+        ./libraries/experimental_section_vars
+        ./libraries/fds
+        ./libraries/fstorage
+        ./libraries/queue
+        ./libraries/spi_mngr
+        ./libraries/strerror
+        ./libraries/twi_mngr
+        ./libraries/util
 )
 
 target_sources(mbed-core
