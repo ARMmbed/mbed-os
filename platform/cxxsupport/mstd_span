@@ -205,7 +205,7 @@ public:
     {
         static_assert(Count <= extent);
         MBED_ASSERT(Count <= size());
-        return span<element_type, Count>(data(), Count);
+        return {data(), Count};
     }
 
     template<size_t Count>
@@ -213,7 +213,7 @@ public:
     {
         static_assert(Count <= extent);
         MBED_ASSERT(Count <= size());
-        return span<element_type, Count>(data() + (size() - Count), Count);
+        return {data() + (size() - Count), Count};
     }
 
     template<size_t Offset, size_t Count = dynamic_extent>
@@ -230,20 +230,20 @@ public:
     constexpr span<element_type, dynamic_extent> first(index_type count) const
     {
         MBED_ASSERT(count <= size());
-        return span<element_type>(data(), count);
+        return {data(), count};
     }
 
     constexpr span<element_type, dynamic_extent> last(index_type count) const
     {
         MBED_ASSERT(count <= size());
-        return span<element_type>(data() + (size() - count), count);
+        return {data() + (size() - count), count};
     }
 
     constexpr span<element_type, dynamic_extent>
         subspan(index_type offset, index_type count = dynamic_extent) const
     {
         MBED_ASSERT(offset <= size() && (count == dynamic_extent || count <= size() - offset ));
-        return span<element_type, dynamic_extent>(data() + offset, count == dynamic_extent ? size() - offset : count );
+        return {data() + offset, count == dynamic_extent ? size() - offset : count };
     }
 
     // Observers
@@ -329,37 +329,37 @@ as_writable_bytes(span<ElementType, Extent> s) noexcept
 template<class ElementType, size_t Extent>
 constexpr span<ElementType, Extent> make_span(ElementType (&arr)[Extent])
 {
-    return span<ElementType, Extent>(arr);
+    return arr;
 }
 
 template<class ElementType, size_t Extent>
 constexpr span<const ElementType, Extent> make_span(const ElementType (&arr)[Extent])
 {
-    return span<const ElementType, Extent>(arr);
+    return arr;
 }
 
 template<class ElementType, size_t Extent>
 constexpr span<ElementType, Extent> make_span(std::array<ElementType, Extent>& arr)
 {
-    return span<ElementType, Extent>(arr);
+    return arr;
 }
 
 template<class ElementType, size_t Extent>
 constexpr span<const ElementType, Extent> make_span(const std::array<ElementType, Extent>& arr)
 {
-    return span<const ElementType, Extent>(arr);
+    return arr;
 }
 
 template<class R>
 constexpr span<typename R::value_type> make_span(R& cont)
 {
-    return {cont};
+    return cont;
 }
 
 template<class R>
 constexpr span<const typename R::value_type> make_span(const R& cont)
 {
-    return {cont};
+    return cont;
 }
 
 } // namespace mstd
