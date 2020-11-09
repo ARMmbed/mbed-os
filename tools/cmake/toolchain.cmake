@@ -46,23 +46,6 @@ set(CMAKE_CROSSCOMPILING TRUE)
 set(CMAKE_C_COMPILER_WORKS TRUE)
 set(CMAKE_CXX_COMPILER_WORKS TRUE)
 
-# Set the language standard to use per target
-function(mbed_set_language_standard target)
-    set_target_properties(${target}
-        PROPERTIES
-            C_STANDARD 11
-            C_STANDARD_REQUIRED YES
-            C_EXTENSIONS YES
-    )
-
-    set_target_properties(${target}
-        PROPERTIES
-            CXX_STANDARD 14
-            CXX_STANDARD_REQUIRED YES
-            CXX_EXTENSIONS YES
-    )
-endfunction()
-
 # Clear toolchains options for all languages as Mbed OS uses
 # different initialisation options (such as for optimization and debug symbols)
 set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "" FORCE)

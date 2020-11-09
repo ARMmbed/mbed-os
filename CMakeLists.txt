@@ -62,11 +62,6 @@ if(${MBED_TOOLCHAIN_FILE_USED})
     mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
 endif()
 
-
-set(MBED_TARGET_LABELS
-    ${MBED_TARGET_LABELS} CACHE INTERNAL ""
-)
-
 target_compile_definitions(mbed-core
     INTERFACE
         ${MBED_TARGET_DEFINITIONS}
@@ -124,7 +119,12 @@ add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 # Configures the application
 #
 function(mbed_configure_app_target target)
-    mbed_set_language_standard(${target})
+    # Set the language standard to use per target
+    target_compile_features(${target}
+        PUBLIC
+            c_std_11
+            cxx_std_14
+    )
 endfunction()
 
 #
