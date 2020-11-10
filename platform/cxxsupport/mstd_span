@@ -17,6 +17,19 @@
 #ifndef MSTD_SPAN_
 #define MSTD_SPAN_
 
+#if __cplusplus >= 201703L && __has_include(<span>)
+#include <version>
+#endif
+
+#if __cpp_lib_span >= 202002L
+#include <span>
+
+namespace mstd {
+    using std::span;
+}
+
+#else //__cpp_lib_span >= 202002L
+
 #include <array>
 #include <mstd_iterator>
 #include <mstd_type_traits>
@@ -364,4 +377,5 @@ constexpr span<const typename R::value_type> make_span(const R &cont)
 
 } // namespace mstd
 
+#endif //__cpp_lib_span >= 202002L
 #endif // MSTD_SPAN_
