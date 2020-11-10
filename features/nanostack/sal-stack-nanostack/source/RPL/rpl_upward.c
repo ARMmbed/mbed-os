@@ -1836,11 +1836,12 @@ void rpl_upward_dio_timer(rpl_instance_t *instance, uint16_t ticks)
     if (rpl_dodag_am_leaf(dodag) && !instance->poison_count) {
         return;
     }
+
     /* Delay sending first DIO if we are still potentially gathering info */
     /* Important to always send DIOs if we ever have sent any, so we can indicate problems to others */
-    if (!instance->last_advertised_dodag_version && rpl_policy_parent_confirmation_requested()) {
-        // We dont have any valid address in interface
-        if (ns_list_count(&instance->dao_targets) == 0) {
+    if (!rpl_instance_am_root(instance) && !instance->last_advertised_dodag_version && rpl_policy_parent_confirmation_requested()) {
+        // We dont have any valid parent selected
+        if (!rpl_instance_parent_selection_ready(instance)) {
             return;
         }
         /* Address registrations for parent ongoing*/
@@ -1852,6 +1853,7 @@ void rpl_upward_dio_timer(rpl_instance_t *instance, uint16_t ticks)
             return;
         }
     }
+
     if (trickle_timer(&instance->dio_timer, &dodag->dio_timer_params, ticks)) {
         instance->dio_not_consistent = false;
         rpl_instance_dio_trigger(instance, NULL, NULL);

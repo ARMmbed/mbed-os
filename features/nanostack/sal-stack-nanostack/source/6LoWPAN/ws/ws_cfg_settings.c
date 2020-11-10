@@ -53,6 +53,7 @@ typedef struct ws_cfg_nw_size_s {
     ws_timing_cfg_t timing;             /**< Timing configuration */
     ws_bbr_cfg_t bbr;                   /**< RPL configuration */
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
+    ws_mpl_cfg_t mpl;                   /**< Multicast timing configuration*/
 } ws_cfg_nw_size_t;
 
 static uint32_t ws_test_temporary_entry_lifetime = 0;
@@ -136,6 +137,8 @@ static int8_t ws_cfg_to_get(ws_cfgs_t **cfg, ws_cfgs_t *new_cfg, ws_cfg_validate
                 *cfg = (ws_cfgs_t *) &nw_size_external_cfg->bbr;
             } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.sec_prot) {
                 *cfg = (ws_cfgs_t *) &nw_size_external_cfg->sec_prot;
+            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.mpl) {
+                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->mpl;
             } else {
                 *cfg = ws_cfg_ptr;
             }
@@ -251,6 +254,7 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
     ws_cfg_timing_get(&nw_size_cfg.timing, NULL);
     ws_cfg_bbr_get(&nw_size_cfg.bbr, NULL);
     ws_cfg_sec_prot_get(&nw_size_cfg.sec_prot, NULL);
+    ws_cfg_mpl_get(&nw_size_cfg.mpl, NULL);
 
     ws_cfg_network_size_config_set_size set_function = NULL;
 
@@ -300,12 +304,15 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
             old_network_size == NETWORK_SIZE_AUTOMATIC) {
         ws_cfg_sec_prot_set(cur, &ws_cfg.sec_prot, &nw_size_cfg.sec_prot, &set_flags);
     }
+    if (ws_cfg_mpl_validate(&ws_cfg.mpl, &nw_size_cfg.mpl) == CFG_SETTINGS_CHANGED ||
+            old_network_size == NETWORK_SIZE_AUTOMATIC) {
+        ws_cfg_mpl_set(cur, &ws_cfg.mpl, &nw_size_cfg.mpl, &set_flags);
+    }
 
     // If is in an automatic network size mode, updates automatic configuration
     if (cfg->network_size == NETWORK_SIZE_AUTOMATIC && cur) {
         ws_cfg_network_size_configure(cur, cur->ws_info->pan_information.pan_size);
     }
-
     return CFG_SETTINGS_OK;
 }
 
@@ -319,6 +326,7 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
     ws_cfg_timing_get(&new_nw_size_cfg.timing, &flags);
     ws_cfg_bbr_get(&new_nw_size_cfg.bbr, &flags);
     ws_cfg_sec_prot_get(&new_nw_size_cfg.sec_prot, &flags);
+    ws_cfg_mpl_get(&new_nw_size_cfg.mpl, &flags);
 
     if (!nw_size_external_cfg) {
         nw_size_external_cfg = ns_dyn_mem_alloc(sizeof(ws_cfg_nw_size_t));
@@ -347,9 +355,11 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
     ws_cfg_timing_set(cur, NULL, &new_nw_size_cfg.timing, &flags);
     ws_cfg_bbr_set(cur, NULL, &new_nw_size_cfg.bbr, &flags);
     ws_cfg_sec_prot_set(cur, NULL, &new_nw_size_cfg.sec_prot, &flags);
+    ws_cfg_mpl_set(cur, &ws_cfg.mpl, &new_nw_size_cfg.mpl, &flags);
 
     return CFG_SETTINGS_OK;
 }
+
 
 static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
 {
@@ -385,6 +395,14 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
     cfg->sec_prot.initial_key_imax = SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
     cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+
+    // Multicast timing configuration
+    cfg->mpl.mpl_trickle_imin = MPL_SMALL_IMIN;
+    cfg->mpl.mpl_trickle_imax = MPL_SMALL_IMAX;
+    cfg->mpl.mpl_trickle_k = MPL_SMALL_K;
+    cfg->mpl.mpl_trickle_timer_exp = MPL_SMALL_EXPIRATIONS;
+    cfg->mpl.seed_set_entry_lifetime = MPL_SMALL_SEED_LIFETIME;
+
 }
 
 static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
@@ -421,6 +439,13 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.initial_key_imin = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
     cfg->sec_prot.initial_key_imax = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
     cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+
+    // Multicast timing configuration
+    cfg->mpl.mpl_trickle_imin = MPL_MEDIUM_IMIN;
+    cfg->mpl.mpl_trickle_imax = MPL_MEDIUM_IMAX;
+    cfg->mpl.mpl_trickle_k = MPL_MEDIUM_K;
+    cfg->mpl.mpl_trickle_timer_exp = MPL_MEDIUM_EXPIRATIONS;
+    cfg->mpl.seed_set_entry_lifetime = MPL_MEDIUM_SEED_LIFETIME;
 }
 
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
@@ -457,6 +482,14 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.initial_key_imin = LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
     cfg->sec_prot.initial_key_imax = LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
     cfg->sec_prot.initial_key_retry_cnt = LARGE_NW_INITIAL_KEY_RETRY_COUNT;
+
+    // Multicast timing configuration
+    cfg->mpl.mpl_trickle_imin = MPL_LARGE_IMIN;
+    cfg->mpl.mpl_trickle_imax = MPL_LARGE_IMAX;
+    cfg->mpl.mpl_trickle_k = MPL_LARGE_K;
+    cfg->mpl.mpl_trickle_timer_exp = MPL_LARGE_EXPIRATIONS;
+    cfg->mpl.seed_set_entry_lifetime = MPL_LARGE_SEED_LIFETIME;
+
 }
 
 static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
@@ -493,6 +526,13 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.initial_key_imin = EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
     cfg->sec_prot.initial_key_imax = EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
     cfg->sec_prot.initial_key_retry_cnt = EXTRA_LARGE_NW_INITIAL_KEY_RETRY_COUNT;
+
+    // Multicast timing configuration
+    cfg->mpl.mpl_trickle_imin = MPL_XLARGE_IMIN;
+    cfg->mpl.mpl_trickle_imax = MPL_XLARGE_IMAX;
+    cfg->mpl.mpl_trickle_k = MPL_XLARGE_K;
+    cfg->mpl.mpl_trickle_timer_exp = MPL_XLARGE_EXPIRATIONS;
+    cfg->mpl.seed_set_entry_lifetime = MPL_XLARGE_SEED_LIFETIME;
 }
 
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
@@ -529,6 +569,13 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
     cfg->sec_prot.initial_key_imax = SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
     cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+
+    // Multicast timing configuration for certification uses the LARGE values as it is the one mentioned ins specification
+    cfg->mpl.mpl_trickle_imin = MPL_XLARGE_IMIN;
+    cfg->mpl.mpl_trickle_imax = MPL_XLARGE_IMAX;
+    cfg->mpl.mpl_trickle_k = MPL_XLARGE_K;
+    cfg->mpl.mpl_trickle_timer_exp = MPL_XLARGE_EXPIRATIONS;
+    cfg->mpl.seed_set_entry_lifetime = MPL_XLARGE_SEED_LIFETIME;
 }
 
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
@@ -832,11 +879,11 @@ int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *cfg, w
 static int8_t ws_cfg_mpl_default_set(ws_mpl_cfg_t *cfg)
 {
     // MPL configuration
-    cfg->mpl_trickle_imin = DATA_MESSAGE_IMIN;
-    cfg->mpl_trickle_imax = DATA_MESSAGE_IMAX;
-    cfg->mpl_trickle_k = DATA_MESSAGE_K;
-    cfg->mpl_trickle_timer_exp = DATA_MESSAGE_TIMER_EXPIRATIONS;
-    cfg->seed_set_entry_lifetime = MPL_SEED_SET_ENTRY_TIMEOUT;
+    cfg->mpl_trickle_imin = MPL_MEDIUM_IMIN;
+    cfg->mpl_trickle_imax = MPL_MEDIUM_IMAX;
+    cfg->mpl_trickle_k = MPL_MEDIUM_K;
+    cfg->mpl_trickle_timer_exp = MPL_MEDIUM_EXPIRATIONS;
+    cfg->seed_set_entry_lifetime = MPL_MEDIUM_SEED_LIFETIME;
 
     return CFG_SETTINGS_OK;
 }
@@ -869,6 +916,21 @@ int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg)
 int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg, uint8_t *flags)
 {
     uint8_t cfg_flags;
+
+    // In Wi-SUN Border router will have modified settings to improve reliability
+    if (cur && cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        // Border router sends multiple packets to ensure start of sequence
+        if (new_cfg->mpl_trickle_timer_exp < MPL_BORDER_ROUTER_MIN_EXPIRATIONS) {
+            new_cfg->mpl_trickle_timer_exp = MPL_BORDER_ROUTER_MIN_EXPIRATIONS;
+            // Lifetime is calculated using the original IMAX
+            new_cfg->seed_set_entry_lifetime = new_cfg->mpl_trickle_imax * new_cfg->mpl_trickle_timer_exp * MPL_SAFE_HOP_COUNT;
+        }
+        // Border router should have shorter IMAX to speed startup
+        if (new_cfg->mpl_trickle_imax > MPL_BORDER_ROUTER_MAXIMUM_IMAX) {
+            new_cfg->mpl_trickle_imax = MPL_BORDER_ROUTER_MAXIMUM_IMAX;
+        }
+    }
+
     int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_mpl_validate, (ws_cfgs_t *) &ws_cfg.mpl, &cfg_flags, flags);
     if (ret != CFG_SETTINGS_CHANGED) {
         return ret;
@@ -1205,6 +1267,7 @@ int8_t ws_cfg_settings_get(protocol_interface_info_entry_t *cur, ws_cfg_t *cfg)
     ws_cfg_timing_get(&cfg->timing, NULL);
     ws_cfg_bbr_get(&cfg->bbr, NULL);
     ws_cfg_sec_prot_get(&cfg->sec_prot, NULL);
+    ws_cfg_mpl_get(&cfg->mpl, NULL);
 
     return CFG_SETTINGS_OK;
 }
