@@ -40,6 +40,8 @@ struct fhss_ws {
     int32_t drift_per_millisecond_ns;
     int16_t *tr51_channel_table;
     uint8_t *tr51_output_table;
+    uint32_t next_uc_timeout;
+    uint32_t next_bc_timeout;
     bool unicast_timer_running;
     bool broadcast_timer_running;
     bool is_on_bc_channel;
