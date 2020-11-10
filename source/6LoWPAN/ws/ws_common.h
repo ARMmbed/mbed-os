@@ -73,6 +73,11 @@ typedef struct {
     uint8_t index;
 } ws_pending_key_index_t;
 
+typedef struct {
+    uint32_t block_time;
+    uint16_t old_bsi;
+} ws_bsi_block_t;
+
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 typedef struct ws_info_s {
@@ -89,6 +94,7 @@ typedef struct ws_info_s {
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
     parent_info_list_t parent_list_free;
     parent_info_list_t parent_list_reserved;
+    ws_bsi_block_t ws_bsi_block;
     uint16_t aro_registration_timer;       /**< Aro registration timer */
     uint16_t rpl_version_timer;            /**< RPL version update timeout */
     uint32_t pan_timeout_timer;    /**< routers will fallback to previous state after this */
