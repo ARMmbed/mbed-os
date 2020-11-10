@@ -154,6 +154,14 @@ bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64);
 void ws_pae_key_storage_timer(uint16_t seconds);
 
 /**
+ * ws_pae_key_storage_fast_timer key storage fast timers
+ *
+ * \param ticks Ticks passed
+ *
+ */
+void ws_pae_key_storage_fast_timer(uint16_t ticks);
+
+/**
  * ws_pae_key_storage_storing_interval_get gets key storage storing interval
  *
  * \return storing interval in seconds

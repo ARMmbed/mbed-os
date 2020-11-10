@@ -382,6 +382,8 @@ int ws_management_channel_plan_set(
  *
  * Change the default configuration for Wi-SUN FHSS operation.
  *
+ * Calling with fhss_uc_dwell_interval = 0, fhss_broadcast_interval = 0xffffffff,
+ * fhss_bc_dwell_interval = 0 restores stack defaults
  *
  * \param interface_id Network interface ID.
  * \param fhss_uc_dwell_interval default to 250 ms.
@@ -403,6 +405,7 @@ int ws_management_fhss_timing_configure(
  * Change the default configuration for Wi-SUN FHSS operation.
  * if application defined is used the behaviour is undefined
  *
+ * Calling with dwell_interval = 0, channel_function = 0xff, fixed_channel = 0xffff restores stack defaults
  *
  * \param interface_id Network interface ID.
  * \param channel_function Unicast channel function.
@@ -458,6 +461,8 @@ int ws_management_fhss_unicast_channel_function_validate(
  * Change the default configuration for Wi-SUN FHSS operation.
  * if application defined is used the behaviour is undefined
  *
+ * Calling with dwell_interval = 0, channel_function = 0xff,
+ * broadcast_interval = 0xffffffff, fixed_channel = 0xffff restores stack defaults
  *
  * \param interface_id Network interface ID.
  * \param channel_function Broadcast channel function.
