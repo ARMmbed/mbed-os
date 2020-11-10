@@ -461,22 +461,22 @@ int ws_management_fhss_timing_configure(
         return -2;
     }
 
-    if (fhss_uc_dwell_interval > 0) {
-        cfg.fhss_uc_dwell_interval = fhss_uc_dwell_interval;
-    } else if (fhss_uc_dwell_interval == 0xff) {
+    if (fhss_uc_dwell_interval == 0) {
         cfg.fhss_uc_dwell_interval = cfg_default.fhss_uc_dwell_interval;
+    } else {
+        cfg.fhss_uc_dwell_interval = fhss_uc_dwell_interval;
     }
 
-    if (fhss_broadcast_interval > 0) {
-        cfg.fhss_bc_interval = fhss_broadcast_interval;
-    } else if (fhss_broadcast_interval == 0xffff) {
+    if (fhss_broadcast_interval > 0xffffff) {
         cfg.fhss_bc_interval = cfg_default.fhss_bc_interval;
+    } else if (fhss_broadcast_interval > 0) {
+        cfg.fhss_bc_interval = fhss_broadcast_interval;
     }
 
-    if (fhss_bc_dwell_interval > 0) {
-        cfg.fhss_bc_dwell_interval = fhss_bc_dwell_interval;
-    } else if (fhss_bc_dwell_interval == 0xff) {
+    if (fhss_bc_dwell_interval == 0) {
         cfg.fhss_bc_dwell_interval = cfg_default.fhss_bc_dwell_interval;
+    } else {
+        cfg.fhss_bc_dwell_interval = fhss_bc_dwell_interval;
     }
 
     if (ws_cfg_fhss_set(cur, NULL, &cfg, 0) < 0) {
@@ -509,10 +509,10 @@ int ws_management_fhss_unicast_channel_function_configure(
         return -2;
     }
 
-    if (dwell_interval > 0) {
-        cfg.fhss_uc_dwell_interval = dwell_interval;
-    } else {
+    if (dwell_interval == 0) {
         cfg.fhss_uc_dwell_interval = cfg_default.fhss_uc_dwell_interval;
+    } else {
+        cfg.fhss_uc_dwell_interval = dwell_interval;
     }
     if (channel_function < 0xff) {
         cfg.fhss_uc_channel_function = channel_function;
@@ -611,16 +611,16 @@ int ws_management_fhss_broadcast_channel_function_configure(
         return -2;
     }
 
-    if (dwell_interval > 0) {
-        cfg.fhss_bc_dwell_interval = dwell_interval;
-    } else {
+    if (dwell_interval == 0) {
         cfg.fhss_bc_dwell_interval = cfg_default.fhss_bc_dwell_interval;
+    } else {
+        cfg.fhss_bc_dwell_interval = dwell_interval;
     }
 
-    if (broadcast_interval > 0) {
-        cfg.fhss_bc_interval = broadcast_interval;
-    } else {
+    if (broadcast_interval > 0xffffff) {
         cfg.fhss_bc_interval = cfg_default.fhss_bc_interval;
+    } else if (broadcast_interval > 0) {
+        cfg.fhss_bc_interval = broadcast_interval;
     }
 
     if (channel_function != 0xff) {
