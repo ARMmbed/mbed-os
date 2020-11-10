@@ -367,6 +367,30 @@ static void hciEvtParseLeConnCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
   pMsg->hdr.status = pMsg->leConnCmpl.status;
 }
 
+#ifndef CORDIO_RPA_SWAP_WORKAROUND
+#define CORDIO_RPA_SWAP_WORKAROUND 0
+#endif
+#if CORDIO_RPA_SWAP_WORKAROUND
+/*************************************************************************************************/
+/*!
+ *  \brief  Check if address bits are all 0s or all 1s.
+ *
+ *  \param  p       Pointer to address.
+ *
+ *  \return TRUE if address is invalid.
+ */
+/*************************************************************************************************/
+static bool_t isAddressInvalid(uint8_t *p)
+{
+    for (int i = 0; i < 6; i++) {
+        if ((p[i] != 0xff) && (p[i] != 0x00)) {
+            return FALSE; // meaning valid address
+        }
+    }
+    return TRUE;
+}
+#endif // CORDIO_RPA_SWAP_WORKAROUND
+
 /*************************************************************************************************/
 /*!
  *  \brief  Parse an HCI event.
@@ -384,9 +408,21 @@ static void hciEvtParseLeEnhancedConnCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t le
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.handle, p);
   BSTREAM_TO_UINT8(pMsg->leConnCmpl.role, p);
   BSTREAM_TO_UINT8(pMsg->leConnCmpl.addrType, p);
-  BSTREAM_TO_BDA(pMsg->leConnCmpl.peerAddr, p);
-  BSTREAM_TO_BDA(pMsg->leConnCmpl.localRpa, p);
-  BSTREAM_TO_BDA(pMsg->leConnCmpl.peerRpa, p);
+
+#if CORDIO_RPA_SWAP_WORKAROUND
+  if (isAddressInvalid(p)) {
+      memset(pMsg->leConnCmpl.peerRpa, 0x00, BDA_ADDR_LEN);
+      p += BDA_ADDR_LEN;
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.localRpa, p);
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.peerAddr, p);
+  } else
+#endif // CORDIO_RPA_SWAP_WORKAROUND
+  {
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.peerAddr, p);
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.localRpa, p);
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.peerRpa, p);
+  }
+
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.connInterval, p);
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.connLatency, p);
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.supTimeout, p);

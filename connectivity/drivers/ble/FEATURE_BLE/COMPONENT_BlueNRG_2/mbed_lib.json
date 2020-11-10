@@ -11,5 +11,10 @@
             "help": "Read the BD public address at startup",
             "value": false
         }
+    },
+    "target_overrides": {
+        "*": {
+            "target.macros_add": [ "CORDIO_RPA_SWAP_WORKAROUND=1" ]
+        }
     }
 }
