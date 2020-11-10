@@ -9,11 +9,9 @@ endif()
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 
-set(MBED_TOOLCHAIN_FILE_USED FALSE)
-
 # Set default toolchain file
-if(NOT CMAKE_TOOLCHAIN_FILE)
-    set(MBED_TOOLCHAIN_FILE_USED TRUE)
+if(NOT CMAKE_TOOLCHAIN_FILE OR MBED_TOOLCHAIN_FILE_USED)
+    set(MBED_TOOLCHAIN_FILE_USED TRUE CACHE INTERNAL "")
 
     set(CMAKE_TOOLCHAIN_FILE "${MBED_PATH}/tools/cmake/toolchain.cmake" CACHE INTERNAL "")
 
