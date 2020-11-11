@@ -665,7 +665,7 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
     }
     if (type == FlowControlRTS) {
         // Enable RTS
-        MBED_ASSERT(pinmap->rx_flow_pin != (UARTName)NC);
+        MBED_ASSERT(pinmap->rx_flow_pin != NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_RTS;
         obj_s->pin_rts = pinmap->rx_flow_pin;
         // Enable the pin for RTS function
@@ -674,7 +674,7 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
     }
     if (type == FlowControlCTS) {
         // Enable CTS
-        MBED_ASSERT(pinmap->tx_flow_pin != (UARTName)NC);
+        MBED_ASSERT(pinmap->tx_flow_pin != NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_CTS;
         obj_s->pin_cts = pinmap->tx_flow_pin;
         // Enable the pin for CTS function
@@ -683,8 +683,8 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
     }
     if (type == FlowControlRTSCTS) {
         // Enable CTS & RTS
-        MBED_ASSERT(pinmap->rx_flow_pin != (UARTName)NC);
-        MBED_ASSERT(pinmap->tx_flow_pin != (UARTName)NC);
+        MBED_ASSERT(pinmap->rx_flow_pin != NC);
+        MBED_ASSERT(pinmap->tx_flow_pin != NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_RTS_CTS;
         obj_s->pin_rts = pinmap->rx_flow_pin;;
         obj_s->pin_cts = pinmap->tx_flow_pin;;
