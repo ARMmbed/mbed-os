@@ -100,6 +100,20 @@ public:
      */
     virtual const char *get_mac_address();
 
+    /** Set the MAC address to the interface.
+     *
+     *  Provided MAC address is set the the network interface. Address must be
+     *  set before using the interface connect() method.
+     *
+     *  @param          mac_addr Buffer containing the MAC address
+     *  @param          addr_len Length of provided buffer in bytes
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if address is not valid
+     *  @retval         NSAPI_ERROR_BUSY if address can't be set.
+     */
+    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len);
+
     /** Get the local IP address
      *
      *  @param          address SocketAddress representation of the local IP address

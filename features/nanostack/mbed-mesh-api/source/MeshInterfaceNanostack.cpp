@@ -61,6 +61,27 @@ char *Nanostack::Interface::get_mac_address(char *buf, nsapi_size_t buflen)
     }
 }
 
+nsapi_error_t Nanostack::Interface::set_mac_address(uint8_t *buf, nsapi_size_t buflen)
+{
+    if (buflen != 8) {
+        /* Provided MAC is too short */
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    if (_device_id >= 0) {
+        /* device is already registered, can't set MAC address anymore */
+        return NSAPI_ERROR_BUSY;
+    }
+
+    NanostackMACPhy *phy = interface_phy.nanostack_mac_phy();
+    if (phy) {
+        phy->set_mac_address(buf);
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 nsapi_error_t Nanostack::Interface::get_netmask(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
@@ -235,6 +256,11 @@ const char *InterfaceNanostack::get_mac_address()
         return mac_addr_str;
     }
     return NULL;
+}
+
+nsapi_error_t InterfaceNanostack::set_mac_address(uint8_t *mac_addr, size_t addr_len)
+{
+    return _interface->set_mac_address(mac_addr, addr_len);
 }
 
 nsapi_connection_status_t InterfaceNanostack::get_connection_status() const
