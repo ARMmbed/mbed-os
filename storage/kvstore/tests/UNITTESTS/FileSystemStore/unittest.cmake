@@ -10,7 +10,7 @@ set(unittest-includes ${unittest-includes}
 
 set(unittest-sources
   ../storage/blockdevice/source/HeapBlockDevice.cpp
-  ../storage/kvstore/source/FileSystemStore.cpp
+  ../storage/kvstore/filesystemstore/source/FileSystemStore.cpp
   ../storage/filesystem/littlefs/source/LittleFileSystem.cpp
   ../storage/filesystem/source/Dir.cpp
   ../storage/filesystem/source/File.cpp
