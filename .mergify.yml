@@ -38,7 +38,7 @@ pull_request_rules:
   - name: "label needs: work when travis-ci failed"
     conditions:
       # Travis failing
-      - status-failure~=continuous-integration/travis-ci/pr
+      - status-failure~=Travis CI - Pull Request
       - "label!=mergify skip"
     actions:
       label:
@@ -81,7 +81,7 @@ pull_request_rules:
       - -conflict
 
       # CI green policy, at least Travis should be green
-      - status-success~=continuous-integration/travis-ci/pr
+      - status-success~=Travis CI - Pull Request
       # new CI needs to be done (neutral does not work, lets check if it failed or passed, if none, we need to run again)
       - -status-success~=continuous-integration/jenkins/pr-head
       - -status-failure~=continuous-integration/jenkins/pr-head
@@ -132,7 +132,7 @@ pull_request_rules:
       - "#changes-requested-reviews-by=0"
 
       # CI green policy
-      - status-success~=continuous-integration/travis-ci/pr
+      - status-success~=Travis CI - Pull Request
       # Internal Jenkins - we rely on PR head to provide status
       - status-success~=continuous-integration/jenkins/pr-head
       # any of the jenkins pipeline needs to be green. We rely on not failure means all good (if skipped or executed) 
