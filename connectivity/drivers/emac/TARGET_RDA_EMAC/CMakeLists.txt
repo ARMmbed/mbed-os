@@ -5,7 +5,7 @@ add_subdirectory(lwip-wifi)
 
 target_include_directories(mbed-emac
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
 target_sources(mbed-emac

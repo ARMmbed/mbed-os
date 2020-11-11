@@ -5,10 +5,10 @@ add_library(mbed-events INTERFACE)
 
 target_include_directories(mbed-events
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/events
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/events/internal
+        .
+        ./include
+        ./include/events
+        ./include/events/internal
 )
 
 target_sources(mbed-events

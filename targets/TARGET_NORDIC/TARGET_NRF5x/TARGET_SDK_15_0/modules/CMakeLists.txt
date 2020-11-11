@@ -3,17 +3,17 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/drivers
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/drivers/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/drivers/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/drivers/src/prs
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/hal
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/mdk
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/soc
-        ${CMAKE_CURRENT_SOURCE_DIR}/softdevice
-        ${CMAKE_CURRENT_SOURCE_DIR}/softdevice/common
+        .
+        ./nrfx
+        ./nrfx/drivers
+        ./nrfx/drivers/include
+        ./nrfx/drivers/src
+        ./nrfx/drivers/src/prs
+        ./nrfx/hal
+        ./nrfx/mdk
+        ./nrfx/soc
+        ./softdevice
+        ./softdevice/common
 )
 
 target_sources(mbed-core

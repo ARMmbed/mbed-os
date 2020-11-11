@@ -3,10 +3,10 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/legacy
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrfx/legacy/ble_flash
+        .
+        ./nrfx
+        ./nrfx/legacy
+        ./nrfx/legacy/ble_flash
 )
 
 target_sources(mbed-core

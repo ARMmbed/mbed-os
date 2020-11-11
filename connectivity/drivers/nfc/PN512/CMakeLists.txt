@@ -3,11 +3,11 @@
 
 target_include_directories(mbed-nfc
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc/controllers
-        ${CMAKE_CURRENT_SOURCE_DIR}/source
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/transceiver
+        ./include
+        ./include/nfc
+        ./include/nfc/controllers
+        ./source
+        ./source/transceiver
 )
 
 target_sources(mbed-nfc

@@ -5,7 +5,7 @@ add_library(mbed-usb INTERFACE)
 
 target_include_directories(mbed-usb
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
 target_sources(mbed-usb

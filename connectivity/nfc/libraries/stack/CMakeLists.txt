@@ -6,9 +6,9 @@ add_subdirectory(transceiver)
 
 target_include_directories(mbed-nfc
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/ndef
-        ${CMAKE_CURRENT_SOURCE_DIR}/platform
+        .
+        ./ndef
+        ./platform
 )
 
 target_sources(mbed-nfc

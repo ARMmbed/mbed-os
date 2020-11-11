@@ -3,9 +3,9 @@
 
 target_include_directories(mbed-nanostack-sal_stack
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/IEEE802_15_4
-        ${CMAKE_CURRENT_SOURCE_DIR}/virtual_rf
+        .
+        ./IEEE802_15_4
+        ./virtual_rf
 )
 
 target_sources(mbed-nanostack-sal_stack

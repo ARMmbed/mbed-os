@@ -4,9 +4,9 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries
-        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/fstorage
-        ${CMAKE_CURRENT_SOURCE_DIR}/nrf_soc_nosd/
+        ./libraries
+        ./libraries/fstorage
+        ./nrf_soc_nosd/
 )
 
 target_sources(mbed-core

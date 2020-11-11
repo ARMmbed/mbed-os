@@ -3,16 +3,16 @@
 
 target_include_directories(mbed-nanostack-sal_stack
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/Bootstraps
-        ${CMAKE_CURRENT_SOURCE_DIR}/Fragmentation
-        ${CMAKE_CURRENT_SOURCE_DIR}/IPHC_Decode
-        ${CMAKE_CURRENT_SOURCE_DIR}/MAC
-        ${CMAKE_CURRENT_SOURCE_DIR}/Mesh
-        ${CMAKE_CURRENT_SOURCE_DIR}/ND
-        ${CMAKE_CURRENT_SOURCE_DIR}/NVM
-        ${CMAKE_CURRENT_SOURCE_DIR}/Thread
-        ${CMAKE_CURRENT_SOURCE_DIR}/ws
+        .
+        ./Bootstraps
+        ./Fragmentation
+        ./IPHC_Decode
+        ./MAC
+        ./Mesh
+        ./ND
+        ./NVM
+        ./Thread
+        ./ws
 )
 
 target_sources(mbed-nanostack-sal_stack

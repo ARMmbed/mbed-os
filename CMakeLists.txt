@@ -5,11 +5,6 @@
 
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
-# Using relative paths behavior
-if(POLICY CMP0076)
-    cmake_policy(SET CMP0076 NEW)
-endif()
-
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(${MBED_PATH}/tools/cmake/core.cmake)
 

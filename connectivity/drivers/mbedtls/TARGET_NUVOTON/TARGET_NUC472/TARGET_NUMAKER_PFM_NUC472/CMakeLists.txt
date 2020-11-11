@@ -3,5 +3,5 @@
 
 target_include_directories(mbed-mbedtls
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )

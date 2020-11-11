@@ -5,11 +5,11 @@ add_subdirectory(libraries)
 
 target_include_directories(mbed-nfc
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc/ndef
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/nfc/ndef/common
+        .
+        ./include
+        ./include/nfc
+        ./include/nfc/ndef
+        ./include/nfc/ndef/common
 )
 
 target_sources(mbed-nfc

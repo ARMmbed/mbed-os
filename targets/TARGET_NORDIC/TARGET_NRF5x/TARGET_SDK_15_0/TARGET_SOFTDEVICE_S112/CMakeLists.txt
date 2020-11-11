@@ -4,6 +4,6 @@
 
 target_include_directories(mbed-core
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/headers
-        ${CMAKE_CURRENT_SOURCE_DIR}/headers/nrf52
+        ./headers
+        ./headers/nrf52
 )

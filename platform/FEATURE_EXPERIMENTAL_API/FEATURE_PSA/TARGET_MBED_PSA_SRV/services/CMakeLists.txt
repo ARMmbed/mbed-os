@@ -6,7 +6,7 @@ add_subdirectory(storage)
 
 target_include_directories(mbed-psa
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/platform
+        ./platform
 )
 
 target_sources(mbed-psa
