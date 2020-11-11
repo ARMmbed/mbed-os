@@ -4571,6 +4571,7 @@
             "USTICKER",
             "RTC",
             "ANALOGIN",
+            "CAN",
             "ETHERNET",
             "I2C",
             "I2CSLAVE",
