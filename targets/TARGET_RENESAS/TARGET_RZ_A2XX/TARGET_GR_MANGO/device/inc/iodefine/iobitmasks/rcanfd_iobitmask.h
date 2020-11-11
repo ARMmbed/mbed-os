@@ -18,9 +18,9 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer
-* Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
-/* Copyright (c) 2018-2020 Renesas Electronics Corporation.
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@
  * limitations under the License.
  */
 /*******************************************************************************
-* Rev: 2.00
+* Rev: 3.01
 * Description : IO bitmask header
 *******************************************************************************/
 
@@ -1822,14 +1822,6 @@
 #define RCANFD_RSCFD0CFDCDTCT_CFDMAE0_SHIFT                                    (8u)
 #define RCANFD_RSCFD0CFDCDTCT_CFDMAE1                                          (0x00000200u)
 #define RCANFD_RSCFD0CFDCDTCT_CFDMAE1_SHIFT                                    (9u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE2                                          (0x00000400u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE2_SHIFT                                    (10u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE3                                          (0x00000800u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE3_SHIFT                                    (11u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE4                                          (0x00001000u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE4_SHIFT                                    (12u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE5                                          (0x00002000u)
-#define RCANFD_RSCFD0CFDCDTCT_CFDMAE5_SHIFT                                    (13u)
 #define RCANFD_RSCFD0CFDCDTSTS_RFDMASTS0                                       (0x00000001u)
 #define RCANFD_RSCFD0CFDCDTSTS_RFDMASTS0_SHIFT                                 (0u)
 #define RCANFD_RSCFD0CFDCDTSTS_RFDMASTS1                                       (0x00000002u)
@@ -1850,14 +1842,6 @@
 #define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS0_SHIFT                                 (8u)
 #define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS1                                       (0x00000200u)
 #define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS1_SHIFT                                 (9u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS2                                       (0x00000400u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS2_SHIFT                                 (10u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS3                                       (0x00000800u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS3_SHIFT                                 (11u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS4                                       (0x00001000u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS4_SHIFT                                 (12u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS5                                       (0x00002000u)
-#define RCANFD_RSCFD0CFDCDTSTS_CFDMASTS5_SHIFT                                 (13u)
 #define RCANFD_RSCFD0CFDGRMCFG_RCMC                                            (0x00000001u)
 #define RCANFD_RSCFD0CFDGRMCFG_RCMC_SHIFT                                      (0u)
 #define RCANFD_RSCFD0CFDC0DCFG_DBRP                                            (0x000000FFu)

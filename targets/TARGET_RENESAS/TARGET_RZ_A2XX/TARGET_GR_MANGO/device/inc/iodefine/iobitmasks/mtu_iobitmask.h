@@ -18,9 +18,9 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer
-* Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
-/* Copyright (c) 2018-2020 Renesas Electronics Corporation.
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@
  * limitations under the License.
  */
 /*******************************************************************************
-* Rev: 2.00
+* Rev: 3.01
 * Description : IO bitmask header
 *******************************************************************************/
 
@@ -298,8 +298,8 @@
 #define MTU_NFCRC_NFCEN_SHIFT                                                  (2u)
 #define MTU_NFCRC_NFDEN                                                        (0x08u)
 #define MTU_NFCRC_NFDEN_SHIFT                                                  (3u)
-#define MTU_NFCRC_NFCSC                                                        (0x30u)
-#define MTU_NFCRC_NFCSC_SHIFT                                                  (4u)
+#define MTU_NFCRC_NFCS                                                         (0x30u)
+#define MTU_NFCRC_NFCS_SHIFT                                                   (4u)
 #define MTU_TCR_TPSC                                                           (0x07u)
 #define MTU_TCR_TPSC_SHIFT                                                     (0u)
 #define MTU_TCR_CKEG                                                           (0x18u)
