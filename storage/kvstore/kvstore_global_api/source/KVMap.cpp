@@ -15,7 +15,7 @@
  */
 
 #include "kvstore/KVStore.h"
-#include "kvstore/KVMap.h"
+#include "kvstore_global_api/KVMap.h"
 #include "kv_config/kv_config.h"
 #include <stdlib.h>
 #include "string.h"
