@@ -27,6 +27,7 @@ class Nanostack::Interface : public OnboardNetworkStack::Interface, private mbed
 public:
     nsapi_error_t get_ip_address(SocketAddress *address) final;
     char *get_mac_address(char *buf, nsapi_size_t buflen) final;
+    nsapi_error_t set_mac_address(uint8_t *buf, nsapi_size_t buflen) final;
     nsapi_error_t get_netmask(SocketAddress *address) final;
     nsapi_error_t get_gateway(SocketAddress *address) override;
     void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) final;
@@ -108,6 +109,9 @@ public:
     /return     MAC address of the interface
     */
     const char *get_mac_address() override;
+
+    /** @copydoc NetworkInterface::set_mac_address */
+    nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len) override;
 
     /** Register callback for status reporting
      *
