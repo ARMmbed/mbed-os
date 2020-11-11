@@ -31,6 +31,7 @@
         "events",
         "sd",
         "qspif",
+        "ospif",
         "spif-driver",
         "cryptocell310",
         "drivers-usb"
