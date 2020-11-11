@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "kvstore/FileSystemStore.h"
+#include "filesystemstore/FileSystemStore.h"
 #include "kv_config/kv_config.h"
 #include "filesystem/Dir.h"
 #include "filesystem/File.h"

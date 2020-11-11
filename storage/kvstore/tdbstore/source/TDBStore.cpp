@@ -16,7 +16,7 @@
 
 // ----------------------------------------------------------- Includes -----------------------------------------------------------
 
-#include "kvstore/TDBStore.h"
+#include "tdbstore/TDBStore.h"
 
 #include <algorithm>
 #include <string.h>
