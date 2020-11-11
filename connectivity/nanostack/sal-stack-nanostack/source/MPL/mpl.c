@@ -48,7 +48,7 @@
 #define MPL_SEED_64_BIT     2
 #define MPL_SEED_128_BIT    3
 
-#define MAX_BUFFERED_MESSAGES_SIZE 2048
+#define MAX_BUFFERED_MESSAGES_SIZE 8192
 #define MAX_BUFFERED_MESSAGE_LIFETIME 600 // 1/10 s ticks
 
 static bool mpl_timer_running;

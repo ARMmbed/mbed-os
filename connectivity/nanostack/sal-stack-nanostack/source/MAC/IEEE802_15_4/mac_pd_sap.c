@@ -655,10 +655,14 @@ static int8_t mac_data_interface_tx_done_by_ack_cb(protocol_interface_rf_mac_set
     return 0;
 }
 
-static bool mac_pd_sap_ack_validation(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf_dsn, const uint8_t *data_ptr)
+bool mac_pd_sap_ack_validation(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf_dsn, const uint8_t *data_ptr)
 {
-    if (!rf_ptr->active_pd_data_request || !rf_ptr->active_pd_data_request->fcf_dsn.ackRequested) {
+    if (!rf_ptr->active_pd_data_request || (!rf_ptr->active_pd_data_request->fcf_dsn.ackRequested && !rf_ptr->active_pd_data_request->ExtendedFrameExchange)) {
         return false; //No active Data request anymore or no ACK request for current TX
+    }
+
+    if (rf_ptr->active_pd_data_request->ExtendedFrameExchange && fcf_dsn->frametype == FC_DATA_FRAME) {
+        return true;//EFDE final message
     }
 
     if (fcf_dsn->frameVersion != rf_ptr->active_pd_data_request->fcf_dsn.frameVersion) {
