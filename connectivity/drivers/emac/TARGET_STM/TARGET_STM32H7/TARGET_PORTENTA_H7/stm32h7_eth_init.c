@@ -31,6 +31,7 @@
 #ifndef USE_USER_DEFINED_HAL_ETH_MSPINIT
 
 #include "stm32h7xx_hal.h"
+#include "portenta_power.h"
 
 #define ETH_TX_EN_Pin GPIO_PIN_11
 #define ETH_TX_EN_GPIO_Port GPIOG
@@ -59,6 +60,8 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
     GPIO_InitTypeDef GPIO_InitStruct;
     if(heth->Instance == ETH)
     {
+        enableEthPowerSupply();
+        
         #if !(defined(DUAL_CORE) && defined(CORE_CM4))
         /* Disable DCache for STM32H7 family */
         SCB_DisableDCache();
