@@ -26,7 +26,7 @@
 #include "region_defs.h"
 #include "cytfm_flash_info.h"
 
-#if DEVICE_FLASH
+#if DEVICE_FLASH && defined(TARGET_TFM) && MBED_CONF_PSA_PRESENT
 
 #ifdef __cplusplus
 extern "C" {
