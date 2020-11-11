@@ -172,7 +172,7 @@ public:
      */
     int unacknowledged_ticks() const
     {
-        return core_util_atomic_load_u8(&_unacknowledged_ticks);
+        return core_util_atomic_load_u32(&_unacknowledged_ticks);
     }
 
     /** Get the current tick count
@@ -227,7 +227,7 @@ protected:
     static void _clear_irq_pending();
     us_timestamp_t _time_us;
     uint64_t _tick;
-    uint8_t _unacknowledged_ticks;
+    uint32_t _unacknowledged_ticks;
     bool _wake_time_set;
     bool _wake_time_passed;
     bool _wake_early;
