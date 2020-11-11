@@ -67,7 +67,6 @@ public:
     nsapi_error_t configure_hup(PinName dcd_pin = NC, bool active_high = false) override;
 #endif
     ControlPlane_netif *get_cp_netif() override;
-    static const char *pdp_type_to_string(pdp_type_t pdp_type);
     static RIL_CellularDevice::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     static nsapi_ip_stack_t pdp_type_to_ip_stack(pdp_type_t pdp_type);
 

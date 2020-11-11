@@ -360,6 +360,12 @@ public: //Common functions
      */
     void set_plmn(const char *plmn);
 
+    /** Get the plmn which is used is manual registering. If plmn is null then automatic registering is used.
+     *
+     *  @return plmn is it's set or null
+     */
+    const char *get_plmn() const;
+
     /** Start the interface
      *
      *  Initializes the modem for communication.

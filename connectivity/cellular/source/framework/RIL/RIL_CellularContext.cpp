@@ -170,6 +170,8 @@ nsapi_error_t RIL_CellularContext::do_initial_attach()
 {
     ScopedLock<rtos::Mutex> lock(_api_mutex);
 
+    const char *plmn = _device->get_plmn();
+    tr_debug("RIL_CellularContext::do_initial_attach(), plmn: %s", (plmn ? plmn : "NULL"));
     _set_registration_complete = false;
     nsapi_error_t ret = NSAPI_ERROR_OK;
 
@@ -181,12 +183,17 @@ nsapi_error_t RIL_CellularContext::do_initial_attach()
     RILAdaptation &ril = static_cast<RIL_CellularDevice *>(_device)->get_ril();
 
     ril_token_t *token1;
-    
-    token1 = ril.send_request(RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC,
-                                nullptr, 0,
-                                callback(this, &RIL_CellularContext::request_set_initial_attach_apn_response),
-                                cond_mutex, cond_var);
-    
+    if (plmn) {
+        token1 = ril.send_request(RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL,
+                                  (void *)plmn, strlen(plmn),
+                                  callback(this, &RIL_CellularContext::request_set_initial_attach_apn_response),
+                                  cond_mutex, cond_var);
+    } else {
+        token1 = ril.send_request(RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC,
+                                  nullptr, 0,
+                                  callback(this, &RIL_CellularContext::request_set_initial_attach_apn_response),
+                                  cond_mutex, cond_var);
+    }
 
     if (token1 == nullptr) {
         delete cond_var;
@@ -989,11 +996,11 @@ nsapi_error_t RIL_CellularContext::handle_data_call_setup_addresses(const RIL_Da
     _data_call_addresses = new data_call_addr_data_t;
 
     if (response->addresses) {
-        mbed_cellular_util::separate_ip_addresses(response->addresses,
+        mbed_cellular_util::separate_space_delimited_addresses(true, response->addresses,
                                                                _data_call_addresses->_local_addr_ipv6,
                                                                sizeof(_data_call_addresses->_local_addr_ipv6),
                                                                temp, sizeof(temp));
-        mbed_cellular_util::separate_ip_addresses(response->addresses,
+        mbed_cellular_util::separate_space_delimited_addresses(false, response->addresses,
                                                                _data_call_addresses->_local_addr_ipv4,
                                                                sizeof(_data_call_addresses->_local_addr_ipv4),
                                                                temp, sizeof(temp));
@@ -1005,13 +1012,13 @@ nsapi_error_t RIL_CellularContext::handle_data_call_setup_addresses(const RIL_Da
     }
 
     if (response->dnses) {
-        mbed_cellular_util::separate_ip_addresses(response->dnses,
+        mbed_cellular_util::separate_space_delimited_addresses(true, response->dnses,
                                                                _data_call_addresses->_primary_dns_addr_ipv6,
                                                                sizeof(_data_call_addresses->_primary_dns_addr_ipv6),
                                                                _data_call_addresses->_secondary_dns_addr_ipv6,
                                                                sizeof(_data_call_addresses->_secondary_dns_addr_ipv6));
 
-        mbed_cellular_util::separate_ip_addresses(response->dnses,
+        mbed_cellular_util::separate_space_delimited_addresses(false, response->dnses,
                                                                _data_call_addresses->_primary_dns_addr_ipv4,
                                                                sizeof(_data_call_addresses->_primary_dns_addr_ipv4),
                                                                _data_call_addresses->_secondary_dns_addr_ipv4,
@@ -1025,11 +1032,11 @@ nsapi_error_t RIL_CellularContext::handle_data_call_setup_addresses(const RIL_Da
     }
 
     if (response->gateways) {
-        mbed_cellular_util::separate_ip_addresses(response->gateways,
+        mbed_cellular_util::separate_space_delimited_addresses(true, response->gateways,
                                                                _data_call_addresses->_gateway_addr_ipv6,
                                                                sizeof(_data_call_addresses->_gateway_addr_ipv6),
                                                                temp, sizeof(temp));
-        mbed_cellular_util::separate_ip_addresses(response->gateways,
+        mbed_cellular_util::separate_space_delimited_addresses(false, response->gateways,
                                                                _data_call_addresses->_gateway_addr_ipv4,
                                                                sizeof(_data_call_addresses->_gateway_addr_ipv4),
                                                                temp, sizeof(temp));
@@ -1135,28 +1142,4 @@ void RIL_CellularContext::unsolicited_response(int response_id, const void *data
             }
         }
     }
-}
-
-const char *RIL_CellularContext::pdp_type_to_string(pdp_type_t pdp_type)
-{
-    const char *ret;
-
-    switch (pdp_type) {
-        case IPV4_PDP_TYPE:
-            ret = "IP";
-            break;
-        case IPV6_PDP_TYPE:
-            ret = "IPV6";
-            break;
-        case IPV4V6_PDP_TYPE:
-            ret = "IPV4V6";
-            break;
-        case NON_IP_PDP_TYPE:
-            ret = "Non-IP";
-            break;
-        default:
-            ret = "";
-    }
-
-    return ret;
 }

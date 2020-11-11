@@ -23,10 +23,7 @@
 #include "ScopedLock.h"
 
 using namespace mbed;
-typedef enum s5js100_cellular_event_status {
-    CellularRILATResponse                   = NSAPI_EVENT_CELLULAR_STATUS_BASE + 11, /* Only available when using RIL layer. This is a (multi-)response to RIL command RIL_REQUEST_SET_FORWARDING_AT_COMMAND. Data field contain AT response (char*) and status_data contains length. */
 
-} s5js100_cellular_connection_status_t;
 static const intptr_t cellular_properties[RIL_CellularDevice::PROPERTY_MAX] = {
     1,  // C_EREG
     0,  // C_GREG
