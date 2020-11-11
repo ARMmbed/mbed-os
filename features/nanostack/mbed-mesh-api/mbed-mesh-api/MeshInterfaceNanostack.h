@@ -29,6 +29,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
     virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
+    virtual nsapi_error_t set_mac_address(uint8_t *buf, nsapi_size_t buflen);
     virtual nsapi_error_t get_netmask(SocketAddress *address);
     MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual char *get_netmask(char *buf, nsapi_size_t buflen);
@@ -117,6 +118,9 @@ public:
     /return     MAC address of the interface
     */
     virtual const char *get_mac_address();
+
+    /** @copydoc NetworkInterface::set_mac_address */
+    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len);
 
     /** Register callback for status reporting
      *
