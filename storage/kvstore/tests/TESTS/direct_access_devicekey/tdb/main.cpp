@@ -24,9 +24,9 @@
 #include <string.h>
 #include "DeviceKey.h"
 #include "kvstore/KVStore.h"
-#include "kvstore/KVMap.h"
+#include "kvstore_global_api/KVMap.h"
 #include "kv_config/kv_config.h"
-#include "kvstore/TDBStore.h"
+#include "tdbstore/TDBStore.h"
 #include "FlashIAP.h"
 #include "FlashIAPBlockDevice.h"
 #include "direct_access_devicekey/DirectAccessDevicekey.h"
