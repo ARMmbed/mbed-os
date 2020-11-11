@@ -191,7 +191,7 @@ public:
      */
     std::chrono::duration<int, period> unacknowledged_ticks() const
     {
-        return std::chrono::duration<int, period>(core_util_atomic_load_u8(&_unacknowledged_ticks));
+        return std::chrono::duration<int, period>(core_util_atomic_load_u32(&_unacknowledged_ticks));
     }
 
     /** Get the current tick count
@@ -248,7 +248,7 @@ protected:
     const highres_time_point _epoch;
     highres_time_point _time;
     uint64_t _tick;
-    uint8_t _unacknowledged_ticks;
+    uint32_t _unacknowledged_ticks;
     bool _wake_time_set;
     bool _wake_time_passed;
     bool _wake_early;
