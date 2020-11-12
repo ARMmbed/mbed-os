@@ -302,11 +302,13 @@ nsapi_size_or_error_t TELIT_ME910_CellularStack::socket_sendto_impl(CellularSock
             sent_len_after = blk;
         } else {
             // Get the sent count before sending
+            _at.set_at_timeout(ME910_SEND_SOCKET_TIMEOUT);
             _at.cmd_start_stop("#SI", "=", "%d", socket->id + 1);
             _at.resp_start("#SI:");
             _at.skip_param();
             sent_len_before = _at.read_int();
             _at.resp_stop();
+            _at.restore_at_timeout();
         }
 
         // Send
@@ -330,11 +332,13 @@ nsapi_size_or_error_t TELIT_ME910_CellularStack::socket_sendto_impl(CellularSock
         _at.resp_stop();
 
         if (!socket->tls_socket) {
+            _at.set_at_timeout(ME910_SEND_SOCKET_TIMEOUT);
             _at.cmd_start_stop("#SI", "=", "%d", socket->id + 1);
             _at.resp_start("#SI:");
             _at.skip_param();
             sent_len_after = _at.read_int();
             _at.resp_stop();
+            _at.restore_at_timeout();
         }
 
         sent_len = sent_len_after - sent_len_before;

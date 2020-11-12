@@ -29,6 +29,7 @@ namespace mbed {
 #define ME910_CONTEXT_MAX 6
 #define ME910_CREATE_SOCKET_TIMEOUT 150000 //150 seconds
 #define ME910_CLOSE_SOCKET_TIMEOUT 20000 // TCP socket max timeout is >10sec
+#define ME910_SEND_SOCKET_TIMEOUT 5000 // TCP socket max timeout is >10sec
 #define ME910_MAX_RECV_SIZE 1000
 #define ME910_MAX_SEND_SIZE 1023
 #define ME910_SOCKET_BIND_FAIL 556
