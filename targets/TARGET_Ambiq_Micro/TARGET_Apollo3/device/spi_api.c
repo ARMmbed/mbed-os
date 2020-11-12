@@ -142,7 +142,7 @@ void spi_frequency(spi_t *obj, int hz)
 int spi_master_write(spi_t *obj, int value)
 {
     uint32_t rxval = 0;
-    spi_master_block_write(obj, (const char *)&value, 1, (char *)&rxval, 1, 0x00);
+    spi_master_block_write(obj, (const char *)&value, 1, (char *)&rxval, 1, SPI_FILL_CHAR);
     return rxval;
 }
 
@@ -151,53 +151,42 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     MBED_ASSERT(obj);
 
     int chars_handled = 0;
+    uint32_t status = AM_HAL_STATUS_SUCCESS;
 
-    // perform a duplex xfer for the smaller of the two buffers
+    // always perform a duplex xfer
     xfer.eDirection = AM_HAL_IOM_FULLDUPLEX;
-    xfer.ui32NumBytes = (tx_length > rx_length) ? rx_length : tx_length;
-    xfer.pui32RxBuffer = (uint32_t *)rx_buffer;
-    xfer.pui32TxBuffer = (uint32_t *)tx_buffer;
 
-    if (xfer.ui32NumBytes) {
-        uint32_t status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
-        if (AM_HAL_STATUS_SUCCESS != status) {
-            return 0;
-        }
-        chars_handled += xfer.ui32NumBytes;
+    if (tx_length == rx_length) {
+        xfer.pui32RxBuffer = (uint32_t *)rx_buffer;
+        xfer.pui32TxBuffer = (uint32_t *)tx_buffer;
+        xfer.ui32NumBytes = tx_length;
+        status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
     }
 
     // handle difference between buffers
-    if (tx_length != rx_length) {
-        bool Rw = (rx_length >= tx_length);
-
-        // set up common config
-        xfer.eDirection = (Rw) ? AM_HAL_IOM_RX : AM_HAL_IOM_TX;
-        xfer.ui32NumBytes = (Rw) ? (rx_length - tx_length) : (tx_length - rx_length);
-        xfer.pui32RxBuffer = (Rw) ? (uint32_t *)(rx_buffer + chars_handled) : NULL;
-        xfer.pui32TxBuffer = (Rw) ? NULL : (uint32_t *)(tx_buffer + chars_handled);
-
-        uint32_t status = AM_HAL_STATUS_SUCCESS;
-        if (!Rw || (write_fill == 0x00)) {
-            // when transmitting (w) or reading with a zero fill just use a simplex transfer
-            status = am_hal_iom_blocking_transfer(obj->spi.iom_obj.iom.handle, &xfer);
-            if (AM_HAL_STATUS_SUCCESS != status) {
-                return chars_handled;
-            }
-            chars_handled += xfer.ui32NumBytes;
-        } else {
-            // when reading with a nonzero fill use a duplex transfer
-            uint8_t fill[xfer.ui32NumBytes];
-            memset(fill, write_fill, xfer.ui32NumBytes);
-            xfer.eDirection = AM_HAL_IOM_FULLDUPLEX;
-            xfer.pui32TxBuffer = (uint32_t *)&fill;
-            uint32_t status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
-            if (AM_HAL_STATUS_SUCCESS != status) {
-                return chars_handled;
-            }
-            chars_handled += xfer.ui32NumBytes;
-        }
+    else if (tx_length < rx_length) {
+        xfer.pui32RxBuffer = (uint32_t *)rx_buffer;
+        xfer.ui32NumBytes = rx_length - tx_length;
+        uint8_t fill[xfer.ui32NumBytes];
+        memset(fill, write_fill, xfer.ui32NumBytes);
+        xfer.pui32TxBuffer = (uint32_t *)&fill;
+        status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
     }
 
+    else {
+        xfer.pui32TxBuffer = (uint32_t *)tx_buffer;
+        xfer.ui32NumBytes = tx_length - rx_length;
+        uint8_t fill[xfer.ui32NumBytes];
+        memset(fill, write_fill, xfer.ui32NumBytes);
+        xfer.pui32RxBuffer = (uint32_t *)&fill;
+        status = am_hal_iom_spi_blocking_fullduplex(obj->spi.iom_obj.iom.handle, &xfer);
+    }
+    
+    if (AM_HAL_STATUS_SUCCESS != status) {
+        return 0;
+    }
+
+    chars_handled += xfer.ui32NumBytes;
     return chars_handled;
 }
 
