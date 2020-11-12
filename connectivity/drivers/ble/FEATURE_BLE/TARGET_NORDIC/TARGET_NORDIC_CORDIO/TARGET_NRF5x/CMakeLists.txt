@@ -19,3 +19,9 @@ target_sources(mbed-ble-cordio
         stack/sources/pal_crypto.c
         stack/sources/pal_timer.c
 )
+
+target_link_libraries(mbed-ble-cordio
+    INTERFACE
+        mbed-ble-cordio_ll
+        mbed-mbedtls-cryptocell310
+)

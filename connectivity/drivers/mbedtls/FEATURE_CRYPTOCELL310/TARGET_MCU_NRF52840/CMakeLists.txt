@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(LIBCC_310_EXT ./TOOLCHAIN_GCC_ARM/libcc_310_ext.a)
-    set(LIBCC_310_TRNG ./TOOLCHAIN_GCC_ARM/libcc_310_trng.a)
+    set(LIBCC_310_EXT TOOLCHAIN_GCC_ARM/libcc_310_ext.a)
+    set(LIBCC_310_TRNG TOOLCHAIN_GCC_ARM/libcc_310_trng.a)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(LIBCC_310_EXT ./TOOLCHAIN_ARM/libcc_310_ext.ar)
-    set(LIBCC_310_TRNG ./TOOLCHAIN_ARM/libcc_310_trng.ar)
+    set(LIBCC_310_EXT TOOLCHAIN_ARM/libcc_310_ext.ar)
+    set(LIBCC_310_TRNG TOOLCHAIN_ARM/libcc_310_trng.ar)
 elseif(${MBED_TOOLCHAIN} STREQUAL "IAR")
-    set(LIBCC_310_EXT ./TOOLCHAIN_IAR/lib_cc310_ext.a)
-    set(LIBCC_310_TRNG ./TOOLCHAIN_IAR/lib_cc310_trng.a)
+    set(LIBCC_310_EXT TOOLCHAIN_IAR/lib_cc310_ext.a)
+    set(LIBCC_310_TRNG TOOLCHAIN_IAR/lib_cc310_trng.a)
 endif()
 
 target_include_directories(mbed-mbedtls-cryptocell310
@@ -24,6 +24,6 @@ target_sources(mbed-mbedtls-cryptocell310
 
 target_link_libraries(mbed-mbedtls-cryptocell310
     INTERFACE
-        ${LIBCC_310_EXT}
-        ${LIBCC_310_TRNG}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_EXT}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${LIBCC_310_TRNG}
 )
