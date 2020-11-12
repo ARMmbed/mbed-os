@@ -164,6 +164,8 @@ static const phy_device_channel_page_s phy_channel_pages[] = {
     { CHANNEL_PAGE_0, NULL}
 };
 
+using namespace std::chrono_literals;
+
 using namespace mbed;
 using namespace rtos;
 
@@ -196,7 +198,7 @@ static Se2435Pins *se2435_pa_pins = NULL;
 
 static uint32_t rf_get_timestamp(void)
 {
-    return (uint32_t)rf->tx_timer.read_us();
+    return (uint32_t)rf->tx_timer.elapsed_time().count();
 }
 
 static void rf_lock(void)
@@ -564,17 +566,17 @@ static int8_t rf_start_csma_ca(uint8_t *data_ptr, uint16_t data_length, uint8_t 
     mac_tx_handle = tx_handle;
 
     if (tx_time) {
-        uint32_t backoff_time = tx_time - rf_get_timestamp();
+        std::chrono::microseconds backoff_time(tx_time - rf_get_timestamp());
         // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
-        if (backoff_time <= 65000) {
-            rf->cca_timer.attach_us(rf_csma_ca_timer_signal, backoff_time);
+        if (backoff_time <= 65ms) {
+            rf->cca_timer.attach(rf_csma_ca_timer_signal, backoff_time);
             TEST_CSMA_STARTED
             rf_unlock();
             return 0;
         }
     }
     // Short timeout to start CCA immediately.
-    rf->cca_timer.attach_us(rf_csma_ca_timer_signal, 1);
+    rf->cca_timer.attach(rf_csma_ca_timer_signal, 1us);
     TEST_CSMA_STARTED
     rf_unlock();
     return 0;
@@ -607,12 +609,12 @@ static void rf_handle_cca_ed_done(void)
     if (cca_prepare_status == PHY_RESTART_CSMA) {
         device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_OK, 0, 0);
         if (tx_time) {
-            uint32_t backoff_time = tx_time - rf_get_timestamp();
+            std::chrono::microseconds backoff_time(tx_time - rf_get_timestamp());
             // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
-            if (backoff_time > 65000) {
-                backoff_time = 1;
+            if (backoff_time > 65ms) {
+                backoff_time = 1us;
             }
-            rf->cca_timer.attach_us(rf_csma_ca_timer_signal, backoff_time);
+            rf->cca_timer.attach(rf_csma_ca_timer_signal, backoff_time);
             TEST_CSMA_STARTED
         }
         return;
@@ -994,7 +996,7 @@ static uint32_t rf_backup_timer_start(uint16_t bytes, uint32_t time_us)
         time_us = (uint32_t)(8000000 / phy_current_config.datarate) * bytes + PACKET_PROCESSING_TIME;
     }
     // Using cal_timer as backup timer
-    rf->cal_timer.attach_us(rf_backup_timer_signal, time_us);
+    rf->cal_timer.attach(rf_backup_timer_signal, std::chrono::microseconds(time_us));
 
     return (rf_get_timestamp() + time_us);
 }
