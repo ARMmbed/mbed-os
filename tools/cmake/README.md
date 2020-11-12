@@ -43,23 +43,27 @@ Supported examples can be identified by the presence of a top level `CMakelists.
 
 Prerequisities:
 - CMake >=3.19.0
-- mbed-tools >=3.4.0
+- mbed-tools >=3.5.0
 
-From the application root or wherever `mbed-os.lib` is found:
-1. Run the following command to create the Mbed OS configuration CMake module: 
-
-    ```
-    mbedtools configure -m <mbed-target> -t <toolchain>
-    ```
-
-1. Run the following command to create a build directory, generate the project configuration and build the project using `Ninja`: 
+From the application root or wherever `mbed-os.lib` is found, run the following command to:
+ * create the Mbed OS configuration CMake module
+ * create a build directory
+ * generate the project configuration
+ * build the project using the `Ninja` build system
 
     ```
-    mkdir build && cd build && cmake .. -GNinja && cmake --build .
+    mbedtools build -m <mbed-target> -t <toolchain>
     ```
 
-The default build type is `Develop`. Use `CMAKE_BUILD_TYPE` to select `Develop`, `Release` or `Debug` as follows: 
+`CMAKE_BUILD_TYPE` can overridden with Mbed specific values: `Develop` (default value), `Release` and `Debug`.
+
+`mbed-tools` will pass `-DCMAKE_BUILD_TYPE=<supported-build-type>` for you when using the `--build-type` optional argument of the `build` subcommand as follows: 
 
 ```
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=<supported-build-type> && cmake --build .
+mbedtools build -m <mbed-target> -t <toolchain> -b <supported-build-type>
+```
+
+If you're running CMake directly, you may need to pass it in yourself as follows:
+```
+cmake -S <source-dir> -B <build-dir> -DCMAKE_BUILD_TYPE=debug
 ```
