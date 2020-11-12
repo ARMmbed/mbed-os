@@ -26,6 +26,9 @@ public:
     TELIT_ME910_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual ~TELIT_ME910_CellularContext();
 protected:
+#if !NSAPI_PPP_AVAILABLE
+    virtual NetworkStack *get_stack();
+#endif // #if !NSAPI_PPP_AVAILABLE
     virtual bool get_context();
 };
 

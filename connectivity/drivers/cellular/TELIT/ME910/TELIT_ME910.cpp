@@ -17,6 +17,7 @@
 
 #include "TELIT_ME910.h"
 #include "TELIT_ME910_CellularContext.h"
+#include "TELIT_ME910_CellularStack.h"
 #include "TELIT_ME910_CellularNetwork.h"
 #include "AT_CellularNetwork.h"
 #include "PinNames.h"
@@ -60,9 +61,9 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_NON_IP_PDP_TYPE
     1,  // PROPERTY_AT_CGEREP
     1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
-    0,  // PROPERTY_SOCKET_COUNT
-    0,  // PROPERTY_IP_TCP
-    0,  // PROPERTY_IP_UDP
+    6,  // PROPERTY_SOCKET_COUNT
+    1,  // PROPERTY_IP_TCP
+    1,  // PROPERTY_IP_UDP
     20, // PROPERTY_AT_SEND_DELAY
 };
 
