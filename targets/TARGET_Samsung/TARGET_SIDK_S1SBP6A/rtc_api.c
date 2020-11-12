@@ -30,8 +30,10 @@
 #include "mbed_debug.h"
 
 #define BP6A_RTC_START_TIME     946684800
+#define BP6A_MAX_REG            0x0FFFFFFF
 static bool rtc_initialized = false;
 static bool g_before2000 = false;
+static time_t g_rtc_offset = 0;
 
 void rtc_init(void)
 {
@@ -40,6 +42,7 @@ void rtc_init(void)
 
         bp6a_set_rtc_delay((uint32_t)((float)sys_clk * 2 / 32789));
         bp6a_rtc_init();
+        g_rtc_offset =  bp6a_rtc_read_offset(&g_before2000);
         rtc_initialized = true;
     }
 }
@@ -73,6 +76,8 @@ time_t rtc_read(void)
         return 0;
     }
 
+    t += g_rtc_offset;
+
     if (g_before2000) {
         t -= BP6A_RTC_START_TIME;
     }
@@ -84,6 +89,12 @@ void rtc_write(time_t t)
     struct rtc_bcd_s rtc_val;
     struct tm timeinfo;
 
+    if (t > BP6A_MAX_REG) {
+        g_rtc_offset = t;
+        t = 0;
+    } else
+        g_rtc_offset = 0;
+
     /*BP6A : The implicit number of thousands place is 20.*/
     if (t < BP6A_RTC_START_TIME) {
         g_before2000 = true;
@@ -92,6 +103,7 @@ void rtc_write(time_t t)
         g_before2000 = false;
     }
 
+    bp6a_rtc_offset_write(g_rtc_offset, (uint32_t)g_before2000);
 
     if (_rtc_localtime(t, &timeinfo, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return;
