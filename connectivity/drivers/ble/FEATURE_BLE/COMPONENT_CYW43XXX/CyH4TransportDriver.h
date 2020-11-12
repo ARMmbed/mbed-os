@@ -92,6 +92,8 @@ private:
     cyhal_uart_t uart;
     PinName cts;
     PinName rts;
+    PinName tx;
+    PinName rx;
     PinName bt_host_wake_name;
     PinName bt_device_wake_name;
 
