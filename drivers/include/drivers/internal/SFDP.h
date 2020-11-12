@@ -129,7 +129,7 @@ int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfd
  *
  * @return Region number
  */
-int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info);
+int sfdp_find_addr_region(bd_addr_t offset, const sfdp_hdr_info &sfdp_info);
 
 /** Finds the largest Erase Type of the Region to which the offset belongs to
  *
