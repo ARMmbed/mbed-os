@@ -74,7 +74,7 @@ M_CRASH_DATA_RAM_SIZE = 0x100;
 /* Specify the memory areas */
 MEMORY
 {
-#if MBED_APP_SIZE == 0
+#if MBED_APP_START == 0
   m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x400
   m_flash_config        (RX)  : ORIGIN = MBED_APP_START + 0x400, LENGTH = 0x10
   m_text                (RX)  : ORIGIN = MBED_APP_START + 0x410, LENGTH = MBED_APP_SIZE - 0x410
@@ -95,7 +95,7 @@ SECTIONS
     . = ALIGN(8);
     KEEP(*(.isr_vector))     /* Startup code */
     . = ALIGN(8);
-#if MBED_APP_SIZE == 0
+#if MBED_APP_START == 0
   } > m_interrupts
 
   .flash_config :
