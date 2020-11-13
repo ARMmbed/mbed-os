@@ -92,7 +92,9 @@ static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 
     // Enable ADC clock
     __HAL_RCC_ADC_CLK_ENABLE();
+#if defined(RCC_CCIPR_ADCSEL)
     __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
+#endif
 
     if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
         error("Cannot initialize ADC\n");
