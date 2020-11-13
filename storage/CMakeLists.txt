@@ -18,6 +18,12 @@ add_library(mbed-storage-littlefs INTERFACE)
 add_library(mbed-storage-fat INTERFACE)
 
 add_library(mbed-storage-kvstore INTERFACE)
+add_library(mbed-storage-tdbstore INTERFACE)
+add_library(mbed-storage-filesystemstore INTERFACE)
+add_library(mbed-storage-securestore INTERFACE)
+add_library(mbed-storage-kv-config INTERFACE)
+add_library(mbed-storage-direct-access-devicekey INTERFACE)
+add_library(mbed-storage-kv-global-api INTERFACE)
 
 
 add_subdirectory(blockdevice)
