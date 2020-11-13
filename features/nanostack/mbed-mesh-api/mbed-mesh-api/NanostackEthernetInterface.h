@@ -28,6 +28,7 @@ public:
                                   nsapi_ip_stack_t stack = DEFAULT_STACK,
                                   bool blocking = true);
     virtual nsapi_error_t bringdown();
+    virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
 
     char *get_interface_name(char *buf);
 private:

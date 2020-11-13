@@ -129,3 +129,17 @@ char *Nanostack::EthernetInterface::get_interface_name(char *buf)
     sprintf(buf, "ETH%d", interface_id);
     return buf;
 };
+
+char *Nanostack::EthernetInterface::get_mac_address(char *buf, nsapi_size_t buflen)
+{
+    uint8_t mac_buf[NSAPI_MAC_BYTES];
+
+    if (!buf || buflen < NSAPI_MAC_SIZE) {
+        return NULL;
+    }
+
+    get_phy().get_mac_address(mac_buf);
+
+    snprintf(buf, buflen, "%02x:%02x:%02x:%02x:%02x:%02x", mac_buf[0], mac_buf[1], mac_buf[2], mac_buf[3], mac_buf[4], mac_buf[5]);
+    return buf;
+}
