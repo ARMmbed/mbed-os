@@ -6958,28 +6958,47 @@
         "inherits": ["AMA3B1KK"],
         "components_add": ["lis2dh12", "hm01b0"]
     },
+	"PIC32CX": {
+        "inherits": [
+			"Target"
+		],
+		"extra_labels": [
+            "MICROCHIP",
+            "PIC32CX"
+        ],
+		"public": false,
+    },
     "PIC32CX2051MTG100": {
-        "inherits": ["Target"],
-        "release_versions": ["6"],
+        "inherits": [
+			"PIC32CX"
+		],
+		"extra_labels_add": [
+            "PIC32CXMTG"
+        ],
+		"core": "Cortex-M4",
         "supported_toolchains": [
             "ARM",
             "GCC_ARM",
             "IAR"
         ],
+		"release_versions": [
+			"6"
+		],
+		"device_name": "PIC32CX2051MTG100",
 		"public": false,
-        "device_has": [
+    },
+    "PIC32CXMTG_EK": {
+        "inherits": [
+			"PIC32CX2051MTG100"
+		]
+		"device_name": "PIC32CX2051MTG100",
+		"device_has": [
             "INTERRUPTIN",
             "PORTIN",
             "PORTOUT",
             "SERIAL"
         ],
-        "core": "Cortex-M4",
-        "device_name": "PIC32CX2051MTG100",
-        "default_toolchain": "ARM",
-        "c_lib": "small"
-    },
-    "PIC32CXMTG_EK": {
-        "inherits": ["PIC32CX2051MTG100"]
+		"detect_code": ["0921"]
     },
     "__build_tools_metadata__": {
         "version": "1",
