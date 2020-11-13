@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "SAMSUNG_S5JS100_RIL_CellularInformation.h"
-
+#include "SAMSUNG_S5JS100_RIL_HEADER.h"
 namespace mbed {
 
 SAMSUNG_S5JS100_RIL_CellularInformation::SAMSUNG_S5JS100_RIL_CellularInformation(RIL_CellularDevice &device) :
