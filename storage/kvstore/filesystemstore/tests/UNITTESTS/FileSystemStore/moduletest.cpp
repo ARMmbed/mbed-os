@@ -34,7 +34,7 @@ protected:
     virtual void SetUp()
     {
         fs = new LittleFileSystem("kvstore", &heap);
-        if(fs->mount(&heap) != MBED_SUCCESS) {
+        if (fs->mount(&heap) != MBED_SUCCESS) {
             EXPECT_EQ(fs->reformat(&heap), MBED_SUCCESS);
         }
         store = new FileSystemStore(fs);
