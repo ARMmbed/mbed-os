@@ -162,6 +162,11 @@ public:
      */
     virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Interface **interface_out) = 0;
 
+    virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Interface **interface_out, const uint8_t *mac_addr)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     virtual nsapi_error_t add_l3ip_interface(L3IP &l3ip, bool default_if, Interface **interface_out)
     {
         return NSAPI_ERROR_OK;

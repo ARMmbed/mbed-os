@@ -86,6 +86,9 @@ public:
     /** @copydoc NetworkInterface::get_mac_address */
     const char *get_mac_address() override;
 
+    /** @copydoc NetworkInterface::set_mac_address */
+    nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len);
+
     /** @copydoc NetworkInterface::get_ip_address */
     nsapi_error_t get_ip_address(SocketAddress *address) override;
 
@@ -143,10 +146,12 @@ protected:
     OnboardNetworkStack::Interface *_interface = nullptr;
     bool _dhcp = true;
     bool _blocking = true;
+    bool _hw_mac_addr_set = false;
     char _mac_address[NSAPI_MAC_SIZE];
     char _ip_address[NSAPI_IPv6_SIZE] {};
     char _netmask[NSAPI_IPv4_SIZE] {};
     char _gateway[NSAPI_IPv4_SIZE] {};
+    uint8_t _hw_mac_addr[NSAPI_MAC_BYTES];
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
 
