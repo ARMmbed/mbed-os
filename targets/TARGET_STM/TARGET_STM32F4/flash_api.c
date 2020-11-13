@@ -65,7 +65,9 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
     core_util_critical_section_exit();
 
-    HAL_FLASH_Lock();
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
 
     return status;
 }
@@ -83,6 +85,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     }
 
     core_util_critical_section_enter();
+
     /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
        you have to make sure that these data are rewritten before they are accessed during code
        execution. If this cannot be done safely, it is recommended to flush the caches by setting the
@@ -108,7 +111,9 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
     core_util_critical_section_exit();
 
-    HAL_FLASH_Lock();
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
 
     return status;
 }
