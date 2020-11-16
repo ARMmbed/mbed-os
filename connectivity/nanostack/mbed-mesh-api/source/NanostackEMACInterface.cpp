@@ -191,7 +191,7 @@ void EMACPhy::set_mac_address(uint8_t *mac)
     memcpy(mac_addr, mac, sizeof mac_addr);
 }
 
-nsapi_error_t Nanostack::add_ethernet_interface_ns(EMAC &emac, bool default_if, Nanostack::EthernetInterface **interface_out, const uint8_t *mac_addr)
+nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out, const uint8_t *mac_addr)
 {
     if (single_phy) {
         return NSAPI_ERROR_DEVICE_ERROR;
@@ -222,15 +222,6 @@ nsapi_error_t Nanostack::add_ethernet_interface_ns(EMAC &emac, bool default_if, 
     *interface_out = interface;
 
     return NSAPI_ERROR_OK;
-
-}
-
-nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out, const uint8_t *mac_addr)
-{
-    Nanostack::EthernetInterface *interface;
-    nsapi_error_t err = add_ethernet_interface_ns(emac, default_if, &interface, mac_addr);
-    *interface_out = interface;
-    return err;
 }
 
 nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out)
