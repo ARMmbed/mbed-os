@@ -6966,7 +6966,7 @@
             "MICROCHIP",
             "PIC32CX"
         ],
-		"public": false,
+		"public": false
     },
     "PIC32CX2051MTG100": {
         "inherits": [
@@ -6985,12 +6985,12 @@
 			"6"
 		],
 		"device_name": "PIC32CX2051MTG100",
-		"public": false,
+		"public": false
     },
     "PIC32CXMTG_EK": {
         "inherits": [
 			"PIC32CX2051MTG100"
-		]
+		],
 		"device_name": "PIC32CX2051MTG100",
 		"device_has": [
             "INTERRUPTIN",
