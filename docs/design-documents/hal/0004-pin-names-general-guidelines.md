@@ -42,13 +42,13 @@ To achieve meaningful portability of application code across various Mbed Enable
 Only add LEDs that are available on the board. This is an example on how to define LEDs in PinNames.h:
 
     // Px_xx relates to the processor pin connected to the LED
-    #define LED1 = Px_xx  // LED1
-    #define LED2 = Px_xx  // LED2  
-    #define LED3 = Px_xx  // LED3  
-    #define LED4 = Px_xx  // LED4  
+    #define LED1 Px_xx  // LED1
+    #define LED2 Px_xx  // LED2
+    #define LED3 Px_xx  // LED3
+    #define LED4 Px_xx  // LED4
     .  
     .  
-    #define LEDN = Px_xx   // LEDN
+    #define LEDN Px_xx  // LEDN
 
 Note this document is proposing changing LEDs from `enums` to `define`, which causes a minor change in the compile preprocessor. From application point of view, there are no implications.
 
@@ -56,14 +56,14 @@ Note this document is proposing changing LEDs from `enums` to `define`, which ca
 
 The detection of available LEDs at application level can be done as follow:
 
-    #ifdef(LED1)
+    #ifdef LED1
         DigitalOut myLED(LED1);
         myLED = 1;
     #endif 
 
 Alternatively, if the usage of an LED is required, then the application can detect its availability and generate an error accordingly:
 
-    #ifndef(LED1)
+    #ifndef LED1
         #error This application requires the availability of an LED
     #endif 
 
@@ -81,13 +81,13 @@ However, these names do not apply to all boards and hence should not be used in 
 Only add buttons that are available on the board. This is an example on how to define buttons in PinNames.h:
 
     // Px_xx relates to the processor pin connected to the button  
-    #define BUTTON1 = Px_xx  // BUTTON1  
-    #define BUTTON2 = Px_xx  // BUTTON2  
-    #define BUTTON3 = Px_xx  // BUTTON3  
-    #define BUTTON4 = Px_xx  // BUTTON4   
+    #define BUTTON1 Px_xx  // BUTTON1
+    #define BUTTON2 Px_xx  // BUTTON2
+    #define BUTTON3 Px_xx  // BUTTON3
+    #define BUTTON4 Px_xx  // BUTTON4
     .  
     .  
-    #define BUTTONN = Px_xx   // BUTTONN  
+    #define BUTTONN Px_xx  // BUTTONN
 
 Note this document is proposing changing buttons from `enums` to `define`, which causes a minor change in the compile preprocessor. From application point of view, there are no implications.
 
@@ -95,14 +95,14 @@ Note this document is proposing changing buttons from `enums` to `define`, which
 
 The detection of available buttons at application level can be done as follow:
 
-    #ifdef(BUTTON1)
+    #ifdef BUTTON1
         DigitalIn myBUTTON(BUTTON1);
         int input = myBUTTON.read();
     #endif 
 
 Alternatively, if the usage of a button is required, then the application can detect its availability and generate an error accordingly:
 
-    #ifndef(BUTTON1)
+    #ifndef BUTTON1
         #error This application requires the availability of a button
     #endif 
 
@@ -135,15 +135,15 @@ Note this document is proposing unifying the pin names used for UART communicati
 If either LEDs or buttons are not available, they should not be defined.
 This allows for unavailable LEDs or BUTTONs to be caught in Mbed OS allowing the corresponding errors to be generated.
    
-    LED1 = PB_0,       // LED1 is valid
-    LED2 = LED1,       // Not valid as it's duplicate and LED2 does not exist on the board
-    LED3 = PB_0,       // Not valid as it's duplicate and LED3 does not exist on the board
-    LED4 = NC          // Not valid definition as LED4 does not exist
+    #define LED1 PB_0  // LED1 is valid
+    #define LED2 LED1  // Not valid as it's duplicate and LED2 does not exist on the board
+    #define LED3 PB_0  // Not valid as it's duplicate and LED3 does not exist on the board
+    #define LED4 NC    // Not valid definition as LED4 does not exist
 
-    BUTTON1 = PB_1,    // BUTTON1 is valid
-    BUTTON2 = BUTTON1, // Not valid as it's duplicate and BUTTON2 does not exist on the board  
-    BUTTON3 = PB_1,    // Not valid as it's duplicate and BUTTON3 does not exist on the board  
-    BUTTON4 = NC,      // Not valid as BUTTON4 does not exist
+    #define BUTTON1 PB_1    // BUTTON1 is valid
+    #define BUTTON2 BUTTON1 // Not valid as it's duplicate and BUTTON2 does not exist on the board
+    #define BUTTON3 PB_1    // Not valid as it's duplicate and BUTTON3 does not exist on the board
+    #define BUTTON4 NC      // Not valid as BUTTON4 does not exist
 
 
 ### Testing compliance
