@@ -35,8 +35,3 @@ target_include_directories(mbed-storage
     INTERFACE
         .
 )
-
-target_compile_definitions(mbed-storage
-    INTERFACE
-        MBED_CONF_FILESYSTEM_PRESENT=1
-)

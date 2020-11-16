@@ -18,3 +18,8 @@ target_sources(mbed-storage-filesystem
         source/File.cpp
         source/FileSystem.cpp
 )
+
+target_compile_definitions(mbed-storage
+    INTERFACE
+        MBED_CONF_FILESYSTEM_PRESENT=1
+)
