@@ -180,7 +180,8 @@ DirectSerial::DirectSerial(PinName tx, PinName rx, int baud)
     if (stdio_uart_inited) {
         return;
     }
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(USBTX, USBRX);
     serial_init_direct(&stdio_uart, &console_pinmap);
     serial_baud(&stdio_uart, baud);
 
@@ -255,7 +256,7 @@ static void do_serial_init()
         return;
     }
 
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(USBTX, USBRX);
     serial_init_direct(&stdio_uart, &console_pinmap);
     serial_baud(&stdio_uart, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
@@ -334,7 +335,7 @@ static FileHandle *default_console()
 #if MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
 
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(USBTX, USBRX);
     static BufferedSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
@@ -347,7 +348,7 @@ static FileHandle *default_console()
     console.serial_set_flow_control(SerialBase::RTSCTS, fc_pinmap);
 #   endif
 #  else
-    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(USBTX, USBRX);
     static DirectSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #  endif
 #else // MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL

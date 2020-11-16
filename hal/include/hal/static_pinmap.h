@@ -128,7 +128,7 @@ MSTD_CONSTEXPR_FN_14 serial_pinmap_t get_uart_pinmap(const PinName tx, const Pin
         return {(int) NC, NC, (int) NC, NC, (int) NC, false};
     }
 
-    if (tx_map->pin == STDIO_UART_TX && rx_map->pin == STDIO_UART_RX) {
+    if (tx_map->pin == USBTX && rx_map->pin == USBRX) {
         return {tx_map->peripheral, tx_map->pin, tx_map->function, rx_map->pin, rx_map->function, true};
     } else {
         return {tx_map->peripheral, tx_map->pin, tx_map->function, rx_map->pin, rx_map->function, false};

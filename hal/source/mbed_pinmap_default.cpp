@@ -93,7 +93,7 @@ MBED_WEAK const PinList *pinmap_gpio_restricted_pins()
 #if DEVICE_SERIAL
 MBED_WEAK const PeripheralList *pinmap_uart_restricted_peripherals()
 {
-    static const int stdio_uart = pinmap_peripheral(STDIO_UART_TX, serial_tx_pinmap());
+    static const int stdio_uart = pinmap_peripheral(USBTX, serial_tx_pinmap());
 
     static const int peripherals[] = {
         stdio_uart

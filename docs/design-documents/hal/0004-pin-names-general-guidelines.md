@@ -130,12 +130,6 @@ This is an example on how to define UART names in PinNames.h:
 
 Note this document is proposing unifying the pin names used for UART communication between the MCU and the host PC.
 
-Note Mbed OS expects to use these names internally (a fix might be needed during the implementation), for example:
-
-    mbed-os/platform/source/mbed_retarget.cpp
-    mbed-os/hal/static_pinmap.h
-    mbed-os/hal/mbed_pinmap_default.cpp
-
 ### Non-valid definitions
 
 If either LEDs or buttons are not available, they should not be defined.
