@@ -29,9 +29,12 @@ WEAK MBED_NORETURN void mbed_die(void)
     core_util_critical_section_enter();
 #endif
     gpio_t led_err;
+#ifdef LED1
     gpio_init_out(&led_err, LED1);
+#endif
 
     while (1) {
+#ifdef LED1
         for (int i = 0; i < 4; ++i) {
             gpio_write(&led_err, 1);
             wait_us(150000);
@@ -45,6 +48,7 @@ WEAK MBED_NORETURN void mbed_die(void)
             gpio_write(&led_err, 0);
             wait_us(400000);
         }
+#endif
     }
 }
 
