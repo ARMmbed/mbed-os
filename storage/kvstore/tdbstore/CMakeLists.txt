@@ -4,8 +4,8 @@
 target_include_directories(mbed-storage-tdbstore
     INTERFACE
         .
-        ./include
-        ./include/tdbstore
+        include
+        include/tdbstore
 )
 
 target_sources(mbed-storage-tdbstore

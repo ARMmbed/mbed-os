@@ -4,8 +4,8 @@
 target_include_directories(mbed-storage-filesystemstore
     INTERFACE
         .
-        ./include
-        ./include/filesystemstore
+        include
+        include/filesystemstore
 )
 
 target_sources(mbed-storage-filesystemstore

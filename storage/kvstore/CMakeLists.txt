@@ -11,6 +11,6 @@ add_subdirectory(kvstore_global_api)
 target_include_directories(mbed-storage-kvstore
     INTERFACE
         .
-        ./include
-        ./include/kvstore
+        include
+        include/kvstore
 )

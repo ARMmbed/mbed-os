@@ -4,8 +4,8 @@
 target_include_directories(mbed-storage-kv-config
     INTERFACE
         .
-        ./include
-        ./include/kv_config
+        include
+        include/kv_config
 )
 
 target_sources(mbed-storage-kv-config

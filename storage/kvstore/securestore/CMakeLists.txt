@@ -4,8 +4,8 @@
 target_include_directories(mbed-storage-securestore
     INTERFACE
         .
-        ./include
-        ./include/securestore
+        include
+        include/securestore
 )
 
 target_sources(mbed-storage-securestore

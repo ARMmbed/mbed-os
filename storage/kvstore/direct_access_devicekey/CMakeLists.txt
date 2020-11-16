@@ -4,8 +4,8 @@
 target_include_directories(mbed-storage-direct-access-devicekey
     INTERFACE
         .
-        ./include
-        ./include/direct_access_devicekey
+        include
+        include/direct_access_devicekey
 )
 
 target_sources(mbed-storage-direct-access-devicekey

@@ -4,8 +4,8 @@
 target_include_directories(mbed-storage-kv-global-api
     INTERFACE
         .
-        ./include
-        ./include/kvstore_global_api
+        include
+        include/kvstore_global_api
 )
 
 target_sources(mbed-storage-kv-global-api
