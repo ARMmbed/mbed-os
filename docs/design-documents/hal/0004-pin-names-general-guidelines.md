@@ -148,10 +148,11 @@ This allows for unavailable LEDs or BUTTONs to be caught in Mbed OS allowing the
 
 ### Testing compliance
 
-There should be both compile and run time checks to confirm whether a board has valid LEDs and BUTTONS defined. This can be achieved by using Greentea, for example:
+A python script could check, during CI process, whether a board has valid LEDs and BUTTONS defined (none equal to NC, and no duplicated pin values).
 
-    mbed test -t <toolchain> -m <target> -n *test_generic_pin_names* --compile
-    mbed test -t <toolchain> -m <target> -n *test_generic_pin_names* --run
+A Greentea test could check if LED and BUTTON pins are valid:
+
+    mbed test -t <toolchain> -m <target> -n hal-tests-tests-pin_names-generic
 
 Note the testing of UART is implicit when running Greentea tests.
 
