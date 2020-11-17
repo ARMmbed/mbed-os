@@ -21,49 +21,50 @@
 #include "platform/mbed_assert.h"
 #include "device.h"
 #include "hal/serial_api.h"
+#include "hal/ArduinoUnoAliases.h"
 
 //*** Common form factors ***
-#ifdef TARGET_FF_ARDUINO
+#if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
 
-static const PinName ff_arduino_pins[] = {
-    D0, D1, D2, D3, D4, D5, D6, D7,
-    D8, D9, D10, D11, D12, D13, D14, D15,
-    A0, A1, A2, A3, A4, A5
+static const PinName ff_arduino_uno_pins[] = {
+    ARDUINO_UNO_D0, ARDUINO_UNO_D1, ARDUINO_UNO_D2, ARDUINO_UNO_D3, ARDUINO_UNO_D4, ARDUINO_UNO_D5, ARDUINO_UNO_D6, ARDUINO_UNO_D7,
+    ARDUINO_UNO_D8, ARDUINO_UNO_D9, ARDUINO_UNO_D10, ARDUINO_UNO_D11, ARDUINO_UNO_D12, ARDUINO_UNO_D13, ARDUINO_UNO_D14, ARDUINO_UNO_D15,
+    ARDUINO_UNO_A0, ARDUINO_UNO_A1, ARDUINO_UNO_A2, ARDUINO_UNO_A3, ARDUINO_UNO_A4, ARDUINO_UNO_A5
 };
 
-static const char *ff_arduino_names[] = {
+static const char *ff_arduino_uno_names[] = {
     "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7",
     "D8", "D9", "D10", "D11", "D12", "D13", "D14", "D15",
     "A0", "A1", "A2", "A3", "A4", "A5"
 };
 
-static const PinList ff_arduino_list = {
-    sizeof(ff_arduino_pins) / sizeof(ff_arduino_pins[0]),
-    ff_arduino_pins
+static const PinList ff_arduino_uno_list = {
+    sizeof(ff_arduino_uno_pins) / sizeof(ff_arduino_uno_pins[0]),
+    ff_arduino_uno_pins
 };
 
 static_assert(sizeof(ff_arduino_pins) / sizeof(ff_arduino_pins[0]) == sizeof(ff_arduino_names) / sizeof(ff_arduino_names[0]),
               "Arrays must have the same length");
 
-const PinList *pinmap_ff_arduino_pins()
+const PinList *pinmap_ff_arduino_uno_pins()
 {
-    return &ff_arduino_list;
+    return &ff_arduino_uno_list;
 }
 
-const char *pinmap_ff_arduino_pin_to_string(PinName pin)
+const char *pinmap_ff_arduino_uno_pin_to_string(PinName pin)
 {
-    if (pin == NC) {
+    if (pin == (PinName)NC) {
         return "NC";
     }
-    for (size_t i = 0; i < ff_arduino_list.count; i++) {
-        if (ff_arduino_list.pins[i] == pin) {
-            return ff_arduino_names[i];
+    for (size_t i = 0; i < ff_arduino_uno_list.count; i++) {
+        if (ff_arduino_uno_list.pins[i] == pin) {
+            return ff_arduino_uno_names[i];
         }
     }
     return "Unknown";
 }
 
-#endif
+#endif // defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
 
 //*** Default restricted pins ***
 MBED_WEAK const PinList *pinmap_restricted_pins()

@@ -195,14 +195,14 @@ const PeripheralList *pinmap_uart_restricted_peripherals(void);
  */
 const PinList *pinmap_gpio_restricted_pins(void);
 
-#ifdef TARGET_FF_ARDUINO
+#if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
 
 /**
  * Get the pin list of the Arduino form factor
  *
  * @return Pointer to the Arduino pin list
  */
-const PinList *pinmap_ff_arduino_pins(void);
+const PinList *pinmap_ff_arduino_uno_pins(void);
 
 /**
  * Get the string representation of a form factor pin
@@ -210,11 +210,11 @@ const PinList *pinmap_ff_arduino_pins(void);
  * @param pin Pin to get a string for
  * @return String representing the form factor pin
  */
-const char *pinmap_ff_arduino_pin_to_string(PinName pin);
+const char *pinmap_ff_arduino_uno_pin_to_string(PinName pin);
 
 /* Default to arduino form factor if unspecified */
 #ifndef MBED_CONF_TARGET_DEFAULT_FORM_FACTOR
-#define MBED_CONF_TARGET_DEFAULT_FORM_FACTOR arduino
+#define MBED_CONF_TARGET_DEFAULT_FORM_FACTOR arduino_uno
 #endif
 
 #endif

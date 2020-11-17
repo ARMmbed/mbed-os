@@ -61,9 +61,9 @@ The Arduino Uno (Rev3) form factor for Mbed boards must support and define both 
 
 The analog input signals in the Arduino Uno connector must be supported on at least the Ax pins.
 
-    // Arduino Uno (Rev3) connector pin connection naming  
+    #ifdef TARGET_FF_ARDUINO_UNO
+    // Arduino Uno (Rev3) pins
     // Px_xx relates to the processor pin connected to the Arduino Uno (Rev3) connector pin
-
     ARDUINO_UNO_D0 = Px_xx,
     ARDUINO_UNO_D1 = Px_xx,
     ARDUINO_UNO_D2 = Px_xx,
@@ -87,12 +87,13 @@ The analog input signals in the Arduino Uno connector must be supported on at le
     ARDUINO_UNO_A3 = Px_xx,
     ARDUINO_UNO_A4 = Px_xx,
     ARDUINO_UNO_A5 = Px_xx,
+    #endif // TARGET_FF_ARDUINO_UNO
 
 If the development board has the Arduino Uno connector in hardware, but does not comply with the Arduino Uno standard, whether it be with alternate functionality pins or non connected pins, the board should not be defined as Arduino Uno compliant and `ARDUINO_UNO` should not be added as a supported form factor in targets.json. Note this may result in a warning being generated at compile time to inform the user.
 
 **I2C, SPI and UART definition**
 
-All I2C, SPI and UART pin name alias definitions for the Arduino Uno (Rev3) connector pins should be defined in ArduinoUnoAliases.h in the Mbed OS HAL (common to all Arduino Uno compliant targets) as follows:
+All I2C, SPI and UART pin name alias definitions for the Arduino Uno (Rev3) connector pins is defined in the Mbed OS HAL (hal/include/hal/ArduinoUnoAliases.h) and are common to all Arduino Uno compliant targets:
 
     #ifdef TARGET_FF_ARDUINO_UNO
     // Arduino Uno I2C signals aliases
@@ -108,7 +109,6 @@ All I2C, SPI and UART pin name alias definitions for the Arduino Uno (Rev3) conn
     // Arduino Uno UART signals aliases
     #define ARDUINO_UNO_UART_TX ARDUINO_UNO_D1
     #define ARDUINO_UNO_UART_RX ARDUINO_UNO_D0
-
     #endif // TARGET_FF_ARDUINO_UNO
 
 **Other pin functions**
@@ -197,14 +197,14 @@ There should be both compile and run time checks to confirm whether a board has 
 - PWM compatibility on `ARDUINO_UNO_D3/D5/D6/D9/D10/D11`
 - Analog compatibility on `ARDUINO_UNO_A0/A1/A2/A3/A4/A5`
 
-There is a proposal [here](https://github.com/ARMmbed/mbed-os/compare/master...jeromecoutant:DEV_STANDARDIZATION) on how to perform tests on pins.
 
-Additionally, there should be tests on each of the Arduino Uno pins to confirm whether the required funcionality is implemented correctly. This can be achieved by using the FPGA test shield and the existing [tests](https://github.com/ARMmbed/mbed-os/tree/master/hal/tests/TESTS/mbed_hal_fpga_ci_test_shield).
+A python script could check, during CI process, whether a board has valid ARDUINO_UNO pins defined (none equal to NC, and no duplicated pin values).
 
-The tests could be compiled and run unsing Greentea as shown here:
+Additionally, a Greentea test checks each of the Arduino Uno pins to confirm whether the required funcionality is implemented correctly (only API call check, no hardware signals checks).
 
-    mbed test -t <toolchain> -m <target> -n *test_arduino_uno_pin_names* --compile
-    mbed test -t <toolchain> -m <target> -n *test_arduino_uno_pin_names* --run
+    mbed test -t <toolchain> -m <target> -v -n hal-tests-tests-pin_names-arduino_uno
+
+Hardware signal testing on pins can be achieved by using the FPGA test shield and the existing [tests](https://github.com/ARMmbed/mbed-os/tree/master/hal/tests/TESTS/mbed_hal_fpga_ci_test_shield).
 
 If the target claims to support the `ARDUINO_UNO` formfactor in targets.json but no valid Arduino Uno pinnames are detected, then an error should be generated.
 
@@ -217,12 +217,16 @@ There are a number of changes and enhancements required to introduce support for
 
 Mbed OS currently includes the `ARDUINO` form factor although it's not considered a standard as it's poorly defined and there are no checks on specific pin names. The configuration for this form factor should continue to be available, although should be marked as deprecated amd aimed to be removed in the next version of Mbed OS.
 
-The following files should be created or updated with a Arduino Uno specific implementation:
+In targets.json, "ARDUINO_UNO" has to be added in "supported_form_factors"
 
-- https://github.com/ARMmbed/mbed-os/blob/master/hal/ArduinoUnoAliases.h (new)
- - https://github.com/ARMmbed/mbed-os/blob/master/hal/mbed_pinmap_default.cpp 
- - https://github.com/ARMmbed/mbed-os/blob/master/hal/mbed_gpio.c
-- https://github.com/ARMmbed/mbed-os/blob/master/targets/targets.json
-- https://github.com/ARMmbed/mbed-os/blob/master/hal/pinmap.h
-- https://github.com/ARMmbed/mbed-os/tree/master/TESTS/arduino_uno_pin_names (new)
-- https://github.com/ARMmbed/mbed-os/tree/master/TESTS/mbed_hal_fpga_ci_test_shield
+The following files has been created for Arduino Uno:
+
+- hal/include/hal/ArduinoUnoAliases.h
+- hal/tests/TESTS/pin_names/arduino_uno/main.cpp
+
+The following files has been updated:
+
+- hal/source/mbed_pinmap_default.cpp
+- hal/source/mbed_gpio.c
+- hal/include/hal/pinmap.h
+- hal/tests/TESTS/mbed_hal_fpga_ci_test_shield/*/main.cpp
