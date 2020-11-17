@@ -3889,7 +3889,7 @@
             "QSPIF"
         ],
         "supported_form_factors": [
-            "ARDUINO",
+            "ARDUINO_UNO",
             "PMOD"
         ],
         "extra_labels_add": [
