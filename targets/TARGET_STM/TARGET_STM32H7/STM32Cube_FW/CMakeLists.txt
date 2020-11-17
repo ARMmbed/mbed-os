@@ -129,6 +129,7 @@ target_sources(mbed-core
 target_include_directories(mbed-core
     INTERFACE
         .
+        CMSIS
         STM32H7xx_HAL_Driver
         STM32H7xx_HAL_Driver/Legacy
 )
