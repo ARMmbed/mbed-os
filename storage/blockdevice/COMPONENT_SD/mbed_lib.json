@@ -1,10 +1,10 @@
 {
     "name": "sd",
     "config": {
-        "SPI_CS": "SPI_CS",
-        "SPI_MOSI": "SPI_MOSI",
-        "SPI_MISO": "SPI_MISO",
-        "SPI_CLK": "SPI_SCK",
+        "SPI_CS": "ARDUINO_UNO_SPI_CS",
+        "SPI_MOSI": "ARDUINO_UNO_SPI_MOSI",
+        "SPI_MISO": "ARDUINO_UNO_SPI_MISO",
+        "SPI_CLK": "ARDUINO_UNO_SPI_SCK",
         "FSFAT_SDCARD_INSTALLED": 1,
         "CMD_TIMEOUT": 10000,
         "CMD0_IDLE_STATE_RETRIES": 5,
@@ -80,12 +80,6 @@
              "SPI_CLK":  "PD_15",
              "SPI_CS":   "PD_12"
         },
-        "NUMAKER_PFM_M487": {
-             "SPI_MOSI": "D11",
-             "SPI_MISO": "D12",
-             "SPI_CLK":  "D13",
-             "SPI_CS":   "D10"
-        },
         "NUMAKER_PFM_NUC472": {
              "SPI_MOSI": "PF_0",
              "SPI_MISO": "PD_15",
@@ -121,12 +115,6 @@
             "SPI_MISO": "p6",
             "SPI_CLK": "p7",
             "SPI_CS": "p8"
-        },
-        "CC3220SF_LAUNCHXL": {
-            "SPI_MOSI": "D11",
-            "SPI_MISO": "D12",
-            "SPI_CLK": "D13",
-            "SPI_CS": "D10"
         },
         "ARCH_MAX": {
             "SPI_MOSI": "PC_3",
