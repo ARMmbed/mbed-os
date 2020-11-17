@@ -69,5 +69,6 @@ target_include_directories(mbed-core
     INTERFACE
         .
         CMSIS
-        Legacy
+        STM32F1xx_HAL_Driver
+        STM32F1xx_HAL_Driver/Legacy
 )
