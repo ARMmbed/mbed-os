@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-core
-    INTERFACE
-        ONBOARD_QUECTEL_UG96.cpp
+    INTERFACE 
         PeripheralPins.c
         system_clock.c
 )

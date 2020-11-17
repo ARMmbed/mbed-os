@@ -3,9 +3,7 @@
 
 target_sources(mbed-core
     INTERFACE
-        ONBOARD_QUECTEL_UG96.cpp
         PeripheralPins.c
-        system_clock.c
 )
 
 target_include_directories(mbed-core

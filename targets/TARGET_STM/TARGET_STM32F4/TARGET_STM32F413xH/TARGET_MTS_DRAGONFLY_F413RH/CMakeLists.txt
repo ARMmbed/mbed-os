@@ -3,7 +3,7 @@
 
 target_sources(mbed-core
     INTERFACE
-        ONBOARD_QUECTEL_UG96.cpp
+        ONBOARD_TELIT_HE910.cpp
         PeripheralPins.c
         system_clock.c
 )
