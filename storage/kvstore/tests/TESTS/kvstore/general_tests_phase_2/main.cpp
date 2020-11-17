@@ -79,6 +79,7 @@ static void kvstore_init()
     // be a close enough approximation to act as a guideline for how much of the block device we
     // need to erase in order to ensure a stable initial condition.
     const size_t PAGES_ESTIMATE = 40;
+    const size_t MIN_TDBSTORE_SIZE = 2 * 8 * 1024; // two areas, minimum 8KB per area
 
     int res;
     size_t program_size, erase_size, ul_bd_size, rbp_bd_size;
@@ -133,8 +134,12 @@ static void kvstore_init()
         erase_size = sec_bd->get_erase_size();
         // We must be able to hold at least 10 small keys (20 program sectors) and master record + internal data
         // but minimum of 2 erase sectors, so that the garbage collection way work
-        ul_bd_size  = align_up(program_size * PAGES_ESTIMATE, erase_size * 2);
-        rbp_bd_size = align_up(program_size * PAGES_ESTIMATE, erase_size * 2);
+        // Also, the total size needs to be large enough for set_add_data_set_key_value_five_Kbytes (5KB value)
+        // and to allow for overheads, we require at least 2 * 8KB for two areas per TDBStore
+        ul_bd_size  = program_size * PAGES_ESTIMATE;
+        ul_bd_size  = ul_bd_size > MIN_TDBSTORE_SIZE ? ul_bd_size : MIN_TDBSTORE_SIZE;
+        ul_bd_size  = align_up(ul_bd_size, erase_size * 2);
+        rbp_bd_size = ul_bd_size;
 
         res = sec_bd->deinit();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
