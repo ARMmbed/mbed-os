@@ -16,6 +16,7 @@
  */
 #include "hal/gpio_api.h"
 #include "platform/mbed_toolchain.h"
+#include "hal/ArduinoUnoAliases.h"
 
 static inline void _gpio_init_in(gpio_t *gpio, PinName pin, PinMode mode)
 {
@@ -77,7 +78,7 @@ MBED_WEAK void gpio_get_capabilities(gpio_t *gpio, gpio_capabilities_t *cap)
     cap->pull_up = 1;
 }
 
-#ifdef TARGET_FF_ARDUINO
+#if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
 
 typedef enum {
     DEFAULT_GPIO = 0,
@@ -87,28 +88,28 @@ MBED_WEAK const PinMap *gpio_pinmap()
 {
     // Targets should override this weak implementation to provide correct data.
     static const PinMap empty_gpio_pinmap[] = {
-        {D0, DEFAULT_GPIO, 0},
-        {D1, DEFAULT_GPIO, 0},
-        {D2, DEFAULT_GPIO, 0},
-        {D3, DEFAULT_GPIO, 0},
-        {D4, DEFAULT_GPIO, 0},
-        {D5, DEFAULT_GPIO, 0},
-        {D6, DEFAULT_GPIO, 0},
-        {D7, DEFAULT_GPIO, 0},
-        {D8, DEFAULT_GPIO, 0},
-        {D9, DEFAULT_GPIO, 0},
-        {D10, DEFAULT_GPIO, 0},
-        {D11, DEFAULT_GPIO, 0},
-        {D12, DEFAULT_GPIO, 0},
-        {D13, DEFAULT_GPIO, 0},
-        {D14, DEFAULT_GPIO, 0},
-        {D15, DEFAULT_GPIO, 0},
-        {A0, DEFAULT_GPIO, 0},
-        {A1, DEFAULT_GPIO, 0},
-        {A2, DEFAULT_GPIO, 0},
-        {A3, DEFAULT_GPIO, 0},
-        {A4, DEFAULT_GPIO, 0},
-        {A5, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D0, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D1, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D2, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D3, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D4, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D5, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D6, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D7, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D8, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D9, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D10, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D11, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D12, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D13, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D14, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_D15, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_A0, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_A1, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_A2, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_A3, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_A4, DEFAULT_GPIO, 0},
+        {ARDUINO_UNO_A5, DEFAULT_GPIO, 0},
 
         {NC, NC, 0},
     };
