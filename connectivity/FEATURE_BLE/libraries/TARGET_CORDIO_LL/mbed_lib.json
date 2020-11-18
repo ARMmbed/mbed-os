@@ -56,5 +56,11 @@
             "value": 1,
             "macro_name": "CHCI_TR_CUSTOM"
         }
+    },
+    "target_overrides": {
+        "MCU_NRF52840": {
+            "phy-coded-support": 1,
+            "extended-advertising-size": 512
+        }
     }
 }
