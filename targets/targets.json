@@ -1198,6 +1198,11 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "macros_add": [
@@ -1407,6 +1412,11 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "device_has_add": [
@@ -2165,6 +2175,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "overrides": {
@@ -2408,6 +2423,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "extra_labels_add": [
@@ -2511,6 +2531,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "extra_labels_add": [
@@ -2674,6 +2699,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "components_add": [
@@ -2937,6 +2967,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "macros_add": [
@@ -3170,6 +3205,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "macros_add": [
@@ -3701,6 +3741,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "overrides": {
@@ -3800,6 +3845,11 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
+            },
+            "lse_drive_load_level": {
+                "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
+                "value": "RCC_LSEDRIVE_LOW",
+                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
             }
         },
         "macros_add": [
