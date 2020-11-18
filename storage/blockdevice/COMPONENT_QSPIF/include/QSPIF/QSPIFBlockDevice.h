@@ -18,7 +18,7 @@
 #define MBED_QSPIF_BLOCK_DEVICE_H
 
 #include "drivers/QSPI.h"
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 

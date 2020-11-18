@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "SPIFBlockDevice.h"
 #include "rtos/ThisThread.h"
 #include "mbed_critical.h"
