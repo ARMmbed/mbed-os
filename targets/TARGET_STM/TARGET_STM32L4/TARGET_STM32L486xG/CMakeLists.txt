@@ -1,9 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("TARGET_ADV_WISE_1570" IN_LIST MBED_TARGET_LABELS)
+if("ADV_WISE_1570" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_ADV_WISE_1570)
-elseif("TARGET_NUCLEO_L486RG" IN_LIST MBED_TARGET_LABELS)
+elseif("NUCLEO_L486RG" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_L486RG)
 endif()
 
