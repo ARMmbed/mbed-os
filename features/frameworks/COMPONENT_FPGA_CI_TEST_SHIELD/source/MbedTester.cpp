@@ -22,6 +22,7 @@
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_error.h"
 #include "drivers/MbedCRC.h"
+#include "utest/utest_print.h"
 
 #define mbed_tester_printf(...)
 
@@ -948,6 +949,7 @@ void MbedTester::pin_map_set(PinName physical, LogicalPin logical)
         error("Invalid logical pin %i", logical);
         return;
     }
+    utest_printf("(FPGA %u)...", index);
     pin_map_index(index, logical);
 }
 
