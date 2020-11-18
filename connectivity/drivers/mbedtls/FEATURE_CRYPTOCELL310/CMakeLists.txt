@@ -29,6 +29,11 @@ target_sources(mbed-mbedtls-cryptocell310
         source/trng.c
 )
 
+target_compile_definitions(mbed-mbedtls-cryptocell310
+    INTERFACE
+        MBED_CONF_CRYPTOCELL310_PRESENT=1
+)
+
 target_link_libraries(mbed-mbedtls-cryptocell310
     INTERFACE
         mbed-mbedtls
