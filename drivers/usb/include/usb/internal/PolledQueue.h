@@ -18,9 +18,10 @@
 #ifndef POLLED_QUEUE_H
 #define POLLED_QUEUE_H
 
-#include "drivers/internal/TaskQueue.h"
+#include "usb/internal/TaskQueue.h"
 #include "platform/Callback.h"
 #include "LinkedList.h"
+
 namespace events {
 /**
  * \defgroup drivers_PolledQueue PolledQueue class

@@ -18,7 +18,7 @@
 #ifndef MBED_OPERATION_LIST_BASE_H
 #define MBED_OPERATION_LIST_BASE_H
 
-#include "drivers/internal/LinkedListBase.h"
+#include "usb/internal/LinkedListBase.h"
 
 class AsyncOp;
 

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#include "drivers/internal/TaskBase.h"
-#include "drivers/internal/TaskQueue.h"
+#include "usb/internal/TaskBase.h"
+#include "usb/internal/TaskQueue.h"
 #include "events/mbed_events.h"
 #include "rtos/Semaphore.h"
 #include "platform/mbed_critical.h"
