@@ -204,13 +204,6 @@ typedef enum {
     SPI_MISO = D12,
     SPI_SCK  = D13,
 
-    // Standardized LED and button names
-    LED1    = PA_5,
-    LED2    = LED1,
-    BUTTON1 = PB_1, /* RESET STATE */
-
-    // Backward legacy names
-    USER_BUTTON = BUTTON1,
     PWM_OUT = D3,
     
     /**** USB FS pins ****/
@@ -263,6 +256,12 @@ typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
+
+// Standardized LED and button names
+#define LED1    PA_5   // Green LED (LD1) // D13
+#define LED2    PB_14  // Green LED (LD2)
+#define LED3    PC_9   // Yellow LED (LD3 WIFI) / Blue LED (LD4 BLE)
+#define BUTTON1 PC_13  // BUTTON_EXTI13 [B2]
 
 #ifdef __cplusplus
 }
