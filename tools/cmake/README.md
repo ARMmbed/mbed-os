@@ -19,12 +19,10 @@ The full profile with the selected printf and C libraries.
 Only a limited set of targets is supported at the moment.
 
 The following targets are supported:
-- DISCO_L475VG_IOT01A 
+- all STM32 targets 
 - K64F 
 - K66F
 - NRF52840_DK
-- NUCLEO_F303K8
-- NUCLEO_F401RE
 - WIO_3G
 
 ### Supported toolchains
