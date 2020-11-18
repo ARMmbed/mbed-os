@@ -45,7 +45,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"
 #if defined(USE_HAL_LEGACY)
-#include "stm32_hal_legacy.h"
+  #include "Legacy/stm32_hal_legacy.h"
 #endif
 #include <stdio.h>
 

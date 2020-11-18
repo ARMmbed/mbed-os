@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,52 +28,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#include "cmsis_nvic.h"
 
-#include "cmsis.h"
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
+#define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+    int i;
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE
-} ADCName;
+    // Copy and switch to dynamic vectors if first time called
+    if ((SYSCFG->CFGR1 & SYSCFG_CFGR1_MEM_MODE) != SYSCFG_CFGR1_MEM_MODE) {
+        uint32_t *old_vectors = (uint32_t *)NVIC_FLASH_VECTOR_ADDRESS;
+        for (i = 0; i < NVIC_NUM_VECTORS; i++) {
+            *((uint32_t *)(NVIC_RAM_VECTOR_ADDRESS + (i*4))) = old_vectors[i];
+        }
+        SYSCFG->CFGR1 |= SYSCFG_CFGR1_MEM_MODE; // Embedded SRAM mapped at 0x00000000
+    }
 
-typedef enum {
-    UART_1 = (int)USART1_BASE,
-    UART_2 = (int)USART2_BASE,
-    UART_3 = (int)USART3_BASE,
-    UART_4 = (int)USART4_BASE
-} UARTName;
-
-#define DEVICE_SPI_COUNT 2
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
-
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
-
-typedef enum {
-    PWM_1  = (int)TIM1_BASE,
-    PWM_3  = (int)TIM3_BASE,
-    PWM_14 = (int)TIM14_BASE,
-    PWM_15 = (int)TIM15_BASE,
-    PWM_16 = (int)TIM16_BASE,
-    PWM_17 = (int)TIM17_BASE
-} PWMName;
-
-typedef enum {
-    USB_FS = (int)USB_BASE,
-} USBName;
-
-#ifdef __cplusplus
+    // Set the vector
+    *((uint32_t *)(NVIC_RAM_VECTOR_ADDRESS + (IRQn*4) + (NVIC_USER_IRQ_OFFSET*4))) = vector;
 }
-#endif
 
-#endif
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+    // Return the vector
+    return vectors[IRQn + 16];
+}

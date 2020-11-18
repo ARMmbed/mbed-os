@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer System Source File.
   *
-  * This file provides two functions and one global variable to be called from
+  * 1. This file provides two functions and one global variable to be called from
   *    user application:
   *      - SystemInit(): This function is called at startup just after reset and 
   *                      before branch to main program. This call is made inside
@@ -18,6 +18,25 @@
   *                                 be called whenever the core clock is changed
   *                                 during program execution.
   *
+  * 2. After each device reset the HSI (8 MHz) is used as system clock source.
+  *    Then SystemInit() function is called, in "startup_stm32f0xx.s" file, to
+  *    configure the system clock before to branch to main program.
+  *
+  * 3. This file configures the system clock as follows:
+  *=============================================================================
+  *                         Supported STM32F0xx device
+  *-----------------------------------------------------------------------------
+  *        System Clock source                    | HSI
+  *-----------------------------------------------------------------------------
+  *        SYSCLK(Hz)                             | 8000000
+  *-----------------------------------------------------------------------------
+  *        HCLK(Hz)                               | 8000000
+  *-----------------------------------------------------------------------------
+  *        AHB Prescaler                          | 1
+  *-----------------------------------------------------------------------------
+  *        APB1 Prescaler                         | 1
+  *-----------------------------------------------------------------------------
+  *=============================================================================
   ******************************************************************************
   * @attention
   *
@@ -135,10 +154,6 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
   * @{
   */
 
-/*+ MBED */
-#if 0
-/*- MBED */
-
 /**
   * @brief  Setup the microcontroller system.
   *         Initialize the default HSI clock source, vector table location and the PLL configuration is reset.
@@ -205,10 +220,6 @@ void SystemInit(void)
   RCC->CIR = 0x00000000U;
 
 }
-
-/*+ MBED */
-#endif
-/*- MBED */
 
 /**
    * @brief  Update SystemCoreClock variable according to Clock Register Values.

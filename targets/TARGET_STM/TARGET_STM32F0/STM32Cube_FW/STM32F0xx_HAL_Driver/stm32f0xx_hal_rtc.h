@@ -43,7 +43,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
-#include "stm32f0xx_ll_rtc.h"
 
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
