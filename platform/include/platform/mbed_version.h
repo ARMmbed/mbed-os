@@ -38,7 +38,7 @@
   *
   * @note 99 is default value for development version (master branch)
   */
-#define MBED_MINOR_VERSION 4
+#define MBED_MINOR_VERSION 5
 
 /** MBED_PATCH_VERSION
   * Mbed OS patch version
