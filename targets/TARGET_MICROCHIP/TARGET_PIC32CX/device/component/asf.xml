@@ -1,0 +1,50 @@
+<asf xmlversion="1.0">
+	<module type="driver" id="sam.utils.cmsis.pic32cx.include.component" caption="PIC32CX component definitions">
+		<info type="description" value="summary">
+		This file defines all structures and symbols for PIC32CX peripherals
+		</info>
+		<!--
+		<build type="include-path" value="."/>
+		-->
+		<build type="header-file" value="acc.h"/>
+		<build type="header-file" value="adc.h"/>
+		<build type="header-file" value="aes.h"/>
+		<build type="header-file" value="aesb.h"/>
+		<build type="header-file" value="chipid.h"/>
+		<build type="header-file" value="cmcc.h"/>
+		<build type="header-file" value="cpkcc.h"/>
+		<build type="header-file" value="dwdt.h"/>
+		<build type="header-file" value="emafelpfif.h"/>
+		<build type="header-file" value="flexcom.h"/>
+		<build type="header-file" value="gpbr.h"/>
+		<build type="header-file" value="i2smcc.h"/>
+		<build type="header-file" value="icm.h"/>
+		<build type="header-file" value="ipc.h"/>
+		<build type="header-file" value="matrix.h"/>
+		<build type="header-file" value="mcspi.h"/>
+		<build type="header-file" value="mem2mem.h"/>
+		<build type="header-file" value="pdc.h"/>
+		<build type="header-file" value="pio.h"/>
+		<build type="header-file" value="pmc.h"/>
+		<build type="header-file" value="pwm.h"/>
+		<build type="header-file" value="qspi.h"/>
+		<build type="header-file" value="rstc.h"/>
+		<build type="header-file" value="rtc.h"/>
+		<build type="header-file" value="rtt.h"/>
+		<build type="header-file" value="sefc.h"/>
+		<build type="header-file" value="sfr.h"/>
+		<build type="header-file" value="sfrbu.h"/>
+		<build type="header-file" value="sha.h"/>
+		<build type="header-file" value="slcdc.h"/>
+		<build type="header-file" value="spi.h"/>
+		<build type="header-file" value="supc.h"/>
+		<build type="header-file" value="syscwp.h"/>
+		<build type="header-file" value="tc.h"/>
+		<build type="header-file" value="trng.h"/>
+		<build type="header-file" value="twi.h"/>
+		<build type="header-file" value="uart.h"/>
+		<build type="header-file" value="usart.h"/>
+		<device-support value="pic32cx"/>
+		<info type="gui-flag" value="hidden"/>
+	</module>
+</asf>
