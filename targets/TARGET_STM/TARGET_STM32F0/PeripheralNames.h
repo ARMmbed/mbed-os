@@ -35,8 +35,12 @@ typedef enum {
 typedef enum {
     UART_1 = (int)USART1_BASE,
     UART_2 = (int)USART2_BASE,
+#if defined USART3_BASE
     UART_3 = (int)USART3_BASE,
+#endif
+#if defined USART4_BASE
     UART_4 = (int)USART4_BASE,
+#endif
 #if defined USART5_BASE
     UART_5 = (int)USART5_BASE,
 #endif

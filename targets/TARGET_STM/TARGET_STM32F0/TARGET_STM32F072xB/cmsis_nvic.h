@@ -17,11 +17,23 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-// STM32F072RB
-// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 32 vectors = 128 bytes from 0x40 to 0xBF
-// Total: 48 vectors = 192 bytes (0xC0) to be reserved in RAM
-#define NVIC_NUM_VECTORS      48
+#if !defined(MBED_ROM_START)
+#define MBED_ROM_START  0x8000000
+#endif
+
+#if !defined(MBED_ROM_SIZE)
+#define MBED_ROM_SIZE  0x20000  // 128 KB
+#endif
+
+#if !defined(MBED_RAM_START)
+#define MBED_RAM_START  0x20000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+#define MBED_RAM_SIZE  0x4000  // 16 KB
+#endif
+
+#define NVIC_NUM_VECTORS        48
 #define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"

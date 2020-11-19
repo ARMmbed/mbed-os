@@ -1218,6 +1218,27 @@
             "FLASH"
         ]
     },
+    "MCU_STM32F030x8": {
+        "inherits": [
+            "MCU_STM32F0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32F030x8"
+        ],
+        "macros_add": [
+            "STM32F030x8"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ]
+    },
     "MCU_STM32F070xB": {
         "inherits": [
             "MCU_STM32F0"
