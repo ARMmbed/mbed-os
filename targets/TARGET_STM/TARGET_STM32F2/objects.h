@@ -42,6 +42,13 @@
 extern "C" {
 #endif
 
+// temporary workaround
+#define HAL_I2C_Master_Seq_Receive_IT  HAL_I2C_Master_Sequential_Receive_IT
+#define HAL_I2C_Master_Seq_Transmit_IT HAL_I2C_Master_Sequential_Transmit_IT
+#define HAL_I2C_Slave_Seq_Receive_IT   HAL_I2C_Slave_Sequential_Receive_IT
+#define HAL_I2C_Slave_Seq_Transmit_IT  HAL_I2C_Slave_Sequential_Transmit_IT
+
+
 struct gpio_irq_s {
     IRQn_Type irq_n;
     uint32_t irq_index;

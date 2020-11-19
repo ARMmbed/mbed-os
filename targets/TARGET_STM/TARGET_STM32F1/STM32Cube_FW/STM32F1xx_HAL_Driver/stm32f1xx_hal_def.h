@@ -28,9 +28,9 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx.h"
-// #if defined(USE_HAL_LEGACY)
+#if defined(USE_HAL_LEGACY)
 #include "Legacy/stm32_hal_legacy.h"
-// #endif
+#endif
 #include <stddef.h>
 
 /* Exported types ------------------------------------------------------------*/
