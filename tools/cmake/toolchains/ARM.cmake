@@ -8,16 +8,9 @@ set(CMAKE_AR "armar")
 set(ARM_ELF2BIN "fromelf")
 set_property(GLOBAL PROPERTY ELF2BIN ${ARM_ELF2BIN})
 
-option(MBEDIDE "Use Arm compiler from Mbed Studio" OFF)
-if(MBEDIDE)
-    set_property(GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER "--ide=mbed")
-endif()
-
 # Sets toolchain options
 function(mbed_set_toolchain_options target)
-    get_property(mbed_studio_arm_compiler GLOBAL PROPERTY MBED_STUDIO_ARM_COMPILER)
     list(APPEND common_options
-        "${mbed_studio_arm_compiler}"
         "-c"
         "--target=arm-arm-none-eabi"
         "-mthumb"
@@ -44,11 +37,9 @@ function(mbed_set_toolchain_options target)
     target_compile_options(${target}
         INTERFACE
             $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=auto>
-            $<$<COMPILE_LANGUAGE:ASM>:${MBED_STUDIO_ARM_COMPILER}>
     )
 
     list(APPEND link_options
-        "${MBED_STUDIO_ARM_COMPILER}"
         "--map"
     )
 
