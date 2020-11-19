@@ -6,8 +6,8 @@ if("SCL" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 if("WHD" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_WHD)
-    add_subdirectory(common/COMPONENT_WHD)
+    add_subdirectory(COMPONENT_WHD EXCLUDE_FROM_ALL)
+    add_subdirectory(common/COMPONENT_WHD EXCLUDE_FROM_ALL)
 endif()
 
 if("CY8CKIT064B0S2_4343W" IN_LIST MBED_TARGET_LABELS)
@@ -32,18 +32,7 @@ elseif("CYW9P62S1_43438EVB_01" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_CYW9P62S1_43438EVB_01)
 endif()
 
-add_subdirectory(psoc6csp/abstraction/rtos)
-if("RTX" IN_LIST MBED_TARGET_LABELS)
-    target_include_directories(mbed-core
-        INTERFACE
-        psoc6csp/abstraction/rtos/include/COMPONENT_RTX
-    )
-    target_sources(mbed-core
-        INTERFACE
-        psoc6csp/abstraction/rtos/source/COMPONENT_RTX/cyabs_rtos_rtxv5.c
-    )
-endif()
-
+add_subdirectory(psoc6csp/abstraction/rtos EXCLUDE_FROM_ALL)
 
 if("CM0P_BLESS" IN_LIST MBED_TARGET_LABELS)
     target_sources(mbed-core
@@ -118,7 +107,6 @@ target_include_directories(mbed-core
         common
         common/udb-sdio-whd
         psoc6csp/abstraction/resource/include
-        psoc6csp/abstraction/rtos/include
         psoc6csp/core_lib/include
         psoc6csp/hal/include
         psoc6csp/hal/include/pin_packages

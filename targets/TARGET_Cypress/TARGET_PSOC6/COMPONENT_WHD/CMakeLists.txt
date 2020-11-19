@@ -107,7 +107,7 @@ target_sources(mbed-cy_psoc6_whd
         ${CLM_BLOB_C}
 )
 
-target_compile_definitions(mbed-core
+target_compile_definitions(mbed-cy_psoc6_whd
     INTERFACE
         MBED_CONF_CY_PSOC6_WHD_PRESENT=1
 )
