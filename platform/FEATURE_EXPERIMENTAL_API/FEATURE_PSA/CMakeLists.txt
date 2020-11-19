@@ -24,4 +24,7 @@ target_link_libraries(mbed-psa
     INTERFACE
         mbed-mbedtls
         mbed-storage-kvstore
+        mbed-storage-tdbstore
+        mbed-storage-kv-global-api
+        mbed-device_key
 )
