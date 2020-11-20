@@ -111,7 +111,7 @@ public:
     const char *get_mac_address() override;
 
     /** @copydoc NetworkInterface::set_mac_address */
-    nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len) override;
+    nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len) override;
 
     /** Register callback for status reporting
      *

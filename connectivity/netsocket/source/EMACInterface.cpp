@@ -87,7 +87,7 @@ const char *EMACInterface::get_mac_address()
     return nullptr;
 }
 
-nsapi_error_t EMACInterface::set_mac_address(uint8_t *mac_addr, size_t addr_len)
+nsapi_error_t EMACInterface::set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len)
 {
     if (!mac_addr || addr_len != NSAPI_MAC_BYTES) {
         return NSAPI_ERROR_PARAMETER;
