@@ -75,6 +75,12 @@ TEST_F(TestNetworkInterface, get_mac_address)
     EXPECT_EQ(iface->get_mac_address(), n);
 }
 
+TEST_F(TestNetworkInterface, set_mac_address)
+{
+    uint8_t mac_buf[8];
+    EXPECT_EQ(iface->set_mac_address(mac_buf, 8), NSAPI_ERROR_UNSUPPORTED);
+}
+
 TEST_F(TestNetworkInterface, get_ip_address)
 {
     SocketAddress addr;
