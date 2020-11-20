@@ -15,6 +15,18 @@
   #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
 
+#if !defined(MBED_VECTOR_TBL_SIZE)
+  #define MBED_VECTOR_TBL_SIZE 0x01c4
+#endif
+
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START 0x20000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE 0x80000
+#endif
+
 #define Stack_Size MBED_CONF_TARGET_BOOT_STACK_SIZE
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
@@ -23,10 +35,9 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM1 0x20000110 0x0003FEF0-Stack_Size  {  ; RW data
+  RW_IRAM1 (MBED_RAM_START + MBED_VECTOR_TBL_SIZE) (MBED_RAM_SIZE - MBED_VECTOR_TBL_SIZE)  {  ; RW data
+   *.o(.ramfunc)
    .ANY (+RW +ZI)
-  }
-  ARM_LIB_STACK (0x20000110+0x0003FEF0) EMPTY -Stack_Size { ; stack
   }
 }
 
