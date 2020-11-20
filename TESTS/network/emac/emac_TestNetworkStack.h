@@ -84,7 +84,9 @@ public:
          *
          * @return              MAC address as "V:W:X:Y:Z"
          */
-        virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
+        //virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
+
+        virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len);
 
         /** Copies IP address of the network interface to user supplied buffer
          *
