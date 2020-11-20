@@ -1,8 +1,8 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("NUMAKER_IOT_M252" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_NUMAKER_IOT_M252)    
+if("NUMAKER_IOT_M263A" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_NUMAKER_IOT_M263A)
 endif()
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
