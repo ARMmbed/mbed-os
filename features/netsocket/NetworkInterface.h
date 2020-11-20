@@ -116,7 +116,7 @@ public:
      *  @retval         NSAPI_ERROR_PARAMETER if address is not valid
      *  @retval         NSAPI_ERROR_BUSY if address can't be set.
      */
-    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len);
+    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len);
 
     /** Get the local IP address
      *

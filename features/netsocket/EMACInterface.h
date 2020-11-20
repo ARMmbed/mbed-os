@@ -99,7 +99,8 @@ public:
      */
     virtual const char *get_mac_address();
 
-    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len);
+    /** @copydoc NetworkInterface::set_mac_address */
+    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len);
 
     /** Get the local IP address
      *

@@ -258,7 +258,7 @@ const char *InterfaceNanostack::get_mac_address()
     return NULL;
 }
 
-nsapi_error_t InterfaceNanostack::set_mac_address(uint8_t *mac_addr, size_t addr_len)
+nsapi_error_t InterfaceNanostack::set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len)
 {
     return _interface->set_mac_address(mac_addr, addr_len);
 }
