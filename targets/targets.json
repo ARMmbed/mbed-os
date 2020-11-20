@@ -1201,8 +1201,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "macros_add": [
@@ -1415,8 +1414,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "device_has_add": [
@@ -2178,8 +2176,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "overrides": {
@@ -2426,8 +2423,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "extra_labels_add": [
@@ -2534,8 +2530,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "extra_labels_add": [
@@ -2702,8 +2697,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "components_add": [
@@ -2970,8 +2964,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "macros_add": [
@@ -3208,8 +3201,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "macros_add": [
@@ -3744,8 +3736,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "overrides": {
@@ -3848,8 +3839,7 @@
             },
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
-                "value": "RCC_LSEDRIVE_LOW",
-                "macro_name": "TARGET_LSE_DRIVE_LOAD_LEVEL"
+                "value": "RCC_LSEDRIVE_LOW"
             }
         },
         "macros_add": [

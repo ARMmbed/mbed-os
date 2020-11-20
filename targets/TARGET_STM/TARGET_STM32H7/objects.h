@@ -23,9 +23,9 @@
 #include "stm32h7xx_ll_usart.h"
 #include "stm32h7xx_ll_rtc.h"
 #include "stm32h7xx_ll_tim.h"
+#include "stm32h7xx_ll_rcc.h"
 #if defined(DUAL_CORE)
 #include "stm32h7xx_ll_hsem.h"
-#include "stm32h7xx_ll_rcc.h"
 #include "stm32h7xx_ll_cortex.h"
 #endif /* CONFIG_STM32H7_DUAL_CORE */
 #include "stm32h7xx_ll_pwr.h"
