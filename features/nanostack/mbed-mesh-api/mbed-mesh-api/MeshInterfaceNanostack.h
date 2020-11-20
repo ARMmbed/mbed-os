@@ -120,7 +120,7 @@ public:
     virtual const char *get_mac_address();
 
     /** @copydoc NetworkInterface::set_mac_address */
-    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, size_t addr_len);
+    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len);
 
     /** Register callback for status reporting
      *
