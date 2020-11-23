@@ -38,7 +38,6 @@ private:
     struct entry_t {
         SecurityDistributionFlags_t flags;
         sign_count_t peer_sign_counter;
-        uint8_t index;
     };
 
     static constexpr uint8_t KVSTORESECURITYDB_VERSION = 1;
@@ -228,6 +227,11 @@ private:
 private:
     entry_t _entries[BLE_SECURITY_DATABASE_MAX_ENTRIES];
     uint8_t _buffer[sizeof(SecurityEntryKeys_t)];
+
+    uint8_t get_index(entry_t *entry)
+    {
+        return  entry - _entries;
+    }
 };
 
 } /* namespace ble */
