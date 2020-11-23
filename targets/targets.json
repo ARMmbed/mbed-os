@@ -6982,10 +6982,6 @@
 			"6"
 		],
 		"bootloader_supported": false,
-		"mbed_rom_start": "0x01000000",
-        "mbed_rom_size": "0x00200000",
-        "mbed_ram_start": "0x20000000",
-        "mbed_ram_size": "0x00080000",
 		"public": false
     },
     "PIC32CXMTG_EK": {
