@@ -2,7 +2,7 @@
  * @file objects.h
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright (c) 2021 Microchip Technology Inc. and its subsidiaries.</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -25,6 +25,7 @@
 #define MBED_OBJECTS_H
 
 #include "PinNames.h"
+#include "CommonPinNames.h"
 #include "PeripheralNames.h"
 #include "PortNames.h"
 #include "pic32cx.h"
@@ -91,8 +92,8 @@ struct gpio_irq_s {
 #if DEVICE_SERIAL
 struct serial_s {
     union {
-        USART_TypeDef *uart;
-        LEUART_TypeDef *leuart;
+        Usart *usart;
+        Uart *uart;
     } periph;
 #ifndef _SILICON_LABS_32B_PLATFORM_2
     uint32_t location;

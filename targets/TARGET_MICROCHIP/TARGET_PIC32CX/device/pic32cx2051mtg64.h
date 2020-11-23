@@ -2,7 +2,7 @@
 /*                Microchip Microcontroller Software Support                    */
 /*                       SAM Software Package License                           */
 /* ---------------------------------------------------------------------------- */
-/* Copyright (c) %copyright_year%, Microchip Technology Inc.                    */
+/* Copyright (c) 2021, Microchip Technology Inc.                                */
 /*                                                                              */
 /* All rights reserved.                                                         */
 /*                                                                              */

@@ -2,7 +2,7 @@
  * @file PortNames.h
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright (c) 2021 Microchip Technology Inc. and its subsidiaries.</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -29,22 +29,12 @@
 extern "C" {
 #endif
 
- /******  TBD *********/ 
-
-//typedef enum {
-//#if ( _GPIO_PORT_A_PIN_COUNT > 0 )
-//    PortA = gpioPortA, /**< Port A */
-//#endif
-//#if ( _GPIO_PORT_B_PIN_COUNT > 0 )
-//    PortB = gpioPortB, /**< Port B */
-//#endif
-//#if ( _GPIO_PORT_C_PIN_COUNT > 0 )
-//    PortC = gpioPortC, /**< Port C */
-//#endif
-//#if ( _GPIO_PORT_D_PIN_COUNT > 0 )
-//    PortD = gpioPortD, /**< Port D */
-//#endif
-//} PortName;
+typedef enum {
+    PortA = 0, /**< Port A */
+    PortB = 1, /**< Port B */
+    PortC = 2, /**< Port C */
+    PortD = 3, /**< Port D */
+} PortName;
 
 #ifdef __cplusplus
 }

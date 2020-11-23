@@ -4,7 +4,7 @@
 /* CMSIS END USER LICENSE AGREEMENT.pdf, governing the use of          */
 /* Example Code.                                                       */
 /*                                                                     */
-/* Copyright (c) %copyright_year%, Microchip Technology Inc.           */
+/* Copyright (c) 2021, Microchip Technology Inc.           */
 /*                                                                     */
 /*                                                                     */
 

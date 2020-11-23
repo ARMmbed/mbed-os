@@ -2,7 +2,7 @@
  * @file device.h
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright (c) 2021 Microchip Technology Inc. and its subsidiaries.</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Apache-2.0

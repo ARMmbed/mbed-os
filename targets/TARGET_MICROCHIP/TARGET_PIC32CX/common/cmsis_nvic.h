@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library - cmsis_nvic
- * Copyright (c) 2009-2011 ARM Limited. All rights reserved.
+ * Copyright (c) 2020 ARM Limited. All rights reserved.
  */
 
 #ifndef MBED_CMSIS_NVIC_H
