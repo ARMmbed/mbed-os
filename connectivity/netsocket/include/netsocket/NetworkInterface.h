@@ -103,15 +103,21 @@ public:
 
     /** Set the MAC address to the interface.
      *
-     *  Provided MAC address is set the the network interface. Address must be
-     *  set before calling the interface connect() method. EUI-48 MAC addresses
-     *  are used for Ethernet while Mesh interface is using 8-byte EUI-64 address.
+     *  Set the provided MAC address on the network interface. The address must
+     *  be unique globally. The address must be set before calling the interface
+     *  connect() method.
      *
-     *  All interfaces are not supporting MAC address set. A call to connect()
-     *  will fail if MAC address is provided but not possible to use.
+     *  Not all interfaces are supporting MAC address set. A call to connect()
+     *  method will fail if MAC address is provided but not possible to use.
      *
-     *  @param          mac_addr Buffer containing the MAC address
-     *  @param          addr_len Length of provided buffer in bytes (6 or 8 bytes)
+     *  6-byte EUI-48 MAC addresses are used for Ethernet while Mesh interface is
+     *  using 8-byte EUI-64 address.
+     *
+     *  More information about obtaining MAC address can be found from:
+     *  https://standards.ieee.org/products-services/regauth/index.html
+     *
+     *  @param          mac_addr Buffer containing the MAC address in hexadecimal format.
+     *  @param          addr_len Length of provided buffer in bytes (6 or 8)
      *  @retval         NSAPI_ERROR_OK on success
      *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
      *  @retval         NSAPI_ERROR_PARAMETER if address is not valid

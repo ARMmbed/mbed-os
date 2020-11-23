@@ -157,7 +157,7 @@ char *EmacTestNetworkStack::Interface::get_mac_address(char *buf, nsapi_size_t b
 
 nsapi_error_t EmacTestNetworkStack::Interface::set_mac_address(uint8_t *buf, nsapi_size_t buflen)
 {
-    return NSAPI_ERROR_OK;
+    return NSAPI_STATUS_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t EmacTestNetworkStack::Interface::get_ip_address(SocketAddress *address)
