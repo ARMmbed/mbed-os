@@ -49,6 +49,7 @@ Supported examples can be identified by the presence of a top level `CMakeLists.
 Prerequisities:
 - CMake >=3.19.0
 - mbed-tools >=4.0.0
+- Python modules defined in [`tools/cmake/requirements.txt`](./requirements.txt)
 
 From the application root or wherever `mbed-os.lib` is found, run the following command to:
  * create the Mbed OS configuration CMake module
