@@ -305,9 +305,8 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     }
 
     int type = 0;
-    uint32_t offset = 0;
-    uint32_t chunk = 4096;
     int cur_erase_inst = _erase_instruction;
+    unsigned int curr_erase_size = 0;
     int size = (int)in_size;
     bool erase_failed = false;
     int status = SPIF_BD_ERROR_OK;
@@ -339,12 +338,16 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         // find the matching instruction and erase size chunk for that type.
         type = sfdp_iterate_next_largest_erase_type(bitfield, size, (unsigned int)addr, region, _sfdp_info.smptbl);
         cur_erase_inst = _sfdp_info.smptbl.erase_type_inst_arr[type];
-        offset = addr % _sfdp_info.smptbl.erase_type_size_arr[type];
-        chunk = ((offset + size) < _sfdp_info.smptbl.erase_type_size_arr[type]) ?
-                size : (_sfdp_info.smptbl.erase_type_size_arr[type] - offset);
+        curr_erase_size = _sfdp_info.smptbl.erase_type_size_arr[type];
+        if (addr % curr_erase_size != 0 || addr + size < curr_erase_size) {
+            // Should not happen if the erase table parsing
+            // and alignment checks were performed correctly
+            tr_error("internal error: address %llu not aligned to erase size %llu (type %d)",
+                     addr, curr_erase_size, type);
+        }
 
-        tr_debug("erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %" PRIu32 " , ",
-                 addr, size, cur_erase_inst, chunk);
+        tr_debug("erase - addr: %llu, size:%d, Inst: 0x%xh, erase size: %" PRIu32 " , ",
+                 addr, size, cur_erase_inst, curr_erase_size);
         tr_debug("erase - Region: %d, Type:%d",
                  region, type);
 
@@ -359,8 +362,8 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 
         _spi_send_erase_command(cur_erase_inst, addr, size);
 
-        addr += chunk;
-        size -= chunk;
+        addr += curr_erase_size;
+        size -= curr_erase_size;
 
         if ((size > 0) && (addr > _sfdp_info.smptbl.region_high_boundary[region])) {
             // erase crossed to next region
