@@ -181,6 +181,7 @@ public:
             entry_handle_t correct_handle = find_entry_by_peer_ediv_rand(ediv, rand);
             if (!correct_handle) {
                 cb(*db_handle, NULL);
+                return;
             }
             // Note: keys should never be null as a matching entry has been retrieved
             SecurityEntryKeys_t* keys = read_in_entry_local_keys(correct_handle);
