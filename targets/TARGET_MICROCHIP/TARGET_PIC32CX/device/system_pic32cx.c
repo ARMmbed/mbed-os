@@ -28,6 +28,7 @@
 /* ---------------------------------------------------------------------------- */
 
 #include "pic32cx.h"
+#include "board.h"
 #include "compiler.h"
 
 /* @cond 0 */
@@ -37,15 +38,6 @@ extern "C" {
 #endif
 /**INDENT-ON**/
 /* @endcond */
-
-/* External oscillator definition, to be overriden by application */
-#ifndef BOARD_FREQ_MAINCK_XTAL
-/* The following oscillators should be defined in board definition file */
-#define    BOARD_FREQ_SLCK_XTAL        (0)
-#define    BOARD_FREQ_SLCK_BYPASS      (0)
-#define    BOARD_FREQ_MAINCK_XTAL      (0)
-#define    BOARD_FREQ_MAINCK_BYPASS    (0)
-#endif
 
 /* tACC(max) = 30 ns  + 2ns (Routing flash + AHB) */
 /* Read access time of flash in ns (agr_flash_esf340_1mb_p1.v) */
@@ -91,6 +83,7 @@ static uint32_t _get_td_slck(void)
 
 static uint32_t _get_pll_clk(uint8_t uc_pll_id, uint8_t uc_div_idx)
 {
+	uint64_t pll_tmp;
 	uint32_t ul_clk;
 	uint32_t mul, divpmc, fracr;
 
@@ -123,8 +116,11 @@ static uint32_t _get_pll_clk(uint8_t uc_pll_id, uint8_t uc_div_idx)
 		}
 	}
 
-	ul_clk *= (mul + 1 + (fracr >> 22));
-	ul_clk /= (divpmc + 1);
+	/* PLLxCK output: (Fref * (MUL + 1 + (FRACR / 2^22))) / (DIV + 1) */
+	pll_tmp = (uint64_t)ul_clk;
+	pll_tmp *= (uint64_t)(fracr + ((mul + 1) * (uint64_t)(1 << 22)));
+	pll_tmp /= (uint64_t)((divpmc + 1) * (uint64_t)(1 << 22));
+	ul_clk = (uint32_t)pll_tmp;
 
 	return ul_clk;
 }
@@ -136,22 +132,16 @@ static uint32_t _get_pll_clk(uint8_t uc_pll_id, uint8_t uc_div_idx)
  */
 void SystemInit( void )
 {
-	/*
-	 * TODO:
-	 * Add code to initialize the system according to your application.
-	 *
-	 * For PIC32CX, the internal 12MHz fast RC oscillator is the default clock
-	 * selected at system reset state.
-	 *
-	 * Note:
-	 * After reset, the core 1 is hold in reset and with no clock.
-	 */
-
-	/* Set FWS according to default clock configuration */
-	SEFC0->EEFC_FMR = EEFC_FMR_FWS(1);
+	/* Set FWS to max value to allow any clock frequency */
+	SEFC0->EEFC_FMR = EEFC_FMR_FWS(0xF) | EEFC_FMR_CLOE;
 #ifdef SEFC1
-	SEFC1->EEFC_FMR = EEFC_FMR_FWS(1);
+	SEFC1->EEFC_FMR = EEFC_FMR_FWS(0xF) | EEFC_FMR_CLOE;
 #endif
+}
+
+uint32_t SystemGetPllClk(uint8_t uc_pll_id, uint8_t uc_div_idx)
+{
+	return _get_pll_clk(uc_pll_id, uc_div_idx);
 }
 
 /**
@@ -194,14 +184,6 @@ void SystemCoreClockUpdate( void )
 		SystemCoreClock /= 3U;
 	} else {
 		SystemCoreClock >>= ((PMC->PMC_CPU_CKR & PMC_CPU_CKR_PRES_Msk) >> PMC_CPU_CKR_PRES_Pos);
-	}
-
-	if (SystemCoreClock > 100000000) {
-		/* Enable MCK0DIV */
-		PMC->PMC_CPU_CKR |= PMC_CPU_CKR_RATIO_MCK0DIV;
-	} else {
-		/* Disable MCK0DIV */
-		PMC->PMC_CPU_CKR &= ~(PMC_CPU_CKR_RATIO_MCK0DIV);
 	}
 }
 
@@ -256,13 +238,6 @@ void SystemCore1ClockUpdate( void )
 	/* Adjust prescaler */
 	SystemCore1Clock /= (((PMC->PMC_CPU_CKR & PMC_CPU_CKR_CPPRES_Msk) >> PMC_CPU_CKR_CPPRES_Pos) + 1);
 
-	if (SystemCore1Clock > 120000000) {
-		/* Enable MCK1DIV */
-		PMC->PMC_CPU_CKR |= PMC_CPU_CKR_RATIO_MCK1DIV;
-	} else {
-		/* Disable MCK1DIV */
-		PMC->PMC_CPU_CKR &= ~(PMC_CPU_CKR_RATIO_MCK1DIV);
-	}
 }
 
 /**
@@ -296,9 +271,10 @@ void system_init_flash(uint32_t ul_clk)
 	/* Set FWS for embedded Flash access according to operating frequency */
 	ul_fws = div_ceil((SYSTEM_TACC_FLASH * ul_clk_mhz), 1000);
 
-	SEFC0->EEFC_FMR = EEFC_FMR_FWS(ul_fws);
+	/* Enable CLOE(Code Loop Optimization Enable) by default */
+	SEFC0->EEFC_FMR = EEFC_FMR_FWS(ul_fws) | EEFC_FMR_CLOE;
 #ifdef SEFC1
-	SEFC1->EEFC_FMR = EEFC_FMR_FWS(ul_fws);
+	SEFC1->EEFC_FMR = EEFC_FMR_FWS(ul_fws) | EEFC_FMR_CLOE;
 #endif
 }
 

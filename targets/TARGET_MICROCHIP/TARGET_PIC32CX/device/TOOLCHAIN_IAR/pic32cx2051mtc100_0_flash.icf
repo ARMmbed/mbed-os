@@ -35,20 +35,22 @@
 if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x01000000; }
 if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0x200000; }
 if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_STACK_SIZE)) { define symbol MBED_CONF_TARGET_BOOT_STACK_SIZE = 0x400; }
+if (!isdefinedsymbol(MBED_CONF_TARGET_BOOT_HEAP_SIZE)) { define symbol MBED_CONF_TARGET_BOOT_HEAP_SIZE = 0x400; }
 
 // 512KB RAM (0x80000)
 
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__     = MBED_APP_START;
+define symbol __ICFEDIT_intvec_size__      = 0x01c4;
 /*-Memory Regions-*/
-define symbol __ICFEDIT_region_RAM_start__ = 0x20000000;
+define symbol __ICFEDIT_region_RAM_start__ = 0x20000000 + __ICFEDIT_intvec_size__;
 define symbol __ICFEDIT_region_RAM_end__   = 0x2007FFFF;
 define symbol __ICFEDIT_region_ROM_start__ = MBED_APP_START;
 define symbol __ICFEDIT_region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__      = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 if (!isdefinedsymbol(__ICFEDIT_size_heap__)) {
-define symbol __ICFEDIT_size_heap__        = 0x400;
+define symbol __ICFEDIT_size_heap__        = MBED_CONF_TARGET_BOOT_HEAP_SIZE;
 }
 /* TCM regions */
 define symbol __ICFEDIT_region_DTCM_start__ = 0x1FFFA000;

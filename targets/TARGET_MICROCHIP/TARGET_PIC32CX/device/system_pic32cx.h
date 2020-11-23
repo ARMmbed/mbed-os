@@ -49,6 +49,11 @@ extern uint32_t SystemCoreClock; /* System Clock Frequency (Core Clock) */
 void SystemInit(void);
 
 /**
+ * @brief Get clock from PLL configuration.
+ */
+uint32_t SystemGetPllClk(uint8_t uc_pll_id, uint8_t uc_div_idx);
+
+/**
  * @brief Updates the SystemCoreClock with current core Clock
  * retrieved from cpu registers.
  */

@@ -8,14 +8,6 @@
 /*                                                                     */
 /*                                                                     */
 
-#if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x01000000
-#endif
-
-#if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x200000
-#endif
-
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
     #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x400
 #endif
@@ -24,14 +16,14 @@ STACK_SIZE = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 0x2007FFFF
+  FLASH (rx) : ORIGIN = 0x01000000, LENGTH = 0x200000
+  RAM (rwx)  : ORIGIN = 0x200001C4, LENGTH = 0x7FE3C
 }
 
 /* MBED: mbed needs to be able to dynamically set the interrupt vector table.
  * We make room for the table at the very beginning of RAM, i.e. at
- * 0x20000000. We need (16+51 * sizeof(uint32_t) = 268 + 4(8-byte aligned) bytes for PIC32CX */
-__vector_size = 0x110;
+ * 0x20000000. We need (16+97 * sizeof(uint32_t) = 452 bytes for PIC32CX */
+__vector_size = 0x1c4;
 
 /* Section Definitions */
 SECTIONS
@@ -79,40 +71,6 @@ SECTIONS
   } > FLASH
   __exidx_end = .;
 
-  /* To copy multiple ROM to RAM sections,
-   * uncomment .copy.table section and,
-   * define __STARTUP_COPY_MULTIPLE in startup_ARMCMx.S */
-  /*
-  .copy.table :
-  {
-    . = ALIGN(8);
-    __copy_table_start__ = .;
-    LONG (__etext)
-    LONG (__data_start__)
-    LONG (__data_end__ - __data_start__)
-    LONG (__etext2)
-    LONG (__data2_start__)
-    LONG (__data2_end__ - __data2_start__)
-    __copy_table_end__ = .;
-  } > FLASH
-  */
-
-  /* To clear multiple BSS sections,
-   * uncomment .zero.table section and,
-   * define __STARTUP_CLEAR_BSS_MULTIPLE in startup_ARMCMx.S */
-  /*
-  .zero.table :
-  {
-    . = ALIGN(8);
-    __zero_table_start__ = .;
-    LONG (__bss_start__)
-    LONG (__bss_end__ - __bss_start__)
-    LONG (__bss2_start__)
-    LONG (__bss2_end__ - __bss2_start__)
-    __zero_table_end__ = .;
-  } > FLASH
-  */
-
   __etext = .;
 
   .data : AT (__etext)
@@ -121,8 +79,9 @@ SECTIONS
     PROVIDE( __start_vector_table__ = .);
     . += __vector_size;
     PROVIDE( __end_vector_table__ = .);
-    *(vtable)
+
     *(.data*)
+	
     . = ALIGN (8);
     *(.ram)
 
