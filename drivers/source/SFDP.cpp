@@ -403,12 +403,17 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
     int largest_erase_type = 0;
 
     int idx;
+    unsigned int erase_size;
     for (idx = 3; idx >= 0; idx--) {
         if (bitfield & type_mask) {
             largest_erase_type = idx;
-            if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
-                    ((smptbl.region_high_boundary[region] - offset)
-                     > (uint64_t)(smptbl.erase_type_size_arr[largest_erase_type]))) {
+            erase_size = smptbl.erase_type_size_arr[largest_erase_type];
+            // Criteria:
+            // * offset is aligned to the type's erase size
+            // * erase size is no larger than the requested size,
+            // * erase range does not exceed the region boundary
+            if ((offset % erase_size == 0) && (size >= erase_size) &&
+                    (offset + erase_size - 1 <= smptbl.region_high_boundary[region])) {
                 break;
             } else {
                 bitfield &= ~type_mask;
