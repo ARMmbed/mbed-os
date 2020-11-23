@@ -15,3 +15,8 @@ target_sources(mbed-ble
         GattServer.cpp
         SecurityManager.cpp
 )
+
+target_link_libraries(mbed-ble
+    INTERFACE
+        mbed-ble-cordio
+)
