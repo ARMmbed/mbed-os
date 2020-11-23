@@ -190,6 +190,11 @@ public:
             SecurityDistributionFlags_t* flags = get_distribution_flags(correct_handle);
             flags->connected = true;
 
+            /* update peer address */
+            SecurityDistributionFlags_t* old_flags = get_distribution_flags(*db_handle);
+            flags->peer_address = old_flags->peer_address;
+            flags->peer_address_is_public = old_flags->peer_address_is_public;
+
             close_entry(*db_handle, false);
             *db_handle = correct_handle;
             cb(*db_handle, keys);
