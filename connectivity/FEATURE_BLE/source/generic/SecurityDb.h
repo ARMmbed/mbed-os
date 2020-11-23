@@ -185,6 +185,11 @@ public:
             // Note: keys should never be null as a matching entry has been retrieved
             SecurityEntryKeys_t* keys = read_in_entry_local_keys(correct_handle);
             MBED_ASSERT(keys);
+
+            /* set flags connected */
+            SecurityDistributionFlags_t* flags = get_distribution_flags(correct_handle);
+            flags->connected = true;
+
             close_entry(*db_handle, false);
             *db_handle = correct_handle;
             cb(*db_handle, keys);
@@ -494,6 +499,7 @@ public:
     ) {
         entry_handle_t db_handle = find_entry_by_peer_address(peer_address_type, peer_address);
         if (db_handle) {
+            ((SecurityDistributionFlags_t*)db_handle)->connected = true;
             return db_handle;
         }
 
@@ -507,6 +513,7 @@ public:
              * by identity address */
             flags->peer_address = peer_address;
             flags->peer_address_is_public = peer_address_public;
+            flags->connected = true;
             return flags;
         }
 
