@@ -6965,7 +6965,7 @@
 		"extra_labels": [
             "MICROCHIP"
         ],
-		"core": "Cortex-M4",
+		"core": "Cortex-M4F",
         "supported_toolchains": [
             "ARM",
             "GCC_ARM",
@@ -6988,6 +6988,9 @@
         "inherits": [
 			"PIC32CX"
 		],
+        "macros_add": [
+            "__PIC32CX2051MTG100__"
+        ],
 		"device_name": "PIC32CX2051MTG100",
 		"detect_code": ["0921"]
     },
