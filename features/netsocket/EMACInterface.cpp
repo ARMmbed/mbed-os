@@ -15,7 +15,7 @@
  */
 
 #include "EMACInterface.h"
-#include "mbed_trace.h"
+#include "mbed-trace/mbed_trace.h"
 
 using namespace mbed;
 
