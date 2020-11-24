@@ -15,8 +15,11 @@
  */
 
 #include "EMACInterface.h"
+#include "mbed_trace.h"
 
 using namespace mbed;
+
+#define TRACE_GROUP "EMACi"
 
 /* Interface implementation */
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
@@ -69,10 +72,17 @@ nsapi_error_t EMACInterface::set_dhcp(bool dhcp)
 nsapi_error_t EMACInterface::connect()
 {
     if (!_interface) {
-        nsapi_error_t err;
+        nsapi_error_t err = NSAPI_ERROR_UNSUPPORTED;
+
         if (_hw_mac_addr_set) {
             err = _stack.add_ethernet_interface(_emac, true, &_interface, _hw_mac_addr);
-        } else {
+            if (err == NSAPI_ERROR_UNSUPPORTED) {
+                tr_error("Failed to set user MAC address");
+            }
+        }
+
+        if (err == NSAPI_ERROR_UNSUPPORTED)
+        {
             err = _stack.add_ethernet_interface(_emac, true, &_interface);
         }
 
