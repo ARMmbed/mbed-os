@@ -58,28 +58,6 @@ function(mbed_set_toolchain_options target)
     )
 endfunction()
 
-# Generate a file containing compile definitions
-function(mbed_generate_gcc_options_for_linker target definitions_file)
-    set(_compile_definitions 
-        "$<TARGET_PROPERTY:${target},COMPILE_DEFINITIONS>"
-    )
-
-    # Remove macro definitions that contain spaces as the lack of escape sequences and quotation marks
-    # in the macro when retrieved using generator expressions causes linker errors.
-    # This includes string macros, array macros, and macros with operations.
-    # TODO CMake: Add escape sequences and quotation marks where necessary instead of removing these macros.
-    set(_compile_definitions
-       "$<FILTER:${_compile_definitions},EXCLUDE, +>"
-    )
-
-    # Append -D to all macros as we pass these as response file to cxx compiler
-    set(_compile_definitions 
-        "$<$<BOOL:${_compile_definitions}>:-D$<JOIN:${_compile_definitions}, -D>>"
-    )
-    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/compile_time_defs.txt" CONTENT "${_compile_definitions}\n")
-    set(${definitions_file} @${CMAKE_BINARY_DIR}/compile_time_defs.txt PARENT_SCOPE)
-endfunction()
-
 # Configure the toolchain to select the selected C library
 function(mbed_set_c_lib target lib_type)
     if (${lib_type} STREQUAL "small")
