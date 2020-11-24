@@ -107,8 +107,9 @@ public:
      *  be unique globally. The address must be set before calling the interface
      *  connect() method.
      *
-     *  Not all interfaces are supporting MAC address set. A call to connect()
-     *  method will fail if MAC address is provided but not possible to use.
+     *  Not all interfaces are supporting MAC address set and an error is not returned
+     *  for this method call. Verify the changed MAC address by analysing packet
+     *  captures from the used network interface.
      *
      *  6-byte EUI-48 MAC addresses are used for Ethernet while Mesh interface is
      *  using 8-byte EUI-64 address.
