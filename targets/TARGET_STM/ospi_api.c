@@ -237,7 +237,7 @@ ospi_status_t ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap, uint32_
 static ospi_status_t _ospi_init_direct(ospi_t *obj, const ospi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #endif
 {
-    tr_info("ospi_init mode %u", mode);
+    tr_debug("ospi_init mode %u", mode);
 
     // Reset handle internal state
     obj->handle.State = HAL_OSPI_STATE_RESET;
@@ -412,7 +412,7 @@ ospi_status_t ospi_init(ospi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
 ospi_status_t ospi_free(ospi_t *obj)
 {
-    tr_info("ospi_free");
+    tr_debug("ospi_free");
     if (HAL_OSPI_DeInit(&obj->handle) != HAL_OK) {
         return OSPI_STATUS_ERROR;
     }
@@ -450,7 +450,7 @@ ospi_status_t ospi_free(ospi_t *obj)
 
 ospi_status_t ospi_frequency(ospi_t *obj, int hz)
 {
-    tr_info("ospi_frequency hz %d", hz);
+    tr_debug("ospi_frequency hz %d", hz);
     ospi_status_t status = OSPI_STATUS_OK;
 
     /* HCLK drives OSPI. OSPI clock depends on prescaler value:
@@ -532,7 +532,7 @@ ospi_status_t ospi_read(ospi_t *obj, const ospi_command_t *command, void *data, 
 
 ospi_status_t ospi_command_transfer(ospi_t *obj, const ospi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-    tr_info("ospi_command_transfer tx %u rx %u command %#04x", tx_size, rx_size, command->instruction.value);
+    tr_debug("ospi_command_transfer tx %u rx %u command %#04x", tx_size, rx_size, command->instruction.value);
     ospi_status_t status = OSPI_STATUS_OK;
 
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {
