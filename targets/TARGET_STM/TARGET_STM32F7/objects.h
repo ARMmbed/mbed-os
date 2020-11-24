@@ -167,11 +167,7 @@ struct can_s {
 
 #if DEVICE_QSPI
 struct qspi_s {
-#if defined(OCTOSPI1)
-    OSPI_HandleTypeDef handle;
-#else
     QSPI_HandleTypeDef handle;
-#endif
     QSPIName qspi;
     PinName io0;
     PinName io1;

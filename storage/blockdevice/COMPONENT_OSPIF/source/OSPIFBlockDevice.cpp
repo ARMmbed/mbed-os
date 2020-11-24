@@ -1662,8 +1662,7 @@ ospi_status_t OSPIFBlockDevice::_ospi_send_general_command(ospi_inst_t instructi
     if ((_inst_width == OSPI_CFG_BUS_OCTA) || (_inst_width == OSPI_CFG_BUS_OCTA_DTR)) {
         if ((instruction == OSPIF_INST_RSR1) || (instruction == OSPIF_INST_RDID) ||
                 (instruction == OSPIF_INST_RDCR2) || (instruction == OSPIF_INST_RDCR)) {
-            _ospi.configure_format(_inst_width, _inst_size, _address_width, _address_size, OSPI_CFG_BUS_SINGLE,
-                                   0, _data_width, 4);
+            _ospi.configure_format(_inst_width, _inst_size, _address_width, _address_size, OSPI_CFG_BUS_SINGLE, 0, _data_width, _dummy_cycles);
             addr = 0;
         } else if ((instruction == OSPIF_INST_WSR1)) {
             addr = 0;

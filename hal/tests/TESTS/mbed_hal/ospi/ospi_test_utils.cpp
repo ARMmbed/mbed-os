@@ -82,11 +82,11 @@ void OspiCommand::build(int instruction, int address, int alt)
         if (instruction == STATUS_REG) {
             _cmd.address.disabled = 0;
             _cmd.address.value = 0;
-            _cmd.dummy_count = 4;
+            _cmd.dummy_count = OSPI_READ_FAST_DUMMY_CYCLE;
         } else if (instruction == OSPI_CMD_RDCR2) {
-            _cmd.dummy_count = 4;
+            _cmd.dummy_count = OSPI_READ_FAST_DUMMY_CYCLE;
         } else if ((instruction == OSPI_CMD_READ_OPI) || (instruction ==  OSPI_CMD_READ_DOPI)) {
-            _cmd.dummy_count = 20;
+            _cmd.dummy_count = OSPI_READ_8IO_DUMMY_CYCLE;
         } else {
             _cmd.dummy_count = 0;
         }

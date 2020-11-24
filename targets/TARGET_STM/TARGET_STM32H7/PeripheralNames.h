@@ -107,6 +107,15 @@ typedef enum {
 #endif
 } QSPIName;
 
+#if defined OCTOSPI1_R_BASE
+typedef enum {
+    OSPI_1 = (int)OCTOSPI1_R_BASE,
+#if defined OCTOSPI2_R_BASE
+    OSPI_2 = (int)OCTOSPI2_R_BASE,
+#endif
+} OSPIName;
+#endif
+
 typedef enum {
 #if USB_OTG_FS_PERIPH_BASE
     USB_FS = (int)USB_OTG_FS_PERIPH_BASE,
