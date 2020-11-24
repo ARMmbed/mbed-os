@@ -393,7 +393,7 @@ int sfdp_find_addr_region(bd_addr_t offset, const sfdp_hdr_info &sfdp_info)
 
 }
 
-int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
+int sfdp_iterate_next_largest_erase_type(uint8_t bitfield,
                                          int size,
                                          int offset,
                                          int region,
@@ -415,8 +415,6 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
             if ((offset % erase_size == 0) && (size >= erase_size) &&
                     (offset + erase_size - 1 <= smptbl.region_high_boundary[region])) {
                 break;
-            } else {
-                bitfield &= ~type_mask;
             }
         }
         type_mask = type_mask >> 1;
