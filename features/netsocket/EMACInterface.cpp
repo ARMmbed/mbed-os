@@ -81,8 +81,7 @@ nsapi_error_t EMACInterface::connect()
             }
         }
 
-        if (err == NSAPI_ERROR_UNSUPPORTED)
-        {
+        if (err == NSAPI_ERROR_UNSUPPORTED) {
             err = _stack.add_ethernet_interface(_emac, true, &_interface);
         }
 
