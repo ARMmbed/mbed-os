@@ -42,7 +42,7 @@ extern void SetSysClock(void);
 #   if defined(MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL)
 #       define LSE_DRIVE_LOAD_LEVEL    MBED_CONF_TARGET_LSE_DRIVE_LOAD_LEVEL
 #   else
-#       if defined(RCC_LSE_HIGHDRIVE_MODE)
+#       if defined(RCC_LSE_HIGHDRIVE_MODE) // STM32F4
 #           define LSE_DRIVE_LOAD_LEVEL    RCC_LSE_LOWPOWER_MODE
 #       else
 #           define LSE_DRIVE_LOAD_LEVEL    RCC_LSEDRIVE_LOW
@@ -70,17 +70,6 @@ extern void SetSysClock(void);
  */
 
 static void LSEDriveConfig(void) {
-    // this config can be changed only when LSE is stopped
-    // LSE could be enabled before a reset and will remain running, disable first
-    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
-        error("LSEDriveConfig : failed to disable LSE\n");
-    }
-
-   // set LSE drive level. Exception only for F4_g2 series
     HAL_PWR_EnableBkUpAccess();
     #if defined(__HAL_RCC_LSEDRIVE_CONFIG)
         __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_LOAD_LEVEL);
@@ -180,9 +169,10 @@ void mbed_sdk_init()
     /* Configure the System clock source, PLL Multiplier and Divider factors,
        AHB/APBx prescalers and Flash settings */
 #if defined(LSE_CONFIG_AVAILABLE)
-    // LSE maybe used later, but crystal load drive setting is necessary before 
-    // enabling LSE
-    LSEDriveConfig();
+    // LSE oscillator drive capability set before LSE is started
+    if (!LL_RCC_LSE_IsReady()) {
+        LSEDriveConfig();
+    }
 #endif
     SetSysClock();
     SystemCoreClockUpdate();
@@ -199,16 +189,19 @@ void mbed_sdk_init()
     /* wait until CPU2 wakes up from stop mode */
     while (LL_RCC_D2CK_IsReady() == 0);
 #endif /* CORE_M4 */
+
 #else /* Single core */
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
     HAL_Init();
 
-    /* Configure the System clock source, PLL Multiplier and Divider factors,
-       AHB/APBx prescalers and Flash settings */
 #if defined(LSE_CONFIG_AVAILABLE)
-    LSEDriveConfig();
+    // LSE oscillator drive capability set before LSE is started
+    if (!LL_RCC_LSE_IsReady()) {
+        LSEDriveConfig();
+    }
 #endif
+
     SetSysClock();
     SystemCoreClockUpdate();
 #endif /* DUAL_CORE */

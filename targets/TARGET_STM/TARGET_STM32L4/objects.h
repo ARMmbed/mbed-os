@@ -29,6 +29,7 @@
 #include "stm32l4xx_ll_tim.h"
 #include "stm32l4xx_ll_rtc.h"
 #include "stm32l4xx_ll_pwr.h"
+#include "stm32l4xx_ll_rcc.h"
 
 #ifdef __cplusplus
 extern "C" {
