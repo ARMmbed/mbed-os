@@ -107,7 +107,7 @@ public:
      *  connect() method.
      *
      *  Not all interfaces are supporting MAC address set and an error is not returned
-     *  for this method call. Verify the changed MAC address by analysing packet
+     *  for this method call. Verify the changed MAC address by checking packet
      *  captures from the used network interface.
      *
      *  6-byte EUI-48 MAC addresses are used for Ethernet while Mesh interface is
