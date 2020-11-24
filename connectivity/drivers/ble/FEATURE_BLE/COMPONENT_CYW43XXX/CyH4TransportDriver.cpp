@@ -126,9 +126,10 @@ void CyH4TransportDriver::initialize()
     sleep_manager_lock_deep_sleep();
 
     cyhal_gpio_write(CYBSP_BT_POWER, 0);
-    rtos::ThisThread::sleep_for(20ms);
+    rtos::ThisThread::sleep_for(1ms);
 
-    cyhal_uart_init(&uart, tx, rx, NULL, NULL);
+    cy_rslt_t rslt = cyhal_uart_init(&uart, tx, rx, NULL, NULL);
+    // MBED_WARNING
 
     const cyhal_uart_cfg_t uart_cfg = { .data_bits = 8, .stop_bits = 1, .parity = CYHAL_UART_PARITY_NONE, .rx_buffer = NULL, .rx_buffer_size = 0 };
     cyhal_uart_configure(&uart, &uart_cfg);
@@ -138,7 +139,6 @@ void CyH4TransportDriver::initialize()
     cyhal_uart_enable_event(&uart, CYHAL_UART_IRQ_RX_NOT_EMPTY, CYHAL_ISR_PRIORITY_DEFAULT, true);
 
     cyhal_gpio_write(CYBSP_BT_POWER, 1);
-    rtos::ThisThread::sleep_for(10ms);
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     if (bt_host_wake_name != NC) {
@@ -156,7 +156,7 @@ void CyH4TransportDriver::initialize()
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
     sleep_manager_unlock_deep_sleep();
-    rtos::ThisThread::sleep_for(500ms);
+    // rtos::ThisThread::sleep_for(500ms);
 }
 
 void CyH4TransportDriver::terminate()
@@ -178,13 +178,9 @@ void CyH4TransportDriver::terminate()
 
     if(CYBSP_BT_DEVICE_WAKE != NC) cyhal_gpio_free(CYBSP_BT_DEVICE_WAKE);
 
-
     if(CYBSP_BT_HOST_WAKE != NC) cyhal_gpio_write(CYBSP_BT_DEVICE_WAKE, false);
 
-    if(CYBSP_BT_POWER != NC)
-    {
-        cyhal_gpio_write(CYBSP_BT_POWER, false);
-    }
+    if(CYBSP_BT_POWER != NC) cyhal_gpio_write(CYBSP_BT_POWER, false);    //BT_POWER is an output, should not be freed only set inactive
 
     cyhal_uart_free(&uart);
 }
