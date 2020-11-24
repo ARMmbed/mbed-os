@@ -33,8 +33,8 @@
 #endif
 #define MBED_MPU_RAM_START           (MBED_MPU_ROM_END + 1)
 
-MBED_STATIC_ASSERT(MBED_MPU_ROM_END <= 0x20000000 - 1,
-                   "Unsupported value for MBED_MPU_ROM_END");
+static_assert(MBED_MPU_ROM_END <= 0x20000000 - 1,
+              "Unsupported value for MBED_MPU_ROM_END");
 
 void mbed_mpu_init()
 {

@@ -431,7 +431,7 @@ protected:
 // Conversion function for network stacks
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
 {
-    MBED_STATIC_ASSERT(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper),
-                       "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
+    static_assert(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper),
+                  "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
     return new (stack->_stack_buffer) NetworkStackWrapper;
 }

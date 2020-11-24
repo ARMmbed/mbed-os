@@ -23,7 +23,6 @@
 #include <mstd_memory>
 #include <mstd_type_traits>
 #include <mstd_utility>
-#include "platform/mbed_assert.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 #include "platform/CriticalSectionLock.h"
@@ -477,7 +476,7 @@ protected:
  */
 template<typename T, typename A = atomic_container_t<T>>
 struct AtomicBaseInt {
-    MBED_STRUCT_STATIC_ASSERT(sizeof(T) == sizeof(A), "AtomicBaseInt size mismatch");
+    static_assert(sizeof(T) == sizeof(A), "AtomicBaseInt size mismatch");
     using value_type = T;
     AtomicBaseInt() noexcept = default;
     constexpr AtomicBaseInt(T v) noexcept : u(A(v))

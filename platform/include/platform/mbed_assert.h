@@ -17,6 +17,7 @@
 #ifndef MBED_ASSERT_H
 #define MBED_ASSERT_H
 
+#include <assert.h>
 #include "platform/mbed_toolchain.h"
 
 #ifdef __cplusplus
@@ -70,6 +71,10 @@ do {                                                     \
 } while (0)
 #endif
 
+// ARM Compiler 6 currently fails to define `static_assert` in assert.h; correct for this
+#if !defined __cplusplus && !defined static_assert
+#define static_assert _Static_assert
+#endif
 
 /** MBED_STATIC_ASSERT
  *  Declare compile-time assertions, results in compile-time error if condition is false

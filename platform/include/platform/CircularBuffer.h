@@ -70,12 +70,12 @@ class CircularBuffer {
 public:
     CircularBuffer() : _head(0), _tail(0), _full(false)
     {
-        MBED_STATIC_ASSERT(
+        static_assert(
             internal::is_unsigned<CounterType>::value,
             "CounterType must be unsigned"
         );
 
-        MBED_STATIC_ASSERT(
+        static_assert(
             (sizeof(CounterType) >= sizeof(uint32_t)) ||
             (BufferSize < (((uint64_t) 1) << (sizeof(CounterType) * 8))),
             "Invalid BufferSize for the CounterType"
