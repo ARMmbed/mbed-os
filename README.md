@@ -1,48 +1,29 @@
-[![Mbed OS][mbed-os-logo]][mbed-os-link]
+README.md
 
-[![Build status release][mbed-travis-release-svg]][mbed-travis-release]
-[![Build status master][mbed-travis-master-svg]][mbed-travis-master]
-[![Tools coverage status][mbed-coveralls-tools-svg]][mbed-coveralls-tools]
+Fork of mbed-os to add support for new target STM32 "NUCLEO-G431KB" Board.
+Rebased to mbed-os-6.5.0
 
-[mbed-os-logo]: logo.png
-[mbed-os-link]: https://www.mbed.com/en/platform/mbed-os/
-[mbed-travis-master]: https://travis-ci.org/ARMmbed/mbed-os
-[mbed-travis-master-svg]: https://travis-ci.org/ARMmbed/mbed-os.svg?branch=master
-[mbed-travis-release]: https://travis-ci.org/ARMmbed/mbed-os/branches
-[mbed-travis-release-svg]: https://travis-ci.org/ARMmbed/mbed-os.svg?branch=latest
-[mbed-coveralls-tools]: https://coveralls.io/github/ARMmbed/mbed-os?branch=master
-[mbed-coveralls-tools-svg]: https://coveralls.io/repos/github/ARMmbed/mbed-os/badge.svg?branch=master
+Howto (using mbed-cli):
 
-Arm Mbed OS is an open source embedded operating system designed specifically for the "things" in the Internet of Things. It includes all the features you need to develop a connected product based on an Arm Cortex-M microcontroller, including security, connectivity, an RTOS and drivers for sensors and I/O devices.
+Alt A:
 
-Mbed OS provides a platform that includes:
+    mbed import https://github.com/taunomagnusson/mbed-os-nucleo-g431kb.git
+    cd mbed-os-nucleo-g431kb
+    Add a "main.cpp" file, for example the main.cpp from here: https://github.com/ARMmbed/mbed-os-example-blinky/blob/master/main.cpp
+    mbed compile
 
-- Security foundations.
-- Cloud management services.
-- Drivers for sensors, I/O devices and connectivity.
+Alt B (2-level directory structure (works with VisualGDB)):
 
-## Release notes
-The [release notes](https://os.mbed.com/releases) detail the current release. You can also find information about previous versions.
+    mkdir g431kb
+    cd g431kb
+    git clone https://github.com/taunomagnusson/mbed-os-nucleo-g431kb.git
+    mv mbed-os-nucleo-g431kb mbed-os
+    mbed new .
+    Add a "main.cpp" file, for example the main.cpp from here: https://github.com/ARMmbed/mbed-os-example-blinky/blob/master/main.cpp
+    mbed compile
 
-## License and contributions
+To run MBED tests:
 
-The software is provided under the [Apache-2.0 license](LICENSE-apache-2.0.txt). Contributions to this project are accepted under the same license. Please see [contributing.md](CONTRIBUTING.md) for more information.
-
-This project contains code from other projects. The original license text is included in those source files. They must comply with our [license guide](https://os.mbed.com/docs/mbed-os/latest/contributing/license.html).
-
-Folders containing files under different permissive license than Apache 2.0 are listed in the [LICENSE](LICENSE.md) file.
-
-## Getting started for developers
-
-We have a [developer website](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
-
-## Getting started for contributors
-
-We also have a [contributing and publishing guide](https://os.mbed.com/contributing/) that covers licensing, contributor agreements and style guidelines.
-
-## Documentation
-
-For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes Doxygen for our APIs, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
-
-To contribute to this documentation, please see the [mbed-os-5-docs repository](https://github.com/ARMmbed/mbed-os-5-docs).
+    rm main.cpp
+    mbed test -c
 
