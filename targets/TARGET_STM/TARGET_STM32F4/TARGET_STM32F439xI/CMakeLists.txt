@@ -30,6 +30,8 @@ if("NUCLEO_F439ZI" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUCLEO_F439ZI)
 elseif("WIO_3G" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_WIO_3G)
+elseif("WIO_BG96" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_WIO_BG96)
 endif()
 
 target_include_directories(mbed-core
