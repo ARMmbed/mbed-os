@@ -116,7 +116,7 @@ public:
 
     /** Configure the delay of an event
      *
-     *  @param d    Millisecond delay before dispatching the event
+     *  @param d    Chrono duration delay before dispatching the event. For example delay(5s)
      */
     void delay(duration d)
     {
@@ -138,7 +138,7 @@ public:
 
     /** Configure the period of an event
      *
-     *  @param p   Millisecond period for repeatedly dispatching an event
+     *  @param p   Chrono duration period for repeatedly dispatching an event. For example period(5s)
      */
     void period(duration p)
     {
