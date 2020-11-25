@@ -796,28 +796,6 @@ typedef struct
 
 // abs() is already defined by stdlib.h
 
-/*! \brief Takes the minimal value of \a a and \a b.
- *
- * \param a Input value.
- * \param b Input value.
- *
- * \return Minimal value of \a a and \a b.
- *
- * \note More optimized if only used with values unknown at compile time.
- */
-#define min(a, b)   Min(a, b)
-
-/*! \brief Takes the maximal value of \a a and \a b.
- *
- * \param a Input value.
- * \param b Input value.
- *
- * \return Maximal value of \a a and \a b.
- *
- * \note More optimized if only used with values unknown at compile time.
- */
-#define max(a, b)   Max(a, b)
-
 //! @}
 
 

@@ -26,10 +26,10 @@ extern "C" {
 #define PORT_SHIFT  5
 
 typedef enum {
-	
+
 	/* Board leds */
     LED_GREEN = PIO_PD16_IDX,
-	LED_BLUE  = PIO_PD19_IDX,
+    LED_BLUE  = PIO_PD19_IDX,
 
     /* mbed original LED naming */
     LED1 = LED_GREEN,

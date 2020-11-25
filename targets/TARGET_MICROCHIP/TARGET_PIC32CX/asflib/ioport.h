@@ -157,12 +157,19 @@ static inline PioGroup *ioport_pin_to_base(ioport_pin_t pin)
  * This function must be called before using any other functions in the IOPORT
  * service.
  */
-static inline void ioport_init(void)
+static inline void ioport_init(ioport_pin_t pin)
 {
-	sysclk_enable_peripheral_clock(ID_PIOA);
-	sysclk_enable_peripheral_clock(ID_PIOB);
-	sysclk_enable_peripheral_clock(ID_PIOC);
-	sysclk_enable_peripheral_clock(ID_PIOD);
+	ioport_port_t port = ioport_pin_to_port_id(pin);
+	
+	if (port == IOPORT_PIOA) {
+		sysclk_enable_peripheral_clock(ID_PIOA);
+	} else if (port == IOPORT_PIOB) {
+		sysclk_enable_peripheral_clock(ID_PIOB);
+	} else if (port == IOPORT_PIOC) {
+		sysclk_enable_peripheral_clock(ID_PIOC);
+	}	else if (port == IOPORT_PIOD) {
+		sysclk_enable_peripheral_clock(ID_PIOD);
+	}
 }
 
 /**
@@ -283,7 +290,13 @@ static inline void ioport_set_pin_dir(ioport_pin_t pin,
  */
 static inline void ioport_set_pin_level(ioport_pin_t pin, bool level)
 {
-	ioport_set_pin_level(pin, level);
+	PioGroup *pio = ioport_pin_to_base(pin);
+
+	if (level) {
+		pio->PIO_SODR = ioport_pin_to_mask(pin);
+	} else {
+		pio->PIO_CODR = ioport_pin_to_mask(pin);
+	}
 }
 
 /**
@@ -309,7 +322,9 @@ static inline void ioport_set_port_level(ioport_port_t port,
  */
 static inline bool ioport_get_pin_level(ioport_pin_t pin)
 {
-	return ioport_get_pin_level(pin);
+	PioGroup *port = ioport_pin_to_base(pin);
+
+	return port->PIO_PDSR & ioport_pin_to_mask(pin);
 }
 
 /**

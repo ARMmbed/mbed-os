@@ -23,23 +23,25 @@
 #ifndef MBED_COMMONPINNAMES_H
 #define MBED_COMMONPINNAMES_H
 
+#include "ioport.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    PIN_INPUT = 0,
-    PIN_OUTPUT = 1
+    PIN_INPUT = IOPORT_DIR_INPUT,
+    PIN_OUTPUT = IOPORT_DIR_OUTPUT
 } PinDirection;
 
 typedef enum {
 	/* PIC32CX pin modes */
-    InputPullDefault = 0,
-	InputPullUp   = (1 << 3),
-    InputPullDown = (1 << 4),
-	InputOpenDrain = (1 << 5),
-	InputGlitchFilter = (1 << 6),
-	InputDebounce = (1 << 7),
+    InputPullDefault = IOPORT_MODE_DEFAULT,
+    InputPullUp   = IOPORT_MODE_PULLUP,
+    InputPullDown = IOPORT_MODE_PULLDOWN,
+    InputOpenDrain = IOPORT_MODE_OPEN_DRAIN,
+    InputGlitchFilter = IOPORT_MODE_GLITCH_FILTER,
+    InputDebounce = IOPORT_MODE_DEBOUNCE,
 
 	/* mbed modes:
      * PullUp, PullDown, PullNone, OpenDrain
@@ -53,7 +55,7 @@ typedef enum {
     PullNone = InputPullDefault,
     PullDown = InputPullDown,
     PullUp   = InputPullUp,
-	OpenDrain = InputOpenDrain,
+    OpenDrain = InputOpenDrain,
     PullDefault = PullUp
 } PinMode;
 

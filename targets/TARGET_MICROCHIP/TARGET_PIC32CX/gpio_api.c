@@ -21,9 +21,10 @@
  *
  ******************************************************************************/
 
+#include "compiler.h"
 #include "gpio_api.h"
 #include "pinmap.h"
-#include "em_cmu.h"
+#include "ioport.h"
 #include "mbed_assert.h"
 
 
@@ -31,22 +32,14 @@ void gpio_write(gpio_t *obj, int value)
 {
     MBED_ASSERT(obj->pin != NC);
 
-    if (value) {
-        GPIO_PinOutSet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
-    } else {
-        GPIO_PinOutClear((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF);
-    }
+    ioport_set_pin_level((ioport_pin_t)obj->pin, (bool)value);
 }
 
 int gpio_read(gpio_t *obj)
 {
     MBED_ASSERT(obj->pin != NC);
 
-    if (obj->dir == PIN_INPUT) {
-        return GPIO_PinInGet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
-    } else {
-        return GPIO_PinOutGet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF);
-    }
+    return (int)ioport_get_pin_level((ioport_pin_t)obj->pin);
 }
 
 int gpio_is_connected(const gpio_t *obj)
@@ -62,13 +55,12 @@ int gpio_is_connected(const gpio_t *obj)
  */
 uint32_t gpio_set(PinName pin)
 {
-    return 1 << ((uint32_t) pin & 0xF);
+    return (uint32_t)ioport_pin_to_mask((ioport_pin_t)pin);
 }
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-    CMU_ClockEnable(cmuClock_HFPER, true);
-    CMU_ClockEnable(cmuClock_GPIO, true);
+    ioport_init((ioport_pin_t)pin);
     obj->pin = pin;
 }
 
@@ -76,58 +68,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 {
     MBED_ASSERT(obj->pin != NC);
 
-    uint32_t pin = 1 << (obj->pin & 0xF);
-    uint32_t port = (obj->pin >> 4) & 0xF;
-
-    if(obj->dir == PIN_INPUT) {
-        switch(mode) {
-            case PullDefault:
-                mode = Input;
-                break;
-            case PullUp:
-                mode = InputPullUp;
-                break;
-            case PullDown:
-                mode = InputPullDown;
-                break;
-            default:
-                break;
-        }
-
-        //Handle DOUT setting
-        if((mode & 0x10) != 0) {
-            //Set DOUT
-#ifdef _GPIO_P_DOUTSET_MASK
-            GPIO->P[port].DOUTSET = pin;
-#else
-            GPIO->P[port].DOUT |= pin;
-#endif
-        } else {
-            //Clear DOUT
-#ifdef _GPIO_P_DOUTCLR_MASK
-            GPIO->P[port].DOUTCLR = pin;
-#else
-            GPIO->P[port].DOUT &= ~pin;
-#endif
-        }
-    } else {
-        switch(mode) {
-            case PullDefault:
-                mode = PushPull;
-                break;
-            case PullUp:
-                mode = WiredAndPullUp;
-                break;
-            case PullDown:
-                mode = WiredOrPullDown;
-                break;
-            default:
-                break;
-        }
-    }
-
-    obj->mode = mode; // Update object
-    pin_mode(obj->pin, mode); // Update register
+    ioport_set_pin_mode((ioport_pin_t)obj->pin, (ioport_mode_t)mode);
 }
 
 // Used by DigitalInOut to set correct mode when direction is set
@@ -135,13 +76,6 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     MBED_ASSERT(obj->pin != NC);
 
+    ioport_set_pin_dir(obj->pin, (enum ioport_direction)direction);
     obj->dir = direction;
-    switch (direction) {
-        case PIN_INPUT:
-            gpio_mode(obj, PullDefault);
-            break;
-        case PIN_OUTPUT:
-            gpio_mode(obj, PullNone);
-            break;
-    }
 }
