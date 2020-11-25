@@ -6975,7 +6975,8 @@
             "INTERRUPTIN",
             "PORTIN",
             "PORTOUT",
-            "SERIAL"
+            "SERIAL",
+            "MPU"
         ],
         "c_lib": "small",
 		"release_versions": [

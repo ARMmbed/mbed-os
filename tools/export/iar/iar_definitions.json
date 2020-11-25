@@ -407,6 +407,9 @@
     },
     "S5JS100": {
         "OGChipSelectEditMenu": "S5JS100\tSamsung S5JS100"
+    },
+    "PIC32CX2051MTG100": {
+        "OGChipSelectEditMenu": "PIC32CX2051MTG100\tMicrochip PIC32CX2051MTG100"
     }
 
 }

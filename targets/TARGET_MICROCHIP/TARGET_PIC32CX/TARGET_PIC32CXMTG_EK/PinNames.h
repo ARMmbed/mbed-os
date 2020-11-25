@@ -17,6 +17,7 @@
 #define MBED_PINNAMES_H
 
 #include "pic32cx.h"
+#include "CommonPinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +43,14 @@ typedef enum {
     /* Serial */
     SERIAL_TX = PIO_PA4_IDX,
     SERIAL_RX = PIO_PA5_IDX,
+
+    /* It's not USB, but it is used in mbed_pinmap_default.cpp */
+    USBTX = SERIAL_TX,
+    USBRX = SERIAL_RX,
+
+    /* Board Controller */
+    STDIO_UART_TX = SERIAL_TX,
+    STDIO_UART_RX = SERIAL_RX,
 
     /* Not connected */
     NC = (int)0xFFFFFFFF
