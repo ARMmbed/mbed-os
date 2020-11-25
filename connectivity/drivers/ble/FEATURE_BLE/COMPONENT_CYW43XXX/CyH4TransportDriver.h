@@ -100,7 +100,6 @@ private:
 
     mbed::DigitalInOut bt_host_wake;
     mbed::DigitalInOut bt_device_wake;
-    mbed::DigitalInOut bt_power;
     bool bt_host_wake_active;
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
@@ -112,6 +111,7 @@ private:
     uint8_t  dev_wake_irq_event;
 
     bool     holding_deep_sleep_lock;
+    mbed::DigitalInOut bt_power;
 
 };
 

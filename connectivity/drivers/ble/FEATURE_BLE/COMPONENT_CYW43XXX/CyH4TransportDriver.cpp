@@ -127,8 +127,7 @@ void CyH4TransportDriver::initialize()
     bt_power = 0;
     rtos::ThisThread::sleep_for(1ms);
 
-    cy_rslt_t rslt = cyhal_uart_init(&uart, tx, rx, NULL, NULL);
-    // MBED_WARNING
+    cyhal_uart_init(&uart, tx, rx, NULL, NULL);
 
     const cyhal_uart_cfg_t uart_cfg = { .data_bits = 8, .stop_bits = 1, .parity = CYHAL_UART_PARITY_NONE, .rx_buffer = NULL, .rx_buffer_size = 0 };
     cyhal_uart_configure(&uart, &uart_cfg);
@@ -155,7 +154,6 @@ void CyH4TransportDriver::initialize()
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
     sleep_manager_unlock_deep_sleep();
-    // rtos::ThisThread::sleep_for(500ms);
 }
 
 void CyH4TransportDriver::terminate()
@@ -170,10 +168,6 @@ void CyH4TransportDriver::terminate()
                             CYHAL_ISR_PRIORITY_DEFAULT,
                             false
                         );
-    cyhal_uart_register_callback(&uart,
-                                NULL,
-                                NULL
-                                );
 
     // DigitalInOut does not appear to have Destructor nor does it have a
     // free() func (though the protected gpio_t does) so must call directly
