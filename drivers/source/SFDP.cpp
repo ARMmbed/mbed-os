@@ -400,30 +400,24 @@ int sfdp_iterate_next_largest_erase_type(uint8_t bitfield,
                                          const sfdp_smptbl_info &smptbl)
 {
     uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE4;
-    int largest_erase_type = 0;
-
-    int idx;
     unsigned int erase_size;
-    for (idx = 3; idx >= 0; idx--) {
+    for (int idx = 3; idx >= 0; idx--) {
         if (bitfield & type_mask) {
-            largest_erase_type = idx;
-            erase_size = smptbl.erase_type_size_arr[largest_erase_type];
+            erase_size = smptbl.erase_type_size_arr[idx];
             // Criteria:
             // * offset is aligned to the type's erase size
             // * erase size is no larger than the requested size,
             // * erase range does not exceed the region boundary
             if ((offset % erase_size == 0) && (size >= erase_size) &&
                     (offset + erase_size - 1 <= smptbl.region_high_boundary[region])) {
-                break;
+                return idx;
             }
         }
         type_mask = type_mask >> 1;
     }
 
-    if (idx == -1) {
-        tr_error("No erase type was found for current region addr");
-    }
-    return largest_erase_type;
+    tr_error("No erase type was found for current region addr");
+    return -1;
 }
 
 int sfdp_detect_device_density(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
