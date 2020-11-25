@@ -39,7 +39,8 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     bt_host_wake(bt_host_wake_name, PIN_INPUT, PullNone, 0),
     bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
-    dev_wake_irq_event(dev_wake_irq)
+    dev_wake_irq_event(dev_wake_irq),
+    bt_power(CYBSP_BT_POWER, PIN_OUTPUT, PullNone, 0)
 {
     enabled_powersave = true;
     bt_host_wake_active = false;
@@ -52,10 +53,12 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     bt_host_wake_name(NC),
     bt_device_wake_name(NC),
     bt_host_wake(bt_host_wake_name),
-    bt_device_wake(bt_device_wake_name)
+    bt_device_wake(bt_device_wake_name),
+    bt_power(CYBSP_BT_POWER, PIN_OUTPUT, PullNone, 0)
 {
     enabled_powersave = false;
     bt_host_wake_active = false;
+
     sleep_manager_lock_deep_sleep();        // locking deep sleep because this option 
                                             // does not include a host wake pin
     holding_deep_sleep_lock = true;
@@ -119,13 +122,9 @@ static void on_controller_irq(void *callback_arg, cyhal_uart_event_t event)
 
 void CyH4TransportDriver::initialize()
 {
-#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-	mbed::InterruptIn *host_wake_pin;
-#endif
-
     sleep_manager_lock_deep_sleep();
 
-    cyhal_gpio_write(CYBSP_BT_POWER, 0);
+    bt_power = 0;
     rtos::ThisThread::sleep_for(1ms);
 
     cy_rslt_t rslt = cyhal_uart_init(&uart, tx, rx, NULL, NULL);
@@ -138,7 +137,7 @@ void CyH4TransportDriver::initialize()
     cyhal_uart_register_callback(&uart, &on_controller_irq, &uart);
     cyhal_uart_enable_event(&uart, CYHAL_UART_IRQ_RX_NOT_EMPTY, CYHAL_ISR_PRIORITY_DEFAULT, true);
 
-    cyhal_gpio_write(CYBSP_BT_POWER, 1);
+    bt_power = 1;
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     if (bt_host_wake_name != NC) {
@@ -176,11 +175,20 @@ void CyH4TransportDriver::terminate()
                                 NULL
                                 );
 
+    // DigitalInOut does not appear to have Destructor nor does it have a
+    // free() func (though the protected gpio_t does) so must call directly
+    // into cyhal
     if(CYBSP_BT_DEVICE_WAKE != NC) cyhal_gpio_free(CYBSP_BT_DEVICE_WAKE);
 
-    if(CYBSP_BT_HOST_WAKE != NC) cyhal_gpio_write(CYBSP_BT_DEVICE_WAKE, false);
+    if(bt_host_wake.is_connected())
+    {
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
+        delete host_wake_pin;
+#endif
+        bt_host_wake = false;
+    }
 
-    if(CYBSP_BT_POWER != NC) cyhal_gpio_write(CYBSP_BT_POWER, false);    //BT_POWER is an output, should not be freed only set inactive
+    bt_power = 0; //BT_POWER is an output, should not be freed only set inactive
 
     cyhal_uart_free(&uart);
 }

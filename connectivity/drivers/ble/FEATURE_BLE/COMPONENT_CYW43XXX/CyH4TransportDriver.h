@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "ble/driver/CordioHCITransportDriver.h"
 #include "drivers/DigitalInOut.h"
+#include "drivers/InterruptIn.h"
 #include "cyhal_uart.h"
 
 namespace ble {
@@ -99,7 +100,12 @@ private:
 
     mbed::DigitalInOut bt_host_wake;
     mbed::DigitalInOut bt_device_wake;
+    mbed::DigitalInOut bt_power;
     bool bt_host_wake_active;
+
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
+	mbed::InterruptIn *host_wake_pin;
+#endif
 
     bool     enabled_powersave;
     uint8_t  host_wake_irq_event;
