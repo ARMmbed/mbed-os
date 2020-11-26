@@ -26,8 +26,6 @@ namespace ble {
 #error "BLE_SECURITY_DATABASE_MAX_ENTRIES must be only one digit long"
 #endif
 
-#define ENTRY_INVALID (0xFF)
-
 constexpr uint8_t KVStoreSecurityDb::KVSTORESECURITYDB_VERSION;
 constexpr size_t KVStoreSecurityDb::DB_PREFIX_SIZE;
 constexpr size_t KVStoreSecurityDb::DB_KEY_SIZE;
@@ -54,9 +52,6 @@ typedef SecurityDb::entry_handle_t entry_handle_t;
 KVStoreSecurityDb::KVStoreSecurityDb()
     : SecurityDb() {
     memset(_entries, 0, sizeof(_entries));
-    for (size_t i = 0; i < get_entry_count(); i++) {
-        _entries[i].index = ENTRY_INVALID;
-    }
 }
 
 KVStoreSecurityDb::~KVStoreSecurityDb()
@@ -95,7 +90,7 @@ bool KVStoreSecurityDb::erase_db()
 
     /* we zero the database and make sure we can fit all our keys */
 
-    db_write(zero.entries, DB_ENTRIES);
+    db_write(&zero.entries, DB_ENTRIES);
     db_write((SecurityEntryIdentity_t*)zero.buffer, DB_LOCAL_IDENTITY);
     db_write((csrk_t*)zero.buffer, DB_LOCAL_CSRK);
     db_write((sign_count_t*)zero.buffer, DB_LOCAL_SIGN_COUNT);
@@ -144,7 +139,7 @@ void KVStoreSecurityDb::set_entry_local_ltk(
     SecurityEntryKeys_t* current_entry = read_in_entry_local_keys(db_handle);
     current_entry->ltk = ltk;
 
-    db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, entry->index);
+    db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, get_index(entry));
 }
 
 void KVStoreSecurityDb::set_entry_local_ediv_rand(
@@ -162,7 +157,7 @@ void KVStoreSecurityDb::set_entry_local_ediv_rand(
     current_entry->ediv = ediv;
     current_entry->rand = rand;
 
-    db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, entry->index);
+    db_write_entry(current_entry, DB_ENTRY_LOCAL_KEYS, get_index(entry));
 }
 
 /* peer's keys */
@@ -184,7 +179,7 @@ void KVStoreSecurityDb::set_entry_peer_ltk(
     SecurityEntryKeys_t* current_entry = read_in_entry_peer_keys(db_handle);
     current_entry->ltk = ltk;
 
-    db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, entry->index);
+    db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, get_index(entry));
 }
 
 void KVStoreSecurityDb::set_entry_peer_ediv_rand(
@@ -202,7 +197,7 @@ void KVStoreSecurityDb::set_entry_peer_ediv_rand(
     current_entry->ediv = ediv;
     current_entry->rand = rand;
 
-    db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, entry->index);
+    db_write_entry(current_entry, DB_ENTRY_PEER_KEYS, get_index(entry));
 }
 
 void KVStoreSecurityDb::set_entry_peer_irk(
@@ -220,7 +215,7 @@ void KVStoreSecurityDb::set_entry_peer_irk(
     SecurityEntryIdentity_t* current_entry = read_in_entry_peer_identity(db_handle);
     current_entry->irk = irk;
 
-    db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, entry->index);
+    db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, get_index(entry));
 }
 
 void KVStoreSecurityDb::set_entry_peer_bdaddr(
@@ -238,7 +233,7 @@ void KVStoreSecurityDb::set_entry_peer_bdaddr(
     current_entry->identity_address = peer_address;
     current_entry->identity_address_is_public = address_is_public;
 
-    db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, entry->index);
+    db_write_entry(current_entry, DB_ENTRY_PEER_IDENTITY, get_index(entry));
 }
 
 void KVStoreSecurityDb::set_entry_peer_csrk(
@@ -256,7 +251,7 @@ void KVStoreSecurityDb::set_entry_peer_csrk(
     SecurityEntrySigning_t* current_entry = read_in_entry_peer_signing(db_handle);
     current_entry->csrk = csrk;
 
-    db_write_entry(current_entry, DB_ENTRY_PEER_SIGNING, entry->index);
+    db_write_entry(current_entry, DB_ENTRY_PEER_SIGNING, get_index(entry));
 }
 
 void KVStoreSecurityDb::set_entry_peer_sign_counter(
@@ -349,16 +344,12 @@ void KVStoreSecurityDb::reset_entry(entry_handle_t db_handle)
         return;
     }
 
-    if (entry->index != ENTRY_INVALID) {
-        uint8_t zero_buffer[sizeof(SecurityEntryKeys_t)] = {0};
+    uint8_t zero_buffer[sizeof(SecurityEntryKeys_t)] = {0};
 
-        db_write_entry((SecurityEntryKeys_t*)zero_buffer, DB_ENTRY_LOCAL_KEYS, entry->index);
-        db_write_entry((SecurityEntryIdentity_t*)zero_buffer, DB_ENTRY_PEER_IDENTITY, entry->index);
-        db_write_entry((SecurityEntryKeys_t*)zero_buffer, DB_ENTRY_PEER_KEYS, entry->index);
-        db_write_entry((SecurityEntrySigning_t*)zero_buffer, DB_ENTRY_PEER_SIGNING, entry->index);
-
-        entry->index = ENTRY_INVALID;
-    }
+    db_write_entry((SecurityEntryKeys_t*)zero_buffer, DB_ENTRY_LOCAL_KEYS, get_index(entry));
+    db_write_entry((SecurityEntryIdentity_t*)zero_buffer, DB_ENTRY_PEER_IDENTITY, get_index(entry));
+    db_write_entry((SecurityEntryKeys_t*)zero_buffer, DB_ENTRY_PEER_KEYS, get_index(entry));
+    db_write_entry((SecurityEntrySigning_t*)zero_buffer, DB_ENTRY_PEER_SIGNING, get_index(entry));
 
     entry->flags = SecurityDistributionFlags_t();
     entry->peer_sign_counter = 0;
@@ -372,7 +363,7 @@ SecurityEntryIdentity_t* KVStoreSecurityDb::read_in_entry_peer_identity(entry_ha
     }
 
     SecurityEntryIdentity_t* identity = reinterpret_cast<SecurityEntryIdentity_t*>(_buffer);
-    db_read_entry(identity, DB_ENTRY_PEER_IDENTITY, entry->index);
+    db_read_entry(identity, DB_ENTRY_PEER_IDENTITY, get_index(entry));
 
     return identity;
 };
@@ -385,7 +376,7 @@ SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_peer_keys(entry_handle_t d
     }
 
     SecurityEntryKeys_t* keys = reinterpret_cast<SecurityEntryKeys_t*>(_buffer);
-    db_read_entry(keys, DB_ENTRY_PEER_KEYS, entry->index);
+    db_read_entry(keys, DB_ENTRY_PEER_KEYS, get_index(entry));
 
     return keys;
 };
@@ -398,7 +389,7 @@ SecurityEntryKeys_t* KVStoreSecurityDb::read_in_entry_local_keys(entry_handle_t 
     }
 
     SecurityEntryKeys_t* keys = reinterpret_cast<SecurityEntryKeys_t*>(_buffer);
-    db_read_entry(keys, DB_ENTRY_LOCAL_KEYS, entry->index);
+    db_read_entry(keys, DB_ENTRY_LOCAL_KEYS, get_index(entry));
 
     return keys;
 };
@@ -412,7 +403,7 @@ SecurityEntrySigning_t* KVStoreSecurityDb::read_in_entry_peer_signing(entry_hand
 
     /* only read in the csrk */
     csrk_t* csrk = reinterpret_cast<csrk_t*>(_buffer);
-    db_read_entry(csrk, DB_ENTRY_PEER_SIGNING, entry->index);
+    db_read_entry(csrk, DB_ENTRY_PEER_SIGNING,get_index(entry));
 
 
     /* use the counter held in memory */
