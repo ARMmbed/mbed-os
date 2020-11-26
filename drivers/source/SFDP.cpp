@@ -394,8 +394,8 @@ int sfdp_find_addr_region(bd_addr_t offset, const sfdp_hdr_info &sfdp_info)
 }
 
 int sfdp_iterate_next_largest_erase_type(uint8_t bitfield,
-                                         int size,
-                                         int offset,
+                                         bd_size_t size,
+                                         bd_addr_t offset,
                                          int region,
                                          const sfdp_smptbl_info &smptbl)
 {
