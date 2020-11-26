@@ -130,9 +130,18 @@ char *Nanostack::EthernetInterface::get_interface_name(char *buf)
     return buf;
 };
 
+void Nanostack::EthernetInterface::get_mac_address(uint8_t *buf)
+{
+    if (!buf) {
+        return;
+    }
+
+    get_phy().get_mac_address(buf);
+}
+
 char *Nanostack::EthernetInterface::get_mac_address(char *buf, nsapi_size_t buflen)
 {
-    uint8_t mac_buf[NSAPI_MAC_BYTES];
+    uint8_t mac_buf[NSAPI_MAC_BYTES] = {0};
 
     if (!buf || buflen < NSAPI_MAC_SIZE) {
         return NULL;

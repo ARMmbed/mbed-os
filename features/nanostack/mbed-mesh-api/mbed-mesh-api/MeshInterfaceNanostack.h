@@ -38,14 +38,7 @@ public:
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_connection_status_t get_connection_status() const;
-
-    void get_mac_address(uint8_t *buf) const
-    {
-        NanostackMACPhy *phy = interface_phy.nanostack_mac_phy();
-        if (phy) {
-            phy->get_mac_address(buf);
-        }
-    }
+    virtual void get_mac_address(uint8_t *buf) const;
 
     /**
      * \brief Callback from C-layer
