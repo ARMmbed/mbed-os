@@ -107,6 +107,14 @@ nsapi_connection_status_t Nanostack::Interface::get_connection_status() const
     return _connect_status;
 }
 
+void Nanostack::Interface::get_mac_address(uint8_t *buf) const
+{
+    NanostackMACPhy *phy = interface_phy.nanostack_mac_phy();
+    if (phy) {
+        phy->get_mac_address(buf);
+    }
+}
+
 void Nanostack::Interface::attach(
     mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
