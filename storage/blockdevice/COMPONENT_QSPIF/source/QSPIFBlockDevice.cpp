@@ -504,7 +504,7 @@ const char *QSPIFBlockDevice::get_type() const
 }
 
 // Find minimal erase size supported by the region to which the address belongs to
-bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
+bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     // If the legacy erase instruction is in use, the erase size is uniformly 4k
     if (_sfdp_info.bptbl.legacy_erase_instruction != QSPI_NO_INST) {
