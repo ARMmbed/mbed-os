@@ -53,6 +53,16 @@ SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
 SUPPORTED_IDES = [exp for exp in list(EXPORTERS) + list(EXPORTER_ALIASES)
                   if exp != "cmsis" and exp != "zip"]
 
+def get_table_from_pretty_table(pretty_table):
+    rows = []
+    for pretty_row in pretty_table:
+        row = {}
+        for key in pretty_table.field_names:
+            pretty_row.border = False
+            pretty_row.header = False
+            row[key] = pretty_row.get_string(fields=[key]).strip()
+        rows.append(row)
+    return rows
 
 def get_build_summary(results):
     """Prints to screen the complication results of example programs.
@@ -80,6 +90,10 @@ def get_build_summary(results):
         print("\n\nFailed Example Compilation:")
         print(fail_table)
     print("Number of failures = %d" % failure_counter)
+    # output build information to json file
+    rows = get_table_from_pretty_table(pass_table) + get_table_from_pretty_table(fail_table)
+    with open("build_data.json", "w") as write_file:
+        json.dump(rows, write_file, indent=4, sort_keys=True)
     return failure_counter
 
 def get_export_summary(results):
