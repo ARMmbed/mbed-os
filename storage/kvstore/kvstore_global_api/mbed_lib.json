@@ -1,3 +1,4 @@
 {
-    "name": "kv-global-api"
+    "name": "kv-global-api",
+    "requires": ["kvstore"]
 }
