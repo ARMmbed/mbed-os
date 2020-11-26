@@ -108,7 +108,6 @@ add_subdirectory(storage EXCLUDE_FROM_ALL)
 add_subdirectory(drivers/device_key EXCLUDE_FROM_ALL)
 add_subdirectory(drivers/usb EXCLUDE_FROM_ALL)
 add_subdirectory(features EXCLUDE_FROM_ALL)
-add_subdirectory(platform/FEATURE_EXPERIMENTAL_API EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/CMSIS_5/CMSIS/RTOS2 EXCLUDE_FROM_ALL)
 add_subdirectory(cmsis/device/rtos EXCLUDE_FROM_ALL)
 
