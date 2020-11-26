@@ -24,6 +24,7 @@ The following targets are supported:
 - K66F
 - NRF52840_DK
 - WIO_3G
+- ARM FM targets
 
 ### Supported toolchains
 
