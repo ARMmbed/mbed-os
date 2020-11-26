@@ -22,6 +22,7 @@ The following targets are supported:
 - Ambiq Micro targets
 - Analog Devices targets
 - ARM FM targets
+- ARM SSG targets
 - Cypress targets
 - Freescale targets
 - GigaDevice targets
