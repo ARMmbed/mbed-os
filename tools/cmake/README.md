@@ -19,12 +19,11 @@ The full profile with the selected printf and C libraries.
 Only a limited set of targets is supported at the moment.
 
 The following targets are supported:
-- K64F
-- K66F
 - NRF52840_DK
 - ARM FM targets
 - Freescale targets
 - STM targets
+- WICED
 
 ### Supported toolchains
 
