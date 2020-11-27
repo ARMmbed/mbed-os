@@ -25,5 +25,6 @@ Alt B (2-level directory structure (works with VisualGDB)):
 To run MBED tests:
 
     rm main.cpp
+    mbedls -m 0851:NUCLEO_G431KB
     mbed test -c
 
