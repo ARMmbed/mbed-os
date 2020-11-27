@@ -2472,6 +2472,26 @@
         ],
         "device_name": "STM32G031K8Tx"
     },
+    "MCU_STM32G070xx": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G070xx"
+        ],
+        "macros_add": [
+            "STM32G070xx"
+        ],
+        "macros_remove": [
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 1,
+            "lpticker_lptim": "0"
+        }
+    },
     "MCU_STM32G071xx": {
         "inherits": [
             "MCU_STM32G0"
