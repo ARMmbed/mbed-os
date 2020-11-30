@@ -121,17 +121,17 @@ enum ioport_sense {
 	IOPORT_SENSE_LEVEL_HIGH, /*!< IOPORT sense High level  */
 };
 
-static inline ioport_port_t ioport_pin_to_port_id(ioport_pin_t pin)
+__always_inline ioport_port_t ioport_pin_to_port_id(ioport_pin_t pin)
 {
 	return pin >> 5;
 }
 
-static inline ioport_port_mask_t ioport_pin_to_mask(ioport_pin_t pin)
+__always_inline ioport_port_mask_t ioport_pin_to_mask(ioport_pin_t pin)
 {
 	return 1U << (pin & 0x1F);
 }
 
-static inline PioGroup *ioport_port_to_base(ioport_port_t port)
+__always_inline PioGroup *ioport_port_to_base(ioport_port_t port)
 {
 	if (port == IOPORT_PIOA) {
 		return (PioGroup *)(uintptr_t)PIOA;
@@ -139,14 +139,14 @@ static inline PioGroup *ioport_port_to_base(ioport_port_t port)
 		return (PioGroup *)(uintptr_t)PIOB;
 	} else if (port == IOPORT_PIOC) {
 		return (PioGroup *)(uintptr_t)PIOC;
-	}	else if (port == IOPORT_PIOD) {
+	} else if (port == IOPORT_PIOD) {
 		return (PioGroup *)(uintptr_t)PIOD;
 	}
 
 	return 0;
 }
 
-static inline PioGroup *ioport_pin_to_base(ioport_pin_t pin)
+__always_inline PioGroup *ioport_pin_to_base(ioport_pin_t pin)
 {
 	return ioport_port_to_base(ioport_pin_to_port_id(pin));
 }
@@ -157,7 +157,7 @@ static inline PioGroup *ioport_pin_to_base(ioport_pin_t pin)
  * This function must be called before using any other functions in the IOPORT
  * service.
  */
-static inline void ioport_init(ioport_pin_t pin)
+static __always_inline void ioport_init(ioport_pin_t pin)
 {
 	ioport_port_t port = ioport_pin_to_port_id(pin);
 	
@@ -181,7 +181,7 @@ static inline void ioport_init(ioport_pin_t pin)
  * \param mode Mode masks to configure for the specified pins (\ref
  * ioport_modes)
  */
-static inline void ioport_set_port_mode(ioport_port_t port,
+static __always_inline void ioport_set_port_mode(ioport_port_t port,
 		ioport_port_mask_t mask, ioport_mode_t mode)
 {
 	PioGroup *pio = ioport_port_to_base(port);
@@ -230,7 +230,7 @@ static inline void ioport_set_port_mode(ioport_port_t port,
  * \param pin IOPORT pin to configure
  * \param mode Mode masks to configure for the specified pin (\ref ioport_modes)
  */
-static inline void ioport_set_pin_mode(ioport_pin_t pin, ioport_mode_t mode)
+static __always_inline void ioport_set_pin_mode(ioport_pin_t pin, ioport_mode_t mode)
 {
 	ioport_set_port_mode(ioport_pin_to_port_id(pin), ioport_pin_to_mask(pin), mode);
 }
@@ -241,7 +241,7 @@ static inline void ioport_set_pin_mode(ioport_pin_t pin, ioport_mode_t mode)
  * \param port IOPORT port to configure
  * \param mask Mask of pins whose mode configuration is to be reset
  */
-static inline void ioport_reset_port_mode(ioport_port_t port,
+static __always_inline void ioport_reset_port_mode(ioport_port_t port,
 		ioport_port_mask_t mask)
 {
 	ioport_set_port_mode(port, mask, 0);
@@ -252,7 +252,7 @@ static inline void ioport_reset_port_mode(ioport_port_t port,
  *
  * \param pin IOPORT pin to configure
  */
-static inline void ioport_reset_pin_mode(ioport_pin_t pin)
+static __always_inline void ioport_reset_pin_mode(ioport_pin_t pin)
 {
 	ioport_set_pin_mode(pin, 0);
 }
@@ -264,7 +264,7 @@ static inline void ioport_reset_pin_mode(ioport_pin_t pin)
  * \param mask Pin mask of pins to configure
  * \param dir Direction to set for the specified pins (\ref ioport_direction)
  */
-static inline void ioport_set_port_dir(ioport_port_t port,
+static __always_inline void ioport_set_port_dir(ioport_port_t port,
 		ioport_port_mask_t mask, enum ioport_direction dir)
 {
 	ioport_set_port_dir(port, mask, dir);
@@ -276,7 +276,7 @@ static inline void ioport_set_port_dir(ioport_port_t port,
  * \param pin IOPORT pin to configure
  * \param dir Direction to set for the specified pin (\ref ioport_direction)
  */
-static inline void ioport_set_pin_dir(ioport_pin_t pin,
+static __always_inline void ioport_set_pin_dir(ioport_pin_t pin,
 		enum ioport_direction dir)
 {
 	ioport_set_pin_dir(pin, dir);
@@ -288,7 +288,7 @@ static inline void ioport_set_pin_dir(ioport_pin_t pin,
  * \param pin IOPORT pin to configure
  * \param level Logical value of the pin
  */
-static inline void ioport_set_pin_level(ioport_pin_t pin, bool level)
+static __always_inline void ioport_set_pin_level(ioport_pin_t pin, bool level)
 {
 	PioGroup *pio = ioport_pin_to_base(pin);
 
@@ -307,7 +307,7 @@ static inline void ioport_set_pin_level(ioport_pin_t pin, bool level)
  * \param mask Pin mask of pins to modify
  * \param level Level of the pins to be modified
  */
-static inline void ioport_set_port_level(ioport_port_t port,
+static __always_inline void ioport_set_port_level(ioport_port_t port,
 		ioport_port_mask_t mask, enum ioport_value level)
 {
 	ioport_set_port_level(port, mask, level);
@@ -320,7 +320,7 @@ static inline void ioport_set_port_level(ioport_port_t port,
  * \param pin IOPORT pin to read
  * \return Current logical value of the specified pin
  */
-static inline bool ioport_get_pin_level(ioport_pin_t pin)
+static __always_inline bool ioport_get_pin_level(ioport_pin_t pin)
 {
 	PioGroup *port = ioport_pin_to_base(pin);
 
@@ -336,7 +336,7 @@ static inline bool ioport_get_pin_level(ioport_pin_t pin)
  * \return Logical levels of the specified pins from the read port, returned as
  * a mask.
  */
-static inline ioport_port_mask_t ioport_get_port_level(ioport_pin_t port,
+static __always_inline ioport_port_mask_t ioport_get_port_level(ioport_pin_t port,
 		ioport_port_mask_t mask)
 {
 	PioGroup *pio = ioport_port_to_base(port);
@@ -350,7 +350,7 @@ static inline ioport_port_mask_t ioport_get_port_level(ioport_pin_t port,
  *
  * \param pin IOPORT pin to toggle
  */
-static inline void ioport_toggle_pin_level(ioport_pin_t pin)
+static __always_inline void ioport_toggle_pin_level(ioport_pin_t pin)
 {
 	PioGroup *port = ioport_pin_to_base(pin);
 	ioport_port_mask_t mask = ioport_pin_to_mask(pin);
@@ -368,7 +368,7 @@ static inline void ioport_toggle_pin_level(ioport_pin_t pin)
  * \param port IOPORT port to modify
  * \param mask Pin mask of pins to toggle
  */
-static inline void ioport_toggle_port_level(ioport_port_t port,
+static __always_inline void ioport_toggle_port_level(ioport_port_t port,
 		ioport_port_mask_t mask)
 {
 	PioGroup *pio = ioport_port_to_base(port);
@@ -387,7 +387,7 @@ static inline void ioport_toggle_port_level(ioport_port_t port,
  * \param mask Bitmask if pins whose edge sense is to be configured
  * \param pin_sense Edge to sense for the pins (\ref ioport_sense)
  */
-static inline void ioport_set_port_sense_mode(ioport_port_t port,
+static __always_inline void ioport_set_port_sense_mode(ioport_port_t port,
 		ioport_port_mask_t mask,
 		enum ioport_sense pin_sense)
 {
@@ -439,7 +439,7 @@ static inline void ioport_set_port_sense_mode(ioport_port_t port,
  * \param pin IOPORT pin to configure
  * \param pin_sense Edge to sense for the pin (\ref ioport_sense)
  */
-static inline void ioport_set_pin_sense_mode(ioport_pin_t pin,
+static __always_inline void ioport_set_pin_sense_mode(ioport_pin_t pin,
 		enum ioport_sense pin_sense)
 {
 	ioport_set_port_sense_mode(ioport_pin_to_port_id(pin), ioport_pin_to_mask(pin), 
