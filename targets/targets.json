@@ -77,6 +77,10 @@
                 "help": "Initialize the microsecond ticker at boot rather than on first use, and leave it initialized. This speeds up wait_us in particular.",
                 "value": false
             },
+            "custom-tickers": {
+                "help": "Support custom tickers in addition to USTICKER and LPTICKER. Turning this off can permit some space and speed optimisations, if characteristics of USTICKER and LPTICKER are known at compile time.",
+                "value": true
+            },
             "xip-enable": {
                 "help": "Enable Execute In Place (XIP) on this target. Value is only significant if the board has executable external storage such as QSPIF. If this is enabled, customize the linker file to choose what text segments are placed on external storage",
                 "value": false

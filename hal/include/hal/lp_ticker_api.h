@@ -49,6 +49,22 @@ extern "C" {
  *
  * @see hal_lp_ticker_tests
  *
+ * # Compile-time optimization macros
+ *
+ * To permit compile-time optimization, the following macros can be defined by a target's device.h:
+ *
+ * LP_TICKER_PERIOD_NUM, LP_TICKER_PERIOD_DEN: These denote the ratio (numerator, denominator)
+ * of the ticker period to a microsecond. For example, a 64kHz ticker would have NUM = 125, DEN = 8;
+ * a 4kHz ticker would have NUM = 250, DEN = 1; a 32.768kHz ticker would have NUM = 15625, DEN = 512.
+ * Both numerator and denominator must be 32 bits or less. They do not need to be fully simplified,
+ * so 32.768kHz could also be NUM = 1000000, DEN = 32768, but more simplification may be a minor
+ * speed optimisation, as can matching numerator or denominator with US_TICKER.
+ *
+ * LP_TICKER_MASK: The value mask for the ticker - eg 0x07FFFFFF for a 27-bit ticker.
+ *
+ * If any are defined, all 3 must be defined, and the macros are checked for consistency with
+ * lp_ticker_get_info by test ::lp_ticker_info_test.
+
  * @{
  */
 
