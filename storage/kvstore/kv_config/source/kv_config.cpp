@@ -768,6 +768,14 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
 #endif
 
 #ifdef MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS
+    // Internal TDB of default/minimum size, for DeviceKey Root of Trust
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store,
+                                   0 /* use default size */, 0 /* use default start address */);
+    if (MBED_SUCCESS != ret) {
+        tr_error("KV Config: Fail to create internal TDBStore");
+        return ret;
+    }
+
     bd_size_t size = MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_SIZE;
     bd_addr_t address = MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS;
 
@@ -914,6 +922,14 @@ int _storage_config_FILESYSTEM_NO_RBP()
 #endif
 
 #ifdef MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS
+    // Internal TDB of default/minimum size, for DeviceKey Root of Trust
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store,
+                                   0 /* use default size */, 0 /* use default start address */);
+    if (MBED_SUCCESS != ret) {
+        tr_error("KV Config: Fail to create internal TDBStore");
+        return ret;
+    }
+
     filesystemstore_folder_path = STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FOLDER_PATH);
 
     bd_size_t size = MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_SIZE;
@@ -927,7 +943,7 @@ int _storage_config_FILESYSTEM_NO_RBP()
         return MBED_ERROR_FAILED_OPERATION ;
     }
 
-    int ret = kvstore_config.external_bd->init();
+    ret = kvstore_config.external_bd->init();
     if (MBED_SUCCESS != ret) {
         tr_error("KV Config: Fail to init external BlockDevice ");
         return MBED_ERROR_FAILED_OPERATION ;
