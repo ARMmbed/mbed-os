@@ -55,7 +55,7 @@ void rtc_init(void)
     /* Save time if it has been set */
     time_t t = 0;
     if (RTCC->RET[1].REG == 0) {
-    	t = rtc_read();
+        t = rtc_read();
     }
 
     RTCC_Reset();
@@ -66,9 +66,9 @@ void rtc_init(void)
 
     /* Update time */
     if (RTCC->RET[1].REG == 0) {
-    	rtc_write(t);
+        rtc_write(t);
     } else {
-    	RTCC->RET[0].REG = 0;
+        RTCC->RET[0].REG = 0;
     }
 }
 
