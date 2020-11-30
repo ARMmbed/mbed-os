@@ -3,7 +3,7 @@
 
 # This is the boilerplate for Mbed OS
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 include(${MBED_PATH}/tools/cmake/core.cmake)
@@ -55,7 +55,6 @@ endif()
 
 mbed_set_cpu_core_definitions(mbed-core)
 if(${MBED_TOOLCHAIN_FILE_USED})
-    mbed_set_cpu_core_options(mbed-core ${MBED_TOOLCHAIN})
     mbed_set_toolchain_options(mbed-core)
     mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
     mbed_set_c_lib(mbed-core ${MBED_C_LIB})

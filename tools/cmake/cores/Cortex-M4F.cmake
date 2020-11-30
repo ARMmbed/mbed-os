@@ -2,44 +2,26 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Sets cpu core options
-function(mbed_set_cpu_core_options target mbed_toolchain)
-    if(${mbed_toolchain} STREQUAL "GCC_ARM")
-        list(APPEND common_toolchain_options
-            "-mthumb"
-            "-mcpu=cortex-m4"
-            "-mfpu=fpv4-sp-d16"
-            "-mfloat-abi=softfp"
+if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    list(APPEND common_options
+        "-mthumb"
+        "-mcpu=cortex-m4"
+        "-mfpu=fpv4-sp-d16"
+        "-mfloat-abi=softfp"
+    )
+elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    list(APPEND c_cxx_compile_options
+        "-mcpu=cortex-m4"
+        "-mfpu=fpv4-sp-d16"
+        "-mfloat-abi=hard"
         )
-
-        target_compile_options(${target}
-            INTERFACE
-                ${common_toolchain_options}
+    list(APPEND asm_compile_options
+        "-mcpu=Cortex-M4"
         )
-
-        target_link_options(${target}
-            INTERFACE
-                ${common_toolchain_options}
+    list(APPEND link_options
+        "--cpu=Cortex-M4"
         )
-    elseif(${mbed_toolchain} STREQUAL "ARM")
-        list(APPEND compile_options
-            "-mcpu=cortex-m4"
-            "-mfpu=fpv4-sp-d16"
-            "-mfloat-abi=hard"
-        )
-
-        target_compile_options(${target}
-            INTERFACE
-                $<$<COMPILE_LANGUAGE:C>:${compile_options}>
-                $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
-                $<$<COMPILE_LANGUAGE:ASM>:-mcpu=Cortex-M4>
-        )
-
-        target_link_options(${target}
-            INTERFACE
-                "--cpu=Cortex-M4"
-        )
-    endif()
-endfunction()
+endif()
 
 function(mbed_set_cpu_core_definitions target)
     target_compile_definitions(${target}

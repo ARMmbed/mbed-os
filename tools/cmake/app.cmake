@@ -9,17 +9,11 @@ endif()
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 
-# Set default toolchain file
-if(NOT CMAKE_TOOLCHAIN_FILE OR MBED_TOOLCHAIN_FILE_USED)
-    set(MBED_TOOLCHAIN_FILE_USED TRUE CACHE INTERNAL "")
+# Load toolchain file
+set(MBED_TOOLCHAIN_FILE_USED TRUE CACHE INTERNAL "")
+include(${MBED_PATH}/tools/cmake/toolchain.cmake)
 
-    set(CMAKE_TOOLCHAIN_FILE "${MBED_PATH}/tools/cmake/toolchain.cmake" CACHE INTERNAL "")
-
-    # Specify locations for toolchains and generic options
-    include(${MBED_PATH}/tools/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
-
-    # Specify available build profiles and add options for the selected build profile
-    include(${MBED_PATH}/tools/cmake/profile.cmake)
-endif()
+# Specify available build profiles and add options for the selected build profile
+include(${MBED_PATH}/tools/cmake/profile.cmake)
 
 enable_language(C CXX ASM)

@@ -64,8 +64,6 @@ endif()
 # Compiler setup
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_CROSSCOMPILING TRUE)
-set(CMAKE_C_COMPILER_WORKS TRUE)
-set(CMAKE_CXX_COMPILER_WORKS TRUE)
 
 # Clear toolchains options for all languages as Mbed OS uses
 # different initialisation options (such as for optimization and debug symbols)
@@ -93,3 +91,23 @@ set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 1)
 set(CMAKE_ASM_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
 set(CMAKE_C_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
 set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
+
+# Set basic compiler and linker flags.
+# Also load some utility functions for setting the toolchain options.
+set(link_options "")
+set(common_options "")
+set(c_cxx_compile_options "") # compile options only for C/CXX
+set(asm_compile_options "") # compile options only for ASM
+include(${MBED_PATH}/tools/cmake/toolchains/${MBED_TOOLCHAIN}.cmake)
+include(${MBED_PATH}/tools/cmake/cores/${MBED_CPU_CORE}.cmake)
+
+#converts a list into a string with each of its elements seperated by a space
+macro(list_to_space_separated OUTPUT_VAR)# 2nd arg: LIST...
+    string(REPLACE ";" " " ${OUTPUT_VAR} "${ARGN}")
+endmacro(list_to_space_separated)
+
+# set toolchain flags with CMake (INIT variables will be picked up on first run)
+list_to_space_separated(CMAKE_C_FLAGS_INIT ${common_options} ${c_cxx_compile_options})
+set(CMAKE_CXX_FLAGS_INIT ${CMAKE_C_FLAGS_INIT})
+list_to_space_separated(CMAKE_ASM_FLAGS_INIT ${common_options} ${asm_compile_options})
+list_to_space_separated(CMAKE_EXE_LINKER_FLAGS_INIT ${link_options})

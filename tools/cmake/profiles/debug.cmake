@@ -3,7 +3,7 @@
 
 # Sets profile options
 function(mbed_set_profile_options target mbed_toolchain)
-    list(APPEND link_options)
+    set(profile_link_options "")
 
     if(${mbed_toolchain} STREQUAL "GCC_ARM")
         list(APPEND c_compile_options
@@ -35,7 +35,7 @@ function(mbed_set_profile_options target mbed_toolchain)
                 $<$<COMPILE_LANGUAGE:ASM>:${asm_compile_options}>
         )
 
-        list(APPEND link_options
+        list(APPEND profile_link_options
             "-Wl,--gc-sections"
             "-Wl,--wrap,main"
             "-Wl,--wrap,_malloc_r"
@@ -90,6 +90,6 @@ function(mbed_set_profile_options target mbed_toolchain)
 
     target_link_options(${target}
         INTERFACE
-            ${link_options}
+            ${profile_link_options}
     )
 endfunction()
