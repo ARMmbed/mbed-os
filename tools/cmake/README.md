@@ -19,12 +19,12 @@ The full profile with the selected printf and C libraries.
 Only a limited set of targets is supported at the moment.
 
 The following targets are supported:
-- all STM32 targets 
-- K64F 
+- K64F
 - K66F
 - NRF52840_DK
-- WIO_3G
 - ARM FM targets
+- Freescale targets
+- STM targets
 
 ### Supported toolchains
 
@@ -32,7 +32,7 @@ Arm Compiler 6 and GNU Arm Embedded toolchains are supported.
 
 ### Examples
 
-Supported examples can be identified by the presence of a top level `CMakelists.txt` input source file.
+Supported examples can be identified by the presence of a top level `CMakeLists.txt` input source file.
 
 ### Known issues
 

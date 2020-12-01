@@ -10,19 +10,17 @@ if("FRDM" IN_LIST MBED_TARGET_LABELS)
     target_sources(mbed-core
         INTERFACE
             TARGET_FRDM/PeripheralPins.c
-            TARGET_FRDM/crc.c
             TARGET_FRDM/fsl_clock_config.c
-            TARGET_FRDM/fsl_phy.c
             TARGET_FRDM/mbed_overrides.c
     )
 endif()
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MK66FN2M0xxx18.sct)
-    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MK66F18.S)
+    set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MK82FN256xxx15.sct)
+    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MK82F25615.S)
 elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MK66FN2M0xxx18.ld)
-    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MK66F18.S)
+    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MK82FN256xxx15.ld)
+    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MK82F25615.S)
 endif()
 
 set_property(
@@ -56,11 +54,19 @@ target_sources(mbed-core
         drivers/fsl_dspi.c
         drivers/fsl_dspi_edma.c
         drivers/fsl_edma.c
-        drivers/fsl_enet.c
         drivers/fsl_ewm.c
         drivers/fsl_flash.c
         drivers/fsl_flexbus.c
-        drivers/fsl_flexcan.c
+        drivers/fsl_flexio.c
+        drivers/fsl_flexio_camera.c
+        drivers/fsl_flexio_camera_edma.c
+        drivers/fsl_flexio_i2c_master.c
+        drivers/fsl_flexio_i2s.c
+        drivers/fsl_flexio_i2s_edma.c
+        drivers/fsl_flexio_spi.c
+        drivers/fsl_flexio_spi_edma.c
+        drivers/fsl_flexio_uart.c
+        drivers/fsl_flexio_uart_edma.c
         drivers/fsl_ftm.c
         drivers/fsl_gpio.c
         drivers/fsl_i2c.c
@@ -70,26 +76,32 @@ target_sources(mbed-core
         drivers/fsl_lptmr.c
         drivers/fsl_lpuart.c
         drivers/fsl_lpuart_edma.c
+        drivers/fsl_ltc.c
+        drivers/fsl_ltc_edma.c
+        drivers/fsl_mpu.c
         drivers/fsl_pdb.c
         drivers/fsl_pit.c
         drivers/fsl_pmc.c
+        drivers/fsl_qspi.c
+        drivers/fsl_qspi_edma.c
         drivers/fsl_rcm.c
-        drivers/fsl_rnga.c
         drivers/fsl_rtc.c
         drivers/fsl_sai.c
         drivers/fsl_sai_edma.c
         drivers/fsl_sdhc.c
         drivers/fsl_sdramc.c
         drivers/fsl_sim.c
+        drivers/fsl_smartcard_emvsim.c
+        drivers/fsl_smartcard_phy_emvsim.c
+        drivers/fsl_smartcard_phy_ncn8025.c
+        drivers/fsl_smartcard_phy_tda8035.c
         drivers/fsl_smc.c
-        drivers/fsl_sysmpu.c
         drivers/fsl_tpm.c
+        drivers/fsl_trng.c
         drivers/fsl_tsi_v4.c
-        drivers/fsl_uart.c
-        drivers/fsl_uart_edma.c
         drivers/fsl_vref.c
         drivers/fsl_wdog.c
 
-        device/system_MK66F18.c
+        device/system_MK82F25615.c
         ${STARTUP_FILE}
 )

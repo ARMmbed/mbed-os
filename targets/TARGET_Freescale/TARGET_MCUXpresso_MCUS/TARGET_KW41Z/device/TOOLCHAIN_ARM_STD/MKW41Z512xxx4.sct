@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m0plus
 /*
 ** ###################################################################
 **     Processor:           MKW41Z512VHT4
