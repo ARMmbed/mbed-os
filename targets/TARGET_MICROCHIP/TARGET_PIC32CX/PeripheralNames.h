@@ -99,40 +99,18 @@ extern "C" {
 // } SPIName;
 // #endif
 
-// #if DEVICE_SERIAL
-// typedef enum {
-// #ifdef USART0_BASE
-    // USART_0 = USART0_BASE,
-// #endif
-// #ifdef USART1_BASE
-    // USART_1 = USART1_BASE,
-// #endif
-// #ifdef USART2_BASE
-    // USART_2 = USART2_BASE,
-// #endif
-// #ifdef USART3_BASE
-    // USART_3 = USART3_BASE,
-// #endif
-// #ifdef USART4_BASE
-    // USART_4 = USART4_BASE,
-// #endif
-// #ifdef USART5_BASE
-    // USART_5 = USART5_BASE,
-// #endif
-// #ifdef UART0_BASE
-    // UART_0 = UART0_BASE,
-// #endif
-// #ifdef UART1_BASE
-    // UART_1 = UART1_BASE,
-// #endif
-// #ifdef LEUART0_BASE
-    // LEUART_0 = LEUART0_BASE,
-// #endif
-// #ifdef LEUART1_BASE
-    // LEUART_1 = LEUART1_BASE,
-// #endif
-// } UARTName;
-// #endif
+#if DEVICE_SERIAL
+typedef enum {
+    USART_0 = (uint32_t)USART0,
+    USART_1 = (uint32_t)USART1,
+    USART_2 = (uint32_t)USART2,
+    USART_3 = (uint32_t)USART3,
+    USART_4 = (uint32_t)USART4,
+    USART_5 = (uint32_t)USART5,
+	USART_6 = (uint32_t)USART6,
+    USART_7 = (uint32_t)USART7,
+} UARTName;
+#endif
 
 // #if DEVICE_CAN
 // typedef enum {

@@ -2,7 +2,7 @@
  * @file PeripheralPins.h
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright (c) 2021 Microchip Technology Inc. and its subsidiaries.</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -60,6 +60,9 @@ extern const PinMap PinMap_SPI_CS[];
 /************UART**************/
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
+extern const PinMap PinMap_UART_SCK[];
+extern const PinMap PinMap_UART_CTS[];
+extern const PinMap PinMap_UART_RTS[];
 #endif
 
 #if DEVICE_CAN

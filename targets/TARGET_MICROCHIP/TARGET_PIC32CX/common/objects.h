@@ -29,6 +29,7 @@
 #include "PeripheralNames.h"
 #include "PortNames.h"
 #include "pic32cx.h"
+#include "uart_serial.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,24 +92,9 @@ struct gpio_irq_s {
 
 #if DEVICE_SERIAL
 struct serial_s {
-    union {
-        Usart *usart;
-        Uart *uart;
-    } periph;
-#ifndef _SILICON_LABS_32B_PLATFORM_2
-    uint32_t location;
-#else
-    uint32_t location_tx;
-    uint32_t location_rx;
-#endif
-    PinName rx_pin;
-    PinName tx_pin;
-#if DEVICE_SERIAL_ASYNCH
-    uint32_t events;
-    DMA_OPTIONS_t dmaOptionsTX;
-    DMA_OPTIONS_t dmaOptionsRX;
-#endif
-    uint32_t sleep_blocked;
+	Usart *p_usart;
+	usart_serial_options_t serial_options;
+	uint32_t id_peripheral;
 };
 #endif
 

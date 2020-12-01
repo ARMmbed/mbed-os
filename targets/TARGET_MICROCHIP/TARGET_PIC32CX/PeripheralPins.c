@@ -26,9 +26,7 @@
 
 /************ADC***************/
 /* The third "function" value is used to select the correct ADC channel */
-MBED_WEAK const PinMap PinMap_ADC[] = {
-	
-/***********  TBD *****************************/	
+//MBED_WEAK const PinMap PinMap_ADC[] = {
 // #ifdef ADC0_BASE
     // {PA0,  ADC_0, adcPosSelAPORT3XCH8},
     // {PA1,  ADC_0, adcPosSelAPORT4XCH9},
@@ -590,11 +588,10 @@ MBED_WEAK const PinMap PinMap_ADC[] = {
     // {NC  , NC   , NC}
 // };
 
-// /************UART**************/
-// MBED_WEAK const PinMap PinMap_UART_TX[] = {
-// #ifdef USART0_BASE
-    // /* USART0 */
-    // {PA0,  USART_0,  0},
+/************UART**************/
+MBED_WEAK const PinMap PinMap_UART_TX[] = {
+    /* USART0 */
+    {PIO_PA4_IDX, USART_0, PIO_PA4A_FLEXCOM0_IO0},
     // {PA1,  USART_0,  1},
     // {PA2,  USART_0,  2},
     // {PA3,  USART_0,  3},
@@ -605,18 +602,6 @@ MBED_WEAK const PinMap PinMap_ADC[] = {
     // {PB13, USART_0,  8},
     // {PB14, USART_0,  9},
     // {PB15, USART_0, 10},
-// #endif
-// #ifdef LEUART0_BASE
-    // /* LEUART0 */
-    // {PD9,  LEUART_0, 17},
-    // {PD10, LEUART_0, 18},
-    // {PD11, LEUART_0, 19},
-    // {PD12, LEUART_0, 20},
-    // {PD13, LEUART_0, 21},
-    // {PD14, LEUART_0, 22},
-    // {PD15, LEUART_0, 23},
-// #endif
-// #ifdef USART1_BASE
     // /* USART1 */
     // {PC6,  USART_1, 11},
     // {PC7,  USART_1, 12},
@@ -671,13 +656,12 @@ MBED_WEAK const PinMap PinMap_ADC[] = {
     // {PC4,  USART_3, 22},
     // {PC5,  USART_3, 23},
 // #endif
-    // {NC  , NC   , NC}
-// };
+    {NC, NC, 0}
+};
 
-// MBED_WEAK const PinMap PinMap_UART_RX[] = {
-// #ifdef USART0_BASE
-    // /* USART0 */
-    // {PA0,  USART_0, 31},
+MBED_WEAK const PinMap PinMap_UART_RX[] = {
+    /* USART0 */
+    {PIO_PA5_IDX, USART_0, PIO_PA5A_FLEXCOM0_IO1},
     // {PA1,  USART_0,  0},
     // {PA2,  USART_0,  1},
     // {PA3,  USART_0,  2},
@@ -688,17 +672,6 @@ MBED_WEAK const PinMap PinMap_ADC[] = {
     // {PB13, USART_0,  7},
     // {PB14, USART_0,  8},
     // {PB15, USART_0,  9},
-// #endif
-// #ifdef LEUART0_BASE
-    // /* LEUART0 */
-    // {PD9,  LEUART_0, 16},
-    // {PD10, LEUART_0, 17},
-    // {PD11, LEUART_0, 18},
-    // {PD12, LEUART_0, 19},
-    // {PD13, LEUART_0, 20},
-    // {PD14, LEUART_0, 21},
-    // {PD15, LEUART_0, 22},
-// #endif
 // #ifdef USART1_BASE
     // /* USART1 */
     // {PC6,  USART_1, 10},
@@ -754,5 +727,25 @@ MBED_WEAK const PinMap PinMap_ADC[] = {
     // {PC4,  USART_3, 21},
     // {PC5,  USART_3, 22},
 // #endif
-    {NC  , NC   , NC}
+    {NC, NC, 0}
 };
+
+
+MBED_WEAK const PinMap PinMap_UART_SCK[] = {
+	/* USART0 */
+    {PIO_PA6_IDX, USART_0, PIO_PA6A_FLEXCOM0_IO2},
+    {NC, NC, 0}
+};
+
+MBED_WEAK const PinMap PinMap_UART_CTS[] = {
+	/* USART0 */
+    {PIO_PA7_IDX, USART_0, PIO_PA7A_FLEXCOM0_IO3},
+    {NC, NC, 0}
+};
+
+MBED_WEAK const PinMap PinMap_UART_RTS[] = {
+	/* USART0 */
+    {PIO_PA6_IDX, USART_0, PIO_PA6B_FLEXCOM0_IO4},
+    {NC, NC, 0}
+};
+
