@@ -25,15 +25,17 @@ import sys
 import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
+import subprocess
 
-GENPINMAP_VERSION = "1.17"
+GENPINMAP_VERSION = "1.19"
 
 ADD_DEVICE_IF = 0
+ADD_GPIO_PINMAP = 0
 DEBUG_PRINT = 0
 
 mcu_file=""
 mcu_list = []       #'name'
-io_list = []        #'PIN','name'
+gpio_list = []        #'PIN','name','BOOT/OSC'
 adclist = []        #'PIN','name','ADCSignal'
 daclist = []        #'PIN','name','DACSignal'
 i2cscl_list = []    #'PIN','name','I2CSCLSignal'
@@ -138,6 +140,8 @@ def find_tim_mst():
         search_order = ["TIM5", "TIM2"]
     elif TARGET_FAMILY == "STM32WB":
         search_order = ["TIM5", "TIM16"]
+    elif TARGET_FAMILY == "STM32WL":
+        search_order = ["TIM2"]
     else:
         search_order = ["TIM5"]
     for EachTimer in search_order:
@@ -253,9 +257,9 @@ def get_gpio_af_num_stm32f1(pintofind, iptofind):
        .replace("AFIO_TIM3_ENABLE", "9")\
        .replace("AFIO_CAN1_2", "10")
 
-def store_pin(pin, name):
+def store_pin(pin, name, functionality):
     # store pin I/O
-    io_list.append([pin, name])
+    gpio_list.append([pin, name, functionality])
 
 
 # function to store ADC list
@@ -492,6 +496,9 @@ def print_footer():
 
 
 def print_all_lists():
+    if ADD_GPIO_PINMAP:
+        if print_list_header("GPIO", "GPIO", gpio_list, "GPIO"):
+            print_gpio()
     if print_list_header("ADC", "ADC", adclist, "ANALOGIN"):
         print_adc()
     if print_list_header("DAC", "DAC", daclist, "ANALOGOUT"):
@@ -562,7 +569,7 @@ def print_all_lists():
         print_usb(usb_otgfs_list)
     if print_list_header("USBDEVICE", "USB_HS", usb_otghs_list, "USBDEVICE"):
         print_usb(usb_otghs_list)
-    print_pin_list(io_list)
+    print_pin_list(gpio_list)
     print_h_file(usb_list, "USB")
     print_h_file(usb_otgfs_list, "USB FS")
     print_h_file(usb_otghs_list, "USB HS")
@@ -599,6 +606,36 @@ def print_list_header(comment, name, l, switch):
     return len(l)
 
 
+def print_gpio():
+
+    for parsed_pin in gpio_list:
+        commented_line = "  "
+        if parsed_pin[1] in PinLabel:
+            if "STDIO_UART" in PinLabel[parsed_pin[1]]:
+                commented_line = "//"
+            if "RCC_OSC" in PinLabel[parsed_pin[1]]:
+                commented_line = "//"
+        if parsed_pin[1] in PinPuPd:
+            commented_line = "//"
+        if "OSC" in parsed_pin[2]:
+            commented_line = "//"
+        line_to_write = "%-11s" % (commented_line + "  {" + parsed_pin[0] + ',')
+        line_to_write += ' 0, 0},'
+        if parsed_pin[1] in PinLabel:
+            line_to_write += ' // Connected to ' + PinLabel[parsed_pin[1]]
+        if parsed_pin[1] in PinPuPd:
+            line_to_write += ' // ' + PinPuPd[parsed_pin[1]]
+        if parsed_pin[2] != "":
+            line_to_write += ' // ' + parsed_pin[2]
+        line_to_write += '\n'
+        out_c_file.write(line_to_write)
+    out_c_file.write( """    {NC, NC, 0}
+};
+""")
+    if ADD_DEVICE_IF:
+        out_c_file.write( "#endif\n" )
+
+
 def print_adc():
     # Check GPIO version (alternate or not)
     s_pin_data = "STM_PIN_DATA_EXT(STM_MODE_ANALOG"
@@ -625,7 +662,7 @@ def print_adc():
                     else:
                         prev_p = parsed_pin[0]
                         parsed_pin[0] += '_ALT%d' % alt_index
-                        store_pin(parsed_pin[0], parsed_pin[0])
+                        store_pin(parsed_pin[0], parsed_pin[0], "")
                         alt_index += 1
                 else:
                     prev_p = parsed_pin[0]
@@ -701,7 +738,7 @@ def print_i2c(l):
             if parsed_pin[0] == prev_p:
                 prev_p = parsed_pin[0]
                 parsed_pin[0] += '_ALT%d' % alt_index
-                store_pin(parsed_pin[0], parsed_pin[0])
+                store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
             else:
                 prev_p = parsed_pin[0]
@@ -754,7 +791,7 @@ def print_pwm():
             if parsed_pin[0] == prev_p:
                 prev_p = parsed_pin[0]
                 parsed_pin[0] += '_ALT%d' % alt_index
-                store_pin(parsed_pin[0], parsed_pin[0])
+                store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
             else:
                 prev_p = parsed_pin[0]
@@ -805,7 +842,7 @@ def print_uart(l):
             if parsed_pin[0] == prev_p:
                 prev_p = parsed_pin[0]
                 parsed_pin[0] += '_ALT%d' % alt_index
-                store_pin(parsed_pin[0], parsed_pin[0])
+                store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
             else:
                 prev_p = parsed_pin[0]
@@ -849,7 +886,7 @@ def print_spi(l):
             if parsed_pin[0] == prev_p:
                 prev_p = parsed_pin[0]
                 parsed_pin[0] += '_ALT%d' % alt_index
-                store_pin(parsed_pin[0], parsed_pin[0])
+                store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
             else:
                 prev_p = parsed_pin[0]
@@ -1187,7 +1224,7 @@ def print_h_file(pin_list, comment):
             if parsed_pin[2] == prev_s:
                 prev_s = parsed_pin[2]
                 parsed_pin[2] += '_ALT%d' % alt_index
-                store_pin(parsed_pin[0], parsed_pin[0])
+                store_pin(parsed_pin[0], parsed_pin[0], "")
                 alt_index += 1
             else:
                 prev_s = parsed_pin[2]
@@ -1212,6 +1249,7 @@ def natural_sortkey_i2c(list_2_elem):
     return tuple(int(num) if num else alpha for num, alpha in tokenize(list_2_elem[2].replace("FMPI2C", "ZFMPI2C")))
 
 def sort_my_lists():
+    gpio_list.sort(key=natural_sortkey)
     adclist.sort(key=natural_sortkey)
     daclist.sort(key=natural_sortkey)
     i2cscl_list.sort(key=natural_sortkey_i2c) # first sort on name column
@@ -1256,7 +1294,7 @@ def sort_my_lists():
     usb_otghs_list.sort(key=natural_sortkey)
 
 def clean_all_lists():
-    del io_list[:]
+    del gpio_list[:]
     del adclist[:]
     del daclist[:]
     del i2cscl_list[:]
@@ -1312,16 +1350,19 @@ def parse_pins():
             name = s.attributes["Name"].value.strip()  # full name: "PF0 / OSC_IN"
             if "_C" in name:
                 DUAL_PAD = True
-                store_pin("PA_0C", "")
-                store_pin("PA_1C", "")
-                store_pin("PC_2C", "")
-                store_pin("PC_3C", "")
+                store_pin("PA_0C", "", "")
+                store_pin("PA_1C", "", "")
+                store_pin("PC_2C", "", "")
+                store_pin("PC_3C", "", "")
 
             if s.attributes["Type"].value == "I/O":
-                store_pin(pin, name)
+                if "-" in s.attributes["Name"].value:
+                    store_pin(pin, name, s.attributes["Name"].value)
+                else:
+                    store_pin(pin, name, "")
                 if DUAL_PAD:
                     if "_C" in name:
-                        store_pin(pin.replace("2C", "2").replace("3C", "3"), name)
+                        store_pin(pin.replace("2C", "2").replace("3C", "3"), name, "")
             else:
                 continue
             siglist = s.getElementsByTagName("Signal")
@@ -1357,6 +1398,7 @@ def parse_pins():
 
 PinData = {}
 PinLabel = {}
+PinPuPd = {}
 
 
 def parse_board_file(file_name):
@@ -1387,6 +1429,13 @@ def parse_board_file(file_name):
             PinLabel[EachPin] = PinData[EachPin]["Signal"]
         if "GPIO_Label" in PinData[EachPin]:
             PinLabel[EachPin] = PinData[EachPin]["GPIO_Label"]
+        if "GPIO_PuPdOD" in PinData[EachPin]:
+            if PinData[EachPin]["GPIO_PuPdOD"] == "GPIO_PULLUP":
+                PinPuPd[EachPin] = "PULLUP"
+            elif PinData[EachPin]["GPIO_PuPdOD"] == "GPIO_NOPULL":
+                pass
+            else:
+                print("!!! error SCRIPT ISSUE with %s for %s" % (PinData[EachPin]["GPIO_PuPdOD"], EachPin))
         if any(led in PinLabel[EachPin].upper() for led in
                ["LED", "LD1", "LD2", "LD3", "LD4", "LD5", "LD6", "LD7", "LD8", "LD9"]):
             LED_list.append(EachPin)
@@ -1456,41 +1505,29 @@ print ("\nScript version %s" % GENPINMAP_VERSION)
 cur_dir = os.getcwd()
 PeripheralPins_c_filename = "PeripheralPins.c"
 PinNames_h_filename = "PinNames.h"
-config_filename = "cube_path.json"
 
-try:
-    config_file = open(config_filename, "r")
-except IOError:
-    print("Please set your configuration in '%s' file" % config_filename)
-    config_file = open(config_filename, "w")
-    if sys.platform.startswith("win32"):
-        print_debug("Platform is Windows")
-        cubemxdir = "C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeMX"
-    elif sys.platform.startswith("linux"):
-        print_debug("Platform is Linux")
-        cubemxdir = os.getenv("HOME")+"/STM32CubeMX"
-    elif sys.platform.startswith("darwin"):
-        print_debug("Platform is Mac OSX")
-        cubemxdir = "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources"
-    else:
-        print_debug("Platform unknown")
-        cubemxdir = "<Set CubeMX install directory>"
-    config_file.write(json.dumps({"CUBEMX_DIRECTORY":cubemxdir}))
-    config_file.close()
-    print("Default path set: %s\n" % cubemxdir)
-    config_file = open(config_filename, "r")
-
-config = json.load(config_file)
-config_file.close()
-cubemxdir = config["CUBEMX_DIRECTORY"]
-
+print ("\nChecking STM32_open_pin_data repo...")
+if not os.path.exists("STM32_open_pin_data"):
+    try:
+        CONSOLE = subprocess.check_output(["git", "clone", r"https://github.com/STMicroelectronics/STM32_open_pin_data.git"], stderr=subprocess.STDOUT)
+        print("*** git clone done\n")
+        # print(CONSOLE)
+    except:
+        print("!!! Repo clone error !!!")
+else:
+    try:
+        os.chdir("STM32_open_pin_data")
+        CONSOLE = subprocess.check_output(["git", "pull"], stderr=subprocess.STDOUT).decode('ascii')
+        print("\t%s" % CONSOLE)
+        os.chdir("..")
+    except:
+        print("!!! git pull issue !!!")
+        exit(3)
 
 parser = argparse.ArgumentParser(
     description=textwrap.dedent('''\
-Script will generate %s thanks to the xml files description available in
-STM32CubeMX directory defined in '%s':
-\t%s\n
-More information in targets/TARGET_STM/README.md''' % (PeripheralPins_c_filename, config_filename, cubemxdir)),
+Script will generate %s thanks to the xml files description available in STM32_open_pin_data GitHub repo\n
+More information in targets/TARGET_STM/README.md''' % (PeripheralPins_c_filename)),
     epilog=textwrap.dedent('''\
 Once generated, you have to check and comment pins that can not be used (specific HW, internal ADC channels, remove PWM using us ticker timer, ...)
 '''),
@@ -1516,24 +1553,26 @@ group.add_argument("-c", "--custom", help=textwrap.dedent('''\
 specify a custom board .ioc file description to use (use double quotes).
 '''))
 
+parser.add_argument("-g", "--gpio", help="Add GPIO PinMap table", action="store_true")
+
 args = parser.parse_args()
 
-if not(os.path.isdir(cubemxdir)):
-    print ("\n ! ! ! Cube Mx seems not to be installed or not at the requested location")
-    print ("\n ! ! ! please check the value you set for 'CUBEMX_DIRECTORY' in '%s' file" % config_filename)
-    sys.exit(1)
+cubemxdirMCU = os.path.join("STM32_open_pin_data", "mcu")
+cubemxdirIP = os.path.join("STM32_open_pin_data", "mcu", "IP")
+cubemxdirBOARDS = os.path.join("STM32_open_pin_data", "boards")
 
-cubemxdirMCU = os.path.join(cubemxdir, "db", "mcu")
-cubemxdirIP = os.path.join(cubemxdir, "db", "mcu", "IP")
-cubemxdirBOARDS = os.path.join(cubemxdir, "db", "plugins", "boardmanager", "boards")
+os.chdir("STM32_open_pin_data")
+# print("*** git tag ***")
+CONSOLE = subprocess.check_output(["git", "tag"], stderr=subprocess.STDOUT).decode('ascii')
+# print(CONSOLE)
+VERSION_LIST=CONSOLE.splitlines()
+# print("\t%s" % VERSION_LIST)
+cubemx_db_version = VERSION_LIST[-1]
+os.chdir("..")
+print ("STM32_open_pin_data DB version %s\n" % cubemx_db_version)
 
-version_file = os.path.join(cubemxdir, "db", "package.xml")
-cubemx_db_version = "NOT_FOUND"
-xml_file = parse(version_file)
-PackDescription_item = xml_file.getElementsByTagName("PackDescription")
-for item in PackDescription_item:
-    cubemx_db_version = item.attributes["Release"].value
-print ("CubeMX DB version %s\n" % cubemx_db_version)
+if args.gpio:
+    ADD_GPIO_PINMAP = 1
 
 if args.list:
     file_count = 0
@@ -1599,6 +1638,21 @@ if args.target:
     elif "C40_" in board_file_name:
         print("C40_Discovery_STM32F4DISCOVERY_STM32F407VG_Board replaced by C47_Discovery_STM32F407G-DISC1_STM32F407VG_Board")
         sys.exit(0)
+    elif "P-NUCLEO-WB55" in board_file_name:
+        print("Same board as NUCLEO-WB55")
+        sys.exit(0)
+    elif "MultiToSingleCore_Board" in board_file_name:
+        print("Same board as PL0_Nucleo_NUCLEO-WL55JC1_STM32WL55JCI_Board_AllConfig.ioc")
+        sys.exit(0)
+    elif "WL55JC2" in board_file_name:
+        print("Same board as PL0_Nucleo_NUCLEO-WL55JC1_STM32WL55JCI_Board_AllConfig.ioc")
+        sys.exit(0)
+    elif "B-L475E-IOT01A2" in board_file_name:
+        print("Same board as B-L475E-IOT01A1")
+        sys.exit(0)
+    elif "USBDongle" in board_file_name:
+        print("USB dongle not parsed")
+        sys.exit(0)
     elif "TrustZoneEnabled" in board_file_name:
         print("TrustZoneEnabled boards not parsed")
         sys.exit(0)
@@ -1627,6 +1681,7 @@ if args.target:
             "DISCO_G071RBT": "DISCO_G071RB",
             "DISCO_L4R9A": "DISCO_L4R9I",
             "NUCLEO_WB55R": "NUCLEO_WB55RG",
+            "NUCLEO_WL55JCI": "NUCLEO_WL55JC",
             "NUCLEO_H743ZIT": "NUCLEO_H743ZI2",
             "NUCLEO_H7A3ZIT_Q": "NUCLEO_H7A3ZI_Q",
             "DISCO_F0DISCOVERY_STM32F051R8": "DISCO_F051R8",
@@ -1792,8 +1847,6 @@ for mcu_file in mcu_list:
         if gpiofile == "ERROR":
             print("error: Could not find GPIO file")
             sys.exit(1)
-        if gpiofile == "STM32H747_gpio_v1_0" and "H743" in input_file_name: # Workaround for DB issue
-            gpiofile = "STM32H743_gpio_v1_0"
         xml_gpio = parse(os.path.join(cubemxdirIP, "GPIO-" + gpiofile + "_Modes.xml"))
         print (" * GPIO file: " + os.path.join(cubemxdirIP, "GPIO-" + gpiofile + "_Modes.xml"))
 
@@ -1805,7 +1858,7 @@ for mcu_file in mcu_list:
         print_all_lists()
         print_footer()
 
-        nb_pin = (len(io_list))
+        nb_pin = (len(gpio_list))
         nb_connected_pin = len(PinLabel)
         print (" * I/O pins found: %i connected: %i\n" % (nb_pin, nb_connected_pin))
         clean_all_lists()
