@@ -152,6 +152,7 @@ function(mbed_set_mbed_target_linker_script target)
             INTERFACE
                 "--scatter=${mbed_target_linker_script}"
                 "--predefine=${_linker_preprocess_definitions}"
+                "--map"
         )
     endif()
     add_custom_command(
