@@ -188,13 +188,31 @@ typedef uint32_t cy_rslt_t;
 /** Module identifier for the WiFi Host Driver + Board Support Integration Library */
 #define CY_RSLT_MODULE_BOARD_LIB_WHD_INTEGRATION    (0x01A3U)
 
-/** Base module identifier for Shield Board Libraries (0x01C0 - 0x01FF) */
-#define CY_RSLT_MODULE_BOARD_SHIELD_BASE            (0x01C0U)
+/** Base module identifier for Shield Board Libraries (0x01B8 - 0x01BF) */
+#define CY_RSLT_MODULE_BOARD_SHIELD_BASE            (0x01B8U)
 /** Module identifier for Shield Board CY8CKIT-028-EPD */
-#define CY_RSLT_MODULE_BOARD_SHIELD_028_EPD         (0x01C0U)
+#define CY_RSLT_MODULE_BOARD_SHIELD_028_EPD         (0x01B8U)
 /** Module identifier for Shield Board CY8CKIT-028-TFT */
-#define CY_RSLT_MODULE_BOARD_SHIELD_028_TFT         (0x01C1U)
+#define CY_RSLT_MODULE_BOARD_SHIELD_028_TFT         (0x01B9U)
+/** Module identifier for Shield Board CY8CKIT-032 */
+#define CY_RSLT_MODULE_BOARD_SHIELD_032             (0x01BAU)
 
+/** Base module identifier for Board Hardware Libraries (0x01C0 - 0x01FF) */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_BASE          (0x01C0U)
+/** Module identifier for the BMI160 Motion Sensor Library */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_BMI160        (0x01C0U)
+/** Module identifier for the E2271CS021 E-Ink Controller Library */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_E2271CS021    (0x01C1U)
+/** Module identifier for the NTC GPIO Thermistor Library */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_THERMISTOR    (0x01C2U)
+/** Module identifier for the SSD1306 OLED Controller Library */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_SSD1306       (0x01C3U)
+/** Module identifier for the ST7789V TFT Controller Library */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_ST7789V       (0x01C4U)
+/** Module identifier for the Light Sensor Library */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_LIGHT_SENSOR  (0x01C5U)
+/** Module identifier for the AK4954A Audio Codec Library */
+#define CY_RSLT_MODULE_BOARD_HARDWARE_AK4954A       (0x01C6U)
 
 /** Base module identifier for Middleware Libraries (0x0200 - 0x02FF) */
 #define CY_RSLT_MODULE_MIDDLEWARE_BASE              (0x0200U)
