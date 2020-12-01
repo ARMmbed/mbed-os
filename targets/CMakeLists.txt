@@ -1,7 +1,9 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("Analog_Devices" IN_LIST MBED_TARGET_LABELS)
+if("Ambiq_Micro" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_Ambiq_Micro)
+elseif("Analog_Devices" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Analog_Devices)
 elseif("ARM_FM" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_ARM_FM)
