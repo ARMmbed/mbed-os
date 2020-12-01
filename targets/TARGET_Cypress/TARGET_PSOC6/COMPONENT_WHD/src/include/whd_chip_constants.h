@@ -24,9 +24,15 @@
 extern "C" {
 #endif
 
+#define WRAPPER_REGISTER_OFFSET     (0x100000)
 typedef enum chip_var
 {
-    BUS_CREDIT_DIFF = 1,
+    ARM_CORE_BASE_ADDRESS = 1,
+    SOCSRAM_BASE_ADDRESS,
+    SOCSRAM_WRAPPER_BASE_ADDRESS,
+    SDIOD_CORE_BASE_ADDRESS,
+    PMU_BASE_ADDRESS,
+    BUS_CREDIT_DIFF,
     CHIP_RAM_SIZE,
     ATCM_RAM_BASE_ADDRESS,
     SOCRAM_SRMEM_SIZE,
@@ -53,6 +59,10 @@ typedef enum chip_var
 
 uint32_t get_whd_var(whd_driver_t whd_driver, chip_var_t var);
 
+whd_result_t get_arm_core_base_address(uint16_t, uint32_t *);
+whd_result_t get_socsram_base_address(uint16_t, uint32_t *, whd_bool_t);
+whd_result_t get_sdiod_core_base_address(uint16_t, uint32_t *);
+whd_result_t get_pmu_base_address(uint16_t, uint32_t *);
 whd_result_t get_chip_max_bus_data_credit_diff(uint16_t, uint32_t *);
 whd_result_t get_chip_ram_size(uint16_t, uint32_t *);
 whd_result_t get_atcm_ram_base_address(uint16_t, uint32_t *);

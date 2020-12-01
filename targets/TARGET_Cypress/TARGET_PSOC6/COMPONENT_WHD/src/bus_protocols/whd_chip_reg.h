@@ -72,12 +72,7 @@ enum ds1_ctrl_status
 #define USB20H0_BASE_ADDRESS     0x18006000   /* USB20H0 core register region     */
 #define USB20D_BASE_ADDRESS      0x18007000   /* USB20D core register region     */
 #define SDIOH_BASE_ADDRESS       0x18008000   /* SDIOH Device core register region */
-#define WLAN_ARMCM3_BASE_ADDRESS 0x18003000   /* ARMCM3 core register region       */
-#define PMU_BASE_ADDRESS         0x18012000   /* PMU core register region          */
 #define DOT11MAC_BASE_ADDRESS    0x18001000
-#define SDIO_BASE_ADDRESS        0x18002000
-#define SOCSRAM_BASE_ADDRESS     0x18004000
-#define WLAN_ARMCR4_BASE_ADDRESS 0x18003000   /* ARMCR4 core register region       */
 
 #define BACKPLANE_ADDRESS_MASK   0x7FFF
 #define BACKPLANE_WINDOW_SIZE    (BACKPLANE_ADDRESS_MASK + 1)
@@ -98,11 +93,11 @@ enum ds1_ctrl_status
 #define CHIPCOMMON_SR_CONTROL1      ( (uint32_t)(CHIPCOMMON_BASE_ADDRESS + 0x508) )
 
 /* SOCSRAM core registers */
-#define SOCSRAM_BANKX_INDEX   ( (uint32_t)(SOCSRAM_BASE_ADDRESS + 0x10) )
-#define SOCSRAM_BANKX_PDA    ( (uint32_t)(SOCSRAM_BASE_ADDRESS + 0x44) )
+#define SOCSRAM_BANKX_INDEX(wd)   ( (uint32_t)(GET_C_VAR(wd, SOCSRAM_BASE_ADDRESS) + 0x10) )
+#define SOCSRAM_BANKX_PDA(wd)    ( (uint32_t)(GET_C_VAR(wd, SOCSRAM_BASE_ADDRESS) + 0x44) )
 
 /* PMU core registers */
-#define RETENTION_CTL           ( (uint32_t)(PMU_BASE_ADDRESS + 0x670) )
+#define RETENTION_CTL(wd)       ( (uint32_t)(GET_C_VAR(wd, PMU_BASE_ADDRESS) + 0x670) )
 #define RCTL_MACPHY_DISABLE     ( (uint32_t)(1 << 26) )
 #define RCTL_LOGIC_DISABLE      ( (uint32_t)(1 << 27) )
 

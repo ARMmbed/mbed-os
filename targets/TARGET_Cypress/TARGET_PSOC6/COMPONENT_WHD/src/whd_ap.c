@@ -143,7 +143,7 @@ whd_result_t whd_wifi_set_ampdu_parameters(whd_interface_t ifp)
     /* Get the chip number */
     uint16_t wlan_chip_id = whd_chip_get_chip_id(whd_driver);
 
-    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 43455) )
+    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 0x4373) )
     {
         return whd_wifi_set_ampdu_parameters_common(ifp, AMPDU_STA_DEFAULT_BA_WSIZE, AMPDU_MPDU_AUTO,
                                                     AMPDU_RX_FACTOR_64K);
@@ -628,7 +628,8 @@ uint32_t whd_wifi_start_ap(whd_interface_t ifp)
     data = (uint32_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)8, IOVAR_STR_BSS);
     CHECK_IOCTL_BUFFER_WITH_SEMAPHORE(data, &ap->whd_wifi_sleep_flag);
 
-    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 43362) || (wlan_chip_id == 43455) || (wlan_chip_id == 43430) )
+    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 43362) ||
+         (wlan_chip_id == 43430) || (wlan_chip_id == 0x4373) )
     {
         data[0] = htod32(ifp->bsscfgidx);
     }
@@ -677,7 +678,8 @@ uint32_t whd_wifi_stop_ap(whd_interface_t ifp)
 
     /* Get Chip Number */
     uint16_t wlan_chip_id = whd_chip_get_chip_id(whd_driver);
-    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 43362) || (wlan_chip_id == 43455) || (wlan_chip_id == 43430) )
+    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 43362) ||
+         (wlan_chip_id == 43430) || (wlan_chip_id == 0x4373) )
     {
         /* Query bss state (does it exist? if so is it UP?) */
         data = (uint32_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)4, IOVAR_STR_BSS);
@@ -714,7 +716,8 @@ uint32_t whd_wifi_stop_ap(whd_interface_t ifp)
 
     ap->is_waiting_event = WHD_TRUE;
     /* set BSS down */
-    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 43362) || (wlan_chip_id == 43455) || (wlan_chip_id == 43430) )
+    if ( (wlan_chip_id == 43012) || (wlan_chip_id == 43362) ||
+         (wlan_chip_id == 43430) || (wlan_chip_id == 0x4373) )
     {
         data = (uint32_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)8, IOVAR_STR_BSS);
         CHECK_IOCTL_BUFFER(data);
@@ -730,13 +733,13 @@ uint32_t whd_wifi_stop_ap(whd_interface_t ifp)
         data[1] = htod32( (uint32_t)BSS_DOWN );
         CHECK_RETURN(whd_cdc_send_iovar(ifp, CDC_SET, buffer, 0) );
     }
-    if ( (wlan_chip_id != 43430) && (wlan_chip_id != 43455) )
+    if (wlan_chip_id != 43430)
     {
         result = cy_rtos_get_semaphore(&ap->whd_wifi_sleep_flag, (uint32_t)10000, WHD_FALSE);
         if (result != WHD_SUCCESS)
         {
             WPRINT_WHD_ERROR( ("Error getting a semaphore, %s failed at %d \n", __func__, __LINE__) );
-            return result;
+            goto sema_fail;
         }
     }
     /* Disable AP mode only if AP is on primary interface */
@@ -746,9 +749,16 @@ uint32_t whd_wifi_stop_ap(whd_interface_t ifp)
         CHECK_IOCTL_BUFFER(data);
         *data = 0;
         CHECK_RETURN(whd_cdc_send_ioctl(ifp, CDC_SET, WLC_SET_AP, buffer, 0) );
+        /* Wait until AP is brought down */
+        result = cy_rtos_get_semaphore(&ap->whd_wifi_sleep_flag, (uint32_t)10000, WHD_FALSE);
+        if (result != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("Error getting a semaphore, %s failed at %d \n", __func__, __LINE__) );
+            goto sema_fail;
+        }
     }
-    /* Wait until AP is brought down */
-    result = cy_rtos_get_semaphore(&ap->whd_wifi_sleep_flag, (uint32_t)10000, WHD_FALSE);
+
+sema_fail:
     ap->is_waiting_event = WHD_FALSE;
     result2 = cy_rtos_deinit_semaphore(&ap->whd_wifi_sleep_flag);
     if (result != WHD_SUCCESS)

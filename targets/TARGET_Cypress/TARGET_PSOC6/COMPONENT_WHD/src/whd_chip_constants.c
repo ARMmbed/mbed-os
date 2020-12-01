@@ -19,7 +19,7 @@
 #include "whd_wlioctl.h"
 #include "whd_int.h"
 #include "whd_types_int.h"
-
+#include "bus_protocols/whd_chip_reg.h"
 
 /******************************************************
 *               Function Definitions
@@ -44,6 +44,21 @@ uint32_t get_whd_var(whd_driver_t whd_driver, chip_var_t var)
     uint16_t wlan_chip_id = whd_chip_get_chip_id(whd_driver);
     switch (var)
     {
+        case ARM_CORE_BASE_ADDRESS:
+            CHECK_RETURN(get_arm_core_base_address(wlan_chip_id, &val) );
+            break;
+        case SOCSRAM_BASE_ADDRESS:
+            CHECK_RETURN(get_socsram_base_address(wlan_chip_id, &val, false) );
+            break;
+        case SOCSRAM_WRAPPER_BASE_ADDRESS:
+            CHECK_RETURN(get_socsram_base_address(wlan_chip_id, &val, true) );
+            break;
+        case SDIOD_CORE_BASE_ADDRESS:
+            CHECK_RETURN(get_sdiod_core_base_address(wlan_chip_id, &val) );
+            break;
+        case PMU_BASE_ADDRESS:
+            CHECK_RETURN(get_pmu_base_address(wlan_chip_id, &val) );
+            break;
         case BUS_CREDIT_DIFF:
             CHECK_RETURN(get_chip_max_bus_data_credit_diff(wlan_chip_id, &val) );
             break;
@@ -98,8 +113,77 @@ uint32_t get_whd_var(whd_driver_t whd_driver, chip_var_t var)
         default:
             break;
     }
-
     return val;
+}
+
+whd_result_t get_arm_core_base_address(uint16_t wlan_chip_id, uint32_t *addr)
+{
+    switch (wlan_chip_id)
+    {
+        case 0x4373:
+            *addr = 0x18002000 + WRAPPER_REGISTER_OFFSET;
+            break;
+        case 43012:
+        case 43430:
+            *addr = 0x18003000 + WRAPPER_REGISTER_OFFSET;
+            break;
+        default:
+            return WHD_BADARG;
+    }
+    return WHD_SUCCESS;
+}
+
+whd_result_t get_socsram_base_address(uint16_t wlan_chip_id, uint32_t *addr, whd_bool_t wrapper)
+{
+    uint32_t offset = 0;
+    if (wrapper)
+    {
+        offset = WRAPPER_REGISTER_OFFSET;
+    }
+    switch (wlan_chip_id)
+    {
+        case 43012:
+        case 43430:
+            *addr = 0x18004000 + offset;
+            break;
+        default:
+            return WHD_BADARG;
+    }
+    return WHD_SUCCESS;
+}
+
+whd_result_t get_sdiod_core_base_address(uint16_t wlan_chip_id, uint32_t *addr)
+{
+    switch (wlan_chip_id)
+    {
+        case 0x4373:
+            *addr = 0x18005000;
+            break;
+        case 43012:
+        case 43430:
+            *addr = 0x18002000;
+            break;
+        default:
+            return WHD_BADARG;
+    }
+    return WHD_SUCCESS;
+}
+
+whd_result_t get_pmu_base_address(uint16_t wlan_chip_id, uint32_t *addr)
+{
+    switch (wlan_chip_id)
+    {
+        case 0x4373:
+        case 43430:
+            *addr = CHIPCOMMON_BASE_ADDRESS;
+            break;
+        case 43012:
+            *addr = 0x18012000;
+            break;
+        default:
+            return WHD_BADARG;
+    }
+    return WHD_SUCCESS;
 }
 
 whd_result_t get_chip_max_bus_data_credit_diff(uint16_t wlan_chip_id, uint32_t *credit_diff)
@@ -109,7 +193,7 @@ whd_result_t get_chip_max_bus_data_credit_diff(uint16_t wlan_chip_id, uint32_t *
     {
         *credit_diff = 7;
     }
-    else if (wlan_chip_id == 43455)
+    else if (wlan_chip_id == 0x4373)
     {
         *credit_diff = 50;
     }
@@ -139,6 +223,10 @@ whd_result_t get_chip_ram_size(uint16_t wlan_chip_id, uint32_t *size)
     {
         *size = 0xA0000;
     }
+    else if (wlan_chip_id == 0x4373)
+    {
+        *size = 0xE0000;
+    }
     else
     {
         *size = 0x80000;
@@ -149,9 +237,9 @@ whd_result_t get_chip_ram_size(uint16_t wlan_chip_id, uint32_t *size)
 whd_result_t get_atcm_ram_base_address(uint16_t wlan_chip_id, uint32_t *size)
 {
     *size = 0;
-    if (wlan_chip_id == 43455)
+    if (wlan_chip_id == 0x4373)
     {
-        *size = 0x198000;
+        *size = 0x160000;
     }
     else
     {

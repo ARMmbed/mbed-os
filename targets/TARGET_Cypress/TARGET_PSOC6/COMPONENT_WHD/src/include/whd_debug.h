@@ -66,7 +66,7 @@ extern "C"
  + * this interrupts communication between WL TOOL and MFG Test APP
  + * via STDIO UART causing Wrong Message Exchange and failure.
  + */
-#ifdef WLAN_MFG_FIRMWARE
+#if defined(WLAN_MFG_FIRMWARE) || defined(WHD_PRINT_DISABLE)
 #define WPRINT_MACRO(args)
 #else
 #if defined(WHD_LOGGING_BUFFER_ENABLE)

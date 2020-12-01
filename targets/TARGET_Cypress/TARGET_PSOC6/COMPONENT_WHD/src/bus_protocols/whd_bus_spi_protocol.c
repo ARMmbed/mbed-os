@@ -932,7 +932,8 @@ static whd_result_t whd_spi_download_firmware(whd_driver_t whd_driver)
     }
 
     /* Set up the interrupt mask and enable interrupts */
-    CHECK_RETURN(whd_bus_spi_write_backplane_value(whd_driver, SDIO_INT_HOST_MASK, (uint8_t)4, I_HMB_SW_MASK) );
+    CHECK_RETURN(whd_bus_spi_write_backplane_value(whd_driver, SDIO_INT_HOST_MASK(
+                                                       whd_driver), (uint8_t)4, I_HMB_SW_MASK) );
 
     /* Lower F2 Watermark to avoid DMA Hang in F2 when SD Clock is stopped. */
     return whd_bus_spi_write_register_value(whd_driver, BACKPLANE_FUNCTION, SDIO_FUNCTION2_WATERMARK, (uint8_t)1,

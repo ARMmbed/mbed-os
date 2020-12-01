@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LicenseRef-PBL
  *
  * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
+ * Permissive Binary License, Version 1.0 (the "License")
  * you may not use these files except in compliance with the License.
  *
  * You may obtain a copy of the License here:
@@ -27,11 +27,11 @@ extern "C" {
 
 /**
  * Character array of NVRAM image
- * Generated from cyw9cy8cmod-064b0s2-4343w_P100_724315.txt
+ * Generated from cyw9cy8cmod-064b0s2-4343w_P100.txt
  */
 
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev: 724315 $"                                            "\x00"
+        "NVRAMRev=$Rev$"                                                     "\x00"
         "manfid=0x2d0"                                                       "\x00"
         "prodid=0x087d"                                                      "\x00"
         "vendid=0x14e4"                                                      "\x00"
@@ -55,7 +55,7 @@ static const char wifi_nvram_image[] =
         "pa0itssit=0x20"                                                     "\x00"
         "extpagain2g=0"                                                      "\x00"
         ""                                                                   "\x00"
-        "pa2ga0=-168,6393,-757"                                              "\x00"
+        "pa2ga0=-168,6777,-788"                                              "\x00"
         "AvVmid_c0=0x0,0xc8"                                                 "\x00"
         "AvVmidIQcal=0x2,0xa8"                                               "\x00"
         "cckpwroffset0=5"                                                    "\x00"
