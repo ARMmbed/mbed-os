@@ -961,6 +961,19 @@ void LoRaMac::on_ack_timeout_timer_event(void)
 
     _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
 
+    // update frame counter before retransmission
+    _params.ul_frame_counter++;
+    // Update expected frame counter for ack
+    _mcps_confirmation.ul_frame_counter = _params.ul_frame_counter;
+
+    MBED_ASSERT(_ongoing_tx_msg.type == MCPS_CONFIRMED); // only can come here with confirmed uplinks
+    loramac_mhdr_t machdr;
+    machdr.value = 0;
+    machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
+
+    // re-generate the complete message as updating the frame counter is part of the encryption
+    lorawan_status_t status = send(&machdr, _ongoing_tx_msg.fport, _ongoing_tx_msg.f_buffer, _ongoing_tx_msg.f_buffer_size);
+    MBED_ASSERT(status == LORAWAN_STATUS_OK); // if it was successful on initial transmission, it must be successful on retransmission as well
 
     // Schedule a retry
     lorawan_status_t status = handle_retransmission();
