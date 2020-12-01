@@ -3,7 +3,7 @@
 
 # This is the boilerplate for Mbed OS
 
-cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
 
