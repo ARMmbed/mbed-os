@@ -66,15 +66,14 @@
 *
 * \section subsection_timer_sample_snippets Code Snippets
 *
-* \subsection subsection_timer_snippet_1 Snippet 1: Measuring time between two events
+* \subsection subsection_timer_snippet_1 Snippet 1: Measuring time of an operation
 * The following snippet initializes a Timer and measures the time between two events.
 * The <b>clk</b> need not be provided, in which case a clock resource is assigned.
 * \snippet timer.c snippet_cyhal_timer_event_measure
 *
 * \subsection subsection_timer_snippet_2 Snippet 2: Handling an event in a callback function
 * The following snippet initializes a Timer and triggers an event after every one second.
-* The <b>clk</b> need not be provided (NULL), in which
-* case a clock resource is assigned.
+* The <b>clk</b> need not be provided (NULL), in which case a clock resource is assigned.
 * \snippet timer.c snippet_cyhal_timer_event_interrupt
 *
 */
@@ -90,9 +89,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_timer Timer HAL Results
+ *  Timer specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name Timer Results
  */
 
 /** Bad argument. eg: null pointer */
@@ -109,7 +109,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TIMER, 3))
 
 /**
- * \} \}
+ * \}
  */
 
 /*******************************************************************************
@@ -177,7 +177,7 @@ typedef void(*cyhal_timer_event_callback_t)(void *callback_arg, cyhal_timer_even
  *  for this object but the init function will initialize its contents.
  * @param[in]  pin optional - The timer/counter compare/capture pin to initialize
  * @param[in]  clk optional - The shared clock to use, if not provided a new clock will be allocated
- *                  and the timer frequency will be set to CYHAL_TIMER_DEFAULT_FREQ
+ *                  and the timer frequency will be set to \ref CYHAL_TIMER_DEFAULT_FREQ
  * @return The status of the init request
  */
 cy_rslt_t cyhal_timer_init(cyhal_timer_t *obj, cyhal_gpio_t pin, const cyhal_clock_t *clk);

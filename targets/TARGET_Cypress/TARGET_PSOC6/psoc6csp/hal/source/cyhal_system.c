@@ -26,36 +26,22 @@
 *******************************************************************************/
 
 #include "cyhal_system.h"
-#ifdef CY_RTOS_AWARE
+#if defined(CY_RTOS_AWARE) || defined(COMPONENT_RTOS_AWARE)
 #include "cyabs_rtos.h"
 #endif
 
-#ifdef CY_IP_MXS40SRSS
+#if defined(CY_IP_MXS40SRSS) || defined(CY_IP_S8SRSSLT)
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
-#define HZ_PER_MHZ 1000000
-
-cy_rslt_t cyhal_system_register_callback(cyhal_system_callback_t *handler)
-{
-    return Cy_SysPm_RegisterCallback(handler)
-        ? CY_RSLT_SUCCESS
-        : CYHAL_SYSTEM_RSLT_ERROR;
-}
-
-cy_rslt_t cyhal_system_unregister_callback(cyhal_system_callback_t const *handler)
-{
-    return Cy_SysPm_UnregisterCallback(handler)
-        ? CY_RSLT_SUCCESS
-        : CYHAL_SYSTEM_RSLT_ERROR;
-}
+#define _CYHAL_SYSTEM_HZ_PER_MHZ 1000000
 
 cy_rslt_t cyhal_system_delay_ms(uint32_t milliseconds)
 {
-#ifdef CY_RTOS_AWARE
+#if defined(CY_RTOS_AWARE) || defined(COMPONENT_RTOS_AWARE)
     return cy_rtos_delay_milliseconds(milliseconds);
 #else
     Cy_SysLib_Delay(milliseconds);
@@ -68,17 +54,24 @@ cyhal_reset_reason_t cyhal_system_get_reset_reason(void)
     uint32_t pdl_reason = Cy_SysLib_GetResetReason();
     cyhal_reset_reason_t reason = CYHAL_SYSTEM_RESET_NONE;
 
+    if (CY_SYSLIB_RESET_SOFT & pdl_reason)
+        reason |= CYHAL_SYSTEM_RESET_SOFT;
+    if (CY_SYSLIB_RESET_HWWDT & pdl_reason)
+        reason |= CYHAL_SYSTEM_RESET_WDT;
+#if defined(CY_IP_S8SRSSLT)
+    if (CY_SYSLIB_PROT_FAULT & pdl_reason)
+        reason |= CYHAL_SYSTEM_RESET_PROTECTION;
+#endif
+#if defined(CY_IP_MXS40SRSS)
     if (CY_SYSLIB_RESET_ACT_FAULT & pdl_reason)
         reason |= CYHAL_SYSTEM_RESET_ACTIVE_FAULT;
     if (CY_SYSLIB_RESET_DPSLP_FAULT & pdl_reason)
         reason |= CYHAL_SYSTEM_RESET_DEEPSLEEP_FAULT;
-    if (CY_SYSLIB_RESET_SOFT & pdl_reason)
-        reason |= CYHAL_SYSTEM_RESET_SOFT;
     if (CY_SYSLIB_RESET_HIB_WAKEUP & pdl_reason)
         reason |= CYHAL_SYSTEM_RESET_HIB_WAKEUP;
-    if ((CY_SYSLIB_RESET_HWWDT | CY_SYSLIB_RESET_SWWDT0 | CY_SYSLIB_RESET_SWWDT1 |
-        CY_SYSLIB_RESET_SWWDT2 | CY_SYSLIB_RESET_SWWDT3) & pdl_reason)
+    if ((CY_SYSLIB_RESET_SWWDT0 | CY_SYSLIB_RESET_SWWDT1 | CY_SYSLIB_RESET_SWWDT2 | CY_SYSLIB_RESET_SWWDT3) & pdl_reason)
         reason |= CYHAL_SYSTEM_RESET_WDT;
+#endif
 #if (SRSS_WCOCSV_PRESENT != 0U)
     if (CY_SYSLIB_RESET_CSV_WCO_LOSS & pdl_reason)
         reason |= CYHAL_SYSTEM_RESET_WCO_ERR;
@@ -91,13 +84,8 @@ cyhal_reset_reason_t cyhal_system_get_reset_reason(void)
     return reason;
 }
 
-void cyhal_system_clear_reset_reason(void)
-{
-    Cy_SysLib_ClearResetReason();
-}
-
 #if defined(__cplusplus)
 }
 #endif
 
-#endif /* CY_IP_MXS40SRSS */
+#endif /* defined(CY_IP_MXS40SRSS) || defined(CY_IP_S8SRSSLT) */

@@ -37,14 +37,16 @@ extern "C" {
 #endif
 
 /**
-* \addtogroup group_hal_psoc6_deprecated Deprecated
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_impl_deprecated Deprecated
+* \ingroup group_hal_impl
 * \{
-* The following PSoC 6 specific items have been deprecated and replaced by more generic item. Each item
+* The following PSoC 6 specific items have been deprecated and replaced by more generic items. Each item
 * will continue to work for now, but will be removed in a future release. All deprecated items reference
 * the item that replaces it.
 */
 
+/** An error occurred in System module */
+#define CYHAL_SYSTEM_RSLT_ERROR (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 0))
 /** An error occurred in System module */
 #define CYHAL_SYSTEM_RSLT_INVALID_CLK_DIVIDER (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 1))
 /** An error occurred in System module */
@@ -53,6 +55,17 @@ extern "C" {
 #define CYHAL_SYSTEM_RSLT_SRC_CLK_DISABLED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 3))
 /** An error occurred in System module */
 #define CYHAL_SYSTEM_RSLT_NO_VALID_DIVIDER (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 4))
+
+/**
+ * Attempts to put the device to sleep until an interrupt wakes it up.
+ * \warning This function is deprecated. Use \ref cyhal_syspm_sleep instead.
+ */
+#define cyhal_system_sleep()                    Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
+/**
+ * Attempts to put the device into deep sleep until an interrupt wakes it up.
+ * \warning This function is deprecated. Use \ref cyhal_syspm_deepsleep instead.
+ */
+#define cyhal_system_deepsleep()                Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
 
 /** Enum for clock type to configure. HFCLKs are configured using different APIs and does not using this enum.
  *  \warning This type is deprecated. Use \ref cyhal_clock_block_t instead.
@@ -129,7 +142,41 @@ cy_rslt_t cyhal_system_clock_set_frequency(uint8_t clock, uint32_t frequency_hz)
  */
 cy_rslt_t cyhal_system_clock_set_divider(cyhal_system_clock_t clock, cyhal_system_divider_t divider) /* __attribute__ ((deprecated)) */;
 
-/** \} group_hal_psoc6_deprecated */
+/** Register the specified handler with the power manager to be notified of power
+ * state changes.
+ * \warning This function is deprecated. Use \ref cyhal_syspm_register_callback() instead.
+ *
+ * @param[in] callback   The callback configuration data
+ * @return The status of the register_callback request
+ */
+cy_rslt_t cyhal_system_register_callback(cyhal_system_callback_t *callback);
+
+/** Removes the registered handler from the power manager so no future notifications are made.
+ *
+ * \warning This function is deprecated. Use \ref cyhal_syspm_unregister_callback() instead.
+ *
+ * @param[in] callback   The callback configuration data
+ * @return The status of the unregister_callback request
+ */
+cy_rslt_t cyhal_system_unregister_callback(cyhal_system_callback_t const *callback);
+
+/** Initialize a single-ended ADC channel.
+ *
+ * \warning This function is deprecated. Use \ref cyhal_adc_channel_init_diff() instead with
+ * @ref CYHAL_ADC_VNEG specified for the `vminus` argument.
+ *
+ * Configures the pin used by ADC.
+ * @param[out] obj The adc channel object to initialize
+ * @param[in]  adc The adc for which the channel should be initialized
+ * @param[in]  pin The adc pin name
+ * @return The status of the init request. The status of the init request.
+ * On failure, a problem specific error code will be returned.
+ * This error could be from the HAL or lower level driver.<br>
+ * For all other return codes, please refer to device driver documentation available in the BSP landing page
+ */
+cy_rslt_t cyhal_adc_channel_init(cyhal_adc_channel_t *obj, cyhal_adc_t* adc, cyhal_gpio_t pin);
+
+/** \} group_hal_impl_deprecated */
 
 #if defined(__cplusplus)
 }

@@ -34,6 +34,7 @@
 * LPTimer can operate in all possible low power modes. It can be used either to measure timing between events, or to perform
 * some action after a specified interval of time.
 * \section subsection_lptimer_features Features
+* * Wake the device up from deepsleep
 * * Configurable to create a free-running timer or generate periodic interrupts.
 * * Configurable to update the match value of an already configured LPTimer set up to generate an interrupt on match.
 * * Used for measuring time between events in free-running mode.
@@ -50,9 +51,10 @@
 * The following snippet initializes a LPTimer in free running mode.
 * \snippet lptimer.c snippet_cyhal_lptimer_simple_init_def
 *
-* \subsection subsection_lptimer_snippet_2 Snippet 2: Simple LPTimer initialization with set Match value
-* The following snippet initializes a LPTimer and assigns the Match value to the LPTimer.
-* \snippet lptimer.c snippet_cyhal_lptimer_simple_init
+* \subsection subsection_lptimer_snippet_2 Snippet 2: LPTimer interrupts
+* The following snippet initializes a LPTimer and uses \ref cyhal_lptimer_set_match() to trigger an interrupt
+* on match. Subsequent interrupts can be triggered at required times using \ref cyhal_lptimer_set_delay() called from the ISR.
+* \snippet lptimer.c snippet_cyhal_lptimer_interrupt
 */
 
 #pragma once
@@ -66,9 +68,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_lptimer LPTimer HAL Results
+ *  LPTimer specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name LPTimer Results
  */
 
 /** Failed to configure power management callback */
@@ -76,7 +79,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 0))
 
 /**
- * \} \}
+ * \}
  */
 
 /** LPTimer Information */
@@ -135,6 +138,7 @@ cy_rslt_t cyhal_lptimer_reload(cyhal_lptimer_t *obj);
  * to generate an interrupt on match. Note that this function does not
  * reinitialize the counter or the associated peripheral initialization
  * sequence.
+ * \note This does not reset the counter.
  *
  * @param[in] obj   The LPTimer object
  * @param[in] value The tick value to match
@@ -150,6 +154,7 @@ cy_rslt_t cyhal_lptimer_set_match(cyhal_lptimer_t *obj, uint32_t value);
  * Note that this function does not reinitialize the counter or the
  * associated peripheral initialization
  * sequence.
+ * \note This does not reset the counter.
  *
  * @param[in] obj   The LPTimer object
  * @param[in] delay The ticks to wait. The minimum permitted delay value can be

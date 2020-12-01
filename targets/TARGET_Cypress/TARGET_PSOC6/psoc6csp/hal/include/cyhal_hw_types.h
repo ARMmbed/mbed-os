@@ -23,57 +23,59 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_psoc6 PSoC 6 Implementation Specific
+* \addtogroup group_hal_impl PSoC 6 Implementation Specific
 * \{
 * This section provides details about the PSoC 6 implementation of the Cypress HAL.
 * All information within this section is platform specific and is provided for reference.
 * Portable application code should depend only on the APIs and types which are documented
 * in the @ref group_hal section.
 *
-* \section group_hal_psoc6_mapping HAL Resource Hardware Mapping
+* \section group_hal_impl_mapping HAL Resource Hardware Mapping
 * The following table shows a mapping of each HAL driver to the lower level firmware driver
 * and the corresponding hardware resource. This is intended to help understand how the HAL
 * is implemented for PSoC 6 and what features the underlying hardware supports.
 *
-* | HAL Resource     | PDL Driver(s)       | PSoC 6 Hardware                  |
-* | ---------------- | ------------------- | -------------------------------- |
-* | ADC              | cy_adc              | SAR ADC                          |
-* | Clock            | cy_sysclk           | All clocks (system & peripheral) |
-* | CRC              | cy_crypto_core_crc  | Crypto                           |
-* | DAC              | cy_ctdac            | DAC                              |
-* | DMA              | cy_dma, cy_dmac     | DMA Controller                   |
-* | EZI2C            | cy_scb_ezi2c        | SCB                              |
-* | Flash            | cy_flash            | Flash                            |
-* | GPIO             | cy_gpio             | GPIO                             |
-* | Hardware Manager | NA                  | NA                               |
-* | I2C              | cy_scb_i2c          | SCB                              |
-* | I2S              | cy_i2s              | I2S                              |
-* | LPTimer          | cy_mcwdt            | MCWDT                            |
-* | PDM/PCM          | cy_pdm_pcm          | PDM-PCM                          |
-* | PWM              | cy_pwm              | TCPWM                            |
-* | QSPI             | cy_smif             | QSPI (SMIF)                      |
-* | RTC              | cy_rtc              | RTC                              |
-* | SDHC             | cy_sd_host          | SD Host                          |
-* | SDIO             | cy_sd_host, or NA   | SD Host, or UDB                  |
-* | SPI              | cy_scb_spi          | SCB                              |
-* | SysPM            | cy_syspm            | System Power Resources           |
-* | System           | cy_syslib           | System Resources                 |
-* | Timer            | cy_tcpwm_counter    | TCPWM                            |
-* | TRNG             | cy_crypto_core_trng | Crypto                           |
-* | UART             | cy_scb_uart         | SCB                              |
-* | USB Device       | cy_usbfs_dev_drv    | USB-FS                           |
-* | WDT              | cy_wdt              | WDT                              |
+* | HAL Resource       | PDL Driver(s)       | PSoC 6 Hardware                  |
+* | ------------------ | ------------------- | -------------------------------- |
+* | ADC                | cy_adc              | SAR ADC                          |
+* | Clock              | cy_sysclk           | All clocks (system & peripheral) |
+* | Comparator         | cy_ctb or cy_lpcomp | CTBm or LPComp                   |
+* | CRC                | cy_crypto_core_crc  | Crypto                           |
+* | DAC                | cy_ctdac            | DAC                              |
+* | DMA                | cy_dma, cy_dmac     | DMA Controller                   |
+* | EZ-I2C             | cy_scb_ezi2c        | SCB                              |
+* | Flash              | cy_flash            | Flash                            |
+* | GPIO               | cy_gpio             | GPIO                             |
+* | Hardware Manager   | NA                  | NA                               |
+* | I2C                | cy_scb_i2c          | SCB                              |
+* | I2S                | cy_i2s              | I2S                              |
+* | LPTimer            | cy_mcwdt            | MCWDT                            |
+* | Opamp              | cy_ctb              | CTBm                             |
+* | PDM/PCM            | cy_pdm_pcm          | PDM-PCM                          |
+* | PWM                | cy_pwm              | TCPWM                            |
+* | QSPI               | cy_smif             | QSPI (SMIF)                      |
+* | RTC                | cy_rtc              | RTC                              |
+* | SDHC               | cy_sd_host          | SD Host                          |
+* | SDIO               | cy_sd_host, or NA   | SD Host, or UDB                  |
+* | SPI                | cy_scb_spi          | SCB                              |
+* | SysPM              | cy_syspm            | System Power Resources           |
+* | System             | cy_syslib           | System Resources                 |
+* | Timer              | cy_tcpwm_counter    | TCPWM                            |
+* | TRNG               | cy_crypto_core_trng | Crypto                           |
+* | UART               | cy_scb_uart         | SCB                              |
+* | USB Device         | cy_usbfs_dev_drv    | USB-FS                           |
+* | WDT                | cy_wdt              | WDT                              |
 *
-* \section group_hal_psoc6_errors Device Specific Errors
+* \section group_hal_impl_errors Device Specific Errors
 * Error codes generated by the low level level PDL driver all use module IDs starting
 * with \ref CY_RSLT_MODULE_DRIVERS_PDL_BASE. The exact errors are documented for each
 * driver in the
-* <a href="https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/index.html">
-* psoc6pdl documentation</a>.
+* <a href="https://cypresssemiconductorco.github.io/mtb-pdl-cat1/pdl_api_reference_manual/html/index.html">
+* mtb-pdl-cat1 documentation</a>.
 */
 
 /**
-* \addtogroup group_hal_psoc6_hw_types PSoC 6 Specific Hardware Types
+* \addtogroup group_hal_impl_hw_types PSoC 6 Specific Hardware Types
 * \{
 * Aliases for types which are part of the public HAL interface but whose representations
 * need to vary per HAL implementation
@@ -108,10 +110,12 @@ extern "C" {
 * \cond INTERNAL
 */
 
+#define CYHAL_ADC_IMPL_HEADER       "cyhal_adc_impl.h"      //!< Implementation specific header for ADC
 #define CYHAL_CRC_IMPL_HEADER       "cyhal_crc_impl.h"      //!< Implementation specific header for CRC
 #define CYHAL_DMA_IMPL_HEADER       "cyhal_dma_impl.h"      //!< Implementation specific header for DMA
 #define CYHAL_CLOCK_IMPL_HEADER     "cyhal_clock_impl.h"    //!< Implementation specific header for Clocks
 #define CYHAL_GPIO_IMPL_HEADER      "cyhal_gpio_impl.h"     //!< Implementation specific header for GPIO
+#define CYHAL_PDMPCM_IMPL_HEADER    "cyhal_pdmpcm_impl.h"   //!< Implementation specific header for PDMPCM
 #define CYHAL_PWM_IMPL_HEADER       "cyhal_pwm_impl.h"      //!< Implementation specific header for PWM
 #define CYHAL_SYSTEM_IMPL_HEADER    "cyhal_system_impl.h"   //!< Implementation specific header for System
 #define CYHAL_SYSPM_IMPL_HEADER     "cyhal_syspm_impl.h"    //!< Implementation specific header for System Power Management
@@ -140,92 +144,20 @@ typedef struct {
  * They are considered an implementation detail which is subject to change
  * between platforms and/or HAL releases.
  */
-typedef struct cyhal_tcpwm_common {
+typedef struct {
 #ifdef CY_IP_MXTCPWM
     TCPWM_Type*                  base;
     cyhal_resource_inst_t        resource;
-    cyhal_gpio_t                 pin;
     cyhal_clock_t                clock;
     bool                         dedicated_clock;
     uint32_t                     clock_hz;
     cyhal_event_callback_data_t  callback_data;
-    cyhal_gpio_t                 pin_compl;     /* PWM Only */
-    uint32_t                     default_value; /* Timer only */
-#else
-    void *empty
-#endif
-} cyhal_tcpwm_common_t;
-
-/**
-  * @brief ADC object
-  *
-  * Application code should not rely on the specific contents of this struct.
-  * They are considered an implementation detail which is subject to change
-  * between platforms and/or HAL releases.
-  */
-typedef struct {
-#ifdef CY_IP_MXS40PASS_SAR
-    SAR_Type*                   base;
-    cyhal_resource_inst_t       resource;
-    cyhal_clock_t               clock;
-    bool                        dedicated_clock;
-    // channel_used is a bit field. The maximum channel count
-    // supported by the SAR IP is 16
-    uint16_t                    channel_used;
 #else
     void *empty;
 #endif
-} cyhal_adc_t;
+} cyhal_tcpwm_t;
 
-/**
-  * @brief ADC channel object
-  *
-  * Application code should not rely on the specific contents of this struct.
-  * They are considered an implementation detail which is subject to change
-  * between platforms and/or HAL releases.
-  */
-typedef struct {
-#ifdef CY_IP_MXS40PASS_SAR
-    cyhal_adc_t*                adc;
-    cyhal_gpio_t                pin;
-    uint8_t                     channel_idx;
-#else
-    void *empty;
-#endif
-} cyhal_adc_channel_t;
-
-/**
-  * @brief CRC object
-  *
-  * Application code should not rely on the specific contents of this struct.
-  * They are considered an implementation detail which is subject to change
-  * between platforms and/or HAL releases.
-  */
-typedef struct {
-#if defined(CY_IP_MXCRYPTO_INSTANCES) || defined(CPUSS_CRYPTO_PRESENT)
-    CRYPTO_Type*                base;
-    cyhal_resource_inst_t       resource;
-    uint32_t                    crc_width;
-#endif
-} cyhal_crc_t;
-
-/**
-  * @brief DAC object
-  *
-  * Application code should not rely on the specific contents of this struct.
-  * They are considered an implementation detail which is subject to change
-  * between platforms and/or HAL releases.
-  */
-typedef struct {
-#ifdef CY_IP_MXS40PASS_CTDAC
-    CTDAC_Type*                 base;
-    cyhal_resource_inst_t       resource;
-    cyhal_gpio_t                pin;
-#else
-    void *empty;
-#endif
-} cyhal_dac_t;
-
+/* This is presented out of order because many other structs depend on it */
 /**
   * @brief DMA object
   *
@@ -269,6 +201,133 @@ typedef struct {
     void *empty;
 #endif
 } cyhal_dma_t;
+
+struct _cyhal_adc_channel_s;
+
+/**
+  * @brief ADC object
+  *
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases.
+  */
+typedef struct {
+#ifdef CY_IP_MXS40PASS_SAR
+    SAR_Type*                       base;
+    cyhal_resource_inst_t           resource;
+    cyhal_clock_t                   clock;
+    bool                            dedicated_clock;
+    bool                            continuous_scanning;
+    /* Has at least one conversion completed since the last configuration change */
+    volatile bool                   conversion_complete;
+    struct _cyhal_adc_channel_s*    channel_config[CY_SAR_MAX_NUM_CHANNELS];
+    uint8_t                         user_enabled_events;
+    cyhal_event_callback_data_t     callback_data;
+    cyhal_async_mode_t              async_mode;
+    cyhal_dma_t                     dma;
+    /* Always updated to contain the location where the next result should be stored */
+    int32_t                         *async_buff_orig;
+    int32_t                         *async_buff_next;
+    bool                            async_transfer_in_uv; /* Default is counts */
+    /* Only decremented after all elements from a scan have been copied into async_buff */
+    size_t                          async_scans_remaining;
+#else
+    void *empty;
+#endif
+} cyhal_adc_t;
+
+/**
+  * @brief ADC channel object
+  *
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases.
+  */
+typedef struct _cyhal_adc_channel_s { /* Struct given an explicit name to make the forward declaration above work */
+#ifdef CY_IP_MXS40PASS_SAR
+    cyhal_adc_t*                adc;
+    cyhal_gpio_t                vplus;
+    cyhal_gpio_t                vminus;
+    uint8_t                     channel_idx;
+    uint32_t                    minimum_acquisition_ns;
+#else
+    void *empty;
+#endif
+} cyhal_adc_channel_t;
+
+/** @brief Comparator object */
+typedef struct {
+#if defined(CY_IP_MXLPCOMP_INSTANCES) || defined(CY_IP_MXS40PASS_CTB_INSTANCES)
+    cyhal_resource_inst_t        resource;
+    union
+    {
+#if defined(CY_IP_MXS40PASS_CTB_INSTANCES)
+        CTBM_Type *base_ctb;
+#endif
+#if defined(CY_IP_MXLPCOMP_INSTANCES)
+        LPCOMP_Type              *base_lpcomp;
+#endif
+    };
+    cyhal_gpio_t                 pin_vin_p;
+    cyhal_gpio_t                 pin_vin_m;
+    cyhal_gpio_t                 pin_out;
+    cyhal_event_callback_data_t  callback_data;
+    uint32_t                     irq_cause;
+#else
+    void *empty;
+#endif
+} cyhal_comp_t;
+
+/**
+  * @brief CRC object
+  *
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases.
+  */
+typedef struct {
+#if defined(CY_IP_MXCRYPTO_INSTANCES) || defined(CPUSS_CRYPTO_PRESENT)
+    CRYPTO_Type*                base;
+    cyhal_resource_inst_t       resource;
+    uint32_t                    crc_width;
+#endif
+} cyhal_crc_t;
+
+/**
+  * @brief DAC object
+  *
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases.
+  */
+typedef struct {
+#ifdef CY_IP_MXS40PASS_CTDAC
+    CTDAC_Type*                 base_dac;
+    CTBM_Type*                  base_opamp;
+    cyhal_resource_inst_t       resource_dac;
+    cyhal_resource_inst_t       resource_opamp;
+    cyhal_resource_inst_t       resource_aref_opamp;
+    cyhal_gpio_t                pin;
+#else
+    void *empty;
+#endif
+} cyhal_dac_t;
+
+/**
+  * @brief OPAMP object
+  *
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases.
+  */
+typedef struct {
+    CTBM_Type*             base;
+    cyhal_resource_inst_t  resource;
+    cyhal_gpio_t           pin_vin_p;
+    cyhal_gpio_t           pin_vin_m;
+    cyhal_gpio_t           pin_vout;
+    bool                   is_init_success;
+} cyhal_opamp_t;
 
 /**
   * @brief Flash object
@@ -367,10 +426,10 @@ typedef struct {
     cyhal_dma_t                     rx_dma;
     // Note: When the async DMA mode is in use, these variables will always reflect the state
     // that the transfer will be in after the in-progress DMA transfer, if any, is complete
-    const void                      *async_tx_buff;
-    size_t                          async_tx_length;
-    void                            *async_rx_buff;
-    size_t                          async_rx_length;
+    volatile const void             *async_tx_buff;
+    volatile size_t                 async_tx_length;
+    volatile void                   *async_rx_buff;
+    volatile size_t                 async_rx_length;
     volatile bool                   pm_transition_ready;
     cyhal_syspm_callback_data_t     pm_callback;
 #else
@@ -390,6 +449,7 @@ typedef struct {
     MCWDT_STRUCT_Type                *base;
     cyhal_resource_inst_t            resource;
     cyhal_event_callback_data_t      callback_data;
+    bool                             clear_int_mask;
 #else
     void *empty;
 #endif
@@ -430,10 +490,18 @@ typedef struct {
   * They are considered an implementation detail which is subject to change
   * between platforms and/or HAL releases.
   */
-typedef cyhal_tcpwm_common_t cyhal_pwm_t;
+typedef struct {
+#ifdef CY_IP_MXTCPWM
+    cyhal_tcpwm_t  tcpwm;
+    cyhal_gpio_t   pin;
+    cyhal_gpio_t   pin_compl;
+#else
+    void *empty;
+#endif
+} cyhal_pwm_t;
 
 /**
-  * @brief SMIF object
+  * @brief QSPI object
   *
   * Application code should not rely on the specific contents of this struct.
   * They are considered an implementation detail which is subject to change
@@ -445,11 +513,13 @@ typedef struct {
     cyhal_resource_inst_t            resource;
     cyhal_gpio_t                     pin_ios[8];
     cyhal_gpio_t                     pin_sclk;
-    cyhal_gpio_t                     pin_ssel;
-    uint32_t                         frequency;
+    cyhal_gpio_t                     pin_ssel[SMIF_CHIP_TOP_SPI_SEL_NR];
+    /* Active slave select */
+    cy_en_smif_slave_select_t        slave_select;
+    cyhal_clock_t                    clock;
+    bool                             is_clock_owned;
     uint8_t                          mode;
     cy_stc_smif_context_t            context;
-    cy_en_smif_slave_select_t        slave_select;
     cy_en_smif_data_select_t         data_select;
     uint32_t                         irq_cause;
     cyhal_event_callback_data_t      callback_data;
@@ -502,6 +572,7 @@ typedef struct {
 #ifdef CY_IP_MXSDHC
     SDHC_Type*                       base;
     cyhal_resource_inst_t            resource;
+    cyhal_clock_t                    clock;
     bool                             emmc;
     cy_en_sd_host_dma_type_t         dmaType;
     bool                             enableLedControl;
@@ -538,7 +609,6 @@ typedef struct {
     cy_en_sd_host_dma_type_t                  dmaType;
     cy_stc_sd_host_context_t                  context;
 #elif defined(CYHAL_UDB_SDIO)
-    cyhal_clock_t                             clock;
     cyhal_dma_t                               dma0Ch0;
     cyhal_dma_t                               dma0Ch1;
     cyhal_dma_t                               dma1Ch1;
@@ -547,6 +617,7 @@ typedef struct {
 #endif /* defined(CY_IP_MXSDHC) */
 
 #if defined(CYHAL_UDB_SDIO) || defined(CY_IP_MXSDHC)
+    cyhal_clock_t                             clock;
     cyhal_resource_inst_t                     resource;
     cyhal_gpio_t                              pin_clk;
     cyhal_gpio_t                              pin_cmd;
@@ -583,7 +654,9 @@ typedef struct {
     cyhal_gpio_t                              pin_miso;
     cyhal_gpio_t                              pin_mosi;
     cyhal_gpio_t                              pin_sclk;
-    cyhal_gpio_t                              pin_ssel;
+    cyhal_gpio_t                              pin_ssel[4];
+    cy_en_scb_spi_polarity_t                  ssel_pol[4];
+    uint8_t                                   active_ssel;
     cyhal_clock_t                             clock;
     cy_en_scb_spi_sclk_mode_t                 clk_mode;
     uint8_t                                   mode;
@@ -614,7 +687,14 @@ typedef struct {
   * They are considered an implementation detail which is subject to change
   * between platforms and/or HAL releases.
   */
-typedef cyhal_tcpwm_common_t cyhal_timer_t;
+typedef struct {
+#ifdef CY_IP_MXTCPWM
+    cyhal_tcpwm_t  tcpwm;
+    uint32_t       default_value;
+#else
+    void *empty;
+#endif
+} cyhal_timer_t;
 
 /**
   * @brief UART object
@@ -687,5 +767,5 @@ typedef struct {
 }
 #endif /* __cplusplus */
 
-/** \} group_hal_psoc6_hw_types */
-/** \} group_hal_psoc6 */
+/** \} group_hal_impl_hw_types */
+/** \} group_hal_impl */

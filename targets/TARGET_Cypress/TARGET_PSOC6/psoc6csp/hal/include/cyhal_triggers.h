@@ -23,8 +23,8 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_psoc6_triggers Triggers
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_impl_triggers Triggers
+* \ingroup group_hal_impl
 * \{
 * Trigger connections for supported device families
 */
@@ -37,20 +37,18 @@ extern "C" {
 
 #include "cy_device.h"
 
-#ifdef CY_DEVICE_PSOC6ABLE2
+#if defined(CY_DEVICE_PSOC6ABLE2)
 #include "triggers/cyhal_triggers_psoc6_01.h"
-#endif
-
-#ifdef CY_DEVICE_PSOC6A2M
+#elif defined(CY_DEVICE_PSOC6A2M)
 #include "triggers/cyhal_triggers_psoc6_02.h"
-#endif
-
-#ifdef CY_DEVICE_PSOC6A512K
+#elif defined(CY_DEVICE_PSOC6A512K)
 #include "triggers/cyhal_triggers_psoc6_03.h"
+#elif defined(CY_DEVICE_PSOC6A256K)
+#include "triggers/cyhal_triggers_psoc6_04.h"
 #endif
 
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
-/** \} group_hal_psoc6_triggers */
+/** \} group_hal_impl_triggers */

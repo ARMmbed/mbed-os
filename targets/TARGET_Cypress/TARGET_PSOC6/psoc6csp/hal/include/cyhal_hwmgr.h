@@ -64,9 +64,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_hwmgr HWMGR HAL Results
+ *  HWMGR specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name Hardware Manager Results
  */
 
 /** The requested resource type is invalid */
@@ -83,7 +84,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_WARNING, CYHAL_RSLT_MODULE_HWMGR, 50))
 
 /**
- * \} \}
+ * \}
  */
 
 

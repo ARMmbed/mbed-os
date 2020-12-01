@@ -49,9 +49,9 @@
 *
 * \section subsection_wdt_snippet Code Snippet
 *
-* \subsection subsection_wdt_snippet1 Snippet 1: Initialize the WDT and reset the
-* WDT periodically The following snippet initializes the WDT and illustrates how
-* to reset the WDT within the timeout interval.
+* \subsection subsection_wdt_snippet1 Snippet 1: Initialize the WDT and kick periodically
+* The following snippet initializes the WDT and illustrates how to reset the WDT within
+* the timeout interval.
 * \snippet wdt.c snippet_cyhal_wdt_init_and_reset
 */
 
@@ -64,9 +64,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_wdt WDT HAL Results
+ *  WDT specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name WDT Results
  */
 
 /** WDT timeout out of range */
@@ -77,7 +78,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 1))
 
 /**
- * \} \}
+ * \}
  */
 
 /** Initialize and start the WDT
@@ -86,7 +87,7 @@ extern "C" {
 *
  * @param[out] obj  Pointer to a WDT object. The caller must allocate the memory
  *  for this object but the init function will initialize its contents.
-* @param[in] timeout_ms The time in milliseconds before the WDT times out (1ms - max) (see cyhal_wdt_get_max_timeout_ms())
+* @param[inout] timeout_ms The time in milliseconds before the WDT times out (1ms - max) (see cyhal_wdt_get_max_timeout_ms())
 * @return The status of the init request
 *
 * Returns \ref CY_RSLT_SUCCESS if the operation was successfull.
@@ -107,7 +108,7 @@ void cyhal_wdt_free(cyhal_wdt_t *obj);
 
 /** Resets the WDT
 *
-* This function should be called periodically to prevent the WDT from timing out and resetting the device.
+* This function must be called periodically to prevent the WDT from timing out and resetting the device.
 *
 * See \ref subsection_wdt_snippet1
 *
@@ -132,9 +133,9 @@ void cyhal_wdt_stop(cyhal_wdt_t *obj);
 
 /** Get the WDT timeout
 *
-* Gets the time in milliseconds before the WDT times out.
+* Gets the configured time, in milliseconds, before the WDT times out.
 *
-* @param[inout] obj The WDT object
+* @param[in] obj The WDT object
 * @return The time in milliseconds before the WDT times out
 */
 uint32_t cyhal_wdt_get_timeout_ms(cyhal_wdt_t *obj);
@@ -144,6 +145,14 @@ uint32_t cyhal_wdt_get_timeout_ms(cyhal_wdt_t *obj);
 * @return The maximum timeout for the WDT
 */
 uint32_t cyhal_wdt_get_max_timeout_ms(void);
+
+/** Check if WDT is enabled
+ *
+ * This will return true after \ref cyhal_wdt_start is called. It will return false before the WDT is started, or after \ref cyhal_wdt_stop is called.
+ *
+ * @param[in] obj The WDT object
+ * @return The status of WDT is_enabled request */
+bool cyhal_wdt_is_enabled(cyhal_wdt_t *obj);
 
 #if defined(__cplusplus)
 }

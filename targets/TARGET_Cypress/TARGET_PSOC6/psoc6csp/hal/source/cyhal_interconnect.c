@@ -26,7 +26,7 @@
 #include "cyhal_interconnect.h"
 #include "cyhal_gpio_impl.h"
 
-#ifdef CY_IP_MXPERI
+#if defined(CY_IP_MXPERI) || defined(CY_IP_M0S8PERI)
 
 #if defined(__cplusplus)
 extern "C"
@@ -68,4 +68,4 @@ cy_rslt_t cyhal_disconnect_pin(cyhal_gpio_t pin)
 }
 #endif
 
-#endif /* CY_IP_MXPERI */
+#endif /* defined(CY_IP_MXPERI) || defined(CY_IP_M0S8PERI) */

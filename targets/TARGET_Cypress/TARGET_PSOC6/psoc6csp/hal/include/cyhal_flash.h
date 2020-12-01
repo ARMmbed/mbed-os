@@ -96,9 +96,10 @@ extern "C" {
 *       Defines
 *******************************************************************************/
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_flash Flash HAL Results
+ *  Flash specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name Flash Results
  */
 
 /** Invalid argument */
@@ -106,7 +107,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_FLASH, 0))
 /** Unable to support due to power state */
 /**
- * \} \}
+ * \}
  */
 
 /** @brief Information about a single block of flash memory */

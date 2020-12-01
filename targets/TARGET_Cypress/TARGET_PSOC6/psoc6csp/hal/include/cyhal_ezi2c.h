@@ -78,9 +78,10 @@
 extern "C" {
 #endif
 
-/** \addtogroup group_hal_results
+/** \addtogroup group_hal_results_ezi2c EZI2C HAL Results
+ *  EZI2C specific return codes
+ *  \ingroup group_hal_results
  *  \{ *//**
- *  \{ @name EZI2C Results
  */
 
 /** The requested resource type is invalid */
@@ -97,7 +98,7 @@ extern "C" {
     (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_EZI2C, 3))
 
 /**
- * \} \}
+ * \}
  */
 
 /** CYHAL_EZI2C_EVENT_NONE event is deprecated and that CYHAL_EZI2C_STATUS_OK should be used instead */
@@ -110,7 +111,7 @@ typedef enum
     CYHAL_EZI2C_SUB_ADDR16_BITS    /**< Sub-address is 16 bits */
 } cyhal_ezi2c_sub_addr_size_t;
 
-/** Size of Sub-Address */
+/** Data rate of the slave */
 typedef enum
 {
     CYHAL_EZI2C_DATA_RATE_100KHZ = 100000,

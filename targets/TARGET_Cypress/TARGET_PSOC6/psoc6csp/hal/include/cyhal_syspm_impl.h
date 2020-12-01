@@ -28,14 +28,14 @@
 #pragma once
 
 /**
-* \addtogroup group_hal_psoc6_syspm System Power Management
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_impl_syspm System Power Management
+* \ingroup group_hal_impl
 * \{
 * The PSoC 6 Power Management has the following characteristics:
 * \ref CYHAL_SYSPM_SYSTEM_NORMAL equates to the Low Power mode<br>
 * \ref CYHAL_SYSPM_SYSTEM_LOW equates to the Ultra Low Power mode
 *
-* \section group_hal_psoc6_syspm_ulp Switching the System into Ultra Low Power
+* \section group_hal_impl_syspm_ulp Switching the System into Ultra Low Power
 * Before switching into system Ultra Low Power mode, ensure that the device meets
 * the requirements below:
 *
@@ -52,7 +52,7 @@
 * different because they are device specific. You should refer to the device
 * datasheet for exact values of maximum frequency and current in system
 * ULP mode.
-* \} group_hal_psoc6_syspm
+* \} group_hal_impl_syspm
 */
 
 #if defined(__cplusplus)
@@ -65,20 +65,23 @@ extern "C" {
 
 cy_rslt_t cyhal_syspm_init(void);
 
-void cyhal_syspm_register_peripheral_callback(cyhal_syspm_callback_data_t *callback_data);
-void cyhal_syspm_unregister_peripheral_callback(cyhal_syspm_callback_data_t *callback_data);
-
-#define cyhal_syspm_sleep()              Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
-
-#define cyhal_syspm_deepsleep()          Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
-
-#define cyhal_syspm_get_system_state()   (Cy_SysPm_IsSystemUlp() ? CYHAL_SYSPM_SYSTEM_LOW : CYHAL_SYSPM_SYSTEM_NORMAL)
+void _cyhal_syspm_register_peripheral_callback(cyhal_syspm_callback_data_t *callback_data);
+void _cyhal_syspm_unregister_peripheral_callback(cyhal_syspm_callback_data_t *callback_data);
 
 cy_rslt_t cyhal_syspm_tickless_sleep_deepsleep(cyhal_lptimer_t *obj, uint32_t desired_ms, uint32_t *actual_ms, bool deep_sleep);
 
 #define cyhal_syspm_tickless_deepsleep(obj, desired_ms, actual_ms) cyhal_syspm_tickless_sleep_deepsleep(obj, desired_ms, actual_ms, true)
 
 #define cyhal_syspm_tickless_sleep(obj, desired_ms, actual_ms) cyhal_syspm_tickless_sleep_deepsleep(obj, desired_ms, actual_ms, false)
+
+#if defined(COMPONENT_PSOC6HAL)
+#define cyhal_syspm_sleep()              Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
+#define cyhal_syspm_deepsleep()          Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)
+#define cyhal_syspm_get_system_state()   (Cy_SysPm_IsSystemUlp() ? CYHAL_SYSPM_SYSTEM_LOW : CYHAL_SYSPM_SYSTEM_NORMAL)
+#else
+#define cyhal_syspm_sleep()              Cy_SysPm_CpuEnterSleep()
+#define cyhal_syspm_deepsleep()          Cy_SysPm_CpuEnterDeepSleep()
+#endif /* COMPONENT_PSOC6HAL */
 
 /** \endcond */
 

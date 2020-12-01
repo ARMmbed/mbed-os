@@ -32,8 +32,8 @@ extern "C"
 #endif
 
 /**
- * \addtogroup group_hal_psoc6_clock Clocks
- * \ingroup group_hal_psoc6
+ * \addtogroup group_hal_impl_clock Clocks
+ * \ingroup group_hal_impl
  * \{
  * Implementation specific interface for using the Clock driver. These items, while usable
  * within the HAL, are <b>not</b> necessarily portable between devices. The diagram below
@@ -41,7 +41,15 @@ extern "C"
  * the device specific Data Sheet for the exact set of clocks that are available on a
  * specific device.
  *
- * \image html psoc6_clock_tree.png
+ * \image html mxs40_clock_tree.png
+ *
+ * \section section_clock_snippets_impl Code snippets
+ * \note Error handling code has been intentionally left out of snippets to highlight API usage.
+ *
+ * \subsection subsection_clock_snippet_5_impl Snippet: System initialization
+ * The following snippet shows the clock driver can be used to initialize all clocks in the system.
+ * \note This example is device specific.
+ * \snippet clock.c snippet_cyhal_clock_system_init_p6
  */
 
 /** \cond INTERNAL */
@@ -113,7 +121,7 @@ extern const cyhal_resource_inst_t CYHAL_CLOCK_PLL[SRSS_NUM_PLL];
 /** High Frequency Clock: A high-frequency clock output driving specific peripherals. */
 extern const cyhal_resource_inst_t CYHAL_CLOCK_HF[SRSS_NUM_HFROOT];
 
-/** \} group_hal_psoc6_clock */
+/** \} group_hal_impl_clock */
 
 #if defined(__cplusplus)
 }

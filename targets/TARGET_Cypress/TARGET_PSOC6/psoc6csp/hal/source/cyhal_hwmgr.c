@@ -27,6 +27,7 @@
 #include "cyhal_hwmgr.h"
 #include "cyhal_system.h"
 #include "cmsis_compiler.h"
+#include "cyhal_scb_common.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -37,21 +38,22 @@ extern "C"
 *       Defines
 *******************************************************************************/
 
-#ifdef CY_IP_MXS40PASS_SAR_INSTANCES
-    #define CY_BLOCK_COUNT_ADC  CY_IP_MXS40PASS_SAR_INSTANCES
+#if defined(CY_IP_MXS40PASS_SAR_INSTANCES)
+    #define CY_BLOCK_COUNT_ADC  (CY_IP_MXS40PASS_SAR_INSTANCES)
+#elif defined (CY_IP_M0S8PASS4A_INSTANCES)
+    #define CY_BLOCK_COUNT_ADC  (CY_IP_M0S8PASS4A_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_ADC      0
+    #define CY_BLOCK_COUNT_ADC      (0)
 #endif
 
-#ifdef CY_IP_MXBLESS_INSTANCES
+#if defined(CY_IP_MXBLESS_INSTANCES)
     #define CY_BLOCK_COUNT_BLE      CY_IP_MXBLESS_INSTANCES
 #else
-    #define CY_BLOCK_COUNT_BLE      0
+    #define CY_BLOCK_COUNT_BLE      (0)
 #endif
 
-#ifdef CY_IP_MXTTCANFD_INSTANCES
-    #define CY_BLOCK_COUNT_CAN      CY_IP_MXTTCANFD_INSTANCES
-
+#if defined(CY_IP_MXTTCANFD_INSTANCES)
+    #define CY_BLOCK_COUNT_CAN      (CY_IP_MXTTCANFD_INSTANCES)
     #if (CY_IP_MXTTCANFD_INSTANCES == 0)
         #define CY_CHANNEL_COUNT_CAN (0u)
     #elif (CY_IP_MXTTCANFD_INSTANCES == 1)
@@ -77,198 +79,206 @@ extern "C"
     #elif (CY_IP_MXTTCANFD_INSTANCES > 10)
         #warning Unhandled CAN instance count
     #endif
+#elif defined(CY_IP_M0S8CAN_INSTANCES)
+    #define CY_BLOCK_COUNT_CAN      (CY_IP_M0S8CAN_INSTANCES)
+    #define CY_CHANNEL_COUNT_CAN    (1)
 #else
-    #define CY_BLOCK_COUNT_CAN      0
-    #define CY_CHANNEL_COUNT_CAN    0
+    #define CY_BLOCK_COUNT_CAN      (0)
+    #define CY_CHANNEL_COUNT_CAN    (0)
 #endif
 
-#if SRSS_ECO_PRESENT
-#define ECO_COUNT                   1
-#else
-#define ECO_COUNT                   0
-#endif
-
-#if SRSS_ALTHF_PRESENT
-#define ALTHF_COUNT                 1
-#else
-#define ALTHF_COUNT                 0
-#endif
-
-#if SRSS_ALTLF_PRESENT
-#define ALTLF_COUNT                 1
-#else
-#define ALTLF_COUNT                 0
-#endif
-
-#if SRSS_PILO_PRESENT
-#define PILO_COUNT                  1
-#else
-#define PILO_COUNT                  0
-#endif
-
-#if SRSS_BACKUP_PRESENT
-#define WCO_COUNT                   1
-#else
-#define WCO_COUNT                   0
-#endif
-
-#if SRSS_MFO_PRESENT
-// 1 for MFO and one for MF
-#define MF_COUNT                    2
-#else
-#define MF_COUNT                    0
-#endif
-
-// ECO, ALTHF, ALTLF, PILO, WCO, MFO, MF
-#define EXTRA_CLOCKS                7
-
-//12 = IMO, EXT, ILO, FLL, LF, Pump, BAK, Timer, AltSysTick, Slow, Fast, Peri
-#define CY_CHANNEL_COUNT_CLOCK      (12 + EXTRA_CLOCKS + SRSS_NUM_CLKPATH + SRSS_NUM_PLL + SRSS_NUM_HFROOT + \
+#if defined(COMPONENT_PSOC6HAL)
+// 12 dedicated = IMO, EXT, ILO, FLL, LF, Pump, BAK, Timer, AltSysTick, Slow, Fast, Peri
+//  7 optional =  ECO, ALTHF, ALTLF, PILO, WCO, MFO, MF
+#define CY_CHANNEL_COUNT_CLOCK      (12 + 7 + SRSS_NUM_CLKPATH + SRSS_NUM_PLL + SRSS_NUM_HFROOT + \
                                     PERI_DIV_8_NR + PERI_DIV_16_NR + PERI_DIV_16_5_NR + PERI_DIV_24_5_NR)
+#else
+// 7 dedicated = IMO, EXT, ILO, HF, LF, PUMP, SYSCLK
+// 3 optional  = ECO, WCO, PLL, PLLSEL, WDCSEL
+#define CY_CHANNEL_COUNT_CLOCK      (7 + 5 + PERI_PCLK_CLOCK_NR)
+#endif
 
 #if defined(CY_IP_MXCRYPTO_INSTANCES)
-    #define CY_BLOCK_COUNT_CRYPTO      CY_IP_MXCRYPTO_INSTANCES
+    #define CY_BLOCK_COUNT_CRYPTO   (CY_IP_MXCRYPTO_INSTANCES)
 #elif defined(CPUSS_CRYPTO_PRESENT)
-    #define CY_BLOCK_COUNT_CRYPTO   1
+    #define CY_BLOCK_COUNT_CRYPTO   (CPUSS_CRYPTO_PRESENT)
 #else
-    #define CY_BLOCK_COUNT_CRYPTO   0
+    #define CY_BLOCK_COUNT_CRYPTO   (0)
 #endif
 
-#ifdef CY_IP_MXS40PASS_CTDAC_INSTANCES
-    #define CY_BLOCK_COUNT_DAC      CY_IP_MXS40PASS_CTDAC_INSTANCES
+#if defined(CY_IP_MXS40PASS_CTDAC_INSTANCES)
+    #define CY_BLOCK_COUNT_DAC      (CY_IP_MXS40PASS_CTDAC_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_DAC      0
+    #define CY_BLOCK_COUNT_DAC      (0)
 #endif
 
 #if defined(CY_IP_M4CPUSS_DMAC_INSTANCES)
     #define CY_BLOCK_COUNT_DMA      (CY_IP_M4CPUSS_DMAC_INSTANCES)
     #define CY_CHANNEL_COUNT_DMA    (CPUSS_DMAC_CH_NR)
+#elif defined(CPUSS_CPUMEMSS_DMAC_PRESENT)
+    #define CY_BLOCK_COUNT_DMA      (CPUSS_CPUMEMSS_DMAC_PRESENT)
+    #define CY_CHANNEL_COUNT_DMA    (CPUSS_DMAC_CH_NR)
 #else
-    #define CY_BLOCK_COUNT_DMA      0
-    #define CY_CHANNEL_COUNT_DMA    0
+    #define CY_BLOCK_COUNT_DMA      (0)
+    #define CY_CHANNEL_COUNT_DMA    (0)
 #endif
 
 #if defined(CY_IP_M4CPUSS_DMA_INSTANCES)
     #define CY_BLOCK_COUNT_DW       (CY_IP_M4CPUSS_DMA_INSTANCES)
     #define CY_CHANNEL_COUNT_DW     (CPUSS_DW0_CH_NR + CPUSS_DW1_CH_NR)
 #else
-    #define CY_BLOCK_COUNT_DW       0
-    #define CY_CHANNEL_COUNT_DW     0
+    #define CY_BLOCK_COUNT_DW       (0)
+    #define CY_CHANNEL_COUNT_DW     (0)
 #endif
 
-#ifdef IOSS_GPIO_GPIO_PORT_NR
-    #define CY_BLOCK_COUNT_GPIO IOSS_GPIO_GPIO_PORT_NR
+#if defined(IOSS_GPIO_GPIO_PORT_NR)
+    #define CY_BLOCK_COUNT_GPIO     (IOSS_GPIO_GPIO_PORT_NR)
     #define CY_CHANNEL_COUNT_GPIO   (8 * IOSS_GPIO_GPIO_PORT_NR)
 #else
-    #define CY_BLOCK_COUNT_GPIO     0
-    #define CY_CHANNEL_COUNT_GPIO   0
+    #define CY_BLOCK_COUNT_GPIO     (0)
+    #define CY_CHANNEL_COUNT_GPIO   (0)
 #endif
 
-#ifdef CY_IP_MXAUDIOSS_INSTANCES
-    #define CY_BLOCK_COUNT_I2S      CY_IP_MXAUDIOSS_INSTANCES
+#if defined(CY_IP_MXAUDIOSS_INSTANCES)
+    #define CY_BLOCK_COUNT_I2S      (CY_IP_MXAUDIOSS_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_I2S      0
+    #define CY_BLOCK_COUNT_I2S      (0)
 #endif
 
-#ifdef CY_IP_MXLCD_INSTANCES
-    #define CY_BLOCK_COUNT_LCD      CY_IP_MXLCD_INSTANCES
+#if defined(CY_IP_MXLCD_INSTANCES)
+    #define CY_BLOCK_COUNT_LCD      (CY_IP_MXLCD_INSTANCES)
+#elif defined(CY_IP_M0S8LCD_INSTANCES)
+    #define CY_BLOCK_COUNT_LCD      (CY_IP_M0S8LCD_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_LCD      0
+    #define CY_BLOCK_COUNT_LCD      (0)
 #endif
 
-#ifdef CY_IP_MXLPCOMP_INSTANCES
+#if defined(CY_IP_MXLPCOMP_INSTANCES)
     #define CY_BLOCK_COUNT_LPCOMP   (2 * CY_IP_MXLPCOMP_INSTANCES)
+#elif defined(CY_IP_M0S8LPCOMP_INSTANCES)
+    #define CY_BLOCK_COUNT_LPCOMP   (2 * CY_IP_M0S8LPCOMP_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_LPCOMP   0
+    #define CY_BLOCK_COUNT_LPCOMP   (0)
 #endif
 
 #if defined(PASS_NR_CTBS)
     #define CY_BLOCK_COUNT_OPAMP    (2 * PASS_NR_CTBS)
 #else
-    #define CY_BLOCK_COUNT_OPAMP    0
+    #define CY_BLOCK_COUNT_OPAMP    (0)
 #endif
 
-#ifdef CY_IP_MXAUDIOSS_INSTANCES
-    #define CY_BLOCK_COUNT_PDMPCM   CY_IP_MXAUDIOSS_INSTANCES
+#if defined(CY_IP_MXAUDIOSS_INSTANCES)
+    #define CY_BLOCK_COUNT_PDMPCM   (CY_IP_MXAUDIOSS_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_PDMPCM   0
+    #define CY_BLOCK_COUNT_PDMPCM   (0)
 #endif
 
-#ifdef CY_IP_MXSMIF_INSTANCES
-    #define CY_BLOCK_COUNT_QSPI     CY_IP_MXSMIF_INSTANCES
+#if defined(CY_IP_MXSMIF_INSTANCES)
+    #define CY_BLOCK_COUNT_QSPI     (CY_IP_MXSMIF_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_QSPI     0
+    #define CY_BLOCK_COUNT_QSPI     (0)
 #endif
 
-#ifdef CY_IP_MXS40SRSS_RTC_INSTANCES
-    #define CY_BLOCK_COUNT_RTC      CY_IP_MXS40SRSS_RTC_INSTANCES
+#if defined(CY_IP_MXS40SRSS_RTC_INSTANCES)
+    #define CY_BLOCK_COUNT_RTC      (CY_IP_MXS40SRSS_RTC_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_RTC      0
+    #define CY_BLOCK_COUNT_RTC      (0)
 #endif
 
-#ifdef CY_IP_MXSCB_INSTANCES
-    #define CY_BLOCK_COUNT_SCB      CY_IP_MXSCB_INSTANCES
+#if defined(CY_IP_MXSCB_INSTANCES) || defined(CY_IP_M0S8SCB_INSTANCES)
+    #define CY_BLOCK_COUNT_SCB      (_SCB_ARRAY_SIZE)
 #else
-    #define CY_BLOCK_COUNT_SCB      0
+    #define CY_BLOCK_COUNT_SCB      (0)
 #endif
 
-#ifdef CY_IP_MXSDHC_INSTANCES
-    #define CY_BLOCK_COUNT_SDHC     CY_IP_MXSDHC_INSTANCES
+#if defined(CY_IP_MXSDHC_INSTANCES)
+    #define CY_BLOCK_COUNT_SDHC     (CY_IP_MXSDHC_INSTANCES)
 #else
-    #define CY_BLOCK_COUNT_SDHC     0
+    #define CY_BLOCK_COUNT_SDHC     (0)
 #endif
 
-#ifdef CY_IP_MXTCPWM_INSTANCES
+#if defined(CY_IP_MXTCPWM_INSTANCES)
     #define CY_BLOCK_COUNT_TCPWM    CY_IP_MXTCPWM_INSTANCES
-
-    #if (CY_IP_MXTCPWM_INSTANCES == 0)
-        #define CY_CHANNEL_COUNT_TCPWM (0u)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 1)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 2)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 3)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 4)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 5)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 6)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 7)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 8)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 9)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR + TCPWM8_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES == 10)
-        #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR + TCPWM8_CNT_NR + TCPWM9_CNT_NR)
-    #elif (CY_IP_MXTCPWM_INSTANCES > 10)
+    #if (CY_IP_MXTCPWM_VERSION == 1)
+        #if (CY_IP_MXTCPWM_INSTANCES == 0)
+            #define CY_CHANNEL_COUNT_TCPWM (0u)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 1)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 2)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 3)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 4)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 5)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 6)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 7)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 8)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 9)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR + TCPWM8_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES == 10)
+            #define CY_CHANNEL_COUNT_TCPWM (TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR + TCPWM8_CNT_NR + TCPWM9_CNT_NR)
+        #elif (CY_IP_MXTCPWM_INSTANCES > 10)
+            #warning Unhandled TCPWM instance count
+        #endif
+    #elif (CY_IP_MXTCPWM_VERSION == 2)
+        #if (CY_IP_MXTCPWM_INSTANCES == 1)
+            #if (TCPWM_GRP_NR == 0)
+                #define CY_CHANNEL_COUNT_TCPWM (0u)
+            #elif (TCPWM_GRP_NR == 1)
+                #define CY_CHANNEL_COUNT_TCPWM (TCPWM_GRP_NR0_GRP_GRP_CNT_NR)
+            #elif (TCPWM_GRP_NR == 2)
+                #define CY_CHANNEL_COUNT_TCPWM (TCPWM_GRP_NR0_GRP_GRP_CNT_NR + TCPWM_GRP_NR1_GRP_GRP_CNT_NR)
+            #elif (TCPWM_GRP_NR == 3)
+                #define CY_CHANNEL_COUNT_TCPWM (TCPWM_GRP_NR0_GRP_GRP_CNT_NR + TCPWM_GRP_NR1_GRP_GRP_CNT_NR + TCPWM_GRP_NR2_GRP_GRP_CNT_NR)
+            #elif (TCPWM_GRP_NR == 4)
+                #define CY_CHANNEL_COUNT_TCPWM (TCPWM_GRP_NR0_GRP_GRP_CNT_NR + TCPWM_GRP_NR1_GRP_GRP_CNT_NR + TCPWM_GRP_NR2_GRP_GRP_CNT_NR + TCPWM_GRP_NR3_GRP_GRP_CNT_NR)
+            #elif (TCPWM_GRP_NR > 4)
+                #warning Unhandled TCPWM instance count
+            #endif
+        #elif (CY_IP_MXTCPWM_INSTANCES > 1)
+            #warning Unhandled TCPWM instance count
+        #endif
+    #else
+        #warning Unrecognized TCPWM IP version
+    #endif
+#elif defined(CY_IP_M0S8TCPWM_INSTANCES)
+    #define CY_BLOCK_COUNT_TCPWM        (CY_IP_M0S8TCPWM_INSTANCES)
+    #if (CY_IP_M0S8TCPWM_INSTANCES == 0)
+        #define CY_CHANNEL_COUNT_TCPWM  (0u)
+    #elif (CY_IP_M0S8TCPWM_INSTANCES == 1)
+        #define CY_CHANNEL_COUNT_TCPWM  (TCPWM_CNT_NR)
+    #else
         #warning Unhandled TCPWM instance count
     #endif
 #else
-    #define CY_BLOCK_COUNT_TCPWM    0
-    #define CY_CHANNEL_COUNT_TCPWM  0
+    #define CY_BLOCK_COUNT_TCPWM    (0)
+    #define CY_CHANNEL_COUNT_TCPWM  (0)
 #endif
 
-#ifdef CY_IP_MXUDB_INSTANCES
+#if defined(CY_IP_MXUDB_INSTANCES)
     #define CY_BLOCK_COUNT_UDB      CY_IP_MXUDB_INSTANCES
 #else
-    #define CY_BLOCK_COUNT_UDB      0
+    #define CY_BLOCK_COUNT_UDB      (0)
 #endif
 
-#ifdef CY_IP_MXUSBFS_INSTANCES
+#if defined(CY_IP_MXUSBFS_INSTANCES)
     #define CY_BLOCK_COUNT_USB      CY_IP_MXUSBFS_INSTANCES
 #else
-    #define CY_BLOCK_COUNT_USB      0
+    #define CY_BLOCK_COUNT_USB      (0)
 #endif
 
-#ifdef CY_IP_MXS40SRSS_MCWDT_INSTANCES
+#if defined(CY_IP_MXS40SRSS_MCWDT_INSTANCES)
     #define CY_BLOCK_COUNT_MCWDT    CY_IP_MXS40SRSS_MCWDT_INSTANCES
+#elif defined(CY_IP_S8SRSSLT_INSTANCES)
+    #define CY_BLOCK_COUNT_MCWDT    CY_IP_S8SRSSLT_INSTANCES
 #else
-    #define CY_BLOCK_COUNT_MCWDT    0
+    #define CY_BLOCK_COUNT_MCWDT    (0)
 #endif
-
 
 /*
     All resources have an offset and a size, offsets are stored in an array
@@ -336,6 +346,8 @@ extern "C"
 *       Variables
 *******************************************************************************/
 
+#if defined(COMPONENT_PSOC6HAL)
+
 #define PERI_DIV_NR (PERI_DIV_8_NR + PERI_DIV_16_NR + PERI_DIV_16_5_NR + PERI_DIV_24_5_NR)
 #if ((PERI_DIV_NR + SRSS_NUM_CLKPATH + SRSS_NUM_PLL + SRSS_NUM_HFROOT + 18) >= 256)
 #error "Too many clocks to use uint8_t as offset type"
@@ -349,10 +361,10 @@ extern "C"
  * actually present. */
 static const uint8_t cyhal_block_offsets_clock[26] =
 {
-    0,                                                                      // 8-bit dividers
-    PERI_DIV_8_NR,                                                          // 16-bit dividers
-    PERI_DIV_8_NR + PERI_DIV_16_NR,                                         // 16.5 bit dividers
-    PERI_DIV_8_NR + PERI_DIV_16_NR + PERI_DIV_16_5_NR,                      // 24.5 bit dividers
+    0,                                                                    // 8-bit dividers
+    PERI_DIV_8_NR,                                                        // 16-bit dividers
+    PERI_DIV_8_NR + PERI_DIV_16_NR,                                       // 16.5 bit dividers
+    PERI_DIV_8_NR + PERI_DIV_16_NR + PERI_DIV_16_5_NR,                    // 24.5 bit dividers
 
     PERI_DIV_NR,                                                          // IMO
     PERI_DIV_NR + 1,                                                      // ECO
@@ -383,16 +395,49 @@ static const uint8_t cyhal_block_offsets_clock[26] =
     PERI_DIV_NR + SRSS_NUM_CLKPATH + SRSS_NUM_PLL + SRSS_NUM_HFROOT + 18, // Slow
 };
 
+#else
+/* The order of items here must match the order in cyhal_clock_impl.h
+ *
+ * Each entry in the array below is the prior entry plus the number of clocks that exist
+ * of the prior type. When there is only 1 clock (e.g: IMO/ECO) the next number is simply
+ * one higher than the previous value. When there are multiple clocks (e.g.: PCLK)
+ * the subsequent value is increased by the define that specifies how many clocks are
+ * actually present. */
+static const uint8_t cyhal_block_offsets_clock[16] =
+{
+    0,                                                                  // 8-bit dividers
+    PERI_PCLK_DIV_8_NR,                                                 // 16-bit dividers
+    PERI_PCLK_DIV_8_NR + PERI_PCLK_DIV_16_NR,                           // 16.5 bit dividers
+    PERI_PCLK_DIV_8_NR + PERI_PCLK_DIV_16_NR + PERI_PCLK_DIV_16_5_NR,   // 24.5 bit dividers
+
+    PERI_PCLK_CLOCK_NR,                                                 // IMO
+    PERI_PCLK_CLOCK_NR + 1,                                             // ECO
+    PERI_PCLK_CLOCK_NR + 2,                                             // EXT
+    PERI_PCLK_CLOCK_NR + 3,                                             // ILO
+    PERI_PCLK_CLOCK_NR + 4,                                             // WCO
+
+    PERI_PCLK_CLOCK_NR + 5,                                             // WDCSEL
+    PERI_PCLK_CLOCK_NR + 6,                                             // PLLSEL
+    PERI_PCLK_CLOCK_NR + 7,                                             // PLL
+    PERI_PCLK_CLOCK_NR + 8,                                             // LF
+    PERI_PCLK_CLOCK_NR + 9,                                             // HF
+    PERI_PCLK_CLOCK_NR + 10,                                            // PUMP
+    PERI_PCLK_CLOCK_NR + 11,                                            // SYS
+};
+#endif
+
 static const uint8_t cyhal_block_offsets_dma[] =
 {
     0,
 };
 
+#if defined(COMPONENT_PSOC6HAL)
 static const uint8_t cyhal_block_offsets_dw[] =
 {
     0,
     CPUSS_DW0_CH_NR,
 };
+#endif
 
 static const uint8_t cyhal_block_offsets_gpio[] =
 {
@@ -442,42 +487,54 @@ static const uint8_t cyhal_block_offsets_can[] =
 
 static const uint8_t cyhal_block_offsets_tcpwm[] =
 {
+    0,
 #ifdef CY_IP_MXTCPWM_INSTANCES
-    #if (CY_IP_MXTCPWM_INSTANCES > 0)
-        0,
+    #if CY_IP_MXTCPWM_VERSION == 1
+        #if (CY_IP_MXTCPWM_INSTANCES > 1)
+            TCPWM0_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 2)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 3)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 4)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 5)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 6)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 7)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 8)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 9)
+            TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR + TCPWM8_CNT_NR,
+        #endif
+        #if (CY_IP_MXTCPWM_INSTANCES > 10)
+            #warning Unhandled TCPWM instance count
+        #endif
+    #else // CY_IP_MXTCPWM_VERSION >= 2
+        #if (CY_IP_MXTCPWM_INSTANCES == 1)
+            #if (TCPWM_GRP_NR > 1)
+                TCPWM_GRP_NR0_GRP_GRP_CNT_NR,
+            #endif
+            #if (TCPWM_GRP_NR > 2)
+                TCPWM_GRP_NR0_GRP_GRP_CNT_NR + TCPWM_GRP_NR1_GRP_GRP_CNT_NR,
+            #endif
+            #if (TCPWM_GRP_NR > 3)
+                TCPWM_GRP_NR0_GRP_GRP_CNT_NR + TCPWM_GRP_NR1_GRP_GRP_CNT_NR + TCPWM_GRP_NR2_GRP_GRP_CNT_NR,
+            #endif
+        #else
+            #warning Unhandled TCPWM instance count
+        #endif
     #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 1)
-        TCPWM0_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 2)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 3)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 4)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 5)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 6)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 7)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 8)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 9)
-        TCPWM0_CNT_NR + TCPWM1_CNT_NR + TCPWM2_CNT_NR + TCPWM3_CNT_NR + TCPWM4_CNT_NR + TCPWM5_CNT_NR + TCPWM6_CNT_NR + TCPWM7_CNT_NR + TCPWM8_CNT_NR,
-    #endif
-    #if (CY_IP_MXTCPWM_INSTANCES > 10)
-        #warning Unhandled TCPWM instance count
-    #endif
-#else
-    0
 #endif
 };
 
@@ -486,6 +543,7 @@ static uint8_t cyhal_used[(CY_TOTAL_ALLOCATABLE_ITEMS + 7) / 8] = {0};
 // Note: the ordering here needs to be parallel to that of cyhal_resource_t
 static const uint16_t cyhal_resource_offsets[] =
 {
+#if defined(COMPONENT_PSOC6HAL)
     CY_OFFSET_ADC,
     CY_OFFSET_BLE,
     CY_OFFSET_CAN,
@@ -509,13 +567,30 @@ static const uint16_t cyhal_resource_offsets[] =
     CY_OFFSET_TCPWM,
     CY_OFFSET_UDB,
     CY_OFFSET_USB,
+#else
+    CY_OFFSET_ADC,
+    CY_OFFSET_CAN,
+    CY_OFFSET_CLOCK,
+    CY_OFFSET_CRYPTO,
+    CY_OFFSET_DMA,
+    CY_OFFSET_GPIO,
+    CY_OFFSET_I2S,
+    CY_OFFSET_LCD,
+    CY_OFFSET_LPCOMP,
+    CY_OFFSET_LPTIMER,
+    CY_OFFSET_OPAMP,
+    CY_OFFSET_SCB,
+    CY_OFFSET_TCPWM,
+#endif
 };
 
 static const uint32_t cyhal_has_channels =
     (1 << CYHAL_RSC_CAN)   |
     (1 << CYHAL_RSC_CLOCK) |
     (1 << CYHAL_RSC_DMA)   |
+#if defined(COMPONENT_PSOC6HAL)
     (1 << CYHAL_RSC_DW)    |
+#endif
     (1 << CYHAL_RSC_GPIO)  |
     (1 << CYHAL_RSC_TCPWM) ;
 
@@ -569,8 +644,10 @@ static inline const uint8_t* cyhal_get_block_offsets(cyhal_resource_t type)
             return cyhal_block_offsets_clock;
         case CYHAL_RSC_DMA:
             return cyhal_block_offsets_dma;
+#if defined(COMPONENT_PSOC6HAL)
         case CYHAL_RSC_DW:
             return cyhal_block_offsets_dw;
+#endif
         case CYHAL_RSC_GPIO:
             return cyhal_block_offsets_gpio;
         case CYHAL_RSC_TCPWM:
@@ -592,8 +669,10 @@ static inline uint8_t cyhal_get_block_offset_length(cyhal_resource_t type)
             return sizeof(cyhal_block_offsets_clock)/sizeof(cyhal_block_offsets_clock[0]);
         case CYHAL_RSC_DMA:
             return sizeof(cyhal_block_offsets_dma)/sizeof(cyhal_block_offsets_dma[0]);
+#if defined(COMPONENT_PSOC6HAL)
         case CYHAL_RSC_DW:
             return sizeof(cyhal_block_offsets_dw)/sizeof(cyhal_block_offsets_dw[0]);
+#endif
         case CYHAL_RSC_GPIO:
             return sizeof(cyhal_block_offsets_gpio)/sizeof(cyhal_block_offsets_gpio[0]);
         case CYHAL_RSC_TCPWM:
@@ -606,6 +685,7 @@ static inline uint8_t cyhal_get_block_offset_length(cyhal_resource_t type)
 
 static cy_rslt_t cyhal_get_bit_position(cyhal_resource_t type, uint8_t block, uint8_t channel, uint16_t* bitPosition)
 {
+#if defined(COMPONENT_PSOC6HAL)
     /* For backwards compatability. */
     if (type == CYHAL_RSC_CLKPATH)
     {
@@ -613,6 +693,7 @@ static cy_rslt_t cyhal_get_bit_position(cyhal_resource_t type, uint8_t block, ui
         block = CYHAL_CLOCK_BLOCK_PATHMUX;
         type = CYHAL_RSC_CLOCK;
     }
+#endif
 
     uint16_t offsetRsc = cyhal_get_resource_offset(type);
     // Offset that is one past the beginning of the next resource (or one past the end of the array).
@@ -656,7 +737,7 @@ static inline cy_rslt_t cyhal_is_set(const uint8_t* used, cyhal_resource_t type,
     cy_rslt_t status = cyhal_get_bit_position(type, block, channel, &bitPosition);
     if (status == CY_RSLT_SUCCESS)
     {
-        uint8_t byte = bitPosition >> CY_BYTE_NUM_SHIFT;
+        uint8_t byte = (uint8_t)(bitPosition >> CY_BYTE_NUM_SHIFT);
         uint8_t bit = bitPosition & CY_BIT_NUM_MASK;
         *isSet = (used[byte] & (1 << bit));
     }
@@ -669,7 +750,7 @@ static inline cy_rslt_t cyhal_set_bit(uint8_t* used, cyhal_resource_t type, uint
     cy_rslt_t status = cyhal_get_bit_position(type, block, channel, &bitPosition);
     if (status == CY_RSLT_SUCCESS)
     {
-        uint8_t byte = bitPosition >> CY_BYTE_NUM_SHIFT;
+        uint8_t byte = (uint8_t)(bitPosition >> CY_BYTE_NUM_SHIFT);
         uint8_t bit = bitPosition & CY_BIT_NUM_MASK;
         used[byte] |= (1 << bit);
     }
@@ -682,7 +763,7 @@ static inline cy_rslt_t cyhal_clear_bit(uint8_t* used, cyhal_resource_t type, ui
     cy_rslt_t status = cyhal_get_bit_position(type, block, channel, &bitPosition);
     if (status == CY_RSLT_SUCCESS)
     {
-        uint8_t byte = bitPosition >> CY_BYTE_NUM_SHIFT;
+        uint8_t byte = (uint8_t)(bitPosition >> CY_BYTE_NUM_SHIFT);
         uint8_t bit = bitPosition & CY_BIT_NUM_MASK;
         used[byte] &= ~(1 << bit);
     }
@@ -721,8 +802,8 @@ void cyhal_hwmgr_free(const cyhal_resource_inst_t* obj)
 {
     uint32_t state = cyhal_system_critical_section_enter();
     cy_rslt_t rslt = cyhal_clear_bit(cyhal_used, obj->type, obj->block_num, obj->channel_num);
+    CY_UNUSED_PARAMETER(rslt); /* CY_ASSERT only processes in DEBUG, ignores for others */
     CY_ASSERT(CY_RSLT_SUCCESS == rslt);
-    (void)rslt; //Avoid warning about unused variable in Release builds
     cyhal_system_critical_section_exit(state);
 }
 

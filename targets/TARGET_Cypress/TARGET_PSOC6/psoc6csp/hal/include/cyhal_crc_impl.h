@@ -1,8 +1,8 @@
-/***************************************************************************//** 
+/***************************************************************************//**
  * \file cyhal_crc_impl.h
 *
 * Description:
-* Provides a high level interface for interacting with the Cypress CRC accelerator. 
+* Provides a high level interface for interacting with the Cypress CRC accelerator.
 * This is a wrapper around the lower level PDL API.
 *
 ********************************************************************************
@@ -36,7 +36,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 // This helper function mirrors the definition of cyhal_crc_start
-__STATIC_INLINE cy_rslt_t cyhal_crc_start_internal(cyhal_crc_t *obj, const crc_algorithm_t *algorithm)
+__STATIC_INLINE cy_rslt_t _cyhal_crc_start(cyhal_crc_t *obj, const crc_algorithm_t *algorithm)
 {
     CY_ASSERT(NULL != obj);
     if(NULL == algorithm)
@@ -53,10 +53,10 @@ __STATIC_INLINE cy_rslt_t cyhal_crc_start_internal(cyhal_crc_t *obj, const crc_a
                                 algorithm->lfsrInitState);
 }
 
-#define cyhal_crc_start(obj, algorithm) cyhal_crc_start_internal(obj, algorithm)
+#define cyhal_crc_start(obj, algorithm) _cyhal_crc_start(obj, algorithm)
 
 // This helper function mirrors the definition of cyhal_crc_compute
-__STATIC_INLINE cy_rslt_t cyhal_crc_compute_internal(const cyhal_crc_t *obj, const uint8_t *data, size_t length)
+__STATIC_INLINE cy_rslt_t _cyhal_crc_compute(const cyhal_crc_t *obj, const uint8_t *data, size_t length)
 {
     CY_ASSERT(NULL != obj);
     if(NULL == data || 0 == length)
@@ -65,10 +65,10 @@ __STATIC_INLINE cy_rslt_t cyhal_crc_compute_internal(const cyhal_crc_t *obj, con
     return Cy_Crypto_Core_Crc_CalcPartial(obj->base, data, length);
 }
 
-#define cyhal_crc_compute(obj, data, length) cyhal_crc_compute_internal(obj, data, length)
+#define cyhal_crc_compute(obj, data, length) _cyhal_crc_compute(obj, data, length)
 
 // This helper function mirrors the definition of cyhal_crc_finish
-__STATIC_INLINE cy_rslt_t cyhal_crc_finish_internal(const cyhal_crc_t *obj, uint32_t *crc)
+__STATIC_INLINE cy_rslt_t _cyhal_crc_finish(const cyhal_crc_t *obj, uint32_t *crc)
 {
     CY_ASSERT(NULL != obj);
     if(NULL == crc)
@@ -77,7 +77,7 @@ __STATIC_INLINE cy_rslt_t cyhal_crc_finish_internal(const cyhal_crc_t *obj, uint
     return Cy_Crypto_Core_Crc_CalcFinish(obj->base, obj->crc_width, crc);
 }
 
-#define cyhal_crc_finish(obj, crc) cyhal_crc_finish_internal(obj, crc)
+#define cyhal_crc_finish(obj, crc) _cyhal_crc_finish(obj, crc)
 
 #if defined(__cplusplus)
 }
