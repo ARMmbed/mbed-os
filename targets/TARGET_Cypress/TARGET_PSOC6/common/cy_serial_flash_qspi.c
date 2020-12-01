@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -160,6 +160,12 @@ size_t cy_serial_flash_qspi_get_erase_size(uint32_t addr)
     return (size_t)qspi_block_config.memConfig[MEM_SLOT]->deviceCfg->eraseSize;
 }
 
+size_t cy_serial_flash_qspi_get_prog_size(uint32_t addr)
+{
+    CY_UNUSED_PARAMETER(addr);
+    return (size_t)qspi_block_config.memConfig[MEM_SLOT]->deviceCfg->programSize;
+}
+
 cy_rslt_t cy_serial_flash_qspi_read(uint32_t addr, size_t length, uint8_t *buf)
 {
     /* Cy_SMIF_MemRead() returns error if (addr + length) > total flash size. */
@@ -213,6 +219,11 @@ cy_rslt_t cy_serial_flash_qspi_enable_xip(bool enable)
     }
 
     return CY_RSLT_SUCCESS;
+}
+
+void cy_serial_flash_qspi_set_interrupt_priority(uint8_t priority)
+{
+    NVIC_SetPriority(smif_interrupt_IRQn, priority);
 }
 
 #if defined(__cplusplus)
