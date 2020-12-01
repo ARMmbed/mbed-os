@@ -6,7 +6,6 @@
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
-include(${MBED_PATH}/tools/cmake/core.cmake)
 
 add_library(mbed-core INTERFACE)
 
