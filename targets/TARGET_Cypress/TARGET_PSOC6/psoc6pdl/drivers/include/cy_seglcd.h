@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_seglcd.h
-* \version 1.0.2
+* \version 1.10
 *
 * \brief
 * Provides an API declaration of the Segment LCD driver.
@@ -249,40 +249,14 @@
 * \section group_seglcd_more_information More Information
 * Refer to the technical reference manual (TRM) and the device datasheet.
 *
-* \section group_seglcd_MISRA MISRA-C Compliance
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>The value of a complex expression of integer type shall only be cast to a type of the
-*         same signedness that is no wider than the underlying type of the expression.</td>
-*     <td>The value got from the bitfield physically cannot exceed the enumeration
-*         that describes this bitfield. So, the code is safe by design.</td>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>This is a fix for the GCC compiler warning.</td>
-*   </tr>
-*   <tr>
-*     <td>14.1</td>
-*     <td>R</td>
-*     <td>There shall be no unreachable code.</td>
-*     <td>This is the HOBTO parameter reading for future features support.</td>
-*   </tr>
-* </table>
-*
 * \section group_seglcd_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10</td>
+*     <td>Fixed/Documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.0.1</td>
 *     <td>Code snippets are extended to support the CY8C62x5 device family</td>
@@ -326,7 +300,7 @@ extern "C" {
 #define CY_SEGLCD_DRV_VERSION_MAJOR         1
 
 /** Driver minor version */
-#define CY_SEGLCD_DRV_VERSION_MINOR         0
+#define CY_SEGLCD_DRV_VERSION_MINOR         10
 
 /** SegLCD driver ID */
 #define CY_SEGLCD_ID                        (CY_PDL_DRV_ID(0x40u))

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_i2c.c
-* \version 2.50
+* \version 2.60
 *
 * Provides I2C API implementation of the SCB driver.
 *
@@ -410,6 +410,7 @@ cy_en_syspm_status_t Cy_SCB_I2C_DeepSleepCallback(cy_stc_syspm_callback_params_t
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 
@@ -501,6 +502,7 @@ cy_en_syspm_status_t Cy_SCB_I2C_HibernateCallback(cy_stc_syspm_callback_params_t
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 
@@ -3187,6 +3189,12 @@ static uint32_t WaitOneUnit(uint32_t *timeout)
 *
 * \param status
 * The status to covert.
+*
+* \param context
+* The pointer to the context structure \ref cy_stc_scb_i2c_context_t allocated
+* by the user. The structure is used during the I2C operation for internal
+* configuration and data retention. The user must not modify anything
+* in this structure.
 *
 * \return
 * \ref cy_en_scb_i2c_status_t

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.c
-* \version 5.20
+* \version 5.30
 *
 * This driver provides the source code for API power management.
 *
@@ -23,7 +23,6 @@
 *******************************************************************************/
 #include "cy_syspm.h"
 #include "cy_ipc_drv.h"
-#include "cy_ipc_sema.h"
 #include "cy_ipc_pipe.h"
 #include "cy_prot.h"
 
@@ -291,6 +290,12 @@ typedef void (*cy_cb_syspm_deep_sleep_t)(cy_en_syspm_waitfor_t waitFor, bool *wa
                                                  SRSS_PWR_CTL_BGREF_LPMODE_Msk |\
                                                  SRSS_PWR_CTL_VREFBUF_LPMODE_Msk |\
                                                  SRSS_PWR_CTL_IREF_LPMODE_Msk)
+
+/* The wakeup holdoff for the system regulator minimum current mode.
+   Cypress ID DRV2123
+*/
+#define SRSS_PWR_TRIM_WAKE_LP                   (0x50U)
+
 
 /*******************************************************************************
 *       Internal Variables
@@ -793,8 +798,12 @@ cy_en_syspm_status_t Cy_SysPm_CpuEnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
 
         #if (CY_CPU_CORTEX_M0P)
             /* Check if there is a pending syscall */
-            if (Cy_IPC_Drv_IsLockAcquired(Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL)) != false)
+            CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 13.5', 1, \
+            'Inspected manually, no side effect during functions call.');
+            if (Cy_IPC_Drv_IsLockAcquired(Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_CM0)) ||
+                Cy_IPC_Drv_IsLockAcquired(Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_CM4)))
             {
+                CY_MISRA_BLOCK_END('MISRA C-2012 Rule 13.5');
                 /* Do not put the CPU into Deep Sleep and return pending status */
                 retVal = CY_SYSPM_SYSCALL_PENDING;
             }
@@ -1398,10 +1407,17 @@ cy_en_syspm_status_t Cy_SysPm_SystemSetMinRegulatorCurrent(void)
     */
     if (0U != _FLD2VAL(SRSS_PWR_CTL_LPM_READY, SRSS_PWR_CTL))
     {
-        /* Configure the minimum current mode for LDO regulator */
         if(Cy_SysPm_LdoIsEnabled())
         {
+            /* Configure the minimum current mode for LDO regulator */
             SRSS_PWR_CTL |= PWR_CIRCUITS_SET_LPMODE_LDO_MASK;
+
+            /* Extend wakeup time for LDO 1.1 V */
+            if (Cy_SysPm_LdoGetVoltage() == CY_SYSPM_LDO_VOLTAGE_1_1V)
+            {
+                /* Cypress ID DRV2123 */
+                SRSS_PWR_TRIM_WAKE_CTL = SRSS_PWR_TRIM_WAKE_LP;
+            }
         }
         else
         {
@@ -1494,6 +1510,13 @@ cy_en_syspm_status_t Cy_SysPm_SystemSetNormalRegulatorCurrent(void)
 
         /* Delay to finally set the normal current mode */
         Cy_SysLib_DelayUs(SET_NORMAL_CURRENT_MODE_DELAY_US);
+
+        /* Restore original wakeup time in Normal for LDO 1.1 V */
+        if (Cy_SysPm_LdoIsEnabled() && (Cy_SysPm_LdoGetVoltage() == CY_SYSPM_LDO_VOLTAGE_1_1V))
+        {
+            /* Cypress ID DRV2123 */
+            SRSS_PWR_TRIM_WAKE_CTL = SFLASH_PWR_TRIM_WAKE_CTL;
+        }
 
         retVal= CY_SYSPM_SUCCESS;
     }
@@ -1759,8 +1782,11 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
 *  including the load current.
 *
 * \warning There is no safe way to go back to the LDO after the
-*  Buck regulator supplies a core. The function enabling the BUck regulator
+*  Buck regulator supplies a core. The function enabling the Buck regulator
 *  switches off the LDO.
+*
+* \warning Buck converter requires additional external components populated on
+* dedicated pins. Refer to device datasheet for details.
 *
 * For more detail, refer to the \ref group_syspm_switching_into_ulp and
 * \ref group_syspm_switching_into_lp sections.
@@ -1947,6 +1973,9 @@ cy_en_syspm_status_t Cy_SysPm_BuckEnable(cy_en_syspm_buck_voltage1_t voltage)
 *  voltage because the actual voltage value depends on the conditions
 *  including the load current.
 *
+* \warning Buck converter requires additional external components populated on
+* dedicated pins. Refer to device datasheet for details.
+*
 * For more detail, refer to the \ref group_syspm_switching_into_ulp and
 * \ref group_syspm_switching_into_lp sections.
 * Refer to the \ref group_syslib driver for more detail about setting the
@@ -2124,9 +2153,12 @@ bool Cy_SysPm_BuckIsOutputEnabled(cy_en_syspm_buck_out_t output)
 * Cy_SysPm_BuckSetVoltage2() or Cy_SysPm_BuckSetVoltage2HwControl() to
 * configure the Buck output 2.
 *
-* The function works only on devices with the SIMO Buck regulator.
+* \warning The function works only on devices with the SIMO Buck regulator.
 * Refer to the device datasheet for information on whether the device contains
 * the SIMO Buck.
+*
+* \warning Buck converter requires additional external components populated on
+* dedicated pins. Refer to device datasheet for details.
 *
 * \funcusage
 * \snippet syspm/snippet/main.c snippet_Cy_SysPm_BuckEnableVoltage2
@@ -2178,9 +2210,12 @@ void Cy_SysPm_BuckEnableVoltage2(void)
 * lower voltage to a higher voltage. When changing from a higher voltage to a
 * lower one, the delay is not required.
 *
-* The function works only on devices with the SIMO Buck regulator.
+* \warning The function works only on devices with the SIMO Buck regulator.
 * Refer to the device datasheet for information on whether the device contains
 * SIMO Buck.
+*
+* \warning Buck converter requires additional external components populated on
+* dedicated pins. Refer to device datasheet for details.
 *
 * \funcusage
 * \snippet syspm/snippet/main.c snippet_Cy_SysPm_BuckSetVoltage2
@@ -2313,7 +2348,7 @@ cy_en_syspm_status_t Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
         if (CY_SYSPM_LDO_VOLTAGE_0_9V == voltage)
         {
             /* Remove additional wakeup delay from Deep Sleep
-            *  for 1.1 V LDO. Cypress ID #290172
+            *  for 0.9 V LDO. Cypress ID #290172
             */
             SRSS_PWR_TRIM_WAKE_CTL = 0UL;
 
@@ -2333,7 +2368,15 @@ cy_en_syspm_status_t Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
             /* Configure additional wakeup delay from Deep Sleep
             *  for 1.1 V LDO. Cypress ID #290172
             */
-            SRSS_PWR_TRIM_WAKE_CTL = SFLASH_PWR_TRIM_WAKE_CTL;
+            if (Cy_SysPm_SystemIsMinRegulatorCurrentSet())
+            {
+                /* Cypress ID DRV2123 */
+                SRSS_PWR_TRIM_WAKE_CTL = SRSS_PWR_TRIM_WAKE_LP;
+            }
+            else
+            {
+                SRSS_PWR_TRIM_WAKE_CTL = SFLASH_PWR_TRIM_WAKE_CTL;
+            }
 
             trimVoltage = SFLASH_LDO_1P1V_TRIM;
 
@@ -3094,7 +3137,7 @@ void Cy_SysPm_RestoreRegisters(cy_stc_syspm_backup_regs_t const *regs)
 * - false - System Deep Sleep was not occurred.
 *
 *******************************************************************************/
-CY_RAMFUNC_BEGIN
+CY_SECTION_RAMFUNC_BEGIN
 #if !defined (__ICCARM__)
     CY_NOINLINE
 #endif
@@ -3195,7 +3238,7 @@ static void EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
     }
 #endif /* !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
-CY_RAMFUNC_END
+CY_SECTION_RAMFUNC_END
 
 
 #if !((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))

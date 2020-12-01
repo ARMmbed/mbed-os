@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_rsa.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API to calculate
@@ -226,6 +226,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
 #endif /* #if (CPUSS_CRYPTO_SHA512 == 1) */
 
     default:
+    /* Unknown Digest Type */
         break;
     }
 
@@ -350,7 +351,7 @@ static void Cy_Crypto_Core_Rsa_MontCoeff(CRYPTO_Type *base, uint32_t modDerReg, 
     CY_CRYPTO_VU_SET_BIT     (base, ra, tmp);
     CY_CRYPTO_VU_MOV         (base, rb, myMod);
 
-    while (1)
+    while (true)
     {
         Cy_Crypto_Core_Vu_WaitForComplete(base);
 
@@ -797,10 +798,14 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
     uint32_t inverseModuloReg    = 9u;
     uint32_t barrettReg          = 10u;
     uint32_t rBarReg             = 11u;
+    uint16_t vu_mem_size         = 0U;
+    void *vu_mem_address         = NULL;
 
+    vu_mem_address = Cy_Crypto_Core_GetVuMemoryAddress(base);
+    vu_mem_size = (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base);
 
     /* Clear all Crypto Buffer before operations */
-    Cy_Crypto_Core_MemSet(base, (void*)Cy_Crypto_Core_GetVuMemoryAddress(base), 0x00u, (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base));
+    Cy_Crypto_Core_MemSet(base, vu_mem_address, 0x00u, vu_mem_size);
 
     CY_CRYPTO_VU_ALLOC_MEM(base, yReg,             nBitLength);
     CY_CRYPTO_VU_ALLOC_MEM(base, xReg,             nBitLength);
@@ -908,10 +913,14 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Coef(CRYPTO_Type *base,
     uint32_t inverseModuloReg    = 12u;
     uint32_t barrettReg          = 13u;
     uint32_t rBarReg             = 14u;
+    uint16_t vu_mem_size         = 0U;
+    void *vu_mem_address         = NULL;
 
+    vu_mem_address = Cy_Crypto_Core_GetVuMemoryAddress(base);
+    vu_mem_size = (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base);
 
     /* Clear all Crypto Buffer before operations */
-    Cy_Crypto_Core_MemSet(base, (void*)Cy_Crypto_Core_GetVuMemoryAddress(base), 0x00u, (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base));
+    Cy_Crypto_Core_MemSet(base, vu_mem_address, 0x00u, vu_mem_size);
 
     CY_CRYPTO_VU_ALLOC_MEM(base, modReg,           nBitLength);
     CY_CRYPTO_VU_ALLOC_MEM(base, barrettReg,       nBitLength + 1u);

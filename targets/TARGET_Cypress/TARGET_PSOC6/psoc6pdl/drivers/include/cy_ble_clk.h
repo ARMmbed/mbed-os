@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ble_clk.h
-* \version 3.50
+* \version 3.60
 *
 * The header file of the BLE ECO clock driver.
 *
@@ -46,29 +46,14 @@
 * \section group_ble_clk_more_information More Information
 * See the BLE chapter of the device technical reference manual (TRM).
 *
-* \section group_ble_clk_MISRA MISRA-C Compliance
-* The BLE ECO clock driver has the following specific deviations:
-* <table class="doxtable">
-*     <tr>
-*       <th>MISRA rule</th>
-*       <th>Rule Class (Required/ Advisory)</th>
-*       <th>Rule Description</th>
-*       <th>Description of Deviation(s)</th>
-*     </tr>
-*     <tr>
-*       <td>10.1</td>
-*       <td>R</td>
-*       <td>The value of an expression of integer type shall not be implicitly converted to a different underlying type
-*           under some circumstances.</td>
-*       <td>An operand of essentially enum type is being converted to unsigned type as a result of an arithmetic or
-*           conditional operation. The conversion does not have any unintended effect.</td>
-*     </tr>
-* </table>
-* This driver does not contains any driver-specific MISRA violations.
-*
 * \section group_ble_clk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
+*   <tr>
+*     <td>3.60</td>
+*     <td>MISRA</td>
+*     <td>Resolve MISRA 2012 standard defects.</td>
+*   </tr>
 *   <tr>
 *     <td>3.50</td>
 *     <td>Updated \ref Cy_BLE_EcoConfigure, \ref Cy_BLE_EcoReset functions
@@ -149,7 +134,7 @@ extern "C" {
 #define CY_BLE_CLK_DRV_VERSION_MAJOR    (3)
 
 /** Driver minor version */
-#define CY_BLE_CLK_DRV_VERSION_MINOR    (50)
+#define CY_BLE_CLK_DRV_VERSION_MINOR    (60)
 
 /** Driver ID */
 #define CY_BLE_CLK_ID                   (0x05UL << 18U)

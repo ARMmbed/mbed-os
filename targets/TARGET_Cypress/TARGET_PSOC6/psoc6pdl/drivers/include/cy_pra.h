@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra.h
-* \version 2.0
+* \version 2.10
 *
 * \brief The header file of the PRA driver. The API is not intended to
 * be used directly by the user application.
@@ -121,55 +121,23 @@
 * See the device technical reference manual (TRM) reference manual (TRM) for
 * the list of the protected registers.
 *
-* \section group_pra_MISRA MISRA-C Compliance
-* The LVD driver specific deviations:
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>13.7</td>
-*     <td>R</td>
-*     <td>Boolean operations with invariant results are not permitted.</td>
-*     <td>False positive. Cy_PRA_SendCmd() compiled for Cortex-M4 has a shared
-*         variable, which is modified by the Cortex-M0+ application, but the analysis tool
-*         is not aware of this fact.</td>
-*   </tr>
-*   <tr>
-*     <td>14.1</td>
-*     <td>R</td>
-*     <td>No unreachable code.</td>
-*     <td>False positive. Cy_PRA_SendCmd() compiled for Cortex-M4 has a shared
-*         variable, which is modified by the Cortex-M0+ application and used in a condition
-*         statement, but the analysis tool is not aware of this fact.</td>
-*   </tr>
-*   <tr>
-*     <td>14.7</td>
-*     <td>R</td>
-*     <td>A function has a single exit point at the end of the function.</td>
-*     <td>There are a few functions with multiple exit points implemented to
-*         simplify functions design.</td>
-*   </tr>
-*   <tr>
-*     <td>19.13</td>
-*     <td>A</td>
-*     <td>Do not use the # and ## operators.</td>
-*     <td>The ## preprocessor operator is used in macros to form the field mask.</td>
-*   </tr>
-*   <tr>
-*     <td>20.3</td>
-*     <td>R</td>
-*     <td>Check the validity of values passed to library functions.</td>
-*     <td>The additional check to eliminate the possibility of accessing the beyond array in Cy_PRA_ProcessCmd().</td>
-*   </tr>
-* </table>
-*
 * \section group_pra_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="3">2.10</td>
+*     <td>Removed include of cy_gpio.h from the driver's c source files.
+*         Added some source code comments.</td>
+*     <td>Source code cleanup.</td>
+*   </tr>
+*   <tr>
+*     <td>Updated attribute usage for the linker section placement.</td>
+*     <td>Enhancement based on usability feedback.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="6">2.0</td>
 *     <td> Added PSoC 64 CYB06xx7 devices support.</td>
@@ -343,7 +311,7 @@ extern "C" {
 #define CY_PRA_DRV_VERSION_MAJOR       2
 
 /** Driver minor version */
-#define CY_PRA_DRV_VERSION_MINOR       0
+#define CY_PRA_DRV_VERSION_MINOR       10
 
 /** Protected Register Access driver ID */
 #define CY_PRA_ID                       (CY_PDL_DRV_ID(0x46U))

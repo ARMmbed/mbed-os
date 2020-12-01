@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra.c
-* \version 2.0
+* \version 2.10
 *
 * \brief The source code file for the PRA driver. The API is not intended to
 * be used directly by the user application.
@@ -27,7 +27,6 @@
 #include "cy_pra_cfg.h"
 #include "cy_sysint.h"
 #include "cy_ipc_drv.h"
-#include "cy_gpio.h"
 #include "cy_device.h"
 #include "cy_syspm.h"
 #include "cy_ble_clk.h"
@@ -92,8 +91,8 @@ void Cy_PRA_Init(void)
     regIndexToAddr[CY_PRA_INDX_SRSS_CLK_ROOT_SELECT_2].addr    = &SRSS_CLK_ROOT_SELECT[2U];
     regIndexToAddr[CY_PRA_INDX_SRSS_CLK_ROOT_SELECT_3].addr    = &SRSS_CLK_ROOT_SELECT[3U];
     regIndexToAddr[CY_PRA_INDX_SRSS_CLK_ROOT_SELECT_4].addr    = &SRSS_CLK_ROOT_SELECT[4U];
-    regIndexToAddr[CY_PRA_INDX_SRSS_CLK_ROOT_SELECT_5].addr    = (CY_SRSS_NUM_HFROOT > 4U) ? &SRSS_CLK_ROOT_SELECT[5U] : 0U;
-    regIndexToAddr[CY_PRA_INDX_SRSS_CLK_ROOT_SELECT_6].addr    = (CY_SRSS_NUM_HFROOT > 5U) ? &SRSS_CLK_ROOT_SELECT[6U] : 0U;
+    regIndexToAddr[CY_PRA_INDX_SRSS_CLK_ROOT_SELECT_5].addr    = (CY_SRSS_NUM_HFROOT > 4U) ? &SRSS_CLK_ROOT_SELECT[5U] : NULL;
+    regIndexToAddr[CY_PRA_INDX_SRSS_CLK_ROOT_SELECT_6].addr    = (CY_SRSS_NUM_HFROOT > 5U) ? &SRSS_CLK_ROOT_SELECT[6U] : NULL;
     regIndexToAddr[CY_PRA_INDX_FLASHC_FLASH_CMD].addr          = &FLASHC_FLASH_CMD;
     regIndexToAddr[CY_PRA_INDX_SRSS_PWR_HIBERNATE].addr        = &SRSS_PWR_HIBERNATE;
     regIndexToAddr[CY_PRA_INDX_SRSS_PWR_HIBERNATE].writeMask   = (uint32_t) ~ (SRSS_PWR_HIBERNATE_TOKEN_Msk |
@@ -188,7 +187,7 @@ static void Cy_PRA_Handler(void)
 * Processes and executes the command on Cortex-M0+ which was received from
 * the Cortex-M4 application.
 *
-* \param message \ref cy_stc_pra_msg_t
+* \param message cy_stc_pra_msg_t
 *
 *******************************************************************************/
 static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
@@ -317,6 +316,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                     /* Skip clock clocks configuration resetting */
                 }
 
+                CY_MISRA_FP_LINE('MISRA C-2012 Rule 14.3','Checked manually, condition evaluates true.');
                 if (CY_SYSCLK_SUCCESS == sysClkStatus)
                 {
                     message->praStatus = Cy_PRA_SystemConfig(&structCpy);
@@ -418,9 +418,9 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                 case CY_PRA_BLE_CLK_FUNC_ECO_CONFIGURE:
                     structCpy.altHFcLoad = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->cLoad;
                     structCpy.altHFxtalStartUpTime = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->xtalStartUpTime;
-                    structCpy.altHFclkFreq = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->freq;
-                    structCpy.altHFsysClkDiv = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->sysClkDiv;
-                    structCpy.altHFvoltageReg = ((cy_stc_pra_ble_eco_config_t *) message->praData1)->voltageReg;
+                    structCpy.altHFclkFreq = (uint32_t)((cy_stc_pra_ble_eco_config_t *) message->praData1)->freq;
+                    structCpy.altHFsysClkDiv = (uint32_t)((cy_stc_pra_ble_eco_config_t *) message->praData1)->sysClkDiv;
+                    structCpy.altHFvoltageReg = (uint32_t)((cy_stc_pra_ble_eco_config_t *) message->praData1)->voltageReg;
                     structCpy.clkAltHfEnable = true;
 
                     message->praStatus = (cy_en_pra_status_t)Cy_BLE_EcoConfigure(
@@ -800,6 +800,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                     break;
 
                                     default:
+                                    /* Unknown Clock HF source */
                                     break;
                                 }
                             }
@@ -883,6 +884,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                     break;
 
                                     default:
+                                    /* Unknown Clock HF source */
                                     break;
                                 }
                             }
@@ -905,7 +907,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf0OutFreqMHz;
                             hfEnabled = structCpy.clkHF0Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf0OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source)/(1UL << structCpy.hf0Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf0OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source)/(1UL << (uint32_t)structCpy.hf0Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_1:
@@ -914,7 +916,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf1OutFreqMHz;
                             hfEnabled = structCpy.clkHF1Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with thecurrent HF output frequency value */
-                            structCpy.hf1OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf1Source)/(1UL << structCpy.hf1Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf1OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf1Source)/(1UL << (uint32_t)structCpy.hf1Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_2:
@@ -923,7 +925,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf2OutFreqMHz;
                             hfEnabled = structCpy.clkHF2Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf2OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf2Source)/(1UL << structCpy.hf2Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf2OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf2Source)/(1UL << (uint32_t)structCpy.hf2Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_3:
@@ -932,7 +934,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf3OutFreqMHz;
                             hfEnabled = structCpy.clkHF3Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf3OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf3Source)/(1UL << structCpy.hf3Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf3OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf3Source)/(1UL << (uint32_t)structCpy.hf3Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_4:
@@ -941,7 +943,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf4OutFreqMHz;
                             hfEnabled = structCpy.clkHF4Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf4OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf4Source)/(1UL << structCpy.hf4Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf4OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf4Source)/(1UL << (uint32_t)structCpy.hf4Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_5:
@@ -950,7 +952,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf5OutFreqMHz;
                             hfEnabled = structCpy.clkHF5Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf5OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf5Source)/(1UL << structCpy.hf5Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf5OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf5Source)/(1UL << (uint32_t)structCpy.hf5Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             default:
@@ -1001,6 +1003,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                     break;
 
                                     default:
+                                    /* Unknown Clock HF source */
                                     break;
                                 }
                             }
@@ -1023,7 +1026,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf0OutFreqMHz;
                             hfEnabled = structCpy.clkHF0Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf0OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source)/(1UL << structCpy.hf0Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf0OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source)/(1UL << (uint32_t)structCpy.hf0Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_1:
@@ -1032,7 +1035,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf1OutFreqMHz;
                             hfEnabled = structCpy.clkHF1Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf1OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf1Source)/(1UL << structCpy.hf1Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf1OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf1Source)/(1UL << (uint32_t)structCpy.hf1Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_2:
@@ -1041,7 +1044,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf2OutFreqMHz;
                             hfEnabled = structCpy.clkHF2Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf2OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf2Source)/(1UL << structCpy.hf2Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf2OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf2Source)/(1UL << (uint32_t)structCpy.hf2Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_3:
@@ -1050,7 +1053,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf3OutFreqMHz;
                             hfEnabled = structCpy.clkHF3Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf3OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf3Source)/(1UL << structCpy.hf3Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf3OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf3Source)/(1UL << (uint32_t)structCpy.hf3Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_4:
@@ -1059,7 +1062,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf4OutFreqMHz;
                             hfEnabled = structCpy.clkHF4Enable;
                             /* The HF output frequency is not present in the PDL API argument. Update the system config structure with the current HF output frequency value */
-                            structCpy.hf4OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf4Source)/(1UL << structCpy.hf4Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf4OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf4Source)/(1UL << (uint32_t)structCpy.hf4Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             case CY_PRA_CLKHF_5:
@@ -1068,7 +1071,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                             hfOutFreqMHz = structCpy.hf5OutFreqMHz;
                             hfEnabled = structCpy.clkHF5Enable;
                             /* The HF output frequency is not present in PDL API argument. So updated the system config structure with current HF output frequency value */
-                            structCpy.hf5OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf5Source)/(1UL << structCpy.hf5Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
+                            structCpy.hf5OutFreqMHz = (Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf5Source)/(1UL << (uint32_t)structCpy.hf5Divider))/CY_PRA_FREQUENCY_HZ_CONVERSION;
                             break;
 
                             default:
@@ -1119,6 +1122,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                     break;
 
                                     default:
+                                    /* Invalid Clock HF Source */
                                     break;
                                 }
                             }
@@ -1499,7 +1503,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                         if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH0)
                                         {
                                             /* Update HF0 output frequency */
-                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                         }
                                     }
                                     break;
@@ -1514,7 +1518,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                         if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH1)
                                         {
                                             /* Update HF0 output frequency */
-                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                         }
                                     }
                                     break;
@@ -1529,7 +1533,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                         if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH2)
                                         {
                                             /* Update HF0 output frequency */
-                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                         }
                                     }
                                     break;
@@ -1539,7 +1543,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                         if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH3)
                                         {
                                             /* Update HF0 output frequency */
-                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                         }
                                     }
                                     break;
@@ -1549,7 +1553,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                         if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH4)
                                         {
                                             /* Update HF0 output frequency */
-                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                         }
                                     }
                                     break;
@@ -1559,12 +1563,13 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                         if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH5)
                                         {
                                             /* Update HF0 output frequency */
-                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                            structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                         }
                                     }
                                     break;
 
                                     default:
+                                    /* Unknown clock path */
                                     break;
                                 }
                             }
@@ -1617,7 +1622,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                 if (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH0)
                                 {
                                     /* Update HF0 output frequency */
-                                    structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                    structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                 }
                             }
                         }
@@ -1703,7 +1708,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
                                 if ((structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH1) || (structCpy.hf0Source == CY_SYSCLK_CLKHF_IN_CLKPATH2))
                                 {
                                     /* Update HF0 output frequency */
-                                    structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
+                                    structCpy.hf0OutFreqMHz = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) structCpy.hf0Source), ((1UL << (uint32_t)structCpy.hf0Divider) * CY_PRA_FREQUENCY_HZ_CONVERSION));
                                 }
                             }
 
@@ -1781,7 +1786,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
 *******************************************************************************/
 #if defined(CY_DEVICE_PSOC6ABLE2)
 
-    CY_RAMFUNC_BEGIN
+    CY_SECTION_RAMFUNC_BEGIN
     #if !defined (__ICCARM__)
         CY_NOINLINE
     #endif
@@ -1861,7 +1866,7 @@ static void Cy_PRA_ProcessCmd(cy_stc_pra_msg_t *message)
         return status;
     }
 #if defined(CY_DEVICE_PSOC6ABLE2)
-    CY_RAMFUNC_END
+    CY_SECTION_RAMFUNC_END
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 #endif /* (CY_CPU_CORTEX_M4) */

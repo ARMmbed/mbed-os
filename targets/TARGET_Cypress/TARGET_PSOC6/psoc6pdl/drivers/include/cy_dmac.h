@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_dmac.h
-* \version 1.10.1
+* \version 1.20
 *
 * \brief
 * The header file of the DMAC driver.
@@ -87,37 +87,15 @@
 * \section group_dmac_more_information More Information.
 * See the DMAC chapter of the device technical reference manual (TRM).
 *
-* \section group_dmac_MISRA MISRA-C Compliance
-* The DMAC driver has the following specific deviations:
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>A composite expression of the "essentially unsigned" type is being
-*         cast to a different type category.</td>
-*     <td>The value got from the bitfield physically cannot exceed the enumeration
-*         that describes this bitfield. So, the code is safe by design.</td>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>The cast to another type is made intentionally for better code readability.</td>
-*   </tr>
-* </table>
-*
 * \section group_dmac_changelog Changelog
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.20</td>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.1</td>
 *     <td>Minor documentation updates.</td>
@@ -163,6 +141,9 @@
 extern "C" {
 #endif
 
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 10.8', 13, \
+'Value extracted from _VAL2FLD macro will not exceed enum range.');
+
 /******************************************************************************
  * Macro definitions                                                          *
  ******************************************************************************/
@@ -176,7 +157,7 @@ extern "C" {
 #define CY_DMAC_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_DMAC_DRV_VERSION_MINOR       0
+#define CY_DMAC_DRV_VERSION_MINOR       20
 
 /** The DMAC driver identifier */
 #define CY_DMAC_ID                      (CY_PDL_DRV_ID(0x3FU))
@@ -479,8 +460,8 @@ __STATIC_INLINE void     Cy_DMAC_Channel_Enable                  (DMAC_Type     
 __STATIC_INLINE void     Cy_DMAC_Channel_Disable                 (DMAC_Type       * base, uint32_t channel);
 __STATIC_INLINE void     Cy_DMAC_Channel_SetPriority             (DMAC_Type       * base, uint32_t channel, uint32_t priority);
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetPriority             (DMAC_Type const * base, uint32_t channel);
-__STATIC_INLINE   void * Cy_DMAC_Channel_GetCurrentSrcAddress    (DMAC_Type       * base, uint32_t channel);
-__STATIC_INLINE   void * Cy_DMAC_Channel_GetCurrentDstAddress    (DMAC_Type       * base, uint32_t channel);
+__STATIC_INLINE   void * Cy_DMAC_Channel_GetCurrentSrcAddress    (DMAC_Type           const * base, uint32_t channel);
+__STATIC_INLINE   void * Cy_DMAC_Channel_GetCurrentDstAddress    (DMAC_Type           const * base, uint32_t channel);
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentXloopIndex    (DMAC_Type const * base, uint32_t channel);
 __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetCurrentYloopIndex    (DMAC_Type const * base, uint32_t channel);
 __STATIC_INLINE cy_stc_dmac_descriptor_t *
@@ -1520,7 +1501,7 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetPriority(DMAC_Type const * base, uin
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Channel_GetCurrentSrcAddress
 *
 *******************************************************************************/
-__STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentSrcAddress(DMAC_Type * base, uint32_t channel)
+__STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentSrcAddress(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
 
@@ -1547,7 +1528,7 @@ __STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentSrcAddress(DMAC_Type * base, ui
 * \snippet dmac/snippet/main.c snippet_Cy_DMAC_Channel_GetCurrentSrcAddress
 *
 *******************************************************************************/
-__STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentDstAddress(DMAC_Type * base, uint32_t channel)
+__STATIC_INLINE void * Cy_DMAC_Channel_GetCurrentDstAddress(DMAC_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
 
@@ -1804,6 +1785,8 @@ __STATIC_INLINE uint32_t Cy_DMAC_Channel_GetInterruptStatusMasked(DMAC_Type cons
 /** \} group_dmac_channel_functions */
 
 /** \} group_dmac_functions */
+
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 
 #if defined(__cplusplus)
 }

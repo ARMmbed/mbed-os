@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv.c
-* \version 2.20.1
+* \version 2.20.2
 *
 * Provides general API implementation of the USBFS driver.
 *
@@ -187,6 +187,7 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Init(USBFS_Type *base,
         break;
 
         default:
+            /* Unknown mode */
             break;
     }
 
@@ -775,6 +776,7 @@ static void SieEnpointIntrHandler(USBFS_Type *base, uint32_t endpoint,
     inEndpoint   = CY_USBFS_DEV_DRV_IS_EP_DIR_IN(endpointData->address);
     zeroLengthPacket = (0U == Cy_USBFS_Dev_Drv_GetSieEpCount(base, endpoint));
 
+    CY_MISRA_FP_LINE('MISRA C-2012 Rule 14.3', 'Checked manually. No issues.');
     if ( (!modeDmaAuto) ||
          (modeDmaAuto && (inEndpoint || zeroLengthPacket)) )
     {
@@ -1170,6 +1172,7 @@ void Cy_USBFS_Dev_Drv_RegisterServiceCallback(USBFS_Type const *base,
         break;
 
         default:
+        /* Unknown callback */
         break;
     }
 }

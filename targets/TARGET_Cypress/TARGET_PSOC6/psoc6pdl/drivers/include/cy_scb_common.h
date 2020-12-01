@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.50
+* \version 2.60
 *
 * Provides common API declarations of the SCB driver.
 *
@@ -52,93 +52,24 @@
 * manual (TRM).
 *
 *******************************************************************************
-* \section group_scb_common_MISRA MISRA-C Compliance
-*******************************************************************************
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>
-*         * The pointer to the buffer memory is void to allow handling of
-*         different data types: uint8_t (4-8 bits) or uint16_t (9-16 bits).
-*         The cast operation is safe because the configuration is verified
-*         before operation is performed.
-*         * The functions \ref Cy_SCB_I2C_DeepSleepCallback and
-*         \ref Cy_SCB_I2C_HibernateCallback are callback of
-*         \ref cy_en_syspm_status_t type. The cast operation safety in these
-*         functions becomes the user's responsibility because pointers are
-*         initialized when callback is registered in SysPm driver.
-*         * The functions \ref Cy_SCB_EZI2C_DeepSleepCallback and
-*         \ref Cy_SCB_EZI2C_HibernateCallback are callback of
-*         \ref cy_en_syspm_status_t type. The cast operation safety in these
-*         functions becomes the user's responsibility because pointers are
-*         initialized when callback is registered in SysPm driver.
-*         * The functions \ref Cy_SCB_UART_DeepSleepCallback and
-*         \ref Cy_SCB_UART_HibernateCallback are callback of
-*         \ref cy_en_syspm_status_t type. The cast operation safety in these
-*         functions becomes the user's responsibility because pointers are
-*         initialized when callback is registered in SysPm driver.
-*         * The functions \ref Cy_SCB_SPI_DeepSleepCallback and
-*         \ref Cy_SCB_SPI_HibernateCallback are callback of
-*         \ref cy_en_syspm_status_t type. The cast operation safety in these
-*         functions becomes the user's responsibility because pointers are
-*         initialized when callback is registered in SysPm driver.
-*     </td>
-*   </tr>
-*   <tr>
-*     <td>14.1</td>
-*     <td>R</td>
-*     <td>There shall be no unreachable code.</td>
-*     <td>The SCB block parameters can be a constant false or true depends on
-*         the selected device and cause code to be unreachable.</td>
-*   </tr>
-*   <tr>
-*     <td>14.2</td>
-*     <td>R</td>
-*     <td>All non-null statements shall either: a) have at least one side-effect
-*         however executed, or b) cause control flow to change.</td>
-*     <td>The unused function parameters are cast to void. This statement
-*         has no side-effect and is used to suppress a compiler warning.</td>
-*   </tr>
-*   <tr>
-*     <td>14.7</td>
-*     <td>R</td>
-*     <td>A function shall have a single point of exit at the end of the
-*         function.</td>
-*     <td>The functions can return from several points. This is done to improve
-*         code clarity when returning error status code if input parameters
-*         validation fails.</td>
-*   </tr>
-*   <tr>
-*     <td>13.7</td>
-*     <td>R</td>
-*     <td>Boolean operations whose results are invariant shall not be
-*         permitted.</td>
-*     <td>
-*         * The SCB block parameters can be a constant false or true depends on
-*         the selected device and cause this violation.
-*         * The same condition check is executed before and after callback is
-*         called because after the callback returns, the condition might be not
-*         true any more.</td>
-*   </tr>
-* </table>
-*
-*******************************************************************************
 * \section group_scb_common_changelog Changelog
 *******************************************************************************
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr rowspan="2">
+*     <td>2.60</td>
+*     <td>Fixed the \ref Cy_SCB_UART_GetNumInRingBuffer function to
+*         return correct number of the elements in ring buffer.</td>
+*     <td> \ref Cy_SCB_UART_GetNumInRingBuffer function works incorrectly, when
+*         write pointer of the ring buffer is behind the read pointer. </td>
+*   </tr>
+*   <tr>
+*     <td>Fixed/Documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>2.50</td>
-*     <td>Fixed the \ref Cy_SCB_SPI_SetActiveSlaveSelectPolarity function to 
+*     <td>Fixed the \ref Cy_SCB_SPI_SetActiveSlaveSelectPolarity function to
 *         properly configure the polarity of the slave select line.</td>
 *     <td> \ref Cy_SCB_SPI_SetActiveSlaveSelectPolarity function works incorrectly.</td>
 *   </tr>
@@ -463,7 +394,7 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel   (CySCB_Type const *base);
 #define CY_SCB_DRV_VERSION_MAJOR    (2)
 
 /** Driver minor version */
-#define CY_SCB_DRV_VERSION_MINOR    (30)
+#define CY_SCB_DRV_VERSION_MINOR    (60)
 
 /** SCB driver identifier */
 #define CY_SCB_ID           CY_PDL_DRV_ID(0x2AU)

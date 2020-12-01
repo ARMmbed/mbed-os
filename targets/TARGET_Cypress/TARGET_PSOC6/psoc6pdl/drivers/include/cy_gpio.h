@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_gpio.h
-* \version 1.20.1
+* \version 1.30
 *
 * Provides an API declaration of the GPIO driver
 *
@@ -85,38 +85,14 @@
 *
 * Refer to the technical reference manual (TRM) and the device datasheet.
 *
-* \section group_gpio_MISRA MISRA-C Compliance
-* The GPIO driver has the following specific deviations:
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td> This code is safe because the elements of both GPIO_PRT_V1_Type and GPIO_PRT_V2_Type
-*          types have identical alignment.</td>
-*   </tr>
-*   <tr>
-*     <td>16.7</td>
-*     <td>A</td>
-*     <td>A pointer parameter in a function prototype should be declared as pointer
-*         to const if the pointer is not used to modify the addressed object.</td>
-*     <td>The objects pointed to by the base addresses of the GPIO port are not always modified.
-*         While a const qualifier can be used in select scenarios, it brings little benefit
-*         in adding this to the affected functions. </td>
-*   </tr>
-* </table>
-*
 * \section group_gpio_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30</td>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20.1</td>
 *     <td>Minor documentation updates.</td>
@@ -193,7 +169,7 @@ extern "C" {
 #define CY_GPIO_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_GPIO_DRV_VERSION_MINOR       20
+#define CY_GPIO_DRV_VERSION_MINOR       30
 
 /** GPIO driver ID */
 #define CY_GPIO_ID CY_PDL_DRV_ID(0x16U)
@@ -669,13 +645,13 @@ __STATIC_INLINE void Cy_GPIO_SetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum, en_h
     if(pinNum < CY_GPIO_PRT_HALF)
     {
         tempReg = HSIOM_PRT_PORT_SEL0(portAddrHSIOM) & ~(CY_GPIO_HSIOM_MASK << (pinNum << CY_GPIO_HSIOM_OFFSET));
-        HSIOM_PRT_PORT_SEL0(portAddrHSIOM) = tempReg | ((value & CY_GPIO_HSIOM_MASK) << (pinNum << CY_GPIO_HSIOM_OFFSET));
+        HSIOM_PRT_PORT_SEL0(portAddrHSIOM) = tempReg | (((uint32_t)value & CY_GPIO_HSIOM_MASK) << (pinNum << CY_GPIO_HSIOM_OFFSET));
     }
     else
     {
         pinNum -= CY_GPIO_PRT_HALF;
         tempReg = HSIOM_PRT_PORT_SEL1(portAddrHSIOM) & ~(CY_GPIO_HSIOM_MASK << (pinNum << CY_GPIO_HSIOM_OFFSET));
-        HSIOM_PRT_PORT_SEL1(portAddrHSIOM) = tempReg | ((value & CY_GPIO_HSIOM_MASK) << (pinNum << CY_GPIO_HSIOM_OFFSET));
+        HSIOM_PRT_PORT_SEL1(portAddrHSIOM) = tempReg | (((uint32_t)value & CY_GPIO_HSIOM_MASK) << (pinNum << CY_GPIO_HSIOM_OFFSET));
     }
 }
 

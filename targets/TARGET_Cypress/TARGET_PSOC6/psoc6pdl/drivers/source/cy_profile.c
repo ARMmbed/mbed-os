@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_profile.c
-* \version 1.20.1
+* \version 1.30
 *
 * Provides an API declaration of the energy profiler (EP) driver.
 *
@@ -93,7 +93,7 @@ static cy_en_profile_status_t Cy_Profile_IsPtrValid(const cy_stc_profile_ctr_ptr
 *******************************************************************************/
 void Cy_Profile_ISR(void)
 {
-    uint32_t ctr;
+    uint32_t ctr = 0UL;
 
     /* Grab a copy of the overflow register. Each bit in the register indicates
        whether or not the respective counter has overflowed. */
@@ -102,7 +102,7 @@ void Cy_Profile_ISR(void)
     PROFILE_INTR = ovflowBits; /* clear the sources of the interrupts */
 
     /* scan through the overflow bits, i.e., for each counter */
-    for (ctr = 0UL; (ctr < CY_EP_CNT_NR) && (ovflowBits != 0UL); ctr++)
+    while((ctr < CY_EP_CNT_NR) && (ovflowBits != 0UL))
     {
         /* Increment the overflow bit only if the counter is being used.
            (which should always be the case.) */
@@ -111,6 +111,7 @@ void Cy_Profile_ISR(void)
             cy_ep_ctrs[ctr].overflow++;
         }
         ovflowBits >>= 1; /* check the next bit, by shifting it into the LS position */
+        ctr++;
     }
 }
 
@@ -135,10 +136,13 @@ void Cy_Profile_ISR(void)
 *******************************************************************************/
 void Cy_Profile_StartProfiling(void)
 {
-    uint32_t i;
+    uint32_t i = 0UL;
 
     /* clear all of the counter array overflow variables */
-    for (i = 0UL; i < CY_N_ELMTS(cy_ep_ctrs); cy_ep_ctrs[i++].overflow = 0UL){}
+    while (i < CY_N_ELMTS(cy_ep_ctrs))
+    {
+        cy_ep_ctrs[i++].overflow = 0UL;
+    }
     /* send the hardware command */
     PROFILE_CMD = CY_PROFILE_START_TR;
 }
@@ -200,11 +204,18 @@ cy_stc_profile_ctr_ptr_t Cy_Profile_ConfigureCounter(en_ep_mon_sel_t monitor, cy
     CY_ASSERT_L3(CY_PROFILE_IS_REFCLK_VALID(refClk));
 
     cy_stc_profile_ctr_ptr_t retVal = NULL; /* error value if no counter is available */
-    volatile uint8_t i;
+    uint8_t i = 0u;
 
     /* Scan through the counters for an unused one */
-    for (i = 0u; (cy_ep_ctrs[i].used != 0u) && (i < (CY_N_ELMTS(cy_ep_ctrs))); i++){}
-    if (i < CY_N_ELMTS(cy_ep_ctrs))
+    while (i < CY_EP_CNT_NR)
+    {
+        if(cy_ep_ctrs[i].used == 0u)
+        {
+            break;
+        }
+        i++;
+    }
+    if (i < CY_EP_CNT_NR)
     { /* found one, fill in its data structure */
         cy_ep_ctrs[i].ctrNum = i;
         cy_ep_ctrs[i].used = 1u;

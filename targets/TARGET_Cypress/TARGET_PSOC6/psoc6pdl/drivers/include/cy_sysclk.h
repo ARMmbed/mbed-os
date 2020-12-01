@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.h
-* \version 2.20
+* \version 3.0
 *
 * Provides an API declaration of the sysclk driver.
 *
@@ -75,41 +75,29 @@
 * \section group_sysclk_more_information More Information
 * Refer to the technical reference manual (TRM) and the device datasheet.
 *
-* \section group_sysclk_MISRA MISRA-C Compliance
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>A composite expression of the "essentially unsigned" type is being
-*         cast to a different type category.</td>
-*     <td>The value got from the bitfield physically cannot exceed the enumeration
-*         that describes this bitfield. So, the code is safe by design.</td>
-*   </tr>
-*   <tr>
-*     <td>13.7</td>
-*     <td>R</td>
-*     <td>Boolean operations whose result are invariant shall not be permitted.</td>
-*     <td>This math is legacy, preserving the backward compatibility.</td>
-*   </tr>
-*   <tr>
-*     <td>16.7</td>
-*     <td>R</td>
-*     <td>The object addressed by the pointer parameter is not modified and so the pointer could be of
-*         type 'pointer to const'.</td>
-*     <td>The callback function for system power management (SysPm) must be of generic callback type that
-*         contains non-const pointer parameter.</td>
-*   </tr>
-* </table>
-*
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">3.0</td>
+*     <td>The behavior of \ref Cy_SysClk_EcoEnable and \ref Cy_SysClk_PllEnable is changed -
+*         these functions disable the resource in case of enabling failure (timeout).</td>
+*     <td>Usability enhancement.</td>
+*   </tr>
+*   <tr>
+*     <td>The implementation of \ref Cy_SysClk_ClkPathGetSource,
+*                               \ref Cy_SysClk_FllConfigure,
+*                               \ref Cy_SysClk_FllGetConfiguration,
+*                               \ref Cy_SysClk_PllConfigure
+*                           and \ref Cy_SysClk_ClkMeasurementCountersGetFreq
+*         is updated in accordance to the MISRA 2012 requirements. No behavioral changes.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
+*   <tr>
+*     <td>2.20.1</td>
+*     <td>Updated source code comments.</td>
+*     <td>Documentation update.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="3">2.20</td>
 *     <td>Added the assertion mechanism to the following functions:
@@ -726,6 +714,7 @@
 #include "cy_device_headers.h"
 #include "cy_syslib.h"
 #include "cy_syspm.h"
+
 #if defined(CY_DEVICE_SECURE)
     #include "cy_pra.h"
 #endif /* defined(CY_DEVICE_SECURE) */
@@ -740,9 +729,9 @@ extern "C" {
 * \{
 */
 /** Driver major version */
-#define  CY_SYSCLK_DRV_VERSION_MAJOR   2
+#define  CY_SYSCLK_DRV_VERSION_MAJOR   3
 /** Driver minor version */
-#define  CY_SYSCLK_DRV_VERSION_MINOR   20
+#define  CY_SYSCLK_DRV_VERSION_MINOR   0
 /** Sysclk driver identifier */
 #define CY_SYSCLK_ID   CY_PDL_DRV_ID(0x12U)
 
@@ -1322,6 +1311,11 @@ __STATIC_INLINE bool Cy_SysClk_PllLostLock(uint32_t clkPath)
 * \note
 * Call \ref Cy_SysLib_SetWaitStates after calling this function if
 * the PLL is the source of CLK_HF0 and the CLK_HF0 frequency is decreasing.
+*
+* \sideeffect
+* This function sets PLL bypass mode to CY_SYSCLK_FLLPLL_OUTPUT_INPUT.
+* If AUTO mode should be used, call \ref Cy_SysClk_PllConfigure or 
+* \ref Cy_SysClk_PllManualConfigure before calling \ref Cy_SysClk_PllEnable.
 *
 * \funcusage
 * \snippet sysclk/snippet/main.c snippet_Cy_SysClk_PllDisable
@@ -2422,7 +2416,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfSetSource(uint32_t clkHf, c
 __STATIC_INLINE cy_en_clkhf_in_sources_t Cy_SysClk_ClkHfGetSource(uint32_t clkHf)
 {
     CY_ASSERT_L1(clkHf < CY_SRSS_NUM_HFROOT);
-    return ((cy_en_clkhf_in_sources_t)(_FLD2VAL(SRSS_CLK_ROOT_SELECT_ROOT_MUX, SRSS_CLK_ROOT_SELECT[clkHf])));
+    return ((cy_en_clkhf_in_sources_t)((uint32_t)(_FLD2VAL(SRSS_CLK_ROOT_SELECT_ROOT_MUX, SRSS_CLK_ROOT_SELECT[clkHf]))));
 }
 
 
@@ -2498,7 +2492,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfSetDivider(uint32_t clkHf, 
 __STATIC_INLINE cy_en_clkhf_dividers_t Cy_SysClk_ClkHfGetDivider(uint32_t clkHf)
 {
     CY_ASSERT_L1(clkHf < CY_SRSS_NUM_HFROOT);
-    return ((cy_en_clkhf_dividers_t)(_FLD2VAL(SRSS_CLK_ROOT_SELECT_ROOT_DIV, SRSS_CLK_ROOT_SELECT[clkHf])));
+    return ((cy_en_clkhf_dividers_t)(((uint32_t)_FLD2VAL(SRSS_CLK_ROOT_SELECT_ROOT_DIV, SRSS_CLK_ROOT_SELECT[clkHf]))));
 }
 /** \} group_sysclk_clk_hf_funcs */
 
@@ -2899,7 +2893,7 @@ __STATIC_INLINE cy_en_sysclk_status_t
 __STATIC_INLINE void Cy_SysClk_PeriphGetFracDivider(cy_en_divider_types_t dividerType, uint32_t dividerNum,
                                                     uint32_t *dividerIntValue, uint32_t *dividerFracValue)
 {
-    CY_ASSERT_L1(((dividerType == CY_SYSCLK_DIV_16_5_BIT) || (dividerType == CY_SYSCLK_DIV_24_5_BIT)) &&
+    CY_ASSERT_L1(((dividerType == CY_SYSCLK_DIV_16_5_BIT) || (dividerType == CY_SYSCLK_DIV_24_5_BIT)) && \
                  (dividerIntValue != NULL) && (dividerFracValue != NULL));
 
     if (dividerType == CY_SYSCLK_DIV_16_5_BIT)
@@ -3135,9 +3129,9 @@ __STATIC_INLINE bool Cy_SysClk_PeriphGetDividerEnabled(cy_en_divider_types_t div
 {
     bool retVal = false;
 
-    CY_ASSERT_L1(((dividerType == CY_SYSCLK_DIV_8_BIT)    && (dividerNum < PERI_DIV_8_NR))    ||
-                 ((dividerType == CY_SYSCLK_DIV_16_BIT)   && (dividerNum < PERI_DIV_16_NR))   ||
-                 ((dividerType == CY_SYSCLK_DIV_16_5_BIT) && (dividerNum < PERI_DIV_16_5_NR)) ||
+    CY_ASSERT_L1(((dividerType == CY_SYSCLK_DIV_8_BIT)    && (dividerNum < PERI_DIV_8_NR))    || \
+                 ((dividerType == CY_SYSCLK_DIV_16_BIT)   && (dividerNum < PERI_DIV_16_NR))   || \
+                 ((dividerType == CY_SYSCLK_DIV_16_5_BIT) && (dividerNum < PERI_DIV_16_5_NR)) || \
                  ((dividerType == CY_SYSCLK_DIV_24_5_BIT) && (dividerNum < PERI_DIV_24_5_NR)));
 
     switch(dividerType)
@@ -3155,6 +3149,7 @@ __STATIC_INLINE bool Cy_SysClk_PeriphGetDividerEnabled(cy_en_divider_types_t div
             retVal = _FLD2BOOL(PERI_DIV_24_5_CTL_EN, PERI_DIV_24_5_CTL[dividerNum]);
             break;
         default:
+            /* Unknown Divider */
             break;
     }
     return (retVal);
@@ -3316,7 +3311,7 @@ __STATIC_INLINE void Cy_SysClk_ClkLfSetSource(cy_en_clklf_in_sources_t source)
 *******************************************************************************/
 __STATIC_INLINE cy_en_clklf_in_sources_t Cy_SysClk_ClkLfGetSource(void)
 {
-    return ((cy_en_clklf_in_sources_t)(_FLD2VAL(SRSS_CLK_SELECT_LFCLK_SEL, SRSS_CLK_SELECT)));
+    return ((cy_en_clklf_in_sources_t)(((uint32_t)_FLD2VAL(SRSS_CLK_SELECT_LFCLK_SEL, SRSS_CLK_SELECT))));
 }
 /** \} group_sysclk_clk_lf_funcs */
 
@@ -3408,7 +3403,7 @@ __STATIC_INLINE void Cy_SysClk_ClkTimerSetSource(cy_en_clktimer_in_sources_t sou
 __STATIC_INLINE cy_en_clktimer_in_sources_t Cy_SysClk_ClkTimerGetSource(void)
 {
     /* return both fields TIMER_SEL and TIMER_HF0_DIV as a single combined value */
-    return ((cy_en_clktimer_in_sources_t)(SRSS_CLK_TIMER_CTL & CY_SRSS_CLK_TIMER_CTL_TIMER_Msk));
+    return ((cy_en_clktimer_in_sources_t)((uint32_t)(SRSS_CLK_TIMER_CTL & CY_SRSS_CLK_TIMER_CTL_TIMER_Msk)));
 }
 
 
@@ -3651,7 +3646,7 @@ __STATIC_INLINE void Cy_SysClk_ClkPumpSetSource(cy_en_clkpump_in_sources_t sourc
 *******************************************************************************/
 __STATIC_INLINE cy_en_clkpump_in_sources_t Cy_SysClk_ClkPumpGetSource(void)
 {
-    return ((cy_en_clkpump_in_sources_t)_FLD2VAL(SRSS_CLK_SELECT_PUMP_SEL, SRSS_CLK_SELECT));
+    return ((cy_en_clkpump_in_sources_t)((uint32_t)_FLD2VAL(SRSS_CLK_SELECT_PUMP_SEL, SRSS_CLK_SELECT)));
 }
 
 
@@ -3701,7 +3696,7 @@ __STATIC_INLINE void Cy_SysClk_ClkPumpSetDivider(cy_en_clkpump_divide_t divider)
 *******************************************************************************/
 __STATIC_INLINE cy_en_clkpump_divide_t Cy_SysClk_ClkPumpGetDivider(void)
 {
-    return ((cy_en_clkpump_divide_t)_FLD2VAL(SRSS_CLK_SELECT_PUMP_DIV, SRSS_CLK_SELECT));
+    return ((cy_en_clkpump_divide_t)((uint32_t)_FLD2VAL(SRSS_CLK_SELECT_PUMP_DIV, SRSS_CLK_SELECT)));
 }
 
 
@@ -3872,7 +3867,7 @@ __STATIC_INLINE void Cy_SysClk_ClkBakSetSource(cy_en_clkbak_in_sources_t source)
 *******************************************************************************/
 __STATIC_INLINE cy_en_clkbak_in_sources_t Cy_SysClk_ClkBakGetSource(void)
 {
-    return ((cy_en_clkbak_in_sources_t)_FLD2VAL(BACKUP_CTL_CLK_SEL, BACKUP_CTL));
+    return ((cy_en_clkbak_in_sources_t)((uint32_t)_FLD2VAL(BACKUP_CTL_CLK_SEL, BACKUP_CTL)));
 }
 /** \} group_sysclk_clk_bak_funcs */
 

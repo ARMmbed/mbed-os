@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pra_cfg.c
-* \version 2.0
+* \version 2.10
 *
 * \brief The source code file for the PRA driver.  The API is not intented to
 * be used directly by user application.
@@ -23,7 +23,6 @@
 * limitations under the License.
 *******************************************************************************/
 #include "cy_pra_cfg.h"
-#include "cy_gpio.h"
 #include "cy_device.h"
 #include "cy_gpio.h"
 #include "cy_wdt.h"
@@ -778,7 +777,7 @@ static uint32_t Cy_PRA_GetHF0FreqHz(const cy_stc_pra_system_config_t *devConfig)
     }
     else
     {
-        retFreq = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) devConfig->hf0Source),(1UL << devConfig->hf0Divider));
+        retFreq = CY_SYSLIB_DIV_ROUND(Cy_SysClk_ClkPathGetFrequency((uint32_t) devConfig->hf0Source),(1UL << ((uint32_t)devConfig->hf0Divider)));
     }
 
     return retFreq;
@@ -1042,6 +1041,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateEXTClk(const cy_stc_pra_system_config_t
         }
         else
         {
+            CY_MISRA_FP_LINE('MISRA C-2012 Rule 14.3','CY_HF_CLK_MAX_FREQ varies based on target device and this statement may not be always true.');
             (CY_HF_CLK_MAX_FREQ > CY_PRA_LP_MODE_MAX_FREQUENCY) ? (maxFreq = CY_PRA_LP_MODE_MAX_FREQUENCY) : (maxFreq = CY_HF_CLK_MAX_FREQ);
             if (devConfig->extClkFreqHz > maxFreq)
             {
@@ -1092,12 +1092,12 @@ static cy_en_pra_status_t Cy_PRA_ValidateAltHf(const cy_stc_pra_system_config_t 
             return CY_PRA_STATUS_INVALID_PARAM_ALTHF;
         }
         /* Load Cap Range min="7.5 -> 0U" max="26.325 -> 251U" */
-        if (devConfig->altHFcLoad > CY_PRA_ALTHF_MAX_LOAD)
+        if (devConfig->altHFcLoad > ((uint32_t)CY_PRA_ALTHF_MAX_LOAD))
         {
             return CY_PRA_STATUS_INVALID_PARAM_ALTHF;
         }
         /* Validates the clock divider */
-        if (devConfig->altHFsysClkDiv > CY_BLE_SYS_ECO_CLK_DIV_8)
+        if (devConfig->altHFsysClkDiv > ((uint32_t)CY_BLE_SYS_ECO_CLK_DIV_8))
         {
             return CY_PRA_STATUS_INVALID_PARAM_ALTHF;
         }
@@ -1149,6 +1149,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateFLL(const cy_stc_pra_system_config_t *d
             }
             else
             {
+                CY_MISRA_FP_LINE('MISRA C-2012 Rule 14.3','CY_HF_CLK_MAX_FREQ varies based on target device and this statement may not be always true.');
                 if ((devConfig->fllOutFreqHz < CY_PRA_FLL_OUT_MIN_FREQUENCY) || (devConfig->fllOutFreqHz > CY_PRA_FLL_OUT_MAX_FREQUENCY))
                 {
                     return CY_PRA_STATUS_INVALID_PARAM_FLL0;
@@ -1827,7 +1828,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkPump(const cy_stc_pra_system_config_
         status = Cy_PRA_GetInputSourceFreq((uint32_t) devConfig->pumpSource,devConfig, &freq);
         if( status == CY_PRA_STATUS_SUCCESS )
         {
-            freq = freq / (1UL << devConfig->pumpDivider); /* Calculates the output frequency */
+            freq = freq / (1UL << ((uint32_t)devConfig->pumpDivider)); /* Calculates the output frequency */
             if (freq > CY_PRA_PUMP_OUT_MAX_FREQUENCY)
             {
                 return CY_PRA_STATUS_INVALID_PARAM_CLKPUMP;
@@ -2018,6 +2019,7 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkTimer(const cy_stc_pra_system_config
 {
     uint32_t freq;
     uint8_t srcDiv;
+    cy_en_pra_status_t ret = CY_PRA_STATUS_SUCCESS;
 
     /* The source clock must be enabled */
     if (devConfig->clkTimerEnable)
@@ -2030,8 +2032,8 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkTimer(const cy_stc_pra_system_config
                 /* IMO is always on */
                 freq = CY_PRA_IMO_SRC_FREQUENCY; /* 8 MHz */
                 srcDiv = CY_PRA_DIVIDER_1;
+                break;
             }
-            break;
             case CY_SYSCLK_CLKTIMER_IN_HF0_NODIV:
             case CY_SYSCLK_CLKTIMER_IN_HF0_DIV2:
             case CY_SYSCLK_CLKTIMER_IN_HF0_DIV4:
@@ -2056,14 +2058,20 @@ static cy_en_pra_status_t Cy_PRA_ValidateClkTimer(const cy_stc_pra_system_config
                 }
                 else
                 {
-                    return CY_PRA_STATUS_INVALID_PARAM_CLKTIMER;
+                    ret = CY_PRA_STATUS_INVALID_PARAM_CLKTIMER;
                 }
+                break;
             }
-            break;
             default:
             {
-                return CY_PRA_STATUS_INVALID_PARAM_CLKTIMER;
+                ret = CY_PRA_STATUS_INVALID_PARAM_CLKTIMER;
+                break;
             }
+        }
+
+        if(ret != CY_PRA_STATUS_SUCCESS)
+        {
+            return ret;
         }
 
         /* Output frequency = source frequency / divider */
@@ -3014,7 +3022,7 @@ cy_en_pra_status_t Cy_PRA_SystemConfig(const cy_stc_pra_system_config_t *devConf
 *
 *******************************************************************************/
 #if defined(CY_DEVICE_PSOC6ABLE2)
-    CY_RAMFUNC_BEGIN
+    CY_SECTION_RAMFUNC_BEGIN
     #if !defined (__ICCARM__)
         CY_NOINLINE
     #endif
@@ -3033,7 +3041,7 @@ void Cy_PRA_CloseSrssMain2(void)
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 }
 #if defined(CY_DEVICE_PSOC6ABLE2)
-    CY_RAMFUNC_END
+    CY_SECTION_RAMFUNC_END
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 
@@ -3042,14 +3050,14 @@ void Cy_PRA_CloseSrssMain2(void)
 ****************************************************************************//**
 *
 * Restores the access to the SRSS_MAIN2 region, which was restricted by
-* \ref Cy_PRA_CloseSrssMain2.
+* Cy_PRA_CloseSrssMain2.
 *
 * The function is called from \ref Cy_SysPm_CpuEnterDeepSleep() only for
 * the CYB06xx7 devices.
 *
 *******************************************************************************/
 #if defined(CY_DEVICE_PSOC6ABLE2)
-    CY_RAMFUNC_BEGIN
+    CY_SECTION_RAMFUNC_BEGIN
     #if !defined (__ICCARM__)
         CY_NOINLINE
     #endif
@@ -3068,12 +3076,11 @@ void Cy_PRA_OpenSrssMain2(void)
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 }
 #if defined(CY_DEVICE_PSOC6ABLE2)
-    CY_RAMFUNC_END
+    CY_SECTION_RAMFUNC_END
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 #endif /* (CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN) */
 
 #endif /* (CY_DEVICE_SECURE) */
-
 
 /* [] END OF FILE */

@@ -82,7 +82,7 @@
     
     <!-- Filter -->
     <ParamBool id="highPassDisable" name="Disable High Pass Filter" group="Filter" default="false" visible="true" editable="true" desc="Disables high pass filter." />
-    <ParamRange id="highPassFilterGain" name="High Pass Filter Gain" group="Filter" default="0" min="0" max="15" resolution="1" visible="true" editable="true" desc="High pass filter gain: H(Z) = (1 - Z^-1) / (1 - (1 - 2^HighPassFilterCoeff) * Z^-1)." />
+    <ParamRange id="highPassFilterGain" name="High Pass Filter Gain" group="Filter" default="8" min="0" max="15" resolution="1" visible="true" editable="true" desc="High pass filter gain: H(Z) = (1 - Z^-1) / (1 - (1 - 2^(-HighPassFilterCoeff)) * Z^-1)." />
 
     <!-- Interrupts -->
     <ParamBool id="rxNotEmpty" name="Not Empty" group="Interrupts" default="false" visible="true" editable="true" desc="RX FIFO is not empty interrupt." />

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_efuse.h
-* \version 1.10.3
+* \version 1.10.4
 *
 * Provides the API declarations of the eFuse driver.
 *
@@ -63,27 +63,14 @@
 *
 * Refer to the technical reference manual (TRM) and the device datasheet.
 *
-* \section group_efuse_MISRA MISRA-C Compliance
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.5</td>
-*     <td>R</td>
-*     <td>Dangerous pointer cast results in loss of volatile qualification.</td>
-*     <td>The removal of the volatile qualification inside the function has no
-*         side effects.</td>
-*   </tr>
-* </table>
-*
 * \section group_efuse_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.4</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Removed MISRA 2004 compliance details and verified MISRA 2012 complaince.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.3</td>
 *     <td>Minor documentation updates.</td>

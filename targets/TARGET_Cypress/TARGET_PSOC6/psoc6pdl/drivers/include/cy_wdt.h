@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_wdt.h
-* \version 1.30
+* \version 1.30.1
 *
 *  This file provides constants and parameter values for the WDT driver.
 *
@@ -184,12 +184,14 @@
 * For more information on the WDT peripheral, refer to the technical reference
 * manual (TRM).
 *
-* \section group_wdt_MISRA MISRA-C Compliance
-* The WDT driver does not have any specific deviations.
-*
 * \section group_wdt_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30.1</td>
+*     <td>Minor documentation updates.</td>
+*     <td>Removed MISRA 2004 compliance details and verified MISRA 2012 complaince.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="2">1.30</td>
 *     <td>Updated the following functions for the PSoC 64 devices: \ref Cy_WDT_ClearInterrupt(),

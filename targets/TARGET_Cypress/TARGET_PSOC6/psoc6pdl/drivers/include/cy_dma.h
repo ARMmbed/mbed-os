@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_dma.h
-* \version 2.20.1
+* \version 2.30
 *
 * \brief
 * The header file of the DMA driver.
@@ -88,38 +88,15 @@
 *      the DMA Component datasheet;
 *      CE219940 - PSoC 6 MCU Multiple DMA Concatenation.
 *
-* \section group_dma_MISRA MISRA-C Compliance
-* The DMA driver has the following specific deviations:
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>10.3</td>
-*     <td>R</td>
-*     <td>A composite expression of the "essentially unsigned" type is being
-*         cast to a different type category.</td>
-*     <td>The value got from the bitfield physically cannot exceed the enumeration
-*         that describes this bitfield. So, the code is safe by design.</td>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>This piece of code is written for DW_V2_Type only and it will be never
-*         executed for DW_V1_Type (which is a default build option for DW_Type).</td>
-*   </tr>
-* </table>
-*
 * \section group_dma_changelog Changelog
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.30</td>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>2.20.1</td>
 *     <td>Minor documentation updates.</td>
@@ -200,6 +177,9 @@
 extern "C" {
 #endif
 
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 10.8', 15, \
+'Value extracted from _VAL2FLD macro will not exceed enum range.');
+
 /******************************************************************************
  * Macro definitions                                                          *
  ******************************************************************************/
@@ -213,7 +193,7 @@ extern "C" {
 #define CY_DMA_DRV_VERSION_MAJOR       2
 
 /** The driver minor version */
-#define CY_DMA_DRV_VERSION_MINOR       20
+#define CY_DMA_DRV_VERSION_MINOR       30
 
 /** The DMA driver identifier */
 #define CY_DMA_ID                      (CY_PDL_DRV_ID(0x13U))
@@ -498,8 +478,8 @@ typedef struct
 __STATIC_INLINE void     Cy_DMA_Enable             (DW_Type * base);
 __STATIC_INLINE void     Cy_DMA_Disable            (DW_Type * base);
 __STATIC_INLINE uint32_t Cy_DMA_GetActiveChannel   (DW_Type const * base);
-__STATIC_INLINE void *   Cy_DMA_GetActiveSrcAddress(DW_Type * base);
-__STATIC_INLINE void *   Cy_DMA_GetActiveDstAddress(DW_Type * base);
+__STATIC_INLINE void *   Cy_DMA_GetActiveSrcAddress(DW_Type const * base);
+__STATIC_INLINE void *   Cy_DMA_GetActiveDstAddress(DW_Type const * base);
       cy_en_dma_status_t Cy_DMA_Crc_Init           (DW_Type * base, cy_stc_dma_crc_config_t const * crcConfig);
 
 /** \} group_dma_block_functions */
@@ -670,7 +650,7 @@ __STATIC_INLINE uint32_t Cy_DMA_GetActiveChannel(DW_Type const * base)
 * \snippet dma/snippet/main.c snippet_Cy_DMA_GetActiveSrcAddress
 *
 *******************************************************************************/
-__STATIC_INLINE void * Cy_DMA_GetActiveSrcAddress(DW_Type * base)
+__STATIC_INLINE void * Cy_DMA_GetActiveSrcAddress(DW_Type const * base)
 {
     return ((void *) DW_DESCR_SRC(base));
 }
@@ -692,7 +672,7 @@ __STATIC_INLINE void * Cy_DMA_GetActiveSrcAddress(DW_Type * base)
 * \snippet dma/snippet/main.c snippet_Cy_DMA_GetActiveSrcAddress
 *
 *******************************************************************************/
-__STATIC_INLINE void * Cy_DMA_GetActiveDstAddress(DW_Type * base)
+__STATIC_INLINE void * Cy_DMA_GetActiveDstAddress(DW_Type const * base)
 {
     return ((void *) DW_DESCR_DST(base));
 }
@@ -2005,6 +1985,7 @@ __STATIC_INLINE uint32_t Cy_DMA_Channel_GetInterruptStatusMasked(DW_Type const *
 
 /** \endcond */
 
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 10.8');
 
 #if defined(__cplusplus)
 }

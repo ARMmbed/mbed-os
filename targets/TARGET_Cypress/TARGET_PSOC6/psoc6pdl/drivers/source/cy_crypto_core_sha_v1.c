@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v1.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API for the SHA method
@@ -37,7 +37,6 @@ extern "C" {
 #include "cy_crypto_core_hw_v1.h"
 #include "cy_crypto_core_mem_v1.h"
 #include "cy_syslib.h"
-#include <string.h>
 
 typedef enum
 {
@@ -76,6 +75,7 @@ void Cy_Crypto_Core_V1_Sha_ProcessBlock(CRYPTO_Type *base,
                                      cy_stc_crypto_sha_state_t *hashState, uint8_t const *block)
 {
     /* Set the SHA mode */
+    CY_MISRA_DEVIATE_LINE('MISRA C-2012 Rule 11.3','This piece of code is written for CRYPTO_V1_Type and will not execute for CRYPTO_V2_Type');
     REG_CRYPTO_SHA_CTL(base) = (uint32_t)(_VAL2FLD(CRYPTO_SHA_CTL_MODE, (uint32_t)hashState->modeHw));
 
     Cy_Crypto_SetReg4Instr(base,
@@ -572,7 +572,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Sha(CRYPTO_Type *base,
 {
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
-    void *shaBuffers = (void *)Cy_Crypto_Core_GetVuMemoryAddress(base);
+    void *shaBuffers = Cy_Crypto_Core_GetVuMemoryAddress(base);
     cy_stc_crypto_sha_state_t myHashState = { 0 };
 
     tmpResult = Cy_Crypto_Core_V1_Sha_Init (base, &myHashState, mode, shaBuffers);

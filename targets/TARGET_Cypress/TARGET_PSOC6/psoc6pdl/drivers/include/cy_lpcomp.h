@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_lpcomp.h
-* \version 1.20.1
+* \version 1.30
 *
 *  This file provides constants and parameter values for the Low Power Comparator driver.
 *
@@ -108,34 +108,14 @@
 * Refer to the appropriate device technical reference manual (TRM) for
 * a detailed description of the registers.
 *
-* \section group_lpcomp_MISRA MISRA-C Compliance
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>
-*         The pointer to the buffer memory is void to allow handling different
-*         different data types: uint8_t (4-8 bits) or uint16_t (9-16 bits).
-*         The cast operation is safe because the configuration is verified
-*         before operation is performed.
-*         The function \ref Cy_LPComp_DeepSleepCallback is a callback of
-*         the \ref cy_en_syspm_status_t type. The cast operation safety in this
-*         function becomes the user's responsibility because the pointers are
-*         initialized when a callback is registered in the SysPm driver.</td>
-*   </tr>
-* </table>
-*
 * \section group_lpcomp_Changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30</td>
+*     <td>Fixed/documented MISRA 2012 violations.</td>
+*     <td>MISRA 2012 compliance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20.1</td>
 *     <td>Minor documentation updates.</td>
@@ -212,7 +192,7 @@ extern "C"
 #define CY_LPCOMP_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_LPCOMP_DRV_VERSION_MINOR       20
+#define CY_LPCOMP_DRV_VERSION_MINOR       30
 
 /******************************************************************************
 * API Constants

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.h
-* \version 1.50.1
+* \version 2.0
 *
 * \brief
 *  This file provides the constants and parameter values for the memory-level
@@ -10,7 +10,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -514,10 +514,10 @@ cy_en_smif_status_t Cy_SMIF_MemEnableQuadMode(SMIF_Type *base, cy_stc_smif_mem_c
                                               uint32_t timeoutUs, cy_stc_smif_context_t const *context);
 cy_en_smif_status_t Cy_SMIF_MemRead(SMIF_Type *base, cy_stc_smif_mem_config_t const *memConfig, 
                                     uint32_t address, uint8_t rxBuffer[], 
-                                    uint32_t length, cy_stc_smif_context_t *context);
+                                    uint32_t length, cy_stc_smif_context_t const *context);
 cy_en_smif_status_t Cy_SMIF_MemWrite(SMIF_Type *base, cy_stc_smif_mem_config_t const *memConfig, 
                                      uint32_t address, uint8_t const txBuffer[], 
-                                     uint32_t length, cy_stc_smif_context_t *context); 
+                                     uint32_t length, cy_stc_smif_context_t const *context); 
 cy_en_smif_status_t Cy_SMIF_MemEraseSector(SMIF_Type *base, cy_stc_smif_mem_config_t const *memConfig, 
                                            uint32_t address, uint32_t length, 
                                            cy_stc_smif_context_t const *context);

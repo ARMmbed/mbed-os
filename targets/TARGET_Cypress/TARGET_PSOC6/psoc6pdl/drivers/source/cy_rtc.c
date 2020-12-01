@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_rtc.c
-* \version 2.30.1
+* \version 2.40
 *
 * This file provides constants and parameter values for the APIs for the
 * Real-Time Clock (RTC).
@@ -26,6 +26,9 @@
 #include "cy_rtc.h"
 
 #ifdef CY_IP_MXS40SRSS_RTC
+
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 2.2', 3, \
+'The unused code due to weak implementation can be overwritten further and then interrupt handler can call it.');
 
 #if defined(__cplusplus)
 extern "C" {
@@ -907,10 +910,9 @@ cy_en_rtc_status_t Cy_RTC_SetNextDstTime(cy_stc_rtc_dst_format_t const *nextDst)
 {
     cy_en_rtc_status_t retVal = CY_RTC_BAD_PARAM;
 
-    CY_ASSERT_L3(CY_RTC_IS_DST_FORMAT_VALID(nextDst->format));
-
     if (NULL != nextDst)
     {
+        CY_ASSERT_L3(CY_RTC_IS_DST_FORMAT_VALID(nextDst->format));
         uint32_t tryesToSetup = CY_RTC_TRYES_TO_SETUP_DST;
         cy_stc_rtc_alarm_t dstAlarmTimeAndDate;
 
@@ -1479,6 +1481,7 @@ cy_en_syspm_status_t Cy_RTC_DeepSleepCallback(const cy_stc_syspm_callback_params
             break;
 
             default:
+                /* Unknown state */
                 break;
         }
     }
@@ -1611,7 +1614,7 @@ static void ConstructTimeDate(cy_stc_rtc_config_t const *timeDate, uint32_t *tim
 * Converted BCD time(*alarmTimeBcd) and BCD date(*alarmDateBcd) should be
 * matched with the ALMx_TIME and ALMx_DATE bit fields format.
 *
-* \param timeDate
+* \param alarmDateTime
 * The structure of time and date, see \ref cy_stc_rtc_alarm_t.
 *
 * \param alarmTimeBcd
@@ -1763,6 +1766,8 @@ static uint32_t RelativeToFixed(cy_stc_rtc_dst_format_t const *convertDst)
 #if defined(__cplusplus)
 }
 #endif
+
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 2.2');
 
 #endif /* CY_IP_MXS40SRSS_RTC */
 

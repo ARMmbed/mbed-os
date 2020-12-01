@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_gpio.c
-* \version 1.20.1
+* \version 1.30
 *
 * Provides an API implementation of the GPIO driver
 *

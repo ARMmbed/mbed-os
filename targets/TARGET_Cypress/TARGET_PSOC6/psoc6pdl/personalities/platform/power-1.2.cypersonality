@@ -79,7 +79,7 @@
       <Entry name="System Deep Sleep" value="CY_CFG_PWR_MODE_DEEPSLEEP" visible="true" />
     </ParamChoice>
 
-    <ParamRange id="deepsleepLatency" name="Deep Sleep Latency (ms)" group="RTOS" default="0" min="0" max="10" resolution="1" visible="true" editable="true"
+    <ParamRange id="deepsleepLatency" name="Deep Sleep Latency (ms)" group="RTOS" default="0" min="0" max="1000" resolution="1" visible="true" editable="true"
       desc="Greater between the time required to enter to and exit from the deep sleep power mode.
             This option only applies for an RTOS based application." />
 

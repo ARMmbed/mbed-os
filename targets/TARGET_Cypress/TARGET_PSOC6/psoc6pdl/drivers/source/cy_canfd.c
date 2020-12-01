@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_canfd.c
-* \version 1.10.1
+* \version 1.20
 *
 * \brief
 *  Provides an API implementation of the CAN FD driver.
@@ -41,10 +41,10 @@ extern "C" {
 
 #define CY_CANFD_INTERRUPT_ENABLE_DEFAULT       (CANFD_CH_M_TTCAN_IE_DRXE_Msk |  /* Message stored to Rx Buffer */\
                                                  CANFD_CH_M_TTCAN_IE_RF1NE_Msk | /* Rx FIFO 1 New Message */\
-                                                 CANFD_CH_M_TTCAN_IE_RF0NE_Msk)  /* Rx FIFO 0 New Message */ 
+                                                 CANFD_CH_M_TTCAN_IE_RF0NE_Msk)  /* Rx FIFO 0 New Message */
 #define CY_CANFD_EXT_IDENTIFIER_LENGTH          (18U)
 
-/* The configurable start addresses are 32-bit word addresses i.e. only bits 15 
+/* The configurable start addresses are 32-bit word addresses i.e. only bits 15
 * to 2 are evaluated, the two least significant bits are ignored */
 #define CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT   (2U)
 
@@ -52,7 +52,7 @@ extern "C" {
 #define CY_CANFD_R0_R1_SIZE                     (2UL)
 
 /* Size of T0 and T1 fields of Tx Buffer in 32-bit words */
-#define CY_CANFD_T0_T1_SIZE                     (2UL) 
+#define CY_CANFD_T0_T1_SIZE                     (2UL)
 #define CY_CANFD_TX_EVENT_FIFO_ELEMENTS_NUM     (10UL)
 #define CY_CANFD_CHANNEL_ADDR_MASK              (0xFFFF0000UL)
 
@@ -60,7 +60,7 @@ extern "C" {
 #define CY_CANFD_SID_FILTER_S0_SFID2_Pos        (0UL)
 #define CY_CANFD_SID_FILTER_S0_SFID2_Msk        (0x000007FFUL)
 
-/* Standard Filter ID 1 */ 
+/* Standard Filter ID 1 */
 #define CY_CANFD_SID_FILTER_S0_SFID1_Pos        (16UL)
 #define CY_CANFD_SID_FILTER_S0_SFID1_Msk        (0x07FF0000UL)
 
@@ -195,7 +195,7 @@ extern "C" {
 /*****************************************************************************
  *  DLC-Word conversion
  *****************************************************************************/
-static const uint8_t dataBufferSizeInWord[] = 
+static const uint8_t dataBufferSizeInWord[] =
 {
     2u,            /**<  8 bytes */
     3u,            /**< 12 bytes */
@@ -209,12 +209,12 @@ static const uint8_t dataBufferSizeInWord[] =
 
 
 /*****************************************************************************
-* Local function prototypes ('static')  
+* Local function prototypes ('static')
 *****************************************************************************/
 
-static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type *base, uint32_t chan, 
-                                        uint32_t index, 
-                                        cy_stc_canfd_context_t *context);
+static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type const *base, uint32_t chan,
+                                        uint32_t index,
+                                        cy_stc_canfd_context_t const *context);
 
 
 /*******************************************************************************
@@ -223,10 +223,10 @@ static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type *base, uint32_t chan,
 *
 * Initializes the CAN FD module.
 *
-* \note The function does not enable the Tx Event FIFO but reserves 10 
+* \note The function does not enable the Tx Event FIFO but reserves 10
 * Tx Event FIFO elements in Message RAM.
-* \note The function enables the "Message stored to Rx Buffer", 
-* "Rx FIFO 1 New Message" and "Rx FIFO 0 New Message" interrupt events only. 
+* \note The function enables the "Message stored to Rx Buffer",
+* "Rx FIFO 1 New Message" and "Rx FIFO 0 New Message" interrupt events only.
 * Other interrupts can be configured with the Cy_CANFD_SetInterruptMask() function.
 * \note If the channel was disabled, call Cy_CANFD_Enable before calling Cy_CANFD_Init.
 * \note Call this function only after all debug messages reception is completed.
@@ -243,17 +243,17 @@ static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type *base, uint32_t chan,
 * \param *context
 * The pointer to the context structure \ref cy_stc_canfd_context_t allocated
 * by the user. The structure is used during the CAN FD operation for internal
-* configuration and data retention. User must not modify anything in this 
+* configuration and data retention. User must not modify anything in this
 * structure.
 *
-* \return 
+* \return
 * \ref cy_en_canfd_status_t
 *
-* \funcusage 
+* \funcusage
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_Init
 *
 *******************************************************************************/
-cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan, 
+cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
                                    const cy_stc_canfd_config_t *config,
                                    cy_stc_canfd_context_t *context)
 {
@@ -310,7 +310,7 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
         ret = Cy_CANFD_ConfigChangesEnable(base, chan);
 
         if (CY_CANFD_SUCCESS == ret)
-        {            
+        {
             /* Save the message RAM offset and size for the current CAN FD channel */
             context->messageRAMaddress = config->messageRAMaddress;
             context->messageRAMsize = config->messageRAMsize;
@@ -319,10 +319,10 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
                 (NULL != config->sidFilterConfig->sidFilter))
             {
                 /* Configure a standard ID filter:
-                * The number of SID filters and Start address (word) of the SID filter 
+                * The number of SID filters and Start address (word) of the SID filter
                 * configuration in Message RAM
                 */
-                CANFD_SIDFC(base, chan) = 
+                CANFD_SIDFC(base, chan) =
                 _VAL2FLD(CANFD_CH_M_TTCAN_SIDFC_LSS, config->sidFilterConfig->numberOfSIDFilters) |
                 _VAL2FLD(CANFD_CH_M_TTCAN_SIDFC_FLSSA, config->messageRAMaddress >> CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT);
             }
@@ -335,10 +335,10 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
                (NULL != config->extidFilterConfig->extidFilter))
             {
                 /* Configure an extended ID filter:
-                * The number of XID filters and start address (word) of the ext id 
+                * The number of XID filters and start address (word) of the ext id
                 * filter configuration in Message RAM
                 */
-                CANFD_XIDFC(base, chan) = 
+                CANFD_XIDFC(base, chan) =
                 _VAL2FLD(CANFD_CH_M_TTCAN_XIDFC_LSE, config->extidFilterConfig->numberOfEXTIDFilters) |
                 _VAL2FLD(CANFD_CH_M_TTCAN_XIDFC_FLESA, _FLD2VAL(CANFD_CH_M_TTCAN_SIDFC_FLSSA, CANFD_SIDFC(base, chan)) +
                                                            (config->sidFilterConfig->numberOfSIDFilters));
@@ -353,18 +353,18 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
             }
 
             /* Configuration of Rx Buffer and Rx FIFO */
-            CANFD_RXESC(base, chan) = 
+            CANFD_RXESC(base, chan) =
             _VAL2FLD(CANFD_CH_M_TTCAN_RXESC_RBDS, config->rxBufferDataSize) | /* Rx Buffer Data Size */
             _VAL2FLD(CANFD_CH_M_TTCAN_RXESC_F1DS, config->rxFIFO1DataSize) | /* Rx FIFO 1 Data Size */
             _VAL2FLD(CANFD_CH_M_TTCAN_RXESC_F0DS, config->rxFIFO0DataSize);  /* Rx FIFO 0 Data Size */
 
-            /* Set the Rx FIFO 0 configuration: 
+            /* Set the Rx FIFO 0 configuration:
              *  CAN FD RX FIFO 0 operating mode
              *  RX FIFO 0 Watermark
              *  The number of RX FIFO 0 Elements
              *  The start address of Rx FIFO 0 in Message RAM
              */
-            CANFD_RXF0C(base, chan) = 
+            CANFD_RXF0C(base, chan) =
             _VAL2FLD(CANFD_CH_M_TTCAN_RXF0C_F0OM, config->rxFIFO0Config->mode) |
             _VAL2FLD(CANFD_CH_M_TTCAN_RXF0C_F0WM, config->rxFIFO0Config->watermark) |
             _VAL2FLD(CANFD_CH_M_TTCAN_RXF0C_F0S, config->rxFIFO0Config->numberOfFIFOElements) |
@@ -372,28 +372,28 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
                                                           (config->extidFilterConfig->numberOfEXTIDFilters *
                                                            CY_CANFD_SIZE_OF_EXTID_FILTER_IN_WORD));
 
-            /* Set the Rx FIFO 1 configuration: 
+            /* Set the Rx FIFO 1 configuration:
              *  CAN FD RX FIFO  1 operating mode
              *  RX FIFO 1 Watermark
              *  The number of RX FIFO 1 Elements
              *  The start address of Rx FIFO 1 in Message RAM
             */
-            CANFD_RXF1C(base, chan) = 
+            CANFD_RXF1C(base, chan) =
             _VAL2FLD(CANFD_CH_M_TTCAN_RXF1C_F1OM, config->rxFIFO1Config->mode) |
             _VAL2FLD(CANFD_CH_M_TTCAN_RXF1C_F1WM, config->rxFIFO1Config->watermark) |
             _VAL2FLD(CANFD_CH_M_TTCAN_RXF1C_F1S, config->rxFIFO1Config->numberOfFIFOElements) |
-            _VAL2FLD(CANFD_CH_M_TTCAN_RXF1C_F1SA, 
+            _VAL2FLD(CANFD_CH_M_TTCAN_RXF1C_F1SA,
                     _FLD2VAL(CANFD_CH_M_TTCAN_RXF0C_F0SA, CANFD_RXF0C(base, chan)) +
                             (config->rxFIFO0Config->numberOfFIFOElements *
                              (CY_CANFD_R0_R1_SIZE + dataBufferSizeInWord[config->rxFIFO0DataSize])));
 
             /* Configure the Rx FIFO 0,1 Top pointer logic configuration */
-            CANFD_RXFTOP_CTL(base, chan) = 
+            CANFD_RXFTOP_CTL(base, chan) =
             _VAL2FLD(CANFD_CH_RXFTOP_CTL_F0TPE, (config->rxFIFO0Config->topPointerLogicEnabled) ? 1UL : 0UL) |
             _VAL2FLD(CANFD_CH_RXFTOP_CTL_F1TPE, (config->rxFIFO1Config->topPointerLogicEnabled) ? 1UL : 0UL);
 
             /* Set the start address of the Rx buffer in Message RAM */
-            CANFD_RXBC(base, chan) = 
+            CANFD_RXBC(base, chan) =
             _VAL2FLD(CANFD_CH_M_TTCAN_RXBC_RBSA, _FLD2VAL(CANFD_CH_M_TTCAN_RXF1C_F1SA, CANFD_RXF1C(base, chan)) +
                                      (config->rxFIFO1Config->numberOfFIFOElements *
                                      (CY_CANFD_R0_R1_SIZE + dataBufferSizeInWord[config->rxFIFO1DataSize])));
@@ -406,11 +406,11 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
              *  Tx Event FIFO disabled
              *  The start address of Tx Event FIFO in Message RAM
             */
-            CANFD_TXEFC(base, chan) = 
+            CANFD_TXEFC(base, chan) =
             _VAL2FLD(CANFD_CH_M_TTCAN_TXEFC_EFWM, 0UL) |
-            _VAL2FLD(CANFD_CH_M_TTCAN_TXEFC_EFS, 0UL)  | 
+            _VAL2FLD(CANFD_CH_M_TTCAN_TXEFC_EFS, 0UL)  |
             _VAL2FLD(CANFD_CH_M_TTCAN_TXEFC_EFSA, _FLD2VAL(CANFD_CH_M_TTCAN_RXBC_RBSA, CANFD_RXBC(base, chan)) +
-                                                          (config->noOfRxBuffers * (CY_CANFD_R0_R1_SIZE + 
+                                                          (config->noOfRxBuffers * (CY_CANFD_R0_R1_SIZE +
                                                            dataBufferSizeInWord[config->rxBufferDataSize])));
 
             /* Update Tx buffer configuration:
@@ -419,12 +419,12 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
              *  The number of Dedicated Tx Buffers
              *  Reserve memory for 10 Tx Event FIFO elements for easy use in future
              */
-            CANFD_TXBC(base, chan) = 
+            CANFD_TXBC(base, chan) =
             _VAL2FLD(CANFD_CH_M_TTCAN_TXBC_TFQM, 0UL) |
             _VAL2FLD(CANFD_CH_M_TTCAN_TXBC_TFQS, 0UL) |
             _VAL2FLD(CANFD_CH_M_TTCAN_TXBC_NDTB, config->noOfTxBuffers) |
             _VAL2FLD(CANFD_CH_M_TTCAN_TXBC_TBSA, _FLD2VAL(CANFD_CH_M_TTCAN_TXEFC_EFSA, CANFD_TXEFC(base, chan)) +
-                                                                     (CY_CANFD_TX_EVENT_FIFO_ELEMENTS_NUM * 
+                                                                     (CY_CANFD_TX_EVENT_FIFO_ELEMENTS_NUM *
                                                                       CY_CANFD_SIZE_OF_TXEVENT_FIFO_IN_WORD));
 
             /* Initialize the Message RAM area (Entire region zeroing) for channel */
@@ -432,9 +432,9 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
             sizeInWord = config->messageRAMsize >> CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT;
             for(count = 0UL; count < sizeInWord; count++)
             {
-                *address++ = 0UL;
+                address[count] = 0UL;
             }
-            
+
             /* The configuration of the CAN bus */
 
             /* CCCR register */
@@ -451,7 +451,7 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
 
             /* The nominal bit timing & prescaler register */
             Cy_CANFD_SetBitrate(base, chan, config->bitrate);
-            
+
             if (config->canFDMode)
             {
                 if (NULL != config->fastBitrate)
@@ -460,66 +460,69 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
                     CY_ASSERT_L2(CY_CANFD_IS_DAT_TIME_SEG_1_VALID(config->fastBitrate->timeSegment1));
                     CY_ASSERT_L2(CY_CANFD_IS_DAT_TIME_SEG_2_VALID(config->fastBitrate->timeSegment2));
                     CY_ASSERT_L2(CY_CANFD_IS_DAT_SYNC_JUMP_WIDTH_VALID(config->fastBitrate->syncJumpWidth));
-                    
+
                     /* Set data bit timing & prescaler */
                     Cy_CANFD_SetFastBitrate(base, chan, config->fastBitrate);
                 }
                 else
                 {
-                   ret = CY_CANFD_BAD_PARAM; 
+                   ret = CY_CANFD_BAD_PARAM;
                 }
 
-                if (NULL != config->tdcConfig)
+                if ((NULL != config->tdcConfig) && (ret != CY_CANFD_BAD_PARAM))
                 {
                     CY_ASSERT_L2(CY_CANFD_IS_TDCO_VALID(config->tdcConfig->tdcOffset));
                     CY_ASSERT_L2(CY_CANFD_IS_TDCF_VALID(config->tdcConfig->tdcFilterWindow));
-                    
-                    /* Transmitter delay compensation */ 
+
+                    /* Transmitter delay compensation */
                     Cy_CANFD_SetTDC(base, chan, config->tdcConfig);
                 }
                 else
                 {
-                   ret = CY_CANFD_BAD_PARAM; 
+                   ret = CY_CANFD_BAD_PARAM;
                 }
             }
 
-            /* The configuration of a global filter */
-            CANFD_GFC(base, chan) = 
-            _VAL2FLD(CANFD_CH_M_TTCAN_GFC_ANFS, config->globalFilterConfig->nonMatchingFramesStandard) |
-            _VAL2FLD(CANFD_CH_M_TTCAN_GFC_ANFE, config->globalFilterConfig->nonMatchingFramesExtended) |
-            _VAL2FLD(CANFD_CH_M_TTCAN_GFC_RRFS, ((config->globalFilterConfig->rejectRemoteFramesStandard) ? 1UL : 0UL))|
-            _VAL2FLD(CANFD_CH_M_TTCAN_GFC_RRFE, ((config->globalFilterConfig->rejectRemoteFramesExtended) ? 1UL : 0UL));
-
-            if (0U != config->sidFilterConfig->numberOfSIDFilters)
+            if (ret != CY_CANFD_BAD_PARAM)
             {
-                /* Standard Message ID filters */
-                Cy_CANFD_SidFiltersSetup(base, chan, config->sidFilterConfig, context);
+                /* The configuration of a global filter */
+                CANFD_GFC(base, chan) =
+                _VAL2FLD(CANFD_CH_M_TTCAN_GFC_ANFS, config->globalFilterConfig->nonMatchingFramesStandard) |
+                _VAL2FLD(CANFD_CH_M_TTCAN_GFC_ANFE, config->globalFilterConfig->nonMatchingFramesExtended) |
+                _VAL2FLD(CANFD_CH_M_TTCAN_GFC_RRFS, ((config->globalFilterConfig->rejectRemoteFramesStandard) ? 1UL : 0UL))|
+                _VAL2FLD(CANFD_CH_M_TTCAN_GFC_RRFE, ((config->globalFilterConfig->rejectRemoteFramesExtended) ? 1UL : 0UL));
+
+                if (0U != config->sidFilterConfig->numberOfSIDFilters)
+                {
+                    /* Standard Message ID filters */
+                    Cy_CANFD_SidFiltersSetup(base, chan, config->sidFilterConfig, context);
+                }
+
+                if(0U   != config->extidFilterConfig->numberOfEXTIDFilters)
+                {
+                    /* Extended Message ID filters */
+                    Cy_CANFD_XidFiltersSetup(base, chan,  config->extidFilterConfig, context);
+                }
+
+                /* Configure the interrupt */
+                Cy_CANFD_SetInterruptMask(base, chan, CY_CANFD_INTERRUPT_ENABLE_DEFAULT);
+
+                /* Enable TX complete interrupts for used TX buffers */
+                CANFD_TXBTIE(base, chan) = (uint32_t)(~(0xFFFFFFFFUL << config->noOfTxBuffers));
+
+                /* Set interrupt line 0 */
+                Cy_CANFD_SetInterruptLine(base, chan, 0UL);
+
+                /* Enable interrupt line 0 */
+                Cy_CANFD_EnableInterruptLine(base, chan, CANFD_CH_M_TTCAN_ILE_EINT0_Msk);
+
+                /* Clear CCCR_INIT bit and wait until it is updated to finalize CAN FD initialization */
+                ret = Cy_CANFD_ConfigChangesDisable(base, chan);
             }
-
-            if(0U   != config->extidFilterConfig->numberOfEXTIDFilters)
-            {
-                /* Extended Message ID filters */
-                Cy_CANFD_XidFiltersSetup(base, chan,  config->extidFilterConfig, context);
-            }
-
-            /* Configure the interrupt */
-            Cy_CANFD_SetInterruptMask(base, chan, CY_CANFD_INTERRUPT_ENABLE_DEFAULT);
-            
-            /* Enable TX complete interrupts for used TX buffers */
-            CANFD_TXBTIE(base, chan) = (uint32_t)(~(0xFFFFFFFFUL << config->noOfTxBuffers));
-
-            /* Set interrupt line 0 */
-            Cy_CANFD_SetInterruptLine(base, chan, 0UL);
-
-            /* Enable interrupt line 0 */
-            Cy_CANFD_EnableInterruptLine(base, chan, CANFD_CH_M_TTCAN_ILE_EINT0_Msk);
-            
-            /* Clear CCCR_INIT bit and wait until it is updated to finalize CAN FD initialization */
-            ret = Cy_CANFD_ConfigChangesDisable(base, chan);
         }
         else
         {
-           ret = CY_CANFD_ERROR_TIMEOUT; 
+           ret = CY_CANFD_ERROR_TIMEOUT;
         }
     }
 
@@ -548,10 +551,10 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
 * configuration and data retention. The user must not modify anything
 * in this structure.
 *
-* \return 
+* \return
 * \ref cy_en_canfd_status_t
 *
-* \funcusage 
+* \funcusage
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_DeInit
 *
 *******************************************************************************/
@@ -573,17 +576,17 @@ cy_en_canfd_status_t Cy_CANFD_DeInit(CANFD_Type *base, uint32_t chan, cy_stc_can
 
     while ((retry > 0UL) && !_FLD2BOOL(CANFD_CH_M_TTCAN_CCCR_INIT, CANFD_CCCR(base, chan)))
     {
-        Cy_SysLib_DelayUs(CY_CANFD_INIT_TIMEOUT_MS);
+        Cy_SysLib_DelayUs(CY_CANFD_INIT_TIMEOUT_US);
         retry--;
     }
 
     if (retry > 0UL)
-    { 
+    {
         /* Enable configuration changes */
         CANFD_CCCR(base, chan) |= CANFD_CH_M_TTCAN_CCCR_CCE_Msk;
 
         /* Standard ID filter */
-        CANFD_SIDFC(base, chan) = 0UL; 
+        CANFD_SIDFC(base, chan) = 0UL;
 
         /* Extended ID filter */
         CANFD_XIDFC(base, chan) = 0UL;
@@ -620,19 +623,19 @@ cy_en_canfd_status_t Cy_CANFD_DeInit(CANFD_Type *base, uint32_t chan, cy_stc_can
         sizeInWord = context->messageRAMsize >> CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT;
         for(count = 0UL; count < sizeInWord; count++)
         {
-            *address++ = 0UL;
+            address[count] = 0UL;
         }
 
         /* The configuration of the CAN bus */
-        
+
         /* Keep the initialization and configuration change enabled */
         CANFD_CCCR(base, chan) = CANFD_CH_M_TTCAN_CCCR_INIT_Msk | CANFD_CH_M_TTCAN_CCCR_CCE_Msk;
 
         /* Set the nominal bit timing & prescaler register to the default value */
-        CANFD_NBTP(base, chan) = CANFD_NBTP_DEF_VAL; 
+        CANFD_NBTP(base, chan) = CANFD_NBTP_DEF_VAL;
 
         /* Set the data bit timing & prescaler register to the default value */
-        CANFD_DBTP(base, chan) = CANFD_DBTP_DEF_VAL; 
+        CANFD_DBTP(base, chan) = CANFD_DBTP_DEF_VAL;
 
         /* Transmitter delay compensation */
         CANFD_TDCR(base, chan) = 0UL;
@@ -661,14 +664,14 @@ cy_en_canfd_status_t Cy_CANFD_DeInit(CANFD_Type *base, uint32_t chan, cy_stc_can
 ****************************************************************************//**
 *
 *  Returns the value of Protocol Status Register (PSR). \n
-*  Use the \ref group_canfd_last_state_masks to extract necessary fields from 
+*  Use the \ref group_canfd_last_state_masks to extract necessary fields from
 *  the register. \n
 *  Use the \ref cy_en_canfd_LEC_t enumeration to interpret LEC and DLEC fields. \n
 *  Use the \ref cy_en_canfd_PSR_ACT_t enumeration to interpret the  ACT field.
 *
 * \note Protocol Status Register has reset on read fields. Reading the register
 *  will clear the bits PXE, RFDF, RBRS and RESI, and set DLEC[2:0] and LEC[2:0].
-*  
+*
 *
 * \param *base
 * The pointer to a CAN FD instance.
@@ -676,11 +679,11 @@ cy_en_canfd_status_t Cy_CANFD_DeInit(CANFD_Type *base, uint32_t chan, cy_stc_can
 * \param chan
 *  The CAN FD channel number.
 *
-* \return 
+* \return
 *  Content of the Protocol Status Register (PSR).
 *
 *******************************************************************************/
-uint32_t Cy_CANFD_GetLastError(CANFD_Type *base, uint32_t chan)
+uint32_t Cy_CANFD_GetLastError(CANFD_Type const *base, uint32_t chan)
 {
     return CANFD_PSR(base, chan);
 }
@@ -707,7 +710,7 @@ uint32_t Cy_CANFD_GetLastError(CANFD_Type *base, uint32_t chan)
 * configuration and data retention. The user must not modify anything
 * in this structure.
 *
-* \return 
+* \return
 * The message buffer address corresponding to the index. Can be 0 if the index
 * is invalid.
 *
@@ -715,9 +718,9 @@ uint32_t Cy_CANFD_GetLastError(CANFD_Type *base, uint32_t chan)
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_GetRxBuffer
 *
 *******************************************************************************/
-uint32_t  Cy_CANFD_CalcRxBufAdrs(CANFD_Type *base, uint32_t chan, 
-                                uint32_t index, 
-                                cy_stc_canfd_context_t *context)
+uint32_t  Cy_CANFD_CalcRxBufAdrs(CANFD_Type const *base, uint32_t chan,
+                                uint32_t index,
+                                cy_stc_canfd_context_t const *context)
 {
     uint32_t address;
 
@@ -728,11 +731,11 @@ uint32_t  Cy_CANFD_CalcRxBufAdrs(CANFD_Type *base, uint32_t chan,
     }
     else
     {
-        /* Sets the message buffer address to the return value if the index is available  */ 
-        address = context->messageRAMaddress;    
-        address += (_FLD2VAL(CANFD_CH_M_TTCAN_RXBC_RBSA, CANFD_RXBC(base, chan)) 
-                     * sizeof(uint32_t));  /* Convert the word to the byte offset */ 
-        address += index * (CY_CANFD_R0_R1_SIZE + 
+        /* Sets the message buffer address to the return value if the index is available  */
+        address = context->messageRAMaddress;
+        address += (_FLD2VAL(CANFD_CH_M_TTCAN_RXBC_RBSA, CANFD_RXBC(base, chan))
+                     * sizeof(uint32_t));  /* Convert the word to the byte offset */
+        address += index * (CY_CANFD_R0_R1_SIZE +
                             dataBufferSizeInWord[_FLD2VAL(CANFD_CH_M_TTCAN_RXESC_RBDS, CANFD_RXESC(base, chan))])*
                             sizeof(uint32_t);   /* Convert the word to the byte offset */
     }
@@ -761,25 +764,25 @@ uint32_t  Cy_CANFD_CalcRxBufAdrs(CANFD_Type *base, uint32_t chan,
 * configuration and data retention. The user must not modify anything
 * in this structure.
 *
-* \return 
+* \return
 * The Message buffer address corresponding to the index.
 * Can be 0 if the index is invalid.
 *
 *******************************************************************************/
-static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type *base, uint32_t chan, uint32_t index, cy_stc_canfd_context_t *context)
+static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type const *base, uint32_t chan, uint32_t index, cy_stc_canfd_context_t const *context)
 {
     uint32_t address = 0UL;
-    
+
     /* Set the message buffer address to the return value if the index is available */
     address = context->messageRAMaddress;
     address += (_FLD2VAL(CANFD_CH_M_TTCAN_TXBC_TBSA, CANFD_TXBC(base, chan))  /* Tx 32-bit Start Address */
-                * sizeof(uint32_t));  /* Convert the word to the byte offset */ 
+                * sizeof(uint32_t));  /* Convert the word to the byte offset */
 
     if (index < (CY_CANFD_MESSAGE_TX_BUFFERS_MAX_CNT))
     {
-        address += index * (CY_CANFD_T0_T1_SIZE + 
+        address += index * (CY_CANFD_T0_T1_SIZE +
                             dataBufferSizeInWord[_FLD2VAL(CANFD_CH_M_TTCAN_TXESC_TBDS, CANFD_TXESC(base, chan))]) *
-                            sizeof(uint32_t);   /* Converts the word to the byte offset */ 
+                            sizeof(uint32_t);   /* Converts the word to the byte offset */
     }
     else
     {
@@ -814,7 +817,7 @@ static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type *base, uint32_t chan, uint32_t
 * configuration and data retention. The user must not modify anything
 * in this structure.
 *
-* \return 
+* \return
 * The Message buffer address corresponding to the index.
 * Can be 0 if the index is invalid.
 *
@@ -822,26 +825,26 @@ static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type *base, uint32_t chan, uint32_t
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_GetRxBuffer
 *
 *******************************************************************************/
-uint32_t Cy_CANFD_CalcRxFifoAdrs(CANFD_Type *base, uint32_t chan, 
-                                 uint32_t fifoNumber, 
-                                 uint32_t index, 
-                                 cy_stc_canfd_context_t *context)
+uint32_t Cy_CANFD_CalcRxFifoAdrs(CANFD_Type const *base, uint32_t chan,
+                                 uint32_t fifoNumber,
+                                 uint32_t index,
+                                 cy_stc_canfd_context_t const *context)
 {
     uint32_t address = 0UL;
     CY_ASSERT_L2(CY_CANFD_IS_FIFO_NUM_VALID(index));
     if(fifoNumber <= CY_CANFD_RX_FIFO1)
     {
-        /* Sets the message buffer address to the return value if the index is available */ 
-        address = context->messageRAMaddress;    
-        address += (((CY_CANFD_RX_FIFO0 == fifoNumber) ? 
+        /* Sets the message buffer address to the return value if the index is available */
+        address = context->messageRAMaddress;
+        address += (((CY_CANFD_RX_FIFO0 == fifoNumber) ?
                      _FLD2VAL(CANFD_CH_M_TTCAN_RXF0C_F0SA, CANFD_RXF0C(base, chan)) :  /* Rx FIFO 0 32-bit Start Address */
                      _FLD2VAL(CANFD_CH_M_TTCAN_RXF1C_F1SA, CANFD_RXF1C(base, chan)))   /* Rx FIFO 1 32-bit Start Address */
-                     * sizeof(uint32_t));  /* Convert the word to the byte offset */ 
-        address += index * (CY_CANFD_R0_R1_SIZE + 
-                            dataBufferSizeInWord[(CY_CANFD_RX_FIFO0 == fifoNumber) ? 
-                                                 _FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F0DS, CANFD_RXESC(base, chan)) : 
-                                                 _FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F1DS, CANFD_RXESC(base, chan))]) * 
-                           sizeof(uint32_t);   /* Converts the word to the byte offset */ 
+                     * sizeof(uint32_t));  /* Convert the word to the byte offset */
+        address += index * (CY_CANFD_R0_R1_SIZE +
+                            dataBufferSizeInWord[(CY_CANFD_RX_FIFO0 == fifoNumber) ?
+                                                 _FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F0DS, CANFD_RXESC(base, chan)) :
+                                                 _FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F1DS, CANFD_RXESC(base, chan))]) *
+                           sizeof(uint32_t);   /* Converts the word to the byte offset */
     }
 
     return address;
@@ -872,14 +875,14 @@ uint32_t Cy_CANFD_CalcRxFifoAdrs(CANFD_Type *base, uint32_t chan,
 * configuration and data retention. The user must not modify anything
 * in this structure.
 *
-* \funcusage 
+* \funcusage
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_SidFilterSetup
 *
 *******************************************************************************/
-void Cy_CANFD_SidFilterSetup(CANFD_Type *base, uint32_t chan, 
-                             const cy_stc_id_filter_t *filter, 
-                             uint32_t index, 
-                             cy_stc_canfd_context_t *context)
+void Cy_CANFD_SidFilterSetup(CANFD_Type const *base, uint32_t chan,
+                             const cy_stc_id_filter_t *filter,
+                             uint32_t index,
+                             cy_stc_canfd_context_t const *context)
 {
     uint32_t *filterAddr;
 
@@ -892,7 +895,7 @@ void Cy_CANFD_SidFilterSetup(CANFD_Type *base, uint32_t chan,
         CY_ASSERT_L2(CY_CANFD_IS_SID_FILTERS_VALID(index + 1U));
 
         /* The Standard Message ID Filter address */
-        filterAddr = (uint32_t *)(context->messageRAMaddress + 
+        filterAddr = (uint32_t *)(context->messageRAMaddress +
                                    (_FLD2VAL(CANFD_CH_M_TTCAN_SIDFC_FLSSA, CANFD_SIDFC(base, chan))
                                      << CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT));
 
@@ -930,12 +933,12 @@ void Cy_CANFD_SidFilterSetup(CANFD_Type *base, uint32_t chan,
 * in this structure.
 *
 *******************************************************************************/
-void Cy_CANFD_SidFiltersSetup(CANFD_Type *base, uint32_t chan, 
+void Cy_CANFD_SidFiltersSetup(CANFD_Type const *base, uint32_t chan,
                               const cy_stc_canfd_sid_filter_config_t *filterConfig,
-                              cy_stc_canfd_context_t *context)
+                              cy_stc_canfd_context_t const *context)
 {
     uint32_t index;
-    
+
     if ((NULL != filterConfig) && (NULL != context))
     {
         CY_ASSERT_L2(CY_CANFD_IS_SID_FILTERS_VALID(filterConfig->numberOfSIDFilters));
@@ -972,14 +975,14 @@ void Cy_CANFD_SidFiltersSetup(CANFD_Type *base, uint32_t chan,
 * configuration and data retention. The user must not modify anything
 * in this structure.
 *
-* \funcusage 
+* \funcusage
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_XidFilterSetup
 *
 *******************************************************************************/
-void Cy_CANFD_XidFilterSetup(CANFD_Type *base, uint32_t chan, 
-                             const cy_stc_extid_filter_t *filter, 
-                             uint32_t index, 
-                             cy_stc_canfd_context_t *context)
+void Cy_CANFD_XidFilterSetup(CANFD_Type const *base, uint32_t chan,
+                             const cy_stc_extid_filter_t *filter,
+                             uint32_t index,
+                             cy_stc_canfd_context_t const *context)
 {
     uint32_t* filterAddr;
 
@@ -992,7 +995,7 @@ void Cy_CANFD_XidFilterSetup(CANFD_Type *base, uint32_t chan,
         CY_ASSERT_L2(CY_CANFD_IS_XID_FILTERS_VALID(index + 1U));
 
         /* The Extended Message ID Filter address */
-        filterAddr = (uint32_t *)(context->messageRAMaddress + 
+        filterAddr = (uint32_t *)(context->messageRAMaddress +
                                 (_FLD2VAL(CANFD_CH_M_TTCAN_XIDFC_FLESA, CANFD_XIDFC(base, chan))
                                   << CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT));
 
@@ -1002,10 +1005,10 @@ void Cy_CANFD_XidFilterSetup(CANFD_Type *base, uint32_t chan,
         /* Configuration of F0 for the Rx Buffer and Rx FIFO filter element */
         *filterAddr = _VAL2FLD(CY_CANFD_XID_FILTER_F0_EFID1, filter->f0_f->efid1) | /* XID Filter ID 1 */
                       _VAL2FLD(CY_CANFD_XID_FILTER_F0_EFEC, filter->f0_f->efec); /* XID Filter Element Configuration */
-        
+
         /* Increment the address to get the address for F1 */
         filterAddr++;
-        
+
         /* Configuration of F1 for the Rx Buffer and Rx FIFO filter element */
         *filterAddr = _VAL2FLD(CY_CANFD_XID_FILTER_F1_EFID2, filter->f1_f->efid2) | /* XID Filter ID 2 */
                       _VAL2FLD(CY_CANFD_XID_FILTER_F1_ETF, filter->f1_f->eft);     /* XID Filter Type */
@@ -1035,12 +1038,12 @@ void Cy_CANFD_XidFilterSetup(CANFD_Type *base, uint32_t chan,
 * in this structure.
 *
 *******************************************************************************/
-void Cy_CANFD_XidFiltersSetup(CANFD_Type *base, uint32_t chan, 
+void Cy_CANFD_XidFiltersSetup(CANFD_Type const *base, uint32_t chan,
                               const cy_stc_canfd_extid_filter_config_t *filterConfig,
-                              cy_stc_canfd_context_t *context)
+                              cy_stc_canfd_context_t const *context)
 {
     uint32_t index;
-    
+
     if ((NULL != filterConfig) && (NULL != context))
     {
         CY_ASSERT_L2(CY_CANFD_IS_XID_FILTERS_VALID(filterConfig->numberOfEXTIDFilters));
@@ -1074,22 +1077,22 @@ void Cy_CANFD_XidFiltersSetup(CANFD_Type *base, uint32_t chan,
 * \param *rxBuffer
 *  The Rx Buffer structure in RAM.
 *
-* \return 
+* \return
 * \ref cy_en_canfd_status_t
 *
 * \funcusage
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_GetRxBuffer
 *
 *******************************************************************************/
-cy_en_canfd_status_t Cy_CANFD_GetRxBuffer(CANFD_Type *base, uint32_t chan,
+cy_en_canfd_status_t Cy_CANFD_GetRxBuffer(CANFD_Type const *base, uint32_t chan,
                                           const uint32_t bufferAddress,
-                                          cy_stc_canfd_rx_buffer_t *rxBuffer)
+                                          cy_stc_canfd_rx_buffer_t const *rxBuffer)
 {
     cy_en_canfd_status_t ret = CY_CANFD_BAD_PARAM;
-    volatile uint32_t* address = (uint32_t*)bufferAddress;
+    volatile const uint32_t* address = (uint32_t*)bufferAddress;
     uint32_t count    = 0UL;
     uint32_t dlcIndex = 0UL;
-    
+
     (void)base; /* Suppress warning */
     (void)chan; /* Suppress warning */
 
@@ -1100,36 +1103,36 @@ cy_en_canfd_status_t Cy_CANFD_GetRxBuffer(CANFD_Type *base, uint32_t chan,
             (NULL != rxBuffer->data_area_f))
         {
             rxBuffer->r0_f->id = _FLD2VAL(CY_CANFD_RX_BUFFER_R0_ID, *address);
-            rxBuffer->r0_f->rtr = (cy_en_canfd_rtr_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_RTR, *address);
-            rxBuffer->r0_f->xtd = (cy_en_canfd_xtd_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_XTD, *address);
-            rxBuffer->r0_f->esi = (cy_en_canfd_esi_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_ESI, *address);
+            rxBuffer->r0_f->rtr = (cy_en_canfd_rtr_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_RTR, *address));
+            rxBuffer->r0_f->xtd = (cy_en_canfd_xtd_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_XTD, *address));
+            rxBuffer->r0_f->esi = (cy_en_canfd_esi_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_ESI, *address));
             
             address++;
             rxBuffer->r1_f->rxts = _FLD2VAL(CY_CANFD_RX_BUFFER_R1_RXTS, *address);
             rxBuffer->r1_f->dlc = _FLD2VAL(CY_CANFD_RX_BUFFER_R1_DLC, *address);
             rxBuffer->r1_f->brs = _FLD2BOOL(CY_CANFD_RX_BUFFER_R1_BRS, *address);
-            rxBuffer->r1_f->fdf = (cy_en_canfd_fdf_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_FDF, *address);
+            rxBuffer->r1_f->fdf = (cy_en_canfd_fdf_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_FDF, *address));
             rxBuffer->r1_f->fidx = _FLD2VAL(CY_CANFD_RX_BUFFER_R1_FIDX, *address);
-            rxBuffer->r1_f->anmf = (cy_en_canfd_anmf_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_ANMF, *address);
-            
+            rxBuffer->r1_f->anmf = (cy_en_canfd_anmf_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_ANMF, *address));
+
             /* ID : Shifts a standard RxID to its position */
-            if (rxBuffer->r0_f->xtd == false)
+            if (rxBuffer->r0_f->xtd == CY_CANFD_XTD_STANDARD_ID)
             {
                 rxBuffer->r0_f->id >>= CY_CANFD_EXT_IDENTIFIER_LENGTH;
             }
-    
+
             /* Copies the 0-64 byte of the data area */
             if (rxBuffer->r1_f->dlc > CY_CANFD_CLASSIC_CAN_DATA_LENGTH)
             {
                 dlcIndex = (uint32_t)(rxBuffer->r1_f->dlc - CY_CANFD_CLASSIC_CAN_DATA_LENGTH);
             }
-    
+
             for (count = 0UL; count < (uint32_t)dataBufferSizeInWord[dlcIndex]; count++)
             {
                 address++;
                 rxBuffer->data_area_f[count] = *address;
-            } 
-            
+            }
+
             ret = CY_CANFD_SUCCESS;
         }
     }
@@ -1163,12 +1166,12 @@ cy_en_canfd_status_t Cy_CANFD_GetRxBuffer(CANFD_Type *base, uint32_t chan,
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_GetFIFOTop
 *
 *******************************************************************************/
-cy_en_canfd_status_t Cy_CANFD_GetFIFOTop(CANFD_Type *base, uint32_t chan,
+cy_en_canfd_status_t Cy_CANFD_GetFIFOTop(CANFD_Type const *base, uint32_t chan,
                                           const uint8_t FIFONumber,
-                                          cy_stc_canfd_rx_buffer_t *rxBuffer)
+                                          cy_stc_canfd_rx_buffer_t const *rxBuffer)
 {
     cy_en_canfd_status_t ret = CY_CANFD_BAD_PARAM;
-    volatile uint32_t* address;
+    volatile const uint32_t* address;
     uint32_t count    = 0UL;
     uint32_t dataSize = 0UL;
     uint32_t tmpregister = 0UL;
@@ -1183,42 +1186,42 @@ cy_en_canfd_status_t Cy_CANFD_GetFIFOTop(CANFD_Type *base, uint32_t chan,
             if (CY_CANFD_RX_FIFO0 == FIFONumber)
             {
                 address = (uint32_t*)&CANFD_RXFTOP0_DATA(base, chan);
-                dataSize = (uint32_t)dataBufferSizeInWord[_FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F0DS, 
+                dataSize = (uint32_t)dataBufferSizeInWord[_FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F0DS,
                                                           CANFD_RXESC(base, chan))];
             }
             else
             {
                 address = (uint32_t*)&CANFD_RXFTOP1_DATA(base, chan);
-                dataSize = (uint32_t)dataBufferSizeInWord[_FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F1DS, 
+                dataSize = (uint32_t)dataBufferSizeInWord[_FLD2VAL(CANFD_CH_M_TTCAN_RXESC_F1DS,
                                                           CANFD_RXESC(base, chan))];
             }
-    
+
             tmpregister = *address; /* The FIFO Read pointer is post-incremented by the HW */
             rxBuffer->r0_f->id = _FLD2VAL(CY_CANFD_RX_BUFFER_R0_ID, tmpregister);
-            rxBuffer->r0_f->rtr = (cy_en_canfd_rtr_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_RTR, tmpregister);
-            rxBuffer->r0_f->xtd = (cy_en_canfd_xtd_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_XTD, tmpregister);
-            rxBuffer->r0_f->esi = (cy_en_canfd_esi_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_ESI, tmpregister);
+            rxBuffer->r0_f->rtr = (cy_en_canfd_rtr_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_RTR, tmpregister));
+            rxBuffer->r0_f->xtd = (cy_en_canfd_xtd_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_XTD, tmpregister));
+            rxBuffer->r0_f->esi = (cy_en_canfd_esi_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R0_ESI, tmpregister));
     
             tmpregister = *address; /* The FIFO Read pointer is post-incremented by the HW */
             rxBuffer->r1_f->rxts = _FLD2VAL(CY_CANFD_RX_BUFFER_R1_RXTS, tmpregister);
             rxBuffer->r1_f->dlc = _FLD2VAL(CY_CANFD_RX_BUFFER_R1_DLC, tmpregister);
             rxBuffer->r1_f->brs = _FLD2BOOL(CY_CANFD_RX_BUFFER_R1_BRS, tmpregister);
-            rxBuffer->r1_f->fdf = (cy_en_canfd_fdf_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_FDF, tmpregister);
+            rxBuffer->r1_f->fdf = (cy_en_canfd_fdf_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_FDF, tmpregister));
             rxBuffer->r1_f->fidx = _FLD2VAL(CY_CANFD_RX_BUFFER_R1_FIDX, tmpregister);
-            rxBuffer->r1_f->anmf = (cy_en_canfd_anmf_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_ANMF, tmpregister);
+            rxBuffer->r1_f->anmf = (cy_en_canfd_anmf_t)((uint32_t)_FLD2VAL(CY_CANFD_RX_BUFFER_R1_ANMF, tmpregister));
     
             /* ID : Shifts a standard RxID to its position */
-            if (rxBuffer->r0_f->xtd == false)
+            if (rxBuffer->r0_f->xtd == CY_CANFD_XTD_STANDARD_ID)
             {
                 rxBuffer->r0_f->id >>= CY_CANFD_EXT_IDENTIFIER_LENGTH;
             }
-    
+
             /* Copies the whole data area of one FIFO element */
             for (count = 0UL; count < dataSize; count++)
             {
                 rxBuffer->data_area_f[count] = *address; /* The FIFO read pointer is post-incremented by the HW */
             }
-    
+
             ret = CY_CANFD_SUCCESS;
         }
     }
@@ -1261,37 +1264,37 @@ cy_en_canfd_status_t Cy_CANFD_GetFIFOTop(CANFD_Type *base, uint32_t chan,
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_ExtractMsgFromRXBuffer
 *
 *******************************************************************************/
-cy_en_canfd_status_t Cy_CANFD_ExtractMsgFromRXBuffer(CANFD_Type *base, uint32_t chan, 
+cy_en_canfd_status_t Cy_CANFD_ExtractMsgFromRXBuffer(CANFD_Type *base, uint32_t chan,
                                                      bool rxFIFOMsg, uint8_t msgBufOrRxFIFONum,
-                                                     cy_stc_canfd_rx_buffer_t* rxBuffer, 
-                                                     cy_stc_canfd_context_t *context)
+                                                     cy_stc_canfd_rx_buffer_t const *rxBuffer,
+                                                     cy_stc_canfd_context_t const *context)
 {
     cy_en_canfd_status_t ret = CY_CANFD_BAD_PARAM;
     uint32_t address = 0UL;
-    if (rxFIFOMsg) 
+    if (rxFIFOMsg)
     {
         /* Reading from the FIFO buffer */
-        if (0 == msgBufOrRxFIFONum)
+        if (0U == msgBufOrRxFIFONum)
         {
             /* FIFO0 is used */
             if (_FLD2BOOL(CANFD_CH_RXFTOP_CTL_F0TPE, CANFD_RXFTOP_CTL(base, chan)))   /* The RxFifo Top pointer logic is used. */
-            {           
+            {
                 /* Gets data from the FIFO top register. The Read address is incremented by HW */
                 ret = Cy_CANFD_GetFIFOTop(base, chan, CY_CANFD_RX_FIFO0, rxBuffer);
 
             }
             else        /* The RxFifo Top pointer logic is not used */
             {
-                address = Cy_CANFD_CalcRxFifoAdrs(base, chan, 
-                                                  CY_CANFD_RX_FIFO0, 
-                                                  _FLD2VAL(CANFD_CH_M_TTCAN_RXF0S_F0GI, CANFD_RXF0S(base, chan)), 
+                address = Cy_CANFD_CalcRxFifoAdrs(base, chan,
+                                                  CY_CANFD_RX_FIFO0,
+                                                  _FLD2VAL(CANFD_CH_M_TTCAN_RXF0S_F0GI, CANFD_RXF0S(base, chan)),
                                                   context);
 
-                if (0 != address)
+                if (0UL != address)
                 {
                     /* Extracts the received message from the buffer */
                     ret = Cy_CANFD_GetRxBuffer(base, chan, address, rxBuffer);
-                
+
                     /* Acknowledges the FIFO message */
                     CANFD_RXF0A(base, chan) = _CLR_SET_FLD32U(CANFD_RXF0A(base, chan),
                                                         CANFD_CH_M_TTCAN_RXF0A_F0AI,
@@ -1303,21 +1306,21 @@ cy_en_canfd_status_t Cy_CANFD_ExtractMsgFromRXBuffer(CANFD_Type *base, uint32_t 
         {
             /* FIFO1 is used */
             if (_FLD2BOOL(CANFD_CH_RXFTOP_CTL_F1TPE, CANFD_RXFTOP_CTL(base, chan)))  /* The RxFifo Top pointer logic is used. */
-            {           
+            {
                 /* Gets data from the FIFO top register. The Read address is incremented by the HW */
-                ret = Cy_CANFD_GetFIFOTop(base, chan, (uint32_t)&CANFD_RXFTOP1_DATA(base, chan), rxBuffer);
+                ret = Cy_CANFD_GetFIFOTop(base, chan, CY_CANFD_RX_FIFO1, rxBuffer);
             }
             else        /* The RxFifo Top pointer logic is not used */
             {
-                address = Cy_CANFD_CalcRxFifoAdrs(base, chan, 
-                                                  CY_CANFD_RX_FIFO1, 
+                address = Cy_CANFD_CalcRxFifoAdrs(base, chan,
+                                                  CY_CANFD_RX_FIFO1,
                                                   _FLD2VAL(CANFD_CH_M_TTCAN_RXF1S_F1GI, CANFD_RXF1S(base, chan)),
                                                   context);
 
-                if(0 != address)
+                if(0UL != address)
                 {
                     ret = Cy_CANFD_GetRxBuffer(base, chan, address, rxBuffer);
-                    
+
                     /* Acknowledges the FIFO message */
                     CANFD_RXF1A(base, chan) = _CLR_SET_FLD32U(CANFD_RXF1A(base, chan),
                                                         CANFD_CH_M_TTCAN_RXF1A_F1AI,
@@ -1330,16 +1333,16 @@ cy_en_canfd_status_t Cy_CANFD_ExtractMsgFromRXBuffer(CANFD_Type *base, uint32_t 
     {
         /* Reads from the dedicated RX buffer */
         address = Cy_CANFD_CalcRxBufAdrs(base, chan, msgBufOrRxFIFONum, context);
-        
-        if (0 != address)
+
+        if (0UL != address)
         {
             /* Extracts the received message from the buffer */
             ret = Cy_CANFD_GetRxBuffer(base, chan, address, rxBuffer);
-            
+
             if (msgBufOrRxFIFONum < CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS)
             {
                 /* Clears the NDAT1 register */
-                CANFD_NDAT1(base, chan) = (1UL << (msgBufOrRxFIFONum));                
+                CANFD_NDAT1(base, chan) = (1UL << (msgBufOrRxFIFONum));
             }
             else
             {
@@ -1348,7 +1351,7 @@ cy_en_canfd_status_t Cy_CANFD_ExtractMsgFromRXBuffer(CANFD_Type *base, uint32_t 
             }
         }
     }
-    
+
     return ret;
 }
 
@@ -1357,7 +1360,7 @@ cy_en_canfd_status_t Cy_CANFD_ExtractMsgFromRXBuffer(CANFD_Type *base, uint32_t 
 * Function Name: Cy_CANFD_AckRxBuf
 ****************************************************************************//**
 *
-*  Acknowledges the data reading and makes the buffer element available for 
+*  Acknowledges the data reading and makes the buffer element available for
 *  a next message.
 *
 * \param *base
@@ -1379,7 +1382,7 @@ void Cy_CANFD_AckRxBuf(CANFD_Type *base, uint32_t chan, uint32_t bufNum)
     if (bufNum < CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS)
     {
         /* Clears the NDAT1 register */
-        CANFD_NDAT1(base, chan) = (1UL << (bufNum));                
+        CANFD_NDAT1(base, chan) = (1UL << (bufNum));
     }
     else
     {
@@ -1393,7 +1396,7 @@ void Cy_CANFD_AckRxBuf(CANFD_Type *base, uint32_t chan, uint32_t bufNum)
 * Function Name: Cy_CANFD_AckRxFifo
 ****************************************************************************//**
 *
-*  Acknowledges the data reading and makes the buffer element available for 
+*  Acknowledges the data reading and makes the buffer element available for
 *  a next message.
 * \note Do not use this function with Cy_CANFD_GetFIFOTop(). FIFO top logic
 *  takes care on updating the FIFO read pointer buffer with hardware.
@@ -1428,6 +1431,7 @@ void Cy_CANFD_AckRxFifo(CANFD_Type *base, uint32_t chan, uint32_t FIFOnumber)
                                                 _FLD2VAL(CANFD_CH_M_TTCAN_RXF1S_F1GI, CANFD_RXF1S(base, chan)));
             break;
         default:
+            /* Invalid FIFO number */
             break;
     }
 }
@@ -1452,7 +1456,7 @@ void Cy_CANFD_AckRxFifo(CANFD_Type *base, uint32_t chan, uint32_t FIFOnumber)
 * in this structure.
 *
 *******************************************************************************/
-void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t *context)
+void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t const *context)
 {
     uint32_t           address = 0UL;
     uint32_t           messageBufferNumber;
@@ -1481,16 +1485,16 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
             Cy_CANFD_ClearInterrupt(base, chan, status);
         }
     }
-    
+
     /* At least one received message must be stored into the Rx Buffer */
     if (CANFD_CH_M_TTCAN_IR_DRX_Msk == (Cy_CANFD_GetInterruptStatus(base, chan) & CANFD_CH_M_TTCAN_IR_DRX_Msk))
     {
         /* Clears the Message stored to the Dedicated Rx Buffer flag */
         Cy_CANFD_ClearInterrupt(base, chan, CANFD_CH_M_TTCAN_IR_DRX_Msk);
-        
+
         if (0UL != CANFD_NDAT1(base, chan))       /* Message buffers 0-31 */
         {
-            for (messageBufferNumber = 0UL; 
+            for (messageBufferNumber = 0UL;
                  messageBufferNumber < (CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS);
                  messageBufferNumber++)
             {
@@ -1498,36 +1502,34 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
                 {
                     /* Calculates the Rx Buffer address */
                     address = Cy_CANFD_CalcRxBufAdrs(base, chan, messageBufferNumber, context);
-                    
+
                     /* Clears the NDAT1 register */
                     CANFD_NDAT1(base, chan) = (1UL << messageBufferNumber);
-                    
+
                     break;
                 }
             }
         }
-        else if (0UL != CANFD_NDAT2(base, chan)) /* Message buffers 32-63 */
+        else /* Message buffers 32-63 */
         {
-            for (messageBufferNumber = 0UL; 
-                 messageBufferNumber < (CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS); 
+            for (messageBufferNumber = CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS;
+                 messageBufferNumber < (CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS + CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS);
                  messageBufferNumber++)
             {
-                if (0UL != (CANFD_NDAT2(base, chan) & (1UL << messageBufferNumber)))
+                if (0UL != (CANFD_NDAT2(base, chan) & (1UL << (messageBufferNumber - CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS))))
                 {
-                    messageBufferNumber += (CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS);
-                    
                     /* Calculates the Rx Buffer address */
                     address = Cy_CANFD_CalcRxBufAdrs(base, chan, messageBufferNumber, context);
-                    
+
                     /* Clears the NDAT2 register */
                     CANFD_NDAT2(base, chan) = (1UL << (messageBufferNumber - (CY_CANFD_MESSAGE_HALF_OF_RX_BUFFERS)));
-                    
+
                     break;
                 }
             }
         }
-        
-        if (address)
+
+        if (0UL != address)
         {
             /* Extracts the received message from a buffer */
             (void)Cy_CANFD_GetRxBuffer(base, chan, address, &rxBuffer);
@@ -1540,19 +1542,19 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
             }
         }
     }
-    else if (CANFD_CH_M_TTCAN_IR_RF0N_Msk == 
+    else if (CANFD_CH_M_TTCAN_IR_RF0N_Msk ==
              (Cy_CANFD_GetInterruptStatus(base, chan) & CANFD_CH_M_TTCAN_IR_RF0N_Msk)) /* New message stored into RxFIFO 0 */
     {
         /* Clears the new message interrupt flag */
-        Cy_CANFD_ClearInterrupt(base, chan, CANFD_CH_M_TTCAN_IR_RF0N_Msk);      
-   
+        Cy_CANFD_ClearInterrupt(base, chan, CANFD_CH_M_TTCAN_IR_RF0N_Msk);
+
         while (_FLD2VAL(CANFD_CH_M_TTCAN_RXF0S_F0FL, CANFD_RXF0S(base, chan)) > 0UL)    /* Checks the Rx FIFO 0 fill level */
         {
             if (_FLD2BOOL(CANFD_CH_RXFTOP_CTL_F0TPE, CANFD_RXFTOP_CTL(base, chan)))   /* The RxFifo Top pointer logic is used */
-            {           
+            {
                 /* Gets data from the FIFO top register. The Read address is incremented by HW */
                 (void)Cy_CANFD_GetFIFOTop(base, chan, CY_CANFD_RX_FIFO0, &rxBuffer);
-                
+
                 /* After a CAN FD message is received, checks if there is a callback function */
                 /* Calls the callback function if it was set previously */
                 if (NULL != context->canFDInterruptHandling.canFDRxInterruptFunction)
@@ -1562,16 +1564,16 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
             }
             else        /* The RxFifo Top pointer logic is not used */
             {
-                address = Cy_CANFD_CalcRxFifoAdrs(base, chan, 
-                                                  CY_CANFD_RX_FIFO0, 
-                                                  _FLD2VAL(CANFD_CH_M_TTCAN_RXF0S_F0GI, CANFD_RXF0S(base, chan)), 
+                address = Cy_CANFD_CalcRxFifoAdrs(base, chan,
+                                                  CY_CANFD_RX_FIFO0,
+                                                  _FLD2VAL(CANFD_CH_M_TTCAN_RXF0S_F0GI, CANFD_RXF0S(base, chan)),
                                                   context);
 
-                if (address)
+                if (0UL != address)
                 {
                     /* Extracts the received message from a buffer */
                     (void)Cy_CANFD_GetRxBuffer(base, chan, address, &rxBuffer);
-                
+
                     /* Acknowledges the FIFO message */
                     CANFD_RXF0A(base, chan) = _CLR_SET_FLD32U(CANFD_RXF0A(base, chan),
                                                         CANFD_CH_M_TTCAN_RXF0A_F0AI,
@@ -1587,7 +1589,7 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
             }
         }
     }
-    else if (CANFD_CH_M_TTCAN_IR_RF1N_Msk == 
+    else if (CANFD_CH_M_TTCAN_IR_RF1N_Msk ==
              (Cy_CANFD_GetInterruptStatus(base, chan) & CANFD_CH_M_TTCAN_IR_RF1N_Msk)) /* New message stored into RxFIFO 1 */
     {
         /* Clears the new message interrupt flag */
@@ -1595,10 +1597,10 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
         while (_FLD2VAL(CANFD_CH_M_TTCAN_RXF1S_F1FL, CANFD_RXF1S(base, chan)) > 0UL) /* Checks the Rx FIFO 1 fill level */
         {
             if (_FLD2BOOL(CANFD_CH_RXFTOP_CTL_F1TPE, CANFD_RXFTOP_CTL(base, chan)))  /* The RxFifo Top pointer logic is used */
-            {           
+            {
                 /* Gets data from the FIFO top register. The Read address is incremented by the HW */
-                (void)Cy_CANFD_GetFIFOTop(base, chan, (uint32_t)&CANFD_RXFTOP1_DATA(base, chan), &rxBuffer);
-                
+                (void)Cy_CANFD_GetFIFOTop(base, chan, CY_CANFD_RX_FIFO1, &rxBuffer);
+
                 /* After a CAN FD message is received, checks if there is a callback function */
                 /* Calls the callback function if it was set previously */
                 if (NULL != context->canFDInterruptHandling.canFDRxInterruptFunction)
@@ -1610,15 +1612,15 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
             }
             else        /* The RxFifo Top pointer logic is not used */
             {
-                address = Cy_CANFD_CalcRxFifoAdrs(base, chan, 
-                                                  CY_CANFD_RX_FIFO1, 
+                address = Cy_CANFD_CalcRxFifoAdrs(base, chan,
+                                                  CY_CANFD_RX_FIFO1,
                                                   _FLD2VAL(CANFD_CH_M_TTCAN_RXF1S_F1GI, CANFD_RXF1S(base, chan)),
                                                   context);
 
-                if(address)
+                if(0UL != address)
                 {
                     (void)Cy_CANFD_GetRxBuffer(base, chan, address, &rxBuffer);
-                    
+
                     /* Acknowledges the FIFO message */
                     CANFD_RXF1A(base, chan) = _CLR_SET_FLD32U(CANFD_RXF1A(base, chan),
                                                         CANFD_CH_M_TTCAN_RXF1A_F1AI,
@@ -1628,21 +1630,21 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
                     /* Calls the callback function if it was set previously */
                     if (NULL != context->canFDInterruptHandling.canFDRxInterruptFunction)
                     {
-                        context->canFDInterruptHandling.canFDRxInterruptFunction(true, 
-                                                                                 CY_CANFD_RX_FIFO1, 
+                        context->canFDInterruptHandling.canFDRxInterruptFunction(true,
+                                                                                 CY_CANFD_RX_FIFO1,
                                                                                  &rxBuffer);
                     }
                 }
             }
         }
     }
-    else if (CANFD_CH_M_TTCAN_IR_TC_Msk == 
+    else if (CANFD_CH_M_TTCAN_IR_TC_Msk ==
              (Cy_CANFD_GetInterruptStatus(base, chan) & CANFD_CH_M_TTCAN_IR_TC_Msk)) /* Transmission Completed */
     {
         /* The CAN FD message is successfully transmitted */
         /* Clears the Transmission completed flag */
         Cy_CANFD_ClearInterrupt(base, chan, CANFD_CH_M_TTCAN_IR_TC_Msk);
-        
+
         /* Calls the callback function if it was set previously */
         if (NULL != context->canFDInterruptHandling.canFDTxInterruptFunction)
         {
@@ -1660,7 +1662,7 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
 * Function Name: Cy_CANFD_TxBufferConfig
 ****************************************************************************//**
 *
-* Updates the T0 and T1 Tx buffer element parameters in Message RAM and copies 
+* Updates the T0 and T1 Tx buffer element parameters in Message RAM and copies
 * data from cy_stc_canfd_tx_buffer_t structure to Message RAM.
 * \note Function Cy_CANFD_Init() must be called before setting up an identifier
 *  and enabling this message buffer.
@@ -1683,17 +1685,17 @@ void Cy_CANFD_IrqHandler(CANFD_Type *base, uint32_t chan, cy_stc_canfd_context_t
 * configuration and data retention. The user must not modify anything
 * in this structure.
 *
-* \return 
+* \return
 * \ref cy_en_canfd_status_t
 *
-* \funcusage 
+* \funcusage
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_TxBufferConfig
 *
 *******************************************************************************/
-cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type *base, uint32_t chan, 
+cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type const *base, uint32_t chan,
                                              const cy_stc_canfd_tx_buffer_t *txBuffer,
-                                             uint8_t index, 
-                                             cy_stc_canfd_context_t *context)
+                                             uint8_t index,
+                                             cy_stc_canfd_context_t const *context)
 {
     cy_en_canfd_status_t ret = CY_CANFD_BAD_PARAM;
     uint32_t* bufferAddress;
@@ -1703,7 +1705,7 @@ cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type *base, uint32_t chan,
 
     /* Check for NULL pointers */
     if ((NULL != context) && (NULL != txBuffer))
-    { 
+    {
         if((NULL != txBuffer->t0_f) && (NULL != txBuffer->t1_f))
         {
             CY_ASSERT_L2(CY_CANFD_IS_ID_VALID(txBuffer->t0_f->id));
@@ -1714,17 +1716,17 @@ cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type *base, uint32_t chan,
             CY_ASSERT_L3(CY_CANFD_IS_FDF_VALID(txBuffer->t1_f->fdf));
             CY_ASSERT_L2(CY_CANFD_IS_TX_BUFFER_MM_VALID(txBuffer->t1_f->mm));
             CY_ASSERT_L2(CY_CANFD_IS_MESSAGE_BUFFER_IDX_VALID(index));
-    
+
             /* Get the Tx Buffer address (T0 element) */
             bufferAddress = (uint32_t *)Cy_CANFD_CalcTxBufAdrs(base, chan, index, context);
-            
+
             /* Checks whether the CAN FD controller is not in the INIT state and Tx buffer is empty or not */
             if((!((_FLD2BOOL(CANFD_CH_M_TTCAN_CCCR_INIT, CANFD_CCCR(base, chan))) ||
                 (0UL != (CANFD_TXBRP(base, chan) & (1UL << index))))) &&
                 (NULL != bufferAddress))
             {
                 /* T0 Configuration */
-                *bufferAddress = 
+                *bufferAddress =
                 _VAL2FLD(CY_CANFD_TX_BUFFER_T0_ESI, txBuffer->t0_f->esi) | /* The error state indicator */
                 _VAL2FLD(CY_CANFD_TX_BUFFER_T0_XTD, txBuffer->t0_f->xtd) | /* The extended identifier */
                 _VAL2FLD(CY_CANFD_TX_BUFFER_T0_RTR, txBuffer->t0_f->rtr) | /* A remote transmission request */
@@ -1732,17 +1734,17 @@ cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type *base, uint32_t chan,
                         (txBuffer->t0_f->id
                         << CY_CANFD_EXT_IDENTIFIER_LENGTH) :   /* The 11-bit standard identifier */
                         txBuffer->t0_f->id));                    /* The 29-bit extended identifier */
-    
+
                 /* The T1 element address of Tx Buffer*/
                 bufferAddress ++;
-    
+
                 /* Configure T1 */
                 *bufferAddress = _VAL2FLD(CY_CANFD_TX_BUFFER_T1_MM, txBuffer->t1_f->mm) | /* The message marker */
                                 _BOOL2FLD(CY_CANFD_TX_BUFFER_T1_EFC, txBuffer->t1_f->efc) | /* Event FIFO control */
                                 _VAL2FLD(CY_CANFD_TX_BUFFER_T1_FDF, txBuffer->t1_f->fdf) | /* FD format */
                                 _BOOL2FLD(CY_CANFD_TX_BUFFER_T1_BRS, txBuffer->t1_f->brs) | /* Bit rate switching */
                                 _VAL2FLD(CY_CANFD_TX_BUFFER_T1_DLC, txBuffer->t1_f->dlc);  /* Data length code */
-                                
+
                 /* Convert the DLC to data byte word */
                 if (txBuffer->t1_f->dlc < CY_CANFD_CLASSIC_CAN_DATA_LENGTH)
                 {
@@ -1752,8 +1754,8 @@ cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type *base, uint32_t chan,
                 {
                     dlcIndex = (uint32_t)(txBuffer->t1_f->dlc - CY_CANFD_CLASSIC_CAN_DATA_LENGTH);
                 }
-                dataLengthWord = dataBufferSizeInWord[dlcIndex]; 
-    
+                dataLengthWord = dataBufferSizeInWord[dlcIndex];
+
                 /* Data set */
                 bufferAddress++; /* The data area field address of Tx Buffer*/
                 if ((CY_CANFD_RTR_DATA_FRAME == txBuffer->t0_f->rtr) && (NULL != txBuffer->data_area_f))
@@ -1762,9 +1764,9 @@ cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type *base, uint32_t chan,
                     {
                         *bufferAddress = txBuffer->data_area_f[count];
                         bufferAddress++;
-                    }    
-                }            
-                                
+                    }
+                }
+
                 ret = CY_CANFD_SUCCESS;
             }
         }
@@ -1780,7 +1782,7 @@ cy_en_canfd_status_t Cy_CANFD_TxBufferConfig(CANFD_Type *base, uint32_t chan,
 *
 * Starts transmission of the message prepared with Cy_CANFD_TxBufferConfig().
 * Transmits the message immediately.
-* Function CanFD_Init() must be called before setting up the identifier and enabling 
+* Function CanFD_Init() must be called before setting up the identifier and enabling
 * this message buffer.
 *
 * \param *base
@@ -1805,13 +1807,13 @@ cy_en_canfd_status_t Cy_CANFD_TransmitTxBuffer(CANFD_Type *base, uint32_t chan,
     cy_en_canfd_status_t ret = CY_CANFD_BAD_PARAM;
 
     CY_ASSERT_L2(CY_CANFD_IS_MESSAGE_BUFFER_IDX_VALID(index));
-    
+
     /* Checks whether the CAN FD controller is not in the INIT state and Tx buffer is empty or not */
     if(!((_FLD2BOOL(CANFD_CH_M_TTCAN_CCCR_INIT, CANFD_CCCR(base, chan))) ||
          (0UL != (CANFD_TXBRP(base, chan) & (1UL << index)))))
     {
         CANFD_TXBAR(base, chan) = 1UL << index; /* Transmits the buffer add request */
-            
+
         ret = CY_CANFD_SUCCESS;
     }
     return ret;
@@ -1822,10 +1824,10 @@ cy_en_canfd_status_t Cy_CANFD_TransmitTxBuffer(CANFD_Type *base, uint32_t chan,
 * Function Name: Cy_CANFD_UpdateAndTransmitMsgBuffer
 ****************************************************************************//**
 *
-* Updates the T0 and T1 Tx buffer element parameters in Message RAM and copies 
+* Updates the T0 and T1 Tx buffer element parameters in Message RAM and copies
 * data from cy_stc_canfd_tx_buffer_t structure to Message RAM.
 * Transmits the message immediately.
-* Function CanFD_Init() must be called before setting up the identifier and enabling 
+* Function CanFD_Init() must be called before setting up the identifier and enabling
 * this message buffer.
 *
 * \param *base
@@ -1852,19 +1854,19 @@ cy_en_canfd_status_t Cy_CANFD_TransmitTxBuffer(CANFD_Type *base, uint32_t chan,
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_UpdateAndTransmitMsgBuffer
 *
 *******************************************************************************/
-cy_en_canfd_status_t Cy_CANFD_UpdateAndTransmitMsgBuffer(CANFD_Type *base, uint32_t chan, 
-                                                         const cy_stc_canfd_tx_buffer_t *txBuffer, 
-                                                         uint8_t index, 
-                                                         cy_stc_canfd_context_t *context)
+cy_en_canfd_status_t Cy_CANFD_UpdateAndTransmitMsgBuffer(CANFD_Type *base, uint32_t chan,
+                                                         const cy_stc_canfd_tx_buffer_t *txBuffer,
+                                                         uint8_t index,
+                                                         cy_stc_canfd_context_t const *context)
 {
     cy_en_canfd_status_t ret = CY_CANFD_BAD_PARAM;
-    
+
     ret = Cy_CANFD_TxBufferConfig(base, chan, txBuffer, index, context);
-    
+
     if (CY_CANFD_SUCCESS == ret)
     {
         ret = Cy_CANFD_TransmitTxBuffer(base, chan, index);
-    }        
+    }
     return ret;
 }
 
@@ -1890,24 +1892,24 @@ cy_en_canfd_status_t Cy_CANFD_UpdateAndTransmitMsgBuffer(CANFD_Type *base, uint3
 * \snippet canfd/snippet/main.c snippet_Cy_CANFD_GetTxBufferStatus
 *
 *******************************************************************************/
-cy_en_canfd_tx_buffer_status_t Cy_CANFD_GetTxBufferStatus(CANFD_Type *base, uint32_t chan, uint8_t index)
+cy_en_canfd_tx_buffer_status_t Cy_CANFD_GetTxBufferStatus(CANFD_Type const *base, uint32_t chan, uint8_t index)
 {
     cy_en_canfd_tx_buffer_status_t enTxBufferStatus;
-    
+
     CY_ASSERT_L2(CY_CANFD_IS_MESSAGE_BUFFER_IDX_VALID(index));
-    
+
     /* Initializes return value */
     enTxBufferStatus = CY_CANFD_TX_BUFFER_IDLE;
-    
+
     if(0UL != (CANFD_TXBRP(base, chan) & (1UL << index)))    /* Pending transmission request */
     {
         /* Checks if the cancel request was issued */
-        if(0UL == (CANFD_TXBCR(base, chan) & (1UL << index))) 
+        if(0UL == (CANFD_TXBCR(base, chan) & (1UL << index)))
         {
             /* No cancellation request */
             enTxBufferStatus = CY_CANFD_TX_BUFFER_PENDING;
         }
-        else        
+        else
         {
             /* Cancel request issued */
             enTxBufferStatus = CY_CANFD_TX_BUFFER_CANCEL_REQUESTED;
@@ -1925,7 +1927,7 @@ cy_en_canfd_tx_buffer_status_t Cy_CANFD_GetTxBufferStatus(CANFD_Type *base, uint
     {
         /* Closing if-else-if sequence */
     }
-    
+
     return enTxBufferStatus;
 }
 

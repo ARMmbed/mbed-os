@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_vu.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API for the Vector Unit helpers
@@ -38,6 +38,9 @@ extern "C" {
 #include "cy_crypto_core_hw_v2.h"
 #include "cy_crypto_core_mem.h"
 #include "cy_syslib.h"
+
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 4, \
+'CRYPTO_Type will typecast to either CRYPTO_V1_Type or CRYPTO_V2_Type but not both on PDL initialization based on the target device at compile time.');
 
 #if !defined(CY_CRYPTO_SERVICE_LIBRARY_LEVEL)
     #define CY_CRYPTO_SERVICE_LIBRARY_LEVEL CY_CRYPTO_FULL_LIBRARY
@@ -104,6 +107,8 @@ void Cy_Crypto_Core_Vu_GetMemValue(CRYPTO_Type *base, uint8_t *dst, uint32_t src
 
 cy_en_crypto_status_t Cy_Crypto_Core_Cleanup(CRYPTO_Type *base)
 {
+    uint16_t vu_mem_size = 0U;
+    void *vu_mem_address = NULL;
     /* Clear whole register file */
     Cy_Crypto_Core_ClearVuRegisters(base);
 
@@ -141,7 +146,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_Cleanup(CRYPTO_Type *base)
         Cy_Crypto_Core_V2_RBClear(base);
     }
 
-    Cy_Crypto_Core_MemSet(base, (void *)Cy_Crypto_Core_GetVuMemoryAddress(base), 0u, (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base));
+    vu_mem_address = Cy_Crypto_Core_GetVuMemoryAddress(base);
+    vu_mem_size = (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base);
+
+    Cy_Crypto_Core_MemSet(base, vu_mem_address, 0u, vu_mem_size);
 
     return (CY_CRYPTO_SUCCESS);
 }
@@ -212,6 +220,7 @@ void Cy_Crypto_Core_VU_RegInvertEndianness(CRYPTO_Type *base, uint32_t srcReg)
     uint32_t *dataAddr = Cy_Crypto_Core_Vu_RegMemPointer(base, srcReg);
     Cy_Crypto_Core_InvertEndianness(dataAddr, byteSize);
 }
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 

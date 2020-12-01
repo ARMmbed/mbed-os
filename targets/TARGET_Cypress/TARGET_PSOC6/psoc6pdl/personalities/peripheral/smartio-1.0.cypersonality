@@ -35,16 +35,17 @@
   <Parameters>
     <!-- PDL documentation -->
     <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__smartio.html" linkText="Open SmartIO Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
-  
+
     <!-- External tools -->
     <ParamCustom id="SmartIOConfigurator" name="Smart I/O Configurator" group="External Tools" default="0" path="`${cy_tools_path(&quot;smartio-configurator&quot;) . &quot;/smartio-configurator&quot;}`" modal="true" visible="true" editable="true" desc="Launch Smart I/O Configurator">
         <Arg value="`${&quot;--design=&quot; . cy_design_file()}`" />
+        <Arg value="`${&quot;--library=&quot; . cy_libs_file()}`" />
         <Arg value="`${&quot;--resource=ioss[0].port[&quot; . getInstNumber(&quot;port&quot;) . &quot;].smartio[0]&quot;}`" />
     </ParamCustom>
 
     <!-- Debug Enable -->
     <ParamBool id="debug" name="Debug Flag" group="General" default="false" visible="false" editable="false" desc="Set this to true to expose all parameters" />
-    
+
     <!--General-->
     <ParamChoice id="clkSrc" name="Clock Source" group="General" default="CY_SMARTIO_CLK_ASYNC" visible="`${(debug eq true)}`" editable="true" desc="Smart I/O instance clock source" >
       <Entry name="Signal on I/O terminal 0" value="CY_SMARTIO_CLK_IO0" visible="true" />
@@ -102,7 +103,7 @@
       <ParamBool id="hasChipIn$idx" group="Internal" name="has chip in connection" visible="false" editable="false" default="`${hasVisibleOption(&quot;chip_in[$idx]&quot;)}`" desc="chip in connection available" />
       <ParamBool id="hasChipInout$idx" group="Internal" name="has chip inout connection" visible="false" editable="false" default="`${hasVisibleOption(&quot;chip_inout[$idx]&quot;)}`" desc="chip inout connection available"/>
       <ParamBool id="hasAnyChip$idx" group="Internal" name="has any chip connection" visible="false" editable="false" default="`${hasChipIn$idx || hasChipOut$idx || hasChipInout$idx}`" desc="any chip connection available"/>
-      
+
       <!-- Chip_in and chip_out's visibility expressions appear reversed. They are not. The in/out are with respect to the chip -->
       <ParamChoice id="chipMode$idx" name="Chip terminal $idx mode" group="Chip Terminal" default="`${hasAnyChip$idx &amp;&amp; hasAnyIo$idx ? CY_SMARTIO_BYPASS : CY_SMARTIO_NONE}`" visible="`${(debug eq true)}`" editable="`${hasAnyChip$idx}`" desc="Chip terminal $idx signal mode/direction" >
         <Entry name="Bypass" value="CY_SMARTIO_BYPASS" visible="`${hasAnyChip$idx &amp;&amp; hasAnyIo$idx}`" />
@@ -126,7 +127,7 @@
       </ParamChoice>
 
       <ParamRange id="lut$idxMap" name="LUT mapping" group="LUT$idx" default="0" min="0" max="`${pow(2, 8)-1}`" resolution="1" visible="`${(debug eq true)}`" editable="true" desc="LUT truth table: LUT out = 3'b{TR2,TR1,TR0}" />
-      
+
       <ParamChoice id="lut$idxTr0" name="Input TR0" group="LUT$idx" default="CY_SMARTIO_LUTTR_INVALID" visible="`${(debug eq true)}`" editable="true" desc="LUT$idx input trigger 0 selection" >
         <Entry name="DU" value="CY_SMARTIO_LUTTR_DU_OUT" visible="true" />
         <Entry name="LUT1" value="CY_SMARTIO_LUTTR_LUT1_OUT" visible="true" />
@@ -238,7 +239,7 @@
       <Entry name="7-bits size/width operand" value="CY_SMARTIO_DUSIZE_7" visible="true" />
       <Entry name="8-bits size/width operand" value="CY_SMARTIO_DUSIZE_8" visible="true" />
     </ParamChoice>
-    
+
     <ParamChoice id="duTr0" name="Input TR0" group="DU" default="CY_SMARTIO_DUTR_ZERO" visible="`${(debug eq true)}`" editable="true" desc="DU input trigger 0 selection" >
       <Entry name="Constant 0" value="CY_SMARTIO_DUTR_ZERO" visible="true" />
       <Entry name="Constant 1" value="CY_SMARTIO_DUTR_ONE" visible="true" />
@@ -296,13 +297,13 @@
     </ParamChoice>
 
     <ParamRange id="duDataReg" name="DATA Register" group="DU" default="0" min="0" max="`${pow(2, 8)-1}`" resolution="1" visible="`${(debug eq true)}`" editable="true" desc="DU DATA 8-bit Register value" />
-    
+
     <!--Config-->
     <ParamBool id="inFlash" name="Store Config in Flash" group="Advanced" default="true" visible="true" editable="true" desc="Controls whether the configuration structure is stored in Flash (const, true) or SRAM (not const, false)." />
-    
+
     <!-- Port instance number -->
     <ParamString id="InstNumber" name="InstNumber" group="Internal" default="`${getInstNumber(&quot;port&quot;)}`" visible="false" editable="false" desc="Port Instance name number." />
-    
+
     <!-- Peripheral clock divider connection -->
     <ParamString id="pclk" name="PCLK" group="Internal" default="`${getBlockFromSignal(&quot;clock[0]&quot;)}`" visible="false" editable="false" desc="Connected peripheral clock divider (PCLK)." />
     <ParamBool id="pclkOk" name="PCLK Valid" group="Internal" default="`${hasConnection(&quot;clock&quot;, 0) &amp;&amp; isBlockUsed(pclk)}`" visible="false" editable="false" desc="Checks whether there is a PCLK connected and enabled." />
@@ -318,36 +319,36 @@
     <DRC type="ERROR" text="Chip terminal [$idx] cannot simultaneously be used as an input to a LUT$idx input trigger and be used as the Smart I/O block clock source." condition="`${((lut$idxTr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut$idxTr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut$idxTr2 eq CY_SMARTIO_LUTTR_CHIP$idx)) &amp;&amp; (clkSrc eq CY_SMARTIO_CLK_CHIP$idx)}`" repeatCount="8" />
     <!--LUT I/O terminal clock DRCs-->
     <DRC type="ERROR" text="I/O terminal [$idx] cannot simultaneously be used as an input to a LUT$idx input trigger and be used as the Smart I/O block clock source." condition="`${((lut$idxTr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut$idxTr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut$idxTr2 eq CY_SMARTIO_LUTTR_IO$idx)) &amp;&amp; (clkSrc eq CY_SMARTIO_CLK_IO$idx)}`" repeatCount="8" />
-    
+
     <!--LUT TR DRCs-->
-    <DRC type="ERROR" text="Invalid LUT connection. All three input trigger terminals of LUT [$idx] must have signal sources." 
-    condition="`${((lut$idxTr0 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 eq CY_SMARTIO_LUTTR_INVALID)) 
-    || ((lut$idxTr0 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 ne CY_SMARTIO_LUTTR_INVALID)) 
-    || ((lut$idxTr0 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 eq CY_SMARTIO_LUTTR_INVALID)) 
-    || ((lut$idxTr0 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 ne CY_SMARTIO_LUTTR_INVALID)) 
-    || ((lut$idxTr0 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 eq CY_SMARTIO_LUTTR_INVALID)) 
-    || ((lut$idxTr0 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 ne CY_SMARTIO_LUTTR_INVALID))}`" 
+    <DRC type="ERROR" text="Invalid LUT connection. All three input trigger terminals of LUT [$idx] must have signal sources."
+    condition="`${((lut$idxTr0 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 eq CY_SMARTIO_LUTTR_INVALID))
+    || ((lut$idxTr0 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 ne CY_SMARTIO_LUTTR_INVALID))
+    || ((lut$idxTr0 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 eq CY_SMARTIO_LUTTR_INVALID))
+    || ((lut$idxTr0 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 ne CY_SMARTIO_LUTTR_INVALID))
+    || ((lut$idxTr0 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 ne CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 eq CY_SMARTIO_LUTTR_INVALID))
+    || ((lut$idxTr0 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr1 eq CY_SMARTIO_LUTTR_INVALID) &amp;&amp; (lut$idxTr2 ne CY_SMARTIO_LUTTR_INVALID))}`"
     repeatCount="8" />
-    
+
     <!--LUT-DU TR0 DRCs-->
-    <DRC type="ERROR" text="Invalid LUT connection. LUT [$idx] TR0 is sourced from DU but the Data Unit is not enabled to drive it." 
+    <DRC type="ERROR" text="Invalid LUT connection. LUT [$idx] TR0 is sourced from DU but the Data Unit is not enabled to drive it."
     condition="`${(lut$idxTr0 eq CY_SMARTIO_LUTTR_DU_OUT) &amp;&amp; (duEn eq false)}`" repeatCount="8" />
-    
+
     <!--DU-LUT TR0 DRCs-->
-    <DRC type="ERROR" text="Invalid DU connection. DU TR0 is sourced from LUT [$idx] but the LUT is not enabled to drive it." 
+    <DRC type="ERROR" text="Invalid DU connection. DU TR0 is sourced from LUT [$idx] but the LUT is not enabled to drive it."
     condition="`${(duTr0 eq CY_SMARTIO_DUTR_LUT$idx_OUT) &amp;&amp; (lutEn$idx eq false)}`" repeatCount="8" />
-    
+
     <!--DU-LUT TR1 DRCs-->
-    <DRC type="ERROR" text="Invalid DU connection. DU TR1 is sourced from LUT [$idx] but the LUT is not enabled to drive it." 
+    <DRC type="ERROR" text="Invalid DU connection. DU TR1 is sourced from LUT [$idx] but the LUT is not enabled to drive it."
     condition="`${(duTr1 eq CY_SMARTIO_DUTR_LUT$idx_OUT) &amp;&amp; (lutEn$idx eq false)}`" repeatCount="8" />
-    
+
     <!--DU-LUT TR2 DRCs-->
-    <DRC type="ERROR" text="Invalid DU connection. DU TR2 is sourced from LUT [$idx] but the LUT is not enabled to drive it." 
+    <DRC type="ERROR" text="Invalid DU connection. DU TR2 is sourced from LUT [$idx] but the LUT is not enabled to drive it."
     condition="`${(duTr2 eq CY_SMARTIO_DUTR_LUT$idx_OUT) &amp;&amp; (lutEn$idx eq false)}`" repeatCount="8" />
-    
+
     <!--I/O input terminal DRCs-->
-    <DRC type="WARNING" text="I/O [$idx] terminal is configured to be an input but it is not used in this design." 
-    condition="`${((ioMode$idx eq CY_SMARTIO_SYNC_INPUT) || (ioMode$idx eq CY_SMARTIO_ASYNC_INPUT)) &amp;&amp; 
+    <DRC type="WARNING" text="I/O [$idx] terminal is configured to be an input but it is not used in this design."
+    condition="`${((ioMode$idx eq CY_SMARTIO_SYNC_INPUT) || (ioMode$idx eq CY_SMARTIO_ASYNC_INPUT)) &amp;&amp;
     (((lut0Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut0Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut0Tr2 eq CY_SMARTIO_LUTTR_IO$idx) ||
      (lut1Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut1Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut1Tr2 eq CY_SMARTIO_LUTTR_IO$idx) ||
      (lut2Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut2Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut2Tr2 eq CY_SMARTIO_LUTTR_IO$idx) ||
@@ -355,16 +356,16 @@
      (lut4Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut4Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut4Tr2 eq CY_SMARTIO_LUTTR_IO$idx) ||
      (lut5Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut5Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut5Tr2 eq CY_SMARTIO_LUTTR_IO$idx) ||
      (lut6Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut6Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut6Tr2 eq CY_SMARTIO_LUTTR_IO$idx) ||
-     (lut7Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut7Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut7Tr2 eq CY_SMARTIO_LUTTR_IO$idx)) eq false)}`" 
+     (lut7Tr0 eq CY_SMARTIO_LUTTR_IO$idx) || (lut7Tr1 eq CY_SMARTIO_LUTTR_IO$idx) || (lut7Tr2 eq CY_SMARTIO_LUTTR_IO$idx)) eq false)}`"
     repeatCount="8" />
-    
+
     <!--I/O output terminal DRCs-->
-    <DRC type="WARNING" text="I/O [$idx] terminal is configured to be an output but LUT [$idx] is not enabled to drive it." 
+    <DRC type="WARNING" text="I/O [$idx] terminal is configured to be an output but LUT [$idx] is not enabled to drive it."
     condition="`${(ioMode$idx eq CY_SMARTIO_OUTPUT) &amp;&amp; (lutEn$idx eq false)}`" repeatCount="8" />
-    
+
     <!--Chip input terminal DRCs-->
-    <DRC type="WARNING" text="Chip [$idx] terminal is configured to be an input but it is not used in this design." 
-    condition="`${((chipMode$idx eq CY_SMARTIO_SYNC_INPUT) || (chipMode$idx eq CY_SMARTIO_ASYNC_INPUT)) &amp;&amp; 
+    <DRC type="WARNING" text="Chip [$idx] terminal is configured to be an input but it is not used in this design."
+    condition="`${((chipMode$idx eq CY_SMARTIO_SYNC_INPUT) || (chipMode$idx eq CY_SMARTIO_ASYNC_INPUT)) &amp;&amp;
     (((lut0Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut0Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut0Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx) ||
      (lut1Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut1Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut1Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx) ||
      (lut2Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut2Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut2Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx) ||
@@ -372,11 +373,11 @@
      (lut4Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut4Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut4Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx) ||
      (lut5Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut5Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut5Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx) ||
      (lut6Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut6Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut6Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx) ||
-     (lut7Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut7Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut7Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx)) eq false)}`" 
+     (lut7Tr0 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut7Tr1 eq CY_SMARTIO_LUTTR_CHIP$idx) || (lut7Tr2 eq CY_SMARTIO_LUTTR_CHIP$idx)) eq false)}`"
     repeatCount="8" />
-    
+
     <!--Chip output terminal DRCs-->
-    <DRC type="WARNING" text="Chip [$idx] terminal is configured to be an output but LUT [$idx] is not enabled to drive it." 
+    <DRC type="WARNING" text="Chip [$idx] terminal is configured to be an output but LUT [$idx] is not enabled to drive it."
     condition="`${(chipMode$idx eq CY_SMARTIO_OUTPUT) &amp;&amp; (lutEn$idx eq false)}`" repeatCount="8" />
 
     <!-- in/out is deliberately flipped between the condition and the DRC. In/out are with respect to the chip, so we reverse them for text we show to the user -->

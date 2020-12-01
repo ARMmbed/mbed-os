@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v2.c
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the source code to the API for the SHA method
@@ -37,7 +37,6 @@ extern "C" {
 #include "cy_crypto_core_hw_v2.h"
 #include "cy_crypto_core_mem_v2.h"
 #include "cy_syslib.h"
-#include <string.h>
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_V2_Sha_Init

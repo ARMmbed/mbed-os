@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_pipe.h
-* \version 1.40.2
+* \version 1.50
 *
 *  Description:
 *   IPC Pipe Driver - This header file contains all the function prototypes,
@@ -108,11 +108,11 @@ typedef cy_ipc_pipe_callback_ptr_t *cy_ipc_pipe_callback_array_ptr_t;
 
 
 
-#define CY_IPC_PIPE_MSG_CLIENT_Msk     (0x000000FFul)   /**< Client mask for first word of Pipe message */
-#define CY_IPC_PIPE_MSG_CLIENT_Pos     (0ul)            /**< Client shift for first word of Pipe message */
-#define CY_IPC_PIPE_MSG_USR_Msk        (0x0000FF00ul)   /**< User data mask for first word of Pipe message */
-#define CY_IPC_PIPE_MSG_USR_Pos        (8ul)            /**< User data shift for first word of Pipe message */
-#define CY_IPC_PIPE_MSG_RELEASE_Msk    (0xFFFF0000ul)   /**< Mask for message release mask */
+#define CY_IPC_PIPE_MSG_CLIENT_Msk     (0x000000FFUL)   /**< Client mask for first word of Pipe message */
+#define CY_IPC_PIPE_MSG_CLIENT_Pos     (0UL)            /**< Client shift for first word of Pipe message */
+#define CY_IPC_PIPE_MSG_USR_Msk        (0x0000FF00UL)   /**< User data mask for first word of Pipe message */
+#define CY_IPC_PIPE_MSG_USR_Pos        (8UL)            /**< User data shift for first word of Pipe message */
+#define CY_IPC_PIPE_MSG_RELEASE_Msk    (0xFFFF0000UL)   /**< Mask for message release mask */
 #define CY_IPC_PIPE_MSG_RELEASE_Pos    (16UL)           /**< Shift require to line up mask to LSb */
 
 /** Use to set the busy flag when waiting for a release interrupt */
@@ -187,7 +187,7 @@ typedef struct
 * \{
 */
 /* Status and error types */
-#define CY_IPC_PIPE_RTN        (0x0200ul)                                       /**< Software PDL driver ID for IPC pipe functions */
+#define CY_IPC_PIPE_RTN        (0x0200UL)                                       /**< Software PDL driver ID for IPC pipe functions */
 #define CY_IPC_PIPE_ID_INFO    (uint32_t)( CY_IPC_ID_INFO    | CY_IPC_PIPE_RTN) /**< Return prefix for IPC pipe function status codes */
 #define CY_IPC_PIPE_ID_WARNING (uint32_t)( CY_IPC_ID_WARNING | CY_IPC_PIPE_RTN) /**< Return prefix for IPC pipe function warning return values */
 #define CY_IPC_PIPE_ID_ERROR   (uint32_t)( CY_IPC_ID_ERROR   | CY_IPC_PIPE_RTN) /**< Return prefix for IPC pipe function error return values */
@@ -203,16 +203,16 @@ typedef struct
 typedef enum
 {
     CY_IPC_PIPE_SUCCESS            =(uint32_t)(0x00u),                      /**<  Pipe API return for no error */
-    CY_IPC_PIPE_ERROR_NO_IPC       =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 1ul), /**<  Pipe API return for no valid IPC channel */
-    CY_IPC_PIPE_ERROR_NO_INTR      =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 2ul), /**<  Pipe API return for no valid interrupt */
-    CY_IPC_PIPE_ERROR_BAD_PRIORITY =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 3ul), /**<  Pipe API return for bad priority parameter */
-    CY_IPC_PIPE_ERROR_BAD_HANDLE   =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 4ul), /**<  Pipe API return for bad pipe handle */
-    CY_IPC_PIPE_ERROR_BAD_ID       =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 5ul), /**<  Pipe API return for bad pipe ID */
-    CY_IPC_PIPE_ERROR_DIR_ERROR    =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 6ul), /**<  Pipe API return for invalid direction (Not used at this time) */
-    CY_IPC_PIPE_ERROR_SEND_BUSY    =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 7ul), /**<  Pipe API return for pipe is currently busy */
-    CY_IPC_PIPE_ERROR_NO_MESSAGE   =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 8ul), /**<  Pipe API return for no message indicated   */
-    CY_IPC_PIPE_ERROR_BAD_CPU      =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 9ul), /**<  Pipe API return for invalid CPU value      */
-    CY_IPC_PIPE_ERROR_BAD_CLIENT   =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 10ul) /**< Pipe API return for client out of range    */
+    CY_IPC_PIPE_ERROR_NO_IPC       =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 1UL), /**<  Pipe API return for no valid IPC channel */
+    CY_IPC_PIPE_ERROR_NO_INTR      =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 2UL), /**<  Pipe API return for no valid interrupt */
+    CY_IPC_PIPE_ERROR_BAD_PRIORITY =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 3UL), /**<  Pipe API return for bad priority parameter */
+    CY_IPC_PIPE_ERROR_BAD_HANDLE   =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 4UL), /**<  Pipe API return for bad pipe handle */
+    CY_IPC_PIPE_ERROR_BAD_ID       =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 5UL), /**<  Pipe API return for bad pipe ID */
+    CY_IPC_PIPE_ERROR_DIR_ERROR    =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 6UL), /**<  Pipe API return for invalid direction (Not used at this time) */
+    CY_IPC_PIPE_ERROR_SEND_BUSY    =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 7UL), /**<  Pipe API return for pipe is currently busy */
+    CY_IPC_PIPE_ERROR_NO_MESSAGE   =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 8UL), /**<  Pipe API return for no message indicated   */
+    CY_IPC_PIPE_ERROR_BAD_CPU      =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 9UL), /**<  Pipe API return for invalid CPU value      */
+    CY_IPC_PIPE_ERROR_BAD_CLIENT   =(uint32_t)(CY_IPC_PIPE_ID_ERROR | 10UL) /**< Pipe API return for client out of range    */
 } cy_en_ipc_pipe_status_t;
 
 /** \} group_ipc_pipe_enums */

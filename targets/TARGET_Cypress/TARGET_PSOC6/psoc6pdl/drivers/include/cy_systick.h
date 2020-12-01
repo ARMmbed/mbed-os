@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_systick.h
-* \version 1.20
+* \version 1.30
 *
 * Provides the API declarations of the SysTick driver.
 *
@@ -57,31 +57,21 @@
 * Refer to the SysTick section of the ARM reference guide for complete details on the registers and their use.
 * See also the "CPU Subsystem (CPUSS)" chapter of the device technical reference manual (TRM).
 *
-* \section group_systick_MISRA MISRA-C Compliance
-*
-* <table class="doxtable">
-*   <tr>
-*       <th>MISRA Rule</th>
-*       <th>Rule Class (Required/Advisory)</th>
-*       <th>Rule Description</th>
-*       <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*       <td>8.12</td>
-*       <td>Required</td>
-*       <td>When an array is declared with external linkage, its size shall be
-*           stated explicitly or defined implicitly by initialization.</td>
-*       <td>The warning is related to the __ramVectors symbol defined in the assembly startup code.
-*           It's size is device-specific and unknown to the SysTick driver.</td>
-*   </tr>
-* </table>
-*
 * \section group_systick_changelog Changelog
 *
 * <table class="doxtable">
 * <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 * <tr>
-*   <td rowspan="2">1.20.</td>
+*   <td rowspan="2">1.30</td>
+*     <td>Added function parameter checks.</td>
+*     <td>Improved the debugging capability.</td>
+* </tr>
+* <tr>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+* </tr>
+* <tr>
+*   <td rowspan="2">1.20</td>
 *     <td>Updated Cy_SysTick_SetClockSource() for the PSoC 64 devices,
 *         so that passing any other value than CY_SYSTICK_CLOCK_SOURCE_CLK_CPU
 *         will not affect clock source and it will be as
@@ -189,13 +179,17 @@ __STATIC_INLINE void Cy_SysTick_Clear(void);
 #define SYSTICK_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define SYSTICK_DRV_VERSION_MINOR       20
+#define SYSTICK_DRV_VERSION_MINOR       30
 
 /** Number of the callbacks assigned to the SysTick interrupt */
 #define CY_SYS_SYST_NUM_OF_CALLBACKS         (5u)
 
 /** \} group_systick_macros */
 
+/** \cond */
+/** Macros for the conditions used by CY_ASSERT calls */
+#define CY_SYSTICK_IS_RELOAD_VALID(load)     ((load) <= 0xFFFFFFUL)
+/** \endcond */
 
 /** \cond */
 /** Interrupt number in the vector table */
@@ -250,6 +244,8 @@ __STATIC_INLINE void Cy_SysTick_DisableInterrupt(void)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysTick_SetReload(uint32_t value)
 {
+    CY_ASSERT_L1(CY_SYSTICK_IS_RELOAD_VALID(value));
+
     SYSTICK_LOAD = (value & SysTick_LOAD_RELOAD_Msk);
 }
 
@@ -307,6 +303,9 @@ __STATIC_INLINE void Cy_SysTick_Clear(void)
 * returned.
 *
 * \sideeffect Clears the SysTick count flag if it was set.
+*
+* \note Applicable only in Polling mode. If the SysTick interrupt is enabled,
+* the count flag will be cleared automatically on interrupt event.
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_SysTick_GetCountFlag(void)

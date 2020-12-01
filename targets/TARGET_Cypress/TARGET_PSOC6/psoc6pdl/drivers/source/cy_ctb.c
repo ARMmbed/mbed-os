@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.c
-* \version 1.20
+* \version 2.0
 *
 * \brief
 * Provides the public functions for the CTB driver.
@@ -31,6 +31,35 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 121, \
+'CTBM_Type will typecast to either CTBM_V1_Type or CTBM_V2_Type but not both on PDL initialization based on the target device at compile time.');
+static uint32_t cy_ctb_oa0Sw;  /**< Opamp0 routing control register storage */
+static uint32_t cy_ctb_oa1Sw;  /**< Opamp1 routing control register storage */
+static uint32_t cy_ctb_ctdSw;  /**< CTDAC/CTB routing control register storage */
+
+#define OA0_SW_Msk            (CTBM_OA0_SW_OA0P_A00_Msk | \
+                               CTBM_OA0_SW_OA0P_A20_Msk | \
+                               CTBM_OA0_SW_OA0P_A30_Msk | \
+                               CTBM_OA0_SW_OA0M_A11_Msk | \
+                               CTBM_OA0_SW_OA0M_A81_Msk )
+
+#define OA1_SW_Msk            (CTBM_OA1_SW_OA1P_A03_Msk | \
+                               CTBM_OA1_SW_OA1P_A13_Msk | \
+                               CTBM_OA1_SW_OA1P_A43_Msk | \
+                               CTBM_OA1_SW_OA1P_A73_Msk | \
+                               CTBM_OA1_SW_OA1M_A22_Msk | \
+                               CTBM_OA1_SW_OA1M_A82_Msk )
+
+#define OA0_CTD_SW_Msk        (CTBM_CTD_SW_CTDH_CA0_Msk | \
+                               CTBM_CTD_SW_CTDH_CIS_Msk | \
+                               CTBM_CTD_SW_CTDH_ILR_Msk )
+
+#define OA1_CTD_SW_Msk        (CTBM_CTD_SW_CTDS_CRS_Msk | \
+                               CTBM_CTD_SW_CTDS_COR_Msk )
+
+#define CTD_SW_Msk            (OA0_CTD_SW_Msk | \
+                               OA1_CTD_SW_Msk)
+
 
 /***************************************
 *       Fast Config Selections
@@ -147,6 +176,88 @@ const cy_stc_ctb_fast_config_oa1_t Cy_CTB_Fast_Opamp1_Vdac_Ref_Pin5 =
     /*.ctdSwitchCtrl   */ (uint32_t) CY_CTB_SW_CTD_REF_OA1_OUT_MASK,
 };
 
+
+/*******************************************************************************
+* Function Name: Cy_CTB_Enable
+****************************************************************************//**
+*
+* Power up the CTB hardware block.
+*
+* \param base
+* Pointer to structure describing registers
+*
+* \return None
+*
+*******************************************************************************/
+void Cy_CTB_Enable(CTBM_Type *base)
+{
+    CTBM_CTB_CTRL(base) |= CTBM_CTB_CTRL_ENABLED_Msk;
+
+    if ((uint32_t)CY_CTB_POWER_OFF != (CTBM_OA_RES0_CTRL_OA0_PWR_MODE_Msk & CTBM_OA_RES0_CTRL(base)))
+    {
+        CTBM_OA0_SW(base) = cy_ctb_oa0Sw;
+        CTBM_CTD_SW(base) = OA0_CTD_SW_Msk & cy_ctb_ctdSw;
+    }
+
+    if ((uint32_t)CY_CTB_POWER_OFF != (CTBM_OA_RES1_CTRL_OA1_PWR_MODE_Msk & CTBM_OA_RES1_CTRL(base)))
+    {
+        CTBM_OA1_SW(base) = cy_ctb_oa1Sw;
+        CTBM_CTD_SW(base) = OA1_CTD_SW_Msk & cy_ctb_ctdSw;
+    }
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_CTB_Disable
+****************************************************************************//**
+*
+* Power down the CTB hardware block.
+*
+* \param base
+* Pointer to structure describing registers
+*
+* \return None
+*
+*******************************************************************************/
+void Cy_CTB_Disable(CTBM_Type *base)
+{
+    CTBM_CTB_CTRL(base) &= (~CTBM_CTB_CTRL_ENABLED_Msk);
+
+    if ((uint32_t)CY_CTB_POWER_OFF != (CTBM_OA_RES0_CTRL_OA0_PWR_MODE_Msk & CTBM_OA_RES0_CTRL(base)))
+    {
+        cy_ctb_oa0Sw = OA0_SW_Msk & CTBM_OA0_SW(base);
+        cy_ctb_ctdSw &= ~OA0_CTD_SW_Msk;
+        cy_ctb_ctdSw |= OA0_CTD_SW_Msk & CTBM_CTD_SW(base);
+
+        CTBM_OA0_SW_CLEAR(base) = cy_ctb_oa0Sw;
+        CTBM_CTD_SW_CLEAR(base) = cy_ctb_ctdSw;
+    }
+
+    if ((uint32_t)CY_CTB_POWER_OFF != (CTBM_OA_RES1_CTRL_OA1_PWR_MODE_Msk & CTBM_OA_RES1_CTRL(base)))
+    {
+        cy_ctb_oa1Sw = OA1_SW_Msk & CTBM_OA1_SW(base);
+        cy_ctb_ctdSw &= ~OA1_CTD_SW_Msk;
+        cy_ctb_ctdSw |= OA1_CTD_SW_Msk & CTBM_CTD_SW(base);
+
+        CTBM_OA1_SW_CLEAR(base) = cy_ctb_oa1Sw;
+        CTBM_CTD_SW_CLEAR(base) = cy_ctb_ctdSw;
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_CTB_IsEnabled
+****************************************************************************//**
+*
+* Returns CTB enabled/disabled state.
+*
+*******************************************************************************/
+static bool Cy_CTB_IsEnabled(const CTBM_Type *base);
+static bool Cy_CTB_IsEnabled(const CTBM_Type *base)
+{
+    return(_FLD2BOOL(CTBM_CTB_CTRL_ENABLED, CTBM_CTB_CTRL(base)));
+}
+
+
 /*******************************************************************************
 * Function Name: Cy_CTB_Init
 ****************************************************************************//**
@@ -218,25 +329,25 @@ cy_en_ctb_status_t Cy_CTB_Init(CTBM_Type *base, const cy_stc_ctb_config_t *confi
 
         CTBM_CTB_CTRL(base) = (uint32_t) config->deepSleep;
         CTBM_OA_RES0_CTRL(base) = (uint32_t) config->oa0Power \
-                             | (uint32_t) config->oa0Mode \
-                             | (uint32_t) config->oa0Pump \
-                             | (uint32_t) config->oa0CompEdge \
-                             | (uint32_t) config->oa0CompLevel \
-                             | (uint32_t) config->oa0CompBypass \
-                             | (uint32_t) config->oa0CompHyst \
-                             | ((CY_CTB_MODE_OPAMP1X == config->oa0Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
+                                | (uint32_t) config->oa0Mode \
+                                | (uint32_t) config->oa0Pump \
+                                | (uint32_t) config->oa0CompEdge \
+                                | (uint32_t) config->oa0CompLevel \
+                                | (uint32_t) config->oa0CompBypass \
+                                | (uint32_t) config->oa0CompHyst \
+                                | (uint32_t) ((CY_CTB_MODE_OPAMP1X == config->oa0Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
 
         CTBM_OA_RES1_CTRL(base) = (uint32_t) config->oa1Power \
-                             | (uint32_t) config->oa1Mode \
-                             | (uint32_t) config->oa1Pump \
-                             | (uint32_t) config->oa1CompEdge \
-                             | (uint32_t) config->oa1CompLevel \
-                             | (uint32_t) config->oa1CompBypass \
-                             | (uint32_t) config->oa1CompHyst \
-                             | ((CY_CTB_MODE_OPAMP1X == config->oa1Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
+                                | (uint32_t) config->oa1Mode \
+                                | (uint32_t) config->oa1Pump \
+                                | (uint32_t) config->oa1CompEdge \
+                                | (uint32_t) config->oa1CompLevel \
+                                | (uint32_t) config->oa1CompBypass \
+                                | (uint32_t) config->oa1CompHyst \
+                                | (uint32_t) ((CY_CTB_MODE_OPAMP1X == config->oa1Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
 
         CTBM_INTR_MASK(base) = (config->oa0CompIntrEn ? CTBM_INTR_MASK_COMP0_MASK_Msk : CY_CTB_DEINIT) \
-                          | (config->oa1CompIntrEn ? CTBM_INTR_MASK_COMP1_MASK_Msk : CY_CTB_DEINIT);
+                             | (config->oa1CompIntrEn ? CTBM_INTR_MASK_COMP1_MASK_Msk : CY_CTB_DEINIT);
         CTBM_INTR(base) = (CTBM_INTR_MASK_COMP0_MASK_Msk | CTBM_INTR_MASK_COMP1_MASK_Msk);
 
         CTBM_OA0_COMP_TRIM(base) = (uint32_t) ((config->oa0Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
@@ -244,6 +355,10 @@ cy_en_ctb_status_t Cy_CTB_Init(CTBM_Type *base, const cy_stc_ctb_config_t *confi
 
         if (config->configRouting)
         {
+            cy_ctb_oa0Sw = OA0_SW_Msk & config->oa0SwitchCtrl;
+            cy_ctb_oa1Sw = OA1_SW_Msk & config->oa1SwitchCtrl;
+            cy_ctb_ctdSw = CTD_SW_Msk & config->ctdSwitchCtrl;
+
             CTBM_OA0_SW(base) = config->oa0SwitchCtrl;
             CTBM_OA1_SW(base) = config->oa1SwitchCtrl;
             CTBM_CTD_SW(base) = config->ctdSwitchCtrl;
@@ -311,13 +426,13 @@ cy_en_ctb_status_t Cy_CTB_OpampInit(CTBM_Type *base, cy_en_ctb_opamp_sel_t opamp
 
         /* The two opamp control registers are symmetrical */
         oaResCtrl = (uint32_t) config->oaPower \
-                    | (uint32_t) config->oaMode \
-                    | (uint32_t) config->oaPump \
-                    | (uint32_t) config->oaCompEdge \
-                    | (uint32_t) config->oaCompLevel \
-                    | (uint32_t) config->oaCompBypass \
-                    | (uint32_t) config->oaCompHyst \
-                    | ((CY_CTB_MODE_OPAMP1X == config->oaMode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
+                  | (uint32_t) config->oaMode \
+                  | (uint32_t) config->oaPump \
+                  | (uint32_t) config->oaCompEdge \
+                  | (uint32_t) config->oaCompLevel \
+                  | (uint32_t) config->oaCompBypass \
+                  | (uint32_t) config->oaCompHyst \
+                  | (uint32_t) ((CY_CTB_MODE_OPAMP1X == config->oaMode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
 
         if ((opampNum == CY_CTB_OPAMP_0) || (opampNum == CY_CTB_OPAMP_BOTH))
         {
@@ -481,27 +596,31 @@ cy_en_ctb_status_t Cy_CTB_FastInit(CTBM_Type *base, const cy_stc_ctb_fast_config
         CTBM_CTB_CTRL(base) = (uint32_t) CY_CTB_DEEPSLEEP_DISABLE;
 
         CTBM_OA_RES0_CTRL(base) = (uint32_t) config0->oa0Power \
-                             | (uint32_t) config0->oa0Mode \
-                             | (uint32_t) CY_CTB_PUMP_ENABLE \
-                             | (uint32_t) CY_CTB_COMP_EDGE_BOTH \
-                             | (uint32_t) CY_CTB_COMP_DSI_TRIGGER_OUT_LEVEL \
-                             | (uint32_t) CY_CTB_COMP_BYPASS_SYNC \
-                             | (uint32_t) CY_CTB_COMP_HYST_10MV \
-                             | ((CY_CTB_MODE_OPAMP1X == config0->oa0Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
+                                | (uint32_t) config0->oa0Mode \
+                                | (uint32_t) CY_CTB_PUMP_ENABLE \
+                                | (uint32_t) CY_CTB_COMP_EDGE_BOTH \
+                                | (uint32_t) CY_CTB_COMP_DSI_TRIGGER_OUT_LEVEL \
+                                | (uint32_t) CY_CTB_COMP_BYPASS_SYNC \
+                                | (uint32_t) CY_CTB_COMP_HYST_10MV \
+                                | (uint32_t) ((CY_CTB_MODE_OPAMP1X == config0->oa0Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
 
         CTBM_OA_RES1_CTRL(base) = (uint32_t) config1->oa1Power \
-                             | (uint32_t) config1->oa1Mode \
-                             | (uint32_t) CY_CTB_PUMP_ENABLE \
-                             | (uint32_t) CY_CTB_COMP_EDGE_BOTH \
-                             | (uint32_t) CY_CTB_COMP_DSI_TRIGGER_OUT_LEVEL \
-                             | (uint32_t) CY_CTB_COMP_BYPASS_SYNC \
-                             | (uint32_t) CY_CTB_COMP_HYST_10MV \
-                             | ((CY_CTB_MODE_OPAMP1X == config1->oa1Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
+                                | (uint32_t) config1->oa1Mode \
+                                | (uint32_t) CY_CTB_PUMP_ENABLE \
+                                | (uint32_t) CY_CTB_COMP_EDGE_BOTH \
+                                | (uint32_t) CY_CTB_COMP_DSI_TRIGGER_OUT_LEVEL \
+                                | (uint32_t) CY_CTB_COMP_BYPASS_SYNC \
+                                | (uint32_t) CY_CTB_COMP_HYST_10MV \
+                                | (uint32_t) ((CY_CTB_MODE_OPAMP1X == config1->oa1Mode) ? CY_CTB_OPAMP_BOOST_ENABLE : CY_CTB_OPAMP_BOOST_DISABLE);
 
         CTBM_INTR_MASK(base) = CTBM_INTR_MASK_COMP0_MASK_Msk | CTBM_INTR_MASK_COMP1_MASK_Msk;
 
         CTBM_OA0_COMP_TRIM(base) = (uint32_t) ((config0->oa0Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
         CTBM_OA1_COMP_TRIM(base) = (uint32_t) ((config1->oa1Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
+
+        cy_ctb_oa0Sw = OA0_SW_Msk & config0->oa0SwitchCtrl;
+        cy_ctb_oa1Sw = OA1_SW_Msk & config1->oa1SwitchCtrl;
+        cy_ctb_ctdSw = CTD_SW_Msk & (config0->ctdSwitchCtrl | config1->ctdSwitchCtrl);
 
         CTBM_OA0_SW(base)   = config0->oa0SwitchCtrl;
         CTBM_OA1_SW(base)   = config1->oa1SwitchCtrl;
@@ -688,11 +807,7 @@ void Cy_CTB_SetDeepSleepMode(CTBM_Type *base, cy_en_ctb_deep_sleep_t deepSleep)
 {
     CY_ASSERT_L3(CY_CTB_DEEPSLEEP(deepSleep));
 
-    uint32_t ctbCtrl;
-
-    ctbCtrl = CTBM_CTB_CTRL(base) & ~CTBM_CTB_CTRL_DEEPSLEEP_ON_Msk;
-
-    CTBM_CTB_CTRL(base) = ctbCtrl | (uint32_t)deepSleep;
+    CY_REG32_CLR_SET(CTBM_CTB_CTRL(base), CTBM_CTB_CTRL_DEEPSLEEP_ON, (CY_CTB_DEEPSLEEP_DISABLE != deepSleep) ? 1UL : 0UL);
 }
 
 /*******************************************************************************
@@ -726,17 +841,16 @@ void Cy_CTB_SetOutputMode(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, cy_en
 
     if ((opampNum == CY_CTB_OPAMP_0) || (opampNum == CY_CTB_OPAMP_BOTH))
     {
-
         /* Clear the three affected bits before setting them */
         oaCtrlReg = CTBM_OA_RES0_CTRL(base) & ~(CTBM_OA_RES0_CTRL_OA0_DRIVE_STR_SEL_Msk | CTBM_OA_RES0_CTRL_OA0_COMP_EN_Msk | CTBM_OA_RES0_CTRL_OA0_BOOST_EN_Msk);
-        CTBM_OA_RES0_CTRL(base) = oaCtrlReg | (uint32_t) mode | ((mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_BOOST_DISABLE : CY_CTB_OPAMP_BOOST_ENABLE);
+        CTBM_OA_RES0_CTRL(base) = oaCtrlReg | (uint32_t) mode | (uint32_t) ((mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_BOOST_DISABLE : CY_CTB_OPAMP_BOOST_ENABLE);
         CTBM_OA0_COMP_TRIM(base) = (uint32_t) ((mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
     }
 
     if ((opampNum == CY_CTB_OPAMP_1) || (opampNum == CY_CTB_OPAMP_BOTH))
     {
         oaCtrlReg = CTBM_OA_RES1_CTRL(base) & ~(CTBM_OA_RES1_CTRL_OA1_DRIVE_STR_SEL_Msk | CTBM_OA_RES1_CTRL_OA1_COMP_EN_Msk | CTBM_OA_RES1_CTRL_OA1_BOOST_EN_Msk);
-        CTBM_OA_RES1_CTRL(base) = oaCtrlReg | (uint32_t) mode | ((mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_BOOST_DISABLE : CY_CTB_OPAMP_BOOST_ENABLE);
+        CTBM_OA_RES1_CTRL(base) = oaCtrlReg | (uint32_t) mode | (uint32_t) ((mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_BOOST_DISABLE : CY_CTB_OPAMP_BOOST_ENABLE);
         CTBM_OA1_COMP_TRIM(base) = (uint32_t) ((mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
     }
 }
@@ -787,14 +901,51 @@ void Cy_CTB_SetPower(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, cy_en_ctb_
         /* Clear the two affected bits before setting them */
         oaCtrlReg = CTBM_OA_RES0_CTRL(base) & ~(CTBM_OA_RES0_CTRL_OA0_PWR_MODE_Msk | CTBM_OA_RES0_CTRL_OA0_PUMP_EN_Msk);
         CTBM_OA_RES0_CTRL(base) = oaCtrlReg | (uint32_t) power | (uint32_t) pump;
+
+        if (Cy_CTB_IsEnabled(base))
+        {
+            if (CY_CTB_POWER_OFF == power)
+            {
+                cy_ctb_oa0Sw = OA0_SW_Msk & CTBM_OA0_SW(base);
+                cy_ctb_ctdSw &= ~OA0_CTD_SW_Msk;
+                cy_ctb_ctdSw |= OA0_CTD_SW_Msk & CTBM_CTD_SW(base);
+
+                CTBM_OA0_SW_CLEAR(base) = cy_ctb_oa0Sw;
+                CTBM_CTD_SW_CLEAR(base) = OA0_CTD_SW_Msk & cy_ctb_ctdSw;
+            }
+            else
+            {
+                CTBM_OA0_SW(base) = cy_ctb_oa0Sw;
+                CTBM_CTD_SW(base) = OA0_CTD_SW_Msk & cy_ctb_ctdSw;
+            }
+        }
     }
 
     if ((opampNum == CY_CTB_OPAMP_1) || (opampNum == CY_CTB_OPAMP_BOTH))
     {
         oaCtrlReg = CTBM_OA_RES1_CTRL(base) & ~(CTBM_OA_RES1_CTRL_OA1_PWR_MODE_Msk | CTBM_OA_RES1_CTRL_OA1_PUMP_EN_Msk);
         CTBM_OA_RES1_CTRL(base) = oaCtrlReg | (uint32_t) power | (uint32_t) pump;
+
+        if (Cy_CTB_IsEnabled(base))
+        {
+            if (CY_CTB_POWER_OFF == power)
+            {
+                cy_ctb_oa1Sw = OA1_SW_Msk & CTBM_OA1_SW(base);
+                cy_ctb_ctdSw &= ~OA1_CTD_SW_Msk;
+                cy_ctb_ctdSw |= OA1_CTD_SW_Msk & CTBM_CTD_SW(base);
+
+                CTBM_OA1_SW_CLEAR(base) = cy_ctb_oa1Sw;
+                CTBM_CTD_SW_CLEAR(base) = OA1_CTD_SW_Msk & cy_ctb_ctdSw;
+            }
+            else
+            {
+                CTBM_OA1_SW(base) = cy_ctb_oa1Sw;
+                CTBM_CTD_SW(base) = OA1_CTD_SW_Msk & cy_ctb_ctdSw;
+            }
+        }
     }
 }
+
 
 /*******************************************************************************
 * Function Name: Cy_CTB_DACSampleAndHold
@@ -1115,20 +1266,29 @@ void Cy_CTB_SetAnalogSwitch(CTBM_Type *base, cy_en_ctb_switch_register_sel_t swi
     __IOM uint32_t *switchReg;
     __IOM uint32_t *switchClearReg;
 
+    uint32_t * switchStoragePtr;
+    uint32_t   switchStorageMsk;
+
     switch(switchSelect)
     {
     case CY_CTB_SWITCH_OA0_SW:
         switchReg = &CTBM_OA0_SW(base);
         switchClearReg = &CTBM_OA0_SW_CLEAR(base);
+        switchStoragePtr = &cy_ctb_oa0Sw;
+        switchStorageMsk = OA0_SW_Msk;
         break;
     case CY_CTB_SWITCH_OA1_SW:
         switchReg = &CTBM_OA1_SW(base);
         switchClearReg = &CTBM_OA1_SW_CLEAR(base);
+        switchStoragePtr = &cy_ctb_oa1Sw;
+        switchStorageMsk = OA1_SW_Msk;
         break;
     case CY_CTB_SWITCH_CTD_SW:
     default:
         switchReg = &CTBM_CTD_SW(base);
         switchClearReg = &CTBM_CTD_SW_CLEAR(base);
+        switchStoragePtr = &cy_ctb_ctdSw;
+        switchStorageMsk = CTD_SW_Msk;
         break;
     }
 
@@ -1136,10 +1296,12 @@ void Cy_CTB_SetAnalogSwitch(CTBM_Type *base, cy_en_ctb_switch_register_sel_t swi
     {
     case CY_CTB_SWITCH_CLOSE:
         *switchReg = switchMask;
+        *switchStoragePtr |= switchStorageMsk & switchMask;
         break;
     case CY_CTB_SWITCH_OPEN:
     default:
         *switchClearReg = switchMask;
+        *switchStoragePtr &= ~(switchStorageMsk & switchMask);
         break;
     }
 }
@@ -1365,11 +1527,12 @@ uint32_t Cy_CTB_CompGetStatus(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compN
     }
     else
     {
-        compStatusResult = 0uL;
+        compStatusResult = 0UL;
     }
 
     return compStatusResult;
 }
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #if defined(__cplusplus)
 }

@@ -37,54 +37,54 @@
   </ExposedMembers>
   <Parameters>
     <!-- PDL documentation -->
-    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" 
-            default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__csd.html" 
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation"
+            default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__csd.html"
             linkText="Open CSD Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
 
     <!-- ExposedMember -->
-    <ParamBool id="suppressAmuxCodeGen" name="Suppress Amuxbus Configuration Code Generation" group="Internal" default="true" 
+    <ParamBool id="suppressAmuxCodeGen" name="Suppress Amuxbus Configuration Code Generation" group="Internal" default="true"
             visible="false" editable="false" desc="Prevents pins connected to this personality to generate configuration code" />
 
     <!-- IP Block property CapSenseCapable-->
-    <ParamBool id="capSenseCapable" name="CapSense capable" group="Internal" default="`${hasBlock(&quot;csd[0].capsense[0]&quot;)}`" 
+    <ParamBool id="capSenseCapable" name="CapSense capable" group="Internal" default="`${hasBlock(&quot;csd[0].capsense[0]&quot;)}`"
             visible="false" editable="false" desc="This parameter specifies if CSD is CapSense capable" />
 
     <!-- Inputs -->
     <ParamSignal port="clock[0]" name="Clock" group="Inputs" visible="true" desc="Peripheral clock divider" canBeEmpty="false" />
 
     <!-- VDDA Voltage query -->
-    <ParamBool id="isPowerEnabled" name="Is Power Enabled" group="System" default="`${isBlockUsed(&quot;srss[0].power[0]&quot;)}`" 
+    <ParamBool id="isPowerEnabled" name="Is Power Enabled" group="System" default="`${isBlockUsed(&quot;srss[0].power[0]&quot;)}`"
             visible="false" editable="false" desc="" />
-    <ParamRange id="vddaMv" name="VDDA Voltage (mV)" group="System" 
-            default="`${isPowerEnabled ? getExposedMember(&quot;srss[0].power[0]&quot;, &quot;vddaMv&quot;) : 3300}`" 
+    <ParamRange id="vddaMv" name="VDDA Voltage (mV)" group="System"
+            default="`${isPowerEnabled ? getExposedMember(&quot;srss[0].power[0]&quot;, &quot;vddaMv&quot;) : 3300}`"
             min="0" max="5000" resolution="1" visible="false" editable="false" desc="VDDA voltage in millivolts" />
 
     <!-- Peripheral / CPU clock query -->
-    <ParamString id="pclk" name="PCLK" group="System" default="`${getBlockFromSignal(&quot;clock[0]&quot;)}`" 
+    <ParamString id="pclk" name="PCLK" group="System" default="`${getBlockFromSignal(&quot;clock[0]&quot;)}`"
             visible="false" editable="false" desc="Connected peripheral clock divider (PCLK)" />
-    <ParamBool id="pclkOk" name="PCLK Valid" group="System" default="`${hasConnection(&quot;clock&quot;, 0) &amp;&amp; isBlockUsed(pclk)}`" 
+    <ParamBool id="pclkOk" name="PCLK Valid" group="System" default="`${hasConnection(&quot;clock&quot;, 0) &amp;&amp; isBlockUsed(pclk)}`"
             visible="false" editable="false" desc="Checks whether there is a PCLK connected and enabled" />
-    <ParamRange id="pclkIndex" name="PCLK Index" group="System" default="`${pclkOk ? getExposedMember(pclk, &quot;number&quot;) : 0}`" 
+    <ParamRange id="pclkIndex" name="PCLK Index" group="System" default="`${pclkOk ? getExposedMember(pclk, &quot;number&quot;) : 0}`"
             min="0" max="63" resolution="1" visible="false" editable="false" desc="" />
-    <ParamString id="pclkType" name="PCLK Type" group="System" 
+    <ParamString id="pclkType" name="PCLK Type" group="System"
             default="`${pclkOk ? getExposedMember(pclk, &quot;type&quot;) : &quot;CY_SYSCLK_DIV_8_BIT&quot;}`" visible="false" editable="false" desc="" />
     <ParamString id="pclkDst" name="PCLK Destination" group="System" default="PCLK_CSD_CLOCK" visible="false" editable="false" desc="" />
-    <ParamString id="periClkRsc" name="CLK_PERI Resource" group="System" default="srss[0].clock[0].periclk[0]" 
+    <ParamString id="periClkRsc" name="CLK_PERI Resource" group="System" default="srss[0].clock[0].periclk[0]"
             visible="false" editable="false" desc="" />
-    <ParamBool id="periClkOk" name="CLK_PERI Valid" group="System" default="`${isBlockUsed(periClkRsc)}`" 
+    <ParamBool id="periClkOk" name="CLK_PERI Valid" group="System" default="`${isBlockUsed(periClkRsc)}`"
             visible="false" editable="false" desc="Checks whether CLK_PERI is enabled" />
-    <ParamRange id="periClkFreq" name="CLK_PERI Frequency (Hz)" group="System" 
-            default="`${periClkOk ? getExposedMember(periClkRsc, &quot;frequency&quot;) : 0}`" min="0" max="200000000" resolution="1" 
+    <ParamRange id="periClkFreq" name="CLK_PERI Frequency (Hz)" group="System"
+            default="`${periClkOk ? getExposedMember(periClkRsc, &quot;frequency&quot;) : 0}`" min="0" max="200000000" resolution="1"
             visible="false" editable="false" desc="Peripheral clock frequency in Hz" />
     <ParamString id="cpuClkRsc" name="CLK_HF0 Resource" group="System" default="srss[0].clock[0].hfclk[0]" visible="false" editable="false" desc="" />
-    <ParamBool id="cpuClkOk" name="CLK_HF0 Valid" group="System" default="`${isBlockUsed(cpuClkRsc)}`" 
+    <ParamBool id="cpuClkOk" name="CLK_HF0 Valid" group="System" default="`${isBlockUsed(cpuClkRsc)}`"
             visible="false" editable="false" desc="Checks whether CLK_HF0 is enabled" />
-    <ParamRange id="cpuClkFreq" name="CLK_HF0 Frequency (Hz)" group="System" 
-            default="`${cpuClkOk ? getExposedMember(cpuClkRsc, &quot;frequency&quot;) : 0}`" min="0" max="200000000" resolution="1" 
+    <ParamRange id="cpuClkFreq" name="CLK_HF0 Frequency (Hz)" group="System"
+            default="`${cpuClkOk ? getExposedMember(cpuClkRsc, &quot;frequency&quot;) : 0}`" min="0" max="200000000" resolution="1"
             visible="false" editable="false" desc="CPU clock frequency in Hz" />
 
     <!-- CapSense -->
-    <ParamBool id="CapSenseEnable" name="Enable CapSense" group="CapSense" default="`${capSenseCapable}`" visible="`${capSenseCapable}`" editable="`${capSenseCapable}`" 
+    <ParamBool id="CapSenseEnable" name="Enable CapSense" group="CapSense" default="`${capSenseCapable}`" visible="`${capSenseCapable}`" editable="`${capSenseCapable}`"
             desc="Enables CapSense function of CSD hardware block" />
     <ParamChoice id="CapSenseCore" name="Target CPU core" group="CapSense" default="4" visible="true" editable="true" desc="Configures the target CPU core for CapSense middleware" >
       <Entry name="Cortex M0+" value="0" visible="true" />
@@ -99,12 +99,13 @@
     <!-- External tools -->
     <ParamString id="cfgFileName" name="cfgFileName" group="External Tools" default="design.cycapsense" visible="false" editable="false" desc="" />
     <ParamString id="cfgFilePath" name="cfgFilePath" group="External Tools" default="`${cy_design_path() . &quot;/&quot; . cfgFileName}`" visible="false" editable="false" desc="" />
-    <ParamCustom id="CapSenseConfigurator" name="CapSense Configurator" group="External Tools" default="0" 
-            path="`${cy_tools_path(&quot;capsense-configurator&quot;) . &quot;/capsense-configurator&quot;}`" 
+    <ParamCustom id="CapSenseConfigurator" name="CapSense Configurator" group="External Tools" default="0"
+            path="`${cy_tools_path(&quot;capsense-configurator&quot;) . &quot;/capsense-configurator&quot;}`"
             modal="true" visible="`${CapSenseEnable}`" editable="true" desc="Launch CapSense Configurator">
       <Arg value="`${&quot;--config=&quot; . cfgFilePath}`" />
       <Arg value="`${&quot;--output-dir=&quot; . cy_codegen_path()}`" />
       <Arg value="`${&quot;--design=&quot; . cy_design_file()}`" />
+      <Arg value="`${&quot;--library=&quot; . cy_libs_file()}`" />
     </ParamCustom>
     <ParamCustom id="CapSenseTuner" name="CapSense Tuner" group="External Tools" default="0" path="`${cy_tools_path(&quot;capsense-configurator&quot;) . &quot;/capsense-tuner&quot;}`" modal="false" visible="`${CapSenseEnable}`" editable="true" desc="Launch CapSense Tuner">
       <Arg value="`${&quot;--config=&quot; . cfgFilePath}`" />
@@ -112,77 +113,77 @@
     </ParamCustom>
 
     <!-- CSDADC -->
-    <ParamBool id="CsdAdcEnable" name="Enable CSDADC" group="CSDADC" default="`${!capSenseCapable}`" visible="true" editable="true" 
+    <ParamBool id="CsdAdcEnable" name="Enable CSDADC" group="CSDADC" default="`${!capSenseCapable}`" visible="true" editable="true"
             desc="Enables the CSDADC function of the CSD hardware block. The CSD ADC middleware must be enabled in the Middleware Selector" />
-    <ParamRange id="numChannels" name="Number of Input Channels" group="CSDADC" default="1" min="1" max="32" resolution="1" 
+    <ParamRange id="numChannels" name="Number of Input Channels" group="CSDADC" default="1" min="1" max="32" resolution="1"
             visible="`${CsdAdcEnable}`" editable="true" desc="The number of channels to scan. After changing the number, check the pins assignments of all enabled CSD features (CapSense, CSDADC, CSDIDAC)." />
-    <ParamChoice id="resolution" name="Resolution" group="CSDADC" default="CY_CSDADC_RESOLUTION_10BIT" visible="`${CsdAdcEnable}`" editable="true" 
+    <ParamChoice id="resolution" name="Resolution" group="CSDADC" default="CY_CSDADC_RESOLUTION_10BIT" visible="`${CsdAdcEnable}`" editable="true"
             desc="Configures the CSDADC resolution" >
       <Entry name="8 bit" value="CY_CSDADC_RESOLUTION_8BIT" visible="true" />
       <Entry name="10 bit" value="CY_CSDADC_RESOLUTION_10BIT" visible="true" />
     </ParamChoice>
-    <ParamChoice id="range" name="Measurement Range" group="CSDADC" default="CY_CSDADC_RANGE_VDDA" 
+    <ParamChoice id="range" name="Measurement Range" group="CSDADC" default="CY_CSDADC_RANGE_VDDA"
             visible="`${CsdAdcEnable}`" editable="true" desc="Configures the CSDADC measurement range" >
       <Entry name="GND to VREF" value="CY_CSDADC_RANGE_VREF" visible="true" />
       <Entry name="GND to VDDA" value="CY_CSDADC_RANGE_VDDA" visible="true" />
     </ParamChoice>
-    <ParamRange id="acqTime" name="Acquisition Time (us)" group="CSDADC" default="10" min="1" max="100" resolution="1" 
+    <ParamRange id="acqTime" name="Acquisition Time (us)" group="CSDADC" default="10" min="1" max="100" resolution="1"
             visible="`${CsdAdcEnable}`" editable="true" desc="Sample acquisition time interval in microseconds" />
-    <ParamRange id="autoCalibrInterval" name="Calibration Interval for Continuous Mode (number of scans) " group="CSDADC" default="30" 
-            min="0" max="120" resolution="1" visible="false" editable="true" 
+    <ParamRange id="autoCalibrInterval" name="Calibration Interval for Continuous Mode (number of scans) " group="CSDADC" default="30"
+            min="0" max="120" resolution="1" visible="false" editable="true"
             desc="Run-time auto-calibration interval. If set to 0, auto-calibration is not performed" />
-    <ParamRange id="vref" name="VREF Reference Voltage (mV)" group="CSDADC" default="-1" min="-1" max="`${(vddaMv - 600)}`" resolution="1" 
-            visible="`${CsdAdcEnable}`" editable="true" 
-            desc="Sets the Vref value in mV. Set -1 to choose Vref automatically depending on VDDA. 
+    <ParamRange id="vref" name="VREF Reference Voltage (mV)" group="CSDADC" default="-1" min="-1" max="`${(vddaMv - 600)}`" resolution="1"
+            visible="`${CsdAdcEnable}`" editable="true"
+            desc="Sets the Vref value in mV. Set -1 to choose Vref automatically depending on VDDA.
             If the Vref is set manually, it should be in a range from 800 mV to (VDDA - 600) mV for the SRSS Vref source." />
-    <ParamRange id="operClkDivider" name="Operation Clock Divider" group="CSDADC" default="1" 
-            min="1" max="255" resolution="1" visible="`${CsdAdcEnable}`" editable="true" 
+    <ParamRange id="operClkDivider" name="Operation Clock Divider" group="CSDADC" default="`${(periClkOk ? (ceil(periClkFreq / 50000000.0)) : 1)}`"
+            min="1" max="255" resolution="1" visible="`${CsdAdcEnable}`" editable="true"
             desc="CSD HW block clock divider. It will owerwrite the specified peripheral clock divider that is set on the Peripheral-Clocks tab." />
-    <ParamRange id="csdClkFreq" name="CSD HW Block Input Frequency (Hz)" group="CSDADC" 
+    <ParamRange id="csdClkFreq" name="CSD HW Block Input Frequency (Hz)" group="CSDADC"
             default="`${((periClkOk &amp;&amp; CsdAdcEnable) ? ((getExposedMember(periClkRsc, &quot;frequency&quot;))/operClkDivider) : 1)}`"
-            min="1" max="50000000" resolution="1" visible="`${CsdAdcEnable}`" editable="false" 
+            min="1" max="50000000" resolution="1" visible="`${CsdAdcEnable}`" editable="false"
             desc="CSD HW Block Input Frequency in Hz. For reliable block operation, the frequency should not exceed 50 MHz. " />
-    <ParamRange id="azTime" name="Auto-Zero Time (us)" group="CSDADC" default="5" min="1" max="20" resolution="1" 
+    <ParamRange id="azTime" name="Auto-Zero Time (us)" group="CSDADC" default="5" min="1" max="20" resolution="1"
             visible="`${CsdAdcEnable}`" editable="true" desc="Time interval of comparator auto-zero in microseconds" />
-    <ParamRange id="csdInitTime" name="Hardware Initialization Time (us)" group="CSDADC" default="25" min="0" max="100" resolution="1" 
+    <ParamRange id="csdInitTime" name="Hardware Initialization Time (us)" group="CSDADC" default="25" min="0" max="100" resolution="1"
             visible="`${CsdAdcEnable}`" editable="true" desc="CSD HW block initialization time in us for CSDADC MW" />
-    <ParamBool id="inFlash" name="Store the CSDADC Configuration in Flash" group="CSDADC" default="true" visible="`${CsdAdcEnable}`" editable="true" 
+    <ParamBool id="inFlash" name="Store the CSDADC Configuration in Flash" group="CSDADC" default="true" visible="`${CsdAdcEnable}`" editable="true"
             desc="Controls whether the CSDADC configuration structure is stored in flash (const, true) or SRAM (not const, false)." />
 
     <!-- CSDIDAC -->
-    <ParamBool id="CsdIdacEnable" name="Enable CSDIDAC" group="CSDIDAC" default="false" visible="true" editable="true" 
+    <ParamBool id="CsdIdacEnable" name="Enable CSDIDAC" group="CSDIDAC" default="false" visible="true" editable="true"
             desc="Enables the CSDIDAC function of the CSD hardware block. The CSD IDAC middleware must be enabled in the Middleware Selector" />
-    <ParamChoice id="CsdIdacAselect" name="IDAC A Channel" group="CSDIDAC" default="CY_CSDIDAC_GPIO" 
+    <ParamChoice id="CsdIdacAselect" name="IDAC A Channel" group="CSDIDAC" default="CY_CSDIDAC_GPIO"
             visible="`${CsdIdacEnable}`" editable="true" desc="Configures the IDAC A channel" >
       <Entry name="Disabled" value="CY_CSDIDAC_DISABLED" visible="true" />
       <Entry name="GPIO" value="CY_CSDIDAC_GPIO" visible="true" />
       <Entry name="AMuxBus A" value="CY_CSDIDAC_AMUX" visible="true" />
       <Entry name="Joined with IDAC B" value="CY_CSDIDAC_JOIN" visible="true" />
     </ParamChoice>
-    <ParamChoice id="CsdIdacBselect" name="IDAC B Channel" group="CSDIDAC" default="CY_CSDIDAC_DISABLED" 
+    <ParamChoice id="CsdIdacBselect" name="IDAC B Channel" group="CSDIDAC" default="CY_CSDIDAC_DISABLED"
             visible="`${CsdIdacEnable}`" editable="true" desc="Configures the IDAC B channel" >
       <Entry name="Disabled" value="CY_CSDIDAC_DISABLED" visible="true" />
       <Entry name="GPIO" value="CY_CSDIDAC_GPIO" visible="true" />
       <Entry name="AMuxBus B" value="CY_CSDIDAC_AMUX" visible="true" />
       <Entry name="Joined with IDAC A" value="CY_CSDIDAC_JOIN" visible="true" />
     </ParamChoice>
-    <ParamString id="CsdIdacAEnable" name="Enable Idac A" group="CSDIDACA" default="`${CsdIdacAselect eq CY_CSDIDAC_DISABLED ? false : true}`" 
+    <ParamString id="CsdIdacAEnable" name="Enable Idac A" group="CSDIDACA" default="`${CsdIdacAselect eq CY_CSDIDAC_DISABLED ? false : true}`"
             visible="false" editable="false" desc="An internal variable for the IDAC A enabling" />
-    <ParamString id="CsdIdacBEnable" name="Enable Idac B" group="CSDIDACB" default="`${CsdIdacBselect eq CY_CSDIDAC_DISABLED ? false : true}`" 
+    <ParamString id="CsdIdacBEnable" name="Enable Idac B" group="CSDIDACB" default="`${CsdIdacBselect eq CY_CSDIDAC_DISABLED ? false : true}`"
             visible="false" editable="false" desc="An internal variable for the IDAC B enabling" />
-    <ParamString id="IdacAbusOnly" name="Enable Idac A channel only on the AmuxBusA" group="CSDIDACA" 
-            default="`${(CsdIdacAselect eq CY_CSDIDAC_AMUX) || (CsdIdacAselect eq CY_CSDIDAC_JOIN) ? true : false}`" visible="false" editable="false" 
+    <ParamString id="IdacAbusOnly" name="Enable Idac A channel only on the AmuxBusA" group="CSDIDACA"
+            default="`${(CsdIdacAselect eq CY_CSDIDAC_AMUX) || (CsdIdacAselect eq CY_CSDIDAC_JOIN) ? true : false}`" visible="false" editable="false"
             desc="Enables an Idac A output current connection only on the AmuxBusA" />
-    <ParamString id="IdacBbusOnly" name="Enable Idac B channel only on the AmuxBusB" group="CSDIDACB" 
-            default="`${(CsdIdacBselect eq CY_CSDIDAC_AMUX) || (CsdIdacBselect eq CY_CSDIDAC_JOIN) ? true : false}`" visible="false" editable="false" 
+    <ParamString id="IdacBbusOnly" name="Enable Idac B channel only on the AmuxBusB" group="CSDIDACB"
+            default="`${(CsdIdacBselect eq CY_CSDIDAC_AMUX) || (CsdIdacBselect eq CY_CSDIDAC_JOIN) ? true : false}`" visible="false" editable="false"
             desc="Enables an Idac B output current connection only on the AmuxBusB" />
-    <ParamRange id="csdIdacInitTime" name="Hardware Initialization Time (us)" group="CSDIDAC" default="25" min="0" max="100" resolution="1" 
+    <ParamRange id="csdIdacInitTime" name="Hardware Initialization Time (us)" group="CSDIDAC" default="25" min="0" max="100" resolution="1"
             visible="`${CsdIdacEnable}`" editable="true" desc="CSD HW block initialization time in us for CSDIDAC MW" />
-    <ParamBool id="idacInFlash" name="Store CSDIDAC Configuration in Flash" group="CSDIDAC" default="true" visible="`${CsdIdacEnable}`" editable="true" 
+    <ParamBool id="idacInFlash" name="Store CSDIDAC Configuration in Flash" group="CSDIDAC" default="true" visible="`${CsdIdacEnable}`" editable="true"
             desc="Controls whether the CSDIDAC configuration structure is stored in flash (const, true) or SRAM (not const, false)." />
-    <ParamString id="idacAnum" name="Active IdacA" group="CSDIDAC" default="`${CsdIdacAEnable &amp;&amp; (!IdacAbusOnly) ? 1 : 0}`" 
+    <ParamString id="idacAnum" name="Active IdacA" group="CSDIDAC" default="`${CsdIdacAEnable &amp;&amp; (!IdacAbusOnly) ? 1 : 0}`"
             visible="false" editable="false" desc="" />
-    <ParamString id="idacBnum" name="Active IdacB" group="CSDIDAC" default="`${CsdIdacBEnable &amp;&amp; (!IdacBbusOnly) ? 1 : 0}`" 
+    <ParamString id="idacBnum" name="Active IdacB" group="CSDIDAC" default="`${CsdIdacBEnable &amp;&amp; (!IdacBbusOnly) ? 1 : 0}`"
             visible="false" editable="false" desc="" />
     <ParamString id="idacNum" name="Active Idac Number" group="CSDIDAC" default="`${idacAnum + idacBnum}`" visible="false" editable="false" desc="" />
 
@@ -190,44 +191,44 @@
     <ParamMux id="sense" name="Sensors" group="Sensors" allowedIp="^(csd|ioss)">
         <Common port="amuxbus_a[0]" />
         <Common port="amuxbus_b[0]" />
-        <Arm name="`${($idx &lt; SensorCount) ? SensorName$idx : (($idx &lt; (SensorCount + numChannels)) ? 
-        &quot;Channel[&quot; .($idx - SensorCount). &quot;]&quot; : ((CsdIdacAEnable &amp;&amp; ($idx &lt; (SensorCount + numChannels + idacAnum))) ? 
-        &quot;IdacAchannel&quot; : (CsdIdacBEnable &amp;&amp; ($idx &lt; (SensorCount + numChannels + idacAnum + idacBnum)) ? 
-        &quot;IdacBchannel&quot; : &quot;NoName&quot;)))}`" 
-        desc="`${($idx &lt; SensorCount) ? &quot;Pin connection for sense[$idx] signal&quot; : (($idx &lt; (SensorCount + numChannels)) ? 
-        &quot;Pin connection for CSDADC channel[&quot; .($idx - SensorCount). &quot;]&quot; : 
-        ((CsdIdacAEnable &amp;&amp; (($idx - SensorCount - numChannels) &lt; idacAnum)) ? &quot;Pin connection for CSD IdacA Channel&quot; : 
+        <Arm name="`${($idx &lt; SensorCount) ? SensorName$idx : (($idx &lt; (SensorCount + numChannels)) ?
+        &quot;Channel[&quot; .($idx - SensorCount). &quot;]&quot; : ((CsdIdacAEnable &amp;&amp; ($idx &lt; (SensorCount + numChannels + idacAnum))) ?
+        &quot;IdacAchannel&quot; : (CsdIdacBEnable &amp;&amp; ($idx &lt; (SensorCount + numChannels + idacAnum + idacBnum)) ?
+        &quot;IdacBchannel&quot; : &quot;NoName&quot;)))}`"
+        desc="`${($idx &lt; SensorCount) ? &quot;Pin connection for sense[$idx] signal&quot; : (($idx &lt; (SensorCount + numChannels)) ?
+        &quot;Pin connection for CSDADC channel[&quot; .($idx - SensorCount). &quot;]&quot; :
+        ((CsdIdacAEnable &amp;&amp; (($idx - SensorCount - numChannels) &lt; idacAnum)) ? &quot;Pin connection for CSD IdacA Channel&quot; :
         (CsdIdacBEnable ? &quot;Pin connection for CSD IdacB Channel&quot; : &quot;NoName&quot;)))}`"
-        visible="`${(CapSenseEnable &amp;&amp; ($idx &lt; SensorCount)) || 
-        (CsdAdcEnable &amp;&amp; ($idx &gt;= SensorCount) &amp;&amp; ($idx &lt; SensorCount + numChannels)) || 
-        (CsdIdacEnable &amp;&amp; ($idx &gt;= SensorCount + numChannels) &amp;&amp; ($idx &lt; SensorCount + numChannels + idacNum))}`" 
-        canBeEmpty="`${!((CapSenseEnable &amp;&amp; ($idx &lt; SensorCount)) || 
-        (CsdAdcEnable &amp;&amp; ($idx &gt;= SensorCount) &amp;&amp; ($idx &lt; SensorCount + numChannels)) || 
-        (CsdIdacEnable &amp;&amp; ($idx &gt;= SensorCount + numChannels) &amp;&amp; ($idx &lt; SensorCount + numChannels + idacNum)))}`" 
-        group="`${($idx &lt; SensorCount) ? ( ($idx &lt; CapacitorCount) ? &quot;CapSense Capacitors&quot; : &quot;CapSense Sensors&quot; ) : 
+        visible="`${(CapSenseEnable &amp;&amp; ($idx &lt; SensorCount)) ||
+        (CsdAdcEnable &amp;&amp; ($idx &gt;= SensorCount) &amp;&amp; ($idx &lt; SensorCount + numChannels)) ||
+        (CsdIdacEnable &amp;&amp; ($idx &gt;= SensorCount + numChannels) &amp;&amp; ($idx &lt; SensorCount + numChannels + idacNum))}`"
+        canBeEmpty="`${!((CapSenseEnable &amp;&amp; ($idx &lt; SensorCount)) ||
+        (CsdAdcEnable &amp;&amp; ($idx &gt;= SensorCount) &amp;&amp; ($idx &lt; SensorCount + numChannels)) ||
+        (CsdIdacEnable &amp;&amp; ($idx &gt;= SensorCount + numChannels) &amp;&amp; ($idx &lt; SensorCount + numChannels + idacNum)))}`"
+        group="`${($idx &lt; SensorCount) ? ( ($idx &lt; CapacitorCount) ? &quot;CapSense Capacitors&quot; : &quot;CapSense Sensors&quot; ) :
         (($idx &lt; (SensorCount + numChannels)) ? &quot;CSDADC Channels&quot; : &quot;CSDIDAC Channels&quot;)}`" repeatCount="290"/>
     </ParamMux>
     <Repeat count="256">
-      <ParamString id="SensorSignal$idx" name="" group="Sensors" 
-      default="`${$idx &lt; SensorCount ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, $idx)) : &quot;&quot;}`" 
+      <ParamString id="SensorSignal$idx" name="" group="Sensors"
+      default="`${$idx &lt; SensorCount ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, $idx)) : &quot;&quot;}`"
       visible="false" editable="false" desc="" />
     </Repeat>
     <Repeat count="32">
-      <ParamString id="ChannelSignal$idx" name="" group="Sensors" 
-      default="`${$idx &lt; numChannels ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, $idx + SensorCount)) : &quot;&quot;}`" 
+      <ParamString id="ChannelSignal$idx" name="" group="Sensors"
+      default="`${$idx &lt; numChannels ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, $idx + SensorCount)) : &quot;&quot;}`"
       visible="false" editable="false" desc="" />
     </Repeat>
-    <ParamString id="IdacAsignal" name="" group="Sensors" 
-       default="`${CsdIdacAEnable ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, SensorCount + numChannels)) : &quot;&quot;}`" 
+    <ParamString id="IdacAsignal" name="" group="Sensors"
+       default="`${CsdIdacAEnable ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, SensorCount + numChannels)) : &quot;&quot;}`"
        visible="false" editable="false" desc="" />
-    <ParamString id="IdacBsignal" name="" group="Sensors" 
-       default="`${CsdIdacBEnable ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, SensorCount + numChannels + idacAnum)) : &quot;&quot;}`" 
+    <ParamString id="IdacBsignal" name="" group="Sensors"
+       default="`${CsdIdacBEnable ? getBlockFromSignalValue(getMuxArmSignal(&quot;sense&quot;, SensorCount + numChannels + idacAnum)) : &quot;&quot;}`"
        visible="false" editable="false" desc="" />
-    
+
     <!-- CSD instance number -->
-    <ParamString id="InstNumber" name="InstNumber" group="Internal" default="`${getInstNumber(&quot;csd&quot;)}`" 
+    <ParamString id="InstNumber" name="InstNumber" group="Internal" default="`${getInstNumber(&quot;csd&quot;)}`"
     visible="false" editable="false" desc="CSD Instance name number." />
-    
+
   </Parameters>
 
   <DRCs>
@@ -238,20 +239,20 @@
       <FixIt action="ENABLE_BLOCK" target="`${cpuClkRsc}`" value="" valid="true" />
     </DRC>
 <!-- CSDIDAC -->
-    <DRC type="ERROR" text="At least one IDAC channel should be enabled" 
-         condition="`${(CsdIdacAselect eq CY_CSDIDAC_DISABLED) &amp;&amp; (CsdIdacBselect eq CY_CSDIDAC_DISABLED) &amp;&amp; CsdIdacEnable}`" 
+    <DRC type="ERROR" text="At least one IDAC channel should be enabled"
+         condition="`${(CsdIdacAselect eq CY_CSDIDAC_DISABLED) &amp;&amp; (CsdIdacBselect eq CY_CSDIDAC_DISABLED) &amp;&amp; CsdIdacEnable}`"
          paramId="CsdIdacAselect">
     </DRC>
-    <DRC type="ERROR" text="The IDAC A channel cannot join the disabled IDAC B channel" 
-         condition="`${(CsdIdacAselect eq CY_CSDIDAC_JOIN) &amp;&amp; (CsdIdacBselect eq CY_CSDIDAC_DISABLED) &amp;&amp; CsdIdacEnable}`" 
+    <DRC type="ERROR" text="The IDAC A channel cannot join the disabled IDAC B channel"
+         condition="`${(CsdIdacAselect eq CY_CSDIDAC_JOIN) &amp;&amp; (CsdIdacBselect eq CY_CSDIDAC_DISABLED) &amp;&amp; CsdIdacEnable}`"
          paramId="CsdIdacAselect">
     </DRC>
-    <DRC type="ERROR" text="The IDAC B channel cannot join the disabled IDAC A channel" 
-         condition="`${(CsdIdacBselect eq CY_CSDIDAC_JOIN) &amp;&amp; (CsdIdacAselect eq CY_CSDIDAC_DISABLED) &amp;&amp; CsdIdacEnable}`" 
+    <DRC type="ERROR" text="The IDAC B channel cannot join the disabled IDAC A channel"
+         condition="`${(CsdIdacBselect eq CY_CSDIDAC_JOIN) &amp;&amp; (CsdIdacAselect eq CY_CSDIDAC_DISABLED) &amp;&amp; CsdIdacEnable}`"
          paramId="CsdIdacBselect">
     </DRC>
-    <DRC type="ERROR" text="The IDAC A channel and the IDAC B channel cannot join one another" 
-         condition="`${(CsdIdacAselect eq CY_CSDIDAC_JOIN) &amp;&amp; (CsdIdacBselect eq CY_CSDIDAC_JOIN) &amp;&amp; CsdIdacEnable}`" 
+    <DRC type="ERROR" text="The IDAC A channel and the IDAC B channel cannot join one another"
+         condition="`${(CsdIdacAselect eq CY_CSDIDAC_JOIN) &amp;&amp; (CsdIdacBselect eq CY_CSDIDAC_JOIN) &amp;&amp; CsdIdacEnable}`"
          paramId="CsdIdacAselect">
     </DRC>
   </DRCs>
@@ -262,7 +263,7 @@
       <Arg value="`${&quot;--config=&quot; . cfgFilePath}`" />
       <Arg value="`${&quot;--output-dir=&quot; . cy_codegen_path()}`" />
     </ConfigTool>
-  
+
     <ConfigInclude value="cy_sysclk.h" include="`${pclkOk}`" />
     <ConfigInclude value="cy_csd.h" include="`${CsdAdcEnable || CapSenseEnable || CsdIdacEnable}`" />
     <ConfigInclude value="cy_csdadc.h" include="`${CsdAdcEnable}`" />
@@ -274,42 +275,42 @@
     <ConfigDefine name="CY_CAPSENSE_VDDA_MV" value="`${vddaMv}`u" public="true" include="`${CapSenseEnable}`" />
     <ConfigDefine name="CY_CAPSENSE_PERI_DIV_TYPE" value="`${pclkType}`" public="true" include="`${CapSenseEnable}`" />
     <ConfigDefine name="CY_CAPSENSE_PERI_DIV_INDEX" value="`${pclkIndex}`u" public="true" include="`${CapSenseEnable}`" />
-    <ConfigDefine name="`${SensorName$idx}`_PORT" 
-            value="GPIO_PRT`${getInstFromLocation(getParamValue(&quot;SensorSignal$idx&quot;), &quot;port&quot;)}`" public="true" 
+    <ConfigDefine name="`${SensorName$idx}`_PORT"
+            value="GPIO_PRT`${getInstFromLocation(getParamValue(&quot;SensorSignal$idx&quot;), &quot;port&quot;)}`" public="true"
             include="`${CapSenseEnable &amp;&amp; ($idx &lt; SensorCount) &amp;&amp; isBlockUsed(SensorSignal$idx)}`" repeatCount="256" />
-    <ConfigDefine name="`${SensorName$idx}`_PIN" 
-            value="`${getInstFromLocation(getParamValue(&quot;SensorSignal$idx&quot;), &quot;pin&quot;)}`u" public="true" 
+    <ConfigDefine name="`${SensorName$idx}`_PIN"
+            value="`${getInstFromLocation(getParamValue(&quot;SensorSignal$idx&quot;), &quot;pin&quot;)}`u" public="true"
             include="`${($idx &lt; SensorCount) &amp;&amp; isBlockUsed(SensorSignal$idx)}`" repeatCount="256" />
-    <ConfigDefine name="`${SensorName$idx}`_PORT_NUM" 
-            value="`${getInstFromLocation(getParamValue(&quot;SensorSignal$idx&quot;), &quot;port&quot;)}`u" public="true" 
+    <ConfigDefine name="`${SensorName$idx}`_PORT_NUM"
+            value="`${getInstFromLocation(getParamValue(&quot;SensorSignal$idx&quot;), &quot;port&quot;)}`u" public="true"
             include="`${($idx &lt; CapacitorCount) &amp;&amp; isBlockUsed(SensorSignal$idx)}`" repeatCount="4" />
     <ConfigDefine name="`${INST_NAME}`_HW" value="CSD`${InstNumber}`" public="true" include="`${CsdAdcEnable || CapSenseEnable || CsdIdacEnable}`" />
     <ConfigDefine name="`${INST_NAME}`_IRQ" value="csd_interrupt_IRQn" public="true" include="`${CsdAdcEnable || CapSenseEnable}`" />
     <ConfigDefine name="`${INST_NAME}`_CSDADC_CHANN_NUM" value="`${numChannels}`u" public="true" include="`${CsdAdcEnable}`" />
-    <ConfigDefine name="`${INST_NAME}`_CSDADC_ALL_CHAN_MASK" value="((1u &lt;&lt; `${INST_NAME}`_CSDADC_CHANN_NUM) - 1u)" public="true" 
+    <ConfigDefine name="`${INST_NAME}`_CSDADC_ALL_CHAN_MASK" value="((1u &lt;&lt; `${INST_NAME}`_CSDADC_CHANN_NUM) - 1u)" public="true"
             include="`${CsdAdcEnable}`" />
 
 
-    <ConfigStruct name="cy_csd_`${InstNumber}`_context" type="cy_stc_csd_context_t" const="false" public="true" 
+    <ConfigStruct name="cy_csd_`${InstNumber}`_context" type="cy_stc_csd_context_t" const="false" public="true"
             include="`${CsdAdcEnable || CapSenseEnable || CsdIdacEnable}`" >
         <Member name="lockKey" value="CY_CSD_NONE_KEY" />
     </ConfigStruct>
 
-    <ConfigStruct name="`${INST_NAME}`_csdadc_channel_list" type="cy_stc_csdadc_ch_pin_t" const="true" isArray="true" public="false" 
+    <ConfigStruct name="`${INST_NAME}`_csdadc_channel_list" type="cy_stc_csdadc_ch_pin_t" const="true" isArray="true" public="false"
             include="`${CsdAdcEnable}`">
       <Member name="`${##}`" value="{&#xA;
            .ioPcPtr = GPIO_PRT`${getInstFromLocation(getParamValue(&quot;ChannelSignal##&quot;), &quot;port&quot;)}`, &#xA;
            .pin = `${getInstFromLocation(getParamValue(&quot;ChannelSignal##&quot;), &quot;pin&quot;)}`u, &#xA;
-         }" 
+         }"
       include="`${CsdAdcEnable &amp;&amp; (numChannels &gt; ##) &amp;&amp; isBlockUsed(ChannelSignal##)}`"
       count="32"/>
     </ConfigStruct>
-    <ConfigStruct name="`${INST_NAME}`_csdidac_a_pin" type="cy_stc_csdidac_pin_t" const="`${idacInFlash}`" public="false" 
+    <ConfigStruct name="`${INST_NAME}`_csdidac_a_pin" type="cy_stc_csdidac_pin_t" const="`${idacInFlash}`" public="false"
             include="`${CsdIdacEnable &amp;&amp; CsdIdacAEnable &amp;&amp; isBlockUsed(IdacAsignal) &amp;&amp; (!IdacAbusOnly)}`">
         <Member name="ioPcPtr" value="GPIO_PRT`${getInstFromLocation(getParamValue(&quot;IdacAsignal&quot;), &quot;port&quot;)}`" />
         <Member name="pin" value="`${getInstFromLocation(getParamValue(&quot;IdacAsignal&quot;), &quot;pin&quot;)}`u" />
     </ConfigStruct>
-    <ConfigStruct name="`${INST_NAME}`_csdidac_b_pin" type="cy_stc_csdidac_pin_t" const="`${idacInFlash}`" public="false" 
+    <ConfigStruct name="`${INST_NAME}`_csdidac_b_pin" type="cy_stc_csdidac_pin_t" const="`${idacInFlash}`" public="false"
     include="`${CsdIdacEnable &amp;&amp; CsdIdacBEnable &amp;&amp; isBlockUsed(IdacBsignal) &amp;&amp; (!IdacBbusOnly)}`">
         <Member name="ioPcPtr" value="GPIO_PRT`${getInstFromLocation(getParamValue(&quot;IdacBsignal&quot;), &quot;port&quot;)}`" />
         <Member name="pin" value="`${getInstFromLocation(getParamValue(&quot;IdacBsignal&quot;), &quot;pin&quot;)}`u" />
@@ -341,9 +342,9 @@
       <Member name="csdCxtPtr" value="&amp;cy_csd_`${InstNumber}`_context"/>
       <Member name="configA" value="`${CsdIdacAselect}`"/>
       <Member name="configB" value="`${CsdIdacBselect}`"/>
-      <Member name="ptrPinA" value="`${CsdIdacAEnable  &amp;&amp; (!IdacAbusOnly)? 
+      <Member name="ptrPinA" value="`${CsdIdacAEnable  &amp;&amp; (!IdacAbusOnly)?
             &quot;(const cy_stc_csdidac_pin_t *) &amp;&quot; . INST_NAME . &quot;_csdidac_a_pin&quot; : &quot;NULL&quot;}`"/>
-      <Member name="ptrPinB" value="`${CsdIdacBEnable  &amp;&amp; (!IdacBbusOnly)? 
+      <Member name="ptrPinB" value="`${CsdIdacBEnable  &amp;&amp; (!IdacBbusOnly)?
             &quot;(const cy_stc_csdidac_pin_t *) &amp;&quot; . INST_NAME . &quot;_csdidac_b_pin&quot; : &quot;NULL&quot;}`"/>
       <Member name="cpuClk" value="`${cpuClkFreq}`u"/>
       <Member name="csdInitTime" value="`${csdIdacInitTime}`u"/>

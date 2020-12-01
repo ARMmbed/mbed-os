@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.h
-* \version 2.30.4
+* \version 2.40
 *
 * \brief
 *  This file provides the headers to the API for the utils
@@ -44,20 +44,20 @@ extern "C" {
 *                CRYPTO
 *******************************************************************************/
 /* Non-changed registers */
-#define REG_CRYPTO_CTL(base)               (((CRYPTO_V1_Type*)(base))->CTL)
-#define REG_CRYPTO_ERROR_STATUS0(base)     (((CRYPTO_V1_Type*)(base))->ERROR_STATUS0)
-#define REG_CRYPTO_ERROR_STATUS1(base)     (((CRYPTO_V1_Type*)(base))->ERROR_STATUS1)
-#define REG_CRYPTO_PR_LFSR_CTL0(base)      (((CRYPTO_V1_Type*)(base))->PR_LFSR_CTL0)
-#define REG_CRYPTO_PR_LFSR_CTL1(base)      (((CRYPTO_V1_Type*)(base))->PR_LFSR_CTL1)
-#define REG_CRYPTO_PR_LFSR_CTL2(base)      (((CRYPTO_V1_Type*)(base))->PR_LFSR_CTL2)
-#define REG_CRYPTO_TR_CTL0(base)           (((CRYPTO_V1_Type*)(base))->TR_CTL0)
-#define REG_CRYPTO_TR_CTL1(base)           (((CRYPTO_V1_Type*)(base))->TR_CTL1)
-#define REG_CRYPTO_TR_GARO_CTL(base)       (((CRYPTO_V1_Type*)(base))->TR_GARO_CTL)
-#define REG_CRYPTO_TR_FIRO_CTL(base)       (((CRYPTO_V1_Type*)(base))->TR_FIRO_CTL)
-#define REG_CRYPTO_TR_MON_CTL(base)        (((CRYPTO_V1_Type*)(base))->TR_MON_CTL)
-#define REG_CRYPTO_TR_MON_CMD(base)        (((CRYPTO_V1_Type*)(base))->TR_MON_CMD)
-#define REG_CRYPTO_TR_MON_RC_CTL(base)     (((CRYPTO_V1_Type*)(base))->TR_MON_RC_CTL)
-#define REG_CRYPTO_TR_MON_AP_CTL(base)     (((CRYPTO_V1_Type*)(base))->TR_MON_AP_CTL)
+#define REG_CRYPTO_CTL(base)               (((CRYPTO_Type*)(base))->CTL)
+#define REG_CRYPTO_ERROR_STATUS0(base)     (((CRYPTO_Type*)(base))->ERROR_STATUS0)
+#define REG_CRYPTO_ERROR_STATUS1(base)     (((CRYPTO_Type*)(base))->ERROR_STATUS1)
+#define REG_CRYPTO_PR_LFSR_CTL0(base)      (((CRYPTO_Type*)(base))->PR_LFSR_CTL0)
+#define REG_CRYPTO_PR_LFSR_CTL1(base)      (((CRYPTO_Type*)(base))->PR_LFSR_CTL1)
+#define REG_CRYPTO_PR_LFSR_CTL2(base)      (((CRYPTO_Type*)(base))->PR_LFSR_CTL2)
+#define REG_CRYPTO_TR_CTL0(base)           (((CRYPTO_Type*)(base))->TR_CTL0)
+#define REG_CRYPTO_TR_CTL1(base)           (((CRYPTO_Type*)(base))->TR_CTL1)
+#define REG_CRYPTO_TR_GARO_CTL(base)       (((CRYPTO_Type*)(base))->TR_GARO_CTL)
+#define REG_CRYPTO_TR_FIRO_CTL(base)       (((CRYPTO_Type*)(base))->TR_FIRO_CTL)
+#define REG_CRYPTO_TR_MON_CTL(base)        (((CRYPTO_Type*)(base))->TR_MON_CTL)
+#define REG_CRYPTO_TR_MON_CMD(base)        (((CRYPTO_Type*)(base))->TR_MON_CMD)
+#define REG_CRYPTO_TR_MON_RC_CTL(base)     (((CRYPTO_Type*)(base))->TR_MON_RC_CTL)
+#define REG_CRYPTO_TR_MON_AP_CTL(base)     (((CRYPTO_Type*)(base))->TR_MON_AP_CTL)
 
 /* Changed registers in the regmap */
 #define REG_CRYPTO_STATUS(base)            (*(volatile uint32_t*)((uint32_t)(base) + cy_cryptoIP->cryptoStatusOffset))
@@ -246,7 +246,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_GetLibInfo(cy_en_crypto_lib_info_t *libInfo
 
 cy_en_crypto_status_t Cy_Crypto_Core_SetVuMemoryAddress(CRYPTO_Type *base, uint32_t const *vuMemoryAddr, uint32_t vuMemorySize);
 
-__STATIC_INLINE uint32_t * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base);
+__STATIC_INLINE void * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base);
 
 uint32_t Cy_Crypto_Core_GetVuMemorySize(CRYPTO_Type *base);
 
@@ -514,9 +514,9 @@ __STATIC_INLINE void  Cy_Crypto_Core_ClearInterrupt(CRYPTO_Type *base, uint32_t 
 * Current Crypto MEM_BUFF location address or NULL if Crypto IP is not enabled.
 *
 *******************************************************************************/
-__STATIC_INLINE uint32_t * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base)
+__STATIC_INLINE void * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base)
 {
-    return (cy_cryptoIP != NULL) ? (uint32_t *)REG_CRYPTO_VU_CTL1(base) : (uint32_t *)NULL;
+    return (cy_cryptoIP != NULL) ? (void *)REG_CRYPTO_VU_CTL1(base) : NULL;
 }
 
 /** \} group_crypto_lld_hw_functions */

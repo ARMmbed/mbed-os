@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_sd_host.c
-* \version 1.50.1
+* \version 1.60
 *
 * \brief
 *  This file provides the driver code to the API for the SD Host Controller
@@ -32,6 +32,9 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 18.1', 11, \
+            'Checked manually, base pointer will not exceed register range.');
 
 /** \cond internal */
 
@@ -885,7 +888,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Read(SDHC_Type *base,
     cy_en_sd_host_status_t       ret  = CY_SD_HOST_ERROR_INVALID_PARAMETER;
     cy_stc_sd_host_cmd_config_t  cmd;
     cy_stc_sd_host_data_config_t dataConfig;
-    uint32_t                     dataAddress = config->address;
+    uint32_t                     dataAddress;
     uint32_t aDmaDescriptTbl[CY_SD_HOST_ADMA2_DESCR_SIZE]; /* The ADMA2 descriptor table. */
     uint32_t length; /* The length of data to transfer for a descriptor. */
 
@@ -895,6 +898,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Read(SDHC_Type *base,
         CY_ASSERT_L2(CY_SD_HOST_IS_TIMEOUT_VALID(config->dataTimeout));
         CY_ASSERT_L3(CY_SD_HOST_IS_DMA_WR_RD_VALID(context->dmaType));
 
+        dataAddress = config->address;
         /* 0 < maxSectorNum check is needed for legacy cards. */
         if (!((0UL < context->maxSectorNum) &&
              ((context->maxSectorNum - dataAddress) < config->numberOfBlocks)))
@@ -1014,7 +1018,7 @@ cy_en_sd_host_status_t Cy_SD_Host_Write(SDHC_Type *base,
     cy_en_sd_host_status_t       ret  = CY_SD_HOST_ERROR_INVALID_PARAMETER;
     cy_stc_sd_host_cmd_config_t  cmd;
     cy_stc_sd_host_data_config_t dataConfig;
-    uint32_t                     dataAddress = config->address;
+    uint32_t                     dataAddress;
     uint32_t aDmaDescriptTbl[CY_SD_HOST_ADMA2_DESCR_SIZE]; /* The ADMA2 descriptor table. */
     uint32_t length;  /* The length of data to transfer for a descriptor. */
 
@@ -1023,6 +1027,8 @@ cy_en_sd_host_status_t Cy_SD_Host_Write(SDHC_Type *base,
         CY_ASSERT_L3(CY_SD_HOST_IS_AUTO_CMD_VALID(config->autoCommand));
         CY_ASSERT_L2(CY_SD_HOST_IS_TIMEOUT_VALID(config->dataTimeout));
         CY_ASSERT_L3(CY_SD_HOST_IS_DMA_WR_RD_VALID(context->dmaType));
+
+        dataAddress = config->address;
 
         /* 0 < maxSectorNum check is needed for legacy cards */
         if (!((0UL < context->maxSectorNum) &&
@@ -1195,6 +1201,11 @@ cy_en_sd_host_status_t Cy_SD_Host_Erase(SDHC_Type *base,
                 ret = Cy_SD_Host_PollCmdComplete(base);
             }
 
+            if (CY_SD_HOST_SUCCESS != ret)
+            {
+                return ret;
+            }
+
             /* EraseEndAddr (CMD33) */
             if (CY_SD_HOST_SDSC == context->cardCapacity)
             {
@@ -1258,7 +1269,10 @@ cy_en_sd_host_status_t Cy_SD_Host_Erase(SDHC_Type *base,
                     break;
             }
 
-            ret = Cy_SD_Host_SendCommand(base, &cmd);
+            if (CY_SD_HOST_SUCCESS == ret)
+            {
+               ret = Cy_SD_Host_SendCommand(base, &cmd);
+            }
         }
     }
 
@@ -1854,12 +1868,15 @@ cy_en_sd_host_status_t Cy_SD_Host_SetBusWidth(SDHC_Type *base,
                     break;
             }
 
-            ret = Cy_SD_Host_OpsSendIoRwDirectCmd(base,
-                                                  1UL,
-                                                  0UL,
-                                                  0UL,
-                                                  CY_SD_HOST_CCCR_BUS_INTERFACE_CTR,
-                                                  cmdArgument);
+            if (CY_SD_HOST_SUCCESS == ret)
+            {
+                ret = Cy_SD_Host_OpsSendIoRwDirectCmd(base,
+                                                      1UL,
+                                                      0UL,
+                                                      0UL,
+                                                      CY_SD_HOST_CCCR_BUS_INTERFACE_CTR,
+                                                      cmdArgument);
+            }
         }
         else
         {
@@ -1929,6 +1946,14 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsGoIdle(SDHC_Type *base)
 *
 * \param *base
 *     The SD host registers structure pointer.
+*
+* \param context
+* The pointer to the context structure \ref cy_stc_sd_host_context_t allocated
+* by the user. The structure is used during the SD host operation for internal
+* configuration and data retention. The user must not modify anything
+* in this structure.
+* If only the SD host functions which do not require context will be used, pass NULL
+* as the pointer to the context.
 *
 * \return \ref cy_en_sd_host_status_t
 *
@@ -2017,6 +2042,11 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsVoltageSwitch(SDHC_Type *base,
 *
 * \param *base
 *     The SD host registers structure pointer.
+* \param rwFlag
+* \param functionNumber
+* \param rawFlag
+* \param registerAddress
+* \param data
 *
 * \return \ref cy_en_sd_host_status_t
 *
@@ -2177,6 +2207,14 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsSendIfCond(SDHC_Type *base,
 * \param *base
 *     The SD host registers structure pointer.
 *
+* \param context
+* The pointer to the context structure \ref cy_stc_sd_host_context_t allocated
+* by the user. The structure is used during the SD host operation for internal
+* configuration and data retention. The user must not modify anything
+* in this structure.
+* If only the SD host functions which do not require context will be used, pass NULL
+* as the pointer to the context.
+*
 * \return \ref cy_en_sd_host_status_t
 *
 *******************************************************************************/
@@ -2202,14 +2240,16 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSelectCard(SDHC_Type *base,
         /* Wait for the Command Complete event. */
         ret = Cy_SD_Host_PollCmdComplete(base);
     }
+    if (CY_SD_HOST_SUCCESS == ret)
+    {
+        Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
-    Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
-
-    /* The R1b response requires sending an optional busy
-    * signal to the DAT line. The transfer complete event
-    *  should be checked and reset.
-    */
-    ret = Cy_SD_Host_PollTransferComplete(base);
+        /* The R1b response requires sending an optional busy
+        * signal to the DAT line. The transfer complete event
+        *  should be checked and reset.
+        */
+        ret = Cy_SD_Host_PollTransferComplete(base);
+    }
 
     return ret;
 }
@@ -2223,6 +2263,9 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSelectCard(SDHC_Type *base,
 *
 * \param *base
 *     The SD host registers structure pointer.
+
+* \param cmdArgument
+*     The command argument.
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_sd_host_context_t allocated
@@ -2279,6 +2322,9 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsSetSdBusWidth(SDHC_Type *ba
 * \param *base
 *     The SD host registers structure pointer.
 *
+* \param cmdArgument
+*     The command argument.
+*
 * \return \ref cy_en_sd_host_status_t
 *
 *******************************************************************************/
@@ -2318,6 +2364,12 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSwitchFunc(SDHC_Type *base, uint32_t
 *
 * \param *base
 *     The SD host registers structure pointer.
+*
+* \param reliableWrite
+*     For EMMC enables the reliable write.
+*
+* \param blockNum
+*     The number of blocks to send.
 *
 * \return \ref cy_en_sd_host_status_t
 *
@@ -2367,6 +2419,14 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsSetBlockCount(SDHC_Type *ba
 *
 * \param csd
 *     The Card-Specific Data register value.
+*
+* \param context
+* The pointer to the context structure \ref cy_stc_sd_host_context_t allocated
+* by the user. The structure is used during the SD host operation for internal
+* configuration and data retention. The user must not modify anything
+* in this structure.
+* If only the SD host functions which do not require context will be used, pass NULL
+* as the pointer to the context.
 *
 * \return \ref cy_en_sd_host_status_t
 *
@@ -2466,6 +2526,9 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_OpsProgramCsd(SDHC_Type *base,
 * \param *base
 *     The SD host registers structure pointer.
 *
+* \param *ocrReg
+*     The Operation Condition register (OCR).
+*
 * \param cmdArgument
 *     The command argument.
 *
@@ -2516,6 +2579,9 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSdioSendOpCond(SDHC_Type *base,
 *
 * \param *base
 *     The SD host registers structure pointer.
+*
+* \param *ocrReg
+*     The Operation Condition register (OCR).
 *
 * \param cmdArgument
 *     The command argument.
@@ -2596,16 +2662,11 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSdSendOpCond(SDHC_Type *base,
 * \param *base
 *     The SD host registers structure pointer.
 *
+* \param *ocrReg
+*     The Operation Condition register (OCR).
+*
 * \param cmdArgument
 *     The command argument.
-*
-* \param context
-* The pointer to the context structure \ref cy_stc_sd_host_context_t allocated
-* by the user. The structure is used during the SD host operation for internal
-* configuration and data retention. The user must not modify anything
-* in this structure.
-* If only the SD host functions which do not require context will be used, pass NULL
-* as the pointer to the context.
 *
 * \return \ref cy_en_sd_host_status_t
 *
@@ -2880,6 +2941,11 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
                 ret = Cy_SD_Host_PollCmdComplete(base);
             }
 
+            if (CY_SD_HOST_SUCCESS != ret)
+            {
+                return ret;
+            }
+
             Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
             Cy_SD_Host_ErrorReset(base);
@@ -2893,6 +2959,11 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
             {
                 /* Wait for the Command Complete event. */
                 ret = Cy_SD_Host_PollCmdComplete(base);
+            }
+
+            if (CY_SD_HOST_SUCCESS != ret)
+            {
+                return ret;
             }
 
             Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
@@ -2915,6 +2986,11 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
                     ret = Cy_SD_Host_PollCmdComplete(base);
                 }
 
+                if (CY_SD_HOST_SUCCESS != ret)
+                {
+                    return ret;
+                }
+
                 Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
 
                 Cy_SD_Host_ErrorReset(base);
@@ -2929,17 +3005,19 @@ cy_en_sd_host_status_t  Cy_SD_Host_AbortTransfer(SDHC_Type *base,
                     /* Wait for the Command Complete event. */
                     ret = Cy_SD_Host_PollCmdComplete(base);
                 }
-
-                Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
-
-                /* Get R1. */
-                (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
-
-                /* Check if the card is in the transition state. */
-                if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) !=
-                    (response & CY_SD_HOST_CMD13_CURRENT_STATE_MSK))
+                if (CY_SD_HOST_SUCCESS == ret)
                 {
-                   ret = CY_SD_HOST_ERROR;
+                    Cy_SysLib_DelayUs(CY_SD_HOST_NCC_MIN_US);
+
+                    /* Get R1. */
+                    (void)Cy_SD_Host_GetResponse(base, (uint32_t *)&response, false);
+
+                    /* Check if the card is in the transition state. */
+                    if ((CY_SD_HOST_CARD_TRAN << CY_SD_HOST_CMD13_CURRENT_STATE) !=
+                        (response & CY_SD_HOST_CMD13_CURRENT_STATE_MSK))
+                    {
+                       ret = CY_SD_HOST_ERROR;
+                    }
                 }
             }
         }
@@ -3846,6 +3924,14 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_IoOcr(SDHC_Type *base,
 * \param *ocrReg
 *     The Operation Condition register (OCR).
 *
+* \param context
+* The pointer to the context structure \ref cy_stc_sd_host_context_t allocated
+* by the user. The structure is used during the SD host operation for internal
+* configuration and data retention. The user must not modify anything
+* in this structure.
+* If only the SD host functions which do not require context will be used, pass NULL
+* as the pointer to the context.
+*
 * \return \ref cy_en_sd_host_status_t
 *
 *******************************************************************************/
@@ -4613,7 +4699,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitDataTransfer(SDHC_Type *base,
             transferMode |= _BOOL2FLD(SDHC_CORE_XFER_MODE_R_DATA_XFER_DIR, dataConfig->read);
 
             /* Set the block count enable. */
-            transferMode |= _BOOL2FLD(SDHC_CORE_XFER_MODE_R_BLOCK_COUNT_ENABLE, true);
+            transferMode |= SDHC_CORE_XFER_MODE_R_BLOCK_COUNT_ENABLE_Msk;
 
             /* Enable the DMA or not. */
             transferMode |= _BOOL2FLD(SDHC_CORE_XFER_MODE_R_DMA_ENABLE, dataConfig->enableDma);
@@ -4621,7 +4707,7 @@ cy_en_sd_host_status_t Cy_SD_Host_InitDataTransfer(SDHC_Type *base,
             /* Set an interrupt at the block gap. */
             SDHC_CORE_BGAP_CTRL_R(base) = (uint8_t)_CLR_SET_FLD8U(SDHC_CORE_BGAP_CTRL_R(base),
                                           SDHC_CORE_BGAP_CTRL_R_INT_AT_BGAP,
-                                          ((true == dataConfig->enableIntAtBlockGap) ? 1UL : 0UL));
+                                          ((dataConfig->enableIntAtBlockGap) ? 1UL : 0UL));
 
             /* Set the data timeout (Base clock*2^27). */
             SDHC_CORE_TOUT_CTRL_R(base) = _CLR_SET_FLD8U(SDHC_CORE_TOUT_CTRL_R(base),
@@ -4786,7 +4872,7 @@ void Cy_SD_Host_SoftwareReset(SDHC_Type *base,
 
             break;
         default:
-
+            /* Unknown Reset selection*/
             break;
     }
 }
@@ -4901,11 +4987,14 @@ cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t
         break;
 
         default:
+            /* Unknown state */
             break;
     }
 
     return (ret);
 }
+
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 18.1');
 
 #if defined(__cplusplus)
 }

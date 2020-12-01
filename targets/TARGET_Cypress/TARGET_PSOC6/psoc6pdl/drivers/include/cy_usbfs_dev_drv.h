@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv.h
-* \version 2.20.1
+* \version 2.20.2
 *
 * Provides API declarations of the USBFS driver.
 *
@@ -573,72 +573,16 @@
 * manual (TRM).
 *
 ********************************************************************************
-* \section group_usbfs_drv_MISRA MISRA-C Compliance
-********************************************************************************
-*
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>The function \ref Cy_USBFS_Dev_Drv_LoadInEndpoint and
-*         \ref Cy_USBFS_Dev_Drv_ReadOutEndpoint cast buffer parameters from
-*         (uint8_t *) to (uint16_t *) when 16-bit access is enabled.
-*         To handle alignment issues the macro
-*         \ref CY_USBFS_DEV_DRV_ALLOC_ENDPOINT_BUFFER must be used to
-*        allocate the buffer for the endpoint.</td>
-*   </tr>
-*   <tr>
-*     <td>11.5</td>
-*     <td>R</td>
-*     <td>A cast shall not be performed that removes any const or volatile
-*         qualification from the type addressed by a pointer.</td>
-*     <td>
-*      1. The register access-macros cast base-pointers to the USBFS peripheral
-*         registers lose the const qualification. Despite the qualification being
-*         lost, the driver ensures the proper registers access.
-*      2. The volatile qualification is lost when a register address is passed
-*         as a source or destination to the DMA channel. This does not cause any
-*         negative impact because the DMA does not optimize any memory access.
-*     </td>
-*   </tr>
-*   <tr>
-*     <td>14.7</td>
-*     <td>R</td>
-*     <td>A function shall have a single point of exit at the end of the
-*         function.</td>
-*     <td>The functions can return from several points. This is typically
-*         done to improve code clarity when returning error status code if
-*         input parameters validation fail.</td>
-*   </tr>
-*   <tr>
-*     <td>16.7</td>
-*     <td>A</td>
-*     <td>A pointer parameter in a function prototype should be declared as
-*         pointer to const if the pointer is not used to modify the addressed
-*         object.</td>
-*     <td>The middleware and USBFS driver define the general function
-*         prototypes and pointers to the function types but the function's
-*         implementation depends on the configuration. Therefore,
-*         some functions' implementations require parameters to be a pointer to
-*         const but this is not met because of the generalized implementation
-*         approach.</td>
-*   </tr>
-* </table>
-*
-********************************************************************************
 * \section group_usbfs_drv_changelog Changelog
 ********************************************************************************
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.20.2</td>
+*     <td>Minor syntax updates. Added specific deviations documentation.</td>
+*     <td>Updated for compliance with MISRA-C:2012 standard.</td>
+*   </tr>
 *   <tr>
 *     <td>2.20.1</td>
 *     <td>Minor documentation updates.</td>

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_systick.c
-* \version 1.20
+* \version 1.30
 *
 * Provides the API definitions of the SisTick driver.
 *
@@ -45,13 +45,15 @@ static void Cy_SysTick_ServiceCallbacks(void);
 *   \ref Cy_SysTick_EnableInterrupt().
 *
 * \param clockSource The SysTick clock source \ref cy_en_systick_clock_source_t
-* \param interval The SysTick reload value.
+* \param interval The SysTick reload value. The valid range is [0x0-0x00FFFFFF].
 *
 * \sideeffect Clears the SysTick count flag if it was set.
 *
 *******************************************************************************/
 void Cy_SysTick_Init(cy_en_systick_clock_source_t clockSource, uint32_t interval)
 {
+    CY_ASSERT_L1(CY_SYSTICK_IS_RELOAD_VALID(interval));
+
     uint32_t i;
 
     for (i = 0u; i<CY_SYS_SYST_NUM_OF_CALLBACKS; i++)

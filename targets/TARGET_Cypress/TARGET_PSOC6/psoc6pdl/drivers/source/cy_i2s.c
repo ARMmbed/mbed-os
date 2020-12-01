@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_i2s.c
-* \version 2.10.1
+* \version 2.20
 *
 * The source code file for the I2S driver.
 *
@@ -238,7 +238,7 @@ void Cy_I2S_DeInit(I2S_Type * base)
 * \snippet i2s/snippet/main.c snippet_Cy_I2S_DeepSleepCallback
 *
 *******************************************************************************/
-cy_en_syspm_status_t Cy_I2S_DeepSleepCallback (cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)
+cy_en_syspm_status_t Cy_I2S_DeepSleepCallback (cy_stc_syspm_callback_params_t const *callbackParams, cy_en_syspm_callback_mode_t mode)
 {
     cy_en_syspm_status_t ret = CY_SYSPM_SUCCESS;
     CY_ASSERT_L1(NULL != callbackParams->context);

@@ -35,6 +35,7 @@
     <ExposedMember key="frequency" paramId="frequency" />
     <ExposedMember key="accuracy"  paramId="accuracy" />
     <ExposedMember key="error"     paramId="error" />
+    <ExposedMember key="dsen"     paramId="dsen" />
   </ExposedMembers>
   <Parameters>
     <!-- PDL documentation -->

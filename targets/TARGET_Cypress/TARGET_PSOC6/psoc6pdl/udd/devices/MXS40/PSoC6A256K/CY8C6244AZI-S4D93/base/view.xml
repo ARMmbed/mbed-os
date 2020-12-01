@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<baseview>
+  <mcu>CortexM0p,CortexM4</mcu>
+  <vendor>Cypress</vendor>
+  <flash>262144</flash>
+  <ram>131072</ram>
+  <package>80-TQFP</package>
+  <minvoltage>1700</minvoltage>
+  <maxvoltage>3600</maxvoltage>
+  <description>The CY8C6244AZI-S4D93 device.</description>
+</baseview>

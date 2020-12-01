@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysanalog.h
-* \version 1.10.1
+* \version 2.0
 *
 * Header file for the system level analog reference driver.
 *
@@ -26,12 +26,38 @@
 * \addtogroup group_sysanalog
 * \{
 *
-* This driver provides an interface for configuring the Analog Reference (AREF) block
-* and querying the INTR_CAUSE register of the PASS.
+* This driver provides an interface for configuring the Analog Reference (AREF),
+* Low Power Oscillator (LpOsc), Deep Sleep Clock and Timer blocks
+* and querying the INTR_CAUSE register of the Programmable Analog SubSystem (PASS) hardware block.
 *
 * The functions and other declarations used in this driver are in cy_sysanalog.h.
 * You can include cy_pdl.h to get access to all functions
 * and declarations in the PDL.
+*
+* \section group_pass_structure PASS block structure
+*
+* \image html passv2_diagram.png
+* \image latex passv2_diagram.png
+*
+* The Programmable Analog SubSystem (PASS) hardware block contains a set of analog 
+* subblocks such as AREF, CTB, SAR, analog routing switches and others.
+* In order to provide a firmware interface to PASS, subblocks are united into groups, 
+* which have their own drivers: SysAnalog, \ref group_ctb "CTB" and 
+* \ref group_sar "SAR".
+* 
+* \section group_sysanalog_features SysAnalog Features Description
+*
+* SysAnalog driver includes the following features:
+* - \ref group_sysanalog_aref
+* - \ref group_sysanalog_lposc (Available only for PASS_ver2.)
+* - \ref group_sysanalog_dpslp (Available only for PASS_ver2.)
+* - \ref group_sysanalog_timer (Available only for PASS_ver2.)
+*
+* The following sections describe how to initialize driver features:
+* - \ref group_sysanalog_aref_usage_init
+* - \ref group_sysanalog_deepsleepinit
+*
+* \section group_sysanalog_aref AREF
 *
 * The AREF block has the following features:
 *
@@ -92,9 +118,7 @@
 * Because the interrupts are global, the INTR_CAUSE register is needed to query which hardware instance
 * triggered the interrupt.
 *
-* \section group_sysanalog_usage Usage
-*
-* \subsection group_sysanalog_usage_init Initialization
+* \subsection group_sysanalog_aref_usage_init AREF Configuration
 *
 * To configure the AREF, call \ref Cy_SysAnalog_Init and provide a pointer
 * to the configuration structure, \ref cy_stc_sysanalog_config_t. Three predefined structures
@@ -106,7 +130,7 @@
 *
 * After initialization, call \ref Cy_SysAnalog_Enable to enable the hardware.
 *
-* \subsection group_sysanalog_usage_dsop Deep Sleep Operation
+* ### Deep Sleep Operation
 *
 * The AREF current and voltage references can be enabled to operate in Deep Sleep mode
 * with \ref Cy_SysAnalog_SetDeepSleepMode. There are four options for Deep Sleep operation:
@@ -128,17 +152,62 @@
 * The SRSS references are not available to the AREF in Deep Sleep mode. When operating
 * in Deep Sleep mode, the local or external references must be selected.
 *
+* \section group_sysanalog_lposc Low Power Oscillator
+* Features:
+*   - Internal PASS_ver2 8MHz oscillator which does not require any external components.
+*   - Can work in Deep Sleep power mode.
+*   - Can be used as a clock source for the Deep Sleep Clock.
+*
+* Low Power Oscillator clocking mode is configured by 
+* cy_stc_sysanalog_deep_sleep_config_t::lpOscDsMode configuration structure item, which 
+* should be passed as a parameter to \ref Cy_SysAnalog_DeepSleepInit function.
+* See \ref group_sysanalog_functions_lposc for other Low Power Oscillator control functions.
+*
+* \section group_sysanalog_dpslp Deep Sleep Clock
+* Features:
+*   - Internal PASS_ver2 deep sleep capable clock selector/divider
+*   - Can be used as clock source for CTB pump, SAR ADC and Timer
+*
+* Deep Sleep clock is configurable by cy_stc_sysanalog_deep_sleep_config_t::dsClkSource and
+* cy_stc_sysanalog_deep_sleep_config_t::dsClkdivider configuration structure items,
+* which should be passed as a parameter to \ref Cy_SysAnalog_DeepSleepInit function.
+*
+* \section group_sysanalog_timer Timer
+* Features:
+*   - Internal PASS_ver2 16-bit down counting timer
+*   - Can be used to trigger one or few SAR ADCs
+*   - Can be clocked from 
+*       - Peripheral Clock (CLK_PERI),
+*       - Low Frequency Clock (CLK_LF) 
+*       - Deep Sleep Clock
+*   - If clocked from Deep Sleep Clock, timer can be used to trigger SAR ADC scans
+*     in Deep Sleep power mode.
+*
+* Timer is configurable by cy_stc_sysanalog_deep_sleep_config_t::timerClock
+* and cy_stc_sysanalog_deep_sleep_config_t::timerPeriod configuration structure items,
+* which should be passed as a parameter to \ref Cy_SysAnalog_DeepSleepInit function.
+* Also see \ref group_sysanalog_functions_timer for other Timer configuration and control functions.
+* 
+* \section group_sysanalog_deepsleepinit Low Power Oscillator, Deep Sleep Clock and Timer Configuration
+* To configure Low Power Oscillator, Deep Sleep Clock and Timer blocks, 
+* call \ref Cy_SysAnalog_DeepSleepInit function and provide pointer to PASS block and pointer 
+* to the \ref cy_stc_sysanalog_deep_sleep_config_t configuration structure. In order to start
+* Low Power Oscillator and Timer, call corresponding enable functions:
+*
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_INIT_DS
+*
 * \section group_sysanalog_more_information More Information
 *
-* For more information on the AREF, refer to the technical reference manual (TRM).
-*
-* \section group_sysanalog_MISRA MISRA-C Compliance]
-*
-* This driver does not have any specific deviations.
+* For more information on the AREF, Deep Sleep Clock and Timer, refer to the technical reference manual (TRM).
 *
 * \section group_sysanalog_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.0</td>
+*     <td>Added new features: LPOSC, DSCLK, TIMER.</td>
+*     <td>New silicon family support.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.1</td>
 *     <td>Minor documentation updates.</td>
@@ -166,6 +235,10 @@
 *
 * \defgroup group_sysanalog_macros Macros
 * \defgroup group_sysanalog_functions Functions
+* \{
+*   \defgroup group_sysanalog_functions_lposc   Low Power Oscillator Functions
+*   \defgroup group_sysanalog_functions_timer   Timer Functions
+* \}
 * \defgroup group_sysanalog_globals Global Variables
 * \defgroup group_sysanalog_data_structures Data Structures
 * \defgroup group_sysanalog_enums Enumerated Types
@@ -188,23 +261,26 @@
 extern "C" {
 #endif
 
+CY_MISRA_DEVIATE_BLOCK_START('MISRA C-2012 Rule 11.3', 19, \
+'PASS_Type will typecast to either PASS_V1_Type or PASS_V2_Type but not both on PDL initialization based on the target device at compile time.');
 
 /** \addtogroup group_sysanalog_macros
 * \{
 */
 
 /** Driver major version */
-#define CY_SYSANALOG_DRV_VERSION_MAJOR          1
+#define CY_SYSANALOG_DRV_VERSION_MAJOR          2
 
 /** Driver minor version */
-#define CY_SYSANALOG_DRV_VERSION_MINOR          10
+#define CY_SYSANALOG_DRV_VERSION_MINOR          0
 
 /** PASS driver identifier */
 #define CY_SYSANALOG_ID                         CY_PDL_DRV_ID(0x17u)
 
+
 /** \cond INTERNAL */
-#define CY_SYSANALOG_DEINIT                     (0uL)   /**< De-init value for PASS register */
-#define CY_SYSANALOG_DEFAULT_BIAS_SCALE         (1uL << PASS_AREF_AREF_CTRL_AREF_BIAS_SCALE_Pos)    /**< Default AREF bias current scale of 250 nA */
+#define CY_SYSANALOG_DEINIT                     (0UL)   /**< De-init value for PASS register */
+#define CY_SYSANALOG_DEFAULT_BIAS_SCALE         (1UL << PASS_AREF_AREF_CTRL_AREF_BIAS_SCALE_Pos)    /**< Default AREF bias current scale of 250 nA */
 
 /**< Macros for conditions used in CY_ASSERT calls */
 #define CY_SYSANALOG_STARTUP(startup)           (((startup) == CY_SYSANALOG_STARTUP_NORMAL) || ((startup) == CY_SYSANALOG_STARTUP_FAST))
@@ -232,8 +308,9 @@ extern "C" {
 /** The AREF status/error code definitions */
 typedef enum
 {
-    CY_SYSANALOG_SUCCESS    = 0x00uL,                                           /**< Successful */
-    CY_SYSANALOG_BAD_PARAM  = CY_SYSANALOG_ID | CY_PDL_STATUS_ERROR | 0x01uL    /**< Invalid input parameters */
+    CY_SYSANALOG_SUCCESS     = 0x00UL,                                         /**< Successful */
+    CY_SYSANALOG_BAD_PARAM   = CY_SYSANALOG_ID | CY_PDL_STATUS_ERROR | 0x01UL, /**< Invalid input parameters */
+    CY_SYSANALOG_UNSUPPORTED = CY_SYSANALOG_ID | CY_PDL_STATUS_ERROR | 0x02UL  /**< Unsupported feature */
 }cy_en_sysanalog_status_t;
 
 /** Aref startup mode from power on reset and from Deep Sleep wakeup
@@ -245,8 +322,8 @@ typedef enum
 */
 typedef enum
 {
-    CY_SYSANALOG_STARTUP_NORMAL     = 0uL,                                           /**< Normal startup */
-    CY_SYSANALOG_STARTUP_FAST       = 1uL << PASS_AREF_AREF_CTRL_AREF_MODE_Pos       /**< Fast startup (10 us) - recommended */
+    CY_SYSANALOG_STARTUP_NORMAL     = 0UL,                                           /**< Normal startup */
+    CY_SYSANALOG_STARTUP_FAST       = 1UL << PASS_AREF_AREF_CTRL_AREF_MODE_Pos       /**< Fast startup (10 us) - recommended */
 }cy_en_sysanalog_startup_t;
 
 /** AREF voltage reference sources
@@ -258,9 +335,9 @@ typedef enum
 */
 typedef enum
 {
-    CY_SYSANALOG_VREF_SOURCE_SRSS        = 0uL,                                         /**< Use 0.8 V Vref from SRSS. Low accuracy high noise source that is not intended for analog subsystems. */
-    CY_SYSANALOG_VREF_SOURCE_LOCAL_1_2V  = 1uL << PASS_AREF_AREF_CTRL_VREF_SEL_Pos,     /**< Use locally generated 1.2 V Vref */
-    CY_SYSANALOG_VREF_SOURCE_EXTERNAL    = 2uL << PASS_AREF_AREF_CTRL_VREF_SEL_Pos      /**< Use externally supplied Vref */
+    CY_SYSANALOG_VREF_SOURCE_SRSS        = 0UL,                                         /**< Use 0.8 V Vref from SRSS. Low accuracy high noise source that is not intended for analog subsystems. */
+    CY_SYSANALOG_VREF_SOURCE_LOCAL_1_2V  = 1UL << PASS_AREF_AREF_CTRL_VREF_SEL_Pos,     /**< Use locally generated 1.2 V Vref */
+    CY_SYSANALOG_VREF_SOURCE_EXTERNAL    = 2UL << PASS_AREF_AREF_CTRL_VREF_SEL_Pos      /**< Use externally supplied Vref */
 }cy_en_sysanalog_vref_source_t;
 
 
@@ -273,8 +350,8 @@ typedef enum
 */
 typedef enum
 {
-    CY_SYSANALOG_IZTAT_SOURCE_SRSS       = 0uL,                                         /**< Use 250 nA IZTAT from SRSS and gain by 4 to output 1 uA*/
-    CY_SYSANALOG_IZTAT_SOURCE_LOCAL      = 1uL << PASS_AREF_AREF_CTRL_IZTAT_SEL_Pos     /**< Use locally generated 1 uA IZTAT */
+    CY_SYSANALOG_IZTAT_SOURCE_SRSS       = 0UL,                                         /**< Use 250 nA IZTAT from SRSS and gain by 4 to output 1 uA*/
+    CY_SYSANALOG_IZTAT_SOURCE_LOCAL      = 1UL << PASS_AREF_AREF_CTRL_IZTAT_SEL_Pos     /**< Use locally generated 1 uA IZTAT */
 }cy_en_sysanalog_iztat_source_t;
 
 /** AREF Deep Sleep mode
@@ -288,26 +365,28 @@ typedef enum
 */
 typedef enum
 {
-    CY_SYSANALOG_DEEPSLEEP_DISABLE             = 0uL,                                               /**< Disable AREF IP block */
+    CY_SYSANALOG_DEEPSLEEP_DISABLE             = 0UL,                                               /**< Disable AREF IP block */
     CY_SYSANALOG_DEEPSLEEP_IPTAT_1             = PASS_AREF_AREF_CTRL_DEEPSLEEP_ON_Msk | \
-                                                 (1uL << PASS_AREF_AREF_CTRL_DEEPSLEEP_MODE_Pos),  /**< Enable IPTAT generator for fast wakeup from Deep Sleep mode
+                                                 (1UL << PASS_AREF_AREF_CTRL_DEEPSLEEP_MODE_Pos),  /**< Enable IPTAT generator for fast wakeup from Deep Sleep mode
                                                                                                         IPTAT outputs for CTBs are disabled. */
     CY_SYSANALOG_DEEPSLEEP_IPTAT_2             = PASS_AREF_AREF_CTRL_DEEPSLEEP_ON_Msk | \
-                                                 (2uL << PASS_AREF_AREF_CTRL_DEEPSLEEP_MODE_Pos),  /**< Enable IPTAT generator and IPTAT outputs for CTB */
+                                                 (2UL << PASS_AREF_AREF_CTRL_DEEPSLEEP_MODE_Pos),  /**< Enable IPTAT generator and IPTAT outputs for CTB */
     CY_SYSANALOG_DEEPSLEEP_IPTAT_IZTAT_VREF    = PASS_AREF_AREF_CTRL_DEEPSLEEP_ON_Msk | \
-                                                 (3uL << PASS_AREF_AREF_CTRL_DEEPSLEEP_MODE_Pos)   /**< Enable all generators and outputs: IPTAT, IZTAT, and VREF */
+                                                 (3UL << PASS_AREF_AREF_CTRL_DEEPSLEEP_MODE_Pos)   /**< Enable all generators and outputs: IPTAT, IZTAT, and VREF */
 }cy_en_sysanalog_deep_sleep_t;
 
 /** Interrupt cause sources
 *
-* There are two interrupts in the PASS:
-*   -# one global interrupt for all CTBs
-*   -# one global interrupt for all CTDACs
+* Depending on the device, there may be interrupts from these PASS blocks:
+*   -# CTDAC (up to 4 instances)
+*   -# CTB(m) (up to 4 instances)
+*   -# SAR (up to 4 instances)
+*   -# FIFO (up to 4 instances)
 *
-* A device could potentially have more than one instance of each IP block,
-* CTB or CTDAC. To find out which instance
-* caused the interrupt, call \ref Cy_SysAnalog_GetIntrCause and compare the returned
-* result with one of these enum values.
+* A device could potentially have more than one instance of CTB or CTDAC blocks.
+* To find out which instance caused the interrupt, call
+* \ref Cy_SysAnalog_GetIntrCauseExtended and compare the returned result with one of
+* these enum values.
 */
 typedef enum
 {
@@ -318,8 +397,66 @@ typedef enum
     CY_SYSANALOG_INTR_CAUSE_CTDAC0       = PASS_INTR_CAUSE_CTDAC0_INT_Msk,       /**< Interrupt cause mask for CTDAC0 */
     CY_SYSANALOG_INTR_CAUSE_CTDAC1       = PASS_INTR_CAUSE_CTDAC1_INT_Msk,       /**< Interrupt cause mask for CTDAC1 */
     CY_SYSANALOG_INTR_CAUSE_CTDAC2       = PASS_INTR_CAUSE_CTDAC2_INT_Msk,       /**< Interrupt cause mask for CTDAC2 */
-    CY_SYSANALOG_INTR_CAUSE_CTDAC3       = PASS_INTR_CAUSE_CTDAC3_INT_Msk        /**< Interrupt cause mask for CTDAC3 */
+    CY_SYSANALOG_INTR_CAUSE_CTDAC3       = PASS_INTR_CAUSE_CTDAC3_INT_Msk,       /**< Interrupt cause mask for CTDAC3 */
+    CY_SYSANALOG_INTR_CAUSE_SAR0         = PASS_V2_INTR_CAUSE_SAR0_INT_Msk,      /**< Interrupt cause mask for SAR0. Available only for PASS_ver2. */
+    CY_SYSANALOG_INTR_CAUSE_SAR1         = PASS_V2_INTR_CAUSE_SAR1_INT_Msk,      /**< Interrupt cause mask for SAR1. Available only for PASS_ver2. */
+    CY_SYSANALOG_INTR_CAUSE_SAR2         = PASS_V2_INTR_CAUSE_SAR2_INT_Msk,      /**< Interrupt cause mask for SAR2. Available only for PASS_ver2. */
+    CY_SYSANALOG_INTR_CAUSE_SAR3         = PASS_V2_INTR_CAUSE_SAR3_INT_Msk,      /**< Interrupt cause mask for SAR3. Available only for PASS_ver2. */
+    CY_SYSANALOG_INTR_CAUSE_FIFO0        = PASS_V2_INTR_CAUSE_FIFO0_INT_Msk,     /**< Interrupt cause mask for FIFO0. Available only for PASS_ver2. */
+    CY_SYSANALOG_INTR_CAUSE_FIFO1        = PASS_V2_INTR_CAUSE_FIFO1_INT_Msk,     /**< Interrupt cause mask for FIFO1. Available only for PASS_ver2. */
+    CY_SYSANALOG_INTR_CAUSE_FIFO2        = PASS_V2_INTR_CAUSE_FIFO2_INT_Msk,     /**< Interrupt cause mask for FIFO2. Available only for PASS_ver2. */
+    CY_SYSANALOG_INTR_CAUSE_FIFO3        = PASS_V2_INTR_CAUSE_FIFO3_INT_Msk,     /**< Interrupt cause mask for FIFO3. Available only for PASS_ver2. */
 }cy_en_sysanalog_intr_cause_t;
+
+/** Deep Sleep Clock selection
+*
+*  Specifies Deep Sleep Clock source:
+*  - DSCLK is set to LPOSC
+*  - DSCLK is set to CLK_MF
+*/
+typedef enum
+{
+    CY_SYSANALOG_DEEPSLEEP_SRC_LPOSC  = 0UL,   /**< DSCLK is set to LPOSC */
+    CY_SYSANALOG_DEEPSLEEP_SRC_CLK_MF = 1UL    /**< DSCLK is set to CLK_MF */
+}cy_en_sysanalog_deep_sleep_clock_sel_t;
+
+/** Deep Sleep clock divider
+*
+*  Specifies Deep Sleep Clock divider.
+*  - Transparent mode, feed through selected clock source w/o dividing
+*  - Divide selected clock source by 2
+*  - Divide selected clock source by 4
+*  - Divide selected clock source by 8
+*  - Divide selected clock source by 16
+*/
+typedef enum
+{
+    CY_SYSANALOG_DEEPSLEEP_CLK_NO_DIV    = 0UL,    /**< Transparent mode, feed through selected clock source w/o dividing */
+    CY_SYSANALOG_DEEPSLEEP_CLK_DIV_BY_2  = 1UL,    /**< Divide selected clock source by 2 */
+    CY_SYSANALOG_DEEPSLEEP_CLK_DIV_BY_4  = 2UL,    /**< Divide selected clock source by 4 */
+    CY_SYSANALOG_DEEPSLEEP_CLK_DIV_BY_8  = 3UL,    /**< Divide selected clock source by 8 */
+    CY_SYSANALOG_DEEPSLEEP_CLK_DIV_BY_16 = 4UL,    /**< Divide selected clock source by 16 */
+}cy_en_sysanalog_deep_sleep_clock_div_t;
+
+/** Low Power Oscillator (LPOSC) modes
+*
+*   Configures Low Power Oscillator mode in Deep Sleep.
+*   - LPOSC enabled by TIMER trigger
+*   - LPOSC always on in Deep Sleep
+*/
+typedef enum
+{
+    CY_SYSANALOG_LPOSC_DUTY_CYCLED = 0UL,         /**< LPOSC enabled by TIMER trigger */
+    CY_SYSANALOG_LPOSC_ALWAYS_ON   = 1UL          /**< LPOSC always on in Deep Sleep */
+}cy_en_sysanalog_lposc_deep_sleep_mode_t;
+
+/** Timer clock */
+typedef enum
+{
+    CY_SYSANALOG_TIMER_CLK_PERI      = 0UL,       /**< Timer clocked from CLK_PERI */
+    CY_SYSANALOG_TIMER_CLK_DEEPSLEEP = 1UL,       /**< Timer clocked from CLK_DPSLP */
+    CY_SYSANALOG_TIMER_CLK_LF        = 2UL        /**< Timer clocked from CLK_LF */
+}cy_en_sysanalog_timer_clock_t;
 
 /** \} group_sysanalog_enums */
 
@@ -334,11 +471,21 @@ typedef enum
 /** Structure to configure the entire AREF block */
 typedef struct
 {
-    cy_en_sysanalog_startup_t               startup;   /**< AREF normal or fast start */
-    cy_en_sysanalog_iztat_source_t          iztat;     /**< AREF 1uA IZTAT source: Local or SRSS */
-    cy_en_sysanalog_vref_source_t           vref;      /**< AREF Vref: Local, SRSS, or external pin */
-    cy_en_sysanalog_deep_sleep_t            deepSleep; /**< AREF Deep Sleep mode */
+    cy_en_sysanalog_startup_t                   startup;   /**< AREF normal or fast start */
+    cy_en_sysanalog_iztat_source_t              iztat;     /**< AREF 1uA IZTAT source: Local or SRSS */
+    cy_en_sysanalog_vref_source_t               vref;      /**< AREF Vref: Local, SRSS, or external pin */
+    cy_en_sysanalog_deep_sleep_t                deepSleep; /**< AREF Deep Sleep mode */
 }cy_stc_sysanalog_config_t;
+
+/** Structure to configure PASS_ver2 Deep Sleep features such as Low Power Oscillator, Deep Sleep Clock, Timer */
+typedef struct
+{
+    cy_en_sysanalog_lposc_deep_sleep_mode_t     lpOscDsMode;    /**< Low Power Oscillator Deep Sleep mode */
+    cy_en_sysanalog_deep_sleep_clock_sel_t      dsClkSource;    /**< Deep Sleep Clock source select */
+    cy_en_sysanalog_deep_sleep_clock_div_t      dsClkdivider;   /**< Deep Sleep Clock divider */
+    cy_en_sysanalog_timer_clock_t               timerClock;     /**< Timer Clock source select */
+    uint32_t                                    timerPeriod;    /**< Timer period. Range 1..65536 */
+}cy_stc_sysanalog_deep_sleep_config_t;
 
 /** \} group_sysanalog_data_structures */
 
@@ -382,7 +529,7 @@ extern const cy_stc_sysanalog_config_t Cy_SysAnalog_Fast_External;
 
 cy_en_sysanalog_status_t Cy_SysAnalog_Init(const cy_stc_sysanalog_config_t *config);
 __STATIC_INLINE void Cy_SysAnalog_DeInit(void);
-__STATIC_INLINE uint32_t Cy_SysAnalog_GetIntrCause(void);
+__STATIC_INLINE uint32_t Cy_SysAnalog_GetIntrCauseExtended(const PASS_Type * base);
 __STATIC_INLINE void Cy_SysAnalog_SetDeepSleepMode(cy_en_sysanalog_deep_sleep_t deepSleep);
 __STATIC_INLINE cy_en_sysanalog_deep_sleep_t Cy_SysAnalog_GetDeepSleepMode(void);
 __STATIC_INLINE void Cy_SysAnalog_Enable(void);
@@ -390,6 +537,27 @@ __STATIC_INLINE void Cy_SysAnalog_Disable(void);
 __STATIC_INLINE void Cy_SysAnalog_SetArefMode(cy_en_sysanalog_startup_t startup);
 __STATIC_INLINE void Cy_SysAnalog_VrefSelect(cy_en_sysanalog_vref_source_t vref);
 __STATIC_INLINE void Cy_SysAnalog_IztatSelect(cy_en_sysanalog_iztat_source_t iztat);
+cy_en_sysanalog_status_t Cy_SysAnalog_DeepSleepInit(PASS_Type * base, const cy_stc_sysanalog_deep_sleep_config_t *config);
+
+/**
+* \addtogroup group_sysanalog_functions_lposc
+* \{
+*/
+__STATIC_INLINE void Cy_SysAnalog_LpOscEnable(PASS_Type * base);
+__STATIC_INLINE void Cy_SysAnalog_LpOscDisable(PASS_Type * base);
+/** \} */
+
+
+/**
+* \addtogroup group_sysanalog_functions_timer
+* \{
+*/
+__STATIC_INLINE void Cy_SysAnalog_TimerEnable(PASS_Type * base);
+__STATIC_INLINE void Cy_SysAnalog_TimerDisable(PASS_Type * base);
+__STATIC_INLINE void Cy_SysAnalog_TimerSetPeriod(PASS_Type * base, uint32_t periodVal);
+__STATIC_INLINE uint32_t Cy_SysAnalog_TimerGetPeriod(const PASS_Type * base);
+/** \} */
+
 
 /*******************************************************************************
 * Function Name: Cy_SysAnalog_DeInit
@@ -410,14 +578,16 @@ __STATIC_INLINE void Cy_SysAnalog_DeInit(void)
 }
 
 /*******************************************************************************
-* Function Name: Cy_SysAnalog_GetIntrCause
+* Function Name: Cy_SysAnalog_GetIntrCauseExtended
 ****************************************************************************//**
 *
 * Return the PASS interrupt cause register value.
 *
-* There are two interrupts in the PASS:
-*   -# A global interrupt for all CTBs (up to 4)
-*   -# A global interrupt for all CTDACs (up to 4)
+* Depending on the device, there may be interrupts from these PASS blocks:
+*   -# CTDAC (up to 4 instances)
+*   -# CTB(m) (up to 4 instances)
+*   -# SAR (up to 4 instances)
+*   -# FIFO (up to 4 instances)
 *
 * Compare this returned value with the enum values in \ref cy_en_sysanalog_intr_cause_t
 * to determine which block caused/triggered the interrupt.
@@ -430,10 +600,34 @@ __STATIC_INLINE void Cy_SysAnalog_DeInit(void)
 * \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_GET_INTR_CAUSE
 *
 *******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SysAnalog_GetIntrCauseExtended(const PASS_Type * base)
+{
+    return PASS_INTR_CAUSE(base);
+}
+
+/** \cond **********************************************************************
+* Deprecated legacy function - do not use for new designs.
+* Use Cy_SysAnalog_GetIntrCauseExtended instead.
+*******************************************************************************/
 __STATIC_INLINE uint32_t Cy_SysAnalog_GetIntrCause(void)
 {
-    return PASS_INTR_CAUSE;
-}
+    uint32_t retVal = 0UL;
+
+    if (CY_PASS_V1)
+    {
+        retVal = ((uint32_t)CY_SYSANALOG_INTR_CAUSE_CTB0 |
+                  (uint32_t)CY_SYSANALOG_INTR_CAUSE_CTB1 |
+                  (uint32_t)CY_SYSANALOG_INTR_CAUSE_CTB2 |
+                  (uint32_t)CY_SYSANALOG_INTR_CAUSE_CTB3 |
+                  (uint32_t)CY_SYSANALOG_INTR_CAUSE_CTDAC0 |
+                  (uint32_t)CY_SYSANALOG_INTR_CAUSE_CTDAC1 |
+                  (uint32_t)CY_SYSANALOG_INTR_CAUSE_CTDAC2 |
+                  (uint32_t)CY_SYSANALOG_INTR_CAUSE_CTDAC3) &
+                  Cy_SysAnalog_GetIntrCauseExtended(CY_PASS_ADDR);
+    }
+
+    return (retVal);
+} /** \endcond */
 
 /*******************************************************************************
 * Function Name: Cy_SysAnalog_SetDeepSleepMode
@@ -608,7 +802,167 @@ __STATIC_INLINE void Cy_SysAnalog_IztatSelect(cy_en_sysanalog_iztat_source_t izt
     PASS_AREF_AREF_CTRL = (PASS_AREF_AREF_CTRL & ~PASS_AREF_AREF_CTRL_IZTAT_SEL_Msk) | (uint32_t) iztat;
 }
 
+/**
+* \addtogroup group_sysanalog_functions_lposc
+* \{
+*/
+
+/*******************************************************************************
+* Function Name: Cy_SysAnalog_LpOscEnable
+****************************************************************************//**
+*
+* Enables Low Power Oscillator in configured by \ref Cy_SysAnalog_DeepSleepInit 
+* mode.
+*
+* \param base Pointer to the PASS register structure.
+*
+* \return None
+*
+* \funcusage \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_LPOSC_ENABLE
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_SysAnalog_LpOscEnable(PASS_Type * base)
+{
+    if(!CY_PASS_V1)
+    {
+        PASS_LPOSC_CTRL(base) = PASS_LPOSC_V2_CTRL_ENABLED_Msk;
+    }
+    else
+    {
+        /* Low Power Oscillator feature is not supported on PASS_ver1 IP block. */
+        CY_ASSERT_L1(false);
+    }
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysAnalog_LpOscDisable
+****************************************************************************//**
+*
+* Disables the Low Power Oscillator.
+*
+* \param base Pointer to the PASS register structure.
+*
+* \return None
+*
+* \funcusage \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_LPOSC_DISABLE
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_SysAnalog_LpOscDisable(PASS_Type * base)
+{
+    if(!CY_PASS_V1)
+    {
+        PASS_LPOSC_CTRL(base) = 0UL;
+    }
+}
+
+/** \} */
+
+/**
+* \addtogroup group_sysanalog_functions_timer
+* \{
+*/
+
+/*******************************************************************************
+* Function Name: Cy_SysAnalog_TimerEnable
+****************************************************************************//**
+*
+* Enable the analog subsystem timer in configured by 
+* \ref Cy_SysAnalog_DeepSleepInit mode.
+*
+* \param base Pointer to the PASS register structure.
+*
+* \return None
+*
+* \funcusage \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_TIMER
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_SysAnalog_TimerEnable(PASS_Type * base)
+{
+    if (!CY_PASS_V1)
+    {
+        PASS_TIMER_CTRL(base) = PASS_TIMER_V2_CTRL_ENABLED_Msk;
+    }
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysAnalog_TimerDisable
+****************************************************************************//**
+*
+* Disable the analog subsystem timer.
+*
+* \param base Pointer to the PASS register structure.
+*
+* \return None
+*
+* \funcusage \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_TIMER
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_SysAnalog_TimerDisable(PASS_Type * base)
+{
+    if (!CY_PASS_V1)
+    {
+        PASS_TIMER_CTRL(base) = 0UL;
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_SysAnalog_TimerSetPeriod
+****************************************************************************//**
+*
+* Sets the analog subsystem timer period.
+*
+* \param base Pointer to the PASS register structure.
+*
+* \param periodVal the period value. Actual timer period equals periodVal + 1.
+*
+* \return None
+*
+* \funcusage \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_TIMER_PERIOD
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_SysAnalog_TimerSetPeriod(PASS_Type * base, uint32_t periodVal)
+{
+    if (!CY_PASS_V1)
+    {
+        PASS_TIMER_PERIOD(base) = _VAL2FLD(PASS_TIMER_V2_PERIOD_PER_VAL, periodVal);
+    }
+    else
+    {
+        /* Timer feature is not supported on PASS_ver1 IP block. */
+        CY_ASSERT_L1(false);
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_SysAnalog_TimerGetPeriod
+****************************************************************************//**
+*
+* Returns the analog subsystem timer period.
+*
+* \param base Pointer to the PASS register structure.
+*
+* \return the Timer period value.
+*
+* \funcusage \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_TIMER_PERIOD
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SysAnalog_TimerGetPeriod(const PASS_Type * base)
+{
+    uint32_t period = 0UL;
+    if (!CY_PASS_V1)
+    {
+        period = _FLD2VAL(PASS_TIMER_V2_PERIOD_PER_VAL, PASS_TIMER_PERIOD(base));
+    }
+
+    return period;
+}
+
+/** \} */
+
 /** \} group_sysanalog_functions */
+CY_MISRA_BLOCK_END('MISRA C-2012 Rule 11.3');
 
 #if defined(__cplusplus)
 }
