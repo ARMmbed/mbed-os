@@ -8,48 +8,40 @@ set(CMAKE_AR "armar")
 set(ARM_ELF2BIN "fromelf")
 set_property(GLOBAL PROPERTY ELF2BIN ${ARM_ELF2BIN})
 
+# tell cmake about compiler targets.
+# This will cause it to add the --target flag.
+set(CMAKE_C_COMPILER_TARGET arm-arm-none-eabi)
+set(CMAKE_CXX_COMPILER_TARGET arm-arm-none-eabi)
+
 # Sets toolchain options
-function(mbed_set_toolchain_options target)
-    list(APPEND common_options
-        "-c"
-        "--target=arm-arm-none-eabi"
-        "-mthumb"
-        "-Wno-armcc-pragma-push-pop"
-        "-Wno-armcc-pragma-anon-unions"
-        "-Wno-reserved-user-defined-literal"
-        "-Wno-deprecated-register"
-        "-fdata-sections"
-        "-fno-exceptions"
-        "-fshort-enums"
-        "-fshort-wchar"
+list(APPEND common_options
+    "-mthumb"
+    "-Wno-armcc-pragma-push-pop"
+    "-Wno-armcc-pragma-anon-unions"
+    "-Wno-reserved-user-defined-literal"
+    "-Wno-deprecated-register"
+    "-fdata-sections"
+    "-fno-exceptions"
+    "-fshort-enums"
+    "-fshort-wchar"
     )
 
-    target_compile_options(${target}
-        INTERFACE
-            $<$<COMPILE_LANGUAGE:C>:${common_options}>
+list(APPEND asm_compile_options
+    -masm=auto
+    --target=arm-arm-none-eabi
     )
 
-    target_compile_options(${target}
-        INTERFACE
-            $<$<COMPILE_LANGUAGE:CXX>:${common_options}>
+list(APPEND link_options
+    "--map"
     )
 
-    target_compile_options(${target}
-        INTERFACE
-            $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=auto>
-    )
-
-    # Add linking time preprocessor macro for TFM targets
-    if(MBED_CPU_CORE MATCHES "\-NS$")
-        list(APPEND link_options
-            "--predefine=\"-DDOMAIN_NS=0x1\""
+# Add linking time preprocessor macro for TFM targets
+if(MBED_CPU_CORE MATCHES "-NS$")
         )
-    endif()
+endif()
 
-    target_link_options(${target}
-        INTERFACE
-            ${link_options}
-    )
+function(mbed_set_toolchain_options target)
+    # blank for ARMClang
 endfunction()
 
 # Configure the toolchain to select the selected C library
