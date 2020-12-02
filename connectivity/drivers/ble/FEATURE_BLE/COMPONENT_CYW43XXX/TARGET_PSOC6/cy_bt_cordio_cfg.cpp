@@ -87,7 +87,8 @@ ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_drive
           /* TX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_TX),
           /* RX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RX),
           /* cts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_CTS),
-          /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), DEF_BT_BAUD_RATE,
+          /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), 
+          /* power */ cyhal_gpio_to_rtos(CYBSP_BT_POWER), DEF_BT_BAUD_RATE,
           cyhal_gpio_to_rtos(CYCFG_BT_HOST_WAKE_GPIO),
           cyhal_gpio_to_rtos(CYCFG_BT_DEV_WAKE_GPIO),
           CYCFG_BT_HOST_WAKE_IRQ_EVENT,
@@ -99,7 +100,8 @@ ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_drive
           /* TX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_TX),
           /* RX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RX),
           /* cts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_CTS),
-          /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), DEF_BT_BAUD_RATE);
+          /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), 
+           /* power */ cyhal_gpio_to_rtos(CYBSP_BT_POWER), DEF_BT_BAUD_RATE);
        return s_transport_driver;
     }
 #else  /* (defined(CYCFG_BT_LP_ENABLED)) */
@@ -107,7 +109,8 @@ ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_drive
        /* TX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_TX),
        /* RX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RX),
        /* cts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_CTS),
-       /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), DEF_BT_BAUD_RATE,
+       /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), 
+       /* power */ cyhal_gpio_to_rtos(CYBSP_BT_POWER), DEF_BT_BAUD_RATE,
        cyhal_gpio_to_rtos(CYBSP_BT_HOST_WAKE), cyhal_gpio_to_rtos(CYBSP_BT_DEVICE_WAKE)
     );
     return s_transport_driver;
@@ -118,7 +121,8 @@ ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_drive
        /* TX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_TX),
        /* RX */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RX),
        /* cts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_CTS),
-       /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), DEF_BT_BAUD_RATE);
+       /* rts */ cyhal_gpio_to_rtos(CYBSP_BT_UART_RTS), 
+       /* power */ cyhal_gpio_to_rtos(CYBSP_BT_POWER), DEF_BT_BAUD_RATE);
     return s_transport_driver;
 #endif /* (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER) */
 }

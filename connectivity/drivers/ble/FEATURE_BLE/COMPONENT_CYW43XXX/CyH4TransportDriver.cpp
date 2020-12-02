@@ -31,7 +31,7 @@ namespace cypress_ble {
 
 using namespace std::chrono_literals;
 
-CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name, uint8_t host_wake_irq, uint8_t dev_wake_irq) :
+CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, PinName bt_power_name, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name, uint8_t host_wake_irq, uint8_t dev_wake_irq) :
     cts(cts), rts(rts),
     tx(tx), rx(rx),
     bt_host_wake_name(bt_host_wake_name),
@@ -40,13 +40,13 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
     dev_wake_irq_event(dev_wake_irq),
-    bt_power(CYBSP_BT_POWER, PIN_OUTPUT, PullNone, 0)
+    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0)
 {
     enabled_powersave = true;
     bt_host_wake_active = false;
 }
 
-CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud) :
+CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts,  PinName bt_power_name, int baud) :
     cts(cts),
     rts(rts),
     tx(tx), rx(rx),
@@ -54,7 +54,7 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     bt_device_wake_name(NC),
     bt_host_wake(bt_host_wake_name),
     bt_device_wake(bt_device_wake_name),
-    bt_power(CYBSP_BT_POWER, PIN_OUTPUT, PullNone, 0)
+    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0)
 {
     enabled_powersave = false;
     bt_host_wake_active = false;
@@ -169,11 +169,6 @@ void CyH4TransportDriver::terminate()
                             false
                         );
 
-    // DigitalInOut does not appear to have Destructor nor does it have a
-    // free() func (though the protected gpio_t does) so must call directly
-    // into cyhal
-    if(CYBSP_BT_DEVICE_WAKE != NC) cyhal_gpio_free(CYBSP_BT_DEVICE_WAKE);
-
     if(bt_host_wake.is_connected())
     {
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
@@ -181,6 +176,8 @@ void CyH4TransportDriver::terminate()
 #endif
         bt_host_wake = false;
     }
+
+    deassert_bt_dev_wake();
 
     bt_power = 0; //BT_POWER is an output, should not be freed only set inactive
 
@@ -265,14 +262,14 @@ ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_default_h4_transpo
 #if (defined(CYBSP_BT_HOST_WAKE) && defined(CYBSP_BT_DEVICE_WAKE))
     static ble::vendor::cypress_ble::CyH4TransportDriver s_transport_driver(
        /* TX */ CYBSP_BT_UART_TX, /* RX */ CYBSP_BT_UART_RX,
-       /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, DEF_BT_BAUD_RATE,
+       /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, CYBSP_BT_POWER, DEF_BT_BAUD_RATE,
        CYBSP_BT_HOST_WAKE, CYBSP_BT_DEVICE_WAKE
     );
 
 #else
     static ble::vendor::cypress_ble::CyH4TransportDriver s_transport_driver(
         /* TX */ CYBSP_BT_UART_TX, /* RX */ CYBSP_BT_UART_RX,
-        /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, DEF_BT_BAUD_RATE);
+        /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, CYBSP_BT_POWER, DEF_BT_BAUD_RATE);
 #endif
     return s_transport_driver;
 }
