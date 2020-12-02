@@ -1227,7 +1227,10 @@
             "MORPHO"
         ],
         "extra_labels_add": [
-            "STM32F070RB"
+            "STM32F070xB"
+        ],
+        "macros_add": [
+            "STM32F070xB"
         ],
         "detect_code": [
             "0755"
@@ -1243,7 +1246,10 @@
             "MORPHO"
         ],
         "extra_labels_add": [
-            "STM32F072RB"
+            "STM32F072xB"
+        ],
+        "macros_add": [
+            "STM32F072xB"
         ],
         "detect_code": [
             "0730"
@@ -1263,6 +1269,9 @@
             "MORPHO"
         ],
         "extra_labels_add": [
+            "STM32F091xC"
+        ],
+        "macros_add": [
             "STM32F091xC"
         ],
         "detect_code": [
