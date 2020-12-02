@@ -20,14 +20,14 @@
 #include "kvstore/TDBStore.h"
 #include <stdlib.h>
 
-#define BLOCK_SIZE (512)
+#define BLOCK_SIZE (256)
 #define DEVICE_SIZE (BLOCK_SIZE*200)
 
 using namespace mbed;
 
 class TDBStoreModuleTest : public testing::Test {
 protected:
-    HeapBlockDevice heap{DEVICE_SIZE};
+    HeapBlockDevice heap{DEVICE_SIZE, BLOCK_SIZE};
     FlashSimBlockDevice flash{&heap};
     TDBStore tdb{&flash};
 
@@ -77,15 +77,17 @@ TEST_F(TDBStoreModuleTest, erased_set_get)
 
 TEST_F(TDBStoreModuleTest, set_deinit_init_get)
 {
-    char buf[100];
     size_t size;
     for (int i = 0; i < 100; ++i) {
-        EXPECT_EQ(tdb.set("key", "data", 5, 0), MBED_SUCCESS);
+        char str[11] = {0};
+        char buf[100] = {0};
+        int len = snprintf(str, 11, "data%d", i) + 1;
+        EXPECT_EQ(tdb.set("key", str, len, 0), MBED_SUCCESS);
         EXPECT_EQ(tdb.deinit(), MBED_SUCCESS);
         EXPECT_EQ(tdb.init(), MBED_SUCCESS);
         EXPECT_EQ(tdb.get("key", buf, 100, &size), MBED_SUCCESS);
-        EXPECT_EQ(size, 5);
-        EXPECT_STREQ("data", buf);
+        EXPECT_EQ(size, len);
+        EXPECT_STREQ(str, buf);
         EXPECT_EQ(tdb.remove("key"), MBED_SUCCESS);
     }
 }
