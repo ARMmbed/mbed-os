@@ -196,7 +196,7 @@ int TDBStore::erase_erase_unit(uint8_t area, uint32_t offset)
 void TDBStore::calc_area_params()
 {
     // TDBStore can't exceed 32 bits
-    bd_size_t bd_size = std::min(_bd->size(), (bd_size_t) 0x80000000L);
+    bd_size_t bd_size = std::min<bd_size_t>(_bd->size(), 0x80000000L);
 
     memset(_area_params, 0, sizeof(_area_params));
     size_t area_0_size = 0;
@@ -293,7 +293,7 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
         return MBED_ERROR_INVALID_SIZE;
     }
 
-    actual_data_size = std::min((size_t)data_buf_size, (size_t)data_size - data_offset);
+    actual_data_size = std::min<size_t>(data_buf_size, data_size - data_offset);
 
     if (copy_data && actual_data_size && !data_buf) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -327,7 +327,7 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
                 user_key_ptr[key_size] = '\0';
             } else {
                 dest_buf = _work_buf;
-                chunk_size = std::min(key_size, _work_buf_size);
+                chunk_size = std::min<size_t>(key_size, _work_buf_size);
             }
         } else {
             // This means that we're on the data part
@@ -860,7 +860,7 @@ int TDBStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_o
     total_size -= chunk_size;
 
     while (total_size) {
-        chunk_size = std::min(total_size, _work_buf_size);
+        chunk_size = std::min<size_t>(total_size, _work_buf_size);
         ret = read_area(from_area, from_offset, chunk_size, _work_buf);
         if (ret) {
             return ret;
