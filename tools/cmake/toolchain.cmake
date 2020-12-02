@@ -64,8 +64,6 @@ endif()
 # Compiler setup
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_CROSSCOMPILING TRUE)
-set(CMAKE_C_COMPILER_WORKS TRUE)
-set(CMAKE_CXX_COMPILER_WORKS TRUE)
 
 # Clear toolchains options for all languages as Mbed OS uses
 # different initialisation options (such as for optimization and debug symbols)

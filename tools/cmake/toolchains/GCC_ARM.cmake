@@ -6,6 +6,8 @@ set(CMAKE_C_COMPILER "arm-none-eabi-gcc")
 set(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
 set(GCC_ELF2BIN "arm-none-eabi-objcopy")
 set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
+# Fixes linker check as we cross compiling
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-specs=nosys.specs")
 
 # Sets toolchain options
 function(mbed_set_toolchain_options target)
@@ -18,7 +20,6 @@ function(mbed_set_toolchain_options target)
             "-lgcc"
             "-lnosys"
         "-Wl,--end-group"
-        "-specs=nosys.specs"
         "-T" "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
         "-Wl,-Map=${CMAKE_BINARY_DIR}/${APP_TARGET}.map"
         "-Wl,--cref"
