@@ -15,6 +15,8 @@
 ;*
 ;******************************************************************************
 
+#include "../cmsis_nvic.h"
+
 #if !defined(MBED_APP_START)
   #define MBED_APP_START  MBED_ROM_START
 #endif
@@ -33,7 +35,6 @@
 #endif
 
 /* Round up VECTORS_SIZE to 8 bytes */
-#define NVIC_NUM_VECTORS 48
 #define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) AND ~7)
 
 LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {

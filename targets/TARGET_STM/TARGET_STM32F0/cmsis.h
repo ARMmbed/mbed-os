@@ -19,4 +19,15 @@
 #include "stm32f0xx.h"
 #include "cmsis_nvic.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
