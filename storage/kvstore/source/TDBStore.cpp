@@ -847,7 +847,10 @@ int TDBStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_o
     }
 
     chunk_size = align_up(sizeof(record_header_t), _prog_size);
-    ret = write_area(1 - from_area, to_offset, chunk_size, &header);
+    // The record header takes up whole program units
+    memset(_work_buf, 0, chunk_size);
+    memcpy(_work_buf, &header, sizeof(record_header_t));
+    ret = write_area(1 - from_area, to_offset, chunk_size, _work_buf);
     if (ret) {
         return ret;
     }
