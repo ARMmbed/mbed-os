@@ -6,31 +6,31 @@ function(mbed_set_profile_options target mbed_toolchain)
     set(profile_link_options "")
 
     if(${mbed_toolchain} STREQUAL "GCC_ARM")
-        list(APPEND c_compile_options
+        list(APPEND profile_c_compile_options
             "-c"
             "-Os"
         )
         target_compile_options(${target}
             INTERFACE
-                $<$<COMPILE_LANGUAGE:C>:${c_compile_options}>
+                $<$<COMPILE_LANGUAGE:C>:${profile_c_compile_options}>
         )
 
-        list(APPEND cxx_compile_options
+        list(APPEND profile_cxx_compile_options
             "-fno-rtti"
             "-Wvla"
             "-Os"
         )
         target_compile_options(${target}
             INTERFACE
-                $<$<COMPILE_LANGUAGE:CXX>:${cxx_compile_options}>
+                $<$<COMPILE_LANGUAGE:CXX>:${profile_cxx_compile_options}>
         )
 
-        list(APPEND asm_compile_options
+        list(APPEND profile_asm_compile_options
             "-x" "assembler-with-cpp"
         )
         target_compile_options(${target}
             INTERFACE
-                $<$<COMPILE_LANGUAGE:ASM>:${asm_compile_options}>
+                $<$<COMPILE_LANGUAGE:ASM>:${profile_asm_compile_options}>
         )
 
         list(APPEND profile_link_options
@@ -46,22 +46,22 @@ function(mbed_set_profile_options target mbed_toolchain)
             "-Wl,-n"
         )
     elseif(${mbed_toolchain} STREQUAL "ARM")
-        list(APPEND c_compile_options
+        list(APPEND profile_c_compile_options
             "-Os"
         )
         target_compile_options(${target}
             INTERFACE
-                $<$<COMPILE_LANGUAGE:C>:${c_compile_options}>
+                $<$<COMPILE_LANGUAGE:C>:${profile_c_compile_options}>
         )
 
-        list(APPEND cxx_compile_options
+        list(APPEND profile_cxx_compile_options
             "-fno-rtti"
             "-fno-c++-static-destructors"
             "-Os"
         )
         target_compile_options(${target}
             INTERFACE
-                $<$<COMPILE_LANGUAGE:CXX>:${cxx_compile_options}>
+                $<$<COMPILE_LANGUAGE:CXX>:${profile_cxx_compile_options}>
         )
 
         list(APPEND profile_link_options
