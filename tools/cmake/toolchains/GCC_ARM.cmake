@@ -7,11 +7,6 @@ set(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
 set(GCC_ELF2BIN "arm-none-eabi-objcopy")
 set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
 
-# Sets toolchain options for a target
-function(mbed_set_toolchain_options target)
-
-endfunction(mbed_set_toolchain_options)
-
 # build toolchain flags that get passed to everything (including CMake compiler checks)
 list(APPEND link_options
     "-Wl,--start-group"

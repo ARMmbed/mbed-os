@@ -37,12 +37,10 @@ list(APPEND link_options
 
 # Add linking time preprocessor macro for TFM targets
 if(MBED_CPU_CORE MATCHES "-NS$")
-        )
+    list(APPEND link_options
+        "--predefine=\"-DDOMAIN_NS=0x1\""
+    )
 endif()
-
-function(mbed_set_toolchain_options target)
-    # blank for ARMClang
-endfunction()
 
 # Configure the toolchain to select the selected C library
 function(mbed_set_c_lib target lib_type)

@@ -54,7 +54,6 @@ endif()
 
 mbed_set_cpu_core_definitions(mbed-core)
 if(${MBED_TOOLCHAIN_FILE_USED})
-    mbed_set_toolchain_options(mbed-core)
     mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
     mbed_set_c_lib(mbed-core ${MBED_C_LIB})
     mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
@@ -134,7 +133,7 @@ function(mbed_set_mbed_target_linker_script target)
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_PRE_BUILD_COMMAND
             COMMAND "arm-none-eabi-cpp" ${_linker_preprocess_definitions} -x assembler-with-cpp -E -Wp,-P
-                ${mbed_target_linker_script} -o ${CMAKE_BINARY_DIR}/${APP_NAME}.link_script.ld
+                ${mbed_target_linker_script} -o ${CMAKE_BINARY_DIR}/${target}.link_script.ld
 
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             BYPRODUCTS "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
