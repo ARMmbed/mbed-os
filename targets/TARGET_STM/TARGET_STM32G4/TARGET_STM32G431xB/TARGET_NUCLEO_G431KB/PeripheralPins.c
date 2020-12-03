@@ -53,10 +53,6 @@
 
 //*** ADC ***
 
-// Tauno: OK - Checked
-// Tauno: WARNING below configs are for LQFP32 G431KB Chip (which is used NUCLEO_G431KB board)
-// Tauno: PC_4,5 connected to ADC in QFN48+ Configs (NUCLEO_G431KB has a LQFP32)
-// Tauno: PB_1,2,11,12,13,14,15 connected to ADC in QFN48+ Configs
 MBED_WEAK const PinMap PinMap_ADC[] = {
     {PA_0,       ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 1, 0)}, // ADC1_IN1
     {PA_0_ALT0,  ADC_2, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 1, 0)}, // ADC2_IN1
@@ -74,18 +70,15 @@ MBED_WEAK const PinMap PinMap_ADC[] = {
     {NC, NC, 0}
 };
 
-// !!! SECTION TO BE CHECKED WITH DEVICE REFERENCE MANUAL
-// Tauno: WARNING - I haven't verified this. Assuming it's correct.
 MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
-    {ADC_TEMP,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 16, 0)},
-    {ADC_VREF,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 17, 0)},
-    {ADC_VBAT,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 18, 0)},
+    {ADC_TEMP,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 16, 0)}, // ADC1_IN16
+    {ADC_VREF,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 18, 0)}, // ADC1_IN18
+    {ADC_VBAT,   ADC_1,    STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 17, 0)}, // ADC1_IN17
     {NC, NC, 0}
 };
 
 //*** DAC ***
 
-// Tauno: OK - Checked
 MBED_WEAK const PinMap PinMap_DAC[] = {
     {PA_4,       DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 1, 0)}, // DAC1_OUT1
     {PA_5,       DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 2, 0)}, // DAC1_OUT2
@@ -93,9 +86,6 @@ MBED_WEAK const PinMap PinMap_DAC[] = {
 };
 
 //*** I2C ***
-
-// PF2, PC4, PB2, PB12, PC8, PC9, PC11, PB9 => I2C (Only QFP48+)
-// PA10 (I2C2_SMBA) => Appears to be missing below (even though on LQFP32 pin 20) => Let's ignore I2C2_SMBA
 
 MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
     {PA_8,       I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},
@@ -117,9 +107,6 @@ MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
 
 //*** PWM ***
 
-// Tauno: WARNING - A lot. I'm just going to assume it's OK.
-
-// TIM5 cannot be used because already used by the us_ticker
 MBED_WEAK const PinMap PinMap_PWM[] = {
     {PA_0,       PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2, 1, 0)}, // TIM2_CH1
     {PA_1,       PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2, 2, 0)}, // TIM2_CH2
@@ -178,25 +165,19 @@ MBED_WEAK const PinMap PinMap_PWM[] = {
 
 //*** SERIAL ***
 
-// Tauno: Only in QFN48+: PC0, PC1, PB10, PB11, PB12, PB13
-// Tauno NOTE: I think the comment for PA2 and PA3 is wrong (mixed). RX should be TX. The C-code appears correct.
-// Tauno: PB1 => LPUART1_RTS_DE (Pin only exists in QFN48+)
-// Other than that:
-
-
 MBED_WEAK const PinMap PinMap_UART_TX[] = {
-    {PA_2,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to STDIO_UART_RX
-    {PA_2_ALT0,  LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF12_LPUART1)}, // Connected to STDIO_UART_RX
+    {PA_2,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},   // Connected to STDIO_UART_TX
+    {PA_2_ALT0,  LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF12_LPUART1)}, // Connected to STDIO_UART_TX
     {PA_9,       UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
-    {PA_14,      UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to T_SWCLK
-    {PB_3,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to T_SWO
+    {PA_14,      UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},   // Connected to T_SWCLK
+    {PB_3,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},   // Connected to T_SWO
     {PB_6,       UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {NC, NC, 0}
 };
 
 MBED_WEAK const PinMap PinMap_UART_RX[] = {
-    {PA_3,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)}, // Connected to STDIO_UART_TX
-    {PA_3_ALT0,  LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF12_LPUART1)}, // Connected to STDIO_UART_TX
+    {PA_3,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},   // Connected to STDIO_UART_RX
+    {PA_3_ALT0,  LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF12_LPUART1)}, // Connected to STDIO_UART_RX
     {PA_10,      UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PA_15,      UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
     {PB_4,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
