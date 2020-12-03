@@ -3131,8 +3131,8 @@ typedef struct
 #define RCC_CFGR_PPRE_DIV16_Msk                  (0x7UL << RCC_CFGR_PPRE_DIV16_Pos) /*!< 0x00000700 */
 #define RCC_CFGR_PPRE_DIV16                      RCC_CFGR_PPRE_DIV16_Msk       /*!< HCLK divided by 16 */
 
-#define RCC_CFGR_PLLSRC_Pos                      (15U)                         
-#define RCC_CFGR_PLLSRC_Msk                      (0x3UL << RCC_CFGR_PLLSRC_Pos) /*!< 0x00018000 */
+#define RCC_CFGR_PLLSRC_Pos                      (16U)                         
+#define RCC_CFGR_PLLSRC_Msk                      (0x1UL << RCC_CFGR_PLLSRC_Pos) /*!< 0x00010000 */
 #define RCC_CFGR_PLLSRC                          RCC_CFGR_PLLSRC_Msk           /*!< PLL entry clock source */
 #define RCC_CFGR_PLLSRC_HSI_DIV2                 (0x00000000U)                 /*!< HSI clock divided by 2 selected as PLL entry clock source */
 #define RCC_CFGR_PLLSRC_HSI_PREDIV               (0x00008000U)                 /*!< HSI/PREDIV clock selected as PLL entry clock source */

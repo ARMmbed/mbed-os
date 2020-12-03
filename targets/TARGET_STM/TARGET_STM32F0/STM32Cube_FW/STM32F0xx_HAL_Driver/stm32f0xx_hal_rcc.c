@@ -14,7 +14,7 @@
   ==============================================================================
     [..]  
       After reset the device is running from Internal High Speed oscillator
-      (HSI 8MHz) with Flash 0 wait state, Flash prefetch buffer is enabled, 
+      (HSI 8MHz) with Flash 0 wait state, Flash prefetch buffer is disabled, 
       and all peripherals are off except internal SRAM, Flash and JTAG.
       (+) There is no prescaler on High speed (AHB) and Low speed (APB) buses;
           all peripherals mapped on these buses are running at HSI speed.

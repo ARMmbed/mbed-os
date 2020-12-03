@@ -595,7 +595,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
                 ##### Extended Clock Recovery System Control functions  #####
  ===============================================================================
     [..]
-      For devices with Clock Recovery System feature (CRS), RCC Extention HAL driver can be used as follows:
+      For devices with Clock Recovery System feature (CRS), RCC Extension HAL driver can be used as follows:
 
       (#) In System clock config, HSI48 needs to be enabled
 
