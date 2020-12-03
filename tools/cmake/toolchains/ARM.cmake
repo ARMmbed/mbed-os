@@ -39,10 +39,6 @@ function(mbed_set_toolchain_options target)
             $<$<COMPILE_LANGUAGE:ASM>:--target=arm-arm-none-eabi -masm=auto>
     )
 
-    list(APPEND link_options
-        "--map"
-    )
-
     # Add linking time preprocessor macro for TFM targets
     if(MBED_CPU_CORE MATCHES "\-NS$")
         list(APPEND link_options

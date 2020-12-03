@@ -141,12 +141,18 @@ function(mbed_set_mbed_target_linker_script target)
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             BYPRODUCTS "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
         )
+        target_link_options(mbed-core
+            INTERFACE
+                "-T" "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
+                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}.map"
+        )
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
         target_link_options(mbed-core
             INTERFACE
                 "--scatter=${mbed_target_linker_script}"
                 "--predefine=${_linker_preprocess_definitions}"
+                "--map"
         )
     endif()
     add_custom_command(
