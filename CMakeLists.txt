@@ -134,7 +134,7 @@ function(mbed_set_mbed_target_linker_script target)
     if(MBED_TOOLCHAIN STREQUAL "GCC_ARM")
         set(CMAKE_PRE_BUILD_COMMAND
             COMMAND "arm-none-eabi-cpp" ${_linker_preprocess_definitions} -x assembler-with-cpp -E -Wp,-P
-                ${mbed_target_linker_script} -o ${CMAKE_BINARY_DIR}/${target}.link_script.ld
+                ${mbed_target_linker_script} -o ${CMAKE_BINARY_DIR}/${APP_NAME}.link_script.ld
 
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             BYPRODUCTS "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
