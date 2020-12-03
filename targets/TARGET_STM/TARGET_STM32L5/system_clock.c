@@ -176,16 +176,12 @@ uint8_t SetSysClock_PLL_MSI(void)
         return 0; // FAIL
     }
 
-    // Default STDIO is LPUART1
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 #if DEVICE_TRNG
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1 | RCC_PERIPHCLK_RNG;
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
     PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_HSI48;
-#else
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-#endif
-    PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+#endif	
 
     return 1; // OK
 }
