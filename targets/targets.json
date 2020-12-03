@@ -2660,17 +2660,11 @@
         "clock_source": "USE_PLL_HSI",
         "lse_available":  0
       },
-      "extra_labels_add": [
-        "STM32G431KB"
-      ],
-      "macros_add": [
-        "STM32G431KB"
-      ],
       "device_has_add": [
         "USBDEVICE"
       ],
       "detect_code": [
-        "1234"
+        "0851"
       ],
       "device_name": "STM32G431KBTx"
     },
