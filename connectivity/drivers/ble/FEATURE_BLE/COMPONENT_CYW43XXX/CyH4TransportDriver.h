@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "ble/driver/CordioHCITransportDriver.h"
 #include "drivers/DigitalInOut.h"
+#include "drivers/InterruptIn.h"
 #include "cyhal_uart.h"
 
 namespace ble {
@@ -40,9 +41,9 @@ public:
      * Initialize the transport driver.
      *
      */
-	CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name,
+	CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, PinName bt_power_name, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name,
                             uint8_t host_wake_irq = 0, uint8_t dev_wake_irq = 0);
-        CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud);
+        CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts,  PinName bt_power_name, int baud);
 
     /**
      * Destructor
@@ -92,19 +93,26 @@ private:
     cyhal_uart_t uart;
     PinName cts;
     PinName rts;
+    PinName tx;
+    PinName rx;
     PinName bt_host_wake_name;
     PinName bt_device_wake_name;
 
+    mbed::DigitalInOut bt_power;
     mbed::DigitalInOut bt_host_wake;
     mbed::DigitalInOut bt_device_wake;
+
     bool bt_host_wake_active;
+
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
+    mbed::InterruptIn *host_wake_pin;
+#endif
 
     bool     enabled_powersave;
     uint8_t  host_wake_irq_event;
     uint8_t  dev_wake_irq_event;
 
     bool     holding_deep_sleep_lock;
-
 };
 
 } // namespace cypress

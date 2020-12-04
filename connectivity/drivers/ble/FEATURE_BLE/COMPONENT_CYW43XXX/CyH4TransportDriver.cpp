@@ -31,32 +31,38 @@ namespace cypress_ble {
 
 using namespace std::chrono_literals;
 
-CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name, uint8_t host_wake_irq, uint8_t dev_wake_irq) :
+CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, PinName bt_power_name, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name, uint8_t host_wake_irq, uint8_t dev_wake_irq) :
     cts(cts), rts(rts),
+    tx(tx), rx(rx),
     bt_host_wake_name(bt_host_wake_name),
     bt_device_wake_name(bt_device_wake_name),
+    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0),
     bt_host_wake(bt_host_wake_name, PIN_INPUT, PullNone, 0),
     bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
     dev_wake_irq_event(dev_wake_irq)
+
 {
-    cyhal_uart_init(&uart, tx, rx, NULL, NULL);
     enabled_powersave = true;
     bt_host_wake_active = false;
 }
 
-CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud) :
+CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts,  PinName bt_power_name, int baud) :
     cts(cts),
     rts(rts),
+    tx(tx), rx(rx),
     bt_host_wake_name(NC),
     bt_device_wake_name(NC),
+    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0),
     bt_host_wake(bt_host_wake_name),
     bt_device_wake(bt_device_wake_name)
+
 {
-    cyhal_uart_init(&uart, tx, rx, NULL, NULL);
     enabled_powersave = false;
     bt_host_wake_active = false;
-    sleep_manager_lock_deep_sleep();
+
+    sleep_manager_lock_deep_sleep();        // locking deep sleep because this option 
+                                            // does not include a host wake pin
     holding_deep_sleep_lock = true;
 }
 
@@ -118,17 +124,21 @@ static void on_controller_irq(void *callback_arg, cyhal_uart_event_t event)
 
 void CyH4TransportDriver::initialize()
 {
-#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-	mbed::InterruptIn *host_wake_pin;
-#endif
-
     sleep_manager_lock_deep_sleep();
+
+    bt_power = 0;
+    rtos::ThisThread::sleep_for(1ms);
+
+    cyhal_uart_init(&uart, tx, rx, NULL, NULL);
 
     const cyhal_uart_cfg_t uart_cfg = { .data_bits = 8, .stop_bits = 1, .parity = CYHAL_UART_PARITY_NONE, .rx_buffer = NULL, .rx_buffer_size = 0 };
     cyhal_uart_configure(&uart, &uart_cfg);
     cyhal_uart_set_flow_control(&uart, cts, rts);
+    cyhal_uart_clear(&uart);
     cyhal_uart_register_callback(&uart, &on_controller_irq, &uart);
     cyhal_uart_enable_event(&uart, CYHAL_UART_IRQ_RX_NOT_EMPTY, CYHAL_ISR_PRIORITY_DEFAULT, true);
+
+    bt_power = 1;
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     if (bt_host_wake_name != NC) {
@@ -146,10 +156,34 @@ void CyH4TransportDriver::initialize()
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
     sleep_manager_unlock_deep_sleep();
-    rtos::ThisThread::sleep_for(500ms);
 }
 
-void CyH4TransportDriver::terminate() {  }
+void CyH4TransportDriver::terminate()
+{
+    cyhal_uart_event_t enable_irq_event = (cyhal_uart_event_t)(CYHAL_UART_IRQ_RX_DONE
+                                       | CYHAL_UART_IRQ_TX_DONE
+                                       | CYHAL_UART_IRQ_RX_NOT_EMPTY
+                                      );
+
+    cyhal_uart_enable_event(&uart,
+                            enable_irq_event,
+                            CYHAL_ISR_PRIORITY_DEFAULT,
+                            false
+                        );
+
+    if(bt_host_wake.is_connected())
+    {
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
+        delete host_wake_pin;
+#endif
+    }
+
+    deassert_bt_dev_wake();
+
+    bt_power = 0; //BT_POWER is an output, should not be freed only set inactive
+
+    cyhal_uart_free(&uart);
+}
 
 uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 {
@@ -229,14 +263,14 @@ ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_default_h4_transpo
 #if (defined(CYBSP_BT_HOST_WAKE) && defined(CYBSP_BT_DEVICE_WAKE))
     static ble::vendor::cypress_ble::CyH4TransportDriver s_transport_driver(
        /* TX */ CYBSP_BT_UART_TX, /* RX */ CYBSP_BT_UART_RX,
-       /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, DEF_BT_BAUD_RATE,
+       /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, CYBSP_BT_POWER, DEF_BT_BAUD_RATE,
        CYBSP_BT_HOST_WAKE, CYBSP_BT_DEVICE_WAKE
     );
 
 #else
     static ble::vendor::cypress_ble::CyH4TransportDriver s_transport_driver(
         /* TX */ CYBSP_BT_UART_TX, /* RX */ CYBSP_BT_UART_RX,
-        /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, DEF_BT_BAUD_RATE);
+        /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, CYBSP_BT_POWER, DEF_BT_BAUD_RATE);
 #endif
     return s_transport_driver;
 }
