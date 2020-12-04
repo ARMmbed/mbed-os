@@ -36,11 +36,12 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     tx(tx), rx(rx),
     bt_host_wake_name(bt_host_wake_name),
     bt_device_wake_name(bt_device_wake_name),
+    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0),
     bt_host_wake(bt_host_wake_name, PIN_INPUT, PullNone, 0),
     bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
-    dev_wake_irq_event(dev_wake_irq),
-    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0)
+    dev_wake_irq_event(dev_wake_irq)
+
 {
     enabled_powersave = true;
     bt_host_wake_active = false;
@@ -52,9 +53,10 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     tx(tx), rx(rx),
     bt_host_wake_name(NC),
     bt_device_wake_name(NC),
+    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0),
     bt_host_wake(bt_host_wake_name),
-    bt_device_wake(bt_device_wake_name),
-    bt_power(bt_power_name, PIN_OUTPUT, PullNone, 0)
+    bt_device_wake(bt_device_wake_name)
+
 {
     enabled_powersave = false;
     bt_host_wake_active = false;
@@ -174,7 +176,6 @@ void CyH4TransportDriver::terminate()
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
         delete host_wake_pin;
 #endif
-        bt_host_wake = false;
     }
 
     deassert_bt_dev_wake();
