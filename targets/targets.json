@@ -2722,6 +2722,12 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "system_power_supply": {
+                "expected_value1": "PWR_LDO_SUPPLY | PWR_DIRECT_SMPS_SUPPLY",
+                "expected_value2": "PWR_SMPS_1V8_SUPPLIES_LDO | PWR_SMPS_2V5_SUPPLIES_LDO | PWR_SMPS_1V8_SUPPLIES_EXT_AND_LDO | PWR_SMPS_2V5_SUPPLIES_EXT_AND_LDO",
+                "expected_value3": "PWR_SMPS_1V8_SUPPLIES_EXT | PWR_SMPS_2V5_SUPPLIES_EXT | PWR_EXTERNAL_SOURCE_SUPPLY",
+                "value": "NC"
             }
         },
         "components_add": [
@@ -2758,7 +2764,10 @@
         ],
         "macros_add": [
             "STM32H743xx"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
     },
     "NUCLEO_H743ZI2": {
         "inherits": [
@@ -2800,7 +2809,10 @@
         ],
         "macros_add": [
             "STM32H745xx"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
     },
     "MCU_STM32H745xI_CM4": {
         "inherits": [
@@ -2846,7 +2858,10 @@
         ],
         "macros_add": [
             "STM32H747xx"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
     },
     "MCU_STM32H747xI_CM7": {
         "inherits": [
@@ -2948,7 +2963,10 @@
         ],
         "macros_add": [
             "STM32H7A3xxQ"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
     },
     "NUCLEO_H7A3ZI_Q": {
         "inherits": [

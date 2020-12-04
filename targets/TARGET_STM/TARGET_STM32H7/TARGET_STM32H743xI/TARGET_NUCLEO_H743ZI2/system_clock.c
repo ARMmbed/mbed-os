@@ -89,8 +89,6 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-    /* Supply configuration update enable */
-    HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
     /* Configure the main internal regulator output voltage */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
@@ -163,8 +161,6 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_OscInitTypeDef RCC_OscInitStruct;
 
-    /*!< Supply configuration update enable */
-    HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
     /* Configure the main internal regulator output voltage */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
