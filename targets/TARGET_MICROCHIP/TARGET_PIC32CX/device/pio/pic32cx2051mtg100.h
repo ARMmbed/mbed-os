@@ -430,6 +430,10 @@
 #define PIO_PC13_IDX           77
 #define PIO_PC14_IDX           78
 #define PIO_PC15_IDX           79
+#define PIO_PC18_IDX           82
+#define PIO_PC19_IDX           83
+#define PIO_PC20_IDX           84
+#define PIO_PC21_IDX           85
 #define PIO_PC22_IDX           86
 #define PIO_PD0_IDX            96
 #define PIO_PD1_IDX            97

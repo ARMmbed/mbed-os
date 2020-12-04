@@ -47,7 +47,7 @@ typedef enum {
     /* Standardized button names */
     BUTTON1 = SW2,
 
-    /* Serial */
+    /* Serial Console usart */
     SERIAL_TX = PIO_PA4_IDX,
     SERIAL_RX = PIO_PA5_IDX,
 
@@ -55,9 +55,21 @@ typedef enum {
     USBTX = SERIAL_TX,
     USBRX = SERIAL_RX,
 
-    /* Board Controller */
+    /* Board STDIO */
     STDIO_UART_TX = SERIAL_TX,
     STDIO_UART_RX = SERIAL_RX,
+
+    /* Xplain Pro Serial */
+    XPLAINPRO_SERIAL_TX = PIO_PA0_IDX,
+    XPLAINPRO_SERIAL_RX = PIO_PA1_IDX,
+
+    /* Mikro Bus 1 Serial */
+    MIKROBUS1_SERIAL_TX = PIO_PD2_IDX,
+    MIKROBUS1_SERIAL_RX = PIO_PD1_IDX,
+
+    /* Mikro Bus 2 Serial */
+    MIKROBUS2_SERIAL_TX = PIO_PB4_IDX,
+    MIKROBUS2_SERIAL_RX = PIO_PB3_IDX,
 
     /* Not connected */
     NC = (int)0xFFFFFFFF

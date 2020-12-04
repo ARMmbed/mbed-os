@@ -33,13 +33,15 @@
 #include <stdbool.h>
 
 #include "pinmap.h"
-#include "pinmap_function.h"
+//#include "pinmap_function.h"
 #include "PeripheralPins.h"
 #include "PeripheralNames.h"
 
 #include "compiler.h"
 #include "pic32cx.h"
 #include "usart.h"
+#include "stdio_serial.h"
+#include "uart_serial.h"
 
 #define UART_COUNT    1
 #define USART_COUNT   8
@@ -54,6 +56,54 @@ static uart_irq_handler irq_handler;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
+static void serial_enable(serial_t *obj, uint8_t enable)
+{
+	if (enable) {
+		/* Enable the receiver and transmitter */
+		usart_enable_tx(obj->p_usart);
+		usart_enable_rx(obj->p_usart);
+	} else {
+		/* Disable the receiver and transmitter */
+		usart_disable_tx(obj->p_usart);
+		usart_disable_rx(obj->p_usart);
+	}
+}
+
+static IRQn_Type serial_get_rx_irq_index(serial_t *obj)
+{
+    UARTName uart = (UARTName)obj->p_usart;
+    
+    switch (uart) {
+	case UART_0:
+		return UART_IRQn;
+		break;
+	case USART_0:
+		return FLEXCOM0_IRQn;
+		break;
+	case USART_1:
+		return FLEXCOM1_IRQn;
+		break;
+	case USART_2:
+		return FLEXCOM2_IRQn;
+		break;
+	case USART_3:
+		return FLEXCOM3_IRQn;
+		break;
+	case USART_4:
+		return FLEXCOM4_IRQn;
+		break;
+	case USART_5:
+		return FLEXCOM5_IRQn;
+		break;
+	case USART_6:
+		return FLEXCOM6_IRQn;
+		break;
+	case USART_7:
+		return FLEXCOM7_IRQn;
+		break;
+	}
+}
+
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     /* Get UART object connected to the given pins */
@@ -62,13 +112,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     /* Check that pins are connected to same UART */
     UARTName uart = (UARTName) pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((unsigned int) uart != NC);
+    
+    /* Set Pin Mode */
+    ioport_mode_t mode = (ioport_mode_t)pinmap_function(tx, PinMap_UART_TX);
+    ioport_set_pin_mode(tx, mode);
+    mode = (ioport_mode_t)pinmap_function(rx, PinMap_UART_RX);
+    ioport_set_pin_mode(rx, mode);
 
 	/* Set default values */
     obj->p_usart = (Usart *) uart;
-	obj->serial_options.charlenght = US_MR_CHRL_8_BIT;
+	obj->serial_options.charlength = US_MR_CHRL_8_BIT;
 	obj->serial_options.paritytype = US_MR_PAR_NO;
 	obj->serial_options.stopbits = US_MR_NBSTOP_1_BIT;
 	obj->serial_options.baudrate  = 115200;
+
     if (uart == STDIO_UART) {
 #if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
         obj->serial_options.baudrate  = MBED_CONF_PLATFORM_STDIO_BAUD_RATE; // baudrate takes value from platform/mbed_lib.json
@@ -80,7 +137,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
 	/* Get flexcom */
-	switch (obj->p_usart) {
+	switch (uart) {
+	case UART_0:
+		obj->id_peripheral = ID_UART;
+		break;
 	case USART_0:
 		obj->id_peripheral = ID_FLEXCOM0;
 		break;
@@ -107,19 +167,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 		break;
 	}
 
-
-    /* If this is the UART to be used for stdio, configure pins*/
-    if (uart == STDIO_UART) {
-		ioport_set_port_mode(PINS_CONSOLE_UART_PORT, PINS_CONSOLE_UART_MASK, PINS_CONSOLE_UART_FLAGS);
-	}
-
-	/* Enable the peripheral and set USART mode */
-	Flexcom *p_flexcom = obj->p_usart - 0x200;
-	flexcom_enable(p_flexcom);
-	flexcom_set_opmode(p_flexcom, FLEXCOM_USART);
-	
-	/* Enable the peripheral clock in the PMC */
-	sysclk_enable_peripheral_clock(obj->id_peripheral);
+    usart_serial_options_t opt;
+    opt.baudrate = obj->serial_options.baudrate;
+    opt.charlength = obj->serial_options.charlength;
+    opt.paritytype = obj->serial_options.paritytype;
+    opt.stopbits = obj->serial_options.stopbits;
+    usart_serial_init((usart_if)obj->p_usart, &opt);
 
     /* If this is the UART to be used for stdio, copy it to the stdio_uart struct */
     if (uart == STDIO_UART) {
@@ -128,18 +181,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 		
 		/* Configure UART for async operation */
 		stdio_serial_init(obj->p_usart, &obj->serial_options);
-    } else {
-		/* Configure USART in serial mode */
-		usart_init_rs232(obj->p_usart, &obj->serial_options, sysclk_get_peripheral_hz());
-
+    } else {}
 		/* Disable all the interrupts */
 		usart_disable_interrupt(obj->p_usart, 0xFFFFFFFF);
 
-		/* Enable the receiver and transmitter */
-		serial_enable_tx(obj, true);
-
 		/* Configure and enable interrupt of USART */
-		NVIC_EnableIRQ(USART_IRQn);
+		NVIC_EnableIRQ(serial_get_rx_irq_index(obj));
 	}
 }
 
@@ -150,25 +197,12 @@ void serial_free(serial_t *obj)
 	usart_disable_rx(obj->p_usart);
 }
 
-static void serial_enable(serial_t *obj, uint8_t enable)
-{
-	if (enable) {
-		/* Enable the receiver and transmitter */
-		usart_enable_tx(obj->p_usart);
-		usart_enable_rx(obj->p_usart);
-	} else {
-		/* Disable the receiver and transmitter */
-		usart_disable_tx(obj->p_usart);
-		usart_disable_rx(obj->p_usart);
-	}
-}
-
 /**
  * Set UART baud rate
  */
 void serial_baud(serial_t *obj, int baudrate)
 {
-	usart_set_async_baudrate(obj, (uint32_t)baudrate, sysclk_get_peripheral_hz());
+	usart_set_async_baudrate(obj->p_usart, (uint32_t)baudrate, sysclk_get_peripheral_bus_hz(obj->p_usart));
 }
 
 /**
@@ -177,13 +211,13 @@ void serial_baud(serial_t *obj, int baudrate)
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
 	/* Disable the receiver and transmitter */
-	serial_enable_tx(obj, false);
+	serial_enable(obj, false);
 		
 	/* We support 5 to 8 data bits */
     MBED_ASSERT(data_bits >= 5 && data_bits <= 8);
 	
 	/* Set new values */
-	obj->serial_options.charlenght = (data_bits - 5) << 6;
+	obj->serial_options.charlength = (data_bits - 5) << 6;
 	obj->serial_options.paritytype = US_MR_PAR_NO;
 	obj->serial_options.stopbits = (stop_bits - 1) << 9;
 	switch (parity) {
@@ -205,10 +239,12 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 	}
 
 	/* Configure USART in serial mode */
-	usart_init_rs232(obj->p_usart, &obj->serial_options, sysclk_get_peripheral_hz());
-
-	/* Enable the receiver and transmitter */
-	serial_enable_tx(obj, true);
+    usart_serial_options_t opt;
+    opt.baudrate = obj->serial_options.baudrate;
+    opt.charlength = obj->serial_options.charlength;
+    opt.paritytype = obj->serial_options.paritytype;
+    opt.stopbits = obj->serial_options.stopbits;
+    usart_serial_init((usart_if)obj->p_usart, &opt);
 }
 
 /******************************************************************************
@@ -216,20 +252,12 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  ******************************************************************************/
 uint8_t serial_tx_ready(serial_t *obj)
 {
-    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-        return (obj->serial.periph.leuart->STATUS & LEUART_STATUS_TXBL) ? true : false;
-    } else {
-        return (obj->serial.periph.uart->STATUS & USART_STATUS_TXBL) ? true : false;
-    }
+    return (uint8_t)usart_serial_is_tx_ready((usart_if)obj->p_usart);
 }
 
 uint8_t serial_rx_ready(serial_t *obj)
 {
-    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-        return (obj->serial.periph.leuart->STATUS & LEUART_STATUS_RXDATAV) ? true : false;
-    } else {
-        return (obj->serial.periph.uart->STATUS & USART_STATUS_RXDATAV) ? true : false;
-    }
+    return (uint8_t)usart_serial_is_rx_ready((usart_if)obj->p_usart);
 }
 
 void serial_write_asynch(serial_t *obj, int data)

@@ -591,161 +591,124 @@
 /************UART**************/
 MBED_WEAK const PinMap PinMap_UART_TX[] = {
     /* USART0 */
-    {PIO_PA4_IDX, USART_0, PIO_PA4A_FLEXCOM0_IO0},
-    // {PA1,  USART_0,  1},
-    // {PA2,  USART_0,  2},
-    // {PA3,  USART_0,  3},
-    // {PA4,  USART_0,  4},
-    // {PA5,  USART_0,  5},
-    // {PB11, USART_0,  6},
-    // {PB12, USART_0,  7},
-    // {PB13, USART_0,  8},
-    // {PB14, USART_0,  9},
-    // {PB15, USART_0, 10},
-    // /* USART1 */
-    // {PC6,  USART_1, 11},
-    // {PC7,  USART_1, 12},
-    // {PC8,  USART_1, 13},
-    // {PC9,  USART_1, 14},
-    // {PC10, USART_1, 15},
-    // {PC11, USART_1, 16},
-    // {PF0,  USART_1, 24},
-    // {PF1,  USART_1, 25},
-    // {PF2,  USART_1, 26},
-    // {PF3,  USART_1, 27},
-    // {PF4,  USART_1, 28},
-    // {PF5,  USART_1, 29},
-    // {PF6,  USART_1, 30},
-    // {PF7,  USART_1, 31},
-// #endif
-// #ifdef USART2_BASE
-    // /* USART2 */
-    // {PA6,  USART_2, 1},
-    // {PA7,  USART_2, 2},
-    // {PA8,  USART_2, 3},
-    // {PA9,  USART_2, 4},
-    // {PI0,  USART_2, 5},
-    // {PI1,  USART_2, 6},
-    // {PI2,  USART_2, 7},
-    // {PI3,  USART_2, 8},
-    // {PB6,  USART_2, 9},
-    // {PB7,  USART_2, 10},
-    // {PB8,  USART_2, 11},
-    // {PB9,  USART_2, 12},
-    // {PB10, USART_2, 13},
-    // {PF8,  USART_2, 21},
-    // {PF9,  USART_2, 22},
-    // {PF10, USART_2, 23},
-    // {PF11, USART_2, 24},
-    // {PF12, USART_2, 25},
-    // {PF13, USART_2, 26},
-    // {PF14, USART_2, 27},
-    // {PF15, USART_2, 28},
-    // {PK0,  USART_2, 29},
-    // {PK1,  USART_2, 30},
-    // {PK2,  USART_2, 31},
-// #endif
-// #ifdef USART3_BASE
-    // /* USART3 */
-    // {PJ14, USART_3, 16},
-    // {PJ15, USART_3, 17},
-    // {PC0,  USART_3, 18},
-    // {PC1,  USART_3, 19},
-    // {PC2,  USART_3, 20},
-    // {PC3,  USART_3, 21},
-    // {PC4,  USART_3, 22},
-    // {PC5,  USART_3, 23},
-// #endif
+    {PIO_PA4_IDX, USART_0, IOPORT_MODE_MUX_A},
+    /* USART1 */
+    {PIO_PA8_IDX, USART_1, IOPORT_MODE_MUX_A},
+    {PIO_PC2_IDX, USART_1, IOPORT_MODE_MUX_B},
+    /* USART2 */
+    {PIO_PA12_IDX, USART_2, IOPORT_MODE_MUX_A},
+    /* USART3 */
+    {PIO_PB9_IDX, USART_3, IOPORT_MODE_MUX_B},
+    /* USART4 */
+    {PIO_PB5_IDX, USART_4, IOPORT_MODE_MUX_B},
+    {PIO_PB24_IDX, USART_4, IOPORT_MODE_MUX_B},
+    /* USART5 */
+    {PIO_PA24_IDX, USART_5, IOPORT_MODE_MUX_B},
+    {PIO_PB20_IDX, USART_5, IOPORT_MODE_MUX_B},
+    /* USART6 */
+    {PIO_PA0_IDX, USART_6, IOPORT_MODE_MUX_A},
+    {PIO_PA25_IDX, USART_6, IOPORT_MODE_MUX_B},
+    {PIO_PC6_IDX, USART_6, IOPORT_MODE_MUX_B},
+    /* USART7 */
+    {PIO_PB4_IDX, USART_7, IOPORT_MODE_MUX_B},
+    /* UART */
+    {PIO_PD2_IDX, UART0, IOPORT_MODE_MUX_A},
     {NC, NC, 0}
 };
 
 MBED_WEAK const PinMap PinMap_UART_RX[] = {
     /* USART0 */
-    {PIO_PA5_IDX, USART_0, PIO_PA5A_FLEXCOM0_IO1},
-    // {PA1,  USART_0,  0},
-    // {PA2,  USART_0,  1},
-    // {PA3,  USART_0,  2},
-    // {PA4,  USART_0,  3},
-    // {PA5,  USART_0,  4},
-    // {PB11, USART_0,  5},
-    // {PB12, USART_0,  6},
-    // {PB13, USART_0,  7},
-    // {PB14, USART_0,  8},
-    // {PB15, USART_0,  9},
-// #ifdef USART1_BASE
-    // /* USART1 */
-    // {PC6,  USART_1, 10},
-    // {PC7,  USART_1, 11},
-    // {PC8,  USART_1, 12},
-    // {PC9,  USART_1, 13},
-    // {PC10, USART_1, 14},
-    // {PC11, USART_1, 15},
-    // {PF0,  USART_1, 23},
-    // {PF1,  USART_1, 24},
-    // {PF2,  USART_1, 25},
-    // {PF3,  USART_1, 26},
-    // {PF4,  USART_1, 27},
-    // {PF5,  USART_1, 28},
-    // {PF6,  USART_1, 29},
-    // {PF7,  USART_1, 30},
-// #endif
-// #ifdef USART2_BASE
-    // /* USART2 */
-    // {PA6,  USART_2, 0},
-    // {PA7,  USART_2, 1},
-    // {PA8,  USART_2, 2},
-    // {PA9,  USART_2, 3},
-    // {PI0,  USART_2, 4},
-    // {PI1,  USART_2, 5},
-    // {PI2,  USART_2, 6},
-    // {PI3,  USART_2, 7},
-    // {PB6,  USART_2, 8},
-    // {PB7,  USART_2, 9},
-    // {PB8,  USART_2, 10},
-    // {PB9,  USART_2, 11},
-    // {PB10, USART_2, 12},
-    // {PF8,  USART_2, 20},
-    // {PF9,  USART_2, 21},
-    // {PF10, USART_2, 22},
-    // {PF11, USART_2, 23},
-    // {PF12, USART_2, 24},
-    // {PF13, USART_2, 25},
-    // {PF14, USART_2, 26},
-    // {PF15, USART_2, 27},
-    // {PK0,  USART_2, 28},
-    // {PK1,  USART_2, 29},
-    // {PK2,  USART_2, 30},
-// #endif
-// #ifdef USART3_BASE
-    // /* USART3 */
-    // {PJ14, USART_3, 15},
-    // {PJ15, USART_3, 16},
-    // {PC0,  USART_3, 17},
-    // {PC1,  USART_3, 18},
-    // {PC2,  USART_3, 19},
-    // {PC3,  USART_3, 20},
-    // {PC4,  USART_3, 21},
-    // {PC5,  USART_3, 22},
-// #endif
+    {PIO_PA5_IDX, USART_0, IOPORT_MODE_MUX_A},
+    /* USART1 */
+    {PIO_PA9_IDX, USART_1, IOPORT_MODE_MUX_A},
+    {PIO_PC3_IDX, USART_1, IOPORT_MODE_MUX_B},
+    /* USART2 */
+    {PIO_PA13_IDX, USART_2, IOPORT_MODE_MUX_A},
+    /* USART3 */
+    {PIO_PB10_IDX, USART_3, IOPORT_MODE_MUX_B},
+    /* USART4 */
+    {PIO_PB6_IDX, USART_4, IOPORT_MODE_MUX_B},
+    {PIO_PB25_IDX, USART_4, IOPORT_MODE_MUX_B},
+    /* USART5 */
+    {PIO_PA23_IDX, USART_5, IOPORT_MODE_MUX_B},
+    {PIO_PB21_IDX, USART_5, IOPORT_MODE_MUX_B},
+    /* USART6 */
+    {PIO_PA1_IDX, USART_6, IOPORT_MODE_MUX_A},
+    {PIO_PA26_IDX, USART_6, IOPORT_MODE_MUX_B},
+    {PIO_PC7_IDX, USART_6, IOPORT_MODE_MUX_B},
+    /* USART7 */
+    {PIO_PB3_IDX, USART_7, IOPORT_MODE_MUX_B},
+    /* UART */
+    {PIO_PD1_IDX, UART0, IOPORT_MODE_MUX_A},
     {NC, NC, 0}
 };
 
 
 MBED_WEAK const PinMap PinMap_UART_SCK[] = {
 	/* USART0 */
-    {PIO_PA6_IDX, USART_0, PIO_PA6A_FLEXCOM0_IO2},
+    {PIO_PA6_IDX, USART_0, IOPORT_MODE_MUX_A},
+    /* USART2 */
+    {PIO_PA14_IDX, USART_2, IOPORT_MODE_MUX_A},
+    /* USART3 */
+    {PIO_PB11_IDX, USART_3, IOPORT_MODE_MUX_B},
+    /* USART4 */
+    {PIO_PB26_IDX, USART_4, IOPORT_MODE_MUX_B},
+    /* USART5 */
+    {PIO_PA22_IDX, USART_5, IOPORT_MODE_MUX_B},
+    {PIO_PB22_IDX, USART_5, IOPORT_MODE_MUX_B},
+    {PIO_PC7_IDX, USART_5, IOPORT_MODE_MUX_A},
+    /* USART6 */
+    {PIO_PA27_IDX, USART_6, IOPORT_MODE_MUX_B},
+    {PIO_PC18_IDX, USART_6, IOPORT_MODE_MUX_A},
+    /* USART7 */
+    {PIO_PB2_IDX, USART_7, IOPORT_MODE_MUX_B},
     {NC, NC, 0}
 };
 
 MBED_WEAK const PinMap PinMap_UART_CTS[] = {
 	/* USART0 */
-    {PIO_PA7_IDX, USART_0, PIO_PA7A_FLEXCOM0_IO3},
+    {PIO_PA7_IDX, USART_0, IOPORT_MODE_MUX_A},
+    /* USART2 */
+    {PIO_PA15_IDX, USART_2, IOPORT_MODE_MUX_A},
+    /* USART3 */
+    {PIO_PB12_IDX, USART_3, IOPORT_MODE_MUX_B},
+    /* USART4 */
+    {PIO_PC0_IDX, USART_4, IOPORT_MODE_MUX_B},
+    /* USART5 */
+    {PIO_PA21_IDX, USART_5, IOPORT_MODE_MUX_B},
+    {PIO_PB23_IDX, USART_5, IOPORT_MODE_MUX_B},
+    {PIO_PC6_IDX, USART_5, IOPORT_MODE_MUX_A},
+    /* USART6 */
+    {PIO_PA28_IDX, USART_6, IOPORT_MODE_MUX_B},
+    {PIO_PC19_IDX, USART_6, IOPORT_MODE_MUX_A},
+    /* USART7 */
+    {PIO_PB1_IDX, USART_7, IOPORT_MODE_MUX_B},
     {NC, NC, 0}
 };
 
 MBED_WEAK const PinMap PinMap_UART_RTS[] = {
 	/* USART0 */
-    {PIO_PA6_IDX, USART_0, PIO_PA6B_FLEXCOM0_IO4},
+    {PIO_PA6_IDX, USART_0, IOPORT_MODE_MUX_B},
+    {PIO_PA29_IDX, USART_0, IOPORT_MODE_MUX_B},
+    /* USART1 */
+    {PIO_PA29_IDX, USART_2, IOPORT_MODE_MUX_C},
+    /* USART2 */
+    {PIO_PA14_IDX, USART_2, IOPORT_MODE_MUX_B},
+    {PIO_PA29_IDX, USART_2, IOPORT_MODE_MUX_D},
+    /* USART3 */
+    {PIO_PB0_IDX, USART_3, IOPORT_MODE_MUX_B},
+    {PIO_PB11_IDX, USART_3, IOPORT_MODE_MUX_C},
+    /* USART4 */
+    {PIO_PB26_IDX, USART_4, IOPORT_MODE_MUX_C},
+    /* USART5 */
+    {PIO_PA22_IDX, USART_5, IOPORT_MODE_MUX_C},
+    {PIO_PB22_IDX, USART_5, IOPORT_MODE_MUX_C},
+    {PIO_PC7_IDX, USART_5, IOPORT_MODE_MUX_C},
+    /* USART6 */
+    {PIO_PA27_IDX, USART_6, IOPORT_MODE_MUX_C},
+    {PIO_PC18_IDX, USART_6, IOPORT_MODE_MUX_B},
+    /* USART7 */
+    {PIO_PB2_IDX, USART_7, IOPORT_MODE_MUX_C},
     {NC, NC, 0}
 };
 

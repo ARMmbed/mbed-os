@@ -44,7 +44,7 @@ extern "C" {
 #include <compiler.h>
 //#include <conf_sleepmgr.h>
 #include <sleep.h>
-#include <interrupt.h>
+#include <interrupt_sam_nvic.h>
 
 /**
  * \weakgroup sleepmgr_group

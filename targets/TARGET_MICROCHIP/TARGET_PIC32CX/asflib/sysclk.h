@@ -305,7 +305,21 @@ static inline uint32_t sysclk_get_coproc_peripheral_hz(void)
  */
 static inline uint32_t sysclk_get_peripheral_bus_hz(const volatile void *module)
 {
-	return sysclk_get_peripheral_hz();
+	bool b_en_pclk = false;
+
+	if (((uint32_t)module & 0x48000000) == 0x48000000) {
+		b_en_pclk = true;
+	}
+
+	if (b_en_pclk) {
+#ifdef CONFIG_CPCLK_ENABLE
+		return sysclk_get_coproc_peripheral_hz();
+#else
+		return 0;
+#endif
+	} else {
+		return sysclk_get_peripheral_hz();
+	}
 }
 
 /* @} */

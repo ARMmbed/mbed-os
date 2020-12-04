@@ -89,8 +89,11 @@ static inline void usart_serial_init(usart_if p_usart,
 		sysclk_enable_peripheral_clock(ID_UART);
 		/* Configure UART */
 		uart_init((Uart *)p_usart, &uart_settings);
-	}
-	else {
+        /* Enable the receiver and transmitter. */
+        uart_enable_tx((Uart *)p_usart);
+        uart_enable_rx((Uart *)p_usart);
+        
+	} else {
 		uint32_t ul_clk;
 		uint32_t ul_div;
 		
@@ -283,6 +286,31 @@ static inline void usart_serial_getchar(usart_if p_usart, uint8_t *data)
 			*data = (uint8_t)(val & 0xFF);
 		}
 	}
+}
+
+/**
+ * \brief Check if TX data is ready to transmit.
+ *
+ * \param p_usart   Base address of the USART instance.
+ *
+ * \retval 1 One data can be trasnmitted.
+ * \retval 0 No data can be trasnmitted.
+ */
+static inline uint32_t usart_serial_is_tx_ready(usart_if p_usart)
+{
+	if (UART == (Uart *)p_usart) {
+		return uart_is_tx_empty((Uart *)p_usart);
+	}
+	else {
+		/* Flexcomm USART */
+		if ((USART0 == p_usart) || (USART1 == p_usart) ||
+				(USART2 == p_usart) || (USART3 == p_usart) ||
+				(USART4 == p_usart) || (USART5 == p_usart) ||
+				(USART6 == p_usart) || (USART7 == p_usart)) {
+			return usart_is_tx_empty(p_usart);
+		}
+	}
+	return 0;
 }
 
 /**

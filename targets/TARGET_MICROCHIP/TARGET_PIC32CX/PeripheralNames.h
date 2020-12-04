@@ -29,6 +29,8 @@
 extern "C" {
 #endif
 
+#define STDIO_UART        USART_0
+
 // #if DEVICE_ANALOGIN
 // typedef enum {
 // #ifdef ADC0_BASE
@@ -101,6 +103,7 @@ extern "C" {
 
 #if DEVICE_SERIAL
 typedef enum {
+    UART_0 = (uint32_t)UART,
     USART_0 = (uint32_t)USART0,
     USART_1 = (uint32_t)USART1,
     USART_2 = (uint32_t)USART2,
