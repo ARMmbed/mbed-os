@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 ; MAX32625
 ; 512KB FLASH (0x80000) @ 0x000000000
 ; 160KB RAM (0x28000) @ 0x20000000
