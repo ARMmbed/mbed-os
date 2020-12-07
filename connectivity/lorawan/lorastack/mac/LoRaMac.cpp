@@ -976,7 +976,7 @@ void LoRaMac::on_ack_timeout_timer_event(void)
     MBED_ASSERT(status == LORAWAN_STATUS_OK); // if it was successful on initial transmission, it must be successful on retransmission as well
 
     // Schedule a retry
-    lorawan_status_t status = handle_retransmission();
+    status = handle_retransmission();
 
     if (status == LORAWAN_STATUS_NO_CHANNEL_FOUND ||
             status == LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND) {
