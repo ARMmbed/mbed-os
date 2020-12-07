@@ -40,10 +40,7 @@ public:
     /**
      * @brief Class constructor
      *
-     * @param[in]  bd                   Underlying block device. The BlockDevice
-     *                                  can be any BlockDevice with flash characteristics.
-     *                                  If using a BlockDevice without flash, such as SDBlockDevice,
-     *                                  please add the FlashSimBlockDevice on top of it.
+     * @param[in]  bd                   Underlying block device.
      *
      * @returns none
      */
