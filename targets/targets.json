@@ -6488,7 +6488,10 @@
             "CY_USING_HAL",
             "MBED_TICKLESS"
         ],
-        "public": false
+        "public": false,
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "CY8CPROTO_062_4343W": {
         "inherits": [

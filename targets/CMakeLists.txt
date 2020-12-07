@@ -3,6 +3,8 @@
 
 if("ARM_FM" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_ARM_FM)
+elseif("Cypress" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_Cypress)
 elseif("Freescale" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Freescale)
 elseif("NORDIC" IN_LIST MBED_TARGET_LABELS)
