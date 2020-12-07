@@ -51,6 +51,8 @@
 
 #ifdef TARGET_FF_ARDUINO
 
+#warning ARDUINO form factor should not be used any more => use ARDUINO_UNO
+
 #define ARDUINO_UNO_A0  A0
 #define ARDUINO_UNO_A1  A1
 #define ARDUINO_UNO_A2  A2
