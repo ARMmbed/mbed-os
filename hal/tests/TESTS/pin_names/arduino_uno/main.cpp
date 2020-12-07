@@ -20,7 +20,10 @@
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 
-// #if !TARGET_FF_ARDUINO_UNO
+/*
+Requirements specified in docs/design-documents/hal/0005-pin-names-Arduino-Uno-standard.md
+*/
+
 #if !(defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO))
 #error [NOT_SUPPORTED] Test needs Arduino Uno form factor
 #else
@@ -34,15 +37,13 @@ using namespace utest::v1;
 template <PinName TestedPin>
 void GPIO_test()
 {
-    printf("Pin 0x%x\n", TestedPin);
+    utest_printf("GPIO Pin 0x%x\n", TestedPin);
 
-    TEST_SKIP_UNLESS_MESSAGE(TestedPin != (PinName)NC, "NC pin");
-    TEST_SKIP_UNLESS_MESSAGE(TestedPin != USBTX, "USBTX pin");
-    TEST_SKIP_UNLESS_MESSAGE(TestedPin != USBRX, "USBRX pin");
+    TEST_SKIP_UNLESS_MESSAGE(TestedPin != USBTX, "ARDUINO_UNO pin shared with USBTX");
+    TEST_SKIP_UNLESS_MESSAGE(TestedPin != USBRX, "ARDUINO_UNO pin shared with USBRX");
 
     const PinMap *maps = gpio_pinmap(); // hal/source/mbed_gpio.c
-    while (maps->pin != (PinName)NC) {
-        // printf("map pin 0x%x\n", maps->pin);
+    while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
         if (maps->pin == TestedPin) {
             {
                 DigitalOut   TEST1(maps->pin);
@@ -50,10 +51,12 @@ void GPIO_test()
             }
             {
                 DigitalIn   TEST1(maps->pin);
+                // Basic API call
                 TEST1.read();
             }
             {
                 DigitalInOut   TEST1(maps->pin);
+                // Basic API call
                 TEST1.input();
                 TEST1.output();
             }
@@ -63,6 +66,8 @@ void GPIO_test()
         }
         maps++;
     }
+
+    // Pin is not part of gpio PinMap
     TEST_ASSERT(false);
 }
 
@@ -70,14 +75,14 @@ void GPIO_test()
 template <PinName TestedPin>
 void AnalogIn_test()
 {
-    printf("Pin 0x%x\n", TestedPin);
+    utest_printf("ADC Pin 0x%x\n", TestedPin);
 
     const PinMap *maps = analogin_pinmap();
-    while (maps->pin != (PinName)NC) {
-        // printf("map pin 0x%x\n", maps->pin);
+    while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
         if (maps->pin == TestedPin) {
 
             AnalogIn TEST(TestedPin);
+            // Basic API call
             TEST.read_u16();
 
             TEST_ASSERT(true);
@@ -85,6 +90,8 @@ void AnalogIn_test()
         }
         maps++;
     }
+
+    // Pin is not part of analogin PinMap
     TEST_ASSERT(false);
 }
 
@@ -92,14 +99,14 @@ void AnalogIn_test()
 template <PinName TestedPin>
 void PWM_test()
 {
-    printf("Pin 0x%x\n", TestedPin);
+    utest_printf("PWM Pin 0x%x\n", TestedPin);
 
     const PinMap *maps = pwmout_pinmap();
-    while (maps->pin != (PinName)NC) {
-        // printf("map pin 0x%x\n", maps->pin);
+    while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
         if (maps->pin == TestedPin) {
 
             PwmOut pwm(TestedPin);
+            // Basic API call
             pwm.period(1.0f);
             pwm.write(0.5f);
 
@@ -109,43 +116,47 @@ void PWM_test()
         maps++;
     }
 
-    // PWM support is not mandatory
-    TEST_SKIP_UNLESS_MESSAGE(false, "ARDUINO_UNO WARNING: NO PWM ");
+    // From docs/design-documents/hal/0005-pin-names-Arduino-Uno-standard.md
+    // Although this is recomended as per the Arduino Uno standard,
+    // it's not a mandatory as requirement to be compliant with the Arduino Uno standard for Mbed boards.
+    TEST_SKIP_UNLESS_MESSAGE(false, "ARDUINO_UNO: this pin doesn’t support PWM");
 }
 
 
 template <PinName TX_pin, PinName RX_pin>
 void UART_test()
 {
-    printf("TX Pin 0x%x RX Pin 0x%x\n", TX_pin, RX_pin);
+    utest_printf("UART TX Pin 0x%x RX Pin 0x%x\n", TX_pin, RX_pin);
 
-    TEST_SKIP_UNLESS_MESSAGE(TX_pin != USBTX, "USBTX pin");
-    TEST_SKIP_UNLESS_MESSAGE(RX_pin != USBRX, "USBRX pin");
+    TEST_SKIP_UNLESS_MESSAGE(TX_pin != USBTX, "ARDUINO_UNO_UART pin shared with USBTX");
+    TEST_SKIP_UNLESS_MESSAGE(RX_pin != USBRX, "ARDUINO_UNO_UART pin shared with USBRX");
 
     {
         const PinMap *maps = serial_tx_pinmap();
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == TX_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of serial_tx PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
+
     {
         const PinMap *maps = serial_rx_pinmap();
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == RX_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of serial_rx PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
 
     BufferedSerial TEST(TX_pin, RX_pin);
+    // Basic API call
     TEST.set_baud(115200);
 }
 
@@ -153,32 +164,33 @@ void UART_test()
 template <PinName SDA_pin, PinName SCL_pin>
 void I2C_test()
 {
-    printf("SDA Pin 0x%x SCL Pin 0x%x\n", SDA_pin, SCL_pin);
+    utest_printf("I2C SDA Pin 0x%x SCL Pin 0x%x\n", SDA_pin, SCL_pin);
 
     {
         const PinMap *maps = i2c_master_sda_pinmap();
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == SDA_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of i2c_master_sda PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
     {
         const PinMap *maps = i2c_master_scl_pinmap();
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == SCL_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of i2c_master_scl PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
 
     I2C i2c(SDA_pin, SCL_pin);
+    // Basic API call
     i2c.read(0);
 }
 
@@ -186,55 +198,56 @@ void I2C_test()
 template <PinName MOSI_pin, PinName MISO_pin, PinName CLK_pin, PinName CS_pin>
 void SPI_test()
 {
-    printf("MOSI Pin 0x%x MISO Pin 0x%x CLOCK Pin 0x%x CS Pin0x%x\n", MOSI_pin, MISO_pin, CLK_pin, CS_pin);
+    utest_printf("SPI MOSI Pin 0x%x MISO Pin 0x%x CLOCK Pin 0x%x CS Pin0x%x\n", MOSI_pin, MISO_pin, CLK_pin, CS_pin);
 
     {
         const PinMap *maps = spi_master_mosi_pinmap();
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == MOSI_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of spi_master_mosi PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
     {
         const PinMap *maps = spi_master_miso_pinmap();
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == MISO_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of spi_master_miso PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
     {
         const PinMap *maps = spi_master_clk_pinmap();
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == CLK_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of spi_master_clk PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
     {
         const PinMap *maps = gpio_pinmap(); // CS pin could be a simple GPIO
-        while (maps->pin != (PinName)NC) {
-            // printf("map pin 0x%x\n", maps->pin);
+        while (maps->pin != (PinName)NC) { // check each pin from PinMap table till NC pin
             if (maps->pin == CS_pin) {
                 break;
             }
             maps++;
         }
+        // Pin is not part of gpio PinMap
         TEST_ASSERT_NOT_EQUAL(NC, maps->pin);
     }
 
     SPI device(MOSI_pin, MISO_pin, CLK_pin);
     DigitalOut cs(CS_pin);
+    // Basic API call
     device.frequency(10000000);
 }
 
