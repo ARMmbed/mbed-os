@@ -16,6 +16,21 @@
  *
  * Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
  *********************************************************************************************************************/
+/* Copyright (c) 2020 Renesas Electronics Corporation.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**********************************************************************************************************************
  * File Name   : r_octabus_memclk_setup.c
  *********************************************************************************************************************/
@@ -50,7 +65,7 @@
 /**********************************************************************************************************************
  Private global variables and functions
  *********************************************************************************************************************/
-static void octabus_io_regwrite_16(volatile uint16_t * ioreg, uint16_t write_value, uint16_t shift, uint32_t mask);
+static void octabus_io_regwrite_16(volatile uint16_t *ioreg, uint16_t write_value, uint16_t shift, uint32_t mask);
 
 /**********************************************************************************************************************
  * Function Name: octabus_io_regwrite_16
@@ -67,17 +82,14 @@ static void octabus_io_regwrite_16(volatile uint16_t * ioreg, uint16_t write_val
  * Precautions  : This function cannot be assigned to execute from OctaFlash or OctaRAM.
  *              : This function must be assigned to an area other than OctaFlash or OctaRAM.
  *********************************************************************************************************************/
-static void octabus_io_regwrite_16(volatile uint16_t * ioreg, uint16_t write_value, uint16_t shift, uint32_t mask)
+static void octabus_io_regwrite_16(volatile uint16_t *ioreg, uint16_t write_value, uint16_t shift, uint32_t mask)
 {
     uint16_t reg_value;
 
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         reg_value = *ioreg;                                         /* Read from register */
         reg_value = (uint16_t)((reg_value & (~mask)) | (unsigned)(write_value << shift)); /* Modify value       */
-    }
-    else
-    {
+    } else {
         reg_value = write_value;
     }
     *ioreg    = reg_value;                                      /* Write to register  */

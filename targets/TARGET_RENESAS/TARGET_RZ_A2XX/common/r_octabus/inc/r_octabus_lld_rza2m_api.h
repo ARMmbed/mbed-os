@@ -16,6 +16,21 @@
  *
  * Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
  *********************************************************************************************************************/
+/* Copyright (c) 2020 Renesas Electronics Corporation.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**********************************************************************************************************************
  * File Name    : r_octabus_lld_rza2m_api.h
  *********************************************************************************************************************/
@@ -51,8 +66,7 @@
  * @enum           e_octabus_init_control_t
  *                 emum of Execute initialize function project setting
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_NO_INIT        = (0), /*!< Not execute initialize function*/
     OCTABUS_INIT_AT_LOADER = (1), /*!< Execute initialize function on loader */
     OCTABUS_INIT_AT_APP    = (2), /*!< Execute initialize function on application */
@@ -62,8 +76,7 @@ typedef enum
  * @enum           e_octabus_precycle_t
  *                 emum of DVnPC bit of CDSR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_PRECYCLE_DISABLE = (0), /*!< (default value) */
     OCTABUS_PRECYCLE_ENABLE  = (1), /*!<  */
 } e_octabus_precycle_t;
@@ -72,8 +85,7 @@ typedef enum
  * @enum           e_octabus_ttype_t
  *                 emum of DVnTTYP bit of CDSR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_TTYPE_SPI  = (0), /*!<  */
     OCTABUS_TTYPE_SOPI = (1), /*!<  */
     OCTABUS_TTYPE_DOPI = (2), /*!<  (default value) */
@@ -84,8 +96,7 @@ typedef enum
  * @enum           e_octabus_dqs_ena_cnt_t
  *                 emum of DQSExxx bit of MDTR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_DQSENA_1_CYCLE  = (0x0), /*!<  */
     OCTABUS_DQSENA_2_CYCLE  = (0x1), /*!<  */
     OCTABUS_DQSENA_3_CYCLE  = (0x2), /*!<  */
@@ -108,8 +119,7 @@ typedef enum
  * @enum           e_octabus_dvrdlo_t
  *                 emum of DVRDLOn field of DRCSTR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_DVRDLO_DOPI_1P5_CYCLE  = (0),  /*!<  1.5 clock cycle */
     OCTABUS_DVRDLO_DOPI_2P5_CYCLE  = (1),  /*!<  2.5 clock cycle */
     OCTABUS_DVRDLO_DOPI_3P5_CYCLE  = (2),  /*!<  3.5 clock cycle */
@@ -124,8 +134,7 @@ typedef enum
  * @enum           e_octabus_dvrdhi_t
  *                 emum of DVRDHIn field of DRCSTR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_DVRDHI_DOPI_6P5_CYCLE  = (5),  /*!<  6.5 clock cycle */
     OCTABUS_DVRDHI_DOPI_7P5_CYCLE  = (6),  /*!<  7.5 clock cycle */
     OCTABUS_DVRDHI_DOPI_8P5_CYCLE  = (7),  /*!<  8.5 clock cycle */
@@ -143,8 +152,7 @@ typedef enum
  * @enum           e_octabus_dvrcmd_t
  *                 emum of DVRDCMDn field of DRCSTR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_DVRDCMD_2_CYCLE    = (0),  /*!<  2 clock cycle */
     OCTABUS_DVRDCMD_5_CYCLE    = (1),  /*!<  5 clock cycle */
     OCTABUS_DVRDCMD_7_CYCLE    = (2),  /*!<  7 clock cycle */
@@ -159,8 +167,7 @@ typedef enum
  * @enum           e_octabus_dvwlo_t
  *                 emum of DVWLOn field of DWCSTR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_DVWLO_DOPI_1P5_CYCLE  = (0),  /*!<  1.5 clock cycle */
     OCTABUS_DVWLO_DOPI_2P5_CYCLE  = (1),  /*!<  2.5 clock cycle */
     OCTABUS_DVWLO_DOPI_3P5_CYCLE  = (2),  /*!<  3.5 clock cycle */
@@ -175,8 +182,7 @@ typedef enum
  * @enum           e_octabus_dvwhi_t
  *                 emum of DVWHIn field of DWCSTR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_DVWHI_DOPI_1P5_CYCLE  = (0),  /*!<  1.5 clock cycle */
     OCTABUS_DVWHI_DOPI_2P5_CYCLE  = (1),  /*!<  2.5 clock cycle */
     OCTABUS_DVWHI_DOPI_3P5_CYCLE  = (2),  /*!<  3.5 clock cycle */
@@ -199,8 +205,7 @@ typedef enum
  * @enum           e_octabus_dvwcmd_t
  *                 emum of DVWCMDn field of DWCSTR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_DVWCMD_2_CYCLE    = (0),  /*!<  2 clock cycle */
     OCTABUS_DVWCMD_5_CYCLE    = (1),  /*!<  5 clock cycle */
     OCTABUS_DVWCMD_7_CYCLE    = (2),  /*!<  7 clock cycle */
@@ -215,16 +220,14 @@ typedef enum
  * @enum           e_octabus_byte_order_t
  *                 emum of MxOn field of MRWCSR
  */
-typedef enum
-{
+typedef enum {
     OCTABUS_BYTE_ORDER_B0B1B2B3    = (0),  /*!<  Byte order is byte0, byte1, byte2, byte3 */
     OCTABUS_BYTE_ORDER_B1B0B3B2    = (1),  /*!<  Byte order is byte1, byte0, byte3, byte2 */
 } e_octabus_byte_order_t;
 
 
 
-typedef struct
-{
+typedef struct {
     e_octabus_init_control_t init_flag0;    /*!< Initialize procedure excute project          */
     e_octabus_init_control_t init_flag1;    /*!< Initialize procedure excute project          */
     uint32_t                 devsize1;      /*!< Size of RAM(Byte) */
@@ -254,8 +257,7 @@ typedef struct
     uint32_t                 acar1;         /*!< Auto-Calibration Address value of RAM */
 } st_octabus_cfg_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t dcr_value;
     uint32_t dar_value;
     uint32_t dcsr_value;
@@ -325,7 +327,7 @@ int_t R_OCTABUS_AutoCalib(const st_octabus_cfg_t *p_cfg);
  * @fn         R_OCTABUS_WriteConfigMode
  *
  * @brief      Write data in configuration mode
- 
+
  * @param[in]  p_config    : register setting data for configuration mode
  * @param[in]  write_value : write data
  * @retval     none

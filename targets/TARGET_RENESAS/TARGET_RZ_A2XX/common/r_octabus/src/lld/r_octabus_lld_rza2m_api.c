@@ -16,6 +16,21 @@
  *
  * Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
  *********************************************************************************************************************/
+/* Copyright (c) 2020 Renesas Electronics Corporation.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**********************************************************************************************************************
  * File Name   : r_octabus_lld_rza2m_api.c
  *********************************************************************************************************************/
@@ -59,16 +74,15 @@
  Private global variables and functions
  *********************************************************************************************************************/
 
-static void octabus_io_regwrite_32 (volatile uint32_t * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask);
-static uint32_t octabus_io_regread_32 (volatile uint32_t * ioreg, uint32_t shift, uint32_t mask);
-static int_t get_ok_area_start (uint8_t * p_s_ok_ng_result);
-static int_t get_ok_area_count (uint8_t * p_s_ok_ng_result, int_t index_start);
-static int_t octaram_manualcalib (const st_octabus_cfg_t * p_cfg);
-static int_t octaram_init (const st_octabus_cfg_t * p_cfg);
-static int_t octaram_autocalib (const st_octabus_cfg_t * p_cfg);
+static void octabus_io_regwrite_32(volatile uint32_t *ioreg, uint32_t write_value, uint32_t shift, uint32_t mask);
+static uint32_t octabus_io_regread_32(volatile uint32_t *ioreg, uint32_t shift, uint32_t mask);
+static int_t get_ok_area_start(uint8_t *p_s_ok_ng_result);
+static int_t get_ok_area_count(uint8_t *p_s_ok_ng_result, int_t index_start);
+static int_t octaram_manualcalib(const st_octabus_cfg_t *p_cfg);
+static int_t octaram_init(const st_octabus_cfg_t *p_cfg);
+static int_t octaram_autocalib(const st_octabus_cfg_t *p_cfg);
 
-static const uint32_t s_preamble_data[4] = 
-{
+static const uint32_t s_preamble_data[4] = {
     0xFFFF0000uL,
     0x0800FF00uL,
     0xFF0000F7uL,
@@ -91,17 +105,14 @@ static uint8_t s_ok_ng_result[16];
  * Precautions  : This function cannot be assigned to execute from OctaFlash or OctaRAM.
  *              : This function must be assigned to an area other than OctaFlash or OctaRAM.
  *********************************************************************************************************************/
-static void octabus_io_regwrite_32(volatile uint32_t * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
+static void octabus_io_regwrite_32(volatile uint32_t *ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
-    
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+
+    if (IOREG_NONMASK_ACCESS != mask) {
         reg_value = *ioreg;                                         /** Read from register */
         reg_value = (reg_value & (~mask)) | (unsigned)(write_value << shift); /** Modify value       */
-    }
-    else
-    {
+    } else {
         reg_value = write_value;
     }
     *ioreg    = reg_value;                                      /** Write to register  */
@@ -124,13 +135,12 @@ static void octabus_io_regwrite_32(volatile uint32_t * ioreg, uint32_t write_val
  * Precautions  : This function cannot be assigned to execute from OctaFlash or OctaRAM.
  *              : This function must be assigned to an area other than OctaFlash or OctaRAM.
  *********************************************************************************************************************/
-static uint32_t octabus_io_regread_32(volatile uint32_t * ioreg, uint32_t shift, uint32_t mask)
+static uint32_t octabus_io_regread_32(volatile uint32_t *ioreg, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
 
     reg_value = *ioreg;                         /* Read from register            */
-    if (IOREG_NONMASK_ACCESS != mask)
-    {
+    if (IOREG_NONMASK_ACCESS != mask) {
         reg_value = (reg_value & mask) >> shift;    /* Clear other bit and Bit shift */
     }
 
@@ -148,15 +158,15 @@ static uint32_t octabus_io_regread_32(volatile uint32_t * ioreg, uint32_t shift,
  * Precautions  : This function cannot be assigned to execute from OctaFlash or OctaRAM.
  *              : This function must be assigned to an area other than OctaFlash or OctaRAM.
  *********************************************************************************************************************/
-static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
+static int_t octaram_init(const st_octabus_cfg_t *p_cfg)
 {
     uint32_t dummy_32;
 
     /*****************************************************************/
 
     /** Make write data to DSR1  */
-    dummy_32 = (uint32_t) (0x01 << OCTA_DSR1_DV1TYP_SHIFT)
-                |    (p_cfg->devsize1 << OCTA_DSR1_DV1SZ_SHIFT);
+    dummy_32 = (uint32_t)(0x01 << OCTA_DSR1_DV1TYP_SHIFT)
+               | (p_cfg->devsize1 << OCTA_DSR1_DV1SZ_SHIFT);
 
     /** Write to DSR1 */
     octabus_io_regwrite_32(&OCTA.DSR1.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -167,12 +177,12 @@ static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
     dummy_32 = octabus_io_regread_32(&OCTA.CDSR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
     /** Clear DV1PC & DV1TTYP */
-    dummy_32 &= (~(uint32_t) (OCTA_CDSR_DV1PC | OCTA_CDSR_DV1TTYP));
+    dummy_32 &= (~(uint32_t)(OCTA_CDSR_DV1PC | OCTA_CDSR_DV1TTYP));
 
     /** Make write data to CDSR  */
-    dummy_32 |= (uint32_t) ((0x1 << OCTA_CDSR_DLFT_SHIFT)
-                |    (p_cfg->precycle1 << OCTA_CDSR_DV1PC_SHIFT)     /* Pre-cycle */
-                |    (p_cfg->ttype1 << OCTA_CDSR_DV1TTYP_SHIFT));    /* Transfer mode */
+    dummy_32 |= (uint32_t)((0x1 << OCTA_CDSR_DLFT_SHIFT)
+                           | (p_cfg->precycle1 << OCTA_CDSR_DV1PC_SHIFT)        /* Pre-cycle */
+                           | (p_cfg->ttype1 << OCTA_CDSR_DV1TTYP_SHIFT));       /* Transfer mode */
 
     /** Write to CDSR */
     octabus_io_regwrite_32(&OCTA.CDSR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -183,11 +193,11 @@ static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
     dummy_32 = octabus_io_regread_32(&OCTA.MDLR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
     /** Clear DV1WDL & DV1RDL */
-    dummy_32 &= (~(uint32_t) (OCTA_MDLR_DV1WDL | OCTA_MDLR_DV1RDL));
+    dummy_32 &= (~(uint32_t)(OCTA_MDLR_DV1WDL | OCTA_MDLR_DV1RDL));
 
     /** Make write data to MDLR  */
-    dummy_32 |= (uint32_t) ((p_cfg->w_dmy_len1 << OCTA_MDLR_DV1WDL_SHIFT)  /* Write Dummy cycle */
-                |    (p_cfg->r_dmy_len1 << OCTA_MDLR_DV1RDL_SHIFT));       /* Read Dummy cycle */
+    dummy_32 |= (uint32_t)((p_cfg->w_dmy_len1 << OCTA_MDLR_DV1WDL_SHIFT)   /* Write Dummy cycle */
+                           | (p_cfg->r_dmy_len1 << OCTA_MDLR_DV1RDL_SHIFT));          /* Read Dummy cycle */
 
     /** Write to MDLR */
     octabus_io_regwrite_32(&OCTA.MDLR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -198,10 +208,10 @@ static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
     dummy_32 = octabus_io_regread_32(&OCTA.MDTR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
     /** Clear DQSERAM */
-    dummy_32 &= (~(uint32_t) (OCTA_MDTR_DQSERAM));
+    dummy_32 &= (~(uint32_t)(OCTA_MDTR_DQSERAM));
 
     /** Make write data to MDTR  */
-    dummy_32 |= (uint32_t) (p_cfg->dqs_ena_cnt1 << OCTA_MDTR_DQSERAM_SHIFT);    /* DQS enable counter(RAM) */
+    dummy_32 |= (uint32_t)(p_cfg->dqs_ena_cnt1 << OCTA_MDTR_DQSERAM_SHIFT);     /* DQS enable counter(RAM) */
 
     /** Write to MDTR */
     octabus_io_regwrite_32(&OCTA.MDTR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -212,12 +222,12 @@ static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
     dummy_32 = octabus_io_regread_32(&OCTA.DRCSTR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
     /** Clear DVRDLO1 & DVRDHI1& DVRDCMD1 */
-    dummy_32 &= (~(uint32_t) (OCTA_DRCSTR_DVRDLO1 | OCTA_DRCSTR_DVRDHI1 | OCTA_DRCSTR_DVRDCMD1));
+    dummy_32 &= (~(uint32_t)(OCTA_DRCSTR_DVRDLO1 | OCTA_DRCSTR_DVRDHI1 | OCTA_DRCSTR_DVRDCMD1));
 
     /** Make write data to DRCSTR  */
-    dummy_32 |= (uint32_t) ((p_cfg->dvrdlo1 << OCTA_DRCSTR_DVRDLO1_SHIFT) /* DVRDLO1 */
-                |    (p_cfg->dvrdhi1 << OCTA_DRCSTR_DVRDHI1_SHIFT)        /* DVRDHI1 */
-                |    (p_cfg->dvrdcmd1 << OCTA_DRCSTR_DVRDCMD1_SHIFT));    /* DVRDCMD1 */
+    dummy_32 |= (uint32_t)((p_cfg->dvrdlo1 << OCTA_DRCSTR_DVRDLO1_SHIFT)  /* DVRDLO1 */
+                           | (p_cfg->dvrdhi1 << OCTA_DRCSTR_DVRDHI1_SHIFT)           /* DVRDHI1 */
+                           | (p_cfg->dvrdcmd1 << OCTA_DRCSTR_DVRDCMD1_SHIFT));       /* DVRDCMD1 */
 
     /** Write to DRCSTR */
     octabus_io_regwrite_32(&OCTA.DRCSTR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -228,12 +238,12 @@ static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
     dummy_32 = octabus_io_regread_32(&OCTA.DWCSTR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
     /** Clear DVWLO1 & DVWHI1 & DVWCMD1 */
-    dummy_32 &= (~(uint32_t) (OCTA_DWCSTR_DVWLO1 | OCTA_DWCSTR_DVWHI1 | OCTA_DWCSTR_DVWCMD1));
+    dummy_32 &= (~(uint32_t)(OCTA_DWCSTR_DVWLO1 | OCTA_DWCSTR_DVWHI1 | OCTA_DWCSTR_DVWCMD1));
 
     /** Make write data to DWCSTR  */
-    dummy_32 |= (uint32_t) ((p_cfg->dvwlo1 << OCTA_DWCSTR_DVWLO1_SHIFT) /* DVWLO1   */
-                |    (p_cfg->dvwhi1 << OCTA_DWCSTR_DVWHI1_SHIFT)        /* DVWHI1   */
-                |    (p_cfg->dvwcmd1 << OCTA_DWCSTR_DVWCMD1_SHIFT));    /* DVWCMD1 */
+    dummy_32 |= (uint32_t)((p_cfg->dvwlo1 << OCTA_DWCSTR_DVWLO1_SHIFT)  /* DVWLO1   */
+                           | (p_cfg->dvwhi1 << OCTA_DWCSTR_DVWHI1_SHIFT)           /* DVWHI1   */
+                           | (p_cfg->dvwcmd1 << OCTA_DWCSTR_DVWCMD1_SHIFT));       /* DVWCMD1 */
 
     /** Write to DWCSTR */
     octabus_io_regwrite_32(&OCTA.DWCSTR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -241,10 +251,10 @@ static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
     /*****************************************************************/
 
     /** Make write data to MRWCR1  */
-    dummy_32 = (uint32_t) ((p_cfg->d1mwcmd1 << OCTA_MRWCR1_D1MWCMD1_SHIFT)  /* D1MWCMD1(1st CMD for Write) */
-                |    (p_cfg->d1mwcmd0 << OCTA_MRWCR1_D1MWCMD0_SHIFT)       /* D1MWCMD0(2nd CMD for Write) */
-                |    (p_cfg->d1mrcmd1 << OCTA_MRWCR1_D1MRCMD1_SHIFT)       /* D1MRCMD1(1st CMD for Read) */
-                |    (p_cfg->d1mrcmd0 << OCTA_MRWCR1_D1MRCMD0_SHIFT));      /* D1MRCMD0(2nd CMD for Read) */
+    dummy_32 = (uint32_t)((p_cfg->d1mwcmd1 << OCTA_MRWCR1_D1MWCMD1_SHIFT)   /* D1MWCMD1(1st CMD for Write) */
+                          | (p_cfg->d1mwcmd0 << OCTA_MRWCR1_D1MWCMD0_SHIFT)          /* D1MWCMD0(2nd CMD for Write) */
+                          | (p_cfg->d1mrcmd1 << OCTA_MRWCR1_D1MRCMD1_SHIFT)          /* D1MRCMD1(1st CMD for Read) */
+                          | (p_cfg->d1mrcmd0 << OCTA_MRWCR1_D1MRCMD0_SHIFT));         /* D1MRCMD0(2nd CMD for Read) */
 
     /** Write to MRWCR1 */
     octabus_io_regwrite_32(&OCTA.MRWCR1.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -255,16 +265,16 @@ static int_t octaram_init(const st_octabus_cfg_t * p_cfg)
     dummy_32 = octabus_io_regread_32(&OCTA.MRWCSR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
     /** Clear MWO1 & MWCL1 & MWAL1 & MRO1 & MRCL1 & MRAL1 */
-    dummy_32 &= (~(uint32_t) (OCTA_MRWCSR_MWO1 | OCTA_MRWCSR_MWCL1 | OCTA_MRWCSR_MWAL1
-        | OCTA_MRWCSR_MRO1 | OCTA_MRWCSR_MRCL1 | OCTA_MRWCSR_MRAL1));
+    dummy_32 &= (~(uint32_t)(OCTA_MRWCSR_MWO1 | OCTA_MRWCSR_MWCL1 | OCTA_MRWCSR_MWAL1
+                             | OCTA_MRWCSR_MRO1 | OCTA_MRWCSR_MRCL1 | OCTA_MRWCSR_MRAL1));
 
     /** Make write data to MRWCSR  */
-    dummy_32 |= (uint32_t) ((p_cfg->mwo1 << OCTA_MRWCSR_MWO1_SHIFT) /* MWO1  */
-                |    (p_cfg->mwcl1 << OCTA_MRWCSR_MWCL1_SHIFT)      /* MWCL1 : Write Command Length */
-                |    (p_cfg->mwal1 << OCTA_MRWCSR_MWAL1_SHIFT)      /* MWAL1 : Write Address Length */
-                |    (p_cfg->mro1 << OCTA_MRWCSR_MRO1_SHIFT)        /* MRO1  */
-                |    (p_cfg->mrcl1 << OCTA_MRWCSR_MRCL1_SHIFT)      /* MRCL1 : Read Command Length  */
-                |    (p_cfg->mral1 << OCTA_MRWCSR_MRAL1_SHIFT));    /* MRAL1 : Read Address Lengthe */
+    dummy_32 |= (uint32_t)((p_cfg->mwo1 << OCTA_MRWCSR_MWO1_SHIFT)  /* MWO1  */
+                           | (p_cfg->mwcl1 << OCTA_MRWCSR_MWCL1_SHIFT)         /* MWCL1 : Write Command Length */
+                           | (p_cfg->mwal1 << OCTA_MRWCSR_MWAL1_SHIFT)         /* MWAL1 : Write Address Length */
+                           | (p_cfg->mro1 << OCTA_MRWCSR_MRO1_SHIFT)           /* MRO1  */
+                           | (p_cfg->mrcl1 << OCTA_MRWCSR_MRCL1_SHIFT)         /* MRCL1 : Read Command Length  */
+                           | (p_cfg->mral1 << OCTA_MRWCSR_MRAL1_SHIFT));       /* MRAL1 : Read Address Lengthe */
 
     /** Write to MRWCSR */
     octabus_io_regwrite_32(&OCTA.MRWCSR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -295,10 +305,8 @@ static int_t get_ok_area_start(uint8_t *p_s_ok_ng_result)
 
 
     /* detect ok area index start*/
-    for (index = 0; index < 16; index++ )
-    {
-        if (R_PRV_OCTABUS_RESULT_OK == p_s_ok_ng_result[index])
-        {
+    for (index = 0; index < 16; index++) {
+        if (R_PRV_OCTABUS_RESULT_OK == p_s_ok_ng_result[index]) {
             index_start = index;
             break;
 
@@ -325,14 +333,10 @@ static int_t get_ok_area_count(uint8_t *p_s_ok_ng_result, int_t index_start)
     int_t ok_cnt = 0;
 
     /* count number of ok */
-    for (index = index_start; index < 16; index++ )
-    {
-        if (R_PRV_OCTABUS_RESULT_OK == p_s_ok_ng_result[index])
-        {
+    for (index = index_start; index < 16; index++) {
+        if (R_PRV_OCTABUS_RESULT_OK == p_s_ok_ng_result[index]) {
             ok_cnt++;
-        }
-        else
-        {
+        } else {
             break;
         }
 
@@ -354,7 +358,7 @@ static int_t get_ok_area_count(uint8_t *p_s_ok_ng_result, int_t index_start)
  *********************************************************************************************************************/
 static int_t octaram_manualcalib(const st_octabus_cfg_t *p_cfg)
 {
-    volatile uint32_t * p_preamble;
+    volatile uint32_t *p_preamble;
     uint32_t dummy_32;
     int_t    judge_result;
     int_t    i;
@@ -370,8 +374,7 @@ static int_t octaram_manualcalib(const st_octabus_cfg_t *p_cfg)
     p_preamble[3] = s_preamble_data[3];
 
     /* detect ok/ng area */
-    for (index = 0; index < 16; index++ )
-    {
+    for (index = 0; index < 16; index++) {
         /* Read from MDTR */
         dummy_32 = octabus_io_regread_32(&OCTA.MDTR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
@@ -379,7 +382,7 @@ static int_t octaram_manualcalib(const st_octabus_cfg_t *p_cfg)
         dummy_32 &= (~(uint32_t)OCTA_MDTR_DV1DEL); /* Clear DV1DEL */
 
         /* Set DQS delay value */
-        dummy_32 |= (uint32_t) ((index << 4) << OCTA_MDTR_DV1DEL_SHIFT);
+        dummy_32 |= (uint32_t)((index << 4) << OCTA_MDTR_DV1DEL_SHIFT);
 
         /** Write to MDTR */
         octabus_io_regwrite_32(&OCTA.MDTR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
@@ -387,53 +390,44 @@ static int_t octaram_manualcalib(const st_octabus_cfg_t *p_cfg)
         /* Read preamble data and test */
         judge_result = 0;
 
-        for (i = 0; i < 4; i++ )
-        {
-            if (s_preamble_data[i] != p_preamble[i])
-            {
+        for (i = 0; i < 4; i++) {
+            if (s_preamble_data[i] != p_preamble[i]) {
                 judge_result = 1;
                 break;
             }
         }
 
         /* Store the judgement result in the table */
-        if (0 == judge_result)
-        {
+        if (0 == judge_result) {
             s_ok_ng_result[index] = R_PRV_OCTABUS_RESULT_OK;
-        }
-        else /* Continuous OK region */
-        {
+        } else { /* Continuous OK region */
             s_ok_ng_result[index] = R_PRV_OCTABUS_RESULT_NG;
         }
     }
 
     /* Search for the start index of the OK area */
     index_start = get_ok_area_start(s_ok_ng_result);
-    if ((-1) == index_start)
-    {
+    if ((-1) == index_start) {
         return DEVDRV_ERROR; /* OK area not found */
     }
 
     /* Find the number of OK areas */
     ok_cnt = get_ok_area_count(s_ok_ng_result, index_start);
 
-    if (3 < ok_cnt)
-    {
+    if (3 < ok_cnt) {
         /** Read from MDTR */
         dummy_32 = octabus_io_regread_32(&OCTA.MDTR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
         /** Make write data to MDTR  */
         dummy_32 &= (~(uint32_t)OCTA_MDTR_DV1DEL); /* Clear DV1DEL */
 
-        dummy_32 |= (uint32_t) (((index_start + (ok_cnt >> 1)) << 4) << OCTA_MDTR_DV1DEL_SHIFT); /* Set Delay value */
+        dummy_32 |= (uint32_t)(((index_start + (ok_cnt >> 1)) << 4) << OCTA_MDTR_DV1DEL_SHIFT);  /* Set Delay value */
 
         /** Write to MDTR */
         octabus_io_regwrite_32(&OCTA.MDTR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
         return DEVDRV_SUCCESS;
-    }
-    else
-    {
+    } else {
         return DEVDRV_ERROR;
     }
 
@@ -450,22 +444,19 @@ static int_t octaram_manualcalib(const st_octabus_cfg_t *p_cfg)
  * Precautions  : This function cannot be assigned to execute from OctaFlash or OctaRAM.
  *              : This function must be assigned to an area other than OctaFlash or OctaRAM.
  *********************************************************************************************************************/
-static int_t octaram_autocalib(const st_octabus_cfg_t * p_cfg)
+static int_t octaram_autocalib(const st_octabus_cfg_t *p_cfg)
 {
-    volatile uint32_t * p_acar1;
+    volatile uint32_t *p_acar1;
     uint32_t dummy_32;
 
     /* Write preamble pattern match with configured transfer order */
     p_acar1 = (uint32_t *)(p_cfg->acar1 + R_PRV_OCTARAM_MAP_OFFSET);
-    if (OCTABUS_BYTE_ORDER_B1B0B3B2 == p_cfg->mro1)
-    {
+    if (OCTABUS_BYTE_ORDER_B1B0B3B2 == p_cfg->mro1) {
         p_acar1[3] = 0xF700F708uL;
         p_acar1[2] = 0x00FFF700uL;
         p_acar1[1] = 0x000800FFuL;
         p_acar1[0] = 0xFFFF0000uL;
-    }
-    else
-    {
+    } else {
         p_acar1[3] = 0x00F708F7uL;
         p_acar1[2] = 0xFF0000F7uL;
         p_acar1[1] = 0x0800FF00uL;
@@ -480,8 +471,8 @@ static int_t octaram_autocalib(const st_octabus_cfg_t * p_cfg)
 
     /** CDSR register must do read-modify-write sequence */
     dummy_32 = octabus_io_regread_32(&OCTA.CDSR.LONG, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
-    dummy_32 |= (uint32_t) ((1 << OCTA_CDSR_ACMODE_SHIFT) /** enable automatic calibration mode */
-                |    (2 << OCTA_CDSR_ACMEME_SHIFT));      /** enable automatic calibration for OctaRAM */
+    dummy_32 |= (uint32_t)((1 << OCTA_CDSR_ACMODE_SHIFT)  /** enable automatic calibration mode */
+                           | (2 << OCTA_CDSR_ACMEME_SHIFT));         /** enable automatic calibration for OctaRAM */
     octabus_io_regwrite_32(&OCTA.CDSR.LONG, dummy_32, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
 
@@ -514,27 +505,22 @@ void R_OCTABUS_Setup(void)
 
     /** initialise controller using smart configurator settings */
     ret = R_OCTABUS_Init(&OCTABUS_SC_TABLE[0]);
-    if (DEVDRV_SUCCESS != ret)
-    {
-        while (1)
-        {
+    if (DEVDRV_SUCCESS != ret) {
+        while (1) {
             /** spin here forever */
             __NOP();
         }
     }
 
     /** checking if user function is avail */
-    if (NULL != OctaBus_UserConfig)
-    {
+    if (NULL != OctaBus_UserConfig) {
         OctaBus_UserConfig(&OCTABUS_SC_TABLE[0]);
     }
 
     /** Manual calibration */
     ret = R_OCTABUS_ManualCalib(&OCTABUS_SC_TABLE[0]);
-    if (DEVDRV_SUCCESS != ret)
-    {
-        while (1)
-        {
+    if (DEVDRV_SUCCESS != ret) {
+        while (1) {
             /** spin here forever */
             __NOP();
         }
@@ -626,13 +612,10 @@ void R_OCTABUS_WriteConfigMode(st_octabus_configmode_t *p_config, uint32_t write
     octabus_io_regwrite_32(&OCTA.DCSR.LONG,  p_config->dcsr_value,  IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
     octabus_io_regwrite_32(&OCTA.DCSTR.LONG, p_config->dcstr_value, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
 
-    if (0 != (p_config->dcsr_value & 0xff))
-    {
+    if (0 != (p_config->dcsr_value & 0xff)) {
         /** Write to CWDR */
         octabus_io_regwrite_32(&OCTA.CWDR.LONG, write_value, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
-    }
-    else
-    {
+    } else {
         /** Wrige to CWNDR */
         octabus_io_regwrite_32(&OCTA.CWNDR, (uint32_t)0, IOREG_NONSHIFT_ACCESS, IOREG_NONMASK_ACCESS);
     }
