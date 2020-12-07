@@ -20,9 +20,13 @@
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 
+/*
+Requirements specified in docs/design-documents/hal/0004-pin-names-general-guidelines.md
+*/
+
 #ifndef LED1
-// Set test as not supported, could be changed as error later
-#error [NOT_SUPPORTED] check docs/design-documents/hal/0004-pin-names-general-guidelines.md
+#error [NOT_SUPPORTED] Target is not following mbed-os pin names standard // Test is set as Skipped
+// #error [NOT_SUPPORTED] Target is not following mbed-os pin names standard // Test is set as Error
 #else
 
 using namespace utest::v1;
@@ -30,7 +34,7 @@ using namespace utest::v1;
 template <int LedId, PinName LedPin>
 void LED_test()
 {
-    printf("LED %u Pin 0x%x\n", LedId, LedPin);
+    utest_printf("LED %u Pin 0x%x\n", LedId, LedPin);
     DigitalOut TEST(LedPin);
     TEST = 1;
     ThisThread::sleep_for(1s);
@@ -41,7 +45,7 @@ void LED_test()
 template <int ButtonId, PinName ButtonPin>
 void BUTTON_test()
 {
-    printf("BUTTON %u Pin 0x%x\n", ButtonId, ButtonPin);
+    utest_printf("BUTTON %u Pin 0x%x\n", ButtonId, ButtonPin);
     DigitalIn TEST(ButtonPin);
 }
 
