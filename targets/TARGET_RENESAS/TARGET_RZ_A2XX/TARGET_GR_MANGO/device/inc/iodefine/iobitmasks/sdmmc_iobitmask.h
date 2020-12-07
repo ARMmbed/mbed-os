@@ -18,9 +18,9 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer
-* Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
-/* Copyright (c) 2018-2020 Renesas Electronics Corporation.
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@
  * limitations under the License.
  */
 /*******************************************************************************
-* Rev: 2.00
+* Rev: 3.01
 * Description : IO bitmask header
 *******************************************************************************/
 
@@ -48,7 +48,7 @@
 
 #define SDMMC_SCC_DTCNTL_TAPEN                                                 (0x00000001u)
 #define SDMMC_SCC_DTCNTL_TAPEN_SHIFT                                           (0u)
-#define SDMMC_SCC_DTCNTL_TAPNUM                                                (0x00000000u)
+#define SDMMC_SCC_DTCNTL_TAPNUM                                                (0x00FF0000u)
 #define SDMMC_SCC_DTCNTL_TAPNUM_SHIFT                                          (16u)
 #define SDMMC_SCC_TAPSET_TAPSET                                                (0x000000FFu)
 #define SDMMC_SCC_TAPSET_TAPSET_SHIFT                                          (0u)
@@ -74,7 +74,7 @@
 #define SDMMC_SCC_SMPCMP_CMPNGD_SHIFT                                          (0u)
 #define SDMMC_SCC_SMPCMP_CMPNGU                                                (0x01FF0000u)
 #define SDMMC_SCC_SMPCMP_CMPNGU_SHIFT                                          (16u)
-#define SDMMC_SD_CMD_CF                                                        (0x0000000000000000u)
+#define SDMMC_SD_CMD_CF                                                        (0x000000000000003Fu)
 #define SDMMC_SD_CMD_CF_SHIFT                                                  (0u)
 #define SDMMC_SD_CMD_C0                                                        (0x0000000000000040u)
 #define SDMMC_SD_CMD_C0_SHIFT                                                  (6u)
@@ -96,9 +96,9 @@
 #define SDMMC_SD_CMD_MD6_SHIFT                                                 (14u)
 #define SDMMC_SD_CMD_MD7                                                       (0x0000000000008000u)
 #define SDMMC_SD_CMD_MD7_SHIFT                                                 (15u)
-#define SDMMC_SD_ARG_CF                                                        (0x00000000FFFFFF00u)
+#define SDMMC_SD_ARG_CF                                                        (0x00000000FFFFFFFFu)
 #define SDMMC_SD_ARG_CF_SHIFT                                                  (0u)
-#define SDMMC_SD_ARG1_CF                                                       (0x0000000000000000u)
+#define SDMMC_SD_ARG1_CF                                                       (0x000000000000FFFFu)
 #define SDMMC_SD_ARG1_CF_SHIFT                                                 (0u)
 #define SDMMC_SD_STOP_STP                                                      (0x0000000000000001u)
 #define SDMMC_SD_STOP_STP_SHIFT                                                (0u)
@@ -110,21 +110,21 @@
 #define SDMMC_SD_STOP_HPIMODE_SHIFT                                            (17u)
 #define SDMMC_SD_SECCNT_CNT                                                    (0x00000000FFFFFFFFu)
 #define SDMMC_SD_SECCNT_CNT_SHIFT                                              (0u)
-#define SDMMC_SD_RSP10_R                                                       (0xFFFFFFFFFFFFFF00u)
+#define SDMMC_SD_RSP10_R                                                       (0xFFFFFFFFFFFFFFFFu)
 #define SDMMC_SD_RSP10_R_SHIFT                                                 (0u)
-#define SDMMC_SD_RSP1_R                                                        (0x0000000000000000u)
+#define SDMMC_SD_RSP1_R                                                        (0x000000000000FFFFu)
 #define SDMMC_SD_RSP1_R_SHIFT                                                  (0u)
-#define SDMMC_SD_RSP32_R                                                       (0x0000000000000000u)
+#define SDMMC_SD_RSP32_R                                                       (0x00000000FFFFFFFFu)
 #define SDMMC_SD_RSP32_R_SHIFT                                                 (0u)
-#define SDMMC_SD_RSP3_R                                                        (0x0000000000000000u)
+#define SDMMC_SD_RSP3_R                                                        (0x000000000000FFFFu)
 #define SDMMC_SD_RSP3_R_SHIFT                                                  (0u)
-#define SDMMC_SD_RSP54_R                                                       (0x0000000000000000u)
+#define SDMMC_SD_RSP54_R                                                       (0x00FFFFFFFFFFFFFFu)
 #define SDMMC_SD_RSP54_R_SHIFT                                                 (0u)
-#define SDMMC_SD_RSP5_R                                                        (0x0000000000000000u)
+#define SDMMC_SD_RSP5_R                                                        (0x000000000000FFFFu)
 #define SDMMC_SD_RSP5_R_SHIFT                                                  (0u)
-#define SDMMC_SD_RSP76_R                                                       (0x0000000000000000u)
+#define SDMMC_SD_RSP76_R                                                       (0x0000000000FFFFFFu)
 #define SDMMC_SD_RSP76_R_SHIFT                                                 (0u)
-#define SDMMC_SD_RSP7_R                                                        (0x0000000000000000u)
+#define SDMMC_SD_RSP7_R                                                        (0x00000000000000FFu)
 #define SDMMC_SD_RSP7_R_SHIFT                                                  (0u)
 #define SDMMC_SD_INFO1_INFO0                                                   (0x0000000000000001u)
 #define SDMMC_SD_INFO1_INFO0_SHIFT                                             (0u)
@@ -356,7 +356,7 @@
 #define SDMMC_DM_CM_INFO2_MASK_DTRANERR0_MASK_SHIFT                            (16u)
 #define SDMMC_DM_CM_INFO2_MASK_DTRANERR1_MASK                                  (0x0000000000020000u)
 #define SDMMC_DM_CM_INFO2_MASK_DTRANERR1_MASK_SHIFT                            (17u)
-#define SDMMC_DM_DTRAN_ADDR_DADDR                                              (0x00000000FFFFFFC0u)
+#define SDMMC_DM_DTRAN_ADDR_DADDR                                              (0x00000000FFFFFFF8u)
 #define SDMMC_DM_DTRAN_ADDR_DADDR_SHIFT                                        (3u)
 
 #endif

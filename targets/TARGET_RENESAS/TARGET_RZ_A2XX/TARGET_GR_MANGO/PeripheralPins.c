@@ -210,3 +210,16 @@ const PinMap PinMap_PWM[] = {
     {NC,    NC,     0}
 };
 
+/************CAN***************/
+const PinMap PinMap_CAN_RD[] = {
+    {P1_1, CAN_0, 4},
+    {P2_0, CAN_1, 4},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_CAN_TD[] = {
+    {P1_3, CAN_0, 4},
+    {P2_2, CAN_1, 4},
+    {NC, NC, 0}
+};
+

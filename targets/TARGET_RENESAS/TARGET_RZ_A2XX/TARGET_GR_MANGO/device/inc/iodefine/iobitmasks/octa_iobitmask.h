@@ -18,9 +18,9 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer
-* Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
-/* Copyright (c) 2018-2020 Renesas Electronics Corporation.
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@
  * limitations under the License.
  */
 /*******************************************************************************
-* Rev: 2.00
+* Rev: 3.01
 * Description : IO bitmask header
 *******************************************************************************/
 
@@ -108,10 +108,6 @@
 #define OCTA_DRCSTR_DVRDHI0_SHIFT                                              (11u)
 #define OCTA_DRCSTR_DVRDLO0                                                    (0x0000C000u)
 #define OCTA_DRCSTR_DVRDLO0_SHIFT                                              (14u)
-#define OCTA_DRCSTR_CTRW1                                                      (0x007F0000u)
-#define OCTA_DRCSTR_CTRW1_SHIFT                                                (16u)
-#define OCTA_DRCSTR_CTR1                                                       (0x00800000u)
-#define OCTA_DRCSTR_CTR1_SHIFT                                                 (23u)
 #define OCTA_DRCSTR_DVRDCMD1                                                   (0x07000000u)
 #define OCTA_DRCSTR_DVRDCMD1_SHIFT                                             (24u)
 #define OCTA_DRCSTR_DVRDHI1                                                    (0x38000000u)

@@ -1,0 +1,2773 @@
+/***********************************************************************************************************************
+* DISCLAIMER
+* This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
+* other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
+* applicable laws, including copyright laws.
+* THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
+* THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
+* EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
+* SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO THIS
+* SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+* Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
+* this software. By using this software, you agree to the additional terms and conditions found by accessing the
+* following link:
+* http://www.renesas.com/disclaimer
+*
+* Copyright (C) 2019-2020 Renesas Electronics Corporation. All rights reserved.
+***********************************************************************************************************************/
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/***********************************************************************************************************************
+* File Name    : r_can_rz.c
+* Description  : The RZ CAN API.
+************************************************************************************************************************
+* History : DD.MM.YYYY Version Description
+*         : 20.09.2019 1.00 First Release
+***********************************************************************************************************************/
+#if DEVICE_CAN
+/******************************************************************************
+Includes <System Includes> , “Project Includes”
+******************************************************************************/
+#include "RZ_A2M.h"
+
+#include "iodefine.h"
+#include "r_typedefs.h"
+#include "rza_io_regrw.h"
+#include "iobitmasks/rcanfd_iobitmask.h"
+#include "iobitmasks/gpio_iobitmask.h"
+#include "iobitmasks/cpg_iobitmask.h"
+#include "r_can_rz_if.h"
+#include "r_can_rz_config.h"
+
+/******************************************************************************
+Macro definitions
+******************************************************************************/
+/* This macro is for deciding whether the while loop times out. If a
+timeout occurs, the return value is non-zero. This is to prevent an error in
+the can peripheral and driver from blocking the CPU indefinitely. */
+#define DEC_CHK_CAN_SW_TMR      (--can_tmo_cnt != 0)
+#define MAX_CAN_RAM_INIT_DELAY  (0xA00)
+
+/* RZA IO */
+#define REG_32W                  RZA_IO_RegWrite_32
+#define REG_8W                   RZA_IO_RegWrite_8
+#define REG_32R                  RZA_IO_RegRead_32
+#define REG_8R                   RZA_IO_RegRead_8
+#define REG_NONSHIFT             IOREG_NONSHIFT_ACCESS
+#define REG_NONMASK              IOREG_NONMASK_ACCESS
+/* GRMCFG */
+#define GRMCFG_RCMC_SHIFT        RCANFD_RSCFD0CFDGRMCFG_RCMC_SHIFT
+#define GRMCFG_RCMC              RCANFD_RSCFD0CFDGRMCFG_RCMC
+/* GSTS */
+#define GSTS_GSLPSTS_SHIFT       RCANFD_RSCFD0CFDGSTS_GSLPSTS_SHIFT
+#define GSTS_GSLPSTS             RCANFD_RSCFD0CFDGSTS_GSLPSTS
+#define GSTS_GHLTSTS_SHIFT       RCANFD_RSCFD0CFDGSTS_GHLTSTS_SHIFT
+#define GSTS_GHLTSTS             RCANFD_RSCFD0CFDGSTS_GHLTSTS
+#define GSTS_GRSTSTS_SHIFT       RCANFD_RSCFD0CFDGSTS_GRSTSTS_SHIFT
+#define GSTS_GRSTSTS             RCANFD_RSCFD0CFDGSTS_GRSTSTS
+#define GSTS_GRAMINIT_SHIFT      RCANFD_RSCFD0CFDGSTS_GRAMINIT_SHIFT
+#define GSTS_GRAMINIT            RCANFD_RSCFD0CFDGSTS_GRAMINIT
+/* GCTR */
+#define GCTR_GSLPR_SHIFT         RCANFD_RSCFD0CFDGCTR_GSLPR_SHIFT
+#define GCTR_GSLPR               RCANFD_RSCFD0CFDGCTR_GSLPR
+#define GCTR_GMDC_SHIFT          RCANFD_RSCFD0CFDGCTR_GMDC_SHIFT
+#define GCTR_GMDC                RCANFD_RSCFD0CFDGCTR_GMDC
+/* CmSTS*/
+#define C0STS_CSLPSTS_SHIFT      RCANFD_RSCFD0CFDC0STS_CSLPSTS_SHIFT
+#define C0STS_CSLPSTS            RCANFD_RSCFD0CFDC0STS_CSLPSTS
+#define C0STS_CRSTSTS_SHIFT      RCANFD_RSCFD0CFDC0STS_CRSTSTS_SHIFT
+#define C0STS_CRSTSTS            RCANFD_RSCFD0CFDC0STS_CRSTSTS
+#define C0STS_CHLTSTS_SHIFT      RCANFD_RSCFD0CFDC0STS_CHLTSTS_SHIFT
+#define C0STS_CHLTSTS            RCANFD_RSCFD0CFDC0STS_CHLTSTS
+#define C0STS_EPSTS_SHIFT        RCANFD_RSCFD0CFDC0STS_EPSTS_SHIFT
+#define C0STS_EPSTS              RCANFD_RSCFD0CFDC0STS_EPSTS
+#define C0STS_BOSTS_SHIFT        RCANFD_RSCFD0CFDC0STS_BOSTS_SHIFT
+#define C0STS_BOSTS              RCANFD_RSCFD0CFDC0STS_BOSTS
+/* CmCTR*/
+#define C0CTR_CSLPR_SHIFT        RCANFD_RSCFD0CFDC0CTR_CSLPR_SHIFT
+#define C0CTR_CSLPR              RCANFD_RSCFD0CFDC0CTR_CSLPR
+#define C0CTR_CTMS_SHIFT         RCANFD_RSCFD0CFDC0CTR_CTMS_SHIFT
+#define C0CTR_CTMS               RCANFD_RSCFD0CFDC0CTR_CTMS
+#define C0CTR_CTME_SHIFT         RCANFD_RSCFD0CFDC0CTR_CTME_SHIFT
+#define C0CTR_CTME               RCANFD_RSCFD0CFDC0CTR_CTME
+#define C1CTR_CTMS_SHIFT         RCANFD_RSCFD0CFDC1CTR_CTMS_SHIFT
+#define C1CTR_CTMS               RCANFD_RSCFD0CFDC1CTR_CTMS
+#define C1CTR_CTME_SHIFT         RCANFD_RSCFD0CFDC1CTR_CTME_SHIFT
+#define C1CTR_CTME               RCANFD_RSCFD0CFDC1CTR_CTME
+#define C0CTR_CHMDC_SHIFT        RCANFD_RSCFD0CFDC0CTR_CHMDC_SHIFT
+#define C0CTR_CHMDC              RCANFD_RSCFD0CFDC0CTR_CHMDC
+/* GTSTCTR */
+#define GTSTCTR_ICBCTME_SHIFT    RCANFD_RSCFD0CFDGTSTCTR_ICBCTME_SHIFT
+#define GTSTCTR_ICBCTME          RCANFD_RSCFD0CFDGTSTCTR_ICBCTME
+#define GTSTCTR_RTME_SHIFT       RCANFD_RSCFD0CFDGTSTCTR_RTME_SHIFT
+#define GTSTCTR_RTME             RCANFD_RSCFD0CFDGTSTCTR_RTME
+/* GTSTCFG */
+#define GTSTCFG_C0ICBCE_SHIFT    RCANFD_RSCFD0CFDGTSTCFG_C0ICBCE_SHIFT
+#define GTSTCFG_C0ICBCE          RCANFD_RSCFD0CFDGTSTCFG_C0ICBCE
+#define GTSTCFG_C1ICBCE_SHIFT    RCANFD_RSCFD0CFDGTSTCFG_C1ICBCE_SHIFT
+#define GTSTCFG_C1ICBCE          RCANFD_RSCFD0CFDGTSTCFG_C1ICBCE
+#define GTSTCFG_RTMPS_SHIFT      RCANFD_RSCFD0CFDGTSTCFG_RTMPS_SHIFT
+#define GTSTCFG_RTMPS            RCANFD_RSCFD0CFDGTSTCFG_RTMPS
+/* CmFDCRC */
+#define C0FDCRC_CRCREG_SHIFT     RCANFD_RSCFD0CFDC0FDCRC_CRCREG_SHIFT
+#define C0FDCRC_CRCREG           RCANFD_RSCFD0CFDC0FDCRC_CRCREG
+#define C1FDCRC_CRCREG_SHIFT     RCANFD_RSCFD0CFDC1FDCRC_CRCREG_SHIFT
+#define C1FDCRC_CRCREG           RCANFD_RSCFD0CFDC1FDCRC_CRCREG
+/* CFCCk */
+#define CFCC0_CFE_SHIFT          RCANFD_RSCFD0CFDCFCC0_CFE_SHIFT
+#define CFCC0_CFE                RCANFD_RSCFD0CFDCFCC0_CFE
+/* GAFLECTR */
+#define GAFLECTR_AFLDAE_SHIFT    RCANFD_RSCFD0CFDGAFLECTR_AFLDAE_SHIFT
+#define GAFLECTR_AFLDAE          RCANFD_RSCFD0CFDGAFLECTR_AFLDAE
+#define GAFLECTR_AFLPN_SHIFT     RCANFD_RSCFD0CFDGAFLECTR_AFLPN_SHIFT
+#define GAFLECTR_AFLPN           RCANFD_RSCFD0CFDGAFLECTR_AFLPN
+/* GAFLCFG0 */
+#define GAFLCFG0_RNC0_SHIFT      RCANFD_RSCFD0CFDGAFLCFG0_RNC0_SHIFT
+#define GAFLCFG0_RNC0            RCANFD_RSCFD0CFDGAFLCFG0_RNC0
+#define GAFLCFG0_RNC1_SHIFT      RCANFD_RSCFD0CFDGAFLCFG0_RNC1_SHIFT
+#define GAFLCFG0_RNC1            RCANFD_RSCFD0CFDGAFLCFG0_RNC1
+/* TXQCCm */
+#define TXQCC0_TXQE_SHIFT        RCANFD_RSCFD0CFDTXQCC0_TXQE_SHIFT
+#define TXQCC0_TXQE              RCANFD_RSCFD0CFDTXQCC0_TXQE
+/* TXQSTSm */
+#define TXQSTS0_TXQFLL_SHIFT     RCANFD_RSCFD0CFDTXQSTS0_TXQFLL_SHIFT
+#define TXQSTS0_TXQFLL           RCANFD_RSCFD0CFDTXQSTS0_TXQFLL
+#define TXQSTS0_TXQEMP_SHIFT     RCANFD_RSCFD0CFDTXQSTS0_TXQEMP_SHIFT
+#define TXQSTS0_TXQEMP           RCANFD_RSCFD0CFDTXQSTS0_TXQEMP
+/* TXQPCTRm */
+#define TXQPCTR0_TXQPC_SHIFT     RCANFD_RSCFD0CFDTXQPCTR0_TXQPC_SHIFT
+#define TXQPCTR0_TXQPC           RCANFD_RSCFD0CFDTXQPCTR0_TXQPC
+/* RFCCx*/
+#define RFCC0_RFE_SHIFT          RCANFD_RSCFD0CFDRFCC0_RFE_SHIFT
+#define RFCC0_RFE                RCANFD_RSCFD0CFDRFCC0_RFE
+/* CFSTSk */
+#define CFSTS0_CFEMP_SHIFT       RCANFD_RSCFD0CFDCFSTS0_CFEMP_SHIFT
+#define CFSTS0_CFEMP             RCANFD_RSCFD0CFDCFSTS0_CFEMP
+#define CFSTS0_CFMLT_SHIFT       RCANFD_RSCFD0CFDCFSTS0_CFMLT_SHIFT
+#define CFSTS0_CFMLT             RCANFD_RSCFD0CFDCFSTS0_CFMLT
+#define CFSTS0_CFFLL_SHIFT       RCANFD_RSCFD0CFDCFSTS0_CFFLL_SHIFT
+#define CFSTS0_CFFLL             RCANFD_RSCFD0CFDCFSTS0_CFFLL
+/* CFPTRk */
+#define CFPTR0_CFDLC_SHIFT       RCANFD_RSCFD0CFDCFPTR0_CFDLC_SHIFT
+#define CFPTR0_CFDLC             RCANFD_RSCFD0CFDCFPTR0_CFDLC
+/* CFPCTRk */
+#define CFPCTR0_CFPC_SHIFT       RCANFD_RSCFD0CFDCFPCTR0_CFPC_SHIFT
+#define CFPCTR0_CFPC             RCANFD_RSCFD0CFDCFPCTR0_CFPC
+/* RFSTSx */
+#define RFSTS0_RFEMP_SHIFT       RCANFD_RSCFD0CFDRFSTS0_RFEMP_SHIFT
+#define RFSTS0_RFEMP             RCANFD_RSCFD0CFDRFSTS0_RFEMP
+#define RFSTS0_RFMLT_SHIFT       RCANFD_RSCFD0CFDRFSTS0_RFMLT_SHIFT
+#define RFSTS0_RFMLT             RCANFD_RSCFD0CFDRFSTS0_RFMLT
+/* RFPTRx */
+#define RFPTR0_RFDLC_SHIFT       RCANFD_RSCFD0CFDRFPTR0_RFDLC_SHIFT
+#define RFPTR0_RFDLC             RCANFD_RSCFD0CFDRFPTR0_RFDLC
+/* RFPCTRx */
+#define RFPCTR0_RFPC_SHIFT       RCANFD_RSCFD0CFDRFPCTR0_RFPC_SHIFT
+#define RFPCTR0_RFPC             RCANFD_RSCFD0CFDRFPCTR0_RFPC
+/* TMSTSp */
+#define TMSTS0_TMTRM_SHIFT       RCANFD_RSCFD0CFDTMSTS0_TMTRM_SHIFT
+#define TMSTS0_TMTRM             RCANFD_RSCFD0CFDTMSTS0_TMTRM
+/* TMPTRp */
+#define TMPTR0_TMPTR_SHIFT       RCANFD_RSCFD0CFDTMPTR0_TMPTR_SHIFT
+#define TMPTR0_TMDLC_SHIFT       RCANFD_RSCFD0CFDTMPTR0_TMDLC_SHIFT
+/* THLCCm */
+#define THLCC0_THLE_SHIFT        RCANFD_RSCFD0CFDTHLCC0_THLE_SHIFT
+#define THLCC0_THLE              RCANFD_RSCFD0CFDTHLCC0_THLE
+/* THLSTSm */
+#define THLSTS0_THLEMP_SHIFT     RCANFD_RSCFD0CFDTHLSTS0_THLEMP_SHIFT
+#define THLSTS0_THLEMP           RCANFD_RSCFD0CFDTHLSTS0_THLEMP
+#define THLSTS0_THLELT_SHIFT     RCANFD_RSCFD0CFDTHLSTS0_THLELT_SHIFT
+#define THLSTS0_THLELT           RCANFD_RSCFD0CFDTHLSTS0_THLELT
+/* TMCm */
+#define TMC0_TMTR_SHIFT          RCANFD_RSCFD0CFDTMC0_TMTR_SHIFT
+#define TMC0_TMTR                RCANFD_RSCFD0CFDTMC0_TMTR
+#define TMC0_TMTAR_SHIFT         RCANFD_RSCFD0CFDTMC0_TMTAR_SHIFT
+#define TMC0_TMTAR               RCANFD_RSCFD0CFDTMC0_TMTAR
+/* TMSTSm */
+#define TMSTS0_TMTRF_SHIFT       RCANFD_RSCFD0CFDTMSTS0_TMTRF_SHIFT
+#define TMSTS0_TMTRF             RCANFD_RSCFD0CFDTMSTS0_TMTRF
+/* RMPTRq */
+#define RMPTR0_RMDLC_SHIFT       RCANFD_RSCFD0CFDRMPTR0_RMDLC_SHIFT
+#define RMPTR0_RMDLC             RCANFD_RSCFD0CFDRMPTR0_RMDLC
+
+#define TMID0_TMID_SHIFT         RCANFD_RSCFD0CFDTMID0_TMID_SHIFT
+#define TMID0_THLEN_SHIFT        RCANFD_RSCFD0CFDTMID0_THLEN_SHIFT
+#define TMID0_TMRTR_SHIFT        RCANFD_RSCFD0CFDTMID0_TMRTR_SHIFT
+#define TMID0_TMIDE_SHIFT        RCANFD_RSCFD0CFDTMID0_TMIDE_SHIFT
+#define TMFDCTR0_TMFDF_SHIFT     RCANFD_RSCFD0CFDTMFDCTR0_TMFDF_SHIFT
+#define TMFDCTR0_TMBRS_SHIFT     RCANFD_RSCFD0CFDTMFDCTR0_TMBRS_SHIFT
+#define TMFDCTR0_TMESI_SHIFT     RCANFD_RSCFD0CFDTMFDCTR0_TMESI_SHIFT
+#define CFID0_CFID_SHIFT         RCANFD_RSCFD0CFDCFID0_CFID_SHIFT
+#define CFID0_THLEN_SHIFT        RCANFD_RSCFD0CFDCFID0_THLEN_SHIFT
+#define CFID0_CFRTR_SHIFT        RCANFD_RSCFD0CFDCFID0_CFRTR_SHIFT
+#define CFID0_CFIDE_SHIFT        RCANFD_RSCFD0CFDCFID0_CFIDE_SHIFT
+#define CFFDCSTS0_CFFDF_SHIFT    RCANFD_RSCFD0CFDCFFDCSTS0_CFFDF_SHIFT
+#define CFFDCSTS0_CFBRS_SHIFT    RCANFD_RSCFD0CFDCFFDCSTS0_CFBRS_SHIFT
+#define CFFDCSTS0_CFESI_SHIFT    RCANFD_RSCFD0CFDCFFDCSTS0_CFESI_SHIFT
+
+/******************************************************************************
+Typedef definitions
+******************************************************************************/
+
+/******************************************************************************
+Imported global variables and functions (from other files)
+******************************************************************************/
+
+/******************************************************************************
+Exported global variables and functions (to be accessed by other files)
+******************************************************************************/
+
+/******************************************************************************
+Private global variables and functions
+******************************************************************************/
+static uint8_t Can_EnterGlobalStopMode(void);
+static uint8_t Can_EnterGlobalResetMode(void);
+static uint8_t Can_EnterGlobalOperationMode(void);
+static uint8_t Can_EnterGlobalTestMode(void);
+static uint8_t Can_EnterChStopMode(const uint8_t ch_nr);
+static uint8_t Can_EnterChResetMode(const uint8_t ch_nr);
+static uint8_t Can_EnterChHaltMode(const uint8_t ch_nr);
+static uint8_t Can_EnterChComMode(const uint8_t ch_nr);
+static uint8_t Can_WaitRamInitOver(void);
+static void    Can_SetRxRule(const uint8_t rxrule0, const uint8_t rxrule1);
+static uint8_t rcan_tr_data_cnt(const uint8_t dlc_data);
+
+static void GERI_handler(uint32_t int_sense);
+static void RFI_handler(uint32_t int_sense);
+static void CFRXI0_handler(uint32_t int_sense);
+static void CERI0_handler(uint32_t int_sense);
+static void CTXI0_handler(uint32_t int_sense);
+static void CFRXI1_handler(uint32_t int_sense);
+static void CERI1_handler(uint32_t int_sense);
+static void CTXI1_handler(uint32_t int_sense);
+
+static void (*p_geri_callback)(void)                 =  NULL;
+static void (*p_rfi_callback)(void)                  =  NULL;
+static void (*p_cfrxi_callback[MAX_CHANNELS])(void)  = {NULL, NULL};
+static void (*p_ceri_callback[MAX_CHANNELS])(void)   = {NULL, NULL};
+static void (*p_ctxi_callback[MAX_CHANNELS])(void)   = {NULL, NULL};
+
+/****************************************/
+/* Bit rate setting table               */
+/****************************************/
+const uint32_t g_BitrateTable[MAX_CHANNELS][3] = {
+    { CAN_C0NCFG, CAN_C0DCFG, CAN_C0FDCFG },       /* For channel 0 */
+    { CAN_C1NCFG, CAN_C1DCFG, CAN_C1FDCFG }        /* For channel 1 */
+};
+
+
+/****************************************/
+/* Receive Rule Table                   */
+/****************************************/
+const uint32_t g_RxRuleTable[CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM][4] = {
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 0
+    {CAN_GAFLID_RULE(000), CAN_GAFLM_RULE(000), CAN_GAFLP0_RULE(000), CAN_GAFLP1_RULE(000)},    // Rule No. 000
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 1
+    {CAN_GAFLID_RULE(001), CAN_GAFLM_RULE(001), CAN_GAFLP0_RULE(001), CAN_GAFLP1_RULE(001)},    // Rule No. 001
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 2
+    {CAN_GAFLID_RULE(002), CAN_GAFLM_RULE(002), CAN_GAFLP0_RULE(002), CAN_GAFLP1_RULE(002)},    // Rule No. 002
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 3
+    {CAN_GAFLID_RULE(003), CAN_GAFLM_RULE(003), CAN_GAFLP0_RULE(003), CAN_GAFLP1_RULE(003)},    // Rule No. 003
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 4
+    {CAN_GAFLID_RULE(004), CAN_GAFLM_RULE(004), CAN_GAFLP0_RULE(004), CAN_GAFLP1_RULE(004)},    // Rule No. 004
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 5
+    {CAN_GAFLID_RULE(005), CAN_GAFLM_RULE(005), CAN_GAFLP0_RULE(005), CAN_GAFLP1_RULE(005)},    // Rule No. 005
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 6
+    {CAN_GAFLID_RULE(006), CAN_GAFLM_RULE(006), CAN_GAFLP0_RULE(006), CAN_GAFLP1_RULE(006)},    // Rule No. 006
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 7
+    {CAN_GAFLID_RULE(007), CAN_GAFLM_RULE(007), CAN_GAFLP0_RULE(007), CAN_GAFLP1_RULE(007)},    // Rule No. 007
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 8
+    {CAN_GAFLID_RULE(008), CAN_GAFLM_RULE(008), CAN_GAFLP0_RULE(008), CAN_GAFLP1_RULE(008)},    // Rule No. 008
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 9
+    {CAN_GAFLID_RULE(009), CAN_GAFLM_RULE(009), CAN_GAFLP0_RULE(009), CAN_GAFLP1_RULE(009)},    // Rule No. 009
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 10
+    {CAN_GAFLID_RULE(010), CAN_GAFLM_RULE(010), CAN_GAFLP0_RULE(010), CAN_GAFLP1_RULE(010)},    // Rule No. 010
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 11
+    {CAN_GAFLID_RULE(011), CAN_GAFLM_RULE(011), CAN_GAFLP0_RULE(011), CAN_GAFLP1_RULE(011)},    // Rule No. 011
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 12
+    {CAN_GAFLID_RULE(012), CAN_GAFLM_RULE(012), CAN_GAFLP0_RULE(012), CAN_GAFLP1_RULE(012)},    // Rule No. 012
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 13
+    {CAN_GAFLID_RULE(013), CAN_GAFLM_RULE(013), CAN_GAFLP0_RULE(013), CAN_GAFLP1_RULE(013)},    // Rule No. 013
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 14
+    {CAN_GAFLID_RULE(014), CAN_GAFLM_RULE(014), CAN_GAFLP0_RULE(014), CAN_GAFLP1_RULE(014)},    // Rule No. 014
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 15
+    {CAN_GAFLID_RULE(015), CAN_GAFLM_RULE(015), CAN_GAFLP0_RULE(015), CAN_GAFLP1_RULE(015)},    // Rule No. 015
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 16
+    {CAN_GAFLID_RULE(016), CAN_GAFLM_RULE(016), CAN_GAFLP0_RULE(016), CAN_GAFLP1_RULE(016)},    // Rule No. 016
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 17
+    {CAN_GAFLID_RULE(017), CAN_GAFLM_RULE(017), CAN_GAFLP0_RULE(017), CAN_GAFLP1_RULE(017)},    // Rule No. 017
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 18
+    {CAN_GAFLID_RULE(018), CAN_GAFLM_RULE(018), CAN_GAFLP0_RULE(018), CAN_GAFLP1_RULE(018)},    // Rule No. 018
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 19
+    {CAN_GAFLID_RULE(019), CAN_GAFLM_RULE(019), CAN_GAFLP0_RULE(019), CAN_GAFLP1_RULE(019)},    // Rule No. 019
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 20
+    {CAN_GAFLID_RULE(020), CAN_GAFLM_RULE(020), CAN_GAFLP0_RULE(020), CAN_GAFLP1_RULE(020)},    // Rule No. 020
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 21
+    {CAN_GAFLID_RULE(021), CAN_GAFLM_RULE(021), CAN_GAFLP0_RULE(021), CAN_GAFLP1_RULE(021)},    // Rule No. 021
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 22
+    {CAN_GAFLID_RULE(022), CAN_GAFLM_RULE(022), CAN_GAFLP0_RULE(022), CAN_GAFLP1_RULE(022)},    // Rule No. 022
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 23
+    {CAN_GAFLID_RULE(023), CAN_GAFLM_RULE(023), CAN_GAFLP0_RULE(023), CAN_GAFLP1_RULE(023)},    // Rule No. 023
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 24
+    {CAN_GAFLID_RULE(024), CAN_GAFLM_RULE(024), CAN_GAFLP0_RULE(024), CAN_GAFLP1_RULE(024)},    // Rule No. 024
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 25
+    {CAN_GAFLID_RULE(025), CAN_GAFLM_RULE(025), CAN_GAFLP0_RULE(025), CAN_GAFLP1_RULE(025)},    // Rule No. 025
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 26
+    {CAN_GAFLID_RULE(026), CAN_GAFLM_RULE(026), CAN_GAFLP0_RULE(026), CAN_GAFLP1_RULE(026)},    // Rule No. 026
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 27
+    {CAN_GAFLID_RULE(027), CAN_GAFLM_RULE(027), CAN_GAFLP0_RULE(027), CAN_GAFLP1_RULE(027)},    // Rule No. 027
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 28
+    {CAN_GAFLID_RULE(028), CAN_GAFLM_RULE(028), CAN_GAFLP0_RULE(028), CAN_GAFLP1_RULE(028)},    // Rule No. 028
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 29
+    {CAN_GAFLID_RULE(029), CAN_GAFLM_RULE(029), CAN_GAFLP0_RULE(029), CAN_GAFLP1_RULE(029)},    // Rule No. 029
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 30
+    {CAN_GAFLID_RULE(030), CAN_GAFLM_RULE(030), CAN_GAFLP0_RULE(030), CAN_GAFLP1_RULE(030)},    // Rule No. 030
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 31
+    {CAN_GAFLID_RULE(031), CAN_GAFLM_RULE(031), CAN_GAFLP0_RULE(031), CAN_GAFLP1_RULE(031)},    // Rule No. 031
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 32
+    {CAN_GAFLID_RULE(032), CAN_GAFLM_RULE(032), CAN_GAFLP0_RULE(032), CAN_GAFLP1_RULE(032)},    // Rule No. 032
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 33
+    {CAN_GAFLID_RULE(033), CAN_GAFLM_RULE(033), CAN_GAFLP0_RULE(033), CAN_GAFLP1_RULE(033)},    // Rule No. 033
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 34
+    {CAN_GAFLID_RULE(034), CAN_GAFLM_RULE(034), CAN_GAFLP0_RULE(034), CAN_GAFLP1_RULE(034)},    // Rule No. 034
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 35
+    {CAN_GAFLID_RULE(035), CAN_GAFLM_RULE(035), CAN_GAFLP0_RULE(035), CAN_GAFLP1_RULE(035)},    // Rule No. 035
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 36
+    {CAN_GAFLID_RULE(036), CAN_GAFLM_RULE(036), CAN_GAFLP0_RULE(036), CAN_GAFLP1_RULE(036)},    // Rule No. 036
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 37
+    {CAN_GAFLID_RULE(037), CAN_GAFLM_RULE(037), CAN_GAFLP0_RULE(037), CAN_GAFLP1_RULE(037)},    // Rule No. 037
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 38
+    {CAN_GAFLID_RULE(038), CAN_GAFLM_RULE(038), CAN_GAFLP0_RULE(038), CAN_GAFLP1_RULE(038)},    // Rule No. 038
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 39
+    {CAN_GAFLID_RULE(039), CAN_GAFLM_RULE(039), CAN_GAFLP0_RULE(039), CAN_GAFLP1_RULE(039)},    // Rule No. 039
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 40
+    {CAN_GAFLID_RULE(040), CAN_GAFLM_RULE(040), CAN_GAFLP0_RULE(040), CAN_GAFLP1_RULE(040)},    // Rule No. 040
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 41
+    {CAN_GAFLID_RULE(041), CAN_GAFLM_RULE(041), CAN_GAFLP0_RULE(041), CAN_GAFLP1_RULE(041)},    // Rule No. 041
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 42
+    {CAN_GAFLID_RULE(042), CAN_GAFLM_RULE(042), CAN_GAFLP0_RULE(042), CAN_GAFLP1_RULE(042)},    // Rule No. 042
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 43
+    {CAN_GAFLID_RULE(043), CAN_GAFLM_RULE(043), CAN_GAFLP0_RULE(043), CAN_GAFLP1_RULE(043)},    // Rule No. 043
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 44
+    {CAN_GAFLID_RULE(044), CAN_GAFLM_RULE(044), CAN_GAFLP0_RULE(044), CAN_GAFLP1_RULE(044)},    // Rule No. 044
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 45
+    {CAN_GAFLID_RULE(045), CAN_GAFLM_RULE(045), CAN_GAFLP0_RULE(045), CAN_GAFLP1_RULE(045)},    // Rule No. 045
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 46
+    {CAN_GAFLID_RULE(046), CAN_GAFLM_RULE(046), CAN_GAFLP0_RULE(046), CAN_GAFLP1_RULE(046)},    // Rule No. 046
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 47
+    {CAN_GAFLID_RULE(047), CAN_GAFLM_RULE(047), CAN_GAFLP0_RULE(047), CAN_GAFLP1_RULE(047)},    // Rule No. 047
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 48
+    {CAN_GAFLID_RULE(048), CAN_GAFLM_RULE(048), CAN_GAFLP0_RULE(048), CAN_GAFLP1_RULE(048)},    // Rule No. 048
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 49
+    {CAN_GAFLID_RULE(049), CAN_GAFLM_RULE(049), CAN_GAFLP0_RULE(049), CAN_GAFLP1_RULE(049)},    // Rule No. 049
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 50
+    {CAN_GAFLID_RULE(050), CAN_GAFLM_RULE(050), CAN_GAFLP0_RULE(050), CAN_GAFLP1_RULE(050)},    // Rule No. 050
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 51
+    {CAN_GAFLID_RULE(051), CAN_GAFLM_RULE(051), CAN_GAFLP0_RULE(051), CAN_GAFLP1_RULE(051)},    // Rule No. 051
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 52
+    {CAN_GAFLID_RULE(052), CAN_GAFLM_RULE(052), CAN_GAFLP0_RULE(052), CAN_GAFLP1_RULE(052)},    // Rule No. 052
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 53
+    {CAN_GAFLID_RULE(053), CAN_GAFLM_RULE(053), CAN_GAFLP0_RULE(053), CAN_GAFLP1_RULE(053)},    // Rule No. 053
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 54
+    {CAN_GAFLID_RULE(054), CAN_GAFLM_RULE(054), CAN_GAFLP0_RULE(054), CAN_GAFLP1_RULE(054)},    // Rule No. 054
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 55
+    {CAN_GAFLID_RULE(055), CAN_GAFLM_RULE(055), CAN_GAFLP0_RULE(055), CAN_GAFLP1_RULE(055)},    // Rule No. 055
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 56
+    {CAN_GAFLID_RULE(056), CAN_GAFLM_RULE(056), CAN_GAFLP0_RULE(056), CAN_GAFLP1_RULE(056)},    // Rule No. 056
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 57
+    {CAN_GAFLID_RULE(057), CAN_GAFLM_RULE(057), CAN_GAFLP0_RULE(057), CAN_GAFLP1_RULE(057)},    // Rule No. 057
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 58
+    {CAN_GAFLID_RULE(058), CAN_GAFLM_RULE(058), CAN_GAFLP0_RULE(058), CAN_GAFLP1_RULE(058)},    // Rule No. 058
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 59
+    {CAN_GAFLID_RULE(059), CAN_GAFLM_RULE(059), CAN_GAFLP0_RULE(059), CAN_GAFLP1_RULE(059)},    // Rule No. 059
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 60
+    {CAN_GAFLID_RULE(060), CAN_GAFLM_RULE(060), CAN_GAFLP0_RULE(060), CAN_GAFLP1_RULE(060)},    // Rule No. 060
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 61
+    {CAN_GAFLID_RULE(061), CAN_GAFLM_RULE(061), CAN_GAFLP0_RULE(061), CAN_GAFLP1_RULE(061)},    // Rule No. 061
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 62
+    {CAN_GAFLID_RULE(062), CAN_GAFLM_RULE(062), CAN_GAFLP0_RULE(062), CAN_GAFLP1_RULE(062)},    // Rule No. 062
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 63
+    {CAN_GAFLID_RULE(063), CAN_GAFLM_RULE(063), CAN_GAFLP0_RULE(063), CAN_GAFLP1_RULE(063)},    // Rule No. 063
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 64
+    {CAN_GAFLID_RULE(064), CAN_GAFLM_RULE(064), CAN_GAFLP0_RULE(064), CAN_GAFLP1_RULE(064)},    // Rule No. 064
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 65
+    {CAN_GAFLID_RULE(065), CAN_GAFLM_RULE(065), CAN_GAFLP0_RULE(065), CAN_GAFLP1_RULE(065)},    // Rule No. 065
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 66
+    {CAN_GAFLID_RULE(066), CAN_GAFLM_RULE(066), CAN_GAFLP0_RULE(066), CAN_GAFLP1_RULE(066)},    // Rule No. 066
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 67
+    {CAN_GAFLID_RULE(067), CAN_GAFLM_RULE(067), CAN_GAFLP0_RULE(067), CAN_GAFLP1_RULE(067)},    // Rule No. 067
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 68
+    {CAN_GAFLID_RULE(068), CAN_GAFLM_RULE(068), CAN_GAFLP0_RULE(068), CAN_GAFLP1_RULE(068)},    // Rule No. 068
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 69
+    {CAN_GAFLID_RULE(069), CAN_GAFLM_RULE(069), CAN_GAFLP0_RULE(069), CAN_GAFLP1_RULE(069)},    // Rule No. 069
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 70
+    {CAN_GAFLID_RULE(070), CAN_GAFLM_RULE(070), CAN_GAFLP0_RULE(070), CAN_GAFLP1_RULE(070)},    // Rule No. 070
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 71
+    {CAN_GAFLID_RULE(071), CAN_GAFLM_RULE(071), CAN_GAFLP0_RULE(071), CAN_GAFLP1_RULE(071)},    // Rule No. 071
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 72
+    {CAN_GAFLID_RULE(072), CAN_GAFLM_RULE(072), CAN_GAFLP0_RULE(072), CAN_GAFLP1_RULE(072)},    // Rule No. 072
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 73
+    {CAN_GAFLID_RULE(073), CAN_GAFLM_RULE(073), CAN_GAFLP0_RULE(073), CAN_GAFLP1_RULE(073)},    // Rule No. 073
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 74
+    {CAN_GAFLID_RULE(074), CAN_GAFLM_RULE(074), CAN_GAFLP0_RULE(074), CAN_GAFLP1_RULE(074)},    // Rule No. 074
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 75
+    {CAN_GAFLID_RULE(075), CAN_GAFLM_RULE(075), CAN_GAFLP0_RULE(075), CAN_GAFLP1_RULE(075)},    // Rule No. 075
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 76
+    {CAN_GAFLID_RULE(076), CAN_GAFLM_RULE(076), CAN_GAFLP0_RULE(076), CAN_GAFLP1_RULE(076)},    // Rule No. 076
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 77
+    {CAN_GAFLID_RULE(077), CAN_GAFLM_RULE(077), CAN_GAFLP0_RULE(077), CAN_GAFLP1_RULE(077)},    // Rule No. 077
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 78
+    {CAN_GAFLID_RULE(078), CAN_GAFLM_RULE(078), CAN_GAFLP0_RULE(078), CAN_GAFLP1_RULE(078)},    // Rule No. 078
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 79
+    {CAN_GAFLID_RULE(079), CAN_GAFLM_RULE(079), CAN_GAFLP0_RULE(079), CAN_GAFLP1_RULE(079)},    // Rule No. 079
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 80
+    {CAN_GAFLID_RULE(080), CAN_GAFLM_RULE(080), CAN_GAFLP0_RULE(080), CAN_GAFLP1_RULE(080)},    // Rule No. 080
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 81
+    {CAN_GAFLID_RULE(081), CAN_GAFLM_RULE(081), CAN_GAFLP0_RULE(081), CAN_GAFLP1_RULE(081)},    // Rule No. 081
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 82
+    {CAN_GAFLID_RULE(082), CAN_GAFLM_RULE(082), CAN_GAFLP0_RULE(082), CAN_GAFLP1_RULE(082)},    // Rule No. 082
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 83
+    {CAN_GAFLID_RULE(083), CAN_GAFLM_RULE(083), CAN_GAFLP0_RULE(083), CAN_GAFLP1_RULE(083)},    // Rule No. 083
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 84
+    {CAN_GAFLID_RULE(084), CAN_GAFLM_RULE(084), CAN_GAFLP0_RULE(084), CAN_GAFLP1_RULE(084)},    // Rule No. 084
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 85
+    {CAN_GAFLID_RULE(085), CAN_GAFLM_RULE(085), CAN_GAFLP0_RULE(085), CAN_GAFLP1_RULE(085)},    // Rule No. 085
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 86
+    {CAN_GAFLID_RULE(086), CAN_GAFLM_RULE(086), CAN_GAFLP0_RULE(086), CAN_GAFLP1_RULE(086)},    // Rule No. 086
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 87
+    {CAN_GAFLID_RULE(087), CAN_GAFLM_RULE(087), CAN_GAFLP0_RULE(087), CAN_GAFLP1_RULE(087)},    // Rule No. 087
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 88
+    {CAN_GAFLID_RULE(088), CAN_GAFLM_RULE(088), CAN_GAFLP0_RULE(088), CAN_GAFLP1_RULE(088)},    // Rule No. 088
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 89
+    {CAN_GAFLID_RULE(089), CAN_GAFLM_RULE(089), CAN_GAFLP0_RULE(089), CAN_GAFLP1_RULE(089)},    // Rule No. 089
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 90
+    {CAN_GAFLID_RULE(090), CAN_GAFLM_RULE(090), CAN_GAFLP0_RULE(090), CAN_GAFLP1_RULE(090)},    // Rule No. 090
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 91
+    {CAN_GAFLID_RULE(091), CAN_GAFLM_RULE(091), CAN_GAFLP0_RULE(091), CAN_GAFLP1_RULE(091)},    // Rule No. 091
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 92
+    {CAN_GAFLID_RULE(092), CAN_GAFLM_RULE(092), CAN_GAFLP0_RULE(092), CAN_GAFLP1_RULE(092)},    // Rule No. 092
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 93
+    {CAN_GAFLID_RULE(093), CAN_GAFLM_RULE(093), CAN_GAFLP0_RULE(093), CAN_GAFLP1_RULE(093)},    // Rule No. 093
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 94
+    {CAN_GAFLID_RULE(094), CAN_GAFLM_RULE(094), CAN_GAFLP0_RULE(094), CAN_GAFLP1_RULE(094)},    // Rule No. 094
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 95
+    {CAN_GAFLID_RULE(095), CAN_GAFLM_RULE(095), CAN_GAFLP0_RULE(095), CAN_GAFLP1_RULE(095)},    // Rule No. 095
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 96
+    {CAN_GAFLID_RULE(096), CAN_GAFLM_RULE(096), CAN_GAFLP0_RULE(096), CAN_GAFLP1_RULE(096)},    // Rule No. 096
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 97
+    {CAN_GAFLID_RULE(097), CAN_GAFLM_RULE(097), CAN_GAFLP0_RULE(097), CAN_GAFLP1_RULE(097)},    // Rule No. 097
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 98
+    {CAN_GAFLID_RULE(098), CAN_GAFLM_RULE(098), CAN_GAFLP0_RULE(098), CAN_GAFLP1_RULE(098)},    // Rule No. 098
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 99
+    {CAN_GAFLID_RULE(099), CAN_GAFLM_RULE(099), CAN_GAFLP0_RULE(099), CAN_GAFLP1_RULE(099)},    // Rule No. 099
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 100
+    {CAN_GAFLID_RULE(100), CAN_GAFLM_RULE(100), CAN_GAFLP0_RULE(100), CAN_GAFLP1_RULE(100)},    // Rule No. 100
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 101
+    {CAN_GAFLID_RULE(101), CAN_GAFLM_RULE(101), CAN_GAFLP0_RULE(101), CAN_GAFLP1_RULE(101)},    // Rule No. 101
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 102
+    {CAN_GAFLID_RULE(102), CAN_GAFLM_RULE(102), CAN_GAFLP0_RULE(102), CAN_GAFLP1_RULE(102)},    // Rule No. 102
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 103
+    {CAN_GAFLID_RULE(103), CAN_GAFLM_RULE(103), CAN_GAFLP0_RULE(103), CAN_GAFLP1_RULE(103)},    // Rule No. 103
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 104
+    {CAN_GAFLID_RULE(104), CAN_GAFLM_RULE(104), CAN_GAFLP0_RULE(104), CAN_GAFLP1_RULE(104)},    // Rule No. 104
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 105
+    {CAN_GAFLID_RULE(105), CAN_GAFLM_RULE(105), CAN_GAFLP0_RULE(105), CAN_GAFLP1_RULE(105)},    // Rule No. 105
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 106
+    {CAN_GAFLID_RULE(106), CAN_GAFLM_RULE(106), CAN_GAFLP0_RULE(106), CAN_GAFLP1_RULE(106)},    // Rule No. 106
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 107
+    {CAN_GAFLID_RULE(107), CAN_GAFLM_RULE(107), CAN_GAFLP0_RULE(107), CAN_GAFLP1_RULE(107)},    // Rule No. 107
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 108
+    {CAN_GAFLID_RULE(108), CAN_GAFLM_RULE(108), CAN_GAFLP0_RULE(108), CAN_GAFLP1_RULE(108)},    // Rule No. 108
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 109
+    {CAN_GAFLID_RULE(109), CAN_GAFLM_RULE(109), CAN_GAFLP0_RULE(109), CAN_GAFLP1_RULE(109)},    // Rule No. 109
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 110
+    {CAN_GAFLID_RULE(110), CAN_GAFLM_RULE(110), CAN_GAFLP0_RULE(110), CAN_GAFLP1_RULE(110)},    // Rule No. 110
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 111
+    {CAN_GAFLID_RULE(111), CAN_GAFLM_RULE(111), CAN_GAFLP0_RULE(111), CAN_GAFLP1_RULE(111)},    // Rule No. 111
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 112
+    {CAN_GAFLID_RULE(112), CAN_GAFLM_RULE(112), CAN_GAFLP0_RULE(112), CAN_GAFLP1_RULE(112)},    // Rule No. 112
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 113
+    {CAN_GAFLID_RULE(113), CAN_GAFLM_RULE(113), CAN_GAFLP0_RULE(113), CAN_GAFLP1_RULE(113)},    // Rule No. 113
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 114
+    {CAN_GAFLID_RULE(114), CAN_GAFLM_RULE(114), CAN_GAFLP0_RULE(114), CAN_GAFLP1_RULE(114)},    // Rule No. 114
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 115
+    {CAN_GAFLID_RULE(115), CAN_GAFLM_RULE(115), CAN_GAFLP0_RULE(115), CAN_GAFLP1_RULE(115)},    // Rule No. 115
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 116
+    {CAN_GAFLID_RULE(116), CAN_GAFLM_RULE(116), CAN_GAFLP0_RULE(116), CAN_GAFLP1_RULE(116)},    // Rule No. 116
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 117
+    {CAN_GAFLID_RULE(117), CAN_GAFLM_RULE(117), CAN_GAFLP0_RULE(117), CAN_GAFLP1_RULE(117)},    // Rule No. 117
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 118
+    {CAN_GAFLID_RULE(118), CAN_GAFLM_RULE(118), CAN_GAFLP0_RULE(118), CAN_GAFLP1_RULE(118)},    // Rule No. 118
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 119
+    {CAN_GAFLID_RULE(119), CAN_GAFLM_RULE(119), CAN_GAFLP0_RULE(119), CAN_GAFLP1_RULE(119)},    // Rule No. 119
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 120
+    {CAN_GAFLID_RULE(120), CAN_GAFLM_RULE(120), CAN_GAFLP0_RULE(120), CAN_GAFLP1_RULE(120)},    // Rule No. 120
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 121
+    {CAN_GAFLID_RULE(121), CAN_GAFLM_RULE(121), CAN_GAFLP0_RULE(121), CAN_GAFLP1_RULE(121)},    // Rule No. 121
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 122
+    {CAN_GAFLID_RULE(122), CAN_GAFLM_RULE(122), CAN_GAFLP0_RULE(122), CAN_GAFLP1_RULE(122)},    // Rule No. 122
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 123
+    {CAN_GAFLID_RULE(123), CAN_GAFLM_RULE(123), CAN_GAFLP0_RULE(123), CAN_GAFLP1_RULE(123)},    // Rule No. 123
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 124
+    {CAN_GAFLID_RULE(124), CAN_GAFLM_RULE(124), CAN_GAFLP0_RULE(124), CAN_GAFLP1_RULE(124)},    // Rule No. 124
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 125
+    {CAN_GAFLID_RULE(125), CAN_GAFLM_RULE(125), CAN_GAFLP0_RULE(125), CAN_GAFLP1_RULE(125)},    // Rule No. 125
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 126
+    {CAN_GAFLID_RULE(126), CAN_GAFLM_RULE(126), CAN_GAFLP0_RULE(126), CAN_GAFLP1_RULE(126)},    // Rule No. 126
+#if (CAN0_RX_RULE_NUM + CAN1_RX_RULE_NUM) > 127
+    {CAN_GAFLID_RULE(127), CAN_GAFLM_RULE(127), CAN_GAFLP0_RULE(127), CAN_GAFLP1_RULE(127)},    // Rule No. 127
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+};
+
+/******************************************************************************
+
+
+                                C A N   A P I
+
+
+******************************************************************************/
+/******************************************************************************
+* Function Name: R_CAN_Create
+* Description  : Configure the CAN peripheral.
+* Arguments    : none
+* Return Value : R_CAN_OK -
+*                    Action completed successfully
+*                R_CAN_SW_RAM_ERR -
+*                    Initialization of CAN RAM times out
+*                R_CAN_GLB_RST_ERR -
+*                    The CAN peripheral did not enter global reset mode.
+*                R_CAN_CH_RST_ERR -
+*                    The CAN peripheral did not enter channel reset mode.
+*                R_CAN_GLB_TEST_ERR -
+*                    The CAN peripheral did not enter Global test mode.
+*                R_CAN_CH_HALT_ERR -
+*                    The CAN peripheral did not enter channel halt mode.
+*                R_CAN_MODULE_STOP_ERR -
+*                    CAN FD module is in module stop state.
+*                R_CAN_REG_ISR_ERR -
+*                    Failed to set up the interrupt callback function.
+******************************************************************************/
+uint8_t R_CAN_Create(const can_isr_t *p_cb_func)
+{
+    uint32_t    api_status = R_CAN_OK;
+
+    if (REG_8R(&CPG.STBCR3.BYTE, CPG_STBCR3_MSTP32_SHIFT, CPG_STBCR3_MSTP32) == BIT_SET) {
+        return R_CAN_MODULE_STOP_ERR;    /* CAN module is stopped */
+    }
+
+    /* ==== CAN RAM initialization ==== */
+    api_status = Can_WaitRamInitOver();
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+
+    /* ==== Global Reset mode switch (stop->reset) ==== */
+    api_status = R_CAN_Control(UNUSED, GLOBAL_RESET);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+
+    /* ==== CAN mode (FD mode) ==== */
+    /* Configure RSCFDnCFDGRMCFG */
+    /* Interface Mode Select: CAN FD mode */
+    REG_32W(&RCANFD.RSCFD0CFDGRMCFG.LONG, BIT_SET, GRMCFG_RCMC_SHIFT, GRMCFG_RCMC);
+
+    /* ==== Channel Reset mode switch ==== */
+    api_status = R_CAN_Control(CH_0, CHANNEL_RESET);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+    api_status = R_CAN_Control(CH_1, CHANNEL_RESET);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+
+    /* ==== Global function setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDGCFG.LONG, CAN_GCFG, REG_NONSHIFT, REG_NONMASK);
+    REG_32W(&RCANFD.RSCFD0CFDGFDCFG.LONG, CAN_GFDCFG, REG_NONSHIFT, REG_NONMASK);
+
+    /* ==== Communication speed setting ==== */
+    R_CAN_SetBitrate(CH_0);
+    R_CAN_SetBitrate(CH_1);
+
+    /* ==== Rx rule setting ==== */
+    Can_SetRxRule(CAN0_RX_RULE_NUM, CAN1_RX_RULE_NUM);
+
+    /* ==== TR FIFO setting ==== */
+    /* Configure RSCFDnCFDCFCCk */
+    REG_32W((&RCANFD.RSCFD0CFDCFCC0.LONG), CAN_CFCC0, REG_NONSHIFT, CFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDCFCC1.LONG), CAN_CFCC1, REG_NONSHIFT, CFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDCFCC2.LONG), CAN_CFCC2, REG_NONSHIFT, CFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDCFCC3.LONG), CAN_CFCC3, REG_NONSHIFT, CFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDCFCC4.LONG), CAN_CFCC4, REG_NONSHIFT, CFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDCFCC5.LONG), CAN_CFCC5, REG_NONSHIFT, CFCC_MASK_FOR_CREATE);
+
+    /* ==== RX FIFO setting ==== */
+    /* Configure RSCFDnCFDRFCCx */
+    REG_32W((&RCANFD.RSCFD0CFDRFCC0.LONG), CAN_RFCC0, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDRFCC1.LONG), CAN_RFCC1, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDRFCC2.LONG), CAN_RFCC2, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDRFCC3.LONG), CAN_RFCC3, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDRFCC4.LONG), CAN_RFCC4, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDRFCC5.LONG), CAN_RFCC5, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDRFCC6.LONG), CAN_RFCC6, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+    REG_32W((&RCANFD.RSCFD0CFDRFCC7.LONG), CAN_RFCC7, REG_NONSHIFT, RFCC_MASK_FOR_CREATE);
+
+    /* ==== RX BUFFER setting ==== */
+    /* Configure RSCFD0CFDRMNB */
+    REG_32W(&RCANFD.RSCFD0CFDRMNB.LONG, CAN_RMNB, REG_NONSHIFT, REG_NONMASK);
+
+    /* ==== TX BUFFER setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDTMIEC0.LONG, CAN_TMIEC0, REG_NONSHIFT, REG_NONMASK);
+
+    /* ==== TX Queue setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDTXQCC0.LONG, CAN_TXQCC0, REG_NONSHIFT, TXQCC_MASK_FOR_CREATE);
+    REG_32W(&RCANFD.RSCFD0CFDTXQCC1.LONG, CAN_TXQCC1, REG_NONSHIFT, TXQCC_MASK_FOR_CREATE);
+
+    /* ==== TX History setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDTHLCC0.LONG, CAN_THLCC0, REG_NONSHIFT, THLCC_MASK_FOR_CREATE);
+    REG_32W(&RCANFD.RSCFD0CFDTHLCC1.LONG, CAN_THLCC1, REG_NONSHIFT, THLCC_MASK_FOR_CREATE);
+
+    /* ==== Global Error Interrupt setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDGCTR.LONG, CAN_GCTR, REG_NONSHIFT, GCTR_MASK_FOR_CREATE);
+
+    /* ==== Channel Interrupt/ Bus off recovery/ Error indication setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDC0CTR.LONG, CAN_C0CTR, REG_NONSHIFT, CTR_MASK01_FOR_CREATE);
+    REG_32W(&RCANFD.RSCFD0CFDC1CTR.LONG, CAN_C1CTR, REG_NONSHIFT, CTR_MASK01_FOR_CREATE);
+
+    /* ==== Channel CAN FD setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDC0FDCFG.LONG, CAN_C0FDCFG, REG_NONSHIFT, FDCFG_MASK_FOR_CREATE);
+    REG_32W(&RCANFD.RSCFD0CFDC1FDCFG.LONG, CAN_C1FDCFG, REG_NONSHIFT, FDCFG_MASK_FOR_CREATE);
+
+
+    /* ==== Global Test mode switch (reset->test) ==== */
+    api_status = R_CAN_Control(UNUSED, GLOBAL_TEST);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+    /* ==== Channel halt mode switch (reset->halt)  ==== */
+    api_status = R_CAN_Control(CH_0, CHANNEL_HALT);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+    api_status = R_CAN_Control(CH_1, CHANNEL_HALT);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+
+    /* ==== Channel Restricted Operation Mode setting ==== */
+    REG_32W(&RCANFD.RSCFD0CFDC0CTR.LONG, CAN_C0CTR, REG_NONSHIFT, CTR_MASK02_FOR_CREATE);
+    REG_32W(&RCANFD.RSCFD0CFDC1CTR.LONG, CAN_C1CTR, REG_NONSHIFT, CTR_MASK02_FOR_CREATE);
+
+    /* ==== Interrupt Callback Function setting ==== */
+    /* Global error interrupt setting */
+    InterruptHandlerRegister(GERI_IRQn, GERI_handler);
+    GIC_EnableIRQ(GERI_IRQn);
+    GIC_SetPriority(GERI_IRQn, p_cb_func->glb_err.prior);
+    p_geri_callback = p_cb_func->glb_err.p_Addr;
+
+    /* Receive FIFO interrupt setting */
+    InterruptHandlerRegister(RFI_IRQn, RFI_handler);
+    GIC_EnableIRQ(RFI_IRQn);
+    GIC_SetPriority(RFI_IRQn, p_cb_func->rxfifo.prior);
+    p_rfi_callback = p_cb_func->rxfifo.p_Addr;
+
+    /* CAN0 transmit interrupt */
+    InterruptHandlerRegister(CTXI0_IRQn, CTXI0_handler);
+    GIC_EnableIRQ(CTXI0_IRQn);
+    GIC_SetPriority(CTXI0_IRQn, p_cb_func->tx[0].prior);
+    p_ctxi_callback[0] = p_cb_func->tx[0].p_Addr;
+
+    /* CAN0 Transmit/Receive FIFO receive complete interrupt */
+    InterruptHandlerRegister(CFRXI0_IRQn, CFRXI0_handler);
+    GIC_EnableIRQ(CFRXI0_IRQn);
+    GIC_SetPriority(CFRXI0_IRQn, p_cb_func->trfifo_rx[0].prior);
+    p_cfrxi_callback[0] = p_cb_func->trfifo_rx[0].p_Addr;
+
+    /* CAN0 error interrupt */
+    InterruptHandlerRegister(CERI0_IRQn, CERI0_handler);
+    GIC_EnableIRQ(CERI0_IRQn);
+    GIC_SetPriority(CERI0_IRQn, p_cb_func->ch_err[0].prior);
+    p_ceri_callback[0] = p_cb_func->ch_err[0].p_Addr;
+
+    /* CAN1 transmit interrupt */
+    InterruptHandlerRegister(CTXI1_IRQn, CTXI1_handler);
+    GIC_EnableIRQ(CTXI1_IRQn);
+    GIC_SetPriority(CTXI1_IRQn, p_cb_func->tx[1].prior);
+    p_ctxi_callback[1] = p_cb_func->tx[1].p_Addr;
+
+    /* CAN1 Transmit/Receive FIFO receive complete interrupt */
+    InterruptHandlerRegister(CFRXI1_IRQn, CFRXI1_handler);
+    GIC_EnableIRQ(CFRXI1_IRQn);
+    GIC_SetPriority(CFRXI1_IRQn, p_cb_func->trfifo_rx[1].prior);
+    p_cfrxi_callback[1] = p_cb_func->trfifo_rx[1].p_Addr;
+
+    /* CAN1 error interrupt */
+    InterruptHandlerRegister(CERI1_IRQn, CERI1_handler);
+    GIC_EnableIRQ(CERI1_IRQn);
+    GIC_SetPriority(CERI1_IRQn, p_cb_func->ch_err[1].prior);
+    p_ceri_callback[1] = p_cb_func->ch_err[1].p_Addr;
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_Create() */
+
+/******************************************************************************
+* Function Name: R_CAN_Control
+* Description  : Controls transition to CAN grobal modes or CAN channle modes
+*                determined by the CAN Control register.
+* Arguments    : ch_nr -
+*                    Channel number (0=CH0、1=CH1)
+*                    When global mode is specified in mode_type,This argument is ignored.
+*                action_type -
+*                    Specify the mode to transition
+*                    GLOBAL_STOP, GLOBAL_RESET, GLOBAL_OPERATION, GLOBAL_TEST,
+*                    CHANNEL_STOP, CHANNEL_RESET, CHANNEL_HALT, CHANNEL_COM
+*
+* Return Value : R_CAN_OK -
+*                    Action completed successfully.
+*                R_CAN_BAD_CH_NR -
+*                    The channel number does not exist.
+*                R_CAN_BAD_ACTION_TYPE -
+*                    No such action type exists for this function.
+*                R_CAN_GLB_STOP_ERR -
+*                    The CAN peripheral did not enter global stop mode.
+*                R_CAN_GLB_RST_ERR -
+*                    The CAN peripheral did not enter global reset mode.
+*                R_CAN_GLB_TEST_ERR -
+*                    The CAN peripheral did not enter global test mode.
+*                R_CAN_GLB_OP_ERR -
+*                    The CAN peripheral did not enter global operating mode.
+*                R_CAN_CH_STOP_ERR -
+*                    The CAN peripheral did not enter channel stop mode.
+*                R_CAN_CH_RST_ERR -
+*                    The CAN peripheral did not enter channel reset mode.
+*                R_CAN_CH_HALT_ERR -
+*                    The CAN peripheral did not enter channel halt mode.
+*                R_CAN_CH_COM_ERR -
+*                    The CAN peripheral did not enter channel communication mode.
+******************************************************************************/
+uint8_t R_CAN_Control(const uint8_t  ch_nr, const uint8_t  action_type)
+{
+    uint8_t api_status;
+
+    switch (action_type) {
+        case GLOBAL_STOP:
+            api_status = Can_EnterGlobalStopMode();
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_GLB_STOP_ERR;
+            }
+            break;
+        case GLOBAL_RESET:
+            api_status = Can_EnterGlobalResetMode();
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_GLB_RST_ERR;
+            }
+            break;
+        case GLOBAL_OPERATION:
+            api_status = Can_EnterGlobalOperationMode();
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_GLB_OP_ERR;
+            }
+            break;
+        case GLOBAL_TEST:
+            api_status = Can_EnterGlobalTestMode();
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_GLB_TEST_ERR;
+            }
+            break;
+        case CHANNEL_STOP:
+            if (ch_nr >= MAX_CHANNELS) {
+                return R_CAN_BAD_CH_NR;
+            }
+            api_status = Can_EnterChStopMode(ch_nr);
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_CH_STOP_ERR;
+            }
+            break;
+        case CHANNEL_RESET:
+            if (ch_nr >= MAX_CHANNELS) {
+                return R_CAN_BAD_CH_NR;
+            }
+            api_status = Can_EnterChResetMode(ch_nr);
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_CH_RST_ERR;
+            }
+            break;
+        case CHANNEL_HALT:
+            if (ch_nr >= MAX_CHANNELS) {
+                return R_CAN_BAD_CH_NR;
+            }
+            api_status = Can_EnterChHaltMode(ch_nr);
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_CH_HALT_ERR;
+            }
+            break;
+        case CHANNEL_COM:
+            if (ch_nr >= MAX_CHANNELS) {
+                return R_CAN_BAD_CH_NR;
+            }
+            api_status = Can_EnterChComMode(ch_nr);
+            if (api_status == R_CAN_NOT_OK) {
+                return R_CAN_CH_COM_ERR;
+            }
+            break;
+        default:
+            return R_CAN_BAD_ACTION_TYPE;
+            break;
+    }
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_Control() */
+
+/******************************************************************************
+* Function Name: Can_EnterGlobalStopMode
+* Description  : Enter global stop mode
+* Arguments    : none
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+static uint8_t Can_EnterGlobalStopMode(void)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* When not in global stop mode */
+    if (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GSLPSTS_SHIFT, GSTS_GSLPSTS) != BIT_SET) {
+        /* When not in global reset mode, enter grobal reset mode */
+        if (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GRSTSTS_SHIFT, GSTS_GRSTSTS) != BIT_SET) {
+            api_status = Can_EnterGlobalResetMode();
+        }
+
+        if (api_status == R_CAN_OK) {
+            /* Enter global stop mode */
+            REG_32W(&RCANFD.RSCFD0CFDGCTR.LONG, BIT_SET, GCTR_GSLPR_SHIFT, GCTR_GSLPR);
+            /* Wait for mode transition */
+            while (((REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG,
+                             GSTS_GSLPSTS_SHIFT, GSTS_GSLPSTS)) == BIT_CLEAR) && DEC_CHK_CAN_SW_TMR)
+                if (can_tmo_cnt == 0) {
+                    api_status = R_CAN_NOT_OK;
+                }
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterGlobalStopMode() */
+
+/******************************************************************************
+* Function Name: Can_EnterGlobalResetMode
+* Description  : Enter global reset mode
+* Arguments    : none
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+static uint8_t Can_EnterGlobalResetMode(void)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* --- switch from global stop mode ---- */
+    /* When in global stop mode */
+    if (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GSLPSTS_SHIFT, GSTS_GSLPSTS) == BIT_SET) {
+        /* exit global stop mode  */
+        /* Configure RSCFDnCFDGCTR */
+        /* Release global stop mode */
+        REG_32W(&RCANFD.RSCFD0CFDGCTR.LONG, BIT_CLEAR, GCTR_GSLPR_SHIFT, GCTR_GSLPR);
+        /* Wait for mode transition */
+        while (((REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG,
+                         GSTS_GSLPSTS_SHIFT, GSTS_GSLPSTS)) == BIT_SET) && DEC_CHK_CAN_SW_TMR);
+        if (can_tmo_cnt == 0) {
+            api_status = R_CAN_NOT_OK;
+        }
+    }
+    /* --- switch from other mode ---- */
+    else {
+        /* Configure RSCFDnCFDGCTR */
+        /* Enter global reset mode */
+        REG_32W(&RCANFD.RSCFD0CFDGCTR.LONG, CFDGCTR_GMDC_RESET, GCTR_GMDC_SHIFT, GCTR_GMDC);
+        /* Wait for mode transition */
+        while (((REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG,
+                         GSTS_GRSTSTS_SHIFT, GSTS_GRSTSTS)) == BIT_CLEAR) && DEC_CHK_CAN_SW_TMR);
+        if (can_tmo_cnt == 0) {
+            api_status = R_CAN_NOT_OK;
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterGlobalResetMode() */
+
+
+
+/******************************************************************************
+* Function Name: Can_EnterGlobalOperationMode
+* Description  : Enter global operating mode
+* Arguments    : none
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+static uint8_t Can_EnterGlobalOperationMode(void)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* When not in global operating mode */
+    if ((REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GSLPSTS_SHIFT, GSTS_GSLPSTS) == BIT_SET) ||
+            (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GHLTSTS_SHIFT, GSTS_GHLTSTS) == BIT_SET) ||
+            (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GRSTSTS_SHIFT, GSTS_GRSTSTS) == BIT_SET)) {
+        /* When in global stop mode */
+        if (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GSLPSTS_SHIFT, GSTS_GSLPSTS) == BIT_SET) {
+            api_status = Can_EnterGlobalResetMode();        // Enter global reset mode
+        }
+        if (api_status == R_CAN_OK) {
+            /* Configure RSCFDnCFDGCTR */
+            /* Enter global operating mode */
+            REG_32W(&RCANFD.RSCFD0CFDGCTR.LONG, CFDGCTR_GMDC_OP, GCTR_GMDC_SHIFT, GCTR_GMDC);
+            /* Wait for mode transition */
+            while (((REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GHLTSTS_SHIFT, GSTS_GHLTSTS) == BIT_SET) ||
+                    (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GRSTSTS_SHIFT, GSTS_GRSTSTS) == BIT_SET)) &&
+                    DEC_CHK_CAN_SW_TMR);
+            if (can_tmo_cnt == 0) {
+                api_status = R_CAN_NOT_OK;
+            }
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterGlobalOperationMode() */
+
+/******************************************************************************
+* Function Name: Can_EnterGlobalTestMode
+* Description  : Enter global test mode
+* Arguments    : none
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+uint8_t Can_EnterGlobalTestMode(void)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* When not in global test mode */
+    if (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GHLTSTS_SHIFT, GSTS_GHLTSTS) == BIT_CLEAR) {
+        /* When in global stop mode */
+        if (REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GSLPSTS_SHIFT, GSTS_GSLPSTS) == BIT_SET) {
+            api_status = Can_EnterGlobalResetMode();
+        }
+
+        if (api_status == R_CAN_OK) {
+            /* ==== switch to global test mode from global reset mode or global operating mode ==== */
+            /* Enter global test mode */
+            REG_32W(&RCANFD.RSCFD0CFDGCTR.LONG, CFDGCTR_GMDC_TEST, GCTR_GMDC_SHIFT, GCTR_GMDC);
+            /* Wait for mode transition */
+            while ((REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG,
+                            GSTS_GHLTSTS_SHIFT, GSTS_GHLTSTS) == BIT_CLEAR)  &&  DEC_CHK_CAN_SW_TMR);
+            if (can_tmo_cnt == 0) {
+                api_status = R_CAN_NOT_OK;
+            }
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterGlobalTestMode() */
+
+/******************************************************************************
+* Function Name: Can_EnterChStopMode
+* Description  : Enter channel stop mode
+* Arguments    : ch_nr -
+*                    Channel number
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+static uint8_t Can_EnterChStopMode(const uint8_t ch_nr)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* When not in channel stop mode */
+    if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CSLPSTS_SHIFT, C0STS_CSLPSTS) == BIT_CLEAR) {
+        /* When not in channel reset mode */
+        if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CRSTSTS_SHIFT, C0STS_CRSTSTS) == BIT_CLEAR) {
+            api_status = Can_EnterChResetMode(ch_nr);
+        }
+
+        /* --- switch from channel reset mode ---- */
+        if (api_status == R_CAN_OK) {
+            /* Configure RSCFDnCFDCmCTR */
+            /* Enter channel stop mode */
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (ch_nr * 0x10) / 4), BIT_SET, C0CTR_CSLPR_SHIFT, C0CTR_CSLPR);
+            /* Wait for mode transition */
+            while ((REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4),
+                            C0STS_CSLPSTS_SHIFT, C0STS_CSLPSTS) == BIT_CLEAR) && DEC_CHK_CAN_SW_TMR);
+            if (can_tmo_cnt == 0) {
+                api_status = R_CAN_NOT_OK;
+            }
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterChStopMode() */
+
+/******************************************************************************
+* Function Name: Can_EnterChResetMode
+* Description  : Enter channel reset mode
+* Arguments    : ch_nr -
+*                    Channel number
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+static uint8_t Can_EnterChResetMode(const uint8_t ch_nr)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* --- switch from channel stop mode ---- */
+    /* When in channel stop mode */
+    if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CSLPSTS_SHIFT, C0STS_CSLPSTS) == BIT_SET) {
+        /* Configure RSCFDnCFDCmCTR */
+        /* Release channel stop mode */
+        REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (ch_nr * 0x10) / 4), BIT_CLEAR, C0CTR_CSLPR_SHIFT, C0CTR_CSLPR);
+        /* Wait for mode transition */
+        while ((REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4),
+                        C0STS_CSLPSTS_SHIFT, C0STS_CSLPSTS == BIT_SET)) && DEC_CHK_CAN_SW_TMR);
+        if (can_tmo_cnt == 0) {
+            api_status = R_CAN_NOT_OK;
+        }
+    }
+    /* --- switch from channel operation or halt mode ---- */
+    else if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CRSTSTS_SHIFT, C0STS_CRSTSTS) == BIT_CLEAR) {
+        /* Configure RSCFDnCFDCmCTR */
+        /* Enter channel reset mode */
+        REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (ch_nr * 0x10) / 4), CFDCmCTR_CHRST, C0CTR_CHMDC_SHIFT, C0CTR_CHMDC);
+        /* Wait for mode transition */
+        while ((REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4),
+                        C0STS_CRSTSTS_SHIFT, C0STS_CRSTSTS) == BIT_CLEAR) && DEC_CHK_CAN_SW_TMR);
+        if (can_tmo_cnt == 0) {
+            api_status = R_CAN_NOT_OK;
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterChResetMode() */
+
+/******************************************************************************
+* Function Name: Can_EnterChHaltMode
+* Description  : Enter channel halt mode
+* Arguments    : ch_nr -
+*                    Channel number
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+static uint8_t Can_EnterChHaltMode(const uint8_t ch_nr)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* When not in channel halt mode */
+    if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CHLTSTS_SHIFT, C0STS_CHLTSTS) == BIT_CLEAR) {
+        /* When in channel stop mode */
+        if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CSLPSTS_SHIFT, C0STS_CSLPSTS) == BIT_SET) {
+            api_status = Can_EnterChResetMode(ch_nr);
+        }
+        if (api_status == R_CAN_OK) {
+            /* Enter channel halt mode */
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (ch_nr * 0x10) / 4), CFDCmCTR_CHLTSTS, C0CTR_CHMDC_SHIFT, C0CTR_CHMDC);
+            /* Wait for mode transition */
+            while ((REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4),
+                            C0STS_CHLTSTS_SHIFT, C0STS_CHLTSTS) == BIT_CLEAR) && DEC_CHK_CAN_SW_TMR);
+            if (can_tmo_cnt == 0) {
+                api_status = R_CAN_NOT_OK;
+            }
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterChHaltMode() */
+
+/******************************************************************************
+* Function Name: Can_EnterChCommMode
+* Description  : Enter channel communication mode
+* Arguments    : ch_nr -
+*                    Channel number
+* Return Value : R_CAN_OK -
+*                    Mode transition succeeded.
+*                R_CAN_NOT_OK -
+*                    Mode transition failed.
+******************************************************************************/
+static uint8_t Can_EnterChComMode(const uint8_t ch_nr)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t can_tmo_cnt = MAX_CAN_SW_DELAY;
+
+    /* When not in channel communication mode */
+    if ((REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CSLPSTS_SHIFT, C0STS_CSLPSTS) == BIT_SET) ||
+            (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CHLTSTS_SHIFT, C0STS_CHLTSTS) == BIT_SET) ||
+            (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CRSTSTS_SHIFT, C0STS_CRSTSTS) == BIT_SET)) {
+
+        /* When in channel stop mode */
+        if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CSLPSTS_SHIFT, C0STS_CSLPSTS) == BIT_SET) {
+            api_status = Can_EnterChResetMode(ch_nr);
+        }
+        if (api_status == R_CAN_OK) {
+            /* Configure RSCFDnCFDCmCTR */
+            /* Enter channel communication mode */
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (ch_nr * 0x10) / 4), CFDCmCTR_CHOP, C0CTR_CHMDC_SHIFT, C0CTR_CHMDC);
+            /* Wait for mode transition */
+            while (((REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CHLTSTS_SHIFT, C0STS_CHLTSTS) == BIT_SET) ||
+                    (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (ch_nr * 0x10) / 4), C0STS_CRSTSTS_SHIFT, C0STS_CRSTSTS) == BIT_SET)) &&
+                    DEC_CHK_CAN_SW_TMR);
+            if (can_tmo_cnt == 0) {
+                api_status = R_CAN_NOT_OK;
+            }
+        }
+    }
+
+    return api_status;
+
+} /* End of function Can_EnterChComMode() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_PortSet
+* Description  : Configures the MCU and transceiver port pins. This function is
+*                responsible for configuring the MCU and transceiver port pins.
+*                Transceiver port pins such as Enable will vary depending on design,
+*                and this fucntion must then be modified. The function is also used
+*                to enter the CAN port test modes, such as Listen Only.
+* Arguments    : ch_nr -
+*                    Channel number (0=CH0、1=CH1)
+*                action_type -
+*                       ENABLE_COMMON, DISABLE_COMMON, ENABLE_COMMON, DISABLE_COMMON,
+*                       CANPORT_TEST_LISTEN_ONLY, CANPORT_TEST_0_EXT_LOOPBACK,
+*                       CANPORT_TEST_1_INT_LOOPBACK, and CANPORT_RETURN_TO_NORMAL
+*                       which is the default; no need to call unless another
+*                       test mode was invoked previously.
+*
+* Return Value : R_CAN_OK -
+*                    Action completed successfully.
+*                R_CAN_BAD_CH_NR -
+*                    The channel number does not exist.
+*                R_CAN_BAD_ACTION_TYPE -
+*                    No such action type exists for this function.
+*                R_CAN_CH_HALT_ERR -
+*                    The CAN peripheral did not enter channel halt mode.
+*                R_CAN_CH_COM_ERR -
+*                    The CAN peripheral did not enter channel communication mode.
+*                R_CAN_GLB_OP_ERR -
+*                    The CAN peripheral did not enter global operating mode.
+******************************************************************************/
+uint8_t R_CAN_PortSet(const uint8_t  ch_nr, const uint8_t  action_type)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint32_t reg_backup;
+
+    if ((action_type != ENABLE_COMMON) && (action_type != DISABLE_COMMON)) {
+        if (ch_nr >= MAX_CHANNELS) {
+            api_status = R_CAN_BAD_CH_NR;
+            return api_status;
+        }
+    }
+
+    reg_backup = REG_8R(&GPIO.PWPR.BYTE, REG_NONSHIFT, REG_NONMASK);
+
+    /* Set B0WI to 0 for PFSWE bit as writable */
+    REG_8W(&GPIO.PWPR.BYTE, BIT_CLEAR, GPIO_PWPR_B0WI_SHIFT, GPIO_PWPR_B0WI);
+
+    /* Set PFSWE to 1 for PxxPFS register as writable */
+    REG_8W(&GPIO.PWPR.BYTE, BIT_SET, GPIO_PWPR_PFSWE_SHIFT, GPIO_PWPR_PFSWE);
+
+    switch (action_type) {
+        case ENABLE_COMMON:
+            /* Please modify if other port is used as CAN port */
+            /* P1_0: CAN_CLK */
+            REG_8W(&GPIO.P10PFS.BYTE, CAN_PORT, GPIO_P10PFS_PSEL_SHIFT, GPIO_P10PFS_PSEL);
+            REG_8W(&PORT1.PMR.BYTE, BIT_SET, GPIO_PMR_PMR0_SHIFT, GPIO_PMR_PMR0);
+            break;
+        case DISABLE_COMMON:
+            /* Please modify if other port is used as CAN port */
+            /* P1_0: CAN_CLK */
+            REG_8W(&PORT1.PMR.BYTE, BIT_CLEAR, GPIO_PMR_PMR0_SHIFT, GPIO_PMR_PMR0);
+            break;
+        case ENABLE_CHANNEL:
+            /* If you want to use other ports as CAN ports, please modify the code. And if there are
+               other required pin settings such as transceiver enable pin control, add them separately. */
+            if (ch_nr == CH_0) {
+                /* P1_1: CAN0RX */
+                REG_8W(&GPIO.P11PFS.BYTE, CAN_PORT, GPIO_P11PFS_PSEL_SHIFT, GPIO_P11PFS_PSEL);
+                REG_8W(&PORT1.PMR.BYTE, BIT_SET, GPIO_PMR_PMR1_SHIFT, GPIO_PMR_PMR1);
+                /* P1_3: CAN0TX */
+                REG_8W(&GPIO.P13PFS.BYTE, CAN_PORT, GPIO_P13PFS_PSEL_SHIFT, GPIO_P13PFS_PSEL);
+                REG_8W(&PORT1.PMR.BYTE, BIT_SET, GPIO_PMR_PMR3_SHIFT, GPIO_PMR_PMR3);
+            } else {
+                /* P2_0: CAN1RX */
+                REG_8W(&GPIO.P20PFS.BYTE, CAN_PORT, GPIO_P20PFS_PSEL_SHIFT, GPIO_P20PFS_PSEL);
+                REG_8W(&PORT2.PMR.BYTE, BIT_SET, GPIO_PMR_PMR0_SHIFT, GPIO_PMR_PMR0);
+                /* P2_2: CAN1TX */
+                REG_8W(&GPIO.P22PFS.BYTE, CAN_PORT, GPIO_P22PFS_PSEL_SHIFT, GPIO_P22PFS_PSEL);
+                REG_8W(&PORT2.PMR.BYTE, BIT_SET, GPIO_PMR_PMR2_SHIFT, GPIO_PMR_PMR2);
+            }
+            break;
+        case DISABLE_CHANNEL:
+            /* If you want to use other ports as CAN ports, please modify the code. And if there are
+               other required pin settings such as transceiver enable pin control, add them separately. */
+            if (ch_nr == CH_0) {
+                REG_8W(&PORT1.PMR.BYTE, BIT_CLEAR, GPIO_PMR_PMR1_SHIFT, GPIO_PMR_PMR1);    /* CAN0RX */
+                REG_8W(&PORT1.PMR.BYTE, BIT_CLEAR, GPIO_PMR_PMR3_SHIFT, GPIO_PMR_PMR3);    /* CAN0TX */
+            } else {
+                REG_8W(&PORT2.PMR.BYTE, BIT_CLEAR, GPIO_PMR_PMR0_SHIFT, GPIO_PMR_PMR0);    /* CAN1RX */
+                REG_8W(&PORT2.PMR.BYTE, BIT_CLEAR, GPIO_PMR_PMR2_SHIFT, GPIO_PMR_PMR2);    /* CAN1TX */
+            }
+            break;
+        case  CANPORT_TEST_LISTEN_ONLY:
+            R_CAN_PortSet(UNUSED, ENABLE_COMMON);
+            R_CAN_PortSet(ch_nr, ENABLE_CHANNEL);
+
+            api_status = R_CAN_Control(UNUSED, GLOBAL_OPERATION);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_GLB_OP_ERR;
+            }
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_HALT);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_HALT_ERR;
+            }
+
+            /* Configure RSCFDnCFDCmCTR */
+            /* Listen-Only ModeY, Enable Communication Test Mode */
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), TEST_LISTEN_ONLY, C0CTR_CTMS_SHIFT, C0CTR_CTMS);
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), BIT_SET, C0CTR_CTME_SHIFT, C0CTR_CTME);
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_COM);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_COM_ERR;
+            }
+            break;
+        case  CANPORT_TEST_0_EXT_LOOPBACK:
+            R_CAN_PortSet(UNUSED, ENABLE_COMMON);
+            R_CAN_PortSet(ch_nr, ENABLE_CHANNEL);
+
+            api_status = R_CAN_Control(UNUSED, GLOBAL_OPERATION);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_GLB_OP_ERR;
+            }
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_HALT);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_HALT_ERR;
+            }
+
+            /* Configure RSCFDnCFDCmCTR */
+            /* External Loopback Mode, Enable Communication Test Mode */
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), EXT_LOOPBACK, C0CTR_CTMS_SHIFT, C0CTR_CTMS);
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), BIT_SET, C0CTR_CTME_SHIFT, C0CTR_CTME);
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_COM);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_COM_ERR;
+            }
+            break;
+        case  CANPORT_TEST_1_INT_LOOPBACK:
+            R_CAN_PortSet(UNUSED, ENABLE_COMMON);
+
+            api_status = R_CAN_Control(UNUSED, GLOBAL_OPERATION);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_GLB_OP_ERR;
+            }
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_HALT);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_HALT_ERR;
+            }
+
+            /* Configure RSCFDnCFDCmCTR */
+            /* Internal Loopback Mode, Enable Communication Test Mode */
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), INT_LOOPBACK, C0CTR_CTMS_SHIFT, C0CTR_CTMS);
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), BIT_SET, C0CTR_CTME_SHIFT, C0CTR_CTME);
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_COM);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_COM_ERR;
+            }
+            break;
+        case  CANPORT_RETURN_TO_NORMAL:
+            R_CAN_PortSet(UNUSED, ENABLE_COMMON);
+            R_CAN_PortSet(ch_nr, ENABLE_CHANNEL);
+
+            api_status = R_CAN_Control(UNUSED, GLOBAL_OPERATION);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_GLB_OP_ERR;
+            }
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_HALT);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_HALT_ERR;
+            }
+
+            /* Configure RSCFDnCFDCmCTR */
+            /* Standard test mode, Disable Communication Test Mode */
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), STD_TEST, C0CTR_CTMS_SHIFT, C0CTR_CTMS);
+            REG_32W((&RCANFD.RSCFD0CFDC0CTR.LONG + (0x10 * ch_nr) / 4), BIT_CLEAR, C0CTR_CTME_SHIFT, C0CTR_CTME);
+
+            api_status = R_CAN_Control(ch_nr, CHANNEL_COM);
+            if (api_status != R_CAN_OK) {
+                return R_CAN_CH_COM_ERR;
+            }
+            break;
+        default:
+            return R_CAN_BAD_ACTION_TYPE;
+            break;
+    }
+
+    /* Restore Write Protect Register settings */
+    if (!(reg_backup & GPIO_PWPR_PFSWE)) { // Before change, PFSWE bit was cleared.
+        REG_8W(&GPIO.PWPR.BYTE, BIT_CLEAR, GPIO_PWPR_PFSWE_SHIFT, GPIO_PWPR_PFSWE);
+    }
+    if (reg_backup & GPIO_PWPR_B0WI) { // Before change, B0WI bit was set.
+        REG_8W(&GPIO.PWPR.BYTE, BIT_SET, GPIO_PWPR_B0WI_SHIFT, GPIO_PWPR_B0WI);
+    }
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_PortSet() */
+
+/******************************************************************************
+* Function Name: R_CAN_SetBitrate
+* Description  : Sets clock speed and bit rate for CAN as defined in
+*                r_can_rz_config.h.
+* Arguments    : ch_nr -
+*                    Channel number (0=CH0、1=CH1)
+* Return Value : none
+******************************************************************************/
+void R_CAN_SetBitrate(const uint8_t ch_nr)
+{
+    /* Configure RSCFDnCFDCmNCFG */
+    REG_32W((&RCANFD.RSCFD0CFDC0NCFG.LONG + (ch_nr * 0x10) / 4), g_BitrateTable[ch_nr][0], REG_NONSHIFT, REG_NONMASK);
+
+    /* Configure RSCFDnCFDCmDCFG */
+    REG_32W((&RCANFD.RSCFD0CFDC0DCFG.LONG + (ch_nr * 0x20) / 4), g_BitrateTable[ch_nr][1], REG_NONSHIFT, REG_NONMASK);
+
+    /* Configure RSCFDnCFDCmFDCFG */
+    REG_32W((&RCANFD.RSCFD0CFDC0FDCFG.LONG + (ch_nr * 0x20) / 4), g_BitrateTable[ch_nr][2], REG_NONSHIFT, CFDCFG_MASK_FOR_BITRATE);
+
+} /* End of function R_CAN_SetBitrate() */
+
+/******************************************************************************
+* Function Name: Can_SetRxRule
+* Description  : Set receive rule for CAN as defined in r_can_rz_config.h.
+* Arguments    : rxrule0 -
+*                    Number of receive rules for channel 0
+*                rxrule1 -
+*                    Number of receive rules for channel 1
+* Return Value : none
+******************************************************************************/
+static void Can_SetRxRule(const uint8_t rxrule0, const uint8_t rxrule1)
+{
+    uint8_t total_rn, rule_page, page_ct;
+    uint32_t    i, j, k, ct;
+
+    rule_page = 0;
+    total_rn = rxrule0 + rxrule1;
+
+    /* Configure RSCFDnCFDGAFLCFG0 */
+    /* Set number of receive rules for channel 0 */
+    REG_32W(&RCANFD.RSCFD0CFDGAFLCFG0.LONG, rxrule0, GAFLCFG0_RNC0_SHIFT, GAFLCFG0_RNC0);
+    /* Set number of receive rules for channel 1 */
+    REG_32W(&RCANFD.RSCFD0CFDGAFLCFG0.LONG, rxrule1, GAFLCFG0_RNC1_SHIFT, GAFLCFG0_RNC1);
+
+    /* Enable writing of receive rules */
+    REG_32W(&RCANFD.RSCFD0CFDGAFLECTR.LONG, BIT_SET, GAFLECTR_AFLDAE_SHIFT, GAFLECTR_AFLDAE);
+
+    page_ct = total_rn >> 4;
+    j = 0;
+
+    for (k = 0; k < (uint32_t)(page_ct + 1); k++) {
+        if (k == page_ct) {
+            ct = (total_rn & 0x0F);
+        } else {
+            ct = 16;
+        }
+
+        /* Set receive rule table page */
+        REG_32W(&RCANFD.RSCFD0CFDGAFLECTR.LONG, rule_page, GAFLECTR_AFLPN_SHIFT, GAFLECTR_AFLPN);
+        for (i = 0; i < ct; i++) {
+            /* Configure RSCFDnCFDGAFLIDj */
+            REG_32W((&RCANFD.RSCFD0CFDGAFLID0.LONG + (i * 0x10) / 4), g_RxRuleTable[j][0], REG_NONSHIFT, REG_NONMASK);
+
+            /* Configure RSCFDnCFDGAFLMj */
+            REG_32W((&RCANFD.RSCFD0CFDGAFLM0.LONG + (i * 0x10) / 4), g_RxRuleTable[j][1], REG_NONSHIFT, REG_NONMASK);
+
+            /* Configure RSCFDnCFDGAFLP0_j */
+            REG_32W((&RCANFD.RSCFD0CFDGAFLP0_0.LONG + (i * 0x10) / 4), g_RxRuleTable[j][2], REG_NONSHIFT, REG_NONMASK);
+
+            /* Configure RSCFDnCFDGAFLP1_j */
+            if (rxrule0 == j) {
+                /* CH1 TRFIFO */
+                REG_32W((&RCANFD.RSCFD0CFDGAFLP1_0.LONG + (i * 0x10) / 4), 0x00001000, REG_NONSHIFT, REG_NONMASK);
+            }
+            if (0 == j) {
+                /* CH0 TRFIFO */
+                REG_32W((&RCANFD.RSCFD0CFDGAFLP1_0.LONG + (i * 0x10) / 4), 0x00000200, REG_NONSHIFT, REG_NONMASK);
+            }
+            j++;
+        }
+        rule_page++;
+    }
+
+    /* Disable writing of receive rules */
+    REG_32W(&RCANFD.RSCFD0CFDGAFLECTR.LONG, BIT_CLEAR, GAFLECTR_AFLDAE_SHIFT, GAFLECTR_AFLDAE);
+
+} /* End of function Can_SetRxRule() */
+
+/******************************************************************************
+* Function Name: Can_WaitRamInitOver
+* Description  : Wait for completion of CAN RAM initialization
+* Arguments    : none
+* Return Value : R_CAN_OK -
+*                    Action completed successfully.
+*                R_CAN_SW_RAM_ERR -
+*                    CAN RAM initialization was not completed.
+******************************************************************************/
+static uint8_t Can_WaitRamInitOver(void)
+{
+    uint8_t     api_status  = R_CAN_OK;
+    uint32_t    can_tmo_cnt = MAX_CAN_RAM_INIT_DELAY;
+
+    while ((REG_32R(&RCANFD.RSCFD0CFDGSTS.LONG, GSTS_GRAMINIT_SHIFT, GSTS_GRAMINIT) != BIT_CLEAR) && DEC_CHK_CAN_SW_TMR);
+    if (can_tmo_cnt == 0) {
+        api_status = R_CAN_SW_RAM_ERR;
+    }
+
+    return api_status;
+
+} /* End of function Can_WaitRamInitOver() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_TxSet
+* Description  : Set up buffer RAM to transmit.
+* Arguments    : tx_mode -
+*                    Select buffer type (TX_TRFIFO, TX_TXBUF, TX_QUEUE)
+*                idx_nr -
+*                    FIFO number or buffer number
+*                p_frame -
+*                    Transmit control infomation struct address
+*                p_buf -
+*                    Transmit data table address
+* Return value : R_CAN_OK -
+*                    The buffer RAM was set up for transmission.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The transmit mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The buffer number does not exist.
+*                R_CAN_ERR -
+*                    Setting buffer failed (Buffer is full).
+******************************************************************************/
+uint8_t R_CAN_TxSet(const uint8_t tx_mode, const uint8_t idx_nr, const can_frame_t *p_frame, const uint32_t *p_buf)
+{
+    uint32_t       i, loop_cnt;
+    uint32_t       write_data;
+    uint8_t        ch_nr;
+
+    loop_cnt = rcan_tr_data_cnt(p_frame->DLC);
+
+    switch (tx_mode) {
+        case TX_TRFIFO:
+            /* ---------- TX/Rx FIFO ---------- */
+
+            if (idx_nr >= TRFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* Get channel number corresponding to buffer number */
+            ch_nr = idx_nr / TRFIFO_NUM_PER_CH;
+
+            /* ---- Return if Tx/Rx FIFO is full ---- */
+            if (REG_32R((&RCANFD.RSCFD0CFDCFSTS0.LONG + idx_nr), CFSTS0_CFFLL_SHIFT, CFSTS0_CFFLL) == BIT_SET) {
+                return R_CAN_ERR;
+            }
+
+            REG_32W((&RCANFD.RSCFD0CFDCFCC0.LONG + idx_nr), BIT_SET, CFCC0_CFE_SHIFT, CFCC0_CFE);
+
+            /* ---- Send message into Tx/Rx FIFO if it is not full ---- */
+            /* Transmit/Receive FIFO Buffer Access ID Register */
+            write_data = (p_frame->ID << CFID0_CFID_SHIFT) |
+                         (p_frame->THDSE << CFID0_THLEN_SHIFT) |
+                         (p_frame->RTR << CFID0_CFRTR_SHIFT) |
+                         (p_frame->IDE << CFID0_CFIDE_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDCFID0.LONG + (0x80 * idx_nr) / 4), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit/Receive FIFO Buffer Access Pointer Register */
+            write_data = (p_frame->DLC << CFPTR0_CFDLC_SHIFT) | (p_frame->LBL << RCANFD_RSCFD0CFDCFPTR0_CFPTR_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDCFPTR0.LONG + (0x80 * idx_nr) / 4), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit/Receive FIFO CAN FD Configuration/Status Register */
+            write_data = (p_frame->FDSTS << CFFDCSTS0_CFFDF_SHIFT) |
+                         (p_frame->BRS << CFFDCSTS0_CFBRS_SHIFT) |
+                         (p_frame->ESI << CFFDCSTS0_CFESI_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDCFFDCSTS0.LONG + (0x80 * idx_nr) / 4), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit/Receive FIFO Buffer Access Data Field Register */
+            for (i = 0; i < loop_cnt; i++) {
+                REG_32W((&RCANFD.RSCFD0CFDCFDF0_0.LONG + ((0x04 * i) + (0x80 * idx_nr)) / 4), *(p_buf++), REG_NONSHIFT, REG_NONMASK);
+            }
+            break;
+        case TX_TXBUF:
+            /* ---------- TX Buffer ---------- */
+            if (idx_nr >= TXBUF_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            ch_nr = idx_nr / TXBUF_PER_CH; // Get channel number corresponding to buffer number
+
+            /* ---- Return if Tx Buffer is in use ---- */
+            if (REG_8R((&RCANFD.RSCFD0CFDTMSTS0.BYTE + idx_nr), TMSTS0_TMTRM_SHIFT, TMSTS0_TMTRM) == BIT_SET) {
+                return R_CAN_ERR;
+            }
+            /* Clear Transmit Buffer Transmit Result Flag */
+            REG_8W((&RCANFD.RSCFD0CFDTMSTS0.BYTE + idx_nr), VAL_CLEAR, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit Buffer ID Register */
+            write_data = (p_frame->ID << TMID0_TMID_SHIFT) |
+                         (p_frame->THDSE << TMID0_THLEN_SHIFT) |
+                         (p_frame->RTR << TMID0_TMRTR_SHIFT) |
+                         (p_frame->IDE << TMID0_TMIDE_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDTMID0.LONG + (0x20 * idx_nr / 4)), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit Buffer Pointer Register */
+            write_data = (p_frame->LBL << TMPTR0_TMPTR_SHIFT) | (p_frame->DLC << TMPTR0_TMDLC_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDTMPTR0.LONG + (0x20 * idx_nr / 4)), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit Buffer CAN FD Configuration Register */
+            write_data = (p_frame->FDSTS << TMFDCTR0_TMFDF_SHIFT) |
+                         (p_frame->BRS << TMFDCTR0_TMBRS_SHIFT) |
+                         (p_frame->ESI << TMFDCTR0_TMESI_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDTMFDCTR0.LONG + (0x20 * idx_nr / 4)), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            for (i = 0; i < loop_cnt; i++) {
+                /* Transmit Buffer Data Field Register */
+                REG_32W((&RCANFD.RSCFD0CFDTMDF0_0.LONG + ((0x04 * i) + (0x20 * idx_nr)) / 4), *(p_buf++), REG_NONSHIFT, REG_NONMASK);
+            }
+            break;
+        case TX_QUEUE:
+            /* ---------- TX Queue ---------- */
+            if ((idx_nr >= TXBUF_MAX) || (idx_nr & 0xF) != 0xF) { // idx_nr = m*16+15 (m = channel number)
+                return R_CAN_SW_BAD_IDX;
+            }
+            ch_nr = idx_nr / TXBUF_PER_CH; // Get channel number corresponding to buffer number
+
+            /* ---- Return if Tx QUEUE is full ---- */
+            if (REG_32R(&RCANFD.RSCFD0CFDTXQSTS0.LONG + ch_nr, TXQSTS0_TXQFLL_SHIFT, TXQSTS0_TXQFLL) == BIT_SET) {
+                return R_CAN_ERR;
+            }
+            /* Transmit Queue Enable */
+            REG_32W(&RCANFD.RSCFD0CFDTXQCC0.LONG + ch_nr, BIT_SET, TXQCC0_TXQE_SHIFT, TXQCC0_TXQE);
+
+            /* Transmit Buffer ID Register */
+            write_data = (p_frame->ID << TMID0_TMID_SHIFT) |
+                         (p_frame->THDSE << TMID0_THLEN_SHIFT) |
+                         (p_frame->RTR << TMID0_TMRTR_SHIFT) |
+                         (p_frame->IDE << TMID0_TMIDE_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDTMID0.LONG + (0x20 * idx_nr / 4)), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit Buffer Pointer Register */
+            write_data = (p_frame->LBL << TMPTR0_TMPTR_SHIFT) | (p_frame->DLC << TMPTR0_TMDLC_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDTMPTR0.LONG + (0x20 * idx_nr / 4)), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit Buffer CAN FD Configuration Register */
+            write_data = (p_frame->FDSTS << TMFDCTR0_TMFDF_SHIFT) |
+                         (p_frame->BRS << TMFDCTR0_TMBRS_SHIFT) |
+                         (p_frame->ESI << TMFDCTR0_TMESI_SHIFT);
+            REG_32W((&RCANFD.RSCFD0CFDTMFDCTR0.LONG + (0x20 * idx_nr / 4)), write_data, REG_NONSHIFT, REG_NONMASK);
+
+            /* Transmit Buffer Data Field Register */
+            for (i = 0; i < loop_cnt; i++) {
+                REG_32W((&RCANFD.RSCFD0CFDTMDF0_0.LONG + ((0x04 * i) + (0x20 * idx_nr)) / 4), *(p_buf++), REG_NONSHIFT, REG_NONMASK);
+            }
+            break;
+        default:
+            return R_CAN_BAD_MODE_TYPE;
+            break;
+    }
+
+    if (p_frame->THDSE == BIT_SET) {
+        /* Enable Transmit History Buffer */
+        REG_32W((&RCANFD.RSCFD0CFDTHLCC0.LONG + ch_nr), BIT_SET, THLCC0_THLE_SHIFT, THLCC0_THLE);
+    }
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_TxSet() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_Tx
+* Description  : Starts actual message transmission onto the CAN bus.
+* Arguments    : tx_mode -
+*                    Select buffer type (TX_TRFIFO, TX_TXBUF, TX_QUEUE)
+*                idx_nr -
+*                    FIFO number or buffer number
+*                one_shot_en -
+*                    One-Shot Transmission enable (ENABLE, DISABLE)
+*                    Valid only when TX_TXBUF is selected
+* Return Value : R_CAN_OK -
+*                    The buffer RAM was set up for transmission.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The transmit mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The buffer number does not exist.
+*                R_CAN_BAD_ONESHOT_TYPE -
+*                    One-Shot Transmission setting is invalid.
+******************************************************************************/
+uint8_t R_CAN_Tx(const uint8_t tx_mode, const uint8_t idx_nr, const uint8_t one_shot_en)
+{
+    uint8_t  ch_nr;
+
+    switch (tx_mode) {
+        case TX_TRFIFO:
+            /* ---------- TX/Rx FIFO ---------- */
+            if (idx_nr >= TRFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+
+            /* ---- Increment Tx/Rx FIFO buffer pointer ---- */
+            /* Move the write pointer to the next stage of the transmit/receiveFIFO buffer. */
+            REG_32W((&RCANFD.RSCFD0CFDCFPCTR0.LONG + (0x4 * idx_nr) / 4), CAN_FIFO_PTR_INC, REG_NONSHIFT, REG_NONMASK);
+            break;
+        case TX_TXBUF:
+            /* ---------- TX buffer ---------- */
+            if (idx_nr >= TXBUF_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+
+            /* ---- Increment Tx buffer  ---- */
+            if (one_shot_en == ENABLE) {
+                REG_8W((&RCANFD.RSCFD0CFDTMC0.BYTE + idx_nr), ONE_SHOT_TRANSMIT, REG_NONSHIFT, REG_NONMASK);
+            } else if (one_shot_en == DISABLE) {
+                /* Transmits the message stored in the transmit buffer. */
+                REG_8W((&RCANFD.RSCFD0CFDTMC0.BYTE + idx_nr), BIT_SET, TMC0_TMTR_SHIFT, TMC0_TMTR);
+            } else {
+                return R_CAN_BAD_ONESHOT_TYPE;
+            }
+            break;
+        case TX_QUEUE:
+            /* ---------- TX Queue ---------- */
+            if ((idx_nr >= TXBUF_MAX) || (idx_nr & 0xF) != 0xF) { // idx_nr = m*16+15 (m = channel number)
+                return R_CAN_SW_BAD_IDX;
+            }
+            ch_nr = idx_nr / TXBUF_PER_CH; // Get channel number corresponding to buffer number
+
+            /* ---- Increment Queue  ---- */
+            /* Move the write pointer of the transmit queue to the next queue buffer. */
+            REG_32W((&RCANFD.RSCFD0CFDTXQPCTR0.LONG + (ch_nr * 4) / 4), CAN_QUEUE_PTR_INC, TXQPCTR0_TXQPC_SHIFT, TXQPCTR0_TXQPC);
+            break;
+        default:
+            return R_CAN_BAD_MODE_TYPE;
+            break;
+    }
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_Tx() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_TxCheck
+* Description  : Check data frame transmission complete.
+* Arguments    : tx_mode -
+*                    Select buffer type (TX_TRFIFO, TX_TXBUF, TX_QUEUE)
+*                idx_nr -
+*                    FIFO number or buffer number
+* Return Value : R_CAN_OK -
+*                    Transmission was completed successfully.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The transmit mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The buffer number does not exist.
+*                R_CAN_NO_SENTDATA -
+*                    No message was sent.
+******************************************************************************/
+uint8_t R_CAN_TxCheck(const uint8_t tx_mode, const uint8_t idx_nr)
+{
+    uint32_t  tx_sts;    // Transmit status
+    uint32_t  ch_nr;     // Channel number
+
+    switch (tx_mode) {
+        case TX_TRFIFO:
+            /* ---------- TX/Rx FIFO ---------- */
+            if (idx_nr >= TRFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* ---- Transmit/Receive FIFO Buffer Status Register ---- */
+            /* Check Transmit/Receive FIFO Buffer Empty Status Flag */
+            tx_sts = REG_32R((&RCANFD.RSCFD0CFDCFSTS0.LONG + (0x4 * idx_nr) / 4), CFSTS0_CFEMP_SHIFT, CFSTS0_CFEMP);
+            if (tx_sts == VAL_CLEAR) {
+                return R_CAN_NO_SENTDATA;
+            }
+            break;
+        case TX_TXBUF:
+            /* ---------- TX buffer ---------- */
+            if (idx_nr >= TXBUF_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* ---- Transmit Buffer Status Register ---- */
+            /* Transmit Buffer Transmit Result Status Flag */
+            tx_sts = REG_8R((&RCANFD.RSCFD0CFDTMSTS0.BYTE + idx_nr), TMSTS0_TMTRF_SHIFT, TMSTS0_TMTRF);
+            if ((tx_sts == PROGRESS_OR_NOREQUEST) | (tx_sts == ABORT_COMPLETE)) {
+                return R_CAN_NO_SENTDATA;
+            }
+            break;
+        case TX_QUEUE:
+            /* ---------- TX Queue ---------- */
+            if ((idx_nr >= TXBUF_MAX) || (idx_nr & 0xF) != 0xF) { // idx_nr = m*16+15 (m = channel number)
+                return R_CAN_SW_BAD_IDX;
+            }
+            ch_nr = idx_nr / TXBUF_PER_CH; // Get channel number corresponding to buffer number
+
+            /* ---- Transmit Queue Status Register ---- */
+            /* Transmit Queue Empty Status Flag */
+            tx_sts = REG_32R((&RCANFD.RSCFD0CFDTXQSTS0.LONG + ch_nr), TXQSTS0_TXQEMP_SHIFT, TXQSTS0_TXQEMP);
+            if (tx_sts == 0) {
+                return R_CAN_NO_SENTDATA;
+            }
+            break;
+        default:
+            return R_CAN_BAD_MODE_TYPE;
+            break;
+    }
+    return R_CAN_OK;
+
+} /* End of function R_CAN_TxCheck() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_TxStopMsg
+* Description  : Abort a CAN transmission
+* Arguments    : tx_mode -
+*                    Select buffer type (TX_TRFIFO, TX_TXBUF, TX_QUEUE)
+*                idx_nr -
+*                    FIFO number or buffer number
+* Return Value : R_CAN_OK -
+*                    Action completed successfully.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The transmit mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The FIFO or buffer number does not exist.
+******************************************************************************/
+uint8_t R_CAN_TxStopMsg(const uint8_t tx_mode, const uint8_t idx_nr)
+{
+    uint32_t  tx_sts;    // Transmit status
+    uint8_t   ch_nr;     // Channel number
+
+    switch (tx_mode) {
+        case TX_TRFIFO:
+            /* ---------- TX/Rx FIFO ---------- */
+            if (idx_nr >= TRFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* Configure RSCFDnCFDCFCCk */
+            /* Transmit/Receive FIFO Buffer Enable bit */
+            REG_32W((&RCANFD.RSCFD0CFDCFCC0.LONG + (0x4 * idx_nr) / 4), BIT_CLEAR, CFCC0_CFE_SHIFT, CFCC0_CFE);
+            break;
+        case TX_TXBUF:
+            /* ---------- TX buffer ---------- */
+            if (idx_nr >= TXBUF_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* Transmit Buffer Control Register  */
+            /* Transmit Request bit */
+            tx_sts = REG_8R((&RCANFD.RSCFD0CFDTMC0.BYTE + idx_nr), TMC0_TMTR_SHIFT, TMC0_TMTR);
+            if (tx_sts == BIT_SET) {
+                /* ---- Set transmission abort request ---- */
+                /* Transmit Buffer Control Register */
+                REG_8W((&RCANFD.RSCFD0CFDTMC0.BYTE + idx_nr), BIT_SET, TMC0_TMTAR_SHIFT, TMC0_TMTAR);
+            }
+            break;
+        case TX_QUEUE:
+            /* ---------- TX Queue ---------- */
+            if ((idx_nr >= TXBUF_MAX) || (idx_nr & 0xF) != 0xF) { // idx_nr = m*16+15 (m = channel number)
+                return R_CAN_SW_BAD_IDX;
+            }
+
+            /* Get channel number corresponding to buffer number */
+            ch_nr = idx_nr / TXBUF_PER_CH;
+
+            /* Transmit Queue Configuration and Control Register  */
+            /* Transmit Queue Enable bit */
+            REG_32W((&RCANFD.RSCFD0CFDTXQCC0.LONG + (ch_nr * 4) / 4), BIT_CLEAR, TXQCC0_TXQE_SHIFT, TXQCC0_TXQE);
+            break;
+        default:
+            return R_CAN_BAD_MODE_TYPE;
+            break;
+    }
+    return R_CAN_OK;
+
+} /* End of function R_CAN_TxStopMsg() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_TxHis
+* Description  : Copy data from transmit history buffer to memory.
+* Arguments    : ch_nr -
+*                    Channel number
+*                p_buf -
+*                    Copy destination address of history data
+*
+* Return Value : R_CAN_OK -
+*                    Transmission history read complete.
+*                R_CAN_BAD_CH_NR -
+*                    The channel number does not exist.
+*                R_CAN_BUF_OVERFLOW -
+*                    Transmission history read complete (buffer overflow was occured).
+*                R_CAN_BUF_EMPTY -
+*                    Transmission history buffer is empty.
+******************************************************************************/
+uint8_t R_CAN_TxHis(const uint8_t ch_nr, uint32_t *p_buf)
+{
+    uint8_t     api_status  = R_CAN_OK;
+    uint32_t    msg_num;
+    uint32_t    *p_buf_top;
+
+    p_buf_top = p_buf;
+    msg_num = 0;
+
+    if (ch_nr >= MAX_CHANNELS) {
+        return R_CAN_BAD_CH_NR;
+    }
+
+    /* Transmit History Buffer Empty Status Flag */
+    if (REG_32R((&RCANFD.RSCFD0CFDTHLSTS0.LONG + ch_nr), THLSTS0_THLEMP_SHIFT, THLSTS0_THLEMP) == BIT_SET) {
+        return R_CAN_BUF_EMPTY;
+    }
+    /* Transmit History Buffer Overflow Flag */
+    if (REG_32R((&RCANFD.RSCFD0CFDTHLSTS0.LONG + ch_nr), THLSTS0_THLELT_SHIFT, THLSTS0_THLELT) == BIT_SET) {
+        /* Transmit History Buffer Overflow Flag Clear */
+        api_status = R_CAN_BUF_OVERFLOW;
+        REG_32W((&RCANFD.RSCFD0CFDTHLSTS0.LONG + ch_nr), THLSTS_THLELT_CLR, REG_NONSHIFT, REG_NONMASK);
+    }
+
+    p_buf++;
+    while (REG_32R((&RCANFD.RSCFD0CFDTHLSTS0.LONG + ch_nr), THLSTS0_THLEMP_SHIFT, THLSTS0_THLEMP) == BIT_CLEAR) {
+        /* Transmit History List Access Register */
+        *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDTHLACC0.LONG + ch_nr), REG_NONSHIFT, REG_NONMASK);
+        /* Move the read pointer to the next unread data in the transmit history buffer. */
+        REG_32W((&RCANFD.RSCFD0CFDTHLPCTR0.LONG + ch_nr), CAN_FIFO_PTR_INC, REG_NONSHIFT, REG_NONMASK);
+
+        msg_num++;
+    }
+
+    *p_buf_top = msg_num;  /* Stores the number of read data at the top address of the buffer */
+
+    return api_status;
+
+} /* End of function R_CAN_TxHis() */
+
+/******************************************************************************
+* Function Name: R_CAN_RxSet
+* Description  : Enable buffer RAM to receive.
+* Arguments    : rx_mode -
+*                    Select buffer type (RX_TRFIFO, RX_RXFIFO, RX_RXBUF)
+*                idx_nr -
+*                    FIFO number or buffer number
+* Return Value : R_CAN_OK -
+*                    The buffer RAM was set up for transmission.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The receive mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The buffer number does not exist.
+******************************************************************************/
+uint8_t R_CAN_RxSet(const uint8_t rx_mode, const uint8_t idx_nr)
+{
+    switch (rx_mode) {
+        case RX_TRFIFO:
+            if (idx_nr >= TRFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* ---- TR FIFO Setting ---- */
+            /* Configure RSCFDnCFDCFCCk */
+            /* Transmit/Receive FIFO Buffer Enable */
+            REG_32W((&RCANFD.RSCFD0CFDCFCC0.LONG + idx_nr), BIT_SET, CFCC0_CFE_SHIFT, CFCC0_CFE);
+            break;
+        case RX_RXFIFO:
+            if (idx_nr >= RXFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* ---- RX FIFO Setting ---- */
+            /* Configure RSCFDnCFDCFCCk */
+            /* Receive FIFO Buffer Enable */
+            REG_32W((&RCANFD.RSCFD0CFDRFCC0.LONG + idx_nr), BIT_SET, RFCC0_RFE_SHIFT, RFCC0_RFE);
+            break;
+        case RX_RXBUF:
+            break;
+        default:
+            return R_CAN_BAD_MODE_TYPE;
+            break;
+    }
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_RxSet() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_RxPoll
+* Description  : Checks for received message in buffer RAM.
+* Arguments    : rx_mode -
+*                    Select buffer type (RX_TRFIFO, RX_RXFIFO, RX_RXBUF)
+*                idx_nr -
+*                    FIFO number or buffer number
+* Return Value : R_CAN_OK -
+*                    There is a message waiting.
+*                R_CAN_NOT_OK -
+*                    No message waiting.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The receive mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The buffer number does not exist.
+******************************************************************************/
+uint8_t R_CAN_RxPoll(const uint8_t rx_mode, const uint8_t idx_nr)
+{
+    uint32_t    rx_rmnd;
+
+    switch (rx_mode) {
+        case RX_TRFIFO:
+            if (idx_nr >= TRFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* ----  Check if any unread message is available in common TX/RxFIFO ---- */
+            /* Transmit/Receive FIFO Buffer Empty Status Flag */
+            if (REG_32R((&RCANFD.RSCFD0CFDCFSTS0.LONG + idx_nr), CFSTS0_CFEMP_SHIFT, CFSTS0_CFEMP) == BIT_SET) {
+                return R_CAN_NOT_OK ;
+            }
+            break;
+        case RX_RXFIFO:
+            if (idx_nr >= RXFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+            /* ----  Check if any unread message is available in common RxFIFO ---- */
+            /* Receive FIFO Buffer Empty Status Flag */
+            if (REG_32R((&RCANFD.RSCFD0CFDRFSTS0.LONG + idx_nr), RFSTS0_RFEMP_SHIFT, RFSTS0_RFEMP) == BIT_SET) {
+                return R_CAN_NOT_OK ;
+            }
+            break;
+        case RX_RXBUF:
+            if (idx_nr >= RXBUF_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+
+            rx_rmnd = REG_32R(&RCANFD.RSCFD0CFDRMND0.LONG, REG_NONSHIFT, REG_NONMASK);
+
+            if (((rx_rmnd >> idx_nr) & BIT00_MASK) == 0) {  // Check Receive Buffer Receive Complete Flag
+                return R_CAN_NOT_OK;
+            }
+            break;
+        default:
+            return R_CAN_BAD_MODE_TYPE;
+            break;
+    }
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_RxPoll() */
+
+/******************************************************************************
+* Function Name: R_CAN_RxRead
+* Description  : Copy received data from message mailbox to memory.
+* Arguments    : rx_mode -
+*                    Select buffer type (RX_TRFIFO, RX_RXFIFO, RX_RXBUF)
+*                idx_nr -
+*                    FIFO number or buffer number
+*                p_buf -
+*                    Copy destination address of received data
+* Return Value : R_CAN_OK -
+*                    Succeeded in acquiring received data.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The receive mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The FIFO or buffer number does not exist.
+*                R_CAN_NOT_OK -
+*                    No message waiting.
+*                R_CAN_MSGLOST -
+*                    Message was lost.
+******************************************************************************/
+uint8_t R_CAN_RxRead(const uint8_t rx_mode, const uint8_t idx_nr, uint32_t *p_buf)
+{
+    uint32_t    rx_rmnd;
+    uint32_t    i, loop_cnt;
+    uint32_t    msg_num;
+    uint8_t     dlc;
+    uint32_t    *p_buf_top;
+    uint8_t     api_status  = R_CAN_OK;
+
+    p_buf_top = p_buf;
+    msg_num = 0;
+
+    switch (rx_mode) {
+        case RX_TRFIFO:
+            /* ---------- TX/Rx FIFO ---------- */
+            if (idx_nr >= TRFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+
+            if (REG_32R((&RCANFD.RSCFD0CFDCFSTS0.LONG + idx_nr), CFSTS0_CFEMP_SHIFT, CFSTS0_CFEMP) == BIT_SET) {
+                return R_CAN_NOT_OK;    /* There is no new receive message */
+            }
+
+            /* ---- Check if common (Tx/Rx) FIFO has message lost ---- */
+            if (REG_32R((&RCANFD.RSCFD0CFDCFSTS0.LONG + (0x4 * idx_nr) / 4), CFSTS0_CFMLT_SHIFT, CFSTS0_CFMLT) == BIT_SET) {
+                api_status = R_CAN_MSGLOST;
+                /* ---- Clear message lost flag ---- */
+                REG_32W((&RCANFD.RSCFD0CFDCFSTS0.LONG + (0x4 * idx_nr) / 4), CFSTS_CFMLT_CLR, REG_NONSHIFT, REG_NONMASK);
+            }
+
+            p_buf++;
+            while (REG_32R((&RCANFD.RSCFD0CFDCFSTS0.LONG + idx_nr), CFSTS0_CFEMP_SHIFT, CFSTS0_CFEMP) == BIT_CLEAR) {
+                /* ---- Read out message from common (Tx/Rx) FIFO ---- */
+                *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDCFID0.LONG + (0x80 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+                *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDCFPTR0.LONG + (0x80 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+                dlc = REG_32R((&RCANFD.RSCFD0CFDCFPTR0.LONG + (0x80 * idx_nr) / 4), CFPTR0_CFDLC_SHIFT, CFPTR0_CFDLC);
+                *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDCFFDCSTS0.LONG + (0x80 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+
+                loop_cnt = rcan_tr_data_cnt(dlc);
+                for (i = 0; i < loop_cnt; i++) {
+                    *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDCFDF0_0.LONG + (0x80 * idx_nr) / 4 + i), REG_NONSHIFT, REG_NONMASK);
+                }
+
+                /* ---- Increment common (Tx/Rx) FIFO buffer pointer ---- */
+                REG_32W((&RCANFD.RSCFD0CFDCFPCTR0.LONG + idx_nr), CAN_FIFO_PTR_INC, CFPCTR0_CFPC_SHIFT, CFPCTR0_CFPC);
+
+                msg_num++;
+                p_buf = p_buf_top + (RX_MSG_MAX_SIZE * msg_num / 4) + 1;
+
+            }
+            *p_buf_top = msg_num;  /* Stores the number of read data at the top address of the buffer */
+            break;
+        case RX_RXFIFO:
+            /* ---------- Rx FIFO ---------- */
+            if (idx_nr >= RXFIFO_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+
+            if (REG_32R((&RCANFD.RSCFD0CFDRFSTS0.LONG + idx_nr), RFSTS0_RFEMP_SHIFT, RFSTS0_RFEMP) == BIT_SET) {
+                return R_CAN_NOT_OK;    /* There is no new receive message */
+            }
+            /* ---- Check if Rx FIFO has message lost ---- */
+            if (REG_32R((&RCANFD.RSCFD0CFDRFSTS0.LONG + idx_nr), RFSTS0_RFMLT_SHIFT, RFSTS0_RFMLT) == BIT_SET) {
+                api_status = R_CAN_MSGLOST;
+                /* ---- Clear message lost flag ---- */
+                REG_32W((&RCANFD.RSCFD0CFDRFSTS0.LONG + idx_nr), RFSTS_RFMLT_CLR, REG_NONSHIFT, REG_NONMASK);
+            }
+
+            p_buf++;
+            while (REG_32R((&RCANFD.RSCFD0CFDRFSTS0.LONG + idx_nr), RFSTS0_RFEMP_SHIFT, RFSTS0_RFEMP) == BIT_CLEAR) {
+                /* ---- Read out message from Rx FIFO ---- */
+                *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDRFID0.LONG + (0x80 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+                *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDRFPTR0.LONG + (0x80 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+                dlc = REG_32R((&RCANFD.RSCFD0CFDRFPTR0.LONG + (0x80 * idx_nr) / 4), RFPTR0_RFDLC_SHIFT, RFPTR0_RFDLC);
+                *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDRFFDSTS0.LONG + (0x80 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+
+                loop_cnt = rcan_tr_data_cnt(dlc);
+                for (i = 0; i < loop_cnt; i++) {
+                    *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDRFDF0_0.LONG + (0x80 * idx_nr) / 4 + i), REG_NONSHIFT, REG_NONMASK);
+                }
+
+                REG_32W((&RCANFD.RSCFD0CFDRFPCTR0.LONG + (0x4 * idx_nr) / 4), CAN_FIFO_PTR_INC, RFPCTR0_RFPC_SHIFT, RFPCTR0_RFPC);
+
+                msg_num++;
+                p_buf = p_buf_top + (RX_MSG_MAX_SIZE * msg_num / 4) + 1;
+
+            }
+            *p_buf_top = msg_num;  /* Stores the number of read data at the top address of the buffer */
+            break;
+        case RX_RXBUF:
+            /* ---------- Rx Buffer ---------- */
+            if (idx_nr >= RXBUF_MAX) {
+                return R_CAN_SW_BAD_IDX;
+            }
+
+            /* Receive Buffer New Data Register */
+            rx_rmnd = REG_32R(&RCANFD.RSCFD0CFDRMND0.LONG, REG_NONSHIFT, REG_NONMASK);
+
+            if (((rx_rmnd >> idx_nr) & BIT00_MASK) == 0) {
+                return R_CAN_NOT_OK;    /* There is no new receive message */
+            }
+            /* Receive Buffer Receive Complete Flag clear */
+            REG_32W(&RCANFD.RSCFD0CFDRMND0.LONG, (~rx_rmnd), REG_NONSHIFT, REG_NONMASK);
+
+            *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDRMID0.LONG + (0x20 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+            *p_buf = REG_32R((&RCANFD.RSCFD0CFDRMPTR0.LONG + (0x20 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+            dlc = (*(p_buf++) & RMPTR0_RMDLC) >> RMPTR0_RMDLC_SHIFT;
+            *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDRMFDSTS0.LONG + (0x20 * idx_nr) / 4), REG_NONSHIFT, REG_NONMASK);
+            loop_cnt = rcan_tr_data_cnt(dlc);
+            for (i = 0; i < loop_cnt; i++) {
+                *(p_buf++) = REG_32R((&RCANFD.RSCFD0CFDRMDF0_0.LONG + (0x20 * idx_nr) / 4 + i), REG_NONSHIFT, REG_NONMASK);
+            }
+            break;
+        default:
+            return R_CAN_BAD_MODE_TYPE;
+            break;
+    }
+
+    return api_status;
+
+} /* End of function R_CAN_RxRead() */
+
+
+/*******************************************************************************
+* Function name:  R_CAN_CheckErr
+* Description:    Checks CAN peripheral error state.
+* Arguments:      ch_nr -
+*                     Channel number (0=CH0、1=CH1)
+* Return value:   R_CAN_STATUS_ERROR_ACTIVE -
+*                     No error
+*                 R_CAN_STATUS_ERROR_PASSIVE -
+*                     CAN is in error passive state
+*                 R_CAN_STATUS_BUSOFF -
+*                     CAN is in bus-off state
+*                 R_CAN_BAD_CH_NR -
+*                    The channel number does not exist.
+*******************************************************************************/
+uint8_t R_CAN_CheckErr(const uint8_t ch_nr)
+{
+    uint8_t api_status = R_CAN_STATUS_ERROR_ACTIVE;
+
+    if (ch_nr >= MAX_CHANNELS) {
+        return R_CAN_BAD_CH_NR;
+    }
+
+    /* Check CAN error state */
+    /* Check error-passive state */
+    if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (0x10 * ch_nr) / 4), C0STS_EPSTS_SHIFT, C0STS_EPSTS) == BIT_SET) {
+        api_status = R_CAN_STATUS_ERROR_PASSIVE;
+    }
+    /* Check if bus off state */
+    else if (REG_32R((&RCANFD.RSCFD0CFDC0STS.LONG + (0x10 * ch_nr) / 4), C0STS_BOSTS_SHIFT, C0STS_BOSTS) == BIT_SET) {
+        api_status = R_CAN_STATUS_BUSOFF;
+    }
+    return api_status;
+
+} /* End of function R_CAN_CheckErr() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_Gateway
+* Description  : Enabling the Transmit/Receive FIFO for Gateway
+* Arguments    : idx_nr -
+*                    FIFO number
+* Return Value : R_CAN_OK -
+*                    Succeeded in Enabling the Transmit/Receive FIFO for Gateway
+*                R_CAN_SW_BAD_IDX -
+*                    The FIFO or buffer number does not exist.
+******************************************************************************/
+uint8_t R_CAN_Gateway(const uint8_t idx_nr)
+{
+    if (idx_nr >= TRFIFO_MAX) {
+        return R_CAN_SW_BAD_IDX;
+    }
+    /* ---- TR FIFO Setting ---- */
+    /* Configure RSCFDnCFDCFCCk */
+    /* Transmit/Receive FIFO Buffer Enable */
+    REG_32W((&RCANFD.RSCFD0CFDCFCC0.LONG + (0x4 * idx_nr) / 4), BIT_SET, CFCC0_CFE_SHIFT, CFCC0_CFE);
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_Gateway() */
+
+
+
+/******************************************************************************
+* Function Name: R_CAN_RamTest
+* Description  : Execute CAN RAM test
+* Arguments    : wr_dt -
+*                    Write data to CAN RAM
+* Return Value : R_CAN_OK -
+*                    Test Pass
+*                R_CAN_NOT_OK -
+*                    Test Fail
+*                R_CAN_GLB_TEST_ERR -
+*                    The CAN peripheral did not enter global test mode.
+******************************************************************************/
+uint8_t R_CAN_RamTest(const uint32_t wr_dt)
+{
+    uint8_t  api_status  = R_CAN_OK;
+    uint8_t  loop_cnt;
+    uint8_t  page;
+    uint32_t rd_dt;
+
+    /* Change Global Test mode */
+    if (R_CAN_Control(UNUSED, GLOBAL_TEST) != R_CAN_OK) {
+        return R_CAN_GLB_TEST_ERR;
+    }
+
+    /* Enable RAM TEST */
+    REG_32W(&RCANFD.RSCFD0CFDGLOCKK.LONG, RAM_TEST_PROTECT_RELEASE_CODE_1, REG_NONSHIFT, REG_NONMASK);
+    REG_32W(&RCANFD.RSCFD0CFDGLOCKK.LONG, RAM_TEST_PROTECT_RELEASE_CODE_2, REG_NONSHIFT, REG_NONMASK);
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCTR.LONG, BIT_SET, GTSTCTR_RTME_SHIFT, GTSTCTR_RTME);
+
+    /* ---- RAM TEST ---- */
+    for (page = 0; page < 0x1B; page++) {
+        REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, page, GTSTCFG_RTMPS_SHIFT, GTSTCFG_RTMPS);
+
+        for (loop_cnt = 0; loop_cnt < 64; loop_cnt++) {
+            REG_32W((&RCANFD.RSCFD0CFDRPGACC0.LONG + loop_cnt), wr_dt, REG_NONSHIFT, REG_NONMASK);
+            rd_dt = REG_32R((&RCANFD.RSCFD0CFDRPGACC0.LONG + loop_cnt), REG_NONSHIFT, REG_NONMASK);
+            if (rd_dt != wr_dt) {
+                api_status = R_CAN_NOT_OK;
+            }
+        }
+    }
+
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, page, GTSTCFG_RTMPS_SHIFT, GTSTCFG_RTMPS);
+    for (loop_cnt = 0; loop_cnt < 48; loop_cnt++) {
+        REG_32W((&RCANFD.RSCFD0CFDRPGACC0.LONG + loop_cnt), wr_dt, REG_NONSHIFT, REG_NONMASK);
+        rd_dt = REG_32R((&RCANFD.RSCFD0CFDRPGACC0.LONG + loop_cnt), REG_NONSHIFT, REG_NONMASK);
+        if (rd_dt != wr_dt) {
+            api_status = R_CAN_NOT_OK;
+        }
+    }
+
+    /* ---- RAM CLEAR ---- */
+    for (page = 0; page < 0x1B; page++) {
+        REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, page, GTSTCFG_RTMPS_SHIFT, GTSTCFG_RTMPS);
+
+        for (loop_cnt = 0; loop_cnt < 64; loop_cnt++) {
+            REG_32W((&RCANFD.RSCFD0CFDRPGACC0.LONG + loop_cnt), RAM_INIT_DATA, REG_NONSHIFT, REG_NONMASK);
+        }
+    }
+
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, page, GTSTCFG_RTMPS_SHIFT, GTSTCFG_RTMPS);
+    for (loop_cnt = 0; loop_cnt < 48; loop_cnt++) {
+        REG_32W((&RCANFD.RSCFD0CFDRPGACC0.LONG + loop_cnt), RAM_INIT_DATA, REG_NONSHIFT, REG_NONMASK);
+    }
+
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCTR.LONG, BIT_CLEAR, GTSTCTR_RTME_SHIFT, GTSTCTR_RTME);
+
+    return api_status;
+
+} /* End of function R_CAN_RamTest() */
+
+
+/******************************************************************************
+* Function Name: R_CAN_CrcTest
+* Description  : Execute CRC test
+* Arguments    : tx_mode -
+*                    Select buffer type (TX_TRFIFO, TX_TXBUF, TX_QUEUE)
+*                tx_idx_nr -
+*                    FIFO number or buffer number for transmit
+*                p_frame -
+*                    Transmit control infomation struct address
+*                p_tx_buf -
+*                    Transmit data table address
+*                rx_mode -
+*                    Select buffer type (RX_TRFIFO, RX_RXFIFO, RX_RXBUF)
+*                rx_idx_nr -
+*                    FIFO number or buffer number for receive
+*                p_rx_buf -
+*                    Copy destination address of received data
+* Return Value : R_CAN_OK -
+*                    Test Pass
+*                R_CAN_CRC_ERR
+*                    CRC mismatch between transmitter and receiver
+*                R_CAN_ICC_TMO -
+*                    Inter-Channel Communication Time out
+*                R_CAN_GLB_TEST_ERR -
+*                    The CAN peripheral did not enter Global test mode
+*                R_CAN_GLB_OP_ERR -
+*                    The CAN peripheral did not enter global operating mode.
+*                R_CAN_CH_HALT_ERR -
+*                    The CAN peripheral did not enter channel halt mode.
+*                R_CAN_CH_COM_ERR -
+*                    The CAN peripheral did not enter channel communication mode.
+*                R_CAN_BAD_MODE_TYPE -
+*                    The transmit mode does not exist.
+*                R_CAN_SW_BAD_IDX -
+*                    The buffer number does not exist.
+*                R_CAN_ERR -
+*                    Setting buffer failed (Buffer is full).
+******************************************************************************/
+uint8_t R_CAN_CrcTest(const uint8_t tx_mode, const uint8_t tx_idx_nr,
+                      const can_frame_t *p_frame, const uint32_t *p_tx_buf,
+                      const uint8_t rx_mode, const uint8_t rx_idx_nr, uint32_t *p_rx_buf)
+{
+    uint8_t     api_status;
+    uint32_t    crc_0, crc_1;
+    uint32_t    can_tmo_cnt = MAX_CAN_ICC_DELAY;
+
+    /* ---- switch to Global test mode ---- */
+    if (R_CAN_Control(UNUSED, GLOBAL_TEST) != R_CAN_OK) {
+        return  R_CAN_GLB_TEST_ERR;
+    }
+
+    /* ---- switch to Channel halt mode ---- */
+    if (R_CAN_Control(CH_0, CHANNEL_HALT) != R_CAN_OK) {
+        return  R_CAN_CH_HALT_ERR;
+    }
+    if (R_CAN_Control(CH_1, CHANNEL_HALT) != R_CAN_OK) {
+        return  R_CAN_CH_HALT_ERR;
+    }
+
+    /* Inter-Channel Communication Test Enable */
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, BIT_SET, GTSTCFG_C0ICBCE_SHIFT, GTSTCFG_C0ICBCE);
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, BIT_SET, GTSTCFG_C1ICBCE_SHIFT, GTSTCFG_C1ICBCE);
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCTR.LONG, BIT_SET, GTSTCTR_ICBCTME_SHIFT, GTSTCTR_ICBCTME);
+
+    /* Standard test mode Enable */
+    REG_32W(&RCANFD.RSCFD0CFDC0CTR.LONG, STD_TEST, C0CTR_CTMS_SHIFT, C0CTR_CTMS);
+    REG_32W(&RCANFD.RSCFD0CFDC1CTR.LONG, STD_TEST, C1CTR_CTMS_SHIFT, C1CTR_CTMS);
+    REG_32W(&RCANFD.RSCFD0CFDC0CTR.LONG, BIT_SET, C0CTR_CTME_SHIFT, C0CTR_CTME);
+    REG_32W(&RCANFD.RSCFD0CFDC1CTR.LONG, BIT_SET, C1CTR_CTME_SHIFT, C1CTR_CTME);
+
+    /* ---- switch to Global operating mode ---- */
+    if (R_CAN_Control(UNUSED, GLOBAL_OPERATION) != R_CAN_OK) {
+        return R_CAN_GLB_OP_ERR;
+    }
+
+    /* ---- switch to Channel communication mode ---- */
+    if (R_CAN_Control(CH_0, CHANNEL_COM) != R_CAN_OK) {
+        return R_CAN_CH_COM_ERR;
+    }
+    if (R_CAN_Control(CH_1, CHANNEL_COM) != R_CAN_OK) {
+        return R_CAN_CH_COM_ERR;
+    }
+
+    /* ---- Transmit / Receive setting ---- */
+    api_status = R_CAN_TxSet(tx_mode, tx_idx_nr, p_frame, p_tx_buf);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+
+    api_status = R_CAN_RxSet(rx_mode, rx_idx_nr);
+    if (api_status != R_CAN_OK) {
+        return api_status;
+    }
+
+    /* ---- Execute transmission ---- */
+    R_CAN_Tx(tx_mode, tx_idx_nr, DISABLE);
+
+    do {
+        api_status = R_CAN_RxPoll(rx_mode, rx_idx_nr);
+    } while ((api_status == R_CAN_NOT_OK) && DEC_CHK_CAN_SW_TMR);
+
+    if (can_tmo_cnt == 0) {
+        return  R_CAN_ICC_TMO;
+    }
+    if (api_status != R_CAN_OK) {
+        return  api_status;
+    }
+
+    R_CAN_RxRead(rx_mode, rx_idx_nr, p_rx_buf);
+
+    /* ---- Compare CRC values ---- */
+    crc_0 = REG_32R(&RCANFD.RSCFD0CFDC0FDCRC.LONG, C0FDCRC_CRCREG_SHIFT, C0FDCRC_CRCREG);
+    crc_1 = REG_32R(&RCANFD.RSCFD0CFDC1FDCRC.LONG, C1FDCRC_CRCREG_SHIFT, C1FDCRC_CRCREG);
+
+    if (crc_0 != crc_1) {
+        return R_CAN_CRC_ERR;
+    }
+
+    /* ---- switch to Channel halt mode ---- */
+    if (R_CAN_Control(CH_0, CHANNEL_HALT) != R_CAN_OK) {
+        return  R_CAN_CH_HALT_ERR;
+    }
+    if (R_CAN_Control(CH_1, CHANNEL_HALT) != R_CAN_OK) {
+        return  R_CAN_CH_HALT_ERR;
+    }
+
+    REG_32W(&RCANFD.RSCFD0CFDC0CTR.LONG, BIT_CLEAR, C0CTR_CTME_SHIFT, C0CTR_CTME);
+    REG_32W(&RCANFD.RSCFD0CFDC1CTR.LONG, BIT_CLEAR, C1CTR_CTME_SHIFT, C1CTR_CTME);
+
+    /* ---- switch to Global test mode ---- */
+    if (R_CAN_Control(UNUSED, GLOBAL_TEST) != R_CAN_OK) {
+        return  R_CAN_GLB_TEST_ERR;
+    }
+
+    /* Inter-Channel Communication Test Disable */
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCTR.LONG, BIT_CLEAR, GTSTCTR_ICBCTME_SHIFT, GTSTCTR_ICBCTME);
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, BIT_CLEAR, GTSTCFG_C0ICBCE_SHIFT, GTSTCFG_C0ICBCE);
+    REG_32W(&RCANFD.RSCFD0CFDGTSTCFG.LONG, BIT_CLEAR, GTSTCFG_C1ICBCE_SHIFT, GTSTCFG_C1ICBCE);
+
+    return R_CAN_OK;
+
+} /* End of function R_CAN_CrcTest() */
+
+/*********************************************************************************
+
+
+        C A N   I N T E R R U P T S
+
+
+**********************************************************************************/
+/******************************************************************************
+* Function Name: GERI_handler
+* Description  : CAN global error interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void GERI_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_geri_callback) {
+        (*p_geri_callback)();
+    }
+
+} /* End of function GERI_handler() */
+
+/******************************************************************************
+* Function Name: RFI_handler
+* Description  : CAN receive FIFO interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void RFI_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_rfi_callback) {
+        (*p_rfi_callback)();
+    }
+
+} /* End of function RFI_handler() */
+
+/******************************************************************************
+* Function Name: CFRXI0_handler
+* Description  : CAN0 transmit/receive FIFO receive complete interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void CFRXI0_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_cfrxi_callback[0]) {
+        (*p_cfrxi_callback[0])();
+    }
+
+} /* End of function CFRXI0_handler() */
+
+/******************************************************************************
+* Function Name: CERI0_handler
+* Description  : CAN0 error interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void CERI0_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_ceri_callback[0]) {
+        (*p_ceri_callback[0])();
+    }
+
+} /* End of function CERI0_handler() */
+
+/******************************************************************************
+* Function Name: CTXI0_handler
+* Description  : CAN0 transmit interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void CTXI0_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_ctxi_callback[0]) {
+        (*p_ctxi_callback[0])();
+    }
+
+} /* End of function CTXI0_handler() */
+
+/******************************************************************************
+* Function Name: CFRXI1_handler
+* Description  : CAN1 transmit/receive FIFO receive complete interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void CFRXI1_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_cfrxi_callback[1]) {
+        (*p_cfrxi_callback[1])();
+    }
+
+} /* End of function CFRXI1_handler() */
+
+/******************************************************************************
+* Function Name: CERI1_handler
+* Description  : CAN1 error interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void CERI1_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_ceri_callback[1]) {
+        (*p_ceri_callback[1])();
+    }
+
+} /* End of function CERI1_handler() */
+
+/******************************************************************************
+* Function Name: CTXI1_handler
+* Description  : CAN1 transmit interrupt
+* Arguments    : none
+* Return Value : none
+******************************************************************************/
+static void CTXI1_handler(uint32_t sense)
+{
+    /* Sense not used */
+    NOT_USED_PRV_(sense);
+
+    /* if a user callback has been configured, then call it here */
+    if (NULL != p_ctxi_callback[1]) {
+        (*p_ctxi_callback[1])();
+    }
+
+} /* End of function CTXI1_handler() */
+
+/******************************************************************************
+* Function Name: rcan_tr_data_cnt
+* Description  : Calculate the number of loops from DLC
+* Arguments    : dlc_data -
+*                    DLC value
+* Return Value : Number of r/w loops
+******************************************************************************/
+static uint8_t rcan_tr_data_cnt(const uint8_t dlc_data)
+{
+    uint8_t loop_cnt;
+
+    switch (dlc_data) {
+        case 0x00:
+            loop_cnt = 0;
+            break;
+        case 0x01:
+        case 0x02:
+        case 0x03:
+        case 0x04:
+            loop_cnt = 1;
+            break;
+        case 0x05:
+        case 0x06:
+        case 0x07:
+        case 0x08:
+            loop_cnt = 2;
+            break;
+        case 0x09:
+            loop_cnt = 3;
+            break;
+        case 0x0A:
+            loop_cnt = 4;
+            break;
+        case 0x0B:
+            loop_cnt = 5;
+            break;
+        case 0x0C:
+            loop_cnt = 6;
+            break;
+        case 0x0D:
+            loop_cnt = 8;
+            break;
+        case 0x0E:
+            loop_cnt = 12;
+            break;
+        case 0x0F:
+            loop_cnt = 16;
+            break;
+        default:
+            loop_cnt = 0;
+            break;
+    }
+
+    return loop_cnt;
+
+} /* End of function rcan_tr_data_cnt() */
+
+/*********************************************************************************
+ Wrapper
+**********************************************************************************/
+void Wrap_Can_WaitRamInitOver(void)
+{
+    Can_WaitRamInitOver();
+}
+
+void Wrap_Can_SetRxRule(void)
+{
+    Can_SetRxRule(CAN0_RX_RULE_NUM, CAN1_RX_RULE_NUM);
+}
+#endif // DEVICE_CAN
+
