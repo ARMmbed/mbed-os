@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 
 class TestSFDP : public testing::Test {
 protected:

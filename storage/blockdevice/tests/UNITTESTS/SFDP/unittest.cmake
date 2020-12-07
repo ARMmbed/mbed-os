@@ -6,12 +6,12 @@ set(TEST_SUITE_NAME "SFDP")
 
 # Source files
 set(unittest-sources
-  ../drivers/source/SFDP.cpp
+  ../storage/blockdevice/source/SFDP.cpp
 )
 
 # Test files
 set(unittest-test-sources
-  ../drivers/tests/UNITTESTS/SFDP/test_sfdp.cpp
+  ../storage/blockdevice/tests/UNITTESTS/SFDP/test_sfdp.cpp
   stubs/mbed_assert_stub.cpp
 )
 
