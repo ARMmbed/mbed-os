@@ -10,7 +10,6 @@ set(unittest-includes ${unittest-includes}
 )
 
 set(unittest-sources
-  ../storage/blockdevice/source/FlashSimBlockDevice.cpp
   ../storage/blockdevice/source/HeapBlockDevice.cpp
   ../storage/blockdevice/source/BufferedBlockDevice.cpp
   ../storage/kvstore/tdbstore/source/TDBStore.cpp
