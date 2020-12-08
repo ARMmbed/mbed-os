@@ -108,4 +108,6 @@ function(mbed_set_post_build target)
     if(HAVE_MEMAP_DEPS)
         mbed_generate_map_file(${target})
     endif()
+
+    mbed_generate_upload_debug_targets(${target})
 endfunction()
