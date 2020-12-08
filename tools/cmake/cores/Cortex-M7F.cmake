@@ -8,19 +8,19 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=softfp"
         "-mcpu=cortex-m7"
-        )
+    )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND c_cxx_compile_options
         "-mcpu=cortex-m7"
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=hard"
-        )
+    )
     list(APPEND asm_compile_options
         "-mcpu=Cortex-M7.fp.sp"
-        )
+    )
     list(APPEND link_options
         "--cpu=Cortex-M7.fp.sp"
-        )
+    )
 endif()
 
 

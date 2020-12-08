@@ -14,13 +14,13 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
         "-mcpu=cortex-m4"
         "-mfpu=fpv4-sp-d16"
         "-mfloat-abi=hard"
-        )
+    )
     list(APPEND asm_compile_options
         "-mcpu=Cortex-M4"
-        )
+    )
     list(APPEND link_options
         "--cpu=Cortex-M4"
-        )
+    )
 endif()
 
 function(mbed_set_cpu_core_definitions target)

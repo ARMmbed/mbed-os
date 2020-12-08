@@ -24,16 +24,16 @@ list(APPEND common_options
     "-fno-exceptions"
     "-fshort-enums"
     "-fshort-wchar"
-    )
+)
 
 list(APPEND asm_compile_options
     -masm=auto
     --target=arm-arm-none-eabi
-    )
+)
 
 list(APPEND link_options
     "--map"
-    )
+)
 
 # Add linking time preprocessor macro for TFM targets
 if(MBED_CPU_CORE MATCHES "-NS$")

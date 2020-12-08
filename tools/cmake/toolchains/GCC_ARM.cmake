@@ -18,7 +18,8 @@ list(APPEND link_options
         "-lnosys"
     "-Wl,--end-group"
     "-specs=nosys.specs"
-    "-Wl,--cref")
+    "-Wl,--cref"
+)
 
 # Add linking time preprocessor macro for TFM targets
 if("TFM" IN_LIST MBED_TARGET_LABELS)
@@ -47,14 +48,14 @@ function(mbed_set_c_lib target lib_type)
     if (${lib_type} STREQUAL "small")
         target_compile_definitions(${target}
             INTERFACE
-            MBED_RTOS_SINGLE_THREAD
-            __NEWLIB_NANO
-            )
+                MBED_RTOS_SINGLE_THREAD
+                __NEWLIB_NANO
+        )
 
         target_link_options(${target}
             INTERFACE
-            "--specs=nano.specs"
-            )
+                "--specs=nano.specs"
+        )
     endif()
 endfunction()
 

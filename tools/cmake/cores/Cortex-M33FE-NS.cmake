@@ -8,17 +8,17 @@ if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         "-mfpu=fpv5-sp-d16"
         "-mfloat-abi=softfp"
         "-march=armv8-m.main+dsp"
-        )
+    )
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     list(APPEND c_cxx_compile_options
         "-mcpu=cortex-m33"
-        )
+    )
     list(APPEND asm_compile_options
         "-mcpu=Cortex-M33"
-        )
+    )
     list(APPEND link_options
         "--cpu=Cortex-M33"
-        )
+    )
 endif()
 
 function(mbed_set_cpu_core_definitions target)
