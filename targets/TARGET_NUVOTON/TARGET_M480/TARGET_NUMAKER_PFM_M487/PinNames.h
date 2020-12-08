@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+/* MBED TARGET LIST: NUMAKER_PFM_M487 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

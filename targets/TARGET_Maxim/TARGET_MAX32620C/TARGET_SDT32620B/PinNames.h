@@ -31,6 +31,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: SDT32620B */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

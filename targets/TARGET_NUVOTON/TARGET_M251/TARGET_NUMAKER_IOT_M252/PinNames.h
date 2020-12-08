@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+/* MBED TARGET LIST: NUMAKER_IOT_M252 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

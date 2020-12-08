@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32G031K(4-6-8)Tx.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_G031K8 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

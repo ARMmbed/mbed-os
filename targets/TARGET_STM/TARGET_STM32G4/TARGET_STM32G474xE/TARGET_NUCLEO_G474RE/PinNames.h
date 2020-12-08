@@ -30,6 +30,8 @@
  * Automatically generated from STM32G474R(B-C-E)Tx.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_G474RE */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

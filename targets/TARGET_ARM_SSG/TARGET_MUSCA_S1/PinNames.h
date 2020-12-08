@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+/* MBED TARGET LIST: ARM_MUSCA_S1, ARM_MUSCA_S1_NS */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

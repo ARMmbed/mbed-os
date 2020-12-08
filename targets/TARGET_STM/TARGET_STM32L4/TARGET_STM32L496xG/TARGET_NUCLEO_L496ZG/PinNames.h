@@ -28,6 +28,8 @@
  *******************************************************************************
  */
 
+/* MBED TARGET LIST: NUCLEO_L496ZG, NUCLEO_L496ZG_P */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

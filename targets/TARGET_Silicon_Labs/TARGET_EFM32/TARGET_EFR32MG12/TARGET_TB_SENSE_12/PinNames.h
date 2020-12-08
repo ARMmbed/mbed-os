@@ -20,6 +20,9 @@
  * limitations under the License.
  *
  ******************************************************************************/
+
+/* MBED TARGET LIST: TB_SENSE_12 */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

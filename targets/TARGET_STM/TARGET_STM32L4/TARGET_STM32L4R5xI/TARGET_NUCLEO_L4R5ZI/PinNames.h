@@ -15,6 +15,8 @@
  * Automatically generated from STM32CubeMX/db/mcu/STM32L4R5Z(G-I)Tx.xml
  */
 
+/* MBED TARGET LIST: NUCLEO_L4R5ZI, NUCLEO_L4R5ZI_P */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 

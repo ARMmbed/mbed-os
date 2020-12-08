@@ -17,6 +17,8 @@
  *
  ****************************************************************************/
 
+/* MBED TARGET LIST: S1SBP6A */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
