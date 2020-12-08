@@ -9,14 +9,16 @@ set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
 
 # Sets toolchain options
 function(mbed_set_toolchain_options target)
-    list(APPEND link_options
+    list(
+        APPEND
+        link_options
         "-Wl,--start-group"
-            "-lstdc++"
-            "-lsupc++"
-            "-lm"
-            "-lc"
-            "-lgcc"
-            "-lnosys"
+        "-lstdc++"
+        "-lsupc++"
+        "-lm"
+        "-lc"
+        "-lgcc"
+        "-lnosys"
         "-Wl,--end-group"
         "-specs=nosys.specs"
         "-Wl,--cref"
@@ -24,12 +26,12 @@ function(mbed_set_toolchain_options target)
 
     # Add linking time preprocessor macro for TFM targets
     if("TFM" IN_LIST MBED_TARGET_LABELS)
-        list(APPEND link_options
-            "-DDOMAIN_NS=1"
-        )
+        list(APPEND link_options "-DDOMAIN_NS=1")
     endif()
 
-    list(APPEND common_options
+    list(
+        APPEND
+        common_options
         "-Wall"
         "-Wextra"
         "-Wno-unused-parameter"
@@ -44,43 +46,30 @@ function(mbed_set_toolchain_options target)
         "-g3"
     )
 
-    target_compile_options(${target}
-        INTERFACE
-            ${common_options}
-    )
+    target_compile_options(${target} INTERFACE ${common_options})
 
-    target_link_options(${target}
-        INTERFACE
-            ${common_options}
-            ${link_options}
-    )
+    target_link_options(${target} INTERFACE ${common_options} ${link_options})
 endfunction()
 
 # Configure the toolchain to select the selected C library
 function(mbed_set_c_lib target lib_type)
-    if (${lib_type} STREQUAL "small")
-        target_compile_definitions(${target}
-            INTERFACE
-                MBED_RTOS_SINGLE_THREAD
-                __NEWLIB_NANO
+    if(${lib_type} STREQUAL "small")
+        target_compile_definitions(
+            ${target} INTERFACE MBED_RTOS_SINGLE_THREAD __NEWLIB_NANO
         )
 
-        target_link_options(${target}
-            INTERFACE
-                "--specs=nano.specs"
-        )
+        target_link_options(${target} INTERFACE "--specs=nano.specs")
     endif()
 endfunction()
 
 # Configure the toolchain to select the selected printf library
 function(mbed_set_printf_lib target lib_type)
-    if (${lib_type} STREQUAL "minimal-printf")
-        target_compile_definitions(${target}
-            INTERFACE
-                MBED_MINIMAL_PRINTF
-        )
+    if(${lib_type} STREQUAL "minimal-printf")
+        target_compile_definitions(${target} INTERFACE MBED_MINIMAL_PRINTF)
 
-        list(APPEND link_options
+        list(
+            APPEND
+            link_options
             "-Wl,--wrap,printf"
             "-Wl,--wrap,sprintf"
             "-Wl,--wrap,snprintf"
@@ -90,9 +79,6 @@ function(mbed_set_printf_lib target lib_type)
             "-Wl,--wrap,fprintf"
             "-Wl,--wrap,vfprintf"
         )
-        target_link_options(${target}
-            INTERFACE
-                ${link_options}
-        )
+        target_link_options(${target} INTERFACE ${link_options})
     endif()
 endfunction()

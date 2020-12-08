@@ -19,28 +19,23 @@
 set(TEST_SUITE_NAME "lorawan_LoRaPHY")
 
 # Source files
-set(unittest-sources
-  ../connectivity/lorawan/lorastack/phy/LoRaPHY.cpp
-)
+set(unittest-sources ../connectivity/lorawan/lorastack/phy/LoRaPHY.cpp)
 
 # Add test specific include paths
-set(unittest-includes ${unittest-includes}
-  target_h
-  ../connectivity/lorawan/lorastack/phy
+set(unittest-includes ${unittest-includes} target_h
+                      ../connectivity/lorawan/lorastack/phy
 )
 
 # Test & stub files
 set(unittest-test-sources
-  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaPHY.cpp
-  stubs/LoRaWANTimer_stub.cpp
-  stubs/mbed_assert_stub.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaPHY.cpp stubs/LoRaWANTimer_stub.cpp
+    stubs/mbed_assert_stub.cpp
 )
 
 set(unittest-test-flags
-  -DMBED_CONF_LORA_WAKEUP_TIME=5
-  -DMBED_CONF_LORA_DUTY_CYCLE_ON_JOIN=true
-  -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
-  -DMBED_CONF_LORA_TX_MAX_SIZE=255
-  -DMBED_CONF_LORA_NB_TRIALS=2
+    -DMBED_CONF_LORA_WAKEUP_TIME=5
+    -DMBED_CONF_LORA_DUTY_CYCLE_ON_JOIN=true
+    -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
+    -DMBED_CONF_LORA_TX_MAX_SIZE=255
+    -DMBED_CONF_LORA_NB_TRIALS=2
 )
-

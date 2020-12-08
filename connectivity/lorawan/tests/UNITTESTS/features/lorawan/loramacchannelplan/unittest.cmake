@@ -20,21 +20,17 @@ set(TEST_SUITE_NAME "lorawan_LoRaMacChannelPlan")
 
 # Source files
 set(unittest-sources
-  ../connectivity/lorawan/lorastack/mac/LoRaMacChannelPlan.cpp
+    ../connectivity/lorawan/lorastack/mac/LoRaMacChannelPlan.cpp
 )
 
 # Add test specific include paths
-set(unittest-includes ${unittest-includes}
-  target_h
-  ../connectivity/lorawan/lorastack/mac
+set(unittest-includes ${unittest-includes} target_h
+                      ../connectivity/lorawan/lorastack/mac
 )
 
 # Test & stub files
-set(unittest-test-sources
-  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaMacChannelPlan.cpp
-  stubs/LoRaPHY_stub.cpp
+set(unittest-test-sources ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaMacChannelPlan.cpp
+                          stubs/LoRaPHY_stub.cpp
 )
 
-set(unittest-test-flags
-  -DMBED_CONF_LORA_TX_MAX_SIZE=255
-)
+set(unittest-test-flags -DMBED_CONF_LORA_TX_MAX_SIZE=255)

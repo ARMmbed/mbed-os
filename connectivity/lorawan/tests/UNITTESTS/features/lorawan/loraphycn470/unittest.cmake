@@ -19,31 +19,28 @@
 set(TEST_SUITE_NAME "lorawan_LoRaPHYCN470")
 
 # Source files
-set(unittest-sources
-  ../connectivity/lorawan/lorastack/phy/LoRaPHYCN470.cpp
-)
+set(unittest-sources ../connectivity/lorawan/lorastack/phy/LoRaPHYCN470.cpp)
 
 # Add test specific include paths
-set(unittest-includes ${unittest-includes}
-  target_h
-  ../connectivity/lorawan/lorastack/phy
+set(unittest-includes ${unittest-includes} target_h
+                      ../connectivity/lorawan/lorastack/phy
 )
 
 # Test & stub files
 set(unittest-test-sources
-  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaPHYCN470.cpp
-  stubs/LoRaPHY_stub.cpp
-  stubs/LoRaWANTimer_stub.cpp
-  stubs/mbed_assert_stub.cpp
-
+    ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaPHYCN470.cpp stubs/LoRaPHY_stub.cpp
+    stubs/LoRaWANTimer_stub.cpp stubs/mbed_assert_stub.cpp
 )
 
 set(unittest-test-flags
-  -DMBED_CONF_LORA_TX_MAX_SIZE=255
-  -DMBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5
-  -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
+    -DMBED_CONF_LORA_TX_MAX_SIZE=255
+    -DMBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5
+    -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_FSB_MASK_CHINA=\"{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}\"")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_FSB_MASK_CHINA=\"{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}\"")
-
+set(CMAKE_C_FLAGS
+    "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_FSB_MASK_CHINA=\"{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}\""
+)
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_FSB_MASK_CHINA=\"{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}\""
+)

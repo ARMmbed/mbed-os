@@ -19,26 +19,17 @@
 set(TEST_SUITE_NAME "lorawan_LoRaWANTimer")
 
 # Source files
-set(unittest-sources
-  ../connectivity/lorawan/system/LoRaWANTimer.cpp
-)
+set(unittest-sources ../connectivity/lorawan/system/LoRaWANTimer.cpp)
 
 # Add test specific include paths
-set(unittest-includes ${unittest-includes}
-  target_h
-  ../connectivity/lorawan/system
+set(unittest-includes ${unittest-includes} target_h
+                      ../connectivity/lorawan/system
 )
 
 # Test & stub files
 set(unittest-test-sources
-  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaWANTimer.cpp
-  stubs/EventQueue_stub.cpp
-  stubs/mbed_assert_stub.cpp
-  stubs/equeue_stub.c
+    ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaWANTimer.cpp stubs/EventQueue_stub.cpp
+    stubs/mbed_assert_stub.cpp stubs/equeue_stub.c
 )
 
-set(unittest-test-flags
-  -DNDEBUG=1
-  -DMBED_CONF_LORA_TX_MAX_SIZE=255
-)
-
+set(unittest-test-flags -DNDEBUG=1 -DMBED_CONF_LORA_TX_MAX_SIZE=255)

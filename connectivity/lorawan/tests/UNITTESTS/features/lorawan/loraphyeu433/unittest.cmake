@@ -19,27 +19,20 @@
 set(TEST_SUITE_NAME "lorawan_LoRaPHYEU433")
 
 # Source files
-set(unittest-sources
-  ../connectivity/lorawan/lorastack/phy/LoRaPHYEU433.cpp
-)
+set(unittest-sources ../connectivity/lorawan/lorastack/phy/LoRaPHYEU433.cpp)
 
 # Add test specific include paths
-set(unittest-includes ${unittest-includes}
-  target_h
-  ../connectivity/lorawan/lorastack/phy
+set(unittest-includes ${unittest-includes} target_h
+                      ../connectivity/lorawan/lorastack/phy
 )
 
 # Test & stub files
-set(unittest-test-sources
-  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaPHYEU433.cpp
-  stubs/LoRaPHY_stub.cpp
-  stubs/mbed_assert_stub.cpp
-
+set(unittest-test-sources ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaPHYEU433.cpp
+                          stubs/LoRaPHY_stub.cpp stubs/mbed_assert_stub.cpp
 )
 
 set(unittest-test-flags
-  -DMBED_CONF_LORA_TX_MAX_SIZE=255
-  -DMBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5
-  -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
+    -DMBED_CONF_LORA_TX_MAX_SIZE=255
+    -DMBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5
+    -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
 )
-

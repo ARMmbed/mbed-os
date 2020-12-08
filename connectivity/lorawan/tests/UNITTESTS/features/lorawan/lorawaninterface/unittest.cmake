@@ -19,35 +19,26 @@
 set(TEST_SUITE_NAME "lorawan_LoRaWANInterface")
 
 # Source files
-set(unittest-sources
-  ../connectivity/lorawan/source/LoRaWANInterface.cpp
-)
+set(unittest-sources ../connectivity/lorawan/source/LoRaWANInterface.cpp)
 
 # Add test specific include paths
-set(unittest-includes ${unittest-includes}
-  target_h
-  ../connectivity/lorawan
-)
+set(unittest-includes ${unittest-includes} target_h ../connectivity/lorawan)
 
 # Test & stub files
 set(unittest-test-sources
-  ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaWANInterface.cpp
-  stubs/LoRaPHY_stub.cpp
-  stubs/LoRaWANStack_stub.cpp
-  stubs/LoRaMac_stub.cpp
-  stubs/mbed_assert_stub.cpp
-  stubs/LoRaMacCrypto_stub.cpp
-  stubs/LoRaMacChannelPlan_stub.cpp
-  stubs/LoRaWANTimer_stub.cpp
-  stubs/LoRaMacCommand_stub.cpp
-  stubs/LoRaPHYEU868_stub.cpp
-  stubs/Mutex_stub.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Test_LoRaWANInterface.cpp
+    stubs/LoRaPHY_stub.cpp
+    stubs/LoRaWANStack_stub.cpp
+    stubs/LoRaMac_stub.cpp
+    stubs/mbed_assert_stub.cpp
+    stubs/LoRaMacCrypto_stub.cpp
+    stubs/LoRaMacChannelPlan_stub.cpp
+    stubs/LoRaWANTimer_stub.cpp
+    stubs/LoRaMacCommand_stub.cpp
+    stubs/LoRaPHYEU868_stub.cpp
+    stubs/Mutex_stub.cpp
 )
 
-set(unittest-test-flags
-  -DMBED_CONF_LORA_PHY=EU868
-  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+set(unittest-test-flags -DMBED_CONF_LORA_PHY=EU868
+                        -DMBED_CONF_LORA_TX_MAX_SIZE=255
 )
-
-
-
