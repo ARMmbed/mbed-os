@@ -346,7 +346,9 @@ inline T core_util_atomic_exchange_##fn_suffix(volatile T *valuePtr, T newValue)
     T oldValue;                                                                 \
     uint32_t fail;                                                              \
     MBED_BARRIER();                                                             \
-    DO_MBED_LOCKFREE_EXCHG_ASM(M);                                              \
+    do {                                                                        \
+        DO_MBED_LOCKFREE_EXCHG_ASM(M);                                          \
+    } while (fail);                                                             \
     MBED_BARRIER();                                                             \
     return oldValue;                                                            \
 }                                                                               \
@@ -357,7 +359,9 @@ MBED_FORCEINLINE T core_util_atomic_exchange_explicit_##fn_suffix(              
     T oldValue;                                                                 \
     uint32_t fail;                                                              \
     MBED_RELEASE_BARRIER(order);                                                \
-    DO_MBED_LOCKFREE_EXCHG_ASM(M);                                              \
+    do {                                                                        \
+        DO_MBED_LOCKFREE_EXCHG_ASM(M);                                          \
+    } while (fail);                                                             \
     MBED_ACQUIRE_BARRIER(order);                                                \
     return oldValue;                                                            \
 }
