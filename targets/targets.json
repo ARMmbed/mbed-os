@@ -1420,16 +1420,22 @@
             "LPTICKER"
         ]
     },
-    "NUCLEO_F207ZG": {
+    "MCU_STM32F207xZ": {
         "inherits": [
             "MCU_STM32F2"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F207xG"
+        ]
+    },
+    "NUCLEO_F207ZG": {
+        "inherits": [
+            "MCU_STM32F207xZ"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32F207ZG"
         ],
         "config": {
             "d11_configuration": {
