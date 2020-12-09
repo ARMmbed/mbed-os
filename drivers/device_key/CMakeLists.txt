@@ -12,7 +12,6 @@ target_include_directories(mbed-device_key
 target_sources(mbed-device_key
     INTERFACE
         source/DeviceKey.cpp
-        ../source/SFDP.cpp
 )
 
 target_link_libraries(mbed-device_key
