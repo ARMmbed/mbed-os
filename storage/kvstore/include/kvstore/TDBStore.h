@@ -308,6 +308,7 @@ private:
     tdbstore_area_data_t _area_params[_num_areas];
     uint32_t _prog_size;
     uint8_t *_work_buf;
+    size_t _work_buf_size;
     char *_key_buf;
     void *_inc_set_handle;
     void *_iterator_table[_max_open_iterators];
