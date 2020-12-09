@@ -23,6 +23,7 @@ The following targets are supported:
 - ARM FM targets
 - Cypress targets
 - Freescale targets
+- GigaDevice targets
 - MAXIM targets
 - STM targets
 
