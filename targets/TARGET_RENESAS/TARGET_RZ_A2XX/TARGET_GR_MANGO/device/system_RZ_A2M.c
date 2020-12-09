@@ -33,8 +33,8 @@
 #include "r_cache_lld_rza2m.h"
 
 extern void HyperRAM_Init(void);
-extern void OctaRAM_Init(void);
-
+extern void R_OCTABUS_Setup(void);
+extern void r_octabus_memclk_setup(void);
 /*
  Port 0 (P0) MD pin assignment
  P0_0: MD_BOOT0
@@ -274,7 +274,9 @@ void SystemInit(void)
 
     RZ_A2_InitClock();
     RZ_A2_InitBus();
+    r_octabus_memclk_setup();
 
+    R_OCTABUS_Setup();
 #if defined(USE_HYPERRAM)
     HyperRAM_Init();
 #endif
