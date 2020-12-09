@@ -41,6 +41,7 @@ public:
 
     /* Implement OnboardNetworkStack method */
     nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out) override;
+    nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out, const uint8_t *mac_addr) override;
 
     /* Local variant with stronger typing and manual address specification */
     nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Nanostack::EthernetInterface **interface_out, const uint8_t *mac_addr = NULL);
@@ -74,7 +75,7 @@ protected:
      *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name);
+    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name) override;
 
     /** Translate a hostname to an IP address (asynchronous) using network interface name.
      *
@@ -98,7 +99,7 @@ protected:
      *                  a positive unique id that represents the hostname translation operation
      *                  and can be passed to cancel.
      */
-    virtual nsapi_value_or_error_t gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version, const char *interface_name);
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version, const char *interface_name) override;
 
     /** Get a domain name server from a list of servers to query
      *
@@ -107,9 +108,10 @@ protected:
      *
      *  @param index    Index of the DNS server, starts from zero
      *  @param address  Destination for the host address
+     *  @param interface_name Network interface name
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address, const char *interface_name);
+    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address, const char *interface_name) override;
 
     /** Opens a socket
      *

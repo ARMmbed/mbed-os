@@ -32,7 +32,7 @@ public:
     typedef mbed::Callback<void (uint8_t up, int8_t device_id)> link_state_cb_t;
     void set_link_state_changed_callback(link_state_cb_t link_state_cb);
 
-    char *get_interface_name(char *buf);
+    char *get_interface_name(char *buf) override;
 private:
     friend class Nanostack;
     PPPInterface(NanostackPPPPhy &phy) : Interface(phy) {}
