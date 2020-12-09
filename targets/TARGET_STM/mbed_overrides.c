@@ -240,6 +240,15 @@ void mbed_sdk_init()
         LSEDriveConfig();
     }
 #endif
+
+#if defined(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+#if IS_PWR_SUPPLY(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+    HAL_PWREx_ConfigSupply(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY);
+#else
+    #error system_power_supply not configured
+#endif
+#endif
+
     SetSysClock();
     SystemCoreClockUpdate();
 
@@ -266,6 +275,14 @@ void mbed_sdk_init()
     if (!LL_RCC_LSE_IsReady()) {
         LSEDriveConfig();
     }
+#endif
+
+#if defined(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+#if IS_PWR_SUPPLY(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY)
+    HAL_PWREx_ConfigSupply(MBED_CONF_TARGET_SYSTEM_POWER_SUPPLY);
+#else
+    #error system_power_supply not configured
+#endif
 #endif
 
     SetSysClock();
