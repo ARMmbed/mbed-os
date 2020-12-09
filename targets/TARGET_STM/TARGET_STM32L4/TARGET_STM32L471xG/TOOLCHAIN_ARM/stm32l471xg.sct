@@ -37,7 +37,25 @@
 /* Round up VECTORS_SIZE to 8 bytes */
 #define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) AND ~7)
 
-LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
+
+; Crash report enabled as default
+#if !defined(MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+#endif
+
+;Vectors + Crash report - Fixed at start of RAM2 in sequence
+#define MBED_IRAM2_SIZE             (MBED_RAM1_SIZE - VECTORS_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
+
+#define MBED_CRASH_REPORT_RAM_START (MBED_RAM1_START + VECTORS_SIZE)
+#define MBED_IRAM2_START            (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
+
+; Minimum heap should be larger then smallest RAM bank (else can use 
+; that bank for heap) and less then largest RAM bank.
+#define MINIMUM_HEAP                0x12000
+
+;Splitting the RW and ZI section in IRAM1 (MBED_RAM_SIZE-MINIMUM_HEAP = 0x6000 available)
+;and IRAM2 (MBED_IRAM2_SIZE = 0x7D78 available)
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
 
   ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {
     *.o (RESET, +First)
@@ -45,15 +63,21 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
     .ANY (+RO)
   }
 
-  RW_IRAM1 MBED_RAM_START (MBED_RAM_SIZE - MBED_CONF_TARGET_BOOT_STACK_SIZE)  { ;
+  RW_m_crash_data  MBED_CRASH_REPORT_RAM_START  EMPTY  MBED_CRASH_REPORT_RAM_SIZE { ; RW data
+  }
+
+  RW_IRAM1  MBED_RAM_START  (MBED_RAM_SIZE - MINIMUM_HEAP)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
-  RW_IRAM2 (MBED_RAM1_START+VECTORS_SIZE) (MBED_RAM1_SIZE-VECTORS_SIZE)  {  ;
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_START + MBED_RAM_SIZE - MBED_CONF_TARGET_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  {
+  }
+
+  RW_IRAM2  MBED_IRAM2_START  MBED_IRAM2_SIZE  {
    .ANY (+RW +ZI)
   }
 
-  ARM_LIB_STACK (MBED_RAM_START+MBED_RAM_SIZE) EMPTY -MBED_CONF_TARGET_BOOT_STACK_SIZE { ; stack
+  ARM_LIB_STACK (MBED_RAM_START + MBED_RAM_SIZE) EMPTY -MBED_CONF_TARGET_BOOT_STACK_SIZE { ; stack
   }
 }
 
