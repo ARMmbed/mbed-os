@@ -3043,6 +3043,9 @@
         "mbed_rom_size" : "0x100000",
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size" : "0x80000",
+        "extra_labels_add": [
+            "STM32H747xI_CM7"
+        ],
         "macros_add": [
             "CORE_CM7"
         ]
@@ -3054,6 +3057,9 @@
         "mbed_rom_size" : "0x100000",
         "mbed_ram_start": "0x10000000",
         "mbed_ram_size" : "0x48000",
+        "extra_labels_add": [
+            "STM32H747xI_CM4"
+        ],
         "macros_add": [
             "CORE_CM4",
             "MBED_MPU_CUSTOM"
