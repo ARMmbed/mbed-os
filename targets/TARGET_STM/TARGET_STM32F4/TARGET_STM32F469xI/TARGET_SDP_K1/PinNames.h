@@ -329,6 +329,14 @@ typedef enum {
     SDP_TMR_B    = PE_6,
     SDP_TMR_D    = PC_8,
 
+	/**** QSPI pins ****/
+    SDP_QSPI_NSS = PB_6,
+    SDP_QSPI_D0  = PD_11,
+    SDP_QSPI_D1  = PC_10,
+    SDP_QSPI_D2  = PF_7,
+    SDP_QSPI_D3  = PD_13,
+    SDP_QSPI_SCK = PF_10,
+
     /**** USB pins ****/
     USB_OTG_HS_ULPI_CK = PA_5,
     USB_OTG_HS_ULPI_D0 = PA_3,
