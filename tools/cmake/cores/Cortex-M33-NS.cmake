@@ -2,41 +2,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Sets cpu core options
-function(mbed_set_cpu_core_options target mbed_toolchain)
-    if(${mbed_toolchain} STREQUAL "GCC_ARM")
-        list(APPEND common_toolchain_options
-            "-mthumb"
-            "-march=armv8-m.main"
-        )
-
-        target_compile_options(${target}
-            INTERFACE
-                ${common_toolchain_options}
-        )
-
-        target_link_options(${target}
-            INTERFACE
-                ${common_toolchain_options}
-        )
-    elseif(${mbed_toolchain} STREQUAL "ARM")
-        list(APPEND compile_options
-            "-mcpu=cortex-m33+nodsp"
-            "-mfpu=none"
-        )
-
-        target_compile_options(${target}
-            INTERFACE
-                $<$<COMPILE_LANGUAGE:C>:${compile_options}>
-                $<$<COMPILE_LANGUAGE:CXX>:${compile_options}>
-                $<$<COMPILE_LANGUAGE:ASM>:-mcpu=Cortex-M33.no_dsp.no_fp>
-        )
-
-        target_link_options(${target}
-            INTERFACE
-                "--cpu=Cortex-M33.no_dsp.no_fp"
-        )
-    endif()
-endfunction()
+if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    list(APPEND common_options
+        "-mthumb"
+        "-march=armv8-m.main"
+    )
+elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    list(APPEND c_cxx_compile_options
+        "-mcpu=cortex-m33+nodsp"
+        "-mfpu=none"
+    )
+    list(APPEND asm_compile_options
+        "-mcpu=Cortex-M33.no_dsp.no_fp"
+    )
+    list(APPEND link_options
+        "--cpu=Cortex-M33.no_dsp.no_fp"
+    )
+endif()
 
 function(mbed_set_cpu_core_definitions target)
     target_compile_definitions(${target}
