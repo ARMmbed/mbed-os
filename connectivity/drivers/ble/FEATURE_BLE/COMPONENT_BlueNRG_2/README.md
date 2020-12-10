@@ -154,3 +154,7 @@ As an example, the target overide section for the `NUCLEO_F401RE` would be:
             "target.extra_labels_add": ["CORDIO"]
         }
 ```
+
+### Known issues
+
+Security does not work with privacy due to pairing failure.
