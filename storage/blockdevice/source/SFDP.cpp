@@ -22,7 +22,7 @@
 #include <string.h>
 
 #include "platform/mbed_error.h"
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 
 #if (DEVICE_SPI || DEVICE_QSPI || DEVICE_OSPI)
 

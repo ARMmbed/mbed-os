@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "platform/Callback.h"
 #include "QSPIFBlockDevice.h"
 #include <string.h>

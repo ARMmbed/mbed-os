@@ -20,7 +20,7 @@
 #include "platform/SingletonPtr.h"
 #include "drivers/SPI.h"
 #include "drivers/DigitalOut.h"
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "blockdevice/BlockDevice.h"
 
 #ifndef MBED_CONF_SPIF_DRIVER_SPI_MOSI
