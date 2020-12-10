@@ -2075,8 +2075,8 @@
             "STM32F469xx"
         ],
         "device_has_add": [
-			"ANALOGOUT",
-			"QSPI"
+            "ANALOGOUT",
+            "QSPI"
         ],
         "device_has_remove": [
             "LPTICKER"
