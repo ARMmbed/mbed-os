@@ -1218,59 +1218,107 @@
             "FLASH"
         ]
     },
-    "NUCLEO_F070RB": {
+    "MCU_STM32F030x8": {
         "inherits": [
             "MCU_STM32F0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32F030x8"
+        ],
+        "macros_add": [
+            "STM32F030x8"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ]
+    },
+    "MCU_STM32F070xB": {
+        "inherits": [
+            "MCU_STM32F0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F070xB"
+        ],
+        "macros_add": [
+            "STM32F070xB"
+        ]
+    },
+    "NUCLEO_F070RB": {
+        "inherits": [
+            "MCU_STM32F070xB"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32F070RB"
         ],
         "detect_code": [
             "0755"
         ],
         "device_name": "STM32F070RB"
     },
-    "NUCLEO_F072RB": {
+    "MCU_STM32F072xB": {
         "inherits": [
             "MCU_STM32F0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F072xB"
+        ],
+        "macros_add": [
+            "STM32F072xB"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN"
+        ]
+    },
+    "NUCLEO_F072RB": {
+        "inherits": [
+            "MCU_STM32F072xB"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32F072RB"
         ],
         "detect_code": [
             "0730"
         ],
+        "device_name": "STM32F072RB"
+    },
+    "MCU_STM32F091xC": {
+        "inherits": [
+            "MCU_STM32F0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F091xC"
+        ],
+        "macros_add": [
+            "STM32F091xC"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN"
-        ],
-        "device_name": "STM32F072RB"
+        ]
     },
     "NUCLEO_F091RC": {
         "inherits": [
-            "MCU_STM32F0"
+            "MCU_STM32F091xC"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
         ],
-        "extra_labels_add": [
-            "STM32F091xC"
-        ],
         "detect_code": [
             "0750"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN"
         ],
         "device_name": "STM32F091RC"
     },

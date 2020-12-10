@@ -6,24 +6,22 @@ if("NUCLEO_F091RC" IN_LIST MBED_TARGET_LABELS)
 endif()
 
 if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
-    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_stm32f091xc.S)
-    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/STM32F091XC.ld)
+    set(STARTUP_FILE TOOLCHAIN_GCC_ARM/startup_stm32f091xc.S)
+    set(LINKER_FILE TOOLCHAIN_GCC_ARM/stm32f091xc.ld)
 elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
-    set(STARTUP_FILE device/TOOLCHAIN_ARM/startup_stm32f091xc.S)
-    set(LINKER_FILE device/TOOLCHAIN_ARM/stm32f091rc.sct)
+    set(STARTUP_FILE TOOLCHAIN_ARM/startup_stm32f091xc.S)
+    set(LINKER_FILE TOOLCHAIN_ARM/stm32f091xc.sct)
 endif()
 
 set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_sources(mbed-core
     INTERFACE
-        device/cmsis_nvic.c
-        device/system_clock.c
+        system_clock.c
         ${STARTUP_FILE}
 )
 
 target_include_directories(mbed-core
     INTERFACE
         .
-        device
 )
