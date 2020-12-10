@@ -111,3 +111,9 @@ list_to_space_separated(CMAKE_C_FLAGS_INIT ${common_options} ${c_cxx_compile_opt
 set(CMAKE_CXX_FLAGS_INIT ${CMAKE_C_FLAGS_INIT})
 list_to_space_separated(CMAKE_ASM_FLAGS_INIT ${common_options} ${asm_compile_options})
 list_to_space_separated(CMAKE_EXE_LINKER_FLAGS_INIT ${link_options})
+
+# due to a bug in ARMClang CMake compiler file, all _INIT flags must end with a space.
+# (this line: https://github.com/Kitware/CMake/blob/7d4a6ce714a9213ffd34b13a3debcb31a2430e04/Modules/Compiler/ARMClang.cmake#L97)
+set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} ")
+set(CMAKE_CXX_FLAGS_INIT "${CMAKE_CXX_FLAGS_INIT} ")
+set(CMAKE_ASM_FLAGS_INIT "${CMAKE_ASM_FLAGS_INIT} ")
