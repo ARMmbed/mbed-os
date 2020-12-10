@@ -25,6 +25,7 @@ The following targets are supported:
 - Freescale targets
 - GigaDevice targets
 - MAXIM targets
+- NXP targets
 - Silicon Labs targets
 - STM targets
 
