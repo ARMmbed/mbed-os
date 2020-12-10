@@ -27,6 +27,7 @@ The following targets are supported:
 - GigaDevice targets
 - MAXIM targets
 - NXP targets
+- Renesas targets
 - Samsung targets
 - Silicon Labs targets
 - STM targets
