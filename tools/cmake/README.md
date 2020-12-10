@@ -28,6 +28,7 @@ The following targets are supported:
 - NXP targets
 - Silicon Labs targets
 - STM targets
+- WICED
 
 ### Supported toolchains
 
