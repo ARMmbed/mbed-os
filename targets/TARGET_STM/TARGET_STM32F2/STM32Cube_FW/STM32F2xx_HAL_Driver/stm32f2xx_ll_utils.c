@@ -2,38 +2,21 @@
   ******************************************************************************
   * @file    stm32f2xx_ll_utils.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    14-April-2017
   * @brief   UTILS LL module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f2xx_ll_utils.h"
 #include "stm32f2xx_ll_rcc.h"
@@ -193,7 +176,6 @@
   */
 static uint32_t    UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency,
                                                LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct);
-static ErrorStatus UTILS_SetFlashLatency(uint32_t HCLK_Frequency);
 static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 static ErrorStatus UTILS_PLL_IsBusy(void);
 /**
@@ -311,6 +293,78 @@ void LL_SetSystemCoreClock(uint32_t HCLKFrequency)
 {
   /* HCLK clock frequency */
   SystemCoreClock = HCLKFrequency;
+}
+
+/**
+  * @brief  Update number of Flash wait states in line with new frequency and current
+            voltage range.
+  * @param  HCLK_Frequency  HCLK frequency
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: Latency has been modified
+  *          - ERROR: Latency cannot be modified
+  */
+ErrorStatus LL_SetFlashLatency(uint32_t HCLK_Frequency)
+{
+  uint32_t timeout;
+  uint32_t getlatency;
+  uint32_t latency = LL_FLASH_LATENCY_0; /* default value 0WS */
+  ErrorStatus status = SUCCESS;
+
+  /* Frequency cannot be equal to 0 */
+  if(HCLK_Frequency == 0U)
+  {
+    status = ERROR;
+  }
+  else
+  {
+      if(HCLK_Frequency > UTILS_LATENCY3_FREQ)
+      {
+        /* 90 < HCLK <= 120 => 3WS (4 CPU cycles) */
+        latency = LL_FLASH_LATENCY_3;
+      }
+      else if(HCLK_Frequency > UTILS_LATENCY2_FREQ)
+      {
+        /* 60 < HCLK <= 90 => 2WS (3 CPU cycles) */
+        latency = LL_FLASH_LATENCY_2;
+      }
+      else
+      {
+        if(HCLK_Frequency > UTILS_LATENCY1_FREQ)
+        {
+          /* 30 < HCLK <= 60 => 1WS (2 CPU cycles) */
+          latency = LL_FLASH_LATENCY_1;
+        }
+        else
+        {
+          /* else HCLK_Frequency < 30MHz default LL_FLASH_LATENCY_0 0WS */			
+          latency = LL_FLASH_LATENCY_0;
+        }
+      }
+      if (status != ERROR)
+      {
+        LL_FLASH_SetLatency(latency);
+
+        /* Check that the new number of wait states is taken into account to access the Flash
+           memory by reading the FLASH_ACR register */
+        timeout = 2;
+        do
+        {
+        /* Wait for Flash latency to be updated */
+        getlatency = LL_FLASH_GetLatency();
+        timeout--;
+        } while ((getlatency != latency) && (timeout > 0));
+
+        if(getlatency != latency)
+        {
+          status = ERROR;
+        }
+        else
+        {
+          status = SUCCESS;
+        }
+      }
+  }
+  return status;
 }
 
 /**
@@ -452,59 +506,6 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypa
   * @{
   */
 /**
-  * @brief  Update number of Flash wait states in line with new frequency and current
-            voltage range.
-  * @param  HCLK_Frequency  HCLK frequency
-  * @retval An ErrorStatus enumeration value:
-  *          - SUCCESS: Latency has been modified
-  *          - ERROR: Latency cannot be modified
-  */
-static ErrorStatus UTILS_SetFlashLatency(uint32_t HCLK_Frequency)
-{
-  ErrorStatus status = SUCCESS;
-
-  uint32_t latency = LL_FLASH_LATENCY_0;  /* default value 0WS */
-
-  /* Frequency cannot be equal to 0 */
-  if(HCLK_Frequency == 0U)
-  {
-    status = ERROR;
-  }
-  else
-  {
-      if(HCLK_Frequency > UTILS_LATENCY3_FREQ)
-      {
-        /* 90 < HCLK <= 120 => 3WS (4 CPU cycles) */
-        latency = LL_FLASH_LATENCY_3;
-      }
-      else if(HCLK_Frequency > UTILS_LATENCY2_FREQ)
-      {
-        /* 60 < HCLK <= 90 => 2WS (3 CPU cycles) */
-        latency = LL_FLASH_LATENCY_2;
-      }
-      else
-      {
-        if(HCLK_Frequency > UTILS_LATENCY1_FREQ)
-        {
-          /* 30 < HCLK <= 60 => 1WS (2 CPU cycles) */
-          latency = LL_FLASH_LATENCY_1;
-        }
-        /* else HCLK_Frequency < 30MHz default LL_FLASH_LATENCY_0 0WS */
-      }
-
-    LL_FLASH_SetLatency(latency);
-
-    /* Check that the new number of wait states is taken into account to access the Flash
-       memory by reading the FLASH_ACR register */
-    if(LL_FLASH_GetLatency() != latency)
-    {
-      status = ERROR;
-    }
-  }
-  return status;
-}
-
-/**
   * @brief  Function to check that PLL can be modified
   * @param  PLL_InputFrequency  PLL input frequency (in Hz)
   * @param  UTILS_PLLInitStruct pointer to a @ref LL_UTILS_PLLInitTypeDef structure that contains
@@ -587,7 +588,7 @@ static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_
   if(SystemCoreClock < hclk_frequency)
   {
     /* Set FLASH latency to highest latency */
-    status = UTILS_SetFlashLatency(hclk_frequency);
+    status = LL_SetFlashLatency(hclk_frequency);
   }
 
   /* Update system clock configuration */
@@ -617,7 +618,7 @@ static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_
   if(SystemCoreClock > hclk_frequency)
   {
     /* Set FLASH latency to lowest latency */
-    status = UTILS_SetFlashLatency(hclk_frequency);
+    status = LL_SetFlashLatency(hclk_frequency);
   }
 
   /* Update SystemCoreClock variable */

@@ -2,38 +2,20 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    14-April-2017
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F2xx_HAL_DMA_H
@@ -368,8 +350,8 @@ typedef struct __DMA_HandleTypeDef
   * @brief    DMA flag definitions 
   * @{
   */ 
-#define DMA_FLAG_FEIF0_4                    0x00800001U
-#define DMA_FLAG_DMEIF0_4                   0x00800004U
+#define DMA_FLAG_FEIF0_4                    0x00000001U
+#define DMA_FLAG_DMEIF0_4                   0x00000004U
 #define DMA_FLAG_TEIF0_4                    0x00000008U
 #define DMA_FLAG_HTIF0_4                    0x00000010U
 #define DMA_FLAG_TCIF0_4                    0x00000020U
@@ -399,14 +381,14 @@ typedef struct __DMA_HandleTypeDef
 /* Exported macro ------------------------------------------------------------*/
 
 /** @brief Reset DMA handle state
-  * @param  __HANDLE__: specifies the DMA handle.
+  * @param  __HANDLE__ specifies the DMA handle.
   * @retval None
   */
 #define __HAL_DMA_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_DMA_STATE_RESET)
 
 /**
   * @brief  Return the current DMA Stream FIFO filled level.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The FIFO filling state.
   *           - DMA_FIFOStatus_Less1QuarterFull: when FIFO is less than 1 quarter-full 
   *                                              and not empty.
@@ -420,14 +402,14 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Enable the specified DMA Stream.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval None
   */
 #define __HAL_DMA_ENABLE(__HANDLE__)      ((__HANDLE__)->Instance->CR |=  DMA_SxCR_EN)
 
 /**
   * @brief  Disable the specified DMA Stream.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval None
   */
 #define __HAL_DMA_DISABLE(__HANDLE__)     ((__HANDLE__)->Instance->CR &=  ~DMA_SxCR_EN)
@@ -436,7 +418,7 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Return the current DMA Stream transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer complete flag index.
   */
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
@@ -456,7 +438,7 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Return the current DMA Stream half transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified half transfer complete flag index.
   */      
 #define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
@@ -476,7 +458,7 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Return the current DMA Stream transfer error flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer error flag index.
   */
 #define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
@@ -496,7 +478,7 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Return the current DMA Stream FIFO error flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified FIFO error flag index.
   */
 #define __HAL_DMA_GET_FE_FLAG_INDEX(__HANDLE__)\
@@ -516,7 +498,7 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Return the current DMA Stream direct mode error flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified direct mode error flag index.
   */
 #define __HAL_DMA_GET_DME_FLAG_INDEX(__HANDLE__)\
@@ -536,8 +518,8 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Get the DMA Stream pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: Get the specified flag.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ Get the specified flag.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCIFx: Transfer complete flag.
   *            @arg DMA_FLAG_HTIFx: Half transfer complete flag.
@@ -554,8 +536,8 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Clear the DMA Stream pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: specifies the flag to clear.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ specifies the flag to clear.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCIFx: Transfer complete flag.
   *            @arg DMA_FLAG_HTIFx: Half transfer complete flag.
@@ -572,8 +554,8 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Enable the specified DMA Stream interrupts.
-  * @param  __HANDLE__: DMA handle
-  * @param  __INTERRUPT__: specifies the DMA interrupt sources to be enabled or disabled. 
+  * @param  __HANDLE__ DMA handle
+  * @param  __INTERRUPT__ specifies the DMA interrupt sources to be enabled or disabled. 
   *        This parameter can be any combination of the following values:
   *           @arg DMA_IT_TC: Transfer complete interrupt mask.
   *           @arg DMA_IT_HT: Half transfer complete interrupt mask.
@@ -587,8 +569,8 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Disable the specified DMA Stream interrupts.
-  * @param  __HANDLE__: DMA handle
-  * @param  __INTERRUPT__: specifies the DMA interrupt sources to be enabled or disabled. 
+  * @param  __HANDLE__ DMA handle
+  * @param  __INTERRUPT__ specifies the DMA interrupt sources to be enabled or disabled. 
   *         This parameter can be any combination of the following values:
   *            @arg DMA_IT_TC: Transfer complete interrupt mask.
   *            @arg DMA_IT_HT: Half transfer complete interrupt mask.
@@ -602,8 +584,8 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Check whether the specified DMA Stream interrupt is enabled or disabled.
-  * @param  __HANDLE__: DMA handle
-  * @param  __INTERRUPT__: specifies the DMA interrupt source to check.
+  * @param  __HANDLE__ DMA handle
+  * @param  __INTERRUPT__ specifies the DMA interrupt source to check.
   *         This parameter can be one of the following values:
   *            @arg DMA_IT_TC: Transfer complete interrupt mask.
   *            @arg DMA_IT_HT: Half transfer complete interrupt mask.
@@ -618,8 +600,8 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Writes the number of data units to be transferred on the DMA Stream.
-  * @param  __HANDLE__: DMA handle
-  * @param  __COUNTER__: Number of data units to be transferred (from 0 to 65535) 
+  * @param  __HANDLE__ DMA handle
+  * @param  __COUNTER__ Number of data units to be transferred (from 0 to 65535) 
   *          Number of data items depends only on the Peripheral data format.
   *            
   * @note   If Peripheral data format is Bytes: number of data units is equal 
@@ -637,7 +619,7 @@ typedef struct __DMA_HandleTypeDef
 
 /**
   * @brief  Returns the number of remaining data units in the current DMAy Streamx transfer.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   *   
   * @retval The number of remaining data units in the current DMA Stream transfer.
   */

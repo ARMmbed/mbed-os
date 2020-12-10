@@ -3,6 +3,7 @@
 
 target_sources(mbed-core
     INTERFACE
+        STM32F2xx_HAL_Driver/Legacy/stm32f2xx_hal_can_legacy.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_adc.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_adc_ex.c
@@ -13,9 +14,11 @@ target_sources(mbed-core
         STM32F2xx_HAL_Driver/stm32f2xx_hal_dac.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_dac_ex.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_dcmi.c
+        STM32F2xx_HAL_Driver/stm32f2xx_hal_dcmi_ex.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_dma.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_dma_ex.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_eth.c
+        STM32F2xx_HAL_Driver/stm32f2xx_hal_exti.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_flash.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_flash_ex.c
         STM32F2xx_HAL_Driver/stm32f2xx_hal_gpio.c

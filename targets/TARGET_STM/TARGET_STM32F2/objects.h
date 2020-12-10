@@ -34,20 +34,19 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+
 #include "stm32f2xx_ll_usart.h"
 #include "stm32f2xx_ll_tim.h"
 #include "stm32f2xx_ll_pwr.h"
+#include "stm32f2xx_ll_adc.h"
+#include "stm32f2xx_ll_rtc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// temporary workaround
-#define HAL_I2C_Master_Seq_Receive_IT  HAL_I2C_Master_Sequential_Receive_IT
-#define HAL_I2C_Master_Seq_Transmit_IT HAL_I2C_Master_Sequential_Transmit_IT
-#define HAL_I2C_Slave_Seq_Receive_IT   HAL_I2C_Slave_Sequential_Receive_IT
-#define HAL_I2C_Slave_Seq_Transmit_IT  HAL_I2C_Slave_Sequential_Transmit_IT
-
+#define GPIO_IP_WITHOUT_BRR
+#include "gpio_object.h"
 
 struct gpio_irq_s {
     IRQn_Type irq_n;
@@ -165,9 +164,6 @@ struct flash_s {
     uint32_t dummy;
 };
 #endif
-
-#define GPIO_IP_WITHOUT_BRR
-#include "gpio_object.h"
 
 #ifdef __cplusplus
 }

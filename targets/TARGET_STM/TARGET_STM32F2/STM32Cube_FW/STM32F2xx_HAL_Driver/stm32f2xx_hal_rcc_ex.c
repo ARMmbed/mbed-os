@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    14-April-2017
   * @brief   Extension RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -12,32 +10,16 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f2xx_hal.h"
@@ -92,7 +74,7 @@
 /**
   * @brief  Initializes the RCC extended peripherals clocks according to the specified parameters in the
   *         RCC_PeriphCLKInitTypeDef.
-  * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
+  * @param  PeriphClkInit pointer to an RCC_PeriphCLKInitTypeDef structure that
   *         contains the configuration information for the Extended Peripherals clocks(I2S and RTC clocks).
   *         
   * @note   A caution to be taken when HAL_RCCEx_PeriphCLKConfig() is used to select RTC clock selection, in this case 
@@ -211,7 +193,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 /**
   * @brief  Configures the RCC_OscInitStruct according to the internal 
   * RCC configuration registers.
-  * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that 
+  * @param  PeriphClkInit pointer to an RCC_PeriphCLKInitTypeDef structure that 
   * will be configured.
   * @retval None
   */
@@ -231,6 +213,99 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   PeriphClkInit->RTCClockSelection = (uint32_t)((tempreg) | (RCC->BDCR & RCC_BDCR_RTCSEL));
   
 }
+/**
+  * @}
+  */
+
+/** @defgroup RCCEx_Exported_Functions_Group2 Extended Clock management functions
+ *  @brief  Extended Clock management functions
+ *
+@verbatim   
+ ===============================================================================
+                ##### Extended clock management functions  #####
+ ===============================================================================
+    [..]
+    This subsection provides a set of functions allowing to control the 
+    activation or deactivation of PLLI2S.
+@endverbatim
+  * @{
+  */
+
+/**
+  * @brief  Enable PLLI2S.
+  * @param  PLLI2SInit  pointer to an RCC_PLLI2SInitTypeDef structure that
+  *         contains the configuration information for the PLLI2S
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_RCCEx_EnablePLLI2S(RCC_PLLI2SInitTypeDef  *PLLI2SInit)
+{
+  uint32_t tickstart;
+
+  /* Check for parameters */
+  assert_param(IS_RCC_PLLI2SN_VALUE(PLLI2SInit->PLLI2SN));
+  assert_param(IS_RCC_PLLI2SR_VALUE(PLLI2SInit->PLLI2SR));
+
+  /* Disable the PLLI2S */
+  __HAL_RCC_PLLI2S_DISABLE();
+
+  /* Wait till PLLI2S is disabled */
+  tickstart = HAL_GetTick();
+  while(__HAL_RCC_GET_FLAG(RCC_FLAG_PLLI2SRDY) != RESET)
+  {
+    if((HAL_GetTick() - tickstart ) > PLLI2S_TIMEOUT_VALUE)
+    {
+      /* return in case of Timeout detected */
+      return HAL_TIMEOUT;
+    }
+  }
+
+  /* Configure the PLLI2S division factors */
+  /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) x PLLI2SN */
+  /* I2SRCLK = PLLI2S_VCO / PLLI2SR */
+  __HAL_RCC_PLLI2S_CONFIG(PLLI2SInit->PLLI2SN, PLLI2SInit->PLLI2SR);
+
+  /* Enable the PLLI2S */
+  __HAL_RCC_PLLI2S_ENABLE();
+
+  /* Wait till PLLI2S is ready */
+  tickstart = HAL_GetTick();
+  while(__HAL_RCC_GET_FLAG(RCC_FLAG_PLLI2SRDY) == RESET)
+  {
+    if((HAL_GetTick() - tickstart ) > PLLI2S_TIMEOUT_VALUE)
+    {
+      /* return in case of Timeout detected */
+      return HAL_TIMEOUT;
+    }
+  }
+
+ return HAL_OK;
+}
+
+/**
+  * @brief  Disable PLLI2S.
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_RCCEx_DisablePLLI2S(void)
+{
+  uint32_t tickstart;
+
+  /* Disable the PLLI2S */
+  __HAL_RCC_PLLI2S_DISABLE();
+
+  /* Wait till PLLI2S is disabled */
+  tickstart = HAL_GetTick();
+  while(READ_BIT(RCC->CR, RCC_CR_PLLI2SRDY) != RESET)
+  {
+    if((HAL_GetTick() - tickstart) > PLLI2S_TIMEOUT_VALUE)
+    {
+      /* return in case of Timeout detected */
+      return HAL_TIMEOUT;
+    }
+  }
+
+  return HAL_OK;
+}
+
 /**
   * @}
   */
