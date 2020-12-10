@@ -1427,6 +1427,9 @@
         "public": false,
         "extra_labels_add": [
             "STM32F207xG"
+        ],
+        "macros_add": [
+            "STM32F207xx"
         ]
     },
     "NUCLEO_F207ZG": {
