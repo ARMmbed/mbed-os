@@ -22,14 +22,6 @@ target_include_directories(mbed-core
 
 target_sources(mbed-core
     INTERFACE
-# TODO CMAKE: The files commented below trigger a dependency on other libraries
-# they should be moved somewhere in the connectivity directory.
-        # dcxo_update.cpp
-        # mbed_main_init.cpp
-        # modem/modem_io_device.cpp
-        # modem/modem_link_device_shmem.cpp
-        # modem/s5js100_mbox_ipc.cpp
-        # modem/shmem_save.cpp
         gpio_api.c
         gpio_irq_api.c
         i2c_api.c
