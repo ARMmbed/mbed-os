@@ -20,12 +20,6 @@ if ("EV_COG_AD3029LZ" IN_LIST MBED_TARGET_LABELS)
             TARGET_EV_COG_AD3029LZ/device/startup_ADuCM3029.c
     )
 
-    target_compile_options(mbed-core
-            INTERFACE
-            -mcpu=cortex-m3
-    )
-    endif()
-
 set_property(GLOBAL PROPERTY MBED_TARGET_LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
 target_include_directories(mbed-core
