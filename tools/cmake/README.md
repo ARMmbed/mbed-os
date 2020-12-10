@@ -26,9 +26,10 @@ The following targets are supported:
 - GigaDevice targets
 - MAXIM targets
 - NXP targets
+- Samsung targets
 - Silicon Labs targets
 - STM targets
-- WICED
+- WICED targets
 
 ### Supported toolchains
 

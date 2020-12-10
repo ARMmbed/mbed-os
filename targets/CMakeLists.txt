@@ -17,6 +17,8 @@ elseif("NUVOTON" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUVOTON)
 elseif("NXP" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NXP)
+elseif("Samsung" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_Samsung
 elseif("Silicon_Labs" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Silicon_Labs)
 elseif("STM" IN_LIST MBED_TARGET_LABELS)
