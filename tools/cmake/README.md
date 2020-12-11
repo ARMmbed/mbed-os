@@ -48,7 +48,7 @@ Supported examples can be identified by the presence of a top level `CMakeLists.
 
 Prerequisities:
 - CMake >=3.19.0
-- mbed-tools >=3.5.0
+- mbed-tools >=4.0.0
 
 From the application root or wherever `mbed-os.lib` is found, run the following command to:
  * create the Mbed OS configuration CMake module
@@ -57,15 +57,15 @@ From the application root or wherever `mbed-os.lib` is found, run the following 
  * build the project using the `Ninja` build system
 
     ```
-    mbedtools build -m <mbed-target> -t <toolchain>
+    mbedtools compile -m <mbed-target> -t <toolchain>
     ```
 
 `CMAKE_BUILD_TYPE` can overridden with Mbed specific values: `Develop` (default value), `Release` and `Debug`.
 
-`mbed-tools` will pass `-DCMAKE_BUILD_TYPE=<supported-build-type>` for you when using the `--build-type` optional argument of the `build` subcommand as follows: 
+`mbed-tools` will pass `-DCMAKE_BUILD_TYPE=<supported-build-type>` for you when using the `--build-type` optional argument of the `build` subcommand as follows:
 
 ```
-mbedtools build -m <mbed-target> -t <toolchain> -b <supported-build-type>
+mbedtools compile -m <mbed-target> -t <toolchain> -b <supported-build-type>
 ```
 
 If you're running CMake directly, you may need to pass it in yourself as follows:

@@ -1,7 +1,7 @@
 # CMake Mbed OS
 
 Requirements:
-- CMake 3.18.2 and higher
+- CMake 3.19.0 and higher
 - `mbed-tools` (python 3.6 and higher)
 
 Two steps approach:
@@ -75,7 +75,7 @@ The rule of thumb is to not expose header files that are internal. We would like
 
 `mbed-tools` consolidates all of the required modules to build Mbed OS, along with the command line interface, into a single Python package which can be installed using standard Python packaging tools.
 
-Each application contains a top-level CMakeLists.txt file. The `mbedtools init` command can create this top-level CMakeLists.txt, or a user can create it manually. Each application also has a number of json configuration files. `mbedtools configure` creates an Mbed configuration CMake file (`.mbedbuild/mbed_config.cmake`). The process for building an application looks like:
+Each application contains a top-level CMakeLists.txt file. The `mbedtools new` command can create this top-level CMakeLists.txt, or a user can create it manually. Each application also has a number of json configuration files. `mbedtools configure` creates an Mbed configuration CMake file (`.mbedbuild/mbed_config.cmake`). The process for building an application looks like:
 
 1. Parse the arguments provided to build command
 1. Parse the application configuration
