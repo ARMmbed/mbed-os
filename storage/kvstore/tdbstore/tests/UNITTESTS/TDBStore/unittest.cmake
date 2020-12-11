@@ -13,7 +13,7 @@ set(unittest-sources
   ../storage/blockdevice/source/FlashSimBlockDevice.cpp
   ../storage/blockdevice/source/HeapBlockDevice.cpp
   ../storage/blockdevice/source/BufferedBlockDevice.cpp
-  ../storage/kvstore/source/TDBStore.cpp
+  ../storage/kvstore/tdbstore/source/TDBStore.cpp
   ../platform/mbed-trace/source/mbed_trace.c
   stubs/mbed_atomic_stub.c
   stubs/mbed_assert_stub.cpp

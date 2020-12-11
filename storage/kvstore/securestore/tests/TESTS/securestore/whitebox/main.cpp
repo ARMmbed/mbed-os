@@ -17,7 +17,7 @@
 */
 
 #include "securestore/SecureStore.h"
-#include "kvstore/TDBStore.h"
+#include "tdbstore/TDBStore.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "Thread.h"
 #endif

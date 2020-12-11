@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "kvstore_global_api.h"
+#include "kvstore_global_api/kvstore_global_api.h"
 
 #include "kv_config/kv_config.h"
-#include "kvstore/KVMap.h"
+#include "kvstore_global_api/KVMap.h"
 #include "kvstore/KVStore.h"
 #include "mbed_error.h"
 

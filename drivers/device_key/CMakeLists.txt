@@ -17,4 +17,6 @@ target_sources(mbed-device_key
 target_link_libraries(mbed-device_key
     INTERFACE
         mbed-storage-kvstore
+        mbed-storage-tdbstore
+        mbed-storage-kv-global-api
 )
