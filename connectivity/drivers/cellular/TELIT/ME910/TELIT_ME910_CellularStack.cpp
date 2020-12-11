@@ -23,6 +23,11 @@
 
 #include "platform/Callback.h"
 
+#include "rtos/ThisThread.h"
+#include <chrono>
+
+using namespace::std::chrono;
+
 
 using namespace mbed;
 using namespace std::chrono_literals;
@@ -34,20 +39,48 @@ constexpr auto socket_timeout = 1s;
 TELIT_ME910_CellularStack::TELIT_ME910_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
     , _tls_sec_level(0)
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+    , _dns_callback(nullptr), _dns_version(NSAPI_UNSPEC)
+#endif
 {
 
-    _at.set_urc_handler("SRING:", mbed::Callback<void()>(this, &TELIT_ME910_CellularStack::urc_sring));
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+    _at.set_urc_handler("#QDNS", mbed::callback(this, &TELIT_ME910_CellularStack::urc_qdns));
+#endif
 
-    // TODO: this needs to be handled properly, but now making just a quick hack
-    // Close all SSL sockets if open. This can happen for example if application processor
-    // was reset but modem not. Old sockets are still up and running and it prevents
-    // new SSL configurations and creating new sockets.
-    for (int i = 1; i <= ME910_SOCKET_MAX; i++) {
-        _at.clear_error();
-        tr_debug("Closing SSL socket %d...", i);
-        _at.at_cmd_discard("#SSLH", "=", "%d", "0", i);
-    }
-    _at.clear_error();
+    _at.set_urc_handler("SRING:", mbed::callback(this, &TELIT_ME910_CellularStack::urc_sring));
+
+    _at.set_send_delay(15);
+
+    //_at.set_at_timeout(5s, true);
+
+    /* Close all SSL sockets if open. This can happen for example if application processor
+     * was reset but modem not. Old sockets are still up and running and it prevents
+     * new SSL configurations and creating new sockets.
+     */
+//    for (int i = 1; i <= ME910_SOCKET_MAX; i++) {
+//        char response[16];
+//        _at.clear_error();
+//        _at.set_delimiter(',');
+//        tr_debug("Checking SSL socket %d...", i);
+//        nsapi_error_t err = _at.at_cmd_discard("#SS", "=", "%d", i);
+//
+//        if(err) {
+//            tr_err("Error when checking SSL socket status: %d", err);
+//        } else {
+//            /* Response format: #SS: <socket_id>,<status>*/
+//            _at.resp_start("#SS: ");
+//            _at.skip_param(1);
+//            int32_t state = _at.read_int();
+//            if(state) {
+//                /* Close the socket */
+//                tr_debug("Closing open SSL socket %d...", i);
+//                _at.at_cmd_discard("#SSLH", "=", "%d%d", i, 0);
+//            }
+//        }
+//        _at.set_default_delimiter();
+//        _at.clear_error();
+//    }
 }
 
 TELIT_ME910_CellularStack::~TELIT_ME910_CellularStack()
@@ -67,17 +100,34 @@ nsapi_error_t TELIT_ME910_CellularStack::socket_accept(void *server, void **sock
 nsapi_error_t TELIT_ME910_CellularStack::socket_connect(nsapi_socket_t handle, const SocketAddress &address)
 {
     CellularSocket *socket = (CellularSocket *)handle;
+    nsapi_error_t err = NSAPI_ERROR_OK;
 
     if (!is_ipeasy_context_activated(_cid)) {
-        activate_ipeasy_context(_cid);
+        // Retry up to 10 times
+        for(int i = 0; i < 10; i++ ) {
+            err = activate_ipeasy_context(_cid);
+            if(err == NSAPI_ERROR_OK) {
+                break;
+            } else {
+                rtos::ThisThread::sleep_for(100ms);
+            }
+        }
+        // Hit some sort of error opening the socket
+        if(err != NSAPI_ERROR_OK) {
+            socket->id = -1;
+            _at.unlock();
+            return NSAPI_ERROR_PARAMETER;
+        }
     }
 
-    int err = NSAPI_ERROR_NO_CONNECTION;
+    err = NSAPI_ERROR_NO_CONNECTION;
 
     int request_connect_id = find_socket_index(socket);
     // assert here as its a programming error if the socket container doesn't contain
     // specified handle
     MBED_ASSERT(request_connect_id != -1);
+
+    rtos::ThisThread::sleep_for(50ms);
 
     _at.lock();
 
@@ -109,10 +159,21 @@ nsapi_error_t TELIT_ME910_CellularStack::socket_connect(nsapi_socket_t handle, c
                 return NSAPI_ERROR_PARAMETER;
             }
         } else {
-            _at.at_cmd_discard("#SD", "=", "%d%d%d%s%d%d%d", request_connect_id + 1, 0, address.get_port(), address.get_ip_address(), 0,
-                               0, 1);
-            if (_at.get_last_error() != NSAPI_ERROR_OK) {
-                // Hit some sort of error opening the socket
+            // Retry up to 10 times
+            for(int i = 0; i < 10; i++) {
+                _at.at_cmd_discard("#SD", "=", "%d%d%d%s%d%d%d", request_connect_id + 1, 0, address.get_port(), address.get_ip_address(), 0,
+                                   0, 1);
+                err = _at.get_last_error();
+                if (err == NSAPI_ERROR_OK) {
+                    break;
+                } else {
+                    /* Sleep for a bit... maybe the socket instance isn't ready yet */
+                    rtos::ThisThread::sleep_for(100ms);
+                }
+            }
+
+            // Hit some sort of error opening the socket
+            if(err != NSAPI_ERROR_OK) {
                 socket->id = -1;
                 _at.unlock();
                 return NSAPI_ERROR_PARAMETER;
@@ -230,6 +291,7 @@ nsapi_error_t TELIT_ME910_CellularStack::deactivate_ipeasy_context(int context_i
 nsapi_error_t TELIT_ME910_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int remote_port = 1;
+    nsapi_error_t ret_val = NSAPI_ERROR_OK;
 
     if (!is_ipeasy_context_activated(_cid)) {
         tr_debug("IPEasy context not active for %d", _cid);
@@ -247,37 +309,14 @@ nsapi_error_t TELIT_ME910_CellularStack::create_socket_impl(CellularSocket *sock
                        1,   // SRING URC mode - data amount mode
                        0,   // Data view mode - text mode
                        0);  // TCP keepalive - deactivated
-    if (_at.get_last_error() != NSAPI_ERROR_OK) {
+    ret_val = _at.get_last_error();
+    if (ret_val != NSAPI_ERROR_OK) {
         tr_warn("Unable to configure socket %d", request_connect_id);
-    }
-
-    if (socket->proto == NSAPI_UDP) {
-        _at.at_cmd_discard("#SD", "=", "%d%d%d%s%d%d%d", request_connect_id + 1, 1, remote_port,
-                           (_ip_ver_sendto == NSAPI_IPv4) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
-                           0, socket->localAddress.get_port(), 1);
-
-        if (_at.get_last_error() != NSAPI_ERROR_OK) {
-            // Hit some sort of error opening the socket
-            socket->id = -1;
-            return NSAPI_ERROR_PARAMETER;
-        }
-    } else if (socket->proto == NSAPI_TCP) {
-        _at.at_cmd_discard("#SD", "=", "%d%d%d%s%d%d%d%d", request_connect_id + 1, 0, remote_port,
-                           socket->remoteAddress.get_ip_address(), 0, 0, 1);
-
-        if (_at.get_last_error() != NSAPI_ERROR_OK) {
-            // Hit some sort of error opening the socket
-            socket->id = -1;
-            return NSAPI_ERROR_PARAMETER;
-        }
-    }
-    nsapi_error_t ret_val = _at.get_last_error();
-
-    if (ret_val == NSAPI_ERROR_OK) {
+        return ret_val;
+    } else {
         socket->id = request_connect_id;
+        return ret_val;
     }
-
-    return ret_val;
 }
 
 nsapi_size_or_error_t TELIT_ME910_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
@@ -649,4 +688,106 @@ nsapi_error_t TELIT_ME910_CellularStack::setsockopt(nsapi_socket_t handle, int l
 
     return ret;
 }
+
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+
+nsapi_error_t mbed::TELIT_ME910_CellularStack::gethostbyname(const char *host,
+        SocketAddress *address, nsapi_version_t version,
+        const char *interface_name) {
+
+    (void) interface_name;
+    MBED_ASSERT(host);
+    MBED_ASSERT(address);
+
+    _at.lock();
+
+    if(_dns_callback) {
+        _at.unlock();
+        return NSAPI_ERROR_BUSY;
+    }
+
+    if(!address->set_ip_address(host)) {
+        _at.set_at_timeout(1min);
+        _at.set_delimiter(',');
+        _at.cmd_start_stop("#QDNS", "=", "%s", host);
+        _at.resp_start("#QDNS: ");
+        if (!read_qdns(*address, version)) {
+            _at.unlock();
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+        _at.restore_at_timeout();
+        _at.set_default_delimiter();
+    }
+
+    return _at.unlock_return_error();
+
+}
+
+nsapi_value_or_error_t mbed::TELIT_ME910_CellularStack::gethostbyname_async(
+        const char *host, hostbyname_cb_t callback, nsapi_version_t version,
+        const char *interface_name) {
+    (void) interface_name;
+    MBED_ASSERT(host);
+    MBED_ASSERT(callback);
+
+    _at.lock();
+
+    if(_dns_callback) {
+        _at.unlock();
+        return NSAPI_ERROR_BUSY;
+    }
+
+    _at.at_cmd_discard("#QDNS", "=", "%s", host);
+    if(!_at.get_last_error()) {
+        _dns_callback = callback;
+        _dns_version = version;
+    }
+
+    /* The way it is currently implemented, the ME910 only supports one ongoing DNS request at a time */
+    return _at.unlock_return_error() ? NSAPI_ERROR_DNS_FAILURE : 1;
+
+}
+
+nsapi_error_t mbed::TELIT_ME910_CellularStack::gethostbyname_async_cancel(
+        int id) {
+    _at.lock();
+    _dns_callback = nullptr;
+    _at.unlock();
+    return NSAPI_ERROR_OK;
+}
+
+void mbed::TELIT_ME910_CellularStack::urc_qdns() {
+
+    if(!_dns_callback) {
+        return;
+    }
+    SocketAddress address;
+    if(read_qdns(address, _dns_version)) {
+        _dns_callback(1, &address);
+    } else {
+        _dns_callback(NSAPI_ERROR_DNS_FAILURE, nullptr);
+    }
+    _dns_callback = nullptr;
+
+}
+
+bool mbed::TELIT_ME910_CellularStack::read_qdns(SocketAddress &address,
+        nsapi_version_t dns_version) {
+    /* Format of response: #QDNS: "hostname","ip address"
+     * Skip the hostname
+     */
+    _at.skip_param();
+    char ip_address[NSAPI_IP_SIZE];
+    _at.read_string(ip_address, sizeof(ip_address));
+    if(address.set_ip_address(ip_address)) {
+        if(dns_version == NSAPI_UNSPEC || dns_version == address.get_ip_version()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+#endif
+
 #endif

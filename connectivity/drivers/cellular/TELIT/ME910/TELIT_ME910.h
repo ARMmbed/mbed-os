@@ -18,6 +18,10 @@
 #ifndef CELLULAR_TARGETS_TELIT_ME910_TELIT_ME910_H_
 #define CELLULAR_TARGETS_TELIT_ME910_TELIT_ME910_H_
 
+#if !NSAPI_PPP_AVAILABLE && !defined(MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES)
+#error TELIT ME910 IPEasy-based (non-PPP) stack is only available if cellular.offload-dns-queries is enabled.
+#endif
+
 #ifdef TARGET_FF_ARDUINO
 #ifndef MBED_CONF_TELIT_ME910_TX
 #define MBED_CONF_TELIT_ME910_TX D1

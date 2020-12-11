@@ -52,6 +52,13 @@ protected: // NetworkStack
 
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
 
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+    virtual nsapi_error_t gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version, const char *interface_name);
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version = NSAPI_UNSPEC,
+                                                       const char *interface_name = NULL);
+    virtual nsapi_error_t gethostbyname_async_cancel(int id);
+#endif
+
 #if defined(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET) && (MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET)
     virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
                                      int optname, const void *optval, unsigned optlen);
@@ -82,6 +89,16 @@ private:
     nsapi_error_t deactivate_ipeasy_context(int context_id);
 
     uint8_t _tls_sec_level;
+
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+    /* URC handler for DNS query */
+    void urc_qdns();
+    /* Read DNS query result */
+    bool read_qdns(SocketAddress &address, nsapi_version_t dns_version);
+    hostbyname_cb_t _dns_callback;
+    nsapi_version_t _dns_version;
+#endif
+
 };
 } // namespace mbed
 #endif /* TELIT_ME910_CELLULARSTACK_H_ */

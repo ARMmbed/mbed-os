@@ -135,7 +135,7 @@ nsapi_error_t TELIT_ME910::init()
     //         parameter is omitted, the command has the same behavior of AT&W0.
     // - AT&P: Execution command defines which full profile will be loaded at startup. If parameter
     //         is omitted, the command has the same behavior as AT&P0
-    _at.at_cmd_discard("&W&P", "");
+    //_at.at_cmd_discard("&W&P", "");
 
     return _at.unlock_return_error();
 }
