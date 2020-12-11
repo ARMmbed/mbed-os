@@ -20,14 +20,17 @@ Only a limited set of targets is supported at the moment.
 
 The following targets are supported:
 - NRF52840_DK
+- Analog Devices targets
 - ARM FM targets
 - Cypress targets
 - Freescale targets
 - GigaDevice targets
 - MAXIM targets
 - NXP targets
+- Samsung targets
 - Silicon Labs targets
 - STM targets
+- WICED targets
 
 ### Supported toolchains
 

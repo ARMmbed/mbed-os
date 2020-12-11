@@ -129,7 +129,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 #define S5JS100_BOOTMEM_BASE 0x00000000
 extern uint32_t __vector_table;
 extern uint32_t __Vectors_Size;
-#elif defined (TOOLCHAIN_ARM_STD)/*__ARMCC_VERSION)*/
+#elif defined(__ARMCC_VERSION)
 #define S5JS100_BOOTMEM_BASE 0x00000000
 extern uint32_t __Vectors;
 extern uint32_t __Vectors_Size;
@@ -166,7 +166,7 @@ void SystemCoreConfig()
         //*dest++ = *src++;
     }
 
-#elif defined (TOOLCHAIN_ARM_STD)/*__ARMCC_VERSION)*/
+#elif defined(__ARMCC_VERSION)
     src = (uint32_t *)&__Vectors;
 
     dest = (uint32_t *)S5JS100_BOOTMEM_BASE;
