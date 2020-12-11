@@ -409,7 +409,15 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     }
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
-    FRESULT res = f_mkfs(fs._fsid, FM_ANY | FM_SFD, cluster_size, NULL, 0);
+    static const MKFS_PARM opt = {
+        FM_ANY | FM_SFD, /* Format option (FM_FAT, FM_FAT32, FM_EXFAT and FM_SFD) */
+        1,               /* Number of FATs */
+        0,               /* Data area alignment (sector) */
+        512,             /* Number of root directory entries */
+        cluster_size     /* Cluster size (byte) */
+    };
+
+    FRESULT res = f_mkfs(fs._fsid, &opt, NULL, 0);
     if (res != FR_OK) {
         fs.unmount();
         fs.unlock();
