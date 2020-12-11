@@ -135,7 +135,7 @@
         },
         "ff_nortc_year": {
             "help": "See ff_fs_nortc.",
-            "value": "2017"
+            "value": "2020"
         },
         "ff_fs_lock": {
             "help": "Switches file lock function to control duplicated file open and illegal operation to open objects. This option must be 0 when ff_fs_readonly is 1. The value defines how many files/sub-directories can be opened simultaneously under file lock control. Note that the file lock control is independent of re-entrancy.",
