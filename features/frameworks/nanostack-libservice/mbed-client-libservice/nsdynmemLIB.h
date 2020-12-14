@@ -67,7 +67,6 @@ typedef struct mem_stat_t {
     uint32_t heap_alloc_fail_cnt;               /**< Counter for Heap allocation fail. */
 } mem_stat_t;
 
-
 typedef struct ns_mem_book ns_mem_book_t;
 
 /**

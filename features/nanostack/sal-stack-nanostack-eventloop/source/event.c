@@ -109,6 +109,7 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_s *), uin
     event_tmp->data.receiver = new->id;
     event_tmp->data.sender = 0;
     event_tmp->data.event_type = init_event_type;
+    event_tmp->data.event_id = 0;
     event_tmp->data.event_data = 0;
     event_core_write(event_tmp);
 

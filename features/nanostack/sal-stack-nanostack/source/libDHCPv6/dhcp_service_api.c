@@ -29,9 +29,10 @@
 #include "socket_api.h"
 #include "net_interface.h"
 #include "common_functions.h"
+
 #include "libDHCPv6/libDHCPv6.h"
 #include "NWK_INTERFACE/Include/protocol.h" // just for protocol_core_monotonic_time
-
+#include "Common_Protocols/ip.h"
 #include "dhcp_service_api.h"
 #ifdef HAVE_DHCPV6
 #define TRACE_GROUP    "dhcp"
@@ -437,7 +438,7 @@ void recv_dhcp_relay_msg(void *cb_res)
     uint8_t *ptr = msg_iov[1].iov_base;
     uint8_t msg_type = *ptr;
 
-
+    int16_t tc = 0;
     if (msg_type == DHCPV6_RELAY_FORWARD) {
         tr_error("Drop not supported DHCPv6 forward at Agent");
         goto cleanup;
@@ -497,7 +498,10 @@ void recv_dhcp_relay_msg(void *cb_res)
         msg_iov[0].iov_len = 38;
         msg_iov[1].iov_len = msg_len;
         tr_debug("Forward Client msg to server");
+        tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
+
     }
+    socket_setsockopt(sckt_data->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
     socket_sendmsg(sckt_data->socket_id, &msghdr, NS_MSG_LEGACY0);
 cleanup:
     ns_dyn_mem_free(msg_iov[1].iov_base);
@@ -845,6 +849,8 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
 
     if (msg_tr_ptr->relay_start) {
         //Build Relay Reply only server do this
+        int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
+        socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
         ns_iovec_t data_vector[2];
         ns_msghdr_t msghdr;
         memcpy(msg_tr_ptr->addr.address, msg_tr_ptr->relay_start + 2, 16);
@@ -872,6 +878,8 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         retval = socket_sendmsg(msg_tr_ptr->socket, &msghdr, NS_MSG_LEGACY0);
 
     } else {
+        int16_t tc = 0;
+        socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
         retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
     }
     if (retval != 0) {
