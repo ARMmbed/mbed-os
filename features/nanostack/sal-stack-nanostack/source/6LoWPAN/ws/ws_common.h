@@ -148,7 +148,7 @@ void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *
 
 void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
-uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64);
+uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64, uint16_t aro_timeout);
 
 bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64);
 
@@ -173,7 +173,7 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 #define ws_common_aro_failure(cur, ll_address)
 #define ws_common_neighbor_remove(cur, ll_address)
 #define ws_common_fast_timer(cur, ticks) ((void) 0)
-#define ws_common_allow_child_registration(cur, eui64) (2)
+#define ws_common_allow_child_registration(cur, eui64, aro_timeout) (2)
 #define ws_common_negative_aro_mark(interface, eui64)(false)
 #define ws_common_latency_estimate_get(cur) 0
 #define ws_common_datarate_get(cur) 0

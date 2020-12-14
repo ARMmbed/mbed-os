@@ -165,6 +165,7 @@ SRCS += \
 	source/Service_Libs/Trickle/trickle.c \
 	source/Service_Libs/whiteboard/whiteboard.c \
 	source/Service_Libs/pan_blacklist/pan_blacklist.c \
+	source/Service_Libs/random_early_detection/random_early_detection.c \
 	source/6LoWPAN/Thread/thread_management_if.c \
 	source/6LoWPAN/Thread/thread_management_api.c \
 	source/6LoWPAN/Thread/thread_commissioning_api.c \

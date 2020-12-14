@@ -73,6 +73,7 @@ typedef struct nwk_stats_t {
     /* MAC */
     uint16_t adapt_layer_tx_queue_size; /**< Adaptation layer direct TX queue size. */
     uint16_t adapt_layer_tx_queue_peak; /**< Adaptation layer direct TX queue size peak. */
+    uint32_t adapt_layer_tx_congestion_drop; /**< Adaptation layer direct TX randon early detection drop packet. */
 } nwk_stats_t;
 
 /**

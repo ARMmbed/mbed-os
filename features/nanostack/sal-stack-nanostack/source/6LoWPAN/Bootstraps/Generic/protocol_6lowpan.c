@@ -799,15 +799,15 @@ bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latenc
 
     if (cur_interface->eth_mac_api) {
         // either PPP or Ethernet interface.
-        latency_estimate = 100;
+        latency_estimate = 1000;
     } else if (thread_info(cur_interface)) {
         // thread network
-        latency_estimate = 2000;
+        latency_estimate = 5000;
     } else if (ws_info(cur_interface)) {
         latency_estimate = ws_common_latency_estimate_get(cur_interface);
     } else {
         // 6LoWPAN ND
-        latency_estimate = 8000;
+        latency_estimate = 20000;
     }
 
     if (latency_estimate != 0) {

@@ -144,9 +144,9 @@ extern uint8_t DEVICE_MIN_SENS;
 #define MPL_SMALL_K 8
 #define MPL_SMALL_SEED_LIFETIME (MPL_SMALL_IMAX * MPL_SAFE_HOP_COUNT * (MPL_SMALL_EXPIRATIONS + 1)) // time that packet should get to safe distance
 /*Medium network size*/
-#define MPL_MEDIUM_IMIN 5
-#define MPL_MEDIUM_IMAX 20
-#define MPL_MEDIUM_EXPIRATIONS 2
+#define MPL_MEDIUM_IMIN 1
+#define MPL_MEDIUM_IMAX 32
+#define MPL_MEDIUM_EXPIRATIONS 1
 #define MPL_MEDIUM_K 8
 #define MPL_MEDIUM_SEED_LIFETIME (MPL_MEDIUM_IMAX * MPL_SAFE_HOP_COUNT * (MPL_MEDIUM_EXPIRATIONS + 1)) // time that packet should get to safe distance
 /*Large network size*/
@@ -221,6 +221,13 @@ extern uint8_t DEVICE_MIN_SENS;
 #define WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY 5  // During discovery state how many neighbours per pan
 #define WS_PARENT_LIST_MAX_PAN_IN_ACTIVE 2     // During active state two nodes per pan is allowed
 
+#define WS_CONGESTION_PACKET_SIZE 500           // Packet length for calculate how much heap message queue can fit
+#define WS_CONGESTION_QUEUE_DELAY 60            // Define message queue max length for given delay. This value is multiple by packet/seconds
+#define WS_CONGESTION_RED_DROP_PROBABILITY 10 //10.0%
+#define WS_CONGESTION_BR_MIN_QUEUE_SIZE 85000 / WS_CONGESTION_PACKET_SIZE
+#define WS_CONGESTION_BR_MAX_QUEUE_SIZE 600000 / WS_CONGESTION_PACKET_SIZE
+#define WS_CONGESTION_NODE_MIN_QUEUE_SIZE 10000 / WS_CONGESTION_PACKET_SIZE
+#define WS_CONGESTION_NODE_MAX_QUEUE_SIZE 85000 / WS_CONGESTION_PACKET_SIZE
 /*
  * Modifications for base specification.
  *
