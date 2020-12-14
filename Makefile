@@ -5,6 +5,7 @@ source/libip6string/ip6tos.c \
 source/libip6string/stoip6.c \
 source/libList/ns_list.c \
 source/nsdynmemLIB/nsdynmemLIB.c \
+source/nsdynmemtracker/nsdynmem_tracker_lib.c \
 source/nvmHelper/ns_nvm_helper.c \
 
 LIB := libservice.a
