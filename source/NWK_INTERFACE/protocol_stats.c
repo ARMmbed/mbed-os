@@ -152,6 +152,9 @@ void protocol_stats_update(nwk_stats_type_t type, uint16_t update_val)
                     nwk_stats_ptr->adapt_layer_tx_queue_peak = nwk_stats_ptr->adapt_layer_tx_queue_size;
                 }
                 break;
+            case STATS_AL_TX_CONGESTION_DROP:
+                nwk_stats_ptr->adapt_layer_tx_congestion_drop++;
+                break;
         }
     }
 }

@@ -45,6 +45,7 @@
 #include "NWK_INTERFACE/Include/protocol_stats.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/icmpv6.h"
+#include "Common_Protocols/ip.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Service_Libs/etx/etx.h" /* slight ick */
 
@@ -1292,6 +1293,10 @@ void rpl_control_transmit(rpl_domain_t *domain, protocol_interface_info_entry_t 
     /* Others set "0", which means use interface default */
     buf->options.hop_limit = addr_ipv6_scope(buf->dst_sa.address, cur) <= IPV6_SCOPE_LINK_LOCAL ? 255 : 0;
 
+    if (code == ICMPV6_CODE_RPL_DAO || code == ICMPV6_CODE_RPL_DAO_ACK || buf->dst_sa.address[0] != 0xff) {
+        //DAO and DAO ACK and unicast traffic with Higher priority
+        buf->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
+    }
 
     if (dst == NULL && cur == NULL) {
         rpl_control_transmit_all_interfaces(domain, buf);

@@ -604,8 +604,13 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     if (!fhss_structure) {
         return -1;
     }
-    if (is_broadcast_addr) {
+    // Allow broadcast destination on broadcast channel
+    if (is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true)) {
         return 0;
+    }
+    // Do not allow broadcast destination on unicast channel
+    if (is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == false)) {
+        return -3;
     }
     // Do not allow unicast destination on broadcast channel
     if (!is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true)) {

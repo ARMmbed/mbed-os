@@ -1110,6 +1110,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 || (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL
                     && (buf->options.code != ICMPV6_CODE_RPL_DIO
                         && buf->options.code != ICMPV6_CODE_RPL_DIS))) {
+            tr_warn("Drop: ICMP EP unsecured packet");
             goto drop;
         }
     }
@@ -1526,7 +1527,11 @@ buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t ta
         /* If ARO Success sending is omitted, MAC ACK is used instead */
         /* Setting callback for receiving ACK from adaptation layer */
         if (aro && cur->ipv6_neighbour_cache.omit_na_aro_success) {
-            buf->ack_receive_cb = icmpv6_aro_cb;
+            if (aro->lifetime > 1) {
+                buf->ack_receive_cb = icmpv6_aro_cb;
+            } else {
+                buf->ack_receive_cb = ack_receive_cb;
+            }
         }
     }
     if (unicast && (!aro && cur->ipv6_neighbour_cache.omit_na)) {
@@ -1761,6 +1766,7 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
             tr_debug("Neighbour removed for negative response send");
             return buffer_free(buf);
         }
+        buf->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
         buf->ack_receive_cb = ack_remove_neighbour_cb;
     }
 

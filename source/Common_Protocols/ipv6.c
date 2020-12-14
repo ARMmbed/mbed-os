@@ -1416,6 +1416,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
 #endif
             default: {
                 if (buf->options.ll_security_bypass_rx) {
+                    tr_warn("Drop: unsecured by BAD Next header %u", *nh_ptr);
                     goto bad_nh;
                 }
                 buffer_socket_set(buf, socket_lookup_ipv6(*nh_ptr, &buf->dst_sa, &buf->src_sa, true));

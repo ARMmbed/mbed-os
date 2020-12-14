@@ -91,6 +91,7 @@
 #include "Common_Protocols/icmpv6.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
+#include "Common_Protocols/ip.h"
 
 #include "net_rpl.h"
 #include "RPL/rpl_protocol.h"
@@ -1874,6 +1875,7 @@ static bool rpl_instance_push_address_registration(protocol_interface_info_entry
     if (!buf) {
         return false;
     }
+    buf->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
     tr_info("Send ARO %s to %s", trace_ipv6(addr->address), trace_ipv6(neighbour->ll_address));
     protocol_push(buf);
     return true;
