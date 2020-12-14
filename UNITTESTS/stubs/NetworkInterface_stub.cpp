@@ -26,6 +26,11 @@ const char *NetworkInterface::get_mac_address()
     return 0;
 }
 
+nsapi_error_t NetworkInterface::set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 nsapi_error_t NetworkInterface::get_ip_address(SocketAddress *)
 {
     return NSAPI_ERROR_UNSUPPORTED;

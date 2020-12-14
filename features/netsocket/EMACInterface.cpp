@@ -15,8 +15,11 @@
  */
 
 #include "EMACInterface.h"
+#include "mbed-trace/mbed_trace.h"
 
 using namespace mbed;
+
+#define TRACE_GROUP "EMACi"
 
 /* Interface implementation */
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
@@ -25,6 +28,7 @@ EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
     _interface(NULL),
     _dhcp(true),
     _blocking(true),
+    _hw_mac_addr_set(false),
     _ip_address(),
     _netmask(),
     _gateway()
@@ -68,7 +72,19 @@ nsapi_error_t EMACInterface::set_dhcp(bool dhcp)
 nsapi_error_t EMACInterface::connect()
 {
     if (!_interface) {
-        nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
+        nsapi_error_t err = NSAPI_ERROR_UNSUPPORTED;
+
+        if (_hw_mac_addr_set) {
+            err = _stack.add_ethernet_interface(_emac, true, &_interface, _hw_mac_addr);
+            if (err == NSAPI_ERROR_UNSUPPORTED) {
+                tr_error("Failed to set user MAC address");
+            }
+        }
+
+        if (err == NSAPI_ERROR_UNSUPPORTED) {
+            err = _stack.add_ethernet_interface(_emac, true, &_interface);
+        }
+
         if (err != NSAPI_ERROR_OK) {
             _interface = NULL;
             return err;
@@ -98,6 +114,23 @@ const char *EMACInterface::get_mac_address()
         return _mac_address;
     }
     return nullptr;
+}
+
+nsapi_error_t EMACInterface::set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len)
+{
+    if (!mac_addr || addr_len != NSAPI_MAC_BYTES) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    if (_interface) {
+        // can't set MAC address once initialized
+        return NSAPI_ERROR_BUSY;
+    }
+
+    memcpy(_hw_mac_addr, mac_addr, addr_len);
+    _hw_mac_addr_set = true;
+
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t EMACInterface::get_ip_address(SocketAddress *address)

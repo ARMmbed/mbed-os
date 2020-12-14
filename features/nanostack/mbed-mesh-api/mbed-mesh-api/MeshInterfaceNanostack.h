@@ -29,6 +29,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
     virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
+    virtual nsapi_error_t set_mac_address(uint8_t *buf, nsapi_size_t buflen);
     virtual nsapi_error_t get_netmask(SocketAddress *address);
     MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual char *get_netmask(char *buf, nsapi_size_t buflen);
@@ -37,14 +38,7 @@ public:
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_connection_status_t get_connection_status() const;
-
-    void get_mac_address(uint8_t *buf) const
-    {
-        NanostackMACPhy *phy = interface_phy.nanostack_mac_phy();
-        if (phy) {
-            phy->get_mac_address(buf);
-        }
-    }
+    virtual void get_mac_address(uint8_t *buf) const;
 
     /**
      * \brief Callback from C-layer
@@ -117,6 +111,9 @@ public:
     /return     MAC address of the interface
     */
     virtual const char *get_mac_address();
+
+    /** @copydoc NetworkInterface::set_mac_address */
+    virtual nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len);
 
     /** Register callback for status reporting
      *
