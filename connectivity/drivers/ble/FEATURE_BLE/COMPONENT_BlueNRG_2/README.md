@@ -113,7 +113,7 @@ To this aim you need to update your local mbed_app.json file with:
 ```
     "target_overrides": {
         "XXXX": {
-            "bluenrg_2.SPI_SCK": "D13"
+            "SPI_SCK": "D13"
         },
 ```
 
@@ -127,16 +127,16 @@ Alternatively, pin **D7** of the Arduino connector (**CN9**) and pin #5 of the j
 
 To use that library, the target requires some extra configuration in the application `mbed_app.json`. In the `target_overides` section:   
 
-* BLE feature has to be enabled
-
-```json
-"target.features_add": ["BLE"]
-```
-
 * BlueNRG module has to be enabled
 
 ```json
 "target.components_add": ["BlueNRG_2"]
+```
+
+* BLE feature has to be enabled
+
+```json
+"target.features_add": ["BLE"]
 ```
 
 * Extra labels have to be defined to include the cordio stack and this library: 
@@ -149,12 +149,12 @@ As an example, the target overide section for the `NUCLEO_F401RE` would be:
 
 ```json
         "NUCLEO_F401RE": {
-            "target.features_add": ["BLE"],
             "target.components_add": ["BlueNRG_2"],
+            "target.features_add": ["BLE"]
             "target.extra_labels_add": ["CORDIO"]
         }
 ```
 
-### Known issues
+### Known limitations
 
 Security does not work with privacy due to pairing failure.
