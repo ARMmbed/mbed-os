@@ -15,6 +15,9 @@
     "target_overrides": {
         "*": {
             "target.macros_add": [ "CORDIO_RPA_SWAP_WORKAROUND=1" ]
+        },
+        "NUCLEO_F446RE": {
+            "SPI_SCK":   "D13"
         }
     }
 }
