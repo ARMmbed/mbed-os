@@ -4,16 +4,16 @@
 target_include_directories(mbed-core
     INTERFACE
         .
-        ./nrfx
-        ./nrfx/drivers
-        ./nrfx/drivers/include
-        ./nrfx/drivers/src
-        ./nrfx/drivers/src/prs
-        ./nrfx/hal
-        ./nrfx/mdk
-        ./nrfx/soc
-        ./softdevice
-        ./softdevice/common
+        nrfx
+        nrfx/drivers
+        nrfx/drivers/include
+        nrfx/drivers/src
+        nrfx/drivers/src/prs
+        nrfx/hal
+        nrfx/mdk
+        nrfx/soc
+        softdevice
+        softdevice/common
 )
 
 target_sources(mbed-core
