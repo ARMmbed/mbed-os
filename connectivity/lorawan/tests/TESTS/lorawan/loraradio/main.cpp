@@ -33,15 +33,17 @@
 #define SX1272   0xFF
 #define SX1276   0xEE
 
-#if (MBED_CONF_APP_LORA_RADIO == SX1272)
+#ifndef MBED_CONF_LORA_RADIO
+#error [NOT_SUPPORTED] Lora radio is not set
+#else
+
+#if (MBED_CONF_LORA_RADIO == SX1272)
 #include "SX1272_LoRaRadio.h"
-#elif (MBED_CONF_APP_LORA_RADIO == SX1276)
+#elif (MBED_CONF_LORA_RADIO == SX1276)
 #include "SX1276_LoRaRadio.h"
 #else
-#error [NOT_SUPPORTED] Requires parameters from application config file.
+#error Lora radio is not configured
 #endif
-
-#if (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
 
 using namespace utest::v1;
 using namespace mbed;
@@ -203,50 +205,12 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
-#if (MBED_CONF_APP_LORA_RADIO == SX1272)
+#if (MBED_CONF_LORA_RADIO == SX1272)
+    radio = new SX1272_LoRaRadio();
 
-    radio = new SX1272_LoRaRadio(MBED_CONF_APP_LORA_SPI_MOSI,
-                                 MBED_CONF_APP_LORA_SPI_MISO,
-                                 MBED_CONF_APP_LORA_SPI_SCLK,
-                                 MBED_CONF_APP_LORA_CS,
-                                 MBED_CONF_APP_LORA_RESET,
-                                 MBED_CONF_APP_LORA_DIO0,
-                                 MBED_CONF_APP_LORA_DIO1,
-                                 MBED_CONF_APP_LORA_DIO2,
-                                 MBED_CONF_APP_LORA_DIO3,
-                                 MBED_CONF_APP_LORA_DIO4,
-                                 MBED_CONF_APP_LORA_DIO5,
-                                 MBED_CONF_APP_LORA_RF_SWITCH_CTL1,
-                                 MBED_CONF_APP_LORA_RF_SWITCH_CTL2,
-                                 MBED_CONF_APP_LORA_TXCTL,
-                                 MBED_CONF_APP_LORA_RXCTL,
-                                 MBED_CONF_APP_LORA_ANT_SWITCH,
-                                 MBED_CONF_APP_LORA_PWR_AMP_CTL,
-                                 MBED_CONF_APP_LORA_TCXO);
+#elif (MBED_CONF_LORA_RADIO == SX1276)
+    radio = new SX1276_LoRaRadio();
 
-#elif (MBED_CONF_APP_LORA_RADIO == SX1276)
-
-    radio = new SX1276_LoRaRadio(MBED_CONF_APP_LORA_SPI_MOSI,
-                                 MBED_CONF_APP_LORA_SPI_MISO,
-                                 MBED_CONF_APP_LORA_SPI_SCLK,
-                                 MBED_CONF_APP_LORA_CS,
-                                 MBED_CONF_APP_LORA_RESET,
-                                 MBED_CONF_APP_LORA_DIO0,
-                                 MBED_CONF_APP_LORA_DIO1,
-                                 MBED_CONF_APP_LORA_DIO2,
-                                 MBED_CONF_APP_LORA_DIO3,
-                                 MBED_CONF_APP_LORA_DIO4,
-                                 MBED_CONF_APP_LORA_DIO5,
-                                 MBED_CONF_APP_LORA_RF_SWITCH_CTL1,
-                                 MBED_CONF_APP_LORA_RF_SWITCH_CTL2,
-                                 MBED_CONF_APP_LORA_TXCTL,
-                                 MBED_CONF_APP_LORA_RXCTL,
-                                 MBED_CONF_APP_LORA_ANT_SWITCH,
-                                 MBED_CONF_APP_LORA_PWR_AMP_CTL,
-                                 MBED_CONF_APP_LORA_TCXO);
-
-#else
-#error [NOT_SUPPORTED] Unknown LoRa radio specified (SX1272,SX1276 are valid)
 #endif
 
     TEST_ASSERT(radio);
@@ -260,12 +224,12 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 {
     radio->sleep();
 
-#if (MBED_CONF_APP_LORA_RADIO == SX1272)
+#if (MBED_CONF_LORA_RADIO == SX1272)
     delete static_cast<SX1272_LoRaRadio *>(radio);
-#elif (MBED_CONF_APP_LORA_RADIO == SX1276)
+
+#elif (MBED_CONF_LORA_RADIO == SX1276)
     delete static_cast<SX1276_LoRaRadio *>(radio);
-#else
-#error [NOT_SUPPORTED] Unknown LoRa radio specified (SX1272,SX1276 are valid)
+
 #endif
     radio = NULL;
 
@@ -288,5 +252,5 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
+#endif // (MBED_CONF_LORA_RADIO)
 #endif // !defined(MBED_CONF_RTOS_PRESENT)

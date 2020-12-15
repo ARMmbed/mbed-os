@@ -12,6 +12,7 @@ The default mbed_app.json file provides configuration for some already supported
 
 You can use the following command to run tests:
 
-`mbed test -n mbed-os-tests-lorawan-loraradio -m TARGET -t GCC_ARM --app-config mbed-os/TESTS/lorawan/loraradio/template_mbed_app.txt`
+`mbed test -n connectivity-lorawan-tests-tests-lorawan-loraradio -m TARGET -t GCC_ARM -v --app-config connectivity/lorawan/tests/TESTS/lorawan/loraradio/template_mbed_app.txt
+`
 
 Replace TARGET with the target device.
