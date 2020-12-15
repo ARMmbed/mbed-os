@@ -2,14 +2,39 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if("FRDM" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_FRDM)
+    target_include_directories(mbed-core
+        INTERFACE
+            TARGET_FRDM
+    )
+
+    target_sources(mbed-core
+        INTERFACE
+            TARGET_FRDM/PeripheralPins.c
+            TARGET_FRDM/crc.c
+            TARGET_FRDM/fsl_clock_config.c
+            TARGET_FRDM/fsl_phy.c
+            TARGET_FRDM/mbed_overrides.c
+    )
 endif()
 
-add_subdirectory(device)
+if(${MBED_TOOLCHAIN} STREQUAL "ARM")
+    set(LINKER_FILE device/TOOLCHAIN_ARM_STD/MK66FN2M0xxx18.sct)
+    set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_MK66F18.S)
+elseif(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
+    set(LINKER_FILE device/TOOLCHAIN_GCC_ARM/MK66FN2M0xxx18.ld)
+    set(STARTUP_FILE device/TOOLCHAIN_GCC_ARM/startup_MK66F18.S)
+endif()
+
+set_property(
+    GLOBAL PROPERTY
+    MBED_TARGET_LINKER_FILE
+        ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE}
+)
 
 target_include_directories(mbed-core
     INTERFACE
         .
+        device
         drivers
 )
 
@@ -64,4 +89,7 @@ target_sources(mbed-core
         drivers/fsl_uart_edma.c
         drivers/fsl_vref.c
         drivers/fsl_wdog.c
+
+        device/system_MK66F18.c
+        ${STARTUP_FILE}
 )

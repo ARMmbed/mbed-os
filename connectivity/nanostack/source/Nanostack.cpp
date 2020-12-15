@@ -71,7 +71,7 @@ enum socket_mode_t {
 class NanostackSocket {
 public:
     static void socket_callback(void *cb);
-    static void *operator new (std::size_t sz);
+    static void *operator new (std::size_t sz, const std::nothrow_t &nothrow_value) noexcept;
     static void operator delete (void *ptr);
 
     NanostackSocket(int8_t protocol);
@@ -205,10 +205,11 @@ static int nanostack_dns_query_result_check(const char *domain_name, SocketAddre
     return -1;
 }
 
-void *NanostackSocket::operator new (std::size_t sz)
+void *NanostackSocket::operator new (std::size_t sz, const std::nothrow_t &nothrow_value) noexcept
 {
     return MALLOC(sz);
 }
+
 void NanostackSocket::operator delete (void *ptr)
 {
     FREE(ptr);
@@ -533,7 +534,7 @@ nsapi_error_t Nanostack::call_in(int delay, mbed::Callback<void()> func)
         }
     }
 
-    nanostack_callback *cb = new nanostack_callback;
+    nanostack_callback *cb = new (std::nothrow) nanostack_callback;
     if (!cb) {
         return NSAPI_ERROR_NO_MEMORY;
     }
@@ -685,7 +686,7 @@ nsapi_error_t Nanostack::socket_open(void **handle, nsapi_protocol_t protocol)
 
     NanostackLockGuard lock;
 
-    NanostackSocket *socket = new NanostackSocket(ns_proto);
+    NanostackSocket *socket = new (std::nothrow) NanostackSocket(ns_proto);
     if (socket == NULL) {
         tr_debug("socket_open() ret=%i", NSAPI_ERROR_NO_MEMORY);
         return NSAPI_ERROR_NO_MEMORY;
@@ -1123,7 +1124,7 @@ nsapi_error_t Nanostack::socket_accept(void *server, void **handle, SocketAddres
         goto out;
     }
 
-    accepted_sock = new NanostackSocket(socket->proto);
+    accepted_sock = new (std::nothrow) NanostackSocket(socket->proto);
     if (accepted_sock == NULL) {
         ret = NSAPI_ERROR_NO_MEMORY;
         goto out;

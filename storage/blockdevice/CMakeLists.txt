@@ -31,6 +31,7 @@ target_include_directories(mbed-storage-blockdevice
         .
         ./include
         ./include/blockdevice
+        ./include/blockdevice/internal
 )
 
 target_sources(mbed-storage-blockdevice
@@ -44,5 +45,6 @@ target_sources(mbed-storage-blockdevice
         source/ObservingBlockDevice.cpp
         source/ProfilingBlockDevice.cpp
         source/ReadOnlyBlockDevice.cpp
+        source/SFDP.cpp
         source/SlicingBlockDevice.cpp
 )

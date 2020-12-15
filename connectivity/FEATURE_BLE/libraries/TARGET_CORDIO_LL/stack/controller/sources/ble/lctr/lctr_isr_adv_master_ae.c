@@ -1223,7 +1223,8 @@ bool_t lctrMstDiscoverRxAuxAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf
       if ((lctrPerCreateSync.state == LCTR_CREATE_SYNC_STATE_DISCOVER) &&
           (lctrMstPerScanIsr.filtResult == TRUE) &&
           (lctrMstExtScanIsr.extAdvHdrFlags & LL_EXT_HDR_ADI_BIT) &&
-          (lctrMstExtScanIsr.extAdvHdrFlags & LL_EXT_HDR_ADV_ADDR_BIT))
+          ((lctrMstExtScanIsr.extAdvHdrFlags & LL_EXT_HDR_ADV_ADDR_BIT) ||
+           (lctrMstExtScanIsr.extAdvHdrFlags & LL_EXT_HDR_SYNC_INFO_BIT)))
       {
         if (lctrPerCreateSync.filtParam.filterPolicy == LL_PER_SCAN_FILTER_PL_BIT)
         {

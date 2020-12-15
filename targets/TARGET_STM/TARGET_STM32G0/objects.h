@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+#define RTC_WKUP_IRQn RTC_TAMP_IRQn
+
 struct gpio_irq_s {
     IRQn_Type irq_n;
     uint32_t irq_index;

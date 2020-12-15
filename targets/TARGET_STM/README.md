@@ -61,7 +61,7 @@ This table summarizes the STM32Cube versions currently used in Mbed OS master br
 
 | STM32 Serie | Cube version | Github source                                     |
 |-------------|--------------|---------------------------------------------------|
-| F0          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeF0 |
+| F0          |    1.11.2    | https://github.com/STMicroelectronics/STM32CubeF0 |
 | F1          |    1.8.0     | https://github.com/STMicroelectronics/STM32CubeF1 |
 | F2          |    1.6.0     | https://github.com/STMicroelectronics/STM32CubeF2 |
 | F3          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeF3 |
@@ -158,17 +158,20 @@ It is recommended to use a python script to generate those files
 
 https://github.com/ARMmbed/mbed-os/blob/master/targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py
 
-STM32CubeMX has to be installed first. Path has to be specified in the `cube_path.json` file.
+This script is using MCU database from https://github.com/STMicroelectronics/STM32_open_pin_data.git repo
 
 ```
 $ python targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py -h
 
-Script version 1.17
-usage: STM32_gen_PeripheralPins.py [-h] (-l | -b | -m xml | -t HW | -c CUSTOM)
+SScript version 1.19
 
-Script will generate PeripheralPins.c thanks to the xml files description available in
-STM32CubeMX directory defined in 'cube_path.json':
-        C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX
+Checking STM32_open_pin_data repo...
+*** git clone done
+
+usage: STM32_gen_PeripheralPins.py [-h] (-l | -b | -m xml | -t HW | -c CUSTOM)
+                                   [-g]
+
+Script will generate PeripheralPins.c thanks to the xml files description available in STM32_open_pin_data GitHub repo
 
 More information in targets/TARGET_STM/README.md
 
@@ -182,6 +185,7 @@ optional arguments:
                            Parameter can be a filter like L496 (only the first file found will be parsed).
   -c CUSTOM, --custom CUSTOM
                         specify a custom board .ioc file description to use (use double quotes).
+  -g, --gpio            Add GPIO PinMap table
 
 Once generated, you have to check and comment pins that can not be used (specific HW, internal ADC channels, remove PWM using us ticker timer, ...)
 
@@ -198,19 +202,22 @@ STM32F427Z(G-I)Tx.xml
 
 $ python targets/TARGET_STM/tools/STM32_gen_PeripheralPins.py -m "STM32F427V(G-I)Tx.xml"
 
-Script version 1.17
-CubeMX DB version DB.6.0.0
+Script version 1.19
+
+Checking STM32_open_pin_data repo...
+        Already up to date.
+
+STM32_open_pin_data DB version STM32CubeMX-DB.6.0.10
 
  * Output directory: targets_custom\TARGET_STM\TARGET_STM32F4\TARGET_STM32F427xG\TARGET_STM32F427VGT
- * Generating PeripheralPins.c and PinNames.h with 'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\STM32F427V(G-I)Tx.xml'
- * GPIO file: C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\IP\GPIO-STM32F427_gpio_v1_0_Modes.xml
+ * Generating PeripheralPins.c and PinNames.h with 'STM32_open_pin_data\mcu\STM32F427V(G-I)Tx.xml'
+ * GPIO file: STM32_open_pin_data\mcu\IP\GPIO-STM32F427_gpio_v1_0_Modes.xml
  * I/O pins found: 135 connected: 0
 
  * Output directory: targets_custom\TARGET_STM\TARGET_STM32F4\TARGET_STM32F427xI\TARGET_STM32F427VIT
- * Generating PeripheralPins.c and PinNames.h with 'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\STM32F427V(G-I)Tx.xml'
- * GPIO file: C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\db\mcu\IP\GPIO-STM32F427_gpio_v1_0_Modes.xml
+ * Generating PeripheralPins.c and PinNames.h with 'STM32_open_pin_data\mcu\STM32F427V(G-I)Tx.xml'
+ * GPIO file: STM32_open_pin_data\mcu\IP\GPIO-STM32F427_gpio_v1_0_Modes.xml
  * I/O pins found: 135 connected: 0
-
 ```
 
 ### Use of custom_targets.json

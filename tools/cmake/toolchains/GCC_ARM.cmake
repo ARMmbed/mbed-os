@@ -7,56 +7,41 @@ set(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
 set(GCC_ELF2BIN "arm-none-eabi-objcopy")
 set_property(GLOBAL PROPERTY ELF2BIN ${GCC_ELF2BIN})
 
-# Sets toolchain options
-function(mbed_set_toolchain_options target)
+# build toolchain flags that get passed to everything (including CMake compiler checks)
+list(APPEND link_options
+    "-Wl,--start-group"
+        "-lstdc++"
+        "-lsupc++"
+        "-lm"
+        "-lc"
+        "-lgcc"
+        "-lnosys"
+    "-Wl,--end-group"
+    "-specs=nosys.specs"
+    "-Wl,--cref"
+)
+
+# Add linking time preprocessor macro for TFM targets
+if("TFM" IN_LIST MBED_TARGET_LABELS)
     list(APPEND link_options
-        "-Wl,--start-group"
-            "-lstdc++"
-            "-lsupc++"
-            "-lm"
-            "-lc"
-            "-lgcc"
-            "-lnosys"
-        "-Wl,--end-group"
-        "-specs=nosys.specs"
-        "-T" "${CMAKE_BINARY_DIR}/${APP_TARGET}.link_script.ld"
-        "-Wl,-Map=${CMAKE_BINARY_DIR}/${APP_TARGET}.map"
-        "-Wl,--cref"
+        "-DDOMAIN_NS=1"
     )
+endif()
 
-    # Add linking time preprocessor macro for TFM targets
-    if("TFM" IN_LIST MBED_TARGET_LABELS)
-        list(APPEND link_options
-            "-DDOMAIN_NS=1"
-        )
-    endif()
+list(APPEND common_options
+    "-Wall"
+    "-Wextra"
+    "-Wno-unused-parameter"
+    "-Wno-missing-field-initializers"
+    "-fmessage-length=0"
+    "-fno-exceptions"
+    "-ffunction-sections"
+    "-fdata-sections"
+    "-funsigned-char"
+    "-fomit-frame-pointer"
+    "-g3"
+)
 
-    list(APPEND common_options
-        "-Wall"
-        "-Wextra"
-        "-Wno-unused-parameter"
-        "-Wno-missing-field-initializers"
-        "-fmessage-length=0"
-        "-fno-exceptions"
-        "-ffunction-sections"
-        "-fdata-sections"
-        "-funsigned-char"
-        "-MMD"
-        "-fomit-frame-pointer"
-        "-g3"
-    )
-
-    target_compile_options(${target}
-        INTERFACE
-            ${common_options}
-    )
-
-    target_link_options(${target}
-        INTERFACE
-            ${common_options}
-            ${link_options}
-    )
-endfunction()
 
 # Configure the toolchain to select the selected C library
 function(mbed_set_c_lib target lib_type)
@@ -82,7 +67,8 @@ function(mbed_set_printf_lib target lib_type)
                 MBED_MINIMAL_PRINTF
         )
 
-        list(APPEND link_options
+        set(printf_link_options "")
+        list(APPEND printf_link_options
             "-Wl,--wrap,printf"
             "-Wl,--wrap,sprintf"
             "-Wl,--wrap,snprintf"
@@ -94,7 +80,7 @@ function(mbed_set_printf_lib target lib_type)
         )
         target_link_options(${target}
             INTERFACE
-                ${link_options}
+                ${printf_link_options}
         )
     endif()
 endfunction()

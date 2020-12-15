@@ -129,24 +129,32 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 #if defined(USART3_BASE)
     if (obj_s->uart == UART_3) {
+#if defined(LPUART1_BASE)
         irq_n = USART3_4_LPUART1_IRQn;
+#else
+        irq_n = USART3_4_IRQn;
+#endif
         vector = (uint32_t)&uart3_irq;
     }
 #endif
 
 #if defined(USART4_BASE)
     if (obj_s->uart == UART_4) {
+#if defined(LPUART1_BASE)
         irq_n = USART3_4_LPUART1_IRQn;
+#else
+        irq_n = USART3_4_IRQn;
+#endif
         vector = (uint32_t)&uart4_irq;
     }
 #endif
 
 #if defined(LPUART1_BASE)
     if (obj_s->uart == LPUART_1) {
-#if defined(STM32G031xx)
-        irq_n = LPUART1_IRQn;
-#else
+#if defined(USART3_BASE)
         irq_n = USART3_4_LPUART1_IRQn;
+#else
+        irq_n = LPUART1_IRQn;
 #endif
         vector = (uint32_t)&lpuart1_irq;
     }
@@ -326,21 +334,29 @@ static IRQn_Type serial_get_irq_n(UARTName uart_name)
 #endif
 #if defined(USART3_BASE)
         case UART_3:
+#if defined(LPUART1_BASE)
             irq_n = USART3_4_LPUART1_IRQn;
+#else
+            irq_n = USART3_4_IRQn;
+#endif
             break;
 #endif
 #if defined(USART4_BASE)
         case UART_4:
+#if defined(LPUART1_BASE)
             irq_n = USART3_4_LPUART1_IRQn;
+#else
+            irq_n = USART3_4_IRQn;
+#endif
             break;
 #endif
 
 #if defined(LPUART1_BASE)
         case LPUART_1:
-#if defined(STM32G031xx)
-            irq_n = LPUART1_IRQn;
-#else
+#if defined(USART3_BASE)
             irq_n = USART3_4_LPUART1_IRQn;
+#else
+            irq_n = LPUART1_IRQn;
 #endif
             break;
 #endif

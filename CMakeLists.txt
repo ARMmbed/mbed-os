@@ -6,7 +6,6 @@
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 include(${MBED_CONFIG_PATH}/mbed_config.cmake)
-include(${MBED_PATH}/tools/cmake/core.cmake)
 
 add_library(mbed-core INTERFACE)
 
@@ -55,8 +54,6 @@ endif()
 
 mbed_set_cpu_core_definitions(mbed-core)
 if(${MBED_TOOLCHAIN_FILE_USED})
-    mbed_set_cpu_core_options(mbed-core ${MBED_TOOLCHAIN})
-    mbed_set_toolchain_options(mbed-core)
     mbed_set_profile_options(mbed-core ${MBED_TOOLCHAIN})
     mbed_set_c_lib(mbed-core ${MBED_C_LIB})
     mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
@@ -141,12 +138,18 @@ function(mbed_set_mbed_target_linker_script target)
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             BYPRODUCTS "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
         )
+        target_link_options(mbed-core
+            INTERFACE
+                "-T" "${CMAKE_BINARY_DIR}/${target}.link_script.ld"
+                "-Wl,-Map=${CMAKE_BINARY_DIR}/${target}.map"
+        )
     elseif(MBED_TOOLCHAIN STREQUAL "ARM")
         set(CMAKE_PRE_BUILD_COMMAND COMMAND "")
         target_link_options(mbed-core
             INTERFACE
                 "--scatter=${mbed_target_linker_script}"
                 "--predefine=${_linker_preprocess_definitions}"
+                "--map"
         )
     endif()
     add_custom_command(

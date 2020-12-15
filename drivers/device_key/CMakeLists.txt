@@ -12,10 +12,11 @@ target_include_directories(mbed-device_key
 target_sources(mbed-device_key
     INTERFACE
         source/DeviceKey.cpp
-        ../source/SFDP.cpp
 )
 
 target_link_libraries(mbed-device_key
     INTERFACE
         mbed-storage-kvstore
+        mbed-storage-tdbstore
+        mbed-storage-kv-global-api
 )

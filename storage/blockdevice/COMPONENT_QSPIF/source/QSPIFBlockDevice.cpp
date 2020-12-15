@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "platform/Callback.h"
 #include "QSPIFBlockDevice.h"
 #include <string.h>
@@ -338,7 +338,7 @@ int QSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
     uint32_t chunk = 0;
     bd_size_t written_bytes = 0;
 
-    tr_debug("Program - Buff: 0x%lxh, addr: %llu, size: %llu", (uint32_t)buffer, addr, size);
+    tr_debug("Program - Buff: %p, addr: %llu, size: %llu", buffer, addr, size);
 
     while (size > 0) {
         // Write on _page_size_bytes boundaries (Default 256 bytes a page)
@@ -385,13 +385,10 @@ exit_point:
     return status;
 }
 
-int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
+int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     int type = 0;
-    uint32_t offset = 0;
-    uint32_t chunk = 4096;
     qspi_inst_t cur_erase_inst = QSPI_NO_INST;
-    int size = (int)in_size;
     bool erase_failed = false;
     int status = QSPIF_BD_ERROR_OK;
     // Find region of erased address
@@ -399,14 +396,14 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     // Erase Types of selected region
     uint8_t bitfield = _sfdp_info.smptbl.region_erase_types_bitfld[region];
 
-    tr_debug("Erase - addr: %llu, in_size: %llu", addr, in_size);
+    tr_debug("Erase - addr: %llu, size: %llu", addr, size);
 
-    if ((addr + in_size) > _sfdp_info.bptbl.device_size_bytes) {
+    if ((addr + size) > _sfdp_info.bptbl.device_size_bytes) {
         tr_error("Erase exceeds flash device size");
         return QSPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
 
-    if (((addr % get_erase_size(addr)) != 0) || (((addr + in_size) % get_erase_size(addr + in_size - 1)) != 0)) {
+    if (((addr % get_erase_size(addr)) != 0) || (((addr + size) % get_erase_size(addr + size - 1)) != 0)) {
         tr_error("Invalid erase - unaligned address and size");
         return QSPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
@@ -417,7 +414,7 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         if (_sfdp_info.bptbl.legacy_erase_instruction == QSPI_NO_INST) {
             // Iterate to find next largest erase type that is a) supported by region, and b) smaller than size.
             // Find the matching instruction and erase size chunk for that type.
-            type = sfdp_iterate_next_largest_erase_type(bitfield, size, (int)addr,
+            type = sfdp_iterate_next_largest_erase_type(bitfield, size, addr,
                                                         region,
                                                         _sfdp_info.smptbl);
             cur_erase_inst = _sfdp_info.smptbl.erase_type_inst_arr[type];
@@ -427,11 +424,16 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
             cur_erase_inst = _sfdp_info.bptbl.legacy_erase_instruction;
             eu_size = QSPIF_DEFAULT_SE_SIZE;
         }
-        offset = addr % eu_size;
-        chunk = ((offset + size) < eu_size) ? size : (eu_size - offset);
 
-        tr_debug("Erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu ",
-                 addr, size, cur_erase_inst, chunk);
+        if (addr % eu_size != 0 || addr + size < eu_size) {
+            // Should not happen if the erase table parsing
+            // and alignment checks were performed correctly
+            tr_error("internal error: address %llu not aligned to erase size %u (type %d)",
+                     addr, eu_size, type);
+        }
+
+        tr_debug("Erase - addr: %llu, size:%llu, Inst: 0x%xh, erase size: %u",
+                 addr, size, cur_erase_inst, eu_size);
         tr_debug("Erase - Region: %d, Type:%d ",
                  region, type);
 
@@ -451,8 +453,8 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
             goto exit_point;
         }
 
-        addr += chunk;
-        size -= chunk;
+        addr += eu_size;
+        size -= eu_size;
 
         if ((size > 0) && (addr > _sfdp_info.smptbl.region_high_boundary[region])) {
             // erase crossed to next region
@@ -502,7 +504,7 @@ const char *QSPIFBlockDevice::get_type() const
 }
 
 // Find minimal erase size supported by the region to which the address belongs to
-bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
+bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     // If the legacy erase instruction is in use, the erase size is uniformly 4k
     if (_sfdp_info.bptbl.legacy_erase_instruction != QSPI_NO_INST) {

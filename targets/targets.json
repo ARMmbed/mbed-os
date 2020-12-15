@@ -77,6 +77,10 @@
                 "help": "Initialize the microsecond ticker at boot rather than on first use, and leave it initialized. This speeds up wait_us in particular.",
                 "value": false
             },
+            "custom-tickers": {
+                "help": "Support custom tickers in addition to USTICKER and LPTICKER. Turning this off can permit some space and speed optimisations, if characteristics of USTICKER and LPTICKER are known at compile time.",
+                "value": true
+            },
             "xip-enable": {
                 "help": "Enable Execute In Place (XIP) on this target. Value is only significant if the board has executable external storage such as QSPIF. If this is enabled, customize the linker file to choose what text segments are placed on external storage",
                 "value": false
@@ -1214,59 +1218,107 @@
             "FLASH"
         ]
     },
-    "NUCLEO_F070RB": {
+    "MCU_STM32F030x8": {
         "inherits": [
             "MCU_STM32F0"
+        ],
+        "public": false,
+        "overrides": {
+            "boot-stack-size": "0x400"
+        },
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "extra_labels_add": [
+            "STM32F030x8"
+        ],
+        "macros_add": [
+            "STM32F030x8"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ]
+    },
+    "MCU_STM32F070xB": {
+        "inherits": [
+            "MCU_STM32F0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F070xB"
+        ],
+        "macros_add": [
+            "STM32F070xB"
+        ]
+    },
+    "NUCLEO_F070RB": {
+        "inherits": [
+            "MCU_STM32F070xB"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32F070RB"
         ],
         "detect_code": [
             "0755"
         ],
         "device_name": "STM32F070RB"
     },
-    "NUCLEO_F072RB": {
+    "MCU_STM32F072xB": {
         "inherits": [
             "MCU_STM32F0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F072xB"
+        ],
+        "macros_add": [
+            "STM32F072xB"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN"
+        ]
+    },
+    "NUCLEO_F072RB": {
+        "inherits": [
+            "MCU_STM32F072xB"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
-        ],
-        "extra_labels_add": [
-            "STM32F072RB"
         ],
         "detect_code": [
             "0730"
         ],
+        "device_name": "STM32F072RB"
+    },
+    "MCU_STM32F091xC": {
+        "inherits": [
+            "MCU_STM32F0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32F091xC"
+        ],
+        "macros_add": [
+            "STM32F091xC"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN"
-        ],
-        "device_name": "STM32F072RB"
+        ]
     },
     "NUCLEO_F091RC": {
         "inherits": [
-            "MCU_STM32F0"
+            "MCU_STM32F091xC"
         ],
         "supported_form_factors": [
             "ARDUINO",
             "MORPHO"
         ],
-        "extra_labels_add": [
-            "STM32F091xC"
-        ],
         "detect_code": [
             "0750"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN"
         ],
         "device_name": "STM32F091RC"
     },
@@ -2472,6 +2524,26 @@
         ],
         "device_name": "STM32G031K8Tx"
     },
+    "MCU_STM32G070xx": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32G070xx"
+        ],
+        "macros_add": [
+            "STM32G070xx"
+        ],
+        "macros_remove": [
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 1,
+            "lpticker_lptim": "0"
+        }
+    },
     "MCU_STM32G071xx": {
         "inherits": [
             "MCU_STM32G0"
@@ -2698,6 +2770,12 @@
             "lse_drive_load_level": {
                 "help": "HSE drive load level  RCC_LSEDRIVE_LOW | RCC_LSEDRIVE_MEDIUMLOW | RCC_LSEDRIVE_MEDIUMHIGH | RCC_LSEDRIVE_HIGH",
                 "value": "RCC_LSEDRIVE_LOW"
+            },
+            "system_power_supply": {
+                "expected_value1": "PWR_LDO_SUPPLY | PWR_DIRECT_SMPS_SUPPLY",
+                "expected_value2": "PWR_SMPS_1V8_SUPPLIES_LDO | PWR_SMPS_2V5_SUPPLIES_LDO | PWR_SMPS_1V8_SUPPLIES_EXT_AND_LDO | PWR_SMPS_2V5_SUPPLIES_EXT_AND_LDO",
+                "expected_value3": "PWR_SMPS_1V8_SUPPLIES_EXT | PWR_SMPS_2V5_SUPPLIES_EXT | PWR_EXTERNAL_SOURCE_SUPPLY",
+                "value": "NC"
             }
         },
         "components_add": [
@@ -2734,7 +2812,10 @@
         ],
         "macros_add": [
             "STM32H743xx"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY"
+        }
     },
     "NUCLEO_H743ZI2": {
         "inherits": [
@@ -2776,7 +2857,10 @@
         ],
         "macros_add": [
             "STM32H745xx"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
     },
     "MCU_STM32H745xI_CM4": {
         "inherits": [
@@ -2822,7 +2906,10 @@
         ],
         "macros_add": [
             "STM32H747xx"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
     },
     "MCU_STM32H747xI_CM7": {
         "inherits": [
@@ -2924,7 +3011,10 @@
         ],
         "macros_add": [
             "STM32H7A3xxQ"
-        ]
+        ],
+        "overrides": {
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+        }
     },
     "NUCLEO_H7A3ZI_Q": {
         "inherits": [
@@ -4675,6 +4765,7 @@
             "USTICKER",
             "RTC",
             "ANALOGIN",
+            "CAN",
             "ETHERNET",
             "I2C",
             "I2CSLAVE",
@@ -4712,46 +4803,6 @@
             "5502"
         ]
 
-    },
-    "MAX32600MBED": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M3",
-        "macros": [
-            "__SYSTEM_HFX=24000000"
-        ],
-        "extra_labels": [
-            "Maxim",
-            "MAX32600"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "IAR",
-            "ARM"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "ANALOGOUT",
-            "I2C",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "STDIO_MESSAGES",
-            "USTICKER"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "detect_code": [
-            "0405"
-        ]
     },
     "MAX32620FTHR": {
         "inherits": [
@@ -6464,7 +6515,10 @@
             "CY_USING_HAL",
             "MBED_TICKLESS"
         ],
-        "public": false
+        "public": false,
+        "supported_application_profiles": [
+            "full", "bare-metal"
+        ]
     },
     "CY8CPROTO_062_4343W": {
         "inherits": [

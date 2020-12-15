@@ -213,61 +213,101 @@ enum GattAuthCallbackReply_t {
      */
     AUTH_CALLBACK_REPLY_SUCCESS = 0x00,
 
-    /**
-     * ATT Error: Invalid attribute handle.
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_INVALID_HANDLE = 0x0101,
+    /** The attribute handle given was not valid on this server. */
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_HANDLE = 0x01,
 
-    /**
-     * ATT Error: Read not permitted.
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_READ_NOT_PERMITTED = 0x0102,
+    /** The attribute cannot be read. */
+    AUTH_CALLBACK_REPLY_ATTERR_READ_NOT_PERMITTED = 0x02,
 
-    /**
-     * ATT Error: Write not permitted.
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_WRITE_NOT_PERMITTED = 0x0103,
+    /** The attribute cannot be written. */
+    AUTH_CALLBACK_REPLY_ATTERR_WRITE_NOT_PERMITTED = 0x03,
 
-    /**
-     * ATT Error: Authenticated link required.
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHENTICATION = 0x0105,
+    /** The attribute PDU was invalid. */
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_PDU = 0x04,
 
-    /**
-     * ATT Error: The specified offset was past the end of the attribute.
+    /** The attribute requires authentication before it can be read or
+     * written.
      */
-    AUTH_CALLBACK_REPLY_ATTERR_INVALID_OFFSET = 0x0107,
+    AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_AUTHENTICATION = 0x05,
+    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHENTICATION = 0x05,
 
-    /**
-     * ATT Error: Used in ATT as "insufficient authorization".
+    /** Attribute server does not support the request received from the
+     * client.
      */
-    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION = 0x0108,
+    AUTH_CALLBACK_REPLY_ATTERR_REQUEST_NOT_SUPPORTED = 0x06,
 
-    /**
-     * ATT Error: Used in ATT as "prepare queue full".
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_PREPARE_QUEUE_FULL = 0x0109,
+    /** Offset specified was past the end of the attribute. */
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_OFFSET = 0x07,
 
-    /**
-     * ATT Error: Used in ATT as "attribute not found".
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_FOUND = 0x010A,
+    /** The attribute requires authorization before it can be read or written. */
+    AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_AUTHORIZATION = 0x08,
+    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION = 0x08,
 
-    /**
-     * ATT Error: Attribute cannot be read or written using read/write blob
-     * requests.
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_LONG = 0x010B,
+    /** Too many prepare writes have been queued. */
+    AUTH_CALLBACK_REPLY_ATTERR_PREPARE_QUEUE_FULL = 0x09,
 
-    /**
-     * ATT Error: Invalid value size.
-     */
-    AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH = 0x010D,
+    /** No attribute found within the given attribute handle range. */
+    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_FOUND = 0x0A,
 
-    /**
-     * ATT Error: Encrypted link required.
+    /** The attribute cannot be read using the Read Blob Request. */
+    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_LONG = 0x0B,
+
+    /** The Encryption Key Size used for encrypting this link is
+     * insufficient.
      */
-    AUTH_CALLBACK_REPLY_ATTERR_INSUF_RESOURCES = 0x0111,
+    AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_ENCRYPTION_KEY_SIZE = 0x0C,
+
+    /** The attribute value length is invalid for the operation. */
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATTRIBUTE_VALUE_LENGTH = 0x0D,
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH = 0x0D,
+
+    /** The attribute request that was requested has encountered an error
+     * that was unlikely, and therefore could not be completed as requested.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_UNLIKELY_ERROR = 0x0E,
+
+    /** The attribute requires encryption before it can be read or written. */
+    AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_ENCRYPTION = 0x0F,
+
+    /** The attribute type is not a supported grouping attribute as defined
+     * by a higher layer specification.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_UNSUPPORTED_GROUP_TYPE = 0x10,
+
+    /** Insufficient Resources to complete the request. */
+    AUTH_CALLBACK_REPLY_ATTERR_INSUFFICIENT_RESOURCES = 0x11,
+    AUTH_CALLBACK_REPLY_ATTERR_INSUF_RESOURCES = 0x11,
+
+    /* 0x12 - 0x7F => reserved for future use */
+
+    /* 0x80 - 0x9F => Application Error */
+
+    /* 0xA0 0xDF => Reserved for future use */
+
+    /* 0xE0 - 0xFF Common Profile and service Error Codes */
+
+    /** The Write Request Rejected error code is used when a requested write
+     * operation cannot be fulfilled for reasons other than permissions.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_WRITE_REQUEST_REJECTED = 0xFC,
+
+    /** The Client Characteristic Configuration Descriptor Improperly
+     * Configured error code is used when a Client Characteristic
+     * Configuration descriptor is not configured according to the
+     * requirements of the profile or service.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED = 0xFD,
+
+    /** The Procedure Already in Progress error code is used when a profile
+     * or service request cannot be serviced because an operation that has
+     * been previously triggered is still in progress
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_PROCEDURE_ALREADY_IN_PROGRESS = 0xFE,
+
+    /** The Out of Range error code is used when an attribute value is out
+     * of range as defined by a profile or service specification.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_OUT_OF_RANGE = 0xFF,
 };
 
 /**

@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 ;******************************************************************************
 ;  File: ADuCM4050.sct
 ;  Scatter loading file for Analog Devices ADuCM4050 processor

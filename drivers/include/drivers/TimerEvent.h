@@ -52,36 +52,47 @@ protected:
     // The handler called to service the timer event of the derived class
     virtual void handler() = 0;
 
-    /** Set relative timestamp of the internal event.
-     * @param   timestamp   event's us timestamp
+    /** Set absolute timestamp of the internal event.
+     * @param   timestamp   event's 32-bit us timestamp
      *
      * @warning
      * Do not insert more than one timestamp.
      * The same @a event object is used for every @a insert/insert_absolute call.
      *
      * @warning
-     * Ticker's present timestamp is used for reference. For timestamps
-     * from the past the event is scheduled after ticker's overflow.
-     * For reference @see convert_timestamp
+     * Ticker's present time is used for reference. The wrapping of the 32-bit
+     * timestamp is handled by assuming that the time specified is always in the
+     * future. For reference @see convert_timestamp. This could cause problems
+     * under load, as if the requested time is missed, the event will be scheduled
+     * one whole 32-bit wrap (over an hour) in the future.
      *
-     * @deprecated use `insert(std::chrono::microseconds timestamp)`
+     * @warning
+     * Despite previous documentation, this sets an absolute time, based on
+     * a wrapping 32-bit timestamp, not a time relative to now. The replacement
+     * Chrono-based call is `insert_absolute(TickerDataClock::time_point timestamp)`,
+     * not `insert(std::chrono::microseconds rel_time)`. However
+     * `insert(5ms)` can be used instead of `insert_absolute(_ticker_data.now() + 5ms)`.
+     * Due to unclear documentation, it's possible some users may have been
+     * doing `insert(5000)` without adding the current time, and they could be
+     * corrected to `insert(5ms)`.
+     *
+     * @deprecated use `insert_absolute(TickerDataClock::time_point timestamp)`
      */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer microsecond count. For example use `5ms` rather than `5000`.")
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer microsecond count. For example use `last_chrono_time + 5ms` rather than `last_us_time + 5000`.")
     void insert(timestamp_t timestamp);
 
     /** Set relative timestamp of the internal event.
-     * @param   timestamp   event's us timestamp
+     * @param   rel_time   relative time for event's us timestamp
      *
      * @warning
      * Do not insert more than one timestamp.
      * The same @a event object is used for every @a insert/insert_absolute call.
      *
-     * @warning
-     * Ticker's present timestamp is used for reference. For timestamps
-     * from the past the event is scheduled after ticker's overflow.
-     * For reference @see convert_timestamp
+     * @note
+     * Ticker's present timestamp is used for reference. If the relative time is
+     * non-positive, the event will be run immediately.
      */
-    void insert(std::chrono::microseconds timestamp);
+    void insert(std::chrono::microseconds rel_time);
 
     /** Set absolute timestamp of the internal event.
      * @param   timestamp   event's us timestamp
@@ -92,7 +103,7 @@ protected:
      *
      * @deprecated use `insert_absolute(TickerDataClock::time_point timestamp)`
      */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer microsecond count. For example use `_ticker_data.now() + 5ms` rather than `ticker_read_us(_ticker_data) + 5000`.")
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer microsecond count. For example use `last_chrono_time + 5ms` rather than `last_us_time + 5000`.")
     void insert_absolute(us_timestamp_t timestamp);
 
     /** Set absolute timestamp of the internal event.
@@ -101,6 +112,9 @@ protected:
      * @warning
      * Do not insert more than one timestamp.
      * The same @a event object is used for every @a insert/insert_absolute call.
+     *
+     * @note
+     * If the timestamp is in the past, the event will be run immediately.
      */
     void insert_absolute(TickerDataClock::time_point timestamp);
 

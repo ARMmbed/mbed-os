@@ -18,7 +18,7 @@
 #define MBED_OSPIF_BLOCK_DEVICE_H
 
 #include "drivers/OSPI.h"
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 

@@ -26,19 +26,13 @@
 class Nanostack::Interface : public OnboardNetworkStack::Interface, private mbed::NonCopyable<Nanostack::Interface> {
 public:
     nsapi_error_t get_ip_address(SocketAddress *address) final;
-    char *get_mac_address(char *buf, nsapi_size_t buflen) final;
+    char *get_mac_address(char *buf, nsapi_size_t buflen) override;
+    nsapi_error_t set_mac_address(uint8_t *buf, nsapi_size_t buflen);
     nsapi_error_t get_netmask(SocketAddress *address) final;
     nsapi_error_t get_gateway(SocketAddress *address) override;
     void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) final;
     nsapi_connection_status_t get_connection_status() const final;
-
-    void get_mac_address(uint8_t *buf) const
-    {
-        NanostackMACPhy *phy = interface_phy.nanostack_mac_phy();
-        if (phy) {
-            phy->get_mac_address(buf);
-        }
-    }
+    virtual void get_mac_address(uint8_t *buf) const;
 
     /**
      * \brief Callback from C-layer
@@ -108,6 +102,9 @@ public:
     /return     MAC address of the interface
     */
     const char *get_mac_address() override;
+
+    /** @copydoc NetworkInterface::set_mac_address */
+    nsapi_error_t set_mac_address(uint8_t *mac_addr, nsapi_size_t addr_len) override;
 
     /** Register callback for status reporting
      *
