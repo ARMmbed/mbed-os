@@ -1,6 +1,10 @@
 {
     "name": "SX126X-lora-driver",
     "config": {
+        "radio": {
+            "value": "SX126X",
+            "macro_name" : "MBED_CONF_LORA_RADIO"
+        },
         "spi-frequency": {
         	"help": "SPI frequency, Default: 16 MHz",
         	"value": 16000000
@@ -24,6 +28,39 @@
         "standby-mode": {
         	"help": "Default: STDBY_RC = 0, STDBY_XOSC = 1",
         	"value": 0
+        },
+        "spi-mosi": {
+            "value": "NC"
+        },
+        "spi-miso": {
+            "value": "NC"
+        },
+        "spi-sclk": {
+            "value": "NC"
+        },
+        "spi-cs": {
+            "value": "NC"
+        },
+        "reset": {
+            "value": "NC"
+        },
+        "dio1": {
+            "value": "NC"
+        },
+        "busy": {
+            "value": "NC"
+        },
+        "freq-select": {
+            "value": "NC"
+        },
+        "device-select": {
+            "value": "NC"
+        },
+        "crystal-select": {
+            "value": "NC"
+        },
+        "ant-switch": {
+            "value": "NC"
         }
     }
 }
