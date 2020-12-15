@@ -4,9 +4,9 @@
 target_include_directories(mbed-core
     INTERFACE
         .
-        ./nrfx
-        ./nrfx/legacy
-        ./nrfx/legacy/ble_flash
+        nrfx
+        nrfx/legacy
+        nrfx/legacy/ble_flash
 )
 
 target_sources(mbed-core

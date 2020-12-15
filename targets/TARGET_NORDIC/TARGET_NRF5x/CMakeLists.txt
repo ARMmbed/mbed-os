@@ -5,9 +5,7 @@ if("NRF52" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NRF52)
 endif()
 
-if("SDK_11" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_SDK_11)
-elseif("SDK_15_0" IN_LIST MBED_TARGET_LABELS)
+if("SDK_15_0" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_SDK_15_0)
 endif()
 
