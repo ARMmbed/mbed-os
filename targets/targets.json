@@ -3216,6 +3216,9 @@
             "ARDUINO",
             "MORPHO"
         ],
+        "components_add": [
+            "SX1276"
+        ],
         "detect_code": [
             "0833"
         ],

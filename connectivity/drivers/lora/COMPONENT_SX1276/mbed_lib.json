@@ -71,5 +71,22 @@
         "tcxo": {
             "value": "NC"
         }
+    },
+    "target_overrides": {
+        "DISCO_L072CZ_LRWAN1": {
+            "spi-mosi":       "PA_7",
+            "spi-miso":       "PA_6",
+            "spi-sclk":       "PB_3",
+            "spi-cs":         "PA_15",
+            "reset":          "PC_0",
+            "dio0":           "PB_4",
+            "dio1":           "PB_1",
+            "dio2":           "PB_0",
+            "dio3":           "PC_13",
+            "txctl":          "PC_2",
+            "rxctl":          "PA_1",
+            "pwr-amp-ctl":    "PC_1",
+            "tcxo":           "PA_12"
+        }
     }
 }
