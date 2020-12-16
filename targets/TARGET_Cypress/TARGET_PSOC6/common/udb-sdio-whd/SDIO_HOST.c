@@ -25,6 +25,7 @@
 #include "SDIO_HOST.h"
 #include "cy_utils.h"
 #include "cy_gpio.h"
+#include "cybsp.h"
 
 #if defined(CYHAL_UDB_SDIO)
 
@@ -717,7 +718,9 @@ en_sdio_result_t SDIO_SendCommandAndWait(stc_sdio_cmd_t* pstcCmd)
 
         // Check DAT[0] to ensure it isn't low, if it is wait
         uint32_t count = 0;
-        while (0UL == Cy_GPIO_Read(SDIO_HOST_GPIO_PORT, 0) && count < SDIO_DAT_BUSY_TIMEOUT_MS)
+        while (0UL ==
+               Cy_GPIO_Read(Cy_GPIO_PortToAddr(CYHAL_GET_PORT(CYBSP_WIFI_SDIO_D0)),
+                            CYHAL_GET_PIN(CYBSP_WIFI_SDIO_D0)) && count < SDIO_DAT_BUSY_TIMEOUT_MS)
         {
             #if defined(CY_RTOS_AWARE) || defined(COMPONENT_RTOS_AWARE)
             cy_rtos_delay_milliseconds(1);

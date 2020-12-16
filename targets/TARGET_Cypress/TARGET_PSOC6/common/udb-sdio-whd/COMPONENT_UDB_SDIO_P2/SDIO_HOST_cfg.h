@@ -921,9 +921,6 @@ void SDIO_Host_Config_UDBs(void);
 #define SDIO_HOST_Write_Int_INTC_CORTEXM4_PRIORITY 7u
 #define SDIO_HOST_Write_Int_INTC_NUMBER 67u
 
-// ****************************SDIO Port**************************************
-#define SDIO_HOST_GPIO_PORT GPIO_PRT2
-
 #if defined(__cplusplus)
 }
 #endif
