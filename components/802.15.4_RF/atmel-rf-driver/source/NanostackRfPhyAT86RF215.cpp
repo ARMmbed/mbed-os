@@ -499,8 +499,8 @@ static void rf_init_registers(rf_modules_e module)
         se2435_pa_pins->ANT_SEL = 0;
         // Enable external front end with configuration 3
         rf_write_rf_register_field(RF_PADFE, module, PADFE, RF_FEMODE3);
-        // Output power at 900MHz: 0 dBm with FSK/QPSK, less than -5 dBm with OFDM
-        rf_tx_power = TXPWR_11;
+        // Output power at 900MHz: -4 dBm with FSK/QPSK, less than -10 dBm with OFDM
+        rf_tx_power = TXPWR_7;
     }
     // Set TX output power
     rf_write_rf_register_field(RF_PAC, module, TXPWR, rf_tx_power);
