@@ -96,6 +96,7 @@ extern "C" {
 
 // RF_PAC
 #define TXPWR                       0x1F
+#define TXPWR_7                     (7 << 0)
 #define TXPWR_11                    (11 << 0)
 #define TXPWR_0                     (0 << 0)
 #define TXPWR_31                    (31 << 0)
