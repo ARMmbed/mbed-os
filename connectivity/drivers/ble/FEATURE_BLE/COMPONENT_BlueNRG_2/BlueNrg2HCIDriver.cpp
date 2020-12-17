@@ -22,13 +22,14 @@
 #include "drivers/DigitalOut.h"
 #include "drivers/SPI.h"
 #include "drivers/InterruptIn.h"
+#include "drivers/Timer.h"
 
 // platform
 #include "platform/mbed_wait_api.h"
 
 // FEATURE_BLE/targets/TARGET_CORDIO
-#include "ble/driver/CordioHCIDriver.h"
-#include "ble/driver/CordioHCITransportDriver.h"
+#include "CordioHCIDriver.h"
+#include "CordioHCITransportDriver.h"
 #include "hci_api.h"
 #include "hci_cmd.h"
 #include "hci_core.h"
@@ -44,7 +45,7 @@
 #define HCI_RESET_RAND_CNT              4
 
 #define VENDOR_SPECIFIC_EVENT           0xFF
-#define EVT_BLUENRG_MS_INITIALIZED      0x0001
+#define EVT_BLUENRG_2_INITIALIZED       0x0001
 #define ACI_READ_CONFIG_DATA_OPCODE     0xFC0D
 #define ACI_WRITE_CONFIG_DATA_OPCODE    0xFC0C
 #define ACI_GATT_INIT_OPCODE            0xFD01
@@ -53,22 +54,23 @@
 #define PUBLIC_ADDRESS_OFFSET           0x00
 #define RANDOM_STATIC_ADDRESS_OFFSET    0x80
 #define LL_WITHOUT_HOST_OFFSET          0x2C
-#define ROLE_OFFSET                     0x2D
 
 #define SPI_STACK_SIZE                  1024
 
+#define IRQ_TIMEOUT_DURATION            100 //ms
+
 namespace ble {
 namespace vendor {
-namespace bluenrg_ms {
+namespace bluenrg_2 {
 
 /**
- * BlueNRG_MS HCI driver implementation.
+ * BlueNRG_2 HCI driver implementation.
  * @see CordioHCIDriver
  */
 class HCIDriver : public CordioHCIDriver {
 public:
     /**
-     * Construction of the BlueNRG_MS HCIDriver.
+     * Construction of the BlueNRG_2 HCIDriver.
      * @param transport: Transport of the HCI commands.
      * @param rst: Name of the reset pin
      */
@@ -80,7 +82,7 @@ public:
      */
     virtual void do_initialize()
     {
-        bluenrg_ms_reset();
+        bluenrg_2_reset();
     }
 
     /**
@@ -98,7 +100,7 @@ public:
     virtual void start_reset_sequence()
     {
         reset_received = false;
-        bluenrg_ms_initialized = false;
+        bluenrg_2_initialized = false;
         enable_link_layer_mode_ongoing = false;
         /* send an HCI Reset command to start the sequence */
         HciResetCmd();
@@ -134,8 +136,8 @@ public:
                     /* initialize rand command count */
                     randCnt = 0;
                     reset_received = true;
-                    // bluenrg_ms_initialized event has to come after the hci reset event
-                    bluenrg_ms_initialized = false;
+                    // bluenrg_2_initialized event has to come after the hci reset event
+                    bluenrg_2_initialized = false;
                 }
                 break;
 
@@ -143,8 +145,6 @@ public:
                 case ACI_WRITE_CONFIG_DATA_OPCODE:
                     if (enable_link_layer_mode_ongoing) {
                         enable_link_layer_mode_ongoing = false;
-                        aciSetRole();
-                    } else {
                         aciGattInit();
                     }
                     break;
@@ -159,6 +159,7 @@ public:
 
                 case ACI_READ_CONFIG_DATA_OPCODE:
                     // note: will send the HCI command to send the random address
+                    pMsg++; /* skip address length */
                     set_random_static_address(pMsg);
                     break;
 
@@ -174,7 +175,7 @@ public:
                 case HCI_OPCODE_LE_SET_EVENT_MASK:
 // Note: the public address is not read because there is no valid public address provisioned by default on the target
 // You can enable it thanks to json "valid-public-bd-address" config value
-#if MBED_CONF_BLUENRG_MS_VALID_PUBLIC_BD_ADDRESS == 1
+#if MBED_CONF_BLUENRG_2_VALID_PUBLIC_BD_ADDRESS == 1
                     /* send next command in sequence */
                     HciReadBdAddrCmd();
                     break;
@@ -293,11 +294,11 @@ public:
                 pMsg += HCI_EVT_HDR_LEN;
                 BSTREAM_TO_UINT16(opcode, pMsg);
 
-                if (opcode == EVT_BLUENRG_MS_INITIALIZED) {
-                    if (bluenrg_ms_initialized) {
+                if (opcode == EVT_BLUENRG_2_INITIALIZED) {
+                    if (bluenrg_2_initialized) {
                         return;
                     }
-                    bluenrg_ms_initialized = true;
+                    bluenrg_2_initialized = true;
                     if (reset_received) {
                         aciEnableLinkLayerModeOnly();
                     }
@@ -313,14 +314,6 @@ private:
         uint8_t data[1] = { 0x01 };
         enable_link_layer_mode_ongoing = true;
         aciWriteConfigData(LL_WITHOUT_HOST_OFFSET, data);
-    }
-
-    void aciSetRole()
-    {
-        // master and slave, simultaneous advertising and scanning
-        // (up to 4 connections)
-        uint8_t data[1] = { 0x04 };
-        aciWriteConfigData(ROLE_OFFSET, data);
     }
 
     void aciGattInit()
@@ -397,9 +390,9 @@ private:
         }
     }
 
-    void bluenrg_ms_reset()
+    void bluenrg_2_reset()
     {
-        /* Reset BlueNRG_MS SPI interface. Hold reset line to 0 for 1500ms */
+        /* Reset BlueNRG_2 SPI interface. Hold reset line to 0 for 1500us */
         rst = 0;
         wait_us(1500);
         rst = 1;
@@ -410,12 +403,12 @@ private:
 
     mbed::DigitalOut rst;
     bool reset_received;
-    bool bluenrg_ms_initialized;
+    bool bluenrg_2_initialized;
     bool enable_link_layer_mode_ongoing;
 };
 
 /**
- * Transport driver of the ST BlueNRG_MS shield.
+ * Transport driver of the ST BlueNRG_2 shield.
  * @important: With that driver, it is assumed that the SPI bus used is not shared
  * with other SPI peripherals. The reasons behind this choice are simplicity and
  * performance:
@@ -437,7 +430,7 @@ private:
 class TransportDriver : public CordioHCITransportDriver {
 public:
     /**
-     * Construct the transport driver required by a BlueNRG_MS module.
+     * Construct the transport driver required by a BlueNRG_2 module.
      * @param mosi Pin of the SPI mosi
      * @param miso Pin of the SPI miso
      * @param sclk Pin of the SPI clock
@@ -457,11 +450,11 @@ public:
     virtual void initialize()
     {
         // Setup the spi for 8 bit data, low clock polarity,
-        // 1-edge phase, with an 8MHz clock rate
-        spi.format(8, 0);
-        spi.frequency(8000000);
+        // 2-edge phase, with an 1MHz clock rate
+        spi.format(8, 1);
+        spi.frequency(1000000);
 
-        // Deselect the BlueNRG_MS chip by keeping its nCS signal high
+        // Deselect the BlueNRG_2 chip by keeping its nCS signal high
         nCS = 1;
 
         wait_us(500);
@@ -490,25 +483,31 @@ public:
 private:
     uint16_t spiWrite(uint8_t type, const uint8_t *data, uint16_t data_length)
     {
-        static const uint8_t header_master[] = {
-            0x0A, 0x00, 0x00, 0x00, 0x00
-        };
-        uint8_t header_slave[]  = { 0xaa, 0x00, 0x00, 0x00, 0x00 };
+        static const uint8_t header_master[] = { 0x0a, 0x00, 0x00, 0x00, 0x00 };
+        uint8_t header_slave[5];
         uint16_t data_written = 0;
         uint16_t write_buffer_size = 0;
 
         _spi_mutex.lock();
 
+        irq.disable_irq();
+
         /* CS reset */
         nCS = 0;
+
+        // Wait until BlueNRG_2 is ready.
+        // When ready it will raise the IRQ pin.
+        _irq_timer.start();
+        while (!dataPresent()) {
+            auto us = _irq_timer.elapsed_time().count();
+            if (us > IRQ_TIMEOUT_DURATION * 1000) {
+                goto exit;
+            }
+        }
 
         /* Exchange header */
         for (uint8_t i = 0; i < sizeof(header_master); ++i) {
             header_slave[i] = spi.write(header_master[i]);
-        }
-
-        if (header_slave[0] != 0x02) {
-            goto exit;
         }
 
         write_buffer_size = header_slave[2] << 8 | header_slave[1];
@@ -527,17 +526,28 @@ private:
 exit:
         nCS = 1;
 
+        irq.enable_irq();
+
+        _irq_timer.stop();
+
         _spi_mutex.unlock();
 
         return data_written;
     }
 
+    bool dataPresent()
+    {
+        return (irq == 1);
+    }
+
     uint16_t spiRead(uint8_t *data_buffer, const uint16_t buffer_size)
     {
         static const uint8_t header_master[] = {0x0b, 0x00, 0x00, 0x00, 0x00};
-        uint8_t header_slave[5] = { 0xaa, 0x00, 0x00, 0x00, 0x00};
+        uint8_t header_slave[5];
         uint16_t read_length = 0;
         uint16_t data_available = 0;
+
+        irq.disable_irq();
 
         nCS = 0;
 
@@ -546,19 +556,16 @@ exit:
             header_slave[i] = spi.write(header_master[i]);
         }
 
-        if (header_slave[0] != 0x02) {
-            goto exit;
-        }
-
         data_available = (header_slave[4] << 8) | header_slave[3];
         read_length = data_available > buffer_size ? buffer_size : data_available;
 
         for (uint16_t i = 0; i < read_length; ++i) {
-            data_buffer[i] = spi.write(0xFF);
+            data_buffer[i] = spi.write(0x00);
         }
 
-exit:
         nCS = 1;
+
+        irq.enable_irq();
 
         return read_length;
     }
@@ -597,9 +604,10 @@ exit:
     uint8_t _spi_thread_stack[SPI_STACK_SIZE];
     rtos::Semaphore _spi_read_sem;
     rtos::Mutex _spi_mutex;
+    mbed::Timer _irq_timer;
 };
 
-} // namespace bluenrg_ms
+} // namespace bluenrg_2
 } // namespace vendor
 } // namespace ble
 
@@ -608,16 +616,16 @@ exit:
  */
 ble::CordioHCIDriver &ble_cordio_get_hci_driver()
 {
-    static ble::vendor::bluenrg_ms::TransportDriver transport_driver(
-        MBED_CONF_BLUENRG_MS_SPI_MOSI,
-        MBED_CONF_BLUENRG_MS_SPI_MISO,
-        MBED_CONF_BLUENRG_MS_SPI_SCK,
-        MBED_CONF_BLUENRG_MS_SPI_NCS,
-        MBED_CONF_BLUENRG_MS_SPI_IRQ
+    static ble::vendor::bluenrg_2::TransportDriver transport_driver(
+        MBED_CONF_BLUENRG_2_SPI_MOSI,
+        MBED_CONF_BLUENRG_2_SPI_MISO,
+        MBED_CONF_BLUENRG_2_SPI_SCK,
+        MBED_CONF_BLUENRG_2_SPI_NCS,
+        MBED_CONF_BLUENRG_2_SPI_IRQ
     );
-    static ble::vendor::bluenrg_ms::HCIDriver hci_driver(
+    static ble::vendor::bluenrg_2::HCIDriver hci_driver(
         transport_driver,
-        MBED_CONF_BLUENRG_MS_SPI_RESET
+        MBED_CONF_BLUENRG_2_SPI_RESET
     );
     return hci_driver;
 }
