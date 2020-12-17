@@ -511,6 +511,7 @@ HciDrvRadioBoot(bool bColdBoot)
     CRITICAL_PRINT("INTEN:  %d\n", BLEIF->INTEN_b.BLECSSTAT);
     CRITICAL_PRINT("INTENREG:  %d\n", BLEIF->INTEN);
 
+    NVIC_SetVector(BLE_IRQn, HciDrvIntService);
     NVIC_EnableIRQ(BLE_IRQn);
 
     //
