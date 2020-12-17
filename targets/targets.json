@@ -2835,7 +2835,7 @@
         },
         "device_has_add": [
             "EMAC",
-            "USBDevice"
+            "USBDEVICE"
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
