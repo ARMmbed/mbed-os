@@ -2,16 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 target_include_directories(mbed-ble
-    PUBLIC
+    INTERFACE
         .
 )
 
 target_sources(mbed-ble
-    PRIVATE
+    INTERFACE
         AP3CordioHCIDriver.cpp
         AP3CordioHCITransportDriver.cpp
 )
 
 target_link_libraries(mbed-ble
-    mbed-core
+    INTERFACE
+        mbed-core
 )
