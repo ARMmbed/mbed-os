@@ -1,6 +1,10 @@
 {
     "name": "cellular",
     "config": {
+        "present": {
+            "help": "MBED_CONF_CELLULAR_PRESENT will be defined if cellular is used",
+            "value": 1
+        },
         "use-apn-lookup": {
             "help": "Use APN database lookup",
             "value": false
