@@ -40,8 +40,6 @@ Tiny Database Storage (TDBStore) is a lightweight module that stores data on fla
 
 TDBStore assumes the underlying block device is fully dedicated to it (starting offset 0). If you want to dedicate only a part of the device to TDBStore, use a sliced block device, typically with `SlicingBlockDevice`.
 
-In addition, this feature requires a flash-based block device, such as `FlashIAPBlockDevice` or `SpifBlockDevice`. It can work on top of block devices that don't need erasing before writes, such as `HeapBlockDevice` or `SDBlockDevice`, but requires a flash simulator layer for this purpose, such as the one `FlashSimBlockDevice` offers. 
-
 # System architecture and high-level design
 
 ## Design basics

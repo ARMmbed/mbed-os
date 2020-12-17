@@ -17,7 +17,6 @@
 #include "securestore/SecureStore.h"
 #include "tdbstore/TDBStore.h"
 #include "mbed_error.h"
-#include "FlashSimBlockDevice.h"
 #include "SlicingBlockDevice.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -48,7 +47,6 @@ KVStore::iterator_t kvstore_it;
 KVStore *kvstore = NULL;
 FileSystem *fs = NULL;
 BlockDevice *bd = NULL;
-FlashSimBlockDevice *flash_bd = NULL;
 SlicingBlockDevice *ul_bd = NULL, *rbp_bd = NULL;
 
 enum kv_setup {
@@ -102,12 +100,7 @@ static void kvstore_init()
         TEST_SKIP_UNLESS(MBED_CONF_TARGET_INTERNAL_FLASH_UNIFORM_SECTORS ||
                          (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE != 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS != 0xFFFFFFFF))
 #endif
-        if (erase_val == -1) {
-            flash_bd = new FlashSimBlockDevice(bd);
-            kvstore = new TDBStore(flash_bd);
-        } else {
-            kvstore = new TDBStore(bd);
-        }
+        kvstore = new TDBStore(bd);
     }
     if (kv_setup == FSStoreSet) {
         fs = FileSystem::get_default_instance();
@@ -123,10 +116,6 @@ static void kvstore_init()
 #if SECURESTORE_ENABLED
     if (kv_setup == SecStoreSet) {
         sec_bd = bd;
-        if (erase_val == -1) {
-            flash_bd = new FlashSimBlockDevice(bd);
-            sec_bd = flash_bd;
-        }
         res = sec_bd->init();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
@@ -174,11 +163,6 @@ static void kvstore_deinit()
     res = kvstore->deinit();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    if (kv_setup == TDBStoreSet) {
-        if (erase_val == -1) {
-            delete flash_bd;
-        }
-    }
     if (kv_setup == FSStoreSet) {
         fs = FileSystem::get_default_instance();
         TEST_SKIP_UNLESS(fs != NULL);
@@ -186,9 +170,6 @@ static void kvstore_deinit()
         TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
     }
     if (kv_setup == SecStoreSet) {
-        if (erase_val == -1) {
-            delete flash_bd;
-        }
         delete ul_bd;
         delete rbp_bd;
     }
