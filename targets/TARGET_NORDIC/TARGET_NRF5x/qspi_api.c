@@ -76,7 +76,7 @@ TODO
 // NRF SFDP defines
 #define DWORD_LEN           4
 #define SFDP_CMD_LEN        DWORD_LEN
-#define SFDP_DATA_LEN       128  // SFPD data buffer length in bytes, may need to be increased for other flash parts
+#define SFDP_DATA_LEN       QSPIF_SFDP_DATA_LEN  // SFPD data buffer length in bytes, may need to be increased for other flash parts
 #define SFDP_READ_LEN       8    // 8 SFDP bytes can be read at a time
 #define SFDP_READ_MAX       (SFDP_DATA_LEN / SFDP_READ_LEN)
 
@@ -559,14 +559,9 @@ qspi_status_t sfdp_read(qspi_t *obj, const qspi_command_t *command, void *data, 
             return QSPI_STATUS_ERROR;
         }
 
-        // calculate the SFDP data length based on the parameter table offset
-        // provided at index 12, plus the table length in DWORDS at index 11
-        uint32_t sfdp_length = sfdp_rx[12] + (sfdp_rx[11] * DWORD_LEN);
-
         // check if the data request is within the SFDP data array
         // increase SFDP_DATA_LEN to match sfdp_length, if necessary
-        if ( sfdp_length <= SFDP_DATA_LEN &&
-             sfdp_length >= (command->address.value + *length) ) {
+        if ( SFDP_DATA_LEN >= (command->address.value + *length) ) {
             memcpy(data, (sfdp_rx + command->address.value), *length);
             return QSPI_STATUS_OK;
         } else {

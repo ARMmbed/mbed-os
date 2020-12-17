@@ -5568,6 +5568,11 @@
             "uart_1_fifo_size": {
                 "help": "UART1 FIFO buffer. FIFO buffer is filled from DMA buffer.",
                 "value": 32
+            },
+            "qspif_sfdp_data_len": {
+                "help": "length of Flash SFDP DATA",
+                "value": 128,
+                "macro_name": "QSPIF_SFDP_DATA_LEN"
             }
         },
         "overrides": {
