@@ -7,6 +7,7 @@ target_include_directories(mbed-usb
     INTERFACE
         include
         include/usb
+        include/usb/internal
 )
 
 target_sources(mbed-usb
