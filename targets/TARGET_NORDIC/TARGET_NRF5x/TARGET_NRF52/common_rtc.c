@@ -100,9 +100,6 @@ void COMMON_RTC_IRQ_HANDLER(void)
 __STATIC_INLINE void errata_20(void)
 {
 #if defined(NRF52_PAN_20)
-    if (COMMON_RTC_INSTANCE != NRF_RTC1) {
-        return;
-    }
     if (!NRF_HAL_SD_IS_ENABLED())
     {
         NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
@@ -112,7 +109,7 @@ __STATIC_INLINE void errata_20(void)
         {
         }
     }
-    NRF_RTC1->TASKS_STOP = 0;
+    COMMON_RTC_INSTANCE->TASKS_STOP = 0;
 #endif
 }
 
