@@ -260,7 +260,13 @@ void NRFCordioHCIDriver::do_initialize()
     {
     }
 
-
+    if(NRF_CLOCK->LFCLKSRC == CLOCK_LFCLKSRC_SRC_RC) {
+        NRF_CLOCK->EVENTS_DONE = 0;
+        NRF_CLOCK->TASKS_CAL = 1;
+        while (NRF_CLOCK->EVENTS_DONE == 0)
+        {
+        }
+    }
 
     // mbed-os target uses IRQ Handler names with _v added at the end
     // (TIMER0_IRQHandler_v and TIMER2_IRQHandler_v) so we need to register these manually
