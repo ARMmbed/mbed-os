@@ -4990,8 +4990,11 @@
             "IAR",
             "ARM"
         ],
-	"features_add": [
+        "features_add": [
             "STORAGE"
+        ],
+        "components_add": [
+            "SD"
         ],
         "device_has": [
             "ANALOGIN",

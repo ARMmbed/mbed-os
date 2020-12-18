@@ -68,6 +68,12 @@
              "SPI_CLK":  "p13",
              "SPI_CS":   "p14"
         },
+        "MAX32630FTHR": {
+             "SPI_MOSI": "P0_5",
+             "SPI_MISO": "P0_6",
+             "SPI_CLK":  "P0_4",
+             "SPI_CS":   "P0_7"
+        },
         "NUMAKER_PFM_M453": {
              "SPI_MOSI": "PD_13",
              "SPI_MISO": "PD_14",
