@@ -5095,6 +5095,7 @@
             "USTICKER",
             "MPU",
             "SLEEP"
+            "USBDEVICE"
         ],
         "release_versions": [
             "5"
