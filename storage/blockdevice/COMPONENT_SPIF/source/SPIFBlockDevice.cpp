@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "SPIFBlockDevice.h"
 #include "rtos/ThisThread.h"
 #include "mbed_critical.h"
@@ -25,6 +25,7 @@
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "SPIF"
+using namespace std::chrono;
 using namespace mbed;
 
 /* Default SPIF Parameters */
@@ -298,17 +299,15 @@ exit_point:
     return status;
 }
 
-int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
+int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     if (!_is_initialized) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
     int type = 0;
-    uint32_t offset = 0;
-    uint32_t chunk = 4096;
     int cur_erase_inst = _erase_instruction;
-    int size = (int)in_size;
+    unsigned int curr_erase_size = 0;
     bool erase_failed = false;
     int status = SPIF_BD_ERROR_OK;
     // Find region of erased address
@@ -320,14 +319,14 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     // Erase Types of selected region
     uint8_t bitfield = _sfdp_info.smptbl.region_erase_types_bitfld[region];
 
-    tr_debug("erase - addr: %llu, in_size: %llu", addr, in_size);
+    tr_debug("erase - addr: %llu, size: %llu", addr, size);
 
-    if ((addr + in_size) > _sfdp_info.bptbl.device_size_bytes) {
+    if ((addr + size) > _sfdp_info.bptbl.device_size_bytes) {
         tr_error("erase exceeds flash device size");
         return SPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
 
-    if (((addr % get_erase_size(addr)) != 0) || (((addr + in_size) % get_erase_size(addr + in_size - 1)) != 0)) {
+    if (((addr % get_erase_size(addr)) != 0) || (((addr + size) % get_erase_size(addr + size - 1)) != 0)) {
         tr_error("invalid erase - unaligned address and size");
         return SPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
@@ -337,14 +336,18 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 
         // iterate to find next Largest erase type ( a. supported by region, b. smaller than size)
         // find the matching instruction and erase size chunk for that type.
-        type = sfdp_iterate_next_largest_erase_type(bitfield, size, (unsigned int)addr, region, _sfdp_info.smptbl);
+        type = sfdp_iterate_next_largest_erase_type(bitfield, size, addr, region, _sfdp_info.smptbl);
         cur_erase_inst = _sfdp_info.smptbl.erase_type_inst_arr[type];
-        offset = addr % _sfdp_info.smptbl.erase_type_size_arr[type];
-        chunk = ((offset + size) < _sfdp_info.smptbl.erase_type_size_arr[type]) ?
-                size : (_sfdp_info.smptbl.erase_type_size_arr[type] - offset);
+        curr_erase_size = _sfdp_info.smptbl.erase_type_size_arr[type];
+        if (addr % curr_erase_size != 0 || addr + size < curr_erase_size) {
+            // Should not happen if the erase table parsing
+            // and alignment checks were performed correctly
+            tr_error("internal error: address %llu not aligned to erase size %u (type %d)",
+                     addr, curr_erase_size, type);
+        }
 
-        tr_debug("erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %" PRIu32 " , ",
-                 addr, size, cur_erase_inst, chunk);
+        tr_debug("erase - addr: %llu, size:%llu, Inst: 0x%xh, erase size: %u",
+                 addr, size, cur_erase_inst, curr_erase_size);
         tr_debug("erase - Region: %d, Type:%d",
                  region, type);
 
@@ -359,8 +362,8 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 
         _spi_send_erase_command(cur_erase_inst, addr, size);
 
-        addr += chunk;
-        size -= chunk;
+        addr += curr_erase_size;
+        size -= curr_erase_size;
 
         if ((size > 0) && (addr > _sfdp_info.smptbl.region_high_boundary[region])) {
             // erase crossed to next region
@@ -497,7 +500,6 @@ int SPIFBlockDevice::_spi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer
 {
     // Set 1-1-1 bus mode for SFDP header parsing
     // Initial SFDP read tables are read with 8 dummy cycles
-    _read_dummy_and_mode_cycles = 8;
     _dummy_and_mode_cycles = 8;
 
     int status = _spi_send_read_command(SPIF_SFDP, (uint8_t *)rx_buffer, addr, rx_length);
@@ -694,7 +696,7 @@ bool SPIFBlockDevice::_is_mem_ready()
     bool mem_ready = true;
 
     do {
-        rtos::ThisThread::sleep_for(1);
+        rtos::ThisThread::sleep_for(1ms);
         retries++;
         //Read the Status Register from device
         if (SPIF_BD_ERROR_OK != _spi_send_general_command(SPIF_RDSR, SPI_NO_ADDRESS_COMMAND, NULL, 0, status_value,

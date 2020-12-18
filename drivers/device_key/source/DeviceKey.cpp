@@ -21,8 +21,8 @@
 #include "mbedtls/cmac.h"
 #include "mbedtls/platform.h"
 #include "kvstore/KVStore.h"
-#include "kvstore/TDBStore.h"
-#include "kvstore/KVMap.h"
+#include "tdbstore/TDBStore.h"
+#include "kvstore_global_api/KVMap.h"
 #include "kv_config/kv_config.h"
 #include "mbed_wait_api.h"
 #include <stdlib.h>

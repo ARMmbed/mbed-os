@@ -18,9 +18,9 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer
-* Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
-/* Copyright (c) 2018-2020 Renesas Electronics Corporation.
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@
  * limitations under the License.
  */
 /*******************************************************************************
-* Rev: 2.00
+* Rev: 3.01
 * Description : IO bitmask header
 *******************************************************************************/
 
@@ -84,15 +84,15 @@
 #define IMR2_IMR_INM_SHIFT                                                     (2u)
 #define IMR2_DLPR_DLP                                                          (0xFFFFFFFFu)
 #define IMR2_DLPR_DLP_SHIFT                                                    (0u)
-#define IMR2_DLSAR_DLSA                                                        (0xFFFFFFC0u)
+#define IMR2_DLSAR_DLSA                                                        (0xFFFFFFF8u)
 #define IMR2_DLSAR_DLSA_SHIFT                                                  (3u)
-#define IMR2_DSAR_DSA                                                          (0xFFFFFC00u)
+#define IMR2_DSAR_DSA                                                          (0xFFFFFFE0u)
 #define IMR2_DSAR_DSA_SHIFT                                                    (5u)
 #define IMR2_DSTR_DST                                                          (0x00003FFFu)
 #define IMR2_DSTR_DST_SHIFT                                                    (0u)
-#define IMR2_DSAR2_DSA2                                                        (0xFFFFFC00u)
+#define IMR2_DSAR2_DSA2                                                        (0xFFFFFFE0u)
 #define IMR2_DSAR2_DSA2_SHIFT                                                  (5u)
-#define IMR2_DLSAR2_DLSA2                                                      (0xFFFFFFC0u)
+#define IMR2_DLSAR2_DLSA2                                                      (0xFFFFFFF8u)
 #define IMR2_DLSAR2_DLSA2_SHIFT                                                (3u)
 #define IMR2_TRIMR_TME                                                         (0x00000001u)
 #define IMR2_TRIMR_TME_SHIFT                                                   (0u)

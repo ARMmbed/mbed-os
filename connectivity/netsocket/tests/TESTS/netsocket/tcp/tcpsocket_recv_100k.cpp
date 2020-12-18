@@ -22,7 +22,9 @@
 #include "unity/unity.h"
 #include "utest.h"
 #include "tcp_tests.h"
+#ifdef MBED_CONF_APP_BAUD_RATE
 #include "CellularDevice.h"
+#endif
 
 using namespace utest::v1;
 

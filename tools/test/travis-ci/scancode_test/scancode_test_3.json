@@ -171,6 +171,50 @@
       "scan_errors":[
          
       ]
+   },
+     {
+      "path":"tools/test/travis-ci/scancode_test/test6.h",
+      "type":"file",
+      "licenses":[
+         {
+            "key": "unknown-spdx",
+            "score": 100.0,
+             "name": "Unknown SPDX license detected but not recognized",
+             "short_name": "unknown SPDX",
+             "category": "Unstated License",
+             "is_exception": false,
+             "owner": "Unspecified",
+             "homepage_url": null,
+             "text_url": "",
+             "reference_url": "https://enterprise.dejacode.com/urn/urn:dje:license:unknown-spdx",
+             "spdx_license_key": null,
+             "spdx_url": "",
+             "start_line": 3,
+             "end_line": 3,
+             "matched_rule": {
+               "identifier": "spdx-license-identifier: unknown-spdx",
+               "license_expression": "unknown-spdx",
+               "licenses": [
+                 "unknown-spdx"
+               ],
+               "is_license_text": false,
+               "is_license_notice": false,
+               "is_license_reference": false,
+               "is_license_tag": true,
+               "matcher": "1-spdx-id",
+               "rule_length": 1,
+               "matched_length": 1,
+               "match_coverage": 100.0,
+               "rule_relevance": 100
+          }
+         }
+      ],
+      "license_expressions":[
+         "unknown-spdx"
+      ],
+      "scan_errors":[
+
+      ]
    }
   ]
 }

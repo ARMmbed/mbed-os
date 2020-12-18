@@ -191,10 +191,15 @@ void SysTimer<Period, IRQ>::acknowledge_tick()
 {
     // Try to avoid missed ticks if OS's IRQ level is not keeping
     // up with our handler.
-    // 8-bit counter to save space, and also make sure it we don't
-    // try TOO hard to resync if something goes really awry -
-    // resync will reset if the count hits 256.
-    if (core_util_atomic_decr_u8(&_unacknowledged_ticks, 1) > 0) {
+    // This value should not get large during normal operation.
+    // However, when interrupts are not handled for a while
+    // (e.g. by debug halt or large critical sections) this
+    // number will get large very quickly. All these un-
+    // acknowledged ticks need to be processed because otherwise
+    // the OS timing will be off. Processing may take a while.
+    // For more info see: https://github.com/ARMmbed/mbed-os/issues/13801
+
+    if (core_util_atomic_decr_u32(&_unacknowledged_ticks, 1) > 0) {
         _set_irq_pending();
     }
 }
@@ -337,7 +342,7 @@ void SysTimer<Period, IRQ>::handler()
 
 #if MBED_CONF_RTOS_PRESENT
 /* Whatever the OS wants (in case it isn't 1ms) */
-MBED_STATIC_ASSERT(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
+static_assert(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
 #define OS_TICK_US (1000000 / OS_TICK_FREQ)
 #if OS_TICK_US != 1000
 template class SysTimer<std::ratio_multiply<std::ratio<OS_TICK_US>, std::micro>>;

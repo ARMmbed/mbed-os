@@ -55,7 +55,7 @@ namespace v1 {
             cases(static_cast<const Case*>(static_cast<const CaseType*>(cases))), length(N),
             defaults(defaults)
         {
-            MBED_STATIC_ASSERT(
+            static_assert(
                 sizeof(CaseType) == sizeof(Case),
                 "CaseType and Case should have the same size"
             );
@@ -69,7 +69,7 @@ namespace v1 {
             cases(static_cast<const Case*>(static_cast<const CaseType*>(cases))), length(N),
             defaults(defaults)
         {
-            MBED_STATIC_ASSERT(
+            static_assert(
                 sizeof(CaseType) == sizeof(Case),
                 "CaseType and Case should have the same size"
             );
@@ -83,7 +83,7 @@ namespace v1 {
             cases(static_cast<const Case*>(static_cast<const CaseType*>(cases))), length(N),
             defaults(defaults)
         {
-            MBED_STATIC_ASSERT(
+            static_assert(
                 sizeof(CaseType) == sizeof(Case),
                 "CaseType and Case should have the same size"
             );
@@ -98,7 +98,7 @@ namespace v1 {
             cases(static_cast<const Case*>(static_cast<const CaseType*>(cases))), length(N),
             defaults(defaults)
         {
-            MBED_STATIC_ASSERT(
+            static_assert(
                 sizeof(CaseType) == sizeof(Case),
                 "CaseType and Case should have the same size"
             );     
@@ -122,7 +122,7 @@ namespace v1 {
             cases(static_cast<const Case*>(static_cast<const CaseType*>(cases))), length(N),
             defaults(defaults)
         {
-            MBED_STATIC_ASSERT(
+            static_assert(
                 sizeof(CaseType) == sizeof(Case),
                 "CaseType and Case should have the same size"
             );
@@ -137,7 +137,7 @@ namespace v1 {
             cases(static_cast<const Case*>(static_cast<const CaseType*>(cases))), length(N),
             defaults(defaults)
         {
-            MBED_STATIC_ASSERT(
+            static_assert(
                 sizeof(CaseType) == sizeof(Case),
                 "CaseType and Case should have the same size"
             );
@@ -153,7 +153,7 @@ namespace v1 {
             cases(static_cast<const Case*>(static_cast<const CaseType*>(cases))), length(N),
             defaults(defaults)
         {
-            MBED_STATIC_ASSERT(
+            static_assert(
                 sizeof(CaseType) == sizeof(Case),
                 "CaseType and Case should have the same size"
             );

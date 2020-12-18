@@ -1,0 +1,150 @@
+{
+  "examples": [
+    {
+        "name": "mbed-os-example-blinky",
+        "github": "https://github.com/ARMmbed/mbed-os-example-blinky",
+        "sub-repo-example": false,
+        "subs": [],
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-sockets",
+        "github":"https://github.com/ARMmbed/mbed-os-example-sockets",
+        "sub-repo-example": false,
+        "subs": [],
+        "features" : [],
+        "targets" : ["K64F", "K66F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-sockets/tests/sockets.log"],
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-cellular",
+        "github":"https://github.com/ARMmbed/mbed-os-example-cellular",
+        "sub-repo-example": false,
+        "subs": [],
+        "features" : [],
+        "targets" : ["WIO_3G"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : false,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-lorawan",
+        "github":"https://github.com/ARMmbed/mbed-os-example-lorawan",
+        "sub-repo-example": false,
+        "subs": [],
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": false,
+        "test" : false,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-devicekey",
+        "github":"https://github.com/ARMmbed/mbed-os-example-devicekey",
+        "sub-repo-example": false,
+        "subs": [],
+        "features" : [],
+        "targets" : ["K66F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-devicekey/tests/devicekey.log"],
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-mbed-crypto",
+        "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
+        "sub-repo-example": true,
+        "subs": ["getting-started"],
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-mbed-crypto/tests/getting-started.log"],
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-nfc",
+        "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
+        "sub-repo-example": true,
+        "subs": [
+            "NFC_EEPROM",
+            "NFC_SmartPoster"
+        ],
+        "features" : [],
+        "targets" : ["NUCLEO_F401RE"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": [
+            "mbed-os-example-nfc/tests/EEPROM.log",
+            "mbed-os-example-nfc/tests/SmartPoster_noShield.log"
+        ],
+        "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-ble",
+      "github":"https://github.com/ARMmbed/mbed-os-example-ble",
+      "sub-repo-example": true,
+      "subs": [
+            "BLE_Advertising"
+
+      ],
+      "features" : [],
+      "targets" : ["NRF52840_DK", "DISCO_L475VG_IOT01A"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "test" : false,
+      "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-kvstore",
+        "github":"https://github.com/ARMmbed/mbed-os-example-kvstore",
+        "sub-repo-example": false,
+        "subs": [],
+        "features" : [],
+        "targets" : ["K64F", "DISCO_L475VG_IOT01A"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-kvstore/tests/kvstore.log"],
+        "auto-update" : true
+    }
+  ]
+}

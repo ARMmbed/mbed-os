@@ -53,6 +53,16 @@ SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
 SUPPORTED_IDES = [exp for exp in list(EXPORTERS) + list(EXPORTER_ALIASES)
                   if exp != "cmsis" and exp != "zip"]
 
+def get_table_from_pretty_table(pretty_table):
+    rows = []
+    for pretty_row in pretty_table:
+        row = {}
+        for key in pretty_table.field_names:
+            pretty_row.border = False
+            pretty_row.header = False
+            row[key] = pretty_row.get_string(fields=[key]).strip()
+        rows.append(row)
+    return rows
 
 def get_build_summary(results):
     """Prints to screen the complication results of example programs.
@@ -80,6 +90,10 @@ def get_build_summary(results):
         print("\n\nFailed Example Compilation:")
         print(fail_table)
     print("Number of failures = %d" % failure_counter)
+    # output build information to json file
+    rows = get_table_from_pretty_table(pass_table) + get_table_from_pretty_table(fail_table)
+    with open("build_data.json", "w") as write_file:
+        json.dump(rows, write_file, indent=4, sort_keys=True)
     return failure_counter
 
 def get_export_summary(results):
@@ -329,7 +343,7 @@ def export_repos(config, ides, targets, exp_filter):
     return results
 
 
-def compile_repos(config, toolchains, targets, profiles, verbose, exp_filter, jobs=0):
+def compile_repos(config, toolchains, targets, profiles, verbose, exp_filter, cmake=False ,jobs=0):
     """Compiles combinations of example programs, targets and compile chains.
 
        The results are returned in a [key: value] dictionary format:
@@ -382,27 +396,36 @@ def compile_repos(config, toolchains, targets, profiles, verbose, exp_filter, jo
                     summary_string = "%s %s %s" % (name, target, toolchain)
                     logging.info("Compiling %s" % summary_string)
 
-                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target, "-j", str(jobs)] + (['-vv'] if verbose else [])
-                    if profiles:
-                        for profile in profiles:
-                            build_command.extend(["--profile", profile])
-
-                    logging.info("Executing command '%s'..." % " ".join(build_command))
-                    proc = subprocess.Popen(build_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                    std_out, std_err = proc.communicate()
-                    std_out = std_out.decode()
-                    std_err = std_err.decode()
-                    print ("\n#### STDOUT ####\n%s\n#### STDERR ####\n%s\n#### End of STDOUT/STDERR ####\n" % (std_out,std_err))
-
-                    if proc.returncode:
-                        failures.append(example_summary)
+                    if cmake:
+                        build_command_seq = ["mbed-tools compile -t {} -m {} -c".format(toolchain, target)]
                     else:
+                        build_command_seq = ["mbed-cli compile -t {} -m {} -j {} {}".format(toolchain, target, str(jobs), '-vv' if verbose else '') ]
+                        if profiles:
+                            for profile in profiles:
+                                build_command_seq[0] += " --profile {}".format(profile)
+
+                    failed_flag = False
+                    for build_command in build_command_seq:
+                        logging.info("Executing command '%s'..." % build_command)
+                        proc = subprocess.Popen(build_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                        std_out, std_err = proc.communicate()
+                        std_out = std_out.decode()
+                        std_err = std_err.decode()
+                        print ("\n#### STDOUT ####\n%s\n#### STDERR ####\n%s\n#### End of STDOUT/STDERR ####\n" % (std_out,std_err))
+
+                        if proc.returncode:
+                            failures.append(example_summary)
+                            failed_flag = True
+                            break
+                    
+                    
+                    if not failed_flag:
                         if example['test']:
                             log = example['compare_log'].pop(0)
                             # example['compare_log'] is a list of log file/files, which matches each examples/sub-examples from same repo. 
                             # pop the log file out of list regardless the compilation for each example pass of fail
-                            image = fetch_output_image(std_out)
+                            image = fetch_output_image(std_out,cmake)
                             if image:
                                 image_info = [{"binary_type": "bootable","path": normpath(join(name,image)),"compare_log":log}]
                                 test_group = "{}-{}-{}".format(target, toolchain, example['baud_rate'])
@@ -450,9 +473,8 @@ def update_example_version(config, tag, exp_filter):
     """
     print("\nUpdating example to version(branch) '%s'\n" % tag)
     for example in config['examples']:
-        if example['name'] not in exp_filter:
-            continue
-        for name in get_sub_examples_list(example):
+        name = example['name']
+        if name in exp_filter:
             os.chdir(name)
             logging.info("In folder '%s'" % name)
             cmd = "git checkout -B %s origin/%s" %(tag, tag)
@@ -484,17 +506,27 @@ def symlink_mbedos(config, path, exp_filter):
             else:
                 logging.info("Creating Symbolic link '%s'->'mbed-os'" % path)
                 os.symlink(path, "mbed-os")
+                #Cmake tool currently require 'mbed-os.lib' to be present to perform build.
+                #Add a empty 'mbed-os.lib' as a workaround
+                open('mbed-os.lib', 'a').close()
             os.chdir(CWD)
     return 0
 
-def fetch_output_image(output):
+def fetch_output_image(output,cmake):
     """Find the build image from the last 30 lines of a given log"""
     lines = output.splitlines()
     last_index = -31 if len(lines)>29 else (-1 - len(lines))
     for index in range(-1,last_index,-1):
-        if lines[index].startswith("Image:"):
-            image = lines[index][7:]
-            if os.path.isfile(image):
-                return image
+        if cmake:
+            if lines[index].startswith("-- built:") and lines[index].endswith(".bin"):
+                image = lines[index][10:]
+                print("IMAGE is " + image)
+                if os.path.isfile(image):
+                    return os.path.relpath(image)
+        else:
+            if lines[index].startswith("Image:"):
+                image = lines[index][7:]
+                if os.path.isfile(image):
+                    return image
     return False
 

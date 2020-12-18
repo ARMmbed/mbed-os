@@ -900,7 +900,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     */
     i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
 
-    ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
+    ret = HAL_I2C_Master_Seq_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
 
     if (ret == HAL_OK) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
@@ -967,7 +967,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
     i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
 
-    ret = HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
+    ret = HAL_I2C_Master_Seq_Transmit_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
 
     if (ret == HAL_OK) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
@@ -1015,7 +1015,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
         }
 #endif
 
-        HAL_I2C_Master_Sequential_Receive_IT(hi2c, obj_s->address, (uint8_t *)obj->rx_buff.buffer, obj->rx_buff.length, obj_s->XferOperation);
+        HAL_I2C_Master_Seq_Receive_IT(hi2c, obj_s->address, (uint8_t *)obj->rx_buff.buffer, obj->rx_buff.length, obj_s->XferOperation);
     } else
 #endif
     {
@@ -1187,7 +1187,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     uint32_t timeout = 0;
 
     /*  Always use I2C_NEXT_FRAME as slave will just adapt to master requests */
-    ret = HAL_I2C_Slave_Sequential_Receive_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
+    ret = HAL_I2C_Slave_Seq_Receive_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
     if (ret == HAL_OK) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
@@ -1213,7 +1213,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
     uint32_t timeout = 0;
 
     /*  Always use I2C_NEXT_FRAME as slave will just adapt to master requests */
-    ret = HAL_I2C_Slave_Sequential_Transmit_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
+    ret = HAL_I2C_Slave_Seq_Transmit_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
     if (ret == HAL_OK) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
@@ -1309,10 +1309,10 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
         }
 #endif
         if (tx_length > 0) {
-            HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, obj_s->XferOperation);
+            HAL_I2C_Master_Seq_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, obj_s->XferOperation);
         }
         if (rx_length > 0) {
-            HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *)rx, rx_length, obj_s->XferOperation);
+            HAL_I2C_Master_Seq_Receive_IT(handle, address, (uint8_t *)rx, rx_length, obj_s->XferOperation);
         }
     } else if (tx_length && rx_length) {
         /* Two steps operation, don't modify XferOperation, keep it for next step */
@@ -1321,13 +1321,13 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
         uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
         uint32_t op2 = I2C_LAST_FRAME;
         if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
-            HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_FIRST_FRAME);
+            HAL_I2C_Master_Seq_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_FIRST_FRAME);
         } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
                    (obj_s->XferOperation == I2C_NEXT_FRAME)) {
-            HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_NEXT_FRAME);
+            HAL_I2C_Master_Seq_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_NEXT_FRAME);
         }
 #elif defined(I2C_IP_VERSION_V2)
-        HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_FIRST_FRAME);
+        HAL_I2C_Master_Seq_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_FIRST_FRAME);
 #endif
     }
 }

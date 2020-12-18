@@ -18,7 +18,7 @@
 #define MBED_QSPIF_BLOCK_DEVICE_H
 
 #include "drivers/QSPI.h"
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
 
@@ -223,7 +223,7 @@ public:
      *  @return         Size of minimal erase sector size, in given address region, in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual mbed::bd_size_t get_erase_size(mbed::bd_addr_t addr);
+    virtual mbed::bd_size_t get_erase_size(mbed::bd_addr_t addr) const;
 
     /** Get the value of storage byte after it was erased
      *

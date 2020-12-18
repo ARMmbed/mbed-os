@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <inttypes.h>
+#include <cstring>
 
 #ifndef ULLONG_MAX
 #define ULLONG_MAX UINT64_MAX
@@ -268,6 +269,42 @@ static control_t test_printf_d(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
+    result_minimal = mbed_printf("06d: %06d\r\n", -1234);
+    result_file = mbed_fprintf(stderr, "06d: %06d\r\n", -1234);
+    result_baseline = sizeof("06d: -01234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("6d: %6d\r\n", -1234);
+    result_file = mbed_fprintf(stderr, "6d: %6d\r\n", -1234);
+    result_baseline = sizeof("6d:  -1234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("2d: %2d\r\n", -1234);
+    result_file = mbed_fprintf(stderr, "2d: %2d\r\n", -1234);
+    result_baseline = sizeof("2d: -1234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("02d: %02d\r\n", -1234);
+    result_file = mbed_fprintf(stderr, "02d: %02d\r\n", -1234);
+    result_baseline = sizeof("02d: -1234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("4d: %4d\r\n", 0);
+    result_file = mbed_fprintf(stderr, "4d: %4d\r\n", 0);
+    result_baseline = sizeof("4d:    0\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("04d: %04d\r\n", 0);
+    result_file = mbed_fprintf(stderr, "04d: %04d\r\n", 0);
+    result_baseline = sizeof("04d: 0000\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
     return CaseNext;
 }
 
@@ -386,6 +423,30 @@ static control_t test_printf_u(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
+
+    result_minimal = mbed_printf("06u: %06u\r\n", 1234);
+    result_file = mbed_fprintf(stderr, "06u: %06u\r\n", 1234);
+    result_baseline = sizeof("06u: 001234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("6u: %6u\r\n", 1234);
+    result_file = mbed_fprintf(stderr, "6u: %6u\r\n", 1234);
+    result_baseline = sizeof("6u:   1234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("2u: %2u\r\n", 1234);
+    result_file = mbed_fprintf(stderr, "2u: %2u\r\n", 1234);
+    result_baseline = sizeof("2u: 1234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("02u: %02u\r\n", 1234);
+    result_file = mbed_fprintf(stderr, "02u: %02u\r\n", 1234);
+    result_baseline = sizeof("02u: 1234\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     return CaseNext;
 }
@@ -509,6 +570,43 @@ static control_t test_printf_x(const size_t call_count)
     result_minimal = mbed_printf("x: %x\r\n", 11259375);
     result_baseline = make_test_string("x: ", 11259375, BASE_16, "\r\n");
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    // Test prepending zeros and width size
+    result_minimal = mbed_printf("04X: %04X\r\n", 0x04F6);
+    result_file = mbed_fprintf(stderr, "04X: %04X\r\n", 0x04F6);
+    result_baseline = sizeof("04X: 04F6\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("0X: %0X\r\n", 0x04F6);
+    result_file = mbed_fprintf(stderr, "0X: %0X\r\n", 0x04F6);
+    result_baseline = sizeof("0X: 4F6\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("6X: %6X\r\n", 0x04F6);
+    result_file = mbed_fprintf(stderr, "6X: %6X\r\n", 0x04F6);
+    result_baseline = sizeof("6X:    4F6\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("4X: %4X\r\n", 0xFF04F6);
+    result_file = mbed_fprintf(stderr, "4X: %4X\r\n", 0xFF04F6);
+    result_baseline = sizeof("4X: FF04F6\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("4X: %4X\r\n", 0);
+    result_file = mbed_fprintf(stderr, "4X: %4X\r\n", 0);
+    result_baseline = sizeof("4X:    0\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    result_minimal = mbed_printf("04X: %04X\r\n", 0);
+    result_file = mbed_fprintf(stderr, "04X: %04X\r\n", 0);
+    result_baseline = sizeof("04X: 0000\r\n") - 1;
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     return CaseNext;
 }
@@ -640,6 +738,42 @@ static control_t test_snprintf_d(const size_t call_count)
     result_minimal = mbed_snprintf(0, 0, "%d + %d = %d\n", a, b, a + b);
     TEST_ASSERT_EQUAL_INT(10, result_minimal);
 
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "06d: %06d\r\n", -1234);
+    strcpy(expected_string, "06d: -01234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "6d: %6d\r\n", -1234);
+    strcpy(expected_string, "6d:  -1234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "2d: %2d\r\n", -1234);
+    strcpy(expected_string, "2d: -1234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "02d: %02d\r\n", -1234);
+    strcpy(expected_string, "02d: -1234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "4d: %4d\r\n", 0);
+    strcpy(expected_string, "4d:    0\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "04d: %04d\r\n", 0);
+    strcpy(expected_string, "04d: 0000\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
     return CaseNext;
 }
 
@@ -743,6 +877,30 @@ static control_t test_snprintf_u(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "06u: %06u\r\n", 1234);
+    strcpy(expected_string, "06u: 001234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "6u: %6u\r\n", 1234);
+    strcpy(expected_string, "6u:   1234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "2u: %2u\r\n", 1234);
+    strcpy(expected_string, "2u: 1234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "02u: %02u\r\n", 1234);
+    strcpy(expected_string, "02u: 1234\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
     return CaseNext;
 }
 
@@ -845,6 +1003,43 @@ static control_t test_snprintf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
+    // Test prepending zeros and width size
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "04X: %04X\r\n", 0x04F6);
+    strcpy(expected_string, "04X: 04F6\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "0X: %0X\r\n", 0x04F6);
+    strcpy(expected_string, "0X: 4F6\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "6X: %6X\r\n", 0x04F6);
+    strcpy(expected_string, "6X:    4F6\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "4X: %4X\r\n", 0xFF04F6);
+    strcpy(expected_string, "4X: FF04F6\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "4X: %4X\r\n", 0);
+    strcpy(expected_string, "4X:    0\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "04X: %04X\r\n", 0);
+    strcpy(expected_string, "04X: 0000\r\n");
+    result_baseline = strlen(expected_string);
+    TEST_ASSERT_EQUAL_STRING(expected_string, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
     return CaseNext;
 }
 
@@ -914,6 +1109,74 @@ static control_t test_printf_f(const size_t call_count)
     result_minimal = mbed_printf("f: %f\r\n", 2.12345649);
     result_baseline = sprintf(buffer_baseline, "f: 2.123456\r\n");
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %.3f\r\n", 2.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: 2.123\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %.8f\r\n", 2.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: 2.12345649\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %.10f\r\n", 2.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: 2.1234564900\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %05.3f\r\n", 22.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: 22.123\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %5.3f\r\n", 22.1);
+    result_baseline = sprintf(buffer_baseline, "f: 22.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %08.3f\r\n", 22.1);
+    result_baseline = sprintf(buffer_baseline, "f: 0022.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %8.3f\r\n", 22.1);
+    result_baseline = sprintf(buffer_baseline, "f:   22.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %05.3f\r\n", -22.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: -22.123\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %5.3f\r\n", -22.1);
+    result_baseline = sprintf(buffer_baseline, "f: -22.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %08.3f\r\n", -22.1);
+    result_baseline = sprintf(buffer_baseline, "f: -022.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %8.3f\r\n", -22.1);
+    result_baseline = sprintf(buffer_baseline, "f:  -22.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %8.3f\r\n", 0.1);
+    result_baseline = sprintf(buffer_baseline, "f:    0.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %8.3f\r\n", -0.1);
+    result_baseline = sprintf(buffer_baseline, "f:   -0.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %08.3f\r\n", 0.1);
+    result_baseline = sprintf(buffer_baseline, "f: 0000.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %08.3f\r\n", -0.1);
+    result_baseline = sprintf(buffer_baseline, "f: -000.100\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("f: %05.3f\r\n", -22.1236);
+    result_baseline = sprintf(buffer_baseline, "f: -22.124\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_printf("05.0f: %05.0f\r\n", 7.9);
+    result_baseline = sprintf(buffer_baseline, "05.0f: 00008\r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     return CaseNext;
 }
 
@@ -953,7 +1216,86 @@ static control_t test_snprintf_f(const size_t call_count)
     result_baseline = sprintf(buffer_baseline, "f: 3.141593\r\n");
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
-
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %.3f\r\n", 2.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: 2.123\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %.8f\r\n", 2.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: 2.12345649\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %05.3f\r\n", 22.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: 22.123\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %5.3f\r\n", 22.1);
+    result_baseline = sprintf(buffer_baseline, "f: 22.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %08.3f\r\n", 22.1);
+    result_baseline = sprintf(buffer_baseline, "f: 0022.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %8.3f\r\n", 22.1);
+    result_baseline = sprintf(buffer_baseline, "f:   22.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %05.3f\r\n", -22.12345649);
+    result_baseline = sprintf(buffer_baseline, "f: -22.123\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %5.3f\r\n", -22.1);
+    result_baseline = sprintf(buffer_baseline, "f: -22.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %08.3f\r\n", -22.1);
+    result_baseline = sprintf(buffer_baseline, "f: -022.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %8.3f\r\n", -22.1);
+    result_baseline = sprintf(buffer_baseline, "f:  -22.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %8.3f\r\n", 0.1);
+    result_baseline = sprintf(buffer_baseline, "f:    0.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %8.3f\r\n", -0.1);
+    result_baseline = sprintf(buffer_baseline, "f:   -0.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %08.3f\r\n", 0.1);
+    result_baseline = sprintf(buffer_baseline, "f: 0000.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %08.3f\r\n", -0.1);
+    result_baseline = sprintf(buffer_baseline, "f: -000.100\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %05.3f\r\n", -22.1236);
+    result_baseline = sprintf(buffer_baseline, "f: -22.124\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    CLEAN_BUFFER;
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "05.0f: %05.0f\r\n", 7.9);
+    result_baseline = sprintf(buffer_baseline, "05.0f: 00008\r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     return CaseNext;
 }
 #endif

@@ -33,7 +33,7 @@
 #endif
 #define MBED_MPU_RAM_START           (MBED_MPU_ROM_END + 1)
 
-MBED_STATIC_ASSERT(
+static_assert(
     MBED_MPU_ROM_END == 0x04000000 - 1 ||
     MBED_MPU_ROM_END == 0x08000000 - 1 ||
     MBED_MPU_ROM_END == 0x0C000000 - 1 ||

@@ -29,7 +29,6 @@
 
 int nbsleep_req = 0;
 int external_pin = 0;
-static int initialize_policy = 0;
 static int disable_poweroffbycp = 1;
 
 static inline void hw_delay_us(unsigned int value)
@@ -66,19 +65,6 @@ int s5js100_idle_sicd(void)
     }
 
     return 0;
-}
-
-static void s5js100_idle_hook(void)
-{
-    core_util_critical_section_enter();
-    sleep();
-    core_util_critical_section_exit();
-}
-
-static void set_sleep_policy(void)
-{
-    rtos_attach_idle_hook(&s5js100_idle_hook);
-    initialize_policy = 1;
 }
 
 void config_poweroffbycp(int enable)
@@ -119,10 +105,6 @@ static int change_cp_pwr_lock(int lock)
 
 void hal_sleep(void)
 {
-    if (initialize_policy == 0) {
-        set_sleep_policy();
-    }
-
     if (!strcmp(get_env("SLEEP"), "ON") && disable_poweroffbycp != 1) {
         hal_deepsleep();
         return;

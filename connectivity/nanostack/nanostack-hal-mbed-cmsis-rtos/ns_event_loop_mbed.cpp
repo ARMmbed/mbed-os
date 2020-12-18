@@ -87,7 +87,7 @@ void ns_event_loop_thread_create(void)
     EventQueue *equeue = mbed::mbed_event_queue();
     MBED_ASSERT(equeue != NULL);
 
-    event = new Event<void()>(equeue, do_dispatch_with_mutex_held);
+    event = new (std::nothrow) Event<void()>(equeue, do_dispatch_with_mutex_held);
     MBED_ASSERT(event != NULL);
 }
 

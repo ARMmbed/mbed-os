@@ -29,14 +29,29 @@
 #define IDX_TO_EP(idx)      (((idx) >> 1)|((idx) & 1) << 7)
 
 /* endpoint defines */
-#define NUM_ENDPOINTS           4
+
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+
+#define NUM_ENDPOINTS                6
+#define MAX_PACKET_SIZE_NON_ISO      512
+#define MAX_PACKET_SIZE_ISO          1023
+
+#else
+
+#define NUM_ENDPOINTS                4
 #define MAX_PACKET_SIZE_NON_ISO      64
 #define MAX_PACKET_SIZE_ISO          (256 + 128)     // Spec can go up to 1023, only ram for this though
+
+#endif
 
 static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
     MAX_PACKET_SIZE_NON_ISO,
     MAX_PACKET_SIZE_NON_ISO,
     MAX_PACKET_SIZE_NON_ISO,
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+    MAX_PACKET_SIZE_NON_ISO,
+    MAX_PACKET_SIZE_NON_ISO,
+#endif
     MAX_PACKET_SIZE_ISO
 };
 
@@ -175,10 +190,13 @@ USBPhyHw::~USBPhyHw()
 }
 
 #if defined(TARGET_STM32F1)
+
+#include "drivers/DigitalOut.h"
+
 void USB_reenumerate()
 {
     // Force USB_DP pin (with external pull up) to 0
-    DigitalOut usb_dp_pin(USB_DP, 0) ;
+    mbed::DigitalOut usb_dp_pin(USB_DP, 0) ;
     wait_us(10000); // 10ms
 }
 #endif
@@ -229,6 +247,14 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.Init.use_external_vbus = DISABLE;
 
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+
+    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+     
     map = PinMap_USB_HS;
 
 #elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_FS)
@@ -238,6 +264,14 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.Init.speed = PCD_SPEED_FULL;
 
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+    #ifdef __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB1_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+    #ifdef __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE
+        __HAL_RCC_USB2_OTG_FS_ULPI_CLK_SLEEP_DISABLE();
+    #endif
+     
     map = PinMap_USB_FS;
 
 #elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
@@ -330,8 +364,11 @@ void USBPhyHw::init(USBPhyEvents *events)
         total_bytes += fifo_size;
     }
 
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
     /* 1.25 kbytes */
     MBED_ASSERT(total_bytes <= 1280);
+#endif
+
 #endif
 
     // Configure interrupt vector
@@ -421,11 +458,18 @@ void USBPhyHw::remote_wakeup()
 const usb_ep_table_t *USBPhyHw::endpoint_table()
 {
     static const usb_ep_table_t table = {
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
         1280, // 1.25K for endpoint buffers but space is allocated up front
+#else
+        4096,
+#endif
         {
             {USB_EP_ATTR_ALLOW_CTRL                         | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
             {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
             {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+            {USB_EP_ATTR_ALLOW_ALL                          | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
+#endif
             {USB_EP_ATTR_ALLOW_ALL                          | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
@@ -438,7 +482,9 @@ const usb_ep_table_t *USBPhyHw::endpoint_table()
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0}
+#endif
         }
     };
     return &table;

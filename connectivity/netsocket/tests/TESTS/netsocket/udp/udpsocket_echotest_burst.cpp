@@ -21,7 +21,9 @@
 #include "unity/unity.h"
 #include "utest.h"
 #include "udp_tests.h"
+#ifdef MBED_CONF_APP_BAUD_RATE
 #include "CellularDevice.h"
+#endif // MBED_CONF_CELLULAR_PRESENT
 
 using namespace utest::v1;
 

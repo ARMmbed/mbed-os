@@ -33,9 +33,6 @@
 // Wednesday, January 1, 2020 0:00:00 GMT
 #define CURRENT_TIME_INIT_VALUE        1577836800
 
-// Increment two hours in addition to maximum storing interval
-#define CURRENT_TIME_INCREMENT_VALUE   (2 * 3600)
-
 static uint64_t current_time = CURRENT_TIME_INIT_VALUE;
 static ns_time_api_system_time_callback *system_time_callback = NULL;
 
@@ -167,6 +164,8 @@ int8_t ws_pae_current_time_set(uint64_t time)
 {
     current_time = time;
 
+    tr_debug("Current time set: %"PRIi64, time);
+
     if (system_time_callback) {
         uint64_t system_time = system_time_callback();
         // System time has gone backwards
@@ -174,8 +173,6 @@ int8_t ws_pae_current_time_set(uint64_t time)
             tr_error("FATAL: system time less than reference time or more than 12 months in future: %"PRIi64" reference time: %"PRIi64, system_time, current_time);
             return -1;
         }
-    } else {
-        current_time += FRAME_COUNTER_STORE_FORCE_INTERVAL + CURRENT_TIME_INCREMENT_VALUE;
     }
 
     return 0;

@@ -76,6 +76,16 @@
             "help": "Maximum number of EATT channels per DM connection.",
             "value": 1,
             "macro_name": "EATT_CONN_CHAN_MAX"
+        },
+        "rpa-swap-workaround": {
+            "help": "Check connection complete event if it needs the addresses swapped due to bug in controller",
+            "value": null,
+            "macro_name": "CORDIO_RPA_SWAP_WORKAROUND"
+        }
+    },
+    "target_overrides": {
+        "NUCLEO_WB55RG": {
+            "rpa-swap-workaround": true
         }
     }
 }

@@ -18,9 +18,9 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer
-* Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
-/* Copyright (c) 2018-2020 Renesas Electronics Corporation.
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@
  * limitations under the License.
  */
 /*******************************************************************************
-* Rev: 2.00
+* Rev: 3.01
 * Description : IO bitmask header
 *******************************************************************************/
 
@@ -172,8 +172,6 @@
 #define CPG_SYSCR3_RRAMWE3_SHIFT                                               (3u)
 #define CPG_STBCR3_MSTP30                                                      (0x01u)
 #define CPG_STBCR3_MSTP30_SHIFT                                                (0u)
-#define CPG_STBCR3_MSTP31                                                      (0x02u)
-#define CPG_STBCR3_MSTP31_SHIFT                                                (1u)
 #define CPG_STBCR3_MSTP32                                                      (0x04u)
 #define CPG_STBCR3_MSTP32_SHIFT                                                (2u)
 #define CPG_STBCR3_MSTP33                                                      (0x08u)

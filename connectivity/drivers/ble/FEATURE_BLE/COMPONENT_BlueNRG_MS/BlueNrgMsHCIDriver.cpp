@@ -37,9 +37,9 @@
 #include "hci_mbed_os_adaptation.h"
 
 // rtos
-#include "Thread.h"
-#include "Semaphore.h"
-#include "Mutex.h"
+#include "rtos/Thread.h"
+#include "rtos/Semaphore.h"
+#include "rtos/Mutex.h"
 
 #define HCI_RESET_RAND_CNT              4
 

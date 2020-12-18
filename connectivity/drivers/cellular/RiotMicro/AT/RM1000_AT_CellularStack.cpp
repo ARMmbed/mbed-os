@@ -28,6 +28,8 @@ using namespace mbed;
 using namespace mbed_cellular_util;
 using namespace std::chrono;
 
+constexpr seconds RM1000_AT_CellularStack::SOCKET_TIMEOUT;
+
 RM1000_AT_CellularStack::RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
 {

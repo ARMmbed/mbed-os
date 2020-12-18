@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "drivers/internal/SFDP.h"
+#include "blockdevice/internal/SFDP.h"
 #include "platform/Callback.h"
 #include "OSPIFBlockDevice.h"
 #include <string.h>
@@ -31,6 +31,7 @@
 #include "mbed_trace.h"
 #define TRACE_GROUP "OSPIF"
 
+using namespace std::chrono;
 using namespace mbed;
 
 /* Default OSPIF Parameters */
@@ -409,7 +410,7 @@ int OSPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
     uint32_t chunk = 0;
     bd_size_t written_bytes = 0;
 
-    tr_debug("Program - Buff: 0x%lxh, addr: %llu, size: %llu", (uint32_t)buffer, addr, size);
+    tr_debug("Program - Buff: %p, addr: %llu, size: %llu", buffer, addr, size);
 
     while (size > 0) {
         // Write on _page_size_bytes boundaries (Default 256 bytes a page)
@@ -457,13 +458,10 @@ exit_point:
     return status;
 }
 
-int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
+int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     int type = 0;
-    uint32_t offset = 0;
-    uint32_t chunk = 4096;
     ospi_inst_t cur_erase_inst = OSPI_NO_INST;
-    int size = (int)in_size;
     bool erase_failed = false;
     int status = OSPIF_BD_ERROR_OK;
     // Find region of erased address
@@ -471,14 +469,14 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     // Erase Types of selected region
     uint8_t bitfield = _sfdp_info.smptbl.region_erase_types_bitfld[region];
 
-    tr_debug("Erase - addr: %llu, in_size: %llu", addr, in_size);
+    tr_debug("Erase - addr: %llu, size: %llu", addr, size);
 
-    if ((addr + in_size) > _sfdp_info.bptbl.device_size_bytes) {
+    if ((addr + size) > _sfdp_info.bptbl.device_size_bytes) {
         tr_error("Erase exceeds flash device size");
         return OSPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
 
-    if (((addr % get_erase_size(addr)) != 0) || (((addr + in_size) % get_erase_size(addr + in_size - 1)) != 0)) {
+    if (((addr % get_erase_size(addr)) != 0) || (((addr + size) % get_erase_size(addr + size - 1)) != 0)) {
         tr_error("Invalid erase - unaligned address and size");
         return OSPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
@@ -500,11 +498,16 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
             cur_erase_inst = _sfdp_info.bptbl.legacy_erase_instruction;
             eu_size = OSPIF_DEFAULT_SE_SIZE;
         }
-        offset = addr % eu_size;
-        chunk = ((offset + size) < eu_size) ? size : (eu_size - offset);
 
-        tr_debug("Erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu ",
-                 addr, size, cur_erase_inst, chunk);
+        if (addr % eu_size != 0 || addr + size < eu_size) {
+            // Should not happen if the erase table parsing
+            // and alignment checks were performed correctly
+            tr_error("internal error: address %llu not aligned to erase size %u (type %d)",
+                     addr, eu_size, type);
+        }
+
+        tr_debug("Erase - addr: %llu, size:%llu, Inst: 0x%xh, erase size: %u ",
+                 addr, size, cur_erase_inst, eu_size);
         tr_debug("Erase - Region: %d, Type:%d ",
                  region, type);
 
@@ -524,8 +527,8 @@ int OSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
             goto exit_point;
         }
 
-        addr += chunk;
-        size -= chunk;
+        addr += eu_size;
+        size -= eu_size;
 
         if ((size > 0) && (addr > _sfdp_info.smptbl.region_high_boundary[region])) {
             // erase crossed to next region
@@ -1517,7 +1520,7 @@ bool OSPIFBlockDevice::_is_mem_ready()
     bool mem_ready = true;
 
     do {
-        rtos::ThisThread::sleep_for(1);
+        rtos::ThisThread::sleep_for(1ms);
         retries++;
         //Read Status Register 1 from device, the number of read byte need to be even in octa flash DOPI mode
         if (OSPI_STATUS_OK != _ospi_send_general_command(OSPIF_INST_RSR1, OSPI_NO_ADDRESS_COMMAND,
@@ -1662,10 +1665,9 @@ ospi_status_t OSPIFBlockDevice::_ospi_send_general_command(ospi_inst_t instructi
     if ((_inst_width == OSPI_CFG_BUS_OCTA) || (_inst_width == OSPI_CFG_BUS_OCTA_DTR)) {
         if ((instruction == OSPIF_INST_RSR1) || (instruction == OSPIF_INST_RDID) ||
                 (instruction == OSPIF_INST_RDCR2) || (instruction == OSPIF_INST_RDCR)) {
-            _ospi.configure_format(_inst_width, _inst_size, _address_width, _address_size, OSPI_CFG_BUS_SINGLE,
-                                   0, _data_width, 4);
+            _ospi.configure_format(_inst_width, _inst_size, _address_width, _address_size, OSPI_CFG_BUS_SINGLE, 0, _data_width, _dummy_cycles);
             addr = 0;
-        } else if ((instruction == OSPIF_INST_WSR1)) {
+        } else if (instruction == OSPIF_INST_WSR1) {
             addr = 0;
         }
     }

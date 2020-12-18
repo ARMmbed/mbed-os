@@ -130,7 +130,7 @@ typedef struct socket {
     int8_t    id;                     /*!< socket id */
     uint8_t   flags;                  /*!< Socket option flags */
     int8_t    tasklet;                /*!< Receiver tasklet */
-    uint8_t   refcount;
+    uint16_t   refcount;
     socket_family_t family;
     socket_type_t type;
     int8_t    default_interface_id;

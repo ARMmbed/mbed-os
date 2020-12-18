@@ -249,7 +249,7 @@ struct Span {
      */
     static const index_type extent = Extent;
 
-    MBED_STATIC_ASSERT(Extent >= 0, "Invalid extent for a Span");
+    static_assert(Extent >= 0, "Invalid extent for a Span");
 
     /**
      * Construct an empty Span.
@@ -262,7 +262,7 @@ struct Span {
     Span() :
         _data(NULL)
     {
-        MBED_STATIC_ASSERT(
+        static_assert(
             Extent == 0,
             "Cannot default construct a static-extent Span (unless Extent is 0)"
         );
@@ -333,7 +333,7 @@ struct Span {
     Span(const Span<OtherElementType, Extent> &other):
         _data(other.data())
     {
-        MBED_STATIC_ASSERT(
+        static_assert(
             (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
             "OtherElementType(*)[] should be convertible to ElementType (*)[]"
         );
@@ -440,7 +440,7 @@ struct Span {
     template<ptrdiff_t Count>
     Span<element_type, Count> first() const
     {
-        MBED_STATIC_ASSERT(
+        static_assert(
             (0 <= Count) && (Count <= Extent),
             "Invalid subspan extent"
         );
@@ -459,7 +459,7 @@ struct Span {
     template<ptrdiff_t Count>
     Span<element_type, Count> last() const
     {
-        MBED_STATIC_ASSERT(
+        static_assert(
             (0 <= Count) && (Count <= Extent),
             "Invalid subspan extent"
         );
@@ -484,11 +484,11 @@ struct Span {
     Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count>
     subspan() const
     {
-        MBED_STATIC_ASSERT(
+        static_assert(
             0 <= Offset && Offset <= Extent,
             "Invalid subspan offset"
         );
-        MBED_STATIC_ASSERT(
+        static_assert(
             (Count == SPAN_DYNAMIC_EXTENT) ||
             (0 <= Count && (Count + Offset) <= Extent),
             "Invalid subspan count"
@@ -678,7 +678,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     Span(const Span<OtherElementType, OtherExtent> &other):
         _data(other.data()), _size(other.size())
     {
-        MBED_STATIC_ASSERT(
+        static_assert(
             (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
             "OtherElementType(*)[] should be convertible to ElementType (*)[]"
         );

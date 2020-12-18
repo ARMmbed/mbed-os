@@ -3,7 +3,7 @@
 
 Library supports both printf and snprintf in around 1300 bytes of flash.
 
-Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored.
+Prints directly to stdio/UART without using malloc. Width size and prepending zero modifiers are supported. All other flags are ignored.
 There is no error handling if a writing error occurs.
 
 Supports:
@@ -12,10 +12,10 @@ Supports:
 * %u: unsigned integer [h, hh, (none), l, ll, z, j, t].
 * %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., ff).
 * %X: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
-* %f: floating point (disabled by default).
-* %F: floating point (disabled by default, treated as %f).
-* %g: floating point (disabled by default, treated as %f).
-* %G: floating point (disabled by default, treated as %f).
+* %f: floating point (disabled by default). Precision modifier is supported (e.g. %.5f).
+* %F: floating point (disabled by default, treated as %f). Precision modifier is supported (e.g. %.5F).
+* %g: floating point (disabled by default, treated as %f). Precision modifier is supported (e.g. %.5g).
+* %G: floating point (disabled by default, treated as %f). Precision modifier is supported (e.g. %.5G).
 * %c: character.
 * %s: string.
 * %p: pointer (e.g. 0x00123456).

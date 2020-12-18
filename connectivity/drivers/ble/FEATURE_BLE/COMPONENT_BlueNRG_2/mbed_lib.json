@@ -1,0 +1,23 @@
+{
+    "name": "bluenrg_2",
+    "config": {
+        "SPI_MOSI":  "D11",
+        "SPI_MISO":  "D12",
+        "SPI_nCS":   "A1",
+        "SPI_RESET": "D7",
+        "SPI_IRQ":   "A0",
+        "SPI_SCK":   "D3",
+        "valid-public-bd-address": {
+            "help": "Read the BD public address at startup",
+            "value": false
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.macros_add": [ "CORDIO_RPA_SWAP_WORKAROUND=1" ]
+        },
+        "NUCLEO_F446RE": {
+            "SPI_SCK":   "D13"
+        }
+    }
+}

@@ -127,16 +127,7 @@ static ticker_event_queue_t queue_stub = {
 
 static void reset_queue_stub()
 {
-    queue_stub.event_handler = NULL;
-    queue_stub.head = NULL,
-    queue_stub.tick_last_read = 0;
-    queue_stub.tick_remainder = 0;
-    queue_stub.frequency = 0;
-    queue_stub.bitmask = 0;
-    queue_stub.max_delta = 0;
-    queue_stub.max_delta_us = 0;
-    queue_stub.present_time = 0;
-    queue_stub.initialized = false;
+    queue_stub = ticker_event_queue_t{};
 }
 
 // stub of the ticker

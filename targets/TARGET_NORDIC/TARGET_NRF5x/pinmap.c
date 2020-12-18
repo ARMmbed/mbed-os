@@ -31,12 +31,9 @@ void pin_mode(PinName pin, PinMode mode)
     MBED_ASSERT(pin != (PinName)NC);
 
     uint32_t pin_number = (uint32_t)pin;
-    
-#ifdef TARGET_SDK_11
-    NRF_GPIO_Type * reg = NRF_GPIO;
-#else
+
     NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
-#endif
+
     reg->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_PULL_Msk;
     reg->PIN_CNF[pin_number] |= (mode << GPIO_PIN_CNF_PULL_Pos);
 }

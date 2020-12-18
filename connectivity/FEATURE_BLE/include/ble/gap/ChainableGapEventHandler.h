@@ -41,6 +41,10 @@ public:
         execute_on_all(&ble::Gap::EventHandler::onScanRequestReceived, event);
     }
 
+    void onAdvertisingStart(const ble::AdvertisingStartEvent &event) override {
+        execute_on_all(&ble::Gap::EventHandler::onAdvertisingStart, event);
+    }
+
     void onAdvertisingEnd(const ble::AdvertisingEndEvent &event) override {
         execute_on_all(&ble::Gap::EventHandler::onAdvertisingEnd, event);
     }
@@ -110,6 +114,10 @@ public:
         uint16_t rxSize) override {
         execute_on_all(&ble::Gap::EventHandler::onDataLengthChange,
                 connectionHandle, txSize, rxSize);
+    }
+
+    void onPrivacyEnabled() override {
+        execute_on_all(&ble::Gap::EventHandler::onPrivacyEnabled);
     }
 
 };

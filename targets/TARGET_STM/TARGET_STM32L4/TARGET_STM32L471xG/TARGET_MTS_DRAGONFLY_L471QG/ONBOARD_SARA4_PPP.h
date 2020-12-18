@@ -32,6 +32,8 @@ public:
     virtual nsapi_error_t soft_power_off();
 
 private:
+    uint8_t initialized;
+
     void press_power_button(int time_ms);
 
     void onboard_modem_init();

@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0x00000000

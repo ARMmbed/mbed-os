@@ -217,6 +217,7 @@ static const hciEvtParse_t hciEvtParseFcnTbl[] =
   hciEvtParseLeConnCteReqEnableCmdCmpl,
   hciEvtParseLeConnCteRspEnableCmdCmpl,
   hciEvtParseLeReadAntennaInfoCmdCmpl,
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
   hciEvtParseLeCisEst,
   hciEvtParseLeCisReq,
   hciEvtParseDisconnectCmpl,
@@ -235,6 +236,7 @@ static const hciEvtParse_t hciEvtParseFcnTbl[] =
   hciEvtParseLeBigSyncLost,
   hciEvtParseLeBigTermSyncCmpl,
   hciEvtParseLeBigInfoAdvRpt
+#endif // HCI_VER_BT_CORE_SPEC_5_2
 };
 
 /* HCI event structure length table, indexed by internal callback event value */
@@ -308,6 +310,7 @@ static const uint8_t hciEvtCbackLen[] =
   sizeof(hciLeConnCteReqEnableCmdCmplEvt_t),
   sizeof(hciLeConnCteRspEnableCmdCmplEvt_t),
   sizeof(hciLeReadAntennaInfoCmdCmplEvt_t),
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
   sizeof(HciLeCisEstEvt_t),
   sizeof(HciLeCisReqEvt_t),
   sizeof(hciDisconnectCmplEvt_t),
@@ -326,6 +329,7 @@ static const uint8_t hciEvtCbackLen[] =
   sizeof(HciLeBigSyncLostEvt_t),
   sizeof(HciLeBigTermSyncCmplEvt_t),
   sizeof(HciLeBigInfoAdvRptEvt_t)
+#endif
 };
 
 /* Global event statistics. */
@@ -363,6 +367,30 @@ static void hciEvtParseLeConnCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
   pMsg->hdr.status = pMsg->leConnCmpl.status;
 }
 
+#ifndef CORDIO_RPA_SWAP_WORKAROUND
+#define CORDIO_RPA_SWAP_WORKAROUND 0
+#endif
+#if CORDIO_RPA_SWAP_WORKAROUND
+/*************************************************************************************************/
+/*!
+ *  \brief  Check if address bits are all 0s or all 1s.
+ *
+ *  \param  p       Pointer to address.
+ *
+ *  \return TRUE if address is invalid.
+ */
+/*************************************************************************************************/
+static bool_t isAddressInvalid(uint8_t *p)
+{
+    for (int i = 0; i < 6; i++) {
+        if ((p[i] != 0xff) && (p[i] != 0x00)) {
+            return FALSE; // meaning valid address
+        }
+    }
+    return TRUE;
+}
+#endif // CORDIO_RPA_SWAP_WORKAROUND
+
 /*************************************************************************************************/
 /*!
  *  \brief  Parse an HCI event.
@@ -380,9 +408,21 @@ static void hciEvtParseLeEnhancedConnCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t le
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.handle, p);
   BSTREAM_TO_UINT8(pMsg->leConnCmpl.role, p);
   BSTREAM_TO_UINT8(pMsg->leConnCmpl.addrType, p);
-  BSTREAM_TO_BDA(pMsg->leConnCmpl.peerAddr, p);
-  BSTREAM_TO_BDA(pMsg->leConnCmpl.localRpa, p);
-  BSTREAM_TO_BDA(pMsg->leConnCmpl.peerRpa, p);
+
+#if CORDIO_RPA_SWAP_WORKAROUND
+  if (isAddressInvalid(p)) {
+      memset(pMsg->leConnCmpl.peerRpa, 0x00, BDA_ADDR_LEN);
+      p += BDA_ADDR_LEN;
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.localRpa, p);
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.peerAddr, p);
+  } else
+#endif // CORDIO_RPA_SWAP_WORKAROUND
+  {
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.peerAddr, p);
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.localRpa, p);
+      BSTREAM_TO_BDA(pMsg->leConnCmpl.peerRpa, p);
+  }
+
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.connInterval, p);
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.connLatency, p);
   BSTREAM_TO_UINT16(pMsg->leConnCmpl.supTimeout, p);
@@ -2583,6 +2623,7 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
     cbackEvt = HCI_LE_PER_ADV_SET_INFO_TRSF_CMD_CMPL_CBACK_EVT;
     break;
 
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
   case HCI_OPCODE_LE_SET_CIG_PARAMS:
     cbackEvt = HCI_LE_SET_CIG_PARAMS_CMD_CMPL_CBACK_EVT;
     break;
@@ -2618,6 +2659,7 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
   case HCI_OPCODE_READ_LOCAL_SUP_CONTROLLER_DLY:
     cbackEvt = HCI_READ_LOCAL_SUP_CTR_DLY_CMD_CMPL_CBACK_EVT;
     break;
+#endif
 
   default:
     /* test for vendor specific command completion OGF. */
@@ -2851,6 +2893,7 @@ void hciEvtProcessMsg(uint8_t *pEvt)
           cbackEvt = HCI_LE_CTE_REQ_FAILED_CBACK_EVT;
           break;
 
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
         case HCI_LE_CIS_EST_EVT:
           /* if CIS connection created successfully */
           if (*pEvt == HCI_SUCCESS)
@@ -2888,6 +2931,7 @@ void hciEvtProcessMsg(uint8_t *pEvt)
         case HCI_LE_BIG_INFO_ADV_REPORT_EVT:
           cbackEvt = HCI_LE_BIG_INFO_ADV_REPORT_CBACK_EVT;
           break;
+#endif
 
         default:
           break;
@@ -2899,11 +2943,13 @@ void hciEvtProcessMsg(uint8_t *pEvt)
 
       /* if disconnect is for CIS connection */
       BYTES_TO_UINT16(handle, (pEvt + 1));
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
       if (hciCoreCisByHandle(handle) != NULL)
       {
         cbackEvt = HCI_CIS_DISCONNECT_CMPL_CBACK_EVT;
       }
       else
+#endif
       {
         cbackEvt = HCI_DISCONNECT_CMPL_CBACK_EVT;
       }
@@ -2991,11 +3037,13 @@ void hciEvtProcessMsg(uint8_t *pEvt)
       BYTES_TO_UINT16(handle, (pEvt + 1));
       hciCoreConnClose(handle);
     }
+#if HCI_VER_BT >= HCI_VER_BT_CORE_SPEC_5_2
     else if (cbackEvt == HCI_CIS_DISCONNECT_CMPL_CBACK_EVT)
     {
       BYTES_TO_UINT16(handle, (pEvt + 1));
       hciCoreCisClose(handle);
     }
+#endif
   }
 }
 

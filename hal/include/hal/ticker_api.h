@@ -70,22 +70,73 @@ typedef struct {
     bool runs_in_deep_sleep;                      /**< Whether ticker operates in deep sleep */
 } ticker_interface_t;
 
+/* Optimizations to avoid run-time computation if custom ticker support is disabled and
+ * there is exactly one of USTICKER or LPTICKER available, or if they have the same
+ * parameter value(s).
+ */
+#define MBED_TICKER_JUST_US      (!MBED_CONF_TARGET_CUSTOM_TICKERS && DEVICE_USTICKER && !DEVICE_LPTICKER)
+#define MBED_TICKER_JUST_LP      (!MBED_CONF_TARGET_CUSTOM_TICKERS && DEVICE_LPTICKER && !DEVICE_USTICKER)
+
+#if (MBED_TICKER_JUST_US && defined US_TICKER_PERIOD_NUM) || \
+    (!MBED_CONF_TARGET_CUSTOM_TICKERS && defined US_TICKER_PERIOD_NUM && defined LP_TICKER_PERIOD_NUM && \
+    US_TICKER_PERIOD_NUM == LP_TICKER_PERIOD_NUM)
+#define MBED_TICKER_CONSTANT_PERIOD_NUM US_TICKER_PERIOD_NUM
+#elif MBED_TICKER_JUST_LP && defined LP_TICKER_PERIOD_NUM
+#define MBED_TICKER_CONSTANT_PERIOD_NUM LP_TICKER_PERIOD_NUM
+#endif
+
+#if (MBED_TICKER_JUST_US && defined US_TICKER_PERIOD_DEN) || \
+    (!MBED_CONF_TARGET_CUSTOM_TICKERS && defined US_TICKER_PERIOD_DEN && defined LP_TICKER_PERIOD_DEN && \
+    US_TICKER_PERIOD_DEN == LP_TICKER_PERIOD_DEN)
+#define MBED_TICKER_CONSTANT_PERIOD_DEN US_TICKER_PERIOD_DEN
+#elif MBED_TICKER_JUST_LP && defined LP_TICKER_PERIOD_DEN
+#define MBED_TICKER_CONSTANT_PERIOD_DEN LP_TICKER_PERIOD_DEN
+#endif
+
+#if defined MBED_TICKER_CONSTANT_PERIOD_NUM && defined MBED_TICKER_CONSTANT_PERIOD_DEN
+#define MBED_TICKER_CONSTANT_PERIOD
+#endif
+
+#if (MBED_TICKER_JUST_US && defined US_TICKER_MASK) || \
+    (!MBED_CONF_TARGET_CUSTOM_TICKERS && defined US_TICKER_MASK && defined LP_TICKER_MASK && \
+    US_TICKER_MASK == LP_TICKER_MASK)
+#define MBED_TICKER_CONSTANT_MASK US_TICKER_MASK
+#elif MBED_TICKER_JUST_LP && defined LP_TICKER_MASK
+#define MBED_TICKER_CONSTANT_MASK LP_TICKER_MASK
+#endif
+
 /** Ticker's event queue structure
  */
 typedef struct {
     ticker_event_handler event_handler; /**< Event handler */
     ticker_event_t *head;               /**< A pointer to head */
-    uint32_t frequency;                 /**< Frequency of the timer in Hz */
+#ifndef MBED_TICKER_CONSTANT_PERIOD_NUM
+    uint32_t period_num;                /**< Ratio of period to 1us, numerator */
+#endif
+#ifndef MBED_TICKER_CONSTANT_PERIOD_DEN
+    uint32_t period_den;                /**< Ratio of period to 1us, denominator */
+#endif
+#ifndef MBED_TICKER_CONSTANT_MASK
     uint32_t bitmask;                   /**< Mask to be applied to time values read */
     uint32_t max_delta;                 /**< Largest delta in ticks that can be used when scheduling */
+#endif
+#if !(defined MBED_TICKER_CONSTANT_PERIOD && defined MBED_TICKER_CONSTANT_MASK)
     uint64_t max_delta_us;              /**< Largest delta in us that can be used when scheduling */
+#endif
     uint32_t tick_last_read;            /**< Last tick read */
-    uint64_t tick_remainder;            /**< Ticks that have not been added to base_time */
+#if MBED_TICKER_CONSTANT_PERIOD_DEN != 1
+    uint32_t tick_remainder;            /**< Ticks that have not been added to base_time */
+#endif
     us_timestamp_t present_time;        /**< Store the timestamp used for present time */
     bool initialized;                   /**< Indicate if the instance is initialized */
     bool dispatching;                   /**< The function ticker_irq_handler is dispatching */
     bool suspended;                     /**< Indicate if the instance is suspended */
-    uint8_t frequency_shifts;           /**< If frequency is a value of 2^n, this is n, otherwise 0 */
+#ifndef MBED_TICKER_CONSTANT_PERIOD_NUM
+    int8_t period_num_shifts;           /**< If numerator is a value of 2^n, this is n, otherwise -1 */
+#endif
+#ifndef MBED_TICKER_CONSTANT_PERIOD_DEN
+    int8_t period_den_shifts;           /**< If denominator is a value of 2^n, this is n, otherwise -1 */
+#endif
 } ticker_event_queue_t;
 
 /** Ticker's data structure

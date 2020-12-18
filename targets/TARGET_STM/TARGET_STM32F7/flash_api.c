@@ -61,27 +61,6 @@ int32_t flash_free(flash_t *obj)
     return 0;
 }
 
-static int32_t flash_unlock(void)
-{
-    /* Allow Access to Flash control registers and user Falsh */
-    if (HAL_FLASH_Unlock()) {
-        return -1;
-    } else {
-        return 0;
-    }
-}
-
-static int32_t flash_lock(void)
-{
-    /* Disable the Flash option control register access (recommended to protect
-    the option Bytes against possible unwanted operations) */
-    if (HAL_FLASH_Lock()) {
-        return -1;
-    } else {
-        return 0;
-    }
-}
-
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     /* Variable used for Erase procedure */
@@ -94,9 +73,11 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
-    if (flash_unlock() != HAL_OK) {
+    if (HAL_FLASH_Unlock() != HAL_OK) {
         return -1;
     }
+
+    core_util_critical_section_enter();
 
     /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
        you have to make sure that these data are rewritten before they are accessed during code
@@ -122,7 +103,11 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     SCB_CleanInvalidateDCache_by_Addr((uint32_t *)GetSectorBase(SectorId), GetSectorSize(SectorId));
     SCB_InvalidateICache();
 
-    flash_lock();
+    core_util_critical_section_exit();
+
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
 
     return status;
 }
@@ -138,9 +123,11 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         return -1;
     }
 
-    if (flash_unlock() != HAL_OK) {
+    if (HAL_FLASH_Unlock() != HAL_OK) {
         return -1;
     }
+
+    core_util_critical_section_enter();
 
     /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
        you have to make sure that these data are rewritten before they are accessed during code
@@ -164,7 +151,11 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
     SCB_CleanInvalidateDCache_by_Addr((uint32_t *)StartAddress, FullSize);
     SCB_InvalidateICache();
 
-    flash_lock();
+    core_util_critical_section_exit();
+
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
 
     return status;
 }

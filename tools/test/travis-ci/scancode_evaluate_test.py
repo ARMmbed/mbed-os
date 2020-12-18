@@ -34,22 +34,36 @@ HEADER_WITH_SPDX = "/* mbed Microcontroller Library\
  * limitations under the License.\
  */"
 
+HEADER_WITH_BINARY_LICENSE = "/*\
+ * Copyright (c) 2019, Arm Limited, All Rights Reserved\
+ * SPDX-License-Identifier: LicenseRef-PBL\
+ *\
+ * This file and the related binary are licensed under the\
+ * Permissive Binary License, Version 1.0 (the \"License\");\
+ * you may not use these files except in compliance with the License.\
+ *\
+ */"
+
 @pytest.fixture()
 def create_scanned_files():
     """Create stub files.
     test3.h missing license notice
     test4.h with license notice
     test5.h with license notice
+    test6.h with permissive binary license
     """
     file_paths = [
         os.path.join(STUBS_PATH, "test3.h"),
         os.path.join(STUBS_PATH, "test4.h"),
-        os.path.join(STUBS_PATH, "test5.h")
+        os.path.join(STUBS_PATH, "test5.h"),
+        os.path.join(STUBS_PATH, "test6.h")
     ]
     for file_path in file_paths:
         with open(file_path, "w") as new_file:
             if file_path in [os.path.join(STUBS_PATH, "test3.h")]:
                 new_file.write(HEADER_WITHOUT_SPDX)
+            elif file_path in [os.path.join(STUBS_PATH, "test6.h")]:
+                new_file.write(HEADER_WITH_BINARY_LICENSE)
             else:
                 new_file.write(HEADER_WITH_SPDX)
     yield
@@ -81,6 +95,7 @@ class TestScancodeEvaluate:
             test3.h: Missing `Permissive` license text and `spdx` in match.identifier and not in file tested by ScanCode (error count += 1)
             test4.h: Missing `Permissive` license text and `spdx` in match.identifier but found in file tested by ScanCode (error count += 1)
             test5.h: Missing `spdx` in match.identifier but found in file tested by ScanCode. (error count += 0)
+            test6.h: Matching `spdx` in match.identifier but Permissive Binary License header (error count += 0)
             @inputs scancode_test/scancode_test_2.json
             @output 3
         """

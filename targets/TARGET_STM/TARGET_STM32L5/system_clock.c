@@ -134,7 +134,6 @@ uint8_t SetSysClock_PLL_MSI(void)
     __HAL_RCC_RTCAPB_CLK_ENABLE();
 
 #if MBED_CONF_TARGET_LSE_AVAILABLE
-    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;   // External 32.768 kHz clock on OSC_IN/OSC_OUT
@@ -177,16 +176,12 @@ uint8_t SetSysClock_PLL_MSI(void)
         return 0; // FAIL
     }
 
-    // Default STDIO is LPUART1
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 #if DEVICE_TRNG
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1 | RCC_PERIPHCLK_RNG;
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
     PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_HSI48;
-#else
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-#endif
-    PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+#endif	
 
     return 1; // OK
 }

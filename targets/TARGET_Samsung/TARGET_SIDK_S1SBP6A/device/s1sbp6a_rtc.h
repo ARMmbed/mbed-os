@@ -36,5 +36,6 @@ void bp6a_rtc_getdatetime(struct rtc_bcd_s *rtc);
 void bp6a_rtc_setdatetime(struct rtc_bcd_s *rtc);
 void bp6a_rtc_init(void);
 void bp6a_set_rtc_delay(uint32_t delay);
-
+uint32_t bp6a_rtc_read_offset(uint32_t *flag);
+void bp6a_rtc_offset_write(uint32_t offset, uint32_t flag);
 #endif  /*__S1SBP6A_RTC_H */

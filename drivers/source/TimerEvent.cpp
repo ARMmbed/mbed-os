@@ -45,9 +45,9 @@ void TimerEvent::insert(timestamp_t timestamp)
     ticker_insert_event(_ticker_data, &event, timestamp, (uint32_t)this);
 }
 
-void TimerEvent::insert(microseconds timestamp)
+void TimerEvent::insert(microseconds rel_time)
 {
-    insert_absolute(_ticker_data.now() + timestamp);
+    insert_absolute(_ticker_data.now() + rel_time);
 }
 
 void TimerEvent::insert_absolute(us_timestamp_t timestamp)

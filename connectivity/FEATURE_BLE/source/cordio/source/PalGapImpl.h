@@ -50,6 +50,7 @@ public:
 
     ble_error_t set_random_address(const address_t &address) final;
 
+#if BLE_ROLE_BROADCASTER
     ble_error_t set_advertising_parameters(
         uint16_t advertising_interval_min,
         uint16_t advertising_interval_max,
@@ -72,7 +73,9 @@ public:
     ) final;
 
     ble_error_t advertising_enable(bool enable) final;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
     ble_error_t set_scan_parameters(
         bool active_scanning,
         uint16_t scan_interval,
@@ -85,7 +88,9 @@ public:
         bool enable,
         bool filter_duplicates
     ) final;
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_CENTRAL
     ble_error_t create_connection(
         uint16_t scan_interval,
         uint16_t scan_window,
@@ -102,7 +107,9 @@ public:
     ) final;
 
     ble_error_t cancel_connection_creation();
+#endif
 
+#if BLE_FEATURE_WHITELIST
     uint8_t read_white_list_capacity() final;
 
     ble_error_t clear_whitelist() final;
@@ -116,7 +123,9 @@ public:
         whitelist_address_type_t address_type,
         address_t address
     ) final;
+#endif // BLE_FEATURE_WHITELIST
 
+#if BLE_FEATURE_CONNECTABLE
     ble_error_t connection_parameters_update(
         connection_handle_t connection,
         uint16_t connection_interval_min,
@@ -146,7 +155,9 @@ public:
         connection_handle_t connection,
         local_disconnection_reason_t disconnection_reason
     ) final;
+#endif // BLE_FEATURE_CONNECTABLE
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     ble_error_t read_phy(connection_handle_t connection) final;
 
     ble_error_t set_preferred_phys(
@@ -160,6 +171,7 @@ public:
         const phy_set_t &rx_phys,
         coded_symbol_per_bit_t coded_symbol
     ) final;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     // singleton of the ARM Cordio client
     static PalGap &get_gap();
@@ -169,12 +181,13 @@ public:
      */
     static void gap_handler(const wsfMsgHdr_t *msg);
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t set_advertising_set_random_address(
         advertising_handle_t advertising_handle,
         const address_t &address
     ) final;
 
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t set_extended_advertising_parameters(
         advertising_handle_t advertising_handle,
         advertising_event_properties_t event_properties,
@@ -194,13 +207,17 @@ public:
     ) final;
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
+
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     ble_error_t set_periodic_advertising_parameters(
         advertising_handle_t advertising_handle,
         periodic_advertising_interval_t periodic_advertising_min,
         periodic_advertising_interval_t periodic_advertising_max,
         bool advertise_power
     ) final;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t set_extended_advertising_data(
         advertising_handle_t advertising_handle,
         advertising_fragment_description_t operation,
@@ -208,14 +225,18 @@ public:
         uint8_t advertising_data_size,
         const uint8_t *advertising_data
     ) final;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     ble_error_t set_periodic_advertising_data(
         advertising_handle_t advertising_handle,
         advertising_fragment_description_t fragment_description,
         uint8_t advertising_data_size,
         const uint8_t *advertising_data
     ) final;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t set_extended_scan_response_data(
         advertising_handle_t advertising_handle,
         advertising_fragment_description_t operation,
@@ -231,11 +252,14 @@ public:
         const uint16_t *durations,
         const uint8_t *max_extended_advertising_events
     ) final;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     ble_error_t periodic_advertising_enable(
         bool enable,
         advertising_handle_t advertising_handle
     ) final;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
     uint16_t get_maximum_advertising_data_length() final;
 
@@ -245,12 +269,17 @@ public:
 
     uint8_t get_max_number_of_advertising_sets() final;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t remove_advertising_set(
         advertising_handle_t advertising_handle
     ) final;
 
     ble_error_t clear_advertising_sets() final;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t set_extended_scan_parameters(
         own_address_type_t own_address_type,
         scanning_filter_policy_t filter_policy,
@@ -266,7 +295,9 @@ public:
         uint16_t duration,
         uint16_t period
     ) final;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     ble_error_t periodic_advertising_create_sync(
         bool use_periodic_advertiser_list,
         uint8_t advertising_sid,
@@ -297,7 +328,10 @@ public:
     ble_error_t clear_periodic_advertiser_list() final;
 
     uint8_t read_periodic_advertiser_list_size() final;
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_CENTRAL && BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t extended_create_connection(
         initiator_policy_t initiator_policy,
         own_address_type_t own_address_type,
@@ -313,6 +347,7 @@ public:
         const uint16_t *minimum_connection_event_lengths,
         const uint16_t *maximum_connection_event_lengths
     ) final;
+#endif // BLE_ROLE_CENTRAL && BLE_FEATURE_EXTENDED_ADVERTISING
 
     void when_gap_event_received(mbed::Callback<void(const GapEvent &)> cb) final;
 
@@ -366,30 +401,18 @@ private:
 
         static GapConnectionCompleteEvent convert(const hciLeConnCmplEvt_t *conn_evt)
         {
-            const bdAddr_t *peer_rpa = &conn_evt->peerRpa;
-            const bdAddr_t *peer_address = &conn_evt->peerAddr;
-
-#if defined(TARGET_MCU_STM32WB55xx)
-            const bdAddr_t invalidAddress = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-            if (conn_evt->addrType == DM_ADDR_RANDOM &&
-                memcmp(peer_address, invalidAddress, sizeof(invalidAddress)) == 0 &&
-                memcmp(peer_rpa, invalidAddress, sizeof(invalidAddress) != 0)
-            ) {
-                std::swap(peer_rpa, peer_address);
-            }
-#endif
             return GapConnectionCompleteEvent(
                 conn_evt->status,
                 // note the usage of the stack handle, not the HCI handle
                 conn_evt->hdr.param,
                 (connection_role_t::type) conn_evt->role,
                 (peer_address_type_t::type) conn_evt->addrType,
-                *peer_address,
+                conn_evt->peerAddr,
                 conn_evt->connInterval,
                 conn_evt->connLatency,
                 conn_evt->supTimeout,
                 conn_evt->localRpa,
-                *peer_rpa
+                conn_evt->peerRpa
             );
         }
     };

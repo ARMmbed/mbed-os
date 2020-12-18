@@ -80,11 +80,10 @@ def parse_args():
                                     official_target_names, "MCU")),
                             default=official_target_names)
 
-    compile_cmd.add_argument(
-        "--profiles",
-        nargs='+',
-        metavar="profile",
-        help="build profile(s)")
+    compile_cmd.add_argument("--profiles",
+                             nargs='+',
+                             metavar="profile",
+                             help="build profile(s)")
     
     compile_cmd.add_argument("-j", "--jobs",
                              dest='jobs',
@@ -160,7 +159,7 @@ def do_deploy(_, config, examples):
 
 def do_compile(args, config, examples):
     """Do the compile step"""
-    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profiles, args.verbose, examples, args.jobs)
+    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profiles, args.verbose, examples, args.cmake, args.jobs)
     failures = lib.get_build_summary(results)
     return failures 
     

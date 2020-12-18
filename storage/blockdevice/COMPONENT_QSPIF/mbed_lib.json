@@ -18,7 +18,7 @@
         "QSPI_POLARITY_MODE": 0,
         "QSPI_FREQ": "40000000",
         "QSPI_MIN_READ_SIZE": "1",
-        "QSPI_MIN_PROG_SIZE": "256"
+        "QSPI_MIN_PROG_SIZE": "1"
     },
     "target_overrides": {
         "MX25R6435F": {
@@ -37,15 +37,18 @@
         "MCU_NRF52840": {
             "QSPI_FREQ": "32000000",
             "QSPI_MIN_READ_SIZE": "4",
-            "QSPI_MIN_PROG_SIZE": "256"
+            "QSPI_MIN_PROG_SIZE": "4"
         }, 
         "MCU_PSOC6": {
-            "QSPI_FREQ": "50000000",
-            "QSPI_MIN_PROG_SIZE": "512"
+            "QSPI_FREQ": "50000000"
         },
         "EFM32GG11_STK3701": {
             "QSPI_MIN_READ_SIZE": "4",
-            "QSPI_MIN_PROG_SIZE": "256"
+            "QSPI_MIN_PROG_SIZE": "4"
+        },
+        "MCU_LPC546XX": {
+            "QSPI_MIN_READ_SIZE": "4",
+            "QSPI_MIN_PROG_SIZE": "4"
         }
     }
 }

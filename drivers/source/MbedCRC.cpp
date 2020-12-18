@@ -23,8 +23,8 @@ namespace mbed {
 
 SingletonPtr<PlatformMutex> mbed_crc_mutex;
 
-MBED_STATIC_ASSERT(MBED_CRC_TABLE_SIZE == 0 || MBED_CRC_TABLE_SIZE == 16 || MBED_CRC_TABLE_SIZE == 256,
-                   "Configuration setting drivers.crc-table-size must be set to 0, 16 or 256");
+static_assert(MBED_CRC_TABLE_SIZE == 0 || MBED_CRC_TABLE_SIZE == 16 || MBED_CRC_TABLE_SIZE == 256,
+              "Configuration setting drivers.crc-table-size must be set to 0, 16 or 256");
 
 #if MBED_CRC_TABLE_SIZE > 0
 

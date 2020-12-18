@@ -18,9 +18,9 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer
-* Copyright (C) 2018-2020 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
-/* Copyright (c) 2018-2020 Renesas Electronics Corporation.
+/* Copyright (c) 2019-2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@
  * limitations under the License.
  */
 /*******************************************************************************
-* Rev: 2.00
+* Rev: 3.01
 * Description : IO bitmask header
 *******************************************************************************/
 
@@ -178,19 +178,19 @@
 #define RIIC_ICSR2_TDRE_SHIFT                                                  (7u)
 #define RIIC_ICSAR0_SVA0                                                       (0x00000001u)
 #define RIIC_ICSAR0_SVA0_SHIFT                                                 (0u)
-#define RIIC_ICSAR0_SVA                                                        (0x000003FCu)
+#define RIIC_ICSAR0_SVA                                                        (0x000003FEu)
 #define RIIC_ICSAR0_SVA_SHIFT                                                  (1u)
 #define RIIC_ICSAR0_FS0                                                        (0x00008000u)
 #define RIIC_ICSAR0_FS0_SHIFT                                                  (15u)
 #define RIIC_ICSAR1_SVA0                                                       (0x00000001u)
 #define RIIC_ICSAR1_SVA0_SHIFT                                                 (0u)
-#define RIIC_ICSAR1_SVA                                                        (0x000003FCu)
+#define RIIC_ICSAR1_SVA                                                        (0x000003FEu)
 #define RIIC_ICSAR1_SVA_SHIFT                                                  (1u)
 #define RIIC_ICSAR1_FS1                                                        (0x00008000u)
 #define RIIC_ICSAR1_FS1_SHIFT                                                  (15u)
 #define RIIC_ICSAR2_SVA0                                                       (0x00000001u)
 #define RIIC_ICSAR2_SVA0_SHIFT                                                 (0u)
-#define RIIC_ICSAR2_SVA                                                        (0x000003FCu)
+#define RIIC_ICSAR2_SVA                                                        (0x000003FEu)
 #define RIIC_ICSAR2_SVA_SHIFT                                                  (1u)
 #define RIIC_ICSAR2_FS2                                                        (0x00008000u)
 #define RIIC_ICSAR2_FS2_SHIFT                                                  (15u)

@@ -20,6 +20,8 @@
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
+#include "randLIB.h"
+#include "common_functions.h"
 #include "net_interface.h"
 #include "socket_api.h"
 #include "eventOS_event.h"
@@ -31,6 +33,7 @@
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_key_storage.h"
+#include "6LoWPAN/ws/ws_pae_nvm_store.h"
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"
 #include "Common_Protocols/icmpv6.h"
@@ -60,6 +63,20 @@ static uint8_t current_instance_id = RPL_INSTANCE_ID;
 #define WS_ROUTE_LIFETIME WS_ULA_LIFETIME
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
+
+//TAG ID This must be update if NVM_BBR_INFO_LEN or data structure
+#define NVM_BBR_INFO_TAG        1
+// BSI 2 bytes
+#define NVM_BBR_INFO_LEN        2
+
+typedef struct bbr_info_nvm_tlv {
+    uint16_t tag;                         /**< Unique tag */
+    uint16_t len;                         /**< Number of the bytes after the length field */
+    uint8_t data[NVM_BBR_INFO_LEN];       /**< Data */
+} bbr_info_nvm_tlv_t;
+
+//NVM file name
+static const char *BBR_INFO_FILE = "pae_bbr_info";
 
 /* when creating BBR make ULA dodag ID always and when network becomes available add prefix to DHCP
  *
@@ -105,6 +122,52 @@ typedef struct dns_resolution {
 #define MAX_DNS_RESOLUTIONS 4
 
 static dns_resolution_t pre_resolved_dns_queries[MAX_DNS_RESOLUTIONS] = {0};
+//BBR NVM info buffer
+
+#define BBR_NVM_BSI_OFFSET 0
+static bbr_info_nvm_tlv_t bbr_info_nvm_tlv = {
+    .tag = NVM_BBR_INFO_TAG,
+    .len = 0,
+    .data = {0}
+};
+
+static uint16_t ws_bbr_fhss_bsi = 0;
+
+static int8_t ws_bbr_nvm_info_read(bbr_info_nvm_tlv_t *tlv_entry)
+{
+    tlv_entry->tag = NVM_BBR_INFO_TAG;
+    tlv_entry->len = NVM_BBR_INFO_LEN;
+
+    int8_t ret_val = ws_pae_nvm_store_tlv_file_read(BBR_INFO_FILE, (nvm_tlv_t *) &bbr_info_nvm_tlv);
+
+    if (ret_val < 0 || tlv_entry->tag != NVM_BBR_INFO_TAG || tlv_entry->len != NVM_BBR_INFO_LEN) {
+        ws_pae_nvm_store_tlv_file_remove(BBR_INFO_FILE);
+        tlv_entry->len = 0;
+        return -1;
+    }
+    return 0;
+}
+
+static void ws_bbr_nvm_info_write(bbr_info_nvm_tlv_t *tlv_entry)
+{
+    tlv_entry->tag = NVM_BBR_INFO_TAG;
+    tlv_entry->len = NVM_BBR_INFO_LEN;
+    ws_pae_nvm_store_tlv_file_write(BBR_INFO_FILE, (nvm_tlv_t *) tlv_entry);
+    tr_debug("BBR info NVM update");
+}
+
+static uint16_t ws_bbr_bsi_read(bbr_info_nvm_tlv_t *tlv_entry)
+{
+    if (tlv_entry->tag != NVM_BBR_INFO_TAG || tlv_entry->len != NVM_BBR_INFO_LEN) {
+        return 0;
+    }
+    return common_read_16_bit(tlv_entry->data + BBR_NVM_BSI_OFFSET);
+}
+
+static void ws_bbr_bsi_write(bbr_info_nvm_tlv_t *tlv_entry, uint16_t bsi)
+{
+    common_write_16_bit(bsi, tlv_entry->data + BBR_NVM_BSI_OFFSET);
+}
 
 static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur, uint8_t version)
 {
@@ -133,7 +196,6 @@ static void ws_bbr_rpl_version_increase(protocol_interface_info_entry_t *cur)
     }
     ws_bbr_rpl_version_timer_start(cur, rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag));
 }
-
 
 void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase)
 {
@@ -785,6 +847,35 @@ bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur)
 
     return true;
 }
+
+void ws_bbr_init(protocol_interface_info_entry_t *interface)
+{
+    (void) interface;
+    //Read From NVM
+    if (ws_bbr_nvm_info_read(&bbr_info_nvm_tlv) < 0) {
+        //NVM value not available Randomize Value Here by first time
+        ws_bbr_fhss_bsi = randLIB_get_16bit();
+        tr_debug("Randomized init value BSI %u", ws_bbr_fhss_bsi);
+    } else {
+        ws_bbr_fhss_bsi = ws_bbr_bsi_read(&bbr_info_nvm_tlv);
+        tr_debug("Read BSI %u from NVM", ws_bbr_fhss_bsi);
+    }
+}
+
+
+uint16_t ws_bbr_bsi_generate(protocol_interface_info_entry_t *interface)
+{
+    (void) interface;
+    //Give current one
+    uint16_t bsi = ws_bbr_fhss_bsi;
+    //Update value for next round
+    ws_bbr_fhss_bsi++;
+    //Store To NVN
+    ws_bbr_bsi_write(&bbr_info_nvm_tlv, ws_bbr_fhss_bsi);
+    ws_bbr_nvm_info_write(&bbr_info_nvm_tlv);
+    return bsi;
+}
+
 #endif //HAVE_WS_BORDER_ROUTER
 
 /* Public APIs
@@ -1069,6 +1160,33 @@ int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min
     return -1;
 #endif
 }
+
+int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    //Check if new value is different than current active
+    if (cur && cur->ws_info && cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
+        if (cur->ws_info->hopping_schdule.fhss_bsi == new_bsi) {
+            return 0;
+        }
+        tr_debug("New BSI %u to delayed activate", new_bsi);
+        ws_bootstrap_restart_delayed(cur->id);
+    }
+
+    ws_bbr_bsi_write(&bbr_info_nvm_tlv, new_bsi);
+    ws_bbr_nvm_info_write(&bbr_info_nvm_tlv);
+    ws_bbr_fhss_bsi = new_bsi;
+    return 0;
+#else
+    (void) new_bsi;
+    return -1;
+#endif
+}
+
 
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
 {

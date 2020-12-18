@@ -115,8 +115,6 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
             PortType port;
 
             if (FormFactorType::pins()->pins[j] == NC) {
-                utest_printf("Skipping (NC pin) %s pin %s (%i)\r\n", pin_type,
-                             FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                 continue;
             }
 
@@ -143,7 +141,7 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
 #if DEVICE_SERIAL
             if (!strcmp(PortType::PinMap::name, UART_NAME) || !strcmp(PortType::PinMap::name, UARTNOFC_NAME)) {
                 if (pinmap_list_has_peripheral(pinmap_uart_restricted_peripherals(), port.peripheral)) {
-                    utest_printf("Skipping (restricted uart peripheral) %s peripheral %i with pin %s (%i)\r\n", pin_type,
+                    utest_printf("Skipping (restricted uart peripheral) %s peripheral 0x%x with pin %s (%x)\r\n", pin_type,
                                  port.peripheral, FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                     continue;
                 }
@@ -178,31 +176,35 @@ void test_all_ports(std::list<PortType> &matched_ports, std::list<PortType> &not
     }
 
     for (uint32_t i = 0; i < ff_pins->count; i++) {
-        for (Iter it = matched_ports.begin(); it != matched_ports.end(); ++it) {
-            PortType &port = *it;
-            for (uint32_t j = 0; j < PortType::pin_count; j++) {
-                if (ff_pins->pins[i] == port.pins[j]) {
-                    utest_printf("%3s - %s pin tested on port: %s...", FormFactorType::pin_to_string(ff_pins->pins[i]),
-                                 PortType::PinMap::pin_type_names[j], port.str());
-                    if (port.status == PortType::StatusNotTested) {
-                        call(port);
-                        port.status = PortType::StatusPass;
+        if (ff_pins->pins[i] != NC) {
+            for (Iter it = matched_ports.begin(); it != matched_ports.end(); ++it) {
+                PortType &port = *it;
+                for (uint32_t j = 0; j < PortType::pin_count; j++) {
+                    if (ff_pins->pins[i] == port.pins[j]) {
+                        utest_printf("%3s - %s pin tested on port: %s...", FormFactorType::pin_to_string(ff_pins->pins[i]),
+                                     PortType::PinMap::pin_type_names[j], port.str());
+                        if (port.status == PortType::StatusNotTested) {
+                            call(port);
+                            port.status = PortType::StatusPass;
+                        } else {
+                            utest_printf("test already done...");
+                        }
+                        utest_printf("%s\n", port.status == PortType::StatusPass ? "succeeded" : "failed");
+                        goto end_port_iteration;
                     }
-                    utest_printf("%s\n", port.status == PortType::StatusPass ? "succeeded" : "failed");
-                    goto end_port_iteration;
                 }
             }
-        }
-        for (Iter it = not_matched_ports.begin(); it != not_matched_ports.end(); ++it) {
-            PortType &port = *it;
-            for (uint32_t j = 0; j < PortType::pin_count; j++) {
-                if (ff_pins->pins[i] == port.pins[j]) {
-                    utest_printf("%3s - Could not find pins to test %s pin %s (%d)\n",
-                                 FormFactorType::pin_to_string(ff_pins->pins[i]),
-                                 PortType::PinMap::pin_type_names[j],
-                                 FormFactorType::pin_to_string(ff_pins->pins[i]),
-                                 ff_pins->pins[i]);
-                    goto end_port_iteration;
+            for (Iter it = not_matched_ports.begin(); it != not_matched_ports.end(); ++it) {
+                PortType &port = *it;
+                for (uint32_t j = 0; j < PortType::pin_count; j++) {
+                    if (ff_pins->pins[i] == port.pins[j]) {
+                        utest_printf("%3s - Could not find pins to test %s pin %s (%d)\n",
+                                     FormFactorType::pin_to_string(ff_pins->pins[i]),
+                                     PortType::PinMap::pin_type_names[j],
+                                     FormFactorType::pin_to_string(ff_pins->pins[i]),
+                                     ff_pins->pins[i]);
+                        goto end_port_iteration;
+                    }
                 }
             }
         }
@@ -215,9 +217,11 @@ template<typename PortType, typename FunctionType, FunctionType f>
 void test_peripheral(PortType &port)
 {
     if (port.empty()) {
-        utest_printf("%d - Could not find pins to test peripheral\n", port.peripheral);
+        if (port.peripheral != NC) {
+            utest_printf("0x%x - Could not find pins to test peripheral\n", port.peripheral);
+        }
     } else {
-        utest_printf("%d - peripheral tested on port: %s...", port.peripheral, port.str());
+        utest_printf("0x%x - peripheral tested on port: %s...", port.peripheral, port.str());
         if (port.status == PortType::StatusNotTested) {
             FunctionCaller<PortType, FunctionType, f> call;
             call(port); // run test
@@ -403,7 +407,7 @@ public:
     {
         static char port_str[128];
         char pin_str[32];
-        sprintf(port_str, "peripheral=(%d) ", peripheral);
+        sprintf(port_str, "peripheral=(0x%x) ", peripheral);
         for (uint32_t i = 0; i < N; i++) {
             sprintf(pin_str, "%s=(%s) ", PinMap::pin_type_names[i], FormFactorType::pin_to_string(pins[i]));
             strcat(port_str, pin_str);
@@ -582,7 +586,7 @@ struct UARTMaps {
     static const char *const name;
 };
 const PinMap *UARTMaps::maps[] = { serial_tx_pinmap(), serial_rx_pinmap(), serial_cts_pinmap(), serial_rts_pinmap() };
-const char *const UARTMaps::pin_type_names[] = { "TX", "RX", "CLS", "RTS" };
+const char *const UARTMaps::pin_type_names[] = { "TX", "RX", "CTS", "RTS" };
 const char *const UARTMaps::name = UART_NAME;
 typedef Port<4, UARTMaps, DefaultFormFactor, TF4> UARTPort;
 #endif

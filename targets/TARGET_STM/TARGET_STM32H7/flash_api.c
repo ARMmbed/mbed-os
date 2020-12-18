@@ -62,12 +62,15 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID)) {
     }
 #endif /* DUAL_CORE */
+
     if (HAL_FLASH_Unlock() != HAL_OK) {
 #if defined(DUAL_CORE)
         LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
         return -1;
     }
+
+    core_util_critical_section_enter();
 
     /* Fill EraseInit structure */
     EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
@@ -97,9 +100,12 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     SCB_InvalidateICache();
 #endif /* DUAL_CORE */
 
+    core_util_critical_section_exit();
 
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
 
-    HAL_FLASH_Lock();
 #if defined(DUAL_CORE)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
@@ -128,6 +134,8 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         return -1;
     }
 
+    core_util_critical_section_enter();
+
     StartAddress = address;
     while ((address < (StartAddress + size)) && (status == 0)) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data) == HAL_OK) {
@@ -148,7 +156,12 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
     SCB_InvalidateICache();
 #endif /* DUAL_CORE */
 
-    HAL_FLASH_Lock();
+    core_util_critical_section_exit();
+
+    if (HAL_FLASH_Lock() != HAL_OK) {
+        return -1;
+    }
+
 #if defined(DUAL_CORE)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
