@@ -17,6 +17,10 @@ if("QSPIF" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(COMPONENT_QSPIF)
 endif()
 
+if("OSPIF" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(COMPONENT_OSPIF)
+endif()
+
 if("SD" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(COMPONENT_SD)
 endif()
