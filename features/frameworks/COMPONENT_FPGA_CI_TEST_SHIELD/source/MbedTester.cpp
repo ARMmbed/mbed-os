@@ -26,16 +26,16 @@
 
 #define mbed_tester_printf(...)
 
-#define PHYSICAL_PINS           128
-#define LOGICAL_PINS            8
-#define FIRMWARE_SIZE           2192012
-#define FIRMWARE_REGION_SIZE    0x220000
-#define FIRMWARE_HEADER_SIZE    0x10000
-#define FLASH_SECTOR_SIZE       0x1000
-#define LENGTH_SIZE             0x4
-#define CRC_SIZE                0x4
-#define FLASH_SPI_FREQ_HZ       2000000
-#define ANALOG_COUNT            4
+#define PHYSICAL_PINS                       128
+#define LOGICAL_PINS                        8
+#define FIRMWARE_SIZE                       2192012
+#define FIRMWARE_REGION_SIZE                0x220000
+#define FIRMWARE_HEADER_SIZE                0x10000
+#define MBED_TESTER_FLASH_SECTOR_SIZE       0x1000
+#define LENGTH_SIZE                         0x4
+#define CRC_SIZE                            0x4
+#define FLASH_SPI_FREQ_HZ                   2000000
+#define ANALOG_COUNT                        4
 
 #define PHYSICAL_NC    ((MbedTester::PhysicalIndex)0xFF)
 
@@ -227,7 +227,7 @@ public:
             return BD_ERROR_DEVICE_ERROR;
         }
 
-        if ((addr == 0) && (size == FLASH_SECTOR_SIZE)) {
+        if ((addr == 0) && (size == MBED_TESTER_FLASH_SECTOR_SIZE)) {
             // Allow 4K erase only on the first sector. The flash on the basys3 does
             // not allow sector erases at the higher addresses.
             _write_enable();
@@ -482,8 +482,8 @@ static bool _firmware_header_valid(BlockDevice &flash, bool &valid)
     valid = false;
 
     // Check that first portion is erased
-    while (pos < FLASH_SECTOR_SIZE - sizeof(SYNC_WORD)) {
-        read_size = FLASH_SECTOR_SIZE - pos;
+    while (pos < MBED_TESTER_FLASH_SECTOR_SIZE - sizeof(SYNC_WORD)) {
+        read_size = MBED_TESTER_FLASH_SECTOR_SIZE - pos;
         if (read_size > sizeof(buf)) {
             read_size = sizeof(buf);
         }
@@ -539,7 +539,7 @@ static bool _firmware_get_active_bank(BlockDevice &flash, bool &second_bank_acti
 {
     uint8_t buf[sizeof(SYNC_WORD)];
 
-    if (flash.read(buf, FLASH_SECTOR_SIZE - sizeof(SYNC_WORD), sizeof(SYNC_WORD)) != BD_ERROR_OK) {
+    if (flash.read(buf, MBED_TESTER_FLASH_SECTOR_SIZE - sizeof(SYNC_WORD), sizeof(SYNC_WORD)) != BD_ERROR_OK) {
         return false;
     }
 
@@ -557,11 +557,11 @@ static bool _firmware_set_active_bank(BlockDevice &flash, bool second_bank)
         if (flash.erase(0, FIRMWARE_HEADER_SIZE) != BD_ERROR_OK) {
             return false;
         }
-        if (flash.program(BANK_B_SELECT, FLASH_SECTOR_SIZE, sizeof(BANK_B_SELECT)) != BD_ERROR_OK) {
+        if (flash.program(BANK_B_SELECT, MBED_TESTER_FLASH_SECTOR_SIZE, sizeof(BANK_B_SELECT)) != BD_ERROR_OK) {
             return false;
         }
     }
-    if (!flash.erase(0, FLASH_SECTOR_SIZE)) {
+    if (!flash.erase(0, MBED_TESTER_FLASH_SECTOR_SIZE)) {
         return false;
     }
 
@@ -569,7 +569,7 @@ static bool _firmware_set_active_bank(BlockDevice &flash, bool second_bank)
     if (second_bank) {
         // Write the sync word. Before the sync word is written the FPGA will boot from the first bank.
         // After the sync word is written the FPGA will boot from the second bank.
-        if (flash.program(SYNC_WORD, FLASH_SECTOR_SIZE - sizeof(SYNC_WORD), sizeof(SYNC_WORD)) != BD_ERROR_OK) {
+        if (flash.program(SYNC_WORD, MBED_TESTER_FLASH_SECTOR_SIZE - sizeof(SYNC_WORD), sizeof(SYNC_WORD)) != BD_ERROR_OK) {
             return false;
         }
     }
