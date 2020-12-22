@@ -5084,7 +5084,8 @@
             "SPI",
             "STDIO_MESSAGES",
             "USTICKER",
-            "MPU"
+            "MPU",
+            "SLEEP"
         ],
         "release_versions": [
             "5"
