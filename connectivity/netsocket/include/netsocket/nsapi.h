@@ -34,7 +34,9 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/EthInterface.h"
 #include "netsocket/WiFiInterface.h"
+#if MBED_CONF_CELLULAR_PRESENT
 #include "netsocket/CellularInterface.h"
+#endif
 #include "netsocket/MeshInterface.h"
 
 #include "netsocket/Socket.h"

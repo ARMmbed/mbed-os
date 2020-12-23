@@ -17,4 +17,5 @@ target_link_libraries(mbed-storage-securestore
     INTERFACE
         mbed-storage-kvstore
         mbed-device_key
+        mbed-mbedtls
 )

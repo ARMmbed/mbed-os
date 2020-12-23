@@ -23,7 +23,6 @@
 #include "mbed_error.h"
 #include "Timer.h"
 #include "HeapBlockDevice.h"
-#include "FlashSimBlockDevice.h"
 #include "SlicingBlockDevice.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -50,8 +49,7 @@ SlicingBlockDevice flash_bd(&bd, 0, 16 * 4096);
 #include "SDBlockDevice.h"
 SDBlockDevice bd(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO,
                  MBED_CONF_SD_SPI_CLK, MBED_CONF_SD_SPI_CS);
-SlicingBlockDevice slice_bd(&bd, 0, 512 * 512);
-FlashSimBlockDevice flash_bd(&slice_bd);
+SlicingBlockDevice flash_bd(&bd, 0, 512 * 512);
 
 #elif defined(TEST_FLASHIAP)
 #include "FlashIAPBlockDevice.h"
@@ -59,8 +57,7 @@ FlashIAPBlockDevice flash_bd(0xF0000, 0x10000);
 
 #else
 #define USE_HEAP_BD 1
-HeapBlockDevice bd(8 * 4096, 1, 1, 4096);
-FlashSimBlockDevice flash_bd(&bd);
+HeapBlockDevice flash_bd(8 * 4096, 1, 1, 4096);
 #endif
 
 static const int heap_alloc_threshold_size = 4096;
@@ -129,19 +126,18 @@ static void white_box_test()
         printf("\n\nBD #%d: size %d, read %d, prog %d, erase %d\n",
                bd_num, bdp->size, bdp->read_size, bdp->prog_size, bdp->erase_size);
         HeapBlockDevice heap_bd(bdp->size, bdp->read_size, bdp->prog_size, bdp->erase_size);
-        FlashSimBlockDevice flash_sim_bd(&heap_bd);
         BlockDevice *test_bd;
         if (bd_num == num_bds - 1) {
             test_bd = &flash_bd;
         } else {
-            test_bd = &flash_sim_bd;
+            test_bd = &heap_bd;
             // We need to skip the test if we don't have enough memory for the heap block device.
             // However, this device allocates the erase units on the fly, so "erase" it via the flash
             // simulator. A failure here means we haven't got enough memory.
-            flash_sim_bd.init();
-            result = flash_sim_bd.erase(0, flash_sim_bd.size());
+            heap_bd.init();
+            result = heap_bd.erase(0, heap_bd.size());
             TEST_SKIP_UNLESS_MESSAGE(!result, "Not enough heap to run test");
-            flash_sim_bd.deinit();
+            heap_bd.deinit();
         }
 
         delete[] dummy;

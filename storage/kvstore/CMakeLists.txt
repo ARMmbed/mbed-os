@@ -14,3 +14,8 @@ target_include_directories(mbed-storage-kvstore
         include
         include/kvstore
 )
+
+target_link_libraries(mbed-storage-kvstore
+    INTERFACE
+        mbed-storage-kv-global-api
+)

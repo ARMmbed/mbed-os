@@ -20,6 +20,7 @@ Only a limited set of targets is supported at the moment.
 
 The following targets are supported:
 - NRF52840_DK
+- Ambiq Micro targets
 - Analog Devices targets
 - ARM FM targets
 - Cypress targets
@@ -27,6 +28,7 @@ The following targets are supported:
 - GigaDevice targets
 - MAXIM targets
 - NXP targets
+- Renesas targets
 - Samsung targets
 - Silicon Labs targets
 - STM targets
@@ -49,6 +51,7 @@ Supported examples can be identified by the presence of a top level `CMakeLists.
 Prerequisities:
 - CMake >=3.19.0
 - mbed-tools >=4.0.0
+- Python modules defined in [`tools/cmake/requirements.txt`](./requirements.txt)
 
 From the application root or wherever `mbed-os.lib` is found, run the following command to:
  * create the Mbed OS configuration CMake module

@@ -24,7 +24,6 @@
 #include "mbed_error.h"
 #include "Timer.h"
 #include "HeapBlockDevice.h"
-#include "FlashSimBlockDevice.h"
 #include "SlicingBlockDevice.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -57,8 +56,7 @@ SPIFBlockDevice flash_bd(MBED_CONF_SPIF_DRIVER_SPI_MOSI, MBED_CONF_SPIF_DRIVER_S
 SlicingBlockDevice ul_bd(&flash_bd, 0, ul_bd_size);
 SlicingBlockDevice rbp_bd(&flash_bd, ul_bd_size, ul_bd_size + rbp_bd_size);
 #else
-HeapBlockDevice bd(ul_bd_size + rbp_bd_size, 1, 1, 4096);
-FlashSimBlockDevice flash_bd(&bd);
+HeapBlockDevice flash_bd(ul_bd_size + rbp_bd_size, 1, 1, 4096);
 SlicingBlockDevice ul_bd(&flash_bd, 0, ul_bd_size);
 SlicingBlockDevice rbp_bd(&flash_bd, ul_bd_size, ul_bd_size + rbp_bd_size);
 #endif
@@ -417,8 +415,7 @@ static void multi_set_test()
 
     timer.start();
 #if !defined(TEST_SPIF) && !defined(TEST_SD)
-    HeapBlockDevice heap_bd(4096 * 64, 1,  1, 4096);
-    FlashSimBlockDevice flash_bd(&heap_bd);
+    HeapBlockDevice flash_bd(4096 * 64, 1,  1, 4096);
 #endif
 
     // TODO: Fix

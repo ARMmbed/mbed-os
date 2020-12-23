@@ -26,11 +26,16 @@
 
 void hal_sleep(void)
 {
+    // Noop, if the idle mode is active
+#if !defined(CY_CFG_PWR_SYS_IDLE_MODE) || (CY_CFG_PWR_SYS_IDLE_MODE != CY_CFG_PWR_MODE_ACTIVE)
     cyhal_syspm_sleep();
+#endif
 }
 
 void hal_deepsleep(void)
 {
+#if !defined(CY_CFG_PWR_SYS_IDLE_MODE) || (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
+
 #if DEVICE_LPTICKER
     // A running timer will block DeepSleep, which would normally be
     // good because we don't want the timer to accidentally
@@ -41,9 +46,14 @@ void hal_deepsleep(void)
     cy_us_ticker_stop();
     cyhal_syspm_deepsleep();
     cy_us_ticker_start();
-#else
+#else // DEVICE_LPTICKER
     cyhal_syspm_sleep();
-#endif /* DEVICE_LPTICKER */
+#endif // DEVICE_LPTICKER
+
+#elif CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP
+    cyhal_syspm_sleep();
+#endif // CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_ACTIVE
+    // Noop, if the idle mode is active
 }
 
 #endif /* DEVICE_SLEEP */

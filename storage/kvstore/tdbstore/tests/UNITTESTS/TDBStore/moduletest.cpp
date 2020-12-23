@@ -16,7 +16,6 @@
 
 #include "gtest/gtest.h"
 #include "blockdevice/HeapBlockDevice.h"
-#include "blockdevice/FlashSimBlockDevice.h"
 #include "tdbstore/TDBStore.h"
 #include <stdlib.h>
 
@@ -28,8 +27,7 @@ using namespace mbed;
 class TDBStoreModuleTest : public testing::Test {
 protected:
     HeapBlockDevice heap{DEVICE_SIZE, BLOCK_SIZE};
-    FlashSimBlockDevice flash{&heap};
-    TDBStore tdb{&flash};
+    TDBStore tdb{&heap};
 
     virtual void SetUp()
     {
@@ -63,9 +61,9 @@ TEST_F(TDBStoreModuleTest, set_get)
 TEST_F(TDBStoreModuleTest, erased_set_get)
 {
     EXPECT_EQ(tdb.deinit(), MBED_SUCCESS);
-    EXPECT_EQ(flash.init(), MBED_SUCCESS);
-    EXPECT_EQ(flash.erase(0, flash.size()), MBED_SUCCESS);
-    EXPECT_EQ(flash.deinit(), MBED_SUCCESS);
+    EXPECT_EQ(heap.init(), MBED_SUCCESS);
+    EXPECT_EQ(heap.erase(0, heap.size()), MBED_SUCCESS);
+    EXPECT_EQ(heap.deinit(), MBED_SUCCESS);
     EXPECT_EQ(tdb.init(), MBED_SUCCESS);
     char buf[100];
     size_t size;

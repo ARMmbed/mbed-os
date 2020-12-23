@@ -26,7 +26,6 @@
 #include "tdbstore/TDBStore.h"
 #include "mbed_error.h"
 #include "drivers/FlashIAP.h"
-#include "blockdevice/FlashSimBlockDevice.h"
 #include "mbed_trace.h"
 #include "securestore/SecureStore.h"
 #define TRACE_GROUP "KVCFG"
@@ -738,21 +737,7 @@ int _storage_config_TDB_EXTERNAL()
         return MBED_ERROR_FAILED_OPERATION ;
     }
 
-    //TDBStore needs a block device base on flash. So if this is non-flash type block device,
-    //add FlashSimBlockDevice on top of it.
-    if (bd->get_erase_value() == -1) {
-        //TDBStore needs FlashSimBlockDevice when working with non-flash type block device
-        if (bd->init() != MBED_SUCCESS) {
-            tr_error("KV Config: Fail to init external BlockDevice.");
-            return MBED_ERROR_FAILED_OPERATION ;
-        }
-
-        static FlashSimBlockDevice flash_bd(bd);
-        kvstore_config.external_bd = &flash_bd;
-    } else {
-        kvstore_config.external_bd = bd;
-    }
-
+    kvstore_config.external_bd = bd;
     kvstore_config.flags_mask = ~(0);
 
     return _storage_config_tdb_external_common();
@@ -778,20 +763,7 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
         return MBED_ERROR_FAILED_OPERATION ;
     }
 
-    //TDBStore needs a block device base on flash. So if this is non-flash type block device,
-    //add FlashSimBlockDevice on top of the SDBlockDevice
-    if (bd->get_erase_value() == -1) {
-        //TDBStore needs FlashSimBlockDevice when working with non-flash type block device
-        if (bd->init() != MBED_SUCCESS) {
-            tr_error("KV Config: Fail to init external BlockDevice.");
-            return MBED_ERROR_FAILED_OPERATION ;
-        }
-
-        static FlashSimBlockDevice flash_bd(bd);
-        kvstore_config.external_bd = &flash_bd;
-    } else {
-        kvstore_config.external_bd = bd;
-    }
+    kvstore_config.external_bd = bd;
 
     //Masking flag - Actually used to remove any KVStore flag which is not supported
     //in the chosen KVStore profile.

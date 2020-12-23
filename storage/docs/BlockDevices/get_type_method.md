@@ -15,13 +15,9 @@ To address this an add-on method of getting type is proposed for BlockDevice int
  
 ## The Motivation 
  
-Below there is a list of some examples to explain the motivation and the need for the adding of get_type to BlockDevice interface.
- 
-examples:
-- TDBStore needs to know if there are flash characteristics for the block device and if there aren�t it should use
-  FlashSimBlockDevice to simulate a flash BlockDevice.
-- When creating a file system you would prefer working with FAT on top of SD while LITTLEFS on top of any flash block device. 
-  Those preference in favor of better performance.
+An example to explain the motivation and the need for the adding of get_type to BlockDevice interface:
+when creating a file system you would prefer working with FAT on top of SD while LITTLEFS on top of any flash block device.
+Those preferences are in favor of better performance.
 
 To summarize the above, it may be very useful when using block device to know the type of the instance and especially, but not only, 
 when using get_default_instace. Sometimes applications and tests would like to behave differently depending on the instance that has been created

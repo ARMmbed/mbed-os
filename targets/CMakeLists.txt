@@ -1,10 +1,12 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-if("ARM_FM" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(TARGET_ARM_FM)
+if("Ambiq_Micro" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_Ambiq_Micro)
 elseif("Analog_Devices" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Analog_Devices)
+elseif("ARM_FM" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_ARM_FM)
 elseif("Cypress" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Cypress)
 elseif("Freescale" IN_LIST MBED_TARGET_LABELS)
@@ -19,6 +21,8 @@ elseif("NUVOTON" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NUVOTON)
 elseif("NXP" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_NXP)
+elseif("RENESAS" IN_LIST MBED_TARGET_LABELS)
+    add_subdirectory(TARGET_RENESAS)
 elseif("Samsung" IN_LIST MBED_TARGET_LABELS)
     add_subdirectory(TARGET_Samsung)
 elseif("Silicon_Labs" IN_LIST MBED_TARGET_LABELS)
