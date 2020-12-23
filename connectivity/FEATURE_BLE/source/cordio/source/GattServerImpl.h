@@ -185,6 +185,19 @@ public:
         GapAdvertisingData::Appearance getAppearance();
 
     #endif // Disabled until reworked and reintroduced to GattServer API
+private:
+    struct char_auth_callback {
+        /** The registered callback handler for read authorization reply. */
+        FunctionPointerWithContext<GattReadAuthCallbackParams *> read_cb;
+        /** The registered callback handler for write authorization reply. */
+        FunctionPointerWithContext<GattWriteAuthCallbackParams *> write_cb;
+        /** built in list */
+        char_auth_callback *_next = nullptr;
+        /** Characteristic handle the callbacks belong to. */
+        ble::attribute_handle_t handle = 0;
+        /** security requirement of update operations */
+        ble::att_security_requirement_t update_security = ble::att_security_requirement_t::NONE;
+    };
 
 public:
     /**
@@ -274,7 +287,7 @@ private:
 
     void *alloc_block(size_t block_size);
 
-    GattCharacteristic *get_auth_char(uint16_t value_handle);
+    char_auth_callback *get_auth_callback(uint16_t value_handle);
 
     bool get_cccd_index_by_cccd_handle(GattAttribute::Handle_t cccd_handle, uint8_t &idx) const;
 
@@ -354,8 +367,8 @@ private:
     uint16_t cccd_handles[MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CCCD_COUNT];
     uint8_t cccd_cnt;
 
-    GattCharacteristic *_auth_char[MBED_CONF_BLE_API_IMPLEMENTATION_MAX_CHARACTERISTIC_AUTHORISATION_COUNT];
-    uint8_t _auth_char_count;
+    char_auth_callback *_auth_callbacks;
+    uint8_t _auth_callbacks_count;
 
     struct {
         attsGroup_t service;
