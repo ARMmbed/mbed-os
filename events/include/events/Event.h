@@ -47,6 +47,7 @@ template <typename... ArgTs>
 class Event<void(ArgTs...)> {
 public:
     using duration = std::chrono::duration<int, std::milli>;
+    static constexpr duration non_periodic{-1};
 
     /** Create an event
      *
@@ -67,7 +68,7 @@ public:
             _event->equeue = &q->_equeue;
             _event->id = 0;
             _event->delay = duration(0);
-            _event->period = duration(-1);
+            _event->period = non_periodic;
 
             _event->post = &Event::event_post<F>;
             _event->dtor = &Event::event_dtor<F>;
@@ -140,12 +141,20 @@ public:
     /** Configure the period of an event
      *
      *  @param p   Period (in milliseconds) for repeatedly dispatching an event, expressed as a Chrono duration.
+     *             Period must be either 'non_periodic' or > 0ms. If an invalid period is supplied then a 
+     *             default non_periodic value is used.
      *             E.g. period(200ms)
      */
     void period(duration p)
     {
+        MBED_ASSERT(p > duration(0) || p == non_periodic);
         if (_event) {
-            _event->period = p;
+            if (p > duration(0)) {
+                _event->period = p;            
+            }
+            else {
+                _event->period = non_periodic;                
+            }
         }
     }
 
