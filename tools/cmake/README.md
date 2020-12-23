@@ -76,3 +76,20 @@ If you're running CMake directly, you may need to pass it in yourself as follows
 ```
 cmake -S <source-dir> -B <build-dir> -DCMAKE_BUILD_TYPE=debug
 ```
+
+## How to build a greentea test
+
+Install prerequisites suggested in the previous section and follow the below steps to build:
+* Generate .mbed_build configuration for DISCO_L475VG_IOT01A target from blinky example and copied into the test_suite directory.
+* Change directory into the test suite directory
+* run below command to build full profile green tea
+
+  ```
+  touch mbed-os.lib;mkdir build;cd build;cmake .. -GNinja;cmake --build .
+  ```
+* run below command to build baremetal profile green tea
+  ```
+  touch mbed-os.lib;mkdir build;cd build;cmake .. -GNinja -DMBED_BAREMETAL_GREENTEA_TEST=ON;cmake --build .
+  ```
+
+Note: This steps will get evolve once mbedtools have a proper way of invoking greentea test using mbedtools command 
