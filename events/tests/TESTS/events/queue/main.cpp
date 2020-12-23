@@ -508,6 +508,82 @@ void static_events_queue_test()
     TEST_ASSERT_EQUAL(15, test4.counter);
 }
 
+static EventTest event_period;
+
+void event_period_tests()
+{
+    EventQueue queue;
+    
+    // Test a non periodic event ie dispatched only once
+    
+    Event<void(int)> event1(&queue, &event_period::f0);
+    event1.delay(100ms);
+    event1.period(Event::non_periodic);
+    event1.post()
+
+    queue.dispatch(800); 
+    
+    // Wait 1000ms and check the event execution status
+    wait_us(1000 * 1000)    
+    
+    // Event should only have been dispatched once and thus counter 
+    // should be 1
+    TEST_ASSERT_EQUAL(1, event_period.counter);
+
+    // Test an event with an invalid -ve period.
+    
+    event_period.counter = 0;
+    Event<void(int)> event2(&queue, &event_period::f0);
+    event2.delay(100ms);
+    event2.period(-10ms);
+    event2.post()
+
+    queue.dispatch(800); 
+    
+    // Wait 1000ms and check the event execution status
+    wait_us(1000 * 1000)    
+    
+    // Event should default to non_periodic and thus only have been 
+    // dispatched once. Counter should be 1.
+    TEST_ASSERT_EQUAL(1, event_period.counter);
+
+    // Test an event with a zero period.
+    
+    event_period.counter = 0;
+    Event<void(int)> event3(&queue, &event_period::f0);
+    event3.delay(100ms);
+    event3.period(0ms);
+    event3.post()
+
+    queue.dispatch(800); 
+    
+    // Wait 1000ms and check the event execution status
+    wait_us(1000 * 1000)    
+    
+    // Event should default to non_periodic and thus only have been 
+    // dispatched once. Counter should be 1.
+    TEST_ASSERT_EQUAL(1, event_period.counter);
+
+    // Test a periodic event ie dispatched a number of times
+    event_period.counter = 0;
+    Event<void(int)> event4(&queue, &event_period::f0);
+    event4.delay(100ms);
+    event4.period(200ms); 
+    event4.post()
+
+    queue.dispatch(800); 
+    
+    // Wait 1000ms and check the event execution status
+    wait_us(1000 * 1000)    
+     
+    // The event should be first dispatched after 100ms and then
+    // every subsequent 200ms until the dispatcher has completed.
+    // Thus the counter should be incremented after :
+    // 100ms, 300ms, 500ms and 700ms
+    TEST_ASSERT_EQUAL(4, event_period.counter);
+    
+}
+
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
@@ -536,8 +612,8 @@ const Case cases[] = {
     Case("Testing time_left", time_left_test),
     Case("Testing mixed dynamic & static events queue", mixed_dynamic_static_events_queue_test),
     Case("Testing static events queue", static_events_queue_test)
-
-};
+    Case("Testing event period values", event_period_tests)
+};      
 
 Specification specification(test_setup, cases);
 
