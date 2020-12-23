@@ -80,16 +80,20 @@ cmake -S <source-dir> -B <build-dir> -DCMAKE_BUILD_TYPE=debug
 ## How to build a greentea test
 
 Install prerequisites suggested in the previous section and follow the below steps to build:
-* Generate .mbed_build configuration for DISCO_L475VG_IOT01A target from blinky example and copied into the test_suite directory.
-* Change directory into the test suite directory
-* run below command to build full profile green tea
+* Generate the `.mbedbuild/` configuration directory for the Mbed target you want to run the test on using [mbed-os-example-blinky](https://github.com/ARMmbed/mbed-os-example-blinky)
+```
+$ mbedtools configure -t <TOOLCHAIN> -m <MBED_TARGET> 
+```
+* Copy `.mbedbuild/` into the test suite directory.
+* Set your current directory to the test suite directory
+* Run the following command to build the test binary with the full profile
 
   ```
-  touch mbed-os.lib;mkdir build;cd build;cmake .. -GNinja;cmake --build .
+  touch mbed-os.lib && mkdir cmake_build && cd cmake_build && cmake .. -G Ninja && cmake --build .
   ```
-* run below command to build baremetal profile green tea
+* Run the following command to build the test binary with the baremetal profile
   ```
-  touch mbed-os.lib;mkdir build;cd build;cmake .. -GNinja -DMBED_BAREMETAL_GREENTEA_TEST=ON;cmake --build .
+  touch mbed-os.lib && mkdir cmake_build && cd cmake_build && cmake .. -G Ninja -DMBED_BAREMETAL_GREENTEA_TEST=ON && cmake --build .
   ```
 
-Note: This steps will get evolve once mbedtools have a proper way of invoking greentea test using mbedtools command 
+Note: These steps will change when `mbedtools` implements a sub-command to invoke Greentea tests

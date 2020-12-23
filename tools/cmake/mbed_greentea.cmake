@@ -23,16 +23,16 @@ include(${MBED_PATH}/tools/cmake/app.cmake)
 macro(mbed_greentea_cmake_macro)
     set(options)
     set(singleValueArgs TEST_NAME)
-    set(multipleValueArgs 
-            TEST_INCLUDE_DIRS 
-            TEST_SOURCES 
-            TEST_REQUIRED_LIBS
+    set(multipleValueArgs
+        TEST_INCLUDE_DIRS
+        TEST_SOURCES
+        TEST_REQUIRED_LIBS
     )
-    cmake_parse_arguments(MBED_GREENTEA 
-	                     "${options}" 
-			     "${singleValueArgs}"
-			     "${multipleValueArgs}" 
-			     ${ARGN}
+    cmake_parse_arguments(MBED_GREENTEA
+        "${options}"
+        "${singleValueArgs}"
+        "${multipleValueArgs}"
+        ${ARGN}
     )
 
     set(TEST_NAME ${MBED_GREENTEA_TEST_NAME})
