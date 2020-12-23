@@ -36,6 +36,7 @@
  */
 
 #include <compiler.h>
+#include <interrupt_sam_nvic.h>
 #include "sleep.h"
 #include "sysclk.h"
 

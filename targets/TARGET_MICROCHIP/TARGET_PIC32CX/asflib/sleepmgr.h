@@ -47,7 +47,7 @@
 #define SLEEPMGR_H
 
 #include <compiler.h>
-
+#include <interrupt_sam_nvic.h>
 #include "sleepmgr_sam.h"
 
 #ifdef __cplusplus

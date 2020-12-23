@@ -94,7 +94,7 @@ struct gpio_irq_s {
 struct serial_s {
 	Usart *p_usart;
 	usart_serial_options_t serial_options;
-	uint32_t id_peripheral;
+	bool is_usart;
 };
 #endif
 

@@ -26,31 +26,13 @@
 #include "CommonPinNames.h"
 #include "ioport.h"
 
-//static int gpio_clock_inited = 0;
-
 void pin_function(PinName pin, int function)
 {
-    //Intentionally left empty. We have repurposed the function field.
+    MBED_ASSERT(pin != (PinName)NC);
 }
 
 void pin_mode(PinName pin, PinMode mode)
 {
-//    MBED_ASSERT(pin != NC);
-
-//    /* Enable GPIO clock if not already done */
-//    if (!gpio_clock_inited) {
-//        CMU_ClockEnable(cmuClock_GPIO, true);
-//        gpio_clock_inited = 1;
-//    }
-
-//    /* Pin and port index encoded in one uint32.
-//     * First four bits represent the pin number
-//     * The remaining bits represent the port number */
-//    uint32_t pin_number = (uint32_t) pin;
-//    int pin_index = (pin_number & 0xF);
-//    int port_index = pin_number >> 4;
-
-//    GPIO_PinModeSet(port_index, pin_index, mode & 0xF, GPIO_PinOutGet(port_index, pin_index & 0xF));
+    MBED_ASSERT(pin != (PinName)NC);
 }
 
-// TODO_LP get pin_mode to be able to store previous settings
