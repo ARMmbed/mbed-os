@@ -17,11 +17,10 @@
  *
  ****************************************************************************/
 
-#include "mbed.h"
 #include "s5js100_pwr.h"
 #include "modem_link_device_shmem.h"
 #include "modem_io_device.h"
-
+#include "rtos/rtos.h"
 
 extern "C" {
 

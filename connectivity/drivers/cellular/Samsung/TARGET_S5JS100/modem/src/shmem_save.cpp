@@ -20,8 +20,8 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-#include "mbed.h"
 #include "shmem_save.h"
+#include "platform/mbed_interface.h"
 #include "modem_io_device.h"
 #include "s5js100_pwr.h"
 #include "sflash_api.h"
