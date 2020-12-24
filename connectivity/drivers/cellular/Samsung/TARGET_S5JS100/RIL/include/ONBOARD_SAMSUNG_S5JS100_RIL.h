@@ -20,13 +20,11 @@
 
 #include "SAMSUNG_S5JS100_RIL.h"
 
-namespace mbed
-{
+namespace mbed {
 
 class SAMSUNG_S5JS100_RILAdaptation;
 
-class ONBOARD_SAMSUNG_S5JS100_RIL : public SAMSUNG_S5JS100_RIL
-{
+class ONBOARD_SAMSUNG_S5JS100_RIL : public SAMSUNG_S5JS100_RIL {
 public:
     ONBOARD_SAMSUNG_S5JS100_RIL(SAMSUNG_S5JS100_RILAdaptation &ril);
 };

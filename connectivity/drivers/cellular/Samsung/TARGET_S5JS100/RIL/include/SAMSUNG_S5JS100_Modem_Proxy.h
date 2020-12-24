@@ -26,11 +26,9 @@
 #include "SAMSUNG_S5JS100_RIL_IF.h"
 #include "SAMSUNG_S5JS100_STK.h"
 
-namespace mbed
-{
+namespace mbed {
 
-class SAMSUNG_S5JS100_MODEM_PROXY
-{
+class SAMSUNG_S5JS100_MODEM_PROXY {
 protected:
     SAMSUNG_S5JS100_RIL_IF *mRilContext;
     RIL_RadioState mRadioState;

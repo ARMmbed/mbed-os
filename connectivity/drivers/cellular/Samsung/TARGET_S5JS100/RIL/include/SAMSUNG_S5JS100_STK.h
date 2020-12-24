@@ -23,11 +23,9 @@
 #include "usat_des.h"
 #include "CellularContext.h"
 
-namespace mbed
-{
+namespace mbed {
 
-typedef enum
-{
+typedef enum {
     SEND_STK_TERMINAL_RSP = 0,
     SEND_STK_ENVELOPE_CMD = 1,
 
@@ -40,15 +38,13 @@ typedef enum
     IND_STK_SESSION_END = 2002,
 } STK_msg;
 
-typedef enum
-{
+typedef enum {
     STK_E_SUCCESS = 0,
 
     STK_E_GENERIC_FAILURE = 1,
 } STK_Errno;
 
-typedef struct
-{
+typedef struct {
     CellularContext *context;
     TCPSocket tcp;
     UDPSocket udp;
@@ -62,8 +58,7 @@ typedef struct
     unsigned int received_size;
 } usat_connection;
 
-class SAMSUNG_S5JS100_STK
-{
+class SAMSUNG_S5JS100_STK {
 private:
     int RegisterToModemProxy(void);
     int proactive_refresh(void *msg, unsigned int msglen);

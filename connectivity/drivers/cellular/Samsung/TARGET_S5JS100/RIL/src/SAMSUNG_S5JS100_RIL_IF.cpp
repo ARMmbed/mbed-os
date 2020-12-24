@@ -31,8 +31,7 @@
 #endif
 #define SAMSUNG_S5JS100_PPP_RIL_DBG        if (SAMSUNG_S5JS100_PPP_RIL_DBG_ON) tr_info
 
-namespace mbed
-{
+namespace mbed {
 
 extern "C" {
     extern void dcxo_init(void);
@@ -85,8 +84,7 @@ SAMSUNG_S5JS100_RIL_IF *SAMSUNG_S5JS100_RIL_IF::GetInstance()
 {
     static SAMSUNG_S5JS100_RIL_IF *s5js100_rilInstance;
 
-    if (s5js100_rilInstance == NULL)
-    {
+    if (s5js100_rilInstance == NULL) {
         s5js100_rilInstance = new SAMSUNG_S5JS100_RIL_IF();
     }
     return s5js100_rilInstance;
@@ -100,19 +98,17 @@ void restart_cb(void)
 
 bool SAMSUNG_S5JS100_RIL_IF::Init(const struct RIL_Env *env)
 {
-    if (env == NULL)
-    {
+    if (env == NULL) {
         tr_info("Invalid RIL_Env pointer");
         return false;
     }
 
     tr_info("MODEM IPC ready..");
-	s5js100_modem_start();
+    s5js100_modem_start();
 
     mOverallRadioState = RADIO_STATE_UNAVAILABLE;
     mCallback = *env;
-    if (mModemProxy == NULL)
-    {
+    if (mModemProxy == NULL) {
         mModemProxy = new SAMSUNG_S5JS100_MODEM_PROXY(this);
         mModemProxy->registerSTK(SAMSUNG_S5JS100_STK::GetInstance());
     }
@@ -147,14 +143,13 @@ void SAMSUNG_S5JS100_RIL_IF::DeInit(void)
 
     pShmemLinkDevice->mbox_deinit();
     tr_info("MODEM IPC stop..");
-	s5js100_modem_stop();
+    s5js100_modem_stop();
 
     mcpu_reset();
 
     mMutex.lock();
     RequestInfo **ppCur = &mPendingRequests;
-    while (*ppCur != NULL)
-    {
+    while (*ppCur != NULL) {
         RequestInfo *tmp = *ppCur;
         *ppCur = (*ppCur)->p_next;
         delete tmp;
@@ -178,125 +173,122 @@ SAMSUNG_S5JS100_RIL_IF::~SAMSUNG_S5JS100_RIL_IF()
 void SAMSUNG_S5JS100_RIL_IF::OnRequest(int request, void *data, unsigned int datalen, RIL_Token t)
 {
     SAMSUNG_S5JS100_PPP_RIL_DBG("SAMSUNG_S5JS100_PPP_RIL::OnRequest request(%d) data(%p) datalen(%u)\n", request, data, datalen);
-    if (mModemProxy == NULL)
-    {
+    if (mModemProxy == NULL) {
         tr_info("%s ModemProxy is not initialized.", __FUNCTION__);
         OnRequestComplete(t, RIL_E_RADIO_NOT_AVAILABLE, NULL, 0);
         return ;
     }
 
-    if (mOverallRadioState == RADIO_STATE_UNAVAILABLE)
-    {
+    if (mOverallRadioState == RADIO_STATE_UNAVAILABLE) {
         tr_info("%s OverallRadioState is RADIO_STATE_UNAVAILABLE.", __FUNCTION__);
         OnRequestComplete(t, RIL_E_RADIO_NOT_AVAILABLE, NULL, 0);
         return ;
     }
 
-    switch (request)
-    {
-    case RIL_REQUEST_RADIO_POWER:
-        //mModemProxy->setRadioPower(data, datalen, t);
-        sync_resposne(t, RIL_E_SUCCESS, NULL, 0);
-        break;
-    case RIL_REQUEST_GET_SIM_STATUS:
-        mModemProxy->getIccCardStatus(data, datalen, t);
-        break;
-    case RIL_REQUEST_VOICE_REGISTRATION_STATE:
-        mModemProxy->getVoiceRegistrationState(data, datalen, t);
-        break;
-    case RIL_REQUEST_DATA_REGISTRATION_STATE:
-        mModemProxy->getDataRegistrationState(data, datalen, t);
-        break;
-    case RIL_REQUEST_OPERATOR:
-        mModemProxy->getOperator(data, datalen, t);
-        break;
-    case RIL_REQUEST_SETUP_DATA_CALL:
-        mModemProxy->setupDataCall(data, datalen, t);
-        break;
-    case RIL_REQUEST_DEACTIVATE_DATA_CALL:
-        mModemProxy->deactivateDataCall(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_INITIAL_ATTACH_APN:
-        if (first_RIL_REQUEST_SET_INITIAL_ATTACH_APN == 1) {
-            mModemProxy->setInitialAttachApn(data, datalen, t);
-            first_RIL_REQUEST_SET_INITIAL_ATTACH_APN = 0;
-        } else {
+    switch (request) {
+        case RIL_REQUEST_RADIO_POWER:
+            //mModemProxy->setRadioPower(data, datalen, t);
             sync_resposne(t, RIL_E_SUCCESS, NULL, 0);
-        }
-        break;
-    case RIL_REQUEST_DATA_CALL_LIST:
-        mModemProxy->getDataCallList(data, datalen, t);
-        break;
-    case RIL_REQUEST_GET_IMSI:
-        mModemProxy->getIMSI(data, datalen, t);
-        break;
-    case RIL_REQUEST_BASEBAND_VERSION:
-        mModemProxy->getBasebandVersion(data, datalen, t);
-        break;
-    case RIL_REQUEST_DEVICE_IDENTITY:
-        mModemProxy->getDeviceIdentity(data, datalen, t);
-        break;
-    case RIL_REQUEST_GET_IMEI:
-        mModemProxy->getIMEI(data, datalen, t);
-        break;
-    case RIL_REQUEST_GET_IMEISV:
-        mModemProxy->getIMEISV(data, datalen, t);
-        break;
-    case RIL_REQUEST_SIGNAL_STRENGTH:
-        mModemProxy->getSignalStrength(data, datalen, t);
-        break;
-    case RIL_REQUEST_SIM_IO:
-        mModemProxy->iccIoForApp(data, datalen, t);
-        break;
-    case RIL_REQUEST_SEND_SMS:
-        mModemProxy->sendSms(data, datalen, t);
-        break;
-    case RIL_REQUEST_PSM_ENABLED:
-        mModemProxy->setPsmEnabled(data, datalen, t);
-        break;
-    case RIL_REQUEST_PSM_TIMER:
-        mModemProxy->setPsmTimer(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_EDRX:
-        mModemProxy->setEdrx(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_FORWARDING_AT_COMMAND:
-        mModemProxy->setForwardingAtCommand(data, datalen, t);
-        break;
-    case RIL_REQUEST_SMS_ACKNOWLEDGE:
-        mModemProxy->smsAck(data, datalen, t);
-        break;
-    case RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU:
-        mModemProxy->smsAckWithPdu(data, datalen, t);
-        break;
-    case RIL_REQUEST_GET_SMSC_ADDRESS:
-        mModemProxy->getSmscAddress(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_ENG_MODE:
-        mModemProxy->setEngMode(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_SCR_LINE:
-        mModemProxy->setScrLine(data, datalen, t);
-        break;
-    case RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE:
-        mModemProxy->getNetworkSelectionMode(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC:
-        mModemProxy->setNetworkSelectionAutomatic(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL:
-        mModemProxy->setNetworkSelectionManual(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_PDN_IP_ADDR:
-        mModemProxy->setPdnIpAddress(data, datalen, t);
-        break;
-    case RIL_REQUEST_SET_DEBUG_TRACE:
-        mModemProxy->setDebugTrace(data, datalen, t);
-        break;
-    default:
-        //RilLogW("%s Unsupported request %d", __FUNCTION__, request);
-        OnRequestComplete(t, RIL_E_REQUEST_NOT_SUPPORTED, NULL, 0);
-        return ;
+            break;
+        case RIL_REQUEST_GET_SIM_STATUS:
+            mModemProxy->getIccCardStatus(data, datalen, t);
+            break;
+        case RIL_REQUEST_VOICE_REGISTRATION_STATE:
+            mModemProxy->getVoiceRegistrationState(data, datalen, t);
+            break;
+        case RIL_REQUEST_DATA_REGISTRATION_STATE:
+            mModemProxy->getDataRegistrationState(data, datalen, t);
+            break;
+        case RIL_REQUEST_OPERATOR:
+            mModemProxy->getOperator(data, datalen, t);
+            break;
+        case RIL_REQUEST_SETUP_DATA_CALL:
+            mModemProxy->setupDataCall(data, datalen, t);
+            break;
+        case RIL_REQUEST_DEACTIVATE_DATA_CALL:
+            mModemProxy->deactivateDataCall(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_INITIAL_ATTACH_APN:
+            if (first_RIL_REQUEST_SET_INITIAL_ATTACH_APN == 1) {
+                mModemProxy->setInitialAttachApn(data, datalen, t);
+                first_RIL_REQUEST_SET_INITIAL_ATTACH_APN = 0;
+            } else {
+                sync_resposne(t, RIL_E_SUCCESS, NULL, 0);
+            }
+            break;
+        case RIL_REQUEST_DATA_CALL_LIST:
+            mModemProxy->getDataCallList(data, datalen, t);
+            break;
+        case RIL_REQUEST_GET_IMSI:
+            mModemProxy->getIMSI(data, datalen, t);
+            break;
+        case RIL_REQUEST_BASEBAND_VERSION:
+            mModemProxy->getBasebandVersion(data, datalen, t);
+            break;
+        case RIL_REQUEST_DEVICE_IDENTITY:
+            mModemProxy->getDeviceIdentity(data, datalen, t);
+            break;
+        case RIL_REQUEST_GET_IMEI:
+            mModemProxy->getIMEI(data, datalen, t);
+            break;
+        case RIL_REQUEST_GET_IMEISV:
+            mModemProxy->getIMEISV(data, datalen, t);
+            break;
+        case RIL_REQUEST_SIGNAL_STRENGTH:
+            mModemProxy->getSignalStrength(data, datalen, t);
+            break;
+        case RIL_REQUEST_SIM_IO:
+            mModemProxy->iccIoForApp(data, datalen, t);
+            break;
+        case RIL_REQUEST_SEND_SMS:
+            mModemProxy->sendSms(data, datalen, t);
+            break;
+        case RIL_REQUEST_PSM_ENABLED:
+            mModemProxy->setPsmEnabled(data, datalen, t);
+            break;
+        case RIL_REQUEST_PSM_TIMER:
+            mModemProxy->setPsmTimer(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_EDRX:
+            mModemProxy->setEdrx(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_FORWARDING_AT_COMMAND:
+            mModemProxy->setForwardingAtCommand(data, datalen, t);
+            break;
+        case RIL_REQUEST_SMS_ACKNOWLEDGE:
+            mModemProxy->smsAck(data, datalen, t);
+            break;
+        case RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU:
+            mModemProxy->smsAckWithPdu(data, datalen, t);
+            break;
+        case RIL_REQUEST_GET_SMSC_ADDRESS:
+            mModemProxy->getSmscAddress(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_ENG_MODE:
+            mModemProxy->setEngMode(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_SCR_LINE:
+            mModemProxy->setScrLine(data, datalen, t);
+            break;
+        case RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE:
+            mModemProxy->getNetworkSelectionMode(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC:
+            mModemProxy->setNetworkSelectionAutomatic(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL:
+            mModemProxy->setNetworkSelectionManual(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_PDN_IP_ADDR:
+            mModemProxy->setPdnIpAddress(data, datalen, t);
+            break;
+        case RIL_REQUEST_SET_DEBUG_TRACE:
+            mModemProxy->setDebugTrace(data, datalen, t);
+            break;
+        default:
+            //RilLogW("%s Unsupported request %d", __FUNCTION__, request);
+            OnRequestComplete(t, RIL_E_REQUEST_NOT_SUPPORTED, NULL, 0);
+            return ;
     }
 }
 
@@ -305,11 +297,9 @@ void SAMSUNG_S5JS100_RIL_IF::OnCancel(RIL_Token t)
     RIL_Token ret = (RIL_Token)0;
 
     mMutex.lock();
-    RequestInfo ** pendingRequestsHook = &mPendingRequests;
-    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next))
-    {
-        if ((*ppCur)->t == t)
-        {
+    RequestInfo **pendingRequestsHook = &mPendingRequests;
+    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next)) {
+        if ((*ppCur)->t == t) {
             RequestInfo *tmp = *ppCur;
             ret = tmp->t;
             *ppCur = (*ppCur)->p_next;
@@ -319,8 +309,9 @@ void SAMSUNG_S5JS100_RIL_IF::OnCancel(RIL_Token t)
     } // end for ~
     mMutex.unlock();
 
-    if (ret == NULL)
+    if (ret == NULL) {
         return;
+    }
 
     OnRequestComplete(ret, RIL_E_CANCELLED, NULL, 0);
 }
@@ -329,8 +320,7 @@ void SAMSUNG_S5JS100_RIL_IF::UpdateRadioState(RIL_RadioState radioState)
 {
     RIL_RadioState oldState = mOverallRadioState;
     mOverallRadioState = radioState;
-    if ((oldState == RADIO_STATE_ON) && (radioState == RADIO_STATE_UNAVAILABLE))
-    {
+    if ((oldState == RADIO_STATE_ON) && (radioState == RADIO_STATE_UNAVAILABLE)) {
         //int ret = ReleaseRequests();
         ReleaseRequests();
         //RilLogV("Release Requests(%d)", ret);
@@ -340,14 +330,14 @@ void SAMSUNG_S5JS100_RIL_IF::UpdateRadioState(RIL_RadioState radioState)
 bool SAMSUNG_S5JS100_RIL_IF::AddToRequestList(unsigned int token, RIL_Token t, unsigned int timeout/* = 10000*/)
 {
     RequestInfo *pRI = new RequestInfo;
-    if (pRI != NULL)
-    {
-        RequestInfo ** pendingRequestsHook = &mPendingRequests;
+    if (pRI != NULL) {
+        RequestInfo **pendingRequestsHook = &mPendingRequests;
         pRI->token = token;
         pRI->t = t;
 //        pRI->timeoutTickCount = (int)((timeout < RequestTimeoutMonitor::MAX_TIMEOUT_TICK ? timeout : RequestTimeoutMonitor::MAX_TIMEOUT_TICK)  / RequestTimeoutMonitor::TIMEOUT_TICK) - 1;
-        if (pRI->timeoutTickCount <= 0)
+        if (pRI->timeoutTickCount <= 0) {
             pRI->timeoutTickCount = 1;
+        }
         mMutex.lock();
         pRI->p_next = *pendingRequestsHook;
         *pendingRequestsHook = pRI;
@@ -362,11 +352,9 @@ RIL_Token SAMSUNG_S5JS100_RIL_IF::FindRequestInfo(unsigned int token)
 {
     RIL_Token ret = (RIL_Token)0;
     mMutex.lock();
-    RequestInfo ** pendingRequestsHook = &mPendingRequests;
-    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next))
-    {
-        if ((*ppCur)->token == token)
-        {
+    RequestInfo **pendingRequestsHook = &mPendingRequests;
+    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next)) {
+        if ((*ppCur)->token == token) {
             RequestInfo *tmp = *ppCur;
             ret = tmp->t;
             *ppCur = (*ppCur)->p_next;
@@ -375,12 +363,9 @@ RIL_Token SAMSUNG_S5JS100_RIL_IF::FindRequestInfo(unsigned int token)
         }
     } // end for ~
     mMutex.unlock();
-    if (ret != 0)
-    {
+    if (ret != 0) {
         //RilLogV("%s found token(%d) RIL_Token(%p)", __FUNCTION__, token, ret);
-    }
-    else
-    {
+    } else {
         //RilLogW("%s not existed token (%d)", __FUNCTION__, token);
     }
 
@@ -390,30 +375,27 @@ RIL_Token SAMSUNG_S5JS100_RIL_IF::FindRequestInfo(unsigned int token)
 int SAMSUNG_S5JS100_RIL_IF::ProcessPendingRequests()
 {
     int ret = 0;
-    RequestInfo ** pendingRequestsHook = &mPendingRequests;
+    RequestInfo **pendingRequestsHook = &mPendingRequests;
     mMutex.lock();
-    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next))
-    {
-        if (--(*ppCur)->timeoutTickCount < 0)
-        {
+    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next)) {
+        if (--(*ppCur)->timeoutTickCount < 0) {
             ret++;
             RequestInfo *tmp = *ppCur;
             *ppCur = (*ppCur)->p_next;
-            if (tmp != NULL)
-            {
+            if (tmp != NULL) {
                 //RilLogV("%s OnRequestComplete: token(0x%04d) RIL_Token(%p)", __FUNCTION__, tmp->token, tmp->t);
                 OnRequestComplete(tmp->t, RIL_E_GENERIC_FAILURE, NULL, 0);
             }
             delete tmp;
 
             // end of list
-            if ((*ppCur) == NULL)
+            if ((*ppCur) == NULL) {
                 break;
+            }
         }
     } // end for ~
     mMutex.unlock();
-    if (ret > 0)
-    {
+    if (ret > 0) {
         //RilLogV("%s %d pending requests had been timeout!", __FUNCTION__, ret);
     }
 
@@ -423,23 +405,22 @@ int SAMSUNG_S5JS100_RIL_IF::ProcessPendingRequests()
 int SAMSUNG_S5JS100_RIL_IF::ReleaseRequests()
 {
     int ret = 0;
-    RequestInfo ** pendingRequestsHook = &mPendingRequests;
+    RequestInfo **pendingRequestsHook = &mPendingRequests;
     mMutex.lock();
-    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next))
-    {
+    for (RequestInfo **ppCur = pendingRequestsHook ; *ppCur != NULL ; ppCur = &((*ppCur)->p_next)) {
         ret++;
         RequestInfo *tmp = *ppCur;
         *ppCur = (*ppCur)->p_next;
-        if (tmp != NULL)
-        {
+        if (tmp != NULL) {
             //RilLogV("%s OnRequestComplete: token(0x%04d) RIL_Token(%p)", __FUNCTION__, tmp->token, tmp->t);
             OnRequestComplete(tmp->t, RIL_E_GENERIC_FAILURE, NULL, 0);
         }
         delete tmp;
 
         // end of list
-        if ((*ppCur) == NULL)
+        if ((*ppCur) == NULL) {
             break;
+        }
     } // end for ~
     mMutex.unlock();
 
@@ -477,7 +458,7 @@ void onCancel(RIL_Token t)
     return mbed::SAMSUNG_S5JS100_RIL_IF::GetInstance()->OnCancel(t);
 }
 
-const char * getVersion(void)
+const char *getVersion(void)
 {
     return "12";
 }
@@ -485,8 +466,7 @@ const char * getVersion(void)
 /**
  * RIL callbacks exposed to RILD daemon
  */
-static const RIL_RadioFunctions s_callbacks =
-{
+static const RIL_RadioFunctions s_callbacks = {
     12,
     onRequest,
     onStateRequest,
@@ -495,11 +475,10 @@ static const RIL_RadioFunctions s_callbacks =
     getVersion
 };
 
-const RIL_RadioFunctions * RIL_Init(const struct RIL_Env *env, int argc, char **argv)
+const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **argv)
 {
     mbed::SAMSUNG_S5JS100_RIL_IF *inst = mbed::SAMSUNG_S5JS100_RIL_IF::GetInstance();
-    if (!inst->Init(env))
-    {
+    if (!inst->Init(env)) {
         return NULL;
     }
     return &s_callbacks;
@@ -508,13 +487,13 @@ const RIL_RadioFunctions * RIL_Init(const struct RIL_Env *env, int argc, char **
 
 void RIL_Reinit(void)
 {
-	mbed::SAMSUNG_S5JS100_RIL_IF *inst = mbed::SAMSUNG_S5JS100_RIL_IF::GetInstance();
-	inst->mModemProxy = new SAMSUNG_S5JS100_MODEM_PROXY(inst); 
-	inst->mModemProxy->registerSTK(SAMSUNG_S5JS100_STK::GetInstance());
-	pShmemLinkDevice->mbox_init();
-	dcxo_init();
-	shmem_save_init();
-	mcpu_init(MCPU_CP);
+    mbed::SAMSUNG_S5JS100_RIL_IF *inst = mbed::SAMSUNG_S5JS100_RIL_IF::GetInstance();
+    inst->mModemProxy = new SAMSUNG_S5JS100_MODEM_PROXY(inst);
+    inst->mModemProxy->registerSTK(SAMSUNG_S5JS100_STK::GetInstance());
+    pShmemLinkDevice->mbox_init();
+    dcxo_init();
+    shmem_save_init();
+    mcpu_init(MCPU_CP);
 }
 
 
