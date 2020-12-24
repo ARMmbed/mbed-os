@@ -23,49 +23,45 @@
 
 inline bool isHexChar(int ch)
 {
-    switch (ch)
-    {
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-    case 'a':
-    case 'b':
-    case 'c':
-    case 'd':
-    case 'e':
-    case 'f':
-    case 'A':
-    case 'B':
-    case 'C':
-    case 'D':
-    case 'E':
-    case 'F':
-        return true;
+    switch (ch) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+            return true;
     }
     return false;
 }
 
 int StringUtil::hexToVal(char ch)
 {
-    if (ch >= '0' && ch <= '9')
-    {
+    if (ch >= '0' && ch <= '9') {
         return ch - '0';
     }
 
-    if (ch >= 'a' && ch <= 'f')
-    {
+    if (ch >= 'a' && ch <= 'f') {
         return ch - 'a' + 10;
     }
 
-    if (ch >= 'A' && ch <= 'F')
-    {
+    if (ch >= 'A' && ch <= 'F') {
         return ch - 'A' + 10;
     }
 
@@ -76,28 +72,27 @@ int StringUtil::hexStringToVal(unsigned char *pHexDecOut, const char *pszHexStrI
 {
     int nResult = 0;
 
-    if (pszHexStrIn == NULL)
-    {
+    if (pszHexStrIn == NULL) {
         return 0;
     }
 
     int nLength = strlen(pszHexStrIn);
-    if(pHexDecOut && pszHexStrIn)
-    {
+    if (pHexDecOut && pszHexStrIn) {
         int nSrcIdx, nDstIdx;
-        for (nSrcIdx=0, nDstIdx=0; nSrcIdx<nLength && pszHexStrIn[nSrcIdx]!='\0'; nSrcIdx++)
-        {
+        for (nSrcIdx = 0, nDstIdx = 0; nSrcIdx < nLength && pszHexStrIn[nSrcIdx] != '\0'; nSrcIdx++) {
             // Even index is upper 4 bit
-            if(nSrcIdx==0 || nSrcIdx%2==0) pHexDecOut[nDstIdx] = ((hexToVal(pszHexStrIn[nSrcIdx]) << 4) & 0xF0);
-            else
-            {
+            if (nSrcIdx == 0 || nSrcIdx % 2 == 0) {
+                pHexDecOut[nDstIdx] = ((hexToVal(pszHexStrIn[nSrcIdx]) << 4) & 0xF0);
+            } else {
                 pHexDecOut[nDstIdx] |= (hexToVal(pszHexStrIn[nSrcIdx]) & 0x0F);
                 nDstIdx++;
             }
         }
 
         // Odd Length of Source Data
-        if(nSrcIdx!=0 && nSrcIdx%2==1) nDstIdx++;
+        if (nSrcIdx != 0 && nSrcIdx % 2 == 1) {
+            nDstIdx++;
+        }
         nResult = nDstIdx;
     }
 
@@ -111,8 +106,7 @@ bool StringUtil::isEmpty(const char *str)
 
 bool StringUtil::equals(const char *l, const char *r)
 {
-    if (isEmpty(l) || isEmpty(r))
-    {
+    if (isEmpty(l) || isEmpty(r)) {
         return false;
     }
 
@@ -121,26 +115,22 @@ bool StringUtil::equals(const char *l, const char *r)
 
 int StringUtil::convertBytesToHexString(char *buf, int size, char *data, int datalen)
 {
-    if (buf == NULL || data == NULL)
-    {
+    if (buf == NULL || data == NULL) {
         return -1;
     }
 
-    if (size <= 0 || datalen <= 0)
-    {
+    if (size <= 0 || datalen <= 0) {
         return -1;
     }
 
-    if (size < (datalen * 2) + 1)
-    {
+    if (size < (datalen * 2) + 1) {
         return -1;
     }
 
     static char val[] = "0123456789ABCDEF";
     char *p = buf;
 
-    for (int i = 0; i < datalen; i++)
-    {
+    for (int i = 0; i < datalen; i++) {
         *(p++) = val[(data[i] >> 4) & 0xF];
         *(p++) = val[data[i] & 0xF];
     } // end for i ~
@@ -150,31 +140,26 @@ int StringUtil::convertBytesToHexString(char *buf, int size, char *data, int dat
 
 int StringUtil::convertHexStringToBytes(char *buf, int size, char *data, int datalen)
 {
-    if (buf == NULL || data == NULL)
-    {
+    if (buf == NULL || data == NULL) {
         return -1;
     }
 
-    if (size <= 0 || datalen <= 0)
-    {
+    if (size <= 0 || datalen <= 0) {
         return -1;
     }
 
-    if (datalen % 2 != 0 || size < datalen / 2)
-    {
+    if (datalen % 2 != 0 || size < datalen / 2) {
         return -1;
     }
 
     char *p = buf;
-    for (int i = 0; i < datalen; i += 2)
-    {
-        if (!isHexChar(data[i]) || !isHexChar(data[i + 1]))
-        {
+    for (int i = 0; i < datalen; i += 2) {
+        if (!isHexChar(data[i]) || !isHexChar(data[i + 1])) {
             return -1;
         }
         int val[2];
         val[0] = hexToVal(data[i]);
-        val[1] = hexToVal(data[i+1]);
+        val[1] = hexToVal(data[i + 1]);
         *(p++) = (val[0] << 4 | val[1]) & 0xFF;
     } // end for i ~
 
@@ -183,8 +168,7 @@ int StringUtil::convertHexStringToBytes(char *buf, int size, char *data, int dat
 
 int SmsUtil::convertSmscBcdToNumber(const char *tpdu, int tpduLen, char *smsc, int smscLen)
 {
-    if (tpduLen <= 0)
-    {
+    if (tpduLen <= 0) {
         return -1;
     }
 
@@ -193,38 +177,30 @@ int SmsUtil::convertSmscBcdToNumber(const char *tpdu, int tpduLen, char *smsc, i
 
     //Check '+'
     int i = 0, j = 1;
-    if (tpdu[j] == RIL_TOA_INTERNATIONAL)
-    {
+    if (tpdu[j] == RIL_TOA_INTERNATIONAL) {
         buf[i] = '+';
         i++;
         j++;
         len--;
-    }
-    else if (tpdu[j] == RIL_TOA_UNKNOWN)
-    {
+    } else if (tpdu[j] == RIL_TOA_UNKNOWN) {
         // TOA: National Numbering skip
         j++;
         len--;
     }
 
     //Convert BCD -> ASCII
-    for (; j < tpduLen; i++, j++)
-    {
+    for (; j < tpduLen; i++, j++) {
         buf[i] = (tpdu[j] & 0x0F) + '0';
-        if ((tpdu[j] >> 4) == 0x0F)
-        {
+        if ((tpdu[j] >> 4) == 0x0F) {
             // odd count smsc
             len--;
             break;
-        }
-        else
-        {
+        } else {
             buf[++i] = ((tpdu[j] >> 4) & 0x0F) + '0';
         }
     }
 
-    if (len > smscLen)
-    {
+    if (len > smscLen) {
         return -1;
     }
 

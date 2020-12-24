@@ -28,7 +28,7 @@
 #define MAX_BASEBAND_VERSION_LEN 32
 #define MAX_LONG_EONS_LEN        64
 #define MAX_SHORT_EONS_LEN       32
-#define MAX_NUMERIC_LEN	         6
+#define MAX_NUMERIC_LEN          6
 #define MAX_AID_LEN              32
 #define MAX_SMSC_PDU_SIZE        24
 #define MAX_SMS_PDU_SIZE         488
@@ -37,8 +37,7 @@
 
 typedef unsigned int        UINT;
 
-typedef enum
-{
+typedef enum {
     RIL_NOT_REG_AND_NOT_SEARCHING = 0,           // Not registered, MT is not currently searching
     // a new operator to register
     RIL_REG_HOME = 1,                            // Registered, home network
@@ -59,21 +58,18 @@ typedef enum
     // emergency calls are enabled.
 } RIL_RegState;
 
-typedef struct
-{
+typedef struct {
     int serial;
     int status;
 } ResponseInfo;
 
-typedef struct
-{
+typedef struct {
     int regState;
     int rat;
     int reasonForDenial;
 } VoiceRegistrationState;
 
-typedef struct
-{
+typedef struct {
     int regState;
     int rat;
     int reasonDataDenied;
@@ -83,15 +79,13 @@ typedef struct
     int cid;
 } DataRegistrationState;
 
-typedef struct
-{
+typedef struct {
     char longAlpha[MAX_LONG_EONS_LEN + 1];
     char shortAlpha[MAX_SHORT_EONS_LEN + 1];
     char numeric[MAX_NUMERIC_LEN + 1];
 } NetworkOperatorInfo;
 
-typedef struct
-{
+typedef struct {
     int status;
     int suggestedRetryTime;
     int cid;
@@ -102,23 +96,20 @@ typedef struct
     char gateways[256];
 } SetupDataCallResult;
 
-typedef struct
-{
+typedef struct {
     RIL_CardState cardState;
     RIL_AppState appState;
     RIL_AppType appType;
     char aid[MAX_AID_LEN + 1];
 } CardStatus;
 
-struct GsmSignalStrength
-{
+struct GsmSignalStrength {
     int32_t signalStrength;              // Valid values are (0-61, 99) as defined in
     // TS 27.007 8.69
     int32_t bitErrorRate;                // bit error rate (0-7, 99) as defined in TS 27.007 8.5
 };
 
-struct LteSignalStrength
-{
+struct LteSignalStrength {
     int32_t signalStrength;              // Valid values are (0-31, 99) as defined in
     // TS 27.007 8.5
     int32_t rsrp;                        // The current Reference Signal Receive Power in dBm
@@ -134,49 +125,42 @@ struct LteSignalStrength
     int32_t rssnr;                        // The current reference signal signal-to-noise ratio in
 };
 
-typedef struct
-{
+typedef struct {
     GsmSignalStrength gw;
     LteSignalStrength lte;
 } SignalStrength;
 
-typedef struct
-{
+typedef struct {
     int sw1;
     int sw2;
     char payload[MAX_SIM_IO_PAYLOAD_LEN];
 } IccIoResult;
 
-typedef struct
-{
+typedef struct {
     int status;
     UINT t3412_accepted;
     UINT t3324_accepted;
 } PsmTimerInfo;
 
-typedef struct
-{
+typedef struct {
     int status;
     int mode_accepted;
     int ptw_accepted;
     int t_edrx_accepted;
 } EdrxChangedResult;
 
-typedef struct
-{
+typedef struct {
     char smscPdu[MAX_SMSC_PDU_SIZE + 1];
     char pdu[MAX_SMS_PDU_SIZE + 1];
 } GsmSmsMessage;
 
-struct SendSmsResult
-{
+struct SendSmsResult {
     int messageRef;
     char ackPDU[MAX_SMS_PDU_SIZE + 1];
     int errorCode;
 };
 
-typedef struct
-{
+typedef struct {
     int success;
     char ackPdu[MAX_GSM_SMS_TPDU_SIZE + 1];
 } SmsAckIncomingGsmSmsWithPdu;

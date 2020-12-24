@@ -43,21 +43,21 @@ enum exynos_ch_id {
 };
 
 typedef struct d_hdr {
-	unsigned short start;
-	unsigned short frm_seq;
-	unsigned short frag_cfg;
-	unsigned short msg_len;
-	unsigned char ch_id;
-	unsigned char ch_seq;
-	unsigned short dummy;
+    unsigned short start;
+    unsigned short frm_seq;
+    unsigned short frag_cfg;
+    unsigned short msg_len;
+    unsigned char ch_id;
+    unsigned char ch_seq;
+    unsigned short dummy;
 } __attribute__((packed)) t_hdr;
 
 
 typedef union {
-	char char_hdr[EXYNOS_HEADER_SIZE];
-	unsigned int int_hdr[EXYNOS_HEADER_SIZE/sizeof(unsigned int)];
-	t_hdr hdr;
-} t_msg_header; 
+    char char_hdr[EXYNOS_HEADER_SIZE];
+    unsigned int int_hdr[EXYNOS_HEADER_SIZE / sizeof(unsigned int)];
+    t_hdr hdr;
+} t_msg_header;
 
 
 static inline unsigned int exynos_calc_padding_size(unsigned int len)

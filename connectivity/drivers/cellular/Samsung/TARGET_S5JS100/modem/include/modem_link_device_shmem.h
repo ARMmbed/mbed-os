@@ -136,7 +136,7 @@ private:
     void rx_cmd_cp_crash(void);
     void cmd_handler(unsigned int cmd);
     void msg_handler(void);
-void mcpu_failed_to_start(void);
+    void mcpu_failed_to_start(void);
 
 public:
     ShmemIpcDevice *ipc_device[MAX_IPC_DEV];
@@ -154,10 +154,10 @@ public:
     Queue<mio_buf, 32> ipc_rxq;
     void(*fail_cb)(void);
 
-EventQueue *modem_link_device_wqueue;
-Thread *msgrxwork;
-Thread *irqwork;
-int mcpu_failed_to_start_id;
+    EventQueue *modem_link_device_wqueue;
+    Thread *msgrxwork;
+    Thread *irqwork;
+    int mcpu_failed_to_start_id;
 
 
 public:
@@ -254,12 +254,12 @@ struct shmem_64KB_phys_map {
     volatile  int raw_rx_head;
     volatile  int raw_rx_tail;
 
-    volatile unsigned int reserved[SHM_64K_RESERVED_SZ/sizeof(unsigned int)];
+    volatile unsigned int reserved[SHM_64K_RESERVED_SZ / sizeof(unsigned int)];
 
-    volatile unsigned int fmt_tx_buff[SHM_64K_FMT_TX_BUFF_SZ/sizeof(unsigned int)];
-    volatile unsigned int fmt_rx_buff[SHM_64K_FMT_RX_BUFF_SZ/sizeof(unsigned int)];
+    volatile unsigned int fmt_tx_buff[SHM_64K_FMT_TX_BUFF_SZ / sizeof(unsigned int)];
+    volatile unsigned int fmt_rx_buff[SHM_64K_FMT_RX_BUFF_SZ / sizeof(unsigned int)];
 
-    volatile unsigned int raw_tx_buff[SHM_64K_RAW_TX_BUFF_SZ/sizeof(unsigned int)];
-    volatile unsigned int raw_rx_buff[SHM_64K_RAW_RX_BUFF_SZ/sizeof(unsigned int)];
+    volatile unsigned int raw_tx_buff[SHM_64K_RAW_TX_BUFF_SZ / sizeof(unsigned int)];
+    volatile unsigned int raw_rx_buff[SHM_64K_RAW_RX_BUFF_SZ / sizeof(unsigned int)];
 } __attribute__((packed));
 #endif

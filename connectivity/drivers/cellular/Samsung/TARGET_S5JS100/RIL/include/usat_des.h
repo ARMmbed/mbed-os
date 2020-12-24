@@ -20,8 +20,7 @@
 #ifndef __USAT_DES_H__
 #define __USAT_DES_H__
 
-typedef enum
-{
+typedef enum {
     BER_COMP_command_detail_tag = 0x01,
     BER_COMP_device_identity_tag = 0x02,
     BER_COMP_result_tag = 0x03,
@@ -44,8 +43,7 @@ typedef enum
 } BER_COMP_TAG;
 
 /* TS 102 223 V12 8.6 */
-typedef enum
-{
+typedef enum {
     UICC_COMMAND_REFRESH = 0x01,
     UICC_COMMAND_SETUP_EVENT_LIST = 0x05,
     UICC_COMMAND_OPEN_CHANNEL = 0x40,
@@ -54,8 +52,7 @@ typedef enum
     UICC_COMMAND_SEND_DATA = 0x43,
     UICC_COMMAND_GET_CHANNEL_STATUS = 0x44,
 } UICC_COMMAND_TYPE;
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char number;
@@ -64,28 +61,24 @@ typedef struct
 } uicc_command_details;
 
 /* TS 102 223 V12 9.2 + 8.6 */
-typedef enum
-{
+typedef enum {
     BER_TLV_PROACTIVE_COMMAND = 0xD0,
     BER_TLV_EVENT_DOWNLOAD = 0xD6,
 } BER_TLV_TAG;
-typedef struct
-{
+typedef struct {
     unsigned char command_tag;
     unsigned char short_length;
     uicc_command_details command_details;
 } uicc_proactive_cmd_hrd;
 
 /* TS 102 223 V12 9.1 */
-typedef struct
-{
+typedef struct {
     unsigned char command_tag;
     unsigned char short_length;
 } uicc_cmd_hrd;
 
 /* TS 102 223 V12 8.7 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char source_device;
@@ -93,16 +86,14 @@ typedef struct
 } uicc_device_identities;
 
 /* TS 102 223 V12 8.2 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char alpha_identifier[256];
 } uicc_alpha_identifier;
 
 /* TS 102 223 V12 8.15 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char data_coding_scheme;
@@ -110,8 +101,7 @@ typedef struct
 } uicc_text_string;
 
 /* TS 102 223 V12 8.18 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char num_of_files;
@@ -119,8 +109,7 @@ typedef struct
 } uicc_file_list;
 
 /* TS 102 223 V12 8.31 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char icon_qualifier;
@@ -128,8 +117,7 @@ typedef struct
 } uicc_icon_identifier;
 
 /* TS 102 223 V12 8.52 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char bearer_type;
@@ -137,40 +125,35 @@ typedef struct
 } uicc_bearer_description;
 
 /* TS 102 223 V12 8.53 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char channel_data_string[256];
 } uicc_channel_data;
 
 /* TS 102 223 V12 8.54 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char channel_data_length;
 } uicc_channel_data_length;
 
 /* TS 102 223 V12 8.55 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned short buffer_size;
 } uicc_buffer_size;
 
 /* TS 102 223 V12 8.56 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned short channel_status;
 } uicc_channel_status;
 
 /* TS 102 223 V12 8.58 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char type_of_address;
@@ -178,8 +161,7 @@ typedef struct
 } uicc_other_address;
 
 /* TS 102 223 V12 8.59 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char transport_protocol_type;
@@ -187,48 +169,42 @@ typedef struct
 } uicc_uicc_terminal_interface_transport_level;
 
 /* TS 102 223 V12 8.60 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char aid[256];
 } uicc_aid;
 
 /* TS 102 223 V12 8.70 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char network_access_name[256];
 } uicc_network_access_name;
 
 /* TS 102 223 V12 8.72 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char text_formatting;
 } uicc_text_attribute;
 
 /* TS 102 223 V12 8.80 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char identifier;
 } uicc_frame_identifier;
 
 /* TS 102 223 V12 8.103 */
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char policy[256];
 } uicc_refresh_enforcement_policy;
 
 /* TS 102 223 V12 6.6.13 */
-typedef struct
-{
+typedef struct {
     uicc_proactive_cmd_hrd hrd;
     uicc_device_identities device_identy;
     uicc_file_list file_list;
@@ -241,8 +217,7 @@ typedef struct
 } uicc_refresh;
 
 /* TS 102 223 V12 8.25 */
-typedef enum
-{
+typedef enum {
     UICC_EVENT_MT_call = 0x00,
     UICC_EVENT_Call_connected = 0x01,
     UICC_EVENT_Call_disconnected = 0x02,
@@ -268,24 +243,21 @@ typedef enum
     UICC_EVENT_Secured_Profile_Container = 0x1B,
     UICC_EVENT_Poll_Int = 0x1C,
 } uicc_event_list_event;
-typedef struct
-{
+typedef struct {
     unsigned char tag;
     unsigned char length;
     unsigned char events[256];
 } uicc_event_list;
 
 /* TS 102 223 V12 6.6.16 */
-typedef struct
-{
+typedef struct {
     uicc_proactive_cmd_hrd *hrd;
     uicc_device_identities *device_identy;
     uicc_event_list *event_list;
 } uicc_setup_event_list;
 
 /* TS 102 223 V12 6.6.27.4 */
-typedef struct
-{
+typedef struct {
     uicc_proactive_cmd_hrd *hrd;
     uicc_device_identities *device_identy;
     uicc_alpha_identifier *alpha_identifier;
@@ -303,8 +275,7 @@ typedef struct
 } uicc_open_channel_default;
 
 /* TS 102 223 V12 6.6.28 */
-typedef struct
-{
+typedef struct {
     uicc_proactive_cmd_hrd *hrd;
     uicc_device_identities *device_identy;
     uicc_alpha_identifier *alpha_identifier;
@@ -314,8 +285,7 @@ typedef struct
 } uicc_close_channel;
 
 /* TS 102 223 V12 6.6.29 */
-typedef struct
-{
+typedef struct {
     uicc_proactive_cmd_hrd *hrd;
     uicc_device_identities *device_identy;
     uicc_alpha_identifier *alpha_identifier;
@@ -326,8 +296,7 @@ typedef struct
 } uicc_receive_data;
 
 /* TS 102 223 V12 6.6.30 */
-typedef struct
-{
+typedef struct {
     uicc_proactive_cmd_hrd *hrd;
     uicc_device_identities *device_identy;
     uicc_alpha_identifier *alpha_identifier;
@@ -338,8 +307,7 @@ typedef struct
 } uicc_send_data;
 
 /* TS 102 223 V12 6.6.31 */
-typedef struct
-{
+typedef struct {
     uicc_proactive_cmd_hrd *hrd;
     uicc_device_identities *device_identy;
 } uicc_get_channel_status;

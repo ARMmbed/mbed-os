@@ -20,8 +20,7 @@
 #ifndef __SAMSUNG_RIL_STRING_UTIL_H__
 #define __SAMSUNG_RIL_STRING_UTIL_H__
 
-class StringUtil
-{
+class StringUtil {
 public:
     static int hexToVal(char ch);
     static int hexStringToVal(unsigned char *pHexDecOut, const char *pszHexStrIn);
@@ -31,8 +30,7 @@ public:
     static int convertHexStringToBytes(char *buf, int size, char *data, int datalen);
 };
 
-class SmsUtil
-{
+class SmsUtil {
 public:
     static int convertSmscBcdToNumber(const char *tpdu, int tpduLen, char *smsc, int smscLen);
 };
