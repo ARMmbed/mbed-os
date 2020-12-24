@@ -18,7 +18,7 @@
  ****************************************************************************/
 
 #include <string.h>
-#include "mbed.h"
+#include "rtos/rtos.h"
 #include "stdlib.h"
 #include "cmsis.h"
 #include "mbed_wait_api.h"

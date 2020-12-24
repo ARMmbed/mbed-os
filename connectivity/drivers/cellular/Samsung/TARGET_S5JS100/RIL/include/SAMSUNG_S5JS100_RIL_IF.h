@@ -24,7 +24,6 @@
 #include "SAMSUNG_RIL_constdef.h"
 #include "SAMSUNG_RIL_type.h"
 
-
 typedef struct RequestInfo
 {
     unsigned int token;

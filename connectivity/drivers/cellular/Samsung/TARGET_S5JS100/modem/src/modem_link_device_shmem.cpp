@@ -17,12 +17,12 @@
  *
  ****************************************************************************/
 
+#include <string.h>
 #include "modem_link_device_shmem.h"
 #include "modem_io_device.h"
 #include "modem_prj.h"
 #include "s5js100_error.h"
 #include "s5js100_type.h"
-#include <string.h>
 
 #define SZ_64K       0x00010000
 
