@@ -17,7 +17,6 @@
  *
  ****************************************************************************/
 
-#include "mbed.h"
 #include "SAMSUNG_S5JS100_Modem_Proxy.h"
 #include "SAMSUNG_S5JS100_STK.h"
 #include "CellularContext.h"

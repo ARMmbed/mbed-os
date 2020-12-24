@@ -21,8 +21,9 @@
 #include "modem_io_device.h"
 #include "modem_prj.h"
 #include "modem_link_device_shmem.h"
-
 #include "mbed_trace.h"
+#include "rtos/rtos.h"
+
 #define TRACE_GROUP "IODEV"
 
 #ifndef MODEM_IO_DEVICE_DBG_ON
