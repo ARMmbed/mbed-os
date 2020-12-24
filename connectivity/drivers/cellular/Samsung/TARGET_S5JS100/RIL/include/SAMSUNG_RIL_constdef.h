@@ -25,8 +25,7 @@
 #define TOKEN_INVALID                      0xFFFFFFFF
 #define SWAP16(val)     ( (((val) << 8) & 0xFF00) | (((val) >> 8) & 0x00FF) )
 
-enum ToaType
-{
+enum ToaType {
     RIL_TOA_UNKNOWN =              0x81,
     RIL_TOA_INTERNATIONAL =        0x91
 };

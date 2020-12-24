@@ -30,16 +30,14 @@
 #define SAMSUNG_S5JS100_STK_DBG        if (SAMSUNG_S5JS100_STK_DBG_ON) tr_info
 
 
-namespace mbed
-{
+namespace mbed {
 extern SAMSUNG_S5JS100_MODEM_PROXY *gModemProxy;
 
 SAMSUNG_S5JS100_STK *SAMSUNG_S5JS100_STK::GetInstance()
 {
     static SAMSUNG_S5JS100_STK *s5js100_stkInstance;
 
-    if (s5js100_stkInstance == NULL)
-    {
+    if (s5js100_stkInstance == NULL) {
         s5js100_stkInstance = new SAMSUNG_S5JS100_STK();
     }
     return s5js100_stkInstance;
@@ -58,37 +56,37 @@ SAMSUNG_S5JS100_STK::SAMSUNG_S5JS100_STK()
 
 SAMSUNG_S5JS100_STK::~SAMSUNG_S5JS100_STK()
 {
-    if (gModemProxy != NULL)
+    if (gModemProxy != NULL) {
         gModemProxy->registerSTK(NULL);
+    }
 }
 
 int SAMSUNG_S5JS100_STK::RegisterToModemProxy(void)
 {
-    if (gModemProxy == NULL)
+    if (gModemProxy == NULL) {
         return -1;
+    }
     gModemProxy->registerSTK(this);
     return 0;
 }
 
 void SAMSUNG_S5JS100_STK::OnRequest(STK_msg request, void *data, unsigned int datalen)
 {
-    if (RegisterToModemProxy() < 0)
-    {
+    if (RegisterToModemProxy() < 0) {
         OnRequestComplete(request, STK_E_GENERIC_FAILURE, NULL, 0);
         return;
     }
 
-    switch (request)
-    {
-    case SEND_STK_TERMINAL_RSP:
-        gModemProxy->sendStkTerminalRsp(data, datalen);
-        break;
-    case SEND_STK_ENVELOPE_CMD:
-        gModemProxy->sendStkEnvelopeCmd(data, datalen);
-        break;
-    default:
-        SAMSUNG_S5JS100_STK_DBG("SAMSUNG_S5JS100_STK::OnRequest Invalid Request (%d)", request);
-        break;
+    switch (request) {
+        case SEND_STK_TERMINAL_RSP:
+            gModemProxy->sendStkTerminalRsp(data, datalen);
+            break;
+        case SEND_STK_ENVELOPE_CMD:
+            gModemProxy->sendStkEnvelopeCmd(data, datalen);
+            break;
+        default:
+            SAMSUNG_S5JS100_STK_DBG("SAMSUNG_S5JS100_STK::OnRequest Invalid Request (%d)", request);
+            break;
     }
 }
 
@@ -115,8 +113,9 @@ static recv_buf *alloc_recv_buf(unsigned int size)
     recv_buf *ret;
 
     ret = (recv_buf *)malloc(sizeof(recv_buf));
-    if (ret == NULL)
+    if (ret == NULL) {
         return NULL;
+    }
 
     ret->bufsize = size;
     ret->buf = (char *)malloc(size);
@@ -151,8 +150,9 @@ void SAMSUNG_S5JS100_STK::ParseMsg(int stkmsg, STK_Errno e, void *msg, unsigned 
     char mm[256] = "";
 #endif
 
-    if (e != STK_E_SUCCESS)
+    if (e != STK_E_SUCCESS) {
         return;
+    }
 
     if (stkmsg == IND_STK_SESSION_END) {
         tr_debug("SAMSUNG_S5JS100_STK::ParseMsg Session End");
@@ -162,21 +162,21 @@ void SAMSUNG_S5JS100_STK::ParseMsg(int stkmsg, STK_Errno e, void *msg, unsigned 
 #if SAMSUNG_S5JS100_STK_DBG_ON
     SAMSUNG_S5JS100_STK_DBG("SAMSUNG_S5JS100_STK::ParseMsg msglen[%d]", msglen);
     tmsg = (char *)msg;
-    for (i = 0; i < msglen; i++)
-    {
+    for (i = 0; i < msglen; i++) {
         sprintf(mm + (i % 16) * 3, "%02X ", tmsg[i]);
         //MODEM_LINK_DEVICE_SHMEM_DBG_ON("%02X ", msg->data[i]);
-        if (i % 16 == 15 && i != 0)
+        if (i % 16 == 15 && i != 0) {
             SAMSUNG_S5JS100_STK_DBG("%s", mm);
+        }
     }
-    if ((i - 1) % 16 != 15)
+    if ((i - 1) % 16 != 15) {
         SAMSUNG_S5JS100_STK_DBG("%s", mm);
+    }
 #endif
 
     cmd_hdr = (uicc_proactive_cmd_hrd *)msg;
 
-    if (cmd_hdr->command_tag != BER_TLV_PROACTIVE_COMMAND)
-    {
+    if (cmd_hdr->command_tag != BER_TLV_PROACTIVE_COMMAND) {
         tr_error("[ParseMsg] Not BER_TLV_PROACTIVE_COMMAND");
         return;
     }
@@ -190,47 +190,46 @@ void SAMSUNG_S5JS100_STK::ParseMsg(int stkmsg, STK_Errno e, void *msg, unsigned 
         return;
     }
 
-    switch (cmd_type)
-    {
-    case UICC_COMMAND_REFRESH:
-        proactive_refresh(msg, msglen);
-        break;
-    case UICC_COMMAND_SETUP_EVENT_LIST:
-        proactive_setup_event_list(msg, msglen);
-        break;
-    case UICC_COMMAND_OPEN_CHANNEL:
-        proactive_open_channel(msg, msglen);
-        break;
-    case UICC_COMMAND_CLOSE_CHANNEL:
-        proactive_close_channel(msg, msglen);
-        break;
-    case UICC_COMMAND_RECEIVE_DATA:
-        proactive_receive_data(msg, msglen);
-        break;
-    case UICC_COMMAND_SEND_DATA:
-        proactive_send_data(msg, msglen);
-        break;
-    case UICC_COMMAND_GET_CHANNEL_STATUS:
-        proactive_get_channel_status(msg, msglen);
-        break;
-    default:
-        tr_error("[ParseMsg] Not supported command (0x%02X)", cmd_type);
-        break;
+    switch (cmd_type) {
+        case UICC_COMMAND_REFRESH:
+            proactive_refresh(msg, msglen);
+            break;
+        case UICC_COMMAND_SETUP_EVENT_LIST:
+            proactive_setup_event_list(msg, msglen);
+            break;
+        case UICC_COMMAND_OPEN_CHANNEL:
+            proactive_open_channel(msg, msglen);
+            break;
+        case UICC_COMMAND_CLOSE_CHANNEL:
+            proactive_close_channel(msg, msglen);
+            break;
+        case UICC_COMMAND_RECEIVE_DATA:
+            proactive_receive_data(msg, msglen);
+            break;
+        case UICC_COMMAND_SEND_DATA:
+            proactive_send_data(msg, msglen);
+            break;
+        case UICC_COMMAND_GET_CHANNEL_STATUS:
+            proactive_get_channel_status(msg, msglen);
+            break;
+        default:
+            tr_error("[ParseMsg] Not supported command (0x%02X)", cmd_type);
+            break;
     }
 
-    if (rsp_cb != NULL)
+    if (rsp_cb != NULL) {
         return rsp_cb(msg, msglen);
+    }
 }
 
 static int check_device_identy(uicc_device_identities *identy)
 {
     if (identy->tag != 0x82 || identy->length != 0x02 ||
-            identy->source_device != 0x81)
-    {
+            identy->source_device != 0x81) {
         return -1;
     }
 
-return 0;
+    return 0;
 }
 
 int SAMSUNG_S5JS100_STK::proactive_refresh(void *msg, unsigned int msglen)
@@ -254,28 +253,26 @@ int SAMSUNG_S5JS100_STK::proactive_setup_event_list(void *msg, unsigned int msgl
     offset += m.device_identy->length + 2;
     m.event_list = (uicc_event_list *)(b + offset);
 
-    if (check_device_identy(m.device_identy))
-    {
+    if (check_device_identy(m.device_identy)) {
         tr_error("%s device_identy fail", __func__);
         return -1;
     }
 
-    if (m.event_list->tag != 0x99)
-    {
+    if (m.event_list->tag != 0x99) {
         tr_error("%s event_list tag fail", __func__);
         return -1;
     }
 
-    if (setup_event_list != NULL)
-    {
+    if (setup_event_list != NULL) {
         free(setup_event_list);
         setup_event_list_size = 0;
     }
 
     setup_event_list = (uicc_event_list_event *)malloc(m.event_list->length);
     setup_event_list_size = m.event_list->length;
-    for (i = 0; i < m.event_list->length; i++)
+    for (i = 0; i < m.event_list->length; i++) {
         setup_event_list[i] = (uicc_event_list_event)(m.event_list->events[i]);
+    }
 
 
     SAMSUNG_S5JS100_STK_DBG("%s", __func__);
@@ -306,20 +303,19 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
     usat_work = new rtos::Thread(osPriorityNormal, 2048, NULL, "usat_work");
     usat_work->start(callback(usat_wqueue, &events::EventQueue::dispatch_forever));
 
-    switch (stk->connection.protocol_type)
-    {
-    case 0x02:
-    case 0x03:
-    case 0x05:
-        stk->tcpudpmode = 0;
-        break;
-    case 0x01:
-    case 0x04:
-        stk->tcpudpmode = 1;
-        break;
-    default:
-        tr_error("SAMSUNG_S5JS100_STK::usat_task Undefined protocol type (0x%X)\n", stk->connection.protocol_type);
-        return;
+    switch (stk->connection.protocol_type) {
+        case 0x02:
+        case 0x03:
+        case 0x05:
+            stk->tcpudpmode = 0;
+            break;
+        case 0x01:
+        case 0x04:
+            stk->tcpudpmode = 1;
+            break;
+        default:
+            tr_error("SAMSUNG_S5JS100_STK::usat_task Undefined protocol type (0x%X)\n", stk->connection.protocol_type);
+            return;
     }
 
     stk->connection.context = (CellularContext *)(NetworkInterface::get_default_instance());
@@ -332,37 +328,30 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
     sock_addr.set_port(stk->connection.port);
     sock_addr.set_ip_address((char *)(stk->connection.dest_address));
 
-    if (stk->tcpudpmode)
-    {
+    if (stk->tcpudpmode) {
         retcode = stk->connection.udp.open(stk->connection.context);
-        while (retcode != NSAPI_ERROR_OK)
-        {
+        while (retcode != NSAPI_ERROR_OK) {
             tr_error("UDPSocket.open() fails & retry, code: %d\n", retcode);
             ThisThread::sleep_for(1000);
             retcode = stk->connection.udp.open(stk->connection.context);
         }
         stk->connection.udp.set_timeout(5000);
         retcode = stk->connection.udp.connect(sock_addr);
-        while (retcode != NSAPI_ERROR_OK)
-        {
+        while (retcode != NSAPI_ERROR_OK) {
             tr_error("UDPSocket.connect() fails & retry, code: %d\n", retcode);
             ThisThread::sleep_for(1000);
             retcode = stk->connection.udp.connect(sock_addr);
         }
-    }
-    else
-    {
+    } else {
         retcode = stk->connection.tcp.open(stk->connection.context);
-        while (retcode != NSAPI_ERROR_OK)
-        {
+        while (retcode != NSAPI_ERROR_OK) {
             tr_error("TCPSocket.open() fails & retry, code: %d\n", retcode);
             ThisThread::sleep_for(1000);
             retcode = stk->connection.tcp.open(stk->connection.context);
         }
         stk->connection.tcp.set_timeout(5000);
         retcode = stk->connection.tcp.connect(sock_addr);
-        while (retcode != NSAPI_ERROR_OK)
-        {
+        while (retcode != NSAPI_ERROR_OK) {
             tr_error("TCPSocket.connect() fails & retry, code: %d\n", retcode);
             ThisThread::sleep_for(1000);
             stk->connection.tcp.close();
@@ -386,12 +375,12 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
     total_recv_size = 0;
     usat_mutex.unlock();
 
-    while (stk->usat_thread_run == 1)
-    {
-        if (stk->tcpudpmode)
+    while (stk->usat_thread_run == 1) {
+        if (stk->tcpudpmode) {
             retcode = stk->connection.udp.recv(tbuf, 1024);
-        else
+        } else {
             retcode = stk->connection.tcp.recv(tbuf, 1024);
+        }
 
         if (retcode < NSAPI_ERROR_OK) {
             if (retcode == NSAPI_ERROR_WOULD_BLOCK) {
@@ -414,8 +403,9 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
         total_recv_size += retcode;
         usat_mutex.unlock();
 
-        while ((t = alloc_recv_buf(retcode)) == NULL)
+        while ((t = alloc_recv_buf(retcode)) == NULL) {
             ThisThread::sleep_for(1000);
+        }
 
         memcpy(t->buf, tbuf, retcode);
         t->bufsize = retcode;
@@ -430,10 +420,11 @@ void SAMSUNG_S5JS100_STK::usat_task(void)
     free(tbuf);
 
 taskout:
-    if (stk->tcpudpmode)
+    if (stk->tcpudpmode) {
         stk->connection.tcp.close();
-    else
+    } else {
         stk->connection.udp.close();
+    }
 
     if (close_req == 1) {
         close_req = 0;
@@ -465,16 +456,18 @@ int SAMSUNG_S5JS100_STK::proactive_open_channel(void *msg, unsigned int msglen)
     offset += m.device_identy->length + 2;
 
     m.alpha_identifier = (uicc_alpha_identifier *)(b + offset);
-    if ((m.alpha_identifier->tag & 0x7F) == BER_COMP_alpha_identifier_tag)
+    if ((m.alpha_identifier->tag & 0x7F) == BER_COMP_alpha_identifier_tag) {
         offset += m.alpha_identifier->length + 2;
-    else
+    } else {
         m.alpha_identifier = NULL;
+    }
 
     m.icon_identifier = (uicc_icon_identifier *)(b + offset);
-    if ((m.icon_identifier->tag & 0x7F) == BER_COMP_icon_identifier_tag)
+    if ((m.icon_identifier->tag & 0x7F) == BER_COMP_icon_identifier_tag) {
         offset += m.icon_identifier->length + 2;
-    else
+    } else {
         m.icon_identifier = NULL;
+    }
 
     m.bearer_description = (uicc_bearer_description *)(b + offset);
     offset += m.bearer_description->length + 2;
@@ -483,53 +476,60 @@ int SAMSUNG_S5JS100_STK::proactive_open_channel(void *msg, unsigned int msglen)
     offset += m.buffer_size->length + 2;
 
     m.local_address = (uicc_other_address *)(b + offset);
-    if ((m.local_address->tag & 0x7F) == BER_COMP_other_address_tag)
+    if ((m.local_address->tag & 0x7F) == BER_COMP_other_address_tag) {
         offset += m.local_address->length + 2;
-    else
+    } else {
         m.local_address = NULL;
+    }
 
-    m.network_access_name= (uicc_network_access_name*)(b + offset);
-    if ((m.network_access_name->tag & 0x7F) == BER_COMP_nerwork_access_name_tag)
+    m.network_access_name = (uicc_network_access_name *)(b + offset);
+    if ((m.network_access_name->tag & 0x7F) == BER_COMP_nerwork_access_name_tag) {
         offset += m.network_access_name->length + 2;
-    else
+    } else {
         m.network_access_name = NULL;
+    }
 
     m.user_login = (uicc_text_string *)(b + offset);
-    if ((m.user_login->tag & 0x7F) == BER_COMP_text_string_tag)
+    if ((m.user_login->tag & 0x7F) == BER_COMP_text_string_tag) {
         offset += m.user_login->length + 2;
-    else
+    } else {
         m.user_login = NULL;
+    }
 
     m.user_password = (uicc_text_string *)(b + offset);
-    if ((m.user_password->tag & 0x7F) == BER_COMP_text_string_tag)
+    if ((m.user_password->tag & 0x7F) == BER_COMP_text_string_tag) {
         offset += m.user_password->length + 2;
-    else
+    } else {
         m.user_password = NULL;
+    }
 
     m.uicc_terminal_interface_transport_level = (uicc_uicc_terminal_interface_transport_level *)(b + offset);
-    if ((m.uicc_terminal_interface_transport_level->tag & 0x7F) == BER_COMP_uicc_uicc_terminal_interface_transport_level)
+    if ((m.uicc_terminal_interface_transport_level->tag & 0x7F) == BER_COMP_uicc_uicc_terminal_interface_transport_level) {
         offset += m.uicc_terminal_interface_transport_level->length + 2;
-    else
+    } else {
         m.uicc_terminal_interface_transport_level = NULL;
+    }
 
     m.data_destination_address = (uicc_other_address *)(b + offset);
-    if ((m.data_destination_address->tag & 0x7F) == BER_COMP_other_address_tag)
+    if ((m.data_destination_address->tag & 0x7F) == BER_COMP_other_address_tag) {
         offset += m.data_destination_address->length + 2;
-    else
+    } else {
         m.data_destination_address = NULL;
+    }
 
     m.text_attribute = (uicc_text_attribute *)(b + offset);
-    if ((m.text_attribute->tag & 0x7F) == BER_COMP_text_string_tag)
+    if ((m.text_attribute->tag & 0x7F) == BER_COMP_text_string_tag) {
         offset += m.text_attribute->length + 2;
-    else
+    } else {
         m.text_attribute = NULL;
+    }
 
     m.frame_identifier = (uicc_frame_identifier *)(b + offset);
-    if ((m.frame_identifier->tag & 0x7F) != BER_COMP_frame_identifier_tag)
+    if ((m.frame_identifier->tag & 0x7F) != BER_COMP_frame_identifier_tag) {
         m.frame_identifier = NULL;
+    }
 
-    if (check_device_identy(m.device_identy))
-    {
+    if (check_device_identy(m.device_identy)) {
         tr_error("%s device_identy fail", __func__);
         return -1;
     }
@@ -558,14 +558,16 @@ int SAMSUNG_S5JS100_STK::proactive_open_channel(void *msg, unsigned int msglen)
         SAMSUNG_S5JS100_STK_DBG("Local address : %d.%d.%d.%d", m.local_address->address[0], m.local_address->address[1], m.local_address->address[2], m.local_address->address[3]);
     }
     memset(tbuf, 0, 32);
-    if (m.user_login != NULL)
+    if (m.user_login != NULL) {
         memcpy(tbuf, m.user_login->text_string, m.user_login->length - 1);
+    }
     tbuf[31] = 0;
     SAMSUNG_S5JS100_STK_DBG("User login (%d): %s", m.user_login->length, tbuf);
 
     memset(tbuf, 0, 32);
-    if (m.user_password != NULL)
+    if (m.user_password != NULL) {
         memcpy(tbuf, m.user_password->text_string, m.user_password->length - 1);
+    }
     tbuf[31] = 0;
     SAMSUNG_S5JS100_STK_DBG("User paswd (%d): %s", m.user_password->length, tbuf);
     SAMSUNG_S5JS100_STK_DBG("protocol type : 0x%X", (m.uicc_terminal_interface_transport_level == NULL) ? 0 : m.uicc_terminal_interface_transport_level->transport_protocol_type);
@@ -578,7 +580,7 @@ int SAMSUNG_S5JS100_STK::proactive_open_channel(void *msg, unsigned int msglen)
             SAMSUNG_S5JS100_STK_DBG("Dest  address : %d.%d.%d.%d", m.data_destination_address->address[0], m.data_destination_address->address[1], m.data_destination_address->address[2], m.data_destination_address->address[3]);
         } else {
             SAMSUNG_S5JS100_STK_DBG("Dest  address : %d.%d.%d.%d.%d.%d", m.data_destination_address->address[0], m.data_destination_address->address[1], m.data_destination_address->address[2], m.data_destination_address->address[3],
-                                                                    m.data_destination_address->address[5], m.data_destination_address->address[6]);
+                                    m.data_destination_address->address[5], m.data_destination_address->address[6]);
         }
     }
 
@@ -650,8 +652,7 @@ int SAMSUNG_S5JS100_STK::proactive_close_channel(void *msg, unsigned int msglen)
     offset += m.text_attribute->length + 2;
     m.frame_identifier = (uicc_frame_identifier *)(b + offset);
 
-    if (check_device_identy(m.device_identy))
-    {
+    if (check_device_identy(m.device_identy)) {
         tr_error("%s device_identy fail", __func__);
         return -1;
     }
@@ -687,32 +688,35 @@ void receive_work_task(void)
     offset += m.device_identy->length + 2;
 
     m.alpha_identifier = (uicc_alpha_identifier *)(b + offset);
-    if ((m.alpha_identifier->tag & 0x7F) == BER_COMP_alpha_identifier_tag)
+    if ((m.alpha_identifier->tag & 0x7F) == BER_COMP_alpha_identifier_tag) {
         offset += m.alpha_identifier->length + 2;
-    else
+    } else {
         m.alpha_identifier = NULL;
+    }
 
     m.icon_identifier = (uicc_icon_identifier *)(b + offset);
-    if ((m.icon_identifier->tag & 0x7F) == BER_COMP_icon_identifier_tag)
+    if ((m.icon_identifier->tag & 0x7F) == BER_COMP_icon_identifier_tag) {
         offset += m.icon_identifier->length + 2;
-    else
+    } else {
         m.icon_identifier = NULL;
+    }
 
     m.channel_data_length = (uicc_channel_data_length *)(b + offset);
     offset += m.channel_data_length->length + 2;
 
     m.text_attribute = (uicc_text_attribute *)(b + offset);
-    if ((m.text_attribute->tag & 0x7F) == BER_COMP_text_string_tag)
+    if ((m.text_attribute->tag & 0x7F) == BER_COMP_text_string_tag) {
         offset += m.text_attribute->length + 2;
-    else
+    } else {
         m.text_attribute = NULL;
+    }
 
     m.frame_identifier = (uicc_frame_identifier *)(b + offset);
-    if ((m.frame_identifier->tag & 0x7F) != BER_COMP_frame_identifier_tag)
+    if ((m.frame_identifier->tag & 0x7F) != BER_COMP_frame_identifier_tag) {
         m.frame_identifier = NULL;
+    }
 
-    if (check_device_identy(m.device_identy))
-    {
+    if (check_device_identy(m.device_identy)) {
         tr_error("%s device_identy fail", __func__);
         free(receive_msg);
         return;
@@ -746,8 +750,9 @@ void receive_work_task(void)
 
     while (receive_msg_size  < recv_length) {
         evt = recv_queue.get(osWaitForever);
-        if (evt.status != (osStatus)osEventMessage)
+        if (evt.status != (osStatus)osEventMessage) {
             break;
+        }
 
         rbuf = (recv_buf *)(evt.value.p);
         if (recv_length >= rbuf->bufsize + receive_msg_size) {
@@ -771,10 +776,11 @@ void receive_work_task(void)
     usat_mutex.lock();
     total_recv_size -= receive_msg_size - RECV_HRD_SIZE - short_length_mode;
 
-    if (total_recv_size > 0xFF)
+    if (total_recv_size > 0xFF) {
         receive_data_success[receive_msg_size + 2] = 0xFF;
-    else
+    } else {
         receive_data_success[receive_msg_size + 2] = (char)(total_recv_size & 0xFF);
+    }
     usat_mutex.unlock();
 
     receive_msg_size += 3;
@@ -786,8 +792,9 @@ void receive_work_task(void)
 
 int SAMSUNG_S5JS100_STK::proactive_receive_data(void *msg, unsigned int msglen)
 {
-    while ((receive_msg = (void *)malloc(msglen)) == NULL)
+    while ((receive_msg = (void *)malloc(msglen)) == NULL) {
         ThisThread::sleep_for(1000);
+    }
     receive_msglen = msglen;
     memcpy(receive_msg, msg, msglen);
     usat_wqueue->call(receive_work_task);
@@ -823,32 +830,35 @@ void send_work_task(void)
     offset += m.device_identy->length + 2;
 
     m.alpha_identifier = (uicc_alpha_identifier *)(b + offset);
-    if ((m.alpha_identifier->tag & 0x7F) == BER_COMP_alpha_identifier_tag)
+    if ((m.alpha_identifier->tag & 0x7F) == BER_COMP_alpha_identifier_tag) {
         offset += m.alpha_identifier->length + 2;
-    else
+    } else {
         m.alpha_identifier = NULL;
+    }
 
     m.icon_identifier = (uicc_icon_identifier *)(b + offset);
-    if ((m.icon_identifier->tag & 0x7F) == BER_COMP_icon_identifier_tag)
+    if ((m.icon_identifier->tag & 0x7F) == BER_COMP_icon_identifier_tag) {
         offset += m.icon_identifier->length + 2;
-    else
+    } else {
         m.icon_identifier = NULL;
+    }
 
     m.channel_data = (uicc_channel_data *)(b + offset);
     offset += m.channel_data->length + 2;
 
     m.text_attribute = (uicc_text_attribute *)(b + offset);
-    if ((m.text_attribute->tag & 0x7F) == BER_COMP_text_string_tag)
+    if ((m.text_attribute->tag & 0x7F) == BER_COMP_text_string_tag) {
         offset += m.text_attribute->length + 2;
-    else
+    } else {
         m.text_attribute = NULL;
+    }
 
     m.frame_identifier = (uicc_frame_identifier *)(b + offset);
-    if ((m.frame_identifier->tag & 0x7F) != BER_COMP_frame_identifier_tag)
+    if ((m.frame_identifier->tag & 0x7F) != BER_COMP_frame_identifier_tag) {
         m.frame_identifier = NULL;
+    }
 
-    if (check_device_identy(m.device_identy))
-    {
+    if (check_device_identy(m.device_identy)) {
         tr_error("%s device_identy fail", __func__);
         free(send_msg);
         return;
@@ -872,24 +882,27 @@ void send_work_task(void)
 
     if (details->qualifier == 1) {
         if (send_stored_size == 0) {
-            if (stk->tcpudpmode)
+            if (stk->tcpudpmode) {
                 stk->connection.udp.send(m.channel_data->channel_data_string, m.channel_data->length);
-            else
+            } else {
                 stk->connection.tcp.send(m.channel_data->channel_data_string, m.channel_data->length);
+            }
         } else {
             memcpy(send_stored_buf + send_stored_size, m.channel_data->channel_data_string, m.channel_data->length);
             send_stored_size += m.channel_data->length;
-            if (stk->tcpudpmode)
+            if (stk->tcpudpmode) {
                 stk->connection.udp.send(send_stored_buf, send_stored_size);
-            else
+            } else {
                 stk->connection.tcp.send(send_stored_buf, send_stored_size);
+            }
 
             free(send_stored_buf);
             send_stored_size = 0;
         }
     } else {
-        while ((send_stored_buf = (char *)malloc(4096)) == NULL)
+        while ((send_stored_buf = (char *)malloc(4096)) == NULL) {
             ThisThread::sleep_for(1000);
+        }
         memcpy(send_stored_buf + send_stored_size, m.channel_data->channel_data_string, m.channel_data->length);
         send_stored_size += m.channel_data->length;
     }
@@ -900,8 +913,9 @@ void send_work_task(void)
 
 int SAMSUNG_S5JS100_STK::proactive_send_data(void *msg, unsigned int msglen)
 {
-    while ((send_msg = (void *)malloc(msglen)) == NULL)
+    while ((send_msg = (void *)malloc(msglen)) == NULL) {
         ThisThread::sleep_for(1000);
+    }
     memcpy(send_msg, msg, msglen);
     send_msglen = msglen;
     usat_wqueue->call(send_work_task);
@@ -920,8 +934,7 @@ int SAMSUNG_S5JS100_STK::proactive_get_channel_status(void *msg, unsigned int ms
     offset += sizeof(uicc_proactive_cmd_hrd);
     m.device_identy = (uicc_device_identities *)(b + offset);
 
-    if (check_device_identy(m.device_identy))
-    {
+    if (check_device_identy(m.device_identy)) {
         tr_error("%s device_identy fail", __func__);
         return -1;
     }
@@ -941,8 +954,7 @@ int SAMSUNG_S5JS100_STK::proactive_get_channel_status(void *msg, unsigned int ms
 int SAMSUNG_S5JS100_STK::envelope_data_available(unsigned char channel_status0, unsigned char channel_status1, unsigned int receive_data_length)
 {
     unsigned char total_length = 16;
-    static unsigned char envelope_data_available_msg[17] =
-    {
+    static unsigned char envelope_data_available_msg[17] = {
         BER_TLV_EVENT_DOWNLOAD, 14,
         BER_COMP_event_list_tag, 0x01, UICC_EVENT_Data_available,
         BER_COMP_device_identity_tag, 0x02, 0x82, 0x81,
@@ -965,8 +977,7 @@ int SAMSUNG_S5JS100_STK::envelope_data_available(unsigned char channel_status0, 
 int SAMSUNG_S5JS100_STK::envelope_channel_status(unsigned char channel_status0, unsigned char channel_status1, unsigned char addr_type, unsigned char *ipaddr)
 {
     unsigned char total_length = 13;
-    static unsigned char envelope_channel_status_msg[13] =
-    {
+    static unsigned char envelope_channel_status_msg[13] = {
         BER_TLV_EVENT_DOWNLOAD, 11,
         0x99, 0x01, UICC_EVENT_Channel_status,
         0x82, 0x02, 0x82, 0x81,

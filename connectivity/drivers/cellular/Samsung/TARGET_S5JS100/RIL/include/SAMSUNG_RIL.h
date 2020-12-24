@@ -26,8 +26,7 @@
 class IRadioResponse;
 class IRadioIndication;
 
-class IRadio
-{
+class IRadio {
 public:
     virtual ~IRadio() {}
     virtual void setRadioPower(bool on) = 0;
@@ -62,8 +61,7 @@ public:
     virtual void setScrLine(int line) = 0;
 };
 
-class IRadioResponse
-{
+class IRadioResponse {
 public:
     virtual ~IRadioResponse() {}
     virtual void setRadioPowerResponse(ResponseInfo *responseInfo) = 0;
@@ -94,8 +92,7 @@ public:
     virtual void setScrLineResponse(ResponseInfo *responseInfo) = 0;
 };
 
-class IRadioIndication
-{
+class IRadioIndication {
 public:
     virtual ~IRadioIndication() {}
     virtual void radioStateChangedInd(int radioState) = 0;

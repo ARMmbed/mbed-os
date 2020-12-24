@@ -24,21 +24,18 @@
 #include "SAMSUNG_RIL_constdef.h"
 #include "SAMSUNG_RIL_type.h"
 
-typedef struct RequestInfo
-{
+typedef struct RequestInfo {
     unsigned int token;
     RIL_Token t;
     int timeoutTickCount;
     struct RequestInfo *p_next;
 } RequestInfo;
 
-namespace mbed
-{
+namespace mbed {
 class SAMSUNG_S5JS100_MODEM_PROXY;
 
 
-class SAMSUNG_S5JS100_RIL_IF
-{
+class SAMSUNG_S5JS100_RIL_IF {
 private:
     struct RIL_Env mCallback;
     RIL_RadioState mOverallRadioState;

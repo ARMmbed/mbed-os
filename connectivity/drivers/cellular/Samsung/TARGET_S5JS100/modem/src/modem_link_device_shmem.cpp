@@ -150,39 +150,37 @@ int ShmemIpcDevice::xmit_ipc_msg(mio_buf *msg)
 #endif
 
 
-    while(1) {
-         /* Acquire the spin lock for a TXQ */
-         tx_lock->lock();
+    while (1) {
+        /* Acquire the spin lock for a TXQ */
+        tx_lock->lock();
 
-         /* Get the size of free space in the TXQ */
-         space = get_txq_space();
-         if (space < 0)
-         {
-             /* TXQ ERROR */
-             copied = -EIO;
-      tx_lock->unlock();
-             return copied;//break;
-         }
+        /* Get the size of free space in the TXQ */
+        space = get_txq_space();
+        if (space < 0) {
+            /* TXQ ERROR */
+            copied = -EIO;
+            tx_lock->unlock();
+            return copied;//break;
+        }
 
-         /* TO DO - check free memory space if it fits all headres !!!
-      Check the free space size,
-           - FMT : comparing with mxb->len
-           - RAW : check used buffer size  */
-         chk_nospc = (space < msg->len) ? true : false;
+        /* TO DO - check free memory space if it fits all headres !!!
+        Check the free space size,
+          - FMT : comparing with mxb->len
+          - RAW : check used buffer size  */
+        chk_nospc = (space < msg->len) ? true : false;
 
-         if (chk_nospc)
-         {
-      /* TO DO - implement this back pressure to operate properly. */
-             tr_error("No TX space for ch[%d] %s:%d\n", msg->ch, __func__, __LINE__);
-             /* Set res_required flag for the "dev" */
-             res_required = 1;
-             /* Take the mxb back to the mxb_txq */
-             //mbuf_queue_head(txq, mxb);
-             tx_lock->unlock();
-             ThisThread::sleep_for(100);
-         } else {
-             break;
-         }
+        if (chk_nospc) {
+            /* TO DO - implement this back pressure to operate properly. */
+            tr_error("No TX space for ch[%d] %s:%d\n", msg->ch, __func__, __LINE__);
+            /* Set res_required flag for the "dev" */
+            res_required = 1;
+            /* Take the mxb back to the mxb_txq */
+            //mbuf_queue_head(txq, mxb);
+            tx_lock->unlock();
+            ThisThread::sleep_for(100);
+        } else {
+            break;
+        }
     }
 
     /* TX only when there is enough space in the TXQ */
@@ -334,7 +332,7 @@ int ShmemLinkDevice::ShmemLinkDevice_stop(void)
 
     mcpu_reset();
 
-return 0;
+    return 0;
 }
 
 void ShmemLinkDevice::mcpu_wd_task(void)
@@ -394,7 +392,7 @@ int ShmemLinkDevice::ShmemLinkDevice_start(void)
     NVIC_SetVector(S5JS100_IRQ_MCPU_WDT, (uint32_t)cp_wd_handler);
     NVIC_EnableIRQ(S5JS100_IRQ_MCPU_WDT);
 
-    if(!init) {
+    if (!init) {
         init = 1;
         MODEM_LINK_DEVICE_SHMEM_DBG("%s\n", __func__);
         msgrxwork = new rtos::Thread(osPriorityNormal, 2048, NULL, "msgrxwork");
@@ -413,23 +411,23 @@ int ShmemLinkDevice::ShmemLinkDevice_start(void)
 int ShmemLinkDevice::ShmemLinkDevice_restart(void)
 {
 
-/*
-To emulate:
-    "AT+FCRASHDMP=1" => generate CRASH
-    "AT+FCRASHDMP=2" => generate WDOG
-*/
+    /*
+    To emulate:
+        "AT+FCRASHDMP=1" => generate CRASH
+        "AT+FCRASHDMP=2" => generate WDOG
+    */
 #if 0
     NVIC_DisableIRQ(S5JS100_IRQ_MCPU_WDT);
     NVIC_ClearPendingIRQ(S5JS100_IRQ_MCPU_WDT);
     NVIC_DisableIRQ(S5JS100_IRQ_MAILBOX_AP_INT);
     mcpu_reset();
-/* TODO add code to restart RIL, Stack, etc ... */
+    /* TODO add code to restart RIL, Stack, etc ... */
 
 
 
 
 
-/* Start of Modem */
+    /* Start of Modem */
     mbox_init();
     putreg32(0, shmem_access);
     putreg32(0, shmem_magic);
@@ -440,13 +438,13 @@ To emulate:
     NVIC_SetVector(S5JS100_IRQ_MCPU_WDT, (uint32_t)cp_wd_handler);
     NVIC_EnableIRQ(S5JS100_IRQ_MCPU_WDT);
 
-/* Add extra code to complete restart */
+    /* Add extra code to complete restart */
 
 
 #endif
     // Notify App about failure ...
 
-    if((shmem_start) && (fail_cb)) {
+    if ((shmem_start) && (fail_cb)) {
         fail_cb();
     }
 
@@ -621,7 +619,7 @@ int ShmemIpcDevice::rx_ipc_frames(void)
         }
 
         for (i = 0; i < EXYNOS_HEADER_SIZE / sizeof(unsigned int); i ++) {
-            hdr.int_hdr[i] = rxq.buff[out/sizeof(unsigned int)];
+            hdr.int_hdr[i] = rxq.buff[out / sizeof(unsigned int)];
             out += sizeof(unsigned int);
             if (out >= rxq.size) {
                 out = 0;
@@ -740,13 +738,13 @@ void ShmemLinkDevice::rx_cmd_phone_start(void)
 
     send_int2cp(INT_CMD(INT_CMD_INIT_END));
 
-    if(!(get_mbx_cp2ap_status() & STAT_LTE_ACTIVE)) {
-       	if(mcpu_failed_to_start_id != 0) {
-	    modem_link_device_wqueue->cancel(mcpu_failed_to_start_id);
-	    mcpu_failed_to_start_id = 0;
-	}
+    if (!(get_mbx_cp2ap_status() & STAT_LTE_ACTIVE)) {
+        if (mcpu_failed_to_start_id != 0) {
+            modem_link_device_wqueue->cancel(mcpu_failed_to_start_id);
+            mcpu_failed_to_start_id = 0;
+        }
         modem_link_device_wqueue->call(this, &ShmemLinkDevice::mcpu_failed_to_start);
-    tr_error("Modem is not ready, CP2AP status %x", get_mbx_cp2ap_status());
+        tr_error("Modem is not ready, CP2AP status %x", get_mbx_cp2ap_status());
     }
 }
 
@@ -841,10 +839,10 @@ void ShmemLinkDevice::msg_handler(void)
             while (1);
 
         ipc->done_req_ack();
-	if(mcpu_failed_to_start_id != 0) {
-		modem_link_device_wqueue->cancel(mcpu_failed_to_start_id);
-		mcpu_failed_to_start_id = 0;
-	}
+        if (mcpu_failed_to_start_id != 0) {
+            modem_link_device_wqueue->cancel(mcpu_failed_to_start_id);
+            mcpu_failed_to_start_id = 0;
+        }
     }
 }
 

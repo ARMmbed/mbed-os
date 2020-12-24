@@ -335,10 +335,10 @@ extern "C" {
     {
         char mio_name[32] = "shmem_save";
 
-        if(!cur_save_target) {
-                cur_save_target = REQ_CS_MSG;
-                shmem_mio = getModemIoDeviceByName(mio_name);
-                shmem_mio->register_ReadCb(shmem_initiate_cb, NULL);
+        if (!cur_save_target) {
+            cur_save_target = REQ_CS_MSG;
+            shmem_mio = getModemIoDeviceByName(mio_name);
+            shmem_mio->register_ReadCb(shmem_initiate_cb, NULL);
         }
     }
 
